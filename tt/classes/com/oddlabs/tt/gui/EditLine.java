@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.util.Keyboard;
 
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLineRenderer;

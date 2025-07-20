@@ -17,7 +17,7 @@ import java.net.HttpURLConnection;
 import javax.swing.ProgressMonitor;
 import java.util.regex.Pattern;
 
-import com.oddlabs.tt.render.Display;
+import com.oddlabs.util.Display;
 
 final strictfp class Uploader {
 	private final static String STD_OUT_PATTERN = "std\\.out";

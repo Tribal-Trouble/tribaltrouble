@@ -1,4 +1,4 @@
-package com.oddlabs.tt.render;
+package com.oddlabs.util;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -8,8 +8,8 @@ import org.lwjgl.system.MemoryUtil;
 
 import static org.lwjgl.opengl.GL11.*;
 
-import com.oddlabs.tt.input.Keyboard;
-import com.oddlabs.tt.input.Mouse;
+import com.oddlabs.util.Keyboard;
+import com.oddlabs.util.Mouse;
 
 public final strictfp class Display {
     private static long window;

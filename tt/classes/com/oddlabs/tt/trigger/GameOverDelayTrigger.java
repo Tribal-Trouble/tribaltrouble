@@ -2,7 +2,7 @@ package com.oddlabs.tt.trigger;
 
 import java.util.ResourceBundle;
 
-import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.util.Keyboard;
 
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;

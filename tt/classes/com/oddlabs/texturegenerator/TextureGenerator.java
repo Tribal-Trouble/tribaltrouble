@@ -7,7 +7,7 @@ import com.oddlabs.tt.render.SpriteList;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.BillboardPainter;
-import com.oddlabs.tt.render.Display;
+import com.oddlabs.util.Display;
 import com.oddlabs.tt.render.PixelFormat;
 import com.oddlabs.tt.render.GW;
 import com.oddlabs.tt.resource.Resources;

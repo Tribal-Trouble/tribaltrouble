@@ -1,6 +1,6 @@
 package com.oddlabs.tt.delegate;
 
-import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.util.Keyboard;
 
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.render.Picker;

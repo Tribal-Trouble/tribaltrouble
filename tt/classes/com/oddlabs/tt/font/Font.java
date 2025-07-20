@@ -7,7 +7,7 @@ import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.util.FontInfo;
 
-import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL33;
 
 public final strictfp class Font {
 	private final Quad[] key_array;
@@ -19,15 +19,22 @@ public final strictfp class Font {
 	public Font(FontInfo font_info) {
 		this.key_array = font_info.getKeyMap();
 		TextureFile file = new TextureFile(font_info.getTextureName(),
-										   GL11.GL_RGBA,
-										   GL11.GL_LINEAR,
-										   GL11.GL_LINEAR,
-										   GL11.GL_REPEAT,
-										   GL11.GL_REPEAT);
+										   GL33.GL_RGBA,
+										   GL33.GL_LINEAR,
+										   GL33.GL_LINEAR,
+										   GL33.GL_REPEAT,
+										   GL33.GL_REPEAT);
 		this.texture = (Texture)Resources.findResource(file);
 		this.x_border = font_info.getBorderX();
 		this.y_border = font_info.getBorderY();
 		this.height = font_info.getHeight();
+
+        int tex = texture.getHandle();
+        for (int i = 0; i < key_array.length; i++) {
+            if (key_array[i] != null) {
+                key_array[i].setTexture(tex);
+            }
+        }
 	}
 
 	public final Quad getQuad(char c) {
@@ -35,23 +42,15 @@ public final strictfp class Font {
 	}
 
 	public final void setup() {
-		GL11.glEnd();
-		setupQuads();
 	}
 
 	public final void setupQuads() {
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
 	}
 
 	public final void resetQuads() {
-		GL11.glEnd();
 	}
 
 	public final void reset() {
-		resetQuads();
-		Skin.getSkin().bindTexture();
-		GL11.glBegin(GL11.GL_QUADS);
 	}
 
 	public final int getXBorder() {

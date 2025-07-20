@@ -11,8 +11,8 @@ import org.lwjgl.glfw.GLFWVidMode;
 
 import org.lwjgl.opengl.GL11;
 
-import com.oddlabs.tt.input.Keyboard;
-import com.oddlabs.tt.input.Mouse;
+import com.oddlabs.util.Keyboard;
+import com.oddlabs.util.Mouse;
 
 import java.nio.IntBuffer;
 

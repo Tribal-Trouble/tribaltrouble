@@ -25,7 +25,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.net.NetworkSelector;
 
-import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.util.Keyboard;
 
 public final strictfp class CampaignMapForm extends CameraDelegate {
 	private final static int base_width = 800;

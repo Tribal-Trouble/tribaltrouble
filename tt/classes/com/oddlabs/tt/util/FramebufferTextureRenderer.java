@@ -1,7 +1,7 @@
 package com.oddlabs.tt.util;
 
 import org.lwjgl.BufferUtils;
-import com.oddlabs.tt.render.Display;
+import com.oddlabs.util.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.EXTFramebufferObject;
 

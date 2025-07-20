@@ -1,9 +1,9 @@
-package com.oddlabs.tt.input;
+package com.oddlabs.util;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWCharCallback;
-import com.oddlabs.tt.render.Display;
+import com.oddlabs.util.Display;
 
 import java.util.Queue;
 import java.util.LinkedList;

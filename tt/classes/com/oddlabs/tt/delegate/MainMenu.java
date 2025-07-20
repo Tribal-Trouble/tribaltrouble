@@ -3,7 +3,7 @@ package com.oddlabs.tt.delegate;
 import java.net.InetAddress;
 import java.util.ResourceBundle;
 
-import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.util.Keyboard;
 
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.camera.Camera;

@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL33;
 
-import com.oddlabs.tt.render.Display;
+import com.oddlabs.util.Display;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
@@ -136,7 +136,7 @@ public final strictfp class GUIImage extends GUIObject {
 
         GL33.glUseProgram(program);
         GL33.glDisable(GL33.GL_CULL_FACE);
-        GL33.glDisable(GL33.GL_BLEND);
+        GL33.glEnable(GL33.GL_BLEND);
         GL33.glDisable(GL33.GL_DEPTH_TEST);
         GL33.glEnable(GL33.GL_TEXTURE_2D);
         GL33.glActiveTexture(GL33.GL_TEXTURE0);

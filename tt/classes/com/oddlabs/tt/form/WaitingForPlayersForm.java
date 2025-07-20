@@ -2,7 +2,7 @@ package com.oddlabs.tt.form;
 
 import java.util.ResourceBundle;
 
-import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.util.Keyboard;
 
 import com.oddlabs.tt.gui.CancelListener;
 import com.oddlabs.tt.gui.Form;

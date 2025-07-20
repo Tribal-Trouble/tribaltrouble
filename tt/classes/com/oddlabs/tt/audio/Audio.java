@@ -10,7 +10,7 @@ import org.lwjgl.openal.AL10;
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.util.ByteBufferOutputStream;
 
-import com.oddlabs.tt.render.Display;
+import com.oddlabs.util.Display;
 
 public final strictfp class Audio extends NativeResource {
 	private final IntBuffer al_buffers;

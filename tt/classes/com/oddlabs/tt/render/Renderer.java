@@ -31,12 +31,12 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.opengl.ARBMultisample;
-import com.oddlabs.tt.render.Display;
+import com.oddlabs.util.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL;
-import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.util.Keyboard;
 
 import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.openal.AL10.*;
@@ -82,6 +82,7 @@ import com.oddlabs.tt.form.WarningForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.GlobalsInit;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.font.*;
 import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.CounterLabel;
 import com.oddlabs.tt.gui.Fadable;
@@ -471,7 +472,10 @@ System.out.println("Init done after " + startup_timei);
 		ambient = new AmbientAudio(AudioManager.getManager());
 
         //setupMainMenu(network, gui, true);
-		
+
+        Font font = Skin.getSkin().getHeadlineFont();
+        TextBoxRenderer textRender = new TextBoxRenderer(font, 600, 100);
+
 		GUIImage image = new GUIImage(Display.getWidth(), Display.getHeight(), 0f, 0f, 800.0f/1024.0f, 600.0f/1024.0f, "/textures/gui/mainmenu");
         image.setPos(0, 0);
 
@@ -490,12 +494,12 @@ System.out.println("Init done after " + startup_timei);
                 GL33.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                 GL33.glClearDepth(1.0f);
                 GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
-                GL33.glDisable(GL33.GL_DEPTH_TEST);
                 GL33.glViewport(0, 0, Display.getWidth(), Display.getHeight());
 
                 //display(gui);
                 
                 image.renderGeometry();
+                textRender.render(20, Display.getHeight() - 200, "That was super easy. Barely an inconvenience");
 
 				Display.update();
 				

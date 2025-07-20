@@ -1,7 +1,7 @@
 package com.oddlabs.tt.input;
 
-import com.oddlabs.tt.input.Keyboard;
-import com.oddlabs.tt.render.Display;
+import com.oddlabs.util.Keyboard;
+import com.oddlabs.util.Display;
 
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.event.Deterministic;

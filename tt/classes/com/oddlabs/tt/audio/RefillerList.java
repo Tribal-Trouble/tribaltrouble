@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.lwjgl.openal.AL;
 
-import com.oddlabs.tt.render.Display;
+import com.oddlabs.util.Display;
 
 public final strictfp class RefillerList {
 	private final static int THREAD_SLEEP_MILLIS = 50;

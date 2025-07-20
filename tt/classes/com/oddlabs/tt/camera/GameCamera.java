@@ -1,6 +1,6 @@
 package com.oddlabs.tt.camera;
 
-import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.util.Keyboard;
 
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;

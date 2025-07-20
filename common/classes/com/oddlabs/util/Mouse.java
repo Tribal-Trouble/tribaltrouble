@@ -1,12 +1,11 @@
-package com.oddlabs.tt.input;
+package com.oddlabs.util;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
 import org.lwjgl.system.MemoryUtil;
-import com.oddlabs.tt.render.Display;
-import com.oddlabs.tt.render.Cursor;
+import com.oddlabs.util.Display;
 
 import java.util.Queue;
 import java.util.LinkedList;
