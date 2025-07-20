@@ -24,6 +24,7 @@ import javax.swing.UIManager;
 import java.rmi.server.UID;
 import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
+import org.lwjgl.glfw.GLFW;
 
 import org.lwjgl.system.Platform;
 import org.lwjgl.BufferUtils;
@@ -33,6 +34,7 @@ import org.lwjgl.opengl.ARBMultisample;
 import com.oddlabs.tt.render.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL;
 import com.oddlabs.tt.input.Keyboard;
 
@@ -88,6 +90,7 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.landscape.AbstractTreeGroup;
@@ -168,6 +171,8 @@ public final strictfp class Renderer {
 	private Label games_left_label;
 	private boolean movie_recording_started = false;
 	private AmbientAudio ambient;
+
+    private static MainMenu main_menu = null;
 	
 	public final static float getFPS() {
 		return fps.getAveragePerUpdate();
@@ -456,7 +461,6 @@ System.out.println("affiliate_id equals trymedia");
 		if (!settings.inDeveloperMode() && !deterministic.isPlayback())
 			deleteOldLogs(last_event_log_dir, event_log_dir, event_logs_dir);
 		Skin.load();
-//Locale.setDefault(new Locale("da"));
 		GUI gui = new GUI(languages);
 
 		GlobalsInit.init();
@@ -466,30 +470,36 @@ long startup_timei = System.currentTimeMillis() - start_time;
 System.out.println("Init done after " + startup_timei);
 		ambient = new AmbientAudio(AudioManager.getManager());
 
-		setupMainMenu(network, gui, true);
+        //setupMainMenu(network, gui, true);
 		
+		GUIImage image = new GUIImage(Display.getWidth(), Display.getHeight(), 0f, 0f, 800.0f/1024.0f, 600.0f/1024.0f, "/textures/gui/mainmenu");
+        image.setPos(0, 0);
+
 		boolean reset_keyboard = false;
-// Registry hack for mikkel!
-/*try {
-String value = com.oddlabs.tt.util.WindowsRegistryInterface.queryRegistrationKey("HKEY_LOCAL_MACHINE", "HARDWARE\\DeviceMap\\Video", "\\Device\\Video0");
-System.out.println("value = " + value);
-} catch (Exception e) {
-e.printStackTrace();
-}*/
 		try {
 			while (!finished) {
-				runGameLoop(network, gui);
-				if (Display.isALCreated())
+				// runGameLoop(network, gui);
+			
+                if (Display.isALCreated())
 					AL10.alListenerf(AL10.AL_GAIN, 1f);
 				if (reset_keyboard) {
 					reset_keyboard = false;
 					LocalInput.getLocalInput().resetKeyboard();
 				}
-				if (!first_frame && !BackBufferRenderer.isBackBufferDirty()) {
-					Display.update();
-				}
-				display(gui);
-				if (first_frame) {
+				
+                GL33.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                GL33.glClearDepth(1.0f);
+                GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
+                GL33.glDisable(GL33.GL_DEPTH_TEST);
+                GL33.glViewport(0, 0, Display.getWidth(), Display.getHeight());
+
+                //display(gui);
+                
+                image.renderGeometry();
+
+				Display.update();
+				
+                if (first_frame) {
 					long startup_time = System.currentTimeMillis() - start_time;
 					System.out.println("First frame rendered after " + startup_time + " milliseconds");
 					first_frame = false;
@@ -637,7 +647,7 @@ e.printStackTrace();
 		Selection selection = new Selection(local_player);
 		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator);
 		setMusicPath("/music/menu.ogg", 0f);
-		MainMenu main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
+		main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
 		gui_root.pushDelegate(main_menu);
 		if (!isRegistered()) {
 			if (!Settings.getSettings().online) {
@@ -648,13 +658,8 @@ e.printStackTrace();
 					main_menu.setMenuCentered(new WelcomeForm(gui_root, main_menu));
 				}
 			}
-		}/*
-		if (first_progress && Settings.getSettings().warning_no_sound && !LocalInput.alIsCreated()) {
-			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
-			gui_root.addModalForm(new WarningForm(Utils.getBundleString(bundle, "sound_not_available_caption"), Utils.getBundleString(bundle, "sound_not_available_message")));
-		}*/
+		}
 		if (!initNetwork(network)) {
-//		if (true) {
 			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
 			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "network_not_available_caption"),
 						Utils.getBundleString(bundle, "network_not_available_message"),
@@ -665,13 +670,6 @@ e.printStackTrace();
 							}
 						}));
 		}
-		// We'll leave out the reporting, since checksum errors can happen when a peer is disconnected halway through it's EOT
-		// broadcast
-		/*		if (Globals.checksum_error_in_last_game) {
-				Globals.checksum_error_in_last_game = false;
-				ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
-				GUIRoot.getGUIRoot().addModalForm(new QuestionForm(Utils.getBundleString(bundle, "checksum_error_message"), new BugReportListener()));
-				}*/
 		return renderer;
 	}
 
@@ -791,8 +789,8 @@ System.out.println("fbo = " + Settings.getSettings().useFBO());
 System.out.println("use_texture_compression = " + Settings.getSettings().useTextureCompression());
 		/*if (Settings.getSettings().vsync)
 			Display.setVSyncEnabled(true);*/
-		initGL();
-		initVisibleGL();
+		/*initGL();
+		initVisibleGL();*/
 	}
 
 	private final void initAL() throws IllegalStateException {

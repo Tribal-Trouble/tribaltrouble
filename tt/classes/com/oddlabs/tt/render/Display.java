@@ -17,11 +17,11 @@ public final strictfp class Display {
     private static String title = "Tribal Trouble";
     private static int width = 1920;
     private static int height = 1080;
-    
+
     public static boolean isCreated() {
         return created;
     }
-    
+
     public static void create() {
         if (created) {
             return;
@@ -38,13 +38,10 @@ public final strictfp class Display {
         GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, videoMode.refreshRate());
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
         
-       /* GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
-        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);*/
+        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
 
-        // TODO: Consider using different resolutions when OpenGL is rewritten.
-        // The game only works with a specific resolution for now.
-        // We can't just use the current one from the system.
         width = videoMode.width();
         height = videoMode.height();
 
@@ -58,6 +55,9 @@ public final strictfp class Display {
         }
 
         GLFW.glfwMakeContextCurrent(window);
+        GLFW.glfwSwapInterval(1);
+        GLFW.glfwShowWindow(window);
+        
         GL.createCapabilities();
 
         created = true;
@@ -112,7 +112,7 @@ public final strictfp class Display {
     }
 
     public static String getClipboard() {
-        return "";//glfwGetClipboardString(window);
+        return GLFW.glfwGetClipboardString(window);
     }
 
     public static boolean isALCreated() {
