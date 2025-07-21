@@ -261,17 +261,14 @@
 			</fileset>
 			<fileset dir="${lib}">
 				<include name="lwjgl.jar" />
-				<include name="lwjgl-natives-linux.jar" />
 				<include name="lwjgl-glfw.jar" />
-				<include name="lwjgl-glfw-natives-linux.jar" />
 				<include name="lwjgl-opengl.jar" />
-				<include name="lwjgl-opengl-natives-linux.jar" />
 				<include name="lwjgl-openal.jar" />
-				<include name="lwjgl-openal-natives-linux.jar" />
 				<include name="lwjgl-jawt.jar" />
 				<include name="jorbis.jar" />
 				<include name="jsquish.jar" />
 			</fileset>
+			<path refid="${platform-natives}" />
 		</copy>
 
 		<copy todir="${dist}/common" file="../binaries/registration" />
@@ -315,6 +312,7 @@
 				<include name="lwjgl-openal-natives-windows.jar" />
 			</fileset>
 		</copy>
+		<copy todir="${dist}/windows/TribalTrouble" file="config.properties" />
 
 		<!-- Delete Linux libraries (Remove once linux libraries moved from dist/common/ ) -->
 		<delete>
@@ -327,28 +325,10 @@
 		</delete>
 	</target>
 	<!-- ant dist MUST be ran first. -->
-	<target name="build-mac">
+	<target name="build-mac" depends="dist">
 
 		<!-- Set app name -->
 		<property name="app_name" value="TribalTrouble" />
-		<!-- Delete Linux libraries (Remove once linux libraries moved from dist/common/ ) -->
-		<delete>
-			<fileset dir="${dist}/common">
-				<include name="lwjgl-natives-linux.jar" />
-				<include name="lwjgl-glfw-natives-linux.jar" />
-				<include name="lwjgl-opengl-natives-linux.jar" />
-				<include name="lwjgl-openal-natives-linux.jar" />
-			</fileset>
-		</delete>
-
-		<copy todir="${dist}/common">
-			<fileset dir="${lib}">
-				<include name="lwjgl-natives-macos-arm64.jar" />
-				<include name="lwjgl-glfw-natives-macos-arm64.jar" />
-				<include name="lwjgl-opengl-natives-macos-arm64.jar" />
-				<include name="lwjgl-openal-natives-macos-arm64.jar" />
-			</fileset>
-		</copy>
 
 		<exec executable="jpackage" dir="." failonerror="true">
 			<arg value="--name" />
