@@ -278,7 +278,7 @@
 	</target>
 
 	<!-- ant dist MUST be ran first. -->
-	<target name="build-windows">
+	<target name="build-windows" depends="dist">
 
 		<!-- Set app name -->
 		<property name="app_name" value="TribalTrouble" />
