@@ -27,6 +27,6 @@ jobs:
     - name: Upload files
       uses: actions/download-artifact@v4
       with:
-        name: Windows
+        name: windows
         path: tt/build/dist/windows/
     
