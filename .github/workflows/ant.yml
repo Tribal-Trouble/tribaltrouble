@@ -10,21 +10,7 @@ on:
     branches: [ "remastering_graphics" ]
   workflow_dispatch:
 
-jobs:
-  build:
-
-    runs-on: [ubuntu-latest, macos-13, macos-latest, windows-latest]
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-    - name: Build with Ant
-      run: ant -noinput -buildfile tt/build.xml dist
-      
+jobs:      
   build-windows:
   
     runs-on: windows-latest
@@ -38,3 +24,9 @@ jobs:
         distribution: 'temurin'
     - name: Build with Ant
       run: ant -noinput -buildfile tt/build.xml build-windows
+    - name: Upload files
+      uses: actions/download-artifact@v4
+      with:
+        name: Windows
+        path: tt/build/dist/windows/
+    
