@@ -16,13 +16,7 @@ public final strictfp class IconQuad extends Quad {
 	}
 
 	public final void render(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
-		GL11.glEnd();
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
-//		Icons.getIcons().bindTexture();
-		GL11.glBegin(GL11.GL_QUADS);
+        super.setTexture(texture.getHandle());
 		super.render(x1, y1, x2, y2, x3, y3, x4, y4);
-		GL11.glEnd();
-		Skin.getSkin().bindTexture();
-		GL11.glBegin(GL11.GL_QUADS);
 	}
 }

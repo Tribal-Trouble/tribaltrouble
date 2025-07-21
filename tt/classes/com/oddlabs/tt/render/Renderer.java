@@ -218,14 +218,14 @@ public final strictfp class Renderer {
 		if (!Globals.frustum_freeze) {
 			frustum_state.set(camera);
 		}
-		GL11.glMatrixMode(GL11.GL_PROJECTION);
+/*		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		proj.store(matrix_buf);
 		matrix_buf.rewind();
 		GL11.glLoadMatrixf(matrix_buf);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		camera.getModelView().store(matrix_buf);
 		matrix_buf.rewind();
-		GL11.glLoadMatrixf(matrix_buf);
+		GL11.glLoadMatrixf(matrix_buf);*/
 	}
 
 	public static void multProjection(StrictMatrix4f matrix) {
@@ -471,13 +471,13 @@ long startup_timei = System.currentTimeMillis() - start_time;
 System.out.println("Init done after " + startup_timei);
 		ambient = new AmbientAudio(AudioManager.getManager());
 
-        //setupMainMenu(network, gui, true);
+        setupMainMenu(network, gui, true);
 
-        Font font = Skin.getSkin().getHeadlineFont();
+      /*  Font font = Skin.getSkin().getHeadlineFont();
         TextBoxRenderer textRender = new TextBoxRenderer(font, 600, 100);
 
 		GUIImage image = new GUIImage(Display.getWidth(), Display.getHeight(), 0f, 0f, 800.0f/1024.0f, 600.0f/1024.0f, "/textures/gui/mainmenu");
-        image.setPos(0, 0);
+        image.setPos(0, 0);*/
 
 		boolean reset_keyboard = false;
 		try {
@@ -496,11 +496,11 @@ System.out.println("Init done after " + startup_timei);
                 GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
                 GL33.glViewport(0, 0, Display.getWidth(), Display.getHeight());
 
-                //display(gui);
-                
+                display(gui);
+              /*  
                 image.renderGeometry();
                 textRender.render(20, Display.getHeight() - 200, "That was super easy. Barely an inconvenience");
-
+*/
 				Display.update();
 				
                 if (first_frame) {
@@ -611,10 +611,11 @@ System.out.println("Init done after " + startup_timei);
 	}
 
 	private static void setupMainMenu(final NetworkSelector network, GUI gui, final boolean first_progress) {
-		final WorldGenerator generator = new IslandGenerator(256, Landscape.NATIVE, Globals.LANDSCAPE_HILLS, Globals.LANDSCAPE_VEGETATION, Globals.LANDSCAPE_RESOURCES, Globals.LANDSCAPE_SEED);
+		/*final WorldGenerator generator = new IslandGenerator(256, Landscape.NATIVE, Globals.LANDSCAPE_HILLS, Globals.LANDSCAPE_VEGETATION, Globals.LANDSCAPE_RESOURCES, Globals.LANDSCAPE_SEED);*/
 		ProgressForm.setProgressForm(network, gui, new LoadCallback() {
 			public final UIRenderer load(GUIRoot gui_root) {
-				return finishMainMenu(network, gui_root, first_progress, generator);
+			//	return finishMainMenu(network, gui_root, first_progress, generator);
+				return finishMainMenu(network, gui_root, first_progress, null);
 			}
 		}, first_progress);
 	}
@@ -626,7 +627,7 @@ System.out.println("Init done after " + startup_timei);
 		LandscapeResources landscape_resources = World.loadCommon(render_queues);
 		WorldParameters world_params = new WorldParameters(Game.GAMESPEED_NORMAL, "", 2, Player.DEFAULT_MAX_UNIT_COUNT);
 		PlayerInfo[] players = new PlayerInfo[]{player_info};
-		WorldInfo world_info = generator.generate(players.length, world_params.getInitialUnitCount(), 0f);
+		/*WorldInfo world_info = generator.generate(players.length, world_params.getInitialUnitCount(), 0f);
 		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {
 			public final void gamespeedChanged(int speed) {
 			}
@@ -644,25 +645,16 @@ System.out.println("Init done after " + startup_timei);
 			}
 			public final void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
 			}
-		}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Player.COLORS[0]});
+		}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Player.COLORS[0]});*/
 		AnimationManager manager = new AnimationManager();
-		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, gui_root, manager);
+		/*LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, gui_root, manager);
 		Player local_player = world.getPlayers()[0];
 		Selection selection = new Selection(local_player);
-		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator);
+		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator);*/
 		setMusicPath("/music/menu.ogg", 0f);
-		main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
+		// main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
+		main_menu = new MainMenu(network, gui_root, new MenuCamera(null, manager));
 		gui_root.pushDelegate(main_menu);
-		if (!isRegistered()) {
-			if (!Settings.getSettings().online) {
-				main_menu.setMenuCentered(new RegistrationForm(gui_root, false, main_menu));
-			} else if (Settings.getSettings().first_run) {
-				Settings.getSettings().first_run = false;
-				if (!(Settings.getSettings().hide_update || Settings.getSettings().hide_register)) {
-					main_menu.setMenuCentered(new WelcomeForm(gui_root, main_menu));
-				}
-			}
-		}
 		if (!initNetwork(network)) {
 			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
 			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "network_not_available_caption"),
@@ -674,7 +666,8 @@ System.out.println("Init done after " + startup_timei);
 							}
 						}));
 		}
-		return renderer;
+		// return renderer;
+		return null;
 	}
 
 	private static boolean initNetwork(NetworkSelector network) {

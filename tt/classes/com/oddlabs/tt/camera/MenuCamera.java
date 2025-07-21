@@ -18,7 +18,8 @@ public final strictfp class MenuCamera extends Camera {
 	private float center_angle;
 
 	public MenuCamera(World world, AnimationManager manager) {
-		super(world.getHeightMap(), new CameraState());
+		super(null, new CameraState());
+		//super(world.getHeightMap(), new CameraState());
 		this.world = world;
 		this.manager = manager;
 		reset();
@@ -40,7 +41,7 @@ public final strictfp class MenuCamera extends Camera {
 	
 	public final void doAnimate(float t) {
 		updatePos(t);
-		world.tick(t);
+		// world.tick(t);
 		manager.runAnimations(t);
 	}
 }

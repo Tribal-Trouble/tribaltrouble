@@ -42,7 +42,7 @@ final strictfp class Fade {
 	}
 
 	protected final void render() {
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
+	/*	GL11.glDisable(GL11.GL_TEXTURE_2D);
 		float alpha = (float)StrictMath.sin(StrictMath.PI*time/FADE_TIME);
 		GL11.glColor4f(0f, 0f, 0f, alpha);
 		GL11.glBegin(GL11.GL_QUADS);
@@ -52,6 +52,6 @@ final strictfp class Fade {
 		GL11.glVertex3f(0, LocalInput.getViewHeight(), 0f);
 		GL11.glEnd();
 		GL11.glColor4f(1f, 1f, 1f, 1f);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);*/
 	}
 }

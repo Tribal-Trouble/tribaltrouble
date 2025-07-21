@@ -155,13 +155,13 @@ public abstract strictfp class Renderable extends ListElementImpl {
 		}
 		ListElement current = children.getLast();
 		if (!(this instanceof GUIRoot)) {
-			GL11.glEnd();
+			/*GL11.glEnd();
 			GL11.glPushMatrix();
 			if (scale_x != 1f || scale_y != 1f) {
 				GL11.glScalef(scale_x, scale_y, 1f);
 			}
 			GL11.glTranslatef(getX(), getY(), 0);
-			GL11.glBegin(GL11.GL_QUADS);
+			GL11.glBegin(GL11.GL_QUADS);*/
 		}
 		renderGeometry(clip_left, clip_right, clip_bottom, clip_top);
 		if (current != null) {
@@ -172,9 +172,9 @@ public abstract strictfp class Renderable extends ListElementImpl {
 		}
 		postRender();
 		if (!(this instanceof GUIRoot)) {
-			GL11.glEnd();
+		/*	GL11.glEnd();
 			GL11.glPopMatrix();
-			GL11.glBegin(GL11.GL_QUADS);
+			GL11.glBegin(GL11.GL_QUADS);*/
 		}
 	}
 

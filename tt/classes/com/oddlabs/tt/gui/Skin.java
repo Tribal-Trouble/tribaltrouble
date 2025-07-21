@@ -183,10 +183,13 @@ public final strictfp class Skin {
 		Quad[] result = new Quad[3];
 		Node normal = getNodeByName("normal", n);
 		result[NORMAL] = getQuad(normal, texture);
+        result[NORMAL].setTexture(texture.getHandle());
 		Node active = getNodeByName("active", n);
 		result[ACTIVE] = getQuad(active, texture);
+        result[ACTIVE].setTexture(texture.getHandle());
 		Node disabled = getNodeByName("disabled", n);
 		result[DISABLED] = getQuad(disabled, texture);
+        result[DISABLED].setTexture(texture.getHandle());
 		return result;
 	}
 
@@ -200,12 +203,14 @@ public final strictfp class Skin {
 		int top = getInt(n, "top");
 		int right = getInt(n, "right");
 		int bottom = getInt(n, "bottom");
-		return new Quad(left/(float)texture.getWidth(),
+		Quad quad = new Quad(left/(float)texture.getWidth(),
 						1f - bottom/(float)texture.getHeight(),
 						right/(float)texture.getWidth(),
 						1f - top/(float)texture.getHeight(),
 						right - left,
 						bottom - top);
+        quad.setTexture(texture.getHandle());
+        return quad;
 	}
 
 	private final Horizontal getHorizontal(Node n) {

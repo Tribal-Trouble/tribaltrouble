@@ -502,7 +502,7 @@ System.out.println("GC Forced");
 	}
 
 	public final void setupGUIView() {
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
+/*		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -511,7 +511,7 @@ System.out.println("GC Forced");
 		GL11.glMultMatrixf(matrix_buf);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
-		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glEnable(GL11.GL_BLEND);*/
 	}
 	
 	public final void myGLUPerspective(double fovy, double aspect, double zNear, double zFar){
@@ -541,11 +541,11 @@ System.out.println("GC Forced");
 		getDelegate().render2D();
 
 		Skin.getSkin().bindTexture();
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+/*		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 		GL11.glColor3f(1f, 1f, 1f);
 		GL11.glBegin(GL11.GL_QUADS);
 		// MUST END IN POSTRENDER!
-		
+		*/
 
 		// render forced delegates
 		for (int i = 0; i < delegate_stack.size() - 1; i++) {
@@ -563,8 +563,8 @@ System.out.println("GC Forced");
 	public final void renderTopmost() {
 		if (Globals.draw_status)
 			status.render(0, getWidth(), 0, getHeight());
-		GL11.glEnd(); // Started in renderGeometry()
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+//		GL11.glEnd(); // Started in renderGeometry()
+//		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
 
 		if (cursor_object.getCursorIndex() != CURSOR_NULL) {
 			cursors[cursor_object.getCursorIndex()].setActive();
