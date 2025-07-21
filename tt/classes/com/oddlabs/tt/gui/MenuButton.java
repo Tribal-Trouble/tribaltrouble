@@ -36,7 +36,7 @@ public final strictfp class MenuButton extends ButtonObject {
 	}
 
 	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
-		GL11.glEnd();
+	/*	GL11.glEnd();
 		GL11.glPushMatrix();
 		GL11.glTranslatef(getWidth()/2, getHeight()/2, 0);
 		clip_left -= getWidth()/2;
@@ -57,7 +57,7 @@ public final strictfp class MenuButton extends ButtonObject {
 		GL11.glEnd();
 		GL11.glPopMatrix();
 		GL11.glColor3f(1f, 1f, 1f);
-		GL11.glBegin(GL11.GL_QUADS);
+		GL11.glBegin(GL11.GL_QUADS);*/
 	}
 
 	protected final void mouseEntered() {

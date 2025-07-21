@@ -5,6 +5,7 @@ import com.oddlabs.tt.util.*;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.render.UIRenderer;
+import com.oddlabs.util.Quad;
 
 import org.lwjgl.opengl.*;
 
@@ -14,6 +15,7 @@ final strictfp class Fade {
 	private final Fadable fadable;
 	private final GUIRoot gui_root;
 	private final UIRenderer renderer;
+    private final Quad quad;
 
 	private float time = 0;
 	private boolean image_switched = false;
@@ -22,6 +24,7 @@ final strictfp class Fade {
 		this.fadable = fadable;
 		this.gui_root = gui_root;
 		this.renderer = renderer;
+        this.quad = new Quad(0.0f, 1.0f, 0.0f, 1.0f, LocalInput.getViewWidth(), LocalInput.getViewHeight());
 	}
 
 	public final void animate(GUI gui, float t) {
@@ -42,16 +45,8 @@ final strictfp class Fade {
 	}
 
 	protected final void render() {
-	/*	GL11.glDisable(GL11.GL_TEXTURE_2D);
-		float alpha = (float)StrictMath.sin(StrictMath.PI*time/FADE_TIME);
-		GL11.glColor4f(0f, 0f, 0f, alpha);
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glVertex3f(0, 0, 0f);
-		GL11.glVertex3f(LocalInput.getViewWidth(), 0, 0f);
-		GL11.glVertex3f(LocalInput.getViewWidth(), LocalInput.getViewHeight(), 0f);
-		GL11.glVertex3f(0, LocalInput.getViewHeight(), 0f);
-		GL11.glEnd();
-		GL11.glColor4f(1f, 1f, 1f, 1f);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);*/
+        float alpha = (float)StrictMath.sin(StrictMath.PI*time/FADE_TIME);
+        quad.setColor(0f, 0f, 0f, alpha);
+        quad.render(0, 0);
 	}
 }

@@ -482,7 +482,7 @@ System.out.println("Init done after " + startup_timei);
 		boolean reset_keyboard = false;
 		try {
 			while (!finished) {
-				// runGameLoop(network, gui);
+				runGameLoop(network, gui);
 			
                 if (Display.isALCreated())
 					AL10.alListenerf(AL10.AL_GAIN, 1f);

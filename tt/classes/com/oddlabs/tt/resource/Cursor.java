@@ -21,10 +21,8 @@ public final strictfp class Cursor {
     }
 	
 	public final void render(float x, float y) {
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
+        cursor.setTexture(texture.getHandle());
 		cursor.render(x - offset_x, y - offset_y);
-		GL11.glEnd();
 	}
 
 	public Cursor(URL url_16_1, int offset_x_16_1, int offset_y_16_1,
