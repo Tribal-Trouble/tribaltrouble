@@ -1,6 +1,6 @@
 package com.oddlabs.util;
 
-import com.oddlabs.util.Display;
+import com.oddlabs.util.TrafoState;
 
 import java.io.*;
 import org.lwjgl.opengl.*;
@@ -238,6 +238,17 @@ public strictfp class Quad implements Serializable {
         if (tex_program == -1) {
             initShaders();
         }
+
+        Vector4f vec0 = new Vector4f(x1, y1, 0f, 1f);
+        Vector4f vec1 = new Vector4f(x3, y3, 0f, 1f);
+
+        Matrix4f.transform(TrafoState.matrix, vec0, vec0);
+        Matrix4f.transform(TrafoState.matrix, vec1, vec1);
+
+        x1 = vec0.x;
+        y1 = vec0.y;
+        x3 = vec1.x;
+        y3 = vec1.y;
 
         if (texture != 0) {
             GL33.glUseProgram(tex_program);

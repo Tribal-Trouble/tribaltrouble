@@ -12,6 +12,8 @@ public abstract strictfp class Renderable extends ListElementImpl {
 	private float scale_x = 1f;
 	private float scale_y = 1f;
 
+    private Matrix4f mat = new Matrix4f();
+
 	private final LinkedList children = new LinkedList();
 
 	private Renderable parent = null;
@@ -32,6 +34,9 @@ public abstract strictfp class Renderable extends ListElementImpl {
 	public void setPos(int x, int y) {
 		this.x = x;
 		this.y = y;
+        this.mat.setIdentity();
+        this.mat.scale(new Vector3f(scale_x, scale_y, 1f));
+        this.mat.translate(new Vector3f(x, y, 0f));
 	}
 
 	public final int getX() {
@@ -68,25 +73,8 @@ public abstract strictfp class Renderable extends ListElementImpl {
 			((Renderable)getLastChild()).remove();
 		}
 	}
-/*
-	protected final void disableTree() {
-		ListElement current = children.getFirst();
-		while (current != null) {
-			((Renderable)current).disableTree();
-			current = current.getNext();
-		}
-	}
-
-	protected final void enableTree() {
-		ListElement current = children.getFirst();
-		while (current != null) {
-			((Renderable)current).enableTree();
-			current = current.getNext();
-		}
-	}
-*/
-	protected void doAdd() {
-//		enableTree();
+	
+    protected void doAdd() {
 	}
 
 	protected final GUIRoot getParentGUIRoot() {
@@ -127,6 +115,9 @@ public abstract strictfp class Renderable extends ListElementImpl {
 	public final void setScale(float scale_x, float scale_y) {
 		this.scale_x = scale_x;
 		this.scale_y = scale_y;
+        this.mat.setIdentity();
+        this.mat.scale(new Vector3f(scale_x, scale_y, 1f));
+        this.mat.translate(new Vector3f(x, y, 0f));
 	}
 
 	public final float getScaleX() {
@@ -155,6 +146,7 @@ public abstract strictfp class Renderable extends ListElementImpl {
 		}
 		ListElement current = children.getLast();
 		if (!(this instanceof GUIRoot)) {
+            TrafoState.pushMatrix(mat);
 			/*GL11.glEnd();
 			GL11.glPushMatrix();
 			if (scale_x != 1f || scale_y != 1f) {
@@ -172,6 +164,7 @@ public abstract strictfp class Renderable extends ListElementImpl {
 		}
 		postRender();
 		if (!(this instanceof GUIRoot)) {
+            TrafoState.popMatrix();
 		/*	GL11.glEnd();
 			GL11.glPopMatrix();
 			GL11.glBegin(GL11.GL_QUADS);*/
