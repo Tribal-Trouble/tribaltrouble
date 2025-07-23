@@ -4,6 +4,7 @@ import com.oddlabs.util.*;
 
 public class TrafoState {
     public static Matrix4f matrix = new Matrix4f();
+    public static float[] color = new float[4];
     private static Matrix4f[] mat_stack = new Matrix4f[20];
     private static int counter = 0;
 
@@ -11,6 +12,7 @@ public class TrafoState {
         for (int i = 0; i < 20; i++) {
             mat_stack[i] = new Matrix4f();
         }
+        setColor(1f, 1f, 1f, 1f);
     }
 
     private static void recalc() {
@@ -31,5 +33,12 @@ public class TrafoState {
         counter--;
         assert counter >= 0;
         recalc();  
+    }
+
+    public static void setColor(float r, float g, float b, float a) {
+        color[0] = r;
+        color[1] = g;
+        color[2] = b;
+        color[3] = a;
     }
 }

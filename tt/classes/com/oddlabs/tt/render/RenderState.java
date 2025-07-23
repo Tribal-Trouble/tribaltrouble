@@ -14,6 +14,7 @@ import com.oddlabs.tt.model.*;
 import com.oddlabs.tt.model.weapon.*;
 import com.oddlabs.tt.viewer.Selection;
 import com.oddlabs.tt.util.*;
+import com.oddlabs.util.*;
 
 import java.util.*;
 
@@ -243,7 +244,7 @@ public final strictfp class RenderState implements ElementVisitor {
 	private final static ModelVisitor scenery_model_visitor = new WhiteModelVisitor() {
 		public void transform(ElementRenderState render_state) {
 			RenderTools.translateAndRotate(render_state.getModel());
-			GL11.glColor4f(1f, 1f, 1f, 1f);
+			TrafoState.setColor(1f, 1f, 1f, 1f);
 		}
 	};
 	public final void visitSceneryModel(final SceneryModel model) {
@@ -266,7 +267,7 @@ public final strictfp class RenderState implements ElementVisitor {
 			if (dist_squared > START_FADE_DIST*START_FADE_DIST) {
 				float camera_dist = (float)Math.sqrt(dist_squared);
 				float alpha = 1f - ((camera_dist - START_FADE_DIST)/(PLANTS_CUT_DIST - START_FADE_DIST));
-				GL11.glColor4f(1f, 1f, 1f, alpha);
+			    TrafoState.setColor(1f, 1f, 1f, alpha);
 			}
 		}
 	};

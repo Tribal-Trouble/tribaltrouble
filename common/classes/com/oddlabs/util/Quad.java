@@ -15,13 +15,10 @@ public strictfp class Quad implements Serializable {
 	private final int width;
 	private final int height;
     private int texture = 0;
-    private float clr_r = 0.0f;
-    private float clr_g = 0.0f;
-    private float clr_b = 0.0f;
-    private float clr_a = 1.0f;
 
     private static int tex_program = -1;
     private static int tex_var_tex = 0;
+    private static int tex_var_clr = 0;
     private static int tex_var_pos = 0;
     private static int tex_var_size = 0;
     private static int tex_var_uv = 0;
@@ -57,10 +54,11 @@ public strictfp class Quad implements Serializable {
         String fragmentSrcTex = 
             "#version 330 core\n" +
             "uniform sampler2D u_tex;\n" +
+            "uniform vec4 u_color;\n" +
             "in vec2 f_uv;\n" +
             "out vec4 color;\n" +
             "void main() {\n" +
-            "    color = texture(u_tex, f_uv);\n" +
+            "    color = texture(u_tex, f_uv) * u_color;\n" +
             "}";
 
         int vertexShaderTex = GL33.glCreateShader(GL33.GL_VERTEX_SHADER);
@@ -84,6 +82,7 @@ public strictfp class Quad implements Serializable {
 
         GL33.glUseProgram(tex_program);
         tex_var_tex = GL33.glGetUniformLocation(tex_program, "u_tex");
+        tex_var_clr = GL33.glGetUniformLocation(tex_program, "u_color");
         tex_var_size = GL33.glGetUniformLocation(tex_program, "u_size");
         tex_var_uv = GL33.glGetUniformLocation(tex_program, "u_uv");
         tex_var_pos = GL33.glGetUniformLocation(tex_program, "u_pos");
@@ -225,13 +224,6 @@ public strictfp class Quad implements Serializable {
         texture = tex;
     }
 
-    public void setColor(float r, float g, float b, float a) {
-        clr_r = r;
-        clr_g = g;
-        clr_b = b;
-        clr_a = a;
-    }
-
 	public void render(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4,
 			float u1, float u2, float v1, float v2) {
 
@@ -255,10 +247,11 @@ public strictfp class Quad implements Serializable {
             GL33.glEnable(GL33.GL_BLEND);
             GL33.glDisable(GL33.GL_DEPTH_TEST);
             GL33.glEnable(GL33.GL_TEXTURE_2D);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
             GL33.glActiveTexture(GL33.GL_TEXTURE0);
             GL33.glBindTexture(GL33.GL_TEXTURE_2D, texture);
             GL33.glUniform1i(tex_var_tex, 0);
+            GL33.glUniform4fv(tex_var_clr, TrafoState.color);
             GL33.glUniform2fv(tex_var_size, new float[]{x3 - x1, y3 - y1});
             GL33.glUniform2fv(tex_var_resolution, new float[]{Display.getWidth(), Display.getHeight()});
             GL33.glUniform2fv(tex_var_pos, new float[]{x1, y1});
@@ -270,8 +263,8 @@ public strictfp class Quad implements Serializable {
             GL33.glEnable(GL33.GL_BLEND);
             GL33.glDisable(GL33.GL_DEPTH_TEST);
             GL33.glEnable(GL33.GL_TEXTURE_2D);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            GL33.glUniform4fv(clr_var_clr, new float[]{clr_r, clr_g, clr_b, clr_a});
+            GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+            GL33.glUniform4fv(clr_var_clr, TrafoState.color);
             GL33.glUniform2fv(tex_var_size, new float[]{x3 - x1, y3 - y1});
             GL33.glUniform2fv(tex_var_resolution, new float[]{Display.getWidth(), Display.getHeight()});
             GL33.glUniform2fv(tex_var_pos, new float[]{x1, y1});

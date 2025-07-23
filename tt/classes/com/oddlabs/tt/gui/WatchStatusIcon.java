@@ -4,7 +4,7 @@ import com.oddlabs.tt.model.*;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.landscape.World;
-import com.oddlabs.util.Quad;
+import com.oddlabs.util.*;
 
 import org.lwjgl.opengl.*;
 
@@ -22,10 +22,7 @@ public final strictfp class WatchStatusIcon extends StatusIcon {
 	protected final void renderGeometry() {
 		super.renderGeometry();
 		if (!building.isDead() && !building.getChieftainContainer().isTraining() && building.getOwner().getUnitCountContainer().getNumSupplies() < building.getOwner().getWorld().getMaxUnitCount()) {
-			// Radeon 9200 problem
-			GL11.glEnd();
-			GL11.glColor4f(1f, 1f, 1f, .75f);
-			GL11.glBegin(GL11.GL_QUADS);
+			TrafoState.setColor(1f, 1f, 1f, .75f);
 			IconQuad[] watch = Icons.getIcons().getWatch();
 			float progress = ((ReproduceUnitContainer)(building.getUnitContainer())).getBuildProgress();
 			int index = (int)(progress*(watch.length - 1));
@@ -33,9 +30,7 @@ public final strictfp class WatchStatusIcon extends StatusIcon {
 			int y = (getHeight() - watch[0].getHeight())/2;
 			x -= 5; // visual HAX
 			watch[index].render(x,  y);
-			GL11.glEnd();
-			GL11.glColor4f(1f, 1f, 1f, 1f);
-			GL11.glBegin(GL11.GL_QUADS);
+			TrafoState.setColor(1f, 1f, 1f, 1f);
 		}
 	}
 }

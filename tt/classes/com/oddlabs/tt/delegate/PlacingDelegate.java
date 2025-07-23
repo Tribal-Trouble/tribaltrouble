@@ -4,7 +4,7 @@ import java.nio.FloatBuffer;
 import java.util.List;
 
 import org.lwjgl.BufferUtils;
-import com.oddlabs.util.Keyboard;
+import com.oddlabs.util.*;
 
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.CameraState;
@@ -112,14 +112,16 @@ public final strictfp class PlacingDelegate extends ControllableCameraDelegate {
 		SpriteRenderer built_renderer = queues.getRenderer(getTemplate().getBuiltRenderer());
 		built_renderer.setupWithColor(0, color, false, true);
 		if (Building.isPlacingLegal(unit_grid, getTemplate(), placing_center_grid_x, placing_center_grid_y))
-			GW.glColor4f(1f, 1f, 1f, .8f);
+			TrafoState.setColor(1f, 1f, 1f, .8f);
 		else 
-			GW.glColor4f(1f, 0f, 0f, .8f);
+			TrafoState.setColor(1f, 0f, 0f, .8f);
 		float z = getViewer().getWorld().getHeightMap().getNearestHeight(center_x, center_y);
-		GW.glPushMatrix();
-		GW.translate(center_x, center_y, z);
+        Matrix4f mat = new Matrix4f();
+		mat.translate(new Vector3f(center_x, center_y, z));
+		TrafoState.pushMatrix(mat);
 		built_renderer.getSpriteList().render(0, 0, 0);
 		built_renderer.getSpriteList().reset(0, false, true);
-		GW.glPopMatrix();
+		TrafoState.popMatrix();
+		TrafoState.setColor(1f, 1f, 1f, 1f);
 	}
 }

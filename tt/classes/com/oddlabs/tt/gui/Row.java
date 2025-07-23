@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import org.lwjgl.opengl.*;
+import com.oddlabs.util.*;
 
 public final strictfp class Row extends GUIObject implements Comparable {
 	private final Object[] columns;
@@ -8,12 +9,14 @@ public final strictfp class Row extends GUIObject implements Comparable {
 	private int sort_index;
 	private Color color = null;
 	private boolean marked = false;
+    private Quad quad = null;
 
 	public Row(GUIObject[] columns, Object content_object) {
 		this.columns = columns;
 		this.content_object = content_object;
 		setDim(0, columns[0].getHeight());
 		setCanFocus(true);
+        quad = new Quad(0f, 1f, 0f, 1f, 100, 100);
 	}
 
 	public final Object getColumn(int index) {
@@ -53,23 +56,14 @@ public final strictfp class Row extends GUIObject implements Comparable {
 	}
 
 	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom ,float clip_top) {
-		GL11.glEnd();
 		if (marked) {
 			Color color = Skin.getSkin().getMultiColumnComboBoxData().getColorMarked();
-			GL11.glColor4f(color.getR(), color.getG(), color.getB(), color.getA());
+		    TrafoState.setColor(color.getR(), color.getG(), color.getB(), color.getA());
 		} else {
-			GL11.glColor4f(color.getR(), color.getG(), color.getB(), color.getA());
+			TrafoState.setColor(color.getR(), color.getG(), color.getB(), color.getA());
 		}
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glVertex3f(clip_left, clip_bottom, 0);
-		GL11.glVertex3f(clip_right, clip_bottom, 0);
-		GL11.glVertex3f(clip_right, clip_top, 0);
-		GL11.glVertex3f(clip_left, clip_top, 0);
-		GL11.glEnd();
-		GL11.glColor4f(1f, 1f, 1f, 1f);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glBegin(GL11.GL_QUADS);
+        quad.render(clip_left, clip_bottom, clip_left, clip_top, clip_right, clip_top, clip_right, clip_bottom);
+		TrafoState.setColor(1f, 1f, 1f, 1f);
 	}
 
 	public final Object getContentObject() {

@@ -1,12 +1,11 @@
 package com.oddlabs.tt.gui;
 
-import org.lwjgl.opengl.GL11;
-
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.StrictVector4f;
 import com.oddlabs.tt.util.StrictMatrix4f;
+import com.oddlabs.util.*;
 
 public final strictfp class Arrow extends GUIObject {
 	private final static float SECONDS_PER_FLASH = .5f;
@@ -82,21 +81,18 @@ public final strictfp class Arrow extends GUIObject {
 			NotifyArrowData data = Icons.getIcons().getNotifyArrowData();
 			float head_x = data.getHeadX();
 			float head_y = data.getHeadY();
-			GL11.glEnd();
-			GL11.glPushMatrix();
-			GL11.glTranslatef(LocalInput.getViewWidth()/2f + dx*t, LocalInput.getViewHeight()/2f + dy*t, 0f);
-			GL11.glRotatef(angle, 0f, 0f, 1f);
+            Matrix4f mat = new Matrix4f();
+			mat.translate(new Vector3f(LocalInput.getViewWidth()/2f + dx*t, LocalInput.getViewHeight()/2f + dy*t, 0f));
+		    mat.rotate(angle, new Vector3f(0f, 0f, 1f));
+            TrafoState.pushMatrix(mat);
 			float val = (LocalEventQueue.getQueue().getTime()%SECONDS_PER_FLASH)/(SECONDS_PER_FLASH*.5f);
 			if (val > 1f)
 				val = 2f - val;
 			val = COLOR_DELTA*val;
-			GL11.glColor4f(r, g, b, 1f - val);
-			GL11.glBegin(GL11.GL_QUADS);
+			TrafoState.setColor(r, g, b, 1f - val);
 			data.getArrow().render(-head_x, -head_y, data.getArrow().getWidth(), data.getArrow().getHeight());
-			GL11.glEnd();
-			GL11.glPopMatrix();
-			GL11.glColor4f(1f, 1f, 1f, 1f);
-			GL11.glBegin(GL11.GL_QUADS);
+			TrafoState.popMatrix();
+			TrafoState.setColor(1f, 1f, 1f, 1f);
 		}
 	}
 }

@@ -5,7 +5,7 @@ import com.oddlabs.tt.util.*;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.render.UIRenderer;
-import com.oddlabs.util.Quad;
+import com.oddlabs.util.*;
 
 import org.lwjgl.opengl.*;
 
@@ -46,7 +46,7 @@ final strictfp class Fade {
 
 	protected final void render() {
         float alpha = (float)StrictMath.sin(StrictMath.PI*time/FADE_TIME);
-        quad.setColor(0f, 0f, 0f, alpha);
+        TrafoState.setColor(0f, 0f, 0f, alpha);
         quad.render(0, 0);
 	}
 }
