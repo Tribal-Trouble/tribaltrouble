@@ -97,7 +97,7 @@ public strictfp class Quad implements Serializable {
             "void main() {\n" +
             "    vec2 pos = 2.0 * vec2(u_pos.x / u_resolution.x, u_pos.y / u_resolution.y) - vec2(1.0, 1.0);\n" +
             "    vec2 size = 2.0 * (vec2(u_size.x / u_resolution.x, u_size.y / u_resolution.y));\n" +
-            "    gl_Position.xy = pos + vec2(v_vertex.z * size.x, v_vertex.w * size.y);\n" +
+            "    gl_Position.xy = pos + vec2(v_vertex.x * size.x, v_vertex.y * size.y);\n" +
             "    gl_Position.z = 0.0;\n" +
             "    gl_Position.w = 1.0;\n" +
             "}";
@@ -130,10 +130,10 @@ public strictfp class Quad implements Serializable {
         GL33.glDeleteShader(fragmentShaderClr);
 
         GL33.glUseProgram(clr_program);
-        clr_var_clr = GL33.glGetUniformLocation(tex_program, "u_color");
-        clr_var_size = GL33.glGetUniformLocation(tex_program, "u_size");
-        clr_var_pos = GL33.glGetUniformLocation(tex_program, "u_pos");
-        clr_var_resolution = GL33.glGetUniformLocation(tex_program, "u_resolution");
+        clr_var_clr = GL33.glGetUniformLocation(clr_program, "u_color");
+        clr_var_size = GL33.glGetUniformLocation(clr_program, "u_size");
+        clr_var_pos = GL33.glGetUniformLocation(clr_program, "u_pos");
+        clr_var_resolution = GL33.glGetUniformLocation(clr_program, "u_resolution");
 
         vao = createVAO();
     }
@@ -265,9 +265,9 @@ public strictfp class Quad implements Serializable {
             GL33.glEnable(GL33.GL_TEXTURE_2D);
             GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
             GL33.glUniform4fv(clr_var_clr, TrafoState.color);
-            GL33.glUniform2fv(tex_var_size, new float[]{x3 - x1, y3 - y1});
-            GL33.glUniform2fv(tex_var_resolution, new float[]{Display.getWidth(), Display.getHeight()});
-            GL33.glUniform2fv(tex_var_pos, new float[]{x1, y1});
+            GL33.glUniform2fv(clr_var_size, new float[]{x3 - x1, y3 - y1});
+            GL33.glUniform2fv(clr_var_resolution, new float[]{Display.getWidth(), Display.getHeight()});
+            GL33.glUniform2fv(clr_var_pos, new float[]{x1, y1});
             GL33.glBindVertexArray(vao);
             GL33.glDrawArrays(GL33.GL_TRIANGLE_STRIP, 0, 4);
         }

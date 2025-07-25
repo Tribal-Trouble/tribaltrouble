@@ -1,5 +1,6 @@
 package com.oddlabs.tt.font;
 
+import com.oddlabs.util.*;
 import org.lwjgl.opengl.*;
 
 import com.oddlabs.tt.animation.*;
@@ -7,6 +8,7 @@ import com.oddlabs.tt.animation.*;
 public final strictfp class Index implements Updatable {
 	public final static int INDEX_WIDTH = 1;
 	private final static float BLINK_INTERVAL = .5f;
+    private static Quad quad = new Quad(0f, 1f, 0f, 1f, 10, 10);
 
 	private final static Index index = new Index();
 
@@ -34,18 +36,9 @@ public final strictfp class Index implements Updatable {
 
 	private final void doRenderIndex(int render_x, int render_y, Font font) {
 		if (blink_on) {
-		/*	GL11.glEnd();
-			GL11.glColor3f(1f, 1f, 1f);
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			GL11.glLineWidth(INDEX_WIDTH);
-			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glVertex3f(render_x, render_y + font.getHeight() - 3, 0f);
-			GL11.glVertex3f(render_x, render_y + 3, 0f);
-			GL11.glVertex3f(render_x + 1, render_y + 3, 0f);
-			GL11.glVertex3f(render_x + 1, render_y + font.getHeight() - 3, 0f);
-			GL11.glEnd();
-			GL11.glEnable(GL11.GL_TEXTURE_2D);
-			GL11.glBegin(GL11.GL_QUADS);*/
+            TrafoState.setColor(1f, 1f, 1f, 1f);
+            GL33.glLineWidth(INDEX_WIDTH);
+		    quad.render(render_x, render_y + 3, 1, font.getHeight() - 3);
 		}
 	}
 
