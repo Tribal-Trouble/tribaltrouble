@@ -10,7 +10,26 @@ on:
     branches: [ "remastering_graphics" ]
   workflow_dispatch:
 
-jobs:      
+jobs:
+  build-linux:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+    - name: Build with Ant
+      run: ant -noinput -buildfile tt/build.xml build-linux
+    - name: Upload files
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux
+        path: tt/build/dist/linux/TribalTrouble-x86_64.AppImage
+
   build-windows:
   
     runs-on: windows-latest

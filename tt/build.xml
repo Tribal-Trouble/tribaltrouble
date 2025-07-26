@@ -304,8 +304,73 @@
 			<arg value="--icon" />
 			<arg value="tribaltrouble.ico" />
 		</exec>
-		
-	</target>
+    </target>
+
+    <target name="build-linux" depends="dist">
+
+		<!-- Set app name -->
+		<property name="app_name" value="TribalTrouble" />
+
+		<!-- Delete if already exists -->
+        <delete dir="${dist}/linux/TribalTrouble.AppDir" />
+
+        <!-- Create folder structure -->
+        <mkdir dir="${dist}/linux/TribalTrouble.AppDir" />
+        <mkdir dir="${dist}/linux/TribalTrouble.AppDir/usr" />
+        <mkdir dir="${dist}/linux/TribalTrouble.AppDir/usr/lib" />
+
+        <!-- Preparing the linux package directory -->
+        <copy todir="${dist}/linux/TribalTrouble.AppDir">
+
+            <!-- Copying the metadata files for the AppImage -->
+            <fileset dir="./linux/TribalTrouble.AppDir">
+                <include name="AppRun" />
+                <include name="icon.png" />
+                <include name="TribalTrouble.desktop" />
+            </fileset>
+        </copy>
+
+        <chmod file="${dist}/linux/TribalTrouble.AppDir/AppRun" perm="755"/>
+
+        <!-- Copying the built files -->
+        <copy todir="${dist}/linux/TribalTrouble.AppDir/common">
+            <fileset dir="${dist}/common">
+                <include name="**" />
+            </fileset>
+        </copy>
+        <copy todir="${dist}/linux/TribalTrouble.AppDir/linux-x86">
+            <fileset dir="${dist}/linux-x86">
+                <include name="**" />
+            </fileset>
+        </copy>
+        <copy todir="${dist}/linux">
+            <fileset dir="linux">
+                <include name="appimagetool-x86_64.AppImage" />
+            </fileset>
+        </copy>
+
+        <chmod file="${dist}/linux/appimagetool-x86_64.AppImage" perm="755"/>
+
+        <exec executable="jlink" dir="${dist}/linux" failonerror="true">
+            <arg value="--output" />
+            <arg value="${dist}/linux/TribalTrouble.AppDir/usr/lib/jre" />
+            <arg value="--add-modules" />
+            <arg value="java.base,java.desktop,java.prefs,java.rmi,java.sql,jdk.unsupported" />
+            <arg value="--compress=2" />
+            <arg value="--no-header-files" />
+            <arg value="--no-man-pages" />
+            <arg value="--strip-debug" />
+        </exec>
+
+        <exec executable="./appimagetool-x86_64.AppImage" dir="${dist}/linux" failonerror="true">
+            <arg value="TribalTrouble.AppDir"/>
+        </exec>
+
+        <chmod file="${dist}/linux/TribalTrouble-x86_64.AppImage" perm="755"/>
+
+    </target>
+
+
 	<target name="build-mac-x86" depends="dist">
 		<!-- Set app name -->
 		<property name="app_name" value="TribalTrouble" />
@@ -359,5 +424,5 @@
 		</exec>
 	</target>
 
-	<target name="build-all" depends="build-windows, build-mac-x86, build-mac-arm64" />
+	<target name="build-all" depends="build-windows, build-mac-x86, build-mac-arm64, build-linux" />
 </project>

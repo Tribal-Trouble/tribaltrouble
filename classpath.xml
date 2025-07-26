@@ -28,6 +28,7 @@
 		<fileset dir="${lib}">
 			<include name="lwjgl-natives-windows.jar" />
 			<include name="lwjgl-opengl-natives-windows.jar" />
+			<include name="lwjgl-openal-natives-windows.jar" />
 			<include name="lwjgl-jawt-natives-windows.jar" />
 			<include name="lwjgl-glfw-natives-windows.jar" />
 		</fileset>
@@ -37,6 +38,7 @@
 		<fileset dir="${lib}">
 			<include name="lwjgl-natives-linux.jar" />
 			<include name="lwjgl-opengl-natives-linux.jar" />
+			<include name="lwjgl-openal-natives-linux.jar" />
 			<include name="lwjgl-jawt-natives-linux.jar" />
 			<include name="lwjgl-glfw-natives-linux.jar" />
 		</fileset>
@@ -46,6 +48,7 @@
 		<fileset dir="${lib}">
 			<include name="lwjgl-natives-macos.jar" />
 			<include name="lwjgl-opengl-natives-macos.jar" />
+			<include name="lwjgl-openal-natives-macos.jar" />
 			<include name="lwjgl-jawt-natives-macos.jar" />
 			<include name="lwjgl-glfw-natives-macos.jar" />
 		</fileset>
@@ -55,6 +58,7 @@
 		<fileset dir="${lib}">
 			<include name="lwjgl-natives-macos-arm64.jar" />
 			<include name="lwjgl-opengl-natives-macos-arm64.jar" />
+			<include name="lwjgl-openal-natives-macos-arm64.jar" />
 			<include name="lwjgl-jawt-natives-macos-arm64.jar" />
 			<include name="lwjgl-glfw-natives-macos-arm64.jar" />
 		</fileset>
