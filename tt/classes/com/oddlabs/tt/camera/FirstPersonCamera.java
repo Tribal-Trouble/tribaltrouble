@@ -2,6 +2,7 @@ package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.input.Mouse;
 import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.tt.render.Display;
 
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.global.Settings;
@@ -14,13 +15,14 @@ public final strictfp class FirstPersonCamera extends Camera {
 	private final static float SCALE_HORIZ = .002f;
 	private final static float SCALE_VERT = .002f;
 
-	private final int last_x;
-	private final int last_y;
+	private final int base_x;
+	private final int base_y;
 
 	public FirstPersonCamera(HeightMap heightmap, CameraState camera) {
 		super(heightmap, camera);
-		this.last_x = LocalInput.getMouseX();
-		this.last_y = LocalInput.getMouseY();
+		this.base_x = Display.getWidth() / 2;
+		this.base_y = Display.getHeight() / 2;
+		PointerInput.setCursorPosition(base_x, base_y);
 	}
 
 	public final void doAnimate(float t) {
@@ -53,14 +55,14 @@ public final strictfp class FirstPersonCamera extends Camera {
 	}
 
 	public final void mouseMoved(int x, int y) {
-		int dx = x - last_x;
-		int dy = y - last_y;
+		int dx = x - base_x;
+		int dy = y - base_y;
 		getState().setTargetHorizAngle(getState().getTargetHorizAngle() - dx*SCALE_HORIZ);
 		if (Settings.getSettings().invert_camera_pitch)
 			getState().setTargetVertAngle(getState().getTargetVertAngle() - dy*SCALE_VERT);
 		else
 			getState().setTargetVertAngle(getState().getTargetVertAngle() + dy*SCALE_VERT);
 
-		PointerInput.setCursorPosition(last_x, last_y);
+		PointerInput.setCursorPosition(base_x, base_y);
 	}
 }
