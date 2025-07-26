@@ -62,7 +62,9 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 		chat_logger.setLevel(Level.ALL);
 
 		this.public_reg_key = RegistrationKey.loadPublicKey();
-		DBUtils.initConnection("jdbc:mysql://localhost/oddlabs", "matchmaker", "U46TawOp");
+		String password = System.getenv("TT_SERVER_PASSWORD");
+		System.out.println("Using password: " + password);
+		DBUtils.initConnection("jdbc:mysql://localhost/oddlabs", "matchmaker", password);
 		logger.info("Generating encryption keys.");
 		this.param_spec = KeyManager.generateParameterSpec();
 		connection_listener = new ConnectionListener(network, null, MatchmakingServerInterface.MATCHMAKING_SERVER_PORT, this);

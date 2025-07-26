@@ -122,7 +122,7 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
 			this.router_client = new RouterClient(network, this, router.getPort());
 		} else {
 			this.router = null;
-			this.router_client = new RouterClient(network, Settings.getSettings().router_address, this);
+			this.router_client = new RouterClient(network, Settings.getSettings().getRouterAddress(), this);
 		}
 		for (short i = 0; i < players.length; i++) {
 			Player player = players[i];

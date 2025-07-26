@@ -9,7 +9,9 @@ import org.lwjgl.system.MemoryUtil;
 import static org.lwjgl.opengl.GL11.*;
 
 import com.oddlabs.util.*;
-import com.oddlabs.tt.input.*;
+import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.tt.input.Mouse;
+import com.oddlabs.tt.global.Settings;
 
 public final strictfp class Display {
     private static long window;
@@ -17,6 +19,8 @@ public final strictfp class Display {
     private static String title = "Tribal Trouble";
     private static int width = 1920;
     private static int height = 1080;
+    private static int refreshRate = 60;
+    private static boolean fullscreen = false;
 
     public static boolean isCreated() {
         return created;
@@ -31,24 +35,37 @@ public final strictfp class Display {
             System.out.println("Unable to initialize GLFW");
             return;
         }
-        
+        System.out.println("Is settings null? " + (Settings.getSettings() == null));
+        width = Settings.getSettings().view_width;
+        height = Settings.getSettings().view_height;
+        fullscreen = Settings.getSettings().fullscreen;
+        refreshRate = Settings.getSettings().view_freq;
+
+        System.out.println("width: " + width);
+        System.out.println("height: " + height);
+        System.out.println("fullscreen: " + fullscreen);
+        System.out.println("refreshRate: " + refreshRate);
+
         long monitor = GLFW.glfwGetPrimaryMonitor();
         GLFWVidMode videoMode = GLFW.glfwGetVideoMode(monitor);
 
-        GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, videoMode.refreshRate());
+        GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, refreshRate);
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
         
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
 
-        width = videoMode.width();
-        height = videoMode.height();
-
+        if (fullscreen) {
+            GLFW.glfwWindowHint(GLFW.GLFW_DECORATED, GLFW.GLFW_FALSE);
+            window = GLFW.glfwCreateWindow(width, height, title, monitor, 0);
+        } else {
+            GLFW.glfwWindowHint(GLFW.GLFW_DECORATED, GLFW.GLFW_TRUE);
+            window = GLFW.glfwCreateWindow(width, height, title, 0, 0);
+        }
+        
         TrafoState.setResolution(width, height);
-
-        window = GLFW.glfwCreateWindow(width, height, title, monitor, 0);
-
+        
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
         GLFW.glfwShowWindow(window);
 

@@ -1,3 +1,8 @@
 .svn
 build
 /bin/
+.vscode
+.project
+.classpath
+server/logs
+!server/logs/donot-delete.txt

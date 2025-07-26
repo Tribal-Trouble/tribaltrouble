@@ -1,46 +1,89 @@
 <project name="servers" basedir="." default="all">
-	<import file="../common/common.xml"/>
-	<property name="classpath" value="../common/build/classes:${lib}/commons-pool-1.2.jar:${lib}/commons-dbcp-1.2.1.jar:${lib}/commons-collections-3.1.jar:${lib}/mysql-connector-j-9.3.0.jar"/>
+	<import file="../common/common.xml" />
+	<property name="classpath"
+		value="../common/build/classes:${lib}/commons-pool-1.2.jar:${lib}/commons-dbcp-1.2.1.jar:${lib}/commons-collections-3.1.jar:${lib}/mysql-connector-j-9.3.0.jar" />
 
-	<property name="main_class" value="com.oddlabs.matchserver.MatchmakingServer"/>
-
+	<property name="main_class_server" value="com.oddlabs.matchserver.MatchmakingServer" />
+	<property name="main_class_router" value="com.oddlabs.routerserver.RouterServer" />
+	<!-- Classpath -->
+	<path id="build.classpath">
+		<pathelement location="${build}" />
+		<pathelement location="${commonstatic}" />
+		<pathelement location="i18n" />
+		<pathelement location="static" />
+	</path>
 	<target name="compiledeps" depends="compile-common">
 	</target>
 
 	<target name="bugreporter" depends="compile">
 		<jar destfile="${build}/bugreport.jar">
-			<fileset dir="../common/build/classes" includes="com/oddlabs/net/**/*class"/>
-			<fileset dir="../common/build/classes" includes="com/oddlabs/util/**/*class"/>
-			<fileset dir="../common/build/classes" includes="com/oddlabs/event/**/*class"/>
-			<fileset dir="../common/build/classes" includes="com/oddlabs/bugreport/**/*class"/>
-			<fileset dir="${build}/classes" includes="com/oddlabs/bugreportserver/**/*class"/>
+			<fileset dir="../common/build/classes" includes="com/oddlabs/net/**/*class" />
+			<fileset dir="../common/build/classes" includes="com/oddlabs/util/**/*class" />
+			<fileset dir="../common/build/classes" includes="com/oddlabs/event/**/*class" />
+			<fileset dir="../common/build/classes" includes="com/oddlabs/bugreport/**/*class" />
+			<fileset dir="${build}/classes" includes="com/oddlabs/bugreportserver/**/*class" />
 		</jar>
 	</target>
 
 	<target name="router" depends="compile">
 		<jar destfile="${build}/router.jar">
-			<fileset dir="../common/build/classes" includes="com/oddlabs/net/**/*class"/>
-			<fileset dir="../common/build/classes" includes="com/oddlabs/util/**/*class"/>
-			<fileset dir="../common/build/classes" includes="com/oddlabs/event/**/*class"/>
-			<fileset dir="../common/build/classes" includes="com/oddlabs/router/**/*class"/>
-			<fileset dir="${build}/classes" includes="com/oddlabs/routerserver/**/*class"/>
+			<fileset dir="../common/build/classes" includes="com/oddlabs/net/**/*class" />
+			<fileset dir="../common/build/classes" includes="com/oddlabs/util/**/*class" />
+			<fileset dir="../common/build/classes" includes="com/oddlabs/event/**/*class" />
+			<fileset dir="../common/build/classes" includes="com/oddlabs/router/**/*class" />
+			<fileset dir="${build}/classes" includes="com/oddlabs/routerserver/**/*class" />
 		</jar>
 	</target>
 
 	<target name="matchmaker" depends="compile">
 		<jar destfile="${build}/matchmaking.jar">
-			<fileset dir="../common/build/classes" includes="com/oddlabs/net/**/*class"/>
-			<fileset dir="../common/build/classes" includes="com/oddlabs/util/**/*class"/>
-			<fileset dir="../common/build/classes" includes="com/oddlabs/event/**/*class"/>
-			<fileset dir="../common/build/classes" includes="com/oddlabs/matchmaking/**/*class"/>
-			<fileset dir="../common/build/classes" includes="com/oddlabs/registration/**/*class"/>
-			<fileset dir="${build}/classes" includes="com/oddlabs/matchserver/**/*class"/>
-			<fileset dir="${commonstatic}" includes="public_reg_key"/>
+			<fileset dir="../common/build/classes" includes="com/oddlabs/net/**/*class" />
+			<fileset dir="../common/build/classes" includes="com/oddlabs/util/**/*class" />
+			<fileset dir="../common/build/classes" includes="com/oddlabs/event/**/*class" />
+			<fileset dir="../common/build/classes" includes="com/oddlabs/matchmaking/**/*class" />
+			<fileset dir="../common/build/classes" includes="com/oddlabs/registration/**/*class" />
+			<fileset dir="${build}/classes" includes="com/oddlabs/matchserver/**/*class" />
+			<fileset dir="${commonstatic}" includes="public_reg_key" />
 			<fileset dir="${lib}">
-				<include name="mysql-connector-j-9.3.0.jar"/>
+				<include name="mysql-connector-j-9.3.0.jar" />
 			</fileset>
 		</jar>
 	</target>
 
-	<target name="all" depends="router, matchmaker, bugreporter"/>
+	<target name="all" depends="router, matchmaker, bugreporter" />
+
+	<target name="run-matchmaker" depends="all">
+		<java fork="true" classname="${main_class_server}" failonerror="true">
+			<classpath>
+				<pathelement location="../common/build/classes" />
+				<pathelement location="${build}/classes" />
+				<pathelement location="${commonstatic}" />
+				<fileset dir="${lib}">
+					<include name="commons-pool-1.2.jar" />
+					<include name="commons-dbcp-1.2.1.jar" />
+					<include name="commons-collections-3.1.jar" />
+					<include name="mysql-connector-j-9.3.0.jar" />
+				</fileset>
+			</classpath>
+			<jvmarg value="-Djdk.crypto.KeyAgreement.legacyKDF=true" />
+		</java>
+	</target>
+
+	<target name="run-router" depends="all">
+		<java fork="true" classname="${main_class_router}" failonerror="true">
+			<classpath>
+				<pathelement location="../common/build/classes" />
+				<pathelement location="${build}/classes" />
+				<pathelement location="${commonstatic}" />
+				<fileset dir="${lib}">
+					<include name="commons-pool-1.2.jar" />
+					<include name="commons-dbcp-1.2.1.jar" />
+					<include name="commons-collections-3.1.jar" />
+					<include name="mysql-connector-j-9.3.0.jar" />
+				</fileset>
+			</classpath>
+		</java>
+	</target>
+
+	<target name="run-servers" depends="run-matchmaker, run-router" />
 </project>

@@ -21,7 +21,12 @@ public final strictfp class Utils {
 	private static final FloatBuffer sqrtFloatBuf = sqrtByteBuf.asFloatBuffer();
 
 	private final static Object[] empty_object_array = new Object[0];
-
+	/**
+	 * Returns a string from the specified resource bundle. Aka a localized resource value such as text or an image
+	 * See files such as Main.properties, Main_de.properties, etc.
+	 * @param bundle The resource bundle to search in - use Resource.getBundle(<string>)
+	 * @param key The key to look up in the resource bundle
+	 */
 	public final static String getBundleString(ResourceBundle bundle, String key) {
 		return getBundleString(bundle, key, empty_object_array);
 	}

@@ -28,10 +28,9 @@ public final strictfp class Settings implements Serializable {
 	public boolean crashed = false;
 
 	// network
-	public String registration_address = "registration." + Globals.DOMAIN_NAME;
-	public String matchmaking_address = "matchmaking." + Globals.DOMAIN_NAME;
-	public String bugreport_address = "bugreport." + Globals.DOMAIN_NAME;
-	public String router_address = "router." + Globals.DOMAIN_NAME;
+	// TODO: Why is domain name stuck on tribaltrouble.org?
+	// when it is loaded from the settings file?
+	private String domain_name = "tribaltrouble.org";
 	public String username = "";
 	public String pw_digest = "";
 	public boolean remember_login = false;
@@ -107,6 +106,7 @@ public final strictfp class Settings implements Serializable {
 
 	public final static void setSettings(Settings new_settings) {
 		settings = new_settings;
+		settings.setDomain(settings.getDomainName());
 	}
 
 	public final static Settings getSettings() {
@@ -184,7 +184,33 @@ public final strictfp class Settings implements Serializable {
 		}
 	}
 
+	/** Updates settings related to the domain name for the client */
+	public void setDomain(String new_domain) {
+		domain_name = new_domain;
+	}
+
+	public String getDomainName() {
+		return domain_name;
+	}
+
+	public String getRegistrationAddress() {
+		return "registration." + domain_name;
+	}
+
+	public String getMatchmakingAddress() {
+		return "matchmaking." + domain_name;
+	}
+
+	public String getBugReportAddress() {
+		return "bugreport." + domain_name;
+	}
+
+	public String getRouterAddress() {
+		return "router." + domain_name;
+	}
+
 	public final void load(File game_dir) {
+		System.out.println("Loading settings from " + game_dir);
 		Field[] pref_fields = getClass().getDeclaredFields();
 		Properties props = new Properties();
 		File settings_file = new File(game_dir, Globals.SETTINGS_FILE_NAME);

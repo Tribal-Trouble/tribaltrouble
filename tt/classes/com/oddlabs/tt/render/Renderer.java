@@ -24,7 +24,6 @@ import javax.swing.UIManager;
 import java.rmi.server.UID;
 import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
-import org.lwjgl.glfw.GLFW;
 
 import org.lwjgl.system.Platform;
 import org.lwjgl.BufferUtils;
@@ -32,10 +31,7 @@ import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.opengl.ARBMultisample;
 import com.oddlabs.tt.render.Display;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL33;
-import org.lwjgl.opengl.GL;
 import com.oddlabs.tt.input.Keyboard;
 
 import static org.lwjgl.openal.ALC10.*;
@@ -82,7 +78,6 @@ import com.oddlabs.tt.form.WarningForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.GlobalsInit;
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.font.*;
 import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.CounterLabel;
 import com.oddlabs.tt.gui.Fadable;
@@ -91,7 +86,6 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.Skin;
-import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.landscape.AbstractTreeGroup;
@@ -143,794 +137,819 @@ import java.util.Map;
 import java.util.HashMap;
 
 public final strictfp class Renderer {
-	private final static FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
 
-	private static GLStateStack display_state_stack = new GLStateStack();
+    private final static FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
 
-	private final static Renderer renderer_instance = new Renderer();
-	private final static StatCounter fps = new StatCounter(10);
-	private static int num_triangles_rendered;
-	
-	private static RegistrationClient registration_client;
+    private static GLStateStack display_state_stack = new GLStateStack();
 
-	private static boolean grab_frames = false;
+    private final static Renderer renderer_instance = new Renderer();
+    private final static StatCounter fps = new StatCounter(10);
+    private static int num_triangles_rendered;
 
-	private final Locale default_locale = new Locale(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(), "default");
-	private final StrictMatrix4f proj = new StrictMatrix4f();
+    private static RegistrationClient registration_client;
 
-	private static AbstractAudioPlayer music;
-	private static String music_path;
-	private static TimerAnimation music_timer;
-	
-	private int fallback_val = 0;
+    private static boolean grab_frames = false;
 
-	private static boolean finished = false;
+    private final Locale default_locale = new Locale(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(), "default");
+    private final StrictMatrix4f proj = new StrictMatrix4f();
 
-	private static Label trial_label;
-	private final CameraState frustum_state = new CameraState();
-	private CounterLabel trial_counter = null;
-	private Label games_left_label;
-	private boolean movie_recording_started = false;
-	private AmbientAudio ambient;
+    private static AbstractAudioPlayer music;
+    private static String music_path;
+    private static TimerAnimation music_timer;
 
-    private static MainMenu main_menu = null;
-	
-	public final static float getFPS() {
-		return fps.getAveragePerUpdate();
-	}
+    private int fallback_val = 0;
 
-	public final static RegistrationClient getRegistrationClient() {
-		return registration_client;
-	}
-	
-	public final static boolean isRegistered() {
-		return true;
-		//return registration_client.isRegistered();
-	}
-	
-	public final static void makeCurrent() {
-		try {
-			Display.makeCurrent();
-			GLStateStack.setCurrent(display_state_stack);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	public final static void runGame(String[] args) {
-		renderer_instance.run(args);
-	}
+    private static boolean finished = false;
 
-	public final static Renderer getRenderer() {
-		return renderer_instance;
-	}
+    private static Label trial_label;
+    private final CameraState frustum_state = new CameraState();
+    private CounterLabel trial_counter = null;
+    private Label games_left_label;
+    private boolean movie_recording_started = false;
+    private AmbientAudio ambient;
 
-	private final void runGameLoop(NetworkSelector network, GUI gui) {
-		AnimationManager.runGameLoop(network, gui, grab_frames);
-	}
+    public final static float getFPS() {
+        return fps.getAveragePerUpdate();
+    }
 
-	private final void setupMatrices(GUIRoot gui_root) {
-		proj.setIdentity();
-		multProjection(proj);
-		CameraState camera = gui_root.getDelegate().getCamera().getState();
-		camera.setView(proj);
+    public final static RegistrationClient getRegistrationClient() {
+        return registration_client;
+    }
 
-		if (!Globals.frustum_freeze) {
-			frustum_state.set(camera);
-		}
-/*		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		proj.store(matrix_buf);
-		matrix_buf.rewind();
-		GL11.glLoadMatrixf(matrix_buf);
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
-		camera.getModelView().store(matrix_buf);
-		matrix_buf.rewind();
-		GL11.glLoadMatrixf(matrix_buf);*/
-	}
+    public final static boolean isRegistered() {
+        return true;
+        //return registration_client.isRegistered();
+    }
 
-	public static void multProjection(StrictMatrix4f matrix) {
-		StrictGLU.gluPerspective(matrix,
-				Globals.FOV,
-				LocalInput.getViewAspect(),
-				Globals.VIEW_MIN,
-				Globals.VIEW_MAX);
-	}
+    public final static void makeCurrent() {
+        try {
+            Display.makeCurrent();
+            GLStateStack.setCurrent(display_state_stack);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public final static void registerTrianglesRendered(int count) {
-		num_triangles_rendered += count;
-	}
+    public final static void runGame(boolean grab_frames, boolean eventload, boolean zipped, boolean silent, UpdateInfo update_info) {
+        renderer_instance.run(grab_frames, eventload, zipped, silent, update_info);
+    }
 
-	public final static int getTrianglesRendered() {
-		return num_triangles_rendered;
-	}
+    public final static Renderer getRenderer() {
+        return renderer_instance;
+    }
 
-	private final void display(GUI gui) {
-		num_triangles_rendered = 0;
-		fps.updateDelta(System.currentTimeMillis());
-		NativeResource.deleteFinalized();
-		setupMatrices(gui.getGUIRoot());
-		gui.render(ambient, frustum_state);
-	}
+    private final void runGameLoop(NetworkSelector network, GUI gui) {
+        AnimationManager.runGameLoop(network, gui, grab_frames);
+    }
 
-	public final static void shutdownWithQuitScreen(GUIRoot gui_root) {
-		if (!isRegistered()) {
-			new QuitScreen(gui_root, gui_root.getDelegate().getCamera());
-		} else
-			shutdown();
-	}
+    private final void setupMatrices(GUIRoot gui_root) {
+        proj.setIdentity();
+        multProjection(proj);
+        CameraState camera = gui_root.getDelegate().getCamera().getState();
+        camera.setView(proj);
 
-	public final static void shutdown() {
-		finished = true;
-	}
+        if (!Globals.frustum_freeze) {
+            frustum_state.set(camera);
+        }
 
-	public static boolean isFinished() {
-		return finished;
-	}
+/*        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        proj.store(matrix_buf);
+        matrix_buf.rewind();
+        GL11.glLoadMatrixf(matrix_buf);
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        camera.getModelView().store(matrix_buf);
+        matrix_buf.rewind();
+        GL11.glLoadMatrixf(matrix_buf);*/
+    }
 
-	private final static void deleteLog(File log) {
-		for (int i = 0; i < com.oddlabs.util.Utils.LOG_FILES.length; i++) {
-			File log_file = new File(log, com.oddlabs.util.Utils.LOG_FILES[i]);
-			log_file.delete();
-		}
-		log.delete();
-	}
-	
-	private final static void deleteOldLogs(File last_log_dir, File new_log_dir, File logs_dir) {
-		File[] logs = logs_dir.listFiles();
-		if (logs == null)
-			return;
-		for (int i = 0; i < logs.length; i++) {
-			File log = logs[i];
+    public static void multProjection(StrictMatrix4f matrix) {
+        StrictGLU.gluPerspective(matrix,
+                Globals.FOV,
+                LocalInput.getViewAspect(),
+                Globals.VIEW_MIN,
+                Globals.VIEW_MAX);
+    }
 
-			if (!log.isDirectory() || log.equals(last_log_dir) || log.equals(new_log_dir))
-				continue;
-			deleteLog(log);
-		}
-	}
-	
-	private final void run(String[] args) {
-		long start_time = System.currentTimeMillis();
-		boolean first_frame = true;
-		System.out.println("********** Running tt **********");
-		System.out.flush();
-		UpdateInfo update_info = null;
-		String platform_dir;
-		if (Platform.get() == Platform.MACOSX) {
-			platform_dir = "Library/Application Support" + File.separator;
-		} else if (Platform.get() == Platform.LINUX) {
-			platform_dir = ".";
-		} else {
-			platform_dir = "";
-		}
-		String game_dir_path = System.getProperty("user.home") + File.separator + platform_dir + Globals.GAME_NAME;
-		File game_dir = new File(game_dir_path);
-		boolean eventload = false;
-		boolean zipped = false;
-		boolean silent = false;
-		Settings settings = new Settings();
-		if (args != null) {
-			for (int i = 0; i < args.length; i++) {
-				if (args[i].equals("--grabframes")) {
-					grab_frames = true;
-				} else if (args[i].equals("--eventload")) {
-					eventload = true;
-					i++;
-					if (args[i].equals("zipped")) {
-						zipped = true;
-					} else if (args[i].equals("normal")) {
-					} else
-						throw new RuntimeException("Unknown event load mode: " + args[i]);
-				} else if (args[i].equals("--bootstrap")) {
-					String java_cmd = args[++i];
-					settings.load(Utils.getInstallDir());
-					String classpath = args[++i];
-					File data_dir = new File(args[++i]);
-					update_info = new UpdateInfo(java_cmd, classpath, data_dir);
-				} else if (args[i].equals("--silent")) {
-					silent = true;
-				} else {
-					throw new RuntimeException("Unknown command line flag: " + args[i]);
-				}
-			}
-		}
-		game_dir.mkdirs();
+    public final static void registerTrianglesRendered(int count) {
+        num_triangles_rendered += count;
+    }
 
-		// fetch initial settings
-		settings.load(game_dir);
+    public final static int getTrianglesRendered() {
+        return num_triangles_rendered;
+    }
 
-		readOrSetPreference(Globals.AFFILIATE_ID_KEY, settings.affiliate_id); // setting affiliate id in preferences
+    private final void display(GUI gui) {
+        num_triangles_rendered = 0;
+        fps.updateDelta(System.currentTimeMillis());
+        NativeResource.deleteFinalized();
+        setupMatrices(gui.getGUIRoot());
+        gui.render(ambient, frustum_state);
+    }
 
-		if (eventload || grab_frames) {
-			String last_event_log_path = settings.last_event_log_dir + File.separator + "event.log";
-			if (zipped)
-				last_event_log_path += ".gz";
-System.out.println("last_event_log_path = " + last_event_log_path);
-			// Only use when anal debugging
-//			ChecksumLogger.initLogging();
-			LocalEventQueue.getQueue().loadEvents(new File(last_event_log_path), zipped);
-		}
-	
-		File event_logs_dir = new File(game_dir, "logs");
-		File event_log_dir = new File(event_logs_dir, Long.toString(System.currentTimeMillis()));
-		if (LocalEventQueue.getQueue().getDeterministic() == null && settings.save_event_log) {
-			event_log_dir.mkdirs();
-			System.out.println("Writing log files in " + event_log_dir);
-			LocalEventQueue.getQueue().setEventsLogged(new File(event_log_dir + File.separator + com.oddlabs.util.Utils.EVENT_LOG));
+    public final static void shutdownWithQuitScreen(GUIRoot gui_root) {
+        if (!isRegistered()) {
+            new QuitScreen(gui_root, gui_root.getDelegate().getCamera());
+        } else {
+            shutdown();
+        }
+    }
 
-			try {
-				OutputStream std_err_file = new FileOutputStream(new File(event_log_dir, com.oddlabs.util.Utils.STD_ERR));
-				OutputStream std_out_file = new FileOutputStream(new File(event_log_dir, com.oddlabs.util.Utils.STD_OUT));
-				OutputStream new_err;
-				OutputStream new_out;
-				if (!silent) {
-					new_err = new LoggerOutputStream(new OutputStream[]{System.err, std_err_file});
-					new_out = new LoggerOutputStream(new OutputStream[]{System.out, std_out_file});
-				} else {
-					new_err = std_err_file;
-					new_out = std_out_file;
-				}
-				System.setErr(new PrintStream(new_err));
-				System.setOut(new PrintStream(new_out));
-			} catch (IOException e) {
-				System.err.println("Failed to setup logging to " + event_log_dir + " exception: " + e);
-			}
-		}
-		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
-		update_info = (UpdateInfo)deterministic.log(update_info);
-		game_dir = (File)deterministic.log(game_dir);
-		event_log_dir = (File)deterministic.log(event_log_dir);
-		settings = (Settings)deterministic.log(settings);
-		Languages languages = new Languages(settings.inBetaMode());
-		String default_language = (String)deterministic.log(Locale.getDefault().getLanguage());
-		String language = settings.language;
-		if (language.equals("default"))
-			language = default_language;
-		if (!languages.hasLanguage(language))
-			language = "en";
-		Locale.setDefault(new Locale(language));
-		Settings.setSettings(settings);
-		File last_event_log_dir = new File(settings.last_event_log_dir);
-		boolean crashed = settings.crashed;
-		if (crashed && !settings.hide_bugreporter && !deterministic.isPlayback()) {
-			System.out.println("Starting bug reporter ...");
-			System.out.println("Event log dir: " + last_event_log_dir);
-			try {
-				URL url = new URL("https://" + settings.bugreport_address + "/reportbug.php");
-				BugClientWindow.showReporter(url, settings.last_revision, last_event_log_dir);
-				System.out.println("Bug reporter completed");
-			} catch (Exception e) {
-				System.out.println("Failed to start bug reporter: " + e);
-			}
-		}
-		HttpRequestParameters request_parameters = createRegistrationParameters();
-		
-		//Checking original registration file location
-		File registration_file = new File(game_dir, Globals.REG_FILE_NAME);
+    public final static void shutdown() {
+        finished = true;
+    }
 
-		if (!registration_file.exists()) {
+    public static boolean isFinished() {
+        return finished;
+    }
 
-			// Check if the file is in working dir
-			System.out.println("Registration file not found, trying from working directory.");
-			registration_file = new File(System.getProperty("user.dir"), Globals.REG_FILE_NAME);
-			
-			// With windows, the working directory is above, so check it in /app
-			if (!registration_file.exists()) {
-				System.out.println("Registration file not found, trying from windows working directory.");
-				registration_file = new File(System.getProperty("user.dir") + "/app", Globals.REG_FILE_NAME);
-			}
-		}
-		if (!registration_file.exists()) {
-			System.out.println("Registration file not found, multiplayer will not work");
-		}
-		
-		new LocalInput();
+    private final static void deleteLog(File log) {
+        for (int i = 0; i < com.oddlabs.util.Utils.LOG_FILES.length; i++) {
+            File log_file = new File(log, com.oddlabs.util.Utils.LOG_FILES[i]);
+            log_file.delete();
+        }
+        log.delete();
+    }
 
-		NetworkSelector network = new NetworkSelector(LocalEventQueue.getQueue().getDeterministic(), new TimeManager() {
-			public final long getMillis() {
-				return LocalEventQueue.getQueue().getMillis();
-			}
-		});
-		LocalInput.settings(update_info, game_dir, event_log_dir, settings);
-		try {
-			initNative(crashed, network);
-		} catch (Exception e) {
-			// Let it propagate
-			System.out.println("Got exception: " + e);
-			throw new RuntimeException(e);
-		}
-		TaskThread task_thread = network.getTaskThread();
-		if (Settings.getSettings().affiliate_id.equals("reflexive")) {
-System.out.println("affiliate_id equals reflexive");
-			registration_client = new ReflexiveRegistrationClient(task_thread, 526, "21658", "Tribal Trouble", "29.95");
-		} else if (Settings.getSettings().affiliate_id.equals("totalgaming")) {
-System.out.println("affiliate_id equals totalgaming");
-			registration_client = new TotalgamingRegistrationClient(task_thread, registration_file, request_parameters);
-		} else if (Settings.getSettings().affiliate_id.equals("garagegames")) {
-System.out.println("affiliate_id equals garagegames");
-			registration_client = new RegistrationClient(task_thread, registration_file, request_parameters, RegistrationClient.CLIENT_TYPE_FOREIGN);
-		} else if (Settings.getSettings().affiliate_id.equals("arcadetown") || !Settings.getSettings().online) {
-System.out.println("affiliate_id equals arcadetown");
-			registration_client = new RegistrationClient(task_thread, registration_file, request_parameters, RegistrationClient.CLIENT_TYPE_OFFLINE);
-			registration_client.setKey(Settings.getSettings().reg_key);
-		} else if (Settings.getSettings().affiliate_id.equals("trymedia")) {
-System.out.println("affiliate_id equals trymedia");
-			registration_client = new TrymediaRegistrationClient(task_thread, registration_file, request_parameters, RegistrationClient.CLIENT_TYPE_OFFLINE);
-			Settings.getSettings().reg_key = registration_client.getPotentialKey();
-		} else {
-			registration_client = new RegistrationClient(task_thread, registration_file, request_parameters, RegistrationClient.CLIENT_TYPE_ONLINE);
-		}
-		if (!settings.inDeveloperMode() && !deterministic.isPlayback())
-			deleteOldLogs(last_event_log_dir, event_log_dir, event_logs_dir);
-		Skin.load();
-		GUI gui = new GUI(languages);
+    private final static void deleteOldLogs(File last_log_dir, File new_log_dir, File logs_dir) {
+        File[] logs = logs_dir.listFiles();
+        if (logs == null) {
+            return;
+        }
+        for (int i = 0; i < logs.length; i++) {
+            File log = logs[i];
 
-		GlobalsInit.init();
-		LocalInput.init();
+            if (!log.isDirectory() || log.equals(last_log_dir) || log.equals(new_log_dir)) {
+                continue;
+            }
+            deleteLog(log);
+        }
+    }
 
-long startup_timei = System.currentTimeMillis() - start_time;
-System.out.println("Init done after " + startup_timei);
-		ambient = new AmbientAudio(AudioManager.getManager());
+    private final void run(boolean grab_frames, boolean eventload, boolean zipped, boolean silent, UpdateInfo update_info) {
+        Renderer.grab_frames = grab_frames;
+        long start_time = System.currentTimeMillis();
+        boolean first_frame = true;
+        System.out.println("********** Running tt **********");
+        System.out.flush();
+        String platform_dir;
+        if (Platform.get() == Platform.MACOSX) {
+            platform_dir = "Library/Application Support" + File.separator;
+        } else if (Platform.get() == Platform.LINUX) {
+            platform_dir = ".";
+        } else {
+            platform_dir = "";
+        }
+        String game_dir_path = System.getProperty("user.home") + File.separator + platform_dir + Globals.GAME_NAME;
+        File game_dir = new File(game_dir_path);
+        Settings settings = Settings.getSettings();
+
+        readOrSetPreference(Globals.AFFILIATE_ID_KEY, settings.affiliate_id); // setting affiliate id in preferences
+
+        File event_logs_dir = new File(game_dir, "logs");
+        File event_log_dir = new File(event_logs_dir, Long.toString(System.currentTimeMillis()));
+        setupLoadEvents(eventload, zipped);
+        setupEventLogging(event_log_dir, silent);
+
+        // Deterministic logging
+        Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
+        update_info = (UpdateInfo) deterministic.log(update_info);
+        game_dir = (File) deterministic.log(game_dir);
+        event_log_dir = (File) deterministic.log(event_log_dir);
+        settings = (Settings) deterministic.log(settings);
+
+        Languages languages = setupLanguages(deterministic);
+        Settings.setSettings(settings);
+        File last_event_log_dir = setupBugReporter(deterministic);
+
+        LocalInput _ = new LocalInput();
+
+        NetworkSelector network = new NetworkSelector(LocalEventQueue.getQueue().getDeterministic(), new TimeManager() {
+            public final long getMillis() {
+                return LocalEventQueue.getQueue().getMillis();
+            }
+        });
+
+        LocalInput.settings(update_info, game_dir, event_log_dir, settings);
+        try {
+            initNative(Settings.getSettings().crashed, network);
+        } catch (Exception e) {
+            // Let it propagate
+            System.out.println("Got exception: " + e);
+            throw new RuntimeException(e);
+        }
+
+        TaskThread task_thread = network.getTaskThread();
+        HttpRequestParameters request_parameters = createRegistrationParameters();
+        //Checking original registration file location
+        File registration_file = setupRegistrationFile(game_dir);
+        registration_client = new RegistrationClient(task_thread, registration_file, request_parameters, RegistrationClient.CLIENT_TYPE_ONLINE);
+
+        cleanLogs(deterministic, last_event_log_dir, event_log_dir, event_logs_dir);
+        Skin.load();
+        GUI gui = new GUI(languages);
+
+        GlobalsInit.init();
+        LocalInput.init();
+
+        long startup_timei = System.currentTimeMillis() - start_time;
+        System.out.println("Init done after " + startup_timei);
+        ambient = new AmbientAudio(AudioManager.getManager());
 
         setupMainMenu(network, gui, true);
 
-      /*  Font font = Skin.getSkin().getHeadlineFont();
-        TextBoxRenderer textRender = new TextBoxRenderer(font, 600, 100);
+        boolean reset_keyboard = false;
 
-		GUIImage image = new GUIImage(Display.getWidth(), Display.getHeight(), 0f, 0f, 800.0f/1024.0f, 600.0f/1024.0f, "/textures/gui/mainmenu");
-        image.setPos(0, 0);*/
-
-		boolean reset_keyboard = false;
-		try {
-			while (!finished) {
-				runGameLoop(network, gui);
-			
-                if (Display.isALCreated())
-					AL10.alListenerf(AL10.AL_GAIN, 1f);
-				if (reset_keyboard) {
-					reset_keyboard = false;
-					LocalInput.getLocalInput().resetKeyboard();
-				}
-				
-                GL33.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                GL33.glClearDepth(1.0f);
-                GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
-                GL33.glViewport(0, 0, Display.getWidth(), Display.getHeight());
-
+        try {
+            while (!finished) {
+                runGameLoop(network, gui);
+                if (Display.isALCreated()) {
+                    AL10.alListenerf(AL10.AL_GAIN, 1f);
+                }
+                if (reset_keyboard) {
+                    reset_keyboard = false;
+                    LocalInput.getLocalInput().resetKeyboard();
+                }
+                if (!first_frame && !BackBufferRenderer.isBackBufferDirty()) {
+                    Display.update();
+                }
                 display(gui);
-              /*  
-                image.renderGeometry();
-                textRender.render(20, Display.getHeight() - 200, "That was super easy. Barely an inconvenience");
-*/
-				Display.update();
-				
                 if (first_frame) {
-					long startup_time = System.currentTimeMillis() - start_time;
-					System.out.println("First frame rendered after " + startup_time + " milliseconds");
-					first_frame = false;
-				}
-				if (grab_frames && movie_recording_started)
-					GLUtils.takeScreenshot("");
-			}
-			LocalEventQueue.getQueue().getDeterministic().setEnabled(true);
-			Settings.getSettings().save();
-		} finally {
-			cleanup();
-		}
-	}
+                    long startup_time = System.currentTimeMillis() - start_time;
+                    System.out.println("First frame rendered after " + startup_time + " milliseconds");
+                    first_frame = false;
+                }
+                if (grab_frames && movie_recording_started) {
+                    GLUtils.takeScreenshot("");
+                }
+            }
+            LocalEventQueue.getQueue().getDeterministic().setEnabled(true);
+            Settings.getSettings().save();
+        } finally {
+            cleanup();
+        }
+    }
 
-	private final HttpRequestParameters createRegistrationParameters() {
-		String affiliate_id = "";
-		try {
-			Preferences pref = Preferences.userNodeForPackage(com.oddlabs.tt.render.Renderer.class);
-			affiliate_id = pref.get(Globals.AFFILIATE_ID_KEY, "");
-		} catch (Exception e) {
-		}
-		Map parameters = new HashMap();
-		parameters.put("current_affiliate_id", Settings.getSettings().affiliate_id);
-		parameters.put("affiliate_id", affiliate_id);
-		return new HttpRequestParameters("https://" + Settings.getSettings().registration_address + "/oddlabs/registration", parameters);
-	} 
+    /**
+     * Checks if the registration file exists in the game directory, and if not, tries to find it in the working directory.
+     * If it still doesn't exist, it will try to find it in the /app directory
+     * @param game_dir The game directory where the registration file is expected to be
+     */
+    private File setupRegistrationFile(File game_dir) {
+        File registration_file = new File(game_dir, Globals.REG_FILE_NAME);
 
-	public final Locale getDefaultLocale() {
-		return default_locale;
-	}
+        if (!registration_file.exists()) {
 
-	private final static void failedOpenGL(Exception e) {
-		e.printStackTrace();
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception je) {
-			je.printStackTrace();
-		}
+            // Check if the file is in working dir
+            System.out.println("Registration file not found, trying from working directory.");
+            System.out.println("Working directory: " + System.getProperty("user.dir"));
+            registration_file = new File(System.getProperty("user.dir"), Globals.REG_FILE_NAME);
 
-		ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
-		String title = Utils.getBundleString(bundle, "error_title");
-		String message = Utils.getBundleString(bundle, "opengl_error_message");
-		int choice = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-	
-		if (choice == JOptionPane.YES_OPTION) {
-			String new_uid = (new UID()).toString();
-			String uid = readOrSetPreference("uid", new_uid);
-			String os_name = System.getProperty("os.name");
-			String os_arch = System.getProperty("os.arch");
-			String os_version = System.getProperty("os.version");
-			String java_version = System.getProperty("java.version");
-			String java_vendor = System.getProperty("java.vendor");
-			long total_mem = Runtime.getRuntime().maxMemory();
+            // With windows, the working directory is above, so check it in /app
+            if (!registration_file.exists()) {
+                System.out.println("Registration file not found, trying from windows working directory.");
+                registration_file = new File(System.getProperty("user.dir") + "/app", Globals.REG_FILE_NAME);
+            }
+        }
+        if (!registration_file.exists()) {
+            System.out.println("Registration file not found, multiplayer will not work");
+        }
+        return registration_file;
+    }
 
-			try {
-				String url = "http://" + Globals.DOMAIN_NAME +"/driversupport.php?"
-					+ "uid=" + URLEncoder.encode(uid, "UTF-8")
-					+ "&raw_os=" + URLEncoder.encode(os_name, "UTF-8")
-					+ "&os_version=" + URLEncoder.encode(os_version, "UTF-8")
-					+ "&arch=" + URLEncoder.encode(os_arch, "UTF-8")
-					+ "&java_version=" + URLEncoder.encode(java_version, "UTF-8")
-					+ "&java_vendor=" + URLEncoder.encode(java_vendor, "UTF-8")
-					+ "&total_mem=" + URLEncoder.encode("" + total_mem, "UTF-8");
-				// Sys.openURL(url);
-			} catch (java.io.UnsupportedEncodingException uee) {
-				uee.printStackTrace();
-			}
-		}
-	
-		Main.shutdown();
-	}
+    /**
+     * Sets the language for the game and loads the corresponding language files
+     * @param deterministic The deterministic object
+     */
+    private Languages setupLanguages(Deterministic deterministic) {
 
-	private static boolean readOrSetPreference(String key, boolean value) {
-		String result_string = readOrSetPreference(key, ""+value);
-		return Boolean.valueOf(result_string).booleanValue();
-	}
-	
-	private static int readOrSetPreference(String key, int value) {
-		String result_string = readOrSetPreference(key, ""+value);
-		try {
-			int result = Integer.parseInt(result_string);
-			return result;
-		} catch (NumberFormatException e) {
-			return 0;
-		}
-	}
-	
-	private static String readOrSetPreference(String key, String value) {
-		try {
-			Preferences pref = Preferences.userNodeForPackage(com.oddlabs.tt.render.Renderer.class);
-			String result = pref.get(key, null);
-			if (result == null) {
-				pref.put(key, value);
-				return value;
-			} else
-				return result;
-		} catch (Exception e) {
-			System.out.println("Could not access preferences");
-			return value;
-		}
-	}
+        Languages languages = new Languages(Settings.getSettings().inBetaMode());
+        String default_language = (String) deterministic.log(Locale.getDefault().getLanguage());
+        String language = Settings.getSettings().language;
+        if (language.equals("default")) {
+            language = default_language;
+        }
+        if (!languages.hasLanguage(language)) {
+            language = "en";
+        }
+        Locale.setDefault(new Locale(language));
+        return languages;
+    }
 
-	public final static void startMenu(NetworkSelector network, GUI gui) {
-		setupMainMenu(network, gui, false);
-	}
+    /**
+     * Sets up the bug reporter if the game has crashed and the user has not hidden the bug reporter via the settings file
+     * @param deterministic The deterministic object used to allow playback of events
+     * @return The directory where the last event log is stored
+     */
+    private File setupBugReporter(Deterministic deterministic) {
+        File last_event_log_dir = new File(Settings.getSettings().last_event_log_dir);
+        boolean crashed = Settings.getSettings().crashed;
+        if (crashed && !Settings.getSettings().hide_bugreporter && !deterministic.isPlayback()) {
+            System.out.println("Starting bug reporter ...");
+            System.out.println("Event log dir: " + last_event_log_dir);
+            try {
+                // TODO: Fix this eventually? And update bug reporter to work / submit issue?
+                // For some reason the bug client window will never pop up and the game won't launch do to this
+                // URL url = new URL("https://" + settings.getBugreportAddress() + "/reportbug.php");
+                // BugClientWindow.showReporter(url, settings.last_revision, last_event_log_dir);
+                System.out.println("Bug reporter completed");
+            } catch (Exception e) {
+                System.out.println("Failed to start bug reporter: " + e);
+            }
+        }
 
-	private static void setupMainMenu(final NetworkSelector network, GUI gui, final boolean first_progress) {
-		/*final WorldGenerator generator = new IslandGenerator(256, Landscape.NATIVE, Globals.LANDSCAPE_HILLS, Globals.LANDSCAPE_VEGETATION, Globals.LANDSCAPE_RESOURCES, Globals.LANDSCAPE_SEED);*/
-		ProgressForm.setProgressForm(network, gui, new LoadCallback() {
-			public final UIRenderer load(GUIRoot gui_root) {
-			//	return finishMainMenu(network, gui_root, first_progress, generator);
-				return finishMainMenu(network, gui_root, first_progress, null);
-			}
-		}, first_progress);
-	}
+        return last_event_log_dir;
+    }
 
-	private static UIRenderer finishMainMenu(NetworkSelector network, GUIRoot gui_root, boolean first_progress, WorldGenerator generator) {
-		AnimationManager.freezeTime();
-		PlayerInfo player_info = new PlayerInfo(0, 0, "");
-		RenderQueues render_queues = new RenderQueues();
-		LandscapeResources landscape_resources = World.loadCommon(render_queues);
-		WorldParameters world_params = new WorldParameters(Game.GAMESPEED_NORMAL, "", 2, Player.DEFAULT_MAX_UNIT_COUNT);
-		PlayerInfo[] players = new PlayerInfo[]{player_info};
-		/*WorldInfo world_info = generator.generate(players.length, world_params.getInitialUnitCount(), 0f);
-		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {
-			public final void gamespeedChanged(int speed) {
-			}
-			public final void playerGamespeedChanged() {
-			}
-			public final void newAttackNotification(Selectable target) {
-			}
-			public final void newSelectableNotification(Selectable target) {
-			}
-			public final void registerTarget(Target target) {
-			}
-			public final void unregisterTarget(Target target) {
-			}
-			public final void updateTreeLowDetail(StrictMatrix4f matrix, TreeSupply tree) {
-			}
-			public final void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
-			}
-		}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Player.COLORS[0]});*/
-		AnimationManager manager = new AnimationManager();
-		/*LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, gui_root, manager);
-		Player local_player = world.getPlayers()[0];
-		Selection selection = new Selection(local_player);
-		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator);*/
-		setMusicPath("/music/menu.ogg", 0f);
-		// main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
-		main_menu = new MainMenu(network, gui_root, new MenuCamera(null, manager));
-		gui_root.pushDelegate(main_menu);
-		if (!initNetwork(network)) {
-			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
-			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "network_not_available_caption"),
-						Utils.getBundleString(bundle, "network_not_available_message"),
-						Utils.getBundleString(bundle, "quit"),
-						new MouseClickListener() {
-							public final void mouseClicked(int button, int x, int y, int clicks) {
-								shutdown();
-							}
-						}));
-		}
-		// return renderer;
-		return null;
-	}
+    /**
+     * Cleans up old log files from the last launch of the game unless developer mode is enabled or a log file is being played back.
+     * @param deterministic The deterministic object used to allow playback of events
+     * @param last_event_log_dir The directory where the last event log is stored
+     * @param event_log_dir The directory where the current event log is stored
+     * @param event_logs_dir The directory where all event logs are stored
+     */
+    private void cleanLogs(Deterministic deterministic, File last_event_log_dir, File event_log_dir, File event_logs_dir) {
+        if (!Settings.getSettings().inDeveloperMode() && !deterministic.isPlayback()) {
+            deleteOldLogs(last_event_log_dir, event_log_dir, event_logs_dir);
+        }
+    }
 
-	private static boolean initNetwork(NetworkSelector network) {
-		boolean is_network_created;
-		try {
-			network.initSelector();
-			com.oddlabs.util.Utils.tryGetLoopbackAddress();
-			is_network_created = true;
-		} catch (IOException e) {
-			System.err.println("Failed to initialize network: " + e);
-			is_network_created = false;
-		}
-		return LocalEventQueue.getQueue().getDeterministic().log(is_network_created);
-	}
+    /** 
+     * Sets up steaming event logging to the event_log_dir.
+     * 
+     * @param event_log_dir The directory where the event log files will be written.
+     * @param silent If true, the standard output and error streams will not be redirected to the log files.
+     */
+    private void setupEventLogging(File event_log_dir, boolean silent) {
+        if (LocalEventQueue.getQueue().getDeterministic() == null && Settings.getSettings().save_event_log) {
+            event_log_dir.mkdirs();
+            System.out.println("Writing log files in " + event_log_dir);
+            LocalEventQueue.getQueue().setEventsLogged(new File(event_log_dir + File.separator + com.oddlabs.util.Utils.EVENT_LOG));
 
-	public final void startMovieRecording() {
-		System.out.println("ACTION!");
-		movie_recording_started = true;
-	}
+            try {
+                OutputStream std_err_file = new FileOutputStream(new File(event_log_dir, com.oddlabs.util.Utils.STD_ERR));
+                OutputStream std_out_file = new FileOutputStream(new File(event_log_dir, com.oddlabs.util.Utils.STD_OUT));
+                OutputStream new_err;
+                OutputStream new_out;
+                if (!silent) {
+                    new_err = new LoggerOutputStream(new OutputStream[]{System.err, std_err_file});
+                    new_out = new LoggerOutputStream(new OutputStream[]{System.out, std_out_file});
+                } else {
+                    new_err = std_err_file;
+                    new_out = std_out_file;
+                }
+                System.setErr(new PrintStream(new_err));
+                System.setOut(new PrintStream(new_out));
+            } catch (IOException e) {
+                System.err.println("Failed to setup logging to " + event_log_dir + " exception: " + e);
+            }
+        }
+    }
 
-	public final void cleanup() {
-		System.out.println("Cleaning up...");
-		LocalEventQueue.getQueue().dispose();
-		destroyNative();
-		System.out.println("Cleanup complete. Exiting");
-	}
+    /** 
+     * Setups up deterministic logging for events.
+     * @param eventload If true, the events will be loaded from a file.
+     * @param zipped If true, the event log file path will be treated as a .gz file
+     */
+    private void setupLoadEvents(boolean eventload, boolean zipped) {    
+        if (eventload || grab_frames) {
+            String last_event_log_path = Settings.getSettings().last_event_log_dir + File.separator + "event.log";
+            if (zipped) {
+                last_event_log_path += ".gz";
+            }
+            System.out.println("last_event_log_path = " + last_event_log_path);
+            // Only use when anal debugging
+//			ChecksumLogger.initLogging();
+            LocalEventQueue.getQueue().loadEvents(new File(last_event_log_path), zipped);
+        }
+    }
+    /**
+     * Creates a http request to the registration server with the current affiliate ID
+     */
+    private final HttpRequestParameters createRegistrationParameters() {
+        String affiliate_id = "";
+        try {
+            Preferences pref = Preferences.userNodeForPackage(com.oddlabs.tt.render.Renderer.class);
+            affiliate_id = pref.get(Globals.AFFILIATE_ID_KEY, "");
+        } catch (Exception e) {
+        }
+        Map parameters = new HashMap();
+        parameters.put("current_affiliate_id", Settings.getSettings().affiliate_id);
+        parameters.put("affiliate_id", affiliate_id);
+        return new HttpRequestParameters("https://" + Settings.getSettings().getRegistrationAddress() + "/oddlabs/registration", parameters);
+    }
 
-	public final static void resetInput() {
-		LocalInput.resetKeys();
-	}
+    public final Locale getDefaultLocale() {
+        return default_locale;
+    }
 
-	private final static void destroyNative() {
-		//destroyAL();
-		Display.destroy();
-	}
+    private final static void failedOpenGL(Exception e) {
+        e.printStackTrace();
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception je) {
+            je.printStackTrace();
+        }
 
-	public final static void dumpWindowInfo() {
-		int r = GLUtils.getGLInteger(GL11.GL_RED_BITS);
-		int g = GLUtils.getGLInteger(GL11.GL_GREEN_BITS);
-		int b = GLUtils.getGLInteger(GL11.GL_BLUE_BITS);
-		int a = GLUtils.getGLInteger(GL11.GL_ALPHA_BITS);
-		int depth = GLUtils.getGLInteger(GL11.GL_DEPTH_BITS);
-		int stencil = GLUtils.getGLInteger(GL11.GL_STENCIL_BITS);
-		int sample_buffers = 0;
-		int samples = 0;
-		if (GL.getCapabilities().GL_ARB_multisample) {
-			sample_buffers = GLUtils.getGLInteger(ARBMultisample.GL_SAMPLE_BUFFERS_ARB);
-			samples = GLUtils.getGLInteger(ARBMultisample.GL_SAMPLES_ARB);
-		}
-		System.out.println("r = " + r + " | g = " + g + " | b = " + b + " | a = " + a + " | depth = " + depth + " | stencil = " + stencil + " | sample_buffers = " + sample_buffers + " | samples = " + samples);
-	}
+        ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
+        String title = Utils.getBundleString(bundle, "error_title");
+        String message = Utils.getBundleString(bundle, "opengl_error_message");
+        int choice = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
-	private final void initNative(boolean crashed, NetworkSelector network) throws Exception {
-		String os_name = System.getProperty("os.name");
-		System.out.println("os_name = '" + os_name + "'");
-		String os_arch = System.getProperty("os.arch");
-		System.out.println("os_arch = '" + os_arch + "'");
-		String os_version = System.getProperty("os.version");
-		System.out.println("os_version = '" + os_version + "'");
-		String java_version = System.getProperty("java.version");
-		System.out.println("java_version = '" + java_version + "'");
-		String java_vendor = System.getProperty("java.vendor");
-		System.out.println("java_vendor = '" + java_vendor + "'");
-		long total_mem = Runtime.getRuntime().maxMemory();
-		System.out.println("total_mem = '" + total_mem + "'");
+        if (choice == JOptionPane.YES_OPTION) {
+            String new_uid = (new UID()).toString();
+            String uid = readOrSetPreference("uid", new_uid);
+            String os_name = System.getProperty("os.name");
+            String os_arch = System.getProperty("os.arch");
+            String os_version = System.getProperty("os.version");
+            String java_version = System.getProperty("java.version");
+            String java_vendor = System.getProperty("java.vendor");
+            long total_mem = Runtime.getRuntime().maxMemory();
 
-		try {
-			//AL.create(null, -1, -1, false);
-			initAL();
-		} catch (Exception e) {
-			System.err.println("Could not create sound system: " + e);
-		}
+            try {
+                String url = "http://" + Settings.getSettings().getDomainName() + "/driversupport.php?"
+                        + "uid=" + URLEncoder.encode(uid, "UTF-8")
+                        + "&raw_os=" + URLEncoder.encode(os_name, "UTF-8")
+                        + "&os_version=" + URLEncoder.encode(os_version, "UTF-8")
+                        + "&arch=" + URLEncoder.encode(os_arch, "UTF-8")
+                        + "&java_version=" + URLEncoder.encode(java_version, "UTF-8")
+                        + "&java_vendor=" + URLEncoder.encode(java_vendor, "UTF-8")
+                        + "&total_mem=" + URLEncoder.encode("" + total_mem, "UTF-8");
+                // Sys.openURL(url);
+            } catch (java.io.UnsupportedEncodingException uee) {
+                uee.printStackTrace();
+            }
+        }
 
-		makeCurrent();
-		String version = GL11.glGetString(GL11.GL_VERSION);
-		System.out.println("GL version: '" + version + "'");
-		String vendor = GL11.glGetString(GL11.GL_VENDOR);
-		System.out.println("GL vendor: '" + vendor + "'");
-		String renderer = GL11.glGetString(GL11.GL_RENDERER);
-		System.out.println("GL renderer: '" + renderer + "'");
-		String extensions = GL11.glGetString(GL11.GL_EXTENSIONS);
-		System.out.println("GL extensions: '" + extensions + "'");
+        Main.shutdown();
+    }
 
-		if (GLUtils.isIntelGMA950() || !Settings.getSettings().useTextureCompression()) {  // Intel mac mini hack
-			Globals.disableTextureCompression();
-		}
-		
-		dumpWindowInfo();
-		try {
-			if (!GL.getCapabilities().OpenGL13) {
-				if (!GL.getCapabilities().GL_ARB_multitexture)
-					throw new Exception("Neither OpenGL 1.3 nor GL_ARB_multitexture is supported, one of which is required for the game to run. Please upgrade your video drivers and/or video card.");
-				System.out.println("OpenGL 1.3 is not supported, using GL_ARB_multitexture and GL_ARB_texture_compression instead");
-			} else
-				System.out.println("OpenGL 1.3 is supported");
-//			int num_tex_units = GLUtils.getGLInteger(GL13.GL_MAX_TEXTURE_UNITS);
-//			if (num_tex_units < 2)
-//				throw new Exception("Number of texture units " + num_tex_units + " < 2");
-		} catch (Exception e) {
-			//destroyAL();
-			e.printStackTrace();
-			System.out.println("Got exception: " + e);
-			Display.destroy();
-			failedOpenGL(e);
-			throw e;
-		}
-		if (!GL.getCapabilities().OpenGL12)
-			System.out.println("OpenGL 1.2 is not supported");
-		display_state_stack = new GLStateStack();
-		GLStateStack.setCurrent(display_state_stack);
-		resetInput();
-System.out.println("vsync = " + Settings.getSettings().vsync);
-System.out.println("vbo = " + Settings.getSettings().useVBO());
-System.out.println("pbuffer = " + Settings.getSettings().usePbuffer());
-System.out.println("fbo = " + Settings.getSettings().useFBO());
-System.out.println("use_texture_compression = " + Settings.getSettings().useTextureCompression());
-		/*if (Settings.getSettings().vsync)
-			Display.setVSyncEnabled(true);*/
-		/*initGL();
-		initVisibleGL();*/
-	}
+    private static boolean readOrSetPreference(String key, boolean value) {
+        String result_string = readOrSetPreference(key, "" + value);
+        return Boolean.valueOf(result_string).booleanValue();
+    }
 
-	private final void initAL() throws IllegalStateException {
-		long device = alcOpenDevice((ByteBuffer) null);
-		if (device == NULL)
-			throw new IllegalStateException("Failed to open default audio device");
+    private static int readOrSetPreference(String key, int value) {
+        String result_string = readOrSetPreference(key, "" + value);
+        try {
+            int result = Integer.parseInt(result_string);
+            return result;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
 
-		long context = alcCreateContext(device, (IntBuffer) null);
-		if (context == NULL)
-			throw new IllegalStateException("Failed to create OpenAL context");
+    private static String readOrSetPreference(String key, String value) {
+        try {
+            Preferences pref = Preferences.userNodeForPackage(com.oddlabs.tt.render.Renderer.class);
+            String result = pref.get(key, null);
+            if (result == null) {
+                pref.put(key, value);
+                return value;
+            } else {
+                return result;
+            }
+        } catch (Exception e) {
+            System.out.println("Could not access preferences");
+            return value;
+        }
+    }
 
-		alcMakeContextCurrent(context);
-		ALCCapabilities alcCaps = createCapabilities(device);
-		ALCapabilities alCaps = AL.createCapabilities(alcCaps);
-		
-		AL10.alDistanceModel(AL10.AL_INVERSE_DISTANCE);
-	}
+    public final static void startMenu(NetworkSelector network, GUI gui) {
+        setupMainMenu(network, gui, false);
+    }
 
-	public final void toggleSound() {
-		Settings.getSettings().play_sfx = !Settings.getSettings().play_sfx;
-		if (Settings.getSettings().play_sfx)
-			AudioManager.getManager().startSources();
-		else
-			AudioManager.getManager().stopSources();
-	}
-	
-	public final void toggleMusic() {
-		Settings.getSettings().play_music = !Settings.getSettings().play_music;
-		if (Settings.getSettings().play_music) {
-			initMusicPlayer();
-		} else if (music != null) {
-			music.stop(2.5f, Settings.getSettings().music_gain);
-		}
-	}
-	
-	private final static void initMusicPlayer() {
-		music = AudioManager.getManager().newAudio(new AudioParameters(music_path, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_MUSIC, AudioPlayer.AUDIO_DISTANCE_MUSIC, Settings.getSettings().music_gain, 1f, 1f, true, true, true));
-	}
+    private static void setupMainMenu(final NetworkSelector network, GUI gui, final boolean first_progress) {
+        final WorldGenerator generator = new IslandGenerator(256, Landscape.NATIVE, Globals.LANDSCAPE_HILLS, Globals.LANDSCAPE_VEGETATION, Globals.LANDSCAPE_RESOURCES, Globals.LANDSCAPE_SEED);
+        ProgressForm.setProgressForm(network, gui, new LoadCallback() {
+            public final UIRenderer load(GUIRoot gui_root) {
+                return finishMainMenu(network, gui_root, first_progress, generator);
+            }
+        }, first_progress);
+    }
 
-	public final static void setMusicPath(String music_path, float delay) {
-		if (Display.isALCreated()) {
-			if (music != null && Settings.getSettings().play_music) {
-				music.stop(2.5f, Settings.getSettings().music_gain);
-			}
-			Renderer.music_path = music_path;
-			if (Settings.getSettings().play_music) {
-				if (music_timer != null)
-					music_timer.stop();
-				music_timer = new TimerAnimation(new MusicTimer(), delay);
-				music_timer.start();
-			}
-		}
-	}
+    private static UIRenderer finishMainMenu(NetworkSelector network, GUIRoot gui_root, boolean first_progress, WorldGenerator generator) {
+        AnimationManager.freezeTime();
+        PlayerInfo player_info = new PlayerInfo(0, 0, "");
+        RenderQueues render_queues = new RenderQueues();
+        LandscapeResources landscape_resources = World.loadCommon(render_queues);
+        WorldParameters world_params = new WorldParameters(Game.GAMESPEED_NORMAL, "", 2, Player.DEFAULT_MAX_UNIT_COUNT);
+        PlayerInfo[] players = new PlayerInfo[]{player_info};
+        WorldInfo world_info = generator.generate(players.length, world_params.getInitialUnitCount(), 0f);
+        /*
+        World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {
+            public final void gamespeedChanged(int speed) {
+            }
 
-	private final static class MusicTimer implements Updatable {
-		public final void update(Object anim) {
-			if (music_timer != null)
-				music_timer.stop();
-			music_timer = null;
-			if (Settings.getSettings().play_music) {
-				initMusicPlayer();
-			}
-		}
-	}
+            public final void playerGamespeedChanged() {
+            }
 
-	public final static AbstractAudioPlayer getMusicPlayer() {
-		return music;
-	}
+            public final void newAttackNotification(Selectable target) {
+            }
 
-	private final static void destroyAL() {
-		if (Display.isALCreated()) {
-			AudioManager.getManager().destroy();
-			// AL.destroy();
-		}
-	}
+            public final void newSelectableNotification(Selectable target) {
+            }
 
-	private final void initVisibleGL() {
-		if (Settings.getSettings().fullscreen_depth_workaround) {
-			IntBuffer dummy_buf = BufferUtils.createIntBuffer(1);
-			GL11.glReadPixels(0, 0, 1, 1, GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_INT, dummy_buf);
-		}
+            public final void registerTarget(Target target) {
+            }
 
-		FloatBuffer float_array = BufferUtils.createFloatBuffer(4);
-		GL11.glEnable(GL11.GL_LIGHT0);
-		float[] light_diff_color = {1.0f, 1.0f, 1.0f, 1.0f};
-		float_array.put(light_diff_color);
-		float_array.rewind();
-		GL11.glLightfv(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, float_array);
-		GL11.glLightModeli(GL11.GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
+            public final void unregisterTarget(Target target) {
+            }
 
-		float[] global_ambient = {0.65f, 0.65f, 0.65f, 1.0f};
-		float_array.put(global_ambient);
-		float_array.rewind();
-		GL11.glLightModelfv(GL11.GL_LIGHT_MODEL_AMBIENT, float_array);
-		float[] material_color = {1.0f, 1.0f, 1.0f, 1.0f};
-		float_array.put(material_color);
-		float_array.rewind();
-		GL11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE, float_array);
-	//	Display.update();
-	}
+            public final void updateTreeLowDetail(StrictMatrix4f matrix, TreeSupply tree) {
+            }
 
-	public final static void initGL() {
-		VBO.releaseAll();
-		GL11.glFrontFace(GL11.GL_CCW);
-		GL11.glCullFace(GL11.GL_BACK);
-		GL11.glEnable(GL11.GL_CULL_FACE); 
-		GL11.glPixelStorei(GL11.GL_PACK_ROW_LENGTH, 0);
-		GL11.glPixelStorei(GL11.GL_PACK_SKIP_PIXELS, 0);
-		GL11.glPixelStorei(GL11.GL_PACK_SKIP_ROWS, 0);
-		GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
-		GL11.glPixelStorei(GL11.GL_PACK_SWAP_BYTES, 0);
+            public final void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
+            }
+        }, world_params, world_info, generator.getTerrainType(), players, new float[][]{Player.COLORS[0]});
+        */
+        AnimationManager manager = new AnimationManager();
+        // LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, gui_root, manager);
+        //Player local_player = world.getPlayers()[0];
+        // Selection selection = new Selection(local_player);
+        // UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator);
+        // UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, generator.getTerrainType(), world_info, null, new Picker(manager, local_player, render_queues, null, selection), selection, generator);
+        setMusicPath("/music/menu.ogg", 0f);
+        MainMenu main_menu = new MainMenu(network, gui_root, new MenuCamera(null, manager));
+        gui_root.pushDelegate(main_menu);
+        if (!initNetwork(network)) {
+            ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
+            gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "network_not_available_caption"),
+                    Utils.getBundleString(bundle, "network_not_available_message"),
+                    Utils.getBundleString(bundle, "quit"),
+                    new MouseClickListener() {
+                public final void mouseClicked(int button, int x, int y, int clicks) {
+                    shutdown();
+                }
+            }));
+        }
+        // return renderer;
+        return null;
+    }
 
-		GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
-		GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
-		GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
-		GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-		GL11.glPixelStorei(GL11.GL_UNPACK_SWAP_BYTES, 0);
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL11.glDepthFunc(GL11.GL_LEQUAL);
-		GL11.glShadeModel(GL11.GL_SMOOTH);
+    private static boolean initNetwork(NetworkSelector network) {
+        boolean is_network_created;
+        try {
+            network.initSelector();
+            com.oddlabs.util.Utils.tryGetLoopbackAddress();
+            is_network_created = true;
+        } catch (IOException e) {
+            System.err.println("Failed to initialize network: " + e);
+            is_network_created = false;
+        }
+        return LocalEventQueue.getQueue().getDeterministic().log(is_network_created);
+    }
+
+    public final void startMovieRecording() {
+        System.out.println("ACTION!");
+        movie_recording_started = true;
+    }
+
+    public final void cleanup() {
+        System.out.println("Cleaning up...");
+        LocalEventQueue.getQueue().dispose();
+        destroyNative();
+        System.out.println("Cleanup complete. Exiting");
+    }
+
+    public final static void resetInput() {
+        LocalInput.resetKeys();
+    }
+
+    private final static void destroyNative() {
+        //destroyAL();
+        Display.destroy();
+    }
+
+    public final static void dumpWindowInfo() {
+        int r = GLUtils.getGLInteger(GL33.GL_RED_BITS);
+        int g = GLUtils.getGLInteger(GL33.GL_GREEN_BITS);
+        int b = GLUtils.getGLInteger(GL33.GL_BLUE_BITS);
+        int a = GLUtils.getGLInteger(GL33.GL_ALPHA_BITS);
+        int depth = GLUtils.getGLInteger(GL33.GL_DEPTH_BITS);
+        int stencil = GLUtils.getGLInteger(GL33.GL_STENCIL_BITS);
+        int sample_buffers = 0;
+        int samples = 0;
+    /*    if (GL.getCapabilities().GL_ARB_multisample) {
+            sample_buffers = GLUtils.getGLInteger(ARBMultisample.GL_SAMPLE_BUFFERS_ARB);
+            samples = GLUtils.getGLInteger(ARBMultisample.GL_SAMPLES_ARB);
+        }*/
+        System.out.println("r = " + r + " | g = " + g + " | b = " + b + " | a = " + a + " | depth = " + depth + " | stencil = " + stencil + " | sample_buffers = " + sample_buffers + " | samples = " + samples);
+    }
+
+    private final void initNative(boolean crashed, NetworkSelector network) throws Exception {
+        String os_name = System.getProperty("os.name");
+        System.out.println("os_name = '" + os_name + "'");
+        String os_arch = System.getProperty("os.arch");
+        System.out.println("os_arch = '" + os_arch + "'");
+        String os_version = System.getProperty("os.version");
+        System.out.println("os_version = '" + os_version + "'");
+        String java_version = System.getProperty("java.version");
+        System.out.println("java_version = '" + java_version + "'");
+        String java_vendor = System.getProperty("java.vendor");
+        System.out.println("java_vendor = '" + java_vendor + "'");
+        long total_mem = Runtime.getRuntime().maxMemory();
+        System.out.println("total_mem = '" + total_mem + "'");
+
+        try {
+            //AL.create(null, -1, -1, false);
+            initAL();
+        } catch (Exception e) {
+            System.err.println("Could not create sound system: " + e);
+        }
+
+        makeCurrent();
+        String version = GL33.glGetString(GL33.GL_VERSION);
+        System.out.println("GL version: '" + version + "'");
+        String vendor = GL33.glGetString(GL33.GL_VENDOR);
+        System.out.println("GL vendor: '" + vendor + "'");
+        String renderer = GL33.glGetString(GL33.GL_RENDERER);
+        System.out.println("GL renderer: '" + renderer + "'");
+        String extensions = GL33.glGetString(GL33.GL_EXTENSIONS);
+        System.out.println("GL extensions: '" + extensions + "'");
+
+        if (GLUtils.isIntelGMA950() || !Settings.getSettings().useTextureCompression()) {  // Intel mac mini hack
+            Globals.disableTextureCompression();
+        }
+
+        initGL();
+        initVisibleGL();
+    }
+
+    private final void initAL() throws IllegalStateException {
+        long device = alcOpenDevice((ByteBuffer) null);
+        if (device == NULL) {
+            throw new IllegalStateException("Failed to open default audio device");
+        }
+
+        long context = alcCreateContext(device, (IntBuffer) null);
+        if (context == NULL) {
+            throw new IllegalStateException("Failed to create OpenAL context");
+        }
+
+        alcMakeContextCurrent(context);
+        ALCCapabilities alcCaps = createCapabilities(device);
+        ALCapabilities alCaps = AL.createCapabilities(alcCaps);
+
+        AL10.alDistanceModel(AL10.AL_INVERSE_DISTANCE);
+    }
+
+    public final void toggleSound() {
+        Settings.getSettings().play_sfx = !Settings.getSettings().play_sfx;
+        if (Settings.getSettings().play_sfx) {
+            AudioManager.getManager().startSources();
+        } else {
+            AudioManager.getManager().stopSources();
+        }
+    }
+
+    public final void toggleMusic() {
+        Settings.getSettings().play_music = !Settings.getSettings().play_music;
+        if (Settings.getSettings().play_music) {
+            initMusicPlayer();
+        } else if (music != null) {
+            music.stop(2.5f, Settings.getSettings().music_gain);
+        }
+    }
+
+    private final static void initMusicPlayer() {
+        music = AudioManager.getManager().newAudio(new AudioParameters(music_path, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_MUSIC, AudioPlayer.AUDIO_DISTANCE_MUSIC, Settings.getSettings().music_gain, 1f, 1f, true, true, true));
+    }
+
+    public final static void setMusicPath(String music_path, float delay) {
+        if (Display.isALCreated()) {
+            if (music != null && Settings.getSettings().play_music) {
+                music.stop(2.5f, Settings.getSettings().music_gain);
+            }
+            Renderer.music_path = music_path;
+            if (Settings.getSettings().play_music) {
+                if (music_timer != null) {
+                    music_timer.stop();
+                }
+                music_timer = new TimerAnimation(new MusicTimer(), delay);
+                music_timer.start();
+            }
+        }
+    }
+
+    private final static class MusicTimer implements Updatable {
+
+        public final void update(Object anim) {
+            if (music_timer != null) {
+                music_timer.stop();
+            }
+            music_timer = null;
+            if (Settings.getSettings().play_music) {
+                initMusicPlayer();
+            }
+        }
+    }
+
+    public final static AbstractAudioPlayer getMusicPlayer() {
+        return music;
+    }
+
+    private final static void destroyAL() {
+        if (Display.isALCreated()) {
+            AudioManager.getManager().destroy();
+            // AL.destroy();
+        }
+    }
+
+    private final void initVisibleGL() {
+        if (Settings.getSettings().fullscreen_depth_workaround) {
+            IntBuffer dummy_buf = BufferUtils.createIntBuffer(1);
+            GL33.glReadPixels(0, 0, 1, 1, GL33.GL_DEPTH_COMPONENT, GL33.GL_UNSIGNED_INT, dummy_buf);
+        }
+
+        FloatBuffer float_array = BufferUtils.createFloatBuffer(4);
+      /*  GL11.glEnable(GL11.GL_LIGHT0);
+        float[] light_diff_color = {1.0f, 1.0f, 1.0f, 1.0f};
+        float_array.put(light_diff_color);
+        float_array.rewind();
+        GL11.glLightfv(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, float_array);
+        GL11.glLightModeli(GL11.GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
+
+        float[] global_ambient = {0.65f, 0.65f, 0.65f, 1.0f};
+        float_array.put(global_ambient);
+        float_array.rewind();
+        GL11.glLightModelfv(GL11.GL_LIGHT_MODEL_AMBIENT, float_array);
+        float[] material_color = {1.0f, 1.0f, 1.0f, 1.0f};
+        float_array.put(material_color);
+        float_array.rewind();
+        GL11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE, float_array);
+        //	Display.update();*/
+    }
+
+    public final static void initGL() {
+        /*
+        VBO.releaseAll();
+        GL11.glFrontFace(GL11.GL_CCW);
+        GL11.glCullFace(GL11.GL_BACK);
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glPixelStorei(GL11.GL_PACK_ROW_LENGTH, 0);
+        GL11.glPixelStorei(GL11.GL_PACK_SKIP_PIXELS, 0);
+        GL11.glPixelStorei(GL11.GL_PACK_SKIP_ROWS, 0);
+        GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
+        GL11.glPixelStorei(GL11.GL_PACK_SWAP_BYTES, 0);
+
+        GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SWAP_BYTES, 0);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthFunc(GL11.GL_LEQUAL);
+        GL11.glShadeModel(GL11.GL_SMOOTH);
 //		GL11.glAlphaFunc(GL11.GL_GREATER, Globals.ALPHA_CUTOFF);
-		// Setup landscape texture coordinate gen
-		GL11.glTexGeni(GL11.GL_S, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
-		GL11.glTexGeni(GL11.GL_T, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-		GLState.activeTexture(GL13.GL_TEXTURE1);
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_DECAL);
-		GL11.glTexGeni(GL11.GL_S, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
-		GL11.glTexGeni(GL11.GL_T, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
-		GLState.activeTexture(GL13.GL_TEXTURE0);
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        // Setup landscape texture coordinate gen
+        GL11.glTexGeni(GL11.GL_S, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
+        GL11.glTexGeni(GL11.GL_T, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+        GLState.activeTexture(GL13.GL_TEXTURE1);
+        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_DECAL);
+        GL11.glTexGeni(GL11.GL_S, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
+        GL11.glTexGeni(GL11.GL_T, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
+        GLState.activeTexture(GL13.GL_TEXTURE0);
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-		GL11.glPointSize(7.0f);
-		clearScreen();
-		GL11.glClearDepth(1.0);
-	}
+        GL11.glPointSize(7.0f);
+        clearScreen();
+        GL11.glClearDepth(1.0);*/
+    }
 
-	public final static void clearScreen() {
-		GL11.glClearColor(0f, 0f, 0f, 0f);
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-		//GL11.glClearColor(1f, 0f, 1f, 0f);
-	}
+    public final static void clearScreen() {
+        GL33.glClearColor(0f, 0f, 0f, 0f);
+        GL33.glClear(GL33.GL_COLOR_BUFFER_BIT);
+        //GL11.glClearColor(1f, 0f, 1f, 0f);
+    }
+
+    /* Old code that used to get registration client extracted out to a method -- obsolete */
+    private final RegistrationClient getRegistrationClientByAffliliate() {
+// 		TaskThread task_thread = network.getTaskThread();
+// 		if (Settings.getSettings().affiliate_id.equals("reflexive")) {
+// System.out.println("affiliate_id equals reflexive");
+// 			registration_client = new ReflexiveRegistrationClient(task_thread, 526, "21658", "Tribal Trouble", "29.95");
+// 		} else if (Settings.getSettings().affiliate_id.equals("totalgaming")) {
+// System.out.println("affiliate_id equals totalgaming");
+// 			registration_client = new TotalgamingRegistrationClient(task_thread, registration_file, request_parameters);
+// 		} else if (Settings.getSettings().affiliate_id.equals("garagegames")) {
+// System.out.println("affiliate_id equals garagegames");
+// 			registration_client = new RegistrationClient(task_thread, registration_file, request_parameters, RegistrationClient.CLIENT_TYPE_FOREIGN);
+// 		} else if (Settings.getSettings().affiliate_id.equals("arcadetown") || !Settings.getSettings().online) {
+// System.out.println("affiliate_id equals arcadetown");
+// 			registration_client = new RegistrationClient(task_thread, registration_file, request_parameters, RegistrationClient.CLIENT_TYPE_OFFLINE);
+// 			registration_client.setKey(Settings.getSettings().reg_key);
+// 		} else if (Settings.getSettings().affiliate_id.equals("trymedia")) {
+// System.out.println("affiliate_id equals trymedia");
+// 			registration_client = new TrymediaRegistrationClient(task_thread, registration_file, request_parameters, RegistrationClient.CLIENT_TYPE_OFFLINE);
+// 			Settings.getSettings().reg_key = registration_client.getPotentialKey();
+// 		} else {			
+// 			registration_client = new RegistrationClient(task_thread, registration_file, request_parameters, RegistrationClient.CLIENT_TYPE_ONLINE);
+// 		}
+// 		return registration_client;
+        return null;
+    }
 }

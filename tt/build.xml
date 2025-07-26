@@ -1,28 +1,30 @@
 <project name="tt" basedir="." default="compile">
-	<import file="../common/common.xml"/>
-	<property name="jre" value="jre1.8.0_381"/>
-	<property name="main_class" value="com.oddlabs.tt.Main"/>
-    <property name="classpath" value="../common/build/classes:${lib}/javasvn.jar:${lib}/lwjgl.jar:${lib}/lwjgl-natives-linux.jar:${lib}/lwjgl-glfw.jar:${lib}/lwjgl-glfw-natives-linux.jar:${lib}/lwjgl-opengl.jar:${lib}/lwjgl-opengl-natives-linux.jar:${lib}/lwjgl-openal.jar:${lib}/lwjgl-openal-natives-linux.jar:${lib}/lwjgl-jawt.jar:${lib}/jorbis.jar:${lib}/jsquish.jar:${lib}/lwjgl-natives-windows.jar:${lib}/lwjgl-glfw-natives-windows.jar:${lib}/lwjgl-opengl-natives-windows.jar:${lib}/lwjgl-openal-natives-windows.jar"/>
-	<property name="res_classpath" value="${build}:static:i18n:${commonstatic}"/>
+	<import file="../common/common.xml" />
 
-	<property name="revision_number_file" location="${build}/revision_number"/>
-	<property name="geometry_file" value="geometry.xml"/>
-	<property name="srcdirgeometry" location="geometry"/>
-	<property name="buildgeometry" location="${build}/geometry"/>
-	<property name="srcdirtextures" location="textures"/>
-	<property name="buildtextures" location="${build}/textures"/>
+	<property name="jre" value="jre1.8.0_381" />
+	<property name="main_class" value="com.oddlabs.tt.Main" />
 
-	<property name="installers" location="installer"/>
-	<property name="installers.build" location="${build}/installers"/>
-	<property name="installers.assembly" location="${installers.build}/assembly"/>
-	<property name="installers.tmproot" location="${installers.build}/tmp"/>
-	<property name="installers.tmp" location="${installers.tmproot}/build"/>
-	<property name="bundleresources" location="${installers.tmp}/Tribal Trouble.app/Contents/Resources/Java"/>
-	<!--<property name="gamedata-svnurl" value="http://127.0.0.1/public_svnroot/games/tt"/>-->
-	<property name="gamedata-svnurl" value="http://update.oddlabs.com/public_svnroot/games/tt"/>
-	<property name="jar.compress" value="true"/>
-	<property name="dist" location="${build}/dist"/>
-	
+
+	<property name="revision_number_file" location="${build}/revision_number" />
+	<property name="geometry_file" value="geometry.xml" />
+	<property name="srcdirgeometry" location="geometry" />
+	<property name="buildgeometry" location="${build}/geometry" />
+	<property name="srcdirtextures" location="textures" />
+	<property name="buildtextures" location="${build}/textures" />
+
+	<property name="installers" location="installer" />
+	<property name="installers.build" location="${build}/installers" />
+	<property name="installers.assembly" location="${installers.build}/assembly" />
+	<property name="installers.tmproot" location="${installers.build}/tmp" />
+	<property name="installers.tmp" location="${installers.tmproot}/build" />
+	<property name="bundleresources"
+		location="${installers.tmp}/Tribal Trouble.app/Contents/Resources/Java" />
+	<!--<property
+	name="gamedata-svnurl" value="http://127.0.0.1/public_svnroot/games/tt"/>-->
+	<property name="gamedata-svnurl" value="http://update.oddlabs.com/public_svnroot/games/tt" />
+	<property name="jar.compress" value="true" />
+	<property name="dist" location="${build}/dist" />
+
 	<!--	<property name="webstartdist" location="webstartdist"/>-->
 
 	<target name="compiledeps" depends="compile-common">
@@ -31,197 +33,196 @@
 	<target name="rundeps" depends="textures, geometry, revision">
 	</target>
 
-    <!-- Classpath -->
-    <path id="lwjgl.classpath">
-        <fileset dir="${lib}">
-            <include name="lwjgl*.jar"/>
-        </fileset>
-    </path>
+	<!-- Classpath -->
+	<path id="build.classpath">
+		<pathelement location="${build}" />
+		<pathelement location="${commonstatic}" />
+		<pathelement location="i18n" />
+		<pathelement location="static" />
+	</path>
 
-    <condition property="lwjgl.natives" value="natives-windows">
-        <os family="Windows"/>
-    </condition>
-
-    <condition property="lwjgl.natives" value="natives-linux">
-        <os name="Linux"/>
-    </condition>
-
-    <condition property="lwjgl.natives" value="natives-macos">
-        <os name="Mac OS X"/>
-    </condition>
+	<target name="echo-classpath">
+		<echo message="Classpath: ${toString:platform.classpath}" />
+		<echo message="Platform natives: ${platform-natives}" />
+	</target>
 
 	<target name="geometry">
 		<ant inheritAll="false" dir="../tools" target="geometry">
-			<property name="geometry_file" value="${geometry_file}"/>
-			<property name="ressrc" location="${srcdirgeometry}"/>
-			<property name="resbuild" location="${buildgeometry}"/>
+			<property name="geometry_file" value="${geometry_file}" />
+			<property name="ressrc" location="${srcdirgeometry}" />
+			<property name="resbuild" location="${buildgeometry}" />
 		</ant>
 	</target>
 
 	<target name="createfonts">
 		<ant inheritAll="false" dir="../tools" target="createfont">
-			<property name="fontname" value="Tahoma"/>
-			<property name="fontsize" value="13"/>
-			<property name="numchars" value="32000"/>
-			<property name="fontinfodir" location="static/font"/>
-			<property name="fonttexdir" location="textures/font"/>
-			<property name="fonttexclasspath" value="/textures/font"/>
+			<property name="fontname" value="Tahoma" />
+			<property name="fontsize" value="13" />
+			<property name="numchars" value="32000" />
+			<property name="fontinfodir" location="static/font" />
+			<property name="fonttexdir" location="textures/font" />
+			<property name="fonttexclasspath" value="/textures/font" />
 		</ant>
 		<ant inheritAll="false" dir="../tools" target="createfont">
-			<property name="fontname" value="Impact"/>
-			<property name="fontsize" value="24"/>
-			<property name="numchars" value="384"/>
-			<property name="fontinfodir" location="static/font"/>
-			<property name="fonttexdir" location="textures/font"/>
-			<property name="fonttexclasspath" value="/textures/font"/>
+			<property name="fontname" value="Impact" />
+			<property name="fontsize" value="24" />
+			<property name="numchars" value="384" />
+			<property name="fontinfodir" location="static/font" />
+			<property name="fonttexdir" location="textures/font" />
+			<property name="fonttexclasspath" value="/textures/font" />
 		</ant>
 	</target>
 
 	<target name="textures">
-		<mkdir dir="${buildtextures}/gui"/>
-		<mkdir dir="${buildtextures}/effects"/>
-		<mkdir dir="${buildtextures}/font"/>
-		<mkdir dir="${buildtextures}/models"/>
-		<property name="convert_args_2d" value="-flip"/>
+		<mkdir dir="${buildtextures}/gui" />
+		<mkdir dir="${buildtextures}/effects" />
+		<mkdir dir="${buildtextures}/font" />
+		<mkdir dir="${buildtextures}/models" />
+		<property name="convert_args_2d" value="-flip" />
 		<fileset id="pixelperfect_textures" dir="${srcdirtextures}">
-			<include name="pixelperfect/*.png"/>
+			<include name="pixelperfect/*.png" />
 		</fileset>
-		<property name="convert_args_2d" value="-flip"/>
+		<property name="convert_args_2d" value="-flip" />
 		<ant inheritAll="false" dir="../tools" target="convert">
-			<reference refid="pixelperfect_textures" torefid="image_files"/>
-			<property name="convert_args" value="${convert_args_2d}"/>
-			<property name="image_ext" value="image"/>
-			<property name="dstdir" location="${buildtextures}/gui"/>
+			<reference refid="pixelperfect_textures" torefid="image_files" />
+			<property name="convert_args" value="${convert_args_2d}" />
+			<property name="image_ext" value="image" />
+			<property name="dstdir" location="${buildtextures}/gui" />
 		</ant>
 		<fileset id="gui_textures" dir="${srcdirtextures}">
-			<include name="gui/*.png"/>
+			<include name="gui/*.png" />
 		</fileset>
-		<property name="convert_args_2d" value="-flip"/>
+		<property name="convert_args_2d" value="-flip" />
 		<ant inheritAll="false" dir="../tools" target="convert">
-			<reference refid="gui_textures" torefid="image_files"/>
-			<property name="convert_args" value="${convert_args_2d}"/>
-			<property name="image_ext" value="dxtn"/>
-			<property name="dstdir" location="${buildtextures}/gui"/>
+			<reference refid="gui_textures" torefid="image_files" />
+			<property name="convert_args" value="${convert_args_2d}" />
+			<property name="image_ext" value="dxtn" />
+			<property name="dstdir" location="${buildtextures}/gui" />
 		</ant>
 		<fileset id="pointer_textures" dir="${srcdirtextures}">
-			<include name="pointer/*.png"/>
+			<include name="pointer/*.png" />
 		</fileset>
 		<ant inheritAll="false" dir="../tools" target="convert">
-			<reference refid="pointer_textures" torefid="image_files"/>
-			<property name="convert_args" value="${convert_args_2d}"/>
-			<property name="image_ext" value="image"/>
-			<property name="dstdir" location="${buildtextures}/gui"/>
+			<reference refid="pointer_textures" torefid="image_files" />
+			<property name="convert_args" value="${convert_args_2d}" />
+			<property name="image_ext" value="image" />
+			<property name="dstdir" location="${buildtextures}/gui" />
 		</ant>
 		<fileset id="effect_textures" dir="${srcdirtextures}">
-			<include name="effects/*.png"/>
+			<include name="effects/*.png" />
 		</fileset>
 		<ant inheritAll="false" dir="../tools" target="convert">
-			<reference refid="effect_textures" torefid="image_files"/>
-			<property name="convert_args" value="${convert_args_2d} -mipmaps"/>
-			<property name="image_ext" value="dxtn"/>
-			<property name="dstdir" location="${buildtextures}/effects"/>
+			<reference refid="effect_textures" torefid="image_files" />
+			<property name="convert_args" value="${convert_args_2d} -mipmaps" />
+			<property name="image_ext" value="dxtn" />
+			<property name="dstdir" location="${buildtextures}/effects" />
 		</ant>
 		<fileset id="font_textures" dir="${srcdirtextures}">
-			<include name="font/*.png"/>
+			<include name="font/*.png" />
 		</fileset>
 		<ant inheritAll="false" dir="../tools" target="convert">
-			<reference refid="font_textures" torefid="image_files"/>
-			<property name="convert_args" value="${convert_args_2d}"/>
-			<property name="image_ext" value="dxtn"/>
-			<property name="dstdir" location="${buildtextures}/font"/>
+			<reference refid="font_textures" torefid="image_files" />
+			<property name="convert_args" value="${convert_args_2d}" />
+			<property name="image_ext" value="dxtn" />
+			<property name="dstdir" location="${buildtextures}/font" />
 		</ant>
 		<!--		<ant inheritAll="false" dir="../tools" target="textures">
 			<property name="ressrc" location="${srcdirtextures}"/>
 			<property name="resbuild" location="${buildtextures}"/>
 		</ant>-->
-		<property name="texture.src" value="${srcdirtextures}/models"/>
-		<property name="team.src" value="${srcdirtextures}/teamdecals"/>
-		<property name="texture.dst" value="${buildtextures}/models"/>
+		<property name="texture.src" value="${srcdirtextures}/models" />
+		<property name="team.src" value="${srcdirtextures}/teamdecals" />
+		<property name="texture.dst" value="${buildtextures}/models" />
 		<!-- 1/2.2 ~ 0.45454545454545453 -->
 		<fileset id="textures" dir="${texture.src}">
-			<include name="**/*.png"/>
+			<include name="**/*.png" />
 		</fileset>
 		<fileset id="team_textures" dir="${team.src}">
-			<include name="**/*.png"/>
+			<include name="**/*.png" />
 		</fileset>
 		<ant inheritAll="false" dir="../tools" target="convert">
-			<reference refid="textures" torefid="image_files"/>
-			<property name="convert_args" value="-flip -gamma 0.45454545454545453 -mipmaps -gamma 2.2"/>
-			<property name="image_ext" value="dxtn"/>
-			<property name="dstdir" location="${texture.dst}"/>
+			<reference refid="textures" torefid="image_files" />
+			<property name="convert_args"
+				value="-flip -gamma 0.45454545454545453 -mipmaps -gamma 2.2" />
+			<property name="image_ext" value="dxtn" />
+			<property name="dstdir" location="${texture.dst}" />
 		</ant>
 		<ant inheritAll="false" dir="../tools" target="convert">
-			<reference refid="team_textures" torefid="image_files"/>
-			<property name="convert_args" value="-half -flip -mipmaps"/>
-			<property name="image_ext" value="dxtn"/>
-			<property name="dstdir" location="${texture.dst}"/>
+			<reference refid="team_textures" torefid="image_files" />
+			<property name="convert_args" value="-half -flip -mipmaps" />
+			<property name="image_ext" value="dxtn" />
+			<property name="dstdir" location="${texture.dst}" />
 		</ant>
 	</target>
 
 	<target name="revision">
 		<exec executable="git" output="${revision_number_file}">
-			<arg value="rev-list"/>
-			<arg value="--count"/>
-			<arg value="HEAD"/>
+			<arg value="rev-list" />
+			<arg value="--count" />
+			<arg value="HEAD" />
 		</exec>
 	</target>
 
 	<target name="proceduraltest" depends="compile">
-		<java fork="yes" classpath="../common/build/classes:${build}/classes" classname="com.oddlabs.tt.procedural.Main">
-			<jvmarg value="-ea"/>
-			<jvmarg value="-Xmx200000000"/>
+		<java fork="yes" classname="com.oddlabs.tt.procedural.Main">
+			<classpath refid="platform.classpath" />
+			<jvmarg value="-ea" />
+			<jvmarg value="-Xmx200000000" />
 		</java>
 	</target>
 
 	<target name="generatetextures" depends="compile">
-        <java failonerror="true" fork="yes" classpath="${lib}/lwjgl.jar:${lib}/lwjgl-natives-linux.jar:${lib}/lwjgl-glfw.jar:${lib}/lwjgl-glfw-natives-linux.jar:${lib}/lwjgl-opengl.jar:${lib}/lwjgl-opengl-natives-linux.jar:${lib}/lwjgl-openal.jar:${lib}/lwjgl-openal-natives-linux.jar:${lib}/lwjgl-jawt.jar:${build}:${build}/classes:../common/build/classes" classname="com.oddlabs.texturegenerator.TextureGenerator">
-			<jvmarg value="-ea"/>
-			<jvmarg value="-Djava.library.path=${nativelib}"/>
-			<arg value="${srcdirtextures}"/>
+		<java failonerror="true" fork="yes"
+			classname="com.oddlabs.texturegenerator.TextureGenerator">
+			<classpath refid="platform.classpath" />
+			<jvmarg value="-ea" />
+			<jvmarg value="-Djava.library.path=${nativelib}" />
+			<arg value="${srcdirtextures}" />
 		</java>
 	</target>
 
 	<!-- installer stuff -->
-	<target name="dist" depends="mrproper, makedist" description="generate the distribution"/>
+	<target name="dist" depends="mrproper, makedist" description="generate the distribution" />
 
 	<target name="loader" depends="compile-common">
-		<ant inheritAll="false" dir="../loader" target="loader"/>
+		<ant inheritAll="false" dir="../loader" target="loader" />
 	</target>
 
 	<target name="makedist" depends="compile,rundeps,loader" description="generate the distribution">
 		<!-- Create the distribution directory -->
-		<mkdir dir="${dist}/common"/>
-		<mkdir dir="${dist}/linux-x86"/>
-		<mkdir dir="${dist}/windows"/>
-		<mkdir dir="${dist}/macosx-ppc"/>
+		<mkdir dir="${dist}/common" />
+		<mkdir dir="${dist}/linux-x86" />
+		<mkdir dir="${dist}/windows" />
+		<mkdir dir="${dist}/macosx-x86" />
+		<mkdir dir="${dist}/macosx-arm64" />
 		<jar compress="false" destfile="${dist}/common/tt-code.jar">
 			<fileset dir="${build}/classes">
-				<include name="com/oddlabs/tt/**/*class"/>
+				<include name="com/oddlabs/tt/**/*class" />
 			</fileset>
 			<fileset dir="../common/build/classes">
-				<include name="com/oddlabs/net/**/*class"/>
-				<include name="com/oddlabs/geometry/**/*class"/>
-				<include name="com/oddlabs/util/**/*class"/>
-				<include name="com/oddlabs/procedural/**/*class"/>
-				<include name="com/oddlabs/regclient/**/*class"/>
-				<include name="com/oddlabs/registration/**/*class"/>
-				<include name="com/oddlabs/matchmaking/**/*class"/>
-				<include name="com/oddlabs/bugreport/**/*class"/>
-				<include name="com/oddlabs/updater/**/*class"/>
-				<include name="com/oddlabs/event/**/*class"/>
-				<include name="com/oddlabs/http/**/*class"/>
-				<include name="com/oddlabs/router/**/*class"/>
+				<include name="com/oddlabs/net/**/*class" />
+				<include name="com/oddlabs/geometry/**/*class" />
+				<include name="com/oddlabs/util/**/*class" />
+				<include name="com/oddlabs/procedural/**/*class" />
+				<include name="com/oddlabs/regclient/**/*class" />
+				<include name="com/oddlabs/registration/**/*class" />
+				<include name="com/oddlabs/matchmaking/**/*class" />
+				<include name="com/oddlabs/bugreport/**/*class" />
+				<include name="com/oddlabs/updater/**/*class" />
+				<include name="com/oddlabs/event/**/*class" />
+				<include name="com/oddlabs/http/**/*class" />
+				<include name="com/oddlabs/router/**/*class" />
 			</fileset>
 			<fileset dir="../loader/build/classes">
-				<include name="com/oddlabs/loader/**/*class"/>
+				<include name="com/oddlabs/loader/**/*class" />
 			</fileset>
 			<fileset dir="static">
-				<include name="scripts/*.xml"/>
+				<include name="scripts/*.xml" />
 			</fileset>
 		</jar>
 		<jar compress="false" destfile="${dist}/common/tt-i18n.jar">
 			<fileset dir="i18n">
-				<include name="com/oddlabs/tt/**/*properties"/>
+				<include name="com/oddlabs/tt/**/*properties" />
 			</fileset>
 		</jar>
 		<copy todir="${dist}/common">
@@ -235,94 +236,128 @@
 				<include name="com/oddlabs/updater/**/*class"/>
 				<include name="com/oddlabs/loader/**/*class"/>
 				-->
-				<include name="textures/gui/*image"/>
-				<include name="textures/gui/*dxtn"/>
-				<include name="textures/models/*dxtn"/>
-				<include name="geometry/**/*binsprite"/>
-				<include name="geometry/**/*binlowdetail"/>
+				<include name="textures/gui/*image" />
+				<include name="textures/gui/*dxtn" />
+				<include name="textures/models/*dxtn" />
+				<include name="geometry/**/*binsprite" />
+				<include name="geometry/**/*binlowdetail" />
 
-				<include name="textures/effects/*image"/>
-				<include name="textures/effects/*dxtn"/>
-				<include name="textures/font/*image"/>
-				<include name="textures/font/*dxtn"/>
+				<include name="textures/effects/*image" />
+				<include name="textures/effects/*dxtn" />
+				<include name="textures/font/*image" />
+				<include name="textures/font/*dxtn" />
 			</fileset>
-			<fileset file="${revision_number_file}"/>
+			<fileset file="${revision_number_file}" />
 			<fileset dir="../common/static">
-				<include name="public_reg_key"/>
+				<include name="public_reg_key" />
 			</fileset>
 			<fileset dir="static">
-				<include name="gui/*.xml"/>
-				<include name="sfx/*.ogg"/>
-				<include name="sfx/*.wav"/>
-				<include name="music/*.ogg"/>
-				<include name="font/*font"/>
+				<include name="gui/*.xml" />
+				<include name="sfx/*.ogg" />
+				<include name="sfx/*.wav" />
+				<include name="music/*.ogg" />
+				<include name="font/*font" />
 				<!--				<include name="textures/models/*png"/>
 				<include name="textures/models/*jpg"/>-->
 			</fileset>
 			<fileset dir="${lib}">
-				<include name="lwjgl.jar"/>
-				<include name="lwjgl-natives-linux.jar"/>
-				<include name="lwjgl-glfw.jar"/>
-				<include name="lwjgl-glfw-natives-linux.jar"/>
-				<include name="lwjgl-opengl.jar"/>
-				<include name="lwjgl-opengl-natives-linux.jar"/>
-				<include name="lwjgl-openal.jar"/>
-				<include name="lwjgl-openal-natives-linux.jar"/>
-				<include name="lwjgl-jawt.jar"/>
-				<include name="jorbis.jar"/>
-				<include name="jsquish.jar"/>
+				<include name="lwjgl.jar" />
+				<include name="lwjgl-glfw.jar" />
+				<include name="lwjgl-opengl.jar" />
+				<include name="lwjgl-openal.jar" />
+				<include name="lwjgl-jawt.jar" />
+				<include name="jorbis.jar" />
+				<include name="jsquish.jar" />
 			</fileset>
+			<path refid="${platform-natives}" />
 		</copy>
-		
-		<copy todir="${dist}/common" file="../binaries/registration"/>
+
+		<copy todir="${dist}/common" file="../binaries/registration" />
 	</target>
 
 	<!-- ant dist MUST be ran first. -->
-	<target name="build-windows">
+	<target name="build-windows" depends="dist">
 
 		<!-- Set app name -->
-		<property name="app_name" value="TribalTrouble"/>
+		<property name="app_name" value="TribalTrouble" />
 
 		<!-- Delete if already exists -->
-		<delete dir="${dist}/windows/TribalTrouble"/>
+		<delete dir="${dist}/windows/TribalTrouble" />
 
 		<exec executable="jpackage" dir="." failonerror="true">
-			<arg value="--name"/>
-			<arg value="${app_name}"/>
-			<arg value="--dest"/>
-			<arg value="${dist}/windows"/>
-			<arg value="--input"/>
-			<arg value="${dist}/common"/>
-			<arg value="--main-jar"/>
-			<arg value="tt-code.jar"/>
-			<arg value="--main-class"/>
-			<arg value="com.oddlabs.tt.Main"/>
-			<arg value="--java-options"/>
-			<arg value="-ea -Djdk.crypto.KeyAgreement.legacyKDF=true -Xmx512m -cp $APPDIR\;$APPDIR\*"/>
-			<arg value="--type"/>
-			<arg value="app-image"/>
-			<arg value="--win-console"/>
-			<arg value="--icon"/>
-			<arg value="tribaltrouble.ico"/>
+			<arg value="--name" />
+			<arg value="${app_name}" />
+			<arg value="--dest" />
+			<arg value="${dist}/windows" />
+			<arg value="--input" />
+			<arg value="${dist}/common" />
+			<arg value="--main-jar" />
+			<arg value="tt-code.jar" />
+			<arg value="--main-class" />
+			<arg value="com.oddlabs.tt.Main" />
+			<arg value="--java-options" />
+			<arg
+				value="-ea -Djdk.crypto.KeyAgreement.legacyKDF=true -Xmx512m -cp $APPDIR\;$APPDIR\*" />
+			<arg value="--type" />
+			<arg value="app-image" />
+			<arg value="--win-console" />
+			<arg value="--icon" />
+			<arg value="tribaltrouble.ico" />
 		</exec>
-
-		<copy todir="${dist}/windows/TribalTrouble/app">
-			<fileset dir="${lib}">
-				<include name="lwjgl-natives-windows.jar"/>
-				<include name="lwjgl-glfw-natives-windows.jar"/>
-				<include name="lwjgl-opengl-natives-windows.jar"/>
-				<include name="lwjgl-openal-natives-windows.jar"/>
-			</fileset>
-		</copy>
-
-		<!-- Delete Linux libraries (Remove once linux libraries moved from dist/common/ ) -->
-		<delete>
-			<fileset dir="${dist}/windows/TribalTrouble/app">
-				<include name="lwjgl-natives-linux.jar"/>
-				<include name="lwjgl-glfw-natives-linux.jar"/>
-				<include name="lwjgl-opengl-natives-linux.jar"/>
-				<include name="lwjgl-openal-natives-linux.jar"/>
-			</fileset>
-		</delete>
+		
 	</target>
+	<target name="build-mac-x86" depends="dist">
+		<!-- Set app name -->
+		<property name="app_name" value="TribalTrouble" />
+
+		<exec executable="jpackage" dir="." failonerror="true">
+			<arg value="--name" />
+			<arg value="${app_name}" />
+			<arg value="--dest" />
+			<arg value="${dist}/macosx-x86" />
+			<arg value="--input" />
+			<arg value="${dist}/common" />
+			<arg value="--main-jar" />
+			<arg value="tt-code.jar" />
+			<arg value="--main-class" />
+			<arg value="com.oddlabs.tt.Main" />
+			<arg value="--java-options" />
+			<arg
+				value="-ea -XstartOnFirstThread -cp $APPDIR:$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true" />
+			<!-- add the below values for dmg installer to be produced instead -->
+			<!-- <arg value="-type" /> add a dash back if uncommenting
+			<arg value="app-image" /> -->
+			<!-- Note: The process will complain about signing but the application can still run -->
+			<!-- Note: - After release version of mac is installed user needs to drop registration
+			file at /user/<your_user>/ or MP will not work -->
+		</exec>
+	</target>
+	<target name="build-mac-arm64" depends="dist">
+		<!-- Set app name -->
+		<property name="app_name" value="TribalTrouble" />
+
+		<exec executable="jpackage" dir="." failonerror="true">
+			<arg value="--name" />
+			<arg value="${app_name}" />
+			<arg value="--dest" />
+			<arg value="${dist}/macosx-arm64" />
+			<arg value="--input" />
+			<arg value="${dist}/common" />
+			<arg value="--main-jar" />
+			<arg value="tt-code.jar" />
+			<arg value="--main-class" />
+			<arg value="com.oddlabs.tt.Main" />
+			<arg value="--java-options" />
+			<arg
+				value="-ea -XstartOnFirstThread -cp $APPDIR:$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true" />
+			<!-- add the below values for dmg installer to be produced instead -->
+			<!-- <arg value="-type" /> add a dash back when uncommented
+			<arg value="app-image" /> -->
+			<!-- Note: The process will complain about signing but the application can still run -->
+			<!-- Note: - After release version of mac is installed user needs to drop registration
+			 file at /user/<your_user>/ or MP will not work -->
+		</exec>
+	</target>
+
+	<target name="build-all" depends="build-windows, build-mac-x86, build-mac-arm64" />
 </project>

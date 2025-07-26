@@ -274,7 +274,7 @@ public final strictfp class MatchmakingClient implements MatchmakingClientInterf
 
 	private final void open(NetworkSelector network) {
 		close();
-		this.conn = new SecureConnection(network.getDeterministic(), new Connection(network, Settings.getSettings().matchmaking_address, MatchmakingServerInterface.MATCHMAKING_SERVER_PORT, this), null);
+		this.conn = new SecureConnection(network.getDeterministic(), new Connection(network, Settings.getSettings().getMatchmakingAddress(), MatchmakingServerInterface.MATCHMAKING_SERVER_PORT, this), null);
 		this.matchmaking_login_interface = (MatchmakingServerLoginInterface)ARMIEvent.createProxy(conn, MatchmakingServerLoginInterface.class);
 	}
 

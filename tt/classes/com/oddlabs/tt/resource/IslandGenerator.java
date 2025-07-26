@@ -103,11 +103,14 @@ public final strictfp class IslandGenerator implements WorldGenerator {
 		int alpha_size = grid_units;
 		Texture[][] chunk_maps;
 		OffscreenRendererFactory factory = new OffscreenRendererFactory();
+        /*
 		do {
 			chunk_maps = blendTextures(factory, chunks_per_colormap, blend_infos, alpha_size, Globals.STRUCTURE_SIZE, colormap_size/alpha_size);
 		} while (chunk_maps == null);
+        */
 		ProgressForm.progress();
-		return new WorldInfo(meters_per_world, landscape.getSeaLevelMeters(), colormap_size, chunks_per_colormap, chunk_maps, detail, heightmap, trees, palm_trees, rock, iron, plants, access_grid, build_grid, starting_locations);
+		// return new WorldInfo(meters_per_world, landscape.getSeaLevelMeters(), colormap_size, chunks_per_colormap, chunk_maps, detail, heightmap, trees, palm_trees, rock, iron, plants, access_grid, build_grid, starting_locations);
+        return null;
 	}
 
 	private final static Texture[][] blendTextures(OffscreenRendererFactory factory, int chunks_per_colormap, BlendInfo[] blend_infos, int alpha_size, int structure_size, int scale) {
@@ -184,8 +187,6 @@ public final strictfp class IslandGenerator implements WorldGenerator {
 						GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
 						blend_infos[i].reset();
 					}
-/*if (mip_level == 0)
-offscreen.dumpToFile("colormap-" + x + "-" + y);*/
 					offscreen.copyToTexture(chunk_maps[y][x], mip_level, Globals.COMPRESSED_RGB_FORMAT, 0, 0, mip_size, mip_size);
 					mip_scale <<= 1;
 					mip_level++;
@@ -195,9 +196,6 @@ offscreen.dumpToFile("colormap-" + x + "-" + y);*/
 		}
 		boolean succeeded = offscreen.destroy();
 		if (!succeeded) {
-/*			for (int y = 0; y < chunk_maps.length; y++)
-				for (int x = 0; x < chunk_maps[y].length; x++)
-					chunk_maps[y][x].delete();*/
 			return null;
 		} else
 			return chunk_maps;

@@ -22,6 +22,49 @@ public final strictfp class GUIImage extends GUIObject {
     private int var_resolution = 0;
     private int vao = 0;
 
+    /**
+     * Creates a GUIImage with specified texture coordinates.
+     *
+     * @param width The desired width of the image to display in game.
+     * @param height The desired height of the image to display in game.
+     * @param u1 The left texture coordinate (0.0 to 1.0).
+     * @param v1 The top texture coordinate (0.0 to 1.0).
+     * @param u2 The right texture coordinate (0.0 to 1.0).
+     * @param v2 The bottom texture coordinate (0.0 to 1.0).
+     * @param texture_name The name of the texture resource to load from disk.
+     * Should not include an extension
+     */
+    public GUIImage(int width, int height, float u1, float v1, float u2, float v2, String texture_name, boolean is_button) {
+        this(width, height, u1, v1, u2, v2, (Texture) Resources.findResource(new TextureFile(texture_name, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)), is_button);
+    }
+
+    /**
+     * Creates a GUIImage with specified texture coordinates and allows for
+     * mouse clicked events (aka focusing).
+     *
+     * @param width The desired width of the image to display in game.
+     * @param height The desired height of the image to display in game.
+     * @param u1 The left texture coordinate (0.0 to 1.0).
+     * @param v1 The top texture coordinate (0.0 to 1.0
+     * @param u2 The right texture coordinate (0.0 to 1.0).
+     * @param v2 The bottom texture coordinate (0.0 to 1.0
+     * @param texture The texture to use for this image.
+     * @param is_button If true, the image can be focused and clicked on.
+     */
+    public GUIImage(int width, int height, float u1, float v1, float u2, float v2, Texture texture, boolean is_button) {
+        this.u1 = u1;
+        this.v1 = v1;
+        this.u2 = u2;
+        this.v2 = v2;
+        this.texture = texture;
+        if (width < 0 || height < 0) {
+            setDim(texture.getWidth(), texture.getHeight());
+        } else {
+            setDim(width, height);
+        }
+        setCanFocus(is_button);
+    }
+
 	public GUIImage(int width, int height, float u1, float v1, float u2, float v2, String texture_name) {
 		this(width, height, u1, v1, u2, v2, (Texture)Resources.findResource(new TextureFile(texture_name, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)));
 	}
@@ -148,5 +191,13 @@ public final strictfp class GUIImage extends GUIObject {
         GL33.glBindVertexArray(vao);
         GL33.glDrawArrays(GL33.GL_TRIANGLE_STRIP, 0, 4);
 	}
+
+    @Override
+    protected int getCursorIndex() {
+        if(isHovered()) {
+            return GUIRoot.CURSOR_TARGET;
+        }
+        return GUIRoot.CURSOR_NORMAL;
+    }
 }
 

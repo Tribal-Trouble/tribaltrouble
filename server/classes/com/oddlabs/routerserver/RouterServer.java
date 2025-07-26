@@ -66,7 +66,8 @@ public final strictfp class RouterServer {
 
 	private final static void postPanic() {
 		try {
-			DBUtils.initConnection("jdbc:mysql://localhost/oddlabs", "matchmaker", "U46TawOp");
+			String password = System.getenv("TT_SERVER_PASSWORD");
+			DBUtils.initConnection("jdbc:mysql://localhost/oddlabs", "matchmaker", password);
 			DBUtils.postHermesMessage("elias, xar, jacob, thufir: Router crashed!");
 		} catch (Throwable t) {
 			System.out.println("Exception (Throwable): " + t);

@@ -1,5 +1,3 @@
 <project name="common" basedir="." default="compile">
 	<import file="common.xml"/>
-
-    <property name="classpath" value="../common/build/classes:${lib}/lwjgl-natives-linux.jar:${lib}/lwjgl-glfw.jar:${lib}/lwjgl-glfw-natives-linux.jar:${lib}/lwjgl-opengl.jar:${lib}/lwjgl-opengl-natives-linux.jar:${lib}/lwjgl-openal.jar:${lib}/lwjgl-openal-natives-linux.jar:${lib}/lwjgl-jawt.jar:${lib}/jsquish.jar:${lib}/javasvn.jar:${lib}/lwjgl.jar:${lib}/jorbis.jar:${lib}/commons-pool-1.2.jar:${lib}/commons-dbcp-1.2.1.jar:${lib}/commons-collections-3.1.jar"/>
 </project>
