@@ -1,7 +1,7 @@
 package com.oddlabs.tt.input;
 
 import com.oddlabs.tt.render.Cursor;
-import com.oddlabs.util.Mouse;
+import com.oddlabs.tt.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import com.oddlabs.tt.event.LocalEventQueue;

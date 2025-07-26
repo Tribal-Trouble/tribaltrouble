@@ -1,4 +1,4 @@
-package com.oddlabs.util;
+package com.oddlabs.tt.render;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -8,8 +8,8 @@ import org.lwjgl.system.MemoryUtil;
 
 import static org.lwjgl.opengl.GL11.*;
 
-import com.oddlabs.util.Keyboard;
-import com.oddlabs.util.Mouse;
+import com.oddlabs.util.*;
+import com.oddlabs.tt.input.*;
 
 public final strictfp class Display {
     private static long window;
@@ -44,6 +44,8 @@ public final strictfp class Display {
 
         width = videoMode.width();
         height = videoMode.height();
+
+        TrafoState.setResolution(width, height);
 
         window = GLFW.glfwCreateWindow(width, height, title, monitor, 0);
 

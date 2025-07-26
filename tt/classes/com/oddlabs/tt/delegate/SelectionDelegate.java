@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import com.oddlabs.util.Keyboard;
+import com.oddlabs.tt.input.Keyboard;
 
 import com.oddlabs.tt.net.DistributableTable;
 import com.oddlabs.tt.camera.GameCamera;

@@ -6,7 +6,7 @@ import com.oddlabs.tt.util.Utils;
 
 import java.util.ResourceBundle;
 
-import com.oddlabs.util.Display;
+import com.oddlabs.tt.render.Display;
 
 public final strictfp class Main {
 	public final static void fail(Throwable t) {

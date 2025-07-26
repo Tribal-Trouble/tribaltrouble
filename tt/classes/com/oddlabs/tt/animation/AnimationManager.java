@@ -23,7 +23,7 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.form.QuitForm;
 import com.oddlabs.tt.camera.CameraState;
-import com.oddlabs.util.Display;
+import com.oddlabs.tt.render.Display;
 
 public final strictfp class AnimationManager {
 	public final static int ANIMATION_MILLISECONDS_PER_TICK = 20;

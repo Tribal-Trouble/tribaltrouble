@@ -18,7 +18,7 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.global.Settings;
 
-import com.oddlabs.util.Keyboard;
+import com.oddlabs.tt.input.Keyboard;
 import java.util.Set;
 
 public abstract strictfp class InGameDelegate extends CameraDelegate {

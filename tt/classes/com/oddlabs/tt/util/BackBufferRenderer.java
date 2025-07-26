@@ -1,6 +1,6 @@
 package com.oddlabs.tt.util;
 
-import com.oddlabs.util.Display;
+import com.oddlabs.tt.render.Display;
 import org.lwjgl.opengl.GL11;
 
 import com.oddlabs.tt.render.Renderer;

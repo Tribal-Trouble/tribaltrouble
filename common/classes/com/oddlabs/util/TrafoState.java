@@ -7,12 +7,22 @@ public class TrafoState {
     public static float[] color = new float[4];
     private static Matrix4f[] mat_stack = new Matrix4f[20];
     private static int counter = 0;
+    private static int width;
+    private static int height;
 
     static {
         for (int i = 0; i < 20; i++) {
             mat_stack[i] = new Matrix4f();
         }
         setColor(1f, 1f, 1f, 1f);
+    }
+
+    public static int getWidth() { return width; }
+    public static int getHeight() { return height; }
+
+    public static void setResolution(int w, int h) {
+        width = w;
+        height = h;
     }
 
     private static void recalc() {

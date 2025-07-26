@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import java.util.ResourceBundle;
 
-import com.oddlabs.util.Keyboard;
+import com.oddlabs.tt.input.Keyboard;
 
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.camera.GameCamera;

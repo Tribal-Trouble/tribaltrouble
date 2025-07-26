@@ -7,7 +7,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.lwjgl.BufferUtils;
-import com.oddlabs.util.Keyboard;
+import com.oddlabs.tt.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import com.oddlabs.util.Matrix4f;
 import com.oddlabs.util.Vector3f;
@@ -355,7 +355,7 @@ System.out.println("Globals.run_ai = " + Globals.run_ai);
 				}
 				break;*/
 			case Keyboard.KEY_J:
-				com.oddlabs.util.Mouse.setCursorPosition(10, 10);
+				com.oddlabs.tt.input.Mouse.setCursorPosition(10, 10);
 				break;
 			case Keyboard.KEY_S:
 				if (!event.isControlDown()) {

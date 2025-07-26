@@ -13,7 +13,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.AudioImplementation;
 
-import com.oddlabs.util.Display;
+import com.oddlabs.tt.render.Display;
 
 public final strictfp class AudioManager implements AudioImplementation {
 	private final static int MAX_NUM_SOURCES = 32;

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 import org.lwjgl.openal.AL;
 import com.oddlabs.tt.render.Cursor;
-import com.oddlabs.util.Display;
+import com.oddlabs.tt.render.Display;
 
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.tt.render.Renderer;
@@ -22,7 +22,7 @@ import com.oddlabs.tt.form.QuitForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.input.KeyboardInput;
-import com.oddlabs.util.Keyboard;
+import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.updater.UpdateInfo;
@@ -204,8 +204,8 @@ public final strictfp class LocalInput {
 
 	public final static void init() {
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
-		mouse_x = deterministic.log(com.oddlabs.util.Mouse.getX());
-		mouse_y = deterministic.log(com.oddlabs.util.Mouse.getY());
+		mouse_x = deterministic.log(com.oddlabs.tt.input.Mouse.getX());
+		mouse_y = deterministic.log(com.oddlabs.tt.input.Mouse.getY());
 	}
 
 	public static final float getViewAspect() {

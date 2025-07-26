@@ -15,7 +15,7 @@ import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.audio.AudioFile;
 import com.oddlabs.tt.util.StrictVector3f;
 
-import com.oddlabs.util.Display;
+import com.oddlabs.tt.render.Display;
 
 import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;

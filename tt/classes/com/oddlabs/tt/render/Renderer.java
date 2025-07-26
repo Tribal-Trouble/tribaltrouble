@@ -31,12 +31,12 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.opengl.ARBMultisample;
-import com.oddlabs.util.Display;
+import com.oddlabs.tt.render.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL;
-import com.oddlabs.util.Keyboard;
+import com.oddlabs.tt.input.Keyboard;
 
 import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.openal.AL10.*;

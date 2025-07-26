@@ -2,7 +2,7 @@ package com.oddlabs.tt.form;
 
 import java.util.ResourceBundle;
 
-import com.oddlabs.util.Keyboard;
+import com.oddlabs.tt.input.Keyboard;
 
 import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.tt.event.LocalEventQueue;
@@ -24,7 +24,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.render.Renderer;
-import com.oddlabs.util.Display;
+import com.oddlabs.tt.render.Display;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.delegate.MainMenu;
 

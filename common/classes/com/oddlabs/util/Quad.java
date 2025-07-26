@@ -253,7 +253,7 @@ public strictfp class Quad implements Serializable {
             GL33.glUniform1i(tex_var_tex, 0);
             GL33.glUniform4fv(tex_var_clr, TrafoState.color);
             GL33.glUniform2fv(tex_var_size, new float[]{x3 - x1, y3 - y1});
-            GL33.glUniform2fv(tex_var_resolution, new float[]{Display.getWidth(), Display.getHeight()});
+            GL33.glUniform2fv(tex_var_resolution, new float[]{TrafoState.getWidth(), TrafoState.getHeight()});
             GL33.glUniform2fv(tex_var_pos, new float[]{x1, y1});
             GL33.glUniform4fv(tex_var_uv, new float[]{u1, v1, u2, v2});
             GL33.glBindVertexArray(vao);
@@ -266,7 +266,7 @@ public strictfp class Quad implements Serializable {
             GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
             GL33.glUniform4fv(clr_var_clr, TrafoState.color);
             GL33.glUniform2fv(clr_var_size, new float[]{x3 - x1, y3 - y1});
-            GL33.glUniform2fv(clr_var_resolution, new float[]{Display.getWidth(), Display.getHeight()});
+            GL33.glUniform2fv(clr_var_resolution, new float[]{TrafoState.getWidth(), TrafoState.getHeight()});
             GL33.glUniform2fv(clr_var_pos, new float[]{x1, y1});
             GL33.glBindVertexArray(vao);
             GL33.glDrawArrays(GL33.GL_TRIANGLE_STRIP, 0, 4);

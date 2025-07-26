@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL33;
 
-import com.oddlabs.util.Display;
+import com.oddlabs.tt.render.Display;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;

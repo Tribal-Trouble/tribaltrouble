@@ -1,7 +1,7 @@
 package com.oddlabs.tt.camera;
 
-import com.oddlabs.util.Mouse;
-import com.oddlabs.util.Keyboard;
+import com.oddlabs.tt.input.Mouse;
+import com.oddlabs.tt.input.Keyboard;
 
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.global.Settings;

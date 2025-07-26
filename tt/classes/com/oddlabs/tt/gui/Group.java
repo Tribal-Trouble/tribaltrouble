@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.util.Keyboard;
+import com.oddlabs.tt.input.Keyboard;
 
 import com.oddlabs.util.ListElement;
 
