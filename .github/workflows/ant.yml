@@ -13,7 +13,7 @@ on:
 jobs:
   build-linux:
 
-    runs-on: ubuntu-latest
+    runs-on: linux-server
 
     steps:
     - uses: actions/checkout@v4
