@@ -33,6 +33,8 @@ If you want to play the game with minimal hassle check out [Tribal Trouble](http
 
 The game is currently unsigned and not available through another platform like steam so when you launch the game different OSes will respond differently:
 
+- Linux
+  - Launch the `TribalTrouble-x86_64.AppImage`
 - Windows
   - Launch the `TribalTrouble.exe`
   - A windows defender modal will pop up. Click more info > run anyway
@@ -66,7 +68,7 @@ Instruction below assume you are in a terminal at the root of the repository
 Building the game client Distribution files can be found in `tt/builds/dist/common`
 
 - Linux
-  - TODO
+  - `cd tt` > `ant build-linux`
 - Windows
   - `cd tt` > `ant build-windows`
 - Mac x86

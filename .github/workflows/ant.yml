@@ -5,15 +5,15 @@ name: Java CI
 
 on:
   push:
-    branches: [ "remastering_graphics" ]
+    branches: [ "new_main" ]
   pull_request:
-    branches: [ "remastering_graphics" ]
+    branches: [ "new_main" ]
   workflow_dispatch:
 
 jobs:
   build-linux:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
