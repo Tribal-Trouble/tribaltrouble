@@ -16,6 +16,8 @@ public final strictfp class ServerMessageBundler {
 				return Utils.getBundleString(bundle, "size_medium");
 			case Game.SIZE_LARGE:
 				return Utils.getBundleString(bundle, "size_large");
+			case Game.SIZE_ENORMOUS:
+				return Utils.getBundleString(bundle, "size_enormous");
 			default:
 				throw new RuntimeException();
 		}
