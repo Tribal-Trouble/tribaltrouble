@@ -31,7 +31,7 @@ strictfp class TreePicker implements TreeNodeVisitor {
 	private final RespondManager respond_manager;
 	private CameraState camera;
 
-	private boolean visible_override;
+	private boolean visible_override = true;
 
 	TreePicker(SpriteSorter sprite_sorter, RespondManager respond_manager) {
 		this.respond_manager = respond_manager;
@@ -115,10 +115,10 @@ strictfp class TreePicker implements TreeNodeVisitor {
 	}
 
 	public final void markDetailPolygon(TreeSupply tree_supply, int level) {
-		if (level == SpriteRenderer.HIGH_POLY || tree_supply.hasRespondingTrees()) {
+		//if (level == SpriteRenderer.HIGH_POLY || tree_supply.hasRespondingTrees()) {
 			addToHighDetailList(tree_supply.getTreeTypeIndex(), tree_supply, respond_manager.isResponding(tree_supply));
-		} else
-			addToLowDetailRenderList(tree_supply);
+		//} else
+		//	addToLowDetailRenderList(tree_supply);
 	}
 
 	public final void addToLowDetailRenderList(AbstractTreeGroup node) {
@@ -131,29 +131,31 @@ strictfp class TreePicker implements TreeNodeVisitor {
 	}
 
 	public final void visitLeaf(TreeLeaf tree_leaf) {
-		int frustum_state = RenderTools.NOT_IN_FRUSTUM;
-		if (tree_leaf.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_leaf, camera.getFrustum())) >= RenderTools.IN_FRUSTUM)) {
-			boolean old_override = visible_override;
-			visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
-			if (visible_override && canRenderLowDetail(tree_leaf)) {
-				addToLowDetailRenderList(tree_leaf);
-			} else {
+		//int frustum_state = RenderTools.NOT_IN_FRUSTUM;
+		//if (tree_leaf.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_leaf, camera.getFrustum())) >= RenderTools.IN_FRUSTUM)) {
+        if (tree_leaf.hasTrees()) {
+		//	boolean old_override = visible_override;
+		//	visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+		//	if (visible_override && canRenderLowDetail(tree_leaf)) {
+		//		addToLowDetailRenderList(tree_leaf);
+		//	} else {
 				tree_leaf.visitTrees(this);
-			}
-			visible_override = old_override;
+		//	}
+		//	visible_override = old_override;
 		}
 	}
 
 	public final void visitNode(TreeGroup tree_group) {
-		int frustum_state = RenderTools.NOT_IN_FRUSTUM;
-		if (tree_group.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_group, camera.getFrustum())) >= RenderTools.IN_FRUSTUM)) {
-			boolean old_override = visible_override;
-			visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
-			if (visible_override && canRenderLowDetail(tree_group))
-				addToLowDetailRenderList(tree_group);
-			else
+		// int frustum_state = RenderTools.NOT_IN_FRUSTUM;
+		// if (tree_group.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_group, camera.getFrustum())) >= RenderTools.IN_FRUSTUM)) {
+        if (tree_group.hasTrees()) {
+		//	boolean old_override = visible_override;
+		//	visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+		//	if (visible_override && canRenderLowDetail(tree_group))
+		//		addToLowDetailRenderList(tree_group);
+		//	else
 				tree_group.visitChildren(this);
-			visible_override = old_override;
+		//	visible_override = old_override;
 		}
 	}
 
@@ -178,10 +180,10 @@ strictfp class TreePicker implements TreeNodeVisitor {
 	}
 
 	private void addToRenderList(TreeSupply tree, CameraState camera) {
-		if (isPicking())
+		//if (isPicking())
 			markDetailPolygon(tree, SpriteRenderer.HIGH_POLY);
-		else
-			sprite_sorter.add(getRenderState(tree), camera, false);
+		//else
+		//	sprite_sorter.add(getRenderState(tree), camera, false);
 	}
 
 	private final LODObject getRenderState(TreeSupply tree_supply) {
@@ -193,23 +195,24 @@ strictfp class TreePicker implements TreeNodeVisitor {
 	public final void visitTree(TreeSupply tree_supply) {
 		if (tree_supply.isHidden())
 			return;
-		boolean in_view;
-		if (isPicking())
-			in_view = !tree_supply.isDead() && (visible_override || pickingInFrustum(tree_supply, camera.getFrustum()));
-		else
-			in_view = visible_override || RenderTools.inFrustum(tree_supply, camera.getFrustum()) >= RenderTools.IN_FRUSTUM;
-		if (in_view) {
-			if (canRenderLowDetail(tree_supply)) {
-				addToLowDetailRenderList(tree_supply);
-			} else {
+		//boolean in_view;
+		//if (isPicking())
+		//	in_view = !tree_supply.isDead() && (visible_override || pickingInFrustum(tree_supply, camera.getFrustum()));
+		//else
+		//	in_view = visible_override || RenderTools.inFrustum(tree_supply, camera.getFrustum()) >= RenderTools.IN_FRUSTUM;
+		//if (in_view) {
+		//	if (canRenderLowDetail(tree_supply)) {
+		//		addToLowDetailRenderList(tree_supply);
+		//	} else {
 				addToRenderList(tree_supply, camera);
-			}
-		}
+		//	}
+		//}
 	}
 
 	private boolean canRenderLowDetail(AbstractTreeGroup tree_group) {
-		return !isPicking() && !tree_group.hasRespondingTrees() && isLowDetailDistance(tree_group);
-	}
+		// return !isPicking() && !tree_group.hasRespondingTrees() && isLowDetailDistance(tree_group);
+	    return false;
+    }
 
 	private boolean isLowDetailDistance(AbstractTreeGroup tree_group) {
 		float eye_dist = RenderTools.getEyeDistanceSquared(tree_group, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());

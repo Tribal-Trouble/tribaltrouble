@@ -24,7 +24,7 @@ import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.vbo.FloatVBO;
-import com.oddlabs.tt.vbo.ShortVBO;
+import com.oddlabs.tt.vbo.IntVBO;
 
 public final strictfp class TreeLowDetail {
 	private final static StrictVector4f src = new StrictVector4f();
@@ -33,7 +33,7 @@ public final strictfp class TreeLowDetail {
 
 	private final FloatVBO vertices;
 	private final FloatVBO texcoords;
-	private final ShortVBO tree_indices;
+	private final IntVBO tree_indices;
 	private final Texture[] lowdetail_textures;
 	private final Tree[] trees;
 	private final LowDetailModel[] low_details;
@@ -70,7 +70,7 @@ public final strictfp class TreeLowDetail {
 		}
 		vertices = new FloatVBO(GL15.GL_DYNAMIC_DRAW, vertex_count*3);
 		texcoords = new FloatVBO(GL15.GL_STATIC_DRAW, vertex_count*2);
-		tree_indices = new ShortVBO(GL15.GL_STATIC_DRAW, index_count);
+		tree_indices = new IntVBO(GL15.GL_STATIC_DRAW, index_count);
 	}
 
 	final Tree[] getTrees() {
@@ -113,14 +113,12 @@ public final strictfp class TreeLowDetail {
 		return index + 1;
 	}
 
-	private final int putIndex(int index, int tree_index, short[] tree_indice_array) {
-		assert tree_index <= Character.MAX_VALUE;
-		short tree_char_index = (short)tree_index;
-		tree_indice_array[index] = tree_char_index;
+	private final int putIndex(int index, int tree_index, int[] tree_indice_array) {
+		tree_indice_array[index] = tree_index;
 		return index + 1;
 	}
 
-	private int[] putLowDetail(int start_index, StrictMatrix4f matrix, LowDetailModel low_detail_model, float[] vertice_array, float[] texcoord_array, short[] tree_indice_array) {
+	private int[] putLowDetail(int start_index, StrictMatrix4f matrix, LowDetailModel low_detail_model, float[] vertice_array, float[] texcoord_array, int[] tree_indice_array) {
 		float[] vertices = low_detail_model.getVertices();
 		float[] tex_coords = low_detail_model.getTexCoords();
 		short[] indices = low_detail_model.getIndices();
@@ -174,7 +172,7 @@ public final strictfp class TreeLowDetail {
 		private int end = 0;
 		private final float[] vertex_array = new float[vertices.capacity()];
 		private final float[] texcoord_array = new float[texcoords.capacity()];
-		private final short[] tree_index_array = new short[tree_indices.capacity()];
+		private final int[] tree_index_array = new int[tree_indices.capacity()];
 
 		public final void visitLeaf(TreeLeaf tree_leaf) {
 			int start = end;
