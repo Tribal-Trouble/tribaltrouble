@@ -15,6 +15,7 @@ import com.oddlabs.matchmaking.Login;
 import com.oddlabs.matchmaking.LoginDetails;
 import com.oddlabs.registration.RegistrationInfo;
 import com.oddlabs.registration.RegistrationKey;
+import com.oddlabs.util.Compatibility;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -153,7 +154,7 @@ public final strictfp class Authenticator implements MatchmakingServerLoginInter
 	}
 
 	private final boolean revisionOK(int revision) {
-		if (revision < DBInterface.getSettingsInt("revision")) {
+		if (revision != Compatibility.API_VERSION) {
 			client_interface.loginError(MatchmakingClientInterface.USER_ERROR_VERSION_TOO_OLD);
 			System.out.println("revision = " + revision + " | DBInterface.getSettingsInt(revision) = " + DBInterface.getSettingsInt("revision"));
 			return false;

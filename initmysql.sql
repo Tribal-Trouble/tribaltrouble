@@ -174,7 +174,7 @@ CREATE TABLE `settings` (
 --
 
 LOCK TABLES `settings` WRITE;
-INSERT INTO `settings` VALUES ('14','revision'),('4','min_username_length'),('64','max_username_length'),('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789','allowed_chars'),('10','max_profiles');
+INSERT INTO `settings` VALUES ('4','min_username_length'),('64','max_username_length'),('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789','allowed_chars'),('10','max_profiles');
 UNLOCK TABLES;
 
 --

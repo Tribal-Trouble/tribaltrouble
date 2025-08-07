@@ -95,13 +95,7 @@ Optional Steps (Recommend for server hosting)
 
     > Make sure to restart any terminals you have open
 
-2. Revision number:
-     - The game client automatically detects the revision number using a git command when it's built
-     - The server should set a minimum revision number for what clients can use it.
-     - That number goes as an entry in the database.
-     - The revision number of a certain git commit is retrieved using `git rev-list --count HEAD`
-     - Store that number in the `settings` table using the following query: `UPDATE settings SET value = REVISION_NUMBER WHERE property = 'revision';`
-3. Run the servers
+2. Run the servers
      - There are two main servers needed. The matchmaker and the router. The matchmaker is what runs the game and most the server logic. The router sends and recieves chat messages and other messages from the client
      - To build and run the matchmaker: `cd server` > `ant run-matchmaker`
      - To build and run the router: `cd server` > `ant run-router`

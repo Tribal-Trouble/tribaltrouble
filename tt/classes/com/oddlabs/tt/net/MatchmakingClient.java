@@ -40,6 +40,7 @@ import com.oddlabs.tt.delegate.SelectionDelegate;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.util.Compatibility;
 
 public final strictfp class MatchmakingClient implements MatchmakingClientInterface, ConnectionInterface {
 	private final static int STATE_NOT_CONNECTED = 1;
@@ -401,7 +402,7 @@ public final strictfp class MatchmakingClient implements MatchmakingClientInterf
 		Connection wrapped_connection = (Connection)conn.getWrappedConnection();
 		matchmaking_login_interface.setLocalRemoteAddress(wrapped_connection.getLocalAddress());
 System.out.println("wrapped_connection.getLocalAddress()	 = " + wrapped_connection.getLocalAddress()	);
-		int revision = LocalInput.getRevision();
+		int revision = Compatibility.API_VERSION;
 		if (!Renderer.isRegistered())
 			matchmaking_login_interface.loginAsGuest(revision);
 		else if (login_details != null)
