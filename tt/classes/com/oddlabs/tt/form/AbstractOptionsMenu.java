@@ -424,12 +424,14 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         label_box.place();
         button_bug.place(label_box, BOTTOM_MID);
         report_bug.compileCanvas();
+        
+        Panel keybinds = createKeybindPanel();
 
         Panel[] panels;
         if (Settings.getSettings().hide_bugreporter) {
-            panels = new Panel[] {general, display, sound, language};
+            panels = new Panel[] {general, display, sound, language, keybinds};
         } else {
-            panels = new Panel[] {general, display, sound, language, report_bug};
+            panels = new Panel[] {general, display, sound, language, report_bug, keybinds};
         }
 
         PanelGroup panel_group = new PanelGroup(panels, 0);
@@ -445,6 +447,22 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
 
     protected final void chooseGamespeed(int speed) {
         pm_gamespeed.chooseItem(speed);
+    }
+
+    private Panel createKeybindPanel() {
+        // TODO: localization
+        Panel keybinds = new Panel("Keybinds");
+        
+        // Adding a label to the keybinds panel
+        Group keybinds_group = new Group();
+        Label keybinds_label = new Label("Keybinds", Skin.getSkin().getEditFont());
+        keybinds_group.addChild(keybinds_label);
+        keybinds_label.place();
+        keybinds_group.compileCanvas();
+        keybinds_group.place();
+        keybinds.addChild(keybinds_group);
+        keybinds.compileCanvas();
+        return keybinds;
     }
 
     private final void checkLanguage() {
