@@ -562,6 +562,19 @@
                 });
             }
         }
+
+        window.onload = function() {
+            const page = window.location.hash.substr(1);
+            if (page == 'download') {
+                showDownload();
+            } else if (page == 'scores') {
+                showScores();
+            } else if (page == 'contribute') {
+                showContribute();
+            } else {
+                showAbout();
+            }
+        };
     </script>
 </head>
 
