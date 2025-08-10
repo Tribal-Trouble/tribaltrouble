@@ -13,34 +13,16 @@ if (!$conn) {
     die('Connection failed: ' . mysqli_connect_error());
 }
 
-$sql = "select * from games where status = 'completed'";
+$sql = "select nick, wins from profiles order by wins desc";
 
+echo "<table><tr><td class='tableheader'>Player</td><td class='tableheader'>Won games</td></tr>";
 $result = mysqli_query($conn, $sql);
-if (mysqli_num_rows($result) > 0) {
-    $scores = array();
-    while ($row = mysqli_fetch_assoc($result)) {
-        $winner_team = $row['winner'];
-        if ($winner_team == -1) {
-            continue;
-        }
-        for ($i = 1; $i <= 8; $i++) {
-            $team = $row["player${i}_team"];
-            $name = $row["player${i}_name"];
-            if ($team == $winner_team) {
-                if (!isset($scores[$name])) {
-                    $scores[$name] = 0;
-                }
-                $scores[$name]++;
-            }
-        }
-    }
-    asort($scores);
-    echo "<table><tr><td class='tableheader'>Player</td><td class='tableheader'>Won games</td></tr>";
-    foreach (array_reverse($scores) as $name => $score) {
-        echo "<tr><td class='pname'>$name</td><td class='pscore'>$score</td></tr>";
-    }
-    echo '</table>';
+while ($row = mysqli_fetch_assoc($result)) {
+    $name = $row['nick'];
+    $wins = $row['wins'];
+    echo "<tr><td class='pname'>$name</td><td class='pscore'>$wins</td></tr>";
 }
+echo '</table>';
 
 $sql = "SELECT * from games where time_stop = (select MAX(time_stop) from games where status='completed')";
 $result = mysqli_query($conn, $sql);
