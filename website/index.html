@@ -112,6 +112,7 @@
             download.style.display = "none";
             scores.style.display = "none";
             contribute.style.display = "none";
+            window.location.hash = '#about';
         }
 
         function showDownload() {
@@ -123,6 +124,7 @@
             download.style.display = "block";
             scores.style.display = "none";
             contribute.style.display = "none";
+            window.location.hash = '#download';
         }
 
         function showContribute() {
@@ -134,6 +136,7 @@
             download.style.display = "none";
             scores.style.display = "none";
             contribute.style.display = "block";
+            window.location.hash = '#contribute';
         }
 
         function showScores() {
@@ -149,7 +152,21 @@
             download.style.display = "none";
             scores.style.display = "block";
             contribute.style.display = "none";
+            window.location.hash = '#scores';
         }
+
+        window.onload = function() {
+            const page = window.location.hash.substr(1);
+            if (page == 'download') {
+                showDownload();
+            } else if (page == 'scores') {
+                showScores();
+            } else if (page == 'contribute') {
+                showContribute();
+            } else {
+                showAbout();
+            }
+        };
     </script>
 </head>
 

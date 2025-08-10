@@ -235,6 +235,38 @@
             return prog;
         }
 
+        const staticProg = makeProg(
+            `
+            attribute vec2 v_uv;
+            varying vec2 f_uv;
+            void main() {
+                gl_Position = vec4(v_uv, 0.0, 1.0);
+                f_uv = v_uv;
+            }
+        `,
+        `
+            precision highp float;
+            varying vec2 f_uv;
+            uniform float u_time;
+
+            float random(vec2 st) {
+                vec2 scaled = st * 50.0;
+                return fract(sin(dot(scaled.xy, vec2(12.9898,78.233))) * 43758.5453123);
+            }
+
+            void main() {
+                vec2 st = f_uv;
+                float noise = random(st + u_time * 0.1) * 1.5;
+                float scanline = sin(st.y * 600.0) *0.05;
+                noise = noise * (1.0 - scanline);
+                float distortion = sin(u_time * 2.0 + st.y * 10.0) * 0.06;
+                st.x += distortion;
+                float flicker = sin(u_time * 15.0) * 0.06 + 0.9;
+                vec3 color = vec3(noise * flicker);
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `);
+
         const baseMapProg = makeProg(
             `
             uniform highp vec2 u_aspect;
@@ -405,7 +437,24 @@
             return uvBuffer;
         }
 
+        function makeFullScreenUV() {
+            const uv = new Float32Array(8);
+            uv[0] = -1.0;
+            uv[1] = +1.0;
+            uv[2] = -1.0;
+            uv[3] = -1.0;
+            uv[4] = +1.0;
+            uv[5] = +1.0;
+            uv[6] = +1.0;
+            uv[7] = -1.0;
+            const uvBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, uv, gl.STATIC_DRAW);
+            return uvBuffer;
+        }
+        
         var uvBuf;
+        var fsUvBuf = makeFullScreenUV();;
 
         function createMapBuffer() {
             baseMapBuf = makeBaseMapVertices();
@@ -420,6 +469,19 @@
             gl.uniform2f(u_offset, offset[0], offset[1]);
             const u_aspect = gl.getUniformLocation(prog, "u_aspect");
             gl.uniform2f(u_aspect, canvas.clientHeight / canvas.clientWidth, 1.0);
+        }
+
+        var staticTime = 0;
+        function renderStatic() {
+            gl.useProgram(staticProg);
+            gl.bindBuffer(gl.ARRAY_BUFFER, fsUvBuf);
+            var v_uv = gl.getAttribLocation(staticProg, 'v_uv');
+            gl.enableVertexAttribArray(v_uv);
+            gl.vertexAttribPointer(v_uv, 2, gl.FLOAT, false, 0, 0);
+            const u_time = gl.getUniformLocation(staticProg, "u_time");
+            gl.uniform1f(u_time, staticTime);
+            staticTime += 0.001;
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         }
 
         function renderMap() {
@@ -486,7 +548,7 @@
         }
 
         function nextTick() {
-            if (ticks.length > 0) {
+            if (ticks.length > 0 && map_complete) {
                 curr_tick_index++;
                 if (curr_tick_index >= ticks.length) {
                     curr_tick_index = ticks.length - 1;
@@ -499,13 +561,17 @@
                 timeCursor.style.width = (tick * 100.0 / biggest_tick) + "%";
                 renderTick(tick);
                 timeDisplay.innerHTML = tick + " / " + biggest_tick;
-            }
-            if (!isPaused) {
+
+                if (!isPaused) {
+                    setTimeout(nextTick, 20);
+                }
+            } else {
+                renderStatic();
                 setTimeout(nextTick, 20);
             }
         }
 
-        setTimeout(nextTick, 100);
+        setTimeout(nextTick, 20);
 
         function parseRows(text) {
             if (text.length == 0) {
@@ -614,6 +680,7 @@
                 createMapBuffer();
                 map_complete = true;
             }
+
         }
 
         function pullMoreData() {
