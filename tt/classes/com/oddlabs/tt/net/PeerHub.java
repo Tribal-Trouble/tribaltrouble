@@ -386,6 +386,11 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     }
 
     private final void sendMap() {
+
+        if (!Network.getMatchmakingClient().isConnected()) {
+            return;
+        }
+
         HeightMap map = local_player.getWorld().getHeightMap();
         int size = map.getGridUnitsPerWorld();
         if (rows_sent < size) {
@@ -402,6 +407,11 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     }
 
     private final void sendTrees() {
+
+        if (!Network.getMatchmakingClient().isConnected()) {
+            return;
+        }
+
         HeightMap map = local_player.getWorld().getHeightMap();
         String info = "T ";
         List trees = map.getTrees();
@@ -415,6 +425,11 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     }
 
     private final void sendInitInfo() {
+
+        if (!Network.getMatchmakingClient().isConnected()) {
+            return;
+        }
+
         String info = "I ";
         Player[] players = local_player.getWorld().getPlayers();
         for (int i = 0; i < players.length; i++) {
@@ -433,6 +448,11 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     }
 
     private final void sendSpectatorInfo() {
+
+        if (!Network.getMatchmakingClient().isConnected()) {
+            return;
+        }
+
         int tick = getTick();
         String info = tick + " ";
         Player[] players = local_player.getWorld().getPlayers();
