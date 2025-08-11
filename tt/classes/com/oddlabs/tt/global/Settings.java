@@ -2,6 +2,7 @@ package com.oddlabs.tt.global;
 
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.GLUtils;
 
@@ -15,6 +16,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.Properties;
 
 public final strictfp class Settings implements Serializable {
@@ -111,6 +113,54 @@ public final strictfp class Settings implements Serializable {
 
     public static final Settings getSettings() {
         return settings;
+    }
+
+    /**
+     * The default keybindings setup with Action Name -> Tribal Trouble Key Code.
+     * See Globals.KB_* constants for action names.
+     */
+    private final static HashMap<String, Integer> default_keybinds = new HashMap<String, Integer>() {
+        {
+            put(Globals.KB_PAN_CAMERA_LEFT, Keyboard.KEY_LEFT);
+            put(Globals.KB_PAN_CAMERA_RIGHT, Keyboard.KEY_RIGHT);
+            put(Globals.KB_PAN_CAMERA_UP, Keyboard.KEY_UP);
+            put(Globals.KB_PAN_CAMERA_DOWN, Keyboard.KEY_DOWN);
+        }
+    };
+
+    /**
+     * The current keybindings for the client running the game.
+     * Used as Action Name -> Tribal Trouble Key Code.
+     * See Globals.KB_* constants for action names.
+     */
+    private static HashMap<String, Integer> keybinds = default_keybinds;
+
+    /**
+     * Gets the stored keybind for the specified action.
+     * Use Globals.KB_* constants for action names.
+     * @param action_name
+     * @return
+     */
+    public Integer getKeybind(String action_name) {
+        return keybinds.get(action_name);
+    }
+
+    /**
+     * Sets a tribal trouble key code to the specified action.
+     * @param action_name
+     * @param key_code
+     */
+    public void setKeybind(String action_name, int key_code) {
+        System.err.println("Setting keybind for action: " + action_name + " to key code: " + key_code);
+        keybinds.put(action_name, key_code);
+    }
+
+    /**
+     * Gets the hashmap of keybinds
+     * @return
+     */
+    public HashMap<String, Integer> getKeybinds() {
+        return keybinds;
     }
 
     public final boolean useFBO() {

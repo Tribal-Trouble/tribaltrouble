@@ -127,7 +127,7 @@ public strictfp class Form extends Group {
 
     protected final void mouseClicked(int button, int x, int y, int clicks) {}
 
-    protected final void keyPressed(KeyboardEvent event) {
+    protected void keyPressed(KeyboardEvent event) {
         if (event.getKeyCode() == Keyboard.KEY_H && event.isControlDown()) super.keyPressed(event);
     }
 

@@ -19,10 +19,10 @@ public final strictfp class Globals {
     public static final int DETAIL_NORMAL = 1;
     public static final int DETAIL_HIGH = 2;
 
-    public static final int[] TEXTURE_MIP_SHIFT = new int[] {1, 0, 0};
-    public static final int[] UNIT_HIGH_POLY_COUNT = new int[] {7500, 20000, 40000};
-    public static final int[] LANDSCAPE_POLY_COUNT = new int[] {5000, 10000, 20000};
-    public static final boolean[] INSERT_PLANTS = new boolean[] {false, false, true};
+    public static final int[] TEXTURE_MIP_SHIFT = new int[] { 1, 0, 0 };
+    public static final int[] UNIT_HIGH_POLY_COUNT = new int[] { 7500, 20000, 40000 };
+    public static final int[] LANDSCAPE_POLY_COUNT = new int[] { 5000, 10000, 20000 };
+    public static final boolean[] INSERT_PLANTS = new boolean[] { false, false, true };
 
     public static final String GAME_NAME = "TribalTrouble";
     public static final String REG_FILE_NAME = "registration";
@@ -73,12 +73,15 @@ public final strictfp class Globals {
     public static int COMPRESSED_RGB_FORMAT = GL13.GL_COMPRESSED_RGB;
     public static int COMPRESSED_RGBA_FORMAT = GL13.GL_COMPRESSED_RGBA;
     public static int COMPRESSED_A_FORMAT = GL13.GL_COMPRESSED_ALPHA;
-    /*	public static int COMPRESSED_LUMINANCE_FORMAT = GL13.GL_COMPRESSED_LUMINANCE;
+    /*
+     * public static int COMPRESSED_LUMINANCE_FORMAT = GL13.GL_COMPRESSED_LUMINANCE;
      */
 
-    /*	public static int COMPRESSED_RGB_FORMAT = GL11.GL_RGB;
-    public static int COMPRESSED_RGBA_FORMAT = GL11.GL_RGBA;
-    public static int COMPRESSED_A_FORMAT = GL11.GL_ALPHA8;*/
+    /*
+     * public static int COMPRESSED_RGB_FORMAT = GL11.GL_RGB;
+     * public static int COMPRESSED_RGBA_FORMAT = GL11.GL_RGBA;
+     * public static int COMPRESSED_A_FORMAT = GL11.GL_ALPHA8;
+     */
     public static int COMPRESSED_LUMINANCE_FORMAT = GL11.GL_LUMINANCE;
     public static int LOW_DETAIL_TEXTURE_SHIFT = 1;
 
@@ -119,7 +122,7 @@ public final strictfp class Globals {
 
     public static final String SCREENSHOT_DEFAULT = "screenshot";
 
-    public static final float[][] SEA_BOTTOM_COLOR = {{0.45f, 0.25f, 0.6f}, {0f, 0f, 0f}};
+    public static final float[][] SEA_BOTTOM_COLOR = { { 0.45f, 0.25f, 0.6f }, { 0f, 0f, 0f } };
 
     public static final float TREE_ERROR_DISTANCE = 100f;
 
@@ -139,7 +142,8 @@ public final strictfp class Globals {
     public static final int MIN_TEXTURE_SIZE = 1 << MIN_TEXTURE_POWER;
     public static int MAX_TEXTURE_POWER;
     public static int MAX_TEXTURE_SIZE;
-    // How to divide images in 2^n textures - 1 means split most memory preserving 0 means split
+    // How to divide images in 2^n textures - 1 means split most memory preserving 0
+    // means split
     // least
     public static final float TEXTURE_WEIGHT = 0.5f;
     public static int[] TEXTURE_SIZES;
@@ -152,4 +156,10 @@ public final strictfp class Globals {
     public static final int BLOCK_SCROLL_AMOUNT = 20;
 
     public static final float ERROR_TOLERANCE = 10f;
+    // #region Keybinds
+    public static final String KB_PAN_CAMERA_LEFT = "Pan Camera Left";
+    public static final String KB_PAN_CAMERA_RIGHT = "Pan Camera Right";
+    public static final String KB_PAN_CAMERA_UP = "Pan Camera Up";
+    public static final String KB_PAN_CAMERA_DOWN = "Pan Camera Down";
+    // #endregion Keybinds
 }
