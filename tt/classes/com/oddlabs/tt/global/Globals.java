@@ -19,10 +19,10 @@ public final strictfp class Globals {
     public static final int DETAIL_NORMAL = 1;
     public static final int DETAIL_HIGH = 2;
 
-    public static final int[] TEXTURE_MIP_SHIFT = new int[] { 1, 0, 0 };
-    public static final int[] UNIT_HIGH_POLY_COUNT = new int[] { 7500, 20000, 40000 };
-    public static final int[] LANDSCAPE_POLY_COUNT = new int[] { 5000, 10000, 20000 };
-    public static final boolean[] INSERT_PLANTS = new boolean[] { false, false, true };
+    public static final int[] TEXTURE_MIP_SHIFT = new int[] {1, 0, 0};
+    public static final int[] UNIT_HIGH_POLY_COUNT = new int[] {7500, 20000, 40000};
+    public static final int[] LANDSCAPE_POLY_COUNT = new int[] {5000, 10000, 20000};
+    public static final boolean[] INSERT_PLANTS = new boolean[] {false, false, true};
 
     public static final String GAME_NAME = "TribalTrouble";
     public static final String REG_FILE_NAME = "registration";
@@ -122,7 +122,7 @@ public final strictfp class Globals {
 
     public static final String SCREENSHOT_DEFAULT = "screenshot";
 
-    public static final float[][] SEA_BOTTOM_COLOR = { { 0.45f, 0.25f, 0.6f }, { 0f, 0f, 0f } };
+    public static final float[][] SEA_BOTTOM_COLOR = {{0.45f, 0.25f, 0.6f}, {0f, 0f, 0f}};
 
     public static final float TREE_ERROR_DISTANCE = 100f;
 

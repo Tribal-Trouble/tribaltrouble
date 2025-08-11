@@ -5,22 +5,20 @@ import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
-import com.oddlabs.tt.gui.OKListener;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.input.Keyboard;
 
-/**
- * A form for rebinding a action
- */
+/** A form for rebinding a action */
 public class RebindActionForm extends Form {
     Label current_binding_label;
     int current_key_code;
     String changing_action_name;
 
     /**
-     * Creates a rebind keyform setup to rebind the specified action.
-     * See Globals.KB_* constants for action names.
+     * Creates a rebind keyform setup to rebind the specified action. See Globals.KB_* constants for
+     * action names.
+     *
      * @param action_name
      */
     public RebindActionForm(String action_name) {
@@ -28,7 +26,8 @@ public class RebindActionForm extends Form {
         // Manually set dimensions of the form
         setDim(300, 100);
         // Place controls tat should be placed via origin
-        Label press_any_key_label = new Label("Press any key to rebind " + action_name, Skin.getSkin().getEditFont());
+        Label press_any_key_label =
+                new Label("Press any key to rebind " + action_name, Skin.getSkin().getEditFont());
         addChild(press_any_key_label);
         press_any_key_label.place(ORIGIN_TOP_LEFT);
 
@@ -40,9 +39,9 @@ public class RebindActionForm extends Form {
         compileCanvas(8, 16, 16, 8, false);
         press_any_key_label.setPos(0, getHeight() / 2);
         current_key_code = Settings.getSettings().getKeybind(action_name);
-        current_binding_label = new Label(Keyboard.keyToString(current_key_code), Skin.getSkin().getEditFont());
+        current_binding_label =
+                new Label(Keyboard.keyToString(current_key_code), Skin.getSkin().getEditFont());
         addChild(current_binding_label);
-
 
         // because we used .setPos on press_any_key_label before this. This will place
         // another_label relative to it.
@@ -55,13 +54,19 @@ public class RebindActionForm extends Form {
         centerPos();
     }
 
-    protected final void keyPressed(KeyboardEvent event) {        
+    protected final void keyPressed(KeyboardEvent event) {
         current_binding_label.set(Keyboard.keyToString(event.getKeyCode()));
         current_key_code = event.getKeyCode();
     }
 
     public void saveKeybind() {
-        System.out.println("Saving keybind for action: " + changing_action_name + " to key code: " + current_key_code + " " + Keyboard.keyToString(current_key_code));
+        System.out.println(
+                "Saving keybind for action: "
+                        + changing_action_name
+                        + " to key code: "
+                        + current_key_code
+                        + " "
+                        + Keyboard.keyToString(current_key_code));
         Settings.getSettings().setKeybind(changing_action_name, current_key_code);
         this.remove();
     }
@@ -94,5 +99,4 @@ public class RebindActionForm extends Form {
             form.saveKeybind();
         }
     }
-
 }

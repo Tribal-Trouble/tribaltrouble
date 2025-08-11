@@ -10,9 +10,10 @@ import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.Row;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.input.Keyboard;
-import com.oddlabs.tt.guievent.CloseListener;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,19 +33,19 @@ public class KeybindPanel extends Panel {
         Group keybinds_group = new Group();
         keybinds_group.addChild(keybinds_label);
 
-        ColumnInfo[] keybind_options = new ColumnInfo[] { new ColumnInfo("", 300) };
+        ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", 300)};
         keybinds_list_box = new MultiColumnComboBox(gui_root, keybind_options, 200, false);
         keybinds_list_box.place(keybinds_label, BOTTOM_LEFT);
         keybinds_list_box.addRowListener(new KeybindListener());
         // TODO: Add the rest of the keybinds here.
         // TODO: Localization
-        
+
         evaluateKeybindRows();
 
         keybinds_group.addChild(keybinds_list_box);
         keybinds_group.compileCanvas();
         keybinds_group.place();
-        
+
         addChild(keybinds_group);
         this.compileCanvas();
     }
@@ -55,8 +56,11 @@ public class KeybindPanel extends Panel {
             String actionName = entry.getKey();
             Integer keyCode = entry.getValue();
             String keyString = Keyboard.keyToString(keyCode);
-            Label label = new Label(actionName + " [" + keyString + "]", Skin.getSkin().getMultiColumnComboBoxData().getFont());
-            Row row = new Row(new GUIObject[] { label }, new ActionRowDataModel(actionName, keyCode));
+            Label label =
+                    new Label(
+                            actionName + " [" + keyString + "]",
+                            Skin.getSkin().getMultiColumnComboBoxData().getFont());
+            Row row = new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode));
             keybinds_list_box.addRow(row);
         }
     }
@@ -91,8 +95,7 @@ public class KeybindPanel extends Panel {
             }
         }
 
-        public final void rowDoubleClicked(Object o) {
-        }
+        public final void rowDoubleClicked(Object o) {}
     }
 
     private class RebindActionFormClosedListener implements CloseListener {
