@@ -120,28 +120,29 @@ public final strictfp class Settings implements Serializable {
     }
 
     /**
-     * The default keybindings setup with Action Name -> Tribal Trouble Key Code.
-     * See Globals.KB_* constants for action names.
+     * The default keybindings setup with Action Name -> Tribal Trouble Key Code. See Globals.KB_*
+     * constants for action names.
      */
-    private final static HashMap<String, Integer> default_keybinds = new HashMap<String, Integer>() {
-        {
-            put(Globals.KB_PAN_CAMERA_LEFT, Keyboard.KEY_LEFT);
-            put(Globals.KB_PAN_CAMERA_RIGHT, Keyboard.KEY_RIGHT);
-            put(Globals.KB_PAN_CAMERA_UP, Keyboard.KEY_UP);
-            put(Globals.KB_PAN_CAMERA_DOWN, Keyboard.KEY_DOWN);
-        }
-    };
+    private static final HashMap<String, Integer> default_keybinds =
+            new HashMap<String, Integer>() {
+                {
+                    put(Globals.KB_PAN_CAMERA_LEFT, Keyboard.KEY_LEFT);
+                    put(Globals.KB_PAN_CAMERA_RIGHT, Keyboard.KEY_RIGHT);
+                    put(Globals.KB_PAN_CAMERA_UP, Keyboard.KEY_UP);
+                    put(Globals.KB_PAN_CAMERA_DOWN, Keyboard.KEY_DOWN);
+                }
+            };
 
     /**
-     * The current keybindings for the client running the game.
-     * Used as Action Name -> Tribal Trouble Key Code.
-     * See Globals.KB_* constants for action names.
+     * The current keybindings for the client running the game. Used as Action Name -> Tribal
+     * Trouble Key Code. See Globals.KB_* constants for action names.
      */
     private static HashMap<String, Integer> keybinds = default_keybinds;
 
     /**
-     * Gets the stored keybind for the specified action.
-     * Use Globals.KB_* constants for action names.
+     * Gets the stored keybind for the specified action. Use Globals.KB_* constants for action
+     * names.
+     *
      * @param action_name
      * @return
      */
@@ -151,16 +152,19 @@ public final strictfp class Settings implements Serializable {
 
     /**
      * Sets a tribal trouble key code to the specified action.
+     *
      * @param action_name
      * @param key_code
      */
     public void setKeybind(String action_name, int key_code) {
-        System.err.println("Setting keybind for action: " + action_name + " to key code: " + key_code);
+        System.err.println(
+                "Setting keybind for action: " + action_name + " to key code: " + key_code);
         keybinds.put(action_name, key_code);
     }
 
     /**
      * Gets the hashmap of keybinds
+     *
      * @return
      */
     public HashMap<String, Integer> getKeybinds() {

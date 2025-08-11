@@ -201,11 +201,16 @@ public final strictfp class GameCamera extends Camera {
     private final void doScroll(float time_delta) {
         if (!viewer.getGUIRoot().getDelegate().canScroll()) return;
 
-        boolean is_pan_down_pressed = LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_DOWN));
-        boolean is_pan_up_pressed = LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP));
-        boolean is_pan_left_pressed = LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT));
-        boolean is_pan_right_pressed = LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT));
-        
+        boolean is_pan_down_pressed =
+                LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_DOWN));
+        boolean is_pan_up_pressed =
+                LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP));
+        boolean is_pan_left_pressed =
+                LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT));
+        boolean is_pan_right_pressed =
+                LocalInput.isKeyDown(
+                        Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT));
+
         float scroll_speed =
                 scroll_start_speed
                         * (.4f
@@ -394,12 +399,11 @@ public final strictfp class GameCamera extends Camera {
     }
 
     private final boolean scrollSpeedLocked(int key) {
-        
+
         int pan_down_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_DOWN);
         int pan_up_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP);
         int pan_left_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT);
         int pan_right_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT);
-        
 
         boolean is_pan_down_pressed = LocalInput.isKeyDown(pan_down_key);
         boolean is_pan_up_pressed = LocalInput.isKeyDown(pan_up_key);
@@ -435,8 +439,7 @@ public final strictfp class GameCamera extends Camera {
         int pan_up_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP);
         int pan_left_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT);
         int pan_right_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT);
-        
-        
+
         int key = event.getKeyCode();
         if (key == Keyboard.KEY_HOME || key == Keyboard.KEY_NUMPAD8) {
             // do nothing (break)

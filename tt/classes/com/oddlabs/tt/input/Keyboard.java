@@ -281,8 +281,10 @@ public final strictfp class Keyboard {
     public static final int KEY_SLEEP = 0xDF;
 
     public static final int KEYBOARD_SIZE = 256;
+
     /**
      * Gets the string representation of the tribal trouble key code
+     *
      * @param key
      * @return
      */
@@ -524,6 +526,7 @@ public final strictfp class Keyboard {
 
     /**
      * Converts the GLFW key code to the corresponding tribal trouble key code.
+     *
      * @param glfwKey
      * @return
      */
