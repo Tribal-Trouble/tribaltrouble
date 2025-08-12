@@ -8,6 +8,8 @@ import com.oddlabs.tt.form.InGameDemoForm;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.landscape.TreeSupply;
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.IronSupply;
@@ -26,6 +28,7 @@ import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+import com.oddlabs.util.Quad;
 import com.oddlabs.util.Quad;
 
 import java.util.ResourceBundle;
@@ -906,347 +909,219 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
     }
 
     public final boolean doKeyPressed(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_M:
-            case Keyboard.KEY_Q:
-                if (current_unit) return true;
-                break;
-            case Keyboard.KEY_A:
-                if ((current_unit || current_armory || current_tower) && !event.isControlDown())
-                    return true;
-                break;
-            case Keyboard.KEY_P:
-                if (current_quarters) return true;
-                if (current_unit) break;
-            case Keyboard.KEY_G:
-            case Keyboard.KEY_T:
-                if (current_unit || current_armory) return true;
-            case Keyboard.KEY_C:
-            case Keyboard.KEY_I:
-            case Keyboard.KEY_W:
-            case Keyboard.KEY_ESCAPE:
-                if (current_armory)
-                    if (current_submenu == harvest_group
-                            || current_submenu == build_group
-                            || current_submenu == army_group
-                            || current_submenu == transport_group) return true;
-                break;
-            case Keyboard.KEY_R:
-                if (current_armory || current_quarters) return true;
-                break;
-            case Keyboard.KEY_X:
-                if (current_tower) return true;
-                break;
-            default:
-                break;
+        Settings settings = Settings.getSettings();
+        
+        if ((event.getKeyCode() == settings.getKeybind(Globals.KB_MOVE) || 
+             event.getKeyCode() == settings.getKeybind(Globals.KB_BUILD_QUARTERS)) && current_unit) {
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ATTACK) && 
+                  (current_unit || current_armory || current_tower) && !event.isControlDown()) {
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_DEPLOY_PEON) && current_quarters) {
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_PEON) && current_unit) {
+            return false; // used to break out of switch to return false
+        } else if ((event.getKeyCode() == settings.getKeybind(Globals.KB_GATHER_REPAIR) || 
+                   event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT)) && 
+                  (current_unit || current_armory)) {
+            return true;
+        } else if ((event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_CHIEFTAIN) || 
+                   event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_IRON) || 
+                   event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_TREE) || 
+                   event.getKeyCode() == Keyboard.KEY_ESCAPE) && current_armory && 
+                  (current_submenu == harvest_group || current_submenu == build_group || 
+                   current_submenu == army_group || current_submenu == transport_group)) {
+            return true;
+        } else if ((event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_RALLY_POINT) || 
+                   event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_SET_RALLY_POINT)) && 
+                  (current_armory || current_quarters)) {
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_TOWER_EXIT) && current_tower) {
+            return true;
         }
         return false;
     }
 
     public final boolean doKeyRepeat(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_M:
-                if (current_unit) {
-                    move_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_A:
-                if (!event.isControlDown()) {
-                    if (current_unit) {
-                        attack_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                        return true;
-                    } else if (current_armory) {
-                        if (current_submenu == null) {
-                            army_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                        } else {
-                            break;
-                        }
-                        return true;
-                    } else if (current_tower) {
-                        tower_attack_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                        return true;
-                    }
-                }
-                break;
-            case Keyboard.KEY_G:
-                if (current_unit) {
-                    gather_repair_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                } else if (current_armory) {
-                    harvest_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_C:
-                if (current_quarters) {
-                    //					if (Settings.getSettings().developer_mode) {
-                    quarters_chieftain_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    //					}
-                } else if (current_chieftain != null) {
-                    Player player = viewer.getLocalPlayer();
-                    if (player.canDoMagic(1)) {
-                        magic2_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    }
-                } else if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_rubber_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_rubber_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_rubber_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_rubber_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_Q:
-                if (current_peon) {
-                    quarters_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_P:
-                if (current_quarters) {
-                    quarters_peon_button.shortcutPressed(
-                            event.isShiftDown(), event.isControlDown());
-                    return true;
-                }
-                if (current_armory) {
-                    if (current_submenu == army_group) {
-                        army_peon_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_I:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_iron_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_iron_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_iron_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_iron_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_R:
-                if (current_peon) {
-                    armory_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                } else if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_rock_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_rock_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_rock_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_rock_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == null) {
-                        rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else {
-                        break;
-                    }
-                    return true;
-                } else if (current_quarters) {
-                    quarters_rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_S:
-                if (current_chieftain != null) {
-                    Player player = viewer.getLocalPlayer();
-                    if (player.canDoMagic(0)) {
-                        magic1_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    }
-                }
-                break;
-            case Keyboard.KEY_T:
-                if (current_peon) {
-                    tower_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                } else if (current_armory) {
-                    if (current_submenu == null) {
-                        transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_X:
-                if (current_tower) {
-                    tower_exit_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_W:
-                if (current_armory) {
-                    if (current_submenu == null) {
-                        build_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else if (current_submenu == harvest_group) {
-                        harvest_tree_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_tree_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_ESCAPE:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else if (current_submenu == build_group) {
-                        build_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else if (current_submenu == army_group) {
-                        army_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else if (current_submenu == transport_group) {
-                        transport_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            default:
-                break;
+        // Use local variable for Settings to avoid repeated calls
+        Settings settings = Settings.getSettings();
+        
+        // Each action is now separated for rebindable controls, using Settings keybind system
+        if (event.getKeyCode() == settings.getKeybind(Globals.KB_MOVE) && current_unit) {
+            move_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ATTACK) && !event.isControlDown() && current_unit) {
+            attack_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_WARRIORS) && !event.isControlDown() && current_armory && current_submenu == null) {
+            army_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_TOWER_ATTACK) && !event.isControlDown() && current_tower) {
+            tower_attack_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_GATHER_REPAIR) && current_unit) {
+            gather_repair_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST) && current_armory) {
+            harvest_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_CHIEFTAIN) && current_quarters) {
+            quarters_chieftain_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_CHIEFTAIN_MAGIC2) && current_chieftain != null) {
+            Player player = viewer.getLocalPlayer();
+            if (player.canDoMagic(1)) {
+                magic2_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            }
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_CHICKEN) && current_armory && current_submenu == harvest_group) {
+            harvest_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON) && current_armory && current_submenu == build_group) {
+            build_weapon_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS) && current_armory && current_submenu == army_group) {
+            army_warrior_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_CHICKEN) && current_armory && current_submenu == transport_group) {
+            transport_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_BUILD_QUARTERS) && current_peon) {
+            quarters_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_DEPLOY_PEON) && current_quarters) {
+            quarters_peon_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_PEON) && current_armory && current_submenu == army_group) {
+            army_peon_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_IRON) && current_armory && current_submenu == harvest_group) {
+            harvest_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_CREATE_IRON_WEAPON) && current_armory && current_submenu == build_group) {
+            build_weapon_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS) && current_armory && current_submenu == army_group) {
+            army_warrior_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_IRON) && current_armory && current_submenu == transport_group) {
+            transport_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_BUILD_ARMORY) && current_peon) {
+            armory_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_ROCK) && current_armory && current_submenu == harvest_group) {
+            harvest_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_CREATE_ROCK_WEAPON) && current_armory && current_submenu == build_group) {
+            build_weapon_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS) && current_armory && current_submenu == army_group) {
+            army_warrior_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_ROCK) && current_armory && current_submenu == transport_group) {
+            transport_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_RALLY_POINT) && current_armory && current_submenu == null) {
+            rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_SET_RALLY_POINT) && current_quarters) {
+            quarters_rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_CHIEFTAIN_MAGIC1) && current_chieftain != null) {
+            Player player = viewer.getLocalPlayer();
+            if (player.canDoMagic(0)) {
+                magic1_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            }
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_BUILD_TOWER) && current_peon) {
+            tower_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT) && current_armory && current_submenu == null) {
+            transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_TOWER_EXIT) && current_tower) {
+            tower_exit_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_MAKE_WEAPONS) && current_armory && current_submenu == null) {
+            build_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_TREE) && current_armory && current_submenu == harvest_group) {
+            harvest_tree_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_TREE) && current_armory && current_submenu == transport_group) {
+            transport_tree_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == Keyboard.KEY_ESCAPE && current_armory && current_submenu == harvest_group) {
+            harvest_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == Keyboard.KEY_ESCAPE && current_armory && current_submenu == build_group) {
+            build_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == Keyboard.KEY_ESCAPE && current_armory && current_submenu == army_group) {
+            army_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == Keyboard.KEY_ESCAPE && current_armory && current_submenu == transport_group) {
+            transport_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
         }
         return false;
     }
 
     public final boolean doKeyReleased(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_C:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_rubber_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_rubber_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_rubber_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_rubber_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_P:
-                if (current_quarters) {
-                    quarters_peon_button.shortcutReleased(
-                            event.isShiftDown(), event.isControlDown());
-                    return true;
-                }
-                if (current_armory) {
-                    if (current_submenu == army_group) {
-                        army_peon_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_I:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_iron_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_iron_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_iron_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_iron_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_R:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_rock_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_rock_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_rock_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_rock_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_T:
-                if (current_armory) {
-                    if (current_submenu == null) {
-                        transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_W:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_tree_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_tree_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            default:
-                break;
+        Settings settings = Settings.getSettings();
+        
+        if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_CHICKEN) && current_armory && current_submenu == harvest_group) {
+            harvest_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON) && current_armory && current_submenu == build_group) {
+            build_weapon_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS) && current_armory && current_submenu == army_group) {
+            army_warrior_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_CHICKEN) && current_armory && current_submenu == transport_group) {
+            transport_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_DEPLOY_PEON) && current_quarters) {
+            quarters_peon_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_PEON) && current_armory && current_submenu == army_group) {
+            army_peon_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_IRON) && current_armory && current_submenu == harvest_group) {
+            harvest_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_CREATE_IRON_WEAPON) && current_armory && current_submenu == build_group) {
+            build_weapon_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS) && current_armory && current_submenu == army_group) {
+            army_warrior_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_IRON) && current_armory && current_submenu == transport_group) {
+            transport_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_ROCK) && current_armory && current_submenu == harvest_group) {
+            harvest_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_CREATE_ROCK_WEAPON) && current_armory && current_submenu == build_group) {
+            build_weapon_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS) && current_armory && current_submenu == army_group) {
+            army_warrior_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_ROCK) && current_armory && current_submenu == transport_group) {
+            transport_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT) && current_armory && current_submenu == null) {
+            transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_TREE) && current_armory && current_submenu == harvest_group) {
+            harvest_tree_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_TREE) && current_armory && current_submenu == transport_group) {
+            transport_tree_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
         }
         return false;
     }
