@@ -191,7 +191,8 @@ public final strictfp class Settings implements Serializable {
      * The current keybindings for the client running the game. Used as Action Name -> Tribal
      * Trouble Key Code. See Globals.KB_* constants for action names.
      */
-    private static HashMap<String, Integer> keybinds = new HashMap<String, Integer>(default_keybinds);
+    private static HashMap<String, Integer> keybinds =
+            new HashMap<String, Integer>(default_keybinds);
 
     /**
      * Gets the stored keybind for the specified action. Use Globals.KB_* constants for action
@@ -296,8 +297,7 @@ public final strictfp class Settings implements Serializable {
                     String field_value = (String) field.get(this);
                     if (!field_value.equals(field.get(original_settings)))
                         props.setProperty(field.getName(), "" + field_value);
-                }
-                else if (field_type.equals(HashMap.class)) {
+                } else if (field_type.equals(HashMap.class)) {
                     // skip - handled below
                 } else throw new RuntimeException("Unsupported Settings type " + field_type);
             } catch (IllegalAccessException e) {
@@ -321,15 +321,13 @@ public final strictfp class Settings implements Serializable {
         }
     }
 
-    /**
-     * Save keybinds to properties with a prefix to avoid naming conflicts
-     */
+    /** Save keybinds to properties with a prefix to avoid naming conflicts */
     private void saveKeybinds(Properties props) {
         HashMap<String, Integer> original_keybinds = Settings.default_keybinds;
         for (String action : keybinds.keySet()) {
             Integer keyCode = keybinds.get(action);
             Integer originalKeyCode = original_keybinds.get(action);
-            
+
             // Only save if different from default
             if (keyCode != null && !keyCode.equals(originalKeyCode)) {
                 props.setProperty("keybind." + action, keyCode.toString());
@@ -425,18 +423,16 @@ public final strictfp class Settings implements Serializable {
                                 + ". Skipped");
             }
         }
-        
+
         // Load keybinds
         loadKeybinds(props);
     }
 
-    /**
-     * Load keybinds from properties with the "keybind." prefix
-     */
+    /** Load keybinds from properties with the "keybind." prefix */
     private void loadKeybinds(Properties props) {
         // Start with a copy of default keybinds
         keybinds = new HashMap<String, Integer>(default_keybinds);
-        
+
         // Override with saved values
         for (String propertyName : props.stringPropertyNames()) {
             if (propertyName.startsWith("keybind.")) {
@@ -448,7 +444,8 @@ public final strictfp class Settings implements Serializable {
                         keybinds.put(action, keyCode);
                     }
                 } catch (NumberFormatException e) {
-                    System.err.println("Failed to parse keybind value for " + action + ": " + valueStr);
+                    System.err.println(
+                            "Failed to parse keybind value for " + action + ": " + valueStr);
                 }
             }
         }

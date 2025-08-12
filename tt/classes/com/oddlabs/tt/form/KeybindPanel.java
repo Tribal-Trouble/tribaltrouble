@@ -22,68 +22,73 @@ import java.util.Map;
 public class KeybindPanel extends Panel {
     GUIRoot gui_root;
     MultiColumnComboBox keybinds_list_box;
-    
+
     // Display names for keybind actions
-    public static final Map<String, String> KEYBIND_DISPLAY_NAMES = new HashMap<String, String>() {{
-        // Camera Controls
-        put(Globals.KB_PAN_CAMERA_LEFT, "Pan Camera Left");
-        put(Globals.KB_PAN_CAMERA_RIGHT, "Pan Camera Right");
-        put(Globals.KB_PAN_CAMERA_UP, "Pan Camera Up");
-        put(Globals.KB_PAN_CAMERA_DOWN, "Pan Camera Down");
-        
-        // Basic Unit Actions
-        put(Globals.KB_ATTACK, "Attack");
-        put(Globals.KB_GATHER_REPAIR, "Gather/Repair");
-        put(Globals.KB_MOVE, "Move");
-        
-        // Building Construction
-        put(Globals.KB_BUILD_ARMORY, "Build Armory");
-        put(Globals.KB_BUILD_QUARTERS, "Build Quarters");
-        put(Globals.KB_BUILD_TOWER, "Build Tower");
-        
-        // Armory Actions
-        put(Globals.KB_ARMORY_DEPLOY_WARRIORS, "Armory - Deploy Warriors");
-        put(Globals.KB_ARMORY_HARVEST, "Armory - Harvest");
-        put(Globals.KB_ARMORY_MAKE_WEAPONS, "Armory - Make Weapons");
-        put(Globals.KB_ARMORY_RALLY_POINT, "Armory - Rally Point");
-        put(Globals.KB_ARMORY_TRANSPORT, "Armory - Transport");
-        
-        // Armory - Deploy Units
-        put(Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS, "Armory - Deploy Chicken Warriors");
-        put(Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS, "Armory - Deploy Iron Warriors");
-        put(Globals.KB_ARMORY_DEPLOY_PEON, "Armory - Deploy Peon");
-        put(Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS, "Armory - Deploy Rock Warriors");
-        
-        // Armory - Resource Harvesting
-        put(Globals.KB_ARMORY_HARVEST_CHICKEN, "Armory - Harvest Chicken");
-        put(Globals.KB_ARMORY_HARVEST_IRON, "Armory - Harvest Iron");
-        put(Globals.KB_ARMORY_HARVEST_ROCK, "Armory - Harvest Rock");
-        put(Globals.KB_ARMORY_HARVEST_TREE, "Armory - Harvest Tree");
-        
-        // Armory - Resource Transportation
-        put(Globals.KB_ARMORY_TRANSPORT_CHICKEN, "Armory - Transport Chicken");
-        put(Globals.KB_ARMORY_TRANSPORT_IRON, "Armory - Transport Iron");
-        put(Globals.KB_ARMORY_TRANSPORT_ROCK, "Armory - Transport Rock");
-        put(Globals.KB_ARMORY_TRANSPORT_TREE, "Armory - Transport Tree");
-        
-        // Armory - Weapon Creation
-        put(Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON, "Armory - Create Chicken Weapon");
-        put(Globals.KB_ARMORY_CREATE_IRON_WEAPON, "Armory - Create Iron Weapon");
-        put(Globals.KB_ARMORY_CREATE_ROCK_WEAPON, "Armory - Create Rock Weapon");
-        
-        // Quarters Actions
-        put(Globals.KB_QUARTERS_CHIEFTAIN, "Quarters - Chieftain");
-        put(Globals.KB_QUARTERS_DEPLOY_PEON, "Quarters - Deploy Peon");
-        put(Globals.KB_QUARTERS_SET_RALLY_POINT, "Quarters - Set Rally Point");
-        
-        // Chieftain Magic
-        put(Globals.KB_CHIEFTAIN_MAGIC1, "Chieftain - Magic 1");
-        put(Globals.KB_CHIEFTAIN_MAGIC2, "Chieftain - Magic 2");
-        
-        // Tower Actions
-        put(Globals.KB_TOWER_ATTACK, "Tower - Attack");
-        put(Globals.KB_TOWER_EXIT, "Tower - Exit Tower");
-    }};
+    public static final Map<String, String> KEYBIND_DISPLAY_NAMES =
+            new HashMap<String, String>() {
+                {
+                    // Camera Controls
+                    put(Globals.KB_PAN_CAMERA_LEFT, "Pan Camera Left");
+                    put(Globals.KB_PAN_CAMERA_RIGHT, "Pan Camera Right");
+                    put(Globals.KB_PAN_CAMERA_UP, "Pan Camera Up");
+                    put(Globals.KB_PAN_CAMERA_DOWN, "Pan Camera Down");
+
+                    // Basic Unit Actions
+                    put(Globals.KB_ATTACK, "Attack");
+                    put(Globals.KB_GATHER_REPAIR, "Gather/Repair");
+                    put(Globals.KB_MOVE, "Move");
+
+                    // Building Construction
+                    put(Globals.KB_BUILD_ARMORY, "Build Armory");
+                    put(Globals.KB_BUILD_QUARTERS, "Build Quarters");
+                    put(Globals.KB_BUILD_TOWER, "Build Tower");
+
+                    // Armory Actions
+                    put(Globals.KB_ARMORY_DEPLOY_WARRIORS, "Armory - Deploy Warriors");
+                    put(Globals.KB_ARMORY_HARVEST, "Armory - Harvest");
+                    put(Globals.KB_ARMORY_MAKE_WEAPONS, "Armory - Make Weapons");
+                    put(Globals.KB_ARMORY_RALLY_POINT, "Armory - Rally Point");
+                    put(Globals.KB_ARMORY_TRANSPORT, "Armory - Transport");
+
+                    // Armory - Deploy Units
+                    put(
+                            Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS,
+                            "Armory - Deploy Chicken Warriors");
+                    put(Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS, "Armory - Deploy Iron Warriors");
+                    put(Globals.KB_ARMORY_DEPLOY_PEON, "Armory - Deploy Peon");
+                    put(Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS, "Armory - Deploy Rock Warriors");
+
+                    // Armory - Resource Harvesting
+                    put(Globals.KB_ARMORY_HARVEST_CHICKEN, "Armory - Harvest Chicken");
+                    put(Globals.KB_ARMORY_HARVEST_IRON, "Armory - Harvest Iron");
+                    put(Globals.KB_ARMORY_HARVEST_ROCK, "Armory - Harvest Rock");
+                    put(Globals.KB_ARMORY_HARVEST_TREE, "Armory - Harvest Tree");
+
+                    // Armory - Resource Transportation
+                    put(Globals.KB_ARMORY_TRANSPORT_CHICKEN, "Armory - Transport Chicken");
+                    put(Globals.KB_ARMORY_TRANSPORT_IRON, "Armory - Transport Iron");
+                    put(Globals.KB_ARMORY_TRANSPORT_ROCK, "Armory - Transport Rock");
+                    put(Globals.KB_ARMORY_TRANSPORT_TREE, "Armory - Transport Tree");
+
+                    // Armory - Weapon Creation
+                    put(Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON, "Armory - Create Chicken Weapon");
+                    put(Globals.KB_ARMORY_CREATE_IRON_WEAPON, "Armory - Create Iron Weapon");
+                    put(Globals.KB_ARMORY_CREATE_ROCK_WEAPON, "Armory - Create Rock Weapon");
+
+                    // Quarters Actions
+                    put(Globals.KB_QUARTERS_CHIEFTAIN, "Quarters - Chieftain");
+                    put(Globals.KB_QUARTERS_DEPLOY_PEON, "Quarters - Deploy Peon");
+                    put(Globals.KB_QUARTERS_SET_RALLY_POINT, "Quarters - Set Rally Point");
+
+                    // Chieftain Magic
+                    put(Globals.KB_CHIEFTAIN_MAGIC1, "Chieftain - Magic 1");
+                    put(Globals.KB_CHIEFTAIN_MAGIC2, "Chieftain - Magic 2");
+
+                    // Tower Actions
+                    put(Globals.KB_TOWER_ATTACK, "Tower - Attack");
+                    put(Globals.KB_TOWER_EXIT, "Tower - Exit Tower");
+                }
+            };
 
     public KeybindPanel(GUIRoot gui_root, String caption) {
         super(caption);
@@ -119,10 +124,10 @@ public class KeybindPanel extends Panel {
             String actionName = entry.getKey();
             Integer keyCode = entry.getValue();
             String keyString = Keyboard.keyToString(keyCode);
-            
+
             // Get display name from mapping, fallback to action name if not found
             String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
-            
+
             Label label =
                     new Label(
                             displayName + " [" + keyString + "]",
