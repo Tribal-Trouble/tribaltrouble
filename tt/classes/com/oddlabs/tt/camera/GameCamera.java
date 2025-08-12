@@ -218,7 +218,6 @@ public final strictfp class GameCamera extends Camera {
                                         * SCROLL_ACCELERATION_FACTOR);
         float scroll_factor = time_delta * scroll_speed;
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
-        System.out.println("blocked: " + blocked);
         if (is_pan_left_pressed && !is_pan_right_pressed && !blocked) scrolling_x = -1f;
         else if (is_pan_right_pressed && !is_pan_left_pressed && !blocked) scrolling_x = 1f;
         else scrolling_x = scroll_x;
@@ -227,7 +226,6 @@ public final strictfp class GameCamera extends Camera {
         else if (is_pan_up_pressed && !is_pan_down_pressed && !blocked) scrolling_y = 1f;
         else scrolling_y = scroll_y;
 
-        System.out.println("Scrolling - X: " + scrolling_x + ", Y: " + scrolling_y);
         float new_x =
                 getState().getTargetX()
                         - (scrolling_x * left_dir_x + scrolling_y * -left_dir_y) * scroll_factor;
