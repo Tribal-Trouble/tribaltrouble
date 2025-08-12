@@ -122,10 +122,64 @@ public final strictfp class Settings implements Serializable {
     private static final HashMap<String, Integer> default_keybinds =
             new HashMap<String, Integer>() {
                 {
+                    // Camera controls
                     put(Globals.KB_PAN_CAMERA_LEFT, Keyboard.KEY_LEFT);
                     put(Globals.KB_PAN_CAMERA_RIGHT, Keyboard.KEY_RIGHT);
                     put(Globals.KB_PAN_CAMERA_UP, Keyboard.KEY_UP);
                     put(Globals.KB_PAN_CAMERA_DOWN, Keyboard.KEY_DOWN);
+                    
+                    // Unit actions
+                    put(Globals.KB_MOVE, Keyboard.KEY_M);
+                    put(Globals.KB_ATTACK, Keyboard.KEY_A);
+                    put(Globals.KB_GATHER_REPAIR, Keyboard.KEY_G);
+                    
+                    // Building actions
+                    put(Globals.KB_BUILD_QUARTERS, Keyboard.KEY_Q);
+                    put(Globals.KB_BUILD_ARMORY, Keyboard.KEY_R);
+                    put(Globals.KB_BUILD_TOWER, Keyboard.KEY_T);
+                    
+                    // Quarters actions
+                    put(Globals.KB_QUARTERS_CHIEFTAIN, Keyboard.KEY_C);
+                    put(Globals.KB_QUARTERS_DEPLOY_PEON, Keyboard.KEY_P);
+                    put(Globals.KB_QUARTERS_SET_RALLY_POINT, Keyboard.KEY_R);
+                    
+                    // Armory main actions
+                    put(Globals.KB_ARMORY_DEPLOY_WARRIORS, Keyboard.KEY_A);
+                    put(Globals.KB_ARMORY_HARVEST, Keyboard.KEY_G);
+                    put(Globals.KB_ARMORY_MAKE_WEAPONS, Keyboard.KEY_W);
+                    put(Globals.KB_ARMORY_TRANSPORT, Keyboard.KEY_T);
+                    put(Globals.KB_ARMORY_RALLY_POINT, Keyboard.KEY_R);
+                    
+                    // Armory harvest actions
+                    put(Globals.KB_ARMORY_HARVEST_TREE, Keyboard.KEY_W);
+                    put(Globals.KB_ARMORY_HARVEST_ROCK, Keyboard.KEY_R);
+                    put(Globals.KB_ARMORY_HARVEST_IRON, Keyboard.KEY_I);
+                    put(Globals.KB_ARMORY_HARVEST_CHICKEN, Keyboard.KEY_C);
+                    
+                    // Armory weapon creation actions
+                    put(Globals.KB_ARMORY_CREATE_ROCK_WEAPON, Keyboard.KEY_R);
+                    put(Globals.KB_ARMORY_CREATE_IRON_WEAPON, Keyboard.KEY_I);
+                    put(Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON, Keyboard.KEY_C);
+                    
+                    // Armory army deployment actions
+                    put(Globals.KB_ARMORY_DEPLOY_PEON, Keyboard.KEY_P);
+                    put(Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS, Keyboard.KEY_R);
+                    put(Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS, Keyboard.KEY_I);
+                    put(Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS, Keyboard.KEY_C);
+                    
+                    // Armory transport actions
+                    put(Globals.KB_ARMORY_TRANSPORT_TREE, Keyboard.KEY_W);
+                    put(Globals.KB_ARMORY_TRANSPORT_ROCK, Keyboard.KEY_R);
+                    put(Globals.KB_ARMORY_TRANSPORT_IRON, Keyboard.KEY_I);
+                    put(Globals.KB_ARMORY_TRANSPORT_CHICKEN, Keyboard.KEY_C);
+                    
+                    // Tower actions
+                    put(Globals.KB_TOWER_ATTACK, Keyboard.KEY_A);
+                    put(Globals.KB_TOWER_EXIT, Keyboard.KEY_X);
+                    
+                    // Magic actions
+                    put(Globals.KB_CHIEFTAIN_MAGIC1, Keyboard.KEY_S);
+                    put(Globals.KB_CHIEFTAIN_MAGIC2, Keyboard.KEY_C);
                 }
             };
 
