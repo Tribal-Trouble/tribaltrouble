@@ -27,7 +27,7 @@ public class RebindActionForm extends Form {
         setDim(300, 100);
         // Place controls tat should be placed via origin
         Label press_any_key_label =
-                new Label("Press any key to rebind " + action_name, Skin.getSkin().getEditFont());
+                new Label("Press any key to rebind " + KeybindPanel.KEYBIND_DISPLAY_NAMES.getOrDefault(action_name, action_name), Skin.getSkin().getEditFont());
         addChild(press_any_key_label);
         press_any_key_label.place(ORIGIN_TOP_LEFT);
 

@@ -191,7 +191,7 @@ public final strictfp class Settings implements Serializable {
      * The current keybindings for the client running the game. Used as Action Name -> Tribal
      * Trouble Key Code. See Globals.KB_* constants for action names.
      */
-    private static HashMap<String, Integer> keybinds = default_keybinds;
+    private static HashMap<String, Integer> keybinds = new HashMap<String, Integer>(default_keybinds);
 
     /**
      * Gets the stored keybind for the specified action. Use Globals.KB_* constants for action
@@ -296,6 +296,9 @@ public final strictfp class Settings implements Serializable {
                     String field_value = (String) field.get(this);
                     if (!field_value.equals(field.get(original_settings)))
                         props.setProperty(field.getName(), "" + field_value);
+                }
+                else if (field_type.equals(HashMap.class)) {
+                    // skip - handled below
                 } else throw new RuntimeException("Unsupported Settings type " + field_type);
             } catch (IllegalAccessException e) {
                 System.out.println("Exception: " + e);
@@ -303,15 +306,34 @@ public final strictfp class Settings implements Serializable {
             }
         }
 
-        String settings_save_file = Globals.getSettingsFileName();
+        String settings_save_file = Globals.getSettingsFileName();        
+        
+        // Save keybinds HashMap
+        saveKeybinds(props);
         System.out.println("Saving settings to " + LocalInput.getGameDir() + settings_save_file);
-        File settings_file = new File(LocalInput.getGameDir(), settings_save_file);
+        File settings_file = new File(LocalInput.getGameDir(), Globals.SETTINGS_FILE_NAME);
         try {
             OutputStream out = new FileOutputStream(settings_file);
             props.store(out, "comment");
         } catch (Exception e) {
             System.out.println("Exception: " + e);
             System.err.println("Failed to write settings to " + settings_file + " exception: " + e);
+        }
+    }
+
+    /**
+     * Save keybinds to properties with a prefix to avoid naming conflicts
+     */
+    private void saveKeybinds(Properties props) {
+        HashMap<String, Integer> original_keybinds = Settings.default_keybinds;
+        for (String action : keybinds.keySet()) {
+            Integer keyCode = keybinds.get(action);
+            Integer originalKeyCode = original_keybinds.get(action);
+            
+            // Only save if different from default
+            if (keyCode != null && !keyCode.equals(originalKeyCode)) {
+                props.setProperty("keybind." + action, keyCode.toString());
+            }
         }
     }
 
@@ -390,6 +412,8 @@ public final strictfp class Settings implements Serializable {
                     field.setFloat(this, field_value);
                 } else if (field_type.equals(String.class)) {
                     field.set(this, value);
+                } else if (field_type.equals(HashMap.class)) {
+                    // skip - handled below
                 } else throw new RuntimeException("Unsupported Settings type " + field_type);
             } catch (Exception e) {
                 System.out.println("Exception: " + e);
@@ -399,6 +423,33 @@ public final strictfp class Settings implements Serializable {
                                 + " is not of type: "
                                 + field.getType()
                                 + ". Skipped");
+            }
+        }
+        
+        // Load keybinds
+        loadKeybinds(props);
+    }
+
+    /**
+     * Load keybinds from properties with the "keybind." prefix
+     */
+    private void loadKeybinds(Properties props) {
+        // Start with a copy of default keybinds
+        keybinds = new HashMap<String, Integer>(default_keybinds);
+        
+        // Override with saved values
+        for (String propertyName : props.stringPropertyNames()) {
+            if (propertyName.startsWith("keybind.")) {
+                String action = propertyName.substring("keybind.".length());
+                String valueStr = props.getProperty(propertyName);
+                try {
+                    Integer keyCode = Integer.valueOf(valueStr);
+                    if (default_keybinds.containsKey(action)) {
+                        keybinds.put(action, keyCode);
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Failed to parse keybind value for " + action + ": " + valueStr);
+                }
             }
         }
     }
