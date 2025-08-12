@@ -6,58 +6,58 @@ public final strictfp class Globals {
     // #region Keybinds - Actions
 
     // Basic Unit Actions
-    public static final String KB_ATTACK = "Attack";
-    public static final String KB_GATHER_REPAIR = "Gather/Repair";
-    public static final String KB_MOVE = "Move";
+    public static final String KB_ATTACK = "KB_ATTACK";
+    public static final String KB_GATHER_REPAIR = "KB_GATHER_REPAIR";
+    public static final String KB_MOVE = "KB_MOVE";
 
     // Building Construction (Peon Actions)
-    public static final String KB_BUILD_ARMORY = "Build Armory";
-    public static final String KB_BUILD_QUARTERS = "Build Quarters";
-    public static final String KB_BUILD_TOWER = "Build Tower";
+    public static final String KB_BUILD_ARMORY = "KB_BUILD_ARMORY";
+    public static final String KB_BUILD_QUARTERS = "KB_BUILD_QUARTERS";
+    public static final String KB_BUILD_TOWER = "KB_BUILD_TOWER";
 
     // Armory Actions
-    public static final String KB_ARMORY_DEPLOY_WARRIORS = "Armory - Deploy Warriors";
-    public static final String KB_ARMORY_HARVEST = "Armory - Harvest";
-    public static final String KB_ARMORY_MAKE_WEAPONS = "Armory - Make Weapons";
-    public static final String KB_ARMORY_RALLY_POINT = "Armory - Rally Point";
-    public static final String KB_ARMORY_TRANSPORT = "Armory - Transport";
+    public static final String KB_ARMORY_DEPLOY_WARRIORS = "KB_ARMORY_DEPLOY_WARRIORS";
+    public static final String KB_ARMORY_HARVEST = "KB_ARMORY_HARVEST";
+    public static final String KB_ARMORY_MAKE_WEAPONS = "KB_ARMORY_MAKE_WEAPONS";
+    public static final String KB_ARMORY_RALLY_POINT = "KB_ARMORY_RALLY_POINT";
+    public static final String KB_ARMORY_TRANSPORT = "KB_ARMORY_TRANSPORT";
 
     // Armory - Deploy Units
     public static final String KB_ARMORY_DEPLOY_CHICKEN_WARRIORS =
-            "Armory - Deploy Chicken Warriors";
-    public static final String KB_ARMORY_DEPLOY_IRON_WARRIORS = "Armory - Deploy Iron Warriors";
-    public static final String KB_ARMORY_DEPLOY_PEON = "Armory - Deploy Peon";
-    public static final String KB_ARMORY_DEPLOY_ROCK_WARRIORS = "Armory - Deploy Rock Warriors";
+            "KB_ARMORY_DEPLOY_CHICKEN_WARRIORS";
+    public static final String KB_ARMORY_DEPLOY_IRON_WARRIORS = "KB_ARMORY_DEPLOY_IRON_WARRIORS";
+    public static final String KB_ARMORY_DEPLOY_PEON = "KB_ARMORY_DEPLOY_PEON";
+    public static final String KB_ARMORY_DEPLOY_ROCK_WARRIORS = "KB_ARMORY_DEPLOY_ROCK_WARRIORS";
 
     // Armory - Resource Harvesting
-    public static final String KB_ARMORY_HARVEST_CHICKEN = "Armory - Harvest Chicken";
-    public static final String KB_ARMORY_HARVEST_IRON = "Armory - Harvest Iron";
-    public static final String KB_ARMORY_HARVEST_ROCK = "Armory - Harvest Rock";
-    public static final String KB_ARMORY_HARVEST_TREE = "Armory - Harvest Tree";
+    public static final String KB_ARMORY_HARVEST_CHICKEN = "KB_ARMORY_HARVEST_CHICKEN";
+    public static final String KB_ARMORY_HARVEST_IRON = "KB_ARMORY_HARVEST_IRON";
+    public static final String KB_ARMORY_HARVEST_ROCK = "KB_ARMORY_HARVEST_ROCK";
+    public static final String KB_ARMORY_HARVEST_TREE = "KB_ARMORY_HARVEST_TREE";
 
     // Armory - Resource Transportation
-    public static final String KB_ARMORY_TRANSPORT_CHICKEN = "Armory - Transport Chicken";
-    public static final String KB_ARMORY_TRANSPORT_IRON = "Armory - Transport Iron";
-    public static final String KB_ARMORY_TRANSPORT_ROCK = "Armory - Transport Rock";
-    public static final String KB_ARMORY_TRANSPORT_TREE = "Armory - Transport Tree";
+    public static final String KB_ARMORY_TRANSPORT_CHICKEN = "KB_ARMORY_TRANSPORT_CHICKEN";
+    public static final String KB_ARMORY_TRANSPORT_IRON = "KB_ARMORY_TRANSPORT_IRON";
+    public static final String KB_ARMORY_TRANSPORT_ROCK = "KB_ARMORY_TRANSPORT_ROCK";
+    public static final String KB_ARMORY_TRANSPORT_TREE = "KB_ARMORY_TRANSPORT_TREE";
 
     // Armory - Weapon Creation
-    public static final String KB_ARMORY_CREATE_CHICKEN_WEAPON = "Armory - Create Chicken Weapon";
-    public static final String KB_ARMORY_CREATE_IRON_WEAPON = "Armory - Create Iron Weapon";
-    public static final String KB_ARMORY_CREATE_ROCK_WEAPON = "Armory - Create Rock Weapon";
+    public static final String KB_ARMORY_CREATE_CHICKEN_WEAPON = "KB_ARMORY_CREATE_CHICKEN_WEAPON";
+    public static final String KB_ARMORY_CREATE_IRON_WEAPON = "KB_ARMORY_CREATE_IRON_WEAPON";
+    public static final String KB_ARMORY_CREATE_ROCK_WEAPON = "KB_ARMORY_CREATE_ROCK_WEAPON";
 
     // Quarters Actions
-    public static final String KB_QUARTERS_CHIEFTAIN = "Quarters - Chieftain";
-    public static final String KB_QUARTERS_DEPLOY_PEON = "Quarters - Deploy Peon";
-    public static final String KB_QUARTERS_SET_RALLY_POINT = "Quarters - Set Rally Point";
+    public static final String KB_QUARTERS_CHIEFTAIN = "KB_QUARTERS_CHIEFTAIN";
+    public static final String KB_QUARTERS_DEPLOY_PEON = "KB_QUARTERS_DEPLOY_PEON";
+    public static final String KB_QUARTERS_SET_RALLY_POINT = "KB_QUARTERS_SET_RALLY_POINT";
 
     // Chieftain Magic
-    public static final String KB_CHIEFTAIN_MAGIC1 = "Chieftain - Magic 1";
-    public static final String KB_CHIEFTAIN_MAGIC2 = "Chieftain - Magic 2";
+    public static final String KB_CHIEFTAIN_MAGIC1 = "KB_CHIEFTAIN_MAGIC1";
+    public static final String KB_CHIEFTAIN_MAGIC2 = "KB_CHIEFTAIN_MAGIC2";
 
     // Tower Actions
-    public static final String KB_TOWER_ATTACK = "Tower - Attack";
-    public static final String KB_TOWER_EXIT = "Tower - Exit Tower";
+    public static final String KB_TOWER_ATTACK = "KB_TOWER_ATTACK";
+    public static final String KB_TOWER_EXIT = "KB_TOWER_EXIT";
 
     // #endregion Keybinds - Actions
     public static final String DOMAIN_NAME = Settings.getSettings().getDomainName();
@@ -214,9 +214,9 @@ public final strictfp class Globals {
 
     public static final float ERROR_TOLERANCE = 10f;
     // #region Keybinds
-    public static final String KB_PAN_CAMERA_LEFT = "Pan Camera Left";
-    public static final String KB_PAN_CAMERA_RIGHT = "Pan Camera Right";
-    public static final String KB_PAN_CAMERA_UP = "Pan Camera Up";
-    public static final String KB_PAN_CAMERA_DOWN = "Pan Camera Down";
+    public static final String KB_PAN_CAMERA_LEFT = "KB_PAN_CAMERA_LEFT";
+    public static final String KB_PAN_CAMERA_RIGHT = "KB_PAN_CAMERA_RIGHT";
+    public static final String KB_PAN_CAMERA_UP = "KB_PAN_CAMERA_UP";
+    public static final String KB_PAN_CAMERA_DOWN = "KB_PAN_CAMERA_DOWN";
     // #endregion Keybinds
 }
