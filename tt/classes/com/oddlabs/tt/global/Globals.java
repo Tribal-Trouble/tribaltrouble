@@ -4,60 +4,61 @@ import org.lwjgl.opengl.*;
 
 public final strictfp class Globals {
     // #region Keybinds - Actions
-    
+
     // Basic Unit Actions
     public static final String KB_ATTACK = "Attack";
     public static final String KB_GATHER_REPAIR = "Gather/Repair";
     public static final String KB_MOVE = "Move";
-    
+
     // Building Construction (Peon Actions)
     public static final String KB_BUILD_ARMORY = "Build Armory";
     public static final String KB_BUILD_QUARTERS = "Build Quarters";
     public static final String KB_BUILD_TOWER = "Build Tower";
-    
+
     // Armory Actions
     public static final String KB_ARMORY_DEPLOY_WARRIORS = "Armory - Deploy Warriors";
     public static final String KB_ARMORY_HARVEST = "Armory - Harvest";
     public static final String KB_ARMORY_MAKE_WEAPONS = "Armory - Make Weapons";
     public static final String KB_ARMORY_RALLY_POINT = "Armory - Rally Point";
     public static final String KB_ARMORY_TRANSPORT = "Armory - Transport";
-    
+
     // Armory - Deploy Units
-    public static final String KB_ARMORY_DEPLOY_CHICKEN_WARRIORS = "Armory - Deploy Chicken Warriors";
+    public static final String KB_ARMORY_DEPLOY_CHICKEN_WARRIORS =
+            "Armory - Deploy Chicken Warriors";
     public static final String KB_ARMORY_DEPLOY_IRON_WARRIORS = "Armory - Deploy Iron Warriors";
     public static final String KB_ARMORY_DEPLOY_PEON = "Armory - Deploy Peon";
     public static final String KB_ARMORY_DEPLOY_ROCK_WARRIORS = "Armory - Deploy Rock Warriors";
-    
+
     // Armory - Resource Harvesting
     public static final String KB_ARMORY_HARVEST_CHICKEN = "Armory - Harvest Chicken";
     public static final String KB_ARMORY_HARVEST_IRON = "Armory - Harvest Iron";
     public static final String KB_ARMORY_HARVEST_ROCK = "Armory - Harvest Rock";
     public static final String KB_ARMORY_HARVEST_TREE = "Armory - Harvest Tree";
-    
+
     // Armory - Resource Transportation
     public static final String KB_ARMORY_TRANSPORT_CHICKEN = "Armory - Transport Chicken";
     public static final String KB_ARMORY_TRANSPORT_IRON = "Armory - Transport Iron";
     public static final String KB_ARMORY_TRANSPORT_ROCK = "Armory - Transport Rock";
     public static final String KB_ARMORY_TRANSPORT_TREE = "Armory - Transport Tree";
-    
+
     // Armory - Weapon Creation
     public static final String KB_ARMORY_CREATE_CHICKEN_WEAPON = "Armory - Create Chicken Weapon";
     public static final String KB_ARMORY_CREATE_IRON_WEAPON = "Armory - Create Iron Weapon";
     public static final String KB_ARMORY_CREATE_ROCK_WEAPON = "Armory - Create Rock Weapon";
-    
+
     // Quarters Actions
     public static final String KB_QUARTERS_CHIEFTAIN = "Quarters - Chieftain";
     public static final String KB_QUARTERS_DEPLOY_PEON = "Quarters - Deploy Peon";
     public static final String KB_QUARTERS_SET_RALLY_POINT = "Quarters - Set Rally Point";
-    
+
     // Chieftain Magic
     public static final String KB_CHIEFTAIN_MAGIC1 = "Chieftain - Magic 1";
     public static final String KB_CHIEFTAIN_MAGIC2 = "Chieftain - Magic 2";
-    
+
     // Tower Actions
     public static final String KB_TOWER_ATTACK = "Tower - Attack";
     public static final String KB_TOWER_EXIT = "Tower - Exit Tower";
-    
+
     // #endregion Keybinds - Actions
     public static final String DOMAIN_NAME = Settings.getSettings().getDomainName();
     public static final String SUPPORT_ADDRESS = "http://" + DOMAIN_NAME + "/support";
