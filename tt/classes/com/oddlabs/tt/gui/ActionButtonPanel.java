@@ -129,6 +129,12 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         return Utils.getBundleString(bundle, tip_key, new Object[] {shortcut_key});
     }
 
+    private final String formatTipWithKeybind(String tip_key, String keybind_action) {
+        Settings settings = Settings.getSettings();
+        String shortcut_key = settings.getKeybindString(keybind_action);
+        return Utils.getBundleString(bundle, tip_key, new Object[] {shortcut_key});
+    }
+
     public ActionButtonPanel(WorldViewer viewer, GameCamera camera) {
         this(viewer, camera, viewer.getGUIRoot().getWidth(), viewer.getGUIRoot().getHeight());
     }
@@ -155,7 +161,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         army_group = new NonFocusGroup();
         transport_group = new NonFocusGroup();
 
-        move_button = new NonFocusIconButton(race_icons.getMoveIcon(), formatTip("move_tip", "M"));
+        move_button = new NonFocusIconButton(race_icons.getMoveIcon(), formatTipWithKeybind("move_tip", Globals.KB_MOVE));
         move_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -165,7 +171,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         unit_group.addChild(move_button);
         move_button.addMouseClickListener(new TargetListener(Target.ACTION_MOVE));
         attack_button =
-                new NonFocusIconButton(race_icons.getAttackIcon(), formatTip("attack_tip", "A"));
+                new NonFocusIconButton(race_icons.getAttackIcon(), formatTipWithKeybind("attack_tip", Globals.KB_ATTACK));
         attack_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -180,7 +186,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 
         gather_repair_button =
                 new NonFocusIconButton(
-                        race_icons.getGatherRepairIcon(), formatTip("gather_repair_tip", "G"));
+                        race_icons.getGatherRepairIcon(), formatTipWithKeybind("gather_repair_tip", Globals.KB_GATHER_REPAIR));
         peon_group.addChild(gather_repair_button);
         gather_repair_button.addMouseClickListener(new TargetListener(Target.ACTION_GATHER_REPAIR));
         gather_repair_button.setIconDisabler(
@@ -191,17 +197,17 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 });
         quarters_button =
                 new NonFocusIconButton(
-                        race_icons.getQuartersIcon(), formatTip("quarters_tip", "Q"));
+                        race_icons.getQuartersIcon(), formatTipWithKeybind("quarters_tip", Globals.KB_BUILD_QUARTERS));
         peon_group.addChild(quarters_button);
         quarters_button.addMouseClickListener(new PlaceListener(Race.BUILDING_QUARTERS));
         quarters_button.setIconDisabler(new BuildingDisabler(Race.BUILDING_QUARTERS));
         armory_button =
-                new NonFocusIconButton(race_icons.getArmoryIcon(), formatTip("armory_tip", "R"));
+                new NonFocusIconButton(race_icons.getArmoryIcon(), formatTipWithKeybind("armory_tip", Globals.KB_BUILD_ARMORY));
         peon_group.addChild(armory_button);
         armory_button.addMouseClickListener(new PlaceListener(Race.BUILDING_ARMORY));
         armory_button.setIconDisabler(new BuildingDisabler(Race.BUILDING_ARMORY));
         tower_button =
-                new NonFocusIconButton(race_icons.getTowerIcon(), formatTip("tower_tip", "T"));
+                new NonFocusIconButton(race_icons.getTowerIcon(), formatTipWithKeybind("tower_tip", Globals.KB_BUILD_TOWER));
         peon_group.addChild(tower_button);
         tower_button.addMouseClickListener(new TowerPlaceListener());
         tower_button.setIconDisabler(new BuildingDisabler(Race.BUILDING_TOWER));
@@ -234,11 +240,11 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, 0);
 
         tower_attack_button =
-                new NonFocusIconButton(race_icons.getAttackIcon(), formatTip("attack_tip", "A"));
+                new NonFocusIconButton(race_icons.getAttackIcon(), formatTipWithKeybind("attack_tip", Globals.KB_TOWER_ATTACK));
         tower_group.addChild(tower_attack_button);
         tower_attack_button.addMouseClickListener(new TargetListener(Target.ACTION_ATTACK));
         tower_exit_button =
-                new NonFocusIconButton(race_icons.getTowerExitIcon(), formatTip("exit_tip", "X"));
+                new NonFocusIconButton(race_icons.getTowerExitIcon(), formatTipWithKeybind("exit_tip", Globals.KB_TOWER_EXIT));
         tower_group.addChild(tower_exit_button);
         tower_exit_button.addMouseClickListener(new TowerExitListener());
         tower_attack_button.place();
@@ -326,13 +332,13 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         viewer,
                         player_interface,
                         race_icons.getChieftainIcon(),
-                        formatTip("train_chieftain_tip", "C"));
+                        formatTipWithKeybind("train_chieftain_tip", Globals.KB_QUARTERS_CHIEFTAIN));
         //		if (Settings.getSettings().developer_mode) {
         quarters_group.addChild(quarters_chieftain_button);
         //		}
         quarters_rally_point_button =
                 new NonFocusIconButton(
-                        race_icons.getRallyPointIcon(), formatTip("rally_point_tip", "R"));
+                        race_icons.getRallyPointIcon(), formatTipWithKeybind("rally_point_tip", Globals.KB_QUARTERS_SET_RALLY_POINT));
         quarters_group.addChild(quarters_rally_point_button);
         quarters_rally_point_button.addMouseClickListener(new RallyPointListener());
         quarters_peon_button.place();
@@ -347,7 +353,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 
         harvest_button =
                 new NonFocusIconButton(
-                        icons.getHarvestIcon(), formatTip("gather_resources_tip", "G"));
+                        icons.getHarvestIcon(), formatTipWithKeybind("gather_resources_tip", Globals.KB_ARMORY_HARVEST));
         harvest_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -358,7 +364,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         harvest_button.addMouseClickListener(new GroupListener(armory_group, harvest_group));
         build_button =
                 new NonFocusIconButton(
-                        race_icons.getBuildWeaponsIcon(), formatTip("produce_weapons_tip", "W"));
+                        race_icons.getBuildWeaponsIcon(), formatTipWithKeybind("produce_weapons_tip", Globals.KB_ARMORY_MAKE_WEAPONS));
         build_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -368,7 +374,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         armory_group.addChild(build_button);
         build_button.addMouseClickListener(new GroupListener(armory_group, build_group));
         army_button =
-                new NonFocusIconButton(race_icons.getArmyIcon(), formatTip("deploy_army_tip", "A"));
+                new NonFocusIconButton(race_icons.getArmyIcon(), formatTipWithKeybind("deploy_army_tip", Globals.KB_ARMORY_DEPLOY_WARRIORS));
         army_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -379,12 +385,12 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         army_button.addMouseClickListener(new GroupListener(armory_group, army_group));
         transport_button =
                 new NonFocusIconButton(
-                        race_icons.getTransportIcon(), formatTip("transport_resources_tip", "T"));
+                        race_icons.getTransportIcon(), formatTipWithKeybind("transport_resources_tip", Globals.KB_ARMORY_TRANSPORT));
         armory_group.addChild(transport_button);
         transport_button.addMouseClickListener(new GroupListener(armory_group, transport_group));
         rally_point_button =
                 new NonFocusIconButton(
-                        race_icons.getRallyPointIcon(), formatTip("rally_point_tip", "R"));
+                        race_icons.getRallyPointIcon(), formatTipWithKeybind("rally_point_tip", Globals.KB_ARMORY_RALLY_POINT));
         rally_point_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {

@@ -221,6 +221,21 @@ public final strictfp class Settings implements Serializable {
         return keybinds;
     }
 
+    /**
+     * Gets the keybind for the specified action as a string for display in tooltips.
+     * Use Globals.KB_* constants for action names.
+     *
+     * @param action_name
+     * @return
+     */
+    public String getKeybindString(String action_name) {
+        Integer keyCode = keybinds.get(action_name);
+        if (keyCode == null) {
+            return "?";
+        }
+        return Keyboard.keyToString(keyCode);
+    }
+
     public final boolean useFBO() {
         return use_fbo
                 && GL.getCapabilities().GL_EXT_framebuffer_object
