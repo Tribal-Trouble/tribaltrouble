@@ -21,7 +21,8 @@ public final strictfp class PanelGroup extends GUIObject {
         // Sets the width and height of the panel group based on the panel with the largest content
         for (Panel panel : panels) {
             if (width < panel.getWidth()) {
-                width = panel.getWidth();;
+                width = panel.getWidth();
+                ;
             }
             if (height < panel.getHeight()) {
                 height = panel.getHeight();
@@ -31,7 +32,7 @@ public final strictfp class PanelGroup extends GUIObject {
 
         // If the largest panel content is smaller than the width of the tabs
         // group panel should be as wide as all the tabs
-        if(tabsWidth > width) {
+        if (tabsWidth > width) {
             width = tabsWidth;
         }
 
