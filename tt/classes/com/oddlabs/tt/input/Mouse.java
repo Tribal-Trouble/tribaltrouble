@@ -258,8 +258,7 @@ public final strictfp class Mouse {
         }
     }
 
-    public static void update() {
-    }
+    public static void update() {}
 
     public static void updateSensitivity() {
         mouseSensitivity = Settings.getSettings().mouse_sensitivity;
