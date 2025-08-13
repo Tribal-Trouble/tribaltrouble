@@ -23,6 +23,7 @@ public final strictfp class Mouse {
     private static int dY = 0;
     private static int dWheel = 0;
     private static boolean[] buttonStates = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST + 1];
+    private static float mouseSensitivity = 1.0f;
 
     // Event queue
     private static Queue<MouseEvent> eventQueue = new LinkedList<>();
@@ -94,15 +95,22 @@ public final strictfp class Mouse {
                             iy = clampedY;
                         }
 
-                        // System.out.println("GLFW raw: (" + xpos + ", " + ypos + ") -> Processed:
-                        // (" + ix + ", " + iy + ") DisplaySize: (" + Display.getWidth() + ", " +
-                        // Display.getHeight() + ")");
-                        dX = ix - mouseX;
-                        dY = iy - mouseY;
+                        int rawDX = ix - mouseX;
+                        int rawDY = iy - mouseY;
+
+                        dX = (int) (rawDX * mouseSensitivity);
+                        dY = (int) (rawDY * mouseSensitivity);
+
                         lastMouseX = mouseX;
                         lastMouseY = mouseY;
-                        mouseX = ix;
-                        mouseY = iy;
+                        mouseX = Math.max(0, Math.min(mouseX + dX, Display.getWidth() - 1));
+                        mouseY = Math.max(0, Math.min(mouseY + dY, Display.getHeight() - 1));
+
+                        // Update GLFW's cursor position to match our modified position
+                        // Convert back to GLFW coordinate space
+                        double newGlfwX = mouseX;
+                        double newGlfwY = Display.getHeight() - mouseY;
+                        GLFW.glfwSetCursorPos(win, newGlfwX, newGlfwY);
                         // System.out.println("Mouse moved to: (" + mouseX + ", " + mouseY + ")
                         // Delta: (" + dX + ", " + dY + ")");
                         eventQueue.offer(
@@ -144,6 +152,7 @@ public final strictfp class Mouse {
                     }
                 });
         created = true;
+        mouseSensitivity = Settings.getSettings().mouse_sensitivity;
     }
 
     public static void destroy() {
@@ -251,5 +260,10 @@ public final strictfp class Mouse {
         }
     }
 
-    public static void update() {}
+    public static void update() {
+    }
+
+    public static void updateSensitivity() {
+        mouseSensitivity = Settings.getSettings().mouse_sensitivity;
+    }
 }

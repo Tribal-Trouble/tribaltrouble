@@ -108,6 +108,8 @@ public final strictfp class Settings implements Serializable {
     public boolean use_copyteximage = false;
     private boolean use_texture_compression = true;
 
+    public float mouse_sensitivity = 1.0f;
+
     public int frame_grab_milliseconds_per_frame = 40;
 
     public static final void setSettings(Settings new_settings) {
@@ -406,6 +408,7 @@ public final strictfp class Settings implements Serializable {
                     int field_value = (new Integer(value)).intValue();
                     field.setInt(this, field_value);
                 } else if (field_type.equals(float.class)) {
+                    System.out.println("Loading float setting " + field.getName() + " = " + value);
                     float field_value = (new Float(value)).floatValue();
                     field.setFloat(this, field_value);
                 } else if (field_type.equals(String.class)) {
