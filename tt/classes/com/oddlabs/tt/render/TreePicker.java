@@ -216,9 +216,9 @@ strictfp class TreePicker implements TreeNodeVisitor {
                 boolean old_override = visible_override;
                 visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
                 if (visible_override && canRenderLowDetail(tree_leaf)) {
-                	addToLowDetailRenderList(tree_leaf);
+                    addToLowDetailRenderList(tree_leaf);
                 } else {
-                	tree_leaf.visitTrees(this);
+                    tree_leaf.visitTrees(this);
                 }
                 visible_override = old_override;
             }
@@ -235,9 +235,8 @@ strictfp class TreePicker implements TreeNodeVisitor {
                 boolean old_override = visible_override;
                 visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
                 if (visible_override && canRenderLowDetail(tree_group))
-                	addToLowDetailRenderList(tree_group);
-                else
-                	tree_group.visitChildren(this);
+                    addToLowDetailRenderList(tree_group);
+                else tree_group.visitChildren(this);
                 visible_override = old_override;
             }
         }
@@ -297,9 +296,9 @@ strictfp class TreePicker implements TreeNodeVisitor {
                                     >= RenderTools.IN_FRUSTUM;
         if (in_view) {
             if (canRenderLowDetail(tree_supply)) {
-            	addToLowDetailRenderList(tree_supply);
+                addToLowDetailRenderList(tree_supply);
             } else {
-            	addToRenderList(tree_supply, camera);
+                addToRenderList(tree_supply, camera);
             }
         }
     }
