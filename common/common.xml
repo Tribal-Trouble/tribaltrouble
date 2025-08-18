@@ -169,7 +169,7 @@
 					<jvmarg value="-ea" />
 					<jvmarg value="-Djava.library.path=${nativelib}" />
 					<jvmarg value="-Dorg.lwjgl.util.Debug=true" />
-					<jvmarg value="-Xmx80000000" />
+					<jvmarg value="-Xmx800000000" />
 					<jvmarg value="-Djdk.crypto.KeyAgreement.legacyKDF=true" />
 					<jvmarg value="-XstartOnFirstThread" />
 
@@ -185,7 +185,7 @@
 					<jvmarg value="-ea" />
 					<jvmarg value="-Djava.library.path=${nativelib}" />
 					<jvmarg value="-Dorg.lwjgl.util.Debug=true" />
-					<jvmarg value="-Xmx80000000" />
+					<jvmarg value="-Xmx800000000" />
 					<jvmarg value="-Djdk.crypto.KeyAgreement.legacyKDF=true" />
 
 					<!--<jvmarg

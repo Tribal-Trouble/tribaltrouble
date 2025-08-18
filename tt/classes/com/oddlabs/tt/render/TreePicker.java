@@ -188,12 +188,13 @@ strictfp class TreePicker implements TreeNodeVisitor {
     }
 
     public final void markDetailPolygon(TreeSupply tree_supply, int level) {
-        if (level == SpriteRenderer.HIGH_POLY || tree_supply.hasRespondingTrees()) {
-            addToHighDetailList(
-                    tree_supply.getTreeTypeIndex(),
-                    tree_supply,
-                    respond_manager.isResponding(tree_supply));
-        } else addToLowDetailRenderList(tree_supply);
+        // if (level == SpriteRenderer.HIGH_POLY || tree_supply.hasRespondingTrees()) {
+        addToHighDetailList(
+                tree_supply.getTreeTypeIndex(),
+                tree_supply,
+                respond_manager.isResponding(tree_supply));
+        // } else
+        // addToLowDetailRenderList(tree_supply);
     }
 
     public final void addToLowDetailRenderList(AbstractTreeGroup node) {
@@ -211,14 +212,16 @@ strictfp class TreePicker implements TreeNodeVisitor {
                 && (visible_override
                         || (frustum_state = RenderTools.inFrustum(tree_leaf, camera.getFrustum()))
                                 >= RenderTools.IN_FRUSTUM)) {
-            boolean old_override = visible_override;
-            visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
-            if (visible_override && canRenderLowDetail(tree_leaf)) {
-                addToLowDetailRenderList(tree_leaf);
-            } else {
-                tree_leaf.visitTrees(this);
+            if (tree_leaf.hasTrees()) {
+                boolean old_override = visible_override;
+                visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+                if (visible_override && canRenderLowDetail(tree_leaf)) {
+                	addToLowDetailRenderList(tree_leaf);
+                } else {
+                	tree_leaf.visitTrees(this);
+                }
+                visible_override = old_override;
             }
-            visible_override = old_override;
         }
     }
 
@@ -228,12 +231,15 @@ strictfp class TreePicker implements TreeNodeVisitor {
                 && (visible_override
                         || (frustum_state = RenderTools.inFrustum(tree_group, camera.getFrustum()))
                                 >= RenderTools.IN_FRUSTUM)) {
-            boolean old_override = visible_override;
-            visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
-            if (visible_override && canRenderLowDetail(tree_group))
-                addToLowDetailRenderList(tree_group);
-            else tree_group.visitChildren(this);
-            visible_override = old_override;
+            if (tree_group.hasTrees()) {
+                boolean old_override = visible_override;
+                visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+                if (visible_override && canRenderLowDetail(tree_group))
+                	addToLowDetailRenderList(tree_group);
+                else
+                	tree_group.visitChildren(this);
+                visible_override = old_override;
+            }
         }
     }
 
@@ -291,15 +297,17 @@ strictfp class TreePicker implements TreeNodeVisitor {
                                     >= RenderTools.IN_FRUSTUM;
         if (in_view) {
             if (canRenderLowDetail(tree_supply)) {
-                addToLowDetailRenderList(tree_supply);
+            	addToLowDetailRenderList(tree_supply);
             } else {
-                addToRenderList(tree_supply, camera);
+            	addToRenderList(tree_supply, camera);
             }
         }
     }
 
     private boolean canRenderLowDetail(AbstractTreeGroup tree_group) {
-        return !isPicking() && !tree_group.hasRespondingTrees() && isLowDetailDistance(tree_group);
+        // return !isPicking() && !tree_group.hasRespondingTrees() &&
+        // isLowDetailDistance(tree_group);
+        return false;
     }
 
     private boolean isLowDetailDistance(AbstractTreeGroup tree_group) {
