@@ -53,7 +53,7 @@ public final strictfp class TerrainMenu extends Group {
 
     private static final int NORMAL = 2;
     private static final int HARD = 3;
-    private static final int[] SIZES = new int[] {256, 512, 1024};
+    private static final int[] SIZES = new int[] {256, 512, 1024, 2048};
 
     private static final int SLIDER_LENGTH = 250;
     private static final int BUTTON_WIDTH = 100;
@@ -215,6 +215,8 @@ public final strictfp class TerrainMenu extends Group {
                 new PulldownItem(ServerMessageBundler.getSizeString(Game.SIZE_MEDIUM)));
         pulldown_size.addItem(
                 new PulldownItem(ServerMessageBundler.getSizeString(Game.SIZE_LARGE)));
+        pulldown_size.addItem(
+                new PulldownItem(ServerMessageBundler.getSizeString(Game.SIZE_ENORMOUS)));
 
         PulldownButton pb_size = new PulldownButton(gui_root, pulldown_size, 1, 150);
         group_size.addChild(pb_size);
