@@ -12,7 +12,7 @@ import java.util.List;
 
 public final strictfp class Connection extends AbstractConnection
         implements Handler, ConnectionPeerInterface {
-    public static final int BUFFER_SIZE = 32768;
+    public static final int BUFFER_SIZE = 1000000;
     private static final short HEADER_SIZE = 2;
 
     private final ByteBuffer read_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
