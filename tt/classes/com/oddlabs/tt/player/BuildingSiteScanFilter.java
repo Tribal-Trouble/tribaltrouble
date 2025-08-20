@@ -48,23 +48,21 @@ public final strictfp class BuildingSiteScanFilter implements ScanFilter {
             HeightMap map = unit_grid.getHeightMap();
             float sea = map.getSeaLevelMeters();
             int num_sea = 0;
-            int x0 = grid_x + obj_radius;
-            int x1 = grid_x - obj_radius;
-            int y0 = grid_y + obj_radius;
-            int y1 = grid_y - obj_radius;
-            int grid_size = map.getAccessGrid().length;
-            if (x0 < 0 || y0 < 0 || x1 >= grid_size || x1 >= grid_size) {
-                return false;
-            }
-            for (int x = grid_x - obj_radius; x < grid_x + obj_radius; x++) {
-                for (int y = grid_y - obj_radius; y < grid_y + obj_radius; y++) {
-                    if (map.getClampedHeight(x, y) - sea < 1.0f) {
+            boolean[][] water = map.getWaterGrid();
+            int grid_size = water.length;
+            int x0 = Math.max(0, grid_x - obj_radius);
+            int x1 = Math.min(grid_size, grid_x + obj_radius);
+            int y0 = Math.max(0, grid_y - obj_radius);
+            int y1 = Math.min(grid_size, grid_y + obj_radius);
+            for (int x = x0; x < x1; x++) {
+                for (int y = y0; y < y1; y++) {
+                    if (water[y][x]) {
                         num_sea++;
                     }
                 }
             }
-            float percent = num_sea / (float) (obj_radius * obj_radius * 4);
-            if (percent > 0.3f) {
+            float percent = num_sea / (float) ((x1 - x0) * (y1 - y0));
+            if (percent > 0.3f && percent < 0.6f) {
                 result.add(new LandscapeTarget(grid_x, grid_y));
                 if (one_target) return true;
             }

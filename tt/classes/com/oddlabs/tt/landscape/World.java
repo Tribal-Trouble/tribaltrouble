@@ -201,6 +201,7 @@ public final strictfp class World {
                         world_info.heightmap,
                         world_info.trees,
                         world_info.access_grid,
+                        world_info.water_grid,
                         world_info.build_grid);
         animation_manager_game_time = new AnimationManager();
         animation_manager_real_time = new AnimationManager();

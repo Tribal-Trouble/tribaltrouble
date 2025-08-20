@@ -19,6 +19,7 @@ public final strictfp class HeightMap {
     private final LandscapeLeaf[][] landscape_leaves;
     private final List trees;
     private final boolean[][] access_grid;
+    private final boolean[][] water_grid;
     private final byte[][] build_grid;
     private final int meters_per_world;
     private final int patches_per_world;
@@ -43,11 +44,13 @@ public final strictfp class HeightMap {
             float[][] world,
             List trees,
             boolean[][] access_grid,
+            boolean[][] water_grid,
             byte[][] build_grid) {
         this.world = world;
         this.world_instance = world_instance;
         this.trees = trees;
         this.access_grid = access_grid;
+        this.water_grid = water_grid;
         this.build_grid = build_grid;
         this.meters_per_world = meters_per_world;
         this.sea_level_meters = sea_level_meters;
@@ -139,6 +142,10 @@ public final strictfp class HeightMap {
 
     public final boolean[][] getAccessGrid() {
         return access_grid;
+    }
+
+    public final boolean[][] getWaterGrid() {
+        return water_grid;
     }
 
     final void makePlaneVector(

@@ -76,6 +76,7 @@ public final strictfp class Landscape {
     private final int terrain_type;
 
     private byte[][] build;
+    private boolean[][] water;
     private float[][] player_locations;
     private int[][] supply_locations;
     private float[][] plants;
@@ -221,6 +222,8 @@ public final strictfp class Landscape {
                 height.putPixel(x, y, height_scale * height.getPixel(x, y));
             }
         }
+
+        generateWaterGrid();
 
         if (DEBUG) access.toLayer().saveAsPNG("access_connected");
 
@@ -1384,6 +1387,48 @@ public final strictfp class Landscape {
         }
     }
 
+    private final void generateWaterGrid() {
+        Channel dbg = new Channel(unit_grids_per_world, unit_grids_per_world).fill(0.0f);
+        boolean[][] done = new boolean[unit_grids_per_world][unit_grids_per_world];
+        water = new boolean[unit_grids_per_world][unit_grids_per_world];
+        int[] stack = new int[unit_grids_per_world * unit_grids_per_world * 2];
+        int stack_top = 0;
+        for (int x = 0; x < unit_grids_per_world; x++) {
+            for (int y = 0; y < unit_grids_per_world; y++) {
+                done[y][x] = false;
+                water[y][x] = false;
+            }
+        }
+        stack[stack_top++] = 0;
+        stack[stack_top++] = 0;
+        while (stack_top > 0) {
+            int y = stack[--stack_top];
+            int x = stack[--stack_top];
+            done[y][x] = true;
+            if (height.getPixel(x, y) - sea_level_meters < 1.0) {
+                dbg.putPixel(x, y, 1.0f);
+                water[y][x] = true;
+                if (x > 0 && !done[y][x - 1]) {
+                    stack[stack_top++] = x - 1;
+                    stack[stack_top++] = y;
+                }
+                if (x < unit_grids_per_world - 1 && !done[y][x + 1]) {
+                    stack[stack_top++] = x + 1;
+                    stack[stack_top++] = y;
+                }
+                if (y > 0 && !done[y - 1][x]) {
+                    stack[stack_top++] = x;
+                    stack[stack_top++] = y - 1;
+                }
+                if (y < unit_grids_per_world - 1 && !done[y + 1][x]) {
+                    stack[stack_top++] = x;
+                    stack[stack_top++] = y + 1;
+                }
+            }
+        }
+        if (DEBUG) dbg.toLayer().saveAsPNG("water");
+    }
+
     public final BlendInfo[] getBlendInfos() {
         return blend_infos;
     }
@@ -1405,6 +1450,10 @@ public final strictfp class Landscape {
             }
         }
         return access_grid;
+    }
+
+    public final boolean[][] getWaterGrid() {
+        return water;
     }
 
     public final byte[][] getBuildGrid() {

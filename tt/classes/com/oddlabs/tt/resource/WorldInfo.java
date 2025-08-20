@@ -14,6 +14,7 @@ public final strictfp class WorldInfo {
     public final List iron;
     public final float[][] plants;
     public final boolean[][] access_grid;
+    public final boolean[][] water_grid;
     public final byte[][] build_grid;
     public final int meters_per_world;
     public final float sea_level_meters;
@@ -35,6 +36,7 @@ public final strictfp class WorldInfo {
             List iron,
             float[][] plants,
             boolean[][] access_grid,
+            boolean[][] water_grid,
             byte[][] build_grid,
             float[][] starting_locations) {
         this.texels_per_colormap = texels_per_colormap;
@@ -50,6 +52,7 @@ public final strictfp class WorldInfo {
         this.plants = plants;
         this.palm_trees = palm_trees;
         this.access_grid = access_grid;
+        this.water_grid = water_grid;
         this.build_grid = build_grid;
         this.starting_locations = starting_locations;
     }

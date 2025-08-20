@@ -140,6 +140,7 @@ public final strictfp class IslandGenerator implements WorldGenerator {
         List iron = landscape.getIron();
         float[][] plants = landscape.getPlants();
         boolean[][] access_grid = landscape.getAccessGrid();
+        boolean[][] water_grid = landscape.getWaterGrid();
         byte[][] build_grid = landscape.getBuildGrid();
         float[][] starting_locations = landscape.getStartingLocations();
         int alpha_size = grid_units;
@@ -170,6 +171,7 @@ public final strictfp class IslandGenerator implements WorldGenerator {
                 iron,
                 plants,
                 access_grid,
+                water_grid,
                 build_grid,
                 starting_locations);
     }

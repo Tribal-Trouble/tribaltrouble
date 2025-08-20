@@ -3,6 +3,7 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.gui.BuildSpinner;
+import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.behaviour.AttackController;
@@ -20,7 +21,6 @@ import com.oddlabs.tt.particle.LinearEmitter;
 import com.oddlabs.tt.particle.RandomAccelerationEmitter;
 import com.oddlabs.tt.particle.RandomVelocityEmitter;
 import com.oddlabs.tt.pathfinder.Occupant;
-import com.oddlabs.tt.pathfinder.StaticOccupant;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
@@ -642,12 +642,9 @@ public final strictfp class Building extends Selectable implements Occupant {
                     if (occupied) {
                         return false;
                     }
-                } else {
-                    if (occupied
-                            && !(unit_grid.getOccupant(current_grid_x, current_grid_y)
-                                    instanceof StaticOccupant)) {
-                        return false;
-                    }
+                } else if (occupied
+                        && !unit_grid.isWaterAccessible(current_grid_x, current_grid_y)) {
+                    return false;
                 }
             }
         return true;
@@ -813,6 +810,7 @@ public final strictfp class Building extends Selectable implements Occupant {
     }
 
     private final void flattenLandscape() {
+        HeightMap map = getOwner().getWorld().getHeightMap();
         int size = getBuildingTemplate().getPlacingSize();
         int height_points = (size - PLACING_BORDER) * 2;
         int offset_x = getGridX() - (size - 1);
@@ -822,26 +820,21 @@ public final strictfp class Building extends Selectable implements Occupant {
         for (int y = 0; y < height_points; y++)
             for (int x = 0; x < height_points; x++) {
                 float old_height =
-                        getOwner()
-                                .getWorld()
-                                .getHeightMap()
-                                .getWrappedHeight(
-                                        offset_x + x + PLACING_BORDER,
-                                        offset_y + y + PLACING_BORDER);
+                        map.getWrappedHeight(
+                                offset_x + x + PLACING_BORDER, offset_y + y + PLACING_BORDER);
                 old_landscape_heights[y][x] = old_height;
                 total_height += old_height;
             }
 
         float new_height = total_height / (height_points * height_points);
+        if (getBuildingTemplate().isNearSea()) {
+            new_height = map.getSeaLevelMeters() * 1.1f;
+        }
+
         for (int y = 0; y < height_points; y++)
             for (int x = 0; x < height_points; x++) {
-                getOwner()
-                        .getWorld()
-                        .getHeightMap()
-                        .editHeight(
-                                offset_x + x + PLACING_BORDER,
-                                offset_y + y + PLACING_BORDER,
-                                new_height);
+                map.editHeight(
+                        offset_x + x + PLACING_BORDER, offset_y + y + PLACING_BORDER, new_height);
             }
     }
 

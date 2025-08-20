@@ -13,9 +13,11 @@ public final strictfp class RegionBuilder {
     public static final int STRAIGHT = 2;
 
     private static final Occupant unreachable_obj = new StaticOccupant();
+    private static final Occupant water_obj = new StaticOccupant();
 
     public static final void buildRegions(UnitGrid unit_grid, float start_x_f, float start_y_f) {
         boolean[][] access_grid = unit_grid.getHeightMap().getAccessGrid();
+        boolean[][] water_grid = unit_grid.getHeightMap().getWaterGrid();
         int grid_size = access_grid.length;
         int start_x = UnitGrid.toGridCoordinate(start_x_f);
         int start_y = UnitGrid.toGridCoordinate(start_y_f);
@@ -27,8 +29,13 @@ public final strictfp class RegionBuilder {
                 RegionBuilderNode finder_node = new RegionBuilderNode(x, y);
                 dir_finder_grid[y][x] = finder_node;
                 if (!access_grid[y][x]) {
-                    unit_grid.occupyGrid(
-                            finder_node.getGridX(), finder_node.getGridY(), unreachable_obj);
+                    if (!water_grid[y][x]) {
+                        unit_grid.occupyGrid(
+                                finder_node.getGridX(), finder_node.getGridY(), unreachable_obj);
+                    } else {
+                        unit_grid.occupyGrid(
+                                finder_node.getGridX(), finder_node.getGridY(), water_obj);
+                    }
                     num_occupied++;
                 }
             }
@@ -118,6 +125,10 @@ public final strictfp class RegionBuilder {
             int x,
             int y,
             int cost) {
+        int max = unit_grid.getHeightMap().getGridUnitsPerWorld();
+        if (x < 0 || x >= max || y < 0 || y >= max) {
+            return;
+        }
         RegionBuilderNode node = dir_finder_grid[y][x];
         if (unit_grid.getRegion(node.getGridX(), node.getGridY()) != null) return;
         node.setTotalCost(cost);
