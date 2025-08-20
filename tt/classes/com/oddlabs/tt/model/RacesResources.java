@@ -50,8 +50,10 @@ public final strictfp class RacesResources {
     public static final int QUARTERS_SIZE = 5;
     public static final int ARMORY_SIZE = 5;
     public static final int TOWER_SIZE = 3;
+    public static final int SHIP_SIZE = 6;
     public static final int QUARTERS_HIT_POINTS = 200;
     public static final int ARMORY_HIT_POINTS = 200;
+    public static final int SHIP_HIT_POINTS = 250;
     public static final int TOWER_HIT_POINTS = 100;
     public static final int VIKING_CHIEFTAIN_HIT_POINTS = 60;
     public static final int NATIVE_CHIEFTAIN_HIT_POINTS = 40;
@@ -138,6 +140,7 @@ public final strictfp class RacesResources {
             float chimney_x,
             float chimney_y,
             float chimney_z,
+            boolean near_sea,
             String name) {
         assert hit_offset_z.length == 3;
 
@@ -155,11 +158,11 @@ public final strictfp class RacesResources {
                         });
         ShadowListKey shadow_renderer = queues.registerSelectableShadowList(building_shadow_desc);
         SpriteFile building =
-                new SpriteFile(built_name, Globals.NO_MIPMAP_CUTOFF, true, true, true, false);
+                new SpriteFile(built_name, Globals.NO_MIPMAP_CUTOFF, true, false, true, false);
         SpriteFile building_halfbuilt =
-                new SpriteFile(halfbuilt_name, Globals.NO_MIPMAP_CUTOFF, true, true, true, false);
+                new SpriteFile(halfbuilt_name, Globals.NO_MIPMAP_CUTOFF, true, false, true, false);
         SpriteFile building_start =
-                new SpriteFile(start_name, Globals.NO_MIPMAP_CUTOFF, true, true, true, false);
+                new SpriteFile(start_name, Globals.NO_MIPMAP_CUTOFF, true, false, true, false);
         return new BuildingTemplate(
                 template_id,
                 placing_size,
@@ -190,11 +193,12 @@ public final strictfp class RacesResources {
                 chimney_x,
                 chimney_y,
                 chimney_z,
+                near_sea,
                 name);
     }
 
     public RacesResources(RenderQueues queues) {
-        int num_progress = 23;
+        int num_progress = 25;
         SpriteFile native_rock_sprite =
                 new SpriteFile(
                         "/geometry/natives/rock_resource.binsprite",
@@ -471,6 +475,7 @@ public final strictfp class RacesResources {
                         0f,
                         0f,
                         0f,
+                        false,
                         Utils.getBundleString(bundle, "quarters"));
         ProgressForm.progress(1f / num_progress);
         BuildingTemplate viking_armory_template =
@@ -508,6 +513,7 @@ public final strictfp class RacesResources {
                         .25f,
                         -2.8f,
                         13.1f,
+                        false,
                         Utils.getBundleString(bundle, "armory"));
         ProgressForm.progress(1f / num_progress);
         BuildingTemplate viking_tower_template =
@@ -541,6 +547,7 @@ public final strictfp class RacesResources {
                         0f,
                         0f,
                         0f,
+                        false,
                         Utils.getBundleString(bundle, "tower"));
         ProgressForm.progress(1f / num_progress);
         BuildingTemplate native_quarters_template =
@@ -574,6 +581,7 @@ public final strictfp class RacesResources {
                         0f,
                         0f,
                         0f,
+                        false,
                         Utils.getBundleString(bundle, "quarters"));
         ProgressForm.progress(1f / num_progress);
         BuildingTemplate native_armory_template =
@@ -611,6 +619,7 @@ public final strictfp class RacesResources {
                         0f,
                         -1f,
                         11.5f,
+                        false,
                         Utils.getBundleString(bundle, "armory"));
         ProgressForm.progress(1f / num_progress);
         BuildingTemplate native_tower_template =
@@ -644,8 +653,88 @@ public final strictfp class RacesResources {
                         0f,
                         0f,
                         0f,
+                        false,
                         Utils.getBundleString(bundle, "tower"));
         ProgressForm.progress(1f / num_progress);
+
+        BuildingTemplate native_ship_template =
+                createBuildingTemplate(
+                        queues,
+                        Race.BUILDING_SHIP,
+                        "/geometry/natives/ship.binsprite",
+                        3.5f,
+                        7f,
+                        "/geometry/natives/ship_halfbuilt.binsprite",
+                        3.5f,
+                        6f,
+                        "/geometry/natives/ship_start.binsprite",
+                        5f,
+                        1f,
+                        22f,
+                        .001f,
+                        SHIP_SIZE,
+                        6f,
+                        9f,
+                        100,
+                        SHIP_HIT_POINTS,
+                        new WorkerUnitContainerFactory(),
+                        new Abilities(
+                                Abilities.SUPPLY_CONTAINER
+                                        | Abilities.BUILD_ARMIES
+                                        | Abilities.RALLY_TO
+                                        | Abilities.TARGET),
+                        new float[] {0f, 1f, 3f},
+                        0f,
+                        6f,
+                        0f,
+                        2.25f,
+                        10f,
+                        .25f,
+                        -2.8f,
+                        13.1f,
+                        true,
+                        Utils.getBundleString(bundle, "ship"));
+        ProgressForm.progress(1f / num_progress);
+
+        BuildingTemplate viking_ship_template =
+                createBuildingTemplate(
+                        queues,
+                        Race.BUILDING_SHIP,
+                        "/geometry/vikings/ship.binsprite",
+                        3.5f,
+                        7f,
+                        "/geometry/vikings/ship_halfbuilt.binsprite",
+                        3.5f,
+                        6f,
+                        "/geometry/vikings/ship_start.binsprite",
+                        5f,
+                        1f,
+                        22f,
+                        .001f,
+                        SHIP_SIZE,
+                        6f,
+                        9f,
+                        100,
+                        SHIP_HIT_POINTS,
+                        new WorkerUnitContainerFactory(),
+                        new Abilities(
+                                Abilities.SUPPLY_CONTAINER
+                                        | Abilities.BUILD_ARMIES
+                                        | Abilities.RALLY_TO
+                                        | Abilities.TARGET),
+                        new float[] {0f, 1f, 3f},
+                        0f,
+                        6f,
+                        0f,
+                        2.25f,
+                        10f,
+                        .25f,
+                        -2.8f,
+                        13.1f,
+                        true,
+                        Utils.getBundleString(bundle, "ship"));
+        ProgressForm.progress(1f / num_progress);
+
         final float shadow_diameter_warrior = 1.9f;
         final float shadow_diameter_peon = 1.6f;
         final float shadow_diameter_chieftain = 2.2f;
@@ -1058,6 +1147,7 @@ public final strictfp class RacesResources {
                         native_quarters_template,
                         native_armory_template,
                         native_tower_template,
+                        native_ship_template,
                         native_warrior_rock_template,
                         native_warrior_iron_template,
                         native_warrior_rubber_template,
@@ -1086,6 +1176,7 @@ public final strictfp class RacesResources {
                         viking_quarters_template,
                         viking_armory_template,
                         viking_tower_template,
+                        viking_ship_template,
                         viking_warrior_rock_template,
                         viking_warrior_iron_template,
                         viking_warrior_rubber_template,

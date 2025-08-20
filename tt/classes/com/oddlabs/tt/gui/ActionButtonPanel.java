@@ -62,6 +62,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
     //	private boolean armory_button_disabled;
     private final NonFocusIconButton tower_button;
     //	private boolean tower_button_disabled;
+    private final NonFocusIconButton ship_button;
     private final NonFocusIconButton harvest_button;
     private final NonFocusIconButton build_button;
     private final NonFocusIconButton army_button;
@@ -202,10 +203,17 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         peon_group.addChild(tower_button);
         tower_button.addMouseClickListener(new TowerPlaceListener());
         tower_button.setIconDisabler(new BuildingDisabler(Race.BUILDING_TOWER));
+
+        ship_button = new NonFocusIconButton(race_icons.getShipIcon(), formatTip("ship_tip", "S"));
+        peon_group.addChild(ship_button);
+        ship_button.addMouseClickListener(new ShipPlaceListener());
+
         gather_repair_button.place();
         quarters_button.place(gather_repair_button, BOTTOM_MID);
         armory_button.place(quarters_button, BOTTOM_MID);
         tower_button.place(armory_button, BOTTOM_MID);
+        ship_button.place(tower_button, BOTTOM_MID);
+
         peon_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, 0);
 
         PlayerInterface player_interface = viewer.getPeerHub().getPlayerInterface();
@@ -752,6 +760,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
             quarters_button.doUpdate();
             armory_button.doUpdate();
             tower_button.doUpdate();
+            ship_button.doUpdate();
         }
         if (current_unit) {
             move_button.doUpdate();
@@ -1426,6 +1435,14 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                                 new PlacingDelegate(
                                         viewer, camera.getState(), Race.BUILDING_TOWER));
             }
+        }
+    }
+
+    private final strictfp class ShipPlaceListener implements MouseClickListener {
+        public final void mouseClicked(int button, int x, int y, int clicks) {
+            viewer.getGUIRoot()
+                    .pushDelegate(
+                            new PlacingDelegate(viewer, camera.getState(), Race.BUILDING_SHIP));
         }
     }
 

@@ -27,6 +27,7 @@ public final strictfp class BuildingTemplate extends Template {
     private final float chimney_x;
     private final float chimney_y;
     private final float chimney_z;
+    private final boolean near_sea;
 
     public BuildingTemplate(
             int template_id,
@@ -58,6 +59,7 @@ public final strictfp class BuildingTemplate extends Template {
             float chimney_x,
             float chimney_y,
             float chimney_z,
+            boolean near_sea,
             String name) {
         super(
                 abilities,
@@ -90,6 +92,7 @@ public final strictfp class BuildingTemplate extends Template {
         this.chimney_x = chimney_x;
         this.chimney_y = chimney_y;
         this.chimney_z = chimney_z;
+        this.near_sea = near_sea;
     }
 
     public final int getTemplateID() {
@@ -182,5 +185,9 @@ public final strictfp class BuildingTemplate extends Template {
 
     public final float getChimneyZ() {
         return chimney_z;
+    }
+
+    public final boolean isNearSea() {
+        return near_sea;
     }
 }

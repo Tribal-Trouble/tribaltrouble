@@ -286,23 +286,6 @@ public final strictfp class GUIRoot extends GUIObject implements Updatable {
                 break;
         }
 
-        /*		if (Settings.getSettings().inBetaMode()) {
-        			switch (event.getKeyCode()) {
-        				case Keyboard.KEY_K:
-        					if (event.isControlDown()) {
-        						if (event.isShiftDown()) {
-        							Player[] players = World.getPlayers();
-        							for (int i = 0; i < players.length; i++) {
-        								players[i].debugKillSelection(players[i].getUnits().filter(Abilities.NONE));
-        							}
-        						} else {
-        							Globals.process_shadows = !Globals.process_shadows;
-        						}
-        					}
-        					break;
-        			}
-        		}
-        */
         if (!Settings.getSettings().inDeveloperMode()) return;
 
         switch (event.getKeyCode()) {

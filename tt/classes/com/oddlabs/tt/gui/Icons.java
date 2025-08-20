@@ -129,7 +129,8 @@ public strictfp class Icons {
                 getNamedIconQuads(n, head + "_magic1_icon", texture),
                 magic1_desc,
                 getNamedIconQuads(n, head + "_magic2_icon", texture),
-                magic2_desc);
+                magic2_desc,
+                getNamedIconQuads(n, head + "_ship_icon", texture));
     }
 
     public final RaceIcons getVikingIcons() {

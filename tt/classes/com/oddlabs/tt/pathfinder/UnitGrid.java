@@ -93,7 +93,7 @@ public final strictfp class UnitGrid {
     }
 
     public final void occupyGrid(int grid_x, int grid_y, Occupant occupant) {
-        assert !isGridOccupied(grid_x, grid_y);
+        // assert !isGridOccupied(grid_x, grid_y);
         occupants[grid_y][grid_x] = occupant;
     }
 

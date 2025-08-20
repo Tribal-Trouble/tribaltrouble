@@ -28,6 +28,7 @@ public final strictfp class RaceIcons {
     private final String magic1_desc;
     private final IconQuad[] magic2_icon;
     private final String magic2_desc;
+    private final IconQuad[] ship_icon;
 
     public RaceIcons(
             IconQuad unit_status_icon,
@@ -56,7 +57,8 @@ public final strictfp class RaceIcons {
             IconQuad[] magic1_icon,
             String magic1_desc,
             IconQuad[] magic2_icon,
-            String magic2_desc) {
+            String magic2_desc,
+            IconQuad[] ship_icon) {
         this.unit_status_icon = unit_status_icon;
         this.weapon_rock_status_icon = weapon_rock_status_icon;
         this.weapon_iron_status_icon = weapon_iron_status_icon;
@@ -84,6 +86,7 @@ public final strictfp class RaceIcons {
         this.magic1_desc = magic1_desc;
         this.magic2_icon = magic2_icon;
         this.magic2_desc = magic2_desc;
+        this.ship_icon = ship_icon;
     }
 
     public final IconQuad getUnitStatusIcon() {
@@ -192,5 +195,9 @@ public final strictfp class RaceIcons {
 
     public final String getMagic2Desc() {
         return magic2_desc;
+    }
+
+    public final IconQuad[] getShipIcon() {
+        return ship_icon;
     }
 }

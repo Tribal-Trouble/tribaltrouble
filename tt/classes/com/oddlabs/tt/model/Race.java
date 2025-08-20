@@ -10,8 +10,9 @@ public final strictfp class Race {
     public static final int BUILDING_QUARTERS = 0;
     public static final int BUILDING_ARMORY = 1;
     public static final int BUILDING_TOWER = 2;
+    public static final int BUILDING_SHIP = 3;
 
-    public static final int NUM_BUILDINGS = 3;
+    public static final int NUM_BUILDINGS = 4;
 
     public static final int UNIT_WARRIOR_ROCK = 0;
     public static final int UNIT_WARRIOR_IRON = 1;
@@ -33,6 +34,7 @@ public final strictfp class Race {
             BuildingTemplate quarters,
             BuildingTemplate armory,
             BuildingTemplate tower,
+            BuildingTemplate ship,
             UnitTemplate warrior_rock,
             UnitTemplate warrior_iron,
             UnitTemplate warrior_rubber,
@@ -48,6 +50,7 @@ public final strictfp class Race {
         buildings[BUILDING_QUARTERS] = quarters;
         buildings[BUILDING_ARMORY] = armory;
         buildings[BUILDING_TOWER] = tower;
+        buildings[BUILDING_SHIP] = ship;
         for (int i = 0; i < buildings.length; i++) assert buildings[i].getTemplateID() == i;
         units[UNIT_WARRIOR_ROCK] = warrior_rock;
         units[UNIT_WARRIOR_IRON] = warrior_iron;

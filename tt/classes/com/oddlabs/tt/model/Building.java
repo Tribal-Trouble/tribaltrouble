@@ -20,6 +20,7 @@ import com.oddlabs.tt.particle.LinearEmitter;
 import com.oddlabs.tt.particle.RandomAccelerationEmitter;
 import com.oddlabs.tt.particle.RandomVelocityEmitter;
 import com.oddlabs.tt.pathfinder.Occupant;
+import com.oddlabs.tt.pathfinder.StaticOccupant;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
@@ -596,7 +597,8 @@ public final strictfp class Building extends Selectable implements Occupant {
 
     public static final boolean isPlacingLegal(
             UnitGrid unit_grid, BuildingTemplate template, int grid_x, int grid_y) {
-        return doIsPlacingLegal(unit_grid, grid_x, grid_y, template.getPlacingSize());
+        return doIsPlacingLegal(
+                unit_grid, grid_x, grid_y, template.getPlacingSize(), template.isNearSea());
     }
 
     public final boolean isPlacingLegal() {
@@ -606,7 +608,8 @@ public final strictfp class Building extends Selectable implements Occupant {
                         getUnitGrid(),
                         getGridX(),
                         getGridY(),
-                        getBuildingTemplate().getPlacingSize() - PLACING_BORDER);
+                        getBuildingTemplate().getPlacingSize() - PLACING_BORDER,
+                        getBuildingTemplate().isNearSea());
     }
 
     public final boolean isPlaced() {
@@ -623,8 +626,8 @@ public final strictfp class Building extends Selectable implements Occupant {
     }
 
     public static final boolean doIsPlacingLegal(
-            UnitGrid unit_grid, int grid_x, int grid_y, int size) {
-        if (!unit_grid.getHeightMap().canBuild(grid_x, grid_y, size)) return false;
+            UnitGrid unit_grid, int grid_x, int grid_y, int size, boolean near_sea) {
+        if (!near_sea && !unit_grid.getHeightMap().canBuild(grid_x, grid_y, size)) return false;
 
         for (int y = 0; y < size * 2 - 1; y++)
             for (int x = 0; x < size * 2 - 1; x++) {
@@ -633,8 +636,19 @@ public final strictfp class Building extends Selectable implements Occupant {
                 if (current_grid_x >= unit_grid.getGridSize()
                         || current_grid_y >= unit_grid.getGridSize()
                         || current_grid_x < 0
-                        || current_grid_y < 0
-                        || unit_grid.isGridOccupied(current_grid_x, current_grid_y)) return false;
+                        || current_grid_y < 0) return false;
+                boolean occupied = unit_grid.isGridOccupied(current_grid_x, current_grid_y);
+                if (!near_sea) {
+                    if (occupied) {
+                        return false;
+                    }
+                } else {
+                    if (occupied
+                            && !(unit_grid.getOccupant(current_grid_x, current_grid_y)
+                                    instanceof StaticOccupant)) {
+                        return false;
+                    }
+                }
             }
         return true;
     }

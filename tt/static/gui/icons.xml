@@ -36,6 +36,7 @@
 					 vikings_rally_point_icon,
 					 vikings_magic1_icon,
 					 vikings_magic2_icon,
+					 vikings_ship_icon,
 					 natives_unit_status_icon,
 					 natives_weapon_rock_status_icon,
 					 natives_weapon_iron_status_icon,
@@ -61,6 +62,7 @@
 					 natives_rally_point_icon,
 					 natives_magic1_icon,
 					 natives_magic2_icon,
+					 natives_ship_icon,
 					 watch,
 					 infinite,
 					 notify_arrow
@@ -111,6 +113,7 @@
 	<!ELEMENT vikings_rally_point_icon			(normal, active, disabled)>
 	<!ELEMENT vikings_magic1_icon				(normal, active, disabled)>
 	<!ELEMENT vikings_magic2_icon				(normal, active, disabled)>
+	<!ELEMENT vikings_ship_icon				    (normal, active, disabled)>
 
 	<!ELEMENT natives_unit_status_icon			(quad)>
 	<!ELEMENT natives_weapon_rock_status_icon	(quad)>
@@ -137,6 +140,7 @@
 	<!ELEMENT natives_rally_point_icon			(normal, active, disabled)>
 	<!ELEMENT natives_magic1_icon				(normal, active, disabled)>
 	<!ELEMENT natives_magic2_icon				(normal, active, disabled)>
+	<!ELEMENT natives_ship_icon				    (normal, active, disabled)>
 
 	<!ELEMENT watch								(quad+)>
 
@@ -465,6 +469,17 @@
 			<quad left="448" top="640" right="512" bottom="704"/>
 		</disabled>
 	</vikings_magic2_icon>
+	<vikings_ship_icon>
+		<normal>
+			<quad left="640" top="512" right="704" bottom="576"/>
+		</normal>
+		<active>
+			<quad left="640" top="576" right="704" bottom="640"/>
+		</active>
+		<disabled>
+			<quad left="640" top="640" right="704" bottom="704"/>
+		</disabled>
+    </vikings_ship_icon>
 
 	<!-- NATIVES -->
 	<natives_unit_status_icon>
@@ -710,6 +725,17 @@
 			<quad left="512" top="640" right="576" bottom="704"/>
 		</disabled>
 	</natives_magic2_icon>
+	<natives_ship_icon>
+		<normal>
+			<quad left="576" top="512" right="640" bottom="576"/>
+		</normal>
+		<active>
+			<quad left="576" top="576" right="640" bottom="640"/>
+		</active>
+		<disabled>
+			<quad left="576" top="640" right="640" bottom="704"/>
+		</disabled>
+    </natives_ship_icon>
 
 	<!-- Watch icons -->
 	<watch>
