@@ -6,3 +6,5 @@ build
 .classpath
 server/logs
 !server/logs/donot-delete.txt
+
+website/vendor/*

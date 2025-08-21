@@ -2,16 +2,19 @@
     <style>
         body {
             background-color: black;
+            overflow: none;
         }
 
-        #tv {
-            height: 100%;
-            width: 100%;
+        html {
+            overflow: none;
         }
 
         .canvas {
-            height: 90%;
-            width: 100%;
+            height: 89%;
+            width: 98vw;
+            left: 1vw;
+            margin: 0px;
+            padding: 0px;
             border-top-left-radius: 15px;
             border-top-right-radius: 15px;
             background-color: grey;
@@ -20,16 +23,51 @@
         .btn {
             border: none;
             float: left;
-            height: 100%;
+            height: 80%;
+            position: relative;
+            margin: 10px;
             vertical-align: middle;
         }
 
         #control-panel {
-            height: 10%;
-            width: 100%;
+            margin: 0px;
+            padding: 0px;
+            height: 9vh;
+            width: 98vw;
+            left: 1vw;
             border-bottom-left-radius: 15px;
             border-bottom-right-radius: 15px;
             background-color: #24D;
+        }
+
+        #game-info {
+            right: 2vw;
+            position: absolute;
+            margin: 10px;
+            height: 8vh;
+            overflow-x: hidden;
+            white-space: nowrap;
+            max-height: 8vh;
+            padding-left: 20px;
+            padding-right: 20px;
+            text-align: right;
+            font-weight: bold;
+            text-decoration: none;
+            font-family: Arial, Helvetica, sans-serif;
+            text-shadow: -6px -6px 8px #000, 6px -6px 8px #000, -6px 6px 8px #000, 6px 6px 8px #000;
+        }
+
+        .player-name {
+            text-decoration: none;
+            font-style: italic;
+            font-size: 4vh;
+            position: relative;
+            top: -0.5vh;
+            margin: 5px;
+        }
+
+        .player-name:hover {
+            text-shadow: -7px -7px 10px #FFF, 7px -7px 10px #FFF, -7px 7px 10px #FFF, 7px 7px 10px #FFF;
         }
 
         #prev-btn {
@@ -45,15 +83,17 @@
         }
 
         #timeline {
-            height: 5px;
-            width: 100%;
+            margin: 0px;
+            padding: 0px;
+            height: 1vh;
+            width: 98vw;
+            left: 1vw;
             background-color: black;
-            position: absolute;
         }
 
         #time-cursor {
-            height: 5px;
-            width: 1px;
+            height: 100%;
+            width: 0px;
             position: relative;
             border-radius: 5px;
             left: 0px;
@@ -63,12 +103,14 @@
         }
 
         #time-display {
-            right: 15px;
-            top: 10px;
+            margin: 0px;
+            padding: 0px;
+            right: 2vw;
+            top: 2vh;
             text-align: right;
             color: white;
             font-size: 20px;
-            position: absolute;
+            position: fixed;
             text-shadow: 2px 2px #000;
         }
     </style>
@@ -77,20 +119,20 @@
 
 <body>
 
-    <div id="tv">
-        <canvas id='canvas-map' class='canvas' width="1500" height="1500"></canvas>
-        <div id="timeline">
-            <div id="time-cursor">
-            </div>
+    <canvas id='canvas-map' class='canvas' width="1500" height="1500">
+    </canvas>
+    <span id="time-display"></span>
+    <div id="timeline">
+        <div id="time-cursor">
         </div>
-        <div id="control-panel">
-            <img class="btn" src="prev.png" id="prev-btn" />
-            <img class="btn" src="play.png" id="play-btn" />
-            <img class="btn" src="pause.png" id="pause-btn" />
-            <img class="btn" src="next.png" id="next-btn" />
-            <span id="time-display"></span>
+    </div>
+    <div id="control-panel">
+        <img class="btn" src="prev.png" id="prev-btn" />
+        <img class="btn" src="play.png" id="play-btn" />
+        <img class="btn" src="pause.png" id="pause-btn" />
+        <img class="btn" src="next.png" id="next-btn" />
+        <div id="game-info">
         </div>
-        <span id="time-display"></span>
     </div>
 
     <script>
@@ -244,7 +286,7 @@
                 f_uv = v_uv;
             }
         `,
-        `
+            `
             precision highp float;
             varying vec2 f_uv;
             uniform float u_time;
@@ -452,7 +494,7 @@
             gl.bufferData(gl.ARRAY_BUFFER, uv, gl.STATIC_DRAW);
             return uvBuffer;
         }
-        
+
         var uvBuf;
         var fsUvBuf = makeFullScreenUV();;
 
@@ -472,6 +514,7 @@
         }
 
         var staticTime = 0;
+
         function renderStatic() {
             gl.useProgram(staticProg);
             gl.bindBuffer(gl.ARRAY_BUFFER, fsUvBuf);
@@ -553,9 +596,6 @@
                 if (curr_tick_index >= ticks.length) {
                     curr_tick_index = ticks.length - 1;
                     jump_to_end = true;
-                    if (!ended) {
-                        pullMoreData();
-                    }
                 }
                 const tick = ticks[curr_tick_index];
                 timeCursor.style.width = (tick * 100.0 / biggest_tick) + "%";
@@ -571,7 +611,18 @@
             }
         }
 
+        function fetchThread() {
+            if (!ended) {
+                pullMoreData();
+                setTimeout(fetchThread, 20);
+            }
+        }
+
+        fetchThread();
+
         setTimeout(nextTick, 20);
+
+        var leftovers = '';
 
         function parseRows(text) {
             if (text.length == 0) {
@@ -580,10 +631,11 @@
             } else {
                 buffering = false;
                 byte_offset += text.length;
-                const rows = text.split("\n");
-                for (var i = 0; i < rows.length; i++) {
+                const rows = (leftovers + text).split("\n");
+                for (var i = 0; i < rows.length - 1; i++) {
                     parseRow(rows[i]);
                 }
+                leftovers = rows[rows.length - 1];
                 fetch_lock = false;
                 if (jump_to_end) {
                     curr_tick_index = ticks.length - 1;
@@ -679,6 +731,29 @@
             if (!map_complete && map.length > 0 && map.length >= map[0].length && trees.length > 0) {
                 createMapBuffer();
                 map_complete = true;
+                const gameInfo = document.getElementById("game-info");
+                gameInfo.innerHTML = "";
+                var teams = new Map();
+                for (var i = 0; i < players.length; i++) {
+                    const p = players[i];
+                    const color = p[3];
+                    const name = p[0];
+                    const team = p[2];
+                    if (!teams.has(team)) {
+                        teams.set(team, "");
+                    } else {
+                        teams.set(team, teams.get(team) + " / ");
+                    }
+                    teams.set(team, teams.get(team) + "<a style='color: rgb(" + Math.floor(color[0] * 255) + "," + Math.floor(color[1] * 255) + "," + Math.floor(color[2] * 255) + ")' class='player-name' target='_blank' href='index.html#player#" + name + "#0'>" + name + "</a> ");
+                }
+                var firstOne = true;
+                for (const text of teams.values()) {
+                    if (!firstOne) {
+                        gameInfo.innerHTML += " <span style='color: yellow; font-size: 6vh'>VS</span> ";
+                    }
+                    gameInfo.innerHTML += text;
+                    firstOne = false;
+                }
             }
 
         }
@@ -686,7 +761,7 @@
         function pullMoreData() {
             if (!fetch_lock) {
                 fetch_lock = true;
-                fetch('stream.php?gid=' + gameId + '&offset=' + byte_offset).then(res => res.text()).then(res => parseRows(res));
+                fetch('stream.php?gid=' + gameId + '&offset=' + byte_offset + '&size=1000000').then(res => res.text()).then(res => parseRows(res));
             }
         }
 

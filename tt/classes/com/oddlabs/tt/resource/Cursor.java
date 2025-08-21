@@ -4,9 +4,12 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.util.Image;
 import com.oddlabs.util.Quad;
 
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.opengl.GL11;
 
 import java.net.URL;
+import java.nio.ByteBuffer;
 
 public final strictfp class Cursor {
     private final Texture texture;
@@ -14,8 +17,7 @@ public final strictfp class Cursor {
     private final int offset_x;
     private final int offset_y;
     private final Quad cursor;
-
-    public final void setActive() {}
+    private long glfwCursor = -1;
 
     public final void render(float x, float y) {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
@@ -65,5 +67,36 @@ public final strictfp class Cursor {
                         GL11.GL_REPEAT,
                         GL11.GL_REPEAT);
         cursor = new Quad(0, 0, 1, 1, 32, 32);
+
+        // TODO: Lazy load this potentially?
+        ByteBuffer buffer = img_32_8.getPixels();
+        GLFWImage glfwImage = GLFWImage.malloc();
+        // glfwCreateCursor expects the image data origin at top-left we're getting it from the
+        // bottom left
+        ByteBuffer flippedBuffer =
+                flipVertically(buffer, img_32_8.getWidth(), img_32_8.getHeight());
+
+        glfwImage.width(img_32_8.getWidth());
+        glfwImage.height(img_32_8.getHeight());
+        glfwImage.pixels(flippedBuffer);
+        glfwCursor = GLFW.glfwCreateCursor(glfwImage, 0, 0);
+    }
+
+    public long getGlfwCursor() {
+        return glfwCursor;
+    }
+
+    private static ByteBuffer flipVertically(ByteBuffer src, int width, int height) {
+        int bytesPerPixel = 4;
+        int stride = width * bytesPerPixel;
+        ByteBuffer flipped = ByteBuffer.allocateDirect(src.capacity());
+        for (int y = 0; y < height; y++) {
+            int srcPos = (height - 1 - y) * stride;
+            int dstPos = y * stride;
+            for (int i = 0; i < stride; i++) {
+                flipped.put(dstPos + i, src.get(srcPos + i));
+            }
+        }
+        return flipped;
     }
 }

@@ -11,6 +11,7 @@ import com.oddlabs.matchmaking.RankingEntry;
 import com.oddlabs.util.CryptUtils;
 import com.oddlabs.util.DBUtils;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -539,59 +540,48 @@ public final strictfp class DBInterface {
 
     public static final void createGame(Game game, String nick) {
         try {
+            Connection conn = DBUtils.createDatabaseConnection();
             PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "INSERT INTO games (player1_name, time_create, name, rated, speed,"
-                                + " size, hills, trees, resources, mapcode, status) VALUES (?, ?,"
-                                + " ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    conn.prepareStatement(
+                            "INSERT INTO games (time_create, name, rated, speed, size, hills,"
+                                + " trees, resources, mapcode, status) VALUES (?, ?, ?, ?, ?, ?, ?,"
+                                + " ?, ?, ?)",
+                            java.sql.Statement.RETURN_GENERATED_KEYS);
+
             try {
-                stmt.setString(1, nick);
-                stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-                stmt.setString(3, game.getName());
-                if (game.isRated()) stmt.setString(4, "Y");
-                else stmt.setString(4, "N");
-                stmt.setString(5, "" + game.getGamespeed());
-                stmt.setString(6, "" + (game.getSize() + 1));
-                stmt.setInt(7, game.getHills());
-                stmt.setInt(8, game.getTrees());
-                stmt.setInt(9, game.getSupplies());
-                stmt.setString(10, game.getMapcode());
-                stmt.setString(11, "created");
+                stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                stmt.setString(2, game.getName());
+                if (game.isRated()) stmt.setString(3, "Y");
+                else stmt.setString(3, "N");
+                stmt.setString(4, "" + game.getGamespeed());
+                stmt.setString(5, "" + (game.getSize() + 1));
+                stmt.setInt(6, game.getHills());
+                stmt.setInt(7, game.getTrees());
+                stmt.setInt(8, game.getSupplies());
+                stmt.setString(9, game.getMapcode());
+                stmt.setString(10, "created");
 
                 int row_count = stmt.executeUpdate();
-            } finally {
-                stmt.getConnection().close();
-            }
-        } catch (SQLException e) {
-            System.out.println("Exception: " + e);
-            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "createGame", e);
-            return;
-        }
-        try {
-            PreparedStatement stmt =
-                    DBUtils.createStatement(
-                            "SELECT id FROM games WHERE player1_name = ? AND status = ?");
-            try {
-                stmt.setString(1, nick);
-                stmt.setString(2, "created");
-                ResultSet result = stmt.executeQuery();
-                try {
-                    result.next();
-                    int id = result.getInt("id");
-                    game.setDatabaseID(id);
-                } finally {
-                    result.close();
+                ResultSet generatedKeys = stmt.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    int gameId = generatedKeys.getInt(1);
+                    // System.out.println("Game created with ID: " + gameId);
+                    game.setDatabaseID(gameId);
                 }
             } finally {
                 stmt.getConnection().close();
             }
         } catch (SQLException e) {
-            System.out.println("Exception: " + e);
+            System.out.println("Exception(createGame): " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "createGame", e);
             return;
         }
     }
 
+    /**
+     * Sets status of created games to dropped after a server restart (aka when the matchmaker
+     * initializes)
+     */
     public static final void initDropGames() {
         try {
             PreparedStatement stmt =
@@ -611,10 +601,11 @@ public final strictfp class DBInterface {
 
     public static final void dropGame(String nick) {
         try {
+
             PreparedStatement stmt =
                     DBUtils.createStatement(
-                            "UPDATE games G SET status = ? WHERE G.player1_name = ? AND G.status ="
-                                    + " ?");
+                            "UPDATE games G inner join game_players GP on G.id = GP.id SET G.status"
+                                    + " = ? WHERE GP.nick = ? AND G.status = ?");
             try {
                 stmt.setString(1, "dropped");
                 stmt.setString(2, nick);
@@ -632,43 +623,52 @@ public final strictfp class DBInterface {
     public static final void startGame(TimestampedGameSession tgs, MatchmakingServer server) {
         GameSession session = tgs.getSession();
         GamePlayer[] playerInfo = session.getPlayerInfo();
-        String participant_sql = "";
-        for (int i = 0; i < playerInfo.length; i++)
-            participant_sql =
-                    participant_sql
-                            + "G.player"
-                            + (i + 1)
-                            + "_name = ?, G.player"
-                            + (i + 1)
-                            + "_race = ?, G.player"
-                            + (i + 1)
-                            + "_team = ?, ";
 
         try {
             PreparedStatement stmt =
                     DBUtils.createStatement(
                             "UPDATE games G SET "
-                                    + participant_sql
                                     + "G.time_start = ?, G.status = ? WHERE G.id = ?");
             try {
-                int index = 1;
-                for (int i = 0; i < playerInfo.length; i++) {
-                    String nick = "Unknown";
-                    nick = playerInfo[i].getNick();
-                    stmt.setString(index++, nick);
-                    if (playerInfo[i].getRace() == 0) stmt.setString(index++, "N");
-                    else stmt.setString(index++, "V");
-
-                    stmt.setInt(index++, playerInfo[i].getTeam());
-                }
-                stmt.setTimestamp(index++, new Timestamp(System.currentTimeMillis()));
-                stmt.setString(index++, "started");
-                stmt.setInt(index++, tgs.getDatabaseID());
+                stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                stmt.setString(2, "started");
+                stmt.setInt(3, tgs.getDatabaseID());
                 int result = stmt.executeUpdate();
             } finally {
                 stmt.getConnection().close();
             }
         } catch (SQLException e) {
+            System.out.println("Exception (startGame): " + e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "startGame", e);
+        }
+
+        try {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < playerInfo.length; i++) {
+                if (i != playerInfo.length - 1) {
+                    builder.append("(?, ?, ?, ?), ");
+                } else {
+                    builder.append("(?, ?, ?, ?)");
+                }
+            }
+            String sql =
+                    "INSERT INTO game_players (game_id, nick, team, race) VALUES "
+                            + builder.toString();
+            PreparedStatement playerStmt = DBUtils.createStatement(sql);
+            int parameter_index = 1;
+            for (int i = 0; i < playerInfo.length; i++) {
+                GamePlayer player = playerInfo[i];
+                playerStmt.setInt(parameter_index++, tgs.getDatabaseID());
+                playerStmt.setString(parameter_index++, player.getNick());
+                playerStmt.setInt(parameter_index++, player.getTeam());
+                playerStmt.setInt(parameter_index++, player.getRace());
+            }
+            try {
+                int result = playerStmt.executeUpdate();
+            } finally {
+                playerStmt.getConnection().close();
+            }
+        } catch (Exception e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "startGame", e);
         }

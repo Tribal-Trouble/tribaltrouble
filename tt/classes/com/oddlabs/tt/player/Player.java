@@ -1,6 +1,7 @@
 package com.oddlabs.tt.player;
 
 import com.oddlabs.matchmaking.Game;
+import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
@@ -33,14 +34,17 @@ public final strictfp class Player implements PlayerInterface {
     public static final int MAX_BUILDING_COUNT = 20;
     public static final int DEFAULT_MAX_UNIT_COUNT = 250;
 
-    public static final float[][] COLORS = {
+    private static final float[][] SET_COLORS = {
         {1f, .75f, 0f, 1f},
         {0f, .5f, 1f, 1f},
         {1f, 0f, .25f, 1f},
         {0f, 1f, .75f, 1f},
         {.75f, 0f, 1f, 1f},
-        {.75f, 1f, 0f, 1f}
+        {.75f, 1f, 0f, 1f},
+        {.25f, 1f, 0f, 1f}
     };
+
+    public static final float[][] COLORS = generatePlayerColors();
 
     private final World world;
     private final PlayerInfo player_info;
@@ -50,7 +54,7 @@ public final strictfp class Player implements PlayerInterface {
 
     private final float[] color;
 
-    //	private final String team_tip;
+    // private final String team_tip;
 
     private AI ai = null;
 
@@ -100,7 +104,7 @@ public final strictfp class Player implements PlayerInterface {
         for (int i = 0; i < can_build.length; i++) can_build[i] = true;
         this.player_info = player_info;
         this.unit_count = new SupplyContainer(world.getMaxUnitCount());
-        //		this.team_tip = Utils.getBundleString(bundle, "team", new
+        // this.team_tip = Utils.getBundleString(bundle, "team", new
         // Object[]{Integer.toString(player_info.getTeam() + 1)});
     }
 
@@ -639,5 +643,33 @@ public final strictfp class Player implements PlayerInterface {
 
     public final int getRubberHarvested() {
         return rubber_harvested;
+    }
+
+    private static float[][] generatePlayerColors() {
+        float[][] colors = new float[MatchmakingServerInterface.MAX_PLAYERS][4];
+        int currentIndex = 0;
+        // Use the set colors while we have them
+        for (int i = 0; i < Math.min(SET_COLORS.length, colors.length); i++) {
+            colors[i] = SET_COLORS[i];
+            currentIndex = i;
+        }
+
+        // Swap to generated colors after we run out of manually set colors
+        for (int i = currentIndex + 1; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
+            colors[i] = generateColor(i);
+        }
+
+        return colors;
+    }
+
+    private static float[] generateColor(int i) {
+        float hue = (float) i / MatchmakingServerInterface.MAX_PLAYERS;
+        float saturation = 0.8f;
+        float brightness = 0.8f;
+        int rgb = java.awt.Color.HSBtoRGB(hue, saturation, brightness);
+        float r = ((rgb >> 16) & 0xFF) / 255f;
+        float g = ((rgb >> 8) & 0xFF) / 255f;
+        float b = (rgb & 0xFF) / 255f;
+        return new float[] {r, g, b, 1f};
     }
 }

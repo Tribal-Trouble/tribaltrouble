@@ -174,7 +174,17 @@ public final strictfp class TimestampedGameSession {
         }
     }
 
+    boolean has_spector_file_been_checked = false;
+
     public final void updateSpectatorInfo(int tick, String info) {
+        if (spectator_file_writer == null) {
+            if (!has_spector_file_been_checked) {
+                has_spector_file_been_checked = true;
+                System.out.println("Spectator file writer is not initialized.");
+            }
+
+            return;
+        }
         try {
             if (!info_written.contains(tick)) {
                 spectator_file_writer.write(info);

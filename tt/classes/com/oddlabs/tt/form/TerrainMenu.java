@@ -740,14 +740,7 @@ public final strictfp class TerrainMenu extends Group {
                         vegetation_amount / (float) SLIDER_MAX_VALUE,
                         supplies_amount / (float) SLIDER_MAX_VALUE,
                         seed * seed,
-                        new String[] {
-                            ai_string + "0",
-                            ai_string + "1",
-                            ai_string + "2",
-                            ai_string + "3",
-                            ai_string + "4",
-                            ai_string + "5"
-                        });
+                        generateAINames());
         game_network
                 .getClient()
                 .getServerInterface()
@@ -777,6 +770,16 @@ public final strictfp class TerrainMenu extends Group {
         }
         System.out.println("Map code: " + label_mapcode.getContents());
         return true;
+    }
+
+    /** Creates an array of translated AI names based on the number of max_players */
+    private String[] generateAINames() {
+        String ai_string = Utils.getBundleString(bundle, "ai");
+        String[] ai_names = new String[MatchmakingServerInterface.MAX_PLAYERS];
+        for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
+            ai_names[i] = ai_string + i;
+        }
+        return ai_names;
     }
 
     private final strictfp class MapcodeListener implements MouseClickListener {

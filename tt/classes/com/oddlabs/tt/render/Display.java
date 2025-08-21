@@ -61,7 +61,9 @@ public final strictfp class Display {
             window = GLFW.glfwCreateWindow(width, height, title, 0, 0);
         }
 
-        GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
+        // Initalize the cursor settings with what was saved - autoload of the settings won't call
+        // the setter
+        Settings.getSettings().setNativeCursor(Settings.getSettings().getNativeCursor());
 
         GLFW.glfwShowWindow(window);
 

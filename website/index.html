@@ -8,10 +8,16 @@
             background-size: cover;
             background-color: rgba(255, 255, 255, 0.2);
             background-blend-mode: lighten;
-            font-family: Tahoma, "Trebuchet MS", sans-serif;
+            font-family: "Tahoma";
             text-shadow: 1px 1px #ddda;
             cursor: url("cursor.png"), auto;
             font-size: 20px;
+            color: white;
+            text-shadow: 1px 1px black;
+        }
+
+        h2 {
+            font-family: Impact, Charcoal, sans-serif;
         }
 
         .nav_button {
@@ -24,6 +30,8 @@
             height: 50px;
             border-radius: 7px;
             border: none;
+            color: black;
+            text-shadow: 2px 2px #FFF9;
         }
 
         .nav_button:hover {
@@ -50,6 +58,11 @@
             display: none;
         }
 
+        #player {
+            display: none;
+            position: absolute;
+        }
+
         #contribute {
             display: none;
         }
@@ -63,21 +76,89 @@
             margin-right: 10px;
             -webkit-backdrop-filter: blur(7px);
             backdrop-filter: blur(7px);
-            background: #fffa;
+            background: #0007;
             vertical-align: center;
             min-height: 50%;
+            color: white;
+            text-shadow: 2px 2px black;
+
+        }
+
+        .popup {
+            box-shadow: 5px 5px 20px 2px #000;
+            margin-top: 40px;
+            border-radius: 15px;
+            border: inset 2px;
+            padding: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+            -webkit-backdrop-filter: blur(7px);
+            backdrop-filter: blur(7px);
+            background: #0007;
+            vertical-align: center;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 10vw;
+            min-height: 10vh;
+            position: fixed;
+            color: white;
+            text-shadow: 1px 1px black;
+        }
+
+        .popup-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+
+        .sort-arrow {
+            position: relative;
+            right: 0px;
+            float: right;
+            align-items: center;
+            display: none;
         }
 
         .tableheader {
-            background: #99f9;
+            background-color: #836353;
+            background-image: linear-gradient(#836353, #b69686);
             padding: 2px;
-            width: 200px;
+            min-width: 200px;
             padding-left: 5px;
-            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px black;
+            border-style: outset;
+            border-color: #a99489;
+            border-width: 1px;
+        }
+
+        tr.inforow:nth-child(odd) {
+            background-color: #FFFFFF19;
+        }
+
+        tr.inforow:nth-child(even) {
+            background-color: #c8c8c819;
+        }
+
+        a {
+            color: white;
+            text-shadow: 1px 1px black;
+        }
+
+        a:visited {
+            color: #FFFA;
+            text-shadow: 1px 1px #000A;
+        }
+
+        tr.inforow {
+            color: white;
+            text-shadow: 1px 1px black;
         }
 
         .pname,
         .pscore {
+            background-color: #482b04;
             padding: 2px;
             padding-left: 5px;
             background: #99f2;
@@ -107,10 +188,12 @@
             const about = document.getElementById("about");
             const download = document.getElementById("download");
             const scores = document.getElementById("scores");
+            const player = document.getElementById("player");
             const contribute = document.getElementById("contribute");
             about.style.display = "block";
             download.style.display = "none";
             scores.style.display = "none";
+            player.style.display = "none";
             contribute.style.display = "none";
             window.location.hash = '#about';
         }
@@ -119,11 +202,13 @@
             const about = document.getElementById("about");
             const download = document.getElementById("download");
             const scores = document.getElementById("scores");
+            const player = document.getElementById("player");
             const contribute = document.getElementById("contribute");
             about.style.display = "none";
             download.style.display = "block";
             scores.style.display = "none";
             contribute.style.display = "none";
+            player.style.display = "none";
             window.location.hash = '#download';
         }
 
@@ -131,12 +216,187 @@
             const about = document.getElementById("about");
             const download = document.getElementById("download");
             const scores = document.getElementById("scores");
+            const player = document.getElementById("player");
             const contribute = document.getElementById("contribute");
             about.style.display = "none";
             download.style.display = "none";
             scores.style.display = "none";
             contribute.style.display = "block";
+            player.style.display = "none";
             window.location.hash = '#contribute';
+        }
+
+        function processLocalTimes(container) {
+            (container || document).querySelectorAll('.localtime').forEach(function(el) {
+                var utcTime = el.getAttribute('data-time');
+                if (utcTime) {
+                    var date = new Date(utcTime.replace(' ', 'T') + 'Z');
+                    var now = new Date();
+                    var isToday = date.getDate() === now.getDate() &&
+                        date.getMonth() === now.getMonth() &&
+                        date.getFullYear() === now.getFullYear();
+                    var isYesterday = date.getDate() === now.getDate() - 1 &&
+                        date.getMonth() === now.getMonth() &&
+                        date.getFullYear() === now.getFullYear();
+                    if (isToday) {
+                        el.textContent = 'Today @ ' + date.toLocaleTimeString();
+                    } else if (isYesterday) {
+                        el.textContent = 'Yesterday @ ' + date.toLocaleTimeString();
+                    } else {
+                        el.textContent += ' (' + date.toLocaleString() + ')';
+                    }
+                }
+            });
+        }
+
+        function playerURL(pname, offset) {
+            if (offset == null) {
+                offset = 0;
+            }
+            return "<a href='#player#" + pname + "#" + offset + "'>" + pname + "</a>";
+        }
+
+        let players_offset = 0;
+        let players_sort = 0;
+        let players_column = 2;
+
+        function sortBy(col) {
+            players_offset = 0;
+            if (players_column == col) {
+                players_sort = 1 - players_sort;
+            } else {
+                players_column = col;
+                players_sort = 0;
+            }
+            updatePlayers();
+        }
+
+        function updatePlayers() {
+            if (players_offset < 0) {
+                players_offset = 0;
+            }
+            var elements = document.getElementsByClassName('sort-arrow');
+            for (var el of elements) {
+                el.style.display = 'none';
+            }
+            var arrow = document.getElementById("sort-" + players_column + "-" + players_sort);
+            arrow.style.display = 'block';
+            const scoresTable = document.getElementById("scorestable");
+            fetch("players.php?offset=" + players_offset + "&column=" + players_column + "&sort=" + players_sort)
+                .then((res) => res.json())
+                .then((res) => {
+                    if (res.length == 0) {
+                        players_offset -= 10;
+                        return;
+                    }
+                    const rows = scoresTable.getElementsByTagName('tr');
+                    while (rows.length > 1) {
+                        scoresTable.deleteRow(1);
+                    }
+                    for (var i = 0; i < res.length; i++) {
+                        let row = scoresTable.insertRow();
+                        let num = row.insertCell();
+                        let nick = row.insertCell();
+                        let wins = row.insertCell();
+                        let losses = row.insertCell();
+                        let rating = row.insertCell();
+                        row.className = 'inforow';
+                        num.className = 'pscore';
+                        num.innerHTML = (i + players_offset + 1);
+                        nick.className = 'pscore';
+                        nick.innerHTML = playerURL(res[i].nick);
+                        wins.className = 'pscore';
+                        wins.innerHTML = res[i].wins;
+                        losses.className = 'pscore';
+                        losses.innerHTML = res[i].losses;
+                        rating.className = 'pscore';
+                        rating.innerHTML = res[i].rating;
+                    }
+                    processLocalTimes(scoresTable);
+                });
+        }
+
+        function gameInfo(row) {
+            var all = '';
+            var winner = '';
+            var teams = new Map();
+            var winnerId = row['winner'];
+            var players = row['players'];
+            for (var i = 0; i < players.length; i++) {
+                const name = players[i]['nick'];
+                const team = players[i]['team'];
+                if (!teams.has(team)) {
+                    teams.set(team, "");
+                } else {
+                    teams.set(team, teams.get(team) + " / ");
+                }
+                teams.set(team, teams.get(team) + playerURL(name));
+                if (team == winnerId) {
+                    if (winner == '') {
+                        winner = playerURL(name);
+                    } else {
+                        winner += " / " + playerURL(name);
+                    }
+                }
+            }
+            var firstOne = true;
+            for (const text of teams.values()) {
+                if (!firstOne) {
+                    all += " VS ";
+                }
+                all += text;
+                firstOne = false;
+            }
+            return [all, winner];
+        }
+
+        let games_offset = 0;
+
+        function updateGames() {
+            if (games_offset < 0) {
+                games_offset = 0;
+            }
+            const gamesTable = document.getElementById("gamestable");
+            fetch("games.php?offset=" + games_offset)
+                .then((res) => res.json())
+                .then((res) => {
+                    if (res.length == 0) {
+                        games_offset -= 10;
+                        return;
+                    }
+                    const rows = gamesTable.getElementsByTagName('tr');
+                    while (rows.length > 1) {
+                        gamesTable.deleteRow(1);
+                    }
+                    for (var i = 0; i < res.length; i++) {
+                        let row = gamesTable.insertRow();
+                        let num = row.insertCell();
+                        let timePlayed = row.insertCell();
+                        let players = row.insertCell();
+                        let winner = row.insertCell();
+                        let link = row.insertCell();
+                        let info = gameInfo(res[i]);
+                        row.className = 'inforow';
+                        num.innerHTML = (i + games_offset + 1);
+                        num.className = 'pscore';
+                        if (res[i].status == 'completed') {
+                            timePlayed.innerHTML = res[i].htime;
+                        } else {
+                            timePlayed.innerHTML = 'Playing NOW!';
+                        }
+                        timePlayed.className = 'pscore';
+                        players.innerHTML = info[0];
+                        players.className = 'pscore';
+                        winner.innerHTML = info[1];
+                        winner.className = 'pscore';
+                        link.className = 'pscore';
+                        link.style.textAlign = 'center';
+                        if (res[i].watchable) {
+                            link.innerHTML = "<a href='watch.html#" + res[i].id + "' target='_blank'><img height='20' src='tv.png'/></a>";
+                        }
+                    }
+                    processLocalTimes(gamesTable);
+                });
         }
 
         function showScores() {
@@ -144,29 +404,117 @@
             const download = document.getElementById("download");
             const scores = document.getElementById("scores");
             const contribute = document.getElementById("contribute");
-            const scoresTable = document.getElementById("scorestable");
-            fetch("highscores.php")
-                .then((res) => res.text())
-                .then((res) => (scorestable.innerHTML = res));
+            const player = document.getElementById("player");
+            updatePlayers();
+            updateGames();
             about.style.display = "none";
             download.style.display = "none";
             scores.style.display = "block";
             contribute.style.display = "none";
+            player.style.display = "none";
             window.location.hash = '#scores';
         }
 
-        window.onload = function() {
-            const page = window.location.hash.substr(1);
-            if (page == 'download') {
-                showDownload();
-            } else if (page == 'scores') {
-                showScores();
-            } else if (page == 'contribute') {
-                showContribute();
-            } else {
-                showAbout();
+        function closePopup() {
+            const player = document.getElementById("player");
+            player.style.display = "none";
+            window.location.hash = '#scores';
+        }
+
+        var games_of_offset = 0;
+        var shown_player = '';
+
+        function showPlayer() {
+            if (games_of_offset < 0) {
+                games_of_offset = 0;
             }
-        };
+            let name = shown_player;
+            const about = document.getElementById("about");
+            const download = document.getElementById("download");
+            const scores = document.getElementById("scores");
+            const contribute = document.getElementById("contribute");
+            const player = document.getElementById("player");
+            const gamesOfName = document.getElementById("games-of-name");
+            const gamesTable = document.getElementById("player-games");
+            updatePlayers();
+            updateGames();
+            about.style.display = "none";
+            download.style.display = "none";
+            scores.style.display = "block";
+            contribute.style.display = "none";
+            fetch("gamesOf.php?name=" + name + "&offset=" + games_of_offset)
+                .then((res) => res.json())
+                .then((res) => {
+                    if (res.length == 0) {
+                        games_of_offset = Math.max(games_of_offset - 10, 0);
+                        return;
+                    }
+                    const rows = gamesTable.getElementsByTagName('tr');
+                    while (rows.length > 1) {
+                        gamesTable.deleteRow(1);
+                    }
+                    gamesOfName.innerHTML = 'Games of ' + name.replace("%20", " ");
+                    for (var i = 0; i < res.length; i++) {
+                        let row = gamesTable.insertRow();
+                        let num = row.insertCell();
+                        let timePlayed = row.insertCell();
+                        let players = row.insertCell();
+                        let winner = row.insertCell();
+                        let link = row.insertCell();
+                        link.className = 'pscore';
+                        let info = gameInfo(res[i]);
+                        num.innerHTML = (i + games_of_offset + 1);
+                        num.className = 'pscore';
+                        if (res[i].status == 'completed') {
+                            timePlayed.innerHTML = res[i].htime;
+                        } else {
+                            timePlayed.innerHTML = 'Playing NOW!';
+                        }
+                        timePlayed.className = 'pscore';
+                        players.innerHTML = info[0];
+                        players.className = 'pscore';
+                        winner.innerHTML = info[1];
+                        winner.className = 'pscore';
+                        link.className = 'pscore';
+                        link.style.textAlign = 'center';
+                        if (res[i].watchable) {
+                            link.innerHTML = "<a href='watch.html#" + res[i].id + "' target='_blank'><img height='20' src='tv.png'/></a>";
+                        }
+                    }
+                    processLocalTimes(gamesTable);
+                });
+            player.style.display = "block";
+            window.location.hash = '#player#' + shown_player + '#' + games_of_offset;
+        }
+
+        var lastHash = "";
+
+        function hashChanged() {
+            const hashStr = window.location.hash.substr(1);
+            if (lastHash != hashStr) {
+                const hashes = hashStr.split("#");
+                const page = hashes[0];
+                if (page == 'download') {
+                    showDownload();
+                } else if (page == 'scores') {
+                    showScores();
+                } else if (page == 'contribute') {
+                    showContribute();
+                } else if (page == 'player') {
+                    if (hashes.length > 2) {
+                        shown_player = hashes[1];
+                        games_of_offset = parseInt(hashes[2]);
+                        showPlayer();
+                    }
+                } else {
+                    showAbout();
+                }
+            }
+            lastHash = hashStr;
+        }
+
+        window.addEventListener('hashchange', hashChanged);
+        window.onload = hashChanged;
     </script>
 </head>
 
@@ -184,12 +532,12 @@
     <table class="link_table">
         <tr>
             <td class="link_button">
-                <a href="https://github.com/OmarAMokhtar/tribaltrouble" target="new">
+                <a href="https://github.com/OmarAMokhtar/tribaltrouble" target="_blank">
                     <img src="github.png" width="100" height="100" />
                 </a>
             </td>
             <td class="link_button">
-                <a href="https://discord.gg/j8PZyGBZt5" target="new">
+                <a href="https://discord.gg/j8PZyGBZt5" target="_blank">
                     <img src="discord.png" width="100" height="100" />
                 </a>
             </td>
@@ -207,7 +555,7 @@
             Oddlabs.</i><br /><br />
 
         This is what remained of the original website:
-        <a href="https://web.archive.org/web/20070729233824/http://tribaltrouble.com" target="new">Archived version</a><br /><br />
+        <a href="https://web.archive.org/web/20070729233824/http://tribaltrouble.com" target="_blank">Archived version</a><br /><br />
     </div>
 
     <div id="download" class="content">
@@ -223,9 +571,61 @@
     </div>
 
     <div id="scores" class="content">
-        <h2>Current highscores</h2>
+        <h2>Top Players</h2>
+        <table id='scorestable'>
+            <tr>
+                <th></th>
+                <th class='tableheader'>Player</th>
+                <th class='tableheader' onclick='sortBy(0)'>
+                    Won games
+                    <img class='sort-arrow' id='sort-0-1' src='up-arrow.png' />
+                    <img class='sort-arrow' id='sort-0-0' src='down-arrow.png' />
+                </th>
+                <th class='tableheader' onclick='sortBy(1)'>
+                    Lost games
+                    <img class='sort-arrow' id='sort-1-1' src='up-arrow.png' />
+                    <img class='sort-arrow' id='sort-1-0' src='down-arrow.png' />
+                </th>
+                <th class='tableheader' onclick='sortBy(2)'>
+                    Rating
+                    <img class='sort-arrow' id='sort-2-1' src='up-arrow.png' />
+                    <img class='sort-arrow' id='sort-2-0' src='down-arrow.png' />
+                </th>
+            </tr>
+        </table>
+        <img src='reset-btn.png' onclick='players_offset = 0; updatePlayers()' />
+        <img src='prev-btn.png' onclick='players_offset -= 10; updatePlayers()' />
+        <img src='next-btn.png' onclick='players_offset += 10; updatePlayers()' />
+        <h2>Recent Games</h2>
+        <table id='gamestable'>
+            <tr>
+                <th></th>
+                <th class='tableheader'>Time</th>
+                <th class='tableheader'>Players</th>
+                <th class='tableheader'>Winner</th>
+                <th class='tableheader'>Watch Link</th>
+            </tr>
+        </table>
+        <img src='reset-btn.png' onclick='games_offset = 0; updateGames()' />
+        <img src='prev-btn.png' onclick='games_offset -= 10; updateGames()' />
+        <img src='next-btn.png' onclick='games_offset += 10; updateGames()' />
+    </div>
 
-        <div id="scorestable"></div>
+    <div id="player" class="popup">
+        <img src='x-btn.png' class='popup-btn' onclick='closePopup()' />
+        <h2 id='games-of-name'></h2>
+        <table id='player-games'>
+            <tr>
+                <th></th>
+                <th class='tableheader'>Time</th>
+                <th class='tableheader'>Players</th>
+                <th class='tableheader'>Winner</th>
+                <th class='tableheader'>Watch Link</th>
+            </tr>
+        </table>
+        <img src='reset-btn.png' onclick='games_of_offset = 0; showPlayer()' />
+        <img src='prev-btn.png' onclick='games_of_offset -= 10; showPlayer()' />
+        <img src="next-btn.png" onclick='games_of_offset += 10; showPlayer()' />
     </div>
 
     <div id="contribute" class="content">
@@ -236,15 +636,15 @@
 
         This is the fork used at the moment if you want to get familiar with the
         source code:
-        <a href="https://github.com/OmarAMokhtar/tribaltrouble" target="new"><img width="20" height="20" src="github.png" /> Github repository</a>
+        <a href="https://github.com/OmarAMokhtar/tribaltrouble" target="_blank"><img width="20" height="20" src="github.png" /> Github repository</a>
         <br /><br />
         The current maintainers on github:<br />
-        <a href="https://github.com/OmarAMokhtar" target="new">OmarAMokhtar</a><br />
-        <a href="https://github.com/Merikrotti" target="new">Merikrotti</a><br />
-        <a href="https://github.com/ryan-linehan" target="new">Ryan-Linehan</a><br />
+        <a href="https://github.com/OmarAMokhtar" target="_blank">OmarAMokhtar</a><br />
+        <a href="https://github.com/Merikrotti" target="_blank">Merikrotti</a><br />
+        <a href="https://github.com/ryan-linehan" target="_blank">Ryan-Linehan</a><br />
         <br />
         Join our discussion on discord!
-        <a href="https://discord.gg/j8PZyGBZt5" target="new"><img width="20" height="20" src="discord.png" /> Discord server</a>
+        <a href="https://discord.gg/j8PZyGBZt5" target="_blank"><img width="20" height="20" src="discord.png" /> Discord server</a>
     </div>
 </body>
 

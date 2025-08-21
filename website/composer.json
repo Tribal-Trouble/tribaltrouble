@@ -1,0 +1,13 @@
+{
+    "name": "tribaltrouble/website",
+    "description": "TribalTrouble website dependencies",
+    "require": {
+        "nesbot/carbon": "^2.0",
+        "cocur/human-date": "^0.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "TribalTrouble\\": "src/"
+        }
+    }
+}
