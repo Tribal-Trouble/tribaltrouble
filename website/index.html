@@ -6,6 +6,7 @@
             background-image: url("background.png");
             background-repeat: no-repeat;
             background-size: cover;
+            background-attachment: fixed;
             background-color: rgba(255, 255, 255, 0.2);
             background-blend-mode: lighten;
             font-family: "Tahoma";
@@ -18,6 +19,7 @@
 
         h2 {
             font-family: Impact, Charcoal, sans-serif;
+            text-shadow: none;
         }
 
         .os-logo {
@@ -36,9 +38,8 @@
         }
 
         .nav_button {
-            background-image: linear-gradient(to bottom right,
-                    #fdf7c0b0,
-                    #e0d784b0);
+            background-color: #836353;
+            background-image: linear-gradient(#836353, #b69686);
             text-align: center;
             vertical-align: center;
             width: 25%;
@@ -46,12 +47,15 @@
             border-radius: 7px;
             border: none;
             color: black;
-            text-shadow: 2px 2px #FFF9;
+            text-shadow: 1px 1px #0007;
+            font-size: 23px;
+            color: white;
         }
 
         .nav_button:hover {
-            background-image: linear-gradient(to bottom right, #fdf7c0, #e0d784);
             font-weight: bold;
+            background-color: #838353;
+            background-image: linear-gradient(#838353, #b69886);
         }
 
         .nav_table {
@@ -82,6 +86,17 @@
             display: none;
         }
 
+        .screenshot {
+            height: 25vh;
+            margin: 10px;
+            border-radius: 15px;
+            border: 2px solid grey;
+        }
+
+        .screenshot:hover {
+            border: 2px solid white;
+        }
+
         .content {
             margin-top: 40px;
             border-radius: 15px;
@@ -96,7 +111,6 @@
             min-height: 50%;
             color: white;
             text-shadow: 2px 2px black;
-
         }
 
         .popup {
@@ -119,6 +133,7 @@
             position: fixed;
             color: white;
             text-shadow: 1px 1px black;
+            display: none;
         }
 
         .popup-btn {
@@ -529,7 +544,15 @@
         }
 
         window.addEventListener('hashchange', hashChanged);
-        window.onload = hashChanged;
+        window.onload = function() {
+            hashChanged();
+            const imgs = document.querySelectorAll('.screenshot');
+            for (var img of imgs) {
+                img.addEventListener('click', function(event) {
+                    window.open(event.target.src, '_blank');
+                });
+            }
+        }
     </script>
 </head>
 
@@ -571,7 +594,33 @@
 
         This is what remained of the original website:
         <a href="https://web.archive.org/web/20070729233824/http://tribaltrouble.com" target="_blank">Archived version</a><br /><br />
+
+        <h2>The setup</h2>
+        <div class='screenshots'>
+            The game is set in an Island in the middle of the ocean<br>
+            <img class='screenshot' src='01.jpg' /><br>
+            There are several tribes there. Some are native tribes,<br>
+            <img class='screenshot' src='11.jpg' /><br>
+            others are vikings.<br>
+            <img class='screenshot' src='02.jpg' /><br>
+            They're building colonies ..<br>
+            <img class='screenshot' src='03.jpg' /><br>
+            collecting resources ..<br>
+            <img class='screenshot' src='04.jpg' /><br>
+            <img class='screenshot' src='05.jpg' /><br>
+            building armies ..<br>
+            <img class='screenshot' src='06.jpg' /><br>
+            Only to fight the other tribes over control of the island<br>
+            <img class='screenshot' src='07.jpg' /><br>
+            <img class='screenshot' src='08.jpg' /><br>
+            <img class='screenshot' src='09.jpg' /><br>
+            <img class='screenshot' src='10.jpg' /><br>
+        </div>
     </div>
+
+    <div id="show-image" class="popup">
+    </div>
+
 
     <div id="download" class="content">
         <h2>Download binaries</h2>
