@@ -20,6 +20,21 @@
             font-family: Impact, Charcoal, sans-serif;
         }
 
+        .os-logo {
+            height: 70px;
+        }
+
+        .downloadable {
+            text-align: center;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .downloadable:hover {
+            background-color: #FFF9;
+            box-shadow: 0px 0px 5px 3px #FFF9;
+        }
+
         .nav_button {
             background-image: linear-gradient(to bottom right,
                     #fdf7c0b0,
@@ -560,10 +575,36 @@
 
     <div id="download" class="content">
         <h2>Download binaries</h2>
-        <a href="linux.zip">Linux</a>
-        <a href="windows.zip">Windows</a>
-        <a href="mac-x86.zip">Mac x86</a>
-        <a href="mac-arm64.zip">Mac ARM</a>
+        <table>
+            <tr>
+                <td class='downloadable'>
+                    <a href="linux.zip">
+                        <img src='linux.png' class='os-logo' />
+                    </a>
+                </td>
+                <td class='downloadable'>
+                    <a href="windows.zip">
+                        <img src='windows.png' class='os-logo' />
+                    </a>
+                </td>
+                <td class='downloadable'>
+                    <a href="mac-x86.zip">
+                        <img src='mac-x86.png' class='os-logo' />
+                    </a>
+                </td>
+                <td class='downloadable'>
+                    <a href="mac-arm64.zip">
+                        <img src='mac-arm.png' class='os-logo' />
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td class='downloadable'><a href="linux.zip">Linux</a></td>
+                <td class='downloadable'><a href="windows.zip">Windows</a></td>
+                <td class='downloadable'><a href="mac-x86.zip">Mac x86</a></td>
+                <td class='downloadable'><a href="mac-arm64.zip">Mac ARM</a></td>
+            </tr>
+        </table>
         <h2>Building from source</h2>
         Clone this
         <a href="https://github.com/OmarAMokhtar/tribaltrouble">github repository</a>
