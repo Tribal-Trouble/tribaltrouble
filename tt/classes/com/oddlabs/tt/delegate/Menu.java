@@ -345,6 +345,7 @@ public abstract strictfp class Menu extends CameraDelegate {
             float vegetation_amount,
             float supplies_amount,
             int seed,
+            boolean archipelago,
             String[] ai_names) {
         boolean multiplayer = ingame_info.isMultiplayer();
         WorldGenerator generator =
@@ -354,7 +355,8 @@ public abstract strictfp class Menu extends CameraDelegate {
                         hills,
                         vegetation_amount,
                         supplies_amount,
-                        seed);
+                        seed,
+                        archipelago);
         InetAddress address = multiplayer ? null : com.oddlabs.util.Utils.getLoopbackAddress();
         final Server server = new Server(network, game, address, generator, multiplayer, ai_names);
         Client client =

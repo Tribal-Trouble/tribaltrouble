@@ -212,6 +212,7 @@ public final strictfp class TutorialForm extends Form {
                 trees,
                 0f,
                 seed,
+                false,
                 new String[] {
                     ai_string + "0",
                     ai_string + "1",

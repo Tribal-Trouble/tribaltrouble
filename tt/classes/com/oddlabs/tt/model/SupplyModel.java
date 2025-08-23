@@ -46,6 +46,8 @@ public abstract strictfp class SupplyModel extends Model implements Supply, Targ
         UnitGrid unit_grid = world.getUnitGrid();
         unit_grid.occupyGrid(grid_x, grid_y, this);
         Region region = unit_grid.getRegion(grid_x, grid_y);
+        // TODO: This shouldn't happen if the path finder knows that there's sailing required
+        if (region == null) return;
         region.registerObject(getClass(), this);
         register();
         reinsert();

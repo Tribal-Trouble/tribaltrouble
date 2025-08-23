@@ -97,8 +97,8 @@ public final strictfp class UnitGrid {
         occupants[grid_y][grid_x] = occupant;
     }
 
-    public final boolean isWaterAccessible(int grid_x, int grid_y) {
-        return heightmap.getWaterGrid()[grid_y][grid_x];
+    public final boolean isDockable(int grid_x, int grid_y) {
+        return heightmap.getDockGrid()[grid_y][grid_x];
     }
 
     public final void freeGrid(int grid_x, int grid_y, Occupant occupant) {

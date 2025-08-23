@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Random;
 
 public final strictfp class Landscape {
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     private static final int STRUCTURE_SEED =
             42; // must be constant; otherwise distinct repeating patterns might appear
 
@@ -40,6 +40,8 @@ public final strictfp class Landscape {
 
     private Channel height;
     private Channel slope;
+    private Channel water_map;
+    private Channel overall_access;
     private Channel access;
     private Channel access_exported;
     private Channel relheight;
@@ -74,9 +76,10 @@ public final strictfp class Landscape {
     private final float access_threshold;
     private final float build_threshold;
     private final int terrain_type;
+    private final boolean archipelago;
 
     private byte[][] build;
-    private boolean[][] water;
+    private boolean[][] dock;
     private float[][] player_locations;
     private int[][] supply_locations;
     private float[][] plants;
@@ -91,7 +94,8 @@ public final strictfp class Landscape {
             float supplies_amount,
             int seed,
             int initial_unit_count,
-            float random_start_pos) {
+            float random_start_pos,
+            boolean archipelago) {
 
         this.terrain_type = terrain_type;
         hills = (float) StrictMath.sqrt(hills);
@@ -139,6 +143,7 @@ public final strictfp class Landscape {
         this.detail_size = Globals.DETAIL_SIZE;
         this.structure_size = Globals.STRUCTURE_SIZE;
         this.detail_alpha_value = detail_alpha_value;
+        this.archipelago = archipelago;
 
         area = size_multiplier * 10000f;
         max_plants = size_multiplier * 64;
@@ -222,8 +227,6 @@ public final strictfp class Landscape {
                 height.putPixel(x, y, height_scale * height.getPixel(x, y));
             }
         }
-
-        generateWaterGrid();
 
         if (DEBUG) access.toLayer().saveAsPNG("access_connected");
 
@@ -573,7 +576,18 @@ public final strictfp class Landscape {
         Channel shape = new Hill(unit_grids_per_world, Hill.OVAL).toChannel();
         height.channelAdd(shape.copy().multiply(0.15f));
         height.channelSubtract(shape.copy().invert().multiply(0.5f));
+
+        if (archipelago) {
+            Channel sub_islands =
+                    new Voronoi(unit_grids_per_world, features, features, 1, 1f, seed)
+                            .getDistance(-1.0f, 0.0f, 0.0f)
+                            .gamma(0.11f);
+            height.channelMultiply(sub_islands);
+            if (DEBUG) sub_islands.toLayer().saveAsPNG("sub_islands");
+        }
+
         height.erode((24f - hills * 12f) / unit_grids_per_world, unit_grids_per_world >> 2);
+
         height.channelMultiply(shape.gamma2());
         height.smooth(1);
         height = beaches(height);
@@ -590,18 +604,28 @@ public final strictfp class Landscape {
             }
         }
 
+        generateWaterGrid();
+
         slope = height.copy().lineart();
         if (DEBUG) slope.copy().dynamicRange().toLayer().saveAsPNG("slope");
         relheight =
                 height.copy()
                         .relativeIntensityNormalized(StrictMath.max(1, unit_grids_per_world >> 5));
         if (DEBUG) relheight.toLayer().saveAsPNG("relheight");
-        access = generateThresholdMap(slope, access_threshold).largestConnected(1f);
+        access =
+                generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL)
+                        .largestConnected(1f);
+        overall_access =
+                generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL - 0.5f)
+                        .largestConnected(1f)
+                        .channelMultiply(water_map.copy().invert());
         access_exported = access.copy();
         if (DEBUG) access.toLayer().saveAsPNG("access");
+        if (DEBUG) overall_access.toLayer().saveAsPNG("overall_access");
         build =
                 generateBuildMap(
-                        generateThresholdMap(slope, build_threshold).channelMultiply(access));
+                        generateThresholdMap(slope, build_threshold, Globals.SEA_LEVEL)
+                                .channelMultiply(overall_access));
     }
 
     private final void generateTerrainViking() {
@@ -644,6 +668,16 @@ public final strictfp class Landscape {
                         .channelAdd(hitpoint2.copy().channelMultiply(noise));
         height.channelMultiply(heightcut);
         height.perturb(new Midpoint(unit_grids_per_world, 2, 0.5f, seed).toChannel(), 0.25f);
+
+        if (archipelago) {
+            Channel sub_islands =
+                    new Voronoi(unit_grids_per_world, features, features, 1, 1f, seed)
+                            .getDistance(-1.0f, 0.0f, 0.0f)
+                            .gamma(0.11f);
+            height.channelMultiply(sub_islands);
+            if (DEBUG) sub_islands.toLayer().saveAsPNG("sub_islands");
+        }
+
         height.erode((24f - hills * 12f) / unit_grids_per_world, unit_grids_per_world >> 2);
 
         Channel shape =
@@ -677,18 +711,27 @@ public final strictfp class Landscape {
             }
         }
 
+        generateWaterGrid();
+
         slope = height.copy().lineart();
         if (DEBUG) slope.copy().dynamicRange().toLayer().saveAsPNG("slope");
         relheight =
                 height.copy()
                         .relativeIntensityNormalized(StrictMath.max(1, unit_grids_per_world >> 5));
         if (DEBUG) relheight.toLayer().saveAsPNG("relheight");
-        access = generateThresholdMap(slope, access_threshold).largestConnected(1f);
+        access =
+                generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL)
+                        .largestConnected(1f);
+        overall_access =
+                generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL - 0.5f)
+                        .largestConnected(1f);
         access_exported = access.copy();
         if (DEBUG) access.toLayer().saveAsPNG("access");
+        if (DEBUG) overall_access.toLayer().saveAsPNG("overall_access");
         build =
                 generateBuildMap(
-                        generateThresholdMap(slope, build_threshold).channelMultiply(access));
+                        generateThresholdMap(slope, build_threshold, Globals.SEA_LEVEL)
+                                .channelMultiply(access));
     }
 
     // shape beaches
@@ -715,11 +758,11 @@ public final strictfp class Landscape {
     }
 
     // generate threshold map
-    private final Channel generateThresholdMap(Channel slopemap, float threshold) {
+    private final Channel generateThresholdMap(Channel slopemap, float threshold, float min) {
         Channel channel =
                 slopemap.copy()
                         .threshold(0f, threshold)
-                        .channelSubtract(height.copy().threshold(0f, Globals.SEA_LEVEL));
+                        .channelSubtract(height.copy().threshold(0f, min));
         // fix edges
         for (int y = 0; y < unit_grids_per_world; y += (unit_grids_per_world - 1)) {
             for (int x = 0; x < unit_grids_per_world; x++) {
@@ -1057,7 +1100,7 @@ public final strictfp class Landscape {
         if (DEBUG) rock_channel.toLayer().saveAsPNG("supplies_rocks");
         if (DEBUG) iron_channel.toLayer().saveAsPNG("supplies_iron");
 
-        Channel supplies = access.copy();
+        Channel supplies = overall_access.copy();
         float accessible = supplies.sum();
 
         // place trees
@@ -1068,7 +1111,7 @@ public final strictfp class Landscape {
                         64,
                         (int) (vegetation_amount * max_trees * (accessible / area)),
                         0.33f);
-        access.channelSubtract(trees);
+        overall_access.channelSubtract(trees);
         if (DEBUG) trees.toLayer().saveAsPNG("supplies_trees_placed");
 
         // place palmtrees
@@ -1079,18 +1122,18 @@ public final strictfp class Landscape {
                         64,
                         (int) (vegetation_amount * max_palmtrees * (accessible / area)),
                         0.25f);
-        access.channelSubtract(palmtrees);
+        overall_access.channelSubtract(palmtrees);
         if (DEBUG) palmtrees.toLayer().saveAsPNG("supplies_palmtrees_placed");
 
         // place rock
         rock = placeSupplies(rock_channel, supplies, 64, (int) (supplies_amount * max_rock), 0f);
-        access.channelSubtract(rock);
+        overall_access.channelSubtract(rock);
         shadow.channelBrightest(rock.copy().multiply(0.5f));
         if (DEBUG) rock.toLayer().saveAsPNG("supplies_rock_placed");
 
         // place iron
         iron = placeSupplies(iron_channel, supplies, 64, (int) (supplies_amount * max_iron), 0f);
-        access.channelSubtract(iron);
+        overall_access.channelSubtract(iron);
         shadow.channelBrightest(iron.copy().multiply(0.5f));
         if (DEBUG) iron.toLayer().saveAsPNG("supplies_iron_placed");
 
@@ -1388,45 +1431,29 @@ public final strictfp class Landscape {
     }
 
     private final void generateWaterGrid() {
-        Channel dbg = new Channel(unit_grids_per_world, unit_grids_per_world).fill(0.0f);
-        boolean[][] done = new boolean[unit_grids_per_world][unit_grids_per_world];
-        water = new boolean[unit_grids_per_world][unit_grids_per_world];
-        int[] stack = new int[unit_grids_per_world * unit_grids_per_world * 2];
-        int stack_top = 0;
-        for (int x = 0; x < unit_grids_per_world; x++) {
-            for (int y = 0; y < unit_grids_per_world; y++) {
-                done[y][x] = false;
-                water[y][x] = false;
+        this.dock = new boolean[unit_grids_per_world][unit_grids_per_world];
+        water_map =
+                height.copy()
+                        .threshold(Globals.SEA_LEVEL - 10.0f, Globals.SEA_LEVEL)
+                        .floodfill(0, 0, -1.0f, 0.1f)
+                        .threshold(-1.01f, -0.99f);
+        if (DEBUG) water_map.toLayer().saveAsPNG("water_map");
+        Channel dock_map =
+                water_map
+                        .copy()
+                        .smooth(10)
+                        .threshold(0.00f, 0.99f)
+                        .channelMultiply(water_map.copy().invert());
+        Channel beach =
+                height.copy().threshold(Globals.SEA_LEVEL - 1.0f, Globals.SEA_LEVEL + 0.05f);
+        dock_map = dock_map.channelMultiply(beach);
+        if (DEBUG) beach.toLayer().saveAsPNG("beach");
+        if (DEBUG) dock_map.toLayer().saveAsPNG("dock_map");
+        for (int y = 0; y < unit_grids_per_world; y++) {
+            for (int x = 0; x < unit_grids_per_world; x++) {
+                this.dock[y][x] = dock_map.getPixel(x, y) > 0.5f;
             }
         }
-        stack[stack_top++] = 0;
-        stack[stack_top++] = 0;
-        while (stack_top > 0) {
-            int y = stack[--stack_top];
-            int x = stack[--stack_top];
-            done[y][x] = true;
-            if (height.getPixel(x, y) - sea_level_meters < 1.0) {
-                dbg.putPixel(x, y, 1.0f);
-                water[y][x] = true;
-                if (x > 0 && !done[y][x - 1]) {
-                    stack[stack_top++] = x - 1;
-                    stack[stack_top++] = y;
-                }
-                if (x < unit_grids_per_world - 1 && !done[y][x + 1]) {
-                    stack[stack_top++] = x + 1;
-                    stack[stack_top++] = y;
-                }
-                if (y > 0 && !done[y - 1][x]) {
-                    stack[stack_top++] = x;
-                    stack[stack_top++] = y - 1;
-                }
-                if (y < unit_grids_per_world - 1 && !done[y + 1][x]) {
-                    stack[stack_top++] = x;
-                    stack[stack_top++] = y + 1;
-                }
-            }
-        }
-        if (DEBUG) dbg.toLayer().saveAsPNG("water");
     }
 
     public final BlendInfo[] getBlendInfos() {
@@ -1452,8 +1479,8 @@ public final strictfp class Landscape {
         return access_grid;
     }
 
-    public final boolean[][] getWaterGrid() {
-        return water;
+    public final boolean[][] getDockGrid() {
+        return dock;
     }
 
     public final byte[][] getBuildGrid() {

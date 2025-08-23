@@ -13,8 +13,8 @@ public final strictfp class PathFinder {
 
     public static final Region findPathRegion(
             UnitGrid unit_grid, Region src_region, Region dst_region) {
-        /*		Node src_region = unit_grid.getRegion(src_grid_x, src_grid_y);
-        Node dst_region = unit_grid.getRegion(dst_grid_x, dst_grid_y);*/
+        // TODO: This shouldn't happen. Remove workaround when sailing is handled
+        if (src_region == null || dst_region == null) return null;
         assert src_region
                 != null; // : "src_grid_x = " + src_grid_x + " | src_grid_y = " + src_grid_y;
         assert dst_region

@@ -1092,6 +1092,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                     if (player.canDoMagic(0)) {
                         magic1_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
                     }
+                } else if (current_peon) {
+                    ship_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                    return true;
                 }
                 break;
             case Keyboard.KEY_T:

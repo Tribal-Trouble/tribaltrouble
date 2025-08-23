@@ -35,6 +35,7 @@ public final strictfp class IslandGenerator implements WorldGenerator {
     private final float vegetation_amount;
     private final float supplies_amount;
     private final int seed;
+    private final boolean archipelago;
 
     public IslandGenerator(
             int meters_per_world,
@@ -42,7 +43,8 @@ public final strictfp class IslandGenerator implements WorldGenerator {
             float hills,
             float vegetation_amount,
             float supplies_amount,
-            int seed) {
+            int seed,
+            boolean archipelago) {
         this.hills = hills;
         this.vegetation_amount = vegetation_amount;
         this.supplies_amount = supplies_amount;
@@ -50,6 +52,7 @@ public final strictfp class IslandGenerator implements WorldGenerator {
         this.grid_units = meters_per_world / HeightMap.METERS_PER_UNIT_GRID;
         this.meters_per_world = meters_per_world;
         this.terrain_type = terrain_type;
+        this.archipelago = archipelago;
     }
 
     private final Texture createDetail(GLImage detail_image, int base_level) {
@@ -125,7 +128,8 @@ public final strictfp class IslandGenerator implements WorldGenerator {
                         supplies_amount,
                         seed,
                         initial_unit_count,
-                        random_start_pos);
+                        random_start_pos,
+                        archipelago);
         long time_after = System.currentTimeMillis();
         System.out.println("Landscape created in = " + (time_after - time_before));
         BlendInfo[] blend_infos = landscape.getBlendInfos();
@@ -140,7 +144,7 @@ public final strictfp class IslandGenerator implements WorldGenerator {
         List iron = landscape.getIron();
         float[][] plants = landscape.getPlants();
         boolean[][] access_grid = landscape.getAccessGrid();
-        boolean[][] water_grid = landscape.getWaterGrid();
+        boolean[][] dock_grid = landscape.getDockGrid();
         byte[][] build_grid = landscape.getBuildGrid();
         float[][] starting_locations = landscape.getStartingLocations();
         int alpha_size = grid_units;
@@ -171,7 +175,7 @@ public final strictfp class IslandGenerator implements WorldGenerator {
                 iron,
                 plants,
                 access_grid,
-                water_grid,
+                dock_grid,
                 build_grid,
                 starting_locations);
     }

@@ -650,7 +650,8 @@ public final strictfp class Renderer {
                         Globals.LANDSCAPE_HILLS,
                         Globals.LANDSCAPE_VEGETATION,
                         Globals.LANDSCAPE_RESOURCES,
-                        Globals.LANDSCAPE_SEED);
+                        Globals.LANDSCAPE_SEED,
+                        false);
         ProgressForm.setProgressForm(
                 network,
                 gui,

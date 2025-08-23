@@ -628,6 +628,11 @@ public final strictfp class Building extends Selectable implements Occupant {
     public static final boolean doIsPlacingLegal(
             UnitGrid unit_grid, int grid_x, int grid_y, int size, boolean near_sea) {
         if (!near_sea && !unit_grid.getHeightMap().canBuild(grid_x, grid_y, size)) return false;
+        if (near_sea && !unit_grid.getHeightMap().canDock(grid_x, grid_y)) return false;
+
+        if (near_sea) {
+            size = 1;
+        }
 
         for (int y = 0; y < size * 2 - 1; y++)
             for (int x = 0; x < size * 2 - 1; x++) {
@@ -638,12 +643,7 @@ public final strictfp class Building extends Selectable implements Occupant {
                         || current_grid_x < 0
                         || current_grid_y < 0) return false;
                 boolean occupied = unit_grid.isGridOccupied(current_grid_x, current_grid_y);
-                if (!near_sea) {
-                    if (occupied) {
-                        return false;
-                    }
-                } else if (occupied
-                        && !unit_grid.isWaterAccessible(current_grid_x, current_grid_y)) {
+                if (occupied) {
                     return false;
                 }
             }

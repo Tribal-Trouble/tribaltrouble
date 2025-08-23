@@ -114,6 +114,7 @@ public abstract class Island {
                 vegetation_amount,
                 supplies_amount,
                 seed,
+                false,
                 ai_names);
     }
 

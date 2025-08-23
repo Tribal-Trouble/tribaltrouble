@@ -557,6 +557,9 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     }
 
     private void closeNetwork() {
+        if (Network.getMatchmakingClient().isConnected()) {
+            sendSpectatorInfo();
+        }
         router_client.close();
         if (router != null) router.close();
         Object[] peers = peer_to_player.keySet().toArray();
@@ -599,6 +602,7 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
 
     public final void gameWon() {
         if (Network.getMatchmakingClient().isConnected()) {
+            sendSpectatorInfo();
             Network.getMatchmakingClient().getInterface().gameWonNotify();
             waiting_for_ack = true;
         }

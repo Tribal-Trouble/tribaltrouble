@@ -131,6 +131,9 @@ public final strictfp class TreeSupply extends AbstractTreeGroup
         UnitGrid grid = world.getUnitGrid();
         world.getNotificationListener().registerTarget(this);
         Region region = grid.getRegion(getGridX(), getGridY());
+        // TODO: This shouldn't happen if the path finder knows that sailing is required to get
+        // there
+        if (region == null) return;
         region.registerObject(getClass(), this);
         for (int y = 0; y < grid_size; y++) {
             int occ_y = grid_y + y - (grid_size - 1) / 2;
