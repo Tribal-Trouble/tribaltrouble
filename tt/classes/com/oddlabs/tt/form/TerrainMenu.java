@@ -326,6 +326,26 @@ public final strictfp class TerrainMenu extends Group {
         // sliders
         group_sliders.compileCanvas();
         advanced.addChild(group_sliders);
+        
+        
+        // Player slots
+        Label label_player_slots =
+                new Label("Players", Skin.getSkin().getEditFont());
+        Group group_num_players = new Group();
+
+        group_num_players.addChild(label_player_slots);
+        label_player_slots.place();
+        advanced.addChild(group_num_players);                
+        
+        PulldownMenu pulldown_menu_slots = new PulldownMenu();
+        for (int i = 1; i <= MatchmakingServerInterface.MAX_PLAYERS; i++) {
+            pulldown_menu_slots.addItem(new PulldownItem(Integer.toString(i)));
+        }
+
+        PulldownButton pulldown_player_slots = new PulldownButton(gui_root, pulldown_menu_slots, 1, 150);
+        group_num_players.addChild(pulldown_player_slots);        
+        pulldown_player_slots.place(label_player_slots, RIGHT_MID);
+        group_num_players.compileCanvas();
 
         // races and teams
         Group group_race_team = new Group();
@@ -460,8 +480,10 @@ public final strictfp class TerrainMenu extends Group {
 
         // advanced
         group_sliders.place();
-        group_seed.place(
+        group_num_players.place(
                 group_sliders, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
+        group_seed.place(
+                group_num_players, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
         advanced.compileCanvas();
 
         PanelGroup panel_group = new PanelGroup(new Panel[] {standard, advanced}, 0);
