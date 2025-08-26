@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Ant
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-ant
 
-name: Java CI
+name: Build + Publish
 
 on:
   push:
@@ -104,3 +104,46 @@ jobs:
       with:
         name: mac-arm64
         path: tt/build/dist/macosx-arm64/
+
+# Steam upload job:
+#  - https://github.com/game-ci/steam-deploy#configuration
+#  - https://partner.steamgames.com/doc/sdk/uploading#1
+  deploy-to-steam:
+    if: github.ref == 'refs/heads/steam'
+    needs: [build-mac-arm64, build-mac-x86, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download Windows Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: windows
+        path: tt/build/dist/windows/
+    - name: Download Mac x86 Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: mac-x86
+        path: tt/build/dist/macosx-x86/
+    - name: Download Mac arm64 Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: mac-arm64
+        path: tt/build/dist/macosx-arm64/
+    - name: Download Linux Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: linux
+        path: tt/build/dist/linux/
+    - name: Upload to steam
+      uses: game-ci/steam-deploy@v3
+      with:
+        username: ${{ vars.STEAM_USER }}
+        configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+        appId: ${{ vars.STEAM_APP_ID }}
+        buildDescription: v1.2.3
+        firstDepotIdOverride: 3945722
+        rootPath: tt/build/dist/
+        depot1Path: windows
+        depot2Path: mac-arm64
+        depot3Path: mac-x86
+        depot4Path: linux
+        releaseBranch: prerelease
