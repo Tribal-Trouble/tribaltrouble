@@ -327,23 +327,22 @@ public final strictfp class TerrainMenu extends Group {
         // sliders
         group_sliders.compileCanvas();
         advanced.addChild(group_sliders);
-        
-        
+
         // Player slots
-        Label label_player_slots =
-                new Label("Players", Skin.getSkin().getEditFont());
+        Label label_player_slots = new Label("Players", Skin.getSkin().getEditFont());
         Group group_num_players = new Group();
 
         group_num_players.addChild(label_player_slots);
         label_player_slots.place();
-        advanced.addChild(group_num_players);                
-        
+        advanced.addChild(group_num_players);
+
         PulldownMenu pulldown_menu_slots = new PulldownMenu();
         for (int i = 1; i <= MatchmakingServerInterface.MAX_PLAYERS; i++) {
             pulldown_menu_slots.addItem(new PulldownItem(Integer.toString(i)));
         }
 
-        PulldownButton pulldown_player_slots = new PulldownButton(gui_root, pulldown_menu_slots, 5, 150);
+        PulldownButton pulldown_player_slots =
+                new PulldownButton(gui_root, pulldown_menu_slots, 5, 150);
         pulldown_menu_slots.addItemChosenListener(new PulldownUpdatePlayersChangedListener());
         group_num_players.addChild(pulldown_player_slots);
         pulldown_player_slots.place(label_player_slots, RIGHT_MID);
@@ -846,7 +845,8 @@ public final strictfp class TerrainMenu extends Group {
         }
     }
 
-    private final strictfp class PulldownUpdatePlayersChangedListener implements ItemChosenListener {
+    private final strictfp class PulldownUpdatePlayersChangedListener
+            implements ItemChosenListener {
         public final void itemChosen(PulldownMenu menu, int item_index) {
             player_count = item_index + 1;
         }

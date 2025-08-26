@@ -2,7 +2,6 @@ package com.oddlabs.tt.net;
 
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GameSession;
-import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchmaking.TunnelAddress;
 import com.oddlabs.net.AbstractConnection;

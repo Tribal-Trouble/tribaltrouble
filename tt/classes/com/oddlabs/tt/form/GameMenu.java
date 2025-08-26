@@ -2,7 +2,6 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GameSession;
-import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.gui.Box;
@@ -95,7 +94,8 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
             int player_slot,
             int compare_width,
             int compare_height,
-            int button_width, int player_count) {
+            int button_width,
+            int player_count) {
         super(Utils.getBundleString(getBundle(), "game_caption"));
         this.game_network = game_network;
         this.owner = owner;
