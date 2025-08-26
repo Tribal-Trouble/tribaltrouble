@@ -95,7 +95,7 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
             int player_slot,
             int compare_width,
             int compare_height,
-            int button_width) {
+            int button_width, int player_count) {
         super(Utils.getBundleString(getBundle(), "game_caption"));
         this.game_network = game_network;
         this.owner = owner;
@@ -110,14 +110,14 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
                 new Label(
                         Utils.getBundleString(bundle, "game") + " " + tag + game.getName(),
                         Skin.getSkin().getHeadlineFont());
-        slot_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-        race_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-        team_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-        ready_marks = new Diode[MatchmakingServerInterface.MAX_PLAYERS];
-        ratings = new Label[MatchmakingServerInterface.MAX_PLAYERS];
+        slot_buttons = new PulldownButton[player_count];
+        race_buttons = new PulldownButton[player_count];
+        team_buttons = new PulldownButton[player_count];
+        ready_marks = new Diode[player_count];
+        ratings = new Label[player_count];
         Group player_group = new Group();
         GUIObject previous = null;
-        for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++)
+        for (int i = 0; i < player_count; i++)
             previous =
                     createPlayerPulldown(
                             gui_root,
@@ -129,7 +129,7 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
                             ready_marks,
                             ratings,
                             i,
-                            MatchmakingServerInterface.MAX_PLAYERS);
+                            player_count);
         player_group.compileCanvas();
         addChild(player_group);
 
@@ -307,7 +307,7 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
     }
 
     public final void connected(
-            Client client, Game game, WorldGenerator generator, int player_slot) {
+            Client client, Game game, WorldGenerator generator, int player_slot, int player_count) {
         assert false;
     }
 

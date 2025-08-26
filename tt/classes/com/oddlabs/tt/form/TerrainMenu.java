@@ -94,6 +94,7 @@ public final strictfp class TerrainMenu extends Group {
     private final ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
     private final GUIRoot gui_root;
     private final NetworkSelector network;
+    private int player_count;
     private int seed;
     private boolean show_demo = true;
 
@@ -342,8 +343,9 @@ public final strictfp class TerrainMenu extends Group {
             pulldown_menu_slots.addItem(new PulldownItem(Integer.toString(i)));
         }
 
-        PulldownButton pulldown_player_slots = new PulldownButton(gui_root, pulldown_menu_slots, 1, 150);
-        group_num_players.addChild(pulldown_player_slots);        
+        PulldownButton pulldown_player_slots = new PulldownButton(gui_root, pulldown_menu_slots, 5, 150);
+        pulldown_menu_slots.addItemChosenListener(new PulldownUpdatePlayersChangedListener());
+        group_num_players.addChild(pulldown_player_slots);
         pulldown_player_slots.place(label_player_slots, RIGHT_MID);
         group_num_players.compileCanvas();
 
@@ -762,7 +764,8 @@ public final strictfp class TerrainMenu extends Group {
                         vegetation_amount / (float) SLIDER_MAX_VALUE,
                         supplies_amount / (float) SLIDER_MAX_VALUE,
                         seed * seed,
-                        generateAINames());
+                        generateAINames(),
+                        player_count);
         game_network
                 .getClient()
                 .getServerInterface()
@@ -840,6 +843,12 @@ public final strictfp class TerrainMenu extends Group {
     private final strictfp class PulldownUpdateMapcodeListener implements ItemChosenListener {
         public final void itemChosen(PulldownMenu menu, int item_index) {
             setMapcode();
+        }
+    }
+
+    private final strictfp class PulldownUpdatePlayersChangedListener implements ItemChosenListener {
+        public final void itemChosen(PulldownMenu menu, int item_index) {
+            player_count = item_index + 1;
         }
     }
 

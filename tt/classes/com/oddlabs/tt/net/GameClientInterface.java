@@ -5,7 +5,7 @@ import com.oddlabs.tt.resource.WorldGenerator;
 
 public strictfp interface GameClientInterface {
     public void setWorldGeneratorAndPlayerSlot(
-            Game game, WorldGenerator generator, short player_slot);
+            Game game, WorldGenerator generator, short player_slot, int player_count);
 
     public void setPlayers(PlayerSlot[] players);
 

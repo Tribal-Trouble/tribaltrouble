@@ -48,14 +48,15 @@ public final strictfp class Server implements ConnectionListenerInterface {
             InetAddress ip,
             WorldGenerator generator,
             boolean register_server,
-            String[] ai_names) {
+            String[] ai_names,
+            int player_count) {
         this.local_listener = new ConnectionListener(network, ip, Globals.NET_PORT, this);
         this.game = game;
         this.generator = generator;
         this.register_server = register_server;
         this.ai_names = ai_names;
         this.random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
-        players = new PlayerSlot[MatchmakingServerInterface.MAX_PLAYERS];
+        players = new PlayerSlot[player_count];
         for (short i = 0; i < players.length; i++) {
             players[i] = new PlayerSlot(i);
             players[i].setReady(i != 0);
@@ -310,7 +311,7 @@ public final strictfp class Server implements ConnectionListenerInterface {
             address = tunnel_id.getAddress();
         }
         player_slot.setReady(false);
-        int max_teams = MatchmakingServerInterface.MAX_PLAYERS;
+        int max_teams = players.length;
         if (game != null && game.isRated()) max_teams = 2;
         PlayerInfo player_info =
                 new PlayerInfo(
@@ -327,7 +328,7 @@ public final strictfp class Server implements ConnectionListenerInterface {
         connection_to_client.put(conn, client_conn);
         client_conn
                 .getClientInterface()
-                .setWorldGeneratorAndPlayerSlot(game, generator, available_slot);
+                .setWorldGeneratorAndPlayerSlot(game, generator, available_slot, players.length);
         broadcastPlayers(true);
     }
 }
