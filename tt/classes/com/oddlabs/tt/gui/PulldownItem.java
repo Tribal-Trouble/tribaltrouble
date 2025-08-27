@@ -37,6 +37,9 @@ public final strictfp class PulldownItem extends ButtonObject {
     }
 
     protected final void renderGeometry() {
+        if(isHovered()) {
+            //System.out.println("PulldownItem is hovered: ");
+        }
         Box item = Skin.getSkin().getPulldownData().getPulldownItem();
         if (isDisabled()) item.render(0, 0, getWidth(), getHeight(), Skin.NORMAL);
         else if (isActive() || isHovered()) item.render(0, 0, getWidth(), getHeight(), Skin.ACTIVE);

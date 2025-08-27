@@ -15,16 +15,14 @@ public final strictfp class ScrollBar extends GUIObject {
     public ScrollBar(int height, Scrollable owner) {
         this.owner = owner;
         focus_group = new Group();
-        less_button =
-                new ArrowButton(
-                        Skin.getSkin().getScrollBarData().getScrollDownButtonPressed(),
-                        Skin.getSkin().getScrollBarData().getScrollDownButtonUnpressed(),
-                        Skin.getSkin().getScrollBarData().getScrollDownArrow());
-        more_button =
-                new ArrowButton(
-                        Skin.getSkin().getScrollBarData().getScrollUpButtonPressed(),
-                        Skin.getSkin().getScrollBarData().getScrollUpButtonUnpressed(),
-                        Skin.getSkin().getScrollBarData().getScrollUpArrow());
+        less_button = new ArrowButton(
+                Skin.getSkin().getScrollBarData().getScrollDownButtonPressed(),
+                Skin.getSkin().getScrollBarData().getScrollDownButtonUnpressed(),
+                Skin.getSkin().getScrollBarData().getScrollDownArrow());
+        more_button = new ArrowButton(
+                Skin.getSkin().getScrollBarData().getScrollUpButtonPressed(),
+                Skin.getSkin().getScrollBarData().getScrollUpButtonUnpressed(),
+                Skin.getSkin().getScrollBarData().getScrollUpArrow());
         less_button.setPos(0, 0);
         more_button.setPos(0, height - more_button.getHeight());
         focus_group.addChild(more_button);
@@ -49,17 +47,20 @@ public final strictfp class ScrollBar extends GUIObject {
     }
 
     public final void update() {
-        if (scroll_button != null) scroll_button.setupPos(this);
+        if (scroll_button != null)
+            scroll_button.setupPos(this);
     }
 
     public final void setPos(int x, int y) {
         super.setPos(x, y);
-        if (scroll_button != null) scroll_button.setupPos(this);
+        if (scroll_button != null)
+            scroll_button.setupPos(this);
     }
 
     public final void setDim(int width, int height) {
         super.setDim(width, height);
-        if (scroll_button != null) scroll_button.setupPos(this);
+        if (scroll_button != null)
+            scroll_button.setupPos(this);
     }
 
     public final void setFocus() {
@@ -69,6 +70,10 @@ public final strictfp class ScrollBar extends GUIObject {
     protected final void renderGeometry() {
         ScrollBarData data = Skin.getSkin().getScrollBarData();
         Vertical scroll_bar = data.getScrollBar();
+        //System.out.println("rendering scrollbar geometry");
+        if(isHovered()) {
+            System.out.println("Scrollbar is hovered");
+        }
         scroll_bar.render(
                 0,
                 less_button.getHeight(),
@@ -82,25 +87,37 @@ public final strictfp class ScrollBar extends GUIObject {
 
     public final int getButtonY() {
         ScrollBarData data = Skin.getSkin().getScrollBarData();
-        int max_height =
-                getHeight()
-                        - less_button.getHeight()
-                        - more_button.getHeight()
-                        - data.getBottomOffset()
-                        - data.getTopOffset();
+        int max_height = getHeight()
+                - less_button.getHeight()
+                - more_button.getHeight()
+                - data.getBottomOffset()
+                - data.getTopOffset();
+        // System.out.println("-------------------------------------------------------");
+        // System.out.println("less button height: " + less_button.getHeight());
+        // System.out.println("more button height: " + more_button.getHeight());
+        // System.out.println("data.getBottomOffset(): " + data.getBottomOffset());
+        // System.out.println("data.getTopOffset(): " + data.getTopOffset());
+        // System.out.println("getHeight(): " + getHeight());
         int size = getButtonHeight();
+        // System.out.println("max height: " + max_height);
+        // System.out.println("max_height - size: " + (max_height - size));
+        // System.out.println("owner.getScrollBarOffset(): " +
+        // owner.getScrollBarOffset());
         int offset = max_height - size - (int) ((max_height - size) * owner.getScrollBarOffset());
+        // System.out.println("offset: " + offset);
+        // System.out.println("less_button.getHeight() + data.getBottomOffset() +
+        // offset: " + (less_button.getHeight() + data.getBottomOffset() + offset));
+        // System.out.println("-------------------------------------------------------");
         return less_button.getHeight() + data.getBottomOffset() + offset;
     }
 
     public final int getButtonHeight() {
         ScrollBarData data = Skin.getSkin().getScrollBarData();
-        int max_height =
-                getHeight()
-                        - less_button.getHeight()
-                        - more_button.getHeight()
-                        - data.getBottomOffset()
-                        - data.getTopOffset();
+        int max_height = getHeight()
+                - less_button.getHeight()
+                - more_button.getHeight()
+                - data.getBottomOffset()
+                - data.getTopOffset();
         float ratio = owner.getScrollBarRatio();
         int size = (int) (ratio * max_height);
         if (size < data.getScrollButton().getMinHeight())
@@ -116,15 +133,19 @@ public final strictfp class ScrollBar extends GUIObject {
 
     private final strictfp class LessListener implements MouseButtonListener {
         public final void mousePressed(int button, int x, int y) {
+            System.out.println("Less button pressed");
             owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
             scroll_button.setupPos(ScrollBar.this);
         }
 
-        public final void mouseReleased(int button, int x, int y) {}
+        public final void mouseReleased(int button, int x, int y) {
+        }
 
-        public final void mouseHeld(int button, int x, int y) {}
+        public final void mouseHeld(int button, int x, int y) {
+        }
 
-        public final void mouseClicked(int button, int x, int y, int clicks) {}
+        public final void mouseClicked(int button, int x, int y, int clicks) {
+        }
     }
 
     private final strictfp class MoreListener implements MouseButtonListener {
@@ -133,11 +154,14 @@ public final strictfp class ScrollBar extends GUIObject {
             scroll_button.setupPos(ScrollBar.this);
         }
 
-        public final void mouseReleased(int button, int x, int y) {}
+        public final void mouseReleased(int button, int x, int y) {
+        }
 
-        public final void mouseHeld(int button, int x, int y) {}
+        public final void mouseHeld(int button, int x, int y) {
+        }
 
-        public final void mouseClicked(int button, int x, int y, int clicks) {}
+        public final void mouseClicked(int button, int x, int y, int clicks) {
+        }
     }
 
     private final strictfp class DragListener implements MouseMotionListener, MouseButtonListener {
@@ -146,34 +170,45 @@ public final strictfp class ScrollBar extends GUIObject {
 
         public final void mousePressed(int button, int x, int y) {
             start_offset = owner.getScrollBarOffset();
+            System.out.println("mouse moved");
         }
 
         public final void mouseDragged(
                 int button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
-            int max_height =
-                    getHeight()
-                            - less_button.getHeight()
-                            - more_button.getHeight()
-                            - data.getBottomOffset()
-                            - data.getTopOffset();
+            int max_height = getHeight()
+                    - less_button.getHeight()
+                    - more_button.getHeight()
+                    - data.getBottomOffset()
+                    - data.getTopOffset();
             float ratio = owner.getScrollBarRatio();
             int size = (int) (ratio * max_height);
             int scroll_button_space = max_height - size;
             owner.setScrollBarOffset(start_offset - abs_y / (float) scroll_button_space);
             scroll_button.setupPos(ScrollBar.this);
+            System.out.println("mouse dragged");
         }
 
-        public final void mouseMoved(int x, int y) {}
+        public final void mouseMoved(int x, int y) {
+            System.out.println("mouse moved");
+            if (isHovered()) {
+                System.out.println("Scrollbar is hovered: ");
+            }
+        }
 
-        public final void mouseEntered() {}
+        public final void mouseEntered() {
+        }
 
-        public final void mouseExited() {}
+        public final void mouseExited() {
+        }
 
-        public final void mouseReleased(int button, int x, int y) {}
+        public final void mouseReleased(int button, int x, int y) {
+        }
 
-        public final void mouseHeld(int button, int x, int y) {}
+        public final void mouseHeld(int button, int x, int y) {
+        }
 
-        public final void mouseClicked(int button, int x, int y, int clicks) {}
+        public final void mouseClicked(int button, int x, int y, int clicks) {
+        }
     }
 
     private final strictfp class ButtonKeyListener implements KeyListener {
@@ -192,8 +227,10 @@ public final strictfp class ScrollBar extends GUIObject {
             }
         }
 
-        public final void keyPressed(KeyboardEvent event) {}
+        public final void keyPressed(KeyboardEvent event) {
+        }
 
-        public final void keyReleased(KeyboardEvent event) {}
+        public final void keyReleased(KeyboardEvent event) {
+        }
     }
 }

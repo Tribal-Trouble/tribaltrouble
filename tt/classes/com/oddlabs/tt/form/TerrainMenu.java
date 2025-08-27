@@ -347,6 +347,7 @@ public final strictfp class TerrainMenu extends Group {
         group_num_players.addChild(pulldown_player_slots);
         pulldown_player_slots.place(label_player_slots, RIGHT_MID);
         group_num_players.compileCanvas();
+        group_num_players.setDim(group_num_players.getWidth() + 100, group_num_players.getHeight());
 
         // races and teams
         Group group_race_team = new Group();
@@ -477,8 +478,9 @@ public final strictfp class TerrainMenu extends Group {
                     BOTTOM_LEFT,
                     Skin.getSkin().getFormData().getSectionSpacing());
         }
+        
         standard.compileCanvas();
-
+        standard.setDim(standard.getWidth() + 100, standard.getHeight());
         // advanced
         group_sliders.place();
         group_num_players.place(

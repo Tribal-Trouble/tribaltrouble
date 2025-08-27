@@ -462,11 +462,14 @@ public abstract strictfp class GUIObject extends Renderable {
 
     protected void mouseExited() {
         GUIObject parent = (GUIObject) getParent();
+        
         if (parent != null) parent.mouseExitedAll();
     }
 
     public final void mouseEnteredAll() {
         hovered = true;
+            System.out.println("Mouse entered all: " + this);
+
         mouseEntered();
         for (int i = 0; i < mouse_motion_listeners.size(); i++) {
             MouseMotionListener listener = (MouseMotionListener) mouse_motion_listeners.get(i);
@@ -476,6 +479,7 @@ public abstract strictfp class GUIObject extends Renderable {
 
     protected void mouseEntered() {
         GUIObject parent = (GUIObject) getParent();
+        System.out.println("mouse entered: " + this);
         if (parent != null) parent.mouseEnteredAll();
     }
 
@@ -591,7 +595,7 @@ public abstract strictfp class GUIObject extends Renderable {
         mouse_button_listeners.add(listener);
     }
 
-    public final void addMouseMotionListener(MouseMotionListener listener) {
+    public final void addMouseMotionListener(MouseMotionListener listener) {        
         mouse_motion_listeners.add(listener);
     }
 
