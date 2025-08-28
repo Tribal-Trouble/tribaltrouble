@@ -1,9 +1,8 @@
 package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.gui.ToolTipBox;
-import com.oddlabs.tt.model.AttackScanFilter;
+import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
-import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.Movable;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.PathTracker;
@@ -12,14 +11,12 @@ import com.oddlabs.tt.pathfinder.TrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.util.Target;
 
-public final strictfp class WalkBehaviour implements Behaviour {
+public final strictfp class SailBehaviour implements Behaviour {
     private static final float WAIT_RETRY_DELAY = 1f / 2f;
     private static final float MAX_WAIT_RETRY_DELAY = 5f;
 
-    private final Unit unit;
+    private final Building boat;
     private final TrackerAlgorithm tracker_algorithm;
-    private final AttackScanFilter scan_filter;
-    private final boolean scan_attack;
 
     private Movable blocking_movable;
     private int blocker_x;
@@ -29,20 +26,15 @@ public final strictfp class WalkBehaviour implements Behaviour {
 
     private int state;
 
-    public WalkBehaviour(Unit unit, TrackerAlgorithm tracker_algorithm, boolean scan_attack) {
-        this.unit = unit;
+    public SailBehaviour(Building boat, TrackerAlgorithm tracker_algorithm) {
+        this.boat = boat;
         this.tracker_algorithm = tracker_algorithm;
-        this.scan_attack = scan_attack;
-        scan_filter = new AttackScanFilter(unit.getOwner(), AttackScanFilter.UNIT_RANGE);
         retry_delay = WAIT_RETRY_DELAY;
         init();
     }
 
-    public WalkBehaviour(Unit unit, Target t, float range, boolean scan_attack) {
-        this(
-                unit,
-                new TargetTrackerAlgorithm(unit.getUnitGrid(), range, t, UnitGrid.LAND),
-                scan_attack);
+    public SailBehaviour(Building boat, Target t, float range) {
+        this(boat, new TargetTrackerAlgorithm(boat.getUnitGrid(), range, t, UnitGrid.SEA));
     }
 
     public final boolean isBlocking() {
@@ -50,7 +42,7 @@ public final strictfp class WalkBehaviour implements Behaviour {
     }
 
     public void appendToolTip(ToolTipBox tool_tip_box) {
-        tool_tip_box.append("WalkBehaviour: state=");
+        tool_tip_box.append("SailBehaviour: state=");
         switch (state) {
             case PathTracker.OK:
                 tool_tip_box.append("OK");
@@ -73,11 +65,11 @@ public final strictfp class WalkBehaviour implements Behaviour {
         tool_tip_box.append("(");
         tool_tip_box.append((int) retry_delay);
         tool_tip_box.append("s)");
-        unit.getTracker().appendToolTip(tool_tip_box);
+        boat.getTracker().appendToolTip(tool_tip_box);
     }
 
     private final void switchToMoving() {
-        unit.switchAnimation(unit.getMetersPerSecond(), Unit.ANIMATION_MOVING);
+        // boat.switchAnimation(unit.getMetersPerSecond(), Unit.ANIMATION_MOVING);
     }
 
     public final int animate(float t) {
@@ -91,8 +83,9 @@ public final strictfp class WalkBehaviour implements Behaviour {
         }
         retry_delay_counter = 0;
         blocking_movable = null;
-        PathTracker tracker = unit.getTracker();
-        state = tracker.animate(unit.getMetersPerSecond() * t);
+        PathTracker tracker = boat.getTracker();
+        state = tracker.animate(4.0f * t);
+        boat.setLayer(UnitGrid.SEA);
         switch (state) {
             case PathTracker.OK:
                 switchToMoving();
@@ -100,7 +93,6 @@ public final strictfp class WalkBehaviour implements Behaviour {
             case PathTracker.OK_INTERRUPTIBLE:
                 retry_delay = WAIT_RETRY_DELAY;
                 switchToMoving();
-                scan();
                 return Selectable.INTERRUPTIBLE;
             case PathTracker.DONE:
                 return Selectable.DONE;
@@ -117,7 +109,6 @@ public final strictfp class WalkBehaviour implements Behaviour {
                         blocking_movable = null;
                     }
                 }
-                scan();
                 retry_delay = StrictMath.min(2 * retry_delay, MAX_WAIT_RETRY_DELAY);
                 return doRetry();
             default:
@@ -125,29 +116,14 @@ public final strictfp class WalkBehaviour implements Behaviour {
         }
     }
 
-    private final void scan() {
-        if (scan_attack) {
-            unit.scanVicinity(scan_filter);
-            Selectable s = scan_filter.removeTarget();
-            if (s != null) {
-                unit.getCurrentController().resetGiveUpCounters();
-                unit.pushController(new HuntController(unit, s));
-            }
-        }
-    }
-
-    /*	public final void moveNextAnimate() {
-    		retry_delay_counter = 0f;
-    	}
-    */
     private final int doRetry() {
         retry_delay_counter = retry_delay;
-        unit.switchToIdleAnimation();
+        // boat.switchToIdleAnimation();
         return Selectable.INTERRUPTIBLE;
     }
 
     private final void init() {
-        unit.getTracker().setTarget(tracker_algorithm);
+        boat.getTracker().setTarget(tracker_algorithm);
     }
 
     public final void forceInterrupted() {}

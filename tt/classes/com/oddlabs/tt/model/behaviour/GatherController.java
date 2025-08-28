@@ -7,6 +7,7 @@ import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.TargetTrackerAlgorithm;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 
 public final strictfp class GatherController extends Controller {
     private static final int HARVEST_STATE = 0;
@@ -39,14 +40,14 @@ public final strictfp class GatherController extends Controller {
             resetGiveUpCounter(HARVEST_STATE);
         }
 
-        if (supply != null && unit.isCloseEnough(unit.getRange(supply), supply)) {
+        if (supply != null && unit.isCloseEnough(unit.getRange(supply), supply, UnitGrid.LAND)) {
             unit.pushController(new HarvestController(unit, supply, supply_type));
         } else if (!shouldGiveUp(HARVEST_STATE)) {
             if (supply == null) {
                 unit.pushController(new HarvestController(unit, supply, supply_type));
             } else {
                 TargetTrackerAlgorithm supply_tracker =
-                        new TargetTrackerAlgorithm(unit.getUnitGrid(), 0f, supply);
+                        new TargetTrackerAlgorithm(unit.getUnitGrid(), 0f, supply, UnitGrid.LAND);
                 unit.setBehaviour(new WalkBehaviour(unit, supply_tracker, false));
             }
         } else {
@@ -58,7 +59,7 @@ public final strictfp class GatherController extends Controller {
         resetGiveUpCounter(HARVEST_STATE);
         if (building_tracker != null
                 && building_tracker.getOccupant() != null
-                && unit.isCloseEnough(0f, building_tracker.getOccupant())) {
+                && unit.isCloseEnough(0f, building_tracker.getOccupant(), UnitGrid.LAND)) {
             Building building = (Building) building_tracker.getOccupant();
             Class unit_supply_type = unit.getSupplyContainer().getSupplyType();
             int num_supplies =

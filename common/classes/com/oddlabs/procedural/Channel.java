@@ -12,11 +12,47 @@ public final strictfp class Channel {
     public int height;
     public boolean powerof2;
 
+    public class ChannelVisitor {
+        private int x = 0;
+        private int y = 0;
+        private boolean done = false;
+        private float value;
+        private Channel channel;
+
+        private ChannelVisitor(Channel channel, float value) {
+            this.channel = channel;
+            this.value = value;
+        }
+
+        public int[] visitNext() {
+            while (!done) {
+                if (channel.getPixel(x, y) == value) {
+                    break;
+                }
+                x++;
+                if (x >= channel.width) {
+                    x = 0;
+                    y++;
+                    if (y >= channel.height) {
+                        done = true;
+                        x = -1;
+                        y = -1;
+                    }
+                }
+            }
+            return new int[] {x, y};
+        }
+    }
+
     public Channel(int width, int height) {
         pixels = new float[height][width];
         this.width = width;
         this.height = height;
         this.powerof2 = Utils.isPowerOf2(width) && Utils.isPowerOf2(height);
+    }
+
+    public final ChannelVisitor visitor(float value) {
+        return new ChannelVisitor(this, value);
     }
 
     public final Layer toLayer() {

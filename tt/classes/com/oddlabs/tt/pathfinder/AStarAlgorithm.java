@@ -6,17 +6,24 @@ abstract strictfp class AStarAlgorithm implements PathFinderAlgorithm {
     private final Region dst_region;
     private final boolean allow_second_best;
     private final UnitGrid unit_grid;
+    private final int layer;
 
     private int nodes_visited;
     private int best_dist_squared = Integer.MAX_VALUE;
     private Node second_best_node;
 
-    protected AStarAlgorithm(UnitGrid unit_grid, int dst_x, int dst_y, boolean allow_second_best) {
+    protected AStarAlgorithm(
+            UnitGrid unit_grid, int dst_x, int dst_y, boolean allow_second_best, int layer) {
         this.dst_x = dst_x;
         this.dst_y = dst_y;
-        this.dst_region = unit_grid.getRegion(dst_x, dst_y);
+        this.dst_region = unit_grid.getRegion(dst_x, dst_y, layer);
         this.allow_second_best = allow_second_best;
         this.unit_grid = unit_grid;
+        this.layer = layer;
+    }
+
+    public final int getLayer() {
+        return layer;
     }
 
     protected final UnitGrid getUnitGrid() {
@@ -44,7 +51,7 @@ abstract strictfp class AStarAlgorithm implements PathFinderAlgorithm {
         int dx = node.getGridX() - dst_x;
         int dy = node.getGridY() - dst_y;
         int dist_squared = dx * dx + dy * dy;
-        Region region = unit_grid.getRegion(node.getGridX(), node.getGridY());
+        Region region = unit_grid.getRegion(node.getGridX(), node.getGridY(), layer);
         if (region == dst_region && dist_squared < best_dist_squared) {
             second_best_node = node;
             best_dist_squared = dist_squared;

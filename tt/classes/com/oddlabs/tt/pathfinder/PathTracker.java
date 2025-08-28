@@ -18,6 +18,7 @@ public final strictfp class PathTracker {
     private final BezierPath bezier_path;
     private final UnitGrid unit_grid;
     private final Movable unit;
+    private final int layer;
 
     private RegionNode region_path;
     private Region target_region;
@@ -33,10 +34,11 @@ public final strictfp class PathTracker {
     private boolean initial_path;
     private int state = DONE;
 
-    public PathTracker(UnitGrid unit_grid, Movable unit) {
+    public PathTracker(UnitGrid unit_grid, Movable unit, int layer) {
         this.unit_grid = unit_grid;
         this.unit = unit;
         this.bezier_path = new BezierPath();
+        this.layer = layer;
     }
 
     public void appendToolTip(ToolTipBox tool_tip_box) {
@@ -152,7 +154,7 @@ public final strictfp class PathTracker {
     }
 
     private final Occupant getNextOccupantUnchecked() {
-        return unit_grid.getOccupant(next_unit_grid_x, next_unit_grid_y);
+        return unit_grid.getOccupant(next_unit_grid_x, next_unit_grid_y, layer);
     }
 
     private final Occupant getNextOccupant() {
@@ -193,7 +195,7 @@ public final strictfp class PathTracker {
     }
 
     private final void checkRegionPath(int src_x, int src_y) {
-        Region current_region = unit_grid.getRegion(src_x, src_y);
+        Region current_region = unit_grid.getRegion(src_x, src_y, layer);
         if (target_region != null && tracker_algorithm.acceptRegion(target_region)) {
             while (region_path != null) {
                 Region region_path_region = region_path.getRegion();
@@ -227,7 +229,8 @@ public final strictfp class PathTracker {
                         region_y,
                         null,
                         0,
-                        allow_secondary_targets);
+                        allow_secondary_targets,
+                        layer);
             }
         }
         return tracker_algorithm.findPathGrid(

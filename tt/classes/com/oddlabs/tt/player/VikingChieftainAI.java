@@ -4,6 +4,7 @@ import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 
 import java.util.List;
 
@@ -52,7 +53,9 @@ public final strictfp class VikingChieftainAI extends ChieftainAI {
                         hit_radius,
                         chieftain,
                         type);
-        chieftain.getUnitGrid().scan(filter, chieftain.getGridX(), chieftain.getGridY());
+        chieftain
+                .getUnitGrid()
+                .scan(filter, chieftain.getGridX(), chieftain.getGridY(), UnitGrid.LAND);
         List target_list = filter.getResult();
         int num_enemy_units_close = 0;
         for (int i = 0; i < target_list.size(); i++) {
@@ -78,7 +81,9 @@ public final strictfp class VikingChieftainAI extends ChieftainAI {
                         hit_radius,
                         chieftain,
                         Selectable.class);
-        chieftain.getUnitGrid().scan(filter, chieftain.getGridX(), chieftain.getGridY());
+        chieftain
+                .getUnitGrid()
+                .scan(filter, chieftain.getGridX(), chieftain.getGridY(), UnitGrid.LAND);
         List target_list = filter.getResult();
         int num_friendly_units_close = 0;
         for (int i = 0; i < target_list.size(); i++) {

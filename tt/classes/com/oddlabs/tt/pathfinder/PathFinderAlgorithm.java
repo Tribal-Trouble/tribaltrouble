@@ -8,4 +8,6 @@ public strictfp interface PathFinderAlgorithm {
     public int computeEstimatedCost(Node node);
 
     public boolean touchNeighbour(Occupant occ);
+
+    int getLayer();
 }

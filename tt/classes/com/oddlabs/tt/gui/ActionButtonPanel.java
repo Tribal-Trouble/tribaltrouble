@@ -68,6 +68,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
     private final NonFocusIconButton army_button;
     private final NonFocusIconButton transport_button;
     private final NonFocusIconButton rally_point_button;
+    private final NonFocusIconButton sail_button;
 
     private final StatusIcon unit_status;
     private final StatusIcon weapon_rock_status;
@@ -403,6 +404,12 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         army_button.place(build_button, BOTTOM_MID);
         transport_button.place(army_button, BOTTOM_MID);
         rally_point_button.place(transport_button, BOTTOM_MID);
+
+        sail_button = new NonFocusIconButton(race_icons.getShipIcon(), formatTip("sail_tip", "S"));
+        armory_group.addChild(sail_button);
+        sail_button.addMouseClickListener(new TargetListener(Target.ACTION_MOVE));
+        sail_button.place(rally_point_button, BOTTOM_MID);
+
         armory_group.compileCanvas(
                 GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
@@ -770,6 +777,10 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         if (current_chieftain != null) {
             magic1_button.doUpdate();
             magic2_button.doUpdate();
+        }
+        if (current_building != null
+                && current_building.getAbilities().hasAbilities(Abilities.SAIL)) {
+            sail_button.doUpdate();
         }
     }
 

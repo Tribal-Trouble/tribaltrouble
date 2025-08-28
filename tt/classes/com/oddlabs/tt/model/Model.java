@@ -25,7 +25,7 @@ public abstract strictfp class Model extends Element implements ListElement {
 
     public abstract float getNoDetailSize();
 
-    private final void updateBounds() {
+    protected final void updateBounds() {
         float x = getPositionX();
         float y = getPositionY();
         float z = getPositionZ();
@@ -62,8 +62,10 @@ public abstract strictfp class Model extends Element implements ListElement {
     protected final void reinsert() {
         if (isRegistered()) {
             setPositionZ(
-                    world.getHeightMap().getNearestHeight(getPositionX(), getPositionY())
-                            + getOffsetZ());
+                    Math.max(
+                            world.getHeightMap().getSeaLevelMeters(),
+                            world.getHeightMap().getNearestHeight(getPositionX(), getPositionY())
+                                    + getOffsetZ()));
             updateBounds();
             reregister();
         }

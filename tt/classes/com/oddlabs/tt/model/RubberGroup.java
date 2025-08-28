@@ -29,7 +29,11 @@ public final strictfp class RubberGroup {
             Target[] supply_positions =
                     world.getUnitGrid()
                             .findGridTargets(
-                                    group_position[0], group_position[1], num_supplies, true);
+                                    group_position[0],
+                                    group_position[1],
+                                    num_supplies,
+                                    true,
+                                    UnitGrid.LAND);
             float spawn_x = UnitGrid.coordinateFromGrid(group_position[0]);
             float spawn_y = UnitGrid.coordinateFromGrid(group_position[1]);
             for (int i = 0; i < num_supplies; i++) {
@@ -63,7 +67,7 @@ public final strictfp class RubberGroup {
         int index = (start_index + 1) % tree_positions.size();
         while (index != start_index) {
             int[] coords = (int[]) tree_positions.get(index);
-            Occupant occ = world.getUnitGrid().getOccupant(coords[0], coords[1]);
+            Occupant occ = world.getUnitGrid().getOccupant(coords[0], coords[1], UnitGrid.LAND);
             if (occ instanceof TreeSupply) return coords;
             index = (index + 1) % tree_positions.size();
         }

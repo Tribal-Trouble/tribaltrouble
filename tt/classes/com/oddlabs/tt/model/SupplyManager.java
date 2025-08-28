@@ -2,6 +2,7 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.landscape.World;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.util.StateChecksum;
 
 import java.util.ArrayList;
@@ -65,7 +66,9 @@ public strictfp class SupplyManager implements Animated {
     protected void insertSupply() {
         int index = world.getRandom().nextInt(empty_supplies.size());
         Supply supply = (Supply) empty_supplies.get(index);
-        boolean occupied = world.getUnitGrid().isGridOccupied(supply.getGridX(), supply.getGridY());
+        boolean occupied =
+                world.getUnitGrid()
+                        .isGridOccupied(supply.getGridX(), supply.getGridY(), UnitGrid.LAND);
         if (!occupied) {
             empty_supplies.remove(supply);
             Supply new_supply = supply.respawn();

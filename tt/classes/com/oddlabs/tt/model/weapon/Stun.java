@@ -90,7 +90,8 @@ public final strictfp class Stun implements Magic {
         unit_grid.scan(
                 filter,
                 UnitGrid.toGridCoordinate(src.getPositionX()),
-                UnitGrid.toGridCoordinate(src.getPositionY()));
+                UnitGrid.toGridCoordinate(src.getPositionY()),
+                UnitGrid.LAND);
         target_list = filter.getResult();
 
         sound =

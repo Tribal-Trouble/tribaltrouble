@@ -18,6 +18,7 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 public final strictfp class IslandGenerator implements WorldGenerator {
@@ -145,8 +146,10 @@ public final strictfp class IslandGenerator implements WorldGenerator {
         float[][] plants = landscape.getPlants();
         boolean[][] access_grid = landscape.getAccessGrid();
         boolean[][] dock_grid = landscape.getDockGrid();
+        boolean[][] water_grid = landscape.getWaterGrid();
         byte[][] build_grid = landscape.getBuildGrid();
         float[][] starting_locations = landscape.getStartingLocations();
+        ArrayList island_locations = landscape.getIslandLocations();
         int alpha_size = grid_units;
         Texture[][] chunk_maps;
         OffscreenRendererFactory factory = new OffscreenRendererFactory();
@@ -176,7 +179,9 @@ public final strictfp class IslandGenerator implements WorldGenerator {
                 plants,
                 access_grid,
                 dock_grid,
+                water_grid,
                 build_grid,
+                island_locations,
                 starting_locations);
     }
 

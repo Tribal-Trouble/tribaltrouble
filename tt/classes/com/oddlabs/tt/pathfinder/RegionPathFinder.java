@@ -3,8 +3,8 @@ package com.oddlabs.tt.pathfinder;
 final strictfp class RegionPathFinder extends AStarAlgorithm {
     private final Node dst_region;
 
-    public RegionPathFinder(UnitGrid unit_grid, Node dst_region) {
-        super(unit_grid, dst_region.getGridX(), dst_region.getGridY(), false);
+    public RegionPathFinder(UnitGrid unit_grid, Node dst_region, int layer) {
+        super(unit_grid, dst_region.getGridX(), dst_region.getGridY(), false, layer);
         this.dst_region = dst_region;
     }
 

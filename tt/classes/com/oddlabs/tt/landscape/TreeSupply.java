@@ -77,7 +77,7 @@ public final strictfp class TreeSupply extends AbstractTreeGroup
             checkBoundsY(dest.y);
             checkBoundsZ(dest.z);
         }
-        if (world.getUnitGrid().getOccupant(grid_x, grid_y) == null) occupyTree();
+        if (world.getUnitGrid().getOccupant(grid_x, grid_y, UnitGrid.LAND) == null) occupyTree();
         world.getSupplyManager(getClass()).newSupply();
     }
 
@@ -130,7 +130,7 @@ public final strictfp class TreeSupply extends AbstractTreeGroup
     private final void occupyTree() {
         UnitGrid grid = world.getUnitGrid();
         world.getNotificationListener().registerTarget(this);
-        Region region = grid.getRegion(getGridX(), getGridY());
+        Region region = grid.getRegion(getGridX(), getGridY(), UnitGrid.LAND);
         // TODO: This shouldn't happen if the path finder knows that sailing is required to get
         // there
         if (region == null) return;
@@ -139,21 +139,21 @@ public final strictfp class TreeSupply extends AbstractTreeGroup
             int occ_y = grid_y + y - (grid_size - 1) / 2;
             for (int x = 0; x < grid_size; x++) {
                 int occ_x = grid_x + x - (grid_size - 1) / 2;
-                if (!grid.isGridOccupied(occ_x, occ_y)) {
-                    assert !(grid.getOccupant(occ_x, occ_y) instanceof TreeSupply)
+                if (!grid.isGridOccupied(occ_x, occ_y, UnitGrid.LAND)) {
+                    assert !(grid.getOccupant(occ_x, occ_y, UnitGrid.LAND) instanceof TreeSupply)
                             : "Trees placed too close";
                 }
             }
         }
-        grid.occupyGrid(grid_x, grid_y, this);
+        grid.occupyGrid(grid_x, grid_y, this, UnitGrid.LAND);
     }
 
     private final void unoccupyTree() {
         UnitGrid grid = world.getUnitGrid();
         world.getNotificationListener().unregisterTarget(this);
-        Region region = grid.getRegion(grid_x, grid_y);
+        Region region = grid.getRegion(grid_x, grid_y, UnitGrid.LAND);
         region.unregisterObject(getClass(), this);
-        grid.freeGrid(grid_x, grid_y, this);
+        grid.freeGrid(grid_x, grid_y, this, UnitGrid.LAND);
     }
 
     public final float getSize() {

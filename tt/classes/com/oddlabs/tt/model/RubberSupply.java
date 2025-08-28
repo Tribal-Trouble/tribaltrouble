@@ -75,7 +75,7 @@ public final strictfp class RubberSupply extends SupplyModel implements Animated
                 rotation,
                 INITIAL_SUPPLIES,
                 false);
-        this.path_tracker = new PathTracker(world.getUnitGrid(), this);
+        this.path_tracker = new PathTracker(world.getUnitGrid(), this, UnitGrid.LAND);
         this.group = group;
         start_grid_x = grid_x;
         start_grid_y = grid_y;
@@ -134,16 +134,17 @@ public final strictfp class RubberSupply extends SupplyModel implements Animated
     	}
     */
     public final void free() {
-        getWorld().getUnitGrid().freeGrid(getGridX(), getGridY(), this);
+        getWorld().getUnitGrid().freeGrid(getGridX(), getGridY(), this, UnitGrid.LAND);
     }
 
     public final void occupy() {
-        getWorld().getUnitGrid().occupyGrid(getGridX(), getGridY(), this);
+        getWorld().getUnitGrid().occupyGrid(getGridX(), getGridY(), this, UnitGrid.LAND);
     }
 
     public final void setGridPosition(int grid_x, int grid_y) {
-        Region current_region = getWorld().getUnitGrid().getRegion(getGridX(), getGridY());
-        Region new_region = getWorld().getUnitGrid().getRegion(grid_x, grid_y);
+        Region current_region =
+                getWorld().getUnitGrid().getRegion(getGridX(), getGridY(), UnitGrid.LAND);
+        Region new_region = getWorld().getUnitGrid().getRegion(grid_x, grid_y, UnitGrid.LAND);
         if (current_region != new_region) {
             current_region.unregisterObject(getClass(), this);
             new_region.registerObject(getClass(), this);
@@ -196,9 +197,11 @@ public final strictfp class RubberSupply extends SupplyModel implements Animated
                 Target target =
                         getWorld()
                                 .getUnitGrid()
-                                .findGridTargets(new_grid_x, new_grid_y, 1, false)[0];
+                                .findGridTargets(new_grid_x, new_grid_y, 1, false, UnitGrid.LAND)[
+                                0];
                 path_tracker.setTarget(
-                        new TargetTrackerAlgorithm(getWorld().getUnitGrid(), 0f, target));
+                        new TargetTrackerAlgorithm(
+                                getWorld().getUnitGrid(), 0f, target, UnitGrid.LAND));
                 float move_random = getWorld().getRandom().nextFloat();
                 if (move_random < .25f) {
                     setNewAnimation(ANIMATION_FLYING);

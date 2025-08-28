@@ -12,6 +12,7 @@ public final strictfp class Abilities {
     public static final int THROW = 128;
     public static final int RALLY_TO = 256;
     public static final int MAGIC = 512;
+    public static final int SAIL = 1024;
 
     private int abilities;
 

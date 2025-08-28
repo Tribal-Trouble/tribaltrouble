@@ -13,6 +13,7 @@ import com.oddlabs.tt.model.weapon.RockSpearWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.util.Target;
 
 import java.util.ArrayList;
@@ -190,7 +191,7 @@ public final strictfp class AdvancedAI extends AI {
         FindOccupantFilter filter =
                 new FindOccupantFilter(
                         src.getPositionX(), src.getPositionY(), 30f, src, Unit.class);
-        getUnitGrid().scan(filter, src.getGridX(), src.getGridY());
+        getUnitGrid().scan(filter, src.getGridX(), src.getGridY(), UnitGrid.LAND);
         List target_list = filter.getResult();
         int score = 0;
         defense_target = null;
@@ -610,7 +611,7 @@ public final strictfp class AdvancedAI extends AI {
                         getOwner().getRace().getBuildingTemplate(building_type),
                         40,
                         true);
-        getUnitGrid().scan(filter, grid_x, grid_y);
+        getUnitGrid().scan(filter, grid_x, grid_y, UnitGrid.LAND);
         List target_list = filter.getResult();
         if (target_list.size() > 0) {
             Target target = (Target) target_list.get(0);

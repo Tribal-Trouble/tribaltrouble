@@ -44,8 +44,8 @@ public abstract strictfp class SupplyModel extends Model implements Supply, Targ
         setPosition(x, y);
         world.getNotificationListener().registerTarget(this);
         UnitGrid unit_grid = world.getUnitGrid();
-        unit_grid.occupyGrid(grid_x, grid_y, this);
-        Region region = unit_grid.getRegion(grid_x, grid_y);
+        unit_grid.occupyGrid(grid_x, grid_y, this, UnitGrid.LAND);
+        Region region = unit_grid.getRegion(grid_x, grid_y, UnitGrid.LAND);
         // TODO: This shouldn't happen if the path finder knows that there's sailing required
         if (region == null) return;
         region.registerObject(getClass(), this);
@@ -90,9 +90,9 @@ public abstract strictfp class SupplyModel extends Model implements Supply, Targ
         num_supplies--;
         if (isEmpty()) {
             UnitGrid unit_grid = getWorld().getUnitGrid();
-            unit_grid.freeGrid(grid_x, grid_y, this);
+            unit_grid.freeGrid(grid_x, grid_y, this, UnitGrid.LAND);
             getWorld().getNotificationListener().unregisterTarget(this);
-            Region region = unit_grid.getRegion(grid_x, grid_y);
+            Region region = unit_grid.getRegion(grid_x, grid_y, UnitGrid.LAND);
             region.unregisterObject(getClass(), this);
             remove();
             getWorld().getSupplyManager(getClass()).emptySupply(this);

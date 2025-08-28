@@ -3,6 +3,7 @@ package com.oddlabs.tt.landscape;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.util.StrictVector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final strictfp class HeightMap {
@@ -20,6 +21,8 @@ public final strictfp class HeightMap {
     private final List trees;
     private final boolean[][] access_grid;
     private final boolean[][] dock_grid;
+    private final boolean[][] water_grid;
+    private final ArrayList island_locations;
     private final byte[][] build_grid;
     private final int meters_per_world;
     private final int patches_per_world;
@@ -42,16 +45,20 @@ public final strictfp class HeightMap {
             int texels_per_colormap,
             int chunks_per_colormap,
             float[][] world,
+            ArrayList island_locations,
             List trees,
             boolean[][] access_grid,
             boolean[][] dock_grid,
+            boolean[][] water_grid,
             byte[][] build_grid) {
         this.world = world;
         this.world_instance = world_instance;
         this.trees = trees;
         this.access_grid = access_grid;
         this.dock_grid = dock_grid;
+        this.water_grid = water_grid;
         this.build_grid = build_grid;
+        this.island_locations = island_locations;
         this.meters_per_world = meters_per_world;
         this.sea_level_meters = sea_level_meters;
         patches_per_world = world.length / GRID_UNITS_PER_PATCH;
@@ -146,6 +153,14 @@ public final strictfp class HeightMap {
 
     public final boolean[][] getDockGrid() {
         return dock_grid;
+    }
+
+    public final boolean[][] getWaterGrid() {
+        return water_grid;
+    }
+
+    public final ArrayList getIslandLocations() {
+        return island_locations;
     }
 
     final void makePlaneVector(

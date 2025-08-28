@@ -11,8 +11,9 @@ public final strictfp class TargetFinderAlgorithm extends GridPathFinder {
             Node dst_region,
             int dst_x,
             int dst_y,
-            boolean allow_second_best) {
-        super(unit_grid, dst_region, null, dst_x, dst_y, allow_second_best);
+            boolean allow_second_best,
+            int layer) {
+        super(unit_grid, dst_region, null, dst_x, dst_y, allow_second_best, layer);
         this.filter = filter;
     }
 

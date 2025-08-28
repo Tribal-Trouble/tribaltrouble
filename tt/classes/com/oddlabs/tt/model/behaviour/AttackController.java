@@ -15,7 +15,7 @@ public final strictfp class AttackController extends Controller {
     }
 
     private final boolean canAttack() {
-        return unit.isCloseEnough(unit.getRange(target), target);
+        return unit.isCloseEnough(unit.getRange(target), target, target.getLayer());
     }
 
     public final void decide() {

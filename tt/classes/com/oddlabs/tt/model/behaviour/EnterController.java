@@ -4,6 +4,7 @@ import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.weapon.ThrowingFactory;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 
 public final strictfp class EnterController extends Controller {
     private final Building building;
@@ -18,7 +19,7 @@ public final strictfp class EnterController extends Controller {
     public final void decide() {
         if (building.isDead()) {
             unit.popController();
-        } else if (unit.isCloseEnough(0f, building)) {
+        } else if (unit.isCloseEnough(0f, building, UnitGrid.LAND)) {
             if (building.getUnitContainer() != null && building.getUnitContainer().canEnter(unit)) {
                 if (building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)) {
                     if (unit.getAbilities().hasAbilities(Abilities.HARVEST)

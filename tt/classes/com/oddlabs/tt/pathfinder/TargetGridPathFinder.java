@@ -14,8 +14,9 @@ public final strictfp class TargetGridPathFinder extends GridPathFinder {
             int dst_x,
             int dst_y,
             Target t,
-            boolean allow_second_best) {
-        super(unit_grid, dst_region, dst_region2, dst_x, dst_y, allow_second_best);
+            boolean allow_second_best,
+            int layer) {
+        super(unit_grid, dst_region, dst_region2, dst_x, dst_y, allow_second_best, layer);
         this.max_dist_squared = max_dist * max_dist;
         this.target = t;
     }

@@ -361,7 +361,8 @@ public abstract strictfp class AI implements Animated {
                         UnitGrid.toGridCoordinate(target_x),
                         UnitGrid.toGridCoordinate(target_y),
                         1,
-                        false)[0];
+                        false,
+                        UnitGrid.LAND)[0];
     }
 
     public final void updateChecksum(StateChecksum checksum) {}

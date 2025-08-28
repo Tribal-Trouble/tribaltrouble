@@ -9,6 +9,8 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.behaviour.AttackController;
 import com.oddlabs.tt.model.behaviour.GatherController;
 import com.oddlabs.tt.model.behaviour.NullController;
+import com.oddlabs.tt.model.behaviour.SailBehaviour;
+import com.oddlabs.tt.model.behaviour.SailController;
 import com.oddlabs.tt.model.behaviour.StunController;
 import com.oddlabs.tt.model.behaviour.TransferUnitController;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
@@ -20,7 +22,10 @@ import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.particle.LinearEmitter;
 import com.oddlabs.tt.particle.RandomAccelerationEmitter;
 import com.oddlabs.tt.particle.RandomVelocityEmitter;
+import com.oddlabs.tt.pathfinder.Movable;
 import com.oddlabs.tt.pathfinder.Occupant;
+import com.oddlabs.tt.pathfinder.PathTracker;
+import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
@@ -33,7 +38,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.HashMap;
 import java.util.Map;
 
-public final strictfp class Building extends Selectable implements Occupant {
+public final strictfp class Building extends Selectable implements Occupant, Movable {
     private static final float REMOVE_DELAY = 1f / 10f;
 
     public static final int RENDER_START = 0;
@@ -84,6 +89,8 @@ public final strictfp class Building extends Selectable implements Occupant {
 
     private Target rally_point = this;
     private boolean is_training_chieftain = false;
+
+    private final PathTracker path_tracker;
 
     public Building(Player owner, BuildingTemplate template, int grid_x, int grid_y) {
         super(owner, template);
@@ -161,6 +168,8 @@ public final strictfp class Building extends Selectable implements Occupant {
                         owner.getWorld().getRacesResources().getSmokeTextures(),
                         owner.getWorld().getAnimationManagerRealTime());
         production_emitter.stop();
+
+        this.path_tracker = new PathTracker(getUnitGrid(), this, UnitGrid.SEA);
     }
 
     public final float getOffsetZ() {
@@ -642,7 +651,8 @@ public final strictfp class Building extends Selectable implements Occupant {
                         || current_grid_y >= unit_grid.getGridSize()
                         || current_grid_x < 0
                         || current_grid_y < 0) return false;
-                boolean occupied = unit_grid.isGridOccupied(current_grid_x, current_grid_y);
+                boolean occupied =
+                        unit_grid.isGridOccupied(current_grid_x, current_grid_y, UnitGrid.LAND);
                 if (occupied) {
                     return false;
                 }
@@ -658,7 +668,17 @@ public final strictfp class Building extends Selectable implements Occupant {
     }
 
     protected final void setTarget(Target target, int action, boolean aggressive) {
-        if (getAbilities().hasAbilities(Abilities.ATTACK)) {
+        if (getAbilities().hasAbilities(Abilities.SAIL)) {
+            Target sail_target =
+                    getUnitGrid()
+                            .findGridTargets(
+                                    target.getGridX(), target.getGridY(), 1, false, UnitGrid.SEA)[
+                            0];
+            pushController(new SailController(this, sail_target));
+            free();
+            setLayer(1);
+            occupy();
+        } else if (getAbilities().hasAbilities(Abilities.ATTACK)) {
             if (target != this) {
                 Unit unit = ((MountUnitContainer) getUnitContainer()).getUnit();
                 boolean kill_friendly = false;
@@ -780,7 +800,9 @@ public final strictfp class Building extends Selectable implements Occupant {
         } else {
             rally_point =
                     getUnitGrid()
-                            .findGridTargets(target.getGridX(), target.getGridY(), 1, false)[0];
+                            .findGridTargets(
+                                    target.getGridX(), target.getGridY(), 1, false, UnitGrid.LAND)[
+                            0];
         }
     }
 
@@ -853,23 +875,27 @@ public final strictfp class Building extends Selectable implements Occupant {
                                 old_landscape_heights[y][x]);
     }
 
-    private final void occupy() {
+    public final void occupy() {
         UnitGrid grid = getUnitGrid();
-        grid.getRegion(getGridX(), getGridY()).registerObject(getClass(), this);
+        Region region = grid.getRegion(getGridX(), getGridY(), getLayer());
+        region.registerObject(getClass(), this);
         int size = getBuildingTemplate().getPlacingSize() * 2 - 1;
         for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++)
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
-                grid.occupyGrid(getGridX() - size / 2 + x, getGridY() - size / 2 + y, this);
+                grid.occupyGrid(
+                        getGridX() - size / 2 + x, getGridY() - size / 2 + y, this, getLayer());
             }
     }
 
-    private final void free() {
+    public final void free() {
         UnitGrid grid = getUnitGrid();
-        grid.getRegion(getGridX(), getGridY()).unregisterObject(getClass(), this);
+        Region region = grid.getRegion(getGridX(), getGridY(), getLayer());
+        region.unregisterObject(getClass(), this);
         int size = getBuildingTemplate().getPlacingSize() * 2 - 1;
         for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++)
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
-                grid.freeGrid(getGridX() - size / 2 + x, getGridY() - size / 2 + y, this);
+                grid.freeGrid(
+                        getGridX() - size / 2 + x, getGridY() - size / 2 + y, this, getLayer());
             }
     }
 
@@ -965,4 +991,29 @@ public final strictfp class Building extends Selectable implements Occupant {
     public final float getHealth() {
         return build_points / (float) getBuildingTemplate().getMaxHitPoints();
     }
+
+    public final boolean isMoving() {
+        return (getCurrentBehaviour() instanceof SailBehaviour);
+    }
+
+    public final PathTracker getTracker() {
+        assert !isDead();
+        return path_tracker;
+    }
+
+    public final void setPosition(int x, int y) {
+        free();
+        super.setPosition(x, y);
+        if (isMoving()) {
+            setLayer(UnitGrid.SEA);
+            setPositionZ(2.0f);
+        } else {
+            setLayer(UnitGrid.LAND);
+        }
+        updateBounds();
+        reregister();
+        occupy();
+    }
+
+    public final void markBlocking() {}
 }

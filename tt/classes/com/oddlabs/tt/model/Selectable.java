@@ -30,11 +30,21 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 
     private int grid_x;
     private int grid_y;
+    private int layer;
 
     protected Selectable(Player owner, Template template) {
         super(owner.getWorld());
         this.owner = owner;
         this.template = template;
+        this.layer = UnitGrid.LAND;
+    }
+
+    public void setLayer(int layer) {
+        this.layer = layer;
+    }
+
+    public int getLayer() {
+        return layer;
     }
 
     public final float getShadowDiameter() {
@@ -97,11 +107,11 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 
     public final void scanVicinity(ScanFilter filter) {
         assert !isDead();
-        getUnitGrid().scan(filter, getGridX(), getGridY());
+        getUnitGrid().scan(filter, getGridX(), getGridY(), layer);
     }
 
     private static final boolean isAdjacent(
-            UnitGrid unit_grid, int grid_x, int grid_y, Occupant occ) {
+            UnitGrid unit_grid, int grid_x, int grid_y, Occupant occ, int layer) {
         int t_x = occ.getGridX();
         int t_y = occ.getGridY();
         int dx = 0;
@@ -110,19 +120,19 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
         else if (t_x < grid_x) dx = -1;
         if (t_y > grid_y) dy = 1;
         else if (t_y < grid_y) dy = -1;
-        assert dx != 0 || dy != 0 : "occ = " + occ;
-        return unit_grid.getOccupant(grid_x + dx, grid_y + dy) == occ;
+        // assert dx != 0 || dy != 0 : "occ = " + occ;
+        return unit_grid.getOccupant(grid_x + dx, grid_y + dy, layer) == occ;
     }
 
-    public final boolean isCloseEnough(float max_dist, Target target) {
+    public final boolean isCloseEnough(float max_dist, Target target, int layer) {
         assert !isDead();
-        return isCloseEnough(getUnitGrid(), max_dist, getGridX(), getGridY(), target);
+        return isCloseEnough(getUnitGrid(), max_dist, getGridX(), getGridY(), target, layer);
     }
 
     public static final boolean isCloseEnough(
-            UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, Target target) {
+            UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, Target target, int layer) {
         if (max_dist == 0f && target instanceof Occupant) {
-            return isAdjacent(unit_grid, grid_x, grid_y, (Occupant) target);
+            return isAdjacent(unit_grid, grid_x, grid_y, (Occupant) target, layer);
         } else {
             int dx = grid_x - target.getGridX();
             int dy = grid_y - target.getGridY();

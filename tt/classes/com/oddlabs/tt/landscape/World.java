@@ -199,8 +199,10 @@ public final strictfp class World {
                         world_info.texels_per_colormap,
                         world_info.chunks_per_colormap,
                         world_info.heightmap,
+                        world_info.island_locations,
                         world_info.trees,
                         world_info.access_grid,
+                        world_info.dock_grid,
                         world_info.water_grid,
                         world_info.build_grid);
         animation_manager_game_time = new AnimationManager();

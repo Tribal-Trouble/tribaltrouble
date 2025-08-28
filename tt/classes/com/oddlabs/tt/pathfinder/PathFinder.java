@@ -12,33 +12,35 @@ public final strictfp class PathFinder {
     public static int stat_pathfinder_per_frame = 0;
 
     public static final Region findPathRegion(
-            UnitGrid unit_grid, Region src_region, Region dst_region) {
+            UnitGrid unit_grid, Region src_region, Region dst_region, int layer) {
         // TODO: This shouldn't happen. Remove workaround when sailing is handled
         if (src_region == null || dst_region == null) return null;
         assert src_region
                 != null; // : "src_grid_x = " + src_grid_x + " | src_grid_y = " + src_grid_y;
         assert dst_region
                 != null; // : "dst_grid_x = " + dst_grid_x + " | dst_grid_y = " + dst_grid_y;
-        PathFinderAlgorithm finder = new RegionPathFinder(unit_grid, dst_region);
-        return (Region) doFindPath(finder, src_region, unit_grid);
+        PathFinderAlgorithm finder = new RegionPathFinder(unit_grid, dst_region, layer);
+        return (Region) doFindPath(finder, src_region, unit_grid, layer);
     }
 
     public static final Region findPathRegion(
-            UnitGrid unit_grid, PathFinderAlgorithm finder, Region current_region) {
-        //		Node current_region = UnitGrid.getGrid().getRegion(src_grid_x, src_grid_y);
+            UnitGrid unit_grid, PathFinderAlgorithm finder, Region current_region, int layer) {
         assert current_region
                 != null; // : "src_grid_x = " + src_grid_x + " | src_grid_y = " + src_grid_y + " |
-        // occupant " + UnitGrid.getGrid().getOccupant(src_grid_x, src_grid_y);
-        return (Region) doFindPath(finder, current_region, unit_grid);
+        return (Region) doFindPath(finder, current_region, unit_grid, layer);
     }
 
     public static final GridPathNode findPathGrid(
-            UnitGrid unit_grid, PathFinderAlgorithm finder, int src_grid_x, int src_grid_y) {
+            UnitGrid unit_grid,
+            PathFinderAlgorithm finder,
+            int src_grid_x,
+            int src_grid_y,
+            int layer) {
         GridNode.Offset offset =
                 GridNode.setupPathFinding(src_grid_x, src_grid_y, src_grid_x, src_grid_y);
         if (offset == null) return null;
         Node current_node = GridNode.getPathfinderNode(offset, src_grid_x, src_grid_y);
-        Node grid_node = doFindPath(finder, current_node, unit_grid);
+        Node grid_node = doFindPath(finder, current_node, unit_grid, layer);
         if (grid_node != null) return (GridPathNode) grid_node.newPath();
         else return null;
     }
@@ -53,7 +55,8 @@ public final strictfp class PathFinder {
             int dst_grid_y,
             Target target,
             float max_dist,
-            boolean allow_second_best) {
+            boolean allow_second_best,
+            int layer) {
         GridNode.Offset offset =
                 GridNode.setupPathFinding(src_grid_x, src_grid_y, src_grid_x, src_grid_y);
         if (offset == null) return null;
@@ -67,14 +70,15 @@ public final strictfp class PathFinder {
                         dst_grid_x,
                         dst_grid_y,
                         target,
-                        allow_second_best);
-        Node grid_node = doFindPath(finder, current_node, unit_grid);
+                        allow_second_best,
+                        layer);
+        Node grid_node = doFindPath(finder, current_node, unit_grid, layer);
         if (grid_node != null) return (GridPathNode) grid_node.newPath();
         else return null;
     }
 
     private static final Node doFindPath(
-            PathFinderAlgorithm finder, Node start_node, UnitGrid unit_grid) {
+            PathFinderAlgorithm finder, Node start_node, UnitGrid unit_grid, int layer) {
         if (start_node == null) return null;
         Node current_node = start_node;
         stat_pathfinder_per_frame++;

@@ -50,10 +50,10 @@ public final strictfp class RacesResources {
     public static final int QUARTERS_SIZE = 5;
     public static final int ARMORY_SIZE = 5;
     public static final int TOWER_SIZE = 3;
-    public static final int SHIP_SIZE = 6;
+    public static final int SHIP_SIZE = 2;
     public static final int QUARTERS_HIT_POINTS = 200;
     public static final int ARMORY_HIT_POINTS = 200;
-    public static final int SHIP_HIT_POINTS = 250;
+    public static final int SHIP_HIT_POINTS = 15;
     public static final int TOWER_HIT_POINTS = 100;
     public static final int VIKING_CHIEFTAIN_HIT_POINTS = 60;
     public static final int NATIVE_CHIEFTAIN_HIT_POINTS = 40;
@@ -681,6 +681,7 @@ public final strictfp class RacesResources {
                         new Abilities(
                                 Abilities.SUPPLY_CONTAINER
                                         | Abilities.BUILD_ARMIES
+                                        | Abilities.SAIL
                                         | Abilities.RALLY_TO
                                         | Abilities.TARGET),
                         new float[] {0f, 1f, 3f},
@@ -720,6 +721,7 @@ public final strictfp class RacesResources {
                         new Abilities(
                                 Abilities.SUPPLY_CONTAINER
                                         | Abilities.BUILD_ARMIES
+                                        | Abilities.SAIL
                                         | Abilities.RALLY_TO
                                         | Abilities.TARGET),
                         new float[] {0f, 1f, 3f},

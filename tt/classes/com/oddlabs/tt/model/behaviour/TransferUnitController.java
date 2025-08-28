@@ -5,6 +5,7 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.BuildingFinder;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 
 public final strictfp class TransferUnitController extends Controller {
     private final Unit unit;
@@ -18,7 +19,7 @@ public final strictfp class TransferUnitController extends Controller {
     public final void decide() {
         if (building_tracker != null
                 && building_tracker.getOccupant() != null
-                && unit.isCloseEnough(0f, building_tracker.getOccupant())) {
+                && unit.isCloseEnough(0f, building_tracker.getOccupant(), UnitGrid.LAND)) {
             Building building = (Building) building_tracker.getOccupant();
             if (building.getUnitContainer().canEnter(unit)) building.getUnitContainer().enter(unit);
             else unit.popController();

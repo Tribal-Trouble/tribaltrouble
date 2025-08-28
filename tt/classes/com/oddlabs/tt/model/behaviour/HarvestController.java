@@ -4,6 +4,7 @@ import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.SupplyFinder;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 
 public final strictfp class HarvestController extends Controller {
     private final Unit unit;
@@ -20,7 +21,7 @@ public final strictfp class HarvestController extends Controller {
     }
 
     private final void gather() {
-        if (supply != null && !supply.isEmpty() && unit.isCloseEnough(0f, supply)) {
+        if (supply != null && !supply.isEmpty() && unit.isCloseEnough(0f, supply, UnitGrid.LAND)) {
             resetGiveUpCounter(0);
             unit.setBehaviour(new HarvestBehaviour(unit, supply));
         } else if (!shouldGiveUp(0)) {

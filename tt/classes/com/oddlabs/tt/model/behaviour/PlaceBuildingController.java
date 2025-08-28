@@ -2,6 +2,7 @@ package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 
 public final strictfp class PlaceBuildingController extends Controller {
     private final Building building;
@@ -18,7 +19,7 @@ public final strictfp class PlaceBuildingController extends Controller {
     }
 
     private final boolean canPlaceBuilding() {
-        return unit.isCloseEnough(building.getSize(), building);
+        return unit.isCloseEnough(building.getSize(), building, UnitGrid.LAND);
     }
 
     public final void decide() {

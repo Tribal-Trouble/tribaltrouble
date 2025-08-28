@@ -476,7 +476,8 @@ public final strictfp class Picker implements Updatable {
         } else if (nearestLandscape(x, y)) {
             int grid_x = UnitGrid.toGridCoordinate(patch_hit_x);
             int grid_y = UnitGrid.toGridCoordinate(patch_hit_y);
-            return building.getUnitGrid().findGridTargets(grid_x, grid_y, 1, false)[0];
+            return building.getUnitGrid()
+                    .findGridTargets(grid_x, grid_y, 1, false, UnitGrid.LAND)[0];
         } else {
             return null;
         }

@@ -176,7 +176,10 @@ public final strictfp class PoisonFog implements Magic {
                 new FindOccupantFilter(start_x, start_y, radius, src, Unit.class);
         UnitGrid unit_grid = owner.getWorld().getUnitGrid();
         unit_grid.scan(
-                filter, unit_grid.toGridCoordinate(start_x), unit_grid.toGridCoordinate(start_y));
+                filter,
+                unit_grid.toGridCoordinate(start_x),
+                unit_grid.toGridCoordinate(start_y),
+                UnitGrid.LAND);
         target_list = filter.getResult();
         for (int i = 0; i < target_list.size(); i++) {
             Selectable s = (Selectable) target_list.get(i);

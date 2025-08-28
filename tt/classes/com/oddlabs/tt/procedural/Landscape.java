@@ -41,7 +41,7 @@ public final strictfp class Landscape {
     private Channel height;
     private Channel slope;
     private Channel water_map;
-    private Channel overall_access;
+    private Channel island_ids;
     private Channel access;
     private Channel access_exported;
     private Channel relheight;
@@ -51,6 +51,8 @@ public final strictfp class Landscape {
     private Channel palmtrees;
     private Channel rock;
     private Channel iron;
+
+    private ArrayList island_locations;
 
     private final int size_multiplier;
     private final int num_players;
@@ -80,6 +82,7 @@ public final strictfp class Landscape {
 
     private byte[][] build;
     private boolean[][] dock;
+    private boolean[][] water;
     private float[][] player_locations;
     private int[][] supply_locations;
     private float[][] plants;
@@ -110,6 +113,7 @@ public final strictfp class Landscape {
         this.meters_per_height_unit = meters_per_world / unit_grids_per_world;
         int height_scale = 0;
         float access_threshold = 0f;
+        this.island_locations = new ArrayList();
         switch (meters_per_world) {
             case 256:
                 size_multiplier = 1;
@@ -212,6 +216,24 @@ public final strictfp class Landscape {
             default:
                 assert false : "illegal terrain_type";
                 break;
+        }
+
+        island_ids = access.copy();
+        int last_id = 2;
+        int search_x = 0;
+        int search_y = 0;
+        Channel.ChannelVisitor visitor = island_ids.visitor(1.0f);
+        while (true) {
+            int[] pos = visitor.visitNext();
+            if (pos[0] == -1 || pos[1] == -1) {
+                break;
+            }
+            island_ids.floodfill(pos[0], pos[1], (float) last_id, 0.01f);
+            last_id++;
+            island_locations.add(pos);
+        }
+        if (DEBUG) {
+            island_ids.copy().multiply(1.0f / last_id).toLayer().saveAsPNG("island_ids");
         }
 
         if (DEBUG) height.toLayer().saveAsPNG("height");
@@ -613,19 +635,17 @@ public final strictfp class Landscape {
                         .relativeIntensityNormalized(StrictMath.max(1, unit_grids_per_world >> 5));
         if (DEBUG) relheight.toLayer().saveAsPNG("relheight");
         access =
-                generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL)
-                        .largestConnected(1f);
-        overall_access =
                 generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL - 0.5f)
                         .largestConnected(1f)
                         .channelMultiply(water_map.copy().invert());
+
         access_exported = access.copy();
         if (DEBUG) access.toLayer().saveAsPNG("access");
-        if (DEBUG) overall_access.toLayer().saveAsPNG("overall_access");
+        if (DEBUG) access.toLayer().saveAsPNG("access");
         build =
                 generateBuildMap(
                         generateThresholdMap(slope, build_threshold, Globals.SEA_LEVEL)
-                                .channelMultiply(overall_access));
+                                .channelMultiply(access));
     }
 
     private final void generateTerrainViking() {
@@ -720,14 +740,12 @@ public final strictfp class Landscape {
                         .relativeIntensityNormalized(StrictMath.max(1, unit_grids_per_world >> 5));
         if (DEBUG) relheight.toLayer().saveAsPNG("relheight");
         access =
-                generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL)
-                        .largestConnected(1f);
-        overall_access =
                 generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL - 0.5f)
-                        .largestConnected(1f);
+                        .largestConnected(1f)
+                        .channelMultiply(water_map.copy().invert());
         access_exported = access.copy();
         if (DEBUG) access.toLayer().saveAsPNG("access");
-        if (DEBUG) overall_access.toLayer().saveAsPNG("overall_access");
+        if (DEBUG) access.toLayer().saveAsPNG("access");
         build =
                 generateBuildMap(
                         generateThresholdMap(slope, build_threshold, Globals.SEA_LEVEL)
@@ -1100,7 +1118,7 @@ public final strictfp class Landscape {
         if (DEBUG) rock_channel.toLayer().saveAsPNG("supplies_rocks");
         if (DEBUG) iron_channel.toLayer().saveAsPNG("supplies_iron");
 
-        Channel supplies = overall_access.copy();
+        Channel supplies = access.copy();
         float accessible = supplies.sum();
 
         // place trees
@@ -1111,7 +1129,7 @@ public final strictfp class Landscape {
                         64,
                         (int) (vegetation_amount * max_trees * (accessible / area)),
                         0.33f);
-        overall_access.channelSubtract(trees);
+        access.channelSubtract(trees);
         if (DEBUG) trees.toLayer().saveAsPNG("supplies_trees_placed");
 
         // place palmtrees
@@ -1122,18 +1140,18 @@ public final strictfp class Landscape {
                         64,
                         (int) (vegetation_amount * max_palmtrees * (accessible / area)),
                         0.25f);
-        overall_access.channelSubtract(palmtrees);
+        access.channelSubtract(palmtrees);
         if (DEBUG) palmtrees.toLayer().saveAsPNG("supplies_palmtrees_placed");
 
         // place rock
         rock = placeSupplies(rock_channel, supplies, 64, (int) (supplies_amount * max_rock), 0f);
-        overall_access.channelSubtract(rock);
+        access.channelSubtract(rock);
         shadow.channelBrightest(rock.copy().multiply(0.5f));
         if (DEBUG) rock.toLayer().saveAsPNG("supplies_rock_placed");
 
         // place iron
         iron = placeSupplies(iron_channel, supplies, 64, (int) (supplies_amount * max_iron), 0f);
-        overall_access.channelSubtract(iron);
+        access.channelSubtract(iron);
         shadow.channelBrightest(iron.copy().multiply(0.5f));
         if (DEBUG) iron.toLayer().saveAsPNG("supplies_iron_placed");
 
@@ -1432,6 +1450,7 @@ public final strictfp class Landscape {
 
     private final void generateWaterGrid() {
         this.dock = new boolean[unit_grids_per_world][unit_grids_per_world];
+        this.water = new boolean[unit_grids_per_world][unit_grids_per_world];
         water_map =
                 height.copy()
                         .threshold(Globals.SEA_LEVEL - 10.0f, Globals.SEA_LEVEL)
@@ -1452,6 +1471,11 @@ public final strictfp class Landscape {
         for (int y = 0; y < unit_grids_per_world; y++) {
             for (int x = 0; x < unit_grids_per_world; x++) {
                 this.dock[y][x] = dock_map.getPixel(x, y) > 0.5f;
+            }
+        }
+        for (int y = 0; y < unit_grids_per_world; y++) {
+            for (int x = 0; x < unit_grids_per_world; x++) {
+                this.water[y][x] = water_map.getPixel(x, y) > 0.5f;
             }
         }
     }
@@ -1481,6 +1505,14 @@ public final strictfp class Landscape {
 
     public final boolean[][] getDockGrid() {
         return dock;
+    }
+
+    public final boolean[][] getWaterGrid() {
+        return water;
+    }
+
+    public final ArrayList getIslandLocations() {
+        return island_locations;
     }
 
     public final byte[][] getBuildGrid() {

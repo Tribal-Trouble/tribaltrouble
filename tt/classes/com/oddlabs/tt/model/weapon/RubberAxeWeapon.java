@@ -34,7 +34,9 @@ public final strictfp class RubberAxeWeapon extends RotatingThrowingWeapon {
     protected final void hitTarget(boolean hit, Player owner, Selectable target) {
         if (hit) damageTarget(target);
         AttackScanFilter filter = new AttackScanFilter(owner, MAX_BOUNDS_LENGTH);
-        owner.getWorld().getUnitGrid().scan(filter, target.getGridX(), target.getGridY());
+        owner.getWorld()
+                .getUnitGrid()
+                .scan(filter, target.getGridX(), target.getGridY(), target.getLayer());
         Selectable s = filter.removeTarget();
         if (s != null && owner.getWorld().getRandom().nextFloat() > .5f) {
             bouncing = true;

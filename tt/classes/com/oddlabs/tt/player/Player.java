@@ -20,6 +20,7 @@ import com.oddlabs.tt.model.behaviour.NullController;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.util.Target;
 
 import java.util.ArrayList;
@@ -277,7 +278,7 @@ public final strictfp class Player implements PlayerInterface {
                         getRace().getBuildingTemplate(building_type),
                         40,
                         true);
-        world.getUnitGrid().scan(filter, grid_x, grid_y);
+        world.getUnitGrid().scan(filter, grid_x, grid_y, UnitGrid.LAND);
         List target_list = filter.getResult();
         Building b = null;
         if (target_list.size() > 0) {
@@ -490,7 +491,12 @@ public final strictfp class Player implements PlayerInterface {
         if (grid_x < 0 || grid_x >= grid_size || grid_y < 0 || grid_y >= grid_size) return;
         Target[] targets =
                 world.getUnitGrid()
-                        .findGridTargets(grid_x, grid_y, selection.length, selection.length != 1);
+                        .findGridTargets(
+                                grid_x,
+                                grid_y,
+                                selection.length,
+                                selection.length != 1,
+                                selection[0].getLayer());
         for (int i = 0; i < selection.length; i++) {
             if (isValid(selection[i])) selection[i].initTarget(targets[i], action, aggressive);
         }

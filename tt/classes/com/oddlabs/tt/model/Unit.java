@@ -112,7 +112,7 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
         getAbilities().addAbilities(unit_template.getAbilities());
         register();
         hit_points = unit_template.getMaxHitPoints();
-        this.path_tracker = new PathTracker(getUnitGrid(), this);
+        this.path_tracker = new PathTracker(getUnitGrid(), this, UnitGrid.LAND);
         UnitSupplyContainerFactory factory = unit_template.getUnitSupplyContainerFactory();
         if (factory != null) supply_container = (UnitSupplyContainer) factory.createContainer(this);
         else supply_container = null;
@@ -138,18 +138,24 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
                     Selectable s = (Selectable) it.next();
                     if (s.getCurrentController() instanceof WalkController) {
                         Target target = ((WalkController) s.getCurrentController()).getTarget();
-                        if (!grid.isGridOccupied(target.getGridX(), target.getGridY())) {
-                            grid.occupyGrid(target.getGridX(), target.getGridY(), this);
+                        if (!grid.isGridOccupied(
+                                target.getGridX(), target.getGridY(), UnitGrid.LAND)) {
+                            grid.occupyGrid(
+                                    target.getGridX(), target.getGridY(), this, UnitGrid.LAND);
                             temp_occupants.add(target);
                         }
                     }
                 }
                 unit_target =
                         grid.findGridTargets(
-                                        rally_point.getGridX(), rally_point.getGridY(), 1, true)[0];
+                                        rally_point.getGridX(),
+                                        rally_point.getGridY(),
+                                        1,
+                                        true,
+                                        UnitGrid.LAND)[0];
                 for (int i = 0; i < temp_occupants.size(); i++) {
                     Target target = (Target) temp_occupants.get(i);
-                    grid.freeGrid(target.getGridX(), target.getGridY(), this);
+                    grid.freeGrid(target.getGridX(), target.getGridY(), this, UnitGrid.LAND);
                 }
             } else unit_target = rally_point;
 
@@ -197,7 +203,8 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
                                 UnitGrid.toGridCoordinate(x),
                                 UnitGrid.toGridCoordinate(y),
                                 1,
-                                grid_targets_only)[0];
+                                grid_targets_only,
+                                UnitGrid.LAND)[0];
         setGridPosition(reserved_target.getGridX(), reserved_target.getGridY());
         setPosition(reserved_target.getPositionX(), reserved_target.getPositionY());
         occupy();
@@ -371,14 +378,14 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
     public final void free() {
         assert !isDead();
         UnitGrid unit_grid = getUnitGrid();
-        unit_grid.freeGrid(getGridX(), getGridY(), this);
+        unit_grid.freeGrid(getGridX(), getGridY(), this, UnitGrid.LAND);
         path_penalty = INITIAL_PATH_PENALTY;
     }
 
     public final void occupy() {
         assert !isDead();
         UnitGrid unit_grid = getUnitGrid();
-        unit_grid.occupyGrid(getGridX(), getGridY(), this);
+        unit_grid.occupyGrid(getGridX(), getGridY(), this, UnitGrid.LAND);
 
         // stats
         getOwner().unitMoved();
@@ -538,7 +545,9 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
 
     private final void walkToTarget(Target target, boolean scan_attack) {
         Target walkable_target =
-                getUnitGrid().findGridTargets(target.getGridX(), target.getGridY(), 1, false)[0];
+                getUnitGrid()
+                        .findGridTargets(
+                                target.getGridX(), target.getGridY(), 1, false, UnitGrid.LAND)[0];
         pushController(new WalkController(this, walkable_target, scan_attack));
     }
 

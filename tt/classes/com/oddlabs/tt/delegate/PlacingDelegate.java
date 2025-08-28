@@ -118,7 +118,7 @@ public final strictfp class PlacingDelegate extends ControllableCameraDelegate {
 
         BuildingSiteScanFilter filter =
                 new BuildingSiteScanFilter(unit_grid, getTemplate(), GRID_RADIUS, false);
-        unit_grid.scan(filter, placing_center_grid_x, placing_center_grid_y);
+        unit_grid.scan(filter, placing_center_grid_x, placing_center_grid_y, UnitGrid.LAND);
         List target_list = filter.getResult();
         site_renderer.renderSites(renderer, target_list, center_x, center_y, 2 * GRID_RADIUS);
 

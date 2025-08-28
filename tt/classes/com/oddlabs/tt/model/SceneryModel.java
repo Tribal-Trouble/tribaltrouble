@@ -59,7 +59,7 @@ public strictfp class SceneryModel extends Model implements Occupant, ModelToolT
         setDirection(dir_x, dir_y);
         doRegister();
         if (occupy) {
-            world.getUnitGrid().occupyGrid(getGridX(), getGridY(), this);
+            world.getUnitGrid().occupyGrid(getGridX(), getGridY(), this, UnitGrid.LAND);
         }
     }
 
@@ -80,7 +80,7 @@ public strictfp class SceneryModel extends Model implements Occupant, ModelToolT
 
     public final void remove() {
         if (occupy) {
-            getWorld().getUnitGrid().freeGrid(getGridX(), getGridY(), this);
+            getWorld().getUnitGrid().freeGrid(getGridX(), getGridY(), this, UnitGrid.LAND);
         }
         super.remove();
         getWorld().getNotificationListener().unregisterTarget(this);

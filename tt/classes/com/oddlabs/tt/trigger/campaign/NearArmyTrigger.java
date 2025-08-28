@@ -3,6 +3,7 @@ package com.oddlabs.tt.trigger.campaign;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.trigger.IntervalTrigger;
 
@@ -32,7 +33,9 @@ public final strictfp class NearArmyTrigger extends IntervalTrigger {
                             r,
                             src[i],
                             Selectable.class);
-            player.getWorld().getUnitGrid().scan(filter, src[i].getGridX(), src[i].getGridY());
+            player.getWorld()
+                    .getUnitGrid()
+                    .scan(filter, src[i].getGridX(), src[i].getGridY(), UnitGrid.LAND);
             List target_list = filter.getResult();
             for (int j = 0; j < target_list.size(); j++) {
                 Unit unit = (Unit) target_list.get(j);

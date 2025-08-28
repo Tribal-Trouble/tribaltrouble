@@ -87,7 +87,8 @@ final strictfp class GridNode extends Node {
             PathFinderAlgorithm finder, UnitGrid unit_grid, int x, int y, int cost) {
         GridNode node = getPathfinderNode(offset, x, y);
         if (node == null || node.isVisited()) return false;
-        Occupant occupant = unit_grid.getOccupant(node.getGridX(), node.getGridY());
+        Occupant occupant =
+                unit_grid.getOccupant(node.getGridX(), node.getGridY(), finder.getLayer());
         if (occupant != null) {
             if (finder.touchNeighbour(occupant)) return true;
             int penalty = occupant.getPenalty();

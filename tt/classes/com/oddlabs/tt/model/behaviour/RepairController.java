@@ -4,6 +4,7 @@ import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.pathfinder.UnitGrid;
 
 public final strictfp class RepairController extends Controller {
     private static final int HARVEST_STATE = 0;
@@ -32,7 +33,7 @@ public final strictfp class RepairController extends Controller {
         } else if (unit.getSupplyContainer().getSupplyType() == TreeSupply.class
                 && unit.getSupplyContainer().getNumSupplies() > 0) {
             resetGiveUpCounter(HARVEST_STATE);
-            if (unit.isCloseEnough(0f, building)) {
+            if (unit.isCloseEnough(0f, building, UnitGrid.LAND)) {
                 if (building.isDamaged()) {
                     unit.setBehaviour(new RepairBehaviour(unit, building));
                 } else if (building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)
