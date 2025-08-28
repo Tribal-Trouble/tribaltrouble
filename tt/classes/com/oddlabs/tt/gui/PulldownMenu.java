@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.util.ListElement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,15 +17,10 @@ public final strictfp class PulldownMenu extends Group implements Scrollable {
     private ScrollBar scroll_bar;
     private int offset_y = 0; // Tracks the vertical offset for scrolling
     private int render_amount = 6;
+
     public PulldownMenu() {
         setCanFocus(true);
         setFocusCycle(true);
-
-        // Initialize the scrollbar
-        // scroll_bar = new ScrollBar(20, this);
-        // scroll_bar.setPos(getWidth(), 0);
-        // addChild(scroll_bar);
-        // scroll_bar.update();
     }
 
     public final PulldownItem getItem(int index) {
@@ -39,56 +35,59 @@ public final strictfp class PulldownMenu extends Group implements Scrollable {
     protected final void renderGeometry() {
         // Render bottom edge
         Horizontal bot = Skin.getSkin().getPulldownData().getPulldownBottom();
-        bot.render(0, 0, getWidth() + scroll_bar.getWidth(), Skin.NORMAL);
+        bot.render(0, 0, getWidth(), Skin.NORMAL);
 
         // Render top edge
         Horizontal top = Skin.getSkin().getPulldownData().getPulldownTop();
-        // System.out.println("getWidth() - scroll_bar.getWidth()" + (getWidth() - scroll_bar.getWidth()));
-        top.render(0, getHeight() - top.getHeight(), getWidth() + scroll_bar.getWidth(), Skin.NORMAL);
+        top.render(0, getHeight() - top.getHeight(), getWidth(), Skin.NORMAL);
     }
 
-    public final void addItem(PulldownItem item) {
+    public final void addItem(PulldownItem item) {        
         items.add(item);
         addChild(item);
+        setDim(0, getHeight()); // Let the control recalculate its width when an item is added
         item.addMouseClickListener(new ItemListener(items.size() - 1));
-        setDim(getWidth(), getHeight());
-        scroll_bar.update();
     }
 
     @Override
     public final void setDim(int width, int height) {
-        int min_width = 0;
+        int min_content_width = 0;
         Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
         // Adjust all items
         for (int i = 0; i < items.size(); i++) {
             PulldownItem item = (PulldownItem) items.get(i);
-            if (item.getTextWidth() > min_width) min_width = item.getTextWidth();
+            if (item.getTextWidth() > min_content_width) {
+                min_content_width = item.getTextWidth();
+                System.out.println("item width at : " + i + "    " + item.getTextWidth());
+            }
         }
         int item_pos_count = Skin.getSkin().getPulldownData().getPulldownBottom().getHeight();
-        min_width =
-                StrictMath.max(
-                        width, item_box.getLeftOffset() + min_width + item_box.getRightOffset());
+        System.out.println("width: " + width);
+        ;
+        min_content_width = StrictMath.max(
+                width, item_box.getLeftOffset() + min_content_width + item_box.getRightOffset());
         for (int i = 0; i < items.size(); i++) {
             PulldownItem item = (PulldownItem) items.get(items.size() - 1 - i);
-            int item_height =
-                    item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
-            item.setDim(min_width, item_height);
+            int item_height = item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
+            item.setDim(min_content_width, item_height);
             item.setPos(0, item_pos_count);
             item_pos_count += item_height;
         }
-        
-        int min_height =
-                item_pos_count + Skin.getSkin().getPulldownData().getPulldownTop().getHeight();
+        int min_height = item_pos_count + Skin.getSkin().getPulldownData().getPulldownTop().getHeight();
         int item_height = (item_box.getBottomOffset() + items.get(0).getTextHeight() + item_box.getTopOffset());
-        int item_height_shown = item_height * render_amount;        
-        if(scroll_bar == null) {
+        int item_height_shown = item_height * render_amount;
+        if (scroll_bar == null) {
             scroll_bar = new ScrollBar(item_height_shown, this);
-            scroll_bar.setPos(min_width + 42, 0);
+            System.out.println(
+                    "ScrollBar created with width: " + scroll_bar.getWidth() + " for " + items.size() + " items");
             addChild(scroll_bar);
         }
-        //scroll_bar.update();
-        super.setDim(min_width, item_height_shown);
+        scroll_bar.setPos(min_content_width, 0);
+        System.out.println("Before super.setDim - ScrollBar width: " + scroll_bar.getWidth() + ", Items: "
+                + items.size() + ", min_content_width: " + min_content_width);
+        super.setDim(min_content_width + scroll_bar.getWidth(), item_height_shown);
         scroll_bar.update();
+        System.out.println("After scroll_bar.update() - ScrollBar width: " + scroll_bar.getWidth());
     }
 
     public final int getChosenItemIndex() {
@@ -109,7 +108,6 @@ public final strictfp class PulldownMenu extends Group implements Scrollable {
         if (!focus) {
             System.out.println("PulldownMenu lost focus, deactivating menu");
             remove();
-            //super.focusNotify(focus);
         }
     }
 
@@ -128,19 +126,22 @@ public final strictfp class PulldownMenu extends Group implements Scrollable {
         }
     }
 
-    // Sending click on to appropiate item when PulldownButton has been pressed and released on an
+    // Sending click on to appropiate item when PulldownButton has been pressed and
+    // released on an
     // item
     protected final void clickItem(int button, int x, int y, int clicks) {
         for (int i = 0; i < items.size(); i++) {
             PulldownItem item = getItem(i);
-            if (item.isHovered()) item.mouseClickedAll(button, x, y, clicks);
+            if (item.isHovered())
+                item.mouseClickedAll(button, x, y, clicks);
         }
     }
 
     public final void itemChosenAll() {
         for (int i = 0; i < chosen_listeners.size(); i++) {
             ItemChosenListener listener = (ItemChosenListener) chosen_listeners.get(i);
-            if (listener != null) listener.itemChosen(this, chosen_item_index);
+            if (listener != null)
+                listener.itemChosen(this, chosen_item_index);
         }
     }
 
@@ -181,9 +182,10 @@ public final strictfp class PulldownMenu extends Group implements Scrollable {
     }
 
     @Override
-    public final int getStepHeight() {        
+    public final int getStepHeight() {
         // Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
-        // System.out.println("getStepHeight called" + (item_box.getTopOffset() + item_box.getBottomOffset()));
+        // System.out.println("getStepHeight called" + (item_box.getTopOffset() +
+        // item_box.getBottomOffset()));
         // return item_box.getTopOffset() + item_box.getBottomOffset();
         return 32;
     }
@@ -196,18 +198,23 @@ public final strictfp class PulldownMenu extends Group implements Scrollable {
 
     @Override
     public final float getScrollBarRatio() {
-        // int item_height = (item_box.getBottomOffset() + items.get(0).getTextHeight() + item_box.getTopOffset());
+        // int item_height = (item_box.getBottomOffset() + items.get(0).getTextHeight()
+        // + item_box.getTopOffset());
         // int item_height_shown = item_height * render_amount;
-        // System.out.println("getScrollBarRatio called" + getHeight() + " " + offset_y);
+        // System.out.println("getScrollBarRatio called" + getHeight() + " " +
+        // offset_y);
         return .2f;
     }
 
     @Override
     public final float getScrollBarOffset() {
         // Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
-        // int text_height = items != null && !items.isEmpty() ? items.get(0).getTextHeight() : 0;
-        // int item_height = (item_box.getBottomOffset() + text_height + item_box.getTopOffset());
-        // int length = StrictMath.max(item_height * items.size(), offset_y + getHeight());
+        // int text_height = items != null && !items.isEmpty() ?
+        // items.get(0).getTextHeight() : 0;
+        // int item_height = (item_box.getBottomOffset() + text_height +
+        // item_box.getTopOffset());
+        // int length = StrictMath.max(item_height * items.size(), offset_y +
+        // getHeight());
         // int item_height_shown = item_height * render_amount;
         // return offset_y / (float) (length - item_height_shown);
         return .3f;
