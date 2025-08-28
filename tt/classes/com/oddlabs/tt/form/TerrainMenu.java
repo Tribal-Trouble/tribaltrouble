@@ -363,7 +363,7 @@ public final strictfp class TerrainMenu extends Group {
         for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
             difficulty_pulldown_menus[i] = new PulldownMenu();
             race_pulldown_menus[i] = new PulldownMenu();
-            team_pulldown_menus[i] = new PulldownMenu();
+            team_pulldown_menus[i] = new PulldownMenu(true, 6);
 
             if (i == 0) {
                 difficulty_pulldown_menus[i].addItem(
