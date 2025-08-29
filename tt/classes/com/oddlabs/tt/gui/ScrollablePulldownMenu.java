@@ -17,20 +17,26 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
         this.render_amount = render_amount;
     }
 
+    public int getScrollbarWidth() {
+        if (scroll_bar == null)
+            return 0;
+        return scroll_bar.getWidth();
+    }
+
     @Override
     protected void renderGeometry() {
         // Render bottom edge
         Horizontal bot = Skin.getSkin().getPulldownData().getPulldownBottom();
-        bot.render(0, 0, getWidth(), Skin.NORMAL);
+        bot.render(0, 0, getWidth() - getScrollbarWidth(), Skin.NORMAL);
 
         // Render top edge
         Horizontal top = Skin.getSkin().getPulldownData().getPulldownTop();
-        top.render(0, getHeight() - top.getHeight() + 5, getWidth(), Skin.NORMAL);
+        top.render(0, getHeight() - top.getHeight() + Skin.getSkin().getPulldownData().getPulldownTop().getHeight(), getWidth() - getScrollbarWidth(), Skin.NORMAL);
     }
 
     @Override
     public final void setDim(int width, int height) {
-        
+        calculateNormalizedItemHeight();
         int min_content_width = 0;
         Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
         // Adjust all items
@@ -43,17 +49,15 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
         int item_pos_count = 0;
         min_content_width = StrictMath.max(
                 width,
-                item_box.getLeftOffset() + min_content_width + item_box.getRightOffset());
-        int item_height = 0;
+                item_box.getLeftOffset() + min_content_width + item_box.getRightOffset());        
         for (int i = 0; i < items.size(); i++) {
             PulldownItem item = (PulldownItem) items.get(i);
-            item_height = item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
-            item.setDim(min_content_width, item_height);
+            item.setDim(min_content_width, normalizedItemHeight);
             item.setPos(0, item_pos_count);
-            item_pos_count -= item_height;
+            item_pos_count -= normalizedItemHeight;
         }
 
-        int item_height_shown = item_height * render_amount;
+        int item_height_shown = normalizedItemHeight * render_amount;
 
         if (scroll_bar == null) {
             scroll_bar = new ScrollBar(item_height_shown, this);
@@ -61,21 +65,22 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
             offset_y = 0; // Reset to top when scroll bar is created
         }
         scroll_bar.setPos(min_content_width, 0);
-        
+
         // We need to skirt the pullable menu super but still set width and height
         setDimSimple(min_content_width + scroll_bar.getWidth(), item_height_shown);
 
         updateItemPositions(); // Update positions when dimensions change
         scroll_bar.update();
 
-    }   
+    }
 
     // Added missing @Override annotation
     @Override
     public final void setOffsetY(int new_offset) {
         // System.out.println("setOffsetY called - current offset: " + offset_y);
-        // System.out.println("Setting offset to " + new_offset + ", total content height: " + getTotalContentHeight()
-        //         + ", visible height: " + getVisibleHeight());
+        // System.out.println("Setting offset to " + new_offset + ", total content
+        // height: " + getTotalContentHeight()
+        // + ", visible height: " + getVisibleHeight());
         offset_y = new_offset;
 
         // Clamp offset to valid range
@@ -87,9 +92,25 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
         if (offset_y > max_offset_y)
             offset_y = max_offset_y;
 
+            // Snap offset to the nearest multiple of normalizedItemHeight
+        new_offset = Math.max(0, Math.min(new_offset, max_offset_y)); // Clamp to range
+        new_offset = (new_offset / normalizedItemHeight) * normalizedItemHeight; // Snap to nearest multiple
+
+        offset_y = new_offset;
         // Update item positions based on new offset
         updateItemPositions();
         scroll_bar.update();
+    }
+
+    private int normalizedItemHeight = 0;
+    private void calculateNormalizedItemHeight() {
+        Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
+        for (PulldownItem item : items) {
+            int itemHeight = item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
+            if (itemHeight > normalizedItemHeight) {
+                normalizedItemHeight = itemHeight; // Use the tallest item
+            }
+        }
     }
 
     @Override
@@ -99,12 +120,7 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
 
     @Override
     public final int getStepHeight() {
-        if (items.isEmpty())
-            return 32; // Default fallback
-
-        Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
-        PulldownItem firstItem = items.get(0);
-        return item_box.getBottomOffset() + firstItem.getTextHeight() + item_box.getTopOffset();
+        return normalizedItemHeight;
     }
 
     @Override
@@ -117,7 +133,7 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
         }
     }
 
-    protected final void mouseScrolled(int amount) {    
+    protected final void mouseScrolled(int amount) {
         if (amount > 0) {
             setOffsetY(offset_y - getStepHeight() * 3);
         } else {
@@ -165,32 +181,29 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
         if (items.isEmpty())
             return 0;
 
-        Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
-        PulldownItem lastItem = items.get(items.size() - 1);
-        int item_height = item_box.getBottomOffset() + lastItem.getTextHeight() + item_box.getTopOffset();
-        return items.size() * item_height
-                + Skin.getSkin().getPulldownData().getPulldownTop().getHeight();
+        int item_height = normalizedItemHeight; // Use normalized height for consistency
+        int totalItemHeight = items.size() * item_height;
+
+        int topHeight = Skin.getSkin().getPulldownData().getPulldownTop().getHeight();        
+
+        return totalItemHeight + topHeight;
     }
 
     private int getVisibleHeight() {
-        Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
-        if (items.isEmpty())
-            return 0;
-        PulldownItem firstItem = items.get(0);
-        int item_height = item_box.getBottomOffset() + firstItem.getTextHeight() + item_box.getTopOffset();
-        return render_amount * item_height;
+        int topHeight = Skin.getSkin().getPulldownData().getPulldownTop().getHeight();
+        return (render_amount * normalizedItemHeight) + topHeight;
     }
 
     private void updateItemPositions() {
-        // Reposition all items using the same logic as setDim() but with offset from scrolling applied
-        Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
+        // Reposition all items using the same logic as setDim() but with offset from
+        // scrolling applied
         int item_pos_count = Skin.getSkin().getPulldownData().getPulldownBottom().getHeight() + offset_y;
-        // System.out.println("Render amount * padding: " + (render_amount * item_box.getTopOffset()));
+        // System.out.println("Render amount * padding: " + (render_amount *
+        // item_box.getTopOffset()));
         for (int i = 0; i < items.size(); i++) {
-            PulldownItem item = items.get(i);
-            int item_height = item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
-            item.setPos(0, item_pos_count + getHeight() - 32); // TODO: Figure out this offset mathematically?
-            item_pos_count -= item_height;
+            PulldownItem item = items.get(i);            
+            item.setPos(0, item_pos_count + getHeight() - 32); // TODO: Figure out this offset mathematically? Will matter for larger text?
+            item_pos_count -= normalizedItemHeight;
         }
     }
 
