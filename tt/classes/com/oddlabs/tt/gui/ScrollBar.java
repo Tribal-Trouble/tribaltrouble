@@ -70,10 +70,6 @@ public final strictfp class ScrollBar extends GUIObject {
     protected final void renderGeometry() {
         ScrollBarData data = Skin.getSkin().getScrollBarData();
         Vertical scroll_bar = data.getScrollBar();
-        //System.out.println("rendering scrollbar geometry");
-        if(isHovered()) {
-            System.out.println("Scrollbar is hovered");
-        }
         scroll_bar.render(
                 0,
                 less_button.getHeight(),
@@ -188,12 +184,7 @@ public final strictfp class ScrollBar extends GUIObject {
             System.out.println("mouse dragged");
         }
 
-        public final void mouseMoved(int x, int y) {
-            System.out.println("mouse moved");
-            if (isHovered()) {
-                System.out.println("Scrollbar is hovered: ");
-            }
-        }
+        public final void mouseMoved(int x, int y) {}
 
         public final void mouseEntered() {
         }
