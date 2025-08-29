@@ -175,7 +175,7 @@ public final strictfp class PathTracker {
         unit.setDirection(bezier_path.getCurrentDirectionX(), bezier_path.getCurrentDirectionY());
     }
 
-    private final boolean done(int x, int y) {
+    public final boolean done(int x, int y) {
         return tracker_algorithm.isDone(x, y);
     }
 

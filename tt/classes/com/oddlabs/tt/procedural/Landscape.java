@@ -1460,8 +1460,8 @@ public final strictfp class Landscape {
         Channel dock_map =
                 water_map
                         .copy()
-                        .smooth(10)
-                        .threshold(0.00f, 0.99f)
+                        .smooth(4)
+                        .threshold(0.01f, 1.0f)
                         .channelMultiply(water_map.copy().invert());
         Channel beach =
                 height.copy().threshold(Globals.SEA_LEVEL - 1.0f, Globals.SEA_LEVEL + 0.05f);

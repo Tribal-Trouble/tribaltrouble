@@ -780,7 +780,10 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
         if (current_building != null
                 && current_building.getAbilities().hasAbilities(Abilities.SAIL)) {
+            sail_button.setHidden(false);
             sail_button.doUpdate();
+        } else {
+            sail_button.setHidden(true);
         }
     }
 

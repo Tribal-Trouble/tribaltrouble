@@ -95,6 +95,7 @@ public final strictfp class SailBehaviour implements Behaviour {
                 switchToMoving();
                 return Selectable.INTERRUPTIBLE;
             case PathTracker.DONE:
+                boat.endTrip();
                 return Selectable.DONE;
             case PathTracker.BLOCKED: /* fall through */
             case PathTracker.SOFTBLOCKED:

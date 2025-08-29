@@ -11,10 +11,15 @@ public abstract strictfp class Renderable extends ListElementImpl {
     private int height = 0;
     private float scale_x = 1f;
     private float scale_y = 1f;
+    private boolean hidden = false;
 
     private final LinkedList children = new LinkedList();
 
     private Renderable parent = null;
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
 
     public void setDim(int w, int h) {
         width = w;
@@ -146,6 +151,9 @@ public abstract strictfp class Renderable extends ListElementImpl {
     }
 
     private void render(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+        if (hidden) {
+            return;
+        }
         clip_left = transformX(clip_left);
         clip_right = transformX(clip_right);
         clip_bottom = transformY(clip_bottom);

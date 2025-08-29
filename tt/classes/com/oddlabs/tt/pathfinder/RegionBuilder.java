@@ -186,6 +186,7 @@ public final strictfp class RegionBuilder {
         if (x < 0 || x >= max || y < 0 || y >= max) {
             return;
         }
+
         RegionBuilderNode node = dir_finder_grid[y][x];
         if (unit_grid.getRegion(node.getGridX(), node.getGridY(), layer) != null) return;
         node.setTotalCost(cost);
@@ -202,6 +203,7 @@ public final strictfp class RegionBuilder {
         int x = node.getGridX();
         int y = node.getGridY();
         int cost = node.getTotalCost();
+
         addNeighbour(
                 unit_grid, dir_finder_grid, region_nodes, x - 1, y - 1, cost + DIAGONAL, layer);
         addNeighbour(unit_grid, dir_finder_grid, region_nodes, x - 1, y, cost + STRAIGHT, layer);

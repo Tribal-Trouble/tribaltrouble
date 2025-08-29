@@ -1001,15 +1001,21 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         return path_tracker;
     }
 
+    public final void endTrip() {
+        free();
+        if (getUnitGrid().getHeightMap().canDock(getGridX(), getGridY())) {
+            setLayer(UnitGrid.LAND);
+        } else {
+            setLayer(UnitGrid.SEA);
+        }
+        updateBounds();
+        reregister();
+        occupy();
+    }
+
     public final void setPosition(int x, int y) {
         free();
         super.setPosition(x, y);
-        if (isMoving()) {
-            setLayer(UnitGrid.SEA);
-            setPositionZ(2.0f);
-        } else {
-            setLayer(UnitGrid.LAND);
-        }
         updateBounds();
         reregister();
         occupy();
