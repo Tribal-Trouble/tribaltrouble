@@ -24,6 +24,7 @@ import com.oddlabs.tt.gui.PanelGroup;
 import com.oddlabs.tt.gui.PulldownButton;
 import com.oddlabs.tt.gui.PulldownItem;
 import com.oddlabs.tt.gui.PulldownMenu;
+import com.oddlabs.tt.gui.ScrollablePulldownMenu;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.guievent.ItemChosenListener;
@@ -83,7 +84,7 @@ public final strictfp class TerrainMenu extends Group {
     private final HorizButton button_mapcode;
     private final PulldownMenu[] difficulty_pulldown_menus;
     private final PulldownMenu[] race_pulldown_menus;
-    private final PulldownMenu[] team_pulldown_menus;
+    private final ScrollablePulldownMenu[] team_pulldown_menus;
     private final PulldownButton[] difficulty_pulldown_buttons;
     private final PulldownButton[] race_pulldown_buttons;
     private final PulldownButton[] team_pulldown_buttons;
@@ -348,13 +349,12 @@ public final strictfp class TerrainMenu extends Group {
         pulldown_player_slots.place(label_player_slots, RIGHT_MID);
         group_num_players.compileCanvas();
 
-
         // races and teams
         Group group_race_team = new Group();
         labels_players = new Label[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         race_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
-        team_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
+        team_pulldown_menus = new ScrollablePulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         race_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         team_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
@@ -363,7 +363,7 @@ public final strictfp class TerrainMenu extends Group {
         for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
             difficulty_pulldown_menus[i] = new PulldownMenu();
             race_pulldown_menus[i] = new PulldownMenu();
-            team_pulldown_menus[i] = new PulldownMenu(true, 6);
+            team_pulldown_menus[i] = new ScrollablePulldownMenu(6);
 
             if (i == 0) {
                 difficulty_pulldown_menus[i].addItem(
