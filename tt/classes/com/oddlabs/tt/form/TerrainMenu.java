@@ -24,6 +24,7 @@ import com.oddlabs.tt.gui.PanelGroup;
 import com.oddlabs.tt.gui.PulldownButton;
 import com.oddlabs.tt.gui.PulldownItem;
 import com.oddlabs.tt.gui.PulldownMenu;
+import com.oddlabs.tt.gui.ScrollableGroup;
 import com.oddlabs.tt.gui.ScrollablePulldownMenu;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
@@ -350,7 +351,7 @@ public final strictfp class TerrainMenu extends Group {
         group_num_players.compileCanvas();
 
         // races and teams
-        Group group_race_team = new Group();
+        Group group_race_team = new ScrollableGroup(300, 64);
         labels_players = new Label[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         race_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
