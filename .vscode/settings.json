@@ -1,0 +1,39 @@
+{
+    "java.project.sourcePaths": [
+        "common/classes",
+        "server/classes",
+        "tt/classes",
+        "tools/classes",
+        "loader/classes",
+        "tt/i18n",
+        "tt/static"
+    ],
+    "java.project.referencedLibraries": {
+        "include": [
+            "common/lib/java/**/*.jar",
+            "ivy_lib/*.jar"
+        ],
+        "exclude": [],
+        "sources": {}
+    },
+    "java.project.resourceFilters": [
+        ".git",
+    ],
+    "java.sources.organizeImports.starThreshold": 99,
+    "java.sources.organizeImports.staticStarThreshold": 99,
+    "java.completion.importOrder": [
+        "java",
+        "javax", 
+        "com",
+        "org"
+    ],
+    "java.saveActions.organizeImports": true,
+    "files.exclude": {
+        "**/build/": true,
+        "**/target/": true,
+        "**/.factorypath": true,
+        "**/.settings": true,
+        "**/.metadata": true
+    },
+    "java.format.settings.url": ".vscode/java-formatter.xml",
+}

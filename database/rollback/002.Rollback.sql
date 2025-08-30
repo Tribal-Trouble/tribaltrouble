@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS discord_to_profiles;
