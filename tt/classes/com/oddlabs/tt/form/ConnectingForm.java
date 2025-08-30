@@ -61,7 +61,7 @@ public final strictfp class ConnectingForm extends Form implements Configuration
     }
 
     public final void connected(
-            Client client, Game game, WorldGenerator generator, int player_slot) {
+            Client client, Game game, WorldGenerator generator, int player_slot, int player_count) {
         if (multiplayer) {
             Random random =
                     new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
@@ -73,7 +73,7 @@ public final strictfp class ConnectingForm extends Form implements Configuration
                     .setPlayerSlot(
                             player_slot, PlayerSlot.HUMAN, race, team, false, PlayerSlot.AI_NONE);
             remove();
-            owner.createGameMenu(game_network, game, generator, player_slot);
+            owner.createGameMenu(game_network, game, generator, player_slot, player_count);
             //			GameMenu panel = new GameMenu(owner, game, generator, player_slot);
             //			owner.setGameMenu(panel);
             //			Network.setConfigurationListener(panel);

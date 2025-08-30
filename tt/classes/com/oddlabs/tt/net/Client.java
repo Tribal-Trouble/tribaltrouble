@@ -110,12 +110,12 @@ public final strictfp class Client
     }
 
     public final void setWorldGeneratorAndPlayerSlot(
-            Game game, WorldGenerator generator, short player_slot) {
+            Game game, WorldGenerator generator, short player_slot, int player_count) {
         if (state != CONNECTING) return;
         state = NEGOTIATING;
         this.generator = generator;
         this.player_slot = player_slot;
-        getConfigurationListener().connected(this, game, generator, player_slot);
+        getConfigurationListener().connected(this, game, generator, player_slot, player_count);
     }
 
     public final void writeBufferDrained(AbstractConnection conn) {}

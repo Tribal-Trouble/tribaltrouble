@@ -297,7 +297,11 @@ public final strictfp class SelectGameMenu extends Form
     }
 
     public final void createGameMenu(
-            GameNetwork game_network, Game game, WorldGenerator generator, int player_slot) {
+            GameNetwork game_network,
+            Game game,
+            WorldGenerator generator,
+            int player_slot,
+            int player_count) {
         game_panel =
                 new GameMenu(
                         game_network,
@@ -308,7 +312,8 @@ public final strictfp class SelectGameMenu extends Form
                         player_slot,
                         game_list_panel.getWidth(),
                         game_list_panel.getHeight(),
-                        BUTTON_WIDTH);
+                        BUTTON_WIDTH,
+                        player_count);
         setGameMenu(game_panel);
         game_network.getClient().setConfigurationListener(game_panel);
     }

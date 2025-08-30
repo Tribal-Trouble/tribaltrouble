@@ -1,6 +1,7 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.matchmaking.Game;
+import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.form.*;
@@ -347,6 +348,42 @@ public abstract strictfp class Menu extends CameraDelegate {
             int seed,
             boolean archipelago,
             String[] ai_names) {
+        return startNewGame(
+                network,
+                gui_root,
+                owner,
+                world_params,
+                ingame_info,
+                init_action,
+                game,
+                meters_per_world,
+                terrain_type,
+                hills,
+                vegetation_amount,
+                supplies_amount,
+                seed,
+                archipelago,
+                ai_names,
+                MatchmakingServerInterface.MAX_PLAYERS);
+    }
+
+    public static final GameNetwork startNewGame(
+            NetworkSelector network,
+            GUIRoot gui_root,
+            SelectGameMenu owner,
+            WorldParameters world_params,
+            InGameInfo ingame_info,
+            WorldInitAction init_action,
+            Game game,
+            int meters_per_world,
+            int terrain_type,
+            float hills,
+            float vegetation_amount,
+            float supplies_amount,
+            int seed,
+            boolean archipelago,
+            String[] ai_names,
+            int player_count) {
         boolean multiplayer = ingame_info.isMultiplayer();
         WorldGenerator generator =
                 new IslandGenerator(
@@ -358,7 +395,8 @@ public abstract strictfp class Menu extends CameraDelegate {
                         seed,
                         archipelago);
         InetAddress address = multiplayer ? null : com.oddlabs.util.Utils.getLoopbackAddress();
-        final Server server = new Server(network, game, address, generator, multiplayer, ai_names);
+        final Server server =
+                new Server(network, game, address, generator, multiplayer, ai_names, player_count);
         Client client =
                 new Client(
                         new Runnable() {
