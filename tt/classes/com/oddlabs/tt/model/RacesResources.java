@@ -53,7 +53,7 @@ public final strictfp class RacesResources {
     public static final int SHIP_SIZE = 2;
     public static final int QUARTERS_HIT_POINTS = 200;
     public static final int ARMORY_HIT_POINTS = 200;
-    public static final int SHIP_HIT_POINTS = 15;
+    public static final int SHIP_HIT_POINTS = 150;
     public static final int TOWER_HIT_POINTS = 100;
     public static final int VIKING_CHIEFTAIN_HIT_POINTS = 60;
     public static final int NATIVE_CHIEFTAIN_HIT_POINTS = 40;

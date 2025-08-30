@@ -496,7 +496,7 @@ public final strictfp class Player implements PlayerInterface {
                                 grid_y,
                                 selection.length,
                                 selection.length != 1,
-                                selection[0].getLayer());
+                                UnitGrid.LAND);
         for (int i = 0; i < selection.length; i++) {
             if (isValid(selection[i])) selection[i].initTarget(targets[i], action, aggressive);
         }
