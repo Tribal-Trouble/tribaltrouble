@@ -6,6 +6,7 @@ public final strictfp class KeyboardEvent {
     private final boolean shift_down;
     private final boolean control_down;
     private final int clicks;
+    private boolean consumed = false;
 
     public KeyboardEvent(int key_code, char key_char, boolean shift_down, boolean control_down) {
         this(key_code, key_char, shift_down, control_down, 1);
@@ -38,5 +39,13 @@ public final strictfp class KeyboardEvent {
 
     public final int getNumClicks() {
         return clicks;
+    }
+
+    public final void consume() {
+        consumed = true;
+    }
+
+    public final boolean isConsumed() {
+        return consumed;
     }
 }

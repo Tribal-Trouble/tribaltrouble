@@ -282,6 +282,94 @@ public final strictfp class Keyboard {
 
     public static final int KEYBOARD_SIZE = 256;
 
+    // Cached reverse lookup for display names -> key codes
+    private static java.util.Map<String, Integer> NAME_TO_KEY;
+    private static String norm(String s) {
+        return s.toUpperCase().replaceAll("[\\\\s_\\-]", "");
+    }
+
+    private static void ensureReverseMap() {
+        if (NAME_TO_KEY != null) return;
+        NAME_TO_KEY = new java.util.HashMap<>();
+        for (int i = 0; i < KEYBOARD_SIZE; i++) {
+            String name = keyToString(i);
+            if (name != null && !"Unknown".equals(name)) {
+                NAME_TO_KEY.putIfAbsent(norm(name), i);
+            }
+        }
+        // Common aliases
+        NAME_TO_KEY.put("ENTER", KEY_RETURN);
+        NAME_TO_KEY.put("RETURN", KEY_RETURN);
+        NAME_TO_KEY.put("ESC", KEY_ESCAPE);
+        NAME_TO_KEY.put("ESCAPE", KEY_ESCAPE);
+        NAME_TO_KEY.put("CTRL", KEY_LCONTROL);
+        NAME_TO_KEY.put("CONTROL", KEY_LCONTROL);
+        NAME_TO_KEY.put("SHIFT", KEY_LSHIFT);
+        NAME_TO_KEY.put("ALT", KEY_LMENU);
+        NAME_TO_KEY.put("PGUP", KEY_PRIOR);
+        NAME_TO_KEY.put("PAGEUP", KEY_PRIOR);
+        NAME_TO_KEY.put("PGDN", KEY_NEXT);
+        NAME_TO_KEY.put("PAGEDOWN", KEY_NEXT);
+        NAME_TO_KEY.put("UP", KEY_UP);
+        NAME_TO_KEY.put("DOWN", KEY_DOWN);
+        NAME_TO_KEY.put("LEFT", KEY_LEFT);
+        NAME_TO_KEY.put("RIGHT", KEY_RIGHT);
+        NAME_TO_KEY.put("WIN", KEY_LMETA);
+        NAME_TO_KEY.put("WINDOWS", KEY_LMETA);
+        NAME_TO_KEY.put("META", KEY_LMETA);
+        NAME_TO_KEY.put("NUMENTER", KEY_NUMPADENTER);
+        NAME_TO_KEY.put("NUMPADENTER", KEY_NUMPADENTER);
+        NAME_TO_KEY.put("DELL", KEY_DELETE);
+        NAME_TO_KEY.put("DEL", KEY_DELETE);
+        NAME_TO_KEY.put("BKSP", KEY_BACK);
+        NAME_TO_KEY.put("BACKSPACE", KEY_BACK);
+        NAME_TO_KEY.put("SPACEBAR", KEY_SPACE);
+    }
+
+    /**
+     * Parses a human-readable key name (e.g. "A", "Enter", "Arrow Up", "Num 1") to a key code.
+     * Returns KEY_NONE if unknown.
+     */
+    public static int stringToKey(String name) {
+        if (name == null) return KEY_NONE;
+        ensureReverseMap();
+        String n = norm(name);
+        Integer code = NAME_TO_KEY.get(n);
+        if (code != null) return code;
+        // Try single-letter/numeric shortcuts
+        if (n.length() == 1) {
+            char c = n.charAt(0);
+            if (c >= 'A' && c <= 'Z') {
+                return KEY_A + (c - 'A');
+            }
+            if (c >= '0' && c <= '9') {
+                switch (c) {
+                    case '0':
+                        return KEY_0;
+                    case '1':
+                        return KEY_1;
+                    case '2':
+                        return KEY_2;
+                    case '3':
+                        return KEY_3;
+                    case '4':
+                        return KEY_4;
+                    case '5':
+                        return KEY_5;
+                    case '6':
+                        return KEY_6;
+                    case '7':
+                        return KEY_7;
+                    case '8':
+                        return KEY_8;
+                    case '9':
+                        return KEY_9;
+                }
+            }
+        }
+        return KEY_NONE;
+    }
+
     /**
      * Gets the string representation of the tribal trouble key code
      *

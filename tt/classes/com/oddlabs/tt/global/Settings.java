@@ -224,6 +224,12 @@ public final strictfp class Settings implements Serializable {
         return keybinds;
     }
 
+    /** Reset all keybinds back to the built-in defaults. */
+    public void resetKeybindsToDefaults() {
+        keybinds.clear();
+        keybinds.putAll(default_keybinds);
+    }
+
     /**
      * Gets the keybind for the specified action as a string for display in tooltips. Use
      * Globals.KB_* constants for action names.

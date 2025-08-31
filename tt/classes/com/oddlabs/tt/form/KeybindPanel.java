@@ -119,21 +119,104 @@ public class KeybindPanel extends Panel {
     }
 
     private void evaluateKeybindRows() {
+        keybinds_list_box.clear();
         HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
-        for (Map.Entry<String, Integer> entry : keybinds.entrySet()) {
-            String actionName = entry.getKey();
-            Integer keyCode = entry.getValue();
-            String keyString = Keyboard.keyToString(keyCode);
 
-            // Get display name from mapping, fallback to action name if not found
-            String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
+        // Define grouped sections in the desired fixed order
+        String[][] sections =
+                new String[][] {
+                    // { sectionTitle, action1, action2, ... }
+                    new String[] {
+                        "Camera Controls",
+                        Globals.KB_PAN_CAMERA_LEFT,
+                        Globals.KB_PAN_CAMERA_RIGHT,
+                        Globals.KB_PAN_CAMERA_UP,
+                        Globals.KB_PAN_CAMERA_DOWN
+                    },
+                    new String[] {"Basic Unit Actions", Globals.KB_MOVE, Globals.KB_ATTACK, Globals.KB_GATHER_REPAIR},
+                    new String[] {
+                        "Building Construction",
+                        Globals.KB_BUILD_ARMORY,
+                        Globals.KB_BUILD_QUARTERS,
+                        Globals.KB_BUILD_TOWER
+                    },
+                    new String[] {
+                        "Quarters Actions",
+                        Globals.KB_QUARTERS_CHIEFTAIN,
+                        Globals.KB_QUARTERS_DEPLOY_PEON,
+                        Globals.KB_QUARTERS_SET_RALLY_POINT
+                    },
+                    new String[] {
+                        "Armory Actions",
+                        Globals.KB_ARMORY_DEPLOY_WARRIORS,
+                        Globals.KB_ARMORY_HARVEST,
+                        Globals.KB_ARMORY_MAKE_WEAPONS,
+                        Globals.KB_ARMORY_TRANSPORT,
+                        Globals.KB_ARMORY_RALLY_POINT
+                    },
+                    new String[] {
+                        "Armory - Deploy Units",
+                        Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS,
+                        Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS,
+                        Globals.KB_ARMORY_DEPLOY_PEON,
+                        Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS
+                    },
+                    new String[] {
+                        "Armory - Resource Harvesting",
+                        Globals.KB_ARMORY_HARVEST_CHICKEN,
+                        Globals.KB_ARMORY_HARVEST_IRON,
+                        Globals.KB_ARMORY_HARVEST_ROCK,
+                        Globals.KB_ARMORY_HARVEST_TREE
+                    },
+                    new String[] {
+                        "Armory - Resource Transportation",
+                        Globals.KB_ARMORY_TRANSPORT_CHICKEN,
+                        Globals.KB_ARMORY_TRANSPORT_IRON,
+                        Globals.KB_ARMORY_TRANSPORT_ROCK,
+                        Globals.KB_ARMORY_TRANSPORT_TREE
+                    },
+                    new String[] {
+                        "Armory - Weapon Creation",
+                        Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON,
+                        Globals.KB_ARMORY_CREATE_IRON_WEAPON,
+                        Globals.KB_ARMORY_CREATE_ROCK_WEAPON
+                    },
+                    new String[] {"Chieftain Magic", Globals.KB_CHIEFTAIN_MAGIC1, Globals.KB_CHIEFTAIN_MAGIC2},
+                    new String[] {"Tower Actions", Globals.KB_TOWER_ATTACK, Globals.KB_TOWER_EXIT}
+                };
 
-            Label label =
-                    new Label(
-                            displayName + " [" + keyString + "]",
-                            Skin.getSkin().getMultiColumnComboBoxData().getFont());
-            Row row = new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode));
-            keybinds_list_box.addRow(row);
+        int orderIndex = 0;
+        for (int s = 0; s < sections.length; s++) {
+            String[] sec = sections[s];
+            // Header row (non-interactive)
+            OrderedLabel header = new OrderedLabel(sec[0], orderIndex++, Skin.getSkin().getEditFont());
+            header.setColor(new float[] {0.85f, 0.85f, 0.85f, 1});
+            Row headerRow = new Row(new GUIObject[] {header}, null);
+            keybinds_list_box.addRow(headerRow);
+
+            // Items
+            for (int i = 1; i < sec.length; i++) {
+                String actionName = sec[i];
+                Integer keyCode = keybinds.get(actionName);
+                if (keyCode == null) continue;
+                String keyString = Keyboard.keyToString(keyCode);
+                String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
+        OrderedLabel label =
+            new OrderedLabel(
+                                displayName + " [" + keyString + "]",
+                                orderIndex++,
+                                Skin.getSkin().getMultiColumnComboBoxData().getFont());
+                Row row =
+                        new Row(
+                                new GUIObject[] {label},
+                                new ActionRowDataModel(actionName, keyCode.intValue()));
+                keybinds_list_box.addRow(row);
+            }
+
+            // Spacer after each section
+        OrderedLabel spacer = new OrderedLabel(" ", orderIndex++, Skin.getSkin().getEditFont());
+        Row spacerRow = new Row(new GUIObject[] {spacer}, null);
+            keybinds_list_box.addRow(spacerRow);
         }
     }
 
@@ -164,6 +247,8 @@ public class KeybindPanel extends Panel {
                 RebindActionForm rebindForm = new RebindActionForm(actionRow.getActionName());
                 rebindForm.addCloseListener(new RebindActionFormClosedListener());
                 gui_root.addModalForm(rebindForm);
+            } else {
+                // Ignore header/spacer clicks
             }
         }
 
@@ -175,6 +260,24 @@ public class KeybindPanel extends Panel {
             keybinds_list_box.clear();
             System.out.println("RebindActionForm closed, refreshing keybinds list.");
             evaluateKeybindRows();
+        }
+    }
+
+    // Ensures rows keep insertion order by comparing an explicit index
+    private static final class OrderedLabel extends Label {
+        private final int order;
+
+        public OrderedLabel(String text, int order, com.oddlabs.tt.font.Font font) {
+            super(text, font);
+            this.order = order;
+        }
+
+        public int compareTo(Object o) {
+            if (o instanceof OrderedLabel) {
+                return this.order - ((OrderedLabel) o).order;
+            }
+            // Fallback to text compare if mixed types appear
+            return super.compareTo(o);
         }
     }
 }
