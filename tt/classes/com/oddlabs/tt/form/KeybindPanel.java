@@ -280,4 +280,10 @@ public class KeybindPanel extends Panel {
             return super.compareTo(o);
         }
     }
+
+    @Override
+    public void onActivated() {
+        // Re-evaluate list every time panel is shown to reflect latest keybinds
+        evaluateKeybindRows();
+    }
 }

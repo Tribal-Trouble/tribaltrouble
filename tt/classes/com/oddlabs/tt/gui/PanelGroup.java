@@ -77,7 +77,9 @@ public final strictfp class PanelGroup extends GUIObject {
         panels[index].getTab().select(true);
         focus_group.addChild(panels[index]);
         selected = index;
-        panels[index].setFocus();
+    // Inform the panel it became active so it can refresh its contents.
+    panels[index].onActivated();
+    panels[index].setFocus();
     }
 
     public final void setFocus() {

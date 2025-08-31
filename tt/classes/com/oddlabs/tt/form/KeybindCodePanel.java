@@ -23,9 +23,14 @@ import java.util.zip.CRC32;
 /**
  * A panel that shows a single shareable/importable code representing all keybinds at once.
  *
- * Scheme: "TTKB2-" + base64url(payload) + "-" + checksum
- * payload format (UTF-8 text): semi-colon separated pairs sorted by key name: key=code;key=code;...
- * checksum: 6-char base36 of CRC32(payload_bytes) & 0xFFFFFFF (uppercase)
+ * Schemes:
+ *  - TTKB3 (default, shorter): "TTKB3-" + base64url(binary) + "-" + checksum
+ *      binary payload: sequence of unsigned 16-bit little-endian ints for each action in
+ *      canonical order (sorted action names). No names included. Length may be >= number of known
+ *      actions; extra values are ignored. Missing values default to 0.
+ *  - TTKB2 (legacy, verbose): "TTKB2-" + base64url(UTF-8 text) + "-" + checksum
+ *      text payload: semi-colon separated pairs sorted by key name: key=code;key=code;...
+ *  checksum: 6-char base36 of CRC32(payload_bytes) & 0xFFFFFFF (uppercase)
  */
 public class KeybindCodePanel extends Panel {
     private final EditLine currentCodeField;
@@ -38,19 +43,18 @@ public class KeybindCodePanel extends Panel {
         Group group = new Group();
         addChild(group);
 
-        Label exportLabel = new Label("All-binds code", Skin.getSkin().getEditFont());
+    Label exportLabel = new Label("All-binds code", Skin.getSkin().getEditFont());
         group.addChild(exportLabel);
 
     currentCodeField = new EditLine(530, 4096);
-        currentCodeField.set(generateCode(Settings.getSettings().getKeybinds()));
+    currentCodeField.set(generateCode(Settings.getSettings().getKeybinds()));
         group.addChild(currentCodeField);
 
-        HorizButton regenBtn = new HorizButton("Refresh", 110);
+    HorizButton regenBtn = new HorizButton("Refresh", 110);
         regenBtn.addMouseClickListener(
                 new MouseClickListener() {
                     public void mouseClicked(int button, int x, int y, int clicks) {
-                        currentCodeField.set(
-                                generateCode(Settings.getSettings().getKeybinds()));
+                        currentCodeField.set(generateCode(Settings.getSettings().getKeybinds()));
                         setStatus("Refreshed.", true);
                     }
                 });
@@ -65,18 +69,18 @@ public class KeybindCodePanel extends Panel {
                 });
         group.addChild(copyHintBtn);
 
-        Label importLabel = new Label("Paste new code", Skin.getSkin().getEditFont());
+    Label importLabel = new Label("Paste new code", Skin.getSkin().getEditFont());
         group.addChild(importLabel);
 
     newCodeField = new EditLine(530, 4096);
-        group.addChild(newCodeField);
+    group.addChild(newCodeField);
 
         HorizButton applyBtn = new HorizButton("Apply", 110);
         applyBtn.addMouseClickListener(
                 new MouseClickListener() {
                     public void mouseClicked(int button, int x, int y, int clicks) {
-                        String code = newCodeField.getContents();
-                        Map<String, Integer> parsed = parseCode(code);
+            String code = newCodeField.getContents();
+            Map<String, Integer> parsed = parseCode(code);
                         if (parsed == null) {
                             setStatus("Invalid code.", false);
                             return;
@@ -90,9 +94,11 @@ public class KeybindCodePanel extends Panel {
                                 applied++;
                             }
                         }
-                        currentCodeField.set(
-                                generateCode(Settings.getSettings().getKeybinds()));
-                        setStatus("Applied " + applied + " binds.", true);
+            // Persist and refresh code display
+            Settings.getSettings().save();
+            currentCodeField.set(
+                generateCode(Settings.getSettings().getKeybinds()));
+            setStatus("Applied " + applied + " binds.", true);
                     }
                 });
         group.addChild(applyBtn);
@@ -101,10 +107,11 @@ public class KeybindCodePanel extends Panel {
         resetBtn.addMouseClickListener(
                 new MouseClickListener() {
                     public void mouseClicked(int button, int x, int y, int clicks) {
-                        // Reset to built-in defaults
-                        Settings.getSettings().resetKeybindsToDefaults();
-                        currentCodeField.set(
-                                generateCode(Settings.getSettings().getKeybinds()));
+            // Reset to built-in defaults
+            Settings.getSettings().resetKeybindsToDefaults();
+            Settings.getSettings().save();
+            currentCodeField.set(
+                generateCode(Settings.getSettings().getKeybinds()));
                         setStatus("Reset to defaults.", true);
                     }
                 });
@@ -135,17 +142,51 @@ public class KeybindCodePanel extends Panel {
         else statusLabel.setColor(new float[] {0.9f, 0.2f, 0.2f, 1});
     }
 
+    @Override
+    public void onActivated() {
+        // Refresh the displayed export code to match current settings
+        currentCodeField.set(generateCode(Settings.getSettings().getKeybinds()));
+        setStatus("", true);
+    }
+
     public static String generateCode(HashMap<String, Integer> binds) {
-        // Stable order: sort keys
+        // Default to shorter scheme (TTKB3), but keep legacy generator available
+        return generateCodeTTKB3(binds);
+    }
+
+    private static List<String> canonicalKeys(HashMap<String, Integer> binds) {
         List<String> keys = new ArrayList<String>(binds.keySet());
         Collections.sort(keys, String.CASE_INSENSITIVE_ORDER);
+        return keys;
+    }
+
+    private static String generateCodeTTKB3(HashMap<String, Integer> binds) {
+        List<String> keys = canonicalKeys(binds);
+        byte[] payload = new byte[keys.size() * 2];
+        int idx = 0;
+        for (int i = 0; i < keys.size(); i++) {
+            String k = keys.get(i);
+            int v = 0;
+            Integer vi = binds.get(k);
+            if (vi != null) v = vi.intValue();
+            // unsigned short little-endian
+            payload[idx++] = (byte) (v & 0xFF);
+            payload[idx++] = (byte) ((v >>> 8) & 0xFF);
+        }
+        String b64 = Base64.getUrlEncoder().withoutPadding().encodeToString(payload);
+        String chk = crcBase36(payload);
+        return "TTKB3-" + b64 + '-' + chk;
+    }
+
+    private static String generateCodeTTKB2(HashMap<String, Integer> binds) {
+        // Legacy verbose text format
+        List<String> keys = canonicalKeys(binds);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < keys.size(); i++) {
             String k = keys.get(i);
             Integer v = binds.get(k);
             if (v == null) continue;
             if (sb.length() > 0) sb.append(';');
-            // Escape any ';' or '=' in keys by replacing with '_' (keys shouldn't contain these)
             String safeKey = k.replace(';', '_').replace('=', '_');
             sb.append(safeKey).append('=').append(v.intValue());
         }
@@ -158,7 +199,16 @@ public class KeybindCodePanel extends Panel {
     public static Map<String, Integer> parseCode(String code) {
         if (code == null) return null;
         code = code.trim();
-        if (!code.toUpperCase(Locale.ROOT).startsWith("TTKB2-")) return null;
+        String upper = code.toUpperCase(Locale.ROOT);
+        if (upper.startsWith("TTKB3-")) {
+            return parseTTKB3(code);
+        } else if (upper.startsWith("TTKB2-")) {
+            return parseTTKB2(code);
+        }
+        return null;
+    }
+
+    private static Map<String, Integer> parseTTKB2(String code) {
         int lastDash = code.lastIndexOf('-');
         if (lastDash <= 6) return null;
         String b64 = code.substring(6, lastDash);
@@ -186,6 +236,34 @@ public class KeybindCodePanel extends Panel {
             } catch (NumberFormatException ex) {
                 // skip
             }
+        }
+        return out;
+    }
+
+    private static Map<String, Integer> parseTTKB3(String code) {
+        int lastDash = code.lastIndexOf('-');
+        if (lastDash <= 6) return null;
+        String b64 = code.substring(6, lastDash);
+        String chk = code.substring(lastDash + 1);
+        byte[] payload;
+        try {
+            payload = Base64.getUrlDecoder().decode(b64);
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+        if (!crcBase36(payload).equalsIgnoreCase(chk)) return null;
+
+        HashMap<String, Integer> current = Settings.getSettings().getKeybinds();
+        List<String> keys = new ArrayList<String>(current.keySet());
+        Collections.sort(keys, String.CASE_INSENSITIVE_ORDER);
+        int pairs = Math.min(keys.size(), payload.length / 2);
+        HashMap<String, Integer> out = new HashMap<String, Integer>();
+        int idx = 0;
+        for (int i = 0; i < pairs; i++) {
+            int lo = payload[idx++] & 0xFF;
+            int hi = payload[idx++] & 0xFF;
+            int v = (hi << 8) | lo;
+            out.put(keys.get(i), Integer.valueOf(v));
         }
         return out;
     }
