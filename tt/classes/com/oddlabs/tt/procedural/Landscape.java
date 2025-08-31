@@ -44,6 +44,7 @@ public final strictfp class Landscape {
     private Channel dock_map;
     private Channel island_ids;
     private Channel access;
+    private Channel resources_access;
     private Channel access_exported;
     private Channel relheight;
     private Channel highlight;
@@ -637,8 +638,9 @@ public final strictfp class Landscape {
         if (DEBUG) relheight.toLayer().saveAsPNG("relheight");
         access =
                 generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL - 0.5f)
-                        .largestConnected(1f)
-                        .channelMultiply(water_map.copy().channelSubtract(dock_map).invert());
+                        .largestConnected(1f);
+        resources_access = access.copy().channelMultiply(water_map.copy().invert());
+        access.channelMultiply(water_map.copy().channelSubtract(dock_map).invert());
 
         access_exported = access.copy();
         if (DEBUG) access.toLayer().saveAsPNG("access");
@@ -743,10 +745,11 @@ public final strictfp class Landscape {
         if (DEBUG) relheight.toLayer().saveAsPNG("relheight");
         access =
                 generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL - 0.5f)
-                        .largestConnected(1f)
-                        .channelMultiply(water_map.copy().invert());
+                        .largestConnected(1f);
+        resources_access = access.copy().channelMultiply(water_map.copy().invert());
+        access.channelMultiply(water_map.copy().channelSubtract(dock_map).invert());
         access_exported = access.copy();
-        if (DEBUG) access.toLayer().saveAsPNG("access");
+
         if (DEBUG) access.toLayer().saveAsPNG("access");
         build =
                 generateBuildMap(
@@ -1120,7 +1123,7 @@ public final strictfp class Landscape {
         if (DEBUG) rock_channel.toLayer().saveAsPNG("supplies_rocks");
         if (DEBUG) iron_channel.toLayer().saveAsPNG("supplies_iron");
 
-        Channel supplies = access.copy();
+        Channel supplies = resources_access.copy();
         float accessible = supplies.sum();
 
         // place trees
@@ -1170,23 +1173,25 @@ public final strictfp class Landscape {
         for (int p = 0; p < num_players; p++) {
             for (int r = 0; r < num_rock; r++) {
                 int[] location =
-                        access.find(
+                        resources_access.find(
                                 (unit_grids_per_world >> 1),
                                 supply_locations[p][0],
                                 supply_locations[p][1],
                                 1f);
                 rock.putPixel(location[0], location[1], 1f);
                 access.putPixel(location[0], location[1], 0f);
+                resources_access.putPixel(location[0], location[1], 0f);
             }
             for (int i = 0; i < num_iron; i++) {
                 int[] location =
-                        access.find(
+                        resources_access.find(
                                 (unit_grids_per_world >> 1),
                                 supply_locations[p][0],
                                 supply_locations[p][1],
                                 1f);
                 iron.putPixel(location[0], location[1], 1f);
                 access.putPixel(location[0], location[1], 0f);
+                resources_access.putPixel(location[0], location[1], 0f);
             }
         }
 
