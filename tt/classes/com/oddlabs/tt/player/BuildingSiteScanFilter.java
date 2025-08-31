@@ -1,5 +1,6 @@
 package com.oddlabs.tt.player;
 
+import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.BuildingTemplate;
@@ -37,7 +38,10 @@ public final strictfp class BuildingSiteScanFilter implements ScanFilter {
 
     public final boolean filter(int grid_x, int grid_y, Occupant occ) {
         boolean legal = Building.isPlacingLegal(unit_grid, template, grid_x, grid_y);
-        if (unit_grid.getHeightMap().canBuild(grid_x, grid_y, obj_radius) && legal) {
+        HeightMap map = unit_grid.getHeightMap();
+        boolean can_build = map.canBuild(grid_x, grid_y, obj_radius) && !template.isNearSea();
+        boolean can_dock = map.canDock(grid_x, grid_y) && template.isNearSea();
+        if ((can_build || can_dock) && legal) {
             result.add(new LandscapeTarget(grid_x, grid_y));
             if (one_target) return true;
         }
