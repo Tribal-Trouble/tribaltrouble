@@ -284,6 +284,7 @@ public final strictfp class Keyboard {
 
     // Cached reverse lookup for display names -> key codes
     private static java.util.Map<String, Integer> NAME_TO_KEY;
+
     private static String norm(String s) {
         return s.toUpperCase().replaceAll("[\\\\s_\\-]", "");
     }

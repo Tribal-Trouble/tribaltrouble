@@ -1,14 +1,13 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
-import com.oddlabs.tt.camera.StaticCamera;
 import com.oddlabs.tt.camera.MapCamera;
+import com.oddlabs.tt.camera.StaticCamera;
 import com.oddlabs.tt.form.InGameChatForm;
-import com.oddlabs.tt.delegate.InGameMainMenu;
-import com.oddlabs.tt.gui.*;
-import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Army;
@@ -77,25 +76,25 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
 
     public final void keyPressed(KeyboardEvent event) {
         getCamera().keyPressed(event);
-    int army_number = 0;
-    // Rebindable hotkeys (with legacy fallbacks to preserve behavior)
-    Settings settings = Settings.getSettings();
-    int kbToggleMap = settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE);
-    int kbJumpNotif = settings.getKeybind(Globals.KB_JUMP_TO_NOTIFICATION);
-    int kbBeacon = settings.getKeybind(Globals.KB_PLACE_BEACON);
-    int kbNextIdle = settings.getKeybind(Globals.KB_NEXT_IDLE_PEON);
-    int kbChatToggle = settings.getKeybind(Globals.KB_CHAT_TOGGLE);
-    int kbArmy0 = settings.getKeybind(Globals.KB_ARMY_GROUP_0);
-    int kbArmy1 = settings.getKeybind(Globals.KB_ARMY_GROUP_1);
-    int kbArmy2 = settings.getKeybind(Globals.KB_ARMY_GROUP_2);
-    int kbArmy3 = settings.getKeybind(Globals.KB_ARMY_GROUP_3);
-    int kbArmy4 = settings.getKeybind(Globals.KB_ARMY_GROUP_4);
-    int kbArmy5 = settings.getKeybind(Globals.KB_ARMY_GROUP_5);
-    int kbArmy6 = settings.getKeybind(Globals.KB_ARMY_GROUP_6);
-    int kbArmy7 = settings.getKeybind(Globals.KB_ARMY_GROUP_7);
-    int kbArmy8 = settings.getKeybind(Globals.KB_ARMY_GROUP_8);
-    int kbArmy9 = settings.getKeybind(Globals.KB_ARMY_GROUP_9);
-    int kbPause = settings.getKeybind(Globals.KB_PAUSE);
+        int army_number = 0;
+        // Rebindable hotkeys (with legacy fallbacks to preserve behavior)
+        Settings settings = Settings.getSettings();
+        int kbToggleMap = settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE);
+        int kbJumpNotif = settings.getKeybind(Globals.KB_JUMP_TO_NOTIFICATION);
+        int kbBeacon = settings.getKeybind(Globals.KB_PLACE_BEACON);
+        int kbNextIdle = settings.getKeybind(Globals.KB_NEXT_IDLE_PEON);
+        int kbChatToggle = settings.getKeybind(Globals.KB_CHAT_TOGGLE);
+        int kbArmy0 = settings.getKeybind(Globals.KB_ARMY_GROUP_0);
+        int kbArmy1 = settings.getKeybind(Globals.KB_ARMY_GROUP_1);
+        int kbArmy2 = settings.getKeybind(Globals.KB_ARMY_GROUP_2);
+        int kbArmy3 = settings.getKeybind(Globals.KB_ARMY_GROUP_3);
+        int kbArmy4 = settings.getKeybind(Globals.KB_ARMY_GROUP_4);
+        int kbArmy5 = settings.getKeybind(Globals.KB_ARMY_GROUP_5);
+        int kbArmy6 = settings.getKeybind(Globals.KB_ARMY_GROUP_6);
+        int kbArmy7 = settings.getKeybind(Globals.KB_ARMY_GROUP_7);
+        int kbArmy8 = settings.getKeybind(Globals.KB_ARMY_GROUP_8);
+        int kbArmy9 = settings.getKeybind(Globals.KB_ARMY_GROUP_9);
+        int kbPause = settings.getKeybind(Globals.KB_PAUSE);
         switch (event.getKeyCode()) {
             case Keyboard.KEY_NUMPAD5:
                 // Legacy support: Numpad 5 toggles map mode
@@ -120,15 +119,15 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
             case Keyboard.KEY_2:
             case Keyboard.KEY_1:
             case Keyboard.KEY_0:
-                // Legacy behavior path retained below in default handler using settings binds
-                // handled in default for unified handling
-                // fall through to default
-                // no break
+            // Legacy behavior path retained below in default handler using settings binds
+            // handled in default for unified handling
+            // fall through to default
+            // no break
             case Keyboard.KEY_RETURN:
                 // handled in default using settings bind to allow rebind of chat toggle
                 // fall through
                 break;
-            
+
             case Keyboard.KEY_F:
             case Keyboard.KEY_Z:
                 if (!map_mode) super.keyPressed(event);
@@ -150,7 +149,8 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                 }
                 if (event.getKeyCode() == kbJumpNotif || event.getKeyCode() == Keyboard.KEY_TAB) {
                     if (!observer) {
-                        Notification n = getViewer().getNotificationManager().getLatestNotification();
+                        Notification n =
+                                getViewer().getNotificationManager().getLatestNotification();
                         if (n != null) {
                             if (getCamera() instanceof GameCamera)
                                 getGUIRoot()
@@ -167,9 +167,12 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                     break;
                 }
                 if ((event.getKeyCode() == kbBeacon || event.getKeyCode() == Keyboard.KEY_B)
-                        && event.isControlDown() && !map_mode && !observer) {
+                        && event.isControlDown()
+                        && !map_mode
+                        && !observer) {
                     getGUIRoot()
-                            .pushDelegate(new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
+                            .pushDelegate(
+                                    new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
                     break;
                 }
                 if (event.getKeyCode() == kbNextIdle || event.getKeyCode() == Keyboard.KEY_N) {
@@ -184,49 +187,79 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                     // Handle army group selection/assign using rebindable keys
                     int code = event.getKeyCode();
                     boolean handledArmy = false;
-                    if (code == kbArmy0 || code == Keyboard.KEY_0) { army_number = 0; handledArmy = true; }
-                    else if (code == kbArmy1 || code == Keyboard.KEY_1) { army_number = 1; handledArmy = true; }
-                    else if (code == kbArmy2 || code == Keyboard.KEY_2) { army_number = 2; handledArmy = true; }
-                    else if (code == kbArmy3 || code == Keyboard.KEY_3) { army_number = 3; handledArmy = true; }
-                    else if (code == kbArmy4 || code == Keyboard.KEY_4) { army_number = 4; handledArmy = true; }
-                    else if (code == kbArmy5 || code == Keyboard.KEY_5) { army_number = 5; handledArmy = true; }
-                    else if (code == kbArmy6 || code == Keyboard.KEY_6) { army_number = 6; handledArmy = true; }
-                    else if (code == kbArmy7 || code == Keyboard.KEY_7) { army_number = 7; handledArmy = true; }
-                    else if (code == kbArmy8 || code == Keyboard.KEY_8) { army_number = 8; handledArmy = true; }
-                    else if (code == kbArmy9 || code == Keyboard.KEY_9) { army_number = 9; handledArmy = true; }
+                    if (code == kbArmy0 || code == Keyboard.KEY_0) {
+                        army_number = 0;
+                        handledArmy = true;
+                    } else if (code == kbArmy1 || code == Keyboard.KEY_1) {
+                        army_number = 1;
+                        handledArmy = true;
+                    } else if (code == kbArmy2 || code == Keyboard.KEY_2) {
+                        army_number = 2;
+                        handledArmy = true;
+                    } else if (code == kbArmy3 || code == Keyboard.KEY_3) {
+                        army_number = 3;
+                        handledArmy = true;
+                    } else if (code == kbArmy4 || code == Keyboard.KEY_4) {
+                        army_number = 4;
+                        handledArmy = true;
+                    } else if (code == kbArmy5 || code == Keyboard.KEY_5) {
+                        army_number = 5;
+                        handledArmy = true;
+                    } else if (code == kbArmy6 || code == Keyboard.KEY_6) {
+                        army_number = 6;
+                        handledArmy = true;
+                    } else if (code == kbArmy7 || code == Keyboard.KEY_7) {
+                        army_number = 7;
+                        handledArmy = true;
+                    } else if (code == kbArmy8 || code == Keyboard.KEY_8) {
+                        army_number = 8;
+                        handledArmy = true;
+                    } else if (code == kbArmy9 || code == Keyboard.KEY_9) {
+                        army_number = 9;
+                        handledArmy = true;
+                    }
 
                     if (handledArmy) {
                         if (event.isControlDown()) {
                             getViewer().getSelection().setShortcutArmy(army_number);
                         } else {
-                            boolean selected = getViewer().getSelection().enableShortcutArmy(army_number);
+                            boolean selected =
+                                    getViewer().getSelection().enableShortcutArmy(army_number);
                             if (selected && event.getNumClicks() > 1) {
                                 Set set = getViewer().getSelection().getCurrentSelection().getSet();
                                 if (set.size() > 0) {
                                     Selectable s = (Selectable) set.iterator().next();
-                                    getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera) getCamera(), s.getPositionX(), s.getPositionY()));
+                                    getGUIRoot()
+                                            .pushDelegate(
+                                                    new JumpDelegate(
+                                                            getViewer(),
+                                                            (GameCamera) getCamera(),
+                                                            s.getPositionX(),
+                                                            s.getPositionY()));
                                 }
                             }
                         }
                         break;
                     }
 
-            // Chat toggle (open chat form); keep legacy Enter as fallback
-                    if (event.getKeyCode() == kbChatToggle || event.getKeyCode() == Keyboard.KEY_RETURN) {
+                    // Chat toggle (open chat form); keep legacy Enter as fallback
+                    if (event.getKeyCode() == kbChatToggle
+                            || event.getKeyCode() == Keyboard.KEY_RETURN) {
                         if (!chat_visible) chat_form.setReceivers(!event.isShiftDown());
                         break;
                     }
 
-            // Pause menu
-            if (event.getKeyCode() == kbPause || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
-            getGUIRoot()
-                .pushDelegate(
-                    new InGameMainMenu(
-                        getViewer(),
-                        new StaticCamera(getCamera().getState()),
-                        getViewer().getParameters()));
-            break;
-            }
+                    // Pause menu
+                    if (event.getKeyCode() == kbPause
+                            || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+                        getGUIRoot()
+                                .pushDelegate(
+                                        new InGameMainMenu(
+                                                getViewer(),
+                                                new StaticCamera(getCamera().getState()),
+                                                getViewer().getParameters()));
+                        break;
+                    }
 
                     if (!getActionButtonPanel().doKeyPressed(event)) super.keyPressed(event);
                 }
@@ -296,11 +329,15 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         Settings settings = Settings.getSettings();
         int inc = settings.getKeybind(Globals.KB_GAMESPEED_INCREASE);
         int dec = settings.getKeybind(Globals.KB_GAMESPEED_DECREASE);
-        if (event.getKeyCode() == inc || event.getKeyCode() == Keyboard.KEY_ADD || event.getKeyChar() == '+') {
+        if (event.getKeyCode() == inc
+                || event.getKeyCode() == Keyboard.KEY_ADD
+                || event.getKeyChar() == '+') {
             changeGamespeed(1);
             return;
         }
-        if (event.getKeyCode() == dec || event.getKeyCode() == Keyboard.KEY_SUBTRACT || event.getKeyChar() == '-') {
+        if (event.getKeyCode() == dec
+                || event.getKeyCode() == Keyboard.KEY_SUBTRACT
+                || event.getKeyChar() == '-') {
             changeGamespeed(-1);
             return;
         }
@@ -311,7 +348,8 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
     public final void keyReleased(KeyboardEvent event) {
         getCamera().keyReleased(event);
         Settings settings = Settings.getSettings();
-        if (event.getKeyCode() == settings.getKeybind(Globals.KB_CHAT_TOGGLE) || event.getKeyCode() == Keyboard.KEY_RETURN) {
+        if (event.getKeyCode() == settings.getKeybind(Globals.KB_CHAT_TOGGLE)
+                || event.getKeyCode() == Keyboard.KEY_RETURN) {
             if (!close_chat_override) {
                 if (!chat_visible) {
                     addChild(chat_form);

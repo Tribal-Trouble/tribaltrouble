@@ -2,8 +2,8 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.EditLine;
-import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.GUIObject;
+import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Panel;
@@ -23,14 +23,12 @@ import java.util.zip.CRC32;
 /**
  * A panel that shows a single shareable/importable code representing all keybinds at once.
  *
- * Schemes:
- *  - TTKB3 (default, shorter): "TTKB3-" + base64url(binary) + "-" + checksum
- *      binary payload: sequence of unsigned 16-bit little-endian ints for each action in
- *      canonical order (sorted action names). No names included. Length may be >= number of known
- *      actions; extra values are ignored. Missing values default to 0.
- *  - TTKB2 (legacy, verbose): "TTKB2-" + base64url(UTF-8 text) + "-" + checksum
- *      text payload: semi-colon separated pairs sorted by key name: key=code;key=code;...
- *  checksum: 6-char base36 of CRC32(payload_bytes) & 0xFFFFFFF (uppercase)
+ * <p>Schemes: - TTKB3 (default, shorter): "TTKB3-" + base64url(binary) + "-" + checksum binary
+ * payload: sequence of unsigned 16-bit little-endian ints for each action in canonical order
+ * (sorted action names). No names included. Length may be >= number of known actions; extra values
+ * are ignored. Missing values default to 0. - TTKB2 (legacy, verbose): "TTKB2-" + base64url(UTF-8
+ * text) + "-" + checksum text payload: semi-colon separated pairs sorted by key name:
+ * key=code;key=code;... checksum: 6-char base36 of CRC32(payload_bytes) & 0xFFFFFFF (uppercase)
  */
 public class KeybindCodePanel extends Panel {
     private final EditLine currentCodeField;
@@ -43,14 +41,14 @@ public class KeybindCodePanel extends Panel {
         Group group = new Group();
         addChild(group);
 
-    Label exportLabel = new Label("All-binds code", Skin.getSkin().getEditFont());
+        Label exportLabel = new Label("All-binds code", Skin.getSkin().getEditFont());
         group.addChild(exportLabel);
 
-    currentCodeField = new EditLine(530, 4096);
-    currentCodeField.set(generateCode(Settings.getSettings().getKeybinds()));
+        currentCodeField = new EditLine(530, 4096);
+        currentCodeField.set(generateCode(Settings.getSettings().getKeybinds()));
         group.addChild(currentCodeField);
 
-    HorizButton regenBtn = new HorizButton("Refresh", 110);
+        HorizButton regenBtn = new HorizButton("Refresh", 110);
         regenBtn.addMouseClickListener(
                 new MouseClickListener() {
                     public void mouseClicked(int button, int x, int y, int clicks) {
@@ -69,18 +67,18 @@ public class KeybindCodePanel extends Panel {
                 });
         group.addChild(copyHintBtn);
 
-    Label importLabel = new Label("Paste new code", Skin.getSkin().getEditFont());
+        Label importLabel = new Label("Paste new code", Skin.getSkin().getEditFont());
         group.addChild(importLabel);
 
-    newCodeField = new EditLine(530, 4096);
-    group.addChild(newCodeField);
+        newCodeField = new EditLine(530, 4096);
+        group.addChild(newCodeField);
 
         HorizButton applyBtn = new HorizButton("Apply", 110);
         applyBtn.addMouseClickListener(
                 new MouseClickListener() {
                     public void mouseClicked(int button, int x, int y, int clicks) {
-            String code = newCodeField.getContents();
-            Map<String, Integer> parsed = parseCode(code);
+                        String code = newCodeField.getContents();
+                        Map<String, Integer> parsed = parseCode(code);
                         if (parsed == null) {
                             setStatus("Invalid code.", false);
                             return;
@@ -94,11 +92,10 @@ public class KeybindCodePanel extends Panel {
                                 applied++;
                             }
                         }
-            // Persist and refresh code display
-            Settings.getSettings().save();
-            currentCodeField.set(
-                generateCode(Settings.getSettings().getKeybinds()));
-            setStatus("Applied " + applied + " binds.", true);
+                        // Persist and refresh code display
+                        Settings.getSettings().save();
+                        currentCodeField.set(generateCode(Settings.getSettings().getKeybinds()));
+                        setStatus("Applied " + applied + " binds.", true);
                     }
                 });
         group.addChild(applyBtn);
@@ -107,11 +104,10 @@ public class KeybindCodePanel extends Panel {
         resetBtn.addMouseClickListener(
                 new MouseClickListener() {
                     public void mouseClicked(int button, int x, int y, int clicks) {
-            // Reset to built-in defaults
-            Settings.getSettings().resetKeybindsToDefaults();
-            Settings.getSettings().save();
-            currentCodeField.set(
-                generateCode(Settings.getSettings().getKeybinds()));
+                        // Reset to built-in defaults
+                        Settings.getSettings().resetKeybindsToDefaults();
+                        Settings.getSettings().save();
+                        currentCodeField.set(generateCode(Settings.getSettings().getKeybinds()));
                         setStatus("Reset to defaults.", true);
                     }
                 });
@@ -121,19 +117,19 @@ public class KeybindCodePanel extends Panel {
         group.addChild(statusLabel);
 
         // Layout
-    exportLabel.place();
-    currentCodeField.place(exportLabel, GUIObject.BOTTOM_LEFT);
-    regenBtn.place(currentCodeField, GUIObject.BOTTOM_LEFT);
-    copyHintBtn.place(regenBtn, GUIObject.RIGHT_MID);
-    importLabel.place(regenBtn, GUIObject.BOTTOM_LEFT);
-    newCodeField.place(importLabel, GUIObject.BOTTOM_LEFT);
-    applyBtn.place(newCodeField, GUIObject.BOTTOM_LEFT);
-    resetBtn.place(applyBtn, GUIObject.RIGHT_MID);
-    statusLabel.place(applyBtn, GUIObject.BOTTOM_LEFT);
+        exportLabel.place();
+        currentCodeField.place(exportLabel, GUIObject.BOTTOM_LEFT);
+        regenBtn.place(currentCodeField, GUIObject.BOTTOM_LEFT);
+        copyHintBtn.place(regenBtn, GUIObject.RIGHT_MID);
+        importLabel.place(regenBtn, GUIObject.BOTTOM_LEFT);
+        newCodeField.place(importLabel, GUIObject.BOTTOM_LEFT);
+        applyBtn.place(newCodeField, GUIObject.BOTTOM_LEFT);
+        resetBtn.place(applyBtn, GUIObject.RIGHT_MID);
+        statusLabel.place(applyBtn, GUIObject.BOTTOM_LEFT);
 
-    group.compileCanvas();
-    group.place();
-    compileCanvas();
+        group.compileCanvas();
+        group.place();
+        compileCanvas();
     }
 
     private void setStatus(String msg, boolean ok) {

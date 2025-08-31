@@ -36,9 +36,13 @@ public final strictfp class WaitingForPlayersForm extends Form {
     }
 
     protected final void keyRepeat(KeyboardEvent event) {
-        int back = com.oddlabs.tt.global.Settings.getSettings().getKeybind(com.oddlabs.tt.global.Globals.KB_BACK_CANCEL);
-        if (event.getKeyCode() != back && event.getKeyCode() != Keyboard.KEY_ESCAPE) // Back/Cancel should not close this form
-            super.keyRepeat(event);
+        int back =
+                com.oddlabs.tt.global.Settings.getSettings()
+                        .getKeybind(com.oddlabs.tt.global.Globals.KB_BACK_CANCEL);
+        if (event.getKeyCode() != back
+                && event.getKeyCode()
+                        != Keyboard.KEY_ESCAPE) // Back/Cancel should not close this form
+        super.keyRepeat(event);
     }
 
     protected final void doCancel() {

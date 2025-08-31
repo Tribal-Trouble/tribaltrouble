@@ -142,9 +142,16 @@ public final strictfp class CampaignMapForm extends CameraDelegate {
     }
 
     protected final void keyPressed(KeyboardEvent event) {
-        int back = com.oddlabs.tt.global.Settings.getSettings().getKeybind(com.oddlabs.tt.global.Globals.KB_BACK_CANCEL);
+        int back =
+                com.oddlabs.tt.global.Settings.getSettings()
+                        .getKeybind(com.oddlabs.tt.global.Globals.KB_BACK_CANCEL);
         if (event.getKeyCode() == back || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
-            getGUIRoot().pushDelegate(new CampaignMapMenu(network, getGUIRoot(), new StaticCamera(getCamera().getState())));
+            getGUIRoot()
+                    .pushDelegate(
+                            new CampaignMapMenu(
+                                    network,
+                                    getGUIRoot(),
+                                    new StaticCamera(getCamera().getState())));
             return;
         }
         super.keyPressed(event);

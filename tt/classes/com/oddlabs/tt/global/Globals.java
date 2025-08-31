@@ -80,7 +80,8 @@ public final strictfp class Globals {
     // UI / System
     public static final String KB_CHAT_TOGGLE = "KB_CHAT_TOGGLE"; // Default: Enter/Return
     public static final String KB_BACK_CANCEL = "KB_BACK_CANCEL"; // Default: Escape
-    public static final String KB_GAMESPEED_INCREASE = "KB_GAMESPEED_INCREASE"; // Default: '=' or '+'
+    public static final String KB_GAMESPEED_INCREASE =
+            "KB_GAMESPEED_INCREASE"; // Default: '=' or '+'
     public static final String KB_GAMESPEED_DECREASE = "KB_GAMESPEED_DECREASE"; // Default: '-'
     public static final String KB_PAUSE = "KB_PAUSE"; // Default: Escape (Pause menu)
 

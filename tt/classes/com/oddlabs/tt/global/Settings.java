@@ -151,8 +151,12 @@ public final strictfp class Settings implements Serializable {
                     // UI/System controls
                     put(Globals.KB_CHAT_TOGGLE, Keyboard.KEY_RETURN);
                     put(Globals.KB_BACK_CANCEL, Keyboard.KEY_ESCAPE);
-                    put(Globals.KB_GAMESPEED_INCREASE, Keyboard.KEY_EQUALS); // also keypad + supported in code
-                    put(Globals.KB_GAMESPEED_DECREASE, Keyboard.KEY_MINUS);  // also keypad - supported in code
+                    put(
+                            Globals.KB_GAMESPEED_INCREASE,
+                            Keyboard.KEY_EQUALS); // also keypad + supported in code
+                    put(
+                            Globals.KB_GAMESPEED_DECREASE,
+                            Keyboard.KEY_MINUS); // also keypad - supported in code
                     put(Globals.KB_PAUSE, Keyboard.KEY_ESCAPE);
 
                     // Unit actions

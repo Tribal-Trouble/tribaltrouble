@@ -1,7 +1,6 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.Camera;
-import com.oddlabs.tt.camera.StaticCamera;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.input.Keyboard;

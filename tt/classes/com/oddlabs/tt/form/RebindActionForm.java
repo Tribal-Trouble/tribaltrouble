@@ -14,6 +14,7 @@ public class RebindActionForm extends Form {
     Label current_binding_label;
     int current_key_code;
     String changing_action_name;
+
     // Simplified UI: no extra input boxes, capture keypress only
 
     /**
@@ -53,18 +54,18 @@ public class RebindActionForm extends Form {
         // even though we haven't used compile canvas yet
 
         // Place controls relative to origin placed controls
-    current_binding_label.place(press_any_key_label, BOTTOM_LEFT);
+        current_binding_label.place(press_any_key_label, BOTTOM_LEFT);
 
         // Center the form on screen
         centerPos();
-    // No text inputs; simply press a key then click Save
+        // No text inputs; simply press a key then click Save
     }
 
     protected final void keyPressed(KeyboardEvent event) {
         // Capture physical key presses to update the current binding preview
         current_binding_label.set(Keyboard.keyToString(event.getKeyCode()));
         current_key_code = event.getKeyCode();
-    // Consume so parent/menus don't act on it
+        // Consume so parent/menus don't act on it
         event.consume(); // prevent parent/menus from also handling this key
     }
 
@@ -98,8 +99,8 @@ public class RebindActionForm extends Form {
             this.form = form;
         }
 
-    @Override
-    public final void mouseClicked(int button, int x, int y, int clicks) {
+        @Override
+        public final void mouseClicked(int button, int x, int y, int clicks) {
             System.out.println("saving...");
             form.saveKeybind();
         }
