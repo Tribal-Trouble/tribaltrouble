@@ -58,6 +58,16 @@ public class KeybindCodePanel extends Panel {
                 });
         group.addChild(regenBtn);
 
+        HorizButton copyBtn = new HorizButton("Copy", 90);
+        copyBtn.addMouseClickListener(
+                new MouseClickListener() {
+                    public void mouseClicked(int button, int x, int y, int clicks) {
+                        copyToClipboard(currentCodeField.getContents());
+                        setStatus("Copied.", true);
+                    }
+                });
+        group.addChild(copyBtn);
+
         HorizButton copyHintBtn = new HorizButton("Copy hint", 110);
         copyHintBtn.addMouseClickListener(
                 new MouseClickListener() {
@@ -100,15 +110,17 @@ public class KeybindCodePanel extends Panel {
                 });
         group.addChild(applyBtn);
 
-        HorizButton resetBtn = new HorizButton("Reset to defaults", 170);
+    HorizButton resetBtn = new HorizButton("Reset to defaults", 170);
         resetBtn.addMouseClickListener(
                 new MouseClickListener() {
                     public void mouseClicked(int button, int x, int y, int clicks) {
                         // Reset to built-in defaults
                         Settings.getSettings().resetKeybindsToDefaults();
                         Settings.getSettings().save();
-                        currentCodeField.set(generateCode(Settings.getSettings().getKeybinds()));
-                        setStatus("Reset to defaults.", true);
+            String code = generateCode(Settings.getSettings().getKeybinds());
+            currentCodeField.set(code);
+            copyToClipboard(code);
+            setStatus("Reset to defaults. Copied.", true);
                     }
                 });
         group.addChild(resetBtn);
@@ -119,8 +131,9 @@ public class KeybindCodePanel extends Panel {
         // Layout
         exportLabel.place();
         currentCodeField.place(exportLabel, GUIObject.BOTTOM_LEFT);
-        regenBtn.place(currentCodeField, GUIObject.BOTTOM_LEFT);
-        copyHintBtn.place(regenBtn, GUIObject.RIGHT_MID);
+    regenBtn.place(currentCodeField, GUIObject.BOTTOM_LEFT);
+    copyBtn.place(regenBtn, GUIObject.RIGHT_MID);
+    copyHintBtn.place(copyBtn, GUIObject.RIGHT_MID);
         importLabel.place(regenBtn, GUIObject.BOTTOM_LEFT);
         newCodeField.place(importLabel, GUIObject.BOTTOM_LEFT);
         applyBtn.place(newCodeField, GUIObject.BOTTOM_LEFT);
@@ -130,6 +143,16 @@ public class KeybindCodePanel extends Panel {
         group.compileCanvas();
         group.place();
         compileCanvas();
+    }
+
+    private static void copyToClipboard(String text) {
+        try {
+            java.awt.datatransfer.Clipboard cb =
+                    java.awt.Toolkit.getDefaultToolkit().getSystemClipboard();
+            cb.setContents(new java.awt.datatransfer.StringSelection(text), null);
+        } catch (Throwable t) {
+            // ignore if clipboard not available
+        }
     }
 
     private void setStatus(String msg, boolean ok) {

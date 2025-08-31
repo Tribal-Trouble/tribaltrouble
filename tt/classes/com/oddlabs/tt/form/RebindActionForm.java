@@ -69,6 +69,12 @@ public class RebindActionForm extends Form {
         event.consume(); // prevent parent/menus from also handling this key
     }
 
+    // While capturing, don't let ESC or Back/Cancel close this form via keyRepeat.
+    // Consume all repeats to suppress Form's default cancel behavior.
+    protected void keyRepeat(KeyboardEvent event) {
+        event.consume();
+    }
+
     // keyReleased/keyRepeat in Form are final; rely on EditLine's EnterListener instead.
 
     public void saveKeybind() {

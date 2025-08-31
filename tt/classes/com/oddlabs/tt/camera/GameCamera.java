@@ -437,20 +437,19 @@ public final strictfp class GameCamera extends Camera {
         int pan_up_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP);
         int pan_left_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT);
         int pan_right_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT);
+        int zoom_in_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ZOOM_IN);
+        int zoom_out_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ZOOM_OUT);
+        int rotate_left_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_LEFT);
+        int rotate_right_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT);
 
         int key = event.getKeyCode();
-        if (key == Keyboard.KEY_HOME || key == Keyboard.KEY_NUMPAD8) {
-            // do nothing (break)
-        } else if (key == Keyboard.KEY_END || key == Keyboard.KEY_NUMPAD2) {
-            // do nothing (break)
-        } else if (key == Keyboard.KEY_INSERT || key == Keyboard.KEY_NUMPAD6) {
-            viewer.getPicker().pickRotate(this);
-        } else if (key == Keyboard.KEY_DELETE || key == Keyboard.KEY_NUMPAD4) {
-            viewer.getPicker().pickRotate(this);
-        } else if (key == Keyboard.KEY_PRIOR || key == Keyboard.KEY_NUMPAD9) {
+        if (key == zoom_in_key) {
             mouseScrolled(-2);
-        } else if (key == Keyboard.KEY_NEXT || key == Keyboard.KEY_NUMPAD3) {
+        } else if (key == zoom_out_key) {
             mouseScrolled(2);
+        } else if (key == rotate_right_key || key == rotate_left_key) {
+            // Ensure rotation pivot is updated when rotation keys are pressed
+            viewer.getPicker().pickRotate(this);
         } else if (key == pan_up_key) {
             if (!scrollSpeedLocked(pan_up_key)) {
                 scroll_acceleration_seconds = 0;
@@ -484,21 +483,15 @@ public final strictfp class GameCamera extends Camera {
             return;
         }
 
-        if (LocalInput.isKeyDown(Keyboard.KEY_HOME) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD8))
-            pitch_up = true;
-        else pitch_up = false;
+    int pitch_up_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_PITCH_UP);
+    int pitch_down_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_PITCH_DOWN);
+    int rotate_right_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT);
+    int rotate_left_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_LEFT);
 
-        if (LocalInput.isKeyDown(Keyboard.KEY_END) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD2))
-            pitch_down = true;
-        else pitch_down = false;
-
-        if (LocalInput.isKeyDown(Keyboard.KEY_INSERT) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD6))
-            rotate_right = true;
-        else rotate_right = false;
-
-        if (LocalInput.isKeyDown(Keyboard.KEY_DELETE) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD4))
-            rotate_left = true;
-        else rotate_left = false;
+    pitch_up = LocalInput.isKeyDown(pitch_up_key);
+    pitch_down = LocalInput.isKeyDown(pitch_down_key);
+    rotate_right = LocalInput.isKeyDown(rotate_right_key);
+    rotate_left = LocalInput.isKeyDown(rotate_left_key);
     }
 
     public final void enable() {
