@@ -96,7 +96,7 @@ public final strictfp class TerrainMenu extends Group {
     private final ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
     private final GUIRoot gui_root;
     private final NetworkSelector network;
-    private int player_count;
+    private int player_count = MatchmakingServerInterface.MAX_PLAYERS;
     private int seed;
     private boolean show_demo = true;
 
@@ -338,20 +338,19 @@ public final strictfp class TerrainMenu extends Group {
         label_player_slots.place();
         advanced.addChild(group_num_players);
 
-        PulldownMenu pulldown_menu_slots = new PulldownMenu();
+        ScrollablePulldownMenu pulldown_menu_slots = new ScrollablePulldownMenu(6);
         for (int i = 1; i <= MatchmakingServerInterface.MAX_PLAYERS; i++) {
             pulldown_menu_slots.addItem(new PulldownItem(Integer.toString(i)));
         }
 
         PulldownButton pulldown_player_slots =
                 new PulldownButton(gui_root, pulldown_menu_slots, 5, 150);
-        pulldown_menu_slots.addItemChosenListener(new PulldownUpdatePlayersChangedListener());
         group_num_players.addChild(pulldown_player_slots);
         pulldown_player_slots.place(label_player_slots, RIGHT_MID);
         group_num_players.compileCanvas();
 
         // races and teams
-        Group group_race_team = new ScrollableGroup(300, 64);
+        ScrollableGroup group_race_team = new ScrollableGroup(300, 64);
         labels_players = new Label[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         race_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
@@ -492,6 +491,8 @@ public final strictfp class TerrainMenu extends Group {
 
         PanelGroup panel_group = new PanelGroup(new Panel[] {standard, advanced}, 0);
         addChild(panel_group);
+        pulldown_menu_slots.addItemChosenListener(new PulldownUpdatePlayersChangedListener(group_race_team, standard, panel_group, this, advanced));
+
 
         // Place objects
         label_headline.place();
@@ -745,6 +746,7 @@ public final strictfp class TerrainMenu extends Group {
                 multiplayer
                         ? new MultiplayerInGameInfo(game.getRandomStartPos(), game.isRated())
                         : new DefaultInGameInfo();
+        System.out.println("InGameInfo created" + player_count);
         GameNetwork game_network =
                 Menu.startNewGame(
                         network,
@@ -850,8 +852,134 @@ public final strictfp class TerrainMenu extends Group {
 
     private final strictfp class PulldownUpdatePlayersChangedListener
             implements ItemChosenListener {
+                ScrollableGroup group_race_team;
+                Panel standard;
+                PanelGroup panel_group;
+                TerrainMenu terrain_menu;
+                Panel advanced;
+                public PulldownUpdatePlayersChangedListener(ScrollableGroup group_race_team, Panel standard, PanelGroup panel_group, TerrainMenu terrain_menu, Panel advanced) {
+                    this.group_race_team = group_race_team;
+                    this.standard = standard;
+                    this.panel_group = panel_group;
+                    this.terrain_menu = terrain_menu;
+                    this.advanced = advanced;
+                }
         public final void itemChosen(PulldownMenu menu, int item_index) {
+            group_race_team.clearChildren();
+            standard.removeChild(group_race_team);
+            group_race_team = new ScrollableGroup(300, 64);
+            group_race_team.place();
+            standard.addChild(group_race_team);
+
             player_count = item_index + 1;
+            for (int i = 0; i < player_count; i++) {
+                difficulty_pulldown_menus[i] = new PulldownMenu();
+                race_pulldown_menus[i] = new PulldownMenu();
+                team_pulldown_menus[i] = new ScrollablePulldownMenu(6);
+
+                if (i == 0) {
+                    difficulty_pulldown_menus[i].addItem(
+                            new PulldownItem(Utils.getBundleString(bundle, "human")));
+                } else {
+                    difficulty_pulldown_menus[i].addItem(
+                            new PulldownItem(Utils.getBundleString(bundle, "closed")));
+                    difficulty_pulldown_menus[i].addItem(
+                            new PulldownItem(Utils.getBundleString(bundle, "easy_ai")));
+                    difficulty_pulldown_menus[i].addItem(
+                            new PulldownItem(Utils.getBundleString(bundle, "normal_ai")));
+                    PulldownItem hard = new PulldownItem(Utils.getBundleString(bundle, "hard_ai"));
+                    difficulty_pulldown_menus[i].addItem(hard);
+                }
+
+                difficulty_pulldown_buttons[i] =
+                        new PulldownButton(gui_root, difficulty_pulldown_menus[i], 0, 115);
+                group_race_team.addChild(difficulty_pulldown_buttons[i]);
+
+                for (int j = 0; j < RacesResources.getNumRaces(); j++) {
+                    PulldownItem pulldown_item_race = new PulldownItem(RacesResources.getRaceName(j));
+                    race_pulldown_menus[i].addItem(pulldown_item_race);
+                }
+
+                race_pulldown_buttons[i] = new PulldownButton(gui_root, race_pulldown_menus[i], 0, 115);
+                group_race_team.addChild(race_pulldown_buttons[i]);
+                for (int j = 0; j < player_count; j++) {
+                    String team_str =
+                            Utils.getBundleString(
+                                    bundle, "team", new Object[] {Integer.toString(j + 1)});
+                    PulldownItem pulldown_item_team = new PulldownItem(team_str);
+                    team_pulldown_menus[i].addItem(pulldown_item_team);
+                }
+                team_pulldown_buttons[i] = new PulldownButton(gui_root, team_pulldown_menus[i], StrictMath.min(i, player_count - 1), 115);
+                group_race_team.addChild(team_pulldown_buttons[i]);
+                if (i == 0) {
+                    String player_str =
+                            Utils.getBundleString(bundle, "player", new Object[] {Integer.toString(1)});
+                    labels_players[0] = new Label(player_str, Skin.getSkin().getEditFont());
+                    labels_players[0].setColor(Player.COLORS[0]);
+                    group_race_team.addChild(labels_players[0]);
+                    labels_players[0].place();
+                    difficulty_pulldown_buttons[0].place(labels_players[0], RIGHT_MID);
+                    race_pulldown_buttons[0].place(difficulty_pulldown_buttons[0], RIGHT_MID);
+                    team_pulldown_buttons[0].place(race_pulldown_buttons[0], RIGHT_MID);
+                } else {
+                    String player_str =
+                            Utils.getBundleString(
+                                    bundle, "player", new Object[] {Integer.toString(i + 1)});
+                    labels_players[i] = new Label(player_str, Skin.getSkin().getEditFont());
+                    labels_players[i].setColor(Player.COLORS[i]);
+                    group_race_team.addChild(labels_players[i]);
+                    labels_players[i].place(labels_players[i - 1], BOTTOM_RIGHT);
+                    difficulty_pulldown_buttons[i].place(labels_players[i], RIGHT_MID);
+                    race_pulldown_buttons[i].place(difficulty_pulldown_buttons[i], RIGHT_MID);
+                    team_pulldown_buttons[i].place(race_pulldown_buttons[i], RIGHT_MID);
+                    difficulty_pulldown_menus[i].addItemChosenListener(new DisableListener(i));
+                }
+                difficulty_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
+                race_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
+                team_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
+            }
+            
+            // for (int i = 0; i < player_count; i++) {                
+            //     // todo: create all_ versions of?
+            //         // labels_players[i]
+            //         // difficulty_pulldown_buttons[i]
+            //         // team_pulldown_buttons[i]
+            //         // team_pulldown_buttons[i] = all_team_pulldown_menus[i];
+            //     group_race_team.addChild(labels_players[i]);
+            //     group_race_team.addChild(difficulty_pulldown_buttons[i]);
+            //     group_race_team.addChild(team_pulldown_buttons[i]);
+            // }
+            System.out.println("-----------------------------------------BEFORE------------------------------------------------------");
+            System.out.println("Group race team compiled. Height: " + group_race_team.getWidth() + " height " + group_race_team.getHeight());
+            System.out.println("Terrain menu compiled. width: " + terrain_menu.getWidth() + " height " + terrain_menu.getHeight());
+            System.out.println("Standard menu compiled. width: " + standard.getWidth() + " height " + standard.getHeight());
+            System.out.println("Advanced menu compiled. width: " + advanced.getWidth() + " height " + advanced.getHeight());
+            System.out.println("Panel group compiled. width: " + panel_group.getWidth() + " height " + panel_group.getHeight());
+            System.out.println("--------------------------------------------AFTER---------------------------------------------------");
+            group_race_team.compileCanvas();
+            standard.compileCanvas();
+            standard.setDim(standard.getWidth() + 100, standard.getHeight());
+            terrain_menu.compileCanvas();
+            // standard.setDim(group_race_team.getWidth() + 100, group_race_team.getHeight());
+            //panel_group.recalculateSize();
+            // terrain_menu.compileCanvas();
+            // standard.setDim(0,0);
+            // advanced.setDim(0,0);
+            // panel_group.setDim(0,0);
+            //terrain_menu.setDim(100,100);
+            // panel_group.recalculateSize();
+            
+            //owner.recalculateDim(standard.getWidth(), standard.getHeight());
+            System.out.println("Group race team compiled. Height: " + group_race_team.getWidth() + " height " + group_race_team.getHeight());
+            System.out.println("Terrain menu compiled. width: " + terrain_menu.getWidth() + " height " + terrain_menu.getHeight());
+            System.out.println("Standard menu compiled. width: " + standard.getWidth() + " height " + standard.getHeight());
+            System.out.println("Advanced menu compiled. width: " + advanced.getWidth() + " height " + advanced.getHeight());
+            System.out.println("Panel group compiled. width: " + panel_group.getWidth() + " height " + panel_group.getHeight());
+            //System.out.println("Owner compiled. width: " + owner.getWidth() + " height " + owner.getHeight());
+            // compileCanvas();
+            //panel_group.setDim(group_race_team.getWidth() + 100, group_race_team.getHeight());
+            
+            
         }
     }
 
