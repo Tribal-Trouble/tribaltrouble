@@ -244,5 +244,15 @@ public final strictfp class Globals {
     public static final String KB_PAN_CAMERA_RIGHT = "KB_PAN_CAMERA_RIGHT";
     public static final String KB_PAN_CAMERA_UP = "KB_PAN_CAMERA_UP";
     public static final String KB_PAN_CAMERA_DOWN = "KB_PAN_CAMERA_DOWN";
+    public static final String KB_CAMERA_ZOOM_IN = "KB_CAMERA_ZOOM_IN";
+    public static final String KB_CAMERA_ZOOM_OUT = "KB_CAMERA_ZOOM_OUT";
+    public static final String KB_CAMERA_ROTATE_LEFT = "KB_CAMERA_ROTATE_LEFT";
+    public static final String KB_CAMERA_ROTATE_RIGHT = "KB_CAMERA_ROTATE_RIGHT";
+    public static final String KB_CAMERA_PITCH_UP = "KB_CAMERA_PITCH_UP";
+    public static final String KB_CAMERA_PITCH_DOWN = "KB_CAMERA_PITCH_DOWN";
+    // Camera gestures (now rebindable keyboard equivalents)
+    public static final String KB_CAMERA_ZOOM_HOLD = "KB_CAMERA_ZOOM_HOLD"; // Default: Z (hold)
+    public static final String KB_CAMERA_FIRST_PERSON_TOGGLE =
+            "KB_CAMERA_FIRST_PERSON_TOGGLE"; // Default: F (press/release)
     // #endregion Keybinds
 }

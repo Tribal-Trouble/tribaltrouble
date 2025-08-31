@@ -44,6 +44,16 @@ public class KeybindPanel extends Panel {
                     put(Globals.KB_PAN_CAMERA_RIGHT, "Pan Camera Right");
                     put(Globals.KB_PAN_CAMERA_UP, "Pan Camera Up");
                     put(Globals.KB_PAN_CAMERA_DOWN, "Pan Camera Down");
+                    put(Globals.KB_CAMERA_ZOOM_IN, "Zoom In");
+                    put(Globals.KB_CAMERA_ZOOM_OUT, "Zoom Out");
+                    put(Globals.KB_CAMERA_ROTATE_LEFT, "Rotate Camera Left");
+                    put(Globals.KB_CAMERA_ROTATE_RIGHT, "Rotate Camera Right");
+                    put(Globals.KB_CAMERA_PITCH_UP, "Pitch Camera Up");
+                    put(Globals.KB_CAMERA_PITCH_DOWN, "Pitch Camera Down");
+            put(Globals.KB_CAMERA_ZOOM_HOLD, "Hold to Zoom (Keyboard)");
+            put(
+                Globals.KB_CAMERA_FIRST_PERSON_TOGGLE,
+                "Toggle First-Person (Keyboard)");
 
                     put(Globals.KB_ATTACK, "Attack");
                     put(Globals.KB_GATHER_REPAIR, "Gather/Repair");
@@ -189,94 +199,115 @@ public class KeybindPanel extends Panel {
         keybinds_list_box.clear();
         HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
 
+        // Build reverse map keyCode -> count to detect duplicates
+        java.util.HashMap<Integer, Integer> codeCounts = new java.util.HashMap<>();
+        for (Integer code : keybinds.values()) {
+            if (code == null) continue;
+            codeCounts.put(code, codeCounts.getOrDefault(code, 0) + 1);
+        }
+
         // Section order: Camera → Main Gameplay → Menus (A–Z) → System → Army Groups
-        List<Section> sections =
-                Arrays.asList(
-                        sec(
-                                "Camera Controls",
-                                Globals.KB_PAN_CAMERA_LEFT,
-                                Globals.KB_PAN_CAMERA_RIGHT,
-                                Globals.KB_PAN_CAMERA_UP,
-                                Globals.KB_PAN_CAMERA_DOWN),
-                        sec(
-                                "General Gameplay",
-                                Globals.KB_TOGGLE_MAP_MODE,
-                                Globals.KB_JUMP_TO_NOTIFICATION,
-                                Globals.KB_PLACE_BEACON,
-                                Globals.KB_NEXT_IDLE_PEON),
-                        sec(
-                                "Basic Unit Actions",
-                                Globals.KB_MOVE,
-                                Globals.KB_ATTACK,
-                                Globals.KB_GATHER_REPAIR),
-                        sec(
-                                "Building Construction",
-                                Globals.KB_BUILD_ARMORY,
-                                Globals.KB_BUILD_QUARTERS,
-                                Globals.KB_BUILD_TOWER),
-                        sec(
-                                "Armory Actions",
-                                Globals.KB_ARMORY_DEPLOY_WARRIORS,
-                                Globals.KB_ARMORY_HARVEST,
-                                Globals.KB_ARMORY_MAKE_WEAPONS,
-                                Globals.KB_ARMORY_TRANSPORT,
-                                Globals.KB_ARMORY_RALLY_POINT),
-                        sec(
-                                "Armory - Deploy Units",
-                                Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS,
-                                Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS,
-                                Globals.KB_ARMORY_DEPLOY_PEON,
-                                Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS),
-                        sec(
-                                "Armory - Resource Harvesting",
-                                Globals.KB_ARMORY_HARVEST_CHICKEN,
-                                Globals.KB_ARMORY_HARVEST_IRON,
-                                Globals.KB_ARMORY_HARVEST_ROCK,
-                                Globals.KB_ARMORY_HARVEST_TREE),
-                        sec(
-                                "Armory - Resource Transportation",
-                                Globals.KB_ARMORY_TRANSPORT_CHICKEN,
-                                Globals.KB_ARMORY_TRANSPORT_IRON,
-                                Globals.KB_ARMORY_TRANSPORT_ROCK,
-                                Globals.KB_ARMORY_TRANSPORT_TREE),
-                        sec(
-                                "Armory - Weapon Creation",
-                                Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON,
-                                Globals.KB_ARMORY_CREATE_IRON_WEAPON,
-                                Globals.KB_ARMORY_CREATE_ROCK_WEAPON),
-                        sec(
-                                "Chieftain Magic",
-                                Globals.KB_CHIEFTAIN_MAGIC1,
-                                Globals.KB_CHIEFTAIN_MAGIC2),
-                        sec(
-                                "Quarters Actions",
-                                Globals.KB_QUARTERS_CHIEFTAIN,
-                                Globals.KB_QUARTERS_DEPLOY_PEON,
-                                Globals.KB_QUARTERS_SET_RALLY_POINT),
-                        sec("Tower Actions", Globals.KB_TOWER_ATTACK, Globals.KB_TOWER_EXIT),
-                        sec(
-                                "System / Interface",
-                                Globals.KB_CHAT_TOGGLE,
-                                Globals.KB_BACK_CANCEL,
-                                Globals.KB_GAMESPEED_INCREASE,
-                                Globals.KB_GAMESPEED_DECREASE,
-                                Globals.KB_PAUSE),
-                        sec(
-                                "Army Groups",
-                                Globals.KB_ARMY_GROUP_0,
-                                Globals.KB_ARMY_GROUP_1,
-                                Globals.KB_ARMY_GROUP_2,
-                                Globals.KB_ARMY_GROUP_3,
-                                Globals.KB_ARMY_GROUP_4,
-                                Globals.KB_ARMY_GROUP_5,
-                                Globals.KB_ARMY_GROUP_6,
-                                Globals.KB_ARMY_GROUP_7,
-                                Globals.KB_ARMY_GROUP_8,
-                                Globals.KB_ARMY_GROUP_9));
+    List<Section> sections =
+        Arrays.asList(
+            // Core gameplay first
+            sec(
+                "Basic Unit Actions",
+                Globals.KB_MOVE,
+                Globals.KB_ATTACK,
+                Globals.KB_GATHER_REPAIR),
+            sec(
+                "Building Construction",
+                Globals.KB_BUILD_ARMORY,
+                Globals.KB_BUILD_QUARTERS,
+                Globals.KB_BUILD_TOWER),
+            sec(
+                "Armory Actions",
+                Globals.KB_ARMORY_DEPLOY_WARRIORS,
+                Globals.KB_ARMORY_HARVEST,
+                Globals.KB_ARMORY_MAKE_WEAPONS,
+                Globals.KB_ARMORY_TRANSPORT,
+                Globals.KB_ARMORY_RALLY_POINT),
+            sec(
+                "Armory - Deploy Units",
+                Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS,
+                Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS,
+                Globals.KB_ARMORY_DEPLOY_PEON,
+                Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS),
+            sec(
+                "Armory - Resource Harvesting",
+                Globals.KB_ARMORY_HARVEST_CHICKEN,
+                Globals.KB_ARMORY_HARVEST_IRON,
+                Globals.KB_ARMORY_HARVEST_ROCK,
+                Globals.KB_ARMORY_HARVEST_TREE),
+            sec(
+                "Armory - Resource Transportation",
+                Globals.KB_ARMORY_TRANSPORT_CHICKEN,
+                Globals.KB_ARMORY_TRANSPORT_IRON,
+                Globals.KB_ARMORY_TRANSPORT_ROCK,
+                Globals.KB_ARMORY_TRANSPORT_TREE),
+            sec(
+                "Armory - Weapon Creation",
+                Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON,
+                Globals.KB_ARMORY_CREATE_IRON_WEAPON,
+                Globals.KB_ARMORY_CREATE_ROCK_WEAPON),
+            sec(
+                "Chieftain Magic",
+                Globals.KB_CHIEFTAIN_MAGIC1,
+                Globals.KB_CHIEFTAIN_MAGIC2),
+            sec(
+                "Quarters Actions",
+                Globals.KB_QUARTERS_CHIEFTAIN,
+                Globals.KB_QUARTERS_DEPLOY_PEON,
+                Globals.KB_QUARTERS_SET_RALLY_POINT),
+            sec("Tower Actions", Globals.KB_TOWER_ATTACK, Globals.KB_TOWER_EXIT),
+            // General gameplay hotkeys later
+            sec(
+                "General Gameplay",
+                Globals.KB_TOGGLE_MAP_MODE,
+                Globals.KB_JUMP_TO_NOTIFICATION,
+                Globals.KB_PLACE_BEACON,
+                Globals.KB_NEXT_IDLE_PEON),
+            // Army groups near the end
+            sec(
+                "Army Groups",
+                Globals.KB_ARMY_GROUP_0,
+                Globals.KB_ARMY_GROUP_1,
+                Globals.KB_ARMY_GROUP_2,
+                Globals.KB_ARMY_GROUP_3,
+                Globals.KB_ARMY_GROUP_4,
+                Globals.KB_ARMY_GROUP_5,
+                Globals.KB_ARMY_GROUP_6,
+                Globals.KB_ARMY_GROUP_7,
+                Globals.KB_ARMY_GROUP_8,
+                Globals.KB_ARMY_GROUP_9),
+            // System before camera
+            sec(
+                "System / Interface",
+                Globals.KB_CHAT_TOGGLE,
+                Globals.KB_BACK_CANCEL,
+                Globals.KB_GAMESPEED_INCREASE,
+                Globals.KB_GAMESPEED_DECREASE,
+                Globals.KB_PAUSE),
+            // Camera last
+            sec(
+                "Camera Controls",
+                Globals.KB_PAN_CAMERA_LEFT,
+                Globals.KB_PAN_CAMERA_RIGHT,
+                Globals.KB_PAN_CAMERA_UP,
+                Globals.KB_PAN_CAMERA_DOWN,
+                Globals.KB_CAMERA_ZOOM_IN,
+                Globals.KB_CAMERA_ZOOM_OUT,
+                Globals.KB_CAMERA_ROTATE_LEFT,
+                Globals.KB_CAMERA_ROTATE_RIGHT,
+                Globals.KB_CAMERA_PITCH_UP,
+                Globals.KB_CAMERA_PITCH_DOWN,
+                // Keyboard equivalents for mouse gestures
+                Globals.KB_CAMERA_ZOOM_HOLD,
+                Globals.KB_CAMERA_FIRST_PERSON_TOGGLE));
 
         int orderIndex = 0;
         for (Section sec : sections) {
-            orderIndex = addSection(sec, keybinds, orderIndex);
+            orderIndex = addSection(sec, keybinds, codeCounts, orderIndex);
         }
     }
 
@@ -295,7 +326,11 @@ public class KeybindPanel extends Panel {
         return new Section(title, actions);
     }
 
-    private int addSection(Section section, HashMap<String, Integer> keybinds, int orderIndex) {
+    private int addSection(
+            Section section,
+            HashMap<String, Integer> keybinds,
+            java.util.Map<Integer, Integer> codeCounts,
+            int orderIndex) {
         // Header
         OrderedLabel header =
                 new OrderedLabel(section.title, orderIndex++, Skin.getSkin().getEditFont());
@@ -313,6 +348,11 @@ public class KeybindPanel extends Panel {
                             displayName + " [" + keyString + "]",
                             orderIndex++,
                             Skin.getSkin().getMultiColumnComboBoxData().getFont());
+            // Highlight duplicates in yellow
+            Integer count = codeCounts.get(keyCode);
+            if (count != null && count > 1) {
+                label.setColor(new float[] {1.0f, 0.92f, 0.23f, 1.0f});
+            }
             keybinds_list_box.addRow(
                     new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode)));
         }

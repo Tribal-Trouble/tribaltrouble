@@ -129,6 +129,15 @@ public final strictfp class Settings implements Serializable {
                     put(Globals.KB_PAN_CAMERA_RIGHT, Keyboard.KEY_RIGHT);
                     put(Globals.KB_PAN_CAMERA_UP, Keyboard.KEY_UP);
                     put(Globals.KB_PAN_CAMERA_DOWN, Keyboard.KEY_DOWN);
+                    put(Globals.KB_CAMERA_ZOOM_IN, Keyboard.KEY_PRIOR); // Page Up
+                    put(Globals.KB_CAMERA_ZOOM_OUT, Keyboard.KEY_NEXT); // Page Down
+                    put(Globals.KB_CAMERA_ROTATE_LEFT, Keyboard.KEY_DELETE); // Delete
+                    put(Globals.KB_CAMERA_ROTATE_RIGHT, Keyboard.KEY_INSERT); // Insert
+                    put(Globals.KB_CAMERA_PITCH_UP, Keyboard.KEY_HOME); // Home
+                    put(Globals.KB_CAMERA_PITCH_DOWN, Keyboard.KEY_END); // End
+                    // Camera gesture keys (keyboard equivalents)
+                    put(Globals.KB_CAMERA_ZOOM_HOLD, Keyboard.KEY_Z); // Hold Z to zoom
+                    put(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE, Keyboard.KEY_F); // Toggle FPV
 
                     // General gameplay hotkeys
                     put(Globals.KB_TOGGLE_MAP_MODE, Keyboard.KEY_SPACE);
