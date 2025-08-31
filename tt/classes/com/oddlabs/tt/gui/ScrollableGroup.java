@@ -28,6 +28,31 @@ public class ScrollableGroup extends Group implements Scrollable {
         total_content_height = getHeight() - content_height + getStepHeight();
         System.out.println("Height: " + getHeight());
         System.out.println("Total content height: " + total_content_height);
+
+        // If added content is less than the set dimensions - 
+        // remove the scrollbar and adjust the positions of the children
+        if(total_content_height < content_height) {
+            int remainingHeight = total_content_height % content_height;
+            this.removeChild(scroll_bar);
+            ListElement current = getFirstChild();        
+            while (current != null) {
+                GUIObject gui_object = (GUIObject) current;
+                if(gui_object == scroll_bar) {
+                    current = current.getNext();
+                    continue;
+                }
+
+                int x = gui_object.getX();
+                int y = gui_object.getY();
+                // Items are placed bottom up. This pushes the items up to the top of the container if they don't fill the expected space
+                gui_object.setPos(x, y + content_height - remainingHeight);
+                current = current.getNext();
+            }   
+            scroll_bar = null;
+            return;
+        }
+
+
         scroll_bar.update();
         // Only show the amount that the control was told to (content_height)
         setDim(getWidth() + scroll_bar.getWidth() + scroll_bar_left_margin, content_height);
@@ -145,6 +170,8 @@ public class ScrollableGroup extends Group implements Scrollable {
         // Added missing @Override annotation
     @Override
     public final void setOffsetY(int new_offset) {
+        if(scroll_bar == null)
+            return;
         // Get the difference from the old offset to the requested new one
         int diff = new_offset - offset_y;
         // Calculate how far past the min offset we went to and correct it to min (0)

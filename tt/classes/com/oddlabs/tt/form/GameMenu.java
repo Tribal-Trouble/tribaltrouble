@@ -19,6 +19,7 @@ import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PulldownButton;
 import com.oddlabs.tt.gui.PulldownItem;
 import com.oddlabs.tt.gui.PulldownMenu;
+import com.oddlabs.tt.gui.ScrollableGroup;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.TextBox;
 import com.oddlabs.tt.guievent.EnterListener;
@@ -115,7 +116,7 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
         team_buttons = new PulldownButton[player_count];
         ready_marks = new Diode[player_count];
         ratings = new Label[player_count];
-        Group player_group = new Group();
+        ScrollableGroup player_group = new ScrollableGroup(200, 64);
         GUIObject previous = null;
         for (int i = 0; i < player_count; i++)
             previous =

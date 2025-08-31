@@ -491,7 +491,7 @@ public final strictfp class TerrainMenu extends Group {
 
         PanelGroup panel_group = new PanelGroup(new Panel[] {standard, advanced}, 0);
         addChild(panel_group);
-        pulldown_menu_slots.addItemChosenListener(new PulldownUpdatePlayersChangedListener(group_race_team, standard, panel_group, this, advanced));
+        pulldown_menu_slots.addItemChosenListener(new PulldownUpdatePlayersChangedListener(group_race_team, standard, panel_group, this, advanced, multiplayer));
 
 
         // Place objects
@@ -857,21 +857,26 @@ public final strictfp class TerrainMenu extends Group {
                 PanelGroup panel_group;
                 TerrainMenu terrain_menu;
                 Panel advanced;
-                public PulldownUpdatePlayersChangedListener(ScrollableGroup group_race_team, Panel standard, PanelGroup panel_group, TerrainMenu terrain_menu, Panel advanced) {
+                boolean is_multiplayer;
+                public PulldownUpdatePlayersChangedListener(ScrollableGroup group_race_team, Panel standard, PanelGroup panel_group, TerrainMenu terrain_menu, Panel advanced, boolean is_multiplayer) {
                     this.group_race_team = group_race_team;
                     this.standard = standard;
                     this.panel_group = panel_group;
                     this.terrain_menu = terrain_menu;
                     this.advanced = advanced;
+                    this.is_multiplayer = is_multiplayer;
                 }
         public final void itemChosen(PulldownMenu menu, int item_index) {
+            player_count = item_index + 1;
+            if(is_multiplayer)
+                return;
+            
+            // For single player we need to redraw all the controls
             group_race_team.clearChildren();
             standard.removeChild(group_race_team);
             group_race_team = new ScrollableGroup(300, 64);
             group_race_team.place();
             standard.addChild(group_race_team);
-
-            player_count = item_index + 1;
             for (int i = 0; i < player_count; i++) {
                 difficulty_pulldown_menus[i] = new PulldownMenu();
                 race_pulldown_menus[i] = new PulldownMenu();
