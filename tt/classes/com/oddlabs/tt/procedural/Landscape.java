@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Random;
 
 public final strictfp class Landscape {
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     private static final int STRUCTURE_SEED =
             42; // must be constant; otherwise distinct repeating patterns might appear
 
@@ -41,6 +41,7 @@ public final strictfp class Landscape {
     private Channel height;
     private Channel slope;
     private Channel water_map;
+    private Channel dock_map;
     private Channel island_ids;
     private Channel access;
     private Channel access_exported;
@@ -637,7 +638,7 @@ public final strictfp class Landscape {
         access =
                 generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL - 0.5f)
                         .largestConnected(1f)
-                        .channelMultiply(water_map.copy().invert());
+                        .channelMultiply(water_map.copy().channelSubtract(dock_map).invert());
 
         access_exported = access.copy();
         if (DEBUG) access.toLayer().saveAsPNG("access");
@@ -645,7 +646,8 @@ public final strictfp class Landscape {
         build =
                 generateBuildMap(
                         generateThresholdMap(slope, build_threshold, Globals.SEA_LEVEL)
-                                .channelMultiply(access));
+                                .channelMultiply(access)
+                                .channelSubtract(dock_map));
     }
 
     private final void generateTerrainViking() {
@@ -1457,14 +1459,12 @@ public final strictfp class Landscape {
                         .floodfill(0, 0, -1.0f, 0.1f)
                         .threshold(-1.01f, -0.99f);
         if (DEBUG) water_map.toLayer().saveAsPNG("water_map");
-        Channel dock_map =
-                water_map
-                        .copy()
-                        .smooth(4)
-                        .threshold(0.01f, 1.0f)
-                        .channelMultiply(water_map.copy().invert());
+        dock_map = water_map.copy().smooth(4).threshold(0.0f, 0.99f).channelMultiply(water_map);
         Channel beach =
-                height.copy().threshold(Globals.SEA_LEVEL - 1.0f, Globals.SEA_LEVEL + 0.05f);
+                height.copy()
+                        .threshold(
+                                Globals.SEA_LEVEL - 0.5f / height_scale,
+                                Globals.SEA_LEVEL + 0.05f / height_scale);
         dock_map = dock_map.channelMultiply(beach);
         if (DEBUG) beach.toLayer().saveAsPNG("beach");
         if (DEBUG) dock_map.toLayer().saveAsPNG("dock_map");
