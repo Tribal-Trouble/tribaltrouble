@@ -36,7 +36,6 @@ public final strictfp class PulldownButton extends GUIObject {
                 label.getHeight());
         label.setPos(data.getTextOffsetLeft(), (getHeight() - label.getHeight()) / 2);
         if (menu.getWidth() < width) {
-            System.out.println("Setting menu width to: " + width);
             menu.setDim(width, menu.getHeight());   
         } 
         else {
