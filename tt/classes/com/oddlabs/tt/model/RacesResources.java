@@ -690,9 +690,9 @@ public final strictfp class RacesResources {
                         -0.5f,
                         -2.0f,
                         1.8f,
-                        .25f,
-                        -2.8f,
-                        13.1f,
+                        1.0f,
+                        0.0f,
+                        5.0f,
                         true,
                         Utils.getBundleString(bundle, "ship"));
         ProgressForm.progress(1f / num_progress);
@@ -730,9 +730,9 @@ public final strictfp class RacesResources {
                         -0.5f,
                         -2.0f,
                         1.8f,
-                        .25f,
-                        -2.8f,
-                        13.1f,
+                        1.0f,
+                        0.0f,
+                        5.0f,
                         true,
                         Utils.getBundleString(bundle, "ship"));
         ProgressForm.progress(1f / num_progress);

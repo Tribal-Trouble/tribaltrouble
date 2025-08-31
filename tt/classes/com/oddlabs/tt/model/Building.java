@@ -98,7 +98,11 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         UnitGrid unit_grid = getUnitGrid();
         float x = UnitGrid.coordinateFromGrid(grid_x);
         float y = UnitGrid.coordinateFromGrid(grid_y);
-        setPosition(x, y);
+        super.setPosition(x, y);
+        setPositionZ(
+                Math.max(
+                        unit_grid.getHeightMap().getSeaLevelMeters(),
+                        unit_grid.getHeightMap().getNearestHeight(x, y) + getOffsetZ()));
         pushController(new NullController(this));
         /*
            Vector3f position, float offset_z, float uv_angle,
@@ -1011,6 +1015,14 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         updateBounds();
         reregister();
         occupy();
+    }
+
+    public final void setPosition(float x, float y) {
+        super.setPosition(x, y);
+        float xc = x + getBuildingTemplate().getChimneyX();
+        float yc = y + getBuildingTemplate().getChimneyY();
+        float zc = getPositionZ() + getBuildingTemplate().getChimneyZ();
+        production_emitter.setPosition(new Vector3f(xc, yc, zc));
     }
 
     public final void setPosition(int x, int y) {
