@@ -11,17 +11,18 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
 
 public final strictfp class GameCamera extends Camera {
-    public static final int SCROLL_BUFFER = 5;
+    public static int SCROLL_BUFFER = 5;
     private static final float INIT_DISTANCE = 50;
-    private static final float ANGLE_DELTA = (float) (StrictMath.PI / 2);
+    // ANGLE_DELTA is computed from settings each frame (deg/sec -> rad/sec), but keep a default
+    private static float ANGLE_DELTA = (float) (StrictMath.PI / 2);
     public static final float MAX_Z = 100f;
     private static final float ZOOM_Z_DIR_MIN = -(float) StrictMath.tan(StrictMath.PI / 6);
-    private static final float SCROLL_ACCELERATION_SECONDS_MAX = 1f;
-    private static final float SCROLL_ACCELERATION_FACTOR = 2.5f;
-    private static final float SCROLL_START_MAX_SPEED = 60f;
+    private static float SCROLL_ACCELERATION_SECONDS_MAX = 1f;
+    private static float SCROLL_ACCELERATION_FACTOR = 2.5f;
+    private static float SCROLL_START_MAX_SPEED = 60f;
     private static final float ROTATE_PICKING_ANGLE_MAX =
             (-(Globals.FOV) - 10) * ((float) StrictMath.PI / 180) * .5f;
-    private static final float ZOOM_SPEED = 50f;
+    private static float ZOOM_SPEED = 50f;
 
     private final WorldViewer viewer;
 
@@ -50,6 +51,8 @@ public final strictfp class GameCamera extends Camera {
         super(viewer.getWorld().getHeightMap(), camera);
         this.default_rotate_radius = viewer.getWorld().getHeightMap().getMetersPerWorld() / 4;
         this.viewer = viewer;
+        // Initialize tunables from Settings
+        syncSettings();
         checkPosition();
         updateDirection();
     }
@@ -316,6 +319,8 @@ public final strictfp class GameCamera extends Camera {
     }
 
     public final void doAnimate(float t) {
+        // Refresh tunables each frame in case user adjusted sliders while menu is open
+        syncSettings();
         doZoom(t);
         doScroll(t);
         doPitch(t);
@@ -496,5 +501,17 @@ public final strictfp class GameCamera extends Camera {
     public final void enable() {
         super.enable();
         mouseMoved(LocalInput.getMouseX(), LocalInput.getMouseY());
+    }
+
+    private static void syncSettings() {
+        // Pull latest values from Settings
+        SCROLL_BUFFER = Settings.getSettings().camera_edge_scroll_buffer;
+        SCROLL_ACCELERATION_SECONDS_MAX = Settings.getSettings().camera_scroll_accel_seconds_max;
+        SCROLL_ACCELERATION_FACTOR = Settings.getSettings().camera_scroll_accel_factor;
+        SCROLL_START_MAX_SPEED = Settings.getSettings().camera_start_max_speed;
+        ZOOM_SPEED = Settings.getSettings().camera_zoom_speed;
+        // Degrees/sec -> radians/sec for ANGLE_DELTA baseline
+        float degPerSec = Settings.getSettings().camera_angle_delta_deg_per_sec;
+        ANGLE_DELTA = (float) (degPerSec * StrictMath.PI / 180.0);
     }
 }

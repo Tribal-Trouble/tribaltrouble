@@ -106,6 +106,20 @@ public final strictfp class Settings implements Serializable {
 
     public float mouse_sensitivity = 1.0f;
 
+    // Camera tuning parameters (user-adjustable via Options > Camera)
+    // Maximum time (in seconds) to reach full pan speed while holding input
+    public float camera_scroll_accel_seconds_max = 1.0f;
+    // Extra acceleration factor applied over the base speed during acceleration
+    public float camera_scroll_accel_factor = 2.5f;
+    // Maximum starting pan speed when initiating a scroll (world units/second)
+    public float camera_start_max_speed = 60.0f;
+    // Zoom speed scalar applied when zooming (world units/second)
+    public float camera_zoom_speed = 50.0f;
+    // Rotation/pitch speed in degrees per second
+    public float camera_angle_delta_deg_per_sec = 90.0f;
+    // Edge scroll buffer (pixels from the window edge that triggers scrolling)
+    public int camera_edge_scroll_buffer = 5;
+
     public int frame_grab_milliseconds_per_frame = 40;
 
     public static final void setSettings(Settings new_settings) {

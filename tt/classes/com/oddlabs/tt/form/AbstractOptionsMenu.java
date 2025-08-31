@@ -77,6 +77,7 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         Panel display = new Panel(Utils.getBundleString(bundle, "graphics_caption"));
         Panel sound = new Panel(Utils.getBundleString(bundle, "sound_caption"));
         Panel language = new Panel(Utils.getBundleString(bundle, "language_caption"));
+        Panel camera = new CameraPanel(gui_root, "Camera");
         Panel report_bug = new Panel(Utils.getBundleString(bundle, "report_bug_caption"));
 
         // Sound
@@ -429,9 +430,9 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
 
         Panel[] panels;
         if (Settings.getSettings().hide_bugreporter) {
-            panels = new Panel[] {general, display, sound, language, keybinds};
+            panels = new Panel[] {general, display, sound, language, camera, keybinds};
         } else {
-            panels = new Panel[] {general, display, sound, language, report_bug, keybinds};
+            panels = new Panel[] {general, display, sound, language, camera, report_bug, keybinds};
         }
 
         PanelGroup panel_group = new PanelGroup(panels, 0);
