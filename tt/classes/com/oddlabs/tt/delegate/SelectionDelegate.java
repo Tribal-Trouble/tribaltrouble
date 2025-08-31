@@ -84,7 +84,7 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         int kbBeacon = settings.getKeybind(Globals.KB_PLACE_BEACON);
         int kbNextIdle = settings.getKeybind(Globals.KB_NEXT_IDLE_PEON);
         int kbChatToggle = settings.getKeybind(Globals.KB_CHAT_TOGGLE);
-    int kbBackCancel = settings.getKeybind(Globals.KB_BACK_CANCEL);
+        int kbBackCancel = settings.getKeybind(Globals.KB_BACK_CANCEL);
         int kbArmy0 = settings.getKeybind(Globals.KB_ARMY_GROUP_0);
         int kbArmy1 = settings.getKeybind(Globals.KB_ARMY_GROUP_1);
         int kbArmy2 = settings.getKeybind(Globals.KB_ARMY_GROUP_2);
@@ -181,18 +181,18 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                     break;
                 }
 
-        // Always-available: open menu even in observer/map mode
-        if (event.getKeyCode() == kbPause
-            || event.getKeyCode() == kbBackCancel
-            || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
-            getGUIRoot()
-                .pushDelegate(
-                    new InGameMainMenu(
-                        getViewer(),
-                        new StaticCamera(getCamera().getState()),
-                        getViewer().getParameters()));
-            break;
-        }
+                // Always-available: open menu even in observer/map mode
+                if (event.getKeyCode() == kbPause
+                        || event.getKeyCode() == kbBackCancel
+                        || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+                    getGUIRoot()
+                            .pushDelegate(
+                                    new InGameMainMenu(
+                                            getViewer(),
+                                            new StaticCamera(getCamera().getState()),
+                                            getViewer().getParameters()));
+                    break;
+                }
 
                 // Fallback original behavior
                 if (map_mode || observer) {

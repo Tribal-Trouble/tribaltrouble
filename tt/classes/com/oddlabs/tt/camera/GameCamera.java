@@ -6,7 +6,6 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
-import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -483,15 +482,15 @@ public final strictfp class GameCamera extends Camera {
             return;
         }
 
-    int pitch_up_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_PITCH_UP);
-    int pitch_down_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_PITCH_DOWN);
-    int rotate_right_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT);
-    int rotate_left_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_LEFT);
+        int pitch_up_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_PITCH_UP);
+        int pitch_down_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_PITCH_DOWN);
+        int rotate_right_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT);
+        int rotate_left_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_LEFT);
 
-    pitch_up = LocalInput.isKeyDown(pitch_up_key);
-    pitch_down = LocalInput.isKeyDown(pitch_down_key);
-    rotate_right = LocalInput.isKeyDown(rotate_right_key);
-    rotate_left = LocalInput.isKeyDown(rotate_left_key);
+        pitch_up = LocalInput.isKeyDown(pitch_up_key);
+        pitch_down = LocalInput.isKeyDown(pitch_down_key);
+        rotate_right = LocalInput.isKeyDown(rotate_right_key);
+        rotate_left = LocalInput.isKeyDown(rotate_left_key);
     }
 
     public final void enable() {

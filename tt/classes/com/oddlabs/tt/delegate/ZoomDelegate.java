@@ -42,16 +42,16 @@ public strictfp class ZoomDelegate extends InGameDelegate {
         if (!done) {
             switch (event.getKeyCode()) {
                 case Keyboard.KEY_Z:
-                {
-                    // fallthrough to pop below
-                    break;
-                }
+                    {
+                        // fallthrough to pop below
+                        break;
+                    }
             }
             // Also honor rebindable hold-zoom key
             Settings settings = Settings.getSettings();
             int kbZoomHold = settings.getKeybind(Globals.KB_CAMERA_ZOOM_HOLD);
             if (event.getKeyCode() == kbZoomHold || event.getKeyCode() == Keyboard.KEY_Z) {
-                    pop();
+                pop();
             }
         }
     }
