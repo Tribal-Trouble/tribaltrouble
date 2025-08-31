@@ -3,6 +3,8 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.viewer.WorldViewer;
 
 public strictfp class TargetDelegate extends ControllableCameraDelegate {
@@ -23,17 +25,16 @@ public strictfp class TargetDelegate extends ControllableCameraDelegate {
 
     public final void keyPressed(KeyboardEvent event) {
         getCamera().keyPressed(event);
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_ESCAPE:
-                pop();
-                break;
-            case Keyboard.KEY_SPACE:
-            case Keyboard.KEY_RETURN:
-                break;
-            default:
-                super.keyPressed(event);
-                break;
+        int back = Settings.getSettings().getKeybind(Globals.KB_BACK_CANCEL);
+        int code = event.getKeyCode();
+        if (code == back || code == Keyboard.KEY_ESCAPE) {
+            pop();
+            return;
         }
+        if (code == Keyboard.KEY_SPACE || code == Keyboard.KEY_RETURN) {
+            return;
+        }
+        super.keyPressed(event);
     }
 
     public void keyReleased(KeyboardEvent event) {

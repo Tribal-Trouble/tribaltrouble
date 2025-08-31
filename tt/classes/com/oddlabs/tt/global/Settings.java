@@ -130,6 +130,31 @@ public final strictfp class Settings implements Serializable {
                     put(Globals.KB_PAN_CAMERA_UP, Keyboard.KEY_UP);
                     put(Globals.KB_PAN_CAMERA_DOWN, Keyboard.KEY_DOWN);
 
+                    // General gameplay hotkeys
+                    put(Globals.KB_TOGGLE_MAP_MODE, Keyboard.KEY_SPACE);
+                    put(Globals.KB_JUMP_TO_NOTIFICATION, Keyboard.KEY_TAB);
+                    put(Globals.KB_PLACE_BEACON, Keyboard.KEY_B); // used with Ctrl
+                    put(Globals.KB_NEXT_IDLE_PEON, Keyboard.KEY_N);
+
+                    // Army group selection (0-9) - use Ctrl to assign
+                    put(Globals.KB_ARMY_GROUP_0, Keyboard.KEY_0);
+                    put(Globals.KB_ARMY_GROUP_1, Keyboard.KEY_1);
+                    put(Globals.KB_ARMY_GROUP_2, Keyboard.KEY_2);
+                    put(Globals.KB_ARMY_GROUP_3, Keyboard.KEY_3);
+                    put(Globals.KB_ARMY_GROUP_4, Keyboard.KEY_4);
+                    put(Globals.KB_ARMY_GROUP_5, Keyboard.KEY_5);
+                    put(Globals.KB_ARMY_GROUP_6, Keyboard.KEY_6);
+                    put(Globals.KB_ARMY_GROUP_7, Keyboard.KEY_7);
+                    put(Globals.KB_ARMY_GROUP_8, Keyboard.KEY_8);
+                    put(Globals.KB_ARMY_GROUP_9, Keyboard.KEY_9);
+
+                    // UI/System controls
+                    put(Globals.KB_CHAT_TOGGLE, Keyboard.KEY_RETURN);
+                    put(Globals.KB_BACK_CANCEL, Keyboard.KEY_ESCAPE);
+                    put(Globals.KB_GAMESPEED_INCREASE, Keyboard.KEY_EQUALS); // also keypad + supported in code
+                    put(Globals.KB_GAMESPEED_DECREASE, Keyboard.KEY_MINUS);  // also keypad - supported in code
+                    put(Globals.KB_PAUSE, Keyboard.KEY_ESCAPE);
+
                     // Unit actions
                     put(Globals.KB_MOVE, Keyboard.KEY_M);
                     put(Globals.KB_ATTACK, Keyboard.KEY_A);

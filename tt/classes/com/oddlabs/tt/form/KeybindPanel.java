@@ -6,6 +6,7 @@ import com.oddlabs.tt.gui.ColumnInfo;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Panel;
@@ -14,6 +15,10 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.input.Keyboard;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.DataFlavor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,11 +27,18 @@ import java.util.Map;
 public class KeybindPanel extends Panel {
     GUIRoot gui_root;
     MultiColumnComboBox keybinds_list_box;
+    private Label statusLabel;
 
     // Display names for keybind actions
     public static final Map<String, String> KEYBIND_DISPLAY_NAMES =
             new HashMap<String, String>() {
                 {
+                    // General Gameplay
+                    put(Globals.KB_TOGGLE_MAP_MODE, "Toggle Map Mode");
+                    put(Globals.KB_JUMP_TO_NOTIFICATION, "Jump To Latest Notification");
+                    put(Globals.KB_PLACE_BEACON, "Place Beacon (with Ctrl)");
+                    put(Globals.KB_NEXT_IDLE_PEON, "Select Next Idle Peon");
+
                     // Camera Controls
                     put(Globals.KB_PAN_CAMERA_LEFT, "Pan Camera Left");
                     put(Globals.KB_PAN_CAMERA_RIGHT, "Pan Camera Right");
@@ -87,6 +99,25 @@ public class KeybindPanel extends Panel {
                     // Tower Actions
                     put(Globals.KB_TOWER_ATTACK, "Tower - Attack");
                     put(Globals.KB_TOWER_EXIT, "Tower - Exit Tower");
+
+                    // Army Groups
+                    put(Globals.KB_ARMY_GROUP_0, "Army Group 0 (Ctrl to assign)");
+                    put(Globals.KB_ARMY_GROUP_1, "Army Group 1 (Ctrl to assign)");
+                    put(Globals.KB_ARMY_GROUP_2, "Army Group 2 (Ctrl to assign)");
+                    put(Globals.KB_ARMY_GROUP_3, "Army Group 3 (Ctrl to assign)");
+                    put(Globals.KB_ARMY_GROUP_4, "Army Group 4 (Ctrl to assign)");
+                    put(Globals.KB_ARMY_GROUP_5, "Army Group 5 (Ctrl to assign)");
+                    put(Globals.KB_ARMY_GROUP_6, "Army Group 6 (Ctrl to assign)");
+                    put(Globals.KB_ARMY_GROUP_7, "Army Group 7 (Ctrl to assign)");
+                    put(Globals.KB_ARMY_GROUP_8, "Army Group 8 (Ctrl to assign)");
+                    put(Globals.KB_ARMY_GROUP_9, "Army Group 9 (Ctrl to assign)");
+
+                    // System / Interface
+                    put(Globals.KB_CHAT_TOGGLE, "Chat Toggle");
+                    put(Globals.KB_BACK_CANCEL, "Back / Cancel");
+                    put(Globals.KB_GAMESPEED_INCREASE, "Increase Gamespeed");
+                    put(Globals.KB_GAMESPEED_DECREASE, "Decrease Gamespeed");
+                    put(Globals.KB_PAUSE, "Pause / Open Menu");
                 }
             };
 
@@ -94,16 +125,69 @@ public class KeybindPanel extends Panel {
         super(caption);
         this.gui_root = gui_root;
 
-        Label keybinds_label = new Label("Camera Binds", Skin.getSkin().getEditFont());
+        Label keybinds_label = new Label("Keybinds", Skin.getSkin().getEditFont());
         keybinds_label.place();
 
         // Add all the controls to a group
         Group keybinds_group = new Group();
         keybinds_group.addChild(keybinds_label);
 
+        // Clipboard controls (Copy, Paste, Reset defaults)
+        HorizButton copyBtn = new HorizButton("Copy Binds", 120);
+        copyBtn.addMouseClickListener(
+                (button, x, y, clicks) -> {
+                    String code = KeybindCodePanel.generateCode(Settings.getSettings().getKeybinds());
+                    copyToClipboard(code);
+                    setStatus("Copied to clipboard.", true);
+                });
+        keybinds_group.addChild(copyBtn);
+
+        HorizButton pasteBtn = new HorizButton("Paste Binds", 120);
+        pasteBtn.addMouseClickListener(
+                (button, x, y, clicks) -> {
+                    String fromClip = getClipboardText();
+                    if (fromClip == null || fromClip.isEmpty()) {
+                        setStatus("Clipboard is empty.", false);
+                        return;
+                    }
+                    Map<String, Integer> parsed = KeybindCodePanel.parseCode(fromClip);
+                    if (parsed == null) {
+                        setStatus("Clipboard doesn’t contain a valid keybind code.", false);
+                        return;
+                    }
+                    HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
+                    int applied = 0;
+                    for (Map.Entry<String, Integer> e : parsed.entrySet()) {
+                        if (keybinds.containsKey(e.getKey())) {
+                            Settings.getSettings().setKeybind(e.getKey(), e.getValue());
+                            applied++;
+                        }
+                    }
+                    Settings.getSettings().save();
+                    evaluateKeybindRows();
+                    setStatus("Applied " + applied + " binds from clipboard.", true);
+                });
+        keybinds_group.addChild(pasteBtn);
+
+        HorizButton resetBtn = new HorizButton("Reset to defaults", 160);
+        resetBtn.addMouseClickListener(
+                (button, x, y, clicks) -> {
+                    Settings.getSettings().resetKeybindsToDefaults();
+                    Settings.getSettings().save();
+                    evaluateKeybindRows();
+                    String code = KeybindCodePanel.generateCode(Settings.getSettings().getKeybinds());
+                    copyToClipboard(code);
+                    setStatus("Reset to defaults and copied to clipboard.", true);
+                });
+        keybinds_group.addChild(resetBtn);
+
         ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", 300)};
         keybinds_list_box = new MultiColumnComboBox(gui_root, keybind_options, 200, false);
-        keybinds_list_box.place(keybinds_label, BOTTOM_LEFT);
+    // Layout for controls (stack vertically)
+    copyBtn.place(keybinds_label, BOTTOM_LEFT);
+    pasteBtn.place(copyBtn, BOTTOM_LEFT);
+    resetBtn.place(pasteBtn, BOTTOM_LEFT);
+        keybinds_list_box.place(resetBtn, BOTTOM_LEFT);
         keybinds_list_box.addRowListener(new KeybindListener());
         // TODO: Add the rest of the keybinds here.
         // TODO: Localization
@@ -111,11 +195,42 @@ public class KeybindPanel extends Panel {
         evaluateKeybindRows();
 
         keybinds_group.addChild(keybinds_list_box);
+        statusLabel = new Label("", Skin.getSkin().getEditFont());
+        keybinds_group.addChild(statusLabel);
+        statusLabel.place(keybinds_list_box, BOTTOM_LEFT);
         keybinds_group.compileCanvas();
         keybinds_group.place();
 
         addChild(keybinds_group);
         this.compileCanvas();
+    }
+
+    private void setStatus(String msg, boolean ok) {
+        if (statusLabel == null) return;
+        statusLabel.set(msg);
+        if (ok) statusLabel.setColor(new float[] {0.298f, 0.686f, 0.314f, 1});
+        else statusLabel.setColor(new float[] {0.9f, 0.2f, 0.2f, 1});
+    }
+
+    private static void copyToClipboard(String text) {
+        try {
+            Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+            cb.setContents(new StringSelection(text), null);
+        } catch (Throwable t) {
+            // ignore if no clipboard available
+        }
+    }
+
+    private static String getClipboardText() {
+        try {
+            Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+            if (cb.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
+                return (String) cb.getData(DataFlavor.stringFlavor);
+            }
+        } catch (Throwable t) {
+            // ignore
+        }
+        return null;
     }
 
     private void evaluateKeybindRows() {
@@ -125,13 +240,21 @@ public class KeybindPanel extends Panel {
         // Define grouped sections in the desired fixed order
         String[][] sections =
                 new String[][] {
-                    // { sectionTitle, action1, action2, ... }
+                    // 1) Camera
                     new String[] {
                         "Camera Controls",
                         Globals.KB_PAN_CAMERA_LEFT,
                         Globals.KB_PAN_CAMERA_RIGHT,
                         Globals.KB_PAN_CAMERA_UP,
                         Globals.KB_PAN_CAMERA_DOWN
+                    },
+                    // 2) Main gameplay
+                    new String[] {
+                        "General Gameplay",
+                        Globals.KB_TOGGLE_MAP_MODE,
+                        Globals.KB_JUMP_TO_NOTIFICATION,
+                        Globals.KB_PLACE_BEACON,
+                        Globals.KB_NEXT_IDLE_PEON
                     },
                     new String[] {"Basic Unit Actions", Globals.KB_MOVE, Globals.KB_ATTACK, Globals.KB_GATHER_REPAIR},
                     new String[] {
@@ -140,12 +263,7 @@ public class KeybindPanel extends Panel {
                         Globals.KB_BUILD_QUARTERS,
                         Globals.KB_BUILD_TOWER
                     },
-                    new String[] {
-                        "Quarters Actions",
-                        Globals.KB_QUARTERS_CHIEFTAIN,
-                        Globals.KB_QUARTERS_DEPLOY_PEON,
-                        Globals.KB_QUARTERS_SET_RALLY_POINT
-                    },
+                    // 3) Menus (alphabetical)
                     new String[] {
                         "Armory Actions",
                         Globals.KB_ARMORY_DEPLOY_WARRIORS,
@@ -182,7 +300,35 @@ public class KeybindPanel extends Panel {
                         Globals.KB_ARMORY_CREATE_ROCK_WEAPON
                     },
                     new String[] {"Chieftain Magic", Globals.KB_CHIEFTAIN_MAGIC1, Globals.KB_CHIEFTAIN_MAGIC2},
-                    new String[] {"Tower Actions", Globals.KB_TOWER_ATTACK, Globals.KB_TOWER_EXIT}
+                    new String[] {
+                        "Quarters Actions",
+                        Globals.KB_QUARTERS_CHIEFTAIN,
+                        Globals.KB_QUARTERS_DEPLOY_PEON,
+                        Globals.KB_QUARTERS_SET_RALLY_POINT
+                    },
+                    new String[] {"Tower Actions", Globals.KB_TOWER_ATTACK, Globals.KB_TOWER_EXIT},
+                    // 4) System and unit groupings
+                    new String[] {
+                        "System / Interface",
+                        Globals.KB_CHAT_TOGGLE,
+                        Globals.KB_BACK_CANCEL,
+                        Globals.KB_GAMESPEED_INCREASE,
+                        Globals.KB_GAMESPEED_DECREASE,
+                        Globals.KB_PAUSE
+                    },
+                    new String[] {
+                        "Army Groups",
+                        Globals.KB_ARMY_GROUP_0,
+                        Globals.KB_ARMY_GROUP_1,
+                        Globals.KB_ARMY_GROUP_2,
+                        Globals.KB_ARMY_GROUP_3,
+                        Globals.KB_ARMY_GROUP_4,
+                        Globals.KB_ARMY_GROUP_5,
+                        Globals.KB_ARMY_GROUP_6,
+                        Globals.KB_ARMY_GROUP_7,
+                        Globals.KB_ARMY_GROUP_8,
+                        Globals.KB_ARMY_GROUP_9
+                    }
                 };
 
         int orderIndex = 0;

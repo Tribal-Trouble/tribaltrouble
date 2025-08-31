@@ -59,6 +59,31 @@ public final strictfp class Globals {
     public static final String KB_TOWER_ATTACK = "KB_TOWER_ATTACK";
     public static final String KB_TOWER_EXIT = "KB_TOWER_EXIT";
 
+    // General Gameplay Hotkeys (newly rebindable)
+    public static final String KB_TOGGLE_MAP_MODE = "KB_TOGGLE_MAP_MODE"; // Default: Space
+    public static final String KB_JUMP_TO_NOTIFICATION = "KB_JUMP_TO_NOTIFICATION"; // Default: Tab
+    public static final String KB_PLACE_BEACON = "KB_PLACE_BEACON"; // Default: B (with Ctrl)
+    public static final String KB_NEXT_IDLE_PEON = "KB_NEXT_IDLE_PEON"; // Default: N
+
+    // Army group selection/assignment (Ctrl to assign)
+    public static final String KB_ARMY_GROUP_0 = "KB_ARMY_GROUP_0";
+    public static final String KB_ARMY_GROUP_1 = "KB_ARMY_GROUP_1";
+    public static final String KB_ARMY_GROUP_2 = "KB_ARMY_GROUP_2";
+    public static final String KB_ARMY_GROUP_3 = "KB_ARMY_GROUP_3";
+    public static final String KB_ARMY_GROUP_4 = "KB_ARMY_GROUP_4";
+    public static final String KB_ARMY_GROUP_5 = "KB_ARMY_GROUP_5";
+    public static final String KB_ARMY_GROUP_6 = "KB_ARMY_GROUP_6";
+    public static final String KB_ARMY_GROUP_7 = "KB_ARMY_GROUP_7";
+    public static final String KB_ARMY_GROUP_8 = "KB_ARMY_GROUP_8";
+    public static final String KB_ARMY_GROUP_9 = "KB_ARMY_GROUP_9";
+
+    // UI / System
+    public static final String KB_CHAT_TOGGLE = "KB_CHAT_TOGGLE"; // Default: Enter/Return
+    public static final String KB_BACK_CANCEL = "KB_BACK_CANCEL"; // Default: Escape
+    public static final String KB_GAMESPEED_INCREASE = "KB_GAMESPEED_INCREASE"; // Default: '=' or '+'
+    public static final String KB_GAMESPEED_DECREASE = "KB_GAMESPEED_DECREASE"; // Default: '-'
+    public static final String KB_PAUSE = "KB_PAUSE"; // Default: Escape (Pause menu)
+
     // #endregion Keybinds - Actions
     public static final String DOMAIN_NAME = Settings.getSettings().getDomainName();
     public static final String SUPPORT_ADDRESS = "http://" + DOMAIN_NAME + "/support";

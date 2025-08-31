@@ -425,14 +425,13 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         button_bug.place(label_box, BOTTOM_MID);
         report_bug.compileCanvas();
 
-    Panel keybinds = new KeybindPanel(gui_root, "Keybinds");
-    Panel keybindCode = new KeybindCodePanel(gui_root, "Keybind Code");
+        Panel keybinds = new KeybindPanel(gui_root, "Keybinds");
 
         Panel[] panels;
         if (Settings.getSettings().hide_bugreporter) {
-            panels = new Panel[] {general, display, sound, language, keybinds, keybindCode};
+            panels = new Panel[] {general, display, sound, language, keybinds};
         } else {
-            panels = new Panel[] {general, display, sound, language, report_bug, keybinds, keybindCode};
+            panels = new Panel[] {general, display, sound, language, report_bug, keybinds};
         }
 
         PanelGroup panel_group = new PanelGroup(panels, 0);

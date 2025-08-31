@@ -4,6 +4,8 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
@@ -70,14 +72,13 @@ public final strictfp class PlacingDelegate extends ControllableCameraDelegate {
 
     public final void keyPressed(KeyboardEvent event) {
         getCamera().keyPressed(event);
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_ESCAPE:
-                pop();
-                break;
-            default:
-                if (event.getKeyCode() != Keyboard.KEY_SPACE
-                        && event.getKeyCode() != Keyboard.KEY_RETURN) super.keyPressed(event);
-                break;
+        int back = Settings.getSettings().getKeybind(Globals.KB_BACK_CANCEL);
+        if (event.getKeyCode() == back || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+            pop();
+            return;
+        }
+        if (event.getKeyCode() != Keyboard.KEY_SPACE && event.getKeyCode() != Keyboard.KEY_RETURN) {
+            super.keyPressed(event);
         }
     }
 

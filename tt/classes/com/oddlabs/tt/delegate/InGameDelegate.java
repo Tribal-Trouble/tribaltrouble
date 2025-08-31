@@ -146,19 +146,8 @@ public abstract strictfp class InGameDelegate extends CameraDelegate {
     }
 
     protected void keyPressed(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_ESCAPE:
-                getGUIRoot()
-                        .pushDelegate(
-                                new InGameMainMenu(
-                                        viewer,
-                                        new StaticCamera(getCamera().getState()),
-                                        viewer.getParameters()));
-                break;
-            default:
-                if (!cheat(event)) super.keyPressed(event);
-                break;
-        }
+        // Pause is handled in SelectionDelegate via KB_PAUSE; Back/Cancel is contextual elsewhere.
+        if (!cheat(event)) super.keyPressed(event);
     }
 
     public final WorldViewer getViewer() {
