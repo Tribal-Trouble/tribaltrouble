@@ -203,7 +203,7 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
                 if (deploy_containers[i] != null && deploy_containers[i].getNumSupplies() > 0)
                     num_deploying++;
             }
-            if (num_deploying > 0) {
+            if (num_deploying > 0 && getLayer() == UnitGrid.LAND) {
                 float amount = t / num_deploying;
                 for (int i = 0; i < deploy_containers.length; i++) {
                     if (deploy_containers[i] != null && deploy_containers[i].getNumSupplies() > 0)
