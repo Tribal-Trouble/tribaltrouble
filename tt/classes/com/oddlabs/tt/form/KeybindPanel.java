@@ -22,6 +22,8 @@ import java.awt.datatransfer.DataFlavor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
 
 // TODO: localization
 public class KeybindPanel extends Panel {
@@ -132,54 +134,18 @@ public class KeybindPanel extends Panel {
         Group keybinds_group = new Group();
         keybinds_group.addChild(keybinds_label);
 
-        // Clipboard controls (Copy, Paste, Reset defaults)
-        HorizButton copyBtn = new HorizButton("Copy Binds", 120);
-        copyBtn.addMouseClickListener(
-                (button, x, y, clicks) -> {
-                    String code = KeybindCodePanel.generateCode(Settings.getSettings().getKeybinds());
-                    copyToClipboard(code);
-                    setStatus("Copied to clipboard.", true);
-                });
-        keybinds_group.addChild(copyBtn);
+    // Clipboard controls (Copy, Paste, Reset defaults)
+    HorizButton copyBtn = new HorizButton("Copy Binds", 120);
+    copyBtn.addMouseClickListener((button, x, y, clicks) -> copyBinds());
+    keybinds_group.addChild(copyBtn);
 
-        HorizButton pasteBtn = new HorizButton("Paste Binds", 120);
-        pasteBtn.addMouseClickListener(
-                (button, x, y, clicks) -> {
-                    String fromClip = getClipboardText();
-                    if (fromClip == null || fromClip.isEmpty()) {
-                        setStatus("Clipboard is empty.", false);
-                        return;
-                    }
-                    Map<String, Integer> parsed = KeybindCodePanel.parseCode(fromClip);
-                    if (parsed == null) {
-                        setStatus("Clipboard doesn’t contain a valid keybind code.", false);
-                        return;
-                    }
-                    HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
-                    int applied = 0;
-                    for (Map.Entry<String, Integer> e : parsed.entrySet()) {
-                        if (keybinds.containsKey(e.getKey())) {
-                            Settings.getSettings().setKeybind(e.getKey(), e.getValue());
-                            applied++;
-                        }
-                    }
-                    Settings.getSettings().save();
-                    evaluateKeybindRows();
-                    setStatus("Applied " + applied + " binds from clipboard.", true);
-                });
-        keybinds_group.addChild(pasteBtn);
+    HorizButton pasteBtn = new HorizButton("Paste Binds", 120);
+    pasteBtn.addMouseClickListener((button, x, y, clicks) -> pasteBinds());
+    keybinds_group.addChild(pasteBtn);
 
-        HorizButton resetBtn = new HorizButton("Reset to defaults", 160);
-        resetBtn.addMouseClickListener(
-                (button, x, y, clicks) -> {
-                    Settings.getSettings().resetKeybindsToDefaults();
-                    Settings.getSettings().save();
-                    evaluateKeybindRows();
-                    String code = KeybindCodePanel.generateCode(Settings.getSettings().getKeybinds());
-                    copyToClipboard(code);
-                    setStatus("Reset to defaults and copied to clipboard.", true);
-                });
-        keybinds_group.addChild(resetBtn);
+    HorizButton resetBtn = new HorizButton("Reset to defaults", 160);
+    resetBtn.addMouseClickListener((button, x, y, clicks) -> resetBinds());
+    keybinds_group.addChild(resetBtn);
 
         ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", 300)};
         keybinds_list_box = new MultiColumnComboBox(gui_root, keybind_options, 200, false);
@@ -238,132 +204,126 @@ public class KeybindPanel extends Panel {
         HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
 
         // Define grouped sections in the desired fixed order
-        String[][] sections =
-                new String[][] {
-                    // 1) Camera
-                    new String[] {
-                        "Camera Controls",
-                        Globals.KB_PAN_CAMERA_LEFT,
-                        Globals.KB_PAN_CAMERA_RIGHT,
-                        Globals.KB_PAN_CAMERA_UP,
-                        Globals.KB_PAN_CAMERA_DOWN
-                    },
-                    // 2) Main gameplay
-                    new String[] {
-                        "General Gameplay",
-                        Globals.KB_TOGGLE_MAP_MODE,
-                        Globals.KB_JUMP_TO_NOTIFICATION,
-                        Globals.KB_PLACE_BEACON,
-                        Globals.KB_NEXT_IDLE_PEON
-                    },
-                    new String[] {"Basic Unit Actions", Globals.KB_MOVE, Globals.KB_ATTACK, Globals.KB_GATHER_REPAIR},
-                    new String[] {
-                        "Building Construction",
-                        Globals.KB_BUILD_ARMORY,
-                        Globals.KB_BUILD_QUARTERS,
-                        Globals.KB_BUILD_TOWER
-                    },
-                    // 3) Menus (alphabetical)
-                    new String[] {
-                        "Armory Actions",
-                        Globals.KB_ARMORY_DEPLOY_WARRIORS,
-                        Globals.KB_ARMORY_HARVEST,
-                        Globals.KB_ARMORY_MAKE_WEAPONS,
-                        Globals.KB_ARMORY_TRANSPORT,
-                        Globals.KB_ARMORY_RALLY_POINT
-                    },
-                    new String[] {
-                        "Armory - Deploy Units",
-                        Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS,
-                        Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS,
-                        Globals.KB_ARMORY_DEPLOY_PEON,
-                        Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS
-                    },
-                    new String[] {
-                        "Armory - Resource Harvesting",
-                        Globals.KB_ARMORY_HARVEST_CHICKEN,
-                        Globals.KB_ARMORY_HARVEST_IRON,
-                        Globals.KB_ARMORY_HARVEST_ROCK,
-                        Globals.KB_ARMORY_HARVEST_TREE
-                    },
-                    new String[] {
-                        "Armory - Resource Transportation",
-                        Globals.KB_ARMORY_TRANSPORT_CHICKEN,
-                        Globals.KB_ARMORY_TRANSPORT_IRON,
-                        Globals.KB_ARMORY_TRANSPORT_ROCK,
-                        Globals.KB_ARMORY_TRANSPORT_TREE
-                    },
-                    new String[] {
-                        "Armory - Weapon Creation",
-                        Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON,
-                        Globals.KB_ARMORY_CREATE_IRON_WEAPON,
-                        Globals.KB_ARMORY_CREATE_ROCK_WEAPON
-                    },
-                    new String[] {"Chieftain Magic", Globals.KB_CHIEFTAIN_MAGIC1, Globals.KB_CHIEFTAIN_MAGIC2},
-                    new String[] {
-                        "Quarters Actions",
-                        Globals.KB_QUARTERS_CHIEFTAIN,
-                        Globals.KB_QUARTERS_DEPLOY_PEON,
-                        Globals.KB_QUARTERS_SET_RALLY_POINT
-                    },
-                    new String[] {"Tower Actions", Globals.KB_TOWER_ATTACK, Globals.KB_TOWER_EXIT},
-                    // 4) System and unit groupings
-                    new String[] {
-                        "System / Interface",
-                        Globals.KB_CHAT_TOGGLE,
-                        Globals.KB_BACK_CANCEL,
-                        Globals.KB_GAMESPEED_INCREASE,
-                        Globals.KB_GAMESPEED_DECREASE,
-                        Globals.KB_PAUSE
-                    },
-                    new String[] {
-                        "Army Groups",
-                        Globals.KB_ARMY_GROUP_0,
-                        Globals.KB_ARMY_GROUP_1,
-                        Globals.KB_ARMY_GROUP_2,
-                        Globals.KB_ARMY_GROUP_3,
-                        Globals.KB_ARMY_GROUP_4,
-                        Globals.KB_ARMY_GROUP_5,
-                        Globals.KB_ARMY_GROUP_6,
-                        Globals.KB_ARMY_GROUP_7,
-                        Globals.KB_ARMY_GROUP_8,
-                        Globals.KB_ARMY_GROUP_9
-                    }
-                };
+        List<Section> sections = Arrays.asList(
+            // 1) Camera
+            sec("Camera Controls",
+                Globals.KB_PAN_CAMERA_LEFT,
+                Globals.KB_PAN_CAMERA_RIGHT,
+                Globals.KB_PAN_CAMERA_UP,
+                Globals.KB_PAN_CAMERA_DOWN
+            ),
+            // 2) Main gameplay
+            sec("General Gameplay",
+                Globals.KB_TOGGLE_MAP_MODE,
+                Globals.KB_JUMP_TO_NOTIFICATION,
+                Globals.KB_PLACE_BEACON,
+                Globals.KB_NEXT_IDLE_PEON
+            ),
+            sec("Basic Unit Actions", Globals.KB_MOVE, Globals.KB_ATTACK, Globals.KB_GATHER_REPAIR),
+            sec("Building Construction",
+                Globals.KB_BUILD_ARMORY,
+                Globals.KB_BUILD_QUARTERS,
+                Globals.KB_BUILD_TOWER
+            ),
+            // 3) Menus (alphabetical)
+            sec("Armory Actions",
+                Globals.KB_ARMORY_DEPLOY_WARRIORS,
+                Globals.KB_ARMORY_HARVEST,
+                Globals.KB_ARMORY_MAKE_WEAPONS,
+                Globals.KB_ARMORY_TRANSPORT,
+                Globals.KB_ARMORY_RALLY_POINT
+            ),
+            sec("Armory - Deploy Units",
+                Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS,
+                Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS,
+                Globals.KB_ARMORY_DEPLOY_PEON,
+                Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS
+            ),
+            sec("Armory - Resource Harvesting",
+                Globals.KB_ARMORY_HARVEST_CHICKEN,
+                Globals.KB_ARMORY_HARVEST_IRON,
+                Globals.KB_ARMORY_HARVEST_ROCK,
+                Globals.KB_ARMORY_HARVEST_TREE
+            ),
+            sec("Armory - Resource Transportation",
+                Globals.KB_ARMORY_TRANSPORT_CHICKEN,
+                Globals.KB_ARMORY_TRANSPORT_IRON,
+                Globals.KB_ARMORY_TRANSPORT_ROCK,
+                Globals.KB_ARMORY_TRANSPORT_TREE
+            ),
+            sec("Armory - Weapon Creation",
+                Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON,
+                Globals.KB_ARMORY_CREATE_IRON_WEAPON,
+                Globals.KB_ARMORY_CREATE_ROCK_WEAPON
+            ),
+            sec("Chieftain Magic", Globals.KB_CHIEFTAIN_MAGIC1, Globals.KB_CHIEFTAIN_MAGIC2),
+            sec("Quarters Actions",
+                Globals.KB_QUARTERS_CHIEFTAIN,
+                Globals.KB_QUARTERS_DEPLOY_PEON,
+                Globals.KB_QUARTERS_SET_RALLY_POINT
+            ),
+            sec("Tower Actions", Globals.KB_TOWER_ATTACK, Globals.KB_TOWER_EXIT),
+            // 4) System and unit groupings
+            sec("System / Interface",
+                Globals.KB_CHAT_TOGGLE,
+                Globals.KB_BACK_CANCEL,
+                Globals.KB_GAMESPEED_INCREASE,
+                Globals.KB_GAMESPEED_DECREASE,
+                Globals.KB_PAUSE
+            ),
+            sec("Army Groups",
+                Globals.KB_ARMY_GROUP_0,
+                Globals.KB_ARMY_GROUP_1,
+                Globals.KB_ARMY_GROUP_2,
+                Globals.KB_ARMY_GROUP_3,
+                Globals.KB_ARMY_GROUP_4,
+                Globals.KB_ARMY_GROUP_5,
+                Globals.KB_ARMY_GROUP_6,
+                Globals.KB_ARMY_GROUP_7,
+                Globals.KB_ARMY_GROUP_8,
+                Globals.KB_ARMY_GROUP_9
+            )
+        );
 
         int orderIndex = 0;
-        for (int s = 0; s < sections.length; s++) {
-            String[] sec = sections[s];
-            // Header row (non-interactive)
-            OrderedLabel header = new OrderedLabel(sec[0], orderIndex++, Skin.getSkin().getEditFont());
-            header.setColor(new float[] {0.85f, 0.85f, 0.85f, 1});
-            Row headerRow = new Row(new GUIObject[] {header}, null);
-            keybinds_list_box.addRow(headerRow);
-
-            // Items
-            for (int i = 1; i < sec.length; i++) {
-                String actionName = sec[i];
-                Integer keyCode = keybinds.get(actionName);
-                if (keyCode == null) continue;
-                String keyString = Keyboard.keyToString(keyCode);
-                String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
-        OrderedLabel label =
-            new OrderedLabel(
-                                displayName + " [" + keyString + "]",
-                                orderIndex++,
-                                Skin.getSkin().getMultiColumnComboBoxData().getFont());
-                Row row =
-                        new Row(
-                                new GUIObject[] {label},
-                                new ActionRowDataModel(actionName, keyCode.intValue()));
-                keybinds_list_box.addRow(row);
-            }
-
-            // Spacer after each section
-        OrderedLabel spacer = new OrderedLabel(" ", orderIndex++, Skin.getSkin().getEditFont());
-        Row spacerRow = new Row(new GUIObject[] {spacer}, null);
-            keybinds_list_box.addRow(spacerRow);
+        for (Section sec : sections) {
+            orderIndex = addSection(sec, keybinds, orderIndex);
         }
+    }
+
+    // Section structure and helpers
+    private static final class Section {
+        final String title;
+        final String[] actions;
+        Section(String title, String[] actions) { this.title = title; this.actions = actions; }
+    }
+
+    private static Section sec(String title, String... actions) {
+        return new Section(title, actions);
+    }
+
+    private int addSection(Section section, HashMap<String, Integer> keybinds, int orderIndex) {
+        // Header row (non-interactive)
+        OrderedLabel header = new OrderedLabel(section.title, orderIndex++, Skin.getSkin().getEditFont());
+        header.setColor(new float[] {0.85f, 0.85f, 0.85f, 1});
+        keybinds_list_box.addRow(new Row(new GUIObject[] {header}, null));
+
+        // Items
+        for (String actionName : section.actions) {
+            Integer keyCode = keybinds.get(actionName);
+            if (keyCode == null) continue;
+            String keyString = Keyboard.keyToString(keyCode);
+            String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
+            OrderedLabel label = new OrderedLabel(
+                displayName + " [" + keyString + "]",
+                orderIndex++,
+                Skin.getSkin().getMultiColumnComboBoxData().getFont());
+            keybinds_list_box.addRow(new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode)));
+        }
+
+        // Spacer after each section
+        keybinds_list_box.addRow(new Row(new GUIObject[] {new OrderedLabel(" ", orderIndex++, Skin.getSkin().getEditFont())}, null));
+        return orderIndex;
     }
 
     private class ActionRowDataModel {
@@ -386,7 +346,8 @@ public class KeybindPanel extends Panel {
 
     private class KeybindListener implements RowListener {
 
-        public final void rowChosen(Object o) {
+    @Override
+    public final void rowChosen(Object o) {
 
             if (o instanceof ActionRowDataModel) {
                 ActionRowDataModel actionRow = (ActionRowDataModel) o;
@@ -398,10 +359,12 @@ public class KeybindPanel extends Panel {
             }
         }
 
-        public final void rowDoubleClicked(Object o) {}
+    @Override
+    public final void rowDoubleClicked(Object o) {}
     }
 
     private class RebindActionFormClosedListener implements CloseListener {
+        @Override
         public final void closed() {
             keybinds_list_box.clear();
             System.out.println("RebindActionForm closed, refreshing keybinds list.");
@@ -418,7 +381,8 @@ public class KeybindPanel extends Panel {
             this.order = order;
         }
 
-        public int compareTo(Object o) {
+    @Override
+    public int compareTo(Object o) {
             if (o instanceof OrderedLabel) {
                 return this.order - ((OrderedLabel) o).order;
             }
@@ -431,5 +395,45 @@ public class KeybindPanel extends Panel {
     public void onActivated() {
         // Re-evaluate list every time panel is shown to reflect latest keybinds
         evaluateKeybindRows();
+    }
+
+    // Clipboard helpers
+    private void copyBinds() {
+        String code = KeybindCodePanel.generateCode(Settings.getSettings().getKeybinds());
+        copyToClipboard(code);
+        setStatus("Copied to clipboard.", true);
+    }
+
+    private void pasteBinds() {
+        String fromClip = getClipboardText();
+        if (fromClip == null || fromClip.isEmpty()) {
+            setStatus("Clipboard is empty.", false);
+            return;
+        }
+        Map<String, Integer> parsed = KeybindCodePanel.parseCode(fromClip);
+        if (parsed == null) {
+            setStatus("Clipboard doesn’t contain a valid keybind code.", false);
+            return;
+        }
+        HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
+        int applied = 0;
+        for (Map.Entry<String, Integer> e : parsed.entrySet()) {
+            if (keybinds.containsKey(e.getKey())) {
+                Settings.getSettings().setKeybind(e.getKey(), e.getValue());
+                applied++;
+            }
+        }
+        Settings.getSettings().save();
+        evaluateKeybindRows();
+        setStatus("Applied " + applied + " binds from clipboard.", true);
+    }
+
+    private void resetBinds() {
+        Settings.getSettings().resetKeybindsToDefaults();
+        Settings.getSettings().save();
+        evaluateKeybindRows();
+        String code = KeybindCodePanel.generateCode(Settings.getSettings().getKeybinds());
+        copyToClipboard(code);
+        setStatus("Reset to defaults and copied to clipboard.", true);
     }
 }
