@@ -43,7 +43,7 @@ public strictfp class PulldownMenu extends Group {
 
         // Let the control recalculate its width when an item is added
         // width otherwise will exponentially grow (width is used for inital )
-        setDim(0, getHeight()); 
+        setDim(0, getHeight());
         item.addMouseClickListener(new ItemListener(items.size() - 1));
     }
 

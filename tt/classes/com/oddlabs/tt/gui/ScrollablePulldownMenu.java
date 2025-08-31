@@ -1,12 +1,5 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.guievent.ItemChosenListener;
-import com.oddlabs.tt.guievent.MouseClickListener;
-import com.oddlabs.tt.input.Keyboard;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public final strictfp class ScrollablePulldownMenu extends PulldownMenu implements Scrollable {
     private ScrollBar scroll_bar;
     private int offset_y = 0; // Tracks the vertical offset for scrolling
@@ -18,8 +11,7 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
     }
 
     public int getScrollbarWidth() {
-        if (scroll_bar == null)
-            return 0;
+        if (scroll_bar == null) return 0;
         return scroll_bar.getWidth();
     }
 
@@ -31,7 +23,13 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
 
         // Render top edge
         Horizontal top = Skin.getSkin().getPulldownData().getPulldownTop();
-        top.render(0, getHeight() - top.getHeight() + Skin.getSkin().getPulldownData().getPulldownTop().getHeight(), getWidth() - getScrollbarWidth(), Skin.NORMAL);
+        top.render(
+                0,
+                getHeight()
+                        - top.getHeight()
+                        + Skin.getSkin().getPulldownData().getPulldownTop().getHeight(),
+                getWidth() - getScrollbarWidth(),
+                Skin.NORMAL);
     }
 
     @Override
@@ -47,9 +45,10 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
             }
         }
         int item_pos_count = 0;
-        min_content_width = StrictMath.max(
-                width,
-                item_box.getLeftOffset() + min_content_width + item_box.getRightOffset());        
+        min_content_width =
+                StrictMath.max(
+                        width,
+                        item_box.getLeftOffset() + min_content_width + item_box.getRightOffset());
         for (int i = 0; i < items.size(); i++) {
             PulldownItem item = (PulldownItem) items.get(i);
             item.setDim(min_content_width, normalizedItemHeight);
@@ -71,7 +70,6 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
 
         updateItemPositions(); // Update positions when dimensions change
         scroll_bar.update();
-
     }
 
     // Added missing @Override annotation
@@ -84,17 +82,16 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
         offset_y = new_offset;
 
         // Clamp offset to valid range
-        if (offset_y < 0)
-            offset_y = 0;
+        if (offset_y < 0) offset_y = 0;
         int max_offset_y = getTotalContentHeight() - getVisibleHeight();
-        if (max_offset_y < 0)
-            max_offset_y = 0;
-        if (offset_y > max_offset_y)
-            offset_y = max_offset_y;
+        if (max_offset_y < 0) max_offset_y = 0;
+        if (offset_y > max_offset_y) offset_y = max_offset_y;
 
-            // Snap offset to the nearest multiple of normalizedItemHeight
+        // Snap offset to the nearest multiple of normalizedItemHeight
         new_offset = Math.max(0, Math.min(new_offset, max_offset_y)); // Clamp to range
-        new_offset = (new_offset / normalizedItemHeight) * normalizedItemHeight; // Snap to nearest multiple
+        new_offset =
+                (new_offset / normalizedItemHeight)
+                        * normalizedItemHeight; // Snap to nearest multiple
 
         offset_y = new_offset;
         // Update item positions based on new offset
@@ -103,10 +100,12 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
     }
 
     private int normalizedItemHeight = 0;
+
     private void calculateNormalizedItemHeight() {
         Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
         for (PulldownItem item : items) {
-            int itemHeight = item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
+            int itemHeight =
+                    item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
             if (itemHeight > normalizedItemHeight) {
                 normalizedItemHeight = itemHeight; // Use the tallest item
             }
@@ -142,28 +141,22 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
     }
 
     /**
-     * The ratio of the scroll bar button that can be dragged relative to the size
-     * of the bar (0.0f
+     * The ratio of the scroll bar button that can be dragged relative to the size of the bar (0.0f
      * - 1.0f)
      */
     @Override
     public final float getScrollBarRatio() {
         int totalHeight = getTotalContentHeight();
         int visibleHeight = getVisibleHeight();
-        if (totalHeight <= visibleHeight)
-            return 1.0f;
+        if (totalHeight <= visibleHeight) return 1.0f;
         return visibleHeight / (float) totalHeight;
     }
 
-    /**
-     * Where the scrollbar is positioned relative to the total content height (0.0f
-     * - 1.0f)
-     */
+    /** Where the scrollbar is positioned relative to the total content height (0.0f - 1.0f) */
     @Override
     public final float getScrollBarOffset() {
         int maxOffset = getTotalContentHeight() - getVisibleHeight();
-        if (maxOffset <= 0)
-            return 0.0f;
+        if (maxOffset <= 0) return 0.0f;
         return offset_y / (float) maxOffset;
     }
 
@@ -178,13 +171,12 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
     }
 
     private int getTotalContentHeight() {
-        if (items.isEmpty())
-            return 0;
+        if (items.isEmpty()) return 0;
 
         int item_height = normalizedItemHeight; // Use normalized height for consistency
         int totalItemHeight = items.size() * item_height;
 
-        int topHeight = Skin.getSkin().getPulldownData().getPulldownTop().getHeight();        
+        int topHeight = Skin.getSkin().getPulldownData().getPulldownTop().getHeight();
 
         return totalItemHeight + topHeight;
     }
@@ -197,14 +189,19 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
     private void updateItemPositions() {
         // Reposition all items using the same logic as setDim() but with offset from
         // scrolling applied
-        int item_pos_count = Skin.getSkin().getPulldownData().getPulldownBottom().getHeight() + offset_y;
+        int item_pos_count =
+                Skin.getSkin().getPulldownData().getPulldownBottom().getHeight() + offset_y;
         // System.out.println("Render amount * padding: " + (render_amount *
         // item_box.getTopOffset()));
         for (int i = 0; i < items.size(); i++) {
-            PulldownItem item = items.get(i);            
-            item.setPos(0, item_pos_count + getHeight() - 32); // TODO: Figure out this offset mathematically? Will matter for larger text?
+            PulldownItem item = items.get(i);
+            item.setPos(
+                    0,
+                    item_pos_count
+                            + getHeight()
+                            - 32); // TODO: Figure out this offset mathematically? Will matter for
+            // larger text?
             item_pos_count -= normalizedItemHeight;
         }
     }
-
 }

@@ -98,17 +98,17 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
         ScrollableGroup names = new ScrollableGroup(600, 50);
         GUIObject last_name = null;
         GUIObject last_race = null;
-        
+
         ArrayList<Label> labels = new ArrayList<>();
         int largestLabel = 0;
         for (int i = 0; i < players.length; i++) {
             PlayerInfo player_info = players[i].getPlayerInfo();
-            Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont());            
+            Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont());
             labels.add(name);
             System.out.println("Name: " + name.getWidth());
             if (name.getWidth() > largestLabel) {
                 largestLabel = name.getWidth();
-            }        
+            }
         }
 
         for (int i = 0; i < players.length; i++) {
@@ -143,11 +143,11 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
             team.place(last_race, GUIObject.RIGHT_MID);
         }
         names.compileCanvas();
-        
+
         game_infos.addChild(names);
-        
+
         names.place();
-        
+
         game_infos.compileCanvas();
     }
 

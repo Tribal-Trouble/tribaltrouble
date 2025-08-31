@@ -2,7 +2,6 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.util.Quad;
-import java.io.Console;
 
 public final strictfp class PulldownButton extends GUIObject {
     private final PulldownMenu menu;
@@ -36,9 +35,8 @@ public final strictfp class PulldownButton extends GUIObject {
                 label.getHeight());
         label.setPos(data.getTextOffsetLeft(), (getHeight() - label.getHeight()) / 2);
         if (menu.getWidth() < width) {
-            menu.setDim(width, menu.getHeight());   
-        } 
-        else {
+            menu.setDim(width, menu.getHeight());
+        } else {
             System.out.println("Menu width is sufficient: " + menu.getWidth());
         }
     }
@@ -91,14 +89,17 @@ public final strictfp class PulldownButton extends GUIObject {
         if (menu instanceof ScrollablePulldownMenu) {
             ScrollablePulldownMenu scrollableMenu = (ScrollablePulldownMenu) menu;
             menu.setPos(
-                (int) (getRootX() + getWidth() - (menu.getWidth() - scrollableMenu.getScrollbarWidth())),
-                (int) (getRootY() - menu.getHeight()));
+                    (int)
+                            (getRootX()
+                                    + getWidth()
+                                    - (menu.getWidth() - scrollableMenu.getScrollbarWidth())),
+                    (int) (getRootY() - menu.getHeight()));
         } else if (menu instanceof PulldownMenu) {
             menu.setPos(
-                (int) (getRootX() + getWidth() - menu.getWidth()),
-                (int) (getRootY() - menu.getHeight()));
+                    (int) (getRootX() + getWidth() - menu.getWidth()),
+                    (int) (getRootY() - menu.getHeight()));
         }
-        
+
         gui_root.getDelegate().addChild(menu);
     }
 

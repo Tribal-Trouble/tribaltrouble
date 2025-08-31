@@ -491,8 +491,15 @@ public final strictfp class TerrainMenu extends Group {
 
         PanelGroup panel_group = new PanelGroup(new Panel[] {standard, advanced}, 0);
         addChild(panel_group);
-        pulldown_menu_slots.addItemChosenListener(new PulldownUpdatePlayersChangedListener(group_race_team, standard, panel_group, this, advanced, multiplayer, label_headline));
-
+        pulldown_menu_slots.addItemChosenListener(
+                new PulldownUpdatePlayersChangedListener(
+                        group_race_team,
+                        standard,
+                        panel_group,
+                        this,
+                        advanced,
+                        multiplayer,
+                        label_headline));
 
         // Place objects
         label_headline.place();
@@ -852,28 +859,37 @@ public final strictfp class TerrainMenu extends Group {
 
     private final strictfp class PulldownUpdatePlayersChangedListener
             implements ItemChosenListener {
-                ScrollableGroup group_race_team;
-                Panel standard;
-                PanelGroup panel_group;
-                TerrainMenu terrain_menu;
-                Panel advanced;
-                boolean is_multiplayer;
-                Label label_headline;
-                public PulldownUpdatePlayersChangedListener(ScrollableGroup group_race_team, Panel standard, PanelGroup panel_group, TerrainMenu terrain_menu, Panel advanced, boolean is_multiplayer, Label label_headline) {
-                    this.group_race_team = group_race_team;
-                    this.standard = standard;
-                    this.panel_group = panel_group;
-                    this.terrain_menu = terrain_menu;
-                    this.advanced = advanced;
-                    this.is_multiplayer = is_multiplayer;
-                    this.label_headline = label_headline;
-                }
+        ScrollableGroup group_race_team;
+        Panel standard;
+        PanelGroup panel_group;
+        TerrainMenu terrain_menu;
+        Panel advanced;
+        boolean is_multiplayer;
+        Label label_headline;
+
+        public PulldownUpdatePlayersChangedListener(
+                ScrollableGroup group_race_team,
+                Panel standard,
+                PanelGroup panel_group,
+                TerrainMenu terrain_menu,
+                Panel advanced,
+                boolean is_multiplayer,
+                Label label_headline) {
+            this.group_race_team = group_race_team;
+            this.standard = standard;
+            this.panel_group = panel_group;
+            this.terrain_menu = terrain_menu;
+            this.advanced = advanced;
+            this.is_multiplayer = is_multiplayer;
+            this.label_headline = label_headline;
+        }
+
         public final void itemChosen(PulldownMenu menu, int item_index) {
             player_count = item_index + 1;
-            if(is_multiplayer)
-                return;
-            
-            // For single player we need to redraw all the controls (Actually multiplayer doesn't use these controls...)
+            if (is_multiplayer) return;
+
+            // For single player we need to redraw all the controls (Actually multiplayer doesn't
+            // use these controls...)
             group_race_team.clearChildren();
             standard.removeChild(group_race_team);
             group_race_team = new ScrollableGroup(300, 64);
@@ -903,11 +919,13 @@ public final strictfp class TerrainMenu extends Group {
                 group_race_team.addChild(difficulty_pulldown_buttons[i]);
 
                 for (int j = 0; j < RacesResources.getNumRaces(); j++) {
-                    PulldownItem pulldown_item_race = new PulldownItem(RacesResources.getRaceName(j));
+                    PulldownItem pulldown_item_race =
+                            new PulldownItem(RacesResources.getRaceName(j));
                     race_pulldown_menus[i].addItem(pulldown_item_race);
                 }
 
-                race_pulldown_buttons[i] = new PulldownButton(gui_root, race_pulldown_menus[i], 0, 115);
+                race_pulldown_buttons[i] =
+                        new PulldownButton(gui_root, race_pulldown_menus[i], 0, 115);
                 group_race_team.addChild(race_pulldown_buttons[i]);
                 for (int j = 0; j < player_count; j++) {
                     String team_str =
@@ -916,11 +934,17 @@ public final strictfp class TerrainMenu extends Group {
                     PulldownItem pulldown_item_team = new PulldownItem(team_str);
                     team_pulldown_menus[i].addItem(pulldown_item_team);
                 }
-                team_pulldown_buttons[i] = new PulldownButton(gui_root, team_pulldown_menus[i], StrictMath.min(i, player_count - 1), 115);
+                team_pulldown_buttons[i] =
+                        new PulldownButton(
+                                gui_root,
+                                team_pulldown_menus[i],
+                                StrictMath.min(i, player_count - 1),
+                                115);
                 group_race_team.addChild(team_pulldown_buttons[i]);
                 if (i == 0) {
                     String player_str =
-                            Utils.getBundleString(bundle, "player", new Object[] {Integer.toString(1)});
+                            Utils.getBundleString(
+                                    bundle, "player", new Object[] {Integer.toString(1)});
                     labels_players[0] = new Label(player_str, Skin.getSkin().getEditFont());
                     labels_players[0].setColor(Player.COLORS[0]);
                     group_race_team.addChild(labels_players[0]);
@@ -941,25 +965,31 @@ public final strictfp class TerrainMenu extends Group {
                     team_pulldown_buttons[i].place(race_pulldown_buttons[i], RIGHT_MID);
                     difficulty_pulldown_menus[i].addItemChosenListener(new DisableListener(i));
                 }
-                difficulty_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
+                difficulty_pulldown_menus[i].addItemChosenListener(
+                        new PulldownUpdateMapcodeListener());
                 race_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
                 team_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
             }
-            
+
             group_race_team.compileCanvas();
             standard.setDim(standard.getWidth(), standard.getHeight());
-            // For some reason we need to reset the position of the panel group and 
+            // For some reason we need to reset the position of the panel group and
             // the top label by the height of the panel group or we run into infinite growth.
             // Hacky but -- the ui is rough
             panel_group.setPos(0, panel_group.getY() - panel_group.getHeight());
             label_headline.setPos(0, label_headline.getY() - panel_group.getHeight());
             terrain_menu.compileCanvas();
 
-            // System.out.println("Group race team compiled. Height: " + group_race_team.getWidth() + " height " + group_race_team.getHeight());
-            // System.out.println("Terrain menu compiled. width: " + terrain_menu.getWidth() + " height " + terrain_menu.getHeight());
-            // System.out.println("Standard menu compiled. width: " + standard.getWidth() + " height " + standard.getHeight());
-            // System.out.println("Advanced menu compiled. width: " + advanced.getWidth() + " height " + advanced.getHeight());
-            // System.out.println("Panel group compiled. width: " + panel_group.getWidth() + " height " + panel_group.getHeight());                        
+            // System.out.println("Group race team compiled. Height: " + group_race_team.getWidth()
+            // + " height " + group_race_team.getHeight());
+            // System.out.println("Terrain menu compiled. width: " + terrain_menu.getWidth() + "
+            // height " + terrain_menu.getHeight());
+            // System.out.println("Standard menu compiled. width: " + standard.getWidth() + " height
+            // " + standard.getHeight());
+            // System.out.println("Advanced menu compiled. width: " + advanced.getWidth() + " height
+            // " + advanced.getHeight());
+            // System.out.println("Panel group compiled. width: " + panel_group.getWidth() + "
+            // height " + panel_group.getHeight());
         }
     }
 

@@ -462,7 +462,7 @@ public abstract strictfp class GUIObject extends Renderable {
 
     protected void mouseExited() {
         GUIObject parent = (GUIObject) getParent();
-        
+
         if (parent != null) parent.mouseExitedAll();
     }
 
@@ -593,7 +593,7 @@ public abstract strictfp class GUIObject extends Renderable {
         mouse_button_listeners.add(listener);
     }
 
-    public final void addMouseMotionListener(MouseMotionListener listener) {        
+    public final void addMouseMotionListener(MouseMotionListener listener) {
         mouse_motion_listeners.add(listener);
     }
 
