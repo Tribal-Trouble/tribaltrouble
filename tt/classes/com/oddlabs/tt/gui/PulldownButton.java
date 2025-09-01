@@ -34,11 +34,7 @@ public final strictfp class PulldownButton extends GUIObject {
                         - data.getArrow()[0].getWidth(),
                 label.getHeight());
         label.setPos(data.getTextOffsetLeft(), (getHeight() - label.getHeight()) / 2);
-        if (menu.getWidth() < width) {
-            menu.setDim(width, menu.getHeight());
-        } else {
-            System.out.println("Menu width is sufficient: " + menu.getWidth());
-        }
+        if (menu.getWidth() < width) menu.setDim(width, menu.getHeight());
     }
 
     protected final void renderGeometry() {
@@ -61,12 +57,9 @@ public final strictfp class PulldownButton extends GUIObject {
     }
 
     protected final void mousePressed(int button, int x, int y) {
-        System.out.println("Mouse pressed: " + this);
         if (menu_active) {
-            System.out.println("Deactivating menu");
             deactivateMenu();
         } else {
-            System.out.println("Activating menu");
             activateMenu();
         }
     }
@@ -77,11 +70,7 @@ public final strictfp class PulldownButton extends GUIObject {
 
     protected final void mouseReleased(int button, int x, int y) {
         if (!menu.isActive()) menu.getItem(menu.getChosenItemIndex()).setFocus();
-        // Only call clickItem if this mouseReleased is actually on the button itself
-        // The menu should handle its own mouse events when they occur over the menu
-        if (x >= 0 && x < getWidth() && y >= 0 && y < getHeight()) {
-            menu.clickItem(button, x, y, 1);
-        }
+        menu.clickItem(button, x, y, 1);
     }
 
     private final void activateMenu() {

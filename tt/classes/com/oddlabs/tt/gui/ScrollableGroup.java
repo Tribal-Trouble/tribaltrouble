@@ -26,8 +26,6 @@ public class ScrollableGroup extends Group implements Scrollable {
         // Reuse the way the group already aligns itself
         super.compileCanvas(0, 0, 0, 0);
         total_content_height = getHeight() - content_height + getStepHeight();
-        System.out.println("Height: " + getHeight());
-        System.out.println("Total content height: " + total_content_height);
 
         // If added content is less than the set dimensions -
         // remove the scrollbar and adjust the positions of the children
@@ -58,19 +56,8 @@ public class ScrollableGroup extends Group implements Scrollable {
         setDim(getWidth() + scroll_bar.getWidth() + scroll_bar_left_margin, content_height);
         System.out.println("dim: " + getWidth() + ", " + content_height);
         scroll_bar.setPos(getWidth() - scroll_bar.getWidth(), 0);
-        scroll_bar.update();
-        System.out.println(
-                "ScrollableGroup updated. Scrollbar pos: x"
-                        + scroll_bar.getX()
-                        + ", y: "
-                        + scroll_bar.getY());
+        scroll_bar.update();        
         ListElement current = getFirstChild();
-        // get the left over
-        int remainingHeight = total_content_height % content_height;
-        int otherHeight = content_height - remainingHeight;
-        int divisibleBy = (total_content_height / content_height) - 1;
-        System.out.println("remainingHeight: " + remainingHeight);
-        int count = 0;
         while (current != null) {
             GUIObject gui_object = (GUIObject) current;
             if (gui_object == scroll_bar) {
@@ -78,32 +65,10 @@ public class ScrollableGroup extends Group implements Scrollable {
                 continue;
             }
 
-            if (gui_object instanceof Label) {
-                System.out.println("label: " + ((Label) gui_object).getContents().toString());
-            }
-            count++;
             int x = gui_object.getX();
             int y = gui_object.getY();
-            System.out.println(
-                    "Setting position of child "
-                            + count
-                            + " to: ("
-                            + gui_object.getX()
-                            + ", "
-                            + (gui_object.getY())
-                            + ")");
             int offset = Math.max(0, total_content_height - content_height);
-            gui_object.setPos(x, y - offset);
-            // gui_object.setPos(x, y - ((content_height * divisibleBy)));
-            System.out.println(
-                    "Set position of child "
-                            + count
-                            + " to: ("
-                            + gui_object.getX()
-                            + ", "
-                            + (gui_object.getY())
-                            + ")");
-
+            gui_object.setPos(x, y - offset);            
             current = current.getNext();
         }
     }
@@ -130,7 +95,6 @@ public class ScrollableGroup extends Group implements Scrollable {
     @Override
     public final void jumpPage(boolean up) {
         int pageSize = getVisibleHeight();
-        System.out.println("Jumping page: " + (up ? "up" : "down") + " by " + pageSize);
         if (up) {
             setOffsetY(offset_y - pageSize);
         } else {
@@ -139,7 +103,6 @@ public class ScrollableGroup extends Group implements Scrollable {
     }
 
     protected final void mouseScrolled(int amount) {
-        System.out.println("Mouse scrolled: " + amount);
         if (amount > 0) {
             setOffsetY(offset_y - getStepHeight() * 3);
         } else {
@@ -169,7 +132,6 @@ public class ScrollableGroup extends Group implements Scrollable {
 
     @Override
     public final void setScrollBarOffset(float offset) {
-        System.out.println("Setting scrollbar offset: " + offset);
         int maxOffset = getTotalContentHeight() - getVisibleHeight();
         if (maxOffset > 0) {
             setOffsetY((int) (offset * maxOffset));
@@ -178,7 +140,6 @@ public class ScrollableGroup extends Group implements Scrollable {
         }
     }
 
-    // Added missing @Override annotation
     @Override
     public final void setOffsetY(int new_offset) {
         if (scroll_bar == null) return;
@@ -192,12 +153,6 @@ public class ScrollableGroup extends Group implements Scrollable {
         }
 
         int max_offset_y = getTotalContentHeight() - getVisibleHeight();
-        System.out.println(
-                "getTotalContentHeight(): "
-                        + getTotalContentHeight()
-                        + " getVisibleHeight(): "
-                        + getVisibleHeight());
-        System.out.println("max_offset_y: " + max_offset_y);
         // Calculate how far past the max offset we went and correct it to max (max_offset_y)
         if (offset_y + diff > max_offset_y) {
             diff = max_offset_y - offset_y;
@@ -206,15 +161,7 @@ public class ScrollableGroup extends Group implements Scrollable {
         offset_y = offset_y + diff;
         if (offset_y < 0) offset_y = 0;
         if (offset_y > max_offset_y) offset_y = max_offset_y;
-
-        // new_offset = Math.max(0, Math.min(new_offset, max_offset_y)); // Clamp to range
-        // new_offset = (new_offset / normalizedItemHeight) * normalizedItemHeight; // Snap to
-        // nearest multiple
-        System.out.println("Setting offset_y to: " + offset_y);
-        // offset_y = new_offset;
-        // Update item positions based on new offset
-        // updateItemPositions();
-        int count = 0;
+        
         ListElement current = getFirstChild();
         while (current != null) {
             GUIObject gui_object = (GUIObject) current;
@@ -222,7 +169,6 @@ public class ScrollableGroup extends Group implements Scrollable {
                 current = current.getNext();
                 continue;
             }
-            count++;
             int x = gui_object.getX();
             int y = gui_object.getY();
 
@@ -234,7 +180,7 @@ public class ScrollableGroup extends Group implements Scrollable {
     }
 
     private int getTotalContentHeight() {
-        return total_content_height; // add a buffer?
+        return total_content_height;
     }
 
     private int getVisibleHeight() {

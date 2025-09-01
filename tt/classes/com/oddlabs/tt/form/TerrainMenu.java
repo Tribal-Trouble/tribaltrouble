@@ -497,8 +497,7 @@ public final strictfp class TerrainMenu extends Group {
                         group_race_team,
                         standard,
                         panel_group,
-                        this,
-                        advanced,
+                        this,                        
                         multiplayer,
                         label_headline));
 
@@ -867,7 +866,6 @@ public final strictfp class TerrainMenu extends Group {
         Panel standard;
         PanelGroup panel_group;
         TerrainMenu terrain_menu;
-        Panel advanced;
         boolean is_multiplayer;
         Label label_headline;
 
@@ -876,14 +874,12 @@ public final strictfp class TerrainMenu extends Group {
                 Panel standard,
                 PanelGroup panel_group,
                 TerrainMenu terrain_menu,
-                Panel advanced,
                 boolean is_multiplayer,
                 Label label_headline) {
             this.group_race_team = group_race_team;
             this.standard = standard;
             this.panel_group = panel_group;
             this.terrain_menu = terrain_menu;
-            this.advanced = advanced;
             this.is_multiplayer = is_multiplayer;
             this.label_headline = label_headline;
         }
@@ -983,17 +979,6 @@ public final strictfp class TerrainMenu extends Group {
             panel_group.setPos(0, panel_group.getY() - panel_group.getHeight());
             label_headline.setPos(0, label_headline.getY() - panel_group.getHeight());
             terrain_menu.compileCanvas();
-
-            // System.out.println("Group race team compiled. Height: " + group_race_team.getWidth()
-            // + " height " + group_race_team.getHeight());
-            // System.out.println("Terrain menu compiled. width: " + terrain_menu.getWidth() + "
-            // height " + terrain_menu.getHeight());
-            // System.out.println("Standard menu compiled. width: " + standard.getWidth() + " height
-            // " + standard.getHeight());
-            // System.out.println("Advanced menu compiled. width: " + advanced.getWidth() + " height
-            // " + advanced.getHeight());
-            // System.out.println("Panel group compiled. width: " + panel_group.getWidth() + "
-            // height " + panel_group.getHeight());
         }
     }
 

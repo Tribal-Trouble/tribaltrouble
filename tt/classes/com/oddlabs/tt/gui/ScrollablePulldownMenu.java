@@ -199,16 +199,13 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
         // scrolling applied
         int item_pos_count =
                 Skin.getSkin().getPulldownData().getPulldownBottom().getHeight() + offset_y;
-        // System.out.println("Render amount * padding: " + (render_amount *
-        // item_box.getTopOffset()));
         for (int i = 0; i < items.size(); i++) {
             PulldownItem item = items.get(i);
             item.setPos(
                     0,
                     item_pos_count
                             + getHeight()
-                            - 32); // TODO: Figure out this offset mathematically? Will matter for
-            // larger text?
+                            - 32); // TODO: Fix magic number
             item_pos_count -= normalizedItemHeight;
         }
     }

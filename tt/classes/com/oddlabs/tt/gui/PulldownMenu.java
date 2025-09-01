@@ -94,7 +94,6 @@ public strictfp class PulldownMenu extends Group {
 
     protected final void focusNotify(boolean focus) {
         if (!focus) {
-            System.out.println("PulldownMenu lost focus, deactivating menu");
             remove();
         }
     }
