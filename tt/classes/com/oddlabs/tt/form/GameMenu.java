@@ -116,7 +116,7 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
         team_buttons = new PulldownButton[player_count];
         ready_marks = new Diode[player_count];
         ratings = new Label[player_count];
-        ScrollableGroup player_group = new ScrollableGroup(200, 64);
+        ScrollableGroup player_group = new ScrollableGroup(170, 64);
         GUIObject previous = null;
         for (int i = 0; i < player_count; i++)
             previous =
