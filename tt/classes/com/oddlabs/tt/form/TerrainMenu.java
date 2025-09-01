@@ -340,12 +340,12 @@ public final strictfp class TerrainMenu extends Group {
         advanced.addChild(group_num_players);
 
         ScrollablePulldownMenu pulldown_menu_slots = new ScrollablePulldownMenu(6);
-        for (int i = 1; i <= MatchmakingServerInterface.MAX_PLAYERS; i++) {
+        for (int i = min_players; i <= MatchmakingServerInterface.MAX_PLAYERS; i++) {
             pulldown_menu_slots.addItem(new PulldownItem(Integer.toString(i)));
         }
 
         PulldownButton pulldown_player_slots =
-                new PulldownButton(gui_root, pulldown_menu_slots, 5, 150);
+                new PulldownButton(gui_root, pulldown_menu_slots, 0, 150);
         group_num_players.addChild(pulldown_player_slots);
         pulldown_player_slots.place(label_player_slots, RIGHT_MID);
         group_num_players.compileCanvas();
@@ -533,7 +533,7 @@ public final strictfp class TerrainMenu extends Group {
         pulldown_size.chooseItem(1);
         if (!Renderer.isRegistered()) pm_terrain_type.chooseItem(0);
 
-        pulldown_menu_slots.chooseItem(player_count - 1);
+        pulldown_menu_slots.chooseItem(0);
 
     }
 
@@ -889,7 +889,7 @@ public final strictfp class TerrainMenu extends Group {
         }
 
         public final void itemChosen(PulldownMenu menu, int item_index) {
-            player_count = item_index + 1;
+            player_count = item_index + min_players;
             if (is_multiplayer) return;
 
             // For single player we need to redraw all the controls (Actually multiplayer doesn't
