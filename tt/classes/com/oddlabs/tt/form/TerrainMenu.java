@@ -96,7 +96,8 @@ public final strictfp class TerrainMenu extends Group {
     private final ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
     private final GUIRoot gui_root;
     private final NetworkSelector network;
-    private int player_count = 6;
+    private int min_players = 6;
+    private int player_count = min_players;
     private int seed;
     private boolean show_demo = true;
 
@@ -350,7 +351,7 @@ public final strictfp class TerrainMenu extends Group {
         group_num_players.compileCanvas();
 
         // races and teams
-        ScrollableGroup group_race_team = new ScrollableGroup(300, 64);
+        ScrollableGroup group_race_team = new ScrollableGroup(200, 64);
         labels_players = new Label[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         race_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
@@ -480,7 +481,7 @@ public final strictfp class TerrainMenu extends Group {
         }
 
         standard.compileCanvas();
-        standard.setDim(standard.getWidth() + 100, standard.getHeight());
+        standard.setDim(standard.getWidth(), standard.getHeight());
         // advanced
         group_sliders.place();
         group_num_players.place(
@@ -895,7 +896,7 @@ public final strictfp class TerrainMenu extends Group {
             // use these controls...)
             group_race_team.clearChildren();
             standard.removeChild(group_race_team);
-            group_race_team = new ScrollableGroup(300, 64);
+            group_race_team = new ScrollableGroup(200, 64);
             group_race_team.place();
             standard.addChild(group_race_team);
             for (int i = 0; i < player_count; i++) {

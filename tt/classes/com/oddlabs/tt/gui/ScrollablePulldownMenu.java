@@ -23,17 +23,27 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
 
         // Render top edge
         Horizontal top = Skin.getSkin().getPulldownData().getPulldownTop();
+        int addAmount = 0;
+        
+        if(items.size() > render_amount)
+            addAmount = Skin.getSkin().getPulldownData().getPulldownTop().getHeight();
         top.render(
                 0,
                 getHeight()
                         - top.getHeight()
-                        + Skin.getSkin().getPulldownData().getPulldownTop().getHeight(),
+                        + addAmount,
                 getWidth() - getScrollbarWidth(),
                 Skin.NORMAL);
     }
 
     @Override
     public final void setDim(int width, int height) {
+        // If we don't have enough items to treat this as scrollable
+        // use the parent setDim to be treated as a normal pulldown
+        if(items.size() <= render_amount) {
+            super.setDim(width, height);
+            return;
+        }
         calculateNormalizedItemHeight();
         int min_content_width = 0;
         Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
@@ -75,10 +85,8 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
     // Added missing @Override annotation
     @Override
     public final void setOffsetY(int new_offset) {
-        // System.out.println("setOffsetY called - current offset: " + offset_y);
-        // System.out.println("Setting offset to " + new_offset + ", total content
-        // height: " + getTotalContentHeight()
-        // + ", visible height: " + getVisibleHeight());
+        if(items.size() <= render_amount)
+            return;
         offset_y = new_offset;
 
         // Clamp offset to valid range
