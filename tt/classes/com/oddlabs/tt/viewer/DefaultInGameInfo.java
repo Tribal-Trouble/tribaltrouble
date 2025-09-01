@@ -146,7 +146,8 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
 
         game_infos.addChild(names);
 
-        // A button with no width (hidden) - this prevents the focus from getting in an infinite loop
+        // A button with no width (hidden) - this prevents the focus from getting in an infinite
+        // loop
         // when there is 0 focusable children in the game_infos group and the 'quit game' is opened
         // TODO: Provide a more appropriate fix for this instead of this work around
         OKButton okayBtn = new OKButton(0);

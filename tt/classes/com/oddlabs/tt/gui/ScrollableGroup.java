@@ -56,7 +56,7 @@ public class ScrollableGroup extends Group implements Scrollable {
         setDim(getWidth() + scroll_bar.getWidth() + scroll_bar_left_margin, content_height);
         System.out.println("dim: " + getWidth() + ", " + content_height);
         scroll_bar.setPos(getWidth() - scroll_bar.getWidth(), 0);
-        scroll_bar.update();        
+        scroll_bar.update();
         ListElement current = getFirstChild();
         while (current != null) {
             GUIObject gui_object = (GUIObject) current;
@@ -68,7 +68,7 @@ public class ScrollableGroup extends Group implements Scrollable {
             int x = gui_object.getX();
             int y = gui_object.getY();
             int offset = Math.max(0, total_content_height - content_height);
-            gui_object.setPos(x, y - offset);            
+            gui_object.setPos(x, y - offset);
             current = current.getNext();
         }
     }
@@ -161,7 +161,7 @@ public class ScrollableGroup extends Group implements Scrollable {
         offset_y = offset_y + diff;
         if (offset_y < 0) offset_y = 0;
         if (offset_y > max_offset_y) offset_y = max_offset_y;
-        
+
         ListElement current = getFirstChild();
         while (current != null) {
             GUIObject gui_object = (GUIObject) current;

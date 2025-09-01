@@ -24,14 +24,12 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
         // Render top edge
         Horizontal top = Skin.getSkin().getPulldownData().getPulldownTop();
         int addAmount = 0;
-        
-        if(items.size() > render_amount)
+
+        if (items.size() > render_amount)
             addAmount = Skin.getSkin().getPulldownData().getPulldownTop().getHeight();
         top.render(
                 0,
-                getHeight()
-                        - top.getHeight()
-                        + addAmount,
+                getHeight() - top.getHeight() + addAmount,
                 getWidth() - getScrollbarWidth(),
                 Skin.NORMAL);
     }
@@ -40,7 +38,7 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
     public final void setDim(int width, int height) {
         // If we don't have enough items to treat this as scrollable
         // use the parent setDim to be treated as a normal pulldown
-        if(items.size() <= render_amount) {
+        if (items.size() <= render_amount) {
             super.setDim(width, height);
             return;
         }
@@ -85,8 +83,7 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
     // Added missing @Override annotation
     @Override
     public final void setOffsetY(int new_offset) {
-        if(items.size() <= render_amount)
-            return;
+        if (items.size() <= render_amount) return;
         offset_y = new_offset;
 
         // Clamp offset to valid range
@@ -201,11 +198,7 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
                 Skin.getSkin().getPulldownData().getPulldownBottom().getHeight() + offset_y;
         for (int i = 0; i < items.size(); i++) {
             PulldownItem item = items.get(i);
-            item.setPos(
-                    0,
-                    item_pos_count
-                            + getHeight()
-                            - 32); // TODO: Fix magic number
+            item.setPos(0, item_pos_count + getHeight() - 32); // TODO: Fix magic number
             item_pos_count -= normalizedItemHeight;
         }
     }

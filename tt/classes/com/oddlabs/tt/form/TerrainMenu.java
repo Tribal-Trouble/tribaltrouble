@@ -494,12 +494,7 @@ public final strictfp class TerrainMenu extends Group {
         addChild(panel_group);
         pulldown_menu_slots.addItemChosenListener(
                 new PulldownUpdatePlayersChangedListener(
-                        group_race_team,
-                        standard,
-                        panel_group,
-                        this,                        
-                        multiplayer,
-                        label_headline));
+                        group_race_team, standard, panel_group, this, multiplayer, label_headline));
 
         // Place objects
         label_headline.place();
@@ -533,7 +528,6 @@ public final strictfp class TerrainMenu extends Group {
         if (!Renderer.isRegistered()) pm_terrain_type.chooseItem(0);
 
         pulldown_menu_slots.chooseItem(0);
-
     }
 
     private final void setMapcode() {

@@ -87,8 +87,8 @@ public final strictfp class ScrollBar extends GUIObject {
                         - less_button.getHeight()
                         - more_button.getHeight()
                         - data.getBottomOffset()
-                        - data.getTopOffset();        
-        int size = getButtonHeight();        
+                        - data.getTopOffset();
+        int size = getButtonHeight();
         int offset = max_height - size - (int) ((max_height - size) * owner.getScrollBarOffset());
         return less_button.getHeight() + data.getBottomOffset() + offset;
     }
