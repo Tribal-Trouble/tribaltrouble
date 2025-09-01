@@ -96,7 +96,7 @@ public final strictfp class TerrainMenu extends Group {
     private final ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
     private final GUIRoot gui_root;
     private final NetworkSelector network;
-    private int player_count = MatchmakingServerInterface.MAX_PLAYERS;
+    private int player_count = 6;
     private int seed;
     private boolean show_demo = true;
 
@@ -531,6 +531,9 @@ public final strictfp class TerrainMenu extends Group {
         }
         pulldown_size.chooseItem(1);
         if (!Renderer.isRegistered()) pm_terrain_type.chooseItem(0);
+
+        pulldown_menu_slots.chooseItem(player_count - 1);
+
     }
 
     private final void setMapcode() {
