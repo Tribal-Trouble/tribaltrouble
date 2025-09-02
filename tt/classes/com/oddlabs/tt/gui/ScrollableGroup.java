@@ -49,6 +49,7 @@ public class ScrollableGroup extends Group implements Scrollable {
                 current = current.getNext();
             }
             scroll_bar = null;
+            setDim(getWidth(), content_height);
             return;
         }
 
