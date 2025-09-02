@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.ListElement;
+
 import org.lwjgl.opengl.GL11;
 
 public class ScrollableGroup extends Group implements Scrollable {
@@ -194,14 +195,14 @@ public class ScrollableGroup extends Group implements Scrollable {
         // Enable scissor test to clip rendering to content area
         GL11.glEnd();
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        
+
         // Get absolute screen coordinates for scissor rectangle
         int abs_x = (int) getRootX();
         int abs_y = (int) getRootY();
         GL11.glScissor(abs_x, abs_y, getWidth(), content_height);
         GL11.glBegin(GL11.GL_QUADS);
     }
-    
+
     @Override
     protected void postRender() {
         // Disable scissor test after rendering
