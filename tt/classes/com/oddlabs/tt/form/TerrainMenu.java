@@ -963,13 +963,10 @@ public final strictfp class TerrainMenu extends Group {
                         new PulldownUpdateMapcodeListener());
                 race_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
                 team_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
-                // setup defaults                
+                // setup defaults
                 if (i == 1) {
                     difficulty_pulldown_menus[i].chooseItem(1);
-                    race_pulldown_menus[i].setDisabled(false);
-                    team_pulldown_menus[i].setDisabled(false);
-                }
-                else if (i != 0) {
+                } else if (i != 0) {
                     difficulty_pulldown_menus[i].chooseItem(0);
                 }
             }
