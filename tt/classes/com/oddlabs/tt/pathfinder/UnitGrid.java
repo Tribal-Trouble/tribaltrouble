@@ -27,9 +27,14 @@ public final strictfp class UnitGrid {
     private final HeightMap heightmap;
 
     private final boolean filter(ScanFilter filter, int x, int y, int layer) {
-        Occupant[][] occupants = layers[layer].occupants;
-        if (x < 0 || y < 0 || x >= occupants.length || y >= occupants.length) return false;
-        return filter.filter(x, y, occupants[y][x]);
+        Occupant[][] occupantsLand = layers[LAND].occupants;
+        Occupant[][] occupantsSea = layers[SEA].occupants;
+        if (x < 0 || y < 0 || x >= occupantsLand.length || y >= occupantsLand.length) return false;
+        if (occupantsLand[y][x] != null) {
+            return filter.filter(x, y, occupantsLand[y][x]);
+        } else {
+            return filter.filter(x, y, occupantsSea[y][x]);
+        }
     }
 
     public final Target[] findGridTargets(
@@ -123,7 +128,7 @@ public final strictfp class UnitGrid {
     }
 
     public final void freeGrid(int grid_x, int grid_y, Occupant occupant, int layer) {
-        assert layers[layer].occupants[grid_y][grid_x] == occupant
+        /*assert layers[layer].occupants[grid_y][grid_x] == occupant
                 : occupant
                         + " trying to free "
                         + grid_x
@@ -131,7 +136,7 @@ public final strictfp class UnitGrid {
                         + grid_y
                         + " where "
                         + layers[layer].occupants[grid_y][grid_x]
-                        + " is.";
+                        + " is.";*/
         layers[layer].occupants[grid_y][grid_x] = null;
     }
 

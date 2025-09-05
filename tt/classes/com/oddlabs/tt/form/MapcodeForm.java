@@ -33,7 +33,7 @@ public final strictfp class MapcodeForm extends Form {
         editline_seed =
                 new EditLine(
                         200,
-                        12,
+                        17,
                         RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS,
                         EditLine.LEFT_ALIGNED);
         editline_seed.addEnterListener(new CodeEnterListener());

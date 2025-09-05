@@ -1,0 +1,205 @@
+package com.oddlabs.tt.gui;
+
+public final strictfp class ScrollablePulldownMenu extends PulldownMenu implements Scrollable {
+    private ScrollBar scroll_bar;
+    private int offset_y = 0; // Tracks the vertical offset for scrolling
+    private int render_amount = 6;
+
+    public ScrollablePulldownMenu(int render_amount) {
+        super();
+        this.render_amount = render_amount;
+    }
+
+    public int getScrollbarWidth() {
+        if (scroll_bar == null) return 0;
+        return scroll_bar.getWidth();
+    }
+
+    @Override
+    protected void renderGeometry() {
+        // Render bottom edge
+        Horizontal bot = Skin.getSkin().getPulldownData().getPulldownBottom();
+        bot.render(0, 0, getWidth() - getScrollbarWidth(), Skin.NORMAL);
+
+        // Render top edge
+        Horizontal top = Skin.getSkin().getPulldownData().getPulldownTop();
+        int addAmount = 0;
+
+        if (items.size() > render_amount)
+            addAmount = Skin.getSkin().getPulldownData().getPulldownTop().getHeight();
+        top.render(
+                0,
+                getHeight() - top.getHeight() + addAmount,
+                getWidth() - getScrollbarWidth(),
+                Skin.NORMAL);
+    }
+
+    @Override
+    public final void setDim(int width, int height) {
+        // If we don't have enough items to treat this as scrollable
+        // use the parent setDim to be treated as a normal pulldown
+        if (items.size() <= render_amount) {
+            super.setDim(width, height);
+            return;
+        }
+        calculateNormalizedItemHeight();
+        int min_content_width = 0;
+        Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
+        // Adjust all items
+        for (int i = 0; i < items.size(); i++) {
+            PulldownItem item = (PulldownItem) items.get(i);
+            if (item.getTextWidth() > min_content_width) {
+                min_content_width = item.getTextWidth();
+            }
+        }
+        int item_pos_count = 0;
+        min_content_width =
+                StrictMath.max(
+                        width,
+                        item_box.getLeftOffset() + min_content_width + item_box.getRightOffset());
+        for (int i = 0; i < items.size(); i++) {
+            PulldownItem item = (PulldownItem) items.get(i);
+            item.setDim(min_content_width, normalizedItemHeight);
+            item.setPos(0, item_pos_count);
+            item_pos_count -= normalizedItemHeight;
+        }
+
+        int item_height_shown = normalizedItemHeight * render_amount;
+
+        if (scroll_bar == null) {
+            scroll_bar = new ScrollBar(item_height_shown, this);
+            addChild(scroll_bar);
+            offset_y = 0; // Reset to top when scroll bar is created
+        }
+        scroll_bar.setPos(min_content_width, 0);
+
+        // We need to skirt the pullable menu super but still set width and height
+        setDimSimple(min_content_width + scroll_bar.getWidth(), item_height_shown);
+
+        updateItemPositions(); // Update positions when dimensions change
+        scroll_bar.update();
+    }
+
+    // Added missing @Override annotation
+    @Override
+    public final void setOffsetY(int new_offset) {
+        if (items.size() <= render_amount) return;
+        offset_y = new_offset;
+
+        // Clamp offset to valid range
+        if (offset_y < 0) offset_y = 0;
+        int max_offset_y = getTotalContentHeight() - getVisibleHeight();
+        if (max_offset_y < 0) max_offset_y = 0;
+        if (offset_y > max_offset_y) offset_y = max_offset_y;
+
+        // Snap offset to the nearest multiple of normalizedItemHeight
+        new_offset = Math.max(0, Math.min(new_offset, max_offset_y)); // Clamp to range
+        new_offset =
+                (new_offset / normalizedItemHeight)
+                        * normalizedItemHeight; // Snap to nearest multiple
+
+        offset_y = new_offset;
+        // Update item positions based on new offset
+        updateItemPositions();
+        scroll_bar.update();
+    }
+
+    private int normalizedItemHeight = 0;
+
+    private void calculateNormalizedItemHeight() {
+        Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
+        for (PulldownItem item : items) {
+            int itemHeight =
+                    item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
+            if (itemHeight > normalizedItemHeight) {
+                normalizedItemHeight = itemHeight; // Use the tallest item
+            }
+        }
+    }
+
+    @Override
+    public final int getOffsetY() {
+        return offset_y;
+    }
+
+    @Override
+    public final int getStepHeight() {
+        return normalizedItemHeight;
+    }
+
+    @Override
+    public final void jumpPage(boolean up) {
+        int pageSize = getVisibleHeight();
+        if (up) {
+            setOffsetY(offset_y - pageSize);
+        } else {
+            setOffsetY(offset_y + pageSize);
+        }
+    }
+
+    protected final void mouseScrolled(int amount) {
+        if (amount > 0) {
+            setOffsetY(offset_y - getStepHeight() * 3);
+        } else {
+            setOffsetY(offset_y + getStepHeight() * 3);
+        }
+    }
+
+    /**
+     * The ratio of the scroll bar button that can be dragged relative to the size of the bar (0.0f
+     * - 1.0f)
+     */
+    @Override
+    public final float getScrollBarRatio() {
+        int totalHeight = getTotalContentHeight();
+        int visibleHeight = getVisibleHeight();
+        if (totalHeight <= visibleHeight) return 1.0f;
+        return visibleHeight / (float) totalHeight;
+    }
+
+    /** Where the scrollbar is positioned relative to the total content height (0.0f - 1.0f) */
+    @Override
+    public final float getScrollBarOffset() {
+        int maxOffset = getTotalContentHeight() - getVisibleHeight();
+        if (maxOffset <= 0) return 0.0f;
+        return offset_y / (float) maxOffset;
+    }
+
+    @Override
+    public final void setScrollBarOffset(float offset) {
+        int maxOffset = getTotalContentHeight() - getVisibleHeight();
+        if (maxOffset > 0) {
+            setOffsetY((int) (offset * maxOffset));
+        } else {
+            setOffsetY(0);
+        }
+    }
+
+    private int getTotalContentHeight() {
+        if (items.isEmpty()) return 0;
+
+        int item_height = normalizedItemHeight; // Use normalized height for consistency
+        int totalItemHeight = items.size() * item_height;
+
+        int topHeight = Skin.getSkin().getPulldownData().getPulldownTop().getHeight();
+
+        return totalItemHeight + topHeight;
+    }
+
+    private int getVisibleHeight() {
+        int topHeight = Skin.getSkin().getPulldownData().getPulldownTop().getHeight();
+        return (render_amount * normalizedItemHeight) + topHeight;
+    }
+
+    private void updateItemPositions() {
+        // Reposition all items using the same logic as setDim() but with offset from
+        // scrolling applied
+        int item_pos_count =
+                Skin.getSkin().getPulldownData().getPulldownBottom().getHeight() + offset_y;
+        for (int i = 0; i < items.size(); i++) {
+            PulldownItem item = items.get(i);
+            item.setPos(0, item_pos_count + getHeight() - 32); // TODO: Fix magic number
+            item_pos_count -= normalizedItemHeight;
+        }
+    }
+}

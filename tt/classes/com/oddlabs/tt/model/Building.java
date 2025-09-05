@@ -1001,7 +1001,6 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     }
 
     public final PathTracker getTracker() {
-        assert !isDead();
         return path_tracker;
     }
 
@@ -1018,6 +1017,7 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     }
 
     public final void setPosition(float x, float y) {
+        if (isDead()) return;
         super.setPosition(x, y);
         float xc = x + getBuildingTemplate().getChimneyX();
         float yc = y + getBuildingTemplate().getChimneyY();
@@ -1026,6 +1026,7 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     }
 
     public final void setPosition(int x, int y) {
+        if (isDead()) return;
         free();
         super.setPosition(x, y);
         updateBounds();

@@ -7,11 +7,11 @@ import com.oddlabs.tt.input.Keyboard;
 import java.util.ArrayList;
 import java.util.List;
 
-public final strictfp class PulldownMenu extends Group { // GUIObject {
-    private final List<ItemChosenListener> chosen_listeners = new ArrayList<ItemChosenListener>();
+public strictfp class PulldownMenu extends Group {
+    private final List<ItemChosenListener> chosen_listeners = new ArrayList<>();
 
-    private final List<PulldownItem> items = new ArrayList();
-    private int chosen_item_index = -1;
+    protected final List<PulldownItem> items = new ArrayList<>();
+    protected int chosen_item_index = -1;
 
     public PulldownMenu() {
         setCanFocus(true);
@@ -26,7 +26,8 @@ public final strictfp class PulldownMenu extends Group { // GUIObject {
         return items.size();
     }
 
-    protected final void renderGeometry() {
+    @Override
+    protected void renderGeometry() {
         // Render bottom edge
         Horizontal bot = Skin.getSkin().getPulldownData().getPulldownBottom();
         bot.render(0, 0, getWidth(), Skin.NORMAL);
@@ -36,14 +37,18 @@ public final strictfp class PulldownMenu extends Group { // GUIObject {
         top.render(0, getHeight() - top.getHeight(), getWidth(), Skin.NORMAL);
     }
 
-    public final void addItem(PulldownItem item) {
+    public void addItem(PulldownItem item) {
         items.add(item);
         addChild(item);
+
+        // Let the control recalculate its width when an item is added
+        // width otherwise will exponentially grow (width is used for inital )
+        setDim(0, getHeight());
         item.addMouseClickListener(new ItemListener(items.size() - 1));
-        setDim(getWidth(), getHeight());
     }
 
-    public final void setDim(int width, int height) {
+    @Override
+    public void setDim(int width, int height) {
         int min_width = 0;
         Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
         // Adjust all items
@@ -69,6 +74,10 @@ public final strictfp class PulldownMenu extends Group { // GUIObject {
         super.setDim(min_width, min_height);
     }
 
+    protected void setDimSimple(int width, int height) {
+        super.setDim(width, height);
+    }
+
     public final int getChosenItemIndex() {
         return chosen_item_index;
     }
@@ -89,6 +98,7 @@ public final strictfp class PulldownMenu extends Group { // GUIObject {
         }
     }
 
+    // Reverted to traditional switch syntax for Java 8 compatibility
     protected final void keyRepeat(KeyboardEvent event) {
         switch (event.getKeyCode()) {
             case Keyboard.KEY_UP:
@@ -103,7 +113,8 @@ public final strictfp class PulldownMenu extends Group { // GUIObject {
         }
     }
 
-    // Sending click on to appropiate item when PulldownButton has been pressed and released on an
+    // Sending click on to appropiate item when PulldownButton has been pressed and
+    // released on an
     // item
     protected final void clickItem(int button, int x, int y, int clicks) {
         for (int i = 0; i < items.size(); i++) {

@@ -75,9 +75,20 @@ public final strictfp class PulldownButton extends GUIObject {
 
     private final void activateMenu() {
         menu_active = true;
-        menu.setPos(
-                (int) (getRootX() + getWidth() - menu.getWidth()),
-                (int) (getRootY() - menu.getHeight()));
+        if (menu instanceof ScrollablePulldownMenu) {
+            ScrollablePulldownMenu scrollableMenu = (ScrollablePulldownMenu) menu;
+            menu.setPos(
+                    (int)
+                            (getRootX()
+                                    + getWidth()
+                                    - (menu.getWidth() - scrollableMenu.getScrollbarWidth())),
+                    (int) (getRootY() - menu.getHeight()));
+        } else if (menu instanceof PulldownMenu) {
+            menu.setPos(
+                    (int) (getRootX() + getWidth() - menu.getWidth()),
+                    (int) (getRootY() - menu.getHeight()));
+        }
+
         gui_root.getDelegate().addChild(menu);
     }
 
