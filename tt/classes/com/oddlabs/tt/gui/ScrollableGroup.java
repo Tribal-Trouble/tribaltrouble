@@ -2,6 +2,8 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.ListElement;
 
+import org.lwjgl.opengl.GL11;
+
 public class ScrollableGroup extends Group implements Scrollable {
     private ScrollBar scroll_bar;
     // The height for one 'page' of the scrollbar or all the content that can be seen by the user
@@ -48,6 +50,7 @@ public class ScrollableGroup extends Group implements Scrollable {
                 current = current.getNext();
             }
             scroll_bar = null;
+            setDim(getWidth(), content_height);
             return;
         }
 
@@ -185,5 +188,26 @@ public class ScrollableGroup extends Group implements Scrollable {
 
     private int getVisibleHeight() {
         return content_height;
+    }
+
+    @Override
+    protected void renderGeometry() {
+        // Enable scissor test to clip rendering to content area
+        GL11.glEnd();
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+
+        // Get absolute screen coordinates for scissor rectangle
+        int abs_x = (int) getRootX();
+        int abs_y = (int) getRootY();
+        GL11.glScissor(abs_x, abs_y, getWidth(), content_height);
+        GL11.glBegin(GL11.GL_QUADS);
+    }
+
+    @Override
+    protected void postRender() {
+        // Disable scissor test after rendering
+        GL11.glEnd();
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+        GL11.glBegin(GL11.GL_QUADS);
     }
 }
