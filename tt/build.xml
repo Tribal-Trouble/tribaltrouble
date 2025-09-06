@@ -407,9 +407,8 @@
 			<arg value="--java-options" />
 			<arg
 				value="-ea -XstartOnFirstThread -cp $APPDIR:$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true" />
-			<!-- add the below values for dmg installer to be produced instead -->
-			<!-- <arg value="-type" /> add a dash back when uncommented
-			<arg value="app-image" /> -->
+			<arg value="--type" />
+			<arg value="app-image" />
 			<!-- Note: The process will complain about signing but the application can still run -->
 		</exec>
 	</target>
