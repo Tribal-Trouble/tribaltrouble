@@ -143,7 +143,7 @@ jobs:
         firstDepotIdOverride: 3945722
         rootPath: tt/build/dist/
         depot1Path: windows
-        depot2Path: mac-arm64
-        depot3Path: mac-x86
+        depot2Path: macosx-arm64
+        depot3Path: macosx-x86
         depot4Path: linux
         releaseBranch: prerelease
