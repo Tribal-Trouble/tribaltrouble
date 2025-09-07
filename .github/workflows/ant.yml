@@ -124,7 +124,7 @@ jobs:
     - name: Upload files
       uses: actions/upload-artifact@v4
       with:
-        name: mac-x86
+        name: mac-x86-app
         path: tt/build/dist/macosx-x86-app/
     
 
@@ -144,7 +144,7 @@ jobs:
     - name: Download Mac x86 Artifact
       uses: actions/download-artifact@v4
       with:
-        name: mac-x86
+        name: mac-x86-app
         path: tt/build/dist/macosx-x86-app/
     - name: Download Mac arm64 Artifact
       uses: actions/download-artifact@v4
