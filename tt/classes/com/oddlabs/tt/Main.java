@@ -1,5 +1,6 @@
 package com.oddlabs.tt;
 
+import com.codedisaster.steamworks.SteamAPI;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.Display;
@@ -37,6 +38,15 @@ public final strictfp class Main {
 
     public static final void main(String[] args) {
         try {
+            System.out.println("Loading Steam libraries...");
+            SteamAPI.loadLibraries();
+            if (!SteamAPI.init()) {
+                // Steamworks initialization error, e.g. Steam client not running
+                System.out.println("Failed to initialize Steam API.");
+            }
+            else {
+                System.out.println("Steam API initialized.");
+            }
             System.out.println("Starting game....");
             System.out.flush();
             Main.class.getClassLoader().setDefaultAssertionStatus(true);
