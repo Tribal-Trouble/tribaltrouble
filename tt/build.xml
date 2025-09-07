@@ -244,6 +244,7 @@
 			<fileset file="${revision_number_file}" />
 			<fileset dir="../common/static">
 				<include name="public_reg_key" />
+				<include name="dictionary" />
 			</fileset>
 			<fileset dir="static">
 				<include name="gui/*.xml" />
