@@ -197,12 +197,49 @@ public class KeybindPanel extends Panel {
         return Settings.getDefaultKeybinds();
     }
 
+    /**
+     * Calculates the display color for a keybind label based on modifiers.
+     * Combines yellow tinting (changed from default) and darkening (duplicate) effects.
+     * 
+     * @param isChangedFromDefault true if this keybind differs from its default value
+     * @param isDuplicate true if this key is assigned to multiple actions
+     * @return RGBA color array for the label
+     */
+    private float[] calculateKeybindColor(boolean isChangedFromDefault, boolean isDuplicate) {
+        // Base color: white
+        float r = 1.0f, g = 1.0f, b = 1.0f;
+        
+        // Apply yellow tinting for changed-from-default (more yellow = less blue/red)
+        if (isChangedFromDefault) {
+            r = 1.0f;      // Keep red at full
+            g = 0.92f;     // Slight yellow tint
+            b = 0.23f;     // Reduce blue significantly for yellow effect
+        }
+        
+        // Apply darkening for duplicates (multiply by darkening factor)
+        if (isDuplicate) {
+            float darkeningFactor = 0.7f; // 30% darker
+            r *= darkeningFactor;
+            g *= darkeningFactor;
+            b *= darkeningFactor;
+        }
+        
+        return new float[] {r, g, b, 1.0f}; // Full alpha
+    }
+
     private void evaluateKeybindRows() {
         keybinds_list_box.clear();
         HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
 
         // Get default keybinds for comparison to detect changed-from-default settings
         HashMap<String, Integer> defaultKeybinds = getDefaultKeybinds();
+
+        // Build reverse map keyCode -> count to detect duplicates
+        java.util.HashMap<Integer, Integer> codeCounts = new java.util.HashMap<>();
+        for (Integer code : keybinds.values()) {
+            if (code == null) continue;
+            codeCounts.put(code, codeCounts.getOrDefault(code, 0) + 1);
+        }
 
         // Section order: Camera → Main Gameplay → Menus (A–Z) → System → Army Groups
         List<Section> sections =
@@ -305,7 +342,7 @@ public class KeybindPanel extends Panel {
 
         int orderIndex = 0;
         for (Section sec : sections) {
-            orderIndex = addSection(sec, keybinds, defaultKeybinds, orderIndex);
+            orderIndex = addSection(sec, keybinds, defaultKeybinds, codeCounts, orderIndex);
         }
     }
 
@@ -328,6 +365,7 @@ public class KeybindPanel extends Panel {
             Section section,
             HashMap<String, Integer> keybinds,
             HashMap<String, Integer> defaultKeybinds,
+            java.util.Map<Integer, Integer> codeCounts,
             int orderIndex) {
         // Header
         OrderedLabel header =
@@ -346,10 +384,17 @@ public class KeybindPanel extends Panel {
                             displayName + " [" + keyString + "]",
                             orderIndex++,
                             Skin.getSkin().getMultiColumnComboBoxData().getFont());
-            // Highlight keybinds that have been changed from default settings in yellow
+            // Apply color modifiers based on keybind state
             Integer defaultKeyCode = defaultKeybinds.get(actionName);
-            if (defaultKeyCode != null && !keyCode.equals(defaultKeyCode)) {
-                label.setColor(new float[] {1.0f, 0.92f, 0.23f, 1.0f});
+            boolean isChangedFromDefault = defaultKeyCode != null && !keyCode.equals(defaultKeyCode);
+            
+            Integer count = codeCounts.get(keyCode);
+            boolean isDuplicate = count != null && count > 1;
+            
+            // Apply combined color modifiers if needed
+            if (isChangedFromDefault || isDuplicate) {
+                float[] color = calculateKeybindColor(isChangedFromDefault, isDuplicate);
+                label.setColor(color);
             }
             keybinds_list_box.addRow(
                     new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode)));
