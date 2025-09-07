@@ -5,8 +5,6 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ColumnInfo;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
-import com.oddlabs.tt.gui.Group;
-import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Panel;
@@ -16,11 +14,6 @@ import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.input.Keyboard;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +25,6 @@ import java.util.Map;
 public abstract class AbstractKeybindPanel extends Panel {
     protected GUIRoot gui_root;
     protected MultiColumnComboBox keybinds_list_box;
-    private Label statusLabel;
 
     // Human-readable labels for all keybind actions
     public static final Map<String, String> KEYBIND_DISPLAY_NAMES =
@@ -124,45 +116,15 @@ public abstract class AbstractKeybindPanel extends Panel {
         super(caption);
         this.gui_root = gui_root;
 
-        Label keybinds_label = new Label("Keybinds", Skin.getSkin().getEditFont());
-        keybinds_label.place();
-
-        // Add all the controls to a group
-        Group keybinds_group = new Group();
-        keybinds_group.addChild(keybinds_label);
-
-        // Clipboard controls
-        HorizButton copyBtn = new HorizButton("Copy Binds", 120);
-        copyBtn.addMouseClickListener((button, x, y, clicks) -> copyBinds());
-        keybinds_group.addChild(copyBtn);
-
-        HorizButton pasteBtn = new HorizButton("Paste Binds", 120);
-        pasteBtn.addMouseClickListener((button, x, y, clicks) -> pasteBinds());
-        keybinds_group.addChild(pasteBtn);
-
-        HorizButton resetBtn = new HorizButton("Reset to defaults", 160);
-        resetBtn.addMouseClickListener((button, x, y, clicks) -> resetBinds());
-        keybinds_group.addChild(resetBtn);
-
+        // Simple layout - just the keybind list
         ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", 300)};
         keybinds_list_box = new MultiColumnComboBox(gui_root, keybind_options, 200, false);
-        // Vertical layout for controls
-        copyBtn.place(keybinds_label, BOTTOM_LEFT);
-        pasteBtn.place(copyBtn, BOTTOM_LEFT);
-        resetBtn.place(pasteBtn, BOTTOM_LEFT);
-        keybinds_list_box.place(resetBtn, BOTTOM_LEFT);
         keybinds_list_box.addRowListener(new KeybindListener());
 
         evaluateKeybindRows();
 
-        keybinds_group.addChild(keybinds_list_box);
-        statusLabel = new Label("", Skin.getSkin().getEditFont());
-        keybinds_group.addChild(statusLabel);
-        statusLabel.place(keybinds_list_box, BOTTOM_LEFT);
-        keybinds_group.compileCanvas();
-        keybinds_group.place();
-
-        addChild(keybinds_group);
+        addChild(keybinds_list_box);
+        keybinds_list_box.place();
         this.compileCanvas();
     }
 
@@ -171,34 +133,15 @@ public abstract class AbstractKeybindPanel extends Panel {
      * of keybinds they should display.
      */
     protected abstract List<Section> getSections();
-
-    private void setStatus(String msg, boolean ok) {
-        if (statusLabel == null) return;
-        statusLabel.set(msg);
-        if (ok) statusLabel.setColor(new float[] {0.298f, 0.686f, 0.314f, 1});
-        else statusLabel.setColor(new float[] {0.9f, 0.2f, 0.2f, 1});
+    
+    /**
+     * Public method to refresh the keybind rows - called from parent panel
+     * when keybinds are changed via copy/paste/reset operations.
+     */
+    public void refreshKeybindRows() {
+        evaluateKeybindRows();
     }
 
-    private static void copyToClipboard(String text) {
-        try {
-            Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
-            cb.setContents(new StringSelection(text), null);
-        } catch (Throwable t) {
-            // ignore if no clipboard available
-        }
-    }
-
-    private static String getClipboardText() {
-        try {
-            Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
-            if (cb.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
-                return (String) cb.getData(DataFlavor.stringFlavor);
-            }
-        } catch (Throwable t) {
-            // ignore
-        }
-        return null;
-    }
 
     private HashMap<String, Integer> getDefaultKeybinds() {
         return Settings.getDefaultKeybinds();
@@ -389,45 +332,5 @@ public abstract class AbstractKeybindPanel extends Panel {
     public void onActivated() {
         // Refresh list on activation
         evaluateKeybindRows();
-    }
-
-    // Clipboard actions
-    private void copyBinds() {
-        String code = KeybindCodePanel.generateCode(Settings.getSettings().getKeybinds());
-        copyToClipboard(code);
-        setStatus("Copied to clipboard.", true);
-    }
-
-    private void pasteBinds() {
-        String fromClip = getClipboardText();
-        if (fromClip == null || fromClip.isEmpty()) {
-            setStatus("Clipboard is empty.", false);
-            return;
-        }
-        Map<String, Integer> parsed = KeybindCodePanel.parseCode(fromClip);
-        if (parsed == null) {
-            setStatus("Clipboard doesn't contain a valid keybind code.", false);
-            return;
-        }
-        HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
-        int applied = 0;
-        for (Map.Entry<String, Integer> e : parsed.entrySet()) {
-            if (keybinds.containsKey(e.getKey())) {
-                Settings.getSettings().setKeybind(e.getKey(), e.getValue());
-                applied++;
-            }
-        }
-        Settings.getSettings().save();
-        evaluateKeybindRows();
-        setStatus("Applied " + applied + " binds from clipboard.", true);
-    }
-
-    private void resetBinds() {
-        Settings.getSettings().resetKeybindsToDefaults();
-        Settings.getSettings().save();
-        evaluateKeybindRows();
-        String code = KeybindCodePanel.generateCode(Settings.getSettings().getKeybinds());
-        copyToClipboard(code);
-        setStatus("Reset to defaults and copied to clipboard.", true);
     }
 }
