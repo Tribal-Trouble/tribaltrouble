@@ -33,6 +33,7 @@ public final strictfp class Main {
     }
 
     public static final void shutdown() {
+        SteamAPI.shutdown();
         System.exit(0);
     }
 
@@ -43,8 +44,7 @@ public final strictfp class Main {
             if (!SteamAPI.init()) {
                 // Steamworks initialization error, e.g. Steam client not running
                 System.out.println("Failed to initialize Steam API.");
-            }
-            else {
+            } else {
                 System.out.println("Steam API initialized.");
             }
             System.out.println("Starting game....");

@@ -18,6 +18,14 @@
 		<fileset dir="../ivy_lib_game" includes="*.jar" erroronmissingdir="false"/>
 	</path>
 
+	<!-- Override the common compile classpath to include game dependencies -->
+	<path id="_common.combined.compile.javasvn.classpath">
+		<path refid="platform.classpath" />
+		<path refid="common.classes.classpath" />
+		<path refid="library.javasvn.classpath" />
+		<path refid="game.ivy.classpath" />
+	</path>
+
 	<!-- Override the common run classpath to include game dependencies -->
 	<path id="_common.combined.run.classpath">
 		<path refid="build.classpath" />
