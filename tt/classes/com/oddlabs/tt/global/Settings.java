@@ -282,6 +282,11 @@ public final strictfp class Settings implements Serializable {
         keybinds.putAll(default_keybinds);
     }
 
+    /** Gets a copy of the default keybinds for comparison purposes. */
+    public static HashMap<String, Integer> getDefaultKeybinds() {
+        return new HashMap<String, Integer>(default_keybinds);
+    }
+
     /**
      * Gets the keybind for the specified action as a string for display in tooltips. Use
      * Globals.KB_* constants for action names.

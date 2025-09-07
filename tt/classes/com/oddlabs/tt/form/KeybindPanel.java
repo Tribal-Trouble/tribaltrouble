@@ -193,16 +193,16 @@ public class KeybindPanel extends Panel {
         return null;
     }
 
+    private HashMap<String, Integer> getDefaultKeybinds() {
+        return Settings.getDefaultKeybinds();
+    }
+
     private void evaluateKeybindRows() {
         keybinds_list_box.clear();
         HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
 
-        // Build reverse map keyCode -> count to detect duplicates
-        java.util.HashMap<Integer, Integer> codeCounts = new java.util.HashMap<>();
-        for (Integer code : keybinds.values()) {
-            if (code == null) continue;
-            codeCounts.put(code, codeCounts.getOrDefault(code, 0) + 1);
-        }
+        // Get default keybinds for comparison to detect changed-from-default settings
+        HashMap<String, Integer> defaultKeybinds = getDefaultKeybinds();
 
         // Section order: Camera → Main Gameplay → Menus (A–Z) → System → Army Groups
         List<Section> sections =
@@ -305,7 +305,7 @@ public class KeybindPanel extends Panel {
 
         int orderIndex = 0;
         for (Section sec : sections) {
-            orderIndex = addSection(sec, keybinds, codeCounts, orderIndex);
+            orderIndex = addSection(sec, keybinds, defaultKeybinds, orderIndex);
         }
     }
 
@@ -327,7 +327,7 @@ public class KeybindPanel extends Panel {
     private int addSection(
             Section section,
             HashMap<String, Integer> keybinds,
-            java.util.Map<Integer, Integer> codeCounts,
+            HashMap<String, Integer> defaultKeybinds,
             int orderIndex) {
         // Header
         OrderedLabel header =
@@ -346,9 +346,9 @@ public class KeybindPanel extends Panel {
                             displayName + " [" + keyString + "]",
                             orderIndex++,
                             Skin.getSkin().getMultiColumnComboBoxData().getFont());
-            // Highlight duplicates in yellow
-            Integer count = codeCounts.get(keyCode);
-            if (count != null && count > 1) {
+            // Highlight keybinds that have been changed from default settings in yellow
+            Integer defaultKeyCode = defaultKeybinds.get(actionName);
+            if (defaultKeyCode != null && !keyCode.equals(defaultKeyCode)) {
                 label.setColor(new float[] {1.0f, 0.92f, 0.23f, 1.0f});
             }
             keybinds_list_box.addRow(
