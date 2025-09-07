@@ -133,7 +133,7 @@ jobs:
 #  - https://partner.steamgames.com/doc/sdk/uploading#1
   deploy-to-steam:
     if: github.ref == 'refs/heads/steam'
-    needs: [build-mac-arm64, build-mac-x86, build-windows, build-linux]
+    needs: [build-mac-arm64, build-mac-x86-app, build-windows, build-linux]
     runs-on: ubuntu-latest
     steps:
     - name: Download Windows Artifact
