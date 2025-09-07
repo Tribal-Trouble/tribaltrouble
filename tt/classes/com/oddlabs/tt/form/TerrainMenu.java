@@ -128,7 +128,6 @@ public final strictfp class TerrainMenu extends Group {
         this.multiplayer = multiplayer;
         this.owner = owner;
         this.gui_root = gui_root;
-        SteamAchievementManager.getAchievementManager().unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_NORMAL);
         // headline
         Label label_headline;
         if (multiplayer) {
