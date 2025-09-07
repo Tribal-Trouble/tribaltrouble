@@ -36,6 +36,8 @@ import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.steam.SteamAchievementManager;
+import com.oddlabs.tt.steam.SteamAchievementNames;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.DefaultInGameInfo;
@@ -126,7 +128,7 @@ public final strictfp class TerrainMenu extends Group {
         this.multiplayer = multiplayer;
         this.owner = owner;
         this.gui_root = gui_root;
-
+        SteamAchievementManager.getAchievementManager().unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_NORMAL);
         // headline
         Label label_headline;
         if (multiplayer) {
