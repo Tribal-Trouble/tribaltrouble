@@ -105,12 +105,35 @@ jobs:
         name: mac-arm64
         path: tt/build/dist/macosx-arm64/
 
+# Only build and upload mac x86 as an app image when deploying to steam. 
+# We would need to sign it to always use this type. Steam handles it for us.
+  build-mac-x86-app:
+    if: github.ref == 'refs/heads/steam'
+    runs-on: macos-13
+    needs: format-check
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+    - name: Build mac binaries
+      run: ant -noinput -buildfile tt/build.xml build-mac-x86-app
+    - name: Upload files
+      uses: actions/upload-artifact@v4
+      with:
+        name: mac-x86-app
+        path: tt/build/dist/macosx-x86-app/
+    
+
 # Steam upload job:
 #  - https://github.com/game-ci/steam-deploy#configuration
 #  - https://partner.steamgames.com/doc/sdk/uploading#1
   deploy-to-steam:
     if: github.ref == 'refs/heads/steam'
-    needs: [build-mac-arm64, build-mac-x86, build-windows, build-linux]
+    needs: [build-mac-arm64, build-mac-x86-app, build-windows, build-linux]
     runs-on: ubuntu-latest
     steps:
     - name: Download Windows Artifact
@@ -121,8 +144,8 @@ jobs:
     - name: Download Mac x86 Artifact
       uses: actions/download-artifact@v4
       with:
-        name: mac-x86
-        path: tt/build/dist/macosx-x86/
+        name: mac-x86-app
+        path: tt/build/dist/macosx-x86-app/
     - name: Download Mac arm64 Artifact
       uses: actions/download-artifact@v4
       with:
@@ -143,7 +166,7 @@ jobs:
         firstDepotIdOverride: 3945722
         rootPath: tt/build/dist/
         depot1Path: windows
-        depot2Path: mac-arm64
-        depot3Path: mac-x86
+        depot2Path: macosx-arm64
+        depot3Path: macosx-x86-app
         depot4Path: linux
         releaseBranch: prerelease
