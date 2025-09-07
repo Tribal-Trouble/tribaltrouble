@@ -5,6 +5,7 @@ import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Panel;
+import com.oddlabs.tt.gui.ScrollableSliderContainer;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.guievent.MouseClickListener;
@@ -16,6 +17,10 @@ public class CameraPanel extends Panel {
     private static final int SLIDER_WIDTH = 270;
     private static final int SLIDER_MIN = 0;
     private static final int SLIDER_MAX = 100;
+    
+    // Height for about 4 sliders visible at once
+    private static final int SCROLLABLE_HEIGHT = 280;
+    private static final int GROUP_SPACING = 10;
 
     // Keep slider refs so we can restore/update values
     private Slider sSensitivity;
@@ -26,202 +31,121 @@ public class CameraPanel extends Panel {
     private Slider sAngle;
     private Slider sEdge;
 
+    // Helper class to return both group and slider
+    private static class SliderGroupPair {
+        final Group group;
+        final Slider slider;
+        
+        SliderGroupPair(Group group, Slider slider) {
+            this.group = group;
+            this.slider = slider;
+        }
+    }
+
     public CameraPanel(com.oddlabs.tt.gui.GUIRoot gui_root, String caption) {
         super(caption);
 
+        // Create scrollable container for sliders
+        ScrollableSliderContainer scrollContainer = 
+            new ScrollableSliderContainer(SLIDER_WIDTH + 100, SCROLLABLE_HEIGHT, GROUP_SPACING);
+        
         // Mouse sensitivity -------------------------------------------------
-        Group gSensitivity = new Group();
-        addChild(gSensitivity);
-        Label lblSens = new Label("Mouse sensitivity", Skin.getSkin().getEditFont());
-        gSensitivity.addChild(lblSens);
-        Label lblSensLow = new Label("low", Skin.getSkin().getEditFont());
-        gSensitivity.addChild(lblSensLow);
-        Label lblSensHigh = new Label("high", Skin.getSkin().getEditFont());
-        gSensitivity.addChild(lblSensHigh);
-        sSensitivity =
-                new Slider(
-                        SLIDER_WIDTH,
-                        SLIDER_MIN,
-                        SLIDER_MAX,
-                        toSlider(Settings.getSettings().mouse_sensitivity, 0.2f, 3.0f));
-        gSensitivity.addChild(sSensitivity);
-        sSensitivity.addValueListener(
-                new ValueListener() {
-                    public void valueSet(int value) {
-                        float sens = fromSlider(value, 0.2f, 3.0f);
-                        Settings.getSettings().mouse_sensitivity = sens;
-                        Mouse.updateSensitivity();
-                    }
-                });
-        lblSens.place();
-        lblSensLow.place(lblSens, BOTTOM_LEFT);
-        sSensitivity.place(lblSensLow, RIGHT_MID);
-        lblSensHigh.place(sSensitivity, RIGHT_MID);
-        gSensitivity.compileCanvas();
+        SliderGroupPair sensGroup = createSliderGroupWithSlider(
+            "Mouse sensitivity", "low", "high",
+            Settings.getSettings().mouse_sensitivity, 0.2f, 3.0f,
+            new ValueListener() {
+                public void valueSet(int value) {
+                    float sens = fromSlider(value, 0.2f, 3.0f);
+                    Settings.getSettings().mouse_sensitivity = sens;
+                    Mouse.updateSensitivity();
+                }
+            }
+        );
+        sSensitivity = sensGroup.slider;
+        scrollContainer.addGroup(sensGroup.group);
 
         // Scroll acceleration time max -------------------------------------
-        Group gAccelTime = new Group();
-        addChild(gAccelTime);
-        Label lblAccelTime = new Label("Scroll accel time (s)", Skin.getSkin().getEditFont());
-        gAccelTime.addChild(lblAccelTime);
-        Label lblAccelTimeLow = new Label("0.1", Skin.getSkin().getEditFont());
-        gAccelTime.addChild(lblAccelTimeLow);
-        Label lblAccelTimeHigh = new Label("3.0", Skin.getSkin().getEditFont());
-        gAccelTime.addChild(lblAccelTimeHigh);
-        sAccelTime =
-                new Slider(
-                        SLIDER_WIDTH,
-                        SLIDER_MIN,
-                        SLIDER_MAX,
-                        toSlider(
-                                Settings.getSettings().camera_scroll_accel_seconds_max,
-                                0.1f,
-                                3.0f));
-        gAccelTime.addChild(sAccelTime);
-        sAccelTime.addValueListener(
-                new ValueListener() {
-                    public void valueSet(int value) {
-                        Settings.getSettings().camera_scroll_accel_seconds_max =
-                                fromSlider(value, 0.1f, 3.0f);
-                    }
-                });
-        lblAccelTime.place();
-        lblAccelTimeLow.place(lblAccelTime, BOTTOM_LEFT);
-        sAccelTime.place(lblAccelTimeLow, RIGHT_MID);
-        lblAccelTimeHigh.place(sAccelTime, RIGHT_MID);
-        gAccelTime.compileCanvas();
+        SliderGroupPair accelTimeGroup = createSliderGroupWithSlider(
+            "Scroll accel time (s)", "0.1", "3.0",
+            Settings.getSettings().camera_scroll_accel_seconds_max, 0.1f, 3.0f,
+            new ValueListener() {
+                public void valueSet(int value) {
+                    Settings.getSettings().camera_scroll_accel_seconds_max =
+                            fromSlider(value, 0.1f, 3.0f);
+                }
+            }
+        );
+        sAccelTime = accelTimeGroup.slider;
+        scrollContainer.addGroup(accelTimeGroup.group);
 
         // Scroll acceleration factor ---------------------------------------
-        Group gAccelFactor = new Group();
-        addChild(gAccelFactor);
-        Label lblAccelFactor = new Label("Scroll accel factor", Skin.getSkin().getEditFont());
-        gAccelFactor.addChild(lblAccelFactor);
-        Label lblAccelFactorLow = new Label("0.0", Skin.getSkin().getEditFont());
-        gAccelFactor.addChild(lblAccelFactorLow);
-        Label lblAccelFactorHigh = new Label("5.0", Skin.getSkin().getEditFont());
-        gAccelFactor.addChild(lblAccelFactorHigh);
-        sAccelFactor =
-                new Slider(
-                        SLIDER_WIDTH,
-                        SLIDER_MIN,
-                        SLIDER_MAX,
-                        toSlider(Settings.getSettings().camera_scroll_accel_factor, 0.0f, 5.0f));
-        gAccelFactor.addChild(sAccelFactor);
-        sAccelFactor.addValueListener(
-                new ValueListener() {
-                    public void valueSet(int value) {
-                        Settings.getSettings().camera_scroll_accel_factor =
-                                fromSlider(value, 0.0f, 5.0f);
-                    }
-                });
-        lblAccelFactor.place();
-        lblAccelFactorLow.place(lblAccelFactor, BOTTOM_LEFT);
-        sAccelFactor.place(lblAccelFactorLow, RIGHT_MID);
-        lblAccelFactorHigh.place(sAccelFactor, RIGHT_MID);
-        gAccelFactor.compileCanvas();
+        SliderGroupPair accelFactorGroup = createSliderGroupWithSlider(
+            "Scroll accel factor", "0.0", "5.0",
+            Settings.getSettings().camera_scroll_accel_factor, 0.0f, 5.0f,
+            new ValueListener() {
+                public void valueSet(int value) {
+                    Settings.getSettings().camera_scroll_accel_factor =
+                            fromSlider(value, 0.0f, 5.0f);
+                }
+            }
+        );
+        sAccelFactor = accelFactorGroup.slider;
+        scrollContainer.addGroup(accelFactorGroup.group);
 
         // Start max speed ---------------------------------------------------
-        Group gStartSpeed = new Group();
-        addChild(gStartSpeed);
-        Label lblStartSpeed = new Label("Pan start max speed", Skin.getSkin().getEditFont());
-        gStartSpeed.addChild(lblStartSpeed);
-        Label lblStartSpeedLow = new Label("10", Skin.getSkin().getEditFont());
-        gStartSpeed.addChild(lblStartSpeedLow);
-        Label lblStartSpeedHigh = new Label("120", Skin.getSkin().getEditFont());
-        gStartSpeed.addChild(lblStartSpeedHigh);
-        sStartSpeed =
-                new Slider(
-                        SLIDER_WIDTH,
-                        SLIDER_MIN,
-                        SLIDER_MAX,
-                        toSlider(Settings.getSettings().camera_start_max_speed, 10f, 120f));
-        gStartSpeed.addChild(sStartSpeed);
-        sStartSpeed.addValueListener(
-                new ValueListener() {
-                    public void valueSet(int value) {
-                        Settings.getSettings().camera_start_max_speed =
-                                fromSlider(value, 10f, 120f);
-                    }
-                });
-        lblStartSpeed.place();
-        lblStartSpeedLow.place(lblStartSpeed, BOTTOM_LEFT);
-        sStartSpeed.place(lblStartSpeedLow, RIGHT_MID);
-        lblStartSpeedHigh.place(sStartSpeed, RIGHT_MID);
-        gStartSpeed.compileCanvas();
+        SliderGroupPair startSpeedGroup = createSliderGroupWithSlider(
+            "Pan start max speed", "10", "120",
+            Settings.getSettings().camera_start_max_speed, 10f, 120f,
+            new ValueListener() {
+                public void valueSet(int value) {
+                    Settings.getSettings().camera_start_max_speed =
+                            fromSlider(value, 10f, 120f);
+                }
+            }
+        );
+        sStartSpeed = startSpeedGroup.slider;
+        scrollContainer.addGroup(startSpeedGroup.group);
 
         // Zoom speed --------------------------------------------------------
-        Group gZoom = new Group();
-        addChild(gZoom);
-        Label lblZoom = new Label("Zoom speed", Skin.getSkin().getEditFont());
-        gZoom.addChild(lblZoom);
-        Label lblZoomLow = new Label("10", Skin.getSkin().getEditFont());
-        gZoom.addChild(lblZoomLow);
-        Label lblZoomHigh = new Label("150", Skin.getSkin().getEditFont());
-        gZoom.addChild(lblZoomHigh);
-        sZoom =
-                new Slider(
-                        SLIDER_WIDTH,
-                        SLIDER_MIN,
-                        SLIDER_MAX,
-                        toSlider(Settings.getSettings().camera_zoom_speed, 10f, 150f));
-        gZoom.addChild(sZoom);
-        sZoom.addValueListener(
-                new ValueListener() {
-                    public void valueSet(int value) {
-                        Settings.getSettings().camera_zoom_speed = fromSlider(value, 10f, 150f);
-                    }
-                });
-        lblZoom.place();
-        lblZoomLow.place(lblZoom, BOTTOM_LEFT);
-        sZoom.place(lblZoomLow, RIGHT_MID);
-        lblZoomHigh.place(sZoom, RIGHT_MID);
-        gZoom.compileCanvas();
+        SliderGroupPair zoomGroup = createSliderGroupWithSlider(
+            "Zoom speed", "10", "150",
+            Settings.getSettings().camera_zoom_speed, 10f, 150f,
+            new ValueListener() {
+                public void valueSet(int value) {
+                    Settings.getSettings().camera_zoom_speed = fromSlider(value, 10f, 150f);
+                }
+            }
+        );
+        sZoom = zoomGroup.slider;
+        scrollContainer.addGroup(zoomGroup.group);
 
         // Angle speed (deg/s) ----------------------------------------------
-        Group gAngle = new Group();
-        addChild(gAngle);
-        Label lblAngle = new Label("Rotate/Pitch speed (deg/s)", Skin.getSkin().getEditFont());
-        gAngle.addChild(lblAngle);
-        Label lblAngleLow = new Label("30", Skin.getSkin().getEditFont());
-        gAngle.addChild(lblAngleLow);
-        Label lblAngleHigh = new Label("360", Skin.getSkin().getEditFont());
-        gAngle.addChild(lblAngleHigh);
-        sAngle =
-                new Slider(
-                        SLIDER_WIDTH,
-                        SLIDER_MIN,
-                        SLIDER_MAX,
-                        toSlider(Settings.getSettings().camera_angle_delta_deg_per_sec, 30f, 360f));
-        gAngle.addChild(sAngle);
-        sAngle.addValueListener(
-                new ValueListener() {
-                    public void valueSet(int value) {
-                        Settings.getSettings().camera_angle_delta_deg_per_sec =
-                                fromSlider(value, 30f, 360f);
-                    }
-                });
-        lblAngle.place();
-        lblAngleLow.place(lblAngle, BOTTOM_LEFT);
-        sAngle.place(lblAngleLow, RIGHT_MID);
-        lblAngleHigh.place(sAngle, RIGHT_MID);
-        gAngle.compileCanvas();
+        SliderGroupPair angleGroup = createSliderGroupWithSlider(
+            "Rotate/Pitch speed (deg/s)", "30", "360",
+            Settings.getSettings().camera_angle_delta_deg_per_sec, 30f, 360f,
+            new ValueListener() {
+                public void valueSet(int value) {
+                    Settings.getSettings().camera_angle_delta_deg_per_sec =
+                            fromSlider(value, 30f, 360f);
+                }
+            }
+        );
+        sAngle = angleGroup.slider;
+        scrollContainer.addGroup(angleGroup.group);
 
         // Edge scroll buffer ------------------------------------------------
         Group gEdge = new Group();
-        addChild(gEdge);
         Label lblEdge = new Label("Edge scroll buffer (px)", Skin.getSkin().getEditFont());
         gEdge.addChild(lblEdge);
         Label lblEdgeLow = new Label("0", Skin.getSkin().getEditFont());
         gEdge.addChild(lblEdgeLow);
         Label lblEdgeHigh = new Label("50", Skin.getSkin().getEditFont());
         gEdge.addChild(lblEdgeHigh);
-        sEdge =
-                new Slider(
-                        SLIDER_WIDTH,
-                        0,
-                        50,
-                        Math.max(
-                                0, Math.min(50, Settings.getSettings().camera_edge_scroll_buffer)));
+        sEdge = new Slider(
+                SLIDER_WIDTH,
+                0,
+                50,
+                Math.max(0, Math.min(50, Settings.getSettings().camera_edge_scroll_buffer)));
         gEdge.addChild(sEdge);
         sEdge.addValueListener(
                 new ValueListener() {
@@ -234,10 +158,10 @@ public class CameraPanel extends Panel {
         sEdge.place(lblEdgeLow, RIGHT_MID);
         lblEdgeHigh.place(sEdge, RIGHT_MID);
         gEdge.compileCanvas();
+        scrollContainer.addGroup(gEdge);
 
         // Save button -------------------------------------------------------
         Group gButtons = new Group();
-        addChild(gButtons);
         HorizButton btnSave = new HorizButton("Save", 120);
         gButtons.addChild(btnSave);
         btnSave.addMouseClickListener(
@@ -259,17 +183,45 @@ public class CameraPanel extends Panel {
         btnDefaults.place(btnSave, RIGHT_MID);
         gButtons.compileCanvas();
 
-        // Layout stacking
-        gSensitivity.place();
-        gAccelTime.place(gSensitivity, BOTTOM_LEFT);
-        gAccelFactor.place(gAccelTime, BOTTOM_LEFT);
-        gStartSpeed.place(gAccelFactor, BOTTOM_LEFT);
-        gZoom.place(gStartSpeed, BOTTOM_LEFT);
-        gAngle.place(gZoom, BOTTOM_LEFT);
-        gEdge.place(gAngle, BOTTOM_LEFT);
-        gButtons.place(gEdge, BOTTOM_LEFT);
-
+        // Layout
+        addChild(scrollContainer);
+        addChild(gButtons);
+        
+        scrollContainer.place();
+        gButtons.place(scrollContainer, BOTTOM_LEFT);
+        
         compileCanvas();
+    }
+    
+    /**
+     * Helper method to create a consistent slider group and return both group and slider
+     */
+    private SliderGroupPair createSliderGroupWithSlider(String title, String lowLabel, String highLabel,
+                                                       float currentValue, float minValue, float maxValue,
+                                                       ValueListener listener) {
+        Group group = new Group();
+        Label lblTitle = new Label(title, Skin.getSkin().getEditFont());
+        group.addChild(lblTitle);
+        Label lblLow = new Label(lowLabel, Skin.getSkin().getEditFont());
+        group.addChild(lblLow);
+        Label lblHigh = new Label(highLabel, Skin.getSkin().getEditFont());
+        group.addChild(lblHigh);
+        
+        Slider slider = new Slider(
+                SLIDER_WIDTH,
+                SLIDER_MIN,
+                SLIDER_MAX,
+                toSlider(currentValue, minValue, maxValue));
+        group.addChild(slider);
+        slider.addValueListener(listener);
+        
+        lblTitle.place();
+        lblLow.place(lblTitle, BOTTOM_LEFT);
+        slider.place(lblLow, RIGHT_MID);
+        lblHigh.place(slider, RIGHT_MID);
+        group.compileCanvas();
+        
+        return new SliderGroupPair(group, slider);
     }
 
     private void restoreDefaults() {
