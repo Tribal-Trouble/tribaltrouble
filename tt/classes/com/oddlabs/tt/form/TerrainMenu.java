@@ -64,9 +64,10 @@ public final strictfp class TerrainMenu extends Group {
 
     private static final String SEED_CARDINALITY = "40000";
     private static final int SLIDER_CARDINALITY = 11;
-    private static final int TERRAIN_TYPE_CARDINALITY = 2;
+    private static final int TERRAIN_TYPE_CARDINALITY_LEGACY = 2;
+    private static final int TERRAIN_TYPE_CARDINALITY = 4;
     private static final int SIZE_CARDINALITY_LEGACY = 3;
-    private static final int SIZE_CARDINALITY = 5;
+    private static final int SIZE_CARDINALITY = 7;
     private static final int DIFFICULTY_CARDINALITY = 4;
     private static final int RACE_CARDINALITY = 2;
     private static final int TEAM_CARDINALITY = 6;
@@ -111,8 +112,7 @@ public final strictfp class TerrainMenu extends Group {
         max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
         max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
         max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
-        max = max.multiply(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY}));
-        MAX_VALUE = max.multiply(new BigInteger(new byte[] {SIZE_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY_LEGACY}));
         max = max.multiply(new BigInteger(new byte[] {SIZE_CARDINALITY_LEGACY}));
         max = max.multiply(new BigInteger(new byte[] {RACE_CARDINALITY}));
         max = max.multiply(new BigInteger(new byte[] {TEAM_CARDINALITY}));
@@ -122,6 +122,15 @@ public final strictfp class TerrainMenu extends Group {
             max = max.multiply(new BigInteger(new byte[] {TEAM_CARDINALITY}));
         }
         MAX_VALUE_LEGACY = max;
+
+        max = BigInteger.ONE;
+        max = max.multiply(new BigInteger(SEED_CARDINALITY));
+        max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {SIZE_CARDINALITY}));
+        MAX_VALUE = max;
     }
 
     public TerrainMenu(
@@ -554,7 +563,7 @@ public final strictfp class TerrainMenu extends Group {
         max_val = max_val.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
         int terrain_type = pm_terrain_type.getChosenItemIndex();
         result = result.add((new BigInteger(new byte[] {(byte) terrain_type})).multiply(max_val));
-        max_val = max_val.multiply(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY}));
+        max_val = max_val.multiply(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY_LEGACY}));
         int size = pulldown_size.getChosenItemIndex();
         result = result.add((new BigInteger(new byte[] {(byte) size})).multiply(max_val));
         max_val = max_val.multiply(new BigInteger(new byte[] {SIZE_CARDINALITY_LEGACY}));
@@ -614,15 +623,25 @@ public final strictfp class TerrainMenu extends Group {
     }
 
     private final void parseBigInteger(BigInteger result) {
+        boolean world_size_valid = true;
+        boolean terrain_type_valid = true;
         BigInteger max_val = MAX_VALUE;
         result = result.mod(max_val);
         max_val = max_val.divide(new BigInteger(new byte[] {SIZE_CARDINALITY}));
         int size = result.divide(max_val).intValue();
-        pulldown_size.chooseItem(size);
+        if (pulldown_size.getSize() <= size) {
+            world_size_valid = false;
+        } else {
+            pulldown_size.chooseItem(size);
+        }
         result = result.mod(max_val);
         max_val = max_val.divide(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY}));
         int terrain_type = result.divide(max_val).intValue();
-        pm_terrain_type.chooseItem(terrain_type);
+        if (pm_terrain_type.getSize() <= terrain_type) {
+            terrain_type_valid = false;
+        } else {
+            pm_terrain_type.chooseItem(terrain_type);
+        }
         result = result.mod(max_val);
         max_val = max_val.divide(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
         int supplies_amount = result.divide(max_val).intValue();
@@ -640,6 +659,17 @@ public final strictfp class TerrainMenu extends Group {
         result = result.mod(max_val);
         max_val = max_val.divide(new BigInteger(SEED_CARDINALITY));
         seed = result.divide(max_val).intValue();
+
+        if (!terrain_type_valid || !world_size_valid) {
+            String message = Utils.getBundleString(bundle, "map_unsupported") + ": ";
+            if (!world_size_valid) {
+                message += Utils.getBundleString(bundle, "island_size").replace(":", "") + " ";
+            }
+            if (!terrain_type_valid) {
+                message += Utils.getBundleString(bundle, "terrain_type").replace(":", "");
+            }
+            gui_root.addModalForm(new MessageForm(message));
+        }
     }
 
     private final void parseBigIntegerLegacy(BigInteger result) {
@@ -680,7 +710,7 @@ public final strictfp class TerrainMenu extends Group {
         int size = result.divide(max_val).intValue();
         pulldown_size.chooseItem(size);
         result = result.mod(max_val);
-        max_val = max_val.divide(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY}));
+        max_val = max_val.divide(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY_LEGACY}));
         int terrain_type = result.divide(max_val).intValue();
         pm_terrain_type.chooseItem(terrain_type);
         result = result.mod(max_val);
