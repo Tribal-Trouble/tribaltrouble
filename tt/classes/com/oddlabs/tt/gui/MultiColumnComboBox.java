@@ -150,7 +150,7 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
         if (amount > 0)
             setOffsetY(
                     offset_y
-                            - 3
+                            + 3
                                     * Skin.getSkin()
                                             .getMultiColumnComboBoxData()
                                             .getFont()
@@ -158,7 +158,7 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
         else
             setOffsetY(
                     offset_y
-                            + 3
+                            - 3
                                     * Skin.getSkin()
                                             .getMultiColumnComboBoxData()
                                             .getFont()
