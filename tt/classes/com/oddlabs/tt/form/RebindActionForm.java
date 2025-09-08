@@ -31,7 +31,7 @@ public class RebindActionForm extends Form {
         Label press_any_key_label =
                 new Label(
                         "Press any key to rebind "
-                                + KeybindPanel.KEYBIND_DISPLAY_NAMES.getOrDefault(
+                                + AbstractKeybindPanel.KEYBIND_DISPLAY_NAMES.getOrDefault(
                                         action_name, action_name),
                         Skin.getSkin().getEditFont());
         addChild(press_any_key_label);
