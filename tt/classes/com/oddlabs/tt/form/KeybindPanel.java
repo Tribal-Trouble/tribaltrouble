@@ -1,14 +1,13 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PanelGroup;
 import com.oddlabs.tt.gui.Skin;
-
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -74,7 +73,7 @@ public class KeybindPanel extends Panel {
         addChild(headerGroup);
         addChild(keybindsGroup);
         headerGroup.place();
-        keybindsGroup.place(headerGroup, BOTTOM_LEFT, -25);
+        keybindsGroup.place(headerGroup, BOTTOM_LEFT, -32);
         compileCanvas();
     }
     
