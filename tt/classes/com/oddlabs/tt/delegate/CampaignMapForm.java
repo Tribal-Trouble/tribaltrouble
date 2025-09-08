@@ -78,13 +78,15 @@ public final strictfp class CampaignMapForm extends CameraDelegate {
                                 campaign.getIcons().getFaces()[0],
                                 CampaignDialogForm.ALIGN_IMAGE_LEFT,
                                 runnable_next);
-                if(campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
-                    SteamAchievementManager.getAchievementManager().unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_NORMAL);
+                if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
+                    SteamAchievementManager.getAchievementManager()
+                            .unlockAchievement(
+                                    SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_NORMAL);
+                } else if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
+                    SteamAchievementManager.getAchievementManager()
+                            .unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_HARD);
                 }
-                else if(campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
-                    SteamAchievementManager.getAchievementManager().unlockAchievement(SteamAchievementNames.COMPLETE_VIKING_CAMPAIGN_HARD);
-                }
-                
+
                 gui_root.addModalForm(dialog);
                 Settings.getSettings().has_native_campaign = true;
             }
@@ -108,11 +110,13 @@ public final strictfp class CampaignMapForm extends CameraDelegate {
                                 campaign.getIcons().getFaces()[0],
                                 CampaignDialogForm.ALIGN_IMAGE_LEFT,
                                 runnable);
-                if(campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
-                    SteamAchievementManager.getAchievementManager().unlockAchievement(SteamAchievementNames.COMPLETE_NATIVE_CAMPAIGN_NORMAL);
-                }
-                else if(campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
-                    SteamAchievementManager.getAchievementManager().unlockAchievement(SteamAchievementNames.COMPLETE_NATIVE_CAMPAIGN_HARD);
+                if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
+                    SteamAchievementManager.getAchievementManager()
+                            .unlockAchievement(
+                                    SteamAchievementNames.COMPLETE_NATIVE_CAMPAIGN_NORMAL);
+                } else if (campaign.getState().getDifficulty() == CampaignState.DIFFICULTY_HARD) {
+                    SteamAchievementManager.getAchievementManager()
+                            .unlockAchievement(SteamAchievementNames.COMPLETE_NATIVE_CAMPAIGN_HARD);
                 }
                 gui_root.addModalForm(dialog);
             }

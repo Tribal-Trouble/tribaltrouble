@@ -36,8 +36,6 @@ import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.Renderer;
-import com.oddlabs.tt.steam.SteamAchievementManager;
-import com.oddlabs.tt.steam.SteamAchievementNames;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.DefaultInGameInfo;
@@ -552,6 +550,33 @@ public final strictfp class TerrainMenu extends Group {
         show_demo = true;
         label_mapcode.clear();
         label_mapcode.append(code);
+    }
+
+    public static int getMapSize(String map_code) {
+        String code = map_code.toUpperCase();
+        BigInteger result = RegistrationKey.parseBits(code);
+        BigInteger max_val = MAX_VALUE;
+
+        // Skip over other attributes to reach the size
+        for (int i = MatchmakingServerInterface.MAX_PLAYERS - 1; i >= 1; i--) {
+            result = result.mod(max_val);
+            max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.TEAM_CARDINALITY}));
+            result = result.mod(max_val);
+            max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.RACE_CARDINALITY}));
+            result = result.mod(max_val);
+            max_val =
+                    max_val.divide(new BigInteger(new byte[] {TerrainMenu.DIFFICULTY_CARDINALITY}));
+            result = result.mod(max_val);
+        }
+        max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.TEAM_CARDINALITY}));
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.RACE_CARDINALITY}));
+        result = result.mod(max_val);
+
+        // Adjust max_val for size
+        max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.SIZE_CARDINALITY}));
+        int size = result.divide(max_val).intValue();
+        return size;
     }
 
     private final void parseBigInteger(BigInteger result) {

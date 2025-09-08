@@ -4,6 +4,7 @@ import com.oddlabs.geometry.LowDetailModel;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.ProgressForm;
+import com.oddlabs.tt.form.TerrainMenu;
 import com.oddlabs.tt.gui.Icons;
 import com.oddlabs.tt.model.AbstractElementNode;
 import com.oddlabs.tt.model.RacesResources;
@@ -54,6 +55,7 @@ public final strictfp class World {
 
     private int global_checksum;
     private int gamespeed;
+    private int map_size;
 
     public static LandscapeResources loadCommon(RenderQueues queues) {
         LandscapeResources landscape_resources = new LandscapeResources(queues);
@@ -187,9 +189,8 @@ public final strictfp class World {
         this.max_unit_count = world_params.getMaxUnitCount();
         this.notification_listener = notification_listener;
         this.gamespeed = world_params.getInitialGameSpeed();
+        this.map_size = TerrainMenu.getMapSize(world_params.getMapcode());
         long time_start = System.currentTimeMillis();
-
-        int num_players = player_infos.length;
 
         world =
                 new HeightMap(
@@ -273,6 +274,10 @@ public final strictfp class World {
 
     public int getMaxUnitCount() {
         return max_unit_count;
+    }
+
+    public int getMapSize() {
+        return map_size;
     }
 
     public final NotificationListener getNotificationListener() {

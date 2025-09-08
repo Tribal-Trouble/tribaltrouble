@@ -10,7 +10,6 @@ public class SteamAchievementNames {
     /* Single player - Misc */
     public static String BEAT_3_HARDS_ON_SMALL = "BEAT_3_HARDS_ON_SMALL";
     public static String BEAT_5_HARDS_ON_MEDIUM = "BEAT_5_HARDS_ON_MEDIUM";
-    public static String BEAT_10_HARDS_ON_LARGE = "BEAT_10_HARDS_ON_LARGE";
 
     /* Multiplayer */
     public static String WIN_10_MULTIPLAYER_GAMES = "WIN_10_MULTIPLAYER_GAMES";
