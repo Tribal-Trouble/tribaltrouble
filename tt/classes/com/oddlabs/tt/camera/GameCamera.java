@@ -15,7 +15,7 @@ public final strictfp class GameCamera extends Camera {
     private static final float INIT_DISTANCE = 50;
     // ANGLE_DELTA is computed from settings each frame (deg/sec -> rad/sec), but keep a default
     private static float ANGLE_DELTA = (float) (StrictMath.PI / 2);
-    public static final float MAX_Z = 100f;
+    private static float MAX_Z = 100f;
     private static final float ZOOM_Z_DIR_MIN = -(float) StrictMath.tan(StrictMath.PI / 6);
     private static float SCROLL_ACCELERATION_SECONDS_MAX = 1f;
     private static float SCROLL_ACCELERATION_FACTOR = 2.5f;
@@ -510,6 +510,7 @@ public final strictfp class GameCamera extends Camera {
         SCROLL_ACCELERATION_FACTOR = Settings.getSettings().camera_scroll_accel_factor;
         SCROLL_START_MAX_SPEED = Settings.getSettings().camera_start_max_speed;
         ZOOM_SPEED = Settings.getSettings().camera_zoom_speed;
+        MAX_Z = Settings.getSettings().camera_max_z;
         // Degrees/sec -> radians/sec for ANGLE_DELTA baseline
         float degPerSec = Settings.getSettings().camera_angle_delta_deg_per_sec;
         ANGLE_DELTA = (float) (degPerSec * StrictMath.PI / 180.0);

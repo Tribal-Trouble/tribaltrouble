@@ -27,6 +27,7 @@ public class CameraPanel extends Panel {
     private Slider sStartSpeed;
     private Slider sZoom;
     private Slider sAngle;
+    private Slider sMaxZ;
     private Slider sEdge;
 
     // Helper class to return both group and slider
@@ -131,6 +132,19 @@ public class CameraPanel extends Panel {
         );
         sAngle = angleGroup.slider;
         scrollContainer.addGroup(angleGroup.group);
+
+        // Max camera height ------------------------------------------------
+        SliderGroupPair maxZGroup = createSliderGroupWithSlider(
+            "Max camera height", "50", "200",
+            Settings.getSettings().camera_max_z, 50f, 200f,
+            new ValueListener() {
+                public void valueSet(int value) {
+                    Settings.getSettings().camera_max_z = fromSlider(value, 50f, 200f);
+                }
+            }
+        );
+        sMaxZ = maxZGroup.slider;
+        scrollContainer.addGroup(maxZGroup.group);
 
         // Edge scroll buffer ------------------------------------------------
         Group gEdge = new Group();
@@ -249,6 +263,7 @@ public class CameraPanel extends Panel {
         cur.camera_start_max_speed = def.camera_start_max_speed;
         cur.camera_zoom_speed = def.camera_zoom_speed;
         cur.camera_angle_delta_deg_per_sec = def.camera_angle_delta_deg_per_sec;
+        cur.camera_max_z = def.camera_max_z;
         cur.camera_edge_scroll_buffer = def.camera_edge_scroll_buffer;
 
         // Update UI controls
@@ -258,6 +273,7 @@ public class CameraPanel extends Panel {
         sStartSpeed.setValue(toSlider(cur.camera_start_max_speed, 10f, 120f));
         sZoom.setValue(toSlider(cur.camera_zoom_speed, 10f, 150f));
         sAngle.setValue(toSlider(cur.camera_angle_delta_deg_per_sec, 30f, 360f));
+        sMaxZ.setValue(toSlider(cur.camera_max_z, 50f, 200f));
         sEdge.setValue(Math.max(0, Math.min(50, cur.camera_edge_scroll_buffer)));
 
         Mouse.updateSensitivity();
@@ -273,6 +289,7 @@ public class CameraPanel extends Panel {
         sStartSpeed.setValue(toSlider(s.camera_start_max_speed, 10f, 120f));
         sZoom.setValue(toSlider(s.camera_zoom_speed, 10f, 150f));
         sAngle.setValue(toSlider(s.camera_angle_delta_deg_per_sec, 30f, 360f));
+        sMaxZ.setValue(toSlider(s.camera_max_z, 50f, 200f));
         sEdge.setValue(Math.max(0, Math.min(50, s.camera_edge_scroll_buffer)));
     }
 

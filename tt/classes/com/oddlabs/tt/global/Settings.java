@@ -119,6 +119,8 @@ public final strictfp class Settings implements Serializable {
     public float camera_angle_delta_deg_per_sec = 90.0f;
     // Edge scroll buffer (pixels from the window edge that triggers scrolling)
     public int camera_edge_scroll_buffer = 5;
+    // Maximum camera height (Z coordinate)
+    public float camera_max_z = 100.0f;
 
     public int frame_grab_milliseconds_per_frame = 40;
 
