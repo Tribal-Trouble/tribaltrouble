@@ -58,13 +58,13 @@ public final strictfp class RowCollection extends GUIObject {
     }
 
     public final void replaceRows() {
-        int y = -((MultiColumnComboBox) getParent()).getOffsetY();
+        int y = getHeight() + ((MultiColumnComboBox) getParent()).getOffsetY();
         for (int i = 0; i < rows.size(); i++) {
             Row row;
-            if (sorted_descending) row = (Row) rows.get(rows.size() - i - 1);
-            else row = (Row) rows.get(i);
+            if (sorted_descending) row = (Row) rows.get(i);
+            else row = (Row) rows.get(rows.size() - i - 1);
+            y -= row.getHeight();
             row.setPos(0, y);
-            y += row.getHeight();
             if (i % 2 == 0) row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor1());
             else row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor2());
         }
