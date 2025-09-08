@@ -12,6 +12,7 @@ import com.oddlabs.tt.gui.Row;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.guievent.RowListener;
+import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.input.Keyboard;
 
 import java.util.HashMap;
@@ -118,7 +119,8 @@ public abstract class AbstractKeybindPanel extends Panel {
 
         // Simple layout - just the keybind list
         ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", 300)};
-        keybinds_list_box = new MultiColumnComboBox(gui_root, keybind_options, 200, false);
+        int dynamicHeight = calculateDynamicHeight();
+        keybinds_list_box = new MultiColumnComboBox(gui_root, keybind_options, dynamicHeight, false);
         keybinds_list_box.addRowListener(new KeybindListener());
 
         evaluateKeybindRows();
@@ -133,6 +135,21 @@ public abstract class AbstractKeybindPanel extends Panel {
      * of keybinds they should display.
      */
     protected abstract List<Section> getSections();
+    
+    /**
+     * Calculates dynamic height for the keybind list based on viewport size
+     * and available content, with reasonable min/max bounds.
+     */
+    private int calculateDynamicHeight() {
+        int viewHeight = LocalInput.getViewHeight();
+        
+        // Use 45% of screen height as base, with min 200px and max 400px
+        int baseHeight = (int)(viewHeight * 0.20f);
+        int minHeight = 100;
+        int maxHeight = 300;
+        
+        return Math.max(minHeight, Math.min(maxHeight, baseHeight));
+    }
     
     /**
      * Public method to refresh the keybind rows - called from parent panel

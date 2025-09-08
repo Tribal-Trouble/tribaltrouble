@@ -10,6 +10,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.ValueListener;
+import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.input.Mouse;
 
 /** Camera options panel: adjust mouse sensitivity and camera movement parameters. */
@@ -17,9 +18,6 @@ public class CameraPanel extends Panel {
     private static final int SLIDER_WIDTH = 180;
     private static final int SLIDER_MIN = 0;
     private static final int SLIDER_MAX = 100;
-    
-    // Height for about 4 sliders visible at once
-    private static final int SCROLLABLE_HEIGHT = 220;
     private static final int GROUP_SPACING = 10;
 
     // Keep slider refs so we can restore/update values
@@ -46,8 +44,9 @@ public class CameraPanel extends Panel {
         super(caption);
 
         // Create scrollable container for sliders
+        int dynamicHeight = calculateDynamicScrollableHeight();
         ScrollableSliderContainer scrollContainer = 
-            new ScrollableSliderContainer(SLIDER_WIDTH + 100, SCROLLABLE_HEIGHT, GROUP_SPACING);
+            new ScrollableSliderContainer(SLIDER_WIDTH + 100, dynamicHeight, GROUP_SPACING);
         
         // Mouse sensitivity -------------------------------------------------
         SliderGroupPair sensGroup = createSliderGroupWithSlider(
@@ -191,6 +190,21 @@ public class CameraPanel extends Panel {
         gButtons.place(scrollContainer, BOTTOM_LEFT);
         
         compileCanvas();
+    }
+    
+    /**
+     * Calculates dynamic height for the scrollable container based on viewport size
+     * with reasonable bounds for camera settings visibility.
+     */
+    private int calculateDynamicScrollableHeight() {
+        int viewHeight = LocalInput.getViewHeight();
+        
+        // Use 35% of screen height as base, with min 220px (original) and max 350px
+        int baseHeight = (int)(viewHeight * 0.30f);
+        int minHeight = 100; // Original hardcoded value as minimum
+        int maxHeight = 400;
+        
+        return Math.max(minHeight, Math.min(maxHeight, baseHeight));
     }
     
     /**
