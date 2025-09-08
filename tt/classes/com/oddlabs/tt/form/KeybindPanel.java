@@ -33,10 +33,8 @@ public class KeybindPanel extends Panel {
     public KeybindPanel(GUIRoot gui_root, String caption) {
         super(caption);
         
-        // Create header with title and controls
+        // Create header with controls
         Group headerGroup = new Group();
-        Label keybinds_label = new Label("Keybinds", Skin.getSkin().getEditFont());
-        headerGroup.addChild(keybinds_label);
         
         // Clipboard controls - these operate on ALL keybinds
         HorizButton copyBtn = new HorizButton("Copy All Binds", 130);
@@ -56,11 +54,10 @@ public class KeybindPanel extends Panel {
         headerGroup.addChild(statusLabel);
         
         // Layout header controls
-        keybinds_label.place();
-        copyBtn.place(keybinds_label, BOTTOM_LEFT);
+        copyBtn.place();
         pasteBtn.place(copyBtn, RIGHT_MID);
-        resetBtn.place(pasteBtn, RIGHT_MID);
-        statusLabel.place(copyBtn, BOTTOM_LEFT);
+        resetBtn.place(copyBtn, BOTTOM_LEFT);
+        statusLabel.place(resetBtn, BOTTOM_LEFT);
         headerGroup.compileCanvas();
         
         // Create category panels without their own controls
@@ -77,7 +74,7 @@ public class KeybindPanel extends Panel {
         addChild(headerGroup);
         addChild(keybindsGroup);
         headerGroup.place();
-        keybindsGroup.place(headerGroup, BOTTOM_LEFT);
+        keybindsGroup.place(headerGroup, BOTTOM_LEFT, -25);
         compileCanvas();
     }
     

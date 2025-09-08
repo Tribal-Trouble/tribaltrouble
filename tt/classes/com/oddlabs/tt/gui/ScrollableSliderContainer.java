@@ -43,13 +43,11 @@ public class ScrollableSliderContainer extends GUIObject implements Scrollable {
         
         // Calculate padding based on typical font and component sizes
         if (groups.size() == 1) {
-            // Top padding: enough to show title label (font height + small buffer)
-            // Typical edit font height is ~16px, add 4px buffer
-            topPadding = 20;
+            // No top padding for tightest layout
+            topPadding = 0;
             
-            // Bottom padding: half slider group height for symmetry
-            int sliderGroupHeight = group.getHeight() + groupSpacing;
-            bottomPadding = sliderGroupHeight / 2;
+            // No bottom padding for tightest layout
+            bottomPadding = 0;
         }
         
         updateLayout();

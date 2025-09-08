@@ -14,12 +14,12 @@ import com.oddlabs.tt.input.Mouse;
 
 /** Camera options panel: adjust mouse sensitivity and camera movement parameters. */
 public class CameraPanel extends Panel {
-    private static final int SLIDER_WIDTH = 270;
+    private static final int SLIDER_WIDTH = 180;
     private static final int SLIDER_MIN = 0;
     private static final int SLIDER_MAX = 100;
     
     // Height for about 4 sliders visible at once
-    private static final int SCROLLABLE_HEIGHT = 280;
+    private static final int SCROLLABLE_HEIGHT = 220;
     private static final int GROUP_SPACING = 10;
 
     // Keep slider refs so we can restore/update values
