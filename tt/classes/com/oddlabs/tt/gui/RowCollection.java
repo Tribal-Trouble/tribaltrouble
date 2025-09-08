@@ -61,8 +61,8 @@ public final strictfp class RowCollection extends GUIObject {
         int y = -((MultiColumnComboBox) getParent()).getOffsetY();
         for (int i = 0; i < rows.size(); i++) {
             Row row;
-            if (sorted_descending) row = (Row) rows.get(i);
-            else row = (Row) rows.get(rows.size() - i - 1);
+            if (sorted_descending) row = (Row) rows.get(rows.size() - i - 1);
+            else row = (Row) rows.get(i);
             row.setPos(0, y);
             y += row.getHeight();
             if (i % 2 == 0) row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor1());
