@@ -146,9 +146,9 @@ public abstract class AbstractKeybindPanel extends Panel {
         int viewHeight = LocalInput.getViewHeight();
         
         // Use 45% of screen height as base, with min 200px and max 400px
-        int baseHeight = (int)(viewHeight * 0.20f);
+        int baseHeight = (int)(viewHeight * 0.15f);
         int minHeight = 100;
-        int maxHeight = 300;
+        int maxHeight = 250;
         
         return Math.max(minHeight, Math.min(maxHeight, baseHeight));
     }

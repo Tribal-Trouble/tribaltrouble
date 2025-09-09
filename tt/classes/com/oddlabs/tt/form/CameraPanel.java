@@ -214,9 +214,9 @@ public class CameraPanel extends Panel {
         int viewHeight = LocalInput.getViewHeight();
         
         // Use 35% of screen height as base, with min 220px (original) and max 350px
-        int baseHeight = (int)(viewHeight * 0.30f);
+        int baseHeight = (int)(viewHeight * 0.20f);
         int minHeight = 100; // Original hardcoded value as minimum
-        int maxHeight = 400;
+        int maxHeight = 284;
         
         return Math.max(minHeight, Math.min(maxHeight, baseHeight));
     }
