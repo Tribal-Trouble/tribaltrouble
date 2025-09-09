@@ -121,6 +121,8 @@ public abstract class AbstractKeybindPanel extends Panel {
         ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", 300)};
         int dynamicHeight = calculateDynamicHeight();
         keybinds_list_box = new MultiColumnComboBox(gui_root, keybind_options, dynamicHeight, false);
+    // Use top-down layout so first section appears at top and scrolling feels natural
+    keybinds_list_box.setTopDownLayout(true);
         keybinds_list_box.addRowListener(new KeybindListener());
 
         evaluateKeybindRows();

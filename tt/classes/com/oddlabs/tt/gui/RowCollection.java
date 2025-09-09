@@ -16,6 +16,8 @@ public final strictfp class RowCollection extends GUIObject {
     private Row selected_row = null;
     private int sort_index;
     private boolean sorted_descending;
+    // When true, rows are laid out from top to bottom using offset as scroll.
+    private boolean top_down_layout = false;
 
     public RowCollection(MultiColumnComboBox multi_box, int sort_index, boolean sorted_descending) {
         this.multi_box = multi_box;
@@ -58,16 +60,40 @@ public final strictfp class RowCollection extends GUIObject {
     }
 
     public final void replaceRows() {
-        int y = getHeight() + ((MultiColumnComboBox) getParent()).getOffsetY();
-        for (int i = 0; i < rows.size(); i++) {
-            Row row;
-            if (sorted_descending) row = (Row) rows.get(i);
-            else row = (Row) rows.get(rows.size() - i - 1);
-            y -= row.getHeight();
-            row.setPos(0, y);
-            if (i % 2 == 0) row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor1());
-            else row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor2());
+        int offset_y = ((MultiColumnComboBox) getParent()).getOffsetY();
+        if (top_down_layout) {
+            // New top-down orientation
+            int y = -offset_y;
+            for (int i = 0; i < rows.size(); i++) {
+                Row row = sorted_descending ? (Row) rows.get(rows.size() - 1 - i) : (Row) rows.get(i);
+                row.setPos(0, y);
+                if (i % 2 == 0) row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor1());
+                else row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor2());
+                y += row.getHeight();
+            }
+        } else {
+            // Original bottom-up orientation
+            int container_height = getHeight();
+            int y = container_height + offset_y;
+            for (int i = 0; i < rows.size(); i++) {
+                Row row;
+                if (sorted_descending) row = (Row) rows.get(rows.size() - i - 1);
+                else row = (Row) rows.get(i);
+                y -= row.getHeight();
+                row.setPos(0, y);
+                if (i % 2 == 0) row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor1());
+                else row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor2());
+            }
         }
+    }
+
+    public void setTopDownLayout(boolean top_down_layout) {
+        this.top_down_layout = top_down_layout;
+        replaceRows();
+    }
+
+    public boolean isTopDownLayout() {
+        return top_down_layout;
     }
 
     public final int getContentHeight() {
