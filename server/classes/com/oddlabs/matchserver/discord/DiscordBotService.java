@@ -239,7 +239,7 @@ public class DiscordBotService {
         gateway.getRestClient()
                 .getApplicationService()
                 // TODO: Do not hard code the bot app id.
-                .getGuildApplicationCommands(1397851204410806363L, serverId)
+                .getGuildApplicationCommands(getBotId().asLong(), serverId)
                 .collectList()
                 .subscribe(
                         existingCommands -> {

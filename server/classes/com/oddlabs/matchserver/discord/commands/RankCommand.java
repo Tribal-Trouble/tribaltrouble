@@ -69,7 +69,7 @@ public class RankCommand extends DiscordCommand {
                             "%d. %s %s",
                             entry.getRanking(),
                             entry.getName(),
-                            entry.getName().equals(nick)
+                            entry.getName().equalsIgnoreCase(nick)
                                     ? ServerConfiguration.getInstance()
                                             .get(ServerConfiguration.VIKING_CHIEF_EMOJI)
                                     : ""),
@@ -100,6 +100,7 @@ public class RankCommand extends DiscordCommand {
                                         .name(command_option_lookup_name)
                                         .description("The tribal trouble profile name to lookup")
                                         .type(ApplicationCommandOption.Type.STRING.getValue())
+                                        
                                         .required(true)
                                         .build())
                         .addOption(
