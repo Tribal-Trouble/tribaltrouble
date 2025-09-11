@@ -30,12 +30,7 @@ public final strictfp class MapcodeForm extends Form {
         ResourceBundle bundle = ResourceBundle.getBundle(MapcodeForm.class.getName());
         Label label_seed =
                 new Label(Utils.getBundleString(bundle, "map_code"), Skin.getSkin().getEditFont());
-        editline_seed =
-                new EditLine(
-                        200,
-                        17,
-                        RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS,
-                        EditLine.LEFT_ALIGNED);
+        editline_seed = new EditLine(200, 100, EditLine.LEFT_ALIGNED);
         editline_seed.addEnterListener(new CodeEnterListener());
 
         HorizButton button_ok = new OKButton(BUTTON_WIDTH);
