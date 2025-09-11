@@ -36,15 +36,15 @@ public class KeybindPanel extends Panel {
         Group headerGroup = new Group();
         
         // Clipboard controls - these operate on ALL keybinds
-        HorizButton copyBtn = new HorizButton("Copy All Binds", 130);
+        HorizButton copyBtn = new HorizButton("Copy", 90);
         copyBtn.addMouseClickListener((button, x, y, clicks) -> copyBinds());
         headerGroup.addChild(copyBtn);
 
-        HorizButton pasteBtn = new HorizButton("Paste Binds", 120);
+        HorizButton pasteBtn = new HorizButton("Paste", 90);
         pasteBtn.addMouseClickListener((button, x, y, clicks) -> pasteBinds());
         headerGroup.addChild(pasteBtn);
 
-        HorizButton resetBtn = new HorizButton("Reset to defaults", 160);
+        HorizButton resetBtn = new HorizButton("Reset All", 110);
         resetBtn.addMouseClickListener((button, x, y, clicks) -> resetBinds());
         headerGroup.addChild(resetBtn);
         
@@ -55,8 +55,9 @@ public class KeybindPanel extends Panel {
         // Layout header controls
         copyBtn.place();
         pasteBtn.place(copyBtn, RIGHT_MID);
-        resetBtn.place(copyBtn, BOTTOM_LEFT);
-        statusLabel.place(resetBtn, BOTTOM_LEFT);
+        resetBtn.place(pasteBtn, RIGHT_MID);
+        // Place feedback/status on a new line below the buttons
+        statusLabel.place(copyBtn, BOTTOM_LEFT);
         headerGroup.compileCanvas();
         
         // Create category panels without their own controls
