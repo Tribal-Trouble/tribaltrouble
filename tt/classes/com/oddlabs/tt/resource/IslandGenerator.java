@@ -70,8 +70,7 @@ public final strictfp class IslandGenerator implements WorldGenerator {
         return new Texture(
                 detail_mipmaps,
                 Globals.COMPRESSED_RGBA_FORMAT,
-                detail,
-                structures,
+                GL11.GL_LINEAR_MIPMAP_LINEAR,
                 GL11.GL_LINEAR,
                 GL11.GL_REPEAT,
                 GL11.GL_REPEAT);
