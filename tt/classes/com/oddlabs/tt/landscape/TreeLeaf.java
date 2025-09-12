@@ -7,7 +7,7 @@ public final strictfp class TreeLeaf extends AbstractTreeGroup {
         super(parent);
     }
 
-    final void insertTree(TreeSupply tree) {
+    public final void insertTree(TreeSupply tree) {
         TreeSupply[] new_infos = new TreeSupply[infos.length + 1];
         System.arraycopy(infos, 0, new_infos, 0, infos.length);
         new_infos[new_infos.length - 1] = tree;
@@ -40,4 +40,5 @@ public final strictfp class TreeLeaf extends AbstractTreeGroup {
             visitor.visitTree(info);
         }
     }
+
 }

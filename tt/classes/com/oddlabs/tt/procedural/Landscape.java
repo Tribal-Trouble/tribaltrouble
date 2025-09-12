@@ -1484,6 +1484,12 @@ public final strictfp class Landscape {
         return blend_infos;
     }
 
+    // Expose generated structure images so runtime systems (e.g., editor reblend)
+    // can reuse the exact textures used during world generation.
+    public final GLIntImage[] getStructures() {
+        return structures;
+    }
+
     public final GLIntImage getDetail() {
         return detail;
     }

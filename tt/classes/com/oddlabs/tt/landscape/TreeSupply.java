@@ -253,6 +253,14 @@ public final strictfp class TreeSupply extends AbstractTreeGroup
         return hide;
     }
 
+    // Editor: hide tree and free occupancy immediately
+    public final void editorHideAndUnoccupy() {
+        unoccupyTree();
+        hide = true;
+        low_detail_matrix.setZero();
+        world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
+    }
+
     public void updateChecksum(StateChecksum checksum) {}
 
     public final void visit(TreeNodeVisitor visitor) {

@@ -36,6 +36,7 @@ public final strictfp class LandscapeRenderer implements Animated {
     private final World world;
     private final Texture[][] colormaps;
     private final Texture detail;
+    private final com.oddlabs.tt.resource.GLIntImage[] structures;
     private final PatchLevel[][] patch_levels;
     private final LandscapeTileVertices landscape_vertices;
     private final ShortBuffer shadow_indices_buffer;
@@ -73,7 +74,8 @@ public final strictfp class LandscapeRenderer implements Animated {
                 PatchLevel top = getPatchWrapped(x, y + 1);
                 patch_levels[y][x].init(right, top);
             }
-        this.detail = world_info.detail;
+    this.detail = world_info.detail;
+    this.structures = world_info.structures;
         this.colormaps = world_info.colormaps;
         this.gui_root = gui_root;
         this.world = world;
@@ -124,6 +126,20 @@ public final strictfp class LandscapeRenderer implements Animated {
 
     final void bindLeaf(LandscapeLeaf leaf) {
         landscape_vertices.bind(leaf.getPatchX(), leaf.getPatchY());
+    }
+
+    // Expose colormap tiles for editor ROI reblend
+    public final Texture getColormap(int x, int y) {
+        return colormaps[y][x];
+    }
+
+    public final int getColormapChunkCount() {
+        return colormaps.length;
+    }
+
+    // Editor needs access to the exact structure images used for world-gen blending
+    public final com.oddlabs.tt.resource.GLIntImage[] getStructureImages() {
+        return structures;
     }
 
     private final void clearRenderList() {

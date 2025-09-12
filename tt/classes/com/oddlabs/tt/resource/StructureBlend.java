@@ -30,9 +30,18 @@ public final strictfp class StructureBlend extends BlendInfo {
     }
 
     public final void setup() {
+        // Unit1: alpha map contributes fragment alpha only; preserve incoming RGB
         GLState.activeTexture(GL13.GL_TEXTURE1);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         bindAlpha();
+        // Route: RGB = PREVIOUS (from unit0), ALPHA = TEXTURE (alpha map)
+        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL13.GL_COMBINE);
+        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_COMBINE_RGB, GL13.GL_REPLACE);
+        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_SOURCE0_RGB, GL13.GL_PREVIOUS);
+        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_COMBINE_ALPHA, GL13.GL_REPLACE);
+        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_SOURCE0_ALPHA, GL13.GL_TEXTURE);
+
+        // Unit0: structure color
         GLState.activeTexture(GL13.GL_TEXTURE0);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         bindStructure();
@@ -41,6 +50,8 @@ public final strictfp class StructureBlend extends BlendInfo {
 
     public final void reset() {
         GLState.activeTexture(GL13.GL_TEXTURE1);
+        // Restore default env mode for safety
+        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GLState.activeTexture(GL13.GL_TEXTURE0);
     }

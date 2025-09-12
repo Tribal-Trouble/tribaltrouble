@@ -70,7 +70,8 @@ public final strictfp class IslandGenerator implements WorldGenerator {
         return new Texture(
                 detail_mipmaps,
                 Globals.COMPRESSED_RGBA_FORMAT,
-                GL11.GL_LINEAR_MIPMAP_LINEAR,
+                detail,
+                structures,
                 GL11.GL_LINEAR,
                 GL11.GL_REPEAT,
                 GL11.GL_REPEAT);
@@ -135,6 +136,7 @@ public final strictfp class IslandGenerator implements WorldGenerator {
         System.out.println("Landscape created in = " + (time_after - time_before));
         BlendInfo[] blend_infos = landscape.getBlendInfos();
         Texture detail = createDetail(landscape.getDetail(), base_level);
+        GLIntImage[] structures = landscape.getStructures();
         float[][] heightmap = landscape.getHeight();
         /*for (int y = 0; y < heightmap.length; y++)
         for (int x = 0; x < heightmap[y].length; x++)
@@ -171,6 +173,7 @@ public final strictfp class IslandGenerator implements WorldGenerator {
                 chunks_per_colormap,
                 chunk_maps,
                 detail,
+                structures,
                 heightmap,
                 trees,
                 palm_trees,

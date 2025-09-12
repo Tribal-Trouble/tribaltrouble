@@ -1,0 +1,180 @@
+package com.oddlabs.tt.editor;
+
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.render.Texture;
+import com.oddlabs.tt.resource.GLByteImage;
+import java.nio.ByteBuffer;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
+/**
+ * OverlayAtlas provides per-chunk R8 overlay storage for editor painting, plus a
+ * lazily rebuilt world-sized view for compatibility with existing blend paths.
+ */
+public final class OverlayAtlas {
+    private final HeightMap hm;
+    private final int chunksPerWorld;
+    private final int chunkSizeGU; // grid units per chunk edge
+    private final GLByteImage[][] chunks; // [y][x]
+    private final boolean[][] dirtyChunk;
+    // Track chunks where CPU writes occurred and GPU mirror needs an upload
+    private final boolean[][] cpuDirtyNeedsGpuUpload;
+    // Optional GPU mirror per chunk for faster stamping
+    private final Texture[][] chunkTextures; // [y][x]
+
+    // Compatibility world-sized overlay (rebuilt when dirty)
+    private GLByteImage worldView;
+    private boolean worldDirty = true;
+
+    public OverlayAtlas(HeightMap hm) {
+        this.hm = hm;
+        int ppw = hm.getPatchesPerWorld();
+        int ppc = hm.getPatchesPerChunk();
+        this.chunksPerWorld = Math.max(1, ppw / ppc);
+        this.chunkSizeGU = hm.getGridUnitsPerPatch() * ppc;
+        this.chunks = new GLByteImage[chunksPerWorld][chunksPerWorld];
+    this.dirtyChunk = new boolean[chunksPerWorld][chunksPerWorld];
+    this.cpuDirtyNeedsGpuUpload = new boolean[chunksPerWorld][chunksPerWorld];
+    this.chunkTextures = new Texture[chunksPerWorld][chunksPerWorld];
+        for (int y = 0; y < chunksPerWorld; y++) {
+            for (int x = 0; x < chunksPerWorld; x++) {
+                GLByteImage img = new GLByteImage(chunkSizeGU, chunkSizeGU, 6406);
+                // initialize to zero
+                ByteBuffer p = img.getPixels();
+                for (int i = 0, n = chunkSizeGU * chunkSizeGU; i < n; i++) p.put(i, (byte) 0);
+                chunks[y][x] = img;
+                dirtyChunk[y][x] = false;
+                cpuDirtyNeedsGpuUpload[y][x] = false;
+        chunkTextures[y][x] = null; // lazily created on first GPU use
+            }
+        }
+        // allocate world view lazily on first request
+        this.worldView = null;
+        this.worldDirty = true;
+    }
+
+    public HeightMap getHeightMap() { return hm; }
+    public int getChunksPerWorld() { return chunksPerWorld; }
+    public int getChunkSizeGU() { return chunkSizeGU; }
+    public GLByteImage getChunkImage(int cx, int cy) { return chunks[cy][cx]; }
+
+    public void markChunkDirty(int cx, int cy) { dirtyChunk[cy][cx] = true; worldDirty = true; }
+
+    /** Mark a chunk as changed by CPU writes; schedules GPU subimage upload for preview. */
+    public void markChunkCpuDirty(int cx, int cy) {
+        dirtyChunk[cy][cx] = true;
+        cpuDirtyNeedsGpuUpload[cy][cx] = true;
+        worldDirty = true;
+    }
+
+    /** Ensure a GPU texture exists for a chunk and upload current CPU bytes if newly created. */
+    public Texture getOrCreateChunkTexture(int cx, int cy) {
+        Texture tex = chunkTextures[cy][cx];
+        if (tex == null) {
+            // Create empty alpha texture; content will be uploaded next
+        tex = new Texture(
+            chunkSizeGU,
+            chunkSizeGU,
+            GL11.GL_NEAREST,
+            GL11.GL_NEAREST,
+            GL12.GL_CLAMP_TO_EDGE,
+            GL12.GL_CLAMP_TO_EDGE,
+            Globals.NO_MIPMAP_CUTOFF);
+            // Initialize from CPU image
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex.getHandle());
+            ByteBuffer pixels = chunks[cy][cx].getPixels();
+        // Use RGBA8 as internal format for renderability; upload as LUMINANCE to fill RGB equally
+        GL11.glTexImage2D(
+            GL11.GL_TEXTURE_2D,
+            0,
+            GL11.GL_RGBA8,
+            chunkSizeGU,
+            chunkSizeGU,
+            0,
+            GL11.GL_LUMINANCE,
+            GL11.GL_UNSIGNED_BYTE,
+            pixels);
+            chunkTextures[cy][cx] = tex;
+            cpuDirtyNeedsGpuUpload[cy][cx] = false; // freshly synced
+        }
+        return tex;
+    }
+
+    /** Ensure GPU texture exists and upload CPU changes if needed for preview rendering. */
+    public void ensureChunkTextureSynced(int cx, int cy) {
+        Texture tex = getOrCreateChunkTexture(cx, cy);
+        if (tex == null) return;
+        if (cpuDirtyNeedsGpuUpload[cy][cx]) {
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex.getHandle());
+            ByteBuffer pixels = chunks[cy][cx].getPixels();
+            GL11.glTexSubImage2D(
+                GL11.GL_TEXTURE_2D,
+                0,
+                0,
+                0,
+                chunkSizeGU,
+                chunkSizeGU,
+                GL11.GL_LUMINANCE,
+                GL11.GL_UNSIGNED_BYTE,
+                pixels);
+            cpuDirtyNeedsGpuUpload[cy][cx] = false;
+        }
+    }
+
+    /** Read back a chunk texture's pixels into the CPU GLByteImage buffer. */
+    public void syncChunkTextureToImage(int cx, int cy) {
+        Texture tex = chunkTextures[cy][cx];
+        if (tex == null) return;
+    GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex.getHandle());
+    ByteBuffer dst = chunks[cy][cx].getPixels();
+    // Read back luminance (R=G=B) into single-byte buffer
+    GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, dst);
+        markChunkDirty(cx, cy);
+    }
+
+    /** Sync all dirty chunk textures to their CPU images. */
+    public void syncAllDirtyTexturesToImages() {
+        for (int cy = 0; cy < chunksPerWorld; cy++) {
+            for (int cx = 0; cx < chunksPerWorld; cx++) {
+                if (dirtyChunk[cy][cx] && chunkTextures[cy][cx] != null) {
+                    syncChunkTextureToImage(cx, cy);
+                }
+            }
+        }
+    }
+
+    /**
+     * Rebuilds the world-sized overlay from all chunks if needed and returns it.
+     * This is only for compatibility with the current blend pipeline.
+     */
+    public GLByteImage getWorldOverlay() {
+        int worldGU = hm.getGridUnitsPerWorld();
+        if (worldView == null
+            || worldView.getWidth() != worldGU
+            || worldView.getHeight() != worldGU) {
+            worldView = new GLByteImage(worldGU, worldGU, 6406);
+            worldDirty = true;
+        }
+        if (worldDirty) {
+            ByteBuffer dst = worldView.getPixels();
+            for (int cy = 0; cy < chunksPerWorld; cy++) {
+                for (int cx = 0; cx < chunksPerWorld; cx++) {
+                    GLByteImage srcImg = chunks[cy][cx];
+                    ByteBuffer src = srcImg.getPixels();
+                    for (int ly = 0; ly < chunkSizeGU; ly++) {
+                        int wy = cy * chunkSizeGU + ly;
+                        int dstRow = wy * worldGU + cx * chunkSizeGU;
+                        int srcRow = ly * chunkSizeGU;
+                        for (int lx = 0; lx < chunkSizeGU; lx++) {
+                            dst.put(dstRow + lx, src.get(srcRow + lx));
+                        }
+                    }
+                    dirtyChunk[cy][cx] = false;
+                }
+            }
+            worldDirty = false;
+        }
+        return worldView;
+    }
+}

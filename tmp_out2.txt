@@ -1,0 +1,45 @@
+package com.oddlabs.tt.editor;
+
+import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.render.UIRenderer;
+import com.oddlabs.tt.util.ToolTip;
+import com.oddlabs.tt.viewer.AmbientAudio;
+
+/**
+ * Editor-only renderer wrapper that forces clearing the color buffer each frame.
+ * This prevents residual pixels from the loading splash during fade transitions.
+ */
+public final class EditorRenderer implements UIRenderer {
+    private final UIRenderer delegate;
+
+    public EditorRenderer(UIRenderer delegate) {
+        this.delegate = delegate;
+    }
+
+    @Override
+    public void render(AmbientAudio ambient, CameraState camera_state, GUIRoot gui_root) {
+        delegate.render(ambient, camera_state, gui_root);
+    }
+
+    @Override
+    public void pickHover(boolean can_hover_behind, CameraState camera, int x, int y) {
+        delegate.pickHover(can_hover_behind, camera, x, y);
+    }
+
+    @Override
+    public ToolTip getToolTip() {
+        return delegate.getToolTip();
+    }
+
+    @Override
+    public void renderGUI(GUIRoot gui_root) {
+        delegate.renderGUI(gui_root);
+    }
+
+    @Override
+    public boolean clearColorBuffer() {
+        // Force clear to eliminate flicker from previous root (loading splash) frames.
+        return true;
+    }
+}

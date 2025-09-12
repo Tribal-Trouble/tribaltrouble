@@ -20,7 +20,8 @@ public final strictfp class BlendLighting extends BlendInfo {
 
     public final void setup() {
         GLState.activeTexture(GL13.GL_TEXTURE1);
-        GL11.glColor3f(r, b, g);
+        // Correct RGB order
+        GL11.glColor3f(r, g, b);
         GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         bindAlpha();

@@ -43,6 +43,8 @@ public final strictfp class RubberSupply extends SupplyModel implements Animated
     private boolean is_hit = false;
     private boolean spawning;
     private float offset_z;
+    // Editor hint: remain stationary when true
+    private boolean stationary = false;
 
     static {
         float SPEED_IDLE = 1f / (50f / 25f);
@@ -184,6 +186,7 @@ public final strictfp class RubberSupply extends SupplyModel implements Animated
                                             AudioPlayer.AUDIO_RADIUS_CHICKEN_IDLE));
             } else if (random < .85) {
                 // fly
+                if (stationary) { setNewAnimation(ANIMATION_IDLING); return; }
                 int new_grid_x =
                         start_grid_x
                                 + (int)
@@ -259,6 +262,9 @@ public final strictfp class RubberSupply extends SupplyModel implements Animated
         return offset_z;
     }
 
+    // Editor hook
+    public final void setStationary(boolean value) { this.stationary = value; }
+
     private void setNewAnimation(int animation_index) {
         anim_time = 0;
         animation = animation_index;
@@ -288,7 +294,7 @@ public final strictfp class RubberSupply extends SupplyModel implements Animated
                                     AudioPlayer.AUDIO_DISTANCE_DEATH,
                                     AudioPlayer.AUDIO_GAIN_CHICKEN_DEATH,
                                     AudioPlayer.AUDIO_RADIUS_CHICKEN_DEATH));
-            group.remove(this);
+            if (group != null) group.remove(this);
         }
         return super.hit();
     }

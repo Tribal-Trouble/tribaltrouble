@@ -44,6 +44,15 @@ public final strictfp class MainMenu extends Menu {
                             COLOR_ACTIVE);
             addChild(multi_player);
             multi_player.addMouseClickListener(new MultiPlayerListener());
+
+            // Place the Map Editor button directly below Multiplayer
+            MenuButton map_editor =
+                    new MenuButton(
+                            Utils.getBundleString(bundle, "map_editor"),
+                            COLOR_NORMAL,
+                            COLOR_ACTIVE);
+            addChild(map_editor);
+            map_editor.addMouseClickListener(new MapEditorListener());
         }
     }
 
@@ -117,6 +126,12 @@ public final strictfp class MainMenu extends Menu {
     private final strictfp class SinglePlayerListener implements MouseClickListener {
         public final void mouseClicked(int button, int x, int y, int clicks) {
             setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(), MainMenu.this));
+        }
+    }
+
+    private final strictfp class MapEditorListener implements MouseClickListener {
+        public final void mouseClicked(int button, int x, int y, int clicks) {
+            setMenu(new MapEditorMenuForm(getNetwork(), getGUIRoot(), MainMenu.this));
         }
     }
 }

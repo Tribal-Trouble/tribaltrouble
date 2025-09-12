@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.render.*;
+import com.oddlabs.tt.resource.GLIntImage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.List;
 public final strictfp class WorldInfo {
     public final Texture[][] colormaps;
     public final Texture detail;
+    // Structure images used during world-gen for base/material/shadow/seabottom
+    public final GLIntImage[] structures;
     public final float[][] heightmap;
     public final List trees;
     public final List palm_trees;
@@ -32,6 +35,7 @@ public final strictfp class WorldInfo {
             int chunks_per_colormap,
             Texture[][] colormaps,
             Texture detail,
+            GLIntImage[] structures,
             float[][] heightmap,
             List trees,
             List palm_trees,
@@ -49,7 +53,8 @@ public final strictfp class WorldInfo {
         this.sea_level_meters = sea_level_meters;
         this.meters_per_world = meters_per_world;
         this.colormaps = colormaps;
-        this.detail = detail;
+    this.detail = detail;
+    this.structures = structures;
         this.heightmap = heightmap;
         this.trees = trees;
         this.rocks = rocks;

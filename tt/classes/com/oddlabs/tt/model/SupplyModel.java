@@ -148,4 +148,14 @@ public abstract strictfp class SupplyModel extends Model implements Supply, Targ
     public int getPenalty() {
         return Occupant.STATIC;
     }
+
+    // Editor: force-remove this supply immediately without respawning
+    public final void editorRemoveNow() {
+        UnitGrid unit_grid = getWorld().getUnitGrid();
+        unit_grid.freeGrid(grid_x, grid_y, this, UnitGrid.LAND);
+        getWorld().getNotificationListener().unregisterTarget(this);
+        Region region = unit_grid.getRegion(grid_x, grid_y, UnitGrid.LAND);
+        if (region != null) region.unregisterObject(getClass(), this);
+        remove();
+    }
 }

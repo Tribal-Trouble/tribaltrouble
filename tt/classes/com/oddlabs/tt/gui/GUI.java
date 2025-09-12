@@ -75,6 +75,8 @@ public final strictfp class GUI implements Animated {
     }
 
     public final void pickHover() {
+        // Guard against transient states where no delegate is active
+        if (getGUIRoot().getDelegate() == null) return;
         CameraState camera = getGUIRoot().getDelegate().getCamera().getState();
         GUIObject gui_hit = getGUIRoot().getCurrentGUIObject();
         if (renderer != null)
