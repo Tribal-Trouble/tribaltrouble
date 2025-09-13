@@ -643,7 +643,7 @@ public final class MapEditorSession {
         // Resource brush state
         private enum ActiveTool { TERRAIN, RESOURCE }
         private ActiveTool activeTool = ActiveTool.TERRAIN;
-        private enum ResourceType { ROCK, IRON, RUBBER, TREE_JUNGLE, TREE_PALM, TREE_OAK, TREE_PINE }
+    private enum ResourceType { ROCK, IRON, RUBBER, PLANT_1, PLANT_2, PLANT_3, PLANT_4, TREE_JUNGLE, TREE_PALM, TREE_OAK, TREE_PINE }
         private ResourceType resourceType = ResourceType.ROCK;
 
     // ------- Overlay tool state -------
@@ -745,6 +745,15 @@ public final class MapEditorSession {
                 // Snap resources (trees, rocks, iron, rubber) inside the edited region to terrain height
                 if (activeTool == ActiveTool.TERRAIN && strokeHasBounds) {
                     snapResourcesInGridRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
+                    // Also snap decorative plants within the edited ROI
+                    try {
+                        float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+                        float minWX = strokeMinGX * cell;
+                        float minWY = strokeMinGY * cell;
+                        float maxWX = (strokeMaxGX + 1) * cell;
+                        float maxWY = (strokeMaxGY + 1) * cell;
+                        snapPlantsInWorldRect(minWX, minWY, maxWX, maxWY);
+                    } catch (Throwable ignore) {}
                     // IMPORTANT: recompute grids (water/dock/access/build) for consistency with textures and placement
                     if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                         try {
@@ -769,6 +778,8 @@ public final class MapEditorSession {
                     // Remove any existing resources within ROI that are no longer valid
                     // according to the updated water/dock/access rules
                     removeInvalidResourcesInGridRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
+                    // Remove any decorative plants in invalid locations
+                    removeInvalidPlantsInGridRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
                     // After removals, refresh the placement validity grid once to reflect occupancy changes
                     if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                         try {
@@ -1176,6 +1187,29 @@ public final class MapEditorSession {
             }
         }
 
+        // Snap decorative plants by forcing a reinsert at their current XY within a world-space rectangle
+        private void snapPlantsInWorldRect(final float minWX, final float minWY, final float maxWX, final float maxWY) {
+            com.oddlabs.tt.model.ElementNodeVisitor visitor = new com.oddlabs.tt.model.ElementNodeVisitor() {
+                private boolean intersects(float bminX, float bmaxX, float bminY, float bmaxY) {
+                    return !(bmaxX < minWX || bminX > maxWX || bmaxY < minWY || bminY > maxWY);
+                }
+                public void visitNode(com.oddlabs.tt.model.ElementNode node) {
+                    if (intersects(node.bmin_x, node.bmax_x, node.bmin_y, node.bmax_y)) node.visitChildren(this);
+                }
+                public void visitLeaf(com.oddlabs.tt.model.ElementLeaf leaf) {
+                    if (intersects(leaf.bmin_x, leaf.bmax_x, leaf.bmin_y, leaf.bmax_y)) leaf.visitElements(this);
+                }
+                public void visit(com.oddlabs.tt.model.Element element) {
+                    if (element instanceof com.oddlabs.tt.model.Plants) {
+                        com.oddlabs.tt.model.Plants p = (com.oddlabs.tt.model.Plants) element;
+                        // trigger Model.reinsert() by setting same XY
+                        p.setPosition(p.getPositionX(), p.getPositionY());
+                    }
+                }
+            };
+            try { world.getElementRoot().visit(visitor); } catch (Throwable ignore) {}
+        }
+
         // Remove any resources within the given grid-rect that are no longer valid
         // by editor rules after terrain changes (water/dock/access). This intentionally
         // ignores the occupancy component of placement validity to avoid self-invalidation.
@@ -1245,6 +1279,56 @@ public final class MapEditorSession {
             }
             if (removedCount > 0) {
                 System.out.println("[Editor] Removed " + removedCount + " invalid resource(s) after terrain edit.");
+            }
+        }
+
+        // Remove decorative plants found within invalid grid cells (water, dock, or inaccessible)
+    private void removeInvalidPlantsInGridRect(int minGX, int minGY, int maxGX, int maxGY) {
+            com.oddlabs.tt.landscape.HeightMap hm = world.getHeightMap();
+            int n = hm.getGridUnitsPerWorld();
+            int x0 = StrictMath.max(0, minGX);
+            int y0 = StrictMath.max(0, minGY);
+            int x1 = StrictMath.min(n - 1, maxGX);
+            int y1 = StrictMath.min(n - 1, maxGY);
+            final boolean[][] water = hm.getWaterGrid();
+            final boolean[][] dock = hm.getDockGrid();
+            final boolean[][] access = hm.getAccessGrid();
+            final float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+
+            final float minWX = x0 * cell;
+            final float minWY = y0 * cell;
+            final float maxWX = (x1 + 1) * cell;
+            final float maxWY = (y1 + 1) * cell;
+
+            final int[] removed = new int[] {0};
+            com.oddlabs.tt.model.ElementNodeVisitor visitor = new com.oddlabs.tt.model.ElementNodeVisitor() {
+                private boolean intersects(float bminX, float bmaxX, float bminY, float bmaxY) {
+                    return !(bmaxX < minWX || bminX > maxWX || bmaxY < minWY || bminY > maxWY);
+                }
+                public void visitNode(com.oddlabs.tt.model.ElementNode node) {
+                    if (intersects(node.bmin_x, node.bmax_x, node.bmin_y, node.bmax_y)) node.visitChildren(this);
+                }
+                public void visitLeaf(com.oddlabs.tt.model.ElementLeaf leaf) {
+                    if (intersects(leaf.bmin_x, leaf.bmax_x, leaf.bmin_y, leaf.bmax_y)) leaf.visitElements(this);
+                }
+                public void visit(com.oddlabs.tt.model.Element element) {
+                    if (element instanceof com.oddlabs.tt.model.Plants) {
+                        com.oddlabs.tt.model.Plants p = (com.oddlabs.tt.model.Plants) element;
+                        int gx = p.getGridX();
+                        int gy = p.getGridY();
+                        if (gx < x0 || gy < y0 || gx > x1 || gy > y1) return;
+                        boolean isWater = (water != null && water[gy][gx]);
+                        boolean isDock = (dock != null && dock[gy][gx]);
+                        boolean isAccessible = (access == null) || access[gy][gx];
+                        if (isWater || isDock || !isAccessible) {
+                            try { p.remove(); removed[0]++; } catch (Throwable ignore) {}
+                        }
+                    }
+                }
+            };
+            try { world.getElementRoot().visit(visitor); } catch (Throwable ignore) {}
+            if (removed[0] > 0) {
+                System.out.println("[Editor] Removed " + removed[0] + " invalid plant(s) after terrain edit.");
             }
         }
 
@@ -1401,6 +1485,14 @@ public final class MapEditorSession {
                                     debugPrintedThisStroke = true;
                                 }
                             }
+                        } else {
+                            // No grid occupant: try deleting decorative plants in this cell
+                            int deleted = removePlantsInCell(gx, gy);
+                            if (deleted > 0 && !debugPrintedThisStroke && gx == cx && gy == cy) {
+                                getGUIRoot().getInfoPrinter().print("Erased " + deleted + " plant(s) at gx=" + gx + ", gy=" + gy);
+                                System.out.println("[Editor] Erased " + deleted + " plant(s) at gx=" + gx + ", gy=" + gy);
+                                debugPrintedThisStroke = true;
+                            }
                         }
                     } else {
                         // Only block if occupied by a real object; ignore RegionBuilder's StaticOccupant
@@ -1433,6 +1525,39 @@ public final class MapEditorSession {
             }
         }
 
+        // Remove plants whose centers fall within the given grid cell. Returns number removed.
+        private int removePlantsInCell(final int gx, final int gy) {
+            final float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+            final float minWX = gx * cell;
+            final float minWY = gy * cell;
+            final float maxWX = (gx + 1) * cell;
+            final float maxWY = (gy + 1) * cell;
+            final int[] removed = new int[] {0};
+            com.oddlabs.tt.model.ElementNodeVisitor visitor = new com.oddlabs.tt.model.ElementNodeVisitor() {
+                private boolean intersects(float bminX, float bmaxX, float bminY, float bmaxY) {
+                    return !(bmaxX < minWX || bminX > maxWX || bmaxY < minWY || bminY > maxWY);
+                }
+                public void visitNode(com.oddlabs.tt.model.ElementNode node) {
+                    if (intersects(node.bmin_x, node.bmax_x, node.bmin_y, node.bmax_y)) node.visitChildren(this);
+                }
+                public void visitLeaf(com.oddlabs.tt.model.ElementLeaf leaf) {
+                    if (intersects(leaf.bmin_x, leaf.bmax_x, leaf.bmin_y, leaf.bmax_y)) leaf.visitElements(this);
+                }
+                public void visit(com.oddlabs.tt.model.Element element) {
+                    if (element instanceof com.oddlabs.tt.model.Plants) {
+                        com.oddlabs.tt.model.Plants p = (com.oddlabs.tt.model.Plants) element;
+                        int egx = p.getGridX();
+                        int egy = p.getGridY();
+                        if (egx == gx && egy == gy) {
+                            try { p.remove(); removed[0]++; } catch (Throwable ignore) {}
+                        }
+                    }
+                }
+            };
+            try { world.getElementRoot().visit(visitor); } catch (Throwable ignore) {}
+            return removed[0];
+        }
+
         // Trees follow the same placement validity as other resources; no extra slope filter.
 
         private void placeResourceAt(int grid_x, int grid_y) {
@@ -1445,6 +1570,18 @@ public final class MapEditorSession {
                     break;
                 case RUBBER:
                     placeRubber(grid_x, grid_y);
+                    break;
+                case PLANT_1:
+                    placePlant(grid_x, grid_y, 0);
+                    break;
+                case PLANT_2:
+                    placePlant(grid_x, grid_y, 1);
+                    break;
+                case PLANT_3:
+                    placePlant(grid_x, grid_y, 2);
+                    break;
+                case PLANT_4:
+                    placePlant(grid_x, grid_y, 3);
                     break;
                 case TREE_JUNGLE:
                     placeTree(grid_x, grid_y, com.oddlabs.tt.landscape.AbstractTreeGroup.TREE_INDEX);
@@ -1489,6 +1626,23 @@ public final class MapEditorSession {
                             world, sprite, 2f, grid_x, grid_y, x, y, 0f, null, x, y);
             s.setStationary(true);
             new com.oddlabs.tt.model.SupplySpawnAnimation(s, 2f);
+        }
+
+        private void placePlant(int grid_x, int grid_y, int plant_index) {
+            // Validate target cell using editor rules and avoid overlapping real occupants
+            if (!com.oddlabs.tt.editor.EditorResourceValidity.isValid(world, grid_x, grid_y)) return;
+            com.oddlabs.tt.pathfinder.UnitGrid ug = world.getUnitGrid();
+            com.oddlabs.tt.pathfinder.Occupant occ = ug.getOccupant(grid_x, grid_y, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
+            if (occ != null && !(occ instanceof com.oddlabs.tt.pathfinder.StaticOccupant)) return;
+
+            float x = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(grid_x) + (world.getRandom().nextFloat() - .5f);
+            float y = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(grid_y) + (world.getRandom().nextFloat() - .5f);
+            float dir_x = world.getRandom().nextFloat();
+            float dir_y = world.getRandom().nextFloat();
+            float len2 = dir_x * dir_x + dir_y * dir_y;
+            if (len2 < 1e-3f) { dir_x = 1f; dir_y = 0f; } else { float inv = 1f / (float) StrictMath.sqrt(len2); dir_x *= inv; dir_y *= inv; }
+            com.oddlabs.tt.render.SpriteKey sprite = world.getLandscapeResources().getPlants()[terrainType][plant_index];
+            new com.oddlabs.tt.model.Plants(world, x, y, dir_x, dir_y, sprite);
         }
 
         private void placeTree(int grid_x, int grid_y, int tree_type_index) {
