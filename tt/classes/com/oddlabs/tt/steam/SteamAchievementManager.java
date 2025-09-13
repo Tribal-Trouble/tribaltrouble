@@ -27,13 +27,26 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
 
     private final Set<String> unlockedAchievements = new HashSet<>();
 
-    public SteamAchievementManager() {
-        SteamAPI.printDebugInfo(System.out);
+    private boolean debugEnabled = true; // Control debug printing
+
+    private void debugPrint(String message) {
+        if (debugEnabled) {
+            System.out.println(message);
+        }
+    }
+    public SteamAchievementManager() {        
+        this(false);
+    }
+    public SteamAchievementManager(boolean debug) {
+        this.debugEnabled = debug;
+        if(debug)
+            SteamAPI.printDebugInfo(System.out);
+        
         steamUserStats = new SteamUserStats(this);
         if (steamUserStats.requestCurrentStats()) {
-            System.out.println("Successfully requested current stats.");
+            debugPrint("Successfully requested current stats.");
         } else {
-            System.err.println("Failed to request current stats.");
+            debugPrint("Failed to request current stats.");
         }
     }
 
@@ -54,7 +67,7 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
             String achievementId, int currentProgress, int maxProgress) {
         if (steamUserStats.indicateAchievementProgress(
                 achievementId, currentProgress, maxProgress)) {
-            System.out.println(
+            debugPrint(
                     "Achievement progress updated: "
                             + achievementId
                             + " ("
@@ -64,30 +77,30 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
                             + ")");
             steamUserStats.storeStats();
         } else {
-            System.err.println("Failed to update achievement progress: " + achievementId);
+            debugPrint("Failed to update achievement progress: " + achievementId);
         }
     }
 
     public void unlockAchievement(String achievementId) {
         if (isAchievementUnlocked(achievementId)) {
-            // System.out.println("Achievement already unlocked in this session: " + achievementId);
+            // debugPrint("Achievement already unlocked in this session: " + achievementId);
             return;
         }
 
         if (steamUserStats.setAchievement(achievementId)) {
-            System.out.println("Achievement unlocked: " + achievementId);
+            debugPrint("Achievement unlocked: " + achievementId);
             steamUserStats.storeStats();
             unlockedAchievements.add(achievementId);
         } else {
-            System.err.println("Failed to unlock achievement: " + achievementId);
+            debugPrint("Failed to unlock achievement: " + achievementId);
         }
     }
 
     public void onUserStatsStored(long gameId, int result) {
         if (result == SteamResult.OK.ordinal()) {
-            System.out.println("User stats successfully stored.");
+            debugPrint("User stats successfully stored.");
         } else {
-            System.err.println("Failed to store user stats. Result code: " + result);
+            debugPrint("Failed to store user stats. Result code: " + result);
         }
     }
 
@@ -97,22 +110,22 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
             String achievementName,
             int curProgress,
             int maxProgress) {
-        System.out.println("Achievement stored: " + achievementName);
+        debugPrint("Achievement stored: " + achievementName);
     }
 
     public void onUserStatsUnloaded(SteamID steamIDUser) {
-        System.out.println("User stats unloaded.");
+        debugPrint("User stats unloaded.");
     }
 
     public void onLeaderboardFindResult(SteamLeaderboardHandle leaderboard, boolean found) {
-        System.out.println("Leaderboard find result: " + (found ? "Found" : "Not Found"));
+        debugPrint("Leaderboard find result: " + (found ? "Found" : "Not Found"));
     }
 
     public void onLeaderboardScoresDownloaded(
             SteamLeaderboardHandle leaderboard,
             SteamLeaderboardEntriesHandle entries,
             int numEntries) {
-        System.out.println("Leaderboard scores downloaded: " + numEntries + " entries.");
+        debugPrint("Leaderboard scores downloaded: " + numEntries + " entries.");
     }
 
     public void onLeaderboardScoreUploaded(
@@ -122,25 +135,25 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
             boolean scoreChanged,
             int globalRankNew,
             int globalRankPrevious) {
-        System.out.println("Leaderboard score uploaded: " + (success ? "Success" : "Failed"));
+        debugPrint("Leaderboard score uploaded: " + (success ? "Success" : "Failed"));
     }
 
     public void onNumberOfCurrentPlayersReceived(boolean success, int players) {
-        System.out.println("Number of current players received: " + (success ? players : "Failed"));
+        debugPrint("Number of current players received: " + (success ? players : "Failed"));
     }
 
     public void onGlobalStatsReceived(long gameId, SteamResult result) {
-        System.out.println(
+        debugPrint(
                 "Global stats received: " + (result == SteamResult.OK ? "Success" : "Failed"));
     }
 
     public void onUserStatsReceived(long gameId, SteamID steamIDUser, SteamResult result) {
-        System.out.println(
+        debugPrint(
                 "User stats received: " + (result == SteamResult.OK ? "Success" : "Failed"));
     }
 
     public void onUserStatsStored(long gameId, SteamResult result) {
-        System.out.println(
+        debugPrint(
                 "User stats stored: " + (result == SteamResult.OK ? "Success" : "Failed"));
     }
 }
