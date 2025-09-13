@@ -183,6 +183,12 @@ public final strictfp class DefaultRenderer implements UIRenderer {
         return Globals.clear_frame_buffer || cheat.line_mode;
     }
 
+    public void rebuildWater() {
+        if (water != null) {
+            water.rebuild(world.getHeightMap());
+        }
+    }
+
     public void render(AmbientAudio ambient, CameraState frustum_state, GUIRoot gui_root) {
         ambient.updateSoundListener(frustum_state, world.getHeightMap());
         if (Globals.line_mode || cheat.line_mode) {

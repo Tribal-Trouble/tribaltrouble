@@ -37,6 +37,7 @@ import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
 import org.lwjgl.opengl.GL11;
 import com.oddlabs.tt.editor.ui.EditorState;
+import com.oddlabs.procedural.Channel;
 
 /**
  * Minimal editor runtime: creates a world, switches to an in-world renderer,
@@ -116,6 +117,7 @@ public final class MapEditorSession {
                             }
                             public void patchesEdited(int x0, int y0, int x1, int y1) {
                                 if (lrHolder[0] != null) lrHolder[0].patchesEdited(x0, y0, x1, y1);
+                                if (drHolder[0] != null) drHolder[0].rebuildWater();
                             }
                         };
 
@@ -618,19 +620,28 @@ public final class MapEditorSession {
         private float brushRadiusYM = 6f;
         private float brushAngleRad = 0f; // rotation of ellipse in radians
 
-        // Brush strength (meters per tick) and hardness falloff exponent
-        private float brushStrengthM = 2.5f;  // increased default for stronger edits
+    // Brush strength (meters per tick) and hardness falloff exponent
+    private float brushStrengthM = 5.0f;  // doubled default intensity
         private float hardnessExp = 0.5f;     // 0.2 very soft .. 2.0 very hard
 
         private static final float MIN_RADIUS = 1f;
         private static final float MAX_RADIUS = 200f;
     // hardness bounds not used directly; omit to keep build clean
 
-        // Mode handling
-        private enum BrushMode { RAISE_LOWER, SMOOTH, FLATTEN }
+    // Mode handling
+    private enum BrushMode { RAISE_LOWER, SMOOTH, ROUGH, RANDOM, RAMP, RIVER, FLATTEN }
         private BrushMode brushMode = BrushMode.RAISE_LOWER;
         private boolean qHeld = false;
         private Float flattenHeightRef = null; // captured on stroke start for FLATTEN
+
+    // Random brush noise source (lazy-initialized and reused)
+    private Channel randomNoiseChannel = null;
+    private long randomSeed = 1337L;
+    private int randomOctaves = 4;
+    private float randomPersistence = 0.5f;
+
+    // Polyline tools (Ramp/Path/River)
+    private final java.util.ArrayList<float[]> polylinePts = new java.util.ArrayList<float[]>();
 
         // Stroke accumulation (no feedback loop until release)
         private java.util.HashMap<Long, Float> strokeAccum = new java.util.HashMap<Long, Float>();
@@ -718,7 +729,8 @@ public final class MapEditorSession {
                                 + "Height Tool (Q):\n"
                                 + "  - LMB: Raise, RMB: Lower\n"
                                 + "  - Ctrl+Wheel: Size, Alt+Wheel: Intensity\n"
-                                + "  - Hold Q + Wheel: Cycle modes (Raise/Lower, Smooth, Flatten)\n\n"
+                                + "  - Hold Q + Wheel: Cycle modes (Raise/Lower, Smooth, Rough, Random, Ramp, River, Flatten)\n"
+                                + "  - Ramp/River: LMB add point, RMB undo last, Enter apply, Backspace clear\n\n"
                                 + "Resource Tool (W):\n"
                                 + "  - LMB: Place, RMB: Erase\n"
                                 + "  - Hold W + Wheel: Cycle resource type\n\n"
@@ -751,6 +763,22 @@ public final class MapEditorSession {
             if (button == 0) leftDown = true;
             if (button == 1) rightDown = true;
             if (button == LocalInput.MIDDLE_BUTTON) mmbDown = true;
+            // Polyline tools (Ramp/Path/River): LMB add, RMB undo. Don't start a stroke.
+            if (activeTool == ActiveTool.TERRAIN && (brushMode == BrushMode.RAMP || brushMode == BrushMode.RIVER)) {
+                LandscapeLocation hit = new LandscapeLocation();
+                if (picker.pickLocation(getCamera().getState(), hit)) {
+                    if (button == 0) {
+                        polylinePts.add(new float[] { hit.x, hit.y });
+                        info("Point + (#" + polylinePts.size() + ")");
+                    } else if (button == 1) {
+                        if (!polylinePts.isEmpty()) {
+                            polylinePts.remove(polylinePts.size() - 1);
+                            info("Undo point (#" + polylinePts.size() + ")");
+                        }
+                    }
+                }
+                return;
+            }
             if (!strokeActive && (leftDown || rightDown)) {
                 strokeActive = true;
                 if (activeTool == ActiveTool.TERRAIN) {
@@ -766,6 +794,8 @@ public final class MapEditorSession {
                             int cy = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(hit.y);
                             flattenHeightRef = world.getHeightMap().getWrappedHeight(cx, cy);
                         }
+                    } else if (brushMode == BrushMode.RANDOM) {
+                        ensureRandomNoiseChannel();
                     }
                 } else {
                     // Resource stroke: reset per-stroke visited set
@@ -787,64 +817,7 @@ public final class MapEditorSession {
                 resourceStrokeVisited.clear();
                 // Snap resources (trees, rocks, iron, rubber) inside the edited region to terrain height
                 if (activeTool == ActiveTool.TERRAIN && strokeHasBounds) {
-                    snapResourcesInGridRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
-                    // Also snap decorative plants within the edited ROI
-                    try {
-                        float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
-                        float minWX = strokeMinGX * cell;
-                        float minWY = strokeMinGY * cell;
-                        float maxWX = (strokeMaxGX + 1) * cell;
-                        float maxWY = (strokeMaxGY + 1) * cell;
-                        snapPlantsInWorldRect(minWX, minWY, maxWX, maxWY);
-                    } catch (Throwable ignore) {}
-                    // IMPORTANT: recompute grids (water/dock/access/build) for consistency with textures and placement
-                    if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
-                        try {
-                            EditorGridRecalculator.recomputeROI(
-                                    world,
-                                    terrainType,
-                                    strokeMinGX,
-                                    strokeMinGY,
-                                    strokeMaxGX,
-                                    strokeMaxGY);
-                        } catch (Throwable ignore) {}
-                        // Also recompute resource placement validity for the edited region
-                        try {
-                            com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(
-                                    world,
-                                    strokeMinGX,
-                                    strokeMinGY,
-                                    strokeMaxGX,
-                                    strokeMaxGY);
-                        } catch (Throwable ignore) {}
-                    }
-                    // Remove any existing resources within ROI that are no longer valid
-                    // according to the updated water/dock/access rules
-                    removeInvalidResourcesInGridRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
-                    // Remove any decorative plants in invalid locations
-                    removeInvalidPlantsInGridRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
-                    // After removals, refresh the placement validity grid once to reflect occupancy changes
-                    if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
-                        try {
-                            com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(
-                                    world,
-                                    strokeMinGX,
-                                    strokeMinGY,
-                                    strokeMaxGX,
-                                    strokeMaxGY);
-                        } catch (Throwable ignore) {}
-                    }
-                    // Rebuild-from-scratch colormap reblend for edited ROI (base+materials+lighting+shadow+seabottom)
-                    try {
-                        EditorColormapReblender.reblendROIFromScratch(
-                                world,
-                                landscapeRenderer,
-                                terrainType,
-                                strokeMinGX,
-                                strokeMinGY,
-                                strokeMaxGX,
-                                strokeMaxGY);
-                    } catch (Throwable ignore) {}
+                    finalizeTerrainRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
                     strokeHasBounds = false;
                 }
             }
@@ -899,8 +872,8 @@ public final class MapEditorSession {
 
             if (alt) {
                 // Adjust intensity/strength
-                float minS = 0.05f, maxS = 5f;
-                brushStrengthM = clamp(brushStrengthM + 0.05f * StrictMath.signum(amount), minS, maxS);
+                float minS = 0.1f, maxS = 10f; // expanded headroom
+                brushStrengthM = clamp(brushStrengthM + 0.1f * StrictMath.signum(amount), minS, maxS);
                 info("Intensity: " + fmt(brushStrengthM));
                 return;
             }
@@ -925,6 +898,8 @@ public final class MapEditorSession {
             float r = 1f, g = 1f, b = 0f, a = 0.85f; // default raise/lower
             switch (brushMode) {
                 case SMOOTH: r = 0f; g = 1f; b = 1f; break;
+                case ROUGH: r = 1f; g = 0.5f; b = 0f; break; // orange
+                case RANDOM: r = 0.4f; g = 0.8f; b = 1f; break; // light cyan
                 case FLATTEN: r = 1f; g = 0f; b = 1f; break;
                 default: break;
             }
@@ -986,6 +961,39 @@ public final class MapEditorSession {
             GL11.glDisable(GL11.GL_BLEND);
             GL11.glEnable(GL11.GL_TEXTURE_2D);
 
+            // Polyline preview for Ramp/Path/River
+            if (brushMode == BrushMode.RAMP || brushMode == BrushMode.RIVER) {
+                if (polylinePts.size() > 0) {
+                    GL11.glDisable(GL11.GL_TEXTURE_2D);
+                    GL11.glEnable(GL11.GL_BLEND);
+                    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                    float pr=1f,pg=1f,pb=1f,pa=0.9f;
+                    if (brushMode == BrushMode.RAMP) { pr=0.9f; pg=0.8f; pb=0.1f; } // yellow
+                    else { pr=0.2f; pg=0.6f; pb=1f; } // river blue
+                    GL11.glColor4f(pr, pg, pb, pa);
+                    GL11.glLineWidth(3f);
+                    // Draw connected line at terrain height
+                    GL11.glBegin(GL11.GL_LINE_STRIP);
+                    for (int i=0;i<polylinePts.size();i++) {
+                        float[] p = polylinePts.get(i);
+                        float z = renderer.getHeightMap().getNearestHeight(p[0], p[1]) + 0.05f;
+                        GL11.glVertex3f(p[0], p[1], z);
+                    }
+                    GL11.glEnd();
+                    // Draw points
+                    GL11.glPointSize(6f);
+                    GL11.glBegin(GL11.GL_POINTS);
+                    for (int i=0;i<polylinePts.size();i++) {
+                        float[] p = polylinePts.get(i);
+                        float z = renderer.getHeightMap().getNearestHeight(p[0], p[1]) + 0.07f;
+                        GL11.glVertex3f(p[0], p[1], z);
+                    }
+                    GL11.glEnd();
+                    GL11.glDisable(GL11.GL_BLEND);
+                    GL11.glEnable(GL11.GL_TEXTURE_2D);
+                }
+            }
+
             // --- Debug overlays (drawn in world space as semi-transparent quads) ---
             if (shouldRenderOverlays()) {
                 drawOverlay(renderer);
@@ -1021,6 +1029,24 @@ public final class MapEditorSession {
             if (event.getKeyCode() == Keyboard.KEY_F1) {
                 toggleHelp();
                 return;
+            }
+            // Polyline tool hotkeys
+            if (activeTool == ActiveTool.TERRAIN && (brushMode == BrushMode.RAMP || brushMode == BrushMode.RIVER)) {
+                if (event.getKeyCode() == Keyboard.KEY_RETURN || event.getKeyCode() == Keyboard.KEY_NUMPADENTER) {
+                    if (polylinePts.size() >= 2) {
+                        applyPolylineEdit();
+                        polylinePts.clear();
+                    } else {
+                        info("Need at least 2 points to apply");
+                    }
+                    return;
+                } else if (event.getKeyCode() == Keyboard.KEY_BACK) { // Backspace
+                    if (!polylinePts.isEmpty()) {
+                        polylinePts.remove(polylinePts.size() - 1);
+                        info("Undo point (#" + polylinePts.size() + ")");
+                    }
+                    return;
+                }
             }
             // Tool toggles: Q = Terrain (also hold to cycle modes), W = Resource. No H/F.
             if (event.getKeyCode() == Keyboard.KEY_Q) {
@@ -1106,7 +1132,7 @@ public final class MapEditorSession {
             float ry = brushRadiusYM;
             float cosA = (float) StrictMath.cos(brushAngleRad);
             float sinA = (float) StrictMath.sin(brushAngleRad);
-            for (int gy = cy - rGU; gy <= cy + rGU; gy++) {
+                for (int gy = cy - rGU; gy <= cy + rGU; gy++) {
                 for (int gx = cx - rGU; gx <= cx + rGU; gx++) {
                     float dxm = (gx - cx) * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
                     float dym = (gy - cy) * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
@@ -1138,20 +1164,178 @@ public final class MapEditorSession {
                                 target = avg;
                                 break;
                             }
+                            case ROUGH: {
+                                float avg = neighborhoodAverageCurrent(hm, gx, gy);
+                                float diff = curr - avg;
+                                target = curr + diff; // push away from mean
+                                break;
+                            }
+                                case RANDOM: {
+                                    // Per-cell random jitter each update
+                                    java.util.Random rnd = world.getRandom();
+                                    float jitter = (rnd.nextFloat() * 2f - 1f) * brushStrengthM * falloff;
+                                    float nh = curr + jitter;
+                                    hm.editHeight(gx, gy, clampHeightForEdit(hm, gx, gy, nh));
+                                    continue; // already applied
+                                }
                             case FLATTEN: {
                                 target = (flattenHeightRef != null) ? flattenHeightRef : curr;
                                 break;
                             }
+                            case RAMP:
+                            case RIVER:
+                                // Polyline tools are applied on Enter commit, not continuously here.
+                                target = curr;
+                                break;
                             default:
                                 target = curr;
                         }
-                        float delta = (target - curr) * brushStrengthM * (brushMode == BrushMode.SMOOTH ? 0.5f : 1f) * falloff * dt;
+                        float modeScale = 1f;
+                        if (brushMode == BrushMode.SMOOTH) modeScale = 0.5f; // gentle
+                        float delta = (target - curr) * brushStrengthM * modeScale * falloff * dt;
                         float nh = curr + delta;
                         // Enforce editor height constraints on live edits
                         hm.editHeight(gx, gy, clampHeightForEdit(hm, gx, gy, nh));
                     }
                 }
             }
+        }
+
+        // Apply Ramp/Path/River polyline edit in one commit
+        private void applyPolylineEdit() {
+            if (polylinePts.size() < 2) return;
+            com.oddlabs.tt.landscape.HeightMap hm = world.getHeightMap();
+            int gridSize = hm.getGridUnitsPerWorld();
+            float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+
+            // Compute world-space bounding box expanded by brush radius
+            float r = StrictMath.max(brushRadiusXM, brushRadiusYM);
+            float minX = Float.POSITIVE_INFINITY, minY = Float.POSITIVE_INFINITY;
+            float maxX = Float.NEGATIVE_INFINITY, maxY = Float.NEGATIVE_INFINITY;
+            for (int i=0;i<polylinePts.size();i++) {
+                float[] p = polylinePts.get(i);
+                if (p[0] < minX) minX = p[0];
+                if (p[1] < minY) minY = p[1];
+                if (p[0] > maxX) maxX = p[0];
+                if (p[1] > maxY) maxY = p[1];
+            }
+            minX -= r; minY -= r; maxX += r; maxY += r;
+            int minGX = StrictMath.max(0, com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(minX));
+            int minGY = StrictMath.max(0, com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(minY));
+            int maxGX = StrictMath.min(gridSize - 1, com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(maxX));
+            int maxGY = StrictMath.min(gridSize - 1, com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(maxY));
+
+            // Precompute vertex baseline heights and optionally adjust per mode
+            int nPts = polylinePts.size();
+            float[] vertH = new float[nPts];
+            for (int i=0;i<nPts;i++) {
+                float[] p = polylinePts.get(i);
+                vertH[i] = hm.getNearestHeight(p[0], p[1]);
+            }
+            if (brushMode == BrushMode.RIVER) {
+                // Enforce non-increasing downstream baseline
+                for (int i=1;i<nPts;i++) {
+                    if (vertH[i] > vertH[i-1]) vertH[i] = vertH[i-1];
+                }
+            }
+
+            // Iterate ROI and apply
+            for (int gy=minGY; gy<=maxGY; gy++) {
+                for (int gx=minGX; gx<=maxGX; gx++) {
+                    float wx = gx * cell + 0.5f * cell;
+                    float wy = gy * cell + 0.5f * cell;
+
+                    // Find closest segment and projection
+                    float bestD2 = Float.POSITIVE_INFINITY;
+                    int bestIdx = -1;
+                    float bestT = 0f;
+                    for (int i=0;i<nPts-1;i++) {
+                        float[] p0 = polylinePts.get(i);
+                        float[] p1 = polylinePts.get(i+1);
+                        float dx = p1[0]-p0[0];
+                        float dy = p1[1]-p0[1];
+                        float len2 = dx*dx + dy*dy;
+                        if (len2 < 1e-6f) continue;
+                        float tx = wx - p0[0];
+                        float ty = wy - p0[1];
+                        float t = (tx*dx + ty*dy) / len2;
+                        if (t < 0f) t = 0f; else if (t > 1f) t = 1f;
+                        float qx = p0[0] + t*dx;
+                        float qy = p0[1] + t*dy;
+                        float ox = wx - qx;
+                        float oy = wy - qy;
+                        float d2 = ox*ox + oy*oy;
+                        if (d2 < bestD2) { bestD2 = d2; bestIdx = i; bestT = t; }
+                    }
+                    if (bestIdx < 0) continue;
+                    float d = (float) StrictMath.sqrt(bestD2);
+                    if (d > r) continue; // outside influence
+
+                    // Baseline target height along the closest segment
+                    float[] s0 = polylinePts.get(bestIdx);
+                    float[] s1 = polylinePts.get(bestIdx+1);
+                    float baseH0 = vertH[bestIdx];
+                    float baseH1 = vertH[bestIdx+1];
+                    float Ht = baseH0 + bestT * (baseH1 - baseH0);
+                    // RIVER: add channel carve that is deepest at centerline
+                    if (brushMode == BrushMode.RIVER) {
+                        float centerFalloff = 1f - (d / r);
+                        if (centerFalloff < 0f) centerFalloff = 0f;
+                        float channelDepth = 0.5f * brushStrengthM; // scale with intensity
+                        Ht -= channelDepth * centerFalloff;
+                    }
+
+                    float curr = hm.getWrappedHeight(gx, gy);
+                    float falloff = (float) StrictMath.pow(StrictMath.max(0f, 1f - (d / r)), hardnessExp);
+                    // Ramp semantics: flat ramp blend toward Ht using intensity as blend factor
+                    float blend = clamp(brushStrengthM * falloff, 0f, 1f);
+                    float nh = curr + (Ht - curr) * blend;
+                    hm.editHeight(gx, gy, clampHeightForEdit(hm, gx, gy, nh));
+                }
+            }
+
+            // Post-edit processing for ROI
+            finalizeTerrainRect(minGX, minGY, maxGX, maxGY);
+        }
+
+        // Common post-terrain-edit housekeeping for a grid rectangle
+        private void finalizeTerrainRect(int minGX, int minGY, int maxGX, int maxGY) {
+            // Snap resources
+            snapResourcesInGridRect(minGX, minGY, maxGX, maxGY);
+            // Snap decorative plants within the edited ROI
+            try {
+                float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+                float minWX = minGX * cell;
+                float minWY = minGY * cell;
+                float maxWX = (maxGX + 1) * cell;
+                float maxWY = (maxGY + 1) * cell;
+                snapPlantsInWorldRect(minWX, minWY, maxWX, maxWY);
+            } catch (Throwable ignore) {}
+            // Recompute grids and placement validity
+            if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                try {
+                    EditorGridRecalculator.recomputeROI(
+                            world, terrainType, minGX, minGY, maxGX, maxGY);
+                } catch (Throwable ignore) {}
+                try {
+                    com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(
+                            world, minGX, minGY, maxGX, maxGY);
+                } catch (Throwable ignore) {}
+            }
+            // Remove no-longer-valid resources/plants and refresh placement grid
+            removeInvalidResourcesInGridRect(minGX, minGY, maxGX, maxGY);
+            removeInvalidPlantsInGridRect(minGX, minGY, maxGX, maxGY);
+            if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                try {
+                    com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(
+                            world, minGX, minGY, maxGX, maxGY);
+                } catch (Throwable ignore) {}
+            }
+            // Reblend colormap for ROI
+            try {
+                EditorColormapReblender.reblendROIFromScratch(
+                        world, landscapeRenderer, terrainType, minGX, minGY, maxGX, maxGY);
+            } catch (Throwable ignore) {}
         }
 
         // --- Editor constraints helpers ---
@@ -1408,7 +1592,11 @@ public final class MapEditorSession {
         private void nextMode() {
             switch (brushMode) {
                 case RAISE_LOWER: brushMode = BrushMode.SMOOTH; break;
-                case SMOOTH: brushMode = BrushMode.FLATTEN; break;
+                case SMOOTH: brushMode = BrushMode.ROUGH; break;
+                case ROUGH: brushMode = BrushMode.RANDOM; break;
+                case RANDOM: brushMode = BrushMode.RAMP; break;
+                case RAMP: brushMode = BrushMode.RIVER; break;
+                case RIVER: brushMode = BrushMode.FLATTEN; break;
                 case FLATTEN: brushMode = BrushMode.RAISE_LOWER; break;
             }
             info("Mode = " + brushMode);
@@ -1417,10 +1605,41 @@ public final class MapEditorSession {
         private void prevMode() {
             switch (brushMode) {
                 case RAISE_LOWER: brushMode = BrushMode.FLATTEN; break;
-                case FLATTEN: brushMode = BrushMode.SMOOTH; break;
+                case FLATTEN: brushMode = BrushMode.RIVER; break;
+                case RIVER: brushMode = BrushMode.RAMP; break;
+                case RAMP: brushMode = BrushMode.RANDOM; break;
+                case RANDOM: brushMode = BrushMode.ROUGH; break;
+                case ROUGH: brushMode = BrushMode.SMOOTH; break;
                 case SMOOTH: brushMode = BrushMode.RAISE_LOWER; break;
             }
             info("Mode = " + brushMode);
+        }
+
+        // --- Noise helpers for RANDOM brush ---
+        private void ensureRandomNoiseChannel() {
+            if (randomNoiseChannel != null) return;
+            try {
+                com.oddlabs.tt.landscape.HeightMap hm = world.getHeightMap();
+                int n = hm.getGridUnitsPerWorld();
+                com.oddlabs.tt.procedural.Perlin perlin = new com.oddlabs.tt.procedural.Perlin(
+                        n, n,
+                        2, 2,
+                        randomPersistence,
+                        randomOctaves,
+                        randomSeed,
+                        com.oddlabs.tt.procedural.Perlin.AUTO,
+                        com.oddlabs.tt.procedural.Perlin.NORMAL);
+                randomNoiseChannel = perlin.toChannel();
+            } catch (Throwable t) {
+                randomNoiseChannel = null;
+            }
+        }
+
+        private float randomNoiseAt(int gx, int gy) {
+            if (randomNoiseChannel == null) ensureRandomNoiseChannel();
+            if (randomNoiseChannel == null) return 0f;
+            float v = randomNoiseChannel.getPixelWrap(gx, gy);
+            return (v - 0.5f) * 2.0f;
         }
 
         // -------- Resource Brush Implementation --------
