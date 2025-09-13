@@ -2,7 +2,6 @@ package com.oddlabs.tt.mapio;
 
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1031,8 +1031,14 @@ public final class MapEditorSession {
                 toggleHelp();
                 return;
             }
+            // Ctrl+Shift+S: Open Save dialog (multi-file)
+            if (event.isControlDown() && event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_S) {
+                getGUIRoot().addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.SaveDialog(
+                        getGUIRoot(), world, terrainType));
+                return;
+            }
             // Ctrl+S: Save .ttmap to <game_dir>/maps/editor_map.ttmap
-            if (event.isControlDown() && event.getKeyCode() == Keyboard.KEY_S) {
+            if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_S) {
                 try {
                     java.io.File dir = com.oddlabs.tt.mapio.MapIO.mapsDir();
                     java.io.File file = new java.io.File(dir, "editor_map.ttmap");
@@ -1044,8 +1050,14 @@ public final class MapEditorSession {
                 }
                 return;
             }
+            // Ctrl+Shift+L: Open Load dialog (multi-file)
+            if (event.isControlDown() && event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_L) {
+                getGUIRoot().addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.LoadDialog(
+                        getGUIRoot(), world, landscapeRenderer, null, terrainType));
+                return;
+            }
             // Ctrl+L: Load .ttmap from <game_dir>/maps/editor_map.ttmap and apply to current world
-            if (event.isControlDown() && event.getKeyCode() == Keyboard.KEY_L) {
+            if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_L) {
                 try {
                     java.io.File dir = com.oddlabs.tt.mapio.MapIO.mapsDir();
                     java.io.File file = new java.io.File(dir, "editor_map.ttmap");

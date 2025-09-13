@@ -199,8 +199,8 @@ public final class MapEditorMenuForm extends Form {
         button_load.addMouseClickListener(new MouseClickListener() {
             @Override
             public void mouseClicked(int button, int x, int y, int clicks) {
-                // Placeholder load action
-                gui_root.getInfoPrinter().print("Load: coming soon");
+                // Use in-editor Ctrl+Shift+L to load a .ttmap
+                gui_root.getInfoPrinter().print("Tip: In the editor, press Ctrl+Shift+L to load a .ttmap");
             }
         });
         group_buttons.addChild(button_load);

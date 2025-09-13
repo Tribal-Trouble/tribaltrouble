@@ -9,7 +9,6 @@ import com.oddlabs.tt.model.RockSupply;
 import com.oddlabs.tt.model.SupplyModel;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.render.SpriteKey;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +40,10 @@ public final class MapIO {
         public int terrainType;
         public float seaLevel;
         public int size;
+        // Optional metadata (present if writer provided, else may be null)
+        public String name;
+        public String author;
+        public String description;
         public float[][] heights; // [y][x]
         public boolean[][] access;
         public boolean[][] dock;
@@ -49,6 +52,38 @@ public final class MapIO {
     public final List<int[]> rocks = new ArrayList<>();
     public final List<int[]> iron = new ArrayList<>();
     public final List<Plant> plants = new ArrayList<>();
+    }
+
+    // Lightweight summary for file listing/preview without inflating HM3Z
+    public static final class MapSummary {
+        public final File file;
+        public final int metersPerWorld;
+        public final int terrainType;
+        public final float seaLevel;
+        public final int size;
+        public final String name;
+        public final String author;
+        public final String description;
+        public final long lastModified;
+        public MapSummary(File file,
+                          int metersPerWorld,
+                          int terrainType,
+                          float seaLevel,
+                          int size,
+                          String name,
+                          String author,
+                          String description,
+                          long lastModified) {
+            this.file = file;
+            this.metersPerWorld = metersPerWorld;
+            this.terrainType = terrainType;
+            this.seaLevel = seaLevel;
+            this.size = size;
+            this.name = name;
+            this.author = author;
+            this.description = description;
+            this.lastModified = lastModified;
+        }
     }
 
     public static final class Plant {
@@ -73,6 +108,16 @@ public final class MapIO {
     public static void saveEditorWorld(World world, int terrainType, File target) throws IOException {
         HeightMap hm = world.getHeightMap();
         int n = hm.getGridUnitsPerWorld();
+        // Ensure directory exists
+        File parent = target.getParentFile();
+        if (parent != null && !parent.exists()) parent.mkdirs();
+        // Derive default meta strings
+        String baseName = target.getName();
+        int dot = baseName.lastIndexOf('.');
+        if (dot > 0) baseName = baseName.substring(0, dot);
+        String metaName = baseName;
+        String metaAuthor = ""; // unknown author by default
+        String metaDesc = "";   // optional description
         // Collect resources
         List<int[]> rocks = new ArrayList<>();
         List<int[]> iron = new ArrayList<>();
@@ -92,6 +137,10 @@ public final class MapIO {
                 meta.writeInt(terrainType);
                 meta.writeFloat(hm.getSeaLevelMeters());
                 meta.writeInt(n); // grid size (redundant but handy)
+                // Backward-compatible optional metadata strings (length-prefixed UTF-8)
+                writeString(meta, metaName);
+                writeString(meta, metaAuthor);
+                writeString(meta, metaDesc);
                 meta.flush();
             }
             writeSection(out, TAG_META, metaBuf.toByteArray());
@@ -162,6 +211,35 @@ public final class MapIO {
         out.write(data);
     }
 
+    private static void writeString(DataOutputStream out, String s) throws IOException {
+        if (s == null) {
+            out.writeInt(-1);
+        } else {
+            byte[] bytes = s.getBytes("UTF-8");
+            out.writeInt(bytes.length);
+            out.write(bytes);
+        }
+    }
+
+    private static String readString(DataInputStream in, int remainingHint) throws IOException {
+        // If no more bytes are available, treat as absent
+        if (remainingHint == 0 && in instanceof DataInputStream) {
+            // Best effort: use available() on underlying ByteArrayInputStream
+            try { if (in.available() <= 0) return null; } catch (IOException ignore) {}
+        }
+        // Length-prefixed UTF-8 string; -1 means absent
+        int len;
+        try {
+            len = in.readInt();
+        } catch (EOFException eof) {
+            return null;
+        }
+        if (len < 0) return null;
+        byte[] buf = new byte[len];
+        in.readFully(buf);
+        return new String(buf, "UTF-8");
+    }
+
     private static void collectResourcesForSave(
             World world, int terrainType, List<int[]> rocks, List<int[]> irons, List<Plant> plants) {
         // Precompute sprite mapping for plant type index
@@ -216,6 +294,15 @@ public final class MapIO {
                         lm.terrainType = s.readInt();
                         lm.seaLevel = s.readFloat();
                         lm.size = s.readInt();
+                        // Optional extended strings (name, author, description)
+                        try {
+                            int avail = s.available();
+                            if (avail > 0) lm.name = readString(s, avail);
+                            avail = s.available();
+                            if (avail > 0) lm.author = readString(s, avail);
+                            avail = s.available();
+                            if (avail > 0) lm.description = readString(s, avail);
+                        } catch (Throwable ignore) {}
                     } else if (tag == TAG_HM3Z) {
                         byte[] buf = new byte[len]; in.readFully(buf);
                         DataInputStream s = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(buf)));
@@ -261,6 +348,83 @@ public final class MapIO {
             }
             return lm;
         }
+    }
+
+    // Peek only META to build a summary without inflating the heightmap
+    public static MapSummary peek(File file) throws IOException {
+        try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+            int magic = in.readInt();
+            if (magic != MAGIC_TTMP) throw new IOException("Not a TT map file");
+            int version = in.readInt();
+            if (version != VERSION_1) throw new IOException("Unsupported TT map version: " + version);
+            // Read sections until META found (or EOF)
+            int metersPerWorld = 0, terrainType = 0, size = 0; float sea = 0f;
+            String name = null, author = null, description = null;
+            while (true) {
+                int tag, len;
+                try {
+                    tag = in.readInt();
+                    len = in.readInt();
+                } catch (EOFException eof) { break; }
+                if (len < 0) throw new IOException("Corrupt section length");
+                if (tag == TAG_META) {
+                    byte[] buf = new byte[len]; in.readFully(buf);
+                    DataInputStream s = new DataInputStream(new ByteArrayInputStream(buf));
+                    metersPerWorld = s.readInt();
+                    terrainType = s.readInt();
+                    sea = s.readFloat();
+                    size = s.readInt();
+                    try {
+                        int avail = s.available();
+                        if (avail > 0) name = readString(s, avail);
+                        avail = s.available();
+                        if (avail > 0) author = readString(s, avail);
+                        avail = s.available();
+                        if (avail > 0) description = readString(s, avail);
+                    } catch (Throwable ignore) {}
+                    break; // we got what we needed
+                } else {
+                    long skipped = 0; while (skipped < len) { long k = in.skip(len - skipped); if (k <= 0) break; skipped += k; }
+                }
+            }
+            return new MapSummary(file, metersPerWorld, terrainType, sea, size, name, author, description, file.lastModified());
+        }
+    }
+
+    // List .ttmap files in mapsDir (unsorted or sorted by name)
+    public static java.util.List<MapSummary> listMaps() {
+        File dir = mapsDir();
+        File[] files = dir.listFiles(new FilenameFilter() {
+            public boolean accept(File d, String name) { return name.toLowerCase(java.util.Locale.ROOT).endsWith(".ttmap"); }
+        });
+        java.util.List<MapSummary> out = new java.util.ArrayList<>();
+        if (files == null) return out;
+        java.util.Arrays.sort(files, new java.util.Comparator<File>() {
+            public int compare(File a, File b) { return a.getName().compareToIgnoreCase(b.getName()); }
+        });
+        for (File f : files) {
+            try { out.add(peek(f)); } catch (Throwable t) {
+                // Fallback: minimal summary
+                out.add(new MapSummary(f, 0, 0, 0f, 0, null, null, null, f.lastModified()));
+            }
+        }
+        return out;
+    }
+
+    // Very conservative filename check for map files (without extension)
+    public static boolean isValidFilename(String name) {
+        if (name == null) return false;
+        String trimmed = name.trim();
+        if (trimmed.isEmpty()) return false;
+        if (trimmed.length() > 64) return false;
+        // allow letters, numbers, space, underscore, dash
+        if (!trimmed.matches("[A-Za-z0-9 _-]+")) return false;
+        // disallow dot-start and reserved Windows names
+        String upper = trimmed.toUpperCase(java.util.Locale.ROOT);
+        if (trimmed.startsWith(".")) return false;
+        String[] reserved = {"CON","PRN","AUX","NUL","COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9","LPT1","LPT2","LPT3","LPT4","LPT5","LPT6","LPT7","LPT8","LPT9"};
+        for (String r : reserved) if (upper.equals(r)) return false;
+        return true;
     }
 
     // Apply a loaded map to the current editor world (same grid size expected)
