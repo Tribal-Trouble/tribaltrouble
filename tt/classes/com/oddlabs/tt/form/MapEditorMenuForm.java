@@ -199,8 +199,7 @@ public final class MapEditorMenuForm extends Form {
         button_load.addMouseClickListener(new MouseClickListener() {
             @Override
             public void mouseClicked(int button, int x, int y, int clicks) {
-                // Use in-editor Ctrl+L to open the Load dialog
-                gui_root.getInfoPrinter().print("Tip: In the editor, press Ctrl+L to load a .ttmap");
+                gui_root.addModalForm(new EditorMapLoadFromMenu(MapEditorMenuForm.this));
             }
         });
         group_buttons.addChild(button_load);
@@ -316,6 +315,133 @@ public final class MapEditorMenuForm extends Form {
         @Override
         public void mouseClicked(int button, int x, int y, int clicks) {
             gui_root.addModalForm(new MapcodeFormProxy(MapEditorMenuForm.this));
+        }
+    }
+
+    // Modal form to choose a saved map from main menu and start editor seeded with it
+    private static final class EditorMapLoadFromMenu extends com.oddlabs.tt.gui.Form {
+        private final MapEditorMenuForm owner;
+        private final com.oddlabs.tt.gui.MultiColumnComboBox listBox;
+        private java.util.List<com.oddlabs.tt.mapio.MapIO.MapSummary> summaries = java.util.Collections.emptyList();
+        private int chosenIndex = -1;
+        private final com.oddlabs.tt.gui.Label metaLabel;
+
+        EditorMapLoadFromMenu(MapEditorMenuForm owner) {
+            this.owner = owner;
+            com.oddlabs.tt.gui.Label title = new com.oddlabs.tt.gui.Label("Load Map", com.oddlabs.tt.gui.Skin.getSkin().getHeadlineFont());
+            addChild(title);
+            com.oddlabs.tt.gui.ColumnInfo[] infos = new com.oddlabs.tt.gui.ColumnInfo[] {
+                new com.oddlabs.tt.gui.ColumnInfo("Name", 220),
+                new com.oddlabs.tt.gui.ColumnInfo("Size", 90),
+                new com.oddlabs.tt.gui.ColumnInfo("Modified", 200)
+            };
+            listBox = new com.oddlabs.tt.gui.MultiColumnComboBox(owner.gui_root, infos, 300);
+            addChild(listBox);
+            metaLabel = new com.oddlabs.tt.gui.Label("Select a .ttmap on the left.", com.oddlabs.tt.gui.Skin.getSkin().getEditFont(), 340);
+            addChild(metaLabel);
+
+            com.oddlabs.tt.gui.HorizButton open = new com.oddlabs.tt.gui.OKButton(100);
+            open.addMouseClickListener(new com.oddlabs.tt.guievent.MouseClickListener() {
+                @Override public void mouseClicked(int button, int x, int y, int clicks) { onOpen(); }
+            });
+            addChild(open);
+            com.oddlabs.tt.gui.HorizButton cancel = new com.oddlabs.tt.gui.CancelButton(100);
+            cancel.addMouseClickListener(new com.oddlabs.tt.gui.CancelListener(this));
+            addChild(cancel);
+
+            // Layout
+            title.place();
+            listBox.place(title, BOTTOM_LEFT);
+            metaLabel.place(listBox, RIGHT_TOP, com.oddlabs.tt.gui.Skin.getSkin().getFormData().getSectionSpacing());
+            cancel.place(metaLabel, BOTTOM_RIGHT);
+            open.place(cancel, LEFT_MID);
+
+            refreshList();
+            listBox.addRowListener(new com.oddlabs.tt.guievent.RowListener() {
+                @Override public void rowDoubleClicked(Object row_context) {
+                    if (row_context instanceof com.oddlabs.tt.mapio.MapIO.MapSummary) {
+                        onRowDoubleClicked((com.oddlabs.tt.mapio.MapIO.MapSummary) row_context);
+                    }
+                }
+                @Override public void rowChosen(Object row_context) {
+                    if (row_context instanceof com.oddlabs.tt.mapio.MapIO.MapSummary) {
+                        onRowChosen((com.oddlabs.tt.mapio.MapIO.MapSummary) row_context);
+                    }
+                }
+            });
+
+            compileCanvas();
+            centerPos();
+        }
+
+        private void refreshList() {
+            listBox.clear();
+            summaries = com.oddlabs.tt.mapio.MapIO.listMaps();
+            for (com.oddlabs.tt.mapio.MapIO.MapSummary s : summaries) {
+                String fname = s.file.getName();
+                long sizeKB = s.file.length() / 1024;
+                String sizeStr = sizeKB + " KB";
+                com.oddlabs.tt.gui.Row row = new com.oddlabs.tt.gui.Row(
+                        new com.oddlabs.tt.gui.GUIObject[] {
+                                new com.oddlabs.tt.gui.Label(fname, com.oddlabs.tt.gui.Skin.getSkin().getMultiColumnComboBoxData().getFont(), 220),
+                                new com.oddlabs.tt.gui.Label(sizeStr, com.oddlabs.tt.gui.Skin.getSkin().getMultiColumnComboBoxData().getFont(), 90),
+                                new com.oddlabs.tt.gui.DateLabel(s.lastModified, com.oddlabs.tt.gui.Skin.getSkin().getMultiColumnComboBoxData().getFont(), 200)
+                        },
+                        s);
+                listBox.addRow(row);
+            }
+        }
+
+        private void selectIndex(int idx) {
+            this.chosenIndex = idx;
+            try {
+                com.oddlabs.tt.mapio.MapIO.MapSummary sum = summaries.get(idx);
+                StringBuilder sb = new StringBuilder();
+                sb.append(sum.file.getName()).append("\n\n");
+                if (sum.name != null && !sum.name.isEmpty()) sb.append("Name: ").append(sum.name).append("\n");
+                if (sum.author != null && !sum.author.isEmpty()) sb.append("Author: ").append(sum.author).append("\n");
+                if (sum.description != null && !sum.description.isEmpty()) sb.append("Desc: ").append(sum.description).append("\n");
+                sb.append("Size: ").append(sum.size).append(" gu, Terrain: ").append(sum.terrainType);
+                metaLabel.set(sb.toString());
+            } catch (Exception t) {
+                metaLabel.set("Preview failed: " + t.getMessage());
+            }
+        }
+
+        private void onOpen() {
+            if (chosenIndex < 0 || chosenIndex >= summaries.size()) {
+                owner.gui_root.getInfoPrinter().print("Choose a map first.");
+                return;
+            }
+            com.oddlabs.tt.mapio.MapIO.MapSummary s = summaries.get(chosenIndex);
+            // Use summary meters/terrain to build base generator, overlay with LoadedMapGenerator
+            int meters = s.metersPerWorld > 0 ? s.metersPerWorld : MapEditorMenuForm.SIZES[owner.pulldown_size.getChosenItemIndex()];
+            int terr = s.terrainType >= 0 ? s.terrainType : owner.pm_terrain_type.getChosenItemIndex();
+            int gamespeed = owner.pm_gamespeed.getChosenItemIndex() + 1;
+            boolean sandbox = owner.sandboxModeCheck != null && owner.sandboxModeCheck.isMarked();
+            com.oddlabs.tt.resource.WorldGenerator base =
+                    new com.oddlabs.tt.resource.IslandGenerator(meters, terr, .5f, .5f, .5f, 1337, false);
+            com.oddlabs.tt.resource.WorldGenerator gen =
+                    new com.oddlabs.tt.mapio.LoadedMapGenerator(base, s.file);
+            // Start the editor session via ProgressForm fade
+            com.oddlabs.tt.editor.MapEditorSession.start(
+                    owner.network,
+                    owner.gui_root.getGUI(),
+                    meters,
+                    gen,
+                    gamespeed,
+                    sandbox ? com.oddlabs.tt.editor.ui.EditorState.EditorMode.Sandbox : com.oddlabs.tt.editor.ui.EditorState.EditorMode.Default);
+            remove();
+        }
+
+        private void onRowDoubleClicked(com.oddlabs.tt.mapio.MapIO.MapSummary s) {
+            int idx = summaries.indexOf(s);
+            if (idx >= 0) { selectIndex(idx); onOpen(); }
+        }
+
+        private void onRowChosen(com.oddlabs.tt.mapio.MapIO.MapSummary s) {
+            int idx = summaries.indexOf(s);
+            if (idx >= 0) selectIndex(idx);
         }
     }
 
