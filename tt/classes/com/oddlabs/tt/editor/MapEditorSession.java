@@ -679,6 +679,17 @@ public final class MapEditorSession {
 
         public boolean canScroll() { return true; }
 
+        // When this delegate is re-added (e.g., after closing pause menu),
+        // re-register animations so input/brush updates resume.
+        protected void doAdd() {
+            super.doAdd();
+            // Resume receiving world real-time animation ticks for the brush
+            world.getAnimationManagerRealTime().registerAnimation(this);
+            // Re-register the external animation driver (drives world animations)
+            if (extraAnimationDriver != null)
+                com.oddlabs.tt.event.LocalEventQueue.getQueue().getManager().registerAnimation(extraAnimationDriver);
+        }
+
         protected void doRemove() {
             super.doRemove();
             world.getAnimationManagerRealTime().removeAnimation(this);
@@ -999,7 +1010,8 @@ public final class MapEditorSession {
                 int gy = (int) k;
                 float base = strokeBaseline.getOrDefault(k, hm.getWrappedHeight(gx, gy));
                 float nh = base + e.getValue();
-                hm.editHeight(gx, gy, nh);
+                // Enforce editor height constraints on stroke apply
+                hm.editHeight(gx, gy, clampHeightForEdit(hm, gx, gy, nh));
             }
             strokeAccum.clear();
             strokeBaseline.clear();
@@ -1063,10 +1075,36 @@ public final class MapEditorSession {
                         }
                         float delta = (target - curr) * brushStrengthM * (brushMode == BrushMode.SMOOTH ? 0.5f : 1f) * falloff * dt;
                         float nh = curr + delta;
-                        hm.editHeight(gx, gy, nh);
+                        // Enforce editor height constraints on live edits
+                        hm.editHeight(gx, gy, clampHeightForEdit(hm, gx, gy, nh));
                     }
                 }
             }
+        }
+
+        // --- Editor constraints helpers ---
+        // Contract:
+        // - Inputs: grid coords (possibly out-of-range), proposed height in meters
+        // - Output: clamped height within [sea floor, MAX_HEIGHT], with edge cells forced to sea floor
+        // - Notes: respects toroidal wrapping of the heightmap grid
+        private static final float MAX_TERRAIN_HEIGHT_M = 50f; // user max
+        private static final float SEA_FLOOR_HEIGHT_M = 0f;    // user min (seafloor)
+
+        private float clampHeightForEdit(com.oddlabs.tt.landscape.HeightMap hm, int gx, int gy, float proposed) {
+            // Wrap to valid grid index space for edge detection
+            int n = hm.getGridUnitsPerWorld();
+            int wx = (gx + n) & (n - 1);
+            int wy = (gy + n) & (n - 1);
+
+            // If on world edge, force to sea floor to avoid seams with seafloor geometry
+            if (wx == 0 || wy == 0 || wx == n - 1 || wy == n - 1) {
+                return SEA_FLOOR_HEIGHT_M;
+            }
+
+            // Clamp general terrain edits between seafloor and max
+            if (proposed < SEA_FLOOR_HEIGHT_M) proposed = SEA_FLOOR_HEIGHT_M;
+            if (proposed > MAX_TERRAIN_HEIGHT_M) proposed = MAX_TERRAIN_HEIGHT_M;
+            return proposed;
         }
 
         private void expandStrokeBounds(int minGX, int minGY, int maxGX, int maxGY) {
