@@ -28,7 +28,6 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
     private final Set<String> unlockedAchievements = new HashSet<>();
 
     public SteamAchievementManager() {
-
         SteamAPI.printDebugInfo(System.out);
         steamUserStats = new SteamUserStats(this);
         if (steamUserStats.requestCurrentStats()) {
@@ -36,6 +35,19 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
         } else {
             System.err.println("Failed to request current stats.");
         }
+    }
+
+    public int getStat(String stat_name, int default_value) {
+        return steamUserStats.getStatI(stat_name, default_value);
+    }
+
+    public void setStat(String stat_name, int value) {        
+        steamUserStats.setStatI(stat_name, value);
+        steamUserStats.storeStats();
+    }
+
+    public boolean isAchievementUnlocked(String achivement_name) {
+        return steamUserStats.isAchieved(achivement_name, false);
     }
 
     public void updateAchievementProgress(
@@ -57,7 +69,7 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
     }
 
     public void unlockAchievement(String achievementId) {
-        if (unlockedAchievements.contains(achievementId)) {
+        if (isAchievementUnlocked(achievementId)) {
             // System.out.println("Achievement already unlocked in this session: " + achievementId);
             return;
         }
