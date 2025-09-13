@@ -766,6 +766,20 @@ public final class MapEditorSession {
                                     strokeMaxGY);
                         } catch (Throwable ignore) {}
                     }
+                    // Remove any existing resources within ROI that are no longer valid
+                    // according to the updated water/dock/access rules
+                    removeInvalidResourcesInGridRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
+                    // After removals, refresh the placement validity grid once to reflect occupancy changes
+                    if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                        try {
+                            com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(
+                                    world,
+                                    strokeMinGX,
+                                    strokeMinGY,
+                                    strokeMaxGX,
+                                    strokeMaxGY);
+                        } catch (Throwable ignore) {}
+                    }
                     // Rebuild-from-scratch colormap reblend for edited ROI (base+materials+lighting+shadow+seabottom)
                     try {
                         EditorColormapReblender.reblendROIFromScratch(
@@ -1159,6 +1173,78 @@ public final class MapEditorSession {
                         // Be resilient: never let an editor snap failure break the session
                     }
                 }
+            }
+        }
+
+        // Remove any resources within the given grid-rect that are no longer valid
+        // by editor rules after terrain changes (water/dock/access). This intentionally
+        // ignores the occupancy component of placement validity to avoid self-invalidation.
+        private void removeInvalidResourcesInGridRect(int minGX, int minGY, int maxGX, int maxGY) {
+            com.oddlabs.tt.pathfinder.UnitGrid ug = world.getUnitGrid();
+            com.oddlabs.tt.landscape.HeightMap hm = world.getHeightMap();
+            int gridSize = ug.getGridSize();
+            // Clamp to valid grid indices
+            int x0 = StrictMath.max(0, minGX);
+            int y0 = StrictMath.max(0, minGY);
+            int x1 = StrictMath.min(gridSize - 1, maxGX);
+            int y1 = StrictMath.min(gridSize - 1, maxGY);
+
+            boolean[][] water = hm.getWaterGrid();
+            boolean[][] dock = hm.getDockGrid();
+            boolean[][] access = hm.getAccessGrid();
+
+            int removedCount = 0;
+            for (int gy = y0; gy <= y1; gy++) {
+                for (int gx = x0; gx <= x1; gx++) {
+                    boolean isWater = (water != null && water[gy][gx]);
+                    boolean isDock = (dock != null && dock[gy][gx]);
+                    boolean isAccessible = (access == null) || access[gy][gx];
+                    boolean invalid = isWater || isDock || !isAccessible;
+                    if (!invalid) continue;
+
+                    com.oddlabs.tt.pathfinder.Occupant occ = ug.getOccupant(gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
+                    if (occ == null) {
+                        // Also handle legacy trees that aren't registered as real occupants
+                        // when the grid cell was unreachable (StaticOccupant placeholder)
+                        // by scanning the tree quadtree at this location.
+                        float xw = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(gx);
+                        float yw = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(gy);
+                        com.oddlabs.tt.landscape.TreeLeaf leaf = findLeafForPosition(world.getTreeRoot(), xw, yw);
+                        final com.oddlabs.tt.landscape.TreeSupply[] found = new com.oddlabs.tt.landscape.TreeSupply[1];
+                        final int egx = gx;
+                        final int egy = gy;
+                        if (leaf != null) {
+                            leaf.visitTrees(new com.oddlabs.tt.landscape.TreeNodeVisitor() {
+                                public void visitLeaf(com.oddlabs.tt.landscape.TreeLeaf l) {}
+                                public void visitNode(com.oddlabs.tt.landscape.TreeGroup g) {}
+                                public void visitTree(com.oddlabs.tt.landscape.TreeSupply t) {
+                                    if (!t.isHidden() && t.getGridX() == egx && t.getGridY() == egy) found[0] = t;
+                                }
+                            });
+                        }
+                        if (found[0] != null) {
+                            found[0].editorHideOnly();
+                            removedCount++;
+                        }
+                        continue;
+                    }
+
+                    try {
+                        if (occ instanceof com.oddlabs.tt.landscape.TreeSupply) {
+                            ((com.oddlabs.tt.landscape.TreeSupply) occ).editorHideAndUnoccupy();
+                            removedCount++;
+                        } else if (occ instanceof com.oddlabs.tt.model.SupplyModel) {
+                            ((com.oddlabs.tt.model.SupplyModel) occ).editorRemoveNow();
+                            removedCount++;
+                        }
+                        // Ignore StaticOccupant and unrelated occupants
+                    } catch (Throwable t) {
+                        // Keep editing session stable even if one removal fails
+                    }
+                }
+            }
+            if (removedCount > 0) {
+                System.out.println("[Editor] Removed " + removedCount + " invalid resource(s) after terrain edit.");
             }
         }
 
