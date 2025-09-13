@@ -591,6 +591,16 @@ public final class MapEditorSession {
                 // Snap resources (trees, rocks, iron, rubber) inside the edited region to terrain height
                 if (activeTool == ActiveTool.TERRAIN && strokeHasBounds) {
                     snapResourcesInGridRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
+                    // IMPORTANT: recompute grids (water/dock/access/build) for consistency with textures and placement
+                    try {
+                        EditorGridRecalculator.recomputeROI(
+                                world,
+                                terrainType,
+                                strokeMinGX,
+                                strokeMinGY,
+                                strokeMaxGX,
+                                strokeMaxGY);
+                    } catch (Throwable ignore) {}
                     // Rebuild-from-scratch colormap reblend for edited ROI (base+materials+lighting+shadow+seabottom)
                     try {
                         EditorColormapReblender.reblendROIFromScratch(

@@ -159,6 +159,11 @@ public final strictfp class HeightMap {
         return water_grid;
     }
 
+    // Expose build grid for in-place updates by runtime systems (e.g., editor grid recomputation)
+    public final byte[][] getBuildGrid() {
+        return build_grid;
+    }
+
     public final ArrayList getIslandLocations() {
         return island_locations;
     }
