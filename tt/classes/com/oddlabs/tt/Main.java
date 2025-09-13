@@ -3,6 +3,7 @@ package com.oddlabs.tt;
 import com.codedisaster.steamworks.SteamAPI;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Display;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
@@ -72,17 +73,7 @@ public final strictfp class Main {
 
     private static final Settings initializeSettings() {
         System.out.println("Initializing settings...");
-        String platform_dir;
-        if (Platform.get() == Platform.MACOSX) {
-            platform_dir = "Library/Application Support" + File.separator;
-        } else if (Platform.get() == Platform.LINUX) {
-            platform_dir = ".";
-        } else {
-            platform_dir = "";
-        }
-        String game_dir_path =
-                System.getProperty("user.home") + File.separator + platform_dir + Globals.GAME_NAME;
-        File game_dir = new File(game_dir_path);
+        File game_dir = LocalInput.getGameDir();
         Settings settings = new Settings();
         game_dir.mkdirs();
 
@@ -138,7 +129,7 @@ public final strictfp class Main {
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("--bootstrap")) {
                 String java_cmd = args[++i];
-                settings.load(Utils.getInstallDir());
+                settings.load(LocalInput.getGameDir());
                 String classpath = args[++i];
                 File data_dir = new File(args[++i]);
                 return new UpdateInfo(java_cmd, classpath, data_dir);

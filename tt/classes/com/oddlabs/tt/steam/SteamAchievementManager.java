@@ -1,17 +1,21 @@
 package com.oddlabs.tt.steam;
 
 import com.codedisaster.steamworks.SteamAPI;
+import com.codedisaster.steamworks.SteamAuth.AuthSessionResponse;
+import com.codedisaster.steamworks.SteamAuthTicket;
 import com.codedisaster.steamworks.SteamID;
 import com.codedisaster.steamworks.SteamLeaderboardEntriesHandle;
 import com.codedisaster.steamworks.SteamLeaderboardHandle;
 import com.codedisaster.steamworks.SteamResult;
+import com.codedisaster.steamworks.SteamUser;
+import com.codedisaster.steamworks.SteamUserCallback;
 import com.codedisaster.steamworks.SteamUserStats;
 import com.codedisaster.steamworks.SteamUserStatsCallback;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class SteamAchievementManager implements SteamUserStatsCallback {
+public class SteamAchievementManager implements SteamUserStatsCallback, SteamUserCallback {
     private static final SteamAchievementManager instance = new SteamAchievementManager();
 
     public static SteamAchievementManager getAchievementManager() {
@@ -24,6 +28,7 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
     }
 
     private SteamUserStats steamUserStats;
+    private SteamUser steamUser;
 
     private final Set<String> unlockedAchievements = new HashSet<>();
 
@@ -44,11 +49,16 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
         if (debug) SteamAPI.printDebugInfo(System.out);
 
         steamUserStats = new SteamUserStats(this);
+        steamUser = new SteamUser(this);
         if (steamUserStats.requestCurrentStats()) {
             debugPrint("Successfully requested current stats.");
         } else {
             debugPrint("Failed to request current stats.");
         }
+    }
+
+    public long getAccountID() {
+        return steamUser.getSteamID().getAccountID();
     }
 
     public int getStat(String stat_name, int default_value) {
@@ -153,5 +163,25 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
 
     public void onUserStatsStored(long gameId, SteamResult result) {
         debugPrint("User stats stored: " + (result == SteamResult.OK ? "Success" : "Failed"));
+    }
+
+    @Override
+    public void onAuthSessionTicket(SteamAuthTicket authTicket, SteamResult result) {
+        debugPrint("Auth session ticket result: " + (result == SteamResult.OK ? "Success" : "Failed"));
+    }
+
+    @Override
+    public void onValidateAuthTicket(SteamID steamID, AuthSessionResponse authSessionResponse, SteamID ownerSteamID) {
+        debugPrint("Validate auth ticket result: " + (authSessionResponse == AuthSessionResponse.OK ? "Success" : "Failed"));
+    }
+
+    @Override
+    public void onMicroTxnAuthorization(int appID, long orderID, boolean authorized) {
+        debugPrint("Micro transaction authorization result: " + (authorized ? "Success" : "Failed"));
+    }
+
+    @Override
+    public void onEncryptedAppTicket(SteamResult result) {
+        debugPrint("Encrypted app ticket result: " + (result == SteamResult.OK ? "Success" : "Failed"));
     }
 }
