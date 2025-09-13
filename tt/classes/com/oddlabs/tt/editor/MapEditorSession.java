@@ -1031,6 +1031,33 @@ public final class MapEditorSession {
                 toggleHelp();
                 return;
             }
+            // Ctrl+S: Save .ttmap to <game_dir>/maps/editor_map.ttmap
+            if (event.isControlDown() && event.getKeyCode() == Keyboard.KEY_S) {
+                try {
+                    java.io.File dir = com.oddlabs.tt.mapio.MapIO.mapsDir();
+                    java.io.File file = new java.io.File(dir, "editor_map.ttmap");
+                    com.oddlabs.tt.mapio.MapIO.saveEditorWorld(world, terrainType, file);
+                    info("Saved: " + file.getAbsolutePath());
+                } catch (Throwable ex) {
+                    info("Save failed: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+                return;
+            }
+            // Ctrl+L: Load .ttmap from <game_dir>/maps/editor_map.ttmap and apply to current world
+            if (event.isControlDown() && event.getKeyCode() == Keyboard.KEY_L) {
+                try {
+                    java.io.File dir = com.oddlabs.tt.mapio.MapIO.mapsDir();
+                    java.io.File file = new java.io.File(dir, "editor_map.ttmap");
+                    com.oddlabs.tt.mapio.MapIO.LoadedMap lm = com.oddlabs.tt.mapio.MapIO.load(file);
+                    com.oddlabs.tt.mapio.MapIO.applyToEditorWorld(world, lm, terrainType);
+                    info("Loaded: " + file.getAbsolutePath());
+                } catch (Throwable ex) {
+                    info("Load failed: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+                return;
+            }
             // Polyline tool hotkeys
             if (activeTool == ActiveTool.TERRAIN && (brushMode == BrushMode.RAMP || brushMode == BrushMode.RIVER)) {
                 if (event.getKeyCode() == Keyboard.KEY_RETURN || event.getKeyCode() == Keyboard.KEY_NUMPADENTER) {

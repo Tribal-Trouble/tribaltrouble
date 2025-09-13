@@ -394,6 +394,15 @@ public abstract strictfp class Menu extends CameraDelegate {
                         supplies_amount,
                         seed,
                         archipelago);
+        // If an editor map exists, wrap the generator to load it.
+        try {
+            java.io.File maybe = new java.io.File(com.oddlabs.tt.mapio.MapIO.mapsDir(), "editor_map.ttmap");
+            if (maybe.exists()) {
+                generator = new com.oddlabs.tt.mapio.LoadedMapGenerator(generator, maybe);
+            }
+        } catch (Throwable t) {
+            System.err.println("Menu: failed to enable .ttmap generator wrapper: " + t.getMessage());
+        }
         InetAddress address = multiplayer ? null : com.oddlabs.util.Utils.getLoopbackAddress();
         final Server server =
                 new Server(network, game, address, generator, multiplayer, ai_names, player_count);

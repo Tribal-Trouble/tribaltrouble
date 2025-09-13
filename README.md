@@ -108,6 +108,23 @@ Optional Steps (Recommend for server hosting)
 - We are currently using google java format <https://github.com/google/google-java-format>
 - Use the command `ant format` at the root of the repository to make sure all files are formatted before contributing
 
+## Custom maps (.ttmap)
+
+This fork adds a minimal, forward-compatible TLV-based map format (.ttmap) and hooks to use it in the editor and single-player:
+
+- Editor Save/Load:
+  - Ctrl+S saves the current editor world to <game_dir>/maps/editor_map.ttmap
+  - Ctrl+L loads and applies that file back into the live editor world
+  - <game_dir> is the settings directory used by the game (see LocalInput.getGameDir())
+- Single-player integration:
+  - If <game_dir>/maps/editor_map.ttmap exists, New Game will load it via a wrapper generator and use its heightmap, grids, rocks/iron, and plants
+  - Unknown TLV sections are skipped; missing sections fall back to defaults
+- Format highlights:
+  - Big-endian TLV with sections: META, HM3Z (deflated float32 heightmap), GRID, ROCK, IRON, PLTS
+  - Unknown sections are ignored so the format can evolve without breaking older builds
+
+Note: Colormap visuals are preserved from the generated base (lighting/water is refreshed automatically when heights change). Trees/palms are currently not serialized; they come from the base generator.
+
 ## 🤝 Contributing
 
 Thanks for your interest in contributing. We have a channel in [discord](https://discord.gg/j8PZyGBZt5) that is active with contributors if you have any questions on setup or where to find things. Come chat, play some games!
