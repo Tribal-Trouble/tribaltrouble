@@ -37,7 +37,7 @@ import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
 import org.lwjgl.opengl.GL11;
 import com.oddlabs.tt.editor.ui.EditorState;
-import com.oddlabs.procedural.Channel;
+// import removed: com.oddlabs.procedural.Channel
 
 /**
  * Minimal editor runtime: creates a world, switches to an in-world renderer,
@@ -46,9 +46,8 @@ import com.oddlabs.procedural.Channel;
  * - Right mouse: lower terrain
  * ESC returns to the main menu (pop delegate).
  */
-public final class MapEditorSession {
 
-    private MapEditorSession() {}
+public final class MapEditorSession {
 
     // Shared editor state (forms <-> session). Simple singleton for this lightweight editor.
     private static final EditorState EDITOR_STATE = new EditorState();
@@ -629,16 +628,12 @@ public final class MapEditorSession {
     // hardness bounds not used directly; omit to keep build clean
 
     // Mode handling
-    private enum BrushMode { RAISE_LOWER, SMOOTH, ROUGH, RANDOM, RAMP, RIVER, FLATTEN }
+    private enum BrushMode { RAISE_LOWER, FLATTEN, SOFTEN, SMOOTH, RIVER, RAMP, ROUGH, RANDOM }
         private BrushMode brushMode = BrushMode.RAISE_LOWER;
         private boolean qHeld = false;
         private Float flattenHeightRef = null; // captured on stroke start for FLATTEN
 
-    // Random brush noise source (lazy-initialized and reused)
-    private Channel randomNoiseChannel = null;
-    private long randomSeed = 1337L;
-    private int randomOctaves = 4;
-    private float randomPersistence = 0.5f;
+    // Random brush now uses per-cell jitter; no persistent noise fields required
 
     // Polyline tools (Ramp/Path/River)
     private final java.util.ArrayList<float[]> polylinePts = new java.util.ArrayList<float[]>();
@@ -729,7 +724,7 @@ public final class MapEditorSession {
                                 + "Height Tool (Q):\n"
                                 + "  - LMB: Raise, RMB: Lower\n"
                                 + "  - Ctrl+Wheel: Size, Alt+Wheel: Intensity\n"
-                                + "  - Hold Q + Wheel: Cycle modes (Raise/Lower, Smooth, Rough, Random, Ramp, River, Flatten)\n"
+                                + "  - Hold Q + Wheel: Cycle modes (Raise/Lower, Flatten, Soften, Smooth, River, Ramp, Rough, Random)\n"
                                 + "  - Ramp/River: LMB add point, RMB undo last, Enter apply, Backspace clear\n\n"
                                 + "Resource Tool (W):\n"
                                 + "  - LMB: Place, RMB: Erase\n"
@@ -794,8 +789,6 @@ public final class MapEditorSession {
                             int cy = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(hit.y);
                             flattenHeightRef = world.getHeightMap().getWrappedHeight(cx, cy);
                         }
-                    } else if (brushMode == BrushMode.RANDOM) {
-                        ensureRandomNoiseChannel();
                     }
                 } else {
                     // Resource stroke: reset per-stroke visited set
@@ -897,6 +890,7 @@ public final class MapEditorSession {
             // Choose color by mode
             float r = 1f, g = 1f, b = 0f, a = 0.85f; // default raise/lower
             switch (brushMode) {
+                case SOFTEN: r = 0.6f; g = 1f; b = 0.6f; break; // light green
                 case SMOOTH: r = 0f; g = 1f; b = 1f; break;
                 case ROUGH: r = 1f; g = 0.5f; b = 0f; break; // orange
                 case RANDOM: r = 0.4f; g = 0.8f; b = 1f; break; // light cyan
@@ -1164,6 +1158,11 @@ public final class MapEditorSession {
                                 target = avg;
                                 break;
                             }
+                            case SOFTEN: {
+                                float avg = neighborhoodAverageCurrent(hm, gx, gy);
+                                target = avg;
+                                break;
+                            }
                             case ROUGH: {
                                 float avg = neighborhoodAverageCurrent(hm, gx, gy);
                                 float diff = curr - avg;
@@ -1192,6 +1191,7 @@ public final class MapEditorSession {
                         }
                         float modeScale = 1f;
                         if (brushMode == BrushMode.SMOOTH) modeScale = 0.5f; // gentle
+                        else if (brushMode == BrushMode.SOFTEN) modeScale = 0.2f; // extra gentle
                         float delta = (target - curr) * brushStrengthM * modeScale * falloff * dt;
                         float nh = curr + delta;
                         // Enforce editor height constraints on live edits
@@ -1272,8 +1272,6 @@ public final class MapEditorSession {
                     if (d > r) continue; // outside influence
 
                     // Baseline target height along the closest segment
-                    float[] s0 = polylinePts.get(bestIdx);
-                    float[] s1 = polylinePts.get(bestIdx+1);
                     float baseH0 = vertH[bestIdx];
                     float baseH1 = vertH[bestIdx+1];
                     float Ht = baseH0 + bestT * (baseH1 - baseH0);
@@ -1591,56 +1589,33 @@ public final class MapEditorSession {
 
         private void nextMode() {
             switch (brushMode) {
-                case RAISE_LOWER: brushMode = BrushMode.SMOOTH; break;
-                case SMOOTH: brushMode = BrushMode.ROUGH; break;
+                case RAISE_LOWER: brushMode = BrushMode.FLATTEN; break;
+                case FLATTEN: brushMode = BrushMode.SOFTEN; break;
+                case SOFTEN: brushMode = BrushMode.SMOOTH; break;
+                case SMOOTH: brushMode = BrushMode.RIVER; break;
+                case RIVER: brushMode = BrushMode.RAMP; break;
+                case RAMP: brushMode = BrushMode.ROUGH; break;
                 case ROUGH: brushMode = BrushMode.RANDOM; break;
-                case RANDOM: brushMode = BrushMode.RAMP; break;
-                case RAMP: brushMode = BrushMode.RIVER; break;
-                case RIVER: brushMode = BrushMode.FLATTEN; break;
-                case FLATTEN: brushMode = BrushMode.RAISE_LOWER; break;
+                case RANDOM: brushMode = BrushMode.RAISE_LOWER; break;
             }
             info("Mode = " + brushMode);
         }
 
         private void prevMode() {
             switch (brushMode) {
-                case RAISE_LOWER: brushMode = BrushMode.FLATTEN; break;
-                case FLATTEN: brushMode = BrushMode.RIVER; break;
-                case RIVER: brushMode = BrushMode.RAMP; break;
-                case RAMP: brushMode = BrushMode.RANDOM; break;
+                case RAISE_LOWER: brushMode = BrushMode.RANDOM; break;
                 case RANDOM: brushMode = BrushMode.ROUGH; break;
-                case ROUGH: brushMode = BrushMode.SMOOTH; break;
-                case SMOOTH: brushMode = BrushMode.RAISE_LOWER; break;
+                case ROUGH: brushMode = BrushMode.RAMP; break;
+                case RAMP: brushMode = BrushMode.RIVER; break;
+                case RIVER: brushMode = BrushMode.SMOOTH; break;
+                case SMOOTH: brushMode = BrushMode.SOFTEN; break;
+                case SOFTEN: brushMode = BrushMode.FLATTEN; break;
+                case FLATTEN: brushMode = BrushMode.RAISE_LOWER; break;
             }
             info("Mode = " + brushMode);
         }
 
-        // --- Noise helpers for RANDOM brush ---
-        private void ensureRandomNoiseChannel() {
-            if (randomNoiseChannel != null) return;
-            try {
-                com.oddlabs.tt.landscape.HeightMap hm = world.getHeightMap();
-                int n = hm.getGridUnitsPerWorld();
-                com.oddlabs.tt.procedural.Perlin perlin = new com.oddlabs.tt.procedural.Perlin(
-                        n, n,
-                        2, 2,
-                        randomPersistence,
-                        randomOctaves,
-                        randomSeed,
-                        com.oddlabs.tt.procedural.Perlin.AUTO,
-                        com.oddlabs.tt.procedural.Perlin.NORMAL);
-                randomNoiseChannel = perlin.toChannel();
-            } catch (Throwable t) {
-                randomNoiseChannel = null;
-            }
-        }
-
-        private float randomNoiseAt(int gx, int gy) {
-            if (randomNoiseChannel == null) ensureRandomNoiseChannel();
-            if (randomNoiseChannel == null) return 0f;
-            float v = randomNoiseChannel.getPixelWrap(gx, gy);
-            return (v - 0.5f) * 2.0f;
-        }
+        // random noise helpers removed (RANDOM uses per-cell jitter)
 
         // -------- Resource Brush Implementation --------
         private void applyResourceBrush(float dt) {
