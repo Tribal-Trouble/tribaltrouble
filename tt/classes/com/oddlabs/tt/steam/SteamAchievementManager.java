@@ -34,14 +34,15 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
             System.out.println(message);
         }
     }
-    public SteamAchievementManager() {        
+
+    public SteamAchievementManager() {
         this(false);
     }
+
     public SteamAchievementManager(boolean debug) {
         this.debugEnabled = debug;
-        if(debug)
-            SteamAPI.printDebugInfo(System.out);
-        
+        if (debug) SteamAPI.printDebugInfo(System.out);
+
         steamUserStats = new SteamUserStats(this);
         if (steamUserStats.requestCurrentStats()) {
             debugPrint("Successfully requested current stats.");
@@ -54,7 +55,7 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
         return steamUserStats.getStatI(stat_name, default_value);
     }
 
-    public void setStat(String stat_name, int value) {        
+    public void setStat(String stat_name, int value) {
         steamUserStats.setStatI(stat_name, value);
         steamUserStats.storeStats();
     }
@@ -143,17 +144,14 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
     }
 
     public void onGlobalStatsReceived(long gameId, SteamResult result) {
-        debugPrint(
-                "Global stats received: " + (result == SteamResult.OK ? "Success" : "Failed"));
+        debugPrint("Global stats received: " + (result == SteamResult.OK ? "Success" : "Failed"));
     }
 
     public void onUserStatsReceived(long gameId, SteamID steamIDUser, SteamResult result) {
-        debugPrint(
-                "User stats received: " + (result == SteamResult.OK ? "Success" : "Failed"));
+        debugPrint("User stats received: " + (result == SteamResult.OK ? "Success" : "Failed"));
     }
 
     public void onUserStatsStored(long gameId, SteamResult result) {
-        debugPrint(
-                "User stats stored: " + (result == SteamResult.OK ? "Success" : "Failed"));
+        debugPrint("User stats stored: " + (result == SteamResult.OK ? "Success" : "Failed"));
     }
 }
