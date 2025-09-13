@@ -1448,11 +1448,14 @@ public final class MapEditorSession {
                             if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                                 try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
                             }
+                            // Also remove decorative plants in this cell
+                            try { removePlantsInCell(gx, gy); } catch (Throwable ignore) {}
                         } else if (occ instanceof com.oddlabs.tt.model.SupplyModel) {
                             ((com.oddlabs.tt.model.SupplyModel) occ).editorRemoveNow();
                             if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                                 try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
                             }
+                            try { removePlantsInCell(gx, gy); } catch (Throwable ignore) {}
                         } else if (occ instanceof com.oddlabs.tt.pathfinder.StaticOccupant) {
                             // Legacy case: tree was inserted when cell was marked unreachable and
                             // never registered as grid occupant. Try to find and hide it.
@@ -1485,6 +1488,8 @@ public final class MapEditorSession {
                                     debugPrintedThisStroke = true;
                                 }
                             }
+                            // Regardless, remove any decorative plants in this cell
+                            try { removePlantsInCell(gx, gy); } catch (Throwable ignore) {}
                         } else {
                             // No grid occupant: try deleting decorative plants in this cell
                             int deleted = removePlantsInCell(gx, gy);
@@ -1629,6 +1634,8 @@ public final class MapEditorSession {
         }
 
         private void placePlant(int grid_x, int grid_y, int plant_index) {
+            // Don't place if a plant already exists in this grid cell
+            if (existsPlantInCell(grid_x, grid_y)) return;
             // Validate target cell using editor rules and avoid overlapping real occupants
             if (!com.oddlabs.tt.editor.EditorResourceValidity.isValid(world, grid_x, grid_y)) return;
             com.oddlabs.tt.pathfinder.UnitGrid ug = world.getUnitGrid();
@@ -1643,6 +1650,38 @@ public final class MapEditorSession {
             if (len2 < 1e-3f) { dir_x = 1f; dir_y = 0f; } else { float inv = 1f / (float) StrictMath.sqrt(len2); dir_x *= inv; dir_y *= inv; }
             com.oddlabs.tt.render.SpriteKey sprite = world.getLandscapeResources().getPlants()[terrainType][plant_index];
             new com.oddlabs.tt.model.Plants(world, x, y, dir_x, dir_y, sprite);
+        }
+
+        // Returns true if any decorative plant exists fully within the given grid cell
+        private boolean existsPlantInCell(final int gx, final int gy) {
+            final float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+            final float minWX = gx * cell;
+            final float minWY = gy * cell;
+            final float maxWX = (gx + 1) * cell;
+            final float maxWY = (gy + 1) * cell;
+            final boolean[] found = new boolean[] {false};
+            com.oddlabs.tt.model.ElementNodeVisitor visitor = new com.oddlabs.tt.model.ElementNodeVisitor() {
+                private boolean intersects(float bminX, float bmaxX, float bminY, float bmaxY) {
+                    return !(bmaxX < minWX || bminX > maxWX || bmaxY < minWY || bminY > maxWY);
+                }
+                public void visitNode(com.oddlabs.tt.model.ElementNode node) {
+                    if (found[0]) return;
+                    if (intersects(node.bmin_x, node.bmax_x, node.bmin_y, node.bmax_y)) node.visitChildren(this);
+                }
+                public void visitLeaf(com.oddlabs.tt.model.ElementLeaf leaf) {
+                    if (found[0]) return;
+                    if (intersects(leaf.bmin_x, leaf.bmax_x, leaf.bmin_y, leaf.bmax_y)) leaf.visitElements(this);
+                }
+                public void visit(com.oddlabs.tt.model.Element element) {
+                    if (found[0]) return;
+                    if (element instanceof com.oddlabs.tt.model.Plants) {
+                        com.oddlabs.tt.model.Plants p = (com.oddlabs.tt.model.Plants) element;
+                        if (p.getGridX() == gx && p.getGridY() == gy) found[0] = true;
+                    }
+                }
+            };
+            try { world.getElementRoot().visit(visitor); } catch (Throwable ignore) {}
+            return found[0];
         }
 
         private void placeTree(int grid_x, int grid_y, int tree_type_index) {
