@@ -1060,36 +1060,29 @@ public final class MapEditorSession {
                         getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType));
                 return;
             }
-            // F9: Quick Load .ttmap from <game_dir>/maps/editor_map.ttmap and apply to current world
+        // F9: Quick Load .ttmap from <game_dir>/maps/editor_map.ttmap and restart editor session
             if (!event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_F9) {
                 try {
                     java.io.File dir = com.oddlabs.tt.mapio.MapIO.mapsDir();
                     java.io.File file = new java.io.File(dir, "editor_map.ttmap");
                     com.oddlabs.tt.mapio.MapIO.LoadedMap lm = com.oddlabs.tt.mapio.MapIO.load(file);
-                    int currentSize = world.getHeightMap().getGridUnitsPerWorld();
-                    int loadedSize = (lm.heights != null) ? lm.heights.length : lm.size;
-                    int currentTerrain = terrainType;
-                    int loadedTerrain = lm.terrainType;
-                    if (loadedSize == currentSize && loadedTerrain == currentTerrain) {
-                        com.oddlabs.tt.form.EditorMapDialogs.applyAndRegen(world, landscapeRenderer, defaultRenderer, terrainType, lm);
-                        info("Loaded: " + file.getAbsolutePath());
-                    } else {
-                        // Restart editor with map-applied generator
-                        int meters = (lm.metersPerWorld > 0) ? lm.metersPerWorld : world.getHeightMap().getMetersPerWorld();
-                        int terr = (loadedTerrain >= 0) ? loadedTerrain : currentTerrain;
-                        int gamespeed = world.getGamespeed();
-                        com.oddlabs.tt.resource.WorldGenerator base =
-                                new com.oddlabs.tt.resource.IslandGenerator(meters, terr, .5f, .5f, .5f, 1337, false);
-                        com.oddlabs.tt.resource.WorldGenerator gen =
-                                new com.oddlabs.tt.mapio.LoadedMapGenerator(base, file);
-                        com.oddlabs.tt.editor.MapEditorSession.start(
-                                com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
-                                getGUIRoot().getGUI(),
-                                meters,
-                                gen,
-                                gamespeed,
-                                com.oddlabs.tt.editor.ui.EditorState.EditorMode.Default);
-                    }
+            int currentTerrain = terrainType;
+            int loadedTerrain = lm.terrainType;
+            // Always restart editor with map-applied generator
+            int meters = (lm.metersPerWorld > 0) ? lm.metersPerWorld : world.getHeightMap().getMetersPerWorld();
+            int terr = (loadedTerrain >= 0) ? loadedTerrain : currentTerrain;
+            int gamespeed = world.getGamespeed();
+            com.oddlabs.tt.resource.WorldGenerator base =
+                new com.oddlabs.tt.resource.IslandGenerator(meters, terr, .5f, .5f, .5f, 1337, false);
+            com.oddlabs.tt.resource.WorldGenerator gen =
+                new com.oddlabs.tt.mapio.LoadedMapGenerator(base, file);
+            com.oddlabs.tt.editor.MapEditorSession.start(
+                com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
+                getGUIRoot().getGUI(),
+                meters,
+                gen,
+                gamespeed,
+                com.oddlabs.tt.editor.ui.EditorState.EditorMode.Default);
                 } catch (Throwable ex) {
                     info("Load failed: " + ex.getMessage());
                     ex.printStackTrace();

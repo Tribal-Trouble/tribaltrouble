@@ -74,6 +74,30 @@ public final class LoadedMapGenerator implements WorldGenerator {
     List<int[]> iron_positions = new ArrayList<>();
     for (int[] ic : lm.iron) iron_positions.add(new int[] {ic[0], ic[1]});
 
+        // Trees: if provided, override base trees/palms by splitting types
+        List<int[]> trees_positions = base.trees;
+        List<int[]> palm_positions = base.palm_trees;
+        if (lm.trees != null && !lm.trees.isEmpty()) {
+            trees_positions = new ArrayList<>();
+            palm_positions = new ArrayList<>();
+            for (MapIO.Tree t : lm.trees) {
+                // Map type to bucket expected by WorldInfo/AbstractTreeGroup
+                switch (t.typeIndex) {
+                    case com.oddlabs.tt.landscape.AbstractTreeGroup.TREE_INDEX:
+                    case com.oddlabs.tt.landscape.AbstractTreeGroup.OAKTREE_INDEX:
+                        trees_positions.add(new int[] {t.gx, t.gy});
+                        break;
+                    case com.oddlabs.tt.landscape.AbstractTreeGroup.PALMTREE_INDEX:
+                    case com.oddlabs.tt.landscape.AbstractTreeGroup.PINETREE_INDEX:
+                        palm_positions.add(new int[] {t.gx, t.gy});
+                        break;
+                    default:
+                        // Unknown type; ignore gracefully
+                        break;
+                }
+            }
+        }
+
         // Plants: WorldInfo expects float[types][x0,y0,x1,y1,...]
         int types = base.plants != null ? base.plants.length : 4;
         float[][] plants = new float[types][];
@@ -100,8 +124,8 @@ public final class LoadedMapGenerator implements WorldGenerator {
                 base.detail,
                 base.structures,
                 heightmap,
-                base.trees,
-                base.palm_trees,
+                trees_positions,
+                palm_positions,
                 rock_positions,
                 iron_positions,
                 plants,

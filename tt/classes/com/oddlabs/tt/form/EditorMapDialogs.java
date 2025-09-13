@@ -1,8 +1,5 @@
 package com.oddlabs.tt.form;
 
-import com.oddlabs.tt.editor.EditorColormapReblender;
-import com.oddlabs.tt.editor.EditorGridRecalculator;
-import com.oddlabs.tt.editor.EditorResourceValidity;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.EnterListener;
@@ -21,30 +18,7 @@ import java.io.File;
 public final class EditorMapDialogs {
     private EditorMapDialogs() {}
 
-    // Full regeneration helper: apply + recompute grids + rebuild water + full colormap
-    public static void applyAndRegen(World world, LandscapeRenderer lr, DefaultRenderer dr, int terrainType, MapIO.LoadedMap lm) {
-        try {
-            MapIO.applyToEditorWorld(world, lm, terrainType);
-            // If grids weren't provided in file, recompute; otherwise preserve
-            boolean hasGrids = (lm.access != null && lm.dock != null && lm.water != null && lm.build != null);
-            if (!hasGrids) {
-                try { EditorGridRecalculator.recomputeAll(world, terrainType); } catch (Exception ignore) {}
-            }
-            try { if (dr != null) dr.rebuildWater(); } catch (Exception ignore) {}
-            // Rebuild all colormap tiles
-            try {
-                int n = world.getHeightMap().getGridUnitsPerWorld();
-                EditorColormapReblender.reblendROIFromScratch(world, lr, terrainType, 0, 0, n - 1, n - 1);
-            } catch (Exception ignore) {}
-            // Refresh resource placement validity grid used by editor tools
-            try {
-                int n = world.getHeightMap().getGridUnitsPerWorld();
-                EditorResourceValidity.recomputeROI(world, 0, 0, n - 1, n - 1);
-            } catch (Exception ignore) {}
-        } catch (Exception t) {
-            System.err.println("Map apply failed: " + t.getMessage());
-        }
-    }
+    // Note: In-session apply path removed; load always restarts the editor via a generator.
 
     // Save dialog: filename entry + overwrite confirmation
     public static final class SaveDialog extends Form {
@@ -219,8 +193,8 @@ public final class EditorMapDialogs {
     public static final class LoadDialog extends Form {
         private final GUIRoot guiRoot;
         private final World world;
-        private final LandscapeRenderer lr;
-        private final DefaultRenderer dr;
+        @SuppressWarnings("unused") private final LandscapeRenderer lr;
+        @SuppressWarnings("unused") private final DefaultRenderer dr;
         private final int terrainType;
 
         private final MultiColumnComboBox listBox;
@@ -327,35 +301,26 @@ public final class EditorMapDialogs {
             File f = summaries.get(chosenIndex).file;
             try {
                 MapIO.LoadedMap lm = MapIO.load(f);
-                int currentSize = world.getHeightMap().getGridUnitsPerWorld();
-                int loadedSize = (lm.heights != null) ? lm.heights.length : lm.size;
                 int currentTerrain = terrainType;
                 int loadedTerrain = lm.terrainType;
-                if (loadedSize == currentSize && loadedTerrain == currentTerrain) {
-                    // Same size/terrain: apply in-session and fully regenerate visuals
-                    applyAndRegen(world, lr, dr, terrainType, lm);
-                    guiRoot.getInfoPrinter().print("Loaded: " + f.getName());
-                    remove();
-                } else {
-                    // Mismatch: fade out and start a fresh editor session seeded with the map
-                    remove();
-                    guiRoot.getInfoPrinter().print("Loading '" + f.getName() + "' with new size/terrain...");
-                    int meters = (lm.metersPerWorld > 0) ? lm.metersPerWorld : world.getHeightMap().getMetersPerWorld();
-                    int terr = (loadedTerrain >= 0) ? loadedTerrain : currentTerrain;
-                    int gamespeed = world.getGamespeed();
-                    // Reasonable defaults; actual map data will overlay
-                    com.oddlabs.tt.resource.WorldGenerator base =
-                            new com.oddlabs.tt.resource.IslandGenerator(meters, terr, .5f, .5f, .5f, 1337, false);
-                    com.oddlabs.tt.resource.WorldGenerator gen =
-                            new com.oddlabs.tt.mapio.LoadedMapGenerator(base, f);
-                    com.oddlabs.tt.editor.MapEditorSession.start(
-                            com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
-                            guiRoot.getGUI(),
-                            meters,
-                            gen,
-                            gamespeed,
-                            com.oddlabs.tt.editor.ui.EditorState.EditorMode.Default);
-                }
+        // Always fade out and start a fresh editor session seeded with the map
+        remove();
+        guiRoot.getInfoPrinter().print("Loading '" + f.getName() + "'...");
+        int meters = (lm.metersPerWorld > 0) ? lm.metersPerWorld : world.getHeightMap().getMetersPerWorld();
+        int terr = (loadedTerrain >= 0) ? loadedTerrain : currentTerrain;
+        int gamespeed = world.getGamespeed();
+        // Reasonable defaults; actual map data will overlay
+        com.oddlabs.tt.resource.WorldGenerator base =
+            new com.oddlabs.tt.resource.IslandGenerator(meters, terr, .5f, .5f, .5f, 1337, false);
+        com.oddlabs.tt.resource.WorldGenerator gen =
+            new com.oddlabs.tt.mapio.LoadedMapGenerator(base, f);
+        com.oddlabs.tt.editor.MapEditorSession.start(
+            com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
+            guiRoot.getGUI(),
+            meters,
+            gen,
+            gamespeed,
+            com.oddlabs.tt.editor.ui.EditorState.EditorMode.Default);
             } catch (Exception t) {
                 metaLabel.set("Load failed: " + t.getMessage());
             }

@@ -2,6 +2,9 @@ package com.oddlabs.tt.mapio;
 
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.landscape.TreeGroup;
+import com.oddlabs.tt.landscape.TreeLeaf;
+import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.IronSupply;
 import com.oddlabs.tt.model.Plants;
@@ -34,6 +37,7 @@ public final class MapIO {
     private static final int TAG_ROCK = 0x524F434B;   // 'ROCK'
     private static final int TAG_IRON = 0x49524F4E;   // 'IRON'
     private static final int TAG_PLTS = 0x504C5453;   // 'PLTS' (plants)
+    private static final int TAG_TREE = 0x54524545;   // 'TREE' (trees)
 
     public static final class LoadedMap {
         public int metersPerWorld;
@@ -56,6 +60,7 @@ public final class MapIO {
         public final List<SavedSupply> rockSupplies = new ArrayList<>();
         public final List<SavedSupply> ironSupplies = new ArrayList<>();
         public final List<Plant> plants = new ArrayList<>();
+        public final List<Tree> trees = new ArrayList<>();
     }
 
     // Lightweight summary for file listing/preview without inflating HM3Z
@@ -109,6 +114,17 @@ public final class MapIO {
         public boolean hasDirection() { return !(Float.isNaN(dirX) || Float.isNaN(dirY)); }
     }
 
+    public static final class Tree {
+        public final int typeIndex; // AbstractTreeGroup.*_INDEX
+        public final int gx;
+        public final int gy;
+        public final float x;
+        public final float y;
+        public Tree(int typeIndex, int gx, int gy, float x, float y) {
+            this.typeIndex = typeIndex; this.gx = gx; this.gy = gy; this.x = x; this.y = y;
+        }
+    }
+
     public static final class SavedSupply {
         public final int gx, gy;
         public final float x, y, rot;
@@ -152,7 +168,8 @@ public final class MapIO {
     List<SavedSupply> rocks = new ArrayList<>();
     List<SavedSupply> iron = new ArrayList<>();
     List<Plant> plants = new ArrayList<>();
-    collectResourcesForSave(world, terrainType, rocks, iron, plants);
+    List<Tree> trees = new ArrayList<>();
+    collectResourcesForSave(world, terrainType, rocks, iron, plants, trees);
 
         try (DataOutputStream out =
                      new DataOutputStream(new BufferedOutputStream(new FileOutputStream(target)))) {
@@ -243,6 +260,21 @@ public final class MapIO {
                 plantOut.flush();
             }
             writeSection(out, TAG_PLTS, plantBuf.toByteArray());
+
+            // TREE (typeIndex,gx,gy,x,y)
+            ByteArrayOutputStream treeBuf = new ByteArrayOutputStream();
+            try (DataOutputStream treeOut = new DataOutputStream(treeBuf)) {
+                treeOut.writeInt(trees.size());
+                for (Tree t : trees) {
+                    treeOut.writeInt(t.typeIndex);
+                    treeOut.writeInt(t.gx);
+                    treeOut.writeInt(t.gy);
+                    treeOut.writeFloat(t.x);
+                    treeOut.writeFloat(t.y);
+                }
+                treeOut.flush();
+            }
+            writeSection(out, TAG_TREE, treeBuf.toByteArray());
         }
     }
 
@@ -282,7 +314,7 @@ public final class MapIO {
     }
 
     private static void collectResourcesForSave(
-            World world, int terrainType, List<SavedSupply> rocks, List<SavedSupply> irons, List<Plant> plants) {
+        World world, int terrainType, List<SavedSupply> rocks, List<SavedSupply> irons, List<Plant> plants, List<Tree> trees) {
         // Precompute sprite mapping for plant type index
         SpriteKey[] plantSprites0 = world.getLandscapeResources().getPlants()[terrainType];
         SpriteKey[] rockSprites0 = world.getLandscapeResources().getRockFragments();
@@ -324,6 +356,22 @@ public final class MapIO {
             }
         };
         try { world.getElementRoot().visit(visitor); } catch (Throwable ignore) {}
+
+        // Trees live outside the element system; traverse the tree quadtree
+        try {
+            world.getTreeRoot().visit(new com.oddlabs.tt.landscape.TreeNodeVisitor() {
+                public void visitLeaf(TreeLeaf leaf) {
+                    leaf.visitTrees(this);
+                }
+                public void visitNode(TreeGroup g) { g.visitChildren(this); }
+                public void visitTree(TreeSupply t) {
+                    if (!t.isHidden()) {
+                        int ti = t.getTreeTypeIndex();
+                        trees.add(new Tree(ti, t.getGridX(), t.getGridY(), t.getPositionX(), t.getPositionY()));
+                    }
+                }
+            });
+        } catch (Throwable ignore) {}
     }
 
     public static LoadedMap load(File file) throws IOException {
@@ -414,6 +462,18 @@ public final class MapIO {
                             int idx = s.readInt(); float x = s.readFloat(); float y = s.readFloat();
                             if (hasDir) { float dx = s.readFloat(); float dy = s.readFloat(); lm.plants.add(new Plant(idx, x, y, dx, dy)); }
                             else { lm.plants.add(new Plant(idx, x, y)); }
+                        }
+                    } else if (tag == TAG_TREE) {
+                        byte[] buf = new byte[len]; in.readFully(buf);
+                        DataInputStream s = new DataInputStream(new ByteArrayInputStream(buf));
+                        int c = s.readInt();
+                        for (int i = 0; i < c; i++) {
+                            int ti = s.readInt();
+                            int gx = s.readInt();
+                            int gy = s.readInt();
+                            float x = s.readFloat();
+                            float y = s.readFloat();
+                            lm.trees.add(new Tree(ti, gx, gy, x, y));
                         }
                     } else {
                         // skip unknown
@@ -591,7 +651,7 @@ public final class MapIO {
             }
         }
 
-        // Spawn plants
+    // Spawn plants
         SpriteKey[] plantSprites = world.getLandscapeResources().getPlants()[terrainType];
         for (Plant pl : map.plants) {
             float dir_x, dir_y;
@@ -607,6 +667,86 @@ public final class MapIO {
             int idx = Math.max(0, Math.min(pl.typeIndex, plantSprites.length - 1));
             new Plants(world, pl.x, pl.y, dir_x, dir_y, plantSprites[idx]);
         }
+
+        // Replace trees if provided in the map (optional section)
+        if (map.trees != null && !map.trees.isEmpty()) {
+            // Hide/unoccupy all existing trees
+            try {
+                world.getTreeRoot().visit(new com.oddlabs.tt.landscape.TreeNodeVisitor() {
+                    public void visitLeaf(com.oddlabs.tt.landscape.TreeLeaf leaf) { leaf.visitTrees(this); }
+                    public void visitNode(com.oddlabs.tt.landscape.TreeGroup g) { g.visitChildren(this); }
+                    public void visitTree(com.oddlabs.tt.landscape.TreeSupply t) { t.editorHideAndUnoccupy(); }
+                });
+            } catch (Throwable ignore) {}
+
+            // Build new trees from saved entries
+            com.oddlabs.geometry.LowDetailModel[] lows = com.oddlabs.tt.landscape.LandscapeResources.loadTreeLowDetails();
+            for (Tree t : map.trees) {
+                int type = t.typeIndex;
+                // grid footprint and radius match worldgen defaults
+                int grid_size = (type == com.oddlabs.tt.landscape.AbstractTreeGroup.PALMTREE_INDEX
+                                    || type == com.oddlabs.tt.landscape.AbstractTreeGroup.PINETREE_INDEX) ? 1 : 3;
+                float radius = (type == com.oddlabs.tt.landscape.AbstractTreeGroup.PALMTREE_INDEX
+                                    || type == com.oddlabs.tt.landscape.AbstractTreeGroup.PINETREE_INDEX) ? 1.6f : 2.3f;
+
+                // Deterministic rotation and scale from position
+                int h = hashFloatPair(t.x, t.y);
+                float rot = hashToUnit(h * 1103515245 + 12345) * 360f;
+                float scale_factor = (type == com.oddlabs.tt.landscape.AbstractTreeGroup.TREE_INDEX) ? 0.25f : 0.5f;
+                float min_size = (type == com.oddlabs.tt.landscape.AbstractTreeGroup.TREE_INDEX) ? 0.75f : 1.0f;
+                float base = (hashToUnit(h) * scale_factor) + min_size;
+                float sx = base + (hashToUnit(h * 1664525 + 1013904223) * 0.2f - 0.1f);
+                float sy = base + (hashToUnit(h * 22695477 + 1) * 0.2f - 0.1f);
+                float sz = base + (hashToUnit(h * 1103515245 + 12345) * 0.2f - 0.1f);
+
+                com.oddlabs.tt.util.StrictMatrix4f m = new com.oddlabs.tt.util.StrictMatrix4f();
+                com.oddlabs.tt.util.StrictMatrix4f m2 = new com.oddlabs.tt.util.StrictMatrix4f();
+                com.oddlabs.tt.util.StrictVector3f v = new com.oddlabs.tt.util.StrictVector3f();
+                m.setIdentity();
+                v.set(sx, sy, sz); m.scale(v);
+                v.set(0f, 0f, 1f); m.rotate(rot, v);
+                m2.setIdentity();
+                v.set(t.x, t.y, world.getHeightMap().getNearestHeight(t.x, t.y));
+                m2.translate(v);
+                com.oddlabs.tt.util.StrictMatrix4f.mul(m2, m, m);
+
+                float[] verts = lows[Math.max(0, Math.min(type, lows.length - 1))].getVertices();
+                com.oddlabs.tt.landscape.TreeLeaf leaf = findLeafForPosition(world, t.x, t.y);
+                if (leaf != null) {
+                    com.oddlabs.tt.landscape.TreeSupply ts = new com.oddlabs.tt.landscape.TreeSupply(
+                            world,
+                            leaf,
+                            t.x,
+                            t.y,
+                            t.gx,
+                            t.gy,
+                            grid_size,
+                            radius,
+                            m,
+                            type,
+                            verts);
+                    leaf.insertTree(ts);
+                }
+            }
+        }
+    }
+
+    private static com.oddlabs.tt.landscape.TreeLeaf findLeafForPosition(com.oddlabs.tt.landscape.World world, float x, float y) {
+        int size = world.getHeightMap().getMetersPerWorld();
+        int cx = 0, cy = 0;
+        com.oddlabs.tt.landscape.AbstractTreeGroup node = world.getTreeRoot();
+        while (node instanceof com.oddlabs.tt.landscape.TreeGroup) {
+            size >>= 1;
+            com.oddlabs.tt.landscape.TreeGroup g = (com.oddlabs.tt.landscape.TreeGroup) node;
+            if (x < cx + size) {
+                if (y < cy + size) node = g.getChild0();
+                else { cy += size; node = g.getChild2(); }
+            } else {
+                if (y < cy + size) { cx += size; node = g.getChild1(); }
+                else { cx += size; cy += size; node = g.getChild3(); }
+            }
+        }
+        return (node instanceof com.oddlabs.tt.landscape.TreeLeaf) ? (com.oddlabs.tt.landscape.TreeLeaf) node : null;
     }
 
     private static int stableHash(int gx, int gy, int salt) {
