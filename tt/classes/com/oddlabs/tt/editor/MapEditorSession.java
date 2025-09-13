@@ -1245,6 +1245,38 @@ public final class MapEditorSession {
                             if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                                 try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
                             }
+                        } else if (occ instanceof com.oddlabs.tt.pathfinder.StaticOccupant) {
+                            // Legacy case: tree was inserted when cell was marked unreachable and
+                            // never registered as grid occupant. Try to find and hide it.
+                            float xw = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(gx);
+                            float yw = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(gy);
+                            com.oddlabs.tt.landscape.TreeLeaf leaf = findLeafForPosition(world.getTreeRoot(), xw, yw);
+                            final com.oddlabs.tt.landscape.TreeSupply[] found = new com.oddlabs.tt.landscape.TreeSupply[1];
+                            final int egx = gx;
+                            final int egy = gy;
+                            if (leaf != null) {
+                                leaf.visitTrees(new com.oddlabs.tt.landscape.TreeNodeVisitor() {
+                                    public void visitLeaf(com.oddlabs.tt.landscape.TreeLeaf l) {}
+                                    public void visitNode(com.oddlabs.tt.landscape.TreeGroup g) {}
+                                    public void visitTree(com.oddlabs.tt.landscape.TreeSupply t) {
+                                        if (!t.isHidden() && t.getGridX() == egx && t.getGridY() == egy) found[0] = t;
+                                    }
+                                });
+                            }
+                            if (found[0] != null) {
+                                found[0].editorHideOnly();
+                                if (!debugPrintedThisStroke && gx == cx && gy == cy) {
+                                    getGUIRoot().getInfoPrinter().print("Erased legacy tree at gx=" + gx + ", gy=" + gy);
+                                    System.out.println("[Editor] Erased legacy tree at gx=" + gx + ", gy=" + gy);
+                                    debugPrintedThisStroke = true;
+                                }
+                            } else {
+                                if (!debugPrintedThisStroke && gx == cx && gy == cy) {
+                                    getGUIRoot().getInfoPrinter().print("Erase FAIL: legacy static occupant, no tree found at gx=" + gx + ", gy=" + gy);
+                                    System.out.println("[Editor] Erase FAIL: static occupant, no tree found at gx=" + gx + ", gy=" + gy);
+                                    debugPrintedThisStroke = true;
+                                }
+                            }
                         }
                     } else {
                         // Only block if occupied by a real object; ignore RegionBuilder's StaticOccupant

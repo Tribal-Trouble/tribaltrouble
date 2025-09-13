@@ -77,7 +77,10 @@ public final strictfp class TreeSupply extends AbstractTreeGroup
             checkBoundsY(dest.y);
             checkBoundsZ(dest.z);
         }
-        if (world.getUnitGrid().getOccupant(grid_x, grid_y, UnitGrid.LAND) == null) occupyTree();
+        com.oddlabs.tt.pathfinder.Occupant existing =
+                world.getUnitGrid().getOccupant(grid_x, grid_y, UnitGrid.LAND);
+        if (existing == null
+                || existing instanceof com.oddlabs.tt.pathfinder.StaticOccupant) occupyTree();
         world.getSupplyManager(getClass()).newSupply();
     }
 
@@ -257,6 +260,14 @@ public final strictfp class TreeSupply extends AbstractTreeGroup
     // Editor: hide tree and free occupancy immediately
     public final void editorHideAndUnoccupy() {
         unoccupyTree();
+        hide = true;
+        low_detail_matrix.setZero();
+        world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
+    }
+
+    // Editor: hide tree only (do not free grid). Use for legacy trees that weren't registered
+    // as grid occupants due to previous region/occupancy behavior.
+    public final void editorHideOnly() {
         hide = true;
         low_detail_matrix.setZero();
         world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
