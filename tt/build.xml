@@ -63,7 +63,7 @@
 
 	<!--	<property name="webstartdist" location="webstartdist"/>-->
 
-	<target name="compiledeps" depends="compile-common">
+	<target name="compiledeps" depends="compile-common, resolve">
 	</target>
 
 	<target name="rundeps" depends="textures, geometry, revision">
