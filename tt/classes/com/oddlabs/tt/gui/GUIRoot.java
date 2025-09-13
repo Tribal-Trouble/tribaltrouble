@@ -526,7 +526,10 @@ public final strictfp class GUIRoot extends GUIObject implements Updatable {
     }
 
     protected final void renderGeometry() {
-        getDelegate().render2D();
+        // Guard: delegate can be null during transitions
+        if (getDelegate() != null) {
+            getDelegate().render2D();
+        }
 
         Skin.getSkin().bindTexture();
         GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
@@ -544,7 +547,7 @@ public final strictfp class GUIRoot extends GUIObject implements Updatable {
     }
 
     final boolean showToolTip() {
-        return getModalDelegate() != null || getDelegate().renderCursor();
+    return getModalDelegate() != null || (getDelegate() != null && getDelegate().renderCursor());
     }
 
     public final void renderTopmost() {
@@ -552,7 +555,8 @@ public final strictfp class GUIRoot extends GUIObject implements Updatable {
         GL11.glEnd(); // Started in renderGeometry()
         GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
         if (cursor_object.getCursorIndex() != CURSOR_NULL) {
-            if (getModalDelegate() != null || getDelegate().renderCursor()) {
+            boolean render_cursor = getModalDelegate() != null || (getDelegate() != null && getDelegate().renderCursor());
+            if (render_cursor) {
                 if (Settings.getSettings().getNativeCursor()) {
                     if (cursors[cursor_object.getCursorIndex()] == current_cursor) return;
                     Mouse.setGrabbed(false);

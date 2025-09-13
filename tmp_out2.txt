@@ -1,45 +1,208 @@
-package com.oddlabs.tt.editor;
 
-import com.oddlabs.tt.camera.CameraState;
-import com.oddlabs.tt.gui.GUIRoot;
-import com.oddlabs.tt.render.UIRenderer;
-import com.oddlabs.tt.util.ToolTip;
-import com.oddlabs.tt.viewer.AmbientAudio;
+compile:
 
-/**
- * Editor-only renderer wrapper that forces clearing the color buffer each frame.
- * This prevents residual pixels from the loading splash during fade transitions.
- */
-public final class EditorRenderer implements UIRenderer {
-    private final UIRenderer delegate;
+init:
 
-    public EditorRenderer(UIRenderer delegate) {
-        this.delegate = delegate;
-    }
+compiledeps:
 
-    @Override
-    public void render(AmbientAudio ambient, CameraState camera_state, GUIRoot gui_root) {
-        delegate.render(ambient, camera_state, gui_root);
-    }
+compile:
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\common\common.xml:63: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
 
-    @Override
-    public void pickHover(boolean can_hover_behind, CameraState camera, int x, int y) {
-        delegate.pickHover(can_hover_behind, camera, x, y);
-    }
+init:
 
-    @Override
-    public ToolTip getToolTip() {
-        return delegate.getToolTip();
-    }
+compile-common:
 
-    @Override
-    public void renderGUI(GUIRoot gui_root) {
-        delegate.renderGUI(gui_root);
-    }
+init:
 
-    @Override
-    public boolean clearColorBuffer() {
-        // Force clear to eliminate flicker from previous root (loading splash) frames.
-        return true;
-    }
-}
+compiledeps:
+
+compile:
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\common\common.xml:63: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+
+compiledeps:
+
+compile:
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\common\common.xml:63: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+
+init:
+
+compile-common:
+
+init:
+
+compiledeps:
+
+compile:
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\common\common.xml:63: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+
+resolve:
+[ivy:resolve] :: Apache Ivy 2.5.3 - 20241223125031 :: https://ant.apache.org/ivy/ ::
+[ivy:resolve] :: loading settings :: file = C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\ivysettings.xml
+[ivy:resolve] :: resolving dependencies :: tribaltrouble#tribaltrouble;working@DESKTOP-N43IM99
+[ivy:resolve] 	confs: [default]
+[ivy:resolve] 	found com.discord4j#discord4j-core;3.2.6 in central
+[ivy:resolve] 	found com.fasterxml.jackson.datatype#jackson-datatype-jsr310;2.14.2 in central
+[ivy:resolve] 	found com.fasterxml.jackson.core#jackson-annotations;2.14.2 in central
+[ivy:resolve] 	found com.fasterxml.jackson.core#jackson-core;2.14.2 in central
+[ivy:resolve] 	found com.fasterxml.jackson.core#jackson-databind;2.14.2 in central
+[ivy:resolve] 	found com.discord4j#discord-json;1.6.18 in central
+[ivy:resolve] 	found com.discord4j#discord-json-api;1.6.18 in central
+[ivy:resolve] 	found com.fasterxml.jackson.datatype#jackson-datatype-jdk8;2.14.2 in central
+[ivy:resolve] 	found com.discord4j#discord4j-rest;3.2.6 in central
+[ivy:resolve] 	found com.discord4j#discord4j-common;3.2.6 in central
+[ivy:resolve] 	found io.projectreactor.netty#reactor-netty-http;1.0.33 in central
+[ivy:resolve] 	found io.netty#netty-codec-http;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-common;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-buffer;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-transport;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-resolver;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-codec;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-handler;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-transport-native-unix-common;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-codec-http2;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-resolver-dns;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-codec-dns;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-resolver-dns-native-macos;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-resolver-dns-classes-macos;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-transport-native-epoll;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-transport-classes-epoll;4.1.93.Final in central
+[ivy:resolve] 	found io.projectreactor.netty#reactor-netty-core;1.0.33 in central
+[ivy:resolve] 	found io.netty#netty-handler-proxy;4.1.93.Final in central
+[ivy:resolve] 	found io.netty#netty-codec-socks;4.1.93.Final in central
+[ivy:resolve] 	found io.projectreactor#reactor-core;3.4.30 in central
+[ivy:resolve] 	found org.reactivestreams#reactive-streams;1.0.4 in central
+[ivy:resolve] 	found io.projectreactor.addons#reactor-extra;3.4.10 in central
+[ivy:resolve] 	found com.github.ben-manes.caffeine#caffeine;2.8.8 in central
+[ivy:resolve] 	found org.checkerframework#checker-qual;3.8.0 in central
+[ivy:resolve] 	found com.google.errorprone#error_prone_annotations;2.4.0 in central
+[ivy:resolve] 	found com.discord4j#stores-api;3.2.2 in central
+[ivy:resolve] 	found com.austinv11.servicer#Servicer;1.0.3 in central
+[ivy:resolve] 	found com.discord4j#discord4j-gateway;3.2.6 in central
+[ivy:resolve] 	found com.discord4j#discord4j-voice;3.2.6 in central
+[ivy:resolve] 	found com.discord4j#simple-fsm;1.0.1 in central
+[ivy:resolve] 	found com.discord4j#stores-jdk;3.2.2 in central
+[ivy:resolve] :: resolution report :: resolve 3001ms :: artifacts dl 324ms
+[ivy:resolve] 	:: evicted modules:
+[ivy:resolve] 	com.fasterxml.jackson.core#jackson-databind;2.12.7.1 by [com.fasterxml.jackson.core#jackson-databind;2.14.2] in [default]
+[ivy:resolve] 	com.fasterxml.jackson.datatype#jackson-datatype-jdk8;2.12.7 by [com.fasterxml.jackson.datatype#jackson-datatype-jdk8;2.14.2] in [default]
+[ivy:resolve] 	com.fasterxml.jackson.core#jackson-databind;2.12.4 by [com.fasterxml.jackson.core#jackson-databind;2.14.2] in [default]
+	---------------------------------------------------------------------
+	|                  |            modules            ||   artifacts   |
+	|       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+	---------------------------------------------------------------------
+	|      default     |   44  |   0   |   0   |   3   ||   43  |   0   |
+	---------------------------------------------------------------------
+[ivy:retrieve] :: retrieving :: tribaltrouble#tribaltrouble
+[ivy:retrieve] 	confs: [default]
+[ivy:retrieve] 	0 artifacts copied, 43 already retrieved (0kB/55ms)
+
+compiledeps:
+
+compile:
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\server\build.xml:23: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+
+init:
+
+compile-common:
+
+init:
+
+compiledeps:
+
+compile:
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\common\common.xml:63: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+
+compiledeps:
+
+compile:
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\common\common.xml:63: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+
+init:
+
+compile-common:
+
+init:
+
+compiledeps:
+
+compile:
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\common\common.xml:63: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+
+compiledeps:
+
+compile:
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\common\common.xml:63: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+    [javac] Compiling 1 source file to C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\build\classes
+    [javac] warning: [options] bootstrap class path is not set in conjunction with -source 8
+    [javac]   not setting the bootstrap class path may lead to class files that cannot run on JDK 8
+    [javac]     --release 8 is recommended instead of -source 8 -target 1.8 because it sets the bootstrap class path automatically
+    [javac] warning: [options] source value 8 is obsolete and will be removed in a future release
+    [javac] warning: [options] target value 8 is obsolete and will be removed in a future release
+    [javac] warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:6: error: cannot find symbol
+    [javac] import org.lwjgl.opengl.Display;
+    [javac]                        ^
+    [javac]   symbol:   class Display
+    [javac]   location: package org.lwjgl.opengl
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:7: error: cannot find symbol
+    [javac] import org.lwjgl.opengl.DisplayMode;
+    [javac]                        ^
+    [javac]   symbol:   class DisplayMode
+    [javac]   location: package org.lwjgl.opengl
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:10: error: package org.lwjgl.opengl.glu does not exist
+    [javac] import org.lwjgl.opengl.glu.GLU;
+    [javac]                            ^
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:39: error: cannot find symbol
+    [javac]             Display.setDisplayMode(new DisplayMode(DISPLAY_WIDTH, DISPLAY_HEIGHT));
+    [javac]                                        ^
+    [javac]   symbol:   class DisplayMode
+    [javac]   location: class Test
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:39: error: cannot find symbol
+    [javac]             Display.setDisplayMode(new DisplayMode(DISPLAY_WIDTH, DISPLAY_HEIGHT));
+    [javac]             ^
+    [javac]   symbol:   variable Display
+    [javac]   location: class Test
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:40: error: cannot find symbol
+    [javac]             Display.create();
+    [javac]             ^
+    [javac]   symbol:   variable Display
+    [javac]   location: class Test
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:75: error: cannot find symbol
+    [javac]             while (!Display.isCloseRequested()) {
+    [javac]                     ^
+    [javac]   symbol:   variable Display
+    [javac]   location: class Test
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:112: error: cannot find symbol
+    [javac]                     Display.update();
+    [javac]                     ^
+    [javac]   symbol:   variable Display
+    [javac]   location: class Test
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:117: error: cannot find symbol
+    [javac]             Display.destroy();
+    [javac]             ^
+    [javac]   symbol:   variable Display
+    [javac]   location: class Test
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:155: error: cannot find symbol
+    [javac]         GLU.gluOrtho2D(
+    [javac]         ^
+    [javac]   symbol:   variable GLU
+    [javac]   location: class Test
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:156: error: cannot find symbol
+    [javac]                 0f, Display.getDisplayMode().getWidth(), 0f, Display.getDisplayMode().getHeight());
+    [javac]                     ^
+    [javac]   symbol:   variable Display
+    [javac]   location: class Test
+    [javac] C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\truetype\classes\com\oddlabs\truetype\Test.java:156: error: cannot find symbol
+    [javac]                 0f, Display.getDisplayMode().getWidth(), 0f, Display.getDisplayMode().getHeight());
+    [javac]                                                              ^
+    [javac]   symbol:   variable Display
+    [javac]   location: class Test
+    [javac] 12 errors
+    [javac] 4 warnings
+
+BUILD FAILED
+C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\build.xml:20: The following error occurred while executing this line:
+C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\build.xml:5: The following error occurred while executing this line:
+C:\Users\dapia\MOOREPO\TribalUpdated\tribaltrouble\common\common.xml:63: Compile failed; see the compiler error output for details.
+
+Total time: 9 seconds

@@ -168,6 +168,10 @@ public final strictfp class Renderer {
     }
 
     private final void setupMatrices(GUIRoot gui_root) {
+        // Guard against transient states where no delegate is active yet
+        if (gui_root == null || gui_root.getDelegate() == null) {
+            return;
+        }
         proj.setIdentity();
         multProjection(proj);
         CameraState camera = gui_root.getDelegate().getCamera().getState();
@@ -207,7 +211,11 @@ public final strictfp class Renderer {
         num_triangles_rendered = 0;
         fps.updateDelta(System.currentTimeMillis());
         NativeResource.deleteFinalized();
-        setupMatrices(gui.getGUIRoot());
+        // Only setup matrices when a delegate/camera is present
+        GUIRoot root = gui.getGUIRoot();
+        if (root != null && root.getDelegate() != null) {
+            setupMatrices(root);
+        }
         gui.render(ambient, frustum_state);
     }
 

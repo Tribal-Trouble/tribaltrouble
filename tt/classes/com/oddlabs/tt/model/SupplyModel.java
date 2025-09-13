@@ -46,9 +46,11 @@ public abstract strictfp class SupplyModel extends Model implements Supply, Targ
         UnitGrid unit_grid = world.getUnitGrid();
         unit_grid.occupyGrid(grid_x, grid_y, this, UnitGrid.LAND);
         Region region = unit_grid.getRegion(grid_x, grid_y, UnitGrid.LAND);
-        // TODO: This shouldn't happen if the path finder knows that there's sailing required
-        if (region == null) return;
-        region.registerObject(getClass(), this);
+        // In editor flows regions may be stale after terrain edits. If region is null,
+        // still register the element so it renders; skip region bookkeeping.
+        if (region != null) {
+            region.registerObject(getClass(), this);
+        }
         register();
         reinsert();
         if (increase_count) world.getSupplyManager(getClass()).newSupply();

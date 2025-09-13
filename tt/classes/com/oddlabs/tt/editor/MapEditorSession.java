@@ -2,12 +2,12 @@ package com.oddlabs.tt.editor;
 
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.animation.Animated;
-import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.audio.AbstractAudioPlayer;
 import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.camera.StaticCamera;
 import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
@@ -33,6 +33,7 @@ import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
 import org.lwjgl.opengl.GL11;
+import com.oddlabs.tt.editor.ui.EditorState;
 
 /**
  * Minimal editor runtime: creates a world, switches to an in-world renderer,
@@ -44,6 +45,14 @@ import org.lwjgl.opengl.GL11;
 public final class MapEditorSession {
 
     private MapEditorSession() {}
+
+    // Shared editor state (forms <-> session). Simple singleton for this lightweight editor.
+    private static final EditorState EDITOR_STATE = new EditorState();
+
+    // Editor-wide pause state: gates animation driver when pause menu is open
+    private static volatile boolean EDITOR_PAUSED = false;
+
+    public static void setPaused(boolean paused) { EDITOR_PAUSED = paused; }
 
     public static void start(
             NetworkSelector network,
@@ -151,7 +160,9 @@ public final class MapEditorSession {
                         final Animated animationDriver =
                                 new Animated() {
                                     public void animate(float t) {
-                                        world.getAnimationManagerRealTime().runAnimations(t);
+                                        if (!EDITOR_PAUSED) {
+                                            world.getAnimationManagerRealTime().runAnimations(t);
+                                        }
                                     }
 
                                     public void updateChecksum(com.oddlabs.tt.util.StateChecksum checksum) {}
@@ -161,7 +172,10 @@ public final class MapEditorSession {
                         // Camera + delegate
                         Camera camera = new SimpleEditorCamera(world, camState);
                         int terrainType = generator.getTerrainType();
-                        EditorDelegate delegate =
+            // Pass editor mode through
+            EDITOR_STATE.setEditorMode(mode);
+
+            EditorDelegate delegate =
                                 new EditorDelegate(
                                         clientRoot,
                                         camera,
@@ -187,6 +201,10 @@ public final class MapEditorSession {
         private static final float MAX_Z = com.oddlabs.tt.camera.GameCamera.MAX_Z;
         private static final float ZOOM_Z_DIR_MIN = -(float) StrictMath.tan(StrictMath.PI / 6);
         private static final float ZOOM_SPEED = 50f;
+        private static final float SMOOTHNESS_MAP = 200f;
+        private static final float MAP_THRESHOLD = .1f;
+        private static final float MAP_TIME_FACTOR = 1000f;
+        private static final float MAP_Z_FACTOR = 1.3f;
         private static final float ANGLE_DELTA = (float) (StrictMath.PI / 2); // match GameCamera
         private static final float DRAG_SCALE_HORIZ = .002f; // match FirstPersonCamera
         private static final float DRAG_SCALE_VERT = .002f;  // match FirstPersonCamera
@@ -196,14 +214,21 @@ public final class MapEditorSession {
         private float scrolling_x, scrolling_y;
         private boolean scroll_start = true;
 
-        private float zoom_time;
-        private float zoomDelta;
+    private float zoom_time;
 
         // Smooth rotate/pitch state (held keys)
         private boolean pitch_up;
         private boolean pitch_down;
         private boolean rotate_left;
         private boolean rotate_right;
+
+        // Map mode state (mirrors MapCamera behavior)
+        private static final int TO_MAP = 1;
+        private static final int IN_MAP = 2;
+        private static final int FROM_MAP = 3;
+        private int map_mode = 0; // 0 = not in map transition/mode
+        private float old_x, old_y, old_z, old_vert_angle;
+        private float distance_to_landscape;
 
         SimpleEditorCamera(World world, CameraState state) {
             super(world.getHeightMap(), state);
@@ -222,6 +247,7 @@ public final class MapEditorSession {
             doScroll(dt);
             doPitch(dt);
             doRotate(dt);
+            doMapAnimate(dt);
             updateDirection();
         }
 
@@ -268,6 +294,10 @@ public final class MapEditorSession {
                 case Keyboard.KEY_NEXT:    // PageDown
                 case Keyboard.KEY_NUMPAD3:
                     mouseScrolled(2);
+                    break;
+                case Keyboard.KEY_SPACE:
+                case Keyboard.KEY_NUMPAD5:
+                    toggleMapMode();
                     break;
                 default:
                     break;
@@ -462,6 +492,111 @@ public final class MapEditorSession {
             getState().setCamera(x, y, z, va, ha);
             checkPosition();
         }
+
+        // --- Map mode helpers ---
+        private void toggleMapMode() {
+            // Lazily init map state snapshot
+            if (map_mode == 0) {
+                // entering TO_MAP
+                float cx = getState().getTargetX();
+                float cy = getState().getTargetY();
+                float cz = getState().getTargetZ();
+                old_x = cx;
+                old_y = cy;
+                old_z = cz;
+                old_vert_angle = getState().getTargetVertAngle();
+                // Distance to ground along current forward dir
+                float[] target = new float[] {cx, cy};
+                float dz = getHeightMap().getNearestHeight(target[0], target[1]) - cz;
+                float dx = 0f;
+                float dy = 0f;
+                distance_to_landscape = (float) StrictMath.sqrt(dx * dx + dy * dy + dz * dz);
+                setSmoothnessFactor(SMOOTHNESS_MAP);
+                map_mode = TO_MAP;
+            } else if (map_mode == TO_MAP || map_mode == IN_MAP) {
+                map_mode = FROM_MAP;
+            } else if (map_mode == FROM_MAP) {
+                // interrupt return and go back to TO_MAP
+                map_mode = TO_MAP;
+            }
+        }
+
+        private void doMapAnimate(float t) {
+            if (map_mode == 0) return;
+            float factor =
+                    t * 1000f
+                            / StrictMath.max(
+                                    t * 1000f,
+                                    com.oddlabs.tt.global.Settings.getSettings().mapmode_delay
+                                            * MAP_TIME_FACTOR);
+            float dx, dy, dz, da;
+            float map_x = getHeightMap().getMetersPerWorld() / 2f;
+            float map_y = getHeightMap().getMetersPerWorld() / 2f;
+            float map_z = getHeightMap().getMetersPerWorld() * MAP_Z_FACTOR;
+            final float MIN_VERT_ANGLE = -(float) StrictMath.PI / 2f;
+
+            switch (map_mode) {
+                case TO_MAP:
+                    dx = map_x - old_x;
+                    dy = map_y - old_y;
+                    dz = map_z - old_z;
+                    {
+                        float nx = getState().getTargetX() + dx * factor;
+                        float ny = getState().getTargetY() + dy * factor;
+                        float nz = getState().getTargetZ() + dz * factor;
+                        float va = getState().getTargetVertAngle();
+                        float ha = getState().getTargetHorizAngle();
+                        getState().setCamera(nx, ny, nz, va, ha);
+                    }
+                    if (getState().getTargetZ() > map_z - MAP_THRESHOLD) {
+                        float ha = getState().getTargetHorizAngle();
+                        getState().setCamera(map_x, map_y, map_z, getState().getTargetVertAngle(), ha);
+                        map_mode = IN_MAP;
+                    }
+                    da = MIN_VERT_ANGLE - old_vert_angle;
+                    {
+                        float x = getState().getTargetX();
+                        float y = getState().getTargetY();
+                        float z = getState().getTargetZ();
+                        float va = getState().getTargetVertAngle() + da * factor;
+                        float ha = getState().getTargetHorizAngle();
+                        getState().setCamera(x, y, z, va, ha);
+                    }
+                    break;
+                case IN_MAP:
+                    // hold
+                    break;
+                case FROM_MAP:
+                    dx = old_x - map_x;
+                    dy = old_y - map_y;
+                    dz = old_z - map_z;
+                    {
+                        float nx = getState().getTargetX() + dx * factor;
+                        float ny = getState().getTargetY() + dy * factor;
+                        float nz = getState().getTargetZ() + dz * factor;
+                        float va = getState().getTargetVertAngle();
+                        float ha = getState().getTargetHorizAngle();
+                        getState().setCamera(nx, ny, nz, va, ha);
+                    }
+                    if (getState().getTargetZ() <= old_z) {
+                        float ha = getState().getTargetHorizAngle();
+                        getState().setCamera(old_x, old_y, old_z, old_vert_angle, ha);
+                        checkPosition();
+                        map_mode = 0; // done
+                        break;
+                    }
+                    da = old_vert_angle - MIN_VERT_ANGLE;
+                    {
+                        float x = getState().getTargetX();
+                        float y = getState().getTargetY();
+                        float z = getState().getTargetZ();
+                        float va = getState().getTargetVertAngle() + da * factor;
+                        float ha = getState().getTargetHorizAngle();
+                        getState().setCamera(x, y, z, va, ha);
+                    }
+                    break;
+            }
+        }
     }
 
     // --- Delegate with a simple height brush ---
@@ -486,8 +621,7 @@ public final class MapEditorSession {
 
         private static final float MIN_RADIUS = 1f;
         private static final float MAX_RADIUS = 200f;
-        private static final float MIN_HARDNESS = 0.2f;
-        private static final float MAX_HARDNESS = 2.0f;
+    // hardness bounds not used directly; omit to keep build clean
 
         // Mode handling
         private enum BrushMode { RAISE_LOWER, SMOOTH, FLATTEN }
@@ -512,6 +646,15 @@ public final class MapEditorSession {
         private enum ResourceType { ROCK, IRON, RUBBER, TREE_JUNGLE, TREE_PALM, TREE_OAK, TREE_PINE }
         private ResourceType resourceType = ResourceType.ROCK;
 
+    // ------- Overlay tool state -------
+    private enum OverlayLayer { WATER, DOCK, ACCESS, BUILD, RESOURCE, SLOPE }
+    private enum OverlayMode { THRESHOLD, GRAYSCALE, HEAT }
+    private boolean overlayActiveHeld = false; // true while T is held (for cycling)
+    private boolean overlayTPressed = false;   // true between T down and up
+    private boolean overlayTScrollUsed = false; // true if user scrolled while holding T
+    private OverlayLayer overlayLayer = OverlayLayer.WATER;
+    private OverlayMode overlayMode = OverlayMode.THRESHOLD;
+
         EditorDelegate(
                 GUIRoot root,
                 Camera camera,
@@ -531,7 +674,7 @@ public final class MapEditorSession {
             getGUIRoot()
                     .getInfoPrinter()
                     .print(
-                            "Editor: Height[LMB/RMB]. Wheel: zoom. Ctrl+Wheel: size. Alt+Wheel: intensity. Q: Height tool (hold Q+Wheel cycles mode). W: Resource tool (hold W+Wheel cycles type). RMB: Erase resources.");
+                "Editor: Height[LMB/RMB]. Wheel: zoom. Ctrl+Wheel: size. Alt+Wheel: intensity. Q: Height tool (hold Q+Wheel cycles mode). W: Resource tool (hold W+Wheel cycles type). T: Toggle overlays (hold T+Wheel layer, Alt+T+Wheel mode). Space: map view toggle. RMB: Erase resources.");
         }
 
         public boolean canScroll() { return true; }
@@ -592,15 +735,26 @@ public final class MapEditorSession {
                 if (activeTool == ActiveTool.TERRAIN && strokeHasBounds) {
                     snapResourcesInGridRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
                     // IMPORTANT: recompute grids (water/dock/access/build) for consistency with textures and placement
-                    try {
-                        EditorGridRecalculator.recomputeROI(
-                                world,
-                                terrainType,
-                                strokeMinGX,
-                                strokeMinGY,
-                                strokeMaxGX,
-                                strokeMaxGY);
-                    } catch (Throwable ignore) {}
+                    if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                        try {
+                            EditorGridRecalculator.recomputeROI(
+                                    world,
+                                    terrainType,
+                                    strokeMinGX,
+                                    strokeMinGY,
+                                    strokeMaxGX,
+                                    strokeMaxGY);
+                        } catch (Throwable ignore) {}
+                        // Also recompute resource placement validity for the edited region
+                        try {
+                            com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(
+                                    world,
+                                    strokeMinGX,
+                                    strokeMinGY,
+                                    strokeMaxGX,
+                                    strokeMaxGY);
+                        } catch (Throwable ignore) {}
+                    }
                     // Rebuild-from-scratch colormap reblend for edited ROI (base+materials+lighting+shadow+seabottom)
                     try {
                         EditorColormapReblender.reblendROIFromScratch(
@@ -626,6 +780,19 @@ public final class MapEditorSession {
             // Brush parameter adjustments via modifier keys + optional Q/W hold
             boolean ctrl = LocalInput.isControlDownCurrently();
             boolean alt = LocalInput.isMenuDownCurrently();
+
+            // Overlay cycling when holding T
+            if (LocalInput.isKeyDown(Keyboard.KEY_T)) {
+                overlayTScrollUsed = true;
+                if (alt) {
+                    // Cycle overlay mode
+                    if (amount > 0) nextOverlayMode(); else if (amount < 0) prevOverlayMode();
+                } else {
+                    // Cycle overlay layer
+                    if (amount > 0) nextOverlayLayer(); else if (amount < 0) prevOverlayLayer();
+                }
+                return;
+            }
 
             // Cycle resource types while holding W (consistent with Q+Wheel for terrain modes)
             if (LocalInput.isKeyDown(Keyboard.KEY_W)) {
@@ -739,6 +906,11 @@ public final class MapEditorSession {
             // Restore state
             GL11.glDisable(GL11.GL_BLEND);
             GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+            // --- Debug overlays (drawn in world space as semi-transparent quads) ---
+            if (shouldRenderOverlays()) {
+                drawOverlay(renderer);
+            }
         }
 
         // Enable middle-mouse drag camera look for editor
@@ -759,7 +931,12 @@ public final class MapEditorSession {
 
         protected void keyPressed(KeyboardEvent event) {
             if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
-                pop();
+                // Open pause menu analogous to in-game: static camera snapshot + pause gating
+        getGUIRoot()
+            .pushDelegate(
+                new EditorPauseMenu(
+                    getGUIRoot(),
+                    new StaticCamera(getCamera().getState())));
                 return;
             }
             // Tool toggles: Q = Terrain (also hold to cycle modes), W = Resource. No H/F.
@@ -772,12 +949,41 @@ public final class MapEditorSession {
                 info("Tool = RESOURCE, Type = " + resourceType);
                 // Don't forward to camera to avoid conflicting with camera forward movement
                 return;
+            } else if (event.getKeyCode() == Keyboard.KEY_T) {
+                // Start temporary overlay display; defer toggling until release unless scrolled
+                overlayActiveHeld = true;
+                overlayTPressed = true;
+                overlayTScrollUsed = false;
             }
             getCamera().keyPressed(event);
         }
 
         protected void keyReleased(KeyboardEvent event) {
             if (event.getKeyCode() == Keyboard.KEY_Q) qHeld = false;
+            if (event.getKeyCode() == Keyboard.KEY_T) {
+                overlayActiveHeld = false;
+                if (overlayTPressed) {
+                    if (overlayTScrollUsed) {
+                        // User cycled while holding T: keep overlays enabled persistently
+                        EDITOR_STATE.setOverlayMaster(true);
+                    } else {
+                        // Clean tap: toggle overlays on/off
+                        boolean now = !EDITOR_STATE.isOverlayMaster();
+                        EDITOR_STATE.setOverlayMaster(now);
+                    }
+                    getGUIRoot()
+                            .getInfoPrinter()
+                            .print(
+                                    "Overlays: "
+                                            + (EDITOR_STATE.isOverlayMaster() ? "ON" : "OFF")
+                                            + " | Layer="
+                                            + overlayLayer
+                                            + " | Mode="
+                                            + overlayMode);
+                }
+                overlayTPressed = false;
+                overlayTScrollUsed = false;
+            }
             getCamera().keyReleased(event);
         }
 
@@ -918,22 +1124,7 @@ public final class MapEditorSession {
             }
         }
 
-        private float neighborhoodAverageBaseline(
-                com.oddlabs.tt.landscape.HeightMap hm, int gx, int gy) {
-            // Simple 5x5 box average as a lightweight smoother
-            int radius = 2;
-            float sum = 0f;
-            int count = 0;
-            for (int y = gy - radius; y <= gy + radius; y++) {
-                for (int x = gx - radius; x <= gx + radius; x++) {
-                    long k = keyOf(x, y);
-                    float base = strokeBaseline.containsKey(k) ? strokeBaseline.get(k) : hm.getWrappedHeight(x, y);
-                    sum += base;
-                    count++;
-                }
-            }
-            return count > 0 ? (sum / count) : hm.getWrappedHeight(gx, gy);
-        }
+        // baseline averaging removed (unused)
 
         private float neighborhoodAverageCurrent(
                 com.oddlabs.tt.landscape.HeightMap hm, int gx, int gy) {
@@ -1000,6 +1191,7 @@ public final class MapEditorSession {
             java.util.Random rnd = world.getRandom();
             boolean erase = rightDown && !leftDown;
 
+            boolean debugPrintedThisStroke = false;
             for (int gy = cy - rGU; gy <= cy + rGU; gy++) {
                 for (int gx = cx - rGU; gx <= cx + rGU; gx++) {
                     // Bounds check to avoid crashes at world edges
@@ -1010,32 +1202,113 @@ public final class MapEditorSession {
                     float ldy = -sinA * dxm + cosA * dym;
                     float norm = (ldx * ldx) / (rx * rx) + (ldy * ldy) / (ry * ry);
                     if (norm > 1f) continue;
-                    // Skip water and dock tiles for placement to avoid shoreline glitches
-                    boolean[][] water = hm.getWaterGrid();
-                    boolean[][] dock = hm.getDockGrid();
-                    boolean isWater = water != null && water[gy][gx];
-                    boolean isDock = dock != null && dock[gy][gx];
-                    // Erasing should still work anywhere; only placement should avoid water
+                    // Erasing should still work anywhere; placement uses live validity grid
                     if (!erase) {
                         if (rnd.nextFloat() > coverage) continue;
-                        if (isWater || isDock) continue;
+                        // Check the editor placement validity grid (not water/dock, accessible, unoccupied by real obj)
+                        boolean valid = com.oddlabs.tt.editor.EditorResourceValidity.isValid(world, gx, gy);
+                        if (!valid) {
+                            // For the center cell only, print diagnostics once per stroke
+                            if (!debugPrintedThisStroke && gx == cx && gy == cy) {
+                                boolean[][] water = hm.getWaterGrid();
+                                boolean[][] dock = hm.getDockGrid();
+                                boolean[][] access = hm.getAccessGrid();
+                                boolean w = water != null && water[gy][gx];
+                                boolean d = dock != null && dock[gy][gx];
+                                boolean a = access != null && access[gy][gx];
+                                com.oddlabs.tt.pathfinder.Occupant occDbg = ug.getOccupant(gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
+                                String occStr = (occDbg == null) ? "null" : occDbg.getClass().getSimpleName();
+                                getGUIRoot().getInfoPrinter().print(
+                                        "Place FAIL: invalid cell gx=" + gx + ", gy=" + gy
+                                                + " | water=" + w + ", dock=" + d + ", access=" + a
+                                                + ", occ=" + occStr);
+                                System.out.println("[Editor] Placement invalid: gx=" + gx + ", gy=" + gy
+                                        + ", water=" + w + ", dock=" + d + ", access=" + a + ", occ=" + occStr);
+                                debugPrintedThisStroke = true;
+                            }
+                            continue;
+                        }
+                        // Additional validity for trees: avoid very steep slopes
+                        if (resourceType == ResourceType.TREE_JUNGLE
+                                || resourceType == ResourceType.TREE_PALM
+                                || resourceType == ResourceType.TREE_OAK
+                                || resourceType == ResourceType.TREE_PINE) {
+                            if (!isTreeSlopeAcceptable(hm, gx, gy)) {
+                                if (!debugPrintedThisStroke && gx == cx && gy == cy) {
+                                    float cell_m = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+                                    float h = hm.getWrappedHeight(gx, gy);
+                                    float hR = hm.getWrappedHeight(gx + 1, gy);
+                                    float hU = hm.getWrappedHeight(gx, gy + 1);
+                                    float sx = StrictMath.abs(hR - h) / cell_m;
+                                    float sy = StrictMath.abs(hU - h) / cell_m;
+                                    float grad = (float) StrictMath.hypot(sx, sy);
+                                    getGUIRoot().getInfoPrinter().print(
+                                            "Place FAIL: slope too steep at gx=" + gx + ", gy=" + gy
+                                                    + " | grad=" + grad);
+                                    System.out.println("[Editor] Placement fail: steep slope grad=" + grad + " at gx=" + gx + ", gy=" + gy);
+                                    debugPrintedThisStroke = true;
+                                }
+                                continue;
+                            }
+                        }
                     }
                     if (erase) {
                         com.oddlabs.tt.pathfinder.Occupant occ =
                                 ug.getOccupant(gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
                         if (occ instanceof com.oddlabs.tt.landscape.TreeSupply) {
                             ((com.oddlabs.tt.landscape.TreeSupply) occ).editorHideAndUnoccupy();
+                            // Update placement validity for this tile now that occupancy changed
+                            if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                                try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
+                            }
                         } else if (occ instanceof com.oddlabs.tt.model.SupplyModel) {
                             ((com.oddlabs.tt.model.SupplyModel) occ).editorRemoveNow();
+                            if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                                try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
+                            }
                         }
                     } else {
-                        // Only place on unoccupied LAND tiles
-                        if (!ug.isGridOccupied(gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND)) {
+                        // Only block if occupied by a real object; ignore RegionBuilder's StaticOccupant
+                        com.oddlabs.tt.pathfinder.Occupant occHere =
+                                ug.getOccupant(gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
+                        if (occHere == null || occHere instanceof com.oddlabs.tt.pathfinder.StaticOccupant) {
                             placeResourceAt(gx, gy);
+                            if (!debugPrintedThisStroke && gx == cx && gy == cy) {
+                                getGUIRoot().getInfoPrinter().print("Placed " + resourceType + " at gx=" + gx + ", gy=" + gy);
+                                System.out.println("[Editor] Placed " + resourceType + " at gx=" + gx + ", gy=" + gy);
+                                debugPrintedThisStroke = true;
+                            }
+                            // Update placement validity to reflect new occupancy
+                            if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                                try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
+                            }
+                        }
+                        else {
+                            if (!debugPrintedThisStroke && gx == cx && gy == cy) {
+                                getGUIRoot().getInfoPrinter().print(
+                                        "Place FAIL: occupied by " + occHere.getClass().getSimpleName()
+                                                + " at gx=" + gx + ", gy=" + gy);
+                                System.out.println("[Editor] Placement fail: occupied by " + occHere.getClass().getSimpleName()
+                                        + " at gx=" + gx + ", gy=" + gy);
+                                debugPrintedThisStroke = true;
+                            }
                         }
                     }
                 }
             }
+        }
+
+        private boolean isTreeSlopeAcceptable(com.oddlabs.tt.landscape.HeightMap hm, int gx, int gy) {
+            // Estimate slope using forward-difference to the right and up neighbors
+            float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+            float h = hm.getWrappedHeight(gx, gy);
+            float hR = hm.getWrappedHeight(gx + 1, gy);
+            float hU = hm.getWrappedHeight(gx, gy + 1);
+            float sx = StrictMath.abs(hR - h) / cell;
+            float sy = StrictMath.abs(hU - h) / cell;
+            float grad = (float) StrictMath.hypot(sx, sy);
+            // Allow reasonably steep ground; block only extreme slopes
+            return grad <= 0.9f; // ~42 degrees threshold
         }
 
         private void placeResourceAt(int grid_x, int grid_y) {
@@ -1128,15 +1401,18 @@ public final class MapEditorSession {
                                 || tree_type_index == com.oddlabs.tt.landscape.AbstractTreeGroup.PINETREE_INDEX)
                                     ? 1.6f : 2.3f;
 
-            // Enforce density: ensure footprint is free before placing
+            // Only require the center tile not be occupied by a real object
+            // Ignore RegionBuilder's StaticOccupant markers
             com.oddlabs.tt.pathfinder.UnitGrid ug = world.getUnitGrid();
-            for (int dy = 0; dy < grid_size; dy++) {
-                int occ_y = grid_y + dy - (grid_size - 1) / 2;
-                for (int dx = 0; dx < grid_size; dx++) {
-                    int occ_x = grid_x + dx - (grid_size - 1) / 2;
-                    if (occ_x < 0 || occ_y < 0 || occ_x >= ug.getGridSize() || occ_y >= ug.getGridSize()) return;
-                    if (ug.isGridOccupied(occ_x, occ_y, com.oddlabs.tt.pathfinder.UnitGrid.LAND)) return;
-                }
+            com.oddlabs.tt.pathfinder.Occupant occ =
+                    ug.getOccupant(grid_x, grid_y, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
+            if (occ != null && !(occ instanceof com.oddlabs.tt.pathfinder.StaticOccupant)) {
+                getGUIRoot().getInfoPrinter().print(
+                        "Tree place FAIL: occupied by " + occ.getClass().getSimpleName()
+                                + " at gx=" + grid_x + ", gy=" + grid_y);
+                System.out.println("[Editor] Tree place fail: occupied by " + occ.getClass().getSimpleName()
+                        + " at gx=" + grid_x + ", gy=" + grid_y);
+                return;
             }
 
             // Load low-detail vertices just for initial bounds computation
@@ -1145,7 +1421,12 @@ public final class MapEditorSession {
 
             // Find destination leaf and insert
             com.oddlabs.tt.landscape.TreeLeaf leaf = findLeafForPosition(world.getTreeRoot(), tree_x, tree_y);
-            if (leaf == null) return;
+            if (leaf == null) {
+                getGUIRoot().getInfoPrinter().print(
+                        "Tree place FAIL: no tree leaf found at x=" + tree_x + ", y=" + tree_y);
+                System.out.println("[Editor] Tree place fail: no leaf for x=" + tree_x + ", y=" + tree_y);
+                return;
+            }
             com.oddlabs.tt.landscape.TreeSupply t = new com.oddlabs.tt.landscape.TreeSupply(
                     world,
                     leaf,
@@ -1197,6 +1478,181 @@ public final class MapEditorSession {
             resourceType = vals[idx];
             info("Resource = " + resourceType);
         }
+
+        private boolean shouldRenderOverlays() {
+            // Master toggle enables overlays. Holding T also temporarily enables for quick peek.
+            boolean master = EDITOR_STATE.isOverlayMaster();
+            if (!master && !overlayActiveHeld) return false;
+            // Must have at least one layer enabled
+            return EDITOR_STATE.isOverlayWater()
+                    || EDITOR_STATE.isOverlayAccess()
+                    || EDITOR_STATE.isOverlaySlope()
+                    || EDITOR_STATE.isOverlayResource();
+        }
+
+        private void nextOverlayLayer() {
+            OverlayLayer[] v = OverlayLayer.values();
+            int idx = overlayLayer.ordinal();
+            for (int i = 1; i <= v.length; i++) {
+                OverlayLayer candidate = v[(idx + i) % v.length];
+                if (isLayerEnabled(candidate)) { overlayLayer = candidate; break; }
+            }
+            getGUIRoot().getInfoPrinter().print("Overlay Layer: " + overlayLayer);
+        }
+
+        private void prevOverlayLayer() {
+            OverlayLayer[] v = OverlayLayer.values();
+            int idx = overlayLayer.ordinal();
+            for (int i = 1; i <= v.length; i++) {
+                OverlayLayer candidate = v[(idx - i + v.length) % v.length];
+                if (isLayerEnabled(candidate)) { overlayLayer = candidate; break; }
+            }
+            getGUIRoot().getInfoPrinter().print("Overlay Layer: " + overlayLayer);
+        }
+
+        private boolean isLayerEnabled(OverlayLayer l) {
+            switch (l) {
+                case WATER: return EDITOR_STATE.isOverlayWater();
+                case ACCESS: return EDITOR_STATE.isOverlayAccess();
+                case SLOPE: return EDITOR_STATE.isOverlaySlope();
+                case DOCK: return true; // no dedicated toggle yet
+                case BUILD: return true; // no dedicated toggle yet
+                case RESOURCE: return EDITOR_STATE.isOverlayResource();
+            }
+            return true;
+        }
+
+        private void nextOverlayMode() {
+            switch (overlayMode) {
+                case THRESHOLD:
+                    overlayMode = OverlayMode.GRAYSCALE;
+                    break;
+                case GRAYSCALE:
+                    overlayMode = OverlayMode.HEAT; // placeholder visual
+                    break;
+                case HEAT:
+                    overlayMode = OverlayMode.THRESHOLD;
+                    break;
+            }
+            getGUIRoot().getInfoPrinter().print("Overlay Mode: " + overlayMode);
+        }
+
+        private void prevOverlayMode() {
+            // reverse cycle
+            switch (overlayMode) {
+                case THRESHOLD:
+                    overlayMode = OverlayMode.HEAT;
+                    break;
+                case HEAT:
+                    overlayMode = OverlayMode.GRAYSCALE;
+                    break;
+                case GRAYSCALE:
+                    overlayMode = OverlayMode.THRESHOLD;
+                    break;
+            }
+            getGUIRoot().getInfoPrinter().print("Overlay Mode: " + overlayMode);
+        }
+
+        private void drawOverlay(LandscapeRenderer renderer) {
+            com.oddlabs.tt.landscape.HeightMap hm = renderer.getHeightMap();
+            int size = hm.getGridUnitsPerWorld();
+            float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+
+            // Conservative coverage: draw overlay for the whole map while enabled.
+            // This avoids view-frustum underestimation artifacts and ensures all visible tiles render.
+            int x0 = 0;
+            int y0 = 0;
+            int x1 = size - 1;
+            int y1 = size - 1;
+
+            boolean[][] water = hm.getWaterGrid();
+            boolean[][] dock = hm.getDockGrid();
+            boolean[][] access = hm.getAccessGrid();
+            byte[][] build = hm.getBuildGrid();
+            boolean[][] place = com.oddlabs.tt.editor.EditorResourceValidity.getPlacementGrid(world);
+
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            // Draw overlays on top of terrain to avoid z-fighting gaps between tiles
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glDepthMask(false);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+            for (int gy = y0; gy <= y1; gy++) {
+                for (int gx = x0; gx <= x1; gx++) {
+                    float wx = gx * cell;
+                    float wy = gy * cell;
+                    float h = hm.getWrappedHeight(gx, gy);
+                    // choose value based on layer
+                    float value = 0f;
+                    float r=0f,g=0f,b=0f,a=0.35f;
+                    switch (overlayLayer) {
+                        case WATER:
+                            value = (water != null && water[gy][gx]) ? 1f : 0f;
+                            r=0f; g=0.4f; b=1f; break;
+                        case DOCK:
+                            value = (dock != null && dock[gy][gx]) ? 1f : 0f;
+                            r=0f; g=1f; b=1f; break;
+                        case ACCESS:
+                            value = (access != null && access[gy][gx]) ? 1f : 0f;
+                            r=0.1f; g=1f; b=0.1f; break;
+                        case BUILD:
+                            value = (build != null && build[gy][gx] != 0) ? 1f : 0f;
+                            r=1f; g=1f; b=0f; break;
+                        case RESOURCE:
+                            value = (place != null && place[gy][gx]) ? 1f : 0f;
+                            r=1f; g=0.5f; b=0f; break;
+                        case SLOPE:
+                            // simple normalized slope approximation using neighbors
+                            float hR = hm.getWrappedHeight(gx+1, gy);
+                            float hU = hm.getWrappedHeight(gx, gy+1);
+                            float sx = StrictMath.abs(hR - h) / cell;
+                            float sy = StrictMath.abs(hU - h) / cell;
+                            value = (float) StrictMath.min(1f, StrictMath.hypot(sx, sy) * 0.5f);
+                            r=1f; g=0f; b=0f; break;
+                    }
+                    float alpha = a;
+                    switch (overlayMode) {
+                        case GRAYSCALE:
+                            r = g = b = value;
+                            alpha = 0.5f;
+                            break;
+                        case THRESHOLD:
+                            if (value < 0.5f) continue;
+                            break;
+                        case HEAT:
+                            // Placeholder: same as grayscale until heatmap is implemented
+                            r = g = b = value;
+                            alpha = 0.5f;
+                            break;
+                    }
+                    // Draw as a filled quad at cell corners, sampling each corner height to avoid gaps
+                    float z00 = hm.getNearestHeight(wx, wy) + 0.02f;
+                    float z10 = hm.getNearestHeight(wx + cell, wy) + 0.02f;
+                    float z11 = hm.getNearestHeight(wx + cell, wy + cell) + 0.02f;
+                    float z01 = hm.getNearestHeight(wx, wy + cell) + 0.02f;
+                    GL11.glColor4f(r, g, b, alpha);
+                    GL11.glBegin(GL11.GL_QUADS);
+                    GL11.glVertex3f(wx, wy, z00);
+                    GL11.glVertex3f(wx+cell, wy, z10);
+                    GL11.glVertex3f(wx+cell, wy+cell, z11);
+                    GL11.glVertex3f(wx, wy+cell, z01);
+                    GL11.glEnd();
+                }
+            }
+
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glDepthMask(true);
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+        }
+    }
+
+    // -------- Overlay API for forms --------
+    public EditorState getEditorState() { return EDITOR_STATE; }
+
+    public void applyOverlaySelection() {
+        // For now, nothing to precompute; drawing reads flags directly.
+        // Status message will be shown on next overlay interaction.
     }
 }
-

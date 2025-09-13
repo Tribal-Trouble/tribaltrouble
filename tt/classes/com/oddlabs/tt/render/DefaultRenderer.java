@@ -223,7 +223,10 @@ public final strictfp class DefaultRenderer implements UIRenderer {
             render_queues.renderShadows(landscape_renderer);
         }
 
-        gui_root.getDelegate().render3D(landscape_renderer, render_queues);
+        // Guard: delegate might not be present during startup/fade transitions
+        if (gui_root.getDelegate() != null) {
+            gui_root.getDelegate().render3D(landscape_renderer, render_queues);
+        }
 
         // render
         if (Globals.process_trees) {
