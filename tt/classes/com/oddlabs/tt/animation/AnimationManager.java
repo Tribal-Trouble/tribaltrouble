@@ -179,7 +179,6 @@ public final strictfp class AnimationManager {
                 checksum_millisecond_counter += ANIMATION_MILLISECONDS_PER_TICK;
                 if (checksum_millisecond_counter >= ANIMATION_MILLISECONDS_PER_CHECKSUM) {
                     if (SteamAPI.isSteamRunning()) {
-                        // System.out.println("Running SteamAPI callbacks");
                         SteamAPI.runCallbacks();
                     }
                     checksum_millisecond_counter -= ANIMATION_MILLISECONDS_PER_CHECKSUM;

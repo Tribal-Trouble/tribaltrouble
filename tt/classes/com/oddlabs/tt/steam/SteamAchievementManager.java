@@ -29,8 +29,8 @@ public class SteamAchievementManager implements SteamUserStatsCallback {
 
     private boolean debugEnabled = true; // Control debug printing
 
-    private void debugPrint(String message) {
-        if (debugEnabled) {
+    public static void debugPrint(String message) {
+        if (instance.debugEnabled) {
             System.out.println(message);
         }
     }
