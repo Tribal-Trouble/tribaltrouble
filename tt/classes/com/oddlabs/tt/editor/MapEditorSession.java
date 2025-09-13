@@ -648,6 +648,8 @@ public final class MapEditorSession {
         private ActiveTool activeTool = ActiveTool.TERRAIN;
     private enum ResourceType { ROCK, IRON, RUBBER, PLANT_1, PLANT_2, PLANT_3, PLANT_4, TREE_JUNGLE, TREE_PALM, TREE_OAK, TREE_PINE }
         private ResourceType resourceType = ResourceType.ROCK;
+    // Track resource brush cells processed in the current stroke (place/erase once per cell)
+    private final java.util.HashSet<Long> resourceStrokeVisited = new java.util.HashSet<Long>();
 
     // ------- Overlay tool state -------
     private enum OverlayLayer { WATER, DOCK, ACCESS, BUILD, RESOURCE, SLOPE }
@@ -765,6 +767,9 @@ public final class MapEditorSession {
                             flattenHeightRef = world.getHeightMap().getWrappedHeight(cx, cy);
                         }
                     }
+                } else {
+                    // Resource stroke: reset per-stroke visited set
+                    resourceStrokeVisited.clear();
                 }
             }
         }
@@ -778,6 +783,8 @@ public final class MapEditorSession {
                 if (strokeActive && activeTool == ActiveTool.TERRAIN) applyStroke();
                 strokeActive = false;
                 flattenHeightRef = null;
+                // Clear resource stroke visited cells at end of stroke
+                resourceStrokeVisited.clear();
                 // Snap resources (trees, rocks, iron, rubber) inside the edited region to terrain height
                 if (activeTool == ActiveTool.TERRAIN && strokeHasBounds) {
                     snapResourcesInGridRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
@@ -1450,6 +1457,10 @@ public final class MapEditorSession {
                     float ldy = -sinA * dxm + cosA * dym;
                     float norm = (ldx * ldx) / (rx * rx) + (ldy * ldy) / (ry * ry);
                     if (norm > 1f) continue;
+                    // Only process each cell once per stroke to avoid repeated placement/erase while stationary
+                    long key = keyOf(gx, gy);
+                    if (resourceStrokeVisited.contains(key)) continue;
+                    resourceStrokeVisited.add(key);
                     // Erasing should still work anywhere; placement uses live validity grid
                     if (!erase) {
                         if (rnd.nextFloat() > coverage) continue;
@@ -1674,13 +1685,13 @@ public final class MapEditorSession {
         }
 
         private void placePlant(int grid_x, int grid_y, int plant_index) {
-            // Don't place if a plant already exists in this grid cell
-            if (existsPlantInCell(grid_x, grid_y)) return;
             // Validate target cell using editor rules and avoid overlapping real occupants
             if (!com.oddlabs.tt.editor.EditorResourceValidity.isValid(world, grid_x, grid_y)) return;
             com.oddlabs.tt.pathfinder.UnitGrid ug = world.getUnitGrid();
             com.oddlabs.tt.pathfinder.Occupant occ = ug.getOccupant(grid_x, grid_y, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
             if (occ != null && !(occ instanceof com.oddlabs.tt.pathfinder.StaticOccupant)) return;
+
+            com.oddlabs.tt.render.SpriteKey sprite = world.getLandscapeResources().getPlants()[terrainType][plant_index];
 
             float x = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(grid_x) + (world.getRandom().nextFloat() - .5f);
             float y = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(grid_y) + (world.getRandom().nextFloat() - .5f);
@@ -1688,41 +1699,11 @@ public final class MapEditorSession {
             float dir_y = world.getRandom().nextFloat();
             float len2 = dir_x * dir_x + dir_y * dir_y;
             if (len2 < 1e-3f) { dir_x = 1f; dir_y = 0f; } else { float inv = 1f / (float) StrictMath.sqrt(len2); dir_x *= inv; dir_y *= inv; }
-            com.oddlabs.tt.render.SpriteKey sprite = world.getLandscapeResources().getPlants()[terrainType][plant_index];
             new com.oddlabs.tt.model.Plants(world, x, y, dir_x, dir_y, sprite);
         }
 
         // Returns true if any decorative plant exists fully within the given grid cell
-        private boolean existsPlantInCell(final int gx, final int gy) {
-            final float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
-            final float minWX = gx * cell;
-            final float minWY = gy * cell;
-            final float maxWX = (gx + 1) * cell;
-            final float maxWY = (gy + 1) * cell;
-            final boolean[] found = new boolean[] {false};
-            com.oddlabs.tt.model.ElementNodeVisitor visitor = new com.oddlabs.tt.model.ElementNodeVisitor() {
-                private boolean intersects(float bminX, float bmaxX, float bminY, float bmaxY) {
-                    return !(bmaxX < minWX || bminX > maxWX || bmaxY < minWY || bminY > maxWY);
-                }
-                public void visitNode(com.oddlabs.tt.model.ElementNode node) {
-                    if (found[0]) return;
-                    if (intersects(node.bmin_x, node.bmax_x, node.bmin_y, node.bmax_y)) node.visitChildren(this);
-                }
-                public void visitLeaf(com.oddlabs.tt.model.ElementLeaf leaf) {
-                    if (found[0]) return;
-                    if (intersects(leaf.bmin_x, leaf.bmax_x, leaf.bmin_y, leaf.bmax_y)) leaf.visitElements(this);
-                }
-                public void visit(com.oddlabs.tt.model.Element element) {
-                    if (found[0]) return;
-                    if (element instanceof com.oddlabs.tt.model.Plants) {
-                        com.oddlabs.tt.model.Plants p = (com.oddlabs.tt.model.Plants) element;
-                        if (p.getGridX() == gx && p.getGridY() == gy) found[0] = true;
-                    }
-                }
-            };
-            try { world.getElementRoot().visit(visitor); } catch (Throwable ignore) {}
-            return found[0];
-        }
+        // Duplicate plant checks removed per request; placement is now gated to once-per-cell-per-stroke
 
         private void placeTree(int grid_x, int grid_y, int tree_type_index) {
             float tree_x = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(grid_x)
