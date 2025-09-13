@@ -1228,29 +1228,8 @@ public final class MapEditorSession {
                             }
                             continue;
                         }
-                        // Additional validity for trees: avoid very steep slopes
-                        if (resourceType == ResourceType.TREE_JUNGLE
-                                || resourceType == ResourceType.TREE_PALM
-                                || resourceType == ResourceType.TREE_OAK
-                                || resourceType == ResourceType.TREE_PINE) {
-                            if (!isTreeSlopeAcceptable(hm, gx, gy)) {
-                                if (!debugPrintedThisStroke && gx == cx && gy == cy) {
-                                    float cell_m = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
-                                    float h = hm.getWrappedHeight(gx, gy);
-                                    float hR = hm.getWrappedHeight(gx + 1, gy);
-                                    float hU = hm.getWrappedHeight(gx, gy + 1);
-                                    float sx = StrictMath.abs(hR - h) / cell_m;
-                                    float sy = StrictMath.abs(hU - h) / cell_m;
-                                    float grad = (float) StrictMath.hypot(sx, sy);
-                                    getGUIRoot().getInfoPrinter().print(
-                                            "Place FAIL: slope too steep at gx=" + gx + ", gy=" + gy
-                                                    + " | grad=" + grad);
-                                    System.out.println("[Editor] Placement fail: steep slope grad=" + grad + " at gx=" + gx + ", gy=" + gy);
-                                    debugPrintedThisStroke = true;
-                                }
-                                continue;
-                            }
-                        }
+                        // Trees no longer apply an extra slope filter; placement validity already
+                        // encodes the editor's rules (water/dock/access/occupancy).
                     }
                     if (erase) {
                         com.oddlabs.tt.pathfinder.Occupant occ =
@@ -1298,18 +1277,7 @@ public final class MapEditorSession {
             }
         }
 
-        private boolean isTreeSlopeAcceptable(com.oddlabs.tt.landscape.HeightMap hm, int gx, int gy) {
-            // Estimate slope using forward-difference to the right and up neighbors
-            float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
-            float h = hm.getWrappedHeight(gx, gy);
-            float hR = hm.getWrappedHeight(gx + 1, gy);
-            float hU = hm.getWrappedHeight(gx, gy + 1);
-            float sx = StrictMath.abs(hR - h) / cell;
-            float sy = StrictMath.abs(hU - h) / cell;
-            float grad = (float) StrictMath.hypot(sx, sy);
-            // Allow reasonably steep ground; block only extreme slopes
-            return grad <= 0.9f; // ~42 degrees threshold
-        }
+        // Trees follow the same placement validity as other resources; no extra slope filter.
 
         private void placeResourceAt(int grid_x, int grid_y) {
             switch (resourceType) {

@@ -131,10 +131,11 @@ public final strictfp class TreeSupply extends AbstractTreeGroup
         UnitGrid grid = world.getUnitGrid();
         world.getNotificationListener().registerTarget(this);
         Region region = grid.getRegion(getGridX(), getGridY(), UnitGrid.LAND);
-        // TODO: This shouldn't happen if the path finder knows that sailing is required to get
-        // there
-        if (region == null) return;
-        region.registerObject(getClass(), this);
+        // In editor flows regions may be null after terrain edits. Register with region if present,
+        // but always occupy the grid so placement takes effect and renders.
+        if (region != null) {
+            region.registerObject(getClass(), this);
+        }
         for (int y = 0; y < grid_size; y++) {
             int occ_y = grid_y + y - (grid_size - 1) / 2;
             for (int x = 0; x < grid_size; x++) {
@@ -152,7 +153,7 @@ public final strictfp class TreeSupply extends AbstractTreeGroup
         UnitGrid grid = world.getUnitGrid();
         world.getNotificationListener().unregisterTarget(this);
         Region region = grid.getRegion(grid_x, grid_y, UnitGrid.LAND);
-        region.unregisterObject(getClass(), this);
+        if (region != null) region.unregisterObject(getClass(), this);
         grid.freeGrid(grid_x, grid_y, this, UnitGrid.LAND);
     }
 
