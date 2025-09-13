@@ -127,18 +127,27 @@ public final class MapIO {
     }
 
     public static void saveEditorWorld(World world, int terrainType, File target) throws IOException {
+        // Derive defaults and delegate to the overload with metadata parameters
+        String baseName = target.getName();
+        int dot = baseName.lastIndexOf('.');
+        if (dot > 0) baseName = baseName.substring(0, dot);
+        saveEditorWorld(world, terrainType, target, baseName, "", "");
+    }
+
+    // Overload that allows specifying human-readable metadata
+    public static void saveEditorWorld(
+            World world,
+            int terrainType,
+            File target,
+            String metaName,
+            String metaAuthor,
+            String metaDesc) throws IOException {
         HeightMap hm = world.getHeightMap();
         int n = hm.getGridUnitsPerWorld();
         // Ensure directory exists
         File parent = target.getParentFile();
         if (parent != null && !parent.exists()) parent.mkdirs();
-        // Derive default meta strings
-        String baseName = target.getName();
-        int dot = baseName.lastIndexOf('.');
-        if (dot > 0) baseName = baseName.substring(0, dot);
-        String metaName = baseName;
-        String metaAuthor = ""; // unknown author by default
-        String metaDesc = "";   // optional description
+        // Use provided meta (may be empty strings)
     // Collect resources (with exact details)
     List<SavedSupply> rocks = new ArrayList<>();
     List<SavedSupply> iron = new ArrayList<>();
@@ -462,7 +471,7 @@ public final class MapIO {
     // List .ttmap files in mapsDir (unsorted or sorted by name)
     public static java.util.List<MapSummary> listMaps() {
         File dir = mapsDir();
-        File[] files = dir.listFiles((d, name) -> name.toLowerCase(java.util.Locale.ROOT).endsWith(".ttmap"));
+    File[] files = dir.listFiles(f -> f.getName().toLowerCase(java.util.Locale.ROOT).endsWith(".ttmap"));
         java.util.List<MapSummary> out = new java.util.ArrayList<>();
         if (files == null) return out;
         java.util.Arrays.sort(files, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));

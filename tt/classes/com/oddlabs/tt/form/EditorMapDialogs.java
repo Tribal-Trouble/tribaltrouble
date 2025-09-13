@@ -5,6 +5,7 @@ import com.oddlabs.tt.editor.EditorGridRecalculator;
 import com.oddlabs.tt.editor.EditorResourceValidity;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.guievent.MouseClickListener;
+import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.mapio.MapIO;
 import com.oddlabs.tt.render.DefaultRenderer;
@@ -52,7 +53,9 @@ public final class EditorMapDialogs {
         private final int terrainType;
         private final MultiColumnComboBox listBox;
         private java.util.List<MapIO.MapSummary> summaries = java.util.Collections.emptyList();
-        private final EditLine nameEdit;
+    private final EditLine nameEdit;
+    private final EditLine authorEdit;
+    private final TextBox descBox;
         private final Label errorLabel;
         private final Label metaLabel;
 
@@ -61,7 +64,7 @@ public final class EditorMapDialogs {
             this.world = world;
             this.terrainType = terrainType;
 
-        Label title = new Label("Save Map", Skin.getSkin().getHeadlineFont());
+    Label title = new Label("Save Map", Skin.getSkin().getHeadlineFont());
         addChild(title);
         // Left list
         ColumnInfo[] infos = new ColumnInfo[] {
@@ -77,6 +80,14 @@ public final class EditorMapDialogs {
             final String allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 _-";
             nameEdit = new EditLine(240, 32, allowed, EditLine.LEFT_ALIGNED);
             addChild(nameEdit);
+            Label authorLbl = new Label("Author:", Skin.getSkin().getEditFont());
+            addChild(authorLbl);
+            authorEdit = new EditLine(240, 32, allowed, EditLine.LEFT_ALIGNED);
+            addChild(authorEdit);
+            Label descLbl = new Label("Description:", Skin.getSkin().getEditFont());
+            addChild(descLbl);
+            descBox = new TextBox(340, 96, Skin.getSkin().getEditFont(), 512);
+            addChild(descBox);
             errorLabel = new Label("", Skin.getSkin().getEditFont());
             addChild(errorLabel);
             errorLabel.setColor(new float[] {1f, 0.3f, 0.3f, 1f});
@@ -97,7 +108,11 @@ public final class EditorMapDialogs {
             listBox.place(title, BOTTOM_LEFT);
             nameLbl.place(listBox, RIGHT_TOP, Skin.getSkin().getFormData().getSectionSpacing());
             nameEdit.place(nameLbl, BOTTOM_LEFT);
-            metaLabel.place(nameEdit, BOTTOM_LEFT);
+            authorLbl.place(nameEdit, BOTTOM_LEFT);
+            authorEdit.place(authorLbl, BOTTOM_LEFT);
+            descLbl.place(authorEdit, BOTTOM_LEFT);
+            descBox.place(descLbl, BOTTOM_LEFT);
+            metaLabel.place(descBox, BOTTOM_LEFT);
             errorLabel.place(metaLabel, BOTTOM_LEFT);
             cancel.place(errorLabel, BOTTOM_RIGHT);
             ok.place(cancel, LEFT_MID);
@@ -114,6 +129,10 @@ public final class EditorMapDialogs {
                     if (row_context instanceof MapIO.MapSummary) onRowChosen((MapIO.MapSummary) row_context);
                 }
             });
+            // Enter triggers OK from the single-line inputs
+            EnterListener enter = new EnterListener() { public void enterPressed(CharSequence text) { onSave(); } };
+            nameEdit.addEnterListener(enter);
+            authorEdit.addEnterListener(enter);
             compileCanvas();
             centerPos();
             setFocus();
@@ -143,7 +162,10 @@ public final class EditorMapDialogs {
 
         private void doSave(File target) {
             try {
-                MapIO.saveEditorWorld(world, terrainType, target);
+                String author = authorEdit.getContents() == null ? "" : authorEdit.getContents().trim();
+                String desc = descBox.getContents();
+                if (desc == null) desc = "";
+                MapIO.saveEditorWorld(world, terrainType, target, nameEdit.getContents().trim(), author, desc);
                 guiRoot.getInfoPrinter().print("Saved: " + target.getName());
                 remove();
             } catch (Exception t) {
@@ -182,6 +204,8 @@ public final class EditorMapDialogs {
             int dot = base.lastIndexOf('.');
             if (dot > 0) base = base.substring(0, dot);
             nameEdit.set(base);
+            if (s.author != null) authorEdit.set(s.author);
+            if (s.description != null) { descBox.clear(); descBox.append(s.description); }
             StringBuilder sb = new StringBuilder();
             if (s.name != null && !s.name.isEmpty()) sb.append("Name: ").append(s.name).append("\n");
             if (s.author != null && !s.author.isEmpty()) sb.append("Author: ").append(s.author).append("\n");
@@ -303,9 +327,35 @@ public final class EditorMapDialogs {
             File f = summaries.get(chosenIndex).file;
             try {
                 MapIO.LoadedMap lm = MapIO.load(f);
-                applyAndRegen(world, lr, dr, terrainType, lm);
-                guiRoot.getInfoPrinter().print("Loaded: " + f.getName());
-                remove();
+                int currentSize = world.getHeightMap().getGridUnitsPerWorld();
+                int loadedSize = (lm.heights != null) ? lm.heights.length : lm.size;
+                int currentTerrain = terrainType;
+                int loadedTerrain = lm.terrainType;
+                if (loadedSize == currentSize && loadedTerrain == currentTerrain) {
+                    // Same size/terrain: apply in-session and fully regenerate visuals
+                    applyAndRegen(world, lr, dr, terrainType, lm);
+                    guiRoot.getInfoPrinter().print("Loaded: " + f.getName());
+                    remove();
+                } else {
+                    // Mismatch: fade out and start a fresh editor session seeded with the map
+                    remove();
+                    guiRoot.getInfoPrinter().print("Loading '" + f.getName() + "' with new size/terrain...");
+                    int meters = (lm.metersPerWorld > 0) ? lm.metersPerWorld : world.getHeightMap().getMetersPerWorld();
+                    int terr = (loadedTerrain >= 0) ? loadedTerrain : currentTerrain;
+                    int gamespeed = world.getGamespeed();
+                    // Reasonable defaults; actual map data will overlay
+                    com.oddlabs.tt.resource.WorldGenerator base =
+                            new com.oddlabs.tt.resource.IslandGenerator(meters, terr, .5f, .5f, .5f, 1337, false);
+                    com.oddlabs.tt.resource.WorldGenerator gen =
+                            new com.oddlabs.tt.mapio.LoadedMapGenerator(base, f);
+                    com.oddlabs.tt.editor.MapEditorSession.start(
+                            com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
+                            guiRoot.getGUI(),
+                            meters,
+                            gen,
+                            gamespeed,
+                            com.oddlabs.tt.editor.ui.EditorState.EditorMode.Default);
+                }
             } catch (Exception t) {
                 metaLabel.set("Load failed: " + t.getMessage());
             }

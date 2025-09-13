@@ -144,7 +144,7 @@ public final class MapEditorSession {
                         Selection selection = new Selection(local);
 
                         // Build renderer + picker
-                        LandscapeRenderer landscapeRenderer =
+            LandscapeRenderer landscapeRenderer =
                                 new LandscapeRenderer(
                                         world, worldInfo, clientRoot, world.getAnimationManagerRealTime());
                         lrHolder[0] = landscapeRenderer;
@@ -155,8 +155,8 @@ public final class MapEditorSession {
                                         renderQueues,
                                         landscapeRenderer,
                                         selection);
-                        UIRenderer uiRenderer =
-                                drHolder[0] = new DefaultRenderer(
+            UIRenderer uiRenderer =
+                drHolder[0] = new DefaultRenderer(
                                         new Cheat(),
                                         local,
                                         renderQueues,
@@ -181,7 +181,7 @@ public final class MapEditorSession {
                         LocalEventQueue.getQueue().getManager().registerAnimation(animationDriver);
 
                         // Camera + delegate
-                        Camera camera = new SimpleEditorCamera(world, camState);
+            Camera camera = new SimpleEditorCamera(world, camState);
                         int terrainType = generator.getTerrainType();
             // Pass editor mode through
             EDITOR_STATE.setEditorMode(mode);
@@ -191,10 +191,11 @@ public final class MapEditorSession {
                                         clientRoot,
                                         camera,
                                         world,
-                                        landscapeRenderer,
+                    landscapeRenderer,
                                         picker,
                                         animationDriver,
-                                        terrainType);
+                    terrainType,
+                    drHolder[0]);
                         clientRoot.pushDelegate(delegate);
 
                         // Match WorldViewer initialization for viewport sizing
@@ -614,9 +615,10 @@ public final class MapEditorSession {
     private static final class EditorDelegate extends com.oddlabs.tt.delegate.CameraDelegate implements Animated {
         private final World world;
         private final LandscapeRenderer landscapeRenderer;
-        private final Picker picker;
+    private final Picker picker;
         private final Animated extraAnimationDriver;
         private final int terrainType;
+    private final DefaultRenderer defaultRenderer;
 
         private boolean leftDown = false;
         private boolean rightDown = false;
@@ -680,13 +682,15 @@ public final class MapEditorSession {
                 LandscapeRenderer lr,
                 Picker picker,
                 Animated extraAnimationDriver,
-                int terrainType) {
+                int terrainType,
+                DefaultRenderer defaultRenderer) {
             super(root, camera);
             this.world = world;
             this.landscapeRenderer = lr;
             this.picker = picker;
             this.extraAnimationDriver = extraAnimationDriver;
             this.terrainType = terrainType;
+            this.defaultRenderer = defaultRenderer;
             // Register for real-time ticks to drive brush application cadence
             world.getAnimationManagerRealTime().registerAnimation(this);
             getGUIRoot()
@@ -1031,14 +1035,14 @@ public final class MapEditorSession {
                 toggleHelp();
                 return;
             }
-            // Ctrl+Shift+S: Open Save dialog (multi-file)
-            if (event.isControlDown() && event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_S) {
+            // Ctrl+S: Open Save dialog (multi-file)
+            if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_S) {
                 getGUIRoot().addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.SaveDialog(
                         getGUIRoot(), world, terrainType));
                 return;
             }
-            // Ctrl+S: Save .ttmap to <game_dir>/maps/editor_map.ttmap
-            if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_S) {
+            // F5: Quick Save .ttmap to <game_dir>/maps/editor_map.ttmap
+            if (!event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_F5) {
                 try {
                     java.io.File dir = com.oddlabs.tt.mapio.MapIO.mapsDir();
                     java.io.File file = new java.io.File(dir, "editor_map.ttmap");
@@ -1050,20 +1054,42 @@ public final class MapEditorSession {
                 }
                 return;
             }
-            // Ctrl+Shift+L: Open Load dialog (multi-file)
-            if (event.isControlDown() && event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_L) {
+            // Ctrl+L: Open Load dialog (multi-file)
+            if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_L) {
                 getGUIRoot().addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.LoadDialog(
-                        getGUIRoot(), world, landscapeRenderer, null, terrainType));
+                        getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType));
                 return;
             }
-            // Ctrl+L: Load .ttmap from <game_dir>/maps/editor_map.ttmap and apply to current world
-            if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_L) {
+            // F9: Quick Load .ttmap from <game_dir>/maps/editor_map.ttmap and apply to current world
+            if (!event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_F9) {
                 try {
                     java.io.File dir = com.oddlabs.tt.mapio.MapIO.mapsDir();
                     java.io.File file = new java.io.File(dir, "editor_map.ttmap");
                     com.oddlabs.tt.mapio.MapIO.LoadedMap lm = com.oddlabs.tt.mapio.MapIO.load(file);
-                    com.oddlabs.tt.mapio.MapIO.applyToEditorWorld(world, lm, terrainType);
-                    info("Loaded: " + file.getAbsolutePath());
+                    int currentSize = world.getHeightMap().getGridUnitsPerWorld();
+                    int loadedSize = (lm.heights != null) ? lm.heights.length : lm.size;
+                    int currentTerrain = terrainType;
+                    int loadedTerrain = lm.terrainType;
+                    if (loadedSize == currentSize && loadedTerrain == currentTerrain) {
+                        com.oddlabs.tt.form.EditorMapDialogs.applyAndRegen(world, landscapeRenderer, defaultRenderer, terrainType, lm);
+                        info("Loaded: " + file.getAbsolutePath());
+                    } else {
+                        // Restart editor with map-applied generator
+                        int meters = (lm.metersPerWorld > 0) ? lm.metersPerWorld : world.getHeightMap().getMetersPerWorld();
+                        int terr = (loadedTerrain >= 0) ? loadedTerrain : currentTerrain;
+                        int gamespeed = world.getGamespeed();
+                        com.oddlabs.tt.resource.WorldGenerator base =
+                                new com.oddlabs.tt.resource.IslandGenerator(meters, terr, .5f, .5f, .5f, 1337, false);
+                        com.oddlabs.tt.resource.WorldGenerator gen =
+                                new com.oddlabs.tt.mapio.LoadedMapGenerator(base, file);
+                        com.oddlabs.tt.editor.MapEditorSession.start(
+                                com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
+                                getGUIRoot().getGUI(),
+                                meters,
+                                gen,
+                                gamespeed,
+                                com.oddlabs.tt.editor.ui.EditorState.EditorMode.Default);
+                    }
                 } catch (Throwable ex) {
                     info("Load failed: " + ex.getMessage());
                     ex.printStackTrace();
