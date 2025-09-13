@@ -57,6 +57,14 @@ public final strictfp class TreeGroup extends AbstractTreeGroup {
         child3.visit(visitor);
     }
 
+    // Editor support: detect any trees in this subtree regardless of low-detail counts.
+    public boolean hasAnyTrees() {
+        return child0.hasAnyTrees()
+                || child1.hasAnyTrees()
+                || child2.hasAnyTrees()
+                || child3.hasAnyTrees();
+    }
+
     protected final boolean initBounds() {
         boolean child0_bounds = child0.initBounds();
         boolean child1_bounds = child1.initBounds();

@@ -208,37 +208,33 @@ strictfp class TreePicker implements TreeNodeVisitor {
 
     public final void visitLeaf(TreeLeaf tree_leaf) {
         int frustum_state = RenderTools.NOT_IN_FRUSTUM;
-        if (tree_leaf.hasTrees()
+        if (tree_leaf.hasAnyTrees()
                 && (visible_override
                         || (frustum_state = RenderTools.inFrustum(tree_leaf, camera.getFrustum()))
                                 >= RenderTools.IN_FRUSTUM)) {
-            if (tree_leaf.hasTrees()) {
-                boolean old_override = visible_override;
-                visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
-                if (visible_override && canRenderLowDetail(tree_leaf)) {
-                    addToLowDetailRenderList(tree_leaf);
-                } else {
-                    tree_leaf.visitTrees(this);
-                }
-                visible_override = old_override;
+            boolean old_override = visible_override;
+            visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+            if (visible_override && canRenderLowDetail(tree_leaf)) {
+                addToLowDetailRenderList(tree_leaf);
+            } else {
+                tree_leaf.visitTrees(this);
             }
+            visible_override = old_override;
         }
     }
 
     public final void visitNode(TreeGroup tree_group) {
         int frustum_state = RenderTools.NOT_IN_FRUSTUM;
-        if (tree_group.hasTrees()
+        if (tree_group.hasAnyTrees()
                 && (visible_override
                         || (frustum_state = RenderTools.inFrustum(tree_group, camera.getFrustum()))
                                 >= RenderTools.IN_FRUSTUM)) {
-            if (tree_group.hasTrees()) {
-                boolean old_override = visible_override;
-                visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
-                if (visible_override && canRenderLowDetail(tree_group))
-                    addToLowDetailRenderList(tree_group);
-                else tree_group.visitChildren(this);
-                visible_override = old_override;
-            }
+            boolean old_override = visible_override;
+            visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+            if (visible_override && canRenderLowDetail(tree_group))
+                addToLowDetailRenderList(tree_group);
+            else tree_group.visitChildren(this);
+            visible_override = old_override;
         }
     }
 

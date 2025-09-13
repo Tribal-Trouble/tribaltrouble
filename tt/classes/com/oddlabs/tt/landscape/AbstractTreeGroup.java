@@ -44,6 +44,10 @@ public abstract strictfp class AbstractTreeGroup extends BoundingBox {
         return count > 0;
     }
 
+    // Editor support: detect presence of trees regardless of low-detail buffer counts.
+    // Defaults to the original criterion; TreeLeaf/TreeGroup override to be more precise.
+    public boolean hasAnyTrees() { return hasTrees(); }
+
     public final void changeRespondingTrees(int delta) {
         num_responding_trees += delta;
         if (parent != null) parent.changeRespondingTrees(delta);

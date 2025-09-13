@@ -14,6 +14,9 @@ public final strictfp class TreeLeaf extends AbstractTreeGroup {
         infos = new_infos;
     }
 
+    // Editor support: consider any inserted trees, even if low-detail counts are not updated.
+    public boolean hasAnyTrees() { return infos.length > 0; }
+
     protected final boolean initBounds() {
         if (infos.length != 0) {
             TreeSupply info = infos[0];
