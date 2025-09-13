@@ -55,7 +55,12 @@ public final class MapEditorSession {
     // Editor-wide pause state: gates animation driver when pause menu is open
     private static volatile boolean EDITOR_PAUSED = false;
 
+    // Keep a reference to the network used to launch the editor so UI can return to main menu
+    private static NetworkSelector EDITOR_NETWORK;
+
     public static void setPaused(boolean paused) { EDITOR_PAUSED = paused; }
+
+    public static NetworkSelector getEditorNetwork() { return EDITOR_NETWORK; }
 
     public static void start(
             NetworkSelector network,
@@ -64,6 +69,8 @@ public final class MapEditorSession {
             WorldGenerator generator,
             int gamespeed,
             com.oddlabs.tt.editor.ui.EditorState.EditorMode mode) {
+    // Remember network selector for returning to the main menu from pause menu
+    EDITOR_NETWORK = network;
         // Use the built-in loading progress form so all resource loading progress calls are valid
         com.oddlabs.tt.form.ProgressForm.setProgressForm(
                 network,

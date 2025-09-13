@@ -38,6 +38,35 @@ public final class EditorPauseMenu extends Menu {
         // Options button (reuses global OptionsMenu)
         addDefaultOptionsButton();
 
+    // End Game button (return to main menu)
+    com.oddlabs.tt.gui.MenuButton endGame =
+        new com.oddlabs.tt.gui.MenuButton(
+            com.oddlabs.tt.util.Utils.getBundleString(
+                com.oddlabs.tt.delegate.Menu.bundle, "end_game"),
+            com.oddlabs.tt.delegate.Menu.COLOR_NORMAL,
+            com.oddlabs.tt.delegate.Menu.COLOR_ACTIVE);
+    addChild(endGame);
+    endGame.addMouseClickListener(
+        new com.oddlabs.tt.guievent.MouseClickListener() {
+            public void mouseClicked(int button, int x, int y, int clicks) {
+            // Confirm like other pause menus
+            setMenuCentered(
+                new com.oddlabs.tt.form.QuestionForm(
+                    com.oddlabs.tt.util.Utils.getBundleString(
+                        com.oddlabs.tt.delegate.Menu.bundle,
+                        "end_game_confirm"),
+                    new com.oddlabs.tt.guievent.MouseClickListener() {
+                        public void mouseClicked(
+                            int b, int px, int py, int c) {
+                        pop();
+                        com.oddlabs.tt.render.Renderer.startMenu(
+                            MapEditorSession.getEditorNetwork(),
+                            getGUIRoot().getGUI());
+                        }
+                    }));
+            }
+        });
+
         // Exit button (same behavior as other menus)
         addExitButton();
     }

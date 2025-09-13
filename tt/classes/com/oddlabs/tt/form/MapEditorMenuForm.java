@@ -35,6 +35,8 @@ public final class MapEditorMenuForm extends Form {
     private int seed;
     private boolean launching = false;
     private com.oddlabs.tt.gui.CheckBox sandboxModeCheck;
+    // Keep a handle to the OK button so we can set default focus reliably
+    private OKButton buttonOk;
 
     private final ResourceBundle terrainBundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
     // Align with TerrainMenu sizing and archipelago mapping
@@ -52,8 +54,8 @@ public final class MapEditorMenuForm extends Form {
                         Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
 
-        // Gamespeed
-        Group group_gamespeed = new Group();
+    // Gamespeed
+    Group group_gamespeed = new Group();
         Label label_gamespeed =
                 new Label(Utils.getBundleString(terrainBundle, "gamespeed"),
                         Skin.getSkin().getEditFont());
@@ -67,9 +69,7 @@ public final class MapEditorMenuForm extends Form {
         group_gamespeed.addChild(pb_gamespeed);
         // Place inside group
         label_gamespeed.place();
-        pb_gamespeed.place(label_gamespeed, RIGHT_MID);
-        group_gamespeed.compileCanvas();
-        addChild(group_gamespeed);
+    addChild(group_gamespeed);
 
         // Island size
         Group group_size = new Group();
@@ -87,11 +87,9 @@ public final class MapEditorMenuForm extends Form {
         group_size.addChild(pb_size);
         // Place inside group
         label_size.place();
-        pb_size.place(label_size, RIGHT_MID);
-        group_size.compileCanvas();
-        addChild(group_size);
+    addChild(group_size);
 
-        // Terrain type
+    // Terrain type
         Group group_terrain_type = new Group();
         Label label_terrain_type =
                 new Label(Utils.getBundleString(terrainBundle, "terrain_type"),
@@ -104,9 +102,23 @@ public final class MapEditorMenuForm extends Form {
         group_terrain_type.addChild(pb_terrain_type);
         // Place inside group
         label_terrain_type.place();
-        pb_terrain_type.place(label_terrain_type, RIGHT_MID);
-        group_terrain_type.compileCanvas();
-        addChild(group_terrain_type);
+    addChild(group_terrain_type);
+
+    // Align pulldown buttons into a vertical column by offsetting from each label
+    int labelColumnWidth = Math.max(
+        label_gamespeed.getWidth(),
+        Math.max(label_size.getWidth(), label_terrain_type.getWidth()));
+    int baseGap = Skin.getSkin().getFormData().getSectionSpacing();
+
+    // Place buttons so their left edge aligns at (max label width + base gap)
+    pb_gamespeed.place(label_gamespeed, RIGHT_MID, baseGap + (labelColumnWidth - label_gamespeed.getWidth()));
+    group_gamespeed.compileCanvas();
+
+    pb_size.place(label_size, RIGHT_MID, baseGap + (labelColumnWidth - label_size.getWidth()));
+    group_size.compileCanvas();
+
+    pb_terrain_type.place(label_terrain_type, RIGHT_MID, baseGap + (labelColumnWidth - label_terrain_type.getWidth()));
+    group_terrain_type.compileCanvas();
 
         // Sliders
         Group group_sliders = new Group();
@@ -177,24 +189,38 @@ public final class MapEditorMenuForm extends Form {
         group_seed.compileCanvas();
         addChild(group_seed);
 
-        // Buttons (no Load/Save)
+        // Buttons (Enter map code, Load placeholder, Start)
         Group group_buttons = new Group();
-        final HorizButton button_ok = new OKButton(100);
-        button_ok.addMouseClickListener(
+        HorizButton button_mapcode = new HorizButton(Utils.getBundleString(terrainBundle, "enter_map_code"), 170);
+        button_mapcode.addMouseClickListener(new MapcodeListener());
+        group_buttons.addChild(button_mapcode);
+
+        HorizButton button_load = new HorizButton(Utils.getBundleString(Menu.bundle, "load"), 120);
+        button_load.addMouseClickListener(new MouseClickListener() {
+            @Override
+            public void mouseClicked(int button, int x, int y, int clicks) {
+                // Placeholder load action
+                gui_root.getInfoPrinter().print("Load: coming soon");
+            }
+        });
+        group_buttons.addChild(button_load);
+
+        buttonOk = new OKButton(120);
+        buttonOk.addMouseClickListener(
                 new MouseClickListener() {
+                    @Override
                     public void mouseClicked(int button, int x, int y, int clicks) {
                         if (launching) return;
                         launching = true;
-                        button_ok.setDisabled(true);
+                        buttonOk.setDisabled(true);
                         startEditor();
                     }
                 });
-        HorizButton button_cancel = new CancelButton(100);
-        button_cancel.addMouseClickListener(new CancelListener(this));
-        group_buttons.addChild(button_ok);
-        group_buttons.addChild(button_cancel);
-        button_cancel.place();
-        button_ok.place(button_cancel, LEFT_MID);
+        group_buttons.addChild(buttonOk);
+        // Bottom layout: [Enter map code] [Load] [Start]
+        buttonOk.place();
+        button_load.place(buttonOk, LEFT_MID);
+        button_mapcode.place(button_load, LEFT_MID);
         group_buttons.compileCanvas();
         addChild(group_buttons);
 
@@ -213,35 +239,143 @@ public final class MapEditorMenuForm extends Form {
         seed = r.nextInt(40000);
         setMapcode();
 
-        // Layout
-        label_headline.place();
-        group_gamespeed.place(label_headline, BOTTOM_LEFT);
-        group_size.place(group_gamespeed, BOTTOM_LEFT);
-        group_terrain_type.place(group_size, BOTTOM_LEFT);
+    // Layout
+    label_headline.place();
+    // Stack pulldown groups vertically, left-aligned, with a very small gap
+    int tightGap = 4; // 4px gap requested
+    group_gamespeed.place(label_headline, BOTTOM_LEFT);
+    group_size.place(group_gamespeed, BOTTOM_LEFT, tightGap);
+    group_terrain_type.place(group_size, BOTTOM_LEFT, tightGap);
         group_sliders.place(group_terrain_type, BOTTOM_LEFT);
         group_mode.place(group_sliders, BOTTOM_LEFT);
         group_seed.place(group_mode, BOTTOM_LEFT);
-        group_buttons.place(ORIGIN_BOTTOM_RIGHT);
+    group_buttons.place(ORIGIN_BOTTOM_RIGHT);
 
         compileCanvas();
     }
 
-    public final void setFocus() {
-        // Focus cancel so ESC closes
-        Renderable child = getLastChild();
-        while (child != null) {
-            if (child instanceof Group) {
-                Renderable inner = ((Group) child).getLastChild();
-                while (inner != null) {
-                    if (inner instanceof CancelButton) {
-                        ((CancelButton) inner).setFocus();
-                        return;
-                    }
-                    inner = (Renderable) inner.getPrior();
-                }
-            }
-            child = (Renderable) child.getPrior();
+    // Minimal parseMapcode support (subset of TerrainMenu.parseMapcode)
+    public void parseMapcode(String text) {
+        String code = text.toUpperCase();
+    java.math.BigInteger result = RegistrationKey.parseBits(code);
+        // Decode in reverse order matching setMapcode packing
+        // Reconstruct in same factor sequence used in setMapcode()
+        // size(5), terrain(2), supplies(11), vegetation(11), hills(11), seed(40000)
+        // Start from highest factor
+        java.math.BigInteger f_size = java.math.BigInteger.valueOf(5);
+        java.math.BigInteger f_terrain = java.math.BigInteger.valueOf(2);
+        java.math.BigInteger f_slider = java.math.BigInteger.valueOf(11);
+        java.math.BigInteger f_seed = new java.math.BigInteger("40000");
+
+        // Build MAX = seed*slider*slider*slider*terrain*size
+        java.math.BigInteger MAX = f_seed.multiply(f_slider).multiply(f_slider).multiply(f_slider).multiply(f_terrain).multiply(f_size);
+
+    java.math.BigInteger r = result.mod(MAX);
+
+        // size
+        java.math.BigInteger div = MAX.divide(f_size);
+        int sizeIndex = r.divide(div).intValue();
+        r = r.mod(div);
+
+        // terrain
+        div = div.divide(f_terrain);
+        int terrainIndex = r.divide(div).intValue();
+        r = r.mod(div);
+
+        // supplies
+        div = div.divide(f_slider);
+        int supplies = r.divide(div).intValue();
+        r = r.mod(div);
+
+        // vegetation
+        div = div.divide(f_slider);
+        int vegetation = r.divide(div).intValue();
+        r = r.mod(div);
+
+        // hills
+        div = div.divide(f_slider);
+        int hills = r.divide(div).intValue();
+        r = r.mod(div);
+
+        // seed
+        div = div.divide(f_seed);
+        int newSeed = r.divide(div).intValue();
+
+        // Apply to controls
+        pulldown_size.chooseItem(Math.max(0, Math.min(4, sizeIndex)));
+        pm_terrain_type.chooseItem(Math.max(0, Math.min(1, terrainIndex)));
+        slider_supplies.setValue(Math.max(0, Math.min(10, supplies)));
+        slider_vegetation.setValue(Math.max(0, Math.min(10, vegetation)));
+        slider_hills.setValue(Math.max(0, Math.min(10, hills)));
+        seed = newSeed;
+        label_mapcode.clear();
+        label_mapcode.append(code);
+    }
+
+    private final class MapcodeListener implements com.oddlabs.tt.guievent.MouseClickListener {
+        @Override
+        public void mouseClicked(int button, int x, int y, int clicks) {
+            gui_root.addModalForm(new MapcodeFormProxy(MapEditorMenuForm.this));
         }
+    }
+
+    // Small proxy form to reuse MapcodeForm behavior with MapEditorMenuForm
+    private static final class MapcodeFormProxy extends com.oddlabs.tt.gui.Form {
+        private final MapEditorMenuForm owner;
+        private final com.oddlabs.tt.gui.EditLine edit;
+        MapcodeFormProxy(MapEditorMenuForm owner) {
+            this.owner = owner;
+            java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(com.oddlabs.tt.form.MapcodeForm.class.getName());
+            com.oddlabs.tt.gui.Label label = new com.oddlabs.tt.gui.Label(
+                    com.oddlabs.tt.util.Utils.getBundleString(bundle, "map_code"),
+                    com.oddlabs.tt.gui.Skin.getSkin().getEditFont());
+            addChild(label);
+        edit = new com.oddlabs.tt.gui.EditLine(200, 12,
+            RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS,
+            com.oddlabs.tt.gui.EditLine.LEFT_ALIGNED);
+            addChild(edit);
+            com.oddlabs.tt.gui.HorizButton ok = new com.oddlabs.tt.gui.OKButton(100);
+            ok.addMouseClickListener(new com.oddlabs.tt.guievent.MouseClickListener(){
+                @Override
+                public void mouseClicked(int button, int x, int y, int clicks) {
+                    done();
+                }
+            });
+            addChild(ok);
+            com.oddlabs.tt.gui.HorizButton cancel = new com.oddlabs.tt.gui.CancelButton(100);
+            cancel.addMouseClickListener(new com.oddlabs.tt.gui.CancelListener(this));
+            addChild(cancel);
+            label.place();
+            edit.place(label, RIGHT_MID);
+            cancel.place(edit, BOTTOM_RIGHT);
+            ok.place(cancel, LEFT_MID);
+            compileCanvas();
+            centerPos();
+        }
+        private void done() {
+            remove();
+            owner.parseMapcode(edit.getContents());
+            owner.setFocus();
+        }
+        @Override
+        public void setFocus() { edit.setFocus(); }
+    }
+
+    @Override
+    public final void setFocus() {
+        // Make OK the default focus like other menus (ESC will still work globally)
+        if (buttonOk != null) {
+            buttonOk.setFocus();
+            return;
+        }
+        // Fallback: try to focus the last child if it's an OK button
+        try {
+            Renderable last = getLastChild();
+            if (last instanceof Group) {
+                Renderable btn = ((Group) last).getLastChild();
+                if (btn instanceof OKButton) ((OKButton) btn).setFocus();
+            }
+        } catch (Throwable ignore) {}
     }
 
     // Simplified map code generation matching exposed controls
@@ -260,9 +394,9 @@ public final class MapEditorMenuForm extends Form {
         max_val = max_val.multiply(BigInteger.valueOf(2));
         result = result.add(BigInteger.valueOf(pulldown_size.getChosenItemIndex()).multiply(max_val));
         // size has 5 options (Small/Medium/Large/Enormous/Archipelago)
-        max_val = max_val.multiply(BigInteger.valueOf(5));
+    // Note: no need to multiply max_val further here
 
-        String code = RegistrationKey.createString(result);
+    String code = RegistrationKey.createString(result);
         label_mapcode.clear();
         label_mapcode.append(code);
     }
