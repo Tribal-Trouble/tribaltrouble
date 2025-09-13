@@ -152,7 +152,7 @@ public final strictfp class LocalInput {
 
     public static final File getGameDir() {
         // Figure out where the game is running from and use that as the game dir
-        if(game_dir == null) {
+        if (game_dir == null) {
             String platform_dir;
             if (Platform.get() == Platform.MACOSX) {
                 platform_dir = "Library/Application Support" + File.separator;
@@ -162,15 +162,26 @@ public final strictfp class LocalInput {
                 platform_dir = "";
             }
             String game_dir_path =
-                    System.getProperty("user.home") + File.separator + platform_dir + Globals.GAME_NAME;
-           
-            //System.out.println("Running executable path: " + absolute_path);
+                    System.getProperty("user.home")
+                            + File.separator
+                            + platform_dir
+                            + Globals.GAME_NAME;
+
+            // System.out.println("Running executable path: " + absolute_path);
             // In reality this is the save file path not the actual game dir...
-            if(SteamAPI.isSteamRunning()) {
+            if (SteamAPI.isSteamRunning()) {
                 try {
-                    long account_id = SteamAchievementManager.getAchievementManager().getAccountID();
-                    File jarFile = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-                    String exePath = jarFile.getParentFile().getAbsolutePath() + File.separator + account_id;
+                    long account_id =
+                            SteamAchievementManager.getAchievementManager().getAccountID();
+                    File jarFile =
+                            new File(
+                                    Main.class
+                                            .getProtectionDomain()
+                                            .getCodeSource()
+                                            .getLocation()
+                                            .toURI());
+                    String exePath =
+                            jarFile.getParentFile().getAbsolutePath() + File.separator + account_id;
                     System.out.println("Save file path: " + exePath);
                     game_dir_path = exePath;
                 } catch (Exception e) {

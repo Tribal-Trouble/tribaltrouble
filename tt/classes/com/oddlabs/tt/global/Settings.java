@@ -178,7 +178,8 @@ public final strictfp class Settings implements Serializable {
                 throw new RuntimeException(e);
             }
         }
-        System.out.println("Saving settings to " + LocalInput.getGameDir() + Globals.SETTINGS_FILE_NAME);
+        System.out.println(
+                "Saving settings to " + LocalInput.getGameDir() + Globals.SETTINGS_FILE_NAME);
         File settings_file = new File(LocalInput.getGameDir(), Globals.SETTINGS_FILE_NAME);
         try {
             OutputStream out = new FileOutputStream(settings_file);

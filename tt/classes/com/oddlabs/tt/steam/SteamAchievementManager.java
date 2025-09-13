@@ -167,21 +167,28 @@ public class SteamAchievementManager implements SteamUserStatsCallback, SteamUse
 
     @Override
     public void onAuthSessionTicket(SteamAuthTicket authTicket, SteamResult result) {
-        debugPrint("Auth session ticket result: " + (result == SteamResult.OK ? "Success" : "Failed"));
+        debugPrint(
+                "Auth session ticket result: " + (result == SteamResult.OK ? "Success" : "Failed"));
     }
 
     @Override
-    public void onValidateAuthTicket(SteamID steamID, AuthSessionResponse authSessionResponse, SteamID ownerSteamID) {
-        debugPrint("Validate auth ticket result: " + (authSessionResponse == AuthSessionResponse.OK ? "Success" : "Failed"));
+    public void onValidateAuthTicket(
+            SteamID steamID, AuthSessionResponse authSessionResponse, SteamID ownerSteamID) {
+        debugPrint(
+                "Validate auth ticket result: "
+                        + (authSessionResponse == AuthSessionResponse.OK ? "Success" : "Failed"));
     }
 
     @Override
     public void onMicroTxnAuthorization(int appID, long orderID, boolean authorized) {
-        debugPrint("Micro transaction authorization result: " + (authorized ? "Success" : "Failed"));
+        debugPrint(
+                "Micro transaction authorization result: " + (authorized ? "Success" : "Failed"));
     }
 
     @Override
     public void onEncryptedAppTicket(SteamResult result) {
-        debugPrint("Encrypted app ticket result: " + (result == SteamResult.OK ? "Success" : "Failed"));
+        debugPrint(
+                "Encrypted app ticket result: "
+                        + (result == SteamResult.OK ? "Success" : "Failed"));
     }
 }

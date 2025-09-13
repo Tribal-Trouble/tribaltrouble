@@ -9,8 +9,6 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.updater.UpdateInfo;
 
-import org.lwjgl.system.Platform;
-
 import java.io.File;
 import java.util.ResourceBundle;
 

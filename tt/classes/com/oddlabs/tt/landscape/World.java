@@ -192,10 +192,10 @@ public final strictfp class World {
         System.out.println("map code: " + world_params.getMapcode());
         // Campaign maps use a static map code of 'Campaign' + Level number
         // which does not adhere to the same pattern as multiplayer map codes
-        if(!world_params.getMapcode().startsWith("Campaign")) {
+        if (!world_params.getMapcode().startsWith("Campaign")) {
             this.map_size = TerrainMenu.getMapSize(world_params.getMapcode());
         }
-        
+
         long time_start = System.currentTimeMillis();
 
         world =
