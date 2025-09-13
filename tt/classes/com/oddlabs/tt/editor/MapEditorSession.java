@@ -12,6 +12,9 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.BackgroundLabelBox;
+import com.oddlabs.tt.gui.LabelBox;
+import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.landscape.AudioImplementation;
 import com.oddlabs.tt.landscape.NotificationListener;
@@ -674,7 +677,7 @@ public final class MapEditorSession {
             getGUIRoot()
                     .getInfoPrinter()
                     .print(
-                "Editor: Height[LMB/RMB]. Wheel: zoom. Ctrl+Wheel: size. Alt+Wheel: intensity. Q: Height tool (hold Q+Wheel cycles mode). W: Resource tool (hold W+Wheel cycles type). T: Toggle overlays (hold T+Wheel layer, Alt+T+Wheel mode). Space: map view toggle. RMB: Erase resources.");
+                "Welcome to the Map Editor! Press f1 for help");
         }
 
         public boolean canScroll() { return true; }
@@ -698,6 +701,39 @@ public final class MapEditorSession {
         }
 
         private boolean mmbDown = false; // don't apply brush while middle mouse is down
+        private LabelBox helpBox = null; // toggled with F1
+
+        private void toggleHelp() {
+            if (helpBox == null) {
+                String helpText =
+                        "Map Editor Help\n\n"
+                                + "Camera:\n"
+                                + "  - Mouse wheel: Zoom\n"
+                                + "  - WASD / Arrow keys: Pan\n"
+                                + "  - Home/End: Pitch, Insert/Delete: Rotate\n"
+                                + "  - PageUp/PageDown: Zoom (tap)\n"
+                                + "  - Space: Toggle map view\n\n"
+                                + "Height Tool (Q):\n"
+                                + "  - LMB: Raise, RMB: Lower\n"
+                                + "  - Ctrl+Wheel: Size, Alt+Wheel: Intensity\n"
+                                + "  - Hold Q + Wheel: Cycle modes (Raise/Lower, Smooth, Flatten)\n\n"
+                                + "Resource Tool (W):\n"
+                                + "  - LMB: Place, RMB: Erase\n"
+                                + "  - Hold W + Wheel: Cycle resource type\n\n"
+                                + "Other:\n"
+                                + "  - ESC: Pause menu\n"
+                                + "  - F1: Toggle this help";
+                helpBox = new BackgroundLabelBox(helpText, Skin.getSkin().getEditFont(), 640);
+                // center on screen
+                int x = (getWidth() - helpBox.getWidth()) / 2;
+                int y = (getHeight() - helpBox.getHeight()) / 2;
+                helpBox.setPos(x, y);
+                addChild(helpBox);
+            } else {
+                helpBox.remove();
+                helpBox = null;
+            }
+        }
 
         public void animate(float t) {
             if (!strokeActive) return;
@@ -973,6 +1009,10 @@ public final class MapEditorSession {
                 new EditorPauseMenu(
                     getGUIRoot(),
                     new StaticCamera(getCamera().getState())));
+                return;
+            }
+            if (event.getKeyCode() == Keyboard.KEY_F1) {
+                toggleHelp();
                 return;
             }
             // Tool toggles: Q = Terrain (also hold to cycle modes), W = Resource. No H/F.
