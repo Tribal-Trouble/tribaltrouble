@@ -49,9 +49,13 @@ public final class MapIO {
         public boolean[][] dock;
         public boolean[][] water;
         public byte[][] build;
-    public final List<int[]> rocks = new ArrayList<>();
-    public final List<int[]> iron = new ArrayList<>();
-    public final List<Plant> plants = new ArrayList<>();
+        // Back-compat minimal resource lists
+        public final List<int[]> rocks = new ArrayList<>();
+        public final List<int[]> iron = new ArrayList<>();
+        // Preferred detailed resource lists
+        public final List<SavedSupply> rockSupplies = new ArrayList<>();
+        public final List<SavedSupply> ironSupplies = new ArrayList<>();
+        public final List<Plant> plants = new ArrayList<>();
     }
 
     // Lightweight summary for file listing/preview without inflating HM3Z
@@ -90,10 +94,27 @@ public final class MapIO {
         public final int typeIndex; // 0..3 for current terrain's plant sheet
         public final float x;
         public final float y;
+        public final float dirX; // optional, NaN when absent
+        public final float dirY; // optional, NaN when absent
         public Plant(int typeIndex, float x, float y) {
+            this(typeIndex, x, y, Float.NaN, Float.NaN);
+        }
+        public Plant(int typeIndex, float x, float y, float dirX, float dirY) {
             this.typeIndex = typeIndex;
             this.x = x;
             this.y = y;
+            this.dirX = dirX;
+            this.dirY = dirY;
+        }
+        public boolean hasDirection() { return !(Float.isNaN(dirX) || Float.isNaN(dirY)); }
+    }
+
+    public static final class SavedSupply {
+        public final int gx, gy;
+        public final float x, y, rot;
+        public final int spriteIndex; // index into current terrain fragment set
+        public SavedSupply(int gx, int gy, float x, float y, float rot, int spriteIndex) {
+            this.gx = gx; this.gy = gy; this.x = x; this.y = y; this.rot = rot; this.spriteIndex = spriteIndex;
         }
     }
 
@@ -118,11 +139,11 @@ public final class MapIO {
         String metaName = baseName;
         String metaAuthor = ""; // unknown author by default
         String metaDesc = "";   // optional description
-        // Collect resources
-        List<int[]> rocks = new ArrayList<>();
-        List<int[]> iron = new ArrayList<>();
-        List<Plant> plants = new ArrayList<>();
-        collectResourcesForSave(world, terrainType, rocks, iron, plants);
+    // Collect resources (with exact details)
+    List<SavedSupply> rocks = new ArrayList<>();
+    List<SavedSupply> iron = new ArrayList<>();
+    List<Plant> plants = new ArrayList<>();
+    collectResourcesForSave(world, terrainType, rocks, iron, plants);
 
         try (DataOutputStream out =
                      new DataOutputStream(new BufferedOutputStream(new FileOutputStream(target)))) {
@@ -176,29 +197,40 @@ public final class MapIO {
             }
             writeSection(out, TAG_GRID, gridBuf.toByteArray());
 
-            // ROCK
+            // ROCK (gx,gy,x,y,rot,spriteIndex) — backward compatible with gx,gy only
             ByteArrayOutputStream rockBuf = new ByteArrayOutputStream();
             try (DataOutputStream rockOut = new DataOutputStream(rockBuf)) {
                 rockOut.writeInt(rocks.size());
-                for (int[] rc : rocks) { rockOut.writeInt(rc[0]); rockOut.writeInt(rc[1]); }
+                for (SavedSupply rc : rocks) {
+                    rockOut.writeInt(rc.gx); rockOut.writeInt(rc.gy);
+                    rockOut.writeFloat(rc.x); rockOut.writeFloat(rc.y);
+                    rockOut.writeFloat(rc.rot); rockOut.writeInt(rc.spriteIndex);
+                }
                 rockOut.flush();
             }
             writeSection(out, TAG_ROCK, rockBuf.toByteArray());
 
-            // IRON
+            // IRON (gx,gy,x,y,rot,spriteIndex) — backward compatible with gx,gy only
             ByteArrayOutputStream ironBuf = new ByteArrayOutputStream();
             try (DataOutputStream ironOut = new DataOutputStream(ironBuf)) {
                 ironOut.writeInt(iron.size());
-                for (int[] ic : iron) { ironOut.writeInt(ic[0]); ironOut.writeInt(ic[1]); }
+                for (SavedSupply ic : iron) {
+                    ironOut.writeInt(ic.gx); ironOut.writeInt(ic.gy);
+                    ironOut.writeFloat(ic.x); ironOut.writeFloat(ic.y);
+                    ironOut.writeFloat(ic.rot); ironOut.writeInt(ic.spriteIndex);
+                }
                 ironOut.flush();
             }
             writeSection(out, TAG_IRON, ironBuf.toByteArray());
 
-            // PLTS
+            // PLTS (typeIndex,x,y[,dirX,dirY]) — backward compatible with typeIndex,x,y only
             ByteArrayOutputStream plantBuf = new ByteArrayOutputStream();
             try (DataOutputStream plantOut = new DataOutputStream(plantBuf)) {
                 plantOut.writeInt(plants.size());
-                for (Plant p : plants) { plantOut.writeInt(p.typeIndex); plantOut.writeFloat(p.x); plantOut.writeFloat(p.y); }
+                for (Plant p : plants) {
+                    plantOut.writeInt(p.typeIndex); plantOut.writeFloat(p.x); plantOut.writeFloat(p.y);
+                    if (p.hasDirection()) { plantOut.writeFloat(p.dirX); plantOut.writeFloat(p.dirY); }
+                }
                 plantOut.flush();
             }
             writeSection(out, TAG_PLTS, plantBuf.toByteArray());
@@ -241,9 +273,11 @@ public final class MapIO {
     }
 
     private static void collectResourcesForSave(
-            World world, int terrainType, List<int[]> rocks, List<int[]> irons, List<Plant> plants) {
+            World world, int terrainType, List<SavedSupply> rocks, List<SavedSupply> irons, List<Plant> plants) {
         // Precompute sprite mapping for plant type index
         SpriteKey[] plantSprites0 = world.getLandscapeResources().getPlants()[terrainType];
+        SpriteKey[] rockSprites0 = world.getLandscapeResources().getRockFragments();
+        SpriteKey[] ironSprites0 = world.getLandscapeResources().getIronFragments();
 
         com.oddlabs.tt.model.ElementNodeVisitor visitor = new com.oddlabs.tt.model.ElementNodeVisitor() {
             @Override public void visitNode(com.oddlabs.tt.model.ElementNode node) {
@@ -255,10 +289,19 @@ public final class MapIO {
             @Override public void visit(com.oddlabs.tt.model.Element element) {
                 if (element instanceof RockSupply) {
                     SupplyModel s = (SupplyModel) element;
-                    rocks.add(new int[] {s.getGridX(), s.getGridY()});
+                    // sprite index by identity match
+                    int spriteIndex = 0;
+                    for (int i = 0; i < rockSprites0.length; i++) {
+                        if (rockSprites0[i] == s.getSpriteRenderer() || s.getSpriteRenderer().equals(rockSprites0[i])) { spriteIndex = i; break; }
+                    }
+                    rocks.add(new SavedSupply(s.getGridX(), s.getGridY(), s.getPositionX(), s.getPositionY(), s.getRotation(), spriteIndex));
                 } else if (element instanceof IronSupply) {
                     SupplyModel s = (SupplyModel) element;
-                    irons.add(new int[] {s.getGridX(), s.getGridY()});
+                    int spriteIndex = 0;
+                    for (int i = 0; i < ironSprites0.length; i++) {
+                        if (ironSprites0[i] == s.getSpriteRenderer() || s.getSpriteRenderer().equals(ironSprites0[i])) { spriteIndex = i; break; }
+                    }
+                    irons.add(new SavedSupply(s.getGridX(), s.getGridY(), s.getPositionX(), s.getPositionY(), s.getRotation(), spriteIndex));
                 } else if (element instanceof Plants) {
                     Plants p = (Plants) element;
                     // Infer plant type index by sprite identity
@@ -267,7 +310,7 @@ public final class MapIO {
                     for (int i = 0; i < plantSprites0.length; i++) {
                         if (plantSprites0[i] == key || key.equals(plantSprites0[i])) { typeIdx = i; break; }
                     }
-                    plants.add(new Plant(typeIdx, p.getPositionX(), p.getPositionY()));
+                    plants.add(new Plant(typeIdx, p.getPositionX(), p.getPositionY(), p.getDirectionX(), p.getDirectionY()));
                 }
             }
         };
@@ -327,17 +370,42 @@ public final class MapIO {
                         byte[] buf = new byte[len]; in.readFully(buf);
                         DataInputStream s = new DataInputStream(new ByteArrayInputStream(buf));
                         int c = s.readInt();
-                        for (int i = 0; i < c; i++) lm.rocks.add(new int[] {s.readInt(), s.readInt()});
+                        // Determine if extras are present for all entries
+                        int avail = s.available();
+                        boolean hasExtras = avail >= c * (4 * 4); // x(float), y(float), rot(float), spriteIndex(int) = 16 bytes extra per entry
+                        for (int i = 0; i < c; i++) {
+                            int gx = s.readInt(); int gy = s.readInt();
+                            lm.rocks.add(new int[] {gx, gy});
+                            if (hasExtras) {
+                                float x = s.readFloat(); float y = s.readFloat(); float rot = s.readFloat(); int si = s.readInt();
+                                lm.rockSupplies.add(new SavedSupply(gx, gy, x, y, rot, si));
+                            }
+                        }
                     } else if (tag == TAG_IRON) {
                         byte[] buf = new byte[len]; in.readFully(buf);
                         DataInputStream s = new DataInputStream(new ByteArrayInputStream(buf));
                         int c = s.readInt();
-                        for (int i = 0; i < c; i++) lm.iron.add(new int[] {s.readInt(), s.readInt()});
+                        int avail = s.available();
+                        boolean hasExtras = avail >= c * (4 * 4);
+                        for (int i = 0; i < c; i++) {
+                            int gx = s.readInt(); int gy = s.readInt();
+                            lm.iron.add(new int[] {gx, gy});
+                            if (hasExtras) {
+                                float x = s.readFloat(); float y = s.readFloat(); float rot = s.readFloat(); int si = s.readInt();
+                                lm.ironSupplies.add(new SavedSupply(gx, gy, x, y, rot, si));
+                            }
+                        }
                     } else if (tag == TAG_PLTS) {
                         byte[] buf = new byte[len]; in.readFully(buf);
                         DataInputStream s = new DataInputStream(new ByteArrayInputStream(buf));
                         int c = s.readInt();
-                        for (int i = 0; i < c; i++) lm.plants.add(new Plant(s.readInt(), s.readFloat(), s.readFloat()));
+                        int avail = s.available();
+                        boolean hasDir = avail >= c * (4 * 2); // dirX,dirY floats = 8 bytes per entry
+                        for (int i = 0; i < c; i++) {
+                            int idx = s.readInt(); float x = s.readFloat(); float y = s.readFloat();
+                            if (hasDir) { float dx = s.readFloat(); float dy = s.readFloat(); lm.plants.add(new Plant(idx, x, y, dx, dy)); }
+                            else { lm.plants.add(new Plant(idx, x, y)); }
+                        }
                     } else {
                         // skip unknown
                         long skipped = 0; while (skipped < len) { long k = in.skip(len - skipped); if (k <= 0) break; skipped += k; }
@@ -394,21 +462,24 @@ public final class MapIO {
     // List .ttmap files in mapsDir (unsorted or sorted by name)
     public static java.util.List<MapSummary> listMaps() {
         File dir = mapsDir();
-        File[] files = dir.listFiles(new FilenameFilter() {
-            public boolean accept(File d, String name) { return name.toLowerCase(java.util.Locale.ROOT).endsWith(".ttmap"); }
-        });
+        File[] files = dir.listFiles((d, name) -> name.toLowerCase(java.util.Locale.ROOT).endsWith(".ttmap"));
         java.util.List<MapSummary> out = new java.util.ArrayList<>();
         if (files == null) return out;
-        java.util.Arrays.sort(files, new java.util.Comparator<File>() {
-            public int compare(File a, File b) { return a.getName().compareToIgnoreCase(b.getName()); }
-        });
+        java.util.Arrays.sort(files, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
         for (File f : files) {
-            try { out.add(peek(f)); } catch (Throwable t) {
+            try { out.add(peek(f)); } catch (Exception t) {
                 // Fallback: minimal summary
                 out.add(new MapSummary(f, 0, 0, 0f, 0, null, null, null, f.lastModified()));
             }
         }
         return out;
+    }
+
+    private static int stableIndex(int gx, int gy, int length, int salt) {
+        if (length <= 1) return 0;
+        int h = stableHash(gx, gy, salt);
+        int idx = (h & 0x7fffffff) % length;
+        return idx;
     }
 
     // Very conservative filename check for map files (without extension)
@@ -481,37 +552,84 @@ public final class MapIO {
         for (SupplyModel s : toRemoveSupplies) { try { s.editorRemoveNow(); } catch (Throwable ignore) {} }
         for (Plants p : toRemovePlants) { try { p.remove(); } catch (Throwable ignore) {} }
 
-        // Spawn rock/iron at grid coords
+        // Spawn rock/iron using exact details when available; else deterministic fallback
         SpriteKey[] rockSprites = world.getLandscapeResources().getRockFragments();
         SpriteKey[] ironSprites = world.getLandscapeResources().getIronFragments();
-        java.util.Random rnd = world.getRandom();
-        for (int[] rc : map.rocks) {
-            int gx = rc[0], gy = rc[1];
-            float x = UnitGrid.coordinateFromGrid(gx) + (rnd.nextFloat() - .5f);
-            float y = UnitGrid.coordinateFromGrid(gy) + (rnd.nextFloat() - .5f);
-            float rot = rnd.nextFloat() * 360f;
-            SpriteKey sk = rockSprites[(map.rocks.indexOf(rc)) % rockSprites.length];
-            new RockSupply(world, sk, 2f, gx, gy, x, y, rot, true);
+        if (!map.rockSupplies.isEmpty()) {
+            for (SavedSupply rc : map.rockSupplies) {
+                int si = Math.max(0, Math.min(rc.spriteIndex, rockSprites.length - 1));
+                new RockSupply(world, rockSprites[si], 2f, rc.gx, rc.gy, rc.x, rc.y, rc.rot, true);
+            }
+        } else {
+            for (int[] rc : map.rocks) {
+                int gx = rc[0], gy = rc[1];
+                float[] pr = stablePosRot(gx, gy, n);
+                int si = stableIndex(gx, gy, rockSprites.length, 17);
+                new RockSupply(world, rockSprites[si], 2f, gx, gy, pr[0], pr[1], pr[2], true);
+            }
         }
-        for (int[] ic : map.iron) {
-            int gx = ic[0], gy = ic[1];
-            float x = UnitGrid.coordinateFromGrid(gx) + (rnd.nextFloat() - .5f);
-            float y = UnitGrid.coordinateFromGrid(gy) + (rnd.nextFloat() - .5f);
-            float rot = rnd.nextFloat() * 360f;
-            SpriteKey sk = ironSprites[(map.iron.indexOf(ic)) % ironSprites.length];
-            new IronSupply(world, sk, 2f, gx, gy, x, y, rot, true);
+        if (!map.ironSupplies.isEmpty()) {
+            for (SavedSupply ic : map.ironSupplies) {
+                int si = Math.max(0, Math.min(ic.spriteIndex, ironSprites.length - 1));
+                new IronSupply(world, ironSprites[si], 2f, ic.gx, ic.gy, ic.x, ic.y, ic.rot, true);
+            }
+        } else {
+            for (int[] ic : map.iron) {
+                int gx = ic[0], gy = ic[1];
+                float[] pr = stablePosRot(gx, gy, n);
+                int si = stableIndex(gx, gy, ironSprites.length, 31);
+                new IronSupply(world, ironSprites[si], 2f, gx, gy, pr[0], pr[1], pr[2], true);
+            }
         }
 
         // Spawn plants
         SpriteKey[] plantSprites = world.getLandscapeResources().getPlants()[terrainType];
         for (Plant pl : map.plants) {
-            float dir_x = rnd.nextFloat();
-            float dir_y = rnd.nextFloat();
-            float len2 = dir_x * dir_x + dir_y * dir_y;
-            if (len2 < 1e-3f) { dir_x = 1f; dir_y = 0f; }
-            else { float inv = 1f / (float) StrictMath.sqrt(len2); dir_x *= inv; dir_y *= inv; }
+            float dir_x, dir_y;
+            if (pl.hasDirection()) { dir_x = pl.dirX; dir_y = pl.dirY; }
+            else {
+                // Deterministic from position
+                int seed = hashFloatPair(pl.x, pl.y);
+                dir_x = (hashToUnit(seed) - 0.5f) * 2f; dir_y = (hashToUnit(seed * 1664525 + 1013904223) - 0.5f) * 2f;
+                float len2 = dir_x * dir_x + dir_y * dir_y;
+                if (len2 < 1e-6f) { dir_x = 1f; dir_y = 0f; }
+                else { float inv = 1f / (float) StrictMath.sqrt(len2); dir_x *= inv; dir_y *= inv; }
+            }
             int idx = Math.max(0, Math.min(pl.typeIndex, plantSprites.length - 1));
             new Plants(world, pl.x, pl.y, dir_x, dir_y, plantSprites[idx]);
         }
     }
+
+    private static int stableHash(int gx, int gy, int salt) {
+        int h = gx * 73856093 ^ gy * 19349663 ^ salt * 83492791;
+        h ^= (h >>> 16);
+        h *= 0x7feb352d;
+        h ^= (h >>> 15);
+        h *= 0x846ca68b;
+        h ^= (h >>> 16);
+        return h;
+    }
+
+    private static float[] stablePosRot(int gx, int gy, int n) {
+        float cx = UnitGrid.coordinateFromGrid(gx);
+        float cy = UnitGrid.coordinateFromGrid(gy);
+        int h = stableHash(gx, gy, n);
+        float ox = (hashToUnit(h) - 0.5f) * 0.9f; // within cell, conservative radius
+        float oy = (hashToUnit(h * 1664525 + 1013904223) - 0.5f) * 0.9f;
+        float rot = hashToUnit(h * 1103515245 + 12345) * 360f;
+        return new float[] {cx + ox, cy + oy, rot};
+    }
+
+    private static float hashToUnit(int h) {
+        // Map int to [0,1)
+        return (h >>> 1) / (float) (1 << 31);
+    }
+
+    private static int hashFloatPair(float x, float y) {
+        int xi = Float.floatToIntBits(x);
+        int yi = Float.floatToIntBits(y);
+        return stableHash(xi, yi, 123);
+    }
+
+    
 }
