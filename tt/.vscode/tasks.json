@@ -44,6 +44,19 @@
 				"$eslint-stylish"
 			],
 			"group": "build"
+		},
+		{
+			"label": "ant-compile-tt",
+			"type": "shell",
+			"command": "ant",
+			"args": [
+				"compile"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
 		}
 	]
 }
