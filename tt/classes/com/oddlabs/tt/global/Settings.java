@@ -178,9 +178,11 @@ public final strictfp class Settings implements Serializable {
                 throw new RuntimeException(e);
             }
         }
+
+        String settings_save_file = Globals.getSettingsFileName();
         System.out.println(
-                "Saving settings to " + LocalInput.getGameDir() + Globals.SETTINGS_FILE_NAME);
-        File settings_file = new File(LocalInput.getGameDir(), Globals.SETTINGS_FILE_NAME);
+                "Saving settings to " + LocalInput.getGameDir() + settings_save_file);
+        File settings_file = new File(LocalInput.getGameDir(), settings_save_file);
         try {
             OutputStream out = new FileOutputStream(settings_file);
             props.store(out, "comment");
@@ -234,7 +236,7 @@ public final strictfp class Settings implements Serializable {
         System.out.println("Loading settings from " + game_dir);
         Field[] pref_fields = getClass().getDeclaredFields();
         Properties props = new Properties();
-        File settings_file = new File(game_dir, Globals.SETTINGS_FILE_NAME);
+        File settings_file = new File(game_dir, Globals.getSettingsFileName());
         try {
             InputStream in = new FileInputStream(settings_file);
             props.load(in);

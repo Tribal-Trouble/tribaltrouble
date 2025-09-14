@@ -171,8 +171,6 @@ public final strictfp class LocalInput {
             // In reality this is the save file path not the actual game dir...
             if (SteamAPI.isSteamRunning()) {
                 try {
-                    long account_id =
-                            SteamAchievementManager.getAchievementManager().getAccountID();
                     File jarFile =
                             new File(
                                     Main.class
@@ -181,7 +179,7 @@ public final strictfp class LocalInput {
                                             .getLocation()
                                             .toURI());
                     String exePath =
-                            jarFile.getParentFile().getAbsolutePath() + File.separator + account_id;
+                            jarFile.getParentFile().getParentFile().getParentFile().getAbsolutePath() + File.separator + "save_data";
                     System.out.println("Save file path: " + exePath);
                     game_dir_path = exePath;
                 } catch (Exception e) {

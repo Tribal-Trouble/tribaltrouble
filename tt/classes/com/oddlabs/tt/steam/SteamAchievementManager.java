@@ -21,12 +21,7 @@ public class SteamAchievementManager implements SteamUserStatsCallback, SteamUse
     public static SteamAchievementManager getAchievementManager() {
         return instance;
     }
-
-    // Ensure Steam API is initialized before using the achievement manager
-    static {
-        SteamAchievementManager.getAchievementManager();
-    }
-
+    
     private SteamUserStats steamUserStats;
     private SteamUser steamUser;
 
