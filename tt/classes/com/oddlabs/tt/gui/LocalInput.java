@@ -180,7 +180,6 @@ public final strictfp class LocalInput {
                     String exePath =
                             jarFile.getParentFile()
                                             .getParentFile()
-                                            .getParentFile()
                                             .getAbsolutePath()
                                     + File.separator
                                     + "save_data";
