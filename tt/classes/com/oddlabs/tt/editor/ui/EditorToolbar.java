@@ -79,7 +79,7 @@ public final class EditorToolbar extends Form {
         this.optionsBinding = optionsBinding;
 
         // Buttons row: [Test] [Save] [Load] [Online]
-        HorizButton btnTest = new HorizButton("Test", 80);
+    HorizButton btnTest = new HorizButton("Test (Ctrl+P)", 120);
         HorizButton btnSave = new HorizButton("Save", 80);
         HorizButton btnLoad = new HorizButton("Load", 80);
         HorizButton btnOnline = new HorizButton("Online", 90);
@@ -109,54 +109,16 @@ public final class EditorToolbar extends Form {
         });
         btnTest.addMouseClickListener(new MouseClickListener() {
             @Override public void mouseClicked(int button, int x, int y, int clicks) {
+                // Open the Test Map modal form (reuses Single Player players section)
                 try {
-                    // 1) Quick-export current world
-                    java.io.File dir = com.oddlabs.tt.mapio.MapIO.mapsDir();
-                    java.io.File file = new java.io.File(dir, "editor_map.ttmap");
-                    com.oddlabs.tt.mapio.MapIO.saveEditorWorld(EditorToolbar.this.world, EditorToolbar.this.terrainType, file);
-                    EditorToolbar.this.guiRoot.getInfoPrinter().print("Exported test map: " + file.getName());
-
-                    // 2) Start single-player test using the exported map
-                    int meters = EditorToolbar.this.world.getHeightMap().getMetersPerWorld();
-                    int gamespeed = EditorToolbar.this.world.getGamespeed();
-                    com.oddlabs.tt.net.GameNetwork game_network =
-                        com.oddlabs.tt.delegate.Menu.startNewGameWithMap(
-                                com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
-                                EditorToolbar.this.guiRoot,
-                                null,
-                                new com.oddlabs.tt.landscape.WorldParameters(
-                                        gamespeed,
-                                        "",
-                                        com.oddlabs.tt.player.Player.INITIAL_UNIT_COUNT,
-                                        com.oddlabs.tt.player.Player.DEFAULT_MAX_UNIT_COUNT),
-                                new com.oddlabs.tt.viewer.DefaultInGameInfo(),
-                                new com.oddlabs.tt.delegate.Menu.DefaultWorldInitAction(),
-                                null,
-                                meters,
-                                EditorToolbar.this.terrainType,
-                                .5f,
-                                .5f,
-                                .5f,
-                                1337,
-                                false,
-                                new String[0],
-                                1,
-                                file);
-                    // Set local player slot as human and start server
-                    game_network
-                        .getClient()
-                        .getServerInterface()
-                        .setPlayerSlot(
-                                0,
-                                com.oddlabs.tt.net.PlayerSlot.HUMAN,
-                                0,
-                                0,
-                                true,
-                                com.oddlabs.tt.net.PlayerSlot.AI_NONE);
-                    game_network.getClient().getServerInterface().startServer();
-                    EditorToolbar.this.guiRoot.getInfoPrinter().print("Launching test game...");
+                    EditorToolbar.this.guiRoot.addModalForm(
+                            new com.oddlabs.tt.form.TestMapForm(
+                                    EditorToolbar.this.guiRoot,
+                                    com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
+                                    EditorToolbar.this.world,
+                                    EditorToolbar.this.terrainType));
                 } catch (Throwable t) {
-                    EditorToolbar.this.guiRoot.getInfoPrinter().print("Test failed: " + t.getMessage());
+                    EditorToolbar.this.guiRoot.getInfoPrinter().print("Open Test Map failed: " + t.getMessage());
                 }
             }
         });

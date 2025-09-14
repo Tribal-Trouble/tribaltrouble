@@ -881,7 +881,8 @@ public final class MapEditorSession {
                 + "  - Note: Plant and Rubber placement are disabled in this build\n\n"
                                 + "Other:\n"
                                 + "  - ESC: Pause menu\n"
-                                + "  - F1: Toggle this help";
+                                + "  - F1: Toggle this help\n"
+                                + "  - Ctrl+P: Test Map (configure players)";
                 helpBox = new BackgroundLabelBox(helpText, Skin.getSkin().getEditFont(), 640);
                 // center on screen
                 int x = (getWidth() - helpBox.getWidth()) / 2;
@@ -1179,6 +1180,19 @@ public final class MapEditorSession {
             if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_S) {
                 getGUIRoot().addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.SaveDialog(
                         getGUIRoot(), world, terrainType));
+                return;
+            }
+            // Ctrl+P: Open Test Map modal form
+            if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_P) {
+                try {
+                    getGUIRoot().addModalForm(new com.oddlabs.tt.form.TestMapForm(
+                            getGUIRoot(),
+                            com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
+                            world,
+                            terrainType));
+                } catch (Throwable t) {
+                    info("Open Test Map failed: " + t.getMessage());
+                }
                 return;
             }
             // ` (grave) toggles the toolbar visibility (or recreates if missing)
