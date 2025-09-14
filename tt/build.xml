@@ -292,6 +292,7 @@
 				<include name="sfx/*.wav" />
 				<include name="music/*.ogg" />
 				<include name="font/*font" />
+				<include name="*.png" />
 				<!--				<include name="textures/models/*png"/>
 				<include name="textures/models/*jpg"/>-->
 			</fileset>

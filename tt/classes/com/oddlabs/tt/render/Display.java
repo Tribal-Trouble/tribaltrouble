@@ -7,8 +7,16 @@ import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.input.Mouse;
 
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.system.MemoryStack;
+
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import javax.imageio.ImageIO;
 
 public final strictfp class Display {
     private static long window;
@@ -73,6 +81,9 @@ public final strictfp class Display {
 
         GLFW.glfwMakeContextCurrent(window);
         GL.createCapabilities();
+
+        // Set the window icon after the window is shown and context is created
+        setWindowIcon();
 
         // Simple debug to check actual dimensions
         try {
@@ -156,5 +167,58 @@ public final strictfp class Display {
             modes[i] = buffer.get(i);
         }
         return modes;
+    }
+
+    /**
+     * Sets the window icon using a PNG image from resources.
+     * Uses Java's built-in ImageIO for loading and GLFW for setting the icon.
+     */
+    private final static void setWindowIcon() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            // Try to load the icon from resources - multiple fallback paths
+            InputStream iconStream = null;
+            
+            if (iconStream == null) {
+                iconStream = Display.class.getResourceAsStream("/icon.png");
+            }
+            
+            if (iconStream == null) {
+                System.out.println("Window icon not found, skipping icon setup");
+                return;
+            }
+
+            // Load the image using Java's built-in ImageIO
+            BufferedImage image = ImageIO.read(iconStream);
+            int width = image.getWidth();
+            int height = image.getHeight();
+
+            // Convert BufferedImage to RGBA byte array
+            int[] pixels = new int[width * height];
+            image.getRGB(0, 0, width, height, pixels, 0, width);
+
+            // Create ByteBuffer for GLFW (RGBA format)
+            ByteBuffer buffer = stack.malloc(width * height * 4);
+            for (int i = 0; i < pixels.length; i++) {
+                int pixel = pixels[i];
+                buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red
+                buffer.put((byte) ((pixel >> 8) & 0xFF));  // Green
+                buffer.put((byte) (pixel & 0xFF));         // Blue
+                buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha
+            }
+            buffer.flip();
+
+            // Create GLFW image structure - try with multiple sizes if possible
+            GLFWImage.Buffer iconBuffer = GLFWImage.malloc(1, stack);
+            GLFWImage iconImage = iconBuffer.get(0);
+            iconImage.set(width, height, buffer);
+
+            GLFW.glfwSetWindowIcon(window, iconBuffer);            
+            GLFW.glfwFocusWindow(window);            
+
+        } catch (IOException e) {
+            System.out.println("Failed to load window icon: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Failed to set window icon: " + e.getMessage());
+        }
     }
 }
