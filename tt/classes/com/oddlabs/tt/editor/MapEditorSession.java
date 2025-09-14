@@ -1176,7 +1176,8 @@ public final class MapEditorSession {
             }
             // ` (grave) toggles the toolbar visibility (or recreates if missing)
             if (!event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_GRAVE) {
-                if (toolbar == null) {
+                // If toolbar object is null or was closed (removed from parent), recreate it
+                if (toolbar == null || toolbar.getParent() == null) {
                     try {
                         toolbar = new com.oddlabs.tt.editor.ui.EditorToolbar(getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType, brushBinding, optionsBinding);
                         toolbar.dockTopLeft(8, 8);

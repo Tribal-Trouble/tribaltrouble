@@ -3,6 +3,7 @@ package com.oddlabs.tt.editor.ui;
 import com.oddlabs.tt.form.MessageForm;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.CheckBox;
@@ -12,6 +13,7 @@ import com.oddlabs.tt.gui.PulldownButton;
 import com.oddlabs.tt.gui.PulldownMenu;
 import com.oddlabs.tt.gui.PulldownItem;
 import com.oddlabs.tt.guievent.MouseClickListener;
+import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.guievent.ValueListener;
 import com.oddlabs.tt.guievent.CheckBoxListener;
 import com.oddlabs.tt.landscape.World;
@@ -35,7 +37,6 @@ public final class EditorToolbar extends Form {
     private boolean suppressProgrammatic;
     private boolean visible = true;
 
-    private final Label title;
     // Brush controls
     private Label radiusLabel;
     private Slider radiusSlider;
@@ -55,6 +56,8 @@ public final class EditorToolbar extends Form {
     private Label overlayLabel;
     private PulldownButton overlayButton;
 
+    // Drag handling (we clamp horizontally to keep it a strip; Form adds top bar drag)
+
     // Back-compat: previous code may call a 5-arg constructor; delegate to the new one.
     public EditorToolbar(GUIRoot guiRoot, World world, LandscapeRenderer lr, DefaultRenderer dr, int terrainType) {
         this(guiRoot, world, lr, dr, terrainType, null, null);
@@ -65,6 +68,7 @@ public final class EditorToolbar extends Form {
     }
 
     public EditorToolbar(GUIRoot guiRoot, World world, LandscapeRenderer lr, DefaultRenderer dr, int terrainType, BrushBinding brushBinding, EditorOptionsBinding optionsBinding) {
+        super("Editor"); // enable top bar with caption + close (draggable)
         this.guiRoot = guiRoot;
         this.world = world;
         this.lr = lr;
@@ -73,24 +77,20 @@ public final class EditorToolbar extends Form {
         this.brushBinding = brushBinding;
         this.optionsBinding = optionsBinding;
 
-        // Title
-        title = new Label("Editor", Skin.getSkin().getEditFont());
-        addChild(title);
-        title.place();
-
         // Buttons row: [Test] [Save] [Load] [Online]
         HorizButton btnTest = new HorizButton("Test", 80);
         HorizButton btnSave = new HorizButton("Save", 80);
         HorizButton btnLoad = new HorizButton("Load", 80);
         HorizButton btnOnline = new HorizButton("Online", 90);
 
-    addChild(btnTest);
-    addChild(btnSave);
-    addChild(btnLoad);
-    addChild(btnOnline);
+        addChild(btnTest);
+        addChild(btnSave);
+        addChild(btnLoad);
+        addChild(btnOnline);
 
-        // Layout to the right of the title
-        btnTest.place(title, RIGHT_MID, Skin.getSkin().getFormData().getSectionSpacing());
+    // Layout in a single horizontal row (start at content origin, chain RIGHT_MID)
+    int spacing = StrictMath.max(2, Skin.getSkin().getFormData().getObjectSpacing());
+    btnTest.place();
         btnSave.place(btnTest, RIGHT_MID);
         btnLoad.place(btnSave, RIGHT_MID);
         btnOnline.place(btnLoad, RIGHT_MID);
@@ -165,9 +165,8 @@ public final class EditorToolbar extends Form {
             }
         });
 
-        // Brush controls row: Radius [----] 00m   Intensity [----] 0.0
-        int sliderLen = 150;
-        int spacing = Skin.getSkin().getFormData().getSectionSpacing();
+    // Brush controls placed inline after buttons: Radius [----] 00m   Intensity [----] 0.0
+    int sliderLen = 120;
         radiusLabel = new Label("Radius", Skin.getSkin().getEditFont());
         radiusSlider = new Slider(sliderLen, 1, 200, 6);
         // Widen numeric labels to prevent clipping (allow up to "200m" and "10.0")
@@ -183,20 +182,20 @@ public final class EditorToolbar extends Form {
         addChild(intensitySlider);
         addChild(intensityValue);
 
-        // Layout second row under buttons
-        radiusLabel.place(title, TOP_LEFT, spacing);
-        radiusSlider.place(radiusLabel, RIGHT_MID);
-        radiusValue.place(radiusSlider, RIGHT_MID, spacing / 2);
-        intensityLabel.place(radiusValue, RIGHT_MID, spacing);
-        intensitySlider.place(intensityLabel, RIGHT_MID);
-        intensityValue.place(intensitySlider, RIGHT_MID, spacing / 2);
+    // Inline layout following the action buttons
+    radiusLabel.place(btnOnline, RIGHT_MID, spacing);
+    radiusSlider.place(radiusLabel, RIGHT_MID);
+    radiusValue.place(radiusSlider, RIGHT_MID, spacing / 2);
+    intensityLabel.place(radiusValue, RIGHT_MID, spacing);
+    intensitySlider.place(intensityLabel, RIGHT_MID);
+    intensityValue.place(intensitySlider, RIGHT_MID, spacing / 2);
 
         // Third row: selectors (Tool, Mode, Resource, Overlays)
         toolLabel = new Label("Tool", Skin.getSkin().getEditFont());
         PulldownMenu toolMenu = new PulldownMenu();
         toolMenu.addItem(new PulldownItem("Terrain"));
         toolMenu.addItem(new PulldownItem("Resource"));
-        toolButton = new PulldownButton(guiRoot, toolMenu, 120);
+    toolButton = new PulldownButton(guiRoot, toolMenu, 110);
 
         modeLabel = new Label("Mode", Skin.getSkin().getEditFont());
         PulldownMenu modeMenu = new PulldownMenu();
@@ -212,9 +211,9 @@ public final class EditorToolbar extends Form {
             modeMenu.addItem(new PulldownItem("Rough"));
             modeMenu.addItem(new PulldownItem("Random"));
         }
-        modeButton = new PulldownButton(guiRoot, modeMenu, 150);
+    modeButton = new PulldownButton(guiRoot, modeMenu, 140);
 
-    resourceLabel = new Label("Resource", Skin.getSkin().getEditFont());
+        resourceLabel = new Label("Resource", Skin.getSkin().getEditFont());
         PulldownMenu resMenu = new PulldownMenu();
         if (optionsBinding != null) {
             for (String n : optionsBinding.getResourceTypeNames()) resMenu.addItem(new PulldownItem(n));
@@ -226,7 +225,7 @@ public final class EditorToolbar extends Form {
             resMenu.addItem(new PulldownItem("Tree Oak"));
             resMenu.addItem(new PulldownItem("Tree Pine"));
         }
-        resourceButton = new PulldownButton(guiRoot, resMenu, 150);
+    resourceButton = new PulldownButton(guiRoot, resMenu, 140);
 
         overlayMaster = new CheckBox(false, "Overlays");
         overlayLabel = new Label("Layer", Skin.getSkin().getEditFont());
@@ -241,26 +240,28 @@ public final class EditorToolbar extends Form {
             ovMenu.addItem(new PulldownItem("Resource"));
             ovMenu.addItem(new PulldownItem("Slope"));
         }
-        overlayButton = new PulldownButton(guiRoot, ovMenu, 150);
+    overlayButton = new PulldownButton(guiRoot, ovMenu, 140);
 
         addChild(toolLabel);
         addChild(toolButton);
-    addChild(modeLabel);
-    addChild(modeButton);
-    addChild(resourceLabel);
-    addChild(resourceButton);
+        addChild(modeLabel);
+        addChild(modeButton);
+        addChild(resourceLabel);
+        addChild(resourceButton);
         addChild(overlayMaster);
         addChild(overlayLabel);
         addChild(overlayButton);
 
-    toolLabel.place(radiusLabel, TOP_LEFT, spacing);
+    // Tool selector follows intensity controls
+        toolLabel.place(intensityValue, RIGHT_MID, spacing);
         toolButton.place(toolLabel, RIGHT_MID);
-    // Place Mode and Resource controls to share the same slot. We'll toggle visibility.
-    modeLabel.place(toolButton, RIGHT_MID, spacing);
-    modeButton.place(modeLabel, RIGHT_MID);
-    resourceLabel.place(toolButton, RIGHT_MID, spacing);
-    resourceButton.place(resourceLabel, RIGHT_MID);
-        overlayMaster.place(resourceButton, RIGHT_MID, spacing);
+        // Mode and Resource occupy the same position; we'll toggle visibility later
+        modeLabel.place(toolButton, RIGHT_MID, spacing);
+        modeButton.place(modeLabel, RIGHT_MID);
+        resourceLabel.place(toolButton, RIGHT_MID, spacing);
+        resourceButton.place(resourceLabel, RIGHT_MID);
+        // Overlay controls follow whichever is visible (anchor to resourceButton for stable layout)
+    overlayMaster.place(resourceButton, RIGHT_MID, spacing);
         overlayLabel.place(overlayMaster, RIGHT_MID, spacing);
         overlayButton.place(overlayLabel, RIGHT_MID);
 
@@ -315,10 +316,23 @@ public final class EditorToolbar extends Form {
             });
         }
 
-    compileCanvas();
-    // Default docked position; caller should re-position on viewport changes if desired
-        setPos(8, 8);
-    setHidden(false);
+        compileCanvas();
+        // Natural-size panel; caller sets initial position.
+        setPos(getX(), Math.max(0, getY() == 0 ? 8 : getY()));
+        setHidden(false);
+
+        // During drags, clamp vertical position within viewport; allow free horizontal movement.
+        addMouseMotionListener(new MouseMotionListener() {
+            public void mouseDragged(int button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
+                int h = EditorToolbar.this.getHeight();
+                int maxY = StrictMath.max(0, LocalInput.getViewHeight() - h);
+                int clampedY = clamp(EditorToolbar.this.getY(), 0, maxY);
+                EditorToolbar.this.setPos(EditorToolbar.this.getX(), clampedY);
+            }
+            public void mouseMoved(int x, int y) {}
+            public void mouseEntered() {}
+            public void mouseExited() {}
+        });
 
         // Initialize positions from bindings if available
         syncFromBinding();
@@ -328,6 +342,7 @@ public final class EditorToolbar extends Form {
     public void toggleVisible() { visible = !visible; setHidden(!visible); }
 
     public void dockTopLeft(int offsetX, int offsetY) {
+        // Natural-width panel anchored near top-left
         setPos(offsetX, offsetY);
     }
 
@@ -392,4 +407,13 @@ public final class EditorToolbar extends Form {
 
     private static int clamp(int v, int min, int max) { return v < min ? min : (v > max ? max : v); }
     private static String format1(float v) { return String.format(java.util.Locale.US, "%.1f", v); }
+
+    @Override
+    protected void displayChangedNotify(int width, int height) {
+        // Keep natural width; clamp vertical position within the viewport
+        int clampedY = clamp(getY(), 0, StrictMath.max(0, height - getHeight()));
+        setPos(getX(), clampedY);
+    }
+
+    // No mouse overrides: Form handles top bar drag; we clamp via listener
 }
