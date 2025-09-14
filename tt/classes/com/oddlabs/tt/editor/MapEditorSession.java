@@ -734,12 +734,10 @@ public final class MapEditorSession {
 
     // ------- Overlay tool state -------
     private enum OverlayLayer { WATER, DOCK, ACCESS, BUILD, RESOURCE, SLOPE }
-    private enum OverlayMode { THRESHOLD, GRAYSCALE, HEAT }
     private boolean overlayActiveHeld = false; // true while T is held (for cycling)
     private boolean overlayTPressed = false;   // true between T down and up
     private boolean overlayTScrollUsed = false; // true if user scrolled while holding T
     private OverlayLayer overlayLayer = OverlayLayer.WATER;
-    private OverlayMode overlayMode = OverlayMode.THRESHOLD;
 
         EditorDelegate(
                 GUIRoot root,
@@ -905,16 +903,11 @@ public final class MapEditorSession {
             boolean ctrl = LocalInput.isControlDownCurrently();
             boolean alt = LocalInput.isMenuDownCurrently();
 
-            // Overlay cycling when holding T
+            // Overlay layer cycling when holding T
             if (LocalInput.isKeyDown(Keyboard.KEY_T)) {
                 overlayTScrollUsed = true;
-                if (alt) {
-                    // Cycle overlay mode
-                    if (amount > 0) nextOverlayMode(); else if (amount < 0) prevOverlayMode();
-                } else {
-                    // Cycle overlay layer
-                    if (amount > 0) nextOverlayLayer(); else if (amount < 0) prevOverlayLayer();
-                }
+                // Cycle overlay layer only (no mode switching)
+                if (amount > 0) nextOverlayLayer(); else if (amount < 0) prevOverlayLayer();
                 return;
             }
 
@@ -1207,15 +1200,13 @@ public final class MapEditorSession {
                         boolean now = !EDITOR_STATE.isOverlayMaster();
                         EDITOR_STATE.setOverlayMaster(now);
                     }
-                    getGUIRoot()
-                            .getInfoPrinter()
-                            .print(
-                                    "Overlays: "
-                                            + (EDITOR_STATE.isOverlayMaster() ? "ON" : "OFF")
-                                            + " | Layer="
-                                            + overlayLayer
-                                            + " | Mode="
-                                            + overlayMode);
+            getGUIRoot()
+                .getInfoPrinter()
+                .print(
+                    "Overlays: "
+                        + (EDITOR_STATE.isOverlayMaster() ? "ON" : "OFF")
+                        + " | Layer="
+                        + overlayLayer);
                 }
                 overlayTPressed = false;
                 overlayTScrollUsed = false;
@@ -2144,36 +2135,7 @@ public final class MapEditorSession {
             return true;
         }
 
-        private void nextOverlayMode() {
-            switch (overlayMode) {
-                case THRESHOLD:
-                    overlayMode = OverlayMode.GRAYSCALE;
-                    break;
-                case GRAYSCALE:
-                    overlayMode = OverlayMode.HEAT; // placeholder visual
-                    break;
-                case HEAT:
-                    overlayMode = OverlayMode.THRESHOLD;
-                    break;
-            }
-            getGUIRoot().getInfoPrinter().print("Overlay Mode: " + overlayMode);
-        }
-
-        private void prevOverlayMode() {
-            // reverse cycle
-            switch (overlayMode) {
-                case THRESHOLD:
-                    overlayMode = OverlayMode.HEAT;
-                    break;
-                case HEAT:
-                    overlayMode = OverlayMode.GRAYSCALE;
-                    break;
-                case GRAYSCALE:
-                    overlayMode = OverlayMode.THRESHOLD;
-                    break;
-            }
-            getGUIRoot().getInfoPrinter().print("Overlay Mode: " + overlayMode);
-        }
+        // Overlay modes removed; only default threshold visualization remains.
 
         private void drawOverlay(LandscapeRenderer renderer) {
             com.oddlabs.tt.landscape.HeightMap hm = renderer.getHeightMap();
@@ -2233,21 +2195,9 @@ public final class MapEditorSession {
                             value = (float) StrictMath.min(1f, StrictMath.hypot(sx, sy) * 0.5f);
                             r=1f; g=0f; b=0f; break;
                     }
+                    // Threshold-only visualization (default): draw cell if value >= 0.5
+                    if (value < 0.5f) continue;
                     float alpha = a;
-                    switch (overlayMode) {
-                        case GRAYSCALE:
-                            r = g = b = value;
-                            alpha = 0.5f;
-                            break;
-                        case THRESHOLD:
-                            if (value < 0.5f) continue;
-                            break;
-                        case HEAT:
-                            // Placeholder: same as grayscale until heatmap is implemented
-                            r = g = b = value;
-                            alpha = 0.5f;
-                            break;
-                    }
                     // Draw as a filled quad at cell corners, sampling each corner height to avoid gaps
                     float z00 = hm.getNearestHeight(wx, wy) + 0.02f;
                     float z10 = hm.getNearestHeight(wx + cell, wy) + 0.02f;
