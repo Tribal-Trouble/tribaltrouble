@@ -15,4 +15,5 @@ ivy_lib_game/*
 .classpath
 .vs/*
 
-save_data/*
+tt/save_data/*
+tt/steam_appid.txt
