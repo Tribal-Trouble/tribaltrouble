@@ -225,6 +225,11 @@
 		<mkdir dir="${dist}/windows" />
 		<mkdir dir="${dist}/macosx-x86" />
 		<mkdir dir="${dist}/macosx-arm64" />
+		<copy todir="${dist}/common">
+			<fileset dir="../ivy_lib_game">
+				<include name="steamworks4j-*.jar" />
+			</fileset>
+    	</copy>
 		<jar compress="false" destfile="${dist}/common/tt-code.jar">
 			<fileset dir="${build}/classes">
 				<include name="com/oddlabs/tt/**/*class" />
