@@ -178,9 +178,7 @@ public final strictfp class LocalInput {
                                             .getLocation()
                                             .toURI());
                     String exePath =
-                            jarFile.getParentFile()
-                                            .getParentFile()
-                                            .getAbsolutePath()
+                            jarFile.getParentFile().getParentFile().getAbsolutePath()
                                     + File.separator
                                     + "save_data";
                     System.out.println("Save file path: " + exePath);
