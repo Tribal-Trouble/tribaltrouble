@@ -8,7 +8,6 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.render.Display;
-import com.oddlabs.tt.steam.SteamAchievementManager;
 import com.oddlabs.updater.UpdateInfo;
 import com.oddlabs.util.Utils;
 
@@ -179,7 +178,12 @@ public final strictfp class LocalInput {
                                             .getLocation()
                                             .toURI());
                     String exePath =
-                            jarFile.getParentFile().getParentFile().getParentFile().getAbsolutePath() + File.separator + "save_data";
+                            jarFile.getParentFile()
+                                            .getParentFile()
+                                            .getParentFile()
+                                            .getAbsolutePath()
+                                    + File.separator
+                                    + "save_data";
                     System.out.println("Save file path: " + exePath);
                     game_dir_path = exePath;
                 } catch (Exception e) {

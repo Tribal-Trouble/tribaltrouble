@@ -21,7 +21,7 @@ public class SteamAchievementManager implements SteamUserStatsCallback, SteamUse
     public static SteamAchievementManager getAchievementManager() {
         return instance;
     }
-    
+
     private SteamUserStats steamUserStats;
     private SteamUser steamUser;
 

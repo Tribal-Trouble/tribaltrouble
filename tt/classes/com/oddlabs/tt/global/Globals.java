@@ -7,8 +7,11 @@ import org.lwjgl.opengl.*;
 
 public final strictfp class Globals {
     public static String getDomainName() {
-    return Settings.getSettings() != null ? Settings.getSettings().getDomainName() : "default-domain.com";
+        return Settings.getSettings() != null
+                ? Settings.getSettings().getDomainName()
+                : "default-domain.com";
     }
+
     public static final String SUPPORT_ADDRESS = "http://" + getDomainName() + "/support";
 
     public static final int BOUNDING_NONE = 0;
@@ -97,7 +100,7 @@ public final strictfp class Globals {
 
     public static final String getSettingsFileName() {
         String settings_save_file = Globals.SETTINGS_FILE_NAME;
-        if(SteamAPI.isSteamRunning() && SteamAchievementManager.getAchievementManager() != null) {
+        if (SteamAPI.isSteamRunning() && SteamAchievementManager.getAchievementManager() != null) {
             long account_id = SteamAchievementManager.getAchievementManager().getAccountID();
             settings_save_file = account_id + "." + settings_save_file;
         }
