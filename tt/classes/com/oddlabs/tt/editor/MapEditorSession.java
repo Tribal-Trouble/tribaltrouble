@@ -725,7 +725,9 @@ public final class MapEditorSession {
         // Resource brush state
         private enum ActiveTool { TERRAIN, RESOURCE }
         private ActiveTool activeTool = ActiveTool.TERRAIN;
-    private enum ResourceType { ROCK, IRON, RUBBER, PLANT_1, PLANT_2, PLANT_3, PLANT_4, TREE_JUNGLE, TREE_PALM, TREE_OAK, TREE_PINE }
+    // Resource placement types available in the editor. Plants and rubber are intentionally
+    // disabled for placement (trees remain placeable). Plants will still snap/remove on terrain edits.
+    private enum ResourceType { ROCK, IRON, TREE_JUNGLE, TREE_PALM, TREE_OAK, TREE_PINE }
         private ResourceType resourceType = ResourceType.ROCK;
     // Track resource brush cells processed in the current stroke (place/erase once per cell)
     private final java.util.HashSet<Long> resourceStrokeVisited = new java.util.HashSet<Long>();
@@ -788,7 +790,7 @@ public final class MapEditorSession {
 
         private void toggleHelp() {
             if (helpBox == null) {
-                String helpText =
+        String helpText =
                         "Map Editor Help\n\n"
                                 + "Camera:\n"
                                 + "  - Mouse wheel: Zoom\n"
@@ -801,9 +803,11 @@ public final class MapEditorSession {
                                 + "  - Ctrl+Wheel: Size, Alt+Wheel: Intensity\n"
                                 + "  - Hold Q + Wheel: Cycle modes (Raise/Lower, Flatten, Soften, Smooth, River, Ramp, Rough, Random)\n"
                                 + "  - Ramp/River: LMB add point, RMB undo last, Enter apply, Backspace clear\n\n"
-                                + "Resource Tool (W):\n"
-                                + "  - LMB: Place, RMB: Erase\n"
-                                + "  - Hold W + Wheel: Cycle resource type\n\n"
+                + "Resource Tool (W):\n"
+                + "  - LMB: Place, RMB: Erase\n"
+                + "  - Hold W + Wheel: Cycle resource type\n"
+                + "  - Available types: Rock, Iron, Trees (Jungle, Palm, Oak, Pine)\n"
+                + "  - Note: Plant and Rubber placement are disabled in this build\n\n"
                                 + "Other:\n"
                                 + "  - ESC: Pause menu\n"
                                 + "  - F1: Toggle this help";
@@ -1947,21 +1951,6 @@ public final class MapEditorSession {
                 case IRON:
                     placeIron(grid_x, grid_y);
                     break;
-                case RUBBER:
-                    placeRubber(grid_x, grid_y);
-                    break;
-                case PLANT_1:
-                    placePlant(grid_x, grid_y, 0);
-                    break;
-                case PLANT_2:
-                    placePlant(grid_x, grid_y, 1);
-                    break;
-                case PLANT_3:
-                    placePlant(grid_x, grid_y, 2);
-                    break;
-                case PLANT_4:
-                    placePlant(grid_x, grid_y, 3);
-                    break;
                 case TREE_JUNGLE:
                     placeTree(grid_x, grid_y, com.oddlabs.tt.landscape.AbstractTreeGroup.TREE_INDEX);
                     break;
@@ -1995,35 +1984,7 @@ public final class MapEditorSession {
             new com.oddlabs.tt.model.IronSupply(world, sprites[idx], 2f, grid_x, grid_y, x, y, rot, true);
         }
 
-        private void placeRubber(int grid_x, int grid_y) {
-            // Place a single rubber supply (chicken) without a group
-            com.oddlabs.tt.render.SpriteKey sprite = world.getLandscapeResources().getChicken();
-            float x = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(grid_x);
-            float y = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(grid_y);
-            com.oddlabs.tt.model.RubberSupply s =
-                    new com.oddlabs.tt.model.RubberSupply(
-                            world, sprite, 2f, grid_x, grid_y, x, y, 0f, null, x, y);
-            s.setStationary(true);
-            new com.oddlabs.tt.model.SupplySpawnAnimation(s, 2f);
-        }
-
-        private void placePlant(int grid_x, int grid_y, int plant_index) {
-            // Validate target cell using editor rules and avoid overlapping real occupants
-            if (!com.oddlabs.tt.editor.EditorResourceValidity.isValid(world, grid_x, grid_y)) return;
-            com.oddlabs.tt.pathfinder.UnitGrid ug = world.getUnitGrid();
-            com.oddlabs.tt.pathfinder.Occupant occ = ug.getOccupant(grid_x, grid_y, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
-            if (occ != null && !(occ instanceof com.oddlabs.tt.pathfinder.StaticOccupant)) return;
-
-            com.oddlabs.tt.render.SpriteKey sprite = world.getLandscapeResources().getPlants()[terrainType][plant_index];
-
-            float x = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(grid_x) + (world.getRandom().nextFloat() - .5f);
-            float y = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(grid_y) + (world.getRandom().nextFloat() - .5f);
-            float dir_x = world.getRandom().nextFloat();
-            float dir_y = world.getRandom().nextFloat();
-            float len2 = dir_x * dir_x + dir_y * dir_y;
-            if (len2 < 1e-3f) { dir_x = 1f; dir_y = 0f; } else { float inv = 1f / (float) StrictMath.sqrt(len2); dir_x *= inv; dir_y *= inv; }
-            new com.oddlabs.tt.model.Plants(world, x, y, dir_x, dir_y, sprite);
-        }
+        // Rubber and decorative plant placement intentionally removed from the editor.
 
         // Returns true if any decorative plant exists fully within the given grid cell
         // Duplicate plant checks removed per request; placement is now gated to once-per-cell-per-stroke
