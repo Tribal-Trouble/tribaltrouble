@@ -290,6 +290,7 @@
 				<include name="gui/*.xml" />
 				<include name="sfx/*.ogg" />
 				<include name="sfx/*.wav" />
+				<include name="*.png" />
 				<include name="music/*.ogg" />
 				<include name="font/*font" />
 				<!--				<include name="textures/models/*png"/>
@@ -335,7 +336,6 @@
 				value="-ea -Djdk.crypto.KeyAgreement.legacyKDF=true -Xmx512m -cp $APPDIR\;$APPDIR\*" />
 			<arg value="--type" />
 			<arg value="app-image" />
-			<arg value="--win-console" />
 			<arg value="--icon" />
 			<arg value="tribaltrouble.ico" />
 		</exec>
