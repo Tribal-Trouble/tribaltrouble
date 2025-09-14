@@ -790,6 +790,12 @@ public final class MapEditorSession {
                     public void setOverlayLayerIndex(int idx) {
                         OverlayLayer[] vals = OverlayLayer.values();
                         if (idx >= 0 && idx < vals.length) { overlayLayer = vals[idx]; if (toolbar != null) toolbar.syncOptionsFromBinding(); }
+                        // Selecting an overlay layer implies the user wants overlays visible;
+                        // latch the master toggle on so overlays display continuously.
+                        try {
+                            EDITOR_STATE.setOverlayMaster(true);
+                            if (toolbar != null) toolbar.syncOptionsFromBinding();
+                        } catch (Throwable ignore) {}
                     }
                     public boolean isOverlayMaster() { return EDITOR_STATE.isOverlayMaster(); }
                     public void setOverlayMaster(boolean v) { EDITOR_STATE.setOverlayMaster(v); if (toolbar != null) toolbar.syncOptionsFromBinding(); }
@@ -1022,113 +1028,114 @@ public final class MapEditorSession {
         // 3D halo ring showing current brush footprint
         public void render3D(LandscapeRenderer renderer, RenderQueues queues) {
             LandscapeLocation hit = new LandscapeLocation();
-            if (!picker.pickLocation(getCamera().getState(), hit)) return;
+            boolean hasHit = picker.pickLocation(getCamera().getState(), hit);
 
-            float cx = hit.x;
-            float cy = hit.y;
-            float rx = brushRadiusXM;
-            float ry = brushRadiusYM;
-            float cosA = (float) StrictMath.cos(brushAngleRad);
-            float sinA = (float) StrictMath.sin(brushAngleRad);
+            if (hasHit) {
+                float cx = hit.x;
+                float cy = hit.y;
+                float rx = brushRadiusXM;
+                float ry = brushRadiusYM;
+                float cosA = (float) StrictMath.cos(brushAngleRad);
+                float sinA = (float) StrictMath.sin(brushAngleRad);
 
-            // Choose color by mode
-            float r = 1f, g = 1f, b = 0f, a = 0.85f; // default raise/lower
-            switch (brushMode) {
-                case SOFTEN: r = 0.6f; g = 1f; b = 0.6f; break; // light green
-                case SMOOTH: r = 0f; g = 1f; b = 1f; break;
-                case ROUGH: r = 1f; g = 0.5f; b = 0f; break; // orange
-                case RANDOM: r = 0.4f; g = 0.8f; b = 1f; break; // light cyan
-                case FLATTEN: r = 1f; g = 0f; b = 1f; break;
-                default: break;
-            }
+                // Choose color by mode
+                float r = 1f, g = 1f, b = 0f, a = 0.85f; // default raise/lower
+                switch (brushMode) {
+                    case SOFTEN: r = 0.6f; g = 1f; b = 0.6f; break; // light green
+                    case SMOOTH: r = 0f; g = 1f; b = 1f; break;
+                    case ROUGH: r = 1f; g = 0.5f; b = 0f; break; // orange
+                    case RANDOM: r = 0.4f; g = 0.8f; b = 1f; break; // light cyan
+                    case FLATTEN: r = 1f; g = 0f; b = 1f; break;
+                    default: break;
+                }
 
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            GL11.glColor4f(r, g, b, a);
-            GL11.glLineWidth(2f);
-
-            int steps = 64;
-            GL11.glBegin(GL11.GL_LINE_LOOP);
-            for (int i = 0; i < steps; i++) {
-                float tAng = (float) (2.0 * StrictMath.PI * i / steps);
-                float ex = (float) StrictMath.cos(tAng) * rx;
-                float ey = (float) StrictMath.sin(tAng) * ry;
-                float dx = cosA * ex + sinA * ey;
-                float dy = -sinA * ex + cosA * ey;
-                float x = cx + dx;
-                float y = cy + dy;
-                float z = renderer.getHeightMap().getNearestHeight(x, y) + 0.03f; // slight lift
-                GL11.glVertex3f(x, y, z);
-            }
-            GL11.glEnd();
-
-            // Restore state
-            // Draw pending stroke plus marks (preview) only for RAISE/LOWER
-            if (brushMode == BrushMode.RAISE_LOWER && strokeActive && !strokeAccum.isEmpty()) {
+                GL11.glDisable(GL11.GL_TEXTURE_2D);
+                GL11.glEnable(GL11.GL_BLEND);
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                GL11.glColor4f(r, g, b, a);
                 GL11.glLineWidth(2f);
-                GL11.glBegin(GL11.GL_LINES);
-                for (java.util.Map.Entry<Long, Float> e : strokeAccum.entrySet()) {
-                    long k = e.getKey();
-                    int gx = (int) (k >> 32);
-                    int gy = (int) k;
-                    float delta = e.getValue();
-                    // cell center in world coords
-                    float wx = gx * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
-                    float wy = gy * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
-                    // Predict resulting height using stroke baseline + accumulated delta
-                    float base = strokeBaseline.containsKey(k)
-                            ? strokeBaseline.get(k)
-                            : renderer.getHeightMap().getNearestHeight(wx, wy);
-                    float wz = base + delta + 0.05f;
-                    // color by sign
-                    if (delta >= 0f) GL11.glColor4f(0f, 1f, 0f, a);
-                    else GL11.glColor4f(1f, 0f, 0f, a);
-                    float len = 0.6f; // half-length of the plus arms
-                    // horizontal arm
-                    GL11.glVertex3f(wx - len, wy, wz);
-                    GL11.glVertex3f(wx + len, wy, wz);
-                    // vertical arm
-                    GL11.glVertex3f(wx, wy - len, wz);
-                    GL11.glVertex3f(wx, wy + len, wz);
+
+                int steps = 64;
+                GL11.glBegin(GL11.GL_LINE_LOOP);
+                for (int i = 0; i < steps; i++) {
+                    float tAng = (float) (2.0 * StrictMath.PI * i / steps);
+                    float ex = (float) StrictMath.cos(tAng) * rx;
+                    float ey = (float) StrictMath.sin(tAng) * ry;
+                    float dx = cosA * ex + sinA * ey;
+                    float dy = -sinA * ex + cosA * ey;
+                    float x = cx + dx;
+                    float y = cy + dy;
+                    float z = renderer.getHeightMap().getNearestHeight(x, y) + 0.03f; // slight lift
+                    GL11.glVertex3f(x, y, z);
                 }
                 GL11.glEnd();
-            }
 
-            // Restore state
-            GL11.glDisable(GL11.GL_BLEND);
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
-
-            // Polyline preview for Ramp/Path/River
-            if (brushMode == BrushMode.RAMP || brushMode == BrushMode.RIVER) {
-                if (polylinePts.size() > 0) {
-                    GL11.glDisable(GL11.GL_TEXTURE_2D);
-                    GL11.glEnable(GL11.GL_BLEND);
-                    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-                    float pr=1f,pg=1f,pb=1f,pa=0.9f;
-                    if (brushMode == BrushMode.RAMP) { pr=0.9f; pg=0.8f; pb=0.1f; } // yellow
-                    else { pr=0.2f; pg=0.6f; pb=1f; } // river blue
-                    GL11.glColor4f(pr, pg, pb, pa);
-                    GL11.glLineWidth(3f);
-                    // Draw connected line at terrain height
-                    GL11.glBegin(GL11.GL_LINE_STRIP);
-                    for (int i=0;i<polylinePts.size();i++) {
-                        float[] p = polylinePts.get(i);
-                        float z = renderer.getHeightMap().getNearestHeight(p[0], p[1]) + 0.05f;
-                        GL11.glVertex3f(p[0], p[1], z);
+                // Draw pending stroke plus marks (preview) only for RAISE/LOWER
+                if (brushMode == BrushMode.RAISE_LOWER && strokeActive && !strokeAccum.isEmpty()) {
+                    GL11.glLineWidth(2f);
+                    GL11.glBegin(GL11.GL_LINES);
+                    for (java.util.Map.Entry<Long, Float> e : strokeAccum.entrySet()) {
+                        long k = e.getKey();
+                        int gx = (int) (k >> 32);
+                        int gy = (int) k;
+                        float delta = e.getValue();
+                        // cell center in world coords
+                        float wx = gx * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+                        float wy = gy * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+                        // Predict resulting height using stroke baseline + accumulated delta
+                        float base = strokeBaseline.containsKey(k)
+                                ? strokeBaseline.get(k)
+                                : renderer.getHeightMap().getNearestHeight(wx, wy);
+                        float wz = base + delta + 0.05f;
+                        // color by sign
+                        if (delta >= 0f) GL11.glColor4f(0f, 1f, 0f, a);
+                        else GL11.glColor4f(1f, 0f, 0f, a);
+                        float len = 0.6f; // half-length of the plus arms
+                        // horizontal arm
+                        GL11.glVertex3f(wx - len, wy, wz);
+                        GL11.glVertex3f(wx + len, wy, wz);
+                        // vertical arm
+                        GL11.glVertex3f(wx, wy - len, wz);
+                        GL11.glVertex3f(wx, wy + len, wz);
                     }
                     GL11.glEnd();
-                    // Draw points
-                    GL11.glPointSize(6f);
-                    GL11.glBegin(GL11.GL_POINTS);
-                    for (int i=0;i<polylinePts.size();i++) {
-                        float[] p = polylinePts.get(i);
-                        float z = renderer.getHeightMap().getNearestHeight(p[0], p[1]) + 0.07f;
-                        GL11.glVertex3f(p[0], p[1], z);
+                }
+
+                // Restore state
+                GL11.glDisable(GL11.GL_BLEND);
+                GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+                // Polyline preview for Ramp/Path/River
+                if (brushMode == BrushMode.RAMP || brushMode == BrushMode.RIVER) {
+                    if (polylinePts.size() > 0) {
+                        GL11.glDisable(GL11.GL_TEXTURE_2D);
+                        GL11.glEnable(GL11.GL_BLEND);
+                        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                        float pr=1f,pg=1f,pb=1f,pa=0.9f;
+                        if (brushMode == BrushMode.RAMP) { pr=0.9f; pg=0.8f; pb=0.1f; } // yellow
+                        else { pr=0.2f; pg=0.6f; pb=1f; } // river blue
+                        GL11.glColor4f(pr, pg, pb, pa);
+                        GL11.glLineWidth(3f);
+                        // Draw connected line at terrain height
+                        GL11.glBegin(GL11.GL_LINE_STRIP);
+                        for (int i=0;i<polylinePts.size();i++) {
+                            float[] p = polylinePts.get(i);
+                            float z = renderer.getHeightMap().getNearestHeight(p[0], p[1]) + 0.05f;
+                            GL11.glVertex3f(p[0], p[1], z);
+                        }
+                        GL11.glEnd();
+                        // Draw points
+                        GL11.glPointSize(6f);
+                        GL11.glBegin(GL11.GL_POINTS);
+                        for (int i=0;i<polylinePts.size();i++) {
+                            float[] p = polylinePts.get(i);
+                            float z = renderer.getHeightMap().getNearestHeight(p[0], p[1]) + 0.07f;
+                            GL11.glVertex3f(p[0], p[1], z);
+                        }
+                        GL11.glEnd();
+                        GL11.glDisable(GL11.GL_BLEND);
+                        GL11.glEnable(GL11.GL_TEXTURE_2D);
                     }
-                    GL11.glEnd();
-                    GL11.glDisable(GL11.GL_BLEND);
-                    GL11.glEnable(GL11.GL_TEXTURE_2D);
                 }
             }
 
