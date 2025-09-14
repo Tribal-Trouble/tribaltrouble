@@ -225,8 +225,7 @@ public class DiscordBotService {
             System.out.println("Deleting command: " + data.name());
             gateway.getRestClient()
                     .getApplicationService()
-                    .deleteGuildApplicationCommand(
-                            getBotId().asLong(), guildId, data.id().asLong())
+                    .deleteGuildApplicationCommand(getBotId().asLong(), guildId, data.id().asLong())
                     .subscribe();
         }
     }
