@@ -290,7 +290,6 @@
 				<include name="gui/*.xml" />
 				<include name="sfx/*.ogg" />
 				<include name="sfx/*.wav" />
-				<include name="*.png" />
 				<include name="music/*.ogg" />
 				<include name="font/*font" />
 				<!--				<include name="textures/models/*png"/>
