@@ -23,11 +23,14 @@ import java.util.ResourceBundle;
  * Exposes getters for the current configuration and a player-count pulldown.
  */
 public final class PlayersSection extends Group {
-    public static final int OPEN_INDEX = 0; // human for slot 0, open/closed for others
-    public static final int CLOSED_INDEX = 1;
-    public static final int COMPUTER_EASY_INDEX = 2;
-    public static final int COMPUTER_NORMAL_INDEX = 3;
-    public static final int COMPUTER_HARD_INDEX = 4;
+    // Index mapping mirrors TerrainMenu behavior:
+    // For slot 0, difficulty menu contains only "Human" at index 0.
+    // For slots > 0, indexes are: 0=Closed, 1=Easy AI, 2=Normal AI, 3=Hard AI.
+    public static final int OPEN_INDEX = 0; // slot 0 only
+    public static final int CLOSED_INDEX = 0;
+    public static final int COMPUTER_EASY_INDEX = 1;
+    public static final int COMPUTER_NORMAL_INDEX = 2;
+    public static final int COMPUTER_HARD_INDEX = 3;
 
     private final GUIRoot guiRoot;
     private final ResourceBundle bundle;
@@ -145,7 +148,28 @@ public final class PlayersSection extends Group {
             race_buttons[i].getMenu().chooseItem(0);
             team_buttons[i].getMenu().chooseItem(i);
         }
-    refreshEnabledState();
+        // Provide a sensible default opponent similar to TerrainMenu: slot 1 Easy AI, alternate race
+        if (MatchmakingServerInterface.MAX_PLAYERS > 1) {
+            difficulty_buttons[1].getMenu().chooseItem(COMPUTER_EASY_INDEX);
+            int altRace = (race_buttons[0].getMenu().getChosenItemIndex() + 1) % RacesResources.getNumRaces();
+            race_buttons[1].getMenu().chooseItem(altRace);
+            team_buttons[1].getMenu().chooseItem(1);
+        }
+        // Hook difficulty change listeners to toggle row controls for Closed vs AI
+        for (int i = 1; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
+            final int idx = i;
+            difficulty_menus[i].addItemChosenListener(new com.oddlabs.tt.guievent.ItemChosenListener() {
+                public void itemChosen(PulldownMenu menu, int item_index) {
+                    // Only toggle row controls; difficulty pulldown stays enabled
+                    boolean within = idx < player_count;
+                    boolean rowEnabled = within && item_index != CLOSED_INDEX;
+                    labels_players[idx].setDisabled(!rowEnabled);
+                    race_buttons[idx].setDisabled(!rowEnabled);
+                    team_buttons[idx].setDisabled(!rowEnabled);
+                }
+            });
+        }
+        refreshEnabledState();
     compileCanvas();
 
         // Update player_count when slots pulldown changes
@@ -158,13 +182,23 @@ public final class PlayersSection extends Group {
     }
 
     private void refreshEnabledState() {
-        // Show first player_count rows as active; others dim/disable
+        // Within player_count, difficulty pulldown is enabled but race/team depend on Closed vs AI
         for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
-            boolean enabled = i < player_count;
-            labels_players[i].setDisabled(!enabled);
-            difficulty_buttons[i].setDisabled(!enabled);
-            race_buttons[i].setDisabled(!enabled);
-            team_buttons[i].setDisabled(!enabled);
+            boolean within = i < player_count;
+            // Difficulty control is enabled for active rows; disabled beyond count
+            difficulty_buttons[i].setDisabled(!within);
+            if (i == 0) {
+                // Local player row: label, race, team enabled only if within
+                labels_players[i].setDisabled(!within);
+                race_buttons[i].setDisabled(!within);
+                team_buttons[i].setDisabled(!within);
+            } else {
+                boolean closed = difficulty_buttons[i].getMenu().getChosenItemIndex() == CLOSED_INDEX;
+                boolean rowEnabled = within && !closed;
+                labels_players[i].setDisabled(!rowEnabled);
+                race_buttons[i].setDisabled(!rowEnabled);
+                team_buttons[i].setDisabled(!rowEnabled);
+            }
         }
     }
 
@@ -185,8 +219,8 @@ public final class PlayersSection extends Group {
 
     public int getAIDifficultyIndex(int slot) {
         if (!isAI(slot)) return -1;
-        // TerrainMenu stores difficulty as (chosenIndex - 1)
-        return difficulty_buttons[slot].getMenu().getChosenItemIndex() - 1;
+        // Match TerrainMenu: pass raw chosen index (1..3) to setPlayerSlot
+        return difficulty_buttons[slot].getMenu().getChosenItemIndex();
     }
 
     public int getRaceIndex(int slot) {

@@ -70,6 +70,20 @@ public final class TestMapForm extends Form {
 
     private void startTest() {
         try {
+            // Basic validation: require at least two teams among active slots
+            int count = players.getPlayerCount();
+            int team0 = players.getTeamIndex(0);
+            boolean hasEnemy = false;
+            for (int i = 1; i < count; i++) {
+                if (players.isAI(i) && players.getTeamIndex(i) != team0) {
+                    hasEnemy = true;
+                    break;
+                }
+            }
+            if (!hasEnemy) {
+                guiRoot.getInfoPrinter().print("Need at least two teams to start a test.");
+                return;
+            }
             // Export current world to a temp .ttmap
             File dir = com.oddlabs.tt.mapio.MapIO.mapsDir();
             File file = new File(dir, "editor_map.ttmap");
