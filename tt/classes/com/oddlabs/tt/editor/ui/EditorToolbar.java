@@ -19,6 +19,7 @@ import com.oddlabs.tt.guievent.CheckBoxListener;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.DefaultRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Lightweight toolbar for the Map Editor. Non-modal, docked at the top-left by default.
@@ -416,4 +417,76 @@ public final class EditorToolbar extends Form {
     }
 
     // No mouse overrides: Form handles top bar drag; we clamp via listener
+
+    // Render with opaque border and semi-transparent center fill.
+    @Override
+    protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+        // Close the current batch so we can use scissor states safely
+        GL11.glEnd();
+
+        // Resolve skin box and dimensions
+        com.oddlabs.tt.gui.Box box = Skin.getSkin().getFormData().getForm();
+        int w = getWidth();
+        int h = getHeight();
+        int lw = box.getLeftOffset();
+        int rw = box.getRightOffset();
+        int bh = box.getBottomOffset();
+        int th = box.getTopOffset();
+        int innerW = StrictMath.max(0, w - lw - rw);
+        int innerH = StrictMath.max(0, h - bh - th);
+
+        // Select skin state
+        int skinType = isDisabled() ? Skin.DISABLED : (isActive() ? Skin.ACTIVE : Skin.NORMAL);
+
+        // Bind texture and draw borders opaque using scissor strips
+        Skin.getSkin().bindTexture();
+        GL11.glColor4f(1f, 1f, 1f, 1f);
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+
+        int rootX = (int) getRootX();
+        int rootY = (int) getRootY();
+
+        // Top border strip
+        if (th > 0) {
+            GL11.glScissor(rootX, rootY + h - th, w, th);
+            GL11.glBegin(GL11.GL_QUADS);
+            box.render(0, 0, w, h, skinType);
+            GL11.glEnd();
+        }
+        // Bottom border strip
+        if (bh > 0) {
+            GL11.glScissor(rootX, rootY, w, bh);
+            GL11.glBegin(GL11.GL_QUADS);
+            box.render(0, 0, w, h, skinType);
+            GL11.glEnd();
+        }
+        // Left border strip
+        if (lw > 0) {
+            GL11.glScissor(rootX, rootY, lw, h);
+            GL11.glBegin(GL11.GL_QUADS);
+            box.render(0, 0, w, h, skinType);
+            GL11.glEnd();
+        }
+        // Right border strip
+        if (rw > 0) {
+            GL11.glScissor(rootX + w - rw, rootY, rw, h);
+            GL11.glBegin(GL11.GL_QUADS);
+            box.render(0, 0, w, h, skinType);
+            GL11.glEnd();
+        }
+
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+
+        // Draw center with 65% opacity
+        if (innerW > 0 && innerH > 0) {
+            GL11.glColor4f(1f, 1f, 1f, 0.65f);
+            GL11.glBegin(GL11.GL_QUADS);
+            box.renderHighlight(lw, bh, innerW, innerH, 0, w, 0, h);
+            GL11.glEnd();
+        }
+
+        // Restore color and leave a GL_QUADS batch open for parent pipeline
+        GL11.glColor4f(1f, 1f, 1f, 1f);
+        GL11.glBegin(GL11.GL_QUADS);
+    }
 }
