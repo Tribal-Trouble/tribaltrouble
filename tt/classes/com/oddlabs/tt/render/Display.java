@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+
 import javax.imageio.ImageIO;
 
 public final strictfp class Display {
@@ -170,18 +171,18 @@ public final strictfp class Display {
     }
 
     /**
-     * Sets the window icon using a PNG image from resources.
-     * Uses Java's built-in ImageIO for loading and GLFW for setting the icon.
+     * Sets the window icon using a PNG image from resources. Uses Java's built-in ImageIO for
+     * loading and GLFW for setting the icon.
      */
-    private final static void setWindowIcon() {
+    private static final void setWindowIcon() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             // Try to load the icon from resources - multiple fallback paths
             InputStream iconStream = null;
-            
+
             if (iconStream == null) {
                 iconStream = Display.class.getResourceAsStream("/icon.png");
             }
-            
+
             if (iconStream == null) {
                 System.out.println("Window icon not found, skipping icon setup");
                 return;
@@ -201,8 +202,8 @@ public final strictfp class Display {
             for (int i = 0; i < pixels.length; i++) {
                 int pixel = pixels[i];
                 buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red
-                buffer.put((byte) ((pixel >> 8) & 0xFF));  // Green
-                buffer.put((byte) (pixel & 0xFF));         // Blue
+                buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green
+                buffer.put((byte) (pixel & 0xFF)); // Blue
                 buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha
             }
             buffer.flip();
@@ -212,8 +213,8 @@ public final strictfp class Display {
             GLFWImage iconImage = iconBuffer.get(0);
             iconImage.set(width, height, buffer);
 
-            GLFW.glfwSetWindowIcon(window, iconBuffer);            
-            GLFW.glfwFocusWindow(window);            
+            GLFW.glfwSetWindowIcon(window, iconBuffer);
+            GLFW.glfwFocusWindow(window);
 
         } catch (IOException e) {
             System.out.println("Failed to load window icon: " + e.getMessage());
