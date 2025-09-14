@@ -1,5 +1,8 @@
 package com.oddlabs.tt.mapio;
 
+import com.oddlabs.procedural.Channel;
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
 import java.io.File;
@@ -21,14 +24,27 @@ public final class LoadedMapGenerator implements WorldGenerator {
 
     private final WorldGenerator fallback;
     private final File mapFile;
+    // If available from META, prefer the map's terrain type for visuals
+    private final Integer terrainTypeOverride;
 
     public LoadedMapGenerator(WorldGenerator fallback, File mapFile) {
         this.fallback = fallback;
         this.mapFile = mapFile;
+        Integer terr = null;
+        try {
+            MapIO.MapSummary sum = MapIO.peek(mapFile);
+            terr = sum != null ? sum.terrainType : null;
+        } catch (Throwable ignore) {}
+        this.terrainTypeOverride = terr;
     }
 
     @Override
-    public int getTerrainType() { return fallback.getTerrainType(); }
+    public int getTerrainType() {
+        if (terrainTypeOverride != null && terrainTypeOverride.intValue() >= 0) {
+            return terrainTypeOverride.intValue();
+        }
+        return fallback.getTerrainType();
+    }
 
     @Override
     public int getMetersPerWorld() { return fallback.getMetersPerWorld(); }
@@ -57,17 +73,83 @@ public final class LoadedMapGenerator implements WorldGenerator {
             return base;
         }
 
-        // Merge: copy references from base, then override fields with loaded data
+        // Merge: always take heights from the map, then derive gameplay grids from the map
+        // (ignore Terrain menu/base-generator grid parameters). If the map provides a grid, use it;
+        // otherwise compute it from heights + sea level using the same thresholds as worldgen.
         float[][] heightmap = lm.heights;
 
-        boolean[][] access_grid = base.access_grid;
-        boolean[][] dock_grid = base.dock_grid;
-        boolean[][] water_grid = base.water_grid;
-        byte[][] build_grid = base.build_grid;
-        if (lm.access != null && lm.access.length == n) access_grid = lm.access;
-        if (lm.dock != null && lm.dock.length == n) dock_grid = lm.dock;
-        if (lm.water != null && lm.water.length == n) water_grid = lm.water;
-        if (lm.build != null && lm.build.length == n) build_grid = lm.build;
+        // Determine sea level to normalize heights (meters -> normalized where Globals.SEA_LEVEL)
+        float seaLevelMeters = (lm.seaLevel != 0f ? lm.seaLevel : base.sea_level_meters);
+        float heightScale = seaLevelMeters / Globals.SEA_LEVEL;
+
+        // Build normalized height channel [0..1]
+        Channel height = new Channel(n, n);
+        for (int y = 0; y < n; y++) {
+            for (int x = 0; x < n; x++) {
+                float h = heightmap[y][x] / heightScale;
+                if (h < 0f) h = 0f; else if (h > 1f) h = 1f;
+                height.putPixel(x, y, h);
+            }
+        }
+
+        // Compute helper maps
+        Channel slope = height.copy().lineart();
+        Channel water_map =
+                height.copy()
+                        .threshold(Globals.SEA_LEVEL - 10.0f, Globals.SEA_LEVEL)
+                        .floodfill(0, 0, -1.0f, 0.1f)
+                        .threshold(-1.01f, -0.99f);
+        Channel dock_map =
+                water_map.copy()
+                        .smooth(4)
+                        .threshold(0.01f, 1.0f)
+                        .channelMultiply(water_map.copy().invert());
+        Channel beach = height.copy().threshold(Globals.SEA_LEVEL - 1.0f, Globals.SEA_LEVEL + 0.05f);
+        dock_map = dock_map.channelMultiply(beach);
+
+        // Access/build thresholds depend on world size (match Landscape/EditorGridRecalculator)
+        float access_threshold;
+        switch (base.meters_per_world) {
+            case 256:
+                access_threshold = 0.05f;
+                break;
+            case 512:
+                access_threshold = 0.0375f;
+                break;
+            case 1024:
+                access_threshold = 0.025f;
+                break;
+            case 2048:
+                access_threshold = 0.02f;
+                break;
+            default:
+                access_threshold = 0.0375f;
+                break;
+        }
+        float build_threshold = access_threshold / 2f;
+
+        Channel access_map = generateThresholdMap(height, slope, access_threshold, Globals.SEA_LEVEL - 0.5f)
+                .channelMultiply(water_map.copy().invert());
+        Channel buildThreshold = generateThresholdMap(height, slope, build_threshold, Globals.SEA_LEVEL);
+        byte[][] computed_build = generateBuildMap(buildThreshold);
+
+        // Convert Channels to boolean grids
+        boolean[][] computed_water = new boolean[n][n];
+        boolean[][] computed_dock = new boolean[n][n];
+        boolean[][] computed_access = new boolean[n][n];
+        for (int y = 0; y < n; y++) {
+            for (int x = 0; x < n; x++) {
+                computed_water[y][x] = water_map.getPixel(x, y) > 0.5f;
+                computed_dock[y][x] = dock_map.getPixel(x, y) > 0.5f;
+                computed_access[y][x] = access_map.getPixel(x, y) > 0f;
+            }
+        }
+
+        // Prefer map-provided grids when available; otherwise use the computed ones
+        boolean[][] access_grid = (lm.access != null && lm.access.length == n) ? lm.access : computed_access;
+        boolean[][] dock_grid = (lm.dock != null && lm.dock.length == n) ? lm.dock : computed_dock;
+        boolean[][] water_grid = (lm.water != null && lm.water.length == n) ? lm.water : computed_water;
+        byte[][] build_grid = (lm.build != null && lm.build.length == n) ? lm.build : computed_build;
 
         // Supplies: convert lists to the expected WorldInfo formats
     List<int[]> rock_positions = new ArrayList<>();
@@ -138,6 +220,52 @@ public final class LoadedMapGenerator implements WorldGenerator {
                 adjustedStarts);
     }
 
+    // --- Grid generation helpers (mirrors worldgen/editor) ---
+    private static Channel generateThresholdMap(Channel height, Channel slope, float threshold, float min) {
+        Channel channel = slope.copy().threshold(0f, threshold).channelSubtract(height.copy().threshold(0f, min));
+        int size = slope.getWidth();
+        // Fix wrap edges like worldgen
+        for (int y = 0; y < size; y += (size - 1)) {
+            for (int x = 0; x < size; x++) channel.putPixel(x, y, 0f);
+        }
+        for (int y = 1; y < size - 1; y++) {
+            for (int x = 0; x < size; x += (size - 1)) channel.putPixel(x, y, 0f);
+        }
+        return channel;
+    }
+
+    private static byte[][] generateBuildMap(Channel thresholdmap) {
+        int size = thresholdmap.getWidth();
+        boolean[][] build_grid = new boolean[size][size];
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) build_grid[y][x] = thresholdmap.getPixel(x, y) > 0f;
+        }
+        byte[][] byte_grid = new byte[size][size];
+        byte max = (byte) Math.max(RacesResources.QUARTERS_SIZE, Math.max(RacesResources.ARMORY_SIZE, RacesResources.TOWER_SIZE));
+        for (byte i = 0; i < max; i++) {
+            for (int y = 1; y < size - 1; y++) {
+                for (int x = 1; x < size - 1; x++) {
+                    if (!build_grid[y][x] && byte_grid[y][x] == i) {
+                        for (int k = -1; k <= 1; k++) {
+                            for (int l = -1; l <= 1; l++) {
+                                if (build_grid[y + k][x + l]) {
+                                    build_grid[y + k][x + l] = false;
+                                    byte_grid[y + k][x + l] = (byte) (i + 1);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (int y = 1; y < size - 1; y++) {
+            for (int x = 1; x < size - 1; x++) {
+                if (build_grid[y][x]) byte_grid[y][x] = max;
+            }
+        }
+        return byte_grid;
+    }
+
     // Move each island seed to the nearest accessible or dockable tile if currently blocked
     private static java.util.ArrayList<int[]> adjustIslandLocations(java.util.ArrayList<int[]> islands,
                                                              boolean[][] access,
@@ -155,26 +283,37 @@ public final class LoadedMapGenerator implements WorldGenerator {
         return out;
     }
 
-    // Move each starting location to the nearest accessible/dockable tile center if blocked
+    // Move each starting location (for every unit slot per player) to nearest free tile if blocked
     private static float[][] adjustStartingLocations(float[][] starts,
                                                      boolean[][] access,
                                                      boolean[][] dock) {
         if (starts == null) return null;
-        int n = access != null ? access.length : 0;
-        float[][] out = new float[starts.length][2];
-        for (int i = 0; i < starts.length; i++) {
-            float sx = starts[i][0];
-            float sy = starts[i][1];
-            int gx = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(sx);
-            int gy = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(sy);
-            gx = clamp(gx, 0, n - 1);
-            gy = clamp(gy, 0, n - 1);
-            if (isFree(gx, gy, access, dock)) {
-                out[i][0] = sx; out[i][1] = sy;
-            } else {
-                int[] free = findNearestFree(gx, gy, access, dock);
-                out[i][0] = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(free[0]);
-                out[i][1] = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(free[1]);
+        int n = (access != null && access.length > 0) ? access.length : 0;
+        float[][] out = new float[starts.length][];
+        for (int p = 0; p < starts.length; p++) {
+            float[] playerStarts = starts[p];
+            if (playerStarts == null) { out[p] = null; continue; }
+            // Preserve the number of spawn coordinates for this player
+            out[p] = new float[playerStarts.length];
+            // Iterate pairs (x,y)
+            for (int k = 0; k + 1 < playerStarts.length; k += 2) {
+                float sx = playerStarts[k];
+                float sy = playerStarts[k + 1];
+                if (n <= 0) { // no grids provided; keep as-is
+                    out[p][k] = sx; out[p][k + 1] = sy;
+                    continue;
+                }
+                int gx = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(sx);
+                int gy = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(sy);
+                gx = clamp(gx, 0, n - 1);
+                gy = clamp(gy, 0, n - 1);
+                if (isFree(gx, gy, access, dock)) {
+                    out[p][k] = sx; out[p][k + 1] = sy;
+                } else {
+                    int[] free = findNearestFree(gx, gy, access, dock);
+                    out[p][k] = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(free[0]);
+                    out[p][k + 1] = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(free[1]);
+                }
             }
         }
         return out;

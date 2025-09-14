@@ -8,6 +8,7 @@ import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.mapio.MapIO;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.CheckBox;
 import com.oddlabs.tt.gui.EditLine;
@@ -21,9 +22,14 @@ import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PanelGroup;
+// (no Pulldown class; use PulldownMenu/PulldownButton)
 import com.oddlabs.tt.gui.PulldownButton;
 import com.oddlabs.tt.gui.PulldownItem;
 import com.oddlabs.tt.gui.PulldownMenu;
+import com.oddlabs.tt.gui.MultiColumnComboBox;
+import com.oddlabs.tt.gui.ColumnInfo;
+import com.oddlabs.tt.gui.Row;
+import com.oddlabs.tt.gui.DateLabel;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.guievent.ItemChosenListener;
@@ -45,6 +51,7 @@ import com.oddlabs.tt.viewer.MultiplayerInGameInfo;
 import java.math.BigInteger;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.List;
 
 public final strictfp class TerrainMenu extends Group {
     public static final byte SMALL = 0;
@@ -98,6 +105,15 @@ public final strictfp class TerrainMenu extends Group {
     private int player_count = 6;
     private int seed;
     private boolean show_demo = true;
+
+    // --- Manual map selection state (single-player only) ---
+    private java.io.File selectedMapFile; // null if none
+    private MapIO.MapSummary selectedMapSummary; // peek info, may be null
+    private boolean manualMapSelected = false;
+    private Label label_selected_map; // UI label for current selection
+    private HorizButton button_clear_map; // Clear button
+    private boolean initializingUI = true; // gate change listeners during initial population
+    private Group group_map_load_row; // container for map load controls (single-player only)
 
     static {
         BigInteger max = BigInteger.ONE;
@@ -264,6 +280,36 @@ public final strictfp class TerrainMenu extends Group {
         group_terrain_type.compileCanvas();
         pm_terrain_type.addItemChosenListener(new PulldownUpdateMapcodeListener());
         group_map_options.addChild(group_terrain_type);
+
+        // Map load row (single-player only)
+        if (!multiplayer) {
+            group_map_load_row = new Group();
+            HorizButton btn_load_map = new HorizButton("Load Map...", 120);
+            label_selected_map = new Label(currentMapLabel(), Skin.getSkin().getEditFont(), 360);
+            button_clear_map = new HorizButton("Clear", 80);
+            button_clear_map.setDisabled(true);
+            // Layout: [Load Map...] [label ....................] [Clear]
+            group_map_load_row.addChild(btn_load_map);
+            group_map_load_row.addChild(label_selected_map);
+            group_map_load_row.addChild(button_clear_map);
+            btn_load_map.place();
+            label_selected_map.place(btn_load_map, RIGHT_MID, Skin.getSkin().getFormData().getSectionSpacing());
+            button_clear_map.place(label_selected_map, RIGHT_MID, Skin.getSkin().getFormData().getSectionSpacing());
+            group_map_load_row.compileCanvas();
+            group_map_options.addChild(group_map_load_row);
+
+            // Handlers
+            btn_load_map.addMouseClickListener(new MouseClickListener() {
+                public void mouseClicked(int button, int x, int y, int clicks) {
+                    gui_root.addModalForm(new MapLoadDialog());
+                }
+            });
+            button_clear_map.addMouseClickListener(new MouseClickListener() {
+                public void mouseClicked(int button, int x, int y, int clicks) {
+                    clearManualMapSelection("user clicked Clear");
+                }
+            });
+        }
 
         Group group_sliders = new Group();
         // hills
@@ -462,6 +508,10 @@ public final strictfp class TerrainMenu extends Group {
             group_size.place();
         }
         group_terrain_type.place(group_size, BOTTOM_RIGHT);
+        // Ensure map-load row (if present) is placed before compiling the options group
+        if (!multiplayer && group_map_load_row != null) {
+            group_map_load_row.place(group_terrain_type, BOTTOM_RIGHT);
+        }
         group_map_options.compileCanvas();
         standard.addChild(group_map_options);
 
@@ -501,7 +551,7 @@ public final strictfp class TerrainMenu extends Group {
         group_buttons.place(ORIGIN_BOTTOM_RIGHT);
 
         compileCanvas();
-        randomize();
+    randomize();
 
         // set standart game
         pulldown_size.addItemChosenListener(new PulldownUpdateSizeListener());
@@ -523,6 +573,8 @@ public final strictfp class TerrainMenu extends Group {
         }
         pulldown_size.chooseItem(1);
         if (!Renderer.isRegistered()) pm_terrain_type.chooseItem(0);
+
+        initializingUI = false;
     }
 
     private final void setMapcode() {
@@ -579,6 +631,7 @@ public final strictfp class TerrainMenu extends Group {
         show_demo = true;
         label_mapcode.clear();
         label_mapcode.append(code);
+        if (!multiplayer) onTerrainSettingChanged("map code parsed");
     }
 
     private final void parseBigInteger(BigInteger result) {
@@ -643,6 +696,7 @@ public final strictfp class TerrainMenu extends Group {
 
     public final void setSeed(int seed) {
         this.seed = seed;
+        if (!multiplayer) onTerrainSettingChanged("seed set");
     }
 
     public final void setFocus() {
@@ -655,6 +709,7 @@ public final strictfp class TerrainMenu extends Group {
 
     private final strictfp class CancelButtonListener implements MouseClickListener {
         public final void mouseClicked(int button, int x, int y, int clicks) {
+            if (manualMapSelected) clearManualMapSelection("left menu");
             owner.terrainMenuCancel();
         }
     }
@@ -668,6 +723,7 @@ public final strictfp class TerrainMenu extends Group {
         BigInteger rand_int = new BigInteger(100, random);
         parseBigInteger(rand_int);
         setMapcode();
+    if (!multiplayer) onTerrainSettingChanged("randomized");
     }
 
     protected final void doCancel() {
@@ -745,8 +801,20 @@ public final strictfp class TerrainMenu extends Group {
                 multiplayer
                         ? new MultiplayerInGameInfo(game.getRandomStartPos(), game.isRated())
                         : new DefaultInGameInfo();
-        GameNetwork game_network =
-                Menu.startNewGame(
+    // If a manual map is selected and still exists, prefer that exact map
+    java.io.File mapFileArg = null;
+    if (!multiplayer && manualMapSelected && selectedMapFile != null) {
+        if (selectedMapFile.exists()) {
+        mapFileArg = selectedMapFile;
+        } else {
+        // Non-blocking notification + clear selection
+        try { System.out.println("Selected map missing at start: " + selectedMapFile); } catch (Throwable ignore) {}
+        clearManualMapSelection("file missing at start");
+        }
+    }
+
+    GameNetwork game_network =
+        Menu.startNewGameWithMap(
                         network,
                         gui_root,
                         menu,
@@ -767,8 +835,9 @@ public final strictfp class TerrainMenu extends Group {
                         supplies_amount / (float) SLIDER_MAX_VALUE,
                         seed * seed,
                         ARCHIPELAGO[pulldown_size.getChosenItemIndex()],
-                        generateAINames(),
-                        player_count);
+            generateAINames(),
+            player_count,
+            mapFileArg);
         game_network
                 .getClient()
                 .getServerInterface()
@@ -846,6 +915,12 @@ public final strictfp class TerrainMenu extends Group {
     private final strictfp class PulldownUpdateMapcodeListener implements ItemChosenListener {
         public final void itemChosen(PulldownMenu menu, int item_index) {
             setMapcode();
+            // Auto-clear manual map only for terrain-affecting pulldowns
+            if (!multiplayer) {
+                if (menu == pulldown_size || menu == pm_terrain_type) {
+                    onTerrainSettingChanged("pulldown change");
+                }
+            }
         }
     }
 
@@ -878,6 +953,7 @@ public final strictfp class TerrainMenu extends Group {
                     gui_root.addModalForm(demo_form);
                 }
             }
+            if (!multiplayer) onTerrainSettingChanged("size changed");
         }
     }
 
@@ -922,12 +998,145 @@ public final strictfp class TerrainMenu extends Group {
                     gui_root.addModalForm(demo_form);
                 }
             }
+            if (!multiplayer) onTerrainSettingChanged("terrain type changed");
         }
     }
 
     private final strictfp class SliderUpdateMapcodeListener implements ValueListener {
         public final void valueSet(int value) {
             setMapcode();
+            if (!multiplayer) onTerrainSettingChanged("slider changed");
+        }
+    }
+
+    // ---------- Manual map selection helpers ----------
+    private String currentMapLabel() {
+        if (!manualMapSelected || selectedMapSummary == null || selectedMapFile == null)
+            return "No map selected";
+        String name = (selectedMapSummary.name != null && selectedMapSummary.name.length() > 0)
+                ? selectedMapSummary.name
+                : selectedMapFile.getName();
+        String type = ServerMessageBundler.getTerrainTypeString(
+                selectedMapSummary.terrainType == Game.TERRAIN_TYPE_VIKING
+                        ? Game.TERRAIN_TYPE_VIKING
+                        : Game.TERRAIN_TYPE_NATIVE);
+        int n = Math.max(0, selectedMapSummary.size);
+        return name + "  (" + n + "x" + n + ", " + type + ")";
+    }
+
+    private void updateMapLabelUI() {
+        if (label_selected_map != null) label_selected_map.set(currentMapLabel());
+        if (button_clear_map != null) button_clear_map.setDisabled(!manualMapSelected);
+    }
+
+    private void clearManualMapSelection(String reason) {
+        selectedMapFile = null;
+        selectedMapSummary = null;
+        manualMapSelected = false;
+        try { System.out.println("Manual map selection cleared: " + reason); } catch (Throwable ignore) {}
+        updateMapLabelUI();
+    }
+
+    private void onTerrainSettingChanged(String reason) {
+        if (initializingUI) return;
+        if (manualMapSelected) {
+            try { System.out.println("Auto-clearing manual map due to terrain change: " + reason); } catch (Throwable ignore) {}
+            clearManualMapSelection("terrain settings changed");
+        }
+    }
+
+    // Simple modal dialog to choose a .ttmap from maps dir
+    private final class MapLoadDialog extends Form {
+        private final MultiColumnComboBox listBox;
+        private List<MapIO.MapSummary> summaries = java.util.Collections.emptyList();
+        private final Label metaLabel;
+        private final HorizButton open;
+        private final HorizButton cancel;
+
+        MapLoadDialog() {
+            super("Load Map");
+            ColumnInfo[] cols = new ColumnInfo[] {
+                new ColumnInfo("File", 220),
+                new ColumnInfo("Name", 220),
+                new ColumnInfo("Size", 80),
+                new ColumnInfo("Type", 120)
+            };
+            listBox = new MultiColumnComboBox(gui_root, cols, 450);
+            addChild(listBox);
+            listBox.place();
+            metaLabel = new Label("Select a .ttmap.", Skin.getSkin().getEditFont(), 540);
+            addChild(metaLabel);
+            metaLabel.place(listBox, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
+            open = new OKButton(100);
+            cancel = new CancelButton(100);
+            addChild(open);
+            addChild(cancel);
+            cancel.place(metaLabel, BOTTOM_RIGHT);
+            open.place(cancel, LEFT_MID);
+            compileCanvas();
+
+            refreshList();
+            listBox.addRowListener(new com.oddlabs.tt.guievent.RowListener() {
+                public void rowChosen(Object row_context) {
+                    if (row_context instanceof MapIO.MapSummary) updatePreview((MapIO.MapSummary) row_context);
+                }
+                public void rowDoubleClicked(Object row_context) { onOpen(); }
+            });
+            open.addMouseClickListener(new MouseClickListener() {
+                public void mouseClicked(int button, int x, int y, int clicks) { onOpen(); }
+            });
+            cancel.addMouseClickListener(new MouseClickListener() {
+                public void mouseClicked(int button, int x, int y, int clicks) { remove(); }
+            });
+        }
+
+        private void refreshList() {
+            summaries = MapIO.listMaps();
+            listBox.clear();
+            for (MapIO.MapSummary s : summaries) {
+                String file = s.file.getName();
+                String name = (s.name != null && s.name.length() > 0) ? s.name : "";
+                String size = (s.size > 0) ? (s.size + "x" + s.size) : "";
+                String type = ServerMessageBundler.getTerrainTypeString(
+                        s.terrainType == Game.TERRAIN_TYPE_VIKING ? Game.TERRAIN_TYPE_VIKING : Game.TERRAIN_TYPE_NATIVE);
+                Row row = new Row(
+                    new GUIObject[] {
+                        new Label(file, Skin.getSkin().getMultiColumnComboBoxData().getFont(), 220),
+                        new Label(name, Skin.getSkin().getMultiColumnComboBoxData().getFont(), 220),
+                        new Label(size, Skin.getSkin().getMultiColumnComboBoxData().getFont(), 80),
+                        new Label(type, Skin.getSkin().getMultiColumnComboBoxData().getFont(), 120)
+                    },
+                    s);
+                listBox.addRow(row);
+            }
+        }
+
+        private void updatePreview(MapIO.MapSummary s) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(s.file.getName());
+            if (s.name != null && !s.name.isEmpty()) sb.append("\nName: ").append(s.name);
+            if (s.author != null && !s.author.isEmpty()) sb.append("\nAuthor: ").append(s.author);
+            if (s.description != null && !s.description.isEmpty()) sb.append("\nDesc: ").append(s.description);
+            sb.append("\nSize: ").append(s.size > 0 ? (s.size + "x" + s.size) : "?");
+            sb.append("\nTerrain: ").append(
+                ServerMessageBundler.getTerrainTypeString(
+                    s.terrainType == Game.TERRAIN_TYPE_VIKING ? Game.TERRAIN_TYPE_VIKING : Game.TERRAIN_TYPE_NATIVE));
+            metaLabel.set(sb.toString());
+        }
+
+        private void onOpen() {
+            Object ctx = listBox.getSelected();
+            if (!(ctx instanceof MapIO.MapSummary)) {
+                metaLabel.set("Choose a map first.");
+                return;
+            }
+            MapIO.MapSummary s = (MapIO.MapSummary) ctx;
+            selectedMapFile = s.file;
+            selectedMapSummary = s;
+            manualMapSelected = true;
+            updateMapLabelUI();
+            try { System.out.println("Selected map: " + selectedMapFile.getAbsolutePath()); } catch (Throwable ignore) {}
+            remove();
         }
     }
 }

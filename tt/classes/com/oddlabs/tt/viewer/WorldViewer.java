@@ -38,6 +38,8 @@ import com.oddlabs.tt.render.Picker;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
+import com.oddlabs.tt.editor.EditorColormapReblender;
+import com.oddlabs.tt.mapio.LoadedMapGenerator;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.StrictMatrix4f;
@@ -189,6 +191,25 @@ public final strictfp class WorldViewer implements Animated {
         this.selection = new Selection(local_player);
         landscape_renderer =
                 new LandscapeRenderer(world, world_info, gui_root, animation_manager_local);
+
+        // If we're starting from a manually loaded .ttmap, the colormaps in world_info
+        // came from the fallback procedural generator. Rebuild them now to match the
+        // loaded map's heights, water, and grids so visuals are correct.
+        try {
+            if (generator instanceof LoadedMapGenerator) {
+                int N = world.getHeightMap().getGridUnitsPerWorld();
+                EditorColormapReblender.reblendROIFromScratch(
+                        world,
+                        landscape_renderer,
+                        generator.getTerrainType(),
+                        0,
+                        0,
+                        N - 1,
+                        N - 1);
+            }
+        } catch (Throwable t) {
+            System.err.println("[WorldViewer] Map reblend failed: " + t.getMessage());
+        }
         this.picker =
                 new Picker(
                         animation_manager_local,

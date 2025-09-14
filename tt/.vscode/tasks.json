@@ -19,6 +19,20 @@
 				"$eslint-stylish"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Build TribalTrouble (compile)",
+			"type": "shell",
+			"command": "ant",
+			"args": [
+				"-noinput",
+				"-q",
+				"compile"
+			],
+			"problemMatcher": [
+				"$javac"
+			],
+			"group": "build"
 		}
 	]
 }

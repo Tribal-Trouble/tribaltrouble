@@ -385,23 +385,140 @@ public abstract strictfp class Menu extends CameraDelegate {
             String[] ai_names,
             int player_count) {
         boolean multiplayer = ingame_info.isMultiplayer();
-        WorldGenerator generator =
-                new IslandGenerator(
-                        meters_per_world,
-                        terrain_type,
-                        hills,
-                        vegetation_amount,
-                        supplies_amount,
-                        seed,
-                        archipelago);
-        // If an editor map exists, wrap the generator to load it.
+        // If an editor map exists, prefer its terrain type so visuals match the map
+        WorldGenerator generator;
         try {
             java.io.File maybe = new java.io.File(com.oddlabs.tt.mapio.MapIO.mapsDir(), "editor_map.ttmap");
+            int terrain_type_effective = terrain_type;
+            if (maybe.exists()) {
+                try {
+                    com.oddlabs.tt.mapio.MapIO.MapSummary sum = com.oddlabs.tt.mapio.MapIO.peek(maybe);
+                    terrain_type_effective = sum.terrainType;
+                } catch (Exception ignore) {}
+            }
+        // When using a manual map, ignore Terrain menu parameters for the base generator.
+        // Use fixed, deterministic values just to obtain render assets; gameplay comes from the map.
+        final float NEUTRAL_HILLS = com.oddlabs.tt.global.Globals.LANDSCAPE_HILLS;
+        final float NEUTRAL_VEGETATION = com.oddlabs.tt.global.Globals.LANDSCAPE_VEGETATION;
+        final float NEUTRAL_SUPPLIES = com.oddlabs.tt.global.Globals.LANDSCAPE_RESOURCES;
+        final int NEUTRAL_SEED = com.oddlabs.tt.global.Globals.LANDSCAPE_SEED;
+        final boolean NEUTRAL_ARCHIPELAGO = false;
+        generator =
+            new IslandGenerator(
+                meters_per_world,
+                terrain_type_effective,
+                NEUTRAL_HILLS,
+                NEUTRAL_VEGETATION,
+                NEUTRAL_SUPPLIES,
+                NEUTRAL_SEED,
+                NEUTRAL_ARCHIPELAGO);
             if (maybe.exists()) {
                 generator = new com.oddlabs.tt.mapio.LoadedMapGenerator(generator, maybe);
             }
         } catch (Throwable t) {
-            System.err.println("Menu: failed to enable .ttmap generator wrapper: " + t.getMessage());
+            // Fallback to requested terrain on any failure
+            System.err.println("Menu: .ttmap setup failed: " + t.getMessage());
+            generator =
+                    new IslandGenerator(
+                            meters_per_world,
+                            terrain_type,
+                            hills,
+                            vegetation_amount,
+                            supplies_amount,
+                            seed,
+                            archipelago);
+        }
+        InetAddress address = multiplayer ? null : com.oddlabs.util.Utils.getLoopbackAddress();
+        final Server server =
+                new Server(network, game, address, generator, multiplayer, ai_names, player_count);
+        Client client =
+                new Client(
+                        new Runnable() {
+                            public final void run() {
+                                server.close();
+                            }
+                        },
+                        network,
+                        gui_root.getGUI(),
+                        -1,
+                        world_params,
+                        ingame_info,
+                        init_action);
+        GameNetwork game_network = new GameNetwork(server, client);
+        ConnectingForm connecting_form =
+                new ConnectingForm(game_network, gui_root, owner, multiplayer);
+        client.setConfigurationListener(connecting_form);
+        gui_root.addModalForm(connecting_form);
+        return game_network;
+    }
+
+    public static final GameNetwork startNewGameWithMap(
+            NetworkSelector network,
+            GUIRoot gui_root,
+            SelectGameMenu owner,
+            WorldParameters world_params,
+            InGameInfo ingame_info,
+            WorldInitAction init_action,
+            Game game,
+            int meters_per_world,
+            int terrain_type,
+            float hills,
+            float vegetation_amount,
+            float supplies_amount,
+            int seed,
+            boolean archipelago,
+            String[] ai_names,
+            int player_count,
+            java.io.File mapFile) {
+        boolean multiplayer = ingame_info.isMultiplayer();
+        // Prefer the map’s terrain type when building the base generator, so visuals match
+        WorldGenerator generator;
+        try {
+            java.io.File chosen = null;
+            if (mapFile != null && mapFile.exists()) {
+                chosen = mapFile;
+            } else {
+                java.io.File maybe = new java.io.File(com.oddlabs.tt.mapio.MapIO.mapsDir(), "editor_map.ttmap");
+                if (maybe.exists()) chosen = maybe;
+            }
+
+            int terrain_type_effective = terrain_type;
+            if (chosen != null) {
+                try {
+                    com.oddlabs.tt.mapio.MapIO.MapSummary sum = com.oddlabs.tt.mapio.MapIO.peek(chosen);
+                    terrain_type_effective = sum.terrainType;
+                } catch (Exception ignore) {}
+            }
+
+            generator =
+                    new IslandGenerator(
+                            meters_per_world,
+                            terrain_type_effective,
+                            hills,
+                            vegetation_amount,
+                            supplies_amount,
+                            seed,
+                            archipelago);
+            if (chosen != null) {
+                generator = new com.oddlabs.tt.mapio.LoadedMapGenerator(generator, chosen);
+            }
+        } catch (Throwable t) {
+            // Fallback to requested terrain on any failure
+            System.err.println("Menu: .ttmap setup failed: " + t.getMessage());
+            generator =
+                    new IslandGenerator(
+                            meters_per_world,
+                            terrain_type,
+                            hills,
+                            vegetation_amount,
+                            supplies_amount,
+                            seed,
+                            archipelago);
+            try {
+                if (mapFile != null && mapFile.exists()) {
+                    generator = new com.oddlabs.tt.mapio.LoadedMapGenerator(generator, mapFile);
+                }
+            } catch (Throwable ignore) {}
         }
         InetAddress address = multiplayer ? null : com.oddlabs.util.Utils.getLoopbackAddress();
         final Server server =
