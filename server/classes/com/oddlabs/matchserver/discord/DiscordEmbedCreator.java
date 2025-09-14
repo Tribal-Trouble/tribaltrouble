@@ -1,6 +1,5 @@
 package com.oddlabs.matchserver.discord;
 
-// import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GamePlayer;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.PlayerTypes;
@@ -16,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 
+/** Helpers for quickly and safely sending different Discord embed messages. */
 public class DiscordEmbedCreator {
 
     private DiscordEmbedCreator() {}
@@ -69,7 +69,7 @@ public class DiscordEmbedCreator {
             Boolean includeMapCodeLookup,
             GameSession session,
             Color color,
-            String DescriptionPrefix // eg. Team 2 Won, or Player lost playing vs AI
+            String descriptionPrefix // eg. Team 2 Won, or Player lost playing vs AI
             ) {
 
         if (!DiscordBotService.getInstance().isInitialized()) {
@@ -81,7 +81,7 @@ public class DiscordEmbedCreator {
         String mapCode = includeMapCodeLookup ? data.getMapcode() : null;
         String replayUrl = WebsiteLinkHelper.getReplayUrl(gameId);
 
-        StringBuilder desc = new StringBuilder(DescriptionPrefix);
+        StringBuilder desc = new StringBuilder(descriptionPrefix);
 
         if (replayUrl != null) {
             desc.append("\n[Watch here](").append(replayUrl).append(")");
