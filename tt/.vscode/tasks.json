@@ -33,6 +33,17 @@
 				"$javac"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Build tribaltouble tt",
+			"type": "shell",
+			"command": "ant",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
 		}
 	]
 }

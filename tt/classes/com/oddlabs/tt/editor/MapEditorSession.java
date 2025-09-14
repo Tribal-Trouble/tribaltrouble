@@ -683,6 +683,23 @@ public final class MapEditorSession {
         private final Animated extraAnimationDriver;
         private final int terrainType;
     private final DefaultRenderer defaultRenderer;
+        // Toolbar UI (non-modal)
+        private com.oddlabs.tt.editor.ui.EditorToolbar toolbar;
+        // Binding surface for brush sliders
+        private final com.oddlabs.tt.editor.ui.BrushBinding brushBinding = new com.oddlabs.tt.editor.ui.BrushBinding() {
+            public float getRadiusMeters() { return (brushRadiusXM + brushRadiusYM) * 0.5f; }
+            public void setRadiusMeters(float meters) {
+                brushRadiusXM = clamp(meters, MIN_RADIUS, MAX_RADIUS);
+                brushRadiusYM = clamp(meters, MIN_RADIUS, MAX_RADIUS);
+                info("Size: " + (int) brushRadiusXM + "m");
+            }
+            public float getIntensity() { return brushStrengthM; }
+            public void setIntensity(float strength) {
+                float minS = 0.1f, maxS = 10f;
+                brushStrengthM = clamp(strength, minS, maxS);
+                info("Intensity: " + fmt(brushStrengthM));
+            }
+        };
 
         private boolean leftDown = false;
         private boolean rightDown = false;
@@ -761,6 +778,17 @@ public final class MapEditorSession {
                     .getInfoPrinter()
                     .print(
                 "Welcome to the Map Editor! Press f1 for help");
+
+            // Add toolbar docked at top-left
+            try {
+                toolbar = new com.oddlabs.tt.editor.ui.EditorToolbar(getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType, brushBinding);
+                // Place with a small margin; rely on GUIRoot to keep rendering above world
+                toolbar.dockTopLeft(8, 8);
+                addChild(toolbar);
+                info("Editor toolbar ready (` to toggle)");
+            } catch (Throwable t) {
+                try { getGUIRoot().getInfoPrinter().print("Toolbar init failed: " + t.getMessage()); } catch (Throwable ignore) {}
+            }
         }
 
         public boolean canScroll() { return true; }
@@ -932,6 +960,7 @@ public final class MapEditorSession {
                 brushRadiusXM = clamp(brushRadiusXM * scale, MIN_RADIUS, MAX_RADIUS);
                 brushRadiusYM = clamp(brushRadiusYM * scale, MIN_RADIUS, MAX_RADIUS);
                 info("Size: " + (int) brushRadiusXM + "x" + (int) brushRadiusYM + "m");
+                if (toolbar != null) toolbar.syncFromBinding();
                 return;
             }
 
@@ -940,6 +969,7 @@ public final class MapEditorSession {
                 float minS = 0.1f, maxS = 10f; // expanded headroom
                 brushStrengthM = clamp(brushStrengthM + 0.1f * StrictMath.signum(amount), minS, maxS);
                 info("Intensity: " + fmt(brushStrengthM));
+                if (toolbar != null) toolbar.syncFromBinding();
                 return;
             }
 
@@ -1100,6 +1130,22 @@ public final class MapEditorSession {
             if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_S) {
                 getGUIRoot().addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.SaveDialog(
                         getGUIRoot(), world, terrainType));
+                return;
+            }
+            // ` (grave) toggles the toolbar visibility (or recreates if missing)
+            if (!event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_GRAVE) {
+                if (toolbar == null) {
+                    try {
+                        toolbar = new com.oddlabs.tt.editor.ui.EditorToolbar(getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType, brushBinding);
+                        toolbar.dockTopLeft(8, 8);
+                        addChild(toolbar);
+                        info("Editor toolbar restored");
+                    } catch (Throwable t) {
+                        info("Toolbar create failed: " + t.getMessage());
+                    }
+                } else {
+                    toolbar.toggleVisible();
+                }
                 return;
             }
             // F5: Quick Save .ttmap to <game_dir>/maps/editor_map.ttmap
