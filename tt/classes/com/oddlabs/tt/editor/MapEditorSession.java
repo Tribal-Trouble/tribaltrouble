@@ -38,6 +38,7 @@ import com.oddlabs.tt.viewer.Selection;
 import org.lwjgl.opengl.GL11;
 import com.oddlabs.tt.editor.ui.EditorState;
 // import removed: com.oddlabs.procedural.Channel
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Minimal editor runtime: creates a world, switches to an in-world renderer,
@@ -58,6 +59,9 @@ public final class MapEditorSession {
     // Keep a reference to the network used to launch the editor so UI can return to main menu
     private static NetworkSelector EDITOR_NETWORK;
 
+    // Prevent overlapping editor restarts while a load is in-flight
+    private static final AtomicBoolean LOADING = new AtomicBoolean(false);
+
     public static void setPaused(boolean paused) { EDITOR_PAUSED = paused; }
 
     public static NetworkSelector getEditorNetwork() { return EDITOR_NETWORK; }
@@ -69,141 +73,201 @@ public final class MapEditorSession {
             WorldGenerator generator,
             int gamespeed,
             com.oddlabs.tt.editor.ui.EditorState.EditorMode mode) {
-    // Remember network selector for returning to the main menu from pause menu
-    EDITOR_NETWORK = network;
-        // Use the built-in loading progress form so all resource loading progress calls are valid
+        // Remember network selector for returning to the main menu from pause menu
+        EDITOR_NETWORK = network;
+
+        // Guard against re-entrant starts while a previous load is in-flight
+        if (!LOADING.compareAndSet(false, true)) {
+            System.err.println("[EditorStart] Ignoring re-entrant start; load already in progress.");
+            try {
+                if (gui != null && gui.getGUIRoot() != null && gui.getGUIRoot().getInfoPrinter() != null) {
+                    gui.getGUIRoot().getInfoPrinter().print("Load already in progress...");
+                }
+            } catch (Throwable ignore) {}
+            return;
+        }
+
+    // Use the built-in loading progress form so all resource loading progress calls are valid
+    try {
         com.oddlabs.tt.form.ProgressForm.setProgressForm(
-                network,
-                gui,
-                new com.oddlabs.tt.form.LoadCallback() {
+            network,
+            gui,
+            new com.oddlabs.tt.form.LoadCallback() {
                     @Override
                     public UIRenderer load(GUIRoot clientRoot) {
-                        // Prepare renderer queues and resources (these call ProgressForm.progress internally)
-                        RenderQueues renderQueues = new RenderQueues();
-                        com.oddlabs.tt.landscape.LandscapeResources landscapeResources =
-                                World.loadCommon(renderQueues);
-                        com.oddlabs.tt.model.RacesResources racesResources = World.loadInGame(renderQueues);
+                        try {
+                            // Prepare renderer queues and resources (these call ProgressForm.progress internally)
+                            System.err.println("[EditorStart] Begin load: create RenderQueues");
+                            RenderQueues renderQueues = new RenderQueues();
+                            System.err.println("[EditorStart] Load common resources");
+                            com.oddlabs.tt.landscape.LandscapeResources landscapeResources =
+                                    World.loadCommon(renderQueues);
+                            System.err.println("[EditorStart] Load in-game resources");
+                            com.oddlabs.tt.model.RacesResources racesResources = World.loadInGame(renderQueues);
 
-                        // Basic audio impl bound to this camera state
-                        final CameraState camState = new CameraState();
-                        AudioImplementation audioImpl = new AudioImplementation() {
-                            public AbstractAudioPlayer newAudio(AudioParameters params) {
-                                return AudioManager.getManager().newAudio(camState, params);
-                            }
-                        };
+                            // Basic audio impl bound to this camera state
+                            final CameraState camState = new CameraState();
+                            AudioImplementation audioImpl = new AudioImplementation() {
+                                public AbstractAudioPlayer newAudio(AudioParameters params) {
+                                    return AudioManager.getManager().newAudio(camState, params);
+                                }
+                            };
 
-                        // Single-player editor setup
-                        PlayerInfo[] infos = new PlayerInfo[] {
-                            new PlayerInfo(0, com.oddlabs.tt.model.RacesResources.RACE_NATIVES, "Editor")
-                        };
-                        float[][] colors = new float[][] {Player.COLORS[0]};
+                            // Single-player editor setup
+                            PlayerInfo[] infos = new PlayerInfo[] {
+                                    new PlayerInfo(0, com.oddlabs.tt.model.RacesResources.RACE_NATIVES, "Editor")
+                            };
+                            float[][] colors = new float[][] {Player.COLORS[0]};
 
-                        int playersForGeneration = 6;
-                        WorldInfo worldInfo =
-                                generator.generate(playersForGeneration, Player.INITIAL_UNIT_COUNT, 0f);
-                        WorldParameters worldParams =
-                                new WorldParameters(
-                                        gamespeed,
-                                        "",
-                                        Player.INITIAL_UNIT_COUNT,
-                                        Player.DEFAULT_MAX_UNIT_COUNT);
+                            int playersForGeneration = 6;
+                            System.err.println("[EditorStart] Generate world info via generator=" + generator.getClass().getSimpleName());
+                            WorldInfo worldInfo =
+                                    generator.generate(playersForGeneration, Player.INITIAL_UNIT_COUNT, 0f);
+                            System.err.println("[EditorStart] WorldInfo ready. Build WorldParameters (gamespeed=" + gamespeed + ")");
+                            WorldParameters worldParams =
+                                    new WorldParameters(
+                                            gamespeed,
+                                            "",
+                                            Player.INITIAL_UNIT_COUNT,
+                                            Player.DEFAULT_MAX_UNIT_COUNT);
 
-                        final LandscapeRenderer[] lrHolder = new LandscapeRenderer[1];
-                        final DefaultRenderer[] drHolder = new DefaultRenderer[1];
-                        NotificationListener listener = new NotificationListener() {
-                            public void gamespeedChanged(int speed) {}
-                            public void playerGamespeedChanged() {}
-                            public void newAttackNotification(com.oddlabs.tt.model.Selectable target) {}
-                            public void newSelectableNotification(com.oddlabs.tt.model.Selectable target) {}
-                            public void registerTarget(Target target) {}
-                            public void unregisterTarget(Target target) {}
-                            public void updateTreeLowDetail(StrictMatrix4f m, com.oddlabs.tt.landscape.TreeSupply t) {
-                                if (drHolder[0] != null)
-                                    drHolder[0].getTreeRenderer().getLowDetail().updateLowDetail(m, t);
-                            }
-                            public void patchesEdited(int x0, int y0, int x1, int y1) {
-                                if (lrHolder[0] != null) lrHolder[0].patchesEdited(x0, y0, x1, y1);
-                                if (drHolder[0] != null) drHolder[0].rebuildWater();
-                            }
-                        };
+                            final LandscapeRenderer[] lrHolder = new LandscapeRenderer[1];
+                            final DefaultRenderer[] drHolder = new DefaultRenderer[1];
+                            NotificationListener listener = new NotificationListener() {
+                                public void gamespeedChanged(int speed) {}
+                                public void playerGamespeedChanged() {}
+                                public void newAttackNotification(com.oddlabs.tt.model.Selectable target) {}
+                                public void newSelectableNotification(com.oddlabs.tt.model.Selectable target) {}
+                                public void registerTarget(Target target) {}
+                                public void unregisterTarget(Target target) {}
+                                public void updateTreeLowDetail(StrictMatrix4f m, com.oddlabs.tt.landscape.TreeSupply t) {
+                                    if (drHolder[0] != null)
+                                        drHolder[0].getTreeRenderer().getLowDetail().updateLowDetail(m, t);
+                                }
+                                public void patchesEdited(int x0, int y0, int x1, int y1) {
+                                    if (lrHolder[0] != null) lrHolder[0].patchesEdited(x0, y0, x1, y1);
+                                    if (drHolder[0] != null) drHolder[0].rebuildWater();
+                                }
+                            };
 
-                        World world =
-                                World.newWorld(
-                                        audioImpl,
-                                        landscapeResources,
-                                        racesResources,
-                                        com.oddlabs.tt.landscape.LandscapeResources.loadTreeLowDetails(),
-                                        listener,
-                                        worldParams,
-                                        worldInfo,
-                                        generator.getTerrainType(),
-                                        infos,
-                                        colors);
+                            System.err.println("[EditorStart] Create World");
+                            World world =
+                                    World.newWorld(
+                                            audioImpl,
+                                            landscapeResources,
+                                            racesResources,
+                                            com.oddlabs.tt.landscape.LandscapeResources.loadTreeLowDetails(),
+                                            listener,
+                                            worldParams,
+                                            worldInfo,
+                                            generator.getTerrainType(),
+                                            infos,
+                                            colors);
 
-                        Player local = world.getPlayers()[0];
-                        Selection selection = new Selection(local);
+                            Player local = world.getPlayers()[0];
+                            Selection selection = new Selection(local);
 
-                        // Build renderer + picker
-            LandscapeRenderer landscapeRenderer =
-                                new LandscapeRenderer(
-                                        world, worldInfo, clientRoot, world.getAnimationManagerRealTime());
-                        lrHolder[0] = landscapeRenderer;
-                        Picker picker =
-                                new Picker(
-                                        world.getAnimationManagerRealTime(),
-                                        local,
-                                        renderQueues,
-                                        landscapeRenderer,
-                                        selection);
-            UIRenderer uiRenderer =
-                drHolder[0] = new DefaultRenderer(
-                                        new Cheat(),
-                                        local,
-                                        renderQueues,
-                                        generator.getTerrainType(),
-                                        worldInfo,
-                                        landscapeRenderer,
-                                        picker,
-                                        selection,
-                                        generator);
+                            // Build renderer + picker
+                            System.err.println("[EditorStart] Create LandscapeRenderer + Picker + DefaultRenderer");
+                            LandscapeRenderer landscapeRenderer =
+                                    new LandscapeRenderer(
+                                            world, worldInfo, clientRoot, world.getAnimationManagerRealTime());
+                            lrHolder[0] = landscapeRenderer;
+                            Picker picker =
+                                    new Picker(
+                                            world.getAnimationManagerRealTime(),
+                                            local,
+                                            renderQueues,
+                                            landscapeRenderer,
+                                            selection);
+                            UIRenderer uiRenderer =
+                                    drHolder[0] = new DefaultRenderer(
+                                            new Cheat(),
+                                            local,
+                                            renderQueues,
+                                            generator.getTerrainType(),
+                                            worldInfo,
+                                            landscapeRenderer,
+                                            picker,
+                                            selection,
+                                            generator);
 
-                        // Drive animations (LOD updates, timers) like WorldViewer does
-                        final Animated animationDriver =
-                                new Animated() {
-                                    public void animate(float t) {
-                                        if (!EDITOR_PAUSED) {
-                                            world.getAnimationManagerRealTime().runAnimations(t);
+                            // Drive animations (LOD updates, timers) like WorldViewer does
+                            final Animated animationDriver =
+                                    new Animated() {
+                                        public void animate(float t) {
+                                            if (!EDITOR_PAUSED) {
+                                                world.getAnimationManagerRealTime().runAnimations(t);
+                                            }
                                         }
+
+                                        public void updateChecksum(com.oddlabs.tt.util.StateChecksum checksum) {}
+                                    };
+                            LocalEventQueue.getQueue().getManager().registerAnimation(animationDriver);
+
+                            // Camera + delegate
+                            System.err.println("[EditorStart] Push EditorDelegate");
+                            Camera camera = new SimpleEditorCamera(world, camState);
+                            int terrainType = generator.getTerrainType();
+                            // Pass editor mode through
+                            EDITOR_STATE.setEditorMode(mode);
+
+                            EditorDelegate delegate =
+                                    new EditorDelegate(
+                                            clientRoot,
+                                            camera,
+                                            world,
+                                            landscapeRenderer,
+                                            picker,
+                                            animationDriver,
+                                            terrainType,
+                                            drHolder[0]);
+                            clientRoot.pushDelegate(delegate);
+
+                            // Match WorldViewer initialization for viewport sizing
+                            clientRoot.displayChanged(LocalInput.getViewWidth(), LocalInput.getViewHeight());
+
+                            // Auto-reblend textures across the full world when loading a .ttmap
+                            // so colormaps match the newly loaded height/water/build grids
+                            try {
+                                if (generator instanceof com.oddlabs.tt.mapio.LoadedMapGenerator) {
+                                    if (clientRoot != null && clientRoot.getInfoPrinter() != null) {
+                                        clientRoot.getInfoPrinter().print("Reblending terrain textures...");
                                     }
+                                    int N = world.getHeightMap().getGridUnitsPerWorld();
+                                    EditorColormapReblender.reblendROIFromScratch(
+                                            world,
+                                            landscapeRenderer,
+                                            terrainType,
+                                            0,
+                                            0,
+                                            N - 1,
+                                            N - 1);
+                                }
+                            } catch (Throwable ignore) {}
 
-                                    public void updateChecksum(com.oddlabs.tt.util.StateChecksum checksum) {}
-                                };
-                        LocalEventQueue.getQueue().getManager().registerAnimation(animationDriver);
-
-                        // Camera + delegate
-            Camera camera = new SimpleEditorCamera(world, camState);
-                        int terrainType = generator.getTerrainType();
-            // Pass editor mode through
-            EDITOR_STATE.setEditorMode(mode);
-
-            EditorDelegate delegate =
-                                new EditorDelegate(
-                                        clientRoot,
-                                        camera,
-                                        world,
-                    landscapeRenderer,
-                                        picker,
-                                        animationDriver,
-                    terrainType,
-                    drHolder[0]);
-                        clientRoot.pushDelegate(delegate);
-
-                        // Match WorldViewer initialization for viewport sizing
-                        clientRoot.displayChanged(LocalInput.getViewWidth(), LocalInput.getViewHeight());
-
-                        return uiRenderer;
+                            System.err.println("[EditorStart] Load done, returning UIRenderer");
+                            LOADING.set(false);
+                            return uiRenderer;
+                        } catch (Throwable t) {
+                            try {
+                                System.err.println("[EditorStart][ERROR] Load failed: " + t);
+                                t.printStackTrace();
+                                if (clientRoot != null && clientRoot.getInfoPrinter() != null) {
+                                    clientRoot.getInfoPrinter().print("Editor load failed: " + t.getMessage());
+                                }
+                            } catch (Throwable ignore) {}
+                            LOADING.set(false);
+                            // Propagate to show behavior upstream as well
+                            throw new RuntimeException("MapEditorSession.start load failed", t);
+                        }
                     }
-                });
+                    });
+        } catch (Throwable t) {
+            // If something fails before the callback runs, clear the loading flag
+            LOADING.set(false);
+            throw t;
+        }
     }
 
     // --- Minimal Editor Camera (pan/zoom with WASD/arrow keys + mouse wheel)

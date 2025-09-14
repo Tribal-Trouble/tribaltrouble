@@ -34,6 +34,7 @@ public final class LoadedMapGenerator implements WorldGenerator {
     public int getMetersPerWorld() { return fallback.getMetersPerWorld(); }
 
     @Override
+    @SuppressWarnings("unchecked")
     public WorldInfo generate(int num_players, int initial_unit_count, float random_start_pos) {
         WorldInfo base = fallback.generate(num_players, initial_unit_count, random_start_pos);
         MapIO.LoadedMap lm;
@@ -75,25 +76,21 @@ public final class LoadedMapGenerator implements WorldGenerator {
     for (int[] ic : lm.iron) iron_positions.add(new int[] {ic[0], ic[1]});
 
         // Trees: if provided, override base trees/palms by splitting types
-        List<int[]> trees_positions = base.trees;
-        List<int[]> palm_positions = base.palm_trees;
+    List<int[]> trees_positions = (List<int[]>) base.trees;
+    List<int[]> palm_positions = (List<int[]>) base.palm_trees;
         if (lm.trees != null && !lm.trees.isEmpty()) {
             trees_positions = new ArrayList<>();
             palm_positions = new ArrayList<>();
             for (MapIO.Tree t : lm.trees) {
-                // Map type to bucket expected by WorldInfo/AbstractTreeGroup
-                switch (t.typeIndex) {
-                    case com.oddlabs.tt.landscape.AbstractTreeGroup.TREE_INDEX:
-                    case com.oddlabs.tt.landscape.AbstractTreeGroup.OAKTREE_INDEX:
-                        trees_positions.add(new int[] {t.gx, t.gy});
-                        break;
-                    case com.oddlabs.tt.landscape.AbstractTreeGroup.PALMTREE_INDEX:
-                    case com.oddlabs.tt.landscape.AbstractTreeGroup.PINETREE_INDEX:
-                        palm_positions.add(new int[] {t.gx, t.gy});
-                        break;
-                    default:
-                        // Unknown type; ignore gracefully
-                        break;
+                int ti = t.typeIndex;
+                if (ti == com.oddlabs.tt.landscape.AbstractTreeGroup.TREE_INDEX
+                        || ti == com.oddlabs.tt.landscape.AbstractTreeGroup.OAKTREE_INDEX) {
+                    trees_positions.add(new int[] {t.gx, t.gy});
+                } else if (ti == com.oddlabs.tt.landscape.AbstractTreeGroup.PALMTREE_INDEX
+                        || ti == com.oddlabs.tt.landscape.AbstractTreeGroup.PINETREE_INDEX) {
+                    palm_positions.add(new int[] {t.gx, t.gy});
+                } else {
+                    // Unknown type; ignore gracefully
                 }
             }
         }
@@ -115,6 +112,10 @@ public final class LoadedMapGenerator implements WorldGenerator {
             idx[t] = i + 2;
         }
 
+        // Ensure region seed points and starting positions remain valid relative to new grids
+    java.util.ArrayList<int[]> adjustedIslands = adjustIslandLocations(base.island_locations, access_grid, dock_grid);
+        float[][] adjustedStarts = adjustStartingLocations(base.starting_locations, access_grid, dock_grid);
+
         return new WorldInfo(
                 base.meters_per_world,
                 (lm.seaLevel != 0f ? lm.seaLevel : base.sea_level_meters),
@@ -133,7 +134,83 @@ public final class LoadedMapGenerator implements WorldGenerator {
                 dock_grid,
                 water_grid,
                 build_grid,
-                base.island_locations,
-                base.starting_locations);
+                adjustedIslands,
+                adjustedStarts);
+    }
+
+    // Move each island seed to the nearest accessible or dockable tile if currently blocked
+    private static java.util.ArrayList<int[]> adjustIslandLocations(java.util.ArrayList<int[]> islands,
+                                                             boolean[][] access,
+                                                             boolean[][] dock) {
+        if (islands == null) return null;
+        int n = access != null ? access.length : 0;
+    java.util.ArrayList<int[]> out = new java.util.ArrayList<>(islands.size());
+        for (Object o : islands) {
+            int[] pos = (int[]) o;
+            int gx = clamp(pos[0], 0, n - 1);
+            int gy = clamp(pos[1], 0, n - 1);
+            int[] free = findNearestFree(gx, gy, access, dock);
+            out.add(new int[] {free[0], free[1]});
+        }
+        return out;
+    }
+
+    // Move each starting location to the nearest accessible/dockable tile center if blocked
+    private static float[][] adjustStartingLocations(float[][] starts,
+                                                     boolean[][] access,
+                                                     boolean[][] dock) {
+        if (starts == null) return null;
+        int n = access != null ? access.length : 0;
+        float[][] out = new float[starts.length][2];
+        for (int i = 0; i < starts.length; i++) {
+            float sx = starts[i][0];
+            float sy = starts[i][1];
+            int gx = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(sx);
+            int gy = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(sy);
+            gx = clamp(gx, 0, n - 1);
+            gy = clamp(gy, 0, n - 1);
+            if (isFree(gx, gy, access, dock)) {
+                out[i][0] = sx; out[i][1] = sy;
+            } else {
+                int[] free = findNearestFree(gx, gy, access, dock);
+                out[i][0] = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(free[0]);
+                out[i][1] = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(free[1]);
+            }
+        }
+        return out;
+    }
+
+    private static boolean isFree(int gx, int gy, boolean[][] access, boolean[][] dock) {
+        if (access == null || dock == null) return true;
+        if (gy < 0 || gx < 0 || gy >= access.length || gx >= access.length) return false;
+        return access[gy][gx] || dock[gy][gx];
+    }
+
+    private static int[] findNearestFree(int gx, int gy, boolean[][] access, boolean[][] dock) {
+        int n = access.length;
+        if (isFree(gx, gy, access, dock)) return new int[] {gx, gy};
+        // Expand square rings like UnitGrid.scan
+        int radius = 1;
+        while (radius < n) {
+            int x0 = gx - radius, x1 = gx + radius;
+            int y0 = gy - radius, y1 = gy + radius;
+            for (int x = x0; x <= x1; x++) {
+                if (y0 >= 0 && y0 < n && x >= 0 && x < n && isFree(x, y0, access, dock)) return new int[] {x, y0};
+                if (y1 >= 0 && y1 < n && x >= 0 && x < n && isFree(x, y1, access, dock)) return new int[] {x, y1};
+            }
+            for (int y = y0 + 1; y <= y1 - 1; y++) {
+                if (x0 >= 0 && x0 < n && y >= 0 && y < n && isFree(x0, y, access, dock)) return new int[] {x0, y};
+                if (x1 >= 0 && x1 < n && y >= 0 && y < n && isFree(x1, y, access, dock)) return new int[] {x1, y};
+            }
+            radius++;
+        }
+        // Fallback (should not happen): clamp to bounds
+        return new int[] {clamp(gx, 0, n - 1), clamp(gy, 0, n - 1)};
+    }
+
+    private static int clamp(int v, int lo, int hi) {
+        if (v < lo) return lo;
+        if (v > hi) return hi;
+        return v;
     }
 }
