@@ -756,6 +756,45 @@ public final class MapEditorSession {
     private boolean overlayTScrollUsed = false; // true if user scrolled while holding T
     private OverlayLayer overlayLayer = OverlayLayer.WATER;
 
+        // Options binding for toolbar selectors
+        private final com.oddlabs.tt.editor.ui.EditorOptionsBinding optionsBinding =
+                new com.oddlabs.tt.editor.ui.EditorOptionsBinding() {
+                    private final String[] modeNames = new String[] {
+                        "Raise/Lower", "Flatten", "Soften", "Smooth", "River", "Ramp", "Rough", "Random"
+                    };
+                    private final String[] resNames = new String[] {
+                        "Rock", "Iron", "Tree Jungle", "Tree Palm", "Tree Oak", "Tree Pine"
+                    };
+                    private final String[] overlayNames = new String[] {
+                        "Water", "Dock", "Access", "Build", "Resource", "Slope"
+                    };
+                    public int getActiveToolIndex() { return activeTool.ordinal(); }
+                    public void setActiveToolIndex(int idx) {
+                        ActiveTool[] vals = ActiveTool.values();
+                        if (idx >= 0 && idx < vals.length) { activeTool = vals[idx]; if (toolbar != null) toolbar.syncOptionsFromBinding(); }
+                    }
+                    public String[] getBrushModeNames() { return modeNames; }
+                    public int getBrushModeIndex() { return brushMode.ordinal(); }
+                    public void setBrushModeIndex(int idx) {
+                        BrushMode[] vals = BrushMode.values();
+                        if (idx >= 0 && idx < vals.length) { brushMode = vals[idx]; info("Mode = " + brushMode); if (toolbar != null) toolbar.syncOptionsFromBinding(); }
+                    }
+                    public String[] getResourceTypeNames() { return resNames; }
+                    public int getResourceTypeIndex() { return resourceType.ordinal(); }
+                    public void setResourceTypeIndex(int idx) {
+                        ResourceType[] vals = ResourceType.values();
+                        if (idx >= 0 && idx < vals.length) { resourceType = vals[idx]; info("Resource = " + resourceType); if (toolbar != null) toolbar.syncOptionsFromBinding(); }
+                    }
+                    public String[] getOverlayLayerNames() { return overlayNames; }
+                    public int getOverlayLayerIndex() { return overlayLayer.ordinal(); }
+                    public void setOverlayLayerIndex(int idx) {
+                        OverlayLayer[] vals = OverlayLayer.values();
+                        if (idx >= 0 && idx < vals.length) { overlayLayer = vals[idx]; if (toolbar != null) toolbar.syncOptionsFromBinding(); }
+                    }
+                    public boolean isOverlayMaster() { return EDITOR_STATE.isOverlayMaster(); }
+                    public void setOverlayMaster(boolean v) { EDITOR_STATE.setOverlayMaster(v); if (toolbar != null) toolbar.syncOptionsFromBinding(); }
+                };
+
         EditorDelegate(
                 GUIRoot root,
                 Camera camera,
@@ -781,7 +820,7 @@ public final class MapEditorSession {
 
             // Add toolbar docked at top-left
             try {
-                toolbar = new com.oddlabs.tt.editor.ui.EditorToolbar(getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType, brushBinding);
+                toolbar = new com.oddlabs.tt.editor.ui.EditorToolbar(getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType, brushBinding, optionsBinding);
                 // Place with a small margin; rely on GUIRoot to keep rendering above world
                 toolbar.dockTopLeft(8, 8);
                 addChild(toolbar);
@@ -936,6 +975,7 @@ public final class MapEditorSession {
                 overlayTScrollUsed = true;
                 // Cycle overlay layer only (no mode switching)
                 if (amount > 0) nextOverlayLayer(); else if (amount < 0) prevOverlayLayer();
+                if (toolbar != null) toolbar.syncOptionsFromBinding();
                 return;
             }
 
@@ -943,6 +983,7 @@ public final class MapEditorSession {
             if (LocalInput.isKeyDown(Keyboard.KEY_W)) {
                 if (amount > 0) cycleResourceType(1);
                 else if (amount < 0) cycleResourceType(-1);
+                if (toolbar != null) toolbar.syncOptionsFromBinding();
                 return;
             }
 
@@ -950,6 +991,7 @@ public final class MapEditorSession {
                 // Cycle brush modes with scroll while Q is held
                 if (amount > 0) nextMode();
                 else if (amount < 0) prevMode();
+                if (toolbar != null) toolbar.syncOptionsFromBinding();
                 return;
             }
 
@@ -1136,7 +1178,7 @@ public final class MapEditorSession {
             if (!event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_GRAVE) {
                 if (toolbar == null) {
                     try {
-                        toolbar = new com.oddlabs.tt.editor.ui.EditorToolbar(getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType, brushBinding);
+                        toolbar = new com.oddlabs.tt.editor.ui.EditorToolbar(getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType, brushBinding, optionsBinding);
                         toolbar.dockTopLeft(8, 8);
                         addChild(toolbar);
                         info("Editor toolbar restored");
@@ -1219,10 +1261,12 @@ public final class MapEditorSession {
                 qHeld = true;
                 activeTool = ActiveTool.TERRAIN;
                 info("Tool = HEIGHT");
+                if (toolbar != null) toolbar.syncOptionsFromBinding();
             } else if (event.getKeyCode() == Keyboard.KEY_W) {
                 activeTool = ActiveTool.RESOURCE;
                 info("Tool = RESOURCE, Type = " + resourceType);
                 // Don't forward to camera to avoid conflicting with camera forward movement
+                if (toolbar != null) toolbar.syncOptionsFromBinding();
                 return;
             } else if (event.getKeyCode() == Keyboard.KEY_T) {
                 // Start temporary overlay display; defer toggling until release unless scrolled
@@ -1253,6 +1297,7 @@ public final class MapEditorSession {
                         + (EDITOR_STATE.isOverlayMaster() ? "ON" : "OFF")
                         + " | Layer="
                         + overlayLayer);
+                    if (toolbar != null) toolbar.syncOptionsFromBinding();
                 }
                 overlayTPressed = false;
                 overlayTScrollUsed = false;

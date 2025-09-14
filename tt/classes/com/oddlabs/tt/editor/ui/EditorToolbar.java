@@ -5,10 +5,15 @@ import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.CheckBox;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.gui.PulldownButton;
+import com.oddlabs.tt.gui.PulldownMenu;
+import com.oddlabs.tt.gui.PulldownItem;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.ValueListener;
+import com.oddlabs.tt.guievent.CheckBoxListener;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.DefaultRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
@@ -26,6 +31,7 @@ public final class EditorToolbar extends Form {
     private final DefaultRenderer dr;
     private final int terrainType;
     private BrushBinding brushBinding;
+    private EditorOptionsBinding optionsBinding;
     private boolean suppressProgrammatic;
     private boolean visible = true;
 
@@ -38,18 +44,34 @@ public final class EditorToolbar extends Form {
     private Slider intensitySlider;
     private Label intensityValue;
 
+    // Selectors
+    private Label toolLabel;
+    private PulldownButton toolButton;
+    private Label modeLabel;
+    private PulldownButton modeButton;
+    private Label resourceLabel;
+    private PulldownButton resourceButton;
+    private CheckBox overlayMaster;
+    private Label overlayLabel;
+    private PulldownButton overlayButton;
+
     // Back-compat: previous code may call a 5-arg constructor; delegate to the new one.
     public EditorToolbar(GUIRoot guiRoot, World world, LandscapeRenderer lr, DefaultRenderer dr, int terrainType) {
-        this(guiRoot, world, lr, dr, terrainType, null);
+        this(guiRoot, world, lr, dr, terrainType, null, null);
     }
 
     public EditorToolbar(GUIRoot guiRoot, World world, LandscapeRenderer lr, DefaultRenderer dr, int terrainType, BrushBinding brushBinding) {
+        this(guiRoot, world, lr, dr, terrainType, brushBinding, null);
+    }
+
+    public EditorToolbar(GUIRoot guiRoot, World world, LandscapeRenderer lr, DefaultRenderer dr, int terrainType, BrushBinding brushBinding, EditorOptionsBinding optionsBinding) {
         this.guiRoot = guiRoot;
         this.world = world;
         this.lr = lr;
         this.dr = dr;
         this.terrainType = terrainType;
         this.brushBinding = brushBinding;
+        this.optionsBinding = optionsBinding;
 
         // Title
         title = new Label("Editor", Skin.getSkin().getEditFont());
@@ -76,12 +98,12 @@ public final class EditorToolbar extends Form {
         // Wire actions
         btnSave.addMouseClickListener(new MouseClickListener() {
             @Override public void mouseClicked(int button, int x, int y, int clicks) {
-                guiRoot.addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.SaveDialog(guiRoot, world, terrainType));
+                EditorToolbar.this.guiRoot.addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.SaveDialog(EditorToolbar.this.guiRoot, EditorToolbar.this.world, EditorToolbar.this.terrainType));
             }
         });
         btnLoad.addMouseClickListener(new MouseClickListener() {
             @Override public void mouseClicked(int button, int x, int y, int clicks) {
-                guiRoot.addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.LoadDialog(guiRoot, world, lr, dr, terrainType));
+                EditorToolbar.this.guiRoot.addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.LoadDialog(EditorToolbar.this.guiRoot, EditorToolbar.this.world, EditorToolbar.this.lr, EditorToolbar.this.dr, EditorToolbar.this.terrainType));
             }
         });
         btnTest.addMouseClickListener(new MouseClickListener() {
@@ -90,16 +112,16 @@ public final class EditorToolbar extends Form {
                     // 1) Quick-export current world
                     java.io.File dir = com.oddlabs.tt.mapio.MapIO.mapsDir();
                     java.io.File file = new java.io.File(dir, "editor_map.ttmap");
-                    com.oddlabs.tt.mapio.MapIO.saveEditorWorld(world, terrainType, file);
-                    guiRoot.getInfoPrinter().print("Exported test map: " + file.getName());
+                    com.oddlabs.tt.mapio.MapIO.saveEditorWorld(EditorToolbar.this.world, EditorToolbar.this.terrainType, file);
+                    EditorToolbar.this.guiRoot.getInfoPrinter().print("Exported test map: " + file.getName());
 
                     // 2) Start single-player test using the exported map
-                    int meters = world.getHeightMap().getMetersPerWorld();
-                    int gamespeed = world.getGamespeed();
+                    int meters = EditorToolbar.this.world.getHeightMap().getMetersPerWorld();
+                    int gamespeed = EditorToolbar.this.world.getGamespeed();
                     com.oddlabs.tt.net.GameNetwork game_network =
                         com.oddlabs.tt.delegate.Menu.startNewGameWithMap(
                                 com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
-                                guiRoot,
+                                EditorToolbar.this.guiRoot,
                                 null,
                                 new com.oddlabs.tt.landscape.WorldParameters(
                                         gamespeed,
@@ -110,7 +132,7 @@ public final class EditorToolbar extends Form {
                                 new com.oddlabs.tt.delegate.Menu.DefaultWorldInitAction(),
                                 null,
                                 meters,
-                                terrainType,
+                                EditorToolbar.this.terrainType,
                                 .5f,
                                 .5f,
                                 .5f,
@@ -131,27 +153,28 @@ public final class EditorToolbar extends Form {
                                 true,
                                 com.oddlabs.tt.net.PlayerSlot.AI_NONE);
                     game_network.getClient().getServerInterface().startServer();
-                    guiRoot.getInfoPrinter().print("Launching test game...");
+                    EditorToolbar.this.guiRoot.getInfoPrinter().print("Launching test game...");
                 } catch (Throwable t) {
-                    guiRoot.getInfoPrinter().print("Test failed: " + t.getMessage());
+                    EditorToolbar.this.guiRoot.getInfoPrinter().print("Test failed: " + t.getMessage());
                 }
             }
         });
         btnOnline.addMouseClickListener(new MouseClickListener() {
             @Override public void mouseClicked(int button, int x, int y, int clicks) {
-                guiRoot.addModalForm(new MessageForm("Online publishing coming soon"));
+                EditorToolbar.this.guiRoot.addModalForm(new MessageForm("Online publishing coming soon"));
             }
         });
 
         // Brush controls row: Radius [----] 00m   Intensity [----] 0.0
         int sliderLen = 150;
         int spacing = Skin.getSkin().getFormData().getSectionSpacing();
-    radiusLabel = new Label("Radius", Skin.getSkin().getEditFont());
+        radiusLabel = new Label("Radius", Skin.getSkin().getEditFont());
         radiusSlider = new Slider(sliderLen, 1, 200, 6);
-    radiusValue = new Label("6m", Skin.getSkin().getEditFont());
-    intensityLabel = new Label("Intensity", Skin.getSkin().getEditFont());
+        // Widen numeric labels to prevent clipping (allow up to "200m" and "10.0")
+        radiusValue = new Label("200m", Skin.getSkin().getEditFont(), Skin.getSkin().getEditFont().getWidth("200m") + 12);
+        intensityLabel = new Label("Intensity", Skin.getSkin().getEditFont());
         intensitySlider = new Slider(sliderLen, 1, 100, 50); // 1..100 -> 0.1..10.0
-    intensityValue = new Label("5.0", Skin.getSkin().getEditFont());
+        intensityValue = new Label("10.0", Skin.getSkin().getEditFont(), Skin.getSkin().getEditFont().getWidth("10.0") + 12);
 
         addChild(radiusLabel);
         addChild(radiusSlider);
@@ -160,13 +183,86 @@ public final class EditorToolbar extends Form {
         addChild(intensitySlider);
         addChild(intensityValue);
 
-    // Layout second row under buttons
-    radiusLabel.place(title, TOP_LEFT, spacing);
+        // Layout second row under buttons
+        radiusLabel.place(title, TOP_LEFT, spacing);
         radiusSlider.place(radiusLabel, RIGHT_MID);
         radiusValue.place(radiusSlider, RIGHT_MID, spacing / 2);
         intensityLabel.place(radiusValue, RIGHT_MID, spacing);
         intensitySlider.place(intensityLabel, RIGHT_MID);
         intensityValue.place(intensitySlider, RIGHT_MID, spacing / 2);
+
+        // Third row: selectors (Tool, Mode, Resource, Overlays)
+        toolLabel = new Label("Tool", Skin.getSkin().getEditFont());
+        PulldownMenu toolMenu = new PulldownMenu();
+        toolMenu.addItem(new PulldownItem("Terrain"));
+        toolMenu.addItem(new PulldownItem("Resource"));
+        toolButton = new PulldownButton(guiRoot, toolMenu, 120);
+
+        modeLabel = new Label("Mode", Skin.getSkin().getEditFont());
+        PulldownMenu modeMenu = new PulldownMenu();
+        if (optionsBinding != null) {
+            for (String n : optionsBinding.getBrushModeNames()) modeMenu.addItem(new PulldownItem(n));
+        } else {
+            modeMenu.addItem(new PulldownItem("Raise/Lower"));
+            modeMenu.addItem(new PulldownItem("Flatten"));
+            modeMenu.addItem(new PulldownItem("Soften"));
+            modeMenu.addItem(new PulldownItem("Smooth"));
+            modeMenu.addItem(new PulldownItem("River"));
+            modeMenu.addItem(new PulldownItem("Ramp"));
+            modeMenu.addItem(new PulldownItem("Rough"));
+            modeMenu.addItem(new PulldownItem("Random"));
+        }
+        modeButton = new PulldownButton(guiRoot, modeMenu, 150);
+
+    resourceLabel = new Label("Resource", Skin.getSkin().getEditFont());
+        PulldownMenu resMenu = new PulldownMenu();
+        if (optionsBinding != null) {
+            for (String n : optionsBinding.getResourceTypeNames()) resMenu.addItem(new PulldownItem(n));
+        } else {
+            resMenu.addItem(new PulldownItem("Rock"));
+            resMenu.addItem(new PulldownItem("Iron"));
+            resMenu.addItem(new PulldownItem("Tree Jungle"));
+            resMenu.addItem(new PulldownItem("Tree Palm"));
+            resMenu.addItem(new PulldownItem("Tree Oak"));
+            resMenu.addItem(new PulldownItem("Tree Pine"));
+        }
+        resourceButton = new PulldownButton(guiRoot, resMenu, 150);
+
+        overlayMaster = new CheckBox(false, "Overlays");
+        overlayLabel = new Label("Layer", Skin.getSkin().getEditFont());
+        PulldownMenu ovMenu = new PulldownMenu();
+        if (optionsBinding != null) {
+            for (String n : optionsBinding.getOverlayLayerNames()) ovMenu.addItem(new PulldownItem(n));
+        } else {
+            ovMenu.addItem(new PulldownItem("Water"));
+            ovMenu.addItem(new PulldownItem("Dock"));
+            ovMenu.addItem(new PulldownItem("Access"));
+            ovMenu.addItem(new PulldownItem("Build"));
+            ovMenu.addItem(new PulldownItem("Resource"));
+            ovMenu.addItem(new PulldownItem("Slope"));
+        }
+        overlayButton = new PulldownButton(guiRoot, ovMenu, 150);
+
+        addChild(toolLabel);
+        addChild(toolButton);
+    addChild(modeLabel);
+    addChild(modeButton);
+    addChild(resourceLabel);
+    addChild(resourceButton);
+        addChild(overlayMaster);
+        addChild(overlayLabel);
+        addChild(overlayButton);
+
+    toolLabel.place(radiusLabel, TOP_LEFT, spacing);
+        toolButton.place(toolLabel, RIGHT_MID);
+    // Place Mode and Resource controls to share the same slot. We'll toggle visibility.
+    modeLabel.place(toolButton, RIGHT_MID, spacing);
+    modeButton.place(modeLabel, RIGHT_MID);
+    resourceLabel.place(toolButton, RIGHT_MID, spacing);
+    resourceButton.place(resourceLabel, RIGHT_MID);
+        overlayMaster.place(resourceButton, RIGHT_MID, spacing);
+        overlayLabel.place(overlayMaster, RIGHT_MID, spacing);
+        overlayButton.place(overlayLabel, RIGHT_MID);
 
         // Wire slider listeners -> binding
         radiusSlider.addValueListener(new ValueListener() {
@@ -187,13 +283,46 @@ public final class EditorToolbar extends Form {
             }
         });
 
+        // Wire selectors -> binding
+        if (optionsBinding != null) {
+            // Initialize defaults
+            selectPulldownIndex(toolButton, clamp(optionsBinding.getActiveToolIndex(), 0, 1));
+            selectPulldownIndex(modeButton, clamp(optionsBinding.getBrushModeIndex(), 0, modeButton.getMenu().getSize() - 1));
+            selectPulldownIndex(resourceButton, clamp(optionsBinding.getResourceTypeIndex(), 0, resourceButton.getMenu().getSize() - 1));
+            overlayMaster.setMarked(optionsBinding.isOverlayMaster());
+            selectPulldownIndex(overlayButton, clamp(optionsBinding.getOverlayLayerIndex(), 0, overlayButton.getMenu().getSize() - 1));
+
+            resourceButton.getMenu().addItemChosenListener((menu, idx) -> {
+                if (menu == null) return; // mark param used to satisfy strict checks
+                if (!suppressProgrammatic) optionsBinding.setResourceTypeIndex(idx);
+            });
+            modeButton.getMenu().addItemChosenListener((menu, idx) -> {
+                if (menu == null) return;
+                if (!suppressProgrammatic) optionsBinding.setBrushModeIndex(idx);
+            });
+            toolButton.getMenu().addItemChosenListener((menu, idx) -> {
+                if (menu == null) return;
+                if (!suppressProgrammatic) optionsBinding.setActiveToolIndex(idx);
+            });
+            overlayButton.getMenu().addItemChosenListener((menu, idx) -> {
+                if (menu == null) return;
+                if (!suppressProgrammatic) optionsBinding.setOverlayLayerIndex(idx);
+            });
+            overlayMaster.addCheckBoxListener(new CheckBoxListener() {
+                @Override public void checked(boolean marked) {
+                    if (!suppressProgrammatic) optionsBinding.setOverlayMaster(marked);
+                }
+            });
+        }
+
     compileCanvas();
     // Default docked position; caller should re-position on viewport changes if desired
         setPos(8, 8);
     setHidden(false);
 
-        // Initialize slider positions from binding if available
+        // Initialize positions from bindings if available
         syncFromBinding();
+        syncOptionsFromBinding();
     }
 
     public void toggleVisible() { visible = !visible; setHidden(!visible); }
@@ -205,6 +334,11 @@ public final class EditorToolbar extends Form {
     public void setBrushBinding(BrushBinding binding) {
         this.brushBinding = binding;
         syncFromBinding();
+    }
+
+    public void setOptionsBinding(EditorOptionsBinding binding) {
+        this.optionsBinding = binding;
+        syncOptionsFromBinding();
     }
 
     public void syncFromBinding() {
@@ -221,6 +355,39 @@ public final class EditorToolbar extends Form {
         } finally {
             suppressProgrammatic = false;
         }
+    }
+
+    public void syncOptionsFromBinding() {
+        if (optionsBinding == null) return;
+        suppressProgrammatic = true;
+        try {
+            selectPulldownIndex(toolButton, clamp(optionsBinding.getActiveToolIndex(), 0, 1));
+            selectPulldownIndex(modeButton, clamp(optionsBinding.getBrushModeIndex(), 0, modeButton.getMenu().getSize() - 1));
+            selectPulldownIndex(resourceButton, clamp(optionsBinding.getResourceTypeIndex(), 0, resourceButton.getMenu().getSize() - 1));
+            overlayMaster.setMarked(optionsBinding.isOverlayMaster());
+            selectPulldownIndex(overlayButton, clamp(optionsBinding.getOverlayLayerIndex(), 0, overlayButton.getMenu().getSize() - 1));
+            updateActiveToolUI();
+        } finally {
+            suppressProgrammatic = false;
+        }
+    }
+
+    // Toggle Mode vs Resource controls in the same slot based on active tool
+    private void updateActiveToolUI() {
+        if (optionsBinding == null) return;
+        int toolIdx = optionsBinding.getActiveToolIndex();
+        boolean terrain = (toolIdx == 0); // 0 = TERRAIN, 1 = RESOURCE
+        // Show Mode for terrain tool, Resource for resource tool
+        modeLabel.setHidden(!terrain);
+        modeButton.setHidden(!terrain);
+        resourceLabel.setHidden(terrain);
+        resourceButton.setHidden(terrain);
+    }
+
+    private void selectPulldownIndex(PulldownButton btn, int idx) {
+        try {
+            btn.getMenu().chooseItem(idx);
+        } catch (Throwable ignore) {}
     }
 
     private static int clamp(int v, int min, int max) { return v < min ? min : (v > max ? max : v); }
