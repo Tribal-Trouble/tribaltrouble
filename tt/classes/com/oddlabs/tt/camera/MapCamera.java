@@ -1,6 +1,4 @@
 package com.oddlabs.tt.camera;
-
-import com.oddlabs.tt.delegate.SelectionDelegate;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
@@ -22,7 +20,7 @@ public final strictfp class MapCamera extends Camera {
     private static final int IN_MAP = 2;
     private static final int FROM_MAP = 3;
 
-    private final SelectionDelegate delegate;
+    private final MapModeHost delegate;
     private float old_x;
     private float old_y;
     private float old_z;
@@ -36,7 +34,7 @@ public final strictfp class MapCamera extends Camera {
 
     private int map_mode = TO_MAP;
 
-    public MapCamera(SelectionDelegate delegate, GameCamera old_camera) {
+    public MapCamera(MapModeHost delegate, GameCamera old_camera) {
         super(old_camera.getHeightMap(), old_camera.getState());
         this.delegate = delegate;
         old_x = getState().getTargetX();
@@ -50,6 +48,11 @@ public final strictfp class MapCamera extends Camera {
         distance_to_landscape = (float) StrictMath.sqrt(dx * dx + dy * dy + dz * dz);
 
         setSmoothnessFactor(SMOOTHNESS_FACTOR);
+    }
+
+    // Backwards-compat for existing call sites using SelectionDelegate
+    public MapCamera(com.oddlabs.tt.delegate.SelectionDelegate delegate, GameCamera old_camera) {
+        this((MapModeHost) delegate, old_camera);
     }
 
     public final void doAnimate(float t) {

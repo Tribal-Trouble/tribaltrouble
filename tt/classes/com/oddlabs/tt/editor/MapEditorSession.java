@@ -8,6 +8,9 @@ import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.StaticCamera;
+import com.oddlabs.tt.camera.GameCamera;
+import com.oddlabs.tt.camera.MapCamera;
+import com.oddlabs.tt.camera.MapModeHost;
 import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
@@ -306,7 +309,7 @@ public final class MapEditorSession {
     // Legacy SimpleEditorCamera removed: editor now uses the in-game GameCamera via a host adapter.
 
     // --- Delegate with a simple height brush ---
-    private static final class EditorDelegate extends com.oddlabs.tt.delegate.CameraDelegate implements Animated {
+    private static final class EditorDelegate extends com.oddlabs.tt.delegate.CameraDelegate implements Animated, MapModeHost {
         private final World world;
         private final LandscapeRenderer landscapeRenderer;
     private final Picker picker;
@@ -331,7 +334,7 @@ public final class MapEditorSession {
             }
         };
 
-        private boolean leftDown = false;
+    private boolean leftDown = false;
         private boolean rightDown = false;
 
         // Elliptical brush parameters (meters)
@@ -377,6 +380,13 @@ public final class MapEditorSession {
         private ResourceType resourceType = ResourceType.ROCK;
     // Track resource brush cells processed in the current stroke (place/erase once per cell)
     private final java.util.HashSet<Long> resourceStrokeVisited = new java.util.HashSet<Long>();
+
+        // ------- Map mode state (zoom-to-fit like game modes) -------
+        private boolean mapMode = false;
+        private GameCamera gameCameraRef; // original game camera the editor uses
+        private boolean mapDrag = false;  // true if user dragged while in map mode
+        private int mapDownX = 0, mapDownY = 0;
+        private static final int MAP_CLICK_TOL = 4; // pixels
 
     // ------- Overlay tool state -------
     private enum OverlayLayer { WATER, DOCK, ACCESS, BUILD, RESOURCE, SLOPE }
@@ -532,6 +542,8 @@ public final class MapEditorSession {
         }
 
         public void animate(float t) {
+            // Disable terrain edits while in map mode
+            if (mapMode) return;
             if (!strokeActive) return;
             if (mmbDown) return;
             if (activeTool == ActiveTool.TERRAIN) applyBrush(strokeDir, t);
@@ -541,6 +553,15 @@ public final class MapEditorSession {
         public void updateChecksum(com.oddlabs.tt.util.StateChecksum checksum) {}
 
         public void mousePressed(int button, int x, int y) {
+            if (mapMode) {
+                if (button == LocalInput.LEFT_BUTTON) {
+                    mapDrag = false;
+                    mapDownX = x;
+                    mapDownY = y;
+                }
+                // While in map mode, ignore editor tool presses
+                return;
+            }
             // Activate look mode (first-person style) on MMB press
             if (button == LocalInput.MIDDLE_BUTTON) {
                 mmbDown = true; // retain existing gating for brush application
@@ -593,6 +614,20 @@ public final class MapEditorSession {
         }
 
         public void mouseReleased(int button, int x, int y) {
+            if (mapMode) {
+                if (button == LocalInput.LEFT_BUTTON) {
+                    int dx = StrictMath.abs(x - mapDownX);
+                    int dy = StrictMath.abs(y - mapDownY);
+                    boolean click = (dx <= MAP_CLICK_TOL && dy <= MAP_CLICK_TOL) && !mapDrag;
+                    if (click && getCamera() instanceof MapCamera) {
+                        // Click-release: jump back to previous height at clicked area
+                        picker.pickMapGoto(x, y, (MapCamera) getCamera());
+                        // MapCamera will animate back and call exitMapMode() when done.
+                    }
+                }
+                mapDrag = false;
+                return; // swallow
+            }
             if (button == 0) leftDown = false;
             if (button == 1) rightDown = false;
             if (button == LocalInput.MIDDLE_BUTTON) {
@@ -822,6 +857,16 @@ public final class MapEditorSession {
                 int relative_y,
                 int absolute_x,
                 int absolute_y) {
+            if (mapMode) {
+                if (button == LocalInput.LEFT_BUTTON) {
+                    int dx = x - mapDownX;
+                    int dy = y - mapDownY;
+                    if (!mapDrag && (StrictMath.abs(dx) > MAP_CLICK_TOL || StrictMath.abs(dy) > MAP_CLICK_TOL)) {
+                        mapDrag = true; // consider as drag, do not exit map mode on release
+                    }
+                }
+                return; // do not forward drags in map mode
+            }
             if (lookModeActive && button == LocalInput.MIDDLE_BUTTON) {
                 // Emulate FirstPersonCamera mouse look using center recentering
                 int dx = x - lookBaseX;
@@ -848,6 +893,7 @@ public final class MapEditorSession {
         }
 
         public void mouseMoved(int x, int y) {
+            if (mapMode) return; // no edge scroll updates while in map mode
             if (lookModeActive) {
                 // Treat passive movement (in case some platforms deliver moved not dragged)
                 int dx = x - lookBaseX;
@@ -886,6 +932,24 @@ public final class MapEditorSession {
             }
             if (event.getKeyCode() == Keyboard.KEY_F1) {
                 toggleHelp();
+                return;
+            }
+            // Space: toggle MapCamera zoom-to-fit mode (reuse in-game behavior)
+            if (event.getKeyCode() == Keyboard.KEY_SPACE || event.getKeyCode() == Keyboard.KEY_NUMPAD5) {
+                if (!mapMode) {
+                    // Enter map mode: remember game camera and switch to MapCamera using shared impl
+                    if (!(getCamera() instanceof GameCamera)) return; // safety
+                    gameCameraRef = (GameCamera) getCamera();
+                    // Set rotation pick point like in game for nicer zoom-out path
+                    try { picker.pickRotate(gameCameraRef); } catch (Throwable ignore) {}
+                    getCamera().disable();
+                    setCamera(new MapCamera(this, gameCameraRef));
+                    getCamera().enable();
+                    mapMode = true;
+                } else {
+                    // Already in map mode: forward to MapCamera to toggle back (it will call exitMapMode)
+                    getCamera().keyPressed(event);
+                }
                 return;
             }
             // Ctrl+S: Open Save dialog (multi-file)
@@ -1000,6 +1064,18 @@ public final class MapEditorSession {
                 overlayTScrollUsed = false;
             }
             getCamera().keyReleased(event);
+        }
+
+        // MapModeHost: called by MapCamera when returning from map view
+        public void exitMapMode() {
+            if (!mapMode) return;
+            mapMode = false;
+            // Restore the original game camera instance
+            if (gameCameraRef != null) {
+                getCamera().disable();
+                setCamera(gameCameraRef);
+                getCamera().enable();
+            }
         }
 
         private static long keyOf(int gx, int gy) {

@@ -1,6 +1,7 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
+import com.oddlabs.tt.camera.MapModeHost;
 import com.oddlabs.tt.camera.MapCamera;
 import com.oddlabs.tt.form.InGameChatForm;
 import com.oddlabs.tt.gui.*;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public final strictfp class SelectionDelegate extends ControllableCameraDelegate {
+public final strictfp class SelectionDelegate extends ControllableCameraDelegate implements MapModeHost {
     private final InGameChatForm chat_form;
     private final Label observer_label;
     private final GameCamera game_camera;
