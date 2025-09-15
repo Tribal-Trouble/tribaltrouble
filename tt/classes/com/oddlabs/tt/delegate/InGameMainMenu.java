@@ -53,7 +53,7 @@ public final strictfp class InGameMainMenu extends Menu {
                     }
                 });
 
-        game_infos = new Group(false);
+        game_infos = new Group(true);
         viewer.addGUI(this, game_infos);
         addChild(game_infos);
 

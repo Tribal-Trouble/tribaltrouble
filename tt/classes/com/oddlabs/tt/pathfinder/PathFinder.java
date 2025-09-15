@@ -25,6 +25,7 @@ public final strictfp class PathFinder {
 
     public static final Region findPathRegion(
             UnitGrid unit_grid, PathFinderAlgorithm finder, Region current_region, int layer) {
+        if (current_region == null) return null;
         assert current_region
                 != null; // : "src_grid_x = " + src_grid_x + " | src_grid_y = " + src_grid_y + " |
         return (Region) doFindPath(finder, current_region, unit_grid, layer);

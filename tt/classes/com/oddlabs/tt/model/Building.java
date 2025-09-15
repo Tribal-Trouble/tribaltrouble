@@ -98,7 +98,11 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         UnitGrid unit_grid = getUnitGrid();
         float x = UnitGrid.coordinateFromGrid(grid_x);
         float y = UnitGrid.coordinateFromGrid(grid_y);
-        setPosition(x, y);
+        super.setPosition(x, y);
+        setPositionZ(
+                Math.max(
+                        unit_grid.getHeightMap().getSeaLevelMeters(),
+                        unit_grid.getHeightMap().getNearestHeight(x, y) + getOffsetZ()));
         pushController(new NullController(this));
         /*
            Vector3f position, float offset_z, float uv_angle,
@@ -203,7 +207,7 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
                 if (deploy_containers[i] != null && deploy_containers[i].getNumSupplies() > 0)
                     num_deploying++;
             }
-            if (num_deploying > 0) {
+            if (num_deploying > 0 && getLayer() == UnitGrid.LAND) {
                 float amount = t / num_deploying;
                 for (int i = 0; i < deploy_containers.length; i++) {
                     if (deploy_containers[i] != null && deploy_containers[i].getNumSupplies() > 0)
@@ -997,7 +1001,6 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     }
 
     public final PathTracker getTracker() {
-        assert !isDead();
         return path_tracker;
     }
 
@@ -1013,7 +1016,17 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         occupy();
     }
 
+    public final void setPosition(float x, float y) {
+        if (isDead()) return;
+        super.setPosition(x, y);
+        float xc = x + getBuildingTemplate().getChimneyX();
+        float yc = y + getBuildingTemplate().getChimneyY();
+        float zc = getPositionZ() + getBuildingTemplate().getChimneyZ();
+        production_emitter.setPosition(new Vector3f(xc, yc, zc));
+    }
+
     public final void setPosition(int x, int y) {
+        if (isDead()) return;
         free();
         super.setPosition(x, y);
         updateBounds();

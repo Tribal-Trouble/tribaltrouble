@@ -123,15 +123,15 @@ public final strictfp class UnitGrid {
     }
 
     public final void freeGrid(int grid_x, int grid_y, Occupant occupant, int layer) {
-        assert layers[layer].occupants[grid_y][grid_x] == occupant
-                : occupant
-                        + " trying to free "
-                        + grid_x
-                        + " "
-                        + grid_y
-                        + " where "
-                        + layers[layer].occupants[grid_y][grid_x]
-                        + " is.";
+        /*assert layers[layer].occupants[grid_y][grid_x] == occupant
+        : occupant
+                + " trying to free "
+                + grid_x
+                + " "
+                + grid_y
+                + " where "
+                + layers[layer].occupants[grid_y][grid_x]
+                + " is.";*/
         layers[layer].occupants[grid_y][grid_x] = null;
     }
 

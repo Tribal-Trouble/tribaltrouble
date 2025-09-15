@@ -111,19 +111,24 @@ public final strictfp class PulldownButton extends GUIObject {
 
     private void activateMenu() {
         menu_active = true;
-        int x = (int) (getRootX() + getWidth() - menu.getWidth());
-        int y = (int) (getRootY() - menu.getHeight());
+        int desiredX;
+        if (menu instanceof ScrollablePulldownMenu) {
+            ScrollablePulldownMenu scrollableMenu = (ScrollablePulldownMenu) menu;
+            desiredX = (int)
+                    (getRootX() + getWidth() - (menu.getWidth() - scrollableMenu.getScrollbarWidth()));
+        } else {
+            desiredX = (int) (getRootX() + getWidth() - menu.getWidth());
+        }
+        int desiredY = (int) (getRootY() - menu.getHeight());
         // If opening above would go off-screen, open below the button instead
-        if (y < 0) {
-            y = (int) (getRootY() + getHeight());
+        if (desiredY < 0) {
+            desiredY = (int) (getRootY() + getHeight());
         }
         // Clamp to viewport
         int maxX = gui_root.getWidth() - menu.getWidth();
         int maxY = gui_root.getHeight() - menu.getHeight();
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        if (x > maxX) x = maxX;
-        if (y > maxY) y = maxY;
+        int x = Math.max(0, Math.min(desiredX, Math.max(0, maxX)));
+        int y = Math.max(0, Math.min(desiredY, Math.max(0, maxY)));
         menu.setPos(x, y);
         // Ensure any previously attached instance is detached before re-adding
         menu.remove();

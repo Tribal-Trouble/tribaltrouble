@@ -12,6 +12,7 @@ import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public strictfp class DefaultInGameInfo implements InGameInfo {
@@ -94,19 +95,30 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
 
     private void addGameInfos(WorldViewer viewer, Menu menu, Group game_infos) {
         Player[] players = viewer.getWorld().getPlayers();
-        Group names = new Group();
+        ScrollableGroup names = new ScrollableGroup(600, 50);
         GUIObject last_name = null;
-        Group races = new Group();
         GUIObject last_race = null;
-        Group teams = new Group();
-        GUIObject last_team = null;
+
+        ArrayList<Label> labels = new ArrayList<>();
+        int largestLabel = 0;
+        for (int i = 0; i < players.length; i++) {
+            PlayerInfo player_info = players[i].getPlayerInfo();
+            Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont());
+            labels.add(name);
+            System.out.println("Name: " + name.getWidth());
+            if (name.getWidth() > largestLabel) {
+                largestLabel = name.getWidth();
+            }
+        }
+
         for (int i = 0; i < players.length; i++) {
             PlayerInfo player_info = players[i].getPlayerInfo();
             float[] color = players[i].getColor();
             if (!viewer.getPeerHub().isAlive(players[i])) {
                 color = new float[] {color[0], color[1], color[2], .25f};
             }
-            Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont());
+            Label name = labels.get(i);
+            name.setDim(largestLabel, name.getHeight());
             name.setColor(color);
             String race_str = RacesResources.getRaceName(player_info.getRace());
             Label race = new Label(race_str, Skin.getSkin().getHeadlineFont());
@@ -123,25 +135,27 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
             else name.place();
             last_name = name;
 
-            races.addChild(race);
-            if (last_race != null) race.place(last_race, GUIObject.BOTTOM_LEFT);
-            else race.place();
+            names.addChild(race);
+            race.place(last_name, GUIObject.RIGHT_MID);
             last_race = race;
 
-            teams.addChild(team);
-            if (last_team != null) team.place(last_team, GUIObject.BOTTOM_LEFT);
-            else team.place();
-            last_team = team;
+            names.addChild(team);
+            team.place(last_race, GUIObject.RIGHT_MID);
         }
         names.compileCanvas();
-        races.compileCanvas();
-        teams.compileCanvas();
+
         game_infos.addChild(names);
-        game_infos.addChild(races);
-        game_infos.addChild(teams);
+
+        // A button with no width (hidden) - this prevents the focus from getting in an infinite
+        // loop
+        // when there is 0 focusable children in the game_infos group and the 'quit game' is opened
+        // TODO: Provide a more appropriate fix for this instead of this work around
+        OKButton okayBtn = new OKButton(0);
+        okayBtn.place();
+        game_infos.addChild(okayBtn);
+
         names.place();
-        races.place(names, GUIObject.RIGHT_TOP);
-        teams.place(races, GUIObject.RIGHT_TOP);
+
         game_infos.compileCanvas();
     }
 

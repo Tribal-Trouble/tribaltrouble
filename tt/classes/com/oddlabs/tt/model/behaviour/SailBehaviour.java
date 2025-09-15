@@ -84,7 +84,7 @@ public final strictfp class SailBehaviour implements Behaviour {
         retry_delay_counter = 0;
         blocking_movable = null;
         PathTracker tracker = boat.getTracker();
-        state = tracker.animate(4.0f * t);
+        state = tracker.animate(8.0f * t);
         boat.setLayer(UnitGrid.SEA);
         switch (state) {
             case PathTracker.OK:

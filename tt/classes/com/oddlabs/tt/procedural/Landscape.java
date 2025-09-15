@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Random;
 
 public final strictfp class Landscape {
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     private static final int STRUCTURE_SEED =
             42; // must be constant; otherwise distinct repeating patterns might appear
 
@@ -41,8 +41,10 @@ public final strictfp class Landscape {
     private Channel height;
     private Channel slope;
     private Channel water_map;
+    private Channel dock_map;
     private Channel island_ids;
     private Channel access;
+    private Channel resources_access;
     private Channel access_exported;
     private Channel relheight;
     private Channel highlight;
@@ -636,8 +638,9 @@ public final strictfp class Landscape {
         if (DEBUG) relheight.toLayer().saveAsPNG("relheight");
         access =
                 generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL - 0.5f)
-                        .largestConnected(1f)
-                        .channelMultiply(water_map.copy().invert());
+                        .largestConnected(1f);
+        resources_access = access.copy().channelMultiply(water_map.copy().invert());
+        access.channelMultiply(water_map.copy().channelSubtract(dock_map).invert());
 
         access_exported = access.copy();
         if (DEBUG) access.toLayer().saveAsPNG("access");
@@ -645,7 +648,8 @@ public final strictfp class Landscape {
         build =
                 generateBuildMap(
                         generateThresholdMap(slope, build_threshold, Globals.SEA_LEVEL)
-                                .channelMultiply(access));
+                                .channelMultiply(access)
+                                .channelSubtract(dock_map));
     }
 
     private final void generateTerrainViking() {
@@ -741,10 +745,11 @@ public final strictfp class Landscape {
         if (DEBUG) relheight.toLayer().saveAsPNG("relheight");
         access =
                 generateThresholdMap(slope, access_threshold, Globals.SEA_LEVEL - 0.5f)
-                        .largestConnected(1f)
-                        .channelMultiply(water_map.copy().invert());
+                        .largestConnected(1f);
+        resources_access = access.copy().channelMultiply(water_map.copy().invert());
+        access.channelMultiply(water_map.copy().channelSubtract(dock_map).invert());
         access_exported = access.copy();
-        if (DEBUG) access.toLayer().saveAsPNG("access");
+
         if (DEBUG) access.toLayer().saveAsPNG("access");
         build =
                 generateBuildMap(
@@ -1118,7 +1123,7 @@ public final strictfp class Landscape {
         if (DEBUG) rock_channel.toLayer().saveAsPNG("supplies_rocks");
         if (DEBUG) iron_channel.toLayer().saveAsPNG("supplies_iron");
 
-        Channel supplies = access.copy();
+        Channel supplies = resources_access.copy();
         float accessible = supplies.sum();
 
         // place trees
@@ -1168,23 +1173,25 @@ public final strictfp class Landscape {
         for (int p = 0; p < num_players; p++) {
             for (int r = 0; r < num_rock; r++) {
                 int[] location =
-                        access.find(
+                        resources_access.find(
                                 (unit_grids_per_world >> 1),
                                 supply_locations[p][0],
                                 supply_locations[p][1],
                                 1f);
                 rock.putPixel(location[0], location[1], 1f);
                 access.putPixel(location[0], location[1], 0f);
+                resources_access.putPixel(location[0], location[1], 0f);
             }
             for (int i = 0; i < num_iron; i++) {
                 int[] location =
-                        access.find(
+                        resources_access.find(
                                 (unit_grids_per_world >> 1),
                                 supply_locations[p][0],
                                 supply_locations[p][1],
                                 1f);
                 iron.putPixel(location[0], location[1], 1f);
                 access.putPixel(location[0], location[1], 0f);
+                resources_access.putPixel(location[0], location[1], 0f);
             }
         }
 
@@ -1457,14 +1464,12 @@ public final strictfp class Landscape {
                         .floodfill(0, 0, -1.0f, 0.1f)
                         .threshold(-1.01f, -0.99f);
         if (DEBUG) water_map.toLayer().saveAsPNG("water_map");
-        Channel dock_map =
-                water_map
-                        .copy()
-                        .smooth(4)
-                        .threshold(0.01f, 1.0f)
-                        .channelMultiply(water_map.copy().invert());
+        dock_map = water_map.copy().smooth(4).threshold(0.0f, 0.99f).channelMultiply(water_map);
         Channel beach =
-                height.copy().threshold(Globals.SEA_LEVEL - 1.0f, Globals.SEA_LEVEL + 0.05f);
+                height.copy()
+                        .threshold(
+                                Globals.SEA_LEVEL - 0.5f / height_scale,
+                                Globals.SEA_LEVEL + 0.05f / height_scale);
         dock_map = dock_map.channelMultiply(beach);
         if (DEBUG) beach.toLayer().saveAsPNG("beach");
         if (DEBUG) dock_map.toLayer().saveAsPNG("dock_map");

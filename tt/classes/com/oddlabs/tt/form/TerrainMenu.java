@@ -26,6 +26,8 @@ import com.oddlabs.tt.gui.PulldownButton;
 import com.oddlabs.tt.gui.PulldownItem;
 import com.oddlabs.tt.gui.PulldownMenu;
 // import removals: MultiColumnComboBox/ColumnInfo/Row/DateLabel no longer used in Single Player
+import com.oddlabs.tt.gui.ScrollableGroup;
+import com.oddlabs.tt.gui.ScrollablePulldownMenu;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.guievent.ItemChosenListener;
@@ -40,6 +42,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.tt.util.WordsEncoding;
 import com.oddlabs.tt.viewer.DefaultInGameInfo;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.MultiplayerInGameInfo;
@@ -64,12 +67,16 @@ public final class TerrainMenu extends Group {
 
     private static final String SEED_CARDINALITY = "40000";
     private static final int SLIDER_CARDINALITY = 11;
-    private static final int TERRAIN_TYPE_CARDINALITY = 2;
-    private static final int SIZE_CARDINALITY = 3;
+    private static final int TERRAIN_TYPE_CARDINALITY_LEGACY = 2;
+    private static final int TERRAIN_TYPE_CARDINALITY = 4;
+    private static final int SIZE_CARDINALITY_LEGACY = 3;
+    private static final int SIZE_CARDINALITY = 7;
     private static final int DIFFICULTY_CARDINALITY = 4;
     private static final int RACE_CARDINALITY = 2;
     private static final int TEAM_CARDINALITY = 6;
     private static final BigInteger MAX_VALUE;
+    private static final BigInteger MAX_VALUE_LEGACY;
+    private static int LEGACY_MAX_PLAYERS = 6;
 
     private final Menu main_menu;
     private final TerrainMenuListener owner;
@@ -86,7 +93,7 @@ public final class TerrainMenu extends Group {
     private final HorizButton button_mapcode;
     private final PulldownMenu[] difficulty_pulldown_menus;
     private final PulldownMenu[] race_pulldown_menus;
-    private final PulldownMenu[] team_pulldown_menus;
+    private final ScrollablePulldownMenu[] team_pulldown_menus;
     private final PulldownButton[] difficulty_pulldown_buttons;
     private final PulldownButton[] race_pulldown_buttons;
     private final PulldownButton[] team_pulldown_buttons;
@@ -97,7 +104,8 @@ public final class TerrainMenu extends Group {
     private final ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
     private final GUIRoot gui_root;
     private final NetworkSelector network;
-    private int player_count = 6;
+    private int min_players = 6;
+    private int player_count = min_players;
     private int seed;
     private boolean show_demo = true;
 
@@ -110,15 +118,24 @@ public final class TerrainMenu extends Group {
         max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
         max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
         max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
-        max = max.multiply(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY}));
-        max = max.multiply(new BigInteger(new byte[] {SIZE_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY_LEGACY}));
+        max = max.multiply(new BigInteger(new byte[] {SIZE_CARDINALITY_LEGACY}));
         max = max.multiply(new BigInteger(new byte[] {RACE_CARDINALITY}));
         max = max.multiply(new BigInteger(new byte[] {TEAM_CARDINALITY}));
-        for (int i = 1; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
+        for (int i = 1; i < LEGACY_MAX_PLAYERS; i++) {
             max = max.multiply(new BigInteger(new byte[] {DIFFICULTY_CARDINALITY}));
             max = max.multiply(new BigInteger(new byte[] {RACE_CARDINALITY}));
             max = max.multiply(new BigInteger(new byte[] {TEAM_CARDINALITY}));
         }
+        MAX_VALUE_LEGACY = max;
+
+        max = BigInteger.ONE;
+        max = max.multiply(new BigInteger(SEED_CARDINALITY));
+        max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {SIZE_CARDINALITY}));
         MAX_VALUE = max;
     }
 
@@ -238,7 +255,7 @@ public final class TerrainMenu extends Group {
         // seed
         Label label_seed =
                 new Label(Utils.getBundleString(bundle, "map_code"), Skin.getSkin().getEditFont());
-        label_mapcode = new Label("", Skin.getSkin().getHeadlineFont(), 250);
+        label_mapcode = new Label("", Skin.getSkin().getHeadlineFont(), 500);
 
         Group group_seed = new Group();
         group_seed.addChild(label_seed);
@@ -346,24 +363,23 @@ public final class TerrainMenu extends Group {
         label_player_slots.place();
         advanced.addChild(group_num_players);
 
-        PulldownMenu pulldown_menu_slots = new PulldownMenu();
-        for (int i = 1; i <= MatchmakingServerInterface.MAX_PLAYERS; i++) {
+        ScrollablePulldownMenu pulldown_menu_slots = new ScrollablePulldownMenu(6);
+        for (int i = min_players; i <= MatchmakingServerInterface.MAX_PLAYERS; i++) {
             pulldown_menu_slots.addItem(new PulldownItem(Integer.toString(i)));
         }
 
         PulldownButton pulldown_player_slots =
-                new PulldownButton(gui_root, pulldown_menu_slots, 5, 150);
-        pulldown_menu_slots.addItemChosenListener(new PulldownUpdatePlayersChangedListener());
+                new PulldownButton(gui_root, pulldown_menu_slots, 0, 150);
         group_num_players.addChild(pulldown_player_slots);
         pulldown_player_slots.place(label_player_slots, RIGHT_MID);
         group_num_players.compileCanvas();
 
         // races and teams
-        Group group_race_team = new Group();
+        ScrollableGroup group_race_team = new ScrollableGroup(200, 64);
         labels_players = new Label[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         race_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
-        team_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
+        team_pulldown_menus = new ScrollablePulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         race_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         team_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
@@ -372,7 +388,7 @@ public final class TerrainMenu extends Group {
         for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
             difficulty_pulldown_menus[i] = new PulldownMenu();
             race_pulldown_menus[i] = new PulldownMenu();
-            team_pulldown_menus[i] = new PulldownMenu();
+            team_pulldown_menus[i] = new ScrollablePulldownMenu(6);
 
             if (i == 0) {
                 difficulty_pulldown_menus[i].addItem(
@@ -488,8 +504,9 @@ public final class TerrainMenu extends Group {
                     BOTTOM_LEFT,
                     Skin.getSkin().getFormData().getSectionSpacing());
         }
-        standard.compileCanvas();
 
+        standard.compileCanvas();
+        standard.setDim(standard.getWidth(), standard.getHeight());
         // advanced
         group_sliders.place();
         group_num_players.place(
@@ -500,6 +517,9 @@ public final class TerrainMenu extends Group {
 
         PanelGroup panel_group = new PanelGroup(new Panel[] {standard, advanced}, 0);
         addChild(panel_group);
+        pulldown_menu_slots.addItemChosenListener(
+                new PulldownUpdatePlayersChangedListener(
+                        group_race_team, standard, panel_group, this, multiplayer, label_headline));
 
         // Place objects
         label_headline.place();
@@ -533,6 +553,36 @@ public final class TerrainMenu extends Group {
         if (!Renderer.isRegistered()) pm_terrain_type.chooseItem(0);
 
         // end of initial UI setup
+        pulldown_menu_slots.chooseItem(0);
+    }
+
+    private final void setMapcodeLegacy() {
+        BigInteger max_val = BigInteger.ONE;
+        BigInteger result = BigInteger.ZERO;
+        result = result.add((new BigInteger("" + seed)).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(SEED_CARDINALITY));
+        int hills = slider_hills.getValue();
+        result = result.add((new BigInteger(new byte[] {(byte) hills})).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        int vegetation_amount = slider_vegetation.getValue();
+        result =
+                result.add(
+                        (new BigInteger(new byte[] {(byte) vegetation_amount})).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        int supplies_amount = slider_supplies.getValue();
+        result =
+                result.add((new BigInteger(new byte[] {(byte) supplies_amount})).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        int terrain_type = pm_terrain_type.getChosenItemIndex();
+        result = result.add((new BigInteger(new byte[] {(byte) terrain_type})).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY_LEGACY}));
+        int size = pulldown_size.getChosenItemIndex();
+        result = result.add((new BigInteger(new byte[] {(byte) size})).multiply(max_val));
+        max_val = max_val.multiply(new BigInteger(new byte[] {SIZE_CARDINALITY_LEGACY}));
+
+    String code = RegistrationKey.createString(result);
+    label_mapcode.clear();
+    label_mapcode.append(code);
     }
 
     private final void setMapcode() {
@@ -558,34 +608,27 @@ public final class TerrainMenu extends Group {
         int size = pulldown_size.getChosenItemIndex();
         result = result.add((new BigInteger(new byte[] {(byte) size})).multiply(max_val));
         max_val = max_val.multiply(new BigInteger(new byte[] {SIZE_CARDINALITY}));
-        int player_race = race_pulldown_menus[0].getChosenItemIndex();
-        result = result.add((new BigInteger(new byte[] {(byte) player_race})).multiply(max_val));
-        max_val = max_val.multiply(new BigInteger(new byte[] {RACE_CARDINALITY}));
-        int player_team = team_pulldown_menus[0].getChosenItemIndex();
-        result = result.add((new BigInteger(new byte[] {(byte) player_team})).multiply(max_val));
-        max_val = max_val.multiply(new BigInteger(new byte[] {TEAM_CARDINALITY}));
-        for (int i = 1; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
-            int difficulty = difficulty_pulldown_menus[i].getChosenItemIndex();
-            result = result.add((new BigInteger(new byte[] {(byte) difficulty})).multiply(max_val));
-            max_val = max_val.multiply(new BigInteger(new byte[] {DIFFICULTY_CARDINALITY}));
-            int race = race_pulldown_menus[i].getChosenItemIndex();
-            result = result.add((new BigInteger(new byte[] {(byte) race})).multiply(max_val));
-            max_val = max_val.multiply(new BigInteger(new byte[] {RACE_CARDINALITY}));
-            int team = team_pulldown_menus[i].getChosenItemIndex();
-            result = result.add((new BigInteger(new byte[] {(byte) team})).multiply(max_val));
-            max_val = max_val.multiply(new BigInteger(new byte[] {TEAM_CARDINALITY}));
-        }
-
-        String code = RegistrationKey.createString(result);
+        String code = WordsEncoding.encode(result);
         label_mapcode.clear();
         label_mapcode.append(code);
     }
 
     public final void parseMapcode(String text) {
         String code = text.toUpperCase();
-        BigInteger result = RegistrationKey.parseBits(code);
         show_demo = false;
-        parseBigInteger(result);
+        if (code.indexOf(' ') == -1) {
+            // Legacy notation
+            BigInteger result = RegistrationKey.parseBits(code);
+            parseBigIntegerLegacy(result);
+        } else {
+            // New notation
+            try {
+                BigInteger result = WordsEncoding.decode(text);
+                parseBigInteger(result);
+            } catch (Exception e) {
+
+            }
+        }
         show_demo = true;
         label_mapcode.clear();
         label_mapcode.append(code);
@@ -593,8 +636,58 @@ public final class TerrainMenu extends Group {
     }
 
     private final void parseBigInteger(BigInteger result) {
+        boolean world_size_valid = true;
+        boolean terrain_type_valid = true;
         BigInteger max_val = MAX_VALUE;
-        for (int i = MatchmakingServerInterface.MAX_PLAYERS - 1; i >= 1; i--) {
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[] {SIZE_CARDINALITY}));
+        int size = result.divide(max_val).intValue();
+        if (pulldown_size.getSize() <= size) {
+            world_size_valid = false;
+        } else {
+            pulldown_size.chooseItem(size);
+        }
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY}));
+        int terrain_type = result.divide(max_val).intValue();
+        if (pm_terrain_type.getSize() <= terrain_type) {
+            terrain_type_valid = false;
+        } else {
+            pm_terrain_type.chooseItem(terrain_type);
+        }
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        int supplies_amount = result.divide(max_val).intValue();
+        slider_supplies.setValue(supplies_amount);
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        int vegetation_amount = result.divide(max_val).intValue();
+        slider_vegetation.setValue(vegetation_amount);
+
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[] {SLIDER_CARDINALITY}));
+        int hills = result.divide(max_val).intValue();
+        slider_hills.setValue(hills);
+
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(SEED_CARDINALITY));
+        seed = result.divide(max_val).intValue();
+
+        if (!terrain_type_valid || !world_size_valid) {
+            String message = Utils.getBundleString(bundle, "map_unsupported") + ": ";
+            if (!world_size_valid) {
+                message += Utils.getBundleString(bundle, "island_size").replace(":", "") + " ";
+            }
+            if (!terrain_type_valid) {
+                message += Utils.getBundleString(bundle, "terrain_type").replace(":", "");
+            }
+            gui_root.addModalForm(new MessageForm(message));
+        }
+    }
+
+    private final void parseBigIntegerLegacy(BigInteger result) {
+        BigInteger max_val = MAX_VALUE_LEGACY;
+        for (int i = LEGACY_MAX_PLAYERS - 1; i >= 1; i--) {
             result = result.mod(max_val);
             max_val = max_val.divide(new BigInteger(new byte[] {TEAM_CARDINALITY}));
             int team = result.divide(max_val).intValue();
@@ -626,11 +719,11 @@ public final class TerrainMenu extends Group {
         int player_race = result.divide(max_val).intValue();
         race_pulldown_menus[0].chooseItem(player_race);
         result = result.mod(max_val);
-        max_val = max_val.divide(new BigInteger(new byte[] {SIZE_CARDINALITY}));
+        max_val = max_val.divide(new BigInteger(new byte[] {SIZE_CARDINALITY_LEGACY}));
         int size = result.divide(max_val).intValue();
         pulldown_size.chooseItem(size);
         result = result.mod(max_val);
-        max_val = max_val.divide(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY}));
+        max_val = max_val.divide(new BigInteger(new byte[] {TERRAIN_TYPE_CARDINALITY_LEGACY}));
         int terrain_type = result.divide(max_val).intValue();
         pm_terrain_type.chooseItem(terrain_type);
         result = result.mod(max_val);
@@ -678,7 +771,7 @@ public final class TerrainMenu extends Group {
                                 * LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
         random.nextInt();
         BigInteger rand_int = new BigInteger(100, random);
-        parseBigInteger(rand_int);
+        parseBigIntegerLegacy(rand_int);
         setMapcode();
     if (!multiplayer) onTerrainSettingChanged("randomized");
     }
@@ -758,8 +851,9 @@ public final class TerrainMenu extends Group {
                 multiplayer
                         ? new MultiplayerInGameInfo(game.getRandomStartPos(), game.isRated())
                         : new DefaultInGameInfo();
+    System.out.println("InGameInfo created" + player_count);
     GameNetwork game_network =
-        Menu.startNewGameWithMap(
+    Menu.startNewGameWithMap(
                         network,
                         gui_root,
                         menu,
@@ -871,8 +965,129 @@ public final class TerrainMenu extends Group {
 
     private final class PulldownUpdatePlayersChangedListener
             implements ItemChosenListener {
+        ScrollableGroup group_race_team;
+        Panel standard;
+        PanelGroup panel_group;
+        TerrainMenu terrain_menu;
+        boolean is_multiplayer;
+        Label label_headline;
+
+        public PulldownUpdatePlayersChangedListener(
+                ScrollableGroup group_race_team,
+                Panel standard,
+                PanelGroup panel_group,
+                TerrainMenu terrain_menu,
+                boolean is_multiplayer,
+                Label label_headline) {
+            this.group_race_team = group_race_team;
+            this.standard = standard;
+            this.panel_group = panel_group;
+            this.terrain_menu = terrain_menu;
+            this.is_multiplayer = is_multiplayer;
+            this.label_headline = label_headline;
+        }
+
         public final void itemChosen(PulldownMenu menu, int item_index) {
-            player_count = item_index + 1;
+            player_count = item_index + min_players;
+            if (is_multiplayer) return;
+
+            // For single player we need to redraw all the controls (Actually multiplayer doesn't
+            // use these controls...)
+            group_race_team.clearChildren();
+            standard.removeChild(group_race_team);
+            group_race_team = new ScrollableGroup(200, 64);
+            group_race_team.place();
+            standard.addChild(group_race_team);
+            for (int i = 0; i < player_count; i++) {
+                difficulty_pulldown_menus[i] = new PulldownMenu();
+                race_pulldown_menus[i] = new PulldownMenu();
+                team_pulldown_menus[i] = new ScrollablePulldownMenu(6);
+
+                if (i == 0) {
+                    difficulty_pulldown_menus[i].addItem(
+                            new PulldownItem(Utils.getBundleString(bundle, "human")));
+                } else {
+                    difficulty_pulldown_menus[i].addItem(
+                            new PulldownItem(Utils.getBundleString(bundle, "closed")));
+                    difficulty_pulldown_menus[i].addItem(
+                            new PulldownItem(Utils.getBundleString(bundle, "easy_ai")));
+                    difficulty_pulldown_menus[i].addItem(
+                            new PulldownItem(Utils.getBundleString(bundle, "normal_ai")));
+                    PulldownItem hard = new PulldownItem(Utils.getBundleString(bundle, "hard_ai"));
+                    difficulty_pulldown_menus[i].addItem(hard);
+                }
+
+                difficulty_pulldown_buttons[i] =
+                        new PulldownButton(gui_root, difficulty_pulldown_menus[i], 0, 115);
+                group_race_team.addChild(difficulty_pulldown_buttons[i]);
+
+                for (int j = 0; j < RacesResources.getNumRaces(); j++) {
+                    PulldownItem pulldown_item_race =
+                            new PulldownItem(RacesResources.getRaceName(j));
+                    race_pulldown_menus[i].addItem(pulldown_item_race);
+                }
+
+                race_pulldown_buttons[i] =
+                        new PulldownButton(gui_root, race_pulldown_menus[i], 0, 115);
+                group_race_team.addChild(race_pulldown_buttons[i]);
+                for (int j = 0; j < player_count; j++) {
+                    String team_str =
+                            Utils.getBundleString(
+                                    bundle, "team", new Object[] {Integer.toString(j + 1)});
+                    PulldownItem pulldown_item_team = new PulldownItem(team_str);
+                    team_pulldown_menus[i].addItem(pulldown_item_team);
+                }
+                team_pulldown_buttons[i] =
+                        new PulldownButton(
+                                gui_root,
+                                team_pulldown_menus[i],
+                                StrictMath.min(i, player_count - 1),
+                                115);
+                group_race_team.addChild(team_pulldown_buttons[i]);
+                if (i == 0) {
+                    String player_str =
+                            Utils.getBundleString(
+                                    bundle, "player", new Object[] {Integer.toString(1)});
+                    labels_players[0] = new Label(player_str, Skin.getSkin().getEditFont());
+                    labels_players[0].setColor(Player.COLORS[0]);
+                    group_race_team.addChild(labels_players[0]);
+                    labels_players[0].place();
+                    difficulty_pulldown_buttons[0].place(labels_players[0], RIGHT_MID);
+                    race_pulldown_buttons[0].place(difficulty_pulldown_buttons[0], RIGHT_MID);
+                    team_pulldown_buttons[0].place(race_pulldown_buttons[0], RIGHT_MID);
+                } else {
+                    String player_str =
+                            Utils.getBundleString(
+                                    bundle, "player", new Object[] {Integer.toString(i + 1)});
+                    labels_players[i] = new Label(player_str, Skin.getSkin().getEditFont());
+                    labels_players[i].setColor(Player.COLORS[i]);
+                    group_race_team.addChild(labels_players[i]);
+                    labels_players[i].place(labels_players[i - 1], BOTTOM_RIGHT);
+                    difficulty_pulldown_buttons[i].place(labels_players[i], RIGHT_MID);
+                    race_pulldown_buttons[i].place(difficulty_pulldown_buttons[i], RIGHT_MID);
+                    team_pulldown_buttons[i].place(race_pulldown_buttons[i], RIGHT_MID);
+                    difficulty_pulldown_menus[i].addItemChosenListener(new DisableListener(i));
+                }
+                difficulty_pulldown_menus[i].addItemChosenListener(
+                        new PulldownUpdateMapcodeListener());
+                race_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
+                team_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
+                // setup defaults
+                if (i == 1) {
+                    difficulty_pulldown_menus[i].chooseItem(1);
+                } else if (i != 0) {
+                    difficulty_pulldown_menus[i].chooseItem(0);
+                }
+            }
+
+            group_race_team.compileCanvas();
+            standard.setDim(standard.getWidth(), standard.getHeight());
+            // For some reason we need to reset the position of the panel group and
+            // the top label by the height of the panel group or we run into infinite growth.
+            // Hacky but -- the ui is rough
+            panel_group.setPos(0, panel_group.getY() - panel_group.getHeight());
+            label_headline.setPos(0, label_headline.getY() - panel_group.getHeight());
+            terrain_menu.compileCanvas();
         }
     }
 
