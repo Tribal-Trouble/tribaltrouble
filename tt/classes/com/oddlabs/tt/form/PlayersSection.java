@@ -47,19 +47,25 @@ public final class PlayersSection extends Group {
 
     private final PulldownMenu slots_menu;
     private final PulldownButton slots_button;
+    private final boolean showPlayerCountRow;
 
     private static final int MIN_PLAYERS = 6; // mirror TerrainMenu default
     private int player_count = MIN_PLAYERS;
 
     public PlayersSection(GUIRoot guiRoot) {
-        this(guiRoot, ResourceBundle.getBundle(TerrainMenu.class.getName()));
+        this(guiRoot, ResourceBundle.getBundle(TerrainMenu.class.getName()), true);
     }
 
     public PlayersSection(GUIRoot guiRoot, ResourceBundle bundle) {
+        this(guiRoot, bundle, true);
+    }
+
+    public PlayersSection(GUIRoot guiRoot, ResourceBundle bundle, boolean showPlayerCountRow) {
         this.guiRoot = guiRoot;
         this.bundle = bundle;
+        this.showPlayerCountRow = showPlayerCountRow;
 
-        // Player count row
+        // Player count row (optionally shown)
         Label label_player_slots = new Label("Players", Skin.getSkin().getEditFont());
         Group group_num_players = new Group();
         group_num_players.addChild(label_player_slots);
@@ -75,7 +81,9 @@ public final class PlayersSection extends Group {
         group_num_players.addChild(slots_button);
         slots_button.place(label_player_slots, GUIObject.RIGHT_MID);
         group_num_players.compileCanvas();
-        addChild(group_num_players);
+        if (showPlayerCountRow) {
+            addChild(group_num_players);
+        }
 
         // Players grid (scrollable): label + [human/ai] [race] [team]
         ScrollableGroup group_race_team = new ScrollableGroup(200, 64);
@@ -138,11 +146,16 @@ public final class PlayersSection extends Group {
     addChild(group_race_team);
 
     // Place immediate child groups before compiling this container
-    group_num_players.place();
-    group_race_team.place(
-        group_num_players,
-        GUIObject.BOTTOM_LEFT,
-        Skin.getSkin().getFormData().getSectionSpacing());
+    if (showPlayerCountRow) {
+        group_num_players.place();
+        group_race_team.place(
+            group_num_players,
+            GUIObject.BOTTOM_LEFT,
+            Skin.getSkin().getFormData().getSectionSpacing());
+    } else {
+        // No player count row in this section; anchor grid at origin
+        group_race_team.place();
+    }
 
         // Defaults: slot 0 human, team 1; others closed and team=slot index+1
         // Align pulldown to current default player_count (6)

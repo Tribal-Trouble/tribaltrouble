@@ -1178,9 +1178,16 @@ public final strictfp class Landscape {
                                 supply_locations[p][0],
                                 supply_locations[p][1],
                                 1f);
-                rock.putPixel(location[0], location[1], 1f);
-                access.putPixel(location[0], location[1], 0f);
-                resources_access.putPixel(location[0], location[1], 0f);
+                if (location[0] == -1 || location[1] == -1) {
+                    // broaden search and, if necessary, fall back to the supply location itself
+                    location = resources_access.find(unit_grids_per_world, supply_locations[p][0], supply_locations[p][1], 1f);
+                    if (location[0] == -1 || location[1] == -1) {
+                        location = new int[] {supply_locations[p][0], supply_locations[p][1]};
+                    }
+                }
+                rock.putPixelWrap(location[0], location[1], 1f);
+                access.putPixelWrap(location[0], location[1], 0f);
+                resources_access.putPixelWrap(location[0], location[1], 0f);
             }
             for (int i = 0; i < num_iron; i++) {
                 int[] location =
@@ -1189,9 +1196,15 @@ public final strictfp class Landscape {
                                 supply_locations[p][0],
                                 supply_locations[p][1],
                                 1f);
-                iron.putPixel(location[0], location[1], 1f);
-                access.putPixel(location[0], location[1], 0f);
-                resources_access.putPixel(location[0], location[1], 0f);
+                if (location[0] == -1 || location[1] == -1) {
+                    location = resources_access.find(unit_grids_per_world, supply_locations[p][0], supply_locations[p][1], 1f);
+                    if (location[0] == -1 || location[1] == -1) {
+                        location = new int[] {supply_locations[p][0], supply_locations[p][1]};
+                    }
+                }
+                iron.putPixelWrap(location[0], location[1], 1f);
+                access.putPixelWrap(location[0], location[1], 0f);
+                resources_access.putPixelWrap(location[0], location[1], 0f);
             }
         }
 
@@ -1256,11 +1269,11 @@ public final strictfp class Landscape {
                     float val = probability.getPixel(x, y);
                     if (val <= upper_bound && val > lower_bound) {
                         // place resource if grid and its 4 neighbours are unoccupied
-                        if (supplies.getPixel(x, y) > 0
-                                && supplies.getPixel(x - 1, y) > 0
-                                && supplies.getPixel(x + 1, y) > 0
-                                && supplies.getPixel(x, y - 1) > 0
-                                && supplies.getPixel(x, y - 1) > 0) {
+            if (supplies.getPixel(x, y) > 0
+                && supplies.getPixel(x - 1, y) > 0
+                && supplies.getPixel(x + 1, y) > 0
+                && supplies.getPixel(x, y - 1) > 0
+                && supplies.getPixel(x, y + 1) > 0) {
                             place.putPixel(x, y, 1f);
                             // place shadow
                             if (shadow_alpha_val > 0f) {
@@ -1374,7 +1387,12 @@ public final strictfp class Landscape {
                                     + (unit_grids_per_world >> 1)
                                     + 0.5f);
             angle += angle_step;
-            location_quarters = buildmap.findNoWrap((unit_grids_per_world >> 1), x, y, 1f);
+            int searchRadius = (unit_grids_per_world >> 1);
+            location_quarters = buildmap.findNoWrap(searchRadius, x, y, 1f);
+            // If not found within bounds (e.g., across map edges), retry with wrap search
+            if (location_quarters[0] == -1 || location_quarters[1] == -1) {
+                location_quarters = buildmap.find(searchRadius, x, y, 1f);
+            }
             for (int k = -(RacesResources.QUARTERS_SIZE /* - 1*/);
                     k <= (RacesResources.QUARTERS_SIZE /* - 1*/);
                     k++) {
@@ -1387,10 +1405,18 @@ public final strictfp class Landscape {
             }
             location_armory =
                     buildmap.find(
-                            (unit_grids_per_world >> 1),
+                            searchRadius,
                             location_quarters[0],
                             location_quarters[1],
                             1f);
+            // Fallback: if not found near quarters (e.g., sparse maps), try around original x,y
+            if (location_armory[0] == -1 || location_armory[1] == -1) {
+                location_armory = buildmap.find(searchRadius, x, y, 1f);
+                // As a last resort, co-locate armory at quarters to avoid invalid indices
+                if (location_armory[0] == -1 || location_armory[1] == -1) {
+                    location_armory = new int[] {location_quarters[0], location_quarters[1]};
+                }
+            }
             for (int k = -(RacesResources.ARMORY_SIZE /* - 1*/);
                     k <= (RacesResources.ARMORY_SIZE /* - 1*/);
                     k++) {
@@ -1403,20 +1429,36 @@ public final strictfp class Landscape {
             }
             int[] location_unit_start =
                     access.find(
-                            (unit_grids_per_world >> 1),
+                            searchRadius,
                             location_quarters[0],
                             location_quarters[1],
                             1f);
+            if (location_unit_start[0] == -1 || location_unit_start[1] == -1) {
+                // Try starting the search from original circle position
+                location_unit_start = access.find(searchRadius, x, y, 1f);
+                if (location_unit_start[0] == -1 || location_unit_start[1] == -1) {
+                    // Fall back to quarters location to ensure valid position
+                    location_unit_start = new int[] {location_quarters[0], location_quarters[1]};
+                }
+            }
             supply_locations[i][0] = location_armory[0];
             supply_locations[i][1] = location_armory[1];
             int[] location_unit = new int[2];
             for (int u = 0; u < initial_unit_count; u++) {
                 location_unit =
                         access.find(
-                                (unit_grids_per_world >> 1),
+                                searchRadius,
                                 location_unit_start[0],
                                 location_unit_start[1],
                                 1f);
+                if (location_unit[0] == -1 || location_unit[1] == -1) {
+                    // Retry from quarters to avoid failing unit placement
+                    location_unit = access.find(searchRadius, location_quarters[0], location_quarters[1], 1f);
+                    if (location_unit[0] == -1 || location_unit[1] == -1) {
+                        // As a final fallback, place directly at unit_start
+                        location_unit = new int[] {location_unit_start[0], location_unit_start[1]};
+                    }
+                }
                 access.putPixelWrap(location_unit[0], location_unit[1], 0f);
                 player_locations[i][2 * u] = (float) (location_unit[0] * scale);
                 player_locations[i][2 * u + 1] = (float) (location_unit[1] * scale);

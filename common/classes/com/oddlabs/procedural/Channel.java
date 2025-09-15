@@ -1340,7 +1340,19 @@ public final strictfp class Channel {
     }
 
     public final int[] find(int radius, int x_start, int y_start, float value) {
-        if (getPixel(x_start, y_start) == value) return new int[] {x_start, y_start};
+        // Normalize start coordinates to be within bounds (wrap) before initial check
+        int xs = x_start;
+        int ys = y_start;
+        if (this.powerof2) {
+            if (xs < 0 || xs >= width) xs = (width + xs) & (width - 1);
+            if (ys < 0 || ys >= height) ys = (height + ys) & (height - 1);
+        } else {
+            if (xs < 0 || xs >= width || ys < 0 || ys >= height) {
+                xs = (xs % width + width) % width;
+                ys = (ys % height + height) % height;
+            }
+        }
+        if (getPixel(xs, ys) == value) return new int[] {xs, ys};
         int r = 1;
         while (r <= radius) {
             int x = x_start - r;
@@ -1367,7 +1379,10 @@ public final strictfp class Channel {
     }
 
     public final int[] findNoWrap(int radius, int x_start, int y_start, float value) {
-        if (getPixel(x_start, y_start) == value) return new int[] {x_start, y_start};
+        // Only check the start coordinate if it's within bounds
+        if (x_start >= 0 && x_start < width && y_start >= 0 && y_start < height
+                && getPixel(x_start, y_start) == value)
+            return new int[] {x_start, y_start};
         int r = 1;
         while (r <= radius) {
             int x = x_start - r;

@@ -385,55 +385,19 @@ public abstract strictfp class Menu extends CameraDelegate {
             String[] ai_names,
             int player_count) {
         boolean multiplayer = ingame_info.isMultiplayer();
-        // If an editor map exists, prefer its terrain type so visuals match the map
-        WorldGenerator generator;
-        try {
-            java.io.File maybe = new java.io.File(com.oddlabs.tt.mapio.MapIO.mapsDir(), "editor_map.ttmap");
-            int terrain_type_effective = terrain_type;
-            int meters_effective = meters_per_world;
-            if (maybe.exists()) {
-                try {
-                    com.oddlabs.tt.mapio.MapIO.MapSummary sum = com.oddlabs.tt.mapio.MapIO.peek(maybe);
-                    if (sum != null) {
-                        terrain_type_effective = sum.terrainType;
-                        meters_effective = (sum.metersPerWorld > 0)
-                                ? sum.metersPerWorld
-                                : (sum.size > 0 ? sum.size : meters_per_world);
-                    }
-                } catch (Exception ignore) {}
-            }
-            // When loading an editor map, ignore Terrain menu random-gen parameters for the base generator.
-            // Use fixed, deterministic values just to obtain render assets; gameplay comes from the map.
-            final float NEUTRAL_HILLS = com.oddlabs.tt.global.Globals.LANDSCAPE_HILLS;
-            final float NEUTRAL_VEGETATION = com.oddlabs.tt.global.Globals.LANDSCAPE_VEGETATION;
-            final float NEUTRAL_SUPPLIES = com.oddlabs.tt.global.Globals.LANDSCAPE_RESOURCES;
-            final int NEUTRAL_SEED = com.oddlabs.tt.global.Globals.LANDSCAPE_SEED;
-            final boolean NEUTRAL_ARCHIPELAGO = false;
-            generator =
-                    new IslandGenerator(
-                            meters_effective,
-                            terrain_type_effective,
-                            NEUTRAL_HILLS,
-                            NEUTRAL_VEGETATION,
-                            NEUTRAL_SUPPLIES,
-                            NEUTRAL_SEED,
-                            NEUTRAL_ARCHIPELAGO);
-            if (maybe.exists()) {
-                generator = new com.oddlabs.tt.mapio.LoadedMapGenerator(generator, maybe);
-            }
-        } catch (Throwable t) {
-            // Fallback to requested terrain on any failure
-            System.err.println("Menu: .ttmap setup failed: " + t.getMessage());
-            generator =
-                    new IslandGenerator(
-                            meters_per_world,
-                            terrain_type,
-                            hills,
-                            vegetation_amount,
-                            supplies_amount,
-                            seed,
-                            archipelago);
-        }
+    // Always use procedural terrain for normal Single Player; only load a .ttmap when
+    // explicitly chosen via startNewGameWithMap(...). Previously, if an editor_map.ttmap
+    // existed, Single Player would auto-load it and ignore the random generator.
+    // That caused unexpected map loads and, in edge cases, crashes during placement.
+        WorldGenerator generator =
+                new IslandGenerator(
+                        meters_per_world,
+                        terrain_type,
+                        hills,
+                        vegetation_amount,
+                        supplies_amount,
+                        seed,
+                        archipelago);
         InetAddress address = multiplayer ? null : com.oddlabs.util.Utils.getLoopbackAddress();
         final Server server =
                 new Server(network, game, address, generator, multiplayer, ai_names, player_count);

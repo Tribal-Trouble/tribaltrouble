@@ -456,7 +456,8 @@ public final class TerrainMenu extends Group {
         }
         if (!multiplayer) {
             // Use the shared PlayersSection in the Single Player standard panel
-            playersSection = new PlayersSection(gui_root, bundle);
+            // Hide its own player-count row; the Advanced tab retains a pulldown controlling it
+            playersSection = new PlayersSection(gui_root, bundle, false);
             standard.addChild(playersSection);
         } else {
             // Multiplayer retains its own lobby UI elsewhere; keep structure intact
@@ -880,7 +881,7 @@ public final class TerrainMenu extends Group {
                         : new DefaultInGameInfo();
     System.out.println("InGameInfo created" + player_count);
     GameNetwork game_network =
-    Menu.startNewGameWithMap(
+    Menu.startNewGame(
                         network,
                         gui_root,
                         menu,
@@ -902,8 +903,7 @@ public final class TerrainMenu extends Group {
                         seed * seed,
                         ARCHIPELAGO[pulldown_size.getChosenItemIndex()],
             generateAINames(),
-            (multiplayer ? player_count : (playersSection != null ? playersSection.getPlayerCount() : player_count)),
-            null);
+        (multiplayer ? player_count : (playersSection != null ? playersSection.getPlayerCount() : player_count)));
     int race0 = multiplayer
         ? race_pulldown_menus[0].getChosenItemIndex()
         : (playersSection != null ? playersSection.getRaceIndex(0) : race_pulldown_menus[0].getChosenItemIndex());
