@@ -70,6 +70,29 @@ public final strictfp class UnitGrid {
         }
     }
 
+    public int[] nearestSeaPoint(int x, int y) {
+        int[] ret = new int[2];
+        ret[0] = x;
+        ret[1] = y;
+        boolean[][] water = heightmap.getWaterGrid();
+        if (!water[y][x]) {
+            float best_dist = 20.0f;
+            for (int dy = -4; dy <= 4; dy++) {
+                for (int dx = -4; dx <= 4; dx++) {
+                    if (water[y + dy][x + dx]) {
+                        float dist = (float) Math.sqrt(dy * dy + dx * dx);
+                        if (dist < best_dist) {
+                            best_dist = dist;
+                            ret[0] = x + dx;
+                            ret[1] = y + dy;
+                        }
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
     public static float coordinateFromGrid(int g) {
         return (g + .5f) * HeightMap.METERS_PER_UNIT_GRID;
     }

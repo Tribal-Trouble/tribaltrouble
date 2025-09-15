@@ -1,5 +1,6 @@
 package com.oddlabs.tt.resource;
 
+import com.oddlabs.procedural.Channel;
 import com.oddlabs.tt.form.ProgressForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
@@ -146,6 +147,7 @@ public final strictfp class IslandGenerator implements WorldGenerator {
         float[][] plants = landscape.getPlants();
         boolean[][] access_grid = landscape.getAccessGrid();
         boolean[][] dock_grid = landscape.getDockGrid();
+        Channel sea_cost_map = landscape.getSeaCostMap();
         boolean[][] water_grid = landscape.getWaterGrid();
         byte[][] build_grid = landscape.getBuildGrid();
         float[][] starting_locations = landscape.getStartingLocations();
@@ -180,6 +182,7 @@ public final strictfp class IslandGenerator implements WorldGenerator {
                 access_grid,
                 dock_grid,
                 water_grid,
+                sea_cost_map,
                 build_grid,
                 island_locations,
                 starting_locations);

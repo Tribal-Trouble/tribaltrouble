@@ -1119,7 +1119,7 @@ public final strictfp class Channel {
         return this;
     }
 
-    public final Channel floodfill(int init_x, int init_y, float value, float tol) {
+    public final Channel floodfill(int init_x, int init_y, float value, float tol, int[] count) {
         assert init_x < width && init_x >= 0 : "x coordinate outside image";
         assert init_y < height && init_y >= 0 : "y coordinate outside image";
         float oldval = getPixel(init_x, init_y);
@@ -1127,6 +1127,8 @@ public final strictfp class Channel {
         marked[init_x][init_y] = true;
         List list = new java.util.LinkedList();
         list.add(new int[] {init_x, init_y});
+
+        count[0] = 1;
 
         while (list.size() > 0) {
             int[] coords = (int[]) list.remove(0);
@@ -1136,20 +1138,24 @@ public final strictfp class Channel {
             if (x > 0 && Math.abs(getPixel(x - 1, y) - oldval) < tol && !marked[x - 1][y]) {
                 marked[x - 1][y] = true;
                 list.add(new int[] {x - 1, y});
+                count[0]++;
             }
             if (x < width - 1 && Math.abs(getPixel(x + 1, y) - oldval) < tol && !marked[x + 1][y]) {
                 marked[x + 1][y] = true;
                 list.add(new int[] {x + 1, y});
+                count[0]++;
             }
             if (y > 0 && Math.abs(getPixel(x, y - 1) - oldval) < tol && !marked[x][y - 1]) {
                 marked[x][y - 1] = true;
                 list.add(new int[] {x, y - 1});
+                count[0]++;
             }
             if (y < height - 1
                     && Math.abs(getPixel(x, y + 1) - oldval) < tol
                     && !marked[x][y + 1]) {
                 marked[x][y + 1] = true;
                 list.add(new int[] {x, y + 1});
+                count[0]++;
             }
         }
         return this;

@@ -1,5 +1,6 @@
 package com.oddlabs.tt.resource;
 
+import com.oddlabs.procedural.Channel;
 import com.oddlabs.tt.render.*;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public final strictfp class WorldInfo {
     public final boolean[][] access_grid;
     public final boolean[][] dock_grid;
     public final boolean[][] water_grid;
+    public final Channel sea_cost_map;
     public final byte[][] build_grid;
     public final int meters_per_world;
     public final float sea_level_meters;
@@ -41,6 +43,7 @@ public final strictfp class WorldInfo {
             boolean[][] access_grid,
             boolean[][] dock_grid,
             boolean[][] water_grid,
+            Channel sea_cost_map,
             byte[][] build_grid,
             ArrayList island_locations,
             float[][] starting_locations) {
@@ -59,6 +62,7 @@ public final strictfp class WorldInfo {
         this.access_grid = access_grid;
         this.dock_grid = dock_grid;
         this.water_grid = water_grid;
+        this.sea_cost_map = sea_cost_map;
         this.build_grid = build_grid;
         this.starting_locations = starting_locations;
         this.island_locations = island_locations;
