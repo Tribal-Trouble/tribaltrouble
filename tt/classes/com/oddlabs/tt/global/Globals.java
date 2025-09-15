@@ -55,6 +55,8 @@ public final strictfp class Globals {
     public static boolean line_mode = false;
     public static boolean clear_frame_buffer = false;
     public static boolean frustum_freeze = false;
+    // Temporary editor bring-up flag: when true, force landscape visibility override (bypass frustum culling)
+    public static boolean force_landscape_visible = false;
 
     public static boolean slowmotion = false;
 

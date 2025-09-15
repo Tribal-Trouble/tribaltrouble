@@ -178,7 +178,49 @@ public final strictfp class LandscapeRenderer implements Animated {
     public final void prepareAll(CameraState camera, boolean visible_override) {
         clearRenderList();
         doPrepareAll(camera, visible_override, render_list);
+        // Debug: refined diagnostics when nothing is visible. We throttle logging to avoid flooding.
+        if (render_list.isEmpty()) {
+            if (camera != null) {
+                // Track consecutive empty frames
+                emptyFrames++;
+                boolean logNow = emptyFrames <= 10 || (emptyFrames % 60 == 0);
+                if (logNow) {
+                    try {
+                        float cx = camera.getCurrentX();
+                        float cy = camera.getCurrentY();
+                        float cz = camera.getCurrentZ();
+                        int worldSize = world.getHeightMap().getMetersPerWorld();
+                        System.err.println(
+                                "[LandscapeRenderer] prepared=0 | cam=(" + cx + "," + cy + "," + cz + ") size=" + worldSize +
+                                " visOverride=" + visible_override + " emptyFrames=" + emptyFrames);
+                    } catch (Throwable ignore) {
+                        System.err.println("[LandscapeRenderer] prepared=0 (camera info unavailable)");
+                    }
+                }
+                // One-time fallback: try with visible_override=true to test frustum culling issues
+                if (!attemptedFallback && !visible_override) {
+                    attemptedFallback = true;
+                    doPrepareAll(camera, /*visible_override*/ true, render_list);
+                    if (!render_list.isEmpty()) {
+                        System.err.println(
+                                "[LandscapeRenderer] Fallback visible_override SUCCESS: " + render_list.size() + " patches -> frustum culling suspect.");
+                    } else if (logNow) {
+                        System.err.println(
+                                "[LandscapeRenderer] Fallback visible_override still empty: patch tree or camera state invalid.");
+                    }
+                }
+            } else {
+                System.err.println("[LandscapeRenderer] prepared=0 (camera null)");
+            }
+        } else {
+            // Reset counter once we have something
+            emptyFrames = 0;
+        }
     }
+
+    // --- Debug state (temporary, editor bring-up) ---
+    private static int emptyFrames = 0;
+    private static boolean attemptedFallback = false;
 
     private static final Visitor patch_visitor = new Visitor();
 

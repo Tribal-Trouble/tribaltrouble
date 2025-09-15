@@ -207,6 +207,10 @@ public final strictfp class DefaultRenderer implements UIRenderer {
     }
 
     public void render(AmbientAudio ambient, CameraState frustum_state, GUIRoot gui_root) {
+        if (!loggedFirstRenderOnce) {
+            System.err.println("[DefaultRenderer] render() entered; cameraZ=" + frustum_state.getCurrentZ());
+            loggedFirstRenderOnce = true;
+        }
         ambient.updateSoundListener(frustum_state, world.getHeightMap());
         if (Globals.line_mode || cheat.line_mode) {
             GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_LINE);
@@ -225,7 +229,12 @@ public final strictfp class DefaultRenderer implements UIRenderer {
 
         // render landscape (must be before trees and misc, cause they use data calculated here)
         if (Globals.process_landscape) {
-            landscape_renderer.prepareAll(frustum_state, false);
+            boolean visOverride = Globals.force_landscape_visible;
+            if (visOverride && !loggedForceVisibleOnce) {
+                System.err.println("[DefaultRenderer] force_landscape_visible active: bypassing frustum culling");
+                loggedForceVisibleOnce = true;
+            }
+            landscape_renderer.prepareAll(frustum_state, visOverride);
             landscape_renderer.renderAll();
         }
         // frustum check and placement
@@ -301,4 +310,8 @@ public final strictfp class DefaultRenderer implements UIRenderer {
             GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_FILL);
         }
     }
+
+    // Debug flag to avoid spamming logs
+    private static boolean loggedFirstRenderOnce = false;
+    private static boolean loggedForceVisibleOnce = false;
 }

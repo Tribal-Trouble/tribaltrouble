@@ -24,7 +24,7 @@ public final strictfp class GameCamera extends Camera {
             (-(Globals.FOV) - 10) * ((float) StrictMath.PI / 180) * .5f;
     private static final float ZOOM_SPEED = 50f;
 
-    private final WorldViewer viewer;
+    private final CameraHost viewer;
 
     private float left_dir_x;
     private float left_dir_y;
@@ -47,12 +47,17 @@ public final strictfp class GameCamera extends Camera {
     private boolean rotate_left;
     private boolean rotate_right;
 
-    public GameCamera(WorldViewer viewer, CameraState camera) {
+    public GameCamera(CameraHost viewer, CameraState camera) {
         super(viewer.getWorld().getHeightMap(), camera);
         this.default_rotate_radius = viewer.getWorld().getHeightMap().getMetersPerWorld() / 4;
         this.viewer = viewer;
         checkPosition();
         updateDirection();
+    }
+
+    // Back-compat constructor for existing call sites
+    public GameCamera(WorldViewer viewer, CameraState camera) {
+        this((CameraHost) viewer, camera);
     }
 
     /*	public GameCamera() {
@@ -111,7 +116,10 @@ public final strictfp class GameCamera extends Camera {
         float dx = x - .5f * getHeightMap().getMetersPerWorld();
         float dy = y - .5f * getHeightMap().getMetersPerWorld();
         float r = (float) StrictMath.sqrt(dx * dx + dy * dy);
-        if (dy > 0) {
+        // Avoid NaNs when resetting exactly at center (r == 0). Use a stable default orientation.
+        if (r < 1e-6f || Float.isNaN(r)) {
+            getState().setCurrentHorizAngle(-(float) StrictMath.PI / 2f); // face "south" by default
+        } else if (dy > 0) {
             getState().setCurrentHorizAngle((float) (StrictMath.PI + StrictMath.acos(dx / r)));
         } else {
             getState().setCurrentHorizAngle(-(float) (StrictMath.PI + StrictMath.acos(dx / r)));
@@ -329,6 +337,25 @@ public final strictfp class GameCamera extends Camera {
 
     public final void setRotationPoint(Target target) {
         rotation_point = target;
+    }
+
+    // Convenience for editors: apply rotation deltas directly (MMB-drag style)
+    public final void rotateByMouseDelta(int rel_x, int rel_y) {
+        if (rel_x == 0 && rel_y == 0) return;
+        float x = getState().getTargetX();
+        float y = getState().getTargetY();
+        float z = getState().getTargetZ();
+        float va = getState().getTargetVertAngle();
+        float ha = getState().getTargetHorizAngle();
+        final float DRAG_SCALE_HORIZ = .002f;
+        final float DRAG_SCALE_VERT = .002f;
+        ha -= rel_x * DRAG_SCALE_HORIZ;
+        if (Settings.getSettings().invert_camera_pitch)
+            va -= rel_y * DRAG_SCALE_VERT;
+        else
+            va += rel_y * DRAG_SCALE_VERT;
+        getState().setCamera(x, y, z, va, ha);
+        checkPosition();
     }
 
     protected final float[] getRotationPoint() {

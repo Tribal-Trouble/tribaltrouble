@@ -7,6 +7,7 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.audio.AbstractAudioPlayer;
 import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.audio.AudioParameters;
+import com.oddlabs.tt.camera.CameraHost;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.delegate.GameStatsDelegate;
@@ -48,7 +49,7 @@ import com.oddlabs.tt.util.Utils;
 
 import java.util.ResourceBundle;
 
-public final strictfp class WorldViewer implements Animated {
+public final strictfp class WorldViewer implements Animated, CameraHost {
     private static final String[] GAMESPEED_STRINGS =
             new String[] {"paused", "slow", "normal", "fast", "ludicrous"};
 

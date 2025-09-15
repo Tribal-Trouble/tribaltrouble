@@ -208,7 +208,32 @@ public final class MapEditorSession {
 
                             // Camera + delegate
                             System.err.println("[EditorStart] Push EditorDelegate");
-                            Camera camera = new SimpleEditorCamera(world, camState);
+                            // Use the in-game GameCamera in the editor via a tiny host adapter
+                            final com.oddlabs.tt.camera.CameraHost host = new com.oddlabs.tt.camera.CameraHost() {
+                                public com.oddlabs.tt.landscape.World getWorld() { return world; }
+                                public com.oddlabs.tt.render.Picker getPicker() { return picker; }
+                                public com.oddlabs.tt.gui.GUIRoot getGUIRoot() { return clientRoot; }
+                            };
+                            Camera camera = new com.oddlabs.tt.camera.GameCamera(host, camState);
+                            // Start centered with a sensible pitch like in-game
+                            try {
+                                float mid = world.getHeightMap().getMetersPerWorld() / 2f;
+                                ((com.oddlabs.tt.camera.GameCamera) camera).reset(mid, mid);
+                                try {
+                                    com.oddlabs.tt.global.Globals.force_landscape_visible = true;
+                                    com.oddlabs.tt.camera.CameraState dbg = camera.getState();
+                                    if (Float.isNaN(dbg.getCurrentX()) || Float.isNaN(dbg.getCurrentY())) {
+                                        // Fallback: place camera looking at mid from an offset
+                                        float fallbackX = mid + 50f;
+                                        float fallbackY = mid + 50f;
+                                        ((com.oddlabs.tt.camera.GameCamera) camera).setPos(fallbackX, fallbackY);
+                                        dbg = camera.getState();
+                                        System.err.println("[EditorStart] Camera NaN detected; applied fallback pos=(" + dbg.getCurrentX() + "," + dbg.getCurrentY() + "," + dbg.getCurrentZ() + ")");
+                                    }
+                                    System.err.println("[EditorStart] Camera reset to world mid=" + mid +
+                                            " -> camPos=(" + dbg.getCurrentX() + "," + dbg.getCurrentY() + "," + dbg.getCurrentZ() + ")");
+                                } catch (Throwable logIgnore) {}
+                            } catch (Throwable ignore) {}
                             int terrainType = generator.getTerrainType();
                             // Pass editor mode through
                             EDITOR_STATE.setEditorMode(mode);
@@ -224,6 +249,13 @@ public final class MapEditorSession {
                                             terrainType,
                                             drHolder[0]);
                             clientRoot.pushDelegate(delegate);
+
+                            // Enable color buffer clearing during editor frames to avoid
+                            // trailing artifacts if the 3D world doesn't draw for any reason.
+                            try {
+                                com.oddlabs.tt.global.Globals.clear_frame_buffer = true;
+                                System.err.println("[EditorStart] Enabled clear_frame_buffer for debugging");
+                            } catch (Throwable ignore) {}
 
                             // Match WorldViewer initialization for viewport sizing
                             clientRoot.displayChanged(LocalInput.getViewWidth(), LocalInput.getViewHeight());
@@ -271,410 +303,7 @@ public final class MapEditorSession {
         }
     }
 
-    // --- Minimal Editor Camera (pan/zoom with WASD/arrow keys + mouse wheel)
-    // Adds middle-mouse drag look + smooth rotate/pitch keys for parity with game ---
-    private static final class SimpleEditorCamera extends Camera {
-        private static final int SCROLL_BUFFER = com.oddlabs.tt.camera.GameCamera.SCROLL_BUFFER;
-        private static final float MAX_Z = com.oddlabs.tt.camera.GameCamera.MAX_Z;
-        private static final float ZOOM_Z_DIR_MIN = -(float) StrictMath.tan(StrictMath.PI / 6);
-        private static final float ZOOM_SPEED = 50f;
-        private static final float SMOOTHNESS_MAP = 200f;
-        private static final float MAP_THRESHOLD = .1f;
-        private static final float MAP_TIME_FACTOR = 1000f;
-        private static final float MAP_Z_FACTOR = 1.3f;
-        private static final float ANGLE_DELTA = (float) (StrictMath.PI / 2); // match GameCamera
-        private static final float DRAG_SCALE_HORIZ = .002f; // match FirstPersonCamera
-        private static final float DRAG_SCALE_VERT = .002f;  // match FirstPersonCamera
-
-        private float left_dir_x, left_dir_y;
-        private float scroll_x, scroll_y;
-        private float scrolling_x, scrolling_y;
-        private boolean scroll_start = true;
-
-    private float zoom_time;
-
-        // Smooth rotate/pitch state (held keys)
-        private boolean pitch_up;
-        private boolean pitch_down;
-        private boolean rotate_left;
-        private boolean rotate_right;
-
-        // Map mode state (mirrors MapCamera behavior)
-        private static final int TO_MAP = 1;
-        private static final int IN_MAP = 2;
-        private static final int FROM_MAP = 3;
-        private int map_mode = 0; // 0 = not in map transition/mode
-        private float old_x, old_y, old_z, old_vert_angle;
-        private float distance_to_landscape;
-
-        SimpleEditorCamera(World world, CameraState state) {
-            super(world.getHeightMap(), state);
-            // Start near center, pitched like GameCamera
-            float mid = world.getHeightMap().getMetersPerWorld() / 2f;
-            float va = -45f * ((float) StrictMath.PI / 180f);
-            float ha = -(float) StrictMath.PI / 2f;
-            float z = world.getHeightMap().getNearestHeight(mid, mid) + 60f;
-            getState().setCamera(mid, mid, z, va, ha);
-            updateDirection();
-            checkPosition();
-        }
-
-        protected void doAnimate(float dt) {
-            doZoom(dt);
-            doScroll(dt);
-            doPitch(dt);
-            doRotate(dt);
-            doMapAnimate(dt);
-            updateDirection();
-        }
-
-        public void keyPressed(KeyboardEvent e) {
-            switch (e.getKeyCode()) {
-                case Keyboard.KEY_W:
-                case Keyboard.KEY_UP:
-                    scrolling_y = 1f; // forward
-                    break;
-                case Keyboard.KEY_S:
-                case Keyboard.KEY_DOWN:
-                    scrolling_y = -1f; // backward
-                    break;
-                case Keyboard.KEY_A:
-                case Keyboard.KEY_LEFT:
-                    scrolling_x = -1f; // left
-                    break;
-                case Keyboard.KEY_D:
-                case Keyboard.KEY_RIGHT:
-                    scrolling_x = 1f; // right
-                    break;
-                // Smooth rotate/pitch like GameCamera (hold for continuous)
-                case Keyboard.KEY_HOME:
-                case Keyboard.KEY_NUMPAD8:
-                    pitch_up = true;
-                    break;
-                case Keyboard.KEY_END:
-                case Keyboard.KEY_NUMPAD2:
-                    pitch_down = true;
-                    break;
-                case Keyboard.KEY_INSERT:
-                case Keyboard.KEY_NUMPAD6:
-                    rotate_right = true;
-                    break;
-                case Keyboard.KEY_DELETE:
-                case Keyboard.KEY_NUMPAD4:
-                    rotate_left = true;
-                    break;
-                // PageUp/PageDown emulate zoom wheel taps
-                case Keyboard.KEY_PRIOR:   // PageUp
-                case Keyboard.KEY_NUMPAD9:
-                    mouseScrolled(-2);
-                    break;
-                case Keyboard.KEY_NEXT:    // PageDown
-                case Keyboard.KEY_NUMPAD3:
-                    mouseScrolled(2);
-                    break;
-                case Keyboard.KEY_SPACE:
-                case Keyboard.KEY_NUMPAD5:
-                    toggleMapMode();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public void keyReleased(KeyboardEvent e) {
-            switch (e.getKeyCode()) {
-                case Keyboard.KEY_W:
-                case Keyboard.KEY_UP:
-                case Keyboard.KEY_S:
-                case Keyboard.KEY_DOWN:
-                    scrolling_y = 0f;
-                    break;
-                case Keyboard.KEY_A:
-                case Keyboard.KEY_LEFT:
-                case Keyboard.KEY_D:
-                case Keyboard.KEY_RIGHT:
-                    scrolling_x = 0f;
-                    break;
-                case Keyboard.KEY_HOME:
-                case Keyboard.KEY_NUMPAD8:
-                    pitch_up = false;
-                    break;
-                case Keyboard.KEY_END:
-                case Keyboard.KEY_NUMPAD2:
-                    pitch_down = false;
-                    break;
-                case Keyboard.KEY_INSERT:
-                case Keyboard.KEY_NUMPAD6:
-                    rotate_right = false;
-                    break;
-                case Keyboard.KEY_DELETE:
-                case Keyboard.KEY_NUMPAD4:
-                    rotate_left = false;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public void mouseScrolled(int amount) {
-            zoom_time += amount * .05f;
-            if (zoom_time > .15f) zoom_time = .15f;
-            else if (zoom_time < -.15f) zoom_time = -.15f;
-        }
-
-        private void updateDirection() {
-            float ha = getState().getTargetHorizAngle();
-            left_dir_x = -(float) StrictMath.sin(ha);
-            left_dir_y = (float) StrictMath.cos(ha);
-        }
-
-        private void doZoom(float dt) {
-            float zf = zoom_time * dt * ZOOM_SPEED * getState().getTargetZ();
-            if (zf == 0f) return;
-            float radius = (float) StrictMath.cos(getState().getTargetVertAngle());
-            float dir_x = (float) StrictMath.cos(getState().getTargetHorizAngle()) * radius;
-            float dir_y = (float) StrictMath.sin(getState().getTargetHorizAngle()) * radius;
-            float dir_z = (float) StrictMath.sin(getState().getTargetVertAngle());
-            if (dir_z > ZOOM_Z_DIR_MIN) {
-                dir_z = ZOOM_Z_DIR_MIN;
-                float inv = 1f / (float) StrictMath.sqrt(dir_x * dir_x + dir_y * dir_y + dir_z * dir_z);
-                dir_x *= inv; dir_y *= inv; dir_z *= inv;
-            }
-            float nx = getState().getTargetX() + dir_x * zf;
-            float ny = getState().getTargetY() + dir_y * zf;
-            float nz = getState().getTargetZ() + dir_z * zf;
-            // Bounds checks similar to GameCamera
-            int mid = getHeightMap().getMetersPerWorld() / 2;
-            float dx = nx - mid;
-            float dy = ny - mid;
-            float dist2 = dx * dx + dy * dy;
-            if (dist2 < getHeightMap().getMetersPerWorld() * getHeightMap().getMetersPerWorld()
-                    && nz < MAX_Z) {
-                float va = getState().getTargetVertAngle();
-                float ha = getState().getTargetHorizAngle();
-                float bx = getState().getTargetX();
-                float by = getState().getTargetY();
-                float bz = getState().getTargetZ();
-                getState().setCamera(nx, ny, nz, va, ha);
-                if (bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ())) {
-                    getState().setCamera(bx, by, bz, va, ha);
-                }
-                checkPosition();
-            }
-            // Dampen zoom_time toward zero
-            if (zoom_time < 0f) zoom_time = StrictMath.min(0f, zoom_time + dt);
-            else if (zoom_time > 0f) zoom_time = StrictMath.max(0f, zoom_time - dt);
-        }
-
-        private void doScroll(float dt) {
-            // Edge scroll vector from mouse
-            int x = LocalInput.getMouseX();
-            int y = LocalInput.getMouseY();
-            int lw = LocalInput.getViewWidth();
-            int lh = LocalInput.getViewHeight();
-            int left = SCROLL_BUFFER, top = SCROLL_BUFFER;
-            int right = lw - 1 - SCROLL_BUFFER, bottom = lh - 1 - SCROLL_BUFFER;
-            if (x < left || y < top || x > right || y > bottom) {
-                if (scroll_start) scroll_start = false;
-                scroll_x = (float) (x - lw / 2);
-                scroll_y = (float) (y - lh / 2);
-                float inv = 1f / (float) StrictMath.sqrt(scroll_x * scroll_x + scroll_y * scroll_y);
-                scroll_x *= inv; scroll_y *= inv;
-            } else {
-                scroll_start = true;
-                scroll_x = 0f; scroll_y = 0f;
-            }
-
-            // Prefer keyboard input if pressed; otherwise fall back to edge scroll
-            boolean blocked = false;
-            if (LocalInput.isKeyDown(Keyboard.KEY_LEFT)
-                    && !LocalInput.isKeyDown(Keyboard.KEY_RIGHT)
-                    && !blocked) scrolling_x = -1f;
-            else if (LocalInput.isKeyDown(Keyboard.KEY_RIGHT)
-                    && !LocalInput.isKeyDown(Keyboard.KEY_LEFT)
-                    && !blocked) scrolling_x = 1f;
-            else scrolling_x = scroll_x;
-
-            if (LocalInput.isKeyDown(Keyboard.KEY_DOWN)
-                    && !LocalInput.isKeyDown(Keyboard.KEY_UP)
-                    && !blocked) scrolling_y = -1f;
-            else if (LocalInput.isKeyDown(Keyboard.KEY_UP)
-                    && !LocalInput.isKeyDown(Keyboard.KEY_DOWN)
-                    && !blocked) scrolling_y = 1f;
-            else scrolling_y = scroll_y;
-
-            if (scrolling_x == 0f && scrolling_y == 0f) return;
-            float scroll_speed = 60f;
-            float sf = dt * scroll_speed;
-            float nx = getState().getTargetX()
-                    - (scrolling_x * left_dir_x + scrolling_y * -left_dir_y) * sf;
-            float ny = getState().getTargetY()
-                    - (scrolling_x * left_dir_y + scrolling_y * left_dir_x) * sf;
-            float nz = getState().getTargetZ();
-            float va = getState().getTargetVertAngle();
-            float ha = getState().getTargetHorizAngle();
-            getState().setCamera(nx, ny, nz, va, ha);
-            checkPosition();
-        }
-
-        private void doPitch(float dt) {
-            float x = getState().getTargetX();
-            float y = getState().getTargetY();
-            float z = getState().getTargetZ();
-            float va = getState().getTargetVertAngle();
-            float ha = getState().getTargetHorizAngle();
-            boolean changed = false;
-            if ((pitch_down && !com.oddlabs.tt.global.Settings.getSettings().invert_camera_pitch)
-                    || (pitch_up && com.oddlabs.tt.global.Settings.getSettings().invert_camera_pitch)) {
-                va -= dt * ANGLE_DELTA;
-                changed = true;
-            }
-            if ((pitch_up && !com.oddlabs.tt.global.Settings.getSettings().invert_camera_pitch)
-                    || (pitch_down && com.oddlabs.tt.global.Settings.getSettings().invert_camera_pitch)) {
-                va += dt * ANGLE_DELTA;
-                changed = true;
-            }
-            if (changed) {
-                getState().setCamera(x, y, z, va, ha);
-                checkPosition();
-            }
-        }
-
-        private void doRotate(float dt) {
-            if (!(rotate_left || rotate_right)) return;
-            float x = getState().getTargetX();
-            float y = getState().getTargetY();
-            float z = getState().getTargetZ();
-            float va = getState().getTargetVertAngle();
-            float ha = getState().getTargetHorizAngle();
-            float da = rotate_left ? -dt * ANGLE_DELTA : dt * ANGLE_DELTA;
-            ha += da;
-            getState().setCamera(x, y, z, va, ha);
-            checkPosition();
-        }
-
-        // Support middle-mouse drag look, given relative mouse deltas from delegate
-        public void rotateByMouseDelta(int rel_x, int rel_y) {
-            if (rel_x == 0 && rel_y == 0) return;
-            float x = getState().getTargetX();
-            float y = getState().getTargetY();
-            float z = getState().getTargetZ();
-            float va = getState().getTargetVertAngle();
-            float ha = getState().getTargetHorizAngle();
-            ha -= rel_x * DRAG_SCALE_HORIZ;
-            if (com.oddlabs.tt.global.Settings.getSettings().invert_camera_pitch)
-                va -= rel_y * DRAG_SCALE_VERT;
-            else
-                va += rel_y * DRAG_SCALE_VERT;
-            getState().setCamera(x, y, z, va, ha);
-            checkPosition();
-        }
-
-        // --- Map mode helpers ---
-        private void toggleMapMode() {
-            // Lazily init map state snapshot
-            if (map_mode == 0) {
-                // entering TO_MAP
-                float cx = getState().getTargetX();
-                float cy = getState().getTargetY();
-                float cz = getState().getTargetZ();
-                old_x = cx;
-                old_y = cy;
-                old_z = cz;
-                old_vert_angle = getState().getTargetVertAngle();
-                // Distance to ground along current forward dir
-                float[] target = new float[] {cx, cy};
-                float dz = getHeightMap().getNearestHeight(target[0], target[1]) - cz;
-                float dx = 0f;
-                float dy = 0f;
-                distance_to_landscape = (float) StrictMath.sqrt(dx * dx + dy * dy + dz * dz);
-                setSmoothnessFactor(SMOOTHNESS_MAP);
-                map_mode = TO_MAP;
-            } else if (map_mode == TO_MAP || map_mode == IN_MAP) {
-                map_mode = FROM_MAP;
-            } else if (map_mode == FROM_MAP) {
-                // interrupt return and go back to TO_MAP
-                map_mode = TO_MAP;
-            }
-        }
-
-        private void doMapAnimate(float t) {
-            if (map_mode == 0) return;
-            float factor =
-                    t * 1000f
-                            / StrictMath.max(
-                                    t * 1000f,
-                                    com.oddlabs.tt.global.Settings.getSettings().mapmode_delay
-                                            * MAP_TIME_FACTOR);
-            float dx, dy, dz, da;
-            float map_x = getHeightMap().getMetersPerWorld() / 2f;
-            float map_y = getHeightMap().getMetersPerWorld() / 2f;
-            float map_z = getHeightMap().getMetersPerWorld() * MAP_Z_FACTOR;
-            final float MIN_VERT_ANGLE = -(float) StrictMath.PI / 2f;
-
-            switch (map_mode) {
-                case TO_MAP:
-                    dx = map_x - old_x;
-                    dy = map_y - old_y;
-                    dz = map_z - old_z;
-                    {
-                        float nx = getState().getTargetX() + dx * factor;
-                        float ny = getState().getTargetY() + dy * factor;
-                        float nz = getState().getTargetZ() + dz * factor;
-                        float va = getState().getTargetVertAngle();
-                        float ha = getState().getTargetHorizAngle();
-                        getState().setCamera(nx, ny, nz, va, ha);
-                    }
-                    if (getState().getTargetZ() > map_z - MAP_THRESHOLD) {
-                        float ha = getState().getTargetHorizAngle();
-                        getState().setCamera(map_x, map_y, map_z, getState().getTargetVertAngle(), ha);
-                        map_mode = IN_MAP;
-                    }
-                    da = MIN_VERT_ANGLE - old_vert_angle;
-                    {
-                        float x = getState().getTargetX();
-                        float y = getState().getTargetY();
-                        float z = getState().getTargetZ();
-                        float va = getState().getTargetVertAngle() + da * factor;
-                        float ha = getState().getTargetHorizAngle();
-                        getState().setCamera(x, y, z, va, ha);
-                    }
-                    break;
-                case IN_MAP:
-                    // hold
-                    break;
-                case FROM_MAP:
-                    dx = old_x - map_x;
-                    dy = old_y - map_y;
-                    dz = old_z - map_z;
-                    {
-                        float nx = getState().getTargetX() + dx * factor;
-                        float ny = getState().getTargetY() + dy * factor;
-                        float nz = getState().getTargetZ() + dz * factor;
-                        float va = getState().getTargetVertAngle();
-                        float ha = getState().getTargetHorizAngle();
-                        getState().setCamera(nx, ny, nz, va, ha);
-                    }
-                    if (getState().getTargetZ() <= old_z) {
-                        float ha = getState().getTargetHorizAngle();
-                        getState().setCamera(old_x, old_y, old_z, old_vert_angle, ha);
-                        checkPosition();
-                        map_mode = 0; // done
-                        break;
-                    }
-                    da = old_vert_angle - MIN_VERT_ANGLE;
-                    {
-                        float x = getState().getTargetX();
-                        float y = getState().getTargetY();
-                        float z = getState().getTargetZ();
-                        float va = getState().getTargetVertAngle() + da * factor;
-                        float ha = getState().getTargetHorizAngle();
-                        getState().setCamera(x, y, z, va, ha);
-                    }
-                    break;
-            }
-        }
-    }
+    // Legacy SimpleEditorCamera removed: editor now uses the in-game GameCamera via a host adapter.
 
     // --- Delegate with a simple height brush ---
     private static final class EditorDelegate extends com.oddlabs.tt.delegate.CameraDelegate implements Animated {
@@ -1179,11 +808,16 @@ public final class MapEditorSession {
                 int relative_y,
                 int absolute_x,
                 int absolute_y) {
-            if (button == LocalInput.MIDDLE_BUTTON && getCamera() instanceof SimpleEditorCamera) {
-                ((SimpleEditorCamera) getCamera()).rotateByMouseDelta(relative_x, relative_y);
+            if (button == LocalInput.MIDDLE_BUTTON && getCamera() instanceof com.oddlabs.tt.camera.GameCamera) {
+                ((com.oddlabs.tt.camera.GameCamera) getCamera()).rotateByMouseDelta(relative_x, relative_y);
                 return;
             }
             super.mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
+        }
+
+        public void mouseMoved(int x, int y) {
+            // Forward to camera so edge scrolling works like in-game
+            getCamera().mouseMoved(x, y);
         }
 
         protected void keyPressed(KeyboardEvent event) {

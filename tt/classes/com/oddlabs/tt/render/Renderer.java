@@ -215,9 +215,24 @@ public final strictfp class Renderer {
         GUIRoot root = gui.getGUIRoot();
         if (root != null && root.getDelegate() != null) {
             setupMatrices(root);
+        } else {
+            // Debug once: help diagnose empty frames (no delegate/camera)
+            if (!loggedNoDelegateOnce) {
+                System.err.println("[Renderer] Skipping setupMatrices: root=" + (root != null) + 
+                                   ", delegate=" + (root != null ? (root.getDelegate() != null) : false));
+                loggedNoDelegateOnce = true;
+            }
+        }
+        if (renderer_instance.ambient == null && !loggedNoAmbientOnce) {
+            System.err.println("[Renderer] Ambient audio not initialized yet during display()");
+            loggedNoAmbientOnce = true;
         }
         gui.render(ambient, frustum_state);
     }
+
+    // Debug flags to avoid spamming logs
+    private static boolean loggedNoDelegateOnce = false;
+    private static boolean loggedNoAmbientOnce = false;
 
     public static final void shutdownWithQuitScreen(GUIRoot gui_root) {
         if (!isRegistered()) {
