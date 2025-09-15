@@ -15,7 +15,6 @@ import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.viewer.DefaultInGameInfo;
 
 import java.io.File;
 import java.util.ResourceBundle;
@@ -93,8 +92,8 @@ public final class TestMapForm extends Form {
             int meters = world.getHeightMap().getMetersPerWorld();
             int gamespeed = world.getGamespeed();
 
-            GameNetwork game_network =
-                    Menu.startNewGameWithMap(
+        GameNetwork game_network =
+            Menu.startNewGameWithMap(
                             network,
                             guiRoot,
                             null,
@@ -103,7 +102,7 @@ public final class TestMapForm extends Form {
                                     "",
                                     Player.INITIAL_UNIT_COUNT,
                                     Player.DEFAULT_MAX_UNIT_COUNT),
-                            new DefaultInGameInfo(),
+                new com.oddlabs.tt.viewer.EditorTestInGameInfo(file),
                             new Menu.DefaultWorldInitAction(),
                             null,
                             meters,
