@@ -15,6 +15,12 @@
 			"type": "shell",
 			"command": "ant",
 			"group": "build"
+		},
+		{
+			"label": "ant-build",
+			"type": "shell",
+			"command": "ant",
+			"group": "build"
 		}
 	]
 }

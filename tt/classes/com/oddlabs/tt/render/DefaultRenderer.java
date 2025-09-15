@@ -188,6 +188,23 @@ public final strictfp class DefaultRenderer implements UIRenderer {
             water.rebuild(world.getHeightMap());
         }
     }
+    
+    // --- Debounced water rebuild support (mark-dirty + 10Hz rebuild in render) ---
+    private volatile boolean waterDirty = false;
+    private long lastWaterRebuildMs = 0L;
+    private static final long WATER_MIN_INTERVAL_MS = 100L; // 10Hz
+    
+    public void markWaterDirty() { waterDirty = true; }
+    
+    private void maybeRebuildWaterDebounced() {
+        if (!waterDirty) return;
+        long now = System.currentTimeMillis();
+        if (now - lastWaterRebuildMs >= WATER_MIN_INTERVAL_MS) {
+            rebuildWater();
+            lastWaterRebuildMs = now;
+            waterDirty = false;
+        }
+    }
 
     public void render(AmbientAudio ambient, CameraState frustum_state, GUIRoot gui_root) {
         ambient.updateSoundListener(frustum_state, world.getHeightMap());
@@ -243,7 +260,8 @@ public final strictfp class DefaultRenderer implements UIRenderer {
         }
 
         drawAxes();
-
+    // Debounced water VBO rebuild just before rendering water
+    maybeRebuildWaterDebounced();
         if (Globals.draw_water) water.render(sky);
 
         if (Globals.process_misc) render_queues.renderBlends();

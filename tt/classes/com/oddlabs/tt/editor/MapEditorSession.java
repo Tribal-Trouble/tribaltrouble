@@ -146,7 +146,8 @@ public final class MapEditorSession {
                                 }
                                 public void patchesEdited(int x0, int y0, int x1, int y1) {
                                     if (lrHolder[0] != null) lrHolder[0].patchesEdited(x0, y0, x1, y1);
-                                    if (drHolder[0] != null) drHolder[0].rebuildWater();
+                                    // Debounce water rebuilds: mark dirty, rebuild at most 10Hz in DefaultRenderer.render()
+                                    if (drHolder[0] != null) drHolder[0].markWaterDirty();
                                 }
                             };
 
@@ -1420,6 +1421,9 @@ public final class MapEditorSession {
                         if (brushMode == BrushMode.SMOOTH) modeScale = 0.5f; // gentle
                         else if (brushMode == BrushMode.SOFTEN) modeScale = 0.2f; // extra gentle
                         float delta = (target - curr) * brushStrengthM * modeScale * falloff * dt;
+                        // Early-out tiny changes to avoid notification churn
+                        final float EPS = 1e-4f;
+                        if (delta > -EPS && delta < EPS) continue;
                         float nh = curr + delta;
                         // Enforce editor height constraints on live edits
                         hm.editHeight(gx, gy, clampHeightForEdit(hm, gx, gy, nh));
