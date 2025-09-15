@@ -387,6 +387,9 @@ public final class MapEditorSession {
         private boolean mapDrag = false;  // true if user dragged while in map mode
         private int mapDownX = 0, mapDownY = 0;
         private static final int MAP_CLICK_TOL = 4; // pixels
+    // Track which button is pending for potential drag-edit while in map mode
+    private boolean mapLeftPending = false;
+    private boolean mapRightPending = false;
 
     // ------- Overlay tool state -------
     private enum OverlayLayer { WATER, DOCK, ACCESS, BUILD, RESOURCE, SLOPE }
@@ -542,8 +545,8 @@ public final class MapEditorSession {
         }
 
         public void animate(float t) {
-            // Disable terrain edits while in map mode
-            if (mapMode) return;
+            // While in map mode, allow edits only if a stroke is active (drag-edit)
+            if (mapMode && !strokeActive) return;
             if (!strokeActive) return;
             if (mmbDown) return;
             if (activeTool == ActiveTool.TERRAIN) applyBrush(strokeDir, t);
@@ -554,12 +557,15 @@ public final class MapEditorSession {
 
         public void mousePressed(int button, int x, int y) {
             if (mapMode) {
-                if (button == LocalInput.LEFT_BUTTON) {
+                // In map mode, record a potential click or drag-edit start; do not start a stroke yet.
+                if (button == 0 /*LMB*/ || button == 1 /*RMB*/) {
                     mapDrag = false;
                     mapDownX = x;
                     mapDownY = y;
+                    mapLeftPending = (button == 0);
+                    mapRightPending = (button == 1);
                 }
-                // While in map mode, ignore editor tool presses
+                // Swallow input from tools until we decide (click vs drag) in mouseDragged/mouseReleased
                 return;
             }
             // Activate look mode (first-person style) on MMB press
@@ -615,16 +621,34 @@ public final class MapEditorSession {
 
         public void mouseReleased(int button, int x, int y) {
             if (mapMode) {
-                if (button == LocalInput.LEFT_BUTTON) {
+                if (button == 0 /*LMB*/ || button == 1 /*RMB*/) {
                     int dx = StrictMath.abs(x - mapDownX);
                     int dy = StrictMath.abs(y - mapDownY);
                     boolean click = (dx <= MAP_CLICK_TOL && dy <= MAP_CLICK_TOL) && !mapDrag;
-                    if (click && getCamera() instanceof MapCamera) {
-                        // Click-release: jump back to previous height at clicked area
+                    if (click && button == 0 /*LMB*/ && getCamera() instanceof MapCamera) {
+                        // Clean click: jump back to previous height at clicked area; no edits
                         picker.pickMapGoto(x, y, (MapCamera) getCamera());
                         // MapCamera will animate back and call exitMapMode() when done.
+                    } else {
+                        // Drag-release while in map mode: finalize any active stroke but stay in map view
+                        if (strokeActive) {
+                            if (activeTool == ActiveTool.TERRAIN) applyStroke();
+                            strokeActive = false;
+                            flattenHeightRef = null;
+                            resourceStrokeVisited.clear();
+                            if (activeTool == ActiveTool.TERRAIN && strokeHasBounds) {
+                                finalizeTerrainRect(strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY);
+                                strokeHasBounds = false;
+                            }
+                            landscapeRenderer.endEdit();
+                        }
                     }
                 }
+                // Reset pending/drag state on release in map mode
+                leftDown = false;
+                rightDown = false;
+                mapLeftPending = false;
+                mapRightPending = false;
                 mapDrag = false;
                 return; // swallow
             }
@@ -651,6 +675,8 @@ public final class MapEditorSession {
         }
 
         public void mouseHeld(int button, int x, int y) {
+            // In map mode, we defer to click/drag logic; do not auto-start strokes from held events
+            if (mapMode) return;
             // If the user switched tools while holding the mouse button, InputState will keep
             // generating mouseHeld() events but no new mousePressed() will arrive. To honor the
             // "no mouse gating" contract, re-arm a fresh stroke here when none is active yet.
@@ -858,14 +884,21 @@ public final class MapEditorSession {
                 int absolute_x,
                 int absolute_y) {
             if (mapMode) {
-                if (button == LocalInput.LEFT_BUTTON) {
+                if (button == 0 /*LMB*/ || button == 1 /*RMB*/) {
                     int dx = x - mapDownX;
                     int dy = y - mapDownY;
                     if (!mapDrag && (StrictMath.abs(dx) > MAP_CLICK_TOL || StrictMath.abs(dy) > MAP_CLICK_TOL)) {
-                        mapDrag = true; // consider as drag, do not exit map mode on release
+                        mapDrag = true; // transition to drag-edit in map mode
+                        // Start a stroke now that we've crossed the drag threshold
+                        if (!strokeActive) {
+                            leftDown = mapLeftPending;
+                            rightDown = mapRightPending;
+                            beginStrokeForCurrentTool(leftDown);
+                        }
                     }
                 }
-                return; // do not forward drags in map mode
+                // Do not forward camera drags to keep map overview static during edits
+                return;
             }
             if (lookModeActive && button == LocalInput.MIDDLE_BUTTON) {
                 // Emulate FirstPersonCamera mouse look using center recentering
@@ -1076,6 +1109,12 @@ public final class MapEditorSession {
                 setCamera(gameCameraRef);
                 getCamera().enable();
             }
+            // Clear any pending drag/edit state to avoid phantom edits after exit
+            mapDrag = false;
+            mapLeftPending = false;
+            mapRightPending = false;
+            cancelActiveStrokeAndButtons();
+            try { landscapeRenderer.endEdit(); } catch (Throwable ignore) {}
         }
 
         private static long keyOf(int gx, int gy) {
