@@ -25,8 +25,10 @@ public final strictfp class PulldownButton extends GUIObject {
         super.setHidden(hidden);
         hiddenFlag = hidden;
         if (hidden) {
-            // If this control is hidden while its menu is open, forcibly close and reset state
-            if (menu.isActive()) menu.remove();
+            // If this control is hidden, forcibly close and reset menu state
+            // Explicitly defocus the menu so its internal 'active' flag is cleared
+            menu.focusNotifyAll(false);
+            menu.remove();
             menu_active = false;
         }
         // Hidden controls should not be focusable or participate in picking
@@ -37,8 +39,10 @@ public final strictfp class PulldownButton extends GUIObject {
     public void setDisabled(boolean disabled) {
         super.setDisabled(disabled);
         if (disabled) {
-            // If disabled during an open menu, close it and reset state
-            if (menu.isActive()) menu.remove();
+            // If disabled, always close the menu and reset state
+            // Explicitly defocus first to ensure active state is cleared
+            menu.focusNotifyAll(false);
+            menu.remove();
             menu_active = false;
         }
         // Disabled controls should not be focusable to avoid intercepting events
@@ -121,17 +125,22 @@ public final strictfp class PulldownButton extends GUIObject {
         if (x > maxX) x = maxX;
         if (y > maxY) y = maxY;
         menu.setPos(x, y);
+        // Ensure any previously attached instance is detached before re-adding
+        menu.remove();
         // Attach to modal layer when present so it renders above the modal form and can receive focus
         if (gui_root.getModalDelegate() != null) {
             gui_root.getModalDelegate().addChild(menu);
         } else {
             gui_root.getDelegate().addChild(menu);
         }
+        // Give the menu focus so clicking elsewhere will defocus and close it
+        menu.setFocus();
     }
 
     private void deactivateMenu() {
         menu_active = false;
-        // Do not alter focus here to avoid hijacking editor input when menus are closed
+        // Defocus menu to clear its active state, then remove it
+        menu.focusNotifyAll(false);
         menu.remove();
     }
 
@@ -151,7 +160,8 @@ public final strictfp class PulldownButton extends GUIObject {
         public final void itemChosen(PulldownMenu menu, int item_index) {
             PulldownItem item = menu.getItem(item_index);
             label.set(item.getLabelString());
-            if (menu.isActive()) deactivateMenu();
+            // Always close the menu after a selection to reset state
+            deactivateMenu();
         }
     }
 }
