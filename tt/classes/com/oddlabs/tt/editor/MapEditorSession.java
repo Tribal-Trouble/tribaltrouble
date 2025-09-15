@@ -491,6 +491,8 @@ public final class MapEditorSession {
         }
 
         private boolean mmbDown = false; // don't apply brush while middle mouse is down
+    private boolean lookModeActive = false; // editor first-person style look while MMB held
+    private int lookBaseX, lookBaseY; // screen center for recentering pointer during look mode
         private LabelBox helpBox = null; // toggled with F1
 
         private void toggleHelp() {
@@ -539,10 +541,18 @@ public final class MapEditorSession {
         public void updateChecksum(com.oddlabs.tt.util.StateChecksum checksum) {}
 
         public void mousePressed(int button, int x, int y) {
+            // Activate look mode (first-person style) on MMB press
+            if (button == LocalInput.MIDDLE_BUTTON) {
+                mmbDown = true; // retain existing gating for brush application
+                lookModeActive = true;
+                lookBaseX = com.oddlabs.tt.render.Display.getWidth() / 2;
+                lookBaseY = com.oddlabs.tt.render.Display.getHeight() / 2;
+                try { com.oddlabs.tt.input.PointerInput.setCursorPosition(lookBaseX, lookBaseY); } catch (Throwable ignore) {}
+                return; // do not start strokes when entering look mode
+            }
             // Resource tool supports LMB (paint) and RMB (erase)
             if (button == 0) leftDown = true;
             if (button == 1) rightDown = true;
-            if (button == LocalInput.MIDDLE_BUTTON) mmbDown = true;
             // Polyline tools (Ramp/Path/River): LMB add, RMB undo. Don't start a stroke.
             if (activeTool == ActiveTool.TERRAIN && (brushMode == BrushMode.RAMP || brushMode == BrushMode.RIVER)) {
                 LandscapeLocation hit = new LandscapeLocation();
@@ -585,7 +595,10 @@ public final class MapEditorSession {
         public void mouseReleased(int button, int x, int y) {
             if (button == 0) leftDown = false;
             if (button == 1) rightDown = false;
-            if (button == LocalInput.MIDDLE_BUTTON) mmbDown = false;
+            if (button == LocalInput.MIDDLE_BUTTON) {
+                mmbDown = false;
+                lookModeActive = false; // exit look mode
+            }
             if (!leftDown && !rightDown) {
                 // Apply accumulated stroke in one go
                 if (strokeActive && activeTool == ActiveTool.TERRAIN) applyStroke();
@@ -799,7 +812,8 @@ public final class MapEditorSession {
             }
         }
 
-        // Enable middle-mouse drag camera look for editor
+        // (Removed legacy fpLookDelegate block; lookMode is handled in the primary mousePressed/mouseReleased implementation earlier.)
+
         public void mouseDragged(
                 int button,
                 int x,
@@ -808,15 +822,55 @@ public final class MapEditorSession {
                 int relative_y,
                 int absolute_x,
                 int absolute_y) {
-            if (button == LocalInput.MIDDLE_BUTTON && getCamera() instanceof com.oddlabs.tt.camera.GameCamera) {
-                ((com.oddlabs.tt.camera.GameCamera) getCamera()).rotateByMouseDelta(relative_x, relative_y);
-                return;
+            if (lookModeActive && button == LocalInput.MIDDLE_BUTTON) {
+                // Emulate FirstPersonCamera mouse look using center recentering
+                int dx = x - lookBaseX;
+                int dy = y - lookBaseY;
+                if (dx != 0 || dy != 0) {
+                    final float SCALE = .002f; // same as FirstPersonCamera constants
+                    float ha = getCamera().getState().getTargetHorizAngle() - dx * SCALE;
+                    float va = getCamera().getState().getTargetVertAngle();
+                    if (com.oddlabs.tt.global.Settings.getSettings().invert_camera_pitch)
+                        va -= dy * SCALE;
+                    else
+                        va += dy * SCALE;
+                    getCamera().getState().setCamera(
+                            getCamera().getState().getTargetX(),
+                            getCamera().getState().getTargetY(),
+                            getCamera().getState().getTargetZ(),
+                            va,
+                            ha);
+                    try { com.oddlabs.tt.input.PointerInput.setCursorPosition(lookBaseX, lookBaseY); } catch (Throwable ignore) {}
+                }
+                return; // consume
             }
             super.mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
         }
 
         public void mouseMoved(int x, int y) {
-            // Forward to camera so edge scrolling works like in-game
+            if (lookModeActive) {
+                // Treat passive movement (in case some platforms deliver moved not dragged)
+                int dx = x - lookBaseX;
+                int dy = y - lookBaseY;
+                if (dx != 0 || dy != 0) {
+                    final float SCALE = .002f;
+                    float ha = getCamera().getState().getTargetHorizAngle() - dx * SCALE;
+                    float va = getCamera().getState().getTargetVertAngle();
+                    if (com.oddlabs.tt.global.Settings.getSettings().invert_camera_pitch)
+                        va -= dy * SCALE;
+                    else
+                        va += dy * SCALE;
+                    getCamera().getState().setCamera(
+                            getCamera().getState().getTargetX(),
+                            getCamera().getState().getTargetY(),
+                            getCamera().getState().getTargetZ(),
+                            va,
+                            ha);
+                    try { com.oddlabs.tt.input.PointerInput.setCursorPosition(lookBaseX, lookBaseY); } catch (Throwable ignore) {}
+                }
+                return;
+            }
+            // Forward to camera for edge scrolling when not in look mode
             getCamera().mouseMoved(x, y);
         }
 
