@@ -316,6 +316,8 @@ public final class MapEditorSession {
         private final Animated extraAnimationDriver;
         private final int terrainType;
     private final DefaultRenderer defaultRenderer;
+        // Cached overlay renderer (per-patch display lists)
+        private final EditorOverlayRenderer overlayRenderer;
         // Toolbar UI (non-modal)
         private com.oddlabs.tt.editor.ui.EditorToolbar toolbar;
         // Binding surface for brush sliders
@@ -464,6 +466,7 @@ public final class MapEditorSession {
             this.extraAnimationDriver = extraAnimationDriver;
             this.terrainType = terrainType;
             this.defaultRenderer = defaultRenderer;
+            this.overlayRenderer = new EditorOverlayRenderer(world);
             // Register for real-time ticks to drive brush application cadence
             world.getAnimationManagerRealTime().registerAnimation(this);
             getGUIRoot()
@@ -1370,6 +1373,8 @@ public final class MapEditorSession {
                             world, cminGX, cminGY, cmaxGX, cmaxGY);
                 } catch (Throwable ignore) {}
             }
+            // Invalidate cached overlays for the edited region so they rebuild next frame
+            try { overlayRenderer.markDirtyROI(cminGX, cminGY, cmaxGX, cmaxGY); } catch (Throwable ignore) {}
             // Reblend colormap for ROI
             try {
                 EditorColormapReblender.reblendROIFromScratch(
@@ -1777,6 +1782,7 @@ public final class MapEditorSession {
                             // Update placement validity for this tile now that occupancy changed
                             if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                                 try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
+                                try { overlayRenderer.markDirtyROI(gx, gy, gx, gy); } catch (Throwable ignore) {}
                             }
                             // Also remove decorative plants in this cell
                             try { removePlantsInCell(gx, gy); } catch (Throwable ignore) {}
@@ -1784,6 +1790,7 @@ public final class MapEditorSession {
                             ((com.oddlabs.tt.model.SupplyModel) occ).editorRemoveNow();
                             if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                                 try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
+                                try { overlayRenderer.markDirtyROI(gx, gy, gx, gy); } catch (Throwable ignore) {}
                             }
                             try { removePlantsInCell(gx, gy); } catch (Throwable ignore) {}
                         } else if (occ instanceof com.oddlabs.tt.pathfinder.StaticOccupant) {
@@ -1843,6 +1850,7 @@ public final class MapEditorSession {
                             // Update placement validity to reflect new occupancy
                             if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                                 try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
+                                try { overlayRenderer.markDirtyROI(gx, gy, gx, gy); } catch (Throwable ignore) {}
                             }
                         }
                         else {
@@ -2099,80 +2107,34 @@ public final class MapEditorSession {
         // Overlay modes removed; only default threshold visualization remains.
 
         private void drawOverlay(LandscapeRenderer renderer) {
-            com.oddlabs.tt.landscape.HeightMap hm = renderer.getHeightMap();
-            int size = hm.getGridUnitsPerWorld();
-            float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
-
-            // Conservative coverage: draw overlay for the whole map while enabled.
-            // This avoids view-frustum underestimation artifacts and ensures all visible tiles render.
-            int x0 = 0;
-            int y0 = 0;
-            int x1 = size - 1;
-            int y1 = size - 1;
-
-            boolean[][] water = hm.getWaterGrid();
-            boolean[][] dock = hm.getDockGrid();
-            boolean[][] access = hm.getAccessGrid();
-            byte[][] build = hm.getBuildGrid();
-            boolean[][] place = com.oddlabs.tt.editor.EditorResourceValidity.getPlacementGrid(world);
-
+            // Render using cached per-patch display lists to avoid per-frame per-cell work
             GL11.glDisable(GL11.GL_TEXTURE_2D);
-            // Draw overlays on top of terrain to avoid z-fighting gaps between tiles
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glDepthMask(false);
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-            for (int gy = y0; gy <= y1; gy++) {
-                for (int gx = x0; gx <= x1; gx++) {
-                    float wx = gx * cell;
-                    float wy = gy * cell;
-                    float h = hm.getWrappedHeight(gx, gy);
-                    // choose value based on layer
-                    float value = 0f;
-                    float r=0f,g=0f,b=0f,a=0.35f;
-                    switch (overlayLayer) {
-                        case WATER:
-                            value = (water != null && water[gy][gx]) ? 1f : 0f;
-                            r=0f; g=0.4f; b=1f; break;
-                        case DOCK:
-                            value = (dock != null && dock[gy][gx]) ? 1f : 0f;
-                            r=0f; g=1f; b=1f; break;
-                        case ACCESS:
-                            value = (access != null && access[gy][gx]) ? 1f : 0f;
-                            r=0.1f; g=1f; b=0.1f; break;
-                        case BUILD:
-                            value = (build != null && build[gy][gx] != 0) ? 1f : 0f;
-                            r=1f; g=1f; b=0f; break;
-                        case RESOURCE:
-                            value = (place != null && place[gy][gx]) ? 1f : 0f;
-                            r=1f; g=0.5f; b=0f; break;
-                        case SLOPE:
-                            // simple normalized slope approximation using neighbors
-                            float hR = hm.getWrappedHeight(gx+1, gy);
-                            float hU = hm.getWrappedHeight(gx, gy+1);
-                            float sx = StrictMath.abs(hR - h) / cell;
-                            float sy = StrictMath.abs(hU - h) / cell;
-                            value = (float) StrictMath.min(1f, StrictMath.hypot(sx, sy) * 0.5f);
-                            r=1f; g=0f; b=0f; break;
-                    }
-                    // Threshold-only visualization (default): draw cell if value >= 0.5
-                    if (value < 0.5f) continue;
-                    float alpha = a;
-                    // Draw as a filled quad at cell corners, sampling each corner height to avoid gaps
-                    float z00 = hm.getNearestHeight(wx, wy) + 0.02f;
-                    float z10 = hm.getNearestHeight(wx + cell, wy) + 0.02f;
-                    float z11 = hm.getNearestHeight(wx + cell, wy + cell) + 0.02f;
-                    float z01 = hm.getNearestHeight(wx, wy + cell) + 0.02f;
-                    GL11.glColor4f(r, g, b, alpha);
-                    GL11.glBegin(GL11.GL_QUADS);
-                    GL11.glVertex3f(wx, wy, z00);
-                    GL11.glVertex3f(wx+cell, wy, z10);
-                    GL11.glVertex3f(wx+cell, wy+cell, z11);
-                    GL11.glVertex3f(wx, wy+cell, z01);
-                    GL11.glEnd();
-                }
+            float cr=0f,cg=0f,cb=0f,ca=0.35f;
+            switch (overlayLayer) {
+                case WATER:    cr=0f;   cg=0.4f; cb=1f;   break;
+                case DOCK:     cr=0f;   cg=1f;   cb=1f;   break;
+                case ACCESS:   cr=0.1f; cg=1f;   cb=0.1f; break;
+                case BUILD:    cr=1f;   cg=1f;   cb=0f;   break;
+                case RESOURCE: cr=1f;   cg=0.5f; cb=0f;   break;
+                case SLOPE:    cr=1f;   cg=0f;   cb=0f;   break;
             }
+            GL11.glColor4f(cr, cg, cb, ca);
+
+            EditorOverlayRenderer.Layer layer;
+            switch (overlayLayer) {
+                case WATER: layer = EditorOverlayRenderer.Layer.WATER; break;
+                case DOCK: layer = EditorOverlayRenderer.Layer.DOCK; break;
+                case ACCESS: layer = EditorOverlayRenderer.Layer.ACCESS; break;
+                case BUILD: layer = EditorOverlayRenderer.Layer.BUILD; break;
+                case RESOURCE: layer = EditorOverlayRenderer.Layer.RESOURCE; break;
+                case SLOPE: default: layer = EditorOverlayRenderer.Layer.SLOPE; break;
+            }
+            overlayRenderer.draw(layer);
 
             GL11.glDisable(GL11.GL_BLEND);
             GL11.glDepthMask(true);
