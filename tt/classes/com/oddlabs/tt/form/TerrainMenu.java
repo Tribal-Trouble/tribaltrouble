@@ -109,6 +109,9 @@ public final class TerrainMenu extends Group {
     private int seed;
     private boolean show_demo = true;
 
+    // Reusable players panel for Single Player standard options
+    private PlayersSection playersSection; // only used when multiplayer == false
+
     // Manual map selection moved to Map Editor; keep Single Player focused on procedural settings.
     // Manual map selection moved to Map Editor; keep Single Player focused on procedural settings.
 
@@ -374,8 +377,8 @@ public final class TerrainMenu extends Group {
         pulldown_player_slots.place(label_player_slots, RIGHT_MID);
         group_num_players.compileCanvas();
 
-        // races and teams
-        ScrollableGroup group_race_team = new ScrollableGroup(200, 64);
+    // races and teams (legacy single-player UI; multiplayer does not use this block)
+    ScrollableGroup group_race_team = new ScrollableGroup(200, 64);
         labels_players = new Label[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         race_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
@@ -428,7 +431,7 @@ public final class TerrainMenu extends Group {
                 String player_str =
                         Utils.getBundleString(bundle, "player", new Object[] {Integer.toString(1)});
                 labels_players[0] = new Label(player_str, Skin.getSkin().getEditFont());
-                labels_players[0].setColor(Player.COLORS[0]);
+                labels_players[0].setColor(Player.COLORS[0 % Player.COLORS.length]);
                 group_race_team.addChild(labels_players[0]);
                 labels_players[0].place();
                 difficulty_pulldown_buttons[0].place(labels_players[0], RIGHT_MID);
@@ -439,7 +442,7 @@ public final class TerrainMenu extends Group {
                         Utils.getBundleString(
                                 bundle, "player", new Object[] {Integer.toString(i + 1)});
                 labels_players[i] = new Label(player_str, Skin.getSkin().getEditFont());
-                labels_players[i].setColor(Player.COLORS[i]);
+                labels_players[i].setColor(Player.COLORS[i % Player.COLORS.length]);
                 group_race_team.addChild(labels_players[i]);
                 labels_players[i].place(labels_players[i - 1], BOTTOM_RIGHT);
                 difficulty_pulldown_buttons[i].place(labels_players[i], RIGHT_MID);
@@ -452,8 +455,13 @@ public final class TerrainMenu extends Group {
             team_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
         }
         if (!multiplayer) {
+            // Use the shared PlayersSection in the Single Player standard panel
+            playersSection = new PlayersSection(gui_root, bundle);
+            standard.addChild(playersSection);
+        } else {
+            // Multiplayer retains its own lobby UI elsewhere; keep structure intact
             group_race_team.compileCanvas();
-            standard.addChild(group_race_team);
+            // (not added to multiplayer standard panel)
         }
 
         // buttons
@@ -490,7 +498,7 @@ public final class TerrainMenu extends Group {
         standard.addChild(group_map_options);
 
         // standard
-        if (multiplayer) {
+    if (multiplayer) {
             label_name.place();
             if (Renderer.isRegistered()) editline_name.place(label_name, RIGHT_MID);
             else label_default_name.place(label_name, RIGHT_MID);
@@ -498,11 +506,11 @@ public final class TerrainMenu extends Group {
                     label_name, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
             group_map_options.place(cb_rated, BOTTOM_LEFT);
         } else {
-            group_map_options.place();
-            group_race_team.place(
-                    group_map_options,
-                    BOTTOM_LEFT,
-                    Skin.getSkin().getFormData().getSectionSpacing());
+        group_map_options.place();
+        playersSection.place(
+            group_map_options,
+            BOTTOM_LEFT,
+            Skin.getSkin().getFormData().getSectionSpacing());
         }
 
         standard.compileCanvas();
@@ -517,9 +525,14 @@ public final class TerrainMenu extends Group {
 
         PanelGroup panel_group = new PanelGroup(new Panel[] {standard, advanced}, 0);
         addChild(panel_group);
-        pulldown_menu_slots.addItemChosenListener(
-                new PulldownUpdatePlayersChangedListener(
-                        group_race_team, standard, panel_group, this, multiplayer, label_headline));
+        // In single player, keep the advanced "Players" pulldown but make it drive PlayersSection
+        if (!multiplayer && playersSection != null) {
+            pulldown_menu_slots.addItemChosenListener(new ItemChosenListener() {
+                public void itemChosen(PulldownMenu menu, int item_index) {
+                    playersSection.getSlotsMenu().chooseItem(item_index);
+                }
+            });
+        }
 
         // Place objects
         label_headline.place();
@@ -771,7 +784,9 @@ public final class TerrainMenu extends Group {
                                 * LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
         random.nextInt();
         BigInteger rand_int = new BigInteger(100, random);
-        parseBigIntegerLegacy(rand_int);
+        if (multiplayer) {
+            parseBigIntegerLegacy(rand_int);
+        }
         setMapcode();
     if (!multiplayer) onTerrainSettingChanged("randomized");
     }
@@ -819,15 +834,27 @@ public final class TerrainMenu extends Group {
                             random_start_pos,
                             Player.DEFAULT_MAX_UNIT_COUNT);
         } else {
+            // Single player: validate via PlayersSection and use its values
+            int count = (playersSection != null) ? playersSection.getPlayerCount() : player_count;
+            int team0 = (playersSection != null) ? playersSection.getTeamIndex(0) : 0;
             boolean has_enemy = false;
-            for (int i = 1; i < race_pulldown_menus.length; i++)
-                if (isChosen(difficulty_pulldown_menus[i])
-                        && team_pulldown_menus[i].getChosenItemIndex()
-                                != team_pulldown_menus[0].getChosenItemIndex()) has_enemy = true;
+            if (playersSection != null) {
+                for (int i = 1; i < count; i++) {
+                    if (playersSection.isAI(i) && playersSection.getTeamIndex(i) != team0) {
+                        has_enemy = true;
+                        break;
+                    }
+                }
+            } else {
+                // Fallback: legacy controls
+                for (int i = 1; i < race_pulldown_menus.length; i++)
+                    if (isChosen(difficulty_pulldown_menus[i])
+                            && team_pulldown_menus[i].getChosenItemIndex()
+                                    != team_pulldown_menus[0].getChosenItemIndex()) has_enemy = true;
+            }
             if (!has_enemy) {
-        String min_name =
-            Utils.getBundleString(
-                bundle, "min_num_teams", new Object[] {Integer.valueOf(2)});
+                String min_name =
+                        Utils.getBundleString(bundle, "min_num_teams", new Object[] {Integer.valueOf(2)});
                 gui_root.addModalForm(new MessageForm(min_name));
                 return false;
             }
@@ -875,31 +902,56 @@ public final class TerrainMenu extends Group {
                         seed * seed,
                         ARCHIPELAGO[pulldown_size.getChosenItemIndex()],
             generateAINames(),
-            player_count,
+            (multiplayer ? player_count : (playersSection != null ? playersSection.getPlayerCount() : player_count)),
             null);
-        game_network
-                .getClient()
-                .getServerInterface()
-                .setPlayerSlot(
-                        0,
-                        PlayerSlot.HUMAN,
-                        race_pulldown_menus[0].getChosenItemIndex(),
-                        team_pulldown_menus[0].getChosenItemIndex(),
-                        !multiplayer,
-                        PlayerSlot.AI_NONE);
+    int race0 = multiplayer
+        ? race_pulldown_menus[0].getChosenItemIndex()
+        : (playersSection != null ? playersSection.getRaceIndex(0) : race_pulldown_menus[0].getChosenItemIndex());
+    int team0 = multiplayer
+        ? team_pulldown_menus[0].getChosenItemIndex()
+        : (playersSection != null ? playersSection.getTeamIndex(0) : team_pulldown_menus[0].getChosenItemIndex());
+    game_network
+        .getClient()
+        .getServerInterface()
+        .setPlayerSlot(
+            0,
+            PlayerSlot.HUMAN,
+            race0,
+            team0,
+            !multiplayer,
+            PlayerSlot.AI_NONE);
         if (!multiplayer) {
-            for (int i = 1; i < race_pulldown_menus.length; i++) {
-                if (isChosen(difficulty_pulldown_menus[i]))
-                    game_network
-                            .getClient()
-                            .getServerInterface()
-                            .setPlayerSlot(
-                                    i,
-                                    PlayerSlot.AI,
-                                    race_pulldown_menus[i].getChosenItemIndex(),
-                                    team_pulldown_menus[i].getChosenItemIndex(),
-                                    true,
-                                    difficulty_pulldown_menus[i].getChosenItemIndex());
+            if (playersSection != null) {
+                int count = playersSection.getPlayerCount();
+                // Slot 0 already set above
+                for (int i = 1; i < count; i++) {
+                    if (playersSection.isAI(i)) {
+                        game_network
+                                .getClient()
+                                .getServerInterface()
+                                .setPlayerSlot(
+                                        i,
+                                        PlayerSlot.AI,
+                                        playersSection.getRaceIndex(i),
+                                        playersSection.getTeamIndex(i),
+                                        true,
+                                        playersSection.getAIDifficultyIndex(i));
+                    }
+                }
+            } else {
+                for (int i = 1; i < race_pulldown_menus.length; i++) {
+                    if (isChosen(difficulty_pulldown_menus[i]))
+                        game_network
+                                .getClient()
+                                .getServerInterface()
+                                .setPlayerSlot(
+                                        i,
+                                        PlayerSlot.AI,
+                                        race_pulldown_menus[i].getChosenItemIndex(),
+                                        team_pulldown_menus[i].getChosenItemIndex(),
+                                        true,
+                                        difficulty_pulldown_menus[i].getChosenItemIndex());
+                }
             }
             game_network.getClient().getServerInterface().startServer();
             System.out.println("Start server");
@@ -963,133 +1015,7 @@ public final class TerrainMenu extends Group {
         }
     }
 
-    private final class PulldownUpdatePlayersChangedListener
-            implements ItemChosenListener {
-        ScrollableGroup group_race_team;
-        Panel standard;
-        PanelGroup panel_group;
-        TerrainMenu terrain_menu;
-        boolean is_multiplayer;
-        Label label_headline;
-
-        public PulldownUpdatePlayersChangedListener(
-                ScrollableGroup group_race_team,
-                Panel standard,
-                PanelGroup panel_group,
-                TerrainMenu terrain_menu,
-                boolean is_multiplayer,
-                Label label_headline) {
-            this.group_race_team = group_race_team;
-            this.standard = standard;
-            this.panel_group = panel_group;
-            this.terrain_menu = terrain_menu;
-            this.is_multiplayer = is_multiplayer;
-            this.label_headline = label_headline;
-        }
-
-        public final void itemChosen(PulldownMenu menu, int item_index) {
-            player_count = item_index + min_players;
-            if (is_multiplayer) return;
-
-            // For single player we need to redraw all the controls (Actually multiplayer doesn't
-            // use these controls...)
-            group_race_team.clearChildren();
-            standard.removeChild(group_race_team);
-            group_race_team = new ScrollableGroup(200, 64);
-            group_race_team.place();
-            standard.addChild(group_race_team);
-            for (int i = 0; i < player_count; i++) {
-                difficulty_pulldown_menus[i] = new PulldownMenu();
-                race_pulldown_menus[i] = new PulldownMenu();
-                team_pulldown_menus[i] = new ScrollablePulldownMenu(6);
-
-                if (i == 0) {
-                    difficulty_pulldown_menus[i].addItem(
-                            new PulldownItem(Utils.getBundleString(bundle, "human")));
-                } else {
-                    difficulty_pulldown_menus[i].addItem(
-                            new PulldownItem(Utils.getBundleString(bundle, "closed")));
-                    difficulty_pulldown_menus[i].addItem(
-                            new PulldownItem(Utils.getBundleString(bundle, "easy_ai")));
-                    difficulty_pulldown_menus[i].addItem(
-                            new PulldownItem(Utils.getBundleString(bundle, "normal_ai")));
-                    PulldownItem hard = new PulldownItem(Utils.getBundleString(bundle, "hard_ai"));
-                    difficulty_pulldown_menus[i].addItem(hard);
-                }
-
-                difficulty_pulldown_buttons[i] =
-                        new PulldownButton(gui_root, difficulty_pulldown_menus[i], 0, 115);
-                group_race_team.addChild(difficulty_pulldown_buttons[i]);
-
-                for (int j = 0; j < RacesResources.getNumRaces(); j++) {
-                    PulldownItem pulldown_item_race =
-                            new PulldownItem(RacesResources.getRaceName(j));
-                    race_pulldown_menus[i].addItem(pulldown_item_race);
-                }
-
-                race_pulldown_buttons[i] =
-                        new PulldownButton(gui_root, race_pulldown_menus[i], 0, 115);
-                group_race_team.addChild(race_pulldown_buttons[i]);
-                for (int j = 0; j < player_count; j++) {
-                    String team_str =
-                            Utils.getBundleString(
-                                    bundle, "team", new Object[] {Integer.toString(j + 1)});
-                    PulldownItem pulldown_item_team = new PulldownItem(team_str);
-                    team_pulldown_menus[i].addItem(pulldown_item_team);
-                }
-                team_pulldown_buttons[i] =
-                        new PulldownButton(
-                                gui_root,
-                                team_pulldown_menus[i],
-                                StrictMath.min(i, player_count - 1),
-                                115);
-                group_race_team.addChild(team_pulldown_buttons[i]);
-                if (i == 0) {
-                    String player_str =
-                            Utils.getBundleString(
-                                    bundle, "player", new Object[] {Integer.toString(1)});
-                    labels_players[0] = new Label(player_str, Skin.getSkin().getEditFont());
-                    labels_players[0].setColor(Player.COLORS[0]);
-                    group_race_team.addChild(labels_players[0]);
-                    labels_players[0].place();
-                    difficulty_pulldown_buttons[0].place(labels_players[0], RIGHT_MID);
-                    race_pulldown_buttons[0].place(difficulty_pulldown_buttons[0], RIGHT_MID);
-                    team_pulldown_buttons[0].place(race_pulldown_buttons[0], RIGHT_MID);
-                } else {
-                    String player_str =
-                            Utils.getBundleString(
-                                    bundle, "player", new Object[] {Integer.toString(i + 1)});
-                    labels_players[i] = new Label(player_str, Skin.getSkin().getEditFont());
-                    labels_players[i].setColor(Player.COLORS[i]);
-                    group_race_team.addChild(labels_players[i]);
-                    labels_players[i].place(labels_players[i - 1], BOTTOM_RIGHT);
-                    difficulty_pulldown_buttons[i].place(labels_players[i], RIGHT_MID);
-                    race_pulldown_buttons[i].place(difficulty_pulldown_buttons[i], RIGHT_MID);
-                    team_pulldown_buttons[i].place(race_pulldown_buttons[i], RIGHT_MID);
-                    difficulty_pulldown_menus[i].addItemChosenListener(new DisableListener(i));
-                }
-                difficulty_pulldown_menus[i].addItemChosenListener(
-                        new PulldownUpdateMapcodeListener());
-                race_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
-                team_pulldown_menus[i].addItemChosenListener(new PulldownUpdateMapcodeListener());
-                // setup defaults
-                if (i == 1) {
-                    difficulty_pulldown_menus[i].chooseItem(1);
-                } else if (i != 0) {
-                    difficulty_pulldown_menus[i].chooseItem(0);
-                }
-            }
-
-            group_race_team.compileCanvas();
-            standard.setDim(standard.getWidth(), standard.getHeight());
-            // For some reason we need to reset the position of the panel group and
-            // the top label by the height of the panel group or we run into infinite growth.
-            // Hacky but -- the ui is rough
-            panel_group.setPos(0, panel_group.getY() - panel_group.getHeight());
-            label_headline.setPos(0, label_headline.getY() - panel_group.getHeight());
-            terrain_menu.compileCanvas();
-        }
-    }
+    // Removed legacy listener; PlayersSection manages players in Single Player
 
     private final class PulldownUpdateSizeListener implements ItemChosenListener {
         public final void itemChosen(PulldownMenu menu, int item_index) {

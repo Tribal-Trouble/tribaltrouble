@@ -8,6 +8,8 @@ import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.PulldownButton;
 import com.oddlabs.tt.gui.PulldownItem;
 import com.oddlabs.tt.gui.PulldownMenu;
+import com.oddlabs.tt.gui.ScrollableGroup;
+import com.oddlabs.tt.gui.ScrollablePulldownMenu;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.player.Player;
@@ -38,7 +40,7 @@ public final class PlayersSection extends Group {
     private final Label[] labels_players;
     private final PulldownMenu[] difficulty_menus; // 0: human/closed, 1..: AI
     private final PulldownMenu[] race_menus;
-    private final PulldownMenu[] team_menus;
+    private final ScrollablePulldownMenu[] team_menus;
     private final PulldownButton[] difficulty_buttons;
     private final PulldownButton[] race_buttons;
     private final PulldownButton[] team_buttons;
@@ -46,7 +48,8 @@ public final class PlayersSection extends Group {
     private final PulldownMenu slots_menu;
     private final PulldownButton slots_button;
 
-    private int player_count = 6; // mirror TerrainMenu default
+    private static final int MIN_PLAYERS = 6; // mirror TerrainMenu default
+    private int player_count = MIN_PLAYERS;
 
     public PlayersSection(GUIRoot guiRoot) {
         this(guiRoot, ResourceBundle.getBundle(TerrainMenu.class.getName()));
@@ -62,22 +65,24 @@ public final class PlayersSection extends Group {
         group_num_players.addChild(label_player_slots);
         label_player_slots.place();
 
-        slots_menu = new PulldownMenu();
-        for (int i = 1; i <= MatchmakingServerInterface.MAX_PLAYERS; i++) {
+        // Scrollable player-count pulldown, range 6..MAX
+        slots_menu = new ScrollablePulldownMenu(6);
+        for (int i = MIN_PLAYERS; i <= MatchmakingServerInterface.MAX_PLAYERS; i++) {
             slots_menu.addItem(new PulldownItem(Integer.toString(i)));
         }
-        slots_button = new PulldownButton(guiRoot, slots_menu, 5, 150);
+        // Default selection: 6 players (index 0)
+        slots_button = new PulldownButton(guiRoot, slots_menu, 0, 150);
         group_num_players.addChild(slots_button);
-    slots_button.place(label_player_slots, GUIObject.RIGHT_MID);
+        slots_button.place(label_player_slots, GUIObject.RIGHT_MID);
         group_num_players.compileCanvas();
         addChild(group_num_players);
 
-        // Players grid: label + [human/ai] [race] [team]
-        Group group_race_team = new Group();
+        // Players grid (scrollable): label + [human/ai] [race] [team]
+        ScrollableGroup group_race_team = new ScrollableGroup(200, 64);
         labels_players = new Label[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         race_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
-        team_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
+    team_menus = new ScrollablePulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         race_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
         team_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
@@ -86,7 +91,7 @@ public final class PlayersSection extends Group {
         for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
             difficulty_menus[i] = new PulldownMenu();
             race_menus[i] = new PulldownMenu();
-            team_menus[i] = new PulldownMenu();
+            team_menus[i] = new ScrollablePulldownMenu(6);
 
             if (i == 0) {
                 // Local player: fixed Human entry
@@ -116,7 +121,7 @@ public final class PlayersSection extends Group {
 
             String player_str = Utils.getBundleString(bundle, "player", new Object[] {Integer.toString(i + 1)});
             labels_players[i] = new Label(player_str, font);
-            labels_players[i].setColor(Player.COLORS[i]);
+            labels_players[i].setColor(Player.COLORS[i % Player.COLORS.length]);
             group_race_team.addChild(labels_players[i]);
 
             if (i == 0) {
@@ -140,7 +145,8 @@ public final class PlayersSection extends Group {
         Skin.getSkin().getFormData().getSectionSpacing());
 
         // Defaults: slot 0 human, team 1; others closed and team=slot index+1
-        slots_menu.chooseItem(player_count - 1);
+        // Align pulldown to current default player_count (6)
+        slots_menu.chooseItem(player_count - MIN_PLAYERS);
         race_buttons[0].getMenu().chooseItem(0);
         team_buttons[0].getMenu().chooseItem(0);
         for (int i = 1; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
@@ -175,7 +181,7 @@ public final class PlayersSection extends Group {
         // Update player_count when slots pulldown changes
         slots_menu.addItemChosenListener(new ItemChosenListener() {
             public void itemChosen(PulldownMenu menu, int item_index) {
-                player_count = item_index + 1;
+                player_count = item_index + MIN_PLAYERS;
                 refreshEnabledState();
             }
         });
