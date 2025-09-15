@@ -1323,7 +1323,9 @@ public final class MapEditorSession {
                 long k = e.getKey();
                 int gx = (int) (k >> 32);
                 int gy = (int) k;
-                float base = strokeBaseline.getOrDefault(k, hm.getWrappedHeight(gx, gy));
+                // Skip any out-of-bounds entries to avoid wrap-around at edges
+                if (!hm.isGridInside(gx, gy)) continue;
+                float base = strokeBaseline.getOrDefault(k, hm.getHeight(gx, gy));
                 float nh = base + e.getValue();
                 // Enforce editor height constraints on stroke apply
                 hm.editHeight(gx, gy, clampHeightForEdit(hm, gx, gy, nh));
@@ -1359,6 +1361,8 @@ public final class MapEditorSession {
                     float norm = (ldx * ldx) / (rx * rx) + (ldy * ldy) / (ry * ry);
                     if (norm > 1f) continue;
                     float falloff = (float) StrictMath.pow(Math.max(0f, 1f - norm), hardnessExp);
+                    // Ignore out-of-bounds cells so the halo doesn't wrap to the other side
+                    if (!hm.isGridInside(gx, gy)) continue;
 
                     long key = keyOf(gx, gy);
 
@@ -1366,14 +1370,14 @@ public final class MapEditorSession {
                         // Accumulate deltas relative to stroke baseline; apply on release
                         float base = strokeBaseline.containsKey(key)
                                 ? strokeBaseline.get(key)
-                                : hm.getWrappedHeight(gx, gy);
+                                : hm.getHeight(gx, gy);
                         if (!strokeBaseline.containsKey(key)) strokeBaseline.put(key, base);
                         float delta = brushStrengthM * dir * falloff * dt;
                         float acc = strokeAccum.getOrDefault(key, 0f);
                         strokeAccum.put(key, acc + delta);
                     } else {
                         // Live updates: compute from current height and apply immediately
-                        float curr = hm.getWrappedHeight(gx, gy);
+                        float curr = hm.getHeight(gx, gy);
                         float target;
                         switch (brushMode) {
                             case SMOOTH: {
@@ -1506,7 +1510,7 @@ public final class MapEditorSession {
                         Ht -= channelDepth * centerFalloff;
                     }
 
-                    float curr = hm.getWrappedHeight(gx, gy);
+                    float curr = hm.getHeight(gx, gy);
                     float falloff = (float) StrictMath.pow(StrictMath.max(0f, 1f - (d / r)), hardnessExp);
                     // Ramp semantics: flat ramp blend toward Ht using intensity as blend factor
                     float blend = clamp(brushStrengthM * falloff, 0f, 1f);
@@ -1521,41 +1525,48 @@ public final class MapEditorSession {
 
         // Common post-terrain-edit housekeeping for a grid rectangle
         private void finalizeTerrainRect(int minGX, int minGY, int maxGX, int maxGY) {
+            // Clamp ROI to valid grid bounds to avoid wrap-around and OOB access
+            int N = world.getHeightMap().getGridUnitsPerWorld();
+            int cminGX = StrictMath.max(0, minGX);
+            int cminGY = StrictMath.max(0, minGY);
+            int cmaxGX = StrictMath.min(N - 1, maxGX);
+            int cmaxGY = StrictMath.min(N - 1, maxGY);
+            if (cminGX > cmaxGX || cminGY > cmaxGY) return; // nothing valid
             // Snap resources
-            snapResourcesInGridRect(minGX, minGY, maxGX, maxGY);
+            snapResourcesInGridRect(cminGX, cminGY, cmaxGX, cmaxGY);
             // Snap decorative plants within the edited ROI
             try {
                 float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
-                float minWX = minGX * cell;
-                float minWY = minGY * cell;
-                float maxWX = (maxGX + 1) * cell;
-                float maxWY = (maxGY + 1) * cell;
+                float minWX = cminGX * cell;
+                float minWY = cminGY * cell;
+                float maxWX = (cmaxGX + 1) * cell;
+                float maxWY = (cmaxGY + 1) * cell;
                 snapPlantsInWorldRect(minWX, minWY, maxWX, maxWY);
             } catch (Throwable ignore) {}
             // Recompute grids and placement validity
             if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                 try {
                     EditorGridRecalculator.recomputeROI(
-                            world, terrainType, minGX, minGY, maxGX, maxGY);
+                            world, terrainType, cminGX, cminGY, cmaxGX, cmaxGY);
                 } catch (Throwable ignore) {}
                 try {
                     com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(
-                            world, minGX, minGY, maxGX, maxGY);
+                            world, cminGX, cminGY, cmaxGX, cmaxGY);
                 } catch (Throwable ignore) {}
             }
             // Remove no-longer-valid resources/plants and refresh placement grid
-            removeInvalidResourcesInGridRect(minGX, minGY, maxGX, maxGY);
-            removeInvalidPlantsInGridRect(minGX, minGY, maxGX, maxGY);
+            removeInvalidResourcesInGridRect(cminGX, cminGY, cmaxGX, cmaxGY);
+            removeInvalidPlantsInGridRect(cminGX, cminGY, cmaxGX, cmaxGY);
             if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                 try {
                     com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(
-                            world, minGX, minGY, maxGX, maxGY);
+                            world, cminGX, cminGY, cmaxGX, cmaxGY);
                 } catch (Throwable ignore) {}
             }
             // Reblend colormap for ROI
             try {
                 EditorColormapReblender.reblendROIFromScratch(
-                        world, landscapeRenderer, terrainType, minGX, minGY, maxGX, maxGY);
+                        world, landscapeRenderer, terrainType, cminGX, cminGY, cmaxGX, cmaxGY);
             } catch (Throwable ignore) {}
         }
 
@@ -1793,11 +1804,12 @@ public final class MapEditorSession {
             int count = 0;
             for (int y = gy - radius; y <= gy + radius; y++) {
                 for (int x = gx - radius; x <= gx + radius; x++) {
-                    sum += hm.getWrappedHeight(x, y);
+                    if (!hm.isGridInside(x, y)) continue;
+                    sum += hm.getHeight(x, y);
                     count++;
                 }
             }
-            return count > 0 ? (sum / count) : hm.getWrappedHeight(gx, gy);
+            return count > 0 ? (sum / count) : hm.getHeight(gx, gy);
         }
 
         private float clamp(float v, float lo, float hi) {
