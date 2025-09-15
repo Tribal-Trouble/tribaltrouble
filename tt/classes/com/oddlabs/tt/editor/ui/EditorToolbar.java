@@ -109,14 +109,28 @@ public final class EditorToolbar extends Form {
         });
         btnTest.addMouseClickListener(new MouseClickListener() {
             @Override public void mouseClicked(int button, int x, int y, int clicks) {
-                // Open the Test Map modal form (reuses Single Player players section)
+                // Test flow: open the same Load dialog, then open TestMapForm for players, then start game
                 try {
                     EditorToolbar.this.guiRoot.addModalForm(
-                            new com.oddlabs.tt.form.TestMapForm(
+                            new com.oddlabs.tt.form.EditorMapDialogs.LoadDialog(
                                     EditorToolbar.this.guiRoot,
-                                    com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
                                     EditorToolbar.this.world,
-                                    EditorToolbar.this.terrainType));
+                                    EditorToolbar.this.lr,
+                                    EditorToolbar.this.dr,
+                                    EditorToolbar.this.terrainType,
+                                    (java.io.File chosen) -> {
+                                        try {
+                                            EditorToolbar.this.guiRoot.addModalForm(
+                                                    new com.oddlabs.tt.form.TestMapForm(
+                                                            EditorToolbar.this.guiRoot,
+                                                            com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
+                                                            EditorToolbar.this.world,
+                                                            EditorToolbar.this.terrainType,
+                                                            chosen));
+                                        } catch (Throwable t) {
+                                            EditorToolbar.this.guiRoot.getInfoPrinter().print("Open Test Map failed: " + t.getMessage());
+                                        }
+                                    }));
                 } catch (Throwable t) {
                     EditorToolbar.this.guiRoot.getInfoPrinter().print("Open Test Map failed: " + t.getMessage());
                 }

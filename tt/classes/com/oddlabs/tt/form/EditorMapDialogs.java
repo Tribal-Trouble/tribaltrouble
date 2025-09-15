@@ -9,6 +9,7 @@ import com.oddlabs.tt.render.DefaultRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
 
 import java.io.File;
+import java.util.function.Consumer;
 // no collections needed
 
 /**
@@ -196,6 +197,7 @@ public final class EditorMapDialogs {
         @SuppressWarnings("unused") private final LandscapeRenderer lr;
         @SuppressWarnings("unused") private final DefaultRenderer dr;
         private final int terrainType;
+        private final Consumer<File> onConfirm;
 
         private final MultiColumnComboBox listBox;
         private java.util.List<MapIO.MapSummary> summaries = java.util.Collections.emptyList();
@@ -204,11 +206,16 @@ public final class EditorMapDialogs {
         private final Label metaLabel;
 
         public LoadDialog(GUIRoot guiRoot, World world, LandscapeRenderer lr, DefaultRenderer dr, int terrainType) {
+            this(guiRoot, world, lr, dr, terrainType, null);
+        }
+
+        public LoadDialog(GUIRoot guiRoot, World world, LandscapeRenderer lr, DefaultRenderer dr, int terrainType, Consumer<File> onConfirm) {
             this.guiRoot = guiRoot;
             this.world = world;
             this.lr = lr;
             this.dr = dr;
             this.terrainType = terrainType;
+            this.onConfirm = onConfirm;
 
             Label title = new Label("Load Map", Skin.getSkin().getHeadlineFont());
             addChild(title);
@@ -300,27 +307,35 @@ public final class EditorMapDialogs {
             }
             File f = summaries.get(chosenIndex).file;
             try {
+                if (onConfirm != null) {
+                    // Reuse dialog for selection only
+                    Consumer<File> cb = onConfirm;
+                    remove();
+                    cb.accept(f);
+                    return;
+                }
+
                 MapIO.LoadedMap lm = MapIO.load(f);
                 int currentTerrain = terrainType;
                 int loadedTerrain = lm.terrainType;
-        // Always fade out and start a fresh editor session seeded with the map
-        remove();
-        guiRoot.getInfoPrinter().print("Loading '" + f.getName() + "'...");
-        int meters = (lm.metersPerWorld > 0) ? lm.metersPerWorld : world.getHeightMap().getMetersPerWorld();
-        int terr = (loadedTerrain >= 0) ? loadedTerrain : currentTerrain;
-        int gamespeed = world.getGamespeed();
-        // Reasonable defaults; actual map data will overlay
-        com.oddlabs.tt.resource.WorldGenerator base =
-            new com.oddlabs.tt.resource.IslandGenerator(meters, terr, .5f, .5f, .5f, 1337, false);
-        com.oddlabs.tt.resource.WorldGenerator gen =
-            new com.oddlabs.tt.mapio.LoadedMapGenerator(base, f);
-        com.oddlabs.tt.editor.MapEditorSession.start(
-            com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
-            guiRoot.getGUI(),
-            meters,
-            gen,
-            gamespeed,
-            com.oddlabs.tt.editor.ui.EditorState.EditorMode.Default);
+                // Always fade out and start a fresh editor session seeded with the map
+                remove();
+                guiRoot.getInfoPrinter().print("Loading '" + f.getName() + "'...");
+                int meters = (lm.metersPerWorld > 0) ? lm.metersPerWorld : world.getHeightMap().getMetersPerWorld();
+                int terr = (loadedTerrain >= 0) ? loadedTerrain : currentTerrain;
+                int gamespeed = world.getGamespeed();
+                // Reasonable defaults; actual map data will overlay
+                com.oddlabs.tt.resource.WorldGenerator base =
+                        new com.oddlabs.tt.resource.IslandGenerator(meters, terr, .5f, .5f, .5f, 1337, false);
+                com.oddlabs.tt.resource.WorldGenerator gen =
+                        new com.oddlabs.tt.mapio.LoadedMapGenerator(base, f);
+                com.oddlabs.tt.editor.MapEditorSession.start(
+                        com.oddlabs.tt.editor.MapEditorSession.getEditorNetwork(),
+                        guiRoot.getGUI(),
+                        meters,
+                        gen,
+                        gamespeed,
+                        com.oddlabs.tt.editor.ui.EditorState.EditorMode.Default);
             } catch (Exception t) {
                 metaLabel.set("Load failed: " + t.getMessage());
             }

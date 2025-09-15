@@ -167,33 +167,56 @@ public final class MapEditorMenuForm extends Form {
         group_sliders.compileCanvas();
         addChild(group_sliders);
 
-        // Sandbox mode checkbox
-        Group group_mode = new Group();
-        sandboxModeCheck = new com.oddlabs.tt.gui.CheckBox(
-                false,
-                "Sandbox Mode",
-                "Enable experimental tools & overlays. Sandbox maps can't be published.");
-        group_mode.addChild(sandboxModeCheck);
-        sandboxModeCheck.place();
-        group_mode.compileCanvas();
-        addChild(group_mode);
+    // Sandbox mode checkbox (inlined into bottom row)
+    sandboxModeCheck = new com.oddlabs.tt.gui.CheckBox(
+        false,
+        "Sandbox Mode",
+        "Enable experimental tools & overlays. Sandbox maps can't be published.");
 
-        // Map code (display only)
-        Group group_seed = new Group();
-        Label label_seed = new Label(Utils.getBundleString(terrainBundle, "map_code"), Skin.getSkin().getEditFont());
-        label_mapcode = new Label("", Skin.getSkin().getHeadlineFont(), 250);
-        group_seed.addChild(label_seed);
-        group_seed.addChild(label_mapcode);
-        label_seed.place();
-        label_mapcode.place(label_seed, RIGHT_MID);
-        group_seed.compileCanvas();
-        addChild(group_seed);
+    // Map code display label (inlined into buttons rows) - keep compact width
+    label_mapcode = new Label("", Skin.getSkin().getHeadlineFont(), 125);
 
-        // Buttons (Enter map code, Load placeholder, Start)
+    // Buttons row (right-aligned)
         Group group_buttons = new Group();
-        HorizButton button_mapcode = new HorizButton(Utils.getBundleString(terrainBundle, "enter_map_code"), 170);
+    // Rename to a shorter label and reduce width
+    HorizButton button_mapcode = new HorizButton("Map Code...", 120);
         button_mapcode.addMouseClickListener(new MapcodeListener());
-        group_buttons.addChild(button_mapcode);
+
+        HorizButton button_test = new HorizButton("Test", 120);
+        button_test.addMouseClickListener(new MouseClickListener() {
+            @Override
+            public void mouseClicked(int button, int x, int y, int clicks) {
+                try {
+                    // Use the editor Load dialog that lists .ttmap files and returns a File via callback
+                    gui_root.addModalForm(
+                        new EditorMapDialogs.LoadDialog(
+                            gui_root,
+                            null, // world not required for selection-only usage
+                            null,
+                            null,
+                            pm_terrain_type.getChosenItemIndex(),
+                            (java.io.File chosen) -> {
+                                try {
+                                    gui_root.addModalForm(
+                                        new TestMapForm(
+                                            gui_root,
+                                            network,
+                                            null, // world is unused when a chosen map file is provided
+                                            pm_terrain_type.getChosenItemIndex(),
+                                            chosen
+                                        )
+                                    );
+                                } catch (Throwable t) {
+                                    gui_root.getInfoPrinter().print("Open Test failed: " + t.getMessage());
+                                }
+                            }
+                        )
+                    );
+                } catch (Throwable t) {
+                    gui_root.getInfoPrinter().print("Open Test failed: " + t.getMessage());
+                }
+            }
+        });
 
         HorizButton button_load = new HorizButton(Utils.getBundleString(Menu.bundle, "load"), 120);
         button_load.addMouseClickListener(new MouseClickListener() {
@@ -202,26 +225,46 @@ public final class MapEditorMenuForm extends Form {
                 gui_root.addModalForm(new EditorMapLoadFromMenu(MapEditorMenuForm.this));
             }
         });
-        group_buttons.addChild(button_load);
 
         buttonOk = new OKButton(120);
-        buttonOk.addMouseClickListener(
-                new MouseClickListener() {
-                    @Override
-                    public void mouseClicked(int button, int x, int y, int clicks) {
-                        if (launching) return;
-                        launching = true;
-                        buttonOk.setDisabled(true);
-                        startEditor();
-                    }
-                });
-        group_buttons.addChild(buttonOk);
-        // Bottom layout: [Enter map code] [Load] [Start]
-        buttonOk.place();
-        button_load.place(buttonOk, LEFT_MID);
-        button_mapcode.place(button_load, LEFT_MID);
-        group_buttons.compileCanvas();
-        addChild(group_buttons);
+        buttonOk.addMouseClickListener(new MouseClickListener() {
+            @Override
+            public void mouseClicked(int button, int x, int y, int clicks) {
+                if (launching) return;
+                launching = true;
+                buttonOk.setDisabled(true);
+                startEditor();
+            }
+        });
+
+    // Two subgroups (right-aligned):
+    // Top row: [map code text] [Map Code...] [Test]
+    // Bottom row: [Sandbox] [Load] [OK]
+    Group rowTop = new Group();
+    rowTop.addChild(label_mapcode);
+    rowTop.addChild(button_mapcode);
+    rowTop.addChild(button_test);
+    label_mapcode.place();
+    button_mapcode.place(label_mapcode, RIGHT_MID);
+    button_test.place(button_mapcode, RIGHT_MID);
+    rowTop.compileCanvas();
+
+    Group rowBottom = new Group();
+    rowBottom.addChild(sandboxModeCheck);
+    rowBottom.addChild(button_load);
+    rowBottom.addChild(buttonOk);
+    sandboxModeCheck.place();
+    button_load.place(sandboxModeCheck, RIGHT_MID);
+    buttonOk.place(button_load, RIGHT_MID);
+    rowBottom.compileCanvas();
+
+    group_buttons.addChild(rowBottom);
+    group_buttons.addChild(rowTop);
+    // Place bottom row first, then top row above it, right-aligned
+    rowBottom.place();
+    rowTop.place(rowBottom, TOP_RIGHT, Skin.getSkin().getFormData().getSectionSpacing());
+    group_buttons.compileCanvas();
+    addChild(group_buttons);
 
         // Hook up mapcode updates
         slider_hills.addValueListener(new SliderUpdateMapcodeListener());
@@ -246,8 +289,7 @@ public final class MapEditorMenuForm extends Form {
     group_size.place(group_gamespeed, BOTTOM_LEFT, tightGap);
     group_terrain_type.place(group_size, BOTTOM_LEFT, tightGap);
         group_sliders.place(group_terrain_type, BOTTOM_LEFT);
-        group_mode.place(group_sliders, BOTTOM_LEFT);
-        group_seed.place(group_mode, BOTTOM_LEFT);
+    // Place the buttons at the bottom-right
     group_buttons.place(ORIGIN_BOTTOM_RIGHT);
 
         compileCanvas();

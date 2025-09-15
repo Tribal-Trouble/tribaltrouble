@@ -28,14 +28,20 @@ public final class TestMapForm extends Form {
     private final World world;
     private final int terrainType;
     private final NetworkSelector network;
+    private final java.io.File chosenMap;
     private final PlayersSection players;
 
     public TestMapForm(GUIRoot guiRoot, NetworkSelector network, World world, int terrainType) {
+        this(guiRoot, network, world, terrainType, null);
+    }
+
+    public TestMapForm(GUIRoot guiRoot, NetworkSelector network, World world, int terrainType, java.io.File chosenMap) {
         super("Test Map");
         this.guiRoot = guiRoot;
         this.world = world;
         this.terrainType = terrainType;
         this.network = network;
+        this.chosenMap = chosenMap;
 
     Label header = new Label("Configure players, teams, and races", Skin.getSkin().getHeadlineFont());
         addChild(header);
@@ -83,11 +89,17 @@ public final class TestMapForm extends Form {
                 guiRoot.getInfoPrinter().print("Need at least two teams to start a test.");
                 return;
             }
-            // Export current world to a temp .ttmap
+            // Choose selected map if provided; otherwise export current world
             File dir = com.oddlabs.tt.mapio.MapIO.mapsDir();
-            File file = new File(dir, "editor_map.ttmap");
-            com.oddlabs.tt.mapio.MapIO.saveEditorWorld(world, terrainType, file);
-            guiRoot.getInfoPrinter().print("Exported test map: " + file.getName());
+            File file;
+            if (chosenMap != null && chosenMap.exists()) {
+                file = chosenMap;
+                guiRoot.getInfoPrinter().print("Testing saved map: " + file.getName());
+            } else {
+                file = new File(dir, "editor_map.ttmap");
+                com.oddlabs.tt.mapio.MapIO.saveEditorWorld(world, terrainType, file);
+                guiRoot.getInfoPrinter().print("Exported test map: " + file.getName());
+            }
 
             int meters = world.getHeightMap().getMetersPerWorld();
             int gamespeed = world.getGamespeed();
