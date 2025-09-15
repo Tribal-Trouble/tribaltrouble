@@ -131,7 +131,7 @@ public final strictfp class PulldownButton extends GUIObject {
 
     private void deactivateMenu() {
         menu_active = false;
-        setFocus();
+        // Do not alter focus here to avoid hijacking editor input when menus are closed
         menu.remove();
     }
 

@@ -719,8 +719,7 @@ public final class MapEditorSession {
 
     // Mode handling
     private enum BrushMode { RAISE_LOWER, FLATTEN, SOFTEN, SMOOTH, RIVER, RAMP, ROUGH, RANDOM }
-        private BrushMode brushMode = BrushMode.RAISE_LOWER;
-        private boolean qHeld = false;
+    private BrushMode brushMode = BrushMode.RAISE_LOWER;
         private Float flattenHeightRef = null; // captured on stroke start for FLATTEN
 
     // Random brush now uses per-cell jitter; no persistent noise fields required
@@ -771,7 +770,12 @@ public final class MapEditorSession {
                     public int getActiveToolIndex() { return activeTool.ordinal(); }
                     public void setActiveToolIndex(int idx) {
                         ActiveTool[] vals = ActiveTool.values();
-                        if (idx >= 0 && idx < vals.length) { activeTool = vals[idx]; if (toolbar != null) toolbar.syncOptionsFromBinding(); }
+                        if (idx >= 0 && idx < vals.length) {
+                            activeTool = vals[idx];
+                            // UI tool switches should apply immediately without waiting for mouse actions
+                            cancelActiveStrokeAndButtons();
+                            if (toolbar != null) toolbar.syncOptionsFromBinding();
+                        }
                     }
                     public String[] getBrushModeNames() { return modeNames; }
                     public int getBrushModeIndex() { return brushMode.ordinal(); }
@@ -969,41 +973,38 @@ public final class MapEditorSession {
         }
 
         public void mouseHeld(int button, int x, int y) {
+            // If the user switched tools while holding the mouse button, InputState will keep
+            // generating mouseHeld() events but no new mousePressed() will arrive. To honor the
+            // "no mouse gating" contract, re-arm a fresh stroke here when none is active yet.
+            if (!strokeActive) {
+                if (button == 0) {
+                    // Treat as a new left-press
+                    leftDown = true;
+                    rightDown = false;
+                    beginStrokeForCurrentTool(/*left*/ true);
+                } else if (button == 1) {
+                    // Treat as a new right-press
+                    rightDown = true;
+                    leftDown = false;
+                    beginStrokeForCurrentTool(/*left*/ false);
+                }
+            }
             // Continuous apply via animate()
         }
 
         public void mouseScrolled(int amount) {
-            // Brush parameter adjustments via modifier keys + optional Q/W hold
+            // Editor scroll precedence (editor-only, does not affect game/engine globals):
+            // 1) Ctrl + Wheel -> adjust brush radius
+            // 2) Alt  + Wheel -> adjust brush intensity
+            // 3) Q    + Wheel -> cycle height tool mode
+            // 4) W    + Wheel -> cycle resource type
+            // 5) T    + Wheel -> cycle overlay layer (temporary while held)
+            // else: camera zoom
             boolean ctrl = LocalInput.isControlDownCurrently();
             boolean alt = LocalInput.isMenuDownCurrently();
 
-            // Overlay layer cycling when holding T
-            if (LocalInput.isKeyDown(Keyboard.KEY_T)) {
-                overlayTScrollUsed = true;
-                // Cycle overlay layer only (no mode switching)
-                if (amount > 0) nextOverlayLayer(); else if (amount < 0) prevOverlayLayer();
-                if (toolbar != null) toolbar.syncOptionsFromBinding();
-                return;
-            }
-
-            // Cycle resource types while holding W (consistent with Q+Wheel for terrain modes)
-            if (LocalInput.isKeyDown(Keyboard.KEY_W)) {
-                if (amount > 0) cycleResourceType(1);
-                else if (amount < 0) cycleResourceType(-1);
-                if (toolbar != null) toolbar.syncOptionsFromBinding();
-                return;
-            }
-
-            if (qHeld) {
-                // Cycle brush modes with scroll while Q is held
-                if (amount > 0) nextMode();
-                else if (amount < 0) prevMode();
-                if (toolbar != null) toolbar.syncOptionsFromBinding();
-                return;
-            }
-
+            // 1) Ctrl: radius (and only radius)
             if (ctrl) {
-                // Adjust overall size (both radii)
                 float scale = 1f + 0.1f * StrictMath.signum(amount);
                 if (scale <= 0f) scale = 0.1f;
                 brushRadiusXM = clamp(brushRadiusXM * scale, MIN_RADIUS, MAX_RADIUS);
@@ -1013,16 +1014,38 @@ public final class MapEditorSession {
                 return;
             }
 
+            // 2) Alt: intensity (and only intensity)
             if (alt) {
-                // Adjust intensity/strength
-                float minS = 0.1f, maxS = 10f; // expanded headroom
+                float minS = 0.1f, maxS = 10f;
                 brushStrengthM = clamp(brushStrengthM + 0.1f * StrictMath.signum(amount), minS, maxS);
                 info("Intensity: " + fmt(brushStrengthM));
                 if (toolbar != null) toolbar.syncFromBinding();
                 return;
             }
 
-            // Default: delegate to camera for zoom
+            // 3) Q held: cycle height tool mode
+            if (LocalInput.isKeyDown(Keyboard.KEY_Q)) {
+                if (amount > 0) nextMode(); else if (amount < 0) prevMode();
+                if (toolbar != null) toolbar.syncOptionsFromBinding();
+                return;
+            }
+
+            // 4) W held: cycle resource type
+            if (LocalInput.isKeyDown(Keyboard.KEY_W)) {
+                if (amount > 0) cycleResourceType(1); else if (amount < 0) cycleResourceType(-1);
+                if (toolbar != null) toolbar.syncOptionsFromBinding();
+                return;
+            }
+
+            // 5) T held: overlay layer peek/cycle (does not modify modes)
+            if (LocalInput.isKeyDown(Keyboard.KEY_T)) {
+                overlayTScrollUsed = true;
+                if (amount > 0) nextOverlayLayer(); else if (amount < 0) prevOverlayLayer();
+                if (toolbar != null) toolbar.syncOptionsFromBinding();
+                return;
+            }
+
+            // Default: camera zoom
             getCamera().mouseScrolled(amount);
         }
 
@@ -1208,6 +1231,7 @@ public final class MapEditorSession {
                         info("Toolbar create failed: " + t.getMessage());
                     }
                 } else {
+                    // Toggle visibility without manipulating focus
                     toolbar.toggleVisible();
                 }
                 return;
@@ -1238,16 +1262,19 @@ public final class MapEditorSession {
                     return;
                 }
             }
-            // Tool toggles: Q = Terrain (also hold to cycle modes), W = Resource. No H/F.
+            // Tool toggles: Q = Terrain (tap switches immediately; hold to cycle with wheel), W = Resource.
             if (event.getKeyCode() == Keyboard.KEY_Q) {
-                qHeld = true;
                 activeTool = ActiveTool.TERRAIN;
                 info("Tool = HEIGHT");
+                // Clear any in-progress stroke so tool switches never wait for a mouse action
+                cancelActiveStrokeAndButtons();
                 if (toolbar != null) toolbar.syncOptionsFromBinding();
             } else if (event.getKeyCode() == Keyboard.KEY_W) {
                 activeTool = ActiveTool.RESOURCE;
                 info("Tool = RESOURCE, Type = " + resourceType);
                 // Don't forward to camera to avoid conflicting with camera forward movement
+                // Clear stroke state to avoid any gating
+                cancelActiveStrokeAndButtons();
                 if (toolbar != null) toolbar.syncOptionsFromBinding();
                 return;
             } else if (event.getKeyCode() == Keyboard.KEY_T) {
@@ -1260,7 +1287,6 @@ public final class MapEditorSession {
         }
 
         protected void keyReleased(KeyboardEvent event) {
-            if (event.getKeyCode() == Keyboard.KEY_Q) qHeld = false;
             if (event.getKeyCode() == Keyboard.KEY_T) {
                 overlayActiveHeld = false;
                 if (overlayTPressed) {
@@ -1783,6 +1809,49 @@ public final class MapEditorSession {
         }
 
         private void info(String s) { getGUIRoot().getInfoPrinter().print("Brush: " + s); }
+
+        // Ensure tool switching never waits for mouse release: clear stroke/buttons immediately
+        private void cancelActiveStrokeAndButtons() {
+            leftDown = false;
+            rightDown = false;
+            mmbDown = false;
+            if (strokeActive) {
+                // Abort current stroke without applying (only used when switching tools)
+                strokeActive = false;
+                strokeAccum.clear();
+                strokeBaseline.clear();
+                flattenHeightRef = null;
+                resourceStrokeVisited.clear();
+                try { landscapeRenderer.endEdit(); } catch (Throwable ignore) {}
+            }
+        }
+
+        // Called when we need to (re)start a stroke without an explicit mousePressed event,
+        // e.g., after switching tools while holding a mouse button.
+        private void beginStrokeForCurrentTool(boolean left) {
+            if (activeTool == ActiveTool.TERRAIN) {
+                // In polyline modes (Ramp/River), strokes are built by discrete clicks only.
+                if (brushMode == BrushMode.RAMP || brushMode == BrushMode.RIVER) return;
+                strokeActive = true;
+                strokeDir = left ? 1f : -1f;
+                strokeAccum.clear();
+                strokeBaseline.clear();
+                strokeHasBounds = false;
+                // Capture flatten ref height at stroke start if needed
+                if (brushMode == BrushMode.FLATTEN) {
+                    LandscapeLocation hit = new LandscapeLocation();
+                    if (picker.pickLocation(getCamera().getState(), hit)) {
+                        int cx = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(hit.x);
+                        int cy = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(hit.y);
+                        flattenHeightRef = world.getHeightMap().getWrappedHeight(cx, cy);
+                    }
+                }
+            } else {
+                // Resource tool: start a new placement/erase sweep for this hold
+                strokeActive = true;
+                resourceStrokeVisited.clear();
+            }
+        }
 
         private void nextMode() {
             switch (brushMode) {

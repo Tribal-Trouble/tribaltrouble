@@ -386,17 +386,14 @@ public final class EditorToolbar extends Form {
         resourceButton.setHidden(terrain);
         resourceLabel.setDisabled(terrain);
         resourceButton.setDisabled(terrain);
-        // Close only the menu belonging to the now-hidden control to prevent stale overlays,
-        // leaving the visible control free to open immediately on click.
+        // Close only the menu belonging to the now-hidden control to prevent stale overlays.
+        // Important: do NOT change focus here; when tool/mode is updated programmatically (Q/W,
+        // scroll, etc.), we must not steal focus from the editor canvas.
         try {
             if (terrain) {
                 resourceButton.getMenu().remove();
-                // Nudge focus to the now-visible Mode control so it accepts clicks immediately
-                modeButton.setFocus();
             } else {
                 modeButton.getMenu().remove();
-                // Nudge focus to the now-visible Resource control
-                resourceButton.setFocus();
             }
         } catch (Throwable ignore) {}
     }
