@@ -112,6 +112,27 @@ public final class TestMapForm extends Form {
                 guiRoot.getInfoPrinter().print("Exported test map: " + file.getName());
             }
 
+            // Validate required resources exist on the map to be tested
+            try {
+                com.oddlabs.tt.mapio.MapIO.LoadedMap lm = com.oddlabs.tt.mapio.MapIO.load(file);
+                int trees = (lm.trees != null) ? lm.trees.size() : 0;
+                int rocks = (lm.rockSupplies != null && !lm.rockSupplies.isEmpty()) ? lm.rockSupplies.size() : (lm.rocks != null ? lm.rocks.size() : 0);
+                int irons = (lm.ironSupplies != null && !lm.ironSupplies.isEmpty()) ? lm.ironSupplies.size() : (lm.iron != null ? lm.iron.size() : 0);
+
+                java.util.List<String> missing = new java.util.ArrayList<>(3);
+                if (trees <= 0) missing.add("tree");
+                if (rocks <= 0) missing.add("rock");
+                if (irons <= 0) missing.add("iron");
+                if (!missing.isEmpty()) {
+                    String msg = "Map must contain at least one tree, one rock, and one iron. Missing: " + String.join(", ", missing) + ".";
+                    guiRoot.getInfoPrinter().print(msg);
+                    return;
+                }
+            } catch (Throwable t) {
+                guiRoot.getInfoPrinter().print("Could not analyze map resources: " + t.getMessage());
+                return;
+            }
+
             // Determine meters and gamespeed safely
             int meters;
             int gamespeed;
