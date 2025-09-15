@@ -261,9 +261,9 @@ public final class MapEditorMenuForm extends Form {
 
     group_buttons.addChild(rowBottom);
     group_buttons.addChild(rowTop);
-    // Place bottom row first, then top row above it, right-aligned
+    // Place bottom row first, then top row directly above it, right-aligned with 0px gap
     rowBottom.place();
-    rowTop.place(rowBottom, TOP_RIGHT, Skin.getSkin().getFormData().getSectionSpacing());
+    rowTop.place(rowBottom, TOP_RIGHT, 0);
     group_buttons.compileCanvas();
     addChild(group_buttons);
 
