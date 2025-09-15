@@ -2107,12 +2107,19 @@ public final class MapEditorSession {
         // Overlay modes removed; only default threshold visualization remains.
 
         private void drawOverlay(LandscapeRenderer renderer) {
-            // Render using cached per-patch display lists to avoid per-frame per-cell work
+            // Render using cached per-patch display lists.
+            // Important: keep depth test ON so overlay tiles hidden behind terrain don't bleed through.
+            // Also keep depth writes OFF and use alpha blend so overlays composite on visible terrain.
             GL11.glDisable(GL11.GL_TEXTURE_2D);
-            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glDepthMask(false);
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            // Use polygon offset to avoid z-fighting with terrain at distance while preserving occlusion
+            // Negative values bias fragments toward the camera for GL_LESS depth func
+            GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
+            // Slightly stronger bias to remove residual splotchiness on some GPUs/angles
+            GL11.glPolygonOffset(-1.5f, -2.0f);
 
             float cr=0f,cg=0f,cb=0f,ca=0.35f;
             switch (overlayLayer) {
@@ -2136,6 +2143,9 @@ public final class MapEditorSession {
             }
             overlayRenderer.draw(layer);
 
+            // Restore state
+            GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
+            GL11.glPolygonOffset(0f, 0f);
             GL11.glDisable(GL11.GL_BLEND);
             GL11.glDepthMask(true);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
