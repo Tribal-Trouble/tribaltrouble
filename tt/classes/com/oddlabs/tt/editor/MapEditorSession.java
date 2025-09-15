@@ -2112,14 +2112,23 @@ public final class MapEditorSession {
             // Also keep depth writes OFF and use alpha blend so overlays composite on visible terrain.
             GL11.glDisable(GL11.GL_TEXTURE_2D);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
+            GL11.glDepthFunc(GL11.GL_LEQUAL);
             GL11.glDepthMask(false);
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            // Use polygon offset to avoid z-fighting with terrain at distance while preserving occlusion
-            // Negative values bias fragments toward the camera for GL_LESS depth func
+            // Dynamic polygon offset tied to camera height above ground.
+            // Negative values bias fragments toward the camera for GL_LEQUAL depth testing.
             GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
-            // Slightly stronger bias to remove residual splotchiness on some GPUs/angles
-            GL11.glPolygonOffset(-1.5f, -2.0f);
+            float cx = getCamera().getState().getCurrentX();
+            float cy = getCamera().getState().getCurrentY();
+            float cz = getCamera().getState().getCurrentZ();
+            float ground = 0f;
+            try { ground = world.getHeightMap().getNearestHeight(cx, cy); } catch (Throwable ignore) {}
+            float above = Math.max(0f, cz - ground);
+            // Emphasize constant units term for coplanar surfaces, scale with distance; clamp for safety
+            float factor = -1.1f;
+            float units  = -(float) clamp(3.0f + above * 0.05f, 5.0f, 48.0f);
+            GL11.glPolygonOffset(factor, units);
 
             float cr=0f,cg=0f,cb=0f,ca=0.35f;
             switch (overlayLayer) {

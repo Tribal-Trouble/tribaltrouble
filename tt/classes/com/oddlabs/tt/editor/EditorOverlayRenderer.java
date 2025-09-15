@@ -156,10 +156,13 @@ final class EditorOverlayRenderer {
                 float wx = gx * cell;
                 float wy = gy * cell;
                 // Sample each corner to reduce gaps over steep terrain
-                float z00 = hm.getNearestHeight(wx, wy) + 0.02f;
-                float z10 = hm.getNearestHeight(wx + cell, wy) + 0.02f;
-                float z11 = hm.getNearestHeight(wx + cell, wy + cell) + 0.02f;
-                float z01 = hm.getNearestHeight(wx, wy + cell) + 0.02f;
+                // Epsilon lifts overlay quads above terrain to reduce coplanar z-fighting.
+                // Adjusted to 0.3m per request; polygon offset remains primary defense.
+                float eps = 0.30f;
+                float z00 = hm.getNearestHeight(wx, wy) + eps;
+                float z10 = hm.getNearestHeight(wx + cell, wy) + eps;
+                float z11 = hm.getNearestHeight(wx + cell, wy + cell) + eps;
+                float z01 = hm.getNearestHeight(wx, wy + cell) + eps;
                 org.lwjgl.opengl.GL11.glVertex3f(wx, wy, z00);
                 org.lwjgl.opengl.GL11.glVertex3f(wx + cell, wy, z10);
                 org.lwjgl.opengl.GL11.glVertex3f(wx + cell, wy + cell, z11);
