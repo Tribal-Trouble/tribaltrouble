@@ -267,6 +267,8 @@ public final class EditorToolbar extends Form {
             toolButton.getMenu().addItemChosenListener((menu, idx) -> {
                 if (menu == null) return;
                 if (!suppressProgrammatic) optionsBinding.setActiveToolIndex(idx);
+                // Reflect tool change immediately in the UI (toggle Mode vs Resource)
+                updateActiveToolUI();
             });
             overlayButton.getMenu().addItemChosenListener((menu, idx) -> {
                 if (menu == null) return;
@@ -307,6 +309,12 @@ public final class EditorToolbar extends Form {
     public void dockTopLeft(int offsetX, int offsetY) {
         // Natural-width panel anchored near top-left
         setPos(offsetX, offsetY);
+    }
+
+    public void dockBottomLeft(int offsetX, int offsetY) {
+        // Natural-width panel anchored near bottom-left
+        int y = StrictMath.max(0, LocalInput.getViewHeight() - getHeight() - offsetY);
+        setPos(offsetX, y);
     }
 
     public void setBrushBinding(BrushBinding binding) {
@@ -355,11 +363,28 @@ public final class EditorToolbar extends Form {
         if (optionsBinding == null) return;
         int toolIdx = optionsBinding.getActiveToolIndex();
         boolean terrain = (toolIdx == 0); // 0 = TERRAIN, 1 = RESOURCE
-        // Show Mode for terrain tool, Resource for resource tool
+        // Show Mode for terrain tool, Resource for resource tool, and disable the inactive ones
         modeLabel.setHidden(!terrain);
         modeButton.setHidden(!terrain);
+        modeLabel.setDisabled(!terrain);
+        modeButton.setDisabled(!terrain);
         resourceLabel.setHidden(terrain);
         resourceButton.setHidden(terrain);
+        resourceLabel.setDisabled(terrain);
+        resourceButton.setDisabled(terrain);
+        // Close only the menu belonging to the now-hidden control to prevent stale overlays,
+        // leaving the visible control free to open immediately on click.
+        try {
+            if (terrain) {
+                resourceButton.getMenu().remove();
+                // Nudge focus to the now-visible Mode control so it accepts clicks immediately
+                modeButton.setFocus();
+            } else {
+                modeButton.getMenu().remove();
+                // Nudge focus to the now-visible Resource control
+                resourceButton.setFocus();
+            }
+        } catch (Throwable ignore) {}
     }
 
     private void selectPulldownIndex(PulldownButton btn, int idx) {

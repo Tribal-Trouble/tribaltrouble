@@ -50,6 +50,8 @@ public final strictfp class Client
     private short player_slot = -1;
     private boolean error_while_fading;
     private ConfigurationListener configuration_listener;
+    // Queue to buffer events that may arrive before a configuration listener is attached
+    private final java.util.List<Runnable> pendingEvents = new java.util.ArrayList<Runnable>();
 
     //	public Client(int host_id, int gametype, boolean rated, int start_speed, String map_code, int
     // initial_unit_count, Runnable initial_action, float random_start_pos, int max_unit_count) {
@@ -87,8 +89,20 @@ public final strictfp class Client
         return configuration_listener;
     }
 
+    private void deliverOrQueue(Runnable r) {
+        if (configuration_listener != null) r.run();
+        else pendingEvents.add(r);
+    }
+
     public final void setConfigurationListener(ConfigurationListener listener) {
         configuration_listener = listener;
+        // Deliver any events that arrived before the listener was attached
+        if (!pendingEvents.isEmpty()) {
+            for (Runnable r : pendingEvents) {
+                try { r.run(); } catch (Throwable ignore) {}
+            }
+            pendingEvents.clear();
+        }
     }
 
     public final void setUnitInfo(int slot, UnitInfo unit_info) {
@@ -115,7 +129,9 @@ public final strictfp class Client
         state = NEGOTIATING;
         this.generator = generator;
         this.player_slot = player_slot;
-        getConfigurationListener().connected(this, game, generator, player_slot, player_count);
+        deliverOrQueue(() -> {
+            getConfigurationListener().connected(this, game, generator, player_slot, player_count);
+        });
     }
 
     public final void writeBufferDrained(AbstractConnection conn) {}
@@ -134,7 +150,9 @@ public final strictfp class Client
         if (state != NEGOTIATING) return;
         close();
         this.session_id = session_id;
-        getConfigurationListener().gameStarted();
+        deliverOrQueue(() -> {
+            getConfigurationListener().gameStarted();
+        });
         ProgressForm.setProgressForm(
                 network,
                 gui,
@@ -158,7 +176,9 @@ public final strictfp class Client
                 return;
             }
         }
-        getConfigurationListener().setPlayers(player_slots);
+        deliverOrQueue(() -> {
+            getConfigurationListener().setPlayers(player_slots);
+        });
     }
 
     public final void handle(Object sender, ARMIEvent armi_event) {
@@ -177,7 +197,9 @@ public final strictfp class Client
     }
 
     private final void error() {
-        getConfigurationListener().connectionLost();
+        deliverOrQueue(() -> {
+            getConfigurationListener().connectionLost();
+        });
         close();
     }
 }

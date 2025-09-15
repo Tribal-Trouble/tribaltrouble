@@ -8,6 +8,7 @@ public final strictfp class PulldownButton extends GUIObject {
     private final Label label;
     private final GUIRoot gui_root;
     private boolean menu_active;
+    private boolean hiddenFlag;
 
     public PulldownButton(GUIRoot gui_root, PulldownMenu menu, int width) {
         this.menu = menu;
@@ -17,6 +18,31 @@ public final strictfp class PulldownButton extends GUIObject {
         label = new Label("", Skin.getSkin().getEditFont(), 0, Label.ALIGN_LEFT);
         addChild(label);
         setDim(width, Skin.getSkin().getPulldownData().getPulldownButton().getHeight());
+    }
+
+    @Override
+    public void setHidden(boolean hidden) {
+        super.setHidden(hidden);
+        hiddenFlag = hidden;
+        if (hidden) {
+            // If this control is hidden while its menu is open, forcibly close and reset state
+            if (menu.isActive()) menu.remove();
+            menu_active = false;
+        }
+        // Hidden controls should not be focusable or participate in picking
+        setCanFocus(!hidden);
+    }
+
+    @Override
+    public void setDisabled(boolean disabled) {
+        super.setDisabled(disabled);
+        if (disabled) {
+            // If disabled during an open menu, close it and reset state
+            if (menu.isActive()) menu.remove();
+            menu_active = false;
+        }
+        // Disabled controls should not be focusable to avoid intercepting events
+        setCanFocus(!disabled && !hiddenFlag);
     }
 
     public PulldownButton(GUIRoot gui_root, PulldownMenu menu, int item_index, int width) {
@@ -57,6 +83,8 @@ public final strictfp class PulldownButton extends GUIObject {
     }
 
     protected final void mousePressed(int button, int x, int y) {
+        // Sync with actual menu state in case it was externally removed/closed
+        menu_active = menu.isActive();
         if (menu_active) {
             deactivateMenu();
         } else {
@@ -64,24 +92,44 @@ public final strictfp class PulldownButton extends GUIObject {
         }
     }
 
+    @Override
     protected void mouseEntered() {
         menu_active = menu.isActive();
     }
 
+    @Override
     protected final void mouseReleased(int button, int x, int y) {
-        if (!menu.isActive()) menu.getItem(menu.getChosenItemIndex()).setFocus();
+        // If the menu isn’t open anymore (e.g., closed due to a tool switch),
+        // do not attempt to click items or adjust focus here.
+        if (!menu.isActive()) return;
         menu.clickItem(button, x, y, 1);
     }
 
-    private final void activateMenu() {
+    private void activateMenu() {
         menu_active = true;
-        menu.setPos(
-                (int) (getRootX() + getWidth() - menu.getWidth()),
-                (int) (getRootY() - menu.getHeight()));
-        gui_root.getDelegate().addChild(menu);
+        int x = (int) (getRootX() + getWidth() - menu.getWidth());
+        int y = (int) (getRootY() - menu.getHeight());
+        // If opening above would go off-screen, open below the button instead
+        if (y < 0) {
+            y = (int) (getRootY() + getHeight());
+        }
+        // Clamp to viewport
+        int maxX = gui_root.getWidth() - menu.getWidth();
+        int maxY = gui_root.getHeight() - menu.getHeight();
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        if (x > maxX) x = maxX;
+        if (y > maxY) y = maxY;
+        menu.setPos(x, y);
+        // Attach to modal layer when present so it renders above the modal form and can receive focus
+        if (gui_root.getModalDelegate() != null) {
+            gui_root.getModalDelegate().addChild(menu);
+        } else {
+            gui_root.getDelegate().addChild(menu);
+        }
     }
 
-    private final void deactivateMenu() {
+    private void deactivateMenu() {
         menu_active = false;
         setFocus();
         menu.remove();
@@ -91,12 +139,15 @@ public final strictfp class PulldownButton extends GUIObject {
         return menu;
     }
 
+    @Override
     protected final void doRemove() {
         super.doRemove();
-        if (!menu.isActive()) menu.remove();
+        // Always remove the menu to avoid leaving a dangling active menu in the tree
+        menu.remove();
     }
 
-    private final strictfp class ItemListener implements ItemChosenListener {
+    private class ItemListener implements ItemChosenListener {
+        @Override
         public final void itemChosen(PulldownMenu menu, int item_index) {
             PulldownItem item = menu.getItem(item_index);
             label.set(item.getLabelString());

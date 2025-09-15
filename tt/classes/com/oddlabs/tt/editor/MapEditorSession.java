@@ -824,11 +824,11 @@ public final class MapEditorSession {
                     .print(
                 "Welcome to the Map Editor! Press f1 for help");
 
-            // Add toolbar docked at top-left
+            // Add toolbar docked at bottom-left (default)
             try {
                 toolbar = new com.oddlabs.tt.editor.ui.EditorToolbar(getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType, brushBinding, optionsBinding);
-                // Place with a small margin; rely on GUIRoot to keep rendering above world
-                toolbar.dockTopLeft(8, 8);
+                // Place with a small margin at the bottom of the screen
+                toolbar.dockBottomLeft(8, 8);
                 addChild(toolbar);
                 info("Editor toolbar ready (` to toggle)");
             } catch (Throwable t) {
@@ -1201,7 +1201,7 @@ public final class MapEditorSession {
                 if (toolbar == null || toolbar.getParent() == null) {
                     try {
                         toolbar = new com.oddlabs.tt.editor.ui.EditorToolbar(getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType, brushBinding, optionsBinding);
-                        toolbar.dockTopLeft(8, 8);
+                        toolbar.dockBottomLeft(8, 8);
                         addChild(toolbar);
                         info("Editor toolbar restored");
                     } catch (Throwable t) {
