@@ -203,7 +203,8 @@ public final class MapEditorMenuForm extends Form {
                                             network,
                                             null, // world is unused when a chosen map file is provided
                                             pm_terrain_type.getChosenItemIndex(),
-                                            chosen
+                                            chosen,
+                                            pm_gamespeed.getChosenItemIndex() + 1 // pass gamespeed override
                                         )
                                     );
                                 } catch (Throwable t) {

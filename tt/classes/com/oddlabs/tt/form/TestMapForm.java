@@ -29,19 +29,26 @@ public final class TestMapForm extends Form {
     private final int terrainType;
     private final NetworkSelector network;
     private final java.io.File chosenMap;
+    // Optional override for gamespeed (1..4). When 0, derives from world or defaults.
+    private final int gamespeedOverride;
     private final PlayersSection players;
 
     public TestMapForm(GUIRoot guiRoot, NetworkSelector network, World world, int terrainType) {
-        this(guiRoot, network, world, terrainType, null);
+        this(guiRoot, network, world, terrainType, null, 0);
     }
 
     public TestMapForm(GUIRoot guiRoot, NetworkSelector network, World world, int terrainType, java.io.File chosenMap) {
+        this(guiRoot, network, world, terrainType, chosenMap, 0);
+    }
+
+    public TestMapForm(GUIRoot guiRoot, NetworkSelector network, World world, int terrainType, java.io.File chosenMap, int gamespeedOverride) {
         super("Test Map");
         this.guiRoot = guiRoot;
         this.world = world;
         this.terrainType = terrainType;
         this.network = network;
         this.chosenMap = chosenMap;
+        this.gamespeedOverride = gamespeedOverride;
 
     Label header = new Label("Configure players, teams, and races", Skin.getSkin().getHeadlineFont());
         addChild(header);
@@ -96,13 +103,35 @@ public final class TestMapForm extends Form {
                 file = chosenMap;
                 guiRoot.getInfoPrinter().print("Testing saved map: " + file.getName());
             } else {
+                if (world == null) {
+                    guiRoot.getInfoPrinter().print("No map selected and current world is not available.");
+                    return;
+                }
                 file = new File(dir, "editor_map.ttmap");
                 com.oddlabs.tt.mapio.MapIO.saveEditorWorld(world, terrainType, file);
                 guiRoot.getInfoPrinter().print("Exported test map: " + file.getName());
             }
 
-            int meters = world.getHeightMap().getMetersPerWorld();
-            int gamespeed = world.getGamespeed();
+            // Determine meters and gamespeed safely
+            int meters;
+            int gamespeed;
+            int terr = terrainType;
+            if (world != null) {
+                meters = world.getHeightMap().getMetersPerWorld();
+                gamespeed = (gamespeedOverride > 0) ? gamespeedOverride : world.getGamespeed();
+            } else {
+                // world is null only when chosenMap path is used; peek metadata
+                try {
+                    com.oddlabs.tt.mapio.MapIO.MapSummary sum = com.oddlabs.tt.mapio.MapIO.peek(file);
+                    meters = (sum.metersPerWorld > 0) ? sum.metersPerWorld : 1024; // conservative default
+                    gamespeed = (gamespeedOverride > 0) ? gamespeedOverride : 2; // default to Normal speed
+                    if (sum.terrainType >= 0) terr = sum.terrainType;
+                } catch (Exception e) {
+                    // Fallbacks if peek fails
+                    meters = 1024;
+                    gamespeed = (gamespeedOverride > 0) ? gamespeedOverride : 2;
+                }
+            }
 
         GameNetwork game_network =
             Menu.startNewGameWithMap(
@@ -118,7 +147,7 @@ public final class TestMapForm extends Form {
                             new Menu.DefaultWorldInitAction(),
                             null,
                             meters,
-                            terrainType,
+                terr,
                             .5f,
                             .5f,
                             .5f,
