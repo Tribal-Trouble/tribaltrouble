@@ -110,7 +110,9 @@ public final strictfp class ScrollBar extends GUIObject {
 
     protected final void mouseClicked(int button, int x, int y, int clicks) {
         int button_y = getButtonY();
-        owner.jumpPage(y > button_y);
+        // Click above the thumb: page up (towards visual top)
+        // Click below the thumb: page down (towards visual bottom)
+        owner.jumpPage(y < button_y);
         scroll_button.setupPos(this);
     }
 

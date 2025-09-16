@@ -10,14 +10,14 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
     private final RadioButtonGroup group = new RadioButtonGroup();
     private final Group focus_group = new Group();
     private final RowCollection rows = new RowCollection(this, 0, true);
-    private final List row_listeners = new ArrayList();
+    private final List<RowListener> row_listeners = new ArrayList<>();
     private final ScrollBar scroll_bar;
     private final boolean use_buttons;
     private final GUIRoot gui_root;
     private int offset_y = 0;
     private PulldownMenu pulldown_menu = null;
     private Object right_clicked_row_data;
-    // Invert mapping between content offset and scrollbar thumb position
+    // Controls optional inversion of the thumb mapping; default false for natural mapping
     private boolean inverted_scrollbar = false;
 
     public MultiColumnComboBox(GUIRoot gui_root, ColumnInfo[] column_infos, int height) {
@@ -60,7 +60,10 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
         rows.setPos(box.getLeftOffset(), box.getBottomOffset());
         addChild(rows);
         setCanFocus(true);
+    // Keep original (bottom-up) row layout to preserve spacing and rendering math,
+    // but start scrolled so the visual shows the bottom rows and the thumb at the bottom.
     scroll_bar.update();
+    scrollToVisualBottom();
     }
 
     public final int getSize() {
@@ -69,7 +72,7 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
 
     public final void clickedRow() {
         for (int i = 0; i < row_listeners.size(); i++) {
-            RowListener listener = (RowListener) row_listeners.get(i);
+            RowListener listener = row_listeners.get(i);
             if (listener != null) listener.rowChosen(rows.getSelected());
         }
     }
@@ -80,7 +83,7 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
 
     public final void doubleClickedRow() {
         for (int i = 0; i < row_listeners.size(); i++) {
-            RowListener listener = (RowListener) row_listeners.get(i);
+            RowListener listener = row_listeners.get(i);
             if (listener != null) listener.rowDoubleClicked(rows.getSelected());
         }
     }
@@ -109,6 +112,7 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
         }
     }
 
+    @Override
     protected final void renderGeometry() {
         MultiColumnComboBoxData data = Skin.getSkin().getMultiColumnComboBoxData();
         Box box = data.getBox();
@@ -122,6 +126,7 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
         else box.render(0, 0, getWidth() - scroll_bar.getWidth(), getHeight(), Skin.NORMAL);
     }
 
+    @Override
     public final void setFocus() {
         focus_group.setGroupFocus(LocalInput.isShiftDownCurrently() ? -1 : 1);
     }
@@ -131,20 +136,21 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
     }
 
     public final void addRow(Row row) {
+        // Preserve visual top if we were at the top before content changed
+        boolean wasAtVisualTop = isAtVisualTop();
         row.setColumnInfos(column_infos);
         rows.addRow(row);
-        scroll_bar.update();
+        if (wasAtVisualTop) scrollToVisualTop();
+        else scroll_bar.update();
     }
 
     /**
      * Positions the scrollbar/thumb so that, visually, the first rows appear at the top
-     * of the viewport. This keeps content ordering as-is while fixing initial thumb position
-     * for bottom-up layouts commonly used by older widgets.
+     * of the viewport. For top-down layout this is offset 0; for bottom-up it is max offset.
      */
     public final void scrollToVisualTop() {
         int max_offset_y = rows.getContentHeight() - rows.getHeight();
         if (max_offset_y < 0) max_offset_y = 0;
-        // For top-down layout, offset 0 already shows the top; for bottom-up use max offset.
         int target = rows.isTopDownLayout() ? 0 : max_offset_y;
         setOffsetY(target);
     }
@@ -172,29 +178,25 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
         rows.selectRow(row);
     }
 
+    @Override
     protected final void mouseScrolled(int amount) {
         int delta = 3 * Skin.getSkin().getMultiColumnComboBoxData().getFont().getHeight();
-        // Default behavior (bottom-up layout): positive amount scrolls content up (increase offset)
-        // For top-down layout (keybind panels), invert mapping so wheel down (amount>0) increases offset.
-        boolean topDown = rows.isTopDownLayout();
-        if (topDown) {
-            if (amount > 0) setOffsetY(offset_y + delta);
-            else setOffsetY(offset_y - delta);
-        } else {
-            if (amount > 0) setOffsetY(offset_y + delta);
-            else setOffsetY(offset_y - delta);
-        }
+    boolean topDown = rows.isTopDownLayout();
+    // Invert response so wheel direction matches visual expectation without changing input semantics
+    if (amount > 0) setOffsetY(offset_y + (topDown ? +delta : -delta));
+    else setOffsetY(offset_y + (topDown ? -delta : +delta));
     }
 
     public void setTopDownLayout(boolean topDown) {
         rows.setTopDownLayout(topDown);
-        // Invert thumb mapping only for bottom-up layout so the thumb rests at the visual bottom
-        this.inverted_scrollbar = !topDown;
+        // Keep natural mapping so thumb-at-top means visual top
+        this.inverted_scrollbar = false;
         scroll_bar.update();
-        // Keep the default visible position consistent: bottom-most
-        scrollToVisualBottom();
+        // Default visible position: visual top
+        scrollToVisualTop();
     }
 
+    @Override
     public final void setOffsetY(int new_offset) {
         offset_y = new_offset;
 
@@ -206,36 +208,80 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
         scroll_bar.update();
     }
 
+    @Override
     public final int getOffsetY() {
         return offset_y;
     }
 
+    @Override
     public final int getStepHeight() {
         return Skin.getSkin().getMultiColumnComboBoxData().getFont().getHeight();
     }
 
+    @Override
     public final void jumpPage(boolean up) {
         if (up) setOffsetY(offset_y - rows.getHeight());
         else setOffsetY(offset_y + rows.getHeight());
     }
 
+    @Override
     public final float getScrollBarRatio() {
-        return rows.getHeight()
-                / (float) StrictMath.max(rows.getContentHeight(), offset_y + rows.getHeight());
+        int total = rows.getContentHeight();
+        int visible = rows.getHeight();
+        if (total <= 0 || total <= visible) return 1.0f;
+        return visible / (float) total;
     }
 
+    @Override
     public final float getScrollBarOffset() {
-        int length = StrictMath.max(rows.getContentHeight(), offset_y + rows.getHeight());
-        float denom = (float) (length - rows.getHeight());
-        if (denom <= 0f) return 0f;
-        float norm = offset_y / denom;
-        return inverted_scrollbar ? (1.0f - norm) : norm;
+        int total = rows.getContentHeight();
+        int visible = rows.getHeight();
+        int maxOffset = total - visible;
+        if (maxOffset <= 0) return 0.0f;
+        // Map 0 -> visual top, 1 -> visual bottom regardless of layout
+        float top = rows.isTopDownLayout() ? 0f : (float) maxOffset;
+        float bottom = rows.isTopDownLayout() ? (float) maxOffset : 0f;
+        float denom = bottom - top; // may be negative in bottom-up
+        if (denom == 0f) return 0.0f;
+        float base = (offset_y - top) / denom;
+        // Clamp to [0,1]
+        if (base < 0f) base = 0f;
+        if (base > 1f) base = 1f;
+        return inverted_scrollbar ? (1.0f - base) : base;
     }
 
+    @Override
     public final void setScrollBarOffset(float offset) {
-        int length = StrictMath.max(rows.getContentHeight(), offset_y + rows.getHeight());
-        float norm = inverted_scrollbar ? (1.0f - offset) : offset;
-        setOffsetY((int) (norm * (length - rows.getHeight())));
+        int total = rows.getContentHeight();
+        int visible = rows.getHeight();
+        int maxOffset = total - visible;
+        if (maxOffset <= 0) {
+            setOffsetY(0);
+            return;
+        }
+        // Clamp offset to [0,1]
+        float o = offset;
+        if (o < 0f) o = 0f;
+        if (o > 1f) o = 1f;
+        float base = inverted_scrollbar ? (1.0f - o) : o;
+        float top = rows.isTopDownLayout() ? 0f : (float) maxOffset;
+        float bottom = rows.isTopDownLayout() ? (float) maxOffset : 0f;
+        float denom = bottom - top; // may be negative in bottom-up
+        int target = (int) (top + base * denom);
+        setOffsetY(target);
+    }
+
+    private int getMaxOffsetY() {
+        int max = rows.getContentHeight() - rows.getHeight();
+        return Math.max(0, max);
+    }
+
+    private boolean isAtVisualTop() {
+        if (rows.isTopDownLayout()) {
+            return offset_y == 0;
+        } else {
+            return offset_y == getMaxOffsetY();
+        }
     }
 
     public void setInvertedScrollbar(boolean inverted) {
