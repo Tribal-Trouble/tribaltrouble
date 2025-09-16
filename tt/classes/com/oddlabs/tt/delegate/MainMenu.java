@@ -89,11 +89,6 @@ public final strictfp class MainMenu extends Menu {
             DisplayModel.setBadModeStatus(false);
         }
 
-    // Developer/demo: Trigger editor visual mock button
-    MenuButton triggerDemo =
-        new MenuButton("trigger", COLOR_NORMAL, COLOR_ACTIVE);
-    addChild(triggerDemo);
-    triggerDemo.addMouseClickListener(new TriggerDemoListener());
 
         if (Network.getMatchmakingClient().isConnected()) {
             new SelectGameMenu(getNetwork(), getGUIRoot(), this);

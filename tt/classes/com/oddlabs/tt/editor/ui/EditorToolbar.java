@@ -101,9 +101,10 @@ public final class EditorToolbar extends Form {
     // Layout in a single horizontal row (start at content origin, chain RIGHT_MID)
     int spacing = StrictMath.max(2, Skin.getSkin().getFormData().getObjectSpacing());
     btnTest.place();
-        btnSave.place(btnTest, RIGHT_MID);
-        btnLoad.place(btnSave, RIGHT_MID);
-        btnOnline.place(btnLoad, RIGHT_MID);
+    btnSave.place(btnTest, RIGHT_MID);
+    btnLoad.place(btnSave, RIGHT_MID);
+    btnOnline.place(btnLoad, RIGHT_MID);
+    // ...existing code...
 
         // Wire actions
         btnSave.addMouseClickListener(new MouseClickListener() {
@@ -279,6 +280,15 @@ public final class EditorToolbar extends Form {
         addChild(overlayMaster);
         addChild(overlayLabel);
         addChild(overlayButton);
+        // Add Trigger button to the right of overlays
+        HorizButton btnTrigger = new HorizButton("Trigger", 90);
+        addChild(btnTrigger);
+        btnTrigger.place(overlayButton, RIGHT_MID);
+        btnTrigger.addMouseClickListener(new MouseClickListener() {
+            @Override public void mouseClicked(int button, int x, int y, int clicks) {
+                EditorToolbar.this.guiRoot.addModalForm(new com.oddlabs.tt.form.TriggerEditorDemoForm(EditorToolbar.this.guiRoot, null));
+            }
+        });
 
     // Tool selector follows intensity controls
         toolLabel.place(intensityValue, RIGHT_MID, spacing);
