@@ -118,12 +118,12 @@ public final class MapEditorSession {
                             };
 
                             // Single-player editor setup
-                            // Provide a neutral player and teams 0..7 so the Entities tool can assign ownership properly.
+                            // Editor players: competitive teams only (0..7). No Neutral slot is created in the editor.
                             // Default race for editor players: Natives; templates can still be placed for any race.
                             java.util.List<PlayerInfo> infoList = new java.util.ArrayList<>();
-                            infoList.add(new PlayerInfo(PlayerInfo.TEAM_NEUTRAL, com.oddlabs.tt.model.RacesResources.RACE_NATIVES, "Neutral"));
                             for (int i = 0; i < 8; i++) {
-                                infoList.add(new PlayerInfo(i, com.oddlabs.tt.model.RacesResources.RACE_NATIVES, "Team " + i));
+                                // Underlying team indices are 0..7; label them as Team 1..Team 8 for clarity
+                                infoList.add(new PlayerInfo(i, com.oddlabs.tt.model.RacesResources.RACE_NATIVES, "Team " + (i + 1)));
                             }
                             PlayerInfo[] infos = infoList.toArray(new PlayerInfo[0]);
                             // Let World assign default distinct colors if not provided per-player
@@ -403,8 +403,8 @@ public final class MapEditorSession {
     // Buildings: 0 Quarters, 1 Armory, 2 Tower, 3 Ship
     // Units: 0 Peon, 1 Warrior Rock, 2 Warrior Iron, 3 Warrior Chicken (rubber), 4 Chieftain
     private int entitiesKind = 0;
-    // Team index: 0 = Neutral, else 1..8 map to team 0..7
-    private int entitiesTeam = 1; // default Team 0
+    // Team index: 0..7 map directly to team 0..7 (Team 1..8 in UI labels; no Neutral team)
+    private int entitiesTeam = 0; // default Team 0 (labeled "Team 1")
     private int entitiesRace = com.oddlabs.tt.model.RacesResources.RACE_NATIVES;
 
         // ------- Map mode state (zoom-to-fit like game modes) -------
@@ -508,14 +508,14 @@ public final class MapEditorSession {
                         if (entitiesPanel != null) entitiesPanel.syncOptionsFromBinding();
                     }
                     public String[] getEntitiesTeamNames() {
-                        String[] names = new String[1 + 8];
-                        names[0] = "Neutral";
-                        for (int i=0;i<8;i++) names[1+i] = "Team " + i;
+                        // Labels: Team 1 .. Team 8
+                        String[] names = new String[8];
+                        for (int i=0;i<8;i++) names[i] = "Team " + (i + 1);
                         return names;
                     }
                     public int getEntitiesTeamIndex() { return entitiesTeam; }
                     public void setEntitiesTeamIndex(int idx) {
-                        if (idx < 0 || idx > 8) return; // 0..8 (0 neutral, 1..8 => team 0..7)
+                        if (idx < 0 || idx >= 8) return; // 0..7 => team 0..7
                         entitiesTeam = idx;
                         if (toolbar != null) toolbar.syncOptionsFromBinding();
                         if (entitiesPanel != null) entitiesPanel.syncOptionsFromBinding();
@@ -2290,13 +2290,32 @@ public final class MapEditorSession {
                         com.oddlabs.tt.pathfinder.Occupant occ = ug.getOccupant(gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
                         boolean changed = false;
                         if (occ instanceof com.oddlabs.tt.model.Unit) {
-                            try { ((com.oddlabs.tt.model.Unit) occ).remove(); changed = true; } catch (Throwable ignore) {}
+                            try {
+                                com.oddlabs.tt.model.Unit u = (com.oddlabs.tt.model.Unit) occ;
+                                u.removeNow(); // ensures proper cleanup and grid free
+                                changed = true;
+                                if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                                    try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
+                                    try { overlayRenderer.markDirtyROI(gx, gy, gx, gy); } catch (Throwable ignore) {}
+                                }
+                            } catch (Throwable ignore) {}
                         } else if (occ instanceof com.oddlabs.tt.model.Building) {
-                            try { ((com.oddlabs.tt.model.Building) occ).remove(); changed = true; } catch (Throwable ignore) {}
-                        }
-                        if (changed && EDITOR_STATE.isAutoUpdatePlacementGrids()) {
-                            try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
-                            try { overlayRenderer.markDirtyROI(gx, gy, gx, gy); } catch (Throwable ignore) {}
+                            try {
+                                com.oddlabs.tt.model.Building b = (com.oddlabs.tt.model.Building) occ;
+                                // Compute footprint ROI before destroying to update placement validity over full area
+                                int size = b.getBuildingTemplate().getPlacingSize();
+                                int r = Math.max(0, size - 1);
+                                int bx = b.getGridX();
+                                int by = b.getGridY();
+                                int roiMinGX = bx - r, roiMinGY = by - r, roiMaxGX = bx + r, roiMaxGY = by + r;
+                                // Editor-fast destroy: free occupancy/terrain and remove visuals immediately
+                                b.editorRemoveNow();
+                                changed = true;
+                                if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                                    try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, roiMinGX, roiMinGY, roiMaxGX, roiMaxGY); } catch (Throwable ignore) {}
+                                    try { overlayRenderer.markDirtyROI(roiMinGX, roiMinGY, roiMaxGX, roiMaxGY); } catch (Throwable ignore) {}
+                                }
+                            } catch (Throwable ignore) {}
                         }
                         continue;
                     }
@@ -2373,9 +2392,9 @@ public final class MapEditorSession {
         }
 
         // Resolve the owner based on the currently selected team index in the Entities panel.
-        // entitiesTeam: 0 = Neutral; 1..8 map to team 0..7
+        // entitiesTeam: 0..7 map directly to teams 0..7
         private com.oddlabs.tt.player.Player resolveSelectedOwner() {
-            int desiredTeam = (entitiesTeam == 0) ? com.oddlabs.tt.player.PlayerInfo.TEAM_NEUTRAL : (entitiesTeam - 1);
+            int desiredTeam = entitiesTeam;
             com.oddlabs.tt.player.Player[] players = world.getPlayers();
             for (com.oddlabs.tt.player.Player p : players) {
                 if (p.getPlayerInfo().getTeam() == desiredTeam) return p;

@@ -1000,6 +1000,22 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         return "Building: isDead() = " + isDead();
     }
 
+    // Editor-only immediate destruction helper to avoid lingering visuals/emitters
+    public final void editorRemoveNow() {
+        // Ensure game-state cleanup (free grids, undo terrain, counters)
+        if (!isDead()) {
+            try { removeDying(); } catch (Throwable ignore) {}
+        }
+        // Stop any ongoing emitters/sounds tied to the building lifecycle
+        try { damaged_emitter.done(); } catch (Throwable ignore) {}
+        try { production_emitter.done(); } catch (Throwable ignore) {}
+        try { if (weapons_producer != null) weapons_producer.stopSound(); } catch (Throwable ignore) {}
+        // Bypass delayed removal in the editor
+        remove_delay = 0f;
+        // Detach from render/animation immediately
+        try { remove(); } catch (Throwable ignore) {}
+    }
+
     public final float getAnimationTicks() {
         return 0;
     }
