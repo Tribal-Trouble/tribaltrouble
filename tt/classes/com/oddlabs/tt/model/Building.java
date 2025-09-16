@@ -680,7 +680,7 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
                             0];
             pushController(new SailController(this, sail_target));
             free();
-            setLayer(1);
+            setLayer(UnitGrid.SEA);
             occupy();
         } else if (getAbilities().hasAbilities(Abilities.ATTACK)) {
             if (target != this) {

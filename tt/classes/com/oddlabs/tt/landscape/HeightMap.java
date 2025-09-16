@@ -1,5 +1,6 @@
 package com.oddlabs.tt.landscape;
 
+import com.oddlabs.procedural.Channel;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.util.StrictVector3f;
 
@@ -22,6 +23,7 @@ public final strictfp class HeightMap {
     private final boolean[][] access_grid;
     private final boolean[][] dock_grid;
     private final boolean[][] water_grid;
+    private final Channel sea_cost_map;
     private final ArrayList island_locations;
     private final byte[][] build_grid;
     private final int meters_per_world;
@@ -50,6 +52,7 @@ public final strictfp class HeightMap {
             boolean[][] access_grid,
             boolean[][] dock_grid,
             boolean[][] water_grid,
+            Channel sea_cost_map,
             byte[][] build_grid) {
         this.world = world;
         this.world_instance = world_instance;
@@ -57,6 +60,7 @@ public final strictfp class HeightMap {
         this.access_grid = access_grid;
         this.dock_grid = dock_grid;
         this.water_grid = water_grid;
+        this.sea_cost_map = sea_cost_map;
         this.build_grid = build_grid;
         this.island_locations = island_locations;
         this.meters_per_world = meters_per_world;
@@ -153,6 +157,10 @@ public final strictfp class HeightMap {
 
     public final boolean[][] getDockGrid() {
         return dock_grid;
+    }
+
+    public final Channel getSeaCostMap() {
+        return sea_cost_map;
     }
 
     public final boolean[][] getWaterGrid() {
