@@ -100,16 +100,15 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
         GUIObject last_race = null;
         Group teams = new Group();
         GUIObject last_team = null;
-        // Optional peace timer shown at the top if active
-        Label peaceLabel = null;
+        // Optional peace timer anchored at top-left of the screen (menu root), not inside centered group
         if (viewer.getWorld().isPeaceTime()) {
             int remaining = viewer.getWorld().getPeaceRemainingSeconds();
             int mm = remaining / 60;
             int ss = remaining % 60;
             String peace = String.format("peace: %d:%02d", mm, ss);
-            peaceLabel = new Label(peace, Skin.getSkin().getHeadlineFont());
-            game_infos.addChild(peaceLabel);
-            peaceLabel.place();
+            Label peaceLabel = new Label(peace, Skin.getSkin().getHeadlineFont());
+            menu.addChild(peaceLabel);
+            peaceLabel.setPos(0, 0);
         }
         for (int i = 0; i < players.length; i++) {
             PlayerInfo player_info = players[i].getPlayerInfo();
@@ -150,9 +149,8 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
         game_infos.addChild(names);
         game_infos.addChild(races);
         game_infos.addChild(teams);
-    // Place below any peace label if present
-    if (peaceLabel != null) names.place(peaceLabel, GUIObject.BOTTOM_LEFT);
-    else names.place();
+        // Centered player info block (peace label is independent at top-left)
+        names.place();
         races.place(names, GUIObject.RIGHT_TOP);
         teams.place(races, GUIObject.RIGHT_TOP);
         game_infos.compileCanvas();
