@@ -517,7 +517,12 @@ public final class EditorColormapReblender {
             case 256: access_threshold = 0.05f; break;
             case 512: access_threshold = 0.0375f; break;
             case 1024: access_threshold = 0.025f; break;
-            default: access_threshold = 0.0375f; break;
+            case 2048: access_threshold = 0.02f; break; // match generator for largest maps
+            default:
+                // Fallback: align with generator’s intent. If even larger worlds are introduced,
+                // prefer the most conservative (lower) threshold to avoid losing cliffs.
+                access_threshold = (hm.getMetersPerWorld() > 1024) ? 0.02f : 0.0375f;
+                break;
         }
         float build_threshold = access_threshold / 2f;
 
