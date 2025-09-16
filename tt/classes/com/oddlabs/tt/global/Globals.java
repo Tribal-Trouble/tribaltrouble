@@ -86,6 +86,24 @@ public final strictfp class Globals {
     public static final String KB_PAUSE = "KB_PAUSE"; // Default: Escape (Pause menu)
 
     // #endregion Keybinds - Actions
+    
+    // #region Keybinds - Map Editor
+    // Editor toggles and tools
+    public static final String KB_EDITOR_OVERLAY_MODE = "KB_EDITOR_OVERLAY_MODE"; // Tap to toggle overlays, hold to peek/cycle with wheel
+    public static final String KB_EDITOR_TOGGLE_TOOLBAR = "KB_EDITOR_TOGGLE_TOOLBAR"; // Show/hide editor toolbar
+    public static final String KB_EDITOR_SET_TERRAIN_TOOL = "KB_EDITOR_SET_TERRAIN_TOOL"; // Select Terrain/Height tool
+    public static final String KB_EDITOR_SET_RESOURCE_TOOL = "KB_EDITOR_SET_RESOURCE_TOOL"; // Select Resource tool
+
+    // Editor commands (modifier semantics retained, e.g., Ctrl + key)
+    public static final String KB_EDITOR_SAVE = "KB_EDITOR_SAVE"; // Default key: S (uses Ctrl)
+    public static final String KB_EDITOR_LOAD = "KB_EDITOR_LOAD"; // Default key: L (uses Ctrl)
+    public static final String KB_EDITOR_TEST_MAP = "KB_EDITOR_TEST_MAP"; // Default key: P (uses Ctrl)
+    public static final String KB_EDITOR_TOGGLE_HELP = "KB_EDITOR_TOGGLE_HELP"; // Default: F1
+
+    // Polyline editing (Ramp/River): apply and undo-last-point
+    public static final String KB_EDITOR_POLY_APPLY = "KB_EDITOR_POLY_APPLY"; // Default: Enter (NumEnter also accepted)
+    public static final String KB_EDITOR_POLY_UNDO_POINT = "KB_EDITOR_POLY_UNDO_POINT"; // Default: Backspace
+    // #endregion Keybinds - Map Editor
     public static final String DOMAIN_NAME = Settings.getSettings().getDomainName();
     public static final String SUPPORT_ADDRESS = "http://" + DOMAIN_NAME + "/support";
 

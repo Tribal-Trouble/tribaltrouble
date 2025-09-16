@@ -730,22 +730,28 @@ public final class MapEditorSession {
                 return;
             }
 
-            // 3) Q held: cycle height tool mode
-            if (LocalInput.isKeyDown(Keyboard.KEY_Q)) {
+            // 3) Terrain tool key held: cycle height tool mode
+            if (LocalInput.isKeyDown(
+                    com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                            com.oddlabs.tt.global.Globals.KB_EDITOR_SET_TERRAIN_TOOL))) {
                 if (amount > 0) nextMode(); else if (amount < 0) prevMode();
                 if (toolbar != null) toolbar.syncOptionsFromBinding();
                 return;
             }
 
-            // 4) W held: cycle resource type
-            if (LocalInput.isKeyDown(Keyboard.KEY_W)) {
+            // 4) Resource tool key held: cycle resource type
+            if (LocalInput.isKeyDown(
+                    com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                            com.oddlabs.tt.global.Globals.KB_EDITOR_SET_RESOURCE_TOOL))) {
                 if (amount > 0) cycleResourceType(1); else if (amount < 0) cycleResourceType(-1);
                 if (toolbar != null) toolbar.syncOptionsFromBinding();
                 return;
             }
 
-            // 5) T held: overlay layer peek/cycle (does not modify modes)
-            if (LocalInput.isKeyDown(Keyboard.KEY_T)) {
+            // 5) Overlay key held: overlay layer peek/cycle (does not modify modes)
+            if (LocalInput.isKeyDown(
+                    com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                            com.oddlabs.tt.global.Globals.KB_EDITOR_OVERLAY_MODE))) {
                 overlayTScrollUsed = true;
                 if (amount > 0) nextOverlayLayer(); else if (amount < 0) prevOverlayLayer();
                 if (toolbar != null) toolbar.syncOptionsFromBinding();
@@ -966,12 +972,15 @@ public final class MapEditorSession {
                     new StaticCamera(getCamera().getState())));
                 return;
             }
-            if (event.getKeyCode() == Keyboard.KEY_F1) {
+        if (event.getKeyCode() == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+            com.oddlabs.tt.global.Globals.KB_EDITOR_TOGGLE_HELP)) {
                 toggleHelp();
                 return;
             }
-            // Space: toggle MapCamera zoom-to-fit mode (reuse in-game behavior)
-            if (event.getKeyCode() == Keyboard.KEY_SPACE || event.getKeyCode() == Keyboard.KEY_NUMPAD5) {
+        // Map mode toggle (reuse in-game behavior): use configured key or NumPad5
+        if (event.getKeyCode() == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                com.oddlabs.tt.global.Globals.KB_TOGGLE_MAP_MODE)
+            || event.getKeyCode() == Keyboard.KEY_NUMPAD5) {
                 if (!mapMode) {
                     // Enter map mode: remember game camera and switch to MapCamera using shared impl
                     if (!(getCamera() instanceof GameCamera)) return; // safety
@@ -988,14 +997,22 @@ public final class MapEditorSession {
                 }
                 return;
             }
-            // Ctrl+S: Open Save dialog (multi-file)
-            if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_S) {
+            // Save (Ctrl + configured key)
+            if (event.isControlDown()
+                    && !event.isShiftDown()
+                    && event.getKeyCode()
+                            == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                                    com.oddlabs.tt.global.Globals.KB_EDITOR_SAVE)) {
                 getGUIRoot().addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.SaveDialog(
                         getGUIRoot(), world, terrainType));
                 return;
             }
-            // Ctrl+P: Open Test Map modal form
-            if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_P) {
+            // Test Map (Ctrl + configured key)
+            if (event.isControlDown()
+                    && !event.isShiftDown()
+                    && event.getKeyCode()
+                            == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                                    com.oddlabs.tt.global.Globals.KB_EDITOR_TEST_MAP)) {
                 try {
                     getGUIRoot().addModalForm(new com.oddlabs.tt.form.TestMapForm(
                             getGUIRoot(),
@@ -1007,8 +1024,12 @@ public final class MapEditorSession {
                 }
                 return;
             }
-            // ` (grave) toggles the toolbar visibility (or recreates if missing)
-            if (!event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_GRAVE) {
+            // Toolbar toggle key (toggles the toolbar visibility or recreates)
+            if (!event.isControlDown()
+                    && !event.isShiftDown()
+                    && event.getKeyCode()
+                            == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                                    com.oddlabs.tt.global.Globals.KB_EDITOR_TOGGLE_TOOLBAR)) {
                 // If toolbar object is null or was closed (removed from parent), recreate it
                 if (toolbar == null || toolbar.getParent() == null) {
                     try {
@@ -1026,8 +1047,12 @@ public final class MapEditorSession {
                 return;
             }
             // Removed: F5 quick save (debug-only)
-            // Ctrl+L: Open Load dialog (multi-file)
-            if (event.isControlDown() && !event.isShiftDown() && event.getKeyCode() == Keyboard.KEY_L) {
+        // Load (Ctrl + configured key)
+        if (event.isControlDown()
+            && !event.isShiftDown()
+            && event.getKeyCode()
+                == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                    com.oddlabs.tt.global.Globals.KB_EDITOR_LOAD)) {
                 getGUIRoot().addModalForm(new com.oddlabs.tt.form.EditorMapDialogs.LoadDialog(
                         getGUIRoot(), world, landscapeRenderer, defaultRenderer, terrainType));
                 return;
@@ -1035,7 +1060,9 @@ public final class MapEditorSession {
             // Removed: F9 quick load (debug-only)
             // Polyline tool hotkeys
             if (activeTool == ActiveTool.TERRAIN && (brushMode == BrushMode.RAMP || brushMode == BrushMode.RIVER)) {
-                if (event.getKeyCode() == Keyboard.KEY_RETURN || event.getKeyCode() == Keyboard.KEY_NUMPADENTER) {
+                if (event.getKeyCode() == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                                com.oddlabs.tt.global.Globals.KB_EDITOR_POLY_APPLY)
+                        || event.getKeyCode() == Keyboard.KEY_NUMPADENTER) {
                     if (polylinePts.size() >= 2) {
                         applyPolylineEdit();
                         polylinePts.clear();
@@ -1043,7 +1070,9 @@ public final class MapEditorSession {
                         info("Need at least 2 points to apply");
                     }
                     return;
-                } else if (event.getKeyCode() == Keyboard.KEY_BACK) { // Backspace
+                } else if (event.getKeyCode()
+                        == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                                com.oddlabs.tt.global.Globals.KB_EDITOR_POLY_UNDO_POINT)) { // Backspace by default
                     if (!polylinePts.isEmpty()) {
                         polylinePts.remove(polylinePts.size() - 1);
                         info("Undo point (#" + polylinePts.size() + ")");
@@ -1051,14 +1080,18 @@ public final class MapEditorSession {
                     return;
                 }
             }
-            // Tool toggles: Q = Terrain (tap switches immediately; hold to cycle with wheel), W = Resource.
-            if (event.getKeyCode() == Keyboard.KEY_Q) {
+            // Tool toggles: Terrain (tap switches immediately; hold to cycle with wheel), Resource.
+            if (event.getKeyCode()
+                    == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                            com.oddlabs.tt.global.Globals.KB_EDITOR_SET_TERRAIN_TOOL)) {
                 activeTool = ActiveTool.TERRAIN;
                 info("Tool = HEIGHT");
                 // Clear any in-progress stroke so tool switches never wait for a mouse action
                 cancelActiveStrokeAndButtons();
                 if (toolbar != null) toolbar.syncOptionsFromBinding();
-            } else if (event.getKeyCode() == Keyboard.KEY_W) {
+            } else if (event.getKeyCode()
+                    == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                            com.oddlabs.tt.global.Globals.KB_EDITOR_SET_RESOURCE_TOOL)) {
                 activeTool = ActiveTool.RESOURCE;
                 info("Tool = RESOURCE, Type = " + resourceType);
                 // Don't forward to camera to avoid conflicting with camera forward movement
@@ -1066,7 +1099,9 @@ public final class MapEditorSession {
                 cancelActiveStrokeAndButtons();
                 if (toolbar != null) toolbar.syncOptionsFromBinding();
                 return;
-            } else if (event.getKeyCode() == Keyboard.KEY_T) {
+            } else if (event.getKeyCode()
+                    == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                            com.oddlabs.tt.global.Globals.KB_EDITOR_OVERLAY_MODE)) {
                 // Start temporary overlay display; defer toggling until release unless scrolled
                 overlayActiveHeld = true;
                 overlayTPressed = true;
@@ -1076,7 +1111,9 @@ public final class MapEditorSession {
         }
 
         protected void keyReleased(KeyboardEvent event) {
-            if (event.getKeyCode() == Keyboard.KEY_T) {
+            if (event.getKeyCode()
+                    == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                            com.oddlabs.tt.global.Globals.KB_EDITOR_OVERLAY_MODE)) {
                 overlayActiveHeld = false;
                 if (overlayTPressed) {
                     if (overlayTScrollUsed) {

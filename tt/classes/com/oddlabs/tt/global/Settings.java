@@ -239,6 +239,18 @@ public final strictfp class Settings implements Serializable {
                     // Magic actions
                     put(Globals.KB_CHIEFTAIN_MAGIC1, Keyboard.KEY_S);
                     put(Globals.KB_CHIEFTAIN_MAGIC2, Keyboard.KEY_C);
+
+                    // Editor defaults (active only in editor)
+                    put(Globals.KB_EDITOR_OVERLAY_MODE, Keyboard.KEY_T); // tap=toggle overlays, hold + wheel=cycle
+                    put(Globals.KB_EDITOR_TOGGLE_TOOLBAR, Keyboard.KEY_GRAVE); // backtick `
+                    put(Globals.KB_EDITOR_SET_TERRAIN_TOOL, Keyboard.KEY_Q);
+                    put(Globals.KB_EDITOR_SET_RESOURCE_TOOL, Keyboard.KEY_W);
+                    put(Globals.KB_EDITOR_SAVE, Keyboard.KEY_S); // used with Ctrl
+                    put(Globals.KB_EDITOR_LOAD, Keyboard.KEY_L); // used with Ctrl
+                    put(Globals.KB_EDITOR_TEST_MAP, Keyboard.KEY_P); // used with Ctrl
+                    put(Globals.KB_EDITOR_TOGGLE_HELP, Keyboard.KEY_F1);
+                    put(Globals.KB_EDITOR_POLY_APPLY, Keyboard.KEY_RETURN); // Enter (NumEnter handled in code)
+                    put(Globals.KB_EDITOR_POLY_UNDO_POINT, Keyboard.KEY_BACK); // Backspace
                 }
             };
 

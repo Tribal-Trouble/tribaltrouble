@@ -26,6 +26,7 @@ public class KeybindPanel extends Panel {
     private AbstractKeybindPanel combatPanel;
     private AbstractKeybindPanel economyPanel;
     private AbstractKeybindPanel systemPanel;
+    private AbstractKeybindPanel editorPanel;
     
     public KeybindPanel(GUIRoot gui_root, String caption) {
         super(caption);
@@ -57,11 +58,12 @@ public class KeybindPanel extends Panel {
         essentialPanel = new EssentialKeybindPanel(gui_root, "Essential");
         combatPanel = new CombatKeybindPanel(gui_root, "Combat");
         economyPanel = new EconomyKeybindPanel(gui_root, "Economy");
-        systemPanel = new SystemKeybindPanel(gui_root, "System");
+    systemPanel = new SystemKeybindPanel(gui_root, "System");
+    editorPanel = new EditorKeybindPanel(gui_root, "Map Editor");
         
         // Create internal PanelGroup for subtabs
         // Essential first since it contains the most commonly used binds
-        Panel[] subPanels = {essentialPanel, combatPanel, economyPanel, systemPanel};
+    Panel[] subPanels = {essentialPanel, combatPanel, economyPanel, systemPanel, editorPanel};
         keybindsGroup = new PanelGroup(subPanels, 0);
         
         // Place keybinds list first, then controls header at the bottom
@@ -115,6 +117,7 @@ public class KeybindPanel extends Panel {
         combatPanel.refreshKeybindRows();
         economyPanel.refreshKeybindRows();
         systemPanel.refreshKeybindRows();
+        editorPanel.refreshKeybindRows();
     }
 
     // Clipboard actions that operate on ALL keybinds

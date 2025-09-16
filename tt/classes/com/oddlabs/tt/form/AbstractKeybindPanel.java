@@ -33,7 +33,7 @@ public abstract class AbstractKeybindPanel extends Panel {
                 {
                     put(Globals.KB_TOGGLE_MAP_MODE, "Toggle Map Mode");
                     put(Globals.KB_JUMP_TO_NOTIFICATION, "Jump To Latest Notification");
-                    put(Globals.KB_PLACE_BEACON, "Place Beacon (with Ctrl)");
+                    put(Globals.KB_PLACE_BEACON, "Place Beacon (Ctrl +)");
                     put(Globals.KB_NEXT_IDLE_PEON, "Select Next Idle Peon");
 
                     put(Globals.KB_PAN_CAMERA_LEFT, "Pan Camera Left");
@@ -46,8 +46,8 @@ public abstract class AbstractKeybindPanel extends Panel {
                     put(Globals.KB_CAMERA_ROTATE_RIGHT, "Rotate Camera Right");
                     put(Globals.KB_CAMERA_PITCH_UP, "Pitch Camera Up");
                     put(Globals.KB_CAMERA_PITCH_DOWN, "Pitch Camera Down");
-                    put(Globals.KB_CAMERA_ZOOM_HOLD, "Hold to Zoom (Keyboard)");
-                    put(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE, "Toggle First-Person (Keyboard)");
+                    put(Globals.KB_CAMERA_ZOOM_HOLD, "Hold to Zoom");
+                    put(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE, "Toggle First-Person");
 
                     put(Globals.KB_ATTACK, "Attack");
                     put(Globals.KB_GATHER_REPAIR, "Gather/Repair");
@@ -94,22 +94,34 @@ public abstract class AbstractKeybindPanel extends Panel {
                     put(Globals.KB_TOWER_ATTACK, "Tower - Attack");
                     put(Globals.KB_TOWER_EXIT, "Tower - Exit Tower");
 
-                    put(Globals.KB_ARMY_GROUP_0, "Army Group 0 (Ctrl to assign)");
-                    put(Globals.KB_ARMY_GROUP_1, "Army Group 1 (Ctrl to assign)");
-                    put(Globals.KB_ARMY_GROUP_2, "Army Group 2 (Ctrl to assign)");
-                    put(Globals.KB_ARMY_GROUP_3, "Army Group 3 (Ctrl to assign)");
-                    put(Globals.KB_ARMY_GROUP_4, "Army Group 4 (Ctrl to assign)");
-                    put(Globals.KB_ARMY_GROUP_5, "Army Group 5 (Ctrl to assign)");
-                    put(Globals.KB_ARMY_GROUP_6, "Army Group 6 (Ctrl to assign)");
-                    put(Globals.KB_ARMY_GROUP_7, "Army Group 7 (Ctrl to assign)");
-                    put(Globals.KB_ARMY_GROUP_8, "Army Group 8 (Ctrl to assign)");
-                    put(Globals.KB_ARMY_GROUP_9, "Army Group 9 (Ctrl to assign)");
+                    put(Globals.KB_ARMY_GROUP_0, "Army Group 0");
+                    put(Globals.KB_ARMY_GROUP_1, "Army Group 1");
+                    put(Globals.KB_ARMY_GROUP_2, "Army Group 2");
+                    put(Globals.KB_ARMY_GROUP_3, "Army Group 3");
+                    put(Globals.KB_ARMY_GROUP_4, "Army Group 4");
+                    put(Globals.KB_ARMY_GROUP_5, "Army Group 5");
+                    put(Globals.KB_ARMY_GROUP_6, "Army Group 6");
+                    put(Globals.KB_ARMY_GROUP_7, "Army Group 7");
+                    put(Globals.KB_ARMY_GROUP_8, "Army Group 8");
+                    put(Globals.KB_ARMY_GROUP_9, "Army Group 9");
 
                     put(Globals.KB_CHAT_TOGGLE, "Chat Toggle");
                     put(Globals.KB_BACK_CANCEL, "Back / Cancel");
                     put(Globals.KB_GAMESPEED_INCREASE, "Increase Gamespeed");
                     put(Globals.KB_GAMESPEED_DECREASE, "Decrease Gamespeed");
                     put(Globals.KB_PAUSE, "Pause / Open Menu");
+
+                    // Editor
+                    put(Globals.KB_EDITOR_SET_TERRAIN_TOOL, "Editor - Select Terrain Tool");
+                    put(Globals.KB_EDITOR_SET_RESOURCE_TOOL, "Editor - Select Resource Tool");
+                    put(Globals.KB_EDITOR_OVERLAY_MODE, "Editor - Overlays");
+                    put(Globals.KB_EDITOR_TOGGLE_TOOLBAR, "Editor - Toggle Toolbar");
+                    put(Globals.KB_EDITOR_SAVE, "Editor - Save (Ctrl +)");
+                    put(Globals.KB_EDITOR_LOAD, "Editor - Load (Ctrl +)");
+                    put(Globals.KB_EDITOR_TEST_MAP, "Editor - Test Map (Ctrl +)");
+                    put(Globals.KB_EDITOR_TOGGLE_HELP, "Editor - Toggle Help");
+                    put(Globals.KB_EDITOR_POLY_APPLY, "Editor - Polyline Apply");
+                    put(Globals.KB_EDITOR_POLY_UNDO_POINT, "Editor - Polyline Undo Point");
                 }
             };
 
