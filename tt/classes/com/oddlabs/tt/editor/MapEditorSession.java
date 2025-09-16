@@ -2002,7 +2002,8 @@ public final class MapEditorSession {
             float sinA = (float) StrictMath.sin(brushAngleRad);
 
             // Intensity controls coverage: 1 -> 20%, 2 -> 40%, ..., 4 -> 80% (clamped)
-            float coverage = (float) StrictMath.max(0f, StrictMath.min(1f, 0.2f * brushStrengthM));
+            // Coverage derived from intensity: map intensity (nominal 0..10) to 0..1 by dividing by 10
+            float coverage = (float) StrictMath.max(0f, StrictMath.min(1f, brushStrengthM / 10f));
             java.util.Random rnd = world.getRandom();
             boolean erase = rightDown && !leftDown;
 
@@ -2356,7 +2357,8 @@ public final class MapEditorSession {
             float sinA = (float) StrictMath.sin(brushAngleRad);
 
             // Intensity -> coverage fraction
-            float coverage = (float) StrictMath.max(0f, StrictMath.min(1f, 0.2f * brushStrengthM));
+            // Coverage derived from intensity: map intensity (nominal 0..10) to 0..1 by dividing by 10
+            float coverage = (float) StrictMath.max(0f, StrictMath.min(1f, brushStrengthM / 10f));
             java.util.Random rnd = world.getRandom();
             boolean erase = rightDown && !leftDown;
 
