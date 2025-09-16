@@ -212,16 +212,17 @@ public final strictfp class World {
     this.game_mode = world_params.getGameMode();
         this.notification_listener = notification_listener;
         this.gamespeed = world_params.getInitialGameSpeed();
-    // Compute peace end tick in real-time ticks (independent of gamespeed)
+    // Compute peace end tick using the World's real-time AnimationManager ticks
+    // This advances only when the simulation runs (pauses with SP pause menu; continues in MP)
     if (game_mode != null && game_mode.peaceEnabled && game_mode.peaceSeconds > 0) {
-        int current = LocalEventQueue.getQueue().getHighPrecisionManager().getTick();
-        this.peace_end_tick =
-            current
-                + (int)
-                    (game_mode.peaceSeconds
-                        / AnimationManager.ANIMATION_SECONDS_PER_TICK);
+    int current = getAnimationManagerRealTime().getTick();
+    this.peace_end_tick =
+        current
+            + (int)
+                (game_mode.peaceSeconds
+                    / AnimationManager.ANIMATION_SECONDS_PER_TICK);
     } else {
-        this.peace_end_tick = -1;
+    this.peace_end_tick = -1;
     }
         long time_start = System.currentTimeMillis();
 
@@ -326,16 +327,15 @@ public final strictfp class World {
     }
 
     public final boolean isPeaceTime() {
-        return peace_end_tick != -1
-                && LocalEventQueue.getQueue().getHighPrecisionManager().getTick() < peace_end_tick;
+        return peace_end_tick != -1 && getAnimationManagerRealTime().getTick() < peace_end_tick;
     }
 
     // Returns remaining peace time in seconds (>=0), or 0 if not in peace
     public final int getPeaceRemainingSeconds() {
         if (!isPeaceTime()) return 0;
-        int ticks_left =
-                peace_end_tick - LocalEventQueue.getQueue().getHighPrecisionManager().getTick();
-        return (int) StrictMath.ceil(ticks_left * AnimationManager.ANIMATION_SECONDS_PER_TICK);
+    int ticks_left = peace_end_tick - getAnimationManagerRealTime().getTick();
+    // Convert from world real-time ticks (20ms) to seconds
+    return (int) StrictMath.ceil(ticks_left * AnimationManager.ANIMATION_SECONDS_PER_TICK);
     }
 
     public final HeightMap getHeightMap() {
