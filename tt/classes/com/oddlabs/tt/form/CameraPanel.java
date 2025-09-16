@@ -21,7 +21,6 @@ public class CameraPanel extends Panel {
     private static final int GROUP_SPACING = 10;
 
     // Keep slider refs so we can restore/update values
-    private Slider sSensitivity;
     private Slider sAccelTime;
     private Slider sAccelFactor;
     private Slider sStartSpeed;
@@ -49,20 +48,17 @@ public class CameraPanel extends Panel {
         ScrollableSliderContainer scrollContainer = 
             new ScrollableSliderContainer(SLIDER_WIDTH + 100, dynamicHeight, GROUP_SPACING);
         
-        // Mouse sensitivity -------------------------------------------------
-        SliderGroupPair sensGroup = createSliderGroupWithSlider(
-            "Mouse sensitivity", "low", "high",
-            Settings.getSettings().mouse_sensitivity, 0.2f, 3.0f,
+        // Map mode delay (moved here from General) -------------------------
+        SliderGroupPair mapModeGroup = createSliderGroupWithSlider(
+            "Map mode delay", "none", "high",
+            Settings.getSettings().mapmode_delay, 0.0f, 1.0f,
             new ValueListener() {
                 public void valueSet(int value) {
-                    float sens = fromSlider(value, 0.2f, 3.0f);
-                    Settings.getSettings().mouse_sensitivity = sens;
-                    Mouse.updateSensitivity();
+                    Settings.getSettings().mapmode_delay = fromSlider(value, 0.0f, 1.0f);
                 }
             }
         );
-        sSensitivity = sensGroup.slider;
-        scrollContainer.addGroup(sensGroup.group);
+        scrollContainer.addGroup(mapModeGroup.group);
 
         // Scroll acceleration time max -------------------------------------
         SliderGroupPair accelTimeGroup = createSliderGroupWithSlider(
@@ -267,7 +263,6 @@ public class CameraPanel extends Panel {
         cur.camera_edge_scroll_buffer = def.camera_edge_scroll_buffer;
 
         // Update UI controls
-        sSensitivity.setValue(toSlider(cur.mouse_sensitivity, 0.2f, 3.0f));
         sAccelTime.setValue(toSlider(cur.camera_scroll_accel_seconds_max, 0.1f, 3.0f));
         sAccelFactor.setValue(toSlider(cur.camera_scroll_accel_factor, 0.0f, 5.0f));
         sStartSpeed.setValue(toSlider(cur.camera_start_max_speed, 10f, 120f));
@@ -283,7 +278,6 @@ public class CameraPanel extends Panel {
     @Override
     public void onActivated() {
         Settings s = Settings.getSettings();
-        sSensitivity.setValue(toSlider(s.mouse_sensitivity, 0.2f, 3.0f));
         sAccelTime.setValue(toSlider(s.camera_scroll_accel_seconds_max, 0.1f, 3.0f));
         sAccelFactor.setValue(toSlider(s.camera_scroll_accel_factor, 0.0f, 5.0f));
         sStartSpeed.setValue(toSlider(s.camera_start_max_speed, 10f, 120f));

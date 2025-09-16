@@ -4,10 +4,8 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
-import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PanelGroup;
-import com.oddlabs.tt.gui.Skin;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -21,7 +19,7 @@ import java.util.Map;
  */
 public class KeybindPanel extends Panel {
     private final PanelGroup keybindsGroup;
-    private Label statusLabel;
+    private final GUIRoot gui_root;
     
     // Keep references to category panels so we can refresh them when keybinds change
     private AbstractKeybindPanel essentialPanel;
@@ -31,6 +29,7 @@ public class KeybindPanel extends Panel {
     
     public KeybindPanel(GUIRoot gui_root, String caption) {
         super(caption);
+        this.gui_root = gui_root;
         
         // Create header with controls
         Group headerGroup = new Group();
@@ -48,16 +47,10 @@ public class KeybindPanel extends Panel {
         resetBtn.addMouseClickListener((button, x, y, clicks) -> resetBinds());
         headerGroup.addChild(resetBtn);
         
-        // Status label for feedback
-        statusLabel = new Label("", Skin.getSkin().getEditFont());
-        headerGroup.addChild(statusLabel);
-        
-        // Layout header controls
+        // Layout header controls (buttons row)
         copyBtn.place();
         pasteBtn.place(copyBtn, RIGHT_MID);
         resetBtn.place(pasteBtn, RIGHT_MID);
-        // Place feedback/status on a new line below the buttons
-        statusLabel.place(copyBtn, BOTTOM_LEFT);
         headerGroup.compileCanvas();
         
         // Create category panels without their own controls
@@ -71,10 +64,12 @@ public class KeybindPanel extends Panel {
         Panel[] subPanels = {essentialPanel, combatPanel, economyPanel, systemPanel};
         keybindsGroup = new PanelGroup(subPanels, 0);
         
-        addChild(headerGroup);
+        // Place keybinds list first, then controls header at the bottom
         addChild(keybindsGroup);
-        headerGroup.place();
-        keybindsGroup.place(headerGroup, BOTTOM_LEFT, -32);
+        addChild(headerGroup);
+        keybindsGroup.place();
+        // Place buttons group under the list with default spacing
+        headerGroup.place(keybindsGroup, BOTTOM_LEFT);
         compileCanvas();
     }
     
@@ -86,10 +81,11 @@ public class KeybindPanel extends Panel {
     }
     
     private void setStatus(String msg, boolean ok) {
-        if (statusLabel == null) return;
-        statusLabel.set(msg);
-        if (ok) statusLabel.setColor(new float[] {0.298f, 0.686f, 0.314f, 1});
-        else statusLabel.setColor(new float[] {0.9f, 0.2f, 0.2f, 1});
+        float[] GREEN = new float[] {0.298f, 0.686f, 0.314f, 1f};
+        float[] RED = new float[] {0.9f, 0.2f, 0.2f, 1f};
+        if (gui_root != null && gui_root.getInfoPrinter() != null) {
+            gui_root.getInfoPrinter().print(msg, ok ? GREEN : RED);
+        }
     }
 
     private static void copyToClipboard(String text) {
