@@ -174,10 +174,10 @@ public final class MapEditorMenuForm extends Form {
         group_sliders.compileCanvas();
         addChild(group_sliders);
 
-    // Sandbox mode checkbox (inlined into bottom row)
+    // Sandbox mode checkbox (moved to top row)
     sandboxModeCheck = new com.oddlabs.tt.gui.CheckBox(
         false,
-        "Sandbox Mode",
+        "Sandbox",
         "Enable experimental tools & overlays. Sandbox maps can't be published.");
 
     // Map code display label (words-based, like TerrainMenu)
@@ -247,23 +247,27 @@ public final class MapEditorMenuForm extends Form {
         });
 
     // Two subgroups (right-aligned):
-    // Top row: [Enter map code...] [Test]
-    // Bottom row: [Sandbox] [Load] [OK]
+    // Top row: [Enter map code...] [Test] [sandbox]
+    // Bottom row: [Load] [OK] [Cancel]
     Group rowTop = new Group();
+    rowTop.addChild(sandboxModeCheck);
     rowTop.addChild(button_mapcode);
     rowTop.addChild(button_test);
     // Place buttons horizontally
-    button_mapcode.place();
+    sandboxModeCheck.place();
+    button_mapcode.place(sandboxModeCheck, RIGHT_MID);
     button_test.place(button_mapcode, RIGHT_MID);
     rowTop.compileCanvas();
 
     Group rowBottom = new Group();
-    rowBottom.addChild(sandboxModeCheck);
     rowBottom.addChild(button_load);
     rowBottom.addChild(buttonOk);
-    sandboxModeCheck.place();
-    button_load.place(sandboxModeCheck, RIGHT_MID);
+    com.oddlabs.tt.gui.HorizButton button_cancel = new com.oddlabs.tt.gui.CancelButton(120);
+    button_cancel.addMouseClickListener(new CancelListener(this));
+    rowBottom.addChild(button_cancel);
+    button_load.place();
     buttonOk.place(button_load, RIGHT_MID);
+    button_cancel.place(buttonOk, RIGHT_MID);
     rowBottom.compileCanvas();
 
     group_buttons.addChild(rowBottom);
