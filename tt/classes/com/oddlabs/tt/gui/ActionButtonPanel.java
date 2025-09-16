@@ -840,32 +840,56 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 
         harvest_tree_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_TREE, null);
-    harvest_tree_button.setIconDisabler(
-        new CombinedDisabler(
-            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
-            new UnitAllowedDisabler(Race.UNIT_PEON)));
+        // Wood is always allowed to harvest, only disable when no peons available
+        harvest_tree_button.setIconDisabler(
+                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
         harvest_rock_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_ROCK, null);
-    harvest_rock_button.setIconDisabler(
-        new CombinedDisabler(
-            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
-            new UnitAllowedDisabler(Race.UNIT_PEON)));
+        // Rock harvest disabled when peons empty OR (chicken disabled AND rock warriors disallowed)
+        harvest_rock_button.setIconDisabler(
+                new CombinedDisabler(
+                        new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+                        new IconDisabler() {
+                            public boolean isDisabled() {
+                                GameModeOptions mode = viewer.getWorld().getGameModeOptions();
+                                if (mode == null) return false;
+                                boolean chickenEnabled = mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+                                if (chickenEnabled) return false;
+                                return !mode.allowedUnits[Race.UNIT_WARRIOR_ROCK];
+                            }
+                        }));
         harvest_iron_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_IRON, null);
-    harvest_iron_button.setIconDisabler(
-        new CombinedDisabler(
-            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
-            new UnitAllowedDisabler(Race.UNIT_PEON)));
+        // Iron harvest disabled when peons empty OR (chicken disabled AND iron warriors disallowed)
+        harvest_iron_button.setIconDisabler(
+                new CombinedDisabler(
+                        new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+                        new IconDisabler() {
+                            public boolean isDisabled() {
+                                GameModeOptions mode = viewer.getWorld().getGameModeOptions();
+                                if (mode == null) return false;
+                                boolean chickenEnabled = mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+                                if (chickenEnabled) return false;
+                                return !mode.allowedUnits[Race.UNIT_WARRIOR_IRON];
+                            }
+                        }));
         harvest_rubber_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_RUBBER, null);
-    harvest_rubber_button.setIconDisabler(
-        new CombinedDisabler(
-            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
-            new UnitAllowedDisabler(Race.UNIT_PEON)));
+        // Rubber (chicken) harvest disabled when peons empty OR rubber warriors disallowed
+        harvest_rubber_button.setIconDisabler(
+                new CombinedDisabler(
+                        new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+                        new UnitAllowedDisabler(Race.UNIT_WARRIOR_RUBBER)));
 
-        build_weapon_rock_button.setBuildSupplyContainer(current_building, RockAxeWeapon.class);
-        build_weapon_iron_button.setBuildSupplyContainer(current_building, IronAxeWeapon.class);
-        build_weapon_rubber_button.setBuildSupplyContainer(current_building, RubberAxeWeapon.class);
+    build_weapon_rock_button.setBuildSupplyContainer(current_building, RockAxeWeapon.class);
+    build_weapon_rock_button.setIconDisabler(
+        new UnitAllowedDisabler(Race.UNIT_WARRIOR_ROCK));
+    build_weapon_iron_button.setBuildSupplyContainer(current_building, IronAxeWeapon.class);
+    build_weapon_iron_button.setIconDisabler(
+        new UnitAllowedDisabler(Race.UNIT_WARRIOR_IRON));
+    build_weapon_rubber_button.setBuildSupplyContainer(current_building, RubberAxeWeapon.class);
+    build_weapon_rubber_button.setIconDisabler(
+        new UnitAllowedDisabler(Race.UNIT_WARRIOR_RUBBER));
 
         army_peon_button.setContainers(current_building, Building.KEY_DEPLOY_PEON, null);
     army_peon_button.setIconDisabler(

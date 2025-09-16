@@ -920,6 +920,42 @@ public final strictfp class TerrainMenu extends Group {
         return true;
     }
 
+    // Apply previous game's parameters (game mode + limits) to this menu, so replay uses same settings
+    public void applyWorldParameters(WorldParameters params) {
+        if (params == null) return;
+        GameModeOptions mode = params.getGameMode();
+        if (mode != null) {
+            if (cb_peace != null) cb_peace.setMarked(mode.peaceEnabled);
+            if (edit_peace_min != null && edit_peace_sec != null) {
+                int total = Math.max(0, mode.peaceSeconds);
+                int mm = total / 60;
+                int ss = total % 60;
+                edit_peace_min.clear();
+                edit_peace_min.append(Integer.toString(mm));
+                edit_peace_sec.clear();
+                edit_peace_sec.append(Integer.toString(ss));
+            }
+            if (edit_max_buildings != null) {
+                edit_max_buildings.clear();
+                edit_max_buildings.append(Integer.toString(mode.maxBuildings));
+            }
+            if (unit_allow_checks != null && mode.allowedUnits != null) {
+                int n = Math.min(unit_allow_checks.length, mode.allowedUnits.length);
+                for (int i = 0; i < n; i++) unit_allow_checks[i].setMarked(mode.allowedUnits[i]);
+            }
+            if (building_allow_checks != null && mode.allowedBuildings != null) {
+                int n = Math.min(building_allow_checks.length, mode.allowedBuildings.length);
+                for (int i = 0; i < n; i++)
+                    if (building_allow_checks[i] != null)
+                        building_allow_checks[i].setMarked(mode.allowedBuildings[i]);
+            }
+        }
+        if (edit_max_units != null) {
+            edit_max_units.clear();
+            edit_max_units.append(Integer.toString(params.getMaxUnitCount()));
+        }
+    }
+
     private static int parseIntOrDefault(String s, int def) {
         try {
             if (s == null) return def;

@@ -100,6 +100,17 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
         GUIObject last_race = null;
         Group teams = new Group();
         GUIObject last_team = null;
+        // Optional peace timer shown at the top if active
+        Label peaceLabel = null;
+        if (viewer.getWorld().isPeaceTime()) {
+            int remaining = viewer.getWorld().getPeaceRemainingSeconds();
+            int mm = remaining / 60;
+            int ss = remaining % 60;
+            String peace = String.format("peace: %d:%02d", mm, ss);
+            peaceLabel = new Label(peace, Skin.getSkin().getHeadlineFont());
+            game_infos.addChild(peaceLabel);
+            peaceLabel.place();
+        }
         for (int i = 0; i < players.length; i++) {
             PlayerInfo player_info = players[i].getPlayerInfo();
             float[] color = players[i].getColor();
@@ -139,7 +150,9 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
         game_infos.addChild(names);
         game_infos.addChild(races);
         game_infos.addChild(teams);
-        names.place();
+    // Place below any peace label if present
+    if (peaceLabel != null) names.place(peaceLabel, GUIObject.BOTTOM_LEFT);
+    else names.place();
         races.place(names, GUIObject.RIGHT_TOP);
         teams.place(races, GUIObject.RIGHT_TOP);
         game_infos.compileCanvas();
@@ -155,6 +168,8 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
             TerrainMenu menu =
                     new TerrainMenu(viewer.getNetwork(), viewer.getGUIRoot(), null, false, null);
             menu.parseMapcode(viewer.getParameters().getMapcode());
+            // Re-apply previous game parameters (including peace time) before starting
+            menu.applyWorldParameters(viewer.getParameters());
             menu.startGame();
         } else Renderer.startMenu(viewer.getNetwork(), viewer.getGUIRoot().getGUI());
     }

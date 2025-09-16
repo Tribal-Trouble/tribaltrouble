@@ -496,7 +496,7 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
         Selectable selectable = (Selectable) target;
         Player target_player = selectable.getOwner();
         // Allow forced attacks on friendlies regardless of peace time
-        if (kill_friendly) return true;
+        if (kill_friendly && !getOwner().isEnemy(target_player)) return true;
         boolean is_enemy = getOwner().isEnemy(target_player);
         // During peace time, block hostile attacks against enemies
         if (is_enemy && getOwner().getWorld().isPeaceTime()) return false;

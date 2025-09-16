@@ -323,6 +323,28 @@ public final strictfp class Building extends Selectable implements Occupant {
                 default:
                     break;
             }
+            // Additional resource-specific gating for harvesters (wood always allowed).
+            // If chicken warriors are enabled, allow gathering of all resources.
+            if (allow) {
+                boolean chickenEnabled = mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+                switch (type) {
+                    case KEY_DEPLOY_PEON_HARVEST_TREE:
+                        // Wood always allowed
+                        allow = true;
+                        break;
+                    case KEY_DEPLOY_PEON_HARVEST_ROCK:
+                        allow = chickenEnabled || mode.allowedUnits[Race.UNIT_WARRIOR_ROCK];
+                        break;
+                    case KEY_DEPLOY_PEON_HARVEST_IRON:
+                        allow = chickenEnabled || mode.allowedUnits[Race.UNIT_WARRIOR_IRON];
+                        break;
+                    case KEY_DEPLOY_PEON_HARVEST_RUBBER:
+                        allow = chickenEnabled || mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+                        break;
+                    default:
+                        break; // no extra gating for transports here
+                }
+            }
             if (!allow) return;
         }
         getOwner().getWorld().updateGlobalChecksum(type);
@@ -350,6 +372,19 @@ public final strictfp class Building extends Selectable implements Occupant {
 
     public final void buildWeapons(Class type, int num_weapons, boolean infinite) {
         assert !isDead();
+        // Enforce weapon production based on allowed unit types
+        GameModeOptions mode = getOwner().getWorld().getGameModeOptions();
+        if (mode != null) {
+            boolean allow = true;
+            if (type == RockAxeWeapon.class || type == RockSpearWeapon.class) {
+                allow = mode.allowedUnits[Race.UNIT_WARRIOR_ROCK];
+            } else if (type == IronAxeWeapon.class || type == IronSpearWeapon.class) {
+                allow = mode.allowedUnits[Race.UNIT_WARRIOR_IRON];
+            } else if (type == RubberAxeWeapon.class || type == RubberSpearWeapon.class) {
+                allow = mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+            }
+            if (!allow) return;
+        }
         if (infinite) getOwner().getWorld().updateGlobalChecksum(num_weapons);
         else getOwner().getWorld().updateGlobalChecksum(1000000);
         ((BuildProductionContainer) getBuildSupplyContainer(type))

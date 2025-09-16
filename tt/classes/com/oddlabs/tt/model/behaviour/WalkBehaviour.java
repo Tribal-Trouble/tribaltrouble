@@ -123,6 +123,8 @@ public final strictfp class WalkBehaviour implements Behaviour {
 
     private final void scan() {
         if (scan_attack) {
+            // Skip acquiring targets during peace time
+            if (unit.getOwner().getWorld().isPeaceTime()) return;
             unit.scanVicinity(scan_filter);
             Selectable s = scan_filter.removeTarget();
             if (s != null) {

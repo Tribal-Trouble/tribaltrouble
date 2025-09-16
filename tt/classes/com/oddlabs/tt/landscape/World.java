@@ -312,6 +312,14 @@ public final strictfp class World {
                 && LocalEventQueue.getQueue().getHighPrecisionManager().getTick() < peace_end_tick;
     }
 
+    // Returns remaining peace time in seconds (>=0), or 0 if not in peace
+    public final int getPeaceRemainingSeconds() {
+        if (!isPeaceTime()) return 0;
+        int ticks_left =
+                peace_end_tick - LocalEventQueue.getQueue().getHighPrecisionManager().getTick();
+        return (int) StrictMath.ceil(ticks_left * AnimationManager.ANIMATION_SECONDS_PER_TICK);
+    }
+
     public final HeightMap getHeightMap() {
         return world;
     }

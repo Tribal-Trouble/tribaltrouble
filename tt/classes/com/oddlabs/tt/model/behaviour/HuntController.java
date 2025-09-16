@@ -20,6 +20,9 @@ public final strictfp class HuntController extends Controller {
     public final void decide() {
         if (target.isDead()) {
             unit.popController();
+        } else if (unit.getOwner().getWorld().isPeaceTime()) {
+            // Do not engage in combat during peace time; give up this hunt
+            unit.popController();
         } else if (canAttack()) {
             unit.setBehaviour(new AttackBehaviour(unit, target));
             resetGiveUpCounter(0);

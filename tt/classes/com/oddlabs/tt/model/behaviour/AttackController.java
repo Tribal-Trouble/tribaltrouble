@@ -19,7 +19,9 @@ public final strictfp class AttackController extends Controller {
     }
 
     public final void decide() {
-        if (target.isDead() || !canAttack()) {
+        if (unit.getOwner().getWorld().isPeaceTime()) {
+            unit.popController();
+        } else if (target.isDead() || !canAttack()) {
             unit.popController();
         } else {
             unit.setBehaviour(new AttackBehaviour(unit, target));
