@@ -131,6 +131,14 @@ public class KeybindPanel extends Panel {
     private void pasteBinds() {
         String fromClip = getClipboardText();
         if (fromClip == null || fromClip.isEmpty()) {
+            // Fallback to GLFW clipboard (works in some headless/embedded contexts)
+            try {
+                fromClip = com.oddlabs.tt.render.Display.getClipboard();
+            } catch (Throwable t) {
+                // ignore
+            }
+        }
+        if (fromClip == null || fromClip.isEmpty()) {
             setStatus("Clipboard is empty.", false);
             return;
         }
@@ -156,8 +164,7 @@ public class KeybindPanel extends Panel {
         Settings.getSettings().resetKeybindsToDefaults();
         Settings.getSettings().save();
         refreshAllPanels();
-        String code = KeybindCodePanel.generateCode(Settings.getSettings().getKeybinds());
-        copyToClipboard(code);
-        setStatus("Reset all keybinds to defaults and copied to clipboard.", true);
+        // Do not touch clipboard on reset; only update UI
+        setStatus("Reset all keybinds to defaults.", true);
     }
 }

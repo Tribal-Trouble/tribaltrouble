@@ -119,8 +119,8 @@ public class KeybindCodePanel extends Panel {
                         Settings.getSettings().save();
                         String code = generateCode(Settings.getSettings().getKeybinds());
                         currentCodeField.set(code);
-                        copyToClipboard(code);
-                        setStatus("Reset to defaults. Copied.", true);
+                        // Per expected behavior: reset should not modify clipboard
+                        setStatus("Reset to defaults.", true);
                     }
                 });
         group.addChild(resetBtn);
