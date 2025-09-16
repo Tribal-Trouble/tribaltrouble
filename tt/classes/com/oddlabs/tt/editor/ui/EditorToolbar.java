@@ -472,6 +472,18 @@ public final class EditorToolbar extends Form {
         }
     }
 
+    // Close any open pulldown menus owned by this toolbar to avoid stealing keyboard focus
+    public void closeOpenMenus() {
+        try { if (toolButton != null) toolButton.getMenu().remove(); } catch (Throwable ignore) {}
+        try { if (modeButton != null) modeButton.getMenu().remove(); } catch (Throwable ignore) {}
+        try { if (resourceButton != null) resourceButton.getMenu().remove(); } catch (Throwable ignore) {}
+        try { if (entitiesTypeButton != null) entitiesTypeButton.getMenu().remove(); } catch (Throwable ignore) {}
+        try { if (entitiesKindButton != null) entitiesKindButton.getMenu().remove(); } catch (Throwable ignore) {}
+        try { if (entitiesTeamButton != null) entitiesTeamButton.getMenu().remove(); } catch (Throwable ignore) {}
+        try { if (entitiesRaceButton != null) entitiesRaceButton.getMenu().remove(); } catch (Throwable ignore) {}
+        try { if (overlayButton != null) overlayButton.getMenu().remove(); } catch (Throwable ignore) {}
+    }
+
     // Update the Entities Kind menu to reflect the current Type (Buildings vs Units)
     private void rebuildEntitiesKindMenu() {
         if (optionsBinding == null) return;

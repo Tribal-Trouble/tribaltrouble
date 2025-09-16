@@ -10,6 +10,7 @@ public final strictfp class PulldownButton extends GUIObject {
     private boolean menu_active;
     private boolean hiddenFlag;
     private boolean alignLeft; // when true, align menu's left edge with button's left edge
+    private boolean fitMenuToButtonWidth; // when true, force the menu width to equal the button width
 
     public PulldownButton(GUIRoot gui_root, PulldownMenu menu, int width) {
         this(gui_root, menu, width, false);
@@ -19,6 +20,7 @@ public final strictfp class PulldownButton extends GUIObject {
         this.menu = menu;
         this.gui_root = gui_root;
         this.alignLeft = alignLeft;
+        this.fitMenuToButtonWidth = false;
         setCanFocus(true);
         menu.addItemChosenListener(new ItemListener());
         label = new Label("", Skin.getSkin().getEditFont(), 0, Label.ALIGN_LEFT);
@@ -63,6 +65,11 @@ public final strictfp class PulldownButton extends GUIObject {
     public PulldownButton(GUIRoot gui_root, PulldownMenu menu, int item_index, int width, boolean alignLeft) {
         this(gui_root, menu, width, alignLeft);
         menu.chooseItem(item_index);
+    }
+
+    // Configure whether the dropdown menu should be forced to the same width as the button
+    public void setFitMenuToButtonWidth(boolean fit) {
+        this.fitMenuToButtonWidth = fit;
     }
 
     public final void setDim(int width, int height) {
@@ -122,6 +129,10 @@ public final strictfp class PulldownButton extends GUIObject {
 
     private void activateMenu() {
         menu_active = true;
+        // If requested, force the menu width to match the button width for visual consistency
+        if (fitMenuToButtonWidth) {
+            try { menu.setDimSimple(getWidth(), menu.getHeight()); } catch (Throwable ignore) {}
+        }
         int desiredX;
         if (alignLeft) {
             desiredX = (int) getRootX();

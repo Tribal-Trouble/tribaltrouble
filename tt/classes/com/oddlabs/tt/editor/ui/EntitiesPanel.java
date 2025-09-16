@@ -20,6 +20,9 @@ public final class EntitiesPanel extends Form {
     private EditorOptionsBinding optionsBinding;
     private boolean suppressProgrammatic;
 
+    // Consistent width for all pulldown buttons and their menus in this panel
+    private static final int PULLDOWN_WIDTH = 120;
+
     private Label raceLabel;
     private PulldownButton raceButton;
     private Label teamLabel;
@@ -41,7 +44,9 @@ public final class EntitiesPanel extends Form {
             raceMenu.addItem(new PulldownItem("Natives"));
             raceMenu.addItem(new PulldownItem("Vikings"));
         }
-        raceButton = new PulldownButton(guiRoot, raceMenu, 0, 120);
+    // Use a consistent button width and force dropdown to fit the button width for consistency
+    raceButton = new PulldownButton(guiRoot, raceMenu, 0, PULLDOWN_WIDTH);
+    try { raceButton.setFitMenuToButtonWidth(true); } catch (Throwable ignore) {}
 
         teamLabel = new Label("Team", Skin.getSkin().getEditFont());
         PulldownMenu teamMenu = new PulldownMenu();
@@ -51,10 +56,11 @@ public final class EntitiesPanel extends Form {
             teamMenu.addItem(new PulldownItem("Neutral"));
             for (int i=0;i<8;i++) teamMenu.addItem(new PulldownItem("Team " + i));
         }
-        teamButton = new PulldownButton(guiRoot, teamMenu, 1, 120);
+    teamButton = new PulldownButton(guiRoot, teamMenu, 1, PULLDOWN_WIDTH);
+    try { teamButton.setFitMenuToButtonWidth(true); } catch (Throwable ignore) {}
 
-    kindLabel = new Label("Kind", Skin.getSkin().getEditFont());
-    PulldownMenu kindMenu = new PulldownMenu();
+        kindLabel = new Label("Kind", Skin.getSkin().getEditFont());
+        PulldownMenu kindMenu = new PulldownMenu();
         if (optionsBinding != null) {
             for (String n : optionsBinding.getEntitiesKindNames()) kindMenu.addItem(new PulldownItem(n));
         } else {
@@ -63,8 +69,9 @@ public final class EntitiesPanel extends Form {
             kindMenu.addItem(new PulldownItem("Tower"));
             kindMenu.addItem(new PulldownItem("Ship"));
         }
-    // Use standard width and left-align the dropdown menu to avoid visible offset
-    kindButton = new PulldownButton(guiRoot, kindMenu, 0, 120, true);
+    // Use a consistent button width and force dropdown to fit the button width for consistency
+    kindButton = new PulldownButton(guiRoot, kindMenu, 0, PULLDOWN_WIDTH);
+    try { kindButton.setFitMenuToButtonWidth(true); } catch (Throwable ignore) {}
 
         addChild(raceLabel);
         addChild(raceButton);
@@ -132,11 +139,22 @@ public final class EntitiesPanel extends Form {
         }
     }
 
+    // Close any open pulldown menus to avoid stealing keyboard focus
+    public void closeMenus() {
+        try { raceButton.getMenu().remove(); } catch (Throwable ignore) {}
+        try { teamButton.getMenu().remove(); } catch (Throwable ignore) {}
+        try { kindButton.getMenu().remove(); } catch (Throwable ignore) {}
+    }
+
     private void rebuildKindMenu() {
         if (optionsBinding == null) return;
         PulldownMenu menu = kindButton.getMenu();
         try { menu.clearItems(); } catch (Throwable ignore) {}
         for (String n : optionsBinding.getEntitiesKindNames()) menu.addItem(new PulldownItem(n));
+        // Keep button/menu at the unified width; menu will match button width when opened
+        try {
+            kindButton.setDim(PULLDOWN_WIDTH, kindButton.getHeight());
+        } catch (Throwable ignore) {}
     }
 
     private void select(PulldownButton btn, int idx) {

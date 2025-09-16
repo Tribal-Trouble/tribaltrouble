@@ -98,6 +98,18 @@ public strictfp class PulldownMenu extends Group {
         }
     }
 
+    @Override
+    protected void keyPressed(KeyboardEvent event) {
+        // Allow arrow navigation to be handled normally, but close the menu on other keys
+        int code = event.getKeyCode();
+        if (code == Keyboard.KEY_UP || code == Keyboard.KEY_DOWN) {
+            super.keyPressed(event);
+            return;
+        }
+        // Close the menu so the keypress (e.g., Q/W/E) can reach the editor
+        try { remove(); } catch (Throwable ignore) {}
+    }
+
     // Reverted to traditional switch syntax for Java 8 compatibility
     protected final void keyRepeat(KeyboardEvent event) {
         switch (event.getKeyCode()) {
@@ -138,7 +150,7 @@ public strictfp class PulldownMenu extends Group {
         chosen_listeners.remove(listener);
     }
 
-    public final strictfp class ItemListener implements MouseClickListener {
+    public final class ItemListener implements MouseClickListener {
         private final int index;
 
         public ItemListener(int index) {

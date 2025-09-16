@@ -1126,6 +1126,8 @@ public final class MapEditorSession {
                     && event.getKeyCode()
                             == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
                                     com.oddlabs.tt.global.Globals.KB_EDITOR_TOGGLE_TOOLBAR)) {
+                // Ensure dropdowns are closed so focus returns to canvas
+                try { closeUITransientMenus(); } catch (Throwable ignore) {}
                 // If toolbar object is null or was closed (removed from parent), recreate it
                 if (toolbar == null || toolbar.getParent() == null) {
                     try {
@@ -1180,6 +1182,7 @@ public final class MapEditorSession {
             if (event.getKeyCode()
                     == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
                             com.oddlabs.tt.global.Globals.KB_EDITOR_SET_TERRAIN_TOOL)) {
+        try { closeUITransientMenus(); } catch (Throwable ignore) {}
                 activeTool = ActiveTool.TERRAIN;
                 info("Tool = HEIGHT");
                 // Clear any in-progress stroke so tool switches never wait for a mouse action
@@ -1189,6 +1192,7 @@ public final class MapEditorSession {
             } else if (event.getKeyCode()
                     == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
                             com.oddlabs.tt.global.Globals.KB_EDITOR_SET_RESOURCE_TOOL)) {
+        try { closeUITransientMenus(); } catch (Throwable ignore) {}
                 activeTool = ActiveTool.RESOURCE;
                 info("Tool = RESOURCE, Type = " + resourceType);
                 // Don't forward to camera to avoid conflicting with camera forward movement
@@ -1205,6 +1209,7 @@ public final class MapEditorSession {
             getGUIRoot().getInfoPrinter().print("Entities tool is Sandbox-only");
             return;
         }
+    try { closeUITransientMenus(); } catch (Throwable ignore) {}
         activeTool = ActiveTool.ENTITIES;
         info("Tool = ENTITIES");
         cancelActiveStrokeAndButtons();
@@ -1226,10 +1231,20 @@ public final class MapEditorSession {
             if (entitiesPanel == null) return;
             boolean show = (activeTool == ActiveTool.ENTITIES)
                 && (EDITOR_STATE.getEditorMode() == com.oddlabs.tt.editor.ui.EditorState.EditorMode.Sandbox);
+            if (!show) {
+                // Proactively close menus so focus returns to canvas when panel hides
+                try { entitiesPanel.closeMenus(); } catch (Throwable ignore) {}
+            }
             entitiesPanel.setHidden(!show);
             if (show) {
                 try { entitiesPanel.syncOptionsFromBinding(); } catch (Throwable ignore) {}
             }
+        }
+
+        // Close any open dropdown menus to keep hotkeys responsive even if a menu was left open.
+        private void closeUITransientMenus() {
+            try { if (toolbar != null) toolbar.closeOpenMenus(); } catch (Throwable ignore) {}
+            try { if (entitiesPanel != null) entitiesPanel.closeMenus(); } catch (Throwable ignore) {}
         }
 
         protected void keyReleased(KeyboardEvent event) {
