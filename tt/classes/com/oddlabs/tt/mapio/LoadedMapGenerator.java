@@ -198,7 +198,7 @@ public final class LoadedMapGenerator implements WorldGenerator {
     java.util.ArrayList<int[]> adjustedIslands = adjustIslandLocations(base.island_locations, access_grid, dock_grid);
         float[][] adjustedStarts = adjustStartingLocations(base.starting_locations, access_grid, dock_grid);
 
-        return new WorldInfo(
+    return new WorldInfo(
                 base.meters_per_world,
                 (lm.seaLevel != 0f ? lm.seaLevel : base.sea_level_meters),
                 base.texels_per_colormap,
@@ -215,7 +215,8 @@ public final class LoadedMapGenerator implements WorldGenerator {
                 access_grid,
                 dock_grid,
                 water_grid,
-                build_grid,
+        dock_map,
+        build_grid,
                 adjustedIslands,
                 adjustedStarts);
     }
