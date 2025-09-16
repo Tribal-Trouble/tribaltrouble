@@ -373,15 +373,23 @@ public final class MapEditorSession {
         private boolean strokeHasBounds = false;
         private int strokeMinGX, strokeMinGY, strokeMaxGX, strokeMaxGY;
 
-        // Resource brush state
-        private enum ActiveTool { TERRAIN, RESOURCE }
-        private ActiveTool activeTool = ActiveTool.TERRAIN;
+    // Resource/Entities brush state
+    private enum ActiveTool { TERRAIN, RESOURCE, ENTITIES }
+    private ActiveTool activeTool = ActiveTool.TERRAIN;
     // Resource placement types available in the editor. Plants and rubber are intentionally
     // disabled for placement (trees remain placeable). Plants will still snap/remove on terrain edits.
     private enum ResourceType { ROCK, IRON, TREE_JUNGLE, TREE_PALM, TREE_OAK, TREE_PINE }
         private ResourceType resourceType = ResourceType.ROCK;
     // Track resource brush cells processed in the current stroke (place/erase once per cell)
     private final java.util.HashSet<Long> resourceStrokeVisited = new java.util.HashSet<Long>();
+    // Entities tool UI state
+    private int entitiesType = 0; // 0=Buildings, 1=Units
+    // Buildings: 0 Quarters, 1 Armory, 2 Tower, 3 Ship
+    // Units: 0 Peon, 1 Warrior Rock, 2 Warrior Iron, 3 Warrior Chicken (rubber), 4 Chieftain
+    private int entitiesKind = 0;
+    // Team index: 0 = Neutral, else 1..8 map to team 0..7
+    private int entitiesTeam = 1; // default Team 0
+    private int entitiesRace = com.oddlabs.tt.model.RacesResources.RACE_NATIVES;
 
         // ------- Map mode state (zoom-to-fit like game modes) -------
         private boolean mapMode = false;
@@ -416,6 +424,13 @@ public final class MapEditorSession {
                     public void setActiveToolIndex(int idx) {
                         ActiveTool[] vals = ActiveTool.values();
                         if (idx >= 0 && idx < vals.length) {
+                            // Sandbox-gate Entities tool selection
+                            if (vals[idx] == ActiveTool.ENTITIES
+                                    && EDITOR_STATE.getEditorMode() != com.oddlabs.tt.editor.ui.EditorState.EditorMode.Sandbox) {
+                                getGUIRoot().getInfoPrinter().print("Entities tool is Sandbox-only");
+                                if (toolbar != null) toolbar.syncOptionsFromBinding();
+                                return;
+                            }
                             activeTool = vals[idx];
                             // UI tool switches should apply immediately without waiting for mouse actions
                             cancelActiveStrokeAndButtons();
@@ -448,6 +463,51 @@ public final class MapEditorSession {
                     }
                     public boolean isOverlayMaster() { return EDITOR_STATE.isOverlayMaster(); }
                     public void setOverlayMaster(boolean v) { EDITOR_STATE.setOverlayMaster(v); if (toolbar != null) toolbar.syncOptionsFromBinding(); }
+
+                    // Entities selectors
+                    public String[] getEntitiesTypeNames() { return new String[] {"Buildings", "Units"}; }
+                    public int getEntitiesTypeIndex() { return entitiesType; }
+                    public void setEntitiesTypeIndex(int idx) {
+                        if (idx < 0 || idx > 1) return;
+                        entitiesType = idx;
+                        // Reset kind to first item of the chosen type to avoid out-of-range
+                        entitiesKind = 0;
+                        if (toolbar != null) toolbar.syncOptionsFromBinding();
+                    }
+                    public String[] getEntitiesKindNames() {
+                        if (entitiesType == 0) {
+                            return new String[] {"Quarters", "Armory", "Tower", "Ship"};
+                        } else {
+                            return new String[] {"Peon", "Warrior Rock", "Warrior Iron", "Warrior Chicken", "Chieftain"};
+                        }
+                    }
+                    public int getEntitiesKindIndex() { return entitiesKind; }
+                    public void setEntitiesKindIndex(int idx) {
+                        int max = (entitiesType == 0) ? 3 : 4;
+                        if (idx < 0 || idx > max) return;
+                        entitiesKind = idx;
+                        if (toolbar != null) toolbar.syncOptionsFromBinding();
+                    }
+                    public String[] getEntitiesTeamNames() {
+                        String[] names = new String[1 + 8];
+                        names[0] = "Neutral";
+                        for (int i=0;i<8;i++) names[1+i] = "Team " + i;
+                        return names;
+                    }
+                    public int getEntitiesTeamIndex() { return entitiesTeam; }
+                    public void setEntitiesTeamIndex(int idx) {
+                        if (idx < 0 || idx > 8) return; // 0..8 (0 neutral, 1..8 => team 0..7)
+                        entitiesTeam = idx;
+                        if (toolbar != null) toolbar.syncOptionsFromBinding();
+                    }
+                    public String[] getEntitiesRaceNames() { return new String[] {"Natives", "Vikings"}; }
+                    public int getEntitiesRaceIndex() { return entitiesRace == com.oddlabs.tt.model.RacesResources.RACE_VIKINGS ? 1 : 0; }
+                    public void setEntitiesRaceIndex(int idx) {
+                        if (idx < 0 || idx > 1) return;
+                        entitiesRace = (idx == 1) ? com.oddlabs.tt.model.RacesResources.RACE_VIKINGS
+                                                  : com.oddlabs.tt.model.RacesResources.RACE_NATIVES;
+                        if (toolbar != null) toolbar.syncOptionsFromBinding();
+                    }
                 };
 
         EditorDelegate(
@@ -531,6 +591,10 @@ public final class MapEditorSession {
                 + "  - Hold W + Wheel: Cycle resource type\n"
                 + "  - Available types: Rock, Iron, Trees (Jungle, Palm, Oak, Pine)\n"
                 + "  - Note: Plant and Rubber placement are disabled in this build\n\n"
+                + "Entities Tool (E) [Sandbox only]:\n"
+                + "  - LMB: Place, RMB: Erase\n"
+                + "  - Type: Buildings (Quarters, Armory, Tower, Ship) or Units (Peon, Warriors Rock/Iron/Chicken, Chieftain)\n"
+                + "  - Team/Race selectors available in toolbar; currently spawns under local owner\n\n"
                                 + "Other:\n"
                                 + "  - ESC: Pause menu\n"
                                 + "  - F1: Toggle this help\n"
@@ -552,8 +616,18 @@ public final class MapEditorSession {
             if (mapMode && !strokeActive) return;
             if (!strokeActive) return;
             if (mmbDown) return;
+            // Sandbox gating: auto-switch away from Entities if mode is not Sandbox
+            if (activeTool == ActiveTool.ENTITIES
+                && EDITOR_STATE.getEditorMode() != com.oddlabs.tt.editor.ui.EditorState.EditorMode.Sandbox) {
+                activeTool = ActiveTool.TERRAIN;
+                cancelActiveStrokeAndButtons();
+                try { getGUIRoot().getInfoPrinter().print("Entities tool is Sandbox-only"); } catch (Throwable ignore) {}
+                if (toolbar != null) toolbar.syncOptionsFromBinding();
+                return;
+            }
             if (activeTool == ActiveTool.TERRAIN) applyBrush(strokeDir, t);
-            else applyResourceBrush(t);
+            else if (activeTool == ActiveTool.RESOURCE) applyResourceBrush(t);
+            else /* ENTITIES */ applyEntitiesBrush(t);
         }
 
         public void updateChecksum(com.oddlabs.tt.util.StateChecksum checksum) {}
@@ -1080,7 +1154,7 @@ public final class MapEditorSession {
                     return;
                 }
             }
-            // Tool toggles: Terrain (tap switches immediately; hold to cycle with wheel), Resource.
+        // Tool toggles: Terrain (tap switches immediately; hold to cycle with wheel), Resource, Entities.
             if (event.getKeyCode()
                     == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
                             com.oddlabs.tt.global.Globals.KB_EDITOR_SET_TERRAIN_TOOL)) {
@@ -1099,6 +1173,19 @@ public final class MapEditorSession {
                 cancelActiveStrokeAndButtons();
                 if (toolbar != null) toolbar.syncOptionsFromBinding();
                 return;
+        } else if (event.getKeyCode()
+            == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                com.oddlabs.tt.global.Globals.KB_EDITOR_SET_ENTITIES_TOOL)) {
+        // Sandbox-gated
+        if (EDITOR_STATE.getEditorMode() != com.oddlabs.tt.editor.ui.EditorState.EditorMode.Sandbox) {
+            getGUIRoot().getInfoPrinter().print("Entities tool is Sandbox-only");
+            return;
+        }
+        activeTool = ActiveTool.ENTITIES;
+        info("Tool = ENTITIES");
+        cancelActiveStrokeAndButtons();
+        if (toolbar != null) toolbar.syncOptionsFromBinding();
+        return;
             } else if (event.getKeyCode()
                     == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
                             com.oddlabs.tt.global.Globals.KB_EDITOR_OVERLAY_MODE)) {
@@ -2096,6 +2183,153 @@ public final class MapEditorSession {
             idx = (idx + dir + vals.length) % vals.length;
             resourceType = vals[idx];
             info("Resource = " + resourceType);
+        }
+
+        // -------- Entities Brush Implementation --------
+        private void applyEntitiesBrush(float dt) {
+            // Same spatial semantics as resource brush: once-per-cell-per-stroke with coverage
+            LandscapeLocation hit = new LandscapeLocation();
+            if (!picker.pickLocation(getCamera().getState(), hit)) return;
+            com.oddlabs.tt.landscape.HeightMap hm = world.getHeightMap();
+            com.oddlabs.tt.pathfinder.UnitGrid ug = world.getUnitGrid();
+            int cx = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(hit.x);
+            int cy = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(hit.y);
+
+            int rGU = (int) StrictMath.ceil(
+                    StrictMath.max(brushRadiusXM, brushRadiusYM)
+                            / com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID);
+            float rx = brushRadiusXM;
+            float ry = brushRadiusYM;
+            float cosA = (float) StrictMath.cos(brushAngleRad);
+            float sinA = (float) StrictMath.sin(brushAngleRad);
+
+            // Intensity -> coverage fraction
+            float coverage = (float) StrictMath.max(0f, StrictMath.min(1f, 0.2f * brushStrengthM));
+            java.util.Random rnd = world.getRandom();
+            boolean erase = rightDown && !leftDown;
+
+            boolean debugPrintedThisStroke = false;
+            for (int gy = cy - rGU; gy <= cy + rGU; gy++) {
+                for (int gx = cx - rGU; gx <= cx + rGU; gx++) {
+                    if (gx < 0 || gy < 0 || gx >= ug.getGridSize() || gy >= ug.getGridSize()) continue;
+                    float dxm = (gx - cx) * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+                    float dym = (gy - cy) * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+                    float ldx = cosA * dxm + sinA * dym;
+                    float ldy = -sinA * dxm + cosA * dym;
+                    float norm = (ldx * ldx) / (rx * rx) + (ldy * ldy) / (ry * ry);
+                    if (norm > 1f) continue;
+                    long key = keyOf(gx, gy);
+                    if (resourceStrokeVisited.contains(key)) continue;
+                    resourceStrokeVisited.add(key);
+
+                    if (erase) {
+                        com.oddlabs.tt.pathfinder.Occupant occ = ug.getOccupant(gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
+                        boolean changed = false;
+                        if (occ instanceof com.oddlabs.tt.model.Unit) {
+                            try { ((com.oddlabs.tt.model.Unit) occ).remove(); changed = true; } catch (Throwable ignore) {}
+                        } else if (occ instanceof com.oddlabs.tt.model.Building) {
+                            try { ((com.oddlabs.tt.model.Building) occ).remove(); changed = true; } catch (Throwable ignore) {}
+                        }
+                        if (changed && EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                            try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
+                            try { overlayRenderer.markDirtyROI(gx, gy, gx, gy); } catch (Throwable ignore) {}
+                        }
+                        continue;
+                    }
+
+                    if (rnd.nextFloat() > coverage) continue;
+
+                    if (entitiesType == 0) {
+                        // Buildings
+                        int buildingIndex = entitiesKindToBuildingIndex(entitiesKind);
+                        com.oddlabs.tt.model.Race raceSel = world.getRacesResources().getRace(entitiesRace);
+                        com.oddlabs.tt.model.BuildingTemplate tmpl = raceSel.getBuildingTemplate(buildingIndex);
+                        com.oddlabs.tt.player.BuildingSiteScanFilter filter = new com.oddlabs.tt.player.BuildingSiteScanFilter(
+                                ug, tmpl, 0, true);
+                        ug.scan(filter, gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
+                        java.util.List targets = filter.getResult();
+                        if (targets.size() > 0) {
+                            com.oddlabs.tt.util.Target t = (com.oddlabs.tt.util.Target) targets.get(0);
+                            com.oddlabs.tt.player.Player owner = world.getPlayers()[0];
+                            try {
+                                com.oddlabs.tt.model.Building b = new com.oddlabs.tt.model.Building(owner, tmpl, t.getGridX(), t.getGridY());
+                                b.place();
+                                b.repair(1000);
+                                if (!debugPrintedThisStroke && gx == cx && gy == cy) {
+                                    getGUIRoot().getInfoPrinter().print("Placed building at gx=" + t.getGridX() + ", gy=" + t.getGridY());
+                                    debugPrintedThisStroke = true;
+                                }
+                                if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                                    int size = tmpl.getPlacingSize();
+                                    int r = StrictMath.max(0, size / 2);
+                                    int minGX = t.getGridX() - r, minGY = t.getGridY() - r, maxGX = t.getGridX() + r, maxGY = t.getGridY() + r;
+                                    try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, minGX, minGY, maxGX, maxGY); } catch (Throwable ignore) {}
+                                    try { overlayRenderer.markDirtyROI(minGX, minGY, maxGX, maxGY); } catch (Throwable ignore) {}
+                                }
+                            } catch (Throwable ex) {
+                                // Drop placement on any failure
+                            }
+                        } else if (!debugPrintedThisStroke && gx == cx && gy == cy) {
+                            getGUIRoot().getInfoPrinter().print("Place FAIL: illegal building site");
+                            debugPrintedThisStroke = true;
+                        }
+                    } else {
+                        // Units
+                        boolean[][] access = hm.getAccessGrid();
+                        boolean okAccess = (access == null) || access[gy][gx];
+                        com.oddlabs.tt.pathfinder.Occupant occ = ug.getOccupant(gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
+                        boolean free = (occ == null) || (occ instanceof com.oddlabs.tt.pathfinder.StaticOccupant);
+                        if (okAccess && free) {
+                            float xw = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(gx) + (world.getRandom().nextFloat() - .5f);
+                            float yw = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(gy) + (world.getRandom().nextFloat() - .5f);
+                            com.oddlabs.tt.player.Player owner = world.getPlayers()[0];
+                            com.oddlabs.tt.model.Race raceSel = world.getRacesResources().getRace(entitiesRace);
+                            int unitIndex = entitiesKindToUnitIndex(entitiesKind);
+                            if (unitIndex >= 0) {
+                                try {
+                                    new com.oddlabs.tt.model.Unit(owner, xw, yw, null, raceSel.getUnitTemplate(unitIndex));
+                                    if (!debugPrintedThisStroke && gx == cx && gy == cy) {
+                                        getGUIRoot().getInfoPrinter().print("Spawned unit at gx=" + gx + ", gy=" + gy);
+                                        debugPrintedThisStroke = true;
+                                    }
+                                    if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                                        try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
+                                        try { overlayRenderer.markDirtyROI(gx, gy, gx, gy); } catch (Throwable ignore) {}
+                                    }
+                                } catch (Throwable ignore) {}
+                            }
+                        } else if (!debugPrintedThisStroke && gx == cx && gy == cy) {
+                            String occStr = (occ == null) ? "null" : occ.getClass().getSimpleName();
+                            getGUIRoot().getInfoPrinter().print("Spawn FAIL: access=" + okAccess + ", occ=" + occStr);
+                            debugPrintedThisStroke = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        private int entitiesKindToBuildingIndex(int kind) {
+            // kind 0..3 => quarters, armory, tower, ship
+            switch (kind) {
+                case 0: return com.oddlabs.tt.model.Race.BUILDING_QUARTERS;
+                case 1: return com.oddlabs.tt.model.Race.BUILDING_ARMORY;
+                case 2: return com.oddlabs.tt.model.Race.BUILDING_TOWER;
+                case 3: return com.oddlabs.tt.model.Race.BUILDING_SHIP;
+                default: return com.oddlabs.tt.model.Race.BUILDING_QUARTERS;
+            }
+        }
+
+        private int entitiesKindToUnitIndex(int kind) {
+            // When type==Units, our kind indices are: 0 Peon, 1 Rock, 2 Iron, 3 Chicken, 4 Chieftain
+            // Map to Race constants
+            switch (kind) {
+                case 0: return com.oddlabs.tt.model.Race.UNIT_PEON;
+                case 1: return com.oddlabs.tt.model.Race.UNIT_WARRIOR_ROCK;
+                case 2: return com.oddlabs.tt.model.Race.UNIT_WARRIOR_IRON;
+                case 3: return com.oddlabs.tt.model.Race.UNIT_WARRIOR_RUBBER;
+                case 4: return com.oddlabs.tt.model.Race.UNIT_CHIEFTAIN;
+                default: return -1;
+            }
         }
 
         private boolean shouldRenderOverlays() {

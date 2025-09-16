@@ -93,6 +93,7 @@ public final strictfp class Globals {
     public static final String KB_EDITOR_TOGGLE_TOOLBAR = "KB_EDITOR_TOGGLE_TOOLBAR"; // Show/hide editor toolbar
     public static final String KB_EDITOR_SET_TERRAIN_TOOL = "KB_EDITOR_SET_TERRAIN_TOOL"; // Select Terrain/Height tool
     public static final String KB_EDITOR_SET_RESOURCE_TOOL = "KB_EDITOR_SET_RESOURCE_TOOL"; // Select Resource tool
+    public static final String KB_EDITOR_SET_ENTITIES_TOOL = "KB_EDITOR_SET_ENTITIES_TOOL"; // Select Entities tool (buildings/units)
 
     // Editor commands (modifier semantics retained, e.g., Ctrl + key)
     public static final String KB_EDITOR_SAVE = "KB_EDITOR_SAVE"; // Default key: S (uses Ctrl)

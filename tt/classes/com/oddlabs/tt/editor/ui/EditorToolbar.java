@@ -53,6 +53,15 @@ public final class EditorToolbar extends Form {
     private PulldownButton modeButton;
     private Label resourceLabel;
     private PulldownButton resourceButton;
+    // Entities tool selectors
+    private Label entitiesTypeLabel;
+    private PulldownButton entitiesTypeButton; // Building/Unit
+    private Label entitiesKindLabel;
+    private PulldownButton entitiesKindButton; // specific building/unit
+    private Label entitiesTeamLabel;
+    private PulldownButton entitiesTeamButton; // Team index 0..7 + Neutral
+    private Label entitiesRaceLabel;
+    private PulldownButton entitiesRaceButton; // Natives/Vikings
     private CheckBox overlayMaster;
     private Label overlayLabel;
     private PulldownButton overlayButton;
@@ -170,8 +179,9 @@ public final class EditorToolbar extends Form {
         // Third row: selectors (Tool, Mode, Resource, Overlays)
         toolLabel = new Label("Tool", Skin.getSkin().getEditFont());
         PulldownMenu toolMenu = new PulldownMenu();
-        toolMenu.addItem(new PulldownItem("Terrain"));
-        toolMenu.addItem(new PulldownItem("Resource"));
+    toolMenu.addItem(new PulldownItem("Terrain"));
+    toolMenu.addItem(new PulldownItem("Resource"));
+    toolMenu.addItem(new PulldownItem("Entities"));
     toolButton = new PulldownButton(guiRoot, toolMenu, 110);
 
         modeLabel = new Label("Mode", Skin.getSkin().getEditFont());
@@ -223,8 +233,49 @@ public final class EditorToolbar extends Form {
         addChild(toolButton);
         addChild(modeLabel);
         addChild(modeButton);
-        addChild(resourceLabel);
-        addChild(resourceButton);
+    addChild(resourceLabel);
+    addChild(resourceButton);
+    // Entities UI (hidden unless tool=Entities)
+    entitiesTypeLabel = new Label("Type", Skin.getSkin().getEditFont());
+    PulldownMenu entitiesTypeMenu = new PulldownMenu();
+    entitiesTypeMenu.addItem(new PulldownItem("Buildings"));
+    entitiesTypeMenu.addItem(new PulldownItem("Units"));
+    entitiesTypeButton = new PulldownButton(guiRoot, entitiesTypeMenu, 0, 120);
+
+    entitiesKindLabel = new Label("Kind", Skin.getSkin().getEditFont());
+    PulldownMenu entitiesKindMenu = new PulldownMenu();
+    // Default contents; concrete items come from binding/tool logic, but provide sensible defaults
+    entitiesKindMenu.addItem(new PulldownItem("Quarters"));
+    entitiesKindMenu.addItem(new PulldownItem("Armory"));
+    entitiesKindMenu.addItem(new PulldownItem("Tower"));
+    entitiesKindMenu.addItem(new PulldownItem("Ship"));
+    entitiesKindMenu.addItem(new PulldownItem("Peon"));
+    entitiesKindMenu.addItem(new PulldownItem("Warrior Rock"));
+    entitiesKindMenu.addItem(new PulldownItem("Warrior Iron"));
+    entitiesKindMenu.addItem(new PulldownItem("Warrior Chicken"));
+    entitiesKindMenu.addItem(new PulldownItem("Chieftain"));
+    entitiesKindButton = new PulldownButton(guiRoot, entitiesKindMenu, 0, 170);
+
+    entitiesTeamLabel = new Label("Team", Skin.getSkin().getEditFont());
+    PulldownMenu teamMenu = new PulldownMenu();
+    teamMenu.addItem(new PulldownItem("Neutral"));
+    for (int i=0;i<8;i++) teamMenu.addItem(new PulldownItem("Team " + i));
+    entitiesTeamButton = new PulldownButton(guiRoot, teamMenu, 1, 120);
+
+    entitiesRaceLabel = new Label("Race", Skin.getSkin().getEditFont());
+    PulldownMenu raceMenu = new PulldownMenu();
+    raceMenu.addItem(new PulldownItem("Natives"));
+    raceMenu.addItem(new PulldownItem("Vikings"));
+    entitiesRaceButton = new PulldownButton(guiRoot, raceMenu, 0, 120);
+
+    addChild(entitiesTypeLabel);
+    addChild(entitiesTypeButton);
+    addChild(entitiesKindLabel);
+    addChild(entitiesKindButton);
+    addChild(entitiesTeamLabel);
+    addChild(entitiesTeamButton);
+    addChild(entitiesRaceLabel);
+    addChild(entitiesRaceButton);
         addChild(overlayMaster);
         addChild(overlayLabel);
         addChild(overlayButton);
@@ -235,8 +286,17 @@ public final class EditorToolbar extends Form {
         // Mode and Resource occupy the same position; we'll toggle visibility later
         modeLabel.place(toolButton, RIGHT_MID, spacing);
         modeButton.place(modeLabel, RIGHT_MID);
-        resourceLabel.place(toolButton, RIGHT_MID, spacing);
-        resourceButton.place(resourceLabel, RIGHT_MID);
+    resourceLabel.place(toolButton, RIGHT_MID, spacing);
+    resourceButton.place(resourceLabel, RIGHT_MID);
+    // Entities controls occupy the same slot sequence as Resource, chained after tool selector
+    entitiesTypeLabel.place(toolButton, RIGHT_MID, spacing);
+    entitiesTypeButton.place(entitiesTypeLabel, RIGHT_MID);
+    entitiesKindLabel.place(entitiesTypeButton, RIGHT_MID, spacing);
+    entitiesKindButton.place(entitiesKindLabel, RIGHT_MID);
+    entitiesTeamLabel.place(entitiesKindButton, RIGHT_MID, spacing);
+    entitiesTeamButton.place(entitiesTeamLabel, RIGHT_MID);
+    entitiesRaceLabel.place(entitiesTeamButton, RIGHT_MID, spacing);
+    entitiesRaceButton.place(entitiesRaceLabel, RIGHT_MID);
         // Overlay controls follow whichever is visible (anchor to resourceButton for stable layout)
     overlayMaster.place(resourceButton, RIGHT_MID, spacing);
         overlayLabel.place(overlayMaster, RIGHT_MID, spacing);
@@ -264,9 +324,24 @@ public final class EditorToolbar extends Form {
         // Wire selectors -> binding
         if (optionsBinding != null) {
             // Initialize defaults
-            selectPulldownIndex(toolButton, clamp(optionsBinding.getActiveToolIndex(), 0, 1));
+            selectPulldownIndex(toolButton, clamp(optionsBinding.getActiveToolIndex(), 0, 2));
             selectPulldownIndex(modeButton, clamp(optionsBinding.getBrushModeIndex(), 0, modeButton.getMenu().getSize() - 1));
             selectPulldownIndex(resourceButton, clamp(optionsBinding.getResourceTypeIndex(), 0, resourceButton.getMenu().getSize() - 1));
+            // Entities: populate and initialize
+            // Type
+            int eTypeIdx = clamp(optionsBinding.getEntitiesTypeIndex(), 0, entitiesTypeButton.getMenu().getSize() - 1);
+            selectPulldownIndex(entitiesTypeButton, eTypeIdx);
+            // Kind: rebuild menu items based on type
+            rebuildEntitiesKindMenu();
+            int eKindMax = entitiesKindButton.getMenu().getSize() - 1;
+            int eKindIdx = clamp(optionsBinding.getEntitiesKindIndex(), 0, eKindMax);
+            selectPulldownIndex(entitiesKindButton, eKindIdx);
+            // Team
+            int eTeamIdx = clamp(optionsBinding.getEntitiesTeamIndex(), 0, entitiesTeamButton.getMenu().getSize() - 1);
+            selectPulldownIndex(entitiesTeamButton, eTeamIdx);
+            // Race
+            int eRaceIdx = clamp(optionsBinding.getEntitiesRaceIndex(), 0, entitiesRaceButton.getMenu().getSize() - 1);
+            selectPulldownIndex(entitiesRaceButton, eRaceIdx);
             overlayMaster.setMarked(optionsBinding.isOverlayMaster());
             selectPulldownIndex(overlayButton, clamp(optionsBinding.getOverlayLayerIndex(), 0, overlayButton.getMenu().getSize() - 1));
 
@@ -283,6 +358,25 @@ public final class EditorToolbar extends Form {
                 if (!suppressProgrammatic) optionsBinding.setActiveToolIndex(idx);
                 // Reflect tool change immediately in the UI (toggle Mode vs Resource)
                 updateActiveToolUI();
+            });
+            entitiesTypeButton.getMenu().addItemChosenListener((menu, idx) -> {
+                if (menu == null) return;
+                if (!suppressProgrammatic) optionsBinding.setEntitiesTypeIndex(idx);
+                rebuildEntitiesKindMenu();
+                // After type change, reset kind to 0 visually
+                selectPulldownIndex(entitiesKindButton, 0);
+            });
+            entitiesKindButton.getMenu().addItemChosenListener((menu, idx) -> {
+                if (menu == null) return;
+                if (!suppressProgrammatic) optionsBinding.setEntitiesKindIndex(idx);
+            });
+            entitiesTeamButton.getMenu().addItemChosenListener((menu, idx) -> {
+                if (menu == null) return;
+                if (!suppressProgrammatic) optionsBinding.setEntitiesTeamIndex(idx);
+            });
+            entitiesRaceButton.getMenu().addItemChosenListener((menu, idx) -> {
+                if (menu == null) return;
+                if (!suppressProgrammatic) optionsBinding.setEntitiesRaceIndex(idx);
             });
             overlayButton.getMenu().addItemChosenListener((menu, idx) -> {
                 if (menu == null) return;
@@ -361,9 +455,15 @@ public final class EditorToolbar extends Form {
         if (optionsBinding == null) return;
         suppressProgrammatic = true;
         try {
-            selectPulldownIndex(toolButton, clamp(optionsBinding.getActiveToolIndex(), 0, 1));
+            selectPulldownIndex(toolButton, clamp(optionsBinding.getActiveToolIndex(), 0, 2));
             selectPulldownIndex(modeButton, clamp(optionsBinding.getBrushModeIndex(), 0, modeButton.getMenu().getSize() - 1));
             selectPulldownIndex(resourceButton, clamp(optionsBinding.getResourceTypeIndex(), 0, resourceButton.getMenu().getSize() - 1));
+            // Entities
+            rebuildEntitiesKindMenu();
+            selectPulldownIndex(entitiesTypeButton, clamp(optionsBinding.getEntitiesTypeIndex(), 0, entitiesTypeButton.getMenu().getSize() - 1));
+            selectPulldownIndex(entitiesKindButton, clamp(optionsBinding.getEntitiesKindIndex(), 0, entitiesKindButton.getMenu().getSize() - 1));
+            selectPulldownIndex(entitiesTeamButton, clamp(optionsBinding.getEntitiesTeamIndex(), 0, entitiesTeamButton.getMenu().getSize() - 1));
+            selectPulldownIndex(entitiesRaceButton, clamp(optionsBinding.getEntitiesRaceIndex(), 0, entitiesRaceButton.getMenu().getSize() - 1));
             overlayMaster.setMarked(optionsBinding.isOverlayMaster());
             selectPulldownIndex(overlayButton, clamp(optionsBinding.getOverlayLayerIndex(), 0, overlayButton.getMenu().getSize() - 1));
             updateActiveToolUI();
@@ -372,29 +472,55 @@ public final class EditorToolbar extends Form {
         }
     }
 
+    // Update the Entities Kind menu to reflect the current Type (Buildings vs Units)
+    private void rebuildEntitiesKindMenu() {
+        if (optionsBinding == null) return;
+        PulldownMenu menu = entitiesKindButton.getMenu();
+        try { menu.clearItems(); } catch (Throwable ignore) {}
+        String[] names = optionsBinding.getEntitiesKindNames();
+        for (String n : names) menu.addItem(new PulldownItem(n));
+    }
+
     // Toggle Mode vs Resource controls in the same slot based on active tool
     private void updateActiveToolUI() {
         if (optionsBinding == null) return;
         int toolIdx = optionsBinding.getActiveToolIndex();
-        boolean terrain = (toolIdx == 0); // 0 = TERRAIN, 1 = RESOURCE
+        boolean terrain = (toolIdx == 0);
+        boolean resource = (toolIdx == 1);
+        boolean entities = (toolIdx == 2);
         // Show Mode for terrain tool, Resource for resource tool, and disable the inactive ones
         modeLabel.setHidden(!terrain);
         modeButton.setHidden(!terrain);
         modeLabel.setDisabled(!terrain);
         modeButton.setDisabled(!terrain);
-        resourceLabel.setHidden(terrain);
-        resourceButton.setHidden(terrain);
-        resourceLabel.setDisabled(terrain);
-        resourceButton.setDisabled(terrain);
+        resourceLabel.setHidden(!resource);
+        resourceButton.setHidden(!resource);
+        resourceLabel.setDisabled(!resource);
+        resourceButton.setDisabled(!resource);
+        // Entities control visibility
+        entitiesTypeLabel.setHidden(!entities);
+        entitiesTypeButton.setHidden(!entities);
+        entitiesKindLabel.setHidden(!entities);
+        entitiesKindButton.setHidden(!entities);
+        entitiesTeamLabel.setHidden(!entities);
+        entitiesTeamButton.setHidden(!entities);
+        entitiesRaceLabel.setHidden(!entities);
+        entitiesRaceButton.setHidden(!entities);
+        entitiesTypeLabel.setDisabled(!entities);
+        entitiesTypeButton.setDisabled(!entities);
+        entitiesKindLabel.setDisabled(!entities);
+        entitiesKindButton.setDisabled(!entities);
+        entitiesTeamLabel.setDisabled(!entities);
+        entitiesTeamButton.setDisabled(!entities);
+        entitiesRaceLabel.setDisabled(!entities);
+        entitiesRaceButton.setDisabled(!entities);
         // Close only the menu belonging to the now-hidden control to prevent stale overlays.
         // Important: do NOT change focus here; when tool/mode is updated programmatically (Q/W,
         // scroll, etc.), we must not steal focus from the editor canvas.
         try {
-            if (terrain) {
-                resourceButton.getMenu().remove();
-            } else {
-                modeButton.getMenu().remove();
-            }
+            if (terrain) { resourceButton.getMenu().remove(); entitiesTypeButton.getMenu().remove(); entitiesKindButton.getMenu().remove(); entitiesTeamButton.getMenu().remove(); entitiesRaceButton.getMenu().remove(); }
+            else if (resource) { modeButton.getMenu().remove(); entitiesTypeButton.getMenu().remove(); entitiesKindButton.getMenu().remove(); entitiesTeamButton.getMenu().remove(); entitiesRaceButton.getMenu().remove(); }
+            else { modeButton.getMenu().remove(); resourceButton.getMenu().remove(); }
         } catch (Throwable ignore) {}
     }
 

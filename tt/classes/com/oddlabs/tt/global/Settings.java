@@ -245,6 +245,7 @@ public final strictfp class Settings implements Serializable {
                     put(Globals.KB_EDITOR_TOGGLE_TOOLBAR, Keyboard.KEY_GRAVE); // backtick `
                     put(Globals.KB_EDITOR_SET_TERRAIN_TOOL, Keyboard.KEY_Q);
                     put(Globals.KB_EDITOR_SET_RESOURCE_TOOL, Keyboard.KEY_W);
+                    put(Globals.KB_EDITOR_SET_ENTITIES_TOOL, Keyboard.KEY_E);
                     put(Globals.KB_EDITOR_SAVE, Keyboard.KEY_S); // used with Ctrl
                     put(Globals.KB_EDITOR_LOAD, Keyboard.KEY_L); // used with Ctrl
                     put(Globals.KB_EDITOR_TEST_MAP, Keyboard.KEY_P); // used with Ctrl
