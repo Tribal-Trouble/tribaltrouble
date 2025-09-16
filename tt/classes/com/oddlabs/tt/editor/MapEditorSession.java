@@ -1643,6 +1643,9 @@ public final class MapEditorSession {
             // Remove no-longer-valid resources/plants and refresh placement grid
             removeInvalidResourcesInGridRect(cminGX, cminGY, cmaxGX, cmaxGY);
             removeInvalidPlantsInGridRect(cminGX, cminGY, cmaxGX, cmaxGY);
+            // Revalidate editor-placed entities (units & buildings): remove if underlying terrain is now illegal
+            // or snap vertically to new terrain height if still valid.
+            revalidateEntitiesInGridRect(cminGX, cminGY, cmaxGX, cmaxGY);
             if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                 try {
                     com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(
@@ -1880,6 +1883,86 @@ public final class MapEditorSession {
             try { world.getElementRoot().visit(visitor); } catch (Throwable ignore) {}
             if (removed[0] > 0) {
                 System.out.println("[Editor] Removed " + removed[0] + " invalid plant(s) after terrain edit.");
+            }
+        }
+
+        // Revalidate entities (units & buildings) within edited ROI following same high-level rules
+        // as resource placement: must not be water/dock and must be accessible. Buildings require *all*
+        // cells in their footprint to satisfy these rules. Units/buildings that fail are removed.
+        // Survivors are vertically snapped to the terrain if height changed.
+        private void revalidateEntitiesInGridRect(int minGX, int minGY, int maxGX, int maxGY) {
+            com.oddlabs.tt.pathfinder.UnitGrid ug = world.getUnitGrid();
+            com.oddlabs.tt.landscape.HeightMap hm = world.getHeightMap();
+            int gridSize = ug.getGridSize();
+            int x0 = StrictMath.max(0, minGX);
+            int y0 = StrictMath.max(0, minGY);
+            int x1 = StrictMath.min(gridSize - 1, maxGX);
+            int y1 = StrictMath.min(gridSize - 1, maxGY);
+            boolean[][] water = hm.getWaterGrid();
+            boolean[][] dock = hm.getDockGrid();
+            boolean[][] access = hm.getAccessGrid();
+
+            // Track processed multi-cell occupants (buildings) to avoid duplicate handling per footprint cell
+            java.util.HashSet<Object> processed = new java.util.HashSet<Object>();
+            int removedUnits = 0;
+            int removedBuildings = 0;
+            int snapped = 0;
+
+            for (int gy = y0; gy <= y1; gy++) {
+                for (int gx = x0; gx <= x1; gx++) {
+                    com.oddlabs.tt.pathfinder.Occupant occ = ug.getOccupant(gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
+                    if (occ == null) continue;
+                    if (!(occ instanceof com.oddlabs.tt.model.Unit) && !(occ instanceof com.oddlabs.tt.model.Building)) continue;
+                    if (processed.contains(occ)) continue;
+                    processed.add(occ);
+
+                    if (occ instanceof com.oddlabs.tt.model.Unit) {
+                        com.oddlabs.tt.model.Unit u = (com.oddlabs.tt.model.Unit) occ;
+                        int ux = u.getGridX();
+                        int uy = u.getGridY();
+                        boolean isWater = (water != null && water[uy][ux]);
+                        boolean isDock = (dock != null && dock[uy][ux]);
+                        boolean accessible = (access == null) || access[uy][ux];
+                        if (isWater || isDock || !accessible) {
+                            try { u.removeNow(); removedUnits++; } catch (Throwable ignore) {}
+                            continue;
+                        }
+                        // Snap height by forcing reinsertion via setPosition same XY
+                        try { u.setPosition(u.getPositionX(), u.getPositionY()); snapped++; } catch (Throwable ignore) {}
+                    } else if (occ instanceof com.oddlabs.tt.model.Building) {
+                        com.oddlabs.tt.model.Building b = (com.oddlabs.tt.model.Building) occ;
+                        int size = b.getBuildingTemplate().getPlacingSize();
+                        int r = StrictMath.max(0, size - 1); // matches earlier footprint logic
+                        int bx = b.getGridX();
+                        int by = b.getGridY();
+                        boolean invalid = false;
+                        for (int fy = by - r; fy <= by + r && !invalid; fy++) {
+                            for (int fx = bx - r; fx <= bx + r; fx++) {
+                                if (fx < 0 || fy < 0 || fx >= gridSize || fy >= gridSize) { invalid = true; break; }
+                                boolean isWater = (water != null && water[fy][fx]);
+                                boolean isDock = (dock != null && dock[fy][fx]);
+                                boolean accessible = (access == null) || access[fy][fx];
+                                if (isWater || isDock || !accessible) { invalid = true; break; }
+                            }
+                        }
+                        if (invalid) {
+                            try { b.editorRemoveNow(); removedBuildings++; } catch (Throwable ignore) {}
+                            continue;
+                        }
+                        // Snap building visuals & occupancy: re-place at same center to recompute heights
+                        try { b.setPosition(b.getPositionX(), b.getPositionY()); snapped++; } catch (Throwable ignore) {}
+                    }
+                }
+            }
+            if ((removedUnits + removedBuildings + snapped) > 0) {
+                try { overlayRenderer.markDirtyROI(x0, y0, x1, y1); } catch (Throwable ignore) {}
+                if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
+                    // Recompute placement validity to reflect freed cells
+                    try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, x0, y0, x1, y1); } catch (Throwable ignore) {}
+                }
+                System.out.println("[Editor] Entities revalidated: removedUnits=" + removedUnits + 
+                        ", removedBuildings=" + removedBuildings + ", snapped=" + snapped + 
+                        " in ROI gx=[" + x0 + "," + x1 + "] gy=[" + y0 + "," + y1 + "]");
             }
         }
 
