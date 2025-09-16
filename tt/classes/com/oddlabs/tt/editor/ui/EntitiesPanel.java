@@ -53,8 +53,8 @@ public final class EntitiesPanel extends Form {
         }
         teamButton = new PulldownButton(guiRoot, teamMenu, 1, 120);
 
-        kindLabel = new Label("Kind", Skin.getSkin().getEditFont());
-        PulldownMenu kindMenu = new PulldownMenu();
+    kindLabel = new Label("Kind", Skin.getSkin().getEditFont());
+    PulldownMenu kindMenu = new PulldownMenu();
         if (optionsBinding != null) {
             for (String n : optionsBinding.getEntitiesKindNames()) kindMenu.addItem(new PulldownItem(n));
         } else {
@@ -63,7 +63,8 @@ public final class EntitiesPanel extends Form {
             kindMenu.addItem(new PulldownItem("Tower"));
             kindMenu.addItem(new PulldownItem("Ship"));
         }
-        kindButton = new PulldownButton(guiRoot, kindMenu, 0, 170);
+    // Use standard width and left-align the dropdown menu to avoid visible offset
+    kindButton = new PulldownButton(guiRoot, kindMenu, 0, 120, true);
 
         addChild(raceLabel);
         addChild(raceButton);

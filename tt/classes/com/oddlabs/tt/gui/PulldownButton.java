@@ -9,10 +9,16 @@ public final strictfp class PulldownButton extends GUIObject {
     private final GUIRoot gui_root;
     private boolean menu_active;
     private boolean hiddenFlag;
+    private boolean alignLeft; // when true, align menu's left edge with button's left edge
 
     public PulldownButton(GUIRoot gui_root, PulldownMenu menu, int width) {
+        this(gui_root, menu, width, false);
+    }
+
+    public PulldownButton(GUIRoot gui_root, PulldownMenu menu, int width, boolean alignLeft) {
         this.menu = menu;
         this.gui_root = gui_root;
+        this.alignLeft = alignLeft;
         setCanFocus(true);
         menu.addItemChosenListener(new ItemListener());
         label = new Label("", Skin.getSkin().getEditFont(), 0, Label.ALIGN_LEFT);
@@ -50,7 +56,12 @@ public final strictfp class PulldownButton extends GUIObject {
     }
 
     public PulldownButton(GUIRoot gui_root, PulldownMenu menu, int item_index, int width) {
-        this(gui_root, menu, width);
+        this(gui_root, menu, width, false);
+        menu.chooseItem(item_index);
+    }
+
+    public PulldownButton(GUIRoot gui_root, PulldownMenu menu, int item_index, int width, boolean alignLeft) {
+        this(gui_root, menu, width, alignLeft);
         menu.chooseItem(item_index);
     }
 
@@ -112,7 +123,9 @@ public final strictfp class PulldownButton extends GUIObject {
     private void activateMenu() {
         menu_active = true;
         int desiredX;
-        if (menu instanceof ScrollablePulldownMenu) {
+        if (alignLeft) {
+            desiredX = (int) getRootX();
+        } else if (menu instanceof ScrollablePulldownMenu) {
             ScrollablePulldownMenu scrollableMenu = (ScrollablePulldownMenu) menu;
             desiredX = (int)
                     (getRootX() + getWidth() - (menu.getWidth() - scrollableMenu.getScrollbarWidth()));
