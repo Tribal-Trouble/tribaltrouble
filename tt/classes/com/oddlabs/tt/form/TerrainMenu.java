@@ -399,11 +399,13 @@ public final strictfp class TerrainMenu extends Group {
         // Objectives button on same row to the right of peace time controls
         button_objectives.place(edit_peace_sec, RIGHT_MID);
 
-        // Max caps rows
-        label_max_units.place(cb_peace, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
-        edit_max_units.place(label_max_units, RIGHT_MID);
-        label_max_buildings.place(label_max_units, BOTTOM_LEFT);
-        edit_max_buildings.place(label_max_buildings, RIGHT_MID);
+    // Max caps row (inline): [Max units][input]  [Max buildings][input]
+    label_max_units.place(cb_peace, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
+    edit_max_units.place(label_max_units, RIGHT_MID);
+    // Place buildings label to the right of the units input, with a little spacing
+    label_max_buildings.place(
+        edit_max_units, RIGHT_MID, Skin.getSkin().getFormData().getSectionSpacing());
+    edit_max_buildings.place(label_max_buildings, RIGHT_MID);
 
         // Create column group for Units
         Group group_units_col = new Group();
@@ -430,8 +432,8 @@ public final strictfp class TerrainMenu extends Group {
         group_buildings_col.compileCanvas();
         group_game_mode.addChild(group_buildings_col);
 
-        // Position columns side-by-side on the same row beneath max caps
-        group_units_col.place(label_max_buildings, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
+    // Position columns side-by-side on the same row beneath max caps (anchor below the caps row)
+    group_units_col.place(label_max_units, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
         group_buildings_col.place(group_units_col, RIGHT_TOP);
     group_game_mode.compileCanvas();
     panel_game_mode.addChild(group_game_mode);
