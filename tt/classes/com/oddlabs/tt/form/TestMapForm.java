@@ -50,7 +50,7 @@ public final class TestMapForm extends Form {
         this.chosenMap = chosenMap;
         this.gamespeedOverride = gamespeedOverride;
 
-    Label header = new Label("Configure players, teams, and races", Skin.getSkin().getHeadlineFont());
+    Label header = new Label("Configure Players", Skin.getSkin().getHeadlineFont());
         addChild(header);
         header.place();
 

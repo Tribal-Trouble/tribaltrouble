@@ -19,7 +19,7 @@ import com.oddlabs.tt.guievent.CheckBoxListener;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.DefaultRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
-import org.lwjgl.opengl.GL11;
+// No direct GL usage here; rely on Form rendering
 
 /**
  * Lightweight toolbar for the Map Editor. Non-modal, docked at the top-left by default.
@@ -86,25 +86,29 @@ public final class EditorToolbar extends Form {
         this.terrainType = terrainType;
         this.brushBinding = brushBinding;
         this.optionsBinding = optionsBinding;
+    // Toolbar width will be set dynamically via getWidth()
 
-        // Buttons row: [Test] [Save] [Load] [Online]
-    HorizButton btnTest = new HorizButton("Test (Ctrl+P)", 120);
+        // Buttons row: [Test] [Save] [Load] [Online] [Trigger]
+        HorizButton btnTest = new HorizButton("Test (Ctrl+P)", 120);
         HorizButton btnSave = new HorizButton("Save", 80);
         HorizButton btnLoad = new HorizButton("Load", 80);
         HorizButton btnOnline = new HorizButton("Online", 90);
+        HorizButton btnTrigger = new HorizButton("Trigger", 90);
 
         addChild(btnTest);
         addChild(btnSave);
         addChild(btnLoad);
         addChild(btnOnline);
+        addChild(btnTrigger);
 
-    // Layout in a single horizontal row (start at content origin, chain RIGHT_MID)
-    int spacing = StrictMath.max(2, Skin.getSkin().getFormData().getObjectSpacing());
-    btnTest.place();
-    btnSave.place(btnTest, RIGHT_MID);
-    btnLoad.place(btnSave, RIGHT_MID);
-    btnOnline.place(btnLoad, RIGHT_MID);
-    // ...existing code...
+        // Layout in a single horizontal row (start at content origin, chain RIGHT_MID)
+        int spacing = StrictMath.max(2, Skin.getSkin().getFormData().getObjectSpacing());
+        btnTest.place();
+        btnSave.place(btnTest, RIGHT_MID);
+        btnLoad.place(btnSave, RIGHT_MID);
+        btnOnline.place(btnLoad, RIGHT_MID);
+        // Place Trigger after overlays pulldown, in line with other buttons
+        // ...existing code...
 
         // Wire actions
         btnSave.addMouseClickListener(new MouseClickListener() {
@@ -149,6 +153,11 @@ public final class EditorToolbar extends Form {
         btnOnline.addMouseClickListener(new MouseClickListener() {
             @Override public void mouseClicked(int button, int x, int y, int clicks) {
                 EditorToolbar.this.guiRoot.addModalForm(new MessageForm("Online publishing coming soon"));
+            }
+        });
+        btnTrigger.addMouseClickListener(new MouseClickListener() {
+            @Override public void mouseClicked(int button, int x, int y, int clicks) {
+                EditorToolbar.this.guiRoot.addModalForm(new com.oddlabs.tt.form.TriggerEditorDemoForm(EditorToolbar.this.guiRoot, null));
             }
         });
 
@@ -234,61 +243,53 @@ public final class EditorToolbar extends Form {
         addChild(toolButton);
         addChild(modeLabel);
         addChild(modeButton);
-    addChild(resourceLabel);
-    addChild(resourceButton);
-    // Entities UI (hidden unless tool=Entities)
-    entitiesTypeLabel = new Label("Type", Skin.getSkin().getEditFont());
-    PulldownMenu entitiesTypeMenu = new PulldownMenu();
-    entitiesTypeMenu.addItem(new PulldownItem("Buildings"));
-    entitiesTypeMenu.addItem(new PulldownItem("Units"));
-    entitiesTypeButton = new PulldownButton(guiRoot, entitiesTypeMenu, 0, 120);
+        addChild(resourceLabel);
+        addChild(resourceButton);
+        // Entities UI (hidden unless tool=Entities)
+        entitiesTypeLabel = new Label("Type", Skin.getSkin().getEditFont());
+        PulldownMenu entitiesTypeMenu = new PulldownMenu();
+        entitiesTypeMenu.addItem(new PulldownItem("Buildings"));
+        entitiesTypeMenu.addItem(new PulldownItem("Units"));
+        entitiesTypeButton = new PulldownButton(guiRoot, entitiesTypeMenu, 0, 120);
 
-    entitiesKindLabel = new Label("Kind", Skin.getSkin().getEditFont());
-    PulldownMenu entitiesKindMenu = new PulldownMenu();
-    // Default contents; concrete items come from binding/tool logic, but provide sensible defaults
-    entitiesKindMenu.addItem(new PulldownItem("Quarters"));
-    entitiesKindMenu.addItem(new PulldownItem("Armory"));
-    entitiesKindMenu.addItem(new PulldownItem("Tower"));
-    entitiesKindMenu.addItem(new PulldownItem("Ship"));
-    entitiesKindMenu.addItem(new PulldownItem("Peon"));
-    entitiesKindMenu.addItem(new PulldownItem("Warrior Rock"));
-    entitiesKindMenu.addItem(new PulldownItem("Warrior Iron"));
-    entitiesKindMenu.addItem(new PulldownItem("Warrior Chicken"));
-    entitiesKindMenu.addItem(new PulldownItem("Chieftain"));
-    entitiesKindButton = new PulldownButton(guiRoot, entitiesKindMenu, 0, 170);
+        entitiesKindLabel = new Label("Kind", Skin.getSkin().getEditFont());
+        PulldownMenu entitiesKindMenu = new PulldownMenu();
+        // Default contents; concrete items come from binding/tool logic, but provide sensible defaults
+        entitiesKindMenu.addItem(new PulldownItem("Quarters"));
+        entitiesKindMenu.addItem(new PulldownItem("Armory"));
+        entitiesKindMenu.addItem(new PulldownItem("Tower"));
+        entitiesKindMenu.addItem(new PulldownItem("Ship"));
+        entitiesKindMenu.addItem(new PulldownItem("Peon"));
+        entitiesKindMenu.addItem(new PulldownItem("Warrior Rock"));
+        entitiesKindMenu.addItem(new PulldownItem("Warrior Iron"));
+        entitiesKindMenu.addItem(new PulldownItem("Warrior Chicken"));
+        entitiesKindMenu.addItem(new PulldownItem("Chieftain"));
+        entitiesKindButton = new PulldownButton(guiRoot, entitiesKindMenu, 0, 170);
 
-    entitiesTeamLabel = new Label("Team", Skin.getSkin().getEditFont());
-    PulldownMenu teamMenu = new PulldownMenu();
-    teamMenu.addItem(new PulldownItem("Neutral"));
-    for (int i=0;i<8;i++) teamMenu.addItem(new PulldownItem("Team " + i));
-    entitiesTeamButton = new PulldownButton(guiRoot, teamMenu, 1, 120);
+        entitiesTeamLabel = new Label("Team", Skin.getSkin().getEditFont());
+        PulldownMenu teamMenu = new PulldownMenu();
+        teamMenu.addItem(new PulldownItem("Neutral"));
+        for (int i=0;i<8;i++) teamMenu.addItem(new PulldownItem("Team " + i));
+        entitiesTeamButton = new PulldownButton(guiRoot, teamMenu, 1, 120);
 
-    entitiesRaceLabel = new Label("Race", Skin.getSkin().getEditFont());
-    PulldownMenu raceMenu = new PulldownMenu();
-    raceMenu.addItem(new PulldownItem("Natives"));
-    raceMenu.addItem(new PulldownItem("Vikings"));
-    entitiesRaceButton = new PulldownButton(guiRoot, raceMenu, 0, 120);
+        entitiesRaceLabel = new Label("Race", Skin.getSkin().getEditFont());
+        PulldownMenu raceMenu = new PulldownMenu();
+        raceMenu.addItem(new PulldownItem("Natives"));
+        raceMenu.addItem(new PulldownItem("Vikings"));
+        entitiesRaceButton = new PulldownButton(guiRoot, raceMenu, 0, 120);
 
-    addChild(entitiesTypeLabel);
-    addChild(entitiesTypeButton);
-    addChild(entitiesKindLabel);
-    addChild(entitiesKindButton);
-    addChild(entitiesTeamLabel);
-    addChild(entitiesTeamButton);
-    addChild(entitiesRaceLabel);
-    addChild(entitiesRaceButton);
+        addChild(entitiesTypeLabel);
+        addChild(entitiesTypeButton);
+        addChild(entitiesKindLabel);
+        addChild(entitiesKindButton);
+        addChild(entitiesTeamLabel);
+        addChild(entitiesTeamButton);
+        addChild(entitiesRaceLabel);
+        addChild(entitiesRaceButton);
         addChild(overlayMaster);
         addChild(overlayLabel);
         addChild(overlayButton);
-        // Add Trigger button to the right of overlays
-        HorizButton btnTrigger = new HorizButton("Trigger", 90);
-        addChild(btnTrigger);
-        btnTrigger.place(overlayButton, RIGHT_MID);
-        btnTrigger.addMouseClickListener(new MouseClickListener() {
-            @Override public void mouseClicked(int button, int x, int y, int clicks) {
-                EditorToolbar.this.guiRoot.addModalForm(new com.oddlabs.tt.form.TriggerEditorDemoForm(EditorToolbar.this.guiRoot, null));
-            }
-        });
+
 
     // Tool selector follows intensity controls
         toolLabel.place(intensityValue, RIGHT_MID, spacing);
@@ -309,8 +310,9 @@ public final class EditorToolbar extends Form {
     entitiesRaceButton.place(entitiesRaceLabel, RIGHT_MID);
         // Overlay controls follow whichever is visible (anchor to resourceButton for stable layout)
     overlayMaster.place(resourceButton, RIGHT_MID, spacing);
-        overlayLabel.place(overlayMaster, RIGHT_MID, spacing);
-        overlayButton.place(overlayLabel, RIGHT_MID);
+    overlayLabel.place(overlayMaster, RIGHT_MID, spacing);
+    overlayButton.place(overlayLabel, RIGHT_MID);
+    btnTrigger.place(overlayButton, RIGHT_MID);
 
         // Wire slider listeners -> binding
         radiusSlider.addValueListener(new ValueListener() {
@@ -399,9 +401,19 @@ public final class EditorToolbar extends Form {
             });
         }
 
-        compileCanvas();
-        // Natural-size panel; caller sets initial position.
-        setPos(getX(), Math.max(0, getY() == 0 ? 8 : getY()));
+    compileCanvas();
+    // Stretch toolbar to full screen width while keeping computed height, and clamp inside borders
+    com.oddlabs.tt.gui.Box box = Skin.getSkin().getFormData().getForm();
+    int lw = box.getLeftOffset();
+    int rw = box.getRightOffset();
+    int th = box.getTopOffset();
+    int bh = box.getBottomOffset();
+    int screenW = LocalInput.getViewWidth();
+    int screenH = LocalInput.getViewHeight();
+    setDim(screenW, getHeight());
+    int clampedX = clamp(getX(), lw, StrictMath.max(lw, screenW - getWidth() - rw));
+    int clampedY = clamp(getY(), th, StrictMath.max(th, screenH - getHeight() - bh));
+    setPos(clampedX, clampedY);
         setHidden(false);
 
         // During drags, clamp vertical position within viewport; allow free horizontal movement.
@@ -425,14 +437,20 @@ public final class EditorToolbar extends Form {
     public void toggleVisible() { visible = !visible; setHidden(!visible); }
 
     public void dockTopLeft(int offsetX, int offsetY) {
-        // Natural-width panel anchored near top-left
-        setPos(offsetX, offsetY);
+    // Natural-width panel anchored near top-left, including border
+    com.oddlabs.tt.gui.Box box = Skin.getSkin().getFormData().getForm();
+    int lw = box.getLeftOffset();
+    int th = box.getTopOffset();
+    setPos(lw + offsetX, th + offsetY);
     }
 
     public void dockBottomLeft(int offsetX, int offsetY) {
-        // Natural-width panel anchored near bottom-left
-        int y = StrictMath.max(0, LocalInput.getViewHeight() - getHeight() - offsetY);
-        setPos(offsetX, y);
+    // Natural-width panel anchored near bottom-left, including border
+    com.oddlabs.tt.gui.Box box = Skin.getSkin().getFormData().getForm();
+    int lw = box.getLeftOffset();
+    int bh = box.getBottomOffset();
+    int y = StrictMath.max(bh, LocalInput.getViewHeight() - getHeight() - bh - offsetY);
+    setPos(lw + offsetX, y);
     }
 
     public void setBrushBinding(BrushBinding binding) {
@@ -553,82 +571,21 @@ public final class EditorToolbar extends Form {
 
     @Override
     protected void displayChangedNotify(int width, int height) {
-        // Keep natural width; clamp vertical position within the viewport
-        int clampedY = clamp(getY(), 0, StrictMath.max(0, height - getHeight()));
-        setPos(getX(), clampedY);
+        // Stretch to full screen width and clamp position so borders remain visible
+        setDim(width, getHeight());
+        com.oddlabs.tt.gui.Box box = Skin.getSkin().getFormData().getForm();
+        int lw = box.getLeftOffset();
+        int rw = box.getRightOffset();
+        int th = box.getTopOffset();
+        int bh = box.getBottomOffset();
+        int clampedX = clamp(getX(), lw, StrictMath.max(lw, width - getWidth() - rw));
+        int clampedY = clamp(getY(), th, StrictMath.max(th, height - getHeight() - bh));
+        setPos(clampedX, clampedY);
     }
+
+    // Note: width is controlled via setDim after compile and on resize.
 
     // No mouse overrides: Form handles top bar drag; we clamp via listener
 
-    // Render with opaque border and semi-transparent center fill.
-    @Override
-    protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
-        // Close the current batch so we can use scissor states safely
-        GL11.glEnd();
-
-        // Resolve skin box and dimensions
-        com.oddlabs.tt.gui.Box box = Skin.getSkin().getFormData().getForm();
-        int w = getWidth();
-        int h = getHeight();
-        int lw = box.getLeftOffset();
-        int rw = box.getRightOffset();
-        int bh = box.getBottomOffset();
-        int th = box.getTopOffset();
-        int innerW = StrictMath.max(0, w - lw - rw);
-        int innerH = StrictMath.max(0, h - bh - th);
-
-        // Select skin state
-        int skinType = isDisabled() ? Skin.DISABLED : (isActive() ? Skin.ACTIVE : Skin.NORMAL);
-
-        // Bind texture and draw borders opaque using scissor strips
-        Skin.getSkin().bindTexture();
-        GL11.glColor4f(1f, 1f, 1f, 1f);
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-
-        int rootX = (int) getRootX();
-        int rootY = (int) getRootY();
-
-        // Top border strip
-        if (th > 0) {
-            GL11.glScissor(rootX, rootY + h - th, w, th);
-            GL11.glBegin(GL11.GL_QUADS);
-            box.render(0, 0, w, h, skinType);
-            GL11.glEnd();
-        }
-        // Bottom border strip
-        if (bh > 0) {
-            GL11.glScissor(rootX, rootY, w, bh);
-            GL11.glBegin(GL11.GL_QUADS);
-            box.render(0, 0, w, h, skinType);
-            GL11.glEnd();
-        }
-        // Left border strip
-        if (lw > 0) {
-            GL11.glScissor(rootX, rootY, lw, h);
-            GL11.glBegin(GL11.GL_QUADS);
-            box.render(0, 0, w, h, skinType);
-            GL11.glEnd();
-        }
-        // Right border strip
-        if (rw > 0) {
-            GL11.glScissor(rootX + w - rw, rootY, rw, h);
-            GL11.glBegin(GL11.GL_QUADS);
-            box.render(0, 0, w, h, skinType);
-            GL11.glEnd();
-        }
-
-        GL11.glDisable(GL11.GL_SCISSOR_TEST);
-
-        // Draw center with 65% opacity
-        if (innerW > 0 && innerH > 0) {
-            GL11.glColor4f(1f, 1f, 1f, 0.65f);
-            GL11.glBegin(GL11.GL_QUADS);
-            box.renderHighlight(lw, bh, innerW, innerH, 0, w, 0, h);
-            GL11.glEnd();
-        }
-
-        // Restore color and leave a GL_QUADS batch open for parent pipeline
-        GL11.glColor4f(1f, 1f, 1f, 1f);
-        GL11.glBegin(GL11.GL_QUADS);
-    }
+    // Rendering uses Form's default border/background; no custom GL code here.
 }

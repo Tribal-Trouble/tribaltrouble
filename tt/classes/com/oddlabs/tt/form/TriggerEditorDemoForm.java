@@ -15,7 +15,8 @@ public final class TriggerEditorDemoForm extends Form {
     private final MainMenu main_menu;
 
     public TriggerEditorDemoForm(GUIRoot gui_root, MainMenu main_menu) {
-        super();
+        // Use a captioned form so it gains a draggable title bar like the toolbar
+        super("Trigger Editor");
         this.main_menu = main_menu;
 
         // Left: Trigger list panel
@@ -168,14 +169,6 @@ public final class TriggerEditorDemoForm extends Form {
 
         leftPanel.place(ORIGIN_TOP_LEFT);
         rightPanel.place(leftPanel, RIGHT_TOP);
-
-        // Close button at bottom-right
-        HorizButton closeBtn = new HorizButton("Close", 110);
-        addChild(closeBtn);
-        closeBtn.addMouseClickListener(new CancelListener(this));
-
-        // Place close button relative to the form before compiling
-        closeBtn.place(ORIGIN_BOTTOM_RIGHT);
 
         compileCanvas();
     }
