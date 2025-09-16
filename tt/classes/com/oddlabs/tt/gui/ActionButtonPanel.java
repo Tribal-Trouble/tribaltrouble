@@ -22,6 +22,7 @@ import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.player.Player;
+import com.oddlabs.tt.landscape.GameModeOptions;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.StateChecksum;
@@ -719,8 +720,10 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 quarters_unit_status.setUnitContainerBuilding(current_building);
                 quarters_peon_button.setContainers(
                         current_building, Building.KEY_DEPLOY_PEON, null);
-                quarters_peon_button.setIconDisabler(
-                        new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
+        quarters_peon_button.setIconDisabler(
+            new CombinedDisabler(
+                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+                new UnitAllowedDisabler(Race.UNIT_PEON)));
                 quarters_chieftain_button.setIconDisabler(new ChieftainDisabler(current_building));
                 quarters_chieftain_button.setBuilding(current_building);
             }
@@ -837,57 +840,84 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 
         harvest_tree_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_TREE, null);
-        harvest_tree_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
+    harvest_tree_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
         harvest_rock_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_ROCK, null);
-        harvest_rock_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
+    harvest_rock_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
         harvest_iron_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_IRON, null);
-        harvest_iron_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
+    harvest_iron_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
         harvest_rubber_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_RUBBER, null);
-        harvest_rubber_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
+    harvest_rubber_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
 
         build_weapon_rock_button.setBuildSupplyContainer(current_building, RockAxeWeapon.class);
         build_weapon_iron_button.setBuildSupplyContainer(current_building, IronAxeWeapon.class);
         build_weapon_rubber_button.setBuildSupplyContainer(current_building, RubberAxeWeapon.class);
 
         army_peon_button.setContainers(current_building, Building.KEY_DEPLOY_PEON, null);
-        army_peon_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
+    army_peon_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
         army_warrior_rock_button.setContainers(
                 current_building, Building.KEY_DEPLOY_ROCK_WARRIOR, RockAxeWeapon.class);
-        army_warrior_rock_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, weapon_rock_counter}));
+    army_warrior_rock_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(
+                new SupplyCounter[] {unit_counter, weapon_rock_counter}),
+            new UnitAllowedDisabler(Race.UNIT_WARRIOR_ROCK)));
         army_warrior_iron_button.setContainers(
                 current_building, Building.KEY_DEPLOY_IRON_WARRIOR, IronAxeWeapon.class);
-        army_warrior_iron_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, weapon_iron_counter}));
+    army_warrior_iron_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(
+                new SupplyCounter[] {unit_counter, weapon_iron_counter}),
+            new UnitAllowedDisabler(Race.UNIT_WARRIOR_IRON)));
         army_warrior_rubber_button.setContainers(
                 current_building, Building.KEY_DEPLOY_RUBBER_WARRIOR, RubberAxeWeapon.class);
-        army_warrior_rubber_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, weapon_rubber_counter}));
+    army_warrior_rubber_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(
+                new SupplyCounter[] {unit_counter, weapon_rubber_counter}),
+            new UnitAllowedDisabler(Race.UNIT_WARRIOR_RUBBER)));
 
         transport_tree_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_TREE, TreeSupply.class);
-        transport_tree_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, tree_counter}));
+    transport_tree_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, tree_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
         transport_rock_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_ROCK, RockSupply.class);
-        transport_rock_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, rock_counter}));
+    transport_rock_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, rock_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
         transport_iron_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_IRON, IronSupply.class);
-        transport_iron_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, iron_counter}));
+    transport_iron_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, iron_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
         transport_rubber_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_RUBBER, RubberSupply.class);
-        transport_rubber_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, rubber_counter}));
+    transport_rubber_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, rubber_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
     }
 
     public final void displayChangedNotify(int width, int height) {
@@ -1457,6 +1487,37 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         public final void mouseClicked(int button, int x, int y, int clicks) {
             viewer.getGUIRoot()
                     .pushDelegate(new PlacingDelegate(viewer, camera.getState(), building_index));
+        }
+    }
+
+    // Compose two disablers: disabled if either says disabled
+    private final strictfp class CombinedDisabler implements IconDisabler {
+        private final IconDisabler a;
+        private final IconDisabler b;
+
+        public CombinedDisabler(IconDisabler a, IconDisabler b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public final boolean isDisabled() {
+            return (a != null && a.isDisabled()) || (b != null && b.isDisabled());
+        }
+    }
+
+    // Disables when the unit type is not allowed by game mode
+    private final strictfp class UnitAllowedDisabler implements IconDisabler {
+        private final int unitIndex;
+
+        public UnitAllowedDisabler(int unitIndex) {
+            this.unitIndex = unitIndex;
+        }
+
+        public final boolean isDisabled() {
+            GameModeOptions mode = viewer.getWorld().getGameModeOptions();
+            if (mode == null) return false;
+            if (unitIndex < 0 || unitIndex >= mode.allowedUnits.length) return false;
+            return !mode.allowedUnits[unitIndex];
         }
     }
 }

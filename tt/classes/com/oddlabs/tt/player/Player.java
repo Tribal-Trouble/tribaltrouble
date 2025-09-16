@@ -1,6 +1,4 @@
 package com.oddlabs.tt.player;
-
-import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
@@ -46,7 +44,7 @@ public final strictfp class Player implements PlayerInterface {
     private final PlayerInfo player_info;
     private final Army units = new Army();
     private final SupplyContainer unit_count;
-    private final SupplyContainer building_count = new SupplyContainer(MAX_BUILDING_COUNT);
+    private final SupplyContainer building_count;
 
     private final float[] color;
 
@@ -100,16 +98,23 @@ public final strictfp class Player implements PlayerInterface {
         for (int i = 0; i < can_build.length; i++) can_build[i] = true;
         this.player_info = player_info;
         this.unit_count = new SupplyContainer(world.getMaxUnitCount());
+        int max_buildings = MAX_BUILDING_COUNT;
+        if (world.getGameModeOptions() != null) {
+            max_buildings = world.getGameModeOptions().maxBuildings;
+        }
+        this.building_count = new SupplyContainer(max_buildings);
         //		this.team_tip = Utils.getBundleString(bundle, "team", new
         // Object[]{Integer.toString(player_info.getTeam() + 1)});
     }
 
     public final void changePreferredGamespeed(int delta) {
         int old_speed = getGamespeed();
-        int new_speed =
-                Math.max(
-                        Game.GAMESPEED_PAUSE,
-                        Math.min(old_speed + delta, Game.GAMESPEED_LUDICROUS));
+        int new_speed = old_speed + delta;
+        if (new_speed < 0) new_speed = 0;
+        // clamp to highest valid gamespeed index
+        int max_index = 0;
+        while (World.isValidGamespeed(max_index + 1)) max_index++;
+        if (new_speed > max_index) new_speed = max_index;
         setPreferredGamespeed(new_speed);
     }
 
@@ -230,6 +235,8 @@ public final strictfp class Player implements PlayerInterface {
     }
 
     public final boolean canAttack() {
+        // Disable attacks during peace time
+        if (can_attack && world.isPeaceTime()) return false;
         return can_attack;
     }
 
@@ -239,7 +246,8 @@ public final strictfp class Player implements PlayerInterface {
 
     public final boolean canBuild(int building) {
         return can_build[building]
-                && getBuildingCountContainer().getNumSupplies() < Player.MAX_BUILDING_COUNT;
+                && getBuildingCountContainer().getNumSupplies()
+                        < getBuildingCountContainer().getMaxSupplyCount();
     }
 
     public final boolean canRepair() {

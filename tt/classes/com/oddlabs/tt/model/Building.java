@@ -5,6 +5,7 @@ import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.gui.BuildSpinner;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
+import com.oddlabs.tt.landscape.GameModeOptions;
 import com.oddlabs.tt.model.behaviour.AttackController;
 import com.oddlabs.tt.model.behaviour.GatherController;
 import com.oddlabs.tt.model.behaviour.NullController;
@@ -294,6 +295,36 @@ public final strictfp class Building extends Selectable implements Occupant {
 
     public final void deployUnits(int type, int num_units) {
         assert !isDead();
+        // Enforce unit allowlist from game mode options
+        GameModeOptions mode = getOwner().getWorld().getGameModeOptions();
+        if (mode != null) {
+            boolean allow = true;
+            switch (type) {
+                case KEY_DEPLOY_ROCK_WARRIOR:
+                    allow = mode.allowedUnits[Race.UNIT_WARRIOR_ROCK];
+                    break;
+                case KEY_DEPLOY_IRON_WARRIOR:
+                    allow = mode.allowedUnits[Race.UNIT_WARRIOR_IRON];
+                    break;
+                case KEY_DEPLOY_RUBBER_WARRIOR:
+                    allow = mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+                    break;
+                case KEY_DEPLOY_PEON:
+                case KEY_DEPLOY_PEON_HARVEST_TREE:
+                case KEY_DEPLOY_PEON_TRANSPORT_TREE:
+                case KEY_DEPLOY_PEON_HARVEST_ROCK:
+                case KEY_DEPLOY_PEON_TRANSPORT_ROCK:
+                case KEY_DEPLOY_PEON_HARVEST_IRON:
+                case KEY_DEPLOY_PEON_TRANSPORT_IRON:
+                case KEY_DEPLOY_PEON_HARVEST_RUBBER:
+                case KEY_DEPLOY_PEON_TRANSPORT_RUBBER:
+                    allow = mode.allowedUnits[Race.UNIT_PEON];
+                    break;
+                default:
+                    break;
+            }
+            if (!allow) return;
+        }
         getOwner().getWorld().updateGlobalChecksum(type);
         getOwner().getWorld().updateGlobalChecksum(num_units);
         getDeployContainer(type).orderSupply(num_units);

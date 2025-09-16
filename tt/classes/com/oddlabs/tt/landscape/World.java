@@ -6,6 +6,7 @@ import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.ProgressForm;
 import com.oddlabs.tt.gui.Icons;
 import com.oddlabs.tt.model.AbstractElementNode;
+import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.SupplyManager;
 import com.oddlabs.tt.model.SupplyManagers;
@@ -41,6 +42,8 @@ public final strictfp class World {
 
     private final int max_unit_count;
     private final NotificationListener notification_listener;
+    private final GameModeOptions game_mode;
+    private final int peace_end_tick;
 
     private final Player[] players;
     private final SupplyManagers supply_managers;
@@ -99,6 +102,15 @@ public final strictfp class World {
             Player player = players[i];
             assert player != null;
             player.init(world_info.starting_locations[i]);
+        }
+        // Apply allowlists to players (buildings, chieftain ability)
+        GameModeOptions mode = world.getGameModeOptions();
+        for (int i = 0; i < players.length; i++) {
+            for (int b = 0; b < Race.NUM_BUILDINGS; b++) {
+                players[i].enableBuilding(b, mode.allowedBuildings[b]);
+            }
+            // Gate chieftain training by unit allowlist
+            players[i].enableChieftains(mode.allowedUnits[Race.UNIT_CHIEFTAIN]);
         }
         return world;
     }
@@ -183,10 +195,22 @@ public final strictfp class World {
                         + " ********************");
         this.landscape_resources = landscape_resources;
         this.races_resources = races_resources;
-        this.audio_impl = audio_implementation;
-        this.max_unit_count = world_params.getMaxUnitCount();
+    this.audio_impl = audio_implementation;
+    this.max_unit_count = world_params.getMaxUnitCount();
+    this.game_mode = world_params.getGameMode();
         this.notification_listener = notification_listener;
         this.gamespeed = world_params.getInitialGameSpeed();
+    // Compute peace end tick in real-time ticks (independent of gamespeed)
+    if (game_mode != null && game_mode.peaceEnabled && game_mode.peaceSeconds > 0) {
+        int current = LocalEventQueue.getQueue().getHighPrecisionManager().getTick();
+        this.peace_end_tick =
+            current
+                + (int)
+                    (game_mode.peaceSeconds
+                        / AnimationManager.ANIMATION_SECONDS_PER_TICK);
+    } else {
+        this.peace_end_tick = -1;
+    }
         long time_start = System.currentTimeMillis();
 
         int num_players = player_infos.length;
@@ -277,6 +301,15 @@ public final strictfp class World {
 
     public final NotificationListener getNotificationListener() {
         return notification_listener;
+    }
+
+    public final GameModeOptions getGameModeOptions() {
+        return game_mode;
+    }
+
+    public final boolean isPeaceTime() {
+        return peace_end_tick != -1
+                && LocalEventQueue.getQueue().getHighPrecisionManager().getTick() < peace_end_tick;
     }
 
     public final HeightMap getHeightMap() {
