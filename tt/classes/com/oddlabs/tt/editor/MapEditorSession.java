@@ -39,7 +39,6 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
-import org.lwjgl.opengl.GL11;
 import com.oddlabs.tt.editor.ui.EditorState;
 // import removed: com.oddlabs.procedural.Channel
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -332,6 +331,8 @@ public final class MapEditorSession {
     private final DefaultRenderer defaultRenderer;
         // Cached overlay renderer (per-patch display lists)
         private final EditorOverlayRenderer overlayRenderer;
+    // Entities placement site overlay renderer (reuses in-game visuals for legal sites)
+    private final com.oddlabs.tt.render.BuildingSiteRenderer entitiesSiteRenderer = new com.oddlabs.tt.render.BuildingSiteRenderer();
         // Toolbar UI (non-modal)
         private com.oddlabs.tt.editor.ui.EditorToolbar toolbar;
     // Entities selectors panel (non-modal, draggable)
@@ -423,6 +424,9 @@ public final class MapEditorSession {
     private boolean overlayTPressed = false;   // true between T down and up
     private boolean overlayTScrollUsed = false; // true if user scrolled while holding T
     private OverlayLayer overlayLayer = OverlayLayer.WATER;
+
+    // Entities tool visuals
+    private static final int ENT_SITE_GRID_RADIUS = 20; // scan radius (in grid units) for legal site overlay
 
         // Options binding for toolbar selectors
         private final com.oddlabs.tt.editor.ui.EditorOptionsBinding optionsBinding =
@@ -872,116 +876,200 @@ public final class MapEditorSession {
             getCamera().mouseScrolled(amount);
         }
 
-        // 3D halo ring showing current brush footprint
+        // 3D visuals: brush halo (terrain/resource) or entities placement overlay/halo
         public void render3D(LandscapeRenderer renderer, RenderQueues queues) {
             LandscapeLocation hit = new LandscapeLocation();
             boolean hasHit = picker.pickLocation(getCamera().getState(), hit);
 
             if (hasHit) {
-                float cx = hit.x;
-                float cy = hit.y;
-                float rx = brushRadiusXM;
-                float ry = brushRadiusYM;
-                float cosA = (float) StrictMath.cos(brushAngleRad);
-                float sinA = (float) StrictMath.sin(brushAngleRad);
+                if (activeTool == ActiveTool.ENTITIES) {
+                    // Entities tool: show building placement overlay and static radius halo (buildings only)
+                    if (entitiesType == 0) {
+                        try {
+                            // Resolve current building template per race/kind
+                            com.oddlabs.tt.model.Race raceSel = world.getRacesResources().getRace(entitiesRace);
+                            int buildingIndex = entitiesKindToBuildingIndex(entitiesKind);
+                            com.oddlabs.tt.model.BuildingTemplate tmpl = raceSel.getBuildingTemplate(buildingIndex);
+                            com.oddlabs.tt.pathfinder.UnitGrid ug = world.getUnitGrid();
 
-                // Choose color by mode
-                float r = 1f, g = 1f, b = 0f, a = 0.85f; // default raise/lower
-                switch (brushMode) {
-                    case SOFTEN: r = 0.6f; g = 1f; b = 0.6f; break; // light green
-                    case SMOOTH: r = 0f; g = 1f; b = 1f; break;
-                    case ROUGH: r = 1f; g = 0.5f; b = 0f; break; // orange
-                    case RANDOM: r = 0.4f; g = 0.8f; b = 1f; break; // light cyan
-                    case FLATTEN: r = 1f; g = 0f; b = 1f; break;
-                    default: break;
-                }
+                            // Center snapped to the template footprint like in gameplay placing
+                            int centerGX = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(hit.x);
+                            int centerGY = com.oddlabs.tt.pathfinder.UnitGrid.toGridCoordinate(hit.y);
+                            int topLeftGX = centerGX - (tmpl.getPlacingSize() - 1);
+                            int topLeftGY = centerGY - (tmpl.getPlacingSize() - 1);
+                            float cell = com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+                            float centerX = cell * (topLeftGX + (tmpl.getPlacingSize() - .5f));
+                            float centerY = cell * (topLeftGY + (tmpl.getPlacingSize() - .5f));
 
-                GL11.glDisable(GL11.GL_TEXTURE_2D);
-                GL11.glEnable(GL11.GL_BLEND);
-                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-                GL11.glColor4f(r, g, b, a);
-                GL11.glLineWidth(2f);
+                            // Compute legal sites around the cursor using the full legality filter
+                            com.oddlabs.tt.player.BuildingSiteScanFilter filter =
+                                    new com.oddlabs.tt.player.BuildingSiteScanFilter(ug, tmpl, ENT_SITE_GRID_RADIUS, false);
+                    ug.scan(filter, centerGX, centerGY, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
+                    @SuppressWarnings("unchecked")
+                    java.util.List<com.oddlabs.tt.util.Target> targets = (java.util.List<com.oddlabs.tt.util.Target>) filter.getResult();
 
-                int steps = 64;
-                GL11.glBegin(GL11.GL_LINE_LOOP);
-                for (int i = 0; i < steps; i++) {
-                    float tAng = (float) (2.0 * StrictMath.PI * i / steps);
-                    float ex = (float) StrictMath.cos(tAng) * rx;
-                    float ey = (float) StrictMath.sin(tAng) * ry;
-                    float dx = cosA * ex + sinA * ey;
-                    float dy = -sinA * ex + cosA * ey;
-                    float x = cx + dx;
-                    float y = cy + dy;
-                    float z = renderer.getHeightMap().getNearestHeight(x, y) + 0.03f; // slight lift
-                    GL11.glVertex3f(x, y, z);
-                }
-                GL11.glEnd();
+                            // Draw the placement overlay using the in-game site renderer
+                            entitiesSiteRenderer.renderSites(renderer, targets, centerX, centerY, 2 * ENT_SITE_GRID_RADIUS);
 
-                // Draw pending stroke plus marks (preview) only for RAISE/LOWER
-                if (brushMode == BrushMode.RAISE_LOWER && strokeActive && !strokeAccum.isEmpty()) {
-                    GL11.glLineWidth(2f);
-                    GL11.glBegin(GL11.GL_LINES);
-                    for (java.util.Map.Entry<Long, Float> e : strokeAccum.entrySet()) {
-                        long k = e.getKey();
-                        int gx = (int) (k >> 32);
-                        int gy = (int) k;
-                        float delta = e.getValue();
-                        // cell center in world coords
-                        float wx = gx * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
-                        float wy = gy * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
-                        // Predict resulting height using stroke baseline + accumulated delta
-                        float base = strokeBaseline.containsKey(k)
-                                ? strokeBaseline.get(k)
-                                : renderer.getHeightMap().getNearestHeight(wx, wy);
-                        float wz = base + delta + 0.05f;
-                        // color by sign
-                        if (delta >= 0f) GL11.glColor4f(0f, 1f, 0f, a);
-                        else GL11.glColor4f(1f, 0f, 0f, a);
-                        float len = 0.6f; // half-length of the plus arms
-                        // horizontal arm
-                        GL11.glVertex3f(wx - len, wy, wz);
-                        GL11.glVertex3f(wx + len, wy, wz);
-                        // vertical arm
-                        GL11.glVertex3f(wx, wy - len, wz);
-                        GL11.glVertex3f(wx, wy + len, wz);
+                            // Draw a static ring indicating the template radius (different color from overlay)
+                            float r_m = (tmpl.getPlacingSize() - 1) * cell; // radius in meters to the side of footprint
+                            final int steps = 64;
+                            org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_TEXTURE_2D);
+                            org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_BLEND);
+                            org.lwjgl.opengl.GL11.glBlendFunc(org.lwjgl.opengl.GL11.GL_SRC_ALPHA, org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA);
+                            org.lwjgl.opengl.GL11.glColor4f(0.2f, 0.8f, 1f, 0.9f); // cyan ring distinct from green overlay
+                            org.lwjgl.opengl.GL11.glLineWidth(2f);
+                            org.lwjgl.opengl.GL11.glBegin(org.lwjgl.opengl.GL11.GL_LINE_LOOP);
+                            for (int i = 0; i < steps; i++) {
+                                float tAng = (float) (2.0 * StrictMath.PI * i / steps);
+                                float x = centerX + (float) StrictMath.cos(tAng) * r_m;
+                                float y = centerY + (float) StrictMath.sin(tAng) * r_m;
+                                float z = renderer.getHeightMap().getNearestHeight(x, y) + 0.05f;
+                                org.lwjgl.opengl.GL11.glVertex3f(x, y, z);
+                            }
+                            org.lwjgl.opengl.GL11.glEnd();
+                            org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_BLEND);
+                            org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_TEXTURE_2D);
+
+                            // Also draw the regular brush halo (ellipse) to indicate the active brush size
+                            // Use a subdued yellow to differentiate from the cyan size ring and green site overlay
+                            float cx = hit.x;
+                            float cy = hit.y;
+                            float rx = brushRadiusXM;
+                            float ry = brushRadiusYM;
+                            float cosA = (float) StrictMath.cos(brushAngleRad);
+                            float sinA = (float) StrictMath.sin(brushAngleRad);
+                            org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_TEXTURE_2D);
+                            org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_BLEND);
+                            org.lwjgl.opengl.GL11.glBlendFunc(org.lwjgl.opengl.GL11.GL_SRC_ALPHA, org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA);
+                            org.lwjgl.opengl.GL11.glColor4f(1f, 1f, 0f, 0.8f);
+                            org.lwjgl.opengl.GL11.glLineWidth(2f);
+                            org.lwjgl.opengl.GL11.glBegin(org.lwjgl.opengl.GL11.GL_LINE_LOOP);
+                            for (int i = 0; i < 64; i++) {
+                                float tAng = (float) (2.0 * StrictMath.PI * i / 64);
+                                float ex = (float) StrictMath.cos(tAng) * rx;
+                                float ey = (float) StrictMath.sin(tAng) * ry;
+                                float dx = cosA * ex + sinA * ey;
+                                float dy = -sinA * ex + cosA * ey;
+                                float x = cx + dx;
+                                float y = cy + dy;
+                                float z = renderer.getHeightMap().getNearestHeight(x, y) + 0.03f;
+                                org.lwjgl.opengl.GL11.glVertex3f(x, y, z);
+                            }
+                            org.lwjgl.opengl.GL11.glEnd();
+                            org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_BLEND);
+                            org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_TEXTURE_2D);
+                        } catch (Throwable ignore) {
+                            // Fail-safe: ignore overlay issues in editor visuals
+                        }
                     }
-                    GL11.glEnd();
-                }
+                } else {
+                    // Non-entities tools: draw the elliptical brush halo and any stroke preview
+                    float cx = hit.x;
+                    float cy = hit.y;
+                    float rx = brushRadiusXM;
+                    float ry = brushRadiusYM;
+                    float cosA = (float) StrictMath.cos(brushAngleRad);
+                    float sinA = (float) StrictMath.sin(brushAngleRad);
 
-                // Restore state
-                GL11.glDisable(GL11.GL_BLEND);
-                GL11.glEnable(GL11.GL_TEXTURE_2D);
+                    // Choose color by mode
+                    float r = 1f, g = 1f, b = 0f, a = 0.85f; // default raise/lower
+                    switch (brushMode) {
+                        case SOFTEN: r = 0.6f; g = 1f; b = 0.6f; break; // light green
+                        case SMOOTH: r = 0f; g = 1f; b = 1f; break;
+                        case ROUGH: r = 1f; g = 0.5f; b = 0f; break; // orange
+                        case RANDOM: r = 0.4f; g = 0.8f; b = 1f; break; // light cyan
+                        case FLATTEN: r = 1f; g = 0f; b = 1f; break;
+                        default: break;
+                    }
 
-                // Polyline preview for Ramp/Path/River
-                if (brushMode == BrushMode.RAMP || brushMode == BrushMode.RIVER) {
-                    if (polylinePts.size() > 0) {
-                        GL11.glDisable(GL11.GL_TEXTURE_2D);
-                        GL11.glEnable(GL11.GL_BLEND);
-                        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-                        float pr=1f,pg=1f,pb=1f,pa=0.9f;
-                        if (brushMode == BrushMode.RAMP) { pr=0.9f; pg=0.8f; pb=0.1f; } // yellow
-                        else { pr=0.2f; pg=0.6f; pb=1f; } // river blue
-                        GL11.glColor4f(pr, pg, pb, pa);
-                        GL11.glLineWidth(3f);
-                        // Draw connected line at terrain height
-                        GL11.glBegin(GL11.GL_LINE_STRIP);
-                        for (int i=0;i<polylinePts.size();i++) {
-                            float[] p = polylinePts.get(i);
-                            float z = renderer.getHeightMap().getNearestHeight(p[0], p[1]) + 0.05f;
-                            GL11.glVertex3f(p[0], p[1], z);
+                    org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_TEXTURE_2D);
+                    org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_BLEND);
+                    org.lwjgl.opengl.GL11.glBlendFunc(org.lwjgl.opengl.GL11.GL_SRC_ALPHA, org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA);
+                    org.lwjgl.opengl.GL11.glColor4f(r, g, b, a);
+                    org.lwjgl.opengl.GL11.glLineWidth(2f);
+
+                    int steps = 64;
+                    org.lwjgl.opengl.GL11.glBegin(org.lwjgl.opengl.GL11.GL_LINE_LOOP);
+                    for (int i = 0; i < steps; i++) {
+                        float tAng = (float) (2.0 * StrictMath.PI * i / steps);
+                        float ex = (float) StrictMath.cos(tAng) * rx;
+                        float ey = (float) StrictMath.sin(tAng) * ry;
+                        float dx = cosA * ex + sinA * ey;
+                        float dy = -sinA * ex + cosA * ey;
+                        float x = cx + dx;
+                        float y = cy + dy;
+                        float z = renderer.getHeightMap().getNearestHeight(x, y) + 0.03f; // slight lift
+                        org.lwjgl.opengl.GL11.glVertex3f(x, y, z);
+                    }
+                    org.lwjgl.opengl.GL11.glEnd();
+
+                    // Draw pending stroke plus marks (preview) only for RAISE/LOWER
+                    if (brushMode == BrushMode.RAISE_LOWER && strokeActive && !strokeAccum.isEmpty()) {
+                        org.lwjgl.opengl.GL11.glLineWidth(2f);
+                        org.lwjgl.opengl.GL11.glBegin(org.lwjgl.opengl.GL11.GL_LINES);
+                        for (java.util.Map.Entry<Long, Float> e : strokeAccum.entrySet()) {
+                            long k = e.getKey();
+                            int gx = (int) (k >> 32);
+                            int gy = (int) k;
+                            float delta = e.getValue();
+                            // cell center in world coords
+                            float wx = gx * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+                            float wy = gy * com.oddlabs.tt.landscape.HeightMap.METERS_PER_UNIT_GRID;
+                            // Predict resulting height using stroke baseline + accumulated delta
+                            float base = strokeBaseline.containsKey(k)
+                                    ? strokeBaseline.get(k)
+                                    : renderer.getHeightMap().getNearestHeight(wx, wy);
+                            float wz = base + delta + 0.05f;
+                            // color by sign
+                            if (delta >= 0f) org.lwjgl.opengl.GL11.glColor4f(0f, 1f, 0f, a);
+                            else org.lwjgl.opengl.GL11.glColor4f(1f, 0f, 0f, a);
+                            float len = 0.6f; // half-length of the plus arms
+                            // horizontal arm
+                            org.lwjgl.opengl.GL11.glVertex3f(wx - len, wy, wz);
+                            org.lwjgl.opengl.GL11.glVertex3f(wx + len, wy, wz);
+                            // vertical arm
+                            org.lwjgl.opengl.GL11.glVertex3f(wx, wy - len, wz);
+                            org.lwjgl.opengl.GL11.glVertex3f(wx, wy + len, wz);
                         }
-                        GL11.glEnd();
-                        // Draw points
-                        GL11.glPointSize(6f);
-                        GL11.glBegin(GL11.GL_POINTS);
-                        for (int i=0;i<polylinePts.size();i++) {
-                            float[] p = polylinePts.get(i);
-                            float z = renderer.getHeightMap().getNearestHeight(p[0], p[1]) + 0.07f;
-                            GL11.glVertex3f(p[0], p[1], z);
+                        org.lwjgl.opengl.GL11.glEnd();
+                    }
+
+                    // Restore state
+                    org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_BLEND);
+                    org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_TEXTURE_2D);
+
+                    // Polyline preview for Ramp/Path/River
+                    if (brushMode == BrushMode.RAMP || brushMode == BrushMode.RIVER) {
+                        if (polylinePts.size() > 0) {
+                            org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_TEXTURE_2D);
+                            org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_BLEND);
+                            org.lwjgl.opengl.GL11.glBlendFunc(org.lwjgl.opengl.GL11.GL_SRC_ALPHA, org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA);
+                            float pr=1f,pg=1f,pb=1f,pa=0.9f;
+                            if (BrushMode.RAMP == brushMode) { pr=0.9f; pg=0.8f; pb=0.1f; } // yellow
+                            else { pr=0.2f; pg=0.6f; pb=1f; } // river blue
+                            org.lwjgl.opengl.GL11.glColor4f(pr, pg, pb, pa);
+                            org.lwjgl.opengl.GL11.glLineWidth(3f);
+                            // Draw connected line at terrain height
+                            org.lwjgl.opengl.GL11.glBegin(org.lwjgl.opengl.GL11.GL_LINE_STRIP);
+                            for (int i=0;i<polylinePts.size();i++) {
+                                float[] p = polylinePts.get(i);
+                                float z = renderer.getHeightMap().getNearestHeight(p[0], p[1]) + 0.05f;
+                                org.lwjgl.opengl.GL11.glVertex3f(p[0], p[1], z);
+                            }
+                            org.lwjgl.opengl.GL11.glEnd();
+                            // Draw points
+                            org.lwjgl.opengl.GL11.glPointSize(6f);
+                            org.lwjgl.opengl.GL11.glBegin(org.lwjgl.opengl.GL11.GL_POINTS);
+                            for (int i=0;i<polylinePts.size();i++) {
+                                float[] p = polylinePts.get(i);
+                                float z = renderer.getHeightMap().getNearestHeight(p[0], p[1]) + 0.07f;
+                                org.lwjgl.opengl.GL11.glVertex3f(p[0], p[1], z);
+                            }
+                            org.lwjgl.opengl.GL11.glEnd();
+                            org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_BLEND);
+                            org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_TEXTURE_2D);
                         }
-                        GL11.glEnd();
-                        GL11.glDisable(GL11.GL_BLEND);
-                        GL11.glEnable(GL11.GL_TEXTURE_2D);
                     }
                 }
             }
@@ -2273,6 +2361,9 @@ public final class MapEditorSession {
             boolean erase = rightDown && !leftDown;
 
             boolean debugPrintedThisStroke = false;
+
+            // Build candidate grid cells within the ellipse, then sort by distance so center is first
+            java.util.ArrayList<int[]> candidates = new java.util.ArrayList<int[]>();
             for (int gy = cy - rGU; gy <= cy + rGU; gy++) {
                 for (int gx = cx - rGU; gx <= cx + rGU; gx++) {
                     if (gx < 0 || gy < 0 || gx >= ug.getGridSize() || gy >= ug.getGridSize()) continue;
@@ -2282,18 +2373,33 @@ public final class MapEditorSession {
                     float ldy = -sinA * dxm + cosA * dym;
                     float norm = (ldx * ldx) / (rx * rx) + (ldy * ldy) / (ry * ry);
                     if (norm > 1f) continue;
-                    long key = keyOf(gx, gy);
-                    if (resourceStrokeVisited.contains(key)) continue;
-                    resourceStrokeVisited.add(key);
+                    candidates.add(new int[] { gx, gy });
+                }
+            }
+            java.util.Collections.sort(candidates, new java.util.Comparator<int[]>() {
+                public int compare(int[] a, int[] b) {
+                    int dax = a[0] - cx; int day = a[1] - cy;
+                    int dbx = b[0] - cx; int dby = b[1] - cy;
+                    int da2 = dax * dax + day * day;
+                    int db2 = dbx * dbx + dby * dby;
+                    return (da2 < db2) ? -1 : ((da2 == db2) ? 0 : 1);
+                }
+            });
 
-                    if (erase) {
+            for (int i = 0; i < candidates.size(); i++) {
+                int gx = candidates.get(i)[0];
+                int gy = candidates.get(i)[1];
+                long key = keyOf(gx, gy);
+                if (resourceStrokeVisited.contains(key)) continue;
+                resourceStrokeVisited.add(key);
+
+                if (erase) {
                         com.oddlabs.tt.pathfinder.Occupant occ = ug.getOccupant(gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
-                        boolean changed = false;
+                        // changed flag removed; recompute overlays directly when we erase
                         if (occ instanceof com.oddlabs.tt.model.Unit) {
                             try {
                                 com.oddlabs.tt.model.Unit u = (com.oddlabs.tt.model.Unit) occ;
                                 u.removeNow(); // ensures proper cleanup and grid free
-                                changed = true;
                                 if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                                     try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
                                     try { overlayRenderer.markDirtyROI(gx, gy, gx, gy); } catch (Throwable ignore) {}
@@ -2310,19 +2416,18 @@ public final class MapEditorSession {
                                 int roiMinGX = bx - r, roiMinGY = by - r, roiMaxGX = bx + r, roiMaxGY = by + r;
                                 // Editor-fast destroy: free occupancy/terrain and remove visuals immediately
                                 b.editorRemoveNow();
-                                changed = true;
                                 if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                                     try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, roiMinGX, roiMinGY, roiMaxGX, roiMaxGY); } catch (Throwable ignore) {}
                                     try { overlayRenderer.markDirtyROI(roiMinGX, roiMinGY, roiMaxGX, roiMaxGY); } catch (Throwable ignore) {}
                                 }
                             } catch (Throwable ignore) {}
                         }
-                        continue;
-                    }
+                    continue;
+                }
 
-                    if (rnd.nextFloat() > coverage) continue;
+                if (rnd.nextFloat() > coverage) continue;
 
-            if (entitiesType == 0) {
+                if (entitiesType == 0) {
                         // Buildings
                         int buildingIndex = entitiesKindToBuildingIndex(entitiesKind);
                         com.oddlabs.tt.model.Race raceSel = world.getRacesResources().getRace(entitiesRace);
@@ -2330,7 +2435,8 @@ public final class MapEditorSession {
                         com.oddlabs.tt.player.BuildingSiteScanFilter filter = new com.oddlabs.tt.player.BuildingSiteScanFilter(
                                 ug, tmpl, 0, true);
                         ug.scan(filter, gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
-                        java.util.List targets = filter.getResult();
+                            @SuppressWarnings("unchecked")
+                            java.util.List<com.oddlabs.tt.util.Target> targets = (java.util.List<com.oddlabs.tt.util.Target>) filter.getResult();
                         if (targets.size() > 0) {
                             com.oddlabs.tt.util.Target t = (com.oddlabs.tt.util.Target) targets.get(0);
                 com.oddlabs.tt.player.Player owner = resolveSelectedOwner();
@@ -2387,7 +2493,6 @@ public final class MapEditorSession {
                             debugPrintedThisStroke = true;
                         }
                     }
-                }
             }
         }
 
@@ -2476,12 +2581,12 @@ public final class MapEditorSession {
             // Render using cached per-patch display lists.
             // Important: keep depth test ON so overlay tiles hidden behind terrain don't bleed through.
             // Also keep depth writes OFF and use alpha blend so overlays composite on visible terrain.
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glDepthFunc(GL11.GL_LEQUAL);
-            GL11.glDepthMask(false);
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_TEXTURE_2D);
+            org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_DEPTH_TEST);
+            org.lwjgl.opengl.GL11.glDepthFunc(org.lwjgl.opengl.GL11.GL_LEQUAL);
+            org.lwjgl.opengl.GL11.glDepthMask(false);
+            org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_BLEND);
+            org.lwjgl.opengl.GL11.glBlendFunc(org.lwjgl.opengl.GL11.GL_SRC_ALPHA, org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA);
             // Use only a static geometric Z lift for overlays (see EditorOverlayRenderer).
             // We intentionally avoid dynamic polygon offset here to prevent flicker/jitter.
             // If needed in the future, a small fixed polygon offset can be reintroduced.
@@ -2495,7 +2600,7 @@ public final class MapEditorSession {
                 case RESOURCE: cr=1f;   cg=0.5f; cb=0f;   break;
                 case SLOPE:    cr=1f;   cg=0f;   cb=0f;   break;
             }
-            GL11.glColor4f(cr, cg, cb, ca);
+            org.lwjgl.opengl.GL11.glColor4f(cr, cg, cb, ca);
 
             EditorOverlayRenderer.Layer layer;
             switch (overlayLayer) {
@@ -2509,12 +2614,12 @@ public final class MapEditorSession {
             overlayRenderer.draw(layer);
 
             // Restore state (no polygon offset was enabled in this mode)
-            GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
-            GL11.glPolygonOffset(0f, 0f);
-            GL11.glDisable(GL11.GL_BLEND);
-            GL11.glDepthMask(true);
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_POLYGON_OFFSET_FILL);
+            org.lwjgl.opengl.GL11.glPolygonOffset(0f, 0f);
+            org.lwjgl.opengl.GL11.glDisable(org.lwjgl.opengl.GL11.GL_BLEND);
+            org.lwjgl.opengl.GL11.glDepthMask(true);
+            org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_DEPTH_TEST);
+            org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL11.GL_TEXTURE_2D);
         }
     }
 
