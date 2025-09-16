@@ -157,8 +157,8 @@ final class EditorOverlayRenderer {
                 float wy = gy * cell;
                 // Sample each corner to reduce gaps over steep terrain
                 // Epsilon lifts overlay quads above terrain to reduce coplanar z-fighting.
-                // Adjusted to 0.3m per request; polygon offset remains primary defense.
-                float eps = 0.30f;
+                // Adjusted to 0.69m per request; polygon offset remains primary defense.
+                float eps = 0.69f;
                 float z00 = hm.getNearestHeight(wx, wy) + eps;
                 float z10 = hm.getNearestHeight(wx + cell, wy) + eps;
                 float z11 = hm.getNearestHeight(wx + cell, wy + cell) + eps;

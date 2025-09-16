@@ -2437,19 +2437,9 @@ public final class MapEditorSession {
             GL11.glDepthMask(false);
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            // Dynamic polygon offset tied to camera height above ground.
-            // Negative values bias fragments toward the camera for GL_LEQUAL depth testing.
-            GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
-            float cx = getCamera().getState().getCurrentX();
-            float cy = getCamera().getState().getCurrentY();
-            float cz = getCamera().getState().getCurrentZ();
-            float ground = 0f;
-            try { ground = world.getHeightMap().getNearestHeight(cx, cy); } catch (Throwable ignore) {}
-            float above = Math.max(0f, cz - ground);
-            // Emphasize constant units term for coplanar surfaces, scale with distance; clamp for safety
-            float factor = -1.1f;
-            float units  = -(float) clamp(3.0f + above * 0.05f, 5.0f, 48.0f);
-            GL11.glPolygonOffset(factor, units);
+            // Use only a static geometric Z lift for overlays (see EditorOverlayRenderer).
+            // We intentionally avoid dynamic polygon offset here to prevent flicker/jitter.
+            // If needed in the future, a small fixed polygon offset can be reintroduced.
 
             float cr=0f,cg=0f,cb=0f,ca=0.35f;
             switch (overlayLayer) {
@@ -2473,7 +2463,7 @@ public final class MapEditorSession {
             }
             overlayRenderer.draw(layer);
 
-            // Restore state
+            // Restore state (no polygon offset was enabled in this mode)
             GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
             GL11.glPolygonOffset(0f, 0f);
             GL11.glDisable(GL11.GL_BLEND);
