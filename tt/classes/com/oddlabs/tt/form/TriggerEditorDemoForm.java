@@ -1,8 +1,8 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.delegate.MainMenu;
-import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.font.Font;
+import com.oddlabs.tt.gui.*;
 
 /**
  * A non-interactive demo form that visually mocks up the Trigger Editor concept.
