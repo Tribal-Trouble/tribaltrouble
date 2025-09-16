@@ -10,6 +10,7 @@ import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.registration.RegistrationKey;
+import com.oddlabs.tt.util.WordsEncoding;
 
 import java.util.ResourceBundle;
 import java.util.Random;
@@ -42,6 +43,12 @@ public final class MapEditorMenuForm extends Form {
     // Align with TerrainMenu sizing and archipelago mapping
     private static final int[] SIZES = new int[] {256, 512, 1024, 2048, 2048};
     private static final boolean[] ARCHIPELAGO = new boolean[] {false, false, false, false, true};
+
+    // Use same cardinalities as TerrainMenu for compatibility with global map code system
+    private static final String SEED_CARDINALITY = "40000";
+    private static final int SLIDER_CARDINALITY = 11;
+    private static final int TERRAIN_TYPE_CARDINALITY = 4;
+    private static final int SIZE_CARDINALITY = 7;
 
     public MapEditorMenuForm(NetworkSelector network, GUIRoot gui_root, Menu main_menu) {
         this.gui_root = gui_root;
@@ -173,13 +180,14 @@ public final class MapEditorMenuForm extends Form {
         "Sandbox Mode",
         "Enable experimental tools & overlays. Sandbox maps can't be published.");
 
-    // Map code display label (inlined into buttons rows) - keep compact width
-    label_mapcode = new Label("", Skin.getSkin().getHeadlineFont(), 125);
+    // Map code display label (words-based, like TerrainMenu)
+    // 300px wide per request
+    label_mapcode = new Label("", Skin.getSkin().getHeadlineFont(), 300);
 
     // Buttons row (right-aligned)
         Group group_buttons = new Group();
-    // Rename to a shorter label and reduce width
-    HorizButton button_mapcode = new HorizButton("Map Code...", 120);
+    // Use same label as TerrainMenu for consistency
+    HorizButton button_mapcode = new HorizButton(Utils.getBundleString(terrainBundle, "enter_map_code"), 170);
         button_mapcode.addMouseClickListener(new MapcodeListener());
 
         HorizButton button_test = new HorizButton("Test", 120);
@@ -239,14 +247,13 @@ public final class MapEditorMenuForm extends Form {
         });
 
     // Two subgroups (right-aligned):
-    // Top row: [map code text] [Map Code...] [Test]
+    // Top row: [Enter map code...] [Test]
     // Bottom row: [Sandbox] [Load] [OK]
     Group rowTop = new Group();
-    rowTop.addChild(label_mapcode);
     rowTop.addChild(button_mapcode);
     rowTop.addChild(button_test);
-    label_mapcode.place();
-    button_mapcode.place(label_mapcode, RIGHT_MID);
+    // Place buttons horizontally
+    button_mapcode.place();
     button_test.place(button_mapcode, RIGHT_MID);
     rowTop.compileCanvas();
 
@@ -261,9 +268,9 @@ public final class MapEditorMenuForm extends Form {
 
     group_buttons.addChild(rowBottom);
     group_buttons.addChild(rowTop);
-    // Place bottom row first, then top row directly above it, right-aligned with 0px gap
+    // Place bottom row first, then top row directly above it, right-aligned with 4px gap
     rowBottom.place();
-    rowTop.place(rowBottom, TOP_RIGHT, 0);
+    rowTop.place(rowBottom, TOP_RIGHT, 4);
     group_buttons.compileCanvas();
     addChild(group_buttons);
 
@@ -290,68 +297,89 @@ public final class MapEditorMenuForm extends Form {
     group_size.place(group_gamespeed, BOTTOM_LEFT, tightGap);
     group_terrain_type.place(group_size, BOTTOM_LEFT, tightGap);
         group_sliders.place(group_terrain_type, BOTTOM_LEFT);
+
+    // Map code line (like TerrainMenu): label on left, words-based code on right
+    Label label_seed = new Label(Utils.getBundleString(terrainBundle, "map_code"), Skin.getSkin().getEditFont());
+    Group group_seed = new Group();
+    group_seed.addChild(label_seed);
+    group_seed.addChild(label_mapcode);
+    label_seed.place();
+    label_mapcode.place(label_seed, RIGHT_MID);
+    group_seed.compileCanvas();
+    addChild(group_seed);
+    // Place map code group just under the sliders
+    group_seed.place(group_sliders, BOTTOM_LEFT);
     // Place the buttons at the bottom-right
     group_buttons.place(ORIGIN_BOTTOM_RIGHT);
 
         compileCanvas();
     }
 
-    // Minimal parseMapcode support (subset of TerrainMenu.parseMapcode)
+    // Parse both legacy (bits) and words-based codes like TerrainMenu, then clamp to editor options
     public void parseMapcode(String text) {
         String code = text.toUpperCase();
-    java.math.BigInteger result = RegistrationKey.parseBits(code);
-        // Decode in reverse order matching setMapcode packing
-        // Reconstruct in same factor sequence used in setMapcode()
-        // size(5), terrain(2), supplies(11), vegetation(11), hills(11), seed(40000)
-        // Start from highest factor
-        java.math.BigInteger f_size = java.math.BigInteger.valueOf(5);
-        java.math.BigInteger f_terrain = java.math.BigInteger.valueOf(2);
-        java.math.BigInteger f_slider = java.math.BigInteger.valueOf(11);
-        java.math.BigInteger f_seed = new java.math.BigInteger("40000");
+        try {
+            BigInteger result;
+            if (code.indexOf(' ') == -1) {
+                // Legacy bits encoding
+                result = RegistrationKey.parseBits(code);
+            } else {
+                // Words-based encoding
+                result = WordsEncoding.decode(text);
+            }
+            parseBigIntegerEditor(result);
+            // Re-encode with words so display matches global system
+            setMapcode();
+        } catch (Throwable ignore) {
+            // If parsing fails, keep existing values
+        }
+    }
 
-        // Build MAX = seed*slider*slider*slider*terrain*size
-        java.math.BigInteger MAX = f_seed.multiply(f_slider).multiply(f_slider).multiply(f_slider).multiply(f_terrain).multiply(f_size);
+    // Decode size, terrain, supplies, vegetation, hills, seed using TerrainMenu cardinalities
+    private void parseBigIntegerEditor(BigInteger result) {
+        BigInteger max = BigInteger.ONE;
+        max = max.multiply(new BigInteger(SEED_CARDINALITY));
+        max = max.multiply(new BigInteger(new byte[] {(byte) SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {(byte) SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {(byte) SLIDER_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {(byte) TERRAIN_TYPE_CARDINALITY}));
+        max = max.multiply(new BigInteger(new byte[] {(byte) SIZE_CARDINALITY}));
 
-    java.math.BigInteger r = result.mod(MAX);
+        result = result.mod(max);
 
         // size
-        java.math.BigInteger div = MAX.divide(f_size);
-        int sizeIndex = r.divide(div).intValue();
-        r = r.mod(div);
+        max = max.divide(new BigInteger(new byte[] {(byte) SIZE_CARDINALITY}));
+        int sizeIndex = result.divide(max).intValue();
+        pulldown_size.chooseItem(Math.max(0, Math.min(4, sizeIndex))); // clamp to 0..4
+        result = result.mod(max);
 
         // terrain
-        div = div.divide(f_terrain);
-        int terrainIndex = r.divide(div).intValue();
-        r = r.mod(div);
+        max = max.divide(new BigInteger(new byte[] {(byte) TERRAIN_TYPE_CARDINALITY}));
+        int terrainIndex = result.divide(max).intValue();
+        pm_terrain_type.chooseItem(Math.max(0, Math.min(1, terrainIndex))); // clamp to 0..1
+        result = result.mod(max);
 
         // supplies
-        div = div.divide(f_slider);
-        int supplies = r.divide(div).intValue();
-        r = r.mod(div);
+        max = max.divide(new BigInteger(new byte[] {(byte) SLIDER_CARDINALITY}));
+        int supplies = result.divide(max).intValue();
+        slider_supplies.setValue(Math.max(0, Math.min(10, supplies)));
+        result = result.mod(max);
 
         // vegetation
-        div = div.divide(f_slider);
-        int vegetation = r.divide(div).intValue();
-        r = r.mod(div);
+        max = max.divide(new BigInteger(new byte[] {(byte) SLIDER_CARDINALITY}));
+        int vegetation = result.divide(max).intValue();
+        slider_vegetation.setValue(Math.max(0, Math.min(10, vegetation)));
+        result = result.mod(max);
 
         // hills
-        div = div.divide(f_slider);
-        int hills = r.divide(div).intValue();
-        r = r.mod(div);
+        max = max.divide(new BigInteger(new byte[] {(byte) SLIDER_CARDINALITY}));
+        int hills = result.divide(max).intValue();
+        slider_hills.setValue(Math.max(0, Math.min(10, hills)));
+        result = result.mod(max);
 
         // seed
-        div = div.divide(f_seed);
-        int newSeed = r.divide(div).intValue();
-
-        // Apply to controls
-        pulldown_size.chooseItem(Math.max(0, Math.min(4, sizeIndex)));
-        pm_terrain_type.chooseItem(Math.max(0, Math.min(1, terrainIndex)));
-        slider_supplies.setValue(Math.max(0, Math.min(10, supplies)));
-        slider_vegetation.setValue(Math.max(0, Math.min(10, vegetation)));
-        slider_hills.setValue(Math.max(0, Math.min(10, hills)));
-        seed = newSeed;
-        label_mapcode.clear();
-        label_mapcode.append(code);
+        max = max.divide(new BigInteger(SEED_CARDINALITY));
+        seed = result.divide(max).intValue();
     }
 
     private final class MapcodeListener implements com.oddlabs.tt.guievent.MouseClickListener {
@@ -499,10 +527,14 @@ public final class MapEditorMenuForm extends Form {
                     com.oddlabs.tt.util.Utils.getBundleString(bundle, "map_code"),
                     com.oddlabs.tt.gui.Skin.getSkin().getEditFont());
             addChild(label);
-        edit = new com.oddlabs.tt.gui.EditLine(200, 12,
-            RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS,
-            com.oddlabs.tt.gui.EditLine.LEFT_ALIGNED);
+        // Match TerrainMenu's MapcodeForm: allow free text (including spaces) for words-based codes
+        edit = new com.oddlabs.tt.gui.EditLine(200, 100, com.oddlabs.tt.gui.EditLine.LEFT_ALIGNED);
             addChild(edit);
+            // Pressing Enter should submit, mirroring TerrainMenu behavior
+            edit.addEnterListener(new com.oddlabs.tt.guievent.EnterListener() {
+                @Override
+                public void enterPressed(CharSequence text) { done(); }
+            });
             com.oddlabs.tt.gui.HorizButton ok = new com.oddlabs.tt.gui.OKButton(100);
             ok.addMouseClickListener(new com.oddlabs.tt.guievent.MouseClickListener(){
                 @Override
@@ -547,25 +579,30 @@ public final class MapEditorMenuForm extends Form {
         } catch (Throwable ignore) {}
     }
 
-    // Simplified map code generation matching exposed controls
+    // Map code generation compatible with TerrainMenu (words-based encoding)
     private void setMapcode() {
         BigInteger max_val = BigInteger.ONE;
         BigInteger result = BigInteger.ZERO;
+        // seed
         result = result.add(BigInteger.valueOf(seed).multiply(max_val));
-        max_val = max_val.multiply(new BigInteger("40000"));
+        max_val = max_val.multiply(new BigInteger(SEED_CARDINALITY));
+        // hills
         result = result.add(BigInteger.valueOf(slider_hills.getValue()).multiply(max_val));
-        max_val = max_val.multiply(BigInteger.valueOf(11));
+        max_val = max_val.multiply(new BigInteger(new byte[] {(byte) SLIDER_CARDINALITY}));
+        // vegetation
         result = result.add(BigInteger.valueOf(slider_vegetation.getValue()).multiply(max_val));
-        max_val = max_val.multiply(BigInteger.valueOf(11));
+        max_val = max_val.multiply(new BigInteger(new byte[] {(byte) SLIDER_CARDINALITY}));
+        // supplies
         result = result.add(BigInteger.valueOf(slider_supplies.getValue()).multiply(max_val));
-        max_val = max_val.multiply(BigInteger.valueOf(11));
+        max_val = max_val.multiply(new BigInteger(new byte[] {(byte) SLIDER_CARDINALITY}));
+        // terrain (use 0..1 in a 0..3 space for compatibility)
         result = result.add(BigInteger.valueOf(pm_terrain_type.getChosenItemIndex()).multiply(max_val));
-        max_val = max_val.multiply(BigInteger.valueOf(2));
+        max_val = max_val.multiply(new BigInteger(new byte[] {(byte) TERRAIN_TYPE_CARDINALITY}));
+        // size (use 0..4 in a 0..6 space for compatibility)
         result = result.add(BigInteger.valueOf(pulldown_size.getChosenItemIndex()).multiply(max_val));
-        // size has 5 options (Small/Medium/Large/Enormous/Archipelago)
-    // Note: no need to multiply max_val further here
+        max_val = max_val.multiply(new BigInteger(new byte[] {(byte) SIZE_CARDINALITY}));
 
-    String code = RegistrationKey.createString(result);
+        String code = WordsEncoding.encode(result);
         label_mapcode.clear();
         label_mapcode.append(code);
     }
