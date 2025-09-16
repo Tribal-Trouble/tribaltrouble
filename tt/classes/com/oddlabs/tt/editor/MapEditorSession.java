@@ -23,6 +23,7 @@ import com.oddlabs.tt.landscape.AudioImplementation;
 import com.oddlabs.tt.landscape.NotificationListener;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.landscape.WorldParameters;
+import com.oddlabs.tt.landscape.GameModeOptions;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.render.DefaultRenderer;
@@ -117,22 +118,35 @@ public final class MapEditorSession {
                             };
 
                             // Single-player editor setup
-                            PlayerInfo[] infos = new PlayerInfo[] {
-                                    new PlayerInfo(0, com.oddlabs.tt.model.RacesResources.RACE_NATIVES, "Editor")
-                            };
-                            float[][] colors = new float[][] {Player.COLORS[0]};
+                            // Provide a neutral player and teams 0..7 so the Entities tool can assign ownership properly.
+                            // Default race for editor players: Natives; templates can still be placed for any race.
+                            java.util.List<PlayerInfo> infoList = new java.util.ArrayList<>();
+                            infoList.add(new PlayerInfo(PlayerInfo.TEAM_NEUTRAL, com.oddlabs.tt.model.RacesResources.RACE_NATIVES, "Neutral"));
+                            for (int i = 0; i < 8; i++) {
+                                infoList.add(new PlayerInfo(i, com.oddlabs.tt.model.RacesResources.RACE_NATIVES, "Team " + i));
+                            }
+                            PlayerInfo[] infos = infoList.toArray(new PlayerInfo[0]);
+                            // Let World assign default distinct colors if not provided per-player
+                            float[][] colors = null;
 
                             int playersForGeneration = 6;
                             System.err.println("[EditorStart] Generate world info via generator=" + generator.getClass().getSimpleName());
                             WorldInfo worldInfo =
                                     generator.generate(playersForGeneration, Player.INITIAL_UNIT_COUNT, 0f);
                             System.err.println("[EditorStart] WorldInfo ready. Build WorldParameters (gamespeed=" + gamespeed + ")");
-                            WorldParameters worldParams =
-                                    new WorldParameters(
-                                            gamespeed,
-                                            "",
-                                            Player.INITIAL_UNIT_COUNT,
-                                            Player.DEFAULT_MAX_UNIT_COUNT);
+                // Editor-specific GameModeOptions: effectively unlimited buildings, all units/buildings allowed
+                GameModeOptions editorMode = new GameModeOptions(
+                    false, /*peace*/ 0, /*seconds*/
+                    100000, /*maxBuildings*/
+                    null, /*allowedUnits -> all*/
+                    null  /*allowedBuildings -> all*/);
+                WorldParameters worldParams =
+                    new WorldParameters(
+                        gamespeed,
+                        "",
+                        Player.INITIAL_UNIT_COUNT,
+                        Player.DEFAULT_MAX_UNIT_COUNT,
+                        editorMode);
 
                             final LandscapeRenderer[] lrHolder = new LandscapeRenderer[1];
                             final DefaultRenderer[] drHolder = new DefaultRenderer[1];
@@ -615,7 +629,7 @@ public final class MapEditorSession {
                 + "Entities Tool (E) [Sandbox only]:\n"
                 + "  - LMB: Place, RMB: Erase\n"
                 + "  - Type: Buildings (Quarters, Armory, Tower, Ship) or Units (Peon, Warriors Rock/Iron/Chicken, Chieftain)\n"
-                + "  - Team/Race selectors available in toolbar; currently spawns under local owner\n\n"
+                + "  - Team/Race selectors in toolbar; ownership follows the selected team (visibility/camera does not change)\n\n"
                                 + "Other:\n"
                                 + "  - ESC: Pause menu\n"
                                 + "  - F1: Toggle this help\n"
@@ -2289,7 +2303,7 @@ public final class MapEditorSession {
 
                     if (rnd.nextFloat() > coverage) continue;
 
-                    if (entitiesType == 0) {
+            if (entitiesType == 0) {
                         // Buildings
                         int buildingIndex = entitiesKindToBuildingIndex(entitiesKind);
                         com.oddlabs.tt.model.Race raceSel = world.getRacesResources().getRace(entitiesRace);
@@ -2300,7 +2314,7 @@ public final class MapEditorSession {
                         java.util.List targets = filter.getResult();
                         if (targets.size() > 0) {
                             com.oddlabs.tt.util.Target t = (com.oddlabs.tt.util.Target) targets.get(0);
-                            com.oddlabs.tt.player.Player owner = world.getPlayers()[0];
+                com.oddlabs.tt.player.Player owner = resolveSelectedOwner();
                             try {
                                 com.oddlabs.tt.model.Building b = new com.oddlabs.tt.model.Building(owner, tmpl, t.getGridX(), t.getGridY());
                                 b.place();
@@ -2332,7 +2346,7 @@ public final class MapEditorSession {
                         if (okAccess && free) {
                             float xw = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(gx) + (world.getRandom().nextFloat() - .5f);
                             float yw = com.oddlabs.tt.pathfinder.UnitGrid.coordinateFromGrid(gy) + (world.getRandom().nextFloat() - .5f);
-                            com.oddlabs.tt.player.Player owner = world.getPlayers()[0];
+                            com.oddlabs.tt.player.Player owner = resolveSelectedOwner();
                             com.oddlabs.tt.model.Race raceSel = world.getRacesResources().getRace(entitiesRace);
                             int unitIndex = entitiesKindToUnitIndex(entitiesKind);
                             if (unitIndex >= 0) {
@@ -2356,6 +2370,18 @@ public final class MapEditorSession {
                     }
                 }
             }
+        }
+
+        // Resolve the owner based on the currently selected team index in the Entities panel.
+        // entitiesTeam: 0 = Neutral; 1..8 map to team 0..7
+        private com.oddlabs.tt.player.Player resolveSelectedOwner() {
+            int desiredTeam = (entitiesTeam == 0) ? com.oddlabs.tt.player.PlayerInfo.TEAM_NEUTRAL : (entitiesTeam - 1);
+            com.oddlabs.tt.player.Player[] players = world.getPlayers();
+            for (com.oddlabs.tt.player.Player p : players) {
+                if (p.getPlayerInfo().getTeam() == desiredTeam) return p;
+            }
+            // Fallback: first player
+            return players.length > 0 ? players[0] : null;
         }
 
         private int entitiesKindToBuildingIndex(int kind) {
