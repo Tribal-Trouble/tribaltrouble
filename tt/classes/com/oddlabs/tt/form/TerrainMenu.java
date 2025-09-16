@@ -219,16 +219,25 @@ public final class TerrainMenu extends Group {
                 new Label(Utils.getBundleString(bundle, "gamespeed"), Skin.getSkin().getEditFont());
         group_gamespeed.addChild(label_gamespeed);
         pm_gamespeed = new PulldownMenu();
-        pm_gamespeed.addItem(
-                new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_SLOW)));
-        pm_gamespeed.addItem(
-                new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_NORMAL)));
-        pm_gamespeed.addItem(
-                new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
-        pm_gamespeed.addItem(
-                new PulldownItem(
-                        ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
-        PulldownButton pb_gamespeed = new PulldownButton(gui_root, pm_gamespeed, 1, 150);
+    pm_gamespeed.addItem(
+        new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_SLOW)));
+    pm_gamespeed.addItem(
+        new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_NORMAL)));
+    pm_gamespeed.addItem(
+        new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
+    pm_gamespeed.addItem(
+        new PulldownItem(
+            ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
+    // Default the pulldown to the user's configured game speed setting.
+    // Options menu stores the chosen speed in Globals.gamespeed with indices 0..4 (Pause..Ludicrous).
+    // The multiplayer create-game pulldown offers only Slow..Ludicrous (no Pause), mapped as 0..3.
+    // If the saved value is Pause or invalid, fall back to Normal.
+    int configuredSpeed = Globals.gamespeed; // 0..4
+    int defaultIndex = 1; // Normal (Slow=0, Normal=1, Fast=2, Ludicrous=3)
+    if (configuredSpeed >= Game.GAMESPEED_SLOW && configuredSpeed <= Game.GAMESPEED_LUDICROUS) {
+        defaultIndex = configuredSpeed - 1;
+    }
+    PulldownButton pb_gamespeed = new PulldownButton(gui_root, pm_gamespeed, defaultIndex, 150);
         group_gamespeed.addChild(pb_gamespeed);
         label_gamespeed.place();
         pb_gamespeed.place(label_gamespeed, RIGHT_MID);
