@@ -47,11 +47,11 @@ public final class EditorGridRecalculator {
         float build_threshold = access_threshold / 2f;
 
         // --- Water and dock ---
-        Channel water_map =
-                height.copy()
-                        .threshold(Globals.SEA_LEVEL - 10.0f, Globals.SEA_LEVEL)
-                        .floodfill(0, 0, -1.0f, 0.1f)
-                        .threshold(-1.01f, -0.99f);
+    Channel water_map =
+        height.copy()
+            .threshold(Globals.SEA_LEVEL - 10.0f, Globals.SEA_LEVEL)
+            .floodfill(0, 0, -1.0f, 0.1f, new int[1])
+            .threshold(-1.01f, -0.99f);
 
         Channel dock_map =
                 water_map
@@ -129,11 +129,11 @@ public final class EditorGridRecalculator {
         }
         float build_threshold = access_threshold / 2f;
 
-        Channel water_map =
-                height.copy()
-                        .threshold(Globals.SEA_LEVEL - 10.0f, Globals.SEA_LEVEL)
-                        .floodfill(0, 0, -1.0f, 0.1f)
-                        .threshold(-1.01f, -0.99f);
+    Channel water_map =
+        height.copy()
+            .threshold(Globals.SEA_LEVEL - 10.0f, Globals.SEA_LEVEL)
+            .floodfill(0, 0, -1.0f, 0.1f, new int[1])
+            .threshold(-1.01f, -0.99f);
         Channel dock_map =
                 water_map
                         .copy()
