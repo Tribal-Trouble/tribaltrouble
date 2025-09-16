@@ -320,6 +320,8 @@ public final class MapEditorSession {
         private final EditorOverlayRenderer overlayRenderer;
         // Toolbar UI (non-modal)
         private com.oddlabs.tt.editor.ui.EditorToolbar toolbar;
+    // Entities selectors panel (non-modal, draggable)
+    private com.oddlabs.tt.editor.ui.EntitiesPanel entitiesPanel;
         // Binding surface for brush sliders
         private final com.oddlabs.tt.editor.ui.BrushBinding brushBinding = new com.oddlabs.tt.editor.ui.BrushBinding() {
             public float getRadiusMeters() { return (brushRadiusXM + brushRadiusYM) * 0.5f; }
@@ -435,6 +437,7 @@ public final class MapEditorSession {
                             // UI tool switches should apply immediately without waiting for mouse actions
                             cancelActiveStrokeAndButtons();
                             if (toolbar != null) toolbar.syncOptionsFromBinding();
+                            updateEntitiesPanelVisibility();
                         }
                     }
                     public String[] getBrushModeNames() { return modeNames; }
@@ -473,6 +476,7 @@ public final class MapEditorSession {
                         // Reset kind to first item of the chosen type to avoid out-of-range
                         entitiesKind = 0;
                         if (toolbar != null) toolbar.syncOptionsFromBinding();
+                        if (entitiesPanel != null) entitiesPanel.syncOptionsFromBinding();
                     }
                     public String[] getEntitiesKindNames() {
                         if (entitiesType == 0) {
@@ -487,6 +491,7 @@ public final class MapEditorSession {
                         if (idx < 0 || idx > max) return;
                         entitiesKind = idx;
                         if (toolbar != null) toolbar.syncOptionsFromBinding();
+                        if (entitiesPanel != null) entitiesPanel.syncOptionsFromBinding();
                     }
                     public String[] getEntitiesTeamNames() {
                         String[] names = new String[1 + 8];
@@ -499,6 +504,7 @@ public final class MapEditorSession {
                         if (idx < 0 || idx > 8) return; // 0..8 (0 neutral, 1..8 => team 0..7)
                         entitiesTeam = idx;
                         if (toolbar != null) toolbar.syncOptionsFromBinding();
+                        if (entitiesPanel != null) entitiesPanel.syncOptionsFromBinding();
                     }
                     public String[] getEntitiesRaceNames() { return new String[] {"Natives", "Vikings"}; }
                     public int getEntitiesRaceIndex() { return entitiesRace == com.oddlabs.tt.model.RacesResources.RACE_VIKINGS ? 1 : 0; }
@@ -507,6 +513,7 @@ public final class MapEditorSession {
                         entitiesRace = (idx == 1) ? com.oddlabs.tt.model.RacesResources.RACE_VIKINGS
                                                   : com.oddlabs.tt.model.RacesResources.RACE_NATIVES;
                         if (toolbar != null) toolbar.syncOptionsFromBinding();
+                        if (entitiesPanel != null) entitiesPanel.syncOptionsFromBinding();
                     }
                 };
 
@@ -541,6 +548,20 @@ public final class MapEditorSession {
                 toolbar.dockBottomLeft(8, 8);
                 addChild(toolbar);
                 info("Editor toolbar ready (` to toggle)");
+                // Create Entities panel (hidden until Entities tool is active)
+                try {
+                    entitiesPanel = new com.oddlabs.tt.editor.ui.EntitiesPanel(getGUIRoot(), optionsBinding);
+                    int panelX = 8;
+                    int panelY = StrictMath.max(
+                        0,
+                        com.oddlabs.tt.gui.LocalInput.getViewHeight()
+                            - entitiesPanel.getHeight()
+                            - toolbar.getHeight()
+                            - 16);
+                    entitiesPanel.setPos(panelX, panelY);
+                    entitiesPanel.setHidden(true);
+                    addChild(entitiesPanel);
+                } catch (Throwable ignore) {}
             } catch (Throwable t) {
                 try { getGUIRoot().getInfoPrinter().print("Toolbar init failed: " + t.getMessage()); } catch (Throwable ignore) {}
             }
@@ -623,6 +644,7 @@ public final class MapEditorSession {
                 cancelActiveStrokeAndButtons();
                 try { getGUIRoot().getInfoPrinter().print("Entities tool is Sandbox-only"); } catch (Throwable ignore) {}
                 if (toolbar != null) toolbar.syncOptionsFromBinding();
+                updateEntitiesPanelVisibility();
                 return;
             }
             if (activeTool == ActiveTool.TERRAIN) applyBrush(strokeDir, t);
@@ -1163,6 +1185,7 @@ public final class MapEditorSession {
                 // Clear any in-progress stroke so tool switches never wait for a mouse action
                 cancelActiveStrokeAndButtons();
                 if (toolbar != null) toolbar.syncOptionsFromBinding();
+                updateEntitiesPanelVisibility();
             } else if (event.getKeyCode()
                     == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
                             com.oddlabs.tt.global.Globals.KB_EDITOR_SET_RESOURCE_TOOL)) {
@@ -1172,6 +1195,7 @@ public final class MapEditorSession {
                 // Clear stroke state to avoid any gating
                 cancelActiveStrokeAndButtons();
                 if (toolbar != null) toolbar.syncOptionsFromBinding();
+                updateEntitiesPanelVisibility();
                 return;
         } else if (event.getKeyCode()
             == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
@@ -1185,6 +1209,7 @@ public final class MapEditorSession {
         info("Tool = ENTITIES");
         cancelActiveStrokeAndButtons();
         if (toolbar != null) toolbar.syncOptionsFromBinding();
+        updateEntitiesPanelVisibility();
         return;
             } else if (event.getKeyCode()
                     == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
@@ -1195,6 +1220,16 @@ public final class MapEditorSession {
                 overlayTScrollUsed = false;
             }
             getCamera().keyPressed(event);
+        }
+
+        private void updateEntitiesPanelVisibility() {
+            if (entitiesPanel == null) return;
+            boolean show = (activeTool == ActiveTool.ENTITIES)
+                && (EDITOR_STATE.getEditorMode() == com.oddlabs.tt.editor.ui.EditorState.EditorMode.Sandbox);
+            entitiesPanel.setHidden(!show);
+            if (show) {
+                try { entitiesPanel.syncOptionsFromBinding(); } catch (Throwable ignore) {}
+            }
         }
 
         protected void keyReleased(KeyboardEvent event) {

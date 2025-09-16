@@ -487,7 +487,7 @@ public final class EditorToolbar extends Form {
         int toolIdx = optionsBinding.getActiveToolIndex();
         boolean terrain = (toolIdx == 0);
         boolean resource = (toolIdx == 1);
-        boolean entities = (toolIdx == 2);
+    boolean entities = (toolIdx == 2);
         // Show Mode for terrain tool, Resource for resource tool, and disable the inactive ones
         modeLabel.setHidden(!terrain);
         modeButton.setHidden(!terrain);
@@ -497,32 +497,28 @@ public final class EditorToolbar extends Form {
         resourceButton.setHidden(!resource);
         resourceLabel.setDisabled(!resource);
         resourceButton.setDisabled(!resource);
-        // Entities control visibility
-        entitiesTypeLabel.setHidden(!entities);
-        entitiesTypeButton.setHidden(!entities);
-        entitiesKindLabel.setHidden(!entities);
-        entitiesKindButton.setHidden(!entities);
-        entitiesTeamLabel.setHidden(!entities);
-        entitiesTeamButton.setHidden(!entities);
-        entitiesRaceLabel.setHidden(!entities);
-        entitiesRaceButton.setHidden(!entities);
-        entitiesTypeLabel.setDisabled(!entities);
-        entitiesTypeButton.setDisabled(!entities);
-        entitiesKindLabel.setDisabled(!entities);
-        entitiesKindButton.setDisabled(!entities);
-        entitiesTeamLabel.setDisabled(!entities);
-        entitiesTeamButton.setDisabled(!entities);
-        entitiesRaceLabel.setDisabled(!entities);
-        entitiesRaceButton.setDisabled(!entities);
+    // Entities selectors: keep Type visible in toolbar; move Kind/Team/Race to separate panel
+    entitiesTypeLabel.setHidden(!entities);
+    entitiesTypeButton.setHidden(!entities);
+    entitiesTypeLabel.setDisabled(!entities);
+    entitiesTypeButton.setDisabled(!entities);
+    // Hide the rest (now in Entities panel)
+    entitiesKindLabel.setHidden(true);
+    entitiesKindButton.setHidden(true);
+    entitiesTeamLabel.setHidden(true);
+    entitiesTeamButton.setHidden(true);
+    entitiesRaceLabel.setHidden(true);
+    entitiesRaceButton.setHidden(true);
         // Close only the menu belonging to the now-hidden control to prevent stale overlays.
         // Important: do NOT change focus here; when tool/mode is updated programmatically (Q/W,
         // scroll, etc.), we must not steal focus from the editor canvas.
         try {
-            if (terrain) { resourceButton.getMenu().remove(); entitiesTypeButton.getMenu().remove(); entitiesKindButton.getMenu().remove(); entitiesTeamButton.getMenu().remove(); entitiesRaceButton.getMenu().remove(); }
-            else if (resource) { modeButton.getMenu().remove(); entitiesTypeButton.getMenu().remove(); entitiesKindButton.getMenu().remove(); entitiesTeamButton.getMenu().remove(); entitiesRaceButton.getMenu().remove(); }
+            if (terrain) { resourceButton.getMenu().remove(); }
+            else if (resource) { modeButton.getMenu().remove(); }
             else { modeButton.getMenu().remove(); resourceButton.getMenu().remove(); }
         } catch (Throwable ignore) {}
     }
+
 
     private void selectPulldownIndex(PulldownButton btn, int idx) {
         try {
