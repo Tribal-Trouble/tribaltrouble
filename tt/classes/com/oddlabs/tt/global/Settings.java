@@ -3,6 +3,7 @@ package com.oddlabs.tt.global;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Display;
+import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.GLUtils;
 
@@ -17,6 +18,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.Properties;
 
 public final strictfp class Settings implements Serializable {
@@ -105,6 +107,24 @@ public final strictfp class Settings implements Serializable {
     public boolean use_copyteximage = false;
     private boolean use_texture_compression = true;
 
+    public float mouse_sensitivity = 1.0f;
+
+    // Camera tuning parameters (user-adjustable via Options > Camera)
+    // Maximum time (in seconds) to reach full pan speed while holding input
+    public float camera_scroll_accel_seconds_max = 1.0f;
+    // Extra acceleration factor applied over the base speed during acceleration
+    public float camera_scroll_accel_factor = 2.5f;
+    // Maximum starting pan speed when initiating a scroll (world units/second)
+    public float camera_start_max_speed = 60.0f;
+    // Zoom speed scalar applied when zooming (world units/second)
+    public float camera_zoom_speed = 50.0f;
+    // Rotation/pitch speed in degrees per second
+    public float camera_angle_delta_deg_per_sec = 90.0f;
+    // Edge scroll buffer (pixels from the window edge that triggers scrolling)
+    public int camera_edge_scroll_buffer = 5;
+    // Maximum camera height (Z coordinate)
+    public float camera_max_z = 100.0f;
+
     public int frame_grab_milliseconds_per_frame = 40;
 
     public static final void setSettings(Settings new_settings) {
@@ -114,6 +134,177 @@ public final strictfp class Settings implements Serializable {
 
     public static final Settings getSettings() {
         return settings;
+    }
+
+    /**
+     * The default keybindings setup with Action Name -> Tribal Trouble Key Code. See Globals.KB_*
+     * constants for action names.
+     */
+    private static final HashMap<String, Integer> default_keybinds =
+            new HashMap<String, Integer>() {
+                {
+                    // Camera controls
+                    put(Globals.KB_PAN_CAMERA_LEFT, Keyboard.KEY_LEFT);
+                    put(Globals.KB_PAN_CAMERA_RIGHT, Keyboard.KEY_RIGHT);
+                    put(Globals.KB_PAN_CAMERA_UP, Keyboard.KEY_UP);
+                    put(Globals.KB_PAN_CAMERA_DOWN, Keyboard.KEY_DOWN);
+                    put(Globals.KB_CAMERA_ZOOM_IN, Keyboard.KEY_PRIOR); // Page Up
+                    put(Globals.KB_CAMERA_ZOOM_OUT, Keyboard.KEY_NEXT); // Page Down
+                    put(Globals.KB_CAMERA_ROTATE_LEFT, Keyboard.KEY_DELETE); // Delete
+                    put(Globals.KB_CAMERA_ROTATE_RIGHT, Keyboard.KEY_INSERT); // Insert
+                    put(Globals.KB_CAMERA_PITCH_UP, Keyboard.KEY_HOME); // Home
+                    put(Globals.KB_CAMERA_PITCH_DOWN, Keyboard.KEY_END); // End
+                    // Camera gesture keys (keyboard equivalents)
+                    put(Globals.KB_CAMERA_ZOOM_HOLD, Keyboard.KEY_Z); // Hold Z to zoom
+                    put(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE, Keyboard.KEY_F); // Toggle FPV
+
+                    // General gameplay hotkeys
+                    put(Globals.KB_TOGGLE_MAP_MODE, Keyboard.KEY_SPACE);
+                    put(Globals.KB_JUMP_TO_NOTIFICATION, Keyboard.KEY_TAB);
+                    put(Globals.KB_PLACE_BEACON, Keyboard.KEY_B); // used with Ctrl
+                    put(Globals.KB_NEXT_IDLE_PEON, Keyboard.KEY_N);
+
+                    // Army group selection (0-9) - use Ctrl to assign
+                    put(Globals.KB_ARMY_GROUP_0, Keyboard.KEY_0);
+                    put(Globals.KB_ARMY_GROUP_1, Keyboard.KEY_1);
+                    put(Globals.KB_ARMY_GROUP_2, Keyboard.KEY_2);
+                    put(Globals.KB_ARMY_GROUP_3, Keyboard.KEY_3);
+                    put(Globals.KB_ARMY_GROUP_4, Keyboard.KEY_4);
+                    put(Globals.KB_ARMY_GROUP_5, Keyboard.KEY_5);
+                    put(Globals.KB_ARMY_GROUP_6, Keyboard.KEY_6);
+                    put(Globals.KB_ARMY_GROUP_7, Keyboard.KEY_7);
+                    put(Globals.KB_ARMY_GROUP_8, Keyboard.KEY_8);
+                    put(Globals.KB_ARMY_GROUP_9, Keyboard.KEY_9);
+
+                    // UI/System controls
+                    put(Globals.KB_CHAT_TOGGLE, Keyboard.KEY_RETURN);
+                    put(Globals.KB_BACK_CANCEL, Keyboard.KEY_ESCAPE);
+                    put(
+                            Globals.KB_GAMESPEED_INCREASE,
+                            Keyboard.KEY_EQUALS); // also keypad + supported in code
+                    put(
+                            Globals.KB_GAMESPEED_DECREASE,
+                            Keyboard.KEY_MINUS); // also keypad - supported in code
+                    put(Globals.KB_PAUSE, Keyboard.KEY_ESCAPE);
+
+                    // Unit actions
+                    put(Globals.KB_MOVE, Keyboard.KEY_M);
+                    put(Globals.KB_ATTACK, Keyboard.KEY_A);
+                    put(Globals.KB_GATHER_REPAIR, Keyboard.KEY_G);
+
+                    // Building actions
+                    put(Globals.KB_BUILD_QUARTERS, Keyboard.KEY_Q);
+                    put(Globals.KB_BUILD_ARMORY, Keyboard.KEY_R);
+                    put(Globals.KB_BUILD_TOWER, Keyboard.KEY_T);
+
+                    // Quarters actions
+                    put(Globals.KB_QUARTERS_CHIEFTAIN, Keyboard.KEY_C);
+                    put(Globals.KB_QUARTERS_DEPLOY_PEON, Keyboard.KEY_P);
+                    put(Globals.KB_QUARTERS_SET_RALLY_POINT, Keyboard.KEY_R);
+
+                    // Armory main actions
+                    put(Globals.KB_ARMORY_DEPLOY_WARRIORS, Keyboard.KEY_A);
+                    put(Globals.KB_ARMORY_HARVEST, Keyboard.KEY_G);
+                    put(Globals.KB_ARMORY_MAKE_WEAPONS, Keyboard.KEY_W);
+                    put(Globals.KB_ARMORY_TRANSPORT, Keyboard.KEY_T);
+                    put(Globals.KB_ARMORY_RALLY_POINT, Keyboard.KEY_R);
+
+                    // Armory harvest actions
+                    put(Globals.KB_ARMORY_HARVEST_TREE, Keyboard.KEY_W);
+                    put(Globals.KB_ARMORY_HARVEST_ROCK, Keyboard.KEY_R);
+                    put(Globals.KB_ARMORY_HARVEST_IRON, Keyboard.KEY_I);
+                    put(Globals.KB_ARMORY_HARVEST_CHICKEN, Keyboard.KEY_C);
+
+                    // Armory weapon creation actions
+                    put(Globals.KB_ARMORY_CREATE_ROCK_WEAPON, Keyboard.KEY_R);
+                    put(Globals.KB_ARMORY_CREATE_IRON_WEAPON, Keyboard.KEY_I);
+                    put(Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON, Keyboard.KEY_C);
+
+                    // Armory army deployment actions
+                    put(Globals.KB_ARMORY_DEPLOY_PEON, Keyboard.KEY_P);
+                    put(Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS, Keyboard.KEY_R);
+                    put(Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS, Keyboard.KEY_I);
+                    put(Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS, Keyboard.KEY_C);
+
+                    // Armory transport actions
+                    put(Globals.KB_ARMORY_TRANSPORT_TREE, Keyboard.KEY_W);
+                    put(Globals.KB_ARMORY_TRANSPORT_ROCK, Keyboard.KEY_R);
+                    put(Globals.KB_ARMORY_TRANSPORT_IRON, Keyboard.KEY_I);
+                    put(Globals.KB_ARMORY_TRANSPORT_CHICKEN, Keyboard.KEY_C);
+
+                    // Tower actions
+                    put(Globals.KB_TOWER_ATTACK, Keyboard.KEY_A);
+                    put(Globals.KB_TOWER_EXIT, Keyboard.KEY_X);
+
+                    // Magic actions
+                    put(Globals.KB_CHIEFTAIN_MAGIC1, Keyboard.KEY_S);
+                    put(Globals.KB_CHIEFTAIN_MAGIC2, Keyboard.KEY_C);
+                }
+            };
+
+    /**
+     * The current keybindings for the client running the game. Used as Action Name -> Tribal
+     * Trouble Key Code. See Globals.KB_* constants for action names.
+     */
+    private static HashMap<String, Integer> keybinds =
+            new HashMap<String, Integer>(default_keybinds);
+
+    /**
+     * Gets the stored keybind for the specified action. Use Globals.KB_* constants for action
+     * names.
+     *
+     * @param action_name
+     * @return
+     */
+    public Integer getKeybind(String action_name) {
+        return keybinds.get(action_name);
+    }
+
+    /**
+     * Sets a tribal trouble key code to the specified action.
+     *
+     * @param action_name
+     * @param key_code
+     */
+    public void setKeybind(String action_name, int key_code) {
+        System.err.println(
+                "Setting keybind for action: " + action_name + " to key code: " + key_code);
+        keybinds.put(action_name, key_code);
+    }
+
+    /**
+     * Gets the hashmap of keybinds
+     *
+     * @return
+     */
+    public HashMap<String, Integer> getKeybinds() {
+        return keybinds;
+    }
+
+    /** Reset all keybinds back to the built-in defaults. */
+    public void resetKeybindsToDefaults() {
+        keybinds.clear();
+        keybinds.putAll(default_keybinds);
+    }
+
+    /** Gets a copy of the default keybinds for comparison purposes. */
+    public static HashMap<String, Integer> getDefaultKeybinds() {
+        return new HashMap<String, Integer>(default_keybinds);
+    }
+
+    /**
+     * Gets the keybind for the specified action as a string for display in tooltips. Use
+     * Globals.KB_* constants for action names.
+     *
+     * @param action_name
+     * @return
+     */
+    public String getKeybindString(String action_name) {
+        Integer keyCode = keybinds.get(action_name);
+        if (keyCode == null) {
+            return "?";
+        }
+        return Keyboard.keyToString(keyCode);
     }
 
     public final boolean useFBO() {
@@ -172,12 +363,18 @@ public final strictfp class Settings implements Serializable {
                     String field_value = (String) field.get(this);
                     if (!field_value.equals(field.get(original_settings)))
                         props.setProperty(field.getName(), "" + field_value);
+                } else if (field_type.equals(HashMap.class)) {
+                    // skip - handled below
                 } else throw new RuntimeException("Unsupported Settings type " + field_type);
             } catch (IllegalAccessException e) {
                 System.out.println("Exception: " + e);
                 throw new RuntimeException(e);
             }
         }
+
+        // Save keybinds HashMap
+        saveKeybinds(props);
+
         File settings_file = new File(LocalInput.getGameDir(), Globals.SETTINGS_FILE_NAME);
         try {
             OutputStream out = new FileOutputStream(settings_file);
@@ -185,6 +382,20 @@ public final strictfp class Settings implements Serializable {
         } catch (Exception e) {
             System.out.println("Exception: " + e);
             System.err.println("Failed to write settings to " + settings_file + " exception: " + e);
+        }
+    }
+
+    /** Save keybinds to properties with a prefix to avoid naming conflicts */
+    private void saveKeybinds(Properties props) {
+        HashMap<String, Integer> original_keybinds = Settings.default_keybinds;
+        for (String action : keybinds.keySet()) {
+            Integer keyCode = keybinds.get(action);
+            Integer originalKeyCode = original_keybinds.get(action);
+
+            // Only save if different from default
+            if (keyCode != null && !keyCode.equals(originalKeyCode)) {
+                props.setProperty("keybind." + action, keyCode.toString());
+            }
         }
     }
 
@@ -259,10 +470,13 @@ public final strictfp class Settings implements Serializable {
                     int field_value = (new Integer(value)).intValue();
                     field.setInt(this, field_value);
                 } else if (field_type.equals(float.class)) {
+                    System.out.println("Loading float setting " + field.getName() + " = " + value);
                     float field_value = (new Float(value)).floatValue();
                     field.setFloat(this, field_value);
                 } else if (field_type.equals(String.class)) {
                     field.set(this, value);
+                } else if (field_type.equals(HashMap.class)) {
+                    // skip - handled below
                 } else throw new RuntimeException("Unsupported Settings type " + field_type);
             } catch (Exception e) {
                 System.out.println("Exception: " + e);
@@ -272,6 +486,32 @@ public final strictfp class Settings implements Serializable {
                                 + " is not of type: "
                                 + field.getType()
                                 + ". Skipped");
+            }
+        }
+
+        // Load keybinds
+        loadKeybinds(props);
+    }
+
+    /** Load keybinds from properties with the "keybind." prefix */
+    private void loadKeybinds(Properties props) {
+        // Start with a copy of default keybinds
+        keybinds = new HashMap<String, Integer>(default_keybinds);
+
+        // Override with saved values
+        for (String propertyName : props.stringPropertyNames()) {
+            if (propertyName.startsWith("keybind.")) {
+                String action = propertyName.substring("keybind.".length());
+                String valueStr = props.getProperty(propertyName);
+                try {
+                    Integer keyCode = Integer.valueOf(valueStr);
+                    if (default_keybinds.containsKey(action)) {
+                        keybinds.put(action, keyCode);
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println(
+                            "Failed to parse keybind value for " + action + ": " + valueStr);
+                }
             }
         }
     }

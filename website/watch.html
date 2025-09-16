@@ -493,8 +493,8 @@
             gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, uv, gl.STATIC_DRAW);
             return uvBuffer;
-        }
-
+    }
+        
         var uvBuf;
         var fsUvBuf = makeFullScreenUV();;
 
@@ -513,8 +513,7 @@
             gl.uniform2f(u_aspect, canvas.clientHeight / canvas.clientWidth, 1.0);
         }
 
-        var staticTime = 0;
-
+    var staticTime = 0;
         function renderStatic() {
             gl.useProgram(staticProg);
             gl.bindBuffer(gl.ARRAY_BUFFER, fsUvBuf);
@@ -623,6 +622,7 @@
         setTimeout(nextTick, 20);
 
         var leftovers = '';
+
 
         function parseRows(text) {
             if (text.length == 0) {

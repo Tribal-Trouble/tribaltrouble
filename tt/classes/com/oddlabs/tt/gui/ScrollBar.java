@@ -89,7 +89,7 @@ public final strictfp class ScrollBar extends GUIObject {
                         - data.getBottomOffset()
                         - data.getTopOffset();
         int size = getButtonHeight();
-        int offset = max_height - size - (int) ((max_height - size) * owner.getScrollBarOffset());
+        int offset = (int) ((max_height - size) * owner.getScrollBarOffset());
         return less_button.getHeight() + data.getBottomOffset() + offset;
     }
 
@@ -116,7 +116,7 @@ public final strictfp class ScrollBar extends GUIObject {
 
     private final strictfp class LessListener implements MouseButtonListener {
         public final void mousePressed(int button, int x, int y) {
-            owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
+            owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
             scroll_button.setupPos(ScrollBar.this);
         }
 
@@ -129,7 +129,7 @@ public final strictfp class ScrollBar extends GUIObject {
 
     private final strictfp class MoreListener implements MouseButtonListener {
         public final void mousePressed(int button, int x, int y) {
-            owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
+            owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
             scroll_button.setupPos(ScrollBar.this);
         }
 
@@ -159,7 +159,7 @@ public final strictfp class ScrollBar extends GUIObject {
             float ratio = owner.getScrollBarRatio();
             int size = (int) (ratio * max_height);
             int scroll_button_space = max_height - size;
-            owner.setScrollBarOffset(start_offset - abs_y / (float) scroll_button_space);
+            owner.setScrollBarOffset(start_offset + abs_y / (float) scroll_button_space);
             scroll_button.setupPos(ScrollBar.this);
         }
 

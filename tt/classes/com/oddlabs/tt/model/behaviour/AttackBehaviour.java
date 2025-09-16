@@ -25,6 +25,10 @@ public final strictfp class AttackBehaviour implements Behaviour {
     }
 
     public final int animate(float t) {
+        // Abort attack cycles during peace time
+        if (unit.getOwner().getWorld().isPeaceTime()) {
+            return Selectable.DONE;
+        }
         switch (state) {
             case THROWING:
                 updateAttack(t);

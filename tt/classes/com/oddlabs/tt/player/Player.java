@@ -1,7 +1,4 @@
 package com.oddlabs.tt.player;
-
-import com.oddlabs.matchmaking.Game;
-import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
@@ -30,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final strictfp class Player implements PlayerInterface {
+public final class Player implements PlayerInterface {
     public static final int INITIAL_UNIT_COUNT = 20;
     public static final int MAX_BUILDING_COUNT = 20;
     public static final int DEFAULT_MAX_UNIT_COUNT = 250;
@@ -51,7 +48,7 @@ public final strictfp class Player implements PlayerInterface {
     private final PlayerInfo player_info;
     private final Army units = new Army();
     private final SupplyContainer unit_count;
-    private final SupplyContainer building_count = new SupplyContainer(MAX_BUILDING_COUNT);
+    private final SupplyContainer building_count;
 
     private final float[] color;
 
@@ -83,8 +80,7 @@ public final strictfp class Player implements PlayerInterface {
     private boolean can_attack = true;
     private boolean[] can_build = new boolean[Race.NUM_BUILDINGS];
     private boolean can_move = true;
-    private boolean can_build_towers = true;
-    private boolean can_build_quarters = true;
+    // Deprecated/unused flags removed during refactor
     private boolean can_exit_towers = true;
     private boolean can_use_rubber = true;
     private boolean can_set_rally = true;
@@ -104,17 +100,24 @@ public final strictfp class Player implements PlayerInterface {
         for (int i = 0; i < can_do_magic.length; i++) can_do_magic[i] = true;
         for (int i = 0; i < can_build.length; i++) can_build[i] = true;
         this.player_info = player_info;
-        this.unit_count = new SupplyContainer(world.getMaxUnitCount());
-        // this.team_tip = Utils.getBundleString(bundle, "team", new
+    this.unit_count = new SupplyContainer(world.getMaxUnitCount());
+        int max_buildings = MAX_BUILDING_COUNT;
+        if (world.getGameModeOptions() != null) {
+            max_buildings = world.getGameModeOptions().maxBuildings;
+        }
+        this.building_count = new SupplyContainer(max_buildings);
+        //		this.team_tip = Utils.getBundleString(bundle, "team", new
         // Object[]{Integer.toString(player_info.getTeam() + 1)});
     }
 
     public final void changePreferredGamespeed(int delta) {
         int old_speed = getGamespeed();
-        int new_speed =
-                Math.max(
-                        Game.GAMESPEED_PAUSE,
-                        Math.min(old_speed + delta, Game.GAMESPEED_LUDICROUS));
+        int new_speed = old_speed + delta;
+        if (new_speed < 0) new_speed = 0;
+        // clamp to highest valid gamespeed index
+        int max_index = 0;
+        while (World.isValidGamespeed(max_index + 1)) max_index++;
+        if (new_speed > max_index) new_speed = max_index;
         setPreferredGamespeed(new_speed);
     }
 
@@ -235,6 +238,8 @@ public final strictfp class Player implements PlayerInterface {
     }
 
     public final boolean canAttack() {
+        // Disable attacks during peace time
+        if (can_attack && world.isPeaceTime()) return false;
         return can_attack;
     }
 
@@ -244,7 +249,8 @@ public final strictfp class Player implements PlayerInterface {
 
     public final boolean canBuild(int building) {
         return can_build[building]
-                && getBuildingCountContainer().getNumSupplies() < Player.MAX_BUILDING_COUNT;
+                && getBuildingCountContainer().getNumSupplies()
+                        < getBuildingCountContainer().getMaxSupplyCount();
     }
 
     public final boolean canRepair() {
@@ -279,7 +285,7 @@ public final strictfp class Player implements PlayerInterface {
                         40,
                         true);
         world.getUnitGrid().scan(filter, grid_x, grid_y, UnitGrid.LAND);
-        List target_list = filter.getResult();
+    java.util.List<Target> target_list = filter.getResult();
         Building b = null;
         if (target_list.size() > 0) {
             Target t = (Target) target_list.get(0);
@@ -309,8 +315,8 @@ public final strictfp class Player implements PlayerInterface {
     }
 
     public final int getStatus() {
-        Set units = getUnits().getSet();
-        Iterator it = units.iterator();
+    java.util.Set<Selectable> units = getUnits().getSet();
+    java.util.Iterator<Selectable> it = units.iterator();
         int status = 0;
         while (it.hasNext()) {
             Selectable s = (Selectable) it.next();
@@ -320,14 +326,14 @@ public final strictfp class Player implements PlayerInterface {
     }
 
     public final Selectable findNearestEnemy(
-            int start_x, int start_y, Selectable target, Class type) {
+            int start_x, int start_y, Selectable target, Class<?> type) {
         Player[] players = world.getPlayers();
         int best_dist_squared = Integer.MAX_VALUE;
         Selectable best_target = null;
         for (int i = 0; i < players.length; i++) {
             if (isEnemy(players[i])) {
-                Set units = players[i].getUnits().getSet();
-                Iterator it = units.iterator();
+                java.util.Set<Selectable> units = players[i].getUnits().getSet();
+                java.util.Iterator<Selectable> it = units.iterator();
                 while (it.hasNext()) {
                     Selectable s = (Selectable) it.next();
                     if (!(type.isInstance(s)) || s == target) {
@@ -543,15 +549,15 @@ public final strictfp class Player implements PlayerInterface {
     }
 
     public final Selectable[][] classifyUnits() {
-        Map map = new HashMap();
-        List lists = new ArrayList();
-        Iterator it = units.getSet().iterator();
+    java.util.Map<String, java.util.List<Selectable>> map = new java.util.HashMap<>();
+    java.util.List<java.util.List<Selectable>> lists = new java.util.ArrayList<>();
+    java.util.Iterator<Selectable> it = units.getSet().iterator();
         while (it.hasNext()) {
             Selectable unit = (Selectable) it.next();
             String key = unit.getPrimaryController().getKey();
-            List list = (List) map.get(key);
+            java.util.List<Selectable> list = map.get(key);
             if (list == null) {
-                list = new ArrayList();
+                list = new java.util.ArrayList<>();
                 map.put(key, list);
                 lists.add(list);
             }
@@ -559,9 +565,8 @@ public final strictfp class Player implements PlayerInterface {
         }
         Selectable[][] result = new Selectable[lists.size()][];
         for (int i = 0; i < result.length; i++) {
-            List list = (List) lists.get(i);
-            Selectable[] array = new Selectable[list.size()];
-            list.toArray(array);
+            java.util.List<Selectable> list = lists.get(i);
+            Selectable[] array = list.toArray(new Selectable[0]);
             result[i] = array;
         }
         return result;
@@ -652,7 +657,7 @@ public final strictfp class Player implements PlayerInterface {
     }
 
     private static float[][] generatePlayerColors() {
-        float[][] colors = new float[MatchmakingServerInterface.MAX_PLAYERS][4];
+    float[][] colors = new float[com.oddlabs.matchmaking.MatchmakingServerInterface.MAX_PLAYERS][4];
         int currentIndex = 0;
         // Use the set colors while we have them
         for (int i = 0; i < Math.min(SET_COLORS.length, colors.length); i++) {
@@ -661,7 +666,7 @@ public final strictfp class Player implements PlayerInterface {
         }
 
         // Swap to generated colors after we run out of manually set colors
-        for (int i = currentIndex + 1; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
+    for (int i = currentIndex + 1; i < com.oddlabs.matchmaking.MatchmakingServerInterface.MAX_PLAYERS; i++) {
             colors[i] = generateColor(i);
         }
 
@@ -669,7 +674,7 @@ public final strictfp class Player implements PlayerInterface {
     }
 
     private static float[] generateColor(int i) {
-        float hue = (float) i / MatchmakingServerInterface.MAX_PLAYERS;
+    float hue = (float) i / com.oddlabs.matchmaking.MatchmakingServerInterface.MAX_PLAYERS;
         float saturation = 0.8f;
         float brightness = 0.8f;
         int rgb = java.awt.Color.HSBtoRGB(hue, saturation, brightness);

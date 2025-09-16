@@ -37,14 +37,14 @@ public final strictfp class CampaignMapMenu extends Menu {
     }
 
     protected final void keyPressed(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_ESCAPE:
-                pop();
-                break;
-            default:
-                super.keyPressed(event);
-                break;
+        int back =
+                com.oddlabs.tt.global.Settings.getSettings()
+                        .getKeybind(com.oddlabs.tt.global.Globals.KB_BACK_CANCEL);
+        if (event.getKeyCode() == back || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+            pop();
+            return;
         }
+        super.keyPressed(event);
     }
 
     protected final void renderGeometry() {

@@ -19,4 +19,10 @@ public strictfp class Panel extends Group {
                 box.getRightOffset(),
                 box.getTopOffset());
     }
+
+    /**
+     * Called by PanelGroup when this panel becomes the active/visible panel. Default implementation
+     * does nothing; panels can override to refresh UI state.
+     */
+    public void onActivated() {}
 }

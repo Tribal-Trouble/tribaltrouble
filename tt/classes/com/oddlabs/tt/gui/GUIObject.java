@@ -539,9 +539,11 @@ public abstract strictfp class GUIObject extends Renderable {
 
     public final void keyPressedAll(KeyboardEvent event) {
         keyPressed(event);
+        if (event.isConsumed()) return;
         for (int i = 0; i < key_listeners.size(); i++) {
             KeyListener listener = (KeyListener) key_listeners.get(i);
             if (listener != null) listener.keyPressed(event);
+            if (event.isConsumed()) return;
         }
     }
 
@@ -550,15 +552,17 @@ public abstract strictfp class GUIObject extends Renderable {
             mousePressedAll(LocalInput.LEFT_BUTTON, 0, 0);
         } else {
             GUIObject parent = (GUIObject) getParent();
-            if (parent != null) parent.keyPressedAll(event);
+            if (parent != null && !event.isConsumed()) parent.keyPressedAll(event);
         }
     }
 
     public final void keyReleasedAll(KeyboardEvent event) {
         keyReleased(event);
+        if (event.isConsumed()) return;
         for (int i = 0; i < key_listeners.size(); i++) {
             KeyListener listener = (KeyListener) key_listeners.get(i);
             if (listener != null) listener.keyReleased(event);
+            if (event.isConsumed()) return;
         }
     }
 
@@ -568,21 +572,23 @@ public abstract strictfp class GUIObject extends Renderable {
             mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
         } else {
             GUIObject parent = (GUIObject) getParent();
-            if (parent != null) parent.keyReleasedAll(event);
+            if (parent != null && !event.isConsumed()) parent.keyReleasedAll(event);
         }
     }
 
     public final void keyRepeatAll(KeyboardEvent event) {
         keyRepeat(event);
+        if (event.isConsumed()) return;
         for (int i = 0; i < key_listeners.size(); i++) {
             KeyListener listener = (KeyListener) key_listeners.get(i);
             if (listener != null) listener.keyRepeat(event);
+            if (event.isConsumed()) return;
         }
     }
 
     protected void keyRepeat(KeyboardEvent event) {
         GUIObject parent = (GUIObject) getParent();
-        if (parent != null) parent.keyRepeatAll(event);
+        if (parent != null && !event.isConsumed()) parent.keyRepeatAll(event);
     }
 
     public final void addMouseClickListener(MouseClickListener listener) {

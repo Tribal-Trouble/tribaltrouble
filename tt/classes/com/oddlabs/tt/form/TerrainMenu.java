@@ -34,6 +34,8 @@ import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.ValueListener;
 import com.oddlabs.tt.landscape.WorldParameters;
+import com.oddlabs.tt.landscape.GameModeOptions;
+import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.Network;
@@ -112,8 +114,15 @@ public final class TerrainMenu extends Group {
     // Reusable players panel for Single Player standard options
     private PlayersSection playersSection; // only used when multiplayer == false
 
-    // Manual map selection moved to Map Editor; keep Single Player focused on procedural settings.
-    // Manual map selection moved to Map Editor; keep Single Player focused on procedural settings.
+    // Game Mode UI
+    private CheckBox cb_peace;
+    private EditLine edit_peace_min;
+    private EditLine edit_peace_sec;
+    private EditLine edit_max_units;
+    private EditLine edit_max_buildings;
+    private CheckBox[] unit_allow_checks;
+    private CheckBox[] building_allow_checks;
+    private HorizButton button_objectives;
 
     static {
         BigInteger max = BigInteger.ONE;
@@ -168,8 +177,9 @@ public final class TerrainMenu extends Group {
                             Skin.getSkin().getHeadlineFont());
         }
         addChild(label_headline);
-        Panel standard = new Panel(Utils.getBundleString(bundle, "standard_options"));
-        Panel advanced = new Panel(Utils.getBundleString(bundle, "advanced_options"));
+    Panel standard = new Panel(Utils.getBundleString(bundle, "standard_options"));
+    Panel advanced = new Panel(Utils.getBundleString(bundle, "advanced_options"));
+    Panel panel_game_mode = new Panel("Game mode");
         Group group_map_options = new Group();
 
         // game name
@@ -379,6 +389,111 @@ public final class TerrainMenu extends Group {
 
     // races and teams (legacy single-player UI; multiplayer does not use this block)
     ScrollableGroup group_race_team = new ScrollableGroup(200, 64);
+        // --- Game Mode Panel ---
+        Group group_game_mode = new Group();
+        // Peace time row
+        cb_peace = new CheckBox(false, "Peace time", "Prevent attacks during the initial period");
+        group_game_mode.addChild(cb_peace);
+        Label label_peace_mm = new Label("mm", Skin.getSkin().getEditFont());
+        Label label_peace_ss = new Label("ss", Skin.getSkin().getEditFont());
+        edit_peace_min = new EditLine(40, 3);
+        edit_peace_sec = new EditLine(40, 3);
+        edit_peace_min.append("0");
+        edit_peace_sec.append("0");
+        group_game_mode.addChild(label_peace_mm);
+        group_game_mode.addChild(edit_peace_min);
+        group_game_mode.addChild(label_peace_ss);
+        group_game_mode.addChild(edit_peace_sec);
+
+        // Max caps
+        Label label_max_units = new Label("Max units", Skin.getSkin().getEditFont());
+        edit_max_units = new EditLine(60, 4);
+        edit_max_units.append(Integer.toString(Player.DEFAULT_MAX_UNIT_COUNT));
+        group_game_mode.addChild(label_max_units);
+        group_game_mode.addChild(edit_max_units);
+
+        Label label_max_buildings = new Label("Max buildings", Skin.getSkin().getEditFont());
+        edit_max_buildings = new EditLine(60, 3);
+        edit_max_buildings.append(Integer.toString(Player.MAX_BUILDING_COUNT));
+        group_game_mode.addChild(label_max_buildings);
+        group_game_mode.addChild(edit_max_buildings);
+
+        // Allowlists
+    Label label_units = new Label("Units", Skin.getSkin().getEditFont());
+    unit_allow_checks = new CheckBox[5];
+    unit_allow_checks[0] = new CheckBox(true, "Rock warrior");
+    unit_allow_checks[1] = new CheckBox(true, "Iron Warrior");
+    unit_allow_checks[2] = new CheckBox(true, "Chicken Warrior");
+    unit_allow_checks[3] = new CheckBox(true, "Peon");
+    unit_allow_checks[4] = new CheckBox(true, "Chieftain");
+    // We'll add these to a column group below rather than directly to group_game_mode
+
+    Label label_buildings = new Label("Buildings", Skin.getSkin().getEditFont());
+    building_allow_checks = new CheckBox[Race.NUM_BUILDINGS];
+    building_allow_checks[Race.BUILDING_QUARTERS] = new CheckBox(true, "Quarters");
+    building_allow_checks[Race.BUILDING_ARMORY] = new CheckBox(true, "Armory");
+    building_allow_checks[Race.BUILDING_TOWER] = new CheckBox(true, "Tower");
+    // We'll add these to a column group below rather than directly to group_game_mode
+
+        // Objectives placeholder button
+        button_objectives = new HorizButton("Objectives…", 140);
+        button_objectives.setDisabled(true);
+        group_game_mode.addChild(button_objectives);
+
+        // Layout for game mode group
+        // Peace time row + Objectives button aligned horizontally
+        cb_peace.place();
+        label_peace_mm.place(cb_peace, RIGHT_MID);
+        edit_peace_min.place(label_peace_mm, RIGHT_MID);
+        label_peace_ss.place(edit_peace_min, RIGHT_MID);
+        edit_peace_sec.place(label_peace_ss, RIGHT_MID);
+        // Objectives button on same row to the right of peace time controls
+        button_objectives.place(edit_peace_sec, RIGHT_MID);
+
+    // Max caps row (inline): [Max units][input]  [Max buildings][input]
+    label_max_units.place(cb_peace, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
+    edit_max_units.place(label_max_units, RIGHT_MID);
+    // Place buildings label to the right of the units input, with a little spacing
+    label_max_buildings.place(
+        edit_max_units, RIGHT_MID, Skin.getSkin().getFormData().getSectionSpacing());
+    edit_max_buildings.place(label_max_buildings, RIGHT_MID);
+
+        // Create column group for Units
+        Group group_units_col = new Group();
+        group_units_col.addChild(label_units);
+        label_units.place();
+        unit_allow_checks[0].place(label_units, BOTTOM_LEFT);
+        for (int i = 1; i < unit_allow_checks.length; i++) {
+            unit_allow_checks[i].place(unit_allow_checks[i - 1], BOTTOM_LEFT);
+        }
+        for (int i = 0; i < unit_allow_checks.length; i++) group_units_col.addChild(unit_allow_checks[i]);
+        group_units_col.compileCanvas();
+        group_game_mode.addChild(group_units_col);
+
+        // Create column group for Buildings
+        Group group_buildings_col = new Group();
+        group_buildings_col.addChild(label_buildings);
+        label_buildings.place();
+        // Place building checkboxes in a vertical column under label
+        // Note: building_allow_checks contains exactly 3 entries at indices defined by Race
+        building_allow_checks[Race.BUILDING_QUARTERS].place(label_buildings, BOTTOM_LEFT);
+        building_allow_checks[Race.BUILDING_ARMORY].place(building_allow_checks[Race.BUILDING_QUARTERS], BOTTOM_LEFT);
+        building_allow_checks[Race.BUILDING_TOWER].place(building_allow_checks[Race.BUILDING_ARMORY], BOTTOM_LEFT);
+        for (int i = 0; i < building_allow_checks.length; i++) group_buildings_col.addChild(building_allow_checks[i]);
+        group_buildings_col.compileCanvas();
+        group_game_mode.addChild(group_buildings_col);
+
+    // Position columns side-by-side on the same row beneath max caps (anchor below the caps row)
+    group_units_col.place(label_max_units, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
+        group_buildings_col.place(group_units_col, RIGHT_TOP);
+    group_game_mode.compileCanvas();
+    panel_game_mode.addChild(group_game_mode);
+    // Place the group inside the panel before compiling the panel to satisfy layout contract
+    group_game_mode.place();
+    // Important: compile the panel so PanelGroup can size and render it
+    panel_game_mode.compileCanvas();
+
+    // races and teams
         labels_players = new Label[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         race_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
@@ -524,7 +639,7 @@ public final class TerrainMenu extends Group {
                 group_num_players, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
         advanced.compileCanvas();
 
-        PanelGroup panel_group = new PanelGroup(new Panel[] {standard, advanced}, 0);
+    PanelGroup panel_group = new PanelGroup(new Panel[] {standard, advanced, panel_game_mode}, 0);
         addChild(panel_group);
         // In single player, keep the advanced "Players" pulldown but make it drive PlayersSection
         if (!multiplayer && playersSection != null) {
@@ -805,10 +920,39 @@ public final class TerrainMenu extends Group {
         int vegetation_amount = slider_vegetation.getValue();
         int supplies_amount = slider_supplies.getValue();
         int terrain_type = pm_terrain_type.getChosenItemIndex();
-        Game game;
+    Game game;
         boolean rated = cb_rated.isMarked();
         if (rated)
             team_pulldown_menus[0].chooseItem(team_pulldown_menus[0].getChosenItemIndex() % 2);
+        // Read Game Mode values
+        int max_units = parseIntOrDefault(edit_max_units != null ? edit_max_units.getContents() : "", Player.DEFAULT_MAX_UNIT_COUNT);
+        int max_buildings = parseIntOrDefault(edit_max_buildings != null ? edit_max_buildings.getContents() : "", Player.MAX_BUILDING_COUNT);
+        int peace_min = parseIntOrDefault(edit_peace_min != null ? edit_peace_min.getContents() : "", 0);
+        int peace_sec = parseIntOrDefault(edit_peace_sec != null ? edit_peace_sec.getContents() : "", 0);
+        peace_min = StrictMath.max(0, peace_min);
+        peace_sec = StrictMath.max(0, StrictMath.min(59, peace_sec));
+        int peace_total_seconds = peace_min * 60 + peace_sec;
+        boolean[] allowed_units = new boolean[] {true, true, true, true, true};
+        boolean[] allowed_buildings = new boolean[Race.NUM_BUILDINGS];
+        for (int i = 0; i < allowed_buildings.length; i++) allowed_buildings[i] = true;
+        if (unit_allow_checks != null) {
+            for (int i = 0; i < allowed_units.length && i < unit_allow_checks.length; i++) {
+                allowed_units[i] = unit_allow_checks[i].isMarked();
+            }
+        }
+        if (building_allow_checks != null) {
+            for (int i = 0; i < allowed_buildings.length; i++) {
+                allowed_buildings[i] = building_allow_checks[i].isMarked();
+            }
+        }
+        GameModeOptions game_mode_options =
+                new GameModeOptions(
+                        cb_peace != null && cb_peace.isMarked(),
+                        peace_total_seconds,
+                        max_buildings,
+                        allowed_units,
+                        allowed_buildings);
+
         if (multiplayer) {
             String game_name = editline_name.getContents();
             if (game_name.length() < Game.MIN_LENGTH) {
@@ -821,7 +965,7 @@ public final class TerrainMenu extends Group {
                 return false;
             }
             float random_start_pos = LocalEventQueue.getQueue().getTime() % 1f;
-            game =
+        game =
                     new Game(
                             game_name,
                             (byte) pulldown_size.getChosenItemIndex(),
@@ -833,7 +977,7 @@ public final class TerrainMenu extends Group {
                             (byte) (pm_gamespeed.getChosenItemIndex() + 1),
                             label_mapcode.getContents(),
                             random_start_pos,
-                            Player.DEFAULT_MAX_UNIT_COUNT);
+                max_units);
         } else {
             // Single player: validate via PlayersSection and use its values
             int count = (playersSection != null) ? playersSection.getPlayerCount() : player_count;
@@ -875,23 +1019,22 @@ public final class TerrainMenu extends Group {
                         + " | seed = "
                         + seed * seed);
     // ai string used via generateAINames()
-        InGameInfo ingame_info =
-                multiplayer
-                        ? new MultiplayerInGameInfo(game.getRandomStartPos(), game.isRated())
-                        : new DefaultInGameInfo();
-    System.out.println("InGameInfo created" + player_count);
+    InGameInfo ingame_info =
+        multiplayer
+            ? new MultiplayerInGameInfo(game.getRandomStartPos(), game.isRated())
+            : new DefaultInGameInfo();
+    System.out.println("InGameInfo created: " + player_count);
     GameNetwork game_network =
-    Menu.startNewGame(
+        Menu.startNewGame(
                         network,
                         gui_root,
                         menu,
-                        new WorldParameters(
+            new WorldParameters(
                                 multiplayer ? game.getGamespeed() : Globals.gamespeed,
                                 label_mapcode.getContents(),
                                 Player.INITIAL_UNIT_COUNT,
-                                multiplayer
-                                        ? game.getMaxUnitCount()
-                                        : Player.DEFAULT_MAX_UNIT_COUNT),
+                multiplayer ? game.getMaxUnitCount() : max_units,
+                game_mode_options),
                         ingame_info,
                         new Menu.DefaultWorldInitAction(),
                         game,
@@ -959,7 +1102,6 @@ public final class TerrainMenu extends Group {
         System.out.println("Map code: " + label_mapcode.getContents());
         return true;
     }
-
     /** Creates an array of translated AI names based on the number of max_players */
     private String[] generateAINames() {
         String ai_string = Utils.getBundleString(bundle, "ai");
@@ -968,6 +1110,53 @@ public final class TerrainMenu extends Group {
             ai_names[i] = ai_string + i;
         }
         return ai_names;
+    }
+
+    // Apply previous game's parameters (game mode + limits) to this menu, so replay uses same settings
+    public void applyWorldParameters(WorldParameters params) {
+        if (params == null) return;
+        GameModeOptions mode = params.getGameMode();
+        if (mode != null) {
+            if (cb_peace != null) cb_peace.setMarked(mode.peaceEnabled);
+            if (edit_peace_min != null && edit_peace_sec != null) {
+                int total = Math.max(0, mode.peaceSeconds);
+                int mm = total / 60;
+                int ss = total % 60;
+                edit_peace_min.clear();
+                edit_peace_min.append(Integer.toString(mm));
+                edit_peace_sec.clear();
+                edit_peace_sec.append(Integer.toString(ss));
+            }
+            if (edit_max_buildings != null) {
+                edit_max_buildings.clear();
+                edit_max_buildings.append(Integer.toString(mode.maxBuildings));
+            }
+            if (unit_allow_checks != null && mode.allowedUnits != null) {
+                int n = Math.min(unit_allow_checks.length, mode.allowedUnits.length);
+                for (int i = 0; i < n; i++) unit_allow_checks[i].setMarked(mode.allowedUnits[i]);
+            }
+            if (building_allow_checks != null && mode.allowedBuildings != null) {
+                int n = Math.min(building_allow_checks.length, mode.allowedBuildings.length);
+                for (int i = 0; i < n; i++)
+                    if (building_allow_checks[i] != null)
+                        building_allow_checks[i].setMarked(mode.allowedBuildings[i]);
+            }
+        }
+        if (edit_max_units != null) {
+            edit_max_units.clear();
+            edit_max_units.append(Integer.toString(params.getMaxUnitCount()));
+        }
+    }
+
+    private static int parseIntOrDefault(String s, int def) {
+        try {
+            if (s == null) return def;
+            s = s.trim();
+            if (s.isEmpty()) return def;
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return def;
+        }
     }
 
     private final class MapcodeListener implements MouseClickListener {

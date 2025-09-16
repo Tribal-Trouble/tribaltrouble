@@ -4,4 +4,13 @@
 
 	<target name="compiledeps" depends="compile-common">
 	</target>
+
+	<!-- Override compile to skip LWJGL2-based sample (Test.java) which doesn't build on LWJGL3 -->
+	<target name="compile" depends="init,compiledeps">
+		<javac debug="yes" source="${java_source_version}" target="${java_source_version}"
+			   srcdir="classes" destdir="${build}/classes"
+			   excludes="com/oddlabs/truetype/Test.java">
+			<classpath refid="_common.combined.compile.javasvn.classpath" />
+		</javac>
+	</target>
 </project>

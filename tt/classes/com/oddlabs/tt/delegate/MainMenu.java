@@ -89,6 +89,12 @@ public final strictfp class MainMenu extends Menu {
             DisplayModel.setBadModeStatus(false);
         }
 
+    // Developer/demo: Trigger editor visual mock button
+    MenuButton triggerDemo =
+        new MenuButton("trigger", COLOR_NORMAL, COLOR_ACTIVE);
+    addChild(triggerDemo);
+    triggerDemo.addMouseClickListener(new TriggerDemoListener());
+
         if (Network.getMatchmakingClient().isConnected()) {
             new SelectGameMenu(getNetwork(), getGUIRoot(), this);
         }
@@ -102,6 +108,12 @@ public final strictfp class MainMenu extends Menu {
                 Network.getMatchmakingClient().close();
                 new LoginForm(getNetwork(), getGUIRoot(), MainMenu.this);
             }
+        }
+    }
+
+    private final strictfp class TriggerDemoListener implements MouseClickListener {
+        public final void mouseClicked(int button, int x, int y, int clicks) {
+            setMenuCentered(new TriggerEditorDemoForm(getGUIRoot(), MainMenu.this));
         }
     }
 

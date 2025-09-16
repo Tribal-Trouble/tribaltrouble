@@ -138,7 +138,12 @@ public final strictfp class Display {
     }
 
     public static String getClipboard() {
-        return ""; // glfwGetClipboardString(window);
+        try {
+            String s = org.lwjgl.glfw.GLFW.glfwGetClipboardString(window);
+            return s != null ? s : "";
+        } catch (Throwable t) {
+            return "";
+        }
     }
 
     public static boolean isALCreated() {

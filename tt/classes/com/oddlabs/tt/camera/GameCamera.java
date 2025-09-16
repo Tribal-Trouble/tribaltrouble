@@ -6,23 +6,23 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
-import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
 
 public final strictfp class GameCamera extends Camera {
-    public static final int SCROLL_BUFFER = 5;
+    public static int SCROLL_BUFFER = 5;
     private static final float INIT_DISTANCE = 50;
-    private static final float ANGLE_DELTA = (float) (StrictMath.PI / 2);
-    public static final float MAX_Z = 100f;
+    // ANGLE_DELTA is computed from settings each frame (deg/sec -> rad/sec), but keep a default
+    private static float ANGLE_DELTA = (float) (StrictMath.PI / 2);
+    public static float MAX_Z = 100f;
     private static final float ZOOM_Z_DIR_MIN = -(float) StrictMath.tan(StrictMath.PI / 6);
-    private static final float SCROLL_ACCELERATION_SECONDS_MAX = 1f;
-    private static final float SCROLL_ACCELERATION_FACTOR = 2.5f;
-    private static final float SCROLL_START_MAX_SPEED = 60f;
+    private static float SCROLL_ACCELERATION_SECONDS_MAX = 1f;
+    private static float SCROLL_ACCELERATION_FACTOR = 2.5f;
+    private static float SCROLL_START_MAX_SPEED = 60f;
     private static final float ROTATE_PICKING_ANGLE_MAX =
             (-(Globals.FOV) - 10) * ((float) StrictMath.PI / 180) * .5f;
-    private static final float ZOOM_SPEED = 50f;
+    private static float ZOOM_SPEED = 50f;
 
     private final CameraHost viewer;
 
@@ -51,6 +51,8 @@ public final strictfp class GameCamera extends Camera {
         super(viewer.getWorld().getHeightMap(), camera);
         this.default_rotate_radius = viewer.getWorld().getHeightMap().getMetersPerWorld() / 4;
         this.viewer = viewer;
+        // Initialize tunables from Settings
+        syncSettings();
         checkPosition();
         updateDirection();
     }
@@ -184,7 +186,7 @@ public final strictfp class GameCamera extends Camera {
             if (squared_dist
                             < getHeightMap().getMetersPerWorld()
                                     * getHeightMap().getMetersPerWorld()
-                    && temp_z < MAX_Z) {
+                    && temp_z <= MAX_Z) {
                 getState().setTargetX(temp_x);
                 getState().setTargetY(temp_y);
                 getState().setTargetZ(temp_z);
@@ -208,6 +210,17 @@ public final strictfp class GameCamera extends Camera {
 
     private final void doScroll(float time_delta) {
         if (!viewer.getGUIRoot().getDelegate().canScroll()) return;
+
+        boolean is_pan_down_pressed =
+                LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_DOWN));
+        boolean is_pan_up_pressed =
+                LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP));
+        boolean is_pan_left_pressed =
+                LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT));
+        boolean is_pan_right_pressed =
+                LocalInput.isKeyDown(
+                        Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT));
+
         float scroll_speed =
                 scroll_start_speed
                         * (.4f
@@ -215,20 +228,12 @@ public final strictfp class GameCamera extends Camera {
                                         * SCROLL_ACCELERATION_FACTOR);
         float scroll_factor = time_delta * scroll_speed;
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
-        if (LocalInput.isKeyDown(Keyboard.KEY_LEFT)
-                && !LocalInput.isKeyDown(Keyboard.KEY_RIGHT)
-                && !blocked) scrolling_x = -1f;
-        else if (LocalInput.isKeyDown(Keyboard.KEY_RIGHT)
-                && !LocalInput.isKeyDown(Keyboard.KEY_LEFT)
-                && !blocked) scrolling_x = 1f;
+        if (is_pan_left_pressed && !is_pan_right_pressed && !blocked) scrolling_x = -1f;
+        else if (is_pan_right_pressed && !is_pan_left_pressed && !blocked) scrolling_x = 1f;
         else scrolling_x = scroll_x;
 
-        if (LocalInput.isKeyDown(Keyboard.KEY_DOWN)
-                && !LocalInput.isKeyDown(Keyboard.KEY_UP)
-                && !blocked) scrolling_y = -1f;
-        else if (LocalInput.isKeyDown(Keyboard.KEY_UP)
-                && !LocalInput.isKeyDown(Keyboard.KEY_DOWN)
-                && !blocked) scrolling_y = 1f;
+        if (is_pan_down_pressed && !is_pan_up_pressed && !blocked) scrolling_y = -1f;
+        else if (is_pan_up_pressed && !is_pan_down_pressed && !blocked) scrolling_y = 1f;
         else scrolling_y = scroll_y;
 
         float new_x =
@@ -322,6 +327,8 @@ public final strictfp class GameCamera extends Camera {
     }
 
     public final void doAnimate(float t) {
+        // Refresh tunables each frame in case user adjusted sliders while menu is open
+        syncSettings();
         doZoom(t);
         doScroll(t);
         doPitch(t);
@@ -421,12 +428,22 @@ public final strictfp class GameCamera extends Camera {
     }
 
     private final boolean scrollSpeedLocked(int key) {
+
+        int pan_down_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_DOWN);
+        int pan_up_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP);
+        int pan_left_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT);
+        int pan_right_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT);
+
+        boolean is_pan_down_pressed = LocalInput.isKeyDown(pan_down_key);
+        boolean is_pan_up_pressed = LocalInput.isKeyDown(pan_up_key);
+        boolean is_pan_left_pressed = LocalInput.isKeyDown(pan_left_key);
+        boolean is_pan_right_pressed = LocalInput.isKeyDown(pan_right_key);
         return scroll_x != 0
                 || scroll_y != 0
-                || (LocalInput.isKeyDown(Keyboard.KEY_UP) && key != Keyboard.KEY_UP)
-                || (LocalInput.isKeyDown(Keyboard.KEY_DOWN) && key != Keyboard.KEY_DOWN)
-                || (LocalInput.isKeyDown(Keyboard.KEY_LEFT) && key != Keyboard.KEY_LEFT)
-                || (LocalInput.isKeyDown(Keyboard.KEY_RIGHT) && key != Keyboard.KEY_RIGHT);
+                || (is_pan_up_pressed && key != pan_up_key)
+                || (is_pan_down_pressed && key != pan_down_key)
+                || (is_pan_left_pressed && key != pan_left_key)
+                || (is_pan_right_pressed && key != pan_right_key);
     }
 
     private final void setScrollSpeed() {
@@ -447,53 +464,43 @@ public final strictfp class GameCamera extends Camera {
     }
 
     public final void keyPressed(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_HOME:
-            case Keyboard.KEY_NUMPAD8:
-                break;
-            case Keyboard.KEY_END:
-            case Keyboard.KEY_NUMPAD2:
-                break;
-            case Keyboard.KEY_INSERT:
-            case Keyboard.KEY_NUMPAD6:
-                viewer.getPicker().pickRotate(this);
-                break;
-            case Keyboard.KEY_DELETE:
-            case Keyboard.KEY_NUMPAD4:
-                viewer.getPicker().pickRotate(this);
-                break;
-            case Keyboard.KEY_PRIOR:
-            case Keyboard.KEY_NUMPAD9:
-                mouseScrolled(-2);
-                break;
-            case Keyboard.KEY_NEXT:
-            case Keyboard.KEY_NUMPAD3:
-                mouseScrolled(2);
-                break;
-            case Keyboard.KEY_UP:
-                if (!scrollSpeedLocked(Keyboard.KEY_UP)) {
-                    scroll_acceleration_seconds = 0;
-                    setScrollSpeed();
-                }
-                break;
-            case Keyboard.KEY_DOWN:
-                if (!scrollSpeedLocked(Keyboard.KEY_DOWN)) {
-                    scroll_acceleration_seconds = 0;
-                    setScrollSpeed();
-                }
-                break;
-            case Keyboard.KEY_LEFT:
-                if (!scrollSpeedLocked(Keyboard.KEY_LEFT)) {
-                    scroll_acceleration_seconds = 0;
-                    setScrollSpeed();
-                }
-                break;
-            case Keyboard.KEY_RIGHT:
-                if (!scrollSpeedLocked(Keyboard.KEY_RIGHT)) {
-                    scroll_acceleration_seconds = 0;
-                    setScrollSpeed();
-                }
-                break;
+        int pan_down_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_DOWN);
+        int pan_up_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP);
+        int pan_left_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT);
+        int pan_right_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT);
+        int zoom_in_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ZOOM_IN);
+        int zoom_out_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ZOOM_OUT);
+        int rotate_left_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_LEFT);
+        int rotate_right_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT);
+
+        int key = event.getKeyCode();
+        if (key == zoom_in_key) {
+            mouseScrolled(-2);
+        } else if (key == zoom_out_key) {
+            mouseScrolled(2);
+        } else if (key == rotate_right_key || key == rotate_left_key) {
+            // Ensure rotation pivot is updated when rotation keys are pressed
+            viewer.getPicker().pickRotate(this);
+        } else if (key == pan_up_key) {
+            if (!scrollSpeedLocked(pan_up_key)) {
+                scroll_acceleration_seconds = 0;
+                setScrollSpeed();
+            }
+        } else if (key == pan_down_key) {
+            if (!scrollSpeedLocked(pan_down_key)) {
+                scroll_acceleration_seconds = 0;
+                setScrollSpeed();
+            }
+        } else if (key == pan_left_key) {
+            if (!scrollSpeedLocked(pan_left_key)) {
+                scroll_acceleration_seconds = 0;
+                setScrollSpeed();
+            }
+        } else if (key == pan_right_key) {
+            if (!scrollSpeedLocked(pan_right_key)) {
+                scroll_acceleration_seconds = 0;
+                setScrollSpeed();
+            }
         }
     }
 
@@ -507,25 +514,32 @@ public final strictfp class GameCamera extends Camera {
             return;
         }
 
-        if (LocalInput.isKeyDown(Keyboard.KEY_HOME) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD8))
-            pitch_up = true;
-        else pitch_up = false;
+        int pitch_up_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_PITCH_UP);
+        int pitch_down_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_PITCH_DOWN);
+        int rotate_right_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT);
+        int rotate_left_key = Settings.getSettings().getKeybind(Globals.KB_CAMERA_ROTATE_LEFT);
 
-        if (LocalInput.isKeyDown(Keyboard.KEY_END) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD2))
-            pitch_down = true;
-        else pitch_down = false;
-
-        if (LocalInput.isKeyDown(Keyboard.KEY_INSERT) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD6))
-            rotate_right = true;
-        else rotate_right = false;
-
-        if (LocalInput.isKeyDown(Keyboard.KEY_DELETE) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD4))
-            rotate_left = true;
-        else rotate_left = false;
+        pitch_up = LocalInput.isKeyDown(pitch_up_key);
+        pitch_down = LocalInput.isKeyDown(pitch_down_key);
+        rotate_right = LocalInput.isKeyDown(rotate_right_key);
+        rotate_left = LocalInput.isKeyDown(rotate_left_key);
     }
 
     public final void enable() {
         super.enable();
         mouseMoved(LocalInput.getMouseX(), LocalInput.getMouseY());
+    }
+
+    private static void syncSettings() {
+        // Pull latest values from Settings
+        SCROLL_BUFFER = Settings.getSettings().camera_edge_scroll_buffer;
+        SCROLL_ACCELERATION_SECONDS_MAX = Settings.getSettings().camera_scroll_accel_seconds_max;
+        SCROLL_ACCELERATION_FACTOR = Settings.getSettings().camera_scroll_accel_factor;
+        SCROLL_START_MAX_SPEED = Settings.getSettings().camera_start_max_speed;
+        ZOOM_SPEED = Settings.getSettings().camera_zoom_speed;
+        MAX_Z = Settings.getSettings().camera_max_z;
+        // Degrees/sec -> radians/sec for ANGLE_DELTA baseline
+        float degPerSec = Settings.getSettings().camera_angle_delta_deg_per_sec;
+        ANGLE_DELTA = (float) (degPerSec * StrictMath.PI / 180.0);
     }
 }

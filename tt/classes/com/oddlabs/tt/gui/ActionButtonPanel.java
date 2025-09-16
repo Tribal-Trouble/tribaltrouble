@@ -5,6 +5,8 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.delegate.*;
 import com.oddlabs.tt.form.DemoForm;
 import com.oddlabs.tt.form.InGameDemoForm;
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.landscape.TreeSupply;
@@ -20,6 +22,7 @@ import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.player.Player;
+import com.oddlabs.tt.landscape.GameModeOptions;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.StateChecksum;
@@ -128,6 +131,12 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         return Utils.getBundleString(bundle, tip_key, new Object[] {shortcut_key});
     }
 
+    private final String formatTipWithKeybind(String tip_key, String keybind_action) {
+        Settings settings = Settings.getSettings();
+        String shortcut_key = settings.getKeybindString(keybind_action);
+        return Utils.getBundleString(bundle, tip_key, new Object[] {shortcut_key});
+    }
+
     public ActionButtonPanel(WorldViewer viewer, GameCamera camera) {
         this(viewer, camera, viewer.getGUIRoot().getWidth(), viewer.getGUIRoot().getHeight());
     }
@@ -154,7 +163,10 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         army_group = new NonFocusGroup();
         transport_group = new NonFocusGroup();
 
-        move_button = new NonFocusIconButton(race_icons.getMoveIcon(), formatTip("move_tip", "M"));
+        move_button =
+                new NonFocusIconButton(
+                        race_icons.getMoveIcon(),
+                        formatTipWithKeybind("move_tip", Globals.KB_MOVE));
         move_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -164,7 +176,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         unit_group.addChild(move_button);
         move_button.addMouseClickListener(new TargetListener(Target.ACTION_MOVE));
         attack_button =
-                new NonFocusIconButton(race_icons.getAttackIcon(), formatTip("attack_tip", "A"));
+                new NonFocusIconButton(
+                        race_icons.getAttackIcon(),
+                        formatTipWithKeybind("attack_tip", Globals.KB_ATTACK));
         attack_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -179,7 +193,8 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 
         gather_repair_button =
                 new NonFocusIconButton(
-                        race_icons.getGatherRepairIcon(), formatTip("gather_repair_tip", "G"));
+                        race_icons.getGatherRepairIcon(),
+                        formatTipWithKeybind("gather_repair_tip", Globals.KB_GATHER_REPAIR));
         peon_group.addChild(gather_repair_button);
         gather_repair_button.addMouseClickListener(new TargetListener(Target.ACTION_GATHER_REPAIR));
         gather_repair_button.setIconDisabler(
@@ -190,17 +205,22 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 });
         quarters_button =
                 new NonFocusIconButton(
-                        race_icons.getQuartersIcon(), formatTip("quarters_tip", "Q"));
+                        race_icons.getQuartersIcon(),
+                        formatTipWithKeybind("quarters_tip", Globals.KB_BUILD_QUARTERS));
         peon_group.addChild(quarters_button);
         quarters_button.addMouseClickListener(new PlaceListener(Race.BUILDING_QUARTERS));
         quarters_button.setIconDisabler(new BuildingDisabler(Race.BUILDING_QUARTERS));
         armory_button =
-                new NonFocusIconButton(race_icons.getArmoryIcon(), formatTip("armory_tip", "R"));
+                new NonFocusIconButton(
+                        race_icons.getArmoryIcon(),
+                        formatTipWithKeybind("armory_tip", Globals.KB_BUILD_ARMORY));
         peon_group.addChild(armory_button);
         armory_button.addMouseClickListener(new PlaceListener(Race.BUILDING_ARMORY));
         armory_button.setIconDisabler(new BuildingDisabler(Race.BUILDING_ARMORY));
         tower_button =
-                new NonFocusIconButton(race_icons.getTowerIcon(), formatTip("tower_tip", "T"));
+                new NonFocusIconButton(
+                        race_icons.getTowerIcon(),
+                        formatTipWithKeybind("tower_tip", Globals.KB_BUILD_TOWER));
         peon_group.addChild(tower_button);
         tower_button.addMouseClickListener(new TowerPlaceListener());
         tower_button.setIconDisabler(new BuildingDisabler(Race.BUILDING_TOWER));
@@ -240,11 +260,15 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, 0);
 
         tower_attack_button =
-                new NonFocusIconButton(race_icons.getAttackIcon(), formatTip("attack_tip", "A"));
+                new NonFocusIconButton(
+                        race_icons.getAttackIcon(),
+                        formatTipWithKeybind("attack_tip", Globals.KB_TOWER_ATTACK));
         tower_group.addChild(tower_attack_button);
         tower_attack_button.addMouseClickListener(new TargetListener(Target.ACTION_ATTACK));
         tower_exit_button =
-                new NonFocusIconButton(race_icons.getTowerExitIcon(), formatTip("exit_tip", "X"));
+                new NonFocusIconButton(
+                        race_icons.getTowerExitIcon(),
+                        formatTipWithKeybind("exit_tip", Globals.KB_TOWER_EXIT));
         tower_group.addChild(tower_exit_button);
         tower_exit_button.addMouseClickListener(new TowerExitListener());
         tower_attack_button.place();
@@ -332,13 +356,15 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         viewer,
                         player_interface,
                         race_icons.getChieftainIcon(),
-                        formatTip("train_chieftain_tip", "C"));
+                        formatTipWithKeybind("train_chieftain_tip", Globals.KB_QUARTERS_CHIEFTAIN));
         //		if (Settings.getSettings().developer_mode) {
         quarters_group.addChild(quarters_chieftain_button);
         //		}
         quarters_rally_point_button =
                 new NonFocusIconButton(
-                        race_icons.getRallyPointIcon(), formatTip("rally_point_tip", "R"));
+                        race_icons.getRallyPointIcon(),
+                        formatTipWithKeybind(
+                                "rally_point_tip", Globals.KB_QUARTERS_SET_RALLY_POINT));
         quarters_group.addChild(quarters_rally_point_button);
         quarters_rally_point_button.addMouseClickListener(new RallyPointListener());
         quarters_peon_button.place();
@@ -353,7 +379,8 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 
         harvest_button =
                 new NonFocusIconButton(
-                        icons.getHarvestIcon(), formatTip("gather_resources_tip", "G"));
+                        icons.getHarvestIcon(),
+                        formatTipWithKeybind("gather_resources_tip", Globals.KB_ARMORY_HARVEST));
         harvest_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -364,7 +391,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         harvest_button.addMouseClickListener(new GroupListener(armory_group, harvest_group));
         build_button =
                 new NonFocusIconButton(
-                        race_icons.getBuildWeaponsIcon(), formatTip("produce_weapons_tip", "W"));
+                        race_icons.getBuildWeaponsIcon(),
+                        formatTipWithKeybind(
+                                "produce_weapons_tip", Globals.KB_ARMORY_MAKE_WEAPONS));
         build_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -374,7 +403,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         armory_group.addChild(build_button);
         build_button.addMouseClickListener(new GroupListener(armory_group, build_group));
         army_button =
-                new NonFocusIconButton(race_icons.getArmyIcon(), formatTip("deploy_army_tip", "A"));
+                new NonFocusIconButton(
+                        race_icons.getArmyIcon(),
+                        formatTipWithKeybind("deploy_army_tip", Globals.KB_ARMORY_DEPLOY_WARRIORS));
         army_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -385,12 +416,15 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         army_button.addMouseClickListener(new GroupListener(armory_group, army_group));
         transport_button =
                 new NonFocusIconButton(
-                        race_icons.getTransportIcon(), formatTip("transport_resources_tip", "T"));
+                        race_icons.getTransportIcon(),
+                        formatTipWithKeybind(
+                                "transport_resources_tip", Globals.KB_ARMORY_TRANSPORT));
         armory_group.addChild(transport_button);
         transport_button.addMouseClickListener(new GroupListener(armory_group, transport_group));
         rally_point_button =
                 new NonFocusIconButton(
-                        race_icons.getRallyPointIcon(), formatTip("rally_point_tip", "R"));
+                        race_icons.getRallyPointIcon(),
+                        formatTipWithKeybind("rally_point_tip", Globals.KB_ARMORY_RALLY_POINT));
         rally_point_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -701,8 +735,10 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 quarters_unit_status.setUnitContainerBuilding(current_building);
                 quarters_peon_button.setContainers(
                         current_building, Building.KEY_DEPLOY_PEON, null);
-                quarters_peon_button.setIconDisabler(
-                        new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
+        quarters_peon_button.setIconDisabler(
+            new CombinedDisabler(
+                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+                new UnitAllowedDisabler(Race.UNIT_PEON)));
                 quarters_chieftain_button.setIconDisabler(new ChieftainDisabler(current_building));
                 quarters_chieftain_button.setBuilding(current_building);
             }
@@ -827,57 +863,108 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 
         harvest_tree_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_TREE, null);
+        // Wood is always allowed to harvest, only disable when no peons available
         harvest_tree_button.setIconDisabler(
                 new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
         harvest_rock_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_ROCK, null);
+        // Rock harvest disabled when peons empty OR (chicken disabled AND rock warriors disallowed)
         harvest_rock_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
+                new CombinedDisabler(
+                        new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+                        new IconDisabler() {
+                            public boolean isDisabled() {
+                                GameModeOptions mode = viewer.getWorld().getGameModeOptions();
+                                if (mode == null) return false;
+                                boolean chickenEnabled = mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+                                if (chickenEnabled) return false;
+                                return !mode.allowedUnits[Race.UNIT_WARRIOR_ROCK];
+                            }
+                        }));
         harvest_iron_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_IRON, null);
+        // Iron harvest disabled when peons empty OR (chicken disabled AND iron warriors disallowed)
         harvest_iron_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
+                new CombinedDisabler(
+                        new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+                        new IconDisabler() {
+                            public boolean isDisabled() {
+                                GameModeOptions mode = viewer.getWorld().getGameModeOptions();
+                                if (mode == null) return false;
+                                boolean chickenEnabled = mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+                                if (chickenEnabled) return false;
+                                return !mode.allowedUnits[Race.UNIT_WARRIOR_IRON];
+                            }
+                        }));
         harvest_rubber_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_RUBBER, null);
+        // Rubber (chicken) harvest disabled when peons empty OR rubber warriors disallowed
         harvest_rubber_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
+                new CombinedDisabler(
+                        new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+                        new UnitAllowedDisabler(Race.UNIT_WARRIOR_RUBBER)));
 
-        build_weapon_rock_button.setBuildSupplyContainer(current_building, RockAxeWeapon.class);
-        build_weapon_iron_button.setBuildSupplyContainer(current_building, IronAxeWeapon.class);
-        build_weapon_rubber_button.setBuildSupplyContainer(current_building, RubberAxeWeapon.class);
+    build_weapon_rock_button.setBuildSupplyContainer(current_building, RockAxeWeapon.class);
+    build_weapon_rock_button.setIconDisabler(
+        new UnitAllowedDisabler(Race.UNIT_WARRIOR_ROCK));
+    build_weapon_iron_button.setBuildSupplyContainer(current_building, IronAxeWeapon.class);
+    build_weapon_iron_button.setIconDisabler(
+        new UnitAllowedDisabler(Race.UNIT_WARRIOR_IRON));
+    build_weapon_rubber_button.setBuildSupplyContainer(current_building, RubberAxeWeapon.class);
+    build_weapon_rubber_button.setIconDisabler(
+        new UnitAllowedDisabler(Race.UNIT_WARRIOR_RUBBER));
 
         army_peon_button.setContainers(current_building, Building.KEY_DEPLOY_PEON, null);
-        army_peon_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
+    army_peon_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
         army_warrior_rock_button.setContainers(
                 current_building, Building.KEY_DEPLOY_ROCK_WARRIOR, RockAxeWeapon.class);
-        army_warrior_rock_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, weapon_rock_counter}));
+    army_warrior_rock_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(
+                new SupplyCounter[] {unit_counter, weapon_rock_counter}),
+            new UnitAllowedDisabler(Race.UNIT_WARRIOR_ROCK)));
         army_warrior_iron_button.setContainers(
                 current_building, Building.KEY_DEPLOY_IRON_WARRIOR, IronAxeWeapon.class);
-        army_warrior_iron_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, weapon_iron_counter}));
+    army_warrior_iron_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(
+                new SupplyCounter[] {unit_counter, weapon_iron_counter}),
+            new UnitAllowedDisabler(Race.UNIT_WARRIOR_IRON)));
         army_warrior_rubber_button.setContainers(
                 current_building, Building.KEY_DEPLOY_RUBBER_WARRIOR, RubberAxeWeapon.class);
-        army_warrior_rubber_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, weapon_rubber_counter}));
+    army_warrior_rubber_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(
+                new SupplyCounter[] {unit_counter, weapon_rubber_counter}),
+            new UnitAllowedDisabler(Race.UNIT_WARRIOR_RUBBER)));
 
         transport_tree_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_TREE, TreeSupply.class);
-        transport_tree_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, tree_counter}));
+    transport_tree_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, tree_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
         transport_rock_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_ROCK, RockSupply.class);
-        transport_rock_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, rock_counter}));
+    transport_rock_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, rock_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
         transport_iron_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_IRON, IronSupply.class);
-        transport_iron_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, iron_counter}));
+    transport_iron_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, iron_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
         transport_rubber_button.setContainers(
                 current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_RUBBER, RubberSupply.class);
-        transport_rubber_button.setIconDisabler(
-                new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, rubber_counter}));
+    transport_rubber_button.setIconDisabler(
+        new CombinedDisabler(
+            new EmptySupplyDisabler(new SupplyCounter[] {unit_counter, rubber_counter}),
+            new UnitAllowedDisabler(Race.UNIT_PEON)));
     }
 
     public final void displayChangedNotify(int width, int height) {
@@ -929,350 +1016,332 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
     }
 
     public final boolean doKeyPressed(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_M:
-            case Keyboard.KEY_Q:
-                if (current_unit) return true;
-                break;
-            case Keyboard.KEY_A:
-                if ((current_unit || current_armory || current_tower) && !event.isControlDown())
-                    return true;
-                break;
-            case Keyboard.KEY_P:
-                if (current_quarters) return true;
-                if (current_unit) break;
-            case Keyboard.KEY_G:
-            case Keyboard.KEY_T:
-                if (current_unit || current_armory) return true;
-            case Keyboard.KEY_C:
-            case Keyboard.KEY_I:
-            case Keyboard.KEY_W:
-            case Keyboard.KEY_ESCAPE:
-                if (current_armory)
-                    if (current_submenu == harvest_group
-                            || current_submenu == build_group
-                            || current_submenu == army_group
-                            || current_submenu == transport_group) return true;
-                break;
-            case Keyboard.KEY_R:
-                if (current_armory || current_quarters) return true;
-                break;
-            case Keyboard.KEY_X:
-                if (current_tower) return true;
-                break;
-            default:
-                break;
+        Settings settings = Settings.getSettings();
+
+        if ((event.getKeyCode() == settings.getKeybind(Globals.KB_MOVE)
+                        || event.getKeyCode() == settings.getKeybind(Globals.KB_BUILD_QUARTERS))
+                && current_unit) {
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ATTACK)
+                && (current_unit || current_armory || current_tower)
+                && !event.isControlDown()) {
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_DEPLOY_PEON)
+                && current_quarters) {
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_PEON)
+                && current_unit) {
+            return false; // used to break out of switch to return false
+        } else if ((event.getKeyCode() == settings.getKeybind(Globals.KB_GATHER_REPAIR)
+                        || event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT))
+                && (current_unit || current_armory)) {
+            return true;
+        } else if ((event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_CHIEFTAIN)
+                        || event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_IRON)
+                        || event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_TREE)
+                        || event.getKeyCode() == settings.getKeybind(Globals.KB_BACK_CANCEL)
+                        || event.getKeyCode() == Keyboard.KEY_ESCAPE)
+                && current_armory
+                && (current_submenu == harvest_group
+                        || current_submenu == build_group
+                        || current_submenu == army_group
+                        || current_submenu == transport_group)) {
+            return true;
+        } else if ((event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_RALLY_POINT)
+                        || event.getKeyCode()
+                                == settings.getKeybind(Globals.KB_QUARTERS_SET_RALLY_POINT))
+                && (current_armory || current_quarters)) {
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_TOWER_EXIT)
+                && current_tower) {
+            return true;
         }
         return false;
     }
 
     public final boolean doKeyRepeat(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_M:
-                if (current_unit) {
-                    move_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_A:
-                if (!event.isControlDown()) {
-                    if (current_unit) {
-                        attack_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                        return true;
-                    } else if (current_armory) {
-                        if (current_submenu == null) {
-                            army_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                        } else {
-                            break;
-                        }
-                        return true;
-                    } else if (current_tower) {
-                        tower_attack_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                        return true;
-                    }
-                }
-                break;
-            case Keyboard.KEY_G:
-                if (current_unit) {
-                    gather_repair_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                } else if (current_armory) {
-                    harvest_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_C:
-                if (current_quarters) {
-                    //					if (Settings.getSettings().developer_mode) {
-                    quarters_chieftain_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    //					}
-                } else if (current_chieftain != null) {
-                    Player player = viewer.getLocalPlayer();
-                    if (player.canDoMagic(1)) {
-                        magic2_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    }
-                } else if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_rubber_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_rubber_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_rubber_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_rubber_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_Q:
-                if (current_peon) {
-                    quarters_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_P:
-                if (current_quarters) {
-                    quarters_peon_button.shortcutPressed(
-                            event.isShiftDown(), event.isControlDown());
-                    return true;
-                }
-                if (current_armory) {
-                    if (current_submenu == army_group) {
-                        army_peon_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_I:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_iron_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_iron_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_iron_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_iron_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_R:
-                if (current_peon) {
-                    armory_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                } else if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_rock_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_rock_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_rock_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_rock_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == null) {
-                        rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else {
-                        break;
-                    }
-                    return true;
-                } else if (current_quarters) {
-                    quarters_rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_S:
-                if (current_chieftain != null) {
-                    Player player = viewer.getLocalPlayer();
-                    if (player.canDoMagic(0)) {
-                        magic1_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    }
-                } else if (current_peon) {
-                    ship_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_T:
-                if (current_peon) {
-                    tower_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                } else if (current_armory) {
-                    if (current_submenu == null) {
-                        transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_X:
-                if (current_tower) {
-                    tower_exit_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_W:
-                if (current_armory) {
-                    if (current_submenu == null) {
-                        build_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else if (current_submenu == harvest_group) {
-                        harvest_tree_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_tree_button.shortcutPressed(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
+        // Use local variable for Settings to avoid repeated calls
+        Settings settings = Settings.getSettings();
 
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_ESCAPE:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else if (current_submenu == build_group) {
-                        build_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else if (current_submenu == army_group) {
-                        army_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else if (current_submenu == transport_group) {
-                        transport_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            default:
-                break;
+        // Each action is now separated for rebindable controls, using Settings keybind system
+        if (event.getKeyCode() == settings.getKeybind(Globals.KB_MOVE) && current_unit) {
+            move_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ATTACK)
+                && !event.isControlDown()
+                && current_unit) {
+            attack_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_WARRIORS)
+                && !event.isControlDown()
+                && current_armory
+                && current_submenu == null) {
+            army_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_TOWER_ATTACK)
+                && !event.isControlDown()
+                && current_tower) {
+            tower_attack_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_GATHER_REPAIR)
+                && current_unit) {
+            gather_repair_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST)
+                && current_armory) {
+            harvest_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_CHIEFTAIN)
+                && current_quarters) {
+            quarters_chieftain_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_CHIEFTAIN_MAGIC2)
+                && current_chieftain != null) {
+            Player player = viewer.getLocalPlayer();
+            if (player.canDoMagic(1)) {
+                magic2_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            }
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_CHICKEN)
+                && current_armory
+                && current_submenu == harvest_group) {
+            harvest_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode()
+                        == settings.getKeybind(Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON)
+                && current_armory
+                && current_submenu == build_group) {
+            build_weapon_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode()
+                        == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS)
+                && current_armory
+                && current_submenu == army_group) {
+            army_warrior_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_CHICKEN)
+                && current_armory
+                && current_submenu == transport_group) {
+            transport_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_BUILD_QUARTERS)
+                && current_peon) {
+            quarters_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_DEPLOY_PEON)
+                && current_quarters) {
+            quarters_peon_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_PEON)
+                && current_armory
+                && current_submenu == army_group) {
+            army_peon_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_IRON)
+                && current_armory
+                && current_submenu == harvest_group) {
+            harvest_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_CREATE_IRON_WEAPON)
+                && current_armory
+                && current_submenu == build_group) {
+            build_weapon_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS)
+                && current_armory
+                && current_submenu == army_group) {
+            army_warrior_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_IRON)
+                && current_armory
+                && current_submenu == transport_group) {
+            transport_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_BUILD_ARMORY)
+                && current_peon) {
+            armory_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_ROCK)
+                && current_armory
+                && current_submenu == harvest_group) {
+            harvest_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_CREATE_ROCK_WEAPON)
+                && current_armory
+                && current_submenu == build_group) {
+            build_weapon_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS)
+                && current_armory
+                && current_submenu == army_group) {
+            army_warrior_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_ROCK)
+                && current_armory
+                && current_submenu == transport_group) {
+            transport_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_RALLY_POINT)
+                && current_armory
+                && current_submenu == null) {
+            rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_SET_RALLY_POINT)
+                && current_quarters) {
+            quarters_rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_CHIEFTAIN_MAGIC1)
+                && current_chieftain != null) {
+            Player player = viewer.getLocalPlayer();
+            if (player.canDoMagic(0)) {
+                magic1_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            }
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_BUILD_TOWER)
+                && current_peon) {
+            tower_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT)
+                && current_armory
+                && current_submenu == null) {
+            transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_TOWER_EXIT)
+                && current_tower) {
+            tower_exit_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_MAKE_WEAPONS)
+                && current_armory
+                && current_submenu == null) {
+            build_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_TREE)
+                && current_armory
+                && current_submenu == harvest_group) {
+            harvest_tree_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_TREE)
+                && current_armory
+                && current_submenu == transport_group) {
+            transport_tree_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+            return true;
+    } else if ((event.getKeyCode() == settings.getKeybind(Globals.KB_BACK_CANCEL)
+            || event.getKeyCode() == Keyboard.KEY_ESCAPE)
+        && current_armory
+        && current_submenu == harvest_group) {
+            harvest_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+    } else if ((event.getKeyCode() == settings.getKeybind(Globals.KB_BACK_CANCEL)
+            || event.getKeyCode() == Keyboard.KEY_ESCAPE)
+        && current_armory
+        && current_submenu == build_group) {
+            build_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+    } else if ((event.getKeyCode() == settings.getKeybind(Globals.KB_BACK_CANCEL)
+            || event.getKeyCode() == Keyboard.KEY_ESCAPE)
+        && current_armory
+        && current_submenu == army_group) {
+            army_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+    } else if ((event.getKeyCode() == settings.getKeybind(Globals.KB_BACK_CANCEL)
+            || event.getKeyCode() == Keyboard.KEY_ESCAPE)
+        && current_armory
+        && current_submenu == transport_group) {
+            transport_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
         }
         return false;
     }
 
     public final boolean doKeyReleased(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_C:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_rubber_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_rubber_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_rubber_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_rubber_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_P:
-                if (current_quarters) {
-                    quarters_peon_button.shortcutReleased(
-                            event.isShiftDown(), event.isControlDown());
-                    return true;
-                }
-                if (current_armory) {
-                    if (current_submenu == army_group) {
-                        army_peon_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_I:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_iron_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_iron_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_iron_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_iron_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_R:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_rock_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == build_group) {
-                        build_weapon_rock_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == army_group) {
-                        army_warrior_rock_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_rock_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_T:
-                if (current_armory) {
-                    if (current_submenu == null) {
-                        transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            case Keyboard.KEY_W:
-                if (current_armory) {
-                    if (current_submenu == harvest_group) {
-                        harvest_tree_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else if (current_submenu == transport_group) {
-                        transport_tree_button.shortcutReleased(
-                                event.isShiftDown(), event.isControlDown());
-                    } else {
-                        break;
-                    }
-                    return true;
-                }
-                break;
-            default:
-                break;
+        Settings settings = Settings.getSettings();
+
+        if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_CHICKEN)
+                && current_armory
+                && current_submenu == harvest_group) {
+            harvest_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode()
+                        == settings.getKeybind(Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON)
+                && current_armory
+                && current_submenu == build_group) {
+            build_weapon_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode()
+                        == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS)
+                && current_armory
+                && current_submenu == army_group) {
+            army_warrior_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_CHICKEN)
+                && current_armory
+                && current_submenu == transport_group) {
+            transport_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_DEPLOY_PEON)
+                && current_quarters) {
+            quarters_peon_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_PEON)
+                && current_armory
+                && current_submenu == army_group) {
+            army_peon_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_IRON)
+                && current_armory
+                && current_submenu == harvest_group) {
+            harvest_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_CREATE_IRON_WEAPON)
+                && current_armory
+                && current_submenu == build_group) {
+            build_weapon_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS)
+                && current_armory
+                && current_submenu == army_group) {
+            army_warrior_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_IRON)
+                && current_armory
+                && current_submenu == transport_group) {
+            transport_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_ROCK)
+                && current_armory
+                && current_submenu == harvest_group) {
+            harvest_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_CREATE_ROCK_WEAPON)
+                && current_armory
+                && current_submenu == build_group) {
+            build_weapon_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS)
+                && current_armory
+                && current_submenu == army_group) {
+            army_warrior_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_ROCK)
+                && current_armory
+                && current_submenu == transport_group) {
+            transport_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT)
+                && current_armory
+                && current_submenu == null) {
+            transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_TREE)
+                && current_armory
+                && current_submenu == harvest_group) {
+            harvest_tree_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
+        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_TRANSPORT_TREE)
+                && current_armory
+                && current_submenu == transport_group) {
+            transport_tree_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+            return true;
         }
         return false;
     }
@@ -1312,7 +1381,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                     .mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
     }
 
-    private final strictfp class TargetListener implements MouseClickListener {
+    private final class TargetListener implements MouseClickListener {
         private final int action;
 
         public TargetListener(int action) {
@@ -1324,7 +1393,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
     }
 
-    private final strictfp class GroupListener implements MouseClickListener {
+    private final class GroupListener implements MouseClickListener {
         private final Group remove_group;
         private final Group add_group;
 
@@ -1341,14 +1410,14 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
     }
 
-    private final strictfp class CancelListener implements MouseClickListener {
+    private final class CancelListener implements MouseClickListener {
         public final void mouseClicked(int button, int x, int y, int clicks) {
             removeGroups();
             update = true;
         }
     }
 
-    private final strictfp class TowerExitListener implements MouseClickListener {
+    private final class TowerExitListener implements MouseClickListener {
         public final void mouseClicked(int button, int x, int y, int clicks) {
             if (!current_building.isDead())
                 viewer.getPeerHub().getPlayerInterface().exitTower(current_building);
@@ -1357,7 +1426,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
     }
 
-    private final strictfp class RallyPointListener implements MouseClickListener {
+    private final class RallyPointListener implements MouseClickListener {
         public final void mouseClicked(int button, int x, int y, int clicks) {
             if (!current_building.isDead())
                 viewer.getGUIRoot()
@@ -1367,7 +1436,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
     }
 
-    private final strictfp class ChieftainDisabler implements IconDisabler {
+    private final class ChieftainDisabler implements IconDisabler {
         private final Building building;
 
         public ChieftainDisabler(Building building) {
@@ -1379,7 +1448,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
     }
 
-    private final strictfp class MagicDisabler implements IconDisabler {
+    private final class MagicDisabler implements IconDisabler {
         private final Unit unit;
         private final int magic_index;
 
@@ -1393,7 +1462,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
     }
 
-    private final strictfp class EmptySupplyDisabler implements IconDisabler {
+    private final class EmptySupplyDisabler implements IconDisabler {
         private final SupplyCounter[] counters;
 
         public EmptySupplyDisabler(SupplyCounter[] counters) {
@@ -1408,7 +1477,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
     }
 
-    private final strictfp class TowerActionDisabler implements IconDisabler {
+    private final class TowerActionDisabler implements IconDisabler {
         private final Building building;
         private final boolean exit;
 
@@ -1423,7 +1492,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
     }
 
-    private final strictfp class BuildingDisabler implements IconDisabler {
+    private final class BuildingDisabler implements IconDisabler {
         private final int building;
 
         public BuildingDisabler(int building) {
@@ -1435,7 +1504,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
     }
 
-    private final strictfp class TowerPlaceListener implements MouseClickListener {
+    private final class TowerPlaceListener implements MouseClickListener {
         public final void mouseClicked(int button, int x, int y, int clicks) {
             if (!Renderer.isRegistered()) {
                 ResourceBundle db = ResourceBundle.getBundle(DemoForm.class.getName());
@@ -1455,7 +1524,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
     }
 
-    private final strictfp class ShipPlaceListener implements MouseClickListener {
+    private final class ShipPlaceListener implements MouseClickListener {
         public final void mouseClicked(int button, int x, int y, int clicks) {
             viewer.getGUIRoot()
                     .pushDelegate(
@@ -1463,7 +1532,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         }
     }
 
-    private final strictfp class PlaceListener implements MouseClickListener {
+    private final class PlaceListener implements MouseClickListener {
         private final int building_index;
 
         public PlaceListener(int building_index) {
@@ -1473,6 +1542,37 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         public final void mouseClicked(int button, int x, int y, int clicks) {
             viewer.getGUIRoot()
                     .pushDelegate(new PlacingDelegate(viewer, camera.getState(), building_index));
+        }
+    }
+
+    // Compose two disablers: disabled if either says disabled
+    private final class CombinedDisabler implements IconDisabler {
+        private final IconDisabler a;
+        private final IconDisabler b;
+
+        public CombinedDisabler(IconDisabler a, IconDisabler b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public final boolean isDisabled() {
+            return (a != null && a.isDisabled()) || (b != null && b.isDisabled());
+        }
+    }
+
+    // Disables when the unit type is not allowed by game mode
+    private final class UnitAllowedDisabler implements IconDisabler {
+        private final int unitIndex;
+
+        public UnitAllowedDisabler(int unitIndex) {
+            this.unitIndex = unitIndex;
+        }
+
+        public final boolean isDisabled() {
+            GameModeOptions mode = viewer.getWorld().getGameModeOptions();
+            if (mode == null) return false;
+            if (unitIndex < 0 || unitIndex >= mode.allowedUnits.length) return false;
+            return !mode.allowedUnits[unitIndex];
         }
     }
 }

@@ -36,7 +36,10 @@ public final strictfp class IdleController extends Controller {
                 MIN_SCAN_DELAY
                         + unit.getOwner().getWorld().getRandom().nextFloat()
                                 * (MAX_SCAN_DELAY - MIN_SCAN_DELAY);
-        if (unit.getAbilities().hasAbilities(Abilities.ATTACK)) unit.scanVicinity(scan_filter);
+    // During peace time, do not acquire attack targets automatically
+    if (!unit.getOwner().getWorld().isPeaceTime()
+        && unit.getAbilities().hasAbilities(Abilities.ATTACK))
+        unit.scanVicinity(scan_filter);
         Selectable s = scan_filter.removeTarget();
         if (s != null) {
             if (can_move)

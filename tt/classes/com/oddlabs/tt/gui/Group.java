@@ -16,8 +16,45 @@ public strictfp class Group extends GUIObject {
         compileCanvas(0, 0, 0, 0);
     }
 
+    /**
+     * Places all children of the group within the specified offsets.
+     *
+     * @param left_offset - left margin
+     * @param bottom_offset - bottom margin
+     * @param right_offset - right margin
+     * @param top_offset - top margin
+     * @param keep_dim - whether to keep the current dimensions of the group or to auto-calculate it
+     *     based on the width and height of children controls
+     */
+    public void compileCanvas(
+            int left_offset,
+            int bottom_offset,
+            int right_offset,
+            int top_offset,
+            boolean auto_size) {
+        doCompileCanvas(left_offset, bottom_offset, right_offset, top_offset, auto_size);
+    }
+
+    /**
+     * Compiles the canvas for the group using the children of the group to determine the width and
+     * height / dimensions of the group
+     *
+     * @param left_offset - left margin
+     * @param bottom_offset - bottom margin
+     * @param right_offset - right margin
+     * @param top_offset - top margin
+     */
     public void compileCanvas(
             int left_offset, int bottom_offset, int right_offset, int top_offset) {
+        doCompileCanvas(left_offset, bottom_offset, right_offset, top_offset, true);
+    }
+
+    private void doCompileCanvas(
+            int left_offset,
+            int bottom_offset,
+            int right_offset,
+            int top_offset,
+            boolean auto_size) {
         // tl = Top Left and br = Bottom Right
         int min_x_tl = 0;
         int min_y_tl = 0;
@@ -57,7 +94,6 @@ public strictfp class Group extends GUIObject {
             }
             current = current.getNext();
         }
-
         // find the width and height of the group
         int top_left_width = max_x_tl - min_x_tl + left_offset + right_offset;
         int bottom_right_width = max_x_br - min_x_br + left_offset + right_offset;
@@ -65,17 +101,23 @@ public strictfp class Group extends GUIObject {
         int height = (max_y_tl - min_y_tl) + (max_y_br - min_y_br) + top_offset + bottom_offset;
         if (origin_top_left && origin_bottom_right)
             height += Skin.getSkin().getFormData().getSectionSpacing();
-        setDim(width, height);
 
-        // correct the objects positions.
+        // If autosize is on OR the current set width / height is not big enough to fit all the
+        // children
+        if (auto_size || getWidth() < width || getHeight() < height) {
+            // find the width and height of the group
+            setDim(width, height);
+        }
+
+        // correct the objects positions (using current dimensions)
         current = getFirstChild();
         while (current != null) {
             GUIObject gui_object = (GUIObject) current;
-
             if (gui_object.getOrigin() == ORIGIN_TOP_LEFT) {
-                gui_object.correctPos(-min_x_tl + left_offset, height - max_y_tl - top_offset);
+                gui_object.correctPos(-min_x_tl + left_offset, getHeight() - max_y_tl - top_offset);
             } else {
-                gui_object.correctPos(width - max_x_br - right_offset, -min_y_br + bottom_offset);
+                gui_object.correctPos(
+                        getWidth() - max_x_br - right_offset, -min_y_br + bottom_offset);
             }
             current = current.getNext();
         }
@@ -99,15 +141,4 @@ public strictfp class Group extends GUIObject {
     }
 
     protected void renderGeometry() {}
-
-    /*
-    	public final void correctPos(int dx, int dy) {
-    		setPos(getX() + dx, getY() + dy);
-    		ListElement current = getLastChild();
-    		while (current != null) {
-    			((GUIObject)current).correctPosRecurseGroup(getX(), getY());
-    			current = current.getPrior();
-    		}
-    	}
-    */
 }

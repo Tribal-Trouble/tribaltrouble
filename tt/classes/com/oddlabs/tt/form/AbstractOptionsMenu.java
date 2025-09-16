@@ -3,6 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.input.Mouse;
 import com.oddlabs.tt.gui.CancelListener;
 import com.oddlabs.tt.gui.CheckBox;
 import com.oddlabs.tt.gui.ColumnInfo;
@@ -77,6 +78,7 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         Panel display = new Panel(Utils.getBundleString(bundle, "graphics_caption"));
         Panel sound = new Panel(Utils.getBundleString(bundle, "sound_caption"));
         Panel language = new Panel(Utils.getBundleString(bundle, "language_caption"));
+        Panel controls = new ControlsPanel(gui_root, "Controls");
         Panel report_bug = new Panel(Utils.getBundleString(bundle, "report_bug_caption"));
 
         // Sound
@@ -208,35 +210,36 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         pb_detail.place(label_detail, BOTTOM_LEFT);
         group_detail.compileCanvas();
 
-        // Mapmode delay
-        Group group_mapmode = new Group();
-        general.addChild(group_mapmode);
-        Label label_mapmode_headline =
-                new Label(
-                        Utils.getBundleString(bundle, "map_mode_delay"),
-                        Skin.getSkin().getEditFont());
-        group_mapmode.addChild(label_mapmode_headline);
-        Label label_mapmode_none =
-                new Label(
-                        Utils.getBundleString(bundle, "delay_none"), Skin.getSkin().getEditFont());
-        group_mapmode.addChild(label_mapmode_none);
-        Label label_mapmode_high =
-                new Label(
-                        Utils.getBundleString(bundle, "delay_high"), Skin.getSkin().getEditFont());
-        group_mapmode.addChild(label_mapmode_high);
-        Slider slider_mapmode =
-                new Slider(
-                        SLIDER_WIDTH,
-                        0,
-                        MAX_VALUE,
-                        (int) (Settings.getSettings().mapmode_delay * (MAX_VALUE)));
-        group_mapmode.addChild(slider_mapmode);
-        slider_mapmode.addValueListener(new SliderMapmodeListener());
-        label_mapmode_headline.place();
-        label_mapmode_none.place(label_mapmode_headline, BOTTOM_LEFT);
-        slider_mapmode.place(label_mapmode_none, RIGHT_MID);
-        label_mapmode_high.place(slider_mapmode, RIGHT_MID);
-        group_mapmode.compileCanvas();
+    // Mouse sensitivity (moved here from Camera panel)
+    Group group_mouse_sens = new Group();
+    general.addChild(group_mouse_sens);
+    Label label_mouse_headline = new Label("Mouse sensitivity", Skin.getSkin().getEditFont());
+    group_mouse_sens.addChild(label_mouse_headline);
+    Label label_mouse_low =
+        new Label(Utils.getBundleString(bundle, "low"), Skin.getSkin().getEditFont());
+    group_mouse_sens.addChild(label_mouse_low);
+    Label label_mouse_high =
+        new Label(Utils.getBundleString(bundle, "high"), Skin.getSkin().getEditFont());
+    group_mouse_sens.addChild(label_mouse_high);
+    // Map 0.2..3.0 to slider range
+    float sens = Settings.getSettings().mouse_sensitivity;
+    float sens_clamped = Math.max(0.2f, Math.min(3.0f, sens));
+    int sens_init = (int) StrictMath.round(((sens_clamped - 0.2f) / (3.0f - 0.2f)) * MAX_VALUE);
+    Slider slider_mouse = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, sens_init);
+    group_mouse_sens.addChild(slider_mouse);
+    slider_mouse.addValueListener(
+        new ValueListener() {
+            public void valueSet(int value) {
+            float t = (float) value / (float) MAX_VALUE;
+            Settings.getSettings().mouse_sensitivity = 0.2f + t * (3.0f - 0.2f);
+            Mouse.updateSensitivity();
+            }
+        });
+    label_mouse_headline.place();
+    label_mouse_low.place(label_mouse_headline, BOTTOM_LEFT);
+    slider_mouse.place(label_mouse_low, RIGHT_MID);
+    label_mouse_high.place(slider_mouse, RIGHT_MID);
+    group_mouse_sens.compileCanvas();
 
         // Tooltip delay
         Group group_tooltip = new Group();
@@ -364,9 +367,9 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         addChild(button_about);
 
         // general panel
-        group_gamespeed.place();
-        group_mapmode.place(group_gamespeed, BOTTOM_LEFT);
-        group_tooltip.place(group_mapmode, BOTTOM_LEFT);
+    group_gamespeed.place();
+    group_mouse_sens.place(group_gamespeed, BOTTOM_LEFT);
+    group_tooltip.place(group_mouse_sens, BOTTOM_LEFT);
         group_invert_camera.place(group_tooltip, BOTTOM_LEFT);
         group_aggressive_units.place(group_invert_camera, BOTTOM_LEFT);
 
@@ -441,9 +444,9 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
 
         Panel[] panels;
         if (Settings.getSettings().hide_bugreporter) {
-            panels = new Panel[] {general, display, sound, language};
+            panels = new Panel[] {general, display, sound, language, controls};
         } else {
-            panels = new Panel[] {general, display, sound, language, report_bug};
+            panels = new Panel[] {general, display, sound, language, controls, report_bug};
         }
 
         PanelGroup panel_group = new PanelGroup(panels, 0);
@@ -702,12 +705,7 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         }
     }
 
-    private final strictfp class SliderMapmodeListener implements ValueListener {
-
-        public final void valueSet(int value) {
-            Settings.getSettings().mapmode_delay = (float) value / (MAX_VALUE);
-        }
-    }
+    // (Map mode delay listener moved to CameraPanel)
 
     private final strictfp class SliderTooltipListener implements ValueListener {
 

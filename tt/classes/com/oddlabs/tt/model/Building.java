@@ -6,6 +6,7 @@ import com.oddlabs.tt.gui.BuildSpinner;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
+import com.oddlabs.tt.landscape.GameModeOptions;
 import com.oddlabs.tt.model.behaviour.AttackController;
 import com.oddlabs.tt.model.behaviour.GatherController;
 import com.oddlabs.tt.model.behaviour.NullController;
@@ -308,6 +309,58 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
 
     public final void deployUnits(int type, int num_units) {
         assert !isDead();
+        // Enforce unit allowlist from game mode options
+        GameModeOptions mode = getOwner().getWorld().getGameModeOptions();
+        if (mode != null) {
+            boolean allow = true;
+            switch (type) {
+                case KEY_DEPLOY_ROCK_WARRIOR:
+                    allow = mode.allowedUnits[Race.UNIT_WARRIOR_ROCK];
+                    break;
+                case KEY_DEPLOY_IRON_WARRIOR:
+                    allow = mode.allowedUnits[Race.UNIT_WARRIOR_IRON];
+                    break;
+                case KEY_DEPLOY_RUBBER_WARRIOR:
+                    allow = mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+                    break;
+                case KEY_DEPLOY_PEON:
+                case KEY_DEPLOY_PEON_HARVEST_TREE:
+                case KEY_DEPLOY_PEON_TRANSPORT_TREE:
+                case KEY_DEPLOY_PEON_HARVEST_ROCK:
+                case KEY_DEPLOY_PEON_TRANSPORT_ROCK:
+                case KEY_DEPLOY_PEON_HARVEST_IRON:
+                case KEY_DEPLOY_PEON_TRANSPORT_IRON:
+                case KEY_DEPLOY_PEON_HARVEST_RUBBER:
+                case KEY_DEPLOY_PEON_TRANSPORT_RUBBER:
+                    allow = mode.allowedUnits[Race.UNIT_PEON];
+                    break;
+                default:
+                    break;
+            }
+            // Additional resource-specific gating for harvesters (wood always allowed).
+            // If chicken warriors are enabled, allow gathering of all resources.
+            if (allow) {
+                boolean chickenEnabled = mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+                switch (type) {
+                    case KEY_DEPLOY_PEON_HARVEST_TREE:
+                        // Wood always allowed
+                        allow = true;
+                        break;
+                    case KEY_DEPLOY_PEON_HARVEST_ROCK:
+                        allow = chickenEnabled || mode.allowedUnits[Race.UNIT_WARRIOR_ROCK];
+                        break;
+                    case KEY_DEPLOY_PEON_HARVEST_IRON:
+                        allow = chickenEnabled || mode.allowedUnits[Race.UNIT_WARRIOR_IRON];
+                        break;
+                    case KEY_DEPLOY_PEON_HARVEST_RUBBER:
+                        allow = chickenEnabled || mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+                        break;
+                    default:
+                        break; // no extra gating for transports here
+                }
+            }
+            if (!allow) return;
+        }
         getOwner().getWorld().updateGlobalChecksum(type);
         getOwner().getWorld().updateGlobalChecksum(num_units);
         getDeployContainer(type).orderSupply(num_units);
@@ -333,6 +386,19 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
 
     public final void buildWeapons(Class type, int num_weapons, boolean infinite) {
         assert !isDead();
+        // Enforce weapon production based on allowed unit types
+        GameModeOptions mode = getOwner().getWorld().getGameModeOptions();
+        if (mode != null) {
+            boolean allow = true;
+            if (type == RockAxeWeapon.class || type == RockSpearWeapon.class) {
+                allow = mode.allowedUnits[Race.UNIT_WARRIOR_ROCK];
+            } else if (type == IronAxeWeapon.class || type == IronSpearWeapon.class) {
+                allow = mode.allowedUnits[Race.UNIT_WARRIOR_IRON];
+            } else if (type == RubberAxeWeapon.class || type == RubberSpearWeapon.class) {
+                allow = mode.allowedUnits[Race.UNIT_WARRIOR_RUBBER];
+            }
+            if (!allow) return;
+        }
         if (infinite) getOwner().getWorld().updateGlobalChecksum(num_weapons);
         else getOwner().getWorld().updateGlobalChecksum(1000000);
         ((BuildProductionContainer) getBuildSupplyContainer(type))

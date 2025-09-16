@@ -98,19 +98,27 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
         ScrollableGroup names = new ScrollableGroup(600, 50);
         GUIObject last_name = null;
         GUIObject last_race = null;
-
+    Group teams = new Group();
+        // Optional peace timer anchored at top-left of the screen (menu root), not inside centered group
+        if (viewer.getWorld().isPeaceTime()) {
+            int remaining = viewer.getWorld().getPeaceRemainingSeconds();
+            int mm = remaining / 60;
+            int ss = remaining % 60;
+            String peace = String.format("peace: %d:%02d", mm, ss);
+            Label peaceLabel = new Label(peace, Skin.getSkin().getHeadlineFont());
+            menu.addChild(peaceLabel);
+            peaceLabel.setPos(0, 0);
+        }
         ArrayList<Label> labels = new ArrayList<>();
         int largestLabel = 0;
         for (int i = 0; i < players.length; i++) {
             PlayerInfo player_info = players[i].getPlayerInfo();
             Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont());
             labels.add(name);
-            System.out.println("Name: " + name.getWidth());
             if (name.getWidth() > largestLabel) {
                 largestLabel = name.getWidth();
             }
         }
-
         for (int i = 0; i < players.length; i++) {
             PlayerInfo player_info = players[i].getPlayerInfo();
             float[] color = players[i].getColor();
@@ -144,16 +152,9 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
         }
         names.compileCanvas();
 
-        game_infos.addChild(names);
-
-        // A button with no width (hidden) - this prevents the focus from getting in an infinite
-        // loop
-        // when there is 0 focusable children in the game_infos group and the 'quit game' is opened
-        // TODO: Provide a more appropriate fix for this instead of this work around
-        OKButton okayBtn = new OKButton(0);
-        okayBtn.place();
-        game_infos.addChild(okayBtn);
-
+    game_infos.addChild(names);
+        game_infos.addChild(teams);
+        // Centered player info block (peace label is independent at top-left)
         names.place();
 
         game_infos.compileCanvas();
@@ -169,6 +170,8 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
             TerrainMenu menu =
                     new TerrainMenu(viewer.getNetwork(), viewer.getGUIRoot(), null, false, null);
             menu.parseMapcode(viewer.getParameters().getMapcode());
+            // Re-apply previous game parameters (including peace time) before starting
+            menu.applyWorldParameters(viewer.getParameters());
             menu.startGame();
         } else Renderer.startMenu(viewer.getNetwork(), viewer.getGUIRoot().getGUI());
     }
