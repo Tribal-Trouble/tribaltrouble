@@ -137,8 +137,23 @@ public strictfp class Group extends GUIObject {
 
     public void setGroupFocus(int dir) {
         setFocus();
-        switchFocus(dir);
+        // Only attempt to switch focus into children if at least one child can receive focus.
+        if (hasFocusableChildren()) {
+            switchFocus(dir);
+        }
     }
 
     protected void renderGeometry() {}
+
+    private boolean hasFocusableChildren() {
+        ListElement current = getFirstChild();
+        while (current != null) {
+            if (current instanceof GUIObject) {
+                GUIObject child = (GUIObject) current;
+                if (child.canFocus()) return true;
+            }
+            current = current.getNext();
+        }
+        return false;
+    }
 }

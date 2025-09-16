@@ -98,7 +98,6 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
         ScrollableGroup names = new ScrollableGroup(600, 50);
         GUIObject last_name = null;
         GUIObject last_race = null;
-    Group teams = new Group();
         // Optional peace timer anchored at top-left of the screen (menu root), not inside centered group
         if (viewer.getWorld().isPeaceTime()) {
             int remaining = viewer.getWorld().getPeaceRemainingSeconds();
@@ -152,8 +151,7 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
         }
         names.compileCanvas();
 
-    game_infos.addChild(names);
-        game_infos.addChild(teams);
+        game_infos.addChild(names);
         // Centered player info block (peace label is independent at top-left)
         names.place();
 

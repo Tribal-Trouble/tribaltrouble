@@ -433,6 +433,7 @@ public final class TerrainMenu extends Group {
     building_allow_checks[Race.BUILDING_QUARTERS] = new CheckBox(true, "Quarters");
     building_allow_checks[Race.BUILDING_ARMORY] = new CheckBox(true, "Armory");
     building_allow_checks[Race.BUILDING_TOWER] = new CheckBox(true, "Tower");
+    building_allow_checks[Race.BUILDING_SHIP] = new CheckBox(true, "Ship");
     // We'll add these to a column group below rather than directly to group_game_mode
 
         // Objectives placeholder button
@@ -475,10 +476,11 @@ public final class TerrainMenu extends Group {
         group_buildings_col.addChild(label_buildings);
         label_buildings.place();
         // Place building checkboxes in a vertical column under label
-        // Note: building_allow_checks contains exactly 3 entries at indices defined by Race
+    // Note: building_allow_checks contains entries at indices defined by Race (including Ship)
         building_allow_checks[Race.BUILDING_QUARTERS].place(label_buildings, BOTTOM_LEFT);
         building_allow_checks[Race.BUILDING_ARMORY].place(building_allow_checks[Race.BUILDING_QUARTERS], BOTTOM_LEFT);
         building_allow_checks[Race.BUILDING_TOWER].place(building_allow_checks[Race.BUILDING_ARMORY], BOTTOM_LEFT);
+    building_allow_checks[Race.BUILDING_SHIP].place(building_allow_checks[Race.BUILDING_TOWER], BOTTOM_LEFT);
         for (int i = 0; i < building_allow_checks.length; i++) group_buildings_col.addChild(building_allow_checks[i]);
         group_buildings_col.compileCanvas();
         group_game_mode.addChild(group_buildings_col);

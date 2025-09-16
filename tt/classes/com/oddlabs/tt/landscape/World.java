@@ -98,19 +98,31 @@ public final strictfp class World {
         ProgressForm.progress(1 / 5f);
         ProgressForm.progress();
         Player[] players = world.getPlayers();
+        int startCount = world_info.starting_locations != null ? world_info.starting_locations.length : 0;
         for (short i = 0; i < players.length; i++) {
             Player player = players[i];
             assert player != null;
-            player.init(world_info.starting_locations[i]);
+            float[] start = (startCount > 0)
+                ? world_info.starting_locations[Math.min(i, startCount - 1)]
+                : new float[] {0f, 0f};
+            player.init(start);
         }
         // Apply allowlists to players (buildings, chieftain ability)
         GameModeOptions mode = world.getGameModeOptions();
-        for (int i = 0; i < players.length; i++) {
-            for (int b = 0; b < Race.NUM_BUILDINGS; b++) {
-                players[i].enableBuilding(b, mode.allowedBuildings[b]);
+        if (mode != null) {
+            for (int i = 0; i < players.length; i++) {
+                for (int b = 0; b < Race.NUM_BUILDINGS; b++) {
+                    boolean enable = (mode.allowedBuildings != null && b < mode.allowedBuildings.length)
+                            ? mode.allowedBuildings[b]
+                            : true;
+                    players[i].enableBuilding(b, enable);
+                }
+                // Gate chieftain training by unit allowlist
+                boolean allowChief = (mode.allowedUnits != null && Race.UNIT_CHIEFTAIN < mode.allowedUnits.length)
+                        ? mode.allowedUnits[Race.UNIT_CHIEFTAIN]
+                        : true;
+                players[i].enableChieftains(allowChief);
             }
-            // Gate chieftain training by unit allowlist
-            players[i].enableChieftains(mode.allowedUnits[Race.UNIT_CHIEFTAIN]);
         }
         return world;
     }
@@ -153,11 +165,11 @@ public final strictfp class World {
 
     public final void gamespeedChanged() {
         int new_gamespeed = GAMESPEED_DONTCARE;
-        for (int i = 0; i < players.length; i++) {
-            int gamespeed = players[i].getPreferredGamespeed();
-            if (gamespeed != GAMESPEED_DONTCARE) {
-                if (new_gamespeed != GAMESPEED_DONTCARE && gamespeed != new_gamespeed) return;
-                new_gamespeed = gamespeed;
+        for (Player p : players) {
+            int preferred = p.getPreferredGamespeed();
+            if (preferred != GAMESPEED_DONTCARE) {
+                if (new_gamespeed != GAMESPEED_DONTCARE && preferred != new_gamespeed) return;
+                new_gamespeed = preferred;
             }
         }
         if (new_gamespeed != GAMESPEED_DONTCARE && new_gamespeed != gamespeed) {
@@ -213,7 +225,7 @@ public final strictfp class World {
     }
         long time_start = System.currentTimeMillis();
 
-        int num_players = player_infos.length;
+    // number of players is implied by player_infos
 
         world =
                 new HeightMap(
@@ -234,16 +246,18 @@ public final strictfp class World {
         animation_manager_real_time = new AnimationManager();
         random = new Random(42);
 
-        List participant_list = new ArrayList();
-        List player_list = new ArrayList();
+    List<Player> player_list = new ArrayList<Player>();
+        int colorCount = colors != null ? colors.length : 0;
         for (short i = 0; i < player_infos.length; i++) {
-            //			slot_to_participant_index[i] = -1;
-            Player player = new Player(this, player_infos[i], colors[i]);
+            //		slot_to_participant_index[i] = -1;
+                float[] color = (colorCount > 0)
+                        ? colors[Math.min(i, colorCount - 1)]
+                        : Player.COLORS[i % Player.COLORS.length];
+                Player player = new Player(this, player_infos[i], color);
             player_list.add(player);
         }
 
-        players = new Player[player_list.size()];
-        player_list.toArray(players);
+    players = player_list.toArray(new Player[player_list.size()]);
 
         long time_stop = System.currentTimeMillis();
         System.out.println(
@@ -291,7 +305,7 @@ public final strictfp class World {
         return unit_grid;
     }
 
-    public final SupplyManager getSupplyManager(Class cl) {
+    public final SupplyManager getSupplyManager(Class<?> cl) {
         return supply_managers.getSupplyManager(cl);
     }
 

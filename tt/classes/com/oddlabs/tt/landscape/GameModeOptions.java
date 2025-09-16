@@ -1,8 +1,10 @@
 package com.oddlabs.tt.landscape;
 
+import com.oddlabs.tt.model.Race;
+
 public final class GameModeOptions {
     private static final int UNIT_TYPES = 5; // rock/iron/rubber warriors, peon, chieftain
-    private static final int BUILDING_TYPES = 3; // quarters, armory, tower
+    private static final int BUILDING_TYPES = Race.NUM_BUILDINGS; // quarters, armory, tower, ship
     public final boolean peaceEnabled;
     // Duration in seconds for peace mode
     public final int peaceSeconds;
