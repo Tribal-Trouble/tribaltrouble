@@ -86,7 +86,9 @@ public final class PlayersSection extends Group {
         }
 
         // Players grid (scrollable): label + [human/ai] [race] [team]
-        ScrollableGroup group_race_team = new ScrollableGroup(200, 64);
+    ScrollableGroup group_race_team = new ScrollableGroup(200, 64);
+    // Make scrollbar appear with thumb at the visual top, while content order stays the same
+    group_race_team.setInvertedScrollbar(true);
         labels_players = new Label[MatchmakingServerInterface.MAX_PLAYERS];
         difficulty_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
         race_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];

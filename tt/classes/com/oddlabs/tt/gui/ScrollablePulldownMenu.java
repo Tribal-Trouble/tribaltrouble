@@ -4,6 +4,8 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
     private ScrollBar scroll_bar;
     private int offset_y = 0; // Tracks the vertical offset for scrolling
     private int render_amount = 6;
+    // Invert visual thumb mapping by default so thumb rests at top for top-most content
+    private boolean inverted_scrollbar = true;
 
     public ScrollablePulldownMenu(int render_amount) {
         super();
@@ -162,14 +164,16 @@ public final strictfp class ScrollablePulldownMenu extends PulldownMenu implemen
     public final float getScrollBarOffset() {
         int maxOffset = getTotalContentHeight() - getVisibleHeight();
         if (maxOffset <= 0) return 0.0f;
-        return offset_y / (float) maxOffset;
+        float norm = offset_y / (float) maxOffset;
+        return inverted_scrollbar ? (1.0f - norm) : norm;
     }
 
     @Override
     public final void setScrollBarOffset(float offset) {
         int maxOffset = getTotalContentHeight() - getVisibleHeight();
         if (maxOffset > 0) {
-            setOffsetY((int) (offset * maxOffset));
+            float norm = inverted_scrollbar ? (1.0f - offset) : offset;
+            setOffsetY((int) (norm * maxOffset));
         } else {
             setOffsetY(0);
         }

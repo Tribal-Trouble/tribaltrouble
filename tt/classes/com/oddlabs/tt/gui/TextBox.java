@@ -108,7 +108,11 @@ public strictfp class TextBox extends TextField implements Scrollable {
         int inner_height = getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset();
         int offset_height = offset_y + inner_height;
         int length = StrictMath.max(text_height, offset_height);
-        return offset_y / (float) (length - inner_height);
+        float denom = (float) (length - inner_height);
+        if (denom <= 0f) return 0f;
+        float norm = offset_y / denom;
+        // Invert mapping so thumb is at the top when content is at the top
+        return 1.0f - norm;
     }
 
     public final void setScrollBarOffset(float offset) {
@@ -117,7 +121,8 @@ public strictfp class TextBox extends TextField implements Scrollable {
         int inner_height = getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset();
         int offset_height = offset_y + inner_height;
         int length = StrictMath.max(text_height, offset_height);
-        offset_y = (int) (offset * (length - inner_height));
+        float norm = 1.0f - offset; // inverted mapping
+        offset_y = (int) (norm * (length - inner_height));
         if (offset_y < 0) offset_y = 0;
         else if (offset_y > length - inner_height) offset_y = length - inner_height;
     }

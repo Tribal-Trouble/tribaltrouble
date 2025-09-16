@@ -398,6 +398,8 @@ public final class TerrainMenu extends Group {
 
     // races and teams (legacy single-player UI; multiplayer does not use this block)
     ScrollableGroup group_race_team = new ScrollableGroup(200, 64);
+    // Invert scrollbar visually to place thumb at top while keeping content order
+    group_race_team.setInvertedScrollbar(true);
         // --- Game Mode Panel ---
         Group group_game_mode = new Group();
         // Peace time row

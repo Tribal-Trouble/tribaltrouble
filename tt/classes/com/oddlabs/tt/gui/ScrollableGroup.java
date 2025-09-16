@@ -12,6 +12,8 @@ public class ScrollableGroup extends Group implements Scrollable {
     private int scroll_bar_left_margin = 0;
     // Where the scrollbar is currently
     private int offset_y = 0; // Tracks the vertical offset for scrolling
+    // When true, invert the scrollbar's visual mapping (thumb/top vs bottom), keeping content logic the same
+    private boolean inverted_scrollbar = true;
 
     public ScrollableGroup(int content_height, int scroll_bar_left_margin) {
         setCanFocus(true);
@@ -130,14 +132,16 @@ public class ScrollableGroup extends Group implements Scrollable {
     public final float getScrollBarOffset() {
         int maxOffset = getTotalContentHeight() - getVisibleHeight();
         if (maxOffset <= 0) return 0.0f;
-        return offset_y / (float) maxOffset;
+        float norm = offset_y / (float) maxOffset;
+        return inverted_scrollbar ? (1.0f - norm) : norm;
     }
 
     @Override
     public final void setScrollBarOffset(float offset) {
         int maxOffset = getTotalContentHeight() - getVisibleHeight();
         if (maxOffset > 0) {
-            setOffsetY((int) (offset * maxOffset));
+            float norm = inverted_scrollbar ? (1.0f - offset) : offset;
+            setOffsetY((int) (norm * maxOffset));
         } else {
             setOffsetY(0);
         }
@@ -209,5 +213,14 @@ public class ScrollableGroup extends Group implements Scrollable {
         GL11.glEnd();
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
         GL11.glBegin(GL11.GL_QUADS);
+    }
+
+    /**
+     * Invert the scrollbar thumb direction and default position visually,
+     * without changing content ordering or scroll semantics.
+     */
+    public void setInvertedScrollbar(boolean inverted) {
+        this.inverted_scrollbar = inverted;
+        if (scroll_bar != null) scroll_bar.update();
     }
 }

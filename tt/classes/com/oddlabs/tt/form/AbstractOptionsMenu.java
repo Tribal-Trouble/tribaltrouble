@@ -342,9 +342,9 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         language_list_box.selectRow(current_row);
         language_list_box.addRowListener(new LanguageListener());
 
-        language_group.addChild(language_list_box);
+    language_group.addChild(language_list_box);
         language_label.place();
-        language_list_box.place(language_label, BOTTOM_LEFT);
+    language_list_box.place(language_label, BOTTOM_LEFT);
         language_group.compileCanvas();
 
         // report bug
@@ -596,8 +596,8 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         if (current_row != null) mode_list_box.selectRow(current_row);
 
         mode_list_box.addRowListener(new DisplayModeListener());
-        mode_group.addChild(mode_list_box);
-        mode_label.place();
+    mode_group.addChild(mode_list_box);
+    mode_label.place();
         mode_list_box.place(mode_label, BOTTOM_LEFT);
         mode_group.compileCanvas();
         return mode_group;
