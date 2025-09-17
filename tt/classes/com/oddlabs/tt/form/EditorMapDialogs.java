@@ -32,7 +32,7 @@ public final class EditorMapDialogs {
     private final EditLine authorEdit;
     private final TextBox descBox;
         private final Label errorLabel;
-        private final Label metaLabel;
+    private final Label metaLabel;
 
         public SaveDialog(GUIRoot guiRoot, World world, int terrainType) {
             this.guiRoot = guiRoot;
@@ -205,6 +205,7 @@ public final class EditorMapDialogs {
         private int chosenIndex = -1;
 
         private final Label metaLabel;
+    private com.oddlabs.tt.gui.GUIImage previewImage; // always present now
 
         public LoadDialog(GUIRoot guiRoot, World world, LandscapeRenderer lr, DefaultRenderer dr, int terrainType) {
             this(guiRoot, world, lr, dr, terrainType, null);
@@ -228,7 +229,9 @@ public final class EditorMapDialogs {
             listBox = new MultiColumnComboBox(guiRoot, infos, 300);
             addChild(listBox);
 
-            // Right panel widgets
+            // Right panel widgets (create preview first so layout can anchor meta under it)
+            previewImage = new GUIImage(256, 256, 0f,0f,1f,1f, com.oddlabs.tt.mapio.MapPreview.getBlankTexture());
+            addChild(previewImage);
             metaLabel = new Label("Select a .ttmap on the left.", Skin.getSkin().getEditFont(), 340);
             addChild(metaLabel);
 
@@ -245,7 +248,8 @@ public final class EditorMapDialogs {
             // Layout
             title.place();
             listBox.place(title, BOTTOM_LEFT);
-            metaLabel.place(listBox, RIGHT_TOP, Skin.getSkin().getFormData().getSectionSpacing());
+            previewImage.place(listBox, RIGHT_TOP, Skin.getSkin().getFormData().getSectionSpacing());
+            metaLabel.place(previewImage, BOTTOM_LEFT);
             cancel.place(metaLabel, BOTTOM_RIGHT);
             open.place(cancel, LEFT_MID);
 
@@ -296,6 +300,18 @@ public final class EditorMapDialogs {
                 if (sum.description != null && !sum.description.isEmpty()) sb.append("Desc: ").append(sum.description).append("\n");
                 sb.append("Size: ").append(sum.size).append(" gu, Terrain: ").append(sum.terrainType);
                 metaLabel.set(sb.toString());
+                try {
+                    com.oddlabs.tt.render.Texture tex = com.oddlabs.tt.mapio.MapPreview.getPreviewTexture(sum.file);
+                    // Replace the GUIImage instance (simplest way without modifying GUIImage API)
+                    int w = previewImage.getWidth();
+                    int h = previewImage.getHeight();
+                    removeChild(previewImage);
+                    previewImage = new GUIImage(w, h, 0f,0f,1f,1f, tex);
+                    addChild(previewImage);
+                    previewImage.place(listBox, RIGHT_TOP, Skin.getSkin().getFormData().getSectionSpacing());
+                    metaLabel.place(previewImage, BOTTOM_LEFT);
+                    compileCanvas(); // refresh geometry buffer to include updated image
+                } catch (Throwable ignore) {}
             } catch (Exception t) {
                 metaLabel.set("Preview failed: " + t.getMessage());
             }

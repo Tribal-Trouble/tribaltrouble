@@ -872,7 +872,7 @@ public final class MapIO {
             int magic = in.readInt();
             if (magic != MAGIC_TTMP) throw new IOException("Not a TT map file");
             int version = in.readInt();
-            if (version != VERSION_1) throw new IOException("Unsupported TT map version: " + version);
+            if (version != VERSION_1 && version != VERSION_2) throw new IOException("Unsupported TT map version: " + version);
             // Read sections until META found (or EOF)
             int metersPerWorld = 0, terrainType = 0, size = 0; float sea = 0f;
             String name = null, author = null, description = null;
