@@ -449,30 +449,12 @@ public final class TerrainMenu extends Group {
     building_allow_checks[Race.BUILDING_SHIP] = new CheckBox(true, "Ship");
     // We'll add these to a column group below rather than directly to group_game_mode
 
-        // Objectives placeholder button
+        // Objectives button (will be placed after caps row)
         button_objectives = new HorizButton("Objectives…", 140);
         button_objectives.setDisabled(true);
         group_game_mode.addChild(button_objectives);
 
-        // Layout for game mode group
-        // Peace time row + Objectives button aligned horizontally
-        cb_peace.place();
-        label_peace_mm.place(cb_peace, RIGHT_MID);
-        edit_peace_min.place(label_peace_mm, RIGHT_MID);
-        label_peace_ss.place(edit_peace_min, RIGHT_MID);
-        edit_peace_sec.place(label_peace_ss, RIGHT_MID);
-        // Objectives button on same row to the right of peace time controls
-        button_objectives.place(edit_peace_sec, RIGHT_MID);
-
-    // Max caps row (inline): [Max units][input]  [Max buildings][input]
-    label_max_units.place(cb_peace, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
-    edit_max_units.place(label_max_units, RIGHT_MID);
-    // Place buildings label to the right of the units input, with a little spacing
-    label_max_buildings.place(
-        edit_max_units, RIGHT_MID, Skin.getSkin().getFormData().getSectionSpacing());
-    edit_max_buildings.place(label_max_buildings, RIGHT_MID);
-
-        // Create column group for Units
+    // Create column group for Units
         Group group_units_col = new Group();
         group_units_col.addChild(label_units);
         label_units.place();
@@ -492,7 +474,7 @@ public final class TerrainMenu extends Group {
         group_units_col.compileCanvas();
         group_game_mode.addChild(group_units_col);
 
-        // Create column group for Buildings
+    // Create column group for Buildings
         Group group_buildings_col = new Group();
         group_buildings_col.addChild(label_buildings);
         label_buildings.place();
@@ -506,9 +488,29 @@ public final class TerrainMenu extends Group {
         group_buildings_col.compileCanvas();
         group_game_mode.addChild(group_buildings_col);
 
-    // Position columns side-by-side on the same row beneath max caps (anchor below the caps row)
-    group_units_col.place(label_max_units, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
-        group_buildings_col.place(group_units_col, RIGHT_TOP);
+        // Place Units column at origin (top-left of game mode group)
+        group_units_col.place();
+        // Place Buildings column to the right of Units column
+        group_buildings_col.place(group_units_col, RIGHT_TOP, Skin.getSkin().getFormData().getSectionSpacing());
+
+        // Layout horizontal caps row beneath tallest column
+        Group tallestColumn = (group_units_col.getHeight() >= group_buildings_col.getHeight()) ? group_units_col : group_buildings_col;
+        label_max_units.place(tallestColumn, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
+        edit_max_units.place(label_max_units, RIGHT_MID);
+        label_max_buildings.place(edit_max_units, RIGHT_MID, Skin.getSkin().getFormData().getSectionSpacing());
+        edit_max_buildings.place(label_max_buildings, RIGHT_MID);
+        // Place Objectives button below caps row
+        button_objectives.place(label_max_units, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
+
+    // Peace time horizontal row to the right of Objectives button
+        cb_peace.place(
+            button_objectives,
+            RIGHT_MID,
+            Skin.getSkin().getFormData().getSectionSpacing());
+        edit_peace_min.place(cb_peace, RIGHT_MID);
+        label_peace_mm.place(edit_peace_min, RIGHT_MID);
+        edit_peace_sec.place(label_peace_mm, RIGHT_MID);
+        label_peace_ss.place(edit_peace_sec, RIGHT_MID);
     group_game_mode.compileCanvas();
     panel_game_mode.addChild(group_game_mode);
     // Place the group inside the panel before compiling the panel to satisfy layout contract
