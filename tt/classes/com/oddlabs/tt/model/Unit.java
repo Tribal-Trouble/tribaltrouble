@@ -375,6 +375,20 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
         remove();
     }
 
+    // Editor-only immediate destruction helper (parity with Building.editorRemoveNow()).
+    // Ensures the unit is fully detached from world/render lists and transient effects are stopped
+    // even if invoked mid-behaviour without letting death / animation sequences play out.
+    public final void editorRemoveNow() {
+        if (!isDead()) {
+            try { removeDying(); } catch (Throwable ignore) {}
+        }
+        // Cancel transient visuals (already handled in removeDying but keep defensive)
+        try {
+            if (stun_marker != null) { stun_marker.done(); stun_marker = null; }
+        } catch (Throwable ignore) {}
+        try { remove(); } catch (Throwable ignore) {}
+    }
+
     public final void free() {
         assert !isDead();
         UnitGrid unit_grid = getUnitGrid();

@@ -1924,7 +1924,10 @@ public final class MapEditorSession {
                         boolean isDock = (dock != null && dock[uy][ux]);
                         boolean accessible = (access == null) || access[uy][ux];
                         if (isWater || isDock || !accessible) {
-                            try { u.removeNow(); removedUnits++; } catch (Throwable ignore) {}
+                            // Use editor immediate removal to avoid lingering visuals/selection artefacts
+                            try { u.editorRemoveNow(); removedUnits++; } catch (Throwable ex) {
+                                try { u.removeNow(); } catch (Throwable ignore) {}
+                            }
                             continue;
                         }
                         // Snap height by forcing reinsertion via setPosition same XY
@@ -2484,7 +2487,8 @@ public final class MapEditorSession {
                         if (occ instanceof com.oddlabs.tt.model.Unit) {
                             try {
                                 com.oddlabs.tt.model.Unit u = (com.oddlabs.tt.model.Unit) occ;
-                                u.removeNow(); // ensures proper cleanup and grid free
+                                // Editor immediate removal (fallback to normal removeNow if something unexpected)
+                                try { u.editorRemoveNow(); } catch (Throwable ex) { try { u.removeNow(); } catch (Throwable ignore) {} }
                                 if (EDITOR_STATE.isAutoUpdatePlacementGrids()) {
                                     try { com.oddlabs.tt.editor.EditorResourceValidity.recomputeROI(world, gx, gy, gx, gy); } catch (Throwable ignore) {}
                                     try { overlayRenderer.markDirtyROI(gx, gy, gx, gy); } catch (Throwable ignore) {}
