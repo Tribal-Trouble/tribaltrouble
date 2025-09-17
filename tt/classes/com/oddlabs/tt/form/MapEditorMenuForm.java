@@ -401,6 +401,100 @@ public final class MapEditorMenuForm extends Form {
         private int chosenIndex = -1;
     private final com.oddlabs.tt.gui.Label metaLabel;
     private com.oddlabs.tt.gui.GUIImage previewImage;
+        private String metaLabelContent = "Select a .ttmap on the left.";
+        // Zoom/pan state (mirrors EditorMapDialogs.LoadDialog)
+        private float previewZoom = 1f; // 1 = full texture
+        private float previewOffsetX = 0f;
+        private float previewOffsetY = 0f;
+        private boolean previewDragging = false;
+        private static final float PREVIEW_MAX_ZOOM = 8f;
+
+        private void resetPreviewTransform() { previewZoom = 1f; previewOffsetX = 0f; previewOffsetY = 0f; }
+        private void clampPreviewOffsets() {
+            float vis = 1f / previewZoom;
+            if (previewOffsetX < 0) previewOffsetX = 0;
+            if (previewOffsetY < 0) previewOffsetY = 0;
+            if (previewOffsetX > 1f - vis) previewOffsetX = 1f - vis;
+            if (previewOffsetY > 1f - vis) previewOffsetY = 1f - vis;
+        }
+        private void rebuildPreviewImage(com.oddlabs.tt.render.Texture tex) {
+            float vis = 1f / previewZoom;
+            float u1 = previewOffsetX;
+            float v1 = previewOffsetY;
+            float u2 = u1 + vis;
+            float v2 = v1 + vis;
+            int w = previewImage.getWidth();
+            int h = previewImage.getHeight();
+            removeChild(previewImage);
+            previewImage = new com.oddlabs.tt.gui.GUIImage(w, h, u1, v1, u2, v2, tex);
+            attachPreviewInteraction();
+            addChild(previewImage);
+            previewImage.place(listBox, RIGHT_TOP, com.oddlabs.tt.gui.Skin.getSkin().getFormData().getSectionSpacing());
+            metaLabel.place(previewImage, com.oddlabs.tt.gui.GUIObject.BOTTOM_LEFT);
+            compileCanvas();
+        }
+        private void attachPreviewInteraction() {
+            previewImage.addMouseWheelListener(amount -> {
+                if (!previewImage.isHovered()) return;
+                if (amount != 0) {
+                    try { owner.gui_root.getInfoPrinter().print("Menu preview zoom wheel=" + amount); } catch (Throwable ignore) {}
+                }
+                int w = previewImage.getWidth();
+                int h = previewImage.getHeight();
+                int absX = com.oddlabs.tt.gui.LocalInput.getMouseX();
+                int absY = com.oddlabs.tt.gui.LocalInput.getMouseY();
+                int localX = previewImage.translateXToLocal(absX);
+                int localY = previewImage.translateYToLocal(absY);
+                if (localX < 0) localX = 0; if (localX >= w) localX = w - 1;
+                if (localY < 0) localY = 0; if (localY >= h) localY = h - 1;
+                float fx = (float)localX / (float)w;
+                float fy = (float)localY / (float)h;
+                float old = previewZoom;
+                if (amount < 0) previewZoom *= 1.15f; else previewZoom /= 1.15f;
+                if (previewZoom < 1f) previewZoom = 1f; if (previewZoom > PREVIEW_MAX_ZOOM) previewZoom = PREVIEW_MAX_ZOOM;
+                if (Math.abs(previewZoom - old) < 1e-4f) return;
+                float visOld = 1f / old;
+                float anchorU = previewOffsetX + fx * visOld;
+                float anchorV = previewOffsetY + fy * visOld;
+                float visNew = 1f / previewZoom;
+                previewOffsetX = anchorU - fx * visNew;
+                previewOffsetY = anchorV - fy * visNew;
+                clampPreviewOffsets();
+                try {
+                    java.lang.reflect.Field f = com.oddlabs.tt.gui.GUIImage.class.getDeclaredField("texture");
+                    f.setAccessible(true);
+                    com.oddlabs.tt.render.Texture tex = (com.oddlabs.tt.render.Texture) f.get(previewImage);
+                    rebuildPreviewImage(tex);
+                } catch (Throwable ignore) {}
+                metaLabelContent = metaLabelContent + "\nZoom: " + String.format(java.util.Locale.US, "%.2f", previewZoom);
+                metaLabel.set(metaLabelContent);
+            });
+            previewImage.addMouseButtonListener(new com.oddlabs.tt.guievent.MouseButtonListener() {
+                @Override public void mousePressed(int button, int x, int y) { if (button==0) previewDragging = true; }
+                @Override public void mouseReleased(int button, int x, int y) { if (button==0) previewDragging = false; }
+                @Override public void mouseHeld(int button, int x, int y) { }
+                @Override public void mouseClicked(int button, int x, int y, int clicks) { }
+            });
+            previewImage.addMouseMotionListener(new com.oddlabs.tt.guievent.MouseMotionListener() {
+                @Override public void mouseDragged(int button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
+                    if (!previewDragging || previewZoom <= 1f) return;
+                    float vis = 1f / previewZoom;
+                    float scale = vis / previewImage.getWidth();
+                    previewOffsetX -= rel_x * scale;
+                    previewOffsetY -= rel_y * scale;
+                    clampPreviewOffsets();
+                    try {
+                        java.lang.reflect.Field f = com.oddlabs.tt.gui.GUIImage.class.getDeclaredField("texture");
+                        f.setAccessible(true);
+                        com.oddlabs.tt.render.Texture tex = (com.oddlabs.tt.render.Texture) f.get(previewImage);
+                        rebuildPreviewImage(tex);
+                    } catch (Throwable ignore) {}
+                }
+                @Override public void mouseMoved(int x, int y) { }
+                @Override public void mouseEntered() { }
+                @Override public void mouseExited() { }
+            });
+        }
 
         EditorMapLoadFromMenu(MapEditorMenuForm owner) {
             this.owner = owner;
@@ -413,10 +507,11 @@ public final class MapEditorMenuForm extends Form {
             };
             listBox = new com.oddlabs.tt.gui.MultiColumnComboBox(owner.gui_root, infos, 300);
             addChild(listBox);
-            // Preview image (same dimensions as editor load dialog)
-            previewImage = new com.oddlabs.tt.gui.GUIImage(256,256,0f,0f,1f,1f, com.oddlabs.tt.mapio.MapPreview.getBlankTexture());
+            // Preview image (match in-editor load dialog sizing and support zoom)
+            previewImage = new com.oddlabs.tt.gui.GUIImage(512,512,0f,0f,1f,1f, com.oddlabs.tt.mapio.MapPreview.getBlankTexture());
             addChild(previewImage);
-            metaLabel = new com.oddlabs.tt.gui.Label("Select a .ttmap on the left.", com.oddlabs.tt.gui.Skin.getSkin().getEditFont(), 340);
+            attachPreviewInteraction();
+            metaLabel = new com.oddlabs.tt.gui.Label(metaLabelContent, com.oddlabs.tt.gui.Skin.getSkin().getEditFont(), 340);
             addChild(metaLabel);
 
             com.oddlabs.tt.gui.HorizButton open = new com.oddlabs.tt.gui.OKButton(100);
@@ -485,13 +580,8 @@ public final class MapEditorMenuForm extends Form {
                 metaLabel.set(sb.toString());
                 try {
                     com.oddlabs.tt.render.Texture tex = com.oddlabs.tt.mapio.MapPreview.getPreviewTexture(sum.file);
-                    int w = previewImage.getWidth(); int h = previewImage.getHeight();
-                    removeChild(previewImage);
-                    previewImage = new com.oddlabs.tt.gui.GUIImage(w,h,0f,0f,1f,1f, tex);
-                    addChild(previewImage);
-                    previewImage.place(listBox, RIGHT_TOP, com.oddlabs.tt.gui.Skin.getSkin().getFormData().getSectionSpacing());
-                    metaLabel.place(previewImage, BOTTOM_LEFT);
-                    compileCanvas();
+                    resetPreviewTransform();
+                    rebuildPreviewImage(tex);
                 } catch (Throwable ignored) {}
             } catch (Exception t) {
                 metaLabel.set("Preview failed: " + t.getMessage());

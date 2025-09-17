@@ -59,6 +59,8 @@ public final strictfp class InputState {
     public final void mouseScrolled(int dz) {
         GUIObject gui_hit = pick();
         int scroll_amount = StrictMath.round(dz * Globals.WHEEL_SCALE);
+        // Avoid losing tiny wheel movements due to scaling (e.g., dz=1 => 0.01 -> rounds to 0)
+        if (scroll_amount == 0 && dz != 0) scroll_amount = (dz > 0 ? 1 : -1);
         gui_hit.setFocus();
         gui_hit.mouseScrolledAll(scroll_amount);
     }

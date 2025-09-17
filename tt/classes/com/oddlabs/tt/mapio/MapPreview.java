@@ -32,7 +32,8 @@ public final class MapPreview {
     private static final int TAG_PLT2 = 0x504C5432; // PLT2
     private static final int TAG_TR2  = 0x54523221; // TR2!
 
-    private static final int DEFAULT_PREVIEW_DIM = 256;
+    // Increased from 256 to 512 to provide higher resolution map previews in the load dialog
+    private static final int DEFAULT_PREVIEW_DIM = 512;
 
     // Minimal GL constants (avoid pulling full GL dependency chain here)
     private static final int GL_RGBA = 0x1908;
