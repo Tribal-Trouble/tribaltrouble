@@ -399,7 +399,7 @@ public final class MapEditorMenuForm extends Form {
         private final com.oddlabs.tt.gui.MultiColumnComboBox listBox;
         private java.util.List<com.oddlabs.tt.mapio.MapIO.MapSummary> summaries = java.util.Collections.emptyList();
         private int chosenIndex = -1;
-    private final com.oddlabs.tt.gui.Label metaLabel;
+    private final com.oddlabs.tt.gui.MultiLineLabel metaLabel;
     private com.oddlabs.tt.gui.GUIImage previewImage;
         private String metaLabelContent = "Select a .ttmap on the left.";
         // Zoom/pan state (mirrors EditorMapDialogs.LoadDialog)
@@ -430,7 +430,7 @@ public final class MapEditorMenuForm extends Form {
             attachPreviewInteraction();
             addChild(previewImage);
             previewImage.place(listBox, RIGHT_TOP, com.oddlabs.tt.gui.Skin.getSkin().getFormData().getSectionSpacing());
-            metaLabel.place(previewImage, com.oddlabs.tt.gui.GUIObject.BOTTOM_LEFT);
+            metaLabel.place(listBox, com.oddlabs.tt.gui.GUIObject.BOTTOM_LEFT, com.oddlabs.tt.gui.Skin.getSkin().getFormData().getSectionSpacing());
             compileCanvas();
         }
         private void attachPreviewInteraction() {
@@ -511,7 +511,9 @@ public final class MapEditorMenuForm extends Form {
             previewImage = new com.oddlabs.tt.gui.GUIImage(512,512,0f,0f,1f,1f, com.oddlabs.tt.mapio.MapPreview.getBlankTexture());
             addChild(previewImage);
             attachPreviewInteraction();
-            metaLabel = new com.oddlabs.tt.gui.Label(metaLabelContent, com.oddlabs.tt.gui.Skin.getSkin().getEditFont(), 340);
+            int metaWidth = listBox.getWidth();
+            if (metaWidth <= 0) metaWidth = 300;
+            metaLabel = new com.oddlabs.tt.gui.MultiLineLabel(metaLabelContent, com.oddlabs.tt.gui.Skin.getSkin().getEditFont(), metaWidth);
             addChild(metaLabel);
 
             com.oddlabs.tt.gui.HorizButton open = new com.oddlabs.tt.gui.OKButton(100);
@@ -525,10 +527,11 @@ public final class MapEditorMenuForm extends Form {
 
             // Layout
             title.place();
+            int sectionSpacing = com.oddlabs.tt.gui.Skin.getSkin().getFormData().getSectionSpacing();
             listBox.place(title, BOTTOM_LEFT);
-            previewImage.place(listBox, RIGHT_TOP, com.oddlabs.tt.gui.Skin.getSkin().getFormData().getSectionSpacing());
-            metaLabel.place(previewImage, BOTTOM_LEFT);
-            cancel.place(metaLabel, BOTTOM_RIGHT);
+            previewImage.place(listBox, RIGHT_TOP, sectionSpacing);
+            metaLabel.place(listBox, BOTTOM_LEFT, sectionSpacing);
+            cancel.place(previewImage, BOTTOM_RIGHT, sectionSpacing);
             open.place(cancel, LEFT_MID);
 
             refreshList();

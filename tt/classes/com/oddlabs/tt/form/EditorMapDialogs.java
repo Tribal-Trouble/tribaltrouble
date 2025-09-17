@@ -204,7 +204,7 @@ public final class EditorMapDialogs {
         private java.util.List<MapIO.MapSummary> summaries = java.util.Collections.emptyList();
         private int chosenIndex = -1;
 
-        private final Label metaLabel;
+        private final MultiLineLabel metaLabel;
     private com.oddlabs.tt.gui.GUIImage previewImage; // always present now
         private String metaLabelContent = "Select a .ttmap on the left.";
         private com.oddlabs.tt.render.Texture currentPreviewTexture; // track texture without reflection
@@ -238,7 +238,7 @@ public final class EditorMapDialogs {
             attachPreviewInteraction();
             addChild(previewImage);
             previewImage.place(listBox, RIGHT_TOP, Skin.getSkin().getFormData().getSectionSpacing());
-            metaLabel.place(previewImage, BOTTOM_LEFT);
+            metaLabel.place(listBox, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
             compileCanvas();
         }
         private void attachPreviewInteraction() {
@@ -331,7 +331,9 @@ public final class EditorMapDialogs {
             previewImage = new GUIImage(512, 512, 0f,0f,1f,1f, currentPreviewTexture);
             addChild(previewImage);
             attachPreviewInteraction();
-            metaLabel = new Label(metaLabelContent, Skin.getSkin().getEditFont(), 340);
+            int metaWidth = listBox.getWidth();
+            if (metaWidth <= 0) metaWidth = 300;
+            metaLabel = new MultiLineLabel(metaLabelContent, Skin.getSkin().getEditFont(), metaWidth);
             addChild(metaLabel);
 
             HorizButton open = new OKButton(100);
@@ -346,10 +348,11 @@ public final class EditorMapDialogs {
 
             // Layout
             title.place();
+            int sectionSpacing = Skin.getSkin().getFormData().getSectionSpacing();
             listBox.place(title, BOTTOM_LEFT);
-            previewImage.place(listBox, RIGHT_TOP, Skin.getSkin().getFormData().getSectionSpacing());
-            metaLabel.place(previewImage, BOTTOM_LEFT);
-            cancel.place(metaLabel, BOTTOM_RIGHT);
+            previewImage.place(listBox, RIGHT_TOP, sectionSpacing);
+            metaLabel.place(listBox, BOTTOM_LEFT, sectionSpacing);
+            cancel.place(previewImage, BOTTOM_RIGHT, sectionSpacing);
             open.place(cancel, LEFT_MID);
 
             // Populate list
