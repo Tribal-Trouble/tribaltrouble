@@ -902,8 +902,8 @@ public final class MapEditorSession {
                             float centerY = cell * (topLeftGY + (tmpl.getPlacingSize() - .5f));
 
                             // Compute legal sites around the cursor using the full legality filter
-                            com.oddlabs.tt.player.BuildingSiteScanFilter filter =
-                                    new com.oddlabs.tt.player.BuildingSiteScanFilter(ug, tmpl, ENT_SITE_GRID_RADIUS, false);
+                com.oddlabs.tt.player.BuildingSiteScanFilter filter =
+                    new com.oddlabs.tt.player.BuildingSiteScanFilter(world, ug, tmpl, ENT_SITE_GRID_RADIUS, false);
                     ug.scan(filter, centerGX, centerGY, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
                     @SuppressWarnings("unchecked")
                     java.util.List<com.oddlabs.tt.util.Target> targets = (java.util.List<com.oddlabs.tt.util.Target>) filter.getResult();
@@ -2520,9 +2520,9 @@ public final class MapEditorSession {
                         // Buildings
                         int buildingIndex = entitiesKindToBuildingIndex(entitiesKind);
                         com.oddlabs.tt.model.Race raceSel = world.getRacesResources().getRace(entitiesRace);
-                        com.oddlabs.tt.model.BuildingTemplate tmpl = raceSel.getBuildingTemplate(buildingIndex);
-                        com.oddlabs.tt.player.BuildingSiteScanFilter filter = new com.oddlabs.tt.player.BuildingSiteScanFilter(
-                                ug, tmpl, 0, true);
+            com.oddlabs.tt.model.BuildingTemplate tmpl = raceSel.getBuildingTemplate(buildingIndex);
+            com.oddlabs.tt.player.BuildingSiteScanFilter filter = new com.oddlabs.tt.player.BuildingSiteScanFilter(
+                world, ug, tmpl, 0, true);
                         ug.scan(filter, gx, gy, com.oddlabs.tt.pathfinder.UnitGrid.LAND);
                             @SuppressWarnings("unchecked")
                             java.util.List<com.oddlabs.tt.util.Target> targets = (java.util.List<com.oddlabs.tt.util.Target>) filter.getResult();
@@ -2531,7 +2531,7 @@ public final class MapEditorSession {
                 com.oddlabs.tt.player.Player owner = resolveSelectedOwner();
                             try {
                                 com.oddlabs.tt.model.Building b = new com.oddlabs.tt.model.Building(owner, tmpl, t.getGridX(), t.getGridY());
-                                b.place();
+                                b.placeEditor(world);
                                 b.repair(1000);
                                 if (!debugPrintedThisStroke && gx == cx && gy == cy) {
                                     getGUIRoot().getInfoPrinter().print("Placed building at gx=" + t.getGridX() + ", gy=" + t.getGridY());

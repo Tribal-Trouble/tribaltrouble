@@ -706,28 +706,22 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
 
     public static final boolean doIsPlacingLegal(
             UnitGrid unit_grid, int grid_x, int grid_y, int size, boolean near_sea) {
-        if (!near_sea && !unit_grid.getHeightMap().canBuild(grid_x, grid_y, size)) return false;
-        if (near_sea && !unit_grid.getHeightMap().canDock(grid_x, grid_y)) return false;
+        return PlacementRules.isPlacingLegal(
+                new RuntimeGridReader(unit_grid), grid_x, grid_y, size, near_sea);
+    }
 
-        if (near_sea) {
-            size = 1;
-        }
-
-        for (int y = 0; y < size * 2 - 1; y++)
-            for (int x = 0; x < size * 2 - 1; x++) {
-                int current_grid_x = grid_x + x - (size - 1);
-                int current_grid_y = grid_y + y - (size - 1);
-                if (current_grid_x >= unit_grid.getGridSize()
-                        || current_grid_y >= unit_grid.getGridSize()
-                        || current_grid_x < 0
-                        || current_grid_y < 0) return false;
-                boolean occupied =
-                        unit_grid.isGridOccupied(current_grid_x, current_grid_y, UnitGrid.LAND);
-                if (occupied) {
-                    return false;
-                }
-            }
-        return true;
+    /** Editor-only legality entrypoint using live editor grids + occupancy (no runtime UnitGrid occupancy scan). */
+    public static final boolean isPlacingLegalEditor(
+            com.oddlabs.tt.landscape.World world,
+            BuildingTemplate template,
+            int grid_x,
+            int grid_y) {
+        return PlacementRules.isPlacingLegal(
+                new EditorGridReader(world),
+                grid_x,
+                grid_y,
+                template.getPlacingSize(),
+                template.isNearSea());
     }
 
     public final int getAttackPriority() {
@@ -766,6 +760,25 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         assert isPlacingLegal();
         register();
         occupy();
+        flattenLandscape();
+        int result = getOwner().getBuildingCountContainer().increaseSupply(1);
+        assert (result == 1) : "Too many buildings";
+        build_points = 1;
+        reinsert();
+    }
+
+    /**
+     * Editor-only placement commit using live editor legality + occupancy mask.
+     * Keeps editor preview/overlay and final commit on the same source of truth.
+     */
+    public final void placeEditor(com.oddlabs.tt.landscape.World world) {
+        assert !isDead();
+        // Use editor legality (runtime assert would consult UnitGrid instead of editor occupancy mask)
+        assert isPlacingLegalEditor(world, getBuildingTemplate(), getGridX(), getGridY());
+        register();
+        occupy(); // still updates runtime UnitGrid
+        // Claim editor occupancy so subsequent previews immediately see blockage
+        try { com.oddlabs.tt.editor.EditorEntityOccupancy.claimOccupant(this); } catch (Throwable ignore) {}
         flattenLandscape();
         int result = getOwner().getBuildingCountContainer().increaseSupply(1);
         assert (result == 1) : "Too many buildings";
@@ -1006,6 +1019,8 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         if (!isDead()) {
             try { removeDying(); } catch (Throwable ignore) {}
         }
+        // Release editor occupancy footprint immediately so overlays update
+        try { com.oddlabs.tt.editor.EditorEntityOccupancy.releaseOccupant(this); } catch (Throwable ignore) {}
         // Stop any ongoing emitters/sounds tied to the building lifecycle
         try { damaged_emitter.done(); } catch (Throwable ignore) {}
         try { production_emitter.done(); } catch (Throwable ignore) {}

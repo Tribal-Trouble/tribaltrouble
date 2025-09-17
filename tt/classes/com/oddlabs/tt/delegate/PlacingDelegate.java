@@ -53,11 +53,11 @@ public final strictfp class PlacingDelegate extends ControllableCameraDelegate {
         UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
         int placing_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x);
         int placing_grid_y = UnitGrid.toGridCoordinate(landscape_hit.y);
-        if (Building.isPlacingLegal(
-                getViewer().getWorld().getUnitGrid(),
-                getTemplate(),
-                placing_grid_x,
-                placing_grid_y)) {
+    if (Building.isPlacingLegalEditor(
+        getViewer().getWorld(),
+        getTemplate(),
+        placing_grid_x,
+        placing_grid_y)) {
             Selectable[] peons =
                     getViewer().getSelection().getCurrentSelection().filter(Abilities.BUILD);
             if (peons.length > 0) {
@@ -125,8 +125,8 @@ public final strictfp class PlacingDelegate extends ControllableCameraDelegate {
 
         SpriteRenderer built_renderer = queues.getRenderer(getTemplate().getBuiltRenderer());
         built_renderer.setupWithColor(0, color, false, true);
-        if (Building.isPlacingLegal(
-                unit_grid, getTemplate(), placing_center_grid_x, placing_center_grid_y))
+    if (Building.isPlacingLegalEditor(
+        getViewer().getWorld(), getTemplate(), placing_center_grid_x, placing_center_grid_y))
             GW.glColor4f(1f, 1f, 1f, .8f);
         else GW.glColor4f(1f, 0f, 0f, .8f);
         float z = getViewer().getWorld().getHeightMap().getNearestHeight(center_x, center_y);

@@ -117,6 +117,13 @@ public final class EditorEntityOccupancy {
         return true;
     }
 
+    /** Single-cell occupancy query used by editor placement grid reader. */
+    public static synchronized boolean isCellFree(World w, int gx, int gy) {
+        ensure(w);
+        if (!inBounds(gx, gy)) return false; // treat OOB as occupied for safety
+        return occ[gy][gx] == 0;
+    }
+
     private static boolean inBounds(int gx, int gy) {
         return gy >= 0 && gy < occ.length && gx >= 0 && gx < occ.length;
     }
