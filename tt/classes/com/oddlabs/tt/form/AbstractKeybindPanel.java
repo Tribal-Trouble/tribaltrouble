@@ -116,6 +116,7 @@ public abstract class AbstractKeybindPanel extends Panel {
                     put(Globals.KB_EDITOR_SET_RESOURCE_TOOL, "Editor - Select Resource Tool");
                     put(Globals.KB_EDITOR_OVERLAY_MODE, "Editor - Overlays");
                     put(Globals.KB_EDITOR_TOGGLE_TOOLBAR, "Editor - Toggle Toolbar");
+                    put(Globals.KB_EDITOR_TOGGLE_SANDBOX, "Editor - Toggle Sandbox Mode (Ctrl +)");
                     put(Globals.KB_EDITOR_SAVE, "Editor - Save (Ctrl +)");
                     put(Globals.KB_EDITOR_LOAD, "Editor - Load (Ctrl +)");
                     put(Globals.KB_EDITOR_TEST_MAP, "Editor - Test Map (Ctrl +)");

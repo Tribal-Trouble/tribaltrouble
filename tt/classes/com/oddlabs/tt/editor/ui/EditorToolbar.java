@@ -88,14 +88,16 @@ public final class EditorToolbar extends Form {
         this.optionsBinding = optionsBinding;
     // Toolbar width will be set dynamically via getWidth()
 
-        // Buttons row: [Test] [Save] [Load] [Online] [Trigger]
-        HorizButton btnTest = new HorizButton("Test (Ctrl+P)", 120);
+    // Buttons row: [Test] [New] [Save] [Load] [Online] [Trigger]
+    HorizButton btnTest = new HorizButton("Test (Ctrl+P)", 120);
+    HorizButton btnNew = new HorizButton("New", 70);
         HorizButton btnSave = new HorizButton("Save", 80);
         HorizButton btnLoad = new HorizButton("Load", 80);
         HorizButton btnOnline = new HorizButton("Online", 90);
         HorizButton btnTrigger = new HorizButton("Trigger", 90);
 
         addChild(btnTest);
+    addChild(btnNew);
         addChild(btnSave);
         addChild(btnLoad);
         addChild(btnOnline);
@@ -103,10 +105,20 @@ public final class EditorToolbar extends Form {
 
         // Layout in a single horizontal row (start at content origin, chain RIGHT_MID)
         int spacing = StrictMath.max(2, Skin.getSkin().getFormData().getObjectSpacing());
-        btnTest.place();
-        btnSave.place(btnTest, RIGHT_MID);
-        btnLoad.place(btnSave, RIGHT_MID);
+    btnTest.place();
+    btnNew.place(btnTest, RIGHT_MID);
+    btnSave.place(btnNew, RIGHT_MID);
+    btnLoad.place(btnSave, RIGHT_MID);
         btnOnline.place(btnLoad, RIGHT_MID);
+        btnNew.addMouseClickListener(new MouseClickListener() {
+            @Override public void mouseClicked(int button, int x, int y, int clicks) {
+                try {
+                    EditorToolbar.this.guiRoot.addModalForm(new com.oddlabs.tt.form.EditorNewMapForm(EditorToolbar.this.guiRoot));
+                } catch (Throwable t) {
+                    EditorToolbar.this.guiRoot.getInfoPrinter().print("Open New Map failed: " + t.getMessage());
+                }
+            }
+        });
         // Place Trigger after overlays pulldown, in line with other buttons
         // ...existing code...
 

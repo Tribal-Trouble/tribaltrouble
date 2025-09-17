@@ -1246,6 +1246,35 @@ public final class MapEditorSession {
                 }
                 return;
             }
+            // Sandbox mode toggle (Ctrl + configured key, shares key with toolbar when unmodified)
+            if (event.isControlDown()
+                    && !event.isShiftDown()
+                    && event.getKeyCode()
+                            == com.oddlabs.tt.global.Settings.getSettings().getKeybind(
+                                    com.oddlabs.tt.global.Globals.KB_EDITOR_TOGGLE_SANDBOX)) {
+                com.oddlabs.tt.editor.ui.EditorState.EditorMode cur = EDITOR_STATE.getEditorMode();
+                com.oddlabs.tt.editor.ui.EditorState.EditorMode next =
+                        (cur == com.oddlabs.tt.editor.ui.EditorState.EditorMode.Sandbox)
+                                ? com.oddlabs.tt.editor.ui.EditorState.EditorMode.Default
+                                : com.oddlabs.tt.editor.ui.EditorState.EditorMode.Sandbox;
+                EDITOR_STATE.setEditorMode(next);
+                try {
+                    getGUIRoot()
+                            .getInfoPrinter()
+                            .print("Sandbox mode " + (next == com.oddlabs.tt.editor.ui.EditorState.EditorMode.Sandbox ? "ENABLED" : "DISABLED"));
+                } catch (Throwable ignore) {}
+                // If disabling sandbox while Entities tool active, fall back to Terrain tool (index 0)
+                if (next == com.oddlabs.tt.editor.ui.EditorState.EditorMode.Default && optionsBinding != null) {
+                    int active = optionsBinding.getActiveToolIndex();
+                    if (active == 2) { // Entities index
+                        try { optionsBinding.setActiveToolIndex(0); } catch (Throwable ignore) {}
+                        if (toolbar != null) {
+                            try { toolbar.syncOptionsFromBinding(); } catch (Throwable ignore) {}
+                        }
+                    }
+                }
+                return;
+            }
             // Removed: F5 quick save (debug-only)
         // Load (Ctrl + configured key)
         if (event.isControlDown()

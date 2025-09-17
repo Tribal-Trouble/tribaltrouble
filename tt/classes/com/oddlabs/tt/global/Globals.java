@@ -91,6 +91,7 @@ public final strictfp class Globals {
     // Editor toggles and tools
     public static final String KB_EDITOR_OVERLAY_MODE = "KB_EDITOR_OVERLAY_MODE"; // Tap to toggle overlays, hold to peek/cycle with wheel
     public static final String KB_EDITOR_TOGGLE_TOOLBAR = "KB_EDITOR_TOGGLE_TOOLBAR"; // Show/hide editor toolbar
+    public static final String KB_EDITOR_TOGGLE_SANDBOX = "KB_EDITOR_TOGGLE_SANDBOX"; // Toggle Sandbox mode (Ctrl + `)
     public static final String KB_EDITOR_SET_TERRAIN_TOOL = "KB_EDITOR_SET_TERRAIN_TOOL"; // Select Terrain/Height tool
     public static final String KB_EDITOR_SET_RESOURCE_TOOL = "KB_EDITOR_SET_RESOURCE_TOOL"; // Select Resource tool
     public static final String KB_EDITOR_SET_ENTITIES_TOOL = "KB_EDITOR_SET_ENTITIES_TOOL"; // Select Entities tool (buildings/units)

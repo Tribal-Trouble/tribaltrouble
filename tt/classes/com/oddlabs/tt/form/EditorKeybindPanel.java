@@ -27,6 +27,7 @@ public class EditorKeybindPanel extends AbstractKeybindPanel {
                         "Overlays & UI",
                         Globals.KB_EDITOR_OVERLAY_MODE,
                         Globals.KB_EDITOR_TOGGLE_TOOLBAR,
+                        Globals.KB_EDITOR_TOGGLE_SANDBOX,
                         Globals.KB_TOGGLE_MAP_MODE // reuse from game for map-fit toggle
                         ),
                 sec(

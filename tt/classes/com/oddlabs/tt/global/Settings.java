@@ -243,6 +243,7 @@ public final strictfp class Settings implements Serializable {
                     // Editor defaults (active only in editor)
                     put(Globals.KB_EDITOR_OVERLAY_MODE, Keyboard.KEY_T); // tap=toggle overlays, hold + wheel=cycle
                     put(Globals.KB_EDITOR_TOGGLE_TOOLBAR, Keyboard.KEY_GRAVE); // backtick `
+                    put(Globals.KB_EDITOR_TOGGLE_SANDBOX, Keyboard.KEY_GRAVE); // requires Ctrl modifier
                     put(Globals.KB_EDITOR_SET_TERRAIN_TOOL, Keyboard.KEY_Q);
                     put(Globals.KB_EDITOR_SET_RESOURCE_TOOL, Keyboard.KEY_W);
                     put(Globals.KB_EDITOR_SET_ENTITIES_TOOL, Keyboard.KEY_E);
