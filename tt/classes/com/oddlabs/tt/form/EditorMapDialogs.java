@@ -140,7 +140,8 @@ public final class EditorMapDialogs {
                 String author = authorEdit.getContents() == null ? "" : authorEdit.getContents().trim();
                 String desc = descBox.getContents();
                 if (desc == null) desc = "";
-                MapIO.saveEditorWorld(world, terrainType, target, nameEdit.getContents().trim(), author, desc);
+                // Try new compact version first; it will fallback internally if it fails
+                MapIO.saveEditorWorldV2(world, terrainType, target, nameEdit.getContents().trim(), author, desc);
                 guiRoot.getInfoPrinter().print("Saved: " + target.getName());
                 remove();
             } catch (Exception t) {

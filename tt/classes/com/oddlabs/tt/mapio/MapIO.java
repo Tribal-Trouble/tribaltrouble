@@ -29,6 +29,8 @@ public final class MapIO {
     // File header
     private static final int MAGIC_TTMP = 0x54544D50; // 'TTMP'
     private static final int VERSION_1 = 1;
+    // Planned extended format (packed + compressed grids & quantized heights)
+    private static final int VERSION_2 = 2; // NOT yet used by default writer
 
     // Section tags (4-char ints)
     private static final int TAG_META = 0x4D455441;   // 'META'
@@ -38,6 +40,118 @@ public final class MapIO {
     private static final int TAG_IRON = 0x49524F4E;   // 'IRON'
     private static final int TAG_PLTS = 0x504C5453;   // 'PLTS' (plants)
     private static final int TAG_TREE = 0x54524545;   // 'TREE' (trees)
+    // Version 2 prospective tags (leave distinct so legacy loader ignores them gracefully)
+    private static final int TAG_HM2Q = 0x484D3251;   // 'HM2Q' (quantized uint16 heightmap + deflate)
+    private static final int TAG_GRDZ = 0x4752445A;   // 'GRDZ' (bit-packed grids deflated)
+    private static final int TAG_RK2  = 0x524B3221;   // 'RK2!' packed rocks w/ layout byte
+    private static final int TAG_IR2  = 0x49523221;   // 'IR2!' packed iron w/ layout byte
+    private static final int TAG_PLT2 = 0x504C5432;   // 'PLT2' packed plants
+    private static final int TAG_TR2  = 0x54523221;   // 'TR2!' packed trees
+
+    // ---------------------------------------------------------------------
+    // Helper methods for future version 2 implementation. They are unused
+    // until the save path adopts VERSION_2; kept small & self-contained.
+    // ---------------------------------------------------------------------
+
+    // Unsigned LEB128 style varint (positive values only for now). Chosen for
+    // simplicity; counts/grid sizes are non-negative.
+    private static void writeVarInt(DataOutputStream out, int value) throws IOException {
+        while ((value & ~0x7F) != 0) { out.writeByte((value & 0x7F) | 0x80); value >>>= 7; }
+        out.writeByte(value & 0x7F);
+    }
+    private static int readVarInt(DataInputStream in) throws IOException {
+        int shift = 0; int result = 0; int b;
+        while (true) {
+            b = in.readUnsignedByte();
+            result |= (b & 0x7F) << shift;
+            if ((b & 0x80) == 0) break;
+            shift += 7;
+            if (shift > 28) throw new IOException("VarInt too long");
+        }
+        return result;
+    }
+
+    // Pack boolean array (row-major) into bitset (LSB-first per byte) for n*n grid
+    private static byte[] packBits(boolean[][] grid) {
+        int n = grid.length; if (n == 0) return new byte[0];
+        int total = n * n; byte[] out = new byte[(total + 7) >>> 3];
+        int bitIndex = 0;
+        for (int y = 0; y < n; y++) {
+            boolean[] row = grid[y];
+            for (int x = 0; x < n; x++, bitIndex++) {
+                if (row[x]) out[bitIndex >>> 3] |= (1 << (bitIndex & 7));
+            }
+        }
+        return out;
+    }
+
+    // Unpack bitset created by packBits into boolean[][] of size n
+    private static boolean[][] unpackBits(DataInputStream in, int n) throws IOException {
+        int total = n * n; int bytes = (total + 7) >>> 3; byte[] buf = new byte[bytes]; in.readFully(buf);
+        boolean[][] grid = new boolean[n][n]; int bitIndex = 0;
+        for (int y = 0; y < n; y++) {
+            boolean[] row = grid[y];
+            for (int x = 0; x < n; x++, bitIndex++) {
+                row[x] = (buf[bitIndex >>> 3] & (1 << (bitIndex & 7))) != 0;
+            }
+        }
+        return grid;
+    }
+
+    // Quantize float height array (row-major) to unsigned 16-bit using min/max.
+    // Returns new short[][] storing unsigned values in 0..65535 cast via & 0xFFFF.
+    private static short[][] quantizeHeights(float[][] heights, float[] outMinMax) {
+        int n = heights.length; if (n == 0) return new short[0][0];
+        float min = Float.MAX_VALUE, max = -Float.MAX_VALUE;
+        for (int y = 0; y < n; y++) {
+            float[] row = heights[y];
+            for (int x = 0; x < n; x++) { float h = row[x]; if (h < min) min = h; if (h > max) max = h; }
+        }
+        if (max <= min) { max = min + 1f; }
+        float inv = 65535f / (max - min);
+        short[][] q = new short[n][n];
+        for (int y = 0; y < n; y++) {
+            float[] row = heights[y]; short[] qrow = q[y];
+            for (int x = 0; x < n; x++) {
+                int v = Math.round((row[x] - min) * inv);
+                if (v < 0) v = 0; else if (v > 65535) v = 65535;
+                qrow[x] = (short) v;
+            }
+        }
+        if (outMinMax != null && outMinMax.length >= 2) { outMinMax[0] = min; outMinMax[1] = max; }
+        return q;
+    }
+
+    private static float[][] dequantizeHeights(short[][] q, float min, float max) {
+        int n = q.length; if (n == 0) return new float[0][0];
+        float[][] h = new float[n][n]; float scale = (max - min) / 65535f;
+        for (int y = 0; y < n; y++) {
+            short[] qrow = q[y]; float[] row = h[y];
+            for (int x = 0; x < n; x++) { int u = qrow[x] & 0xFFFF; row[x] = min + u * scale; }
+        }
+        return h;
+    }
+
+    // Utility for quantizing an offset inside a grid cell to signed byte -128..127 representing ~ -0.5..+0.5
+    private static byte quantizeCellOffset(float offset) {
+        // clamp to [-0.5,0.5]
+        if (offset < -0.5f) offset = -0.5f; else if (offset > 0.5f) offset = 0.5f;
+        // map -0.5 -> -128, +0.5 -> +127 (approx symmetric)
+        float scaled = offset * 255f; // range ~ -127.5..127.5
+        int v = Math.round(scaled);
+        if (v < -128) v = -128; if (v > 127) v = 127;
+        return (byte) v;
+    }
+    private static float dequantizeCellOffset(byte b) { return (b / 255f); }
+
+    // Quantize rotation degrees 0..360 to unsigned short
+    private static int quantizeRotation(float degrees) {
+        // normalize
+        degrees %= 360f; if (degrees < 0f) degrees += 360f;
+        int v = Math.round((degrees / 360f) * 65535f) & 0xFFFF;
+        return v;
+    }
+    private static float dequantizeRotation(int v) { return (v & 0xFFFF) * (360f / 65535f); }
 
     public static final class LoadedMap {
         public int metersPerWorld;
@@ -278,6 +392,174 @@ public final class MapIO {
         }
     }
 
+    /**
+     * Experimental version 2 writer producing smaller files.
+     * Layout: header (MAGIC, VERSION_2) then META, HM2Q, GRDZ and packed RK2!/IR2!/PLT2/TR2 sections.
+     * Falls back to legacy writer if any unexpected error occurs (best effort robustness for early adoption).
+     */
+    public static void saveEditorWorldV2(
+            World world,
+            int terrainType,
+            File target,
+            String metaName,
+            String metaAuthor,
+            String metaDesc) throws IOException {
+        try {
+            HeightMap hm = world.getHeightMap();
+            int n = hm.getGridUnitsPerWorld();
+            File parent = target.getParentFile();
+            if (parent != null && !parent.exists()) parent.mkdirs();
+
+            List<SavedSupply> rocks = new ArrayList<>();
+            List<SavedSupply> iron = new ArrayList<>();
+            List<Plant> plants = new ArrayList<>();
+            List<Tree> trees = new ArrayList<>();
+            collectResourcesForSave(world, terrainType, rocks, iron, plants, trees);
+
+            try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(target)))) {
+                out.writeInt(MAGIC_TTMP);
+                out.writeInt(VERSION_2);
+
+                // META reuse exact v1 payload for maximal compatibility (legacy peek still works)
+                ByteArrayOutputStream metaBuf = new ByteArrayOutputStream();
+                try (DataOutputStream meta = new DataOutputStream(metaBuf)) {
+                    meta.writeInt(hm.getMetersPerWorld());
+                    meta.writeInt(terrainType);
+                    meta.writeFloat(hm.getSeaLevelMeters());
+                    meta.writeInt(n);
+                    writeString(meta, metaName);
+                    writeString(meta, metaAuthor);
+                    writeString(meta, metaDesc);
+                    meta.flush();
+                }
+                writeSection(out, TAG_META, metaBuf.toByteArray());
+
+                // HM2Q
+                ByteArrayOutputStream hmBuf = new ByteArrayOutputStream();
+                float[][] heights = new float[n][n];
+                for (int y = 0; y < n; y++) for (int x = 0; x < n; x++) heights[y][x] = hm.getHeight(x, y);
+                float[] mm = new float[2];
+                short[][] q = quantizeHeights(heights, mm);
+                try (DataOutputStream hmOut = new DataOutputStream(new DeflaterOutputStream(hmBuf))) {
+                    hmOut.writeInt(n);
+                    hmOut.writeFloat(mm[0]); // min
+                    hmOut.writeFloat(mm[1]); // max
+                    for (int y = 0; y < n; y++) {
+                        short[] row = q[y];
+                        for (int x = 0; x < n; x++) {
+                            int v = row[x] & 0xFFFF;
+                            hmOut.writeShort(v);
+                        }
+                    }
+                    hmOut.flush();
+                }
+                writeSection(out, TAG_HM2Q, hmBuf.toByteArray());
+
+                // GRDZ bit-packed + deflated grids
+                ByteArrayOutputStream gridBuf = new ByteArrayOutputStream();
+                try (DataOutputStream gridOut = new DataOutputStream(new DeflaterOutputStream(gridBuf))) {
+                    gridOut.writeInt(n);
+                    gridOut.write(packBits(hm.getAccessGrid()));
+                    gridOut.write(packBits(hm.getDockGrid()));
+                    gridOut.write(packBits(hm.getWaterGrid()));
+                    byte[][] build = hm.getBuildGrid();
+                    for (int y = 0; y < n; y++) for (int x = 0; x < n; x++) gridOut.writeByte(build[y][x]);
+                    gridOut.flush();
+                }
+                writeSection(out, TAG_GRDZ, gridBuf.toByteArray());
+
+                // RK2! packed rocks
+                ByteArrayOutputStream rockBuf = new ByteArrayOutputStream();
+                try (DataOutputStream rockOut = new DataOutputStream(new DeflaterOutputStream(rockBuf))) {
+                    writeVarInt(rockOut, rocks.size());
+                    for (SavedSupply rc : rocks) {
+                        writeVarInt(rockOut, rc.gx);
+                        writeVarInt(rockOut, rc.gy);
+                        // offsets inside cell (center-based). Convert absolute world positions into offsets relative to grid center.
+                        float cx = UnitGrid.coordinateFromGrid(rc.gx);
+                        float cy = UnitGrid.coordinateFromGrid(rc.gy);
+                        rockOut.writeByte(quantizeCellOffset(rc.x - cx));
+                        rockOut.writeByte(quantizeCellOffset(rc.y - cy));
+                        int qr = quantizeRotation(rc.rot);
+                        rockOut.writeShort(qr & 0xFFFF);
+                        writeVarInt(rockOut, rc.spriteIndex);
+                    }
+                    rockOut.flush();
+                }
+                writeSection(out, TAG_RK2, rockBuf.toByteArray());
+
+                // IR2!
+                ByteArrayOutputStream ironBuf = new ByteArrayOutputStream();
+                try (DataOutputStream ironOut = new DataOutputStream(new DeflaterOutputStream(ironBuf))) {
+                    writeVarInt(ironOut, iron.size());
+                    for (SavedSupply ic : iron) {
+                        writeVarInt(ironOut, ic.gx);
+                        writeVarInt(ironOut, ic.gy);
+                        float cx = UnitGrid.coordinateFromGrid(ic.gx);
+                        float cy = UnitGrid.coordinateFromGrid(ic.gy);
+                        ironOut.writeByte(quantizeCellOffset(ic.x - cx));
+                        ironOut.writeByte(quantizeCellOffset(ic.y - cy));
+                        int qr = quantizeRotation(ic.rot);
+                        ironOut.writeShort(qr & 0xFFFF);
+                        writeVarInt(ironOut, ic.spriteIndex);
+                    }
+                    ironOut.flush();
+                }
+                writeSection(out, TAG_IR2, ironBuf.toByteArray());
+
+                // PLT2 packed plants (direction optional per plant -> presence bitmask per 8)
+                ByteArrayOutputStream plantBuf = new ByteArrayOutputStream();
+                try (DataOutputStream plantOut = new DataOutputStream(new DeflaterOutputStream(plantBuf))) {
+                    writeVarInt(plantOut, plants.size());
+                    // Write a bitmask stream for direction presence (1 = has direction) packed in order
+                    int count = plants.size();
+                    int maskBytes = (count + 7) >>> 3;
+                    byte[] mask = new byte[maskBytes];
+                    for (int i = 0; i < count; i++) if (plants.get(i).hasDirection()) mask[i >>> 3] |= (1 << (i & 7));
+                    plantOut.write(mask);
+                    for (int i = 0; i < count; i++) {
+                        Plant p = plants.get(i);
+                        writeVarInt(plantOut, p.typeIndex);
+                        // absolute coordinates quantized to uint16 using metersPerWorld range
+                        int mpw = hm.getMetersPerWorld();
+                        int qx = Math.round((p.x / mpw) * 65535f); if (qx < 0) qx = 0; else if (qx > 65535) qx = 65535;
+                        int qy = Math.round((p.y / mpw) * 65535f); if (qy < 0) qy = 0; else if (qy > 65535) qy = 65535;
+                        plantOut.writeShort(qx & 0xFFFF);
+                        plantOut.writeShort(qy & 0xFFFF);
+                        if (p.hasDirection()) {
+                            // encode unit vector as polar angle quantized uint16
+                            float angle = (float) Math.toDegrees(Math.atan2(p.dirY, p.dirX));
+                            int qa = quantizeRotation(angle);
+                            plantOut.writeShort(qa & 0xFFFF);
+                        }
+                    }
+                    plantOut.flush();
+                }
+                writeSection(out, TAG_PLT2, plantBuf.toByteArray());
+
+                // TR2! packed trees (store gx,gy + offsets; omit rotation/scale as deterministic)
+                ByteArrayOutputStream treeBuf = new ByteArrayOutputStream();
+                try (DataOutputStream treeOut = new DataOutputStream(new DeflaterOutputStream(treeBuf))) {
+                    writeVarInt(treeOut, trees.size());
+                    for (Tree t : trees) {
+                        writeVarInt(treeOut, t.typeIndex);
+                        writeVarInt(treeOut, t.gx);
+                        writeVarInt(treeOut, t.gy);
+                        float cx = UnitGrid.coordinateFromGrid(t.gx);
+                        float cy = UnitGrid.coordinateFromGrid(t.gy);
+                        treeOut.writeByte(quantizeCellOffset(t.x - cx));
+                        treeOut.writeByte(quantizeCellOffset(t.y - cy));
+                    }
+                    treeOut.flush();
+                }
+                writeSection(out, TAG_TR2, treeBuf.toByteArray());
+            }
+        } catch (Throwable t) {
+            // Fallback to legacy writer if experimental path fails
+            saveEditorWorld(world, terrainType, target, metaName, metaAuthor, metaDesc);
+        }
+    }
+
     private static void writeSection(DataOutputStream out, int tag, byte[] data) throws IOException {
         out.writeInt(tag);
         out.writeInt(data.length);
@@ -379,7 +661,7 @@ public final class MapIO {
             int magic = in.readInt();
             if (magic != MAGIC_TTMP) throw new IOException("Not a TT map file");
             int version = in.readInt();
-            if (version != VERSION_1) throw new IOException("Unsupported TT map version: " + version);
+            if (version != VERSION_1 && version != VERSION_2) throw new IOException("Unsupported TT map version: " + version);
 
             LoadedMap lm = new LoadedMap();
             while (true) {
@@ -410,6 +692,15 @@ public final class MapIO {
                         float[][] heights = new float[n][n];
                         for (int y = 0; y < n; y++) for (int x = 0; x < n; x++) heights[y][x] = s.readFloat();
                         lm.heights = heights; lm.size = n;
+                    } else if (tag == TAG_HM2Q) { // version 2 quantized heights
+                        byte[] buf = new byte[len]; in.readFully(buf);
+                        DataInputStream s = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(buf)));
+                        int n = s.readInt();
+                        float min = s.readFloat();
+                        float max = s.readFloat();
+                        short[][] q = new short[n][n];
+                        for (int y = 0; y < n; y++) for (int x = 0; x < n; x++) q[y][x] = s.readShort();
+                        lm.heights = dequantizeHeights(q, min, max); lm.size = n;
                     } else if (tag == TAG_GRID) {
                         byte[] buf = new byte[len]; in.readFully(buf);
                         DataInputStream s = new DataInputStream(new ByteArrayInputStream(buf));
@@ -423,6 +714,16 @@ public final class MapIO {
                         byte[][] build = new byte[n][n];
                         for (int y = 0; y < n; y++) for (int x = 0; x < n; x++) build[y][x] = s.readByte();
                         lm.access = access; lm.dock = dock; lm.water = water; lm.build = build; lm.size = n;
+                    } else if (tag == TAG_GRDZ) { // version 2 bit-packed grids
+                        byte[] buf = new byte[len]; in.readFully(buf);
+                        DataInputStream s = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(buf)));
+                        int n = s.readInt();
+                        lm.access = unpackBits(s, n);
+                        lm.dock = unpackBits(s, n);
+                        lm.water = unpackBits(s, n);
+                        byte[][] build = new byte[n][n];
+                        for (int y = 0; y < n; y++) for (int x = 0; x < n; x++) build[y][x] = s.readByte();
+                        lm.build = build; lm.size = n;
                     } else if (tag == TAG_ROCK) {
                         byte[] buf = new byte[len]; in.readFully(buf);
                         DataInputStream s = new DataInputStream(new ByteArrayInputStream(buf));
@@ -438,6 +739,25 @@ public final class MapIO {
                                 lm.rockSupplies.add(new SavedSupply(gx, gy, x, y, rot, si));
                             }
                         }
+                    } else if (tag == TAG_RK2) { // packed rocks v2
+                        byte[] buf = new byte[len]; in.readFully(buf);
+                        DataInputStream s = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(buf)));
+                        int count = readVarInt(s);
+                        for (int i = 0; i < count; i++) {
+                            int gx = readVarInt(s);
+                            int gy = readVarInt(s);
+                            byte ox = s.readByte();
+                            byte oy = s.readByte();
+                            int qr = s.readUnsignedShort();
+                            int spriteIndex = readVarInt(s);
+                            float cx = UnitGrid.coordinateFromGrid(gx);
+                            float cy = UnitGrid.coordinateFromGrid(gy);
+                            float x = cx + dequantizeCellOffset(ox);
+                            float y = cy + dequantizeCellOffset(oy);
+                            float rot = dequantizeRotation(qr);
+                            lm.rocks.add(new int[] {gx, gy});
+                            lm.rockSupplies.add(new SavedSupply(gx, gy, x, y, rot, spriteIndex));
+                        }
                     } else if (tag == TAG_IRON) {
                         byte[] buf = new byte[len]; in.readFully(buf);
                         DataInputStream s = new DataInputStream(new ByteArrayInputStream(buf));
@@ -452,6 +772,25 @@ public final class MapIO {
                                 lm.ironSupplies.add(new SavedSupply(gx, gy, x, y, rot, si));
                             }
                         }
+                    } else if (tag == TAG_IR2) { // packed iron v2
+                        byte[] buf = new byte[len]; in.readFully(buf);
+                        DataInputStream s = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(buf)));
+                        int count = readVarInt(s);
+                        for (int i = 0; i < count; i++) {
+                            int gx = readVarInt(s);
+                            int gy = readVarInt(s);
+                            byte ox = s.readByte();
+                            byte oy = s.readByte();
+                            int qr = s.readUnsignedShort();
+                            int spriteIndex = readVarInt(s);
+                            float cx = UnitGrid.coordinateFromGrid(gx);
+                            float cy = UnitGrid.coordinateFromGrid(gy);
+                            float x = cx + dequantizeCellOffset(ox);
+                            float y = cy + dequantizeCellOffset(oy);
+                            float rot = dequantizeRotation(qr);
+                            lm.iron.add(new int[] {gx, gy});
+                            lm.ironSupplies.add(new SavedSupply(gx, gy, x, y, rot, spriteIndex));
+                        }
                     } else if (tag == TAG_PLTS) {
                         byte[] buf = new byte[len]; in.readFully(buf);
                         DataInputStream s = new DataInputStream(new ByteArrayInputStream(buf));
@@ -462,6 +801,30 @@ public final class MapIO {
                             int idx = s.readInt(); float x = s.readFloat(); float y = s.readFloat();
                             if (hasDir) { float dx = s.readFloat(); float dy = s.readFloat(); lm.plants.add(new Plant(idx, x, y, dx, dy)); }
                             else { lm.plants.add(new Plant(idx, x, y)); }
+                        }
+                    } else if (tag == TAG_PLT2) { // packed plants v2
+                        byte[] buf = new byte[len]; in.readFully(buf);
+                        DataInputStream s = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(buf)));
+                        int count = readVarInt(s);
+                        int maskBytes = (count + 7) >>> 3; byte[] mask = new byte[maskBytes]; s.readFully(mask);
+                        int mpw = lm.metersPerWorld > 0 ? lm.metersPerWorld : lm.size; if (mpw <= 0) mpw = 256;
+                        for (int i = 0; i < count; i++) {
+                            int typeIdx = readVarInt(s);
+                            int qx = s.readUnsignedShort();
+                            int qy = s.readUnsignedShort();
+                            float x = (qx / 65535f) * mpw;
+                            float y = (qy / 65535f) * mpw;
+                            boolean hasDir = (mask[i >>> 3] & (1 << (i & 7))) != 0;
+                            if (hasDir) {
+                                int qa = s.readUnsignedShort();
+                                float angle = dequantizeRotation(qa);
+                                float rad = (float) Math.toRadians(angle);
+                                float dx = (float) Math.cos(rad);
+                                float dy = (float) Math.sin(rad);
+                                lm.plants.add(new Plant(typeIdx, x, y, dx, dy));
+                            } else {
+                                lm.plants.add(new Plant(typeIdx, x, y));
+                            }
                         }
                     } else if (tag == TAG_TREE) {
                         byte[] buf = new byte[len]; in.readFully(buf);
@@ -474,6 +837,22 @@ public final class MapIO {
                             float x = s.readFloat();
                             float y = s.readFloat();
                             lm.trees.add(new Tree(ti, gx, gy, x, y));
+                        }
+                    } else if (tag == TAG_TR2) { // packed trees v2
+                        byte[] buf = new byte[len]; in.readFully(buf);
+                        DataInputStream s = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(buf)));
+                        int count = readVarInt(s);
+                        for (int i = 0; i < count; i++) {
+                            int typeIdx = readVarInt(s);
+                            int gx = readVarInt(s);
+                            int gy = readVarInt(s);
+                            byte ox = s.readByte();
+                            byte oy = s.readByte();
+                            float cx = UnitGrid.coordinateFromGrid(gx);
+                            float cy = UnitGrid.coordinateFromGrid(gy);
+                            float x = cx + dequantizeCellOffset(ox);
+                            float y = cy + dequantizeCellOffset(oy);
+                            lm.trees.add(new Tree(typeIdx, gx, gy, x, y));
                         }
                     } else {
                         // skip unknown
