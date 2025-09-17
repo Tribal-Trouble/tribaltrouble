@@ -67,10 +67,10 @@ public class EditorNewMapForm extends Form {
 
         // Terrain type (native/tropical, viking/northern)
         pm_terrain_type = new PulldownMenu();
-    pm_terrain_type.addItem(new PulldownItem(ServerMessageBundler.getTerrainTypeString(0))); // native
-    pm_terrain_type.addItem(new PulldownItem(ServerMessageBundler.getTerrainTypeString(1))); // viking
-        pm_terrain_type.chooseItem(0);
-        PulldownButton terrainButton = new PulldownButton(gui_root, pm_terrain_type, 2, 180);
+        pm_terrain_type.addItem(new PulldownItem(ServerMessageBundler.getTerrainTypeString(0))); // native
+        pm_terrain_type.addItem(new PulldownItem(ServerMessageBundler.getTerrainTypeString(1))); // viking
+        // Default to first terrain type (index 0). Use PulldownButton ctor with item index to ensure label updates.
+        PulldownButton terrainButton = new PulldownButton(gui_root, pm_terrain_type, 0, 180);
 
         // Sliders (0..10 scale like main menu form)
         slider_hills = new Slider(140, 0, 10, 5);
@@ -83,36 +83,36 @@ public class EditorNewMapForm extends Form {
 
         sandboxModeCheck = new CheckBox(false, "Sandbox");
 
-        // Layout: simple vertical stack with small spacing
-        int spacing = StrictMath.max(4, Skin.getSkin().getFormData().getObjectSpacing());
+        // Layout redesign:
+        //  - Left column: pulldowns (Size, Terrain, Gamespeed)
+        //  - Middle column: sliders (Hills, Vegetation, Supplies) then Sandbox + Mapcode
+        //  - Bottom full-width: buttons (Create, Cancel) horizontally
+        int spacing = StrictMath.max(6, Skin.getSkin().getFormData().getObjectSpacing());
 
-        // First row: size, terrain, gamespeed
+        // Place pulldowns column
         sizeButton.place();
-        terrainButton.place(sizeButton, RIGHT_MID, spacing);
-        gamespeedButton.place(terrainButton, RIGHT_MID, spacing);
+        terrainButton.place(sizeButton, BOTTOM_LEFT, spacing);
+        gamespeedButton.place(terrainButton, BOTTOM_LEFT, spacing);
 
-        // Second row: sliders hills/vegetation/supplies
-    slider_hills.place(sizeButton, BOTTOM_LEFT);
-    slider_hills.correctPos(0, spacing * 3);
-    slider_vegetation.place(slider_hills, BOTTOM_LEFT);
-    slider_vegetation.correctPos(0, spacing);
-    slider_supplies.place(slider_vegetation, BOTTOM_LEFT);
-    slider_supplies.correctPos(0, spacing);
+        // Sliders column to the right of pulldowns
+        slider_hills.place(sizeButton, RIGHT_TOP, spacing * 4); // align top with size button
+        slider_vegetation.place(slider_hills, BOTTOM_LEFT, spacing);
+        slider_supplies.place(slider_vegetation, BOTTOM_LEFT, spacing);
 
-        // Sandbox + mapcode label to right of sliders
-        sandboxModeCheck.place(slider_supplies, RIGHT_MID, spacing * 4);
-    label_mapcode.place(sandboxModeCheck, BOTTOM_LEFT);
-    label_mapcode.correctPos(0, spacing);
+        // Sandbox + mapcode below sliders column
+        sandboxModeCheck.place(slider_supplies, BOTTOM_LEFT, spacing * 2);
+        label_mapcode.place(sandboxModeCheck, BOTTOM_LEFT, spacing / 2);
 
-        // Buttons bottom
-        HorizButton btnCreate = new HorizButton("Create", 100);
-        HorizButton btnCancel = new HorizButton("Cancel", 100);
-    btnCreate.place(slider_supplies, BOTTOM_LEFT);
-    btnCreate.correctPos(0, spacing * 8);
+        // Buttons row at bottom centered relative to form content width
+        HorizButton btnCreate = new HorizButton("Create", 110);
+        HorizButton btnCancel = new HorizButton("Cancel", 110);
+        // Temporarily place create under mapcode to get reference position
+        btnCreate.place(label_mapcode, BOTTOM_LEFT, spacing * 3);
         btnCancel.place(btnCreate, RIGHT_MID, spacing);
         addChild(btnCreate);
         addChild(btnCancel);
 
+        // Register all interactive children
         addChild(sizeButton); addChild(terrainButton); addChild(gamespeedButton);
         addChild(slider_hills); addChild(slider_vegetation); addChild(slider_supplies);
         addChild(sandboxModeCheck); addChild(label_mapcode);
@@ -169,9 +169,26 @@ public class EditorNewMapForm extends Form {
     int gamespeed = pm_gamespeed.getChosenItemIndex() + 1; // slow=1 .. ludicrous=4
         boolean archipelago = ARCHIPELAGO[sizeIndex];
 
+        // Debug instrumentation to diagnose persistent index OOB
+        System.out.println("[EditorNewMapForm] startEditor() sizeIndex=" + sizeIndex +
+                " meters=" + meters +
+                " terrain_type=" + terrain_type +
+                " gamespeed=" + gamespeed +
+                " hills=" + hills +
+                " vegetation=" + vegetation +
+                " supplies=" + supplies +
+                " archipelago=" + archipelago +
+                " sandbox=" + (sandboxModeCheck != null && sandboxModeCheck.isMarked()));
+
         com.oddlabs.tt.resource.WorldGenerator generator =
             new com.oddlabs.tt.resource.IslandGenerator(
                 meters, terrain_type, hills, vegetation, supplies, seed * seed, archipelago);
+        try {
+            // Attempt to reflect terrain type back out if interface allows
+            if (generator instanceof com.oddlabs.tt.resource.IslandGenerator) {
+                System.out.println("[EditorNewMapForm] IslandGenerator terrain_type=" + ((com.oddlabs.tt.resource.IslandGenerator)generator).getTerrainType());
+            }
+        } catch (Throwable ignore) {}
         try {
             MapEditorSession.start(
                 MapEditorSession.getEditorNetwork(),
@@ -181,6 +198,9 @@ public class EditorNewMapForm extends Form {
                 gamespeed,
                 sandboxModeCheck != null && sandboxModeCheck.isMarked() ? EditorState.EditorMode.Sandbox : EditorState.EditorMode.Default);
         } catch (Throwable t) {
+            // Print full stack trace to console for diagnostic purposes
+            System.err.println("[EditorNewMapForm] Create map failed: " + t);
+            t.printStackTrace();
             try { gui_root.getInfoPrinter().print("Create map failed: " + t.getMessage()); } catch (Throwable ignore) {}
         }
         remove();
