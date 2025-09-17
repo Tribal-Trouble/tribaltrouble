@@ -654,10 +654,20 @@ public final strictfp class DBInterface {
 
                 int row_count = stmt.executeUpdate();
                 ResultSet generatedKeys = stmt.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    int gameId = generatedKeys.getInt(1);
-                    // System.out.println("Game created with ID: " + gameId);
-                    game.setDatabaseID(gameId);
+                try {
+                    if (generatedKeys.next()) {
+                        int gameId = generatedKeys.getInt(1);
+                        // System.out.println("Game created with ID: " + gameId);
+                        game.setDatabaseID(gameId);
+                    }
+
+                } catch (SQLException e) {
+                    System.out.println("Exception(createGame - getGeneratedKeys): " + e);
+                    MatchmakingServer.getLogger()
+                            .throwing(DBInterface.class.getName(), "createGame", e);
+                    return;
+                } finally {
+                    generatedKeys.close();
                 }
             } finally {
                 stmt.getConnection().close();
@@ -760,8 +770,9 @@ public final strictfp class DBInterface {
                                     player.setProfile(profile);
                                 }
                             }
+                            game_players_result.close();
+                            game_players_stmt.getConnection().close();
                         }
-
                         return gameData;
                     }
                 } finally {
@@ -806,6 +817,7 @@ public final strictfp class DBInterface {
                     + " INNER JOIN games g ON g.id = gp.game_id   INNER JOIN two_player_games tpg"
                     + " ON tpg.game_id = g.id WHERE g.winner IS NOT NULL   AND gp.nick = ?   AND"
                     + " gp2.nick = ?   AND gp.team <> gp2.team ORDER BY gp.game_id DESC;";
+
         try {
             PreparedStatement stmt = DBUtils.createStatement(query);
             stmt.setString(1, player1);
@@ -815,47 +827,54 @@ public final strictfp class DBInterface {
             int p2Wins = 0;
             int neitherWins = 0;
             ArrayList<VersusMatchupModel> recentMatchups = new ArrayList<>();
-            while (result.next()) {
-                String vsResult = result.getString("vsResult").trim();
-                if (vsResult.equals("Player1")) {
-                    p1Wins++;
-                } else if (vsResult.equals("Player2")) {
-                    p2Wins++;
-                } else {
-                    neitherWins++;
-                }
-                if (!vsResult.equals("Neither") && recentMatchups.size() < 10) {
-                    int gameId = result.getInt("game_id");
-                    String player1Name = result.getString("player1_name");
-                    String player2Name = result.getString("player2_name");
-                    String winnerName = null;
+            try {
+                while (result.next()) {
+                    String vsResult = result.getString("vsResult").trim();
                     if (vsResult.equals("Player1")) {
-                        winnerName = player1Name;
+                        p1Wins++;
                     } else if (vsResult.equals("Player2")) {
-                        winnerName = player2Name;
+                        p2Wins++;
+                    } else {
+                        neitherWins++;
                     }
-                    String gameName = result.getString("name");
-                    String mapSeed = result.getString("mapcode");
-                    java.sql.Timestamp startTime = result.getTimestamp("time_start");
-                    recentMatchups.add(
-                            new com.oddlabs.matchserver.models.VersusMatchupModel(
-                                    player1Name,
-                                    player2Name,
-                                    winnerName,
-                                    gameId,
-                                    gameName,
-                                    mapSeed,
-                                    startTime));
+                    if (!vsResult.equals("Neither") && recentMatchups.size() < 10) {
+                        int gameId = result.getInt("game_id");
+                        String player1Name = result.getString("player1_name");
+                        String player2Name = result.getString("player2_name");
+                        String winnerName = null;
+                        if (vsResult.equals("Player1")) {
+                            winnerName = player1Name;
+                        } else if (vsResult.equals("Player2")) {
+                            winnerName = player2Name;
+                        }
+                        String gameName = result.getString("name");
+                        String mapSeed = result.getString("mapcode");
+                        java.sql.Timestamp startTime = result.getTimestamp("time_start");
+                        recentMatchups.add(
+                                new com.oddlabs.matchserver.models.VersusMatchupModel(
+                                        player1Name,
+                                        player2Name,
+                                        winnerName,
+                                        gameId,
+                                        gameName,
+                                        mapSeed,
+                                        startTime));
+                    }
                 }
+            } finally {
+                result.close();
+                stmt.getConnection().close();
             }
             System.out.println("p1 wins: " + p1Wins);
             System.out.println("p2 wins: " + p2Wins);
             System.out.println("neither wins: " + neitherWins);
+
             return new VersusMatchupResultModel(
                     player1, player2, p1Wins, p2Wins, neitherWins, recentMatchups);
         } catch (Exception e) {
             System.out.println("err" + e.getMessage());
         }
+
         return null;
     }
 
@@ -1057,8 +1076,12 @@ public final strictfp class DBInterface {
             try {
                 stmt.setString(1, nick);
                 ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
+                try {
+                    if (rs.next()) {
+                        return rs.getInt(1) > 0;
+                    }
+                } finally {
+                    rs.close();
                 }
             } finally {
                 stmt.getConnection().close();
@@ -1079,8 +1102,12 @@ public final strictfp class DBInterface {
             try {
                 stmt.setString(1, nick);
                 ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    return rs.getLong("discord_id");
+                try {
+                    if (rs.next()) {
+                        return rs.getLong("discord_id");
+                    }
+                } finally {
+                    rs.close();
                 }
             } finally {
                 stmt.getConnection().close();
@@ -1101,20 +1128,23 @@ public final strictfp class DBInterface {
             try {
                 stmt.setLong(1, discord_user_id);
                 ResultSet result = stmt.executeQuery();
-                List<String> nicks = new ArrayList<String>();
-                while (result.next()) {
-                    String nick = result.getString("nick").trim();
-                    nicks.add(nick);
+                try {
+                    List<String> nicks = new ArrayList<String>();
+                    while (result.next()) {
+                        String nick = result.getString("nick").trim();
+                        nicks.add(nick);
+                    }
+                    return nicks.toArray(new String[0]);
+                } finally {
+                    result.close();
                 }
-
-                return nicks.toArray(new String[0]);
             } finally {
                 stmt.getConnection().close();
             }
         } catch (Exception e) {
             System.out.println("Exception: " + e);
             MatchmakingServer.getLogger()
-                    .throwing(DBInterface.class.getName(), "registerProfileToDiscordUser", e);
+                    .throwing(DBInterface.class.getName(), "getProfilesRegisteredToDiscordUser", e);
         }
         return new String[0];
     }
@@ -1123,10 +1153,12 @@ public final strictfp class DBInterface {
         try {
             PreparedStatement stmt =
                     DBUtils.createStatement(
-                            "INSERT INTO discord_to_profiles (nick, discord_id) VALUES (?, ?)");
+                            "INSERT INTO discord_to_profiles (nick, discord_id) VALUES (?, ?)"
+                                    + " ON DUPLICATE KEY UPDATE discord_id = ?");
             try {
                 stmt.setString(1, nick);
                 stmt.setLong(2, discord_user_id);
+                stmt.setLong(3, discord_user_id);
                 int row_count = stmt.executeUpdate();
             } finally {
                 stmt.getConnection().close();
@@ -1215,13 +1247,16 @@ public final strictfp class DBInterface {
                     DBUtils.createStatement("SELECT nick FROM online_profiles ORDER BY nick");
             try {
                 ResultSet result = stmt.executeQuery();
-                List<String> nicks = new ArrayList<String>();
-                while (result.next()) {
-                    String nick = result.getString("nick").trim();
-                    nicks.add(nick);
+                try {
+                    List<String> nicks = new ArrayList<String>();
+                    while (result.next()) {
+                        String nick = result.getString("nick").trim();
+                        nicks.add(nick);
+                    }
+                    return nicks.toArray(new String[0]);
+                } finally {
+                    result.close();
                 }
-
-                return nicks.toArray(new String[0]);
             } finally {
                 stmt.getConnection().close();
             }

@@ -61,7 +61,7 @@ public class DiscordEmbedCreator {
      * @param includeMapCodeLookup Whether to include a link to look up the map code
      * @param session The game session object.
      * @param color The color of the embed sidebar.
-     * @param DescriptionPrefix A prefix for the description, e.g. "Team 2 Won" or "Player lost
+     * @param descriptionPrefix A prefix for the description, e.g. "Team 2 Won" or "Player lost
      *     playing vs AI".
      */
     private static void buildAndSendEmbed(
@@ -136,7 +136,7 @@ public class DiscordEmbedCreator {
     public static void SendHumansWinAgainstBotsDiscordEmbed(
             int winning_team_index, GameSession session, int gameID) {
         String prefix = "Team " + (winning_team_index + 1) + " Won playing against AI!";
-        buildAndSendEmbed(gameID, false, session, Color.GREEN, prefix);
+        buildAndSendEmbed(gameID, true, session, Color.GREEN, prefix);
     }
 
     /** Sends a Discord embed message when the game was invalidated */
