@@ -1,9 +1,8 @@
 package com.oddlabs.tt.mapio;
 
+import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
-import com.oddlabs.tt.render.Texture;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;

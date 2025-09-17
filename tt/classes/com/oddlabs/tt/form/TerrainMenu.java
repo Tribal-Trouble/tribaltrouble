@@ -435,7 +435,9 @@ public final class TerrainMenu extends Group {
     unit_allow_checks[0] = new CheckBox(true, "Rock warrior");
     unit_allow_checks[1] = new CheckBox(true, "Iron Warrior");
     unit_allow_checks[2] = new CheckBox(true, "Chicken Warrior");
-    unit_allow_checks[3] = new CheckBox(true, "Peon");
+    // Peon checkbox intentionally created but NOT added to UI to remove listing from Single Player game mode.
+    // Keep the element so indices continue to align with Race.UNIT_* constants and allowedUnits mapping.
+    unit_allow_checks[Race.UNIT_PEON] = new CheckBox(true, "Peon");
     unit_allow_checks[4] = new CheckBox(true, "Chieftain");
     // We'll add these to a column group below rather than directly to group_game_mode
 
@@ -474,11 +476,19 @@ public final class TerrainMenu extends Group {
         Group group_units_col = new Group();
         group_units_col.addChild(label_units);
         label_units.place();
+        // Place only the visible unit checkboxes (skip Peon listing)
         unit_allow_checks[0].place(label_units, BOTTOM_LEFT);
+        int lastPlacedIndex = 0;
         for (int i = 1; i < unit_allow_checks.length; i++) {
-            unit_allow_checks[i].place(unit_allow_checks[i - 1], BOTTOM_LEFT);
+            if (i == Race.UNIT_PEON) continue; // skip Peon in UI
+            unit_allow_checks[i].place(unit_allow_checks[lastPlacedIndex], BOTTOM_LEFT);
+            lastPlacedIndex = i;
         }
-        for (int i = 0; i < unit_allow_checks.length; i++) group_units_col.addChild(unit_allow_checks[i]);
+        // Add children except Peon to hide it from the UI while preserving internal array index
+        for (int i = 0; i < unit_allow_checks.length; i++) {
+            if (i == Race.UNIT_PEON) continue;
+            group_units_col.addChild(unit_allow_checks[i]);
+        }
         group_units_col.compileCanvas();
         group_game_mode.addChild(group_units_col);
 
