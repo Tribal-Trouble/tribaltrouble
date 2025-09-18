@@ -110,24 +110,9 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                     getCamera().enable();
                 }
                 break;
-            case Keyboard.KEY_9:
-            case Keyboard.KEY_8:
-            case Keyboard.KEY_7:
-            case Keyboard.KEY_6:
-            case Keyboard.KEY_5:
-            case Keyboard.KEY_4:
-            case Keyboard.KEY_3:
-            case Keyboard.KEY_2:
-            case Keyboard.KEY_1:
-            case Keyboard.KEY_0:
-            // Legacy behavior path retained below in default handler using settings binds
-            // handled in default for unified handling
-            // fall through to default
-            // no break
-            case Keyboard.KEY_RETURN:
-                // handled in default using settings bind to allow rebind of chat toggle
-                // fall through
-                break;
+            // Note: Numeric keys and Return are handled in the default branch to respect
+            // rebindable keybinds and avoid accidental fall-through. Removing explicit cases
+            // here ensures number presses reach the unified handler below.
 
             case Keyboard.KEY_F:
             case Keyboard.KEY_Z:
