@@ -12,3 +12,4 @@ ivy_lib/*
 .project
 .classpath
 .vs/*
+server/server.properties

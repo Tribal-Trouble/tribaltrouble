@@ -384,12 +384,35 @@
 			<arg value="--java-options" />
 			<arg
 				value="-ea -XstartOnFirstThread -cp $APPDIR:$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true" />
-			<!-- add the below values for dmg installer to be produced instead -->
 			<arg value="--type" />
 			<arg value="dmg" />
 			<!-- Note: The process will complain about signing but the application can still run -->
 		</exec>
 	</target>
+	<target name="build-mac-x86-app" depends="dist">
+		<!-- Set app name -->
+		<property name="app_name" value="TribalTrouble" />
+
+		<exec executable="jpackage" dir="." failonerror="true">
+			<arg value="--name" />
+			<arg value="${app_name}" />
+			<arg value="--dest" />
+			<arg value="${dist}/macosx-x86-app" />
+			<arg value="--input" />
+			<arg value="${dist}/common" />
+			<arg value="--main-jar" />
+			<arg value="tt-code.jar" />
+			<arg value="--main-class" />
+			<arg value="com.oddlabs.tt.Main" />
+			<arg value="--java-options" />
+			<arg
+				value="-ea -XstartOnFirstThread -cp $APPDIR:$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true" />
+			<arg value="--type" />
+			<arg value="app-image" />
+			<!-- Note: The process will complain about signing but the application can still run -->
+		</exec>
+	</target>
+
 	<target name="build-mac-arm64" depends="dist">
 		<!-- Set app name -->
 		<property name="app_name" value="TribalTrouble" />
@@ -408,9 +431,8 @@
 			<arg value="--java-options" />
 			<arg
 				value="-ea -XstartOnFirstThread -cp $APPDIR:$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true" />
-			<!-- add the below values for dmg installer to be produced instead -->
-			<!-- <arg value="-type" /> add a dash back when uncommented
-			<arg value="app-image" /> -->
+			<arg value="--type" />
+			<arg value="app-image" />
 			<!-- Note: The process will complain about signing but the application can still run -->
 		</exec>
 	</target>
