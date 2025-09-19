@@ -882,25 +882,33 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     public final void occupy() {
         UnitGrid grid = getUnitGrid();
         Region region = grid.getRegion(getGridX(), getGridY(), getLayer());
+        if (region == null) {
+            setLayer(UnitGrid.SEA);
+            region = grid.getRegion(getGridX(), getGridY(), UnitGrid.SEA);
+        }
         region.registerObject(getClass(), this);
         int size = getBuildingTemplate().getPlacingSize() * 2 - 1;
-        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++)
+        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
                 grid.occupyGrid(
                         getGridX() - size / 2 + x, getGridY() - size / 2 + y, this, getLayer());
             }
+        }
     }
 
     public final void free() {
         UnitGrid grid = getUnitGrid();
         Region region = grid.getRegion(getGridX(), getGridY(), getLayer());
-        region.unregisterObject(getClass(), this);
+        if (region != null) {
+            region.unregisterObject(getClass(), this);
+        }
         int size = getBuildingTemplate().getPlacingSize() * 2 - 1;
-        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++)
+        for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
                 grid.freeGrid(
                         getGridX() - size / 2 + x, getGridY() - size / 2 + y, this, getLayer());
             }
+        }
     }
 
     public final void hit(int damage, float dir_x, float dir_y, Player owner) {
@@ -1005,15 +1013,13 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     }
 
     public final void endTrip() {
-        free();
-        if (getUnitGrid().getHeightMap().canDock(getGridX(), getGridY())) {
+        if (getUnitGrid().getRegion(getGridX(), getGridY(), UnitGrid.LAND) != null) {
+            free();
             setLayer(UnitGrid.LAND);
-        } else {
-            setLayer(UnitGrid.SEA);
+            updateBounds();
+            reregister();
+            occupy();
         }
-        updateBounds();
-        reregister();
-        occupy();
     }
 
     public final void setPosition(float x, float y) {
