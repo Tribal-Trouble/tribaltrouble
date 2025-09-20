@@ -18,29 +18,30 @@ public class SystemKeybindPanel extends AbstractKeybindPanel {
 
     @Override
     protected List<Section> getSections() {
-        return Arrays.asList(
-                sec(
-                        "System / Interface",
-                        Globals.KB_CHAT_TOGGLE,
-                        Globals.KB_BACK_CANCEL,
-                        Globals.KB_GAMESPEED_INCREASE,
-                        Globals.KB_GAMESPEED_DECREASE,
-                        Globals.KB_PAUSE),
-                sec(
-                        "Camera Controls",
-                        Globals.KB_PAN_CAMERA_LEFT,
-                        Globals.KB_PAN_CAMERA_RIGHT,
-                        Globals.KB_PAN_CAMERA_UP,
-                        Globals.KB_PAN_CAMERA_DOWN,
-                        Globals.KB_CAMERA_ZOOM_IN,
-                        Globals.KB_CAMERA_ZOOM_OUT,
-                        Globals.KB_CAMERA_ROTATE_LEFT,
-                        Globals.KB_CAMERA_ROTATE_RIGHT,
-                        Globals.KB_CAMERA_PITCH_UP,
-                        Globals.KB_CAMERA_PITCH_DOWN,
-                        // Keyboard equivalents for mouse gestures
-                        Globals.KB_CAMERA_ZOOM_HOLD,
-                        Globals.KB_CAMERA_FIRST_PERSON_TOGGLE)
-        );
+    return Arrays.asList(
+        // Swap order: Camera Controls first, then System / Interface
+        sec(
+            "Camera Controls",
+            Globals.KB_PAN_CAMERA_LEFT,
+            Globals.KB_PAN_CAMERA_RIGHT,
+            Globals.KB_PAN_CAMERA_UP,
+            Globals.KB_PAN_CAMERA_DOWN,
+            Globals.KB_CAMERA_ZOOM_IN,
+            Globals.KB_CAMERA_ZOOM_OUT,
+            Globals.KB_CAMERA_ROTATE_LEFT,
+            Globals.KB_CAMERA_ROTATE_RIGHT,
+            Globals.KB_CAMERA_PITCH_UP,
+            Globals.KB_CAMERA_PITCH_DOWN,
+            // Keyboard equivalents for mouse gestures
+            Globals.KB_CAMERA_ZOOM_HOLD,
+            Globals.KB_CAMERA_FIRST_PERSON_TOGGLE),
+        sec(
+            "System / Interface",
+            Globals.KB_CHAT_TOGGLE,
+            Globals.KB_BACK_CANCEL,
+            Globals.KB_GAMESPEED_INCREASE,
+            Globals.KB_GAMESPEED_DECREASE,
+            Globals.KB_PAUSE)
+    );
     }
 }

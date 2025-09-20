@@ -18,24 +18,25 @@ public class CombatKeybindPanel extends AbstractKeybindPanel {
 
     @Override
     protected List<Section> getSections() {
-        return Arrays.asList(
-                sec(
-                        "Army Groups",
-                        Globals.KB_ARMY_GROUP_0,
-                        Globals.KB_ARMY_GROUP_1,
-                        Globals.KB_ARMY_GROUP_2,
-                        Globals.KB_ARMY_GROUP_3,
-                        Globals.KB_ARMY_GROUP_4,
-                        Globals.KB_ARMY_GROUP_5,
-                        Globals.KB_ARMY_GROUP_6,
-                        Globals.KB_ARMY_GROUP_7,
-                        Globals.KB_ARMY_GROUP_8,
-                        Globals.KB_ARMY_GROUP_9),
-                sec(
-                        "Chieftain Magic",
-                        Globals.KB_CHIEFTAIN_MAGIC1,
-                        Globals.KB_CHIEFTAIN_MAGIC2),
-                sec("Tower Actions", Globals.KB_TOWER_ATTACK, Globals.KB_TOWER_EXIT)
-        );
+    // Swap Chieftain and Tower sections: Chieftain Magic first, then Tower Actions, then Army Groups
+    return Arrays.asList(
+        sec(
+            "Chieftain Magic",
+            Globals.KB_CHIEFTAIN_MAGIC1,
+            Globals.KB_CHIEFTAIN_MAGIC2),
+        sec("Tower Actions", Globals.KB_TOWER_ATTACK, Globals.KB_TOWER_EXIT),
+        sec(
+            "Army Groups",
+            Globals.KB_ARMY_GROUP_0,
+            Globals.KB_ARMY_GROUP_1,
+            Globals.KB_ARMY_GROUP_2,
+            Globals.KB_ARMY_GROUP_3,
+            Globals.KB_ARMY_GROUP_4,
+            Globals.KB_ARMY_GROUP_5,
+            Globals.KB_ARMY_GROUP_6,
+            Globals.KB_ARMY_GROUP_7,
+            Globals.KB_ARMY_GROUP_8,
+            Globals.KB_ARMY_GROUP_9)
+    );
     }
 }
