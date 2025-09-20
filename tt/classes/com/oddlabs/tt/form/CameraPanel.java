@@ -16,6 +16,7 @@ import com.oddlabs.tt.input.Mouse;
 /** Camera options panel: adjust mouse sensitivity and camera movement parameters. */
 public class CameraPanel extends Panel {
     private static final int SLIDER_WIDTH = 180;
+    private static final int SLIDER_LEFT_INDENT = 50; // fixed indent to align all slider tracks
     private static final int SLIDER_MIN = 0;
     private static final int SLIDER_MAX = 100;
     private static final int GROUP_SPACING = 10;
@@ -146,11 +147,11 @@ public class CameraPanel extends Panel {
         Group gEdge = new Group();
         Label lblEdge = new Label("Edge scroll buffer (px)", Skin.getSkin().getEditFont());
         gEdge.addChild(lblEdge);
-        Label lblEdgeLow = new Label("0", Skin.getSkin().getEditFont());
-        gEdge.addChild(lblEdgeLow);
-        Label lblEdgeHigh = new Label("50", Skin.getSkin().getEditFont());
-        gEdge.addChild(lblEdgeHigh);
-        sEdge = new Slider(
+    Label lblEdgeLow = new Label("0", Skin.getSkin().getEditFont());
+    gEdge.addChild(lblEdgeLow);
+    Label lblEdgeHigh = new Label("50", Skin.getSkin().getEditFont());
+    gEdge.addChild(lblEdgeHigh);
+    sEdge = new Slider(
                 SLIDER_WIDTH,
                 0,
                 50,
@@ -162,10 +163,13 @@ public class CameraPanel extends Panel {
                         Settings.getSettings().camera_edge_scroll_buffer = value;
                     }
                 });
-        lblEdge.place();
-        lblEdgeLow.place(lblEdge, BOTTOM_LEFT);
-        sEdge.place(lblEdgeLow, RIGHT_MID);
-        lblEdgeHigh.place(sEdge, RIGHT_MID);
+    lblEdge.place();
+    // Place slider below title with fixed left indent for alignment
+    sEdge.place(lblEdge, BOTTOM_LEFT);
+    sEdge.correctPos(SLIDER_LEFT_INDENT, 0);
+    // Place low/high labels relative to the slider so their widths don't affect alignment
+    lblEdgeLow.place(sEdge, LEFT_MID);
+    lblEdgeHigh.place(sEdge, RIGHT_MID);
         gEdge.compileCanvas();
         scrollContainer.addGroup(gEdge);
 
@@ -240,8 +244,12 @@ public class CameraPanel extends Panel {
         slider.addValueListener(listener);
         
         lblTitle.place();
-        lblLow.place(lblTitle, BOTTOM_LEFT);
-        slider.place(lblLow, RIGHT_MID);
+        // Place slider below title with fixed left indent so all slider tracks align
+        slider.place(lblTitle, BOTTOM_LEFT);
+        slider.correctPos(SLIDER_LEFT_INDENT, 0);
+        // Low label sits to the left of the slider; its width won't change slider position
+        lblLow.place(slider, LEFT_MID);
+        // High label sits to the right of the slider
         lblHigh.place(slider, RIGHT_MID);
         group.compileCanvas();
         
