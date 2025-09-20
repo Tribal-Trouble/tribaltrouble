@@ -60,21 +60,25 @@ public final strictfp class RowCollection extends GUIObject {
     }
 
     public final void replaceRows() {
-        int offset_y = ((MultiColumnComboBox) getParent()).getOffsetY();
+        int layout_offset_y = ((MultiColumnComboBox) getParent()).getLayoutOffsetY();
         if (top_down_layout) {
-            // New top-down orientation
-            int y = -offset_y;
+            // Top-down orientation: start laying out from the top edge
+            int container_height = getHeight();
+            int y = container_height - layout_offset_y;
             for (int i = 0; i < rows.size(); i++) {
-                Row row = sorted_descending ? (Row) rows.get(rows.size() - 1 - i) : (Row) rows.get(i);
+                Row row =
+                        sorted_descending
+                                ? (Row) rows.get(rows.size() - 1 - i)
+                                : (Row) rows.get(i);
+                y -= row.getHeight();
                 row.setPos(0, y);
                 if (i % 2 == 0) row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor1());
                 else row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor2());
-                y += row.getHeight();
             }
         } else {
             // Original bottom-up orientation
             int container_height = getHeight();
-            int y = container_height + offset_y;
+            int y = container_height + layout_offset_y;
             for (int i = 0; i < rows.size(); i++) {
                 Row row;
                 if (sorted_descending) row = (Row) rows.get(rows.size() - i - 1);

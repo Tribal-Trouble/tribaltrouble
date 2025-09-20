@@ -15,6 +15,8 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
     private final boolean use_buttons;
     private final GUIRoot gui_root;
     private int offset_y = 0;
+    // When true (and in top-down layout), invert the effective layout offset Y so visual movement matches desired axis
+    private boolean invertTopDownY = false;
     private PulldownMenu pulldown_menu = null;
     private Object right_clicked_row_data;
 
@@ -172,6 +174,14 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
         return offset_y;
     }
 
+    // Effective offset used only for row layout; does not affect scrollbar/arrow logic
+    public final int getLayoutOffsetY() {
+        if (invertTopDownY && rows.isTopDownLayout()) {
+            return -offset_y;
+        }
+        return offset_y;
+    }
+
     public final int getStepHeight() {
         return Skin.getSkin().getMultiColumnComboBoxData().getFont().getHeight();
     }
@@ -199,5 +209,11 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
     // Minimal API to control initial sort order from callers that need it
     public void setSort(int columnIndex, boolean descending) {
         rows.markChanged(columnIndex, descending);
+    }
+
+    // Enable/disable inverted Y treatment for top-down layout only
+    public void setInvertTopDownY(boolean invert) {
+        this.invertTopDownY = invert;
+        rows.replaceRows();
     }
 }
