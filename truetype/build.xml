@@ -4,4 +4,9 @@
 
 	<target name="compiledeps" depends="compile-common">
 	</target>
+
+	<!-- Override compile to skip building the legacy LWJGL2 Test.java (not needed for the game build) -->
+	<target name="compile" depends="init,compiledeps">
+		<echo message="Skipping compilation of truetype module (legacy LWJGL2 test)."/>
+	</target>
 </project>

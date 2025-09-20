@@ -68,10 +68,15 @@ public final strictfp class InGameMainMenu extends Menu {
     }
 
     protected final void keyPressed(KeyboardEvent event) {
-        int back =
-                com.oddlabs.tt.global.Settings.getSettings()
-                        .getKeybind(com.oddlabs.tt.global.Globals.KB_BACK_CANCEL);
-        if (event.getKeyCode() == back || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+    int back =
+        com.oddlabs.tt.global.Settings.getSettings()
+            .getKeybind(com.oddlabs.tt.global.Globals.KB_BACK_CANCEL);
+    int pauseDup =
+        com.oddlabs.tt.global.Settings.getSettings()
+            .getKeybind(com.oddlabs.tt.global.Globals.KB_PAUSE);
+    if (event.getKeyCode() == back
+        || event.getKeyCode() == pauseDup
+        || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
             pop();
             return;
         }

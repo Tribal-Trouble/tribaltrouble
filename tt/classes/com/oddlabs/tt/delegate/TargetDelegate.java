@@ -26,8 +26,9 @@ public strictfp class TargetDelegate extends ControllableCameraDelegate {
     public final void keyPressed(KeyboardEvent event) {
         getCamera().keyPressed(event);
         int back = Settings.getSettings().getKeybind(Globals.KB_BACK_CANCEL);
+        int pauseDup = Settings.getSettings().getKeybind(Globals.KB_PAUSE);
         int code = event.getKeyCode();
-        if (code == back || code == Keyboard.KEY_ESCAPE) {
+        if (code == back || code == pauseDup || code == Keyboard.KEY_ESCAPE) {
             pop();
             return;
         }

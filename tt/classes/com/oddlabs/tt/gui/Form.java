@@ -143,6 +143,9 @@ public strictfp class Form extends Group {
                 if (event.getKeyCode()
                                 == com.oddlabs.tt.global.Settings.getSettings()
                                         .getKeybind(com.oddlabs.tt.global.Globals.KB_BACK_CANCEL)
+                        || event.getKeyCode()
+                                == com.oddlabs.tt.global.Settings.getSettings()
+                                        .getKeybind(com.oddlabs.tt.global.Globals.KB_PAUSE)
                         || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
                     cancel();
                 }

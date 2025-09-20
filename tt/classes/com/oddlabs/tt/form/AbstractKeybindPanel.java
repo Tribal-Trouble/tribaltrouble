@@ -109,7 +109,7 @@ public abstract class AbstractKeybindPanel extends Panel {
                     put(Globals.KB_BACK_CANCEL, "Back / Cancel");
                     put(Globals.KB_GAMESPEED_INCREASE, "Increase Gamespeed");
                     put(Globals.KB_GAMESPEED_DECREASE, "Decrease Gamespeed");
-                    put(Globals.KB_PAUSE, "Pause / Open Menu");
+                    put(Globals.KB_PAUSE, "Pause / Back (Additional Key)");
                 }
             };
 
@@ -123,10 +123,10 @@ public abstract class AbstractKeybindPanel extends Panel {
         keybinds_list_box = new MultiColumnComboBox(gui_root, keybind_options, dynamicHeight, false);
         // Use top-down layout so first section appears at top.
         // Then invert top-down Y for layout only so the row motion aligns with an origin at bottom (y up).
-    keybinds_list_box.setTopDownLayout(true);
-    keybinds_list_box.setInvertTopDownY(true);
-    // Ensure rows are ordered ascending (by our OrderedLabel order index)
-    keybinds_list_box.setSort(0, false);
+        keybinds_list_box.setTopDownLayout(true);
+        keybinds_list_box.setInvertTopDownY(true);
+        // Ensure rows are ordered ascending (by our OrderedLabel order index)
+        keybinds_list_box.setSort(0, false);
         keybinds_list_box.addRowListener(new KeybindListener());
 
         evaluateKeybindRows();
@@ -249,32 +249,47 @@ public abstract class AbstractKeybindPanel extends Panel {
         header.setColor(new float[] {0.85f, 0.85f, 0.85f, 1});
         keybinds_list_box.addRow(new Row(new GUIObject[] {header}, null));
 
-        // Items
-        for (String actionName : section.actions) {
-            Integer keyCode = keybinds.get(actionName);
-            if (keyCode == null) continue;
-            String keyString = Keyboard.keyToString(keyCode);
-            String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
-            OrderedLabel label =
-                    new OrderedLabel(
-                            displayName + " [" + keyString + "]",
-                            orderIndex++,
-                            Skin.getSkin().getMultiColumnComboBoxData().getFont());
-            // Apply color modifiers based on keybind state
-            Integer defaultKeyCode = defaultKeybinds.get(actionName);
-            boolean isChangedFromDefault = defaultKeyCode != null && !keyCode.equals(defaultKeyCode);
-            
-            Integer count = codeCounts.get(keyCode);
-            boolean isDuplicate = count != null && count > 1;
-            
-            // Apply combined color modifiers if needed
-            if (isChangedFromDefault || isDuplicate) {
-                float[] color = calculateKeybindColor(isChangedFromDefault, isDuplicate);
-                label.setColor(color);
-            }
-            keybinds_list_box.addRow(
-                    new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode)));
+    // Items
+    for (String actionName : section.actions) {
+        // Inline informational labels inside a section (non-interactive)
+        if (actionName != null
+            && (actionName.startsWith("label:") || actionName.startsWith("title:"))) {
+        String text = actionName.substring(actionName.indexOf(':') + 1).trim();
+        OrderedLabel info =
+            new OrderedLabel(
+                text,
+                orderIndex++,
+                Skin.getSkin().getMultiColumnComboBoxData().getFont());
+        // Slightly dim informational text
+        info.setColor(new float[] {0.82f, 0.82f, 0.82f, 1f});
+        keybinds_list_box.addRow(new Row(new GUIObject[] {info}, null));
+        continue;
         }
+
+        Integer keyCode = keybinds.get(actionName);
+        if (keyCode == null) continue;
+        String keyString = Keyboard.keyToString(keyCode);
+        String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
+        OrderedLabel label =
+            new OrderedLabel(
+                displayName + " [" + keyString + "]",
+                orderIndex++,
+                Skin.getSkin().getMultiColumnComboBoxData().getFont());
+        // Apply color modifiers based on keybind state
+        Integer defaultKeyCode = defaultKeybinds.get(actionName);
+        boolean isChangedFromDefault = defaultKeyCode != null && !keyCode.equals(defaultKeyCode);
+
+        Integer count = codeCounts.get(keyCode);
+        boolean isDuplicate = count != null && count > 1;
+
+        // Apply combined color modifiers if needed
+        if (isChangedFromDefault || isDuplicate) {
+        float[] color = calculateKeybindColor(isChangedFromDefault, isDuplicate);
+        label.setColor(color);
+        }
+        keybinds_list_box.addRow(
+            new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode)));
+    }
 
         // Spacer
         keybinds_list_box.addRow(
