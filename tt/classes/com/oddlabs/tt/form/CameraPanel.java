@@ -27,6 +27,7 @@ public class CameraPanel extends Panel {
     // Keep slider refs so we can restore/update values
     private Slider sAccelTime;
     private Slider sAccelFactor;
+    private Slider sPanStartRatio;
     private Slider sStartSpeed;
     private Slider sZoom;
     private Slider sAngle;
@@ -94,6 +95,20 @@ public class CameraPanel extends Panel {
         );
         sAccelFactor = accelFactorGroup.slider;
         scrollContainer.addGroup(accelFactorGroup.group);
+
+        // Pan start ratio ---------------------------------------------------
+        SliderGroupPair panStartRatioGroup = createSliderGroupWithSlider(
+            "Pan start ratio", "0.0", "1.0",
+            Settings.getSettings().camera_pan_start_ratio, 0.0f, 1.0f,
+            new ValueListener() {
+                public void valueSet(int value) {
+                    Settings.getSettings().camera_pan_start_ratio =
+                            fromSlider(value, 0.0f, 1.0f);
+                }
+            }
+        );
+        sPanStartRatio = panStartRatioGroup.slider;
+        scrollContainer.addGroup(panStartRatioGroup.group);
 
         // Start max speed ---------------------------------------------------
         SliderGroupPair startSpeedGroup = createSliderGroupWithSlider(
@@ -262,6 +277,7 @@ public class CameraPanel extends Panel {
         cur.mouse_sensitivity = def.mouse_sensitivity;
         cur.camera_scroll_accel_seconds_max = def.camera_scroll_accel_seconds_max;
         cur.camera_scroll_accel_factor = def.camera_scroll_accel_factor;
+    cur.camera_pan_start_ratio = def.camera_pan_start_ratio;
         cur.camera_start_max_speed = def.camera_start_max_speed;
         cur.camera_zoom_speed = def.camera_zoom_speed;
         cur.camera_angle_delta_deg_per_sec = def.camera_angle_delta_deg_per_sec;
@@ -271,7 +287,8 @@ public class CameraPanel extends Panel {
         // Update UI controls
         sAccelTime.setValue(toSlider(cur.camera_scroll_accel_seconds_max, 0.1f, 3.0f));
         sAccelFactor.setValue(toSlider(cur.camera_scroll_accel_factor, 0.0f, 5.0f));
-        sStartSpeed.setValue(toSlider(cur.camera_start_max_speed, 10f, 120f));
+    sPanStartRatio.setValue(toSlider(cur.camera_pan_start_ratio, 0.0f, 1.0f));
+    sStartSpeed.setValue(toSlider(cur.camera_start_max_speed, 10f, 120f));
         sZoom.setValue(toSlider(cur.camera_zoom_speed, 10f, 150f));
         sAngle.setValue(toSlider(cur.camera_angle_delta_deg_per_sec, 30f, 360f));
         sMaxZ.setValue(toSlider(cur.camera_max_z, 50f, 400f));
@@ -286,6 +303,7 @@ public class CameraPanel extends Panel {
         Settings s = Settings.getSettings();
         sAccelTime.setValue(toSlider(s.camera_scroll_accel_seconds_max, 0.1f, 3.0f));
         sAccelFactor.setValue(toSlider(s.camera_scroll_accel_factor, 0.0f, 5.0f));
+    sPanStartRatio.setValue(toSlider(s.camera_pan_start_ratio, 0.0f, 1.0f));
         sStartSpeed.setValue(toSlider(s.camera_start_max_speed, 10f, 120f));
         sZoom.setValue(toSlider(s.camera_zoom_speed, 10f, 150f));
         sAngle.setValue(toSlider(s.camera_angle_delta_deg_per_sec, 30f, 360f));

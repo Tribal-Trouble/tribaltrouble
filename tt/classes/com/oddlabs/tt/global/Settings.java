@@ -113,6 +113,8 @@ public final strictfp class Settings implements Serializable {
     public float camera_scroll_accel_factor = 2.5f;
     // Maximum starting pan speed when initiating a scroll (world units/second)
     public float camera_start_max_speed = 60.0f;
+    // Baseline start multiplier for panning speed (0..1). 0.4f replicates current behavior.
+    public float camera_pan_start_ratio = 0.4f;
     // Zoom speed scalar applied when zooming (world units/second)
     public float camera_zoom_speed = 50.0f;
     // Rotation/pitch speed in degrees per second
