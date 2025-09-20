@@ -1153,8 +1153,7 @@ public final strictfp class DBInterface {
         try {
             PreparedStatement stmt =
                     DBUtils.createStatement(
-                            "INSERT INTO discord_to_profiles (nick, discord_id) VALUES (?, ?)"
-                                    + " ON DUPLICATE KEY UPDATE discord_id = ?");
+                            "INSERT INTO discord_to_profiles (nick, discord_id) VALUES (?, ?)");
             try {
                 stmt.setString(1, nick);
                 stmt.setLong(2, discord_user_id);
