@@ -139,14 +139,8 @@ public strictfp class Form extends Group {
                 super.keyRepeat(event);
                 break;
             default:
-                // Allow Back/Cancel to be rebindable; keep Escape as fallback
-                if (event.getKeyCode()
-                                == com.oddlabs.tt.global.Settings.getSettings()
-                                        .getKeybind(com.oddlabs.tt.global.Globals.KB_BACK_CANCEL)
-                        || event.getKeyCode()
-                                == com.oddlabs.tt.global.Settings.getSettings()
-                                        .getKeybind(com.oddlabs.tt.global.Globals.KB_PAUSE)
-                        || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+                // Hardwired Back/Cancel behavior
+                if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
                     cancel();
                 }
                 break;

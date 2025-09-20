@@ -127,15 +127,7 @@ public final strictfp class InGameChatForm extends Form implements ChatListener 
         public final void keyRepeat(KeyboardEvent event) {}
 
         public final void keyPressed(KeyboardEvent event) {
-        int back =
-            com.oddlabs.tt.global.Settings.getSettings()
-                .getKeybind(com.oddlabs.tt.global.Globals.KB_BACK_CANCEL);
-        int pauseDup =
-            com.oddlabs.tt.global.Settings.getSettings()
-                .getKeybind(com.oddlabs.tt.global.Globals.KB_PAUSE);
-        if (event.getKeyCode() == back
-            || event.getKeyCode() == pauseDup
-            || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+        if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
                 cancel();
             }
         }

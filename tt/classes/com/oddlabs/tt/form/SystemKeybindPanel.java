@@ -39,10 +39,8 @@ public class SystemKeybindPanel extends AbstractKeybindPanel {
             Globals.KB_CHAT_TOGGLE,
             Globals.KB_GAMESPEED_INCREASE,
             Globals.KB_GAMESPEED_DECREASE,
-            Globals.KB_PAUSE,
             // Inline info rows (non-interactive labels at end of section)
-            "label: Note: Escape is always Back/Pause.",
-            "label: 'Pause / Back (Additional Key)' lets you add another key (optional).")
+            "label: Note: Escape is always Back/Pause and not rebindable.")
     );
     }
 }

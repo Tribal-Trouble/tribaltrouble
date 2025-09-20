@@ -960,11 +960,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 && (current_unit || current_armory)) {
             return true;
     } else if ((event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_CHIEFTAIN)
-                        || event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_IRON)
-                        || event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_TREE)
-            || event.getKeyCode() == settings.getKeybind(Globals.KB_BACK_CANCEL)
-            || event.getKeyCode() == settings.getKeybind(Globals.KB_PAUSE)
-                        || event.getKeyCode() == Keyboard.KEY_ESCAPE)
+            || event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_IRON)
+            || event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST_TREE)
+            || event.getKeyCode() == Keyboard.KEY_ESCAPE)
                 && current_armory
                 && (current_submenu == harvest_group
                         || current_submenu == build_group
@@ -1149,30 +1147,22 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 && current_submenu == transport_group) {
             transport_tree_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
             return true;
-    } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_BACK_CANCEL)
-        || event.getKeyCode() == settings.getKeybind(Globals.KB_PAUSE)
-        || event.getKeyCode() == Keyboard.KEY_ESCAPE
+        } else if (event.getKeyCode() == Keyboard.KEY_ESCAPE
                         && current_armory
                         && current_submenu == harvest_group) {
             harvest_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
             return true;
-        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_BACK_CANCEL)
-        || event.getKeyCode() == settings.getKeybind(Globals.KB_PAUSE)
-        || event.getKeyCode() == Keyboard.KEY_ESCAPE
+        } else if (event.getKeyCode() == Keyboard.KEY_ESCAPE
                         && current_armory
                         && current_submenu == build_group) {
             build_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
             return true;
-        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_BACK_CANCEL)
-        || event.getKeyCode() == settings.getKeybind(Globals.KB_PAUSE)
-        || event.getKeyCode() == Keyboard.KEY_ESCAPE
+        } else if (event.getKeyCode() == Keyboard.KEY_ESCAPE
                         && current_armory
                         && current_submenu == army_group) {
             army_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
             return true;
-        } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_BACK_CANCEL)
-        || event.getKeyCode() == settings.getKeybind(Globals.KB_PAUSE)
-        || event.getKeyCode() == Keyboard.KEY_ESCAPE
+        } else if (event.getKeyCode() == Keyboard.KEY_ESCAPE
                         && current_armory
                         && current_submenu == transport_group) {
             transport_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);

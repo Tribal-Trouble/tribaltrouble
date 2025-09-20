@@ -83,8 +83,7 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         int kbJumpNotif = settings.getKeybind(Globals.KB_JUMP_TO_NOTIFICATION);
         int kbBeacon = settings.getKeybind(Globals.KB_PLACE_BEACON);
         int kbNextIdle = settings.getKeybind(Globals.KB_NEXT_IDLE_PEON);
-        int kbChatToggle = settings.getKeybind(Globals.KB_CHAT_TOGGLE);
-        int kbBackCancel = settings.getKeybind(Globals.KB_BACK_CANCEL);
+    int kbChatToggle = settings.getKeybind(Globals.KB_CHAT_TOGGLE);
         int kbArmy0 = settings.getKeybind(Globals.KB_ARMY_GROUP_0);
         int kbArmy1 = settings.getKeybind(Globals.KB_ARMY_GROUP_1);
         int kbArmy2 = settings.getKeybind(Globals.KB_ARMY_GROUP_2);
@@ -94,8 +93,7 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         int kbArmy6 = settings.getKeybind(Globals.KB_ARMY_GROUP_6);
         int kbArmy7 = settings.getKeybind(Globals.KB_ARMY_GROUP_7);
         int kbArmy8 = settings.getKeybind(Globals.KB_ARMY_GROUP_8);
-        int kbArmy9 = settings.getKeybind(Globals.KB_ARMY_GROUP_9);
-        int kbPause = settings.getKeybind(Globals.KB_PAUSE);
+    int kbArmy9 = settings.getKeybind(Globals.KB_ARMY_GROUP_9);
         switch (event.getKeyCode()) {
             case Keyboard.KEY_NUMPAD5:
                 // Legacy support: Numpad 5 toggles map mode
@@ -166,10 +164,8 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                     break;
                 }
 
-                // Always-available: open menu even in observer/map mode
-                if (event.getKeyCode() == kbPause
-                        || event.getKeyCode() == kbBackCancel
-                        || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+                // Open pause menu on Escape (hardwired)
+                if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
                     getGUIRoot()
                             .pushDelegate(
                                     new InGameMainMenu(

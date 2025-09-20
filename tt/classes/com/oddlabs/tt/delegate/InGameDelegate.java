@@ -145,7 +145,7 @@ public abstract strictfp class InGameDelegate extends CameraDelegate {
     }
 
     protected void keyPressed(KeyboardEvent event) {
-        // Pause is handled in SelectionDelegate via KB_PAUSE; Back/Cancel is contextual elsewhere.
+        // Pause is handled by hardwired Escape handling in selection/menu delegates.
         if (!cheat(event)) super.keyPressed(event);
     }
 

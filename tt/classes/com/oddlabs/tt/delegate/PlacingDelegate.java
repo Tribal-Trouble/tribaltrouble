@@ -72,11 +72,7 @@ public final strictfp class PlacingDelegate extends ControllableCameraDelegate {
 
     public final void keyPressed(KeyboardEvent event) {
         getCamera().keyPressed(event);
-        int back = Settings.getSettings().getKeybind(Globals.KB_BACK_CANCEL);
-        int pauseDup = Settings.getSettings().getKeybind(Globals.KB_PAUSE);
-        if (event.getKeyCode() == back
-                || event.getKeyCode() == pauseDup
-                || event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+        if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
             pop();
             return;
         }

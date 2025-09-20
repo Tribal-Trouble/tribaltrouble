@@ -106,10 +106,8 @@ public abstract class AbstractKeybindPanel extends Panel {
                     put(Globals.KB_ARMY_GROUP_9, "Army Group 9 (Ctrl to assign)");
 
                     put(Globals.KB_CHAT_TOGGLE, "Chat Toggle");
-                    put(Globals.KB_BACK_CANCEL, "Back / Cancel");
                     put(Globals.KB_GAMESPEED_INCREASE, "Increase Gamespeed");
                     put(Globals.KB_GAMESPEED_DECREASE, "Decrease Gamespeed");
-                    put(Globals.KB_PAUSE, "Pause / Back (Additional Key)");
                 }
             };
 
