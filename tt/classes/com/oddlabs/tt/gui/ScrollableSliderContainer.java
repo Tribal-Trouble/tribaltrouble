@@ -55,23 +55,37 @@ public class ScrollableSliderContainer extends GUIObject implements Scrollable {
     
     /**
      * Update the layout of all groups based on current scroll offset
+     *
+     * Top-down layout: first group starts at the visual top of the container and
+     * we position following groups beneath it. We invert the effective layout
+     * offset (use -offsetY) so that:
+     *  - Pressing Up (decrease offsetY) moves content up
+     *  - Pressing Down (increase offsetY) moves content down
+     * while keeping ordering top-to-bottom.
      */
     private void updateLayout() {
-        int currentY = topPadding - offsetY;  // Start with top padding, subtract scroll offset for intuitive scrolling
-        totalContentHeight = topPadding;     // Include top padding in total height
-        
+        // Effective layout offset mirrors MultiColumnComboBox top-down approach
+    // Match MultiColumn top-down layout semantics: increasing offsetY moves content UP
+    int layoutOffsetY = -offsetY;
+
+    // Start from the visual top (container height) minus top padding and plus layout offset
+    // Using minus layoutOffsetY effectively adds offsetY here, moving content upward for larger offsets
+    int currentY = visibleHeight - topPadding - layoutOffsetY; // == visibleHeight + offsetY - topPadding
+
+        // Compute total content height (independent of current offset)
+        totalContentHeight = topPadding;
+
         for (Group group : groups) {
+            currentY -= group.getHeight();     // move down by the group's height
             group.setPos(0, currentY);
-            currentY += group.getHeight() + groupSpacing;
+            currentY -= groupSpacing;          // spacing below the group
             totalContentHeight += group.getHeight() + groupSpacing;
         }
-        
+
         // Remove trailing spacing and add bottom padding
-        if (!groups.isEmpty()) {
-            totalContentHeight -= groupSpacing;
-        }
+        if (!groups.isEmpty()) totalContentHeight -= groupSpacing;
         totalContentHeight += bottomPadding;
-        
+
         scrollBar.update();
     }
     
@@ -106,19 +120,14 @@ public class ScrollableSliderContainer extends GUIObject implements Scrollable {
     @Override
     public void setOffsetY(int newOffset) {
         offsetY = newOffset;
-        
-        // Clamp to valid range for intuitive scrolling
-        // Minimum: 0 (content at top position)
-        // Maximum: enough to scroll all content up and show the bottom
+
+        // Clamp to valid range
         int minOffset = 0;
-        if (offsetY < minOffset) {
-            offsetY = minOffset;
-        }
-        int maxOffset = Math.max(0, totalContentHeight - visibleHeight + topPadding);
-        if (offsetY > maxOffset) {
-            offsetY = maxOffset;
-        }
-        
+        if (offsetY < minOffset) offsetY = minOffset;
+        // Maximum: enough to reveal the last item at the bottom of the viewport
+        int maxOffset = Math.max(0, totalContentHeight - visibleHeight);
+        if (offsetY > maxOffset) offsetY = maxOffset;
+
         updateLayout();
     }
     
@@ -150,18 +159,16 @@ public class ScrollableSliderContainer extends GUIObject implements Scrollable {
     @Override
     public float getScrollBarOffset() {
         int minOffset = 0;
-        int maxOffset = Math.max(0, totalContentHeight - visibleHeight + topPadding);
+        int maxOffset = Math.max(0, totalContentHeight - visibleHeight);
         int offsetRange = maxOffset - minOffset;
-        if (offsetRange == 0) {
-            return 0.0f;
-        }
+        if (offsetRange == 0) return 0.0f;
         return (float) (offsetY - minOffset) / offsetRange;
     }
     
     @Override
     public void setScrollBarOffset(float offset) {
         int minOffset = 0;
-        int maxOffset = Math.max(0, totalContentHeight - visibleHeight + topPadding);
+        int maxOffset = Math.max(0, totalContentHeight - visibleHeight);
         int offsetRange = maxOffset - minOffset;
         setOffsetY((int) (minOffset + offset * offsetRange));
     }
