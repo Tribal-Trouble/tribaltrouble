@@ -16,9 +16,9 @@ import com.oddlabs.tt.input.Mouse;
 /** Camera options panel: adjust mouse sensitivity and camera movement parameters. */
 public class CameraPanel extends Panel {
     // Base width used elsewhere (e.g., AbstractOptionsMenu) for panel sizing
-    private static final int PANEL_BASE_TRACK_WIDTH = 270;
-    // Actual slider track length for this panel (40px shorter to avoid overlap with scrollbar)
-    private static final int SLIDER_WIDTH = PANEL_BASE_TRACK_WIDTH - 40; // 230
+    private static final int PANEL_BASE_TRACK_WIDTH = 300; // panel base width stays 300px
+    // Opposite compensation: slider is wider than base; also +20px from previous (now 310)
+    private static final int SLIDER_WIDTH = PANEL_BASE_TRACK_WIDTH - 46;
     private static final int SLIDER_LEFT_INDENT = 50; // fixed indent to align all slider tracks
     private static final int SLIDER_MIN = 0;
     private static final int SLIDER_MAX = 100;
@@ -52,7 +52,8 @@ public class CameraPanel extends Panel {
     // Container width: decoupled from SLIDER_WIDTH so shortening the track increases the
     // gap to the scrollbar without narrowing the entire panel. Keep panel aligned to
     // the base width used by other menus for visual consistency.
-    int containerWidth = SLIDER_LEFT_INDENT + PANEL_BASE_TRACK_WIDTH + 20;
+    // Ensure the container accommodates the wider slider plus margin for the scrollbar
+    int containerWidth = SLIDER_LEFT_INDENT + Math.max(PANEL_BASE_TRACK_WIDTH, SLIDER_WIDTH) + 20;
     ScrollableSliderContainer scrollContainer =
         new ScrollableSliderContainer(containerWidth, dynamicHeight, GROUP_SPACING);
         SliderGroupPair mapModeGroup = createSliderGroupWithSlider(
