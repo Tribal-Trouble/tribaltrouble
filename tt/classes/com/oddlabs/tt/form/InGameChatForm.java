@@ -127,8 +127,10 @@ public final strictfp class InGameChatForm extends Form implements ChatListener 
         public final void keyRepeat(KeyboardEvent event) {}
 
         public final void keyPressed(KeyboardEvent event) {
-        if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+            if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+                // Close chat and consume so gameplay delegate doesn't open Pause
                 cancel();
+                event.consume();
             }
         }
 

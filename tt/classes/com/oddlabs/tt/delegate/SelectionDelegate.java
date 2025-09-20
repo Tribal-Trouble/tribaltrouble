@@ -164,16 +164,24 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                     break;
                 }
 
-                // Open pause menu on Escape (hardwired)
-                if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
-                    getGUIRoot()
-                            .pushDelegate(
-                                    new InGameMainMenu(
-                                            getViewer(),
-                                            new StaticCamera(getCamera().getState()),
-                                            getViewer().getParameters()));
-                    break;
-                }
+        // Escape handling: respect Back/Cancel contexts before Pause
+        if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+            // If a modal dialog/form is open, let it handle ESC (Back/Cancel)
+            if (getGUIRoot().getModalDelegate() != null) break;
+            // If keyboard is blocked by an active chat input, don't open Pause
+            if (keyboardBlocked()) break;
+            // Let action panel (submenus) claim ESC first (Back within submenus)
+            if (!map_mode && !observer && getActionButtonPanel().doKeyPressed(event)) break;
+
+            // No UI context wants ESC -> open Pause menu
+            getGUIRoot()
+                .pushDelegate(
+                    new InGameMainMenu(
+                        getViewer(),
+                        new StaticCamera(getCamera().getState()),
+                        getViewer().getParameters()));
+            break;
+        }
 
                 // Fallback original behavior
                 if (map_mode || observer) {
