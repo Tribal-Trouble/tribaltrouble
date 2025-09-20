@@ -15,7 +15,10 @@ import com.oddlabs.tt.input.Mouse;
 
 /** Camera options panel: adjust mouse sensitivity and camera movement parameters. */
 public class CameraPanel extends Panel {
-    private static final int SLIDER_WIDTH = 180;
+    // Base width used elsewhere (e.g., AbstractOptionsMenu) for panel sizing
+    private static final int PANEL_BASE_TRACK_WIDTH = 270;
+    // Actual slider track length for this panel (40px shorter to avoid overlap with scrollbar)
+    private static final int SLIDER_WIDTH = PANEL_BASE_TRACK_WIDTH - 40; // 230
     private static final int SLIDER_LEFT_INDENT = 50; // fixed indent to align all slider tracks
     private static final int SLIDER_MIN = 0;
     private static final int SLIDER_MAX = 100;
@@ -46,10 +49,12 @@ public class CameraPanel extends Panel {
 
         // Create scrollable container for sliders
         int dynamicHeight = calculateDynamicScrollableHeight();
-        ScrollableSliderContainer scrollContainer = 
-            new ScrollableSliderContainer(SLIDER_WIDTH + 100, dynamicHeight, GROUP_SPACING);
-        
-        // Map mode delay (moved here from General) -------------------------
+    // Container width: decoupled from SLIDER_WIDTH so shortening the track increases the
+    // gap to the scrollbar without narrowing the entire panel. Keep panel aligned to
+    // the base width used by other menus for visual consistency.
+    int containerWidth = SLIDER_LEFT_INDENT + PANEL_BASE_TRACK_WIDTH + 20;
+    ScrollableSliderContainer scrollContainer =
+        new ScrollableSliderContainer(containerWidth, dynamicHeight, GROUP_SPACING);
         SliderGroupPair mapModeGroup = createSliderGroupWithSlider(
             "Map mode delay", "none", "high",
             Settings.getSettings().mapmode_delay, 0.0f, 1.0f,
@@ -109,14 +114,15 @@ public class CameraPanel extends Panel {
             Settings.getSettings().camera_zoom_speed, 10f, 150f,
             new ValueListener() {
                 public void valueSet(int value) {
-                    Settings.getSettings().camera_zoom_speed = fromSlider(value, 10f, 150f);
+                    Settings.getSettings().camera_zoom_speed =
+                            fromSlider(value, 10f, 150f);
                 }
             }
         );
         sZoom = zoomGroup.slider;
         scrollContainer.addGroup(zoomGroup.group);
 
-        // Angle speed (deg/s) ----------------------------------------------
+        // Rotate/Pitch speed -----------------------------------------------
         SliderGroupPair angleGroup = createSliderGroupWithSlider(
             "Rotate/Pitch speed (deg/s)", "30", "360",
             Settings.getSettings().camera_angle_delta_deg_per_sec, 30f, 360f,
@@ -147,11 +153,11 @@ public class CameraPanel extends Panel {
         Group gEdge = new Group();
         Label lblEdge = new Label("Edge scroll buffer (px)", Skin.getSkin().getEditFont());
         gEdge.addChild(lblEdge);
-    Label lblEdgeLow = new Label("0", Skin.getSkin().getEditFont());
-    gEdge.addChild(lblEdgeLow);
-    Label lblEdgeHigh = new Label("50", Skin.getSkin().getEditFont());
-    gEdge.addChild(lblEdgeHigh);
-    sEdge = new Slider(
+        Label lblEdgeLow = new Label("0", Skin.getSkin().getEditFont());
+        gEdge.addChild(lblEdgeLow);
+        Label lblEdgeHigh = new Label("50", Skin.getSkin().getEditFont());
+        gEdge.addChild(lblEdgeHigh);
+        sEdge = new Slider(
                 SLIDER_WIDTH,
                 0,
                 50,
@@ -163,28 +169,18 @@ public class CameraPanel extends Panel {
                         Settings.getSettings().camera_edge_scroll_buffer = value;
                     }
                 });
-    lblEdge.place();
-    // Place slider below title with fixed left indent for alignment
-    sEdge.place(lblEdge, BOTTOM_LEFT);
-    sEdge.correctPos(SLIDER_LEFT_INDENT, 0);
-    // Place low/high labels relative to the slider so their widths don't affect alignment
-    lblEdgeLow.place(sEdge, LEFT_MID);
-    lblEdgeHigh.place(sEdge, RIGHT_MID);
+        lblEdge.place();
+        // Place slider below title with fixed left indent for alignment
+        sEdge.place(lblEdge, BOTTOM_LEFT);
+        sEdge.correctPos(SLIDER_LEFT_INDENT, -4);
+        // Place low/high labels relative to the slider so their widths don't affect alignment
+        lblEdgeLow.place(sEdge, LEFT_MID);
+        lblEdgeHigh.place(sEdge, RIGHT_MID);
         gEdge.compileCanvas();
         scrollContainer.addGroup(gEdge);
 
-        // Save button -------------------------------------------------------
+        // Buttons -----------------------------------------------------------
         Group gButtons = new Group();
-        HorizButton btnSave = new HorizButton("Save", 120);
-        gButtons.addChild(btnSave);
-        btnSave.addMouseClickListener(
-                new MouseClickListener() {
-                    public void mouseClicked(int button, int x, int y, int clicks) {
-                        Settings.getSettings().save();
-                    }
-                });
-        btnSave.place();
-
         HorizButton btnDefaults = new HorizButton("Restore defaults", 160);
         gButtons.addChild(btnDefaults);
         btnDefaults.addMouseClickListener(
@@ -193,7 +189,7 @@ public class CameraPanel extends Panel {
                         restoreDefaults();
                     }
                 });
-        btnDefaults.place(btnSave, RIGHT_MID);
+        btnDefaults.place();
         gButtons.compileCanvas();
 
         // Layout
@@ -246,7 +242,8 @@ public class CameraPanel extends Panel {
         lblTitle.place();
         // Place slider below title with fixed left indent so all slider tracks align
         slider.place(lblTitle, BOTTOM_LEFT);
-        slider.correctPos(SLIDER_LEFT_INDENT, 0);
+    // Nudge down slightly to avoid title text overlapping the track
+    slider.correctPos(SLIDER_LEFT_INDENT, -4);
         // Low label sits to the left of the slider; its width won't change slider position
         lblLow.place(slider, LEFT_MID);
         // High label sits to the right of the slider
