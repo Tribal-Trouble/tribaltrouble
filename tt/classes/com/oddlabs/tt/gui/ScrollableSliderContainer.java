@@ -93,12 +93,11 @@ public class ScrollableSliderContainer extends GUIObject implements Scrollable {
     
     @Override
     protected void mouseScrolled(int amount) {
+        // Normalize: wheel up => scroll up (decrease offset)
         if (amount > 0) {
-            // Wheel up - scroll content down by increasing offset
-            setOffsetY(offsetY + 3 * groupSpacing);
-        } else {
-            // Wheel down - scroll content up by decreasing offset
             setOffsetY(offsetY - 3 * groupSpacing);
+        } else {
+            setOffsetY(offsetY + 3 * groupSpacing);
         }
     }
     

@@ -148,16 +148,9 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
 
     protected final void mouseScrolled(int amount) {
         int delta = 3 * Skin.getSkin().getMultiColumnComboBoxData().getFont().getHeight();
-        // Default behavior (bottom-up layout): positive amount scrolls content up (increase offset)
-        // For top-down layout (keybind panels), invert mapping so wheel down (amount>0) increases offset.
-        boolean topDown = rows.isTopDownLayout();
-        if (topDown) {
-            if (amount > 0) setOffsetY(offset_y + delta);
-            else setOffsetY(offset_y - delta);
-        } else {
-            if (amount > 0) setOffsetY(offset_y + delta);
-            else setOffsetY(offset_y - delta);
-        }
+        // Normalize: wheel up => scroll up (decrease offset)
+        if (amount > 0) setOffsetY(offset_y - delta);
+        else setOffsetY(offset_y + delta);
     }
 
     public void setTopDownLayout(boolean topDown) {
@@ -201,5 +194,10 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
     public final void setScrollBarOffset(float offset) {
         int length = StrictMath.max(rows.getContentHeight(), offset_y + rows.getHeight());
         setOffsetY((int) (offset * (length - rows.getHeight())));
+    }
+
+    // Minimal API to control initial sort order from callers that need it
+    public void setSort(int columnIndex, boolean descending) {
+        rows.markChanged(columnIndex, descending);
     }
 }

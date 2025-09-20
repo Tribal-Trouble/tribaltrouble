@@ -89,7 +89,8 @@ public final strictfp class ScrollBar extends GUIObject {
                         - data.getBottomOffset()
                         - data.getTopOffset();
         int size = getButtonHeight();
-        int offset = (int) ((max_height - size) * owner.getScrollBarOffset());
+        // Map 0.0 offset (top of content) to top of track visually
+        int offset = (int) ((max_height - size) * (1f - owner.getScrollBarOffset()));
         return less_button.getHeight() + data.getBottomOffset() + offset;
     }
 
@@ -116,7 +117,8 @@ public final strictfp class ScrollBar extends GUIObject {
 
     private final strictfp class LessListener implements MouseButtonListener {
         public final void mousePressed(int button, int x, int y) {
-            owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
+            // Bottom "down" arrow should scroll down (increase offset)
+            owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
             scroll_button.setupPos(ScrollBar.this);
         }
 
@@ -129,7 +131,8 @@ public final strictfp class ScrollBar extends GUIObject {
 
     private final strictfp class MoreListener implements MouseButtonListener {
         public final void mousePressed(int button, int x, int y) {
-            owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
+            // Top "up" arrow should scroll up (decrease offset)
+            owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
             scroll_button.setupPos(ScrollBar.this);
         }
 
@@ -159,7 +162,9 @@ public final strictfp class ScrollBar extends GUIObject {
             float ratio = owner.getScrollBarRatio();
             int size = (int) (ratio * max_height);
             int scroll_button_space = max_height - size;
-            owner.setScrollBarOffset(start_offset + abs_y / (float) scroll_button_space);
+        // Dragging upward (abs_y > 0 in game coords) should move toward top (decrease offset)
+        if (scroll_button_space > 0)
+        owner.setScrollBarOffset(start_offset - abs_y / (float) scroll_button_space);
             scroll_button.setupPos(ScrollBar.this);
         }
 
