@@ -35,22 +35,32 @@ public class KeybindPanel extends Panel {
         Group headerGroup = new Group();
         
         // Clipboard controls - these operate on ALL keybinds
-        HorizButton copyBtn = new HorizButton("Copy", 90);
+    HorizButton copyBtn = new HorizButton("Copy", 84);
         copyBtn.addMouseClickListener((button, x, y, clicks) -> copyBinds());
         headerGroup.addChild(copyBtn);
 
-        HorizButton pasteBtn = new HorizButton("Paste", 90);
+    HorizButton pasteBtn = new HorizButton("Paste", 84);
         pasteBtn.addMouseClickListener((button, x, y, clicks) -> pasteBinds());
         headerGroup.addChild(pasteBtn);
 
-        HorizButton resetBtn = new HorizButton("Reset All", 110);
+    HorizButton resetBtn = new HorizButton("Reset", 84);
         resetBtn.addMouseClickListener((button, x, y, clicks) -> resetBinds());
         headerGroup.addChild(resetBtn);
         
-        // Layout header controls (buttons row)
-        copyBtn.place();
-        pasteBtn.place(copyBtn, RIGHT_MID);
-        resetBtn.place(pasteBtn, RIGHT_MID);
+    HorizButton legendBtn = new HorizButton("Legend", 84);
+        legendBtn.addMouseClickListener((button, x, y, clicks) -> {
+            LegendForm lf = new LegendForm();
+            gui_root.addModalForm(lf);
+        });
+        headerGroup.addChild(legendBtn);
+        
+
+    // Layout header controls (buttons row) — Legend first
+    legendBtn.place();
+    copyBtn.place(legendBtn, RIGHT_MID);
+    pasteBtn.place(copyBtn, RIGHT_MID);
+    resetBtn.place(pasteBtn, RIGHT_MID);
+    // no additional controls beyond legend
         headerGroup.compileCanvas();
         
         // Create category panels without their own controls
@@ -81,8 +91,8 @@ public class KeybindPanel extends Panel {
     }
     
     private void setStatus(String msg, boolean ok) {
-        float[] GREEN = new float[] {0.298f, 0.686f, 0.314f, 1f};
-        float[] RED = new float[] {0.9f, 0.2f, 0.2f, 1f};
+        float[] GREEN = KeybindColors.SUCCESS;
+        float[] RED = KeybindColors.ERROR;
         if (gui_root != null && gui_root.getInfoPrinter() != null) {
             gui_root.getInfoPrinter().print(msg, ok ? GREEN : RED);
         }

@@ -169,34 +169,12 @@ public abstract class AbstractKeybindPanel extends Panel {
         return Settings.getDefaultKeybinds();
     }
 
-    /**
-     * Calculates the display color for a keybind label based on modifiers.
-     * Combines yellow tinting (changed from default) and darkening (duplicate) effects.
-     * 
-     * @param isChangedFromDefault true if this keybind differs from its default value
-     * @param isDuplicate true if this key is assigned to multiple actions
-     * @return RGBA color array for the label
-     */
-    private float[] calculateKeybindColor(boolean isChangedFromDefault, boolean isDuplicate) {
-        // Base color: white
-        float r = 1.0f, g = 1.0f, b = 1.0f;
-        
-        // Apply yellow tinting for changed-from-default (more yellow = less blue/red)
-        if (isChangedFromDefault) {
-            r = 1.0f;      // Keep red at full
-            g = 0.92f;     // Slight yellow tint
-            b = 0.23f;     // Reduce blue significantly for yellow effect
-        }
-        
-        // Apply darkening for duplicates (multiply by darkening factor)
-        if (isDuplicate) {
-            float darkeningFactor = 0.7f; // 30% darker
-            r *= darkeningFactor;
-            g *= darkeningFactor;
-            b *= darkeningFactor;
-        }
-        
-        return new float[] {r, g, b, 1.0f}; // Full alpha
+    // Toggle for global overlap highlighting (default ON). Stored in memory here; could be persisted in Settings if desired.
+    private static boolean SHOW_GLOBAL_OVERLAP = true;
+
+    /** Simple API to toggle overlap highlighting from parent panel. */
+    public static void setShowGlobalOverlap(boolean show) {
+        SHOW_GLOBAL_OVERLAP = show;
     }
 
     private void evaluateKeybindRows() {
@@ -206,18 +184,19 @@ public abstract class AbstractKeybindPanel extends Panel {
         // Get default keybinds for comparison to detect changed-from-default settings
         HashMap<String, Integer> defaultKeybinds = getDefaultKeybinds();
 
-        // Build reverse map keyCode -> count to detect duplicates
-        java.util.HashMap<Integer, Integer> codeCounts = new java.util.HashMap<>();
-        for (Integer code : keybinds.values()) {
-            if (code == null) continue;
-            codeCounts.put(code, codeCounts.getOrDefault(code, 0) + 1);
+        // Build GLOBAL reverse map keyCode -> count to detect overlaps across sections (exclude KEY_NONE)
+        java.util.HashMap<Integer, Integer> globalCodeCounts = new java.util.HashMap<>();
+        for (Map.Entry<String, Integer> e : keybinds.entrySet()) {
+            Integer code = e.getValue();
+            if (code == null || code == com.oddlabs.tt.input.Keyboard.KEY_NONE) continue;
+            globalCodeCounts.put(code, globalCodeCounts.getOrDefault(code, 0) + 1);
         }
 
         List<Section> sections = getSections();
 
         int orderIndex = 0;
         for (Section sec : sections) {
-            orderIndex = addSection(sec, keybinds, defaultKeybinds, codeCounts, orderIndex);
+            orderIndex = addSection(sec, keybinds, defaultKeybinds, globalCodeCounts, orderIndex);
         }
     }
 
@@ -240,13 +219,23 @@ public abstract class AbstractKeybindPanel extends Panel {
             Section section,
             HashMap<String, Integer> keybinds,
             HashMap<String, Integer> defaultKeybinds,
-            java.util.Map<Integer, Integer> codeCounts,
+            java.util.Map<Integer, Integer> globalCodeCounts,
             int orderIndex) {
         // Header
         OrderedLabel header =
                 new OrderedLabel(section.title, orderIndex++, Skin.getSkin().getEditFont());
-        header.setColor(new float[] {0.85f, 0.85f, 0.85f, 1});
+        header.setColor(KeybindColors.SECTION_HEADER);
         keybinds_list_box.addRow(new Row(new GUIObject[] {header}, null));
+
+        // Build SECTION-scoped reverse map for conflicts (exclude KEY_NONE)
+        java.util.HashMap<Integer, Integer> sectionCodeCounts = new java.util.HashMap<>();
+        for (String actionName : section.actions) {
+            if (actionName == null || actionName.startsWith("label:") || actionName.startsWith("title:"))
+                continue;
+            Integer kc = keybinds.get(actionName);
+            if (kc == null || kc == com.oddlabs.tt.input.Keyboard.KEY_NONE) continue;
+            sectionCodeCounts.put(kc, sectionCodeCounts.getOrDefault(kc, 0) + 1);
+        }
 
     // Items
     for (String actionName : section.actions) {
@@ -259,8 +248,8 @@ public abstract class AbstractKeybindPanel extends Panel {
                 text,
                 orderIndex++,
                 Skin.getSkin().getMultiColumnComboBoxData().getFont());
-        // Slightly dim informational text
-        info.setColor(new float[] {0.82f, 0.82f, 0.82f, 1f});
+        // Info/subtext color
+        info.setColor(KeybindColors.INFO_SUBTEXT);
         keybinds_list_box.addRow(new Row(new GUIObject[] {info}, null));
         continue;
         }
@@ -269,28 +258,45 @@ public abstract class AbstractKeybindPanel extends Panel {
         if (keyCode == null) continue;
     String keyString = (keyCode == Keyboard.KEY_NONE) ? "Unbound" : Keyboard.keyToString(keyCode);
         String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
+        StringBuilder labelText = new StringBuilder();
+        labelText.append(displayName).append(" [").append(keyString).append("]");
         OrderedLabel label =
             new OrderedLabel(
-                displayName + " [" + keyString + "]",
+                labelText.toString(),
                 orderIndex++,
                 Skin.getSkin().getMultiColumnComboBoxData().getFont());
-        // Apply color modifiers based on keybind state
+        // Decide state and color
         Integer defaultKeyCode = defaultKeybinds.get(actionName);
         boolean isChangedFromDefault = defaultKeyCode != null && !keyCode.equals(defaultKeyCode);
 
-        Integer count = codeCounts.get(keyCode);
-        boolean isDuplicate = count != null && count > 1;
+        boolean isUnbound = keyCode == Keyboard.KEY_NONE;
+        boolean isSectionConflict = !isUnbound
+                && sectionCodeCounts.getOrDefault(keyCode, 0) > 1;
+        boolean isGlobalOverlap = !isUnbound
+                && globalCodeCounts.getOrDefault(keyCode, 0) > 1
+                && !isSectionConflict; // if conflict, treat as conflict only
 
-        // Apply combined color modifiers if needed
-        if (isChangedFromDefault || isDuplicate) {
-        float[] color = calculateKeybindColor(isChangedFromDefault, isDuplicate);
-        label.setColor(color);
+        // Priority: Conflict > Unbound > Overlap > Custom > Default
+        if (isSectionConflict) {
+            label.setColor(KeybindColors.CONFLICT);
+            label.set(label.getContents() + " [Conflict]");
+        } else if (isUnbound) {
+            label.setColor(KeybindColors.UNBOUND);
+            label.set(label.getContents() + " [Unbound]");
+        } else if (isGlobalOverlap && SHOW_GLOBAL_OVERLAP) {
+            label.setColor(KeybindColors.OVERLAP);
+            label.set(label.getContents() + " [Overlap]");
+        } else if (isChangedFromDefault) {
+            label.setColor(KeybindColors.CUSTOM);
+            label.set(label.getContents() + " [Custom]");
+        } else {
+            label.setColor(KeybindColors.DEFAULT_LABEL);
         }
         keybinds_list_box.addRow(
             new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode)));
     }
 
-        // Spacer
+    // Spacer (small)
         keybinds_list_box.addRow(
                 new Row(
                         new GUIObject[] {
