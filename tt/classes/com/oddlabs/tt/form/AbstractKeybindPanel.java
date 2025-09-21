@@ -116,8 +116,10 @@ public abstract class AbstractKeybindPanel extends Panel {
         super(caption);
         this.gui_root = gui_root;
 
-        // Simple layout - just the keybind list
-        ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", 300)};
+    // Simple layout - just the keybind list
+    // Compute column width based on actual label text to avoid truncation while keeping it reasonable
+    int colWidth = computeOptimalColumnWidth();
+    ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", colWidth)};
         int dynamicHeight = calculateDynamicHeight();
         keybinds_list_box = new MultiColumnComboBox(gui_root, keybind_options, dynamicHeight, false);
         // Use top-down layout so first section appears at top.
@@ -222,8 +224,9 @@ public abstract class AbstractKeybindPanel extends Panel {
             java.util.Map<Integer, Integer> globalCodeCounts,
             int orderIndex) {
         // Header
-        OrderedLabel header =
-                new OrderedLabel(section.title, orderIndex++, Skin.getSkin().getEditFont());
+    OrderedLabel header =
+        new OrderedLabel(section.title, orderIndex++, Skin.getSkin().getEditFont());
+    header.setCropText(false);
         header.setColor(KeybindColors.SECTION_HEADER);
         keybinds_list_box.addRow(new Row(new GUIObject[] {header}, null));
 
@@ -248,6 +251,7 @@ public abstract class AbstractKeybindPanel extends Panel {
                 text,
                 orderIndex++,
                 Skin.getSkin().getMultiColumnComboBoxData().getFont());
+        info.setCropText(false);
         // Info/subtext color
         info.setColor(KeybindColors.INFO_SUBTEXT);
         keybinds_list_box.addRow(new Row(new GUIObject[] {info}, null));
@@ -265,6 +269,7 @@ public abstract class AbstractKeybindPanel extends Panel {
                 labelText.toString(),
                 orderIndex++,
                 Skin.getSkin().getMultiColumnComboBoxData().getFont());
+        label.setCropText(false);
         // Decide state and color
         Integer defaultKeyCode = defaultKeybinds.get(actionName);
         boolean isChangedFromDefault = defaultKeyCode != null && !keyCode.equals(defaultKeyCode);
@@ -304,6 +309,54 @@ public abstract class AbstractKeybindPanel extends Panel {
                         },
                         null));
         return orderIndex;
+    }
+
+    // Determine an optimal column width that fits the longest visible label
+    // but does not exceed a sensible fraction of the viewport.
+    private int computeOptimalColumnWidth() {
+        int viewWidth = LocalInput.getViewWidth();
+        int maxAllowed = StrictMath.max(420, viewWidth - 180); // leave space for padding/scrollbar
+
+        // Measure text using the same font as the list rows
+        com.oddlabs.tt.font.Font rowFont = Skin.getSkin().getMultiColumnComboBoxData().getFont();
+
+        // Use current keybinds to build the shown label text (e.g., including [Unbound])
+        HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
+
+        int maxTextWidth = 0;
+        for (Section sec : getSections()) {
+            // Include section titles and inline info labels
+            if (sec.title != null) {
+                maxTextWidth = StrictMath.max(maxTextWidth, rowFont.getWidth(sec.title));
+            }
+            if (sec.actions != null) {
+                for (String actionName : sec.actions) {
+                    if (actionName == null) continue;
+                    if (actionName.startsWith("label:") || actionName.startsWith("title:")) {
+                        String text = actionName.substring(actionName.indexOf(':') + 1).trim();
+                        maxTextWidth = StrictMath.max(maxTextWidth, rowFont.getWidth(text));
+                        continue;
+                    }
+                    Integer keyCode = keybinds.get(actionName);
+                    if (keyCode == null) continue;
+                    String keyString = (keyCode == Keyboard.KEY_NONE)
+                            ? "Unbound"
+                            : Keyboard.keyToString(keyCode);
+                    String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
+                    String label = displayName + " [" + keyString + "]";
+                    maxTextWidth = StrictMath.max(maxTextWidth, rowFont.getWidth(label));
+                }
+            }
+        }
+
+        // Add a small buffer so text doesn't touch the edge inside the box (reduced)
+        int desired = maxTextWidth + 12;
+        // Trim up to ~80px from the desired width but never below text + 2px buffer
+        int trimmed = StrictMath.max(maxTextWidth + 2, desired - 80);
+        // Clamp to a reasonable range for consistency with other UI
+        int minWidth = 360;
+        int finalWidth = StrictMath.max(minWidth, StrictMath.min(trimmed, maxAllowed));
+        return finalWidth;
     }
 
     private class ActionRowDataModel {
@@ -359,6 +412,10 @@ public abstract class AbstractKeybindPanel extends Panel {
         public OrderedLabel(String text, int order, com.oddlabs.tt.font.Font font) {
             super(text, font);
             this.order = order;
+        }
+
+        public void setCropText(boolean crop) {
+            super.setCropText(crop);
         }
 
         @Override

@@ -41,7 +41,7 @@ public class SystemKeybindPanel extends AbstractKeybindPanel {
             Globals.KB_GAMESPEED_INCREASE,
             Globals.KB_GAMESPEED_DECREASE,
             // Inline info rows (non-interactive labels at end of section)
-            "label: Note: Escape is always Back/Pause and not rebindable.")
+            "label: Note: Escape is always Back/Pause.")
     );
     }
 }

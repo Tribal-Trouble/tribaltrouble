@@ -14,6 +14,8 @@ public strictfp class Label extends TextField implements Comparable {
 
     private final int align;
     private final TextLineRenderer text_renderer;
+    // When true, left-aligned labels use ellipsis when clipped; can be disabled per-use case
+    private boolean cropText = true;
 
     private float[] color = DEFAULT_COLOR;
 
@@ -36,6 +38,11 @@ public strictfp class Label extends TextField implements Comparable {
         this.color = color;
     }
 
+    // Control whether this label uses cropped/ellipsis rendering when aligned left
+    public void setCropText(boolean cropText) {
+        this.cropText = cropText;
+    }
+
     protected final void renderGeometry(
             float clip_left, float clip_right, float clip_bottom, float clip_top) {
         // Radeon 9200 doesn't like glColor between Begin/End if not followed by a glVertex
@@ -48,8 +55,14 @@ public strictfp class Label extends TextField implements Comparable {
         }
         GL11.glBegin(GL11.GL_QUADS);
         if (align == ALIGN_LEFT) {
-            text_renderer.renderCropped(
-                    0, 0, clip_left, clip_right, clip_bottom, clip_top, getText());
+            if (cropText) {
+                text_renderer.renderCropped(
+                        0, 0, clip_left, clip_right, clip_bottom, clip_top, getText());
+            } else {
+                // Render without forcing ellipsis; rely on clip from parent only
+                text_renderer.render(
+                        0, 0, 0, clip_left, clip_right, clip_bottom, clip_top, getText(), -1);
+            }
         } else if (align == ALIGN_CENTER) {
             text_renderer.render(
                     0,
