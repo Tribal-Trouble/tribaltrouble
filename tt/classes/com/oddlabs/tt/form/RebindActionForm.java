@@ -4,6 +4,9 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.CancelButton;
+import com.oddlabs.tt.gui.CancelListener;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Skin;
@@ -15,6 +18,8 @@ public class RebindActionForm extends Form {
     Label current_binding_label;
     int current_key_code;
     String changing_action_name;
+    // Keep a handle to the prompt so we can nudge text if needed later
+    Label press_any_key_label;
 
     // Simplified UI: no extra input boxes, capture keypress only
 
@@ -29,22 +34,42 @@ public class RebindActionForm extends Form {
         // Compact form, as before
         setDim(320, 120);
         // Place controls tat should be placed via origin
-        Label press_any_key_label =
-                new Label(
-                        "Press any key to rebind "
-                                + AbstractKeybindPanel.KEYBIND_DISPLAY_NAMES.getOrDefault(
-                                        action_name, action_name),
-                        Skin.getSkin().getEditFont());
-        addChild(press_any_key_label);
-        press_any_key_label.place(ORIGIN_TOP_LEFT);
+    press_any_key_label =
+        new Label(
+            "Press any key to rebind "
+                + AbstractKeybindPanel.KEYBIND_DISPLAY_NAMES.getOrDefault(
+                    action_name, action_name),
+            Skin.getSkin().getEditFont());
+    addChild(press_any_key_label);
+    press_any_key_label.place(ORIGIN_TOP_LEFT);
 
-        HorizButton done_button = new HorizButton("Save", 90);
-        done_button.addMouseClickListener(new RebindSaveListener(this));
-        addChild(done_button);
-        done_button.place(ORIGIN_BOTTOM_RIGHT);
+    // Button row: Rebind | Save | Cancel (Cancel rightmost like other forms)
+    Group group_buttons = new Group();
+    HorizButton rebind_button = new HorizButton("Rebind", 90);
+    rebind_button.addMouseClickListener(new RebindClickListener(this));
 
-        compileCanvas(8, 16, 16, 8, false);
-        press_any_key_label.setPos(0, getHeight() / 2);
+    HorizButton save_button = new HorizButton("Save", 90);
+    save_button.addMouseClickListener(new RebindSaveListener(this));
+
+    CancelButton cancel_button = new CancelButton(90);
+    cancel_button.addMouseClickListener(new CancelListener(this));
+
+    group_buttons.addChild(rebind_button);
+    group_buttons.addChild(save_button);
+    group_buttons.addChild(cancel_button);
+
+    // Place buttons: Cancel at bottom-right, Save to its left, Rebind to the left of Save
+    cancel_button.place(ORIGIN_BOTTOM_RIGHT);
+    save_button.place(cancel_button, LEFT_MID);
+    rebind_button.place(save_button, LEFT_MID);
+
+    group_buttons.compileCanvas();
+    addChild(group_buttons);
+    group_buttons.place(ORIGIN_BOTTOM_RIGHT);
+
+    compileCanvas(8, 16, 16, 8, false);
+    // Center the prompt vertically within the form content area
+    press_any_key_label.setPos(0, getHeight() / 2);
         current_key_code = Settings.getSettings().getKeybind(action_name);
     String initialKeyStr =
         (current_key_code == Keyboard.KEY_NONE)
@@ -123,6 +148,23 @@ public class RebindActionForm extends Form {
         public final void mouseClicked(int button, int x, int y, int clicks) {
             System.out.println("saving...");
             form.saveKeybind();
+        }
+    }
+
+    private final class RebindClickListener implements MouseClickListener {
+        private final RebindActionForm form;
+
+        public RebindClickListener(RebindActionForm form) {
+            this.form = form;
+        }
+
+        @Override
+        public final void mouseClicked(int button, int x, int y, int clicks) {
+            // Reset to unbound and prompt the user to press a key again
+            form.current_key_code = Keyboard.KEY_NONE;
+            form.current_binding_label.set("Unbound");
+            // keep focus on the form so the next key press is captured
+            form.setFocus();
         }
     }
 
