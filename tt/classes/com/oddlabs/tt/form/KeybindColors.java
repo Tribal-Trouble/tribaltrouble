@@ -1,9 +1,6 @@
 package com.oddlabs.tt.form;
 
-/**
- * Centralized color palette for keybind UI elements.
- * All colors are RGBA floats in range [0,1].
- */
+/** Centralized color palette for keybind UI elements. All colors are RGBA floats in range [0,1]. */
 public final class KeybindColors {
     private KeybindColors() {}
 

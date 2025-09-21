@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Essential keybinds panel containing the most commonly used gameplay controls.
- * Includes basic unit actions, building construction, and general gameplay shortcuts.
+ * Essential keybinds panel containing the most commonly used gameplay controls. Includes basic unit
+ * actions, building construction, and general gameplay shortcuts.
  */
 public class EssentialKeybindPanel extends AbstractKeybindPanel {
 
@@ -34,7 +34,6 @@ public class EssentialKeybindPanel extends AbstractKeybindPanel {
                         Globals.KB_TOGGLE_MAP_MODE,
                         Globals.KB_JUMP_TO_NOTIFICATION,
                         Globals.KB_PLACE_BEACON,
-                        Globals.KB_NEXT_IDLE_PEON)
-        );
+                        Globals.KB_NEXT_IDLE_PEON));
     }
 }

@@ -3,7 +3,6 @@ package com.oddlabs.tt.form;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.input.Mouse;
 import com.oddlabs.tt.gui.CancelListener;
 import com.oddlabs.tt.gui.CheckBox;
 import com.oddlabs.tt.gui.ColumnInfo;
@@ -34,6 +33,7 @@ import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.guievent.ValueListener;
+import com.oddlabs.tt.input.Mouse;
 import com.oddlabs.tt.render.DisplayModel;
 import com.oddlabs.tt.render.DisplayModelItem;
 import com.oddlabs.tt.render.Renderer;
@@ -210,36 +210,36 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         pb_detail.place(label_detail, BOTTOM_LEFT);
         group_detail.compileCanvas();
 
-    // Mouse sensitivity (moved here from Camera panel)
-    Group group_mouse_sens = new Group();
-    general.addChild(group_mouse_sens);
-    Label label_mouse_headline = new Label("Mouse sensitivity", Skin.getSkin().getEditFont());
-    group_mouse_sens.addChild(label_mouse_headline);
-    Label label_mouse_low =
-        new Label(Utils.getBundleString(bundle, "low"), Skin.getSkin().getEditFont());
-    group_mouse_sens.addChild(label_mouse_low);
-    Label label_mouse_high =
-        new Label(Utils.getBundleString(bundle, "high"), Skin.getSkin().getEditFont());
-    group_mouse_sens.addChild(label_mouse_high);
-    // Map 0.2..3.0 to slider range
-    float sens = Settings.getSettings().mouse_sensitivity;
-    float sens_clamped = Math.max(0.2f, Math.min(3.0f, sens));
-    int sens_init = (int) StrictMath.round(((sens_clamped - 0.2f) / (3.0f - 0.2f)) * MAX_VALUE);
-    Slider slider_mouse = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, sens_init);
-    group_mouse_sens.addChild(slider_mouse);
-    slider_mouse.addValueListener(
-        new ValueListener() {
-            public void valueSet(int value) {
-            float t = (float) value / (float) MAX_VALUE;
-            Settings.getSettings().mouse_sensitivity = 0.2f + t * (3.0f - 0.2f);
-            Mouse.updateSensitivity();
-            }
-        });
-    label_mouse_headline.place();
-    label_mouse_low.place(label_mouse_headline, BOTTOM_LEFT);
-    slider_mouse.place(label_mouse_low, RIGHT_MID);
-    label_mouse_high.place(slider_mouse, RIGHT_MID);
-    group_mouse_sens.compileCanvas();
+        // Mouse sensitivity (moved here from Camera panel)
+        Group group_mouse_sens = new Group();
+        general.addChild(group_mouse_sens);
+        Label label_mouse_headline = new Label("Mouse sensitivity", Skin.getSkin().getEditFont());
+        group_mouse_sens.addChild(label_mouse_headline);
+        Label label_mouse_low =
+                new Label(Utils.getBundleString(bundle, "low"), Skin.getSkin().getEditFont());
+        group_mouse_sens.addChild(label_mouse_low);
+        Label label_mouse_high =
+                new Label(Utils.getBundleString(bundle, "high"), Skin.getSkin().getEditFont());
+        group_mouse_sens.addChild(label_mouse_high);
+        // Map 0.2..3.0 to slider range
+        float sens = Settings.getSettings().mouse_sensitivity;
+        float sens_clamped = Math.max(0.2f, Math.min(3.0f, sens));
+        int sens_init = (int) StrictMath.round(((sens_clamped - 0.2f) / (3.0f - 0.2f)) * MAX_VALUE);
+        Slider slider_mouse = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, sens_init);
+        group_mouse_sens.addChild(slider_mouse);
+        slider_mouse.addValueListener(
+                new ValueListener() {
+                    public void valueSet(int value) {
+                        float t = (float) value / (float) MAX_VALUE;
+                        Settings.getSettings().mouse_sensitivity = 0.2f + t * (3.0f - 0.2f);
+                        Mouse.updateSensitivity();
+                    }
+                });
+        label_mouse_headline.place();
+        label_mouse_low.place(label_mouse_headline, BOTTOM_LEFT);
+        slider_mouse.place(label_mouse_low, RIGHT_MID);
+        label_mouse_high.place(slider_mouse, RIGHT_MID);
+        group_mouse_sens.compileCanvas();
 
         // Tooltip delay
         Group group_tooltip = new Group();
@@ -367,9 +367,9 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         addChild(button_about);
 
         // general panel
-    group_gamespeed.place();
-    group_mouse_sens.place(group_gamespeed, BOTTOM_LEFT);
-    group_tooltip.place(group_mouse_sens, BOTTOM_LEFT);
+        group_gamespeed.place();
+        group_mouse_sens.place(group_gamespeed, BOTTOM_LEFT);
+        group_tooltip.place(group_mouse_sens, BOTTOM_LEFT);
         group_invert_camera.place(group_tooltip, BOTTOM_LEFT);
         group_aggressive_units.place(group_invert_camera, BOTTOM_LEFT);
 

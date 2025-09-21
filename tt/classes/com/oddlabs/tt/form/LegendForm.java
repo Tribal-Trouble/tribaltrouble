@@ -31,14 +31,14 @@ public final strictfp class LegendForm extends Form {
         addChild(closeButton);
         closeButton.addMouseClickListener(new OKListener(this));
 
-    // Layout: place the content group before compiling the form canvas
-    title.place();
-    body.place(title, BOTTOM_LEFT);
-    content.compileCanvas();
-    content.place();
+        // Layout: place the content group before compiling the form canvas
+        title.place();
+        body.place(title, BOTTOM_LEFT);
+        content.compileCanvas();
+        content.place();
 
-    closeButton.place(ORIGIN_BOTTOM_RIGHT);
-    compileCanvas();
+        closeButton.place(ORIGIN_BOTTOM_RIGHT);
+        compileCanvas();
         centerPos();
     }
 }

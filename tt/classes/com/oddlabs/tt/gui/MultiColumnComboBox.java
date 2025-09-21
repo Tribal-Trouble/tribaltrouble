@@ -15,7 +15,8 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
     private final boolean use_buttons;
     private final GUIRoot gui_root;
     private int offset_y = 0;
-    // When true (and in top-down layout), invert the effective layout offset Y so visual movement matches desired axis
+    // When true (and in top-down layout), invert the effective layout offset Y so visual movement
+    // matches desired axis
     private boolean invertTopDownY = false;
     private PulldownMenu pulldown_menu = null;
     private Object right_clicked_row_data;

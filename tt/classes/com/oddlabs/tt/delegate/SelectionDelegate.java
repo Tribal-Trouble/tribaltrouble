@@ -83,7 +83,7 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         int kbJumpNotif = settings.getKeybind(Globals.KB_JUMP_TO_NOTIFICATION);
         int kbBeacon = settings.getKeybind(Globals.KB_PLACE_BEACON);
         int kbNextIdle = settings.getKeybind(Globals.KB_NEXT_IDLE_PEON);
-    int kbChatToggle = settings.getKeybind(Globals.KB_CHAT_TOGGLE);
+        int kbChatToggle = settings.getKeybind(Globals.KB_CHAT_TOGGLE);
         int kbArmy0 = settings.getKeybind(Globals.KB_ARMY_GROUP_0);
         int kbArmy1 = settings.getKeybind(Globals.KB_ARMY_GROUP_1);
         int kbArmy2 = settings.getKeybind(Globals.KB_ARMY_GROUP_2);
@@ -93,7 +93,7 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         int kbArmy6 = settings.getKeybind(Globals.KB_ARMY_GROUP_6);
         int kbArmy7 = settings.getKeybind(Globals.KB_ARMY_GROUP_7);
         int kbArmy8 = settings.getKeybind(Globals.KB_ARMY_GROUP_8);
-    int kbArmy9 = settings.getKeybind(Globals.KB_ARMY_GROUP_9);
+        int kbArmy9 = settings.getKeybind(Globals.KB_ARMY_GROUP_9);
         switch (event.getKeyCode()) {
             case Keyboard.KEY_NUMPAD5:
                 // Legacy support: Numpad 5 toggles map mode
@@ -164,24 +164,24 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                     break;
                 }
 
-        // Escape handling: respect Back/Cancel contexts before Pause
-        if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
-            // If a modal dialog/form is open, let it handle ESC (Back/Cancel)
-            if (getGUIRoot().getModalDelegate() != null) break;
-            // If keyboard is blocked by an active chat input, don't open Pause
-            if (keyboardBlocked()) break;
-            // Let action panel (submenus) claim ESC first (Back within submenus)
-            if (!map_mode && !observer && getActionButtonPanel().doKeyPressed(event)) break;
+                // Escape handling: respect Back/Cancel contexts before Pause
+                if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+                    // If a modal dialog/form is open, let it handle ESC (Back/Cancel)
+                    if (getGUIRoot().getModalDelegate() != null) break;
+                    // If keyboard is blocked by an active chat input, don't open Pause
+                    if (keyboardBlocked()) break;
+                    // Let action panel (submenus) claim ESC first (Back within submenus)
+                    if (!map_mode && !observer && getActionButtonPanel().doKeyPressed(event)) break;
 
-            // No UI context wants ESC -> open Pause menu
-            getGUIRoot()
-                .pushDelegate(
-                    new InGameMainMenu(
-                        getViewer(),
-                        new StaticCamera(getCamera().getState()),
-                        getViewer().getParameters()));
-            break;
-        }
+                    // No UI context wants ESC -> open Pause menu
+                    getGUIRoot()
+                            .pushDelegate(
+                                    new InGameMainMenu(
+                                            getViewer(),
+                                            new StaticCamera(getCamera().getState()),
+                                            getViewer().getParameters()));
+                    break;
+                }
 
                 // Fallback original behavior
                 if (map_mode || observer) {

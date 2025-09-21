@@ -6,13 +6,13 @@ import com.oddlabs.tt.gui.ColumnInfo;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.Row;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.guievent.RowListener;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.input.Keyboard;
 
 import java.util.HashMap;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Abstract base class for keybind panels that provides common functionality
- * for displaying and managing keybind sections.
+ * Abstract base class for keybind panels that provides common functionality for displaying and
+ * managing keybind sections.
  */
 public abstract class AbstractKeybindPanel extends Panel {
     protected GUIRoot gui_root;
@@ -116,14 +116,17 @@ public abstract class AbstractKeybindPanel extends Panel {
         super(caption);
         this.gui_root = gui_root;
 
-    // Simple layout - just the keybind list
-    // Compute column width based on actual label text to avoid truncation while keeping it reasonable
-    int colWidth = computeOptimalColumnWidth();
-    ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", colWidth)};
+        // Simple layout - just the keybind list
+        // Compute column width based on actual label text to avoid truncation while keeping it
+        // reasonable
+        int colWidth = computeOptimalColumnWidth();
+        ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", colWidth)};
         int dynamicHeight = calculateDynamicHeight();
-        keybinds_list_box = new MultiColumnComboBox(gui_root, keybind_options, dynamicHeight, false);
+        keybinds_list_box =
+                new MultiColumnComboBox(gui_root, keybind_options, dynamicHeight, false);
         // Use top-down layout so first section appears at top.
-        // Then invert top-down Y for layout only so the row motion aligns with an origin at bottom (y up).
+        // Then invert top-down Y for layout only so the row motion aligns with an origin at bottom
+        // (y up).
         keybinds_list_box.setTopDownLayout(true);
         keybinds_list_box.setInvertTopDownY(true);
         // Ensure rows are ordered ascending (by our OrderedLabel order index)
@@ -138,40 +141,40 @@ public abstract class AbstractKeybindPanel extends Panel {
     }
 
     /**
-     * Abstract method that subclasses must implement to define which sections
-     * of keybinds they should display.
+     * Abstract method that subclasses must implement to define which sections of keybinds they
+     * should display.
      */
     protected abstract List<Section> getSections();
-    
+
     /**
-     * Calculates dynamic height for the keybind list based on viewport size
-     * and available content, with reasonable min/max bounds.
+     * Calculates dynamic height for the keybind list based on viewport size and available content,
+     * with reasonable min/max bounds.
      */
     private int calculateDynamicHeight() {
         int viewHeight = LocalInput.getViewHeight();
-        
+
         // Use 45% of screen height as base, with min 200px and max 400px
-        int baseHeight = (int)(viewHeight * 0.15f);
+        int baseHeight = (int) (viewHeight * 0.15f);
         int minHeight = 100;
         int maxHeight = 250;
-        
+
         return Math.max(minHeight, Math.min(maxHeight, baseHeight));
     }
-    
+
     /**
-     * Public method to refresh the keybind rows - called from parent panel
-     * when keybinds are changed via copy/paste/reset operations.
+     * Public method to refresh the keybind rows - called from parent panel when keybinds are
+     * changed via copy/paste/reset operations.
      */
     public void refreshKeybindRows() {
         evaluateKeybindRows();
     }
 
-
     private HashMap<String, Integer> getDefaultKeybinds() {
         return Settings.getDefaultKeybinds();
     }
 
-    // Toggle for global overlap highlighting (default ON). Stored in memory here; could be persisted in Settings if desired.
+    // Toggle for global overlap highlighting (default ON). Stored in memory here; could be
+    // persisted in Settings if desired.
     private static boolean SHOW_GLOBAL_OVERLAP = true;
 
     /** Simple API to toggle overlap highlighting from parent panel. */
@@ -186,7 +189,8 @@ public abstract class AbstractKeybindPanel extends Panel {
         // Get default keybinds for comparison to detect changed-from-default settings
         HashMap<String, Integer> defaultKeybinds = getDefaultKeybinds();
 
-        // Build GLOBAL reverse map keyCode -> count to detect overlaps across sections (exclude KEY_NONE)
+        // Build GLOBAL reverse map keyCode -> count to detect overlaps across sections (exclude
+        // KEY_NONE)
         java.util.HashMap<Integer, Integer> globalCodeCounts = new java.util.HashMap<>();
         for (Map.Entry<String, Integer> e : keybinds.entrySet()) {
             Integer code = e.getValue();
@@ -224,84 +228,88 @@ public abstract class AbstractKeybindPanel extends Panel {
             java.util.Map<Integer, Integer> globalCodeCounts,
             int orderIndex) {
         // Header
-    OrderedLabel header =
-        new OrderedLabel(section.title, orderIndex++, Skin.getSkin().getEditFont());
-    header.setCropText(false);
+        OrderedLabel header =
+                new OrderedLabel(section.title, orderIndex++, Skin.getSkin().getEditFont());
+        header.setCropText(false);
         header.setColor(KeybindColors.SECTION_HEADER);
         keybinds_list_box.addRow(new Row(new GUIObject[] {header}, null));
 
         // Build SECTION-scoped reverse map for conflicts (exclude KEY_NONE)
         java.util.HashMap<Integer, Integer> sectionCodeCounts = new java.util.HashMap<>();
         for (String actionName : section.actions) {
-            if (actionName == null || actionName.startsWith("label:") || actionName.startsWith("title:"))
-                continue;
+            if (actionName == null
+                    || actionName.startsWith("label:")
+                    || actionName.startsWith("title:")) continue;
             Integer kc = keybinds.get(actionName);
             if (kc == null || kc == com.oddlabs.tt.input.Keyboard.KEY_NONE) continue;
             sectionCodeCounts.put(kc, sectionCodeCounts.getOrDefault(kc, 0) + 1);
         }
 
-    // Items
-    for (String actionName : section.actions) {
-        // Inline informational labels inside a section (non-interactive)
-        if (actionName != null
-            && (actionName.startsWith("label:") || actionName.startsWith("title:"))) {
-        String text = actionName.substring(actionName.indexOf(':') + 1).trim();
-        OrderedLabel info =
-            new OrderedLabel(
-                text,
-                orderIndex++,
-                Skin.getSkin().getMultiColumnComboBoxData().getFont());
-        info.setCropText(false);
-        // Info/subtext color
-        info.setColor(KeybindColors.INFO_SUBTEXT);
-        keybinds_list_box.addRow(new Row(new GUIObject[] {info}, null));
-        continue;
+        // Items
+        for (String actionName : section.actions) {
+            // Inline informational labels inside a section (non-interactive)
+            if (actionName != null
+                    && (actionName.startsWith("label:") || actionName.startsWith("title:"))) {
+                String text = actionName.substring(actionName.indexOf(':') + 1).trim();
+                OrderedLabel info =
+                        new OrderedLabel(
+                                text,
+                                orderIndex++,
+                                Skin.getSkin().getMultiColumnComboBoxData().getFont());
+                info.setCropText(false);
+                // Info/subtext color
+                info.setColor(KeybindColors.INFO_SUBTEXT);
+                keybinds_list_box.addRow(new Row(new GUIObject[] {info}, null));
+                continue;
+            }
+
+            Integer keyCode = keybinds.get(actionName);
+            if (keyCode == null) continue;
+            String keyString =
+                    (keyCode == Keyboard.KEY_NONE) ? "Unbound" : Keyboard.keyToString(keyCode);
+            String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
+            StringBuilder labelText = new StringBuilder();
+            labelText.append(displayName).append(" [").append(keyString).append("]");
+            OrderedLabel label =
+                    new OrderedLabel(
+                            labelText.toString(),
+                            orderIndex++,
+                            Skin.getSkin().getMultiColumnComboBoxData().getFont());
+            label.setCropText(false);
+            // Decide state and color
+            Integer defaultKeyCode = defaultKeybinds.get(actionName);
+            boolean isChangedFromDefault =
+                    defaultKeyCode != null && !keyCode.equals(defaultKeyCode);
+
+            boolean isUnbound = keyCode == Keyboard.KEY_NONE;
+            boolean isSectionConflict =
+                    !isUnbound && sectionCodeCounts.getOrDefault(keyCode, 0) > 1;
+            boolean isGlobalOverlap =
+                    !isUnbound
+                            && globalCodeCounts.getOrDefault(keyCode, 0) > 1
+                            && !isSectionConflict; // if conflict, treat as conflict only
+
+            // Priority: Conflict > Unbound > Overlap > Custom > Default
+            if (isSectionConflict) {
+                label.setColor(KeybindColors.CONFLICT);
+                label.set(label.getContents() + " [Conflict]");
+            } else if (isUnbound) {
+                label.setColor(KeybindColors.UNBOUND);
+                label.set(label.getContents() + " [Unbound]");
+            } else if (isGlobalOverlap && SHOW_GLOBAL_OVERLAP) {
+                label.setColor(KeybindColors.OVERLAP);
+                label.set(label.getContents() + " [Overlap]");
+            } else if (isChangedFromDefault) {
+                label.setColor(KeybindColors.CUSTOM);
+                label.set(label.getContents() + " [Custom]");
+            } else {
+                label.setColor(KeybindColors.DEFAULT_LABEL);
+            }
+            keybinds_list_box.addRow(
+                    new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode)));
         }
 
-        Integer keyCode = keybinds.get(actionName);
-        if (keyCode == null) continue;
-    String keyString = (keyCode == Keyboard.KEY_NONE) ? "Unbound" : Keyboard.keyToString(keyCode);
-        String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
-        StringBuilder labelText = new StringBuilder();
-        labelText.append(displayName).append(" [").append(keyString).append("]");
-        OrderedLabel label =
-            new OrderedLabel(
-                labelText.toString(),
-                orderIndex++,
-                Skin.getSkin().getMultiColumnComboBoxData().getFont());
-        label.setCropText(false);
-        // Decide state and color
-        Integer defaultKeyCode = defaultKeybinds.get(actionName);
-        boolean isChangedFromDefault = defaultKeyCode != null && !keyCode.equals(defaultKeyCode);
-
-        boolean isUnbound = keyCode == Keyboard.KEY_NONE;
-        boolean isSectionConflict = !isUnbound
-                && sectionCodeCounts.getOrDefault(keyCode, 0) > 1;
-        boolean isGlobalOverlap = !isUnbound
-                && globalCodeCounts.getOrDefault(keyCode, 0) > 1
-                && !isSectionConflict; // if conflict, treat as conflict only
-
-        // Priority: Conflict > Unbound > Overlap > Custom > Default
-        if (isSectionConflict) {
-            label.setColor(KeybindColors.CONFLICT);
-            label.set(label.getContents() + " [Conflict]");
-        } else if (isUnbound) {
-            label.setColor(KeybindColors.UNBOUND);
-            label.set(label.getContents() + " [Unbound]");
-        } else if (isGlobalOverlap && SHOW_GLOBAL_OVERLAP) {
-            label.setColor(KeybindColors.OVERLAP);
-            label.set(label.getContents() + " [Overlap]");
-        } else if (isChangedFromDefault) {
-            label.setColor(KeybindColors.CUSTOM);
-            label.set(label.getContents() + " [Custom]");
-        } else {
-            label.setColor(KeybindColors.DEFAULT_LABEL);
-        }
-        keybinds_list_box.addRow(
-            new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode)));
-    }
-
-    // Spacer (small)
+        // Spacer (small)
         keybinds_list_box.addRow(
                 new Row(
                         new GUIObject[] {
@@ -339,9 +347,10 @@ public abstract class AbstractKeybindPanel extends Panel {
                     }
                     Integer keyCode = keybinds.get(actionName);
                     if (keyCode == null) continue;
-                    String keyString = (keyCode == Keyboard.KEY_NONE)
-                            ? "Unbound"
-                            : Keyboard.keyToString(keyCode);
+                    String keyString =
+                            (keyCode == Keyboard.KEY_NONE)
+                                    ? "Unbound"
+                                    : Keyboard.keyToString(keyCode);
                     String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
                     String label = displayName + " [" + keyString + "]";
                     maxTextWidth = StrictMath.max(maxTextWidth, rowFont.getWidth(label));

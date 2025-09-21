@@ -2,12 +2,13 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.GUIRoot;
+
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Economy keybinds panel containing all resource management and production controls.
- * Includes all armory functions and quarters actions for economic gameplay.
+ * Economy keybinds panel containing all resource management and production controls. Includes all
+ * armory functions and quarters actions for economic gameplay.
  */
 public class EconomyKeybindPanel extends AbstractKeybindPanel {
 
@@ -52,7 +53,6 @@ public class EconomyKeybindPanel extends AbstractKeybindPanel {
                         "Quarters Actions",
                         Globals.KB_QUARTERS_CHIEFTAIN,
                         Globals.KB_QUARTERS_DEPLOY_PEON,
-                        Globals.KB_QUARTERS_SET_RALLY_POINT)
-        );
+                        Globals.KB_QUARTERS_SET_RALLY_POINT));
     }
 }

@@ -2,8 +2,6 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
-import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.landscape.HeightMap;

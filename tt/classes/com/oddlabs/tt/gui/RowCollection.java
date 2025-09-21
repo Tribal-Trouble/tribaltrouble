@@ -67,12 +67,11 @@ public final strictfp class RowCollection extends GUIObject {
             int y = container_height - layout_offset_y;
             for (int i = 0; i < rows.size(); i++) {
                 Row row =
-                        sorted_descending
-                                ? (Row) rows.get(rows.size() - 1 - i)
-                                : (Row) rows.get(i);
+                        sorted_descending ? (Row) rows.get(rows.size() - 1 - i) : (Row) rows.get(i);
                 y -= row.getHeight();
                 row.setPos(0, y);
-                if (i % 2 == 0) row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor1());
+                if (i % 2 == 0)
+                    row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor1());
                 else row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor2());
             }
         } else {
@@ -85,7 +84,8 @@ public final strictfp class RowCollection extends GUIObject {
                 else row = (Row) rows.get(i);
                 y -= row.getHeight();
                 row.setPos(0, y);
-                if (i % 2 == 0) row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor1());
+                if (i % 2 == 0)
+                    row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor1());
                 else row.setColor(Skin.getSkin().getMultiColumnComboBoxData().getColor2());
             }
         }

@@ -167,10 +167,10 @@ public final strictfp class SelectGameMenu extends Form
                     new ColumnInfo(Utils.getBundleString(bundle, "losses"), 100),
                     new ColumnInfo(Utils.getBundleString(bundle, "invalid"), 100)
                 };
-    ranking_list_box = new MultiColumnComboBox(gui_root, score_infos, 350);
-    // Column 0 is Rank; ensure ascending order initially (smallest rank at top)
-    ranking_list_box.setSort(0, /* descending= */ false);
-    highscore_list_panel.addChild(ranking_list_box);
+        ranking_list_box = new MultiColumnComboBox(gui_root, score_infos, 350);
+        // Column 0 is Rank; ensure ascending order initially (smallest rank at top)
+        ranking_list_box.setSort(0, /* descending= */ false);
+        highscore_list_panel.addChild(ranking_list_box);
 
         HorizButton update_scores_button =
                 new HorizButton(

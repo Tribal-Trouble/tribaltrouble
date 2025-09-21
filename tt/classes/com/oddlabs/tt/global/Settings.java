@@ -177,8 +177,8 @@ public final strictfp class Settings implements Serializable {
                     put(Globals.KB_ARMY_GROUP_8, Keyboard.KEY_8);
                     put(Globals.KB_ARMY_GROUP_9, Keyboard.KEY_9);
 
-            // UI/System controls
-            put(Globals.KB_CHAT_TOGGLE, Keyboard.KEY_RETURN);
+                    // UI/System controls
+                    put(Globals.KB_CHAT_TOGGLE, Keyboard.KEY_RETURN);
                     put(
                             Globals.KB_GAMESPEED_INCREASE,
                             Keyboard.KEY_EQUALS); // also keypad + supported in code
@@ -269,13 +269,11 @@ public final strictfp class Settings implements Serializable {
      * @param key_code
      */
     public void setKeybind(String action_name, int key_code) {
-    // Guard: Secondary Back must never bind to Escape
-    if (Globals.KB_SECONDARY_BACK.equals(action_name)
-        && key_code == Keyboard.KEY_ESCAPE) {
-        System.err.println(
-            "Refusing to bind Secondary Back to Escape. Keeping it Unbound.");
-        key_code = Keyboard.KEY_NONE;
-    }
+        // Guard: Secondary Back must never bind to Escape
+        if (Globals.KB_SECONDARY_BACK.equals(action_name) && key_code == Keyboard.KEY_ESCAPE) {
+            System.err.println("Refusing to bind Secondary Back to Escape. Keeping it Unbound.");
+            key_code = Keyboard.KEY_NONE;
+        }
         System.err.println(
                 "Setting keybind for action: " + action_name + " to key code: " + key_code);
         keybinds.put(action_name, key_code);

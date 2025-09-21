@@ -214,11 +214,11 @@ public final strictfp class GameCamera extends Camera {
                 LocalInput.isKeyDown(
                         Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT));
 
-    float scroll_speed =
-        scroll_start_speed
-            * (PAN_START_RATIO
-                + (scroll_acceleration_seconds / SCROLL_ACCELERATION_SECONDS_MAX)
-                    * SCROLL_ACCELERATION_FACTOR);
+        float scroll_speed =
+                scroll_start_speed
+                        * (PAN_START_RATIO
+                                + (scroll_acceleration_seconds / SCROLL_ACCELERATION_SECONDS_MAX)
+                                        * SCROLL_ACCELERATION_FACTOR);
         float scroll_factor = time_delta * scroll_speed;
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
         if (is_pan_left_pressed && !is_pan_right_pressed && !blocked) scrolling_x = -1f;
@@ -513,7 +513,9 @@ public final strictfp class GameCamera extends Camera {
         SCROLL_ACCELERATION_FACTOR = Settings.getSettings().camera_scroll_accel_factor;
         SCROLL_START_MAX_SPEED = Settings.getSettings().camera_start_max_speed;
         // Clamp 0..1 for start ratio to avoid negative or >1 baselines
-        PAN_START_RATIO = StrictMath.max(0f, StrictMath.min(1f, Settings.getSettings().camera_pan_start_ratio));
+        PAN_START_RATIO =
+                StrictMath.max(
+                        0f, StrictMath.min(1f, Settings.getSettings().camera_pan_start_ratio));
         ZOOM_SPEED = Settings.getSettings().camera_zoom_speed;
         MAX_Z = Settings.getSettings().camera_max_z;
         // Degrees/sec -> radians/sec for ANGLE_DELTA baseline

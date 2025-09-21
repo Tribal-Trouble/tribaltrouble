@@ -36,7 +36,7 @@ public final strictfp class WaitingForPlayersForm extends Form {
     }
 
     protected final void keyRepeat(KeyboardEvent event) {
-    if (event.getKeyCode() != Keyboard.KEY_ESCAPE) // ESC should not close this form
+        if (event.getKeyCode() != Keyboard.KEY_ESCAPE) // ESC should not close this form
         super.keyRepeat(event);
     }
 
