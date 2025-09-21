@@ -322,6 +322,8 @@ public final strictfp class GameCamera extends Camera {
     public final void doAnimate(float t) {
         // Refresh tunables each frame in case user adjusted sliders while menu is open
         syncSettings();
+        // Apply snappiness (smoothing) per frame from Settings
+        setSmoothnessFactor(Settings.getSettings().camera_snappiness);
         doZoom(t);
         doScroll(t);
         doPitch(t);

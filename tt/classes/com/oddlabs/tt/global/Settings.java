@@ -123,6 +123,8 @@ public final strictfp class Settings implements Serializable {
     public int camera_edge_scroll_buffer = 5;
     // Maximum camera height (Z coordinate)
     public float camera_max_z = 100.0f;
+    // Camera snappiness/smoothing factor (higher = snappier, lower = smoother/laggier)
+    public float camera_snappiness = 15.0f;
 
     public int frame_grab_milliseconds_per_frame = 40;
 
@@ -236,6 +238,9 @@ public final strictfp class Settings implements Serializable {
                     // Magic actions
                     put(Globals.KB_CHIEFTAIN_MAGIC1, Keyboard.KEY_S);
                     put(Globals.KB_CHIEFTAIN_MAGIC2, Keyboard.KEY_C);
+
+                    // System: Secondary Back (unbound by default)
+                    put(Globals.KB_SECONDARY_BACK, Keyboard.KEY_NONE);
                 }
             };
 
@@ -264,6 +269,13 @@ public final strictfp class Settings implements Serializable {
      * @param key_code
      */
     public void setKeybind(String action_name, int key_code) {
+    // Guard: Secondary Back must never bind to Escape
+    if (Globals.KB_SECONDARY_BACK.equals(action_name)
+        && key_code == Keyboard.KEY_ESCAPE) {
+        System.err.println(
+            "Refusing to bind Secondary Back to Escape. Keeping it Unbound.");
+        key_code = Keyboard.KEY_NONE;
+    }
         System.err.println(
                 "Setting keybind for action: " + action_name + " to key code: " + key_code);
         keybinds.put(action_name, key_code);

@@ -36,6 +36,7 @@ public class SystemKeybindPanel extends AbstractKeybindPanel {
             Globals.KB_CAMERA_FIRST_PERSON_TOGGLE),
         sec(
             "System / Interface",
+            Globals.KB_SECONDARY_BACK,
             Globals.KB_CHAT_TOGGLE,
             Globals.KB_GAMESPEED_INCREASE,
             Globals.KB_GAMESPEED_DECREASE,

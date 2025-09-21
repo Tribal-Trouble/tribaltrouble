@@ -173,13 +173,29 @@ public final strictfp class InputState {
             boolean menu_down,
             boolean repeat) {
         GUIObject focused = gui_root.getGlobalFocus();
+        // Map Secondary Back -> Escape when appropriate (not typing, and not when keyboard-blocked)
+        int effective_key_code = key_code;
+        try {
+            int secondaryBack = com.oddlabs.tt.global.Settings.getSettings()
+                    .getKeybind(com.oddlabs.tt.global.Globals.KB_SECONDARY_BACK);
+            boolean focusedIsTextInput = focused instanceof TextField;
+            boolean delegateBlocked = false;
+            if (gui_root.getDelegate() != null) {
+                delegateBlocked = gui_root.getDelegate().keyboardBlocked();
+            }
+            if (!focusedIsTextInput && !delegateBlocked && key_code == secondaryBack) {
+                effective_key_code = com.oddlabs.tt.input.Keyboard.KEY_ESCAPE;
+            }
+        } catch (Throwable t) {
+            // Fail-safe: never break input if settings/globals unavailable
+        }
         resetKeyTimer();
-        if (!repeat
-                && (key_event == null
-                        || key_event.getKeyCode() != key_code
-                        || key_event.getKeyChar() != key_char
-                        || key_event.isShiftDown() != shift_down
-                        || key_event.isControlDown() != control_down)) {
+    if (!repeat
+        && (key_event == null
+            || key_event.getKeyCode() != effective_key_code
+            || key_event.getKeyChar() != key_char
+            || key_event.isShiftDown() != shift_down
+            || key_event.isControlDown() != control_down)) {
             if (double_key_timer.isRunning()) {
                 stopDoubleKeyTimer();
             }
@@ -187,8 +203,9 @@ public final strictfp class InputState {
             double_key_timer.start();
         }
         if (!repeat) key_counter++;
-        KeyboardEvent event =
-                new KeyboardEvent(key_code, key_char, shift_down, control_down, key_counter);
+    KeyboardEvent event =
+        new KeyboardEvent(
+            effective_key_code, key_char, shift_down, control_down, key_counter);
         key_event = event;
 
         if (!repeat) focused.keyPressedAll(event);

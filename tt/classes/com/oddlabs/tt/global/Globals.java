@@ -83,6 +83,9 @@ public final strictfp class Globals {
             "KB_GAMESPEED_INCREASE"; // Default: '=' or '+'
     public static final String KB_GAMESPEED_DECREASE = "KB_GAMESPEED_DECREASE"; // Default: '-'
 
+    // Secondary Back (acts like Escape for Back/Cancel when not typing)
+    public static final String KB_SECONDARY_BACK = "KB_SECONDARY_BACK"; // Default: Unbound
+
     // #endregion Keybinds - Actions
     public static final String DOMAIN_NAME = Settings.getSettings().getDomainName();
     public static final String SUPPORT_ADDRESS = "http://" + DOMAIN_NAME + "/support";

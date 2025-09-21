@@ -33,6 +33,7 @@ public class CameraPanel extends Panel {
     private Slider sAngle;
     private Slider sMaxZ;
     private Slider sEdge;
+    private Slider sSnappy;
 
     // Helper class to return both group and slider
     private static class SliderGroupPair {
@@ -151,6 +152,20 @@ public class CameraPanel extends Panel {
         );
         sAngle = angleGroup.slider;
         scrollContainer.addGroup(angleGroup.group);
+
+        // Snappiness (smoothing factor) -----------------------------------
+        SliderGroupPair snappyGroup = createSliderGroupWithSlider(
+            "Camera snappiness", "soft", "instant",
+            Settings.getSettings().camera_snappiness, 2.0f, 40.0f,
+            new ValueListener() {
+                public void valueSet(int value) {
+                    Settings.getSettings().camera_snappiness =
+                            fromSlider(value, 2.0f, 40.0f);
+                }
+            }
+        );
+        sSnappy = snappyGroup.slider;
+        scrollContainer.addGroup(snappyGroup.group);
 
         // Max camera height ------------------------------------------------
         SliderGroupPair maxZGroup = createSliderGroupWithSlider(
@@ -283,6 +298,7 @@ public class CameraPanel extends Panel {
         cur.camera_angle_delta_deg_per_sec = def.camera_angle_delta_deg_per_sec;
         cur.camera_max_z = def.camera_max_z;
         cur.camera_edge_scroll_buffer = def.camera_edge_scroll_buffer;
+    cur.camera_snappiness = def.camera_snappiness;
 
         // Update UI controls
         sAccelTime.setValue(toSlider(cur.camera_scroll_accel_seconds_max, 0.1f, 3.0f));
@@ -293,6 +309,7 @@ public class CameraPanel extends Panel {
         sAngle.setValue(toSlider(cur.camera_angle_delta_deg_per_sec, 30f, 360f));
         sMaxZ.setValue(toSlider(cur.camera_max_z, 50f, 400f));
         sEdge.setValue(Math.max(0, Math.min(50, cur.camera_edge_scroll_buffer)));
+    sSnappy.setValue(toSlider(cur.camera_snappiness, 2.0f, 40.0f));
 
         Mouse.updateSensitivity();
         cur.save();
@@ -309,6 +326,7 @@ public class CameraPanel extends Panel {
         sAngle.setValue(toSlider(s.camera_angle_delta_deg_per_sec, 30f, 360f));
         sMaxZ.setValue(toSlider(s.camera_max_z, 50f, 400f));
         sEdge.setValue(Math.max(0, Math.min(50, s.camera_edge_scroll_buffer)));
+    sSnappy.setValue(toSlider(s.camera_snappiness, 2.0f, 40.0f));
     }
 
     private static int toSlider(float value, float min, float max) {

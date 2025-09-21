@@ -31,6 +31,7 @@ public abstract class AbstractKeybindPanel extends Panel {
     public static final Map<String, String> KEYBIND_DISPLAY_NAMES =
             new HashMap<String, String>() {
                 {
+                    put(Globals.KB_SECONDARY_BACK, "Secondary Back");
                     put(Globals.KB_TOGGLE_MAP_MODE, "Toggle Map Mode");
                     put(Globals.KB_JUMP_TO_NOTIFICATION, "Jump To Latest Notification");
                     put(Globals.KB_PLACE_BEACON, "Place Beacon (with Ctrl)");
@@ -266,7 +267,7 @@ public abstract class AbstractKeybindPanel extends Panel {
 
         Integer keyCode = keybinds.get(actionName);
         if (keyCode == null) continue;
-        String keyString = Keyboard.keyToString(keyCode);
+    String keyString = (keyCode == Keyboard.KEY_NONE) ? "Unbound" : Keyboard.keyToString(keyCode);
         String displayName = KEYBIND_DISPLAY_NAMES.getOrDefault(actionName, actionName);
         OrderedLabel label =
             new OrderedLabel(

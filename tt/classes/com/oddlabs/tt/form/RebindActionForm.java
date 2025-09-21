@@ -1,6 +1,7 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.KeyboardEvent;
@@ -45,8 +46,11 @@ public class RebindActionForm extends Form {
         compileCanvas(8, 16, 16, 8, false);
         press_any_key_label.setPos(0, getHeight() / 2);
         current_key_code = Settings.getSettings().getKeybind(action_name);
-        current_binding_label =
-                new Label(Keyboard.keyToString(current_key_code), Skin.getSkin().getEditFont());
+    String initialKeyStr =
+        (current_key_code == Keyboard.KEY_NONE)
+            ? "Unbound"
+            : Keyboard.keyToString(current_key_code);
+    current_binding_label = new Label(initialKeyStr, Skin.getSkin().getEditFont());
         addChild(current_binding_label);
 
         // because we used .setPos on press_any_key_label before this. This will place
@@ -62,9 +66,19 @@ public class RebindActionForm extends Form {
     }
 
     protected final void keyPressed(KeyboardEvent event) {
+        // Block binding Escape for Secondary Back
+        if (Globals.KB_SECONDARY_BACK.equals(changing_action_name)
+                && event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+            current_binding_label.set("Unbound (Escape not allowed)");
+            current_key_code = Keyboard.KEY_NONE;
+            event.consume();
+            return;
+        }
         // Capture physical key presses to update the current binding preview
-        current_binding_label.set(Keyboard.keyToString(event.getKeyCode()));
-        current_key_code = event.getKeyCode();
+        int code = event.getKeyCode();
+        current_key_code = code;
+        current_binding_label.set(
+                code == Keyboard.KEY_NONE ? "Unbound" : Keyboard.keyToString(code));
         // Consume so parent/menus don't act on it
         event.consume(); // prevent parent/menus from also handling this key
     }
