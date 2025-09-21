@@ -30,8 +30,8 @@ public class EconomyKeybindPanel extends AbstractKeybindPanel {
                         "Armory - Deploy Units",
                         Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS,
                         Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS,
-                        Globals.KB_ARMORY_DEPLOY_PEON,
-                        Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS),
+                        Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS,
+                        Globals.KB_ARMORY_DEPLOY_PEON),
                 sec(
                         "Armory - Resource Harvesting",
                         Globals.KB_ARMORY_HARVEST_CHICKEN,
