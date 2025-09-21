@@ -20,6 +20,10 @@ public class RebindActionForm extends Form {
     String changing_action_name;
     // Keep a handle to the prompt so we can nudge text if needed later
     Label press_any_key_label;
+    // Tracks whether we're actively listening for the next key press to set the binding.
+    // Starts true when the dialog opens; after one key is captured, becomes false until
+    // the user clicks the Rebind button again.
+    private boolean listeningForKey = true;
 
     // Simplified UI: no extra input boxes, capture keypress only
 
@@ -91,21 +95,37 @@ public class RebindActionForm extends Form {
     }
 
     protected final void keyPressed(KeyboardEvent event) {
-        // Block binding Escape for Secondary Back
-        if (Globals.KB_SECONDARY_BACK.equals(changing_action_name)
-                && event.getKeyCode() == Keyboard.KEY_ESCAPE) {
-            current_binding_label.set("Unbound (Escape not allowed)");
-            current_key_code = Keyboard.KEY_NONE;
+        int code = event.getKeyCode();
+
+        if (listeningForKey) {
+            // Block binding Escape for Secondary Back; remain in listening state
+            if (Globals.KB_SECONDARY_BACK.equals(changing_action_name)
+                    && code == Keyboard.KEY_ESCAPE) {
+                current_binding_label.set("Unbound (Escape not allowed)");
+                current_key_code = Keyboard.KEY_NONE;
+                event.consume();
+                return;
+            }
+
+            // Capture the first key only, then stop listening until user clicks Rebind again
+            current_key_code = code;
+            current_binding_label.set(
+                code == Keyboard.KEY_NONE ? "Unbound" : Keyboard.keyToString(code));
+            listeningForKey = false;
             event.consume();
+
             return;
         }
-        // Capture physical key presses to update the current binding preview
-        int code = event.getKeyCode();
-        current_key_code = code;
-        current_binding_label.set(
-                code == Keyboard.KEY_NONE ? "Unbound" : Keyboard.keyToString(code));
-        // Consume so parent/menus don't act on it
-        event.consume(); // prevent parent/menus from also handling this key
+
+        // Not listening: pressing Enter should act like Save; all other keys are ignored
+        if (code == Keyboard.KEY_RETURN) {
+            event.consume();
+            saveKeybind();
+            return;
+        }
+
+        // Ignore other keys while not listening to avoid unintended rebinds
+        event.consume();
     }
 
     // While capturing, don't let ESC or Back/Cancel close this form via keyRepeat.
@@ -165,6 +185,8 @@ public class RebindActionForm extends Form {
             form.current_binding_label.set("Unbound");
             // keep focus on the form so the next key press is captured
             form.setFocus();
+            // Re-enable listening so the next key press is captured as the new binding
+            form.listeningForKey = true;
         }
     }
 
