@@ -6,6 +6,10 @@ This document explains how to use the translation tools for Tribal Trouble to co
 
 The translation system allows community contributors to work with game translations using familiar CSV/spreadsheet tools instead of directly editing Java properties files. The system converts between Java properties format and CSV format for easier editing.
 
+Ask to be an editor on the translation document to help contribute:
+
+Google sheet: <https://docs.google.com/spreadsheets/d/1rcTgC4fkxqZUE71Bq0asn_Ahz3px-NeKc-qFm0T2ObI>
+
 ## System Architecture
 
 The translation tools consist of two Java classes integrated with the Ant build system:

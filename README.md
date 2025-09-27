@@ -113,6 +113,10 @@ Optional Steps (Recommend for server hosting)
 
 Want to help translate Tribal Trouble into your language? Check out our [Translation Guide](.github/TRANSLATIONS.md) for detailed instructions on how to contribute translations using our CSV-based workflow.
 
+Ask to be an editor on the translation document to help contribute:
+
+Translations Sheets: <https://docs.google.com/spreadsheets/d/1rcTgC4fkxqZUE71Bq0asn_Ahz3px-NeKc-qFm0T2ObI>
+
 ## 🤝 Contributing
 
 Thanks for your interest in contributing. We have a channel in [discord](https://discord.gg/j8PZyGBZt5) that is active with contributors if you have any questions on setup or where to find things. Come chat, play some games!
