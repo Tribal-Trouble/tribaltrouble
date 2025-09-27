@@ -71,6 +71,8 @@ public final strictfp class TranslationImporter {
                         String key = parts[1];
                         String value = parts[2];
 
+                        // Don't convert escape sequences - keep them as-is for properties files
+
                         translationsByBase.computeIfAbsent(translationBase, k -> new Properties())
                             .setProperty(key, value);
                     }
@@ -127,7 +129,7 @@ public final strictfp class TranslationImporter {
             if (c == '"') {
                 if (inQuotes && i + 1 < record.length() && record.charAt(i + 1) == '"') {
                     current.append('"');
-                    escapeNext = true;
+                    i++; // Skip the next quote
                 } else {
                     inQuotes = !inQuotes;
                 }
@@ -152,12 +154,6 @@ public final strictfp class TranslationImporter {
         Files.createDirectories(filePath.getParent());
 
         try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(filePath, StandardCharsets.UTF_8))) {
-            if (!"en".equals(language)) {
-                String baseFileName = translationBase.contains("/") ?
-                    translationBase.substring(translationBase.lastIndexOf('/') + 1) :
-                    translationBase;
-                writer.println("# Processed by TWR - Source: " + baseFileName + ".properties");
-            }
 
             // Sort keys for consistent output
             List<String> sortedKeys = new ArrayList<>(props.stringPropertyNames());
@@ -198,10 +194,16 @@ public final strictfp class TranslationImporter {
     private static String escapePropertiesValue(String value) {
         if (value == null) return "";
 
-        // Escape backslashes first
-        value = value.replace("\\", "\\\\");
-        // Escape single quotes (Java properties uses '' for single quote)
-        value = value.replace("'", "''");
+        // Convert \n\ sequences back to proper properties line continuation format
+        if (value.contains("\\n\\")) {
+            // Split by \n\ and rejoin with proper line continuation
+            String[] parts = value.split("\\\\n\\\\");
+            StringBuilder result = new StringBuilder(parts[0]);
+            for (int i = 1; i < parts.length; i++) {
+                result.append("\\n\\\n\t\t\t  ").append(parts[i]);
+            }
+            return result.toString();
+        }
 
         return value;
     }

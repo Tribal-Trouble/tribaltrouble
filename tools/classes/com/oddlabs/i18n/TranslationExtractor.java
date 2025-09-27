@@ -116,7 +116,20 @@ public final strictfp class TranslationExtractor {
         try (InputStream input = Files.newInputStream(file)) {
             props.load(input);
         }
-        return props;
+
+        // Convert actual newlines back to \n\ escape sequences to preserve formatting
+        Properties escapedProps = new Properties();
+        for (String key : props.stringPropertyNames()) {
+            String value = props.getProperty(key);
+            if (value != null) {
+                // Convert newlines to \n\ escape sequences (properties line continuation format)
+                value = value.replace("\n", "\\n\\");
+                value = value.replace("\r", "\\r");
+                escapedProps.setProperty(key, value);
+            }
+        }
+
+        return escapedProps;
     }
 
     private static String escapeCSV(String value) {
