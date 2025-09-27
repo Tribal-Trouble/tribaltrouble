@@ -43,20 +43,26 @@ public final strictfp class TranslationExtractor {
         }
 
         Files.walk(i18nDir)
-            .filter(Files::isRegularFile)
-            .filter(path -> path.toString().endsWith(".properties"))
-            .forEach(path -> {
-                String fileName = path.getFileName().toString();
-                String lang = extractLanguage(fileName);
-                languageFiles.get(lang).add(path);
-            });
+                .filter(Files::isRegularFile)
+                .filter(path -> path.toString().endsWith(".properties"))
+                .forEach(
+                        path -> {
+                            String fileName = path.getFileName().toString();
+                            String lang = extractLanguage(fileName);
+                            languageFiles.get(lang).add(path);
+                        });
 
         // Generate CSV for each language
         for (String lang : SUPPORTED_LANGUAGES) {
             List<Path> files = languageFiles.get(lang);
             if (!files.isEmpty()) {
                 generateCSV(lang, files, i18nDir, outputPath);
-                System.out.println("Generated translations_" + lang + ".csv with " + files.size() + " translation files");
+                System.out.println(
+                        "Generated translations_"
+                                + lang
+                                + ".csv with "
+                                + files.size()
+                                + " translation files");
             }
         }
     }
@@ -69,10 +75,12 @@ public final strictfp class TranslationExtractor {
         return "en";
     }
 
-    private static void generateCSV(String language, List<Path> files, Path i18nRoot, Path outputDir) throws IOException {
+    private static void generateCSV(
+            String language, List<Path> files, Path i18nRoot, Path outputDir) throws IOException {
         Path csvFile = outputDir.resolve("translations_" + language + ".csv");
 
-        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8))) {
+        try (PrintWriter writer =
+                new PrintWriter(Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8))) {
             writer.println("TranslationBase,key,value");
 
             // Sort files for consistent output
@@ -88,9 +96,12 @@ public final strictfp class TranslationExtractor {
 
                 for (String key : sortedKeys) {
                     String value = props.getProperty(key);
-                    writer.println(escapeCSV(translationBase) + "," +
-                                 escapeCSV(key) + "," +
-                                 escapeCSV(value));
+                    writer.println(
+                            escapeCSV(translationBase)
+                                    + ","
+                                    + escapeCSV(key)
+                                    + ","
+                                    + escapeCSV(value));
                 }
             }
         }
@@ -136,7 +147,10 @@ public final strictfp class TranslationExtractor {
         if (value == null) return "";
 
         // If value contains comma, quote, or newline, wrap in quotes and escape internal quotes
-        if (value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\r")) {
+        if (value.contains(",")
+                || value.contains("\"")
+                || value.contains("\n")
+                || value.contains("\r")) {
             return "\"" + value.replace("\"", "\"\"") + "\"";
         }
 

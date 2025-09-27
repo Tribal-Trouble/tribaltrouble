@@ -42,7 +42,8 @@ public final strictfp class TranslationImporter {
         }
     }
 
-    private static void processCSV(Path csvFile, Path outputDir, String language) throws IOException {
+    private static void processCSV(Path csvFile, Path outputDir, String language)
+            throws IOException {
         Map<String, Properties> translationsByBase = new HashMap<>();
 
         try (BufferedReader reader = Files.newBufferedReader(csvFile, StandardCharsets.UTF_8)) {
@@ -73,8 +74,9 @@ public final strictfp class TranslationImporter {
 
                         // Don't convert escape sequences - keep them as-is for properties files
 
-                        translationsByBase.computeIfAbsent(translationBase, k -> new Properties())
-                            .setProperty(key, value);
+                        translationsByBase
+                                .computeIfAbsent(translationBase, k -> new Properties())
+                                .setProperty(key, value);
                     }
                     currentRecord.setLength(0);
                 }
@@ -145,15 +147,17 @@ public final strictfp class TranslationImporter {
         return result.toArray(new String[0]);
     }
 
-    private static void writePropertiesFile(String translationBase, Properties props,
-                                          Path outputDir, String language) throws IOException {
+    private static void writePropertiesFile(
+            String translationBase, Properties props, Path outputDir, String language)
+            throws IOException {
         String fileName = getFileName(translationBase, language);
         Path filePath = getFilePath(outputDir, translationBase, fileName);
 
         // Ensure directory exists
         Files.createDirectories(filePath.getParent());
 
-        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(filePath, StandardCharsets.UTF_8))) {
+        try (PrintWriter writer =
+                new PrintWriter(Files.newBufferedWriter(filePath, StandardCharsets.UTF_8))) {
 
             // Sort keys for consistent output
             List<String> sortedKeys = new ArrayList<>(props.stringPropertyNames());
@@ -171,9 +175,10 @@ public final strictfp class TranslationImporter {
     }
 
     private static String getFileName(String translationBase, String language) {
-        String baseFileName = translationBase.contains("/") ?
-            translationBase.substring(translationBase.lastIndexOf('/') + 1) :
-            translationBase;
+        String baseFileName =
+                translationBase.contains("/")
+                        ? translationBase.substring(translationBase.lastIndexOf('/') + 1)
+                        : translationBase;
 
         if ("en".equals(language)) {
             return baseFileName + ".properties";
