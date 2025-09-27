@@ -187,4 +187,29 @@
 			<fileset dir="${objdir}" includes="*.obj" />
 		</apply>
 	</target>
+
+	<!-- Translation tools -->
+	<target name="extract-translations" depends="compile-tools" description="Extract translations to CSV files">
+		<java failonerror="true" fork="yes" classname="com.oddlabs.i18n.TranslationExtractor" dir="..">
+			<classpath refid="tools.classes.classpath" />
+			<classpath refid="platform.classpath" />
+			<classpath refid="common.classes.classpath" />
+
+			<jvmarg value="-ea" />
+			<arg value="tt/i18n/com/oddlabs/tt" />
+			<arg value="translations" />
+		</java>
+	</target>
+
+	<target name="import-translations" depends="compile-tools" description="Import translations from CSV files">
+		<java failonerror="true" fork="yes" classname="com.oddlabs.i18n.TranslationImporter" dir="..">
+			<classpath refid="tools.classes.classpath" />
+			<classpath refid="platform.classpath" />
+			<classpath refid="common.classes.classpath" />
+
+			<jvmarg value="-ea" />
+			<arg value="translations" />
+			<arg value="tt/i18n/com/oddlabs/tt" />
+		</java>
+	</target>
 </project>

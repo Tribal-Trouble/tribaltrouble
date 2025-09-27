@@ -25,6 +25,7 @@ This fork aims to:
   - [Build + Run Game Client](#build--run-game-client)
   - [Build Game Client for Distribution](#build-game-client-for-distribution)
   - [Build + Run Game Server](#build--run-game-server)
+- [🌐 Translations](#-translations)
 - [🤝 Contributing](#-contributing)
 
 ## 🎮 How to play?
@@ -107,6 +108,10 @@ Optional Steps (Recommend for server hosting)
 
 - We are currently using google java format <https://github.com/google/google-java-format>
 - Use the command `ant format` at the root of the repository to make sure all files are formatted before contributing
+
+## 🌐 Translations
+
+Want to help translate Tribal Trouble into your language? Check out our [Translation Guide](.github/TRANSLATIONS.md) for detailed instructions on how to contribute translations using our CSV-based workflow.
 
 ## 🤝 Contributing
 

@@ -13,3 +13,4 @@ ivy_lib/*
 .classpath
 .vs/*
 server/server.properties
+translations/*
