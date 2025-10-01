@@ -98,6 +98,11 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         int kbZoomHold = settings.getKeybind(Globals.KB_CAMERA_ZOOM_HOLD);
 
         int keyCode = event.getKeyCode();
+        if (keyCode == Keyboard.KEY_SPACE && keyCode != kbToggleMap) {
+            event.consume();
+            return;
+        }
+
         if (keyCode == kbFirstPerson || keyCode == kbZoomHold) {
             if (!map_mode) {
                 super.keyPressed(event);
@@ -312,6 +317,12 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
     public final void keyReleased(KeyboardEvent event) {
         getCamera().keyReleased(event);
         Settings settings = Settings.getSettings();
+        int mapToggleKey = settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE);
+        if (event.getKeyCode() == Keyboard.KEY_SPACE && event.getKeyCode() != mapToggleKey) {
+            event.consume();
+            return;
+        }
+
         int chatToggle = settings.getKeybind(Globals.KB_CHAT_TOGGLE);
         if (event.getKeyCode() == chatToggle) {
             if (!close_chat_override) {
