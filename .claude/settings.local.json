@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(where java)"
-    ],
-    "deny": [],
-    "ask": []
-  }
-}
