@@ -105,159 +105,134 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
             return;
         }
 
-        switch (keyCode) {
-            case Keyboard.KEY_NUMPAD5:
-                // Legacy support: Numpad 5 toggles map mode
-                if (!map_mode) {
-                    selection = false;
-                    getViewer().getPicker().pickRotate((GameCamera) getCamera());
-                    map_mode = true;
-                    if (observer) observer_label.remove();
-                    else getActionButtonPanel().remove();
-                    getCamera().disable();
-                    setCamera(new MapCamera(this, game_camera));
-                    getCamera().enable();
-                }
-                break;
-            default:
-                // Rebindable general hotkeys first
-                if (keyCode == kbToggleMap) {
-                    if (!map_mode) {
-                        selection = false;
-                        getViewer().getPicker().pickRotate((GameCamera) getCamera());
-                        map_mode = true;
-                        if (observer) observer_label.remove();
-                        else getActionButtonPanel().remove();
-                        getCamera().disable();
-                        setCamera(new MapCamera(this, game_camera));
-                        getCamera().enable();
-                    }
-                    break;
-                }
-                if (keyCode == kbJumpNotif) {
-                    if (!observer) {
-                        Notification n =
-                                getViewer().getNotificationManager().getLatestNotification();
-                        if (n != null) {
-                            if (getCamera() instanceof GameCamera)
-                                getGUIRoot()
-                                        .pushDelegate(
-                                                new JumpDelegate(
-                                                        getViewer(),
-                                                        (GameCamera) getCamera(),
-                                                        n.getX(),
-                                                        n.getY()));
-                            else if (getCamera() instanceof MapCamera)
-                                ((MapCamera) getCamera()).mapGoto(n.getX(), n.getY(), true);
-                        }
-                    }
-                    break;
-                }
-                if ((keyCode == kbBeacon)
-                        && event.isControlDown()
-                        && !map_mode
-                        && !observer) {
-                    getGUIRoot()
-                            .pushDelegate(
-                                    new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
-                    break;
-                }
-                if (keyCode == kbNextIdle) {
-                    nextIdlePeon();
-                    break;
-                }
-
-                // Escape handling: respect Back/Cancel contexts before Pause
-                if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
-                    // If a modal dialog/form is open, let it handle ESC (Back/Cancel)
-                    if (getGUIRoot().getModalDelegate() != null) break;
-                    // If keyboard is blocked by an active chat input, don't open Pause
-                    if (keyboardBlocked()) break;
-                    // Let action panel (submenus) claim ESC first (Back within submenus)
-                    if (!map_mode && !observer && getActionButtonPanel().doKeyPressed(event)) break;
-
-                    // No UI context wants ESC -> open Pause menu
-                    getGUIRoot()
-                            .pushDelegate(
-                                    new InGameMainMenu(
-                                            getViewer(),
-                                            new StaticCamera(getCamera().getState()),
-                                            getViewer().getParameters()));
-                    break;
-                }
-
-                // Fallback original behavior
-                if (map_mode || observer) {
-                    super.keyPressed(event);
-                } else {
-                    // Handle army group selection/assign using rebindable keys
-                    int code = keyCode;
-                    boolean handledArmy = false;
-                    if (code == kbArmy0) {
-                        army_number = 0;
-                        handledArmy = true;
-                    } else if (code == kbArmy1) {
-                        army_number = 1;
-                        handledArmy = true;
-                    } else if (code == kbArmy2) {
-                        army_number = 2;
-                        handledArmy = true;
-                    } else if (code == kbArmy3) {
-                        army_number = 3;
-                        handledArmy = true;
-                    } else if (code == kbArmy4) {
-                        army_number = 4;
-                        handledArmy = true;
-                    } else if (code == kbArmy5) {
-                        army_number = 5;
-                        handledArmy = true;
-                    } else if (code == kbArmy6) {
-                        army_number = 6;
-                        handledArmy = true;
-                    } else if (code == kbArmy7) {
-                        army_number = 7;
-                        handledArmy = true;
-                    } else if (code == kbArmy8) {
-                        army_number = 8;
-                        handledArmy = true;
-                    } else if (code == kbArmy9) {
-                        army_number = 9;
-                        handledArmy = true;
-                    }
-
-                    if (handledArmy) {
-                        if (event.isControlDown()) {
-                            getViewer().getSelection().setShortcutArmy(army_number);
-                        } else {
-                            boolean selected =
-                                    getViewer().getSelection().enableShortcutArmy(army_number);
-                            if (selected && event.getNumClicks() > 1) {
-                                Set set = getViewer().getSelection().getCurrentSelection().getSet();
-                                if (set.size() > 0) {
-                                    Selectable s = (Selectable) set.iterator().next();
-                                    getGUIRoot()
-                                            .pushDelegate(
-                                                    new JumpDelegate(
-                                                            getViewer(),
-                                                            (GameCamera) getCamera(),
-                                                            s.getPositionX(),
-                                                            s.getPositionY()));
-                                }
-                            }
-                        }
-                        break;
-                    }
-
-                    // Chat toggle (open chat form)
-                    if (keyCode == kbChatToggle) {
-                        if (!chat_visible) chat_form.setReceivers(!event.isShiftDown());
-                        break;
-                    }
-
-                    if (!getActionButtonPanel().doKeyPressed(event)) super.keyPressed(event);
-                }
-                break;
+        // Rebindable general hotkeys first
+        if (keyCode == kbToggleMap) {
+            if (!map_mode) {
+                selection = false;
+                getViewer().getPicker().pickRotate((GameCamera) getCamera());
+                map_mode = true;
+                if (observer) observer_label.remove();
+                else getActionButtonPanel().remove();
+                getCamera().disable();
+                setCamera(new MapCamera(this, game_camera));
+                getCamera().enable();
+            }
+            return;
         }
+        if (keyCode == kbJumpNotif) {
+            if (!observer) {
+                Notification n = getViewer().getNotificationManager().getLatestNotification();
+                if (n != null) {
+                    if (getCamera() instanceof GameCamera)
+                        getGUIRoot()
+                                .pushDelegate(
+                                        new JumpDelegate(
+                                                getViewer(),
+                                                (GameCamera) getCamera(),
+                                                n.getX(),
+                                                n.getY()));
+                    else if (getCamera() instanceof MapCamera)
+                        ((MapCamera) getCamera()).mapGoto(n.getX(), n.getY(), true);
+                }
+            }
+            return;
+        }
+        if ((keyCode == kbBeacon)
+                && event.isControlDown()
+                && !map_mode
+                && !observer) {
+            getGUIRoot()
+                    .pushDelegate(new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
+            return;
+        }
+        if (keyCode == kbNextIdle) {
+            nextIdlePeon();
+            return;
+        }
+
+        // Escape handling: respect Back/Cancel contexts before Pause
+        if (keyCode == Keyboard.KEY_ESCAPE) {
+            if (getGUIRoot().getModalDelegate() != null) return;
+            if (keyboardBlocked()) return;
+            if (!map_mode && !observer && getActionButtonPanel().doKeyPressed(event)) return;
+
+            getGUIRoot()
+                    .pushDelegate(
+                            new InGameMainMenu(
+                                    getViewer(),
+                                    new StaticCamera(getCamera().getState()),
+                                    getViewer().getParameters()));
+            return;
+        }
+
+        // Fallback original behavior
+        if (map_mode || observer) {
+            super.keyPressed(event);
+            return;
+        }
+
+        int code = keyCode;
+        boolean handledArmy = false;
+        if (code == kbArmy0) {
+            army_number = 0;
+            handledArmy = true;
+        } else if (code == kbArmy1) {
+            army_number = 1;
+            handledArmy = true;
+        } else if (code == kbArmy2) {
+            army_number = 2;
+            handledArmy = true;
+        } else if (code == kbArmy3) {
+            army_number = 3;
+            handledArmy = true;
+        } else if (code == kbArmy4) {
+            army_number = 4;
+            handledArmy = true;
+        } else if (code == kbArmy5) {
+            army_number = 5;
+            handledArmy = true;
+        } else if (code == kbArmy6) {
+            army_number = 6;
+            handledArmy = true;
+        } else if (code == kbArmy7) {
+            army_number = 7;
+            handledArmy = true;
+        } else if (code == kbArmy8) {
+            army_number = 8;
+            handledArmy = true;
+        } else if (code == kbArmy9) {
+            army_number = 9;
+            handledArmy = true;
+        }
+
+        if (handledArmy) {
+            if (event.isControlDown()) {
+                getViewer().getSelection().setShortcutArmy(army_number);
+            } else {
+                boolean selected = getViewer().getSelection().enableShortcutArmy(army_number);
+                if (selected && event.getNumClicks() > 1) {
+                    Set set = getViewer().getSelection().getCurrentSelection().getSet();
+                    if (set.size() > 0) {
+                        Selectable s = (Selectable) set.iterator().next();
+                        getGUIRoot()
+                                .pushDelegate(
+                                        new JumpDelegate(
+                                                getViewer(),
+                                                (GameCamera) getCamera(),
+                                                s.getPositionX(),
+                                                s.getPositionY()));
+                    }
+                }
+            }
+            return;
+        }
+
+        if (keyCode == kbChatToggle) {
+            if (!chat_visible) chat_form.setReceivers(!event.isShiftDown());
+            return;
+        }
+
+        if (!getActionButtonPanel().doKeyPressed(event)) super.keyPressed(event);
     }
 
     private void changeGamespeed(int delta) {

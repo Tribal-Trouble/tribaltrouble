@@ -148,7 +148,7 @@ public final strictfp class MapCamera extends Camera {
     public final void keyPressed(KeyboardEvent event) {
         int keyCode = event.getKeyCode();
         int mapToggleKey = Settings.getSettings().getKeybind(Globals.KB_TOGGLE_MAP_MODE);
-        if (keyCode == mapToggleKey || keyCode == Keyboard.KEY_NUMPAD5) {
+        if (keyCode == mapToggleKey) {
             if (map_mode == TO_MAP || map_mode == IN_MAP) changeMode(FROM_MAP);
             else changeMode(TO_MAP);
         }
