@@ -78,7 +78,8 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         Panel display = new Panel(Utils.getBundleString(bundle, "graphics_caption"));
         Panel sound = new Panel(Utils.getBundleString(bundle, "sound_caption"));
         Panel language = new Panel(Utils.getBundleString(bundle, "language_caption"));
-        Panel controls = new ControlsPanel(gui_root, "Controls");
+        Panel controls =
+                new ControlsPanel(gui_root, Utils.getBundleString(bundle, "controls_caption"));
         Panel report_bug = new Panel(Utils.getBundleString(bundle, "report_bug_caption"));
 
         // Sound

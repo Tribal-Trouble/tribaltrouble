@@ -6,6 +6,7 @@ import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PanelGroup;
+import com.oddlabs.tt.util.Utils;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -13,12 +14,15 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * Main keybind panel that organizes keybind categories into subtabs. Contains Essential, Combat,
  * Economy, and System keybind categories.
  */
 public class KeybindPanel extends Panel {
+    private static final ResourceBundle bundle =
+            ResourceBundle.getBundle(KeybindPanel.class.getName());
     private final PanelGroup keybindsGroup;
     private final GUIRoot gui_root;
 
@@ -36,19 +40,23 @@ public class KeybindPanel extends Panel {
         Group headerGroup = new Group();
 
         // Clipboard controls - these operate on ALL keybinds
-        HorizButton copyBtn = new HorizButton("Copy", 84);
+        HorizButton copyBtn =
+                new HorizButton(Utils.getBundleString(bundle, "copy_button"), 84);
         copyBtn.addMouseClickListener((button, x, y, clicks) -> copyBinds());
         headerGroup.addChild(copyBtn);
 
-        HorizButton pasteBtn = new HorizButton("Paste", 84);
+        HorizButton pasteBtn =
+                new HorizButton(Utils.getBundleString(bundle, "paste_button"), 84);
         pasteBtn.addMouseClickListener((button, x, y, clicks) -> pasteBinds());
         headerGroup.addChild(pasteBtn);
 
-        HorizButton resetBtn = new HorizButton("Reset", 84);
+        HorizButton resetBtn =
+                new HorizButton(Utils.getBundleString(bundle, "reset_button"), 84);
         resetBtn.addMouseClickListener((button, x, y, clicks) -> resetBinds());
         headerGroup.addChild(resetBtn);
 
-        HorizButton legendBtn = new HorizButton("Legend", 84);
+        HorizButton legendBtn =
+                new HorizButton(Utils.getBundleString(bundle, "legend_button"), 84);
         legendBtn.addMouseClickListener(
                 (button, x, y, clicks) -> {
                     LegendForm lf = new LegendForm();
@@ -65,10 +73,18 @@ public class KeybindPanel extends Panel {
         headerGroup.compileCanvas();
 
         // Create category panels without their own controls
-        essentialPanel = new EssentialKeybindPanel(gui_root, "Essential");
-        combatPanel = new CombatKeybindPanel(gui_root, "Combat");
-        economyPanel = new EconomyKeybindPanel(gui_root, "Tasks");
-        systemPanel = new SystemKeybindPanel(gui_root, "System");
+        essentialPanel =
+                new EssentialKeybindPanel(
+                        gui_root, Utils.getBundleString(bundle, "essential_tab"));
+        combatPanel =
+                new CombatKeybindPanel(
+                        gui_root, Utils.getBundleString(bundle, "combat_tab"));
+        economyPanel =
+                new EconomyKeybindPanel(
+                        gui_root, Utils.getBundleString(bundle, "tasks_tab"));
+        systemPanel =
+                new SystemKeybindPanel(
+                        gui_root, Utils.getBundleString(bundle, "system_tab"));
 
         // Create internal PanelGroup for subtabs
         // Essential first since it contains the most commonly used binds
@@ -132,7 +148,7 @@ public class KeybindPanel extends Panel {
     private void copyBinds() {
         String code = KeybindCodePanel.generateCode(Settings.getSettings().getKeybinds());
         copyToClipboard(code);
-        setStatus("Copied all keybinds to clipboard.", true);
+        setStatus(Utils.getBundleString(bundle, "copy_success"), true);
     }
 
     private void pasteBinds() {
@@ -146,12 +162,12 @@ public class KeybindPanel extends Panel {
             }
         }
         if (fromClip == null || fromClip.isEmpty()) {
-            setStatus("Clipboard is empty.", false);
+            setStatus(Utils.getBundleString(bundle, "clipboard_empty"), false);
             return;
         }
         Map<String, Integer> parsed = KeybindCodePanel.parseCode(fromClip);
         if (parsed == null) {
-            setStatus("Clipboard doesn't contain a valid keybind code.", false);
+            setStatus(Utils.getBundleString(bundle, "clipboard_invalid"), false);
             return;
         }
         HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
@@ -164,7 +180,8 @@ public class KeybindPanel extends Panel {
         }
         Settings.getSettings().save();
         refreshAllPanels();
-        setStatus("Applied " + applied + " binds from clipboard.", true);
+        setStatus(
+                Utils.getBundleString(bundle, "apply_success", new Object[] {applied}), true);
     }
 
     private void resetBinds() {
@@ -172,6 +189,6 @@ public class KeybindPanel extends Panel {
         Settings.getSettings().save();
         refreshAllPanels();
         // Do not touch clipboard on reset; only update UI
-        setStatus("Reset all keybinds to defaults.", true);
+        setStatus(Utils.getBundleString(bundle, "reset_success"), true);
     }
 }
