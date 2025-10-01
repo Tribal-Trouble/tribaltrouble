@@ -67,7 +67,7 @@ public class KeybindPanel extends Panel {
         // Create category panels without their own controls
         essentialPanel = new EssentialKeybindPanel(gui_root, "Essential");
         combatPanel = new CombatKeybindPanel(gui_root, "Combat");
-        economyPanel = new EconomyKeybindPanel(gui_root, "Economy");
+        economyPanel = new EconomyKeybindPanel(gui_root, "Tasks");
         systemPanel = new SystemKeybindPanel(gui_root, "System");
 
         // Create internal PanelGroup for subtabs
