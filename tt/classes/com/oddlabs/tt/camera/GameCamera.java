@@ -53,7 +53,7 @@ public final strictfp class GameCamera extends Camera {
         this.default_rotate_radius = viewer.getWorld().getHeightMap().getMetersPerWorld() / 4;
         this.viewer = viewer;
         // Initialize tunables from Settings
-        syncSettings();
+        refreshSettings();
         checkPosition();
         updateDirection();
     }
@@ -320,8 +320,6 @@ public final strictfp class GameCamera extends Camera {
     }
 
     public final void doAnimate(float t) {
-        // Refresh tunables each frame in case user adjusted sliders while menu is open
-        syncSettings();
         // Apply snappiness (smoothing) per frame from Settings
         setSmoothnessFactor(Settings.getSettings().camera_snappiness);
         doZoom(t);
@@ -504,6 +502,10 @@ public final strictfp class GameCamera extends Camera {
     public final void enable() {
         super.enable();
         mouseMoved(LocalInput.getMouseX(), LocalInput.getMouseY());
+    }
+
+    public static void refreshSettings() {
+        syncSettings();
     }
 
     private static void syncSettings() {

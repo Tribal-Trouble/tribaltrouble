@@ -1,5 +1,6 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
@@ -87,6 +88,7 @@ public class CameraPanel extends Panel {
                             public void valueSet(int value) {
                                 Settings.getSettings().camera_scroll_accel_seconds_max =
                                         fromSlider(value, 0.1f, 3.0f);
+                                GameCamera.refreshSettings();
                             }
                         });
         sAccelTime = accelTimeGroup.slider;
@@ -105,6 +107,7 @@ public class CameraPanel extends Panel {
                             public void valueSet(int value) {
                                 Settings.getSettings().camera_scroll_accel_factor =
                                         fromSlider(value, 0.0f, 5.0f);
+                                GameCamera.refreshSettings();
                             }
                         });
         sAccelFactor = accelFactorGroup.slider;
@@ -123,6 +126,7 @@ public class CameraPanel extends Panel {
                             public void valueSet(int value) {
                                 Settings.getSettings().camera_pan_start_ratio =
                                         fromSlider(value, 0.0f, 1.0f);
+                                GameCamera.refreshSettings();
                             }
                         });
         sPanStartRatio = panStartRatioGroup.slider;
@@ -141,6 +145,7 @@ public class CameraPanel extends Panel {
                             public void valueSet(int value) {
                                 Settings.getSettings().camera_start_max_speed =
                                         fromSlider(value, 10f, 120f);
+                                GameCamera.refreshSettings();
                             }
                         });
         sStartSpeed = startSpeedGroup.slider;
@@ -159,6 +164,7 @@ public class CameraPanel extends Panel {
                             public void valueSet(int value) {
                                 Settings.getSettings().camera_zoom_speed =
                                         fromSlider(value, 10f, 150f);
+                                GameCamera.refreshSettings();
                             }
                         });
         sZoom = zoomGroup.slider;
@@ -177,6 +183,7 @@ public class CameraPanel extends Panel {
                             public void valueSet(int value) {
                                 Settings.getSettings().camera_angle_delta_deg_per_sec =
                                         fromSlider(value, 30f, 360f);
+                                GameCamera.refreshSettings();
                             }
                         });
         sAngle = angleGroup.slider;
@@ -194,6 +201,7 @@ public class CameraPanel extends Panel {
                         new ValueListener() {
                             public void valueSet(int value) {
                                 Settings.getSettings().camera_max_z = fromSlider(value, 50f, 400f);
+                                GameCamera.refreshSettings();
                             }
                         });
         sMaxZ = maxZGroup.slider;
@@ -219,6 +227,7 @@ public class CameraPanel extends Panel {
                 new ValueListener() {
                     public void valueSet(int value) {
                         Settings.getSettings().camera_edge_scroll_buffer = value;
+                        GameCamera.refreshSettings();
                     }
                 });
         lblEdge.place();
@@ -335,6 +344,7 @@ public class CameraPanel extends Panel {
         sMaxZ.setValue(toSlider(cur.camera_max_z, 50f, 400f));
         sEdge.setValue(Math.max(0, Math.min(50, cur.camera_edge_scroll_buffer)));
 
+        GameCamera.refreshSettings();
         Mouse.updateSensitivity();
         cur.save();
     }
