@@ -40,23 +40,19 @@ public class KeybindPanel extends Panel {
         Group headerGroup = new Group();
 
         // Clipboard controls - these operate on ALL keybinds
-        HorizButton copyBtn =
-                new HorizButton(Utils.getBundleString(bundle, "copy_button"), 84);
+        HorizButton copyBtn = new HorizButton(Utils.getBundleString(bundle, "copy_button"), 84);
         copyBtn.addMouseClickListener((button, x, y, clicks) -> copyBinds());
         headerGroup.addChild(copyBtn);
 
-        HorizButton pasteBtn =
-                new HorizButton(Utils.getBundleString(bundle, "paste_button"), 84);
+        HorizButton pasteBtn = new HorizButton(Utils.getBundleString(bundle, "paste_button"), 84);
         pasteBtn.addMouseClickListener((button, x, y, clicks) -> pasteBinds());
         headerGroup.addChild(pasteBtn);
 
-        HorizButton resetBtn =
-                new HorizButton(Utils.getBundleString(bundle, "reset_button"), 84);
+        HorizButton resetBtn = new HorizButton(Utils.getBundleString(bundle, "reset_button"), 84);
         resetBtn.addMouseClickListener((button, x, y, clicks) -> resetBinds());
         headerGroup.addChild(resetBtn);
 
-        HorizButton legendBtn =
-                new HorizButton(Utils.getBundleString(bundle, "legend_button"), 84);
+        HorizButton legendBtn = new HorizButton(Utils.getBundleString(bundle, "legend_button"), 84);
         legendBtn.addMouseClickListener(
                 (button, x, y, clicks) -> {
                     LegendForm lf = new LegendForm();
@@ -74,17 +70,11 @@ public class KeybindPanel extends Panel {
 
         // Create category panels without their own controls
         essentialPanel =
-                new EssentialKeybindPanel(
-                        gui_root, Utils.getBundleString(bundle, "essential_tab"));
-        combatPanel =
-                new CombatKeybindPanel(
-                        gui_root, Utils.getBundleString(bundle, "combat_tab"));
+                new EssentialKeybindPanel(gui_root, Utils.getBundleString(bundle, "essential_tab"));
+        combatPanel = new CombatKeybindPanel(gui_root, Utils.getBundleString(bundle, "combat_tab"));
         economyPanel =
-                new EconomyKeybindPanel(
-                        gui_root, Utils.getBundleString(bundle, "tasks_tab"));
-        systemPanel =
-                new SystemKeybindPanel(
-                        gui_root, Utils.getBundleString(bundle, "system_tab"));
+                new EconomyKeybindPanel(gui_root, Utils.getBundleString(bundle, "tasks_tab"));
+        systemPanel = new SystemKeybindPanel(gui_root, Utils.getBundleString(bundle, "system_tab"));
 
         // Create internal PanelGroup for subtabs
         // Essential first since it contains the most commonly used binds
@@ -180,8 +170,7 @@ public class KeybindPanel extends Panel {
         }
         Settings.getSettings().save();
         refreshAllPanels();
-        setStatus(
-                Utils.getBundleString(bundle, "apply_success", new Object[] {applied}), true);
+        setStatus(Utils.getBundleString(bundle, "apply_success", new Object[] {applied}), true);
     }
 
     private void resetBinds() {

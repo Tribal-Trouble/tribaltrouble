@@ -21,11 +21,9 @@ public class ControlsPanel extends Panel {
 
         // Create sub-panels for keybinds and camera settings
         Panel keybindsPanel =
-                new KeybindPanel(
-                        gui_root, Utils.getBundleString(bundle, "keybinds_tab_caption"));
+                new KeybindPanel(gui_root, Utils.getBundleString(bundle, "keybinds_tab_caption"));
         Panel cameraPanel =
-                new CameraPanel(
-                        gui_root, Utils.getBundleString(bundle, "camera_tab_caption"));
+                new CameraPanel(gui_root, Utils.getBundleString(bundle, "camera_tab_caption"));
 
         // Create internal PanelGroup for sub-tabs
         // Keybinds first since they're more commonly accessed

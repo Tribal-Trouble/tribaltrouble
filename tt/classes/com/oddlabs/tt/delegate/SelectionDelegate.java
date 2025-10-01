@@ -142,12 +142,8 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
             }
             return;
         }
-        if ((keyCode == kbBeacon)
-                && event.isControlDown()
-                && !map_mode
-                && !observer) {
-            getGUIRoot()
-                    .pushDelegate(new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
+        if ((keyCode == kbBeacon) && event.isControlDown() && !map_mode && !observer) {
+            getGUIRoot().pushDelegate(new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
             return;
         }
         if (keyCode == kbNextIdle) {
@@ -495,7 +491,8 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         if (!map_mode) {
             if (!observer) {
                 if (button == LocalInput.LEFT_BUTTON) {
-                    int mapToggleKey = Settings.getSettings().getKeybind(Globals.KB_TOGGLE_MAP_MODE);
+                    int mapToggleKey =
+                            Settings.getSettings().getKeybind(Globals.KB_TOGGLE_MAP_MODE);
                     if (!LocalInput.isKeyDown(mapToggleKey)) {
                         selection = true;
                     }

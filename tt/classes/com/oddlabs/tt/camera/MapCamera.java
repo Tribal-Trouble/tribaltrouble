@@ -7,7 +7,6 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.Skin;
-import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.util.Utils;
 
 import java.util.ResourceBundle;
