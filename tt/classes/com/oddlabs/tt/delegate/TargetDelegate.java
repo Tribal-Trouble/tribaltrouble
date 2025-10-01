@@ -1,6 +1,8 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -24,18 +26,24 @@ public strictfp class TargetDelegate extends ControllableCameraDelegate {
     public final void keyPressed(KeyboardEvent event) {
         getCamera().keyPressed(event);
         int code = event.getKeyCode();
+        Settings settings = Settings.getSettings();
+        int mapToggleKey = settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE);
+        int chatToggleKey = settings.getKeybind(Globals.KB_CHAT_TOGGLE);
         if (code == Keyboard.KEY_ESCAPE) {
             pop();
             return;
         }
-        if (code == Keyboard.KEY_SPACE || code == Keyboard.KEY_RETURN) {
+        if (code == mapToggleKey || code == chatToggleKey) {
             return;
         }
         super.keyPressed(event);
     }
 
     public void keyReleased(KeyboardEvent event) {
-        if (event.getKeyCode() != Keyboard.KEY_SPACE || event.getKeyCode() != Keyboard.KEY_RETURN)
+        Settings settings = Settings.getSettings();
+        int mapToggleKey = settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE);
+        int chatToggleKey = settings.getKeybind(Globals.KB_CHAT_TOGGLE);
+        if (event.getKeyCode() != mapToggleKey && event.getKeyCode() != chatToggleKey)
             getCamera().keyReleased(event);
     }
 

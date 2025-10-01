@@ -1,6 +1,7 @@
 package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.delegate.SelectionDelegate;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
@@ -145,12 +146,11 @@ public final strictfp class MapCamera extends Camera {
     }
 
     public final void keyPressed(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_SPACE:
-            case Keyboard.KEY_NUMPAD5:
-                if (map_mode == TO_MAP || map_mode == IN_MAP) changeMode(FROM_MAP);
-                else changeMode(TO_MAP);
-                break;
+        int keyCode = event.getKeyCode();
+        int mapToggleKey = Settings.getSettings().getKeybind(Globals.KB_TOGGLE_MAP_MODE);
+        if (keyCode == mapToggleKey || keyCode == Keyboard.KEY_NUMPAD5) {
+            if (map_mode == TO_MAP || map_mode == IN_MAP) changeMode(FROM_MAP);
+            else changeMode(TO_MAP);
         }
     }
 }

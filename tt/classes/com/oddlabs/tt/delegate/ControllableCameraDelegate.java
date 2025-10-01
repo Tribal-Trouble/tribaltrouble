@@ -4,7 +4,6 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.*;
-import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.viewer.WorldViewer;
 
 public abstract strictfp class ControllableCameraDelegate extends InGameDelegate {
@@ -22,11 +21,11 @@ public abstract strictfp class ControllableCameraDelegate extends InGameDelegate
         int kbFirst = settings.getKeybind(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE);
         int kbZoomHold = settings.getKeybind(Globals.KB_CAMERA_ZOOM_HOLD);
 
-        if (code == kbFirst || code == Keyboard.KEY_F) {
+        if (code == kbFirst) {
             pushFirstPersonDelegate(true);
             return;
         }
-        if (code == kbZoomHold || code == Keyboard.KEY_Z) {
+        if (code == kbZoomHold) {
             pushZoomDelegate();
             return;
         }

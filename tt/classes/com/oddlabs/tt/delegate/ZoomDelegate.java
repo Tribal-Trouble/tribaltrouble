@@ -4,7 +4,6 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.*;
-import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.viewer.WorldViewer;
 
@@ -40,17 +39,9 @@ public strictfp class ZoomDelegate extends InGameDelegate {
 
     public void keyReleased(KeyboardEvent event) {
         if (!done) {
-            switch (event.getKeyCode()) {
-                case Keyboard.KEY_Z:
-                    {
-                        // fallthrough to pop below
-                        break;
-                    }
-            }
-            // Also honor rebindable hold-zoom key
             Settings settings = Settings.getSettings();
             int kbZoomHold = settings.getKeybind(Globals.KB_CAMERA_ZOOM_HOLD);
-            if (event.getKeyCode() == kbZoomHold || event.getKeyCode() == Keyboard.KEY_Z) {
+            if (event.getKeyCode() == kbZoomHold) {
                 pop();
             }
         }

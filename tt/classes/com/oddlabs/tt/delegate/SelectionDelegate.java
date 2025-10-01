@@ -77,7 +77,7 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
     public final void keyPressed(KeyboardEvent event) {
         getCamera().keyPressed(event);
         int army_number = 0;
-        // Rebindable hotkeys (with legacy fallbacks to preserve behavior)
+        // Rebindable hotkeys
         Settings settings = Settings.getSettings();
         int kbToggleMap = settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE);
         int kbJumpNotif = settings.getKeybind(Globals.KB_JUMP_TO_NOTIFICATION);
@@ -94,7 +94,18 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         int kbArmy7 = settings.getKeybind(Globals.KB_ARMY_GROUP_7);
         int kbArmy8 = settings.getKeybind(Globals.KB_ARMY_GROUP_8);
         int kbArmy9 = settings.getKeybind(Globals.KB_ARMY_GROUP_9);
-        switch (event.getKeyCode()) {
+        int kbFirstPerson = settings.getKeybind(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE);
+        int kbZoomHold = settings.getKeybind(Globals.KB_CAMERA_ZOOM_HOLD);
+
+        int keyCode = event.getKeyCode();
+        if (keyCode == kbFirstPerson || keyCode == kbZoomHold) {
+            if (!map_mode) {
+                super.keyPressed(event);
+            }
+            return;
+        }
+
+        switch (keyCode) {
             case Keyboard.KEY_NUMPAD5:
                 // Legacy support: Numpad 5 toggles map mode
                 if (!map_mode) {
@@ -108,17 +119,9 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                     getCamera().enable();
                 }
                 break;
-            // Note: Numeric keys and Return are handled in the default branch to respect
-            // rebindable keybinds and avoid accidental fall-through. Removing explicit cases
-            // here ensures number presses reach the unified handler below.
-
-            case Keyboard.KEY_F:
-            case Keyboard.KEY_Z:
-                if (!map_mode) super.keyPressed(event);
-                break;
             default:
                 // Rebindable general hotkeys first
-                if (event.getKeyCode() == kbToggleMap || event.getKeyCode() == Keyboard.KEY_SPACE) {
+                if (keyCode == kbToggleMap) {
                     if (!map_mode) {
                         selection = false;
                         getViewer().getPicker().pickRotate((GameCamera) getCamera());
@@ -131,7 +134,7 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                     }
                     break;
                 }
-                if (event.getKeyCode() == kbJumpNotif || event.getKeyCode() == Keyboard.KEY_TAB) {
+                if (keyCode == kbJumpNotif) {
                     if (!observer) {
                         Notification n =
                                 getViewer().getNotificationManager().getLatestNotification();
@@ -150,7 +153,7 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                     }
                     break;
                 }
-                if ((event.getKeyCode() == kbBeacon || event.getKeyCode() == Keyboard.KEY_B)
+                if ((keyCode == kbBeacon)
                         && event.isControlDown()
                         && !map_mode
                         && !observer) {
@@ -159,7 +162,7 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                                     new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
                     break;
                 }
-                if (event.getKeyCode() == kbNextIdle || event.getKeyCode() == Keyboard.KEY_N) {
+                if (keyCode == kbNextIdle) {
                     nextIdlePeon();
                     break;
                 }
@@ -188,36 +191,36 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                     super.keyPressed(event);
                 } else {
                     // Handle army group selection/assign using rebindable keys
-                    int code = event.getKeyCode();
+                    int code = keyCode;
                     boolean handledArmy = false;
-                    if (code == kbArmy0 || code == Keyboard.KEY_0) {
+                    if (code == kbArmy0) {
                         army_number = 0;
                         handledArmy = true;
-                    } else if (code == kbArmy1 || code == Keyboard.KEY_1) {
+                    } else if (code == kbArmy1) {
                         army_number = 1;
                         handledArmy = true;
-                    } else if (code == kbArmy2 || code == Keyboard.KEY_2) {
+                    } else if (code == kbArmy2) {
                         army_number = 2;
                         handledArmy = true;
-                    } else if (code == kbArmy3 || code == Keyboard.KEY_3) {
+                    } else if (code == kbArmy3) {
                         army_number = 3;
                         handledArmy = true;
-                    } else if (code == kbArmy4 || code == Keyboard.KEY_4) {
+                    } else if (code == kbArmy4) {
                         army_number = 4;
                         handledArmy = true;
-                    } else if (code == kbArmy5 || code == Keyboard.KEY_5) {
+                    } else if (code == kbArmy5) {
                         army_number = 5;
                         handledArmy = true;
-                    } else if (code == kbArmy6 || code == Keyboard.KEY_6) {
+                    } else if (code == kbArmy6) {
                         army_number = 6;
                         handledArmy = true;
-                    } else if (code == kbArmy7 || code == Keyboard.KEY_7) {
+                    } else if (code == kbArmy7) {
                         army_number = 7;
                         handledArmy = true;
-                    } else if (code == kbArmy8 || code == Keyboard.KEY_8) {
+                    } else if (code == kbArmy8) {
                         army_number = 8;
                         handledArmy = true;
-                    } else if (code == kbArmy9 || code == Keyboard.KEY_9) {
+                    } else if (code == kbArmy9) {
                         army_number = 9;
                         handledArmy = true;
                     }
@@ -245,9 +248,8 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                         break;
                     }
 
-                    // Chat toggle (open chat form); keep legacy Enter as fallback
-                    if (event.getKeyCode() == kbChatToggle
-                            || event.getKeyCode() == Keyboard.KEY_RETURN) {
+                    // Chat toggle (open chat form)
+                    if (keyCode == kbChatToggle) {
                         if (!chat_visible) chat_form.setReceivers(!event.isShiftDown());
                         break;
                     }
@@ -320,15 +322,11 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         Settings settings = Settings.getSettings();
         int inc = settings.getKeybind(Globals.KB_GAMESPEED_INCREASE);
         int dec = settings.getKeybind(Globals.KB_GAMESPEED_DECREASE);
-        if (event.getKeyCode() == inc
-                || event.getKeyCode() == Keyboard.KEY_ADD
-                || event.getKeyChar() == '+') {
+        if (event.getKeyCode() == inc) {
             changeGamespeed(1);
             return;
         }
-        if (event.getKeyCode() == dec
-                || event.getKeyCode() == Keyboard.KEY_SUBTRACT
-                || event.getKeyChar() == '-') {
+        if (event.getKeyCode() == dec) {
             changeGamespeed(-1);
             return;
         }
@@ -339,8 +337,8 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
     public final void keyReleased(KeyboardEvent event) {
         getCamera().keyReleased(event);
         Settings settings = Settings.getSettings();
-        if (event.getKeyCode() == settings.getKeybind(Globals.KB_CHAT_TOGGLE)
-                || event.getKeyCode() == Keyboard.KEY_RETURN) {
+        int chatToggle = settings.getKeybind(Globals.KB_CHAT_TOGGLE);
+        if (event.getKeyCode() == chatToggle) {
             if (!close_chat_override) {
                 if (!chat_visible) {
                     addChild(chat_form);
@@ -511,7 +509,8 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         if (!map_mode) {
             if (!observer) {
                 if (button == LocalInput.LEFT_BUTTON) {
-                    if (!LocalInput.isKeyDown(Keyboard.KEY_SPACE)) {
+                    int mapToggleKey = Settings.getSettings().getKeybind(Globals.KB_TOGGLE_MAP_MODE);
+                    if (!LocalInput.isKeyDown(mapToggleKey)) {
                         selection = true;
                     }
                     selection_x1 = x;
@@ -567,7 +566,8 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
 
     private final strictfp class ChatCloseListener implements CloseListener {
         public final void closed() {
-            if (LocalInput.isKeyDown(Keyboard.KEY_RETURN)) {
+            int chatToggleKey = Settings.getSettings().getKeybind(Globals.KB_CHAT_TOGGLE);
+            if (LocalInput.isKeyDown(chatToggleKey)) {
                 close_chat_override = true;
             }
             chat_visible = false;
