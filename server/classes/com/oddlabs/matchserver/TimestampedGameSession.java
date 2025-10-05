@@ -128,7 +128,7 @@ public final strictfp class TimestampedGameSession {
                 player_ratings = new int[participants.length];
 
                 // Add game started here
-                DiscordEmbedCreator.SendGameStartedDiscordEmbed(database_id, session);
+                DiscordEmbedCreator.SendGameStartedDiscordEmbed(session, database_id);
 
                 for (int i = 0; i < participants.length; i++) {
                     String nick = participants[i].getNick();
@@ -344,7 +344,7 @@ public final strictfp class TimestampedGameSession {
             MatchmakingServer.getLogger()
                     .info("Game " + database_id + ". No winning teams " + getParticipantStates());
             DBInterface.endGame(this, end_time, -1);
-            DiscordEmbedCreator.SendHumansLoseToBotsDiscordEmbed(database_id, session);
+            DiscordEmbedCreator.SendHumansLoseToBotsDiscordEmbed(session, database_id);
             game_ended = true;
             return; // last players disconnected
         }
@@ -405,13 +405,13 @@ public final strictfp class TimestampedGameSession {
                                     + getParticipantStates());
             DBInterface.endGame(this, end_time, winning_team_index);
             DiscordEmbedCreator.SendHumansWinAgainstBotsDiscordEmbed(
-                    winning_team_index, database_id, session);
+                    winning_team_index, session, database_id);
             game_ended = true;
             return;
         }
 
         DiscordEmbedCreator.SendHumansWinAgainstOtherHumans(
-                winning_team_index, database_id, session);
+                winning_team_index, session, database_id);
         DBInterface.endGame(this, end_time, winning_team_index);
         game_ended = true;
     }

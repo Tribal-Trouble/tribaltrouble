@@ -17,3 +17,4 @@ ivy_lib_game/*
 
 tt/save_data/*
 tt/steam_appid.txt
+server/server.properties

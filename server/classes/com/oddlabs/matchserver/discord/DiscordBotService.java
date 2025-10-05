@@ -217,7 +217,7 @@ public class DiscordBotService {
         Map<String, ApplicationCommandData> discordCommands =
                 gateway.getRestClient()
                         .getApplicationService()
-                        .getGuildApplicationCommands(1397851204410806363L, guildId)
+                        .getGuildApplicationCommands(getBotId().asLong(), guildId)
                         .collectMap(ApplicationCommandData::name)
                         .block();
 
@@ -225,8 +225,7 @@ public class DiscordBotService {
             System.out.println("Deleting command: " + data.name());
             gateway.getRestClient()
                     .getApplicationService()
-                    .deleteGuildApplicationCommand(
-                            1397851204410806363L, guildId, data.id().asLong())
+                    .deleteGuildApplicationCommand(getBotId().asLong(), guildId, data.id().asLong())
                     .subscribe();
         }
     }
@@ -238,8 +237,7 @@ public class DiscordBotService {
     private void registerCommands() {
         gateway.getRestClient()
                 .getApplicationService()
-                // TODO: Do not hard code the bot app id.
-                .getGuildApplicationCommands(1397851204410806363L, serverId)
+                .getGuildApplicationCommands(getBotId().asLong(), serverId)
                 .collectList()
                 .subscribe(
                         existingCommands -> {
