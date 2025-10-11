@@ -1,17 +1,16 @@
 package com.oddlabs.matchserver;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import discord4j.core.object.reaction.ReactionEmoji;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public class ServerConfiguration {
     public static final String SQL_PASS = "SQL_PASS";
@@ -59,17 +58,17 @@ public class ServerConfiguration {
         if (mappingString != null && !mappingString.trim().isEmpty()) {
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                List<Map<String, String>> jsonData = mapper.readValue(
-                        mappingString,
-                        new TypeReference<List<Map<String, String>>>() {
-                        });
+                List<Map<String, String>> jsonData =
+                        mapper.readValue(
+                                mappingString, new TypeReference<List<Map<String, String>>>() {});
 
                 for (Map<String, String> item : jsonData) {
                     String emojiId = item.get("emoji id");
                     emojiId = normalizeEmojiKey(emojiId);
+                    if (emojiId == null) continue;
                     String roleId = item.get("role id");
 
-                    if (emojiId != null && roleId != null) {
+                    if (roleId != null) {
                         mappings.put(emojiId, roleId);
                     }
                 }
@@ -94,15 +93,19 @@ public class ServerConfiguration {
             val = Long.parseLong(emojiId);
         } catch (NumberFormatException e) {
             // If unparsable it should be interpretted as unicode character
-            if(!emojiId.startsWith("U+")) {
-                System.out.println("The argument(s) to this method should use the \"U+\" notation for codepoints. Skipping mapping: " + emojiId);
+            if (!emojiId.startsWith("U+")) {
+                System.out.println(
+                        "The argument(s) to this method should use the \"U+\" notation for"
+                                + " codepoints. Skipping mapping: "
+                                + emojiId);
+                return null;
             }
         }
 
-        if(val == -1) {
+        if (val == -1) {
             System.out.println("Interpreting emoji id as codepoint: " + emojiId);
             emojiId = ReactionEmoji.codepoints(emojiId).getRaw();
         }
-        return emojiId;   
+        return emojiId;
     }
 }
