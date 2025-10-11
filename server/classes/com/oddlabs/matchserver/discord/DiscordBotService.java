@@ -34,6 +34,7 @@ public class DiscordBotService {
     private boolean isInitialized = false;
     private long serverId = -1;
     private DiscordChatroomCoordinator chatroomCoordinator;
+    private ReactionRoleService reactionRoleService;
 
     ArrayList<DiscordCommand> commands = new ArrayList<DiscordCommand>();
 
@@ -66,6 +67,7 @@ public class DiscordBotService {
                             commands.add(new RankCommand());
                             commands.add(new GamersRoleToggleCommand());
                             chatroomCoordinator = new DiscordChatroomCoordinator();
+                            reactionRoleService = new ReactionRoleService(gateway, serverId);
                             registerCommands();
                             // deleteCommands();
                             return gateway.onDisconnect();
