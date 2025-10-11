@@ -1,7 +1,6 @@
 package com.oddlabs.matchserver.discord;
 
 import com.oddlabs.matchserver.discord.commands.DiscordCommand;
-import com.oddlabs.matchserver.discord.commands.GamersRoleToggleCommand;
 import com.oddlabs.matchserver.discord.commands.LeaderboardsCommand;
 import com.oddlabs.matchserver.discord.commands.MatchupCommand;
 import com.oddlabs.matchserver.discord.commands.OnlineCommand;
@@ -65,7 +64,6 @@ public class DiscordBotService {
                             commands.add(new WhoIsCommand());
                             commands.add(new OnlineCommand());
                             commands.add(new RankCommand());
-                            commands.add(new GamersRoleToggleCommand());
                             chatroomCoordinator = new DiscordChatroomCoordinator();
                             reactionRoleService = new ReactionRoleService(gateway, serverId);
                             registerCommands();
