@@ -54,7 +54,6 @@ public class ReactionRoleService {
         }
 
         String emojiIdentifier = getEmojiIdentifier(emoji);
-        System.out.println("Processing reaction for emoji: " + emojiIdentifier + " by user: " + userId.asString());
         String roleId = emojiRoleMappings.get(emojiIdentifier);
 
         if (roleId == null) {

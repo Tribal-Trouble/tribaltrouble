@@ -8,6 +8,9 @@ import java.util.Properties;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import discord4j.core.object.reaction.ReactionEmoji;
+
 import java.util.List;
 
 public class ServerConfiguration {
@@ -57,12 +60,13 @@ public class ServerConfiguration {
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 List<Map<String, String>> jsonData = mapper.readValue(
-                    mappingString,
-                    new TypeReference<List<Map<String, String>>>() {}
-                );
+                        mappingString,
+                        new TypeReference<List<Map<String, String>>>() {
+                        });
 
                 for (Map<String, String> item : jsonData) {
                     String emojiId = item.get("emoji id");
+                    emojiId = normalizeEmojiKey(emojiId);
                     String roleId = item.get("role id");
 
                     if (emojiId != null && roleId != null) {
@@ -71,11 +75,34 @@ public class ServerConfiguration {
                 }
 
             } catch (Exception e) {
-                System.err.println("Error parsing emoji role mappings JSON: " + e.getMessage());
-                System.err.println("Invalid JSON format: " + mappingString);
+                System.out.println("Error parsing emoji role mappings JSON: " + e.getMessage());
+                System.out.println("Invalid JSON format: " + mappingString);
             }
         }
 
         return mappings;
+    }
+
+    /* Normalizes the emoji key if a custom emoji then the custom long id is used.
+       If a unicode emoji is provided, it is used to construct a ReactionEmoji from it then getRaw()
+       so when a reaction is posted to the bot from discord it can find the unicode key easily.
+       Unicode values can be found at: https://unicode.org/emoji/charts/full-emoji-list.html
+    */
+    private String normalizeEmojiKey(String emojiId) {
+        long val = -1;
+        try {
+            val = Long.parseLong(emojiId);
+        } catch (NumberFormatException e) {
+            // If unparsable it should be interpretted as unicode character
+            if(!emojiId.startsWith("U+")) {
+                System.out.println("The argument(s) to this method should use the \"U+\" notation for codepoints. Skipping mapping: " + emojiId);
+            }
+        }
+
+        if(val == -1) {
+            System.out.println("Interpreting emoji id as codepoint: " + emojiId);
+            emojiId = ReactionEmoji.codepoints(emojiId).getRaw();
+        }
+        return emojiId;   
     }
 }
