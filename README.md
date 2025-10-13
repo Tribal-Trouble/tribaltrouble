@@ -6,7 +6,7 @@
 ![License](https://img.shields.io/badge/license-GPLv2-orange.svg)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Build Status](https://github.com/RcubDev/limbo_console_sharp/actions/workflows/build-and-publish.yaml/badge.svg)](https://github.com//OmarAMokhtar/tribaltrouble)
-[![](https://dcbadge.limes.pink/api/server/https://discord.gg/j8PZyGBZt5?style=flat)](https://discord.gg/j8PZyGBZt5?style=flat)
+[![](https://dcbadge.limes.pink/api/server/https://discord.gg/tribaltrouble?style=flat)](https://discord.gg/tribaltrouble?style=flat)
 
 Tribal Trouble is a realtime strategy game released by Oddlabs in 2004. In 2014 the source was released under GPL2 license.
 
@@ -29,7 +29,7 @@ This fork aims to:
 
 ## 🎮 How to play?
 
-If you want to play the game with minimal hassle check out [Tribal Trouble](https://tribaltrouble.org) or see the releases section of the github. Also come join us on [discord](https://discord.gg/j8PZyGBZt5) as we're still a small community!
+If you want to play the game with minimal hassle check out [Tribal Trouble](https://tribaltrouble.org) or see the releases section of the github. Also come join us on [discord](https://discord.gg/tribaltrouble) as we're still a small community!
 
 The game is currently unsigned and not available through another platform like steam so when you launch the game different OSes will respond differently:
 
@@ -122,7 +122,7 @@ Optional Steps (Recommend for server hosting)
 
 ## 🤝 Contributing
 
-Thanks for your interest in contributing. We have a channel in [discord](https://discord.gg/j8PZyGBZt5) that is active with contributors if you have any questions on setup or where to find things. Come chat, play some games!
+Thanks for your interest in contributing. We have a channel in [discord](https://discord.gg/tribaltrouble) that is active with contributors if you have any questions on setup or where to find things. Come chat, play some games!
 
 See something you want or could improve upon? Make a PR or an issue! Don't have an idea? There's plenty of work to be done check out the active issues!
 
@@ -130,4 +130,4 @@ There are ways to contribute besides developing. If you have screenshots of the 
 
 > For example a screenshot of the old the leaderboards.
 
-Being an active member in the [discord](https://discord.gg/j8PZyGBZt5) and playing games also will help keep the game going!
+Being an active member in the [discord](https://discord.gg/tribaltrouble) and playing games also will help keep the game going!
