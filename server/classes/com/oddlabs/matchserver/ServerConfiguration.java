@@ -19,6 +19,11 @@ public class ServerConfiguration {
     public static final String WEBSITE_DOMAIN = "WEBSITE_DOMAIN";
     public static final String VIKING_CHIEF_EMOJI = "VIKING_CHIEF_EMOJI";
     public static final String NATIVE_CHIEF_EMOJI = "NATIVE_CHIEF_EMOJI";
+    /*
+     * Key for emoji role mappings
+     * Example JSON format for EMOJI_ROLE_MAPPINGS:
+     * [{"role id":"<numeric discord role id>","emoji id":"<custom emoji id or unicode (U+1F602)>"}]
+     */
     public static final String EMOJI_ROLE_MAPPINGS = "EMOJI_ROLE_MAPPINGS";
     public static final String REACTION_ROLE_MESSAGE_ID = "REACTION_ROLE_MESSAGE_ID";
 
