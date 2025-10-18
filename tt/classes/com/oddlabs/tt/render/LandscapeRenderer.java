@@ -216,12 +216,12 @@ public final class LandscapeRenderer implements Animated {
 
     private final PatchGroupVisitor level_updater = new PatchGroupVisitor() {
         @Override
-        public final void visitGroup(PatchGroup group) {
+        public void visitGroup(PatchGroup group) {
             group.visitChildren(this);
         }
 
         @Override
-        public final void visitLeaf(LandscapeLeaf leaf) {
+        public void visitLeaf(LandscapeLeaf leaf) {
             int wanted_level = calculateLevel(leaf);
             PatchLevel patch_level = getPatchLevel(leaf);
             patch_lists[wanted_level].add(patch_level);

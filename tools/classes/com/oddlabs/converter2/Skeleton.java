@@ -13,15 +13,15 @@ public final class Skeleton {
 		this.name_to_bone_map = name_to_bone_map;
 	}
 
-	public final Map<String,Bone> getNameToBoneMap() {
+	public Map<String,Bone> getNameToBoneMap() {
 		return name_to_bone_map;
 	}
 
-	public final Bone getBoneRoot() {
+	public Bone getBoneRoot() {
 		return bone_root;
 	}
 
-	public final Map<String,float[]> getInitialPose() {
+	public Map<String,float[]> getInitialPose() {
 		return initial_pose;
 	}
 }

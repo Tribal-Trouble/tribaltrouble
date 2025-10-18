@@ -68,15 +68,15 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		conn.setConnectionInterface(this);
 	}
 
-	public final void writeBufferDrained(AbstractConnection conn) {
+	public void writeBufferDrained(AbstractConnection conn) {
 	}
 
-	public final void requestProfiles() {
+	public void requestProfiles() {
 		if (!guest)
 			client_interface.updateProfileList(DBInterface.getProfiles(username, revision), DBInterface.getLastUsedProfile(username));
 	}
 
-	public final void setProfile(String nick) {
+	public void setProfile(String nick) {
 		closeProfile();
 		if (!guest) {
 			if (nick != null) 
@@ -91,7 +91,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 
-	public final void createProfile(String nick) {
+	public void createProfile(String nick) {
 		if (!guest) {
 			Profile[] profiles = DBInterface.getProfiles(username, revision);
 			if (profiles.length >= DBInterface.getSettingsInt("max_profiles")) {
@@ -121,26 +121,26 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 
-	public final void logPriority(String other_nick, int priority) {
+	public void logPriority(String other_nick, int priority) {
 		if (current_session != null && active_profile != null && active_clients.get(other_nick.toLowerCase()) != null) {
 			DBInterface.logPriority(current_session.getDatabaseID(), active_profile.getNick(), other_nick, priority);
 		}
 	}
 
-	public final void deleteProfile(String nick) {
+	public void deleteProfile(String nick) {
 		if (!guest) {
 			DBInterface.deleteProfile(username, nick);
 		}
 	}
 
-	public final void updateProfile() {
+	public void updateProfile() {
 		if (!guest) {
 			if (active_profile != null)
 				updateProfile(active_profile.getNick());
 		}
 	}
 
-	private final void updateProfile(String nick) {
+	private void updateProfile(String nick) {
 		if (!guest) {
 			Profile profile = DBInterface.getProfile(username, nick, revision);
 			if (profile != null) {
@@ -150,28 +150,28 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 	
-	private final void updateProfile(Profile profile) {
+	private void updateProfile(Profile profile) {
 		active_profile = profile;
 		client_interface.updateProfile(active_profile);
 	}
 	
-	public final Profile getProfile() {
+	public Profile getProfile() {
 		return active_profile;
 	}
 
-	public final void freeQuitStopNotify() {
+	public void freeQuitStopNotify() {
 		if (getGameSession() == null)
 			return;
 		getGameSession().freeQuitStop();
 	}
 
-	public final void updateGameStatus(int tick, int[] status) {
+	public void updateGameStatus(int tick, int[] status) {
 		if (getGameSession() == null || status == null || tick < 0)
 			return;
 		getGameSession().updateGameStatus(tick, status);
 	}
 
-	public final void gameQuitNotify(String nick) {
+	public void gameQuitNotify(String nick) {
 		if (getGameSession() == null)
 			return;
 
@@ -186,14 +186,14 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 			getGameSession().participantQuit(server, client);
 	}
 
-	public final void gameLostNotify() {
+	public void gameLostNotify() {
 		if (getGameSession() == null)
 			return;
 		getGameSession().gameLost(server, this);
 		setGameSession(null);
 	}
 
-	public final void gameWonNotify() {
+	public void gameWonNotify() {
 		if (getGameSession() == null)
 			return;
 		client_interface.gameWonAck();
@@ -201,7 +201,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		setGameSession(null);
 	}
 
-	public final void gameStartedNotify(GameSession game_session) {
+	public void gameStartedNotify(GameSession game_session) {
 		if (game_session == null || game_session.getParticipants() == null || game_session.getParticipants().length == 0) {
 			MatchmakingServer.getLogger().warning("Invalid GameSession received from " + getUsername());
 			return;
@@ -248,7 +248,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 
-	private final void setGameSession(TimestampedGameSession t) {
+	private void setGameSession(TimestampedGameSession t) {
 		if (t != null && current_session != null)
 			gameLostNotify();
 		current_session = t;
@@ -261,15 +261,15 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 			current_room.sendUsers();
 	}
 
-	private final TimestampedGameSession getGameSession() {
+	private TimestampedGameSession getGameSession() {
 		return current_session;
 	}
 	
-	public final boolean isPlaying() {
+	public boolean isPlaying() {
 		return current_session != null;
 	}
 	
-	public final void handle(Object sender, ARMIEvent event) {
+	public void handle(Object sender, ARMIEvent event) {
 		try {
 			event.execute(interface_methods, this);
 		} catch (IllegalARMIEventException e) {
@@ -277,40 +277,40 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 
-	public final String getUsername() {
+	public String getUsername() {
 		return username;
 	}
 
-	public final void error(AbstractConnection conn, IOException e) {
+	public void error(AbstractConnection conn, IOException e) {
 		error(e);
 	}
 	
-	private final void error(Exception e) {
+	private void error(Exception e) {
 		MatchmakingServer.getLogger().info(username + " logged out. Caused by: " + e.getMessage());
 		MatchmakingServer.getLogger().throwing("Client", "error", e);
 		close();
 	}
 
-	public final void connected(AbstractConnection conn) {
+	public void connected(AbstractConnection conn) {
 	}
 
-	public final int getHostID() {
+	public int getHostID() {
 		return host_id;
 	}
 
-	private final Game getCurrentGame() {
+	private Game getCurrentGame() {
 		return current_game;
 	}
 	
-	public final InetAddress getRemoteAddress() {
+	public InetAddress getRemoteAddress() {
 		return remote_address;
 	}
 
-	private final int getRevision() {
+	private int getRevision() {
 		return revision;
 	}
 		
-	public final void requestList(int type, int update_key) {
+	public void requestList(int type, int update_key) {
 		if (update_key != this.update_key) {
 			client_interface.updateComplete(this.update_key);
 			return;
@@ -383,13 +383,13 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		client_interface.updateComplete(this.update_key);
 	}
 
-	public final void closeTunnel(HostSequenceID address_to) {
+	public void closeTunnel(HostSequenceID address_to) {
 		Client client = (Client)tunnels.remove(address_to);
 		if (client != null)
 			client.tunnelClosed(address_to);
 	}
 	
-	public final void openTunnel(int address_to, int seq) {
+	public void openTunnel(int address_to, int seq) {
 		HostSequenceID host_seq_id = new HostSequenceID(getHostID(), seq);
 		Client client = server.getClientFromID(address_to);
 		tunnels.put(host_seq_id, client);
@@ -399,12 +399,12 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 			tunnelClosed(host_seq_id);
 	}
 
-	private final void tunnelClosed(HostSequenceID address_from) {
+	private void tunnelClosed(HostSequenceID address_from) {
 		if (tunnels.remove(address_from) != null)
 			client_interface.tunnelClosed(address_from);
 	}
 
-	public final void close() {
+	public void close() {
 		Iterator it = tunnels.keySet().iterator();
 		while (it.hasNext()) {
 			HostSequenceID tunnel_address = (HostSequenceID)it.next();
@@ -417,7 +417,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		server.logoutClient(this);
 	}
 
-	private final void closeProfile() {
+	private void closeProfile() {
 		gameLostNotify();
 		leaveRoom();
 		unregisterGame();
@@ -428,25 +428,25 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 
-	private final void tunnelOpened(HostSequenceID address_to, InetAddress inet_address_to, InetAddress local_inet_address_to, Profile profile, Client remote_client) {
+	private void tunnelOpened(HostSequenceID address_to, InetAddress inet_address_to, InetAddress local_inet_address_to, Profile profile, Client remote_client) {
 		tunnels.put(address_to, remote_client);
 		client_interface.tunnelOpened(address_to, inet_address_to, local_inet_address_to, profile);
 	}
 	
-	private final void receiveRoutedEvent(HostSequenceID address, ARMIEvent event) {
+	private void receiveRoutedEvent(HostSequenceID address, ARMIEvent event) {
 		client_interface.receiveRoutedEvent(address, event);
 	}
 	
-	public final void setMulticast(HostSequenceID[] addresses) {
+	public void setMulticast(HostSequenceID[] addresses) {
 		this.multicast_addresses = addresses;
 	}
 	
-	public final void multicastEvent(ARMIEvent event) {
+	public void multicastEvent(ARMIEvent event) {
 		for (int i = 0; i < multicast_addresses.length; i++)
 			routeEvent(multicast_addresses[i], event);
 	}
 
-	public final void routeEvent(HostSequenceID address_to, ARMIEvent event) {
+	public void routeEvent(HostSequenceID address_to, ARMIEvent event) {
 		Client client = (Client)tunnels.get(address_to);
 		if (client != null) {
 			client.receiveRoutedEvent(address_to, event);
@@ -454,11 +454,11 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 			tunnelClosed(address_to);
 	}
 	
-	private final void tunnelAccepted(HostSequenceID host_seq) {
+	private void tunnelAccepted(HostSequenceID host_seq) {
 		client_interface.tunnelAccepted(host_seq);
 	}
 
-	public final void acceptTunnel(HostSequenceID address_to) {
+	public void acceptTunnel(HostSequenceID address_to) {
 		Client client = (Client)tunnels.get(address_to);
 		if (client != null) {
 			client.tunnelAccepted(address_to);
@@ -466,7 +466,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 			tunnelClosed(address_to);
 	}
 
-	public final void registerGame(Game game) {
+	public void registerGame(Game game) {
 		if (game != null && game.isValid() && getProfile() != null) {
 			current_game = game;
 			game_hosts.add(this);
@@ -481,7 +481,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 
-	public final void unregisterGame() {
+	public void unregisterGame() {
 		if (game_hosts.contains(this)) {
 			MatchmakingServer.getLogger().info("Game unregistered, name = " + current_game.getName());
 			game_hosts.remove(this);
@@ -489,11 +489,11 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 
-	public final MatchmakingClientInterface getClientInterface() {
+	public MatchmakingClientInterface getClientInterface() {
 		return client_interface;
 	}
 
-	public final void joinRoom(String room_name) {
+	public void joinRoom(String room_name) {
 		if (getProfile() != null) {
 			if (current_room == null && ChatRoom.isNameValid(room_name)) {
 				ChatRoom room = ChatRoom.getChatRoom(room_name);
@@ -513,7 +513,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 
-	public final void sendPrivateMessage(String nick, String msg) {
+	public void sendPrivateMessage(String nick, String msg) {
 		if (nick == null || msg == null)
 			return;
 		if (getProfile() != null) {
@@ -532,7 +532,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 
-	public final void requestInfo(String nick) {
+	public void requestInfo(String nick) {
 		Client client = (Client)active_clients.get(nick.toLowerCase());
 		if (client != null) {
 			Profile profile = client.getProfile();
@@ -543,11 +543,11 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 
-	private final String formatChat(String message) {
+	private String formatChat(String message) {
 		return "<" + getProfile().getNick() + "> " + message;
 	}
 
-	public final void sendMessageToRoom(String msg) {
+	public void sendMessageToRoom(String msg) {
 		if (current_room != null) {
 			if (guest) {
 				 client_interface.receivePrivateMessage("Server", "Sorry, only registered users are able to chat.");
@@ -559,7 +559,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		}
 	}
 
-	public final void leaveRoom() {
+	public void leaveRoom() {
 		if (current_room != null) {
 			current_room.leave(this);
 			current_room = null;

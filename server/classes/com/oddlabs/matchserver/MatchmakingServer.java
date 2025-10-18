@@ -70,23 +70,23 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 			network.tickBlocking();
 	}
 
-	public final static Logger getLogger() {
+	public static Logger getLogger() {
 		return logger;
 	}
 
-	public final Logger getChatLogger() {
+	public Logger getChatLogger() {
 		return chat_logger;
 	}
 
-	public final PublicKey getPublicRegKey() {
+	public PublicKey getPublicRegKey() {
 		return public_reg_key;
 	}
 	
-	public final AlgorithmParameterSpec getSpec() {
+	public AlgorithmParameterSpec getSpec() {
 		return param_spec;
 	}
 
-	public final void incomingConnection(AbstractConnectionListener connection_listener, Object remote_address) {
+	public void incomingConnection(AbstractConnectionListener connection_listener, Object remote_address) {
 		int id = current_id++;
 		AbstractConnection conn = connection_listener.acceptConnection(null);
 		SecureConnection secure_conn = new SecureConnection(network.getDeterministic(), conn, param_spec);
@@ -97,7 +97,7 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 //		return online_keys.contains(key_encoded);
 //	}
 
-	public final void loginClient(InetAddress remote_address, InetAddress local_remote_address, String username, AbstractConnection conn, String key_code_encoded, int revision, int host_id) {
+	public void loginClient(InetAddress remote_address, InetAddress local_remote_address, String username, AbstractConnection conn, String key_code_encoded, int revision, int host_id) {
 //		online_keys.add(key_code_encoded);
 		Client old_logged_in = (Client)online_users.remove(username.toLowerCase());
 		if (old_logged_in != null) {
@@ -110,25 +110,25 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 		logger.info(username + " logged in, with key " + key_code_encoded);
 	}
 
-	public final Client getClientFromID(int host_id) {
+	public Client getClientFromID(int host_id) {
 		return (Client)client_map.get(new Integer(host_id));
 	}
 	
-	public final void error(AbstractConnectionListener conn_id, IOException e) {
+	public void error(AbstractConnectionListener conn_id, IOException e) {
 		logger.severe("Server socket failed!");
 		throw new RuntimeException(e);
 	}
 
-	public final void logoutClient(Client client) {
+	public void logoutClient(Client client) {
 		online_users.remove(client.getUsername().toLowerCase());
 		removeInstance(client.getHostID());
 	}
 
-	public final void removeInstance(int instance_id) {
+	public void removeInstance(int instance_id) {
 		client_map.remove(new Integer(instance_id));
 	}
 	
-	private final static void postPanic() {
+	private static void postPanic() {
 		try {
 			DBUtils.postHermesMessage("elias, xar, jacob, thufir: Matchmaking service crashed!");
 		} catch (Throwable t) {
@@ -136,7 +136,7 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 		}
 	}
 	
-	public final static void main(String[] args) {
+	public static void main(String[] args) {
 		try {
 			new MatchmakingServer();
 		} catch (Throwable t) {

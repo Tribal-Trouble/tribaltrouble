@@ -15,7 +15,7 @@ public final class MeshLoader {
 	private MeshLoader() {
 	}
 
-	public final static ModelInfo loadMesh(File file, Map name_to_bone_map, float scale) {
+	public static ModelInfo loadMesh(File file, Map name_to_bone_map, float scale) {
 		try {
 			FileInputStream input_stream = new FileInputStream(file);
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -30,7 +30,7 @@ public final class MeshLoader {
 		}
 	}
 
-	private final static ModelInfo createModelInfo(Node node, Map name_to_bone_map, float scale) {
+	private static ModelInfo createModelInfo(Node node, Map name_to_bone_map, float scale) {
 //		String texture_name = cutTextureName(node.getAttributes().getNamedItem("texture").getNodeValue());
 
 		NodeList polygon_list = ConvertToBinary.getNodeByName("polygons", node).getChildNodes();
@@ -108,7 +108,7 @@ public final class MeshLoader {
 		return Optimizer.optimize(/*texture_name, */num_vertices, vertices, normals, colors, uvs, skin_names, skin_weights);
 	}
 
-	private final static String cutTextureName(String name) {
+	private static String cutTextureName(String name) {
 		if (name.equals(""))
 			return name;
 		String result = name.replaceAll("\\\\", "/");
@@ -119,7 +119,7 @@ public final class MeshLoader {
 		return result;
 	}
 
-	private final static int countPolys(NodeList polygon_list) {
+	private static int countPolys(NodeList polygon_list) {
 		int counter = 0;
 		for (int i = 0; i < polygon_list.getLength(); i++) {
 			Node polygon = polygon_list.item(i);
@@ -129,7 +129,7 @@ public final class MeshLoader {
 		return counter;
 	}
 
-	private final static float getAttrFloat(Node node, String name) {
+	private static float getAttrFloat(Node node, String name) {
 		return Float.parseFloat(node.getAttributes().getNamedItem(name).getNodeValue());
 	}
 }

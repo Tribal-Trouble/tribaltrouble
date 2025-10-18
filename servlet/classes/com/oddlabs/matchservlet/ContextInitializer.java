@@ -15,10 +15,10 @@ public final class ContextInitializer implements ServletContextListener {
 	private final static int KEY_SIZE = 1024;
 	private final static String KEY_ALGORITHM = "RSA";
 
-	public final void contextDestroyed(ServletContextEvent sce) {
+	public void contextDestroyed(ServletContextEvent sce) {
 	}
 
-	private final static KeyPair generateKeyPair() {
+	private static KeyPair generateKeyPair() {
 		try {
 			KeyPairGenerator keygen = KeyPairGenerator.getInstance(KEY_ALGORITHM);
 			keygen.initialize(KEY_SIZE);
@@ -28,7 +28,7 @@ public final class ContextInitializer implements ServletContextListener {
 		}
 	}
 
-	public final void contextInitialized(ServletContextEvent sce) {
+	public void contextInitialized(ServletContextEvent sce) {
 		ServletContext ctx = sce.getServletContext();
 		ctx.setAttribute("db", createDatabasePool());
 		KeyPair key_pair = generateKeyPair();

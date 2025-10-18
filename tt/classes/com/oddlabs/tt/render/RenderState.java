@@ -96,7 +96,7 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor unit_visitor = new SelectableVisitor() {
                 @Override
-		public final void markDetailPolygon(ElementRenderState render_state, int level) {
+		public void markDetailPolygon(ElementRenderState render_state, int level) {
 			Unit unit = (Unit)render_state.model;
 			super.markDetailPolygon(render_state, level);
 			UnitSupplyContainer supply_container = unit.getSupplyContainer();
@@ -229,7 +229,7 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor supply_model_visitor = new SupplyModelVisitor() {
                 @Override
-		public final void transform(ElementRenderState render_state) {
+		public void transform(ElementRenderState render_state) {
 			SupplyModel model = (SupplyModel)render_state.getModel();
 			GL11.glTranslatef(model.getPositionX(), model.getPositionY(), model.getPositionZ());
 			GL11.glRotatef(model.getRotation(), 0f, 0f, 1f);
@@ -242,7 +242,7 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor rubber_model_visitor = new SupplyModelVisitor() {
                 @Override
-		public final void transform(ElementRenderState render_state) {
+		public void transform(ElementRenderState render_state) {
 			Model model = render_state.model;
 			RenderTools.translateAndRotate(model.getPositionX(), model.getPositionY(), render_state.f, model.getDirectionX(), model.getDirectionY());
 		}
@@ -278,7 +278,7 @@ public final class RenderState implements ElementVisitor {
 		private final static float START_FADE_DIST = 100;
 
                 @Override
-		public final void transform(ElementRenderState render_state) {
+		public void transform(ElementRenderState render_state) {
 			Plants plants = (Plants)render_state.getModel();
 			RenderTools.translateAndRotate(plants);
 			float dist_squared = render_state.f;
@@ -300,7 +300,7 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor directed_weapon_model_visitor = new WhiteModelVisitor() {
                 @Override
-		public final void transform(ElementRenderState render_state) {
+		public void transform(ElementRenderState render_state) {
 			DirectedThrowingWeapon model = (DirectedThrowingWeapon)render_state.getModel();
 			RenderTools.translateAndRotate(render_state.getModel());
 			GL11.glRotatef(-model.getZSpeed(), 0f, 1f, 0f);
@@ -315,7 +315,7 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor rotating_weapon_model_visitor = new WhiteModelVisitor() {
                 @Override
-		public final void transform(ElementRenderState render_state) {
+		public void transform(ElementRenderState render_state) {
 			RotatingThrowingWeapon model = (RotatingThrowingWeapon)render_state.getModel();
 			RenderTools.translateAndRotate(render_state.getModel());
 			GL11.glRotatef(model.getAngle(), 0f, 1f, 0f);

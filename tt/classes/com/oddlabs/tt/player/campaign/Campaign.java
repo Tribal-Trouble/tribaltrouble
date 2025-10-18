@@ -48,17 +48,17 @@ public abstract class Campaign {
 		LoadCampaignBox.loadSavegames(
 				new DeterministicSerializerLoopbackInterface<CampaignState[]>() {
                     @Override
-					public final void loadSucceeded(CampaignState[] campaign_states) {
+					public void loadSucceeded(CampaignState[] campaign_states) {
 						Campaign.this.campaign_states = campaign_states;
 						doSave(viewer);
 					}
 
                      @Override
-					public final void saveSucceeded() {
+					public void saveSucceeded() {
 					}
 
                     @Override
-					public final void failed(Throwable e) {
+					public void failed(Throwable e) {
 						doFailed(e, viewer);
 					}
 				});
@@ -73,15 +73,15 @@ public abstract class Campaign {
 		LoadCampaignBox.saveSavegames(campaign_states,
 				new DeterministicSerializerLoopbackInterface<CampaignState[]>() {
                     @Override
-					public final void loadSucceeded(CampaignState[] object) {
+					public void loadSucceeded(CampaignState[] object) {
 					}
 
                     @Override
-					public final void saveSucceeded() {
+					public void saveSucceeded() {
 					}
 
                     @Override
-					public final void failed(Throwable e) {
+					public void failed(Throwable e) {
 						doFailed(e, viewer);
 					}
 				});

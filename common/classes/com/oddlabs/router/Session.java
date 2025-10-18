@@ -52,7 +52,7 @@ final class Session {
 			private int best_checksum_count = 0;
 
                         @Override
-			public final void visit(RouterClient client) {
+			public void visit(RouterClient client) {
 				if (client.getChecksums().isEmpty()) {
 					missing_checksum[0] = true;
 					return;

@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class ConvertToBinary {
-	public final static void main(String[] args) {
+	public static void main(String[] args) {
 		if (args.length != 3)
 			throw new RuntimeException("Invalid number of arguments : <xml_file> <src_dir> <build_dir>");
 		String xml_file = args[0];
@@ -202,7 +202,7 @@ public final class ConvertToBinary {
 		}
 	}
 
-	public final static Node getNodeByName(String name, Node n) {
+	public static Node getNodeByName(String name, Node n) {
 		NodeList nl = n.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			if (nl.item(i).getNodeName().equals(name))

@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 final class GetFirstIntQuery implements Query {
-	public final Object process(ResultSet result) throws SQLException {
+	public Object process(ResultSet result) throws SQLException {
 		result.first();
 		return (Integer)result.getInt(1);
 	}

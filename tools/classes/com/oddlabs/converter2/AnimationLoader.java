@@ -17,7 +17,7 @@ public final class AnimationLoader {
 	private AnimationLoader() {
 	}
 
-	public final static Map<String,float[]>[] loadAnimation(File file) {
+	public static Map<String,float[]>[] loadAnimation(File file) {
 		try {
 			FileInputStream input_stream = new FileInputStream(file);
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -55,7 +55,7 @@ public final class AnimationLoader {
 		return anim_infos;
 	}
 
-	public final static Map<String,float[]> parseFrame(Node node) {
+	public static Map<String,float[]> parseFrame(Node node) {
 		NodeList bones = node.getChildNodes();
 		Map<String,float[]> bone_infos = new HashMap<>();
 		for (int i = 0; i < bones.getLength(); i++) {

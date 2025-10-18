@@ -38,7 +38,7 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
 		conn.setConnectionInterface(this);
 	}
 
-	public final void handle(Object sender, ARMIEvent event) {
+	public void handle(Object sender, ARMIEvent event) {
 		try {
 			event.execute(interface_methods, this);
 		} catch (IllegalARMIEventException e) {
@@ -46,26 +46,26 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
 		}
 	}
 
-	public final void writeBufferDrained(AbstractConnection conn) {
+	public void writeBufferDrained(AbstractConnection conn) {
 	}
 
-	public final void error(AbstractConnection conn, IOException e) {
+	public void error(AbstractConnection conn, IOException e) {
 		error(e);
 	}
 	
-	private final void error(Exception e) {
+	private void error(Exception e) {
 		close();
 		MatchmakingServer.getLogger().warning("Exception e = " + e);
 	}
 
-	public final void connected(AbstractConnection conn) {
+	public void connected(AbstractConnection conn) {
 	}
 
-	public final void setLocalRemoteAddress(InetAddress local_remote_address) {
+	public void setLocalRemoteAddress(InetAddress local_remote_address) {
 		this.local_remote_address = local_remote_address;
 	}
 
-	public final static void checkUsername(String name) throws InvalidUsernameException {
+	public static void checkUsername(String name) throws InvalidUsernameException {
 		int min_username_length = DBInterface.getSettingsInt("min_username_length");
 		if (name.length() < min_username_length)
 			throw new InvalidUsernameException(MatchmakingClientInterface.USERNAME_ERROR_TOO_SHORT);
@@ -82,7 +82,7 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
 		}
 	}
 
-	public final void createUser(Login login, LoginDetails login_details, SignedObject reg_key, int revision) {
+	public void createUser(Login login, LoginDetails login_details, SignedObject reg_key, int revision) {
 		String reg_key_encoded = checkKey(reg_key);
 		if (login == null || !login.isValid() || reg_key_encoded == null) {
 			close();
@@ -126,7 +126,7 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
 		doLogin(login.getUsername(), reg_key_encoded, revision);
 	}
 
-	public final void login(Login login, SignedObject reg_key, int revision) {
+	public void login(Login login, SignedObject reg_key, int revision) {
 		String reg_key_encoded = checkKey(reg_key);
 		if (login == null || !login.isValid() || reg_key_encoded == null) {
 			close();
@@ -152,14 +152,14 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
 		doLogin(username, reg_key_encoded, revision);
 	}
 
-	public final void loginAsGuest(int revision) {
+	public void loginAsGuest(int revision) {
 		if (revisionOK(revision)) {
 			String username = "Guest" + guest_postfix++; 
 			doLogin(username, null, revision);
 		}
 	}
 
-	private final boolean revisionOK(int revision) {
+	private boolean revisionOK(int revision) {
 		if (revision < DBInterface.getSettingsInt("revision")) {
 			client_interface.loginError(MatchmakingClientInterface.USER_ERROR_VERSION_TOO_OLD);
 			System.out.println("revision = " + revision + " | DBInterface.getSettingsInt(revision) = " + DBInterface.getSettingsInt("revision"));
@@ -168,7 +168,7 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
 			return true;
 	}
 
-	private final String checkKey(SignedObject reg_key) {
+	private String checkKey(SignedObject reg_key) {
 		String reg_code = null;
 		if (reg_key != null) {
 			try {
@@ -184,7 +184,7 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
 		return reg_code;
 	}
 
-	private final void doLogin(String username, String reg_key_encoded, int revision) {
+	private void doLogin(String username, String reg_key_encoded, int revision) {
 		if (local_remote_address != null) {
 			client_interface.loginOK(username, new TunnelAddress(getHostID(), remote_address, local_remote_address));
 			server.loginClient(remote_address, local_remote_address, username, conn.getWrappedConnectionAndShutdown(), reg_key_encoded, revision, host_id);
@@ -193,11 +193,11 @@ public final class Authenticator implements MatchmakingServerLoginInterface, Con
 		}
 	}
 	
-	public final int getHostID() {
+	public int getHostID() {
 		return host_id;
 	}
 
-	private final void close() {
+	private void close() {
 		conn.close();
 	}
 }

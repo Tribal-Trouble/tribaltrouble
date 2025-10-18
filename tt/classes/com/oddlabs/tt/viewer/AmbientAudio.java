@@ -45,7 +45,7 @@ public final class AmbientAudio {
 		ambient_wind.registerAmbient();
 	}
 
-	public final void stop() {
+	public void stop() {
 		ambient_forest.stop();
 		ambient_beach.stop();
 		ambient_wind.stop();

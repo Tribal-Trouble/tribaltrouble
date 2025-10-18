@@ -74,19 +74,19 @@ final class RouterClient implements ConnectionInterface {
 		this.client_id = client_id;
 		this.current_interface = new Interface(GameInterface.class, new GameInterface() {
                         @Override
-			public final void checksum(int checksum) {
+			public void checksum(int checksum) {
 				doChecksum(checksum);
 			}
                         @Override
-			public final void relayEventTo(int client_id, ARMIEvent event) {
+			public void relayEventTo(int client_id, ARMIEvent event) {
 				doRelayEventTo(client_id, event);
 			}
                         @Override
-			public final void relayGameStateEvent(ARMIEvent event) {
+			public void relayGameStateEvent(ARMIEvent event) {
 				doRelayGameStateEvent(event);
 			}
                         @Override
-			public final void relayEvent(ARMIEvent event) {
+			public void relayEvent(ARMIEvent event) {
 				doRelayEvent(event);
 			}
 		});

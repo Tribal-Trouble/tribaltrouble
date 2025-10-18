@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public final class DBInterface {
-	private final static RegistrationInfo getRegistrationInfo(Connection conn, long key) throws SQLException {
+	private static RegistrationInfo getRegistrationInfo(Connection conn, long key) throws SQLException {
 		PreparedStatement stmt = conn.prepareStatement("SELECT reg_key, reg_email, reg_time, name, address1, address2, zip, city, state, country FROM registrations R WHERE R.reg_key = ? AND NOT R.disabled");
 		try {
 			stmt.setString(1, RegistrationKey.encode(key));
@@ -36,7 +36,7 @@ public final class DBInterface {
 		}
 	}
 
-	public final static RegistrationInfo registerKey(DataSource ds, RegistrationRequest reg_request) throws SQLException {
+	public static RegistrationInfo registerKey(DataSource ds, RegistrationRequest reg_request) throws SQLException {
 //		boolean first_reg = false;
 		Connection conn = ds.getConnection();
 		try {

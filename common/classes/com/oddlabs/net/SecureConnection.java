@@ -39,11 +39,11 @@ public final class SecureConnection extends AbstractConnection implements Secure
 			public void connected(AbstractConnection conn) {
 			}
                         @Override
-			public final void handle(Object sender, ARMIEvent event) {
+			public void handle(Object sender, ARMIEvent event) {
 				processEvent(event);
 			}
                         @Override
-			public final void writeBufferDrained(AbstractConnection conn) {
+			public void writeBufferDrained(AbstractConnection conn) {
 				SecureConnection.this.writeBufferDrained();
 			}
 		});

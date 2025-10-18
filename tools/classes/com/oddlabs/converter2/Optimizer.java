@@ -58,7 +58,7 @@ public final class Optimizer {
 		return bytesEquals(0, 0, array1[index1].length, array1[index1], array2[index2]);
 	}
 
-	protected final static ModelInfo optimize(/*String tex_name, */int num_vertices, float[] vertices, float[] normals, float[] colors, float[] uvs, float[] uvs2, byte[][] skin_names, float[][] skin_weights) {
+	protected static ModelInfo optimize(/*String tex_name, */int num_vertices, float[] vertices, float[] normals, float[] colors, float[] uvs, float[] uvs2, byte[][] skin_names, float[][] skin_weights) {
 		short[] indices = new short[num_vertices];
 		float[] r_vertices = new float[vertices.length];
 		float[] r_colors = new float[colors.length];
@@ -130,11 +130,11 @@ public final class Optimizer {
 		return Arrays.copyOf(array, length);
 	}
 
-	protected final static SpriteInfo2 convertToSprite(String[][] textures, ModelInfo model_info, float[] clear_color) {
+	protected static SpriteInfo2 convertToSprite(String[][] textures, ModelInfo model_info, float[] clear_color) {
 		return new SpriteInfo2(textures, model_info.indices, model_info.vertices, model_info.normals, model_info.texcoords, model_info.texcoords2, model_info.skin_names, model_info.skin_weights, clear_color);
 	}
 
-	public final static AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ Bone skeleton, Map initial_pose, Map[] anim_map, int type, float wpc) {
+	public static AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ Bone skeleton, Map initial_pose, Map[] anim_map, int type, float wpc) {
 		// animations format: [frames] [bones] [matrix]
 		int num_frames = anim_map.length;
 		float[][] frames = new float[num_frames][];

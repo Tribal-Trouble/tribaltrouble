@@ -37,7 +37,7 @@ public final class RegServlet extends HttpServlet {
 
 	private PrivateKey private_reg_key;
 
-	public final void init(ServletConfig config) throws ServletException {
+	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		try {
 			String password = config.getInitParameter("reg_key_pass");
@@ -52,11 +52,11 @@ public final class RegServlet extends HttpServlet {
 		}
 	}
 	
-	private final static boolean parseBoolean(String val) {
+	private static boolean parseBoolean(String val) {
 		return Boolean.valueOf(val).booleanValue();
 	}
 	
-	private final static int parseInt(String val, int default_value) {
+	private static int parseInt(String val, int default_value) {
 		try {
 			return Integer.parseInt(val);
 		} catch (NumberFormatException e) {
@@ -64,14 +64,14 @@ public final class RegServlet extends HttpServlet {
 		}
 	}
 	
-	private final static String readReplyFromURL(URL url) throws IOException {
+	private static String readReplyFromURL(URL url) throws IOException {
 		InputStream in = url.openStream();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		String reply = reader.readLine();
 		return reply;
 	}
 	
-	private final String validateGGKey(String gg_key) throws IOException {
+	private String validateGGKey(String gg_key) throws IOException {
 		String reply = readReplyFromURL(new URL(GG_IGNITION_URL + gg_key));
 		// parse GG reply
 		String err_prefix = "Error: ";
@@ -87,13 +87,13 @@ public final class RegServlet extends HttpServlet {
 			throw new IOException("Unknown reply from GarageGames: " + reply);
 	}
 	
-	private final static String generateGGKey(String request_key_str, String gg_username) throws IOException {
+	private static String generateGGKey(String request_key_str, String gg_username) throws IOException {
 		URL keygen_url = new URL(LOCAL_KEYGEN_URL + "gg_key=" + request_key_str  + "&username=" + gg_username);
 		String reply = readReplyFromURL(keygen_url);
 		return reply;
 	}
 	
-	private final String createKey(String request_key_str, String affiliate_id) throws IOException {
+	private String createKey(String request_key_str, String affiliate_id) throws IOException {
 		if (affiliate_id != null && affiliate_id.equals("garagegames")) {
 			String gg_username = validateGGKey(request_key_str);
 			String local_key = generateGGKey(request_key_str, gg_username);
@@ -103,7 +103,7 @@ public final class RegServlet extends HttpServlet {
 			return request_key_str;
 	}
 	
-	private final static String normalizeKey(String key) throws IOException {
+	private static String normalizeKey(String key) throws IOException {
 		String result = key.toUpperCase();
 		result = result.replaceAll("-", "");
 		if (result.length() != 16)
@@ -112,7 +112,7 @@ public final class RegServlet extends HttpServlet {
 		return result;
 	}
 	
-	public final void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		String request_key_str = normalizeKey(req.getParameter("key"));
 		String affiliate_id = req.getParameter("affiliate_id");
 		String current_affiliate_id = req.getParameter("current_affiliate_id");

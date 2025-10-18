@@ -56,7 +56,7 @@ public final class RouterServer {
 		}
 	}
 
-	private final static void postPanic() {
+	private static void postPanic() {
 		try {
 			DBUtils.initConnection("jdbc:mysql://localhost/oddlabs", "matchmaker", "U46TawOp");
 			DBUtils.postHermesMessage("elias, xar, jacob, thufir: Router crashed!");
@@ -65,7 +65,7 @@ public final class RouterServer {
 		}
 	}
 
-	public final static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		try {
 			run();
 		} catch (Throwable t) {

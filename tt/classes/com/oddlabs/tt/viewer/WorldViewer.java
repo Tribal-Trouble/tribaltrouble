@@ -89,13 +89,13 @@ public final class WorldViewer implements Animated {
         this.distributable_table = new DistributableTable();
         NotificationListener listener = new NotificationListener() {
             @Override
-            public final void gamespeedChanged(int speed) {
+            public void gamespeedChanged(int speed) {
                 gui_root.getInfoPrinter().print(Utils.getBundleString(PeerHub.bundle, "changed_to_" + GAMESPEED_STRINGS[speed]));
                 Globals.gamespeed = speed;
             }
 
             @Override
-            public final void playerGamespeedChanged() {
+            public void playerGamespeedChanged() {
                 String result = "";
                 Player[] players = world.getPlayers();
                 int count = 0;
@@ -113,38 +113,38 @@ public final class WorldViewer implements Animated {
             }
 
             @Override
-            public final void newAttackNotification(Selectable target) {
+            public void newAttackNotification(Selectable target) {
                 Player owner = target.getOwner();
                 if (owner == getLocalPlayer())
                     notification_manager.newAttackNotification(animation_manager_local, target, getLocalPlayer());
             }
 
             @Override
-            public final void newSelectableNotification(Selectable target) {
+            public void newSelectableNotification(Selectable target) {
                 Player owner = target.getOwner();
                 if (owner == getLocalPlayer())
                     notification_manager.newSelectableNotification(target, animation_manager_local, getLocalPlayer());
             }
 
             @Override
-            public final void registerTarget(Target target) {
+            public void registerTarget(Target target) {
                 distributable_table.register(target);
             }
 
             @Override
-            public final void unregisterTarget(Target target) {
+            public void unregisterTarget(Target target) {
                 distributable_table.unregister(target);
                 if (target instanceof Selectable)
                     getSelection().removeFromArmies((Selectable) target);
             }
 
             @Override
-            public final void updateTreeLowDetail(StrictMatrix4f matrix, TreeSupply tree) {
+            public void updateTreeLowDetail(StrictMatrix4f matrix, TreeSupply tree) {
                 getRenderer().getTreeRenderer().getLowDetail().updateLowDetail(matrix, tree);
             }
 
             @Override
-            public final void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
+            public void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
                 getLandscapeRenderer().patchesEdited(patch_x0, patch_y0, patch_x1, patch_y1);
             }
         };

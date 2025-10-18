@@ -62,15 +62,15 @@ public final class CryptUtils {
 		SSLContext ssl_context = SSLContext.getInstance("SSL");
 		ssl_context.init(null, new TrustManager[]{new X509TrustManager() {
                         @Override
-			public final void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 			}
 
                         @Override
-			public final void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 			}
 
                         @Override
-			public final X509Certificate[] getAcceptedIssuers() {
+			public X509Certificate[] getAcceptedIssuers() {
 				return new X509Certificate[]{};
 			}
 		}}, null);

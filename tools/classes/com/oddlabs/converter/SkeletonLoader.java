@@ -18,7 +18,7 @@ public final class SkeletonLoader {
 	private SkeletonLoader() {
 	}
 
-	public final static Skeleton loadSkeleton(File file) {
+	public static Skeleton loadSkeleton(File file) {
 		try (FileInputStream input_stream = new FileInputStream(file)) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(true);

@@ -58,7 +58,7 @@ public final class TimestampedGameSession {
 		MatchmakingServer.getLogger().info("Game " + database_id + " created. [" + nicks + "] " + getParticipantStates());
 	}
 
-	private final String getParticipantStates() {
+	private String getParticipantStates() {
 		String result = "";
 		for (int i = 0; i < participant_state.length; i++)
 			result += PARTICIPANT_DEBUG_CHARS[participant_state[i]];
@@ -66,15 +66,15 @@ public final class TimestampedGameSession {
 
 	}
 
-	public final GameSession getSession() {
+	public GameSession getSession() {
 		return session;
 	}
 
-	public final int getDatabaseID() {
+	public int getDatabaseID() {
 		return database_id;
 	}
 
-	public final boolean join(MatchmakingServer server, Client client) {
+	public boolean join(MatchmakingServer server, Client client) {
 		if (!free_quit || game_state != GAME_STARTING || System.currentTimeMillis() - create_timestamp > JOIN_MAX_TIME)
 			return false;
 		int index = findIndex(server, client);
@@ -117,15 +117,15 @@ public final class TimestampedGameSession {
 		return false;
 	}
 
-	public final long getStartTime() {
+	public long getStartTime() {
 		return start_timestamp;
 	}
 
-	public final void freeQuitStop() {
+	public void freeQuitStop() {
 		free_quit = false;
 	}
 
-	public final void updateGameStatus(int tick, int[] status) {
+	public void updateGameStatus(int tick, int[] status) {
 		if (status.length != session.getParticipants().length || game_state != GAME_ALL_JOINED)
 			return;
 		if (last_status != null) {
@@ -143,7 +143,7 @@ public final class TimestampedGameSession {
 		}
 	}
 
-	private final int getWinningTeamFromLastStatus() {
+	private int getWinningTeamFromLastStatus() {
 		if (last_status != null && last_tick > STATUS_WINNING_TICK) {
 			int[] team_score = getTeamScores(last_status);
 			int best_team = -1;
@@ -166,7 +166,7 @@ public final class TimestampedGameSession {
 		return -1;
 	}
 	
-	private final int[] getTeamScores(int[] status) {
+	private int[] getTeamScores(int[] status) {
 		int[] team_score = new int[MatchmakingServerInterface.MAX_PLAYERS];
 		Participant[] participants = session.getParticipants();
 		for (int i = 0; i < participants.length; i++)
@@ -174,7 +174,7 @@ public final class TimestampedGameSession {
 		return team_score;
 	}
 
-	public final void participantQuit(MatchmakingServer server, Client client) {
+	public void participantQuit(MatchmakingServer server, Client client) {
 		if (!free_quit) {
 			return;
 		}
@@ -186,7 +186,7 @@ public final class TimestampedGameSession {
 			participant_state[index] = PARTICIPANT_FREE_QUIT;
 	}
 	
-	public final void gameQuit(MatchmakingServer server, Client client) {
+	public void gameQuit(MatchmakingServer server, Client client) {
 		int index = findIndex(server, client);
 		
 		if (!free_quit && !(participant_state[index] == PARTICIPANT_FREE_QUIT)) {
@@ -196,11 +196,11 @@ public final class TimestampedGameSession {
 		gameDone(server, client, PARTICIPANT_QUIT, "quit");
 	}
 	
-	public final void gameLost(MatchmakingServer server, Client client) {
+	public void gameLost(MatchmakingServer server, Client client) {
 		gameDone(server, client, PARTICIPANT_LOST, "lost");
 	}
 
-	public final void gameWon(MatchmakingServer server, Client client) {
+	public void gameWon(MatchmakingServer server, Client client) {
 		int index = findIndex(server, client);
 		if (participant_state[index] == PARTICIPANT_FREE_QUIT) {
 			game_state = GAME_INVALID;
@@ -209,7 +209,7 @@ public final class TimestampedGameSession {
 		gameDone(server, client, PARTICIPANT_WON, "won");
 	}
 
-	private final int findIndex(MatchmakingServer server, Client client) {
+	private int findIndex(MatchmakingServer server, Client client) {
 		Participant[] participants = session.getParticipants();
 		for (int i = 0; i < participants.length; i++) {
 			Client search_client = server.getClientFromID(participants[i].getMatchID());
@@ -219,14 +219,14 @@ public final class TimestampedGameSession {
 		return -1;
 	}
 	
-	private final void gameDone(MatchmakingServer server, Client client, int result, String result_string) {
+	private void gameDone(MatchmakingServer server, Client client, int result, String result_string) {
 		participant_state[findIndex(server, client)] = result;
 		MatchmakingServer.getLogger().info("Game " + database_id + ": " + client.getUsername() + " finished. Result " + result_string + " " + getParticipantStates());
 		//if (game_state != GAME_STARTING)
 			evaluateGame(server);
 	}
 	
-	private final void evaluateGame(MatchmakingServer server) {
+	private void evaluateGame(MatchmakingServer server) {
 		Participant[] participants = session.getParticipants();
 		int[] team_sizes = new int[MatchmakingServerInterface.MAX_PLAYERS];
 		int[] team_done = new int[MatchmakingServerInterface.MAX_PLAYERS];
@@ -306,12 +306,12 @@ public final class TimestampedGameSession {
 		game_ended = true;
 	}
 
-	protected final void finalize() {
+	protected void finalize() {
 		if (!game_ended)
 			DBInterface.endGame(this, System.currentTimeMillis(), -1);
 	}
 
-	private final void teamWon(MatchmakingServer server, int[] team_result) {
+	private void teamWon(MatchmakingServer server, int[] team_result) {
 		Participant[] participants = session.getParticipants();
 		for (int i = 0; i < participants.length; i++) {
 			String nick = participants[i].getNick();
@@ -331,7 +331,7 @@ public final class TimestampedGameSession {
 			rerateParticipants(server, team_result);
 	}
 
-	private final void rerateParticipants(MatchmakingServer server, int[] team_result) {
+	private void rerateParticipants(MatchmakingServer server, int[] team_result) {
 		Participant[] participants = session.getParticipants();
 		int[] player_teams = new int[participants.length];
 		

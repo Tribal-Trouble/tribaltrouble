@@ -449,28 +449,28 @@ e.printStackTrace();
 		WorldInfo world_info = generator.generate(players.length, world_params.getInitialUnitCount(), 0f);
 		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {
                         @Override
-			public final void gamespeedChanged(int speed) {
+			public void gamespeedChanged(int speed) {
 			}
                         @Override
-			public final void playerGamespeedChanged() {
+			public void playerGamespeedChanged() {
 			}
                         @Override
-			public final void newAttackNotification(Selectable target) {
+			public void newAttackNotification(Selectable target) {
 			}
                         @Override
-			public final void newSelectableNotification(Selectable target) {
+			public void newSelectableNotification(Selectable target) {
 			}
                         @Override
-			public final void registerTarget(Target target) {
+			public void registerTarget(Target target) {
 			}
                         @Override
-			public final void unregisterTarget(Target target) {
+			public void unregisterTarget(Target target) {
 			}
                         @Override
-			public final void updateTreeLowDetail(StrictMatrix4f matrix, TreeSupply tree) {
+			public void updateTreeLowDetail(StrictMatrix4f matrix, TreeSupply tree) {
 			}
                         @Override
-			public final void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
+			public void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
 			}
 		}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Player.COLORS[0]});
 		AnimationManager manager = new AnimationManager();

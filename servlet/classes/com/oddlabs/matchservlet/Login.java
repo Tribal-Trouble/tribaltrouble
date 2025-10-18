@@ -110,9 +110,9 @@ public final class Login extends HttpServlet {
 		return RegistrationKey.normalize(key);
 	}
 
-	public final void doPost(final HttpServletRequest req, final HttpServletResponse res) throws ServletException, IOException {
+	public void doPost(final HttpServletRequest req, final HttpServletResponse res) throws ServletException, IOException {
 		SQLTools.doSQL(res, new SQLAction() {
-			public final void run() throws SQLException, ServletException, IOException {
+			public void run() throws SQLException, ServletException, IOException {
 				String email = req.getParameter("email");
 				String username = req.getParameter("username");
 				createUser(normalizeKey(req.getParameter("reg_key")), username, req.getParameter("password"), email);
@@ -121,9 +121,9 @@ public final class Login extends HttpServlet {
 		});
 	}
 
-	public final void doGet(final HttpServletRequest req, final HttpServletResponse res) throws ServletException, IOException {
+	public void doGet(final HttpServletRequest req, final HttpServletResponse res) throws ServletException, IOException {
 		SQLTools.doSQL(res, new SQLAction() {
-			public final void run() throws SQLException, ServletException, IOException {
+			public void run() throws SQLException, ServletException, IOException {
 				String username = req.getParameter("username");
 				login(normalizeKey(req.getParameter("reg_key")), username, req.getParameter("password"));
 				writeSigned(res, username);

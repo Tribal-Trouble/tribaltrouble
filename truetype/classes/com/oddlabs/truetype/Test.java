@@ -31,7 +31,7 @@ public final class Test {
 	private final static BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
 	private final static Graphics2D g2d = (Graphics2D)image.getGraphics();
 
-	public final static void main(String[] args) {
+	public static void main(String[] args) {
 		try {
 			Display.setDisplayMode(new DisplayMode(DISPLAY_WIDTH, DISPLAY_HEIGHT));
 			Display.create();
@@ -117,7 +117,7 @@ System.out.println("total_time = " + total_time);
 		}
 	}
 
-	private final static void pixelDataFromString(int width, int height, String str, java.awt.Font font, int[] pixels, LineBreakMeasurer measurer) {
+	private static void pixelDataFromString(int width, int height, String str, java.awt.Font font, int[] pixels, LineBreakMeasurer measurer) {
 		measurer.setPosition(0);
 		g2d.clearRect(0, 0, width, height);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -136,7 +136,7 @@ System.out.println("total_time = " + total_time);
 		image.getRaster().getDataElements(0, 0, image.getWidth(), image.getHeight(), pixels);
 	}
 
-	private final static void initGL() {
+	private static void initGL() {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -149,11 +149,11 @@ System.out.println("total_time = " + total_time);
 		GL11.glEnable(GL11.GL_BLEND);
 	}
 
-	private final static void updateTexture(int width, int height, IntBuffer pixel_data) {
+	private static void updateTexture(int width, int height, IntBuffer pixel_data) {
 		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL12.GL_UNSIGNED_INT_8_8_8_8, pixel_data);
 	}
 
-	private final static int createTexture(int width, int height, IntBuffer pixel_data) {
+	private static int createTexture(int width, int height, IntBuffer pixel_data) {
 		IntBuffer handle_buffer = BufferUtils.createIntBuffer(1);
 		GL11.glGenTextures(handle_buffer);
 		int tex_handle = handle_buffer.get(0);

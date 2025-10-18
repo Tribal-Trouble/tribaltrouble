@@ -19,11 +19,11 @@ public final class ChatRoom {
 		this.name = name;
 	}
 
-	public final static Map getChatRooms() {
+	public static Map getChatRooms() {
 		return chat_rooms;
 	}
 
-	public final static void joinStandardChatRoom(Client client) {
+	public static void joinStandardChatRoom(Client client) {
 		int room_postfix = 0;
 		while (true) {
 			room_postfix++;
@@ -37,7 +37,7 @@ public final class ChatRoom {
 		}
 	}
 
-	public final static ChatRoom getChatRoom(String room_name) {
+	public static ChatRoom getChatRoom(String room_name) {
 		ChatRoom room = (ChatRoom)chat_rooms.get(room_name);
 		if (room == null) {
 			room = new ChatRoom(room_name);
@@ -46,25 +46,25 @@ public final class ChatRoom {
 		return room;
 	}
 
-	public final static boolean isNameValid(String name) {
+	public static boolean isNameValid(String name) {
 		return name != null && name.length() <= MatchmakingServerInterface.MAX_ROOM_NAME_LENGTH
 			&& name.length() >= MatchmakingServerInterface.MIN_ROOM_NAME_LENGTH && areCharactersValid(name);
 	}
 	
-	private final static boolean areCharactersValid(String name) {
+	private static boolean areCharactersValid(String name) {
 		for (int i = 0; i < name.length(); i++)
 			if (MatchmakingServerInterface.ALLOWED_ROOM_CHARS.indexOf(name.charAt(i)) == -1)
 				return false;
 		return true;
 	}
 
-	public final void join(Client client) {
+	public void join(Client client) {
 		// TODO check for size!!!!
 		users.add(client);
 		sendUsers();
 	}
 
-	public final void sendUsers() {
+	public void sendUsers() {
 		Iterator it = users.iterator();
 		ChatRoomUser[] chat_room_users = new ChatRoomUser[users.size()];
 		int i = 0;
@@ -80,7 +80,7 @@ public final class ChatRoom {
 		}
 	}
 
-	public final void sendMessage(String msg, String owner) {
+	public void sendMessage(String msg, String owner) {
 		Iterator it = users.iterator();
 		while (it.hasNext()) {
 			Client client = (Client)it.next();
@@ -88,11 +88,11 @@ public final class ChatRoom {
 		}
 	}
 
-	public final Set getUsers() {
+	public Set getUsers() {
 		return users;
 	}
 
-	public final void leave(Client client) {
+	public void leave(Client client) {
 		if (users.contains(client)) {
 			users.remove(client);
 			if (users.size() == 0) {
@@ -103,7 +103,7 @@ public final class ChatRoom {
 		}
 	}
 
-	public final String getName() {
+	public String getName() {
 		return name;
 	}
 }

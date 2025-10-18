@@ -12,11 +12,11 @@ public final class ModelObjectInfo extends ObjectInfo {
 		this.clear_color = clear_color;
 	}
 
-	public final String[][] getTextures() {
+	public String[][] getTextures() {
 		return textures;
 	}
 	
-	public final float[] getClearColor() {
+	public float[] getClearColor() {
 		return clear_color;
 	}
 }

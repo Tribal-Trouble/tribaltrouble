@@ -25,7 +25,7 @@ public final class GraphServlet extends HttpServlet {
 
 	private final int BACKGROUND_COLOR = 0xFFFFFF;
 
-	private final static Connection getConnection() {
+	private static Connection getConnection() {
 		try {
 			// Obtain our environment naming context
 			Context initCtx = new InitialContext();
@@ -39,7 +39,7 @@ public final class GraphServlet extends HttpServlet {
 		}
 	} 
 	
-	private final int[][] getGameData(Connection conn, int game_id) throws SQLException {
+	private int[][] getGameData(Connection conn, int game_id) throws SQLException {
 		PreparedStatement stmt = conn.prepareStatement("SELECT tick, team1, team2, team3, team4, team5, team6 FROM game_reports WHERE game_id = ?");
 		stmt.setInt(1, game_id);
 		ResultSet result = stmt.executeQuery();
@@ -54,7 +54,7 @@ public final class GraphServlet extends HttpServlet {
 		return array;
 	}
 
-	private final void printResult(OutputStream out, int[][] data) {
+	private void printResult(OutputStream out, int[][] data) {
 		BufferedImage img = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = img.createGraphics();
 		g.setColor(new Color(BACKGROUND_COLOR));
@@ -115,7 +115,7 @@ public final class GraphServlet extends HttpServlet {
 		}
 	}
 
-	public final void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		res.setContentType("image/png");
 
 		String game_id_string = req.getParameter("game_id");

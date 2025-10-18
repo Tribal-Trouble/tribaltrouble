@@ -19,7 +19,7 @@ import java.util.List;
 
 public final class DBInterface {
 	
-	public final static String getRegKeyUsername(String reg_key) throws IllegalArgumentException {
+	public static String getRegKeyUsername(String reg_key) throws IllegalArgumentException {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("SELECT username FROM registrations R WHERE R.reg_key = ? AND NOT R.disabled AND NOT R.banned");
 			try {
@@ -40,7 +40,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static boolean usernameExists(String username) {
+	public static boolean usernameExists(String username) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("SELECT username FROM registrations R WHERE lower(R.username) = lower(?)");
 			try {
@@ -61,7 +61,7 @@ public final class DBInterface {
 		}
 	}
 
-	public final static void createUser(Login login, LoginDetails login_details, String reg_key) {
+	public static void createUser(Login login, LoginDetails login_details, String reg_key) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("UPDATE registrations R SET username = ?, email = ?, password = ? WHERE R.reg_key = ? AND R.username IS NULL AND R.password IS NULL AND R.email IS NULL");
 			try {
@@ -80,7 +80,7 @@ public final class DBInterface {
 		}
 	}
 
-	public final static boolean queryUser(String username, String password) {
+	public static boolean queryUser(String username, String password) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("SELECT username, password FROM registrations R WHERE lower(R.username) = lower(?) AND R.password = ? AND NOT R.disabled AND NOT R.banned");
 			try {
@@ -102,7 +102,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static Profile[] getProfiles(String username, int revision) {
+	public static Profile[] getProfiles(String username, int revision) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("SELECT nick, rating, wins, losses, invalid FROM profiles P, registrations R WHERE P.reg_id = R.id AND R.username = ?");
 			try {
@@ -136,7 +136,7 @@ public final class DBInterface {
 		}
 	}
 
-	public final static Profile getProfile(String username, String nick, int revision) {
+	public static Profile getProfile(String username, String nick, int revision) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("SELECT rating, wins, losses, invalid FROM profiles P, registrations R WHERE P.reg_id = R.id AND R.username = ? AND P.nick = ?");
 			try {
@@ -161,7 +161,7 @@ public final class DBInterface {
 		}
 	}
 
-	public final static void setLastUsedProfile(String username, String nick) {
+	public static void setLastUsedProfile(String username, String nick) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("UPDATE registrations R SET last_used_profile = ? WHERE R.username = ?");
 			try {
@@ -178,7 +178,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static String getLastUsedProfile(String username) {
+	public static String getLastUsedProfile(String username) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("SELECT last_used_profile FROM registrations R WHERE R.username = ?");
 			try {
@@ -201,7 +201,7 @@ public final class DBInterface {
 	}
 
 		
-	private final static int getRegID(String username) {
+	private static int getRegID(String username) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("SELECT id FROM registrations R WHERE R.username = ?");
 			try {
@@ -222,7 +222,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static boolean nickExists(String nick) {
+	public static boolean nickExists(String nick) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("SELECT nick FROM profiles P WHERE lower(P.nick) = lower(?)");
 			try {
@@ -243,7 +243,7 @@ public final class DBInterface {
 		}
 	}
 
-	public final static void saveGameReport(int game_id, int tick, int[] team_score) {
+	public static void saveGameReport(int game_id, int tick, int[] team_score) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("INSERT INTO game_reports (game_id, tick, team1, team2, team3, team4, team5, team6) " + 
 					"VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
@@ -267,7 +267,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static void logPriority(int game_id, String nick1, String nick2, int priority) {
+	public static void logPriority(int game_id, String nick1, String nick2, int priority) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("INSERT INTO connections (game_id, nick1, nick2, priority) " + 
 					"VALUES (?, ?, ?, ?)");
@@ -287,7 +287,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static void createProfile(String username, String nick) {
+	public static void createProfile(String username, String nick) {
 		int reg_id = getRegID(username);
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("INSERT INTO profiles (reg_id, nick, rating, wins, losses, invalid) " + 
@@ -306,7 +306,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static void deleteProfile(String username, String nick) {
+	public static void deleteProfile(String username, String nick) {
 		Profile profile = getProfile(username, nick, -1);
 		if (profile != null) {
 			int reg_id = getRegID(username);
@@ -344,19 +344,19 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static void increaseLosses(String nick) {
+	public static void increaseLosses(String nick) {
 		increaseField("losses", nick );
 	}
 
-	public final static void increaseWins(String nick) {
+	public static void increaseWins(String nick) {
 		increaseField("wins", nick);
 	}
 
-	public final static void increaseInvalidGames(String nick) {
+	public static void increaseInvalidGames(String nick) {
 		increaseField("invalid", nick);
 	}
 	
-	public final static void increaseField(String field, String nick) {
+	public static void increaseField(String field, String nick) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("UPDATE profiles P SET " + field + " = " + field + " + 1 WHERE P.nick = ?");
 			try {
@@ -370,7 +370,7 @@ public final class DBInterface {
 		}
 	}
 
-	public final static void updateRating(String nick, int rating_delta) {
+	public static void updateRating(String nick, int rating_delta) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("UPDATE profiles P SET rating = rating + ? WHERE P.nick = ?");
 			try {
@@ -385,15 +385,15 @@ public final class DBInterface {
 		}
 	}
 
-	public final static int getWins(String nick) throws SQLException {
+	public static int getWins(String nick) throws SQLException {
 		return getIntField("wins", nick);
 	}
 	
-	public final static int getRating(String nick) throws SQLException {
+	public static int getRating(String nick) throws SQLException {
 		return getIntField("rating", nick);
 	}
 	
-	public final static int getIntField(String int_field, String nick) throws SQLException {
+	public static int getIntField(String int_field, String nick) throws SQLException {
 //		try {
 			PreparedStatement stmt = DBUtils.createStatement("SELECT " + int_field + " FROM profiles P WHERE P.nick = ?");
 			try {
@@ -414,7 +414,7 @@ public final class DBInterface {
 		}*/
 	}
 	
-	public final static String getSetting(String setting) {
+	public static String getSetting(String setting) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("SELECT value FROM settings S WHERE S.property = ?");
 			try {
@@ -435,7 +435,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static int getSettingsInt(String setting) {
+	public static int getSettingsInt(String setting) {
 		try {
 			String value = getSetting(setting);
 			return (Integer.valueOf(value)).intValue();
@@ -445,7 +445,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static RankingEntry[] getTopRankings(int number) {
+	public static RankingEntry[] getTopRankings(int number) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("SELECT nick, rating, wins, losses, invalid FROM profiles P WHERE P.wins >= "+ GameSession.MIN_WINS_FOR_RANKING +" ORDER BY rating DESC, (wins - losses) DESC, wins DESC LIMIT ?");
 			try {
@@ -479,7 +479,7 @@ public final class DBInterface {
 		}
 	}
 
-	public final static void createGame(Game game, String nick) {
+	public static void createGame(Game game, String nick) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("INSERT INTO games (player1_name, time_create, name, rated, speed, size, hills, trees, resources, mapcode, status) " + 
 					"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -529,7 +529,7 @@ public final class DBInterface {
 		}
 	}
 
-	public final static void initDropGames() {
+	public static void initDropGames() {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("UPDATE games G SET status = ? WHERE G.status = ?");
 			try {
@@ -544,7 +544,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static void dropGame(String nick) {
+	public static void dropGame(String nick) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("UPDATE games G SET status = ? WHERE G.player1_name = ? AND G.status = ?");
 			try {
@@ -560,7 +560,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static void startGame(TimestampedGameSession tgs, MatchmakingServer server) {
+	public static void startGame(TimestampedGameSession tgs, MatchmakingServer server) {
 		GameSession session = tgs.getSession();
 		Participant[] participants = session.getParticipants();
 		String participant_sql = "";
@@ -596,7 +596,7 @@ public final class DBInterface {
 		}
 	}
 
-	public final static void endGame(TimestampedGameSession tgs, long end_time, int winner) {
+	public static void endGame(TimestampedGameSession tgs, long end_time, int winner) {
 		GameSession session = tgs.getSession();
 		Participant[] participants = session.getParticipants();
 		
@@ -616,7 +616,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static void profileOnline(String nick) {
+	public static void profileOnline(String nick) {
 		MatchmakingServer.getLogger().info("profileOnline '" + nick + "'");
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("INSERT INTO online_profiles (nick) VALUES (?)");
@@ -631,7 +631,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static void profileOffline(String nick) {
+	public static void profileOffline(String nick) {
 		MatchmakingServer.getLogger().info("profileOffline '" + nick + "'");
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("DELETE FROM online_profiles WHERE nick = ?");
@@ -647,7 +647,7 @@ public final class DBInterface {
 		}
 	}
 	
-	public final static void profileSetGame(String nick, int game_id) {
+	public static void profileSetGame(String nick, int game_id) {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("UPDATE online_profiles O SET O.game_id = ? WHERE O.nick = ?");
 			try {
@@ -663,7 +663,7 @@ public final class DBInterface {
 		}
 	}
 
-	public final static void clearOnlineProfiles() {
+	public static void clearOnlineProfiles() {
 		try {
 			PreparedStatement stmt = DBUtils.createStatement("TRUNCATE TABLE online_profiles");
 			try {

@@ -11,15 +11,15 @@ public final class Bone {
 		this.index = index;
 	}
 
-	public final Bone[] getChildren() {
+	public Bone[] getChildren() {
 		return children;
 	}
 
-	public final byte getIndex() {
+	public byte getIndex() {
 		return index;
 	}
 
-	public final String getName() {
+	public String getName() {
 		return name;
 	}
 }

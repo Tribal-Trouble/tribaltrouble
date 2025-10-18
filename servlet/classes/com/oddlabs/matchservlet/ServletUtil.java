@@ -16,7 +16,7 @@ final class ServletUtil {
 	static OutputStream createOutput(final HttpServletResponse res) {
 		final ByteArrayOutputStream byte_out = new ByteArrayOutputStream();
 		return new FilterOutputStream(byte_out) {
-			public final void close() throws IOException {
+			public void close() throws IOException {
 				super.close();
 				res.setContentType("application/octet-stream");
 				res.setContentLength(byte_out.size());

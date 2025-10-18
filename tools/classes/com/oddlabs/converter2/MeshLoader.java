@@ -15,7 +15,7 @@ public final class MeshLoader {
 	private MeshLoader() {
 	}
 
-	public final static ModelInfo loadMesh(File file, Map<String,Bone> name_to_bone_map, float scale) {
+	public static ModelInfo loadMesh(File file, Map<String, Bone> name_to_bone_map, float scale) {
 		try {
 			FileInputStream input_stream = new FileInputStream(file);
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

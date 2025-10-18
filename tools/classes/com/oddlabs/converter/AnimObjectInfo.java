@@ -12,11 +12,11 @@ public final class AnimObjectInfo extends ObjectInfo {
 		this.type = type;
 	}
 
-	public final int getType() {
+	public int getType() {
 		return type;
 	}
 
-	public final float getWPC() {
+	public float getWPC() {
 		return wpc;
 	}
 }

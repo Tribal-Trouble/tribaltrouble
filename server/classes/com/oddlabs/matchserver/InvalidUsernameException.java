@@ -7,7 +7,7 @@ public final class InvalidUsernameException extends Exception {
 		this.error_code = error_code;
 	}
 
-	public final int getErrorCode() {
+	public int getErrorCode() {
 		return error_code;
 	}
 }
