@@ -1,7 +1,7 @@
 package com.oddlabs.tt.guievent;
 
 public interface MouseButtonListener extends MouseClickListener {
-	public void mousePressed(int button, int x, int y);
-	public void mouseReleased(int button, int x, int y);
-	public void mouseHeld(int button, int x, int y);
+	void mousePressed(int button, int x, int y);
+	void mouseReleased(int button, int x, int y);
+	void mouseHeld(int button, int x, int y);
 }

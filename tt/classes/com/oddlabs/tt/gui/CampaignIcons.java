@@ -3,13 +3,13 @@ package com.oddlabs.tt.gui;
 public interface CampaignIcons {
 //	public CampaignIcons getIcons();
 
-	public GUIIcon[] getHiddenRoutes();
-	public IconQuad[] getFaces();
-	public IconQuad getMap();
-	public int getNumIslands();
+	GUIIcon[] getHiddenRoutes();
+	IconQuad[] getFaces();
+	IconQuad getMap();
+	int getNumIslands();
 //	public int getOffsetX();
 //	public int getOffsetY();
 //	public int getInternalWidth();
 //	public int getInternalHeight();
-	public MapIslandData getMapIslandData(int i);
+MapIslandData getMapIslandData(int i);
 }

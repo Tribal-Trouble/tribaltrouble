@@ -1,11 +1,11 @@
 package com.oddlabs.tt.gui;
 
 public interface Scrollable {
-	public void setOffsetY(int new_offset);
-	public int getOffsetY();
-	public int getStepHeight();
-	public void jumpPage(boolean up);
-	public float getScrollBarRatio();
-	public float getScrollBarOffset();
-	public void setScrollBarOffset(float offset);
+	void setOffsetY(int new_offset);
+	int getOffsetY();
+	int getStepHeight();
+	void jumpPage(boolean up);
+	float getScrollBarRatio();
+	float getScrollBarOffset();
+	void setScrollBarOffset(float offset);
 }

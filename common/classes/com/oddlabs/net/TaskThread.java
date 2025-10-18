@@ -25,7 +25,7 @@ public final class TaskThread {
 		this.notification_action = notification_action;
 	}
 
-	static interface TaskResult<T> extends Serializable {
+	interface TaskResult<T> extends Serializable {
 		void deliverResult(TaskExecutorLoopbackInterface<T> callback);
 	}
 

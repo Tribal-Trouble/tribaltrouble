@@ -3,6 +3,6 @@ package com.oddlabs.net;
 import java.io.IOException;
 
 public interface ConnectionListenerInterface {
-	public void error(AbstractConnectionListener listener, IOException e);
-	public void incomingConnection(AbstractConnectionListener listener, Object address);
+	void error(AbstractConnectionListener listener, IOException e);
+	void incomingConnection(AbstractConnectionListener listener, Object address);
 }

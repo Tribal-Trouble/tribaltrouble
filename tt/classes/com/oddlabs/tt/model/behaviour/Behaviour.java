@@ -1,7 +1,7 @@
 package com.oddlabs.tt.model.behaviour;
 
 public interface Behaviour {
-	public int animate(float t);
-	public boolean isBlocking();
-	public void forceInterrupted();
+	int animate(float t);
+	boolean isBlocking();
+	void forceInterrupted();
 }

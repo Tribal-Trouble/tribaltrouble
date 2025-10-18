@@ -4,7 +4,7 @@ import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 
-strictfp class SelectableVisitor extends ModelVisitor {
+class SelectableVisitor extends ModelVisitor {
 	private final static float[] COLOR_RED = {1f, 0f, 0f};
 	private final static float[] COLOR_RED_HOVER = {.7f, 0f, 0f};
 	private final static float[] COLOR_GREEN = {0f, 1f, 0f};

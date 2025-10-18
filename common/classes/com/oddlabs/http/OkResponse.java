@@ -1,6 +1,6 @@
 package com.oddlabs.http;
 
-strictfp final class OkResponse implements HttpResponse {
+final class OkResponse implements HttpResponse {
 	private final Object result;
 
 	OkResponse(Object result) {

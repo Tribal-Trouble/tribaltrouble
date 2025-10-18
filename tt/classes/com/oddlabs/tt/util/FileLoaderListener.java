@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 public interface FileLoaderListener {
-	public void error(IOException e);
-	public void data(byte[] data, int num_bytes, boolean eof);
-	public void newFile(File filename, long length);
+	void error(IOException e);
+	void data(byte[] data, int num_bytes, boolean eof);
+	void newFile(File filename, long length);
 }

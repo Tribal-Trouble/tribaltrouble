@@ -1,6 +1,6 @@
 package com.oddlabs.http;
 
-strictfp final class ErrorResponse implements HttpResponse {
+final class ErrorResponse implements HttpResponse {
 	private final int error_code;
 	private final String error_message;
 

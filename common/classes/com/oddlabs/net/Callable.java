@@ -7,5 +7,5 @@ public interface Callable<T> extends TaskExecutorLoopbackInterface, java.util.co
 	 * so it must _not_ have any side effects!
 	 */
     @Override
-	public T call() throws Exception;
+    T call() throws Exception;
 }

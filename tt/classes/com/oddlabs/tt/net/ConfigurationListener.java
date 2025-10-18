@@ -4,7 +4,7 @@ import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.resource.WorldGenerator;
 
 public interface ConfigurationListener extends ErrorListener {
-	public void connected(Client client, Game game, WorldGenerator generator, int player_slot);
-	public void setPlayers(PlayerSlot[] players);
-	public void gameStarted();
+	void connected(Client client, Game game, WorldGenerator generator, int player_slot);
+	void setPlayers(PlayerSlot[] players);
+	void gameStarted();
 }

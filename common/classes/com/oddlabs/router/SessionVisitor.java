@@ -1,5 +1,5 @@
 package com.oddlabs.router;
 
-strictfp interface SessionVisitor {
+interface SessionVisitor {
 	void visit(RouterClient client);
 }
