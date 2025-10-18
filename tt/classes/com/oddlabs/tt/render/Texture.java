@@ -9,15 +9,16 @@ import com.oddlabs.tt.util.GLState;
 import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Utils;
 import gr.zdimensions.jsquish.Squish;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GLContext;
+
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 public final class Texture extends NativeResource {
 	private final static IntBuffer handle_buffer;

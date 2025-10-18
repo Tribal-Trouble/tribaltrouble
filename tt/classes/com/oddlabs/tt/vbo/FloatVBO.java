@@ -1,11 +1,12 @@
 package com.oddlabs.tt.vbo;
 
 import com.oddlabs.tt.util.Utils;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL11;
+
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 
 public final class FloatVBO extends VBO {
 	private FloatBuffer saved_buffer = null;

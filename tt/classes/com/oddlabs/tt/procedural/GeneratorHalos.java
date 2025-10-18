@@ -5,8 +5,9 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
-import java.util.Arrays;
 import org.lwjgl.opengl.GL11;
+
+import java.util.Arrays;
 
 public final class GeneratorHalos extends TextureGenerator {
 	public static final int SHADOWED = 0;

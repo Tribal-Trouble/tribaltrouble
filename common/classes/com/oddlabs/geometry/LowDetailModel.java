@@ -1,6 +1,6 @@
 package com.oddlabs.geometry;
 
-import java.io.*;
+import java.io.Serializable;
 
 public final class LowDetailModel implements Serializable {
 	private final static long serialVersionUID = 1;

@@ -1,7 +1,8 @@
 package com.oddlabs.tt.delegate;
 
 
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.GUIObject;
+import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.RenderQueues;
 import org.lwjgl.opengl.GL11;

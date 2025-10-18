@@ -6,7 +6,9 @@ import com.oddlabs.tt.model.BuildingTemplate;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.ScanFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class BuildingSiteScanFilter implements ScanFilter {
 	private final UnitGrid unit_grid;

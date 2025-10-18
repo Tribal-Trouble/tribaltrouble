@@ -1,8 +1,11 @@
 package com.oddlabs.tt.event;
 
-import com.oddlabs.event.*;
+import com.oddlabs.event.Deterministic;
+import com.oddlabs.event.LoadDeterministic;
+import com.oddlabs.event.SaveDeterministic;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.util.StateChecksum;
+
 import java.io.File;
 
 public final class LocalEventQueue {

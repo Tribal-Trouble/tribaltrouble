@@ -2,6 +2,7 @@ package com.oddlabs.matchmaking;
 
 import com.oddlabs.net.ARMIEvent;
 import com.oddlabs.net.HostSequenceID;
+
 import java.net.InetAddress;
 
 public interface MatchmakingClientInterface {

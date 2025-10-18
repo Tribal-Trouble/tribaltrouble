@@ -1,12 +1,13 @@
 package com.oddlabs.converter;
 
-import com.oddlabs.geometry.*;
+import com.oddlabs.geometry.AnimationInfo;
+import com.oddlabs.geometry.SpriteInfo;
 import com.oddlabs.util.IndexListOptimizer;
-
 import org.lwjgl.util.vector.Matrix4f;
-import java.util.Map;
+
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.Map;
 
 public final class Optimizer {
 	private final static float VERTEX_TRESHOLD = 0.000001f;

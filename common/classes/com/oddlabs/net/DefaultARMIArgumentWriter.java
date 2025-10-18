@@ -1,7 +1,9 @@
 package com.oddlabs.net;
 
 import com.oddlabs.util.ByteBufferOutputStream;
-import java.io.*;
+
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 public class DefaultARMIArgumentWriter implements ARMIArgumentWriter {
         @Override

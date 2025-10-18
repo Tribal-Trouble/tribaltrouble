@@ -3,7 +3,9 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.FirstPersonCamera;
 import com.oddlabs.tt.event.LocalEventQueue;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.KeyboardEvent;
+import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.lwjgl.input.Keyboard;
 

@@ -1,10 +1,11 @@
 package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.render.Renderer;
-import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
+
+import java.nio.IntBuffer;
 
 public final class FramebufferRenderer extends OffscreenRenderer {
 	private final int fb_id;

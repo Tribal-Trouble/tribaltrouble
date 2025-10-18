@@ -3,7 +3,12 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.MapCamera;
 import com.oddlabs.tt.form.InGameChatForm;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.ActionButtonPanel;
+import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.KeyboardEvent;
+import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Building;
@@ -14,13 +19,14 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.Notification;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 public final class SelectionDelegate extends ControllableCameraDelegate {
 	private final InGameChatForm chat_form;

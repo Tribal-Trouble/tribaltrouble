@@ -2,11 +2,12 @@ package com.oddlabs.tt;
 
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+import org.lwjgl.Sys;
+import org.lwjgl.opengl.Display;
+
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.Sys;
-import org.lwjgl.opengl.Display;
 
 public final class Main {
 	public static void fail(Throwable t) {

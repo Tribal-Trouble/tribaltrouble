@@ -2,6 +2,7 @@ package com.oddlabs.tt.util;
 
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.registration.RegistrationKeyFormatException;
+
 import java.util.ResourceBundle;
 
 public final class ServerMessageBundler {

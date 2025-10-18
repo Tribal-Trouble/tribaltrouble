@@ -3,17 +3,31 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.LandscapeTargetRespond;
-import com.oddlabs.tt.model.*;
-import com.oddlabs.tt.model.weapon.*;
+import com.oddlabs.tt.model.Abilities;
+import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.ElementVisitor;
+import com.oddlabs.tt.model.Model;
+import com.oddlabs.tt.model.Plants;
+import com.oddlabs.tt.model.RacesResources;
+import com.oddlabs.tt.model.RubberSupply;
+import com.oddlabs.tt.model.SceneryModel;
+import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.SupplyModel;
+import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.UnitSupplyContainer;
+import com.oddlabs.tt.model.weapon.DirectedThrowingWeapon;
+import com.oddlabs.tt.model.weapon.RotatingThrowingWeapon;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Lightning;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.GeneratorRing;
-import com.oddlabs.tt.util.*;
+import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.viewer.Selection;
-import java.util.*;
 import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class RenderState implements ElementVisitor {
 	private final List<Emitter> emitter_queue = new ArrayList<>();

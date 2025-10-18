@@ -3,10 +3,11 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
+import org.lwjgl.input.Keyboard;
+
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import org.lwjgl.input.Keyboard;
 
 public class Form extends Group {
 	private final Set<CloseListener> close_listeners = new CopyOnWriteArraySet<>();

@@ -1,7 +1,12 @@
 package com.oddlabs.tt.form;
 
-import com.oddlabs.tt.gui.*;
-import com.oddlabs.tt.guievent.*;
+import com.oddlabs.tt.gui.Form;
+import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.LabelBox;
+import com.oddlabs.tt.gui.OKButton;
+import com.oddlabs.tt.gui.OKListener;
+import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.guievent.MouseClickListener;
 
 public class MessageForm extends Form {
 	private final static int MAX_WIDTH = 500;

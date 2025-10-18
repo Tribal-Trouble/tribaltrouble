@@ -6,6 +6,7 @@ import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
+
 import java.util.ResourceBundle;
 
 public final class DisplayChangeForm extends Form {

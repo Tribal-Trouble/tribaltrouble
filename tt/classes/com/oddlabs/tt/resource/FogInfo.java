@@ -1,8 +1,9 @@
 package com.oddlabs.tt.resource;
 
-import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+
+import java.nio.FloatBuffer;
 
 public final class FogInfo {
 

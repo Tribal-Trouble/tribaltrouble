@@ -1,14 +1,21 @@
 package com.oddlabs.fontutil;
 
-import java.io.*;
-import java.awt.*;
-import java.awt.font.*;
-import java.awt.geom.*;
-import java.awt.image.BufferedImage;
+import com.oddlabs.procedural.Channel;
+import com.oddlabs.procedural.Layer;
+import com.oddlabs.util.FontInfo;
+import com.oddlabs.util.Quad;
+import com.oddlabs.util.Utils;
 
-import com.oddlabs.procedural.*;
-import com.oddlabs.util.*;
-import java.util.Arrays;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.InputStream;
 
 public final class FontRenderer {
 	private final static int GLYPH_X_BORDER = 4;

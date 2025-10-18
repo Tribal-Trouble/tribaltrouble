@@ -3,12 +3,13 @@ package com.oddlabs.tt.util;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.util.Image;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 
 public final class GLUtils {
 	public final static String SCREENSHOT_DEFAULT = "screenshot";

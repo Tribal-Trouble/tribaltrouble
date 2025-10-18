@@ -1,7 +1,14 @@
 package com.oddlabs.tt.form;
 
-import com.oddlabs.tt.gui.*;
-import com.oddlabs.tt.guievent.*;
+import com.oddlabs.tt.gui.CancelButton;
+import com.oddlabs.tt.gui.Form;
+import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.LabelBox;
+import com.oddlabs.tt.gui.OKButton;
+import com.oddlabs.tt.gui.OKListener;
+import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.guievent.MouseClickListener;
 
 public class QuestionForm extends Form {
 	private final HorizButton yes_button;

@@ -1,8 +1,15 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.CheckBox;
+import com.oddlabs.tt.gui.Form;
+import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.LabelBox;
+import com.oddlabs.tt.gui.OKButton;
+import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
+
 import java.util.ResourceBundle;
 
 public final class WarningForm extends Form {

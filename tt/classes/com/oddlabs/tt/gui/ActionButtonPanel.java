@@ -2,7 +2,9 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.camera.GameCamera;
-import com.oddlabs.tt.delegate.*;
+import com.oddlabs.tt.delegate.PlacingDelegate;
+import com.oddlabs.tt.delegate.RallyPointDelegate;
+import com.oddlabs.tt.delegate.TargetDelegate;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Abilities;
@@ -23,8 +25,9 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
-import java.util.ResourceBundle;
 import org.lwjgl.input.Keyboard;
+
+import java.util.ResourceBundle;
 
 public final class ActionButtonPanel extends GUIObject implements Animated {
 	private final static int GROUP_LEFT_OFFSET = 10;

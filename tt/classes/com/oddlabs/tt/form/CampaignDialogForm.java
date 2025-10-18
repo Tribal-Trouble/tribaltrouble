@@ -1,6 +1,13 @@
 package com.oddlabs.tt.form;
 
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.CancelButton;
+import com.oddlabs.tt.gui.Form;
+import com.oddlabs.tt.gui.GUIIcon;
+import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.LabelBox;
+import com.oddlabs.tt.gui.OKButton;
+import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.util.Quad;
 
 public class CampaignDialogForm extends Form {

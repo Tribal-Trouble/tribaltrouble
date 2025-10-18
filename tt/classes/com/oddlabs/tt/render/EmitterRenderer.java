@@ -2,12 +2,15 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.particle.*;
-import com.oddlabs.tt.util.*;
-import java.nio.FloatBuffer;
-import java.util.List;
+import com.oddlabs.tt.particle.Emitter;
+import com.oddlabs.tt.particle.Particle;
+import com.oddlabs.tt.util.StrictMatrix4f;
+import com.oddlabs.tt.util.StrictVector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+
+import java.nio.FloatBuffer;
+import java.util.List;
 
 final class EmitterRenderer {
 	private final static float SQRT_2 = (float)StrictMath.sqrt(2f);

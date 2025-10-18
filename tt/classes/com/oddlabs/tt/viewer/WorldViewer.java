@@ -29,7 +29,14 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.net.DistributableTable;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.net.PlayerSlot;
-import com.oddlabs.tt.player.*;
+import com.oddlabs.tt.player.AI;
+import com.oddlabs.tt.player.AdvancedAI;
+import com.oddlabs.tt.player.NativeChieftainAI;
+import com.oddlabs.tt.player.PassiveAI;
+import com.oddlabs.tt.player.Player;
+import com.oddlabs.tt.player.PlayerInfo;
+import com.oddlabs.tt.player.UnitInfo;
+import com.oddlabs.tt.player.VikingChieftainAI;
 import com.oddlabs.tt.render.DefaultRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.Picker;
@@ -41,6 +48,7 @@ import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
+
 import java.util.ResourceBundle;
 
 public final class WorldViewer implements Animated {

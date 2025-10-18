@@ -1,25 +1,22 @@
 package com.oddlabs.matchserver;
 
-import com.oddlabs.util.KeyManager;
-import com.oddlabs.net.AbstractConnection;
-import com.oddlabs.net.ARMIEvent;
-import com.oddlabs.net.HostSequenceID;
-import com.oddlabs.net.ConnectionInterface;
-import com.oddlabs.net.SecureConnection;
-import com.oddlabs.net.IllegalARMIEventException;
-import com.oddlabs.net.ARMIInterfaceMethods;
-import com.oddlabs.matchmaking.MatchmakingServerLoginInterface;
-import com.oddlabs.matchmaking.MatchmakingClientInterface;
-import com.oddlabs.matchmaking.TunnelAddress;
 import com.oddlabs.matchmaking.Login;
 import com.oddlabs.matchmaking.LoginDetails;
+import com.oddlabs.matchmaking.MatchmakingClientInterface;
+import com.oddlabs.matchmaking.MatchmakingServerLoginInterface;
+import com.oddlabs.matchmaking.TunnelAddress;
+import com.oddlabs.net.ARMIEvent;
+import com.oddlabs.net.ARMIInterfaceMethods;
+import com.oddlabs.net.AbstractConnection;
+import com.oddlabs.net.ConnectionInterface;
+import com.oddlabs.net.IllegalARMIEventException;
+import com.oddlabs.net.SecureConnection;
 import com.oddlabs.registration.RegistrationInfo;
 import com.oddlabs.registration.RegistrationKey;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.security.SignedObject;
-import java.security.GeneralSecurityException;
 
 public final class Authenticator implements MatchmakingServerLoginInterface, ConnectionInterface {
 	private static int guest_postfix = 1;

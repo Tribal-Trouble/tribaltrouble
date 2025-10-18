@@ -36,9 +36,10 @@ import com.oddlabs.tt.render.SerializableDisplayMode;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Quad;
+import org.lwjgl.input.Cursor;
+
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.lwjgl.input.Cursor;
 
 public abstract class AbstractOptionsMenu extends Form {
 	private final static int BUTTON_WIDTH = 100;

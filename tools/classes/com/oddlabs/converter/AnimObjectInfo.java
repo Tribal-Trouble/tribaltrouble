@@ -1,6 +1,6 @@
 package com.oddlabs.converter;
 
-import java.io.*;
+import java.io.File;
 
 public final class AnimObjectInfo extends ObjectInfo {
 	private final float wpc;

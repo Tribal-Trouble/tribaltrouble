@@ -2,7 +2,8 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
-import com.oddlabs.tt.delegate.*;
+import com.oddlabs.tt.delegate.CameraDelegate;
+import com.oddlabs.tt.delegate.ModalDelegate;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.Status;
 import com.oddlabs.tt.global.Globals;
@@ -13,16 +14,17 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.util.Utils;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 public final class GUIRoot extends GUIObject implements Updatable {
 	public final static int CURSOR_NORMAL = 0;

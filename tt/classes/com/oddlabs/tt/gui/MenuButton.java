@@ -1,8 +1,9 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.event.*;
-import com.oddlabs.tt.font.*;
-import org.lwjgl.opengl.*;
+import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.font.Font;
+import com.oddlabs.tt.font.TextLineRenderer;
+import org.lwjgl.opengl.GL11;
 
 public final class MenuButton extends ButtonObject {
 	private final static float SECONDS_PER_HOVER_CYCLE = 1.5f;

@@ -1,6 +1,8 @@
 package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.global.Globals;
+import org.lwjgl.BufferUtils;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,7 +16,6 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
-import org.lwjgl.BufferUtils;
 
 public final class Utils {
 	private static final ByteBuffer sqrtByteBuf = BufferUtils.createByteBuffer(4);

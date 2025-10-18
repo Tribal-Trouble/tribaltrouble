@@ -7,6 +7,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector3f;
+
 import java.util.List;
 
 public abstract class AbstractTreeGroup extends BoundingBox {

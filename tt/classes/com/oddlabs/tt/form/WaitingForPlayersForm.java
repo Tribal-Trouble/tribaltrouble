@@ -9,8 +9,9 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
-import java.util.ResourceBundle;
 import org.lwjgl.input.Keyboard;
+
+import java.util.ResourceBundle;
 
 public final class WaitingForPlayersForm extends Form {
 	private final Label info_label;

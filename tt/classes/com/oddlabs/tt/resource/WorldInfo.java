@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
-import com.oddlabs.tt.render.*;
+import com.oddlabs.tt.render.Texture;
+
 import java.util.List;
 
 public final class WorldInfo {

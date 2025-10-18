@@ -7,6 +7,7 @@ import com.oddlabs.net.AbstractConnectionListener;
 import com.oddlabs.net.ConnectionInterface;
 import com.oddlabs.net.ConnectionListenerInterface;
 import com.oddlabs.net.HostSequenceID;
+
 import java.net.InetAddress;
 import java.nio.channels.ClosedChannelException;
 import java.util.LinkedList;

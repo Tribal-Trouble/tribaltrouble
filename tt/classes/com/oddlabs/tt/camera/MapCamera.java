@@ -7,8 +7,9 @@ import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
-import java.util.ResourceBundle;
 import org.lwjgl.input.Keyboard;
+
+import java.util.ResourceBundle;
 
 public final class MapCamera extends Camera {
     private final static float MAP_THRESHOLD = .1f;

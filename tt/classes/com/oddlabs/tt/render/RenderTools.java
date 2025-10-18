@@ -4,9 +4,10 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.DebugRender;
-import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+
+import java.nio.FloatBuffer;
 
 final class RenderTools {
 	private final static FloatBuffer transform_matrix;

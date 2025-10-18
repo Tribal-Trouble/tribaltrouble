@@ -5,11 +5,16 @@ import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.camera.StaticCamera;
 import com.oddlabs.tt.form.TutorialForm;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.tutorial.TutorialInGameInfo;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+
 import java.util.ResourceBundle;
 
 public final class TutorialOverDelegate extends CameraDelegate implements Updatable {

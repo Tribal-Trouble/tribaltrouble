@@ -5,8 +5,9 @@ import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Quad;
-import java.util.ResourceBundle;
 import org.lwjgl.opengl.Display;
+
+import java.util.ResourceBundle;
 
 public final class ProgressBar extends GUIObject {
 	private final ProgressBarInfo[] info;

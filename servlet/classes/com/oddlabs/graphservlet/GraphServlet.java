@@ -1,29 +1,23 @@
 package com.oddlabs.graphservlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.OutputStream;
-import java.util.ArrayList;
-
+import javax.imageio.ImageIO;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-
-import java.sql.SQLException;
+import javax.sql.DataSource;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import javax.sql.DataSource;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.awt.Graphics2D;
-import java.awt.Color;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 public final class GraphServlet extends HttpServlet {
 	private final int IMAGE_WIDTH = 532;

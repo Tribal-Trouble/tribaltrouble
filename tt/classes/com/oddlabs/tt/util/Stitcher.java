@@ -1,8 +1,9 @@
 package com.oddlabs.tt.util;
 
+import org.lwjgl.BufferUtils;
+
 import java.nio.ShortBuffer;
 import java.util.Arrays;
-import org.lwjgl.BufferUtils;
 
 public final class Stitcher {
 	public static ShortBuffer stitch(Vertex[] vertices) {

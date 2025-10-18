@@ -2,7 +2,7 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.JumpCamera;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.viewer.WorldViewer;
 
 public final class JumpDelegate extends InGameDelegate {

@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-import com.oddlabs.tt.gui.BuildSpinner; // only used for an assertion
+import com.oddlabs.tt.gui.BuildSpinner;
 
 public class BuildProductionContainer extends BuildSupplyContainer {
 	private final SupplyContainer dest_container;

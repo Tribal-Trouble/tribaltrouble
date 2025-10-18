@@ -3,10 +3,11 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.LandscapeTargetRespond;
 import com.oddlabs.tt.resource.Resources;
-import java.util.function.Supplier;
+import org.lwjgl.opengl.GL11;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.lwjgl.opengl.GL11;
+import java.util.function.Supplier;
 
 public final class TargetRespondRenderer extends ShadowListRenderer {
 	private final static float SHADOW_SIZE = 1.6f;

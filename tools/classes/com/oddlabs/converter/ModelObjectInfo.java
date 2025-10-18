@@ -1,6 +1,6 @@
 package com.oddlabs.converter;
 
-import java.io.*;
+import java.io.File;
 
 public final class ModelObjectInfo extends ObjectInfo {
 	private final float[] clear_color;

@@ -33,16 +33,17 @@ import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.TextureKey;
-import java.util.function.Supplier;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.Utils;
+import org.lwjgl.opengl.GL11;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
-import org.lwjgl.opengl.GL11;
+import java.util.function.Supplier;
 
 public final class RacesResources {
 	public final static int QUARTERS_SIZE = 5;

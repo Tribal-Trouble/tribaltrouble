@@ -7,6 +7,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.util.LinkedList;
+
 import java.util.List;
 
 public abstract class AbstractElementNode extends BoundingBox {

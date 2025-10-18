@@ -4,6 +4,7 @@ import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
+
 import java.util.List;
 
 public final class VikingChieftainAI extends ChieftainAI {

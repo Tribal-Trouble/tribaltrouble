@@ -19,8 +19,9 @@ import com.oddlabs.tt.player.campaign.Campaign;
 import com.oddlabs.tt.player.campaign.CampaignState;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
-import java.util.ResourceBundle;
 import org.lwjgl.input.Keyboard;
+
+import java.util.ResourceBundle;
 
 public final class CampaignMapForm extends CameraDelegate {
 	private final static int base_width = 800;

@@ -3,10 +3,11 @@ package com.oddlabs.tt.particle;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.TextureKey;
-import java.util.List;
-import java.util.Random;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
+
+import java.util.List;
+import java.util.Random;
 
 public class ParametricEmitter extends Emitter {
 	private final static float SQRT_2 = (float)StrictMath.sqrt(2f);

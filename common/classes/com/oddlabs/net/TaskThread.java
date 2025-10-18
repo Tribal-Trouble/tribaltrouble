@@ -1,8 +1,12 @@
 package com.oddlabs.net;
 
 import com.oddlabs.event.Deterministic;
+
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class TaskThread {
 	private final Map<Integer,Callable<?>> id_to_callable = new HashMap<>();

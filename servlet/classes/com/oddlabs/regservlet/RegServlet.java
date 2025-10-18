@@ -1,40 +1,35 @@
 package com.oddlabs.regservlet;
 
-import com.oddlabs.registration.RegistrationKey;
-import com.oddlabs.registration.RegistrationRequest;
-import com.oddlabs.registration.RegClientInterface;
 import com.oddlabs.registration.RegServiceInterface;
 import com.oddlabs.registration.RegistrationInfo;
-import com.oddlabs.event.Deterministic;
-import com.oddlabs.event.NotDeterministic;
+import com.oddlabs.registration.RegistrationKey;
+import com.oddlabs.registration.RegistrationRequest;
 import com.oddlabs.util.KeyManager;
 import com.oddlabs.util.PasswordKey;
 
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.GeneralSecurityException;
 import javax.crypto.Cipher;
-import java.security.SignedObject;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.ObjectOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.net.URL;
-
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.InitialContext;
-
-import javax.sql.DataSource;
-import java.sql.SQLException;
+import javax.naming.NamingException;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
+import javax.sql.DataSource;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.SignedObject;
+import java.sql.SQLException;
 
 public final class RegServlet extends HttpServlet {
 	private final static String GG_IGNITION_URL = "http://www.garagegames.com/ignition/validate.php?ProductId=0xFA00E87&Key=";

@@ -7,6 +7,7 @@ omskriv if-check ved modulo til (x+n)%n
 package com.oddlabs.tt.procedural;
 
 import com.oddlabs.procedural.Channel;
+
 import java.util.Random;
 
 public final class Voronoi {

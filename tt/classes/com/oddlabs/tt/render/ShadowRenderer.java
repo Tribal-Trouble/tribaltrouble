@@ -5,9 +5,10 @@ import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.vbo.VBO;
-import java.nio.ShortBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+
+import java.nio.ShortBuffer;
 
 abstract class ShadowRenderer {
 	private static final ShortBuffer shadow_indices = BufferUtils.createShortBuffer(HeightMap.GRID_UNITS_PER_PATCH*HeightMap.GRID_UNITS_PER_PATCH*2*3);

@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL11;
 
 public class Label extends TextField implements Comparable {
 	public final static int ALIGN_LEFT		= 0;

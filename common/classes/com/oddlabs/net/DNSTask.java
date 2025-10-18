@@ -1,7 +1,9 @@
 package com.oddlabs.net;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 public final class DNSTask implements Callable<InetSocketAddress> {
 	private final String dns_name;

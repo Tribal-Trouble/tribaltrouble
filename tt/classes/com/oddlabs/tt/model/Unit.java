@@ -28,12 +28,13 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.util.Quad;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class Unit extends Selectable implements Occupant, Movable {
 

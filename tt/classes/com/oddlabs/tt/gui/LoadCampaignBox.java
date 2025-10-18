@@ -7,6 +7,7 @@ import com.oddlabs.tt.player.campaign.CampaignState;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.DeterministicSerializer;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
+
 import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
 import java.nio.file.Files;

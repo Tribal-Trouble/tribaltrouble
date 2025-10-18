@@ -2,11 +2,12 @@ package com.oddlabs.tt.vbo;
 
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.resource.NativeResource;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
+
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 public abstract class VBO extends NativeResource {
 	private final int handle;

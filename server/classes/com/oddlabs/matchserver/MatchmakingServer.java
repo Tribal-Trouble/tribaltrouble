@@ -1,31 +1,29 @@
 package com.oddlabs.matchserver;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.logging.*;
-
-import com.oddlabs.util.KeyManager;
-import com.oddlabs.util.DBUtils;
-import com.oddlabs.net.AbstractConnectionListener;
-import com.oddlabs.net.ConnectionListener;
-import com.oddlabs.net.AbstractConnection;
-import com.oddlabs.net.SecureConnection;
-import com.oddlabs.net.NetworkSelector;
-import com.oddlabs.net.ConnectionListenerInterface;
-import com.oddlabs.matchmaking.MatchmakingServerInterface;
-import com.oddlabs.matchmaking.MatchmakingServerLoginInterface;
-import com.oddlabs.registration.RegistrationInfo;
-import com.oddlabs.registration.RegistrationKey;
-
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.event.NotDeterministic;
+import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.net.AbstractConnection;
+import com.oddlabs.net.AbstractConnectionListener;
+import com.oddlabs.net.ConnectionListener;
+import com.oddlabs.net.ConnectionListenerInterface;
+import com.oddlabs.net.NetworkSelector;
+import com.oddlabs.net.SecureConnection;
+import com.oddlabs.registration.RegistrationKey;
+import com.oddlabs.util.DBUtils;
+import com.oddlabs.util.KeyManager;
 
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.PublicKey;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.security.PublicKey;
+import java.security.spec.AlgorithmParameterSpec;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public final class MatchmakingServer implements ConnectionListenerInterface {
 	private final static Map online_users = new HashMap();

@@ -1,7 +1,12 @@
 package com.oddlabs.util;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.io.UncheckedIOException;
+import java.net.URL;
 
 public final class FontInfo implements Serializable {
 	private final static long serialVersionUID = 1;

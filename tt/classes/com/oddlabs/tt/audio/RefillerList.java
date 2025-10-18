@@ -1,10 +1,11 @@
 package com.oddlabs.tt.audio;
 
 import com.oddlabs.tt.Main;
+import org.lwjgl.openal.AL;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.lwjgl.openal.AL;
 
 public final class RefillerList {
 

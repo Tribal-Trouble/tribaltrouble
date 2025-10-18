@@ -1,6 +1,7 @@
 package com.oddlabs.net;
 
 import com.oddlabs.event.Deterministic;
+
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;

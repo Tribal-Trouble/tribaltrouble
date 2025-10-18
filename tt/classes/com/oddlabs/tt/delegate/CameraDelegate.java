@@ -1,7 +1,7 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.Camera;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.GUIRoot;
 
 public abstract class CameraDelegate extends Delegate {
 	private final GUIRoot gui_root;

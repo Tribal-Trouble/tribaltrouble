@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.procedural.Landscape;
+
 import java.io.Serializable;
 
 public interface WorldGenerator extends Serializable {

@@ -7,8 +7,9 @@ import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.guievent.MouseWheelListener;
-import java.util.Objects;
 import org.lwjgl.input.Keyboard;
+
+import java.util.Objects;
 
 public abstract class GUIObject extends Renderable {
 	public final static int TOP_LEFT	 =  1;

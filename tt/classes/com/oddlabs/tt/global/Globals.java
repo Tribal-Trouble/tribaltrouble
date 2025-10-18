@@ -1,8 +1,10 @@
 package com.oddlabs.tt.global;
 
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.lwjgl.opengl.*;
 
 public final class Globals {
 	public final static int BOUNDING_NONE = 0;

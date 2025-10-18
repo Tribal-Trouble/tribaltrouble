@@ -12,6 +12,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
+
 import java.math.BigInteger;
 import java.util.Random;
 import java.util.ResourceBundle;

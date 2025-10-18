@@ -22,6 +22,7 @@ import com.oddlabs.tt.trigger.campaign.PlayerEleminatedTrigger;
 import com.oddlabs.tt.trigger.campaign.SupplyGatheredTrigger;
 import com.oddlabs.tt.trigger.campaign.VictoryTrigger;
 import com.oddlabs.tt.util.Utils;
+
 import java.util.ResourceBundle;
 
 public final class VikingIsland0 extends Island {

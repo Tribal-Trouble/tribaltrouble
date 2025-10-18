@@ -4,6 +4,7 @@ import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.render.SpriteKey;
+
 import java.lang.reflect.InvocationTargetException;
 
 public final class ThrowingFactory extends WeaponFactory {

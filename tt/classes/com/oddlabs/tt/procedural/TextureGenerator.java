@@ -1,6 +1,7 @@
 package com.oddlabs.tt.procedural;
 
 import com.oddlabs.tt.render.Texture;
+
 import java.util.function.Supplier;
 
 public abstract class TextureGenerator implements Supplier<Texture[]> {

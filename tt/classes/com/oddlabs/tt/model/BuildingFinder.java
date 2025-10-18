@@ -4,6 +4,7 @@ import com.oddlabs.tt.pathfinder.FinderFilter;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.player.Player;
+
 import java.util.List;
 
 public final class BuildingFinder implements FinderFilter<Building> {

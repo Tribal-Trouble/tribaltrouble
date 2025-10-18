@@ -3,7 +3,10 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.camera.Camera;
-import com.oddlabs.tt.form.*;
+import com.oddlabs.tt.form.ConnectingForm;
+import com.oddlabs.tt.form.OptionsMenu;
+import com.oddlabs.tt.form.QuitForm;
+import com.oddlabs.tt.form.SelectGameMenu;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIImage;
@@ -28,9 +31,10 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.MultiplayerInGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.lwjgl.input.Keyboard;
+
 import java.net.InetAddress;
 import java.util.ResourceBundle;
-import org.lwjgl.input.Keyboard;
 
 public abstract class Menu extends CameraDelegate {
 	protected final static float[] COLOR_NORMAL = new float[]{1f, 1f, 1f};

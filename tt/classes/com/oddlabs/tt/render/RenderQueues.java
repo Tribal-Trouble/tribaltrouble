@@ -1,12 +1,13 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.resource.Resources;
-import java.util.function.Supplier;
 import com.oddlabs.tt.resource.SpriteFile;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public final class RenderQueues {
 	private final List<SpriteRenderer> sprite_renderers = new ArrayList<>();

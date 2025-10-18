@@ -1,12 +1,13 @@
 package com.oddlabs.tt.render;
 
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 
 public abstract class BillboardPainter {
 	private final static FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);

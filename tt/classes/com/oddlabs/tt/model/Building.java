@@ -25,11 +25,12 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
-import java.util.HashMap;
-import java.util.Map;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Building extends Selectable implements Occupant {
 	private final static float REMOVE_DELAY = 1f/10f;

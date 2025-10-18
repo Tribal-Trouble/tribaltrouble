@@ -4,10 +4,11 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Image;
-import java.nio.ByteBuffer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
+
+import java.nio.ByteBuffer;
 
 public abstract class GLImage {
 	private final int width;

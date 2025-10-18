@@ -1,6 +1,6 @@
 package com.oddlabs.tt.delegate;
 
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.KeyboardEvent;
 
 public final class ModalDelegate extends Delegate {
     @Override

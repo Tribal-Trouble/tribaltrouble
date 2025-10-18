@@ -4,6 +4,7 @@ import com.oddlabs.tt.model.SupplyCounter;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Quad;
+
 import java.util.ResourceBundle;
 
 public class StatusIcon extends GUIObject implements ToolTip {

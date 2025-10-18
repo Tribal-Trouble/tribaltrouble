@@ -11,6 +11,7 @@ import com.oddlabs.tt.trigger.GameOverDelayTrigger;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
+
 import java.util.ResourceBundle;
 
 public abstract class Campaign {

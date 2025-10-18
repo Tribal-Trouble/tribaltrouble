@@ -5,14 +5,15 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Image;
 import com.oddlabs.util.Utils;
+import org.lwjgl.opengl.GL11;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import javax.imageio.ImageIO;
-import org.lwjgl.opengl.GL11;
 
 public final class TextureFile extends File<Texture> {
 	private final int internal_format;

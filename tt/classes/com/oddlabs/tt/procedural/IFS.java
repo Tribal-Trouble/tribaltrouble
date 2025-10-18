@@ -2,6 +2,7 @@ package com.oddlabs.tt.procedural;
 
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
+
 import java.util.Random;
 
 public final class IFS {

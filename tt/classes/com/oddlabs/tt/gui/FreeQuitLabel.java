@@ -6,6 +6,7 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Utils;
+
 import java.util.ResourceBundle;
 
 public final class FreeQuitLabel extends Label implements Animated {

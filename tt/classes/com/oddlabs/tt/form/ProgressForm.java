@@ -16,9 +16,10 @@ import com.oddlabs.tt.gui.ProgressBarInfo;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.util.Utils;
+import org.lwjgl.openal.AL;
+
 import java.util.Random;
 import java.util.ResourceBundle;
-import org.lwjgl.openal.AL;
 
 public final class ProgressForm {
 	private final static int PROGRESSBAR_LOADINGTIP_SPACING = 45;

@@ -1,10 +1,15 @@
 package com.oddlabs.event;
 
-import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
-import java.util.zip.*;
+import java.util.zip.GZIPInputStream;
 
 public final class LoadDeterministic extends Deterministic {
 	private final ReadableByteChannel channel;

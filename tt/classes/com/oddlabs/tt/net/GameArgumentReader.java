@@ -2,7 +2,8 @@ package com.oddlabs.tt.net;
 
 import com.oddlabs.net.ByteBufferInputStream;
 import com.oddlabs.net.DefaultARMIArgumentReader;
-import java.io.*;
+
+import java.io.IOException;
 import java.lang.reflect.Array;
 
 final class GameArgumentReader extends DefaultARMIArgumentReader {

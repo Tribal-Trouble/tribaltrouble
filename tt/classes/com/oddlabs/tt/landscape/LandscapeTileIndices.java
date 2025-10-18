@@ -1,8 +1,9 @@
 package com.oddlabs.tt.landscape;
 
 import com.oddlabs.util.IndexListOptimizer;
-import java.nio.ShortBuffer;
 import org.lwjgl.BufferUtils;
+
+import java.nio.ShortBuffer;
 
 /* http://www.gamasutra.com/features/20061221/dallaire_03.shtml */
 public final class LandscapeTileIndices {

@@ -3,8 +3,13 @@ package com.oddlabs.tt.form;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.MainMenu;
-import com.oddlabs.tt.gui.*;
-import com.oddlabs.tt.guievent.*;
+import com.oddlabs.tt.gui.CancelButton;
+import com.oddlabs.tt.gui.Form;
+import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
@@ -15,10 +20,19 @@ import com.oddlabs.tt.net.WorldInitAction;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.procedural.Landscape;
-import com.oddlabs.tt.tutorial.*;
+import com.oddlabs.tt.tutorial.BuildingChieftainTrigger;
+import com.oddlabs.tt.tutorial.PlacingDelegateTrigger;
+import com.oddlabs.tt.tutorial.ScrollTrigger;
+import com.oddlabs.tt.tutorial.SelectArmoryTrigger;
+import com.oddlabs.tt.tutorial.SelectTowerTrigger;
+import com.oddlabs.tt.tutorial.Tutorial;
+import com.oddlabs.tt.tutorial.TutorialInGameInfo;
+import com.oddlabs.tt.tutorial.TutorialOverTrigger;
+import com.oddlabs.tt.tutorial.TutorialTrigger;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
+
 import java.util.ResourceBundle;
 
 public final class TutorialForm extends Form {

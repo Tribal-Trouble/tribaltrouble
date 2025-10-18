@@ -1,6 +1,7 @@
 package com.oddlabs.tt.audio;
 
 import com.oddlabs.tt.resource.File;
+
 import java.io.IOException;
 
 public final class AudioFile extends File<Audio> {

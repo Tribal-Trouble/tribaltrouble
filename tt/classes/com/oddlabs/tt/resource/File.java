@@ -1,7 +1,8 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.util.Utils;
-import java.net.*;
+
+import java.net.URL;
 import java.util.Objects;
 import java.util.function.Supplier;
 

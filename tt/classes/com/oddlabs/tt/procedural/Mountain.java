@@ -2,8 +2,9 @@ package com.oddlabs.tt.procedural;
 
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
-import com.oddlabs.util.*;
-import java.util.*;
+import com.oddlabs.util.Utils;
+
+import java.util.Random;
 
 public final class Mountain {
 

@@ -12,8 +12,9 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.render.LandscapeLocation;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.WorldViewer;
-import java.util.Set;
 import org.lwjgl.input.Keyboard;
+
+import java.util.Set;
 
 public abstract class InGameDelegate extends CameraDelegate {
 	private final WorldViewer viewer;

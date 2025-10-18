@@ -4,9 +4,17 @@ import com.oddlabs.net.Callable;
 import com.oddlabs.net.Task;
 import com.oddlabs.net.TaskThread;
 import com.oddlabs.util.CryptUtils;
-import java.io.*;
-import java.net.*;
+
 import javax.net.ssl.HttpsURLConnection;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 
 public final class HttpRequest {
 	public static Task doPost(TaskThread task_thread, HttpRequestParameters parameters, HttpResponseParser parser, HttpCallback callback) {

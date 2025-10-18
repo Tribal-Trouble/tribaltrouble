@@ -2,9 +2,9 @@ package com.oddlabs.matchservlet;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
 
 final class DBInterface {
 	private static void checkArguments(Object[] arguments) throws SQLException {

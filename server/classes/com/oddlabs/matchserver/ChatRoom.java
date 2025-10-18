@@ -1,11 +1,13 @@
 package com.oddlabs.matchserver;
 
-import com.oddlabs.matchmaking.MatchmakingServerInterface;
-import com.oddlabs.matchmaking.MatchmakingClientInterface;
 import com.oddlabs.matchmaking.ChatRoomUser;
+import com.oddlabs.matchmaking.MatchmakingServerInterface;
 
-import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public final class ChatRoom {
 	private final static Map chat_rooms = new HashMap();

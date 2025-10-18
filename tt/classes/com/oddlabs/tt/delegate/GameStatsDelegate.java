@@ -4,14 +4,25 @@ import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.camera.StaticCamera;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.ColumnInfo;
+import com.oddlabs.tt.gui.GUIObject;
+import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.IntegerLabel;
+import com.oddlabs.tt.gui.KeyboardEvent;
+import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MultiColumnComboBox;
+import com.oddlabs.tt.gui.Row;
+import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.gui.SortedLabel;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.lwjgl.input.Keyboard;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import org.lwjgl.input.Keyboard;
 
 public final class GameStatsDelegate extends CameraDelegate implements Updatable {
 	private final static int PLAYER_COLUMN_WIDTH = 100;

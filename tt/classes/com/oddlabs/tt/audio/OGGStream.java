@@ -1,8 +1,15 @@
 package com.oddlabs.tt.audio;
 
-import com.jcraft.jogg.*;
-import com.jcraft.jorbis.*;
+import com.jcraft.jogg.Packet;
+import com.jcraft.jogg.Page;
+import com.jcraft.jogg.StreamState;
+import com.jcraft.jogg.SyncState;
+import com.jcraft.jorbis.Block;
+import com.jcraft.jorbis.Comment;
+import com.jcraft.jorbis.DspState;
+import com.jcraft.jorbis.Info;
 import com.oddlabs.util.ByteBufferOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;

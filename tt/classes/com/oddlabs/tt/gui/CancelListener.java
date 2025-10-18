@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.guievent.*;
+import com.oddlabs.tt.guievent.MouseClickListener;
 
 public final class CancelListener implements MouseClickListener {
 	private final Form form;

@@ -1,7 +1,8 @@
 package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.landscape.LandscapeTargetRespond;
-import com.oddlabs.tt.model.weapon.*;
+import com.oddlabs.tt.model.weapon.DirectedThrowingWeapon;
+import com.oddlabs.tt.model.weapon.RotatingThrowingWeapon;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Lightning;
 

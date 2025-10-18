@@ -1,9 +1,11 @@
 package com.oddlabs.procedural;
 
-import com.oddlabs.util.*;
-import java.nio.*;
-import java.util.*;
-import java.util.zip.*;
+import com.oddlabs.util.Utils;
+
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 public final class Channel {
 	public float[][] pixels;

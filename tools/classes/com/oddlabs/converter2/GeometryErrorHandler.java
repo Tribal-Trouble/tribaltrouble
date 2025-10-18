@@ -1,6 +1,7 @@
 package com.oddlabs.converter2;
 
-import org.xml.sax.*;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXParseException;
 
 public final class GeometryErrorHandler implements ErrorHandler {
 	public final void fatalError(SAXParseException exception) {

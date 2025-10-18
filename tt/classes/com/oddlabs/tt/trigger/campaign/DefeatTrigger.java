@@ -7,6 +7,7 @@ import com.oddlabs.tt.player.campaign.Campaign;
 import com.oddlabs.tt.trigger.IntervalTrigger;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+
 import java.util.ResourceBundle;
 
 public final class DefeatTrigger extends IntervalTrigger {

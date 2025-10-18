@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.font.*;
+import com.oddlabs.tt.font.Font;
 
 public class HorizButton extends ButtonObject {
 	public HorizButton(String caption, int width) {

@@ -3,6 +3,10 @@ package com.oddlabs.tt.global;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.util.GLUtils;
+import org.lwjgl.LWJGLUtil;
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.Pbuffer;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,9 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
-import org.lwjgl.LWJGLUtil;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.opengl.Pbuffer;
 
 public final class Settings implements Serializable {
 	private final static long serialVersionUID = 1l;

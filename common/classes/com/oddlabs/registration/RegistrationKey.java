@@ -2,6 +2,7 @@ package com.oddlabs.registration;
 
 import com.oddlabs.util.KeyManager;
 import com.oddlabs.util.Utils;
+
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.GeneralSecurityException;

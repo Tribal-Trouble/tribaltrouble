@@ -21,6 +21,7 @@ import com.oddlabs.tt.trigger.campaign.NearPointTrigger;
 import com.oddlabs.tt.trigger.campaign.TimeTrigger;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
+
 import java.util.ResourceBundle;
 
 public final class NativeIsland3 extends Island {

@@ -1,10 +1,22 @@
 package com.oddlabs.converter;
 
-import java.io.*;
-import java.util.*;
-import javax.xml.parsers.*;
-import org.w3c.dom.*;
-import com.oddlabs.geometry.*;
+import com.oddlabs.geometry.AnimationInfo;
+import com.oddlabs.geometry.LowDetailModel;
+import com.oddlabs.geometry.SpriteInfo;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public final class ConvertToBinary {
 	public final static void main(String[] args) {

@@ -7,6 +7,7 @@ import com.oddlabs.tt.net.ChatListener;
 import com.oddlabs.tt.net.ChatMessage;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.StateChecksum;
+
 import java.util.ArrayList;
 
 public final class InfoPrinter extends GUIObject implements Animated, ChatListener {

@@ -1,7 +1,8 @@
 package com.oddlabs.tt.util;
 
-import java.util.ArrayDeque;
 import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayDeque;
 
 public final class GLStateStack {
 	private static GLStateStack current;

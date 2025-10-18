@@ -3,9 +3,10 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeTileIndices;
 import com.oddlabs.tt.vbo.FloatVBO;
-import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
+
+import java.nio.FloatBuffer;
 
 final class LandscapeTileVertices {
 	private final FloatVBO patch_vertex_buffer;

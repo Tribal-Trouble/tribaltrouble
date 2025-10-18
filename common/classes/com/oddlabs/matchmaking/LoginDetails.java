@@ -1,6 +1,7 @@
 package com.oddlabs.matchmaking;
 
 import com.oddlabs.util.Utils;
+
 import java.io.Serializable;
 
 public final class LoginDetails implements Serializable {

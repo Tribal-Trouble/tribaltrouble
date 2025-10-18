@@ -1,35 +1,21 @@
 package com.oddlabs.matchserver;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.sql.DriverManager;
+import com.oddlabs.matchmaking.Game;
+import com.oddlabs.matchmaking.GameSession;
+import com.oddlabs.matchmaking.Login;
+import com.oddlabs.matchmaking.LoginDetails;
+import com.oddlabs.matchmaking.Participant;
+import com.oddlabs.matchmaking.Profile;
+import com.oddlabs.matchmaking.RankingEntry;
+import com.oddlabs.util.CryptUtils;
+import com.oddlabs.util.DBUtils;
+
 import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.io.UnsupportedEncodingException;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-
-import org.apache.commons.pool.impl.GenericObjectPool;
-import org.apache.commons.dbcp.ConnectionFactory;
-import org.apache.commons.dbcp.DriverManagerConnectionFactory;
-import org.apache.commons.dbcp.PoolableConnectionFactory;
-import org.apache.commons.dbcp.PoolingDataSource;
-import org.apache.commons.pool.KeyedObjectPoolFactory;
-import org.apache.commons.pool.impl.StackKeyedObjectPoolFactory;
-
-import com.oddlabs.matchmaking.Profile;
-import com.oddlabs.matchmaking.Login;
-import com.oddlabs.matchmaking.Game;
-import com.oddlabs.matchmaking.Participant;
-import com.oddlabs.matchmaking.LoginDetails;
-import com.oddlabs.matchmaking.RankingEntry;
-import com.oddlabs.matchmaking.GameSession;
-import com.oddlabs.util.CryptUtils;
-import com.oddlabs.util.DBUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class DBInterface {
 	

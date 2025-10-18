@@ -1,7 +1,8 @@
 package com.oddlabs.tt.font;
 
-import com.oddlabs.tt.animation.*;
-import org.lwjgl.opengl.*;
+import com.oddlabs.tt.animation.TimerAnimation;
+import com.oddlabs.tt.animation.Updatable;
+import org.lwjgl.opengl.GL11;
 
 public final class Index implements Updatable {
 	public final static int INDEX_WIDTH = 1;

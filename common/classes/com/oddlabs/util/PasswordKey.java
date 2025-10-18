@@ -1,12 +1,12 @@
 package com.oddlabs.util;
 
+import javax.crypto.Cipher;
+import javax.crypto.SealedObject;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
-import javax.crypto.Cipher;
-import javax.crypto.SealedObject;
 
 public final class PasswordKey {
 	public static PrivateKey readPrivateKey(Cipher decrypt_cipher, String key_file, String algorithm) throws IOException, ClassNotFoundException, GeneralSecurityException {

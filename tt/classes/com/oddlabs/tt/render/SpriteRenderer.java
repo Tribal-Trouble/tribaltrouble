@@ -1,10 +1,11 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.Globals;
+import org.lwjgl.opengl.GL11;
+
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import org.lwjgl.opengl.GL11;
 
 public final class SpriteRenderer {
 	public final static int HIGH_POLY = 0;

@@ -2,7 +2,8 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.KeyboardEvent;
+import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Abilities;
@@ -17,11 +18,12 @@ import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.SpriteRenderer;
 import com.oddlabs.tt.viewer.WorldViewer;
-import java.nio.FloatBuffer;
-import java.util.List;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
+
+import java.nio.FloatBuffer;
+import java.util.List;
 
 public final class PlacingDelegate extends ControllableCameraDelegate {
 	private final static int GRID_RADIUS = 20;

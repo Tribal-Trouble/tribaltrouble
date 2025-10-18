@@ -1,10 +1,16 @@
 package com.oddlabs.tt.vbo;
 
-import com.oddlabs.tt.global.*;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.Renderer;
-import com.oddlabs.tt.util.*;
-import java.nio.*;
-import org.lwjgl.opengl.*;
+import com.oddlabs.tt.util.Utils;
+import org.lwjgl.opengl.ARBBufferObject;
+import org.lwjgl.opengl.ARBVertexBufferObject;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GLContext;
+
+import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
 
 public final class ShortVBO extends VBO {
 	private ShortBuffer saved_buffer = null;

@@ -1,20 +1,15 @@
 package com.oddlabs.matchservlet;
 
-import javax.servlet.ServletContextListener;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.sql.DataSource;
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.InitialContext;
-
-import java.security.SignedObject;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.SecureRandom;
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.GeneralSecurityException;
 
 public final class ContextInitializer implements ServletContextListener {
 	private final static int KEY_SIZE = 1024;

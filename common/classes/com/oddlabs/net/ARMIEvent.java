@@ -1,6 +1,7 @@
 package com.oddlabs.net;
 
 import com.oddlabs.util.ByteBufferOutputStream;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Method;

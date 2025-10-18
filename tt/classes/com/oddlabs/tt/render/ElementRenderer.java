@@ -1,7 +1,10 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
-import com.oddlabs.tt.model.*;
+import com.oddlabs.tt.model.Element;
+import com.oddlabs.tt.model.ElementLeaf;
+import com.oddlabs.tt.model.ElementNode;
+import com.oddlabs.tt.model.ElementNodeVisitor;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.viewer.Selection;
 

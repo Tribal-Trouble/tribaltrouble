@@ -2,8 +2,9 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.tt.util.Target;
-import java.util.List;
 import org.lwjgl.opengl.GL11;
+
+import java.util.List;
 
 public final class BuildingSiteRenderer extends ShadowRenderer {
 

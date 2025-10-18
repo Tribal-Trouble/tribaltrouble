@@ -1,34 +1,29 @@
 package com.oddlabs.matchserver;
 
-import com.oddlabs.util.KeyManager;
-import com.oddlabs.net.AbstractConnection;
-import com.oddlabs.net.ARMIEvent;
-import com.oddlabs.net.HostSequenceID;
-import com.oddlabs.net.ConnectionInterface;
-import com.oddlabs.net.AbstractConnection;
-import com.oddlabs.net.IllegalARMIEventException;
-import com.oddlabs.net.ARMIInterfaceMethods;
-import com.oddlabs.matchmaking.MatchmakingServerInterface;
-import com.oddlabs.matchmaking.MatchmakingServerLoginInterface;
-import com.oddlabs.matchmaking.MatchmakingClientInterface;
-import com.oddlabs.matchmaking.TunnelAddress;
-import com.oddlabs.matchmaking.GameHost;
-import com.oddlabs.matchmaking.RankingEntry;
-import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.ChatRoomEntry;
-import com.oddlabs.matchmaking.Participant;
+import com.oddlabs.matchmaking.Game;
+import com.oddlabs.matchmaking.GameHost;
 import com.oddlabs.matchmaking.GameSession;
+import com.oddlabs.matchmaking.MatchmakingClientInterface;
+import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.matchmaking.Participant;
 import com.oddlabs.matchmaking.Profile;
-import com.oddlabs.matchmaking.Login;
+import com.oddlabs.matchmaking.RankingEntry;
+import com.oddlabs.net.ARMIEvent;
+import com.oddlabs.net.ARMIInterfaceMethods;
+import com.oddlabs.net.AbstractConnection;
+import com.oddlabs.net.ConnectionInterface;
+import com.oddlabs.net.HostSequenceID;
+import com.oddlabs.net.IllegalARMIEventException;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
-import java.net.InetAddress;
+import java.util.Set;
 
 public final class Client implements MatchmakingServerInterface, ConnectionInterface {
 	private final static int CHUNK_SIZE = 10;

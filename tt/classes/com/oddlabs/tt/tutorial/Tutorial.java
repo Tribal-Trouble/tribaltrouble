@@ -9,6 +9,7 @@ import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+
 import java.util.ResourceBundle;
 
 public final class Tutorial {

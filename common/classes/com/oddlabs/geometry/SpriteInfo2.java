@@ -1,7 +1,9 @@
 package com.oddlabs.geometry;
 
-import com.oddlabs.util.*;
-import java.io.*;
+import com.oddlabs.util.ByteCompressedFloatArray;
+import com.oddlabs.util.ShortCompressedFloatArray;
+
+import java.io.Serializable;
 
 public final class SpriteInfo2 implements Serializable {
 	private final static long serialVersionUID = 1;

@@ -1,8 +1,9 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.model.*;
+import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.ReproduceUnitContainer;
 import com.oddlabs.util.Quad;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL11;
 
 public final class WatchStatusIcon extends StatusIcon {
 	private Building building;

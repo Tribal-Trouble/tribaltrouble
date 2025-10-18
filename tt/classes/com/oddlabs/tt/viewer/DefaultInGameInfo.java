@@ -4,12 +4,17 @@ import com.oddlabs.tt.delegate.GameStatsDelegate;
 import com.oddlabs.tt.delegate.InGameMainMenu;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.form.TerrainMenu;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.GUIObject;
+import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+
 import java.util.ResourceBundle;
 
 public class DefaultInGameInfo implements InGameInfo {

@@ -10,13 +10,14 @@ import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.OffscreenRenderer;
 import com.oddlabs.tt.util.OffscreenRendererFactory;
-import java.nio.FloatBuffer;
-import java.util.List;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.PixelFormat;
+
+import java.nio.FloatBuffer;
+import java.util.List;
 
 public final class IslandGenerator implements WorldGenerator {
 	private final static long serialVersionUID = 1;

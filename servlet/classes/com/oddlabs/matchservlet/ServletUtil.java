@@ -1,11 +1,11 @@
 package com.oddlabs.matchservlet;
 
-import java.io.DataOutput;
-import java.io.OutputStream;
-import java.io.FilterOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutput;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 final class ServletUtil {
 	static void writeByteArray(DataOutput out, byte[] array) throws IOException {

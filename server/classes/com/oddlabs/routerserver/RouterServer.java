@@ -1,23 +1,16 @@
 package com.oddlabs.routerserver;
 
-import java.io.IOException;
-import java.net.SocketAddress;
-
+import com.oddlabs.event.Deterministic;
+import com.oddlabs.event.NotDeterministic;
 import com.oddlabs.net.NetworkSelector;
+import com.oddlabs.router.Router;
 import com.oddlabs.util.DBUtils;
 
-import java.io.File;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.net.InetSocketAddress;
-import java.net.InetAddress;
-import java.util.logging.*;
-import com.oddlabs.net.TimeManager;
-import com.oddlabs.router.Router;
-import com.oddlabs.event.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public final class RouterServer {
 	private final static Logger logger;

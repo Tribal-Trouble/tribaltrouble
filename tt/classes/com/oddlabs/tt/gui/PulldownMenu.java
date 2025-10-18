@@ -2,9 +2,10 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
+import org.lwjgl.input.Keyboard;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.lwjgl.input.Keyboard;
 
 public final class PulldownMenu extends Group {// GUIObject {
 	private final java.util.List chosen_listeners = new java.util.ArrayList();

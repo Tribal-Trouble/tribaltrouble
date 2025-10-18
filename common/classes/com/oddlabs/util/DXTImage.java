@@ -1,5 +1,8 @@
 package com.oddlabs.util;
 
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.EXTTextureCompressionS3TC;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -8,8 +11,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 
 public final class DXTImage {
 	private final static int INITIAL_BUFFER_SIZE = 100000;

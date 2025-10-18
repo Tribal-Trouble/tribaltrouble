@@ -1,32 +1,21 @@
 package com.oddlabs.matchservlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.OutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.DataOutput;
-import java.util.ArrayList;
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.GeneralSecurityException;
+import com.oddlabs.registration.RegistrationKey;
+import com.oddlabs.util.CryptUtils;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Connection;
 import javax.sql.DataSource;
-
-import java.nio.ByteBuffer;
-
-import com.oddlabs.registration.RegistrationKey;
-import com.oddlabs.util.CryptUtils;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public final class Login extends HttpServlet {
 	private final static String SIGN_ALGORITHM = "SHA1WithRSA";

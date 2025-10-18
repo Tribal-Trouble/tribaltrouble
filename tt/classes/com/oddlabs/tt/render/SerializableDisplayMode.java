@@ -3,14 +3,15 @@ package com.oddlabs.tt.render;
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.LocalInput;
-import java.io.Serializable;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
+
+import java.io.Serializable;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public final class SerializableDisplayMode implements Serializable {
 

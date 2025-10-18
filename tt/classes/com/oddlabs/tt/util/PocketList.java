@@ -1,6 +1,7 @@
 package com.oddlabs.tt.util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class PocketList {
 	private final List[] pockets;

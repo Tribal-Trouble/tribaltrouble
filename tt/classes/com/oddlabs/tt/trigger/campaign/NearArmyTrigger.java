@@ -4,6 +4,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.trigger.IntervalTrigger;
+
 import java.util.List;
 
 public final class NearArmyTrigger extends IntervalTrigger {

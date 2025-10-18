@@ -1,6 +1,7 @@
 package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.render.SpriteKey;
+
 import java.util.Map;
 
 public final class UnitSupplyContainer extends SupplyContainer {

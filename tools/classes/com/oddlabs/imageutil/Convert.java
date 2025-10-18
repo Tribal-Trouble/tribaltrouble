@@ -1,21 +1,23 @@
 package com.oddlabs.imageutil;
 
-import java.awt.image.*;
-import java.awt.Graphics2D;
-import java.io.File;
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import gr.zdimensions.jsquish.Squish;
-import org.lwjgl.opengl.EXTTextureCompressionS3TC;
-import com.oddlabs.util.Image;
-import com.oddlabs.util.DXTImage;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
+import com.oddlabs.util.DXTImage;
+import com.oddlabs.util.Image;
+import gr.zdimensions.jsquish.Squish;
+import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 
 import javax.imageio.ImageIO;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public final class Convert {
 	private static String current_ext;

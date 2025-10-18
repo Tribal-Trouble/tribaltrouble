@@ -2,7 +2,8 @@ package com.oddlabs.tt.net;
 
 import com.oddlabs.net.DefaultARMIArgumentWriter;
 import com.oddlabs.util.ByteBufferOutputStream;
-import java.io.*;
+
+import java.io.IOException;
 
 final class GameArgumentWriter extends DefaultARMIArgumentWriter {
 	private final DistributableTable distributable_table;

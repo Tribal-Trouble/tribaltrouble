@@ -5,8 +5,9 @@ import com.oddlabs.tt.render.NativeCursor;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.util.Image;
 import com.oddlabs.util.Quad;
-import java.net.URL;
 import org.lwjgl.opengl.GL11;
+
+import java.net.URL;
 
 public final class Cursor {
 

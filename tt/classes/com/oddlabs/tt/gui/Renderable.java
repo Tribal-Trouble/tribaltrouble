@@ -1,7 +1,9 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.util.*;
-import org.lwjgl.opengl.*;
+import com.oddlabs.util.LinkedList;
+import com.oddlabs.util.ListElement;
+import com.oddlabs.util.ListElementImpl;
+import org.lwjgl.opengl.GL11;
 
 public abstract class Renderable extends ListElementImpl {
 	private int x = 0;

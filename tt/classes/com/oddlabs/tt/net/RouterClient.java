@@ -1,8 +1,19 @@
 package com.oddlabs.tt.net;
 
-import com.oddlabs.net.*;
-import com.oddlabs.router.*;
+import com.oddlabs.net.ARMIEvent;
+import com.oddlabs.net.ARMIInterfaceMethods;
+import com.oddlabs.net.AbstractConnection;
+import com.oddlabs.net.Connection;
+import com.oddlabs.net.ConnectionInterface;
+import com.oddlabs.net.IllegalARMIEventException;
+import com.oddlabs.net.NetworkSelector;
+import com.oddlabs.router.GameInterface;
+import com.oddlabs.router.RouterClientInterface;
+import com.oddlabs.router.RouterInterface;
+import com.oddlabs.router.SessionID;
+import com.oddlabs.router.SessionInfo;
 import com.oddlabs.util.Utils;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 

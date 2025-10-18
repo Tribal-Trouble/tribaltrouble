@@ -2,7 +2,13 @@ package com.oddlabs.tt.net;
 
 import com.oddlabs.tt.gui.InfoPrinter;
 import com.oddlabs.tt.util.Utils;
-import java.util.*;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 public final class ChatCommand {
 	private final static Map<String, ChatMethod> commands = new HashMap<>();

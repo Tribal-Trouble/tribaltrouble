@@ -3,14 +3,15 @@ package com.oddlabs.tt.audio;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.AudioImplementation;
-import java.io.IOException;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.OpenALException;
+
+import java.io.IOException;
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class AudioManager implements AudioImplementation {
 	private final static int MAX_NUM_SOURCES = 32;

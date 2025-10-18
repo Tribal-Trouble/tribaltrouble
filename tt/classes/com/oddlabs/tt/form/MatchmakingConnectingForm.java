@@ -16,6 +16,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.net.MatchmakingListener;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
+
 import java.util.ResourceBundle;
 
 public final class MatchmakingConnectingForm extends Form implements MatchmakingListener {

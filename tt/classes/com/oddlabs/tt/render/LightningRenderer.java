@@ -2,10 +2,13 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.particle.*;
-import com.oddlabs.tt.util.*;
-import java.util.List;
+import com.oddlabs.tt.particle.Lightning;
+import com.oddlabs.tt.particle.StretchParticle;
+import com.oddlabs.tt.util.StrictMatrix4f;
+import com.oddlabs.tt.util.StrictVector3f;
 import org.lwjgl.opengl.GL11;
+
+import java.util.List;
 
 final class LightningRenderer {
 

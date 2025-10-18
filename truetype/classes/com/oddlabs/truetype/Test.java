@@ -1,32 +1,25 @@
 package com.oddlabs.truetype;
 
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.awt.image.BufferedImage;
-import java.awt.Graphics2D;
-//import java.awt.Shape;
-import java.awt.RenderingHints;
-import java.awt.Font;
-import java.awt.font.TextLayout;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineBreakMeasurer;
-import java.awt.image.DataBuffer;
-import java.text.AttributedString;
-import java.text.AttributedCharacterIterator;
-import java.awt.font.TextAttribute;
-
-import org.lwjgl.Sys;
+import com.oddlabs.util.Utils;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.util.glu.GLU;
-import org.lwjgl.BufferUtils;
 
-import com.oddlabs.util.Utils;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineBreakMeasurer;
+import java.awt.font.TextAttribute;
+import java.awt.font.TextLayout;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.IntBuffer;
+import java.text.AttributedCharacterIterator;
+import java.text.AttributedString;
 
 public final class Test {
 	private final static int WIDTH = 1024;

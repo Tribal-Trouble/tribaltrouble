@@ -27,12 +27,13 @@ import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.Selection;
+import org.lwjgl.opengl.GL11;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import org.lwjgl.opengl.GL11;
 
 public final class Picker implements Updatable {
 	private final static int PICK_SIZE = 5;

@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.Icons;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.util.Quad;
 

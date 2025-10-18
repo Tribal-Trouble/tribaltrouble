@@ -7,8 +7,9 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.Target;
-import java.util.List;
 import org.lwjgl.opengl.GL11;
+
+import java.util.List;
 
 public final class UnitGrid {
 	private final Region[][] regions;

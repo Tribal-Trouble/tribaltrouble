@@ -1,11 +1,12 @@
 package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.landscape.HeightMap;
+import org.lwjgl.opengl.GL11;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lwjgl.opengl.GL11;
 
 public final class Region extends Node {
 	private final Map<Class<?>,List<?>> object_lists = new HashMap<>();

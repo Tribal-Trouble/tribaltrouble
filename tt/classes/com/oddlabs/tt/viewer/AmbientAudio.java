@@ -12,10 +12,11 @@ import com.oddlabs.tt.landscape.AudioImplementation;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.util.StrictVector3f;
-import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
+
+import java.nio.FloatBuffer;
 
 public final class AmbientAudio {
 	private final static FloatBuffer orientation_buffer = BufferUtils.createFloatBuffer(3*2);

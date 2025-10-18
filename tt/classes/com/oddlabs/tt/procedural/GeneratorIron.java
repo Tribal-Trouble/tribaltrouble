@@ -2,10 +2,10 @@ package com.oddlabs.tt.procedural;
 
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
-import com.oddlabs.tt.global.*;
-import com.oddlabs.tt.render.*;
-import com.oddlabs.tt.resource.*;
-import org.lwjgl.opengl.*;
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.render.Texture;
+import com.oddlabs.tt.resource.GLIntImage;
+import org.lwjgl.opengl.GL11;
 
 public final class GeneratorIron extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;

@@ -1,7 +1,8 @@
 package com.oddlabs.util;
 
-import java.io.*;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL11;
+
+import java.io.Serializable;
 
 public class Quad implements Serializable {
 	private final static long serialVersionUID = 1;

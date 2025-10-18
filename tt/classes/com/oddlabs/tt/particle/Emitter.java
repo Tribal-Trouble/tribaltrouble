@@ -8,9 +8,10 @@ import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.TextureKey;
 import com.oddlabs.tt.util.StateChecksum;
+import org.lwjgl.util.vector.Vector3f;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.lwjgl.util.vector.Vector3f;
 
 public abstract class Emitter extends Element<Emitter> implements Animated {
 	private final AnimationManager manager;

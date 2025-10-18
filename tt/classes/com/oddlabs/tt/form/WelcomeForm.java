@@ -1,8 +1,16 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.delegate.MainMenu;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.Form;
+import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.LabelBox;
+import com.oddlabs.tt.gui.OKButton;
+import com.oddlabs.tt.gui.OKListener;
+import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
+
 import java.util.ResourceBundle;
 
 public final class WelcomeForm extends Form {

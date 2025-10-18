@@ -17,15 +17,16 @@ import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.vbo.ShortVBO;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.ARBBufferObject;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.ARBBufferObject;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 
 public final class LandscapeRenderer implements Animated {
 

@@ -1,7 +1,9 @@
 package com.oddlabs.tt.model.weapon;
 
 import com.oddlabs.tt.audio.Audio;
-import com.oddlabs.tt.model.*;
+import com.oddlabs.tt.model.ElementVisitor;
+import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.render.SpriteKey;
 
 public abstract class DirectedThrowingWeapon extends ThrowingWeapon {

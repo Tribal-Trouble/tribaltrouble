@@ -1,7 +1,9 @@
 package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.model.Selectable;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class FindOccupantFilter<S extends Selectable> implements ScanFilter {
 

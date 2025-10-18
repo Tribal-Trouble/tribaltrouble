@@ -20,6 +20,7 @@ import com.oddlabs.tt.trigger.campaign.ReinforcementsTrigger;
 import com.oddlabs.tt.trigger.campaign.TimeTrigger;
 import com.oddlabs.tt.trigger.campaign.VictoryTrigger;
 import com.oddlabs.tt.util.Utils;
+
 import java.util.ResourceBundle;
 
 public final class VikingIsland4 extends Island {

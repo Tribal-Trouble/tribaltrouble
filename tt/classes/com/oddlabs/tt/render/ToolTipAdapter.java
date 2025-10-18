@@ -2,13 +2,21 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.gui.Icons;
 import com.oddlabs.tt.gui.ToolTipBox;
-import com.oddlabs.tt.model.*;
+import com.oddlabs.tt.model.Abilities;
+import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.ModelToolTip;
+import com.oddlabs.tt.model.SceneryModel;
+import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.Supply;
+import com.oddlabs.tt.model.ToolTipVisitor;
+import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.behaviour.Controller;
 import com.oddlabs.tt.model.behaviour.GatherController;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Quad;
+
 import java.util.ResourceBundle;
 
 final class ToolTipAdapter implements ToolTipVisitor, ToolTip {

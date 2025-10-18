@@ -1,6 +1,6 @@
 package com.oddlabs.tt.animation;
 
-import com.oddlabs.tt.util.*;
+import com.oddlabs.tt.util.StateChecksum;
 
 /**
  * A user interface element that changes over time

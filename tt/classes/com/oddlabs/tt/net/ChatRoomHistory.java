@@ -3,6 +3,7 @@ package com.oddlabs.tt.net;
 import com.oddlabs.matchmaking.ChatRoomUser;
 import com.oddlabs.tt.gui.ChatPanel;
 import com.oddlabs.tt.util.Utils;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;

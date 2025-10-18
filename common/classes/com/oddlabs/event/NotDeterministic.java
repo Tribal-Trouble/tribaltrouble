@@ -1,6 +1,6 @@
 package com.oddlabs.event;
 
-import java.nio.*;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
 public final class NotDeterministic extends Deterministic {

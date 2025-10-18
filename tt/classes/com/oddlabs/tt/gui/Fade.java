@@ -1,8 +1,8 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.UIRenderer;
-import com.oddlabs.tt.util.*;
-import org.lwjgl.opengl.*;
+import com.oddlabs.tt.util.StateChecksum;
+import org.lwjgl.opengl.GL11;
 
 final class Fade {
 	private final static float FADE_TIME = 1f;

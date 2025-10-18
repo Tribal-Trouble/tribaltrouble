@@ -2,13 +2,14 @@ package com.oddlabs.tt.audio;
 
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.util.ByteBufferOutputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.IntBuffer;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
+
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.IntBuffer;
 
 public final class Audio extends NativeResource {
 	private final IntBuffer al_buffers;

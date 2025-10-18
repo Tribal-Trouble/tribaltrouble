@@ -10,6 +10,7 @@ import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.util.Utils;
+
 import java.util.Random;
 
 public final class LandscapeResources {

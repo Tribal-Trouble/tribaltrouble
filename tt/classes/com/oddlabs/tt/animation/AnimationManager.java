@@ -14,13 +14,14 @@ import com.oddlabs.tt.pathfinder.PathFinder;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.StateChecksum;
+import org.lwjgl.LWJGLUtil;
+import org.lwjgl.opengl.Display;
+
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import org.lwjgl.LWJGLUtil;
-import org.lwjgl.opengl.Display;
 
 public final class AnimationManager {
 	public final static int ANIMATION_MILLISECONDS_PER_TICK = 20;

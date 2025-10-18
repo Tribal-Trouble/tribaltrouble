@@ -3,10 +3,16 @@ package com.oddlabs.tt.render;
 import com.oddlabs.geometry.LowDetailModel;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.landscape.*;
+import com.oddlabs.tt.landscape.AbstractTreeGroup;
+import com.oddlabs.tt.landscape.LandscapeResources;
+import com.oddlabs.tt.landscape.TreeGroup;
+import com.oddlabs.tt.landscape.TreeLeaf;
+import com.oddlabs.tt.landscape.TreeNodeVisitor;
+import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.util.BoundingBox;
+
 import java.util.ArrayList;
 import java.util.List;
 

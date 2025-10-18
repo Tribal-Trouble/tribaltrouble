@@ -1,8 +1,13 @@
 package com.oddlabs.tt.viewer;
 
-import com.oddlabs.tt.animation.*;
-import com.oddlabs.tt.audio.*;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.animation.AnimationManager;
+import com.oddlabs.tt.animation.TimerAnimation;
+import com.oddlabs.tt.animation.Updatable;
+import com.oddlabs.tt.audio.Audio;
+import com.oddlabs.tt.audio.AudioParameters;
+import com.oddlabs.tt.audio.AudioPlayer;
+import com.oddlabs.tt.gui.Arrow;
+import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.World;
 
 public class Notification implements Updatable {

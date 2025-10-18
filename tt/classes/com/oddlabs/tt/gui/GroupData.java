@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.font.*;
+import com.oddlabs.tt.font.Font;
 
 public final class GroupData {
 	private final Box group;

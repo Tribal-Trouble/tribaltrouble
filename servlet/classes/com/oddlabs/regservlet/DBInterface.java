@@ -1,14 +1,14 @@
 package com.oddlabs.regservlet;
 
+import com.oddlabs.registration.RegistrationInfo;
+import com.oddlabs.registration.RegistrationKey;
+import com.oddlabs.registration.RegistrationRequest;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Connection;
-import javax.sql.DataSource;
-
-import com.oddlabs.registration.RegistrationKey;
-import com.oddlabs.registration.RegistrationInfo;
-import com.oddlabs.registration.RegistrationRequest;
 
 public final class DBInterface {
 	private final static RegistrationInfo getRegistrationInfo(Connection conn, long key) throws SQLException {

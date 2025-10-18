@@ -1,6 +1,7 @@
 package com.oddlabs.tt.player;
 
 import com.oddlabs.tt.model.Unit;
+
 import java.util.Set;
 
 public abstract class ChieftainAI {

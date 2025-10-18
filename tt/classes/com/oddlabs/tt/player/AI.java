@@ -21,6 +21,7 @@ import com.oddlabs.tt.model.behaviour.WalkController;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
+
 import java.util.Random;
 
 public abstract class AI implements Animated {

@@ -7,11 +7,12 @@ import com.oddlabs.tt.model.Element;
 import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.render.TextureKey;
 import com.oddlabs.tt.util.StateChecksum;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
 
 public final class Lightning extends Element<Lightning> implements Animated {
 	private final static float SQRT_2 = (float)StrictMath.sqrt(2f);

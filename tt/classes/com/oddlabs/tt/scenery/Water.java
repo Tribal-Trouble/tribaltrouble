@@ -1,15 +1,22 @@
 package com.oddlabs.tt.scenery;
 
-import com.oddlabs.tt.global.*;
-import com.oddlabs.tt.landscape.*;
-import com.oddlabs.tt.procedural.*;
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.procedural.GeneratorOcean;
+import com.oddlabs.tt.procedural.Landscape;
+import com.oddlabs.tt.procedural.TextureGenerator;
 import com.oddlabs.tt.render.Texture;
-import com.oddlabs.tt.resource.*;
-import com.oddlabs.tt.util.*;
-import com.oddlabs.tt.vbo.*;
-import java.nio.*;
+import com.oddlabs.tt.resource.Resources;
+import com.oddlabs.tt.util.GLState;
+import com.oddlabs.tt.util.GLStateStack;
+import com.oddlabs.tt.util.GLUtils;
+import com.oddlabs.tt.vbo.FloatVBO;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.ARBBufferObject;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+
+import java.nio.FloatBuffer;
 
 public final class Water {
 

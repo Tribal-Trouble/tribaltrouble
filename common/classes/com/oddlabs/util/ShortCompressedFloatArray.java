@@ -1,6 +1,6 @@
 package com.oddlabs.util;
 
-import java.io.*;
+import java.io.Serializable;
 
 public final class ShortCompressedFloatArray implements Serializable {
 	private final static long serialVersionUID = 1;

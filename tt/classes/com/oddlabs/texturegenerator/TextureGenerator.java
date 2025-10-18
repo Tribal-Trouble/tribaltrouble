@@ -11,9 +11,13 @@ import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.OffscreenRenderer;
 import com.oddlabs.tt.util.OffscreenRendererFactory;
 import com.oddlabs.util.Utils;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.PixelFormat;
+
 import java.io.File;
-import org.lwjgl.*;
-import org.lwjgl.opengl.*;
 
 public final class TextureGenerator {
 	private final static int LOW_DETAIL_TEX_SIZE = 256;

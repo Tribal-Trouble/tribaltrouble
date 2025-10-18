@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class RadioButtonGroup {
 	private final List buttons;

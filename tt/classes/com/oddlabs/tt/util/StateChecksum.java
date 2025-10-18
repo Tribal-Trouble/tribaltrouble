@@ -1,6 +1,7 @@
 package com.oddlabs.tt.util;
 
-import java.util.zip.*;
+import java.util.zip.Adler32;
+import java.util.zip.Checksum;
 
 public final class StateChecksum {
 	private final Checksum crc = new Adler32();

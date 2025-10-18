@@ -2,11 +2,14 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.landscape.*;
+import com.oddlabs.tt.landscape.AbstractTreeGroup;
+import com.oddlabs.tt.landscape.TreeSupply;
+import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.viewer.Cheat;
-import java.util.List;
 import org.lwjgl.opengl.GL11;
+
+import java.util.List;
 
 public final class TreeRenderer extends TreePicker {
 	private final TreeLowDetail tree_low_detail;

@@ -1,7 +1,8 @@
 package com.oddlabs.tt.render;
 
-import java.util.Comparator;
 import org.lwjgl.opengl.DisplayMode;
+
+import java.util.Comparator;
 
 public final class DisplayModeComparator implements Comparator<DisplayMode> {
 

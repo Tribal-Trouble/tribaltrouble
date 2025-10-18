@@ -5,6 +5,7 @@ import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
+
 import java.util.ResourceBundle;
 
 public abstract class IconSpinner extends GUIObject implements ToolTip {

@@ -1,6 +1,8 @@
 package com.oddlabs.util;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public final class WindowsRegistryInterface {
 	public static String queryRegistrationKey(String root, String subkey, String value) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException, InvocationTargetException {

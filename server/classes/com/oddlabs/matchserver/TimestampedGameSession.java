@@ -1,8 +1,8 @@
 package com.oddlabs.matchserver;
 
 import com.oddlabs.matchmaking.GameSession;
-import com.oddlabs.matchmaking.Participant;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.matchmaking.Participant;
 
 import java.sql.SQLException;
 

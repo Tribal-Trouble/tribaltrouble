@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL11;
 
 public final class Row extends GUIObject implements Comparable {
 	private final Object[] columns;
