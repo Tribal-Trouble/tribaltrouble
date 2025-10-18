@@ -2,19 +2,19 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.procedural.GeneratorHalos;
-import com.oddlabs.tt.resource.ResourceDescriptor;
 import com.oddlabs.tt.resource.Resources;
+import java.util.function.Supplier;
 import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
 
-final strictfp class SelectableShadowRenderer extends ShadowListRenderer {
+final class SelectableShadowRenderer extends ShadowListRenderer {
 	private final Texture[] halos;
 
 	private final List<ModelState> selection_list = new ArrayList<>();
 	private final List<ModelState> shadowed_list = new ArrayList<>();
 
-	public SelectableShadowRenderer(ResourceDescriptor<Texture[]> halos_desc) {
+	public SelectableShadowRenderer(Supplier<Texture[]> halos_desc) {
 		halos = Resources.findResource(halos_desc);
 	}
 

@@ -4,8 +4,8 @@ import com.oddlabs.geometry.AnimationInfo;
 import com.oddlabs.geometry.SpriteInfo;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.procedural.GeneratorRespond;
-import com.oddlabs.tt.resource.ResourceDescriptor;
 import com.oddlabs.tt.resource.Resources;
+import java.util.function.Supplier;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.GLState;
@@ -21,7 +21,7 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
-final strictfp class Sprite {
+final class Sprite {
 	public final static int LOWDETAIL_NORMAL = 1;
 	public final static int LOWDETAIL_TEAMDECAL = 2;
 	private final static int TEXTURE_NORMAL = 0;
@@ -257,8 +257,8 @@ final strictfp class Sprite {
 		if (texture_name.startsWith(GENERATOR_STRING)) {
 			String generator_class_name = texture_name.substring(GENERATOR_STRING.length());
 			try {
-				Class generator_class = Class.forName(generator_class_name);
-				ResourceDescriptor<Texture[]> descriptor = (ResourceDescriptor)generator_class.newInstance();
+				Class<?> generator_class = Class.forName(generator_class_name);
+				Supplier<Texture[]> descriptor = (Supplier<Texture[]>) generator_class.newInstance();
 				return Resources.findResource(descriptor)[0];
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				throw new RuntimeException(e);

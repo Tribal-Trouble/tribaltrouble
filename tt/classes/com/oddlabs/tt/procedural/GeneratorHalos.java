@@ -8,7 +8,7 @@ import com.oddlabs.tt.resource.GLIntImage;
 import java.util.Arrays;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class GeneratorHalos extends TextureGenerator {
+public final class GeneratorHalos extends TextureGenerator {
 	public static final int SHADOWED = 0;
 	public static final int SELECTED = 1;
 	private final int size;

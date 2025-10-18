@@ -1,7 +1,7 @@
 package com.oddlabs.tt.render;
 
-import com.oddlabs.tt.resource.ResourceDescriptor;
 import com.oddlabs.tt.resource.Resources;
+import java.util.function.Supplier;
 import com.oddlabs.tt.resource.SpriteFile;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,17 +14,17 @@ public final strictfp class RenderQueues {
 
 	private final List<SpriteRenderer> sprite_list_lookup = new ArrayList<>();
 	private final List<ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
-	private final Map<ResourceDescriptor, ShadowListKey> desc_to_shadow_key = new HashMap<>();
+	private final Map<Supplier, ShadowListKey> desc_to_shadow_key = new HashMap<>();
 	private final List<Texture> texture_lookup = new ArrayList<>();
 
-	public TextureKey registerTexture(ResourceDescriptor<Texture[]> desc, int index) {
+	public TextureKey registerTexture(Supplier<Texture[]> desc, int index) {
 		TextureKey key = new TextureKey(texture_lookup.size());
 		Texture[] textures = Resources.findResource(desc);
 		texture_lookup.add(textures[index]);
 		return key;
 	}
 
-	public TextureKey registerTexture(ResourceDescriptor<Texture> desc) {
+	public TextureKey registerTexture(Supplier<Texture> desc) {
 		TextureKey key = new TextureKey(texture_lookup.size());
 		texture_lookup.add(Resources.findResource(desc));
 		return key;
@@ -34,7 +34,7 @@ public final strictfp class RenderQueues {
 		return texture_lookup.get(key.getKey());
 	}
 
-	public ShadowListKey registerRespondRenderer(ResourceDescriptor desc) {
+	public ShadowListKey registerRespondRenderer(Supplier desc) {
 		ShadowListKey key = desc_to_shadow_key.get(desc);
 		if (key != null)
 			return key;
@@ -42,7 +42,7 @@ public final strictfp class RenderQueues {
 		return register(desc, renderer);
 	}
 
-	private ShadowListKey register(ResourceDescriptor desc, ShadowListRenderer renderer) {
+	private ShadowListKey register(Supplier desc, ShadowListRenderer renderer) {
 		int index = shadow_renderer_lookup.size();
 		shadow_renderer_lookup.add(renderer);
 		ShadowListKey key = new ShadowListKey(index);
@@ -50,7 +50,7 @@ public final strictfp class RenderQueues {
 		return key;
 	}
 
-	public ShadowListKey registerSelectableShadowList(ResourceDescriptor desc) {
+	public ShadowListKey registerSelectableShadowList(Supplier desc) {
 		ShadowListKey key = desc_to_shadow_key.get(desc);
 		if (key != null)
 			return key;

@@ -33,7 +33,7 @@ import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.TextureKey;
-import com.oddlabs.tt.resource.ResourceDescriptor;
+import java.util.function.Supplier;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.resource.TextureFile;
@@ -44,7 +44,7 @@ import java.util.Random;
 import java.util.ResourceBundle;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class RacesResources {
+public final class RacesResources {
 	public final static int QUARTERS_SIZE = 5;
 	public final static int ARMORY_SIZE = 5;
 	public final static int TOWER_SIZE = 3;
@@ -64,7 +64,7 @@ public final strictfp class RacesResources {
 	public final static int INDEX_MAGIC_BLAST = 1;
 	public final static float THROW_RANGE = 6f;
 
-	public final static ResourceDescriptor DEFAULT_SHADOW_DESC = new GeneratorHalos(128, new float[][]{{0f, 0.75f}, {0.5f, 0f}}, new float[][]{{0.40f, 0f}, {0.41f, 1f}, {0.48f, 1f}, {0.49f, 0f}});
+	public final static GeneratorHalos DEFAULT_SHADOW_DESC = new GeneratorHalos(128, new float[][]{{0f, 0.75f}, {0.5f, 0f}}, new float[][]{{0.40f, 0f}, {0.41f, 1f}, {0.48f, 1f}, {0.49f, 0f}});
 
 	private final static ResourceBundle bundle = ResourceBundle.getBundle(RacesResources.class.getName());
 	private final static String[] race_names = new String[]{
@@ -135,7 +135,7 @@ public final strictfp class RacesResources {
 
 		final float ring_mid = 0.38f;
 		final float fadeout = 0.005f;
-		ResourceDescriptor building_shadow_desc = new GeneratorHalos(256, new float[][]{{0.15f, 0.5f}, {0.5f, 0f}}, new float[][]{{ring_mid - ring_thickness/2 - fadeout, 0f}, {ring_mid - ring_thickness/2, 1f}, {ring_mid + ring_thickness/2, 1f}, {ring_mid + ring_thickness/2 + fadeout, 0f}});
+		Supplier building_shadow_desc = new GeneratorHalos(256, new float[][]{{0.15f, 0.5f}, {0.5f, 0f}}, new float[][]{{ring_mid - ring_thickness/2 - fadeout, 0f}, {ring_mid - ring_thickness/2, 1f}, {ring_mid + ring_thickness/2, 1f}, {ring_mid + ring_thickness/2 + fadeout, 0f}});
 		ShadowListKey shadow_renderer = queues.registerSelectableShadowList(building_shadow_desc);
 		SpriteFile building = new SpriteFile(built_name,
 																 Globals.NO_MIPMAP_CUTOFF,

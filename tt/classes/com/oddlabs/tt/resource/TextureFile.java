@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import javax.imageio.ImageIO;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class TextureFile extends File<Texture> {
+public final class TextureFile extends File<Texture> {
 	private final int internal_format;
 	private final int min_filter;
 	private final int mag_filter;
@@ -165,7 +165,7 @@ public final strictfp class TextureFile extends File<Texture> {
 	}
 
         @Override
-	public Texture newInstance() {
+	public Texture get() {
 		return new Texture(this);
 	}
 

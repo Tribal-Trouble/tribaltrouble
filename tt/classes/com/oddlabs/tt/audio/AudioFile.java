@@ -3,13 +3,13 @@ package com.oddlabs.tt.audio;
 import com.oddlabs.tt.resource.File;
 import java.io.IOException;
 
-public final strictfp class AudioFile extends File<Audio> {
+public final class AudioFile extends File<Audio> {
 	public AudioFile(String location) {
 		super(location);
 	}
 
     @Override
-	public Audio newInstance() {
+	public Audio get() {
         try {
             return new Audio(this.getURL());
         } catch (IOException ex) {

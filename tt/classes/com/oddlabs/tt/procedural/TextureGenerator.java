@@ -1,13 +1,13 @@
 package com.oddlabs.tt.procedural;
 
 import com.oddlabs.tt.render.Texture;
-import com.oddlabs.tt.resource.ResourceDescriptor;
+import java.util.function.Supplier;
 
-public abstract strictfp class TextureGenerator implements ResourceDescriptor<Texture[]> {
+public abstract class TextureGenerator implements Supplier<Texture[]> {
 	protected abstract Texture[] generate();
 
     @Override
-	public final Texture[] newInstance() {
+	public final Texture[] get() {
 		return generate();
 	}
 

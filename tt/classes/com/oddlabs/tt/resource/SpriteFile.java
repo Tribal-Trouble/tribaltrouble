@@ -2,7 +2,7 @@ package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.render.SpriteList;
 
-public final strictfp class SpriteFile extends File<SpriteList> {
+public final class SpriteFile extends File<SpriteList> {
 	private final boolean lighting;
 	private final boolean cullface;
 	private final boolean alpha;
@@ -25,7 +25,7 @@ public final strictfp class SpriteFile extends File<SpriteList> {
 	}
 
     @Override
-	public SpriteList newInstance() {
+	public SpriteList get() {
 		return new SpriteList(this);
 	}
 

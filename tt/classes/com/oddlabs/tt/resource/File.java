@@ -3,8 +3,9 @@ package com.oddlabs.tt.resource;
 import com.oddlabs.util.Utils;
 import java.net.*;
 import java.util.Objects;
+import java.util.function.Supplier;
 
-public abstract strictfp class File<R> implements ResourceDescriptor<R> {
+public abstract class File<R> implements Supplier<R> {
 
     private final URL url;
 
@@ -19,6 +20,9 @@ public abstract strictfp class File<R> implements ResourceDescriptor<R> {
     public final URL getURL() {
         return url;
     }
+
+    @Override
+    public abstract R get();
 
     @Override
     public String toString() {

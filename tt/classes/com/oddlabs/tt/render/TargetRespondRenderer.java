@@ -2,19 +2,19 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.LandscapeTargetRespond;
-import com.oddlabs.tt.resource.ResourceDescriptor;
 import com.oddlabs.tt.resource.Resources;
+import java.util.function.Supplier;
 import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class TargetRespondRenderer extends ShadowListRenderer {
+public final class TargetRespondRenderer extends ShadowListRenderer {
 	private final static float SHADOW_SIZE = 1.6f;
 	private final Texture ring;
 
 	private final List<LandscapeTargetRespond> target_list = new ArrayList<>();
 
-	public TargetRespondRenderer(ResourceDescriptor<Texture[]> desc) {
+	public TargetRespondRenderer(Supplier<Texture[]> desc) {
 		ring = Resources.findResource(desc)[0];
 	}
 
