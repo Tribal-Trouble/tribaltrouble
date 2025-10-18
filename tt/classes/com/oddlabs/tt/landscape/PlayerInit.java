@@ -1,6 +1,6 @@
 package com.oddlabs.tt.landscape;
 
-public final strictfp class PlayerInit {
+public final class PlayerInit {
 	final int ai_difficulty;
 	final PlayerInitAction init_action;
 

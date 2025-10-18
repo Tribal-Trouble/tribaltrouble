@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public strictfp class ImageButton extends ButtonObject {
+public class ImageButton extends ButtonObject {
 	private final GUIObject normal;
 	private final GUIObject hovered;
 	private final GUIObject disabled;

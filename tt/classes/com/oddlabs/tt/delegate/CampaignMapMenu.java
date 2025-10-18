@@ -11,7 +11,7 @@ import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class CampaignMapMenu extends Menu {
+public final class CampaignMapMenu extends Menu {
 
 	public CampaignMapMenu(NetworkSelector network, GUIRoot gui_root, Camera camera) {
 		super(network, gui_root, camera);
@@ -54,21 +54,21 @@ public final strictfp class CampaignMapMenu extends Menu {
 		renderBackgroundAlpha();
 	}
 
-	private final strictfp class ResumeListener implements MouseClickListener {
+	private final class ResumeListener implements MouseClickListener {
         @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			pop();
 		}
 	}
 
-	private final strictfp class AbortListener implements MouseClickListener {
+	private final class AbortListener implements MouseClickListener {
         @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			setMenuCentered(new QuestionForm(Utils.getBundleString(bundle, "end_game_confirm"), new ActionAbortListener()));
 		}
 	}
 
-	private final strictfp class ActionAbortListener implements MouseClickListener {
+	private final class ActionAbortListener implements MouseClickListener {
         @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			CampaignMapForm.closeCampaign(getNetwork(), getGUIRoot().getGUI());

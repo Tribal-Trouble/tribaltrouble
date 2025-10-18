@@ -10,7 +10,7 @@ import com.oddlabs.procedural.*;
 import com.oddlabs.util.*;
 import java.util.Arrays;
 
-public final strictfp class FontRenderer {
+public final class FontRenderer {
 	private final static int GLYPH_X_BORDER = 4;
 	private final static int GLYPH_Y_BORDER = 3;
 	private final static int GLYPH_X_OVERLAP = 7;

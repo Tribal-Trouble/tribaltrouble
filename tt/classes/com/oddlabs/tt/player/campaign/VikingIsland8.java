@@ -25,7 +25,7 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class VikingIsland8 extends Island {
+public final class VikingIsland8 extends Island {
 	private final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland8.class.getName());
 
 	private int objective = 0;

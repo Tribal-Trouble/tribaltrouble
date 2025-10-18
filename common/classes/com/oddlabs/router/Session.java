@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final strictfp class Session {
+final class Session {
 	public final SessionInfo info;
 	public final SessionID session_id;
 	private final Logger logger;

@@ -24,7 +24,7 @@ import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
-public final strictfp class GUIRoot extends GUIObject implements Updatable {
+public final class GUIRoot extends GUIObject implements Updatable {
 	public final static int CURSOR_NORMAL = 0;
 	public final static int CURSOR_TARGET = 1;
 	public final static int CURSOR_TEXT = 2;

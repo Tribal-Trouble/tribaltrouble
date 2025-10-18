@@ -6,7 +6,7 @@ import com.oddlabs.tt.util.GLState;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
-public final strictfp class StructureBlend extends BlendInfo {
+public final class StructureBlend extends BlendInfo {
 	private final Texture structure_map;
 
 	private Texture createStructureMap(GLIntImage structure_image) {

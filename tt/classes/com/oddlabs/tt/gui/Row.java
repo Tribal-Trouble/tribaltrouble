@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import org.lwjgl.opengl.*;
 
-public final strictfp class Row extends GUIObject implements Comparable {
+public final class Row extends GUIObject implements Comparable {
 	private final Object[] columns;
 	private final Object content_object;
 	private int sort_index;

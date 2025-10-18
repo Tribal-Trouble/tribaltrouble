@@ -12,7 +12,7 @@ import java.nio.channels.ClosedChannelException;
 import java.util.LinkedList;
 import java.util.List;
 
-public final strictfp class TunnelledConnectionListener extends AbstractConnectionListener {
+public final class TunnelledConnectionListener extends AbstractConnectionListener {
 	private final List incoming_connections = new LinkedList();
 	private boolean open = true;
 

@@ -8,7 +8,7 @@ import com.oddlabs.tt.resource.GLIntImage;
 import java.util.Arrays;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class GeneratorRing extends TextureGenerator {
+public final class GeneratorRing extends TextureGenerator {
 	private final int size;
 	private final float[][] ring_parms;
 

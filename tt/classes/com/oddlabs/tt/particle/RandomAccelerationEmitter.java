@@ -8,7 +8,7 @@ import java.util.*;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public final strictfp class RandomAccelerationEmitter extends LinearEmitter {
+public final class RandomAccelerationEmitter extends LinearEmitter {
 	private final Random random;
 
 	private final float angle_bound;

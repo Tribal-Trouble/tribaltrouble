@@ -21,7 +21,7 @@ import java.net.InetAddress;
 import java.security.SignedObject;
 import java.security.GeneralSecurityException;
 
-public final strictfp class Authenticator implements MatchmakingServerLoginInterface, ConnectionInterface {
+public final class Authenticator implements MatchmakingServerLoginInterface, ConnectionInterface {
 	private static int guest_postfix = 1;
 	
 	private final SecureConnection conn;

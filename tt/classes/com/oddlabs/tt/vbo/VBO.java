@@ -8,7 +8,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 
-public abstract strictfp class VBO extends NativeResource {
+public abstract class VBO extends NativeResource {
 	private final int handle;
 	private final int target;
 	private final int size;

@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.weapon.MagicFactory;
 import com.oddlabs.tt.player.ChieftainAI;
 import com.oddlabs.tt.render.SpriteKey;
 
-public final strictfp class Race {
+public final class Race {
 	public final static int BUILDING_QUARTERS = 0;
 	public final static int BUILDING_ARMORY = 1;
 	public final static int BUILDING_TOWER = 2;

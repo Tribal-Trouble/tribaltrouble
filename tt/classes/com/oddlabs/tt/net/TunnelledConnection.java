@@ -6,7 +6,7 @@ import com.oddlabs.net.ConnectionInterface;
 import com.oddlabs.net.HostSequenceID;
 import java.io.IOException;
 
-public final strictfp class TunnelledConnection extends AbstractConnection {
+public final class TunnelledConnection extends AbstractConnection {
 	private final HostSequenceID address;
 	private boolean open = true;
 	

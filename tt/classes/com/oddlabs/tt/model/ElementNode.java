@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public final strictfp class ElementNode extends AbstractElementNode {
+public final class ElementNode extends AbstractElementNode {
 	private final int MIN_NODE_SIZE = 4;
 	/*
 	 * child2 | child3

@@ -9,7 +9,7 @@ import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL10;
 
-final strictfp class QueuedAudioPlayer extends AbstractAudioPlayer {
+final class QueuedAudioPlayer extends AbstractAudioPlayer {
 	private final static int NUM_BUFFERS = 12;
 	private final ByteBufferOutputStream buffer_stream;
 	private final Audio audio;

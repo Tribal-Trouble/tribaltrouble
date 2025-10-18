@@ -2,7 +2,7 @@ package com.oddlabs.tt.net;
 
 import java.io.Serializable;
 
-public final strictfp class PeerReport implements Serializable {
+public final class PeerReport implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final int turn;

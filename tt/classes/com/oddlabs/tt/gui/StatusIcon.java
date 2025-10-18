@@ -6,7 +6,7 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Quad;
 import java.util.ResourceBundle;
 
-public strictfp class StatusIcon extends GUIObject implements ToolTip {
+public class StatusIcon extends GUIObject implements ToolTip {
 	private final Quad icon_quad;
 	private final TextField label;
 	private final String tooltip;

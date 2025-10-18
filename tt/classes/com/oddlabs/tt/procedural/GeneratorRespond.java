@@ -6,7 +6,7 @@ import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class GeneratorRespond extends TextureGenerator {
+public final class GeneratorRespond extends TextureGenerator {
 	private final static int COLOR = 0x80808080;
 
     @Override

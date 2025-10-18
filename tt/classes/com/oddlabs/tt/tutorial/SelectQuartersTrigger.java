@@ -3,7 +3,7 @@ package com.oddlabs.tt.tutorial;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 
-public final strictfp class SelectQuartersTrigger extends TutorialTrigger {
+public final class SelectQuartersTrigger extends TutorialTrigger {
 	public SelectQuartersTrigger() {
 		super(.1f, 0f, "select_quarters");
 	}

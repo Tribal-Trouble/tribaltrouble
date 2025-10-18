@@ -1,5 +1,5 @@
 package com.oddlabs.net;
 
-public strictfp interface ARMIEventWriter {
+public interface ARMIEventWriter {
 	public void handle(ARMIEvent event);
 }

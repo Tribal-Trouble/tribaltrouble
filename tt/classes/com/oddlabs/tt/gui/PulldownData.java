@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.util.Quad;
 
-public final strictfp class PulldownData {
+public final class PulldownData {
 	private final Horizontal pulldown_top;
 	private final Horizontal pulldown_bottom;
 	private final Box pulldown_item;

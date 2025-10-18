@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public abstract strictfp class SupplyContainerFactory {
+public abstract class SupplyContainerFactory {
 	private final int max_resource_count;
 
 	public SupplyContainerFactory(int max_resource_count) {

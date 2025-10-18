@@ -12,7 +12,7 @@ import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.util.Utils;
 import java.util.Random;
 
-public final strictfp class LandscapeResources {
+public final class LandscapeResources {
 	private final SpriteKey[] rock_fragment_sprites = new SpriteKey[5];
 	private final SpriteKey[] iron_fragment_sprites = new SpriteKey[5];
 	private final SpriteKey[][] plant_sprites;

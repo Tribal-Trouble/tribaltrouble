@@ -5,7 +5,7 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.util.Utils;
 import java.util.Random;
 
-public final strictfp class MidpointFractalizer {
+public final class MidpointFractalizer {
 
 	private final Random random;
 	public Channel channel;

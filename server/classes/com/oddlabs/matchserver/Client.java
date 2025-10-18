@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.net.InetAddress;
 
-public final strictfp class Client implements MatchmakingServerInterface, ConnectionInterface {
+public final class Client implements MatchmakingServerInterface, ConnectionInterface {
 	private final static int CHUNK_SIZE = 10;
 	private final static Set game_hosts = new HashSet();
 	private final static Map active_clients = new HashMap();

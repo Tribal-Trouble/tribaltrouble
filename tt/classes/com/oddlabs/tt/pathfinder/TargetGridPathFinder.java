@@ -2,7 +2,7 @@ package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.util.Target;
 
-final strictfp class TargetGridPathFinder extends GridPathFinder {
+final class TargetGridPathFinder extends GridPathFinder {
 	private final float max_dist_squared;
 	private final Target target;
 

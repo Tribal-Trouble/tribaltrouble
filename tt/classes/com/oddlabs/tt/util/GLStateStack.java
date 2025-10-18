@@ -3,7 +3,7 @@ package com.oddlabs.tt.util;
 import java.util.ArrayDeque;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class GLStateStack {
+public final class GLStateStack {
 	private static GLStateStack current;
 
 	private final ArrayDeque<GLState> state_stack = new ArrayDeque<>();

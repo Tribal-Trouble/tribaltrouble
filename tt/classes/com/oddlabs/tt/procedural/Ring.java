@@ -4,7 +4,7 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
 
-public final strictfp class Ring {
+public final class Ring {
 	public Channel channel;
 	public Channel channelfinal;
 

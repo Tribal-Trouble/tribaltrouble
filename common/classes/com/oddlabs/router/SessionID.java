@@ -2,7 +2,7 @@ package com.oddlabs.router;
 
 import java.io.Serializable;
 
-public final strictfp class SessionID implements Serializable {
+public final class SessionID implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final long session_id;

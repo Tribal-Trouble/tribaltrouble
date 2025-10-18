@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.opengl.Display;
 
-public final strictfp class AnimationManager {
+public final class AnimationManager {
 	public final static int ANIMATION_MILLISECONDS_PER_TICK = 20;
 	public final static int ANIMATION_MILLISECONDS_PER_PRECISION_TICK = ANIMATION_MILLISECONDS_PER_TICK/5;
 	public final static float ANIMATION_SECONDS_PER_TICK = ANIMATION_MILLISECONDS_PER_TICK/1000f;

@@ -5,7 +5,7 @@ import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.global.Globals;
 
-public final strictfp class InputState {
+public final class InputState {
 	private final static float MOUSE_REPEAT_DELAY = .5f;
 	private final static float MOUSE_REPEAT_RATE = .05f;
 
@@ -186,14 +186,14 @@ public final strictfp class InputState {
 		focused.keyReleasedAll(event);
 	}
 
-	private final strictfp class DoubleClickTimer implements Updatable {
+	private final class DoubleClickTimer implements Updatable {
                 @Override
 		public void update(Object anim) {
 			stopDoubleClickTimer();
 		}
 	}
 
-	private final strictfp class DoubleKeyTimer implements Updatable {
+	private final class DoubleKeyTimer implements Updatable {
                 @Override
 		public void update(Object anim) {
 			stopDoubleKeyTimer();

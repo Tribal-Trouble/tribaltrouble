@@ -1,6 +1,6 @@
 package com.oddlabs.tt.particle;
 
-public final strictfp class CloudFunction implements ParametricFunction {
+public final class CloudFunction implements ParametricFunction {
 	private final float radius_xy;
 	private final float radius_z;
 

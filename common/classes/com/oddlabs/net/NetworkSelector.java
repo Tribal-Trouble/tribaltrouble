@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public final strictfp class NetworkSelector {
+public final class NetworkSelector {
 	private final static long PING_TIMEOUT = 4*60*1000;
 	private final static long PING_DELAY = PING_TIMEOUT/2;
 

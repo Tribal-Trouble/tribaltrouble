@@ -7,7 +7,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 
-public final strictfp class SelectionArmy extends Army {
+public final class SelectionArmy extends Army {
 
     private final Player local_player;
     private int num_units;

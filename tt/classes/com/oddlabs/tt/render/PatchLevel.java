@@ -2,7 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.landscape.LandscapeTileTriangle;
 
-final strictfp class PatchLevel {
+final class PatchLevel {
 	private PatchLevel right_neighbour;
 	private PatchLevel left_neighbour;
 	private PatchLevel top_neighbour;

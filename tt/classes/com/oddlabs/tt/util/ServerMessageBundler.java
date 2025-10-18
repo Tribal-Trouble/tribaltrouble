@@ -4,7 +4,7 @@ import com.oddlabs.matchmaking.Game;
 import com.oddlabs.registration.RegistrationKeyFormatException;
 import java.util.ResourceBundle;
 
-public final strictfp class ServerMessageBundler {
+public final class ServerMessageBundler {
 	private final static ResourceBundle bundle = ResourceBundle.getBundle(ServerMessageBundler.class.getName());
 	
 	public static String getSizeString(int index) {

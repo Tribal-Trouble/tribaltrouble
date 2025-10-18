@@ -19,7 +19,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public final strictfp class LightningCloud implements Magic {
+public final class LightningCloud implements Magic {
 	private final static int NUM_STRIKES = 6;
 	private final static float SECONDS_BETWEEN_STRIKES = .125f;
 	private final static float BRIGHTNESS = .2f;

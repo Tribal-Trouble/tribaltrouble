@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public strictfp class NonFocusGroup extends Group {
+public class NonFocusGroup extends Group {
         @Override
 	public final void setFocus() {
 	}

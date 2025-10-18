@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-public final strictfp class Layer {
+public final class Layer {
 	public final static float GAMMA_EXPONENT = 2.2f;
 	public final static float INV_GAMMA_EXPONENT = 1f/GAMMA_EXPONENT;
 

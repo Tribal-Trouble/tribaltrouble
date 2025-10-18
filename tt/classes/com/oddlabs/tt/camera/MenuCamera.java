@@ -3,7 +3,7 @@ package com.oddlabs.tt.camera;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 
-public final strictfp class MenuCamera extends Camera {
+public final class MenuCamera extends Camera {
     private final static float ANGLE_DELTA = 0.020f;
     private final static float RADIUS = 176f;
     private final static float HEIGHT = 0f;

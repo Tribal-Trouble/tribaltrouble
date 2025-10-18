@@ -15,7 +15,7 @@ import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class NewProfileForm extends Form {
+public final class NewProfileForm extends Form {
 	private final static int BUTTON_WIDTH = 100;
 	private final static int BUTTON_WIDTH_LONG = 150;
 	private final static int EDITLINE_WIDTH = 240;
@@ -91,7 +91,7 @@ public final strictfp class NewProfileForm extends Form {
 		remove();
 	}
 
-	private final strictfp class CreateProfileListener implements MouseClickListener, EnterListener {
+	private final class CreateProfileListener implements MouseClickListener, EnterListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			createProfile();

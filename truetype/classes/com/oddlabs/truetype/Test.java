@@ -28,7 +28,7 @@ import org.lwjgl.BufferUtils;
 
 import com.oddlabs.util.Utils;
 
-public final strictfp class Test {
+public final class Test {
 	private final static int WIDTH = 1024;
 	private final static int HEIGHT = 1024;
 	private final static int DISPLAY_WIDTH = 1280;

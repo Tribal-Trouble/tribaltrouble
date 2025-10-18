@@ -9,7 +9,7 @@ import java.nio.ShortBuffer;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 
-public final strictfp class Optimizer {
+public final class Optimizer {
 	private final static float VERTEX_TRESHOLD = 0.000001f;
 
 	private static boolean shortsEquals(int index1, int index2, int size, short[] array1, short[] array2) {

@@ -1,6 +1,6 @@
 package com.oddlabs.tt.landscape;
 
-public final strictfp class TreeGroup extends AbstractTreeGroup {
+public final class TreeGroup extends AbstractTreeGroup {
 	private final static int LANDSCAPE_TREES_MAX_LEVEL = 5;
 
 	/*

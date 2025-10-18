@@ -6,7 +6,7 @@ import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
 import org.lwjgl.opengl.GL11;
 
-public abstract strictfp class OffscreenRenderer {
+public abstract class OffscreenRenderer {
 	private final int width;
 	private final int height;
 	private final GLImage image;

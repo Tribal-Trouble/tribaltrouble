@@ -3,7 +3,7 @@ package com.oddlabs.tt.net;
 import com.oddlabs.net.ARMIEvent;
 import com.oddlabs.net.AbstractConnection;
 
-final strictfp class ClientConnection {
+final class ClientConnection {
 	private final AbstractConnection connection;
 	private final GameClientInterface gameclient_interface;
 	private final ClientInfo client;

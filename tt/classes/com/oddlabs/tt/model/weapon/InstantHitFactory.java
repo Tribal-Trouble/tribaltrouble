@@ -10,7 +10,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.UnitTemplate;
 
-public final strictfp class InstantHitFactory extends WeaponFactory {
+public final class InstantHitFactory extends WeaponFactory {
 	private final Audio[] sounds;
 
 	public InstantHitFactory(float hit_chance, float range, float release_ratio, Audio[] sounds) {

@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public strictfp class SupplyContainer {
+public class SupplyContainer {
 	private final int max_supply_count;
 
 	private int supply_count = 0;

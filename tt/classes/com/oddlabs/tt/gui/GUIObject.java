@@ -10,7 +10,7 @@ import com.oddlabs.tt.guievent.MouseWheelListener;
 import java.util.Objects;
 import org.lwjgl.input.Keyboard;
 
-public abstract strictfp class GUIObject extends Renderable {
+public abstract class GUIObject extends Renderable {
 	public final static int TOP_LEFT	 =  1;
 	public final static int TOP_MID	  =  2;
 	public final static int TOP_RIGHT	=  3;

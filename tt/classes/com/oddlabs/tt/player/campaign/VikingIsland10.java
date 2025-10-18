@@ -21,7 +21,7 @@ import com.oddlabs.tt.trigger.campaign.NearPointTrigger;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class VikingIsland10 extends Island {
+public final class VikingIsland10 extends Island {
 	private final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland10.class.getName());
 
 	private int objective = 0;

@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
 
-public final strictfp class Server implements ConnectionListenerInterface {
+public final class Server implements ConnectionListenerInterface {
 	private final static int NEGOTIATING = 1;
 	private final static int SYNCHRONIZING = 2;
 	private final static int CLOSED = 3;

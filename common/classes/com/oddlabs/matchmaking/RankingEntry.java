@@ -2,7 +2,7 @@ package com.oddlabs.matchmaking;
 
 import java.io.Serializable;
 
-public final strictfp class RankingEntry implements Serializable {
+public final class RankingEntry implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final int ranking;

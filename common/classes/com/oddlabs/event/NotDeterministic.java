@@ -3,7 +3,7 @@ package com.oddlabs.event;
 import java.nio.*;
 import java.nio.file.Path;
 
-public final strictfp class NotDeterministic extends Deterministic {
+public final class NotDeterministic extends Deterministic {
         @Override
 	public boolean isPlayback() {
 		return false;

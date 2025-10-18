@@ -15,7 +15,7 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import java.util.Set;
 import org.lwjgl.input.Keyboard;
 
-public abstract strictfp class InGameDelegate extends CameraDelegate {
+public abstract class InGameDelegate extends CameraDelegate {
 	private final WorldViewer viewer;
 
 	protected InGameDelegate(WorldViewer viewer, Camera camera) {

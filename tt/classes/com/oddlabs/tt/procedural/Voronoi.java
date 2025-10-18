@@ -9,7 +9,7 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import java.util.Random;
 
-public final strictfp class Voronoi {
+public final class Voronoi {
 	// coordinate indexing
 	public static final int X = 0;
 	public static final int Y = 1;

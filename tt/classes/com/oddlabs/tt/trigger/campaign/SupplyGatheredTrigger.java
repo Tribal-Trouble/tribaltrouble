@@ -8,7 +8,7 @@ import com.oddlabs.tt.model.behaviour.NullController;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.trigger.IntervalTrigger;
 
-public final strictfp class SupplyGatheredTrigger extends IntervalTrigger {
+public final class SupplyGatheredTrigger extends IntervalTrigger {
 	private final Runnable runnable;
 	private final Class<? extends Supply> type;
 	private final int goal;

@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-public final strictfp class ARMIInterfaceMethods {
+public final class ARMIInterfaceMethods {
 	private final Class armi_interface;
 	private final Method[] methods;
 

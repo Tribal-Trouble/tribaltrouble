@@ -6,7 +6,7 @@ import com.oddlabs.procedural.Tools;
 import com.oddlabs.util.Utils;
 import java.util.Random;
 
-public final strictfp class Spectral {
+public final class Spectral {
 
 	// interpolation methods
 	public static final int LINEAR = 1;

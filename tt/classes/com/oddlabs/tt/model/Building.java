@@ -31,7 +31,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public final strictfp class Building extends Selectable implements Occupant {
+public final class Building extends Selectable implements Occupant {
 	private final static float REMOVE_DELAY = 1f/10f;
 
     public enum BuildState {

@@ -5,7 +5,7 @@ import com.oddlabs.tt.audio.*;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.landscape.World;
 
-public strictfp class Notification implements Updatable {
+public class Notification implements Updatable {
 
     private final static float ACTIVE_SECONDS = 5f;
 

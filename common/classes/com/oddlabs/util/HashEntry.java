@@ -1,6 +1,6 @@
 package com.oddlabs.util;
 
-public final strictfp class HashEntry<T> extends ListElementImpl<T> {
+public final class HashEntry<T> extends ListElementImpl<T> {
 	private T hash_entry;
 	private final int key;
 

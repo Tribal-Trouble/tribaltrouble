@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public strictfp interface Scrollable {
+public interface Scrollable {
 	public void setOffsetY(int new_offset);
 	public int getOffsetY();
 	public int getStepHeight();

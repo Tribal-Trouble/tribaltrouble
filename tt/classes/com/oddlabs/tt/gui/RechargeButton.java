@@ -4,7 +4,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.ToolTip;
 
-public strictfp class RechargeButton extends NonFocusIconButton implements ToolTip {
+public class RechargeButton extends NonFocusIconButton implements ToolTip {
 	private final PlayerInterface player_interface;
 	private final int magic_index;
 	private Unit unit;

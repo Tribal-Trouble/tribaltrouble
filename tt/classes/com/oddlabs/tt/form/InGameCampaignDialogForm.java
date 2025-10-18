@@ -3,7 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
 
-public final strictfp class InGameCampaignDialogForm extends CampaignDialogForm {
+public final class InGameCampaignDialogForm extends CampaignDialogForm {
 	private final WorldViewer viewer;
 
 	public InGameCampaignDialogForm(WorldViewer viewer, CharSequence header, CharSequence text, Quad image, int align) {

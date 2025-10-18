@@ -1,6 +1,6 @@
 package com.oddlabs.osutil;
 
-public final strictfp class Association {
+public final class Association {
 	final String extension;
 	final String mime_type;
 	final String icon_name;

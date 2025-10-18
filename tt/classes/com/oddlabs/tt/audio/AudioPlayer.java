@@ -3,7 +3,7 @@ package com.oddlabs.tt.audio;
 import org.lwjgl.openal.AL10;
 
 
-public final strictfp class AudioPlayer extends AbstractAudioPlayer {
+public final class AudioPlayer extends AbstractAudioPlayer {
 	public final static int AUDIO_RANK_AMBIENT = 75;
 	public final static int AUDIO_RANK_MUSIC = 50;
 	public final static int AUDIO_RANK_NOTIFICATION = 40;

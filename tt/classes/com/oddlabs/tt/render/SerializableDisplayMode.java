@@ -12,7 +12,7 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 
-public final strictfp class SerializableDisplayMode implements Serializable {
+public final class SerializableDisplayMode implements Serializable {
 
     private final static long serialVersionUID = 1;
 

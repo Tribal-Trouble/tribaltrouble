@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
 
-public final strictfp class Vertical {
+public final class Vertical {
 	private final Quad[] bottom;
 	private final Quad[] center;
 	private final Quad[] top;

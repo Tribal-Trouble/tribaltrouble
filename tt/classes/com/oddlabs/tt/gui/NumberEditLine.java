@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.ValueListener;
 
-public strictfp class NumberEditLine extends EditLine {
+public class NumberEditLine extends EditLine {
 	private final java.util.List value_listeners = new java.util.ArrayList();
 		
 	private final int min_value;

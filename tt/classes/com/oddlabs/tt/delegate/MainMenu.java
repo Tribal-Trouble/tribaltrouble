@@ -9,7 +9,7 @@ import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
 
-public final strictfp class MainMenu extends Menu {
+public final class MainMenu extends Menu {
 	public MainMenu(NetworkSelector network, GUIRoot gui_root, Camera camera) {
 		super(network, gui_root, camera);
 		reload();

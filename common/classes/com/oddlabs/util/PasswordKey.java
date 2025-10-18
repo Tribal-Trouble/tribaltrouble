@@ -8,7 +8,7 @@ import java.security.PrivateKey;
 import javax.crypto.Cipher;
 import javax.crypto.SealedObject;
 
-public final strictfp class PasswordKey {
+public final class PasswordKey {
 	public static PrivateKey readPrivateKey(Cipher decrypt_cipher, String key_file, String algorithm) throws IOException, ClassNotFoundException, GeneralSecurityException {
 		URL key_url = PasswordKey.class.getResource("/" + key_file);
 		ObjectInputStream is = new ObjectInputStream(key_url.openStream());

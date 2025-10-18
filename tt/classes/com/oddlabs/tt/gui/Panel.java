@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public strictfp class Panel extends Group {
+public class Panel extends Group {
 	private final PanelTab tab;
 
 	public Panel(String caption) {

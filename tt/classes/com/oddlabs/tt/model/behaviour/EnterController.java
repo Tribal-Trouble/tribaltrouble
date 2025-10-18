@@ -7,7 +7,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.weapon.ThrowingFactory;
 import com.oddlabs.tt.model.weapon.ThrowingWeapon;
 
-public final strictfp class EnterController extends Controller {
+public final class EnterController extends Controller {
 	private final Building building;
 	private final Unit unit;
 

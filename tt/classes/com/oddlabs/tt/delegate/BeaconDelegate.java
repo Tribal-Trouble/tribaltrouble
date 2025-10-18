@@ -4,7 +4,7 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.render.LandscapeLocation;
 import com.oddlabs.tt.viewer.WorldViewer;
 
-public final strictfp class BeaconDelegate extends TargetDelegate {
+public final class BeaconDelegate extends TargetDelegate {
 	public BeaconDelegate(WorldViewer viewer, GameCamera camera) {
 		super(viewer, camera, 0);
 	}

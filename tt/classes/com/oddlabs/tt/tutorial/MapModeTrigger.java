@@ -2,7 +2,7 @@ package com.oddlabs.tt.tutorial;
 
 import com.oddlabs.tt.camera.MapCamera;
 
-public final strictfp class MapModeTrigger extends TutorialTrigger {
+public final class MapModeTrigger extends TutorialTrigger {
 	public MapModeTrigger() {
 		super(.1f, 1f, "map_mode");
 	}

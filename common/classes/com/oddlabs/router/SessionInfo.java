@@ -2,7 +2,7 @@ package com.oddlabs.router;
 
 import java.io.Serializable;
 
-public strictfp class SessionInfo implements Serializable {
+public class SessionInfo implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	public final int milliseconds_per_heartbeat;

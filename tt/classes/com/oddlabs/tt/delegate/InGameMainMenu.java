@@ -12,7 +12,7 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class InGameMainMenu extends Menu {
+public final class InGameMainMenu extends Menu {
 	private final WorldViewer viewer;
 
 	private Group game_infos;
@@ -79,14 +79,14 @@ public final strictfp class InGameMainMenu extends Menu {
 		renderBackgroundAlpha();
 	}
 
-	private final strictfp class AbortListener implements MouseClickListener {
+	private final class AbortListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			setMenuCentered(new QuestionForm(Utils.getBundleString(bundle, "end_game_confirm"), new ActionAbortListener()));
 		}
 	}
 
-	private final strictfp class ActionAbortListener implements MouseClickListener {
+	private final class ActionAbortListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			viewer.abort();

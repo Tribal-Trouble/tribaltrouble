@@ -6,7 +6,7 @@ import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
 
-public final strictfp class DeploySpinner extends IconSpinner {
+public final class DeploySpinner extends IconSpinner {
 	private final PlayerInterface player_interface;
 	private Class supply_type;
 	private int deploy_type;

@@ -24,7 +24,7 @@ import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
-public final strictfp class Sky {
+public final class Sky {
 
     private final static float[] SKYDOME_SPEED_OUTER = {0.2f, 0f};
     private final static float[] SKYDOME_SPEED_INNER = {0.4f, 0f};
@@ -369,7 +369,7 @@ public final strictfp class Sky {
         return result;
     }
 
-    private static strictfp class SkyStitchVertex extends Stitcher.Vertex {
+    private static class SkyStitchVertex extends Stitcher.Vertex {
 
         private final float x;
         private final float y;

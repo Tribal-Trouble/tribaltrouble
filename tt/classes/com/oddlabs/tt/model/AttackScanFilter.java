@@ -4,7 +4,7 @@ import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.ScanFilter;
 import com.oddlabs.tt.player.Player;
 
-public final strictfp class AttackScanFilter implements ScanFilter {
+public final class AttackScanFilter implements ScanFilter {
 	public final static int PRIORITY_QUARTERS = 1;
 	public final static int PRIORITY_ARMORY = 1;
 	public final static int PRIORITY_TOWER = 2;

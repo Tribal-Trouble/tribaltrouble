@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public final strictfp class Abilities {
+public final class Abilities {
     // No abilities
     public final static int NONE = 0;
     // Can build/repair buildings

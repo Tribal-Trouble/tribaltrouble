@@ -14,7 +14,7 @@ import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class PrivateMessageForm extends Form {
+public final class PrivateMessageForm extends Form {
 	private final static int BUTTON_WIDTH = 100;
 	private final static int EDITLINE_WIDTH = 240;
 
@@ -69,7 +69,7 @@ public final strictfp class PrivateMessageForm extends Form {
 		remove();
 	}
 
-	private final strictfp class OKListener implements MouseClickListener, EnterListener {
+	private final class OKListener implements MouseClickListener, EnterListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			send();

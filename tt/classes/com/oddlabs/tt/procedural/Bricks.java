@@ -5,7 +5,7 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
 import java.util.Random;
 
-public final strictfp class Bricks {
+public final class Bricks {
 	private final Random random;
 	public Channel channel;
 

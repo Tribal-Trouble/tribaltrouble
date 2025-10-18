@@ -3,7 +3,7 @@ package com.oddlabs.matchmaking;
 import java.io.Serializable;
 
 
-public final strictfp class Login implements Serializable {
+public final class Login implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final String username;

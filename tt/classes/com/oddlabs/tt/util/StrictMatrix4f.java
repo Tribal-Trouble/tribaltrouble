@@ -38,7 +38,7 @@ import java.nio.FloatBuffer;
  *
  * @author
  */
-public strictfp class StrictMatrix4f {
+public class StrictMatrix4f {
 
 	public float m00 = 1.0f, m01, m02, m03, m10, m11 = 1.0f, m12, m13, m20, m21, m22 = 1.0f, m23, m30, m31, m32, m33 = 1.0f;
 

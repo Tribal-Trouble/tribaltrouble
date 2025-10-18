@@ -8,7 +8,7 @@ import com.oddlabs.tt.util.Target;
 import java.util.ArrayList;
 import java.util.List;
 
-public final strictfp class RubberGroup {
+public final class RubberGroup {
 	private final int MIN_CHICKENS_PER_GROUP = 3;
 	private final int MAX_CHICKENS_PER_GROUP = 7;
 

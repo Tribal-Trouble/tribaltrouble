@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.guievent.CheckBoxListener;
 import com.oddlabs.tt.util.ToolTip;
 
-public final strictfp class CheckBox extends GUIObject implements ToolTip {
+public final class CheckBox extends GUIObject implements ToolTip {
 	private final static int CHECK_BOX_LISTENER = 0;
 	private final java.util.List[] event_listeners = new java.util.ArrayList[1];
 

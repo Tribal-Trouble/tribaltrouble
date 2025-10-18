@@ -1,6 +1,6 @@
 package com.oddlabs.tt.player;
 
-public final strictfp class UnitInfo {
+public final class UnitInfo {
 	private final boolean has_quarters;
 	private final boolean has_armory;
 	private final int num_towers;

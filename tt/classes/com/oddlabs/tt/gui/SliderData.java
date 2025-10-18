@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
 
-public final strictfp class SliderData {
+public final class SliderData {
 	private final Horizontal slider;
 	private final Quad[] button;
 	private final int left_offset;

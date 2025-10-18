@@ -1,6 +1,6 @@
 package com.oddlabs.tt.animation;
 
-public final strictfp class AnimatedFloat {
+public final class AnimatedFloat {
 	public float val;
 	public float cval;
 	public float dval;

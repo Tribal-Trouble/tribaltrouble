@@ -11,7 +11,7 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import java.util.ResourceBundle;
 
-public final strictfp class Tutorial {
+public final class Tutorial {
 	private final static int BORDER_OFFSET = 90;
 
 	private final WorldViewer viewer;

@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-public final strictfp class TargetRegionFinder implements PathFinderAlgorithm {
+public final class TargetRegionFinder implements PathFinderAlgorithm {
 	private final FinderFilter filter;
 	private final UnitGrid unit_grid;
 

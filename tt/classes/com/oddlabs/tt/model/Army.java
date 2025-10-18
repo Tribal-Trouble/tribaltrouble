@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public strictfp class Army {
+public class Army {
 	private final Set<Selectable> selection = new LinkedHashSet<>();
 
 	public final Selectable[] filter(int ability_filter) {

@@ -10,7 +10,7 @@ import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.registration.RegistrationInfo;
 import com.oddlabs.registration.RegistrationRequest;
 
-public final strictfp class DBInterface {
+public final class DBInterface {
 	private final static RegistrationInfo getRegistrationInfo(Connection conn, long key) throws SQLException {
 		PreparedStatement stmt = conn.prepareStatement("SELECT reg_key, reg_email, reg_time, name, address1, address2, zip, city, state, country FROM registrations R WHERE R.reg_key = ? AND NOT R.disabled");
 		try {

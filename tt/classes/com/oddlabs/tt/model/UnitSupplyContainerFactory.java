@@ -3,7 +3,7 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.render.SpriteKey;
 import java.util.Map;
 
-public final strictfp class UnitSupplyContainerFactory extends SupplyContainerFactory {
+public final class UnitSupplyContainerFactory extends SupplyContainerFactory {
 	private final Map<Class<? extends Supply>,SpriteKey> supply_sprite_lists;
 
 	public UnitSupplyContainerFactory(int max_resource_count, Map<Class<? extends Supply>,SpriteKey> supply_sprite_lists) {

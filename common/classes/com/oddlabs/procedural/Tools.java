@@ -1,6 +1,6 @@
 package com.oddlabs.procedural;
 
-public final strictfp class Tools {
+public final class Tools {
 	private Tools() {
 	}
 

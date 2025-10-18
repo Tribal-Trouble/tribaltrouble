@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.SupplyFinder;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
 
-public final strictfp class HarvestController<S extends Supply> extends Controller {
+public final class HarvestController<S extends Supply> extends Controller {
 	private final Unit unit;
 	private final Class<S> supply_class;
 	private FinderTrackerAlgorithm<S> tracker;

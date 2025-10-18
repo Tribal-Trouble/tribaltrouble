@@ -4,7 +4,7 @@ import com.oddlabs.tt.event.*;
 import com.oddlabs.tt.font.*;
 import org.lwjgl.opengl.*;
 
-public final strictfp class MenuButton extends ButtonObject {
+public final class MenuButton extends ButtonObject {
 	private final static float SECONDS_PER_HOVER_CYCLE = 1.5f;
 	private final static float HOVER_SCALE_FACTOR = 0.06f;
 

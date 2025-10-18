@@ -16,7 +16,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import org.lwjgl.BufferUtils;
 
-public final strictfp class Utils {
+public final class Utils {
 	private static final ByteBuffer sqrtByteBuf = BufferUtils.createByteBuffer(4);
 	private static final IntBuffer sqrtIntBuf = sqrtByteBuf.asIntBuffer();
 	private static final FloatBuffer sqrtFloatBuf = sqrtByteBuf.asFloatBuffer();

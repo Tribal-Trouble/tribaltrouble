@@ -2,7 +2,7 @@ package com.oddlabs.converter2;
 
 import java.io.*;
 
-public final strictfp class AnimObjectInfo extends ObjectInfo {
+public final class AnimObjectInfo extends ObjectInfo {
 	private final float wpc;
 	private final int type;
 

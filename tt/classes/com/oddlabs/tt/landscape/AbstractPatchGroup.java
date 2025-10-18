@@ -4,7 +4,7 @@ package com.oddlabs.tt.landscape;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.util.BoundingBox;
 
-public abstract strictfp class AbstractPatchGroup extends BoundingBox {
+public abstract class AbstractPatchGroup extends BoundingBox {
 	private final AbstractPatchGroup parent;
 	private final float patch_radius;
 	private final int colormap_x;

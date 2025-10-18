@@ -2,7 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.model.Model;
 
-final strictfp class ElementRenderState implements ModelState {
+final class ElementRenderState implements ModelState {
 
     final RenderState render_state;
     ModelVisitor visitor;

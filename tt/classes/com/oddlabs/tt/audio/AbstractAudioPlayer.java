@@ -6,7 +6,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.util.StateChecksum;
 import org.lwjgl.openal.AL10;
 
-public strictfp class AbstractAudioPlayer implements Animated {
+public class AbstractAudioPlayer implements Animated {
 	protected final static float ROLLOFF_FACTOR = .03f; // was 0.05
 
 	protected final AudioSource source;

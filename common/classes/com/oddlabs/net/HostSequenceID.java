@@ -2,7 +2,7 @@ package com.oddlabs.net;
 
 import java.io.Serializable;
 
-public final strictfp class HostSequenceID implements Serializable {
+public final class HostSequenceID implements Serializable {
 	private static final long serialVersionUID = -8670168662221748395L;
 
 	private final int host_id;

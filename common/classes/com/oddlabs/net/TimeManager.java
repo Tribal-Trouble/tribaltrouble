@@ -1,6 +1,6 @@
 package com.oddlabs.net;
 
 @FunctionalInterface
-public strictfp interface TimeManager {
+public interface TimeManager {
 	long getMillis();
 }

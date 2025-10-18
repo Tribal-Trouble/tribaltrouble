@@ -8,7 +8,7 @@ import java.util.Random;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public strictfp class ParametricEmitter extends Emitter {
+public class ParametricEmitter extends Emitter {
 	private final static float SQRT_2 = (float)StrictMath.sqrt(2f);
 	private final Random random;
 	private final Vector3f randomized_offset = new Vector3f();

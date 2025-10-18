@@ -4,7 +4,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.viewer.WorldViewer;
 
-public final strictfp class InGameOptionsMenu extends AbstractOptionsMenu {
+public final class InGameOptionsMenu extends AbstractOptionsMenu {
 	private final WorldViewer viewer;
 
 	public InGameOptionsMenu(GUIRoot gui_root, WorldViewer viewer) {

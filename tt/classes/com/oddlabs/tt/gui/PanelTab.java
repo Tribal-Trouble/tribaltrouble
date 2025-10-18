@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 
-public strictfp class PanelTab extends GUIObject {
+public class PanelTab extends GUIObject {
 	private final static float[] HIGHLIGHT_COLOR = new float[]{0f, 1f, 0f, 1f};
 	private boolean selected;
 	private final Label label;

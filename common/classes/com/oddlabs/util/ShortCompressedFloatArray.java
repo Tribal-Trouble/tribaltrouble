@@ -2,7 +2,7 @@ package com.oddlabs.util;
 
 import java.io.*;
 
-public final strictfp class ShortCompressedFloatArray implements Serializable { 
+public final class ShortCompressedFloatArray implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final float[] scale;

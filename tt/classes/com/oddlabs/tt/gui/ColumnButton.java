@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.*;
 import com.oddlabs.util.Quad;
 
-public final strictfp class ColumnButton extends RadioButtonGroupElement {
+public final class ColumnButton extends RadioButtonGroupElement {
 	private final RowCollection rows;
 	private final int arrow_offset;
 	private final int column_index;

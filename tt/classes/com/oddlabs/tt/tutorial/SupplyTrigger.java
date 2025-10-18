@@ -7,7 +7,7 @@ import com.oddlabs.tt.player.Player;
 import java.util.Iterator;
 import java.util.Set;
 
-public final strictfp class SupplyTrigger extends TutorialTrigger {
+public final class SupplyTrigger extends TutorialTrigger {
 	private final static int TREE = 20;
 	private final static int ROCK = 10;
 

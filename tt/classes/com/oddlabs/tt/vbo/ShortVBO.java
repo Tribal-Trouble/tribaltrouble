@@ -6,7 +6,7 @@ import com.oddlabs.tt.util.*;
 import java.nio.*;
 import org.lwjgl.opengl.*;
 
-public final strictfp class ShortVBO extends VBO {
+public final class ShortVBO extends VBO {
 	private ShortBuffer saved_buffer = null;
 //	private ShortBuffer mapped_buffer = null;
 

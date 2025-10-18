@@ -1,6 +1,6 @@
 package com.oddlabs.net;
 
-public strictfp interface Callable<T> extends TaskExecutorLoopbackInterface, java.util.concurrent.Callable<T>{
+public interface Callable<T> extends TaskExecutorLoopbackInterface, java.util.concurrent.Callable<T>{
 	/*
 	 * This method is called by instances of the AbstractTaskExecutor
 	 * subclasses. It is threaded  and, is not deterministic,

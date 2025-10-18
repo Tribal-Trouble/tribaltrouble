@@ -7,7 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
-final strictfp class ServletUtil {
+final class ServletUtil {
 	static void writeByteArray(DataOutput out, byte[] array) throws IOException {
 		out.writeInt(array.length);
 		out.write(array);

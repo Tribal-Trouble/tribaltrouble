@@ -2,7 +2,7 @@ package com.oddlabs.tt.player;
 
 import java.io.Serializable;
 
-public final strictfp class PlayerInfo implements Serializable {
+public final class PlayerInfo implements Serializable {
 	private final static long serialVersionUID = 3;
 
 	public final static int TEAM_NEUTRAL = -1;

@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.util.Quad;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class ArrowButton extends ButtonObject {
+public final class ArrowButton extends ButtonObject {
 	private final Quad[] pressed;
 	private final Quad[] unpressed;
 	private final Quad[] arrow;

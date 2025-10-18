@@ -5,7 +5,7 @@ import java.nio.*;
 import java.nio.channels.*;
 import java.nio.file.Path;
 
-public final strictfp class SaveDeterministic extends Deterministic {
+public final class SaveDeterministic extends Deterministic {
 	private final static short MAX_DEFAULTS = Short.MAX_VALUE;
 
 	private final ByteChannel channel;
@@ -141,7 +141,7 @@ public final strictfp class SaveDeterministic extends Deterministic {
 		}
 	}
 
-	public final strictfp class ByteBufferOutputStream extends OutputStream {
+	public final class ByteBufferOutputStream extends OutputStream {
                 @Override
 		public void write(int b) throws IOException {
 			log((byte)b);

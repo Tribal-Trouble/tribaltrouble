@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public final strictfp class MapIslandData {
+public final class MapIslandData {
 	private final IconQuad[] button;
 	private final int x;
 	private final int y;

@@ -9,7 +9,7 @@ import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.util.LinkedList;
 import java.util.List;
 
-public abstract strictfp class AbstractElementNode extends BoundingBox {
+public abstract class AbstractElementNode extends BoundingBox {
 	private final LinkedList<?> models = new LinkedList<>();
 
 	private int child_count = 0;

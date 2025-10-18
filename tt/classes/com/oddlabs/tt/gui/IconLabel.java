@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
 
-public final strictfp class IconLabel extends GUIObject implements Comparable {
+public final class IconLabel extends GUIObject implements Comparable {
 	private final Quad icon;
 	private final Label label;
 

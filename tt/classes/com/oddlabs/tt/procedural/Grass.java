@@ -5,7 +5,7 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
 import java.util.Random;
 
-public final strictfp class Grass {
+public final class Grass {
 	private Random random;
 	public Channel r;
 	public Channel g;

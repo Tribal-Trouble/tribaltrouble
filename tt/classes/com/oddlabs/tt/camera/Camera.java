@@ -14,7 +14,7 @@ import com.oddlabs.tt.util.StrictMatrix4f;
 /**
  * The View
  */
-public abstract strictfp class Camera implements Animated {
+public abstract class Camera implements Animated {
     private final static float LANDSCAPE_OFFSET = 5f;
     private final static float SMOOTHNESS_FACTOR = 15;
 

@@ -4,7 +4,7 @@ import com.oddlabs.net.ARMIEvent;
 import com.oddlabs.net.HostSequenceID;
 import java.net.InetAddress;
 
-public strictfp interface MatchmakingClientInterface {
+public interface MatchmakingClientInterface {
 	// error codes
 	public final static int PROFILE_ERROR_GUEST = 2;
 	

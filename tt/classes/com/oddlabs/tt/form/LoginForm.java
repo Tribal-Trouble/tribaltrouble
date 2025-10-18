@@ -21,7 +21,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class LoginForm extends Form {
+public final class LoginForm extends Form {
 	private final static int BUTTON_WIDTH = 100;
 	private final static int EDITLINE_WIDTH = 240;
 
@@ -145,7 +145,7 @@ public final strictfp class LoginForm extends Form {
 		gui_root.addModalForm(connecting_form);
 	}
 
-	private final strictfp class NewUserListener implements MouseClickListener {
+	private final class NewUserListener implements MouseClickListener {
         @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			remove();
@@ -153,7 +153,7 @@ public final strictfp class LoginForm extends Form {
 		}
 	}
 
-	private final strictfp class LoginListener implements MouseClickListener, EnterListener {
+	private final class LoginListener implements MouseClickListener, EnterListener {
         @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			login();

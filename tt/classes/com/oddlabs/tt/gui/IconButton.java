@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
 
-public strictfp class IconButton extends ButtonObject {
+public class IconButton extends ButtonObject {
 	private final Quad[] icon_quad;
 	private IconDisabler icon_disabler = null;
 

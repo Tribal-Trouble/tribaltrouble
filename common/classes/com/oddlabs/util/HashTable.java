@@ -4,7 +4,7 @@ package com.oddlabs.util;
  * Integer to object map
  *
  */
-public final strictfp class HashTable<T> {
+public final class HashTable<T> {
 	private final static int DEFAULT_INITIAL_ENTRIES = 10;
 	private final static int DEFAULT_MUL_FACTOR = 2;
 	private final static float DEFAULT_LOAD_FACTOR = 0.75f;

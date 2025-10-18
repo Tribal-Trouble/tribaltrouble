@@ -9,7 +9,7 @@ import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Renderer;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class KeyboardInput {
+public final class KeyboardInput {
 	private final static int LITTLE_WARP = 1000;
 	public final static int MEDIUM_WARP = 10000;
 	public final static int LARGE_WARP = 100000;

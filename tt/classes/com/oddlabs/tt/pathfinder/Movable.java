@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-public strictfp interface Movable {
+public interface Movable {
 	boolean isMoving();
 	int getGridX();
 	int getGridY();

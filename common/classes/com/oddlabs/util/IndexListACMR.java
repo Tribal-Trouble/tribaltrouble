@@ -2,7 +2,7 @@ package com.oddlabs.util;
 
 import java.nio.ShortBuffer;
 
-public final strictfp class IndexListACMR {
+public final class IndexListACMR {
 	public static float computeACMR(short[] indices, int fifo_size) {
 		return computeACMR(ShortBuffer.wrap(indices), fifo_size);
 	}

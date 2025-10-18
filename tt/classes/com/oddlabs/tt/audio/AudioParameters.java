@@ -2,7 +2,7 @@ package com.oddlabs.tt.audio;
 
 import java.util.Objects;
 
-public final strictfp class AudioParameters<S> {
+public final class AudioParameters<S> {
 	final float x;
 	final float y;
 	final float z;

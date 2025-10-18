@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final strictfp class Router implements ConnectionListenerInterface {
+public final class Router implements ConnectionListenerInterface {
 	private final Logger logger;
 	private final SessionManager manager;
 	private final AbstractConnectionListener listener;

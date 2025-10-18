@@ -14,7 +14,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.stream.*;
 import org.xml.sax.InputSource;
 
-public final strictfp class MacOSXUtil extends OSUtil {
+public final class MacOSXUtil extends OSUtil {
 	private static File locateDir(String app_dir_name) {
 		File current_dir = new File(".").getAbsoluteFile();
 		while (current_dir != null && !current_dir.getName().equals(app_dir_name))

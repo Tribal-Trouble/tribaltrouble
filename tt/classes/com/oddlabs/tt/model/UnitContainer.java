@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public abstract strictfp class UnitContainer extends SupplyContainer {
+public abstract class UnitContainer extends SupplyContainer {
 	public UnitContainer(int capacity) {
 		super(capacity);
 	}

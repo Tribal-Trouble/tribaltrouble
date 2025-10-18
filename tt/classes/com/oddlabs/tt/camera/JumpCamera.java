@@ -3,7 +3,7 @@ package com.oddlabs.tt.camera;
 import com.oddlabs.tt.delegate.CameraDelegate;
 import com.oddlabs.tt.delegate.JumpDelegate;
 
-public final strictfp class JumpCamera extends Camera {
+public final class JumpCamera extends Camera {
     private final static float DEFAULT_METERS_PER_SECOND = 300f;
     private final static float DEFAULT_MAX_SECONDS = .5f;
 

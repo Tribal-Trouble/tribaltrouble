@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public final strictfp class MountUnitContainer extends UnitContainer {
+public final class MountUnitContainer extends UnitContainer {
 	public static final float ATTACK_RANGE_INCREASE = 8f;
 
 	private final Building building;

@@ -5,7 +5,7 @@ import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class WarningForm extends Form {
+public final class WarningForm extends Form {
 	private final static int MAX_WIDTH = 500;
 
 	private final CheckBox show_next_time;

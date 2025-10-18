@@ -79,7 +79,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GLContext;
 
-public final strictfp class Renderer {
+public final class Renderer {
 	private final static FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
 
 	private static GLStateStack display_state_stack = new GLStateStack();

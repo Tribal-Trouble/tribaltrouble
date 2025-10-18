@@ -16,7 +16,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public final strictfp class SonicBlast implements Magic {
+public final class SonicBlast implements Magic {
 	private final static float SECONDS_AFTER_FIRST = 0.005f;
 	private final static float SECONDS_BETWEEN_RINGS = 0.01f;
 	private final static int NUM_RINGS = 3;

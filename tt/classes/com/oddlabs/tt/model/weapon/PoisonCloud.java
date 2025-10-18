@@ -2,7 +2,7 @@ package com.oddlabs.tt.model.weapon;
 
 import com.oddlabs.tt.particle.ParametricEmitter;
 
-public final strictfp class PoisonCloud {
+public final class PoisonCloud {
 	private final static float START_SCALE = .1f;
 	private final ParametricEmitter emitter;
 	private final float src_x;

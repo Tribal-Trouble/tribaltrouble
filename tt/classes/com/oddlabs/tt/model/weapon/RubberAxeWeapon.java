@@ -7,7 +7,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
 
-public final strictfp class RubberAxeWeapon extends RotatingThrowingWeapon {
+public final class RubberAxeWeapon extends RotatingThrowingWeapon {
 	private final float ROTS_PER_SECOND = 9;
 	private final float ANGLE_DELTA = ROTS_PER_SECOND*360f;
 	private final int MAX_BOUNDS_LENGTH = 3;

@@ -2,7 +2,7 @@ package com.oddlabs.converter;
 
 import java.util.Map;
 
-public final strictfp class Skeleton {
+public final class Skeleton {
 	private final Bone bone_root;
 	private final Map<String,float[]> initial_pose;
 	private final Map<String,Bone>  name_to_bone_map;

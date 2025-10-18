@@ -1,6 +1,6 @@
 package com.oddlabs.tt.render;
 
-abstract strictfp class WhiteModelVisitor extends ModelVisitor {
+abstract class WhiteModelVisitor extends ModelVisitor {
 	private final static float[] COLOR_TEAM = {1f, 1f, 1f};
 
     @Override

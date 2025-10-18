@@ -3,7 +3,7 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
 
-public final strictfp class IronSupply extends SupplyModel {
+public final class IronSupply extends SupplyModel {
 	private final static int INITIAL_SUPPLIES = 10;
 
 	public IronSupply(World world, SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, boolean increase) {

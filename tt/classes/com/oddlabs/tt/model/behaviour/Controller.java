@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model.behaviour;
 
-public strictfp abstract class Controller {
+public abstract class Controller {
 	private final static int MAX_TRIES = 1;
 	private final int[] give_up_counters;
 

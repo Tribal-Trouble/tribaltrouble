@@ -7,7 +7,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
 
-public final strictfp class RubberSpearWeapon extends DirectedThrowingWeapon {
+public final class RubberSpearWeapon extends DirectedThrowingWeapon {
 	private final static float METERS_PER_SECOND = 30; //multiplied by meters/second (in 2D)
 	private final int MAX_BOUNDS_LENGTH = 3;
 	

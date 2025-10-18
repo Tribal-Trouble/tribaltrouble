@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public final strictfp class Color {
+public final class Color {
 	private final float r;
 	private final float g;
 	private final float b;

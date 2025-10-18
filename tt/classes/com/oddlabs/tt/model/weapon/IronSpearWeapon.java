@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.render.SpriteKey;
 
-public final strictfp class IronSpearWeapon extends DirectedThrowingWeapon {
+public final class IronSpearWeapon extends DirectedThrowingWeapon {
 	private final static float METERS_PER_SECOND = 25f; //multiplied by meters/second (in 2D)
 	
 	public IronSpearWeapon(boolean hit, Unit src, Selectable target, SpriteKey sprite_renderer, Audio throw_sound, Audio[] hit_sounds) {

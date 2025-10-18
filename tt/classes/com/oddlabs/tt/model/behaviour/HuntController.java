@@ -3,7 +3,7 @@ package com.oddlabs.tt.model.behaviour;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 
-public final strictfp class HuntController extends Controller {
+public final class HuntController extends Controller {
 	private final Selectable target;
 	private final Unit unit;
 

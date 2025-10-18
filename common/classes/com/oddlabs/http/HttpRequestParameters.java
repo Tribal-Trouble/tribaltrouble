@@ -5,7 +5,7 @@ import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map;
 
-public final strictfp class HttpRequestParameters {
+public final class HttpRequestParameters {
 	final String url;
 	public final Map<String,String> parameters;
 

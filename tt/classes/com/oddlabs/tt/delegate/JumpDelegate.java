@@ -5,7 +5,7 @@ import com.oddlabs.tt.camera.JumpCamera;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.viewer.WorldViewer;
 
-public final strictfp class JumpDelegate extends InGameDelegate {
+public final class JumpDelegate extends InGameDelegate {
 	private final Runnable runnable;
 
 	public JumpDelegate(WorldViewer viewer, GameCamera old_camera, float x, float y) {

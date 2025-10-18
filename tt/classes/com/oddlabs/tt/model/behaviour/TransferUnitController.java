@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.BuildingFinder;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
 
-public final strictfp class TransferUnitController extends Controller {
+public final class TransferUnitController extends Controller {
 	private final Unit unit;
 	private FinderTrackerAlgorithm<Building> building_tracker;
 

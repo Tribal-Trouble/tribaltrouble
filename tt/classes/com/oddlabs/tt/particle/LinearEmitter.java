@@ -9,7 +9,7 @@ import java.util.Random;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public strictfp abstract class LinearEmitter extends Emitter {
+public abstract class LinearEmitter extends Emitter {
 	private final static float SQRT_2 = (float)StrictMath.sqrt(2f);
 
 	private final Random random;

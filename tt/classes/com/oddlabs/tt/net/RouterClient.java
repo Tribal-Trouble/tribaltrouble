@@ -6,7 +6,7 @@ import com.oddlabs.util.Utils;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-public final strictfp class RouterClient implements ConnectionInterface {
+public final class RouterClient implements ConnectionInterface {
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(RouterClientInterface.class);
 	private final AbstractConnection connection;
 	private final GameInterface game_interface;

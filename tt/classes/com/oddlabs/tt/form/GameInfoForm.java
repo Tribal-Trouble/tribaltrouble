@@ -12,7 +12,7 @@ import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class GameInfoForm extends Form {
+public final class GameInfoForm extends Form {
 	private final HorizButton ok_button;
 
 	public GameInfoForm(Game game) {

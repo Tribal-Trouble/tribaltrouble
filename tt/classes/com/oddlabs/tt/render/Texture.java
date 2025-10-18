@@ -19,7 +19,7 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GLContext;
 
-public final strictfp class Texture extends NativeResource {
+public final class Texture extends NativeResource {
 	private final static IntBuffer handle_buffer;
 	private final static IntBuffer size_buffer;
 	private final static FloatBuffer border_color_buffer;

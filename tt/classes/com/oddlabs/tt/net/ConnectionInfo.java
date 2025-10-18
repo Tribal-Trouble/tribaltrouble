@@ -4,7 +4,7 @@ import com.oddlabs.net.ARMIEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public final strictfp class ConnectionInfo {
+public final class ConnectionInfo {
 	private final int priority;
 	private final List backlog = new ArrayList();
 

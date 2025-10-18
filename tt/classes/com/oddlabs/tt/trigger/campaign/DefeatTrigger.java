@@ -9,7 +9,7 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import java.util.ResourceBundle;
 
-public final strictfp class DefeatTrigger extends IntervalTrigger {
+public final class DefeatTrigger extends IntervalTrigger {
 	private final Campaign campaign;
 	private final Unit chieftain;
 	private final Runnable runnable;

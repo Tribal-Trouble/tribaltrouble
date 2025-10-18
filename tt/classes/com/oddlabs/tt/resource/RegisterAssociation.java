@@ -6,7 +6,7 @@ import com.oddlabs.osutil.OSUtil;
 import com.oddlabs.osutil.URLAssociation;
 
 
-public final strictfp class RegisterAssociation {
+public final class RegisterAssociation {
 	public static void main(String[] args) {
 		register(new MacOSXUtil());
 	}

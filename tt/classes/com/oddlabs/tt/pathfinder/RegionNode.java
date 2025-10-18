@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-public final strictfp class RegionNode implements PathNode {
+public final class RegionNode implements PathNode {
 	private final RegionNode parent;
 	private final Region region;
 

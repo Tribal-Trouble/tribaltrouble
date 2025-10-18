@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public strictfp interface CampaignIcons {
+public interface CampaignIcons {
 //	public CampaignIcons getIcons();
 
 	public GUIIcon[] getHiddenRoutes();

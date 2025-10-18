@@ -4,7 +4,7 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
 import org.lwjgl.opengl.*;
 
-public strictfp class Label extends TextField implements Comparable {
+public class Label extends TextField implements Comparable {
 	public final static int ALIGN_LEFT		= 0;
 	public final static int ALIGN_CENTER	= 1;
 	public final static int ALIGN_RIGHT		= 2;

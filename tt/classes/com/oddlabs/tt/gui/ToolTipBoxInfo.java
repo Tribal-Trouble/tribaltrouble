@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public final strictfp class ToolTipBoxInfo {
+public final class ToolTipBoxInfo {
 	private final Horizontal box;
 	private final int left_offset;
 	private final int bottom_offset;

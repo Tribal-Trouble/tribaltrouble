@@ -1,6 +1,6 @@
 package com.oddlabs.tt.viewer;
 
-public final strictfp class Cheat {
+public final class Cheat {
 	private final boolean can_enable;
 	private boolean enabled = false;
 	public boolean draw_trees = true;

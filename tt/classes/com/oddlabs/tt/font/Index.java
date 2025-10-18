@@ -3,7 +3,7 @@ package com.oddlabs.tt.font;
 import com.oddlabs.tt.animation.*;
 import org.lwjgl.opengl.*;
 
-public final strictfp class Index implements Updatable {
+public final class Index implements Updatable {
 	public final static int INDEX_WIDTH = 1;
 	private final static float BLINK_INTERVAL = .5f;
 

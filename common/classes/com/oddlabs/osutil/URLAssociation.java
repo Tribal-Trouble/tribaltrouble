@@ -1,6 +1,6 @@
 package com.oddlabs.osutil;
 
-public final strictfp class URLAssociation {
+public final class URLAssociation {
 	final String description;
 	final String scheme;
 	final String icon_name;

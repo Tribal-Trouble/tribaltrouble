@@ -11,7 +11,7 @@ import com.oddlabs.tt.pathfinder.TargetTrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.TrackerAlgorithm;
 import com.oddlabs.tt.util.Target;
 
-public final strictfp class WalkBehaviour implements Behaviour {
+public final class WalkBehaviour implements Behaviour {
 	private final static float WAIT_RETRY_DELAY = 1f/2f;
 	private final static float MAX_WAIT_RETRY_DELAY = 5f;
 

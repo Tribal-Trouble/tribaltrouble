@@ -6,7 +6,7 @@ import com.oddlabs.tt.util.StateChecksum;
 import java.util.ArrayList;
 import java.util.List;
 
-public strictfp class SupplyManager implements Animated {
+public class SupplyManager implements Animated {
 	private final static float SLEEP_TIME = 10f;
 	private final static float SPAWN_TIME = 3f;
 	private final static float MAX_EMPTY_SUPPLIES = .75f;

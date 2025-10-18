@@ -5,7 +5,7 @@ import com.oddlabs.net.DefaultARMIArgumentReader;
 import java.io.*;
 import java.lang.reflect.Array;
 
-final strictfp class GameArgumentReader extends DefaultARMIArgumentReader {
+final class GameArgumentReader extends DefaultARMIArgumentReader {
 	private final DistributableTable distributable_table;
 
 	GameArgumentReader(DistributableTable table) {

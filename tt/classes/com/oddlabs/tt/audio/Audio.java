@@ -10,7 +10,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 
-public final strictfp class Audio extends NativeResource {
+public final class Audio extends NativeResource {
 	private final IntBuffer al_buffers;
 
 	public Audio(URL file) throws IOException {

@@ -5,7 +5,7 @@ import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.lwjgl.input.Keyboard;
 
-public strictfp abstract class ControllableCameraDelegate extends InGameDelegate {
+public abstract class ControllableCameraDelegate extends InGameDelegate {
 	private final GameCamera game_camera;
 	private FirstPersonDelegate first_person_delegate;
 

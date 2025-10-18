@@ -3,7 +3,7 @@ package com.oddlabs.util;
 import java.io.*;
 import org.lwjgl.opengl.*;
 
-public strictfp class Quad implements Serializable {
+public class Quad implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final float u1;

@@ -19,7 +19,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public final strictfp class Stun implements Magic {
+public final class Stun implements Magic {
 	private final float hit_radius;
 	private final float stun_time_closest;
 	private final float stun_time_farthest;

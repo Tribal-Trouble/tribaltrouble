@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public final strictfp class AdvancedAI extends AI {
+public final class AdvancedAI extends AI {
 	public final static int DIFFICULTY_EASY = 0;
 	public final static int DIFFICULTY_NORMAL = 1;
 	public final static int DIFFICULTY_HARD = 2;

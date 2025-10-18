@@ -7,7 +7,7 @@ import com.oddlabs.tt.pathfinder.RegionBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public final strictfp class SupplyFinder<S extends Supply> implements FinderFilter<S> {
+public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 	private final Unit unit;
 	private final Class<S> supply_class;
 	private final List<List<S>> region_list = new ArrayList<>();

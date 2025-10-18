@@ -3,7 +3,7 @@ package com.oddlabs.geometry;
 import com.oddlabs.util.*;
 import java.io.*;
 
-public final strictfp class SpriteInfo2 implements Serializable {
+public final class SpriteInfo2 implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final short[] indices;

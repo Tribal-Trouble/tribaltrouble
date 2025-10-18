@@ -7,7 +7,7 @@ import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
 
-final strictfp class LandscapeTileVertices {
+final class LandscapeTileVertices {
 	private final FloatVBO patch_vertex_buffer;
 	private final FloatBuffer edit_buffer;
 	private final int patch_size;

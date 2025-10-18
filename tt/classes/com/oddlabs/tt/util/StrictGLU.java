@@ -1,6 +1,6 @@
 package com.oddlabs.tt.util;
 
-public final strictfp class StrictGLU {
+public final class StrictGLU {
 	private final static StrictMatrix4f final_matrix = new StrictMatrix4f();
 	private final static StrictMatrix4f perspective_matrix = new StrictMatrix4f();
 	private final static StrictMatrix4f proj_matrix = new StrictMatrix4f();

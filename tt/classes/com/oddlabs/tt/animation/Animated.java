@@ -5,7 +5,7 @@ import com.oddlabs.tt.util.*;
 /**
  * A user interface element that changes over time
  */
-public strictfp interface Animated {
+public interface Animated {
 	void animate(float t);
 	void updateChecksum(StateChecksum checksum);
 }

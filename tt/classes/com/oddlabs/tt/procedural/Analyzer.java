@@ -2,7 +2,7 @@ package com.oddlabs.tt.procedural;
 
 import com.oddlabs.procedural.Channel;
 
-public final strictfp class Analyzer {
+public final class Analyzer {
 
 	public static void analyze(Channel height, String name) {
 		System.out.println("*** Performing image analysis on \"" + name + "\" ****");

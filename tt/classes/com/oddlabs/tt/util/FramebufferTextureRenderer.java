@@ -7,7 +7,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class FramebufferTextureRenderer extends OffscreenRenderer {
+public final class FramebufferTextureRenderer extends OffscreenRenderer {
 	private final int fb_id;
 	private final int rb_id;
 

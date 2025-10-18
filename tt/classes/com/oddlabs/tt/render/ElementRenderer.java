@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.*;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.viewer.Selection;
 
-final strictfp class ElementRenderer implements ElementNodeVisitor {
+final class ElementRenderer implements ElementNodeVisitor {
 
     private final RenderState render_state;
     private final boolean picking;

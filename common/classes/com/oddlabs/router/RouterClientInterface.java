@@ -2,7 +2,7 @@ package com.oddlabs.router;
 
 import com.oddlabs.net.ARMIEvent;
 
-public strictfp interface RouterClientInterface {
+public interface RouterClientInterface {
 	void start();
 	void heartbeat(int tick);
 	void receiveEvent(int client_id, ARMIEvent event);

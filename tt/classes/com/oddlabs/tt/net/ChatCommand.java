@@ -4,7 +4,7 @@ import com.oddlabs.tt.gui.InfoPrinter;
 import com.oddlabs.tt.util.Utils;
 import java.util.*;
 
-public final strictfp class ChatCommand {
+public final class ChatCommand {
 	private final static Map<String, ChatMethod> commands = new HashMap<>();
 
 	static {

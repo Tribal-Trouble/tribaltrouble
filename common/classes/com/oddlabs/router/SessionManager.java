@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final strictfp class SessionManager {
+final class SessionManager {
 	private final Map id_to_session = new HashMap();
 	private final SortedMap timeouts = new TreeMap();
 	private final MonotoneTimeManager time_manager;
@@ -127,7 +127,7 @@ final strictfp class SessionManager {
 		return (int)(millis - session.getInitialTime());
 	}
 
-	final strictfp class Timeout implements Comparable {
+	final class Timeout implements Comparable {
 		private final int id;
 
 		private final long next_timeout;

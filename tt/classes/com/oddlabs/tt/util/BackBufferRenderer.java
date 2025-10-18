@@ -2,7 +2,7 @@ package com.oddlabs.tt.util;
 
 import org.lwjgl.opengl.Display;
 
-public final strictfp class BackBufferRenderer extends OffscreenRenderer {
+public final class BackBufferRenderer extends OffscreenRenderer {
 	private static boolean back_buffer_dirty = false;
 
 	public static boolean isBackBufferDirty() {

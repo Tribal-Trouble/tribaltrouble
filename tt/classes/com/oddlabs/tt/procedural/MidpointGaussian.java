@@ -6,7 +6,7 @@ import com.oddlabs.procedural.Tools;
 import com.oddlabs.util.Utils;
 import java.util.Random;
 
-public final strictfp class MidpointGaussian {
+public final class MidpointGaussian {
 
 	private final Random random;
 	public Channel channel;

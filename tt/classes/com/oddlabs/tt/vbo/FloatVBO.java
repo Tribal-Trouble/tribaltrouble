@@ -7,7 +7,7 @@ import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class FloatVBO extends VBO {
+public final class FloatVBO extends VBO {
 	private FloatBuffer saved_buffer = null;
 //	private FloatBuffer mapped_buffer = null;
 

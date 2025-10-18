@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.TextBoxRenderer;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class EditBox extends TextBox {
+public final class EditBox extends TextBox {
 	private int index;
 
 	public EditBox(int width, int height, int max_chars) {

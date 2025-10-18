@@ -31,7 +31,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Logger;
 
-public final strictfp class PeerHub implements Animated, RouterHandler {
+public final class PeerHub implements Animated, RouterHandler {
 	public final static ResourceBundle bundle = ResourceBundle.getBundle(PeerHub.class.getName());
 	public final static String SYSTEM_NAME;
 

@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public strictfp class SupplyCounter<S extends Supply> {
+public class SupplyCounter<S extends Supply> {
 	private final Building building;
 	private final Class<S> supply_type;
 

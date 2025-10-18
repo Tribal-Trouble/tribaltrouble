@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-public final strictfp class RespondManager implements Animated {
+public final class RespondManager implements Animated {
 	private final static float SECONDS_PER_PICK_RESPOND = 1f/3f;
 
 	private final NavigableMap<Timeout,Object> respond_timeouts = new TreeMap<>();
@@ -78,7 +78,7 @@ public final strictfp class RespondManager implements Animated {
 	public void updateChecksum(StateChecksum checksum) {
 	}
 
-	private final static strictfp class Timeout implements Comparable<Timeout> {
+	private final static class Timeout implements Comparable<Timeout> {
 		private final float timeout;
 		private final int id;
 		private final Object target;

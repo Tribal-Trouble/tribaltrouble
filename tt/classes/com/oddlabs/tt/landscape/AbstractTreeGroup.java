@@ -9,7 +9,7 @@ import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector3f;
 import java.util.List;
 
-public abstract strictfp class AbstractTreeGroup extends BoundingBox {
+public abstract class AbstractTreeGroup extends BoundingBox {
 	public final static int TREE_INDEX = 0;
 	public final static int PALMTREE_INDEX = 1;
 	public final static int OAKTREE_INDEX = 2;

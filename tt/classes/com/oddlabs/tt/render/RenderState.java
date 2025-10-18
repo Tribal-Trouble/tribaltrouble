@@ -15,7 +15,7 @@ import com.oddlabs.tt.viewer.Selection;
 import java.util.*;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class RenderState implements ElementVisitor {
+public final class RenderState implements ElementVisitor {
 	private final List<Emitter> emitter_queue = new ArrayList<>();
 	private final List<Lightning> lightning_queue = new ArrayList<>();
 	private final SpriteSorter sprite_sorter;

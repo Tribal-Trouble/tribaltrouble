@@ -3,7 +3,7 @@ package com.oddlabs.tt.model.behaviour;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Selectable;
 
-public final strictfp class NullController extends Controller {
+public final class NullController extends Controller {
 	private final Selectable selectable;
 
 	public NullController(Selectable s) {

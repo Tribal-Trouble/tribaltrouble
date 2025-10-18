@@ -3,7 +3,7 @@ package com.oddlabs.matchmaking;
 import com.oddlabs.net.ARMIEvent;
 import com.oddlabs.net.HostSequenceID;
 
-public strictfp interface MatchmakingServerInterface {
+public interface MatchmakingServerInterface {
 	public final static int TYPE_NONE = 0;
 	public final static int TYPE_GAME = 1;
 	public final static int TYPE_CHAT_ROOM_LIST = 2;

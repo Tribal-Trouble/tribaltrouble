@@ -5,7 +5,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
 
-public final strictfp class Plants extends SceneryModel {
+public final class Plants extends SceneryModel {
 	public Plants(World world, float x, float y, float dir_x, float dir_y, SpriteKey sprite_renderer) {
 		super(world, x, y, dir_x, dir_y, sprite_renderer);
 	}

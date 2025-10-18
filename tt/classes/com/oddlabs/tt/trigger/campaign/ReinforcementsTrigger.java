@@ -3,7 +3,7 @@ package com.oddlabs.tt.trigger.campaign;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.trigger.IntervalTrigger;
 
-public final strictfp class ReinforcementsTrigger extends IntervalTrigger {
+public final class ReinforcementsTrigger extends IntervalTrigger {
 	private final Player player;
 	private final int type;
 

@@ -1,5 +1,5 @@
 package com.oddlabs.tt.net;
 
-public strictfp interface ErrorListener {
+public interface ErrorListener {
 	public void connectionLost();
 }

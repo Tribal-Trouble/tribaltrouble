@@ -23,7 +23,7 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class NativeIsland3 extends Island {
+public final class NativeIsland3 extends Island {
 	private final ResourceBundle bundle = ResourceBundle.getBundle(NativeIsland3.class.getName());
 
 	private int objective = 0;

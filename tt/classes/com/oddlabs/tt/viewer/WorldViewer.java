@@ -43,7 +43,7 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class WorldViewer implements Animated {
+public final class WorldViewer implements Animated {
 
     private final static String[] GAMESPEED_STRINGS = new String[]{"paused", "slow", "normal", "fast", "ludicrous"};
 

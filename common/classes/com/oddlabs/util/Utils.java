@@ -16,7 +16,7 @@ import java.util.Enumeration;
 import java.util.regex.Pattern;
 import java.util.zip.*;
 
-public final strictfp class Utils {
+public final class Utils {
 	public final static Pattern EMAIL_PATTERN = Pattern.compile("(.+@.+\\.[a-z]+)?");
 	public final static Path STD_OUT = Paths.get("std.out");
 	public final static Path STD_ERR = Paths.get("std.err");

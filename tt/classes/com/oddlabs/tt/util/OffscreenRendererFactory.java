@@ -4,7 +4,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.PixelFormat;
 
 
-public final strictfp class OffscreenRendererFactory {
+public final class OffscreenRendererFactory {
 	private final static int PBUFFER_FAILURE_MAX = 2;
 	private int pbuffer_failures;
 

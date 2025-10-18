@@ -4,7 +4,7 @@ import com.oddlabs.tt.delegate.GameStatsDelegate;
 import com.oddlabs.tt.delegate.InGameMainMenu;
 import com.oddlabs.tt.gui.Group;
 
-public strictfp interface InGameInfo {
+public interface InGameInfo {
 	void addGUI(WorldViewer viewer, InGameMainMenu menu, Group game_infos);
 	void addGameOverGUI(WorldViewer viewer, GameStatsDelegate delegate, int header_y, Group buttons);
 	void abort(WorldViewer viewer);

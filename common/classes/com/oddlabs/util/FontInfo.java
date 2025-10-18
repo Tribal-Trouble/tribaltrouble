@@ -3,7 +3,7 @@ package com.oddlabs.util;
 import java.io.*;
 import java.net.*;
 
-public final strictfp class FontInfo implements Serializable {
+public final class FontInfo implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final String texture_name;

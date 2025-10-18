@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public final strictfp class ColumnInfo {
+public final class ColumnInfo {
 	private final String caption;
 	private final int width;
 

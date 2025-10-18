@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-abstract strictfp class GridPathFinder extends AStarAlgorithm {
+abstract class GridPathFinder extends AStarAlgorithm {
 	private final Node dst_region;
 	private final Node dst_region2;
 

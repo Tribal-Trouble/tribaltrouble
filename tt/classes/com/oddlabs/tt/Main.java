@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import org.lwjgl.Sys;
 import org.lwjgl.opengl.Display;
 
-public final strictfp class Main {
+public final class Main {
 	public static void fail(Throwable t) {
 		try {
 			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Critical Failure", t);

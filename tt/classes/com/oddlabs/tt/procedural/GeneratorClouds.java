@@ -7,7 +7,7 @@ import com.oddlabs.tt.resource.GLByteImage;
 import com.oddlabs.tt.resource.GLIntImage;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class GeneratorClouds extends TextureGenerator {
+public final class GeneratorClouds extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 256;
 
 	public static final int INNER = 0;

@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 import java.util.Arrays;
 
-public final strictfp class Selection {
+public final class Selection {
 	private final Army[] shortcut_armies = new Army[10];
 	private final Player local_player;
 	private SelectionArmy current_selection;

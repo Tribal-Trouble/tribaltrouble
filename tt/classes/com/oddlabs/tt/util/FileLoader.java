@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
-public final strictfp class FileLoader implements FileLoaderInterface {
+public final class FileLoader implements FileLoaderInterface {
 	private final FileLoaderListener listener;
 	private final ReadableByteChannel file_channel;
 	private final ByteBuffer buffer;

@@ -3,7 +3,7 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 
-public final strictfp class Ripple {
+public final class Ripple {
 	public Channel channel;
 
 	public Ripple(int width, int height, float point_x, float point_y, float factor) {

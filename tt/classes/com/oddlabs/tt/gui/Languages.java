@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
 
-public final strictfp class Languages {
+public final class Languages {
 	private static final String[][] languages = new String[][]{{"en", "English"}, {"da", "Dansk"}, {"de", "Deutsch"}, {"es","Espa\u00F1ol"}, {"it", "Italiano"}};
 
 	public static boolean hasLanguage(String language) {

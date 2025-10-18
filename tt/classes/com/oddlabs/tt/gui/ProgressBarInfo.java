@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 
-public final strictfp class ProgressBarInfo {
+public final class ProgressBarInfo {
 	private final Label label;
 	private final float weight;
 	private int waypoint;

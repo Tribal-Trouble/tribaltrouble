@@ -1,6 +1,6 @@
 package com.oddlabs.tt.particle;
 
-final strictfp class ParametricParticle extends Particle {
+final class ParametricParticle extends Particle {
 	private final ParametricFunction function;
 	private final float offset_x;
 	private final float offset_y;

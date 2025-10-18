@@ -2,7 +2,7 @@ package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.net.Distributable;
 
-public strictfp interface Target extends Distributable {
+public interface Target extends Distributable {
 	public final static int ACTION_DEFAULT = 1;
 	public final static int ACTION_MOVE = 2;
 	public final static int ACTION_ATTACK = 3;

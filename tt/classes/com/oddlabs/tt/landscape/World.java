@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public final strictfp class World {
+public final class World {
 	public final static int GAMESPEED_DONTCARE = -2;
 
 	private final static float[] GAMESPEEDS = new float[]{

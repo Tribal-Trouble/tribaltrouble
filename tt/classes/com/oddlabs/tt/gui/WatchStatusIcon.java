@@ -4,7 +4,7 @@ import com.oddlabs.tt.model.*;
 import com.oddlabs.util.Quad;
 import org.lwjgl.opengl.*;
 
-public final strictfp class WatchStatusIcon extends StatusIcon {
+public final class WatchStatusIcon extends StatusIcon {
 	private Building building;
 
 	public WatchStatusIcon(int label_width, Quad icon, String tooltip) {

@@ -3,7 +3,7 @@ package com.oddlabs.tt.tutorial;
 import com.oddlabs.tt.delegate.Delegate;
 import com.oddlabs.tt.delegate.FirstPersonDelegate;
 
-public final strictfp class FirstPersonCameraTrigger extends TutorialTrigger {
+public final class FirstPersonCameraTrigger extends TutorialTrigger {
 	public FirstPersonCameraTrigger() {
 		super(.1f, 2f, "fpc");
 	}

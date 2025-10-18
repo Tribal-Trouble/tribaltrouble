@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public final strictfp class PanelData {
+public final class PanelData {
 	private final Box box;
 	private final Horizontal tab;
 	private final int left_caption_offset;

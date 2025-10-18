@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 
-public final strictfp class IntegerLabel extends Label {
+public final class IntegerLabel extends Label {
 	private final int val;
 
 	public IntegerLabel(int val, Font font, int width) {

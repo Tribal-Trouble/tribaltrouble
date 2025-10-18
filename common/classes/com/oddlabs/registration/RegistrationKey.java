@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
-public final strictfp class RegistrationKey {
+public final class RegistrationKey {
 	private final static int STRIPPED_LENGTH = 16;
 	public final static int LENGTH = STRIPPED_LENGTH + 3;
 	public final static String CHAR_TO_WORD = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

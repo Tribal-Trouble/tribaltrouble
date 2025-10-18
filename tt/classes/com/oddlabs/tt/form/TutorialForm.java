@@ -21,7 +21,7 @@ import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 import java.util.ResourceBundle;
 
-public final strictfp class TutorialForm extends Form {
+public final class TutorialForm extends Form {
 	public final static int TUTORIAL_CAMERA = 1;
 	public final static int TUTORIAL_QUARTERS = 2;
 	public final static int TUTORIAL_ARMORY = 3;
@@ -109,7 +109,7 @@ public final strictfp class TutorialForm extends Form {
 		centerPos();
 	}
 
-	private final static strictfp class TutorialAction implements WorldInitAction {
+	private final static class TutorialAction implements WorldInitAction {
 		private final TriggerFactory factory;
 		private final TutorialInGameInfo ingame_info;
 
@@ -124,7 +124,7 @@ public final strictfp class TutorialForm extends Form {
 		}
 	}
 
-	private strictfp interface TriggerFactory {
+	private interface TriggerFactory {
 		TutorialTrigger create(WorldViewer viewer);
 	}
 
@@ -202,7 +202,7 @@ public final strictfp class TutorialForm extends Form {
 		}
 	}
 
-	private final strictfp class TutorialListener implements MouseClickListener {
+	private final class TutorialListener implements MouseClickListener {
 		private final int number;
 
 		public TutorialListener(int number) {

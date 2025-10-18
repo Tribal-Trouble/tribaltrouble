@@ -3,7 +3,7 @@ package com.oddlabs.net;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-public final strictfp class ByteBufferInputStream extends InputStream {
+public final class ByteBufferInputStream extends InputStream {
 	private final ByteBuffer buffer;
 
 	public ByteBufferInputStream(byte[] array) {

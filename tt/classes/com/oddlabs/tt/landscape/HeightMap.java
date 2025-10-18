@@ -4,7 +4,7 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.util.StrictVector3f;
 import java.util.List;
 
-public final strictfp class HeightMap {
+public final class HeightMap {
 	public final static int METERS_PER_UNIT_GRID = 2;
 	public final static int GRID_UNITS_PER_PATCH_EXP = 4;
 	public final static int GRID_UNITS_PER_PATCH = 1 << GRID_UNITS_PER_PATCH_EXP;

@@ -1,6 +1,6 @@
 package com.oddlabs.tt.util;
 
-public final strictfp class StatCounter {
+public final class StatCounter {
 	private final long[] values;
 	private long old_val = 0;
 	private long sum = 0;

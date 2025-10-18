@@ -2,7 +2,7 @@ package com.oddlabs.matchmaking;
 
 import java.io.Serializable;
 
-public final strictfp class GameHost implements Serializable {
+public final class GameHost implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final Game game;

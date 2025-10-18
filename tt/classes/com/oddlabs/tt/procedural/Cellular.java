@@ -4,7 +4,7 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import java.util.Random;
 
-public final strictfp class Cellular {
+public final class Cellular {
 	// coordinate indexing
 	public static final int X = 0;
 	public static final int Y = 1;

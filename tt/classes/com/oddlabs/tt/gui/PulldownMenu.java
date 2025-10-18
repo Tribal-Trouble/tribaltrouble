@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class PulldownMenu extends Group {// GUIObject {
+public final class PulldownMenu extends Group {// GUIObject {
 	private final java.util.List chosen_listeners = new java.util.ArrayList();
 
 	private final List items = new ArrayList();
@@ -122,7 +122,7 @@ public final strictfp class PulldownMenu extends Group {// GUIObject {
 		chosen_listeners.remove(listener);
 	}
 
-	public final strictfp class ItemListener implements MouseClickListener {
+	public final class ItemListener implements MouseClickListener {
 		private final int index;
 
 		public ItemListener(int index) {

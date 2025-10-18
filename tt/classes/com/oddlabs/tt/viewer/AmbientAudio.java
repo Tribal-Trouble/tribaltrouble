@@ -17,7 +17,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 
-public final strictfp class AmbientAudio {
+public final class AmbientAudio {
 	private final static FloatBuffer orientation_buffer = BufferUtils.createFloatBuffer(3*2);
 
 	private final Audio ambient_forest_buffer;

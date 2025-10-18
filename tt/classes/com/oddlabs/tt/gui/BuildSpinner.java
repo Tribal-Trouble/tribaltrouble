@@ -10,7 +10,7 @@ import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
 
-public final strictfp class BuildSpinner extends IconSpinner {
+public final class BuildSpinner extends IconSpinner {
 	public final static int INFINITE_LIMIT = 30;
 
 	private final PlayerInterface player_interface;

@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class GLByteImage extends GLImage {
+public final class GLByteImage extends GLImage {
 
     @Override
     public int getPixelSize() {

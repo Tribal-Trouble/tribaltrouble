@@ -27,7 +27,7 @@ import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
-public final strictfp class LandscapeRenderer implements Animated {
+public final class LandscapeRenderer implements Animated {
 
     private final List<PatchLevel>[] patch_lists;
     private final List<LandscapeLeaf> render_list = new ArrayList<>();
@@ -304,7 +304,7 @@ public final strictfp class LandscapeRenderer implements Animated {
         GL11.glDrawElements(GL11.GL_TRIANGLES, shadow_indices_buffer);
     }
 
-    private final static strictfp class Visitor implements PatchGroupVisitor {
+    private final static class Visitor implements PatchGroupVisitor {
 
         private CameraState camera;
         private boolean visible_override;

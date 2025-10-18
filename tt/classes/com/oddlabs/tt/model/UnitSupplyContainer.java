@@ -3,7 +3,7 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.render.SpriteKey;
 import java.util.Map;
 
-public final strictfp class UnitSupplyContainer extends SupplyContainer {
+public final class UnitSupplyContainer extends SupplyContainer {
 	private final Map<Class<? extends Supply>,SpriteKey> supply_sprite_renderers;
 
 	private Class<? extends Supply> type;

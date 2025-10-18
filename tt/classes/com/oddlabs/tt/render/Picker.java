@@ -34,7 +34,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class Picker implements Updatable {
+public final class Picker implements Updatable {
 	private final static int PICK_SIZE = 5;
 	private final static int SELECTION_THRESHOLD = 5;
 	private final static float PATCH_PICK_PRECISION = .1f;
@@ -514,7 +514,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	}
 
-	private final strictfp class LandscapeLeafComparator implements Comparator {
+	private final class LandscapeLeafComparator implements Comparator {
 		private int compare(CameraState camera_state, LandscapeLeaf l1, LandscapeLeaf l2) {
 			float l1_dist = RenderTools.getCameraDistanceXYSquared(l1, camera_state.getCurrentX(), camera_state.getCurrentY());
 			float l2_dist = RenderTools.getCameraDistanceXYSquared(l2, camera_state.getCurrentX(), camera_state.getCurrentY());

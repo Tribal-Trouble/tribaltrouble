@@ -11,7 +11,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import org.lwjgl.openal.AL10;
 
-public final strictfp class Wave {
+public final class Wave {
 
     private final ByteBuffer data;
     private final int format;

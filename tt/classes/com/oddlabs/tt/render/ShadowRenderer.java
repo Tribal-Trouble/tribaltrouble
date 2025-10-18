@@ -9,7 +9,7 @@ import java.nio.ShortBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-abstract strictfp class ShadowRenderer {
+abstract class ShadowRenderer {
 	private static final ShortBuffer shadow_indices = BufferUtils.createShortBuffer(HeightMap.GRID_UNITS_PER_PATCH*HeightMap.GRID_UNITS_PER_PATCH*2*3);
 //	private static int shadow_number = 1;
 

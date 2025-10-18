@@ -4,7 +4,7 @@ import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class FogInfo {
+public final class FogInfo {
 
     private final FloatBuffer fog_color;
     private final int fog_mode;

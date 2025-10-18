@@ -7,7 +7,7 @@ import com.oddlabs.net.ConnectionInterface;
 import com.oddlabs.net.IllegalARMIEventException;
 import java.io.IOException;
 
-public final strictfp class ClientInfo implements GameServerInterface, ConnectionInterface {
+public final class ClientInfo implements GameServerInterface, ConnectionInterface {
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(GameServerInterface.class);
 	private final Server server;
 	private final PlayerSlot player_slot;

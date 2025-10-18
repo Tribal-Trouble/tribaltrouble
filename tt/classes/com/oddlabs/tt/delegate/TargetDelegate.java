@@ -5,7 +5,7 @@ import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.lwjgl.input.Keyboard;
 
-public strictfp class TargetDelegate extends ControllableCameraDelegate {
+public class TargetDelegate extends ControllableCameraDelegate {
 	private final int action;
 
 	public TargetDelegate(WorldViewer viewer, GameCamera camera, int action) {

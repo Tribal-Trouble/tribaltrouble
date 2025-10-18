@@ -13,7 +13,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-public final strictfp class Image implements Serializable {
+public final class Image implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private transient ByteBuffer data;

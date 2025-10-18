@@ -6,7 +6,7 @@ import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.util.Utils;
 
-public final strictfp class SpriteList {
+public final class SpriteList {
 	private final BoundingBox[] bounds;
 	private final Sprite[] sprites;
 	private final int[] type_array;

@@ -15,7 +15,7 @@ import com.oddlabs.tt.util.StrictVector3f;
 import com.oddlabs.tt.util.StrictVector4f;
 import com.oddlabs.tt.util.Target;
 
-public final strictfp class TreeSupply extends AbstractTreeGroup implements Supply, Target, Animated, ModelToolTip {
+public final class TreeSupply extends AbstractTreeGroup implements Supply, Target, Animated, ModelToolTip {
 	private final static int INITIAL_SUPPLIES = 10;
 	private final static float SECOND_PER_TREEFALL = 3f;
 

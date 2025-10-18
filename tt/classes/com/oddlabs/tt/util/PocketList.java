@@ -2,7 +2,7 @@ package com.oddlabs.tt.util;
 
 import java.util.*;
 
-public final strictfp class PocketList {
+public final class PocketList {
 	private final List[] pockets;
 	private int min_list_index;
 	private int max_list_index;

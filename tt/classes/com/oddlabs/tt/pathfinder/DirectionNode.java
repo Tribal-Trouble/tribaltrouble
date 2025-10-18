@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-public final strictfp class DirectionNode {
+public final class DirectionNode {
 	private final float inv_length;
 	private final int direction_x;
 	private final int direction_y;

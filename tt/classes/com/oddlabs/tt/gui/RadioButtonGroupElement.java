@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public abstract strictfp class RadioButtonGroupElement extends GUIObject {
+public abstract class RadioButtonGroupElement extends GUIObject {
 	private boolean marked = false;
 
 	private final RadioButtonGroup group;

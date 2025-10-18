@@ -2,7 +2,7 @@ package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.landscape.HeightMap;
 
-final strictfp class GridNode extends Node {
+final class GridNode extends Node {
 	private final static DirectionNode[][] dir_node_grid = new DirectionNode[3][3];
 
 	private final static GridNode[][] pathfinder_grid;
@@ -120,7 +120,7 @@ final strictfp class GridNode extends Node {
 				addNeighbour(finder, unit_grid, x + 1, y + 1, RegionBuilder.DIAGONAL);
 	}
 
-	final static strictfp class Offset {
+	final static class Offset {
 		final int offset_x;
 		final int offset_y;
 

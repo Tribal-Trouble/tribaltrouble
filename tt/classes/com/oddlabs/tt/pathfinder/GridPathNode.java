@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-public final strictfp class GridPathNode implements PathNode {
+public final class GridPathNode implements PathNode {
 	private final GridPathNode parent;
 	private final DirectionNode dir;
 

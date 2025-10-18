@@ -3,7 +3,7 @@ package com.oddlabs.tt.trigger.campaign;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.trigger.IntervalTrigger;
 
-public final strictfp class DeathTrigger extends IntervalTrigger {
+public final class DeathTrigger extends IntervalTrigger {
 	private final Selectable selectable;
 	private final Runnable runnable;
 

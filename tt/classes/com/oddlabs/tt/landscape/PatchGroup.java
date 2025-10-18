@@ -1,6 +1,6 @@
 package com.oddlabs.tt.landscape;
 
-public final strictfp class PatchGroup extends AbstractPatchGroup {
+public final class PatchGroup extends AbstractPatchGroup {
 	/*
 	 * child2 | child3
 	 * ----------------

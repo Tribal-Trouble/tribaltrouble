@@ -7,7 +7,7 @@ import com.oddlabs.tt.resource.NativeResource;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
 
-public final strictfp class NativeCursor extends NativeResource {
+public final class NativeCursor extends NativeResource {
 	private final org.lwjgl.input.Cursor cursor;
 	
 	public NativeCursor(GLIntImage image_16_1, int offset_x_16_1, int offset_y_16_1,

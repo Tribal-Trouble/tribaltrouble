@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public strictfp class DeployContainer<S extends Supply> extends SupplyContainer {
+public class DeployContainer<S extends Supply> extends SupplyContainer {
 	private final Building building;
 	private final int deploy_type;
 	private final Class<S> supply_type;

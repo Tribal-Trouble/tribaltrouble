@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public final strictfp class ConnectionListener extends AbstractConnectionListener implements Handler {
+public final class ConnectionListener extends AbstractConnectionListener implements Handler {
 	private final NetworkSelector network;
 	private SelectionKey key;
 

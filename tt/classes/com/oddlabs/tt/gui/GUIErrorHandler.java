@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
 
-public final strictfp class GUIErrorHandler implements ErrorHandler {
+public final class GUIErrorHandler implements ErrorHandler {
         @Override
 	public void fatalError(SAXParseException exception) {
 		// ignore fatal errors (an exception is guaranteed)

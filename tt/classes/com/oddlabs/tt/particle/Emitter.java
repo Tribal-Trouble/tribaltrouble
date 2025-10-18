@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.util.vector.Vector3f;
 
-public abstract strictfp class Emitter extends Element<Emitter> implements Animated {
+public abstract class Emitter extends Element<Emitter> implements Animated {
 	private final AnimationManager manager;
 	private final List<Particle>[] particles;
 	private final TextureKey[] textures;

@@ -4,7 +4,7 @@ import com.oddlabs.tt.guievent.RowListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public final strictfp class MultiColumnComboBox extends GUIObject implements Scrollable {
+public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 	private final ColumnInfo[] column_infos;
 	private final RadioButtonGroup group = new RadioButtonGroup();
 	private final Group focus_group = new Group();

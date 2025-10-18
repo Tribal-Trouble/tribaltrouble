@@ -19,7 +19,7 @@ import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
-public final strictfp class LocalInput {
+public final class LocalInput {
 	public final static int LEFT_BUTTON = 0;
 	public final static int RIGHT_BUTTON = 1;
 	public final static int MIDDLE_BUTTON = 2;

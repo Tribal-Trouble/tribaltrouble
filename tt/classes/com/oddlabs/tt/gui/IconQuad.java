@@ -4,7 +4,7 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.util.Quad;
 import org.lwjgl.opengl.*;
 
-public final strictfp class IconQuad extends Quad {
+public final class IconQuad extends Quad {
 	private final static long serialVersionUID = 1;
 
 	private final Texture texture;

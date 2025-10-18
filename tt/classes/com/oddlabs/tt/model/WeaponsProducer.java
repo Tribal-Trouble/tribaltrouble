@@ -7,7 +7,7 @@ import com.oddlabs.tt.particle.LinearEmitter;
 import java.util.ArrayList;
 import java.util.List;
 
-public strictfp class WeaponsProducer {
+public class WeaponsProducer {
 	private final static float MAX_BREAK_TIME = .25f;
 	private final static float BREAK_PROBABILITY = .2f;
 

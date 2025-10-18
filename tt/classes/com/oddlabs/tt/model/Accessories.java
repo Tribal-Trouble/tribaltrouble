@@ -3,7 +3,7 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
 
-public abstract strictfp class Accessories extends Model {
+public abstract class Accessories extends Model {
 	private final SpriteKey sprite_renderer;
 
 	public Accessories(World world, SpriteKey sprite_renderer) {

@@ -13,7 +13,7 @@ import java.util.Random;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public final strictfp class Lightning extends Element<Lightning> implements Animated {
+public final class Lightning extends Element<Lightning> implements Animated {
 	private final static float SQRT_2 = (float)StrictMath.sqrt(2f);
 
 	private final AnimationManager manager;

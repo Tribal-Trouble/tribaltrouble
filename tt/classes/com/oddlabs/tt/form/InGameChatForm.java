@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public final strictfp class InGameChatForm extends Form implements ChatListener {
+public final class InGameChatForm extends Form implements ChatListener {
 	private static final int CHAT_WIDTH = 400;
 	private static final int BUTTON_WIDTH = 50;
 	private static final int CHAT_HEIGHT = 150;
@@ -118,7 +118,7 @@ public final strictfp class InGameChatForm extends Form implements ChatListener 
 		((ControllableCameraDelegate)getParent()).mouseMoved(x, y);
 	}
 
-	private strictfp final class ChatListener implements EnterListener {
+	private final class ChatListener implements EnterListener {
         @Override
 		public void enterPressed(CharSequence text) {
 			String chat = text.toString();

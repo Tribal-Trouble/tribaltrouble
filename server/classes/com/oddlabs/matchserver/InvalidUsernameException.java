@@ -1,6 +1,6 @@
 package com.oddlabs.matchserver;
 
-public final strictfp class InvalidUsernameException extends Exception {
+public final class InvalidUsernameException extends Exception {
 	private final int error_code;
 
 	public InvalidUsernameException(int error_code) {

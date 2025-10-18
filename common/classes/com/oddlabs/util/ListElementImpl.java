@@ -1,6 +1,6 @@
 package com.oddlabs.util;
 
-public abstract strictfp class ListElementImpl<T> implements ListElement<T> {
+public abstract class ListElementImpl<T> implements ListElement<T> {
 	private LinkedList<T> parent;
 
 	private ListElement<T> next = null;

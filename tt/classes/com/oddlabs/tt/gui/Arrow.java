@@ -6,7 +6,7 @@ import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector4f;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class Arrow extends GUIObject {
+public final class Arrow extends GUIObject {
 	private final static float SECONDS_PER_FLASH = .5f;
 	private final static float COLOR_DELTA = .5f;
 

@@ -4,6 +4,6 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.render.UIRenderer;
 
 @FunctionalInterface
-public strictfp interface LoadCallback {
+public interface LoadCallback {
 	UIRenderer load(GUIRoot gui_root);
 }

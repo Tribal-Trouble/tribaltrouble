@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.util.Quad;
 
-public final strictfp class ToolTipBox extends TextField {
+public final class ToolTipBox extends TextField {
 	public final static float MAX_DELAY_SECONDS = 1.5f;
 		
 	private final TextLineRenderer tool_tip_renderer;

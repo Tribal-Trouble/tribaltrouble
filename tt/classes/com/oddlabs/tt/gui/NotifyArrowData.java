@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public final strictfp class NotifyArrowData {
+public final class NotifyArrowData {
 	private final IconQuad arrow;
 	private final int head_x;
 	private final int head_y;

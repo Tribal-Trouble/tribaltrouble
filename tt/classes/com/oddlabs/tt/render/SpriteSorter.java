@@ -5,7 +5,7 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.util.PocketList;
 
-public final strictfp class SpriteSorter {
+public final class SpriteSorter {
 	public final static int DETAIL_POINT = 1;
 	public final static int DETAIL_POLYGON = 2;
 

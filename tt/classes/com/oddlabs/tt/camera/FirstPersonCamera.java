@@ -6,7 +6,7 @@ import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.landscape.HeightMap;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class FirstPersonCamera extends Camera {
+public final class FirstPersonCamera extends Camera {
     private final static float SCALE_HORIZ = .002f;
     private final static float SCALE_VERT = .002f;
 

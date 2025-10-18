@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public final strictfp class ReproduceUnitContainer extends UnitContainer {
+public final class ReproduceUnitContainer extends UnitContainer {
 	private final Building building;
 
 

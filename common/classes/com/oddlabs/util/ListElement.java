@@ -1,6 +1,6 @@
 package com.oddlabs.util;
 
-public strictfp interface ListElement<T> {
+public interface ListElement<T> {
 	public void setNext(ListElement<T> next);
 	public void setPrior(ListElement<T> prior);
 	public ListElement<T> getNext();

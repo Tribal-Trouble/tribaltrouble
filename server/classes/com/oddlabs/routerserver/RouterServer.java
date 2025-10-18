@@ -19,7 +19,7 @@ import com.oddlabs.net.TimeManager;
 import com.oddlabs.router.Router;
 import com.oddlabs.event.*;
 
-public final strictfp class RouterServer {
+public final class RouterServer {
 	private final static Logger logger;
 	
 	static {

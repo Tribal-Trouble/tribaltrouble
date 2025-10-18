@@ -1,7 +1,7 @@
 package com.oddlabs.tt.camera;
 
 
-public  strictfp class StaticCamera extends Camera {
+public  class StaticCamera extends Camera {
     public StaticCamera(CameraState camera) {
         super(null, camera);
     }

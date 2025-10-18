@@ -3,7 +3,7 @@ package com.oddlabs.tt.net;
 import com.oddlabs.util.HashTable;
 import java.util.HashMap;
 
-public final strictfp class DistributableTable {
+public final class DistributableTable {
 	private final HashTable distributables = new HashTable();
 	private final HashMap names = new HashMap();
 	private int current_name = 1;

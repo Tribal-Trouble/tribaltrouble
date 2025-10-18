@@ -8,7 +8,7 @@ import com.oddlabs.tt.pathfinder.ScanFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import java.util.*;
 
-public final strictfp class BuildingSiteScanFilter implements ScanFilter {
+public final class BuildingSiteScanFilter implements ScanFilter {
 	private final UnitGrid unit_grid;
 	private final BuildingTemplate template;
 	private final int range;

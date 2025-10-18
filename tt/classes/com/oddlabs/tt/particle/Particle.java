@@ -4,7 +4,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public strictfp class Particle {
+public class Particle {
 	private final float u1;
 	private final float v1;
 	private final float u2;

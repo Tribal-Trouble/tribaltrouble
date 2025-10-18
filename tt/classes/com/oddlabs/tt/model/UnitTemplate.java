@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.weapon.WeaponFactory;
 import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
 
-public final strictfp class UnitTemplate extends Template {
+public final class UnitTemplate extends Template {
 	private final float meters_per_second;
 	private final WeaponFactory weapon_factory;
 	private final SpriteKey sprite_renderer;

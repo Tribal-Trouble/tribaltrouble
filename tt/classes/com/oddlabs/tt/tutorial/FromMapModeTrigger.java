@@ -2,7 +2,7 @@ package com.oddlabs.tt.tutorial;
 
 import com.oddlabs.tt.camera.GameCamera;
 
-public final strictfp class FromMapModeTrigger extends TutorialTrigger {
+public final class FromMapModeTrigger extends TutorialTrigger {
 	public FromMapModeTrigger() {
 		super(.1f, 1f, "from_map_mode");
 	}

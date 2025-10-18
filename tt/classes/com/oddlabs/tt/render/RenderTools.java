@@ -8,7 +8,7 @@ import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-final strictfp class RenderTools {
+final class RenderTools {
 	private final static FloatBuffer transform_matrix;
 
 	final static int NOT_IN_FRUSTUM = 1;

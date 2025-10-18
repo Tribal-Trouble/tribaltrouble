@@ -3,7 +3,7 @@ package com.oddlabs.tt.model.behaviour;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.util.Target;
 
-public final strictfp class WalkController extends Controller {
+public final class WalkController extends Controller {
 	private final Unit unit;
 	private final Target target;
 	private final boolean scan_attack;

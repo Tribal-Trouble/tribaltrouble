@@ -2,7 +2,7 @@ package com.oddlabs.net;
 
 import java.io.IOException;
 
-public abstract strictfp class AbstractConnectionListener {
+public abstract class AbstractConnectionListener {
 	private final ConnectionListenerInterface listener_interface;
 	
 	protected AbstractConnectionListener(ConnectionListenerInterface connection_listener) {

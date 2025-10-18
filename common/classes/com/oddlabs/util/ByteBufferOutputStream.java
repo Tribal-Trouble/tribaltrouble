@@ -3,7 +3,7 @@ package com.oddlabs.util;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-public final strictfp class ByteBufferOutputStream extends OutputStream {
+public final class ByteBufferOutputStream extends OutputStream {
 	private final static int BUFFER_SIZE = 16382;
 	
 	private ByteBuffer buffer;

@@ -21,7 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
 import java.util.ResourceBundle;
 
-public final strictfp class CampaignForm extends Form implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
+public final class CampaignForm extends Form implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
 	private final HorizButton button_vikings;
 	private final LoadCampaignBox load_campaign_box;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(CampaignForm.class.getName());
@@ -124,7 +124,7 @@ public final strictfp class CampaignForm extends Form implements DeterministicSe
 		}
 	}
 
-	private final strictfp class DeleteListener implements MouseClickListener {
+	private final class DeleteListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			CampaignState state = (CampaignState)load_campaign_box.getSelected();
@@ -135,21 +135,21 @@ public final strictfp class CampaignForm extends Form implements DeterministicSe
 		}
 	}
 
-	private final strictfp class ActionDeleteListener implements MouseClickListener {
+	private final class ActionDeleteListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			LoadCampaignBox.loadSavegames(CampaignForm.this);
 		}
 	}
 
-	private final strictfp class VikingsListener implements MouseClickListener {
+	private final class VikingsListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			main_menu.setMenu(new NewCampaignForm(network, gui_root, main_menu, CampaignForm.this));
 		}
 	}
 
-	private final strictfp class LoadListener implements MouseClickListener, RowListener {
+	private final class LoadListener implements MouseClickListener, RowListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			Object selected = load_campaign_box.getSelected();

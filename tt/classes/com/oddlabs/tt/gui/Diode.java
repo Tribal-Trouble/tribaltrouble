@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public final strictfp class Diode extends GUIObject {
+public final class Diode extends GUIObject {
 	private boolean lit;
 
 	public Diode() {

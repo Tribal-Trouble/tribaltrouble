@@ -4,7 +4,7 @@ import com.oddlabs.event.Deterministic;
 import java.io.Serializable;
 import java.util.*;
 
-public final strictfp class TaskThread {
+public final class TaskThread {
 	private final Map<Integer,Callable<?>> id_to_callable = new HashMap<>();
 	private final List<BlockingTask> tasks = new ArrayList<>();
 	private final List<BlockingTask> finished_tasks = new ArrayList<>();
@@ -21,11 +21,11 @@ public final strictfp class TaskThread {
 		this.notification_action = notification_action;
 	}
 
-	static strictfp interface TaskResult<T> extends Serializable {
+	static interface TaskResult<T> extends Serializable {
 		void deliverResult(TaskExecutorLoopbackInterface<T> callback);
 	}
 
-	final static strictfp class TaskFailed<T> implements TaskResult<T> {
+	final static class TaskFailed<T> implements TaskResult<T> {
 		private final Exception result;
 
 		TaskFailed(Exception e) {
@@ -38,7 +38,7 @@ public final strictfp class TaskThread {
 		}
 	}
 
-	final static strictfp class TaskSucceeded<T> implements TaskResult<T> {
+	final static class TaskSucceeded<T> implements TaskResult<T> {
 		private final T result;
 
 		TaskSucceeded(T result) {

@@ -16,7 +16,7 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.ResourceBundle;
 
-public final strictfp class MapcodeForm extends Form {
+public final class MapcodeForm extends Form {
 	private final static int BUTTON_WIDTH = 100;
 
 	private final TerrainMenu menu;
@@ -64,14 +64,14 @@ public final strictfp class MapcodeForm extends Form {
 		menu.setFocus();
 	}
 
-	private final strictfp class OKListener implements MouseClickListener {
+	private final class OKListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			done();
 		}
 	}
 
-	private final strictfp class RandButtonListener implements MouseClickListener {
+	private final class RandButtonListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick()*LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
@@ -83,7 +83,7 @@ public final strictfp class MapcodeForm extends Form {
 		}
 	}
 
-	public final strictfp class CodeEnterListener implements EnterListener {
+	public final class CodeEnterListener implements EnterListener {
                 @Override
 		public void enterPressed(CharSequence text) {
 			done();

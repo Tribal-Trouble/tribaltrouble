@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
 
-public final strictfp class IconSpinnerButton extends NonFocusIconButton {
+public final class IconSpinnerButton extends NonFocusIconButton {
 	private final IconSpinner owner;
 
 	public IconSpinnerButton(Quad[] icon_quad, String tool_tip, IconSpinner owner) {

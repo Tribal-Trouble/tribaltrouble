@@ -5,7 +5,7 @@ import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import java.util.*;
 
-public final strictfp class SkeletonLoader {
+public final class SkeletonLoader {
 	private SkeletonLoader() {
 	}
 

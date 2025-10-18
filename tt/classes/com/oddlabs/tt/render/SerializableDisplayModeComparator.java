@@ -2,7 +2,7 @@ package com.oddlabs.tt.render;
 
 import java.util.Comparator;
 
-public final strictfp class SerializableDisplayModeComparator implements Comparator<SerializableDisplayMode> {
+public final class SerializableDisplayModeComparator implements Comparator<SerializableDisplayMode> {
 	private final SerializableDisplayMode target_mode;
 
 	public SerializableDisplayModeComparator(SerializableDisplayMode target_mode) {

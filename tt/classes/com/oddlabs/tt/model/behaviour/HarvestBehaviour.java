@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.Unit;
 
-public final strictfp class HarvestBehaviour implements Behaviour {
+public final class HarvestBehaviour implements Behaviour {
 	private final static float SECONDS_PER_ANIMATION_CYCLE = 1f;
 	private final Supply supply;
 	private final Unit unit;

@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 
-public strictfp class BackgroundLabelBox extends LabelBox {
+public class BackgroundLabelBox extends LabelBox {
 	public BackgroundLabelBox(CharSequence text, Font font, int width) {
 		super(text, font, width);
 	}

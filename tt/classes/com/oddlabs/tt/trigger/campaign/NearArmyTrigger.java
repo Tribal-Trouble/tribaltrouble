@@ -6,7 +6,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.trigger.IntervalTrigger;
 import java.util.List;
 
-public final strictfp class NearArmyTrigger extends IntervalTrigger {
+public final class NearArmyTrigger extends IntervalTrigger {
 	private final Unit[] src;
 	private final float r;
 	private final Player player;

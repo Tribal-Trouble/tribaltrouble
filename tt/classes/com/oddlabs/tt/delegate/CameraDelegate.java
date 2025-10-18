@@ -3,7 +3,7 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.gui.*;
 
-public strictfp abstract class CameraDelegate extends Delegate {
+public abstract class CameraDelegate extends Delegate {
 	private final GUIRoot gui_root;
 	private Camera camera;
 

@@ -5,7 +5,7 @@ import com.oddlabs.tt.util.GLState;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
-public final strictfp class BlendLighting extends BlendInfo {
+public final class BlendLighting extends BlendInfo {
 
     private final float r;
     private final float g;

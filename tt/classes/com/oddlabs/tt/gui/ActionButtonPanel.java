@@ -26,7 +26,7 @@ import com.oddlabs.util.Quad;
 import java.util.ResourceBundle;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class ActionButtonPanel extends GUIObject implements Animated {
+public final class ActionButtonPanel extends GUIObject implements Animated {
 	private final static int GROUP_LEFT_OFFSET = 10;
 	private final static int GROUP_BOTTOM_OFFSET = 10;
 	private final static int GROUP_RIGHT_OFFSET = 10;
@@ -960,7 +960,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 			((GUIObject)getParent()).mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
 	}
 
-	private final strictfp class TargetListener implements MouseClickListener {
+	private final class TargetListener implements MouseClickListener {
 		private final int action;
 
 		public TargetListener(int action) {
@@ -973,7 +973,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 		}
 	}
 
-	private final strictfp class GroupListener implements MouseClickListener {
+	private final class GroupListener implements MouseClickListener {
 		private final Group remove_group;
 		private final Group add_group;
 
@@ -992,7 +992,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 		}
 	}
 
-	private final strictfp class CancelListener implements MouseClickListener {
+	private final class CancelListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			removeGroups();
@@ -1000,7 +1000,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 		}
 	}
 
-	private final strictfp class TowerExitListener implements MouseClickListener {
+	private final class TowerExitListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			if (!current_building.isDead())
@@ -1010,7 +1010,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 		}
 	}
 
-	private final strictfp class RallyPointListener implements MouseClickListener {
+	private final class RallyPointListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			if (!current_building.isDead())
@@ -1020,7 +1020,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 		}
 	}
 
-	private final strictfp class ChieftainDisabler implements IconDisabler {
+	private final class ChieftainDisabler implements IconDisabler {
 		private final Building building;
 
 		public ChieftainDisabler(Building building) {
@@ -1033,7 +1033,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 		}
 	}
 
-	private final strictfp class MagicDisabler implements IconDisabler {
+	private final class MagicDisabler implements IconDisabler {
 		private final Unit unit;
 		private final int magic_index;
 
@@ -1048,7 +1048,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 		}
 	}
 
-	private final strictfp class EmptySupplyDisabler implements IconDisabler {
+	private final class EmptySupplyDisabler implements IconDisabler {
 		private final SupplyCounter[] counters;
 
 		public EmptySupplyDisabler(SupplyCounter[] counters) {
@@ -1066,7 +1066,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 		}
 	}
 
-	private final strictfp class TowerActionDisabler implements IconDisabler {
+	private final class TowerActionDisabler implements IconDisabler {
 		private final Building building;
 		private final boolean exit;
 
@@ -1084,7 +1084,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 		}
 	}
 
-	private final strictfp class BuildingDisabler implements IconDisabler {
+	private final class BuildingDisabler implements IconDisabler {
 		private final int building;
 
 		public BuildingDisabler(int building) {
@@ -1097,14 +1097,14 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 		}
 	}
 
-	private final strictfp class TowerPlaceListener implements MouseClickListener {
+	private final class TowerPlaceListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			viewer.getGUIRoot().pushDelegate(new PlacingDelegate(viewer, camera.getState(), Race.BUILDING_TOWER));
 		}
 	}
 
-	private final strictfp class PlaceListener implements MouseClickListener {
+	private final class PlaceListener implements MouseClickListener {
 		private final int building_index;
 
 		public PlaceListener(int building_index) {

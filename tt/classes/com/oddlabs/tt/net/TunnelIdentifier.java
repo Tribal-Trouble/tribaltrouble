@@ -3,7 +3,7 @@ package com.oddlabs.tt.net;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchmaking.TunnelAddress;
 
-public final strictfp class TunnelIdentifier {
+public final class TunnelIdentifier {
 	private final Profile profile;
 	private final TunnelAddress address;
 

@@ -3,7 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.guievent.*;
 
-public strictfp class QuestionForm extends Form {
+public class QuestionForm extends Form {
 	private final HorizButton yes_button;
 
 	public QuestionForm(String message, MouseClickListener yes_action) {

@@ -6,7 +6,7 @@ import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class GLIntImage extends GLImage {
+public final class GLIntImage extends GLImage {
 	private final IntBuffer pixels;
 
         @Override

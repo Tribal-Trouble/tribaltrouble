@@ -4,7 +4,7 @@ import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.util.Quad;
 
-public final strictfp class Cost {
+public final class Cost {
 	private final Class[] supply_types;
 	private final int[] supply_amounts;
 

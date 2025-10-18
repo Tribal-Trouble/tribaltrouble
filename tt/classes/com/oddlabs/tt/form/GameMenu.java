@@ -44,7 +44,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public final strictfp class GameMenu extends Panel implements ConfigurationListener, ChatListener {
+public final class GameMenu extends Panel implements ConfigurationListener, ChatListener {
 	private final static int OPEN_INDEX = 0;
 	private final static int CLOSED_INDEX = 1;
 	private final static int COMPUTER_EASY_INDEX = 2;
@@ -490,21 +490,21 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
 		owner.removeGameMenu();
 	}
 
-	private final strictfp class InfoButtonListener implements MouseClickListener {
+	private final class InfoButtonListener implements MouseClickListener {
         @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			gui_root.addModalForm(new GameInfoForm(game));
 		}
 	}
 
-	private final strictfp class CancelButtonListener implements MouseClickListener {
+	private final class CancelButtonListener implements MouseClickListener {
         @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			cancel();
 		}
 	}
 
-	private final strictfp class ReadyListener implements MouseClickListener {
+	private final class ReadyListener implements MouseClickListener {
         @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			setReady(true);
@@ -520,7 +520,7 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
 		return teams.size();
 	}
 
-	private final strictfp class StartListener implements MouseClickListener {
+	private final class StartListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			final int MIN_TEAMS = 2;
@@ -534,7 +534,7 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
 		}
 	}
 
-	private final strictfp class PlayerSlotListener implements ItemChosenListener {
+	private final class PlayerSlotListener implements ItemChosenListener {
 		private final int player_slot;
 
 		public PlayerSlotListener(int player_slot) {
@@ -548,7 +548,7 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
 		}
 	}
 
-	private final strictfp class ChatListener implements EnterListener {
+	private final class ChatListener implements EnterListener {
                 @Override
 		public void enterPressed(CharSequence text) {
 			String chat = text.toString();
@@ -560,7 +560,7 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
 		}
 	}
 
-	private strictfp final class SendListener implements MouseClickListener {
+	private final class SendListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			chat_line.enterPressedAll();

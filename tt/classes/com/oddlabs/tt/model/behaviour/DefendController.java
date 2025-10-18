@@ -3,7 +3,7 @@ package com.oddlabs.tt.model.behaviour;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.util.Target;
 
-public final strictfp class DefendController extends Controller {
+public final class DefendController extends Controller {
 	private final Unit unit;
 	private final Target target;
 

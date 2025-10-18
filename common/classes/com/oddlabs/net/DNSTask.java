@@ -3,7 +3,7 @@ package com.oddlabs.net;
 import java.io.*;
 import java.net.*;
 
-public final strictfp class DNSTask implements Callable<InetSocketAddress> {
+public final class DNSTask implements Callable<InetSocketAddress> {
 	private final String dns_name;
 	private final int port;
 	private final Connection connection;

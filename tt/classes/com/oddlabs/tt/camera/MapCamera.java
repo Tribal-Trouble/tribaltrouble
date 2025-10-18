@@ -10,7 +10,7 @@ import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class MapCamera extends Camera {
+public final class MapCamera extends Camera {
     private final static float MAP_THRESHOLD = .1f;
     private final static float MAP_TIME_FACTOR = 1000f;
     private final static float SMOOTHNESS_FACTOR = 200f;

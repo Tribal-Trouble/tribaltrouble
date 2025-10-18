@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.*;
 import com.oddlabs.util.Quad;
 
-public final strictfp class MultiColumnComboBoxData {
+public final class MultiColumnComboBoxData {
 	private final Box box;
 	private final Horizontal button_pressed;
 	private final Horizontal button_unpressed;

@@ -9,7 +9,7 @@ import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.StateChecksum;
 import java.util.ArrayList;
 
-public final strictfp class InfoPrinter extends GUIObject implements Animated, ChatListener {
+public final class InfoPrinter extends GUIObject implements Animated, ChatListener {
 	private final static float SECONDS_PER_TIMEOUT = 8f;
 	private final static float[] PRIVATE_COLOR = new float[]{1f, .2f, .4f, 1f};
 	private final static float[] TEAM_COLOR = new float[]{.3f, .5f, 1f, 1f};

@@ -6,7 +6,7 @@ import com.oddlabs.tt.render.TextureKey;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public strictfp final class BalancedParametricEmitter extends ParametricEmitter {
+public final class BalancedParametricEmitter extends ParametricEmitter {
 	private final int num_particles;
 	private final float dist_u;
 	private final float dist_v;

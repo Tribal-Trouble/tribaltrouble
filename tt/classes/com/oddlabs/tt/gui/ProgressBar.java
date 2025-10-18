@@ -8,7 +8,7 @@ import com.oddlabs.util.Quad;
 import java.util.ResourceBundle;
 import org.lwjgl.opengl.Display;
 
-public final strictfp class ProgressBar extends GUIObject {
+public final class ProgressBar extends GUIObject {
 	private final ProgressBarInfo[] info;
 	private final boolean text_only;
 	

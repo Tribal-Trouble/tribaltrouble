@@ -3,7 +3,7 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.tt.resource.GLIntImage;
 
-public final strictfp class ErosionThermal {
+public final class ErosionThermal {
 
 	private final static boolean save_frames = false;
 	private final static boolean show_score = false;

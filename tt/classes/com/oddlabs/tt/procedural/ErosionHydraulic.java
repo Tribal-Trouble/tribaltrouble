@@ -3,7 +3,7 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.tt.resource.GLIntImage;
 
-public final strictfp class ErosionHydraulic {
+public final class ErosionHydraulic {
 
 	private final static boolean save_frames = false;
 	private final static boolean show_score = false;

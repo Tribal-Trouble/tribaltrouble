@@ -9,7 +9,7 @@ import com.oddlabs.tt.player.PlayerInterface;
 import java.util.LinkedList;
 import java.util.List;
 
-public final strictfp class Peer implements PeerHubInterface {
+public final class Peer implements PeerHubInterface {
 	private final GameArgumentReader argument_reader;
 	private final int peer_index;
 	private final Player player;
@@ -71,7 +71,7 @@ public final strictfp class Peer implements PeerHubInterface {
 		return player;
 	}
 
-	private final static strictfp class GameEvent {
+	private final static class GameEvent {
 		private final int tick;
 		private final ARMIEvent event;
 		

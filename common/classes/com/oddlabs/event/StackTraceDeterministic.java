@@ -3,7 +3,7 @@ package com.oddlabs.event;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
-public final strictfp class StackTraceDeterministic extends Deterministic {
+public final class StackTraceDeterministic extends Deterministic {
 	private final Deterministic deterministic;
 	private final Deterministic stack_deterministic;
 

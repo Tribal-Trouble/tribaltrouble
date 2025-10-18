@@ -18,7 +18,7 @@ import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class MatchmakingConnectingForm extends Form implements MatchmakingListener {
+public final class MatchmakingConnectingForm extends Form implements MatchmakingListener {
 	private final Form parent_form;
 	private final MainMenu main_menu;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(MatchmakingConnectingForm.class.getName());

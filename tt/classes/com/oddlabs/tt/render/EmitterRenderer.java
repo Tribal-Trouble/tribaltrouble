@@ -9,7 +9,7 @@ import java.util.List;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-final strictfp class EmitterRenderer {
+final class EmitterRenderer {
 	private final static float SQRT_2 = (float)StrictMath.sqrt(2f);
 	private final static float ROTATION_FACTOR = 60f;
 

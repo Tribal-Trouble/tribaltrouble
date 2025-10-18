@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.*;
 import com.oddlabs.util.Quad;
 
-public final strictfp class ProgressBarData {
+public final class ProgressBarData {
 	private final Horizontal progress_bar;
 	private final Quad[] left_fill;
 	private final Quad[] center_fill;

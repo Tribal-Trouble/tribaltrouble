@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 
-final strictfp class DBInterface {
+final class DBInterface {
 	private static void checkArguments(Object[] arguments) throws SQLException {
 		for (int i = 0; i < arguments.length; i++)
 			if (arguments[i] == null)

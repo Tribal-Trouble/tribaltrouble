@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public abstract strictfp class BuildSupplyContainer extends SupplyContainer {
+public abstract class BuildSupplyContainer extends SupplyContainer {
 	private int num_orders = 0;
 
 	public BuildSupplyContainer(int max_supply_count) {

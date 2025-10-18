@@ -8,7 +8,7 @@ import com.oddlabs.util.FontInfo;
 import com.oddlabs.util.Quad;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class Font {
+public final class Font {
 	private final Quad[] key_array;
 	private final Texture texture;
 	private final int x_border;

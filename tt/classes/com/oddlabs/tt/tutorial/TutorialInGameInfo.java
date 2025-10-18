@@ -11,7 +11,7 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 
-public final strictfp class TutorialInGameInfo implements InGameInfo {
+public final class TutorialInGameInfo implements InGameInfo {
 	private int next_tutorial = -1;
 
 	public boolean setNextTutorial(GUIRoot gui_root, int next_tutorial) {

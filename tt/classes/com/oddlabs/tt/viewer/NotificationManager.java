@@ -7,7 +7,7 @@ import com.oddlabs.tt.player.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public final strictfp class NotificationManager {
+public final class NotificationManager {
 	private final List<AttackNotification> attack_notifies = new ArrayList<>();
 	private final List<Notification> notifies = new ArrayList<>();
 	private final GUIRoot gui_root;

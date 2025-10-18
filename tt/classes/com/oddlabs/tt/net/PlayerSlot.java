@@ -4,7 +4,7 @@ import com.oddlabs.matchmaking.TunnelAddress;
 import com.oddlabs.tt.player.PlayerInfo;
 import java.io.Serializable;
 
-public final strictfp class PlayerSlot implements Serializable {
+public final class PlayerSlot implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	public final static int AI_NONE = 0;

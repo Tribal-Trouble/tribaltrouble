@@ -19,7 +19,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 
-public final strictfp class Skin {
+public final class Skin {
 	public final static int NORMAL = 0;
 	public final static int ACTIVE = 1;
 	public final static int DISABLED = 2;

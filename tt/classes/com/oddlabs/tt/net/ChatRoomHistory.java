@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public final strictfp class ChatRoomHistory extends ChatHistory {
+public final class ChatRoomHistory extends ChatHistory {
 
 	private ChatRoomUser[] old_users;
 

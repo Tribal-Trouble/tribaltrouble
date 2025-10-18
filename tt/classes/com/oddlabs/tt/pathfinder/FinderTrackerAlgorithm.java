@@ -2,7 +2,7 @@ package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.model.Selectable;
 
-public final strictfp class FinderTrackerAlgorithm<O extends Occupant> implements TrackerAlgorithm {
+public final class FinderTrackerAlgorithm<O extends Occupant> implements TrackerAlgorithm {
 	private final FinderFilter<O> filter;
 	private final UnitGrid unit_grid;
 	private O target;

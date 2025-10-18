@@ -10,7 +10,7 @@ import com.oddlabs.tt.util.Target;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class UnitGrid {
+public final class UnitGrid {
 	private final Region[][] regions;
 	private final Occupant[][] occupants;
 	private final HeightMap heightmap;

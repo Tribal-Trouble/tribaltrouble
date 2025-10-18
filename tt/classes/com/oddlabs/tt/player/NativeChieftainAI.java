@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import java.util.List;
 
-public final strictfp class NativeChieftainAI extends ChieftainAI {
+public final class NativeChieftainAI extends ChieftainAI {
 	private final static int NUM_UNITS_FOR_LIGHTNING = 2;
 	private final static int NUM_UNITS_FOR_POISON = 5;
 

@@ -4,7 +4,7 @@ import com.oddlabs.net.DefaultARMIArgumentWriter;
 import com.oddlabs.util.ByteBufferOutputStream;
 import java.io.*;
 
-final strictfp class GameArgumentWriter extends DefaultARMIArgumentWriter {
+final class GameArgumentWriter extends DefaultARMIArgumentWriter {
 	private final DistributableTable distributable_table;
 
 	GameArgumentWriter(DistributableTable table) {

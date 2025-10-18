@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.util.ListElement;
 import org.lwjgl.input.Keyboard;
 
-public strictfp class Group extends GUIObject {
+public class Group extends GUIObject {
 	public Group() {
 		this(true);
 	}

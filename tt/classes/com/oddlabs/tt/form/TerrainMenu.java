@@ -44,7 +44,7 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.ResourceBundle;
 
-public final strictfp class TerrainMenu extends Group {
+public final class TerrainMenu extends Group {
 	public final static byte SMALL = 0;
 	public final static byte MEDIUM = 1;
 	public final static byte LARGE = 2;
@@ -552,7 +552,7 @@ public final strictfp class TerrainMenu extends Group {
 		return button_ok;
 	}
 
-	private final strictfp class CancelButtonListener implements MouseClickListener {
+	private final class CancelButtonListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			owner.terrainMenuCancel();
@@ -644,14 +644,14 @@ System.out.println("Start server");
 		return true;
 	}
 
-	private final strictfp class MapcodeListener implements MouseClickListener {
+	private final class MapcodeListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			gui_root.addModalForm(new MapcodeForm(TerrainMenu.this));
 		}
 	}
 
-	private final strictfp class OKListener implements MouseClickListener {
+	private final class OKListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			boolean started = startGame();
@@ -660,7 +660,7 @@ System.out.println("Start server");
 		}
 	}
 
-	private final strictfp class DisableListener implements ItemChosenListener {
+	private final class DisableListener implements ItemChosenListener {
 		int i;
 
 		public DisableListener(int i) {
@@ -681,32 +681,32 @@ System.out.println("Start server");
 		}
 	}
 
-	private final strictfp class PulldownUpdateMapcodeListener implements ItemChosenListener {
+	private final class PulldownUpdateMapcodeListener implements ItemChosenListener {
                 @Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 			setMapcode();
 		}
 	}
 
-	private final strictfp class PulldownUpdateSizeListener implements ItemChosenListener {
+	private final class PulldownUpdateSizeListener implements ItemChosenListener {
                 @Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 		}
 	}
 
-	private final strictfp class PulldownUpdateHardListener implements ItemChosenListener {
+	private final class PulldownUpdateHardListener implements ItemChosenListener {
                 @Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 		}
 	}
 
-	private final strictfp class PulldownUpdateTerrainListener implements ItemChosenListener {
+	private final class PulldownUpdateTerrainListener implements ItemChosenListener {
                 @Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 		}
 	}
 
-	private final strictfp class SliderUpdateMapcodeListener implements ValueListener {
+	private final class SliderUpdateMapcodeListener implements ValueListener {
                 @Override
 		public void valueSet(int value) {
 			setMapcode();

@@ -1,6 +1,6 @@
 package com.oddlabs.registration;
 
-public final strictfp class RegistrationKeyFormatException extends NumberFormatException {
+public final class RegistrationKeyFormatException extends NumberFormatException {
 	private static final long serialVersionUID = 3673901824484153336L;
 
 	public final static int TYPE_INVALID_CHAR = 0;

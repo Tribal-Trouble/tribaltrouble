@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.input.Keyboard;
 
-public strictfp class EditLine extends TextField {
+public class EditLine extends TextField {
 	public final static int RIGHT_ALIGNED = 1;
 	public final static int LEFT_ALIGNED = 2;
 	

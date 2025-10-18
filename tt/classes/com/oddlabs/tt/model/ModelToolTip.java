@@ -1,5 +1,5 @@
 package com.oddlabs.tt.model;
 
-public strictfp interface ModelToolTip {
+public interface ModelToolTip {
 	void visit(ToolTipVisitor visitor);
 }

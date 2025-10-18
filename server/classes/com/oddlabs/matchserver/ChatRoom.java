@@ -7,7 +7,7 @@ import com.oddlabs.matchmaking.ChatRoomUser;
 import java.io.Serializable;
 import java.util.*;
 
-public final strictfp class ChatRoom {
+public final class ChatRoom {
 	private final static Map chat_rooms = new HashMap();
 	
 	private final Set users = new HashSet();

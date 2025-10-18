@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
 
-final strictfp class PbufferRenderer extends OffscreenRenderer {
+final class PbufferRenderer extends OffscreenRenderer {
 	private final Pbuffer pbuffer;
 	private final OffscreenRendererFactory factory;
 

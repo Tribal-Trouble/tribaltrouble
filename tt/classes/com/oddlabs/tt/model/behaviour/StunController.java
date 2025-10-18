@@ -2,7 +2,7 @@ package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Unit;
 
-public final strictfp class StunController extends Controller {
+public final class StunController extends Controller {
 	private final Unit unit;
 	private final StunBehaviour stun_behaviour;
 

@@ -18,7 +18,7 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.PixelFormat;
 
-public final strictfp class IslandGenerator implements WorldGenerator {
+public final class IslandGenerator implements WorldGenerator {
 	private final static long serialVersionUID = 1;
 
 	private final static int TEXELS_PER_CHUNK = 512;

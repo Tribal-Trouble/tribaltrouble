@@ -7,7 +7,7 @@ import com.oddlabs.tt.net.*;
 import com.oddlabs.tt.util.Utils;
 import java.util.*;
 
-public strictfp class ChatPanel extends Panel implements ChatListener {
+public class ChatPanel extends Panel implements ChatListener {
 	private final static int PULLDOWN_INDEX_MESSAGE = 0;
 	private final static int PULLDOWN_INDEX_INFO = 1;
 	private final static int PULLDOWN_INDEX_IGNORE = 2;
@@ -156,7 +156,7 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
 			private_message_form.remove();
 	}
 
-	private final strictfp class PulldownListener implements ItemChosenListener {
+	private final class PulldownListener implements ItemChosenListener {
 		private final MultiColumnComboBox box;
 
 		public PulldownListener(MultiColumnComboBox box) {
@@ -187,7 +187,7 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
 		}
 	}
 
-	private final strictfp class ChatRoomUserDoubleClickedListener implements RowListener {
+	private final class ChatRoomUserDoubleClickedListener implements RowListener {
 		private final PulldownMenu menu;
 
 		public ChatRoomUserDoubleClickedListener(PulldownMenu menu) {

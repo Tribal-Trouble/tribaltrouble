@@ -14,7 +14,7 @@ import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 
-public final strictfp class RubberSupply extends SupplyModel implements Animated, Movable {
+public final class RubberSupply extends SupplyModel implements Animated, Movable {
 	private final static float MIN_TREE_FALL_HEIGHT = 4f;
 	private final static float MAX_TREE_FALL_HEIGHT = 8f;
 

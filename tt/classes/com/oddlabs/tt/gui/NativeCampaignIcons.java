@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.render.Texture;
 import org.w3c.dom.Node;
 
-public final strictfp class NativeCampaignIcons implements CampaignIcons {
+public final class NativeCampaignIcons implements CampaignIcons {
 	private final static int NUM_ISLANDS = 8;
 
 	private static CampaignIcons icons;

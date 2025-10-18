@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-final strictfp class RegionBuilderNode {
+final class RegionBuilderNode {
 	private final int x;
 	private final int y;
 	private int total_cost;

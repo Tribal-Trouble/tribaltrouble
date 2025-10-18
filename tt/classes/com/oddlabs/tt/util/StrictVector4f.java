@@ -42,7 +42,7 @@ import java.nio.FloatBuffer;
  * @version $Revision: 1.3 $
  */
 
-public strictfp class StrictVector4f {
+public class StrictVector4f {
 
 	public float x, y, z, w;
 	

@@ -3,7 +3,7 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 
-public final strictfp class Hill {
+public final class Hill {
 	private Channel channel;
 	private int size;
 

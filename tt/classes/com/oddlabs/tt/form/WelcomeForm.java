@@ -5,7 +5,7 @@ import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class WelcomeForm extends Form {
+public final class WelcomeForm extends Form {
 
 
 	public WelcomeForm(GUIRoot gui_root, MainMenu main_menu) {

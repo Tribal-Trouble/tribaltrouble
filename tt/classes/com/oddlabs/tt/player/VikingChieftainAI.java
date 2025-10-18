@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import java.util.List;
 
-public final strictfp class VikingChieftainAI extends ChieftainAI {
+public final class VikingChieftainAI extends ChieftainAI {
 	private final static int NUM_UNITS_FOR_STUN = 5;
 	private final static int NUM_UNITS_FOR_BLAST = 7;
 

@@ -2,7 +2,7 @@ package com.oddlabs.tt.tutorial;
 
 import com.oddlabs.tt.model.Building;
 
-public final strictfp class RepairTowerTrigger extends TutorialTrigger {
+public final class RepairTowerTrigger extends TutorialTrigger {
 	private final Building tower;
 	
 	public RepairTowerTrigger(Building tower) {

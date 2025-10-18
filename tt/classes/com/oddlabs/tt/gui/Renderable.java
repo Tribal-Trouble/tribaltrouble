@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.util.*;
 import org.lwjgl.opengl.*;
 
-public abstract strictfp class Renderable extends ListElementImpl {
+public abstract class Renderable extends ListElementImpl {
 	private int x = 0;
 	private int y = 0;
 	private int width = 0;

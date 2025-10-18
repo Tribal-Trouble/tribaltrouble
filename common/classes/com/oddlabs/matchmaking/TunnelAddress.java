@@ -3,7 +3,7 @@ package com.oddlabs.matchmaking;
 import java.io.Serializable;
 import java.net.InetAddress;
 
-public final strictfp class TunnelAddress implements Serializable {
+public final class TunnelAddress implements Serializable {
 	private final static long serialVersionUID = -2854382209354714233l;
 	private final int host_id;
 	private final InetAddress address;

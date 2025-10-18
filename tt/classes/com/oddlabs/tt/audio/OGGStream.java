@@ -9,7 +9,7 @@ import java.net.URL;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
-public final strictfp class OGGStream {
+public final class OGGStream {
 	private final URL file;
 	private int data_size = 8192;
 	private final byte[] data_buffer = new byte[data_size];

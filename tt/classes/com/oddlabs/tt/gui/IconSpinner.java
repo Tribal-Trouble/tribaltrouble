@@ -7,7 +7,7 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
 import java.util.ResourceBundle;
 
-public abstract strictfp class IconSpinner extends GUIObject implements ToolTip {
+public abstract class IconSpinner extends GUIObject implements ToolTip {
 	private final IconQuad[] icon_quad;
 	private final String tool_tip;
 	private final Quad[] tool_tip_icons;
@@ -141,7 +141,7 @@ public abstract strictfp class IconSpinner extends GUIObject implements ToolTip 
 	protected final void mouseHeld(int button, int x, int y) {
 	}
 
-	private final strictfp class IncreaseListener implements MouseButtonListener {
+	private final class IncreaseListener implements MouseButtonListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 		}
@@ -165,7 +165,7 @@ public abstract strictfp class IconSpinner extends GUIObject implements ToolTip 
 		}
 	}
 
-	private final strictfp class DecreaseListener implements MouseButtonListener {
+	private final class DecreaseListener implements MouseButtonListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 		}

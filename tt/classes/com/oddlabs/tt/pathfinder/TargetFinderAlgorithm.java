@@ -1,7 +1,7 @@
 package com.oddlabs.tt.pathfinder;
 
 
-public final strictfp class TargetFinderAlgorithm<O extends Occupant> extends GridPathFinder {
+public final class TargetFinderAlgorithm<O extends Occupant> extends GridPathFinder {
 	private final FinderFilter<O> filter;
 
 	private O target;

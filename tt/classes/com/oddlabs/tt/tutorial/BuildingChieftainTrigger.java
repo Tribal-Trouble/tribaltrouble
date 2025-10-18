@@ -8,7 +8,7 @@ import com.oddlabs.tt.player.Player;
 import java.util.Iterator;
 import java.util.Set;
 
-public final strictfp class BuildingChieftainTrigger extends TutorialTrigger {
+public final class BuildingChieftainTrigger extends TutorialTrigger {
 	public BuildingChieftainTrigger(Player player) {
 		super(1f, 0f, "building_chieftain");
 		player.enableRepairing(false);

@@ -7,7 +7,7 @@ import com.oddlabs.tt.render.*;
 import com.oddlabs.tt.resource.*;
 import org.lwjgl.opengl.*;
 
-public final strictfp class GeneratorSmoke extends TextureGenerator {
+public final class GeneratorSmoke extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;
 
         @Override

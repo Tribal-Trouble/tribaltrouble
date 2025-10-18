@@ -6,7 +6,7 @@ import com.oddlabs.tt.render.TextureKey;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public final strictfp class RingEmitter extends LinearEmitter {
+public final class RingEmitter extends LinearEmitter {
 	private final int num_particles;
 
 	public RingEmitter(World world, Vector3f position, float offset_z,

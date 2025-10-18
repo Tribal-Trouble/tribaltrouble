@@ -2,7 +2,7 @@ package com.oddlabs.matchmaking;
 
 import java.io.Serializable;
 
-public final strictfp class Profile implements Serializable {
+public final class Profile implements Serializable {
 	private final static long serialVersionUID = -3399364532017471737l;
 	
 	private final String nick;

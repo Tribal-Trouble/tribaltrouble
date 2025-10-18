@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.*;
 
-public strictfp class HorizButton extends ButtonObject {
+public class HorizButton extends ButtonObject {
 	public HorizButton(String caption, int width) {
 		setDim(width, Skin.getSkin().getHorizButtonPressed().getHeight());
 		Font font = Skin.getSkin().getButtonFont();

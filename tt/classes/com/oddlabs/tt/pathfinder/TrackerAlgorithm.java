@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-public strictfp interface TrackerAlgorithm {
+public interface TrackerAlgorithm {
 	public boolean isDone(int x, int y);
 	public boolean acceptRegion(Region region);
 	public Region findPathRegion(int src_x, int src_y);

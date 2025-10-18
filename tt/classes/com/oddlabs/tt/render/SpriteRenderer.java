@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class SpriteRenderer {
+public final class SpriteRenderer {
 	public final static int HIGH_POLY = 0;
 	public final static int LOW_POLY = 1;
 	

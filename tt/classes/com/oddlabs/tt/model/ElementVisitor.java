@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.weapon.*;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Lightning;
 
-public strictfp interface ElementVisitor {
+public interface ElementVisitor {
 	void visitUnit(Unit selectable);
 	void visitBuilding(Building selectable);
 	void visitEmitter(Emitter emitter);

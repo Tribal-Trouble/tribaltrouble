@@ -22,7 +22,7 @@ import com.oddlabs.tt.trigger.campaign.VictoryTrigger;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class VikingIsland4 extends Island {
+public final class VikingIsland4 extends Island {
 	private final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland4.class.getName());
 
 	public VikingIsland4(Campaign campaign) {

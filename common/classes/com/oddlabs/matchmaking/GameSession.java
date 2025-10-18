@@ -3,7 +3,7 @@ package com.oddlabs.matchmaking;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public final strictfp class GameSession implements Serializable {
+public final class GameSession implements Serializable {
 	private static final long serialVersionUID = 2768150608081852612L;
 
 	public final static int MIN_WINS_FOR_RANKING = 5;

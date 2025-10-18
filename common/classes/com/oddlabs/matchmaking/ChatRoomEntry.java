@@ -2,7 +2,7 @@ package com.oddlabs.matchmaking;
 
 import java.io.Serializable;
 
-public final strictfp class ChatRoomEntry implements Serializable {
+public final class ChatRoomEntry implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final String name;

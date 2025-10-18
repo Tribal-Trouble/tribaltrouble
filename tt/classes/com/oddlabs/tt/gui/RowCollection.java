@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import org.lwjgl.BufferUtils;
 
-public final strictfp class RowCollection extends GUIObject {
+public final class RowCollection extends GUIObject {
 	private final static DoubleBuffer plane_buf = BufferUtils.createDoubleBuffer(4);
 	private final List rows = new ArrayList();
 	private final MultiColumnComboBox multi_box;
@@ -94,7 +94,7 @@ public final strictfp class RowCollection extends GUIObject {
 		selected_row.mark(true);
 	}
 
-	private final strictfp class RowListener implements MouseClickListener {
+	private final class RowListener implements MouseClickListener {
 		private final Row row;
 
 		public RowListener(Row row) {

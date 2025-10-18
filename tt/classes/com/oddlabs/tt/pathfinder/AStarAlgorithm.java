@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-abstract strictfp class AStarAlgorithm implements PathFinderAlgorithm {
+abstract class AStarAlgorithm implements PathFinderAlgorithm {
 	private final int dst_x;
 	private final int dst_y;
 	private final Region dst_region;

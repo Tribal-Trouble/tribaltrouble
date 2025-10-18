@@ -17,7 +17,7 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import java.util.ArrayList;
 import java.util.List;
 
-final strictfp class WorldStarter implements LoadCallback {
+final class WorldStarter implements LoadCallback {
 	private final UnitInfo[] unit_infos;
 	private final PlayerSlot[] player_slots;
 	private final short player_slot;

@@ -3,7 +3,7 @@ package com.oddlabs.tt.net;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.tt.gui.ChatRoomInfo;
 
-public strictfp interface MatchmakingListener extends ErrorListener {
+public interface MatchmakingListener extends ErrorListener {
 	public void clearList(int type);
 	public void receivedList(int type, Object[] names);
 	public void loggedIn();

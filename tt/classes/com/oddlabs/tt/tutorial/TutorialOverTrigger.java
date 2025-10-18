@@ -3,7 +3,7 @@ package com.oddlabs.tt.tutorial;
 import com.oddlabs.tt.form.TutorialForm;
 import com.oddlabs.tt.player.Player;
 
-public final strictfp class TutorialOverTrigger extends TutorialTrigger {
+public final class TutorialOverTrigger extends TutorialTrigger {
 
 	public TutorialOverTrigger() {
 		super(1f, 0f, "tutorial_over");

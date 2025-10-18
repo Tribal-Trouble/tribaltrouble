@@ -11,7 +11,7 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Quad;
 import java.util.ResourceBundle;
 
-final strictfp class ToolTipAdapter implements ToolTipVisitor, ToolTip {
+final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 	private final static Quad[] icon = new Quad[1];
 
 	private final ModelToolTip model;

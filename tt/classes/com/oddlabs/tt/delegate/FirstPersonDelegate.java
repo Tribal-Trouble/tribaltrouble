@@ -7,7 +7,7 @@ import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.lwjgl.input.Keyboard;
 
-public strictfp class FirstPersonDelegate extends InGameDelegate {
+public class FirstPersonDelegate extends InGameDelegate {
 	private final boolean key_pressed;
 	private final int created_tick;
 

@@ -4,7 +4,7 @@ import com.oddlabs.tt.form.TutorialForm;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Unit;
 
-public final strictfp class MagicTrigger extends TutorialTrigger {
+public final class MagicTrigger extends TutorialTrigger {
 	private final boolean[] magic_used = new boolean[RacesResources.NUM_MAGIC];
 	
 	private final Unit chieftain;

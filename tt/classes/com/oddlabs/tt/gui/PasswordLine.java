@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.util.CryptUtils;
 
-public strictfp class PasswordLine extends EditLine {
+public class PasswordLine extends EditLine {
 	private final static StringBuffer star_string = new StringBuffer();
 
 	private String password_digest;

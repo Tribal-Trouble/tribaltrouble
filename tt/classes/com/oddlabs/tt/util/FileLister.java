@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.regex.Pattern;
 
-public final strictfp class FileLister implements FileListerInterface {
+public final class FileLister implements FileListerInterface {
 	private final FileListerListener listener;
 
 	public FileLister(File dir, String pattern, FileListerListener listener) {
@@ -18,7 +18,7 @@ public final strictfp class FileLister implements FileListerInterface {
 		listener.newFiles(new_files);
 	}
 
-	private final strictfp class PatternFilenameFilter implements FilenameFilter {
+	private final class PatternFilenameFilter implements FilenameFilter {
 		private final String pattern;
 
 		public PatternFilenameFilter(String pattern) {

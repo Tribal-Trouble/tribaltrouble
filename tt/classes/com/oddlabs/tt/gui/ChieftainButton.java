@@ -5,7 +5,7 @@ import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.WorldViewer;
 
-public strictfp class ChieftainButton extends NonFocusIconButton implements ToolTip {
+public class ChieftainButton extends NonFocusIconButton implements ToolTip {
 	private final PlayerInterface player_interface;
 	private final WorldViewer viewer;
 	private Building current_building;

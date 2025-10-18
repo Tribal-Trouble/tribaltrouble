@@ -29,7 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
 import java.util.ResourceBundle;
 
-public final strictfp class NewCampaignForm extends Form implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
+public final class NewCampaignForm extends Form implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
 	private final static int BUTTON_WIDTH = 100;
 	private final static int EDITLINE_WIDTH = 240;
 
@@ -209,7 +209,7 @@ public final strictfp class NewCampaignForm extends Form implements Deterministi
 		}
 	}
 
-	private final strictfp class NameListener implements MouseClickListener, EnterListener {
+	private final class NameListener implements MouseClickListener, EnterListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			save();
@@ -221,7 +221,7 @@ public final strictfp class NewCampaignForm extends Form implements Deterministi
 		}
 	}
 
-	private final strictfp class RaceListener implements ItemChosenListener {
+	private final class RaceListener implements ItemChosenListener {
                 @Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 			if (item_index == INDEX_NATIVES && (!Settings.getSettings().has_native_campaign)) {

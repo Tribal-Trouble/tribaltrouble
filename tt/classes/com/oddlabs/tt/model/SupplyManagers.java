@@ -5,7 +5,7 @@ import com.oddlabs.tt.landscape.World;
 import java.util.HashMap;
 import java.util.Map;
 
-public strictfp class SupplyManagers {
+public class SupplyManagers {
 	private final Map<Class<? extends Supply>,SupplyManager> supply_managers = new HashMap<>();
 
 	public final void debugSpawn() {

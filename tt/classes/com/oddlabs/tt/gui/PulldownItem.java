@@ -1,7 +1,7 @@
 package com.oddlabs.tt.gui;
 
 
-public final strictfp class PulldownItem extends ButtonObject {
+public final class PulldownItem extends ButtonObject {
 	private final Label label;
 	private final Object attachment;
 

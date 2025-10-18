@@ -4,7 +4,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.behaviour.MagicController;
 import com.oddlabs.tt.trigger.IntervalTrigger;
 
-public final strictfp class MagicUsedTrigger extends IntervalTrigger {
+public final class MagicUsedTrigger extends IntervalTrigger {
 	private final Unit chieftain;
 	private final float x;
 	private final float y;

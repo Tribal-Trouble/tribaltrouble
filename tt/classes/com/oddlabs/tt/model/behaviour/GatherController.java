@@ -8,7 +8,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.TargetTrackerAlgorithm;
 
-public final strictfp class GatherController<S extends Supply> extends Controller {
+public final class GatherController<S extends Supply> extends Controller {
 	private final static int HARVEST_STATE = 0;
 	private final static int DROPOFF_STATE = 1;
 

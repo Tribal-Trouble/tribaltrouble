@@ -7,7 +7,7 @@ import com.oddlabs.tt.util.*;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
 
-final strictfp class LightningRenderer {
+final class LightningRenderer {
 
     private final static float SQRT_2 = (float) StrictMath.sqrt(2f);
     private final static StrictVector3f right_vector = new StrictVector3f();

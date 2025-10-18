@@ -22,7 +22,7 @@ import java.util.Set;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class SelectionDelegate extends ControllableCameraDelegate {
+public final class SelectionDelegate extends ControllableCameraDelegate {
 	private final InGameChatForm chat_form;
 	private final Label observer_label;
 	private final GameCamera game_camera;

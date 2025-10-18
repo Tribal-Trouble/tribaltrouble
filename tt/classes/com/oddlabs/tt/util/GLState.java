@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GLContext;
 
-public final strictfp class GLState implements Cloneable {
+public final class GLState implements Cloneable {
 	public final static int VERTEX_ARRAY = 1 << 0;
 	public final static int NORMAL_ARRAY = 1 << 1;
 	public final static int TEXCOORD0_ARRAY = 1 << 2;

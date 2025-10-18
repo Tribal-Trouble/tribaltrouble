@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public final strictfp class KeyboardEvent {
+public final class KeyboardEvent {
 	private final int key_code;
 	private final char key_char;
 	private final boolean shift_down;

@@ -3,7 +3,7 @@ package com.oddlabs.tt.model.behaviour;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.weapon.MagicFactory;
 
-public final strictfp class MagicController extends Controller {
+public final class MagicController extends Controller {
 	private final Unit unit;
 	private final MagicFactory magic_factory;
 

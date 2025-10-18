@@ -11,7 +11,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class InfoForm extends Form {
+public final class InfoForm extends Form {
 	private final HorizButton ok_button;
 
 	public InfoForm(Profile profile) {

@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Model;
 import java.util.ArrayList;
 import java.util.List;
 
-final strictfp class SpriteListRenderer {
+final class SpriteListRenderer {
 	private final SpriteList sprite_list;
 	private final List<ModelState> render_lists[][];
 	private final List<ModelState> respond_render_lists[][];

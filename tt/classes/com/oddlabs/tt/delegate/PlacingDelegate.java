@@ -23,7 +23,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class PlacingDelegate extends ControllableCameraDelegate {
+public final class PlacingDelegate extends ControllableCameraDelegate {
 	private final static int GRID_RADIUS = 20;
 	private final static FloatBuffer color;
 	private final static LandscapeLocation landscape_hit = new LandscapeLocation();

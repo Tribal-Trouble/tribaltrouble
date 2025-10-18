@@ -1,6 +1,6 @@
 package com.oddlabs.net;
 
-public final strictfp class MonotoneTimeManager implements TimeManager {
+public final class MonotoneTimeManager implements TimeManager {
 	private final TimeManager source;
 	private long last_time;
 

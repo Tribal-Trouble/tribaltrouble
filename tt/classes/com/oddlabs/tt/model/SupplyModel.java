@@ -7,7 +7,7 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
 
-public abstract strictfp class SupplyModel extends Model implements Supply, Target, ModelToolTip {
+public abstract class SupplyModel extends Model implements Supply, Target, ModelToolTip {
 	private final static float SPAWN_OFFSET_Z = -2f;
 
 	private final SpriteKey sprite_renderer;

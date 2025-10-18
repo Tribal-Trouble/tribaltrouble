@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
 
-public final strictfp class ScrollBarData {
+public final class ScrollBarData {
 	private final Vertical scroll_bar;
 	private final Quad[] scroll_down_button_pressed;
 	private final Quad[] scroll_down_button_unpressed;

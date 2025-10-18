@@ -3,7 +3,7 @@ package com.oddlabs.tt.trigger.campaign;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.trigger.IntervalTrigger;
 
-public final strictfp class NearPointTrigger extends IntervalTrigger {
+public final class NearPointTrigger extends IntervalTrigger {
 	private final int grid_x;
 	private final int grid_y;
 	private final int r;

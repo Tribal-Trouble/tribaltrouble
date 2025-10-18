@@ -13,7 +13,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.StateChecksum;
 
-public abstract strictfp class ThrowingWeapon extends Accessories implements Animated {
+public abstract class ThrowingWeapon extends Accessories implements Animated {
 	private final static float GRAVITY = -6*9.82f;
 	private final static float NO_DETAIL_SIZE = .5f;
 

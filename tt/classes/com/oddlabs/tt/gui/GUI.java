@@ -9,7 +9,7 @@ import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class GUI implements Animated {
+public final class GUI implements Animated {
 	private GUIRoot current_root = createRoot();
 	private Fade fade;
 	private UIRenderer renderer;

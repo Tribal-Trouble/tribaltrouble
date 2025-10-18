@@ -1,6 +1,6 @@
 package com.oddlabs.tt.landscape;
 
-public strictfp interface PatchGroupVisitor {
+public interface PatchGroupVisitor {
 	void visitGroup(PatchGroup group);
 	void visitLeaf(LandscapeLeaf leaf);
 }

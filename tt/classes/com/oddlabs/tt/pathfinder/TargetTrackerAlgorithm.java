@@ -3,7 +3,7 @@ package com.oddlabs.tt.pathfinder;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.util.Target;
 
-public final strictfp class TargetTrackerAlgorithm implements TrackerAlgorithm {
+public final class TargetTrackerAlgorithm implements TrackerAlgorithm {
 	private final UnitGrid unit_grid;
 	private final Target target;
 	private final float max_dist;

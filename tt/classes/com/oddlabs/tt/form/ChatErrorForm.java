@@ -4,7 +4,7 @@ import com.oddlabs.matchmaking.MatchmakingClientInterface;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class ChatErrorForm extends MessageForm {
+public final class ChatErrorForm extends MessageForm {
 	private static String getErrorFromCode(int error_code) {
 		ResourceBundle bundle = ResourceBundle.getBundle(ChatErrorForm.class.getName());
 		switch (error_code) {

@@ -2,7 +2,7 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.gui.BuildSpinner; // only used for an assertion
 
-public strictfp class BuildProductionContainer extends BuildSupplyContainer {
+public class BuildProductionContainer extends BuildSupplyContainer {
 	private final SupplyContainer dest_container;
 	private final Building building;
 	private final Cost cost;

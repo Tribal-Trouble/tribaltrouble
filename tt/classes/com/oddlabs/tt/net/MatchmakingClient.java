@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public final strictfp class MatchmakingClient implements MatchmakingClientInterface, ConnectionInterface {
+public final class MatchmakingClient implements MatchmakingClientInterface, ConnectionInterface {
 	private final static int STATE_NOT_CONNECTED = 1;
 	private final static int STATE_AWAITING_OK = 2;
 	private final static int STATE_LOGGED_IN = 4;

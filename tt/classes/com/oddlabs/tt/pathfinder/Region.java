@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class Region extends Node {
+public final class Region extends Node {
 	private final Map<Class<?>,List<?>> object_lists = new HashMap<>();
 	private final List<Region> neighbours = new ArrayList<>();
 

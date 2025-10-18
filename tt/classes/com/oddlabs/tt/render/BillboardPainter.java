@@ -8,7 +8,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
-public abstract strictfp class BillboardPainter {
+public abstract class BillboardPainter {
 	private final static FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
 	private final static DoubleBuffer plane_buf = BufferUtils.createDoubleBuffer(4);
 

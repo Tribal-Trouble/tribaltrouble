@@ -6,7 +6,7 @@ import com.oddlabs.matchmaking.MatchmakingServerInterface;
 
 import java.sql.SQLException;
 
-public final strictfp class TimestampedGameSession {
+public final class TimestampedGameSession {
 	private final static long JOIN_MAX_TIME = 3*60*1000;
 	private final static long END_GAME_MIN_TIME = 1*60*1000; // replace with clients reporting back there end time
 

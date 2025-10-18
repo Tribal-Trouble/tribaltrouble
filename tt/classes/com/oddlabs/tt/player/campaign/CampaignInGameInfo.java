@@ -9,7 +9,7 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 
-final strictfp class CampaignInGameInfo implements InGameInfo {
+final class CampaignInGameInfo implements InGameInfo {
 	private final Campaign campaign;
 
 	public CampaignInGameInfo(Campaign campaign) {

@@ -6,7 +6,7 @@ import java.nio.channels.*;
 import java.nio.file.Path;
 import java.util.zip.*;
 
-public final strictfp class LoadDeterministic extends Deterministic {
+public final class LoadDeterministic extends Deterministic {
 	private final ReadableByteChannel channel;
 	private final ByteBuffer buffer;
 
@@ -193,7 +193,7 @@ public final strictfp class LoadDeterministic extends Deterministic {
 		getDefaults();
 	}
 
-	public final strictfp class ByteBufferInputStream extends InputStream {
+	public final class ByteBufferInputStream extends InputStream {
                 @Override
 		public int read() throws IOException {
 			byte b = log((byte)0);

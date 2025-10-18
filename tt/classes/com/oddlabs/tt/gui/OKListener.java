@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.*;
 
-public final strictfp class OKListener implements MouseClickListener {
+public final class OKListener implements MouseClickListener {
 	private final Form form;
 	
 	public OKListener(Form form) {

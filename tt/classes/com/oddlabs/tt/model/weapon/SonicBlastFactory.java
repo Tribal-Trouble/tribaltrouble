@@ -2,7 +2,7 @@ package com.oddlabs.tt.model.weapon;
 
 import com.oddlabs.tt.model.Unit;
 
-public final strictfp class SonicBlastFactory implements MagicFactory {
+public final class SonicBlastFactory implements MagicFactory {
 	private final float offset_x;
 	private final float offset_y;
 	private final float offset_z;

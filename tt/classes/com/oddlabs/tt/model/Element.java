@@ -4,7 +4,7 @@ import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.util.LinkedList;
 import com.oddlabs.util.ListElement;
 
-public abstract strictfp class Element<T> extends BoundingBox implements ListElement<T> {
+public abstract class Element<T> extends BoundingBox implements ListElement<T> {
 	private final AbstractElementNode element_root;
 	private AbstractElementNode node_parent;
 

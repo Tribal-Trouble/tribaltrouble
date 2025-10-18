@@ -1,6 +1,6 @@
 package com.oddlabs.tt.particle;
 
-public final strictfp class StretchParticle extends Particle {
+public final class StretchParticle extends Particle {
 	private float src_x = 0f;
 	private float src_y = 0f;
 	private float src_z = 0f;

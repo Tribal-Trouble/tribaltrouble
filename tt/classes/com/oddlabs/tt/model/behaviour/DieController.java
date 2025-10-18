@@ -2,7 +2,7 @@ package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Unit;
 
-public final strictfp class DieController extends Controller {
+public final class DieController extends Controller {
 	private final Unit unit;
 
 	public DieController(Unit unit) {

@@ -31,7 +31,7 @@ import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
-public final strictfp class KeyManager {
+public final class KeyManager {
 	private final static int KEY_SIZE = 1024;
 	public final static String AGREEMENT_ALGORITHM = "DH";
 	private final static String PASSWORD_ALGORITHM = "PBEWithMD5AndDES";

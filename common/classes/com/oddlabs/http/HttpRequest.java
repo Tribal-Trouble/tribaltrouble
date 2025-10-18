@@ -8,7 +8,7 @@ import java.io.*;
 import java.net.*;
 import javax.net.ssl.HttpsURLConnection;
 
-public final strictfp class HttpRequest {
+public final class HttpRequest {
 	public static Task doPost(TaskThread task_thread, HttpRequestParameters parameters, HttpResponseParser parser, HttpCallback callback) {
 		try {
 			URL url = new URL(parameters.url);

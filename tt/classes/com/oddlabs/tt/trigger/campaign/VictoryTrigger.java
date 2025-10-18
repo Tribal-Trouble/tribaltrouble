@@ -4,7 +4,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.trigger.IntervalTrigger;
 import com.oddlabs.tt.viewer.WorldViewer;
 
-public final strictfp class VictoryTrigger extends IntervalTrigger {
+public final class VictoryTrigger extends IntervalTrigger {
 	private final WorldViewer viewer;
 	private final Runnable runnable;
 

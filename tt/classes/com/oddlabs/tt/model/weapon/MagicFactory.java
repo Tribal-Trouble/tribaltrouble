@@ -2,7 +2,7 @@ package com.oddlabs.tt.model.weapon;
 
 import com.oddlabs.tt.model.Unit;
 
-public strictfp interface MagicFactory {
+public interface MagicFactory {
 	public float getHitRadius();
 	public float getSecondsPerAnim();
 	public float getSecondsPerInit();

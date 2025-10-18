@@ -2,7 +2,7 @@ package com.oddlabs.tt.tutorial;
 
 import com.oddlabs.tt.camera.GameCamera;
 
-public final strictfp class RotateTrigger extends TutorialTrigger {
+public final class RotateTrigger extends TutorialTrigger {
 	private final boolean[] rotate_dirs = new boolean[2];
 
 	public RotateTrigger() {

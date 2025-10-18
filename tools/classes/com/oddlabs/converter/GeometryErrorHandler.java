@@ -2,7 +2,7 @@ package com.oddlabs.converter;
 
 import org.xml.sax.*;
 
-public final strictfp class GeometryErrorHandler implements ErrorHandler {
+public final class GeometryErrorHandler implements ErrorHandler {
 	public final void fatalError(SAXParseException exception) {
 		// ignore fatal errors (an exception is guaranteed)
 	}

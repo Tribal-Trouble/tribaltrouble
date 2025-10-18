@@ -6,7 +6,7 @@ import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.RenderQueues;
 import org.lwjgl.opengl.GL11;
 
-public strictfp abstract class Delegate extends GUIObject {
+public abstract class Delegate extends GUIObject {
 	public Delegate() {
 		setPos(0, 0);
 		setCanFocus(true);

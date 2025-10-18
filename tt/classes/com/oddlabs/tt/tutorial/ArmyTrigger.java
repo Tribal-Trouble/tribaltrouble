@@ -8,7 +8,7 @@ import com.oddlabs.tt.player.Player;
 import java.util.Iterator;
 import java.util.Set;
 
-public final strictfp class ArmyTrigger extends TutorialTrigger {
+public final class ArmyTrigger extends TutorialTrigger {
 	private final static int ARMY_SIZE = 10;
 	
 	public ArmyTrigger(Player local_player) {

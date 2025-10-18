@@ -5,7 +5,7 @@ import java.nio.ShortBuffer;
 import org.lwjgl.BufferUtils;
 
 /* http://www.gamasutra.com/features/20061221/dallaire_03.shtml */
-public final strictfp class LandscapeTileIndices {
+public final class LandscapeTileIndices {
 	private final static int NUM_LINK_TILES = 15;
 
 	private final HeightMap heightmap;

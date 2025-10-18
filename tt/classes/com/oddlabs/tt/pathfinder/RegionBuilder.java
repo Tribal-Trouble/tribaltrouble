@@ -3,7 +3,7 @@ package com.oddlabs.tt.pathfinder;
 import com.oddlabs.tt.form.ProgressForm;
 import com.oddlabs.tt.util.PocketList;
 
-public final strictfp class RegionBuilder {
+public final class RegionBuilder {
 	public final static int MAX_EXAMINED_NODES_PER_PATH = 600;
 	public final static int REGION_PATH_MAX_COST = 70;
 	public final static int MAX_PATH_COST = 1024;

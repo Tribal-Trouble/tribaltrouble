@@ -4,7 +4,7 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.player.Player;
 
-public final strictfp class ScrollTrigger extends TutorialTrigger {
+public final class ScrollTrigger extends TutorialTrigger {
 	private final boolean[] scroll_dirs = new boolean[4];
 
 	public ScrollTrigger(Player player) {

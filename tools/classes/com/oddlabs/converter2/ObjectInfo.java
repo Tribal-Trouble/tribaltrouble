@@ -2,7 +2,7 @@ package com.oddlabs.converter2;
 
 import java.io.File;
 
-public strictfp class ObjectInfo {
+public class ObjectInfo {
 	private final File file;
 
 	public ObjectInfo(File file) {

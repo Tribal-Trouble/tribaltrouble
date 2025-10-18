@@ -5,7 +5,7 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.util.StateChecksum;
 import java.io.File;
 
-public final strictfp class LocalEventQueue {
+public final class LocalEventQueue {
 	private final static LocalEventQueue queue_instance = new LocalEventQueue();
 
 	private final StateChecksum checksum = new StateChecksum();

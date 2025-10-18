@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final strictfp class Player implements PlayerInterface {
+public final class Player implements PlayerInterface {
 	public final static int INITIAL_UNIT_COUNT = 20;
 	public final static int MAX_BUILDING_COUNT = 20;
 	public final static int DEFAULT_MAX_UNIT_COUNT = 250;

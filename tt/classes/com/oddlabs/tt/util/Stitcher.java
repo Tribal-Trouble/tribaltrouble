@@ -4,7 +4,7 @@ import java.nio.ShortBuffer;
 import java.util.Arrays;
 import org.lwjgl.BufferUtils;
 
-public final strictfp class Stitcher {
+public final class Stitcher {
 	public static ShortBuffer stitch(Vertex[] vertices) {
 		ShortBuffer indices = BufferUtils.createShortBuffer(vertices.length*3);
 		vertices = vertices.clone();
@@ -39,7 +39,7 @@ public final strictfp class Stitcher {
 		return vertex_index;
 	}
 
-	public abstract static strictfp class Vertex implements Comparable {
+	public abstract static class Vertex implements Comparable {
 		private final int side;
 		private final short index;
 

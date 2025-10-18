@@ -20,7 +20,7 @@ import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class NewUserForm extends Form {
+public final class NewUserForm extends Form {
 	private final static int MIN_PASSWORD_LENGTH = 6;
 
 	private final static int BUTTON_WIDTH = 100;
@@ -153,7 +153,7 @@ public final strictfp class NewUserForm extends Form {
 		gui_root.addModalForm(connecting_form);
 	}
 
-	private final strictfp class CreateUserListener implements MouseClickListener, EnterListener {
+	private final class CreateUserListener implements MouseClickListener, EnterListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			createUser();

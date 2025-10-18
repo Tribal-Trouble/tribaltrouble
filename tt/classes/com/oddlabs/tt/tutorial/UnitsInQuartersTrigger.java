@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Unit;
 import java.util.Iterator;
 import java.util.Set;
 
-public final strictfp class UnitsInQuartersTrigger extends TutorialTrigger {
+public final class UnitsInQuartersTrigger extends TutorialTrigger {
 	public UnitsInQuartersTrigger() {
 		super(1f, 0f, "units_in_quarters");
 	}

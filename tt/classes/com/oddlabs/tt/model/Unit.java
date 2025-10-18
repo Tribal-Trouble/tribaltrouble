@@ -35,7 +35,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public strictfp class Unit extends Selectable implements Occupant, Movable {
+public class Unit extends Selectable implements Occupant, Movable {
 
     private final static float IDLE_SPEED = 1f / 2.5f;
     private final static float TRANSPORT_SPEED_SCALE = 4f / 5f;

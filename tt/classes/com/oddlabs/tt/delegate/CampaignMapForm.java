@@ -22,7 +22,7 @@ import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class CampaignMapForm extends CameraDelegate {
+public final class CampaignMapForm extends CameraDelegate {
 	private final static int base_width = 800;
 	private final static int base_height = 600;
 
@@ -158,7 +158,7 @@ public final strictfp class CampaignMapForm extends CameraDelegate {
 		}
 	}
 	*/
-	private final strictfp class IslandClickListener implements MouseClickListener {
+	private final class IslandClickListener implements MouseClickListener {
 		private final int number;
 
 		public IslandClickListener(int number) {

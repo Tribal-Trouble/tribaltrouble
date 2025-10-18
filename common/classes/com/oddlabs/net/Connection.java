@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public final strictfp class Connection extends AbstractConnection implements Handler, ConnectionPeerInterface {
+public final class Connection extends AbstractConnection implements Handler, ConnectionPeerInterface {
 	public final static int BUFFER_SIZE = 16382;
 	private final static short HEADER_SIZE = 2;
 

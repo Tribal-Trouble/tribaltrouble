@@ -2,7 +2,7 @@ package com.oddlabs.tt.font;
 
 import com.oddlabs.util.Quad;
 
-public final strictfp class TextBoxRenderer {
+public final class TextBoxRenderer {
 	private final Font font;
 
 	private int width;

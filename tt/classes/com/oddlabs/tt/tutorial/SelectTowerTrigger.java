@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.player.Player;
 
-public final strictfp class SelectTowerTrigger extends TutorialTrigger {
+public final class SelectTowerTrigger extends TutorialTrigger {
 	private final Building tower = null;
 	
 	public SelectTowerTrigger(Player player) {

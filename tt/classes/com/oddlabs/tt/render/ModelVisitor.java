@@ -3,7 +3,7 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.model.Model;
 
-abstract strictfp class ModelVisitor {
+abstract class ModelVisitor {
 	public void markDetailPoint(ElementRenderState render_state) {
 		Model model = render_state.model;
 		render_state.getRenderer(model.getSpriteRenderer()).addToNoDetailList(render_state);

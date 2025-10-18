@@ -1,6 +1,6 @@
 package com.oddlabs.util;
 
-public final strictfp class LinkedList<T> {
+public final class LinkedList<T> {
 	private ListElement<T> first = null;
 	private ListElement<T> last = null;
 	private int size = 0;

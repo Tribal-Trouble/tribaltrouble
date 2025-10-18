@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
 
-public strictfp class GUIIcon extends GUIObject {
+public class GUIIcon extends GUIObject {
 	private final Quad icon_quad;
 	
 	public GUIIcon(Quad icon) {

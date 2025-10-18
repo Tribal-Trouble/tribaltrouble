@@ -8,7 +8,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class DisplayChangeForm extends Form {
+public final class DisplayChangeForm extends Form {
 	private final DoNowListener donow_listener;
 	private final HorizButton later_button;
 

@@ -2,7 +2,7 @@ package com.oddlabs.geometry;
 
 import java.io.*;
 
-public final strictfp class LowDetailModel implements Serializable {
+public final class LowDetailModel implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final float[] vertices;

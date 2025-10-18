@@ -5,7 +5,7 @@ import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class ScrollBar extends GUIObject {
+public final class ScrollBar extends GUIObject {
 	private final Group focus_group;
 	private final ArrowButton less_button;
 	private final ArrowButton more_button;
@@ -104,7 +104,7 @@ public final strictfp class ScrollBar extends GUIObject {
 		scroll_button.setupPos(this);
 	}
 
-	private final strictfp class LessListener implements MouseButtonListener {
+	private final class LessListener implements MouseButtonListener {
                 @Override
 		public void mousePressed(int button, int x, int y) {
 			owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
@@ -119,7 +119,7 @@ public final strictfp class ScrollBar extends GUIObject {
 		public void mouseClicked(int button, int x, int y, int clicks) {}
 	}
 
-	private final strictfp class MoreListener implements MouseButtonListener {
+	private final class MoreListener implements MouseButtonListener {
                 @Override
 		public void mousePressed(int button, int x, int y) {
 			owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
@@ -134,7 +134,7 @@ public final strictfp class ScrollBar extends GUIObject {
 		public void mouseClicked(int button, int x, int y, int clicks) {}
 	}
 
-	private final strictfp class DragListener implements MouseMotionListener, MouseButtonListener {
+	private final class DragListener implements MouseMotionListener, MouseButtonListener {
 		ScrollBarData data = Skin.getSkin().getScrollBarData();
 		float start_offset;
 
@@ -167,7 +167,7 @@ public final strictfp class ScrollBar extends GUIObject {
 		public void mouseClicked(int button, int x, int y, int clicks) {}
 	}
 
-	private final strictfp class ButtonKeyListener implements KeyListener {
+	private final class ButtonKeyListener implements KeyListener {
                 @Override
 		public void keyRepeat(KeyboardEvent event) {
 			switch (event.getKeyCode()) {

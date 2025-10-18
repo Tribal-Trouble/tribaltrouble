@@ -18,7 +18,7 @@ import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class ProfilesForm extends Form {
+public final class ProfilesForm extends Form {
 	private final static int NICK_SIZE = 200;
 
 	private final Menu main_menu;
@@ -110,7 +110,7 @@ public final strictfp class ProfilesForm extends Form {
 		main_menu.setMenuCentered(game_menu);
 	}
 
-	private final strictfp class CreateProfileListener implements MouseClickListener {
+	private final class CreateProfileListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			new_profile_form = new NewProfileForm(gui_root, main_menu, ProfilesForm.this);
@@ -118,7 +118,7 @@ public final strictfp class ProfilesForm extends Form {
 		}
 	}
 
-	private final strictfp class DeleteProfileListener implements MouseClickListener {
+	private final class DeleteProfileListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			String nick = (String)profile_list_box.getSelected();
@@ -140,7 +140,7 @@ public final strictfp class ProfilesForm extends Form {
 		remove();
 	}
 
-	private final strictfp class ActionDeleteListener implements MouseClickListener {
+	private final class ActionDeleteListener implements MouseClickListener {
 		private final String nick;
 
 		public ActionDeleteListener(String nick) {
@@ -154,7 +154,7 @@ public final strictfp class ProfilesForm extends Form {
 		}
 	}
 
-	private final strictfp class JoinListener implements MouseClickListener, RowListener {
+	private final class JoinListener implements MouseClickListener, RowListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			String nick = (String)profile_list_box.getSelected();

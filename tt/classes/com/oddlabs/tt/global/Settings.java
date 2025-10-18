@@ -18,7 +18,7 @@ import org.lwjgl.LWJGLUtil;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.Pbuffer;
 
-public final strictfp class Settings implements Serializable {
+public final class Settings implements Serializable {
 	private final static long serialVersionUID = 1l;
 
 	private static Settings settings;

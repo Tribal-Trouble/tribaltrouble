@@ -2,7 +2,7 @@ package com.oddlabs.tt.font;
 
 import com.oddlabs.util.Quad;
 
-public final strictfp class TextLineRenderer {
+public final class TextLineRenderer {
 	private final Font font;
 	private final int dot_limit;
 

@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-public final strictfp class StaticOccupant implements Occupant {
+public final class StaticOccupant implements Occupant {
     @Override
 	public int getPenalty() {
 		return Occupant.STATIC;

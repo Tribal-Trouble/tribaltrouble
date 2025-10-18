@@ -20,7 +20,7 @@ import com.oddlabs.tt.util.Utils;
 import java.util.Random;
 import java.util.ResourceBundle;
 
-public final strictfp class NativeIsland7 extends Island {
+public final class NativeIsland7 extends Island {
 	private final ResourceBundle bundle = ResourceBundle.getBundle(NativeIsland7.class.getName());
 	
 	public NativeIsland7(Campaign campaign) {

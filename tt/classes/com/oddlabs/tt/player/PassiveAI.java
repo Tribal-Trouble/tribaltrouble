@@ -4,7 +4,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.behaviour.IdleController;
 import com.oddlabs.tt.util.Target;
 
-public final strictfp class PassiveAI extends AI {
+public final class PassiveAI extends AI {
 	private final boolean walk_around;
 
 	public PassiveAI(Player owner, UnitInfo unit_info, boolean walk_around) {

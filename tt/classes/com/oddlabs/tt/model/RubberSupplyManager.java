@@ -2,7 +2,7 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.landscape.World;
 
-public final strictfp class RubberSupplyManager extends SupplyManager {
+public final class RubberSupplyManager extends SupplyManager {
 	private final static float SLEEP_TICKS = 60;
 	private final static int MAX_NUM_GROUPS = 3;
 

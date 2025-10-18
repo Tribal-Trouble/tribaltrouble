@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final strictfp class RenderQueues {
+public final class RenderQueues {
 	private final List<SpriteRenderer> sprite_renderers = new ArrayList<>();
 	private final List<SpriteRenderer> blend_sprite_renderers = new ArrayList<>();
 

@@ -5,7 +5,7 @@ import com.oddlabs.tt.util.Target;
 import java.util.ArrayList;
 import java.util.List;
 
-public final strictfp class PathFinder {
+public final class PathFinder {
 	private final static PocketList open_list = new PocketList(RegionBuilder.MAX_PATH_COST);
 	final static List<Node> visited_list = new ArrayList<>();
 	public static int stat_pathfinder_per_frame = 0;

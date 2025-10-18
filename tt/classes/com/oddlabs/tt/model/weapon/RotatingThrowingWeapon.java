@@ -4,7 +4,7 @@ import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.model.*;
 import com.oddlabs.tt.render.SpriteKey;
 
-public abstract strictfp class RotatingThrowingWeapon extends ThrowingWeapon {
+public abstract class RotatingThrowingWeapon extends ThrowingWeapon {
 	private float angle = 0;
 
 	public RotatingThrowingWeapon(boolean hit, Unit src, Selectable target, SpriteKey sprite_renderer, Audio throw_sound, Audio[] hit_sounds) {

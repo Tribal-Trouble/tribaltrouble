@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 
-public final strictfp class SortedLabel extends Label {
+public final class SortedLabel extends Label {
 	private final int index;
 
 	public SortedLabel(String text, int index, Font font) {

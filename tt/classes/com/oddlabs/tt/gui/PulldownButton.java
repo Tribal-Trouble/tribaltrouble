@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.util.Quad;
 
-public final strictfp class PulldownButton extends GUIObject {
+public final class PulldownButton extends GUIObject {
 	private final PulldownMenu menu;
 	private final Label label;
 	private final GUIRoot gui_root;
@@ -95,7 +95,7 @@ public final strictfp class PulldownButton extends GUIObject {
 			menu.remove();
 	}
 
-	private final strictfp class ItemListener implements ItemChosenListener {
+	private final class ItemListener implements ItemChosenListener {
                 @Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 			PulldownItem item = menu.getItem(item_index);

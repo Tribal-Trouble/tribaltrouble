@@ -5,7 +5,7 @@ import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class GUIImage extends GUIObject {
+public final class GUIImage extends GUIObject {
 	private final float u1;
 	private final float v1;
 	private final float u2;

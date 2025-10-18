@@ -12,7 +12,7 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import java.util.ResourceBundle;
 
-public final strictfp class TutorialOverDelegate extends CameraDelegate implements Updatable {
+public final class TutorialOverDelegate extends CameraDelegate implements Updatable {
 	private final static float DELAY = 1f;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
 	private final Group group_buttons;
@@ -68,7 +68,7 @@ public final strictfp class TutorialOverDelegate extends CameraDelegate implemen
 		delay_timer.stop();
 	}
 
-	private final strictfp class StartTutorialListener implements MouseClickListener {
+	private final class StartTutorialListener implements MouseClickListener {
 		private final int tutorial_number;
 
 		public StartTutorialListener(int tutorial_number) {

@@ -5,7 +5,7 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.util.StateChecksum;
 
-public final strictfp class CounterLabel extends Label implements Animated {
+public final class CounterLabel extends Label implements Animated {
 	private final static String colon = ":";
 	private final float initial_seconds;
 	private final boolean render_seconds;

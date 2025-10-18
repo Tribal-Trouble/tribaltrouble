@@ -4,7 +4,7 @@ import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector3f;
 
-public final strictfp class CameraState {
+public final class CameraState {
 	final static float MIN_ANGLE = -(float)StrictMath.PI/2f;//+ 0.01f;
 //  private final static float MAX_ANGLE = (float)StrictMath.PI/2f;// - 0.0001f;
 	private final static float MAX_ANGLE = -0.0001f;

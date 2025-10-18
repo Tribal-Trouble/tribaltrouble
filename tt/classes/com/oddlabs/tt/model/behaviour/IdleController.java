@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.AttackScanFilter;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 
-public final strictfp class IdleController extends Controller {
+public final class IdleController extends Controller {
 	private final static float MIN_SCAN_DELAY = 1f;
 	private final static float MAX_SCAN_DELAY = 2f;
 

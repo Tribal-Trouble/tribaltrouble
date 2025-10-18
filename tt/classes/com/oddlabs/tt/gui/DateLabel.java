@@ -4,7 +4,7 @@ import com.oddlabs.tt.font.Font;
 import java.text.DateFormat;
 import java.util.Date;
 
-public final strictfp class DateLabel extends Label {
+public final class DateLabel extends Label {
 	private final long val;
 
 	public DateLabel(long val, Font font, int width) {

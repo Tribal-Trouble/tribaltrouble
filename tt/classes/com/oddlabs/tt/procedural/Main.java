@@ -2,7 +2,7 @@ package com.oddlabs.tt.procedural;
 
 import com.oddlabs.procedural.Channel;
 
-public final strictfp class Main {
+public final class Main {
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();

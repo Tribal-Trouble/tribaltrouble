@@ -21,7 +21,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 
-public strictfp class Icons {
+public class Icons {
 	private static Icons icons;
 
 	private final Texture texture;

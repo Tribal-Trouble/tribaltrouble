@@ -10,7 +10,7 @@ import com.oddlabs.tt.gui.NativeCampaignIcons;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.viewer.WorldViewer;
 
-public final strictfp class NativeCampaign extends Campaign {
+public final class NativeCampaign extends Campaign {
 	public final static int MAX_UNITS = 41;
 	private final static int[] INITIAL_STATES = new int[]{
 /*
@@ -98,7 +98,7 @@ public final strictfp class NativeCampaign extends Campaign {
 		islands[number].chosen(network, gui_root);
 	}
 
-	private final strictfp class IslandListener implements Runnable {
+	private final class IslandListener implements Runnable {
 		private final int number;
 		private final GUIRoot gui_root;
 		private final NetworkSelector network;

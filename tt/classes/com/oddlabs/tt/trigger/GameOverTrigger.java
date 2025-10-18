@@ -12,7 +12,7 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
-public final strictfp class GameOverTrigger implements Animated {
+public final class GameOverTrigger implements Animated {
 
     private final int[] teams;
     private final boolean[] dead_tribes;

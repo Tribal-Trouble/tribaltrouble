@@ -4,7 +4,7 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextBoxRenderer;
 import org.lwjgl.opengl.*;
 
-public strictfp class LabelBox extends TextField implements Comparable {
+public class LabelBox extends TextField implements Comparable {
 	private final TextBoxRenderer text_renderer;
 
 	private float[] color = new float[]{1f, 1f, 1f, 1f};

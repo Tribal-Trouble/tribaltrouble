@@ -8,7 +8,7 @@ import com.oddlabs.tt.gui.TextField;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.NativeResource;
 
-public final strictfp class Status {
+public final class Status {
 	private final TextLineRenderer text_renderer = new TextLineRenderer(Skin.getSkin().getEditFont());
 	private final StringBuffer buf = new StringBuffer();
 	private final GUIRoot gui_root;

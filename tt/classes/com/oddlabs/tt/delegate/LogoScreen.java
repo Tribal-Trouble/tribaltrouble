@@ -12,7 +12,7 @@ import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.render.UIRenderer;
 
-public final strictfp class LogoScreen extends CameraDelegate implements Updatable {
+public final class LogoScreen extends CameraDelegate implements Updatable {
 	private final static float DELAY = 4f;
 	private final static int overlay_texture_width = 1024;
 	private final static int overlay_texture_height = 1024;

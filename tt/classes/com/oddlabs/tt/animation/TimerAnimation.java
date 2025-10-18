@@ -3,7 +3,7 @@ package com.oddlabs.tt.animation;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.util.StateChecksum;
 
-public final strictfp class TimerAnimation implements Animated {
+public final class TimerAnimation implements Animated {
 	private final AnimationManager manager;
 	private float time = 0;
 	private float interval;

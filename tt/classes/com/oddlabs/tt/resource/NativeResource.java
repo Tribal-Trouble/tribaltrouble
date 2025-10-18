@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract strictfp class NativeResource  {
+public abstract class NativeResource  {
 
     /**
      * Resources which have been finalized

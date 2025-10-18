@@ -2,7 +2,7 @@ package com.oddlabs.tt.util;
 
 import java.util.zip.*;
 
-public final strictfp class StateChecksum {
+public final class StateChecksum {
 	private final Checksum crc = new Adler32();
 
 	public void update(long l) {

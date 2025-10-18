@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Unit;
 
-public final strictfp class RepairController extends Controller {
+public final class RepairController extends Controller {
 	private final static int HARVEST_STATE = 0;
 	private final static int REPAIR_STATE = 1;
 

@@ -4,7 +4,7 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.gui.*;
 
-public final strictfp class TerrainMenuForm extends Form implements TerrainMenuListener {
+public final class TerrainMenuForm extends Form implements TerrainMenuListener {
 	private final TerrainMenu terrain;
 
 	public TerrainMenuForm(NetworkSelector network, GUIRoot gui_root, Menu main_menu) {

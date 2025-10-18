@@ -4,7 +4,7 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.tt.resource.GLIntImage;
 
-public final strictfp class GeneratePies {
+public final class GeneratePies {
 
 	public static void main(String[] args) {
 		int dia = 20;

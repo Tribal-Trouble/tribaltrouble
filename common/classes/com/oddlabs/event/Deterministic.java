@@ -4,7 +4,7 @@ import java.nio.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public abstract strictfp class Deterministic {
+public abstract class Deterministic {
 	protected final static int BUFFER_SIZE = 4096;
 	protected final static int DEFAULTS_SIZE = 2;
 	protected final static int MIN_DEFAULTS = Short.MIN_VALUE;

@@ -4,7 +4,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.Target;
 
-public strictfp interface NotificationListener {
+public interface NotificationListener {
 	void newAttackNotification(Selectable target);
 	void newSelectableNotification(Selectable target);
 	void registerTarget(Target target);

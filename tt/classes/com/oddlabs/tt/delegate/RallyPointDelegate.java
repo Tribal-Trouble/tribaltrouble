@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
 
-public final strictfp class RallyPointDelegate extends TargetDelegate {
+public final class RallyPointDelegate extends TargetDelegate {
 	private final Building building;
 
 	public RallyPointDelegate(WorldViewer viewer, GameCamera camera, Building building) {

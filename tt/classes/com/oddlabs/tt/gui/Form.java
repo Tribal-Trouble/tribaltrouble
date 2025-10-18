@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.lwjgl.input.Keyboard;
 
-public strictfp class Form extends Group {
+public class Form extends Group {
 	private final Set<CloseListener> close_listeners = new CopyOnWriteArraySet<>();
 
 	private final String caption;
@@ -180,7 +180,7 @@ public strictfp class Form extends Group {
 		super.remove();
 	}
 
-	private final strictfp class DragListener implements MouseMotionListener {
+	private final class DragListener implements MouseMotionListener {
 		private final Form owner;
 		public DragListener(Form owner) {
 			this.owner = owner;

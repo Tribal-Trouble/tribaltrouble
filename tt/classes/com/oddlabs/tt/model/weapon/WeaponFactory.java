@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.util.Target;
 
-public abstract strictfp class WeaponFactory {
+public abstract class WeaponFactory {
 	private final static float TERRAIN_MAX_BONUS = .25f;
 	private final static float TERRAIN_BONUS_PER_HEIGHT = TERRAIN_MAX_BONUS/20f;
 

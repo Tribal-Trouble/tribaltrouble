@@ -12,7 +12,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public strictfp class DefaultInGameInfo implements InGameInfo {
+public class DefaultInGameInfo implements InGameInfo {
 	private final ResourceBundle terrain_menu_bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
 	private boolean replay_island_flag;
 

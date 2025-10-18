@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public final strictfp class RaceIcons {
+public final class RaceIcons {
 	private final IconQuad unit_status_icon;
 	private final IconQuad weapon_rock_status_icon;
 	private final IconQuad weapon_iron_status_icon;

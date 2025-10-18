@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.Unit;
 import java.util.Iterator;
 import java.util.Set;
 
-public final strictfp class ChieftainBuiltTrigger extends TutorialTrigger {
+public final class ChieftainBuiltTrigger extends TutorialTrigger {
 	private Unit chieftain = null;
 	
 	public ChieftainBuiltTrigger() {

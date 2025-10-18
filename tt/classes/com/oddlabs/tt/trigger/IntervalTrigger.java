@@ -4,7 +4,7 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.landscape.World;
 
-public abstract strictfp class IntervalTrigger {
+public abstract class IntervalTrigger {
 	private final float after_done_time;
 	private final AnimationManager animation_manager;
 	private TimerAnimation timer;

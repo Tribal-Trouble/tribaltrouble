@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.Element;
 import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.util.StateChecksum;
 
-public final strictfp class LandscapeTargetRespond extends Element<LandscapeTargetRespond> implements Animated {
+public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond> implements Animated {
 	public final static int SIZE = 128;
 	private final static float SECOND_PER_PICK_RESPOND = 1f/3f;
 

@@ -1,6 +1,6 @@
 package com.oddlabs.tt.landscape;
 
-final strictfp class Errors {
+final class Errors {
 	final float[] errors;
 	final boolean intersects_water;
 

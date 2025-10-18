@@ -4,7 +4,7 @@ import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.WaitingForPlayersForm;
 import com.oddlabs.tt.net.StallHandler;
 
-final strictfp class ViewerStallHandler implements StallHandler {
+final class ViewerStallHandler implements StallHandler {
 
     private final static float SHOW_WAITING_DELAY_SECONDS = 3f;
 

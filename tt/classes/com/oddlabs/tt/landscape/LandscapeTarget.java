@@ -3,7 +3,7 @@ package com.oddlabs.tt.landscape;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.util.Target;
 
-public strictfp class LandscapeTarget implements Target {
+public class LandscapeTarget implements Target {
 	private final int grid_x;
 	private final int grid_y;
 

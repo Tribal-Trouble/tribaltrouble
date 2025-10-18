@@ -4,7 +4,7 @@ import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.guievent.ValueListener;
 
-public final strictfp class Slider extends GUIObject {
+public final class Slider extends GUIObject {
 	private final java.util.List value_listeners = new java.util.ArrayList();
 
 	private final SliderButton button;
@@ -125,7 +125,7 @@ public final strictfp class Slider extends GUIObject {
 		value_listeners.remove(listener);
 	}
 
-	private final strictfp class DragListener implements MouseMotionListener, MouseButtonListener {
+	private final class DragListener implements MouseMotionListener, MouseButtonListener {
 		private int start_offset;
 
                 @Override

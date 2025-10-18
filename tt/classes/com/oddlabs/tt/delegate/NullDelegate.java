@@ -3,7 +3,7 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.NullCamera;
 import com.oddlabs.tt.gui.*;
 
-public strictfp class NullDelegate extends CameraDelegate {
+public class NullDelegate extends CameraDelegate {
 	private final boolean render_cursor;
 
 	public NullDelegate(GUIRoot gui_root, boolean render_cursor) {

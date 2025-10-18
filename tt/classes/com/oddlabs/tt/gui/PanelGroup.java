@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.MouseButtonListener;
 
-public final strictfp class PanelGroup extends GUIObject {
+public final class PanelGroup extends GUIObject {
 	private final Group focus_group;
 	private final PanelBox box;
 	private final Panel[] panels;
@@ -68,7 +68,7 @@ public final strictfp class PanelGroup extends GUIObject {
         @Override
 	protected void renderGeometry() {}
 
-	private final strictfp class PanelBox extends GUIObject {
+	private final class PanelBox extends GUIObject {
 		public PanelBox(int width, int height) {
 			setDim(width, height);
 			setPos(0, 0);
@@ -80,7 +80,7 @@ public final strictfp class PanelGroup extends GUIObject {
 		}
 	}
 
-	private final strictfp class TabListener implements MouseButtonListener {
+	private final class TabListener implements MouseButtonListener {
 		private final int index;
 
 		public TabListener(int index) {

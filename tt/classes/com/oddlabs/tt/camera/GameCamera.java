@@ -11,7 +11,7 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class GameCamera extends Camera {
+public final class GameCamera extends Camera {
     public final static int SCROLL_BUFFER = 5;
     private final static float INIT_DISTANCE = 50;
     private final static float ANGLE_DELTA = (float)(StrictMath.PI/2);

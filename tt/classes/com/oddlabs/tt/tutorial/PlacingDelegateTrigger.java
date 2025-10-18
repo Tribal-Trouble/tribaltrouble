@@ -4,7 +4,7 @@ import com.oddlabs.tt.delegate.PlacingDelegate;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.player.Player;
 
-public final strictfp class PlacingDelegateTrigger extends TutorialTrigger {
+public final class PlacingDelegateTrigger extends TutorialTrigger {
 	public PlacingDelegateTrigger(Player player) {
 		super(.1f, 0f, "placing");
 		player.enableRepairing(false);

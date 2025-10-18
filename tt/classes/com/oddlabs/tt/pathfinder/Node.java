@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-abstract strictfp class Node {
+abstract class Node {
 /*	private int x;
 	private int y;*/
 	private int cost;

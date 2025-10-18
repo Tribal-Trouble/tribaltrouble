@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class ScrollButton extends GUIObject {
+public final class ScrollButton extends GUIObject {
 	public ScrollButton() {
 		setCanFocus(true);
 //		setupPos();

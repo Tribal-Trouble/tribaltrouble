@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import java.util.*;
 
-public final strictfp class RadioButtonGroup {
+public final class RadioButtonGroup {
 	private final List buttons;
 
 	public RadioButtonGroup() {

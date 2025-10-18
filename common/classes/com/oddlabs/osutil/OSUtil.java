@@ -2,7 +2,7 @@ package com.oddlabs.osutil;
 
 import org.lwjgl.LWJGLUtil;
 
-public abstract strictfp class OSUtil {
+public abstract class OSUtil {
 	public static OSUtil create() {
 		int platform = LWJGLUtil.getPlatform();
 		switch (platform) {

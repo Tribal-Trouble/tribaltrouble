@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextBoxRenderer;
 
-public strictfp class TextBox extends TextField implements Scrollable {
+public class TextBox extends TextField implements Scrollable {
 	private final TextBoxRenderer text_renderer;
 	private final ScrollBar scroll_bar;
 

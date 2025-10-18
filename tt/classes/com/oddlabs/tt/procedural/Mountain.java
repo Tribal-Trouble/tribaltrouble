@@ -5,7 +5,7 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.util.*;
 import java.util.*;
 
-public final strictfp class Mountain {
+public final class Mountain {
 
 	private final Random random;
 	public Channel channel;

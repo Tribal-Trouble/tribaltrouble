@@ -13,7 +13,7 @@ import com.oddlabs.tt.net.ProfileListener;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class CreatingProfileForm extends Form implements ProfileListener {
+public final class CreatingProfileForm extends Form implements ProfileListener {
 	private final Form profiles_form;
 	private final Menu main_menu;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(CreatingProfileForm.class.getName());

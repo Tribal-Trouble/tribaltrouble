@@ -3,7 +3,7 @@ package com.oddlabs.tt.net;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract strictfp class ChatHistory implements ChatListener {
+public abstract class ChatHistory implements ChatListener {
 	private final static int MAX_HISTORY = 50;
 
 	private final List<String> messages = new ArrayList<>(MAX_HISTORY);

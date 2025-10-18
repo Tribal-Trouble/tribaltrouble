@@ -15,7 +15,7 @@ import java.io.File;
 import org.lwjgl.*;
 import org.lwjgl.opengl.*;
 
-public final strictfp class TextureGenerator {
+public final class TextureGenerator {
 	private final static int LOW_DETAIL_TEX_SIZE = 256;
 	private final static int LOWDETAIL_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
 	private final static int CROWN_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;

@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.lwjgl.opengl.*;
 
-public final strictfp class Globals {
+public final class Globals {
 	public final static int BOUNDING_NONE = 0;
 	public final static int BOUNDING_UNIT_GRID = 1;
 	public final static int BOUNDING_LANDSCAPE = 2;

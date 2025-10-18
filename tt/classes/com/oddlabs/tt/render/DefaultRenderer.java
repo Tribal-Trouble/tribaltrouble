@@ -24,7 +24,7 @@ import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class DefaultRenderer implements UIRenderer {
+public final class DefaultRenderer implements UIRenderer {
 
     private final Picker picker;
     private final FogInfo fog_info;

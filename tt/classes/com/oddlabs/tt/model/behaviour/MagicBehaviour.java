@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.weapon.Magic;
 import com.oddlabs.tt.model.weapon.MagicFactory;
 
-public final strictfp class MagicBehaviour implements Behaviour {
+public final class MagicBehaviour implements Behaviour {
 	private final static int PREPARING = 1;
 	private final static int CASTING = 2;
 	private final static int ENDING = 3;

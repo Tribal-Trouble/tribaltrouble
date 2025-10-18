@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.Target;
 
-final strictfp class AttackNotification extends Notification {
+final class AttackNotification extends Notification {
 	private final static float RADIUS = 30f;
 	private final static float FADE_OUT = 5f;
 	

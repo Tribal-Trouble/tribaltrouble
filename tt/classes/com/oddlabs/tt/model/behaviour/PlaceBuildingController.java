@@ -3,7 +3,7 @@ package com.oddlabs.tt.model.behaviour;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Unit;
 
-public final strictfp class PlaceBuildingController extends Controller {
+public final class PlaceBuildingController extends Controller {
 	private final Building building;
 	private final Unit unit;
 

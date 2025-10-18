@@ -7,7 +7,7 @@ import com.oddlabs.tt.player.Player;
 import java.util.Iterator;
 import java.util.Set;
 
-public final strictfp class WeaponTrigger extends TutorialTrigger {
+public final class WeaponTrigger extends TutorialTrigger {
 	private final static int WEAPONS = 10;
 
 	public WeaponTrigger(Player local_player) {

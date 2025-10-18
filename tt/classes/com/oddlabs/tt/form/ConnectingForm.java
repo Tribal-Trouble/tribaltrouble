@@ -18,7 +18,7 @@ import com.oddlabs.tt.util.Utils;
 import java.util.Random;
 import java.util.ResourceBundle;
 
-public final strictfp class ConnectingForm extends Form implements ConfigurationListener {
+public final class ConnectingForm extends Form implements ConfigurationListener {
 	private final SelectGameMenu owner;
 	private final boolean multiplayer;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(ConnectingForm.class.getName());

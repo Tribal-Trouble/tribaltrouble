@@ -6,7 +6,7 @@ import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.player.Player;
 import java.util.List;
 
-public final strictfp class BuildingFinder implements FinderFilter<Building> {
+public final class BuildingFinder implements FinderFilter<Building> {
 	private final Player owner;
 	private final int abilities;
 

@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.player.Player;
 
-public final strictfp class SelectArmoryTrigger extends TutorialTrigger {
+public final class SelectArmoryTrigger extends TutorialTrigger {
 	public SelectArmoryTrigger(Player player) {
 		super(.1f, 0f, "select_armory");
 		player.enableRepairing(false);

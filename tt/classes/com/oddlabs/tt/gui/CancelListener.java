@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.*;
 
-public final strictfp class CancelListener implements MouseClickListener {
+public final class CancelListener implements MouseClickListener {
 	private final Form form;
 
 	public CancelListener(Form form) {

@@ -20,7 +20,7 @@ import java.util.Random;
 import java.util.ResourceBundle;
 import org.lwjgl.openal.AL;
 
-public final strictfp class ProgressForm {
+public final class ProgressForm {
 	private final static int PROGRESSBAR_LOADINGTIP_SPACING = 45;
 	private final static int NUM_TIPS = 39;
 	private final static String TIP_PREFIX = "tip";

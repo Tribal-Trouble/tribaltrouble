@@ -3,7 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.util.Quad;
 
-public strictfp class CampaignDialogForm extends Form {
+public class CampaignDialogForm extends Form {
 	public final static int ALIGN_IMAGE_LEFT = 1;
 	public final static int ALIGN_IMAGE_RIGHT = 2;
 

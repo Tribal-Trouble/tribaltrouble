@@ -7,7 +7,7 @@ import java.util.Arrays;
 /**
  * An OutputStream that writes output to multiple streams
  */
-public final strictfp class TeeOutputStream extends OutputStream {
+public final class TeeOutputStream extends OutputStream {
 	private final OutputStream[] streams;
 
 	public TeeOutputStream(OutputStream... streams) {

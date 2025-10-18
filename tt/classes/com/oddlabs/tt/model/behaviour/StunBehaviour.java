@@ -3,7 +3,7 @@ package com.oddlabs.tt.model.behaviour;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 
-public final strictfp class StunBehaviour implements Behaviour {
+public final class StunBehaviour implements Behaviour {
 	private final StunController controller;
 	private final Unit unit;
 

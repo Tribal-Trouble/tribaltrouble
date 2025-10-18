@@ -1,6 +1,6 @@
 package com.oddlabs.tt.util;
 
-public final strictfp class LinearSolver {
+public final class LinearSolver {
 
     private final static float THRESHOLD = 0.001f;
 

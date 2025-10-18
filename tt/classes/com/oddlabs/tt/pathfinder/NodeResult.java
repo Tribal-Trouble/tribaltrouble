@@ -1,6 +1,6 @@
 package com.oddlabs.tt.pathfinder;
 
-final strictfp class NodeResult {
+final class NodeResult {
 	private final Node result;
 
 	public NodeResult(Node node) {

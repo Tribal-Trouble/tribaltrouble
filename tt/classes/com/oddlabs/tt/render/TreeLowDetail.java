@@ -23,7 +23,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class TreeLowDetail {
+public final class TreeLowDetail {
 	private final static StrictVector4f src = new StrictVector4f();
 	private final static StrictVector4f dest = new StrictVector4f();
 	private final static FloatBuffer update_buffer = BufferUtils.createFloatBuffer(1000);
@@ -169,7 +169,7 @@ public final strictfp class TreeLowDetail {
 		tree_indices.drawElements(GL11.GL_TRIANGLES, count, start);
 	}
 
-	private final strictfp class BuildVisitor implements TreeNodeVisitor {
+	private final class BuildVisitor implements TreeNodeVisitor {
 		private int end = 0;
 		private final float[] vertex_array = new float[vertices.capacity()];
 		private final float[] texcoord_array = new float[texcoords.capacity()];

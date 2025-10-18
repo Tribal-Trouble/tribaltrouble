@@ -3,7 +3,7 @@ package com.oddlabs.matchmaking;
 import com.oddlabs.util.Utils;
 import java.io.Serializable;
 
-public final strictfp class LoginDetails implements Serializable {
+public final class LoginDetails implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	public final static int MAX_EMAIL_LENGTH = 60;

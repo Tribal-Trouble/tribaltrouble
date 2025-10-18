@@ -12,7 +12,7 @@ import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.OpenALException;
 
-public final strictfp class AudioManager implements AudioImplementation {
+public final class AudioManager implements AudioImplementation {
 	private final static int MAX_NUM_SOURCES = 32;
 
 	private final static AudioManager SINGLETON = new AudioManager();

@@ -1,6 +1,6 @@
 package com.oddlabs.net;
 
-public strictfp interface Task {
+public interface Task {
 	void cancel();
 }
 

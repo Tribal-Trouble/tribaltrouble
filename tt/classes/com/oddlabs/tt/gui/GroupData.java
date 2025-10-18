@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.*;
 
-public final strictfp class GroupData {
+public final class GroupData {
 	private final Box group;
 	private final int caption_left;
 	private final int caption_y;

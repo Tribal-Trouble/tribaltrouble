@@ -1,6 +1,6 @@
 package com.oddlabs.tt.landscape;
 
 @FunctionalInterface
-public strictfp interface PlayerInitAction {
+public interface PlayerInitAction {
 	void run();
 }

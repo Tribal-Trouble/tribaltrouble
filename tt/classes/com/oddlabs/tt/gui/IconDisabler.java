@@ -1,5 +1,5 @@
 package com.oddlabs.tt.gui;
 
-public strictfp interface IconDisabler {
+public interface IconDisabler {
 	public boolean isDisabled();
 }

@@ -7,7 +7,7 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public final strictfp class DeterministicSerializer {
+public final class DeterministicSerializer {
 	private DeterministicSerializer() {
 	}
 

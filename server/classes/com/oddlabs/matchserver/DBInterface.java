@@ -31,7 +31,7 @@ import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.util.CryptUtils;
 import com.oddlabs.util.DBUtils;
 
-public final strictfp class DBInterface {
+public final class DBInterface {
 	
 	public final static String getRegKeyUsername(String reg_key) throws IllegalArgumentException {
 		try {

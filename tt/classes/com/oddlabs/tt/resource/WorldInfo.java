@@ -3,7 +3,7 @@ package com.oddlabs.tt.resource;
 import com.oddlabs.tt.render.*;
 import java.util.List;
 
-public final strictfp class WorldInfo {
+public final class WorldInfo {
 	public final Texture[][] colormaps;
 	public final Texture detail;
 	public final float[][] heightmap;

@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.nio.ByteBuffer;
 
-public final strictfp class ARMIEvent implements Serializable {
+public final class ARMIEvent implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final static ByteBufferOutputStream static_byte_stream = new ByteBufferOutputStream(false);

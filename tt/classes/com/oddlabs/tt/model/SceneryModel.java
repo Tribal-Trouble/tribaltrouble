@@ -7,7 +7,7 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.StateChecksum;
 
-public strictfp class SceneryModel extends Model implements Occupant, ModelToolTip, Animated {
+public class SceneryModel extends Model implements Occupant, ModelToolTip, Animated {
 	private final SpriteKey sprite_renderer;
 	private final float shadow_diameter;
 	private final boolean occupy;

@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.matchmaking.ChatRoomUser;
 
-public final strictfp class ChatRoomInfo {
+public final class ChatRoomInfo {
 	private final String name;
 
 	private ChatRoomUser[] users;

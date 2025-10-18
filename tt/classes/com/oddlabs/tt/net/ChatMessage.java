@@ -2,7 +2,7 @@ package com.oddlabs.tt.net;
 
 import com.oddlabs.tt.util.SpamFilter;
 
-public final strictfp class ChatMessage {
+public final class ChatMessage {
     public enum Type {
         NORMAL, TEAM, PRIVATE,CHATROOM,GAME_MENU
     }

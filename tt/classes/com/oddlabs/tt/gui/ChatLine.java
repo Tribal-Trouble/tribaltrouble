@@ -4,7 +4,7 @@ import com.oddlabs.tt.guievent.TabListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public final strictfp class ChatLine extends EditLine {
+public final class ChatLine extends EditLine {
 	private final List tab_listeners = new ArrayList();
 	private final boolean catch_tab;
 

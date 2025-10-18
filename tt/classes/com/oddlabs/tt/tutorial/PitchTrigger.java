@@ -2,7 +2,7 @@ package com.oddlabs.tt.tutorial;
 
 import com.oddlabs.tt.camera.GameCamera;
 
-public final strictfp class PitchTrigger extends TutorialTrigger {
+public final class PitchTrigger extends TutorialTrigger {
 	private final boolean[] pitch_dirs = new boolean[2];
 
 	public PitchTrigger() {

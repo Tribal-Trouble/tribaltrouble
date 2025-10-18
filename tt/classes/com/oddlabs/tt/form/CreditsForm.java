@@ -14,7 +14,7 @@ import java.util.ResourceBundle;
 
 // unicode codes: ae: 00E6 - oe: 00F8 - aa: 00E5 - AE: 00C6 - OE: 00D8 - AA: 00C5 - (C): 00A9
 
-public final strictfp class CreditsForm extends Form {
+public final class CreditsForm extends Form {
 	public CreditsForm() {
 		ResourceBundle bundle = ResourceBundle.getBundle(CreditsForm.class.getName());
 		Label head_label = new Label(Utils.getBundleString(bundle, "about"), Skin.getSkin().getHeadlineFont());

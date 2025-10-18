@@ -5,7 +5,7 @@ import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.BezierPath;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class PathTracker {
+public final class PathTracker {
     public enum State {
         OK,OK_INTERRUPTIBLE,DONE,SOFTBLOCKED,BLOCKED
     };

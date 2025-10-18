@@ -7,7 +7,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.Target;
 
-public final strictfp class AttackTowerTrigger extends TutorialTrigger {
+public final class AttackTowerTrigger extends TutorialTrigger {
 	private final static int NUM_UNITS = 12;
 	
 	private final Building tower;

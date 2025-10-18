@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.Unit;
 import java.util.Iterator;
 import java.util.Set;
 
-public final strictfp class UnitCountTrigger extends TutorialTrigger {
+public final class UnitCountTrigger extends TutorialTrigger {
 	private final int target_count;
 	
 	public UnitCountTrigger(int target_count) {

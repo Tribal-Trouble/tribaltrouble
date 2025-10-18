@@ -9,7 +9,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 
-public abstract strictfp class GLImage {
+public abstract class GLImage {
 	private final int width;
 	private final int height;
 	private final int type;

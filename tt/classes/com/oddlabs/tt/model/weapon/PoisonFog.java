@@ -16,7 +16,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-public final strictfp class PoisonFog implements Magic {
+public final class PoisonFog implements Magic {
 	public final static float OFFSET_Z = 1.1f;
 
 	private final static int PARTICLES_PER_BURST = 4;

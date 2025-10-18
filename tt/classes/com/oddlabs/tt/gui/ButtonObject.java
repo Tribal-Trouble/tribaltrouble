@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public abstract strictfp class ButtonObject extends GUIObject {
+public abstract class ButtonObject extends GUIObject {
 	public final static int ALIGN_LEFT = 1;
 	public final static int ALIGN_CENTER = 2;
 	public final static int ALIGN_RIGHT = 3;

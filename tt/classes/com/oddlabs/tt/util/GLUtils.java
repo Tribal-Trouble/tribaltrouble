@@ -10,7 +10,7 @@ import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class GLUtils {
+public final class GLUtils {
 	public final static String SCREENSHOT_DEFAULT = "screenshot";
 	
 	private final static ByteBuffer byte_buf;

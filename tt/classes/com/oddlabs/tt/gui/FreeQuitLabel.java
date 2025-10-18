@@ -8,7 +8,7 @@ import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class FreeQuitLabel extends Label implements Animated {
+public final class FreeQuitLabel extends Label implements Animated {
 	private final static ResourceBundle bundle = ResourceBundle.getBundle(FreeQuitLabel.class.getName());
 
 	private final World world;

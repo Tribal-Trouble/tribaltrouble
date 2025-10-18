@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.render.SpriteKey;
 
-public final strictfp class RockAxeWeapon extends RotatingThrowingWeapon {
+public final class RockAxeWeapon extends RotatingThrowingWeapon {
 	private final float ROTS_PER_SECOND = 3;
 	private final float ANGLE_DELTA = ROTS_PER_SECOND*360f;
 	private final static float METERS_PER_SECOND = 20f; //multiplied by meters/second (in 2D)

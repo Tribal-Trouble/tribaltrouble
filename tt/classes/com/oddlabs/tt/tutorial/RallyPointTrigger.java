@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Selectable;
 import java.util.Iterator;
 import java.util.Set;
 
-public final strictfp class RallyPointTrigger extends TutorialTrigger {
+public final class RallyPointTrigger extends TutorialTrigger {
 	public RallyPointTrigger() {
 		super(1f, 0f, "rally_point");
 	}

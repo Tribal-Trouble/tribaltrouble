@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
 @FunctionalInterface
-public strictfp interface DoNowListener {
+public interface DoNowListener {
 	public void doChange(boolean now);
 }

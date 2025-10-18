@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.behaviour.WalkController;
 import com.oddlabs.tt.player.Player;
 import java.util.*;
 
-public final strictfp class MoveUnitTrigger extends TutorialTrigger {
+public final class MoveUnitTrigger extends TutorialTrigger {
 	public MoveUnitTrigger(Player local_player) {
 		super(1f, 2f, "move_unit");
 		local_player.enableMoving(true);

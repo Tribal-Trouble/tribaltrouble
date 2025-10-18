@@ -32,7 +32,7 @@ import java.net.InetAddress;
 import java.util.ResourceBundle;
 import org.lwjgl.input.Keyboard;
 
-public abstract strictfp class Menu extends CameraDelegate {
+public abstract class Menu extends CameraDelegate {
 	protected final static float[] COLOR_NORMAL = new float[]{1f, 1f, 1f};
 	protected final static float[] COLOR_ACTIVE = new float[]{1f, .8f, .63f};
 	private final static int MENU_X = 160;
@@ -233,7 +233,7 @@ public abstract strictfp class Menu extends CameraDelegate {
 		Renderer.setMusicPath(world_viewer.getLocalPlayer().getRace().getMusicPath(), 10f);
 	}
 
-	public final static strictfp class DefaultWorldInitAction implements WorldInitAction {
+	public final static class DefaultWorldInitAction implements WorldInitAction {
                 @Override
 		public void run(WorldViewer viewer) {
 			new GameOverTrigger(viewer);
@@ -267,7 +267,7 @@ public abstract strictfp class Menu extends CameraDelegate {
 		return game_network;
 	}
 
-	private final strictfp class OptionsListener implements MouseClickListener {
+	private final class OptionsListener implements MouseClickListener {
 		private final FormFactory factory;
 
 		OptionsListener(FormFactory factory) {
@@ -280,7 +280,7 @@ public abstract strictfp class Menu extends CameraDelegate {
 		}
 	}
 
-	private final strictfp class ExitListener implements MouseClickListener {
+	private final class ExitListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			setMenuCentered(new QuitForm(getGUIRoot()));

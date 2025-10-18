@@ -12,7 +12,7 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import java.util.ResourceBundle;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class WaitingForPlayersForm extends Form {
+public final class WaitingForPlayersForm extends Form {
 	private final Label info_label;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(WaitingForPlayersForm.class.getName());
 	private final WorldViewer viewer;
@@ -42,7 +42,7 @@ public final strictfp class WaitingForPlayersForm extends Form {
 		viewer.close();
 	}
 
-	private final strictfp class AbortListener implements MouseClickListener {
+	private final class AbortListener implements MouseClickListener {
         @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			viewer.getGUIRoot().addModalForm(new QuestionForm(Utils.getBundleString(bundle, "confirm_abort"), new CancelListener(WaitingForPlayersForm.this)));

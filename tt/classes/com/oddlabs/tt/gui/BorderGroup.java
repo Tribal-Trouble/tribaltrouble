@@ -1,6 +1,6 @@
 package com.oddlabs.tt.gui;
 
-public final strictfp class BorderGroup extends Group {
+public final class BorderGroup extends Group {
 	private final Label label;
 
 	public BorderGroup() {

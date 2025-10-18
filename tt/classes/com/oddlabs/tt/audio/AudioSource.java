@@ -6,7 +6,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 
-public final strictfp class AudioSource extends NativeResource {
+public final class AudioSource extends NativeResource {
 	private final IntBuffer source;
 	private AbstractAudioPlayer audio_player;
 

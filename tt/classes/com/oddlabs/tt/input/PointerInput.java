@@ -13,7 +13,7 @@ import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class PointerInput {
+public final class PointerInput {
 	private final static int NUM_BUTTONS = 8;
 
 	private final static boolean[] buttons = new boolean[NUM_BUTTONS];

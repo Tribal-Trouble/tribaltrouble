@@ -5,7 +5,7 @@ import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.BoundingBox;
 import java.util.Objects;
 
-public abstract strictfp class Model extends Element<Model> {
+public abstract class Model extends Element<Model> {
 	private final World world;
 
 	protected Model(World world) {

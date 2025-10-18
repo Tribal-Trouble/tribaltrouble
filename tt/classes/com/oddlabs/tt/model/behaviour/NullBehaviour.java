@@ -2,7 +2,7 @@ package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Selectable;
 
-public final strictfp class NullBehaviour implements Behaviour {
+public final class NullBehaviour implements Behaviour {
 	public NullBehaviour() {
 	}
 

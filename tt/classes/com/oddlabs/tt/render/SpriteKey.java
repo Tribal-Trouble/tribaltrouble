@@ -2,7 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.util.BoundingBox;
 
-public final strictfp class SpriteKey extends RenderQueueKey {
+public final class SpriteKey extends RenderQueueKey {
 	private final BoundingBox[] bounds;
 	private final int[] anim_types;
 

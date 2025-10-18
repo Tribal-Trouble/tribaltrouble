@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.util.Quad;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class SliderButton extends ButtonObject {
+public final class SliderButton extends ButtonObject {
 	private final Slider slider;
 	private final Quad[] button;
 

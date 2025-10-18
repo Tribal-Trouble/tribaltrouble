@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import org.lwjgl.input.Keyboard;
 
-public final strictfp class GameStatsDelegate extends CameraDelegate implements Updatable {
+public final class GameStatsDelegate extends CameraDelegate implements Updatable {
 	private final static int PLAYER_COLUMN_WIDTH = 100;
 	private final static int TEXT_OFFSET = -4;
 	public final static ResourceBundle bundle = ResourceBundle.getBundle(GameStatsDelegate.class.getName());

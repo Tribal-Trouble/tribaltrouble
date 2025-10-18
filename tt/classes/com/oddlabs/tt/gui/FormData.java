@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.*;
 import com.oddlabs.util.Quad;
 
-public final strictfp class FormData {
+public final class FormData {
 	private final Box form;
 	private final Box slim_form;
 	private final Quad[] form_close;

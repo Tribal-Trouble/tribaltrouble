@@ -3,7 +3,7 @@ package com.oddlabs.tt.tutorial;
 import com.oddlabs.tt.form.TutorialForm;
 import com.oddlabs.tt.model.Building;
 
-public final strictfp class EmptyTowerTrigger extends TutorialTrigger {
+public final class EmptyTowerTrigger extends TutorialTrigger {
 	private final Building tower;
 	
 	public EmptyTowerTrigger(Building tower) {

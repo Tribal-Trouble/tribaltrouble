@@ -1,6 +1,6 @@
 package com.oddlabs.tt.particle;
 
-public final strictfp class StunFunction implements ParametricFunction {
+public final class StunFunction implements ParametricFunction {
 	private final float radius;
 	private final float height;
 

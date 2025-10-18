@@ -13,7 +13,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 
-public final strictfp class CryptUtils {
+public final class CryptUtils {
 	private final static MessageDigest digest;
 	public final static int PASSWORD_DIGEST_LENGTH;
 

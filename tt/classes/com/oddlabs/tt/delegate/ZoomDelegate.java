@@ -6,7 +6,7 @@ import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.lwjgl.input.Keyboard;
 
-public strictfp class ZoomDelegate extends InGameDelegate {
+public class ZoomDelegate extends InGameDelegate {
 	private final static float ZOOM_FACTOR_CORRECTION = .25f;
 
 	private final int start_x;

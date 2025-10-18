@@ -1,6 +1,6 @@
 package com.oddlabs.converter2;
 
-public final strictfp class Bone {
+public final class Bone {
 	private final String name;
 	private final byte index;
 	private final Bone[] children;

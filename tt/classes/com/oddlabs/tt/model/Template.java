@@ -2,7 +2,7 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.render.ShadowListKey;
 
-public abstract strictfp class Template {
+public abstract class Template {
 	private final Abilities abilities;
 	private final ShadowListKey shadow_renderer;
 	private final float[] hit_offset_z;

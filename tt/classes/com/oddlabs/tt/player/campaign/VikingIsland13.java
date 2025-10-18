@@ -20,7 +20,7 @@ import com.oddlabs.tt.trigger.campaign.TimeTrigger;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class VikingIsland13 extends Island {
+public final class VikingIsland13 extends Island {
 	private final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland13.class.getName());
 	private final int minutes = 15;
 	private final CounterLabel counter = new CounterLabel(minutes*60f, Skin.getSkin().getHeadlineFont(), true);

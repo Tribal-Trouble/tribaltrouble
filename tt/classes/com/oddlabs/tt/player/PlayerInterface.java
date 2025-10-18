@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.util.Target;
 
-public strictfp interface PlayerInterface {
+public interface PlayerInterface {
 	void deployUnits(Building building, int type, int num_units);
 /*	void deployPeons(Building building, int num_units);
 	void deployRockWarriors(Building building, int num_units);

@@ -1,6 +1,6 @@
 package com.oddlabs.tt.particle;
 
-final strictfp class LinearParticle extends Particle {
+final class LinearParticle extends Particle {
 	private float velocity_x = 0f;
 	private float velocity_y = 0f;
 	private float velocity_z = 0f;

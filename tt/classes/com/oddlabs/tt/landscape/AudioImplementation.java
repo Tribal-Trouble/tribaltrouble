@@ -4,6 +4,6 @@ import com.oddlabs.tt.audio.AbstractAudioPlayer;
 import com.oddlabs.tt.audio.AudioParameters;
 
 @FunctionalInterface
-public strictfp interface AudioImplementation {
+public interface AudioImplementation {
 	AbstractAudioPlayer newAudio(AudioParameters<?> params);
 }

@@ -3,7 +3,7 @@ package com.oddlabs.tt.pathfinder;
 import com.oddlabs.tt.model.Selectable;
 import java.util.*;
 
-public final strictfp class FindOccupantFilter<S extends Selectable> implements ScanFilter {
+public final class FindOccupantFilter<S extends Selectable> implements ScanFilter {
 
     private final float x;
     private final float y;

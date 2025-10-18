@@ -24,7 +24,7 @@ import com.oddlabs.tt.trigger.campaign.VictoryTrigger;
 import com.oddlabs.tt.util.Utils;
 import java.util.ResourceBundle;
 
-public final strictfp class NativeIsland1 extends Island {
+public final class NativeIsland1 extends Island {
 	private final static int NUM_CAPTIVES = 10;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(NativeIsland1.class.getName());
 

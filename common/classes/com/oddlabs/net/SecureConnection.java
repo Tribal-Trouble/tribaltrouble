@@ -15,7 +15,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyAgreement;
 import javax.crypto.SealedObject;
 
-public final strictfp class SecureConnection extends AbstractConnection implements SecureConnectionInterface {
+public final class SecureConnection extends AbstractConnection implements SecureConnectionInterface {
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(SecureConnectionInterface.class);
 	private final Deterministic deterministic;
 	private final AbstractConnection wrapped_connection;

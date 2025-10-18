@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract strictfp class AbstractConnection implements ARMIEventWriter {
+public abstract class AbstractConnection implements ARMIEventWriter {
 	private final List event_backlog = new ArrayList();
 	private ConnectionInterface connection_interface;
 	private IOException error_flag;

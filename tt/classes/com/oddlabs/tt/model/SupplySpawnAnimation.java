@@ -4,7 +4,7 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.util.StateChecksum;
 
 
-public strictfp class SupplySpawnAnimation implements Animated {
+public class SupplySpawnAnimation implements Animated {
 	private final Supply supply;
 	private final float limit;
 

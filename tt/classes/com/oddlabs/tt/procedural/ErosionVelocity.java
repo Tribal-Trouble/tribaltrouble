@@ -3,7 +3,7 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.tt.resource.GLIntImage;
 
-public final strictfp class ErosionVelocity {
+public final class ErosionVelocity {
 
 	public Channel velocityFieldErosion1(Channel channel, int iterations) {
 		float water_particle = 1f;

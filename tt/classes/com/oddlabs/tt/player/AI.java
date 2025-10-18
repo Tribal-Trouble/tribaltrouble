@@ -23,7 +23,7 @@ import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 import java.util.Random;
 
-public abstract strictfp class AI implements Animated {
+public abstract class AI implements Animated {
 	private final static float SLEEP_SECONDS = 2f;
 	private final static float MIN_SLEEP_SECONDS = 5f;
 

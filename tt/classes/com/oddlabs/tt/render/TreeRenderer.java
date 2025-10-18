@@ -8,7 +8,7 @@ import com.oddlabs.tt.viewer.Cheat;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class TreeRenderer extends TreePicker {
+public final class TreeRenderer extends TreePicker {
 	private final TreeLowDetail tree_low_detail;
 	private final WaveAnimation wave_animation = new WaveAnimation();
 	private final Cheat cheat;

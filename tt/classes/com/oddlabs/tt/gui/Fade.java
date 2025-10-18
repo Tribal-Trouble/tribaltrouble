@@ -4,7 +4,7 @@ import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.util.*;
 import org.lwjgl.opengl.*;
 
-final strictfp class Fade {
+final class Fade {
 	private final static float FADE_TIME = 1f;
 	
 	private final Fadable fadable;

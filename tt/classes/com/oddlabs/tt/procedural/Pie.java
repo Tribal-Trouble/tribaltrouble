@@ -4,7 +4,7 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
 
-public final strictfp class Pie {
+public final class Pie {
 	public Channel channel;
 
 	public static final int CIRCLE = 1;

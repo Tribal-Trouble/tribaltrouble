@@ -1,6 +1,6 @@
 package com.oddlabs.tt.tutorial;
 
-public abstract strictfp class TutorialTrigger {
+public abstract class TutorialTrigger {
 	private final float check_interval;
 	private final float after_done_time;
 	private final String text_key;

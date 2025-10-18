@@ -3,7 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.guievent.*;
 
-public strictfp class MessageForm extends Form {
+public class MessageForm extends Form {
 	private final static int MAX_WIDTH = 500;
 
 	public MessageForm(String head, String message) {

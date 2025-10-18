@@ -7,7 +7,7 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 
-public final strictfp class RepairBehaviour implements Behaviour {
+public final class RepairBehaviour implements Behaviour {
 	private final static int REPAIRS_PER_SUPPLY = 5;
 	private final static float SECONDS_PER_ANIMATION_CYCLE = 1f;
 	private final Building building;

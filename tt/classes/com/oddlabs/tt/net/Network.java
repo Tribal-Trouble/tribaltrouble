@@ -1,6 +1,6 @@
 package com.oddlabs.tt.net;
 
-public final strictfp class Network {
+public final class Network {
 	private final static ChatHub chat_hub = new ChatHub();
 	private final static MatchmakingClient matchmaking_client = new MatchmakingClient();
 	private static MatchmakingListener matchmaking_listener;

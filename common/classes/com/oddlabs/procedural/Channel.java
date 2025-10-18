@@ -5,7 +5,7 @@ import java.nio.*;
 import java.util.*;
 import java.util.zip.*;
 
-public final strictfp class Channel {
+public final class Channel {
 	public float[][] pixels;
 	public int width;
 	public int height;

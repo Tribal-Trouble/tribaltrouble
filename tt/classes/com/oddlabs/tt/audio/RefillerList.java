@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.openal.AL;
 
-public final strictfp class RefillerList {
+public final class RefillerList {
 
     private final static int THREAD_SLEEP_MILLIS = 50;
 

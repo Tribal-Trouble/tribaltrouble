@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final strictfp class RouterClient implements ConnectionInterface {
+final class RouterClient implements ConnectionInterface {
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(RouterInterface.class);
 	private final RouterClientInterface client_interface;
 	private final Logger logger;
@@ -156,7 +156,7 @@ final strictfp class RouterClient implements ConnectionInterface {
 		logger.log(Level.INFO, "Client disconnected, reason: {0}", e);
 	}
 
-	private static strictfp class Interface {
+	private static class Interface {
 		private final Object instance;
 		private final ARMIInterfaceMethods methods;
 

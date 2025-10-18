@@ -2,7 +2,7 @@ package com.oddlabs.converter;
 
 import java.io.*;
 
-public final strictfp class ModelObjectInfo extends ObjectInfo {
+public final class ModelObjectInfo extends ObjectInfo {
 	private final float[] clear_color;
 	private final String[][] textures;
 

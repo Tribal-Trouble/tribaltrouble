@@ -1,6 +1,6 @@
 package com.oddlabs.tt.net;
 
-public final strictfp class GameNetwork {
+public final class GameNetwork {
 	private final Server server;
 	private final Client client;
 

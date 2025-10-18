@@ -2,7 +2,7 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.gui.*;
 
-public final strictfp class ModalDelegate extends Delegate {
+public final class ModalDelegate extends Delegate {
     @Override
 	public void keyPressed(KeyboardEvent event) {
 	}

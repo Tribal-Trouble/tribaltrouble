@@ -3,7 +3,7 @@ package com.oddlabs.tt.render;
 import java.util.Comparator;
 import org.lwjgl.opengl.DisplayMode;
 
-public final strictfp class DisplayModeComparator implements Comparator<DisplayMode> {
+public final class DisplayModeComparator implements Comparator<DisplayMode> {
 
     private final SerializableDisplayMode target_mode;
 

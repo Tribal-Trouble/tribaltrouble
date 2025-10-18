@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Random;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class Landscape {
+public final class Landscape {
 	public final static boolean DEBUG = false;
 	private final static int STRUCTURE_SEED = 42; // must be constant; otherwise distinct repeating patterns might appear
 

@@ -8,7 +8,7 @@ import com.oddlabs.util.Quad;
 import java.net.URL;
 import org.lwjgl.opengl.GL11;
 
-public final strictfp class Cursor {
+public final class Cursor {
 
     private final Texture texture;
     private final NativeCursor native_cursor;

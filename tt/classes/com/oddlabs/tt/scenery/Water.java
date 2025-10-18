@@ -11,7 +11,7 @@ import java.nio.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
 
-public final strictfp class Water {
+public final class Water {
 
     private final FloatVBO patch_vertices;
     private final Texture[] ocean;

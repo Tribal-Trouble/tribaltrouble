@@ -1,6 +1,6 @@
 package com.oddlabs.net;
 
-public final strictfp class TimedConnection {
+public final class TimedConnection {
 	private final long timeout;
 	private final Connection conn;
 

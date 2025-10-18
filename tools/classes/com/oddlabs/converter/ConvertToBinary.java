@@ -6,7 +6,7 @@ import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import com.oddlabs.geometry.*;
 
-public final strictfp class ConvertToBinary {
+public final class ConvertToBinary {
 	public final static void main(String[] args) {
 		if (args.length != 3)
 			throw new RuntimeException("Invalid number of arguments : <xml_file> <src_dir> <build_dir>");
