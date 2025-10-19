@@ -2,6 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
+import com.oddlabs.tt.util.Target;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +16,7 @@ public final class RenderQueues {
 
 	private final List<SpriteRenderer> sprite_list_lookup = new ArrayList<>();
 	private final List<ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
-	private final Map<Supplier, ShadowListKey> desc_to_shadow_key = new HashMap<>();
+	private final Map<Supplier<?>, ShadowListKey> desc_to_shadow_key = new HashMap<>();
 	private final List<Texture> texture_lookup = new ArrayList<>();
 
 	public TextureKey registerTexture(Supplier<Texture[]> desc, int index) {
@@ -35,7 +36,7 @@ public final class RenderQueues {
 		return texture_lookup.get(key.getKey());
 	}
 
-	public ShadowListKey registerRespondRenderer(Supplier desc) {
+	public ShadowListKey registerRespondRenderer(Supplier<Texture[]> desc) {
 		ShadowListKey key = desc_to_shadow_key.get(desc);
 		if (key != null)
 			return key;
@@ -43,7 +44,7 @@ public final class RenderQueues {
 		return register(desc, renderer);
 	}
 
-	private ShadowListKey register(Supplier desc, ShadowListRenderer renderer) {
+	private ShadowListKey register(Supplier<?> desc, ShadowListRenderer renderer) {
 		int index = shadow_renderer_lookup.size();
 		shadow_renderer_lookup.add(renderer);
 		ShadowListKey key = new ShadowListKey(index);
@@ -51,7 +52,7 @@ public final class RenderQueues {
 		return key;
 	}
 
-	public ShadowListKey registerSelectableShadowList(Supplier desc) {
+	public ShadowListKey registerSelectableShadowList(Supplier<Texture[]> desc) {
 		ShadowListKey key = desc_to_shadow_key.get(desc);
 		if (key != null)
 			return key;
@@ -88,7 +89,7 @@ public final class RenderQueues {
 		}
 	}
 
-	void getAllPicks(List pick_list) {
+	void getAllPicks(List<Target> pick_list) {
 		for (int j = 0; j < sprite_renderers.size(); j++) {
             sprite_renderers.get(j).getAllPicks(pick_list);
         }

@@ -39,7 +39,7 @@ public final class PoisonFog implements Magic {
 
 	private int next_sound = 1;
 	private float time = 0f;
-	private List target_list;
+	private List<Unit> target_list;
 	private int bursts = 0;
 	private int num_hits = 0;
 	private boolean first_run = true;
@@ -118,7 +118,7 @@ public final class PoisonFog implements Magic {
 		unit_grid.scan(filter, UnitGrid.toGridCoordinate(start_x), UnitGrid.toGridCoordinate(start_y));
 		target_list = filter.getResult();
 		for (int i = 0; i < target_list.size(); i++) {
-			Selectable s = (Selectable)target_list.get(i);
+			Selectable s = target_list.get(i);
 			float dx = s.getPositionX() - start_x;
 			float dy = s.getPositionY() - start_y;
 			float squared_dist = dx*dx + dy*dy;

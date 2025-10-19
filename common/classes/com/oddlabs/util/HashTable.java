@@ -9,11 +9,13 @@ public final class HashTable<T> {
 	private final static int DEFAULT_MUL_FACTOR = 2;
 	private final static float DEFAULT_LOAD_FACTOR = 0.75f;
 
-	private LinkedList<T>[] entries;
+	@SuppressWarnings("rawtypes")
+	private LinkedList[] entries;
 	private final float load_factor;
 	private int num_entries;
 	private final int mul_factor;
 
+	@SuppressWarnings("rawtypes")
 	public HashTable() {
 		load_factor = DEFAULT_LOAD_FACTOR;
 		mul_factor = DEFAULT_MUL_FACTOR;
@@ -38,14 +40,14 @@ public final class HashTable<T> {
 		if (entries[hash] == null) {
 			entries[hash] = new LinkedList<>();
 		} else {
-			HashEntry<T> current_entry = (HashEntry<T>)entries[hash].getFirst();
+			HashEntry<T> current_entry = (HashEntry<T>) entries[hash].getFirst();
 			while (current_entry != null) {
 				int current_key = current_entry.getKey();
 				if (current_key == key) {
 					Object result = current_entry.setEntry(val);
 					return result;
 				}
-				current_entry = (HashEntry<T> )current_entry.getNext();
+				current_entry = (HashEntry<T>) current_entry.getNext();
 			}
 		}
 		HashEntry<T> hash_entry = new HashEntry<>(key, val);
@@ -65,7 +67,7 @@ public final class HashTable<T> {
 			int current_key = current_entry.getKey();
 			if (current_key == key)
 				return current_entry.getEntry();
-			current_entry = (HashEntry<T> )current_entry.getNext();
+			current_entry = (HashEntry<T>) current_entry.getNext();
 		}
 		return null;
 	}
@@ -75,7 +77,7 @@ public final class HashTable<T> {
 
 		if (entries[hash] == null)
 			return null;
-		HashEntry<T> current_entry = (HashEntry<T>)entries[hash].getFirst();
+		HashEntry<T> current_entry = (HashEntry<T>) entries[hash].getFirst();
 		while (current_entry != null) {
 			int current_key = current_entry.getKey();
 			if (current_key == key) {
@@ -83,11 +85,12 @@ public final class HashTable<T> {
 				entries[hash].remove(current_entry);
 				return result;
 			}
-			current_entry = (HashEntry)current_entry.getNext();
+			current_entry = (HashEntry<T>) current_entry.getNext();
 		}
 		return null;
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void rehash() {
 		LinkedList[] old_entries = entries;
 		entries = new LinkedList[entries.length*mul_factor];
@@ -96,7 +99,7 @@ public final class HashTable<T> {
                 HashEntry<T> current_entry = (HashEntry<T>) old_entry.getFirst();
                 while (current_entry != null) {
                     int hash = hash(current_entry.getKey());
-                    HashEntry<T> next_entry = (HashEntry<T>)current_entry.getNext();
+                    HashEntry<T> next_entry = (HashEntry<T>) current_entry.getNext();
                     if (entries[hash] == null)
                         entries[hash] = new LinkedList<>();
                     entries[hash].addLast(current_entry);

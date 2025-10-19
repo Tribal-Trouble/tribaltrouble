@@ -5,7 +5,7 @@ import com.oddlabs.tt.util.ToolTip;
 
 public final class CheckBox extends GUIObject implements ToolTip {
 	private final static int CHECK_BOX_LISTENER = 0;
-	private final java.util.List[] event_listeners = new java.util.ArrayList[1];
+	private final java.util.List<CheckBoxListener>[] event_listeners = new java.util.ArrayList[1];
 
 	private final String tool_tip;
 	
@@ -22,7 +22,7 @@ public final class CheckBox extends GUIObject implements ToolTip {
 		Label label = new Label(text, Skin.getSkin().getEditFont());
 		addChild(label);
 		label.setPos(Skin.getSkin().getCheckBoxMarked()[Skin.NORMAL].getWidth(), (Skin.getSkin().getCheckBoxMarked()[Skin.NORMAL].getHeight() - label.getHeight())/2);
-		event_listeners[CHECK_BOX_LISTENER] = new java.util.ArrayList();
+		event_listeners[CHECK_BOX_LISTENER] = new java.util.ArrayList<>();
 		setDim(Skin.getSkin().getCheckBoxMarked()[Skin.NORMAL].getWidth() + label.getWidth(), Skin.getSkin().getCheckBoxMarked()[Skin.NORMAL].getHeight());
 		setCanFocus(true);
 	}
@@ -92,9 +92,9 @@ public final class CheckBox extends GUIObject implements ToolTip {
 
 	public void checkedAll(boolean marked) {
 		checked(marked);
-		java.util.List list = getCheckBoxListeners();
+		java.util.List<CheckBoxListener> list = getCheckBoxListeners();
 		for (int i = 0; i < list.size(); i++) {
-			CheckBoxListener listener = (CheckBoxListener)list.get(i);
+			CheckBoxListener listener = list.get(i);
 			if (listener != null)
 				listener.checked(marked);
 		}
@@ -112,7 +112,7 @@ public final class CheckBox extends GUIObject implements ToolTip {
 		event_listeners[CHECK_BOX_LISTENER].add(listener);
 	}
 
-	private java.util.List getCheckBoxListeners() {
+	private java.util.List<CheckBoxListener> getCheckBoxListeners() {
 		return event_listeners[CHECK_BOX_LISTENER];
 	}
 

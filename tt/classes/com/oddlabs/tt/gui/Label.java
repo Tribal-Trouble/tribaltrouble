@@ -4,7 +4,7 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
 import org.lwjgl.opengl.GL11;
 
-public class Label extends TextField implements Comparable {
+public class Label extends TextField implements Comparable<Label> {
 	public final static int ALIGN_LEFT		= 0;
 	public final static int ALIGN_CENTER	= 1;
 	public final static int ALIGN_RIGHT		= 2;
@@ -64,8 +64,8 @@ public class Label extends TextField implements Comparable {
 	}
 
         @Override
-	public int compareTo(Object o) {
-		return getText().toString().compareToIgnoreCase(((TextField)o).getText().toString());
+	public int compareTo(Label o) {
+		return getText().toString().compareToIgnoreCase(o.getText().toString());
 	}
 }
 

@@ -3,7 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.guievent.ValueListener;
 
 public class NumberEditLine extends EditLine {
-	private final java.util.List value_listeners = new java.util.ArrayList();
+	private final java.util.List<ValueListener> value_listeners = new java.util.ArrayList<>();
 		
 	private final int min_value;
 	private final int max_value;
@@ -70,7 +70,7 @@ public class NumberEditLine extends EditLine {
 		if (value != this.value) {
 			this.value = value;
 			for (int i = 0; i < value_listeners.size(); i++) {
-				ValueListener listener = (ValueListener)value_listeners.get(i);
+				ValueListener listener = value_listeners.get(i);
 				if (listener != null)
 					listener.valueSet(this.value);
 			}

@@ -40,7 +40,7 @@ public final class Stitcher {
 		return vertex_index;
 	}
 
-	public abstract static class Vertex implements Comparable {
+	public abstract static class Vertex implements Comparable<Vertex> {
 		private final int side;
 		private final short index;
 

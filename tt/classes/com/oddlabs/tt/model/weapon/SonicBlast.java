@@ -36,7 +36,7 @@ public final class SonicBlast implements Magic {
 	private final AbstractAudioPlayer rumble;
 
 	private float time = 0f;
-	private final List target_list;
+	private final List<Selectable> target_list;
 
 	private int rings_sent = 0;
 	private boolean first_ring_sent = false;
@@ -125,7 +125,7 @@ public final class SonicBlast implements Magic {
 		float squared_radius = current_radius*current_radius;
 		int i = 0;
 		while (i < target_list.size()) {
-			Selectable s = (Selectable)target_list.get(i);
+			Selectable s = target_list.get(i);
 			float dx = s.getPositionX() - start_x;
 			float dy = s.getPositionY() - start_y;
 			float squared_dist = dx*dx + dy*dy;

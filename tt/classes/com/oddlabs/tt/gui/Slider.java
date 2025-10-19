@@ -5,7 +5,7 @@ import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.guievent.ValueListener;
 
 public final class Slider extends GUIObject {
-	private final java.util.List value_listeners = new java.util.ArrayList();
+	private final java.util.List<ValueListener> value_listeners = new java.util.ArrayList<>();
 
 	private final SliderButton button;
 	private final int left_offset;
@@ -103,7 +103,7 @@ public final class Slider extends GUIObject {
 	public void valueSetAll(int value) {
 		valueSet(value);
 		for (int i = 0; i < value_listeners.size(); i++) {
-			ValueListener listener = (ValueListener)value_listeners.get(i);
+			ValueListener listener = value_listeners.get(i);
 			if (listener != null)
 				listener.valueSet(value);
 		}

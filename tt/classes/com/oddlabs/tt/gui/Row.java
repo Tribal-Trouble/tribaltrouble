@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import org.lwjgl.opengl.GL11;
 
-public final class Row extends GUIObject implements Comparable {
+public final class Row extends GUIObject implements Comparable<Row> {
 	private final Object[] columns;
 	private final Object content_object;
 	private int sort_index;
@@ -43,10 +43,10 @@ public final class Row extends GUIObject implements Comparable {
 	}
 
         @Override
-	public int compareTo(Object o) {
-		Comparable local_object = (Comparable)getColumn(sort_index);
-		Comparable compared_object = (Comparable)((Row)o).getColumn(sort_index);
-		return local_object.compareTo(compared_object);
+	public int compareTo(Row o) {
+		@SuppressWarnings("unchecked")
+		Comparable<Object> local_object = (Comparable<Object>)getColumn(sort_index);
+		return local_object.compareTo(o.getColumn(sort_index));
 	}
 
 	public void setColor(Color color) {

@@ -228,7 +228,7 @@ public final class DefaultRenderer implements UIRenderer {
         }
 
         /*		if (Globals.isBoundsEnabled(Globals.BOUNDING_UNIT_GRID)) {
-			java.util.Iterator it = com.oddlabs.tt.model.SelectionArmy.getSelection().getSet().iterator();
+			java.util.Iterator<?> it = com.oddlabs.tt.model.SelectionArmy.getSelection().getSet().iterator();
 			while (it.hasNext()) {
 				Object next = it.next();
 				if (next instanceof com.oddlabs.tt.model.Unit) {

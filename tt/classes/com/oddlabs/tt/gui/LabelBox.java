@@ -4,7 +4,7 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextBoxRenderer;
 import org.lwjgl.opengl.GL11;
 
-public class LabelBox extends TextField implements Comparable {
+public class LabelBox extends TextField implements Comparable<LabelBox> {
 	private final TextBoxRenderer text_renderer;
 
 	private float[] color = new float[]{1f, 1f, 1f, 1f};
@@ -42,8 +42,8 @@ public class LabelBox extends TextField implements Comparable {
 	}
 
         @Override
-	public int compareTo(Object o) {
-		return getText().toString().compareToIgnoreCase(((TextField)o).getText().toString());
+	public int compareTo(LabelBox o) {
+		return getText().toString().compareToIgnoreCase(o.getText().toString());
 	}
 }
 

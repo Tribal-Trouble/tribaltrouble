@@ -2,7 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
 
-public final class IconLabel extends GUIObject implements Comparable {
+public final class IconLabel extends GUIObject implements Comparable<IconLabel> {
 	private final Quad icon;
 	private final Label label;
 
@@ -26,7 +26,7 @@ public final class IconLabel extends GUIObject implements Comparable {
 	}
 
         @Override
-	public int compareTo(Object o) {
-		return label.compareTo(((IconLabel)o).getLabel());
+	public int compareTo(IconLabel o) {
+		return label.compareTo(o.getLabel());
 	}
 }

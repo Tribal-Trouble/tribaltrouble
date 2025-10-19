@@ -66,7 +66,7 @@ public final class Building extends Selectable implements Occupant {
 
 	private final Map<Class<?>, SupplyContainer> supply_containers = new HashMap<>();
 	private final Map<Class<?>, BuildProductionContainer> build_containers = new HashMap<>();
-	private final DeployContainer[] deploy_containers = new DeployContainer[12];
+	private final DeployContainer<?>[] deploy_containers = new DeployContainer<?>[12];
 	private final LinearEmitter damaged_emitter;
 	private final LinearEmitter production_emitter;
 

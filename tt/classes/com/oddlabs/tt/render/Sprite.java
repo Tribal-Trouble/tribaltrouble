@@ -150,9 +150,9 @@ final class Sprite {
 		setupDecalColor(color);
 	}
 
-	public void renderAll(List render_list, int tex_index, boolean respond) {
+	public void renderAll(List<ModelState> render_list, int tex_index, boolean respond) {
 		for (int i = 0; i < render_list.size(); i++) {
-			ModelState model = (ModelState)render_list.get(i);
+			ModelState model = render_list.get(i);
 			render_list.set(i, null);
 			if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS))
 				RenderTools.draw(model.getModel());

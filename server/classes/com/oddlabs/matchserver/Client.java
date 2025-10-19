@@ -27,8 +27,8 @@ import java.util.Set;
 
 public final class Client implements MatchmakingServerInterface, ConnectionInterface {
 	private final static int CHUNK_SIZE = 10;
-	private final static Set game_hosts = new HashSet();
-	private final static Map active_clients = new HashMap();
+	private final static Set<Client> game_hosts = new HashSet<>();
+	private final static Map<String, Client> active_clients = new HashMap<>();
 
 	private static int current_random_seed = 1;
 
@@ -37,7 +37,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 	private final MatchmakingClientInterface client_interface;
 	
 	private final AbstractConnection conn;
-	private final Map tunnels = new HashMap();
+	private final Map<HostSequenceID, Client> tunnels = new HashMap<>();
 	private final InetAddress remote_address;
 	private final InetAddress local_remote_address;
 	private final int host_id;
@@ -316,7 +316,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 			return;
 		}
 		client_interface.updateStart(type);
-		Iterator it;
+		Iterator<?> it;
 		int chunk_index = 0;
 		switch (type) {
 			case TYPE_GAME:
@@ -405,10 +405,10 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 	}
 
 	public void close() {
-		Iterator it = tunnels.keySet().iterator();
+		Iterator<HostSequenceID> it = tunnels.keySet().iterator();
 		while (it.hasNext()) {
-			HostSequenceID tunnel_address = (HostSequenceID)it.next();
-			Client client = (Client)tunnels.get(tunnel_address);
+			HostSequenceID tunnel_address = it.next();
+			Client client = tunnels.get(tunnel_address);
 			if (client != null && client != this)
 				client.tunnelClosed(tunnel_address);
 		}
