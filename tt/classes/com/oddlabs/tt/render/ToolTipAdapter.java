@@ -104,7 +104,7 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 			icon[0] = watch[index];
 			tool_tip_box.append(icon);
 		} else if (unit.getOwner() == local_player && c instanceof GatherController) {
-			GatherController gc = (GatherController)c;
+			GatherController<?> gc = (GatherController<?>)c;
 			tool_tip_box.append(Icons.getIcons().getToolTipIcon(gc.getSupplyType()));
 		}
 		/*      if (getCurrentBehaviour() instanceof WalkBehaviour)

@@ -32,6 +32,7 @@ import com.oddlabs.tt.procedural.GeneratorSonic;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
+import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.render.TextureKey;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
@@ -136,7 +137,7 @@ public final class RacesResources {
 
 		final float ring_mid = 0.38f;
 		final float fadeout = 0.005f;
-		Supplier building_shadow_desc = new GeneratorHalos(256, new float[][]{{0.15f, 0.5f}, {0.5f, 0f}}, new float[][]{{ring_mid - ring_thickness/2 - fadeout, 0f}, {ring_mid - ring_thickness/2, 1f}, {ring_mid + ring_thickness/2, 1f}, {ring_mid + ring_thickness/2 + fadeout, 0f}});
+		Supplier<Texture[]> building_shadow_desc = new GeneratorHalos(256, new float[][]{{0.15f, 0.5f}, {0.5f, 0f}}, new float[][]{{ring_mid - ring_thickness/2 - fadeout, 0f}, {ring_mid - ring_thickness/2, 1f}, {ring_mid + ring_thickness/2, 1f}, {ring_mid + ring_thickness/2 + fadeout, 0f}});
 		ShadowListKey shadow_renderer = queues.registerSelectableShadowList(building_shadow_desc);
 		SpriteFile building = new SpriteFile(built_name,
 																 Globals.NO_MIPMAP_CUTOFF,

@@ -51,7 +51,7 @@ public final class RepairController extends Controller {
 		} else {
 			resetGiveUpCounter(REPAIR_STATE);
 			if (!shouldGiveUp(HARVEST_STATE)) {
-				unit.pushController(new HarvestController(unit, null, TreeSupply.class));
+				unit.pushController(new HarvestController<>(unit, null, TreeSupply.class));
 			} else {
 				unit.popController();
 			}

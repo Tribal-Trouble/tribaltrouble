@@ -109,7 +109,7 @@ public final class DBInterface {
 				stmt.setString(1, username);
 				ResultSet result = stmt.executeQuery();
 				try {
-					List profiles = new ArrayList();
+					List<Profile> profiles = new ArrayList<>();
 					int index = 1;
 					while (result.next()) {
 						String nick = result.getString("nick").trim();
@@ -452,7 +452,7 @@ public final class DBInterface {
 				stmt.setInt(1, number);
 				ResultSet result = stmt.executeQuery();
 				try {
-					List rankings = new ArrayList();
+					List<RankingEntry> rankings = new ArrayList<>();
 					int index = 1;
 					while (result.next()) {
 						String nick = result.getString("nick").trim();

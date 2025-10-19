@@ -71,18 +71,7 @@ final class SessionManager {
 		return doComputeNextTick(client.getSession(), millis);
 	}
 
-/*	private void verify() {
-		Iterator it = timeouts.iterator();
-		if (!it.hasNext())
-			return;
-		Timeout t = (Timeout)it.next();
-		while (it.hasNext()) {
-			Timeout t2 = (Timeout)it.next();
-			assert t2.compareTo(t) > 0;
-			t = t2;
-		}
-	}
-*/
+
 	private Timeout createTimeout(RouterClient client, long millis) {
 		return new Timeout(internal_session_id++, client, millis);
 	}
