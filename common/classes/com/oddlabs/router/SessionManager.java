@@ -128,7 +128,7 @@ final class SessionManager {
 		return (int)(millis - session.getInitialTime());
 	}
 
-	final class Timeout implements Comparable {
+	static final class Timeout implements Comparable {
 		private final int id;
 
 		private final long next_timeout;

@@ -53,7 +53,7 @@ public final class RegServlet extends HttpServlet {
 	}
 	
 	private static boolean parseBoolean(String val) {
-		return Boolean.valueOf(val).booleanValue();
+		return Boolean.valueOf(val);
 	}
 	
 	private static int parseInt(String val, int default_value) {

@@ -199,13 +199,13 @@ public final class Settings implements Serializable {
                 Class<?> field_type = field.getType();
                 try {
                     if (field_type.equals(boolean.class)) {
-                        boolean field_value = (Boolean.valueOf(value));
+                        boolean field_value = Boolean.parseBoolean(value);
                         field.setBoolean(this, field_value);
                     } else if (field_type.equals(int.class)) {
-                        int field_value = (new Integer(value));
+                        int field_value = Integer.parseInt(value);
                         field.setInt(this, field_value);
                     } else if (field_type.equals(float.class)) {
-                        float field_value = (new Float(value));
+                        float field_value = Float.parseFloat(value);
                         field.setFloat(this, field_value);
                     } else if (field_type.equals(String.class)) {
                         field.set(this, value);

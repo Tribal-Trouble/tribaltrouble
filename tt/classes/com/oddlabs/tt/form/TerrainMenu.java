@@ -689,19 +689,19 @@ System.out.println("Start server");
 		}
 	}
 
-	private final class PulldownUpdateSizeListener implements ItemChosenListener {
+	private static final class PulldownUpdateSizeListener implements ItemChosenListener {
                 @Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 		}
 	}
 
-	private final class PulldownUpdateHardListener implements ItemChosenListener {
+	private static final class PulldownUpdateHardListener implements ItemChosenListener {
                 @Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 		}
 	}
 
-	private final class PulldownUpdateTerrainListener implements ItemChosenListener {
+	private static final class PulldownUpdateTerrainListener implements ItemChosenListener {
                 @Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 		}

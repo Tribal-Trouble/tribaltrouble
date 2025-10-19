@@ -41,7 +41,7 @@ public final class GeneratorClouds extends TextureGenerator {
 
 		if (Landscape.DEBUG) new GLIntImage(clouds1.toLayer()).saveAsPNG("generator_clouds_1");
 		if (Landscape.DEBUG) new GLIntImage(clouds2.toLayer()).saveAsPNG("generator_clouds_2");
-		GLByteImage cloud_images[] = new GLByteImage[] {new GLByteImage(clouds1, GL11.GL_LUMINANCE), new GLByteImage(clouds2, GL11.GL_LUMINANCE)};
+		GLByteImage[] cloud_images = new GLByteImage[] {new GLByteImage(clouds1, GL11.GL_LUMINANCE), new GLByteImage(clouds2, GL11.GL_LUMINANCE)};
 		Texture[] textures = new Texture[cloud_images.length];
 		for (int i = 0; i < cloud_images.length; i++) {
 			textures[i] = new Texture(cloud_images[i].createMipMaps(), Globals.COMPRESSED_LUMINANCE_FORMAT, GL11.GL_LINEAR_MIPMAP_NEAREST, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);

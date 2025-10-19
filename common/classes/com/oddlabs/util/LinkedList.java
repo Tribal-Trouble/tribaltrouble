@@ -78,7 +78,7 @@ public final class LinkedList<T> {
 			first = element;
 			element.setPrior(null);
 		} else {
-			ListElement prev = next_elem.getPrior();
+			ListElement<T> prev = next_elem.getPrior();
 			element.setPrior(prev);
 			prev.setNext(element);
 		}

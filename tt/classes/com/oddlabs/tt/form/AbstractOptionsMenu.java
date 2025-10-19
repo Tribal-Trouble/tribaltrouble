@@ -407,7 +407,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		}
 	}
 
-	private final class SliderMusicListener implements ValueListener {
+	private static final class SliderMusicListener implements ValueListener {
                 @Override
 		public void valueSet(int value) {
 			float music_gain = (float)value/(MAX_VALUE);
@@ -416,14 +416,14 @@ public abstract class AbstractOptionsMenu extends Form {
 		}
 	}
 
-	private final class SliderSFXListener implements ValueListener {
+	private static final class SliderSFXListener implements ValueListener {
                 @Override
 		public void valueSet(int value) {
 			Settings.getSettings().sound_gain = (float)value/(MAX_VALUE);
 		}
 	}
 
-	private final class SliderMapmodeListener implements ValueListener {
+	private static final class SliderMapmodeListener implements ValueListener {
                 @Override
 		public void valueSet(int value) {
 			Settings.getSettings().mapmode_delay = (float)value/(MAX_VALUE);
@@ -452,21 +452,21 @@ public abstract class AbstractOptionsMenu extends Form {
 	}
 
 
-	private final class CBHardwareCursor implements CheckBoxListener {
+	private static final class CBHardwareCursor implements CheckBoxListener {
                 @Override
 		public void checked(boolean marked) {
 			Settings.getSettings().use_native_cursor = marked;
 		}
 	}
 
-	private final class CBAggressiveUnits implements CheckBoxListener {
+	private static final class CBAggressiveUnits implements CheckBoxListener {
                 @Override
 		public void checked(boolean marked) {
 			Settings.getSettings().aggressive_units = marked;
 		}
 	}
 
-	private final class CBInvertCamera implements CheckBoxListener {
+	private static final class CBInvertCamera implements CheckBoxListener {
                 @Override
 		public void checked(boolean marked) {
 			Settings.getSettings().invert_camera_pitch = marked;

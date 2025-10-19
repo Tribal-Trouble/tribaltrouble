@@ -438,7 +438,7 @@ public final class DBInterface {
 	public static int getSettingsInt(String setting) {
 		try {
 			String value = getSetting(setting);
-			return (Integer.valueOf(value)).intValue();
+			return Integer.valueOf(value);
 		} catch (Exception e) {
 			MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "getSettingsInt", e);
 			throw new RuntimeException(e);

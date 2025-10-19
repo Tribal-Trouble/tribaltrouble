@@ -35,7 +35,7 @@ import java.nio.FloatBuffer;
 
 /**
  * $Id: StrictVector4f.java,v 1.3 2004/06/12 20:28:29 matzon Exp $
- *
+ * <p>
  * Holds a 4-tuple vector.
  * 
  * @author

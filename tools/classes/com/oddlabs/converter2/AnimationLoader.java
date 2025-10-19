@@ -48,7 +48,7 @@ public final class AnimationLoader {
 		while (it.hasNext()) {
 			Integer frame_index_obj = it.next();
 			Map<String,float[]> frame = anim_infos_map.get(frame_index_obj);
-			int index = frame_index_obj.intValue();
+			int index = frame_index_obj;
 			assert anim_infos[index] == null;
 			anim_infos[index] = frame;
 		}

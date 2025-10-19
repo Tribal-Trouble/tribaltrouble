@@ -181,7 +181,7 @@ public class Form extends Group {
 		super.remove();
 	}
 
-	private final class DragListener implements MouseMotionListener {
+	private static final class DragListener implements MouseMotionListener {
 		private final Form owner;
 		public DragListener(Form owner) {
 			this.owner = owner;

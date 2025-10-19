@@ -141,7 +141,7 @@ public final class ProfilesForm extends Form {
 		remove();
 	}
 
-	private final class ActionDeleteListener implements MouseClickListener {
+	private static final class ActionDeleteListener implements MouseClickListener {
 		private final String nick;
 
 		public ActionDeleteListener(String nick) {

@@ -5,8 +5,8 @@ import com.oddlabs.util.LinkedList;
 import com.oddlabs.util.ListElement;
 
 public abstract class Element<T> extends BoundingBox implements ListElement<T> {
-	private final AbstractElementNode element_root;
-	private AbstractElementNode node_parent;
+	private final AbstractElementNode<T> element_root;
+	private AbstractElementNode<T>node_parent;
 
 	private LinkedList<T> parent;
 	private ListElement<T> next = null;
@@ -19,7 +19,7 @@ public abstract class Element<T> extends BoundingBox implements ListElement<T> {
 	private float dir_x = 1f;
 	private float dir_y = 0f;
 
-	protected Element(AbstractElementNode element_root) {
+	protected Element(AbstractElementNode<T> element_root) {
 		this.element_root = element_root;
 	}
 

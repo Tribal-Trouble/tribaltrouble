@@ -5,10 +5,10 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 public final class ARMIInterfaceMethods {
-	private final Class armi_interface;
+	private final Class<?> armi_interface;
 	private final Method[] methods;
 
-	public ARMIInterfaceMethods(Class armi_interface) {
+	public ARMIInterfaceMethods(Class<?> armi_interface) {
 		assert armi_interface.isInterface();
 		this.armi_interface = armi_interface;
 		this.methods = armi_interface.getMethods();
@@ -26,7 +26,7 @@ public final class ARMIInterfaceMethods {
 		return armi_interface.isInstance(instance);
 	}
 
-	Class getInterfaceClass() {
+	Class<?> getInterfaceClass() {
 		return armi_interface;
 	}
 	

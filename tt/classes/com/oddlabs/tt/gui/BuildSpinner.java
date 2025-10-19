@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.model.BuildProductionContainer;
 import com.oddlabs.tt.model.BuildSupplyContainer;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
@@ -16,7 +17,7 @@ public final class BuildSpinner extends IconSpinner {
 	private final PlayerInterface player_interface;
 
 	private Building current_building;
-	private Class type;
+	private Class<?> type;
 	private int num_orders;
 	private int order_size;
 	private boolean infinite;
@@ -26,7 +27,7 @@ public final class BuildSpinner extends IconSpinner {
 		this.player_interface = player_interface;
 	}
 
-	public void setBuildSupplyContainer(Building current_building, Class type) {
+	public void setBuildSupplyContainer(Building current_building, Class<?> type) {
 		this.current_building = current_building;
 		this.type = type;
 		if (!current_building.isDead())

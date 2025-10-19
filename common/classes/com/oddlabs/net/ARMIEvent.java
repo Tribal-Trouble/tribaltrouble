@@ -19,14 +19,14 @@ public final class ARMIEvent implements Serializable {
 	private final byte method_id;
 	private final byte[] command_stream;
 
-	public static Object createProxy(ARMIEventWriter broker, Class armi_interface) {
+	public static Object createProxy(ARMIEventWriter broker, Class<?> armi_interface) {
 		return createProxy(broker, default_writer, armi_interface);
 	}
 
-	public static Object createProxy(ARMIEventWriter broker, ARMIArgumentWriter writer, Class armi_interface) {
+	public static Object createProxy(ARMIEventWriter broker, ARMIArgumentWriter writer, Class<?> armi_interface) {
 		ARMIInterfaceMethods armi_interface_methods = new ARMIInterfaceMethods(armi_interface);
 		ARMIInvocationHandler handler = new ARMIInvocationHandler(broker, writer, armi_interface_methods);
-		return Proxy.newProxyInstance(ARMIEvent.class.getClassLoader(), new Class[]{armi_interface}, handler);
+		return Proxy.newProxyInstance(ARMIEvent.class.getClassLoader(), new Class<?>[]{armi_interface}, handler);
 	}
 
 	public short getEventSize() {
@@ -52,13 +52,13 @@ public final class ARMIEvent implements Serializable {
 		return new ARMIEvent(method_id, command_stream);
 	}
 
-	private static byte[] createByteArrayFromCommand(ARMIArgumentWriter writer, Class[] method_parameter_types, Object[] args) {
+	private static byte[] createByteArrayFromCommand(ARMIArgumentWriter writer, Class<?>[] method_parameter_types, Object[] args) {
 		if (args != null) { 
 			try {
 				static_byte_stream.reset();
 				for (int i = 0; i < args.length; i++) {
 					Object arg = args[i];
-					Class type = method_parameter_types[i];
+					Class<?> type = method_parameter_types[i];
 					writer.writeArgument(type, arg, static_byte_stream);
 				}
 				return static_byte_stream.toByteArray();
@@ -69,7 +69,7 @@ public final class ARMIEvent implements Serializable {
 			return null;
 	}
 	
-	public ARMIEvent(ARMIArgumentWriter writer, Class[] method_parameter_types, byte method_id, Object[] args) {
+	public ARMIEvent(ARMIArgumentWriter writer, Class<?>[] method_parameter_types, byte method_id, Object[] args) {
 		this(method_id, createByteArrayFromCommand(writer, method_parameter_types, args));
 	}
 
@@ -79,7 +79,7 @@ public final class ARMIEvent implements Serializable {
 	}
 
 	private Object[] parseArgs(ARMIArgumentReader reader, Method method) throws IOException, ClassNotFoundException {
-		Class[] parameter_types = method.getParameterTypes();
+		Class<?>[] parameter_types = method.getParameterTypes();
 		int num_params = parameter_types.length;
 		if (num_params == 0)
 			return null;
@@ -87,7 +87,7 @@ public final class ARMIEvent implements Serializable {
 		args = new Object[num_params];
 		ByteBufferInputStream byte_stream = new ByteBufferInputStream(command_stream);
 		for (int i = 0; i < args.length; i++) {
-			Class type = parameter_types[i];
+			Class<?> type = parameter_types[i];
 			args[i] = reader.readArgument(type, byte_stream);
 		}
 		return args;

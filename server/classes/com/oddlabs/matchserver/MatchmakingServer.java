@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public final class MatchmakingServer implements ConnectionListenerInterface {
-	private final static Map online_users = new HashMap();
+	private final static Map<String, Client> online_users = new HashMap<>();
 	private static int current_id = 1;
 
 	private final static Logger logger = Logger.getLogger("com.oddlabs.matchserver");
@@ -37,7 +37,7 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 	private final AlgorithmParameterSpec param_spec;
 	private final PublicKey public_reg_key;
 	private final NetworkSelector network;
-	private final Map client_map = new HashMap();
+	private final Map<Integer, Client> client_map = new HashMap<>();
 
 	static {
 		try {
@@ -106,12 +106,12 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 		}
 		Client client = new Client(this, conn, remote_address, local_remote_address, username, key_code_encoded == null, revision, host_id);
 		online_users.put(username.toLowerCase(), client);
-		client_map.put(new Integer(client.getHostID()), client);
+		client_map.put(client.getHostID(), client);
 		logger.info(username + " logged in, with key " + key_code_encoded);
 	}
 
 	public Client getClientFromID(int host_id) {
-		return (Client)client_map.get(new Integer(host_id));
+		return (Client)client_map.get(host_id);
 	}
 	
 	public void error(AbstractConnectionListener conn_id, IOException e) {
@@ -125,7 +125,7 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 	}
 
 	public void removeInstance(int instance_id) {
-		client_map.remove(new Integer(instance_id));
+		client_map.remove(instance_id);
 	}
 	
 	private static void postPanic() {

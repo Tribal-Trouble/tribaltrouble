@@ -19,7 +19,7 @@ public final class FileLister implements FileListerInterface {
 		listener.newFiles(new_files);
 	}
 
-	private final class PatternFilenameFilter implements FilenameFilter {
+	private static final class PatternFilenameFilter implements FilenameFilter {
 		private final String pattern;
 
 		public PatternFilenameFilter(String pattern) {

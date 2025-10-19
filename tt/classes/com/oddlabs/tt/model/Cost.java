@@ -5,16 +5,16 @@ import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.util.Quad;
 
 public final class Cost {
-	private final Class[] supply_types;
+	private final Class<? extends Supply>[] supply_types;
 	private final int[] supply_amounts;
 
-	public Cost(Class[] supply_types, int[] supply_amounts) {
+	public Cost(Class<? extends Supply>[] supply_types, int[] supply_amounts) {
 		this.supply_types = supply_types;
 		this.supply_amounts = supply_amounts;
 		assert supply_types.length == supply_amounts.length;
 	}
 	
-	public Class[] getSupplyTypes() {
+	public Class<? extends Supply>[] getSupplyTypes() {
 		return supply_types;
 	}
 
@@ -30,7 +30,7 @@ public final class Cost {
 		Quad[] result = new Quad[size];
 		int index = 0;
 		for (int i = 0; i < supply_types.length; i++) {
-			Class type = supply_types[i];
+			Class<? extends Supply> type = supply_types[i];
 			Quad icon;
 			if (type == TreeSupply.class) {
 				icon = Icons.getIcons().getTreeStatusIcon();

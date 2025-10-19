@@ -457,7 +457,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		}
 	}
 
-	private final class GameListPanelListener implements FocusListener {
+	private static final class GameListPanelListener implements FocusListener {
                 @Override
 		public void activated(boolean activated) {
 			if (activated)
@@ -485,14 +485,14 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		}
 	}
 
-	private final class UpdateScoresListener implements MouseClickListener {
+	private static final class UpdateScoresListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			updateList(MatchmakingServerInterface.TYPE_RANKING_LIST);
 		}
 	}
 
-	private final class UpdateGameListListener implements MouseClickListener {
+	private static final class UpdateGameListListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			updateList(MatchmakingServerInterface.TYPE_GAME);
@@ -521,7 +521,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		}
 	}
 
-	private final class UpdateRoomListListener implements MouseClickListener {
+	private static final class UpdateRoomListListener implements MouseClickListener {
                 @Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			updateList(MatchmakingServerInterface.TYPE_CHAT_ROOM_LIST);

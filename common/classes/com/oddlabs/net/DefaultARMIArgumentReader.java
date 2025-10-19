@@ -5,7 +5,7 @@ import java.io.ObjectInputStream;
 
 public class DefaultARMIArgumentReader implements ARMIArgumentReader {
         @Override
-	public Object readArgument(Class type, ByteBufferInputStream in) throws IOException, ClassNotFoundException {
+	public Object readArgument(Class<?> type, ByteBufferInputStream in) throws IOException, ClassNotFoundException {
 		if (type.equals(char.class)) {
 			return in.buffer().getChar();
 		} else if (type.equals(byte.class)) {

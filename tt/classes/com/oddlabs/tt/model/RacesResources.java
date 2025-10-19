@@ -831,7 +831,7 @@ public final class RacesResources {
 		return star_textures;
 	}
 
-	public Audio getHarvestSound(Class key, Random random) {
+	public Audio getHarvestSound(Class<? extends Supply> key, Random random) {
 		Audio[] sounds = harvest_sounds.get(key);
 		return sounds[random.nextInt(sounds.length)];
 	}

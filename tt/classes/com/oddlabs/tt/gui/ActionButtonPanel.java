@@ -1023,7 +1023,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		}
 	}
 
-	private final class ChieftainDisabler implements IconDisabler {
+	private static final class ChieftainDisabler implements IconDisabler {
 		private final Building building;
 
 		public ChieftainDisabler(Building building) {
@@ -1036,7 +1036,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		}
 	}
 
-	private final class MagicDisabler implements IconDisabler {
+	private static final class MagicDisabler implements IconDisabler {
 		private final Unit unit;
 		private final int magic_index;
 
@@ -1051,7 +1051,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		}
 	}
 
-	private final class EmptySupplyDisabler implements IconDisabler {
+	private static final class EmptySupplyDisabler implements IconDisabler {
 		private final SupplyCounter[] counters;
 
 		public EmptySupplyDisabler(SupplyCounter[] counters) {
@@ -1069,7 +1069,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		}
 	}
 
-	private final class TowerActionDisabler implements IconDisabler {
+	private static final class TowerActionDisabler implements IconDisabler {
 		private final Building building;
 		private final boolean exit;
 

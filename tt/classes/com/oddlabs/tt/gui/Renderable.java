@@ -13,7 +13,7 @@ public abstract class Renderable extends ListElementImpl {
 	private float scale_x = 1f;
 	private float scale_y = 1f;
 
-	private final LinkedList children = new LinkedList();
+	private final LinkedList<Renderable> children = new LinkedList<>();
 
 	private Renderable parent = null;
 

@@ -10,16 +10,16 @@ import java.util.Map;
 import java.util.Set;
 
 public final class ChatRoom {
-	private final static Map chat_rooms = new HashMap();
+	private final static Map<String, ChatRoom> chat_rooms = new HashMap<>();
 	
-	private final Set users = new HashSet();
+	private final Set<Client> users = new HashSet<>();
 	private final String name;
 
 	public ChatRoom(String name) {
 		this.name = name;
 	}
 
-	public static Map getChatRooms() {
+	public static Map<String, ChatRoom> getChatRooms() {
 		return chat_rooms;
 	}
 
@@ -81,9 +81,9 @@ public final class ChatRoom {
 	}
 
 	public void sendMessage(String msg, String owner) {
-		Iterator it = users.iterator();
+		Iterator<Client> it = users.iterator();
 		while (it.hasNext()) {
-			Client client = (Client)it.next();
+			Client client = it.next();
 			client.getClientInterface().receiveChatRoomMessage(msg, owner);
 		}
 	}

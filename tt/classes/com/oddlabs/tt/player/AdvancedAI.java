@@ -130,7 +130,7 @@ public final class AdvancedAI extends AI {
 	}
 
 	private void nodeDefend(int score) {
-		ArrayList unit_list = new ArrayList();
+		List<Unit> unit_list = new ArrayList<>();
 
 		int result = 0;
 		if (getIdleWarriors() != null && result < score) {
@@ -159,7 +159,7 @@ public final class AdvancedAI extends AI {
 		}
 	}
 
-	private int addFromList(Selectable[] list, ArrayList new_list, int progress, int score) {
+	private int addFromList(Selectable[] list, List<Unit> new_list, int progress, int score) {
 		int result = progress;
             for (Selectable list1 : list) {
                 Unit unit = (Unit) list1;
@@ -500,9 +500,9 @@ else
 	private boolean buildBuilding(int building_type, Selectable[] selection, int grid_x, int grid_y) {
 		BuildingSiteScanFilter filter = new BuildingSiteScanFilter(getUnitGrid(), getOwner().getRace().getBuildingTemplate(building_type), 40, true);
 		getUnitGrid().scan(filter, grid_x, grid_y);
-		List target_list = filter.getResult();
-		if (target_list.size() > 0) {
-			Target target = (Target)target_list.get(0);
+		List<? extends Target> target_list = filter.getResult();
+		if (!target_list.isEmpty()) {
+			Target target = target_list.get(0);
 			getOwner().placeBuilding(selection, building_type, target.getGridX(), target.getGridY());
 			return true;
 		} else {

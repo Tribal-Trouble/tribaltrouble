@@ -1,7 +1,7 @@
 package com.oddlabs.tt.model;
 
-public interface ElementNodeVisitor {
-	void visitNode(ElementNode node);
-	void visitLeaf(ElementLeaf leaf);
-	void visit(Element<?> element);
+public interface ElementNodeVisitor<T> {
+	void visitNode(ElementNode<T> node);
+	void visitLeaf(ElementLeaf<T> leaf);
+	void visit(Element<T> element);
 }

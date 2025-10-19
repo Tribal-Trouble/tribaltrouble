@@ -402,7 +402,7 @@ e.printStackTrace();
 
 	private static boolean readOrSetPreference(String key, boolean value) {
 		String result_string = readOrSetPreference(key, ""+value);
-		return Boolean.valueOf(result_string);
+		return Boolean.parseBoolean(result_string);
 	}
 
 	private static int readOrSetPreference(String key, int value) {

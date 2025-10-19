@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractConnection implements ARMIEventWriter {
-	private final List event_backlog = new ArrayList();
+	private final List<ARMIEvent> event_backlog = new ArrayList<>();
 	private ConnectionInterface connection_interface;
 	private IOException error_flag;
 	private boolean connected_flag;

@@ -227,7 +227,7 @@ public abstract class AI implements Animated {
 					INDEX_IDLE_WARRIORS = i;
 				}
 			} else if (s.getPrimaryController() instanceof GatherController) {
-				GatherController gc = (GatherController)s.getPrimaryController();
+				GatherController<?> gc = (GatherController<?>) s.getPrimaryController();
 				if (gc.getSupplyType() == TreeSupply.class) {
 					INDEX_GATHER_TREE_PEONS = i;
 				} else if (gc.getSupplyType() == RockSupply.class) {

@@ -28,7 +28,7 @@ public final class GeneratorHalos extends TextureGenerator {
 		Channel channel_ring = new Ring(size, size, ring_parms, Ring.LINEAR).toChannel();
 		Channel channel_black = new Channel(size, size).fill(0f);
 		Channel channel_white = new Channel(size, size).fill(1f);
-		Layer layers[] = new Layer[2];
+		Layer[] layers = new Layer[2];
 		layers[SHADOWED] = new Layer(channel_black, channel_black, channel_black, channel_shadow);
 		layers[SELECTED] = new Layer(channel_white.copy(), channel_white.copy(), channel_white.copy(), channel_ring);
 		layers[SELECTED] = layers[SHADOWED].copy().layerBlend(layers[SELECTED]);

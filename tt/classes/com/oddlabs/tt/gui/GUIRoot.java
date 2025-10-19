@@ -50,9 +50,9 @@ public final class GUIRoot extends GUIObject implements Updatable {
 										   Utils.makeURL("/textures/gui/pointer_text_32_8.image"), 6, 20)};
 	private final FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
 
-	private final List delegate_stack = new ArrayList();
-	private final List modal_delegate_stack = new ArrayList();
-	private final List focus_backup_stack = new ArrayList();
+	private final List<CameraDelegate> delegate_stack = new ArrayList<>();
+	private final List<ModalDelegate> modal_delegate_stack = new ArrayList<>();
+	private final List<GUIObject> focus_backup_stack = new ArrayList<>();
 
 	private final ToolTipBox tool_tip;
 	private final TimerAnimation tool_tip_timer = new TimerAnimation(this, 0);

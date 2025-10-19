@@ -42,9 +42,12 @@ public final class Building extends Selectable implements Occupant {
 	private final static int PLACING_BORDER = 1;
 	private final static int MAX_SUPPLY_COUNT = 200;
 
-	public final static Cost COST_ROCK_WEAPON = new Cost(new Class<?>[]{TreeSupply.class, RockSupply.class}, new int[]{2, 1});
-	public final static Cost COST_IRON_WEAPON = new Cost(new Class<?>[]{TreeSupply.class, IronSupply.class}, new int[]{2, 1});
-	public final static Cost COST_RUBBER_WEAPON = new Cost(new Class<?>[]{TreeSupply.class, RockSupply.class, IronSupply.class, RubberSupply.class}, new int[]{2, 1, 1, 1});
+	@SuppressWarnings("unchecked")
+	public final static Cost COST_ROCK_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class}, new int[]{2, 1});
+	@SuppressWarnings("unchecked")
+	public final static Cost COST_IRON_WEAPON = new Cost(new Class[]{TreeSupply.class, IronSupply.class}, new int[]{2, 1});
+	@SuppressWarnings("unchecked")
+	public final static Cost COST_RUBBER_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class, IronSupply.class, RubberSupply.class}, new int[]{2, 1, 1, 1});
 
 	public final static int KEY_DEPLOY_ROCK_WARRIOR = 0;
 	public final static int KEY_DEPLOY_IRON_WARRIOR = 1;

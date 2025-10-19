@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public final class ElementNode extends AbstractElementNode {
+public final class ElementNode<T> extends AbstractElementNode<T> {
 	private final int MIN_NODE_SIZE = 4;
 	/*
 	 * child2 | child3
@@ -9,12 +9,12 @@ public final class ElementNode extends AbstractElementNode {
 	 *
 	 */
 
-	private final AbstractElementNode child0;
-	private final AbstractElementNode child1;
-	private final AbstractElementNode child2;
-	private final AbstractElementNode child3;
+	private final AbstractElementNode<T> child0;
+	private final AbstractElementNode<T> child1;
+	private final AbstractElementNode<T> child2;
+	private final AbstractElementNode<T>child3;
 
-	public ElementNode(AbstractElementNode owner/*, int level*/, int size, int x, int y) {
+	public ElementNode(AbstractElementNode<T> owner/*, int level*/, int size, int x, int y) {
 		super(owner/*, level*/);
 		int child_size = size >> 1;
 		child0 = createChild(/*level, */child_size, x, y);
@@ -28,15 +28,15 @@ public final class ElementNode extends AbstractElementNode {
 		checkBoundsXY(child3);
 	}
 
-	private AbstractElementNode createChild(/*int level,*/ int size, int x, int y) {
+	private AbstractElementNode<T> createChild(/*int level,*/ int size, int x, int y) {
 		if (size != MIN_NODE_SIZE)
-			return new ElementNode(this, /*level + 1, */size, x, y);
+			return new ElementNode<>(this, /*level + 1, */size, x, y);
 		else
-			return new ElementLeaf(this, /*level + 1, */size, x, y);
+			return new ElementLeaf<>(this, /*level + 1, */size, x, y);
 	}
 
     @Override
-	protected AbstractElementNode doInsertElement(Element model) {
+	protected AbstractElementNode<T> doInsertElement(Element<T> model) {
 		incElementCount();
 		if (model.bmin_x >= getCX()) {
 			if (model.bmin_y >= getCY())
@@ -53,11 +53,11 @@ public final class ElementNode extends AbstractElementNode {
 	}
 
     @Override
-	public void visit(ElementNodeVisitor visitor) {
+	public void visit(ElementNodeVisitor<T> visitor) {
 		visitor.visitNode(this);
 	}
 
-	public void visitChildren(ElementNodeVisitor visitor) {
+	public void visitChildren(ElementNodeVisitor<T> visitor) {
 		if (getChildCount() > 0) {
 			child0.visit(visitor);
 			child1.visit(visitor);

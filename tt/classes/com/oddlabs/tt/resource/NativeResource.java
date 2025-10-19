@@ -9,7 +9,7 @@ public abstract class NativeResource  {
 
     /**
      * Resources which have been finalized
-     *
+     * <p>
      * FIXME this should be replaced with reference queues
      */
     private final static CopyOnWriteArraySet<NativeResource> finalized_resources = new CopyOnWriteArraySet<>();

@@ -33,13 +33,13 @@ public final class Utils {
 	}
 
 	public static InetAddress tryGetLoopbackAddress() throws IOException {
-		Enumeration interfaces;
+		Enumeration<NetworkInterface> interfaces;
 		interfaces = NetworkInterface.getNetworkInterfaces();
 		InetAddress best_address = null;
 out:
 		while (interfaces.hasMoreElements()) {
 			NetworkInterface network_interface = (NetworkInterface)interfaces.nextElement();
-			Enumeration addresses = network_interface.getInetAddresses();
+			Enumeration<InetAddress> addresses = network_interface.getInetAddresses();
 			while (addresses.hasMoreElements()) {
 				InetAddress address = (InetAddress)addresses.nextElement();
 				if (address.isLoopbackAddress()) {

@@ -2,13 +2,14 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployContainer;
+import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
 
 public final class DeploySpinner extends IconSpinner {
 	private final PlayerInterface player_interface;
-	private Class supply_type;
+	private Class<?> supply_type;
 	private int deploy_type;
 	private Building current_building;
 	private int num_orders = 0;
@@ -19,7 +20,7 @@ public final class DeploySpinner extends IconSpinner {
 		this.player_interface = player_interface;
 	}
 
-	public void setContainers(Building current_building, int deploy_type, Class supply_type) {
+	public void setContainers(Building current_building, int deploy_type, Class<?> supply_type) {
 		this.current_building = current_building;
 		this.deploy_type = deploy_type;
 		this.supply_type = supply_type;

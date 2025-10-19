@@ -270,10 +270,10 @@ public final class Player implements PlayerInterface {
 	public Building buildBuilding(int building_type, int grid_x, int grid_y) {
 		BuildingSiteScanFilter filter = new BuildingSiteScanFilter(world.getUnitGrid(), getRace().getBuildingTemplate(building_type), 40, true);
 		world.getUnitGrid().scan(filter, grid_x, grid_y);
-		List target_list = filter.getResult();
+		List<LandscapeTarget> target_list = filter.getResult();
 		Building b = null;
 		if (target_list.size() > 0) {
-			Target t = (Target)target_list.get(0);
+			Target t = target_list.get(0);
 			b = new Building(this, getRace().getBuildingTemplate(building_type), t.getGridX(), t.getGridY());
 			b.place();
 			b.repair(1000);
@@ -295,8 +295,8 @@ public final class Player implements PlayerInterface {
 	}
 
 	public int getStatus() {
-		Set units = getUnits().getSet();
-		Iterator it = units.iterator();
+		Set<Selectable> units = getUnits().getSet();
+		Iterator<Selectable> it = units.iterator();
 		int status = 0;
 		while (it.hasNext()) {
 			Selectable s = (Selectable)it.next();
@@ -305,14 +305,14 @@ public final class Player implements PlayerInterface {
 		return status;
 	}
 
-	public Selectable findNearestEnemy(int start_x, int start_y, Selectable target, Class type) {
+	public Selectable findNearestEnemy(int start_x, int start_y, Selectable target, Class<? extends Selectable> type) {
 		Player[] players = world.getPlayers();
 		int best_dist_squared = Integer.MAX_VALUE;
 		Selectable best_target = null;
             for (Player player : players) {
                 if (isEnemy(player)) {
-                    Set units = player.getUnits().getSet();
-                    Iterator it = units.iterator();
+                    Set<Selectable> units = player.getUnits().getSet();
+                    Iterator<Selectable> it = units.iterator();
                     while (it.hasNext()) {
                         Selectable s = (Selectable)it.next();
                         if (!(type.isInstance(s)) || s == target) {
@@ -543,13 +543,13 @@ public final class Player implements PlayerInterface {
 	}
 
 	public Selectable[][] classifyUnits() {
-		Map map = new HashMap();
-		List lists = new ArrayList();
+		Map<String, List<Selectable>> map = new HashMap<>();
+		List<List<Selectable>> lists = new ArrayList<>();
             for (Selectable unit : units.getSet()) {
                 String key = unit.getPrimaryController().getKey();
-                List list = (List)map.get(key);
+                List<Selectable> list = map.get(key);
                 if (list == null) {
-                    list = new ArrayList();
+                    list = new ArrayList<>();
                     map.put(key, list);
                     lists.add(list);
                 }
@@ -557,7 +557,7 @@ public final class Player implements PlayerInterface {
             }
 		Selectable[][] result = new Selectable[lists.size()][];
 		for (int i = 0; i < result.length; i++) {
-			List list = (List)lists.get(i);
+			List<Selectable> list = lists.get(i);
 			Selectable[] array = new Selectable[list.size()];
 			list.toArray(array);
 			result[i] = array;
@@ -621,7 +621,7 @@ public final class Player implements PlayerInterface {
 		return buildings_destroyed;
 	}
 
-	public void harvested(Class type) {
+	public void harvested(Class<?> type) {
 		if (type == TreeSupply.class) {
 			tree_harvested++;
 		} else if (type == RockSupply.class) {
