@@ -12,7 +12,7 @@ public class EditLine extends TextField {
 	public final static int RIGHT_ALIGNED = 1;
 	public final static int LEFT_ALIGNED = 2;
 	
-	private final List enter_listeners = new ArrayList();
+	private final List<EnterListener> enter_listeners = new ArrayList<>();
 	private final int alignment;
 	private final String allowed_chars;
 	private final int max_text_width;
@@ -217,7 +217,7 @@ public class EditLine extends TextField {
 		CharSequence text = getText();
 		enterPressed(text);
 		for (int i = 0; i < enter_listeners.size(); i++) {
-			EnterListener listener = (EnterListener)enter_listeners.get(i);
+			EnterListener listener = enter_listeners.get(i);
 			if (listener != null)
 				listener.enterPressed(text);
 		}

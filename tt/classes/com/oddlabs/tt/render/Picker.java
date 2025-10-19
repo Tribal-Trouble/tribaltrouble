@@ -48,11 +48,11 @@ public final class Picker implements Updatable {
 	private final float[] hit_result = new float[3];
 	private final float[] dir_vector = new float[3];
 
-	private final List element_pick_list = new ArrayList();
-	private final List tree_pick_list = new ArrayList();
+	private final List<Target> element_pick_list = new ArrayList<>();
+	private final List<TreeSupply> tree_pick_list = new ArrayList<>();
 
 	private final CameraState tmp_camera = new CameraState();
-	private final SortedSet patch_pick_set = new TreeSet(new LandscapeLeafComparator());
+	private final SortedSet<LandscapeLeaf> patch_pick_set = new TreeSet<>(new LandscapeLeafComparator());
 	private final LandscapeRenderer landscape_renderer;
 	private final ElementRenderer element_renderer;
 	private final TreePicker tree_renderer;
@@ -93,11 +93,11 @@ public final class Picker implements Updatable {
 		return respond_manager;
 	}
 
-	private Target getNearestPick(List pick_list, Class filter) {
-		Target nearest_pickable = null;
+	private <T extends Target> T getNearestPick(List<T> pick_list, Class<?> filter) {
+		T nearest_pickable = null;
 		float nearest_squared_distance = Float.POSITIVE_INFINITY;
 		for (int i = 0; i <pick_list.size(); i++) {
-			Target pickable = (Target)pick_list.get(i);
+			T pickable = pick_list.get(i);
 			pick_list.set(i, null);
 			float squared_distance = RenderTools.getCameraDistanceSquared(((BoundingBox)pickable), tmp_camera.getCurrentX(), tmp_camera.getCurrentY(), tmp_camera.getCurrentZ());
 			if (filter.isInstance(pickable) && squared_distance < nearest_squared_distance) {
@@ -120,7 +120,7 @@ public final class Picker implements Updatable {
 				player_interface.setTarget(selection, nearest_pickable, action, Settings.getSettings().aggressive_units);
 		} else {
 			pickResources();
-			final TreeSupply supply = (TreeSupply)getNearestPick(tree_pick_list, Target.class);
+			final TreeSupply supply = getNearestPick(tree_pick_list, Target.class);
 			if (supply != null) {
 			//	Target target = (Target)supply;
 				respond_manager.addResponder(supply, () -> {
@@ -219,12 +219,12 @@ public final class Picker implements Updatable {
 	}
 
 	private Selectable[] createBoxedPick() {
-		List selectables = new ArrayList();
+		List<Selectable> selectables = new ArrayList<>();
 		for (int i = 0; i < element_pick_list.size(); i++) {
-			Target pickable = (Target)element_pick_list.get(i);
+			Target pickable = element_pick_list.get(i);
 			element_pick_list.set(i, null);
 			if (pickable instanceof Selectable)
-				selectables.add(pickable);
+				selectables.add((Selectable)pickable);
 		}
 		Selectable[] array = new Selectable[selectables.size()];
 		selectables.toArray(array);
@@ -232,7 +232,7 @@ public final class Picker implements Updatable {
 	}
 
 	private Selectable[] pickAll(CameraState camera, int ability_filter) {
-		List result = new ArrayList();
+		List<Selectable> result = new ArrayList<>();
 		Selectable[] complete_list = pickBoxed(camera, 0, 0, LocalInput.getViewWidth() - 1, LocalInput.getViewHeight() - 1, 2);
             for (Selectable selectable : complete_list) {
                 if (selectable.getAbilities().hasAbilities(ability_filter)) {
@@ -308,7 +308,7 @@ public final class Picker implements Updatable {
 			return false;
 		}
 		while (!patch_pick_set.isEmpty()) {
-			BoundingBox bb = (BoundingBox)patch_pick_set.first();
+			BoundingBox bb = patch_pick_set.first();
 			assert patch_pick_set.contains(bb);
 			patch_pick_set.remove(bb);
 			float tx_min = computeTMin(bb.bmin_x, bb.bmax_x, x, dx);
@@ -515,7 +515,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	}
 
-	private final class LandscapeLeafComparator implements Comparator {
+	private final class LandscapeLeafComparator implements Comparator<LandscapeLeaf> {
 		private int compare(CameraState camera_state, LandscapeLeaf l1, LandscapeLeaf l2) {
 			float l1_dist = RenderTools.getCameraDistanceXYSquared(l1, camera_state.getCurrentX(), camera_state.getCurrentY());
 			float l2_dist = RenderTools.getCameraDistanceXYSquared(l2, camera_state.getCurrentX(), camera_state.getCurrentY());
@@ -538,9 +538,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		}
 
                 @Override
-		public int compare(Object o1, Object o2) {
-			LandscapeLeaf l1 = (LandscapeLeaf)o1;
-			LandscapeLeaf l2 = (LandscapeLeaf)o2;
+		public int compare(LandscapeLeaf l1, LandscapeLeaf l2) {
 			return compare(tmp_camera, l1, l2);
 		}
 	}

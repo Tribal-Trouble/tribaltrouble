@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.util.Target;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.FloatBuffer;
@@ -14,7 +15,7 @@ public final class SpriteRenderer {
 	private final SpriteList sprite_list;
 	private final SpriteListRenderer sprite_list_renderer;
 	private final int tex_index;
-	private final List no_detail_render_list = new ArrayList();
+	private final List<ModelState> no_detail_render_list = new ArrayList<>();
 
 	public SpriteRenderer(SpriteList sprite_list, int tex_index) {
 		this.sprite_list = sprite_list;
@@ -71,14 +72,14 @@ public final class SpriteRenderer {
 		no_detail_render_list.clear();
 	}
 
-	public void getAllPicks(List pick_list) {
+	public void getAllPicks(List<Target> pick_list) {
 		for (int i = 0; i < sprite_list.getNumSprites(); i++) {
             sprite_list_renderer.getAllPicks(pick_list, i, tex_index);
         }
 		for (int i = 0; i < no_detail_render_list.size(); i++) {
-			ModelState model = (ModelState)no_detail_render_list.get(i);
+			ModelState model = no_detail_render_list.get(i);
 			no_detail_render_list.set(i, null);
-			pick_list.add(model.getModel());
+			pick_list.add((Target)model.getModel());
 		}
 		clearRenderLists();
 	}
@@ -89,7 +90,7 @@ public final class SpriteRenderer {
 		}
 		setupNoDetail();
 		for (int i = 0; i < no_detail_render_list.size(); i++) {
-			ModelState model = (ModelState)no_detail_render_list.get(i);
+			ModelState model = no_detail_render_list.get(i);
 			no_detail_render_list.set(i, null);
 			if (Globals.draw_misc)
 				renderNoDetail(model);

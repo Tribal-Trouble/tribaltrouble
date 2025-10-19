@@ -10,7 +10,7 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 	private final RadioButtonGroup group = new RadioButtonGroup();
 	private final Group focus_group = new Group();
 	private final RowCollection rows = new RowCollection(this, 0, true);
-	private final List row_listeners = new ArrayList();
+	private final List<RowListener> row_listeners = new ArrayList<>();
 	private final ScrollBar scroll_bar;
 	private final boolean use_buttons;
 	private final GUIRoot gui_root;
@@ -60,7 +60,7 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 	
 	public void clickedRow() {
 		for (int i = 0; i < row_listeners.size(); i++) {
-			RowListener listener = (RowListener)row_listeners.get(i);
+			RowListener listener = row_listeners.get(i);
 			if (listener != null)
 				listener.rowChosen(rows.getSelected());
 		}
@@ -72,7 +72,7 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 
 	public void doubleClickedRow() {
 		for (int i = 0; i < row_listeners.size(); i++) {
-			RowListener listener = (RowListener)row_listeners.get(i);
+			RowListener listener = row_listeners.get(i);
 			if (listener != null)
 				listener.rowDoubleClicked(rows.getSelected());
 		}

@@ -43,7 +43,7 @@ public class Icons {
 	private final IconQuad infinite;
 	private final NotifyArrowData notify_arrow_data;
 
-	private final Map tool_tip_icons;
+	private final Map<Class<?>, Quad[]> tool_tip_icons;
 
 	public final static void load() {
 		if (icons == null)
@@ -78,15 +78,15 @@ public class Icons {
 		watch = parseWatch(root);
 		infinite = getNamedIconQuad(root, "infinite", texture);
 		notify_arrow_data = parseNotifyArrowData(root);
-		tool_tip_icons = new HashMap();
+		tool_tip_icons = new HashMap<>();
 		tool_tip_icons.put(com.oddlabs.tt.landscape.TreeSupply.class, new Quad[]{tree_status_icon});
 		tool_tip_icons.put(com.oddlabs.tt.model.RockSupply.class, new Quad[]{rock_status_icon});
 		tool_tip_icons.put(com.oddlabs.tt.model.IronSupply.class, new Quad[]{iron_status_icon});
 		tool_tip_icons.put(com.oddlabs.tt.model.RubberSupply.class, new Quad[]{rubber_status_icon});
 	}
 
-	public Quad[] getToolTipIcon(Class key) {
-		return (Quad[])(tool_tip_icons.get(key));
+	public Quad[] getToolTipIcon(Class<?> key) {
+		return tool_tip_icons.get(key);
 	}
 
 	private RaceIcons parseRaceIcons(Node n, String head, String magic1_desc, String magic2_desc) {

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ChatLine extends EditLine {
-	private final List tab_listeners = new ArrayList();
+	private final List<TabListener> tab_listeners = new ArrayList<>();
 	private final boolean catch_tab;
 
 	private String[] tab_complete_list;
@@ -42,7 +42,7 @@ public final class ChatLine extends EditLine {
 
 		String partial_word = line.substring(word_start, word_end);
 
-		List new_words = new ArrayList();
+		List<String> new_words = new ArrayList<>();
 		int num_hits = 0;
             for (String tab_word : tab_complete_list) {
                 if (tab_word.startsWith(partial_word)) {
@@ -51,7 +51,7 @@ public final class ChatLine extends EditLine {
                 }
             }
 		if (num_hits == 1) {
-			String new_word = (String)new_words.get(0);
+			String new_word = new_words.get(0);
 			line.replace(word_start, word_end, new_word);
 			// move index to end of new_word
 			int new_index = word_start + new_word.length();
@@ -59,7 +59,7 @@ public final class ChatLine extends EditLine {
 		} else if (num_hits > 1) {
 			String[] tab_words = new String[new_words.size()];
 			for (int i = 0; i < new_words.size(); i++) {
-                tab_words[i] = (String)new_words.get(i);
+                tab_words[i] = new_words.get(i);
             }
 			tabPressedAll(tab_words);
 		}
@@ -82,7 +82,7 @@ public final class ChatLine extends EditLine {
 	private void tabPressedAll(String[] words) {
 		tabPressed(words);
 		for (int i = 0; i < tab_listeners.size(); i++) {
-			TabListener listener = (TabListener)tab_listeners.get(i);
+			TabListener listener = tab_listeners.get(i);
 			if (listener != null)
 				listener.tabPressed(words);
 		}

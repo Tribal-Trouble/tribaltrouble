@@ -10,7 +10,7 @@ import java.util.List;
 
 public final class RowCollection extends GUIObject {
 	private final static DoubleBuffer plane_buf = BufferUtils.createDoubleBuffer(4);
-	private final List rows = new ArrayList();
+	private final List<Row> rows = new ArrayList<>();
 	private final MultiColumnComboBox multi_box;
 	private Row selected_row = null;
 	private int sort_index;
@@ -25,7 +25,7 @@ public final class RowCollection extends GUIObject {
 
 	public void clear() {
 		for (int i = 0; i < rows.size(); i++) {
-			Row row = (Row)rows.get(i);
+			Row row = rows.get(i);
 			row.remove();
 		}
 		rows.clear();
@@ -50,7 +50,7 @@ public final class RowCollection extends GUIObject {
 		sort_index = index;
 		this.sorted_descending = sorted_descending;
 		for (int i = 0; i < rows.size(); i++) {
-			((Row)rows.get(i)).setSortIndex(sort_index);
+			rows.get(i).setSortIndex(sort_index);
 		}
 		Collections.sort(rows);
 		replaceRows();
@@ -61,9 +61,9 @@ public final class RowCollection extends GUIObject {
 		for (int i = 0; i < rows.size(); i++) {
 			Row row;
 			if (sorted_descending)
-				row = (Row)rows.get(i);
+				row = rows.get(i);
 			else
-				row = (Row)rows.get(rows.size() - i - 1);
+				row = rows.get(rows.size() - i - 1);
 			y -= row.getHeight();
 			row.setPos(0, y);
 			if (i%2 == 0)
@@ -76,7 +76,7 @@ public final class RowCollection extends GUIObject {
 	public int getContentHeight() {
 		int height = 0;
 		for (int i = 0; i < rows.size(); i++) {
-			height += ((Renderable)rows.get(i)).getHeight();
+			height += rows.get(i).getHeight();
 		}
 		return height;
 	}

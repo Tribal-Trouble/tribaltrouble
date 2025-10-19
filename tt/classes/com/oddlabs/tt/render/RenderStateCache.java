@@ -5,7 +5,7 @@ import java.util.List;
 
 final class RenderStateCache {
 	private final RenderStateFactory factory;
-	private final List cache = new ArrayList();
+	private final List<Object> cache = new ArrayList<>();
 	private int current_index;
 
 	RenderStateCache(RenderStateFactory factory) {

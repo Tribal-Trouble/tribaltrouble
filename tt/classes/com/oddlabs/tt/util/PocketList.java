@@ -13,7 +13,7 @@ public final class PocketList {
 	public PocketList(int num_pockets) {
 		pockets = new List[num_pockets];
 		for (int i = 0; i < pockets.length; i++) {
-            pockets[i] = new ArrayList();
+            pockets[i] = new ArrayList<>();
         }
 		reset();
 	}

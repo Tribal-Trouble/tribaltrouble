@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class PulldownMenu extends Group {// GUIObject {
-	private final java.util.List chosen_listeners = new java.util.ArrayList();
+	private final java.util.List<ItemChosenListener> chosen_listeners = new java.util.ArrayList<>();
 
-	private final List items = new ArrayList();
+	private final List<PulldownItem> items = new ArrayList<>();
 	private int chosen_item_index = -1;
 	
 	public PulldownMenu() {
@@ -19,7 +19,7 @@ public final class PulldownMenu extends Group {// GUIObject {
 	}
 
 	public PulldownItem getItem(int index) {
-		return (PulldownItem)items.get(index);
+		return items.get(index);
 	}
 
 	public int getSize() {
@@ -50,14 +50,14 @@ public final class PulldownMenu extends Group {// GUIObject {
 		Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
 		// Adjust all items
 		for (int i = 0; i < items.size(); i++) {
-			PulldownItem item = (PulldownItem)items.get(i);
+			PulldownItem item = items.get(i);
 			if (item.getTextWidth() > min_width)
 				min_width = item.getTextWidth();
 		}
 		int item_pos_count = Skin.getSkin().getPulldownData().getPulldownBottom().getHeight();
 		min_width = StrictMath.max(width, item_box.getLeftOffset() + min_width + item_box.getRightOffset());
 		for (int i = 0; i < items.size(); i++) {
-			PulldownItem item = (PulldownItem)items.get(items.size() - 1 - i);
+			PulldownItem item = items.get(items.size() - 1 - i);
 			int item_height = item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
 			item.setDim(min_width, item_height);
 			item.setPos(0, item_pos_count);
@@ -109,7 +109,7 @@ public final class PulldownMenu extends Group {// GUIObject {
 
 	public void itemChosenAll() {
 		for (int i = 0; i < chosen_listeners.size(); i++) {
-			ItemChosenListener listener = (ItemChosenListener)chosen_listeners.get(i);
+			ItemChosenListener listener = chosen_listeners.get(i);
 			if (listener != null)
 				listener.itemChosen(this, chosen_item_index);
 		}

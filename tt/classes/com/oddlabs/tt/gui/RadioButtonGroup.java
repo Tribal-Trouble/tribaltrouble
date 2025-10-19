@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class RadioButtonGroup {
-	private final List buttons;
+	private final List<RadioButtonGroupElement> buttons;
 
 	public RadioButtonGroup() {
-		buttons = new ArrayList();
+		buttons = new ArrayList<>();
 	}
 
 	public void mark(RadioButtonGroupElement button) {
@@ -24,8 +24,8 @@ public final class RadioButtonGroup {
 
 	public RadioButtonGroupElement getMarked() {
 		for (int i = 0; i < buttons.size(); i++) {
-			if (((RadioButtonGroupElement)buttons.get(i)).isMarked())
-				return (RadioButtonGroupElement)buttons.get(i);
+			if (buttons.get(i).isMarked())
+				return buttons.get(i);
 		}
 		return null;
 	}

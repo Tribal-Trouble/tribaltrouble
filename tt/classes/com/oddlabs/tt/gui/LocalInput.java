@@ -162,7 +162,7 @@ public final class LocalInput {
 	public static SerializableDisplayMode[] getAvailableModes() {
 		try {
 			DisplayMode[] lwjgl_modes = Display.getAvailableDisplayModes();
-			List modes = new ArrayList();
+			List<SerializableDisplayMode> modes = new ArrayList<>();
                     for (DisplayMode lwjgl_mode : lwjgl_modes) {
                         assert lwjgl_mode != null;
                         if (SerializableDisplayMode.isModeValid(lwjgl_mode)) {
@@ -173,7 +173,7 @@ public final class LocalInput {
 			modes = LocalEventQueue.getQueue().getDeterministic().log(modes);
 
 			SerializableDisplayMode target_mode = new SerializableDisplayMode(0, 0, 0, 0);
-			SortedSet set = new TreeSet(new SerializableDisplayModeComparator(target_mode));
+			SortedSet<SerializableDisplayMode> set = new TreeSet<>(new SerializableDisplayModeComparator(target_mode));
 			for (int i = 0; i < modes.size(); i++) {
 				set.add(modes.get(i));
 			}

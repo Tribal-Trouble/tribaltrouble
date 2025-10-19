@@ -12,7 +12,7 @@ public class SupplyManager implements Animated {
 	private final static float SPAWN_TIME = 3f;
 	private final static float MAX_EMPTY_SUPPLIES = .75f;
 	
-	private final List empty_supplies = new ArrayList();
+	private final List<Supply> empty_supplies = new ArrayList<>();
 	private final World world;
 
 	private int total_num_supplies = 0;
@@ -70,7 +70,7 @@ public class SupplyManager implements Animated {
 
 	protected void insertSupply() {
 		int index = world.getRandom().nextInt(empty_supplies.size());
-		Supply supply = (Supply)empty_supplies.get(index);
+		Supply supply = empty_supplies.get(index);
 		boolean occupied = world.getUnitGrid().isGridOccupied(supply.getGridX(), supply.getGridY());
 		if (!occupied) {
 			empty_supplies.remove(supply);

@@ -2,6 +2,7 @@ package com.oddlabs.tt.render;
 
 
 import com.oddlabs.tt.model.Model;
+import com.oddlabs.tt.util.Target;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ final class SpriteListRenderer {
 		respond_render_lists[sprite_index][tex_index].add(model);
 	}
 
-	public void getAllPicks(List<Model> pick_list, int sprite_index, int tex_index) {
+	public void getAllPicks(List<Target> pick_list, int sprite_index, int tex_index) {
 		List<ModelState> render_list = render_lists[sprite_index][tex_index];
 		pickFromList(render_list, pick_list);
 		render_list.clear();
@@ -46,11 +47,11 @@ final class SpriteListRenderer {
 		render_list.clear();
 	}
 
-	private void pickFromList(List<ModelState> render_list, List<Model> pick_list) {
+	private void pickFromList(List<ModelState> render_list, List<Target> pick_list) {
 		for (int i = 0; i < render_list.size(); i++) {
 			ModelState model = render_list.get(i);
 			render_list.set(i, null);
-			pick_list.add(model.getModel());
+			pick_list.add((Target)model.getModel());
 		}
 	}
 
