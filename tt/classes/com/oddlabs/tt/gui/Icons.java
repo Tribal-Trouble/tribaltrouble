@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -168,7 +169,7 @@ public class Icons {
 	}
 
 	private IconQuad[] parseWatch(Node n) {
-		ArrayList<IconQuad> list = new ArrayList<>();
+		List<IconQuad> list = new ArrayList<>();
 		Node node = getNodeByName("watch", n);
 		NodeList nl = node.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {

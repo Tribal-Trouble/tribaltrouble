@@ -5,7 +5,7 @@ import com.oddlabs.util.HashTable;
 import java.util.HashMap;
 
 public final class DistributableTable {
-	private final HashTable distributables = new HashTable();
+	private final HashTable<Distributable> distributables = new HashTable<>();
 	private final HashMap<Distributable, Integer> names = new HashMap<>();
 	private int current_name = 1;
 
