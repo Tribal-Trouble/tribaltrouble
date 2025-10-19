@@ -6,6 +6,7 @@ import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.IronSupply;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.RockSupply;
@@ -125,7 +126,7 @@ public final class VikingIsland0 extends Island {
                     Building armory = local_player.getArmory();
                     if (armory != null && !armory.isDead()) {
                         if (enemy.getArmory() != null && !enemy.getArmory().isDead()) {
-                            enemy.deployUnits(enemy.getArmory(), Building.KEY_DEPLOY_IRON_WARRIOR, num_units);
+                            enemy.deployUnits(enemy.getArmory(), DeployType.IRON_WARRIOR, num_units);
                             AI.attackLandscape(enemy, armory, num_units);
                         }
                     }

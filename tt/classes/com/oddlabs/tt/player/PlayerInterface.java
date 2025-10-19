@@ -1,12 +1,13 @@
 package com.oddlabs.tt.player;
 
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.util.Target;
 
 public interface PlayerInterface {
-	void deployUnits(Building building, int type, int num_units);
+	void deployUnits(Building building, DeployType type, int num_units);
 /*	void deployPeons(Building building, int num_units);
 	void deployRockWarriors(Building building, int num_units);
 	void deployIronWarriors(Building building, int num_units);

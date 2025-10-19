@@ -133,7 +133,7 @@ public final class Optimizer {
 		return new SpriteInfo(textures, model_info.indices, model_info.vertices, model_info.normals, model_info.texcoords, model_info.skin_names, model_info.skin_weights, clear_color);
 	}
 
-	public static AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ Bone skeleton, Map initial_pose, Map[] anim_map, int type, float wpc) {
+	public static AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ Bone skeleton, Map<String,float[]> initial_pose, Map<String,float[]>[] anim_map, int type, float wpc) {
 		// animations format: [frames] [bones] [matrix]
 		int num_frames = anim_map.length;
 		float[][] frames = new float[num_frames][];
@@ -145,7 +145,7 @@ public final class Optimizer {
 		return new AnimationInfo(frames, type, wpc);
 	}
 
-	private static void normalizeSkeleton(/*float[] parent_bone_vertex, float[] skeleton_vertices,*/ float[] bones, Bone current_bone, Map initial_pose_map, Map frame_map) {
+	private static void normalizeSkeleton(/*float[] parent_bone_vertex, float[] skeleton_vertices,*/ float[] bones, Bone current_bone, Map<String,float[]> initial_pose_map, Map<String,float[]> frame_map) {
 		assert initial_pose_map.size() == bones.length/12;
 		assert frame_map.size() == bones.length/12;
 		String bone_name = current_bone.getName();

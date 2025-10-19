@@ -7,6 +7,7 @@ import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.UnitTemplate;
@@ -159,7 +160,7 @@ public abstract class Island {
 
 	protected final void deploy(Player enemy, int num_units) {
 		if (enemy.getArmory() != null && !enemy.getArmory().isDead()) {
-			enemy.deployUnits(enemy.getArmory(), Building.KEY_DEPLOY_IRON_WARRIOR, num_units);
+			enemy.deployUnits(enemy.getArmory(), DeployType.IRON_WARRIOR, num_units);
 		}
 	}
 

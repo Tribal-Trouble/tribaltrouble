@@ -48,7 +48,7 @@ public final class World {
 	private final LandscapeTileIndices landscape_indices;
 	private final AbstractPatchGroup patch_root;
 	private final AbstractTreeGroup tree_root;
-	private final AbstractElementNode element_root;
+	private final AbstractElementNode<?> element_root;
 	private final RacesResources races_resources;
 	private final LandscapeResources landscape_resources;
 

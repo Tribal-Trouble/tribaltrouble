@@ -387,7 +387,7 @@ public final class Sky {
         }
 
         @Override
-        public final int compareTo(Object o) {
+        public final int compareTo(Stitcher.Vertex o) {
             SkyStitchVertex other = (SkyStitchVertex) o;
             if (equals(o))
                 return 0;

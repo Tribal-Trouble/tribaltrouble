@@ -30,6 +30,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,24 +51,11 @@ public final class Building extends Selectable implements Occupant {
 	@SuppressWarnings("unchecked")
 	public final static Cost COST_RUBBER_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class, IronSupply.class, RubberSupply.class}, new int[]{2, 1, 1, 1});
 
-	public final static int KEY_DEPLOY_ROCK_WARRIOR = 0;
-	public final static int KEY_DEPLOY_IRON_WARRIOR = 1;
-	public final static int KEY_DEPLOY_RUBBER_WARRIOR = 2;
-	public final static int KEY_DEPLOY_PEON = 3;
-	public final static int KEY_DEPLOY_PEON_HARVEST_TREE = 4;
-	public final static int KEY_DEPLOY_PEON_TRANSPORT_TREE = 5;
-	public final static int KEY_DEPLOY_PEON_HARVEST_ROCK = 6;
-	public final static int KEY_DEPLOY_PEON_TRANSPORT_ROCK = 7;
-	public final static int KEY_DEPLOY_PEON_HARVEST_IRON = 8;
-	public final static int KEY_DEPLOY_PEON_TRANSPORT_IRON = 9;
-	public final static int KEY_DEPLOY_PEON_HARVEST_RUBBER = 10;
-	public final static int KEY_DEPLOY_PEON_TRANSPORT_RUBBER = 11;
-
 	private final static float DAMAGED_PARTICLE_ALPHA = 3f;
 
 	private final Map<Class<?>, SupplyContainer> supply_containers = new HashMap<>();
 	private final Map<Class<? extends RotatingThrowingWeapon>, BuildProductionContainer> build_containers = new HashMap<>();
-	private final DeployContainer<?>[] deploy_containers = new DeployContainer<?>[12];
+	private final Map<DeployType, DeployContainer<?>> deploy_containers = new EnumMap<>(DeployType.class);
 	private final LinearEmitter damaged_emitter;
 	private final LinearEmitter production_emitter;
 
@@ -160,15 +148,15 @@ public final class Building extends Selectable implements Occupant {
 				weapons_producer.animate(t);
 
 			int num_deploying = 0;
-                    for (DeployContainer deploy_container : deploy_containers) {
-                        if (deploy_container != null && deploy_container.getNumSupplies() > 0) {
+                    for (DeployContainer<?> deploy_container : deploy_containers.values()) {
+                        if (deploy_container.getNumSupplies() > 0) {
                             num_deploying++;
                         }
                     }
 			if (num_deploying > 0) {
 				float amount = t/num_deploying;
-                        for (DeployContainer deploy_container : deploy_containers) {
-                            if (deploy_container != null && deploy_container.getNumSupplies() > 0) {
+                        for (DeployContainer<?> deploy_container : deploy_containers.values()) {
+                            if (deploy_container.getNumSupplies() > 0) {
                                 deploy_container.deploy(amount);
                             }
                         }
@@ -213,9 +201,9 @@ public final class Building extends Selectable implements Occupant {
 		return build_containers.get(key);
 	}
 
-	public DeployContainer getDeployContainer(int key) {
+	public DeployContainer<?> getDeployContainer(DeployType type) {
 		assert !isDead();
-		return deploy_containers[key];
+		return deploy_containers.get(type);
 	}
 
 	public ChieftainContainer getChieftainContainer() {
@@ -251,9 +239,9 @@ public final class Building extends Selectable implements Occupant {
 		}
 	}
 
-	public void deployUnits(int type, int num_units) {
+	public void deployUnits(DeployType type, int num_units) {
 		assert !isDead();
-		getOwner().getWorld().updateGlobalChecksum(type);
+		getOwner().getWorld().updateGlobalChecksum(type.ordinal());
 		getOwner().getWorld().updateGlobalChecksum(num_units);
 		getDeployContainer(type).orderSupply(num_units);
 	}
@@ -444,46 +432,22 @@ public final class Building extends Selectable implements Occupant {
 
 					weapons_producer = new WeaponsProducer(this, (WorkerUnitContainer)getUnitContainer(), production_containers, production_emitter);
 
-					DeployContainer rock_warrior_container = new DeployContainer(this, 1f, KEY_DEPLOY_ROCK_WARRIOR, RockAxeWeapon.class);
-					DeployContainer iron_warrior_container = new DeployContainer(this, 1.5f, KEY_DEPLOY_IRON_WARRIOR, IronAxeWeapon.class);
-					DeployContainer rubber_warrior_container = new DeployContainer(this, 2f, KEY_DEPLOY_RUBBER_WARRIOR, RubberAxeWeapon.class);
-					DeployContainer peon_container = new DeployContainer(this, .5f, KEY_DEPLOY_PEON, null);
-					DeployContainer peon_harvest_tree_container = new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_TREE, null);
-					DeployContainer peon_transport_tree_container = new DeployContainer(this, .5f, KEY_DEPLOY_PEON_TRANSPORT_TREE, TreeSupply.class);
-					DeployContainer peon_harvest_rock_container = new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_ROCK, null);
-					DeployContainer peon_transport_rock_container = new DeployContainer(this, .5f, KEY_DEPLOY_PEON_TRANSPORT_ROCK, RockSupply.class);
-					DeployContainer peon_harvest_iron_container = new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_IRON, null);
-					DeployContainer peon_transport_iron_container = new DeployContainer(this, .5f, KEY_DEPLOY_PEON_TRANSPORT_IRON, IronSupply.class);
-					DeployContainer peon_harvest_rubber_container = new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_RUBBER, null);
-					DeployContainer peon_transport_rubber_container = new DeployContainer(this, .5f, KEY_DEPLOY_PEON_TRANSPORT_RUBBER, RubberSupply.class);
-					deploy_containers[KEY_DEPLOY_ROCK_WARRIOR] = rock_warrior_container;
-					deploy_containers[KEY_DEPLOY_IRON_WARRIOR] = iron_warrior_container;
-					deploy_containers[KEY_DEPLOY_RUBBER_WARRIOR] = rubber_warrior_container;
-					deploy_containers[KEY_DEPLOY_PEON] = peon_container;
-					deploy_containers[KEY_DEPLOY_PEON_HARVEST_TREE] = peon_harvest_tree_container;
-					deploy_containers[KEY_DEPLOY_PEON_TRANSPORT_TREE] = peon_transport_tree_container;
-					deploy_containers[KEY_DEPLOY_PEON_HARVEST_ROCK] = peon_harvest_rock_container;
-					deploy_containers[KEY_DEPLOY_PEON_TRANSPORT_ROCK] = peon_transport_rock_container;
-					deploy_containers[KEY_DEPLOY_PEON_HARVEST_IRON] = peon_harvest_iron_container;
-					deploy_containers[KEY_DEPLOY_PEON_TRANSPORT_IRON] = peon_transport_iron_container;
-					deploy_containers[KEY_DEPLOY_PEON_HARVEST_RUBBER] = peon_harvest_rubber_container;
-					deploy_containers[KEY_DEPLOY_PEON_TRANSPORT_RUBBER] = peon_transport_rubber_container;
+					deploy_containers.put(DeployType.ROCK_WARRIOR, new DeployContainer(this, 1f, DeployType.ROCK_WARRIOR, RockAxeWeapon.class));
+					deploy_containers.put(DeployType.IRON_WARRIOR, new DeployContainer(this, 1.5f, DeployType.IRON_WARRIOR, IronAxeWeapon.class));
+					deploy_containers.put(DeployType.RUBBER_WARRIOR, new DeployContainer(this, 2f, DeployType.RUBBER_WARRIOR, RubberAxeWeapon.class));
+					deploy_containers.put(DeployType.PEON, new DeployContainer(this, .5f, DeployType.PEON, null));
+					deploy_containers.put(DeployType.PEON_HARVEST_TREE, new DeployContainer(this, .5f, DeployType.PEON_HARVEST_TREE, null));
+					deploy_containers.put(DeployType.PEON_TRANSPORT_TREE, new DeployContainer(this, .5f, DeployType.PEON_TRANSPORT_TREE, TreeSupply.class));
+					deploy_containers.put(DeployType.PEON_HARVEST_ROCK, new DeployContainer(this, .5f, DeployType.PEON_HARVEST_ROCK, null));
+					deploy_containers.put(DeployType.PEON_TRANSPORT_ROCK, new DeployContainer(this, .5f, DeployType.PEON_TRANSPORT_ROCK, RockSupply.class));
+					deploy_containers.put(DeployType.PEON_HARVEST_IRON, new DeployContainer(this, .5f, DeployType.PEON_HARVEST_IRON, null));
+					deploy_containers.put(DeployType.PEON_TRANSPORT_IRON, new DeployContainer(this, .5f, DeployType.PEON_TRANSPORT_IRON, IronSupply.class));
+					deploy_containers.put(DeployType.PEON_HARVEST_RUBBER, new DeployContainer(this, .5f, DeployType.PEON_HARVEST_RUBBER, null));
+					deploy_containers.put(DeployType.PEON_TRANSPORT_RUBBER, new DeployContainer(this, .5f, DeployType.PEON_TRANSPORT_RUBBER, RubberSupply.class));
 				}
 				else if (getAbilities().hasAbilities(Abilities.REPRODUCE)) {
 					chieftain_container = new ChieftainContainer(this);
-					DeployContainer peon_container = new DeployContainer(this, .5f, KEY_DEPLOY_PEON, null);
-					deploy_containers[KEY_DEPLOY_ROCK_WARRIOR] = null;
-					deploy_containers[KEY_DEPLOY_IRON_WARRIOR] = null;
-					deploy_containers[KEY_DEPLOY_RUBBER_WARRIOR] = null;
-					deploy_containers[KEY_DEPLOY_PEON] = peon_container;
-					deploy_containers[KEY_DEPLOY_PEON_HARVEST_TREE] = null;
-					deploy_containers[KEY_DEPLOY_PEON_TRANSPORT_TREE] = null;
-					deploy_containers[KEY_DEPLOY_PEON_HARVEST_ROCK] = null;
-					deploy_containers[KEY_DEPLOY_PEON_TRANSPORT_ROCK] = null;
-					deploy_containers[KEY_DEPLOY_PEON_HARVEST_IRON] = null;
-					deploy_containers[KEY_DEPLOY_PEON_TRANSPORT_IRON] = null;
-					deploy_containers[KEY_DEPLOY_PEON_HARVEST_RUBBER] = null;
-					deploy_containers[KEY_DEPLOY_PEON_TRANSPORT_RUBBER] = null;
+					deploy_containers.put(DeployType.PEON, new DeployContainer(this, .5f, DeployType.PEON, null));
 				}
 			}
 		}
@@ -606,11 +570,9 @@ public final class Building extends Selectable implements Occupant {
 			int result = getOwner().getUnitCountContainer().increaseSupply(-worker_container.getNumSupplies());
 			assert result == -worker_container.getNumSupplies();
 		}
-            for (DeployContainer deploy_container : deploy_containers) {
-                if (deploy_container != null) {
-                    int result = getOwner().getUnitCountContainer().increaseSupply(-deploy_container.getNumSupplies());
-                    assert result == -deploy_container.getNumSupplies();
-                }
+            for (DeployContainer<?> deploy_container : deploy_containers.values()) {
+                int result = getOwner().getUnitCountContainer().increaseSupply(-deploy_container.getNumSupplies());
+                assert result == -deploy_container.getNumSupplies();
             }
 		free();
 		undoLandscape();

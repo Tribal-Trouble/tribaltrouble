@@ -25,8 +25,8 @@ public final class DateLabel extends Label {
 			return DateFormat.getDateTimeInstance().format(new Date(date));
 	}
 
-        @Override
-	public int compareTo(Object o) {
+    @Override
+	public int compareTo(Label o) {
 		if (o instanceof DateLabel) {
 			DateLabel other = (DateLabel)o;
 			return val < other.val ? -1 : 1;

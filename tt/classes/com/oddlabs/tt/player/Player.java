@@ -7,6 +7,7 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.IronSupply;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
@@ -401,7 +402,7 @@ public final class Player implements PlayerInterface {
 	}
 
         @Override
-	public void deployUnits(Building building, int type, int num_units) {
+	public void deployUnits(Building building, DeployType type, int num_units) {
 		if (isValid(building))
 			building.deployUnits(type, num_units);
 	}

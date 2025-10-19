@@ -3,6 +3,7 @@ package com.oddlabs.tt.player;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
@@ -109,20 +110,20 @@ public final class AdvancedAI extends AI {
 			int num_iron_units = StrictMath.min(num_warriors - num_rubber_units, armory.getSupplyContainer(IronAxeWeapon.class).getNumSupplies());
 			int num_rock_units = StrictMath.min(num_warriors - num_rubber_units - num_iron_units, armory.getSupplyContainer(RockAxeWeapon.class).getNumSupplies());
 			if (num_rubber_units > 0) {
-				getOwner().deployUnits(armory, Building.KEY_DEPLOY_RUBBER_WARRIOR, num_rubber_units);
+				getOwner().deployUnits(armory, DeployType.RUBBER_WARRIOR, num_rubber_units);
 //				deployed += num_rubber_units*SCORE_WARRIOR_RUBBER;
 			}
 			if (num_iron_units > 0) {
-				getOwner().deployUnits(armory, Building.KEY_DEPLOY_IRON_WARRIOR, num_iron_units);
+				getOwner().deployUnits(armory, DeployType.IRON_WARRIOR, num_iron_units);
 //				deployed += num_iron_units*SCORE_WARRIOR_IRON;
 			}
 			if (num_rock_units > 0) {
-				getOwner().deployUnits(armory, Building.KEY_DEPLOY_ROCK_WARRIOR, num_rock_units);
+				getOwner().deployUnits(armory, DeployType.ROCK_WARRIOR, num_rock_units);
 //				deployed += num_rock_units*SCORE_WARRIOR_ROCK;
 			}
 			num_units = armory.getUnitContainer().getNumSupplies();
 			if (num_units > 0) {
-				getOwner().deployUnits(armory, Building.KEY_DEPLOY_PEON, num_units);
+				getOwner().deployUnits(armory, DeployType.PEON, num_units);
 //				deployed += num_units*SCORE_PEON;
 			}
 //			result += deployed;
@@ -315,11 +316,11 @@ else
 					int num_iron_units = StrictMath.min(num_warriors - num_rubber_units, armory.getSupplyContainer(IronAxeWeapon.class).getNumSupplies());
 					int num_rock_units = StrictMath.min(num_warriors - num_rubber_units - num_iron_units, armory.getSupplyContainer(RockAxeWeapon.class).getNumSupplies());
 					if (num_rubber_units > 0)
-						getOwner().deployUnits(armory, Building.KEY_DEPLOY_RUBBER_WARRIOR, num_rubber_units);
+						getOwner().deployUnits(armory, DeployType.RUBBER_WARRIOR, num_rubber_units);
 					if (num_iron_units > 0)
-						getOwner().deployUnits(armory, Building.KEY_DEPLOY_IRON_WARRIOR, num_iron_units);
+						getOwner().deployUnits(armory, DeployType.IRON_WARRIOR, num_iron_units);
 					if (num_rock_units > 0)
-						getOwner().deployUnits(armory, Building.KEY_DEPLOY_ROCK_WARRIOR, num_rock_units);
+						getOwner().deployUnits(armory, DeployType.ROCK_WARRIOR, num_rock_units);
 				} else {
 					if (num_units < num_warriors) {
 						nodeTransferUnits(num_warriors - num_units, armory);
@@ -362,19 +363,19 @@ else
 		do {
 			deployed = false;
 			if (num_units > 0 && tree < MAX_UNITS_GATHERING_TREE[difficulty] && tree <= rock && tree <= iron && tree <= rubber) {
-				getOwner().deployUnits(armory, Building.KEY_DEPLOY_PEON_HARVEST_TREE, 1);
+				getOwner().deployUnits(armory, DeployType.PEON_HARVEST_TREE, 1);
 				deployed = true;
 				tree++;
 			} else if (num_units > 0 && rock < MAX_UNITS_GATHERING_ROCK[difficulty] && rock <= tree && rock <= iron && rock <= rubber) {
-				getOwner().deployUnits(armory, Building.KEY_DEPLOY_PEON_HARVEST_ROCK, 1);
+				getOwner().deployUnits(armory, DeployType.PEON_HARVEST_ROCK, 1);
 				deployed = true;
 				rock++;
 			} else if (num_units > 0 && iron < MAX_UNITS_GATHERING_IRON[difficulty] && iron <= tree && iron <= rock && iron <= rubber) {
-				getOwner().deployUnits(armory, Building.KEY_DEPLOY_PEON_HARVEST_IRON, 1);
+				getOwner().deployUnits(armory, DeployType.PEON_HARVEST_IRON, 1);
 				deployed = true;
 				iron++;
 			} else if (num_units > 0 && rubber < MAX_UNITS_GATHERING_RUBBER[difficulty] && rubber <= tree && rubber <= rock && rubber <= iron) {
-				getOwner().deployUnits(armory, Building.KEY_DEPLOY_PEON_HARVEST_RUBBER, 1);
+				getOwner().deployUnits(armory, DeployType.PEON_HARVEST_RUBBER, 1);
 				deployed = true;
 				rubber++;
 			}
@@ -392,7 +393,7 @@ else
 				quarters.setRallyPoint(armory);
 				if (quarters.getUnitContainer().getNumSupplies() > MIN_UNITS_REPRODUCING[difficulty]) {
 					int units = StrictMath.min(num_units, quarters.getUnitContainer().getNumSupplies() - MIN_UNITS_REPRODUCING[difficulty]);
-					getOwner().deployUnits(quarters, Building.KEY_DEPLOY_PEON, units);
+					getOwner().deployUnits(quarters, DeployType.PEON, units);
 				}
 			}
 		} else {
@@ -413,7 +414,7 @@ else
 			Selectable[] builders = getPeons(20);
 			if (builders.length < 20) {
 				if (quarters != null && !quarters.isDead() && quarters.getUnitContainer().getNumSupplies() >= 20)
-					getOwner().deployUnits(quarters, Building.KEY_DEPLOY_PEON, 20);
+					getOwner().deployUnits(quarters, DeployType.PEON, 20);
 			}
 			if (builders.length == 0)
 				return;
@@ -462,10 +463,10 @@ else
 		int result = 0;
 		if (getArmory() != null) {
 			Building armory = (Building)getArmory()[0];
-			result += armory.getDeployContainer(Building.KEY_DEPLOY_ROCK_WARRIOR).getNumSupplies();
-			result += armory.getDeployContainer(Building.KEY_DEPLOY_IRON_WARRIOR).getNumSupplies();
-			result += armory.getDeployContainer(Building.KEY_DEPLOY_RUBBER_WARRIOR).getNumSupplies();
-			result += armory.getDeployContainer(Building.KEY_DEPLOY_PEON).getNumSupplies();
+			result += armory.getDeployContainer(DeployType.ROCK_WARRIOR).getNumSupplies();
+			result += armory.getDeployContainer(DeployType.IRON_WARRIOR).getNumSupplies();
+			result += armory.getDeployContainer(DeployType.RUBBER_WARRIOR).getNumSupplies();
+			result += armory.getDeployContainer(DeployType.PEON).getNumSupplies();
 		}
 		return result;
 	}

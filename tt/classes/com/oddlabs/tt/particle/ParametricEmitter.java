@@ -101,7 +101,7 @@ public class ParametricEmitter extends Emitter {
 		List<Particle>[] particles = getParticles();
 		int size = 0;
 
-            for (List particle1 : particles) {
+            for (List<Particle> particle1 : particles) {
                 for (int i = 0; i < particle1.size(); i++) {
                     ParametricParticle particle = (ParametricParticle) particle1.get(i);
                     if (particle.getEnergy() > 0f) {

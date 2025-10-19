@@ -5,6 +5,7 @@ import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Unit;
@@ -112,8 +113,8 @@ public final class VikingIsland9 extends Island {
 			enemy.getArmory().getUnitContainer().increaseSupply(num_extra_units);
 
 		// Deploy units now, and reinforcements when needed
-		enemy.deployUnits(enemy.getArmory(), Building.KEY_DEPLOY_IRON_WARRIOR, 20);
-		new ReinforcementsTrigger(enemy, Building.KEY_DEPLOY_IRON_WARRIOR);
+		enemy.deployUnits(enemy.getArmory(), DeployType.IRON_WARRIOR, 20);
+		new ReinforcementsTrigger(enemy, DeployType.IRON_WARRIOR);
 
 		// Winner prize
 		final Runnable prize = () -> {

@@ -107,7 +107,7 @@ public final class LoadDeterministic extends Deterministic {
 			System.out.println("***** End of log *****");
 	}
 
-        @Override
+    @Override
 	protected byte log(byte b, byte def) {
 		if (isDefault(1))
 			return def;
@@ -199,7 +199,7 @@ public final class LoadDeterministic extends Deterministic {
 	}
 
 	public final class ByteBufferInputStream extends InputStream {
-                @Override
+        @Override
 		public int read() throws IOException {
 			byte b = log((byte)0);
 			return ((int)b) & 0xFF;

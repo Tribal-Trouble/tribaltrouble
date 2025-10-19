@@ -5,6 +5,7 @@ import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
@@ -183,7 +184,7 @@ public final class VikingIsland4 extends Island {
 			enemy.getArmory().getUnitContainer().increaseSupply(num_reinforcements);
 
 		// Deploy reinforcements when needed
-		new ReinforcementsTrigger(enemy, Building.KEY_DEPLOY_IRON_WARRIOR);
+		new ReinforcementsTrigger(enemy, DeployType.IRON_WARRIOR);
 
 		// Defeat if netrauls eleminated
 		runnable = () -> {

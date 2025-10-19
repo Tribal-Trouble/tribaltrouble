@@ -2,7 +2,7 @@ package com.oddlabs.tt.model;
 
 public class DeployContainer<S extends Supply> extends SupplyContainer {
 	private final Building building;
-	private final int deploy_type;
+	private final DeployType deploy_type;
 	private final Class<S> supply_type;
 	private final float seconds_per_deploy;
 
@@ -10,7 +10,7 @@ public class DeployContainer<S extends Supply> extends SupplyContainer {
 	private int num_orders = 0;
 
 
-	public DeployContainer(Building building, float seconds_per_deploy, int deploy_type, Class<S> supply_type) {
+	public DeployContainer(Building building, float seconds_per_deploy, DeployType deploy_type, Class<S> supply_type) {
 		super(Integer.MAX_VALUE);
 		this.building = building;
 		this.seconds_per_deploy = seconds_per_deploy;
@@ -59,40 +59,40 @@ public class DeployContainer<S extends Supply> extends SupplyContainer {
 
 	private void doDeploy() {
 		switch (deploy_type) {
-			case Building.KEY_DEPLOY_ROCK_WARRIOR:
+			case ROCK_WARRIOR:
 				building.createArmy(0, 1, 0, 0);
 				break;
-			case Building.KEY_DEPLOY_IRON_WARRIOR:
+			case IRON_WARRIOR:
 				building.createArmy(0, 0, 1, 0);
 				break;
-			case Building.KEY_DEPLOY_RUBBER_WARRIOR:
+			case RUBBER_WARRIOR:
 				building.createArmy(0, 0, 0, 1);
 				break;
-			case Building.KEY_DEPLOY_PEON:
+			case PEON:
 				building.createArmy(1, 0, 0, 0);
 				break;
-			case Building.KEY_DEPLOY_PEON_HARVEST_TREE:
+			case PEON_HARVEST_TREE:
 				building.createHarvesters(1, 0, 0, 0);
 				break;
-			case Building.KEY_DEPLOY_PEON_TRANSPORT_TREE:
+			case PEON_TRANSPORT_TREE:
 				building.createTransporters(1, 0, 0, 0);
 				break;
-			case Building.KEY_DEPLOY_PEON_HARVEST_ROCK:
+			case PEON_HARVEST_ROCK:
 				building.createHarvesters(0, 1, 0, 0);
 				break;
-			case Building.KEY_DEPLOY_PEON_TRANSPORT_ROCK:
+			case PEON_TRANSPORT_ROCK:
 				building.createTransporters(0, 1, 0, 0);
 				break;
-			case Building.KEY_DEPLOY_PEON_HARVEST_IRON:
+			case PEON_HARVEST_IRON:
 				building.createHarvesters(0, 0, 1, 0);
 				break;
-			case Building.KEY_DEPLOY_PEON_TRANSPORT_IRON:
+			case PEON_TRANSPORT_IRON:
 				building.createTransporters(0, 0, 1, 0);
 				break;
-			case Building.KEY_DEPLOY_PEON_HARVEST_RUBBER:
+			case PEON_HARVEST_RUBBER:
 				building.createHarvesters(0, 0, 0, 1);
 				break;
-			case Building.KEY_DEPLOY_PEON_TRANSPORT_RUBBER:
+			case PEON_TRANSPORT_RUBBER:
 				building.createTransporters(0, 0, 0, 1);
 				break;
 		}

@@ -9,6 +9,7 @@ import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.IronSupply;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RockSupply;
@@ -432,7 +433,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 				SupplyCounter unit_counter = new SupplyCounter(current_building, Unit.class);
 				quarters_unit_status.setCounter(unit_counter);
 				quarters_unit_status.setUnitContainerBuilding(current_building);
-				quarters_peon_button.setContainers(current_building, Building.KEY_DEPLOY_PEON, null);
+				quarters_peon_button.setContainers(current_building, DeployType.PEON, null);
 				quarters_peon_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter}));
 				quarters_chieftain_button.setIconDisabler(new ChieftainDisabler(current_building));
 				quarters_chieftain_button.setBuilding(current_building);
@@ -542,35 +543,35 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		SupplyCounter rubber_counter = new SupplyCounter(current_building, RubberSupply.class);
 		rubber_status.setCounter(rubber_counter);
 
-		harvest_tree_button.setContainers(current_building, Building.KEY_DEPLOY_PEON_HARVEST_TREE, null);
+		harvest_tree_button.setContainers(current_building, DeployType.PEON_HARVEST_TREE, null);
 		harvest_tree_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter}));
-		harvest_rock_button.setContainers(current_building, Building.KEY_DEPLOY_PEON_HARVEST_ROCK, null);
+		harvest_rock_button.setContainers(current_building, DeployType.PEON_HARVEST_ROCK, null);
 		harvest_rock_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter}));
-		harvest_iron_button.setContainers(current_building, Building.KEY_DEPLOY_PEON_HARVEST_IRON, null);
+		harvest_iron_button.setContainers(current_building, DeployType.PEON_HARVEST_IRON, null);
 		harvest_iron_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter}));
-		harvest_rubber_button.setContainers(current_building, Building.KEY_DEPLOY_PEON_HARVEST_RUBBER, null);
+		harvest_rubber_button.setContainers(current_building, DeployType.PEON_HARVEST_RUBBER, null);
 		harvest_rubber_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter}));
 
 		build_weapon_rock_button.setBuildSupplyContainer(current_building, RockAxeWeapon.class);
 		build_weapon_iron_button.setBuildSupplyContainer(current_building, IronAxeWeapon.class);
 		build_weapon_rubber_button.setBuildSupplyContainer(current_building, RubberAxeWeapon.class);
 
-		army_peon_button.setContainers(current_building, Building.KEY_DEPLOY_PEON, null);
+		army_peon_button.setContainers(current_building, DeployType.PEON, null);
 		army_peon_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter}));
-		army_warrior_rock_button.setContainers(current_building, Building.KEY_DEPLOY_ROCK_WARRIOR, RockAxeWeapon.class);
+		army_warrior_rock_button.setContainers(current_building, DeployType.ROCK_WARRIOR, RockAxeWeapon.class);
 		army_warrior_rock_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter, weapon_rock_counter}));
-		army_warrior_iron_button.setContainers(current_building, Building.KEY_DEPLOY_IRON_WARRIOR, IronAxeWeapon.class);
+		army_warrior_iron_button.setContainers(current_building, DeployType.IRON_WARRIOR, IronAxeWeapon.class);
 		army_warrior_iron_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter, weapon_iron_counter}));
-		army_warrior_rubber_button.setContainers(current_building, Building.KEY_DEPLOY_RUBBER_WARRIOR, RubberAxeWeapon.class);
+		army_warrior_rubber_button.setContainers(current_building, DeployType.RUBBER_WARRIOR, RubberAxeWeapon.class);
 		army_warrior_rubber_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter, weapon_rubber_counter}));
 
-		transport_tree_button.setContainers(current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_TREE, TreeSupply.class);
+		transport_tree_button.setContainers(current_building, DeployType.PEON_TRANSPORT_TREE, TreeSupply.class);
 		transport_tree_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter, tree_counter}));
-		transport_rock_button.setContainers(current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_ROCK, RockSupply.class);
+		transport_rock_button.setContainers(current_building, DeployType.PEON_TRANSPORT_ROCK, RockSupply.class);
 		transport_rock_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter, rock_counter}));
-		transport_iron_button.setContainers(current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_IRON, IronSupply.class);
+		transport_iron_button.setContainers(current_building, DeployType.PEON_TRANSPORT_IRON, IronSupply.class);
 		transport_iron_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter, iron_counter}));
-		transport_rubber_button.setContainers(current_building, Building.KEY_DEPLOY_PEON_TRANSPORT_RUBBER, RubberSupply.class);
+		transport_rubber_button.setContainers(current_building, DeployType.PEON_TRANSPORT_RUBBER, RubberSupply.class);
 		transport_rubber_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter, rubber_counter}));
 	}
 
