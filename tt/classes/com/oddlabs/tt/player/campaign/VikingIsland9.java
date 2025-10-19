@@ -4,7 +4,6 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
-import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
@@ -90,9 +89,7 @@ public final class VikingIsland9 extends Island {
 		chief_tribe.setActiveChieftain(new Unit(chief_tribe, 56*2, 110*2, null, chief_tribe.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN)));
 
 		// Defeat if netrauls eleminated
-		runnable = () -> {
-                    getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over"));
-                };
+		runnable = () -> getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over"));
 		new PlayerEleminatedTrigger(runnable, chief_tribe);
 
 		// Towers

@@ -47,9 +47,7 @@ public final class CampaignMapForm extends CameraDelegate {
 			}
 
 			if (campaign.getState().getCurrentIsland() == 14) {
-				final Runnable runnable_menu = () -> {
-                                    closeCampaign(network, gui_root.getGUI());
-                                };
+				final Runnable runnable_menu = () -> closeCampaign(network, gui_root.getGUI());
 				final Runnable runnable_next = () -> {
                                     CampaignDialogForm dialog = new CampaignDialogForm(Utils.getBundleString(bundle, "native_campaign_opened_header"),
                                             Utils.getBundleString(bundle, "native_campaign_opened"),
@@ -73,9 +71,7 @@ public final class CampaignMapForm extends CameraDelegate {
 			}
 
 			if (campaign.getState().getCurrentIsland() == 7) {
-				Runnable runnable = () -> {
-                                    closeCampaign(network, gui_root.getGUI());
-                                };
+				Runnable runnable = () -> closeCampaign(network, gui_root.getGUI());
 				CampaignDialogForm dialog = new CampaignDialogForm(Utils.getBundleString(bundle, "native_header"),
 						Utils.getBundleString(bundle, "native_campaign_completed"),
 						campaign.getIcons().getFaces()[0],

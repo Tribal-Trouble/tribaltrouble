@@ -92,11 +92,11 @@ public class ChatPanel extends Panel implements ChatListener {
 		chat_line = new EditLine(width, 256);
 		addChild(chat_line);
 		chat_line.addEnterListener(chat_listener);
-		chat_line.addEnterListener(text -> { chat_line.clear(); });
+		chat_line.addEnterListener(text -> chat_line.clear());
 
 		button_send = new HorizButton(getI18N("send"), button_width);
 		addChild(button_send);
-		button_send.addMouseClickListener((b,x,y,c) -> { chat_line.enterPressedAll(); });
+		button_send.addMouseClickListener((b,x,y,c) -> chat_line.enterPressedAll());
 
 		button_leave = new HorizButton(getI18N("leave"), button_width);
 		addChild(button_leave);

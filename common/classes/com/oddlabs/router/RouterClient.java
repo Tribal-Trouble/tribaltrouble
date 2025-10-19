@@ -104,15 +104,11 @@ final class RouterClient implements ConnectionInterface {
 
 	private void doRelayGameStateEvent(final ARMIEvent event) {
 		final int next_tick = session.getNextTick();
-		session.visit((RouterClient client) -> {
-                    client.client_interface.receiveGameStateEvent(client_id, next_tick, event);
-                });
+		session.visit((RouterClient client) -> client.client_interface.receiveGameStateEvent(client_id, next_tick, event));
 	}
 
 	private void doRelayEvent(final ARMIEvent event) {
-		session.visit((RouterClient client) -> {
-                    client.client_interface.receiveEvent(client_id, event);
-                });
+		session.visit((RouterClient client) -> client.client_interface.receiveEvent(client_id, event));
 	}
 
 	private void doRelayEventTo(final int receiver_client_id, final ARMIEvent event) {
@@ -145,9 +141,7 @@ final class RouterClient implements ConnectionInterface {
 		if (session != null) {
 			logger.log(Level.INFO, "Removing client: {0}", this);
 			session.removePlayer(this);
-			session.visit((RouterClient client) -> {
-                            client.client_interface.playerDisconnected(client_id, checksum_error);
-                        });
+			session.visit((RouterClient client) -> client.client_interface.playerDisconnected(client_id, checksum_error));
 		}
 	}
 

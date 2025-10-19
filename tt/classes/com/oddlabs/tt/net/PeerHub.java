@@ -107,9 +107,7 @@ public final class PeerHub implements Animated, RouterHandler {
 			}
 			System.out.println("index " + i + " contains player " + player);
 			final int peer_index = peer_index_to_peer_list.size();
-			ARMIEventWriter router_handler = (ARMIEvent event) -> {
-                            router_client.getInterface().relayEventTo(peer_index, event);
-                        };
+			ARMIEventWriter router_handler = (ARMIEvent event) -> router_client.getInterface().relayEventTo(peer_index, event);
 			PeerHubInterface peer_interface = (PeerHubInterface)ARMIEvent.createProxy(router_handler, PeerHubInterface.class);
 			Peer peer = new Peer(this, peer_index, player, argument_reader, peer_interface);
 			ARMIEventWriter peer_broker;

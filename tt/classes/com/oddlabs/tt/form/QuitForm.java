@@ -15,6 +15,6 @@ public final class QuitForm extends QuestionForm {
 
 	public QuitForm(final GUIRoot gui_root) {
 		super(!PeerHub.isWaitingForAck() ? getI18N("confirm_quit") : getI18N("confirm_quit_waiting_for_ack"),
-                (int button, int x1, int y1, int clicks) -> { Renderer.shutdown(); });
+                (int button, int x1, int y1, int clicks) -> Renderer.shutdown());
 	}
 }

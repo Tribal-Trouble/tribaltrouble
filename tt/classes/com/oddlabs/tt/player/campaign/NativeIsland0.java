@@ -113,9 +113,7 @@ public final class NativeIsland0 extends Island {
                             CampaignDialogForm.ALIGN_IMAGE_LEFT);
                     addModalForm(dialog);
                 };
-		final Runnable camera_jump0 = () -> {
-                    getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), chief_start_x + 7, chief_start_y + 7, 200f, 3f, dialog1));
-                };
+		final Runnable camera_jump0 = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), chief_start_x + 7, chief_start_y + 7, 200f, 3f, dialog1));
 		final Runnable dialog0 = () -> {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
                             Utils.getBundleString(bundle, "dialog0"),

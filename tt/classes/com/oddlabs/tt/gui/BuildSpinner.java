@@ -3,7 +3,6 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.model.BuildProductionContainer;
 import com.oddlabs.tt.model.BuildSupplyContainer;
 import com.oddlabs.tt.model.Building;
-import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RotatingThrowingWeapon;

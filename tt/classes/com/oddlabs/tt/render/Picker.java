@@ -123,9 +123,7 @@ public final class Picker implements Updatable {
 			final TreeSupply supply = getNearestPick(tree_pick_list, Target.class);
 			if (supply != null) {
 			//	Target target = (Target)supply;
-				respond_manager.addResponder(supply, () -> {
-                                    supply.changeRespondingTrees(-1);
-                                });
+				respond_manager.addResponder(supply, () -> supply.changeRespondingTrees(-1));
 				supply.changeRespondingTrees(1);
 				if (isNewSetTarget(selection, supply, action, Settings.getSettings().aggressive_units))
 					player_interface.setTarget(selection, supply, action, Settings.getSettings().aggressive_units);

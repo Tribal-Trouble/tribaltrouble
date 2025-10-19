@@ -107,9 +107,7 @@ public final class VikingIsland6 extends Island {
 		placePrisoners(stranded, local_player, 10, 0, 0, 0, false);
 
 		// Defeat if netrauls eleminated
-		runnable = () -> {
-                    getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over"));
-                };
+		runnable = () -> getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over"));
 		new PlayerEleminatedTrigger(runnable, stranded);
 
 		// Put warrior in tower

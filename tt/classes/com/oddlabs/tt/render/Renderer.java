@@ -490,9 +490,7 @@ e.printStackTrace();
 			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
 			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "network_not_available_caption"),
 						Utils.getBundleString(bundle, "network_not_available_message"),
-						Utils.getBundleString(bundle, "quit"), (int button, int x, int y, int clicks) -> {
-                                                    shutdown();
-                        }));
+						Utils.getBundleString(bundle, "quit"), (int button, int x, int y, int clicks) -> shutdown()));
 		}
 		// We'll leave out the reporting, since checksum errors can happen when a peer is disconnected halfway through it's EOT
 		// broadcast

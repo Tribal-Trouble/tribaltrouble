@@ -94,9 +94,7 @@ public final class NewUserForm extends Form {
 		ButtonObject button_create = new HorizButton(Utils.getBundleString(bundle, "create_user"), BUTTON_WIDTH_LONG);
 		button_create.addMouseClickListener(create_listener);
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener((int button, int x, int y, int clicks) -> {
-			this.cancel();
-        });
+		button_cancel.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
 
 		group_buttons.addChild(button_create);
 		group_buttons.addChild(button_cancel);

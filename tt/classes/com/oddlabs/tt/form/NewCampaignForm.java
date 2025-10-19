@@ -99,9 +99,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		button_ok.addMouseClickListener(new NameListener());
 		addChild(button_ok);
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener((int button, int x, int y, int clicks) -> {
-			this.cancel();
-        });
+		button_cancel.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
 		addChild(button_cancel);
 
 		// place

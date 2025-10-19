@@ -187,9 +187,7 @@ public final class VikingIsland4 extends Island {
 		new ReinforcementsTrigger(enemy, DeployType.IRON_WARRIOR);
 
 		// Defeat if netrauls eleminated
-		runnable = () -> {
-                    getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over"));
-                };
+		runnable = () -> getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over"));
 		new PlayerEleminatedTrigger(runnable, captive);
 	}
 

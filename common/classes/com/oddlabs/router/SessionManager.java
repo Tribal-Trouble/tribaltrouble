@@ -99,9 +99,7 @@ final class SessionManager {
 
 	int getNextTick(Session session) {
 		final long millis = time_manager.getMillis();
-		session.visit((RouterClient client) -> {
-                    unregister(client.getTimeout());
-                });
+		session.visit((RouterClient client) -> unregister(client.getTimeout()));
 		return doComputeNextTick(session, millis);
 	}
 

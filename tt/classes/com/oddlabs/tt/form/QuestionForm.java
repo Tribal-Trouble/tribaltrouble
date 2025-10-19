@@ -23,9 +23,7 @@ public class QuestionForm extends Form {
 		yes_button.addMouseClickListener(yes_action);
 		button_group.addChild(yes_button);
 		HorizButton no_button = new CancelButton(80);
-		no_button.addMouseClickListener((int button, int x, int y, int clicks) -> {
-			this.cancel();
-        });
+		no_button.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
 		button_group.addChild(no_button);
 		yes_button.place();
 		no_button.place(yes_button, RIGHT_MID);

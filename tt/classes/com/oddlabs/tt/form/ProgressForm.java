@@ -77,9 +77,7 @@ public final class ProgressForm {
 			show_tip = true;
 		}
 
-		Fadable load_fadable = () -> {
-                    callback(gui, callback, first_progress);
-                };
+		Fadable load_fadable = () -> callback(gui, callback, first_progress);
 		current_progress = new ProgressForm(network, gui, load_fadable, first_progress, new ProgressBarInfo[]{new ProgressBarInfo(""/*"Loading landscape resources"*/, 10),
 			new ProgressBarInfo(""/*"Loading races resources"*/, 30),
 			new ProgressBarInfo(""/*"Generating textures"*/, 5),

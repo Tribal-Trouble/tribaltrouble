@@ -35,9 +35,7 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
 		addChild(info_label);
 		HorizButton cancel_button = new CancelButton(120);
 		addChild(cancel_button);
-		cancel_button.addMouseClickListener((int button, int x, int y, int clicks) -> {
-			this.cancel();
-        });
+		cancel_button.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
 
 		// Place objects
 		info_label.place();

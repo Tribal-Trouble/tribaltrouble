@@ -81,9 +81,7 @@ public final class VikingIsland8 extends Island {
 		getViewer().getCamera().setPos(358*2, 484*2);
 
 		// Introduction
-		final Runnable camera_jump = () -> {
-                    getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), 170*2, 160*2, 200f, 3f));
-                };
+		final Runnable camera_jump = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), 170*2, 160*2, 200f, 3f));
 		runnable = () -> {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
                             Utils.getBundleString(bundle, "dialog0"),
@@ -179,9 +177,7 @@ public final class VikingIsland8 extends Island {
 		army[22] = new Unit(enemy, 289*2, 141*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
 		army[23] = new Unit(enemy, 289*2, 141*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
 		army[24] = new Unit(enemy, 289*2, 141*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		runnable = () -> {
-                    enemy.setLandscapeTarget(army, 238, 136, Target.ACTION_ATTACK, true);
-                };
+		runnable = () -> enemy.setLandscapeTarget(army, 238, 136, Target.ACTION_ATTACK, true);
 		new DeathTrigger(bait, runnable);
 
 		// Insert second blocking army
@@ -226,9 +222,7 @@ public final class VikingIsland8 extends Island {
 			army2[18] = new Unit(enemy, 366*2, 419*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 			army2[19] = new Unit(enemy, 366*2, 419*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 		}
-		runnable = () -> {
-                    enemy.setLandscapeTarget(army2, 352, 480, Target.ACTION_ATTACK, true);
-                };
+		runnable = () -> enemy.setLandscapeTarget(army2, 352, 480, Target.ACTION_ATTACK, true);
 		new DeathTrigger(bait2, runnable);
 
 		// Insert scattered resistance

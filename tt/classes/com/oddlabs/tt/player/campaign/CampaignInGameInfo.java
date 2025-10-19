@@ -52,9 +52,7 @@ final class CampaignInGameInfo implements InGameInfo {
         @Override
 	public void addGameOverGUI(WorldViewer viewer, final GameStatsDelegate delegate, int header_y, Group group) {
 		HorizButton button_ok = new OKButton(150);
-		button_ok.addMouseClickListener((int button, int x, int y, int clicks) -> {
-                    delegate.startMenu();
-                });
+		button_ok.addMouseClickListener((int button, int x, int y, int clicks) -> delegate.startMenu());
 
 		group.addChild(button_ok);
 		button_ok.place();

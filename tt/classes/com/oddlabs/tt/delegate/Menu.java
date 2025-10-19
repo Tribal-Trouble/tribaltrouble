@@ -227,9 +227,7 @@ public abstract class Menu extends CameraDelegate {
 	protected final void addResumeButton() {
 		MenuButton resume = new MenuButton(Utils.getBundleString(bundle, "resume"), COLOR_NORMAL, COLOR_ACTIVE);
 		addChild(resume);
-		resume.addMouseClickListener((int button, int x1, int y1, int clicks) -> {
-                    pop();
-                });
+		resume.addMouseClickListener((int button, int x1, int y1, int clicks) -> pop());
 	}
 
 	public static void completeGameSetupHack(WorldViewer world_viewer) {

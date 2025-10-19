@@ -82,9 +82,7 @@ public final class NativeIsland1 extends Island {
 		// Introduction
 		final int start_x = 24*2;
 		final int start_y = 86*2;
-		final Runnable camera_jump0 = () -> {
-                    getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), start_x, start_y, 200f, 3f));
-                };
+		final Runnable camera_jump0 = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), start_x, start_y, 200f, 3f));
 		final Runnable dialog1 = () -> {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
                             Utils.getBundleString(bundle, "dialog1"),

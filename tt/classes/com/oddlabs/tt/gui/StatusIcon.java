@@ -1,6 +1,5 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.SupplyCounter;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;

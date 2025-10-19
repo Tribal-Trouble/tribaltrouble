@@ -1,7 +1,6 @@
 package com.oddlabs.tt.render;
 
 
-import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.util.Target;
 
 import java.util.ArrayList;

@@ -109,9 +109,7 @@ final class Session {
 
 	private void start() {
 		this.started = true;
-		visit((RouterClient client) -> {
-                    client.getInterface().start();
-                });
+		visit((RouterClient client) -> client.getInterface().start());
 		this.initial_time = manager.start(this);
 	}
 

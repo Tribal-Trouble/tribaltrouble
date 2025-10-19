@@ -1,7 +1,5 @@
 package com.oddlabs.tt.model;
 
-import com.oddlabs.tt.pathfinder.Occupant;
-
 public class SupplyCounter {
 	private final Building building;
 	private final Class<?> supply_type;

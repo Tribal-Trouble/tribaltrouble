@@ -134,9 +134,7 @@ public final class VikingIsland5 extends Island {
 		enemy1.getAI().manTowers(1); // TODO: replace with insertGuardTower()
 
 		// Defeat if friends eleminated
-		runnable = () -> {
-                    getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over"));
-                };
+		runnable = () -> getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over"));
 		new PlayerEleminatedTrigger(runnable, getViewer().getWorld().getPlayers()[1]);
 	}
 

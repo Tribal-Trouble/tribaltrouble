@@ -142,9 +142,7 @@ public final class VikingIsland0 extends Island {
 		}
 
 		// Defeat if neutrals eliminated
-		new PlayerEleminatedTrigger(() -> {
-            getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over"));
-        }, chieftain);
+		new PlayerEleminatedTrigger(() -> getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over")), chieftain);
 	}
 
     @Override

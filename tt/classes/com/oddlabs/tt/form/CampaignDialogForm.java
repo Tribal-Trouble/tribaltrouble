@@ -79,9 +79,7 @@ public class CampaignDialogForm extends Form {
 			HorizButton cancel_button = new CancelButton(80);
 			addChild(cancel_button);
 			cancel_button.place(ok_button, RIGHT_MID);
-			cancel_button.addMouseClickListener((int button, int x, int y, int clicks) -> {
-			this.cancel();
-        });
+			cancel_button.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
 		}
 
 		compileCanvas();

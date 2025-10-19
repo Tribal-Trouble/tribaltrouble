@@ -296,9 +296,7 @@ public final class NativeIsland4 extends Island {
 		new TimeTrigger(getViewer().getWorld(), 12.5f*60f, runnable);
 
 		// Defeat if netrauls eleminated
-		runnable = () -> {
-                    getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over"));
-                };
+		runnable = () -> getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over"));
 		new PlayerEleminatedTrigger(runnable, captives);
 	}
 

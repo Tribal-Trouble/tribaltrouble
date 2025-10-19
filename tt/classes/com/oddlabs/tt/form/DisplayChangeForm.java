@@ -26,9 +26,7 @@ public final class DisplayChangeForm extends Form {
         });
 		later_button = new HorizButton(Utils.getBundleString(bundle, "later"), 120);
 		addChild(later_button);
-		later_button.addMouseClickListener((int button, int x, int y, int clicks) -> {
-			this.cancel();
-        });
+		later_button.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
 
 		// Place objects
 		info_label.place();

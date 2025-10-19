@@ -59,9 +59,7 @@ public class DefaultInGameInfo implements InGameInfo {
                 });
 
 		HorizButton button_end = new HorizButton(Utils.getBundleString(GameStatsDelegate.bundle, "main_menu"), 150);
-		button_end.addMouseClickListener((int button, int x, int y, int clicks) -> {
-                    delegate.startMenu();
-                });
+		button_end.addMouseClickListener((int button, int x, int y, int clicks) -> delegate.startMenu());
 
 		if (replay)
 			group.addChild(button_replay);

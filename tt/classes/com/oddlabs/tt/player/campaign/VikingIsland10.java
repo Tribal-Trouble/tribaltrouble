@@ -69,9 +69,7 @@ public final class VikingIsland10 extends Island {
 		getViewer().getCamera().setPos(177*2, 156*2);
 
 		// Introduction
-		final Runnable camera_jump = () -> {
-                    getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), 142*2, 182*2, 200f, 3f));
-                };
+		final Runnable camera_jump = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), 142*2, 182*2, 200f, 3f));
 		runnable = () -> {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
                             Utils.getBundleString(bundle, "dialog0"),
