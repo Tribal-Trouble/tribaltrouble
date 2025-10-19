@@ -41,7 +41,7 @@ public final class InstantHitFactory extends WeaponFactory {
 	}
 
         @Override
-	public Class getType() {
+	public Class<? extends ThrowingWeapon> getType() {
 		return null;
 	}
 }

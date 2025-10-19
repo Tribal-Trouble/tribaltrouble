@@ -65,17 +65,17 @@ public final class ChatRoom {
 	}
 
 	public void sendUsers() {
-		Iterator it = users.iterator();
+		Iterator<Client> it = users.iterator();
 		ChatRoomUser[] chat_room_users = new ChatRoomUser[users.size()];
 		int i = 0;
 		while (it.hasNext()) {
-			Client client = (Client)it.next();
+			Client client = it.next();
 			chat_room_users[i] = new ChatRoomUser(client.getProfile().getNick(), client.isPlaying());
 			i++;
 		}
 		it = users.iterator();
 		while (it.hasNext()) {
-			Client client = (Client)it.next();
+			Client client = it.next();
 			client.getClientInterface().receiveChatRoomUsers(chat_room_users);
 		}
 	}
@@ -88,7 +88,7 @@ public final class ChatRoom {
 		}
 	}
 
-	public Set getUsers() {
+	public Set<Client> getUsers() {
 		return users;
 	}
 

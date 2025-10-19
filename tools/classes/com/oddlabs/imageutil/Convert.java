@@ -62,7 +62,7 @@ System.out.println("outfile = " + outfile);
 		return images;
 	}
 
-	private static Layer[] processOperation(String op, Iterator args, Layer[] images) {
+	private static Layer[] processOperation(String op, Iterator<String> args, Layer[] images) {
 		if (op.equals("-mipmaps")) {
 			if (images.length != 1)
 				throw new IllegalArgumentException("Can only create mipmaps from one image, not " + images.length);
@@ -79,19 +79,19 @@ System.out.println("outfile = " + outfile);
 				mipmaps.add(mipmap);
 				last_mipmap = mipmap;
 			}
-			images = (Layer[])mipmaps.toArray(new Layer[0]);
+			images = mipmaps.toArray(new Layer[0]);
 		} else if (op.equals("-half")) {
 			for (int i = 0; i < images.length; i++) {
                 images[i].scaleHalf();
             }
 		} else if (op.equals("-format")) {
-			current_ext = (String)args.next();
+			current_ext = args.next();
 		} else if (op.equals("-flip")) {
 			for (int i = 0; i < images.length; i++) {
                 images[i].flipV();
             }
 		} else if (op.equals("-gamma")) {
-			String gamma_str = (String)args.next();
+			String gamma_str = args.next();
 			float gamma = Float.parseFloat(gamma_str);
 			for (int i = 0; i < images.length; i++) {
                 images[i].gamma(gamma);
