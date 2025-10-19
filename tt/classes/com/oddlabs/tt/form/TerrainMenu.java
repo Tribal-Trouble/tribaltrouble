@@ -138,7 +138,7 @@ public final class TerrainMenu extends Group {
 		editline_name = new EditLine(180, Game.MAX_LENGTH);
 		if (multiplayer) {
 			standard.addChild(label_name);
-			String default_name = Utils.getBundleString(bundle, "default_name", new Object[]{Network.getMatchmakingClient().getProfile().getNick()});
+			String default_name = Utils.getBundleString(bundle, "default_name", Network.getMatchmakingClient().getProfile().getNick());
 			label_default_name = new Label(default_name, Skin.getSkin().getEditFont());
 			editline_name.append(default_name);
 			if (Renderer.isRegistered())
@@ -146,7 +146,7 @@ public final class TerrainMenu extends Group {
 			else
 				standard.addChild(label_default_name);
 		}
-		String rated_tip = Utils.getBundleString(bundle, "rated_game_tip", new Object[]{GameSession.MIN_WINS_FOR_RANKING});
+		String rated_tip = Utils.getBundleString(bundle, "rated_game_tip", GameSession.MIN_WINS_FOR_RANKING);
 		cb_rated = new CheckBox(false, Utils.getBundleString(bundle, "rated_game"), rated_tip);
 		if (multiplayer ) {
 			standard.addChild(cb_rated);
@@ -307,14 +307,14 @@ public final class TerrainMenu extends Group {
 			race_pulldown_buttons[i] = new PulldownButton(gui_root, race_pulldown_menus[i], 0, 115);
 			group_race_team.addChild(race_pulldown_buttons[i]);
 			for (int j = 0; j < MatchmakingServerInterface.MAX_PLAYERS; j++) {
-				String team_str = Utils.getBundleString(bundle, "team", new Object[]{Integer.toString(j + 1)});
+				String team_str = Utils.getBundleString(bundle, "team", Integer.toString(j + 1));
 				PulldownItem pulldown_item_team = new PulldownItem(team_str);
 				team_pulldown_menus[i].addItem(pulldown_item_team);
 			}
 			team_pulldown_buttons[i] = new PulldownButton(gui_root, team_pulldown_menus[i], i, 115);
 			group_race_team.addChild(team_pulldown_buttons[i]);
 			if (i == 0) {
-				String player_str = Utils.getBundleString(bundle, "player", new Object[]{Integer.toString(1)});
+				String player_str = Utils.getBundleString(bundle, "player", Integer.toString(1));
 				labels_players[0] = new Label(player_str, Skin.getSkin().getEditFont());
 				labels_players[0].setColor(Player.COLORS[0]);
 				group_race_team.addChild(labels_players[0]);
@@ -323,7 +323,7 @@ public final class TerrainMenu extends Group {
 				race_pulldown_buttons[0].place(difficulty_pulldown_buttons[0], RIGHT_MID);
 				team_pulldown_buttons[0].place(race_pulldown_buttons[0], RIGHT_MID);
 			} else {
-				String player_str = Utils.getBundleString(bundle, "player", new Object[]{Integer.toString(i + 1)});
+				String player_str = Utils.getBundleString(bundle, "player", Integer.toString(i + 1));
 				labels_players[i] = new Label(player_str, Skin.getSkin().getEditFont());
 				labels_players[i].setColor(Player.COLORS[i]);
 				group_race_team.addChild(labels_players[i]);
@@ -589,7 +589,7 @@ public final class TerrainMenu extends Group {
 		if (multiplayer) {
 			String game_name = editline_name.getContents();
 			if (game_name.length() < Game.MIN_LENGTH) {
-				String min_name = Utils.getBundleString(bundle, "min_name_length", new Object[]{Game.MIN_LENGTH});
+				String min_name = Utils.getBundleString(bundle, "min_name_length", Game.MIN_LENGTH);
 				gui_root.addModalForm(new MessageForm(min_name));
 				return false;
 			}
@@ -602,7 +602,7 @@ public final class TerrainMenu extends Group {
                     has_enemy = true;
             }
 			if (!has_enemy) {
-				String min_name = Utils.getBundleString(bundle, "min_num_teams", new Object[]{2});
+				String min_name = Utils.getBundleString(bundle, "min_num_teams", 2);
 				gui_root.addModalForm(new MessageForm(min_name));
 				return false;
 			}

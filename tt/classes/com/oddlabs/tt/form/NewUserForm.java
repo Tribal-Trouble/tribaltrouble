@@ -132,7 +132,7 @@ public final class NewUserForm extends Form {
 			editline_password.clear();
 			editline_verify.clear();
 		} else if (editline_password.getContents().length() < MIN_PASSWORD_LENGTH) {
-			String min_length_err = Utils.getBundleString(bundle, "min_length_error", new Object[]{MIN_PASSWORD_LENGTH});
+			String min_length_err = Utils.getBundleString(bundle, "min_length_error", MIN_PASSWORD_LENGTH);
 			gui_root.addModalForm(new MessageForm(min_length_err));
 		} else if (!login_details.isValid()) {
 			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "invalid_email")));

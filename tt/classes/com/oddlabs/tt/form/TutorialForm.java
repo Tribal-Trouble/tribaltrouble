@@ -51,7 +51,7 @@ public final class TutorialForm extends Form {
 	private final NetworkSelector network;
 
 	private static String formatTutorial(int tutorial_number) {
-		return Utils.getBundleString(bundle, "tutorial", new Object[]{Integer.toString(tutorial_number)});
+		return Utils.getBundleString(bundle, "tutorial", Integer.toString(tutorial_number));
 	}
 
 	public TutorialForm(NetworkSelector network, GUIRoot gui_root) {

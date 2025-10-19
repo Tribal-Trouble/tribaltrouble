@@ -122,7 +122,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 //	private boolean[] magic_disabled = new boolean[2];
 
 	private String formatTip(String tip_key, String shortcut_key) {
-		return Utils.getBundleString(bundle, tip_key, new Object[]{shortcut_key});
+		return Utils.getBundleString(bundle, tip_key, shortcut_key);
 	}
 
 	public ActionButtonPanel(WorldViewer viewer, GameCamera camera) {

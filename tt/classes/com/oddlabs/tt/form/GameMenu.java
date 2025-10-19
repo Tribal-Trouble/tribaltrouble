@@ -318,8 +318,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			if (slot == local_player_slot) {
 				int win = points[i][GameSession.WIN];
 				int lose = points[i][GameSession.LOSE];
-				String rating_change_message = Utils.getBundleString(bundle, "rating_change_message", new Object[]{
-					Integer.toString(win), Integer.toString(-lose)});
+				String rating_change_message = Utils.getBundleString(bundle, "rating_change_message", Integer.toString(win), Integer.toString(-lose));
 				chat_info.set(rating_change_message);
 
 			}
@@ -373,7 +372,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		if (rated)
 			num_teams = 2;
 		for (int i = 0; i < num_teams; i++) {
-			String team_str = Utils.getBundleString(bundle, "team", new Object[]{Integer.toString(i + 1)});
+			String team_str = Utils.getBundleString(bundle, "team", Integer.toString(i + 1));
 			PulldownItem race_item = new PulldownItem(team_str);
 			team_pulldown_menu.addItem(race_item);
 		}
@@ -400,7 +399,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			group.addChild(ratings[index]);
 			ratings[index].place(ready_mark, RIGHT_MID);
 		}
-		String player_str = Utils.getBundleString(bundle, "player", new Object[]{Integer.toString(index + 1)});
+		String player_str = Utils.getBundleString(bundle, "player", Integer.toString(index + 1));
 		Label label = new Label(player_str, Skin.getSkin().getEditFont());
 		label.setColor(Player.COLORS[index]);
 		group.addChild(label);
@@ -455,14 +454,14 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	private void playerLeft(String name) {
 		if (chat_box.length() > 0)
 			chat_box.append("\n");
-		chat_box.append(Utils.getBundleString(bundle, "left_game", new Object[]{name}));
+		chat_box.append(Utils.getBundleString(bundle, "left_game", name));
 		finishChatAppend();
 	}
 
 	private void playerJoined(String name) {
 		if (chat_box.length() > 0)
 			chat_box.append("\n");
-		chat_box.append(Utils.getBundleString(bundle, "joined_game", new Object[]{name}));
+		chat_box.append(Utils.getBundleString(bundle, "joined_game", name));
 		finishChatAppend();
 	}
 
@@ -527,7 +526,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			final int MIN_TEAMS = 2;
 			int num_teams = getNumTeams(game_network.getClient().getPlayers());
 			if (num_teams < MIN_TEAMS) {
-				String err_msg = Utils.getBundleString(bundle, "min_teams", new Object[]{Integer.toString(MIN_TEAMS)});
+				String err_msg = Utils.getBundleString(bundle, "min_teams", Integer.toString(MIN_TEAMS));
 				gui_root.addModalForm(new MessageForm(err_msg));
 			} else {
 				game_network.getClient().getServerInterface().startServer();

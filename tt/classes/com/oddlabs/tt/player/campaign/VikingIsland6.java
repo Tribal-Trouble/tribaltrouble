@@ -123,7 +123,7 @@ public final class VikingIsland6 extends Island {
                     getCampaign().victory(getViewer());
                 };
 		runnable = () -> {
-                    String new_units_message = Utils.getBundleString(bundle, "new_units", new Object[]{stranded.getUnitCountContainer().getNumSupplies()});
+                    String new_units_message = Utils.getBundleString(bundle, "new_units", stranded.getUnitCountContainer().getNumSupplies());
                     String new_units_header = Utils.getBundleString(bundle, "new_units_header");
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), new_units_header,
                             new_units_message,

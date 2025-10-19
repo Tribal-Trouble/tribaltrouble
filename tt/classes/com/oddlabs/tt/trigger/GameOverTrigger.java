@@ -43,7 +43,7 @@ public final class GameOverTrigger implements Animated {
                         return;
                     } else {
                         dead_tribes[i] = true;
-                        String defeat_message = Utils.getBundleString(bundle, "defeat_message", new Object[]{current.getPlayerInfo().getName()});
+                        String defeat_message = Utils.getBundleString(bundle, "defeat_message", current.getPlayerInfo().getName());
                         viewer.getPeerHub().receiveChat(PeerHub.SYSTEM_NAME, defeat_message, false);
                     }
                 } else

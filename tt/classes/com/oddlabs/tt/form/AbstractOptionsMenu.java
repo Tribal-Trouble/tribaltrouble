@@ -200,8 +200,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		int index = 0;
 		for (int i = 0; i < modes.length; i++) {
 			if (modes[i].getBitsPerPixel() == current_mode.getBitsPerPixel()) {
-				String mode_string = Utils.getBundleString(bundle, "mode", new Object[]{
-					Integer.toString(modes[i].getWidth()), Integer.toString(modes[i].getHeight()), Integer.toString(modes[i].getFrequency())});
+				String mode_string = Utils.getBundleString(bundle, "mode", Integer.toString(modes[i].getWidth()), Integer.toString(modes[i].getHeight()), Integer.toString(modes[i].getFrequency()));
 //				mode_menu.addItem(new PulldownItem(mode_string, modes[i]));
 				Label label = new SortedLabel(mode_string, i, Skin.getSkin().getMultiColumnComboBoxData().getFont());
 				Row row = new Row(new GUIObject[]{label}, modes[i]);

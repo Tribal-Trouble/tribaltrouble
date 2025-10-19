@@ -228,7 +228,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 			case Keyboard.KEY_S:
 				if (event.isControlDown()) {
 					String filename = GLUtils.takeScreenshot("");
-					info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "screenshot_message", new Object[]{filename}));
+					info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "screenshot_message", filename));
 				}
 				break;
 

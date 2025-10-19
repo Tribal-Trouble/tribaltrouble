@@ -203,7 +203,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		if (e instanceof FileNotFoundException) {
 		} else if (e instanceof InvalidClassException) {
 		} else {
-			String failed_message = Utils.getBundleString(bundle, "failed_message", new Object[]{LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage()});
+			String failed_message = Utils.getBundleString(bundle, "failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
 			gui_root.addModalForm(new MessageForm(failed_message));
 		}
 	}

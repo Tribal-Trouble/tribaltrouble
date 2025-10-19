@@ -13,7 +13,7 @@ public final class WindowsRegistryInterface {
 		Method queryRegistrationKey_method = org_lwjgl_opengl_WindowsRegistry.getDeclaredMethod("queryRegistrationKey", int.class, String.class, String.class);
 		queryRegistrationKey_method.setAccessible(true);
 //		queryRegistrationKey_method.setAccessible(true);
-		Object result = queryRegistrationKey_method.invoke(null, new Object[]{root_key_enum, subkey, value});
+		Object result = queryRegistrationKey_method.invoke(null, root_key_enum, subkey, value);
 		return (String)result;
 	}
 

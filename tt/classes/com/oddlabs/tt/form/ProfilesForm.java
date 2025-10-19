@@ -124,7 +124,7 @@ public final class ProfilesForm extends Form {
 			if (nick == null) {
 				gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "no_profiles")));
 			} else {
-				String confirm_str = Utils.getBundleString(bundle, "confirm_delete", new Object[]{nick});
+				String confirm_str = Utils.getBundleString(bundle, "confirm_delete", nick);
 				confirm_delete_form = new QuestionForm(confirm_str, new ActionDeleteListener(nick));
 				gui_root.addModalForm(confirm_delete_form);
 			}

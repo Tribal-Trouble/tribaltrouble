@@ -77,7 +77,7 @@ public final class VikingIsland13 extends Island {
 
 		// Introduction
 		runnable = () -> {
-                    String stay_alive_dialog = Utils.getBundleString(bundle, "dialog0", new Object[]{minutes});
+                    String stay_alive_dialog = Utils.getBundleString(bundle, "dialog0", minutes);
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
                             stay_alive_dialog,
                             getCampaign().getIcons().getFaces()[0],
@@ -272,6 +272,6 @@ public final class VikingIsland13 extends Island {
 
         @Override
 	public CharSequence getCurrentObjective() {
-		return Utils.getBundleString(bundle, "objective", new Object[]{minutes});
+		return Utils.getBundleString(bundle, "objective", minutes);
 	}
 }

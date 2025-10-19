@@ -31,7 +31,7 @@ public final class PrivateMessageForm extends Form {
 		Label label_headline = new Label(Utils.getBundleString(bundle, "private_message_caption"), Skin.getSkin().getHeadlineFont());
 		addChild(label_headline);
 
-		Label label_name = new Label(Utils.getBundleString(bundle, "to", new Object[]{nick}), Skin.getSkin().getEditFont());
+		Label label_name = new Label(Utils.getBundleString(bundle, "to", nick), Skin.getSkin().getEditFont());
 		editline_name = new EditLine(EDITLINE_WIDTH, 256);
 		editline_name.addEnterListener(new OKListener());
 

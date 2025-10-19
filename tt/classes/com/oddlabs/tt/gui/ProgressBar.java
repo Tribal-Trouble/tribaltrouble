@@ -76,7 +76,7 @@ public final class ProgressBar extends GUIObject {
 		float done = (offset + step)/getWidth();
 		ResourceBundle bundle = ResourceBundle.getBundle(ProgressBar.class.getName());
 		int percentage = ((int)(done*100));
-		String string = Utils.getBundleString(bundle, "loading", new Object[]{percentage});
+		String string = Utils.getBundleString(bundle, "loading", percentage);
 		text_renderer.renderCropped(0, 0, clip_left, clip_right, clip_bottom, clip_top, new StringBuffer(string));
 	}
 

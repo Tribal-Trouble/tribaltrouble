@@ -43,7 +43,7 @@ public final class ChatCommand {
 		if (method != null) {
 			method.execute(info_printer, args);
 		} else {
-			String unknown_cmd_message = Utils.getBundleString(bundle, "unknown_command", new Object[]{cmd});
+			String unknown_cmd_message = Utils.getBundleString(bundle, "unknown_command", cmd);
 			info_printer.print(unknown_cmd_message);
 		}
 		return true;
@@ -78,7 +78,7 @@ public final class ChatCommand {
 		String nick = text.substring(0, first_space);
 		boolean result = ignored_nicks.add(nick.toLowerCase());
 		if (result) {
-			String msg = Utils.getBundleString(bundle, "ignoring", new Object[]{nick});
+			String msg = Utils.getBundleString(bundle, "ignoring", nick);
 			info_printer.print(msg);
 		}
 	}
@@ -88,7 +88,7 @@ public final class ChatCommand {
 		String nick = text.substring(0, first_space);
 		boolean result = ignored_nicks.remove(nick.toLowerCase());
 		if (result) {
-			String msg = Utils.getBundleString(bundle, "unignoring", new Object[]{nick});
+			String msg = Utils.getBundleString(bundle, "unignoring", nick);
 			info_printer.print(msg);
 		}
 	}

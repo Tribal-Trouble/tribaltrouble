@@ -42,7 +42,7 @@ public class DefaultInGameInfo implements InGameInfo {
 	}
 
 	protected final void addGameOverGUI(final WorldViewer viewer, final GameStatsDelegate delegate, int header_y, Group group, boolean replay) {
-		String map_code_str = Utils.getBundleString(GameStatsDelegate.bundle, "map_code", new Object[]{viewer.getParameters().getMapcode()});
+		String map_code_str = Utils.getBundleString(GameStatsDelegate.bundle, "map_code", viewer.getParameters().getMapcode());
 		Label map_code = new Label(map_code_str, Skin.getSkin().getEditFont());
 		delegate.addChild(map_code);
 		map_code.setPos((delegate.getWidth() - map_code.getWidth())/2, header_y - map_code.getHeight());
@@ -91,7 +91,7 @@ public class DefaultInGameInfo implements InGameInfo {
                 String race_str = RacesResources.getRaceName(player_info.getRace());
                 Label race = new Label(race_str, Skin.getSkin().getHeadlineFont());
                 race.setColor(color);
-                String team_str = Utils.getBundleString(terrain_menu_bundle, "team", new Object[]{Integer.toString(player_info.getTeam() + 1)});
+                String team_str = Utils.getBundleString(terrain_menu_bundle, "team", Integer.toString(player_info.getTeam() + 1));
                 Label team = new Label(team_str, Skin.getSkin().getHeadlineFont());
                 team.setColor(color);
                 names.addChild(name);

@@ -38,7 +38,7 @@ public final class FreeQuitLabel extends Label implements Animated {
 		int time_left = (int)PeerHub.getFreeQuitTimeLeft(world);
 		if (time_left > 0) {
 			clear();
-			append(Utils.getBundleString(bundle, "quit_time_left", new Object[]{time_left}));
+			append(Utils.getBundleString(bundle, "quit_time_left", time_left));
 		}
 	}
 

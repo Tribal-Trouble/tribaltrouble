@@ -396,7 +396,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		Font combofont = Skin.getSkin().getMultiColumnComboBoxData().getFont();
 		for (int i = 0; i < chat_rooms.size(); i++) {
 			ChatRoomEntry chat_room_info = chat_rooms.get(i);
-			String users_and_max = Utils.getBundleString(bundle, "users_and_max", new Object[]{chat_room_info.getNumJoined(), MatchmakingServerInterface.MAX_ROOM_USERS});
+			String users_and_max = Utils.getBundleString(bundle, "users_and_max", chat_room_info.getNumJoined(), MatchmakingServerInterface.MAX_ROOM_USERS);
 			Row row = new Row(new GUIObject[]{
 				new Label(chat_room_info.getName(), combofont, room_name_size),
 				new Label(users_and_max, combofont)},
@@ -426,7 +426,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 			if (selected_game != null) {
 				boolean rated = selected_game.getGame().isRated();
 				if (rated && Network.getMatchmakingClient().getProfile().getWins() < GameSession.MIN_WINS_FOR_RANKING) {
-					String min_wins = Utils.getBundleString(bundle, "min_wins", new Object[]{GameSession.MIN_WINS_FOR_RANKING});
+					String min_wins = Utils.getBundleString(bundle, "min_wins", GameSession.MIN_WINS_FOR_RANKING);
 					gui_root.addModalForm(new MessageForm(min_wins));
 				} else {
 					Game game = selected_game.getGame();
