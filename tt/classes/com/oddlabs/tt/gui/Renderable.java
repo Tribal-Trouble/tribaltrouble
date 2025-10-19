@@ -5,7 +5,7 @@ import com.oddlabs.util.ListElement;
 import com.oddlabs.util.ListElementImpl;
 import org.lwjgl.opengl.GL11;
 
-public abstract class Renderable extends ListElementImpl {
+public abstract class Renderable extends ListElementImpl<Renderable> {
 	private int x = 0;
 	private int y = 0;
 	private int width = 0;
@@ -115,7 +115,7 @@ public abstract class Renderable extends ListElementImpl {
 
 	public final void displayChanged(int width, int height) {
 		displayChangedNotify(width, height);
-		ListElement current = children.getFirst();
+		ListElement<Renderable> current = children.getFirst();
 		while (current != null) {
 			((Renderable)current).displayChanged(width, height);
 			current = current.getNext();
@@ -154,7 +154,7 @@ public abstract class Renderable extends ListElementImpl {
 		if (clip_left >= width || clip_right <= 0 || clip_bottom >= height || clip_top <= 0) {
 			return;
 		}
-		ListElement current = children.getLast();
+		ListElement<Renderable> current = children.getLast();
 		if (!(this instanceof GUIRoot)) {
 			GL11.glEnd();
 			GL11.glPushMatrix();
@@ -215,7 +215,7 @@ public abstract class Renderable extends ListElementImpl {
 		float trans_x = transformX(x);
 		float trans_y = transformY(y);
 		if (isFocusable() && trans_x >= 0 && trans_y >= 0 && trans_x < getWidth() && trans_y < getHeight()) {
-			ListElement current = children.getFirst();
+			ListElement<Renderable> current = children.getFirst();
 			while (current != null) {
 				GUIObject gui = (GUIObject)current;
 				Renderable picked = gui.pick(trans_x, trans_y);
@@ -231,7 +231,7 @@ public abstract class Renderable extends ListElementImpl {
 	private void addTree() {
 		if (getParentGUIRoot() != null) {
 			doAdd();
-			ListElement current = children.getFirst();
+			ListElement<Renderable> current = children.getFirst();
 			while (current != null) {
 				((Renderable)current).addTree();
 				current = current.getNext();
@@ -241,7 +241,7 @@ public abstract class Renderable extends ListElementImpl {
 
 	final void removeTree() {
 		doRemove();
-		ListElement current = children.getFirst();
+		ListElement<Renderable> current = children.getFirst();
 		while (current != null) {
 			((Renderable)current).removeTree();
 			current = current.getNext();

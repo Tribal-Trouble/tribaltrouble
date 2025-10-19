@@ -36,7 +36,7 @@ public final class SerializableDisplayMode implements Serializable {
     public static void setModeToNearest(SerializableDisplayMode target_mode) throws LWJGLException {
         Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
         DisplayMode[] modes = Display.getAvailableDisplayModes();
-        SortedSet set = new TreeSet(new DisplayModeComparator(target_mode));
+        SortedSet<DisplayMode> set = new TreeSet<>(new DisplayModeComparator(target_mode));
         for (DisplayMode mode : modes) {
             if (isModeValid(mode)) {
                 System.out.println("modes[i] = " + mode);

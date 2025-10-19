@@ -98,7 +98,7 @@ public class ParametricEmitter extends Emitter {
 		float z_min = Float.POSITIVE_INFINITY;
 		float z_max = Float.NEGATIVE_INFINITY;
 
-		List[] particles = getParticles();
+		List<Particle>[] particles = getParticles();
 		int size = 0;
 
             for (List particle1 : particles) {

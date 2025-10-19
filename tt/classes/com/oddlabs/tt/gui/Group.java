@@ -30,7 +30,7 @@ public class Group extends GUIObject {
 		boolean origin_bottom_right = false;
 
 		// Calculate the width an height of the top_left- and bottom_right blocks.
-		ListElement current = getFirstChild();
+		ListElement<Renderable> current = getFirstChild();
 		while (current != null) {
 			GUIObject gui_object = (GUIObject)current;
 			if (gui_object.getOrigin() == ORIGIN_TOP_LEFT) {

@@ -58,7 +58,7 @@ public final class TaskThread {
 	private void processTasks() {
 		while (!finished) {
 			BlockingTask task;
-			Callable callable;
+			Callable<?> callable;
 			synchronized (lock) {
 				while (tasks.isEmpty()) {
 					try {
@@ -131,7 +131,7 @@ public final class TaskThread {
 		}
 	}
 
-	private Callable lookupCallable(BlockingTask task) {
+	private Callable<?> lookupCallable(BlockingTask task) {
 		return id_to_callable.get(task.id);
 	}
 

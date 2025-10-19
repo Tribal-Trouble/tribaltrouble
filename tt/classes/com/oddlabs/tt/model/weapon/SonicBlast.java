@@ -1,6 +1,7 @@
 package com.oddlabs.tt.model.weapon;
 
 import com.oddlabs.tt.audio.AbstractAudioPlayer;
+import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.global.Settings;
@@ -94,7 +95,7 @@ public final class SonicBlast implements Magic {
 					owner.getWorld().getRacesResources().getSonicTextures(),
 					owner.getWorld().getAnimationManagerGameTime());
 
-			owner.getWorld().getAudio().newAudio(new AudioParameters(owner.getWorld().getRacesResources().getBlastBlastSound(), start_x, start_y, start_z,
+			owner.getWorld().getAudio().newAudio(new AudioParameters<Audio>(owner.getWorld().getRacesResources().getBlastBlastSound(), start_x, start_y, start_z,
 					AudioPlayer.AUDIO_RANK_MAGIC,
 					AudioPlayer.AUDIO_DISTANCE_MAGIC,
 					AudioPlayer.AUDIO_GAIN_BLAST_BLAST,

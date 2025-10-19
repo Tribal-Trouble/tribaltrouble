@@ -15,7 +15,7 @@ public final class MeshLoader {
 	private MeshLoader() {
 	}
 
-	public static ModelInfo loadMesh(File file, Map name_to_bone_map, float scale) {
+	public static ModelInfo loadMesh(File file, Map<String,Bone> name_to_bone_map, float scale) {
 		try {
 			FileInputStream input_stream = new FileInputStream(file);
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -30,7 +30,7 @@ public final class MeshLoader {
 		}
 	}
 
-	private static ModelInfo createModelInfo(Node node, Map name_to_bone_map, float scale) {
+	private static ModelInfo createModelInfo(Node node, Map<String,Bone> name_to_bone_map, float scale) {
 //		String texture_name = cutTextureName(node.getAttributes().getNamedItem("texture").getNodeValue());
 
 		NodeList polygon_list = ConvertToBinary.getNodeByName("polygons", node).getChildNodes();

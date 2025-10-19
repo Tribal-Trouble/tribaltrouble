@@ -14,6 +14,7 @@ import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.IronSpearWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockSpearWeapon;
+import com.oddlabs.tt.model.weapon.RotatingThrowingWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.model.weapon.ThrowingWeapon;
@@ -65,7 +66,7 @@ public final class Building extends Selectable implements Occupant {
 	private final static float DAMAGED_PARTICLE_ALPHA = 3f;
 
 	private final Map<Class<?>, SupplyContainer> supply_containers = new HashMap<>();
-	private final Map<Class<?>, BuildProductionContainer> build_containers = new HashMap<>();
+	private final Map<Class<? extends RotatingThrowingWeapon>, BuildProductionContainer> build_containers = new HashMap<>();
 	private final DeployContainer<?>[] deploy_containers = new DeployContainer<?>[12];
 	private final LinearEmitter damaged_emitter;
 	private final LinearEmitter production_emitter;

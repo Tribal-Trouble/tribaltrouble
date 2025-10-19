@@ -161,7 +161,7 @@ final class RouterClient implements ConnectionInterface {
 		private final Object instance;
 		private final ARMIInterfaceMethods methods;
 
-		Interface(Class interface_class, Object instance) {
+		Interface(Class<?> interface_class, Object instance) {
 			this.instance = instance;
 			this.methods = new ARMIInterfaceMethods(interface_class);
 		}

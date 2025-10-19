@@ -29,7 +29,7 @@ public final class Convert {
 		}
 		File infile = new File(args[0]);
 		File outfile = new File(args[args.length - 1]);
-		List args_list = new ArrayList();
+		List<String> args_list = new ArrayList<>();
 		for (int i = 1; i < args.length - 1; i++) {
             args_list.add(args[i]);
         }
@@ -54,9 +54,9 @@ System.out.println("outfile = " + outfile);
 		save(outfile, images);
 	}
 
-	private static Layer[] processOperations(Iterator args, Layer[] images) {
+	private static Layer[] processOperations(Iterator<String> args, Layer[] images) {
 		while (args.hasNext()) {
-			String op = (String)args.next();
+			String op = args.next();
 			images = processOperation(op, args, images);
 		}
 		return images;
@@ -66,7 +66,7 @@ System.out.println("outfile = " + outfile);
 		if (op.equals("-mipmaps")) {
 			if (images.length != 1)
 				throw new IllegalArgumentException("Can only create mipmaps from one image, not " + images.length);
-			List mipmaps = new ArrayList();
+			List<Layer> mipmaps = new ArrayList<>();
 			Layer last_mipmap = images[0];
 			int mip_width = last_mipmap.getWidth();
 			int mip_height = last_mipmap.getHeight();
