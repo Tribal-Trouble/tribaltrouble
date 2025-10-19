@@ -10,7 +10,7 @@
 	<property name="tools" value="../tools"/>
 	<property name="nativelib" value="../common/lib/native"/>
 	<property name="commonstatic" value="../common/static"/>
-	<property name="java_source_version" value="1.8"/>
+	<property name="java_source_version" value="8"/>
 
 	<target name="get-cores">
     <property environment="env"/>
@@ -52,7 +52,7 @@
 	<target name="compiledeps"/>
 
 	<target name="compile" depends="init,compiledeps">
-		<javac debug="yes" source="${java_source_version}" target="${java_source_version}" classpath="${classpath}" srcdir="classes" destdir="${build}/classes">
+		<javac debug="yes" release="${java_source_version}" classpath="${classpath}" srcdir="classes" destdir="${build}/classes">
 			<!--			<compilerarg value="-Xmaxerrs"/>
 			<compilerarg value="50"/>-->
 		</javac>
