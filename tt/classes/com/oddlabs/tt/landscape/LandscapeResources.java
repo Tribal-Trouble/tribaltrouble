@@ -86,10 +86,10 @@ public final class LandscapeResources {
 	}
 
 	public static LowDetailModel[] loadTreeLowDetails() {
-		LowDetailModel jungle_lowdetail = (LowDetailModel)Utils.loadObject(Utils.makeURL("/geometry/misc/tree_low.binlowdetail"));
-		LowDetailModel palm_lowdetail = (LowDetailModel)Utils.loadObject(Utils.makeURL("/geometry/misc/palm_low.binlowdetail"));
-		LowDetailModel oak_lowdetail = (LowDetailModel)Utils.loadObject(Utils.makeURL("/geometry/misc/oak_tree_low.binlowdetail"));
-		LowDetailModel pine_lowdetail = (LowDetailModel)Utils.loadObject(Utils.makeURL("/geometry/misc/pine_tree_low.binlowdetail"));
+		LowDetailModel jungle_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/tree_low.binlowdetail"));
+		LowDetailModel palm_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/palm_low.binlowdetail"));
+		LowDetailModel oak_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/oak_tree_low.binlowdetail"));
+		LowDetailModel pine_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/pine_tree_low.binlowdetail"));
 		return new LowDetailModel[]{jungle_lowdetail, palm_lowdetail, oak_lowdetail, pine_lowdetail};
 	}
 

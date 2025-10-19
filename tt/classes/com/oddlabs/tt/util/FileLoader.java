@@ -28,7 +28,7 @@ public final class FileLoader implements FileLoaderInterface {
 		}
 		this.file_channel = tmp_channel;
 		if (LocalEventQueue.getQueue().getDeterministic().log(exception != null))
-			error((IOException)LocalEventQueue.getQueue().getDeterministic().log(exception));
+			error(LocalEventQueue.getQueue().getDeterministic().log(exception));
 		else
 			newFile(file, LocalEventQueue.getQueue().getDeterministic().log(file.length()));
 	}
@@ -58,9 +58,9 @@ public final class FileLoader implements FileLoaderInterface {
 			eof = true;
 		}
 		if (LocalEventQueue.getQueue().getDeterministic().log(exception != null))
-			error((IOException)LocalEventQueue.getQueue().getDeterministic().log(exception));
+			error(LocalEventQueue.getQueue().getDeterministic().log(exception));
 		else
-			data((byte[])LocalEventQueue.getQueue().getDeterministic().log(buffer.array()),
+			data(LocalEventQueue.getQueue().getDeterministic().log(buffer.array()),
 					LocalEventQueue.getQueue().getDeterministic().log(buffer.position()),
 					LocalEventQueue.getQueue().getDeterministic().log(eof));
 	}

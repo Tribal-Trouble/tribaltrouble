@@ -135,7 +135,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		if (delegate_stack.isEmpty())
 			return null;
 		else
-			return (CameraDelegate)delegate_stack.get(delegate_stack.size() - 1);
+			return delegate_stack.get(delegate_stack.size() - 1);
 	}
 
 	private void pushModalDelegate(ModalDelegate delegate) {
@@ -159,7 +159,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		if (top_most && delegate != null)
 			super.addChild(delegate);
 
-		GUIObject object = (GUIObject)focus_backup_stack.remove(index);
+		GUIObject object = focus_backup_stack.remove(index);
 		if (delegate_stack.size() > 0)
 			getDelegate().setFocus();
 		if (top_most && object != null)
@@ -169,7 +169,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 
 	public ModalDelegate getModalDelegate() {
 		if (modal_delegate_stack.size() > 0)
-			return (ModalDelegate)modal_delegate_stack.get(modal_delegate_stack.size() - 1);
+			return modal_delegate_stack.get(modal_delegate_stack.size() - 1);
 		else
 			return null;
 	}
@@ -218,7 +218,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 			matrix_buf.rewind();
 		}
 		for (int i = 0; i < delegate_stack.size(); i++) {
-			((Renderable)delegate_stack.get(i)).displayChanged(width, height);
+			delegate_stack.get(i).displayChanged(width, height);
 		}
 	}
 
@@ -522,7 +522,7 @@ System.out.println("GC Forced");
 
 		// render forced delegates
 		for (int i = 0; i < delegate_stack.size() - 1; i++) {
-			CameraDelegate delegate = (CameraDelegate)delegate_stack.get(i);
+			CameraDelegate delegate = delegate_stack.get(i);
 			if (delegate.forceRender()) {
 				delegate.render();
 			}

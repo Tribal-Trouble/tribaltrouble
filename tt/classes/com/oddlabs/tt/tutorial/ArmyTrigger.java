@@ -19,11 +19,11 @@ public final class ArmyTrigger extends TutorialTrigger {
 
         @Override
 	protected void run(Tutorial tutorial) {
-		Set set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
-		Iterator it = set.iterator();
+		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
+		Iterator<Selectable> it = set.iterator();
 		int count = 0;
 		while (it.hasNext()) {
-			Selectable s = (Selectable)it.next();
+			Selectable s = it.next();
 			if (s instanceof Unit && s.getAbilities().hasAbilities(Abilities.THROW)) {
 				count++;
 			}

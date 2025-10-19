@@ -16,8 +16,8 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 	private final static float[] TEAM_COLOR = new float[]{.3f, .5f, 1f, 1f};
 
 	private final Font font;
-	private final ArrayList history = new ArrayList();
-	private final ArrayList timers = new ArrayList();
+	private final ArrayList<LabelBox> history = new ArrayList<>();
+	private final ArrayList<Float> timers = new ArrayList<>();
 	private final int lines;
 	private final GUIRoot gui_root;
 
@@ -95,7 +95,7 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 	}
 
 	private void removeLine(int index) {
-		LabelBox label_box = (LabelBox)history.get(index);
+		LabelBox label_box = history.get(index);
 		label_box.remove();
 		history.remove(index);
 		timers.remove(index);
@@ -106,7 +106,7 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 	public void animate(float t) {
 		time += t;
 		for (int i = timers.size() - 1; i >= 0; i--) {
-			float remove_time = ((Float)timers.get(i));
+			float remove_time = timers.get(i);
 			if (time > remove_time) {
 				removeLine(i);
 			}
@@ -124,7 +124,7 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 	private void setLabelsPos() {
 		int y = getHeight();
 		for (int i = 0; i < history.size(); i++) {
-			LabelBox label_box = (LabelBox)history.get(i);
+			LabelBox label_box = history.get(i);
 			y -= label_box.getHeight();
 			label_box.setPos(0, y);
 		}

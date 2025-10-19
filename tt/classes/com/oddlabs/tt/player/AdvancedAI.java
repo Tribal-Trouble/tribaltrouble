@@ -437,7 +437,7 @@ else
 	}
 
 	private Selectable[] getPeons(int min_num_peons) {
-		ArrayList builders = new ArrayList();
+		ArrayList<Selectable> builders = new ArrayList<>();
 		if (getIdlePeons() != null) {
                     builders.addAll(Arrays.asList(getIdlePeons()));
 		}

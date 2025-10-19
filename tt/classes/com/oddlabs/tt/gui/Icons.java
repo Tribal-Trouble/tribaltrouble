@@ -168,7 +168,7 @@ public class Icons {
 	}
 
 	private IconQuad[] parseWatch(Node n) {
-		ArrayList list = new ArrayList();
+		ArrayList<IconQuad> list = new ArrayList<>();
 		Node node = getNodeByName("watch", n);
 		NodeList nl = node.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {

@@ -6,6 +6,6 @@ import java.sql.SQLException;
 final class GetFirstIntQuery implements Query {
 	public Object process(ResultSet result) throws SQLException {
 		result.first();
-		return (Integer)result.getInt(1);
+		return result.getInt(1);
 	}
 }

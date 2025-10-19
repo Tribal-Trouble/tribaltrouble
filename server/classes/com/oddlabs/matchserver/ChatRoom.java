@@ -38,7 +38,7 @@ public final class ChatRoom {
 	}
 
 	public static ChatRoom getChatRoom(String room_name) {
-		ChatRoom room = (ChatRoom)chat_rooms.get(room_name);
+		ChatRoom room = chat_rooms.get(room_name);
 		if (room == null) {
 			room = new ChatRoom(room_name);
 			chat_rooms.put(room_name, room);

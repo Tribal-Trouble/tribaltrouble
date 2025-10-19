@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class PocketList {
-	private final List[] pockets;
+	private final List<Object>[] pockets;
 	private int min_list_index;
 	private int max_list_index;
 	private int size;
 
+	@SuppressWarnings("unchecked")
 	public PocketList(int num_pockets) {
 		pockets = new List[num_pockets];
 		for (int i = 0; i < pockets.length; i++) {
@@ -29,7 +30,7 @@ public final class PocketList {
 	}
 
 	public Object removeBest() {
-		List current_pocket = pockets[min_list_index];
+		List<Object> current_pocket = pockets[min_list_index];
 		while (current_pocket.isEmpty()) {
 			min_list_index++;
 			current_pocket = pockets[min_list_index];

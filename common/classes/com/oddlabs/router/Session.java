@@ -15,7 +15,7 @@ final class Session {
 	public final SessionInfo info;
 	public final SessionID session_id;
 	private final Logger logger;
-	private final Set players = new HashSet();
+	private final Set<RouterClient> players = new HashSet<>();
 	private final SessionManager manager;
 	private long initial_time;
 
@@ -45,7 +45,7 @@ final class Session {
 	}
 
 	void checksum() {
-		final Map checksum_to_count = new HashMap();
+		final Map<Integer, Integer> checksum_to_count = new HashMap<>();
 		final int[] best_checksum = new int[1];
 		final boolean[] missing_checksum = new boolean[1];
 		visit(new SessionVisitor() {
@@ -57,8 +57,8 @@ final class Session {
 					missing_checksum[0] = true;
 					return;
 				}
-				Integer client_checksum = (Integer)client.getChecksums().get(0);
-				Integer count = (Integer)checksum_to_count.get(client_checksum);
+				Integer client_checksum = client.getChecksums().get(0);
+				Integer count = checksum_to_count.get(client_checksum);
 				if (count == null) {
 					count = 1;
 				} else {
@@ -73,22 +73,22 @@ final class Session {
 		});
 		if (checksum_to_count.size() == 1)
 			return;
-		final List clients_to_be_kicked = new ArrayList();
+		final List<RouterClient> clients_to_be_kicked = new ArrayList<>();
 		visit((RouterClient client) -> {
                     Integer client_checksum;
                     if (missing_checksum[0]) {
                         if (client.getChecksums().isEmpty())
                             return;
-                        client_checksum = (Integer)client.getChecksums().get(0);
+                        client_checksum = client.getChecksums().get(0);
                     } else
-                        client_checksum = (Integer)client.getChecksums().remove(0);
+                        client_checksum = client.getChecksums().remove(0);
                     if (client_checksum != best_checksum[0]) {
                         logger.log(Level.WARNING, "Kicking client because of checksum error: {0} != {1}", new Object[]{client_checksum, best_checksum[0]});
                         clients_to_be_kicked.add(client);
                     }
                 });
 		for (int i = 0; i < clients_to_be_kicked.size(); i++) {
-			RouterClient client = (RouterClient)clients_to_be_kicked.get(i);
+			RouterClient client = clients_to_be_kicked.get(i);
 			client.doError(true, new IOException("Checksum mismatch"));
 		}
 	}
@@ -124,9 +124,9 @@ final class Session {
 	}
 
 	void visit(SessionVisitor visitor) {
-		Iterator it = players.iterator();
+		Iterator<RouterClient> it = players.iterator();
 		while (it.hasNext()) {
-			RouterClient client = (RouterClient)it.next();
+			RouterClient client = it.next();
 			visitor.visit(client);
 		}
 	}
@@ -138,7 +138,7 @@ final class Session {
         @Override
 	public String toString() {
 		String result = "(Session: info = " + info + " players : (";
-		Iterator it = players.iterator();
+		Iterator<RouterClient> it = players.iterator();
 		while (it.hasNext()) {
 			result += it.next().toString() + " ";
 		}

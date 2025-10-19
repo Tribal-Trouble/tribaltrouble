@@ -50,8 +50,8 @@ public final class TextureGenerator {
 		SpriteList palm_trunk = Resources.findResource(new SpriteFile("/geometry/misc/palm_trunk.binsprite", CROWN_MIPMAP_CUTOFF, true, true, false, false));
 		crowns = new SpriteList[]{jungle_crown, palm_crown};
 		trunks = new SpriteList[]{jungle_trunk, palm_trunk};
-		LowDetailModel jungle_lowdetail = (LowDetailModel)Utils.loadObject(Utils.makeURL("/geometry/misc/tree_low.binlowdetail"));
-		LowDetailModel palm_lowdetail = (LowDetailModel)Utils.loadObject(Utils.makeURL("/geometry/misc/palm_low.binlowdetail"));
+		LowDetailModel jungle_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/tree_low.binlowdetail"));
+		LowDetailModel palm_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/palm_low.binlowdetail"));
 		generateLowDetailTexture(buffer, new LowDetailModel[]{jungle_lowdetail, palm_lowdetail}, dest + "/lowdetail_tree");
 
 		OffscreenRenderer viking_buffer = factory.createRenderer(LOW_DETAIL_TEX_SIZE, LOW_DETAIL_TEX_SIZE, new PixelFormat(Globals.VIEW_BIT_DEPTH, 1, 16, 0, 0), false, false, true);
@@ -61,8 +61,8 @@ public final class TextureGenerator {
 		SpriteList pine_trunk = Resources.findResource(new SpriteFile("/geometry/misc/pine_tree_trunk.binsprite", CROWN_MIPMAP_CUTOFF, true, true, false, false));
 		crowns = new SpriteList[]{oak_crown, pine_crown};
 		trunks = new SpriteList[]{oak_trunk, pine_trunk};
-		LowDetailModel oak_lowdetail = (LowDetailModel)Utils.loadObject(Utils.makeURL("/geometry/misc/oak_tree_low.binlowdetail"));
-		LowDetailModel pine_lowdetail = (LowDetailModel)Utils.loadObject(Utils.makeURL("/geometry/misc/pine_tree_low.binlowdetail"));
+		LowDetailModel oak_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/oak_tree_low.binlowdetail"));
+		LowDetailModel pine_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/pine_tree_low.binlowdetail"));
 		generateLowDetailTexture(viking_buffer, new LowDetailModel[]{oak_lowdetail, pine_lowdetail}, dest + "/viking_lowdetail_tree");
 		Display.destroy();
 	}

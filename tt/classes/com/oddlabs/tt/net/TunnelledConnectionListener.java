@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public final class TunnelledConnectionListener extends AbstractConnectionListener {
-	private final List incoming_connections = new LinkedList();
+	private final List<TunnelledConnection> incoming_connections = new LinkedList<>();
 	private boolean open = true;
 
 	public TunnelledConnectionListener(ConnectionListenerInterface listener_interface) {
@@ -29,7 +29,7 @@ public final class TunnelledConnectionListener extends AbstractConnectionListene
 	}
 	
 	private TunnelledConnection getNextTunnel() {
-		return (TunnelledConnection)incoming_connections.remove(0);
+		return incoming_connections.remove(0);
 	}
 
         @Override

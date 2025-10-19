@@ -125,7 +125,7 @@ public final class SaveDeterministic extends Deterministic {
     protected Path log(Path p, Path def) {
         try {
             // For bacwards compatibility we convert to Serializable File
-            logObject((Serializable) p.toFile());
+            logObject(p.toFile());
             return p;
         } catch(Throwable all) {
             return def;

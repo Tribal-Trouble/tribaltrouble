@@ -22,15 +22,15 @@ public final class IndexListOptimizer {
 /*System.out.println("buffer:");
 dumpBuffer(buffer);*/
 		Index[] lru = new Index[LRU_SIZE];
-		Map indices = new LinkedHashMap();
-		Set triangles = new LinkedHashSet();
+		Map<Short, Index> indices = new LinkedHashMap<>();
+		Set<Triangle> triangles = new LinkedHashSet<>();
 		for (int i = 0; i < buffer.remaining()/3; i++) {
 			short[] index_array = new short[]{buffer.get(buffer.position() + i*3),
 				buffer.get(buffer.position() + i*3 + 1), buffer.get(buffer.position() + i*3 + 2)};
 			Index[] triangle_indices = new Index[index_array.length];
 			for (int j = 0; j < index_array.length; j++) {
 				Short index_key = index_array[j];
-				Index index = (Index)indices.get(index_key);
+				Index index = indices.get(index_key);
 				if (index == null) {
 					index = new Index(index_array[j]);
 					indices.put(index_key, index);
@@ -40,12 +40,12 @@ dumpBuffer(buffer);*/
 			triangles.add(new Triangle(triangle_indices));
 		}
 		int round = 0;
-		Iterator it = indices.values().iterator();
+		Iterator<Index> it = indices.values().iterator();
 		while (it.hasNext()) {
-			Index index = (Index)it.next();
+			Index index = it.next();
 			index.updateScore(-1, round);
 		}
-		List optimal_triangle_list = new ArrayList();
+		List<Triangle> optimal_triangle_list = new ArrayList<>();
 		while (!triangles.isEmpty()) {
 			float best_score = Float.NEGATIVE_INFINITY;
 			Triangle best_triangle = null;
@@ -54,7 +54,7 @@ dumpBuffer(buffer);*/
                             break;
 //System.out.println("index = " + index);
 for (int j = 0; j < index.triangle_list.size(); j++) {
-    Triangle tri = (Triangle)index.triangle_list.get(j);
+    Triangle tri = index.triangle_list.get(j);
     float tri_score = tri.getScore();
     if (tri_score > best_score) {
         best_score = tri_score;
@@ -63,9 +63,9 @@ for (int j = 0; j < index.triangle_list.size(); j++) {
 }
                     }
 			if (best_triangle == null) {
-				it = triangles.iterator();
-				while (it.hasNext()) {
-					Triangle tri = (Triangle)it.next();
+				Iterator<Triangle> tri_it = triangles.iterator();
+				while (tri_it.hasNext()) {
+					Triangle tri = tri_it.next();
 					float tri_score = tri.getScore();
 					if (tri_score > best_score) {
 						best_score = tri_score;
@@ -102,7 +102,7 @@ for (int j = 0; j < index.triangle_list.size(); j++) {
 		}
 		int old_position = buffer.position();
 		for (int i = 0; i < optimal_triangle_list.size(); i++) {
-			Triangle tri = (Triangle)optimal_triangle_list.get(i);
+			Triangle tri = optimal_triangle_list.get(i);
 			tri.addToBuffer(buffer);
 		}
 		assert !buffer.hasRemaining(): buffer.remaining();
@@ -119,7 +119,7 @@ dumpBuffer(buffer);*/
 	}
 
 	private final static class Index {
-		private final List triangle_list = new ArrayList();
+		private final List<Triangle> triangle_list = new ArrayList<>();
 		private final short index;
 
 		private float score;

@@ -36,7 +36,7 @@ public final class TaskThread {
 			this.result = e;
 		}
 
-                @Override
+        @Override
 		public void deliverResult(TaskExecutorLoopbackInterface<T> callback) {
 			callback.taskFailed(result);
 		}
@@ -67,15 +67,15 @@ public final class TaskThread {
 						// ignore
 					}
 				}
-				task = (BlockingTask)tasks.get(0);
+				task = tasks.get(0);
 				callable = lookupCallable(task);
 			}
-			TaskResult result;
+			TaskResult<?> result;
 			try {
 				Object callable_result = callable.call();
-				result = new TaskSucceeded(callable_result);
+				result = new TaskSucceeded<>(callable_result);
 			} catch (Exception e) {
-				result = new TaskFailed(e);
+				result = new TaskFailed<>(e);
 			}
 			synchronized (lock) {
 				task.result = result;
@@ -91,7 +91,7 @@ public final class TaskThread {
 		return deterministic;
 	}
 
-	public Task addTask(Callable callable) {
+	public Task addTask(Callable<?> callable) {
 		BlockingTask task;
 		synchronized (lock) {
 			int task_id = current_id++;
@@ -112,18 +112,18 @@ public final class TaskThread {
 	public void poll() {
 		while (true) {
 			BlockingTask task;
-			Callable callable;
+			Callable<?> callable;
 			synchronized (lock) {
 				if (!deterministic.log(!finished_tasks.isEmpty())) {
 					// Check for cancelled task blocking thread
 					if (tasks.size() > 0) {
-						BlockingTask current_task = (BlockingTask)tasks.get(0);
+						BlockingTask current_task = tasks.get(0);
 						if (current_task.cancelled && thread != null)
 							thread.interrupt();
 					}
 					return;
 				}
-				task = (BlockingTask)deterministic.log(deterministic.isPlayback() ? null : finished_tasks.remove(0));
+				task = deterministic.log(deterministic.isPlayback() ? null : finished_tasks.remove(0));
 				callable = lookupCallable(task);
 			}
 			if (!task.cancelled)
@@ -132,7 +132,7 @@ public final class TaskThread {
 	}
 
 	private Callable lookupCallable(BlockingTask task) {
-		return (Callable)id_to_callable.get(task.id);
+		return id_to_callable.get(task.id);
 	}
 
 	public void close() {

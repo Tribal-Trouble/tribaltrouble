@@ -16,10 +16,10 @@ public final class MoveUnitTrigger extends TutorialTrigger {
 
         @Override
 	protected void run(Tutorial tutorial) {
-		Set set = tutorial.getViewer().getSelection().getCurrentSelection().getSet(); 
-		Iterator it = set.iterator();
+		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet(); 
+		Iterator<Selectable> it = set.iterator();
 		while (it.hasNext()) {
-			Selectable s = (Selectable)it.next();
+			Selectable s = it.next();
 			if (s.getPrimaryController() instanceof WalkController) {
 				tutorial.done(TutorialForm.TUTORIAL_CAMERA);
 			}

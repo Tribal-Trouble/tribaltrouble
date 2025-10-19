@@ -18,7 +18,7 @@ final class RouterClient implements ConnectionInterface {
 	private final Logger logger;
 	private final AbstractConnection connection;
 	private final Router router;
-	private final List checksums = new LinkedList();
+	private final List<Integer> checksums = new LinkedList<>();
 	private int client_id;
 	private SessionManager.Timeout timeout;
 	private Session session;
@@ -35,7 +35,7 @@ final class RouterClient implements ConnectionInterface {
                 });
 	}
 
-	List getChecksums() {
+	List<Integer> getChecksums() {
 		return checksums;
 	}
 

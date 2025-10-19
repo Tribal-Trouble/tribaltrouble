@@ -71,7 +71,7 @@ public final class SerializableDisplayMode implements Serializable {
                 System.out.println(mode + " failed because of " + e.getMessage());
             }
         }
-        last_exception = (LWJGLException) deterministic.log(last_exception);
+        last_exception = deterministic.log(last_exception);
         if (last_exception != null)
             throw last_exception;
     }

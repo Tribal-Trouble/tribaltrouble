@@ -12,7 +12,7 @@ public final class SpriteList {
 	private final int[] type_array;
 
 	public SpriteList(SpriteFile sprite_file) {
-		Object[] sprites_and_animations = (Object[])Utils.loadObject(sprite_file.getURL());
+		Object[] sprites_and_animations = Utils.loadObject(sprite_file.getURL());
 		SpriteInfo[] sprite_infos = (SpriteInfo[])sprites_and_animations[0];
 		AnimationInfo[] animation_infos = (AnimationInfo[])sprites_and_animations[1];
 		bounds = new BoundingBox[animation_infos.length];

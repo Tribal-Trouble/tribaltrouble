@@ -16,7 +16,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 	private final static short HEADER_SIZE = 2;
 
 	private final ByteBuffer read_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-	private final List back_log_list = new LinkedList();
+	private final List<ARMIEvent> back_log_list = new LinkedList<>();
 	private final ByteBuffer write_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 	private final ConnectionPeerInterface peer_interface;
 	private final boolean ping_reply;
@@ -131,9 +131,9 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		else
 			doResetWriting();
 		if (network.getDeterministic().log(exception != null))
-			error((IOException)network.getDeterministic().log(exception));
+			error(network.getDeterministic().log(exception));
 		else if (network.getDeterministic().log(local_address != null))
-			connected((InetAddress)network.getDeterministic().log(local_address));
+			connected(network.getDeterministic().log(local_address));
 	}
 
 	public void dnsError(IOException e) {
@@ -183,7 +183,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 	private boolean writeNextEvent() {
 		if (back_log_list.isEmpty())
 			return false;
-		ARMIEvent event = (ARMIEvent)back_log_list.get(0);
+		ARMIEvent event = back_log_list.get(0);
 		boolean success = writeEvent(event);
 		if (success)
 			back_log_list.remove(0);
@@ -244,7 +244,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 			exception = e;
 		}
 		if (network.getDeterministic().log(exception != null))
-			throw (IOException)network.getDeterministic().log(exception);
+			throw network.getDeterministic().log(exception);
 		else
 			num_bytes_read = network.getDeterministic().log(num_bytes_read);
 		int new_position = network.getDeterministic().log(read_buffer.position());
@@ -304,7 +304,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 				exception = e;
 			}
 			if (network.getDeterministic().log(exception != null))
-				throw (IOException)network.getDeterministic().log(exception);
+				throw network.getDeterministic().log(exception);
 			else
 				success = network.getDeterministic().log(success);
 			assert success; // finishConnect should always succeed (or throw), because we are called on OP_CONNECT
@@ -316,7 +316,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 			int new_ops = (interest_ops | SelectionKey.OP_READ) & ~SelectionKey.OP_CONNECT;
 			if (!network.getDeterministic().isPlayback())
 				key.interestOps(new_ops);
-			connected((InetAddress)network.getDeterministic().log(network.getDeterministic().isPlayback() ? null : channel.socket().getLocalAddress()));
+			connected(network.getDeterministic().log(network.getDeterministic().isPlayback() ? null : channel.socket().getLocalAddress()));
 		} else {
 			network.getDeterministic().checkpoint();
 			if (writing)

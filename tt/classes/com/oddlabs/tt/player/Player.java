@@ -299,7 +299,7 @@ public final class Player implements PlayerInterface {
 		Iterator<Selectable> it = units.iterator();
 		int status = 0;
 		while (it.hasNext()) {
-			Selectable s = (Selectable)it.next();
+			Selectable s = it.next();
 			status += s.getStatusValue();
 		}
 		return status;
@@ -314,7 +314,7 @@ public final class Player implements PlayerInterface {
                     Set<Selectable> units = player.getUnits().getSet();
                     Iterator<Selectable> it = units.iterator();
                     while (it.hasNext()) {
-                        Selectable s = (Selectable)it.next();
+                        Selectable s = it.next();
                         if (!(type.isInstance(s)) || s == target) {
                             continue;
                         }

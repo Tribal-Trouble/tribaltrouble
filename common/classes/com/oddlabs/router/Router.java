@@ -18,7 +18,7 @@ public final class Router implements ConnectionListenerInterface {
 	private final Logger logger;
 	private final SessionManager manager;
 	private final AbstractConnectionListener listener;
-	private final Set clients = new LinkedHashSet();
+	private final Set<RouterClient> clients = new LinkedHashSet<>();
 	private final RouterListener router_listener;
 	private final int port;
 
@@ -71,9 +71,9 @@ public final class Router implements ConnectionListenerInterface {
 	public void close() {
 		if (listener != null)
 			listener.close();
-		Iterator it = clients.iterator();
+		Iterator<RouterClient> it = clients.iterator();
 		while (it.hasNext()) {
-			RouterClient client = (RouterClient)it.next();
+			RouterClient client = it.next();
 			it.remove();
 			client.close(false);
 		}

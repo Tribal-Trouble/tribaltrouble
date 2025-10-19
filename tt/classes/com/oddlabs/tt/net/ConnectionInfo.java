@@ -7,7 +7,7 @@ import java.util.List;
 
 public final class ConnectionInfo {
 	private final int priority;
-	private final List backlog = new ArrayList();
+	private final List<ARMIEvent> backlog = new ArrayList<>();
 
 	public ConnectionInfo(int priority) {
 		this.priority = priority;
@@ -21,7 +21,7 @@ public final class ConnectionInfo {
 		backlog.add(event);
 	}
 
-	public List getBackLog() {
+	public List<ARMIEvent> getBackLog() {
 		return backlog;
 	}
 }

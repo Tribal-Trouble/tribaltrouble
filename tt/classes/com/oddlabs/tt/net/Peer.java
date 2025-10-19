@@ -15,7 +15,7 @@ public final class Peer implements PeerHubInterface {
 	private final int peer_index;
 	private final Player player;
 	private final PeerHub peer_hub;
-	private final List event_queue = new LinkedList();
+	private final List<GameEvent> event_queue = new LinkedList<>();
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(PlayerInterface.class);
 	private final PeerHubInterface peerhub_interface;
 	
@@ -42,7 +42,7 @@ public final class Peer implements PeerHubInterface {
 
 	public void executeEvents(int tick) throws IllegalARMIEventException {
 		while (!event_queue.isEmpty()) {
-			GameEvent game_event = (GameEvent)event_queue.get(0);
+			GameEvent game_event = event_queue.get(0);
 			if (game_event.tick != tick)
 				return;
 			event_queue.remove(0);

@@ -50,9 +50,9 @@ public final class PeerHub implements Animated, RouterHandler {
 	private final PlayerInterface player_interface;
 	private final int num_participants;
 	private final Peer[] peer_index_to_peer;
-	private final Map player_to_peer = new LinkedHashMap();
-	private final Map peer_to_player = new LinkedHashMap();
-	private final Set nonhuman_players = new HashSet();
+	private final Map<Player, Peer> player_to_peer = new LinkedHashMap<>();
+	private final Map<Peer, Player> peer_to_player = new LinkedHashMap<>();
+	private final Set<Player> nonhuman_players = new HashSet<>();
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;
 	private final RouterClient router_client;
@@ -86,7 +86,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		this.manager = manager;
 
 		GameArgumentReader argument_reader = new GameArgumentReader(distributable_table);
-		List peer_index_to_peer_list = new ArrayList();
+		List<Peer> peer_index_to_peer_list = new ArrayList<>();
 		Player[] players = local_player.getWorld().getPlayers();
 		int local_peer_index = -1;
 		if (!is_multiplayer) {
@@ -208,7 +208,7 @@ public final class PeerHub implements Animated, RouterHandler {
 	}
 
 	private Peer locatePeerFromPlayer(Player player) {
-		return (Peer)player_to_peer.get(player);
+		return player_to_peer.get(player);
 	}
 
 	private boolean isDisconnected(Peer peer) {
@@ -216,7 +216,7 @@ public final class PeerHub implements Animated, RouterHandler {
 	}
 
 	private Player getPlayerFromPeer(Peer peer) {
-		return (Player)peer_to_player.get(peer);
+		return peer_to_player.get(peer);
 	}
 
 	public boolean isAlive(Player player) {
@@ -311,7 +311,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		Network.getMatchmakingClient().getInterface().updateGameStatus(getTick(), status);
 	}
 
-	private Iterator getPeerIterator()  {
+	private Iterator<Peer> getPeerIterator()  {
 		return peer_to_player.keySet().iterator();
 	}
 
@@ -350,10 +350,10 @@ public final class PeerHub implements Animated, RouterHandler {
 	}
 
 	public void sendChat(String text, boolean team_only) {
-		Iterator it = getPeerIterator();
+		Iterator<Peer> it = getPeerIterator();
 		int local_team = local_player.getPlayerInfo().getTeam();
 		while (it.hasNext()) {
-			Peer peer = (Peer)it.next();
+			Peer peer = it.next();
 			int peer_team = peer.getPlayerInfo().getTeam();
 			if (!team_only || local_team == peer_team)
 				peer.getPeerHubInterface().chat(text, team_only);
@@ -361,10 +361,10 @@ public final class PeerHub implements Animated, RouterHandler {
 	}
 
 	public void sendBeacon(float x, float y) {
-		Iterator it = getPeerIterator();
+		Iterator<Peer> it = getPeerIterator();
 		int local_team = local_player.getPlayerInfo().getTeam();
 		while (it.hasNext()) {
-			Peer peer = (Peer)it.next();
+			Peer peer = it.next();
 			int peer_team = peer.getPlayerInfo().getTeam();
 			if (local_team == peer_team)
 				peer.getPeerHubInterface().beacon(x, y);

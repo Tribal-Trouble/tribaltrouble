@@ -16,7 +16,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 	private final NetworkSelector network;
 	private SelectionKey key;
 
-	private List incoming_connections = new LinkedList();
+	private List<SocketChannel> incoming_connections = new LinkedList<>();
 	
 	private static SelectionKey createServerSocket(NetworkSelector network, InetAddress ip, int port) throws IOException {
 		ServerSocketChannel server_channel = ServerSocketChannel.open();
@@ -41,7 +41,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 			exception = e;
 		}
 		if (network.getDeterministic().log(exception != null))
-			error((IOException)network.getDeterministic().log(exception));
+			error(network.getDeterministic().log(exception));
 		else
 			network.attachToKey(key, this);
 	}
@@ -69,7 +69,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 			}
 		}
 		if (network.getDeterministic().log(exception != null))
-			throw (IOException)network.getDeterministic().log(exception);
+			throw network.getDeterministic().log(exception);
 		incoming_connections.add(channel);
 		notifyIncomingConnection();
 	}
@@ -85,15 +85,15 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 	private void notifyIncomingConnection() {
 		InetAddress remote_inet_address = null;
 		if (!network.getDeterministic().isPlayback()) {
-			SocketChannel channel = (SocketChannel)incoming_connections.get(0);
+			SocketChannel channel = incoming_connections.get(0);
 			SocketAddress remote_address = channel.socket().getRemoteSocketAddress();
 			remote_inet_address = ((InetSocketAddress)remote_address).getAddress();
 		}
-		incoming((InetAddress)network.getDeterministic().log(remote_inet_address));
+		incoming(network.getDeterministic().log(remote_inet_address));
 	}
 
 	private SocketChannel removeNextChannel() {
-		return (SocketChannel)incoming_connections.remove(0);
+		return incoming_connections.remove(0);
 	}
 	
 	private SocketChannel getNextConnection() {

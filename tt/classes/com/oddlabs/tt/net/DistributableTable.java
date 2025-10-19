@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 public final class DistributableTable {
 	private final HashTable distributables = new HashTable();
-	private final HashMap names = new HashMap();
+	private final HashMap<Distributable, Integer> names = new HashMap<>();
 	private int current_name = 1;
 
 	public int register(Distributable distributable) {
@@ -19,7 +19,7 @@ public final class DistributableTable {
 	}
 
 	public void unregister(Distributable distributable) {
-		Integer name = (Integer)names.remove(distributable);
+		Integer name = names.remove(distributable);
 		assert name != null: "Error unregistering name.";
 
 		Object o = distributables.remove(name);
@@ -27,7 +27,7 @@ public final class DistributableTable {
 	}
 
 	public int getName(Distributable distributable) {
-		Integer val = (Integer)names.get(distributable);
+		Integer val = names.get(distributable);
 		assert val != null : distributable + " is not registrered.";
 		return val;
 	}

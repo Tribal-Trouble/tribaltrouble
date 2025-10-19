@@ -10,8 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 final class SessionManager {
-	private final Map id_to_session = new HashMap();
-	private final SortedMap timeouts = new TreeMap();
+	private final Map<SessionID, Session> id_to_session = new HashMap<>();
+	private final SortedMap<Timeout, RouterClient> timeouts = new TreeMap<>();
 	private final MonotoneTimeManager time_manager;
 	private final Logger logger;
 
@@ -23,7 +23,7 @@ final class SessionManager {
 	}
 
 	Session get(SessionID session_id, SessionInfo session_info, int client_id) {
-		Session session = (Session)id_to_session.get(session_id);
+		Session session = id_to_session.get(session_id);
 		if (session == null) {
 			session = new Session(logger, session_id, session_info, this);
 			id_to_session.put(session_id, session);
@@ -38,7 +38,7 @@ final class SessionManager {
 	long getNextTimeout() {
 		if (timeouts.isEmpty())
 			return 0;
-		Timeout timeout = (Timeout)timeouts.firstKey();
+		Timeout timeout = timeouts.firstKey();
 		long timeout_value = timeout.next_timeout - time_manager.getMillis();
 		return StrictMath.max(1, timeout_value);
 	}
@@ -46,8 +46,8 @@ final class SessionManager {
 	void process() {
 		long millis = time_manager.getMillis();
 		while (timeouts.size() > 0) {
-			Timeout timeout = (Timeout)timeouts.firstKey();
-			RouterClient client = (RouterClient)timeouts.get(timeout);
+			Timeout timeout = timeouts.firstKey();
+			RouterClient client = timeouts.get(timeout);
 			if (client.getSession().getNumPlayers() > 0) {
 				if (!heartbeat(timeout.next_timeout, client, millis))
 					return;
@@ -128,7 +128,7 @@ final class SessionManager {
 		return (int)(millis - session.getInitialTime());
 	}
 
-	static final class Timeout implements Comparable {
+	static final class Timeout implements Comparable<Timeout> {
 		private final int id;
 
 		private final long next_timeout;
@@ -139,8 +139,8 @@ final class SessionManager {
 		}
 
                 @Override
-		public int compareTo(Object other) {
-			Timeout other_session = (Timeout)other;
+		public int compareTo(Timeout other) {
+			Timeout other_session = other;
 			int diff = (int)(next_timeout - other_session.next_timeout);
 			if (diff != 0)
 				return diff;

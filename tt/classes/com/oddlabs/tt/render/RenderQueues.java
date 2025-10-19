@@ -69,7 +69,7 @@ public final class RenderQueues {
 
 	public SpriteKey register(SpriteFile sprite_file, int tex_index) {
 		int index = sprite_list_lookup.size();
-		SpriteList sprite_list = (SpriteList)Resources.findResource(sprite_file);
+		SpriteList sprite_list = Resources.findResource(sprite_file);
 		SpriteRenderer sprite_renderer = new SpriteRenderer(sprite_list, tex_index);
 		sprite_list_lookup.add(sprite_renderer);
 		registerSpriteRenderer(sprite_renderer);

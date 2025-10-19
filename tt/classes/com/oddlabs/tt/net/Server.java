@@ -35,7 +35,7 @@ public final class Server implements ConnectionListenerInterface {
 	private final WorldGenerator generator;
 	private final Game game;
 	private final AbstractConnectionListener local_listener;
-	private final Map connection_to_client = new LinkedHashMap();
+	private final Map<AbstractConnection, ClientConnection> connection_to_client = new LinkedHashMap<>();
 	private final Random random;
 	private AbstractConnectionListener tunnelled_listener;
 
@@ -60,7 +60,7 @@ public final class Server implements ConnectionListenerInterface {
 		}
 	}
 
-	private Iterator getClientIterator() {
+	private Iterator<ClientConnection> getClientIterator() {
 		return connection_to_client.values().iterator();
 	}
 	
@@ -69,7 +69,7 @@ public final class Server implements ConnectionListenerInterface {
 	}
 
 	private ClientConnection getClientFromConnection(AbstractConnection conn) {
-		return (ClientConnection)connection_to_client.get(conn);
+		return connection_to_client.get(conn);
 	}
 
 	private void unregisterGame() {
@@ -86,9 +86,9 @@ public final class Server implements ConnectionListenerInterface {
 	}
 
 	private void closeConnections() {
-		Iterator it = connection_to_client.keySet().iterator();
+		Iterator<AbstractConnection> it = connection_to_client.keySet().iterator();
 		while (it.hasNext()) {
-			AbstractConnection conn = (AbstractConnection)it.next();
+			AbstractConnection conn = it.next();
 			conn.close();
 		}
 		connection_to_client.clear();
@@ -102,9 +102,9 @@ public final class Server implements ConnectionListenerInterface {
 
 	private int getNumReady() {
 		int count = 0;
-		Iterator it = getClientIterator();
+		Iterator<ClientConnection> it = getClientIterator();
 		while (it.hasNext()) {
-			ClientConnection client = (ClientConnection)it.next();
+			ClientConnection client = it.next();
 			if (client.getClient().getPlayerSlot().isReady())
 				count++;
 		}
@@ -135,9 +135,9 @@ public final class Server implements ConnectionListenerInterface {
 	}
 
 	private ClientConnection locateClientForSlot(PlayerSlot player_slot) {
-		Iterator it = getClientIterator();
+		Iterator<ClientConnection> it = getClientIterator();
 		while (it.hasNext()) {
-			ClientConnection client = (ClientConnection)it.next();
+			ClientConnection client = it.next();
 			if (client.getClient().getPlayerSlot() == player_slot)
 				return client;
 		}
@@ -217,25 +217,25 @@ public final class Server implements ConnectionListenerInterface {
 	private void broadcastPlayers(boolean reset_ready) {
 		if (reset_ready)
 			resetReady();
-		Iterator it = getClientIterator();
+		Iterator<ClientConnection> it = getClientIterator();
 		while (it.hasNext()) {
-			ClientConnection client = (ClientConnection)it.next();
+			ClientConnection client = it.next();
 			client.getClientInterface().setPlayers(players);
 		}
 	}
 
 	public void chat(PlayerSlot player_slot, String chat) {
-		Iterator it = getClientIterator();
+		Iterator<ClientConnection> it = getClientIterator();
 		while (it.hasNext()) {
-			ClientConnection client = (ClientConnection)it.next();
+			ClientConnection client = it.next();
 			client.getClientInterface().chat(player_slot.getSlot(), chat);
 		}
 	}
 	
 	private void broadcastInits() {
-		Iterator it = getClientIterator();
+		Iterator<ClientConnection> it = getClientIterator();
 		while (it.hasNext()) {
-			ClientConnection client = (ClientConnection)it.next();
+			ClientConnection client = it.next();
 			int session_id = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick()).nextInt();
 			client.getClientInterface().startGame(session_id);
 		}

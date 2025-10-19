@@ -13,10 +13,10 @@ public final class RallyPointTrigger extends TutorialTrigger {
 
         @Override
 	protected void run(Tutorial tutorial) {
-		Set set = tutorial.getViewer().getSelection().getCurrentSelection().getSet(); 
-		Iterator it = set.iterator();
+		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet(); 
+		Iterator<Selectable> it = set.iterator();
 		while (it.hasNext()) {
-			Selectable s = (Selectable)it.next();
+			Selectable s = it.next();
 			if (s instanceof Building) {
 				Building b = (Building)s;
 				if (b.hasRallyPoint())

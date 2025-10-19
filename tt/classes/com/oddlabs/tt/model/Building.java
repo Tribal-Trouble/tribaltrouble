@@ -209,7 +209,7 @@ public final class Building extends Selectable implements Occupant {
 
 	public BuildSupplyContainer getBuildSupplyContainer(Class key) {
 		assert !isDead();
-		return (BuildSupplyContainer)build_containers.get(key);
+		return build_containers.get(key);
 	}
 
 	public DeployContainer getDeployContainer(int key) {

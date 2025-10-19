@@ -170,7 +170,7 @@ public final class LocalInput {
                             modes.add(mode);
                         }
                     }
-			modes = (List)LocalEventQueue.getQueue().getDeterministic().log(modes);
+			modes = LocalEventQueue.getQueue().getDeterministic().log(modes);
 
 			SerializableDisplayMode target_mode = new SerializableDisplayMode(0, 0, 0, 0);
 			SortedSet set = new TreeSet(new SerializableDisplayModeComparator(target_mode));
@@ -186,7 +186,7 @@ public final class LocalInput {
 	}
 
 	public static SerializableDisplayMode getCurrentMode() {
-		return (SerializableDisplayMode)LocalEventQueue.getQueue().getDeterministic().log(new SerializableDisplayMode(Display.getDisplayMode()));
+		return LocalEventQueue.getQueue().getDeterministic().log(new SerializableDisplayMode(Display.getDisplayMode()));
 	}
 
 	public static int getNativeCursorCaps() {
@@ -229,7 +229,7 @@ public final class LocalInput {
 	}
 
 	private void modeSwitched() {
-		SerializableDisplayMode new_mode = (SerializableDisplayMode)LocalEventQueue.getQueue().getDeterministic().log(new SerializableDisplayMode(Display.getDisplayMode()));
+		SerializableDisplayMode new_mode = LocalEventQueue.getQueue().getDeterministic().log(new SerializableDisplayMode(Display.getDisplayMode()));
 		view_width = new_mode.getWidth();
 		view_height = new_mode.getHeight();
 		System.out.println("Switched mode to " + new_mode);

@@ -38,10 +38,10 @@ public final class Utils {
 		InetAddress best_address = null;
 out:
 		while (interfaces.hasMoreElements()) {
-			NetworkInterface network_interface = (NetworkInterface)interfaces.nextElement();
+			NetworkInterface network_interface = interfaces.nextElement();
 			Enumeration<InetAddress> addresses = network_interface.getInetAddresses();
 			while (addresses.hasMoreElements()) {
-				InetAddress address = (InetAddress)addresses.nextElement();
+				InetAddress address = addresses.nextElement();
 				if (address.isLoopbackAddress()) {
 					best_address = address;
 					// Prefer ipv4 addresses because of BUG 6230761
