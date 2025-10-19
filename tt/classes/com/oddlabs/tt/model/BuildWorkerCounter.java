@@ -1,6 +1,6 @@
 package com.oddlabs.tt.model;
 
-public final class BuildWorkerCounter<S extends Supply> extends SupplyCounter<S> {
+public final class BuildWorkerCounter<S extends Supply> extends SupplyCounter {
 	public BuildWorkerCounter(Building building, Class<S> supply_type) {
 		super(building, supply_type);
 		setDelta(building.getBuildSupplyContainer(supply_type).getNumOrders());

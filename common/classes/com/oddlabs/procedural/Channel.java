@@ -1021,7 +1021,7 @@ public final class Channel {
 			// flood fill
 			boolean[][] marked = new boolean[width][height];
 			marked[init_x][init_y] = true;
-			List<int[]> list = new java.util.LinkedList();
+			List<int[]> list = new java.util.LinkedList<>();
 			list.add(new int[]{init_x, init_y});
 			while (list.size() > 0) {
 				int[] coords = list.remove(0);
@@ -1069,7 +1069,7 @@ public final class Channel {
 			// flood fill
 			boolean[][] marked = new boolean[width][height];
 			marked[init_x][init_y] = true;
-			List list = new java.util.LinkedList();
+			List<int[]> list = new java.util.LinkedList<>();
 			list.add(new int[]{init_x, init_y});
 			while (list.size() > 0) {
 				int[] coords = (int[])list.remove(0);

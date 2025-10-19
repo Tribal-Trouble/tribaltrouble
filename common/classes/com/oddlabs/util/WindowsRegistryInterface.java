@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 
 public final class WindowsRegistryInterface {
 	public static String queryRegistrationKey(String root, String subkey, String value) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException, InvocationTargetException {
-		Class org_lwjgl_opengl_WindowsRegistry = Class.forName("org.lwjgl.opengl.WindowsRegistry");
+		Class<?> org_lwjgl_opengl_WindowsRegistry = Class.forName("org.lwjgl.opengl.WindowsRegistry");
 		Field root_key_enum_field = org_lwjgl_opengl_WindowsRegistry.getDeclaredField(root);
 		root_key_enum_field.setAccessible(true);
 		int root_key_enum = root_key_enum_field.getInt(null);

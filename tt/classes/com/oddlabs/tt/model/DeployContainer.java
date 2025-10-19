@@ -1,16 +1,16 @@
 package com.oddlabs.tt.model;
 
-public class DeployContainer<S extends Supply> extends SupplyContainer {
+public class DeployContainer extends SupplyContainer {
 	private final Building building;
 	private final DeployType deploy_type;
-	private final Class<S> supply_type;
+	private final Class<?> supply_type;
 	private final float seconds_per_deploy;
 
 	private float time = 0;
 	private int num_orders = 0;
 
 
-	public DeployContainer(Building building, float seconds_per_deploy, DeployType deploy_type, Class<S> supply_type) {
+	public DeployContainer(Building building, float seconds_per_deploy, DeployType deploy_type, Class<?> supply_type) {
 		super(Integer.MAX_VALUE);
 		this.building = building;
 		this.seconds_per_deploy = seconds_per_deploy;

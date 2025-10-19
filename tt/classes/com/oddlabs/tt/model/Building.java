@@ -55,7 +55,7 @@ public final class Building extends Selectable implements Occupant {
 
 	private final Map<Class<?>, SupplyContainer> supply_containers = new HashMap<>();
 	private final Map<Class<?>, BuildProductionContainer> build_containers = new HashMap<>();
-	private final Map<DeployType, DeployContainer<?>> deploy_containers = new EnumMap<>(DeployType.class);
+	private final Map<DeployType, DeployContainer> deploy_containers = new EnumMap<>(DeployType.class);
 	private final LinearEmitter damaged_emitter;
 	private final LinearEmitter production_emitter;
 
@@ -148,14 +148,14 @@ public final class Building extends Selectable implements Occupant {
 				weapons_producer.animate(t);
 
 			int num_deploying = 0;
-                    for (DeployContainer<?> deploy_container : deploy_containers.values()) {
+                    for (DeployContainer deploy_container : deploy_containers.values()) {
                         if (deploy_container.getNumSupplies() > 0) {
                             num_deploying++;
                         }
                     }
 			if (num_deploying > 0) {
 				float amount = t/num_deploying;
-                        for (DeployContainer<?> deploy_container : deploy_containers.values()) {
+                        for (DeployContainer deploy_container : deploy_containers.values()) {
                             if (deploy_container.getNumSupplies() > 0) {
                                 deploy_container.deploy(amount);
                             }
@@ -201,7 +201,7 @@ public final class Building extends Selectable implements Occupant {
 		return build_containers.get(key);
 	}
 
-	public DeployContainer<?> getDeployContainer(DeployType type) {
+	public DeployContainer getDeployContainer(DeployType type) {
 		assert !isDead();
 		return deploy_containers.get(type);
 	}
@@ -339,7 +339,7 @@ public final class Building extends Selectable implements Occupant {
 			rally_point = this;
 	}
 
-	private void createTransporters(int amount, Class supply) {
+	private void createTransporters(int amount, Class<? extends Supply> supply) {
 		Race race = getOwner().getRace();
 		checkRallyPoint();
 		for (int i = 0; i < amount; i++) {
@@ -570,7 +570,7 @@ public final class Building extends Selectable implements Occupant {
 			int result = getOwner().getUnitCountContainer().increaseSupply(-worker_container.getNumSupplies());
 			assert result == -worker_container.getNumSupplies();
 		}
-            for (DeployContainer<?> deploy_container : deploy_containers.values()) {
+            for (DeployContainer deploy_container : deploy_containers.values()) {
                 int result = getOwner().getUnitCountContainer().increaseSupply(-deploy_container.getNumSupplies());
                 assert result == -deploy_container.getNumSupplies();
             }
@@ -718,14 +718,14 @@ public final class Building extends Selectable implements Occupant {
 		return 0;
 	}
 
-	public void fillSupplies(Class key, int max) {
+	public void fillSupplies(Class<?> key, int max) {
 		SupplyContainer container = getSupplyContainer(key);
 		if (container != null) {
 			container.increaseSupply(StrictMath.min(container.getMaxSupplyCount() - container.getNumSupplies(), max));
 		}
 	}
 
-	public void removeSupplies(Class key) {
+	public void removeSupplies(Class<?> key) {
 		SupplyContainer container = getSupplyContainer(key);
 		if (container != null) {
 			container.increaseSupply(-container.getNumSupplies());

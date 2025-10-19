@@ -8,12 +8,12 @@ import com.oddlabs.util.Quad;
 
 import java.util.ResourceBundle;
 
-public class StatusIcon<S extends Supply> extends GUIObject implements ToolTip {
+public class StatusIcon extends GUIObject implements ToolTip {
 	private final Quad icon_quad;
 	private final TextField label;
 	private final String tooltip;
 
-	private SupplyCounter<S> counter;
+	private SupplyCounter counter;
 	private int text_count = -1;
 	
 	public StatusIcon(int label_width, Quad icon, String tooltip) {
@@ -27,7 +27,7 @@ public class StatusIcon<S extends Supply> extends GUIObject implements ToolTip {
 		label.setPos(0, (getHeight() - label.getFont().getHeight())/2);
 	}
 
-	public final void setCounter(SupplyCounter<S> counter) {
+	public final void setCounter(SupplyCounter counter) {
 		this.counter = counter;
 	}
 

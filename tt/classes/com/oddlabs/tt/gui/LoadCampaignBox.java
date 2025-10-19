@@ -43,7 +43,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 		refresh();
 	}
 
-	public static void saveSavegames(CampaignState[] states, DeterministicSerializerLoopbackInterface callback) {
+	public static <T> void saveSavegames(CampaignState[] states, DeterministicSerializerLoopbackInterface<T> callback) {
 		DeterministicSerializer.save(LocalEventQueue.getQueue().getDeterministic(), states, getSaveSavegamesFile(), callback);
 	}
 
@@ -51,7 +51,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 		return LocalInput.getGameDir().resolve(SAVEGAMES_FILE_NAME);
 	}
 
-	public static void loadSavegames(DeterministicSerializerLoopbackInterface callback) {
+	public static <T> void loadSavegames(DeterministicSerializerLoopbackInterface<T>  callback) {
 		DeterministicSerializer.load(LocalEventQueue.getQueue().getDeterministic(), getLoadSavegamesFile(), callback);
 	}
 
@@ -63,12 +63,12 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 			return file;
 	}
 
-        @Override
+    @Override
 	public void setFocus() {
 		list_box.setFocus();
 	}
 
-        @Override
+    @Override
 	protected void renderGeometry() {
 	}
 
