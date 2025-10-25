@@ -54,7 +54,7 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 		return num_responding_trees > 0;
 	}
 
-	public final static AbstractTreeGroup newRoot(World world, LowDetailModel[] tree_low_details, List<int[]> tree_positions, List<int[]> palm_tree_positions, Landscape.TerrainType terrain) {
+	public static AbstractTreeGroup newRoot(World world, LowDetailModel[] tree_low_details, List<int[]> tree_positions, List<int[]> palm_tree_positions, Landscape.TerrainType terrain) {
 		AbstractTreeGroup root = new TreeGroup(null, 0);
 
 		switch (terrain) {

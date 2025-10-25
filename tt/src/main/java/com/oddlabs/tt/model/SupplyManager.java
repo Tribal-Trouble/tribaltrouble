@@ -38,7 +38,7 @@ public class SupplyManager implements Animated {
 	}
 
 	public final void debugSpawnSupply() {
-		if (empty_supplies.size() > 0)
+		if (!empty_supplies.isEmpty())
 			insertSupply();
 	}
 

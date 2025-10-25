@@ -542,9 +542,8 @@ public abstract class GUIObject extends Renderable {
 
 	public final void keyPressedAll(KeyboardEvent event) {
 		keyPressed(event);
-		for (int i = 0; i < key_listeners.size(); i++) {
-			KeyListener listener = key_listeners.get(i);
-			listener.keyPressed(event);
+        for (KeyListener listener : key_listeners) {
+            listener.keyPressed(event);
         }
 	}
 

@@ -100,7 +100,7 @@ public abstract class InGameDelegate extends CameraDelegate {
 				if (event.isControlDown()) {
                     // Ctrl-I prints building or unit info
 					Set<Selectable> set = viewer.getSelection().getCurrentSelection().getSet();
-					if (set.size() > 0) {
+					if (!set.isEmpty()) {
 						Selectable s = set.iterator().next();
 						if (s instanceof Building) {
 							Building building = (Building)s;

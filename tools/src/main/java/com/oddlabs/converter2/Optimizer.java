@@ -107,8 +107,8 @@ public final class Optimizer {
 //		System.out.println("resulting vertices = " + index);
 
 		boolean using_texture_coords2 = false;
-		for (int i = 0; i < r_uvs2.length; i++) {
-            if (r_uvs2[i] != 0f)
+        for (float v : r_uvs2) {
+            if (v != 0f)
                 using_texture_coords2 = true;
         }
 		if (!using_texture_coords2)
@@ -150,8 +150,8 @@ public final class Optimizer {
 		assert initial_pose_map.size() == bones.length/12;
 		assert frame_map.size() == bones.length/12;
 		String bone_name = current_bone.getName();
-		FloatBuffer initial_pose_matrix_buffer = FloatBuffer.wrap((float[])initial_pose_map.get(bone_name));
-		FloatBuffer frame_matrix_buffer = FloatBuffer.wrap((float[])frame_map.get(bone_name));
+		FloatBuffer initial_pose_matrix_buffer = FloatBuffer.wrap(initial_pose_map.get(bone_name));
+		FloatBuffer frame_matrix_buffer = FloatBuffer.wrap(frame_map.get(bone_name));
 		Matrix4f absolute_initial_pose_matrix = new Matrix4f();
 		absolute_initial_pose_matrix.load(initial_pose_matrix_buffer);
 		Matrix4f absolute_frame_matrix = new Matrix4f();

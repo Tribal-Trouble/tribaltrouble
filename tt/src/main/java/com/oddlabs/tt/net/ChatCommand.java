@@ -38,7 +38,7 @@ public final class ChatCommand {
 			return false;
 		int fist_space = firstSpace(text);
 		String cmd = text.substring(1, fist_space);
-		String args = text.substring(fist_space, text.length()).trim();
+		String args = text.substring(fist_space).trim();
 		ChatMethod method = custom_commands.getOrDefault(cmd, commands.get(cmd));
 		if (method != null) {
 			method.execute(info_printer, args);
@@ -57,7 +57,7 @@ public final class ChatCommand {
 	private static void sendMessage(InfoPrinter info_printer, String text) {
 		int first_space = firstSpace(text);
 		String nick = text.substring(0, first_space);
-		String message = text.substring(first_space, text.length()).trim();
+		String message = text.substring(first_space).trim();
 		if (!Network.getMatchmakingClient().isConnected())
 			info_printer.print(Utils.getBundleString(bundle, "not_connected"));
 		else

@@ -47,11 +47,11 @@ public final class SerializableDisplayMode implements Serializable {
         System.out.println("target_mode = " + target_mode);
         if (set.isEmpty())
             throw new LWJGLException("No modes available");
-        DisplayMode nearest_mode = (DisplayMode) set.first();
+        DisplayMode nearest_mode = set.first();
         LWJGLException last_exception = new LWJGLException("No suitable mode found");
         DisplayMode mode = null;
         while (!set.isEmpty()) {
-            mode = (DisplayMode) set.first();
+            mode = set.first();
             set.remove(mode);
             // Only consider modes with the same size as the nearest mode to avoid too many tries
             if (mode.getHeight() != nearest_mode.getHeight() || mode.getWidth() != nearest_mode.getWidth())
@@ -80,10 +80,10 @@ public final class SerializableDisplayMode implements Serializable {
         int[] depth_array = new int[]{24, 16};
         int[] samples_array = new int[]{/*Settings.getSettings().samples, */0};
         LWJGLException last_exception = new LWJGLException("Could not find a suitable pixel format");
-        for (int d = 0; d < depth_array.length; d++) {
-            for (int s = 0; s < samples_array.length; s++) {
-                int depth = depth_array[d];
-                int samples = samples_array[s];
+        for (int j : depth_array) {
+            for (int i : samples_array) {
+                int depth = j;
+                int samples = i;
                 try {
                     Display.create(new PixelFormat(0, depth, 0, samples));
                     return;

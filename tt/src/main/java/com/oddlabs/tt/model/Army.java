@@ -27,12 +27,10 @@ public class Army {
 	}
 
 	public final boolean containsAbility(int ability_filter) {
-		Iterator<Selectable> it = selection.iterator();
-		while (it.hasNext()) {
-			Selectable s = it.next();
-			if (s.getAbilities().hasAbilities(ability_filter))
-				return true;
-		}
+        for (Selectable s : selection) {
+            if (s.getAbilities().hasAbilities(ability_filter))
+                return true;
+        }
 		return false;
 	}
 

@@ -36,11 +36,10 @@ final class EmitterRenderer {
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
 		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		GL11.glDepthMask(false);
-		for (int i = 0; i < emitter_queue.size(); i++) {
-			Emitter emitter = emitter_queue.get(i);
-			if (Globals.draw_particles)
-				render(render_queues, emitter);
-		}
+        for (Emitter emitter : emitter_queue) {
+            if (Globals.draw_particles)
+                render(render_queues, emitter);
+        }
 		emitter_queue.clear();
 		GL11.glDepthMask(true);
 		GL11.glDisable(GL11.GL_ALPHA_TEST);

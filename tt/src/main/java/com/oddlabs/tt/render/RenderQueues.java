@@ -90,26 +90,26 @@ public final class RenderQueues {
 	}
 
 	void getAllPicks(List<Target> pick_list) {
-		for (int j = 0; j < sprite_renderers.size(); j++) {
-            sprite_renderers.get(j).getAllPicks(pick_list);
+        for (SpriteRenderer spriteRenderer : sprite_renderers) {
+            spriteRenderer.getAllPicks(pick_list);
         }
 	}
 
 	void renderAll() {
-		for (int j = 0; j < sprite_renderers.size(); j++) {
-            sprite_renderers.get(j).renderAll();
+        for (SpriteRenderer spriteRenderer : sprite_renderers) {
+            spriteRenderer.renderAll();
         }
 	}
 
 	void renderBlends() {
-		for (int j = 0; j < blend_sprite_renderers.size(); j++) {
-            blend_sprite_renderers.get(j).renderAll();
+        for (SpriteRenderer blendSpriteRenderer : blend_sprite_renderers) {
+            blendSpriteRenderer.renderAll();
         }
 	}
 
 	void renderShadows(LandscapeRenderer renderer) {
-		for (int j = 0; j < shadow_renderer_lookup.size(); j++) {
-            shadow_renderer_lookup.get(j).renderShadows(renderer);
+        for (ShadowListRenderer shadowListRenderer : shadow_renderer_lookup) {
+            shadowListRenderer.renderShadows(renderer);
         }
 	}
 }

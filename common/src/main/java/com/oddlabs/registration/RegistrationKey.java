@@ -105,7 +105,7 @@ public final class RegistrationKey {
 	}
 	
 	public static String encode(long key_code) {
-		key_code = key_code & 0x7fffffffffffffffl;
+		key_code = key_code & 0x7fffffffffffffffL;
 		BigInteger key_big = new BigInteger(splitToBytes(key_code));
 		BigInteger crc = computeChecksum(key_code);
 		key_big = key_big.or(crc.shiftLeft(64));
@@ -133,7 +133,7 @@ public final class RegistrationKey {
 		int TEST_LENGTH = 1000000;
 		Random r = new Random();
 		for (int i = 0; i < TEST_LENGTH; i++) {
-			long key = r.nextLong() & 0x7fffffffffffffffl;
+			long key = r.nextLong() & 0x7fffffffffffffffL;
 			test(key);
 		}
 	}

@@ -178,14 +178,13 @@ public final class AdvancedAI extends AI {
 		List<Unit> target_list = filter.getResult();
 		int score = 0;
 		defense_target = null;
-		for (int i = 0; i < target_list.size(); i++) {
-			Unit unit = target_list.get(i);
-			if (!unit.isDead() && getOwner().isEnemy(unit.getOwner())) {
-				score += getUnitScore(unit);
-				if (defense_target == null)
-					defense_target = new LandscapeTarget(unit.getGridX(), unit.getGridY());
-			}
-		}
+        for (Unit unit : target_list) {
+            if (!unit.isDead() && getOwner().isEnemy(unit.getOwner())) {
+                score += getUnitScore(unit);
+                if (defense_target == null)
+                    defense_target = new LandscapeTarget(unit.getGridX(), unit.getGridY());
+            }
+        }
 		return score;
 	}
 

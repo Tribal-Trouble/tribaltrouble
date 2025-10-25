@@ -15,7 +15,6 @@ public final class HashTable<T> {
 	private int num_entries;
 	private final int mul_factor;
 
-	@SuppressWarnings("rawtypes")
 	public HashTable() {
 		load_factor = DEFAULT_LOAD_FACTOR;
 		mul_factor = DEFAULT_MUL_FACTOR;

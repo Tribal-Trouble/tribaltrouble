@@ -8,7 +8,7 @@ import java.util.Random;
 
 public final class Bricks {
 	private final Random random;
-	public Channel channel;
+	public final Channel channel;
 
 	public static final int BUMP = 1;
 	public static final int COLOR = 2;

@@ -24,10 +24,10 @@ public final class StatCounter {
 
 	public long getMax() {
 		long max = Long.MIN_VALUE;
-		for (int i = 0; i < values.length; i++) {
-			if (values[i] > max)
-				max = values[i];
-		}
+        for (long value : values) {
+            if (value > max)
+                max = value;
+        }
 		return max;
 	}
 	

@@ -27,9 +27,9 @@ public final class Landscape {
 	private final static int STRUCTURE_SEED = 42; // must be constant; otherwise distinct repeating patterns might appear
 
 	private final static int NUM_PLANT_TYPES = 4;
-	public enum TerrainType { NATIVE, VIKING };
+	public enum TerrainType { NATIVE, VIKING }
 
-	private Random random;
+    private final Random random;
 	private final BlendInfo[] blend_infos;
 	private GLIntImage[] structures;
 	private GLIntImage detail;
@@ -548,7 +548,7 @@ public final class Landscape {
 	private byte[][] generateBuildMap(Channel thresholdmap) {
 		if (DEBUG) thresholdmap.toLayer().saveAsPNG("build_tresholdmap");
 		int size = thresholdmap.getWidth();
-		boolean build_grid[][] = new boolean[size][size];
+		boolean[][] build_grid = new boolean[size][size];
 		for (int y = 0; y < size; y++) {
 			for (int x = 0; x < size; x++) {
 				build_grid[y][x] = thresholdmap.getPixel(x, y) > 0;
@@ -1082,7 +1082,7 @@ public final class Landscape {
 
 	public boolean[][] getAccessGrid() {
 		int size = access_exported.getWidth();
-		boolean access_grid[][] = new boolean[size][size];
+		boolean[][] access_grid = new boolean[size][size];
 		for (int y = 0; y < size; y++) {
 			for (int x = 0; x < size; x++) {
 				access_grid[y][x] = access_exported.getPixel(x, y) > 0;

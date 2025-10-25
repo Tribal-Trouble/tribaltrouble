@@ -28,12 +28,7 @@ public final class SerializableDisplayModeComparator implements Comparator<Seria
 			return -1;
 		else if (bpp_dist1 > bpp_dist2)
 			return 1;
-		else if (freq_dist1 < freq_dist2)
-			return -1;
-		else if (freq_dist1 > freq_dist2)
-			return 1;
-		else
-			return 0;
+		else return Integer.compare(freq_dist1, freq_dist2);
 	}
 
 	private int getDistanceFromBestMode(SerializableDisplayMode mode) {

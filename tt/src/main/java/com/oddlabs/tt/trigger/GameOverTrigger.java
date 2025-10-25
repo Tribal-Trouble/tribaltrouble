@@ -72,8 +72,8 @@ public final class GameOverTrigger implements Animated {
         }
 
         int team_count = 0;
-        for (int i = 0; i < teams.length; i++) {
-            if (teams[i] > 0)
+        for (int team : teams) {
+            if (team > 0)
                 team_count++;
         }
         return team_count;

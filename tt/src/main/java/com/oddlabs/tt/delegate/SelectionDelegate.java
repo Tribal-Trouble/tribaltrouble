@@ -126,7 +126,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 						boolean selected = getViewer().getSelection().enableShortcutArmy(army_number);
 						if (selected && event.getNumClicks() > 1) {
 							Set<Selectable> set = getViewer().getSelection().getCurrentSelection().getSet();
-							if (set.size() > 0) {
+							if (!set.isEmpty()) {
 								Selectable s = set.iterator().next();
 								getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera)getCamera(), s.getPositionX(), s.getPositionY()));
 							}
@@ -290,31 +290,29 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 
 		boolean add = false;
-		for (int i = 0; i < friendly_units.size(); i++) {
-			Selectable selectable = friendly_units.get(i);
-			if (!current_selection.contains(selectable)) {
-				add = true;
-				break;
-			}
-		}
-		for (int i = 0; i < friendly_units.size(); i++) {
-			Selectable selectable = friendly_units.get(i);
-			if (add) {
-				if (!current_selection.contains(selectable))
-					current_selection.add(selectable);
-			} else {
-				current_selection.remove(selectable);
-			}
-		}
+        for (Selectable selectable : friendly_units) {
+            if (!current_selection.contains(selectable)) {
+                add = true;
+                break;
+            }
+        }
+        for (Selectable selectable : friendly_units) {
+            if (add) {
+                if (!current_selection.contains(selectable))
+                    current_selection.add(selectable);
+            } else {
+                current_selection.remove(selectable);
+            }
+        }
 	}
 
 	private void replaceSelection(List<Selectable> friendly_units, Selectable friendly_building, Selectable enemy) {
 		Army current_selection = getViewer().getSelection().getCurrentSelection();
 		current_selection.clear();
-		if (friendly_units.size() > 0) {
-			for (int i = 0; i < friendly_units.size(); i++) {
-				current_selection.add(friendly_units.get(i));
-			}
+		if (!friendly_units.isEmpty()) {
+            for (Selectable friendlyUnit : friendly_units) {
+                current_selection.add(friendlyUnit);
+            }
 		} else if (friendly_building != null) {
 			current_selection.add(friendly_building);
 		} else if (enemy != null) {

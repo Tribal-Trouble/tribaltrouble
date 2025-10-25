@@ -20,7 +20,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 public final class Settings implements Serializable {
-	private final static long serialVersionUID = 1l;
+	private final static long serialVersionUID = 1L;
 
 	private static Settings settings;
 
@@ -31,8 +31,8 @@ public final class Settings implements Serializable {
 
 	// network
 	public String registration_address = "registration.oddlabs.com";
-	public String matchmaking_address = "matchmaking.oddlabs.com";
-	public String router_address = "router.oddlabs.com";
+	public final String matchmaking_address = "matchmaking.oddlabs.com";
+	public final String router_address = "router.oddlabs.com";
 	public String username = "";
 	public String pw_digest = "";
 	public boolean remember_login = false;
@@ -58,7 +58,7 @@ public final class Settings implements Serializable {
 	public int new_view_freq = view_freq;
 
 	public boolean fullscreen = true;
-	public boolean vsync = true;
+	public final boolean vsync = true;
 //	public int view_bpp = 32;
 	public int samples = 0;
 
@@ -72,8 +72,8 @@ public final class Settings implements Serializable {
 	private final boolean developer_mode = Boolean.getBoolean("com.oddlabs.tt.developer");
 	public boolean has_native_campaign = false;
 
-	public boolean save_event_log = true;
-	public boolean fullscreen_depth_workaround = true;
+	public final boolean save_event_log = true;
+	public final boolean fullscreen_depth_workaround = true;
 	public boolean generate_dummy_worlds = false;
 	public boolean first_run = true;
 
@@ -86,20 +86,20 @@ public final class Settings implements Serializable {
 	//portal stuff
 	public boolean hide_update = false;
 	public boolean hide_register = false;
-	public boolean hide_multiplayer = false;
+	public final boolean hide_multiplayer = false;
 	public boolean hide_bugreporter = false;
 	public boolean hide_regkey = false;
 	public boolean buy_now_only_quit = false;
 
 	/* optional extensions */
-	public boolean use_vbo_draw_range_elements = false;
+	public final boolean use_vbo_draw_range_elements = false;
 	private final boolean use_vbo = false;
 	private final boolean use_pbuffer = LWJGLUtil.getPlatform() != LWJGLUtil.PLATFORM_MACOSX;
 	private final boolean use_fbo = true;
-	public boolean use_copyteximage = false;
+	public final boolean use_copyteximage = false;
 	private final boolean use_texture_compression = true;
 
-	public int frame_grab_milliseconds_per_frame = 40;
+	public final int frame_grab_milliseconds_per_frame = 40;
 
 	public static void setSettings(Settings new_settings) {
 		settings = new_settings;
@@ -157,7 +157,7 @@ public final class Settings implements Serializable {
                 } else if (field_type.equals(String.class)) {
                     String field_value = (String)field.get(this);
                     if (!field_value.equals(field.get(original_settings)))
-                        props.setProperty(field.getName(), ""+field_value);
+                        props.setProperty(field.getName(), field_value);
                 } else if (field_type.equals(URI.class)) {
                     URI field_value = (URI)field.get(this);
                     if (!field_value.equals(field.get(original_settings)))

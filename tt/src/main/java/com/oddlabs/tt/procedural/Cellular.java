@@ -27,7 +27,7 @@ public final class Cellular {
 	public static final int HITPOINT = 1;
 	public static final int HITCLIP = 2;
 
-	private Random random;
+	private final Random random;
 	public Channel channel;
 	public Channel dist1;
 	public Channel dist2;

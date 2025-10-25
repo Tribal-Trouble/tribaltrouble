@@ -46,12 +46,12 @@ public class Icons {
 
 	private final Map<Class<?>, Quad[]> tool_tip_icons;
 
-	public final static void load() {
+	public static void load() {
 		if (icons == null)
 			icons = new Icons("/gui/icons.xml");
 	}
 
-	public final static Icons getIcons() {
+	public static Icons getIcons() {
 		return icons;
 	}
 
@@ -194,7 +194,7 @@ public class Icons {
 		return notify_arrow_data;
 	}
 
-	public final static IconQuad readQuadData(Node n, Texture texture) {
+	public static IconQuad readQuadData(Node n, Texture texture) {
 		int left = getInt(n, "left");
 		int top = getInt(n, "top");
 		int right = getInt(n, "right");
@@ -208,7 +208,7 @@ public class Icons {
 				texture);
 	}
 
-	public final static Node loadFile(String xml_file, ErrorHandler error_handler) {
+	public static Node loadFile(String xml_file, ErrorHandler error_handler) {
 		URL url = Utils.makeURL(xml_file);
 
 		try {
@@ -223,7 +223,7 @@ public class Icons {
 		}
 	}
 
-	public final static Texture loadTexture(Node n) {
+	public static Texture loadTexture(Node n) {
 		return loadTexture(n.getAttributes().getNamedItem("texture").getNodeValue());
 	}
 
@@ -237,7 +237,7 @@ public class Icons {
 		return Resources.findResource(file);
 	}
 
-	public final static Node getNodeByName(String name, Node n) {
+	public static Node getNodeByName(String name, Node n) {
 		NodeList nl = n.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			if (nl.item(i).getNodeName().equals(name))
@@ -247,7 +247,7 @@ public class Icons {
 		return null;
 	}
 
-	public final static int getInt(Node n, String key) {
+	public static int getInt(Node n, String key) {
 		String string = n.getAttributes().getNamedItem(key).getNodeValue();
 		return Integer.parseInt(string);
 	}
@@ -262,11 +262,11 @@ public class Icons {
 				getInt(node, "end_y"));
 	}
 
-	public final static IconQuad[] getNamedIconQuads(Node n, String name, Texture texture) {
+	public static IconQuad[] getNamedIconQuads(Node n, String name, Texture texture) {
 		return getIconQuads(getNodeByName(name, n), texture);
 	}
 
-	public final static IconQuad getNamedIconQuad(Node n, String name, Texture texture) {
+	public static IconQuad getNamedIconQuad(Node n, String name, Texture texture) {
 		return getIconQuad(getNodeByName(name, n), texture);
 	}
 

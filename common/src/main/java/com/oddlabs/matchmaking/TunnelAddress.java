@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 
 public final class TunnelAddress implements Serializable {
-	private final static long serialVersionUID = -2854382209354714233l;
+	private final static long serialVersionUID = -2854382209354714233L;
 	private final int host_id;
 	private final InetAddress address;
 	private final InetAddress local_address;

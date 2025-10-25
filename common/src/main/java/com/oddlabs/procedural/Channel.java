@@ -11,7 +11,7 @@ public final class Channel {
 	public float[][] pixels;
 	public int width;
 	public int height;
-	public boolean powerof2;
+	public final boolean powerof2;
 
 	public Channel(int width, int height) {
 		pixels = new float[height][width];
@@ -983,7 +983,7 @@ public final class Channel {
 		List<int[]> list = new java.util.LinkedList<>();
 		list.add(new int[]{init_x, init_y});
 
-		while (list.size() > 0) {
+		while (!list.isEmpty()) {
 			int[] coords = list.remove(0);
 			int x = coords[0];
 			int y = coords[1];
@@ -1023,7 +1023,7 @@ public final class Channel {
 			marked[init_x][init_y] = true;
 			List<int[]> list = new java.util.LinkedList<>();
 			list.add(new int[]{init_x, init_y});
-			while (list.size() > 0) {
+			while (!list.isEmpty()) {
 				int[] coords = list.remove(0);
 				int x = coords[0];
 				int y = coords[1];
@@ -1071,8 +1071,8 @@ public final class Channel {
 			marked[init_x][init_y] = true;
 			List<int[]> list = new java.util.LinkedList<>();
 			list.add(new int[]{init_x, init_y});
-			while (list.size() > 0) {
-				int[] coords = (int[])list.remove(0);
+			while (!list.isEmpty()) {
+				int[] coords = list.remove(0);
 				int x = coords[0];
 				int y = coords[1];
 				tmp.putPixel(x, y, -1f);

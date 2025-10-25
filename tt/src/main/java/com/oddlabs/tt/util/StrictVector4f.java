@@ -38,7 +38,6 @@ import java.nio.FloatBuffer;
  * <p>
  * Holds a 4-tuple vector.
  * 
- * @author
  * @version $Revision: 1.3 $
  */
 
@@ -288,24 +287,21 @@ public class StrictVector4f {
 
 	/**
 	 * Set X
-	 * @param x
-	 */
+     */
 	public final void setX(float x) {
 		this.x = x;
 	}
 
 	/**
 	 * Set Y
-	 * @param y
-	 */
+     */
 	public final void setY(float y) {
 		this.y = y;
 	}
 
 	/**
 	 * Set Z
-	 * @param z
-	 */
+     */
 	public void setZ(float z) {
 		this.z = z;
 	}
@@ -320,8 +316,7 @@ public class StrictVector4f {
 
 	/**
 	 * Set W
-	 * @param w
-	 */
+     */
 	public void setW(float w) {
 		this.w = w;
 	}

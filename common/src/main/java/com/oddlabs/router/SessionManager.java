@@ -45,7 +45,7 @@ final class SessionManager {
 
 	void process() {
 		long millis = time_manager.getMillis();
-		while (timeouts.size() > 0) {
+		while (!timeouts.isEmpty()) {
 			Timeout timeout = timeouts.firstKey();
 			RouterClient client = timeouts.get(timeout);
 			if (client.getSession().getNumPlayers() > 0) {

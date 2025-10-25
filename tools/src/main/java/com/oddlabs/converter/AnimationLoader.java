@@ -10,7 +10,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public final class AnimationLoader {
@@ -44,14 +43,12 @@ public final class AnimationLoader {
 			}
 		}
 		Map<String,float[]>[] anim_infos = new Map[anim_infos_map.size()];
-		Iterator<Integer> it = anim_infos_map.keySet().iterator();
-		while (it.hasNext()) {
-			Integer frame_index_obj = it.next();
-			Map<String,float[]> frame = anim_infos_map.get(frame_index_obj);
-			int index = frame_index_obj;
-			assert anim_infos[index] == null;
-			anim_infos[index] = frame;
-		}
+        for (Integer frame_index_obj : anim_infos_map.keySet()) {
+            Map<String, float[]> frame = anim_infos_map.get(frame_index_obj);
+            int index = frame_index_obj;
+            assert anim_infos[index] == null;
+            anim_infos[index] = frame;
+        }
 		return anim_infos;
 	}
 

@@ -5,7 +5,6 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 
-import java.util.Iterator;
 import java.util.Set;
 
 public final class SupplyTrigger extends TutorialTrigger {
@@ -19,17 +18,15 @@ public final class SupplyTrigger extends TutorialTrigger {
 
         @Override
 	protected void run(Tutorial tutorial) {
-		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet(); 
-		Iterator<Selectable> it = set.iterator();
-		while (it.hasNext()) {
-			Selectable s = it.next();
-			if (s instanceof Building && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
-				Building armory = (Building)s;
-				if (armory.getSupplyContainer(com.oddlabs.tt.model.RockSupply.class).getNumSupplies() >= ROCK && 
-						armory.getSupplyContainer(com.oddlabs.tt.landscape.TreeSupply.class).getNumSupplies() >= TREE)
-					tutorial.next(new BuildMenuTrigger(tutorial.getViewer().getLocalPlayer()));
-			}
-		}
+		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet();
+            for (Selectable s : set) {
+                if (s instanceof Building && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
+                    Building armory = (Building) s;
+                    if (armory.getSupplyContainer(com.oddlabs.tt.model.RockSupply.class).getNumSupplies() >= ROCK &&
+                            armory.getSupplyContainer(com.oddlabs.tt.landscape.TreeSupply.class).getNumSupplies() >= TREE)
+                        tutorial.next(new BuildMenuTrigger(tutorial.getViewer().getLocalPlayer()));
+                }
+            }
 
 	}
 }

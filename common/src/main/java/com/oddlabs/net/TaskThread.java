@@ -116,7 +116,7 @@ public final class TaskThread {
 			synchronized (lock) {
 				if (!deterministic.log(!finished_tasks.isEmpty())) {
 					// Check for cancelled task blocking thread
-					if (tasks.size() > 0) {
+					if (!tasks.isEmpty()) {
 						BlockingTask current_task = tasks.get(0);
 						if (current_task.cancelled && thread != null)
 							thread.interrupt();

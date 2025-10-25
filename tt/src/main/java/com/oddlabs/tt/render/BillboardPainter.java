@@ -30,13 +30,13 @@ public abstract class BillboardPainter {
 		GL11.glClipPlane(clip_enum, plane_buf);
 	}
 
-	public final static void finish() {
+	public static void finish() {
 		GL11.glDisable(GL11.GL_CLIP_PLANE0);
 		GL11.glDisable(GL11.GL_CLIP_PLANE1);
 		GL11.glDisable(GL11.GL_CLIP_PLANE2);
 	}
 
-	public final static void init() {
+	public static void init() {
 		GL11.glEnable(GL11.GL_CLIP_PLANE0);
 		GL11.glEnable(GL11.GL_CLIP_PLANE1);
 		GL11.glEnable(GL11.GL_CLIP_PLANE2);
@@ -47,7 +47,7 @@ public abstract class BillboardPainter {
 		return vertices[vertices_index*vertex_size + element_index];
 	}
 
-	public final static void loadFaceMatrixAndClipPlanes(int face_index, short[] indices, float[] face_vertices, float[] face_tex_coords) {
+	public static void loadFaceMatrixAndClipPlanes(int face_index, short[] indices, float[] face_vertices, float[] face_tex_coords) {
 		// Find object space to texture space matrix, mapping vectors in object space to vectors in texture space
 		Vector3f v1 = new Vector3f(getElement(face_index, 0, 0, 3, indices, face_vertices),
 								   getElement(face_index, 0, 1, 3, indices, face_vertices),

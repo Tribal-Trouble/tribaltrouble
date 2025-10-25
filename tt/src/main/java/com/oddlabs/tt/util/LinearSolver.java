@@ -143,8 +143,8 @@ dumpEquation(eq_system);*/
 	}
      */
     public static void dumpSolution(float[] solution) {
-        for (int column = 0; column < solution.length; column++) {
-            System.out.print(solution[column] + " ");
+        for (float v : solution) {
+            System.out.print(v + " ");
         }
         System.out.println();
     }

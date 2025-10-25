@@ -90,9 +90,9 @@ public final class AudioManager implements AudioImplementation {
 
 	public void startSources() {
 		if (sound_play_counter == 0) {
-			for (int i = 0; i < ambients.size(); i++) {
-				AL10.alSourcePlay(ambients.get(i).getSource());
-			}
+            for (AudioSource ambient : ambients) {
+                AL10.alSourcePlay(ambient.getSource());
+            }
 		}
 		sound_play_counter++;
 	}
@@ -113,24 +113,22 @@ public final class AudioManager implements AudioImplementation {
 		// Check for free sources
 		int worst_rank = Integer.MAX_VALUE;
             for (AudioSource source1 : sources) {
-                AudioSource source = source1;
-                int source_index = source.getSource();
+                int source_index = source1.getSource();
                 if ((AL10.alGetSourcei(source_index, AL10.AL_SOURCE_STATE) == AL10.AL_STOPPED
-                        || AL10.alGetSourcei(source_index, AL10.AL_SOURCE_STATE) == AL10.AL_INITIAL) && source.getRank() < AudioPlayer.AUDIO_RANK_AMBIENT) {
-                    if (source.getAudioPlayer() != null)
-                        source.getAudioPlayer().stop();
-                    return source;
+                        || AL10.alGetSourcei(source_index, AL10.AL_SOURCE_STATE) == AL10.AL_INITIAL) && source1.getRank() < AudioPlayer.AUDIO_RANK_AMBIENT) {
+                    if (source1.getAudioPlayer() != null)
+                        source1.getAudioPlayer().stop();
+                    return source1;
                 }
-                if (worst_rank > source.getRank())
-                    worst_rank = source.getRank();
+                if (worst_rank > source1.getRank())
+                    worst_rank = source1.getRank();
             }
 
 		if (params.rank > worst_rank) {
 			FloatBuffer position = BufferUtils.createFloatBuffer(3);
                 for (AudioSource source1 : sources) {
-                    AudioSource source = source1;
-                    if (source.getRank() == worst_rank) {
-                        return source;
+                    if (source1.getRank() == worst_rank) {
+                        return source1;
                     }
                 }
 		}
@@ -164,15 +162,14 @@ public final class AudioManager implements AudioImplementation {
 			float max_dist_squared = this_dist_squared;
 			FloatBuffer position = BufferUtils.createFloatBuffer(3);
                     for (AudioSource source1 : sources) {
-                        AudioSource source = source1;
-                        if (source.getRank() == params.rank) {
-                            int source_index = source.getSource();
+                        if (source1.getRank() == params.rank) {
+                            int source_index = source1.getSource();
                             AL10.alGetSource(source_index, AL10.AL_POSITION, position);
 
                             float dist_squared = getCamDistSquared(camera_state, position.get(0), position.get(1), position.get(2));
                             if (dist_squared > max_dist_squared) {
                                 max_dist_squared = dist_squared;
-                                best_source = source;
+                                best_source = source1;
                             }
                         }
                     }

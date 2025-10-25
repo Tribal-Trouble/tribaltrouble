@@ -314,7 +314,7 @@ public abstract class AI implements Animated {
 		}
 	}
 
-	public final static int attackLandscape(Player owner, Target target, int num_warriors) {
+	public static int attackLandscape(Player owner, Target target, int num_warriors) {
 		int ordered = 0;
 		Selectable[][] lists = owner.classifyUnits();
             for (Selectable[] list : lists) {
@@ -335,7 +335,7 @@ public abstract class AI implements Animated {
 		return ordered;
 	}
 
-	public final static Unit getWarrior(Player owner) {
+	public static Unit getWarrior(Player owner) {
 		Selectable[][] lists = owner.classifyUnits();
             for (Selectable[] list : lists) {
                 Selectable s = list[0];

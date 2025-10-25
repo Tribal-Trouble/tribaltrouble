@@ -53,7 +53,7 @@ public final class TreeRenderer extends TreePicker {
             renderList(tree_low_detail.getTrees()[i], render_lists[i], false);
         }
 		for (int i = 0; i < respond_render_lists.length; i++) {
-            if (respond_render_lists[i].size() > 0)
+            if (!respond_render_lists[i].isEmpty())
                 renderList(tree_low_detail.getTrees()[i], respond_render_lists[i], true);
         }
 	}
@@ -73,17 +73,16 @@ public final class TreeRenderer extends TreePicker {
 
 	private void renderList(Tree tree, List<TreeSupply> render_list, boolean respond) {
 		tree.getCrown().getSprite(0).setup(0, respond);
-		for (int i = 0; i < render_list.size(); i++) {
-			TreeSupply group = render_list.get(i);
-			if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS))
-				RenderTools.draw(group);
-			if (Globals.draw_trees && cheat.draw_trees) {
-				GL11.glPushMatrix();
-				loadMatrix(group);
-				tree.getCrown().render(0, 0, 0);
-				GL11.glPopMatrix();
-			}
-		}
+        for (TreeSupply group : render_list) {
+            if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS))
+                RenderTools.draw(group);
+            if (Globals.draw_trees && cheat.draw_trees) {
+                GL11.glPushMatrix();
+                loadMatrix(group);
+                tree.getCrown().render(0, 0, 0);
+                GL11.glPopMatrix();
+            }
+        }
 		tree.getCrown().reset(0, respond, false);
 		tree.getTrunk().getSprite(0).setup(0, respond);
 		for (int i = 0; i < render_list.size(); i++) {

@@ -5,8 +5,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -30,13 +30,13 @@ public final class CryptUtils {
 	private static String digest(byte[] message_bytes) {
 		byte[] digest_bytes = digest.digest(message_bytes);
 		StringBuilder buf = new StringBuilder();
-		for (int i = 0; i < digest_bytes.length; i++) {
-			int b = ((int)digest_bytes[i]) & 0xff;
-			int nibble0 = (b & 0xf0) >> 4;
-			buf.append(Integer.toHexString(nibble0));
-			int nibble1 = b & 0xf;
-			buf.append(Integer.toHexString(nibble1));
-		}
+        for (byte digestByte : digest_bytes) {
+            int b = ((int) digestByte) & 0xff;
+            int nibble0 = (b & 0xf0) >> 4;
+            buf.append(Integer.toHexString(nibble0));
+            int nibble1 = b & 0xf;
+            buf.append(Integer.toHexString(nibble1));
+        }
 		return buf.toString();
 	}
 
@@ -50,13 +50,9 @@ public final class CryptUtils {
 	}
 
 	public static String digest(String str) {
-		try {
-			byte[] message_bytes = str.getBytes("UTF-8");
-			return buggyDigest(message_bytes);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        byte[] message_bytes = str.getBytes(StandardCharsets.UTF_8);
+        return buggyDigest(message_bytes);
+    }
 
 	public static void  setupHttpsConnection(HttpsURLConnection https_connection) throws Exception {
 		SSLContext ssl_context = SSLContext.getInstance("SSL");

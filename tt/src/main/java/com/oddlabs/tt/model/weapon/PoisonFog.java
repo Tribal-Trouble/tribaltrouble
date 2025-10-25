@@ -117,18 +117,17 @@ public final class PoisonFog implements Magic {
 		UnitGrid unit_grid = owner.getWorld().getUnitGrid();
 		unit_grid.scan(filter, UnitGrid.toGridCoordinate(start_x), UnitGrid.toGridCoordinate(start_y));
 		target_list = filter.getResult();
-		for (int i = 0; i < target_list.size(); i++) {
-			Selectable s = target_list.get(i);
-			float dx = s.getPositionX() - start_x;
-			float dy = s.getPositionY() - start_y;
-			float squared_dist = dx*dx + dy*dy;
-			if (!s.isDead() && ((owner.isEnemy(s.getOwner()) && owner.getWorld().getRandom().nextFloat() < hit_chance*(1 - s.getDefenseChance()))
-						|| (!owner.isEnemy(s.getOwner()) && owner.getWorld().getRandom().nextFloat() < (hit_chance/4f)*(1 - s.getDefenseChance())
-							&& s != owner.getChieftain()))) {
-				float inv_dist = 1f/((float)StrictMath.sqrt(squared_dist));
-				s.hit(damage, dx*inv_dist, dy*inv_dist, owner);
-			}
-		}
+        for (Selectable s : target_list) {
+            float dx = s.getPositionX() - start_x;
+            float dy = s.getPositionY() - start_y;
+            float squared_dist = dx * dx + dy * dy;
+            if (!s.isDead() && ((owner.isEnemy(s.getOwner()) && owner.getWorld().getRandom().nextFloat() < hit_chance * (1 - s.getDefenseChance()))
+                    || (!owner.isEnemy(s.getOwner()) && owner.getWorld().getRandom().nextFloat() < (hit_chance / 4f) * (1 - s.getDefenseChance())
+                    && s != owner.getChieftain()))) {
+                float inv_dist = 1f / ((float) StrictMath.sqrt(squared_dist));
+                s.hit(damage, dx * inv_dist, dy * inv_dist, owner);
+            }
+        }
 	}
 
         @Override

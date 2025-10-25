@@ -44,7 +44,7 @@ public final class Test {
 
 			// Load text
 			InputStreamReader text_is = new InputStreamReader(Utils.makeURL("/test_text.txt").openStream());
-			StringBuffer str_buffer = new StringBuffer();
+			StringBuilder str_buffer = new StringBuilder();
 			int c = text_is.read();
 			do {
 				str_buffer.append((char)c);

@@ -129,12 +129,12 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
         @Override
 	public void setPlayers(PlayerSlot[] player_slots) {
 		this.player_slots = player_slots;
-		for (short i = 0; i < player_slots.length; i++) {
-			if (player_slots[i] == null) {
-				error();
-				return;
-			}
-		}
+            for (PlayerSlot playerSlot : player_slots) {
+                if (playerSlot == null) {
+                    error();
+                    return;
+                }
+            }
 		getConfigurationListener().setPlayers(player_slots);
 	}
 

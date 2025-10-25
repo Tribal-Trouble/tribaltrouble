@@ -24,8 +24,8 @@ public final class Cost {
 
 	public Quad[] toIconArray() {
 		int size = 0;
-		for (int i = 0; i < supply_amounts.length; i++) {
-            size += supply_amounts[i];
+        for (int supplyAmount : supply_amounts) {
+            size += supplyAmount;
         }
 		Quad[] result = new Quad[size];
 		int index = 0;

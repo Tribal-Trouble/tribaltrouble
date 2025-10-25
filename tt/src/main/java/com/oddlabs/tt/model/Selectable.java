@@ -128,7 +128,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return isCloseEnough(getUnitGrid(), max_dist, getGridX(), getGridY(), target);
 	}
 
-	public final static boolean isCloseEnough(UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, Target target) {
+	public static boolean isCloseEnough(UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, Target target) {
 		if (max_dist == 0f && target instanceof Occupant) {
 			return isAdjacent(unit_grid, grid_x, grid_y, (Occupant)target);
 		} else {

@@ -135,7 +135,7 @@ public final class ScrollBar extends GUIObject {
 	}
 
 	private final class DragListener implements MouseMotionListener, MouseButtonListener {
-		ScrollBarData data = Skin.getSkin().getScrollBarData();
+		final ScrollBarData data = Skin.getSkin().getScrollBarData();
 		float start_offset;
 
                 @Override

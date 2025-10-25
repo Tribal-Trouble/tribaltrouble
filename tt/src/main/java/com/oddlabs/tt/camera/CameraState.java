@@ -142,10 +142,7 @@ public final class CameraState {
 	private float capVertAngle(float angle) {
 		if (angle < MIN_ANGLE)
 			return MIN_ANGLE;
-		else if (angle > MAX_ANGLE)
-			return MAX_ANGLE;
-		else
-			return angle;
+		else return Math.min(angle, MAX_ANGLE);
 	}
 
 	public float getTargetVertAngle() {

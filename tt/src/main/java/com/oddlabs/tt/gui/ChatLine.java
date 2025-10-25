@@ -81,11 +81,10 @@ public final class ChatLine extends EditLine {
 */
 	private void tabPressedAll(String[] words) {
 		tabPressed(words);
-		for (int i = 0; i < tab_listeners.size(); i++) {
-			TabListener listener = tab_listeners.get(i);
-			if (listener != null)
-				listener.tabPressed(words);
-		}
+        for (TabListener listener : tab_listeners) {
+            if (listener != null)
+                listener.tabPressed(words);
+        }
 	}
 
 	void tabPressed(String[] words) {

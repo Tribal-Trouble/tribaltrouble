@@ -90,7 +90,7 @@ public final class MeshLoader {
 						float skin_weight = getAttrFloat(skin, "weight");
 						byte bone_index;
 						if (name_to_bone_map != null) {
-							Bone bone = (Bone)name_to_bone_map.get(skin_name);
+							Bone bone = name_to_bone_map.get(skin_name);
 							bone_index = bone.getIndex();
 						} else
 							bone_index = 0;
@@ -109,7 +109,7 @@ public final class MeshLoader {
 	}
 
 	private static String cutTextureName(String name) {
-		if (name.equals(""))
+		if (name.isEmpty())
 			return name;
 		String result = name.replaceAll("\\\\", "/");
 		int last_slash = result.lastIndexOf("/");

@@ -75,7 +75,7 @@ public final class CreateChatRoomForm extends Form {
 
 	private void create() {
 		String name = editline_name.getContents();
-		if (name.length() < MatchmakingServerInterface.MIN_ROOM_NAME_LENGTH) {
+		if (name.isEmpty()) {
 			String min_name_error = Utils.getBundleString(bundle, "min_name_error", MatchmakingServerInterface.MIN_ROOM_NAME_LENGTH);
 			gui_root.addModalForm(new MessageForm(min_name_error));
 		} else {

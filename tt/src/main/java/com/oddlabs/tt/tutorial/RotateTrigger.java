@@ -18,10 +18,10 @@ public final class RotateTrigger extends TutorialTrigger {
 		if (camera.rotateLeft()) {
 			rotate_dirs[1] = true;
 		}
-		for (int i = 0; i < rotate_dirs.length; i++) {
-            if (!rotate_dirs[i])
-                return;
-        }
+            for (boolean rotateDir : rotate_dirs) {
+                if (!rotateDir)
+                    return;
+            }
 		tutorial.next(new PitchTrigger());
 	}
 }

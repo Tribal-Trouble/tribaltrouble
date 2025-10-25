@@ -114,8 +114,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 
 	public final void forceColorChange(float dr, float dg, float db, float da) {
             for (List<Particle> particle1 : particles) {
-                for (int i = 0; i < particle1.size(); i++) {
-                    Particle particle = particle1.get(i);
+                for (Particle particle : particle1) {
                     particle.setColor(particle.getColorR() + dr, particle.getColorG() + dg, particle.getColorB() + db, particle.getColorA() + da);
                 }
             }

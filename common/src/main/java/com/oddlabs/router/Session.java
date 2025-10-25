@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -87,10 +86,9 @@ final class Session {
                         clients_to_be_kicked.add(client);
                     }
                 });
-		for (int i = 0; i < clients_to_be_kicked.size(); i++) {
-			RouterClient client = clients_to_be_kicked.get(i);
-			client.doError(true, new IOException("Checksum mismatch"));
-		}
+        for (RouterClient client : clients_to_be_kicked) {
+            client.doError(true, new IOException("Checksum mismatch"));
+        }
 	}
 
 	void addPlayer(RouterClient client) {
@@ -122,11 +120,9 @@ final class Session {
 	}
 
 	void visit(SessionVisitor visitor) {
-		Iterator<RouterClient> it = players.iterator();
-		while (it.hasNext()) {
-			RouterClient client = it.next();
-			visitor.visit(client);
-		}
+        for (RouterClient client : players) {
+            visitor.visit(client);
+        }
 	}
 
 	int getNumPlayers() {
@@ -136,10 +132,9 @@ final class Session {
         @Override
 	public String toString() {
 		String result = "(Session: info = " + info + " players : (";
-		Iterator<RouterClient> it = players.iterator();
-		while (it.hasNext()) {
-			result += it.next().toString() + " ";
-		}
+            for (RouterClient player : players) {
+                result += player.toString() + " ";
+            }
 		return result + "))";
 	}
 }

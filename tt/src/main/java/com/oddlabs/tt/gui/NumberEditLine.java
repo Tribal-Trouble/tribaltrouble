@@ -55,11 +55,7 @@ public class NumberEditLine extends EditLine {
 	private int crop(int value) {
 		if (value > max_value) {
 			return max_value;
-		} else if (value < min_value) {
-			return min_value;
-		} else {
-			return value;
-		}
+		} else return Math.max(value, min_value);
 	}
 
 	public final void setValue(int value) {
@@ -69,11 +65,10 @@ public class NumberEditLine extends EditLine {
 
 		if (value != this.value) {
 			this.value = value;
-			for (int i = 0; i < value_listeners.size(); i++) {
-				ValueListener listener = value_listeners.get(i);
-				if (listener != null)
-					listener.valueSet(this.value);
-			}
+            for (ValueListener listener : value_listeners) {
+                if (listener != null)
+                    listener.valueSet(this.value);
+            }
 		}
 	}
 

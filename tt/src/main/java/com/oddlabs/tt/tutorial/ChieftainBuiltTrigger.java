@@ -4,7 +4,6 @@ import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 
-import java.util.Iterator;
 import java.util.Set;
 
 public final class ChieftainBuiltTrigger extends TutorialTrigger {
@@ -17,16 +16,14 @@ public final class ChieftainBuiltTrigger extends TutorialTrigger {
         @Override
 	protected void run(Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
-		Iterator<Selectable> it = set.iterator();
-		while (it.hasNext()) {
-			Selectable s = it.next();
-			if (s instanceof Unit) {
-				Unit u = (Unit)s;
-				if (u.getAbilities().hasAbilities(Abilities.MAGIC)) {
-					chieftain = u;
-					tutorial.next(new MagicTrigger(chieftain));
-				}
-			}
-		}
+            for (Selectable s : set) {
+                if (s instanceof Unit) {
+                    Unit u = (Unit) s;
+                    if (u.getAbilities().hasAbilities(Abilities.MAGIC)) {
+                        chieftain = u;
+                        tutorial.next(new MagicTrigger(chieftain));
+                    }
+                }
+            }
 	}
 }

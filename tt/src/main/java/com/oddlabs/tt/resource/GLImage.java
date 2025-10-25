@@ -92,7 +92,7 @@ public abstract class GLImage {
 		return result;
 	}
 
-	public final static void updateMipMapsArea(GLImage[] mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height, boolean max_alpha) {
+	public static void updateMipMapsArea(GLImage[] mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height, boolean max_alpha) {
 		for (int i = 1; i < mipmaps.length; i++) {
 			int height_div = mipmaps[i - 1].getHeight()/mipmaps[i].getHeight();
 			int width_div = mipmaps[i - 1].getWidth()/mipmaps[i].getWidth();
@@ -108,7 +108,7 @@ public abstract class GLImage {
 		}
 	}
 
-	public final static void blendMipMapsArea(GLImage[] dest_mipmaps, GLImage[] source_mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height) {
+	public static void blendMipMapsArea(GLImage[] dest_mipmaps, GLImage[] source_mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height) {
 		int mip_map_level = 0;
 		while (source_mipmaps[0].getWidth() != dest_mipmaps[mip_map_level].getWidth() && source_mipmaps[0].getHeight() != dest_mipmaps[mip_map_level].getHeight())
 			mip_map_level++;

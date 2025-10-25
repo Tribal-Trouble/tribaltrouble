@@ -64,10 +64,10 @@ public final class CreditsForm extends Form {
 		thanks_box.append("Caspian Rychlik-Prince\n");
 		thanks_box.append("Brian Matzon\n");
 		thanks_box.append("The LWJGL team\n");
-		thanks_box.append("Johannes Sebastian J\u00F8rgen Erik M\u00F8gelvang\n");
+		thanks_box.append("Johannes Sebastian Jørgen Erik Møgelvang\n");
 		thanks_box.append("Martin B. K. Nielsen\n");
 		thanks_box.append("Martin Vestergaard Madsen\n");
-		thanks_box.append("Christian Mosb\u00E6k\n");
+		thanks_box.append("Christian Mosbæk\n");
 		thanks_box.append("Camilla Dahle\n");
 		thanks_box.append("\n");
 		thanks_box.append(Utils.getBundleString(bundle, "beta_thank") + "\n");
@@ -86,11 +86,11 @@ public final class CreditsForm extends Form {
 		thanks_box.append("Matt Chelen\n");
 		thanks_box.append("Paul van Schayck\n");
 		thanks_box.append("Binks\n");
-		thanks_box.append("S\u00F8ren Vesti Lassen\n");
+		thanks_box.append("Søren Vesti Lassen\n");
 		thanks_box.append("Martyn Lewis\n");
 		thanks_box.append("Benjamin Dirks\n");
 		thanks_box.append("Tonny L. Rasmussen\n");
-		thanks_box.append("Bj\u00F8rn Andersen\n");
+		thanks_box.append("Bjørn Andersen\n");
 		thanks_box.append("\n");
 		thanks_box.append(Utils.getBundleString(bundle, "additional_thanks") + "\n");
 		thanks_box.append("\n");
@@ -99,7 +99,7 @@ public final class CreditsForm extends Form {
 		thanks_box.append("\n");
 		thanks_box.append("Niels Haulrich AKA \"DJ Fnillerz\"\n");
 		thanks_box.append("Morten M. Hansen AKA \"blue\"\n");
-		thanks_box.append("S\u00F8ren Garb\u00F8l AKA \"Mythor\"\n");
+		thanks_box.append("Søren Garbøl AKA \"Mythor\"\n");
 		thanks_box.append("Andreas Beier AKA \"AB\"\n");
 		thanks_box.append("Jesper S. Pedersen AKA \"fronk\"\n");
 		thanks_box.append("Kxre Schou Gjaldbxk AKA \"hardkxre\"");

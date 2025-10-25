@@ -16,7 +16,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 	private final NetworkSelector network;
 	private SelectionKey key;
 
-	private List<SocketChannel> incoming_connections = new LinkedList<>();
+	private final List<SocketChannel> incoming_connections = new LinkedList<>();
 	
 	private static SelectionKey createServerSocket(NetworkSelector network, InetAddress ip, int port) throws IOException {
 		ServerSocketChannel server_channel = ServerSocketChannel.open();
@@ -98,7 +98,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 	
 	private SocketChannel getNextConnection() {
 		SocketChannel channel = removeNextChannel();
-		if (incoming_connections.size() > 0)
+		if (!incoming_connections.isEmpty())
 			notifyIncomingConnection();
 		return channel;
 	}
@@ -139,7 +139,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 		if (key != null && key.isValid()) {
 			try {
 				key.channel().close();
-				while (incoming_connections.size() > 0)
+				while (!incoming_connections.isEmpty())
 					removeNextChannel().close();
 			} catch (IOException e) {
 				e.printStackTrace();

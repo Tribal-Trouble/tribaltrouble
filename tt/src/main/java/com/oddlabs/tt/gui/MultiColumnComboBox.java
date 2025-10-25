@@ -59,11 +59,10 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 	}
 	
 	public void clickedRow() {
-		for (int i = 0; i < row_listeners.size(); i++) {
-			RowListener listener = row_listeners.get(i);
-			if (listener != null)
-				listener.rowChosen(rows.getSelected());
-		}
+        for (RowListener listener : row_listeners) {
+            if (listener != null)
+                listener.rowChosen(rows.getSelected());
+        }
 	}
 
 	public void addRowListener(RowListener listener) {
@@ -71,11 +70,10 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 	}
 
 	public void doubleClickedRow() {
-		for (int i = 0; i < row_listeners.size(); i++) {
-			RowListener listener = row_listeners.get(i);
-			if (listener != null)
-				listener.rowDoubleClicked(rows.getSelected());
-		}
+        for (RowListener listener : row_listeners) {
+            if (listener != null)
+                listener.rowDoubleClicked(rows.getSelected());
+        }
 	}
 
 	public void setPulldownMenu(PulldownMenu pulldown_menu) {

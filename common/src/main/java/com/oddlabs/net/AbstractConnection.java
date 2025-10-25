@@ -16,8 +16,8 @@ public abstract class AbstractConnection implements ARMIEventWriter {
 		if (connection_interface != null) {
 			if (connected_flag)
 				signalConnected();
-			for (int i = 0; i < event_backlog.size(); i++) {
-                connection_interface.handle(this, event_backlog.get(i));
+            for (ARMIEvent armiEvent : event_backlog) {
+                connection_interface.handle(this, armiEvent);
             }
 			event_backlog.clear();
 			if (error_flag != null)

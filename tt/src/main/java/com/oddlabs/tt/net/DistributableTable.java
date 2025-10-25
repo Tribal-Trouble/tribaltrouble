@@ -33,6 +33,6 @@ public final class DistributableTable {
 	}
 
 	public Distributable getDistributable(int name) {
-		return (Distributable)distributables.get(name);
+		return distributables.get(name);
 	}
 }

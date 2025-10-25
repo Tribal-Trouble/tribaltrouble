@@ -6,8 +6,8 @@ import com.oddlabs.procedural.Layer;
 import java.util.Random;
 
 public final class IFS {
-	private Random random;
-	public Channel channel;
+	private final Random random;
+	public final Channel channel;
 
 	public IFS(int width, int height, int maxpoints, int seed, float[][][] transformations, float[] probabilities) {
 		channel = new Channel(width, height);

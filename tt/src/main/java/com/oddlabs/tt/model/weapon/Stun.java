@@ -1,7 +1,6 @@
 package com.oddlabs.tt.model.weapon;
 
 import com.oddlabs.tt.audio.AbstractAudioPlayer;
-import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.global.Settings;
@@ -59,42 +58,42 @@ public final class Stun implements Magic {
 		unit_grid.scan(filter, UnitGrid.toGridCoordinate(src.getPositionX()), UnitGrid.toGridCoordinate(src.getPositionY()));
 		target_list = filter.getResult();
 
-		sound = owner.getWorld().getAudio().newAudio(new AudioParameters<Audio>(owner.getWorld().getRacesResources().getStunSound(owner.getWorld().getRandom()), start_x, start_y, z,
-				AudioPlayer.AUDIO_RANK_MAGIC,
-				AudioPlayer.AUDIO_DISTANCE_MAGIC,
-				AudioPlayer.AUDIO_GAIN_STUN_LUR,
-				AudioPlayer.AUDIO_RADIUS_STUN_LUR,
-				1f));
+		sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getStunSound(owner.getWorld().getRandom()), start_x, start_y, z,
+                AudioPlayer.AUDIO_RANK_MAGIC,
+                AudioPlayer.AUDIO_DISTANCE_MAGIC,
+                AudioPlayer.AUDIO_GAIN_STUN_LUR,
+                AudioPlayer.AUDIO_RADIUS_STUN_LUR,
+                1f));
 	}
 
         @Override
 	public void animate(float t) {
-		for (int i = 0; i < target_list.size(); i++) {
-			Unit unit = null;
-			if (target_list.get(i) instanceof Unit) {
-				unit = (Unit)target_list.get(i);
-			} else if (target_list.get(i) instanceof Building) {
-				Building building = (Building)target_list.get(i);
-				if (!building.isDead() && building.getAbilities().hasAbilities(Abilities.ATTACK)) {
-					MountUnitContainer muc = (MountUnitContainer)((Building)target_list.get(i)).getUnitContainer();
-					if (muc.getNumSupplies() > 0) {
-						unit = muc.getUnit();
-					}
-				}
-			}
+            for (Selectable selectable : target_list) {
+                Unit unit = null;
+                if (selectable instanceof Unit) {
+                    unit = (Unit) selectable;
+                } else if (selectable instanceof Building) {
+                    Building building = (Building) selectable;
+                    if (!building.isDead() && building.getAbilities().hasAbilities(Abilities.ATTACK)) {
+                        MountUnitContainer muc = (MountUnitContainer) ((Building) selectable).getUnitContainer();
+                        if (muc.getNumSupplies() > 0) {
+                            unit = muc.getUnit();
+                        }
+                    }
+                }
 
-			if (unit == null || unit.isDead())
-				continue;
+                if (unit == null || unit.isDead())
+                    continue;
 
-			float dx = unit.getPositionX() - start_x;
-			float dy = unit.getPositionY() - start_y;
-			float squared_dist = dx*dx + dy*dy;
-			if (owner.isEnemy(unit.getOwner()) && squared_dist < hit_radius*hit_radius) {
-				float dist = (float)StrictMath.sqrt(squared_dist);
-				float time = calculateValueFromCurrentRadius(dist, stun_time_closest, stun_time_farthest);
-				unit.stun(time);
-			}
-		}
+                float dx = unit.getPositionX() - start_x;
+                float dy = unit.getPositionY() - start_y;
+                float squared_dist = dx * dx + dy * dy;
+                if (owner.isEnemy(unit.getOwner()) && squared_dist < hit_radius * hit_radius) {
+                    float dist = (float) StrictMath.sqrt(squared_dist);
+                    float time = calculateValueFromCurrentRadius(dist, stun_time_closest, stun_time_farthest);
+                    unit.stun(time);
+                }
+            }
 		interrupt();
 	}
 

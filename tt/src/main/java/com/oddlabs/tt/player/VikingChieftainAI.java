@@ -52,18 +52,17 @@ public final class VikingChieftainAI extends ChieftainAI {
 		chieftain.getUnitGrid().scan(filter, chieftain.getGridX(), chieftain.getGridY());
 		List<S> target_list = filter.getResult();
 		int num_enemy_units_close = 0;
-		for (int i = 0; i < target_list.size(); i++) {
-			Selectable s = target_list.get(i);
-			if (s.isDead())
-				continue;
+        for (Selectable s : target_list) {
+            if (s.isDead())
+                continue;
 
-			float dx = s.getPositionX() - chieftain.getPositionX();
-			float dy = s.getPositionY() - chieftain.getPositionY();
-			float squared_dist = dx*dx + dy*dy;
-			if (chieftain.getOwner().isEnemy(s.getOwner()) && squared_dist < hit_radius*hit_radius) {
-				num_enemy_units_close++;
-			}
-		}
+            float dx = s.getPositionX() - chieftain.getPositionX();
+            float dy = s.getPositionY() - chieftain.getPositionY();
+            float squared_dist = dx * dx + dy * dy;
+            if (chieftain.getOwner().isEnemy(s.getOwner()) && squared_dist < hit_radius * hit_radius) {
+                num_enemy_units_close++;
+            }
+        }
 		return num_enemy_units_close;
 	}
 
@@ -72,18 +71,17 @@ public final class VikingChieftainAI extends ChieftainAI {
 		chieftain.getUnitGrid().scan(filter, chieftain.getGridX(), chieftain.getGridY());
 		List<Selectable> target_list = filter.getResult();
 		int num_friendly_units_close = 0;
-		for (int i = 0; i < target_list.size(); i++) {
-			Selectable s = target_list.get(i);
-			if (s.isDead())
-				continue;
+        for (Selectable s : target_list) {
+            if (s.isDead())
+                continue;
 
-			float dx = s.getPositionX() - chieftain.getPositionX();
-			float dy = s.getPositionY() - chieftain.getPositionY();
-			float squared_dist = dx*dx + dy*dy;
-			if (!chieftain.getOwner().isEnemy(s.getOwner()) && squared_dist < hit_radius*hit_radius) {
-				num_friendly_units_close++;
-			}
-		}
+            float dx = s.getPositionX() - chieftain.getPositionX();
+            float dy = s.getPositionY() - chieftain.getPositionY();
+            float squared_dist = dx * dx + dy * dy;
+            if (!chieftain.getOwner().isEnemy(s.getOwner()) && squared_dist < hit_radius * hit_radius) {
+                num_friendly_units_close++;
+            }
+        }
 		return num_friendly_units_close;
 	}
 }

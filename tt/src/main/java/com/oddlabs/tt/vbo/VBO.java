@@ -36,14 +36,14 @@ public abstract class VBO extends NativeResource {
 		ARBBufferObject.glBindBufferARB(target, handle);
 	}
 
-	public final static void releaseAll() {
+	public static void releaseAll() {
 		if (Settings.getSettings().useVBO()) {
 			makeCurrent(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 0);
 		}
 		releaseIndexVBO();
 	}
 
-	public final static void releaseIndexVBO() {
+	public static void releaseIndexVBO() {
 		if (Settings.getSettings().useVBO()) {
 			makeCurrent(ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 		}

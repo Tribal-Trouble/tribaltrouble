@@ -7,11 +7,11 @@ import com.oddlabs.procedural.Tools;
 import java.util.Random;
 
 public final class Grass {
-	private Random random;
-	public Channel r;
-	public Channel g;
-	public Channel b;
-	public Channel a;
+	private final Random random;
+	public final Channel r;
+	public final Channel g;
+	public final Channel b;
+	public final Channel a;
 
 	public Grass(int width, int height, int leaves, int seed, int clusters, int smooth) {
 		r = new Channel(width<<1, height<<1);

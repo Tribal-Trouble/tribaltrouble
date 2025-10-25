@@ -24,10 +24,9 @@ public final class RowCollection extends GUIObject {
 	}
 
 	public void clear() {
-		for (int i = 0; i < rows.size(); i++) {
-			Row row = rows.get(i);
-			row.remove();
-		}
+        for (Row row : rows) {
+            row.remove();
+        }
 		rows.clear();
 		selected_row = null;
 		replaceRows();
@@ -49,9 +48,9 @@ public final class RowCollection extends GUIObject {
 	public void markChanged(int index, boolean sorted_descending) {
 		sort_index = index;
 		this.sorted_descending = sorted_descending;
-		for (int i = 0; i < rows.size(); i++) {
-			rows.get(i).setSortIndex(sort_index);
-		}
+        for (Row row : rows) {
+            row.setSortIndex(sort_index);
+        }
 		Collections.sort(rows);
 		replaceRows();
 	}
@@ -75,9 +74,9 @@ public final class RowCollection extends GUIObject {
 
 	public int getContentHeight() {
 		int height = 0;
-		for (int i = 0; i < rows.size(); i++) {
-			height += rows.get(i).getHeight();
-		}
+        for (Row row : rows) {
+            height += row.getHeight();
+        }
 		return height;
 	}
 

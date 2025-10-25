@@ -37,7 +37,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		network.registerForPingTimeout(this);
 		this.ping_reply = ping_reply;
 		ARMIEventWriter event_writer = (ARMIEvent event) -> {
-                    if (back_log_list.size() > 0 || !writeEvent(event))
+                    if (!back_log_list.isEmpty() || !writeEvent(event))
                         back_log_list.add(event);
                 };
 		this.peer_interface = (ConnectionPeerInterface)ARMIEvent.createProxy(event_writer, ConnectionPeerInterface.class);

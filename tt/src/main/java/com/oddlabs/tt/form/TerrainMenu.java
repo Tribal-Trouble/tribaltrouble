@@ -662,7 +662,7 @@ System.out.println("Start server");
 	}
 
 	private final class DisableListener implements ItemChosenListener {
-		int i;
+		final int i;
 
 		public DisableListener(int i) {
 			this.i = i;

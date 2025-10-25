@@ -16,6 +16,7 @@ import org.lwjgl.opengl.DisplayMode;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -98,9 +99,7 @@ public final class LocalInput {
 	public static void resetKeys() {
 		// Clear event queue
 		KeyboardInput.reset();
-		for (int i = 0; i < keys.length; i++) {
-            keys[i] = false;
-        }
+        Arrays.fill(keys, false);
 	}
 
 	public static boolean isKeyDown(int key_code) {
@@ -174,9 +173,9 @@ public final class LocalInput {
 
 			SerializableDisplayMode target_mode = new SerializableDisplayMode(0, 0, 0, 0);
 			SortedSet<SerializableDisplayMode> set = new TreeSet<>(new SerializableDisplayModeComparator(target_mode));
-			for (int i = 0; i < modes.size(); i++) {
-				set.add(modes.get(i));
-			}
+            for (SerializableDisplayMode mode : modes) {
+                set.add(mode);
+            }
 			SerializableDisplayMode[] available_modes = new SerializableDisplayMode[set.size()];
 			set.toArray(available_modes);
 			return available_modes;

@@ -5,7 +5,7 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
 
 public final class Ring {
-	public Channel channel;
+	public final Channel channel;
 	public Channel channelfinal;
 
 	public static final int LINEAR = 1;

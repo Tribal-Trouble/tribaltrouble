@@ -4,7 +4,7 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 
 public final class Ripple {
-	public Channel channel;
+	public final Channel channel;
 
 	public Ripple(int width, int height, float point_x, float point_y, float factor) {
 

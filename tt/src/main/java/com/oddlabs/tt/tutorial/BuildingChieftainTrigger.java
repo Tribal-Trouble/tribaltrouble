@@ -6,7 +6,6 @@ import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 
-import java.util.Iterator;
 import java.util.Set;
 
 public final class BuildingChieftainTrigger extends TutorialTrigger {
@@ -28,15 +27,13 @@ public final class BuildingChieftainTrigger extends TutorialTrigger {
         @Override
 	protected void run(Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
-		Iterator<Selectable> it = set.iterator();
-		while (it.hasNext()) {
-			Selectable s = it.next();
-			if (s instanceof Building) {
-				Building b = (Building)s;
-				ChieftainContainer container = b.getChieftainContainer();
-				if (container != null && container.isTraining())
-					tutorial.next(new ChieftainBuiltTrigger());
-			}
-		}
+            for (Selectable s : set) {
+                if (s instanceof Building) {
+                    Building b = (Building) s;
+                    ChieftainContainer container = b.getChieftainContainer();
+                    if (container != null && container.isTraining())
+                        tutorial.next(new ChieftainBuiltTrigger());
+                }
+            }
 	}
 }

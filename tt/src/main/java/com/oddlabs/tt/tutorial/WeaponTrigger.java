@@ -5,7 +5,6 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 
-import java.util.Iterator;
 import java.util.Set;
 
 public final class WeaponTrigger extends TutorialTrigger {
@@ -19,14 +18,12 @@ public final class WeaponTrigger extends TutorialTrigger {
         @Override
 	protected void run(Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet();
-		Iterator<Selectable> it = set.iterator();
-		while (it.hasNext()) {
-			Selectable s = it.next();
-			if (s instanceof Building && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
-				Building armory = (Building)s;
-				if (armory.getSupplyContainer(com.oddlabs.tt.model.weapon.RockAxeWeapon.class).getNumSupplies() >= WEAPONS)
-					tutorial.next(new ArmyMenuTrigger(tutorial.getViewer().getLocalPlayer()));
-			}
-		}
+            for (Selectable s : set) {
+                if (s instanceof Building && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
+                    Building armory = (Building) s;
+                    if (armory.getSupplyContainer(com.oddlabs.tt.model.weapon.RockAxeWeapon.class).getNumSupplies() >= WEAPONS)
+                        tutorial.next(new ArmyMenuTrigger(tutorial.getViewer().getLocalPlayer()));
+                }
+            }
 	}
 }

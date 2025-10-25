@@ -32,25 +32,25 @@ public final class Globals {
 
 	public static int gamespeed = 2;
 
-	public static boolean process_landscape = true;
-	public static boolean process_trees = true;
+	public static final boolean process_landscape = true;
+	public static final boolean process_trees = true;
 	public static boolean process_misc = true;
-	public static boolean process_shadows = true;
+	public static final boolean process_shadows = true;
 
 	public static boolean draw_status = false;
-	public static boolean draw_landscape = true;
-	public static boolean draw_trees = true;
+	public static final boolean draw_landscape = true;
+	public static final boolean draw_trees = true;
 	public static boolean draw_misc = true;
 	public static boolean draw_particles = true;
 	public static boolean draw_water = true;
-	public static boolean draw_sky = true;
+	public static final boolean draw_sky = true;
 	public static boolean draw_axes = false;
 	public static boolean draw_detail = true;
 	public static boolean draw_shadows = true;
 	public static boolean draw_light = true;
 	public static boolean draw_plants = true;
 
-	public static boolean line_mode = false;
+	public static final boolean line_mode = false;
 	public static boolean clear_frame_buffer = false;
 	public static boolean frustum_freeze = false;
 

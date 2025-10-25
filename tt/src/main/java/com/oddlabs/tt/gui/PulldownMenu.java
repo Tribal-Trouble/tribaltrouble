@@ -49,11 +49,10 @@ public final class PulldownMenu extends Group {// GUIObject {
 		int min_width = 0;
 		Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
 		// Adjust all items
-		for (int i = 0; i < items.size(); i++) {
-			PulldownItem item = items.get(i);
-			if (item.getTextWidth() > min_width)
-				min_width = item.getTextWidth();
-		}
+            for (PulldownItem item : items) {
+                if (item.getTextWidth() > min_width)
+                    min_width = item.getTextWidth();
+            }
 		int item_pos_count = Skin.getSkin().getPulldownData().getPulldownBottom().getHeight();
 		min_width = StrictMath.max(width, item_box.getLeftOffset() + min_width + item_box.getRightOffset());
 		for (int i = 0; i < items.size(); i++) {
@@ -108,11 +107,10 @@ public final class PulldownMenu extends Group {// GUIObject {
 	}
 
 	public void itemChosenAll() {
-		for (int i = 0; i < chosen_listeners.size(); i++) {
-			ItemChosenListener listener = chosen_listeners.get(i);
-			if (listener != null)
-				listener.itemChosen(this, chosen_item_index);
-		}
+        for (ItemChosenListener listener : chosen_listeners) {
+            if (listener != null)
+                listener.itemChosen(this, chosen_item_index);
+        }
 	}
 
 	public void addItemChosenListener(ItemChosenListener listener) {

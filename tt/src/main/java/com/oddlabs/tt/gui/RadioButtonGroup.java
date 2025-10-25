@@ -23,10 +23,10 @@ public final class RadioButtonGroup {
 	}
 
 	public RadioButtonGroupElement getMarked() {
-		for (int i = 0; i < buttons.size(); i++) {
-			if (buttons.get(i).isMarked())
-				return buttons.get(i);
-		}
+        for (RadioButtonGroupElement button : buttons) {
+            if (button.isMarked())
+                return button;
+        }
 		return null;
 	}
 }

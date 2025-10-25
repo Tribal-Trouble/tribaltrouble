@@ -1,5 +1,7 @@
 package com.oddlabs.tt.model.behaviour;
 
+import java.util.Arrays;
+
 public abstract class Controller {
 	private final static int MAX_TRIES = 1;
 	private final int[] give_up_counters;
@@ -9,9 +11,7 @@ public abstract class Controller {
 	}
 
 	public final void resetGiveUpCounters() {
-		for (int i = 0; i < give_up_counters.length; i++) {
-            give_up_counters[i] = 0;
-        }
+        Arrays.fill(give_up_counters, 0);
 	}
 
 	public final void resetGiveUpCounter(int state_index) {

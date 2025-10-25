@@ -5,7 +5,7 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
 
 public final class Pie {
-	public Channel channel;
+	public final Channel channel;
 
 	public static final int CIRCLE = 1;
 	public static final int FULL = 2;

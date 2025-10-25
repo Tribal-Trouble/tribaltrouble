@@ -80,11 +80,10 @@ public final class Region extends Node {
 
         @Override
 	public boolean addNeighbours(PathFinderAlgorithm finder, UnitGrid unit_grid) {
-		for (int i = 0; i < neighbours.size(); i++) {
-			Region neighbour = neighbours.get(i);
-			if (!neighbour.isVisited())
-				PathFinder.addToOpenList(finder, neighbour, this, estimateCost(neighbour.getGridX(), neighbour.getGridY()));
-		}
+            for (Region neighbour : neighbours) {
+                if (!neighbour.isVisited())
+                    PathFinder.addToOpenList(finder, neighbour, this, estimateCost(neighbour.getGridX(), neighbour.getGridY()));
+            }
 		return false;
 	}
 
@@ -98,21 +97,19 @@ public final class Region extends Node {
 		if (!isVisited())
 			return;
 		setVisited(false);
-		for (int i = 0; i < neighbours.size(); i++) {
-			Region neighbour = neighbours.get(i);
-			neighbour.debugRenderConnectionsReset();
-		}
+        for (Region neighbour : neighbours) {
+            neighbour.debugRenderConnectionsReset();
+        }
 	}
 
 	public void debugRenderConnections(HeightMap heightmap) {
 		if (isVisited())
 			return;
 		setVisited(true);
-		for (int i = 0; i < neighbours.size(); i++) {
-			Region neighbour = neighbours.get(i);
-			debugVertex(heightmap);
-			neighbour.debugVertex(heightmap);
-			neighbour.debugRenderConnections(heightmap);
-		}
+        for (Region neighbour : neighbours) {
+            debugVertex(heightmap);
+            neighbour.debugVertex(heightmap);
+            neighbour.debugRenderConnections(heightmap);
+        }
 	}
 }

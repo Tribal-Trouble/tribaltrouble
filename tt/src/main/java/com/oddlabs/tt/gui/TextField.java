@@ -100,7 +100,7 @@ public abstract class TextField extends GUIObject implements CharSequence {
 			digit_buf.insert(0, '-');
 	}
 
-	public final static void appendNumberToStringBuffer(long i, StringBuffer buffer) {
+	public static void appendNumberToStringBuffer(long i, StringBuffer buffer) {
 		fillDigitBuffer(i);
 		buffer.append(digit_buf);
 	}

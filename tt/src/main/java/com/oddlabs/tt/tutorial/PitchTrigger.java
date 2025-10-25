@@ -18,10 +18,10 @@ public final class PitchTrigger extends TutorialTrigger {
 		if (camera.pitchDown()) {
 			pitch_dirs[1] = true;
 		}
-		for (int i = 0; i < pitch_dirs.length; i++) {
-            if (!pitch_dirs[i])
-                return;
-        }
+            for (boolean pitchDir : pitch_dirs) {
+                if (!pitchDir)
+                    return;
+            }
 		tutorial.next(new FirstPersonCameraTrigger());
 	}
 }

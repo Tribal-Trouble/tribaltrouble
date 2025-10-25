@@ -83,10 +83,9 @@ public final class SecureConnection extends AbstractConnection implements Secure
 			decrypt_cipher = KeyManager.createCipher(Cipher.DECRYPT_MODE, key_agreement, public_key);
 			encrypt_cipher = KeyManager.createCipher(Cipher.ENCRYPT_MODE, key_agreement, public_key);
 			notifyConnected();
-			for (int i = 0; i < event_backlog.size(); i++) {
-				ARMIEvent event = event_backlog.get(i);
-				tunnel(event);
-			}
+            for (ARMIEvent event : event_backlog) {
+                tunnel(event);
+            }
 		} catch (IOException e) {
 			notifyError(e);
 		} catch (GeneralSecurityException e) {

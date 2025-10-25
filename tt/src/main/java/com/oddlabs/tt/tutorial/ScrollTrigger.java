@@ -31,10 +31,10 @@ public final class ScrollTrigger extends TutorialTrigger {
 		} else if (camera.getScrollY() < 0) {
 			scroll_dirs[3] = true;
 		}
-		for (int i = 0; i < scroll_dirs.length; i++) {
-            if (!scroll_dirs[i])
-                return;
-        }
+            for (boolean scrollDir : scroll_dirs) {
+                if (!scrollDir)
+                    return;
+            }
 		tutorial.next(new ZoomTrigger(tutorial.getViewer()));
 	}
 }

@@ -8,9 +8,9 @@ import org.lwjgl.opengl.GL11;
 public final class PathTracker {
     public enum State {
         OK,OK_INTERRUPTIBLE,DONE,SOFTBLOCKED,BLOCKED
-    };
+    }
 
-	private final static int REGION_SEARCH_TRIES = 4;
+    private final static int REGION_SEARCH_TRIES = 4;
 
 	private final BezierPath bezier_path;
 	private final UnitGrid unit_grid;

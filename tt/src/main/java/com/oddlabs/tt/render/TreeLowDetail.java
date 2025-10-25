@@ -89,8 +89,8 @@ public final class TreeLowDetail {
 
 	private int numTreesTotal(int[] num_trees) {
 		int count = 0;
-		for (int i = 0; i < num_trees.length; i++) {
-            count += num_trees[i];
+        for (int numTree : num_trees) {
+            count += numTree;
         }
 		return count;
 	}
@@ -125,8 +125,8 @@ public final class TreeLowDetail {
 		short[] indices = low_detail_model.getIndices();
 		int end = start_index;
 		int start_vertex_index = current_vertex_index;
-		for (int i = 0; i < indices.length; i++) {
-            end = putIndex(end, indices[i] + current_vertex_index, tree_indice_array);
+        for (short index : indices) {
+            end = putIndex(end, index + current_vertex_index, tree_indice_array);
         }
 		for (int i = 0; i < vertices.length/3; i++) {
 			src.set(vertices[i*3], vertices[i*3 + 1], vertices[i*3 + 2], 1f);

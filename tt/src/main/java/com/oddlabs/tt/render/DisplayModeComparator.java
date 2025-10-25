@@ -35,13 +35,7 @@ public final class DisplayModeComparator implements Comparator<DisplayMode> {
                     if (bpp_dist1 > bpp_dist2)
                         return 1;
                     else
-                        if (freq_dist1 < freq_dist2)
-                            return -1;
-                        else
-                            if (freq_dist1 > freq_dist2)
-                                return 1;
-                            else
-                                return 0;
+                        return Integer.compare(freq_dist1, freq_dist2);
     }
 
     private int getDistanceFromBestMode(DisplayMode mode) {

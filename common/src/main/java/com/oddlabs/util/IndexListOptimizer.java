@@ -2,7 +2,6 @@ package com.oddlabs.util;
 
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,11 +39,9 @@ dumpBuffer(buffer);*/
 			triangles.add(new Triangle(triangle_indices));
 		}
 		int round = 0;
-		Iterator<Index> it = indices.values().iterator();
-		while (it.hasNext()) {
-			Index index = it.next();
-			index.updateScore(-1, round);
-		}
+        for (Index index : indices.values()) {
+            index.updateScore(-1, round);
+        }
 		List<Triangle> optimal_triangle_list = new ArrayList<>();
 		while (!triangles.isEmpty()) {
 			float best_score = Float.NEGATIVE_INFINITY;
@@ -63,15 +60,13 @@ for (int j = 0; j < index.triangle_list.size(); j++) {
 }
                     }
 			if (best_triangle == null) {
-				Iterator<Triangle> tri_it = triangles.iterator();
-				while (tri_it.hasNext()) {
-					Triangle tri = tri_it.next();
-					float tri_score = tri.getScore();
-					if (tri_score > best_score) {
-						best_score = tri_score;
-						best_triangle = tri;
-					}
-				}
+                for (Triangle tri : triangles) {
+                    float tri_score = tri.getScore();
+                    if (tri_score > best_score) {
+                        best_score = tri_score;
+                        best_triangle = tri;
+                    }
+                }
 			}
 			assert best_triangle != null;
 //System.out.println("best_triangle = " + best_triangle);
@@ -101,10 +96,9 @@ for (int j = 0; j < index.triangle_list.size(); j++) {
                     }
 		}
 		int old_position = buffer.position();
-		for (int i = 0; i < optimal_triangle_list.size(); i++) {
-			Triangle tri = optimal_triangle_list.get(i);
-			tri.addToBuffer(buffer);
-		}
+        for (Triangle tri : optimal_triangle_list) {
+            tri.addToBuffer(buffer);
+        }
 		assert !buffer.hasRemaining(): buffer.remaining();
 		buffer.position(old_position);
 /*System.out.println("optimized buffer:");

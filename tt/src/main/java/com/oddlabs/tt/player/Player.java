@@ -23,6 +23,7 @@ import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.util.Target;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -93,12 +94,8 @@ public final class Player implements PlayerInterface {
 	public Player(World world, PlayerInfo player_info, float[] color) {
 		this.world = world;
 		this.color = color;
-		for (int i = 0; i < can_do_magic.length; i++) {
-            can_do_magic[i] = true;
-        }
-		for (int i = 0; i < can_build.length; i++) {
-            can_build[i] = true;
-        }
+        Arrays.fill(can_do_magic, true);
+        Arrays.fill(can_build, true);
 		this.player_info = player_info;
 		this.unit_count = new SupplyContainer(world.getMaxUnitCount());
 //		this.team_tip = Utils.getBundleString(bundle, "team", new Object[]{Integer.toString(player_info.getTeam() + 1)});
@@ -273,7 +270,7 @@ public final class Player implements PlayerInterface {
 		world.getUnitGrid().scan(filter, grid_x, grid_y);
 		List<LandscapeTarget> target_list = filter.getResult();
 		Building b = null;
-		if (target_list.size() > 0) {
+		if (!target_list.isEmpty()) {
 			Target t = target_list.get(0);
 			b = new Building(this, getRace().getBuildingTemplate(building_type), t.getGridX(), t.getGridY());
 			b.place();
@@ -313,15 +310,13 @@ public final class Player implements PlayerInterface {
             for (Player player : players) {
                 if (isEnemy(player)) {
                     Set<Selectable> units = player.getUnits().getSet();
-                    Iterator<Selectable> it = units.iterator();
-                    while (it.hasNext()) {
-                        Selectable s = it.next();
+                    for (Selectable s : units) {
                         if (!(type.isInstance(s)) || s == target) {
                             continue;
                         }
                         int dx = s.getGridX() - start_x;
                         int dy = s.getGridY() - start_y;
-                        int dist_squared = dx*dx + dy*dy;
+                        int dist_squared = dx * dx + dy * dy;
                         if (best_dist_squared > dist_squared) {
                             best_dist_squared = dist_squared;
                             best_target = s;

@@ -149,8 +149,8 @@ public final class Optimizer {
 		assert initial_pose_map.size() == bones.length/12;
 		assert frame_map.size() == bones.length/12;
 		String bone_name = current_bone.getName();
-		FloatBuffer initial_pose_matrix_buffer = FloatBuffer.wrap((float[])initial_pose_map.get(bone_name));
-		FloatBuffer frame_matrix_buffer = FloatBuffer.wrap((float[])frame_map.get(bone_name));
+		FloatBuffer initial_pose_matrix_buffer = FloatBuffer.wrap(initial_pose_map.get(bone_name));
+		FloatBuffer frame_matrix_buffer = FloatBuffer.wrap(frame_map.get(bone_name));
 		Matrix4f absolute_initial_pose_matrix = new Matrix4f();
 		absolute_initial_pose_matrix.load(initial_pose_matrix_buffer);
 		Matrix4f absolute_frame_matrix = new Matrix4f();

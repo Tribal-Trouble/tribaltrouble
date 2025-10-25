@@ -442,11 +442,9 @@ System.out.println("wrapped_connection.getLocalAddress()	 = " + wrapped_connecti
 			tunnelled_listener.connectionClosed();
 			tunnelled_listener = null;
 		}
-		Iterator<TunnelledConnection> it = tunnels.values().iterator();
-		while (it.hasNext()) {
-			TunnelledConnection tunnel = it.next();
-			tunnel.tunnelClosed();
-		}
+        for (TunnelledConnection tunnel : tunnels.values()) {
+            tunnel.tunnelClosed();
+        }
 		tunnels.clear();
 		if (conn != null) {
 			conn.close();

@@ -29,13 +29,12 @@ public final class ByteCompressedFloatArray implements Serializable {
 		float min = array[0];
 		float max = array[0];
 
-		for (int i = 0; i < array.length; i++) {
-			float current = array[i];
-			if (current < min)
-				min = current;
-			else if (current > max)
-				max = current;
-		}
+        for (float current : array) {
+            if (current < min)
+                min = current;
+            else if (current > max)
+                max = current;
+        }
 
 		float mid = (max + min)/2;
 		offset[channel] = mid;
@@ -63,9 +62,9 @@ public final class ByteCompressedFloatArray implements Serializable {
 	public String toString() {
 		float[] array = getFloatArray();
 		String result = "";
-		for (int i = 0; i < array.length; i++) {
-            result += array[i] + ", ";
-        }
+            for (float v : array) {
+                result += v + ", ";
+            }
 		return result;
 	}
 /*

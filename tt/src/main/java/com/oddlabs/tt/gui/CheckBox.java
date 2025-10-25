@@ -93,11 +93,10 @@ public final class CheckBox extends GUIObject implements ToolTip {
 	public void checkedAll(boolean marked) {
 		checked(marked);
 		java.util.List<CheckBoxListener> list = getCheckBoxListeners();
-		for (int i = 0; i < list.size(); i++) {
-			CheckBoxListener listener = list.get(i);
-			if (listener != null)
-				listener.checked(marked);
-		}
+        for (CheckBoxListener listener : list) {
+            if (listener != null)
+                listener.checked(marked);
+        }
 	}
 
 	void checked(boolean marked) {

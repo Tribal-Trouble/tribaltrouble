@@ -15,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 
 public final class HttpRequest {
 	public static Task doPost(TaskThread task_thread, HttpRequestParameters parameters, HttpResponseParser parser, HttpCallback callback) {
@@ -83,7 +84,7 @@ public final class HttpRequest {
 		conn.setRequestMethod("POST");
 		conn.setDoOutput(true);
 		ByteArrayOutputStream byte_os = new ByteArrayOutputStream();
-            try (OutputStreamWriter out = new OutputStreamWriter(byte_os, "UTF-8")) {
+            try (OutputStreamWriter out = new OutputStreamWriter(byte_os, StandardCharsets.UTF_8)) {
                 String query_string = parameters.createQueryString();
                 out.write(query_string, 0, query_string.length());
             }

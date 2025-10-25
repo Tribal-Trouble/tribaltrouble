@@ -5,7 +5,7 @@ import com.oddlabs.procedural.Layer;
 
 public final class Hill {
 	private Channel channel;
-	private int size;
+	private final int size;
 
 	public static final int CIRCLE = 1;
 	public static final int OVAL = 2;

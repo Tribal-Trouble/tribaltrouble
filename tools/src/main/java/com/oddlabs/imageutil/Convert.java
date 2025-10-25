@@ -63,41 +63,48 @@ System.out.println("outfile = " + outfile);
 	}
 
 	private static Layer[] processOperation(String op, Iterator<String> args, Layer[] images) {
-		if (op.equals("-mipmaps")) {
-			if (images.length != 1)
-				throw new IllegalArgumentException("Can only create mipmaps from one image, not " + images.length);
-			List<Layer> mipmaps = new ArrayList<>();
-			Layer last_mipmap = images[0];
-			int mip_width = last_mipmap.getWidth();
-			int mip_height = last_mipmap.getHeight();
-			mipmaps.add(last_mipmap);
-			while (mip_width > 1 && mip_height > 1) {
-				mip_width /=2;
-				mip_height /= 2;
-				Layer mipmap = last_mipmap.copy();
-				mipmap.scaleHalf();
-				mipmaps.add(mipmap);
-				last_mipmap = mipmap;
-			}
-			images = mipmaps.toArray(new Layer[0]);
-		} else if (op.equals("-half")) {
-			for (int i = 0; i < images.length; i++) {
-                images[i].scaleHalf();
-            }
-		} else if (op.equals("-format")) {
-			current_ext = args.next();
-		} else if (op.equals("-flip")) {
-			for (int i = 0; i < images.length; i++) {
-                images[i].flipV();
-            }
-		} else if (op.equals("-gamma")) {
-			String gamma_str = args.next();
-			float gamma = Float.parseFloat(gamma_str);
-			for (int i = 0; i < images.length; i++) {
-                images[i].gamma(gamma);
-            }
-		} else
-			throw new IllegalArgumentException("Unknown operation: " + op);
+        switch (op) {
+            case "-mipmaps":
+                if (images.length != 1)
+                    throw new IllegalArgumentException("Can only create mipmaps from one image, not " + images.length);
+                List<Layer> mipmaps = new ArrayList<>();
+                Layer last_mipmap = images[0];
+                int mip_width = last_mipmap.getWidth();
+                int mip_height = last_mipmap.getHeight();
+                mipmaps.add(last_mipmap);
+                while (mip_width > 1 && mip_height > 1) {
+                    mip_width /= 2;
+                    mip_height /= 2;
+                    Layer mipmap = last_mipmap.copy();
+                    mipmap.scaleHalf();
+                    mipmaps.add(mipmap);
+                    last_mipmap = mipmap;
+                }
+                images = mipmaps.toArray(new Layer[0]);
+                break;
+            case "-half":
+                for (Layer image : images) {
+                    image.scaleHalf();
+                }
+                break;
+            case "-format":
+                current_ext = args.next();
+                break;
+            case "-flip":
+                for (Layer image : images) {
+                    image.flipV();
+                }
+                break;
+            case "-gamma":
+                String gamma_str = args.next();
+                float gamma = Float.parseFloat(gamma_str);
+                for (Layer image : images) {
+                    image.gamma(gamma);
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown operation: " + op);
+        }
 		return images;
 	}
 
@@ -114,17 +121,16 @@ System.out.println("outfile = " + outfile);
         image.getRGB(0, 0, width, height, ints, 0, width);
 		byte[] bytes = new byte[width*height* 4 * Byte.BYTES];
 		int index = 0;
-		for (int i = 0; i < ints.length; i++) {
-            int argb = ints[i];
-			byte a = (byte)((argb >> 24) & 0xff);
-			byte r = (byte)((argb >> 16) & 0xff);
-			byte g = (byte)((argb >>  8) & 0xff);
-			byte b = (byte)((argb 	   ) & 0xff);
-			bytes[index++] = r;
-			bytes[index++] = g;
-			bytes[index++] = b;
-			bytes[index++] = a;
-		}
+        for (int argb : ints) {
+            byte a = (byte) ((argb >> 24) & 0xff);
+            byte r = (byte) ((argb >> 16) & 0xff);
+            byte g = (byte) ((argb >> 8) & 0xff);
+            byte b = (byte) ((argb) & 0xff);
+            bytes[index++] = r;
+            bytes[index++] = g;
+            bytes[index++] = b;
+            bytes[index++] = a;
+        }
 		Layer image_layer = new Layer(width, height);
 		if (channels == 4)
 			image_layer.a = new Channel(width, height);

@@ -141,8 +141,7 @@ public final class LandscapeRenderer implements Animated {
     }
 
     private void doRenderAll() {
-        for (int i = 0; i < render_list.size(); i++) {
-            LandscapeLeaf patch = render_list.get(i);
+        for (LandscapeLeaf patch : render_list) {
             RenderTools.draw(patch, Globals.BOUNDING_LANDSCAPE, 1f, 0f, 0f);
             setupColormap(patch.getColorMapX(), patch.getColorMapY());
             if (Globals.draw_landscape)

@@ -8,8 +8,8 @@ import java.util.List;
 
 final class SpriteListRenderer {
 	private final SpriteList sprite_list;
-	private final List<ModelState> render_lists[][];
-	private final List<ModelState> respond_render_lists[][];
+	private final List<ModelState>[][] render_lists;
+	private final List<ModelState>[][] respond_render_lists;
 
         @SuppressWarnings("unchecked")
 	SpriteListRenderer(SpriteList sprite_list) {
@@ -63,7 +63,7 @@ final class SpriteListRenderer {
 		render_list.clear();
 
 		render_list = respond_render_lists[index][tex_index];
-		if (render_list.size() > 0) {
+		if (!render_list.isEmpty()) {
 			sprite.setup(tex_index, true);
 			sprite.renderAll(render_list, tex_index, true);
 			sprite.reset(true, sprite.modulateColor());

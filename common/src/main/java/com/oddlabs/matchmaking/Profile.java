@@ -3,7 +3,7 @@ package com.oddlabs.matchmaking;
 import java.io.Serializable;
 
 public final class Profile implements Serializable {
-	private final static long serialVersionUID = -3399364532017471737l;
+	private final static long serialVersionUID = -3399364532017471737L;
 	
 	private final String nick;
 	private final int rating;

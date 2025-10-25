@@ -31,7 +31,7 @@ public abstract class NativeResource  {
         }
     }
 
-    public final static void deleteFinalized() {
+    public static void deleteFinalized() {
         Set<NativeResource> finalized = new HashSet<>(finalized_resources);
         finalized_resources.removeAll(finalized);
         finalized.forEach(r -> {
@@ -40,13 +40,13 @@ public abstract class NativeResource  {
         });
     }
 
-    public final static void gc() {
+    public static void gc() {
         System.gc();
         Runtime.getRuntime().runFinalization();
         deleteFinalized();
     }
 
-    public final static int getCount() {
+    public static int getCount() {
         return count.get();
     }
 

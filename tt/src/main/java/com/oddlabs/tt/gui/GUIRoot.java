@@ -110,7 +110,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 	}
 
 	public void pushDelegate(CameraDelegate delegate) {
-		if (delegate_stack.size() > 0) {
+		if (!delegate_stack.isEmpty()) {
 			getDelegate().remove();
 		}
 		assert !delegate_stack.contains(delegate);
@@ -125,7 +125,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 
 		delegate_stack.remove(delegate);
 
-		if (top_most && delegate_stack.size() > 0) {
+		if (top_most && !delegate_stack.isEmpty()) {
 			addChild(getDelegate());
 		}
 		mousePick();
@@ -139,7 +139,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 	}
 
 	private void pushModalDelegate(ModalDelegate delegate) {
-		if (modal_delegate_stack.size() > 0) {
+		if (!modal_delegate_stack.isEmpty()) {
 			getModalDelegate().remove();
 		}
 		modal_delegate_stack.add(delegate);
@@ -160,7 +160,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 			super.addChild(delegate);
 
 		GUIObject object = focus_backup_stack.remove(index);
-		if (delegate_stack.size() > 0)
+		if (!delegate_stack.isEmpty())
 			getDelegate().setFocus();
 		if (top_most && object != null)
 			object.setFocus();
@@ -168,7 +168,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 	}
 
 	public ModalDelegate getModalDelegate() {
-		if (modal_delegate_stack.size() > 0)
+		if (!modal_delegate_stack.isEmpty())
 			return modal_delegate_stack.get(modal_delegate_stack.size() - 1);
 		else
 			return null;
@@ -217,9 +217,9 @@ public final class GUIRoot extends GUIObject implements Updatable {
 			m1.store(matrix_buf);
 			matrix_buf.rewind();
 		}
-		for (int i = 0; i < delegate_stack.size(); i++) {
-			delegate_stack.get(i).displayChanged(width, height);
-		}
+            for (CameraDelegate cameraDelegate : delegate_stack) {
+                cameraDelegate.displayChanged(width, height);
+            }
 	}
 
         @Override

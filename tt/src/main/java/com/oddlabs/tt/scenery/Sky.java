@@ -184,15 +184,13 @@ public final class Sky {
         }
         SkyStitchVertex[] all_vertices = new SkyStitchVertex[num_vertices];
         int index = 0;
-        for (int i = 0; i < vertices_stitch_list.size(); i++) {
-            SkyStitchVertex[] vertices = vertices_stitch_list.get(i);
+        for (SkyStitchVertex[] vertices : vertices_stitch_list) {
             System.arraycopy(vertices, 0, all_vertices, index, vertices.length);
             index += vertices.length;
         }
         assert index == all_vertices.length;
         ShortBuffer all_indices = BufferUtils.createShortBuffer(num_indices);
-        for (int i = 0; i < stitch_indices_list.size(); i++) {
-            ShortBuffer indices = stitch_indices_list.get(i);
+        for (ShortBuffer indices : stitch_indices_list) {
             all_indices.put(indices);
         }
         assert !all_indices.hasRemaining();

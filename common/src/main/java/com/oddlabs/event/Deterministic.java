@@ -107,7 +107,7 @@ public abstract class Deterministic {
 	//	assert logged_value == value: "0x" + Long.toHexString(logged_value) + " != 0x" + Long.toHexString(value);
 	}
 
-	protected final static int getTraceId() {
+	protected static int getTraceId() {
 		Throwable t = new Throwable();
 		StackTraceElement[] stack_trace_elements = t.getStackTrace();
 		int hash = 0;

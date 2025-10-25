@@ -123,11 +123,10 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 
 	private void setLabelsPos() {
 		int y = getHeight();
-		for (int i = 0; i < history.size(); i++) {
-			LabelBox label_box = history.get(i);
-			y -= label_box.getHeight();
-			label_box.setPos(0, y);
-		}
+        for (LabelBox label_box : history) {
+            y -= label_box.getHeight();
+            label_box.setPos(0, y);
+        }
 	}
 }
 

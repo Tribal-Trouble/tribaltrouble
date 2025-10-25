@@ -5,7 +5,6 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.behaviour.WalkController;
 import com.oddlabs.tt.player.Player;
 
-import java.util.Iterator;
 import java.util.Set;
 
 public final class MoveUnitTrigger extends TutorialTrigger {
@@ -16,13 +15,11 @@ public final class MoveUnitTrigger extends TutorialTrigger {
 
         @Override
 	protected void run(Tutorial tutorial) {
-		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet(); 
-		Iterator<Selectable> it = set.iterator();
-		while (it.hasNext()) {
-			Selectable s = it.next();
-			if (s.getPrimaryController() instanceof WalkController) {
-				tutorial.done(TutorialForm.TUTORIAL_CAMERA);
-			}
-		}
+		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet();
+            for (Selectable s : set) {
+                if (s.getPrimaryController() instanceof WalkController) {
+                    tutorial.done(TutorialForm.TUTORIAL_CAMERA);
+                }
+            }
 	}
 }

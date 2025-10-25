@@ -36,7 +36,7 @@ public class WeaponsProducer {
                 }
             }
 
-		if (build_list.size() > 0) {
+		if (!build_list.isEmpty()) {
 			if (break_time <= 0) {
 				if (building.getOwner().getWorld().getRandom().nextFloat() < BREAK_PROBABILITY) {
 					break_time = building.getOwner().getWorld().getRandom().nextFloat()*MAX_BREAK_TIME;
@@ -47,10 +47,9 @@ public class WeaponsProducer {
 			}
 			startSound();
 			float man_seconds_per_container = unit_container.getNumSupplies()*t/build_list.size();
-			for (int i = 0; i < build_list.size(); i++) {
-				BuildProductionContainer current = build_list.get(i);
-				current.build(man_seconds_per_container);
-			}
+            for (BuildProductionContainer current : build_list) {
+                current.build(man_seconds_per_container);
+            }
 		} else {
 			emitter.stop();
 			stopSound();

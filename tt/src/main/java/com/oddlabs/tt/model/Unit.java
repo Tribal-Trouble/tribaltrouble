@@ -33,6 +33,7 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -558,9 +559,7 @@ public class Unit extends Selectable implements Occupant, Movable {
             if (clear_stack)
                 clearControllerStack();
             pushController(new MagicController(this, getOwner().getRace().getMagicFactory(magic_index)));
-            for (int i = 0; i < magic_energy.length; i++) {
-                magic_energy[i] = 0f;
-            }
+            Arrays.fill(magic_energy, 0f);
             last_magic_index = magic_index;
 
             // stats

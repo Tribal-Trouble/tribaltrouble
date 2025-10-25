@@ -5,7 +5,7 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
 
 public final class Gradient {
-	public Channel channel;
+	public final Channel channel;
 	
 	public static final int HORIZONTAL = 1;
 	public static final int VERTICAL = 2;

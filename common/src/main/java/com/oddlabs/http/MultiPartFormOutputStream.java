@@ -17,9 +17,9 @@ import java.net.URLConnection;
  * "multipart/form-data" to a <code>java.net.URLConnection</code> for
  * POSTing.  This is primarily for file uploading to HTTP servers.
  *
- * @since  JDK1.3
+ * @since JDK1.3
  *
- * http://forum.java.sun.com/thread.jsp?forum=31&thread=451245
+ * <a href="http://forum.java.sun.com/thread.jsp?forum=31&thread=451245">...</a>
  *
  */
 
@@ -63,7 +63,7 @@ public class MultiPartFormOutputStream{
 		if(os == null){
 			throw new IllegalArgumentException("Output stream is required.");
 		}
-		if(boundary == null || boundary.length() == 0){
+		if(boundary == null || boundary.isEmpty()){
 			throw new IllegalArgumentException("Boundary stream is required.");
 		}
 		this.out = new DataOutputStream(os);
@@ -144,7 +144,7 @@ public class MultiPartFormOutputStream{
 	 * @throws  java.io.IOException  on input/output errors
 	 */
 	public void writeField(String name, char value) throws java.io.IOException{
-		writeField(name, new Character(value).toString());
+		writeField(name, Character.toString(value));
 	}
 
 	/**
@@ -233,7 +233,7 @@ public class MultiPartFormOutputStream{
 		if(is == null){
 			throw new IllegalArgumentException("Input stream cannot be null.");
 		}
-		if(fileName == null || fileName.length() == 0){
+		if(fileName == null || fileName.isEmpty()){
 			throw new IllegalArgumentException("File name cannot be null or empty.");
 		}
 		/*
@@ -274,7 +274,7 @@ public class MultiPartFormOutputStream{
 		if(data == null){
 			throw new IllegalArgumentException("Data cannot be null.");
 		}
-		if(fileName == null || fileName.length() == 0){
+		if(fileName == null || fileName.isEmpty()){
 			throw new IllegalArgumentException("File name cannot be null or empty.");
 		}
 		/*

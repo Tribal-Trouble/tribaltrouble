@@ -102,11 +102,10 @@ public final class Slider extends GUIObject {
 
 	public void valueSetAll(int value) {
 		valueSet(value);
-		for (int i = 0; i < value_listeners.size(); i++) {
-			ValueListener listener = value_listeners.get(i);
-			if (listener != null)
-				listener.valueSet(value);
-		}
+        for (ValueListener listener : value_listeners) {
+            if (listener != null)
+                listener.valueSet(value);
+        }
 	}
 
 	void valueSet(int value) {

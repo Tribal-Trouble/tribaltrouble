@@ -136,7 +136,7 @@ public final class OGGStream {
 
 						while ((samples = dsp_state.synthesis_pcmout(outer_pcm, indices)) > 0) {
 							float[][] pcm = outer_pcm[0];
-							int count = (samples < data_size ? samples : data_size);
+							int count = (Math.min(samples, data_size));
 
 							for (int i = 0; i < info.channels; i++) {
 								int ptr = i*2;

@@ -17,7 +17,7 @@ public class EditLine extends TextField {
 	private final String allowed_chars;
 	private final int max_text_width;
 
-	private TextLineRenderer text_renderer;
+	private final TextLineRenderer text_renderer;
 	private int offset_x;
 	private int index;
 
@@ -216,11 +216,10 @@ public class EditLine extends TextField {
 	public final void enterPressedAll() {
 		CharSequence text = getText();
 		enterPressed(text);
-		for (int i = 0; i < enter_listeners.size(); i++) {
-			EnterListener listener = enter_listeners.get(i);
-			if (listener != null)
-				listener.enterPressed(text);
-		}
+        for (EnterListener listener : enter_listeners) {
+            if (listener != null)
+                listener.enterPressed(text);
+        }
 	}
 
 	protected void enterPressed(CharSequence text) {

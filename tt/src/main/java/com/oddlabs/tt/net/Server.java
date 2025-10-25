@@ -86,11 +86,9 @@ public final class Server implements ConnectionListenerInterface {
 	}
 
 	private void closeConnections() {
-		Iterator<AbstractConnection> it = connection_to_client.keySet().iterator();
-		while (it.hasNext()) {
-			AbstractConnection conn = it.next();
-			conn.close();
-		}
+        for (AbstractConnection conn : connection_to_client.keySet()) {
+            conn.close();
+        }
 		connection_to_client.clear();
 		unregister();
 	}

@@ -92,7 +92,7 @@ public final class NetworkSelector {
 
 	private long processPings(long millis) {
 		long next_select_timeout = PING_DELAY;
-		while (ping_timeouts.size() > 0) {
+		while (!ping_timeouts.isEmpty()) {
 			TimedConnection first_conn = ping_timeouts.get(0);
 			long first = first_conn.getTimeout();
 			if (first <= millis) {
@@ -103,7 +103,7 @@ public final class NetworkSelector {
 				break;
 			}
 		}
-		while (ping_connections.size() > 0) {
+		while (!ping_connections.isEmpty()) {
 			TimedConnection first_conn = ping_connections.get(0);
 			long first = first_conn.getTimeout();
 			if (first <= millis) {

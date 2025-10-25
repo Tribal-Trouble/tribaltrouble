@@ -32,8 +32,7 @@ final class LightningRenderer {
         GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glDepthMask(false);
-        for (int i = 0; i < emitter_queue.size(); i++) {
-            Lightning emitter = emitter_queue.get(i);
+        for (Lightning emitter : emitter_queue) {
             if (Globals.draw_particles)
                 render(render_queues, emitter);
         }

@@ -38,7 +38,6 @@ import java.nio.FloatBuffer;
  * <p>
  * Holds a 3-tuple vector.
  * 
- * @author
  * @version $Revision: 1.3 $
  */
 
@@ -293,16 +292,15 @@ public class StrictVector3f {
 	 */
         @Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(64);
 
-		sb.append("StrictVector3f[");
-		sb.append(x);
-		sb.append(", ");
-		sb.append(y);
-		sb.append(", ");
-		sb.append(z);
-		sb.append(']');
-		return sb.toString();
+            String sb = "StrictVector3f[" +
+                    x +
+                    ", " +
+                    y +
+                    ", " +
+                    z +
+                    ']';
+		return sb;
 	}
 
 	/**
@@ -321,24 +319,21 @@ public class StrictVector3f {
 
 	/**
 	 * Set X
-	 * @param x
-	 */
+     */
 	public final void setX(float x) {
 		this.x = x;
 	}
 
 	/**
 	 * Set Y
-	 * @param y
-	 */
+     */
 	public final void setY(float y) {
 		this.y = y;
 	}
 
 	/**
 	 * Set Z
-	 * @param z
-	 */
+     */
 	public void setZ(float z) {
 		this.z = z;
 	}
