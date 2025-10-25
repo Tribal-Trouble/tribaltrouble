@@ -19,7 +19,7 @@ public class SupplySpawnAnimation implements Animated {
 
         @Override
 	public final void animate(float t) {
-		time = StrictMath.min(time + t, limit);
+		time = Math.min(time + t, limit);
 		supply.animateSpawn(t, time/limit);
 		if (time >= limit) {
 			supply.getWorld().getAnimationManagerGameTime().removeAnimation(this);

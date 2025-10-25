@@ -21,8 +21,8 @@ public final class FirstPersonCamera extends Camera {
 
     @Override
     public void doAnimate(float t) {
-            float dir_x = (float)StrictMath.cos(getState().getTargetHorizAngle());
-            float dir_y = (float)StrictMath.sin(getState().getTargetHorizAngle());
+            float dir_x = (float)Math.cos(getState().getTargetHorizAngle());
+            float dir_y = (float)Math.sin(getState().getTargetHorizAngle());
             float left_dir_x = -dir_y;
             float left_dir_y = dir_x;
 

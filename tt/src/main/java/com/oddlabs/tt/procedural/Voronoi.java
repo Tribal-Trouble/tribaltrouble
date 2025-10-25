@@ -29,9 +29,9 @@ public final class Voronoi {
 
 	public Voronoi(int size, int x_domains, int y_domains, int checkradius, float randomness, long seed, boolean border) {
 		this.size = size;
-		x_domains = StrictMath.max(1, x_domains);
-		y_domains = StrictMath.max(1, y_domains);
-		checkradius = StrictMath.min(StrictMath.max(1, checkradius), StrictMath.max(x_domains, y_domains));
+		x_domains = Math.max(1, x_domains);
+		y_domains = Math.max(1, y_domains);
+		checkradius = Math.min(Math.max(1, checkradius), Math.max(x_domains, y_domains));
 		random = new Random(seed);
 		dist1 = new Channel(size, size);
 		dist2 = new Channel(size, size);
@@ -87,18 +87,18 @@ public final class Voronoi {
 
 						// calculate distance to current hit point taking wrap-around into consideration
 						if (i + k >= 0 && i + k < x_domains) {
-							dx = StrictMath.abs(domains[k_wrap][l_wrap][X] - x_coord);
+							dx = Math.abs(domains[k_wrap][l_wrap][X] - x_coord);
 						} else if (i + k < 0) {
-							dx = StrictMath.abs(1 - domains[k_wrap][l_wrap][X] + x_coord);
+							dx = Math.abs(1 - domains[k_wrap][l_wrap][X] + x_coord);
 						} else if (i + k >= x_domains) {
-							dx = StrictMath.abs(1 - x_coord + domains[k_wrap][l_wrap][X]);
+							dx = Math.abs(1 - x_coord + domains[k_wrap][l_wrap][X]);
 						}
 						if (j + l >= 0 && j + l < y_domains) {
-							dy = StrictMath.abs(domains[k_wrap][l_wrap][Y] - y_coord);
+							dy = Math.abs(domains[k_wrap][l_wrap][Y] - y_coord);
 						} else if (j + l < 0) {
-							dy = StrictMath.abs(1 - domains[k_wrap][l_wrap][Y] + y_coord);
+							dy = Math.abs(1 - domains[k_wrap][l_wrap][Y] + y_coord);
 						} else if (j + l >= y_domains) {
-							dy = StrictMath.abs(1 - y_coord + domains[k_wrap][l_wrap][Y]);
+							dy = Math.abs(1 - y_coord + domains[k_wrap][l_wrap][Y]);
 						}
 						dx*=x_domains;
 						dy*=y_domains;

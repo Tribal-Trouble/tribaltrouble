@@ -174,7 +174,7 @@ public final class Building extends Selectable implements Occupant {
 				float fade_speed = 2.5f;
 
 				new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(), getPositionZ()), 0f,
-							getBuildingTemplate().getSmokeRadius(), getBuildingTemplate().getSmokeHeight(), 0.05f, (float)StrictMath.PI,
+							getBuildingTemplate().getSmokeRadius(), getBuildingTemplate().getSmokeHeight(), 0.05f, (float)Math.PI,
 							getBuildingTemplate().getNumFragments(), getBuildingTemplate().getNumFragments(),
 							new Vector3f(0f, 0f, 5f), new Vector3f(0f, 0f, -25f),
 							new Vector4f(1f, 1f, 1f, energy*fade_speed), new Vector4f(0f, 0f, 0f, -fade_speed),
@@ -365,7 +365,7 @@ public final class Building extends Selectable implements Occupant {
 		final float MIN_ENERGY = 3f;
 		final float MAX_ENERGY = 5f;
 		final int START_SMOKE = getBuildingTemplate().getMaxHitPoints()/2;
-		hit_points = StrictMath.max(StrictMath.min(new_hit_points, getBuildingTemplate().getMaxHitPoints()), 0);
+		hit_points = Math.max(Math.min(new_hit_points, getBuildingTemplate().getMaxHitPoints()), 0);
 		if (build_points == getBuildingTemplate().getMaxHitPoints() && hit_points < START_SMOKE) {
 			float energy = MIN_ENERGY + ((1 - (float)hit_points/(START_SMOKE))*(MAX_ENERGY - MIN_ENERGY));
 			damaged_emitter.start();
@@ -383,7 +383,7 @@ public final class Building extends Selectable implements Occupant {
 
 		setHitPoints(hit_points + amount);
 		if (build_points < getBuildingTemplate().getMaxHitPoints()) {
-			build_points = StrictMath.min(build_points + amount, getBuildingTemplate().getMaxHitPoints());
+			build_points = Math.min(build_points + amount, getBuildingTemplate().getMaxHitPoints());
 			reinsert();
 			if (build_points == getBuildingTemplate().getMaxHitPoints()) {
 				getOwner().getWorld().getNotificationListener().newSelectableNotification(this);
@@ -533,7 +533,7 @@ public final class Building extends Selectable implements Occupant {
 	public float getSize() {
 		assert !isDead();
 		float radius = (getBuildingTemplate().getPlacingSize() - 1);
-		return (float)StrictMath.sqrt(2)*radius + .1f;
+		return (float)Math.sqrt(2)*radius + .1f;
 	}
 
         @Override
@@ -720,7 +720,7 @@ public final class Building extends Selectable implements Occupant {
 	public void fillSupplies(Class<?> key, int max) {
 		SupplyContainer container = getSupplyContainer(key);
 		if (container != null) {
-			container.increaseSupply(StrictMath.min(container.getMaxSupplyCount() - container.getNumSupplies(), max));
+			container.increaseSupply(Math.min(container.getMaxSupplyCount() - container.getNumSupplies(), max));
 		}
 	}
 

@@ -5,11 +5,11 @@ public final class Tools {
 	}
 
 	public static float modulo(float x, float n) {
-		return x - n*(float)StrictMath.floor(x/n);
+		return x - n*(float)Math.floor(x/n);
 	}
 
 	public static int modulo(int x, int n) {
-		return (int)(x - n*(float)StrictMath.floor((float)x/n));
+		return (int)(x - n*(float)Math.floor((float)x/n));
 	}
 
 	public static float interpolateLinear(float v1, float v2, float fraction) {
@@ -64,28 +64,28 @@ public final class Tools {
 
 	public static float gaussify(float x) {
 		if (x >=0 && x < 0.5) {
-			return 0.5f*(float)StrictMath.sqrt(2*x);
+			return 0.5f*(float)Math.sqrt(2*x);
 		}
 		if (x >=0.5f && x <= 1f) {
-			return 1f - 0.5f*(float)StrictMath.sqrt(-2*x + 2);
+			return 1f - 0.5f*(float)Math.sqrt(-2*x + 2);
 		}
 		return 0;
 	}
 
 	public static float gaussify(float x, float exponent) {
 		if (x >=0 && x < 0.5) {
-			return 0.5f*(float)StrictMath.pow(2*x, exponent);
+			return 0.5f*(float)Math.pow(2*x, exponent);
 		}
 		if (x >=0.5f && x <= 1f) {
-			return 1f - 0.5f*(float)StrictMath.pow(-2*x + 2, exponent);
+			return 1f - 0.5f*(float)Math.pow(-2*x + 2, exponent);
 		}
 		return 0;
 	}
 
 	public static float gain(float gain, float x) {
 		if (x < 0.5f)
-			return (float)(StrictMath.pow(2 * x, StrictMath.log(1 - gain)/StrictMath.log(0.5d))/2f);
+			return (float)(Math.pow(2 * x, Math.log(1 - gain)/Math.log(0.5d))/2f);
 		else
-			return 1f - (float)(StrictMath.pow(2 - 2 * x, StrictMath.log(1 - gain)/StrictMath.log(0.5d))/2f);
+			return 1f - (float)(Math.pow(2 - 2 * x, Math.log(1 - gain)/Math.log(0.5d))/2f);
 	}
 }

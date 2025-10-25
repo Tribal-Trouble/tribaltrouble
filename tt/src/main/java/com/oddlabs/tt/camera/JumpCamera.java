@@ -33,7 +33,7 @@ public final class JumpCamera extends Camera {
             float dx = target[0] - getState().getTargetX();
             float dy = target[1] - getState().getTargetY();
             float dz = getHeightMap().getNearestHeight(target[0], target[1]) - getState().getTargetZ();
-            float distance_to_landscape = (float)StrictMath.sqrt(dx*dx + dy*dy + dz*dz);
+            float distance_to_landscape = (float)Math.sqrt(dx*dx + dy*dy + dz*dz);
             float dir_x = dx/distance_to_landscape;
             float dir_y = dy/distance_to_landscape;
             float dir_z = dz/distance_to_landscape;
@@ -43,8 +43,8 @@ public final class JumpCamera extends Camera {
             this.dx = dst_x - getState().getTargetX();
             this.dy = dst_y - getState().getTargetY();
             this.dz = dst_z - getState().getTargetZ();
-            float distance_to_dst = (float)StrictMath.sqrt(this.dx*this.dx + this.dy*this.dy + this.dz*this.dz);
-            seconds = StrictMath.min(distance_to_dst/meters_per_second, max_seconds);
+            float distance_to_dst = (float)Math.sqrt(this.dx*this.dx + this.dy*this.dy + this.dz*this.dz);
+            seconds = Math.min(distance_to_dst/meters_per_second, max_seconds);
             factor = 1f/seconds;
             z_accel = -(distance_to_dst/32)/(seconds*.5f);
             z_speed = this.dz*factor - z_accel*(seconds/2f);

@@ -80,7 +80,7 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 	}
 
 	public void print(String text, float[] color) {
-		int width = StrictMath.min(font.getWidth(text), getWidth());
+		int width = Math.min(font.getWidth(text), getWidth());
 		LabelBox label_box = new BackgroundLabelBox(text, font, width);
 		if (color != null)
 			label_box.setColor(color);

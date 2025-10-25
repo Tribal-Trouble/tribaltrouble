@@ -19,9 +19,9 @@ public final class WarningForm extends Form {
 
 	public WarningForm(String head, String message) {
 		ResourceBundle bundle = ResourceBundle.getBundle(WarningForm.class.getName());
-		int head_width = StrictMath.min(MAX_WIDTH, Skin.getSkin().getHeadlineFont().getWidth(head));
-		int message_width = StrictMath.min(MAX_WIDTH, Skin.getSkin().getEditFont().getWidth(message));
-		int width = StrictMath.max(head_width, message_width);
+		int head_width = Math.min(MAX_WIDTH, Skin.getSkin().getHeadlineFont().getWidth(head));
+		int message_width = Math.min(MAX_WIDTH, Skin.getSkin().getEditFont().getWidth(message));
+		int width = Math.max(head_width, message_width);
 
 		Group group = new Group();
 		addChild(group);

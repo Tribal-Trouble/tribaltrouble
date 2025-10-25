@@ -189,7 +189,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 	}
 
 	public static float getUnitsPerPixel(float z) {
-		return (float)(z*StrictMath.tan(Globals.FOV*(StrictMath.PI/180.0f)*0.5f)/(LocalInput.getViewHeight()*0.5d));
+		return (float)(z*Math.tan(Globals.FOV*(Math.PI/180.0f)*0.5f)/(LocalInput.getViewHeight()*0.5d));
 	}
 
 	public void displayChanged() {
@@ -425,7 +425,7 @@ public RandomVelocityEmitter(Vector3f position,
 				float alpha = 12f;
 				float energy = 4f;
 				new RandomVelocityEmitter(new Vector3f(x1, y1, z1),
-						.001f, .001f, .5f, (float)StrictMath.PI,
+						.001f, .001f, .5f, (float)Math.PI,
 						50, 25f,
 						new Vector3f(0f, 0f, 4f), new Vector3f(0f, 0f, -2f),
 						new Vector4f(1f, 1f, 1f, alpha), new Vector4f(0f, 0f, 0f, -alpha/energy),

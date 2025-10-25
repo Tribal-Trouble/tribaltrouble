@@ -68,7 +68,7 @@ public class Group extends GUIObject {
 		// find the width and height of the group
 		int top_left_width = max_x_tl - min_x_tl + left_offset + right_offset;
 		int bottom_right_width = max_x_br - min_x_br + left_offset + right_offset;
-		int width = StrictMath.max(top_left_width, bottom_right_width);
+		int width = Math.max(top_left_width, bottom_right_width);
 		int height = (max_y_tl - min_y_tl) + (max_y_br - min_y_br) + top_offset + bottom_offset;
 		if (origin_top_left && origin_bottom_right)
 			height += Skin.getSkin().getFormData().getSectionSpacing();

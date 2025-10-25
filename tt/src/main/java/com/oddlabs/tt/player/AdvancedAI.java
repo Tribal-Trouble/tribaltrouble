@@ -105,10 +105,10 @@ public final class AdvancedAI extends AI {
 			if (num_units <= 0 || num_weapons <= 0)
 				return;
 
-			int num_warriors = StrictMath.min(num_units, num_weapons);
-			int num_rubber_units = StrictMath.min(num_warriors, armory.getSupplyContainer(RubberAxeWeapon.class).getNumSupplies());
-			int num_iron_units = StrictMath.min(num_warriors - num_rubber_units, armory.getSupplyContainer(IronAxeWeapon.class).getNumSupplies());
-			int num_rock_units = StrictMath.min(num_warriors - num_rubber_units - num_iron_units, armory.getSupplyContainer(RockAxeWeapon.class).getNumSupplies());
+			int num_warriors = Math.min(num_units, num_weapons);
+			int num_rubber_units = Math.min(num_warriors, armory.getSupplyContainer(RubberAxeWeapon.class).getNumSupplies());
+			int num_iron_units = Math.min(num_warriors - num_rubber_units, armory.getSupplyContainer(IronAxeWeapon.class).getNumSupplies());
+			int num_rock_units = Math.min(num_warriors - num_rubber_units - num_iron_units, armory.getSupplyContainer(RockAxeWeapon.class).getNumSupplies());
 			if (num_rubber_units > 0) {
 				getOwner().deployUnits(armory, DeployType.RUBBER_WARRIOR, num_rubber_units);
 //				deployed += num_rubber_units*SCORE_WARRIOR_RUBBER;
@@ -234,7 +234,7 @@ public final class AdvancedAI extends AI {
 			int center = getOwner().getWorld().getHeightMap().getGridUnitsPerWorld()/2;
 			int dx = center - ox;
 			int dy = center - oy;
-			float inv_dist = 1f/(float)StrictMath.sqrt(dx*dx + dy*dy);
+			float inv_dist = 1f/(float)Math.sqrt(dx*dx + dy*dy);
 			int tx = (int)(ox + 10f*dx*inv_dist);
 			int ty = (int)(oy + 10f*dy*inv_dist);
 			setTowerUnderConstruction(buildBuilding(Race.BUILDING_TOWER, builders, tx, ty));
@@ -311,9 +311,9 @@ else
 				int num_weapons = numWeapons(armory) - MIN_WEAPONS_IN_STOCK[difficulty];
 
 				if (num_units >= num_warriors && num_weapons >= num_warriors) {
-					int num_rubber_units = StrictMath.min(num_warriors, armory.getSupplyContainer(RubberAxeWeapon.class).getNumSupplies());
-					int num_iron_units = StrictMath.min(num_warriors - num_rubber_units, armory.getSupplyContainer(IronAxeWeapon.class).getNumSupplies());
-					int num_rock_units = StrictMath.min(num_warriors - num_rubber_units - num_iron_units, armory.getSupplyContainer(RockAxeWeapon.class).getNumSupplies());
+					int num_rubber_units = Math.min(num_warriors, armory.getSupplyContainer(RubberAxeWeapon.class).getNumSupplies());
+					int num_iron_units = Math.min(num_warriors - num_rubber_units, armory.getSupplyContainer(IronAxeWeapon.class).getNumSupplies());
+					int num_rock_units = Math.min(num_warriors - num_rubber_units - num_iron_units, armory.getSupplyContainer(RockAxeWeapon.class).getNumSupplies());
 					if (num_rubber_units > 0)
 						getOwner().deployUnits(armory, DeployType.RUBBER_WARRIOR, num_rubber_units);
 					if (num_iron_units > 0)
@@ -391,7 +391,7 @@ else
 			if (!quarters.isDead()) {
 				quarters.setRallyPoint(armory);
 				if (quarters.getUnitContainer().getNumSupplies() > MIN_UNITS_REPRODUCING[difficulty]) {
-					int units = StrictMath.min(num_units, quarters.getUnitContainer().getNumSupplies() - MIN_UNITS_REPRODUCING[difficulty]);
+					int units = Math.min(num_units, quarters.getUnitContainer().getNumSupplies() - MIN_UNITS_REPRODUCING[difficulty]);
 					getOwner().deployUnits(quarters, DeployType.PEON, units);
 				}
 			}

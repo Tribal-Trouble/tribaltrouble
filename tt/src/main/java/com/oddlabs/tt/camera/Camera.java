@@ -60,7 +60,7 @@ public abstract class Camera implements Animated {
             float dy = (state.getTargetY() - mid);
             float squared_dist = dx*dx + dy*dy;
             if (squared_dist > heightmap.getMetersPerWorld()*heightmap.getMetersPerWorld()) {
-                    float scale = heightmap.getMetersPerWorld()/(float)StrictMath.sqrt(squared_dist);
+                    float scale = heightmap.getMetersPerWorld()/(float)Math.sqrt(squared_dist);
                     state.setTargetX(dx*scale + mid);
                     state.setTargetY(dy*scale + mid);
             }
@@ -99,12 +99,12 @@ public abstract class Camera implements Animated {
                             float dx1 = hit_x - x;
                             float dy1 = hit_y - y;
                             float dz1 = hit_z - z;
-                            float inv_length = LANDSCAPE_OFFSET/(float)StrictMath.sqrt(dx1*dx1 + dy1*dy1 + dz1*dz1);
+                            float inv_length = LANDSCAPE_OFFSET/(float)Math.sqrt(dx1*dx1 + dy1*dy1 + dz1*dz1);
                             dx1 *= inv_length;
                             dy1 *= inv_length;
                             dz1 *= inv_length;
 
-                            float min_height = StrictMath.max(heightmap.getNearestHeight(x + dx1, y + dy1),
+                            float min_height = Math.max(heightmap.getNearestHeight(x + dx1, y + dy1),
                                             heightmap.getSeaLevelMeters());
                             hit_z = z + dz1;
                             if (hit_z < min_height) {

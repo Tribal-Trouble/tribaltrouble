@@ -75,7 +75,7 @@ public final class SonicBlast implements Magic {
 
         @Override
 	public void animate(float t) {
-		time = StrictMath.min(time + t, seconds);
+		time = Math.min(time + t, seconds);
 		if (time >= seconds) {
 			owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
 		}
@@ -134,7 +134,7 @@ public final class SonicBlast implements Magic {
 					float hit_chance = calculateValueFromCurrentRadius(current_radius, hit_chance_closest, hit_chance_farthest);
 					if (owner.getWorld().getRandom().nextFloat() < hit_chance*(1 - s.getDefenseChance())) {
 						int damage = (int)calculateValueFromCurrentRadius(current_radius, damage_closest, damage_farthest);
-						float inv_dist = 1f/((float)StrictMath.sqrt(squared_dist));
+						float inv_dist = 1f/((float)Math.sqrt(squared_dist));
 						s.hit(damage, dx*inv_dist, dy*inv_dist, owner);
 					}
 				}
@@ -147,8 +147,8 @@ public final class SonicBlast implements Magic {
 
 	private float calculateValueFromCurrentRadius(float current_radius, float max, float min) {
 		float base_factor = 4f/7f;
-		float error = (float)StrictMath.pow(base_factor, hit_radius);
-		float factor = (float)StrictMath.pow(base_factor, current_radius);
+		float error = (float)Math.pow(base_factor, hit_radius);
+		float factor = (float)Math.pow(base_factor, current_radius);
 		float result = (max - min + error)*factor + min - error;
 		return result;
 	}

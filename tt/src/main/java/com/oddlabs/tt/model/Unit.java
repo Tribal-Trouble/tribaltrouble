@@ -247,7 +247,7 @@ public class Unit extends Selectable implements Occupant, Movable {
         assert !isDead();
         float dx = target.getPositionX() - getPositionX();
         float dy = target.getPositionY() - getPositionY();
-        float dir_len_inv = 1f / (float) StrictMath.sqrt(dx * dx + dy * dy);
+        float dir_len_inv = 1f / (float) Math.sqrt(dx * dx + dy * dy);
         dx *= dir_len_inv;
         dy *= dir_len_inv;
         setDirection(dx, dy);
@@ -309,7 +309,7 @@ public class Unit extends Selectable implements Occupant, Movable {
     @Override
     public final void markBlocking() {
         assert !isDead();
-        path_penalty = StrictMath.min(path_penalty + PENALTY_INCREMENT, STATIC - 1); // never gets STATIC
+        path_penalty = Math.min(path_penalty + PENALTY_INCREMENT, STATIC - 1); // never gets STATIC
     }
 
     @Override
@@ -379,7 +379,7 @@ public class Unit extends Selectable implements Occupant, Movable {
             mounted_building.hit(damage, direction_x, direction_y, owner);
         } else
             if (!isDead()) {
-                hit_points = StrictMath.max(StrictMath.min(hit_points - damage, getUnitTemplate().getMaxHitPoints()), 0);
+                hit_points = Math.max(Math.min(hit_points - damage, getUnitTemplate().getMaxHitPoints()), 0);
                 if (hit_points == 0) {
                     // stats
                     owner.unitKilled();
@@ -416,7 +416,7 @@ public class Unit extends Selectable implements Occupant, Movable {
         if (stun_marker != null) {
             stun_marker.done();
         }
-        stun_marker = createStunStar(x, y, z, time, (float) StrictMath.PI / 2);
+        stun_marker = createStunStar(x, y, z, time, (float) Math.PI / 2);
         pushController(new StunController(this, time));
         forceDecide();
     }
@@ -424,7 +424,7 @@ public class Unit extends Selectable implements Occupant, Movable {
     private BalancedParametricEmitter createStunStar(float x, float y, float z, float time, float velocity) {
         int num_particles = 5;
         return new BalancedParametricEmitter(getOwner().getWorld(), new StunFunction(.4f, .15f), new Vector3f(x, y, z),
-                velocity, 5f, (float) StrictMath.PI * 2, (float) StrictMath.PI * 2,
+                velocity, 5f, (float) Math.PI * 2, (float) Math.PI * 2,
                 num_particles, 0f, 2f,
                 new Vector4f(1f, 1f, 1f, 1f), new Vector4f(0f, 0f, 0f, 0f),
                 new Vector3f(.1f, .1f, .1f), new Vector3f(0f, 0f, 0f), time,

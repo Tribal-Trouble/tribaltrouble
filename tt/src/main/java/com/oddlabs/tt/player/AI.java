@@ -67,7 +67,7 @@ public abstract class AI implements Animated {
 				int center = owner.getWorld().getHeightMap().getGridUnitsPerWorld()/2;
 				int dx = center - grid_start_x;
 				int dy = center - grid_start_y;
-				float inv_dist = 1f/(float)StrictMath.sqrt(dx*dx + dy*dy);
+				float inv_dist = 1f/(float)Math.sqrt(dx*dx + dy*dy);
 				int tx = (int)(grid_start_x + 10f*dx*inv_dist);
 				int ty = (int)(grid_start_y + 10f*dy*inv_dist);
 				owner.buildBuilding(Race.BUILDING_TOWER, tx, ty);
@@ -308,7 +308,7 @@ public abstract class AI implements Animated {
 		if (towers == null || idle_warriors == null)
 			return;
 
-		int length = StrictMath.min(idle_warriors.length, towers.length);
+		int length = Math.min(idle_warriors.length, towers.length);
 		for (int i = 0; i < length; i++) {
 			owner.setTarget(new Selectable[]{idle_warriors[i]}, towers[i], Target.ACTION_DEFAULT, false);
 		}

@@ -23,7 +23,7 @@ public final class ByteBufferInputStream extends InputStream {
 	public int read(byte[] bytes, int offset, int length) {
 		if (available() == 0)
 			return -1;
-		length = StrictMath.min(length, available());
+		length = Math.min(length, available());
 		buffer.get(bytes, offset, length);
 		return length;
 	}

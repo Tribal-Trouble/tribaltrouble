@@ -221,14 +221,14 @@ public final class Layer {
 		float min_r = r.findMin();
 		float min_g = g.findMin();
 		float min_b = b.findMin();
-		return StrictMath.min(min_r, StrictMath.min(min_g, min_b));
+		return Math.min(min_r, Math.min(min_g, min_b));
 	}
 
 	public float findMax() {
 		float max_r = r.findMax();
 		float max_g = g.findMax();
 		float max_b = b.findMax();
-		return StrictMath.max(max_r, StrictMath.max(max_g, max_b));
+		return Math.max(max_r, Math.max(max_g, max_b));
 	}
 
 	public Layer copy() {
@@ -246,8 +246,8 @@ public final class Layer {
 		float max_r = r.findMax();
 		float max_g = g.findMax();
 		float max_b = b.findMax();
-		float min = StrictMath.min(min_r, StrictMath.min(min_g, min_b));
-		float max = StrictMath.max(max_r, StrictMath.max(max_g, max_b));
+		float min = Math.min(min_r, Math.min(min_g, min_b));
+		float max = Math.max(max_r, Math.max(max_g, max_b));
 		min_r = Tools.interpolateLinear(0, 1, (min_r - min)/(max - min));
 		min_g = Tools.interpolateLinear(0, 1, (min_g - min)/(max - min));
 		min_b = Tools.interpolateLinear(0, 1, (min_b - min)/(max - min));
@@ -267,8 +267,8 @@ public final class Layer {
 		float max_r = r.findMax();
 		float max_g = g.findMax();
 		float max_b = b.findMax();
-		float min = StrictMath.min(min_r, StrictMath.min(min_g, min_b));
-		float max = StrictMath.max(max_r, StrictMath.max(max_g, max_b));
+		float min = Math.min(min_r, Math.min(min_g, min_b));
+		float max = Math.max(max_r, Math.max(max_g, max_b));
 		min_r = Tools.interpolateLinear(new_min, new_max, (min_r - min)/(max - min));
 		min_g = Tools.interpolateLinear(new_min, new_max, (min_g - min)/(max - min));
 		min_b = Tools.interpolateLinear(new_min, new_max, (min_b - min)/(max - min));
@@ -649,8 +649,8 @@ public final class Layer {
 
 	public Layer bumpSpecular(Channel bumpmap, float lx, float ly, float lz, float shadow, float light_r, float light_g, float light_b, int specular) {
 		assert bumpmap.getWidth() == width && bumpmap.getHeight() == height: "bumpmap size does not match layer size";
-		float lnorm = (float)StrictMath.sqrt(lx*lx + ly*ly + lz*lz);
-		float nz = 4*(1f/StrictMath.min(width, height));
+		float lnorm = (float)Math.sqrt(lx*lx + ly*ly + lz*lz);
+		float nz = 4*(1f/Math.min(width, height));
 		float nzlz = nz*lz;
 		float nz2 = nz*nz;
 		int power = 2<<specular;
@@ -688,8 +688,8 @@ public final class Layer {
 				float r_val = r.getPixel(x, y);
 				float g_val = g.getPixel(x, y);
 				float b_val = b.getPixel(x, y);
-				min = StrictMath.min(r_val, StrictMath.min(g_val, b_val));
-				max = StrictMath.max(r_val, StrictMath.max(g_val, b_val));
+				min = Math.min(r_val, Math.min(g_val, b_val));
+				max = Math.max(r_val, Math.max(g_val, b_val));
 
 				v_val = max;
 				delta = max - min;

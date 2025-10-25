@@ -54,7 +54,7 @@ public final class PulldownMenu extends Group {// GUIObject {
                     min_width = item.getTextWidth();
             }
 		int item_pos_count = Skin.getSkin().getPulldownData().getPulldownBottom().getHeight();
-		min_width = StrictMath.max(width, item_box.getLeftOffset() + min_width + item_box.getRightOffset());
+		min_width = Math.max(width, item_box.getLeftOffset() + min_width + item_box.getRightOffset());
 		for (int i = 0; i < items.size(); i++) {
 			PulldownItem item = items.get(items.size() - 1 - i);
 			int item_height = item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
@@ -62,7 +62,7 @@ public final class PulldownMenu extends Group {// GUIObject {
 			item.setPos(0, item_pos_count);
 			item_pos_count += item_height;
 		}
-		int min_height = StrictMath.max(height, item_pos_count + Skin.getSkin().getPulldownData().getPulldownTop().getHeight());
+		int min_height = Math.max(height, item_pos_count + Skin.getSkin().getPulldownData().getPulldownTop().getHeight());
 		super.setDim(min_width, min_height);
 	}
 

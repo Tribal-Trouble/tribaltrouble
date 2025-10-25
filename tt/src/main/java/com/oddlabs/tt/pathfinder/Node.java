@@ -70,8 +70,8 @@ abstract class Node {
 	public final int estimateCost(int dest_x, int dest_y) {
 		int vec_x = dest_x - getGridX();
 		int vec_y = dest_y - getGridY();
-		int abs_dx = StrictMath.abs(vec_x);
-		int abs_dy = StrictMath.abs(vec_y);
+		int abs_dx = Math.abs(vec_x);
+		int abs_dy = Math.abs(vec_y);
 		int max;
 		int min;
 		if (abs_dx > abs_dy) {
@@ -82,8 +82,8 @@ abstract class Node {
 			min = abs_dx;
 		}
 		return RegionBuilder.STRAIGHT*(max - min) + RegionBuilder.DIAGONAL*min;
-//		return StrictMath.max(StrictMath.abs(vec_x), StrictMath.abs(vec_y));
-//		return StrictMath.abs(vec_x) + StrictMath.abs(vec_y);
+//		return Math.max(Math.abs(vec_x), Math.abs(vec_y));
+//		return Math.abs(vec_x) + Math.abs(vec_y);
 	}
 
 	public abstract boolean addNeighbours(PathFinderAlgorithm finder, UnitGrid unit_grid);

@@ -40,7 +40,7 @@ final class SessionManager {
 			return 0;
 		Timeout timeout = timeouts.firstKey();
 		long timeout_value = timeout.next_timeout - time_manager.getMillis();
-		return StrictMath.max(1, timeout_value);
+		return Math.max(1, timeout_value);
 	}
 
 	void process() {

@@ -17,7 +17,7 @@ public final class MidpointFractalizer {
 		assert base.width == base.height : "base image must be square";
 		int iterations = Utils.powerOf2Log2(size);
 		int base_freq = Utils.powerOf2Log2(base.width);
-		iterations = StrictMath.max(base_freq, iterations);
+		iterations = Math.max(base_freq, iterations);
 		random = new Random(seed);
 		channel = new Channel(size, size);
 
@@ -40,7 +40,7 @@ public final class MidpointFractalizer {
 		for (int i = base_freq; i < iterations; i++) {
 			int block_size = size>>i;
 			int block_size_half = size>>(i + 1);
-			float amp = amplitude*(float)StrictMath.pow(pers, i - base_freq);
+			float amp = amplitude*(float)Math.pow(pers, i - base_freq);
 			float amp_half = 0.5f*amp;
 			// calculate center midpoints
 			if (i < 2) {

@@ -128,12 +128,12 @@ dumpBuffer(buffer);*/
 			if (cache_index != -1) {
 				if (round != round_added) {
 					float scale = 1f/LRU_SIZE;
-					score = (float)StrictMath.pow(1f - cache_index*scale, CACHE_SCORE_POWER);
+					score = (float)Math.pow(1f - cache_index*scale, CACHE_SCORE_POWER);
 				} else
 					score = INITIAL_SCORE;
 			}
 //System.out.println("index = " + index + " | triangle_list.size() = " + triangle_list.size() + " cache_index " + cache_index + " score " + score);
-			score += VALENCE_BOOST_SCALE*(float)StrictMath.pow(triangle_list.size(), -VALENCE_BOOST_POWER);
+			score += VALENCE_BOOST_SCALE*(float)Math.pow(triangle_list.size(), -VALENCE_BOOST_POWER);
 		}
 
 		public void add(Triangle triangle) {

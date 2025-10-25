@@ -39,7 +39,7 @@ final class Fade {
 
 	void render() {
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		float alpha = (float)StrictMath.sin(StrictMath.PI*time/FADE_TIME);
+		float alpha = (float)Math.sin(Math.PI*time/FADE_TIME);
 		GL11.glColor4f(0f, 0f, 0f, alpha);
 		GL11.glBegin(GL11.GL_QUADS);
 		GL11.glVertex3f(0, 0, 0f);

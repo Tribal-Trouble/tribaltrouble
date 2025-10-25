@@ -54,7 +54,7 @@ public class BoundingBox {
 		float radius_squared_x = cx - bmin_x;
 		float radius_squared_y = cy - bmin_y;
 		float radius_squared_z = cz - bmin_z;
-		return (float)StrictMath.sqrt(radius_squared_x*radius_squared_x + radius_squared_y*radius_squared_y + radius_squared_z*radius_squared_z);
+		return (float)Math.sqrt(radius_squared_x*radius_squared_x + radius_squared_y*radius_squared_y + radius_squared_z*radius_squared_z);
 	}
 
 	public final float getCX() {
@@ -154,13 +154,13 @@ public class BoundingBox {
 	public final float computeCenteredXYRadius() {
 		float radius_squared_x = cx - bmin_x;
 		float radius_squared_y = cy - bmin_y;
-		return (float)StrictMath.sqrt(radius_squared_x*radius_squared_x + radius_squared_y*radius_squared_y);
+		return (float)Math.sqrt(radius_squared_x*radius_squared_x + radius_squared_y*radius_squared_y);
 	}
 
 	private float computeXYRadius() {
-		float longest_x = StrictMath.max(bmax_x, -bmin_x);
-		float longest_y = StrictMath.max(bmax_y, -bmin_y);
-		return (float)StrictMath.sqrt(longest_x*longest_x + longest_y*longest_y);
+		float longest_x = Math.max(bmax_x, -bmin_x);
+		float longest_y = Math.max(bmax_y, -bmin_y);
+		return (float)Math.sqrt(longest_x*longest_x + longest_y*longest_y);
 	}
 
 	public final void transformBounds(Matrix4f matrix) {

@@ -117,7 +117,7 @@ System.out.println("num_iron = " + num_supplies);
 					dir_x = 1f;
 					dir_y = 0f;
 				} else {
-					float inv_len = 1f/(float)StrictMath.sqrt(len_sqr);
+					float inv_len = 1f/(float)Math.sqrt(len_sqr);
 					dir_x *= inv_len;
 					dir_y *= inv_len;
 				}

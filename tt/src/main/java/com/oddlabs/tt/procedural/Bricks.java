@@ -46,7 +46,7 @@ public final class Bricks {
 							break;
 						case COLOR:
 							if (x_coord < 0 || x_coord > 1) {
-								channel.putPixel(x, y, cells[Tools.modulo(x_cell + StrictMath.round(x_coord - x_coord_mod), bricks)][y_cell]);
+								channel.putPixel(x, y, cells[Tools.modulo(x_cell + Math.round(x_coord - x_coord_mod), bricks)][y_cell]);
 							} else {
 								channel.putPixel(x, y, cells[x_cell][y_cell]);
 							}

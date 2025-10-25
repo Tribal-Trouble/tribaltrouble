@@ -35,7 +35,7 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 			int region_dist_sqr =  dx*dx + dy*dy;
 			if (!supplies.isEmpty()) {
 				if (region_list.isEmpty()) {
-					int region_dist = (int)StrictMath.sqrt(region_dist_sqr);
+					int region_dist = (int)Math.sqrt(region_dist_sqr);
 					int max_region_dist = region_dist + RegionBuilder.REGION_PATH_MAX_COST/2;
 					max_region_dist_sqr = max_region_dist*max_region_dist;
 				}

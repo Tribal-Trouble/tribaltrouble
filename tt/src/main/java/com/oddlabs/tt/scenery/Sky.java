@@ -43,7 +43,7 @@ public final class Sky {
 
     private final static int NUM_WATER_RINGS = 6;
 
-    private final static float START_ANGLE = -(float) StrictMath.PI / 4f;
+    private final static float START_ANGLE = -(float) Math.PI / 4f;
 
     private final static float[][] tex_env_color = new float[][]{{0.95f, 0.975f, 1f, 1f}, {1f, 0.95f, 0.8f, 1f}};
 
@@ -65,7 +65,7 @@ public final class Sky {
     private final Landscape.TerrainType terrain;
 
     public Sky(LandscapeRenderer renderer, Landscape.TerrainType terrain) {
-        this(renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * StrictMath.sqrt(2) / 2), 6000f, 20, 20, SKYDOME_OUTER_UTILING, SKYDOME_OUTER_VTILING, SKYDOME_INNER_UTILING, SKYDOME_INNER_VTILING, renderer.getHeightMap().getMetersPerWorld() / 2, renderer.getHeightMap().getMetersPerWorld() / 2, SKYDOME_HEIGHT);
+        this(renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * Math.sqrt(2) / 2), 6000f, 20, 20, SKYDOME_OUTER_UTILING, SKYDOME_OUTER_VTILING, SKYDOME_INNER_UTILING, SKYDOME_INNER_VTILING, renderer.getHeightMap().getMetersPerWorld() / 2, renderer.getHeightMap().getMetersPerWorld() / 2, SKYDOME_HEIGHT);
     }
 
     private void setupSky() {
@@ -170,7 +170,7 @@ public final class Sky {
         num_vertices += previous_vertices.length;
         for (int i = 0; i < NUM_WATER_RINGS; i++) {
             float radius_factor = (float) (i + 1) / NUM_WATER_RINGS;
-            float ring_radius = inner_radius + (float) StrictMath.pow(radius - inner_radius, radius_factor);
+            float ring_radius = inner_radius + (float) Math.pow(radius - inner_radius, radius_factor);
             SkyStitchVertex[] ring_vertices = makeDomeVertices(landscape_renderer.getHeightMap(), i + 1, num_vertices, ring_radius, origin_x, origin_y);
             vertices_stitch_list.add(ring_vertices);
             num_vertices += ring_vertices.length;
@@ -229,8 +229,8 @@ public final class Sky {
         float x, y, z;
         float height_coeff;
         float dome_height = radius;
-        float h_angle_inc = ((float) java.lang.StrictMath.PI / 2) / (subdiv_height - 1);
-        float a_angle_inc = (float) java.lang.StrictMath.PI * 2 / subdiv_axis;
+        float h_angle_inc = ((float) java.lang.Math.PI / 2) / (subdiv_height - 1);
+        float a_angle_inc = (float) java.lang.Math.PI * 2 / subdiv_axis;
 //		vertices.dumpInfo();
         float offset_angle = a_angle_inc / 2f;
         int num_vertices = subdiv_axis * (subdiv_height - 1) + 1;
@@ -241,9 +241,9 @@ public final class Sky {
 
         // calculate skydome gradient colors
         float[] skydome_default_color = new float[]{
-            (float) StrictMath.pow(SKYDOME_GRADIENT[terrain.ordinal()][0], SKYDOME_DEFAULT_COLOR),
-            (float) StrictMath.pow(SKYDOME_GRADIENT[terrain.ordinal()][1], SKYDOME_DEFAULT_COLOR),
-            (float) StrictMath.pow(SKYDOME_GRADIENT[terrain.ordinal()][2], SKYDOME_DEFAULT_COLOR)
+            (float) Math.pow(SKYDOME_GRADIENT[terrain.ordinal()][0], SKYDOME_DEFAULT_COLOR),
+            (float) Math.pow(SKYDOME_GRADIENT[terrain.ordinal()][1], SKYDOME_DEFAULT_COLOR),
+            (float) Math.pow(SKYDOME_GRADIENT[terrain.ordinal()][2], SKYDOME_DEFAULT_COLOR)
         };
         float[][] skydome_gradient = new float[SKYDOME_GRADIENT_LENGTH][3];
         skydome_gradient[0] = SKYDOME_INITCOLOR[terrain.ordinal()];
@@ -259,17 +259,17 @@ public final class Sky {
         }
 
         for (int i = 0; i < subdiv_height - 1; i++) {
-            z = (float) java.lang.StrictMath.sin(h_angle_inc * i) * radius;
-            r = (float) java.lang.StrictMath.cos(h_angle_inc * i) * radius;
+            z = (float) java.lang.Math.sin(h_angle_inc * i) * radius;
+            r = (float) java.lang.Math.cos(h_angle_inc * i) * radius;
 
-            if (java.lang.StrictMath.abs(z) < 250f)
+            if (java.lang.Math.abs(z) < 250f)
                 height_coeff = dome_height / 250f;
             else
                 height_coeff = dome_height / z;
 
             for (int j = 0; j < subdiv_axis; j++) {
-                x = (float) java.lang.StrictMath.cos(START_ANGLE + a_angle_inc * j + offset_angle * i) * r;
-                y = (float) java.lang.StrictMath.sin(START_ANGLE + a_angle_inc * j + offset_angle * i) * r;
+                x = (float) java.lang.Math.cos(START_ANGLE + a_angle_inc * j + offset_angle * i) * r;
+                y = (float) java.lang.Math.sin(START_ANGLE + a_angle_inc * j + offset_angle * i) * r;
                 if (i < SKYDOME_GRADIENT_LENGTH)
                     putArray(skydome_gradient[i], i * subdiv_axis + j, colors);
                 else
@@ -336,12 +336,12 @@ public final class Sky {
     private SkyStitchVertex[] makeDomeVertices(HeightMap heightmap, int ring_id, int index_offset, float radius, float origin_x, float origin_y) {
         int size = subdiv_axis;
         SkyStitchVertex[] result = new SkyStitchVertex[size];
-        float a_angle_inc = (float) StrictMath.PI * 2 / subdiv_axis;
+        float a_angle_inc = (float) Math.PI * 2 / subdiv_axis;
         for (int i = 0; i < subdiv_axis; i++) {
             int index = i + index_offset;
             result[i] = new SkyStitchVertex(heightmap, index, ring_id,
-                    (float) java.lang.StrictMath.cos(START_ANGLE + a_angle_inc * i) * radius + origin_x,
-                    (float) java.lang.StrictMath.sin(START_ANGLE + a_angle_inc * i) * radius + origin_y);
+                    (float) java.lang.Math.cos(START_ANGLE + a_angle_inc * i) * radius + origin_x,
+                    (float) java.lang.Math.sin(START_ANGLE + a_angle_inc * i) * radius + origin_y);
         }
         return result;
     }
@@ -381,7 +381,7 @@ public final class Sky {
             this.x = x;
             this.y = y;
             float half_world_size = heightmap.getMetersPerWorld() * .5f;
-            this.theta = (float) StrictMath.atan2(y - half_world_size, x - half_world_size);
+            this.theta = (float) Math.atan2(y - half_world_size, x - half_world_size);
         }
 
         @Override
@@ -403,10 +403,10 @@ public final class Sky {
             float half_world_size = heightmap.getMetersPerWorld() * .5f;
             float x0 = x - half_world_size;
             float y0 = y - half_world_size;
-            float inv_len = (float) (1 / StrictMath.sqrt(x0 * x0 + y0 * y0));
+            float inv_len = (float) (1 / Math.sqrt(x0 * x0 + y0 * y0));
             x0 *= inv_len;
             y0 *= inv_len;
-            return x + " " + y + "\t\t" + x0 + " " + y0 + " " + theta / StrictMath.PI + " " + super.toString();
+            return x + " " + y + "\t\t" + x0 + " " + y0 + " " + theta / Math.PI + " " + super.toString();
         }
     }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 
 final class LightningRenderer {
 
-    private final static float SQRT_2 = (float) StrictMath.sqrt(2f);
+    private final static float SQRT_2 = (float) Math.sqrt(2f);
     private final static StrictVector3f right_vector = new StrictVector3f();
 
     private final static StrictMatrix4f view_matrix = new StrictMatrix4f();

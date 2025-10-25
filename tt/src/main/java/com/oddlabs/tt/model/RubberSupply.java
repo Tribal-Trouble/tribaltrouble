@@ -65,7 +65,7 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 		spawning = true;
 		float dx = x - spawn_x;
 		float dy = y - spawn_y;
-		float inv_len = 1f/(float)StrictMath.sqrt(dx*dx + dy*dy);
+		float inv_len = 1f/(float)Math.sqrt(dx*dx + dy*dy);
 		setDirection(dx*inv_len, dy*inv_len);
 		setNewAnimation(ANIMATION_FLYING);
 	}

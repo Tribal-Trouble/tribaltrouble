@@ -48,7 +48,7 @@ public final class HeightMap {
 		inv_meters_per_patch = 1f/getMetersPerPatch();
 		inv_meters_per_grid_unit = 1f/METERS_PER_UNIT_GRID;
 		meters_per_chunk = getMetersPerWorld()/chunks_per_colormap;
-		quadtree_min_level = (int)(StrictMath.log(chunks_per_colormap)/StrictMath.log(2));
+		quadtree_min_level = (int)(Math.log(chunks_per_colormap)/Math.log(2));
 		patches_per_chunk = meters_per_chunk/getMetersPerPatch();
 
 		int texels_per_colormap_noborder = texels_per_colormap - 2*Globals.TEXELS_PER_CHUNK_BORDER*chunks_per_colormap;

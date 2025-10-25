@@ -156,8 +156,8 @@ public final class RandomVelocityEmitter extends LinearEmitter {
 		else
 			y_angle += dy_angle;
 
-		float x = offset_velocity.getX() + offset_velocity.getZ()*(float)StrictMath.sin(x_angle);
-		float y = offset_velocity.getY() + offset_velocity.getZ()*(float)StrictMath.sin(y_angle);
+		float x = offset_velocity.getX() + offset_velocity.getZ()*(float)Math.sin(x_angle);
+		float y = offset_velocity.getY() + offset_velocity.getZ()*(float)Math.sin(y_angle);
 		velocity.set(x, y, offset_velocity.getZ());
 	}
 

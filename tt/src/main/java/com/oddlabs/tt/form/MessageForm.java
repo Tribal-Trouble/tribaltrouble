@@ -16,9 +16,9 @@ public class MessageForm extends Form {
 	}
 
 	public MessageForm(String head, String message, String button, MouseClickListener listener) {
-		int head_width = StrictMath.min(MAX_WIDTH, Skin.getSkin().getHeadlineFont().getWidth(head));
-		int message_width = StrictMath.min(MAX_WIDTH, Skin.getSkin().getEditFont().getWidth(message));
-		int width = StrictMath.max(head_width, message_width);
+		int head_width = Math.min(MAX_WIDTH, Skin.getSkin().getHeadlineFont().getWidth(head));
+		int message_width = Math.min(MAX_WIDTH, Skin.getSkin().getEditFont().getWidth(message));
+		int width = Math.max(head_width, message_width);
 		
 		LabelBox head_label = new LabelBox(head, Skin.getSkin().getHeadlineFont(), width);
 		addChild(head_label);

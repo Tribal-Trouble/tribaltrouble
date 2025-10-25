@@ -177,8 +177,8 @@ public final class TextBoxRenderer {
 
 	private void renderIndex(int index, int render_pos, boolean render) {
 		if (!render) {
-			int dx = StrictMath.abs(render_x + font.getXBorder()/2 - target_render_x);
-			int dy = StrictMath.abs(render_y - target_render_y);
+			int dx = Math.abs(render_x + font.getXBorder()/2 - target_render_x);
+			int dy = Math.abs(render_y - target_render_y);
 			if (dy < best_dy || dy == best_dy && dx < best_dx) {
 				best_dx = dx;
 				best_dy = dy;

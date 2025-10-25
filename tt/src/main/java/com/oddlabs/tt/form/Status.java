@@ -42,9 +42,9 @@ public final class Status {
 			}*/
 		}
 		buf.append(" FPS ");
-		TextField.appendNumberToStringBuffer(StrictMath.round(1000f/Renderer.getFPS()), buf);
+		TextField.appendNumberToStringBuffer(Math.round(1000f/Renderer.getFPS()), buf);
 		buf.append(" (");
-		TextField.appendNumberToStringBuffer(StrictMath.round(Renderer.getFPS()), buf);
+		TextField.appendNumberToStringBuffer(Math.round(Renderer.getFPS()), buf);
 		buf.append(" ms/frame)");
 
 		text_renderer.renderCropped(0, 0, clip_left, clip_right, clip_bottom, clip_top, buf);

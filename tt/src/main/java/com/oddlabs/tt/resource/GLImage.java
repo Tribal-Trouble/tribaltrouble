@@ -76,8 +76,8 @@ public abstract class GLImage {
 	public final GLImage[] buildMipMaps() {
 		int current_width = width;
 		int current_height = height;
-		int max = StrictMath.max(height, width);
-		int max_level = (int)(StrictMath.log(max)/StrictMath.log(2));
+		int max = Math.max(height, width);
+		int max_level = (int)(Math.log(max)/Math.log(2));
 		GLImage[] result = new GLImage[max_level + 1];
 		result[0] = this;
 		for (int i = 1; i < result.length; i++) {
@@ -98,8 +98,8 @@ public abstract class GLImage {
 			int width_div = mipmaps[i - 1].getWidth()/mipmaps[i].getWidth();
 			start_x /= width_div;
 			start_y /= height_div;
-			width = (int)StrictMath.ceil((float)width/width_div);
-			height = (int)StrictMath.ceil((float)height/height_div);
+			width = (int)Math.ceil((float)width/width_div);
+			height = (int)Math.ceil((float)height/height_div);
 			for (int y = start_y; y < start_y + height; y++) {
                 for (int x = start_x; x < start_x + width; x++) {
                     mipmaps[i].putPixel(x, y, averagePixel(mipmaps[i - 1], width_div*x, height_div*y, height_div, width_div, base_fadeout_level, fadeout_factor, i, max_alpha));
@@ -117,8 +117,8 @@ public abstract class GLImage {
 			int width_div = dest_mipmaps[i - 1].getWidth()/dest_mipmaps[i].getWidth();
 			start_x /= width_div;
 			start_y /= height_div;
-			width = (int)StrictMath.ceil((float)width/width_div);
-			height = (int)StrictMath.ceil((float)height/height_div);
+			width = (int)Math.ceil((float)width/width_div);
+			height = (int)Math.ceil((float)height/height_div);
 			if (i >= base_fadeout_level) {
 				if (i >= mip_map_level)
 					dest_mipmaps[i].drawImageBlended(source_mipmaps[i - mip_map_level], start_x, start_y, start_x, start_y, width, height, 1.0f - fadeout_factor);
@@ -142,7 +142,7 @@ public abstract class GLImage {
 
 				int a = pixel & 0xff;
 				if (max_alpha) {
-					col4 = StrictMath.max(col4, a);
+					col4 = Math.max(col4, a);
 				} else {
 					col4 += a;
 				}
@@ -227,8 +227,8 @@ public abstract class GLImage {
 				spixel = img.getPixel(x + sx, y + sy);
 				sa = (spixel >>> 24);
 				if (alpha_factor != 1f) {
-//					System.out.println("sa " + sa + " af " + alpha_factor + " round " + StrictMath.round(sa * alpha_factor) + " r and " + (StrictMath.round(sa * alpha_factor) & 0xff));
-					sa = StrictMath.round(sa * alpha_factor) & 0xff;
+//					System.out.println("sa " + sa + " af " + alpha_factor + " round " + Math.round(sa * alpha_factor) + " r and " + (Math.round(sa * alpha_factor) & 0xff));
+					sa = Math.round(sa * alpha_factor) & 0xff;
 //					System.out.println("sa after: " + sa);
 				}
 				if (sa == 0) {

@@ -10,16 +10,16 @@ public final class StrictGLU {
 
 	public static void gluPerspective(StrictMatrix4f proj, float fovy, float aspect, float zNear, float zFar) {
 		float sine, cotangent, deltaZ;
-		float radians = fovy / 2 * (float)StrictMath.PI / 180;
+		float radians = fovy / 2 * (float)Math.PI / 180;
 
 		deltaZ = zFar - zNear;
-		sine = (float) StrictMath.sin(radians);
+		sine = (float) Math.sin(radians);
 
 		if ((deltaZ == 0) || (sine == 0) || (aspect == 0)) {
 			return;
 		}
 
-		cotangent = (float) StrictMath.cos(radians) / sine;
+		cotangent = (float) Math.cos(radians) / sine;
 
 //		__gluMakeIdentityf(matrix);
 		perspective_matrix.setIdentity();

@@ -386,7 +386,7 @@ public final class Channel {
 	public Channel power(float exponent) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				putPixel(x, y, (float)StrictMath.pow(getPixel(x, y), exponent));
+				putPixel(x, y, (float)Math.pow(getPixel(x, y), exponent));
 			}
 		}
 		return this;
@@ -405,7 +405,7 @@ public final class Channel {
 	public Channel log() {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				putPixel(x, y, (float)StrictMath.log(getPixel(x, y)));
+				putPixel(x, y, (float)Math.log(getPixel(x, y)));
 			}
 		}
 		return this;
@@ -441,7 +441,7 @@ public final class Channel {
 	public Channel gamma(float gamma) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				putPixel(x, y, (float)StrictMath.pow(getPixel(x, y), 1/gamma));
+				putPixel(x, y, (float)Math.pow(getPixel(x, y), 1/gamma));
 			}
 		}
 		return this;
@@ -484,9 +484,9 @@ public final class Channel {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				if (getPixel(x, y) < 0.5f)
-					putPixel(x, y, (float)(StrictMath.pow(2 * getPixel(x, y), StrictMath.log(1 - gain)/StrictMath.log(0.5d))/2f));
+					putPixel(x, y, (float)(Math.pow(2 * getPixel(x, y), Math.log(1 - gain)/Math.log(0.5d))/2f));
 				else
-					putPixel(x, y, 1f - (float)(StrictMath.pow(2 - 2 * getPixel(x, y), StrictMath.log(1 - gain)/StrictMath.log(0.5d))/2f));
+					putPixel(x, y, 1f - (float)(Math.pow(2 - 2 * getPixel(x, y), Math.log(1 - gain)/Math.log(0.5d))/2f));
 			}
 		}
 		return this;
@@ -758,7 +758,7 @@ public final class Channel {
 	public Channel sine(int frequency) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				putPixel(x, y, (float)StrictMath.sin(StrictMath.PI*2*frequency*getPixel(x, y)));
+				putPixel(x, y, (float)Math.sin(Math.PI*2*frequency*getPixel(x, y)));
 			}
 		}
 		return this;
@@ -767,7 +767,7 @@ public final class Channel {
 	public Channel xsine(int frequency) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				putPixel(x, y, (float)StrictMath.sin(2*StrictMath.PI*(((float)x/width)*frequency + getPixel(x, y))));
+				putPixel(x, y, (float)Math.sin(2*Math.PI*(((float)x/width)*frequency + getPixel(x, y))));
 			}
 		}
 		return this.dynamicRange();
@@ -852,7 +852,7 @@ public final class Channel {
 	}
 
 	public Channel smooth(int radius) {
-		radius = StrictMath.max(1, radius);
+		radius = Math.max(1, radius);
 		Channel filter = new Channel(width, height);
 		float factor = 1f/((2*radius + 1)*(2*radius + 1));
 		for (int y = 0; y < height; y++) {
@@ -880,7 +880,7 @@ public final class Channel {
 	}
 
 	public Channel smoothWrap(int radius) {
-		radius = StrictMath.max(1, radius);
+		radius = Math.max(1, radius);
 		Channel filter = new Channel(width, height);
 		float factor = 1f/((2*radius + 1)*(2*radius + 1));
 		for (int y = 0; y < height; y++) {
@@ -903,7 +903,7 @@ public final class Channel {
 	}
 
 	public Channel smooth(int radius, Channel mask) {
-		radius = StrictMath.max(1, radius);
+		radius = Math.max(1, radius);
 		Channel filter = new Channel(width, height);
 		float factor = 1f/((2*radius + 1)*(2*radius + 1));
 		for (int y = 0; y < height; y++) {
@@ -934,7 +934,7 @@ public final class Channel {
 	}
 
 	public Channel sharpen(int radius) {
-		radius = StrictMath.max(1, radius);
+		radius = Math.max(1, radius);
 		Channel channel = new Channel(width, height);
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
@@ -1280,8 +1280,8 @@ public final class Channel {
 
 	public Channel bumpSpecular(Channel bumpmap, float lx, float ly, float lz, float shadow, float light, int specular) {
 		assert bumpmap.getWidth() == width && bumpmap.getHeight() == height: "bumpmap size does not match layer size";
-		float lnorm = (float)StrictMath.sqrt(lx*lx + ly*ly + lz*lz);
-		float nz = 4*(1f/StrictMath.min(width, height));
+		float lnorm = (float)Math.sqrt(lx*lx + ly*ly + lz*lz);
+		float nz = 4*(1f/Math.min(width, height));
 		float nzlz = nz*lz;
 		float nz2 = nz*nz;
 		int power = 2<<specular;
@@ -1307,13 +1307,13 @@ public final class Channel {
 		Channel channel = new Channel(width, height);
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				channel.putPixel(x, y, StrictMath.max(
-					StrictMath.max(
-						StrictMath.abs(getPixelWrap(x, y) - getPixelWrap(x - 1, y)),
-						StrictMath.abs(getPixelWrap(x, y) - getPixelWrap(x + 1, y))),
-					StrictMath.max(
-						StrictMath.abs(getPixelWrap(x, y) - getPixelWrap(x, y - 1)),
-						StrictMath.abs(getPixelWrap(x, y) - getPixelWrap(x, y + 1)))
+				channel.putPixel(x, y, Math.max(
+					Math.max(
+						Math.abs(getPixelWrap(x, y) - getPixelWrap(x - 1, y)),
+						Math.abs(getPixelWrap(x, y) - getPixelWrap(x + 1, y))),
+					Math.max(
+						Math.abs(getPixelWrap(x, y) - getPixelWrap(x, y - 1)),
+						Math.abs(getPixelWrap(x, y) - getPixelWrap(x, y + 1)))
 				));
 			}
 		}
@@ -1322,7 +1322,7 @@ public final class Channel {
 	}
 
 	public Channel relativeIntensity(int radius) {
-		radius = StrictMath.max(1, radius);
+		radius = Math.max(1, radius);
 		Channel relint = new Channel(width, height);
 		float factor = 1f/((2*radius + 1)*(2*radius + 1));
 		float sum, avr;
@@ -1614,7 +1614,7 @@ public final class Channel {
 	public Channel placeBrightest(Channel sprite, int x_offset, int y_offset) {
 		for (int y = y_offset; y < y_offset + sprite.getHeight(); y++) {
 			for (int x = x_offset; x < x_offset + sprite.getWidth(); x++) {
-				putPixelWrap(x, y, StrictMath.max(getPixelWrap(x, y), sprite.getPixelWrap(x - x_offset, y - y_offset)));
+				putPixelWrap(x, y, Math.max(getPixelWrap(x, y), sprite.getPixelWrap(x - x_offset, y - y_offset)));
 			}
 		}
 		return this;
@@ -1623,7 +1623,7 @@ public final class Channel {
 	public Channel placeDarkest(Channel sprite, int x_offset, int y_offset) {
 		for (int y = y_offset; y < y_offset + sprite.getHeight(); y++) {
 			for (int x = x_offset; x < x_offset + sprite.getWidth(); x++) {
-				putPixelWrap(x, y, StrictMath.min(getPixelWrap(x, y), sprite.getPixelWrap(x - x_offset, y - y_offset)));
+				putPixelWrap(x, y, Math.min(getPixelWrap(x, y), sprite.getPixelWrap(x - x_offset, y - y_offset)));
 			}
 		}
 		return this;
@@ -1632,7 +1632,7 @@ public final class Channel {
 	public Channel abs() {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				putPixel(x, y, 2f*StrictMath.abs(getPixel(x, y) - 0.5f));
+				putPixel(x, y, 2f*Math.abs(getPixel(x, y) - 0.5f));
 			}
 		}
 		return this;
@@ -1724,7 +1724,7 @@ public final class Channel {
 	public Channel channelDifference(Channel channel) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				putPixel(x, y, StrictMath.abs(getPixel(x, y) - channel.getPixel(x, y)));
+				putPixel(x, y, Math.abs(getPixel(x, y) - channel.getPixel(x, y)));
 			}
 		}
 		return this;
@@ -1733,7 +1733,7 @@ public final class Channel {
 	public Channel channelDarkest(Channel channel) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				putPixel(x, y, StrictMath.min(getPixel(x, y), channel.getPixel(x, y)));
+				putPixel(x, y, Math.min(getPixel(x, y), channel.getPixel(x, y)));
 			}
 		}
 		return this;
@@ -1742,7 +1742,7 @@ public final class Channel {
 	public Channel channelBrightest(Channel channel) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				putPixel(x, y, StrictMath.max(getPixel(x, y), channel.getPixel(x, y)));
+				putPixel(x, y, Math.max(getPixel(x, y), channel.getPixel(x, y)));
 			}
 		}
 		return this;

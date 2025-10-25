@@ -172,7 +172,7 @@ public class StrictVector4f {
 	 * @return the length of the vector
 	 */
 	public final float length() {
-		return (float) StrictMath.sqrt(lengthSquared());
+		return (float) Math.sqrt(lengthSquared());
 	}
 
 
@@ -228,7 +228,7 @@ public class StrictVector4f {
 			dls = -1f;
 		else if (dls > 1.0f)
 			dls = 1.0f;
-		return (float) StrictMath.toDegrees(StrictMath.acos(dls));
+		return (float) Math.toDegrees(Math.acos(dls));
 	}
 
 	/* (non-Javadoc)

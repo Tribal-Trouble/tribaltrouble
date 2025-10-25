@@ -32,8 +32,8 @@ public final class DeploySpinner extends IconSpinner {
 	public int computeCount() {
 		if (current_building != null && !current_building.isDead()) {
 			DeployContainer deploy_container = current_building.getDeployContainer(deploy_type);
-			return StrictMath.min(deploy_container.getMaxSupplyCount(),
-					StrictMath.max(0, deploy_container.getNumSupplies() + getOrderDiff()));
+			return Math.min(deploy_container.getMaxSupplyCount(),
+					Math.max(0, deploy_container.getNumSupplies() + getOrderDiff()));
 		} else
 			return 0;
 	}

@@ -185,13 +185,13 @@ public final class Picker implements Updatable {
 	public Selectable[] pickBoxed(CameraState camera, int x1, int y1, int x2, int y2, int clicks) {
 		float cx = (x1 + x2)*0.5f;
 		float cy = (y1 + y2)*0.5f;
-		int width = StrictMath.abs(x1 - x2) + 1;
-		int height = StrictMath.abs(y1 - y2) + 1;
-		width = StrictMath.max(width, PICK_SIZE);
-		height = StrictMath.max(height, PICK_SIZE);
+		int width = Math.abs(x1 - x2) + 1;
+		int height = Math.abs(y1 - y2) + 1;
+		width = Math.max(width, PICK_SIZE);
+		height = Math.max(height, PICK_SIZE);
 		setupPicking(camera, cx, cy, width, height);
 		pickObjects();
-		if (StrictMath.abs(x1 - x2) < SELECTION_THRESHOLD && StrictMath.abs(y1 - y2) < SELECTION_THRESHOLD)
+		if (Math.abs(x1 - x2) < SELECTION_THRESHOLD && Math.abs(y1 - y2) < SELECTION_THRESHOLD)
 			return createSinglePick(camera, clicks);
 		else
 			return createBoxedPick();
@@ -271,7 +271,7 @@ public final class Picker implements Updatable {
 		float dx = hit_x - hit_result[0];
 		float dy = hit_y - hit_result[1];
 		float dz = hit_z - hit_result[2];
-		float vec_len_inv = 1f/(float)StrictMath.sqrt(dx*dx + dy*dy + dz*dz);
+		float vec_len_inv = 1f/(float)Math.sqrt(dx*dx + dy*dy + dz*dz);
 		dir_vector[0] = dx*vec_len_inv;
 		dir_vector[1] = dy*vec_len_inv;
 		dir_vector[2] = dz*vec_len_inv;
@@ -289,7 +289,7 @@ public final class Picker implements Updatable {
 		}
 		float t1 = (bmin - c)/d;
 		float t2 = (bmax - c)/d;
-		return StrictMath.max(t1, t2);
+		return Math.max(t1, t2);
 	}
 
 	private static float computeTMin(float bmin, float bmax, float c, float d) {
@@ -298,7 +298,7 @@ public final class Picker implements Updatable {
 		}
 		float t1 = (bmin - c)/d;
 		float t2 = (bmax - c)/d;
-		return StrictMath.min(t1, t2);
+		return Math.min(t1, t2);
 	}
 
 	private boolean doNearestLandscape(float x, float y, float z, float dx, float dy, float dz) {
@@ -316,8 +316,8 @@ public final class Picker implements Updatable {
 			float ty_max = computeTMax(bb.bmin_y, bb.bmax_y, y, dy);
 			float tz_max = computeTMax(bb.bmin_z, bb.bmax_z, z, dz);
 
-			float t_min = StrictMath.max(tx_min, StrictMath.max(ty_min, tz_min));
-			float t_max = StrictMath.min(tx_max, StrictMath.min(ty_max, tz_max));
+			float t_min = Math.max(tx_min, Math.max(ty_min, tz_min));
+			float t_max = Math.min(tx_max, Math.min(ty_max, tz_max));
 			if (t_min < 0)
 				t_min = 0;
 			// If t_min is greater than t_max, the pick ray does not intersect the BB, therefore we skip it
@@ -338,7 +338,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 			}
 			boolean found_t_range = false;
 			for (float t_scan = t_min; t_scan <= t_max; t_scan += PATCH_PICK_STEP) {
-				float t_scan_next = StrictMath.min(t_scan + PATCH_PICK_STEP, t_max);
+				float t_scan_next = Math.min(t_scan + PATCH_PICK_STEP, t_max);
 				float t_scan_x = x + t_scan_next*dx;
 				float t_scan_y = y + t_scan_next*dy;
 				float t_scan_z = z + t_scan_next*dz;
@@ -372,7 +372,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 					t_max = t_mid;
 				else
 					t_min = t_mid;
-			} while (StrictMath.abs(height_diff) > PATCH_PICK_PRECISION && t_mid != old_t_mid);
+			} while (Math.abs(height_diff) > PATCH_PICK_PRECISION && t_mid != old_t_mid);
 			patch_hit_x = t_mid_x;
 			patch_hit_y = t_mid_y;
 			patch_hit_z = t_mid_height;

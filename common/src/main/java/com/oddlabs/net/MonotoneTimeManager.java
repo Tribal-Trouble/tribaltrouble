@@ -12,7 +12,7 @@ public final class MonotoneTimeManager implements TimeManager {
     @Override
 	public long getMillis() {
 		long new_time = source.getMillis();
-		this.last_time = StrictMath.max(last_time, new_time);
+		this.last_time = Math.max(last_time, new_time);
 		return last_time;
 	}
 }

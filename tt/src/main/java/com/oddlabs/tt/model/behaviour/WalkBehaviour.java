@@ -97,7 +97,7 @@ public final class WalkBehaviour implements Behaviour {
 					}
 				}
 				scan();
-				retry_delay = StrictMath.min(2*retry_delay, MAX_WAIT_RETRY_DELAY);
+				retry_delay = Math.min(2*retry_delay, MAX_WAIT_RETRY_DELAY);
 				return doRetry();
 			default:
 				throw new IllegalStateException("Invalid tracker state: " + state);

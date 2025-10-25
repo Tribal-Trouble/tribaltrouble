@@ -54,7 +54,7 @@ public final class IslandGenerator implements WorldGenerator {
 	}
 
 	private int getTexelsPerGridUnit() {
-		int texels_per_grid_unit = Globals.TEXELS_PER_GRID_UNIT/(int)StrictMath.pow(2, Globals.TEXTURE_MIP_SHIFT[Settings.getSettings().graphic_detail]);
+		int texels_per_grid_unit = Globals.TEXELS_PER_GRID_UNIT/(int)Math.pow(2, Globals.TEXTURE_MIP_SHIFT[Settings.getSettings().graphic_detail]);
 		return texels_per_grid_unit;
 	}
 
@@ -84,7 +84,7 @@ public final class IslandGenerator implements WorldGenerator {
 		int detail_prefade_level = detail_mip_level - base_level;
 		if (detail_prefade_level < 0)
 			detail_prefade_level = 0;
-		float detail_prefade = IDEAL_DETAIL_ALPHA*(float)StrictMath.pow(Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR, detail_prefade_level);
+		float detail_prefade = IDEAL_DETAIL_ALPHA*(float)Math.pow(Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR, detail_prefade_level);
 		base_level -= detail_mip_level;
 		if (base_level < 1)
 			base_level = 1;

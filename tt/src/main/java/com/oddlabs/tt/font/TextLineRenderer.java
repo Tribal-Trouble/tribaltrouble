@@ -109,7 +109,7 @@ public final class TextLineRenderer {
 
 	private void renderIndex(int index, int render_pos, boolean render) {
 		if (!render) {
-			int dx = StrictMath.abs(render_x + font.getXBorder()/2 - target_render_x);
+			int dx = Math.abs(render_x + font.getXBorder()/2 - target_render_x);
 			if (dx < best_dx) {
 				best_dx = dx;
 				new_index = render_pos;

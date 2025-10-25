@@ -44,7 +44,7 @@ public final class Stun implements Magic {
 		float alpha = 12f;
 		float energy = 4f;
 		emitter = new RandomVelocityEmitter(owner.getWorld(), new Vector3f(start_x, start_y, z), 0f, 0f,
-				.001f, .001f, .5f, (float)StrictMath.PI,
+				.001f, .001f, .5f, (float)Math.PI,
 				-1, 35f,
 				new Vector3f(0f, 0f, 6f), new Vector3f(0f, 0f, -2f),
 				new Vector4f(1f, 1f, 1f, alpha), new Vector4f(0f, 0f, 0f, -alpha/energy),
@@ -89,7 +89,7 @@ public final class Stun implements Magic {
                 float dy = unit.getPositionY() - start_y;
                 float squared_dist = dx * dx + dy * dy;
                 if (owner.isEnemy(unit.getOwner()) && squared_dist < hit_radius * hit_radius) {
-                    float dist = (float) StrictMath.sqrt(squared_dist);
+                    float dist = (float) Math.sqrt(squared_dist);
                     float time = calculateValueFromCurrentRadius(dist, stun_time_closest, stun_time_farthest);
                     unit.stun(time);
                 }
@@ -99,8 +99,8 @@ public final class Stun implements Magic {
 
 	private float calculateValueFromCurrentRadius(float current_radius, float max, float min) {
 		float base_factor = 6f/7f;
-		float error = (float)StrictMath.pow(base_factor, hit_radius);
-		float factor = (float)StrictMath.pow(base_factor, current_radius);
+		float error = (float)Math.pow(base_factor, hit_radius);
+		float factor = (float)Math.pow(base_factor, current_radius);
 		float result = (max - min + error)*factor + min - error;
 		return result;
 	}

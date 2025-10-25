@@ -367,7 +367,7 @@ final class Sprite {
 		if (type_array[animation] == AnimationInfo.ANIM_LOOP)
 			return frame%anim_length;
 		else
-			return StrictMath.min(frame, anim_length - 1);
+			return Math.min(frame, anim_length - 1);
 	}
 
 	public void render(int animation, float anim_ticks) {

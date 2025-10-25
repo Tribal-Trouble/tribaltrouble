@@ -67,13 +67,13 @@ public final class AmbientAudio {
 			AL10.alListener(AL10.AL_ORIENTATION, orientation_buffer);
 
 			int meters_per_world = heightmap.getMetersPerWorld();
-			float dx = StrictMath.abs(camera.getCurrentX() - meters_per_world/2);
-			float dy = StrictMath.abs(camera.getCurrentY() - meters_per_world/2);
+			float dx = Math.abs(camera.getCurrentX() - meters_per_world/2);
+			float dy = Math.abs(camera.getCurrentY() - meters_per_world/2);
 			float dr = 2f*(float)Math.sqrt(dx*dx + dy*dy)/meters_per_world; //can use Math here - not gamestate affecting
 
 			// update placement and gain of ambient forest source
 			ambient_forest.setPos(0f, 0f, heightmap.getNearestHeight(camera.getCurrentX(), camera.getCurrentY()) - camera.getCurrentZ() + 8f);
-			ambient_forest.setGain(AudioPlayer.AUDIO_GAIN_AMBIENT_FOREST * StrictMath.min(1f, StrictMath.max(0f, 1f - dr + 0.5f)));
+			ambient_forest.setGain(AudioPlayer.AUDIO_GAIN_AMBIENT_FOREST * Math.min(1f, Math.max(0f, 1f - dr + 0.5f)));
 
 			// update placement and gain of ambient beach source
 			float factor = 1f;
@@ -82,12 +82,12 @@ public final class AmbientAudio {
 			float beach_x = camera.getCurrentX()*factor;
 			float beach_y = camera.getCurrentY()*factor;
 			float beach_z = heightmap.getNearestHeight(camera.getCurrentX(), camera.getCurrentY()) - camera.getCurrentZ();
-			float beach_gain = AudioPlayer.AUDIO_GAIN_AMBIENT_BEACH * StrictMath.min(1f, StrictMath.max(0f, 1f - StrictMath.abs(4f*dr - 3.75f)));
+			float beach_gain = AudioPlayer.AUDIO_GAIN_AMBIENT_BEACH * Math.min(1f, Math.max(0f, 1f - Math.abs(4f*dr - 3.75f)));
 			ambient_beach.setPos(beach_x, beach_y, beach_z);
 			ambient_beach.setGain(beach_gain);
 
 			// update placement of ambient wind source
-			ambient_wind.setPos(0f, 0f, StrictMath.max(0f, 50f + GameCamera.MAX_Z - camera.getCurrentZ()));
+			ambient_wind.setPos(0f, 0f, Math.max(0f, 50f + GameCamera.MAX_Z - camera.getCurrentZ()));
 			ambient_wind.setGain(AudioPlayer.AUDIO_GAIN_AMBIENT_WIND);
 		}
 	}

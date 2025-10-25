@@ -80,7 +80,7 @@ public final class Landscape {
 	public Landscape(int num_players, int meters_per_world, TerrainType terrain, float detail_alpha_value, float hills, float vegetation_amount, float supplies_amount, int seed, int initial_unit_count, float random_start_pos) {
 
 		this.terrain = terrain;
-		hills = (float)StrictMath.sqrt(hills);
+		hills = (float)Math.sqrt(hills);
 		this.num_players = num_players;
 		this.features = 4;
 		this.hills = hills;
@@ -125,10 +125,10 @@ public final class Landscape {
 		max_plants = size_multiplier*64;
 
 		if (terrain == TerrainType.NATIVE) {
-			max_trees = (int)StrictMath.pow(2, 2*Utils.powerOf2Log2(meters_per_world) - 9);
+			max_trees = (int)Math.pow(2, 2*Utils.powerOf2Log2(meters_per_world) - 9);
 			max_palmtrees = max_trees>>1;
 		} else {
-			max_trees = (int)(.75f*StrictMath.pow(2, 2*Utils.powerOf2Log2(meters_per_world) - 9));
+			max_trees = (int)(.75f*Math.pow(2, 2*Utils.powerOf2Log2(meters_per_world) - 9));
 			max_palmtrees = max_trees;
 		}
 
@@ -442,7 +442,7 @@ public final class Landscape {
 
 		slope = height.copy().lineart();
 		if (DEBUG) slope.copy().dynamicRange().toLayer().saveAsPNG("slope");
-		relheight = height.copy().relativeIntensityNormalized(StrictMath.max(1, unit_grids_per_world>>5));
+		relheight = height.copy().relativeIntensityNormalized(Math.max(1, unit_grids_per_world>>5));
 		if (DEBUG) relheight.toLayer().saveAsPNG("relheight");
 		access = generateThresholdMap(slope, access_threshold).largestConnected(1f);
 		access_exported = access.copy();
@@ -500,7 +500,7 @@ public final class Landscape {
 
 		slope = height.copy().lineart();
 		if (DEBUG) slope.copy().dynamicRange().toLayer().saveAsPNG("slope");
-		relheight = height.copy().relativeIntensityNormalized(StrictMath.max(1, unit_grids_per_world>>5));
+		relheight = height.copy().relativeIntensityNormalized(Math.max(1, unit_grids_per_world>>5));
 		if (DEBUG) relheight.toLayer().saveAsPNG("relheight");
 		access = generateThresholdMap(slope, access_threshold).largestConnected(1f);
 		access_exported = access.copy();
@@ -555,7 +555,7 @@ public final class Landscape {
 			}
 		}
 		byte[][] byte_grid = new byte[build_grid.length][build_grid[0].length];
-		byte max = (byte)StrictMath.max(RacesResources.QUARTERS_SIZE, StrictMath.max(RacesResources.ARMORY_SIZE, RacesResources.TOWER_SIZE));
+		byte max = (byte)Math.max(RacesResources.QUARTERS_SIZE, Math.max(RacesResources.ARMORY_SIZE, RacesResources.TOWER_SIZE));
 		for (byte i = 0; i < max; i++) {
 			for (int y = 1; y < build_grid.length - 1; y++) {
 				for (int x = 1; x < build_grid[y].length - 1; x++) {
@@ -633,10 +633,10 @@ public final class Landscape {
 		highlight = new Channel(unit_grids_per_world, unit_grids_per_world);
 		float lx = 1;
 		float lz = 1;
-		float lnorm = 1f/(float)StrictMath.sqrt(lx*lx + lz*lz);
+		float lnorm = 1f/(float)Math.sqrt(lx*lx + lz*lz);
 		lx = lx*lnorm;
 		lz = lz*lnorm;
-		float threshold = (float)StrictMath.sqrt(0.5f);
+		float threshold = (float)Math.sqrt(0.5f);
 		float nz = 2f*meters_per_height_unit/height_scale;
 		float nzlz = nz*lz;
 		float nz2 = nz*nz;
@@ -650,7 +650,7 @@ public final class Landscape {
 					shadow.putPixel(x, y, threshold);
 				} else {
 					highlight.putPixel(x, y, threshold);
-					shadow.putPixel(x, y, StrictMath.max(0, light));
+					shadow.putPixel(x, y, Math.max(0, light));
 				}
 			}
 		}
@@ -895,13 +895,13 @@ public final class Landscape {
 
 	// place supplies on map
 	private Channel placeSupplies(Channel probability, Channel supplies, int intervals, int max_count, float shadow_alpha_val) {
-		max_count = StrictMath.min(probability.width*probability.height, max_count);
+		max_count = Math.min(probability.width*probability.height, max_count);
 		int scaleshift = Utils.powerOf2Log2(unit_grids_per_world*meters_per_height_unit/meters_per_world);
 		int i = 0;
 		float interval_size = 1f/intervals;
 		float upper_bound = 1f;
 		float lower_bound = upper_bound - interval_size;
-		int supplyshadow_size = StrictMath.max(unit_grids_per_world>>7, 2);
+		int supplyshadow_size = Math.max(unit_grids_per_world>>7, 2);
 		Channel supplyshadow_alpha = new Channel(supplyshadow_size<<1, supplyshadow_size<<1).place(new Channel(supplyshadow_size, supplyshadow_size).fill(1f), supplyshadow_size>>1, supplyshadow_size>>1).smoothFast();
 		Channel supplyshadow = new Channel(supplyshadow_size<<1, supplyshadow_size<<1);
 		Channel supplyshadow_alpha2 = supplyshadow_alpha.copy().brightness(shadow_alpha_val);
@@ -950,7 +950,7 @@ public final class Landscape {
 
 	// place plants on map
 	private Channel placePlants(Channel probability, Channel place, int intervals, int max_count, int plant_type) {
-		max_count = StrictMath.min(probability.width*probability.height, max_count);
+		max_count = Math.min(probability.width*probability.height, max_count);
 		int i = 0;
 		float interval_size = 1f/intervals;
 		float upper_bound = 1f;
@@ -1010,16 +1010,16 @@ public final class Landscape {
 		// find initial starting locations
 		player_locations = new float[num_players][2*initial_unit_count];
 		supply_locations = new int[num_players][2];
-		float angle = 0.5f*(float)StrictMath.PI;
-		angle += random_start_pos*(float)StrictMath.PI*2; // random start for multiplayer games
-		float angle_step = 2f*(float)StrictMath.PI/num_players;
+		float angle = 0.5f*(float)Math.PI;
+		angle += random_start_pos*(float)Math.PI*2; // random start for multiplayer games
+		float angle_step = 2f*(float)Math.PI/num_players;
 		float radius = 0.35f*unit_grids_per_world;
 		int scale = meters_per_world/unit_grids_per_world;
 		int[] location_quarters = new int[2];
 		int[] location_armory = new int[2];
 		for (int i = 0; i < num_players; i++) {
-			int x = (int)(radius*(float)StrictMath.cos(angle) + (unit_grids_per_world>>1) + 0.5f);
-			int y = (int)(radius*(float)StrictMath.sin(angle) + (unit_grids_per_world>>1) + 0.5f);
+			int x = (int)(radius*(float)Math.cos(angle) + (unit_grids_per_world>>1) + 0.5f);
+			int y = (int)(radius*(float)Math.sin(angle) + (unit_grids_per_world>>1) + 0.5f);
 			angle += angle_step;
 			location_quarters = buildmap.findNoWrap((unit_grids_per_world>>1), x, y, 1f);
 			for (int k = -(RacesResources.QUARTERS_SIZE/* - 1*/); k <= (RacesResources.QUARTERS_SIZE/* - 1*/); k++) {

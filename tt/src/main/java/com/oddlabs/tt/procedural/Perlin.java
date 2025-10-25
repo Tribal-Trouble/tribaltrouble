@@ -43,8 +43,8 @@ public final class Perlin {
 
 	// generate noise octaves
 	private void generateNoiseChannels(int x_factor, int y_factor, int oct, long seed) {
-		x_factor = StrictMath.max(2, x_factor);
-		y_factor = StrictMath.max(2, y_factor);
+		x_factor = Math.max(2, x_factor);
+		y_factor = Math.max(2, y_factor);
 		noise_channels = new Channel[oct];
 		random = new Random(seed);
 		for (int i = 0; i < oct; i++) {
@@ -66,13 +66,13 @@ public final class Perlin {
 		if (interpolation_method == SMOOTH) {
 			method_threshold = noise_channels.length;
 		} else if (interpolation_method == AUTO) {
-			while (width>>3 > (int)StrictMath.pow(2, method_threshold))
+			while (width>>3 > (int)Math.pow(2, method_threshold))
 			method_threshold++;
 		}
 
 		for (int i = 0; i < oct; i++) {
 			Channel octave = noise_channels[i];
-			float amplitude = 2*(float)StrictMath.pow(pers,i);
+			float amplitude = 2*(float)Math.pow(pers,i);
 			float height_ratio = (float)octave.height/height;
 			float width_ratio = (float)octave.width/width;
 			int block_height = height/octave.height;
@@ -197,21 +197,21 @@ public final class Perlin {
 			case ABS:
 				for (int y = 0; y < height; y++) {
 					for (int x = 0; x < width; x++) {
-						channel.putPixel(x, y, StrictMath.abs(channel.getPixel(x, y)));
+						channel.putPixel(x, y, Math.abs(channel.getPixel(x, y)));
 					}
 				}
 				break;
 			case SINE:
 				for (int y = 0; y < height; y++) {
 					for (int x = 0; x < width; x++) {
-						channel.putPixel(x, y, (float)StrictMath.sin(StrictMath.PI*8*channel.getPixel(x, y)));
+						channel.putPixel(x, y, (float)Math.sin(Math.PI*8*channel.getPixel(x, y)));
 					}
 				}
 				break;
 			case XSINE:
 				for (int y = 0; y < height; y++) {
 					for (int x = 0; x < width; x++) {
-						channel.putPixel(x, y, (float)StrictMath.sin(x/((width/256f)*StrictMath.PI) + channel.getPixel(x, y)));
+						channel.putPixel(x, y, (float)Math.sin(x/((width/256f)*Math.PI) + channel.getPixel(x, y)));
 					}
 				}
 				break;
@@ -227,7 +227,7 @@ public final class Perlin {
 			case ABS_MOD:
 				for (int y = 0; y < height; y++) {
 					for (int x = 0; x < width; x++) {
-						value = StrictMath.abs(channel.getPixel(x, y));
+						value = Math.abs(channel.getPixel(x, y));
 						value = value - (int)(value);
 						channel.putPixel(x, y, value);
 					}
@@ -236,7 +236,7 @@ public final class Perlin {
 			case XSINE_MOD:
 				for (int y = 0; y < height; y++) {
 					for (int x = 0; x < width; x++) {
-						value = (float)StrictMath.sin(x/((width/256f)*StrictMath.PI) + channel.getPixel(x, y));
+						value = (float)Math.sin(x/((width/256f)*Math.PI) + channel.getPixel(x, y));
 						value = value - (int)(value);
 						channel.putPixel(x, y, value);
 					}
@@ -255,7 +255,7 @@ public final class Perlin {
 			case WOOD2:
 				for (int y = 0; y < height; y++) {
 					for (int x = 0; x < width; x++) {
-						value = 0.5f * (1 + (float)StrictMath.sin(x/((width/256f)*StrictMath.PI) + channel.getPixel(x, y)));
+						value = 0.5f * (1 + (float)Math.sin(x/((width/256f)*Math.PI) + channel.getPixel(x, y)));
 						value = 1 - value*value*value*value;
 						channel.putPixel(x, y, value);
 					}

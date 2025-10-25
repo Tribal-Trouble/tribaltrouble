@@ -12,7 +12,7 @@ public final class IconLabel extends GUIObject implements Comparable<IconLabel> 
 		label.setPos(icon.getWidth(), 0);
 		addChild(label);
 		int width = icon.getWidth() + label.getWidth();
-		int height = StrictMath.max(icon.getHeight(), label.getHeight());
+		int height = Math.max(icon.getHeight(), label.getHeight());
 		setDim(width, height);
 	}
 

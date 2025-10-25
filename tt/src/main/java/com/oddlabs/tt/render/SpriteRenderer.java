@@ -55,7 +55,7 @@ public final class SpriteRenderer {
 	}
 
 	public void addToRenderList(int index, ModelState model, boolean respond) {
-		index = StrictMath.min(sprite_list.getNumSprites() - 1, index);
+		index = Math.min(sprite_list.getNumSprites() - 1, index);
 		if (respond) {
 			sprite_list_renderer.addToRespondRenderList(model, index, tex_index);
 		} else {
@@ -64,7 +64,7 @@ public final class SpriteRenderer {
 	}
 
 	public int getTriangleCount(int index) {
-		index = StrictMath.min(sprite_list.getNumSprites() - 1, index);
+		index = Math.min(sprite_list.getNumSprites() - 1, index);
 		return sprite_list.getSprite(index).getTriangleCount();
 	}
 

@@ -478,8 +478,8 @@ public class StrictMatrix4f {
 	 * @return this
 	 */
 	public StrictMatrix4f rotate(float angle, StrictVector3f axis) {
-		float c = (float) StrictMath.cos(angle);
-		float s = (float) StrictMath.sin(angle);
+		float c = (float) Math.cos(angle);
+		float s = (float) Math.sin(angle);
 		float oneminusc = 1.0f - c;
 		float xy = axis.x*axis.y;
 		float yz = axis.y*axis.z;
@@ -535,8 +535,8 @@ public class StrictMatrix4f {
 			dest = new StrictMatrix4f();
 		else if (dest == this)
 			return rotate(angle, axis);
-		float c = (float) StrictMath.cos(angle);
-		float s = (float) StrictMath.sin(angle);
+		float c = (float) Math.cos(angle);
+		float s = (float) Math.sin(angle);
 		float oneminusc = 1.0f - c;
 		float xy = axis.x*axis.y;
 		float yz = axis.y*axis.z;

@@ -83,7 +83,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 		updateTarget();
 		float dx = end_x - start_x;
 		float dy = end_y - start_y;
-		float len = (float)StrictMath.sqrt(dx*dx + dy*dy);
+		float len = (float)Math.sqrt(dx*dx + dy*dy);
 		time_limit = len/getMetersPerSecond();
 		time = 0;
 		float dest_vec_z = owner.getWorld().getHeightMap().getNearestHeight(end_x, end_y) + target.getHitOffsetZ() - (getPositionZ() + deterministic_z);
@@ -100,7 +100,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	private void updateDirection() {
 		float dx = target.getPositionX() - getPositionX();
 		float dy = target.getPositionY() - getPositionY();
-		float len = (float)StrictMath.sqrt(dx*dx + dy*dy);
+		float len = (float)Math.sqrt(dx*dx + dy*dy);
 		if (len < .01f)
 			len = .01f;
 		float len_inv = 1f/len;

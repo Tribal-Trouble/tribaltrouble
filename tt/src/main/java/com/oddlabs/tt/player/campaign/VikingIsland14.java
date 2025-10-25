@@ -127,7 +127,7 @@ public final class VikingIsland14 extends Island {
 		new VictoryTrigger(getViewer(), runnable);
 
 		// Insert treasures
-		float dir = (float)StrictMath.sin(StrictMath.PI/4);
+		float dir = (float)Math.sin(Math.PI/4);
 		float offset = HeightMap.METERS_PER_UNIT_GRID/2f;
 		float shadow_diameter = 4.5f;
 		new SceneryModel(getViewer().getWorld(), 163*2 + offset, 126*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[0], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));

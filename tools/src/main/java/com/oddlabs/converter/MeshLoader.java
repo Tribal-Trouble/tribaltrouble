@@ -63,7 +63,7 @@ public final class MeshLoader {
 					float nx = getAttrFloat(vertex, "nx");
 					float ny = getAttrFloat(vertex, "ny");
 					float nz = getAttrFloat(vertex, "nz");
-					float vec_len_inv = 1f/(float)StrictMath.sqrt(nx*nx + ny*ny + nz*nz);
+					float vec_len_inv = 1f/(float)Math.sqrt(nx*nx + ny*ny + nz*nz);
 					normals[polygon_index*9 + vertex_index*3 + 0] = nx*vec_len_inv;
 					normals[polygon_index*9 + vertex_index*3 + 1] = ny*vec_len_inv;
 					normals[polygon_index*9 + vertex_index*3 + 2] = nz*vec_len_inv;

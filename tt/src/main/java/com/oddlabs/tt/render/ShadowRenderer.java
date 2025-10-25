@@ -48,11 +48,11 @@ abstract class ShadowRenderer {
 		float texture_y = f_y - half_shadow_size;
 		int meters_per_grid_unit = HeightMap.METERS_PER_UNIT_GRID;
 		int grid_units_per_patch = renderer.getHeightMap().getGridUnitsPerPatch();
-		int grid_start_x = StrictMath.max(0, (int)(texture_x/meters_per_grid_unit));
-		int grid_start_y = StrictMath.max(0, (int)(texture_y/meters_per_grid_unit));
+		int grid_start_x = Math.max(0, (int)(texture_x/meters_per_grid_unit));
+		int grid_start_y = Math.max(0, (int)(texture_y/meters_per_grid_unit));
 		int max_grid_index = renderer.getHeightMap().getGridUnitsPerWorld() - 1;
-		int grid_end_x = StrictMath.min(max_grid_index, (int)((f_x + half_shadow_size)/meters_per_grid_unit));
-		int grid_end_y = StrictMath.min(max_grid_index, (int)((f_y + half_shadow_size)/meters_per_grid_unit));
+		int grid_end_x = Math.min(max_grid_index, (int)((f_x + half_shadow_size)/meters_per_grid_unit));
+		int grid_end_y = Math.min(max_grid_index, (int)((f_y + half_shadow_size)/meters_per_grid_unit));
 		int patch_start_x = grid_start_x/grid_units_per_patch;
 		int patch_start_y = grid_start_y/grid_units_per_patch;
 		int patch_end_x = grid_end_x/grid_units_per_patch;
@@ -62,10 +62,10 @@ abstract class ShadowRenderer {
 
 		for (int patch_y = patch_start_y; patch_y <= patch_end_y; patch_y++) {
 			for (int patch_x = patch_start_x; patch_x <= patch_end_x; patch_x++) {
-				int local_start_x = StrictMath.max(grid_start_x, patch_x*grid_units_per_patch)&(grid_units_per_patch - 1);
-				int local_start_y = StrictMath.max(grid_start_y, patch_y*grid_units_per_patch)&(grid_units_per_patch - 1);
-				int local_end_x = StrictMath.min(grid_end_x, (patch_x + 1)*grid_units_per_patch - 1)&(grid_units_per_patch - 1);
-				int local_end_y = StrictMath.min(grid_end_y, (patch_y + 1)*grid_units_per_patch - 1)&(grid_units_per_patch - 1);
+				int local_start_x = Math.max(grid_start_x, patch_x*grid_units_per_patch)&(grid_units_per_patch - 1);
+				int local_start_y = Math.max(grid_start_y, patch_y*grid_units_per_patch)&(grid_units_per_patch - 1);
+				int local_end_x = Math.min(grid_end_x, (patch_x + 1)*grid_units_per_patch - 1)&(grid_units_per_patch - 1);
+				int local_end_y = Math.min(grid_end_y, (patch_y + 1)*grid_units_per_patch - 1)&(grid_units_per_patch - 1);
 				renderer.renderShadow(patch_x, patch_y, local_start_x, local_start_y, local_end_x, local_end_y);
 /*//				int number = shadow_number++;
 				for (int y = local_start_y; y <= local_end_y; y++) {

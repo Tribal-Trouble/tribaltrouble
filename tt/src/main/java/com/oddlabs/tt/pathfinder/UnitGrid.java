@@ -109,10 +109,10 @@ public final class UnitGrid {
 		int RADIUS = 30;
 		int center_x = toGridCoordinate(landscape_x);
 		int center_y = toGridCoordinate(landscape_y);
-		int start_x = StrictMath.max(0, center_x - RADIUS);
-		int end_x = StrictMath.min(occupants.length - 0, center_x + RADIUS);
-		int start_y = StrictMath.max(0, center_y - RADIUS);
-		int end_y = StrictMath.min(occupants.length - 0, center_y + RADIUS);
+		int start_x = Math.max(0, center_x - RADIUS);
+		int end_x = Math.min(occupants.length - 0, center_x + RADIUS);
+		int start_y = Math.max(0, center_y - RADIUS);
+		int end_y = Math.min(occupants.length - 0, center_y + RADIUS);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glPointSize(3f);
 		GL11.glBegin(GL11.GL_POINTS);
@@ -166,10 +166,10 @@ public final class UnitGrid {
 		int RADIUS = 30;
 		int center_x = toGridCoordinate(landscape_x);
 		int center_y = toGridCoordinate(landscape_y);
-		int start_x = StrictMath.max(0, center_x - RADIUS);
-		int end_x = StrictMath.min(occupants.length - 0, center_x + RADIUS);
-		int start_y = StrictMath.max(0, center_y - RADIUS);
-		int end_y = StrictMath.min(occupants.length - 0, center_y + RADIUS);
+		int start_x = Math.max(0, center_x - RADIUS);
+		int end_x = Math.min(occupants.length - 0, center_x + RADIUS);
+		int start_y = Math.max(0, center_y - RADIUS);
+		int end_y = Math.min(occupants.length - 0, center_y + RADIUS);
 		for (int y = start_y; y < end_y; y++) {
             for (int x = start_x; x < end_x; x++) {
                 if (isGridOccupied(x, y)) {

@@ -57,8 +57,8 @@ public final class ToolTipBox extends TextField {
 
 		box.getBox().render(x, y, box_width, Skin.NORMAL);
 
-		clip_left = StrictMath.max(clip_left, x + box.getLeftOffset());
-		clip_right = StrictMath.min(clip_right, x + box.getLeftOffset() + text_width);
+		clip_left = Math.max(clip_left, x + box.getLeftOffset());
+		clip_right = Math.min(clip_right, x + box.getLeftOffset() + text_width);
 		tool_tip_renderer.render(x + box.getLeftOffset(), y + box.getBottomOffset(), clip_left, clip_right, clip_bottom, clip_top, getText());
 		if (icons != null) {
 			int render_x = box_width - box.getRightOffset() - icons[icons.length - 1].getWidth();

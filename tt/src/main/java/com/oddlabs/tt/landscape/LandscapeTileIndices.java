@@ -247,7 +247,7 @@ System.out.println("plane_height = " + plane_height);
 				for (int x = 0; x < heightmap.getGridUnitsPerWorld(); x += skip) {
 					float height = heightmap.getWrappedHeight(x, y);
 					float plane_height = getHeight(i, x, y);
-					if (StrictMath.abs(plane_height - height) > .001f) {
+					if (Math.abs(plane_height - height) > .001f) {
 System.out.println("getNumLOD() = " + getNumLOD());
 System.out.println("i = " + i + " | num_quads_exp = " + num_quads_exp + " | patch_exp = " + patch_exp + " | skip = " + skip + " | x = " + x + " | y = " + y);
 System.out.println("height = " + height + " | plane_height = " + plane_height);
@@ -285,7 +285,7 @@ System.out.println("height = " + height + " | plane_height = " + plane_height);
 					LandscapeTileTriangle plane = current_quads[getQuadIndex(patch_exp, num_quads_exp, x, y)][plane_direction];
 					float plane_height = plane.getHeight(heightmap, offset_x + x, offset_y + y);
 					float actual_height = heightmap.getWrappedHeight(offset_x + x, offset_y + y);
-					float error = StrictMath.abs(plane_height - actual_height);
+					float error = Math.abs(plane_height - actual_height);
 					if (error > max_error)
 						max_error = error;
 

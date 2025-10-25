@@ -121,7 +121,7 @@ public final class ProgressForm {
 //			CharSequence tip_string = LOADING_TIPS[7];
 			CharSequence tip_string = LOADING_TIPS[random.nextInt(LOADING_TIPS.length)];
 			int tip_width = Skin.getSkin().getEditFont().getWidth(tip_string);
-			tip_width = StrictMath.min(LocalInput.getViewWidth() - 10, tip_width);
+			tip_width = Math.min(LocalInput.getViewWidth() - 10, tip_width);
 			LabelBox tip = new LabelBox(tip_string, Skin.getSkin().getEditFont(), tip_width);
 //			Label tip = new Label(LOADING_TIPS[random.nextInt(LOADING_TIPS.length)], Skin.getSkin().getEditFont());
 			tip.setPos(progress_bar.getX() + progress_bar.getWidth()/2 - tip.getWidth()/2, progress_bar.getY() - tip.getHeight() - PROGRESSBAR_LOADINGTIP_SPACING);

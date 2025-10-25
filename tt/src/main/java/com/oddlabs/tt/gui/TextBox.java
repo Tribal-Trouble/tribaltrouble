@@ -108,7 +108,7 @@ public class TextBox extends TextField implements Scrollable {
 		Box edit_box = Skin.getSkin().getEditBox();
 		int inner_height = getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset();
 		int offset_height = offset_y + inner_height;
-		return inner_height/(float)StrictMath.max(text_height, offset_height);
+		return inner_height/(float)Math.max(text_height, offset_height);
 	}
 
         @Override
@@ -117,7 +117,7 @@ public class TextBox extends TextField implements Scrollable {
 		Box edit_box = Skin.getSkin().getEditBox();
 		int inner_height = getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset();
 		int offset_height = offset_y + inner_height;
-		int length = StrictMath.max(text_height, offset_height);
+		int length = Math.max(text_height, offset_height);
 		return offset_y/(float)(length - inner_height);
 	}
 
@@ -127,7 +127,7 @@ public class TextBox extends TextField implements Scrollable {
 		Box edit_box = Skin.getSkin().getEditBox();
 		int inner_height = getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset();
 		int offset_height = offset_y + inner_height;
-		int length = StrictMath.max(text_height, offset_height);
+		int length = Math.max(text_height, offset_height);
 		offset_y = (int)(offset*(length - inner_height));
 		if (offset_y < 0)
 			offset_y = 0;

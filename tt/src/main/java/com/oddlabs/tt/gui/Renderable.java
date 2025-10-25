@@ -147,10 +147,10 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 		clip_right = transformX(clip_right);
 		clip_bottom = transformY(clip_bottom);
 		clip_top = transformY(clip_top);
-		clip_left = StrictMath.max(clip_left, 0);
-		clip_right = StrictMath.min(clip_right, width);
-		clip_bottom = StrictMath.max(clip_bottom, 0);
-		clip_top = StrictMath.min(clip_top, height);
+		clip_left = Math.max(clip_left, 0);
+		clip_right = Math.min(clip_right, width);
+		clip_bottom = Math.max(clip_bottom, 0);
+		clip_top = Math.min(clip_top, height);
 		if (clip_left >= width || clip_right <= 0 || clip_bottom >= height || clip_top <= 0) {
 			return;
 		}

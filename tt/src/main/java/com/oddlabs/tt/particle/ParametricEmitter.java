@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Random;
 
 public class ParametricEmitter extends Emitter {
-	private final static float SQRT_2 = (float)StrictMath.sqrt(2f);
+	private final static float SQRT_2 = (float)Math.sqrt(2f);
 	private final Random random;
 	private final Vector3f randomized_offset = new Vector3f();
 	private final ParametricFunction function;
@@ -116,12 +116,12 @@ public class ParametricEmitter extends Emitter {
                         float radius_x = particle.getRadiusX()*SQRT_2;
                         float radius_y = particle.getRadiusY()*SQRT_2;
                         float radius_z = particle.getRadiusZ()*SQRT_2;
-                        x_min = StrictMath.min(x_min, x - radius_x);
-                        x_max = StrictMath.max(x_max, x + radius_x);
-                        y_min = StrictMath.min(y_min, y - radius_y);
-                        y_max = StrictMath.max(y_max, y + radius_y);
-                        z_min = StrictMath.min(z_min, z - radius_z);
-                        z_max = StrictMath.max(z_max, z + radius_z);
+                        x_min = Math.min(x_min, x - radius_x);
+                        x_max = Math.max(x_max, x + radius_x);
+                        y_min = Math.min(y_min, y - radius_y);
+                        y_max = Math.max(y_max, y + radius_y);
+                        z_min = Math.min(z_min, z - radius_z);
+                        z_max = Math.max(z_max, z + radius_z);
                     } else {
                         particle1.remove(i);
                     }
@@ -138,7 +138,7 @@ public class ParametricEmitter extends Emitter {
 	protected int initParticle(ParametricFunction function, float velocity_u, float velocity_v, Vector4f color, Vector4f delta_color, Vector3f particle_radius, Vector3f growth_rate, float energy) {
 
 		Vector3f offset = randomOffset(area_xy, area_xy, area_z);
-		ParametricParticle particle = new ParametricParticle(function, random.nextFloat()*(float)StrictMath.PI*2f, random.nextFloat()*(float)StrictMath.PI*2f,
+		ParametricParticle particle = new ParametricParticle(function, random.nextFloat()*(float)Math.PI*2f, random.nextFloat()*(float)Math.PI*2f,
 				offset.getX(), offset.getY(), offset.getZ());
 		offset = randomOffset(velocity_random_margin, velocity_random_margin, 0f);
 		particle.setVelocity(velocity_u + offset.getX(), velocity_v + offset.getY());

@@ -108,7 +108,7 @@ public final class VikingIsland3 extends Island {
 		float shadow_diameter = 2.6f;
 
 		float offset = HeightMap.METERS_PER_UNIT_GRID/2f;
-		float dir = (float)StrictMath.sin(StrictMath.PI/4);
+		float dir = (float)Math.sin(Math.PI/4);
 		new SceneryModel(getViewer().getWorld(), 134*2 + offset, 29*2 + offset, dir, -dir, getViewer().getWorld().getRacesResources().getTreasures()[4], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
 		new SceneryModel(getViewer().getWorld(), 130*2 + offset, 28*2 + offset, 0, -1, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
 		new SceneryModel(getViewer().getWorld(), 130*2 + offset, 34*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));

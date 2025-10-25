@@ -37,7 +37,7 @@ public final class Hill {
 			for (int x = 0; x < size>>1; x++) {
 				float x_coord = (float)x/size;
 				float dx = x_coord - 0.5f;
-				float dist = StrictMath.min(1f, 4*(dx*dx + dy*dy));
+				float dist = Math.min(1f, 4*(dx*dx + dy*dy));
 				quarter.putPixel(x, y, 1f - dist);
 			}
 		}
@@ -49,11 +49,11 @@ public final class Hill {
 		Channel quarter = new Channel(size>>1, size>>1);
 		for (int y = 0; y < size>>1; y++) {
 			float y_coord = (float)y/size;
-			float dy = StrictMath.abs(y_coord - 0.5f);
+			float dy = Math.abs(y_coord - 0.5f);
 			for (int x = 0; x < size>>1; x++) {
 				float x_coord = (float)x/size;
-				float dx = StrictMath.abs(x_coord - 0.5f);
-				float dist = StrictMath.min(1f, 8*(dx*dx*dx + dy*dy*dy));
+				float dx = Math.abs(x_coord - 0.5f);
+				float dist = Math.min(1f, 8*(dx*dx*dx + dy*dy*dy));
 				quarter.putPixel(x, y, 1f - dist);
 			}
 		}
@@ -71,7 +71,7 @@ public final class Hill {
 				float dx = x_coord - 0.5f;
 				float dx2 = dx*dx;
 				float dy2 = dy*dy;
-				float dist = StrictMath.min(1f, 16*(dx2*dx2 + dy2*dy2));
+				float dist = Math.min(1f, 16*(dx2*dx2 + dy2*dy2));
 				quarter.putPixel(x, y, 1f - dist);
 			}
 		}

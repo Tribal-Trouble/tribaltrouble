@@ -156,8 +156,8 @@ public final class RandomAccelerationEmitter extends LinearEmitter {
 		else
 			y_angle += dy_angle;
 
-		float x = offset_acceleration.getX() + acceleration_factor*(float)StrictMath.sin(x_angle);
-		float y = offset_acceleration.getY() + acceleration_factor*(float)StrictMath.sin(y_angle);
+		float x = offset_acceleration.getX() + acceleration_factor*(float)Math.sin(x_angle);
+		float y = offset_acceleration.getY() + acceleration_factor*(float)Math.sin(y_angle);
 		acceleration.set(x, y, offset_acceleration.getZ());
 	}
 

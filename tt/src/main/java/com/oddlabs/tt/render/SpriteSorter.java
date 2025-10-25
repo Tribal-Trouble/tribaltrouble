@@ -41,7 +41,7 @@ public final class SpriteSorter {
 	}
 
 	private void addToPocket(float dist_squared, LODObject model) {
-		// We can use Math here instead of StrictMath because the dist does not affect game state
+		// We can use Math here instead of Math because the dist does not affect game state
 		int dist = (int)Math.sqrt(dist_squared);
 		sorted_models.add(dist, model);
 	}

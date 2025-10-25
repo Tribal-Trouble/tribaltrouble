@@ -188,10 +188,10 @@ public final class LandscapeRenderer implements Animated {
 
     public void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
         editing = true;
-        edit_patch_x0 = StrictMath.min(edit_patch_x0, patch_x0);
-        edit_patch_y0 = StrictMath.min(edit_patch_y0, patch_y0);
-        edit_patch_x1 = StrictMath.max(edit_patch_x1, patch_x1);
-        edit_patch_y1 = StrictMath.max(edit_patch_y1, patch_y1);
+        edit_patch_x0 = Math.min(edit_patch_x0, patch_x0);
+        edit_patch_y0 = Math.min(edit_patch_y0, patch_y0);
+        edit_patch_x1 = Math.max(edit_patch_x1, patch_x1);
+        edit_patch_y1 = Math.max(edit_patch_y1, patch_y1);
     }
 
     public void renderAll() {

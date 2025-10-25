@@ -38,8 +38,8 @@ public final class BuildSpinner extends IconSpinner {
 	public int computeCount() {
 		if (!current_building.isDead()) {
 			BuildSupplyContainer build_container = current_building.getBuildSupplyContainer(type);
-			int count = StrictMath.min(build_container.getMaxSupplyCount(),
-					StrictMath.max(0, build_container.getNumSupplies() + getOrderDiff()));
+			int count = Math.min(build_container.getMaxSupplyCount(),
+					Math.max(0, build_container.getNumSupplies() + getOrderDiff()));
 			infinite = count >= INFINITE_LIMIT;
 			return count;
 		} else

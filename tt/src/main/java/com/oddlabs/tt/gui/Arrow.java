@@ -65,19 +65,19 @@ public final class Arrow extends GUIObject {
 			dy *= inv_dist;
 		}
 
-		float angle = (float)StrictMath.toDegrees(StrictMath.acos(dx));
+		float angle = (float)Math.toDegrees(Math.acos(dx));
 		if (dy < 0f)
 			angle = 360f - angle;
 		float real_t = (x - LocalInput.getViewWidth()/2f)/dx;
 		float t = real_t;
 		float t_min_x = (-LocalInput.getViewWidth()/2f)/dx;
 		float t_max_x = (LocalInput.getViewWidth()/2f)/dx;
-		float t_x = StrictMath.max(t_min_x, t_max_x);
-		t = StrictMath.min(t, t_x);
+		float t_x = Math.max(t_min_x, t_max_x);
+		t = Math.min(t, t_x);
 		float t_min_y = (-LocalInput.getViewHeight()/2f)/dy;
 		float t_max_y = (LocalInput.getViewHeight()/2f)/dy;
-		float t_y = StrictMath.max(t_min_y, t_max_y);
-		t = StrictMath.min(t, t_y);
+		float t_y = Math.max(t_min_y, t_max_y);
+		t = Math.min(t, t_y);
 		if (show_always || gui_root.getDelegate().getCamera().getState().inNoDetailMode() || t < real_t) {
 			NotifyArrowData data = Icons.getIcons().getNotifyArrowData();
 			float head_x = data.getHeadX();

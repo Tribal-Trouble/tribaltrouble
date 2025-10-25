@@ -35,8 +35,8 @@ public final class WaveAnimation {
 	}
 
 	private void initWaveDir() {
-		x = TREE_WAVE_SCALE*0.5f*(float)StrictMath.cos(time*0.001f);
-		y = TREE_WAVE_SCALE*(float)StrictMath.sin(time*0.001f);
+		x = TREE_WAVE_SCALE*0.5f*(float)Math.cos(time*0.001f);
+		y = TREE_WAVE_SCALE*(float)Math.sin(time*0.001f);
 		wave_dir.set(x, y, 1);
 		wave_dir.normalise();
 	}
@@ -44,7 +44,7 @@ public final class WaveAnimation {
 	private void computeRotation() {
 		Vector3f.cross(wave_dir, up_vec, rot_axis);
 		float length = rot_axis.length();
-		rot_angle = (float)StrictMath.asin(length);
+		rot_angle = (float)Math.asin(length);
 		float inv_length = 1f/length;
 		rot_axis.scale(inv_length);
 	}

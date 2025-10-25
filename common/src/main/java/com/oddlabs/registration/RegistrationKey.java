@@ -32,7 +32,7 @@ public final class RegistrationKey {
 	}
 
 	private static int computeShifting() {
-		return (int)(StrictMath.log(CHAR_TO_WORD.length())/StrictMath.log(2));
+		return (int)(Math.log(CHAR_TO_WORD.length())/Math.log(2));
 	}
 
 	public static BigInteger parseBits(String str) throws RegistrationKeyFormatException {

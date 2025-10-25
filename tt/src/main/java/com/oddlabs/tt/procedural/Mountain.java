@@ -14,8 +14,8 @@ public final class Mountain {
 	public Mountain(int size, int base_freq, float pers, long seed) {
 		assert Utils.isPowerOf2(size) : "size must be power of 2";
 		int iterations = Utils.powerOf2Log2(size);
-		base_freq = StrictMath.max(base_freq, 0);
-		base_freq = StrictMath.min(base_freq, iterations);
+		base_freq = Math.max(base_freq, 0);
+		base_freq = Math.min(base_freq, iterations);
 		random = new Random(seed);
 		channel = new Channel(size, size);
 
@@ -36,7 +36,7 @@ public final class Mountain {
 		for (int i = base_freq; i < iterations; i++) {
 			int block_size = size>>i;
 			int block_size_half = size>>(i + 1);
-			float amp = (float)StrictMath.pow(pers, i - base_freq);
+			float amp = (float)Math.pow(pers, i - base_freq);
 			float amp_half = 0.5f*amp;
 			float avr;
 			// calculate center midpoints

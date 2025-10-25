@@ -45,14 +45,14 @@ public final class MapCamera extends Camera {
         float dx = target[0] - old_x;
         float dy = target[1] - old_y;
         float dz = getHeightMap().getNearestHeight(target[0], target[1]) - old_z;
-        distance_to_landscape = (float)StrictMath.sqrt(dx*dx + dy*dy + dz*dz);
+        distance_to_landscape = (float)Math.sqrt(dx*dx + dy*dy + dz*dz);
 
         setSmoothnessFactor(SMOOTHNESS_FACTOR);
     }
 
     @Override
     public void doAnimate(float t) {
-        float factor = t*1000f/StrictMath.max(t*1000f, Settings.getSettings().mapmode_delay*MAP_TIME_FACTOR);
+        float factor = t*1000f/Math.max(t*1000f, Settings.getSettings().mapmode_delay*MAP_TIME_FACTOR);
         float dx;
         float dy;
         float dz;
@@ -122,14 +122,14 @@ public final class MapCamera extends Camera {
 
     public void mapGoto(float x, float y, boolean override) {
         if (map_mode == MapMode.IN_MAP || override) {
-            //	float radius = (float)StrictMath.cos(getVertAngle());
-            //	float old_dir_x = (float)StrictMath.cos(getHorizAngle())*radius;
-            //	float old_dir_y = (float)StrictMath.sin(getHorizAngle())*radius;
-            //	float old_dir_z = (float)StrictMath.sin(getVertAngle());
-            float radius = (float)StrictMath.cos(old_vert_angle);
-            float old_dir_x = (float)StrictMath.cos(getState().getHorizAngle())*radius;
-            float old_dir_y = (float)StrictMath.sin(getState().getHorizAngle())*radius;
-            float old_dir_z = (float)StrictMath.sin(old_vert_angle);
+            //	float radius = (float)Math.cos(getVertAngle());
+            //	float old_dir_x = (float)Math.cos(getHorizAngle())*radius;
+            //	float old_dir_y = (float)Math.sin(getHorizAngle())*radius;
+            //	float old_dir_z = (float)Math.sin(getVertAngle());
+            float radius = (float)Math.cos(old_vert_angle);
+            float old_dir_x = (float)Math.cos(getState().getHorizAngle())*radius;
+            float old_dir_y = (float)Math.sin(getState().getHorizAngle())*radius;
+            float old_dir_z = (float)Math.sin(old_vert_angle);
             old_x = x - old_dir_x*distance_to_landscape;
             old_y = y - old_dir_y*distance_to_landscape;
             old_z = getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_landscape;

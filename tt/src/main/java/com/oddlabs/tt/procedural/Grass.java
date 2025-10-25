@@ -56,18 +56,18 @@ public final class Grass {
 			
 			float p1_x = (float)cluster/clusters + Tools.gaussify(Tools.gaussify(random.nextFloat()))/clusters;
 			float p1_y = 0.25f*(1f - ((float)leaf/leaves));
-			float p2_x = StrictMath.max(0.025f, StrictMath.min(p1_x + aspect*Tools.gaussify(random.nextFloat()) - 0.5f*aspect, 0.975f));
-			float p2_y = StrictMath.max(0.25f, StrictMath.min(0.7f*random.nextFloat(), 0.975f));
+			float p2_x = Math.max(0.025f, Math.min(p1_x + aspect*Tools.gaussify(random.nextFloat()) - 0.5f*aspect, 0.975f));
+			float p2_y = Math.max(0.25f, Math.min(0.7f*random.nextFloat(), 0.975f));
 			
 			p2_x = (1 - p2_y)*p1_x + p2_y*p2_x;
 			
-			float p3_x = StrictMath.max(0.025f, StrictMath.min(p2_x + p2_x - p1_x, 0.975f));
+			float p3_x = Math.max(0.025f, Math.min(p2_x + p2_x - p1_x, 0.975f));
 			float p3_y;
 			
 			if (p2_y < 0.2 && random.nextFloat() < 0.5) {
-				p3_y = StrictMath.max(0.025f, StrictMath.min(p2_y*(random.nextFloat() + 1f), 0.975f));
+				p3_y = Math.max(0.025f, Math.min(p2_y*(random.nextFloat() + 1f), 0.975f));
 			} else {
-				p3_y = StrictMath.max(0.025f, StrictMath.min(p2_y + 1.25f*p2_y*Tools.gaussify(random.nextFloat()) - 0.5f*p2_y, 0.975f));
+				p3_y = Math.max(0.025f, Math.min(p2_y + 1.25f*p2_y*Tools.gaussify(random.nextFloat()) - 0.5f*p2_y, 0.975f));
 			}
 			p2_x = (p1_x + p3_x)/2f;
 			if (p2_y < 0.25) {
@@ -86,8 +86,8 @@ public final class Grass {
 			float t3_x = 0;
 			float t3_y = 0;
 			
-			float l1 = (float)StrictMath.sqrt((p2_x - p1_x)*(p2_x - p1_x) + (p2_y - p1_y)*(p2_y - p1_y));
-			float l2 = (float)StrictMath.sqrt((p3_x - p2_x)*(p3_x - p2_x) + (p3_y - p2_y)*(p3_y - p2_y));
+			float l1 = (float)Math.sqrt((p2_x - p1_x)*(p2_x - p1_x) + (p2_y - p1_y)*(p2_y - p1_y));
+			float l2 = (float)Math.sqrt((p3_x - p2_x)*(p3_x - p2_x) + (p3_y - p2_y)*(p3_y - p2_y));
 			
 			// parameter loop
 			for (int t_int = 0; t_int < (height<<1); t_int++) {
@@ -101,10 +101,10 @@ public final class Grass {
 					s = (t - (l1/(l1 + l2)))/(l2/(l1 + l2));
 				}
 				
-				float h1 = (float)(2*StrictMath.pow(s, 3) - 3*StrictMath.pow(s, 2) + 1);
-				float h2 = (float)(-2*StrictMath.pow(s, 3) + 3*StrictMath.pow(s, 2));
-				float h3 = (float)(StrictMath.pow(s, 3) - 2*StrictMath.pow(s, 2) + s);
-				float h4 = (float)(StrictMath.pow(s, 3) -  StrictMath.pow(s, 2));
+				float h1 = (float)(2*Math.pow(s, 3) - 3*Math.pow(s, 2) + 1);
+				float h2 = (float)(-2*Math.pow(s, 3) + 3*Math.pow(s, 2));
+				float h3 = (float)(Math.pow(s, 3) - 2*Math.pow(s, 2) + s);
+				float h4 = (float)(Math.pow(s, 3) -  Math.pow(s, 2));
 				
 				float x;
 				float y;
@@ -119,9 +119,9 @@ public final class Grass {
 
 				float rd = 0;
 				if (twist < 0.5) {
-					rd = (width>>8)*radius*(1f - (0.5f*(float)StrictMath.pow(4, t) - 1f));
+					rd = (width>>8)*radius*(1f - (0.5f*(float)Math.pow(4, t) - 1f));
 				} else {
-					rd = (width>>8)*radius*((float)(StrictMath.cos(3*StrictMath.PI*t) + 1.5f + 0.5*(1f - t)))*0.5f;
+					rd = (width>>8)*radius*((float)(Math.cos(3*Math.PI*t) + 1.5f + 0.5*(1f - t)))*0.5f;
 				}
 				
 				float color_r = 0;
@@ -160,9 +160,9 @@ public final class Grass {
 				// draw circle
 				for (int u = x_int - r_int - 8; u < x_int + r_int + 10; u++) {
 					for (int v = y_int - r_int - 8; v < y_int + r_int + 10; v++) {
-						float dx = StrictMath.abs(u - x);
-						float dy = StrictMath.abs(v - y);
-						float dist = (float)StrictMath.sqrt(dx*dx + dy*dy);
+						float dx = Math.abs(u - x);
+						float dy = Math.abs(v - y);
+						float dist = (float)Math.sqrt(dx*dx + dy*dy);
 						if (u >= 0 && u < (width<<1) && v >= 0 && v < (height<<1)) {
 							float alpha = 0;
 							if (smooth == 1) {
@@ -170,12 +170,12 @@ public final class Grass {
 									alpha = 1f;
 								}
 								if (dist >= rd - 1 && dist < rd + 1) {
-									alpha = StrictMath.max(Tools.interpolateLinear(1f, 0f, (dist - rd)/2f), a.getPixel(u, v));
+									alpha = Math.max(Tools.interpolateLinear(1f, 0f, (dist - rd)/2f), a.getPixel(u, v));
 								}
 								if (t < fadein) {
-									alpha = StrictMath.min(alpha, Tools.interpolateLinear(0f, 1f, t/fadein));
+									alpha = Math.min(alpha, Tools.interpolateLinear(0f, 1f, t/fadein));
 								}
-								a.putPixel(u, v, StrictMath.max(alpha, a.getPixel(u, v)));
+								a.putPixel(u, v, Math.max(alpha, a.getPixel(u, v)));
 								
 								if (dist < rd + 1) {
 									r.putPixel(u, v, color_r);
@@ -186,7 +186,7 @@ public final class Grass {
 								if (dist < rd + 1) {
 									alpha = 1f;
 								}
-								a.putPixel(u, v, StrictMath.max(alpha, a.getPixel(u, v)));
+								a.putPixel(u, v, Math.max(alpha, a.getPixel(u, v)));
 								if (dist < rd + 3) {
 									r.putPixel(u, v, color_r);
 									g.putPixel(u, v, color_g);

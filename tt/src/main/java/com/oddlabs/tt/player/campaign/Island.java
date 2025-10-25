@@ -133,7 +133,7 @@ public abstract class Island {
 		int center = captive.getWorld().getHeightMap().getGridUnitsPerWorld()/2;
 		int dx = center - ox;
 		int dy = center - oy;
-		float inv_dist = 1f/(float)StrictMath.sqrt(dx*dx + dy*dy);
+		float inv_dist = 1f/(float)Math.sqrt(dx*dx + dy*dy);
 		int tx = (int)(ox - 5f*dx*inv_dist);
 		int ty = (int)(oy - 5f*dy*inv_dist);
 		for (int i = 0; i < peons; i++) {

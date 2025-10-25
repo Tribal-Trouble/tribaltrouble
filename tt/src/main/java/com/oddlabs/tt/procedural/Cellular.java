@@ -34,11 +34,11 @@ public final class Cellular {
 	public Channel dist3;
 
 	public Cellular(int width, int height, int x_order, int y_order, int checkradius, float randomness, float[] coefficients, long seed, int distribution_type, int metric_type, int value_type) {
-		x_order = StrictMath.max(1, x_order);
-		y_order = StrictMath.max(1, y_order);
-		checkradius = StrictMath.max(1, checkradius);
+		x_order = Math.max(1, x_order);
+		y_order = Math.max(1, y_order);
+		checkradius = Math.max(1, checkradius);
 		random = new Random(seed);
-		float pixelwidth = 2f/StrictMath.min(width, height);
+		float pixelwidth = 2f/Math.min(width, height);
 
 		// create domains
 		float[][][] domains = new float[x_order][y_order][3];
@@ -110,19 +110,19 @@ public final class Cellular {
 
 						// calculate distance to current hit point taking wrap-around into consideration
 						if (i + k >= 0 && i + k < x_order) {
-							dx = StrictMath.abs(domains[k_wrap][l_wrap][X] - x_coord);
+							dx = Math.abs(domains[k_wrap][l_wrap][X] - x_coord);
 						} else if (i + k < 0) {
-							dx = StrictMath.abs(1 - domains[k_wrap][l_wrap][X] + x_coord);
+							dx = Math.abs(1 - domains[k_wrap][l_wrap][X] + x_coord);
 						} else if (i + k >= x_order) {
-							dx = StrictMath.abs(1 - x_coord + domains[k_wrap][l_wrap][X]);
+							dx = Math.abs(1 - x_coord + domains[k_wrap][l_wrap][X]);
 						}
 
 						if (j + l >= 0 && j + l < y_order) {
-							dy = StrictMath.abs(domains[k_wrap][l_wrap][Y] - y_coord);
+							dy = Math.abs(domains[k_wrap][l_wrap][Y] - y_coord);
 						} else if (j + l < 0) {
-							dy = StrictMath.abs(1 - domains[k_wrap][l_wrap][Y] + y_coord);
+							dy = Math.abs(1 - domains[k_wrap][l_wrap][Y] + y_coord);
 						} else if (j + l >= y_order) {
-							dy = StrictMath.abs(1 - y_coord + domains[k_wrap][l_wrap][Y]);
+							dy = Math.abs(1 - y_coord + domains[k_wrap][l_wrap][Y]);
 						}
 
 						dx*=x_order;
@@ -140,7 +140,7 @@ public final class Cellular {
 								dist = dx*dx*dx*dx + dy*dy*dy*dy;
 								break;
 							case MANHATTAN:
-								dist = dx + dy;//StrictMath.max(dx, dy);
+								dist = dx + dy;//Math.max(dx, dy);
 								break;
 							case EUCLIDEAN:
 								dist = (float)Math.sqrt(dx*dx + dy*dy);

@@ -115,11 +115,11 @@ public final class Texture extends NativeResource {
 	}
 
 	private static int getDetailShift(int num_mipmaps) {
-		return StrictMath.min(num_mipmaps - 1, Globals.TEXTURE_MIP_SHIFT[Settings.getSettings().graphic_detail]);
+		return Math.min(num_mipmaps - 1, Globals.TEXTURE_MIP_SHIFT[Settings.getSettings().graphic_detail]);
 	}
 
 	private static int getMaxMipmapIndex(int num_mipmaps, int max_mipmap_level, int detail_shift) {
-		return StrictMath.min(num_mipmaps, max_mipmap_level + 1) - detail_shift;
+		return Math.min(num_mipmaps, max_mipmap_level + 1) - detail_shift;
 	}
 
 	private void uploadDXTTexture(DXTImage dxt_image, TextureFile texture_file) {

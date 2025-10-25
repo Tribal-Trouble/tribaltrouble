@@ -134,7 +134,7 @@ public final class ErosionHydraulic {
 					continue;
 				}
 				avr_height = total_height/cells;
-				water_amount = StrictMath.min(StrictMath.min(water.getPixel(x, y), h - avr_height), min_d);
+				water_amount = Math.min(Math.min(water.getPixel(x, y), h - avr_height), min_d);
 				h_new = h - water_amount;
 				sum_d = 0f;
 				if (d1 > 0) sum_d+= (h_new - h1);

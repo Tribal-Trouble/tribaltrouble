@@ -126,7 +126,7 @@ public final class NativeIsland7 extends Island {
 		// Insert treasures
 		float shadow_diameter = 2.6f;
 
-		float dir = (float)StrictMath.sin(StrictMath.PI/4);
+		float dir = (float)Math.sin(Math.PI/4);
 		Random r = new Random(42);
 		float w = HeightMap.METERS_PER_UNIT_GRID;
 		// From VikingIsland3

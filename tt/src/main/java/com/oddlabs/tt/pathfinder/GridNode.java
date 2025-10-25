@@ -19,7 +19,7 @@ final class GridNode extends Node {
         }
 		int unit = HeightMap.METERS_PER_UNIT_GRID;
 		float inv_unit = 1f/HeightMap.METERS_PER_UNIT_GRID;
-		float inv_sqrt_2 = 1f/(float)StrictMath.sqrt(unit*unit + unit*unit);
+		float inv_sqrt_2 = 1f/(float)Math.sqrt(unit*unit + unit*unit);
 		dir_node_grid[0][0] = new DirectionNode(inv_sqrt_2, -1, -1);
 		dir_node_grid[0][1] = new DirectionNode(inv_unit, -1, 0);
 		dir_node_grid[0][2] = new DirectionNode(inv_sqrt_2, -1, 1);
@@ -66,8 +66,8 @@ final class GridNode extends Node {
 	}
 
 	public static Offset setupPathFinding(int src_grid_x, int src_grid_y, int dst_grid_x, int dst_grid_y) {
-		if (StrictMath.abs(dst_grid_x - src_grid_x) >= RegionBuilder.GRID_SIZE &&
-				StrictMath.abs(dst_grid_y - src_grid_y) >= RegionBuilder.GRID_SIZE)
+		if (Math.abs(dst_grid_x - src_grid_x) >= RegionBuilder.GRID_SIZE &&
+				Math.abs(dst_grid_y - src_grid_y) >= RegionBuilder.GRID_SIZE)
 			return null;
 		int path_offset_x = (dst_grid_x + src_grid_x - RegionBuilder.GRID_SIZE)/2;
 		int path_offset_y = (dst_grid_y + src_grid_y - RegionBuilder.GRID_SIZE)/2;

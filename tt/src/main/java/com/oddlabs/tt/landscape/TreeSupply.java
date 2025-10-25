@@ -228,7 +228,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		float time = getTreeFallProgress();
 		low_detail_translate.set(0f, 0f, -13f*(time*time*time*time*time*time));
 		StrictMatrix4f.translate(matrix, low_detail_translate, low_detail_matrix);
-		low_detail_matrix.rotate((.5f*(float)StrictMath.PI)*time*time, low_detail_x_axis);
+		low_detail_matrix.rotate((.5f*(float)Math.PI)*time*time, low_detail_x_axis);
 		world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
 		if (animation_time >= SECOND_PER_TREEFALL) {
 			world.getAnimationManagerRealTime().removeAnimation(this);

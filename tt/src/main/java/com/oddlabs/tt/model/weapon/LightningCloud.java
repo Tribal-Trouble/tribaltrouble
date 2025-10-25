@@ -115,7 +115,7 @@ public final class LightningCloud implements Magic {
 
 			float dx = target.getPositionX() - position.getX();
 			float dy = target.getPositionY() - position.getY();
-			float dist = (float)StrictMath.sqrt(dx*dx + dy*dy);
+			float dist = (float)Math.sqrt(dx*dx + dy*dy);
 			dx /= dist;
 			dy /= dist;
 			if (dist < meters_per_second*t) {

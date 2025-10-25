@@ -23,7 +23,7 @@ public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond
     @Override
 	public void animate(float t) {
 		if (time > 0) {
-			time = StrictMath.max(0, time - t);
+			time = Math.max(0, time - t);
 		} else {
 			remove();
 		}

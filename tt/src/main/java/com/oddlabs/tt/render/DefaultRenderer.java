@@ -107,7 +107,7 @@ public final class DefaultRenderer implements UIRenderer {
         Target rally_point = selected_building.getRallyPoint();
         float dx = camera_state.getCurrentX() - rally_point.getPositionX();
         float dy = camera_state.getCurrentY() - rally_point.getPositionY();
-        float len = (float) StrictMath.sqrt(dx * dx + dy * dy);
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
         if (len > 0.1f) {
             float inv_len = 1f / len;
             rally_point_dir_x = dx * inv_len;

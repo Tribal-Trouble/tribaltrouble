@@ -82,8 +82,8 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 
 	public void rightClickedRow(int x, int y) {
 		if (pulldown_menu != null) {
-			int pulldown_x = StrictMath.max(0, StrictMath.min(LocalInput.getViewWidth() - pulldown_menu.getWidth(), x));
-			int pulldown_y = StrictMath.max(0, StrictMath.min(LocalInput.getViewHeight() - pulldown_menu.getHeight(), y - pulldown_menu.getHeight()));
+			int pulldown_x = Math.max(0, Math.min(LocalInput.getViewWidth() - pulldown_menu.getWidth(), x));
+			int pulldown_y = Math.max(0, Math.min(LocalInput.getViewHeight() - pulldown_menu.getHeight(), y - pulldown_menu.getHeight()));
 			pulldown_menu.setPos(pulldown_x, pulldown_y);
 			gui_root.getDelegate().addChild(pulldown_menu);
 			pulldown_menu.setFocus();
@@ -171,18 +171,18 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 
         @Override
 	public float getScrollBarRatio() {
-		return rows.getHeight()/(float)StrictMath.max(rows.getContentHeight(), offset_y + rows.getHeight());
+		return rows.getHeight()/(float)Math.max(rows.getContentHeight(), offset_y + rows.getHeight());
 	}
 
         @Override
 	public float getScrollBarOffset() {
-		int length = StrictMath.max(rows.getContentHeight(), offset_y + rows.getHeight());
+		int length = Math.max(rows.getContentHeight(), offset_y + rows.getHeight());
 		return offset_y/(float)(length - rows.getHeight());
 	}
 
         @Override
 	public void setScrollBarOffset(float offset) {
-		int length = StrictMath.max(rows.getContentHeight(), offset_y + rows.getHeight());
+		int length = Math.max(rows.getContentHeight(), offset_y + rows.getHeight());
 		setOffsetY((int)(offset*(length - rows.getHeight())));
 	}
 }

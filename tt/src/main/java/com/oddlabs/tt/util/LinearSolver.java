@@ -92,7 +92,7 @@ dumpEquation(eq_system);*/
     }
 
     public static boolean isEqual(float val1, float val2) {
-        return StrictMath.abs(val1 - val2) <= THRESHOLD;
+        return Math.abs(val1 - val2) <= THRESHOLD;
     }
 
     public static boolean isZero(float val) {

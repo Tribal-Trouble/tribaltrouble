@@ -76,16 +76,16 @@ public final class PoisonFog implements Magic {
 		}
 
 		if (bursts*SECONDS_BETWEEN_BURSTS < time) {
-			float gaussian = (float)(GAUSSIAN_LIMIT - StrictMath.abs(StrictMath.max(-GAUSSIAN_LIMIT, StrictMath.min(GAUSSIAN_LIMIT, owner.getWorld().getRandom().nextGaussian()))))/GAUSSIAN_LIMIT;
+			float gaussian = (float)(GAUSSIAN_LIMIT - Math.abs(Math.max(-GAUSSIAN_LIMIT, Math.min(GAUSSIAN_LIMIT, owner.getWorld().getRandom().nextGaussian()))))/GAUSSIAN_LIMIT;
 			float r = gaussian*(hit_radius - BURST_RADIUS - 5f);
-			float a = owner.getWorld().getRandom().nextFloat()*(float)StrictMath.PI*2;
-			float x = start_x + (float)StrictMath.cos(a)*r;
-			float y = start_y + (float)StrictMath.sin(a)*r;
+			float a = owner.getWorld().getRandom().nextFloat()*(float)Math.PI*2;
+			float x = start_x + (float)Math.cos(a)*r;
+			float y = start_y + (float)Math.sin(a)*r;
 			float z = owner.getWorld().getHeightMap().getNearestHeight(x, y);
 			float alpha = 8f;
 			float energy = 2f;
 
-			new RandomVelocityEmitter(owner.getWorld(), new Vector3f(x, y, z), OFFSET_Z, owner.getWorld().getRandom().nextFloat()*(float)StrictMath.PI*2,
+			new RandomVelocityEmitter(owner.getWorld(), new Vector3f(x, y, z), OFFSET_Z, owner.getWorld().getRandom().nextFloat()*(float)Math.PI*2,
 					BURST_RADIUS, 0f, 0f, 0f,
 					PARTICLES_PER_BURST, PARTICLES_PER_BURST,
 					new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 0f),
@@ -124,7 +124,7 @@ public final class PoisonFog implements Magic {
             if (!s.isDead() && ((owner.isEnemy(s.getOwner()) && owner.getWorld().getRandom().nextFloat() < hit_chance * (1 - s.getDefenseChance()))
                     || (!owner.isEnemy(s.getOwner()) && owner.getWorld().getRandom().nextFloat() < (hit_chance / 4f) * (1 - s.getDefenseChance())
                     && s != owner.getChieftain()))) {
-                float inv_dist = 1f / ((float) StrictMath.sqrt(squared_dist));
+                float inv_dist = 1f / ((float) Math.sqrt(squared_dist));
                 s.hit(damage, dx * inv_dist, dy * inv_dist, owner);
             }
         }

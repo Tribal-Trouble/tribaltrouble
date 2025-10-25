@@ -31,7 +31,7 @@ public final class MenuButton extends ButtonObject {
 	private void scaleHovered() {
 		float time = (LocalEventQueue.getQueue().getTime() - start_hover_time)%SECONDS_PER_HOVER_CYCLE;
 		float cycle_position = time/SECONDS_PER_HOVER_CYCLE;
-		float scale = 1f + HOVER_SCALE_FACTOR*(float)StrictMath.sin(cycle_position*2*StrictMath.PI);
+		float scale = 1f + HOVER_SCALE_FACTOR*(float)Math.sin(cycle_position*2*Math.PI);
 		GL11.glScalef(scale, scale, 1f);
 	}
 

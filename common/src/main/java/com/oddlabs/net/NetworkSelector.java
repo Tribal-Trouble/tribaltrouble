@@ -131,7 +131,7 @@ public final class NetworkSelector {
 		else if (timeout == 0)
 			next_timeout = ping_timeout;
 		else
-			next_timeout = StrictMath.min(ping_timeout, timeout);
+			next_timeout = Math.min(ping_timeout, timeout);
 		if (deterministic.log(selector != null && selector.select(next_timeout) > 0))
 			doTick();
 	}

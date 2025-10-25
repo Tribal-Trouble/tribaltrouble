@@ -227,7 +227,7 @@ public final class NativeIsland0 extends Island {
 
 		// Insert treasures
 		final SceneryModel[] scenery_models = new SceneryModel[14];
-		float dir = (float)StrictMath.sin(StrictMath.PI/4);
+		float dir = (float)Math.sin(Math.PI/4);
 		float offset = HeightMap.METERS_PER_UNIT_GRID/2f;
 		float shadow_diameter = 4.5f;
 		scenery_models[0] = new SceneryModel(getViewer().getWorld(), 163*2 + offset, 126*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[0], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));

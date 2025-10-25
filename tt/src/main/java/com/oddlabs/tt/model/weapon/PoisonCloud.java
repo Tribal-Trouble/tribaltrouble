@@ -24,7 +24,7 @@ public final class PoisonCloud {
 
 		dx = dst_x - src_x;
 		dy = dst_y - src_y;
-		float dist = (float)StrictMath.sqrt(dx*dx + dy*dy);
+		float dist = (float)Math.sqrt(dx*dx + dy*dy);
 		total_time = dist/velocity;
 		emitter.scale(START_SCALE, START_SCALE, START_SCALE);
 	}
@@ -42,7 +42,7 @@ public final class PoisonCloud {
 		}
 
 		float z = emitter.getWorld().getHeightMap().getNearestHeight(x, y) + PoisonFog.OFFSET_Z;
-		float factor = StrictMath.min(1f, time/total_time);
+		float factor = Math.min(1f, time/total_time);
 		float scale = START_SCALE + (1f - START_SCALE)*factor;
 		emitter.scale(scale, scale, scale);
 		emitter.getPosition().set(x, y, z);

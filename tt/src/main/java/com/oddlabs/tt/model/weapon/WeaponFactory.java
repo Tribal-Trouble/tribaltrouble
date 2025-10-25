@@ -31,7 +31,7 @@ public abstract class WeaponFactory {
 		float src_z = heightmap.getNearestHeight(src.getPositionX(), src.getPositionY());
 		float dst_z = heightmap.getNearestHeight(dst.getPositionX(), dst.getPositionY());
 		float bonus = (src_z - dst_z)*TERRAIN_BONUS_PER_HEIGHT;
-		bonus = StrictMath.min(TERRAIN_MAX_BONUS, StrictMath.max(-TERRAIN_MAX_BONUS, bonus));
+		bonus = Math.min(TERRAIN_MAX_BONUS, Math.max(-TERRAIN_MAX_BONUS, bonus));
 		return bonus;
 	}
 

@@ -11,16 +11,16 @@ public final class StunFunction implements ParametricFunction {
 
     @Override
 	public float getX(float u, float v) {
-		return radius*(float)StrictMath.cos(u);
+		return radius*(float)Math.cos(u);
 	}
 
     @Override
 	public float getY(float u, float v) {
-		return radius*(float)StrictMath.sin(u);
+		return radius*(float)Math.sin(u);
 	}
 
     @Override
 	public float getZ(float u, float v) {
-		return height*(float)StrictMath.cos(v);
+		return height*(float)Math.cos(v);
 	}
 }

@@ -28,10 +28,10 @@ public class Quad implements Serializable {
 		float x2 = x + width;
 		float y1 = y;
 		float y2 = y + height;
-		float cleft_amount = StrictMath.max(0, clip_left - x1);
-		float cright_amount = StrictMath.max(0, x2 - clip_right);
-		float cbottom_amount = StrictMath.max(0, clip_bottom - y1);
-		float ctop_amount = StrictMath.max(0, y2 - clip_top);
+		float cleft_amount = Math.max(0, clip_left - x1);
+		float cright_amount = Math.max(0, x2 - clip_right);
+		float cbottom_amount = Math.max(0, clip_bottom - y1);
+		float ctop_amount = Math.max(0, y2 - clip_top);
 		if (ctop_amount + cbottom_amount >= height || cright_amount + cleft_amount >= width)
 			return;
 		x1 += cleft_amount;

@@ -64,7 +64,7 @@ public final class TimerAnimation implements Animated {
 	public void animate(float t) {
 		time += t;
 		while (time > interval) {
-			time -= StrictMath.max(t, interval);
+			time -= Math.max(t, interval);
 			if (timer_owner != null)
 				timer_owner.update(this);
 		}

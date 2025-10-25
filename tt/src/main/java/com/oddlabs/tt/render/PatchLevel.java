@@ -43,10 +43,10 @@ final class PatchLevel {
 
 	private int getAdjustedLevel() {
 		int adjusted_level = level;
-		adjusted_level = StrictMath.max(adjusted_level, right_neighbour.level - 1);
-		adjusted_level = StrictMath.max(adjusted_level, left_neighbour.level - 1);
-		adjusted_level = StrictMath.max(adjusted_level, top_neighbour.level - 1);
-		adjusted_level = StrictMath.max(adjusted_level, bottom_neighbour.level - 1);
+		adjusted_level = Math.max(adjusted_level, right_neighbour.level - 1);
+		adjusted_level = Math.max(adjusted_level, left_neighbour.level - 1);
+		adjusted_level = Math.max(adjusted_level, top_neighbour.level - 1);
+		adjusted_level = Math.max(adjusted_level, bottom_neighbour.level - 1);
 		return adjusted_level;
 	}
 

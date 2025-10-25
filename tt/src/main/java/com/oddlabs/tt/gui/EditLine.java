@@ -58,8 +58,8 @@ public class EditLine extends TextField {
 	}
 
 	protected void renderText(TextLineRenderer text_renderer, int x, int y, int offset_x, float clip_left, float clip_right, float clip_bottom, float clip_top, int render_index) {
-		clip_left = StrictMath.max(clip_left, x);
-		clip_right = StrictMath.min(clip_right, x + max_text_width);
+		clip_left = Math.max(clip_left, x);
+		clip_right = Math.min(clip_right, x + max_text_width);
 		text_renderer.render(x, y, offset_x, clip_left, clip_right, clip_bottom, clip_top, getText(), render_index);
 	}
 

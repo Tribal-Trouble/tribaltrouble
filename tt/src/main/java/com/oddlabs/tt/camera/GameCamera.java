@@ -14,13 +14,13 @@ import org.lwjgl.input.Keyboard;
 public final class GameCamera extends Camera {
     public final static int SCROLL_BUFFER = 5;
     private final static float INIT_DISTANCE = 50;
-    private final static float ANGLE_DELTA = (float)(StrictMath.PI/2);
+    private final static float ANGLE_DELTA = (float)(Math.PI/2);
     public final static float MAX_Z = 100f;
-    private final static float ZOOM_Z_DIR_MIN = -(float)StrictMath.tan(StrictMath.PI/6);
+    private final static float ZOOM_Z_DIR_MIN = -(float)Math.tan(Math.PI/6);
     private final static float SCROLL_ACCELERATION_SECONDS_MAX = 1f;
     private final static float SCROLL_ACCELERATION_FACTOR = 2.5f;
     private final static float SCROLL_START_MAX_SPEED = 60f;
-    private final static float ROTATE_PICKING_ANGLE_MAX = (-(Globals.FOV) - 10)*((float)StrictMath.PI/180)*.5f;
+    private final static float ROTATE_PICKING_ANGLE_MAX = (-(Globals.FOV) - 10)*((float)Math.PI/180)*.5f;
     private final static float ZOOM_SPEED = 50f;
 
     private final WorldViewer viewer;
@@ -95,10 +95,10 @@ public final class GameCamera extends Camera {
     }
 
 /*
-float radius = (float)StrictMath.cos(old_vert_angle);
-float old_dir_x = (float)StrictMath.cos(getHorizAngle())*radius;
-float old_dir_y = (float)StrictMath.sin(getHorizAngle())*radius;
-float old_dir_z = (float)StrictMath.sin(old_vert_angle);
+float radius = (float)Math.cos(old_vert_angle);
+float old_dir_x = (float)Math.cos(getHorizAngle())*radius;
+float old_dir_y = (float)Math.sin(getHorizAngle())*radius;
+float old_dir_z = (float)Math.sin(old_vert_angle);
 old_x = x - old_dir_x*distance_to_landscape;
 old_y = y - old_dir_y*distance_to_landscape;
 old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_landscape;
@@ -110,14 +110,14 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
     public void reset(float x, float y) {
         float dx = x - .5f*getHeightMap().getMetersPerWorld();
         float dy = y - .5f*getHeightMap().getMetersPerWorld();
-        float r = (float)StrictMath.sqrt(dx*dx + dy*dy);
+        float r = (float)Math.sqrt(dx*dx + dy*dy);
         if (dy > 0) {
-                getState().setCurrentHorizAngle((float)(StrictMath.PI + StrictMath.acos(dx/r)));
+                getState().setCurrentHorizAngle((float)(Math.PI + Math.acos(dx/r)));
         } else {
-                getState().setCurrentHorizAngle(-(float)(StrictMath.PI + StrictMath.acos(dx/r)));
+                getState().setCurrentHorizAngle(-(float)(Math.PI + Math.acos(dx/r)));
         }
-//		setHorizAngle(-(float)StrictMath.PI/2f);
-        getState().setCurrentVertAngle(-45f*(float)StrictMath.PI/180f);
+//		setHorizAngle(-(float)Math.PI/2f);
+        getState().setCurrentVertAngle(-45f*(float)Math.PI/180f);
 
         setPos(x, y);
 
@@ -126,10 +126,10 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
     }
 
     public void setPos(float x, float y) {
-            float radius = (float)StrictMath.cos(getState().getTargetVertAngle());
-            float dir_x = (float)StrictMath.cos(getState().getTargetHorizAngle())*radius;
-            float dir_y = (float)StrictMath.sin(getState().getTargetHorizAngle())*radius;
-            float dir_z = (float)StrictMath.sin(getState().getTargetVertAngle());
+            float radius = (float)Math.cos(getState().getTargetVertAngle());
+            float dir_x = (float)Math.cos(getState().getTargetHorizAngle())*radius;
+            float dir_y = (float)Math.sin(getState().getTargetHorizAngle())*radius;
+            float dir_z = (float)Math.sin(getState().getTargetVertAngle());
             getState().setCurrentX(x - dir_x*INIT_DISTANCE);
             getState().setCurrentY(y - dir_y*INIT_DISTANCE);
             getState().setCurrentZ(getHeightMap().getNearestHeight(x, y) - dir_z*INIT_DISTANCE);
@@ -137,28 +137,28 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
     }
 
     private void updateDirection() {
-            left_dir_x = -(float)StrictMath.sin(getState().getTargetHorizAngle());
-            left_dir_y = (float)StrictMath.cos(getState().getTargetHorizAngle());
+            left_dir_x = -(float)Math.sin(getState().getTargetHorizAngle());
+            left_dir_y = (float)Math.cos(getState().getTargetHorizAngle());
     }
 
     private void doZoom(float time_delta) {
         zoom(zoom_time*time_delta*ZOOM_SPEED*getState().getTargetZ());
         if (zoom_time < 0f)
-                zoom_time = StrictMath.min(0f, zoom_time + time_delta);
+                zoom_time = Math.min(0f, zoom_time + time_delta);
         else if (zoom_time > 0)
-                zoom_time = StrictMath.max(0f, zoom_time - time_delta);
+                zoom_time = Math.max(0f, zoom_time - time_delta);
     }
 
     public void zoom(float zoom_factor) {
         if (zoom_factor != 0f) {
                 last_zoom_factor = zoom_factor;
-                float radius = (float)StrictMath.cos(getState().getTargetVertAngle());
-                float dir_x = (float)StrictMath.cos(getState().getTargetHorizAngle())*radius;
-                float dir_y = (float)StrictMath.sin(getState().getTargetHorizAngle())*radius;
-                float dir_z = (float)StrictMath.sin(getState().getTargetVertAngle());
+                float radius = (float)Math.cos(getState().getTargetVertAngle());
+                float dir_x = (float)Math.cos(getState().getTargetHorizAngle())*radius;
+                float dir_y = (float)Math.sin(getState().getTargetHorizAngle())*radius;
+                float dir_z = (float)Math.sin(getState().getTargetVertAngle());
                 if (dir_z > ZOOM_Z_DIR_MIN) {
                         dir_z = ZOOM_Z_DIR_MIN;
-                        float inv_length = 1/(float)StrictMath.sqrt(dir_x*dir_x + dir_y*dir_y + dir_z*dir_z);
+                        float inv_length = 1/(float)Math.sqrt(dir_x*dir_x + dir_y*dir_y + dir_z*dir_z);
                         dir_x *= inv_length;
                         dir_y *= inv_length;
                         dir_z *= inv_length;
@@ -262,8 +262,8 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                         da = time_delta*ANGLE_DELTA;
                 }
                 getState().setTargetHorizAngle(getState().getTargetHorizAngle() + da);
-                getState().setTargetX(getState().getTargetX() - dx + (float)(dx*StrictMath.cos(da) - dy*StrictMath.sin(da)));
-                getState().setTargetY(getState().getTargetY() - dy + (float)(dx*StrictMath.sin(da) + dy*StrictMath.cos(da)));
+                getState().setTargetX(getState().getTargetX() - dx + (float)(dx*Math.cos(da) - dy*Math.sin(da)));
+                getState().setTargetY(getState().getTargetY() - dy + (float)(dx*Math.sin(da) + dy*Math.cos(da)));
                 checkPosition();
         }
     }
@@ -276,7 +276,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                 float da = getState().getTargetVertAngle() - ROTATE_PICKING_ANGLE_MAX;
                 float pixels_per_unit = 1f/GUIRoot.getUnitsPerPixel(Globals.VIEW_MIN);
                 int pixels_to_screen = (int)(Globals.VIEW_MIN*pixels_per_unit);
-                int dy = (int)(((float)StrictMath.tan(da))*pixels_to_screen);
+                int dy = (int)(((float)Math.tan(da))*pixels_to_screen);
                 int y = center_y - dy;
                 return y;
         }
@@ -333,7 +333,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                 }
                 scroll_x = (x - LocalInput.getViewWidth()/2);
                 scroll_y = (y - LocalInput.getViewHeight()/2);
-                float inv_length = 1f/(float)StrictMath.sqrt(scroll_x*scroll_x + scroll_y*scroll_y);
+                float inv_length = 1f/(float)Math.sqrt(scroll_x*scroll_x + scroll_y*scroll_y);
                 scroll_x *= inv_length;
                 scroll_y *= inv_length;
         } else {
@@ -359,7 +359,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         float dx = landscape_point[0] - getState().getTargetX();
         float dy = landscape_point[1] - getState().getTargetY();
         float dz = landscape_z - getState().getTargetZ();
-        scroll_start_speed = StrictMath.min((float)StrictMath.sqrt(dx*dx + dy*dy + dz*dz), SCROLL_START_MAX_SPEED);
+        scroll_start_speed = Math.min((float)Math.sqrt(dx*dx + dy*dy + dz*dz), SCROLL_START_MAX_SPEED);
     }
 
     public World getWorld() {

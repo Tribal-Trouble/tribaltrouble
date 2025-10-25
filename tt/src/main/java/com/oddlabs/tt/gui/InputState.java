@@ -58,7 +58,7 @@ public final class InputState {
 
 	public void mouseScrolled(int dz) {
 		GUIObject gui_hit = pick();
-		int scroll_amount = StrictMath.round(dz*Globals.WHEEL_SCALE);
+		int scroll_amount = Math.round(dz*Globals.WHEEL_SCALE);
 		gui_hit.setFocus();
 		gui_hit.mouseScrolledAll(scroll_amount);
 	}
@@ -132,7 +132,7 @@ public final class InputState {
 	}
 
 	private boolean clickedSameArea() {
-		return StrictMath.abs(LocalInput.getMouseX()- clicked_x) < DOUBLE_CLICK_THRESHOLD && StrictMath.abs(LocalInput.getMouseY() - clicked_y) < DOUBLE_CLICK_THRESHOLD;
+		return Math.abs(LocalInput.getMouseX()- clicked_x) < DOUBLE_CLICK_THRESHOLD && Math.abs(LocalInput.getMouseY() - clicked_y) < DOUBLE_CLICK_THRESHOLD;
 	}
 
 	private void stopDoubleClickTimer() {

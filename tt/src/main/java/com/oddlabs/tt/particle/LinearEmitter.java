@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Random;
 
 public abstract class LinearEmitter extends Emitter {
-	private final static float SQRT_2 = (float)StrictMath.sqrt(2f);
+	private final static float SQRT_2 = (float)Math.sqrt(2f);
 
 	private final Random random;
 	private final Vector3f randomized_position = new Vector3f();
@@ -122,12 +122,12 @@ public abstract class LinearEmitter extends Emitter {
                         float radius_x = particle.getRadiusX()*SQRT_2;
                         float radius_y = particle.getRadiusY()*SQRT_2;
                         float radius_z = particle.getRadiusZ()*SQRT_2;
-                        x_min = StrictMath.min(x_min, x - radius_x);
-                        x_max = StrictMath.max(x_max, x + radius_x);
-                        y_min = StrictMath.min(y_min, y - radius_y);
-                        y_max = StrictMath.max(y_max, y + radius_y);
-                        z_min = StrictMath.min(z_min, z - radius_z);
-                        z_max = StrictMath.max(z_max, z + radius_z);
+                        x_min = Math.min(x_min, x - radius_x);
+                        x_max = Math.max(x_max, x + radius_x);
+                        y_min = Math.min(y_min, y - radius_y);
+                        y_max = Math.max(y_max, y + radius_y);
+                        z_min = Math.min(z_min, z - radius_z);
+                        z_max = Math.max(z_max, z + radius_z);
                     } else {
                         particle1.remove(i);
                     }
@@ -144,9 +144,9 @@ public abstract class LinearEmitter extends Emitter {
 
 	protected final Vector3f randomPosition() {
 		float r = emitter_radius*(float)(1 - random.nextGaussian());
-		float a = random.nextFloat()*(float)StrictMath.PI*2;
-		float x = (float)StrictMath.cos(a)*r;
-		float y = (float)StrictMath.sin(a)*r;
+		float a = random.nextFloat()*(float)Math.PI*2;
+		float x = (float)Math.cos(a)*r;
+		float y = (float)Math.sin(a)*r;
 		float z = random.nextFloat()*emitter_height;
 
 		randomized_position.setX(getX() + x);

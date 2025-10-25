@@ -5,8 +5,8 @@ import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector3f;
 
 public final class CameraState {
-	final static float MIN_ANGLE = -(float)StrictMath.PI/2f;//+ 0.01f;
-//  private final static float MAX_ANGLE = (float)StrictMath.PI/2f;// - 0.0001f;
+	final static float MIN_ANGLE = -(float)Math.PI/2f;//+ 0.01f;
+//  private final static float MAX_ANGLE = (float)Math.PI/2f;// - 0.0001f;
 	private final static float MAX_ANGLE = -0.0001f;
 
 	private final static StrictVector3f vector = new StrictVector3f();
@@ -90,7 +90,7 @@ public final class CameraState {
 	}
 
 	private float animateValue(float delta_t, float current, float target, float smoothness_factor) {
-		return current + (target - current)*StrictMath.min(delta_t*smoothness_factor, 1f);
+		return current + (target - current)*Math.min(delta_t*smoothness_factor, 1f);
 	}
 
 	void setTargetZ(float z) {
@@ -184,10 +184,10 @@ public final class CameraState {
 	private final static StrictVector3f tmp = new StrictVector3f();
 	private final static StrictVector3f tmp2 = new StrictVector3f();
 	private static void updateDirectionAndNormal(float hangle, float vangle, StrictVector3f f, StrictVector3f u, StrictVector3f s) {
-		float radius = (float)StrictMath.cos(vangle);
-		float dir_x = (float)StrictMath.cos(hangle);
-		float dir_y = (float)StrictMath.sin(hangle);
-		float dir_z = (float)StrictMath.sin(vangle);
+		float radius = (float)Math.cos(vangle);
+		float dir_x = (float)Math.cos(hangle);
+		float dir_y = (float)Math.sin(hangle);
+		float dir_z = (float)Math.sin(vangle);
 		f.set(dir_x*radius, dir_y*radius, dir_z);
 		tmp.set(-dir_y, dir_x, 0);
 		StrictVector3f.cross(f, tmp, tmp2);
@@ -280,7 +280,7 @@ public final class CameraState {
 
             for (float[] frustum1 : frustum) {
                 /* Normalize the result */
-                float length_inv = 1f / ((float) java.lang.StrictMath.sqrt(frustum1[0] * frustum1[0] + frustum1[1] * frustum1[1] + frustum1[2] * frustum1[2]));
+                float length_inv = 1f / ((float) java.lang.Math.sqrt(frustum1[0] * frustum1[0] + frustum1[1] * frustum1[1] + frustum1[2] * frustum1[2]));
                 frustum1[0] *= length_inv;
                 frustum1[1] *= length_inv;
                 frustum1[2] *= length_inv;

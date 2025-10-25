@@ -29,7 +29,7 @@ public final class Spectral {
 
 	// generate noise octaves
 	private void generateOctaves(int base_frequency, int octaves, long seed) {
-		base_frequency = StrictMath.max(2, base_frequency);
+		base_frequency = Math.max(2, base_frequency);
 		noise_channels = new Channel[octaves];
 		random = new Random(seed);
 		for (int i = 0; i < octaves; i++) {
@@ -56,7 +56,7 @@ public final class Spectral {
 
 		for (int i = 0; i < octaves; i++) {
 			Channel octave = noise_channels[i];
-			float amplitude = (float)StrictMath.pow(persistence,i);
+			float amplitude = (float)Math.pow(persistence,i);
 			float size_ratio = (float)octave.width/size;
 			int block_size = size/octave.width;
 			int blocks = octave.width;

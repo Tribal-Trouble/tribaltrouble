@@ -13,7 +13,7 @@ import java.nio.FloatBuffer;
 import java.util.List;
 
 final class EmitterRenderer {
-	private final static float SQRT_2 = (float)StrictMath.sqrt(2f);
+	private final static float SQRT_2 = (float)Math.sqrt(2f);
 	private final static float ROTATION_FACTOR = 60f;
 
 	private final static StrictVector3f right_plus_up = new StrictVector3f();
@@ -97,7 +97,7 @@ final class EmitterRenderer {
                             color_buffer.put(0, particle.getColorR());
                             color_buffer.put(1, particle.getColorG());
                             color_buffer.put(2, particle.getColorB());
-                            color_buffer.put(3, StrictMath.min(particle.getColorA(), 1f));
+                            color_buffer.put(3, Math.min(particle.getColorA(), 1f));
                             SpriteRenderer sprite_renderer = render_queues.getRenderer(sprite_renderers[index]);
                             sprite_renderer.setupWithColor(0, color_buffer, false, false);
                             //					sprite_renderer.setup(0, false);

@@ -24,7 +24,7 @@ public final class Optimizer {
 
 	private static boolean floatsEquals(int index1, int index2, int size, float[] array1, float[] array2) {
 		for (int i = 0; i < size; i++) {
-			if (StrictMath.abs(array1[index1*size + i] - array2[index2*size + i]) > VERTEX_TRESHOLD)
+			if (Math.abs(array1[index1*size + i] - array2[index2*size + i]) > VERTEX_TRESHOLD)
 				return false;
 		}
 		return true;
@@ -167,10 +167,10 @@ public final class Optimizer {
 		result_buffer.flip();
 		result_buffer.get(bones, current_bone.getIndex()*12, 12);
 		final float DELTA = .0001f;
-		assert StrictMath.abs(resulting_matrix.m03) < DELTA : resulting_matrix.m03;
-		assert StrictMath.abs(resulting_matrix.m13) < DELTA : resulting_matrix.m13;
-		assert StrictMath.abs(resulting_matrix.m23) < DELTA : resulting_matrix.m23;
-		assert StrictMath.abs(resulting_matrix.m33 - 1f) < DELTA: resulting_matrix.m33;
+		assert Math.abs(resulting_matrix.m03) < DELTA : resulting_matrix.m03;
+		assert Math.abs(resulting_matrix.m13) < DELTA : resulting_matrix.m13;
+		assert Math.abs(resulting_matrix.m23) < DELTA : resulting_matrix.m23;
+		assert Math.abs(resulting_matrix.m33 - 1f) < DELTA: resulting_matrix.m33;
 /*Vector4f bone_point = new Vector4f();
         Vector4f bone_point_transformed = new Vector4f();
         bone_point.set(0, 0, 0, 1);

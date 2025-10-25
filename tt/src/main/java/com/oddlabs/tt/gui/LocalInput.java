@@ -274,7 +274,7 @@ public final class LocalInput {
 	}
 
 	private static float getUnitsPerPixel() {
-		return (float)(Globals.VIEW_MIN*StrictMath.tan(Globals.FOV*(StrictMath.PI/180.0f)*0.5d)/(view_height*0.5d));
+		return (float)(Globals.VIEW_MIN*Math.tan(Globals.FOV*(Math.PI/180.0f)*0.5d)/(view_height*0.5d));
 	}
 
 	public static float getErrorConstant() {

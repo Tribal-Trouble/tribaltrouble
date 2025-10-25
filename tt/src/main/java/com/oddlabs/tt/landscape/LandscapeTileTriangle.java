@@ -157,8 +157,8 @@ public final class LandscapeTileTriangle {
 	}
 
 	void setupMapping(int patch_exp, int lod, LandscapeTileTriangle[][][] quad_to_planes) {
-		int min_x = StrictMath.min(i0_x, StrictMath.min(i1_x, i2_x));
-		int min_y = StrictMath.min(i0_y, StrictMath.min(i1_y, i2_y));
+		int min_x = Math.min(i0_x, Math.min(i1_x, i2_x));
+		int min_y = Math.min(i0_y, Math.min(i1_y, i2_y));
 		int num_quads_exp = LandscapeTileIndices.getNumQuadsExp(lod);
 		int quad_index = LandscapeTileIndices.getQuadIndex(patch_exp, num_quads_exp, min_x, min_y);
 		LandscapeTileTriangle[] quad_planes = quad_to_planes[lod][quad_index];

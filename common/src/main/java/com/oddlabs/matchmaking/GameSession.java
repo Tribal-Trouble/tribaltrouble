@@ -81,12 +81,12 @@ public final class GameSession implements Serializable {
 		int[][] result = new int[num_players][2];
 		if (team_sizes[0] > 0 && team_sizes[1] > 0) {
 			final int K = 16*num_players;
-			float E0 = 1f/(1f + (float)StrictMath.pow(10d, (team_ratings[1] - team_ratings[0])/400f));
-			float E1 = 1f/(1f + (float)StrictMath.pow(10d, (team_ratings[0] - team_ratings[1])/400f));
-			int team_0_wins = StrictMath.round(K*(1 - E0));
-			int team_1_looses = StrictMath.round(K*(0 - E1));
-			int team_0_looses = StrictMath.round(K*(0 - E0));
-			int team_1_wins = StrictMath.round(K*(1 - E1));
+			float E0 = 1f/(1f + (float)Math.pow(10d, (team_ratings[1] - team_ratings[0])/400f));
+			float E1 = 1f/(1f + (float)Math.pow(10d, (team_ratings[0] - team_ratings[1])/400f));
+			int team_0_wins = Math.round(K*(1 - E0));
+			int team_1_looses = Math.round(K*(0 - E1));
+			int team_0_looses = Math.round(K*(0 - E0));
+			int team_1_wins = Math.round(K*(1 - E1));
 			for (int i = 0; i < num_players; i++) {
 				int team_size = team_sizes[player_teams[i]];
 				if (player_teams[i] == 0) {

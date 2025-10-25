@@ -67,8 +67,8 @@ public final class FontRenderer {
 
 		Shape glyph_shape2 = gv.getGlyphOutline(2);
 		Rectangle2D glyph_bounds2 = glyph_shape2.getBounds2D();
-		float space_width_f= (int)StrictMath.ceil(glyph_bounds2.getMinX()) - (int)StrictMath.floor(glyph_bounds0.getMaxX());
-		int space_width = (int)StrictMath.ceil(space_width_f*SPACE_SCALE) + 2*GLYPH_X_BORDER;
+		float space_width_f= (int)Math.ceil(glyph_bounds2.getMinX()) - (int)Math.floor(glyph_bounds0.getMaxX());
+		int space_width = (int)Math.ceil(space_width_f*SPACE_SCALE) + 2*GLYPH_X_BORDER;
 		System.out.println("space_width: " + space_width);
 
 		// calculate optimal image width and height
@@ -138,10 +138,10 @@ public final class FontRenderer {
 				GlyphVector gv = src_font.createGlyphVector(frc, current_char);
 				Shape glyph_shape = gv.getGlyphOutline(0);
 				Rectangle2D glyph_bounds = glyph_shape.getBounds2D();
-				int min_x = (int)StrictMath.floor(glyph_bounds.getMinX()) - GLYPH_X_BORDER;
-				int min_y = (int)StrictMath.floor(glyph_bounds.getMinY()) - GLYPH_Y_BORDER;
-				int max_x = (int)StrictMath.ceil(glyph_bounds.getMaxX()) + GLYPH_X_BORDER;
-				int max_y = (int)StrictMath.ceil(glyph_bounds.getMaxY()) + GLYPH_Y_BORDER;
+				int min_x = (int)Math.floor(glyph_bounds.getMinX()) - GLYPH_X_BORDER;
+				int min_y = (int)Math.floor(glyph_bounds.getMinY()) - GLYPH_Y_BORDER;
+				int max_x = (int)Math.ceil(glyph_bounds.getMaxX()) + GLYPH_X_BORDER;
+				int max_y = (int)Math.ceil(glyph_bounds.getMaxY()) + GLYPH_Y_BORDER;
 				int baseline_height = -min_y;
 				if (baseline_height > max_baseline_height)
 					max_baseline_height = baseline_height;
@@ -196,10 +196,10 @@ public final class FontRenderer {
 				GlyphVector gv = src_font.createGlyphVector(frc, current_char);
 				Shape glyph_shape = gv.getGlyphOutline(0);
 				Rectangle2D glyph_bounds = glyph_shape.getBounds2D();
-				int min_x = (int)StrictMath.floor(glyph_bounds.getMinX()) - GLYPH_X_BORDER;
-				//int min_y = (int)StrictMath.floor(glyph_bounds.getMinY()) - GLYPH_Y_BORDER;
-				int max_x = (int)StrictMath.ceil(glyph_bounds.getMaxX()) + GLYPH_X_BORDER;
-				//int max_y = (int)StrictMath.ceil(glyph_bounds.getMaxY()) + GLYPH_Y_BORDER;
+				int min_x = (int)Math.floor(glyph_bounds.getMinX()) - GLYPH_X_BORDER;
+				//int min_y = (int)Math.floor(glyph_bounds.getMinY()) - GLYPH_Y_BORDER;
+				int max_x = (int)Math.ceil(glyph_bounds.getMaxX()) + GLYPH_X_BORDER;
+				//int max_y = (int)Math.ceil(glyph_bounds.getMaxY()) + GLYPH_Y_BORDER;
 				int glyph_width;
 				if (i == 32)
 					glyph_width = space_width;

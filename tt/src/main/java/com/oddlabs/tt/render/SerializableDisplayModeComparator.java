@@ -16,10 +16,10 @@ public final class SerializableDisplayModeComparator implements Comparator<Seria
 		 * to accomodate broken monitors lying about their
 		 * capabilities
 		 */
-		int freq_dist1 = StrictMath.abs(d1.getFrequency() - target_mode.getFrequency());
-		int freq_dist2 = StrictMath.abs(d2.getFrequency() - target_mode.getFrequency());
-		int bpp_dist1 = StrictMath.abs(d1.getBitsPerPixel() - target_mode.getBitsPerPixel());
-		int bpp_dist2 = StrictMath.abs(d2.getBitsPerPixel() - target_mode.getBitsPerPixel());
+		int freq_dist1 = Math.abs(d1.getFrequency() - target_mode.getFrequency());
+		int freq_dist2 = Math.abs(d2.getFrequency() - target_mode.getFrequency());
+		int bpp_dist1 = Math.abs(d1.getBitsPerPixel() - target_mode.getBitsPerPixel());
+		int bpp_dist2 = Math.abs(d2.getBitsPerPixel() - target_mode.getBitsPerPixel());
 		if (getDistanceFromBestMode(d1) < getDistanceFromBestMode(d2))
 			return -1;
 		else if (getDistanceFromBestMode(d1) > getDistanceFromBestMode(d2))
@@ -32,8 +32,8 @@ public final class SerializableDisplayModeComparator implements Comparator<Seria
 	}
 
 	private int getDistanceFromBestMode(SerializableDisplayMode mode) {
-		int dx = StrictMath.abs(target_mode.getWidth() - mode.getWidth());
-		int dy = StrictMath.abs(target_mode.getHeight() - mode.getHeight());
+		int dx = Math.abs(target_mode.getWidth() - mode.getWidth());
+		int dy = Math.abs(target_mode.getHeight() - mode.getHeight());
 		return dx + dy;
 	}
 }

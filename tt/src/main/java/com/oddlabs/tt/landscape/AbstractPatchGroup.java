@@ -12,7 +12,7 @@ public abstract class AbstractPatchGroup extends BoundingBox {
 
 	protected AbstractPatchGroup(HeightMap heightmap, float patch_size, int x, int y, AbstractPatchGroup parent) {
 		this.parent = parent;
-		patch_radius = (float)StrictMath.sqrt(2)*patch_size*heightmap.getMetersPerPatch()*0.5f;
+		patch_radius = (float)Math.sqrt(2)*patch_size*heightmap.getMetersPerPatch()*0.5f;
 		colormap_x = x/heightmap.getPatchesPerChunk();
 		colormap_y = y/heightmap.getPatchesPerChunk();
 	}

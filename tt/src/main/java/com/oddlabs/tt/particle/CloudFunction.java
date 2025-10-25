@@ -11,16 +11,16 @@ public final class CloudFunction implements ParametricFunction {
 
     @Override
 	public float getX(float u, float v) {
-		return radius_xy*(float)StrictMath.sin(u)*(float)StrictMath.cos(v);
+		return radius_xy*(float)Math.sin(u)*(float)Math.cos(v);
 	}
 
     @Override
 	public float getY(float u, float v) {
-		return radius_xy*(float)StrictMath.sin(u)*(float)StrictMath.sin(v);
+		return radius_xy*(float)Math.sin(u)*(float)Math.sin(v);
 	}
 
     @Override
 	public float getZ(float u, float v) {
-		return radius_z*(float)StrictMath.cos(u);
+		return radius_z*(float)Math.cos(u);
 	}
 }

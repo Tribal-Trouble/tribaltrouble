@@ -117,7 +117,7 @@ public final class NativeIsland1 extends Island {
 		SpriteKey sprite_renderer = local_player.getRace().getUnitTemplate(Race.UNIT_PEON).getSpriteRenderer();
 
 		final float offset = HeightMap.METERS_PER_UNIT_GRID/2f;
-		float dir = (float)StrictMath.sin(StrictMath.PI/4);
+		float dir = (float)Math.sin(Math.PI/4);
 
 		final SceneryModel[] scenery_models = new SceneryModel[10];
 		scenery_models[0] = new SceneryModel(getViewer().getWorld(), 48*2 + offset, 96*2 + offset, 1, 0, sprite_renderer, shadow_diameter, true, Utils.getBundleString(bundle, "captive"), Unit.ANIMATION_THROWING, 1, .1f);

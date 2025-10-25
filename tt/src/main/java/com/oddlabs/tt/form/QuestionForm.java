@@ -15,7 +15,7 @@ public class QuestionForm extends Form {
 
 	public QuestionForm(String message, MouseClickListener yes_action) {
 		int message_width = Skin.getSkin().getEditFont().getWidth(message);
-		LabelBox info_label = new LabelBox(message, Skin.getSkin().getEditFont(), StrictMath.min(400, message_width));
+		LabelBox info_label = new LabelBox(message, Skin.getSkin().getEditFont(), Math.min(400, message_width));
 		addChild(info_label);
 		Group button_group = new Group();
 		yes_button = new OKButton(80);
