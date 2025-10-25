@@ -9,14 +9,6 @@ dependencies {
     compileOnly(fileTree("../common/lib/java") { include("servlet-api.jar") })
 }
 
-sourceSets {
-    main {
-        java {
-            srcDir("classes")
-        }
-    }
-}
-
 tasks.register<War>("matchservlet") {
     dependsOn("classes")
     archiveFileName.set("matchservlet.war")

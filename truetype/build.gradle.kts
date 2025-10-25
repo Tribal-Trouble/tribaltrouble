@@ -17,10 +17,3 @@ dependencies {
     implementation(project(":common"))
 }
 
-sourceSets.main {
-    java.srcDir("classes")
-    resources {
-        srcDir("static")
-        srcDir(project(":common").file("static"))
-    }
-}

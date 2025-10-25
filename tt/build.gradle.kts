@@ -18,14 +18,6 @@ dependencies {
     implementation(project(":tools"))
 }
 
-sourceSets.main {
-    java.srcDir("classes")
-    resources {
-        srcDirs("static", "i18n")
-        srcDir(project(":common").file("static"))
-    }
-}
-
 val revision = tasks.register("revision") {
     val output = layout.buildDirectory.file("revision_number")
     outputs.file(output)
@@ -37,8 +29,6 @@ val revision = tasks.register("revision") {
         }
     }
 }
-
-
 
 val geometry = tasks.register<JavaExec>("geometry") {
     classpath(configurations.runtimeClasspath)

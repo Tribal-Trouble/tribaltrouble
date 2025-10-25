@@ -7,14 +7,6 @@ dependencies {
     implementation(fileTree("../common/lib/java") { include("*.jar") })
 }
 
-sourceSets {
-    main {
-        java {
-            srcDir("classes")
-        }
-    }
-}
-
 tasks.register<Jar>("bugreporter") {
     dependsOn("classes")
     archiveFileName.set("bugreport.jar")
