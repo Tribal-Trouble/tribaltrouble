@@ -49,6 +49,6 @@ Common tasks:
 - `gradle :tt:geometry` - Generate geometry files
 - `gradle :tt:textures` - Convert texture files
 
-Note: The original Ant build files are preserved but no longer used. Server and servlet modules are excluded due to missing dependencies.
+Note: Server and servlet modules are excluded due to missing dependencies.
 
 Setting up a server is a lot more complex, and not something we have done in many years. It will take some work to get it working, but try looking at the server folder and see if you can figure it out. At the very least, you should know a bit about setting up a MySQL server.
