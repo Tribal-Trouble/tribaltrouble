@@ -2,7 +2,7 @@
 
 	fn WriteHeader out_file = (
 		-- print header
-		format "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"yes\"?>\n\n" to:out_file
+		format "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n\n" to:out_file
 	
 		format "<!DOCTYPE skeleton [\n" to:out_file
 		format "	<!ELEMENT skeleton   (bones, init_pose)>\n\n" to:out_file
