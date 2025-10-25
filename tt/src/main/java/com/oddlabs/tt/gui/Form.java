@@ -150,7 +150,7 @@ public class Form extends Group {
 
 	public final void closedAll() {
 		closed();
-        close_listeners.forEach(listener -> listener.closed());
+        close_listeners.forEach(CloseListener::closed);
 	}
 
 	protected void closed() {

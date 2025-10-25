@@ -61,12 +61,8 @@ public final class SkeletonLoader {
 			   } else
 				   root = name;
 			}
-			List<String> parent_children = bone_children_map.get(parent);
-			if (parent_children == null) {
-				parent_children = new ArrayList<>();
-				bone_children_map.put(parent, parent_children);
-			}
-			parent_children.add(name);
+            List<String> parent_children = bone_children_map.computeIfAbsent(parent, k -> new ArrayList<>());
+            parent_children.add(name);
 		}
 		Bone bone_root = buildBone((byte)0, bone_children_map, root, name_to_bone_map);
 		return new Skeleton(bone_root, initial_pose, name_to_bone_map);
