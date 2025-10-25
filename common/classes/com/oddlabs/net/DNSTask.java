@@ -17,8 +17,8 @@ public final class DNSTask implements Callable<InetSocketAddress> {
 	}
 
         @Override
-	public void taskCompleted(Object result) {
-		connection.connect((SocketAddress)result);
+	public void taskCompleted(InetSocketAddress result) {
+		connection.connect(result);
 	}
 
         @Override

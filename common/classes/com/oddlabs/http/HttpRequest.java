@@ -39,8 +39,8 @@ public final class HttpRequest {
 			}
 
             @Override
-			public void taskCompleted(Object result) {
-				((HttpResponse)result).notify(callback);
+			public void taskCompleted(HttpResponse result) {
+				result.notify(callback);
 			}
 
             @Override
@@ -58,8 +58,8 @@ public final class HttpRequest {
 			}
 
                         @Override
-			public void taskCompleted(Object result) {
-				((HttpResponse)result).notify(callback);
+			public void taskCompleted(HttpResponse result) {
+				result.notify(callback);
 			}
 
                         @Override
