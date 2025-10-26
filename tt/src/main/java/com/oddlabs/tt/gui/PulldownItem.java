@@ -1,15 +1,17 @@
 package com.oddlabs.tt.gui;
 
 
+import org.jspecify.annotations.NonNull;
+
 public final class PulldownItem extends ButtonObject {
-	private final Label label;
+	private final @NonNull Label label;
 	private final Object attachment;
 
-	public PulldownItem(String label_str) {
+	public PulldownItem(@NonNull String label_str) {
 		this(label_str, null);
 	}
 	
-	public PulldownItem(String label_str, Object attachment) {
+	public PulldownItem(@NonNull String label_str, Object attachment) {
 		this.attachment = attachment;
 		PulldownData data = Skin.getSkin().getPulldownData();
 		label = new Label(label_str, data.getFont(), 0, Label.ALIGN_LEFT);
@@ -49,7 +51,7 @@ public final class PulldownItem extends ButtonObject {
 			item.render(0, 0, getWidth(), getHeight(), Skin.NORMAL);
 	}
 
-	public void setLabelString(CharSequence label_str) {
+	public void setLabelString(@NonNull CharSequence label_str) {
 		label.set(label_str);
 	}
 

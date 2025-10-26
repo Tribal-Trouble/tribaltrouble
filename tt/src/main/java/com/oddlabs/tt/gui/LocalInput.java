@@ -8,6 +8,7 @@ import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.SerializableDisplayMode;
 import com.oddlabs.tt.render.SerializableDisplayModeComparator;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
 import org.lwjgl.openal.AL;
@@ -48,38 +49,38 @@ public final class LocalInput {
 		global_shift_state = shift_down;
 	}
 
-	public static void keyTyped(GUIRoot gui_root, int key_code, char key_char) {
+	public static void keyTyped(@NonNull GUIRoot gui_root, int key_code, char key_char) {
 		gui_root.getInputState().keyTyped(key_code, key_char);
 	}
 
-	public static void keyPressed(GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
+	public static void keyPressed(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
 		setKeys(key_code, true, shift_down, control_down, menu_down);
 		gui_root.getInputState().keyPressed(key_code, key_char, shift_down, control_down, menu_down, repeat);
 	}
 
-	public static void keyReleased(GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
+	public static void keyReleased(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
 		setKeys(key_code, false, shift_down, control_down, menu_down);
 		gui_root.getInputState().keyReleased(key_code, key_char, shift_down, control_down, menu_down);
 	}
 
-	public static void mouseDragged(GUIRoot gui_root, int button, short x, short y) {
+	public static void mouseDragged(@NonNull GUIRoot gui_root, int button, short x, short y) {
 		setPos(x, y);
 		gui_root.getInputState().mouseDragged(button, x, y);
 	}
 
-	public static void mouseReleased(GUIRoot gui_root, int button) {
+	public static void mouseReleased(@NonNull GUIRoot gui_root, int button) {
 		gui_root.getInputState().mouseReleased(button);
 	}
 
-	public static void mousePressed(GUIRoot gui_root, int button) {
+	public static void mousePressed(@NonNull GUIRoot gui_root, int button) {
 		gui_root.getInputState().mousePressed(button);
 	}
 
-	public static void mouseScrolled(GUIRoot gui_root, int dz) {
+	public static void mouseScrolled(@NonNull GUIRoot gui_root, int dz) {
 		gui_root.getInputState().mouseScrolled(dz);
 	}
 
-	public static void mouseMoved(GUIRoot gui_root, short x, short y) {
+	public static void mouseMoved(@NonNull GUIRoot gui_root, short x, short y) {
 		setPos(x, y);
 		gui_root.getInputState().mouseMoved(x, y);
 	}
@@ -158,7 +159,7 @@ public final class LocalInput {
 		return instance;
 	}
 
-	public static SerializableDisplayMode[] getAvailableModes() {
+	public static SerializableDisplayMode @NonNull [] getAvailableModes() {
 		try {
 			DisplayMode[] lwjgl_modes = Display.getAvailableDisplayModes();
 			List<SerializableDisplayMode> modes = new ArrayList<>();
@@ -192,12 +193,12 @@ public final class LocalInput {
 		return LocalEventQueue.getQueue().getDeterministic().log(Cursor.getCapabilities());
 	}
 
-	public static void settings(Path game_dir, Path event_log_dir, Settings settings) {
+	public static void settings(Path game_dir, @NonNull Path event_log_dir, @NonNull Settings settings) {
 		instance.setSettings(game_dir, event_log_dir,
 				revision, settings);
 	}
 
-	public void setSettings(Path game_dir, Path event_log_dir, int revision, Settings settings) {
+	public void setSettings(Path game_dir, @NonNull Path event_log_dir, int revision, @NonNull Settings settings) {
 		System.out.println("revision = " + revision);
 		LocalInput.game_dir = game_dir;
 		LocalInput.revision = revision;
@@ -215,14 +216,14 @@ public final class LocalInput {
 		mouse_y = deterministic.log(org.lwjgl.input.Mouse.getY());
 	}
 
-	private void modeSwitchedLater(SerializableDisplayMode new_mode) {
+	private void modeSwitchedLater(@NonNull SerializableDisplayMode new_mode) {
 		Settings.getSettings().fullscreen = fullscreen;
 		Settings.getSettings().new_view_width = new_mode.getWidth();
 		Settings.getSettings().new_view_height = new_mode.getHeight();
 		Settings.getSettings().new_view_freq = new_mode.getFrequency();
 	}
 
-	private void modeSwitchedNow(SerializableDisplayMode new_mode) {
+	private void modeSwitchedNow(@NonNull SerializableDisplayMode new_mode) {
 		modeSwitchedLater(new_mode);
 		modeSwitched();
 	}
@@ -256,7 +257,7 @@ public final class LocalInput {
 		}
 	}
 
-	public void switchMode(SerializableDisplayMode mode, boolean switch_now) {
+	public void switchMode(@NonNull SerializableDisplayMode mode, boolean switch_now) {
 		if (switch_now) {
 			SerializableDisplayMode.switchMode(mode);
 			modeSwitchedNow(mode);
@@ -264,7 +265,7 @@ public final class LocalInput {
 			modeSwitchedLater(mode);
 	}
 
-	public void setModeToNearest(SerializableDisplayMode mode) throws LWJGLException {
+	public void setModeToNearest(@NonNull SerializableDisplayMode mode) throws LWJGLException {
 		SerializableDisplayMode.setModeToNearest(mode);
 		modeSwitchedNow(mode);
 	}

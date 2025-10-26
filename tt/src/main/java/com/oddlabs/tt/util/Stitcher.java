@@ -1,12 +1,13 @@
 package com.oddlabs.tt.util;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 
 import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 public final class Stitcher {
-	public static ShortBuffer stitch(Vertex[] vertices) {
+	public static @NonNull ShortBuffer stitch(Vertex @NonNull [] vertices) {
 		ShortBuffer indices = BufferUtils.createShortBuffer(vertices.length*3);
 		vertices = vertices.clone();
 		Arrays.sort(vertices);
@@ -28,7 +29,7 @@ public final class Stitcher {
 		return indices;
 	}
 
-	private static int getStartIndex(Vertex[] vertices) {
+	private static int getStartIndex(Vertex @NonNull [] vertices) {
 		int vertex_index;
 		for (vertex_index = 0; vertex_index < vertices.length; vertex_index++) {
             if (vertices[vertex_index%vertices.length].side >

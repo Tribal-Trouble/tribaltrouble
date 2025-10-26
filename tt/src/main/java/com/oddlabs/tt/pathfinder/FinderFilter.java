@@ -1,7 +1,9 @@
 package com.oddlabs.tt.pathfinder;
 
+import org.jspecify.annotations.Nullable;
+
 public interface FinderFilter<O extends Occupant> {
-	O getOccupantFromRegion(Region region, boolean one_region);
-	O getBest();
+	@Nullable O getOccupantFromRegion(Region region, boolean one_region);
+	@Nullable O getBest();
 	boolean acceptOccupant(Occupant occ);
 }

@@ -4,15 +4,17 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.tt.resource.NativeResource;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
 
 public final class NativeCursor extends NativeResource {
-	private final org.lwjgl.input.Cursor cursor;
+	private final org.lwjgl.input.@Nullable Cursor cursor;
 	
-	public NativeCursor(GLIntImage image_16_1, int offset_x_16_1, int offset_y_16_1,
-						GLIntImage image_32_1, int offset_x_32_1, int offset_y_32_1,
-						GLIntImage image_32_8, int offset_x_32_8, int offset_y_32_8) {
+	public NativeCursor(@NonNull GLIntImage image_16_1, int offset_x_16_1, int offset_y_16_1,
+                        @NonNull GLIntImage image_32_1, int offset_x_32_1, int offset_y_32_1,
+                        @NonNull GLIntImage image_32_8, int offset_x_32_8, int offset_y_32_8) {
 		org.lwjgl.input.Cursor native_cursor = null;
 		int caps = Cursor.getCapabilities();
 		

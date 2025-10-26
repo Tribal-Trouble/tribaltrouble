@@ -25,6 +25,7 @@ import com.oddlabs.tt.player.campaign.NativeCampaign;
 import com.oddlabs.tt.player.campaign.VikingCampaign;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
+import org.jspecify.annotations.NonNull;
 
 import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
@@ -40,9 +41,9 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 	private final Menu main_menu;
 	private final CampaignForm campaign_form;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(NewCampaignForm.class.getName());
-	private final EditLine editline_name;
-	private final PulldownMenu race_pulldown;
-	private final PulldownMenu difficulty_pulldown;
+	private final @NonNull EditLine editline_name;
+	private final @NonNull PulldownMenu race_pulldown;
+	private final @NonNull PulldownMenu difficulty_pulldown;
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;
 	private CampaignState[] campaign_states;
@@ -222,7 +223,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 
 	private final class RaceListener implements ItemChosenListener {
                 @Override
-		public void itemChosen(PulldownMenu menu, int item_index) {
+		public void itemChosen(@NonNull PulldownMenu menu, int item_index) {
 			if (item_index == INDEX_NATIVES && (!Settings.getSettings().has_native_campaign)) {
 				menu.chooseItem(INDEX_VIKINGS);
 				gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "native_unavailable")));

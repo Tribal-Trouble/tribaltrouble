@@ -3,6 +3,7 @@ package com.oddlabs.tt.particle;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.TextureKey;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -13,13 +14,13 @@ public final class BalancedParametricEmitter extends ParametricEmitter {
 	private final float margin_u;
 	private final float margin_v;
 
-	public BalancedParametricEmitter(World world, ParametricFunction function, Vector3f position,
-			float velocity_u, float velocity_v, float dist_u, float dist_v,
-			int num_particles, float margin_u, float margin_v,
-			Vector4f color, Vector4f delta_color,
-			Vector3f particle_radius, Vector3f growth_rate, float energy,
-			int src_blend_func, int dst_blend_func, TextureKey[] textures,
-			AnimationManager manager) {
+	public BalancedParametricEmitter(@NonNull World world, ParametricFunction function, Vector3f position,
+                                     float velocity_u, float velocity_v, float dist_u, float dist_v,
+                                     int num_particles, float margin_u, float margin_v,
+                                     Vector4f color, Vector4f delta_color,
+                                     Vector3f particle_radius, Vector3f growth_rate, float energy,
+                                     int src_blend_func, int dst_blend_func, TextureKey @NonNull [] textures,
+                                     AnimationManager manager) {
 		super(world, function, position,
 				0f, 0f, velocity_u, velocity_v, 0f,
 				num_particles, Float.MAX_VALUE,
@@ -37,7 +38,7 @@ public final class BalancedParametricEmitter extends ParametricEmitter {
 	}
 
     @Override
-	protected int initParticle(ParametricFunction function, float velocity_u, float velocity_v, Vector4f color, Vector4f delta_color, Vector3f particle_radius, Vector3f growth_rate, float energy) {
+	protected int initParticle(ParametricFunction function, float velocity_u, float velocity_v, @NonNull Vector4f color, @NonNull Vector4f delta_color, @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy) {
 
 		for (int i = 0; i < num_particles; i++) {
 			float u = dist_u*i/num_particles;

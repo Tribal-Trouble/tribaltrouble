@@ -2,6 +2,7 @@ package com.oddlabs.tt.tutorial;
 
 import com.oddlabs.tt.delegate.Delegate;
 import com.oddlabs.tt.delegate.FirstPersonDelegate;
+import org.jspecify.annotations.NonNull;
 
 public final class FirstPersonCameraTrigger extends TutorialTrigger {
 	public FirstPersonCameraTrigger() {
@@ -9,7 +10,7 @@ public final class FirstPersonCameraTrigger extends TutorialTrigger {
 	}
 
         @Override
-	protected void run(Tutorial tutorial) {
+	protected void run(@NonNull Tutorial tutorial) {
 		Delegate delegate = tutorial.getViewer().getGUIRoot().getDelegate();
 		if (delegate instanceof FirstPersonDelegate)
 			tutorial.next(new MapModeTrigger());

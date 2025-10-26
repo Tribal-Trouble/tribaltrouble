@@ -1,5 +1,6 @@
 package com.oddlabs.tt.audio;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.openal.AL10;
 
 
@@ -76,7 +77,7 @@ public final class AudioPlayer extends AbstractAudioPlayer {
 	public final static float AUDIO_RADIUS_BLAST_BLAST = 1f;
 	public final static float AUDIO_RADIUS_ARMORY = .05f;
 
-	AudioPlayer(AudioSource source, AudioParameters<Audio> params) {
+	AudioPlayer(@NonNull AudioSource source, @NonNull AudioParameters<Audio> params) {
 		super(source, params);
 		if (this.source == null) {
 			return;

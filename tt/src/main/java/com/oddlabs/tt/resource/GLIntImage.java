@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.procedural.Layer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -8,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 public final class GLIntImage extends GLImage {
-	private final IntBuffer pixels;
+	private final @NonNull IntBuffer pixels;
 
         @Override
 	public int getPixelSize() {
@@ -19,7 +20,7 @@ public final class GLIntImage extends GLImage {
 		return pixels;
 	}
 
-	public IntBuffer createCursorPixels() {
+	public @NonNull IntBuffer createCursorPixels() {
 		IntBuffer cursor_pixels = BufferUtils.createIntBuffer(pixels.capacity());
 		boolean true_alpha_supported = (org.lwjgl.input.Cursor.getCapabilities() & org.lwjgl.input.Cursor.CURSOR_8_BIT_ALPHA) != 0;
 		while (pixels.hasRemaining()) {
@@ -38,7 +39,7 @@ public final class GLIntImage extends GLImage {
 		return cursor_pixels;
 	}
 
-	public GLIntImage(int width, int height, ByteBuffer pixel_data, int format) {
+	public GLIntImage(int width, int height, @NonNull ByteBuffer pixel_data, int format) {
 		super(width, height, pixel_data, format);
 		pixels = pixel_data.asIntBuffer();
 	}
@@ -47,7 +48,7 @@ public final class GLIntImage extends GLImage {
 		this(width, height, ByteBuffer.allocateDirect(width*height*4), format);
 	}
 
-	public GLIntImage(Layer layer) {
+	public GLIntImage(@NonNull Layer layer) {
 		this(layer.getWidth(), layer.getHeight(), GL11.GL_RGBA);
 		for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
@@ -75,7 +76,7 @@ public final class GLIntImage extends GLImage {
 	}
 
         @Override
-	public GLImage createImage(int width, int height, int format) {
+	public @NonNull GLImage createImage(int width, int height, int format) {
 		return new GLIntImage(width, height, format);
 	}
 

@@ -9,6 +9,8 @@ import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 
 public final class GameCamera extends Camera {
@@ -23,7 +25,7 @@ public final class GameCamera extends Camera {
     private final static float ROTATE_PICKING_ANGLE_MAX = (-(Globals.FOV) - 10)*((float)Math.PI/180)*.5f;
     private final static float ZOOM_SPEED = 50f;
 
-    private final WorldViewer viewer;
+    private final @NonNull WorldViewer viewer;
 
     private float left_dir_x;
     private float left_dir_y;
@@ -38,7 +40,7 @@ public final class GameCamera extends Camera {
     private final float default_rotate_radius;
     private float last_zoom_factor;
 
-    private Target rotation_point = null;
+    private @Nullable Target rotation_point = null;
     private SelectionDelegate owner;
 
     private boolean pitch_up;
@@ -46,7 +48,7 @@ public final class GameCamera extends Camera {
     private boolean rotate_left;
     private boolean rotate_right;
 
-    public GameCamera(WorldViewer viewer, CameraState camera) {
+    public GameCamera(@NonNull WorldViewer viewer, CameraState camera) {
             super(viewer.getWorld().getHeightMap(), camera);
             this.default_rotate_radius = viewer.getWorld().getHeightMap().getMetersPerWorld()/4;
             this.viewer = viewer;
@@ -367,7 +369,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
     }
 
     @Override
-    public void keyPressed(KeyboardEvent event) {
+    public void keyPressed(@NonNull KeyboardEvent event) {
         switch (event.getKeyCode()) {
                 case Keyboard.KEY_HOME:
                 case Keyboard.KEY_NUMPAD8:

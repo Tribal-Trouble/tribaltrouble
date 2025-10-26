@@ -1,15 +1,16 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.MouseButtonListener;
+import org.jspecify.annotations.NonNull;
 
 public final class PanelGroup extends GUIObject {
-	private final Group focus_group;
-	private final PanelBox box;
-	private final Panel[] panels;
+	private final @NonNull Group focus_group;
+	private final @NonNull PanelBox box;
+	private final Panel @NonNull [] panels;
 
 	private int selected;
 
-	public PanelGroup(Panel[] panels, int selected) {
+	public PanelGroup(Panel @NonNull [] panels, int selected) {
 		assert selected < panels.length && panels.length > 0: "Invalid index selected.";
 		this.panels = panels;
 

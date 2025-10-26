@@ -14,6 +14,7 @@ import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -27,12 +28,12 @@ public final class Stun implements Magic {
 	private final Player owner;
 	private final float start_x;
 	private final float start_y;
-	private final RandomVelocityEmitter emitter;
+	private final @NonNull RandomVelocityEmitter emitter;
 	private final AbstractAudioPlayer sound;
 
 	private final List<Selectable> target_list;
 
-	public Stun(float offset_x, float offset_y, float offset_z, float hit_radius, float stun_time_closest, float stun_time_farthest, Unit src) {
+	public Stun(float offset_x, float offset_y, float offset_z, float hit_radius, float stun_time_closest, float stun_time_farthest, @NonNull Unit src) {
 		this.hit_radius = hit_radius;
 		this.stun_time_closest = stun_time_closest;
 		this.stun_time_farthest = stun_time_farthest;

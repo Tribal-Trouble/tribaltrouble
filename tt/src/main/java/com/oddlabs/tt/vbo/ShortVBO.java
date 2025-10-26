@@ -3,6 +3,8 @@ package com.oddlabs.tt.vbo;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL11;
@@ -13,7 +15,7 @@ import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 
 public final class ShortVBO extends VBO {
-	private ShortBuffer saved_buffer = null;
+	private @Nullable ShortBuffer saved_buffer = null;
 //	private ShortBuffer mapped_buffer = null;
 
 	public ShortVBO(int usage, int size) {
@@ -23,7 +25,7 @@ public final class ShortVBO extends VBO {
 			saved_buffer = buffer.asShortBuffer();
 	}
 
-	public ShortVBO(int usage, ShortBuffer initial_data) {
+	public ShortVBO(int usage, @NonNull ShortBuffer initial_data) {
 		this(usage, initial_data.remaining());
 		put(initial_data);
 	}
@@ -91,7 +93,7 @@ public final class ShortVBO extends VBO {
 		}
 	}
 
-	public void put(ShortBuffer buffer) {
+	public void put(@NonNull ShortBuffer buffer) {
 		if (!use_vbo) {
 //			saved_buffer.position(index);
 			saved_buffer.put(buffer);
@@ -107,7 +109,7 @@ public final class ShortVBO extends VBO {
 //		} while (!unmap());
 	}
 
-	public void put(short[] buffer) {
+	public void put(short @NonNull [] buffer) {
 		put(Utils.toBuffer(buffer));
 //		do {
 //			map(ARBBufferObject.GL_WRITE_ONLY_ARB);

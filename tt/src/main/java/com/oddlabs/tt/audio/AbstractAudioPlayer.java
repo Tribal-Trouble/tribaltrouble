@@ -4,12 +4,14 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.openal.AL10;
 
 public class AbstractAudioPlayer implements Animated {
 	protected final static float ROLLOFF_FACTOR = .03f; // was 0.05
 
-	protected final AudioSource source;
+	protected final @Nullable AudioSource source;
 	private final AudioParameters<?> parameters;
 	private boolean playing = false;
 
@@ -17,7 +19,7 @@ public class AbstractAudioPlayer implements Animated {
 	private float end_gain;
 	private float fadeout_gain;
 
-	protected AbstractAudioPlayer(AudioSource source, AudioParameters<?> params) {
+	protected AbstractAudioPlayer(@Nullable AudioSource source, @NonNull AudioParameters<?> params) {
 		this.parameters = params;
 		if (source == null || (!params.music && !Settings.getSettings().play_sfx)) {
 			this.source = null;

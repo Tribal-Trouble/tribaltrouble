@@ -1,5 +1,7 @@
 package com.oddlabs.event;
 
+import org.jspecify.annotations.NonNull;
+
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
@@ -44,7 +46,7 @@ public final class NotDeterministic extends Deterministic {
 	}
 
         @Override
-	protected void logBuffer(ByteBuffer b) {
+	protected void logBuffer(@NonNull ByteBuffer b) {
 		b.position(b.limit());
 	}
 

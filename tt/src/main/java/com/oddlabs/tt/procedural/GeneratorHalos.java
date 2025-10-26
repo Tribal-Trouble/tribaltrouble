@@ -5,6 +5,7 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
@@ -23,7 +24,7 @@ public final class GeneratorHalos extends TextureGenerator {
 	}
 
         @Override
-	public Texture[] generate() {
+	public Texture @NonNull [] generate() {
 		Channel channel_shadow = new Ring(size, size, shadow_parms, Ring.SMOOTH).toChannel();
 		Channel channel_ring = new Ring(size, size, ring_parms, Ring.LINEAR).toChannel();
 		Channel channel_black = new Channel(size, size).fill(0f);

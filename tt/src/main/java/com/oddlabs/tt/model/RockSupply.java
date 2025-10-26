@@ -2,6 +2,7 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
+import org.jspecify.annotations.NonNull;
 
 public final class RockSupply extends SupplyModel {
 	private final static int INITIAL_SUPPLIES = 10;
@@ -11,7 +12,7 @@ public final class RockSupply extends SupplyModel {
 	}
 
         @Override
-	public Supply respawn() {
+	public @NonNull Supply respawn() {
 		return new RockSupply(getWorld(), getSpriteRenderer(), getSize(), getGridX(), getGridY(), getPositionX(), getPositionY(), 0, false);
 	}
 }

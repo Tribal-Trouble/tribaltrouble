@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.TextBoxRenderer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public final class EditBox extends TextBox {
@@ -26,7 +27,7 @@ public final class EditBox extends TextBox {
 	}
 
     @Override
-	protected void keyRepeat(KeyboardEvent event) {
+	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		//char ch = event.getKeyChar();
 		Box edit_box = Skin.getSkin().getEditBox();
 		switch (event.getKeyCode()) {

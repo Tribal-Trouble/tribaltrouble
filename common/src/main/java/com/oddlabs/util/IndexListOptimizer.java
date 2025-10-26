@@ -1,5 +1,7 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
+
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -17,7 +19,7 @@ public final class IndexListOptimizer {
 	private final static float VALENCE_BOOST_SCALE = 2f;
 	private final static float VALENCE_BOOST_POWER = .5f;
 
-	public static void optimize(ShortBuffer buffer) {
+	public static void optimize(@NonNull ShortBuffer buffer) {
 /*System.out.println("buffer:");
 dumpBuffer(buffer);*/
 		Index[] lru = new Index[LRU_SIZE];
@@ -105,7 +107,7 @@ for (int j = 0; j < index.triangle_list.size(); j++) {
 dumpBuffer(buffer);*/
 	}
 
-	private static void dumpBuffer(ShortBuffer buffer) {
+	private static void dumpBuffer(@NonNull ShortBuffer buffer) {
 		for (int i = 0; i < buffer.remaining(); i++) {
             System.out.print(buffer.get(buffer.position() + i) + " ");
         }
@@ -147,7 +149,7 @@ dumpBuffer(buffer);*/
 		}
 
                 @Override
-		public String toString() {
+		public @NonNull String toString() {
 			return "[index = " + index + " score = " + score + " round = " + round_added + " num_triangles = " + triangle_list.size() + "]";
 		}
 	}
@@ -157,7 +159,7 @@ dumpBuffer(buffer);*/
 
 /*		private float score;
 */
-		public Triangle(Index[] indices) {
+		public Triangle(Index @NonNull [] indices) {
 			this.indices = indices;
                     for (Index indice : indices) {
                         indice.add(this);
@@ -184,14 +186,14 @@ dumpBuffer(buffer);*/
                     }
 		}
 
-		public void addToBuffer(ShortBuffer buffer) {
+		public void addToBuffer(@NonNull ShortBuffer buffer) {
                     for (Index indice : indices) {
                         buffer.put(indice.index);
                     }
 		}
 
                 @Override
-		public String toString() {
+		public @NonNull String toString() {
 			String result = "Triangle score = " + getScore();
                     for (Index indice : indices) {
                         result += " " + indice.toString();

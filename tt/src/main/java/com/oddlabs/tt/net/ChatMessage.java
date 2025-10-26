@@ -1,6 +1,7 @@
 package com.oddlabs.tt.net;
 
 import com.oddlabs.tt.util.SpamFilter;
+import org.jspecify.annotations.NonNull;
 
 public final class ChatMessage {
     public enum Type {
@@ -8,7 +9,7 @@ public final class ChatMessage {
     }
 
 	public final String nick;
-	public final String message;
+	public final @NonNull String message;
 	public final Type type;
 
 	public ChatMessage(String nick, String msg, Type type) {
@@ -17,11 +18,11 @@ public final class ChatMessage {
 		this.type = type;
 	}
 
-	public String formatShort() {
+	public @NonNull String formatShort() {
 		return "<" + nick + "> " + message;
 	}
 
-	public String formatLong() {
+	public @NonNull String formatLong() {
 		switch (type) {
 			case TEAM:
 				return "(Team) " + formatShort();

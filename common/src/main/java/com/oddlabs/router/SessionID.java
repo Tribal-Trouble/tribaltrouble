@@ -1,5 +1,7 @@
 package com.oddlabs.router;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 
 public final class SessionID implements Serializable {
@@ -22,7 +24,7 @@ public final class SessionID implements Serializable {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "(SessionID: session_id = " + session_id + ")";
 	}
 }

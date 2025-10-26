@@ -4,6 +4,8 @@ import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.global.Globals;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class InputState {
 	private final static float MOUSE_REPEAT_DELAY = .5f;
@@ -12,8 +14,8 @@ public final class InputState {
 	private final static float DOUBLE_CLICK_TIMEOUT = .4f;
 	private final static int DOUBLE_CLICK_THRESHOLD = 2;
 
-	private final TimerAnimation double_click_timer;
-	private final TimerAnimation double_key_timer;
+	private final @NonNull TimerAnimation double_click_timer;
+	private final @NonNull TimerAnimation double_key_timer;
 	private final GUIRoot gui_root;
 	private TimerAnimation mouse_timer;
 
@@ -21,15 +23,15 @@ public final class InputState {
 	private int drag_y;
 	private int absolute_drag_x;
 	private int absolute_drag_y;
-	private GUIObject drag_obj;
+	private @Nullable GUIObject drag_obj;
 	private int drag_button;
 	private GUIObject press_obj;
-	private GUIObject clicked_obj;
+	private @Nullable GUIObject clicked_obj;
 	private int held_button;
 	private int click_counter = 0;
 	private int clicked_x;
 	private int clicked_y;
-	private KeyboardEvent key_event;
+	private @Nullable KeyboardEvent key_event;
 	private int key_counter = 0;
 
 	// Keyboard handling

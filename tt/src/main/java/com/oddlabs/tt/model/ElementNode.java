@@ -1,5 +1,7 @@
 package com.oddlabs.tt.model;
 
+import org.jspecify.annotations.NonNull;
+
 public final class ElementNode<T> extends AbstractElementNode<T> {
 	private final int MIN_NODE_SIZE = 4;
 	/*
@@ -9,10 +11,10 @@ public final class ElementNode<T> extends AbstractElementNode<T> {
 	 *
 	 */
 
-	private final AbstractElementNode<T> child0;
-	private final AbstractElementNode<T> child1;
-	private final AbstractElementNode<T> child2;
-	private final AbstractElementNode<T>child3;
+	private final @NonNull AbstractElementNode<T> child0;
+	private final @NonNull AbstractElementNode<T> child1;
+	private final @NonNull AbstractElementNode<T> child2;
+	private final @NonNull AbstractElementNode<T>child3;
 
 	public ElementNode(AbstractElementNode<T> owner/*, int level*/, int size, int x, int y) {
 		super(owner/*, level*/);
@@ -28,7 +30,7 @@ public final class ElementNode<T> extends AbstractElementNode<T> {
 		checkBoundsXY(child3);
 	}
 
-	private AbstractElementNode<T> createChild(/*int level,*/ int size, int x, int y) {
+	private @NonNull AbstractElementNode<T> createChild(/*int level,*/ int size, int x, int y) {
 		if (size != MIN_NODE_SIZE)
 			return new ElementNode<>(this, /*level + 1, */size, x, y);
 		else
@@ -36,7 +38,7 @@ public final class ElementNode<T> extends AbstractElementNode<T> {
 	}
 
     @Override
-	protected AbstractElementNode<T> doInsertElement(Element<T> model) {
+	protected AbstractElementNode<T> doInsertElement(@NonNull Element<T> model) {
 		incElementCount();
 		if (model.bmin_x >= getCX()) {
 			if (model.bmin_y >= getCY())
@@ -53,7 +55,7 @@ public final class ElementNode<T> extends AbstractElementNode<T> {
 	}
 
     @Override
-	public void visit(ElementNodeVisitor<T> visitor) {
+	public void visit(@NonNull ElementNodeVisitor<T> visitor) {
 		visitor.visitNode(this);
 	}
 

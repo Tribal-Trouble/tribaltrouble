@@ -1,5 +1,8 @@
 package com.oddlabs.net;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketAddress;
@@ -18,21 +21,21 @@ public final class Connection extends AbstractConnection implements Handler, Con
 	private final ByteBuffer read_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 	private final List<ARMIEvent> back_log_list = new LinkedList<>();
 	private final ByteBuffer write_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-	private final ConnectionPeerInterface peer_interface;
+	private final @NonNull ConnectionPeerInterface peer_interface;
 	private final boolean ping_reply;
 	private final NetworkSelector network;
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(ConnectionPeerInterface.class);
 	private boolean writing = false;
 	private boolean pinged = false;
-	private SelectionKey key;
+	private @Nullable SelectionKey key;
 	private InetAddress local_address;
 
-	public static void configureChannel(SocketChannel channel) throws IOException {
+	public static void configureChannel(@NonNull SocketChannel channel) throws IOException {
 		channel.configureBlocking(false);
 		channel.socket().setTcpNoDelay(true);
 	}
 
-	private Connection(NetworkSelector network, boolean ping_reply) {
+	private Connection(@NonNull NetworkSelector network, boolean ping_reply) {
 		this.network = network;
 		network.registerForPingTimeout(this);
 		this.ping_reply = ping_reply;
@@ -44,19 +47,19 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		peer_interface.ping();
 	}
 	
-	public Connection(NetworkSelector network, String dns_name, int port, ConnectionInterface connection_interface) {
+	public Connection(@NonNull NetworkSelector network, String dns_name, int port, ConnectionInterface connection_interface) {
 		this(network, true);
 		setConnectionInterface(connection_interface);
 		network.asyncConnect(dns_name, port, this);
 	}
 
-	public Connection(NetworkSelector network, SocketAddress address, ConnectionInterface connection_interface) {
+	public Connection(@NonNull NetworkSelector network, SocketAddress address, ConnectionInterface connection_interface) {
 		this(network, true);
 		setConnectionInterface(connection_interface);
 		connect(address);
 	}
 
-	Connection(NetworkSelector network, SelectionKey key, ConnectionInterface connection_interface) {
+	Connection(@NonNull NetworkSelector network, SelectionKey key, ConnectionInterface connection_interface) {
 		this(network, false);
 		network.registerForPing(this);
 		setConnectionInterface(connection_interface);
@@ -140,7 +143,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		error(e);
 	}
 	
-	private void setKey(SelectionKey key) {
+	private void setKey(@Nullable SelectionKey key) {
 		assert key != null || network.getDeterministic().isPlayback();
 		this.key = key;
 		network.attachToKey(key, this);
@@ -195,7 +198,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 			;
 	}
 
-	private void writeToChannel(SocketChannel channel) throws IOException {
+	private void writeToChannel(@NonNull SocketChannel channel) throws IOException {
 		int bytes_written;
 		do {
 			bytes_written = 0;
@@ -216,7 +219,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		}
 	}
 
-	private boolean writeEvent(ARMIEvent event) {
+	private boolean writeEvent(@NonNull ARMIEvent event) {
 		short event_size = event.getEventSize();
 		int total_event_size = event_size + HEADER_SIZE;
 		assert total_event_size <= write_buffer.capacity();
@@ -232,7 +235,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		return fits;
 	}
 
-	private int readDeterministic(SocketChannel channel) throws IOException {
+	private int readDeterministic(@NonNull SocketChannel channel) throws IOException {
 		int old_position = read_buffer.position();
 		int num_bytes_read = -1;
 		IOException exception;
@@ -257,7 +260,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		return num_bytes_read;
 	}
 
-	private void readFromChannel(SocketChannel channel) throws IOException {
+	private void readFromChannel(@NonNull SocketChannel channel) throws IOException {
 		boolean bytes_read = true;
 		do {
 			int num_bytes_read = readDeterministic(channel);

@@ -2,9 +2,10 @@ package com.oddlabs.tt.procedural;
 
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
+import org.jspecify.annotations.NonNull;
 
 public final class Ripple {
-	public final Channel channel;
+	public final @NonNull Channel channel;
 
 	public Ripple(int width, int height, float point_x, float point_y, float factor) {
 
@@ -80,7 +81,7 @@ public final class Ripple {
 
 	}
 
-	public Layer toLayer() {
+	public @NonNull Layer toLayer() {
 		return new Layer(channel, channel, channel);
 	}
 

@@ -16,6 +16,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -31,7 +32,7 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 		this.model = model;
 	}
 
-	private void visitPlayer(Player player) {
+	private void visitPlayer(@NonNull Player player) {
 		tool_tip_box.append(player.getPlayerInfo().getName());
 		tool_tip_box.append(" - ");
 		//      tool_tip_box.append(team_tip);
@@ -43,7 +44,7 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 		//      }
 	}
 
-	private void visitSelectable(Selectable selectable) {
+	private void visitSelectable(@NonNull Selectable selectable) {
 		assert !selectable.isDead();
 		visitPlayer(selectable.getOwner());
 		/*      if (Settings.getSettings().developer_mode) {
@@ -61,20 +62,20 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 	}
 
     @Override
-	public void visitSceneryModel(SceneryModel model) {
+	public void visitSceneryModel(@NonNull SceneryModel model) {
 		String name = model.getName();
 		if (name != null)
 			tool_tip_box.append(name);
 	}
 
     @Override
-	public void visitSupply(Supply model) {
+	public void visitSupply(@NonNull Supply model) {
 		tool_tip_box.append(Utils.getBundleString(ResourceBundle.getBundle(model.getClass().getName()), "name"));
 		tool_tip_box.append(Icons.getIcons().getToolTipIcon(model.getClass()));
 	}
 
     @Override
-	public void visitBuilding(Building building) {
+	public void visitBuilding(@NonNull Building building) {
 		visitSelectable(building);
 		tool_tip_box.append(building.getTemplate().getName());
 		Quad[] watch = Icons.getIcons().getWatch();
@@ -88,7 +89,7 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 	}
 
     @Override
-	public void visitUnit(Unit unit) {
+	public void visitUnit(@NonNull Unit unit) {
 		visitSelectable(unit);
 		String name = unit.getName();
 		if (name != null)

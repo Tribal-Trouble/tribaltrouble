@@ -1,6 +1,7 @@
 package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.landscape.HeightMap;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class BezierPath {
@@ -42,7 +43,7 @@ public final class BezierPath {
             }
 	}
 
-	private void computeCurvePointFromTime(float t, float[] point, float[] dir) {
+	private void computeCurvePointFromTime(float t, float @NonNull [] point, float @NonNull [] dir) {
 		float t2 = t*t;
 		float t3 = t2*t;
 		float b0 = 1 - 3*t + 3*t2 - t3;
@@ -127,7 +128,7 @@ public final class BezierPath {
 		nextPoint(dt, next_x, next_y);
 	}
 
-	public void debugRender(HeightMap heightmap) {
+	public void debugRender(@NonNull HeightMap heightmap) {
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glColor3f(1f, 1f, 1f);
 		GL11.glBegin(GL11.GL_LINE_STRIP);

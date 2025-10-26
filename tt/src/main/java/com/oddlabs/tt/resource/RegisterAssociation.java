@@ -4,6 +4,7 @@ import com.oddlabs.osutil.Association;
 import com.oddlabs.osutil.MacOSXUtil;
 import com.oddlabs.osutil.OSUtil;
 import com.oddlabs.osutil.URLAssociation;
+import org.jspecify.annotations.NonNull;
 
 
 public final class RegisterAssociation {
@@ -16,7 +17,7 @@ public final class RegisterAssociation {
 		register(util);
 	}
 
-	private static void register(OSUtil util) {
+	private static void register(@NonNull OSUtil util) {
 		String game_name = "Tribal Trouble";
 		util.registerAssociation(game_name, new Association(
 					"ttkey",

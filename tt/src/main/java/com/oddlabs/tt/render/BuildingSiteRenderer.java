@@ -2,13 +2,14 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
 public final class BuildingSiteRenderer extends ShadowRenderer {
 
-    private final Texture green;
+    private final @NonNull Texture green;
 
     public BuildingSiteRenderer() {
         GLIntImage img = new GLIntImage(16, 16, GL11.GL_RGBA);
@@ -20,7 +21,7 @@ public final class BuildingSiteRenderer extends ShadowRenderer {
         green = new Texture(new GLIntImage[]{img}, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_CLAMP, GL11.GL_CLAMP);
     }
 
-    public void renderSites(LandscapeRenderer renderer, List<? extends Target> targets, float center_x, float center_y, float max_radius) {
+    public void renderSites(@NonNull LandscapeRenderer renderer, @NonNull List<? extends Target> targets, float center_x, float center_y, float max_radius) {
         setupShadows();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, green.getHandle());
         float radius_sqr = max_radius * max_radius;

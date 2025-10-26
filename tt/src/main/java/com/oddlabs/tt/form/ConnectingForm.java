@@ -15,6 +15,7 @@ import com.oddlabs.tt.net.GameNetwork;
 import com.oddlabs.tt.net.PlayerSlot;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Random;
 import java.util.ResourceBundle;
@@ -53,7 +54,7 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
 	}
 
         @Override
-	public void connected(Client client, Game game, WorldGenerator generator, int player_slot) {
+	public void connected(@NonNull Client client, @NonNull Game game, WorldGenerator generator, int player_slot) {
 		if (multiplayer) {
 			Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
 			random.nextFloat(); // first one allways in same area

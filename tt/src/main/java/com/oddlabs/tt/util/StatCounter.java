@@ -1,7 +1,9 @@
 package com.oddlabs.tt.util;
 
+import org.jspecify.annotations.NonNull;
+
 public final class StatCounter {
-	private final long[] values;
+	private final long @NonNull [] values;
 	private long old_val = 0;
 	private long sum = 0;
 	private int position = 0;

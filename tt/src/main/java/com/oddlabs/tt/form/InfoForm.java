@@ -9,13 +9,14 @@ import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.OKListener;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 public final class InfoForm extends Form {
-	private final HorizButton ok_button;
+	private final @NonNull HorizButton ok_button;
 
-	public InfoForm(Profile profile) {
+	public InfoForm(@NonNull Profile profile) {
 		ResourceBundle bundle = ResourceBundle.getBundle(InfoForm.class.getName());
 		String profile_str = Utils.getBundleString(bundle, "profile");
 		Label label_headline = new Label(profile_str, Skin.getSkin().getHeadlineFont());

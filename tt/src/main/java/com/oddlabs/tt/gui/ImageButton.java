@@ -1,11 +1,13 @@
 package com.oddlabs.tt.gui;
 
+import org.jspecify.annotations.NonNull;
+
 public class ImageButton extends ButtonObject {
-	private final GUIObject normal;
+	private final @NonNull GUIObject normal;
 	private final GUIObject hovered;
 	private final GUIObject disabled;
 
-	public ImageButton(GUIObject normal, GUIObject hovered, GUIObject disabled) {
+	public ImageButton(@NonNull GUIObject normal, GUIObject hovered, GUIObject disabled) {
 		setDim(normal.getWidth(), normal.getHeight());
 		this.normal = normal;
 		this.hovered = hovered;

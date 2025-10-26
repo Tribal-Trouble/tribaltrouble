@@ -1,5 +1,7 @@
 package com.oddlabs.router;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +53,7 @@ final class Session {
 			private int best_checksum_count = 0;
 
                         @Override
-			public void visit(RouterClient client) {
+			public void visit(@NonNull RouterClient client) {
 				if (client.getChecksums().isEmpty()) {
 					missing_checksum[0] = true;
 					return;
@@ -101,7 +103,7 @@ final class Session {
 		return manager.getNextTick(this);
 	}
 
-	void startTimeout(RouterClient client) {
+	void startTimeout(@NonNull RouterClient client) {
 		manager.startTimeout(client);
 	}
 
@@ -119,7 +121,7 @@ final class Session {
 		return started;
 	}
 
-	void visit(SessionVisitor visitor) {
+	void visit(@NonNull SessionVisitor visitor) {
         for (RouterClient client : players) {
             visitor.visit(client);
         }
@@ -130,7 +132,7 @@ final class Session {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		String result = "(Session: info = " + info + " players : (";
             for (RouterClient player : players) {
                 result += player.toString() + " ";

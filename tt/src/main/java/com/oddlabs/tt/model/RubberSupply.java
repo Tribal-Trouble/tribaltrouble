@@ -13,6 +13,7 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 
 public final class RubberSupply extends SupplyModel implements Animated, Movable {
 	private final static float MIN_TREE_FALL_HEIGHT = 4f;
@@ -24,13 +25,13 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 	private final static int ANIMATION_RUNNING = 3;
 	private final static int ANIMATION_FLYING = 4;
 
-	private final static float[] ANIMATION_SPEEDS;
+	private final static float @NonNull [] ANIMATION_SPEEDS;
 
 	private final static int INITIAL_SUPPLIES = 1;
 	private final static float METERS_PER_SECOND = 8f;
 	private final static int MAX_MOVE_GRIDS = 5;
 
-	private final PathTracker path_tracker;
+	private final @NonNull PathTracker path_tracker;
 	private final int start_grid_x;
 	private final int start_grid_y;
 	private final float spawn_x;
@@ -53,7 +54,7 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 		ANIMATION_SPEEDS = new float[]{SPEED_IDLE, SPEED_PECK, SPEED_DIE, SPEED_MOVE, SPEED_MOVE};
 	}
 
-	public RubberSupply(World world, SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, RubberGroup group, float spawn_x, float spawn_y) {
+	public RubberSupply(@NonNull World world, SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, RubberGroup group, float spawn_x, float spawn_y) {
 		super(world, sprite_renderer, size, grid_x, grid_y, x, y, rotation, INITIAL_SUPPLIES, false);
 		this.path_tracker = new PathTracker(world.getUnitGrid(), this);
 		this.group = group;
@@ -257,7 +258,7 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 	}
 
     @Override
-	public void visit(ElementVisitor visitor) {
+	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitRubberSupply(this);
 	}
 

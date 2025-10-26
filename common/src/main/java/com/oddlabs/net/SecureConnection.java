@@ -2,6 +2,8 @@ package com.oddlabs.net;
 
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.util.KeyManager;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -19,14 +21,14 @@ import java.util.List;
 public final class SecureConnection extends AbstractConnection implements SecureConnectionInterface {
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(SecureConnectionInterface.class);
 	private final Deterministic deterministic;
-	private final AbstractConnection wrapped_connection;
-	private final SecureConnectionInterface secure_interface;
-	private final KeyAgreement key_agreement;
+	private final @NonNull AbstractConnection wrapped_connection;
+	private final @NonNull SecureConnectionInterface secure_interface;
+	private final @Nullable KeyAgreement key_agreement;
 	private final List<ARMIEvent> event_backlog = new ArrayList<>();
 	private Cipher decrypt_cipher;
 	private Cipher encrypt_cipher;
 
-	public SecureConnection(Deterministic deterministic, AbstractConnection wrapped_conn, AlgorithmParameterSpec param_spec) {
+	public SecureConnection(Deterministic deterministic, @NonNull AbstractConnection wrapped_conn, @Nullable AlgorithmParameterSpec param_spec) {
 		this.deterministic = deterministic;
 		setConnectionInterface(wrapped_conn.getConnectionInterface());
 		this.wrapped_connection = wrapped_conn;
@@ -39,7 +41,7 @@ public final class SecureConnection extends AbstractConnection implements Secure
 			public void connected(AbstractConnection conn) {
 			}
                         @Override
-			public void handle(Object sender, ARMIEvent event) {
+			public void handle(Object sender, @NonNull ARMIEvent event) {
 				processEvent(event);
 			}
                         @Override
@@ -60,7 +62,7 @@ public final class SecureConnection extends AbstractConnection implements Secure
 		return wrapped_connection;
 	}
 
-	private SealedObject encrypt(ARMIEvent event) {
+	private @NonNull SealedObject encrypt(ARMIEvent event) {
 		try {
 			return new SealedObject(event, encrypt_cipher);
 		} catch (IllegalBlockSizeException | IOException e) {
@@ -94,7 +96,7 @@ public final class SecureConnection extends AbstractConnection implements Secure
 	}
 
         @Override
-	public void tunnelEvent(SealedObject sealed_event) {
+	public void tunnelEvent(@NonNull SealedObject sealed_event) {
 		try {
 			if (decrypt_cipher == null)
 				throw new IOException("Illegal stream state, event received before key agreement");
@@ -107,7 +109,7 @@ public final class SecureConnection extends AbstractConnection implements Secure
 		}
 	}
 
-	public AbstractConnection getWrappedConnectionAndShutdown() {
+	public @NonNull AbstractConnection getWrappedConnectionAndShutdown() {
 		wrapped_connection.setConnectionInterface(getConnectionInterface());
 		return wrapped_connection;
 	}
@@ -121,7 +123,7 @@ public final class SecureConnection extends AbstractConnection implements Secure
 		secure_interface.tunnelEvent(encrypt(event));
 	}
 
-	private void processEvent(ARMIEvent event) {
+	private void processEvent(@NonNull ARMIEvent event) {
 		try {
 			event.execute(interface_methods, this);
 		} catch (IllegalARMIEventException e) {

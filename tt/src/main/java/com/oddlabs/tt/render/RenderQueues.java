@@ -3,6 +3,7 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,24 +20,24 @@ public final class RenderQueues {
 	private final Map<Supplier<?>, ShadowListKey> desc_to_shadow_key = new HashMap<>();
 	private final List<Texture> texture_lookup = new ArrayList<>();
 
-	public TextureKey registerTexture(Supplier<Texture[]> desc, int index) {
+	public @NonNull TextureKey registerTexture(Supplier<Texture[]> desc, int index) {
 		TextureKey key = new TextureKey(texture_lookup.size());
 		Texture[] textures = Resources.findResource(desc);
 		texture_lookup.add(textures[index]);
 		return key;
 	}
 
-	public TextureKey registerTexture(Supplier<Texture> desc) {
+	public @NonNull TextureKey registerTexture(Supplier<Texture> desc) {
 		TextureKey key = new TextureKey(texture_lookup.size());
 		texture_lookup.add(Resources.findResource(desc));
 		return key;
 	}
 
-	Texture getTexture(TextureKey key) {
+	Texture getTexture(@NonNull TextureKey key) {
 		return texture_lookup.get(key.getKey());
 	}
 
-	public ShadowListKey registerRespondRenderer(Supplier<Texture[]> desc) {
+	public @NonNull ShadowListKey registerRespondRenderer(Supplier<Texture[]> desc) {
 		ShadowListKey key = desc_to_shadow_key.get(desc);
 		if (key != null)
 			return key;
@@ -44,7 +45,7 @@ public final class RenderQueues {
 		return register(desc, renderer);
 	}
 
-	private ShadowListKey register(Supplier<?> desc, ShadowListRenderer renderer) {
+	private @NonNull ShadowListKey register(Supplier<?> desc, ShadowListRenderer renderer) {
 		int index = shadow_renderer_lookup.size();
 		shadow_renderer_lookup.add(renderer);
 		ShadowListKey key = new ShadowListKey(index);
@@ -52,7 +53,7 @@ public final class RenderQueues {
 		return key;
 	}
 
-	public ShadowListKey registerSelectableShadowList(Supplier<Texture[]> desc) {
+	public @NonNull ShadowListKey registerSelectableShadowList(Supplier<Texture[]> desc) {
 		ShadowListKey key = desc_to_shadow_key.get(desc);
 		if (key != null)
 			return key;
@@ -60,15 +61,15 @@ public final class RenderQueues {
 		return register(desc, renderer);
 	}
 
-	ShadowListRenderer getShadowRenderer(ShadowListKey key) {
+	ShadowListRenderer getShadowRenderer(@NonNull ShadowListKey key) {
 		return shadow_renderer_lookup.get(key.getKey());
 	}
 
-	public SpriteKey register(SpriteFile sprite_file) {
+	public @NonNull SpriteKey register(SpriteFile sprite_file) {
 		return register(sprite_file, 0);
 	}
 
-	public SpriteKey register(SpriteFile sprite_file, int tex_index) {
+	public @NonNull SpriteKey register(SpriteFile sprite_file, int tex_index) {
 		int index = sprite_list_lookup.size();
 		SpriteList sprite_list = Resources.findResource(sprite_file);
 		SpriteRenderer sprite_renderer = new SpriteRenderer(sprite_list, tex_index);
@@ -77,11 +78,11 @@ public final class RenderQueues {
 		return new SpriteKey(index, sprite_list.getBounds(), sprite_list.getAnimationTypes());
 	}
 
-	public SpriteRenderer getRenderer(SpriteKey key) {
+	public SpriteRenderer getRenderer(@NonNull SpriteKey key) {
 		return sprite_list_lookup.get(key.getKey());
 	}
 
-	private void registerSpriteRenderer(SpriteRenderer sprite_renderer) {
+	private void registerSpriteRenderer(@NonNull SpriteRenderer sprite_renderer) {
 		if (sprite_renderer.getSpriteList().getSprite(0).modulateColor()) {
 			blend_sprite_renderers.add(sprite_renderer);
 		} else {

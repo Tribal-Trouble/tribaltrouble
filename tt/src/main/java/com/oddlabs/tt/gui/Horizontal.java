@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class Horizontal {
 	private final Quad[] left;
@@ -10,7 +11,7 @@ public final class Horizontal {
 	private final int left_width;
 	private final int right_width;
 
-	public Horizontal(Quad[] left, Quad[] center, Quad[] right) {
+	public Horizontal(Quad @NonNull [] left, Quad[] center, Quad @NonNull [] right) {
 		this.left = left;
 		this.center = center;
 		this.right = right;

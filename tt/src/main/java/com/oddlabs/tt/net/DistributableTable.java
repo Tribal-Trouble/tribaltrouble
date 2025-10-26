@@ -1,6 +1,7 @@
 package com.oddlabs.tt.net;
 
 import com.oddlabs.util.HashTable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 
@@ -32,7 +33,7 @@ public final class DistributableTable {
 		return val;
 	}
 
-	public Distributable getDistributable(int name) {
+	public @Nullable Distributable getDistributable(int name) {
 		return distributables.get(name);
 	}
 }

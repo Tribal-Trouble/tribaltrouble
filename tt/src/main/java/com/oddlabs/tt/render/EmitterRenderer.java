@@ -6,6 +6,7 @@ import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Particle;
 import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector3f;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -23,7 +24,7 @@ final class EmitterRenderer {
 	private final static StrictMatrix4f view_matrix = new StrictMatrix4f();
 	private final static CameraState tmp_camera = new CameraState();
 
-	public static void render(RenderQueues render_queues, List<Emitter> emitter_queue, CameraState state) {
+	public static void render(@NonNull RenderQueues render_queues, @NonNull List<Emitter> emitter_queue, @NonNull CameraState state) {
 		tmp_camera.set(state);
 		view_matrix.setIdentity();
 		tmp_camera.setView(view_matrix);
@@ -46,7 +47,7 @@ final class EmitterRenderer {
 		GL11.glDisable(GL11.GL_BLEND);
 	}
 
-	private static void render2DParticle(Particle particle, Emitter emitter) {
+	private static void render2DParticle(@NonNull Particle particle, @NonNull Emitter emitter) {
 		float x = particle.getPosX();
 		float y = particle.getPosY();
 		float z = particle.getPosZ();
@@ -65,7 +66,7 @@ final class EmitterRenderer {
 		GL11.glVertex3f(x - right_minus_up.getX()*radius_x, y - right_minus_up.getY()*radius_y, z - right_minus_up.getZ()*radius_z);
 	}
 
-	private static void render(RenderQueues render_queues, Emitter emitter) {
+	private static void render(@NonNull RenderQueues render_queues, @NonNull Emitter emitter) {
 		if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS)) {
 			RenderTools.draw(emitter, 1f, 1f, 1f);
 		}

@@ -1,6 +1,7 @@
 package com.oddlabs.tt.landscape;
 
 import com.oddlabs.util.IndexListOptimizer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 
 import java.nio.ShortBuffer;
@@ -11,8 +12,8 @@ public final class LandscapeTileIndices {
 
 	private final HeightMap heightmap;
 	private final int patch_exp;
-	private final int[] patch_indices_indices;
-	private final LandscapeTileTriangle[][][] quad_to_planes;
+	private final int @NonNull [] patch_indices_indices;
+	private final LandscapeTileTriangle[][] @NonNull [] quad_to_planes;
 	private final ShortBuffer indices;
 
 	static int getIndex(int patch_exp, int x, int y) {
@@ -159,7 +160,7 @@ System.out.println("indices.remaining() = " + indices.remaining());*/
 		return indices;
 	}
 
-	private static void buildTile(LandscapeTileTriangle lower, LandscapeTileTriangle higher, int lod, int border_set, ShortBuffer indices) {
+	private static void buildTile(@NonNull LandscapeTileTriangle lower, @NonNull LandscapeTileTriangle higher, int lod, int border_set, @NonNull ShortBuffer indices) {
 		int pos = indices.position();
 		lower.putIndices(lod, border_set, indices);
 		higher.putIndices(lod ,border_set, indices);
@@ -257,7 +258,7 @@ System.out.println("height = " + height + " | plane_height = " + plane_height);
 		}
 	}
 */
-	public Errors computeErrors(int patch_index_x, int patch_index_y) {
+	public @NonNull Errors computeErrors(int patch_index_x, int patch_index_y) {
 		float[] errors = new float[getNumLOD() - 1];
 		boolean above = false;
 		boolean below = false;

@@ -38,6 +38,7 @@ import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
@@ -78,18 +79,18 @@ public final class RacesResources {
 	private final TextureKey[] smoke_textures = new TextureKey[1];
 	private final TextureKey[] damage_smoke_textures = new TextureKey[1];
 	private final TextureKey[] poison_textures = new TextureKey[1];
-	private final TextureKey lightning_texture;
+	private final @NonNull TextureKey lightning_texture;
 	private final TextureKey[] sonic_textures = new TextureKey[1];
 	private final TextureKey[] note_textures = new TextureKey[8];
 	private final TextureKey[] star_textures = new TextureKey[1];
-	private final Audio[] tree_fall_sound;
-	private final Audio[] building_hit_sound;
+	private final Audio @NonNull [] tree_fall_sound;
+	private final Audio @NonNull [] building_hit_sound;
 	private final Audio gas_sound;
 	private final Audio bubbling_sound;
 	private final Audio lightning_sound;
 	private final Audio cloud_sound;
-	private final Audio[] stun_sound;
-	private final Audio[] blast_lur_sound;
+	private final Audio @NonNull [] stun_sound;
+	private final Audio @NonNull [] blast_lur_sound;
 	private final Audio blast_rumble_sound;
 	private final Audio blast_blast_sound;
 	private final Audio armory_sound;
@@ -97,42 +98,42 @@ public final class RacesResources {
 	private final Map<Class<? extends Supply>,Audio[]> harvest_sounds = new HashMap<>();
 	private final SpriteKey[] wood_fragment_sprites = new SpriteKey[4];
 	private final SpriteKey[] treasure_sprites = new SpriteKey[6];
-	private final Race[] races;
+	private final Race @NonNull [] races;
 
 	public static boolean isValidRace(int race) {
 		return race == RACE_NATIVES || race == RACE_VIKINGS;
 	}
 
-	private static BuildingTemplate createBuildingTemplate(
-			RenderQueues queues,
-			int template_id,
-			String built_name,
-			float built_selection_radius,
-			float built_selection_height,
-			String halfbuilt_name,
-			float halfbuilt_selection_radius,
-			float halfbuilt_selection_height,
-			String start_name,
-			float start_selection_radius,
-			float start_selection_height,
-			float shadow_diameter,
-			float ring_thickness,
-			int placing_size,
-			float smoke_radius,
-			float smoke_height,
-			int num_fragments,
-			int max_hit_points,
-			UnitContainerFactory unit_container_factory,
-			Abilities abilities,
-			float[] hit_offset_z,
-			float mount_offset,
-			float no_detail_size,
-			float rally_x,
-			float rally_y,
-			float rally_z,
-			float chimney_x,
-			float chimney_y,
-			float chimney_z, String name) {
+	private static @NonNull BuildingTemplate createBuildingTemplate(
+            @NonNull RenderQueues queues,
+            int template_id,
+            String built_name,
+            float built_selection_radius,
+            float built_selection_height,
+            String halfbuilt_name,
+            float halfbuilt_selection_radius,
+            float halfbuilt_selection_height,
+            String start_name,
+            float start_selection_radius,
+            float start_selection_height,
+            float shadow_diameter,
+            float ring_thickness,
+            int placing_size,
+            float smoke_radius,
+            float smoke_height,
+            int num_fragments,
+            int max_hit_points,
+            UnitContainerFactory unit_container_factory,
+            Abilities abilities,
+            float @NonNull [] hit_offset_z,
+            float mount_offset,
+            float no_detail_size,
+            float rally_x,
+            float rally_y,
+            float rally_z,
+            float chimney_x,
+            float chimney_y,
+            float chimney_z, String name) {
 		assert hit_offset_z.length == 3;
 
 		final float ring_mid = 0.38f;
@@ -179,7 +180,7 @@ public final class RacesResources {
 									chimney_z, name);
 	}
 
-	public RacesResources(RenderQueues queues) {
+	public RacesResources(@NonNull RenderQueues queues) {
 		int num_progress = 23;
 		SpriteFile native_rock_sprite = new SpriteFile("/geometry/natives/rock_resource.binsprite",
 																						   Globals.NO_MIPMAP_CUTOFF,
@@ -804,15 +805,15 @@ public final class RacesResources {
 		ProgressForm.progress(1f/num_progress);
 	}
 
-	public TextureKey[] getSmokeTextures() {
+	public TextureKey @NonNull [] getSmokeTextures() {
 		return smoke_textures;
 	}
 
-	public TextureKey[] getDamageSmokeTextures() {
+	public TextureKey @NonNull [] getDamageSmokeTextures() {
 		return damage_smoke_textures;
 	}
 
-	public TextureKey[] getPoisonTextures() {
+	public TextureKey @NonNull [] getPoisonTextures() {
 		return poison_textures;
 	}
 
@@ -820,19 +821,19 @@ public final class RacesResources {
 		return lightning_texture;
 	}
 
-	public TextureKey[] getSonicTextures() {
+	public TextureKey @NonNull [] getSonicTextures() {
 		return sonic_textures;
 	}
 
-	public TextureKey[] getNoteTextures() {
+	public TextureKey @NonNull [] getNoteTextures() {
 		return note_textures;
 	}
 
-	public TextureKey[] getStarTextures() {
+	public TextureKey @NonNull [] getStarTextures() {
 		return star_textures;
 	}
 
-	public Audio getHarvestSound(Class<? extends Supply> key, Random random) {
+	public Audio getHarvestSound(Class<? extends Supply> key, @NonNull Random random) {
 		Audio[] sounds = harvest_sounds.get(key);
 		return sounds[random.nextInt(sounds.length)];
 	}
@@ -841,7 +842,7 @@ public final class RacesResources {
 		return tree_fall_sound;
 	}
 
-	public Audio getBuildingHitSound(Random random) {
+	public Audio getBuildingHitSound(@NonNull Random random) {
 		return building_hit_sound[random.nextInt(building_hit_sound.length)];
 	}
 
@@ -861,11 +862,11 @@ public final class RacesResources {
 		return cloud_sound;
 	}
 
-	public Audio getStunSound(Random random) {
+	public Audio getStunSound(@NonNull Random random) {
 		return stun_sound[random.nextInt(stun_sound.length)];
 	}
 
-	public Audio getBlastLurSound(Random random) {
+	public Audio getBlastLurSound(@NonNull Random random) {
 		return blast_lur_sound[random.nextInt(blast_lur_sound.length)];
 	}
 
@@ -889,7 +890,7 @@ public final class RacesResources {
 		return races[i];
 	}
 
-	public static String getRaceName(int i) {
+	public static @NonNull String getRaceName(int i) {
 		return race_names[i];
 	}
 
@@ -897,11 +898,11 @@ public final class RacesResources {
 		return race_names.length;
 	}
 
-	public SpriteKey[] getWoodFragments() {
+	public SpriteKey @NonNull [] getWoodFragments() {
 		return wood_fragment_sprites;
 	}
 
-	public SpriteKey[] getTreasures() {
+	public SpriteKey @NonNull [] getTreasures() {
 		return treasure_sprites;
 	}
 }

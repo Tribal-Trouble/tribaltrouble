@@ -1,14 +1,15 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public final class ArrowButton extends ButtonObject {
-	private final Quad[] pressed;
+	private final Quad @NonNull [] pressed;
 	private final Quad[] unpressed;
 	private final Quad[] arrow;
 
-	public ArrowButton(Quad[] pressed, Quad[] unpressed, Quad[] arrow) {
+	public ArrowButton(Quad @NonNull [] pressed, Quad[] unpressed, Quad[] arrow) {
 		setDim(pressed[Skin.NORMAL].getWidth(), pressed[Skin.NORMAL].getHeight());
 		this.pressed = pressed;
 		this.unpressed = unpressed;
@@ -16,7 +17,7 @@ public final class ArrowButton extends ButtonObject {
 	}
 
         @Override
-	public void keyPressed(KeyboardEvent event) {
+	public void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_SPACE:
 			case Keyboard.KEY_RETURN:
@@ -26,7 +27,7 @@ public final class ArrowButton extends ButtonObject {
 	}
 
         @Override
-	public void keyRepeat(KeyboardEvent event) {
+	public void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_TAB:
 				super.keyRepeat(event);
@@ -35,7 +36,7 @@ public final class ArrowButton extends ButtonObject {
 	}
 
         @Override
-	public void keyReleased(KeyboardEvent event) {
+	public void keyReleased(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_SPACE:
 			case Keyboard.KEY_RETURN:

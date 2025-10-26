@@ -4,6 +4,7 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
+import org.jspecify.annotations.NonNull;
 
 public final class Plants extends SceneryModel {
 	public Plants(World world, float x, float y, float dir_x, float dir_y, SpriteKey sprite_renderer) {
@@ -19,7 +20,7 @@ public final class Plants extends SceneryModel {
 	}
 
     @Override
-	public void visit(ElementVisitor visitor) {
+	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitPlants(this);
 	}
 }

@@ -11,6 +11,7 @@ import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.vbo.FloatVBO;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
@@ -20,10 +21,10 @@ import java.nio.FloatBuffer;
 
 public final class Water {
 
-    private final FloatVBO patch_vertices;
+    private final @NonNull FloatVBO patch_vertices;
     private final Texture[] ocean;
 
-    public Water(HeightMap heightmap, Landscape.TerrainType terrain) {
+    public Water(@NonNull HeightMap heightmap, Landscape.TerrainType terrain) {
         TextureGenerator ocean_desc = new GeneratorOcean(terrain);
         ocean = Resources.findResource(ocean_desc);
         patch_vertices = makePatchVertices(heightmap);
@@ -48,7 +49,7 @@ public final class Water {
         GL11.glEnable(GL11.GL_BLEND);
     }
 
-    public void render(Sky sky) {
+    public void render(@NonNull Sky sky) {
         setup();
 
         sky.getWaterVertices().vertexPointer(3, 0, 0);
@@ -75,7 +76,7 @@ public final class Water {
         GL11.glDisable(GL11.GL_BLEND);
     }
 
-    private static FloatVBO makePatchVertices(HeightMap heightmap) {
+    private static @NonNull FloatVBO makePatchVertices(@NonNull HeightMap heightmap) {
         boolean[][] water_patches = new boolean[heightmap.getPatchesPerWorld()][heightmap.getPatchesPerWorld()];
         int count = 0;
         for (int y = 0; y < water_patches.length; y++) {

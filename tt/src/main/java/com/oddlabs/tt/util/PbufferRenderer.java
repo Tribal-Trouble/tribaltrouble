@@ -1,16 +1,17 @@
 package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.render.Renderer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
 
 final class PbufferRenderer extends OffscreenRenderer {
-	private final Pbuffer pbuffer;
+	private final @NonNull Pbuffer pbuffer;
 	private final OffscreenRendererFactory factory;
 
-	PbufferRenderer(int width, int height, PixelFormat format, boolean use_copyteximage, OffscreenRendererFactory factory) throws LWJGLException {
+	PbufferRenderer(int width, int height, @NonNull PixelFormat format, boolean use_copyteximage, OffscreenRendererFactory factory) throws LWJGLException {
 		super(width, height, use_copyteximage);
 		this.factory = factory;
 		pbuffer = new Pbuffer(width, height, format, null, null);

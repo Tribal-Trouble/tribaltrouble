@@ -3,13 +3,14 @@ package com.oddlabs.tt.resource;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.util.GLState;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
 public final class StructureBlend extends BlendInfo {
-	private final Texture structure_map;
+	private final @NonNull Texture structure_map;
 
-	private Texture createStructureMap(GLIntImage structure_image) {
+	private @NonNull Texture createStructureMap(GLIntImage structure_image) {
 		return new Texture(new GLIntImage[]{structure_image}, GL11.GL_RGB, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
 	}
 

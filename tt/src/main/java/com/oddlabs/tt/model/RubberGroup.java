@@ -5,6 +5,7 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ public final class RubberGroup {
 	private final World world;
 	private final List<Supply> supplies = new ArrayList<>();
 
-	public RubberGroup(World world) {
+	public RubberGroup(@NonNull World world) {
 		this.world = world;
 		int[] group_position = getGroupPosition();
 		if (group_position != null) {

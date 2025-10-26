@@ -2,6 +2,7 @@ package com.oddlabs.tt.vbo;
 
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.resource.NativeResource;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
@@ -16,7 +17,7 @@ public abstract class VBO extends NativeResource {
 	protected final boolean use_vbo;
 	private final static IntBuffer handle_buffer;
 
-	private final ByteBuffer saved_buffer;
+	private final @Nullable ByteBuffer saved_buffer;
 //	private ByteBuffer mapped_buffer;
 
 	static {

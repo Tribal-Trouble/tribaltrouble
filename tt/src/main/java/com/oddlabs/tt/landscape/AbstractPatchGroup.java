@@ -3,6 +3,7 @@ package com.oddlabs.tt.landscape;
 
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.util.BoundingBox;
+import org.jspecify.annotations.NonNull;
 
 public abstract class AbstractPatchGroup extends BoundingBox {
 	private final AbstractPatchGroup parent;
@@ -10,7 +11,7 @@ public abstract class AbstractPatchGroup extends BoundingBox {
 	private final int colormap_x;
 	private final int colormap_y;
 
-	protected AbstractPatchGroup(HeightMap heightmap, float patch_size, int x, int y, AbstractPatchGroup parent) {
+	protected AbstractPatchGroup(@NonNull HeightMap heightmap, float patch_size, int x, int y, AbstractPatchGroup parent) {
 		this.parent = parent;
 		patch_radius = (float)Math.sqrt(2)*patch_size*heightmap.getMetersPerPatch()*0.5f;
 		colormap_x = x/heightmap.getPatchesPerChunk();

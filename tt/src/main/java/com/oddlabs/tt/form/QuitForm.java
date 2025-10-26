@@ -4,11 +4,12 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 public final class QuitForm extends QuestionForm {
-	private static String getI18N(String key) {
+	private static @NonNull String getI18N(String key) {
 		ResourceBundle bundle = ResourceBundle.getBundle(QuitForm.class.getName());
 		return Utils.getBundleString(bundle, key);
 	}

@@ -5,6 +5,8 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Image;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import javax.imageio.ImageIO;
@@ -57,7 +59,7 @@ public final class TextureFile extends File<Texture> {
 		this.max_alpha = max_alpha;
 	}
 
-	private static URL locate(String location_with_ext) {
+	private static @Nullable URL locate(@NonNull String location_with_ext) {
 		URL url_classpath = Utils.class.getResource(location_with_ext);
 		if (url_classpath != null)
 			return url_classpath;
@@ -72,11 +74,11 @@ public final class TextureFile extends File<Texture> {
 		return null;
 	}
 
-	private static URL locateDXT(String location) {
+	private static @Nullable URL locateDXT(String location) {
 		return locate(location + ".dxtn");
 	}
 
-	private static URL locateTexture(String location) {
+	private static @NonNull URL locateTexture(String location) {
 		URL url = locateDXT(location);
 		if (url != null)
 			return url;
@@ -93,7 +95,7 @@ public final class TextureFile extends File<Texture> {
 		throw new RuntimeException(location);
 	}
 
-	private BufferedImage readFile(URL url) {
+	private BufferedImage readFile(@NonNull URL url) {
 		try {
 			return ImageIO.read(url);
 		} catch (IOException e) {
@@ -105,7 +107,7 @@ public final class TextureFile extends File<Texture> {
 		return is_dxt;
 	}
 
-	public DXTImage getDXTImage() {
+	public @NonNull DXTImage getDXTImage() {
 		try {
 			return DXTImage.read(getURL());
 		} catch (IOException e) {
@@ -113,7 +115,7 @@ public final class TextureFile extends File<Texture> {
 		}
 	}
 
-	public GLImage getImage() {
+	public @NonNull GLImage getImage() {
 		GLImage img;
 /*		URL url_jpg = Utils.class.getResource(loc + ".jpg");
 		if (url_jpg != null) {
@@ -166,7 +168,7 @@ public final class TextureFile extends File<Texture> {
 	}
 
         @Override
-	public Texture get() {
+	public @NonNull Texture get() {
 		return new Texture(this);
 	}
 

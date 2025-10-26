@@ -1,11 +1,13 @@
 package com.oddlabs.net;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
 public class DefaultARMIArgumentReader implements ARMIArgumentReader {
         @Override
-	public Object readArgument(Class<?> type, ByteBufferInputStream in) throws IOException, ClassNotFoundException {
+	public Object readArgument(@NonNull Class<?> type, @NonNull ByteBufferInputStream in) throws IOException, ClassNotFoundException {
 		if (type.equals(char.class)) {
 			return in.buffer().getChar();
 		} else if (type.equals(byte.class)) {

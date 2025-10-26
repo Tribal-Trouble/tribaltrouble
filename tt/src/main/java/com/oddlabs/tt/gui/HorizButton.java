@@ -1,9 +1,10 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import org.jspecify.annotations.NonNull;
 
 public class HorizButton extends ButtonObject {
-	public HorizButton(String caption, int width) {
+	public HorizButton(@NonNull String caption, int width) {
 		setDim(width, Skin.getSkin().getHorizButtonPressed().getHeight());
 		Font font = Skin.getSkin().getButtonFont();
 		Label label = new Label(caption, font);

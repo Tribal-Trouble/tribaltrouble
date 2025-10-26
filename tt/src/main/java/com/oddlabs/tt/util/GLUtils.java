@@ -3,6 +3,7 @@ package com.oddlabs.tt.util;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.util.Image;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -14,7 +15,7 @@ import java.nio.IntBuffer;
 public final class GLUtils {
 	public final static String SCREENSHOT_DEFAULT = "screenshot";
 	
-	private final static ByteBuffer byte_buf;
+	private final static @NonNull ByteBuffer byte_buf;
 	private final static IntBuffer int_buf;
 	private final static FloatBuffer plane = BufferUtils.createFloatBuffer(4);
 
@@ -23,7 +24,7 @@ public final class GLUtils {
 		int_buf = BufferUtils.createIntBuffer(16);
 	}
 
-	public static GLIntImage loadAsGLImage(String location) {
+	public static @NonNull GLIntImage loadAsGLImage(String location) {
 		Image img = null;
 		img = Image.read(com.oddlabs.util.Utils.makeURL(location));
 		GLIntImage glimage = new GLIntImage(img.getWidth(), img.getHeight(), img.getPixels(), GL11.GL_RGBA);
@@ -53,7 +54,7 @@ public final class GLUtils {
 		GL11.glTexGen(GL11.GL_T, GL11.GL_OBJECT_PLANE, plane);
 	}
 
-	public static String takeScreenshot(String filename) {
+	public static @NonNull String takeScreenshot(@NonNull String filename) {
 		if (filename.isEmpty()) {
 			int i = 0;
 			File file;

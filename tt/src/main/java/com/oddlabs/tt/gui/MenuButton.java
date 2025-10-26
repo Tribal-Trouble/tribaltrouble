@@ -3,24 +3,25 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class MenuButton extends ButtonObject {
 	private final static float SECONDS_PER_HOVER_CYCLE = 1.5f;
 	private final static float HOVER_SCALE_FACTOR = 0.06f;
 
-	private final TextLineRenderer text_renderer;
-	private final CharSequence text;
+	private final @NonNull TextLineRenderer text_renderer;
+	private final @NonNull CharSequence text;
 	private final float[] color_normal;
 	private final float[] color_active;
 	
 	private float start_hover_time;
 
-	public MenuButton(String caption, float[] color_normal, float[] color_active) {
+	public MenuButton(@NonNull String caption, float[] color_normal, float[] color_active) {
 		this(caption, Skin.getSkin().getHeadlineFont(), color_normal, color_active);
 	}
 
-	private MenuButton(CharSequence text, Font font, float[] color_normal, float[] color_active) {
+	private MenuButton(@NonNull CharSequence text, @NonNull Font font, float[] color_normal, float[] color_active) {
 		setDim(font.getWidth(text), font.getHeight());
 		this.text = text;
 		this.color_normal = color_normal;

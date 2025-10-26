@@ -14,6 +14,7 @@ import com.oddlabs.tt.pathfinder.PathFinder;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.opengl.Display;
 
@@ -34,7 +35,7 @@ public final class AnimationManager {
 	public final static StatCounter pathfinds_per_tick = new StatCounter(100);
 
 	private final static StatCounter frame_time = new StatCounter(10);
-	private final static MonotoneTimeManager time_source;
+	private final static @NonNull MonotoneTimeManager time_source;
 
 	private static long current_time ;
 	private static long last_frame_time;
@@ -130,7 +131,7 @@ public final class AnimationManager {
 	}
 
     @SuppressWarnings("UseOfSystemOutOrSystemErr")
-	public static void runGameLoop(NetworkSelector network, GUI gui, boolean grab_frames) {
+	public static void runGameLoop(@NonNull NetworkSelector network, @NonNull GUI gui, boolean grab_frames) {
 		KeyboardInput.checkMagicKeys();
 		if (time_frozen && !time_stopped)
 			unfreezeTime();

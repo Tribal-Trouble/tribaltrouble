@@ -1,5 +1,7 @@
 package com.oddlabs.tt.model;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -7,7 +9,7 @@ import java.util.Set;
 public class Army {
 	private final Set<Selectable> selection = new LinkedHashSet<>();
 
-	public final Selectable[] filter(int ability_filter) {
+	public final Selectable @NonNull [] filter(int ability_filter) {
 		int count = 0;
 		Iterator<Selectable> it = selection.iterator();
 		while (it.hasNext()) {
@@ -46,7 +48,7 @@ public class Army {
 		return selection.contains(selectable);
 	}
 
-	public final Set<Selectable> getSet() {
+	public final @NonNull Set<Selectable> getSet() {
 		return selection;
 	}
 

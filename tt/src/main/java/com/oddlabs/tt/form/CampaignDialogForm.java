@@ -9,6 +9,8 @@ import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class CampaignDialogForm extends Form {
 	public final static int ALIGN_IMAGE_LEFT = 1;
@@ -21,15 +23,15 @@ public class CampaignDialogForm extends Form {
 
 	private HorizButton ok_button;
 
-	public CampaignDialogForm(CharSequence header, CharSequence text, Quad image, int align) {
+	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, int align) {
 		this(header, text, image, align, null);
 	}
 
-	public CampaignDialogForm(CharSequence header, CharSequence text, Quad image, int align, Runnable runnable) {
+	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, int align, Runnable runnable) {
 		this(header, text, image, align, runnable, false);
 	}
 
-	public CampaignDialogForm(CharSequence header, CharSequence text, Quad image, int align, Runnable runnable, boolean cancel) {
+	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, int align, Runnable runnable, boolean cancel) {
 		this.runnable = runnable;
 		this.cancel = cancel;
 		buildForm(header, text, image, align, cancel);
@@ -50,7 +52,7 @@ public class CampaignDialogForm extends Form {
 			run();
 	}
 
-	private void buildForm(CharSequence header, CharSequence text, Quad image, int align, boolean cancel) {
+	private void buildForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable Quad image, int align, boolean cancel) {
 		GUIIcon gui_icon = null;
 		if (image != null) {
 			gui_icon = new GUIIcon(image);

@@ -12,19 +12,20 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.render.LandscapeLocation;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Set;
 
 public abstract class InGameDelegate extends CameraDelegate {
-	private final WorldViewer viewer;
+	private final @NonNull WorldViewer viewer;
 
-	protected InGameDelegate(WorldViewer viewer, Camera camera) {
+	protected InGameDelegate(@NonNull WorldViewer viewer, Camera camera) {
 		super(viewer.getGUIRoot(), camera);
 		this.viewer = viewer;
 	}
 
-	private boolean cheat(KeyboardEvent event) {
+	private boolean cheat(@NonNull KeyboardEvent event) {
 		// cheats
 		Cheat cheat = viewer.getCheat();
 		if (!cheat.isEnabled())
@@ -122,7 +123,7 @@ public abstract class InGameDelegate extends CameraDelegate {
 	}
 
     @Override
-	protected void keyPressed(KeyboardEvent event) {
+	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:
 				getGUIRoot().pushDelegate(new InGameMainMenu(viewer, new StaticCamera(getCamera().getState())));

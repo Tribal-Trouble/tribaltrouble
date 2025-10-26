@@ -11,6 +11,8 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.render.UIRenderer;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class LogoScreen extends CameraDelegate implements Updatable {
 	private final static float DELAY = 4f;
@@ -19,14 +21,14 @@ public final class LogoScreen extends CameraDelegate implements Updatable {
 	private final static int overlay_image_width = 800;
 	private final static int overlay_image_height = 600;
 
-	private final GUIImage overlay;
+	private final @Nullable GUIImage overlay;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
 	private final GUIRoot client_root;
 	private final Fadable fadable;
 	private final UIRenderer renderer;
 	private boolean fade_started = false;
 	
-	public LogoScreen(GUIRoot gui_root, Texture logo, Fadable fadable, GUIRoot client_root, UIRenderer renderer) {
+	public LogoScreen(@NonNull GUIRoot gui_root, @Nullable Texture logo, Fadable fadable, GUIRoot client_root, UIRenderer renderer) {
 		super(gui_root, new StaticCamera(new CameraState()));
 		this.client_root = client_root;
 		this.fadable = fadable;

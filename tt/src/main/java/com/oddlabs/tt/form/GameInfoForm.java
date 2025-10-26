@@ -10,13 +10,14 @@ import com.oddlabs.tt.gui.OKListener;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 public final class GameInfoForm extends Form {
-	private final HorizButton ok_button;
+	private final @NonNull HorizButton ok_button;
 
-	public GameInfoForm(Game game) {
+	public GameInfoForm(@NonNull Game game) {
 		ResourceBundle bundle = ResourceBundle.getBundle(GameInfoForm.class.getName());
 		Label label_headline = new Label(Utils.getBundleString(bundle, "game_info"), Skin.getSkin().getHeadlineFont());
 		addChild(label_headline);

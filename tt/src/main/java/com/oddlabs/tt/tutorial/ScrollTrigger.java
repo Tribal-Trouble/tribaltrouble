@@ -3,11 +3,12 @@ package com.oddlabs.tt.tutorial;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.player.Player;
+import org.jspecify.annotations.NonNull;
 
 public final class ScrollTrigger extends TutorialTrigger {
 	private final boolean[] scroll_dirs = new boolean[4];
 
-	public ScrollTrigger(Player player) {
+	public ScrollTrigger(@NonNull Player player) {
 		super(.1f, 2f, "scroll");
 		player.enableMoving(false);
 		player.enableRepairing(false);
@@ -19,7 +20,7 @@ public final class ScrollTrigger extends TutorialTrigger {
 	}
 
         @Override
-	protected void run(Tutorial tutorial) {
+	protected void run(@NonNull Tutorial tutorial) {
 		GameCamera camera = tutorial.getViewer().getCamera();
 		if (camera.getScrollX() > 0) {
 			scroll_dirs[0] = true;

@@ -1,6 +1,7 @@
 package com.oddlabs.net;
 
 import com.oddlabs.event.Deterministic;
+import org.jspecify.annotations.NonNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public final class TaskThread {
 		}
 
         @Override
-		public void deliverResult(TaskExecutorLoopbackInterface<T> callback) {
+		public void deliverResult(@NonNull TaskExecutorLoopbackInterface<T> callback) {
 			callback.taskFailed(result);
 		}
 	}
@@ -50,7 +51,7 @@ public final class TaskThread {
 		}
 
                 @Override
-		public void deliverResult(TaskExecutorLoopbackInterface<T> callback) {
+		public void deliverResult(@NonNull TaskExecutorLoopbackInterface<T> callback) {
 			callback.taskCompleted(result);
 		}
 	}
@@ -91,7 +92,7 @@ public final class TaskThread {
 		return deterministic;
 	}
 
-	public Task addTask(Callable<?> callable) {
+	public @NonNull Task addTask(Callable<?> callable) {
 		BlockingTask task;
 		synchronized (lock) {
 			int task_id = current_id++;
@@ -131,7 +132,7 @@ public final class TaskThread {
 		}
 	}
 
-	private Callable<?> lookupCallable(BlockingTask task) {
+	private Callable<?> lookupCallable(@NonNull BlockingTask task) {
 		return id_to_callable.get(task.id);
 	}
 

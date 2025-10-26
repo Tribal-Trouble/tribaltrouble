@@ -18,6 +18,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.resource.WorldInfo;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,40 +34,40 @@ public final class World {
 			AnimationManager.ANIMATION_SECONDS_PER_TICK*1.75f,
 			AnimationManager.ANIMATION_SECONDS_PER_TICK*4};
 
-	private final HeightMap world;
-	private final Random random;
-	private final AnimationManager animation_manager_game_time;
-	private final AnimationManager animation_manager_real_time;
+	private final @NonNull HeightMap world;
+	private final @NonNull Random random;
+	private final @NonNull AnimationManager animation_manager_game_time;
+	private final @NonNull AnimationManager animation_manager_real_time;
 	private final AudioImplementation audio_impl;
 
 	private final int max_unit_count;
 	private final NotificationListener notification_listener;
 
-	private final Player[] players;
-	private final SupplyManagers supply_managers;
-	private final UnitGrid unit_grid;
-	private final LandscapeTileIndices landscape_indices;
-	private final AbstractPatchGroup patch_root;
-	private final AbstractTreeGroup tree_root;
-	private final AbstractElementNode<?> element_root;
+	private final Player @NonNull [] players;
+	private final @NonNull SupplyManagers supply_managers;
+	private final @NonNull UnitGrid unit_grid;
+	private final @NonNull LandscapeTileIndices landscape_indices;
+	private final @NonNull AbstractPatchGroup patch_root;
+	private final @NonNull AbstractTreeGroup tree_root;
+	private final @NonNull AbstractElementNode<?> element_root;
 	private final RacesResources races_resources;
 	private final LandscapeResources landscape_resources;
 
 	private int global_checksum;
 	private int gamespeed;
 
-	public static LandscapeResources loadCommon(RenderQueues queues) {
+	public static @NonNull LandscapeResources loadCommon(@NonNull RenderQueues queues) {
 		LandscapeResources landscape_resources = new LandscapeResources(queues);
 		ProgressForm.progress();
 		return landscape_resources;
 	}
 
-	public static RacesResources loadInGame(RenderQueues queues) {
+	public static @NonNull RacesResources loadInGame(@NonNull RenderQueues queues) {
 		Icons.load();
 		return new RacesResources(queues);
 	}
 
-	public static World newWorld(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel[] tree_low_details, NotificationListener notification_listener, WorldParameters world_params, WorldInfo world_info, Landscape.TerrainType terrain, PlayerInfo[] player_infos, float[][] colors) {
+	public static @NonNull World newWorld(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel[] tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
 		NativeResource.gc();
 		ProgressForm.progress();
 		World world = new World(audio_implementation, landscape_resources, races_resources, tree_low_details, notification_listener, world_params, world_info, terrain, player_infos, colors);
@@ -143,7 +144,7 @@ public final class World {
 		return getAnimationManagerRealTime().getTick();
 	}
 
-	private World(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel[] tree_low_details, NotificationListener notification_listener, WorldParameters world_params, WorldInfo world_info, Landscape.TerrainType terrain, PlayerInfo[] player_infos, float[][] colors) {
+	private World(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel[] tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
 		System.out.println("****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
 		this.landscape_resources = landscape_resources;
 		this.races_resources = races_resources;

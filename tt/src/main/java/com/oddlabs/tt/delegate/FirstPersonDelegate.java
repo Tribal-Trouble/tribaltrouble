@@ -7,6 +7,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public class FirstPersonDelegate extends InGameDelegate {
@@ -15,7 +16,7 @@ public class FirstPersonDelegate extends InGameDelegate {
 
 	private boolean done = false;
 
-	public FirstPersonDelegate(WorldViewer viewer, CameraState camera_state, boolean key_pressed) {
+	public FirstPersonDelegate(@NonNull WorldViewer viewer, CameraState camera_state, boolean key_pressed) {
 		super(viewer, new FirstPersonCamera(viewer.getWorld().getHeightMap(), camera_state));
 		this.key_pressed = key_pressed;
 		created_tick = LocalEventQueue.getQueue().getManager().getTick();
@@ -30,7 +31,7 @@ public class FirstPersonDelegate extends InGameDelegate {
 	}
 
         @Override
-	public void keyReleased(KeyboardEvent event) {
+	public void keyReleased(@NonNull KeyboardEvent event) {
 		if (key_pressed && !done) {
 			switch (event.getKeyCode()) {
 				case Keyboard.KEY_F:

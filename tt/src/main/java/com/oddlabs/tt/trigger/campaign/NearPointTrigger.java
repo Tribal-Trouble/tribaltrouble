@@ -2,15 +2,16 @@ package com.oddlabs.tt.trigger.campaign;
 
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.trigger.IntervalTrigger;
+import org.jspecify.annotations.NonNull;
 
 public final class NearPointTrigger extends IntervalTrigger {
 	private final int grid_x;
 	private final int grid_y;
 	private final int r;
-	private final Unit unit;
+	private final @NonNull Unit unit;
 	private final Runnable runnable;
 
-	public NearPointTrigger(int grid_x, int grid_y, int r, Unit unit, Runnable runnable) {
+	public NearPointTrigger(int grid_x, int grid_y, int r, @NonNull Unit unit, Runnable runnable) {
 		super(unit.getOwner().getWorld(), .25f, 0f);
 		this.grid_x = grid_x;
 		this.grid_y = grid_y;

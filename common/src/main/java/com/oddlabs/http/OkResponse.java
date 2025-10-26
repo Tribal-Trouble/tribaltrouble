@@ -1,5 +1,7 @@
 package com.oddlabs.http;
 
+import org.jspecify.annotations.NonNull;
+
 final class OkResponse implements HttpResponse {
 	private final Object result;
 
@@ -8,7 +10,7 @@ final class OkResponse implements HttpResponse {
 	}
 
         @Override
-	public void notify(HttpCallback callback) {
+	public void notify(@NonNull HttpCallback callback) {
 		callback.success(result);
 	}
 }

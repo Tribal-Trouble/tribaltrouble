@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.CheckBoxListener;
 import com.oddlabs.tt.util.ToolTip;
+import org.jspecify.annotations.NonNull;
 
 public final class CheckBox extends GUIObject implements ToolTip {
 	private final static int CHECK_BOX_LISTENER = 0;
@@ -12,11 +13,11 @@ public final class CheckBox extends GUIObject implements ToolTip {
 	private boolean marked;
 	private boolean pressed = false;
 
-	public CheckBox(boolean marked, String text) {
+	public CheckBox(boolean marked, @NonNull String text) {
 		this(marked, text, "");
 	}
 	
-	public CheckBox(boolean marked, String text, String tool_tip) {
+	public CheckBox(boolean marked, @NonNull String text, String tool_tip) {
 		this.marked = marked;
 		this.tool_tip = tool_tip;
 		Label label = new Label(text, Skin.getSkin().getEditFont());
@@ -39,7 +40,7 @@ public final class CheckBox extends GUIObject implements ToolTip {
 	}
 	
         @Override
-	public void appendToolTip(ToolTipBox tool_tip_box) {
+	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		tool_tip_box.append(tool_tip);
 	}
 

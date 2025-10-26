@@ -5,11 +5,12 @@ import com.oddlabs.tt.model.ChieftainContainer;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Set;
 
 public final class BuildingChieftainTrigger extends TutorialTrigger {
-	public BuildingChieftainTrigger(Player player) {
+	public BuildingChieftainTrigger(@NonNull Player player) {
 		super(1f, 0f, "building_chieftain");
 		player.enableRepairing(false);
 		player.enableAttacking(false);
@@ -25,7 +26,7 @@ public final class BuildingChieftainTrigger extends TutorialTrigger {
 	}
 
         @Override
-	protected void run(Tutorial tutorial) {
+	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
             for (Selectable s : set) {
                 if (s instanceof Building) {

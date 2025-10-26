@@ -10,6 +10,7 @@ import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class BuildSpinner extends IconSpinner {
 	public final static int INFINITE_LIMIT = 30;
@@ -22,12 +23,12 @@ public final class BuildSpinner extends IconSpinner {
 	private int order_size;
 	private boolean infinite;
 
-	public BuildSpinner(WorldViewer viewer, PlayerInterface player_interface, IconQuad[] icon_quad, String tool_tip, Quad[] tool_tip_icons, String shortcut_key) {
+	public BuildSpinner(WorldViewer viewer, PlayerInterface player_interface, IconQuad @NonNull [] icon_quad, String tool_tip, Quad[] tool_tip_icons, String shortcut_key) {
 		super(viewer, icon_quad, tool_tip, tool_tip_icons, shortcut_key);
 		this.player_interface = player_interface;
 	}
 
-	public void setBuildSupplyContainer(Building current_building, Class<? extends RotatingThrowingWeapon> type) {
+	public void setBuildSupplyContainer(@NonNull Building current_building, Class<? extends RotatingThrowingWeapon> type) {
 		this.current_building = current_building;
 		this.type = type;
 		if (!current_building.isDead())
@@ -66,7 +67,7 @@ public final class BuildSpinner extends IconSpinner {
 	}
 
         @Override
-	public void appendToolTip(ToolTipBox tool_tip_box) {
+	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		if (!isDisabled())
 			super.appendToolTip(tool_tip_box);
 	}

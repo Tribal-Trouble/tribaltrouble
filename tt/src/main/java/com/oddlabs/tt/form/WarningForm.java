@@ -9,15 +9,16 @@ import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 public final class WarningForm extends Form {
 	private final static int MAX_WIDTH = 500;
 
-	private final CheckBox show_next_time;
+	private final @NonNull CheckBox show_next_time;
 
-	public WarningForm(String head, String message) {
+	public WarningForm(@NonNull String head, @NonNull String message) {
 		ResourceBundle bundle = ResourceBundle.getBundle(WarningForm.class.getName());
 		int head_width = Math.min(MAX_WIDTH, Skin.getSkin().getHeadlineFont().getWidth(head));
 		int message_width = Math.min(MAX_WIDTH, Skin.getSkin().getEditFont().getWidth(message));

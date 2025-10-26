@@ -4,11 +4,13 @@ import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.player.Player;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class SelectTowerTrigger extends TutorialTrigger {
-	private final Building tower = null;
+	private final @Nullable Building tower = null;
 	
-	public SelectTowerTrigger(Player player) {
+	public SelectTowerTrigger(@NonNull Player player) {
 		super(.1f, 0f, "select_tower");
 		player.enableRepairing(false);
 		player.enableAttacking(false);
@@ -25,7 +27,7 @@ public final class SelectTowerTrigger extends TutorialTrigger {
 	}
 
         @Override
-	protected void run(Tutorial tutorial) {
+	protected void run(@NonNull Tutorial tutorial) {
 		Building building = tutorial.getViewer().getSelection().getCurrentSelection().getBuilding();
 		if (building != null && building.getAbilities().hasAbilities(Abilities.ATTACK)) {
 			tutorial.next(new UnitInTowerTrigger(building));

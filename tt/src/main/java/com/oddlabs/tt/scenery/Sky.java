@@ -15,6 +15,7 @@ import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.Stitcher;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
@@ -48,11 +49,11 @@ public final class Sky {
     private final static float[][] tex_env_color = new float[][]{{0.95f, 0.975f, 1f, 1f}, {1f, 0.95f, 0.8f, 1f}};
 
     private final FloatBuffer color;
-    private final ShortVBO[] strip_indices;
-    private final ShortVBO fan_indices;
-    private final FloatVBO water_vertices;
-    private final FloatVBO bottom_vertices;
-    private final ShortVBO water_indices;
+    private final ShortVBO @NonNull [] strip_indices;
+    private final @NonNull ShortVBO fan_indices;
+    private final @NonNull FloatVBO water_vertices;
+    private final @NonNull FloatVBO bottom_vertices;
+    private final @NonNull ShortVBO water_indices;
     private final LandscapeRenderer landscape_renderer;
     private FloatVBO sky_vertices;
     private FloatVBO sky_tex0;
@@ -64,7 +65,7 @@ public final class Sky {
     private final int subdiv_height;
     private final Landscape.TerrainType terrain;
 
-    public Sky(LandscapeRenderer renderer, Landscape.TerrainType terrain) {
+    public Sky(@NonNull LandscapeRenderer renderer, Landscape.@NonNull TerrainType terrain) {
         this(renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * Math.sqrt(2) / 2), 6000f, 20, 20, SKYDOME_OUTER_UTILING, SKYDOME_OUTER_VTILING, SKYDOME_INNER_UTILING, SKYDOME_INNER_VTILING, renderer.getHeightMap().getMetersPerWorld() / 2, renderer.getHeightMap().getMetersPerWorld() / 2, SKYDOME_HEIGHT);
     }
 
@@ -149,7 +150,7 @@ public final class Sky {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
-    private Sky(LandscapeRenderer landscape_renderer, Landscape.TerrainType terrain, float inner_radius, float radius, int subdiv_axis, int subdiv_height, float outer_utile, float outer_vtile, float inner_utile, float inner_vtile, float origin_x, float origin_y, float origin_z) {
+    private Sky(@NonNull LandscapeRenderer landscape_renderer, Landscape.@NonNull TerrainType terrain, float inner_radius, float radius, int subdiv_axis, int subdiv_height, float outer_utile, float outer_vtile, float inner_utile, float inner_vtile, float origin_x, float origin_y, float origin_z) {
         this.landscape_renderer = landscape_renderer;
         this.terrain = terrain;
         this.subdiv_axis = subdiv_axis;
@@ -200,7 +201,7 @@ public final class Sky {
         bottom_vertices = toVBO(all_vertices, 0);
     }
 
-    private static FloatVBO toVBO(SkyStitchVertex[] vertices, float height) {
+    private static @NonNull FloatVBO toVBO(SkyStitchVertex @NonNull [] vertices, float height) {
         FloatBuffer vertex_buffer = BufferUtils.createFloatBuffer(vertices.length * 3);
         for (int i = 0; i < vertices.length; i++) {
             SkyStitchVertex vertex = vertices[i];
@@ -296,11 +297,11 @@ public final class Sky {
         sky_colors = new FloatVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, colors);
     }
 
-    private void putArray(float[] src, int offset, float[] dest) {
+    private void putArray(float @NonNull [] src, int offset, float @NonNull [] dest) {
         System.arraycopy(src, 0, dest, offset * src.length, src.length);
     }
 
-    private ShortVBO[] makeSkyStripIndices() {
+    private ShortVBO @NonNull [] makeSkyStripIndices() {
         ShortVBO[] strip_indices = new ShortVBO[subdiv_height - 2];
         for (int i = 0; i < strip_indices.length; i++) {
             int size = subdiv_axis * 2 + 2;
@@ -318,7 +319,7 @@ public final class Sky {
         return strip_indices;
     }
 
-    private ShortVBO makeSkyFanIndices() {
+    private @NonNull ShortVBO makeSkyFanIndices() {
         int size = subdiv_axis + 2;
         ShortBuffer temp = BufferUtils.createShortBuffer(size);
         temp.put(0, (short) (sky_vertices.capacity() / 3 - 1));
@@ -333,7 +334,7 @@ public final class Sky {
         return fan_indices;
     }
 
-    private SkyStitchVertex[] makeDomeVertices(HeightMap heightmap, int ring_id, int index_offset, float radius, float origin_x, float origin_y) {
+    private SkyStitchVertex @NonNull [] makeDomeVertices(@NonNull HeightMap heightmap, int ring_id, int index_offset, float radius, float origin_x, float origin_y) {
         int size = subdiv_axis;
         SkyStitchVertex[] result = new SkyStitchVertex[size];
         float a_angle_inc = (float) Math.PI * 2 / subdiv_axis;
@@ -346,7 +347,7 @@ public final class Sky {
         return result;
     }
 
-    private SkyStitchVertex[] makeLandscapeVertices(HeightMap heightmap) {
+    private SkyStitchVertex @NonNull [] makeLandscapeVertices(@NonNull HeightMap heightmap) {
         int size = 4 * heightmap.getPatchesPerWorld();
         SkyStitchVertex[] result = new SkyStitchVertex[size];
 
@@ -375,7 +376,7 @@ public final class Sky {
         private final float theta;
         private final HeightMap heightmap;
 
-        private SkyStitchVertex(HeightMap heightmap, int index, int side, float x, float y) {
+        private SkyStitchVertex(@NonNull HeightMap heightmap, int index, int side, float x, float y) {
             super(index, side);
             this.heightmap = heightmap;
             this.x = x;
@@ -399,7 +400,7 @@ public final class Sky {
         }
 
         @Override
-        public final String toString() {
+        public final @NonNull String toString() {
             float half_world_size = heightmap.getMetersPerWorld() * .5f;
             float x0 = x - half_world_size;
             float y0 = y - half_world_size;

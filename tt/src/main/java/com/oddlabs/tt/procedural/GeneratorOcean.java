@@ -6,6 +6,7 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class GeneratorOcean extends TextureGenerator {
@@ -18,7 +19,7 @@ public final class GeneratorOcean extends TextureGenerator {
 	}
 
         @Override
-	public Texture[] generate() {
+	public Texture @NonNull [] generate() {
 		int seed = Globals.LANDSCAPE_SEED + 1;
 
 		// water1
@@ -78,7 +79,7 @@ public final class GeneratorOcean extends TextureGenerator {
 	}
 
         @Override
-	public boolean equals(Object o) {
+	public boolean equals(@NonNull Object o) {
 		return super.equals(o) && ((GeneratorOcean)o).terrain == terrain;
 	}
 }

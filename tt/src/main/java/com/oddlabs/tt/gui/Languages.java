@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class Languages {
 	private static final String[][] languages = new String[][]{{"en", "English"}, {"da", "Dansk"}, {"de", "Deutsch"}, {"es","Español"}, {"it", "Italiano"}};
@@ -14,11 +15,11 @@ public final class Languages {
 		return false;
 	}
 
-	public static String[][] getLanguages() {
+	public static String[] @NonNull [] getLanguages() {
 		return languages;
 	}
 
-	public static Quad[] getFlags() {
+	public static Quad @NonNull [] getFlags() {
 		Quad[] flags = new Quad[]{Skin.getSkin().getFlagDa(), Skin.getSkin().getFlagEn(), Skin.getSkin().getFlagDe(), Skin.getSkin().getFlagEs(), Skin.getSkin().getFlagIt()};
 		return flags;
 	}

@@ -1,10 +1,12 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.Nullable;
+
 public abstract class ListElementImpl<T> implements ListElement<T> {
 	private LinkedList<T> parent;
 
-	private ListElement<T> next = null;
-	private ListElement<T> prior = null;
+	private @Nullable ListElement<T> next = null;
+	private @Nullable ListElement<T> prior = null;
 
         @Override
 	public final void setListOwner(LinkedList<T> owner) {

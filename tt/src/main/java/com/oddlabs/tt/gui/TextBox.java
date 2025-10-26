@@ -2,10 +2,11 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextBoxRenderer;
+import org.jspecify.annotations.NonNull;
 
 public class TextBox extends TextField implements Scrollable {
-	private final TextBoxRenderer text_renderer;
-	private final ScrollBar scroll_bar;
+	private final @NonNull TextBoxRenderer text_renderer;
+	private final @NonNull ScrollBar scroll_bar;
 
 	private int offset_y;
 

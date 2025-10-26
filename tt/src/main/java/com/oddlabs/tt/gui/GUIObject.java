@@ -7,6 +7,8 @@ import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.guievent.MouseWheelListener;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Objects;
@@ -36,8 +38,8 @@ public abstract class GUIObject extends Renderable {
 	private int current_taborder = 0;
 	private int tab_order;
 
-	private GUIObject focused_child = null;
-	private GUIObject next_hover = null;
+	private @Nullable GUIObject focused_child = null;
+	private @Nullable GUIObject next_hover = null;
 
 	private final java.util.List<MouseClickListener> mouse_click_listeners = new java.util.ArrayList<>();
 	private final java.util.List<MouseButtonListener> mouse_button_listeners = new java.util.ArrayList<>();
@@ -86,11 +88,11 @@ public abstract class GUIObject extends Renderable {
 		placed = true;
 	}
 
-	public final void place(GUIObject neighbor, int direction) {
+	public final void place(@NonNull GUIObject neighbor, int direction) {
 		place(neighbor, direction, Skin.getSkin().getFormData().getObjectSpacing());
 	}
 
-	public final void place(GUIObject neighbor, int direction, int spacing) {
+	public final void place(@NonNull GUIObject neighbor, int direction, int spacing) {
 		assert !placed : "Object already placed";
 		int new_x = getXFromDirection(direction, spacing, neighbor.getX(), neighbor.getWidth());
 		int new_y = getYFromDirection(direction, spacing, neighbor.getY(), neighbor.getHeight());
@@ -185,7 +187,7 @@ public abstract class GUIObject extends Renderable {
 			gui_root.setGlobalFocus(this);
 	}
 
-	private GUIObject getGlobalFocus() {
+	private @Nullable GUIObject getGlobalFocus() {
 		GUIRoot gui_root = getParentGUIRoot();
 		if (gui_root != null)
 			return gui_root.getGlobalFocus();
@@ -230,7 +232,7 @@ public abstract class GUIObject extends Renderable {
 		return focused_child;
 	}
 
-	protected final void setGlobalFocused(GUIObject gui_object) {
+	protected final void setGlobalFocused(@Nullable GUIObject gui_object) {
 		if (gui_object != null && gui_object != focused_child) {
 			putFirst(gui_object);
 		}
@@ -238,7 +240,7 @@ public abstract class GUIObject extends Renderable {
 	}
 
         @Override
-	public void addChild(Renderable child) {
+	public void addChild(@NonNull Renderable child) {
 		super.addChild(child);
 		GUIObject current;
 		current = (GUIObject)child;
@@ -255,7 +257,7 @@ public abstract class GUIObject extends Renderable {
 	}
 
         @Override
-	public final void removeChild(Renderable child) {
+	public final void removeChild(@NonNull Renderable child) {
 		GUIObject current;
 		if (child == focused_child) {
 			focused_child = null;
@@ -384,7 +386,7 @@ public abstract class GUIObject extends Renderable {
 	protected void focusNotify(boolean focus) {
 	}
 
-	private boolean modalBlocked(GUIRoot gui_root) {
+	private boolean modalBlocked(@NonNull GUIRoot gui_root) {
 		ModalDelegate modal_delegate = gui_root.getModalDelegate();
 		return modal_delegate != null && !modalRelative(modal_delegate);
 	}
@@ -540,14 +542,14 @@ public abstract class GUIObject extends Renderable {
 			parent.mouseHeldAll(button, x, y);
 	}
 
-	public final void keyPressedAll(KeyboardEvent event) {
+	public final void keyPressedAll(@NonNull KeyboardEvent event) {
 		keyPressed(event);
         for (KeyListener listener : key_listeners) {
             listener.keyPressed(event);
         }
 	}
 
-	protected void keyPressed(KeyboardEvent event) {
+	protected void keyPressed(@NonNull KeyboardEvent event) {
 		if (event.getKeyCode() == Keyboard.KEY_SPACE || event.getKeyCode() == Keyboard.KEY_RETURN) {
 			mousePressedAll(LocalInput.LEFT_BUTTON, 0, 0);
 		} else {
@@ -557,14 +559,14 @@ public abstract class GUIObject extends Renderable {
 		}
 	}
 
-	public final void keyReleasedAll(KeyboardEvent event) {
+	public final void keyReleasedAll(@NonNull KeyboardEvent event) {
 		keyReleased(event);
 		for (KeyListener listener : key_listeners) {
 			listener.keyReleased(event);
         }
 	}
 
-	protected void keyReleased(KeyboardEvent event) {
+	protected void keyReleased(@NonNull KeyboardEvent event) {
 		if (event.getKeyCode() == Keyboard.KEY_SPACE || event.getKeyCode() == Keyboard.KEY_RETURN) {
 			mouseReleasedAll(LocalInput.LEFT_BUTTON, 0, 0);
 			mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);

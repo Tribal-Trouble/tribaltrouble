@@ -3,6 +3,7 @@ package com.oddlabs.converter;
 import com.oddlabs.geometry.AnimationInfo;
 import com.oddlabs.geometry.SpriteInfo;
 import com.oddlabs.util.IndexListOptimizer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.vector.Matrix4f;
 
 import java.nio.FloatBuffer;
@@ -49,15 +50,15 @@ public final class Optimizer {
         }
 	}
 
-	private static boolean floatArrayEquals(int index1, int index2, float[][] array1, float[][] array2) {
+	private static boolean floatArrayEquals(int index1, int index2, float[] @NonNull [] array1, float[] @NonNull [] array2) {
 		return floatsEquals(0, 0, array1[index1].length, array1[index1], array2[index2]);
 	}
 
-	private static boolean byteArrayEquals(int index1, int index2, byte[][] array1, byte[][] array2) {
+	private static boolean byteArrayEquals(int index1, int index2, byte[] @NonNull [] array1, byte[] @NonNull [] array2) {
 		return bytesEquals(0, 0, array1[index1].length, array1[index1], array2[index2]);
 	}
 
-	protected static ModelInfo optimize(/*String tex_name, */int num_vertices, float[] vertices, float[] normals, float[] colors, float[] uvs, byte[][] skin_names, float[][] skin_weights) {
+	protected static @NonNull ModelInfo optimize(/*String tex_name, */int num_vertices, float @NonNull [] vertices, float @NonNull [] normals, float @NonNull [] colors, float @NonNull [] uvs, byte[] @NonNull [] skin_names, float[] @NonNull [] skin_weights) {
 		short[] indices = new short[num_vertices];
 		float[] r_vertices = new float[vertices.length];
 		float[] r_colors = new float[colors.length];
@@ -129,11 +130,11 @@ public final class Optimizer {
 		return copy;
 	}
 
-	protected static SpriteInfo convertToSprite(String[][] textures, ModelInfo model_info, float[] clear_color) {
+	protected static @NonNull SpriteInfo convertToSprite(String[][] textures, @NonNull ModelInfo model_info, float[] clear_color) {
 		return new SpriteInfo(textures, model_info.indices, model_info.vertices, model_info.normals, model_info.texcoords, model_info.skin_names, model_info.skin_weights, clear_color);
 	}
 
-	public static AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ Bone skeleton, Map<String,float[]> initial_pose, Map<String,float[]>[] anim_map, int type, float wpc) {
+	public static @NonNull AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ @NonNull Bone skeleton, @NonNull Map<String,float[]> initial_pose, Map<String,float[]> @NonNull [] anim_map, int type, float wpc) {
 		// animations format: [frames] [bones] [matrix]
 		int num_frames = anim_map.length;
 		float[][] frames = new float[num_frames][];
@@ -145,7 +146,7 @@ public final class Optimizer {
 		return new AnimationInfo(frames, type, wpc);
 	}
 
-	private static void normalizeSkeleton(/*float[] parent_bone_vertex, float[] skeleton_vertices,*/ float[] bones, Bone current_bone, Map<String,float[]> initial_pose_map, Map<String,float[]> frame_map) {
+	private static void normalizeSkeleton(/*float[] parent_bone_vertex, float[] skeleton_vertices,*/ float @NonNull [] bones, @NonNull Bone current_bone, @NonNull Map<String,float[]> initial_pose_map, @NonNull Map<String,float[]> frame_map) {
 		assert initial_pose_map.size() == bones.length/12;
 		assert frame_map.size() == bones.length/12;
 		String bone_name = current_bone.getName();

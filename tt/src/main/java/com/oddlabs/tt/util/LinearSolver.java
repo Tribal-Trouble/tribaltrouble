@@ -1,10 +1,12 @@
 package com.oddlabs.tt.util;
 
+import org.jspecify.annotations.NonNull;
+
 public final class LinearSolver {
 
     private final static float THRESHOLD = 0.001f;
 
-    public static void solve(float[][] eq_system_orig, float[] solution) {
+    public static void solve(float[] @NonNull [] eq_system_orig, float @NonNull [] solution) {
         float[][] eq_system = copyEquation(eq_system_orig);
 //System.out.println("orig system:");
 //dumpEquation(eq_system);
@@ -23,7 +25,7 @@ dumpEquation(eq_system);*/
         assert checkSolution(eq_system_orig, solution);
     }
 
-    private static float[][] copyEquation(float[][] orig_eq) {
+    private static float[][] copyEquation(float[] @NonNull [] orig_eq) {
         float[][] result = new float[orig_eq.length][orig_eq[0].length];
         for (int row = 0; row < result.length; row++) {
             System.arraycopy(orig_eq[row], 0, result[row], 0, result[0].length);
@@ -31,7 +33,7 @@ dumpEquation(eq_system);*/
         return result;
     }
 
-    private static boolean checkSolution(float[][] eq_system, float[] solution) {
+    private static boolean checkSolution(float[] @NonNull [] eq_system, float @NonNull [] solution) {
         for (float[] eq_system1 : eq_system) {
             float right_side = 0f;
             for (int column = 0; column < solution.length; column++) {
@@ -46,7 +48,7 @@ dumpEquation(eq_system);*/
         return true;
     }
 
-    private static void assignSolutions(float[][] eq_system, float[] solution) {
+    private static void assignSolutions(float[] @NonNull [] eq_system, float[] solution) {
         int row = 0;
         for (int column = 0; column < eq_system[0].length - 1; column++) {
             float pivot = eq_system[row][column];
@@ -59,7 +61,7 @@ dumpEquation(eq_system);*/
         }
     }
 
-    private static void reduce(float[][] eq_system) {
+    private static void reduce(float[] @NonNull [] eq_system) {
         for (int row = 1; row < eq_system.length; row++) {
             int column;
             for (column = 0; column < eq_system[0].length; column++) {
@@ -76,7 +78,7 @@ dumpEquation(eq_system);*/
         }
     }
 
-    private static boolean checkEquation(float[][] eq_system) {
+    private static boolean checkEquation(float[] @NonNull [] eq_system) {
         for (float[] eq_system1 : eq_system) {
             int num_non_zero = 0;
             for (int column = 0; column < eq_system[0].length; column++) {
@@ -99,26 +101,26 @@ dumpEquation(eq_system);*/
         return isEqual(val, 0f);
     }
 
-    private static void swapRows(int row_index1, int row_index2, float[][] eq_system) {
+    private static void swapRows(int row_index1, int row_index2, float[] @NonNull [] eq_system) {
         float[] row = eq_system[row_index1];
         eq_system[row_index1] = eq_system[row_index2];
         eq_system[row_index2] = row;
 //System.out.println("swapping rows " + row_index1 + " " + row_index2);
     }
 
-    private static void subtractRow(float scale, float[] row1, float[] row2) {
+    private static void subtractRow(float scale, float @NonNull [] row1, float[] row2) {
         for (int i = 0; i < row1.length; i++) {
             row1[i] -= scale * row2[i];
         }
     }
 
-    private static void scaleRow(float scale, float[] row) {
+    private static void scaleRow(float scale, float @NonNull [] row) {
         for (int column = 0; column < row.length; column++) {
             row[column] *= scale;
         }
     }
 
-    private static boolean solve(int column, int pivot_row, float[][] eq_system) {
+    private static boolean solve(int column, int pivot_row, float[] @NonNull [] eq_system) {
         for (int row = pivot_row; row < eq_system.length; row++) {
             float pivot = eq_system[row][column];
             if (!isZero(pivot)) {
@@ -142,7 +144,7 @@ dumpEquation(eq_system);*/
 		System.out.println();
 	}
      */
-    public static void dumpSolution(float[] solution) {
+    public static void dumpSolution(float @NonNull [] solution) {
         for (float v : solution) {
             System.out.print(v + " ");
         }

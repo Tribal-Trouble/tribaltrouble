@@ -7,6 +7,7 @@ import com.oddlabs.net.AbstractConnectionListener;
 import com.oddlabs.net.ConnectionInterface;
 import com.oddlabs.net.ConnectionListenerInterface;
 import com.oddlabs.net.HostSequenceID;
+import org.jspecify.annotations.NonNull;
 
 import java.net.InetAddress;
 import java.nio.channels.ClosedChannelException;
@@ -22,7 +23,7 @@ public final class TunnelledConnectionListener extends AbstractConnectionListene
 		Network.getMatchmakingClient().registerTunnelledListener(this);
 	}
 
-	public void requestTunnelledConnection(HostSequenceID address, InetAddress inet_address, InetAddress local_address, Profile profile) {
+	public void requestTunnelledConnection(@NonNull HostSequenceID address, InetAddress inet_address, InetAddress local_address, Profile profile) {
 		TunnelledConnection conn = new TunnelledConnection(address, null);
 		incoming_connections.add(conn);
 		notifyIncomingConnection(new TunnelIdentifier(profile, new TunnelAddress(address.getHostID(), inet_address, local_address)));
@@ -33,7 +34,7 @@ public final class TunnelledConnectionListener extends AbstractConnectionListene
 	}
 
         @Override
-	protected AbstractConnection doAcceptConnection(ConnectionInterface connection_interface) {
+	protected @NonNull AbstractConnection doAcceptConnection(ConnectionInterface connection_interface) {
 		TunnelledConnection conn = getNextTunnel();
 		conn.setConnectionInterface(connection_interface);
 		conn.accept();

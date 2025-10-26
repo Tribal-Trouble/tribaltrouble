@@ -4,12 +4,13 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Random;
 
 public final class MidpointGaussian {
 
-	private final Random random;
+	private final @NonNull Random random;
 	public Channel channel;
 
 	public MidpointGaussian(int size, int base_freq, float pers, long seed) {
@@ -169,7 +170,7 @@ public final class MidpointGaussian {
 		channel.dynamicRange();
 	}
 
-	public Layer toLayer() {
+	public @NonNull Layer toLayer() {
 		return new Layer(channel, channel.copy(), channel.copy());
 	}
 

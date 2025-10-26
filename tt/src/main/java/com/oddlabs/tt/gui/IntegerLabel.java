@@ -1,16 +1,17 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import org.jspecify.annotations.NonNull;
 
 public final class IntegerLabel extends Label {
 	private final int val;
 
-	public IntegerLabel(int val, Font font, int width) {
+	public IntegerLabel(int val, @NonNull Font font, int width) {
 		super("" + val, font, width, ALIGN_RIGHT);
 		this.val = val;
 	}
 
-	public IntegerLabel(int val, Font font) {
+	public IntegerLabel(int val, @NonNull Font font) {
 		super("" + val, font);
 		this.val = val;
 	}

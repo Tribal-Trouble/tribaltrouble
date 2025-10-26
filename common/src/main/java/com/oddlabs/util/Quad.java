@@ -1,5 +1,6 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.io.Serializable;
@@ -82,7 +83,7 @@ System.out.println("x = " + x + " | y = " + y + " | clip_left = " + clip_left + 
 	}
 
         @Override
-	public final String toString() {
+	public final @NonNull String toString() {
 		return "u1 = " + u1 + " | v1 = " + v1 + " | u2 = " + u2 + " | v2 = " + v2 + " | width = " + width + " | height = " + height;
 	}
 }

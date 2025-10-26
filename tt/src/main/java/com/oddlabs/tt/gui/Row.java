@@ -1,15 +1,17 @@
 package com.oddlabs.tt.gui;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 public final class Row extends GUIObject implements Comparable<Row> {
 	private final Object[] columns;
 	private final Object content_object;
 	private int sort_index;
-	private Color color = null;
+	private @Nullable Color color = null;
 	private boolean marked = false;
 
-	public Row(GUIObject[] columns, Object content_object) {
+	public Row(GUIObject @NonNull [] columns, Object content_object) {
 		this.columns = columns;
 		this.content_object = content_object;
 		setDim(0, columns[0].getHeight());
@@ -20,7 +22,7 @@ public final class Row extends GUIObject implements Comparable<Row> {
 		return columns[index];
 	}
 
-	public void setColumnInfos(ColumnInfo[] column_infos) {
+	public void setColumnInfos(ColumnInfo @NonNull [] column_infos) {
 		int x = 0;
 		for (int i = 0; i < column_infos.length; i++) {
 			GUIObject gui_object = (GUIObject)getColumn(i);
@@ -43,7 +45,7 @@ public final class Row extends GUIObject implements Comparable<Row> {
 	}
 
         @Override
-	public int compareTo(Row o) {
+	public int compareTo(@NonNull Row o) {
 		@SuppressWarnings("unchecked")
 		Comparable<Object> local_object = (Comparable<Object>)getColumn(sort_index);
 		return local_object.compareTo(o.getColumn(sort_index));

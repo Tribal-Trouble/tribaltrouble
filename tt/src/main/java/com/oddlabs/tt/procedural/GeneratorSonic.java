@@ -6,13 +6,14 @@ import com.oddlabs.procedural.Tools;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLIntImage;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class GeneratorSonic extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;
 
     @Override
-	public Texture[] generate() {
+	public Texture @NonNull [] generate() {
 		Channel sonic_alpha = new Channel(TEXTURE_SIZE>>1, TEXTURE_SIZE>>1);
 
 		float x_coord;

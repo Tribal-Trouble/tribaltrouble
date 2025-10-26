@@ -3,6 +3,7 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.LandscapeTargetRespond;
 import com.oddlabs.tt.resource.Resources;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public final class TargetRespondRenderer extends ShadowListRenderer {
 	}
 
     @Override
-	public void renderShadows(LandscapeRenderer renderer) {
+	public void renderShadows(@NonNull LandscapeRenderer renderer) {
 		setupShadows();
 		GL11.glColor3f(0f, 1f, 0f);
 		for (int i = 0; i < target_list.size(); i++) {

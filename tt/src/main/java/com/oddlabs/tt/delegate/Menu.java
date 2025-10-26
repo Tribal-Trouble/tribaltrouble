@@ -31,6 +31,8 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.MultiplayerInGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 
 import java.net.InetAddress;
@@ -50,7 +52,7 @@ public abstract class Menu extends CameraDelegate {
 
 	private final NetworkSelector network;
 
-	private Form current_menu = null;
+	private @Nullable Form current_menu = null;
 	private boolean current_menu_centered;
 
 	private GUIImage overlay;
@@ -107,7 +109,7 @@ public abstract class Menu extends CameraDelegate {
 	}
 
         @Override
-	protected void keyPressed(KeyboardEvent event) {
+	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch(event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:
 				break;
@@ -175,7 +177,7 @@ public abstract class Menu extends CameraDelegate {
 	}
 
         @Override
-	protected final void keyRepeat(KeyboardEvent event) {
+	protected final void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_TAB:
 				switchFocus(event.isShiftDown() ? -1 : 1);
@@ -199,13 +201,13 @@ public abstract class Menu extends CameraDelegate {
 	protected void renderGeometry() {
 	}
 
-	public final void setMenuCentered(Form menu) {
+	public final void setMenuCentered(@NonNull Form menu) {
 		setMenu(menu);
 		menu.centerPos();
 		current_menu_centered = true;
 	}
 
-	public final void setMenu(Form menu) {
+	public final void setMenu(@NonNull Form menu) {
 		if (current_menu != null)
 			current_menu.remove();
 		disableButtons(true);
@@ -230,20 +232,20 @@ public abstract class Menu extends CameraDelegate {
 		resume.addMouseClickListener((int button, int x1, int y1, int clicks) -> pop());
 	}
 
-	public static void completeGameSetupHack(WorldViewer world_viewer) {
+	public static void completeGameSetupHack(@NonNull WorldViewer world_viewer) {
 		world_viewer.getGUIRoot().pushDelegate(world_viewer.getDelegate());
 		Renderer.setMusicPath(world_viewer.getLocalPlayer().getRace().getMusicPath(), 10f);
 	}
 
 	public final static class DefaultWorldInitAction implements WorldInitAction {
                 @Override
-		public void run(WorldViewer viewer) {
+		public void run(@NonNull WorldViewer viewer) {
 			new GameOverTrigger(viewer);
 			completeGameSetupHack(viewer);
 		}
 	}
 
-	public final GameNetwork joinGame(NetworkSelector network, GUI gui, int host_id, boolean rated, int gamespeed, String map_code, SelectGameMenu owner, float random_start_pos, int max_unit_count) {
+	public final @NonNull GameNetwork joinGame(NetworkSelector network, GUI gui, int host_id, boolean rated, int gamespeed, String map_code, SelectGameMenu owner, float random_start_pos, int max_unit_count) {
 		GUIRoot gui_root = getGUIRoot();
 		Client client = new Client(null, network, gui, host_id, new WorldParameters(gamespeed, map_code, Player.INITIAL_UNIT_COUNT,
 					max_unit_count),
@@ -256,7 +258,7 @@ public abstract class Menu extends CameraDelegate {
 		return game_network;
 	}
 
-	public static GameNetwork startNewGame(NetworkSelector network, GUIRoot gui_root, SelectGameMenu owner, WorldParameters world_params, InGameInfo ingame_info, WorldInitAction init_action, Game game, int meters_per_world, Landscape.TerrainType terrain, float hills, float vegetation_amount, float supplies_amount, int seed, String[] ai_names) {
+	public static @NonNull GameNetwork startNewGame(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, SelectGameMenu owner, WorldParameters world_params, @NonNull InGameInfo ingame_info, WorldInitAction init_action, Game game, int meters_per_world, Landscape.TerrainType terrain, float hills, float vegetation_amount, float supplies_amount, int seed, String[] ai_names) {
 		boolean multiplayer = ingame_info.isMultiplayer();
 		WorldGenerator generator = new IslandGenerator(meters_per_world, terrain, hills, vegetation_amount, supplies_amount, seed);
 		InetAddress address = multiplayer ? null : com.oddlabs.util.Utils.getLoopbackAddress();

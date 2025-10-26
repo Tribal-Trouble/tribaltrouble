@@ -1,5 +1,7 @@
 package com.oddlabs.tt.net;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public abstract class ChatHistory implements ChatListener {
 		messages.add(msg);
 	}
 
-	final List<String> getMessages() {
+	final @NonNull List<String> getMessages() {
 		return messages;
 	}
 }

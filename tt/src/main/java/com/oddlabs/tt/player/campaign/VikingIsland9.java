@@ -20,6 +20,7 @@ import com.oddlabs.tt.trigger.campaign.PlayerEleminatedTrigger;
 import com.oddlabs.tt.trigger.campaign.ReinforcementsTrigger;
 import com.oddlabs.tt.trigger.campaign.VictoryTrigger;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -31,7 +32,7 @@ public final class VikingIsland9 extends Island {
 	}
 
         @Override
-	public void init(NetworkSelector network, GUIRoot gui_root) {
+	public void init(NetworkSelector network, @NonNull GUIRoot gui_root) {
 		String[] ai_names = new String[]{Utils.getBundleString(bundle, "name0"),
 			Utils.getBundleString(bundle, "name1"),
 			Utils.getBundleString(bundle, "name2"),
@@ -133,17 +134,17 @@ public final class VikingIsland9 extends Island {
 	}
 
         @Override
-	public CharSequence getHeader() {
+	public @NonNull CharSequence getHeader() {
 		return Utils.getBundleString(bundle, "header");
 	}
 
         @Override
-	public CharSequence getDescription() {
+	public @NonNull CharSequence getDescription() {
 		return Utils.getBundleString(bundle, "description");
 	}
 
         @Override
-	public CharSequence getCurrentObjective() {
+	public @NonNull CharSequence getCurrentObjective() {
 		return Utils.getBundleString(bundle, "objective");
 	}
 }

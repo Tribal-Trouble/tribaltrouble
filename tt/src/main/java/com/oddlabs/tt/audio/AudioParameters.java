@@ -1,12 +1,14 @@
 package com.oddlabs.tt.audio;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 
 public final class AudioParameters<S> {
 	final float x;
 	final float y;
 	final float z;
-	final S sound;
+	final @NonNull S sound;
 	final int rank;
 	final float distance;
 	final float gain;

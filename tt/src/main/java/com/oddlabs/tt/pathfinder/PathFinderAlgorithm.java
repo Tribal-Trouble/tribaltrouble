@@ -1,8 +1,10 @@
 package com.oddlabs.tt.pathfinder;
 
+import org.jspecify.annotations.Nullable;
+
 public interface PathFinderAlgorithm {
-	NodeResult touchNode(Node node);
-	NodeResult getBestNode();
+	@Nullable NodeResult touchNode(Node node);
+	@Nullable NodeResult getBestNode();
 	int computeEstimatedCost(Node node);
 	boolean touchNeighbour(Occupant occ);
 }

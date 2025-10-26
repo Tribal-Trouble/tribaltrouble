@@ -1,13 +1,16 @@
 package com.oddlabs.tt.gui;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 public final class BorderGroup extends Group {
-	private final Label label;
+	private final @Nullable Label label;
 
 	public BorderGroup() {
 		label = null;
 	}
 
-	public BorderGroup(String caption) {
+	public BorderGroup(@NonNull String caption) {
 		GroupData data = Skin.getSkin().getGroupData();
 		label = new Label(caption, data.getCaptionFont());
 	}

@@ -8,6 +8,7 @@ import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.TextureKey;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
@@ -15,13 +16,13 @@ import java.util.List;
 
 public abstract class Emitter extends Element<Emitter> implements Animated {
 	private final AnimationManager manager;
-	private final List<Particle>[] particles;
+	private final List<Particle> @NonNull [] particles;
 	private final TextureKey[] textures;
 	private final SpriteKey[] sprite_renderers;
 	private final int src_blend_func;
 	private final int dst_blend_func;
 	private final int types;
-	private final World world;
+	private final @NonNull World world;
 
 	private Vector3f position;
 	private float scale_x = 1f;
@@ -29,7 +30,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 	private float scale_z = 1f;
 
     @SuppressWarnings("unchecked")
-	public Emitter(World world, Vector3f position, int src_blend_func, int dst_blend_func, TextureKey[] textures, SpriteKey[] sprite_renderers, int types, AnimationManager manager) {
+	public Emitter(@NonNull World world, Vector3f position, int src_blend_func, int dst_blend_func, TextureKey[] textures, SpriteKey[] sprite_renderers, int types, AnimationManager manager) {
 		super(world.getElementRoot());
 		this.world = world;
 		this.position = position;
@@ -70,7 +71,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 		return dst_blend_func;
 	}
 
-	protected final void add(Particle particle) {
+	protected final void add(@NonNull Particle particle) {
 		particles[particle.getType()].add(particle);
 	}
 
@@ -131,7 +132,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 	}
 
     @Override
-	public final void visit(ElementVisitor visitor) {
+	public final void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitEmitter(this);
 	}
 

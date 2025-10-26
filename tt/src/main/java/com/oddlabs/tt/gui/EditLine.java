@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.guievent.EnterListener;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class EditLine extends TextField {
 	private final String allowed_chars;
 	private final int max_text_width;
 
-	private final TextLineRenderer text_renderer;
+	private final @NonNull TextLineRenderer text_renderer;
 	private int offset_x;
 	private int index;
 
@@ -57,14 +58,14 @@ public class EditLine extends TextField {
 		renderText(text_renderer, edit_box.getLeftOffset(), edit_box.getBottomOffset(), offset_x, clip_left, clip_right, clip_bottom, clip_top, render_index);
 	}
 
-	protected void renderText(TextLineRenderer text_renderer, int x, int y, int offset_x, float clip_left, float clip_right, float clip_bottom, float clip_top, int render_index) {
+	protected void renderText(@NonNull TextLineRenderer text_renderer, int x, int y, int offset_x, float clip_left, float clip_right, float clip_bottom, float clip_top, int render_index) {
 		clip_left = Math.max(clip_left, x);
 		clip_right = Math.min(clip_right, x + max_text_width);
 		text_renderer.render(x, y, offset_x, clip_left, clip_right, clip_bottom, clip_top, getText(), render_index);
 	}
 
         @Override
-	protected void keyReleased(KeyboardEvent event) {
+	protected void keyReleased(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_RETURN:
 				enterPressedAll();
@@ -76,7 +77,7 @@ public class EditLine extends TextField {
 	}
 
         @Override
-	protected void keyRepeat(KeyboardEvent event) {
+	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_BACK:
 				if (index > 0) {
@@ -178,7 +179,7 @@ public class EditLine extends TextField {
 	}
 
         @Override
-	protected final void appendNotify(CharSequence str) {
+	protected final void appendNotify(@NonNull CharSequence str) {
 		if (alignment == RIGHT_ALIGNED) {
 			for (int i = 0; i < str.length(); i++) {
 				char key = str.charAt(i);

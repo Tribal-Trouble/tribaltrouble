@@ -6,6 +6,7 @@ import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 
 public abstract class SupplyModel extends Model implements Supply, Target, ModelToolTip {
 	private final static float SPAWN_OFFSET_Z = -2f;
@@ -24,7 +25,7 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 	private int hit_counter = 0;
 
         @SuppressWarnings("unchecked")
-	public SupplyModel(World world, SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, int num_supplies, boolean increase_count) {
+	public SupplyModel(@NonNull World world, SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, int num_supplies, boolean increase_count) {
 		super(world);
 		this.sprite_renderer = sprite_renderer;
 		this.size = size;
@@ -45,7 +46,7 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 	}
 
         @Override
-	public final void visit(ToolTipVisitor visitor) {
+	public final void visit(@NonNull ToolTipVisitor visitor) {
 		visitor.visitSupply(this);
 	}
 
@@ -145,7 +146,7 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 	}
 
         @Override
-	public void visit(ElementVisitor visitor) {
+	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitSupplyModel(this);
 	}
 

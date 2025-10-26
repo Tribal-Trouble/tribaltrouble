@@ -2,6 +2,7 @@ package com.oddlabs.tt.net;
 
 import com.oddlabs.tt.gui.InfoPrinter;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,11 +30,11 @@ public final class ChatCommand {
 
 	private final static ResourceBundle bundle = ResourceBundle.getBundle(ChatCommand.class.getName());
 
-	public static boolean filterCommand(InfoPrinter info_printer, String text) {
+	public static boolean filterCommand(@NonNull InfoPrinter info_printer, @NonNull String text) {
 		return filterCommand(info_printer, Collections.emptyMap(), text);
 	}
 
-	public static boolean filterCommand(InfoPrinter info_printer, Map<String,ChatMethod> custom_commands, String text) {
+	public static boolean filterCommand(@NonNull InfoPrinter info_printer, @NonNull Map<String,ChatMethod> custom_commands, @NonNull String text) {
 		if (!text.startsWith("/"))
 			return false;
 		int fist_space = firstSpace(text);
@@ -49,12 +50,12 @@ public final class ChatCommand {
 		return true;
 	}
 
-	private static int firstSpace(String text) {
+	private static int firstSpace(@NonNull String text) {
 		int first_space = text.indexOf(' ');
 		return first_space == -1 ? text.length() : first_space;
 	}
 
-	private static void sendMessage(InfoPrinter info_printer, String text) {
+	private static void sendMessage(@NonNull InfoPrinter info_printer, @NonNull String text) {
 		int first_space = firstSpace(text);
 		String nick = text.substring(0, first_space);
 		String message = text.substring(first_space).trim();
@@ -64,7 +65,7 @@ public final class ChatCommand {
 			Network.getMatchmakingClient().sendPrivateMessage(info_printer.getGUIRoot(), nick, message);
 	}
 
-	private static void getInfo(InfoPrinter info_printer, String text) {
+	private static void getInfo(@NonNull InfoPrinter info_printer, @NonNull String text) {
 		int first_space = firstSpace(text);
 		String nick = text.substring(0, first_space);
 		if (!Network.getMatchmakingClient().isConnected())
@@ -73,7 +74,7 @@ public final class ChatCommand {
 			Network.getMatchmakingClient().requestInfo(info_printer.getGUIRoot(), nick);
 	}
 
-	public static void ignore(InfoPrinter info_printer, String text) {
+	public static void ignore(@NonNull InfoPrinter info_printer, @NonNull String text) {
 		int first_space = firstSpace(text);
 		String nick = text.substring(0, first_space);
 		boolean result = ignored_nicks.add(nick.toLowerCase());
@@ -83,7 +84,7 @@ public final class ChatCommand {
 		}
 	}
 
-	public static void unignore(InfoPrinter info_printer, String text) {
+	public static void unignore(@NonNull InfoPrinter info_printer, @NonNull String text) {
 		int first_space = firstSpace(text);
 		String nick = text.substring(0, first_space);
 		boolean result = ignored_nicks.remove(nick.toLowerCase());
@@ -93,11 +94,11 @@ public final class ChatCommand {
 		}
 	}
 
-	public static boolean isIgnoring(String nick) {
+	public static boolean isIgnoring(@NonNull String nick) {
 		return ignored_nicks.contains(nick.toLowerCase());
 	}
 
-	private static void ignoreList(InfoPrinter info_printer, String text) {
+	private static void ignoreList(@NonNull InfoPrinter info_printer, String text) {
 		String[] nicks = new String[ignored_nicks.size()];
 		ignored_nicks.toArray(nicks);
 		String result;

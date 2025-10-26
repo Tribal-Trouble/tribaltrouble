@@ -1,6 +1,7 @@
 package com.oddlabs.truetype;
 
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -117,7 +118,7 @@ System.out.println("total_time = " + total_time);
 		}
 	}
 
-	private static void pixelDataFromString(int width, int height, String str, java.awt.Font font, int[] pixels, LineBreakMeasurer measurer) {
+	private static void pixelDataFromString(int width, int height, @NonNull String str, java.awt.Font font, int[] pixels, @NonNull LineBreakMeasurer measurer) {
 		measurer.setPosition(0);
 		g2d.clearRect(0, 0, width, height);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

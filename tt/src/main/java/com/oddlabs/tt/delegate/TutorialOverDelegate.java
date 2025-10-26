@@ -14,17 +14,18 @@ import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.tutorial.TutorialInGameInfo;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 public final class TutorialOverDelegate extends CameraDelegate implements Updatable {
 	private final static float DELAY = 1f;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
-	private final Group group_buttons;
+	private final @NonNull Group group_buttons;
 	private final TutorialInGameInfo tutorial_info;
-	private final WorldViewer viewer;
+	private final @NonNull WorldViewer viewer;
 
-	public TutorialOverDelegate(final WorldViewer viewer, TutorialInGameInfo tutorial_info, Camera old_camera, int tutorial_number) {
+	public TutorialOverDelegate(final @NonNull WorldViewer viewer, TutorialInGameInfo tutorial_info, @NonNull Camera old_camera, int tutorial_number) {
 		super(viewer.getGUIRoot(), new StaticCamera(old_camera.getState()));
 		this.viewer = viewer;
 		this.tutorial_info = tutorial_info;

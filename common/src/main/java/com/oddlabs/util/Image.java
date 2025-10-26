@@ -1,5 +1,7 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -21,14 +23,14 @@ public final class Image implements Serializable {
 	private final int width;
 	private final int height;
 	
-	public Image(int width, int height, ByteBuffer data) {
+	public Image(int width, int height, @NonNull ByteBuffer data) {
 		assert width*height*4 == data.remaining() : "Image is incorrect size.";
 		this.width = width;
 		this.height = height;
 		this.data = data;
 	}	
 	
-	public static Image read(URL url) {
+	public static Image read(@NonNull URL url) {
 		try {
 			return (Image)(new ObjectInputStream(new BufferedInputStream(url.openStream()))).readObject();
 		} catch (ClassNotFoundException | IOException e) {
@@ -49,7 +51,7 @@ public final class Image implements Serializable {
 		write(new File(filename + ".image"));
 	}
 	
-	public void write(File file) {
+	public void write(@NonNull File file) {
 		data.rewind();
 		//Utils.saveAsPNG(filename, data, width, height);
 		try {
@@ -59,7 +61,7 @@ public final class Image implements Serializable {
 		}
 	}
 	
-	private void writeObject(ObjectOutputStream stream) throws IOException {
+	private void writeObject(@NonNull ObjectOutputStream stream) throws IOException {
 		stream.defaultWriteObject();
 		
 		data.rewind();
@@ -68,7 +70,7 @@ public final class Image implements Serializable {
 		stream.write(split.array());
 	}
 
-	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+	private void readObject(@NonNull ObjectInputStream stream) throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
 		
 		int length = width*height*4;
@@ -81,7 +83,7 @@ public final class Image implements Serializable {
 		mergePlanes(deltaPlanes);
 	}	
 
-	private ByteBuffer splitIntoPlanes() {
+	private @NonNull ByteBuffer splitIntoPlanes() {
 		ByteBuffer buf = ByteBuffer.allocate(data.capacity());
 		
 		buf.position(buf.capacity() / 4);
@@ -121,7 +123,7 @@ public final class Image implements Serializable {
 		return buf;
 	}
 
-	private void mergePlanes(ByteBuffer buf) {
+	private void mergePlanes(@NonNull ByteBuffer buf) {
 		buf.flip();
 		
 		buf.position(buf.capacity() / 4);
@@ -159,7 +161,7 @@ public final class Image implements Serializable {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "Image: width = " + width + " | height = " + height;
 	}
 }

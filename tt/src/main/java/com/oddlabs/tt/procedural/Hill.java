@@ -2,6 +2,7 @@ package com.oddlabs.tt.procedural;
 
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
+import org.jspecify.annotations.NonNull;
 
 public final class Hill {
 	private Channel channel;
@@ -79,7 +80,7 @@ public final class Hill {
 		channel.quadJoin(quarter, quarter.copy().rotate(270), quarter.copy().rotate(90), quarter.copy().rotate(180));
 	}
 
-	public Layer toLayer() {
+	public @NonNull Layer toLayer() {
 		return new Layer(channel, channel.copy(), channel.copy());
 	}
 

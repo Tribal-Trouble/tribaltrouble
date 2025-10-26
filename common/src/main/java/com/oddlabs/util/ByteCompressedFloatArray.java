@@ -1,15 +1,17 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 
 public final class ByteCompressedFloatArray implements Serializable {
 	private final static long serialVersionUID = 1;
 
-	private final float[] scale;
-	private final float[] offset;
-	private final byte[][] data;
+	private final float @NonNull [] scale;
+	private final float @NonNull [] offset;
+	private final byte[] @NonNull [] data;
 
-	public ByteCompressedFloatArray(float[] array, int channels) {
+	public ByteCompressedFloatArray(float @NonNull [] array, int channels) {
 		int channel_length = array.length/channels;
 		scale = new float[channels];
 		offset = new float[channels];
@@ -25,7 +27,7 @@ public final class ByteCompressedFloatArray implements Serializable {
         }
 	}
 
-	private void compress(float[] array, int channel) {
+	private void compress(float @NonNull [] array, int channel) {
 		float min = array[0];
 		float max = array[0];
 
@@ -59,7 +61,7 @@ public final class ByteCompressedFloatArray implements Serializable {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		float[] array = getFloatArray();
 		String result = "";
             for (float v : array) {

@@ -1,5 +1,7 @@
 package com.oddlabs.net;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -18,7 +20,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 
 	private final List<SocketChannel> incoming_connections = new LinkedList<>();
 	
-	private static SelectionKey createServerSocket(NetworkSelector network, InetAddress ip, int port) throws IOException {
+	private static SelectionKey createServerSocket(@NonNull NetworkSelector network, InetAddress ip, int port) throws IOException {
 		ServerSocketChannel server_channel = ServerSocketChannel.open();
 		server_channel.configureBlocking(false);
 		SocketAddress address = new InetSocketAddress(ip, port);
@@ -28,7 +30,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 		return key;
 	}
 	
-	public ConnectionListener(NetworkSelector network, InetAddress ip, int port, ConnectionListenerInterface connection_listener_interface) {
+	public ConnectionListener(@NonNull NetworkSelector network, InetAddress ip, int port, ConnectionListenerInterface connection_listener_interface) {
 		super(connection_listener_interface);
 		this.network = network;
 		IOException exception;
@@ -114,7 +116,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 	}
 
         @Override
-	protected AbstractConnection doAcceptConnection(ConnectionInterface conn_interface) {
+	protected @NonNull AbstractConnection doAcceptConnection(ConnectionInterface conn_interface) {
 		SelectionKey socket_key;
 		if (!network.getDeterministic().isPlayback())
 			socket_key = getNextConnectionKey();

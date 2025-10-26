@@ -6,14 +6,15 @@ import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 public final class DisplayChangeForm extends Form {
 	private final DoNowListener donow_listener;
-	private final HorizButton later_button;
+	private final @NonNull HorizButton later_button;
 
-	public DisplayChangeForm(DoNowListener donow_listener) {
+	public DisplayChangeForm(@NonNull DoNowListener donow_listener) {
 		this.donow_listener = donow_listener;
 		ResourceBundle bundle = ResourceBundle.getBundle(DisplayChangeForm.class.getName());
 		LabelBox info_label = new LabelBox(Utils.getBundleString(bundle, "warning_message"), Skin.getSkin().getEditFont(), 500);

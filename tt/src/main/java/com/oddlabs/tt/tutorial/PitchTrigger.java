@@ -1,6 +1,7 @@
 package com.oddlabs.tt.tutorial;
 
 import com.oddlabs.tt.camera.GameCamera;
+import org.jspecify.annotations.NonNull;
 
 public final class PitchTrigger extends TutorialTrigger {
 	private final boolean[] pitch_dirs = new boolean[2];
@@ -10,7 +11,7 @@ public final class PitchTrigger extends TutorialTrigger {
 	}
 
         @Override
-	protected void run(Tutorial tutorial) {
+	protected void run(@NonNull Tutorial tutorial) {
 		GameCamera camera = tutorial.getViewer().getCamera();
 		if (camera.pitchUp()) {
 			pitch_dirs[0] = true;

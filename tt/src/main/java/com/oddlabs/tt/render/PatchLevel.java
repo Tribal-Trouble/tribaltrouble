@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.landscape.LandscapeTileTriangle;
+import org.jspecify.annotations.NonNull;
 
 final class PatchLevel {
 	private PatchLevel right_neighbour;
@@ -24,7 +25,7 @@ final class PatchLevel {
 			addNeighbourBorderBit(bottom_neighbour, LandscapeTileTriangle.SOUTH);
 	}
 
-	private int addNeighbourBorderBit(PatchLevel neighbour, int bit) {
+	private int addNeighbourBorderBit(@NonNull PatchLevel neighbour, int bit) {
 		return neighbour.level > level ? bit : 0;
 	}
 
@@ -36,7 +37,7 @@ final class PatchLevel {
 		adjustNeighbour(bottom_neighbour);
 	}
 
-	private void adjustNeighbour(PatchLevel neighbour) {
+	private void adjustNeighbour(@NonNull PatchLevel neighbour) {
 		if (neighbour.level < level - 1)
 			neighbour.adjustLevel();
 	}
@@ -50,17 +51,17 @@ final class PatchLevel {
 		return adjusted_level;
 	}
 
-	public void init(PatchLevel right, PatchLevel top) {
+	public void init(@NonNull PatchLevel right, @NonNull PatchLevel top) {
 		initTopNeighbour(top);
 		initRightNeighbour(right);
 	}
 
-	private void initTopNeighbour(PatchLevel top_neighbour) {
+	private void initTopNeighbour(@NonNull PatchLevel top_neighbour) {
 		this.top_neighbour = top_neighbour;
 		top_neighbour.bottom_neighbour = this;
 	}
 
-	private void initRightNeighbour(PatchLevel right_neighbour) {
+	private void initRightNeighbour(@NonNull PatchLevel right_neighbour) {
 		this.right_neighbour = right_neighbour;
 		right_neighbour.left_neighbour = this;
 	}

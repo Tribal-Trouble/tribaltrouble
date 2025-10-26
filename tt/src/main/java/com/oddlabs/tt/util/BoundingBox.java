@@ -1,6 +1,7 @@
 package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.landscape.HeightMap;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -30,7 +31,7 @@ public class BoundingBox {
 				bmin_z <= this.bmax_z && bmax_z > this.bmin_z);
 	}
 
-	public final boolean collides(BoundingBox other) {
+	public final boolean collides(@NonNull BoundingBox other) {
 		return collides(other.bmin_x, other.bmax_x, other.bmin_y, other.bmax_y, other.bmin_z, other.bmax_z);
 	}
 
@@ -40,7 +41,7 @@ public class BoundingBox {
 				bmax_z <= this.bmax_z && bmin_z > this.bmin_z);
 	}
 
-	public final boolean contains(BoundingBox other) {
+	public final boolean contains(@NonNull BoundingBox other) {
 		return contains(other.bmin_x, other.bmax_x, other.bmin_y, other.bmax_y, other.bmin_z, other.bmax_z);
 	}
 
@@ -102,14 +103,14 @@ public class BoundingBox {
 		checkBoundsZ(bmax_z);
 	}
 
-	public final void checkBoundsXY(BoundingBox other) {
+	public final void checkBoundsXY(@NonNull BoundingBox other) {
 		checkBoundsX(other.bmin_x);
 		checkBoundsX(other.bmax_x);
 		checkBoundsY(other.bmin_y);
 		checkBoundsY(other.bmax_y);
 	}
 
-	public final void checkBounds(BoundingBox other) {
+	public final void checkBounds(@NonNull BoundingBox other) {
 		checkBoundsXY(other);
 		checkBoundsZ(other.bmin_z);
 		checkBoundsZ(other.bmax_z);
@@ -124,7 +125,7 @@ public class BoundingBox {
 		this.bmax_z = Float.POSITIVE_INFINITY;
 	}
 
-	public final void setBounds(BoundingBox other) {
+	public final void setBounds(@NonNull BoundingBox other) {
 		this.bmin_x = other.bmin_x;
 		this.bmax_x = other.bmax_x;
 		this.bmin_y = other.bmin_y;
@@ -163,7 +164,7 @@ public class BoundingBox {
 		return (float)Math.sqrt(longest_x*longest_x + longest_y*longest_y);
 	}
 
-	public final void transformBounds(Matrix4f matrix) {
+	public final void transformBounds(@NonNull Matrix4f matrix) {
 		temp_vec.set(bmin_x, bmin_y, bmin_z, 1f);
 		Matrix4f.transform(matrix, temp_vec, temp_vec2);
 		bmin_x = temp_vec2.x;
@@ -196,7 +197,7 @@ public class BoundingBox {
 		computeXYCenter();
 	}
 
-	public final void setBoundsFromLandscape(HeightMap heightmap, int start_x, int start_y, int size_x, int size_y) {
+	public final void setBoundsFromLandscape(@NonNull HeightMap heightmap, int start_x, int start_y, int size_x, int size_y) {
 		float corner1 = heightmap.getWrappedHeight(start_x, start_y);
 		setBounds(start_x*HeightMap.METERS_PER_UNIT_GRID, (start_x + size_x)*HeightMap.METERS_PER_UNIT_GRID, start_y*HeightMap.METERS_PER_UNIT_GRID, (start_y + size_y)*HeightMap.METERS_PER_UNIT_GRID, corner1, corner1);
 		for (int grid_y = 0; grid_y <= size_x; grid_y++) {

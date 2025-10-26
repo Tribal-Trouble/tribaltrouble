@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.procedural.Channel;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -21,11 +22,11 @@ public final class GLByteImage extends GLImage {
         this(width, height, BufferUtils.createByteBuffer(width * height), format);
     }
 
-    public GLByteImage(Channel channel) {
+    public GLByteImage(@NonNull Channel channel) {
         this(channel, GL11.GL_ALPHA);
     }
 
-    public GLByteImage(Channel channel, int format) {
+    public GLByteImage(@NonNull Channel channel, int format) {
         this(channel.getWidth(), channel.getHeight(), format);
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
@@ -36,7 +37,7 @@ public final class GLByteImage extends GLImage {
     }
 
     @Override
-    public GLImage createImage(int width, int height, int format) {
+    public @NonNull GLImage createImage(int width, int height, int format) {
         return new GLByteImage(width, height, format);
     }
 

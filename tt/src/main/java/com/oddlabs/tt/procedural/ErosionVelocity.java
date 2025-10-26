@@ -2,10 +2,11 @@ package com.oddlabs.tt.procedural;
 
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.tt.resource.GLIntImage;
+import org.jspecify.annotations.NonNull;
 
 public final class ErosionVelocity {
 
-	public Channel velocityFieldErosion1(Channel channel, int iterations) {
+	public @NonNull Channel velocityFieldErosion1(@NonNull Channel channel, int iterations) {
 		float water_particle = 1f;
 		float erosion_factor = 0.1f;
 
@@ -103,7 +104,7 @@ public final class ErosionVelocity {
 		return channel;
 	}
 
-	public Channel velocityFieldErosion2(Channel channel, int iterations) {
+	public @NonNull Channel velocityFieldErosion2(@NonNull Channel channel, int iterations) {
 		float erosion_factor = 0.001f;
 
 		// step 0 - prepare arrays
@@ -245,7 +246,7 @@ public final class ErosionVelocity {
 		return channel;
 	}
 
-	public Channel velocityFieldErosion3(Channel channel, int iterations) {
+	public @NonNull Channel velocityFieldErosion3(@NonNull Channel channel, int iterations) {
 		int s_iters = 1;
 		float erosion_factor = 0.01f;
 
@@ -380,7 +381,7 @@ public final class ErosionVelocity {
 		return channel;
 	}
 
-	public Channel velocityFieldErosion4(Channel channel, int iterations) {
+	public @NonNull Channel velocityFieldErosion4(@NonNull Channel channel, int iterations) {
 		int s_iters = 10;
 		float erosion_factor = 0.01f;
 

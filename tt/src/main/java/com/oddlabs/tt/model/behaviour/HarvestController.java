@@ -4,13 +4,14 @@ import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.SupplyFinder;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FinderTrackerAlgorithm;
+import org.jspecify.annotations.Nullable;
 
 public final class HarvestController<S extends Supply> extends Controller {
 	private final Unit unit;
 	private final Class<S> supply_class;
 	private FinderTrackerAlgorithm<S> tracker;
 
-	private Supply supply;
+	private @Nullable Supply supply;
 
 	public HarvestController(Unit unit, S supply, Class<S> supply_class) {
 		super(1);

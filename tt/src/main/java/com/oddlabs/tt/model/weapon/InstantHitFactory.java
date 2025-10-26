@@ -9,6 +9,8 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.UnitTemplate;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class InstantHitFactory extends WeaponFactory {
 	private final Audio[] sounds;
@@ -19,7 +21,7 @@ public final class InstantHitFactory extends WeaponFactory {
 	}
 
         @Override
-	protected void doAttack(boolean hit, Unit src, Selectable target) {
+	protected void doAttack(boolean hit, @NonNull Unit src, Selectable target) {
 		int damage = 1;
 		if (target instanceof Building && target.getTemplate().getAbilities().hasAbilities(Abilities.ATTACK))
 			damage = 6;
@@ -41,7 +43,7 @@ public final class InstantHitFactory extends WeaponFactory {
 	}
 
         @Override
-	public Class<? extends ThrowingWeapon> getType() {
+	public @Nullable Class<? extends ThrowingWeapon> getType() {
 		return null;
 	}
 }

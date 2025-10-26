@@ -1,5 +1,6 @@
 package com.oddlabs.tt.render;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.DisplayMode;
 
 import java.util.Comparator;
@@ -13,7 +14,7 @@ public final class DisplayModeComparator implements Comparator<DisplayMode> {
     }
 
     @Override
-    public int compare(DisplayMode d1, DisplayMode d2) {
+    public int compare(@NonNull DisplayMode d1, @NonNull DisplayMode d2) {
         /*
 		 * Elias: sort after largest bpp first, then lowest freq
 		 * to accomodate broken monitors lying about their
@@ -38,7 +39,7 @@ public final class DisplayModeComparator implements Comparator<DisplayMode> {
                         return Integer.compare(freq_dist1, freq_dist2);
     }
 
-    private int getDistanceFromBestMode(DisplayMode mode) {
+    private int getDistanceFromBestMode(@NonNull DisplayMode mode) {
         int dx = Math.abs(target_mode.getWidth() - mode.getWidth());
         int dy = Math.abs(target_mode.getHeight() - mode.getHeight());
         return dx + dy;

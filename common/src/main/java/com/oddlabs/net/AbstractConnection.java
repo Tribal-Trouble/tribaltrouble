@@ -1,17 +1,19 @@
 package com.oddlabs.net;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractConnection implements ARMIEventWriter {
 	private final List<ARMIEvent> event_backlog = new ArrayList<>();
-	private ConnectionInterface connection_interface;
+	private @Nullable ConnectionInterface connection_interface;
 	private IOException error_flag;
 	private boolean connected_flag;
 	private boolean connected_signaled;
 
-	public final void setConnectionInterface(ConnectionInterface connection_interface) {
+	public final void setConnectionInterface(@Nullable ConnectionInterface connection_interface) {
 		this.connection_interface = connection_interface;
 		if (connection_interface != null) {
 			if (connected_flag)

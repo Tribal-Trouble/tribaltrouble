@@ -5,6 +5,7 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.util.FontInfo;
 import com.oddlabs.util.Quad;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -24,7 +25,7 @@ public final class FontRenderer {
 	private final static int GLYPH_Y_OVERLAP = 5;
 	private final static float SPACE_SCALE = 0.66666f;
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String @NonNull [] args) throws Exception {
 		/*
 		   System.out.println("Available fonts:");
 		   String[] fontnames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
@@ -40,7 +41,7 @@ public final class FontRenderer {
 		System.out.println("Conversion complete\n");
 	}
 
-	public FontRenderer(String src_font_name, int font_size, int max_image_size, int max_chars, String font_info_dir, String font_tex_dir, String font_tex_classpath) throws Exception {
+	public FontRenderer(@NonNull String src_font_name, int font_size, int max_image_size, int max_chars, String font_info_dir, String font_tex_dir, String font_tex_classpath) throws Exception {
 		System.out.println("Converting first " + max_chars + " chars of " + src_font_name + " size " + font_size);
 		String dest_font_name = src_font_name.toLowerCase();
         java.awt.Font src_font;
@@ -113,7 +114,7 @@ public final class FontRenderer {
 		font_image.saveAsPNG(font_tex_dir + File.separator + dest_font_name + "_" + font_size);
 	}
 
-	private int[] calculateImageHeight(Font src_font, int image_width, int space_width, char[] chars) {
+	private int[] calculateImageHeight(@NonNull Font src_font, int image_width, int space_width, char @NonNull [] chars) {
 		BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
 		Graphics2D g2d = (Graphics2D)image.getGraphics();
 		g2d.setFont(src_font);
@@ -167,7 +168,7 @@ public final class FontRenderer {
 		return new int[]{image_height, max_glyph_height, max_baseline_height};
 	}
 
-	private Channel drawFont(Font src_font, String font_tex_classpath, String font_info_dir, String dest_font_name, int font_size, int max_glyph_height, int max_baseline_height, int image_width, int image_height, int space_width, char[] chars, boolean create_xml) {
+	private @NonNull Channel drawFont(@NonNull Font src_font, String font_tex_classpath, String font_info_dir, String dest_font_name, int font_size, int max_glyph_height, int max_baseline_height, int image_width, int image_height, int space_width, char @NonNull [] chars, boolean create_xml) {
 		BufferedImage image = new BufferedImage(image_width, image_height, BufferedImage.TYPE_4BYTE_ABGR);
 		Graphics2D g2d = (Graphics2D)image.getGraphics();
 		g2d.setFont(src_font);

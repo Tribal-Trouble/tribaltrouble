@@ -5,13 +5,14 @@ import com.oddlabs.geometry.SpriteInfo;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 public final class SpriteList {
-	private final BoundingBox[] bounds;
-	private final Sprite[] sprites;
-	private final int[] type_array;
+	private final BoundingBox @NonNull [] bounds;
+	private final Sprite @NonNull [] sprites;
+	private final int @NonNull [] type_array;
 
-	public SpriteList(SpriteFile sprite_file) {
+	public SpriteList(@NonNull SpriteFile sprite_file) {
 		Object[] sprites_and_animations = Utils.loadObject(sprite_file.getURL());
 		SpriteInfo[] sprite_infos = (SpriteInfo[])sprites_and_animations[0];
 		AnimationInfo[] animation_infos = (AnimationInfo[])sprites_and_animations[1];

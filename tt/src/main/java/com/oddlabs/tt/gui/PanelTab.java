@@ -1,13 +1,14 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import org.jspecify.annotations.NonNull;
 
 public class PanelTab extends GUIObject {
 	private final static float[] HIGHLIGHT_COLOR = new float[]{0f, 1f, 0f, 1f};
 	private boolean selected;
-	private final Label label;
+	private final @NonNull Label label;
 
-	public PanelTab(String caption) {
+	public PanelTab(@NonNull String caption) {
 		PanelData data = Skin.getSkin().getPanelData();
 		Font font = Skin.getSkin().getButtonFont();
 		label = new Label(caption, font);

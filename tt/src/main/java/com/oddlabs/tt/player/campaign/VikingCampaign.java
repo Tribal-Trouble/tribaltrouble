@@ -8,6 +8,7 @@ import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.VikingCampaignIcons;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 public final class VikingCampaign extends Campaign {
 	public final static int MAX_UNITS = 46;
@@ -45,7 +46,7 @@ public final class VikingCampaign extends Campaign {
 		CampaignState.ISLAND_UNAVAILABLE,
 		CampaignState.ISLAND_UNAVAILABLE};
 
-	private final Island[] islands;
+	private final Island @NonNull [] islands;
 
 	static {
 		VikingCampaignIcons.load();
@@ -84,7 +85,7 @@ public final class VikingCampaign extends Campaign {
 	}
 
     @Override
-	public void islandChosen(NetworkSelector network, GUIRoot gui_root, int number) {
+	public void islandChosen(NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
 		if (number == 1 || number == 2) {
 			Form dialog = new CampaignDialogForm(islands[number].getHeader(),
 					islands[number].getDescription(),
@@ -104,7 +105,7 @@ public final class VikingCampaign extends Campaign {
 	}
 
     @Override
-	public void defeated(WorldViewer viewer, String game_over_message) {
+	public void defeated(@NonNull WorldViewer viewer, String game_over_message) {
 		if (getState().getCurrentIsland() == 13)
 			((VikingIsland13)islands[13]).removeCounter();
 		super.defeated(viewer, game_over_message);

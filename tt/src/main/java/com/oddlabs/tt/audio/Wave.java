@@ -1,5 +1,6 @@
 package com.oddlabs.tt.audio;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.openal.AL10;
 
 import javax.sound.sampled.AudioFormat;
@@ -18,7 +19,7 @@ public final class Wave {
     private final int format;
     private final int sample_rate;
 
-    public Wave(URL file) throws UnsupportedAudioFileException, IOException {
+    public Wave(@NonNull URL file) throws UnsupportedAudioFileException, IOException {
         try (AudioInputStream ais = AudioSystem.getAudioInputStream(file.openStream())) {
             AudioFormat audio_format = ais.getFormat();
             format = getFormat(audio_format.getChannels(), audio_format.getSampleSizeInBits());
@@ -55,7 +56,7 @@ public final class Wave {
         }
     }
 
-    private ByteBuffer directWaveOrder(byte[] buffer, int bits) {
+    private @NonNull ByteBuffer directWaveOrder(byte @NonNull [] buffer, int bits) {
         ByteBuffer src = ByteBuffer.wrap(buffer);
         src.order(ByteOrder.LITTLE_ENDIAN);
         ByteBuffer dest = ByteBuffer.allocateDirect(buffer.length);

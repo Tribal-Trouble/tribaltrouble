@@ -16,6 +16,7 @@ import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -24,8 +25,8 @@ public final class ProfilesForm extends Form {
 
 	private final Menu main_menu;
 	private final SelectGameMenu game_menu;
-	private final MultiColumnComboBox profile_list_box;
-	private final HorizButton join_button;
+	private final @NonNull MultiColumnComboBox profile_list_box;
+	private final @NonNull HorizButton join_button;
 	private final GUIRoot gui_root;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(ProfilesForm.class.getName());
 
@@ -86,7 +87,7 @@ public final class ProfilesForm extends Form {
 		Network.getMatchmakingClient().close();
 	}
 
-	public void receivedProfiles(Profile[] profiles, String last_nick) {
+	public void receivedProfiles(Profile @NonNull [] profiles, String last_nick) {
 		profile_list_box.clear();
 		Row selected_row = null;
             for (Profile p : profiles) {

@@ -11,6 +11,7 @@ import com.oddlabs.tt.trigger.GameOverDelayTrigger;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -27,12 +28,12 @@ public abstract class Campaign {
 		return state;
 	}
 
-	public final void pushDelegate(NetworkSelector network, GUI gui) {
+	public final void pushDelegate(NetworkSelector network, @NonNull GUI gui) {
 		final GUIRoot gui_root = gui.newFade();
 		gui_root.pushDelegate(new CampaignMapForm(network, gui_root, Campaign.this));
 	}
 
-	public void defeated(WorldViewer viewer, String game_over_message) {
+	public void defeated(@NonNull WorldViewer viewer, String game_over_message) {
 		GUIRoot gui_root = viewer.getGUIRoot();
 		new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), game_over_message);
 		doDefeated();
@@ -42,7 +43,7 @@ public abstract class Campaign {
 		state.setCurrentIsland(state.getPrevIsland());
 	}
 
-	public final void victory(final WorldViewer viewer) {
+	public final void victory(final @NonNull WorldViewer viewer) {
 		GUIRoot gui_root = viewer.getGUIRoot();
 		new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), Utils.getBundleString(bundle, "island_complete"));
 		LoadCampaignBox.loadSavegames(
@@ -58,13 +59,13 @@ public abstract class Campaign {
 					}
 
                     @Override
-					public void failed(Throwable e) {
+					public void failed(@NonNull Throwable e) {
 						doFailed(e, viewer);
 					}
 				});
 	}
 
-	private void doSave(final WorldViewer viewer) {
+	private void doSave(final @NonNull WorldViewer viewer) {
 		for (int i = 0; i < campaign_states.length; i++) {
 			if (campaign_states[i].getName().equals(getState().getName())) {
 				campaign_states[i] = getState();
@@ -81,13 +82,13 @@ public abstract class Campaign {
 					}
 
                     @Override
-					public void failed(Throwable e) {
+					public void failed(@NonNull Throwable e) {
 						doFailed(e, viewer);
 					}
 				});
 	}
 
-	private void doFailed(Throwable e, WorldViewer viewer) {
+	private void doFailed(@NonNull Throwable e, @NonNull WorldViewer viewer) {
 		String failed_message = Utils.getBundleString(bundle, "failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
 		viewer.getGUIRoot().addModalForm(new MessageForm(failed_message));
 	}

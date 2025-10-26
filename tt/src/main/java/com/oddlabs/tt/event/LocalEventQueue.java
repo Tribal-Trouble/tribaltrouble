@@ -5,6 +5,8 @@ import com.oddlabs.event.LoadDeterministic;
 import com.oddlabs.event.SaveDeterministic;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 
@@ -14,7 +16,7 @@ public final class LocalEventQueue {
 	private final StateChecksum checksum = new StateChecksum();
 	private final AnimationManager manager = new AnimationManager();
 	private final AnimationManager high_precision_manager = new AnimationManager();
-	private Deterministic deterministic;
+	private @Nullable Deterministic deterministic;
 	private float time = 0;
 
 	public float getTime() {
@@ -51,11 +53,11 @@ public final class LocalEventQueue {
 		this.deterministic = new StackTraceDeterministic(deterministic, stack_deterministic);*/
 	}
 
-	public AnimationManager getHighPrecisionManager() {
+	public @NonNull AnimationManager getHighPrecisionManager() {
 		return high_precision_manager;
 	}
 
-	public AnimationManager getManager() {
+	public @NonNull AnimationManager getManager() {
 		return manager;
 	}
 

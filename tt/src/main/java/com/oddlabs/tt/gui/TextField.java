@@ -1,13 +1,14 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public abstract class TextField extends GUIObject implements CharSequence {
 	private final static StringBuffer digit_buf = new StringBuffer();
 	private final static String[] digits = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
-	private final StringBuffer text;
+	private final @NonNull StringBuffer text;
 	private final Font font;
 	private final int max_chars;
 
@@ -15,7 +16,7 @@ public abstract class TextField extends GUIObject implements CharSequence {
 		this("", font, max_chars);
 	}
 
-	public TextField(CharSequence text, Font font, int max_chars) {
+	public TextField(@NonNull CharSequence text, Font font, int max_chars) {
 		this.font = font;
 		this.text = new StringBuffer(text.toString());
 		this.max_chars = max_chars;
@@ -25,7 +26,7 @@ public abstract class TextField extends GUIObject implements CharSequence {
 		return font;
 	}
 
-	public final String getContents() {
+	public final @NonNull String getContents() {
 		return text.toString();
 	}
 
@@ -48,16 +49,16 @@ public abstract class TextField extends GUIObject implements CharSequence {
 	}
 
         @Override
-	public final CharSequence subSequence(int start, int end) {
+	public final @NonNull CharSequence subSequence(int start, int end) {
 		return text.subSequence(start, end);
 	}
 
         @Override
-	public final String toString() {
+	public final @NonNull String toString() {
 		return text.toString();
 	}
 
-	public final void set(CharSequence str) {
+	public final void set(@NonNull CharSequence str) {
 		clear();
 		append(str.toString());
 	}
@@ -100,7 +101,7 @@ public abstract class TextField extends GUIObject implements CharSequence {
 			digit_buf.insert(0, '-');
 	}
 
-	public static void appendNumberToStringBuffer(long i, StringBuffer buffer) {
+	public static void appendNumberToStringBuffer(long i, @NonNull StringBuffer buffer) {
 		fillDigitBuffer(i);
 		buffer.append(digit_buf);
 	}
@@ -126,13 +127,13 @@ public abstract class TextField extends GUIObject implements CharSequence {
 	}
 
         @Override
-	protected final void keyPressed(KeyboardEvent event) {
+	protected final void keyPressed(@NonNull KeyboardEvent event) {
 		if (event.getKeyCode() != Keyboard.KEY_SPACE && event.getKeyCode() != Keyboard.KEY_RETURN)
 			super.keyPressed(event);
 	}
 
         @Override
-	protected void keyReleased(KeyboardEvent event) {
+	protected void keyReleased(@NonNull KeyboardEvent event) {
 		if (event.getKeyCode() != Keyboard.KEY_SPACE && event.getKeyCode() != Keyboard.KEY_RETURN)
 			super.keyReleased(event);
 	}

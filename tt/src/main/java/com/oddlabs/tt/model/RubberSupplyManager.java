@@ -1,6 +1,7 @@
 package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.landscape.World;
+import org.jspecify.annotations.NonNull;
 
 public final class RubberSupplyManager extends SupplyManager {
 	private final static float SLEEP_TICKS = 60;
@@ -8,7 +9,7 @@ public final class RubberSupplyManager extends SupplyManager {
 
 	private int current_groups = 0;
 	
-	public RubberSupplyManager(World world) {
+	public RubberSupplyManager(@NonNull World world) {
 		super(world);
 	}
 

@@ -1,5 +1,8 @@
 package com.oddlabs.http;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -38,12 +41,12 @@ public class MultiPartFormOutputStream{
 	/**
 	 * The output stream to write to.
 	 */
-	private final DataOutputStream out;
+	private final @NonNull DataOutputStream out;
 
 	/**
 	 * The multipart boundary string.
 	 */
-	private final String boundary;
+	private final @NonNull String boundary;
 
 	/**
 	 * Creates a new <code>MultiPartFormOutputStream</code> object using
@@ -59,7 +62,7 @@ public class MultiPartFormOutputStream{
 	 * @see  #createBoundary()
 	 * @see  #getContentType(String)
 	 */
-	public MultiPartFormOutputStream(OutputStream os, String boundary) {
+	public MultiPartFormOutputStream(@NonNull OutputStream os, @NonNull String boundary) {
 		if(os == null){
 			throw new IllegalArgumentException("Output stream is required.");
 		}
@@ -77,7 +80,7 @@ public class MultiPartFormOutputStream{
 	 * @param  value  the field value
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public void writeField(String name, boolean value) throws java.io.IOException{
+	public void writeField(@NonNull String name, boolean value) throws java.io.IOException{
 		writeField(name, Boolean.toString(value));
 	}
 
@@ -88,7 +91,7 @@ public class MultiPartFormOutputStream{
 	 * @param  value  the field value
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public void writeField(String name, double value) throws java.io.IOException{
+	public void writeField(@NonNull String name, double value) throws java.io.IOException{
 		writeField(name, Double.toString(value));
 	}
 
@@ -99,7 +102,7 @@ public class MultiPartFormOutputStream{
 	 * @param  value  the field value
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public void writeField(String name, float value) throws java.io.IOException{
+	public void writeField(@NonNull String name, float value) throws java.io.IOException{
 		writeField(name, Float.toString(value));
 	}
 
@@ -110,7 +113,7 @@ public class MultiPartFormOutputStream{
 	 * @param  value  the field value
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public void writeField(String name, long value) throws java.io.IOException{
+	public void writeField(@NonNull String name, long value) throws java.io.IOException{
 		writeField(name, Long.toString(value));
 	}
 
@@ -121,7 +124,7 @@ public class MultiPartFormOutputStream{
 	 * @param  value  the field value
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public void writeField(String name, int value) throws java.io.IOException{
+	public void writeField(@NonNull String name, int value) throws java.io.IOException{
 		writeField(name, Integer.toString(value));
 	}
 
@@ -132,7 +135,7 @@ public class MultiPartFormOutputStream{
 	 * @param  value  the field value
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public void writeField(String name, short value) throws java.io.IOException{
+	public void writeField(@NonNull String name, short value) throws java.io.IOException{
 		writeField(name, Short.toString(value));
 	}
 
@@ -143,7 +146,7 @@ public class MultiPartFormOutputStream{
 	 * @param  value  the field value
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public void writeField(String name, char value) throws java.io.IOException{
+	public void writeField(@NonNull String name, char value) throws java.io.IOException{
 		writeField(name, Character.toString(value));
 	}
 
@@ -155,7 +158,7 @@ public class MultiPartFormOutputStream{
 	 * @param  value  the field value
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public void writeField(String name, String value) throws java.io.IOException{
+	public void writeField(@NonNull String name, @Nullable String value) throws java.io.IOException{
 		if(name == null){
 			throw new IllegalArgumentException("Name cannot be null or empty.");
 		}
@@ -192,7 +195,7 @@ public class MultiPartFormOutputStream{
 	 * @param  file      the file (the file must exist)
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public void writeFile(String name, String mimeType, File file) throws java.io.IOException{
+	public void writeFile(String name, String mimeType, @NonNull File file) throws java.io.IOException{
 		if(file == null){
 			throw new IllegalArgumentException("File cannot be null.");
 		}
@@ -205,7 +208,7 @@ public class MultiPartFormOutputStream{
 		writeFile(name, mimeType, file.getCanonicalPath(), new FileInputStream(file));
 	}
 
-	private void writeFileHeader(String name, String mimeType, String fileName) throws java.io.IOException {
+	private void writeFileHeader(String name, @Nullable String mimeType, String fileName) throws java.io.IOException {
 		out.writeBytes(PREFIX);
 		out.writeBytes(boundary);
 		out.writeBytes(NEWLINE);
@@ -229,7 +232,7 @@ public class MultiPartFormOutputStream{
 	 * @param  is        the input stream
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public void writeFile(String name, String mimeType, String fileName, InputStream is) throws java.io.IOException{
+	public void writeFile(String name, String mimeType, @NonNull String fileName, @NonNull InputStream is) throws java.io.IOException{
 		if(is == null){
 			throw new IllegalArgumentException("Input stream cannot be null.");
 		}
@@ -270,7 +273,7 @@ public class MultiPartFormOutputStream{
 	 * @param  data      the file data
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public void writeFile(String name, String mimeType, String fileName, byte[] data) throws java.io.IOException{
+	public void writeFile(String name, String mimeType, @NonNull String fileName, byte @NonNull [] data) throws java.io.IOException{
 		if(data == null){
 			throw new IllegalArgumentException("Data cannot be null.");
 		}
@@ -339,7 +342,7 @@ public class MultiPartFormOutputStream{
 	 * @return  a <code>java.net.URLConnection</code> object for the URL
 	 * @throws  java.io.IOException  on input/output errors
 	 */
-	public static URLConnection createConnection(URL url) throws java.io.IOException{
+	public static @NonNull URLConnection createConnection(@NonNull URL url) throws java.io.IOException{
 		URLConnection urlConn = url.openConnection();
 		if(urlConn instanceof HttpURLConnection){
 			HttpURLConnection httpConn = (HttpURLConnection)urlConn;
@@ -360,7 +363,7 @@ public class MultiPartFormOutputStream{
 	 * @return  a multipart boundary string
 	 * @see  #getContentType(String)
 	 */
-	public static String createBoundary(){
+	public static @NonNull String createBoundary(){
 		return "--------------------" + Long.toString(System.currentTimeMillis(), 16);
 	}
 
@@ -380,7 +383,7 @@ public class MultiPartFormOutputStream{
 	 * @return  the content type string
 	 * @see  #createBoundary()
 	 */
-	public static String getContentType(String boundary){
+	public static @NonNull String getContentType(String boundary){
 		return "multipart/form-data; boundary=" + boundary;
 	}
 

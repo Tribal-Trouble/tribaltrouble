@@ -4,6 +4,7 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Image;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
@@ -67,13 +68,13 @@ public abstract class GLImage {
 
 	public abstract GLImage createImage(int width, int height, int format);
 
-	public final GLImage[] createMipMaps() {
+	public final GLImage @NonNull [] createMipMaps() {
 		GLImage[] result = buildMipMaps();
 		updateMipMapsArea(result, 10000, 1.0f, 0, 0, getWidth(), getHeight(), false);
 		return result;
 	}
 
-	public final GLImage[] buildMipMaps() {
+	public final GLImage @NonNull [] buildMipMaps() {
 		int current_width = width;
 		int current_height = height;
 		int max = Math.max(height, width);
@@ -92,7 +93,7 @@ public abstract class GLImage {
 		return result;
 	}
 
-	public static void updateMipMapsArea(GLImage[] mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height, boolean max_alpha) {
+	public static void updateMipMapsArea(GLImage @NonNull [] mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height, boolean max_alpha) {
 		for (int i = 1; i < mipmaps.length; i++) {
 			int height_div = mipmaps[i - 1].getHeight()/mipmaps[i].getHeight();
 			int width_div = mipmaps[i - 1].getWidth()/mipmaps[i].getWidth();
@@ -108,7 +109,7 @@ public abstract class GLImage {
 		}
 	}
 
-	public static void blendMipMapsArea(GLImage[] dest_mipmaps, GLImage[] source_mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height) {
+	public static void blendMipMapsArea(GLImage @NonNull [] dest_mipmaps, GLImage @NonNull [] source_mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height) {
 		int mip_map_level = 0;
 		while (source_mipmaps[0].getWidth() != dest_mipmaps[mip_map_level].getWidth() && source_mipmaps[0].getHeight() != dest_mipmaps[mip_map_level].getHeight())
 			mip_map_level++;
@@ -161,7 +162,7 @@ public abstract class GLImage {
 		return (col1 << 24) + (col2 << 16) + (col3 << 8) + col4;
 	}
 */	
-	private static int averagePixel(GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
+	private static int averagePixel(@NonNull GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
 		float inv_num_averaged = 1f/(height_div * width_div);
 		int col1 = 0;
 		int col2 = 0;
@@ -210,7 +211,7 @@ public abstract class GLImage {
 		}
 	}
 
-	public final void drawImageBlended(GLImage img, int dx, int dy, int sx, int sy, int w, int h, float alpha_factor) {
+	public final void drawImageBlended(@NonNull GLImage img, int dx, int dy, int sx, int sy, int w, int h, float alpha_factor) {
 		int spixel;
 		int dpixel;
 		int sr;
@@ -254,7 +255,7 @@ public abstract class GLImage {
 		return pixel_data;
 	}
 
-	public final void drawImage(GLImage img, int dx, int dy, int sx, int sy, int w, int h) {
+	public final void drawImage(@NonNull GLImage img, int dx, int dy, int sx, int sy, int w, int h) {
 		int pixel_size = getPixelSize();
 		assert pixel_size == img.getPixelSize();
 		ByteBuffer pixels = getPixels();
@@ -275,7 +276,7 @@ public abstract class GLImage {
 		}
 	}
 
-	public Layer toLayer() {
+	public @NonNull Layer toLayer() {
 		int width = getWidth();
 		int height = getHeight();
 		Channel r = new Channel(width, height);
@@ -299,7 +300,7 @@ public abstract class GLImage {
 		toLayer().saveAsPNG(filename);
 	}
 
-	public final void saveAsBMP(String filename) {
+	public final void saveAsBMP(@NonNull String filename) {
 		Utils.saveAsBMP(filename, getPixels(), getWidth(), getHeight());
 	}
 

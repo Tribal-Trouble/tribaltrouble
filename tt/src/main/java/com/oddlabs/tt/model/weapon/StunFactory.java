@@ -1,6 +1,7 @@
 package com.oddlabs.tt.model.weapon;
 
 import com.oddlabs.tt.model.Unit;
+import org.jspecify.annotations.NonNull;
 
 public final class StunFactory implements MagicFactory {
 	private final float offset_x;
@@ -46,7 +47,7 @@ public final class StunFactory implements MagicFactory {
 	}
 
         @Override
-	public Magic execute(Unit src) {
+	public @NonNull Magic execute(@NonNull Unit src) {
 		return new Stun(offset_x, offset_y, offset_z, hit_radius, stun_time_closest, stun_time_farthest, src);
 	}
 }

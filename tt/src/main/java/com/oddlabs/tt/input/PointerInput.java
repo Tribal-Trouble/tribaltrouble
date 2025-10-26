@@ -8,6 +8,8 @@ import com.oddlabs.tt.render.NativeCursor;
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.util.Image;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Mouse;
@@ -22,7 +24,7 @@ public final class PointerInput {
 	private static Cursor active_cursor;
 	private static int drag_button = -1;
 
-	private final static NativeCursor debug_cursor;
+	private final static @NonNull NativeCursor debug_cursor;
 
 	static {
 		Image image_16_1 = Image.read(Utils.makeURL("/textures/gui/pointer_clientload_16_1.image"));
@@ -36,7 +38,7 @@ public final class PointerInput {
 											 img_32_8, 4, 27);
 	}
 
-	public static void setActiveCursor(Cursor cursor) {
+	public static void setActiveCursor(@Nullable Cursor cursor) {
 		if (cursor != null && Mouse.isGrabbed()) {
 			Mouse.setGrabbed(false);
 			resetCursorPos();
@@ -75,7 +77,7 @@ public final class PointerInput {
 			doSetActiveCursor(null);
 	}
 
-	private static void updateMouse(GUIRoot gui_root, int x, int y, int dz) {
+	private static void updateMouse(@NonNull GUIRoot gui_root, int x, int y, int dz) {
 		if (x != last_x || y != last_y) {
 			last_x = (short)x;
 			last_y = (short)y;
@@ -89,7 +91,7 @@ public final class PointerInput {
 			LocalInput.mouseScrolled(gui_root, dz);
 	}
 
-	public static void poll(GUIRoot gui_root) {
+	public static void poll(@NonNull GUIRoot gui_root) {
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		if (deterministic.log(!Mouse.isCreated()))
 			return;

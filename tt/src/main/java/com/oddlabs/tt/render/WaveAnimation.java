@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -24,7 +25,7 @@ public final class WaveAnimation {
 		GL11.glRotatef(rot_angle, rot_axis.x, rot_axis.y, rot_axis.z);
 	}
 
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 		checksum.update(rot_angle);
 	}
 

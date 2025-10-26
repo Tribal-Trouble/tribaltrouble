@@ -6,6 +6,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
+import org.jspecify.annotations.NonNull;
 
 public final class RubberSpearWeapon extends DirectedThrowingWeapon {
 	private final static float METERS_PER_SECOND = 30; //multiplied by meters/second (in 2D)
@@ -16,7 +17,7 @@ public final class RubberSpearWeapon extends DirectedThrowingWeapon {
 	}
 
         @Override
-	protected void hitTarget(boolean hit, Player owner, Selectable target) {
+	protected void hitTarget(boolean hit, @NonNull Player owner, @NonNull Selectable target) {
 		if (hit)
 			damageTarget(target);
 		AttackScanFilter filter = new AttackScanFilter(owner, MAX_BOUNDS_LENGTH);

@@ -11,6 +11,7 @@ import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.OffscreenRenderer;
 import com.oddlabs.tt.util.OffscreenRendererFactory;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -27,12 +28,12 @@ public final class TextureGenerator {
 	private SpriteList[] crowns;
 	private SpriteList[] trunks;
 
-	public static void main(String[] args) throws LWJGLException {
+	public static void main(String @NonNull [] args) throws LWJGLException {
 		assert args.length == 1;
 		new TextureGenerator(args[0]);
 	}
 
-	public TextureGenerator(String dest) throws LWJGLException {
+	public TextureGenerator(@NonNull String dest) throws LWJGLException {
 		Settings.setSettings(new Settings());
 		File path = new File(dest);
 		path.mkdirs();
@@ -68,7 +69,7 @@ public final class TextureGenerator {
 	}
 
 
-	private void generateLowDetailTexture(OffscreenRenderer buffer, LowDetailModel[] models, String dest) {
+	private void generateLowDetailTexture(@NonNull OffscreenRenderer buffer, LowDetailModel @NonNull [] models, String dest) {
 		int[] indices = new int[models.length];
 		for (int i = 0; i < models.length; i++) {
 			indices[i] = i;
@@ -79,7 +80,7 @@ public final class TextureGenerator {
 		} while (buffer.isLost());
 	}
 
-	private static void generateBillboardMip(LowDetailModel lowdetail, TextureGenerator renderer, int mode, float ortho_size, int tex_index) {
+	private static void generateBillboardMip(@NonNull LowDetailModel lowdetail, @NonNull TextureGenerator renderer, int mode, float ortho_size, int tex_index) {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0.0f, ortho_size, 0.0f, ortho_size, -50.0f, 50.0f);
@@ -94,7 +95,7 @@ public final class TextureGenerator {
 		BillboardPainter.finish();
 	}
 
-	private static void drawBillboardsToBuffer(LowDetailModel[] lowdetails, TextureGenerator renderer, int[] modes, OffscreenRenderer buffer, int format, int mipmap_cutoff, int tex_index) {
+	private static void drawBillboardsToBuffer(LowDetailModel @NonNull [] lowdetails, @NonNull TextureGenerator renderer, int[] modes, OffscreenRenderer buffer, int format, int mipmap_cutoff, int tex_index) {
 		int ortho_size = 1;
 		float[] clear_color = renderer.getModelClearColor();
 		GL11.glClearColor(clear_color[0], clear_color[1], clear_color[2], 0f);

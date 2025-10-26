@@ -3,11 +3,12 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.guievent.ValueListener;
+import org.jspecify.annotations.NonNull;
 
 public final class Slider extends GUIObject {
 	private final java.util.List<ValueListener> value_listeners = new java.util.ArrayList<>();
 
-	private final SliderButton button;
+	private final @NonNull SliderButton button;
 	private final int left_offset;
 	private final int right_offset;
 	private final int cardinality;

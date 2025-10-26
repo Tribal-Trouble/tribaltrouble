@@ -1,9 +1,11 @@
 package com.oddlabs.tt.gui;
 
+import org.jspecify.annotations.NonNull;
+
 public final class RadioButton extends RadioButtonGroupElement {
 	private boolean pressed = false;
 
-	public RadioButton(boolean marked, RadioButtonGroup group, String text) {
+	public RadioButton(boolean marked, @NonNull RadioButtonGroup group, @NonNull String text) {
 		super(marked, group);
 		Label label = new Label(text, Skin.getSkin().getEditFont());
 		addChild(label);

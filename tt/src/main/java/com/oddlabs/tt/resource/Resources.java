@@ -1,5 +1,7 @@
 package com.oddlabs.tt.resource;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
@@ -9,7 +11,7 @@ import java.util.function.Supplier;
  */
 public final class Resources {
 	private final static ConcurrentMap<Supplier<?>, Object> LOADED_RESOURCES = new ConcurrentHashMap<>();
-	public static <R> R findResource(Supplier<R> resSupplier) {
+	public static <R> R findResource(@NonNull Supplier<R> resSupplier) {
 		Object resource = LOADED_RESOURCES.get(resSupplier);
 		if (resource == null) {
 			resource = resSupplier.get();

@@ -1,10 +1,12 @@
 package com.oddlabs.net;
 
+import org.jspecify.annotations.NonNull;
+
 public final class MonotoneTimeManager implements TimeManager {
 	private final TimeManager source;
 	private long last_time;
 
-	public MonotoneTimeManager(TimeManager source) {
+	public MonotoneTimeManager(@NonNull TimeManager source) {
 		this.source = source;
 		this.last_time = source.getMillis();
 	}

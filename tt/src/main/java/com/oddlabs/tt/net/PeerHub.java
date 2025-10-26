@@ -20,6 +20,8 @@ import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.NotificationManager;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ import java.util.logging.Logger;
 
 public final class PeerHub implements Animated, RouterHandler {
 	public final static ResourceBundle bundle = ResourceBundle.getBundle(PeerHub.class.getName());
-	public final static String SYSTEM_NAME;
+	public final static @NonNull String SYSTEM_NAME;
 
 	private final static int MILLISECONDS_PER_HEARTBEAT = 60;
 	private final static int CLIENT_MAX_DELAY_MILLIS = 60;
@@ -46,17 +48,17 @@ public final class PeerHub implements Animated, RouterHandler {
 
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(PeerHubInterface.class);
 	private final StateChecksum checksum = new StateChecksum();
-	private final PeerHubInterface peerhubs_interface;
-	private final PlayerInterface player_interface;
+	private final @NonNull PeerHubInterface peerhubs_interface;
+	private final @NonNull PlayerInterface player_interface;
 	private final int num_participants;
-	private final Peer[] peer_index_to_peer;
+	private final Peer @NonNull [] peer_index_to_peer;
 	private final Map<Player, Peer> player_to_peer = new LinkedHashMap<>();
 	private final Map<Peer, Player> peer_to_player = new LinkedHashMap<>();
 	private final Set<Player> nonhuman_players = new HashSet<>();
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;
-	private final RouterClient router_client;
-	private final Router router;
+	private final @NonNull RouterClient router_client;
+	private final @Nullable Router router;
 	private final NotificationManager notification_manager;
 	private final Player local_player;
 	private final AnimationManager manager;
@@ -75,7 +77,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		SYSTEM_NAME = Utils.getBundleString(bundle, "system_name");
 	}
 
-	public PeerHub(AnimationManager manager, boolean is_multiplayer, boolean is_rated, Player local_player, PlayerSlot[] player_slots, NetworkSelector network, GUIRoot gui_root, NotificationManager notification_manager, DistributableTable distributable_table, SessionID session_id, StallHandler stall_handler) {
+	public PeerHub(@NonNull AnimationManager manager, boolean is_multiplayer, boolean is_rated, @NonNull Player local_player, PlayerSlot[] player_slots, @NonNull NetworkSelector network, GUIRoot gui_root, NotificationManager notification_manager, DistributableTable distributable_table, SessionID session_id, StallHandler stall_handler) {
 		this.stall_handler = stall_handler;
 		this.is_rated = is_rated;
 		this.local_player = local_player;
@@ -146,7 +148,7 @@ public final class PeerHub implements Animated, RouterHandler {
 	}
 
         @Override
-	public void receiveEvent(int client_id, ARMIEvent event) {
+	public void receiveEvent(int client_id, @NonNull ARMIEvent event) {
 		Peer peer = getPeerFromClientID(client_id);
 		if (peer == null) {
 			routerFailed(new IOException("Invalid client_id received: " + client_id));
@@ -183,13 +185,13 @@ public final class PeerHub implements Animated, RouterHandler {
 			peerDisconnected(peer, "Peer disconnected");
 	}
 
-	private void peerChecksumError(Peer peer) {
+	private void peerChecksumError(@NonNull Peer peer) {
 		System.out.println("Disconnecting peer because of checksum mismatch: " + peer.getPlayerInfo().getName());
 		peerDisconnected(peer, "Checksum error");
 		Globals.checksum_error_in_last_game = true;
 	}
 
-	private Peer getPeerFromClientID(int client_id) {
+	private @Nullable Peer getPeerFromClientID(int client_id) {
 		if (client_id >= 0 && client_id < peer_index_to_peer.length)
 			return unsafeGetPeerFromClientID(client_id);
 		else
@@ -217,7 +219,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		return peer_to_player.get(peer);
 	}
 
-	public boolean isAlive(Player player) {
+	public boolean isAlive(@NonNull Player player) {
 		return (nonhuman_players.contains(player) || locatePeerFromPlayer(player) != null) && player.isAlive();
 	}
 
@@ -309,7 +311,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		Network.getMatchmakingClient().getInterface().updateGameStatus(getTick(), status);
 	}
 
-	private Iterator<Peer> getPeerIterator()  {
+	private @NonNull Iterator<Peer> getPeerIterator()  {
 		return peer_to_player.keySet().iterator();
 	}
 
@@ -321,19 +323,19 @@ public final class PeerHub implements Animated, RouterHandler {
 		stall_handler.processStall(getTick());
 	}
 
-	private void removePeerFromActiveList(Peer peer) {
+	private void removePeerFromActiveList(@NonNull Peer peer) {
 		System.out.println("Removing from active list:" + peer);
 		peer_index_to_peer[peer.getPeerIndex()] = null;
 		peer.getPlayer().setPreferredGamespeed(World.GAMESPEED_DONTCARE);
 	}
 
         @Override
-	public void updateChecksum(StateChecksum sum) {
+	public void updateChecksum(@NonNull StateChecksum sum) {
 		sum.update(getTick());
 		sum.update(checksum.getValue());
 	}
 
-	public void peerDisconnected(Peer peer, String reason) {
+	public void peerDisconnected(@NonNull Peer peer, String reason) {
 		Player player = getPlayerFromPeer(peer);
 		if (player == null)
 			return;
@@ -376,7 +378,7 @@ public final class PeerHub implements Animated, RouterHandler {
 			Network.getChatHub().chat(new ChatMessage(name, text, ChatMessage.Type.NORMAL));
 	}
 
-	public void receiveBeacon(float x, float y, String owner) {
+	public void receiveBeacon(float x, float y, @NonNull String owner) {
 		if (!ChatCommand.isIgnoring(owner))
 			notification_manager.newBeacon(manager, local_player, x, y);
 	}
@@ -402,11 +404,11 @@ public final class PeerHub implements Animated, RouterHandler {
 System.out.println("PeerHub closed");
 	}
 
-	private static int getFreeQuitTicksLeft(World world) {
+	private static int getFreeQuitTicksLeft(@NonNull World world) {
 		return (int)(FREE_QUIT_TIME/world.getSecondsPerTick()) - world.getTick();
 	}
 
-	public static float getFreeQuitTimeLeft(World world) {
+	public static float getFreeQuitTimeLeft(@NonNull World world) {
 		int left = getFreeQuitTicksLeft(world);
 		return left*AnimationManager.ANIMATION_SECONDS_PER_TICK;
 	}

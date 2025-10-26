@@ -5,18 +5,19 @@ import com.oddlabs.tt.render.NativeCursor;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.util.Image;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.net.URL;
 
 public final class Cursor {
 
-    private final Texture texture;
-    private final NativeCursor native_cursor;
+    private final @NonNull Texture texture;
+    private final @NonNull NativeCursor native_cursor;
 
     private final int offset_x;
     private final int offset_y;
-    private final Quad cursor;
+    private final @NonNull Quad cursor;
 
     private boolean render_gl_cursor;
 
@@ -33,9 +34,9 @@ public final class Cursor {
         }
     }
 
-    public Cursor(URL url_16_1, int offset_x_16_1, int offset_y_16_1,
-            URL url_32_1, int offset_x_32_1, int offset_y_32_1,
-            URL url_32_8, int offset_x_32_8, int offset_y_32_8) {
+    public Cursor(@NonNull URL url_16_1, int offset_x_16_1, int offset_y_16_1,
+                  @NonNull URL url_32_1, int offset_x_32_1, int offset_y_32_1,
+                  @NonNull URL url_32_8, int offset_x_32_8, int offset_y_32_8) {
         this.offset_x = offset_x_32_8;
         this.offset_y = offset_y_32_8;
         Image image = Image.read(url_32_8);

@@ -5,6 +5,7 @@ import com.oddlabs.net.ARMIInterfaceMethods;
 import com.oddlabs.net.AbstractConnection;
 import com.oddlabs.net.ConnectionInterface;
 import com.oddlabs.net.IllegalARMIEventException;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 
@@ -19,7 +20,7 @@ public final class ClientInfo implements GameServerInterface, ConnectionInterfac
 	}
 
         @Override
-	public void handle(Object sender, ARMIEvent armi_event) {
+	public void handle(Object sender, @NonNull ARMIEvent armi_event) {
 		try {
 			armi_event.execute(interface_methods, this);
 		} catch (IllegalARMIEventException e) {

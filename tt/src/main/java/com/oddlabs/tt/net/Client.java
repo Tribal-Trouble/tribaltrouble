@@ -19,6 +19,8 @@ import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -28,12 +30,12 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
 	private final static int NEGOTIATING = 2;
 	private final static int CLOSED = 5;
 
-	private final AbstractConnection connection;
+	private final @NonNull AbstractConnection connection;
 
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(GameClientInterface.class);
 	private final WorldParameters world_params;
-	private final GameServerInterface gameserver_interface;
-	private final UnitInfo[] unit_infos;
+	private final @NonNull GameServerInterface gameserver_interface;
+	private final UnitInfo @NonNull [] unit_infos;
 	private final WorldInitAction initial_action;
 	private final InGameInfo ingame_info;
 	private final GUI gui;
@@ -42,7 +44,7 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
 	private int state = CONNECTING;
 	private int session_id;
 
-	private WorldGenerator generator = null;
+	private @Nullable WorldGenerator generator = null;
 
 	private PlayerSlot[] player_slots;
 	private short player_slot = -1;
@@ -86,7 +88,7 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
 	}
 
         @Override
-	public void chat(int player_slot, String chat) {
+	public void chat(int player_slot, @Nullable String chat) {
 		if (chat != null && player_slot >= 0 && player_slot < player_slots.length)
 			Network.getChatHub().chat(new ChatMessage(player_slots[player_slot].getInfo().getName(), chat, ChatMessage.Type.GAME_MENU));
 	}
@@ -127,7 +129,7 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
 	}
 
         @Override
-	public void setPlayers(PlayerSlot[] player_slots) {
+	public void setPlayers(PlayerSlot @NonNull [] player_slots) {
 		this.player_slots = player_slots;
             for (PlayerSlot playerSlot : player_slots) {
                 if (playerSlot == null) {
@@ -139,7 +141,7 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
 	}
 
         @Override
-	public void handle(Object sender, ARMIEvent armi_event) {
+	public void handle(Object sender, @NonNull ARMIEvent armi_event) {
 		try {
 			armi_event.execute(interface_methods, this);
 		} catch (IllegalARMIEventException e) {

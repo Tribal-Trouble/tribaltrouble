@@ -9,6 +9,7 @@ import com.jcraft.jorbis.Comment;
 import com.jcraft.jorbis.DspState;
 import com.jcraft.jorbis.Info;
 import com.oddlabs.util.ByteBufferOutputStream;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +18,7 @@ import java.nio.ByteOrder;
 import java.util.Objects;
 
 public final class OGGStream {
-	private final URL file;
+	private final @NonNull URL file;
 	private int data_size = 8192;
 	private final byte[] data_buffer = new byte[data_size];
 	private byte[] sync_buffer;
@@ -35,7 +36,7 @@ public final class OGGStream {
 	private int[] indices;
 	private boolean eos = false;
 
-	public OGGStream(URL file) throws IOException {
+	public OGGStream(@NonNull URL file) throws IOException {
 		this.file = Objects.requireNonNull(file, "file");
 		sync_state.init();
 		input = file.openStream();
@@ -108,7 +109,7 @@ public final class OGGStream {
 		indices = new int[info.channels];
 	}
 
-	public int read(ByteBufferOutputStream output) {
+	public int read(@NonNull ByteBufferOutputStream output) {
 		int written = 0;
 		while (!eos) {
 			int result = sync_state.pageout(page);

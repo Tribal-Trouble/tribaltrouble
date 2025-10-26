@@ -1,5 +1,7 @@
 package com.oddlabs.tt.landscape;
 
+import org.jspecify.annotations.NonNull;
+
 public final class TreeGroup extends AbstractTreeGroup {
 	private final static int LANDSCAPE_TREES_MAX_LEVEL = 5;
 
@@ -9,10 +11,10 @@ public final class TreeGroup extends AbstractTreeGroup {
 	 * child0 | child1
 	 *
 	 */
-	private final AbstractTreeGroup child0;
-	private final AbstractTreeGroup child1;
-	private final AbstractTreeGroup child2;
-	private final AbstractTreeGroup child3;
+	private final @NonNull AbstractTreeGroup child0;
+	private final @NonNull AbstractTreeGroup child1;
+	private final @NonNull AbstractTreeGroup child2;
+	private final @NonNull AbstractTreeGroup child3;
 
 
 	public TreeGroup(AbstractTreeGroup parent, int level) {
@@ -23,7 +25,7 @@ public final class TreeGroup extends AbstractTreeGroup {
 		child3 = createChild(level);
 	}
 
-	private AbstractTreeGroup createChild(int level) {
+	private @NonNull AbstractTreeGroup createChild(int level) {
 		if (level < LANDSCAPE_TREES_MAX_LEVEL) {
 			return new TreeGroup(this, level + 1);
 		} else {
@@ -32,7 +34,7 @@ public final class TreeGroup extends AbstractTreeGroup {
 	}
 
         @Override
-	public void visit(TreeNodeVisitor visitor) {
+	public void visit(@NonNull TreeNodeVisitor visitor) {
 		visitor.visitNode(this);
 	}
 
@@ -74,7 +76,7 @@ public final class TreeGroup extends AbstractTreeGroup {
 		return node_bounds;
 	}
 
-	private boolean checkBounds(AbstractTreeGroup child, boolean child_bounds, boolean node_bounds) {
+	private boolean checkBounds(@NonNull AbstractTreeGroup child, boolean child_bounds, boolean node_bounds) {
 		if (!child_bounds)
 			return node_bounds;
 		if (node_bounds)

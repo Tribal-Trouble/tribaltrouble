@@ -23,6 +23,8 @@ import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public abstract class Island {
 	private final static float CAMPAIGN_DIFFICULTY_BONUS = .75f;
@@ -43,11 +45,11 @@ public abstract class Island {
 		init(network, gui_root);
 	}
 
-	protected final void addModalForm(Form form) {
+	protected final void addModalForm(@NonNull Form form) {
 		world_viewer.getGUIRoot().addModalForm(form);
 	}
 
-	protected final GameNetwork startNewGame(NetworkSelector network, GUIRoot gui_root, int meters_per_world, Landscape.TerrainType terrain, float hills, float vegetation_amount, float supplies_amount, int seed, int campaign_num, int initial_units, String[] ai_names) {
+	protected final @NonNull GameNetwork startNewGame(NetworkSelector network, @NonNull GUIRoot gui_root, int meters_per_world, Landscape.TerrainType terrain, float hills, float vegetation_amount, float supplies_amount, int seed, int campaign_num, int initial_units, String[] ai_names) {
 		InGameInfo ingame_info = new CampaignInGameInfo(campaign);
 		WorldInitAction init_action = (WorldViewer viewer) -> {
                     world_viewer = viewer;
@@ -104,7 +106,7 @@ public abstract class Island {
 	protected abstract CharSequence getDescription();
 	protected abstract CharSequence getCurrentObjective();
 
-	protected final Unit changeOwner(Unit unit, Player owner) {
+	protected final @Nullable Unit changeOwner(@NonNull Unit unit, @NonNull Player owner) {
 		float x = unit.getPositionX();
 		float y = unit.getPositionY();
 		UnitTemplate template = (UnitTemplate)unit.getTemplate();
@@ -117,7 +119,7 @@ public abstract class Island {
 			return null;
 	}
 
-	protected final void insertGuardTower(Player owner, int warrior_type, int grid_x, int grid_y) {
+	protected final void insertGuardTower(@NonNull Player owner, int warrior_type, int grid_x, int grid_y) {
 		Building tower = owner.buildBuilding(Race.BUILDING_TOWER, grid_x, grid_y);
 		Unit unit = new Unit(owner,
 				UnitGrid.coordinateFromGrid(grid_x),
@@ -127,7 +129,7 @@ public abstract class Island {
 		unit.setTarget(tower, Target.ACTION_DEFAULT, false);
 	}
 
-	protected final void placePrisoners(Player captive, Player enemy, int peons, int rock_warriors, int iron_warriors, int rubber_warriors, boolean chieftain) {
+	protected final void placePrisoners(@NonNull Player captive, @NonNull Player enemy, int peons, int rock_warriors, int iron_warriors, int rubber_warriors, boolean chieftain) {
 		int ox = UnitGrid.toGridCoordinate(enemy.getStartX());
 		int oy = UnitGrid.toGridCoordinate(enemy.getStartY());
 		int center = captive.getWorld().getHeightMap().getGridUnitsPerWorld()/2;
@@ -158,22 +160,22 @@ public abstract class Island {
 		}
 	}
 
-	protected final void deploy(Player enemy, int num_units) {
+	protected final void deploy(@NonNull Player enemy, int num_units) {
 		if (enemy.getArmory() != null && !enemy.getArmory().isDead()) {
 			enemy.deployUnits(enemy.getArmory(), DeployType.IRON_WARRIOR, num_units);
 		}
 	}
 
-	protected final void attack(Player enemy, Target target, int num_units) {
+	protected final void attack(@NonNull Player enemy, @NonNull Target target, int num_units) {
 		//int ordered =
 		AI.attackLandscape(enemy, target, num_units);
 	}
 
-	protected final Unit getWarrior(Player player) {
+	protected final @Nullable Unit getWarrior(@NonNull Player player) {
 		return AI.getWarrior(player);
 	}
 
-	protected final void refillArmory(Player enemy) {
+	protected final void refillArmory(@NonNull Player enemy) {
 		if (enemy.getQuarters() == null || enemy.getArmory() == null)
 			return;
 

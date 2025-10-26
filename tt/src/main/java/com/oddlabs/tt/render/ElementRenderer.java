@@ -7,21 +7,22 @@ import com.oddlabs.tt.model.ElementNode;
 import com.oddlabs.tt.model.ElementNodeVisitor;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.viewer.Selection;
+import org.jspecify.annotations.NonNull;
 
 final class ElementRenderer implements ElementNodeVisitor<Element<?>> {
 
-    private final RenderState render_state;
+    private final @NonNull RenderState render_state;
     private final boolean picking;
     private CameraState camera;
 
     private boolean visible_override;
 
-    ElementRenderer(Player local_player, LandscapeRenderer renderer, RenderQueues render_queues, Picker picker, boolean picking, SpriteSorter sprite_sorter, Selection selection) {
+    ElementRenderer(Player local_player, LandscapeRenderer renderer, @NonNull RenderQueues render_queues, Picker picker, boolean picking, SpriteSorter sprite_sorter, Selection selection) {
         this.picking = picking;
         this.render_state = new RenderState(local_player, renderer, sprite_sorter, render_queues, picker, selection);
     }
 
-    RenderState getRenderState() {
+    @NonNull RenderState getRenderState() {
         return render_state;
     }
 
@@ -31,7 +32,7 @@ final class ElementRenderer implements ElementNodeVisitor<Element<?>> {
     }
 
     @Override
-    public void visitNode(ElementNode<Element<?>> node) {
+    public void visitNode(@NonNull ElementNode<Element<?>> node) {
         int frustum_state = RenderTools.NOT_IN_FRUSTUM;
         if (visible_override || (frustum_state = RenderTools.inFrustum(node, camera.getFrustum())) >= RenderTools.IN_FRUSTUM) {
             boolean old_override = visible_override;
@@ -43,7 +44,7 @@ final class ElementRenderer implements ElementNodeVisitor<Element<?>> {
     }
 
     @Override
-    public void visitLeaf(ElementLeaf<Element<?>> leaf) {
+    public void visitLeaf(@NonNull ElementLeaf<Element<?>> leaf) {
         int frustum_state = RenderTools.NOT_IN_FRUSTUM;
         if (visible_override || (frustum_state = RenderTools.inFrustum(leaf, camera.getFrustum())) >= RenderTools.IN_FRUSTUM) {
             boolean old_override = visible_override;
@@ -54,7 +55,7 @@ final class ElementRenderer implements ElementNodeVisitor<Element<?>> {
     }
 
     @Override
-    public void visit(Element<Element<?>> element) {
+    public void visit(@NonNull Element<Element<?>> element) {
         int frustum_state = RenderTools.NOT_IN_FRUSTUM;
         if (visible_override || (frustum_state = RenderTools.inFrustum(element, camera.getFrustum())) >= RenderTools.IN_FRUSTUM) {
             boolean old_override = visible_override;

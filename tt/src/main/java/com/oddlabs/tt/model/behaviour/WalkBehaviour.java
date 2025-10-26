@@ -10,6 +10,8 @@ import com.oddlabs.tt.pathfinder.PathTracker;
 import com.oddlabs.tt.pathfinder.TargetTrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.TrackerAlgorithm;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class WalkBehaviour implements Behaviour {
 	private final static float WAIT_RETRY_DELAY = 1f/2f;
@@ -17,10 +19,10 @@ public final class WalkBehaviour implements Behaviour {
 
 	private final Unit unit;
 	private final TrackerAlgorithm tracker_algorithm;
-	private final AttackScanFilter scan_filter;
+	private final @NonNull AttackScanFilter scan_filter;
 	private final boolean scan_attack;
 
-	private Movable blocking_movable;
+	private @Nullable Movable blocking_movable;
 	private int blocker_x;
 	private int blocker_y;
 	private float retry_delay_counter;
@@ -28,7 +30,7 @@ public final class WalkBehaviour implements Behaviour {
 
 	private PathTracker.State state;
 
-	public WalkBehaviour(Unit unit, TrackerAlgorithm tracker_algorithm, boolean scan_attack) {
+	public WalkBehaviour(@NonNull Unit unit, TrackerAlgorithm tracker_algorithm, boolean scan_attack) {
 		this.unit = unit;
 		this.tracker_algorithm = tracker_algorithm;
 		this.scan_attack = scan_attack;
@@ -37,7 +39,7 @@ public final class WalkBehaviour implements Behaviour {
 		init();
 	}
 
-	public WalkBehaviour(Unit unit, Target t, float range, boolean scan_attack) {
+	public WalkBehaviour(@NonNull Unit unit, Target t, float range, boolean scan_attack) {
 		this(unit, new TargetTrackerAlgorithm(unit.getUnitGrid(), range, t), scan_attack);
 	}
 
@@ -46,7 +48,7 @@ public final class WalkBehaviour implements Behaviour {
 		return state == PathTracker.State.BLOCKED;
 	}
 
-	public void appendToolTip(ToolTipBox tool_tip_box) {
+	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		tool_tip_box.append("WalkBehaviour: state=");
         tool_tip_box.append(state.toString());
 		tool_tip_box.append(" | retry_delay=");

@@ -1,5 +1,6 @@
 package com.oddlabs.tt.render;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
@@ -13,7 +14,7 @@ public abstract class BillboardPainter {
 	private final static FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
 	private final static DoubleBuffer plane_buf = BufferUtils.createDoubleBuffer(4);
 
-	private static void initClipPlane(int clip_enum, int face_index, int vertex_index1, int vertex_index2, short[] indices, float[] face_tex_coords, float handedness) {
+	private static void initClipPlane(int clip_enum, int face_index, int vertex_index1, int vertex_index2, short @NonNull [] indices, float @NonNull [] face_tex_coords, float handedness) {
 		float u1 = getElement(face_index, vertex_index1, 0, 2, indices, face_tex_coords);
 		float v1 = getElement(face_index, vertex_index1, 1, 2, indices, face_tex_coords);
 		float u2 = getElement(face_index, vertex_index2, 0, 2, indices, face_tex_coords);
@@ -42,12 +43,12 @@ public abstract class BillboardPainter {
 		GL11.glEnable(GL11.GL_CLIP_PLANE2);
 	}
 
-	private static float getElement(int face_index, int vertex_index, int element_index, int vertex_size, short[] indices, float[] vertices) {
+	private static float getElement(int face_index, int vertex_index, int element_index, int vertex_size, short @NonNull [] indices, float @NonNull [] vertices) {
 		int vertices_index = indices[face_index*3 + vertex_index];
 		return vertices[vertices_index*vertex_size + element_index];
 	}
 
-	public static void loadFaceMatrixAndClipPlanes(int face_index, short[] indices, float[] face_vertices, float[] face_tex_coords) {
+	public static void loadFaceMatrixAndClipPlanes(int face_index, short @NonNull [] indices, float @NonNull [] face_vertices, float @NonNull [] face_tex_coords) {
 		// Find object space to texture space matrix, mapping vectors in object space to vectors in texture space
 		Vector3f v1 = new Vector3f(getElement(face_index, 0, 0, 3, indices, face_vertices),
 								   getElement(face_index, 0, 1, 3, indices, face_vertices),

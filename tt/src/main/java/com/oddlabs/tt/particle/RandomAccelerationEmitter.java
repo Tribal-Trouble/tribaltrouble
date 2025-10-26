@@ -4,6 +4,7 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.TextureKey;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -15,21 +16,21 @@ public final class RandomAccelerationEmitter extends LinearEmitter {
 	private final float angle_bound;
 	private final float angle_max_jump;
 	private final Vector3f acceleration;
-	private final Vector3f offset_acceleration;
+	private final @NonNull Vector3f offset_acceleration;
 	private final float acceleration_factor;
 
 	private float x_angle = 0;
 	private float y_angle = 0;
 
-	private RandomAccelerationEmitter(World world, Vector3f position, float offset_z,
-				   float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
-				   int num_particles, float particles_per_second,
-				   Vector3f velocity, Vector3f acceleration, float acceleration_factor,
-				   Vector4f color, Vector4f delta_color,
-				   Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
-				   int src_blend_func, int dst_blend_func,
-				   TextureKey[] textures, SpriteKey[] sprite_renderers, int types,
-				   AnimationManager manager) {
+	private RandomAccelerationEmitter(@NonNull World world, @NonNull Vector3f position, float offset_z,
+                                      float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
+                                      int num_particles, float particles_per_second,
+                                      Vector3f velocity, @NonNull Vector3f acceleration, float acceleration_factor,
+                                      Vector4f color, Vector4f delta_color,
+                                      Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
+                                      int src_blend_func, int dst_blend_func,
+                                      TextureKey[] textures, SpriteKey[] sprite_renderers, int types,
+                                      AnimationManager manager) {
 		super(world, position,
 				offset_z,
 				emitter_radius,
@@ -58,14 +59,14 @@ public final class RandomAccelerationEmitter extends LinearEmitter {
 		this.acceleration_factor = acceleration_factor;
 	}
 
-	public RandomAccelerationEmitter(World world, Vector3f position, float offset_z,
-				   float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
-				   int num_particles, float particles_per_second,
-				   Vector3f velocity, Vector3f acceleration, float acceleration_factor,
-				   Vector4f color, Vector4f delta_color,
-				   Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
-				   int src_blend_func, int dst_blend_func,
-				   TextureKey[] textures, AnimationManager manager) {
+	public RandomAccelerationEmitter(@NonNull World world, @NonNull Vector3f position, float offset_z,
+                                     float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
+                                     int num_particles, float particles_per_second,
+                                     Vector3f velocity, @NonNull Vector3f acceleration, float acceleration_factor,
+                                     Vector4f color, Vector4f delta_color,
+                                     Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
+                                     int src_blend_func, int dst_blend_func,
+                                     TextureKey @NonNull [] textures, AnimationManager manager) {
 		this(world, position,
 				offset_z,
 				emitter_radius,
@@ -91,13 +92,13 @@ public final class RandomAccelerationEmitter extends LinearEmitter {
 				manager);
 	}
 
-	public RandomAccelerationEmitter(World world, Vector3f position, float offset_z,
-				   float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
-				   int num_particles, float particles_per_second,
-				   Vector3f velocity, Vector3f acceleration, float acceleration_factor,
-				   Vector4f color, Vector4f delta_color,
-				   Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
-				   SpriteKey[] sprite_renderers, AnimationManager manager) {
+	public RandomAccelerationEmitter(@NonNull World world, @NonNull Vector3f position, float offset_z,
+                                     float emitter_radius, float emitter_height, float angle_bound, float angle_max_jump,
+                                     int num_particles, float particles_per_second,
+                                     Vector3f velocity, @NonNull Vector3f acceleration, float acceleration_factor,
+                                     Vector4f color, Vector4f delta_color,
+                                     Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
+                                     SpriteKey @NonNull [] sprite_renderers, AnimationManager manager) {
 		this(world, position,
 				offset_z,
 				emitter_radius,
@@ -124,7 +125,7 @@ public final class RandomAccelerationEmitter extends LinearEmitter {
 	}
 
         @Override
-	protected int initParticle(Vector3f position, Vector3f velocity, Vector3f acceleration, Vector4f color, Vector4f delta_color, Vector3f particle_radius, Vector3f growth_rate, float energy) {
+	protected int initParticle(Vector3f position, @NonNull Vector3f velocity, @NonNull Vector3f acceleration, @NonNull Vector4f color, @NonNull Vector4f delta_color, @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy) {
 		randomizeAcceleration();
 
 		LinearParticle particle = new LinearParticle();

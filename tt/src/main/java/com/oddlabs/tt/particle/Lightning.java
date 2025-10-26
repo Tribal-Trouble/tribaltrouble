@@ -7,6 +7,7 @@ import com.oddlabs.tt.model.Element;
 import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.render.TextureKey;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -26,14 +27,14 @@ public final class Lightning extends Element<Lightning> implements Animated {
 	private final Vector4f color;
 	private final Vector4f delta_color;
 	private final TextureKey texture;
-	private final World world;
+	private final @NonNull World world;
 
 	private final float energy;
 
-	public Lightning(World world, Vector3f src, Vector3f dst, float width,
-			int num_particles, Vector4f color, Vector4f delta_color,
-			TextureKey texture, float energy,
-			AnimationManager manager) {
+	public Lightning(@NonNull World world, Vector3f src, Vector3f dst, float width,
+                     int num_particles, Vector4f color, Vector4f delta_color,
+                     TextureKey texture, float energy,
+                     AnimationManager manager) {
 		super(world.getElementRoot());
 		this.world = world;
 		this.src = src;
@@ -49,7 +50,7 @@ public final class Lightning extends Element<Lightning> implements Animated {
 		register();
 	}
 
-	public List<StretchParticle> getParticles() {
+	public @NonNull List<StretchParticle> getParticles() {
 		return particles;
 	}
 
@@ -92,7 +93,7 @@ public final class Lightning extends Element<Lightning> implements Animated {
 		}
 	}
 
-	private void initParticle(StretchParticle particle) {
+	private void initParticle(@NonNull StretchParticle particle) {
 		particle.setSrcWidth(width);
 		particle.setColor(color.getX(), color.getY(), color.getZ(), color.getW());
 		particle.setDeltaColor(delta_color.getX(), delta_color.getY(), delta_color.getZ(), delta_color.getW());
@@ -144,7 +145,7 @@ public final class Lightning extends Element<Lightning> implements Animated {
 	}
 
     @Override
-	public void visit(ElementVisitor visitor) {
+	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitLightning(this);
 	}
 

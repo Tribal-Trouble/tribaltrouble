@@ -1,5 +1,7 @@
 package com.oddlabs.http;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Iterator;
@@ -14,7 +16,7 @@ public final class HttpRequestParameters {
 		this.parameters = parameters;
 	}
 
-	String createQueryString() {
+	@NonNull String createQueryString() {
 		if (parameters == null || parameters.isEmpty())
 			return "";
 		StringBuilder buffer = new StringBuilder();

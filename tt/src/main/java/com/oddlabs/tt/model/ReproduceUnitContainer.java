@@ -1,12 +1,15 @@
 package com.oddlabs.tt.model;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 public final class ReproduceUnitContainer extends UnitContainer {
-	private final Building building;
+	private final @NonNull Building building;
 
 
 	private float unit_reproduction = 0f;
 
-	public ReproduceUnitContainer(Building building) {
+	public ReproduceUnitContainer(@NonNull Building building) {
 		super(building.getOwner().getWorld().getMaxUnitCount());
 		this.building = building;
 	}
@@ -25,14 +28,14 @@ public final class ReproduceUnitContainer extends UnitContainer {
 	}
 
     @Override
-	public void enter(Unit unit) {
+	public void enter(@NonNull Unit unit) {
 		assert canEnter(unit);
 		unit.removeNow();
 		increaseSupply(1);
 	}
 
     @Override
-	public boolean canEnter(Unit unit) {
+	public boolean canEnter(@NonNull Unit unit) {
 		return !unit.getAbilities().hasAbilities(Abilities.THROW) && getTotalSupplies() != getMaxSupplyCount();
 	}
 
@@ -42,7 +45,7 @@ public final class ReproduceUnitContainer extends UnitContainer {
 	}
 
     @Override
-	public Unit exit() {
+	public @Nullable Unit exit() {
 		assert getNumSupplies() > 0;
 		increaseSupply(-1);
 		return null;

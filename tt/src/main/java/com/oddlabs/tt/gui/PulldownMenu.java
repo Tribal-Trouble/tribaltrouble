@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public final class PulldownMenu extends Group {// GUIObject {
 		top.render(0, getHeight() - top.getHeight(), getWidth(), Skin.NORMAL);
 	}
 
-	public void addItem(PulldownItem item) {
+	public void addItem(@NonNull PulldownItem item) {
 		items.add(item);
 		addChild(item);
 		item.addMouseClickListener(new ItemListener(items.size() - 1));
@@ -83,7 +84,7 @@ public final class PulldownMenu extends Group {// GUIObject {
 	}
 
         @Override
-	protected void keyRepeat(KeyboardEvent event) {
+	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_UP:
 				focusPrior();

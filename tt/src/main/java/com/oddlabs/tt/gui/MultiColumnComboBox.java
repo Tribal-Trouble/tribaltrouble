@@ -1,6 +1,8 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.RowListener;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,19 +13,19 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 	private final Group focus_group = new Group();
 	private final RowCollection rows = new RowCollection(this, 0, true);
 	private final List<RowListener> row_listeners = new ArrayList<>();
-	private final ScrollBar scroll_bar;
+	private final @NonNull ScrollBar scroll_bar;
 	private final boolean use_buttons;
 	private final GUIRoot gui_root;
 	private int offset_y = 0;
-	private PulldownMenu pulldown_menu = null;
-	private Object right_clicked_row_data;
+	private @Nullable PulldownMenu pulldown_menu = null;
+	private @Nullable Object right_clicked_row_data;
 
 
-	public MultiColumnComboBox(GUIRoot gui_root, ColumnInfo[] column_infos, int height) {
+	public MultiColumnComboBox(GUIRoot gui_root, ColumnInfo @NonNull [] column_infos, int height) {
 		this(gui_root, column_infos, height, true);
 	}
 
-	public MultiColumnComboBox(GUIRoot gui_root, ColumnInfo[] column_infos, int height, boolean use_buttons) {
+	public MultiColumnComboBox(GUIRoot gui_root, ColumnInfo @NonNull [] column_infos, int height, boolean use_buttons) {
 		this.column_infos = column_infos;
 		this.use_buttons = use_buttons;
 		this.gui_root = gui_root;
@@ -110,13 +112,13 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 		rows.clear();
 	}
 
-	public void addRow(Row row) {
+	public void addRow(@NonNull Row row) {
 		row.setColumnInfos(column_infos);
 		rows.addRow(row);
 		scroll_bar.update();
 	}
 
-	public Object getSelected() {
+	public @Nullable Object getSelected() {
 		return rows.getSelected();
 	}
 

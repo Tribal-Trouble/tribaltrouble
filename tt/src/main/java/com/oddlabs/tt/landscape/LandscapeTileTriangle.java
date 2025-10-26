@@ -2,6 +2,8 @@ package com.oddlabs.tt.landscape;
 
 
 import com.oddlabs.tt.util.StrictVector3f;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.ShortBuffer;
 
@@ -37,8 +39,8 @@ public final class LandscapeTileTriangle {
 	private final int i2_x;
 	private final int i2_y;
 
-	private final LandscapeTileTriangle t0;
-	private final LandscapeTileTriangle t1;
+	private final @Nullable LandscapeTileTriangle t0;
+	private final @Nullable LandscapeTileTriangle t1;
 
 	private final StrictVector3f current_plane = new StrictVector3f();
 
@@ -144,7 +146,7 @@ public final class LandscapeTileTriangle {
 		}
 	}
 
-	void addIndices(ShortBuffer buffer, int border_set) {
+	void addIndices(@NonNull ShortBuffer buffer, int border_set) {
 		if (containsBorder(border_set)) {
 			t0.addIndices(buffer);
 			t1.addIndices(buffer);
@@ -152,11 +154,11 @@ public final class LandscapeTileTriangle {
 			addIndices(buffer);
 	}
 
-	private void addIndices(ShortBuffer buffer) {
+	private void addIndices(@NonNull ShortBuffer buffer) {
 		buffer.put(i0).put(i1).put(i2);
 	}
 
-	void setupMapping(int patch_exp, int lod, LandscapeTileTriangle[][][] quad_to_planes) {
+	void setupMapping(int patch_exp, int lod, LandscapeTileTriangle[][] @NonNull [] quad_to_planes) {
 		int min_x = Math.min(i0_x, Math.min(i1_x, i2_x));
 		int min_y = Math.min(i0_y, Math.min(i1_y, i2_y));
 		int num_quads_exp = LandscapeTileIndices.getNumQuadsExp(lod);
@@ -181,7 +183,7 @@ public final class LandscapeTileTriangle {
 		return (border_set & border_direction) != 0;
 	}
 
-	public void putIndices(int lod, int border_set, ShortBuffer indices) {
+	public void putIndices(int lod, int border_set, @NonNull ShortBuffer indices) {
 //System.out.println("lod = " + lod + " | Integer.toHexString(border_set) = " + Integer.toHexString(border_set) + " | Integer.toHexString(border_direction) = " + Integer.toHexString(border_direction));
 		if (lod > 0 || (lod == 0 && containsBorder(border_set))) {
 			t0.putIndices(lod - 1, border_set, indices);
@@ -193,7 +195,7 @@ public final class LandscapeTileTriangle {
 		}
 	}
 
-	public void update(HeightMap heightmap, int offset_x, int offset_y) {
+	public void update(@NonNull HeightMap heightmap, int offset_x, int offset_y) {
 		heightmap.makePlaneVector(i0_x + offset_x, i0_y + offset_y, i1_x + offset_x, i1_y + offset_y, i2_x + offset_x, i2_y + offset_y, current_plane);
 	}
 
@@ -202,7 +204,7 @@ public final class LandscapeTileTriangle {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "i0_x = " + i0_x + " | i0_y = " + i0_y + " | i1_x = " + i1_x + " | i1_y = " + i1_y + " | i2_x = " + i2_x + " | i2_y = " + i2_y;
 	}
 }

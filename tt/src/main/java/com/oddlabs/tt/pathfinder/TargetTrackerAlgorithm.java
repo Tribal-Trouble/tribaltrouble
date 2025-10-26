@@ -2,6 +2,7 @@ package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.Nullable;
 
 public final class TargetTrackerAlgorithm implements TrackerAlgorithm {
 	private final UnitGrid unit_grid;
@@ -25,7 +26,7 @@ public final class TargetTrackerAlgorithm implements TrackerAlgorithm {
 	}
 
     @Override
-	public Region findPathRegion(int src_x, int src_y) {
+	public @Nullable Region findPathRegion(int src_x, int src_y) {
 		return target.isDead()
                 ? null
                 : PathFinder.findPathRegion(unit_grid,
@@ -34,7 +35,7 @@ public final class TargetTrackerAlgorithm implements TrackerAlgorithm {
 	}
 
     @Override
-	public GridPathNode findPathGrid(Region target_region, Region next_region, int src_x, int src_y, boolean allow_secondary_targets) {
+	public @Nullable GridPathNode findPathGrid(Region target_region, Region next_region, int src_x, int src_y, boolean allow_secondary_targets) {
 		return target.isDead()
             ? null
             : PathFinder.findPathGrid(unit_grid, next_region, null,

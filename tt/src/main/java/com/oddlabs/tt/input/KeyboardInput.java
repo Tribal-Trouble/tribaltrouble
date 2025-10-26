@@ -7,6 +7,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Renderer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public final class KeyboardInput {
@@ -78,11 +79,11 @@ public final class KeyboardInput {
 		}
 	}
 
-	public static boolean poll(GUIRoot gui_root) {
+	public static boolean poll(@NonNull GUIRoot gui_root) {
 		return instance.doPoll(gui_root);
 	}
 
-	public boolean doPoll(GUIRoot gui_root) {
+	public boolean doPoll(@NonNull GUIRoot gui_root) {
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		LocalInput local_input = LocalInput.getLocalInput();
 		boolean result = false;

@@ -16,6 +16,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.net.MatchmakingListener;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -26,7 +27,7 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;
 
-	public MatchmakingConnectingForm(NetworkSelector network, GUIRoot gui_root, Form parent_form, MainMenu main_menu, Login login, LoginDetails login_details) {
+	public MatchmakingConnectingForm(@NonNull NetworkSelector network, GUIRoot gui_root, Form parent_form, MainMenu main_menu, Login login, LoginDetails login_details) {
 		this.parent_form = parent_form;
 		this.main_menu = main_menu;
 		this.gui_root = gui_root;

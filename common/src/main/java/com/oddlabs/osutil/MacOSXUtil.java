@@ -1,5 +1,7 @@
 package com.oddlabs.osutil;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -21,14 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class MacOSXUtil extends OSUtil {
-	private static File locateDir(String app_dir_name) {
+	private static @Nullable File locateDir(String app_dir_name) {
 		File current_dir = new File(".").getAbsoluteFile();
 		while (current_dir != null && !current_dir.getName().equals(app_dir_name))
 			current_dir = current_dir.getParentFile();
 		return current_dir;
 	}
 
-	private static void convertPlist(File info_plist_file, String script_url, Map<String, String> script_parameters) {
+	private static void convertPlist(File info_plist_file, String script_url, @NonNull Map<String, String> script_parameters) {
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder document_builder = factory.newDocumentBuilder();
@@ -61,7 +63,7 @@ public final class MacOSXUtil extends OSUtil {
 	}
 
         @Override
-	public void registerURLScheme(String gamename, URLAssociation association) {
+	public void registerURLScheme(String gamename, @NonNull URLAssociation association) {
 		Map<String, String> script_parameters = new HashMap<>();
 		script_parameters.put("description", association.description);
 		script_parameters.put("scheme", association.scheme);
@@ -70,7 +72,7 @@ public final class MacOSXUtil extends OSUtil {
 	}
 
         @Override
-	public void registerAssociation(String gamename, Association association) {
+	public void registerAssociation(String gamename, @NonNull Association association) {
 		Map<String, String> script_parameters = new HashMap<>();
 		script_parameters.put("mimetype", association.mime_type);
 		script_parameters.put("extension", association.extension);
@@ -80,7 +82,7 @@ public final class MacOSXUtil extends OSUtil {
 		convertPlist(gamename, "scripts/filetypeplist.xml", script_parameters);
 	}
 
-	private static void convertPlist(String gamename, String script_url, Map<String, String> script_parameters) {
+	private static void convertPlist(String gamename, String script_url, @NonNull Map<String, String> script_parameters) {
 		String app_dir_name = gamename + ".app";
 		File app_dir = locateDir(app_dir_name);
 		if (app_dir == null) {

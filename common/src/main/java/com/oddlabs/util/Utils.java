@@ -1,5 +1,7 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +26,7 @@ public final class Utils {
 
 	public final static Path[] LOG_FILES = {STD_OUT, STD_ERR, EVENT_LOG};
 
-	public static InetAddress getLoopbackAddress() {
+	public static @NonNull InetAddress getLoopbackAddress() {
 		try {
 			return tryGetLoopbackAddress();
 		} catch (IOException e) {
@@ -32,7 +34,7 @@ public final class Utils {
 		}
 	}
 
-	public static InetAddress tryGetLoopbackAddress() throws IOException {
+	public static @NonNull InetAddress tryGetLoopbackAddress() throws IOException {
 		Enumeration<NetworkInterface> interfaces;
 		interfaces = NetworkInterface.getNetworkInterfaces();
 		InetAddress best_address = null;
@@ -80,7 +82,7 @@ System.out.println("loopback address = " + best_address);
 		return x;
 	}
 
-	public static void flip(byte[] bytes, int width, int height) {
+	public static void flip(byte @NonNull [] bytes, int width, int height) {
 		byte[] line = new byte[width];
 
 		for (int i = 0; i < height/2; i++) {
@@ -90,7 +92,7 @@ System.out.println("loopback address = " + best_address);
 		}
 	}
 
-	public static void flip(ByteBuffer bytes, int width, int height) {
+	public static void flip(@NonNull ByteBuffer bytes, int width, int height) {
 		byte[] line = new byte[width];
 		byte[] line2 = new byte[width];
 
@@ -106,11 +108,11 @@ System.out.println("loopback address = " + best_address);
 		}
 	}
 
-	public static <T> T loadObject(URL url) {
+	public static <T> T loadObject(@NonNull URL url) {
 		return loadObject(url, false);
 	}
 
-	public static <T> T loadObject(URL url, boolean zipped) {
+	public static <T> T loadObject(@NonNull URL url, boolean zipped) {
 		try {
 			return tryLoadObject(url, zipped);
 		} catch (IOException ioe) {
@@ -120,11 +122,11 @@ System.out.println("loopback address = " + best_address);
 		}
 	}
 
-	public static <T> T tryLoadObject(URL url) throws IOException, ClassNotFoundException {
+	public static <T> T tryLoadObject(@NonNull URL url) throws IOException, ClassNotFoundException {
 		return tryLoadObject(url, false);
 	}
 
-	public static <T> T tryLoadObject(URL url, boolean zipped) throws IOException, ClassNotFoundException {
+	public static <T> T tryLoadObject(@NonNull URL url, boolean zipped) throws IOException, ClassNotFoundException {
         try (InputStream urlStream = url.openStream()) {
             try (InputStream input_stream = zipped ? new GZIPInputStream(urlStream) : new BufferedInputStream(urlStream)) {
                 try (ObjectInputStream obj_stream = new ObjectInputStream(input_stream)) {
@@ -135,7 +137,7 @@ System.out.println("loopback address = " + best_address);
         }
 	}
 
-	public static URL makeURL(String location) {
+	public static @NonNull URL makeURL(@NonNull String location) {
 		try {
 			return tryMakeURL(location);
 		} catch (IOException e) {
@@ -143,7 +145,7 @@ System.out.println("loopback address = " + best_address);
 		}
 	}
 
-	public static URL tryMakeURL(String location) throws IOException {
+	public static @NonNull URL tryMakeURL(@NonNull String location) throws IOException {
 		URL url = Utils.class.getResource(location);
 		if (url == null)
 			throw new IOException(location + " not found");

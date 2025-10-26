@@ -9,18 +9,19 @@ import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public final class GameOverTrigger implements Animated {
 
-    private final int[] teams;
-    private final boolean[] dead_tribes;
+    private final int @NonNull [] teams;
+    private final boolean @NonNull [] dead_tribes;
     private final ResourceBundle bundle = ResourceBundle.getBundle(GameOverTrigger.class.getName());
     private final WorldViewer viewer;
 
-    public GameOverTrigger(WorldViewer viewer) {
+    public GameOverTrigger(@NonNull WorldViewer viewer) {
         this.viewer = viewer;
         viewer.getWorld().getAnimationManagerRealTime().registerAnimation(this);
         teams = new int[MatchmakingServerInterface.MAX_PLAYERS];
@@ -61,7 +62,7 @@ public final class GameOverTrigger implements Animated {
         }
     }
 
-    private int countTeams(Player[] players) {
+    private int countTeams(Player @NonNull [] players) {
         for (int i = 0; i < players.length; i++) {
             teams[i] = 0;
         }

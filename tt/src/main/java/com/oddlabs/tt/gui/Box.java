@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class Box {
 	private final Quad[] left_bottom;
@@ -23,13 +24,13 @@ public final class Box {
 	private final int top_height;
 
 	public Box(Quad[] left_bottom,
-			   Quad[] bottom,
+			   Quad @NonNull [] bottom,
 			   Quad[] right_bottom,
-			   Quad[] right,
+			   Quad @NonNull [] right,
 			   Quad[] right_top,
-			   Quad[] top,
+			   Quad @NonNull [] top,
 			   Quad[] left_top,
-			   Quad[] left,
+			   Quad @NonNull [] left,
 			   Quad[] center,
 			   int left_offset,
 			   int bottom_offset,

@@ -31,6 +31,9 @@
  */
 package com.oddlabs.tt.util;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.nio.FloatBuffer;
 
 /**
@@ -44,7 +47,7 @@ public class StrictMatrix4f {
 	 * Returns a string representation of this matrix
 	 */
         @Override
-	public String toString() {
+	public @NonNull String toString() {
             String buf = String.valueOf(m00) + ' ' + m10 + ' ' + m20 + ' ' + m30 + '\n' +
                     m01 + ' ' + m11 + ' ' + m21 + ' ' + m31 + '\n' +
                     m02 + ' ' + m12 + ' ' + m22 + ' ' + m32 + '\n' +
@@ -56,7 +59,7 @@ public class StrictMatrix4f {
 	 * Set this matrix to be the identity matrix.
 	 * @return this
 	 */
-	public StrictMatrix4f setIdentity() {
+	public @NonNull StrictMatrix4f setIdentity() {
 		m00 = 1.0f;
 		m01 = 0.0f;
 		m02 = 0.0f;
@@ -82,7 +85,7 @@ public class StrictMatrix4f {
 	 * Set this matrix to 0.
 	 * @return this
 	 */
-	public StrictMatrix4f setZero() {
+	public @NonNull StrictMatrix4f setZero() {
 		m00 = 0.0f;
 		m01 = 0.0f;
 		m02 = 0.0f;
@@ -109,7 +112,7 @@ public class StrictMatrix4f {
 	 * @param src The source matrix
 	 * @return this
 	 */
-	public StrictMatrix4f load(StrictMatrix4f src) {
+	public @NonNull StrictMatrix4f load(@NonNull StrictMatrix4f src) {
 
 		m00 = src.m00;
 		m01 = src.m01;
@@ -138,7 +141,7 @@ public class StrictMatrix4f {
 	 * @param buf A float buffer to read from
 	 * @return this
 	 */
-	public StrictMatrix4f load(FloatBuffer buf) {
+	public @NonNull StrictMatrix4f load(@NonNull FloatBuffer buf) {
 
 		m00 = buf.get();
 		m01 = buf.get();
@@ -167,7 +170,7 @@ public class StrictMatrix4f {
 	 * @param buf A float buffer to read from
 	 * @return this
 	 */
-	public StrictMatrix4f loadTranspose(FloatBuffer buf) {
+	public @NonNull StrictMatrix4f loadTranspose(@NonNull FloatBuffer buf) {
 
 		m00 = buf.get();
 		m10 = buf.get();
@@ -194,7 +197,7 @@ public class StrictMatrix4f {
 	 * major (openGL) order.
 	 * @param buf The buffer to store this matrix in
 	 */
-	public StrictMatrix4f store(FloatBuffer buf) {
+	public @NonNull StrictMatrix4f store(@NonNull FloatBuffer buf) {
 		buf.put(m00);
 		buf.put(m01);
 		buf.put(m02);
@@ -219,7 +222,7 @@ public class StrictMatrix4f {
 	 * major (maths) order.
 	 * @param buf The buffer to store this matrix in
 	 */
-	public StrictMatrix4f storeTranspose(FloatBuffer buf) {
+	public @NonNull StrictMatrix4f storeTranspose(@NonNull FloatBuffer buf) {
 		buf.put(m00);
 		buf.put(m10);
 		buf.put(m20);
@@ -247,7 +250,7 @@ public class StrictMatrix4f {
 	 * @param dest The destination matrix, or null if a new one is to be created
 	 * @return the destination matrix
 	 */
-	public static StrictMatrix4f add(StrictMatrix4f left, StrictMatrix4f right, StrictMatrix4f dest) {
+	public static @NonNull StrictMatrix4f add(@NonNull StrictMatrix4f left, @NonNull StrictMatrix4f right, @Nullable StrictMatrix4f dest) {
 
 		StrictMatrix4f temp = null;
 
@@ -290,7 +293,7 @@ public class StrictMatrix4f {
 	 * @param dest The destination matrix, or null if a new one is to be created
 	 * @return the destination matrix
 	 */
-	public static StrictMatrix4f sub(StrictMatrix4f left, StrictMatrix4f right, StrictMatrix4f dest) {
+	public static @NonNull StrictMatrix4f sub(@NonNull StrictMatrix4f left, @NonNull StrictMatrix4f right, @Nullable StrictMatrix4f dest) {
 
 		StrictMatrix4f temp = null;
 
@@ -332,7 +335,7 @@ public class StrictMatrix4f {
 	 * @param dest The destination matrix, or null if a new one is to be created
 	 * @return the destination matrix
 	 */
-	public static StrictMatrix4f mul(StrictMatrix4f left, StrictMatrix4f right, StrictMatrix4f dest) {
+	public static @NonNull StrictMatrix4f mul(@NonNull StrictMatrix4f left, @NonNull StrictMatrix4f right, @Nullable StrictMatrix4f dest) {
 
 		if (dest == null)
 			dest = new StrictMatrix4f();
@@ -382,7 +385,7 @@ public class StrictMatrix4f {
 	 * @param dest The destination vector, or null if a new one is to be created
 	 * @return the destination vector
 	 */
-	public static StrictVector4f transform(StrictMatrix4f left, StrictVector4f right, StrictVector4f dest) {
+	public static @NonNull StrictVector4f transform(@NonNull StrictMatrix4f left, @NonNull StrictVector4f right, @Nullable StrictVector4f dest) {
 
 		StrictVector4f temp = null;
 
@@ -410,7 +413,7 @@ public class StrictMatrix4f {
 	 * Transpose this matrix
 	 * @return this
 	 */
-	public StrictMatrix4f transpose() {
+	public @NonNull StrictMatrix4f transpose() {
 
 		float f = m10;
 		m10 = m01;
@@ -439,7 +442,7 @@ public class StrictMatrix4f {
 	 * @param vec The vector to translate by
 	 * @return this
 	 */
-	public StrictMatrix4f translate(StrictVector3f vec) {
+	public @NonNull StrictMatrix4f translate(@NonNull StrictVector3f vec) {
 		return translate(this, vec, this);
 	}
 
@@ -448,11 +451,11 @@ public class StrictMatrix4f {
 	 * @param vec The vector to scale by
 	 * @return this
 	 */
-	public StrictMatrix4f scale(StrictVector3f vec) {
+	public @NonNull StrictMatrix4f scale(@NonNull StrictVector3f vec) {
 		return scale(this, vec, this);
 	}
 
-	public static StrictMatrix4f scale(StrictMatrix4f src, StrictVector3f vec, StrictMatrix4f dst) {
+	public static @NonNull StrictMatrix4f scale(@NonNull StrictMatrix4f src, @NonNull StrictVector3f vec, @NonNull StrictMatrix4f dst) {
 		dst.m00 = src.m00*vec.x;
 		dst.m01 = src.m01*vec.x;
 		dst.m02 = src.m02*vec.x;
@@ -477,7 +480,7 @@ public class StrictMatrix4f {
 	 * @param axis The vector representing the rotation axis. Must be normalized.
 	 * @return this
 	 */
-	public StrictMatrix4f rotate(float angle, StrictVector3f axis) {
+	public @NonNull StrictMatrix4f rotate(float angle, @NonNull StrictVector3f axis) {
 		float c = (float) Math.cos(angle);
 		float s = (float) Math.sin(angle);
 		float oneminusc = 1.0f - c;
@@ -530,7 +533,7 @@ public class StrictMatrix4f {
 	 * @param dest The destination matrix or null if a new matrix is to be created
 	 * @return The rotated matrix
 	 */
-	public StrictMatrix4f rotate(float angle, StrictVector3f axis, StrictMatrix4f dest) {
+	public StrictMatrix4f rotate(float angle, @NonNull StrictVector3f axis, @Nullable StrictMatrix4f dest) {
 		if (dest == null)
 			dest = new StrictMatrix4f();
 		else if (dest == this)
@@ -579,11 +582,11 @@ public class StrictMatrix4f {
 	 * @param dest The destination matrix or null if a new matrix is to be created
 	 * @return the translated matrix
 	 */
-	public StrictMatrix4f translate(StrictVector3f vec, StrictMatrix4f dest) {
+	public @NonNull StrictMatrix4f translate(@NonNull StrictVector3f vec, @NonNull StrictMatrix4f dest) {
 		return scale(this, vec, dest);
 	}
 
-	public static StrictMatrix4f translate(StrictMatrix4f src, StrictVector3f vec, StrictMatrix4f dst) {
+	public static @NonNull StrictMatrix4f translate(@NonNull StrictMatrix4f src, @NonNull StrictVector3f vec, @Nullable StrictMatrix4f dst) {
 		if (dst == null)
 			dst = new StrictMatrix4f();
 
@@ -611,7 +614,7 @@ public class StrictMatrix4f {
 	 * @param dest The destination matrix or null if a new matrix is to be created
 	 * @return the transposed matrix
 	 */
-	public StrictMatrix4f transpose(StrictMatrix4f dest) {
+	public @NonNull StrictMatrix4f transpose(@Nullable StrictMatrix4f dest) {
 		if (dest == null) { 
 			// New matrix needed to store transpose 
 			dest = new StrictMatrix4f(); 
@@ -688,7 +691,7 @@ public class StrictMatrix4f {
 	 * Invert this matrix
 	 * @return this if successful, null otherwise
 	 */
-	public StrictMatrix4f invert() {
+	public @Nullable StrictMatrix4f invert() {
 
 		float determinant = determinant();
 
@@ -749,7 +752,7 @@ public class StrictMatrix4f {
 	 * Negate this matrix
 	 * @return this
 	 */
-	public StrictMatrix4f negate() {
+	public @NonNull StrictMatrix4f negate() {
 		m00 = -m00;
 		m01 = -m01;
 		m02 = -m02;
@@ -774,7 +777,7 @@ public class StrictMatrix4f {
 	 * @param dest The destination matrix, or null if a new matrix is to be created
 	 * @return the negated matrix
 	 */
-	public StrictMatrix4f negate(StrictMatrix4f dest) {
+	public @NonNull StrictMatrix4f negate(@Nullable StrictMatrix4f dest) {
 		if (dest == null)
 			dest = new StrictMatrix4f();
 

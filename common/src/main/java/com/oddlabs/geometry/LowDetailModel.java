@@ -1,5 +1,7 @@
 package com.oddlabs.geometry;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 
 public final class LowDetailModel implements Serializable {
@@ -10,7 +12,7 @@ public final class LowDetailModel implements Serializable {
 	private final short[] indices;
 	private final int poly_count;
 
-	public LowDetailModel(short[] indices, float[] vertices, float[] tex_coords) {
+	public LowDetailModel(short @NonNull [] indices, float[] vertices, float[] tex_coords) {
 		this.indices = indices;
 		this.vertices = vertices;
 		this.tex_coords = tex_coords;

@@ -3,6 +3,7 @@ package com.oddlabs.tt.camera;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector3f;
+import org.jspecify.annotations.NonNull;
 
 public final class CameraState {
 	final static float MIN_ANGLE = -(float)Math.PI/2f;//+ 0.01f;
@@ -32,7 +33,7 @@ public final class CameraState {
 
 	private boolean no_detail_mode;
 
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 		//System.out.println("camera_x = " + camera_x + " | camera_y = " + camera_y + " | camera_z = " + camera_z + " | dir_x = " + dir_x + " | dir_y = " + dir_y + " | dir_z = " + dir_z);
 		checksum.update(camera_x); 
 		checksum.update(camera_y);
@@ -113,7 +114,7 @@ public final class CameraState {
 		no_detail_mode = s;
 	}
 
-	public void set(CameraState camera) {
+	public void set(@NonNull CameraState camera) {
 		setTargetX(camera.getTargetX());
 		setTargetY(camera.getTargetY());
 		setTargetZ(camera.getTargetZ());
@@ -177,13 +178,13 @@ public final class CameraState {
 		setCurrentHorizAngle(ha);
 	}
 
-	public void updateDirectionAndNormal(StrictVector3f f, StrictVector3f u, StrictVector3f s) {
+	public void updateDirectionAndNormal(@NonNull StrictVector3f f, @NonNull StrictVector3f u, @NonNull StrictVector3f s) {
 		updateDirectionAndNormal(horiz_angle, vert_angle, f, u, s);
 	}
 
 	private final static StrictVector3f tmp = new StrictVector3f();
 	private final static StrictVector3f tmp2 = new StrictVector3f();
-	private static void updateDirectionAndNormal(float hangle, float vangle, StrictVector3f f, StrictVector3f u, StrictVector3f s) {
+	private static void updateDirectionAndNormal(float hangle, float vangle, @NonNull StrictVector3f f, @NonNull StrictVector3f u, @NonNull StrictVector3f s) {
 		float radius = (float)Math.cos(vangle);
 		float dir_x = (float)Math.cos(hangle);
 		float dir_y = (float)Math.sin(hangle);
@@ -197,19 +198,19 @@ public final class CameraState {
 		u.normalise();
 	}
 
-	public void setTargetView(StrictMatrix4f proj) {
+	public void setTargetView(@NonNull StrictMatrix4f proj) {
 		doSetView(target_camera_x, target_camera_y, target_camera_z, target_horiz_angle, target_vert_angle, proj);
 	}
 
-	public void setView(StrictMatrix4f proj) {
+	public void setView(@NonNull StrictMatrix4f proj) {
 		doSetView(camera_x, camera_y, camera_z, horiz_angle, vert_angle, proj);
 	}
 
-	public StrictMatrix4f getModelView() {
+	public @NonNull StrictMatrix4f getModelView() {
 		return modl;
 	}
 
-	public StrictMatrix4f getProjectionModelView() {
+	public @NonNull StrictMatrix4f getProjectionModelView() {
 		return proj_modl;
 	}
 
@@ -217,7 +218,7 @@ public final class CameraState {
 		return frustum;
 	}
 
-	private void doSetView(float cx, float cy, float cz, float hangle, float vangle, StrictMatrix4f proj) {
+	private void doSetView(float cx, float cy, float cz, float hangle, float vangle, @NonNull StrictMatrix4f proj) {
 		updateDirectionAndNormal(hangle, vangle, f, u, s);
 		vector.set(-cx, -cy, -cz);
 		modl.m00 = s.x;
@@ -241,7 +242,7 @@ public final class CameraState {
 		findFrustumPlanes(proj_modl);
 	}
 
-	public void findFrustumPlanes(StrictMatrix4f matrix) {
+	public void findFrustumPlanes(@NonNull StrictMatrix4f matrix) {
 		/* Extract the numbers for the RIGHT plane */
 		frustum[0][0] = matrix.m03 - matrix.m00;
 		frustum[0][1] = matrix.m13 - matrix.m10;

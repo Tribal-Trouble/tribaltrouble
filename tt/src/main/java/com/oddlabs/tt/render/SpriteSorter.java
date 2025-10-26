@@ -4,6 +4,7 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.util.PocketList;
+import org.jspecify.annotations.NonNull;
 
 public final class SpriteSorter {
 	public final static int DETAIL_POINT = 1;
@@ -24,7 +25,7 @@ public final class SpriteSorter {
 		this.polycount_limit = polycount_limit;
 	}
 
-	public int add(LODObject model, CameraState camera, boolean point) {
+	public int add(@NonNull LODObject model, @NonNull CameraState camera, boolean point) {
 		if (point && camera.inNoDetailMode()) {
 			model.markDetailPoint();
 			return DETAIL_POINT;

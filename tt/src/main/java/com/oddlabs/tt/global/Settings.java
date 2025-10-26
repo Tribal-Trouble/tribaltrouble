@@ -3,6 +3,7 @@ package com.oddlabs.tt.global;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.util.GLUtils;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.Pbuffer;
@@ -25,12 +26,12 @@ public final class Settings implements Serializable {
 	private static Settings settings;
 
 	// event logging
-	public URI last_event_log_dir = Paths.get("").toUri();
+	public @NonNull URI last_event_log_dir = Paths.get("").toUri();
 	public int last_revision = -1;
 	public boolean crashed = false;
 
 	// network
-	public String registration_address = "registration.oddlabs.com";
+	public @NonNull String registration_address = "registration.oddlabs.com";
 	public final String matchmaking_address = "matchmaking.oddlabs.com";
 	public final String router_address = "router.oddlabs.com";
 	public String username = "";
@@ -46,7 +47,7 @@ public final class Settings implements Serializable {
 	public float sound_gain = 1f;
 
 	// language
-	public String language = "default";
+	public @NonNull String language = "default";
 
 	// window
 	public int view_width = 800;
@@ -81,7 +82,7 @@ public final class Settings implements Serializable {
 
 	//reg key
 	public boolean online = true;
-	public String reg_key = "";
+	public @NonNull String reg_key = "";
 
 	//portal stuff
 	public boolean hide_update = false;
@@ -176,7 +177,7 @@ public final class Settings implements Serializable {
 		}
 	}
 
-	public void load(Path game_dir) {
+	public void load(@NonNull Path game_dir) {
 		Field[] pref_fields = getClass().getDeclaredFields();
 		Properties props = new Properties();
 		Path settings_file = game_dir.resolve(Globals.SETTINGS_FILE_NAME);

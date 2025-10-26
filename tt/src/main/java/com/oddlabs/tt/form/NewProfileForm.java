@@ -13,6 +13,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -23,7 +24,7 @@ public final class NewProfileForm extends Form {
 
 	private final Menu main_menu;
 	private final ProfilesForm profiles_form;
-	private final EditLine editline_nick;
+	private final @NonNull EditLine editline_nick;
 	private final GUIRoot gui_root;
 
 	public NewProfileForm(GUIRoot gui_root, Menu main_menu, ProfilesForm profiles_form) {

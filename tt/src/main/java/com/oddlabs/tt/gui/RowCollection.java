@@ -1,6 +1,8 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.MouseClickListener;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 
 import java.nio.DoubleBuffer;
@@ -12,7 +14,7 @@ public final class RowCollection extends GUIObject {
 	private final static DoubleBuffer plane_buf = BufferUtils.createDoubleBuffer(4);
 	private final List<Row> rows = new ArrayList<>();
 	private final MultiColumnComboBox multi_box;
-	private Row selected_row = null;
+	private @Nullable Row selected_row = null;
 	private int sort_index;
 	private boolean sorted_descending;
 
@@ -32,7 +34,7 @@ public final class RowCollection extends GUIObject {
 		replaceRows();
 	}
 
-	public void addRow(Row row) {
+	public void addRow(@NonNull Row row) {
 		rows.add(row);
 		row.addMouseClickListener(new RowListener(row));
 		row.setSortIndex(sort_index);
@@ -80,7 +82,7 @@ public final class RowCollection extends GUIObject {
 		return height;
 	}
 
-	public Object getSelected() {
+	public @Nullable Object getSelected() {
 		if (selected_row == null)
 			return null;
 		return selected_row.getContentObject();

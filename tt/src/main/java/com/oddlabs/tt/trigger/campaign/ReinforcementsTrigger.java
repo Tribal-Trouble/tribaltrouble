@@ -3,14 +3,15 @@ package com.oddlabs.tt.trigger.campaign;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.trigger.IntervalTrigger;
+import org.jspecify.annotations.NonNull;
 
 public final class ReinforcementsTrigger extends IntervalTrigger {
-	private final Player player;
+	private final @NonNull Player player;
 	private final DeployType type;
 
 	private int units_deployed = 0;
 
-	public ReinforcementsTrigger(Player player, DeployType type) {
+	public ReinforcementsTrigger(@NonNull Player player, DeployType type) {
 		super(player.getWorld(), .5f, 0f);
 		this.player = player;
 		this.type = type;

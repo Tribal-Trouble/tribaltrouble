@@ -12,6 +12,7 @@ import com.oddlabs.tt.model.UnitTemplate;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 
 public abstract class ThrowingWeapon extends Accessories implements Animated {
 	private final static float GRAVITY = -6*9.82f;
@@ -37,7 +38,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	private float z_speed;
 	private float deterministic_z;
 
-	public ThrowingWeapon(boolean hit, Unit src, Selectable target, SpriteKey sprite_renderer, Audio throw_sound, Audio[] hit_sounds) {
+	public ThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable target, SpriteKey sprite_renderer, Audio throw_sound, Audio[] hit_sounds) {
 		super(target.getOwner().getWorld(), sprite_renderer);
 		this.hit = hit;
 		this.hit_sounds = hit_sounds;
@@ -67,7 +68,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "ThrowingWeapon: start_x = " + start_x + " | start_y = " + start_y + " | end_x = " + end_x + " | end_y = " + end_y + " | target = " + target + "  "  + super.toString();
 	}
 
@@ -110,7 +111,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	}
 
         @Override
-	public final void updateChecksum(StateChecksum checksum) {
+	public final void updateChecksum(@NonNull StateChecksum checksum) {
 		checksum.update(time);
 	}
 
@@ -158,7 +159,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 		audio_player.setPos(getPositionX(), getPositionY(), getPositionZ());
 	}
 
-	protected void hitTarget(boolean hit, Player owner, Selectable target) {
+	protected void hitTarget(boolean hit, @NonNull Player owner, Selectable target) {
 		owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
 		audio_player.stop();
 		remove();

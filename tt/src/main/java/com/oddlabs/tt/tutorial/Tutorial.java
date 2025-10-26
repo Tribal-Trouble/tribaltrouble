@@ -9,6 +9,7 @@ import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -21,7 +22,7 @@ public final class Tutorial {
 	private TimerAnimation timer;
 	private float old_after_done_time;
 
-	public Tutorial(WorldViewer viewer, TutorialInGameInfo tutorial_info, TutorialTrigger first_trigger) {
+	public Tutorial(WorldViewer viewer, TutorialInGameInfo tutorial_info, @NonNull TutorialTrigger first_trigger) {
 		this.viewer = viewer;
 		this.tutorial_info = tutorial_info;
 		next0(first_trigger);
@@ -43,7 +44,7 @@ public final class Tutorial {
 		viewer.getGUIRoot().pushDelegate(new TutorialOverDelegate(viewer, tutorial_info, viewer.getGUIRoot().getDelegate().getCamera(), next_tutorial));
 	}
 
-	void next(final TutorialTrigger trigger) {
+	void next(final @NonNull TutorialTrigger trigger) {
 		timer.stop();
 		TimerAnimation delay_timer = new TimerAnimation(viewer.getAnimationManagerLocal(), (Object anim) -> {
                     ((TimerAnimation)anim).stop();
@@ -53,7 +54,7 @@ public final class Tutorial {
 		old_after_done_time = trigger.getAfterDoneTime();
 	}
 
-	private void next0(final TutorialTrigger trigger) {
+	private void next0(final @NonNull TutorialTrigger trigger) {
 		removeInfo();
 		TimerAnimation delay_timer = new TimerAnimation(viewer.getAnimationManagerLocal(), (Object anim) -> {
                     ((TimerAnimation)anim).stop();
@@ -62,7 +63,7 @@ public final class Tutorial {
 		delay_timer.start();
 	}
 
-	private void next1(final TutorialTrigger trigger) {
+	private void next1(final @NonNull TutorialTrigger trigger) {
 		String text = Utils.getBundleString(ResourceBundle.getBundle(TutorialTrigger.class.getName()), trigger.getTextKey(), trigger.getFormatArgs());
 		info =  new LabelBox(text, Skin.getSkin().getEditFont(), 400);
 		info.setPos(BORDER_OFFSET, viewer.getGUIRoot().getHeight() - BORDER_OFFSET - info.getHeight());

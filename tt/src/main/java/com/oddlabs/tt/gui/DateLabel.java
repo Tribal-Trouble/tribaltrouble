@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import org.jspecify.annotations.NonNull;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -8,12 +9,12 @@ import java.util.Date;
 public final class DateLabel extends Label {
 	private final long val;
 
-	public DateLabel(long val, Font font, int width) {
+	public DateLabel(long val, @NonNull Font font, int width) {
 		super(format(val), font, width);
 		this.val = val;
 	}
 
-	public DateLabel(long val, Font font) {
+	public DateLabel(long val, @NonNull Font font) {
 		super(format(val), font);
 		this.val = val;
 	}

@@ -2,6 +2,8 @@ package com.oddlabs.geometry;
 
 import com.oddlabs.util.ByteCompressedFloatArray;
 import com.oddlabs.util.ShortCompressedFloatArray;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 
@@ -9,16 +11,16 @@ public final class SpriteInfo2 implements Serializable {
 	private final static long serialVersionUID = 1;
 
 	private final short[] indices;
-	private final ShortCompressedFloatArray vertices;
-	private final ByteCompressedFloatArray normals;
-	private final ShortCompressedFloatArray texcoords;
-	private final ShortCompressedFloatArray texcoords2;
+	private final @NonNull ShortCompressedFloatArray vertices;
+	private final @NonNull ByteCompressedFloatArray normals;
+	private final @NonNull ShortCompressedFloatArray texcoords;
+	private final @Nullable ShortCompressedFloatArray texcoords2;
 	private final byte[][] skin_names;
 	private final float[][] skin_weights;
 	private final String[][] textures;
 	private final float[] clear_color;
 
-	public SpriteInfo2(String[][] textures, short[] indices, float[] vertices, float[] normals, float[] texcoords, float[] texcoords2, byte[][] skin_names, float[][] skin_weights, float[] clear_color) {
+	public SpriteInfo2(String[][] textures, short[] indices, float @NonNull [] vertices, float @NonNull [] normals, float @NonNull [] texcoords, float @Nullable [] texcoords2, byte[][] skin_names, float[][] skin_weights, float[] clear_color) {
 		this.textures = textures;
 		this.indices = indices;
 		this.vertices = new ShortCompressedFloatArray(vertices, 3);

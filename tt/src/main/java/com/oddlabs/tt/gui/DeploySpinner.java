@@ -6,6 +6,7 @@ import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class DeploySpinner extends IconSpinner {
 	private final PlayerInterface player_interface;
@@ -15,12 +16,12 @@ public final class DeploySpinner extends IconSpinner {
 	private int num_orders = 0;
 	private int order_size = 0;
 
-	public DeploySpinner(WorldViewer viewer, PlayerInterface player_interface, IconQuad[] icon_quad, String tool_tip, Quad[] tool_tip_icons, String shortcut_key) {
+	public DeploySpinner(WorldViewer viewer, PlayerInterface player_interface, IconQuad @NonNull [] icon_quad, String tool_tip, Quad[] tool_tip_icons, String shortcut_key) {
 		super(viewer, icon_quad, tool_tip, tool_tip_icons, shortcut_key);
 		this.player_interface = player_interface;
 	}
 
-	public void setContainers(Building current_building, DeployType deploy_type, Class<?> supply_type) {
+	public void setContainers(@NonNull Building current_building, DeployType deploy_type, Class<?> supply_type) {
 		this.current_building = current_building;
 		this.deploy_type = deploy_type;
 		this.supply_type = supply_type;

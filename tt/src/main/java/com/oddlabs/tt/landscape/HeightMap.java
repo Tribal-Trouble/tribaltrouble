@@ -2,6 +2,7 @@ package com.oddlabs.tt.landscape;
 
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.util.StrictVector3f;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public final class HeightMap {
 	private final static StrictVector3f plane = new StrictVector3f();
 
 	private final float[][] world;
-	private final LandscapeLeaf[][] landscape_leaves;
+	private final LandscapeLeaf[] @NonNull [] landscape_leaves;
 	private final List<int[]> trees;
 	private final boolean[][] access_grid;
 	private final byte[][] build_grid;
@@ -34,7 +35,7 @@ public final class HeightMap {
 	private final float chunk_tex_scale;
 	private final World world_instance;
 
-	public HeightMap(World world_instance, int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, float[][] world, List<int[]> trees, boolean[][] access_grid, byte[][] build_grid) {
+	public HeightMap(World world_instance, int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, float[] @NonNull [] world, List<int[]> trees, boolean[][] access_grid, byte[][] build_grid) {
 		this.world = world;
 		this.world_instance = world_instance;
 		this.trees = trees;
@@ -129,13 +130,13 @@ public final class HeightMap {
 		return access_grid;
 	}
 
-	void makePlaneVector(int x0, int y0, int x1, int y1, int x2, int y2, StrictVector3f plane) {
+	void makePlaneVector(int x0, int y0, int x1, int y1, int x2, int y2, @NonNull StrictVector3f plane) {
 		makePlaneVector(x0, y0, getWrappedHeight(x0, y0),
 				x1, y1, getWrappedHeight(x1, y1),
 				x2, y2, getWrappedHeight(x2, y2), plane);
 	}
 
-	private static void makePlaneVector(float h1x, float h1y, float h1z, float h2x, float h2y, float h2z, float h3x, float h3y, float h3z, StrictVector3f plane) {
+	private static void makePlaneVector(float h1x, float h1y, float h1z, float h2x, float h2y, float h2z, float h3x, float h3y, float h3z, @NonNull StrictVector3f plane) {
 		float v1x = h2x - h1x;
 		float v1y = h2y - h1y;
 		float v1z = h2z - h1z;
@@ -152,7 +153,7 @@ public final class HeightMap {
 		plane.set(vec2.x*inv_z, vec2.y*inv_z, (-vec2.x*h1x - vec2.y*h1y)*inv_z + h1z);
 	}
 
-	static float planeHeight(float x, float y, StrictVector3f plane) {
+	static float planeHeight(float x, float y, @NonNull StrictVector3f plane) {
 		return plane.x*x + plane.y*y + plane.z;
 	}
 

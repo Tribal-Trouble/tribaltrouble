@@ -1,6 +1,7 @@
 package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.global.Globals;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 
 import java.io.FileOutputStream;
@@ -22,29 +23,29 @@ public final class Utils {
 	private static final IntBuffer sqrtIntBuf = sqrtByteBuf.asIntBuffer();
 	private static final FloatBuffer sqrtFloatBuf = sqrtByteBuf.asFloatBuffer();
 
-	public static String getBundleString(ResourceBundle bundle, String key, Object... object_array) {
+	public static @NonNull String getBundleString(@NonNull ResourceBundle bundle, @NonNull String key, Object... object_array) {
 		return MessageFormat.format(bundle.getString(key), object_array);
 	}
 
-	public static Path getInstallDir() {
+	public static @NonNull Path getInstallDir() {
 		return Paths.get(System.getProperty("user.dir"));
 	}
 
-	public static FloatBuffer toBuffer(float[] floats) {
+	public static @NonNull FloatBuffer toBuffer(float @NonNull [] floats) {
 		FloatBuffer buffer = BufferUtils.createFloatBuffer(floats.length);
 		buffer.put(floats);
 		buffer.rewind();
 		return buffer;
 	}
 
-	public static ShortBuffer toBuffer(short[] shorts) {
+	public static @NonNull ShortBuffer toBuffer(short @NonNull [] shorts) {
 		ShortBuffer buffer = BufferUtils.createShortBuffer(shorts.length);
 		buffer.put(shorts);
 		buffer.rewind();
 		return buffer;
 	}
 
-	public static void saveAsBMP(String filename, ByteBuffer pixel_data, int width, int height) {
+	public static void saveAsBMP(@NonNull String filename, @NonNull ByteBuffer pixel_data, int width, int height) {
 		long before = System.nanoTime();
 		int pad = 4 - (width*3)%4;
 		if (pad == 4)
@@ -137,7 +138,7 @@ public final class Utils {
 		System.out.println("File " + filename + " saved in " + TimeUnit.NANOSECONDS.toMillis(after - before) + " milliseconds");
 	}
 
-	public static void saveAsTGA(String filename, ByteBuffer pixel_data, int width, int height) {
+	public static void saveAsTGA(String filename, @NonNull ByteBuffer pixel_data, int width, int height) {
 		long before = System.nanoTime();
 		try (FileOutputStream fout = new FileOutputStream(filename + ".tga")) {
 
@@ -224,7 +225,7 @@ public final class Utils {
 		return x;
 	}
 
-	public static void storeMatrixInArray(StrictMatrix4f m, float[][] a) {
+	public static void storeMatrixInArray(@NonNull StrictMatrix4f m, float[] @NonNull [] a) {
 		a[0][0] = m.m00;
 		a[0][1] = m.m01;
 		a[0][2] = m.m02;

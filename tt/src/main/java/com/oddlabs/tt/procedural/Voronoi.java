@@ -7,6 +7,7 @@ omskriv if-check ved modulo til (x+n)%n
 package com.oddlabs.tt.procedural;
 
 import com.oddlabs.procedural.Channel;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Random;
 
@@ -17,11 +18,11 @@ public final class Voronoi {
 	public static final int SEED = 2;
 
 	private final int size;
-	private final Random random;
-	private final Channel dist1;
-	private final Channel dist2;
-	private final Channel dist3;
-	private final Channel hit;
+	private final @NonNull Random random;
+	private final @NonNull Channel dist1;
+	private final @NonNull Channel dist2;
+	private final @NonNull Channel dist3;
+	private final @NonNull Channel hit;
 
 	public Voronoi(int size, int x_domains, int y_domains, int checkradius, float randomness, long seed) {
 		this(size, x_domains, y_domains, checkradius, randomness, seed, false);
@@ -126,7 +127,7 @@ public final class Voronoi {
 		}
 	}
 
-	public Channel getDistance(float c1, float c2, float c3) {
+	public @NonNull Channel getDistance(float c1, float c2, float c3) {
 		Channel channel = new Channel(size, size);
 		for (int y = 0; y < size; y++) {
 			for (int x = 0; x < size; x++) {

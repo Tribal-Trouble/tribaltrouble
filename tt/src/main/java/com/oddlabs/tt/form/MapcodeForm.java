@@ -12,6 +12,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -22,7 +23,7 @@ public final class MapcodeForm extends Form {
 
 	private final TerrainMenu menu;
 
-	private final EditLine editline_seed;
+	private final @NonNull EditLine editline_seed;
 
 	public MapcodeForm(TerrainMenu menu) {
 		this.menu = menu;

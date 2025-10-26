@@ -4,6 +4,8 @@ import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public abstract class WeaponFactory {
 	private final static float TERRAIN_MAX_BONUS = .25f;
@@ -27,7 +29,7 @@ public abstract class WeaponFactory {
 		return range;
 	}
 
-	private static float computeTerrainBonus(HeightMap heightmap, Target src, Target dst) {
+	private static float computeTerrainBonus(@NonNull HeightMap heightmap, @NonNull Target src, @NonNull Target dst) {
 		float src_z = heightmap.getNearestHeight(src.getPositionX(), src.getPositionY());
 		float dst_z = heightmap.getNearestHeight(dst.getPositionX(), dst.getPositionY());
 		float bonus = (src_z - dst_z)*TERRAIN_BONUS_PER_HEIGHT;
@@ -35,7 +37,7 @@ public abstract class WeaponFactory {
 		return bonus;
 	}
 
-	public final void attack(Unit src, Selectable target, float factor) {
+	public final void attack(@NonNull Unit src, @NonNull Selectable target, float factor) {
 		/* GAMEPLAY: Terrain bonus, according to who is positioned highest */
 		float terrain_bonus = computeTerrainBonus(src.getOwner().getWorld().getHeightMap(), src, target);
 		float difficulty_bonus = src.getOwner().getHitBonus();
@@ -43,11 +45,11 @@ public abstract class WeaponFactory {
 		doAttack(hit, src, target);
 	}
 
-	public final void attack(Unit src, Selectable target) {
+	public final void attack(@NonNull Unit src, @NonNull Selectable target) {
 		attack(src, target, 1f);
 	}
 
 	protected abstract void doAttack(boolean hit, Unit src, Selectable target);
 
-	public abstract Class<? extends ThrowingWeapon> getType();
+	public abstract @Nullable Class<? extends ThrowingWeapon> getType();
 }

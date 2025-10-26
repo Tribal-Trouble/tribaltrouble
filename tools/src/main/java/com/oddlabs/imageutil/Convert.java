@@ -5,6 +5,7 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Image;
 import gr.zdimensions.jsquish.Squish;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 
 import javax.imageio.ImageIO;
@@ -22,7 +23,7 @@ import java.util.List;
 public final class Convert {
 	private static String current_ext;
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String @NonNull [] args) throws IOException {
 		if (args.length < 2) {
 			System.out.println("Usage: Convert <infile> <operations> <outfile>");
 			System.exit(1);
@@ -54,7 +55,7 @@ System.out.println("outfile = " + outfile);
 		save(outfile, images);
 	}
 
-	private static Layer[] processOperations(Iterator<String> args, Layer[] images) {
+	private static Layer[] processOperations(@NonNull Iterator<String> args, Layer[] images) {
 		while (args.hasNext()) {
 			String op = args.next();
 			images = processOperation(op, args, images);
@@ -62,7 +63,7 @@ System.out.println("outfile = " + outfile);
 		return images;
 	}
 
-	private static Layer[] processOperation(String op, Iterator<String> args, Layer[] images) {
+	private static Layer[] processOperation(@NonNull String op, @NonNull Iterator<String> args, Layer @NonNull [] images) {
         switch (op) {
             case "-mipmaps":
                 if (images.length != 1)
@@ -108,7 +109,7 @@ System.out.println("outfile = " + outfile);
 		return images;
 	}
 
-	private static Layer loadFile(File file) throws IOException {
+	private static @NonNull Layer loadFile(File file) throws IOException {
 
 		BufferedImage image = ImageIO.read(file);
 		int width = image.getWidth();
@@ -138,7 +139,7 @@ System.out.println("outfile = " + outfile);
 		return image_layer;
 	}
 
-	private static void saveImage(File file, Layer[] images) throws IOException {
+	private static void saveImage(File file, Layer @NonNull [] images) throws IOException {
 		if (images.length != 1)
 			throw new IllegalArgumentException("Can't save more than 1 image in .image format");
 		byte[] bytes = images[0].convertToBytes();
@@ -146,7 +147,7 @@ System.out.println("outfile = " + outfile);
 		image.write(file);
 	}
 
-	private static void saveDxtn(File file, Layer[] images) throws IOException {
+	private static void saveDxtn(File file, Layer @NonNull [] images) throws IOException {
 		int internal_format;
 		Squish.CompressionType type;
 		if (images[0].a == null) {
@@ -168,7 +169,7 @@ System.out.println("Done");*/
 		new DXTImage((short)images[0].getWidth(),(short)images[0].getHeight(), internal_format, mipmap_bytes).write(file);
 	}
 
-	private static void save(File file, Layer[] images) throws IOException {
+	private static void save(@NonNull File file, Layer @NonNull [] images) throws IOException {
 		if (file.getName().endsWith(".dxtn")) {
 			saveDxtn(file, images);
 		} else if (file.getName().endsWith(".image")) {
@@ -220,7 +221,7 @@ mipmap_layer.saveAsPNG(filename + "." + mip_width + "x" + mip_height + "p");
 		new DXTImage((short)width,(short)height, internal_format, (byte[][])mipmaps.toArray(new byte[][]{})).write(new File(outfile));
 	}
 */
-	private static byte[] getImageData(BufferedImage image) {
+	private static byte[] getImageData(@NonNull BufferedImage image) {
 
 		final int type = image.getType();
 

@@ -5,6 +5,7 @@ import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.vbo.VBO;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -38,7 +39,7 @@ abstract class ShadowRenderer {
 		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
 	}
 
-	protected final void renderShadow(LandscapeRenderer renderer, float shadow_size, float f_x, float f_y) {
+	protected final void renderShadow(@NonNull LandscapeRenderer renderer, float shadow_size, float f_x, float f_y) {
 		assert shadow_size >= 0;
 		// Redundant glLoadIdentity on the texture matrix stack to work around GL_OBJECT_PLANE not always updating
 		GL11.glLoadIdentity();

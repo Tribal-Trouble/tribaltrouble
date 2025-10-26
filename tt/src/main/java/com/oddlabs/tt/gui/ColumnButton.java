@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class ColumnButton extends RadioButtonGroupElement {
 	private final RowCollection rows;
@@ -11,7 +12,7 @@ public final class ColumnButton extends RadioButtonGroupElement {
 	private boolean sorted_descending;
 	private boolean pressed = false;
 
-	public ColumnButton(RadioButtonGroup group, RowCollection rows, ColumnInfo info, int column_index, boolean sorted_descending) {
+	public ColumnButton(@NonNull RadioButtonGroup group, RowCollection rows, @NonNull ColumnInfo info, int column_index, boolean sorted_descending) {
 		super(column_index == 0, group);
 		this.rows = rows;
 		this.column_index = column_index;

@@ -11,6 +11,7 @@ import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
@@ -33,15 +34,15 @@ final class Sprite {
 	public static int global_size = 0;
 	private final static FloatBuffer white_color;
 
-	private final ShortVBO indices;
-	private final FloatVBO vertices_and_normals;
-	private final FloatVBO texcoords;
+	private final @NonNull ShortVBO indices;
+	private final @NonNull FloatVBO vertices_and_normals;
+	private final @NonNull FloatVBO texcoords;
 
-	private final Texture[][] textures;
+	private final Texture[] @NonNull [] textures;
 	private final int num_triangles;
 	private final int num_vertices;
 	private final float[] clear_color;
-	private final int[] buffer_indices;
+	private final int @NonNull [] buffer_indices;
 	private final boolean alpha;
 	private final boolean lighted;
 	private final boolean culled;
@@ -56,7 +57,7 @@ final class Sprite {
 		white_color.rewind();
 	}
 
-	public Sprite(SpriteInfo sprite_info, AnimationInfo[] animations, boolean alpha, boolean lighted, boolean culled, boolean modulate_color, boolean max_alpha, int mipmap_cutoff, BoundingBox[] bounds, float[] cpw_array, int[] type_array, int[] animation_length_array) {
+	public Sprite(@NonNull SpriteInfo sprite_info, AnimationInfo @NonNull [] animations, boolean alpha, boolean lighted, boolean culled, boolean modulate_color, boolean max_alpha, int mipmap_cutoff, BoundingBox[] bounds, float[] cpw_array, int[] type_array, int[] animation_length_array) {
 		this.culled = culled;
 		this.alpha = alpha;
 		this.lighted = lighted;
@@ -133,12 +134,12 @@ final class Sprite {
 		return num_triangles;
 	}
 
-	static void setupDecalColor(float[] color) {
+	static void setupDecalColor(float @NonNull [] color) {
 		decal_color.put(color).rewind();
 		GL11.glTexEnv(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_COLOR, decal_color);
 	}
 
-	private void transformAndColor(ModelState model, boolean respond) {
+	private void transformAndColor(@NonNull ModelState model, boolean respond) {
 		model.transform();
 		float[] color;
 		if (respond) {
@@ -150,7 +151,7 @@ final class Sprite {
 		setupDecalColor(color);
 	}
 
-	public void renderAll(List<ModelState> render_list, int tex_index, boolean respond) {
+	public void renderAll(@NonNull List<ModelState> render_list, int tex_index, boolean respond) {
 		for (int i = 0; i < render_list.size(); i++) {
 			ModelState model = render_list.get(i);
 			render_list.set(i, null);
@@ -165,7 +166,7 @@ final class Sprite {
 		}
 	}
 
-	private void expandAnimation(AnimationInfo[] animations, float[][][] tmp_vertices, float[][][] tmp_normals, float[] initial_pose_vertices, float[] initial_pose_normals, byte[][] skin_names, float[][] skin_weights, BoundingBox[] bounding_boxes) {
+	private void expandAnimation(AnimationInfo @NonNull [] animations, float[][][] tmp_vertices, float[][][] tmp_normals, float[] initial_pose_vertices, float[] initial_pose_normals, byte[][] skin_names, float[][] skin_weights, BoundingBox[] bounding_boxes) {
 		int num_bones = animations[0].getFrames()[0].length/12;
 		Matrix4f[] frame_bones = new Matrix4f[num_bones];
 		for (int bone = 0; bone < frame_bones.length; bone++) {
@@ -253,7 +254,7 @@ final class Sprite {
 		}
 	}
 
-	private static Texture getTextureForName(String texture_name, int color_format, int mipmap_cutoff, boolean max_alpha) {
+	private static Texture getTextureForName(@NonNull String texture_name, int color_format, int mipmap_cutoff, boolean max_alpha) {
 		String GENERATOR_STRING = "Generator:";
 		if (texture_name.startsWith(GENERATOR_STRING)) {
 			String generator_class_name = texture_name.substring(GENERATOR_STRING.length());
@@ -273,11 +274,11 @@ final class Sprite {
 		setupWithColor(white_color, tex_index, respond, modulate_color);
 	}
 
-	public void setupWithColor(FloatBuffer color, int tex_index, boolean respond, boolean modulate_color) {
+	public void setupWithColor(@NonNull FloatBuffer color, int tex_index, boolean respond, boolean modulate_color) {
 		doSetup(color, tex_index, respond, modulate_color);
 	}
 
-	private void doSetup(FloatBuffer color, int tex_index, boolean respond, boolean modulate_color) {
+	private void doSetup(@NonNull FloatBuffer color, int tex_index, boolean respond, boolean modulate_color) {
 		int gl_flags = setupBasic();
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_NORMAL].getHandle());
 		if (modulate_color) {

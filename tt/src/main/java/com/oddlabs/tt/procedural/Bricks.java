@@ -3,12 +3,13 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Random;
 
 public final class Bricks {
-	private final Random random;
-	public final Channel channel;
+	private final @NonNull Random random;
+	public final @NonNull Channel channel;
 
 	public static final int BUMP = 1;
 	public static final int COLOR = 2;
@@ -59,7 +60,7 @@ public final class Bricks {
 		}
 	}
 
-	public Layer toLayer() {
+	public @NonNull Layer toLayer() {
 		return new Layer(channel, channel, channel);
 	}
 

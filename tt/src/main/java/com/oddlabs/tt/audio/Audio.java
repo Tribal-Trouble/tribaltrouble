@@ -2,6 +2,7 @@ package com.oddlabs.tt.audio;
 
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.util.ByteBufferOutputStream;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
@@ -14,7 +15,7 @@ import java.nio.IntBuffer;
 public final class Audio extends NativeResource {
 	private final IntBuffer al_buffers;
 
-	public Audio(URL file) throws IOException {
+	public Audio(@NonNull URL file) throws IOException {
 		this(1);
 		if (!AL.isCreated())
 			return;
@@ -36,7 +37,7 @@ public final class Audio extends NativeResource {
 		AL10.alGenBuffers(al_buffers);
 	}
 
-	private Wave loadOGG(URL file) throws IOException {
+	private @NonNull Wave loadOGG(URL file) throws IOException {
 		ByteBufferOutputStream output = new ByteBufferOutputStream(true);
 		OGGStream ogg_stream = new OGGStream(file);
 		int channels = ogg_stream.getChannels();

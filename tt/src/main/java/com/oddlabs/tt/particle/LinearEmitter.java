@@ -4,6 +4,7 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.TextureKey;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -13,7 +14,7 @@ import java.util.Random;
 public abstract class LinearEmitter extends Emitter {
 	private final static float SQRT_2 = (float)Math.sqrt(2f);
 
-	private final Random random;
+	private final @NonNull Random random;
 	private final Vector3f randomized_position = new Vector3f();
 	private final float offset_z;
 	private final float emitter_radius;
@@ -32,15 +33,15 @@ public abstract class LinearEmitter extends Emitter {
 	private float particle_counter = 0;
 	private boolean started = true;
 
-	protected LinearEmitter(World world, Vector3f position, float offset_z,
-				   float emitter_radius, float emitter_height,
-				   int num_particles, float particles_per_second,
-				   Vector3f velocity, Vector3f acceleration,
-				   Vector4f color, Vector4f delta_color,
-				   Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
-				   int src_blend_func, int dst_blend_func,
-				   TextureKey[] textures, SpriteKey[] sprite_renderers, int types,
-				   AnimationManager manager) {
+	protected LinearEmitter(@NonNull World world, @NonNull Vector3f position, float offset_z,
+                            float emitter_radius, float emitter_height,
+                            int num_particles, float particles_per_second,
+                            Vector3f velocity, Vector3f acceleration,
+                            Vector4f color, Vector4f delta_color,
+                            Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
+                            int src_blend_func, int dst_blend_func,
+                            TextureKey[] textures, SpriteKey[] sprite_renderers, int types,
+                            AnimationManager manager) {
 		super(world, position, src_blend_func, dst_blend_func, textures, sprite_renderers, types, manager);
 		this.offset_z = offset_z;
 		this.emitter_radius = emitter_radius;
@@ -142,7 +143,7 @@ public abstract class LinearEmitter extends Emitter {
 
 	protected abstract int initParticle(Vector3f position, Vector3f velocity, Vector3f acceleration, Vector4f color, Vector4f delta_color, Vector3f particle_radius, Vector3f growth_rate, float energy);
 
-	protected final Vector3f randomPosition() {
+	protected final @NonNull Vector3f randomPosition() {
 		float r = emitter_radius*(float)(1 - random.nextGaussian());
 		float a = random.nextFloat()*(float)Math.PI*2;
 		float x = (float)Math.cos(a)*r;

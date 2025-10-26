@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public class Label extends TextField implements Comparable<Label> {
@@ -12,19 +13,19 @@ public class Label extends TextField implements Comparable<Label> {
 	public final static float[] DISABLED_COLOR = new float[]{.7f, .7f, .7f, .7f};
 
 	private final int align;
-	private final TextLineRenderer text_renderer;
+	private final @NonNull TextLineRenderer text_renderer;
 
 	private float[] color = DEFAULT_COLOR;
 
-	public Label(CharSequence text, Font font) {
+	public Label(@NonNull CharSequence text, @NonNull Font font) {
 		this(text, font, font.getWidth(text), ALIGN_LEFT);
 	}
 
-	public Label(CharSequence text, Font font, int width) {
+	public Label(@NonNull CharSequence text, @NonNull Font font, int width) {
 		this(text, font, width, ALIGN_LEFT);
 	}
 
-	public Label(CharSequence text, Font font, int width, int align) {
+	public Label(@NonNull CharSequence text, @NonNull Font font, int width, int align) {
 		super(text, font, Integer.MAX_VALUE);
 		this.align = align;
 		text_renderer = new TextLineRenderer(font);
@@ -64,7 +65,7 @@ public class Label extends TextField implements Comparable<Label> {
 	}
 
         @Override
-	public int compareTo(Label o) {
+	public int compareTo(@NonNull Label o) {
 		return getText().toString().compareToIgnoreCase(o.getText().toString());
 	}
 }

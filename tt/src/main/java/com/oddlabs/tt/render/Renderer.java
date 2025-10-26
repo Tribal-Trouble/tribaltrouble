@@ -54,6 +54,8 @@ import com.oddlabs.tt.vbo.VBO;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
@@ -83,7 +85,7 @@ import java.util.prefs.Preferences;
 public final class Renderer {
 	private final static FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
 
-	private static GLStateStack display_state_stack = new GLStateStack();
+	private static @NonNull GLStateStack display_state_stack = new GLStateStack();
 
 	private final static Renderer renderer_instance = new Renderer();
 	private final static StatCounter fps = new StatCounter(10);
@@ -96,7 +98,7 @@ public final class Renderer {
 
 	private static AbstractAudioPlayer music;
 	private static String music_path;
-	private static TimerAnimation music_timer;
+	private static @Nullable TimerAnimation music_timer;
 
 	private static boolean finished = false;
 
@@ -133,7 +135,7 @@ public final class Renderer {
 		AnimationManager.runGameLoop(network, gui, grab_frames);
 	}
 
-	private void setupMatrices(GUIRoot gui_root) {
+	private void setupMatrices(@NonNull GUIRoot gui_root) {
 		proj.setIdentity();
 		multProjection(proj);
 		CameraState camera = gui_root.getDelegate().getCamera().getState();
@@ -152,7 +154,7 @@ public final class Renderer {
 		GL11.glLoadMatrix(matrix_buf);
 	}
 
-	public static void multProjection(StrictMatrix4f matrix) {
+	public static void multProjection(@NonNull StrictMatrix4f matrix) {
 		StrictGLU.gluPerspective(matrix,
 				Globals.FOV,
 				LocalInput.getViewAspect(),
@@ -168,7 +170,7 @@ public final class Renderer {
 		return num_triangles_rendered;
 	}
 
-	private void display(GUI gui) {
+	private void display(@NonNull GUI gui) {
 		num_triangles_rendered = 0;
 		fps.updateDelta(System.currentTimeMillis());
 		NativeResource.deleteFinalized();
@@ -188,7 +190,7 @@ public final class Renderer {
 		return finished;
 	}
 
-	private static void deleteLog(Path log) throws IOException {
+	private static void deleteLog(@NonNull Path log) throws IOException {
             for (Path LOG_FILES : com.oddlabs.util.Utils.LOG_FILES) {
                 Path log_file = log.resolve(LOG_FILES);
                 Files.deleteIfExists(log_file);
@@ -196,7 +198,7 @@ public final class Renderer {
 		Files.deleteIfExists(log);
 	}
 
-	private static void deleteOldLogs(File last_log_dir, File new_log_dir, File logs_dir) {
+	private static void deleteOldLogs(File last_log_dir, File new_log_dir, @NonNull File logs_dir) {
 		File[] logs = logs_dir.listFiles();
 		if (logs == null)
 			return;
@@ -209,7 +211,7 @@ public final class Renderer {
             }
 	}
 
-	private void run(String[] args) throws IOException {
+	private void run(String @Nullable [] args) throws IOException {
 		long start_time = System.currentTimeMillis();
 		boolean first_frame = true;
 		System.out.println("********** Running tt **********");
@@ -389,11 +391,11 @@ e.printStackTrace();
 		}
 	}
 
-	public Locale getDefaultLocale() {
+	public @NonNull Locale getDefaultLocale() {
 		return default_locale;
 	}
 
-	private static void failedOpenGL(LWJGLException e) {
+	private static void failedOpenGL(@NonNull LWJGLException e) {
         System.err.println("OpenGL Failure");
 		e.printStackTrace(System.err);
 
@@ -430,16 +432,16 @@ e.printStackTrace();
 		}
 	}
 
-	public static void startMenu(NetworkSelector network, GUI gui) {
+	public static void startMenu(@NonNull NetworkSelector network, @NonNull GUI gui) {
 		setupMainMenu(network, gui, false);
 	}
 
-	private static void setupMainMenu(final NetworkSelector network, GUI gui, final boolean first_progress) {
+	private static void setupMainMenu(final @NonNull NetworkSelector network, @NonNull GUI gui, final boolean first_progress) {
 		final WorldGenerator generator = new IslandGenerator(256, Landscape.TerrainType.NATIVE, Globals.LANDSCAPE_HILLS, Globals.LANDSCAPE_VEGETATION, Globals.LANDSCAPE_RESOURCES, Globals.LANDSCAPE_SEED);
 		ProgressForm.setProgressForm(network, gui, (GUIRoot gui_root) -> finishMainMenu(network, gui_root, first_progress, generator), first_progress);
 	}
 
-	private static UIRenderer finishMainMenu(NetworkSelector network, GUIRoot gui_root, boolean first_progress, WorldGenerator generator) {
+	private static @NonNull UIRenderer finishMainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, boolean first_progress, @NonNull WorldGenerator generator) {
 		AnimationManager.freezeTime();
 		PlayerInfo player_info = new PlayerInfo(0, 0, "");
 		RenderQueues render_queues = new RenderQueues();
@@ -502,7 +504,7 @@ e.printStackTrace();
 		return renderer;
 	}
 
-	private static boolean initNetwork(NetworkSelector network) {
+	private static boolean initNetwork(@NonNull NetworkSelector network) {
 		boolean is_network_created;
 		try {
 			network.initSelector();

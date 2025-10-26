@@ -6,14 +6,15 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
+import org.jspecify.annotations.Nullable;
 
 public final class SelectionArmy extends Army {
 
     private final Player local_player;
     private int num_units;
     private int num_builders;
-    private Unit chieftain;
-    private Building building;
+    private @Nullable Unit chieftain;
+    private @Nullable Building building;
 
     SelectionArmy(Player local_player) {
         this.local_player = local_player;

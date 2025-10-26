@@ -2,6 +2,7 @@ package com.oddlabs.tt.tutorial;
 
 import com.oddlabs.tt.form.TutorialForm;
 import com.oddlabs.tt.player.Player;
+import org.jspecify.annotations.NonNull;
 
 public final class TutorialOverTrigger extends TutorialTrigger {
 
@@ -10,7 +11,7 @@ public final class TutorialOverTrigger extends TutorialTrigger {
 	}
 
         @Override
-	protected void run(Tutorial tutorial) {
+	protected void run(@NonNull Tutorial tutorial) {
 		Player[] players = tutorial.getViewer().getWorld().getPlayers();
 		Player local_player = tutorial.getViewer().getLocalPlayer();
 

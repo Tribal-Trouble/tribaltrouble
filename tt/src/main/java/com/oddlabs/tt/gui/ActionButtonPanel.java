@@ -26,6 +26,8 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ResourceBundle;
@@ -49,68 +51,68 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	private final Group army_group = new NonFocusGroup();
 	private final Group transport_group = new NonFocusGroup();
 
-	private final NonFocusIconButton tower_attack_button;
-	private final NonFocusIconButton tower_exit_button;
+	private final @NonNull NonFocusIconButton tower_attack_button;
+	private final @NonNull NonFocusIconButton tower_exit_button;
 //	private boolean tower_exit_button_disabled;
-	private final NonFocusIconButton move_button;
-	private final NonFocusIconButton attack_button;
-	private final NonFocusIconButton gather_repair_button;
-	private final NonFocusIconButton quarters_button;
+	private final @NonNull NonFocusIconButton move_button;
+	private final @NonNull NonFocusIconButton attack_button;
+	private final @NonNull NonFocusIconButton gather_repair_button;
+	private final @NonNull NonFocusIconButton quarters_button;
 //	private boolean quarters_button_disabled;
-	private final RechargeButton magic1_button;
-	private final RechargeButton magic2_button;
-	private final NonFocusIconButton armory_button;
+	private final @NonNull RechargeButton magic1_button;
+	private final @NonNull RechargeButton magic2_button;
+	private final @NonNull NonFocusIconButton armory_button;
 //	private boolean armory_button_disabled;
-	private final NonFocusIconButton tower_button;
+	private final @NonNull NonFocusIconButton tower_button;
 //	private boolean tower_button_disabled;
-	private final NonFocusIconButton harvest_button;
-	private final NonFocusIconButton build_button;
-	private final NonFocusIconButton army_button;
-	private final NonFocusIconButton transport_button;
-	private final NonFocusIconButton rally_point_button;
+	private final @NonNull NonFocusIconButton harvest_button;
+	private final @NonNull NonFocusIconButton build_button;
+	private final @NonNull NonFocusIconButton army_button;
+	private final @NonNull NonFocusIconButton transport_button;
+	private final @NonNull NonFocusIconButton rally_point_button;
 
-	private final StatusIcon unit_status;
-	private final StatusIcon weapon_rock_status;
-	private final StatusIcon weapon_iron_status;
-	private final StatusIcon weapon_rubber_status;
-	private final StatusIcon tree_status;
-	private final StatusIcon rock_status;
-	private final StatusIcon iron_status;
-	private final StatusIcon rubber_status;
+	private final @NonNull StatusIcon unit_status;
+	private final @NonNull StatusIcon weapon_rock_status;
+	private final @NonNull StatusIcon weapon_iron_status;
+	private final @NonNull StatusIcon weapon_rubber_status;
+	private final @NonNull StatusIcon tree_status;
+	private final @NonNull StatusIcon rock_status;
+	private final @NonNull StatusIcon iron_status;
+	private final @NonNull StatusIcon rubber_status;
 
-	private final WatchStatusIcon quarters_unit_status;
-	private final DeploySpinner quarters_peon_button;
-	private final ChieftainButton quarters_chieftain_button;
-	private final NonFocusIconButton quarters_rally_point_button;
+	private final @NonNull WatchStatusIcon quarters_unit_status;
+	private final @NonNull DeploySpinner quarters_peon_button;
+	private final @NonNull ChieftainButton quarters_chieftain_button;
+	private final @NonNull NonFocusIconButton quarters_rally_point_button;
 
-	private final DeploySpinner harvest_tree_button;
-	private final DeploySpinner harvest_rock_button;
-	private final DeploySpinner harvest_iron_button;
-	private final DeploySpinner harvest_rubber_button;
-	private final NonFocusIconButton harvest_back_button;
+	private final @NonNull DeploySpinner harvest_tree_button;
+	private final @NonNull DeploySpinner harvest_rock_button;
+	private final @NonNull DeploySpinner harvest_iron_button;
+	private final @NonNull DeploySpinner harvest_rubber_button;
+	private final @NonNull NonFocusIconButton harvest_back_button;
 
-	private final BuildSpinner build_weapon_rock_button;
-	private final BuildSpinner build_weapon_iron_button;
-	private final BuildSpinner build_weapon_rubber_button;
-	private final NonFocusIconButton build_back_button;
+	private final @NonNull BuildSpinner build_weapon_rock_button;
+	private final @NonNull BuildSpinner build_weapon_iron_button;
+	private final @NonNull BuildSpinner build_weapon_rubber_button;
+	private final @NonNull NonFocusIconButton build_back_button;
 
-	private final DeploySpinner army_peon_button;
-	private final DeploySpinner army_warrior_rock_button;
-	private final DeploySpinner army_warrior_iron_button;
-	private final DeploySpinner army_warrior_rubber_button;
-	private final NonFocusIconButton army_back_button;
+	private final @NonNull DeploySpinner army_peon_button;
+	private final @NonNull DeploySpinner army_warrior_rock_button;
+	private final @NonNull DeploySpinner army_warrior_iron_button;
+	private final @NonNull DeploySpinner army_warrior_rubber_button;
+	private final @NonNull NonFocusIconButton army_back_button;
 
-	private final DeploySpinner transport_tree_button;
-	private final DeploySpinner transport_rock_button;
-	private final DeploySpinner transport_iron_button;
-	private final DeploySpinner transport_rubber_button;
-	private final NonFocusIconButton transport_back_button;
+	private final @NonNull DeploySpinner transport_tree_button;
+	private final @NonNull DeploySpinner transport_rock_button;
+	private final @NonNull DeploySpinner transport_iron_button;
+	private final @NonNull DeploySpinner transport_rubber_button;
+	private final @NonNull NonFocusIconButton transport_back_button;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(ActionButtonPanel.class.getName());
 
 	private final GameCamera camera;
 	private final WorldViewer viewer;
 
-	private Group current_submenu = null;
+	private @Nullable Group current_submenu = null;
 	private boolean update = false;
 	private boolean current_quarters = false;
 	private boolean current_armory = false;
@@ -121,15 +123,15 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	private boolean current_tower = false;
 //	private boolean[] magic_disabled = new boolean[2];
 
-	private String formatTip(String tip_key, String shortcut_key) {
+	private @NonNull String formatTip(String tip_key, String shortcut_key) {
 		return Utils.getBundleString(bundle, tip_key, shortcut_key);
 	}
 
-	public ActionButtonPanel(WorldViewer viewer, GameCamera camera) {
+	public ActionButtonPanel(@NonNull WorldViewer viewer, GameCamera camera) {
 		this(viewer, camera, viewer.getGUIRoot().getWidth(), viewer.getGUIRoot().getHeight());
 	}
 
-	public ActionButtonPanel(final WorldViewer viewer, GameCamera camera, int width, int height) {
+	public ActionButtonPanel(final @NonNull WorldViewer viewer, GameCamera camera, int width, int height) {
 		this.viewer = viewer;
 		this.camera = camera;
 		RaceIcons race_icons = viewer.getLocalPlayer().getRace().getIcons();
@@ -602,16 +604,16 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	}
 
         @Override
-	protected void keyReleased(KeyboardEvent event) {
+	protected void keyReleased(@NonNull KeyboardEvent event) {
 		((GUIObject)getParent()).keyReleased(event);
 	}
 
         @Override
-	protected void keyPressed(KeyboardEvent event) {
+	protected void keyPressed(@NonNull KeyboardEvent event) {
 		((GUIObject)getParent()).keyPressed(event);
 	}
 
-	public boolean doKeyPressed(KeyboardEvent event) {
+	public boolean doKeyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_M:
 			case Keyboard.KEY_Q:
@@ -656,7 +658,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		return false;
 	}
 
-	public boolean doKeyRepeat(KeyboardEvent event) {
+	public boolean doKeyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_M:
 				if (current_unit) {
@@ -840,7 +842,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		return false;
 	}
 
-	public boolean doKeyReleased(KeyboardEvent event) {
+	public boolean doKeyReleased(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_C:
 				if (current_armory) {

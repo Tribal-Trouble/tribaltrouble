@@ -7,6 +7,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.util.LinkedList;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public abstract class AbstractElementNode<T> extends BoundingBox {
 		return child_count - models.size();
 	}
 
-	protected final AbstractElementNode<T> insertElement(Element<T> model) {
+	protected final AbstractElementNode<T> insertElement(@NonNull Element<T> model) {
 		checkBoundsZ(model.bmin_z);
 		checkBoundsZ(model.bmax_z);
 		return doInsertElement(model);
@@ -33,7 +34,7 @@ public abstract class AbstractElementNode<T> extends BoundingBox {
 
 	protected abstract AbstractElementNode<T> doInsertElement(Element<T>model);
 
-	public final void removeElement(Element<T>model) {
+	public final void removeElement(@NonNull Element<T>model) {
 		models.remove(model);
 	}
 
@@ -41,7 +42,7 @@ public abstract class AbstractElementNode<T> extends BoundingBox {
 		child_count++;
 	}
 
-	protected final AbstractElementNode<T> reinsertElement(Element<T> model) {
+	protected final AbstractElementNode<T> reinsertElement(@NonNull Element<T> model) {
 		child_count--;
 		assert child_count >= 0;
 		if (contains(model)) {
@@ -58,24 +59,24 @@ public abstract class AbstractElementNode<T> extends BoundingBox {
 			return 0;
 	}
 
-	protected final AbstractElementNode<T> addElement(Element<T> model) {
+	protected final @NonNull AbstractElementNode<T> addElement(Element<T> model) {
 		models.addLast(model);
 		return this;
 	}
 
-	public static <T> AbstractElementNode<T> newRoot(HeightMap heightmap) {
+	public static <T> @NonNull AbstractElementNode<T> newRoot(@NonNull HeightMap heightmap) {
 		AbstractElementNode<T> root = new ElementNode<>(null, heightmap.getGridUnitsPerWorld(), 0, 0);
 		root.setInfiniteBounds();
 		return root;
 	}
 
-	public static void buildSupplies(World world, List<int[]> iron_positions, List<int[]> rock_positions, float[][] plants, Landscape.TerrainType terrain) {
+	public static void buildSupplies(@NonNull World world, @NonNull List<int[]> iron_positions, @NonNull List<int[]> rock_positions, float[] @NonNull [] plants, Landscape.@NonNull TerrainType terrain) {
 		buildRockSupplies(world, rock_positions);
 		buildIronSupplies(world, iron_positions);
 		addPlants(world, plants, terrain);
 	}
 
-	private static void buildRockSupplies(World world, List<int[]> positions) {
+	private static void buildRockSupplies(@NonNull World world, @NonNull List<int[]> positions) {
 		SpriteKey[] sprite_renderers = world.getLandscapeResources().getRockFragments();
 		int num_supplies = positions.size();
 System.out.println("num_rocks = " + num_supplies);
@@ -90,7 +91,7 @@ System.out.println("num_rocks = " + num_supplies);
 		}
 	}
 
-	private static void buildIronSupplies(World world, List<int[]> positions) {
+	private static void buildIronSupplies(@NonNull World world, @NonNull List<int[]> positions) {
 		SpriteKey[] sprite_renderers = world.getLandscapeResources().getIronFragments();
 		int num_supplies = positions.size();
 System.out.println("num_iron = " + num_supplies);
@@ -105,7 +106,7 @@ System.out.println("num_iron = " + num_supplies);
 		}
 	}
 
-	private static void addPlants(World world, float[][] plants, Landscape.TerrainType terrain) {
+	private static void addPlants(@NonNull World world, float[] @NonNull [] plants, Landscape.@NonNull TerrainType terrain) {
 		int num_plants = 0;
 		for (int t = 0; t < plants.length; t++) {
 			num_plants += plants[t].length/2;
@@ -129,7 +130,7 @@ System.out.println("num_plants = " + num_plants);
 
 	public abstract void visit(ElementNodeVisitor<T> visitor);
 
-	public final void visitElements(ElementNodeVisitor<T> visitor) {
+	public final void visitElements(@NonNull ElementNodeVisitor<T> visitor) {
 		Element<T> model = (Element<T>) models.getFirst();
 		while (model != null) {
 			visitor.visit(model);

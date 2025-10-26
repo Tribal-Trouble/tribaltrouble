@@ -1,11 +1,14 @@
 package com.oddlabs.tt.pathfinder;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 abstract class Node {
 /*	private int x;
 	private int y;*/
 	private int cost;
 	private int total_cost;
-	private Node parent;
+	private @Nullable Node parent;
 	private boolean visited;
 
 	protected Node() {
@@ -43,7 +46,7 @@ abstract class Node {
 		setTotalCost(initial_cost);
 	}
 
-	public final void setPath(Node parent, int cost, int estimated_cost) {
+	public final void setPath(@NonNull Node parent, int cost, int estimated_cost) {
 		this.cost = parent.cost + cost;
 		this.parent = parent;
 		setTotalCost(this.cost + estimated_cost);

@@ -2,6 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.FloatBuffer;
@@ -13,17 +14,17 @@ public final class SpriteRenderer {
 	public final static int LOW_POLY = 1;
 	
 	private final SpriteList sprite_list;
-	private final SpriteListRenderer sprite_list_renderer;
+	private final @NonNull SpriteListRenderer sprite_list_renderer;
 	private final int tex_index;
 	private final List<ModelState> no_detail_render_list = new ArrayList<>();
 
-	public SpriteRenderer(SpriteList sprite_list, int tex_index) {
+	public SpriteRenderer(@NonNull SpriteList sprite_list, int tex_index) {
 		this.sprite_list = sprite_list;
 		this.tex_index = tex_index;
 		sprite_list_renderer = new SpriteListRenderer(sprite_list);
 	}
 
-	public void renderNoDetail(ModelState model) {
+	public void renderNoDetail(@NonNull ModelState model) {
 		float[] color = model.getTeamColor();
 		GL11.glColor3f(color[0], color[1], color[2]);
 		GL11.glBegin(GL11.GL_QUADS);
@@ -38,11 +39,11 @@ public final class SpriteRenderer {
 		GL11.glEnd();
 	}
 
-	public SpriteList getSpriteList() {
+	public @NonNull SpriteList getSpriteList() {
 		return sprite_list;
 	}
 
-	public void setupWithColor(int index, FloatBuffer material_color, boolean respond, boolean modulate_tex1) {
+	public void setupWithColor(int index, @NonNull FloatBuffer material_color, boolean respond, boolean modulate_tex1) {
 		getSpriteList().getSprite(index).setupWithColor(material_color, tex_index, respond, modulate_tex1);
 	}
 
@@ -72,7 +73,7 @@ public final class SpriteRenderer {
 		no_detail_render_list.clear();
 	}
 
-	public void getAllPicks(List<Target> pick_list) {
+	public void getAllPicks(@NonNull List<Target> pick_list) {
 		for (int i = 0; i < sprite_list.getNumSprites(); i++) {
             sprite_list_renderer.getAllPicks(pick_list, i, tex_index);
         }

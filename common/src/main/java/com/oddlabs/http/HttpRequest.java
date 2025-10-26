@@ -4,6 +4,8 @@ import com.oddlabs.net.Callable;
 import com.oddlabs.net.Task;
 import com.oddlabs.net.TaskThread;
 import com.oddlabs.util.CryptUtils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.ByteArrayOutputStream;
@@ -18,7 +20,7 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
 public final class HttpRequest {
-	public static Task doPost(TaskThread task_thread, HttpRequestParameters parameters, HttpResponseParser parser, HttpCallback callback) {
+	public static Task doPost(@NonNull TaskThread task_thread, @NonNull HttpRequestParameters parameters, @NonNull HttpResponseParser parser, @NonNull HttpCallback callback) {
 		try {
 			URL url = new URL(parameters.url);
 			return spawnPostRequest(task_thread, url, parameters, parser, callback);
@@ -27,20 +29,20 @@ public final class HttpRequest {
 		}
 	}
 
-	public static Task doGet(TaskThread task_thread, HttpRequestParameters parameters, HttpResponseParser parser, HttpCallback callback) {
+	public static Task doGet(@NonNull TaskThread task_thread, @NonNull HttpRequestParameters parameters, @NonNull HttpResponseParser parser, @NonNull HttpCallback callback) {
 		URL url = constructURL(parameters);
 		return spawnGetRequest(task_thread, url, parser, callback);
 	}
 
-	private static Task spawnPostRequest(TaskThread task_thread, final URL url, final HttpRequestParameters parameters, final HttpResponseParser parser, final HttpCallback callback) {
+	private static Task spawnPostRequest(@NonNull TaskThread task_thread, final @NonNull URL url, final @NonNull HttpRequestParameters parameters, final @NonNull HttpResponseParser parser, final @NonNull HttpCallback callback) {
 		return task_thread.addTask(new Callable<HttpResponse>() {
             @Override
-			public HttpResponse call() throws IOException {
+			public @NonNull HttpResponse call() throws IOException {
 				return runPostRequest(url, parameters, parser);
 			}
 
             @Override
-			public void taskCompleted(HttpResponse result) {
+			public void taskCompleted(@NonNull HttpResponse result) {
 				result.notify(callback);
 			}
 
@@ -51,15 +53,15 @@ public final class HttpRequest {
 		});
 	}
 
-	private static Task spawnGetRequest(TaskThread task_thread, final URL url, final HttpResponseParser parser, final HttpCallback callback) {
+	private static Task spawnGetRequest(@NonNull TaskThread task_thread, final @NonNull URL url, final @NonNull HttpResponseParser parser, final @NonNull HttpCallback callback) {
 		return task_thread.addTask(new Callable<HttpResponse>() {
                         @Override
-			public HttpResponse call() throws IOException {
+			public @NonNull HttpResponse call() throws IOException {
 				return runGetRequest(url, parser);
 			}
 
                         @Override
-			public void taskCompleted(HttpResponse result) {
+			public void taskCompleted(@NonNull HttpResponse result) {
 				result.notify(callback);
 			}
 
@@ -70,7 +72,7 @@ public final class HttpRequest {
 		});
 	}
 
-	private static void copy(InputStream is, OutputStream os) throws IOException {
+	private static void copy(@NonNull InputStream is, @Nullable OutputStream os) throws IOException {
 		byte[] buf = new byte[4096];
 		int ret;
 		while ((ret = is.read(buf)) > 0) {
@@ -79,7 +81,7 @@ public final class HttpRequest {
 		}
 	}
 
-	private static HttpResponse runPostRequest(URL url, HttpRequestParameters parameters, HttpResponseParser parser) throws IOException {
+	private static @NonNull HttpResponse runPostRequest(@NonNull URL url, @NonNull HttpRequestParameters parameters, @NonNull HttpResponseParser parser) throws IOException {
 		HttpURLConnection conn = (HttpURLConnection)openConnection(url);
 		conn.setRequestMethod("POST");
 		conn.setDoOutput(true);
@@ -96,12 +98,12 @@ public final class HttpRequest {
 		return readResponse(conn, parser);
 	}
 
-	private static HttpResponse runGetRequest(URL url, HttpResponseParser parser) throws IOException {
+	private static @NonNull HttpResponse runGetRequest(@NonNull URL url, @NonNull HttpResponseParser parser) throws IOException {
 		URLConnection conn = openConnection(url);
 		return readResponse(conn, parser);
 	}
 
-	public static URLConnection openConnection(URL url) throws IOException {
+	public static URLConnection openConnection(@NonNull URL url) throws IOException {
 		URLConnection conn = url.openConnection();
 		try {
 			if (conn instanceof HttpsURLConnection)
@@ -112,7 +114,7 @@ public final class HttpRequest {
 		}
 	}
 
-	private static HttpResponse readResponse(URLConnection conn, HttpResponseParser parser) throws IOException {
+	private static @NonNull HttpResponse readResponse(@NonNull URLConnection conn, @NonNull HttpResponseParser parser) throws IOException {
 		try {
 			try (InputStream is = conn.getInputStream()) {
 				HttpResponse response = new OkResponse(parser.parse(is));
@@ -130,7 +132,7 @@ public final class HttpRequest {
 		}
 	}
 
-	private static URL constructURL(HttpRequestParameters parameters) {
+	private static @NonNull URL constructURL(@NonNull HttpRequestParameters parameters) {
 		try {
 			return new URL(parameters.url + "?" + parameters.createQueryString());
 		} catch (MalformedURLException e) {

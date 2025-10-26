@@ -1,5 +1,6 @@
 package com.oddlabs.tt.util;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.ARBMultitexture;
 import org.lwjgl.opengl.ARBTextureCompression;
 import org.lwjgl.opengl.GL11;
@@ -41,7 +42,7 @@ public final class GLState implements Cloneable {
 			ARBMultitexture.glActiveTextureARB(texture);
 	}
 
-	public static void glCompressedTexImage2D(int target, int level, int internalformat, int width, int height, int border, ByteBuffer pData) {
+	public static void glCompressedTexImage2D(int target, int level, int internalformat, int width, int height, int border, @NonNull ByteBuffer pData) {
 		if (GLContext.getCapabilities().OpenGL13)
 			GL13.glCompressedTexImage2D(target, level, internalformat, width, height, border, pData);
 		else

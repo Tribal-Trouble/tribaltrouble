@@ -14,6 +14,8 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -54,15 +56,15 @@ public final class GUIRoot extends GUIObject implements Updatable {
 	private final List<ModalDelegate> modal_delegate_stack = new ArrayList<>();
 	private final List<GUIObject> focus_backup_stack = new ArrayList<>();
 
-	private final ToolTipBox tool_tip;
+	private final @NonNull ToolTipBox tool_tip;
 	private final TimerAnimation tool_tip_timer = new TimerAnimation(this, 0);
-	private final InfoPrinter info_printer;
+	private final @NonNull InfoPrinter info_printer;
 	private final Status status = new Status(this);
 	private final InputState input_state = new InputState(this);
 	private final GUI gui;
 	private boolean render_tool_tip = false;
 
-	private GUIObject current_gui_object = this;
+	private @NonNull GUIObject current_gui_object = this;
 	private GUIObject global_focus = this;
 
 	private GUIObject cursor_object = this;
@@ -83,7 +85,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		return gui;
 	}
 
-	public InputState getInputState() {
+	public @NonNull InputState getInputState() {
 		return input_state;
 	}
 
@@ -119,7 +121,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		mousePick();
 	}
 
-	public void removeDelegate(CameraDelegate delegate) {
+	public void removeDelegate(@NonNull CameraDelegate delegate) {
 		boolean top_most = getDelegate() == delegate;
 		delegate.remove();
 
@@ -131,7 +133,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		mousePick();
 	}
 
-	public CameraDelegate getDelegate() {
+	public @Nullable CameraDelegate getDelegate() {
 		if (delegate_stack.isEmpty())
 			return null;
 		else
@@ -147,7 +149,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		mousePick();
 	}
 
-	private void popModalDelegate(ModalDelegate delegate) {
+	private void popModalDelegate(@NonNull ModalDelegate delegate) {
 		int index = modal_delegate_stack.indexOf(delegate);
 		if (index == -1)
 			return;
@@ -167,14 +169,14 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		mousePick();
 	}
 
-	public ModalDelegate getModalDelegate() {
+	public @Nullable ModalDelegate getModalDelegate() {
 		if (!modal_delegate_stack.isEmpty())
 			return modal_delegate_stack.get(modal_delegate_stack.size() - 1);
 		else
 			return null;
 	}
 
-	public void addModalForm(Form form) {
+	public void addModalForm(@NonNull Form form) {
 		focus_backup_stack.add(global_focus);
 		ModalDelegate delegate = new ModalDelegate();
 		delegate.addChild(form);
@@ -223,7 +225,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 	}
 
         @Override
-	protected void keyPressed(KeyboardEvent event) {
+	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_S:
 				if (event.isControlDown()) {
@@ -554,14 +556,14 @@ System.out.println("GC Forced");
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 	}
 
-	ToolTip getToolTip() {
+	@Nullable ToolTip getToolTip() {
 		if (getCurrentGUIObject() instanceof ToolTip && render_tool_tip)
 			return (ToolTip)getCurrentGUIObject();
 		else
 			return null;
 	}
 
-	void renderToolTip(ToolTip hovered) {
+	void renderToolTip(@Nullable ToolTip hovered) {
 		if (hovered != null) {
 			tool_tip.clear();
 			hovered.appendToolTip(tool_tip);

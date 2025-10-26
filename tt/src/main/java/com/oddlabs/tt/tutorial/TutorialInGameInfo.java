@@ -10,6 +10,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 public final class TutorialInGameInfo implements InGameInfo {
 	private int next_tutorial = -1;
@@ -38,7 +39,7 @@ public final class TutorialInGameInfo implements InGameInfo {
 	}
 
         @Override
-	public void addGUI(WorldViewer viewer, InGameMainMenu menu, Group game_infos) {
+	public void addGUI(WorldViewer viewer, @NonNull InGameMainMenu menu, Group game_infos) {
 		menu.addAbortButton(Utils.getBundleString(Menu.bundle, "end_tutorial"));
 	}
 
@@ -48,13 +49,13 @@ public final class TutorialInGameInfo implements InGameInfo {
 	}
 
         @Override
-	public void abort(WorldViewer viewer) {
+	public void abort(@NonNull WorldViewer viewer) {
 		next_tutorial = -1;
 		viewer.close();
 	}
 
         @Override
-	public void close(WorldViewer viewer) {
+	public void close(@NonNull WorldViewer viewer) {
 		if (next_tutorial != -1)
 			TutorialForm.startTutorial(viewer.getNetwork(), viewer.getGUIRoot(), next_tutorial);
 		else

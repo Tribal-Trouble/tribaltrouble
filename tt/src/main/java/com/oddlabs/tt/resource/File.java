@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.net.URL;
 import java.util.Objects;
@@ -8,7 +9,7 @@ import java.util.function.Supplier;
 
 public abstract class File<R> implements Supplier<R> {
 
-    private final URL url;
+    private final @NonNull URL url;
 
     protected File(URL url) {
         this.url = Objects.requireNonNull(url, "url");

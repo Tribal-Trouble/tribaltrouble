@@ -3,13 +3,14 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.BoundingBox;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 
 public abstract class Model extends Element<Model> {
-	private final World world;
+	private final @NonNull World world;
 
-	protected Model(World world) {
+	protected Model(@NonNull World world) {
 		super(Objects.requireNonNull(world, "world").getElementRoot());
         this.world = world ;
 	}

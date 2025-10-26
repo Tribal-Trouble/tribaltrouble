@@ -1,5 +1,6 @@
 package com.oddlabs.converter;
 
+import org.jspecify.annotations.NonNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,7 +17,7 @@ public final class AnimationLoader {
 	private AnimationLoader() {
 	}
 
-	public static Map<String,float[]>[] loadAnimation(File file) {
+	public static Map<String,float[]> @NonNull [] loadAnimation(@NonNull File file) {
 		try {
 			FileInputStream input_stream = new FileInputStream(file);
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -31,7 +32,7 @@ public final class AnimationLoader {
 		}
 	}
 
-	private static Map<String,float[]>[] parseAnimation(Node node) {
+	private static Map<String,float[]> @NonNull [] parseAnimation(@NonNull Node node) {
 		NodeList frames = node.getChildNodes();
 		Map<Integer,Map<String,float[]>> anim_infos_map = new HashMap<>();
 		for (int i = 0; i < frames.getLength(); i++) {
@@ -52,7 +53,7 @@ public final class AnimationLoader {
 		return anim_infos;
 	}
 
-	public static Map<String,float[]> parseFrame(Node node) {
+	public static @NonNull Map<String,float[]> parseFrame(@NonNull Node node) {
 		NodeList bones = node.getChildNodes();
 		Map<String,float[]> bone_infos = new HashMap<>();
 		for (int i = 0; i < bones.getLength(); i++) {
@@ -82,11 +83,11 @@ public final class AnimationLoader {
 		return bone_infos;
 	}
 
-	private static int getAttrInt(Node node, String name) {
+	private static int getAttrInt(@NonNull Node node, String name) {
 		return Integer.parseInt(node.getAttributes().getNamedItem(name).getNodeValue());
 	}
 
-	private static float getAttrFloat(Node node, String name) {
+	private static float getAttrFloat(@NonNull Node node, String name) {
 		return Float.parseFloat(node.getAttributes().getNamedItem(name).getNodeValue());
 	}
 }

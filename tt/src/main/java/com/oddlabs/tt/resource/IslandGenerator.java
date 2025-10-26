@@ -10,6 +10,8 @@ import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.OffscreenRenderer;
 import com.oddlabs.tt.util.OffscreenRendererFactory;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -45,7 +47,7 @@ public final class IslandGenerator implements WorldGenerator {
 		this.terrain = terrain;
 	}
 
-	private Texture createDetail(GLImage detail_image, int base_level) {
+	private @NonNull Texture createDetail(@NonNull GLImage detail_image, int base_level) {
 		GLImage[] detail_mipmaps = detail_image.buildMipMaps();
 		GLImage.updateMipMapsArea(detail_mipmaps, base_level, Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR,
 								  0, 0, detail_mipmaps[0].getWidth(), detail_mipmaps[0].getHeight(), false);
@@ -68,12 +70,12 @@ public final class IslandGenerator implements WorldGenerator {
 		return meters_per_world;
 	}
 
-	public FogInfo createFogInfo() {
+	public @NonNull FogInfo createFogInfo() {
 		return Landscape.getFogInfo(terrain, meters_per_world);
 	}
 
         @Override
-	public WorldInfo generate(int num_players, int initial_unit_count, float random_start_pos) {
+	public @NonNull WorldInfo generate(int num_players, int initial_unit_count, float random_start_pos) {
 		int colormap_size = grid_units*getTexelsPerGridUnit();
 		int chunks_per_colormap = colormap_size/TEXELS_PER_CHUNK;
 
@@ -115,7 +117,7 @@ System.out.println("Landscape created in = " + (time_after-time_before));
 		return new WorldInfo(meters_per_world, landscape.getSeaLevelMeters(), colormap_size, chunks_per_colormap, chunk_maps, detail, heightmap, trees, palm_trees, rock, iron, plants, access_grid, build_grid, starting_locations);
 	}
 
-	private static Texture[][] blendTextures(OffscreenRendererFactory factory, int chunks_per_colormap, BlendInfo[] blend_infos, int alpha_size, int structure_size, int scale) {
+	private static Texture[] @Nullable [] blendTextures(@NonNull OffscreenRendererFactory factory, int chunks_per_colormap, BlendInfo @NonNull [] blend_infos, int alpha_size, int structure_size, int scale) {
 		boolean use_pbuffer = Settings.getSettings().usePbuffer();
 		boolean use_fbo = Settings.getSettings().useFBO();
 		OffscreenRenderer offscreen = factory.createRenderer(TEXELS_PER_CHUNK, TEXELS_PER_CHUNK, new PixelFormat(Globals.VIEW_BIT_DEPTH, 0, 0, 0, 0), Settings.getSettings().use_copyteximage, use_pbuffer, use_fbo);

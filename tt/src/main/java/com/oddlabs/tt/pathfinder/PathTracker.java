@@ -3,6 +3,8 @@ package com.oddlabs.tt.pathfinder;
 import com.oddlabs.tt.gui.ToolTipBox;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.BezierPath;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 public final class PathTracker {
@@ -12,15 +14,15 @@ public final class PathTracker {
 
     private final static int REGION_SEARCH_TRIES = 4;
 
-	private final BezierPath bezier_path;
+	private final @NonNull BezierPath bezier_path;
 	private final UnitGrid unit_grid;
 	private final Movable unit;
 
-	private RegionNode region_path;
-	private Region target_region;
-	private GridPathNode grid_path;
+	private @Nullable RegionNode region_path;
+	private @Nullable Region target_region;
+	private @Nullable GridPathNode grid_path;
 
-	private Occupant current_blocker;
+	private @Nullable Occupant current_blocker;
 	private boolean deadlock_mark = false;
 	private int next_unit_grid_x;
 	private int next_unit_grid_y;
@@ -28,7 +30,7 @@ public final class PathTracker {
 	private TrackerAlgorithm tracker_algorithm;
 
 	private boolean initial_path;
-	private State state = State.DONE;
+	private @NonNull State state = State.DONE;
 
 	public PathTracker(UnitGrid unit_grid, Movable unit) {
 		this.unit_grid = unit_grid;
@@ -36,7 +38,7 @@ public final class PathTracker {
 		this.bezier_path = new BezierPath();
 	}
 
-	public void appendToolTip(ToolTipBox tool_tip_box) {
+	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		tool_tip_box.append(" next_x=");
 		tool_tip_box.append(next_unit_grid_x);
 		tool_tip_box.append(" next_y=");
@@ -98,7 +100,7 @@ public final class PathTracker {
 			return false;
 	}
 
-	private PathTracker getNextDeadlocked() {
+	private @Nullable PathTracker getNextDeadlocked() {
 		Occupant occupant = getNextOccupantUnchecked();
 		if (occupant != null && occupant != unit && occupant instanceof Movable) {
 			Movable next = (Movable)occupant;
@@ -110,7 +112,7 @@ public final class PathTracker {
 	}
 
 
-	private PathTracker findDeadlock() {
+	private @Nullable PathTracker findDeadlock() {
 		PathTracker current = this;
 		PathTracker result = null;
 		while (current != null) {
@@ -201,7 +203,7 @@ public final class PathTracker {
 			region_path = null;
 	}
 
-	private GridPathNode findPathToNextRegion(int src_x, int src_y, RegionNode next_region_node, boolean allow_secondary_targets) {
+	private @Nullable GridPathNode findPathToNextRegion(int src_x, int src_y, @Nullable RegionNode next_region_node, boolean allow_secondary_targets) {
 		Region next_region = null;
 		Region next_next_region;
 		if (next_region_node != null) {
@@ -217,7 +219,7 @@ public final class PathTracker {
 		return tracker_algorithm.findPathGrid(target_region, next_region, src_x, src_y, allow_secondary_targets);
 	}
 
-	private State lookAhead() {
+	private @NonNull State lookAhead() {
 		checkRegionPath(next_unit_grid_x, next_unit_grid_y);
 		if (region_path == null) {
 			return State.DONE;
@@ -255,7 +257,7 @@ public final class PathTracker {
 		return State.OK;
 	}
 
-	private void initBezierPath(DirectionNode dir_node) {
+	private void initBezierPath(@NonNull DirectionNode dir_node) {
 		next_unit_grid_x = unit.getGridX() + dir_node.getDirectionX();
 		next_unit_grid_y = unit.getGridY() + dir_node.getDirectionY();
 		float next_node_x = UnitGrid.coordinateFromGrid(next_unit_grid_x);
@@ -271,7 +273,7 @@ public final class PathTracker {
 		target_region = null;
 	}
 
-	private State initPath() {
+	private @NonNull State initPath() {
 		checkRegionPath(unit.getGridX(), unit.getGridY());
 		if (region_path == null) {
 			return State.DONE;

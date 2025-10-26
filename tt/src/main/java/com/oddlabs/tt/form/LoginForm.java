@@ -19,6 +19,7 @@ import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -29,12 +30,12 @@ public final class LoginForm extends Form {
 	private final MainMenu main_menu;
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;
-	private final EditLine editline_username;
-	private final PasswordLine editline_password;
-	private final CheckBox remember_checkbox;
+	private final @NonNull EditLine editline_username;
+	private final @NonNull PasswordLine editline_password;
+	private final @NonNull CheckBox remember_checkbox;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(LoginForm.class.getName());
 
-	public LoginForm(NetworkSelector network, GUIRoot gui_root, MainMenu main_menu) {
+	public LoginForm(NetworkSelector network, GUIRoot gui_root, @NonNull MainMenu main_menu) {
 		this.main_menu = main_menu;
 		this.gui_root = gui_root;
 		this.network = network;

@@ -48,6 +48,7 @@ import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -55,26 +56,26 @@ public final class WorldViewer implements Animated {
 
     private final static String[] GAMESPEED_STRINGS = new String[]{"paused", "slow", "normal", "fast", "ludicrous"};
 
-    private final GameCamera camera;
-    private final ActionButtonPanel panel;
-    private final SelectionDelegate delegate;
-    private final DistributableTable distributable_table;
-    private final PeerHub peerhub;
+    private final @NonNull GameCamera camera;
+    private final @NonNull ActionButtonPanel panel;
+    private final @NonNull SelectionDelegate delegate;
+    private final @NonNull DistributableTable distributable_table;
+    private final @NonNull PeerHub peerhub;
     private final GUIRoot gui_root;
-    private final NotificationManager notification_manager;
+    private final @NonNull NotificationManager notification_manager;
     private final InGameInfo ingame_info;
     private final NetworkSelector network;
-    private final Selection selection;
-    private final World world;
-    private final Picker picker;
-    private final DefaultRenderer renderer;
-    private final LandscapeRenderer landscape_renderer;
+    private final @NonNull Selection selection;
+    private final @NonNull World world;
+    private final @NonNull Picker picker;
+    private final @NonNull DefaultRenderer renderer;
+    private final @NonNull LandscapeRenderer landscape_renderer;
     private final Player local_player;
-    private final Cheat cheat;
+    private final @NonNull Cheat cheat;
     private final WorldParameters world_params;
-    private final AnimationManager animation_manager_local;
+    private final @NonNull AnimationManager animation_manager_local;
 
-    public WorldViewer(NetworkSelector network, final GUIRoot gui_root, WorldParameters world_params, InGameInfo ingame_info, WorldGenerator generator, PlayerSlot[] player_slots, UnitInfo[] unit_infos, float[][] colors, short player_slot, SessionID session_id) {
+    public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator, PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, float[][] colors, short player_slot, SessionID session_id) {
         this.world_params = world_params;
         this.ingame_info = ingame_info;
         this.network = network;
@@ -113,14 +114,14 @@ public final class WorldViewer implements Animated {
             }
 
             @Override
-            public void newAttackNotification(Selectable target) {
+            public void newAttackNotification(@NonNull Selectable target) {
                 Player owner = target.getOwner();
                 if (owner == getLocalPlayer())
                     notification_manager.newAttackNotification(animation_manager_local, target, getLocalPlayer());
             }
 
             @Override
-            public void newSelectableNotification(Selectable target) {
+            public void newSelectableNotification(@NonNull Selectable target) {
                 Player owner = target.getOwner();
                 if (owner == getLocalPlayer())
                     notification_manager.newSelectableNotification(target, animation_manager_local, getLocalPlayer());
@@ -139,7 +140,7 @@ public final class WorldViewer implements Animated {
             }
 
             @Override
-            public void updateTreeLowDetail(StrictMatrix4f matrix, TreeSupply tree) {
+            public void updateTreeLowDetail(@NonNull StrictMatrix4f matrix, @NonNull TreeSupply tree) {
                 getRenderer().getTreeRenderer().getLowDetail().updateLowDetail(matrix, tree);
             }
 
@@ -198,7 +199,7 @@ public final class WorldViewer implements Animated {
         return local_player;
     }
 
-    private void initPlayer(ResourceBundle bundle, float[] starting_location, PlayerSlot slot, Player player, UnitInfo unit_info, int initial_gamespeed) {
+    private void initPlayer(@NonNull ResourceBundle bundle, float[] starting_location, @NonNull PlayerSlot slot, @NonNull Player player, @NonNull UnitInfo unit_info, int initial_gamespeed) {
         if (slot.getType() == PlayerSlot.AI) {
             AI ai = null;
             switch (slot.getAIDifficulty()) {
@@ -263,7 +264,7 @@ public final class WorldViewer implements Animated {
         }
     }
 
-    private void initPlayers(float[][] starting_locations, PlayerSlot[] slots, Player[] players, UnitInfo[] unit_infos, int initial_gamespeed) {
+    private void initPlayers(float[][] starting_locations, PlayerSlot @NonNull [] slots, Player[] players, UnitInfo[] unit_infos, int initial_gamespeed) {
         ResourceBundle bundle = ResourceBundle.getBundle(Player.class.getName());
         for (int i = 0; i < slots.length; i++) {
             initPlayer(bundle, starting_locations[i], slots[i], players[i], unit_infos[i], initial_gamespeed);

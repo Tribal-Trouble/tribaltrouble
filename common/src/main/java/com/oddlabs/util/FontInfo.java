@@ -1,5 +1,7 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,7 +47,7 @@ public final class FontInfo implements Serializable {
 		return font_height;
 	}
 
-	public void saveToFile(String file_name) {
+	public void saveToFile(@NonNull String file_name) {
 		try (ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file_name)))) {
 			os.writeObject(this);
 		} catch (IOException e) {
@@ -53,7 +55,7 @@ public final class FontInfo implements Serializable {
 		}
 	}
 
-	public static FontInfo loadFromFile(URL url) {
+	public static FontInfo loadFromFile(@NonNull URL url) {
 		return Utils.loadObject(url);
 	}
 }

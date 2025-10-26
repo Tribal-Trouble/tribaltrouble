@@ -1,6 +1,7 @@
 package com.oddlabs.tt.audio;
 
 import com.oddlabs.tt.resource.File;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 
@@ -10,7 +11,7 @@ public final class AudioFile extends File<Audio> {
 	}
 
     @Override
-	public Audio get() {
+	public @NonNull Audio get() {
         try {
             return new Audio(this.getURL());
         } catch (IOException ex) {

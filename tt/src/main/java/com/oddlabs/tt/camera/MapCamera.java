@@ -7,6 +7,7 @@ import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ResourceBundle;
@@ -34,7 +35,7 @@ public final class MapCamera extends Camera {
 
     private MapMode map_mode = MapMode.TO_MAP;
 
-    public MapCamera(SelectionDelegate delegate, GameCamera old_camera) {
+    public MapCamera(SelectionDelegate delegate, @NonNull GameCamera old_camera) {
         super(old_camera.getHeightMap(), old_camera.getState());
         this.delegate = delegate;
         old_x = getState().getTargetX();
@@ -138,7 +139,7 @@ public final class MapCamera extends Camera {
     }
 
     @Override
-    public void keyPressed(KeyboardEvent event) {
+    public void keyPressed(@NonNull KeyboardEvent event) {
         switch (event.getKeyCode()) {
             case Keyboard.KEY_SPACE:
             case Keyboard.KEY_NUMPAD5:

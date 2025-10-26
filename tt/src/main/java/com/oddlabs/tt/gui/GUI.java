@@ -7,21 +7,23 @@ import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.AmbientAudio;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 public final class GUI implements Animated {
 	private GUIRoot current_root = createRoot();
-	private Fade fade;
+	private @Nullable Fade fade;
 	private UIRenderer renderer;
 
 	public GUI() {
 	}
 
-	public GUIRoot newFade() {
+	public @NonNull GUIRoot newFade() {
 		return newFade(null, null);
 	}
 
-	public GUIRoot newFade(Fadable fadable, UIRenderer renderer) {
+	public @NonNull GUIRoot newFade(Fadable fadable, UIRenderer renderer) {
 		GUIRoot gui_root = createRoot();
 		newFade(fadable, gui_root, renderer);
 		return gui_root;
@@ -32,7 +34,7 @@ public final class GUI implements Animated {
 		LocalEventQueue.getQueue().getManager().registerAnimation(this);
 	}
 
-	public GUIRoot createRoot() {
+	public @NonNull GUIRoot createRoot() {
 		GUIRoot gui_root = new GUIRoot(this);
 		gui_root.displayChanged();
 		return gui_root;

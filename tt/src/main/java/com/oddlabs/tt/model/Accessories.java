@@ -2,11 +2,12 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
+import org.jspecify.annotations.NonNull;
 
 public abstract class Accessories extends Model {
 	private final SpriteKey sprite_renderer;
 
-	public Accessories(World world, SpriteKey sprite_renderer) {
+	public Accessories(@NonNull World world, SpriteKey sprite_renderer) {
 		super(world);
 		this.sprite_renderer = sprite_renderer;
 		register();

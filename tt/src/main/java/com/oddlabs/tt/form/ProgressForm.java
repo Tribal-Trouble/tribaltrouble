@@ -16,6 +16,8 @@ import com.oddlabs.tt.gui.ProgressBarInfo;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.openal.AL;
 
 import java.util.Random;
@@ -25,12 +27,12 @@ public final class ProgressForm {
 	private final static int PROGRESSBAR_LOADINGTIP_SPACING = 45;
 	private final static int NUM_TIPS = 39;
 	private final static String TIP_PREFIX = "tip";
-	private final static String[] LOADING_TIPS;
+	private final static String @NonNull [] LOADING_TIPS;
 
-	private static ProgressForm current_progress = null;
+	private static @Nullable ProgressForm current_progress = null;
 
-	private final ProgressBar progress_bar;
-	private final GUIImage image;
+	private final @NonNull ProgressBar progress_bar;
+	private final @NonNull GUIImage image;
 
 	static {
 		LOADING_TIPS = new String[NUM_TIPS];
@@ -40,11 +42,11 @@ public final class ProgressForm {
         }
 	}
 
-	public static void setProgressForm(NetworkSelector network, GUI gui, LoadCallback callback) {
+	public static void setProgressForm(NetworkSelector network, @NonNull GUI gui, @NonNull LoadCallback callback) {
 		setProgressForm(network, gui, callback, false);
 	}
 
-	public static void setProgressForm(NetworkSelector network, final GUI gui, final LoadCallback callback, final boolean first_progress) {
+	public static void setProgressForm(NetworkSelector network, final @NonNull GUI gui, final @NonNull LoadCallback callback, final boolean first_progress) {
 		String texture;
 		int texture_width;
 		int texture_height;
@@ -91,7 +93,7 @@ public final class ProgressForm {
 			load_fadable.fadingDone();
 	}
 
-	private ProgressForm(NetworkSelector network, final GUI gui, final Fadable load_fadable, boolean first_progress, ProgressBarInfo[] info, String texture_name, int texture_width, int texture_height, int image_width, int image_height, int progress_x, int progress_y, int progress_width, boolean show_tip) {
+	private ProgressForm(NetworkSelector network, final @NonNull GUI gui, final Fadable load_fadable, boolean first_progress, ProgressBarInfo @NonNull [] info, String texture_name, int texture_width, int texture_height, int image_width, int image_height, int progress_x, int progress_y, int progress_width, boolean show_tip) {
 		if (AL.isCreated())
 			AudioManager.getManager().stopSources();
 		final GUIRoot gui_root;
@@ -129,7 +131,7 @@ public final class ProgressForm {
 		}
 	}
 
-	private static void callback(GUI gui, LoadCallback callback, boolean first_progress) {
+	private static void callback(@NonNull GUI gui, @NonNull LoadCallback callback, boolean first_progress) {
 		Fadable start_sources_fadable = () -> {
                     if (AL.isCreated())
                         AudioManager.getManager().startSources();

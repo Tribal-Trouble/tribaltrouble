@@ -3,9 +3,10 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
+import org.jspecify.annotations.NonNull;
 
 public final class Gradient {
-	public final Channel channel;
+	public final @NonNull Channel channel;
 	
 	public static final int HORIZONTAL = 1;
 	public static final int VERTICAL = 2;
@@ -14,7 +15,7 @@ public final class Gradient {
 	public static final int SMOOTH = 2;
 	public static final int POLYNOMIAL = 3;
 
-	public Gradient(int width, int height, float[][] gradient_list, int orientation, int interpolation) {
+	public Gradient(int width, int height, float[] @NonNull [] gradient_list, int orientation, int interpolation) {
 		channel = new Channel(width, height);
 		float x_coord = 0;
 		int index = 0;
@@ -56,7 +57,7 @@ public final class Gradient {
 		}
 	}
 
-	public Layer toLayer() {
+	public @NonNull Layer toLayer() {
 		return new Layer(channel, channel, channel);
 	}
 

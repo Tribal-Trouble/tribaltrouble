@@ -7,6 +7,7 @@ import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.util.Quad;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -32,35 +33,35 @@ public final class Skin {
 	private final Font button_font;
 	private final Font headline_font;
 
-	private final Quad[] plus_button;
-	private final Quad[] minus_button;
-	private final Quad[] accept_button;
-	private final Quad[] cancel_button;
-	private final Quad[] back_button;
-	private final Horizontal horiz_button_pressed;
-	private final Horizontal horiz_button_unpressed;
-	private final FormData form_data;
-	private final Box edit_box;
-	private final Box background_box;
-	private final Quad[] check_box_marked;
-	private final Quad[] check_box_unmarked;
-	private final Quad[] radio_button_marked;
-	private final Quad[] radio_button_unmarked;
-	private final GroupData group_data;
-	private final ScrollBarData scroll_bar_data;
-	private final SliderData slider_data;
-	private final PulldownData pulldown_data;
-	private final ProgressBarData progress_bar_data;
-	private final MultiColumnComboBoxData multi_columnCombo_box_data;
-	private final ToolTipBoxInfo tool_tip;
-	private final Quad[] diode;
-	private final PanelData panel_data;
-	private final Quad flag_default;
-	private final Quad flag_da;
-	private final Quad flag_en;
-	private final Quad flag_de;
-	private final Quad flag_es;
-	private final Quad flag_it;
+	private final Quad @NonNull [] plus_button;
+	private final Quad @NonNull [] minus_button;
+	private final Quad @NonNull [] accept_button;
+	private final Quad @NonNull [] cancel_button;
+	private final Quad @NonNull [] back_button;
+	private final @NonNull Horizontal horiz_button_pressed;
+	private final @NonNull Horizontal horiz_button_unpressed;
+	private final @NonNull FormData form_data;
+	private final @NonNull Box edit_box;
+	private final @NonNull Box background_box;
+	private final Quad @NonNull [] check_box_marked;
+	private final Quad @NonNull [] check_box_unmarked;
+	private final Quad @NonNull [] radio_button_marked;
+	private final Quad @NonNull [] radio_button_unmarked;
+	private final @NonNull GroupData group_data;
+	private final @NonNull ScrollBarData scroll_bar_data;
+	private final @NonNull SliderData slider_data;
+	private final @NonNull PulldownData pulldown_data;
+	private final @NonNull ProgressBarData progress_bar_data;
+	private final @NonNull MultiColumnComboBoxData multi_columnCombo_box_data;
+	private final @NonNull ToolTipBoxInfo tool_tip;
+	private final Quad @NonNull [] diode;
+	private final @NonNull PanelData panel_data;
+	private final @NonNull Quad flag_default;
+	private final @NonNull Quad flag_da;
+	private final @NonNull Quad flag_en;
+	private final @NonNull Quad flag_de;
+	private final @NonNull Quad flag_es;
+	private final @NonNull Quad flag_it;
 
 	public static void load() {
 		if (skin == null)
@@ -124,7 +125,7 @@ public final class Skin {
 		}
 	}
 
-	private static Texture loadTexture(Node n) {
+	private static Texture loadTexture(@NonNull Node n) {
 		return loadTexture(n.getAttributes().getNamedItem("texture").getNodeValue());
 	}
 
@@ -138,7 +139,7 @@ public final class Skin {
 		return Resources.findResource(file);
 	}
 
-	private static Node getNodeByName(String name, Node n) {
+	private static Node getNodeByName(String name, @NonNull Node n) {
 		NodeList nl = n.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			if (nl.item(i).getNodeName().equals(name))
@@ -148,12 +149,12 @@ public final class Skin {
 		return null;
 	}
 
-	private static int getInt(Node n, String key) {
+	private static int getInt(@NonNull Node n, String key) {
 		String string = n.getAttributes().getNamedItem(key).getNodeValue();
 		return Integer.parseInt(string);
 	}
 
-	private Color getColor(Node n) {
+	private @NonNull Color getColor(@NonNull Node n) {
 		Node q = getNodeByName("color", n);
 		int r = getInt(q, "r");
 		int g = getInt(q, "g");
@@ -165,15 +166,15 @@ public final class Skin {
 						 a/255f);
 	}
 
-	private Quad[] getNamedQuads(Node n, String name) {
+	private Quad @NonNull [] getNamedQuads(@NonNull Node n, String name) {
 		return getQuads(getNodeByName(name, n), texture);
 	}
 
-	private Quad getNamedQuad(Node n, String name) {
+	private @NonNull Quad getNamedQuad(@NonNull Node n, String name) {
 		return getQuad(getNodeByName(name, n), texture);
 	}
 
-	private Quad[] getQuads(Node n, Texture texture) {
+	private Quad @NonNull [] getQuads(@NonNull Node n, @NonNull Texture texture) {
 		Quad[] result = new Quad[3];
 		Node normal = getNodeByName("normal", n);
 		result[NORMAL] = getQuad(normal, texture);
@@ -184,12 +185,12 @@ public final class Skin {
 		return result;
 	}
 
-	private Quad getQuad(Node n, Texture texture) {
+	private @NonNull Quad getQuad(@NonNull Node n, @NonNull Texture texture) {
 		Node q = getNodeByName("quad", n);
 		return readQuadData(q, texture);
 	}
 
-	private Quad readQuadData(Node n, Texture texture) {
+	private @NonNull Quad readQuadData(@NonNull Node n, @NonNull Texture texture) {
 		int left = getInt(n, "left");
 		int top = getInt(n, "top");
 		int right = getInt(n, "right");
@@ -202,7 +203,7 @@ public final class Skin {
 						bottom - top);
 	}
 
-	private Horizontal getHorizontal(Node n) {
+	private @NonNull Horizontal getHorizontal(@NonNull Node n) {
 		Node horizontal_node = getNodeByName("horizontal", n);
 		Node left_node = getNodeByName("left", horizontal_node);
 		Quad[] left = getQuads(left_node, texture);
@@ -213,7 +214,7 @@ public final class Skin {
 		return new Horizontal(left, center, right);
 	}
 
-	private Vertical getVertical(Node n) {
+	private @NonNull Vertical getVertical(@NonNull Node n) {
 		Node vertical_node = getNodeByName("vertical", n);
 		Node bottom_node = getNodeByName("bottom", vertical_node);
 		Quad[] bottom = getQuads(bottom_node, texture);
@@ -224,7 +225,7 @@ public final class Skin {
 		return new Vertical(bottom, center, top);
 	}
 
-	private Box getBox(Node n) {
+	private @NonNull Box getBox(@NonNull Node n) {
 		Node box_node = getNodeByName("box", n);
 		Node left_bottom_node = getNodeByName("left_bottom", box_node);
 		Quad[] left_bottom = getQuads(left_bottom_node, texture);
@@ -262,7 +263,7 @@ public final class Skin {
 					   top_offset);
 	}
 
-	private Font getFont(Node n) {
+	private Font getFont(@NonNull Node n) {
 		String path = n.getFirstChild().getNodeValue();
 		FontFile font_file = new FontFile(path);
 		return Resources.findResource(font_file);
@@ -272,7 +273,7 @@ public final class Skin {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
 	}
 
-	private Font parseEditFont(Node n) {
+	private Font parseEditFont(@NonNull Node n) {
 		Node node = getNodeByName("editfont", n);
 		return getFont(node);
 	}
@@ -281,7 +282,7 @@ public final class Skin {
 		return edit_font;
 	}
 
-	private Font parseButtonFont(Node n) {
+	private Font parseButtonFont(@NonNull Node n) {
 		Node node = getNodeByName("buttonfont", n);
 		return getFont(node);
 	}
@@ -290,7 +291,7 @@ public final class Skin {
 		return button_font;
 	}
 
-	private Font parseHeadlineFont(Node n) {
+	private Font parseHeadlineFont(@NonNull Node n) {
 		Node node = getNodeByName("headlinefont", n);
 		return getFont(node);
 	}
@@ -299,7 +300,7 @@ public final class Skin {
 		return headline_font;
 	}
 
-	private Quad[] parseCheckBoxMarked(Node n) {
+	private Quad @NonNull [] parseCheckBoxMarked(@NonNull Node n) {
 		Node node = getNodeByName("checkbox", n);
 		node = getNodeByName("marked", node);
 		return getQuads(node, texture);
@@ -309,7 +310,7 @@ public final class Skin {
 		return check_box_marked;
 	}
 
-	private Quad[] parseCheckBoxUnmarked(Node n) {
+	private Quad @NonNull [] parseCheckBoxUnmarked(@NonNull Node n) {
 		Node node = getNodeByName("checkbox", n);
 		node = getNodeByName("unmarked", node);
 		return getQuads(node, texture);
@@ -319,7 +320,7 @@ public final class Skin {
 		return check_box_unmarked;
 	}
 
-	private Quad[] parseRadioButtonMarked(Node n) {
+	private Quad @NonNull [] parseRadioButtonMarked(@NonNull Node n) {
 		Node node = getNodeByName("radiobutton", n);
 		node = getNodeByName("marked", node);
 		return getQuads(node, texture);
@@ -329,7 +330,7 @@ public final class Skin {
 		return radio_button_marked;
 	}
 
-	private Quad[] parseRadioButtonUnmarked(Node n) {
+	private Quad @NonNull [] parseRadioButtonUnmarked(@NonNull Node n) {
 		Node node = getNodeByName("radiobutton", n);
 		node = getNodeByName("unmarked", node);
 		return getQuads(node, texture);
@@ -339,7 +340,7 @@ public final class Skin {
 		return radio_button_unmarked;
 	}
 
-	private Horizontal parseHorizButtonPressed(Node n) {
+	private @NonNull Horizontal parseHorizButtonPressed(@NonNull Node n) {
 		Node node = getNodeByName("horiz_button", n);
 		node = getNodeByName("horiz_pressed", node);
 		return getHorizontal(node);
@@ -349,7 +350,7 @@ public final class Skin {
 		return horiz_button_pressed;
 	}
 
-	private Horizontal parseHorizButtonUnpressed(Node n) {
+	private @NonNull Horizontal parseHorizButtonUnpressed(@NonNull Node n) {
 		Node node = getNodeByName("horiz_button", n);
 		node = getNodeByName("horiz_unpressed", node);
 		return getHorizontal(node);
@@ -359,7 +360,7 @@ public final class Skin {
 		return horiz_button_unpressed;
 	}
 
-	private ScrollBarData parseScrollBarData(Node n) {
+	private @NonNull ScrollBarData parseScrollBarData(@NonNull Node n) {
 		Node node = getNodeByName("vert_scroll", n);
 		Vertical scroll_bar = getVertical(node);
 
@@ -410,7 +411,7 @@ public final class Skin {
 		return scroll_bar_data;
 	}
 
-	private SliderData parseSliderData(Node n) {
+	private @NonNull SliderData parseSliderData(@NonNull Node n) {
 		Node node = getNodeByName("slider", n);
 		Horizontal slider = getHorizontal(node);
 
@@ -426,7 +427,7 @@ public final class Skin {
 		return slider_data;
 	}
 
-	private PulldownData parsePulldownData(Node n) {
+	private @NonNull PulldownData parsePulldownData(@NonNull Node n) {
 		Node node = getNodeByName("pulldown_menu", n);
 
 		Node temp;
@@ -458,7 +459,7 @@ public final class Skin {
 		return pulldown_data;
 	}
 
-	private ProgressBarData parseProgressBarData(Node n) {
+	private @NonNull ProgressBarData parseProgressBarData(@NonNull Node n) {
 		Node node = getNodeByName("progressbar", n);
 		Horizontal progressbar = getHorizontal(node);
 
@@ -483,7 +484,7 @@ public final class Skin {
 		return progress_bar_data;
 	}
 
-	private FormData parseFormData(Node n) {
+	private @NonNull FormData parseFormData(@NonNull Node n) {
 		Node node = getNodeByName("slim_form", n);
 		Box slim_form = getBox(node);
 
@@ -528,7 +529,7 @@ public final class Skin {
 		return diode;
 	}
 
-	private Box parseBox(Node n, String name) {
+	private @NonNull Box parseBox(@NonNull Node n, String name) {
 		Node node = getNodeByName(name, n);
 		return getBox(node);
 	}
@@ -541,7 +542,7 @@ public final class Skin {
 		return background_box;
 	}
 
-	private GroupData parseGroupData(Node n) {
+	private @NonNull GroupData parseGroupData(@NonNull Node n) {
 		Node node = getNodeByName("group", n);
 		return new GroupData(getBox(node),
 							 getInt(node, "caption_left"),
@@ -554,7 +555,7 @@ public final class Skin {
 		return group_data;
 	}
 
-	private MultiColumnComboBoxData parseMultiColumnComboBoxData(Node n) {
+	private @NonNull MultiColumnComboBoxData parseMultiColumnComboBoxData(@NonNull Node n) {
 		Node node = getNodeByName("multi_column_combo", n);
 		Node desc = getNodeByName("descending", node);
 		Node asc = getNodeByName("ascending", node);
@@ -577,7 +578,7 @@ public final class Skin {
 		return multi_columnCombo_box_data;
 	}
 
-	private ToolTipBoxInfo parseToolTipInfo(Node n) {
+	private @NonNull ToolTipBoxInfo parseToolTipInfo(@NonNull Node n) {
 		Node node = getNodeByName("tool_tip", n);
 		return new ToolTipBoxInfo(getHorizontal(node),
 							  getInt(node, "left_offset"),
@@ -590,7 +591,7 @@ public final class Skin {
 		return tool_tip;
 	}
 
-	private PanelData parsePanelData(Node n) {
+	private @NonNull PanelData parsePanelData(@NonNull Node n) {
 		Node node = getNodeByName("panel", n);
 		return new PanelData(getBox(node),
 							 getHorizontal(node),

@@ -19,6 +19,7 @@ import com.oddlabs.tt.player.campaign.Campaign;
 import com.oddlabs.tt.player.campaign.CampaignState;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ResourceBundle;
@@ -30,7 +31,7 @@ public final class CampaignMapForm extends CameraDelegate {
 	private final Campaign campaign;
 	private final NetworkSelector network;
 
-	public CampaignMapForm(final NetworkSelector network, final GUIRoot gui_root, Campaign campaign) {
+	public CampaignMapForm(final @NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull Campaign campaign) {
 		super(gui_root, new StaticCamera(new CameraState()));
 		this.campaign = campaign;
 		this.network = network;
@@ -121,7 +122,7 @@ public final class CampaignMapForm extends CameraDelegate {
 	}
 
     @Override
-	protected void keyPressed(KeyboardEvent event) {
+	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:
 				getGUIRoot().pushDelegate(new CampaignMapMenu(network, getGUIRoot(), new StaticCamera(getCamera().getState())));
@@ -132,7 +133,7 @@ public final class CampaignMapForm extends CameraDelegate {
 		}
 	}
 
-	public static void closeCampaign(NetworkSelector network, GUI gui) {
+	public static void closeCampaign(@NonNull NetworkSelector network, @NonNull GUI gui) {
 		Renderer.startMenu(network, gui);
 	}
 

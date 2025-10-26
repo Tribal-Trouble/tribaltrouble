@@ -1,5 +1,6 @@
 package com.oddlabs.tt.resource;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -14,7 +15,7 @@ public final class FogInfo {
     private final float fog_start;
     private final float fog_end;
 
-    public FogInfo(float[] fog_color_array, int fog_mode, float fog_height_factor, float fog_density, float fog_start, float fog_end) {
+    public FogInfo(float @NonNull [] fog_color_array, int fog_mode, float fog_height_factor, float fog_density, float fog_start, float fog_end) {
         this.fog_color = BufferUtils.createFloatBuffer(4);
         this.fog_color.put(fog_color_array).flip();
         this.fog_height_factor = fog_height_factor;

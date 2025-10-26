@@ -1,5 +1,7 @@
 package com.oddlabs.router;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 
 public class SessionInfo implements Serializable {
@@ -24,7 +26,7 @@ public class SessionInfo implements Serializable {
 	}
 
         @Override
-	public final String toString() {
+	public final @NonNull String toString() {
 		return "(SessionInfo: num_participants = " + num_participants + ")";
 	}
 }

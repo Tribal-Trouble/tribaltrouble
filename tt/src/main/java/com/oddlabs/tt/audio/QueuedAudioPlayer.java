@@ -3,6 +3,8 @@ package com.oddlabs.tt.audio;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.util.ByteBufferOutputStream;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL10;
 
@@ -12,16 +14,16 @@ import java.nio.IntBuffer;
 
 final class QueuedAudioPlayer extends AbstractAudioPlayer {
 	private final static int NUM_BUFFERS = 12;
-	private final ByteBufferOutputStream buffer_stream;
-	private final Audio audio;
+	private final @NonNull ByteBufferOutputStream buffer_stream;
+	private final @Nullable Audio audio;
 	private final IntBuffer al_return_buffers = BufferUtils.createIntBuffer(1);
-	private final URL url;
+	private final @NonNull URL url;
 	private final int channels;
 
-	private OGGStream ogg_stream;
+	private @Nullable OGGStream ogg_stream;
 	private int oldest_buffer = 0;
 
-	QueuedAudioPlayer(AudioSource source, AudioParameters<String> params) throws IOException {
+	QueuedAudioPlayer(@NonNull AudioSource source, @NonNull AudioParameters<String> params) throws IOException {
 		super(source, params);
 		this.url = Utils.makeURL(params.sound);
 		this.buffer_stream = new ByteBufferOutputStream(true);

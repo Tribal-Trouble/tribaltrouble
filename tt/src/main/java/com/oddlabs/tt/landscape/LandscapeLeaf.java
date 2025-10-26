@@ -1,7 +1,9 @@
 package com.oddlabs.tt.landscape;
 
+import org.jspecify.annotations.NonNull;
+
 public final class LandscapeLeaf extends AbstractPatchGroup {
-	private final float[] errors;
+	private final float @NonNull [] errors;
 
 	private final int patch_x;
 	private final int patch_y;
@@ -11,7 +13,7 @@ public final class LandscapeLeaf extends AbstractPatchGroup {
 		return max_error;
 	}
 
-	public LandscapeLeaf(World world, int index_x, int index_y, AbstractPatchGroup parent) {
+	public LandscapeLeaf(@NonNull World world, int index_x, int index_y, AbstractPatchGroup parent) {
 		super(world.getHeightMap(), 1, index_x, index_y, parent);
 		HeightMap heightmap = world.getHeightMap();
 		Errors errors_obj = world.getLandscapeIndices().computeErrors(index_x, index_y);
@@ -49,7 +51,7 @@ public final class LandscapeLeaf extends AbstractPatchGroup {
 	}
 
         @Override
-	public void visit(PatchGroupVisitor visitor) {
+	public void visit(@NonNull PatchGroupVisitor visitor) {
 		visitor.visitLeaf(this);
 	}
 }

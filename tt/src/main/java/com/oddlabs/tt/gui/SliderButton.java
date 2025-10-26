@@ -1,13 +1,14 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public final class SliderButton extends ButtonObject {
 	private final Slider slider;
-	private final Quad[] button;
+	private final Quad @NonNull [] button;
 
-	public SliderButton(Slider slider, Quad[] button) {
+	public SliderButton(Slider slider, Quad @NonNull [] button) {
 		setDim(button[Skin.NORMAL].getWidth(), button[Skin.NORMAL].getHeight());
 		this.slider = slider;
 		this.button = button;
@@ -30,7 +31,7 @@ public final class SliderButton extends ButtonObject {
 	}
 
         @Override
-	public void keyPressed(KeyboardEvent event) {
+	public void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_RIGHT:
 				slider.setValue(slider.getValue() + 1);

@@ -1,5 +1,6 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 
@@ -14,13 +15,13 @@ import java.nio.channels.WritableByteChannel;
 
 public final class DXTImage {
 	private final static int INITIAL_BUFFER_SIZE = 100000;
-	private static byte[] scratch_buffer = new byte[INITIAL_BUFFER_SIZE];
+	private static byte @NonNull [] scratch_buffer = new byte[INITIAL_BUFFER_SIZE];
 	private final short width;
 	private final short height;
 	private final int internal_format;
 	private final ByteBuffer mipmaps;
 
-	private static ByteBuffer convertToByteBuffer(int internal_format, int width, int height, byte[][] mipmaps) {
+	private static @NonNull ByteBuffer convertToByteBuffer(int internal_format, int width, int height, byte[] @NonNull [] mipmaps) {
 		int size = 0;
 		int mipmap_width = width;
 		int mipmap_height = height;
@@ -38,7 +39,7 @@ public final class DXTImage {
 		return buffer;
 	}
 
-	public DXTImage(short width, short height, int internal_format, byte[][] mipmaps) {
+	public DXTImage(short width, short height, int internal_format, byte[] @NonNull [] mipmaps) {
 		this(width, height, internal_format, convertToByteBuffer(internal_format, width, height, mipmaps));
 	}
 	
@@ -113,7 +114,7 @@ public final class DXTImage {
 		mipmaps.limit(position);
 	}
 
-	public static DXTImage read(URL url) throws IOException {
+	public static @NonNull DXTImage read(@NonNull URL url) throws IOException {
 		InputStream in = new BufferedInputStream(url.openStream());
 		int index = 0;
 		int bytes_read;
@@ -136,7 +137,7 @@ public final class DXTImage {
 		return new DXTImage(width, height, internal_format, buffer);
 	}
 
-	public void write(File file) throws IOException {
+	public void write(@NonNull File file) throws IOException {
             try (WritableByteChannel out = new FileOutputStream(file).getChannel()) {
                 ByteBuffer header = ByteBuffer.allocate(2 + 2 + 4);
                 header.putShort(width).putShort(height).putInt(internal_format);
@@ -151,7 +152,7 @@ public final class DXTImage {
             }
 	}
 
-	private static void writeContents(WritableByteChannel out, ByteBuffer data) throws IOException {
+	private static void writeContents(@NonNull WritableByteChannel out, @NonNull ByteBuffer data) throws IOException {
 		while (data.hasRemaining())
 			out.write(data);
 	}

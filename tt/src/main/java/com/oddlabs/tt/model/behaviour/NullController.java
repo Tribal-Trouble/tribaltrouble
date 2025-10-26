@@ -2,6 +2,7 @@ package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Selectable;
+import org.jspecify.annotations.NonNull;
 
 public final class NullController extends Controller {
 	private final Selectable selectable;
@@ -12,7 +13,7 @@ public final class NullController extends Controller {
 	}
 
     @Override
-	public String getKey() {
+	public @NonNull String getKey() {
 		return super.getKey() + selectable.getAbilities().hasAbilities(Abilities.BUILD_ARMIES) + selectable.getAbilities().hasAbilities(Abilities.REPRODUCE) + selectable.getAbilities().hasAbilities(Abilities.ATTACK);
 	}
 

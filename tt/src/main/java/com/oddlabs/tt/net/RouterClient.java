@@ -13,14 +13,15 @@ import com.oddlabs.router.RouterInterface;
 import com.oddlabs.router.SessionID;
 import com.oddlabs.router.SessionInfo;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public final class RouterClient implements ConnectionInterface {
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(RouterClientInterface.class);
-	private final AbstractConnection connection;
-	private final GameInterface game_interface;
+	private final @NonNull AbstractConnection connection;
+	private final @NonNull GameInterface game_interface;
 	private final RouterHandler router_handler;
 
 	public RouterClient(NetworkSelector network, RouterHandler router_handler, int port) {
@@ -45,7 +46,7 @@ public final class RouterClient implements ConnectionInterface {
 	}
 	
         @Override
-	public void handle(Object sender, ARMIEvent armi_event) {
+	public void handle(Object sender, @NonNull ARMIEvent armi_event) {
 		try {
 			armi_event.execute(interface_methods, router_handler);
 		} catch (IllegalARMIEventException e) {

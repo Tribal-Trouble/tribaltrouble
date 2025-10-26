@@ -7,16 +7,17 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
 public final class UnitGrid {
-	private final Region[][] regions;
-	private final Occupant[][] occupants;
+	private final Region[] @NonNull [] regions;
+	private final Occupant[] @NonNull [] occupants;
 	private final HeightMap heightmap;
 
-	private boolean filter(ScanFilter filter, int x, int y) {
+	private boolean filter(@NonNull ScanFilter filter, int x, int y) {
 		if (x < 0 || y < 0 || x >= occupants.length || y >= occupants.length)
 			return false;
 		return filter.filter(x, y, occupants[y][x]);
@@ -28,7 +29,7 @@ public final class UnitGrid {
 		return filter.getTargets();
 	}
 
-	public void scan(ScanFilter filter, int center_grid_x, int center_grid_y) {
+	public void scan(@NonNull ScanFilter filter, int center_grid_x, int center_grid_y) {
 		int radius = filter.getMinRadius();
 		if (radius == 0) {
 			if (filter(filter, center_grid_x, center_grid_y))
@@ -70,7 +71,7 @@ public final class UnitGrid {
 		return occupants.length;
 	}
 
-	public UnitGrid(HeightMap heightmap) {
+	public UnitGrid(@NonNull HeightMap heightmap) {
 		this.heightmap = heightmap;
 		int unit_grid_size = heightmap.getAccessGrid().length;
 		occupants = new Occupant[unit_grid_size][unit_grid_size];

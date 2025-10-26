@@ -4,6 +4,7 @@ import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector4f;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class Arrow extends GUIObject {
@@ -19,7 +20,7 @@ public final class Arrow extends GUIObject {
 	private final boolean show_always;
 	private final GUIRoot gui_root;
 
-	public Arrow(HeightMap heightmap, GUIRoot gui_root, float target_x, float target_y, float r, float g, float b, boolean show_always) {
+	public Arrow(@NonNull HeightMap heightmap, GUIRoot gui_root, float target_x, float target_y, float r, float g, float b, boolean show_always) {
 		this.gui_root = gui_root;
 		this.target_x = target_x;
 		this.target_y = target_y;
@@ -37,7 +38,7 @@ public final class Arrow extends GUIObject {
 	}
 
 	private final static StrictVector4f point = new StrictVector4f();
-	private StrictVector4f project3DTo2D(float x, float y, float z) {
+	private @NonNull StrictVector4f project3DTo2D(float x, float y, float z) {
 		point.set(x,y,z,1);
 		StrictMatrix4f.transform(gui_root.getDelegate().getCamera().getState().getProjectionModelView(), point, point);
 		if (point.w < .1f)

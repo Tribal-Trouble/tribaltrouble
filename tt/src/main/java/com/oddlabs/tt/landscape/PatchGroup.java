@@ -1,5 +1,7 @@
 package com.oddlabs.tt.landscape;
 
+import org.jspecify.annotations.NonNull;
+
 public final class PatchGroup extends AbstractPatchGroup {
 	/*
 	 * child2 | child3
@@ -8,16 +10,16 @@ public final class PatchGroup extends AbstractPatchGroup {
 	 *
 	 */
 
-	private final AbstractPatchGroup child0;
-	private final AbstractPatchGroup child1;
-	private final AbstractPatchGroup child2;
-	private final AbstractPatchGroup child3;
+	private final @NonNull AbstractPatchGroup child0;
+	private final @NonNull AbstractPatchGroup child1;
+	private final @NonNull AbstractPatchGroup child2;
+	private final @NonNull AbstractPatchGroup child3;
 
-	public PatchGroup(World world) {
+	public PatchGroup(@NonNull World world) {
 		this(world, world.getHeightMap().getPatchesPerWorld(), 0, 0, 0, null);
 	}
 
-	public PatchGroup(World world, int size, int x, int y, int level, AbstractPatchGroup parent) {
+	public PatchGroup(@NonNull World world, int size, int x, int y, int level, AbstractPatchGroup parent) {
 		super(world.getHeightMap(), size, x, y, parent);
 		int child_size = size >> 1;
 		child0 = createChild(world, child_size, x, y, level);
@@ -32,7 +34,7 @@ public final class PatchGroup extends AbstractPatchGroup {
 	}
 
     @Override
-	public void visit(PatchGroupVisitor visitor) {
+	public void visit(@NonNull PatchGroupVisitor visitor) {
 		visitor.visitGroup(this);
 	}
 
@@ -43,7 +45,7 @@ public final class PatchGroup extends AbstractPatchGroup {
 		child3.visit(visitor);
 	}
 
-	private AbstractPatchGroup createChild(World world, int size, int x, int y, int level) {
+	private @NonNull AbstractPatchGroup createChild(@NonNull World world, int size, int x, int y, int level) {
 		if (size == 1) {
 			LandscapeLeaf leaf = new LandscapeLeaf(world, x, y, this);
 			return leaf;

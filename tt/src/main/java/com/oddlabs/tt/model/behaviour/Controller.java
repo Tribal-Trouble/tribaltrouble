@@ -1,10 +1,12 @@
 package com.oddlabs.tt.model.behaviour;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.Arrays;
 
 public abstract class Controller {
 	private final static int MAX_TRIES = 1;
-	private final int[] give_up_counters;
+	private final int @NonNull [] give_up_counters;
 
 	protected Controller(int num_states) {
 		give_up_counters = new int[num_states];
@@ -27,7 +29,7 @@ public abstract class Controller {
 		}
 	}
 
-	public String getKey() {
+	public @NonNull String getKey() {
 		return Integer.toString(getClass().hashCode());
 	}
 

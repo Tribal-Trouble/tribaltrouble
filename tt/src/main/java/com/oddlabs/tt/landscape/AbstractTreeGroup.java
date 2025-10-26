@@ -7,6 +7,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector3f;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -54,7 +55,7 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 		return num_responding_trees > 0;
 	}
 
-	public static AbstractTreeGroup newRoot(World world, LowDetailModel[] tree_low_details, List<int[]> tree_positions, List<int[]> palm_tree_positions, Landscape.TerrainType terrain) {
+	public static @NonNull AbstractTreeGroup newRoot(@NonNull World world, LowDetailModel @NonNull [] tree_low_details, @NonNull List<int[]> tree_positions, @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
 		AbstractTreeGroup root = new TreeGroup(null, 0);
 
 		switch (terrain) {
@@ -74,7 +75,7 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 		return root;
 	}
 
-	private void buildTrees(final World world, LowDetailModel[] tree_low_details, final int tree_type_index, final int grid_size, final float radius, List<int[]> tree_positions, float scale_factor, float min_size) {
+	private void buildTrees(final @NonNull World world, LowDetailModel @NonNull [] tree_low_details, final int tree_type_index, final int grid_size, final float radius, @NonNull List<int[]> tree_positions, float scale_factor, float min_size) {
 		StrictMatrix4f matrix2 = new StrictMatrix4f();
 		StrictVector3f vector = new StrictVector3f();
 		final float[] tree_low_vertices = tree_low_details[tree_type_index].getVertices();
@@ -104,12 +105,12 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 				private int y;
 
                 @Override
-				public void visitLeaf(TreeLeaf tree_leaf) {
+				public void visitLeaf(@NonNull TreeLeaf tree_leaf) {
 					TreeSupply tree = new TreeSupply(world, tree_leaf, tree_x, tree_y, center_grid_x, center_grid_y, grid_size, radius, matrix, tree_type_index, tree_low_vertices);
 					tree_leaf.insertTree(tree);
 				}
                 @Override
-				public void visitNode(TreeGroup tree_group) {
+				public void visitNode(@NonNull TreeGroup tree_group) {
 					int old_x = x;
 					int old_y = y;
 					int old_size = child_size;

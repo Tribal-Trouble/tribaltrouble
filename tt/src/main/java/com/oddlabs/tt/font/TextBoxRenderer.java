@@ -1,6 +1,7 @@
 package com.oddlabs.tt.font;
 
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class TextBoxRenderer {
 	private final Font font;
@@ -31,12 +32,12 @@ public final class TextBoxRenderer {
 		this.height = height;
 	}
 
-	public int jump(int x, int y, int dx, int dy, CharSequence text, int index) {
+	public int jump(int x, int y, int dx, int dy, @NonNull CharSequence text, int index) {
 		render(x, y, 0, text, index, false);
 		return jumpDirect(x, y, index_render_x + dx, index_render_y + dy, text, index);
 	}
 
-	public int jumpDirect(int x, int y, int new_x, int new_y, CharSequence text, int index) {
+	public int jumpDirect(int x, int y, int new_x, int new_y, @NonNull CharSequence text, int index) {
 		target_render_x = new_x;
 		target_render_y = new_y;
 		best_dx = Integer.MAX_VALUE;
@@ -45,34 +46,34 @@ public final class TextBoxRenderer {
 		return new_index;
 	}
 
-	public int getIndexRenderY(int x, int y, int offset_y, CharSequence text, int index) {
+	public int getIndexRenderY(int x, int y, int offset_y, @NonNull CharSequence text, int index) {
 		render(x, y, offset_y, text, index, false);
 		return index_render_y;
 	}
 
-	public int getTextHeight(CharSequence text) {
+	public int getTextHeight(@NonNull CharSequence text) {
 		render(0, -height, 0, text, text.length(), false);
 		return -index_render_y;
 	}
 
-	public int getTotalTextHeight(CharSequence text) {
+	public int getTotalTextHeight(@NonNull CharSequence text) {
 		render(0, -height, 0, text, text.length(), false);
 		return text_height;
 	}
 
-	public void render(int x, int y, CharSequence text) {
+	public void render(int x, int y, @NonNull CharSequence text) {
 		render(x, y, 0, text, -1);
 	}
 
-	public void render(int x, int y, int offset_y, CharSequence text) {
+	public void render(int x, int y, int offset_y, @NonNull CharSequence text) {
 		render(x, y, offset_y, text, -1);
 	}
 
-	public void render(int x, int y, int offset_y, CharSequence text, int index) {
+	public void render(int x, int y, int offset_y, @NonNull CharSequence text, int index) {
 		render(x, y, offset_y, text, index, true);
 	}
 
-	private void render(int x, int y, int offset_y, CharSequence text, int index, boolean render) {
+	private void render(int x, int y, int offset_y, @NonNull CharSequence text, int index, boolean render) {
 		int clip_left = x;
 		int clip_bottom = y;
 		int clip_right = x + width;
@@ -107,7 +108,7 @@ public final class TextBoxRenderer {
 		text_height += font.getHeight() - font.getYBorder();
 	}
 
-	private int getWordWidth(int render_pos, CharSequence text) {
+	private int getWordWidth(int render_pos, @NonNull CharSequence text) {
 		int width = 0;
 		while (render_pos < text.length()) {
 			char key = text.charAt(render_pos);
@@ -122,14 +123,14 @@ public final class TextBoxRenderer {
 	}
 
 	private int renderWord(int render_pos,
-						   int word_width,
-						   int clip_left,
-						   int clip_bottom,
-						   int clip_right,
-						   int clip_top,
-						   CharSequence text,
-						   int index,
-						   boolean render) {
+                           int word_width,
+                           int clip_left,
+                           int clip_bottom,
+                           int clip_right,
+                           int clip_top,
+                           @NonNull CharSequence text,
+                           int index,
+                           boolean render) {
 		while (word_width > 0) {
 			char key = text.charAt(render_pos);
 			Quad quad = font.getQuad(key);
@@ -150,7 +151,7 @@ public final class TextBoxRenderer {
 		return render_pos;
 	}
 
-	private int renderSpace(int render_pos, int clip_left, int clip_bottom, int clip_right, int clip_top, CharSequence text, int index, boolean render) {
+	private int renderSpace(int render_pos, int clip_left, int clip_bottom, int clip_right, int clip_top, @NonNull CharSequence text, int index, boolean render) {
 		if (render_pos < text.length()) {
 			char key = text.charAt(render_pos++);
 

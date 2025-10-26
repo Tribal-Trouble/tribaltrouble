@@ -1,6 +1,7 @@
 package com.oddlabs.tt.model.weapon;
 
 import com.oddlabs.tt.model.Unit;
+import org.jspecify.annotations.NonNull;
 
 public final class LightningCloudFactory implements MagicFactory {
 	private final float offset_x;
@@ -52,7 +53,7 @@ public final class LightningCloudFactory implements MagicFactory {
 	}
 
         @Override
-	public Magic execute(Unit src) {
+	public @NonNull Magic execute(@NonNull Unit src) {
 		float seconds_to_init = getSecondsPerRelease() - getSecondsPerInit();
 		return new LightningCloud(src.getOwner().getWorld(), offset_x, offset_y, offset_z, seconds_to_live, seconds_per_hit, seconds_to_init, meters_per_second, hit_chance, damage, height, src);
 	}

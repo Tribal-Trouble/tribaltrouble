@@ -2,6 +2,7 @@ package com.oddlabs.tt.font;
 
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class Index implements Updatable {
@@ -10,7 +11,7 @@ public final class Index implements Updatable {
 
 	private final static Index index = new Index();
 
-	private final TimerAnimation timer;
+	private final @NonNull TimerAnimation timer;
 	private boolean blink_on;
 
 	private Index() {
@@ -28,11 +29,11 @@ public final class Index implements Updatable {
 		timer.resetTime();
 	}
 
-	public static void renderIndex(int render_x, int render_y, Font font) {
+	public static void renderIndex(int render_x, int render_y, @NonNull Font font) {
 		index.doRenderIndex(render_x, render_y, font);
 	}
 
-	private void doRenderIndex(int render_x, int render_y, Font font) {
+	private void doRenderIndex(int render_x, int render_y, @NonNull Font font) {
 		if (blink_on) {
 			GL11.glEnd();
 			GL11.glColor3f(1f, 1f, 1f);

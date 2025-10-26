@@ -14,6 +14,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -21,7 +22,7 @@ public class DefaultInGameInfo implements InGameInfo {
 	private final ResourceBundle terrain_menu_bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
 	private boolean replay_island_flag;
 
-	private void addAbortButton(InGameMainMenu menu) {
+	private void addAbortButton(@NonNull InGameMainMenu menu) {
 		String abort_text = Utils.getBundleString(Menu.bundle, "end_game");
 		menu.addAbortButton(abort_text);
 	}
@@ -37,11 +38,11 @@ public class DefaultInGameInfo implements InGameInfo {
 	}
 
         @Override
-	public void addGameOverGUI(WorldViewer viewer, GameStatsDelegate delegate, int header_y, Group group) {
+	public void addGameOverGUI(@NonNull WorldViewer viewer, @NonNull GameStatsDelegate delegate, int header_y, @NonNull Group group) {
 		addGameOverGUI(viewer, delegate, header_y, group, true);
 	}
 
-	protected final void addGameOverGUI(final WorldViewer viewer, final GameStatsDelegate delegate, int header_y, Group group, boolean replay) {
+	protected final void addGameOverGUI(final @NonNull WorldViewer viewer, final @NonNull GameStatsDelegate delegate, int header_y, @NonNull Group group, boolean replay) {
 		String map_code_str = Utils.getBundleString(GameStatsDelegate.bundle, "map_code", viewer.getParameters().getMapcode());
 		Label map_code = new Label(map_code_str, Skin.getSkin().getEditFont());
 		delegate.addChild(map_code);
@@ -72,7 +73,7 @@ public class DefaultInGameInfo implements InGameInfo {
 			button_replay.place(button_observer, GUIObject.LEFT_MID);
 	}
 
-	private void addGameInfos(WorldViewer viewer, Menu menu, Group game_infos) {
+	private void addGameInfos(@NonNull WorldViewer viewer, Menu menu, @NonNull Group game_infos) {
 		Player[] players = viewer.getWorld().getPlayers();
 		Group names = new Group();
 		GUIObject last_name = null;
@@ -126,13 +127,13 @@ public class DefaultInGameInfo implements InGameInfo {
 	}
 
         @Override
-	public void addGUI(WorldViewer viewer, InGameMainMenu menu, Group game_infos) {
+	public void addGUI(@NonNull WorldViewer viewer, @NonNull InGameMainMenu menu, @NonNull Group game_infos) {
 		addAbortButton(menu);
 		addGameInfos(viewer, menu, game_infos);
 	}
 
         @Override
-	public final void close(WorldViewer viewer) {
+	public final void close(@NonNull WorldViewer viewer) {
 		if (replay_island_flag) {
 			TerrainMenu menu = new TerrainMenu(viewer.getNetwork(), viewer.getGUIRoot(), null, false, null);
 			menu.parseMapcode(viewer.getParameters().getMapcode());
@@ -142,7 +143,7 @@ public class DefaultInGameInfo implements InGameInfo {
 	}
 
         @Override
-	public final void abort(WorldViewer viewer) {
+	public final void abort(@NonNull WorldViewer viewer) {
 		viewer.getGUIRoot().pushDelegate(new GameStatsDelegate(viewer, viewer.getGUIRoot().getDelegate().getCamera(), Utils.getBundleString(Menu.bundle, "game_aborted")));
 	}
 

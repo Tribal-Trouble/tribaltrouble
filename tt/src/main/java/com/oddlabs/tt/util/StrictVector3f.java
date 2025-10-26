@@ -31,6 +31,9 @@
  */
 package com.oddlabs.tt.util;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.nio.FloatBuffer;
 
 /**
@@ -67,7 +70,7 @@ public class StrictVector3f {
 		this.y = y;
 	}
 
-	public void set(StrictVector3f v) {
+	public void set(@NonNull StrictVector3f v) {
 		set(v.x, v.y, v.z);
 	}
 
@@ -101,7 +104,7 @@ public class StrictVector3f {
 	 * @param y the translation in y
 	 * @return this
 	 */
-	public StrictVector3f translate(float x, float y, float z) {
+	public @NonNull StrictVector3f translate(float x, float y, float z) {
 		this.x += x;
 		this.y += y;
 		this.z += z;
@@ -116,7 +119,7 @@ public class StrictVector3f {
 	 * @param dest The destination vector, or null if a new vector is to be created
 	 * @return the sum of left and right in dest
 	 */
-	public static StrictVector3f add(StrictVector3f left, StrictVector3f right, StrictVector3f dest) {
+	public static @NonNull StrictVector3f add(@NonNull StrictVector3f left, @NonNull StrictVector3f right, @Nullable StrictVector3f dest) {
 		if (dest == null)
 			return new StrictVector3f(left.x + right.x, left.y + right.y, left.z + right.z);
 		else {
@@ -133,7 +136,7 @@ public class StrictVector3f {
 	 * @param dest The destination vector, or null if a new vector is to be created
 	 * @return left minus right in dest
 	 */
-	public static StrictVector3f sub(StrictVector3f left, StrictVector3f right, StrictVector3f dest) {
+	public static @NonNull StrictVector3f sub(@NonNull StrictVector3f left, @NonNull StrictVector3f right, @Nullable StrictVector3f dest) {
 		if (dest == null)
 			return new StrictVector3f(left.x - right.x, left.y - right.y, left.z - right.z);
 		else {
@@ -150,10 +153,10 @@ public class StrictVector3f {
 	 * @param dest The destination result, or null if a new vector is to be created
 	 * @return left cross right
 	 */
-	public static StrictVector3f cross(
-			StrictVector3f left,
-			StrictVector3f right,
-			StrictVector3f dest)
+	public static @NonNull StrictVector3f cross(
+            @NonNull StrictVector3f left,
+            @NonNull StrictVector3f right,
+            @Nullable StrictVector3f dest)
 	{
 
 		if (dest == null)
@@ -174,7 +177,7 @@ public class StrictVector3f {
 	 * Negate a vector
 	 * @return this
 	 */
-	public StrictVector3f negate() {
+	public @NonNull StrictVector3f negate() {
 		x = -x;
 		y = -y;
 		z = -z;
@@ -186,7 +189,7 @@ public class StrictVector3f {
 	 * @param dest The destination vector or null if a new vector is to be created
 	 * @return the negated vector
 	 */
-	public StrictVector3f negate(StrictVector3f dest) {
+	public @NonNull StrictVector3f negate(@Nullable StrictVector3f dest) {
 		if (dest == null)
 			dest = new StrictVector3f();
 		dest.x = -x;
@@ -215,7 +218,7 @@ public class StrictVector3f {
 	 * @param dest The destination vector, or null if a new vector is to be created
 	 * @return the normalised vector
 	 */
-	public StrictVector3f normalise(StrictVector3f dest) {
+	public @NonNull StrictVector3f normalise(@Nullable StrictVector3f dest) {
 		float l = length();
 
 		if (dest == null)
@@ -233,7 +236,7 @@ public class StrictVector3f {
 	 * @param right The RHS vector
 	 * @return left dot right
 	 */
-	public static float dot(StrictVector3f left, StrictVector3f right) {
+	public static float dot(@NonNull StrictVector3f left, @NonNull StrictVector3f right) {
 		return left.x * right.x + left.y * right.y + left.z * right.z;
 	}
 
@@ -243,7 +246,7 @@ public class StrictVector3f {
 	 * @param b The other vector
 	 * @return the angle between the two vectors, in degrees
 	 */
-	public static float angle(StrictVector3f a, StrictVector3f b) {
+	public static float angle(@NonNull StrictVector3f a, @NonNull StrictVector3f b) {
 		float dls = dot(a, b) / (a.length() * b.length());
 		if (dls < -1f)
 			dls = -1f;
@@ -255,7 +258,7 @@ public class StrictVector3f {
 	/* (non-Javadoc)
 	 * @see org.lwjgl.vector.StrictVector#load(FloatBuffer)
 	 */
-	public StrictVector3f load(FloatBuffer buf) {
+	public @NonNull StrictVector3f load(@NonNull FloatBuffer buf) {
 		x = buf.get();
 		y = buf.get();
 		z = buf.get();
@@ -265,7 +268,7 @@ public class StrictVector3f {
 	/* (non-Javadoc)
 	 * @see org.lwjgl.vector.StrictVector#scale(float)
 	 */
-	public StrictVector3f scale(float scale) {
+	public @NonNull StrictVector3f scale(float scale) {
 
 		x *= scale;
 		y *= scale;
@@ -278,7 +281,7 @@ public class StrictVector3f {
 	/* (non-Javadoc)
 	 * @see org.lwjgl.vector.StrictVector#store(FloatBuffer)
 	 */
-	public StrictVector3f store(FloatBuffer buf) {
+	public @NonNull StrictVector3f store(@NonNull FloatBuffer buf) {
 
 		buf.put(x);
 		buf.put(y);
@@ -291,7 +294,7 @@ public class StrictVector3f {
 	 * @see java.lang.Object#toString()
 	 */
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 
             String sb = "StrictVector3f[" +
                     x +

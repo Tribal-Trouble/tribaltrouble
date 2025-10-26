@@ -4,18 +4,19 @@ import com.oddlabs.tt.model.SupplyCounter;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 public class StatusIcon extends GUIObject implements ToolTip {
-	private final Quad icon_quad;
-	private final TextField label;
+	private final @NonNull Quad icon_quad;
+	private final @NonNull TextField label;
 	private final String tooltip;
 
 	private SupplyCounter counter;
 	private int text_count = -1;
 	
-	public StatusIcon(int label_width, Quad icon, String tooltip) {
+	public StatusIcon(int label_width, @NonNull Quad icon, String tooltip) {
 		this.tooltip = tooltip;
 		setDim(icon.getWidth() + label_width, icon.getHeight());
 		setCanFocus(true); //only to enable tool tips. focus is given to delegate
@@ -40,7 +41,7 @@ public class StatusIcon extends GUIObject implements ToolTip {
 	}
 
         @Override
-	public final void appendToolTip(ToolTipBox tool_tip_box) {
+	public final void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		String tooltip_str = Utils.getBundleString(ResourceBundle.getBundle(StatusIcon.class.getName()), "max", tooltip, counter.getMaxSupplies());
 		tool_tip_box.append(tooltip_str);
 	}

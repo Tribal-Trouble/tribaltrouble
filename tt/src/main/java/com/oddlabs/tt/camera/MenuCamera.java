@@ -2,6 +2,7 @@ package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
+import org.jspecify.annotations.NonNull;
 
 public final class MenuCamera extends Camera {
     private final static float ANGLE_DELTA = 0.020f;
@@ -12,11 +13,11 @@ public final class MenuCamera extends Camera {
     private final static float CENTER_Y = 128f;
     private final static float CENTER_Z = 128f; // NOT HEIGHT!
 
-    private final World world;
+    private final @NonNull World world;
     private final AnimationManager manager;
     private float center_angle;
 
-    public MenuCamera(World world, AnimationManager manager) {
+    public MenuCamera(@NonNull World world, AnimationManager manager) {
             super(world.getHeightMap(), new CameraState());
             this.world = world;
             this.manager = manager;

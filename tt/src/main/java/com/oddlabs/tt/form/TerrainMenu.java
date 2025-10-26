@@ -40,6 +40,7 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.DefaultInGameInfo;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.MultiplayerInGameInfo;
+import org.jspecify.annotations.NonNull;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -65,31 +66,31 @@ public final class TerrainMenu extends Group {
 	private final static int DIFFICULTY_CARDINALITY = 4;
 	private final static int RACE_CARDINALITY = 2;
 	private final static int TEAM_CARDINALITY = 6;
-	private final static BigInteger MAX_VALUE;
+	private final static @NonNull BigInteger MAX_VALUE;
 
 	private final Menu main_menu;
 	private final TerrainMenuListener owner;
 
-	private final PulldownMenu pulldown_size;
-	private final EditLine editline_name;
-	private final PulldownMenu pm_terrain_type;
-	private final Slider slider_hills;
-	private final Slider slider_vegetation;
-	private final Slider slider_supplies;
-	private final Label label_mapcode;
-	private final HorizButton button_ok;
-	private final HorizButton button_cancel;
-	private final HorizButton button_mapcode;
-	private final PulldownMenu[] difficulty_pulldown_menus;
-	private final PulldownMenu[] race_pulldown_menus;
-	private final PulldownMenu[] team_pulldown_menus;
-	private final PulldownButton[] difficulty_pulldown_buttons;
-	private final PulldownButton[] race_pulldown_buttons;
-	private final PulldownButton[] team_pulldown_buttons;
-	private final Label[] labels_players;
-	private final CheckBox cb_rated;
+	private final @NonNull PulldownMenu pulldown_size;
+	private final @NonNull EditLine editline_name;
+	private final @NonNull PulldownMenu pm_terrain_type;
+	private final @NonNull Slider slider_hills;
+	private final @NonNull Slider slider_vegetation;
+	private final @NonNull Slider slider_supplies;
+	private final @NonNull Label label_mapcode;
+	private final @NonNull HorizButton button_ok;
+	private final @NonNull HorizButton button_cancel;
+	private final @NonNull HorizButton button_mapcode;
+	private final PulldownMenu @NonNull [] difficulty_pulldown_menus;
+	private final PulldownMenu @NonNull [] race_pulldown_menus;
+	private final PulldownMenu @NonNull [] team_pulldown_menus;
+	private final PulldownButton @NonNull [] difficulty_pulldown_buttons;
+	private final PulldownButton @NonNull [] race_pulldown_buttons;
+	private final PulldownButton @NonNull [] team_pulldown_buttons;
+	private final Label @NonNull [] labels_players;
+	private final @NonNull CheckBox cb_rated;
 	private final boolean multiplayer;
-	private final PulldownMenu pm_gamespeed;
+	private final @NonNull PulldownMenu pm_gamespeed;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;
@@ -472,7 +473,7 @@ public final class TerrainMenu extends Group {
 		label_mapcode.append(code);
 	}
 
-	public void parseMapcode(String text) {
+	public void parseMapcode(@NonNull String text) {
 		String code = text.toUpperCase();
 		BigInteger result = RegistrationKey.parseBits(code);
 		parseBigInteger(result);
@@ -573,7 +574,7 @@ public final class TerrainMenu extends Group {
 			new SelectGameMenu(network, gui_root, main_menu);
 	}
 
-	private boolean isChosen(PulldownMenu menu) {
+	private boolean isChosen(@NonNull PulldownMenu menu) {
 		return menu.getChosenItemIndex() != 0;
 	}
 

@@ -10,19 +10,20 @@ import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Random;
 
 public final class LandscapeResources {
 	private final SpriteKey[] rock_fragment_sprites = new SpriteKey[5];
 	private final SpriteKey[] iron_fragment_sprites = new SpriteKey[5];
-	private final SpriteKey[][] plant_sprites;
-	private final SpriteKey chicken;
-	private final Audio[] bird_idle_sound;
+	private final SpriteKey[] @NonNull [] plant_sprites;
+	private final @NonNull SpriteKey chicken;
+	private final Audio @NonNull [] bird_idle_sound;
 	private final Audio bird_peck_sound;
 	private final Audio bird_death_sound;
 
-	public LandscapeResources(RenderQueues queues) {
+	public LandscapeResources(@NonNull RenderQueues queues) {
 		int num_progress = 13;
 		ProgressForm.progress(10f/num_progress);
 
@@ -85,7 +86,7 @@ public final class LandscapeResources {
         ProgressForm.progress(1f/num_progress);
 	}
 
-	public static LowDetailModel[] loadTreeLowDetails() {
+	public static LowDetailModel @NonNull [] loadTreeLowDetails() {
 		LowDetailModel jungle_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/tree_low.binlowdetail"));
 		LowDetailModel palm_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/palm_low.binlowdetail"));
 		LowDetailModel oak_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/oak_tree_low.binlowdetail"));
@@ -93,11 +94,11 @@ public final class LandscapeResources {
 		return new LowDetailModel[]{jungle_lowdetail, palm_lowdetail, oak_lowdetail, pine_lowdetail};
 	}
 
-	public SpriteKey[] getRockFragments() {
+	public SpriteKey @NonNull [] getRockFragments() {
 		return rock_fragment_sprites;
 	}
 
-	public SpriteKey[] getIronFragments() {
+	public SpriteKey @NonNull [] getIronFragments() {
 		return iron_fragment_sprites;
 	}
 
@@ -109,7 +110,7 @@ public final class LandscapeResources {
 		return chicken;
 	}
 
-	public Audio getBirdIdleSound(Random random) {
+	public Audio getBirdIdleSound(@NonNull Random random) {
 		return bird_idle_sound[random.nextInt(bird_idle_sound.length)];
 	}
 

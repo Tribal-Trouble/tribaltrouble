@@ -2,6 +2,7 @@ package com.oddlabs.tt.net;
 
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchmaking.TunnelAddress;
+import org.jspecify.annotations.NonNull;
 
 public final class TunnelIdentifier {
 	private final Profile profile;
@@ -21,7 +22,7 @@ public final class TunnelIdentifier {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "profile: " + profile + " tunnel address: " + address;
 	}
 }

@@ -1,5 +1,7 @@
 package com.oddlabs.tt.render;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.Comparator;
 
 public final class SerializableDisplayModeComparator implements Comparator<SerializableDisplayMode> {
@@ -10,7 +12,7 @@ public final class SerializableDisplayModeComparator implements Comparator<Seria
 	}
 
         @Override
-	public int compare(SerializableDisplayMode d1, SerializableDisplayMode d2) {
+	public int compare(@NonNull SerializableDisplayMode d1, @NonNull SerializableDisplayMode d2) {
 		/*
 		 * Elias: sort after largest bpp first, then lowest freq
 		 * to accomodate broken monitors lying about their
@@ -31,7 +33,7 @@ public final class SerializableDisplayModeComparator implements Comparator<Seria
 		else return Integer.compare(freq_dist1, freq_dist2);
 	}
 
-	private int getDistanceFromBestMode(SerializableDisplayMode mode) {
+	private int getDistanceFromBestMode(@NonNull SerializableDisplayMode mode) {
 		int dx = Math.abs(target_mode.getWidth() - mode.getWidth());
 		int dy = Math.abs(target_mode.getHeight() - mode.getHeight());
 		return dx + dy;

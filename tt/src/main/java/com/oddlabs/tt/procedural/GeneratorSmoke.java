@@ -5,13 +5,14 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLIntImage;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class GeneratorSmoke extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;
 
         @Override
-	public Texture[] generate() {
+	public Texture @NonNull [] generate() {
 		Channel voronoi = new Voronoi(TEXTURE_SIZE, 4, 4, 1, 1f, 42).getDistance(-1f, 0f, 0f);
 		Channel smoke_alpha = new Ring(TEXTURE_SIZE, TEXTURE_SIZE, new float[][] {{0f, 1f},{0.5f, 0f}}, Ring.SMOOTH).toChannel().gamma(1.5f);
 		Channel smoke_color = new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(0.5f);

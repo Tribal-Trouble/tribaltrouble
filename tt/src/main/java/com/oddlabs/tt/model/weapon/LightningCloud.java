@@ -15,6 +15,8 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -31,21 +33,21 @@ public final class LightningCloud implements Magic {
 	private final float hit_chance;
 	private final int damage;
 	private final float height;
-	private final Emitter cloud;
+	private final @NonNull Emitter cloud;
 	private final Vector3f position = new Vector3f();
 	private final AbstractAudioPlayer bubbling_sound;
 	private AbstractAudioPlayer cloud_sound;
 
 	private float seconds_to_live;
-	private Selectable target = null;
-	private Selectable prev_target = null;
+	private @Nullable Selectable target = null;
+	private @Nullable Selectable prev_target = null;
 	private float hit_timer = 0f;
 	private int strike_counter = 0;
 	private float lightning_timer = 0f;
 	private boolean lighted = false;
 	private boolean first_run = true;
 
-	public LightningCloud(World world, float offset_x, float offset_y, float offset_z, float seconds_to_live, float seconds_per_hit, float seconds_to_init, float meters_per_second, float hit_chance, int damage, float height, Unit src) {
+	public LightningCloud(@NonNull World world, float offset_x, float offset_y, float offset_z, float seconds_to_live, float seconds_per_hit, float seconds_to_init, float meters_per_second, float hit_chance, int damage, float height, @NonNull Unit src) {
 		this.seconds_to_live = seconds_to_live;
 		this.seconds_per_hit = seconds_per_hit;
 		this.meters_per_second = meters_per_second;
@@ -149,7 +151,7 @@ public final class LightningCloud implements Magic {
 		}
 	}
 
-	private void strike(Target target) {
+	private void strike(@NonNull Target target) {
 		if (lightning_timer <= 0f) {
 			cloud.forceColorChange(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS, 0f);
 			lightning_timer = LIGHTNING_TIME;

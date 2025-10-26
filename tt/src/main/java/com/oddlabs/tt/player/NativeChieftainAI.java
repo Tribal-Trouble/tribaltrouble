@@ -4,6 +4,7 @@ import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -12,12 +13,12 @@ public final class NativeChieftainAI extends ChieftainAI {
 	private final static int NUM_UNITS_FOR_POISON = 5;
 
         @Override
-	public void decide(Unit chieftain) {
+	public void decide(@NonNull Unit chieftain) {
 		nodeLightningCloud(chieftain);
 		nodePoisonFog(chieftain);
 	}
 
-	private void nodeLightningCloud(Unit chieftain) {
+	private void nodeLightningCloud(@NonNull Unit chieftain) {
 		if (chieftain.getMagicProgress(RacesResources.INDEX_MAGIC_LIGHTNING) < 1)
 			return;
 
@@ -31,7 +32,7 @@ public final class NativeChieftainAI extends ChieftainAI {
 		}
 	}
 
-	private void nodePoisonFog(Unit chieftain) {
+	private void nodePoisonFog(@NonNull Unit chieftain) {
 		if (chieftain.getMagicProgress(RacesResources.INDEX_MAGIC_POISON) < 1)
 			return;
 
@@ -47,7 +48,7 @@ public final class NativeChieftainAI extends ChieftainAI {
 		}
 	}
 
-	private int getNumEnemyUnitsClose(Unit chieftain, float hit_radius) {
+	private int getNumEnemyUnitsClose(@NonNull Unit chieftain, float hit_radius) {
 		FindOccupantFilter<Unit> filter = new FindOccupantFilter<>(chieftain.getPositionX(), chieftain.getPositionY(), hit_radius, chieftain, Unit.class);
 		chieftain.getUnitGrid().scan(filter, chieftain.getGridX(), chieftain.getGridY());
 		List<Unit> target_list = filter.getResult();
@@ -66,7 +67,7 @@ public final class NativeChieftainAI extends ChieftainAI {
 		return num_enemy_units_close;
 	}
 
-	private int getNumFriendlyUnitsClose(Unit chieftain, float hit_radius) {
+	private int getNumFriendlyUnitsClose(@NonNull Unit chieftain, float hit_radius) {
 		FindOccupantFilter<Selectable> filter = new FindOccupantFilter<>(chieftain.getPositionX(), chieftain.getPositionY(), hit_radius, chieftain, Selectable.class);
 		chieftain.getUnitGrid().scan(filter, chieftain.getGridX(), chieftain.getGridY());
 		List<Selectable> target_list = filter.getResult();

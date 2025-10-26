@@ -2,12 +2,14 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class ToolTipBox extends TextField {
 	public final static float MAX_DELAY_SECONDS = 1.5f;
 		
-	private final TextLineRenderer tool_tip_renderer;
-	private Quad[] icons;
+	private final @NonNull TextLineRenderer tool_tip_renderer;
+	private Quad @Nullable [] icons;
 	
 	public ToolTipBox() {
 		super(Skin.getSkin().getEditFont(), 1000);

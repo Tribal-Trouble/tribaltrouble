@@ -10,14 +10,15 @@ import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public final class InGameMainMenu extends Menu {
-	private final WorldViewer viewer;
+	private final @NonNull WorldViewer viewer;
 
 	private Group game_infos;
 
-	public InGameMainMenu(WorldViewer viewer, Camera camera) {
+	public InGameMainMenu(@NonNull WorldViewer viewer, Camera camera) {
 		super(viewer.getNetwork(), viewer.getGUIRoot(), camera);
 		this.viewer = viewer;
 		reload();
@@ -35,7 +36,7 @@ public final class InGameMainMenu extends Menu {
 		viewer.setPaused(false);
 	}
 
-	public void addAbortButton(String abort_text) {
+	public void addAbortButton(@NonNull String abort_text) {
 		MenuButton abort = new MenuButton(abort_text, COLOR_NORMAL, COLOR_ACTIVE);
 		addChild(abort);
 		abort.addMouseClickListener(new AbortListener());
@@ -62,7 +63,7 @@ public final class InGameMainMenu extends Menu {
 	}
 
         @Override
-	protected void keyPressed(KeyboardEvent event) {
+	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch(event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:
 				pop();

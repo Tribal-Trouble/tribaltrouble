@@ -1,12 +1,13 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class IconLabel extends GUIObject implements Comparable<IconLabel> {
 	private final Quad icon;
 	private final Label label;
 
-	public IconLabel(Quad icon, Label label) {
+	public IconLabel(@NonNull Quad icon, @NonNull Label label) {
 		this.icon = icon;
 		this.label = label;
 		label.setPos(icon.getWidth(), 0);
@@ -26,7 +27,7 @@ public final class IconLabel extends GUIObject implements Comparable<IconLabel> 
 	}
 
         @Override
-	public int compareTo(IconLabel o) {
+	public int compareTo(@NonNull IconLabel o) {
 		return label.compareTo(o.getLabel());
 	}
 }

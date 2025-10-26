@@ -15,6 +15,8 @@ import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,9 +52,9 @@ public final class AdvancedAI extends AI {
 	private final int[] NUM_WARRIORS_MAX = new int[]{10, 19, 40};
 	private final int[] NUM_WARRIORS_FOR_CHIEFTAIN = new int[]{1000, 1000, 20};
 
-	private LandscapeTarget defense_target = null;
+	private @Nullable LandscapeTarget defense_target = null;
 
-	public AdvancedAI(Player owner, UnitInfo unit_info, int difficulty) {
+	public AdvancedAI(@NonNull Player owner, UnitInfo unit_info, int difficulty) {
 		super(owner, unit_info);
 		this.difficulty = difficulty;
 	}
@@ -160,7 +162,7 @@ public final class AdvancedAI extends AI {
 		}
 	}
 
-	private int addFromList(Selectable[] list, List<Unit> new_list, int progress, int score) {
+	private int addFromList(Selectable @NonNull [] list, @NonNull List<Unit> new_list, int progress, int score) {
 		int result = progress;
             for (Selectable list1 : list) {
                 Unit unit = (Unit) list1;
@@ -172,7 +174,7 @@ public final class AdvancedAI extends AI {
 		return result;
 	}
 
-	private int scanForEnemies(Selectable src) {
+	private int scanForEnemies(@NonNull Selectable src) {
 		FindOccupantFilter<Unit> filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), 30f, src, Unit.class);
 		getUnitGrid().scan(filter, src.getGridX(), src.getGridY());
 		List<Unit> target_list = filter.getResult();
@@ -188,7 +190,7 @@ public final class AdvancedAI extends AI {
 		return score;
 	}
 
-	private int getUnitScore(Unit unit) {
+	private int getUnitScore(@NonNull Unit unit) {
 		if (unit.getAbilities().hasAbilities(Abilities.HARVEST)) {
 			return SCORE_PEON;
 		} else if (unit.getAbilities().hasAbilities(Abilities.MAGIC)) {
@@ -334,7 +336,7 @@ else
 		}
 	}
 
-	private void nodeGather(Building armory, int num_units) {
+	private void nodeGather(@NonNull Building armory, int num_units) {
 		int tree = 0;
 		int rock = 0;
 		int iron = 0;
@@ -382,7 +384,7 @@ else
 		} while (deployed);
 	}
 
-	private void nodeTransferUnits(int num_units, Building armory) {
+	private void nodeTransferUnits(int num_units, @NonNull Building armory) {
 		Building quarters = null;
 		if (getQuarters() != null && getQuarters().length > 0) {
 			quarters = (Building)getQuarters()[0];
@@ -436,7 +438,7 @@ else
 		}
 	}
 
-	private Selectable[] getPeons(int min_num_peons) {
+	private Selectable @NonNull [] getPeons(int min_num_peons) {
 		List<Selectable> builders = new ArrayList<>();
 		if (getIdlePeons() != null) {
                     builders.addAll(Arrays.asList(getIdlePeons()));
@@ -470,13 +472,13 @@ else
 		return result;
 	}
 */
-	private int numWeapons(Building armory) {
+	private int numWeapons(@NonNull Building armory) {
 		return armory.getSupplyContainer(RockAxeWeapon.class).getNumSupplies()
 			+ armory.getSupplyContainer(IronAxeWeapon.class).getNumSupplies()
 			+ armory.getSupplyContainer(RubberAxeWeapon.class).getNumSupplies();
 	}
 
-	private Target findTarget(int start_x, int start_y) {
+	private @Nullable Target findTarget(int start_x, int start_y) {
 		Target best_building = getOwner().findNearestEnemyBuilding(start_x, start_y);
 		Target best_target = getOwner().findNearestEnemy(start_x, start_y);
 		if (best_building == null) {
@@ -497,7 +499,7 @@ else
 			return best_building;
 	}
 
-	private boolean buildBuilding(int building_type, Selectable[] selection, int grid_x, int grid_y) {
+	private boolean buildBuilding(int building_type, Selectable @NonNull [] selection, int grid_x, int grid_y) {
 		BuildingSiteScanFilter filter = new BuildingSiteScanFilter(getUnitGrid(), getOwner().getRace().getBuildingTemplate(building_type), 40, true);
 		getUnitGrid().scan(filter, grid_x, grid_y);
 		List<? extends Target> target_list = filter.getResult();

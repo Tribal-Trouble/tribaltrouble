@@ -4,6 +4,7 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Random;
 
@@ -266,7 +267,7 @@ public final class Perlin {
 		}
 	}
 
-	public Layer toLayer() {
+	public @NonNull Layer toLayer() {
 		return new Layer(channel, channel.copy(), channel.copy());
 	}
 

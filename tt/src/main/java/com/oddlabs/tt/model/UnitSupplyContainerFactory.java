@@ -1,6 +1,7 @@
 package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.render.SpriteKey;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 
@@ -13,7 +14,7 @@ public final class UnitSupplyContainerFactory extends SupplyContainerFactory {
 	}
 
         @Override
-	public SupplyContainer createContainer(Selectable selectable) {
+	public @NonNull SupplyContainer createContainer(Selectable selectable) {
 		return new UnitSupplyContainer(getMaxResourceCount(), supply_sprite_lists);
 	}
 }

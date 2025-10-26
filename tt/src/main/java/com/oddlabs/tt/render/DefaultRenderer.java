@@ -20,6 +20,8 @@ import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -28,16 +30,16 @@ import java.nio.FloatBuffer;
 public final class DefaultRenderer implements UIRenderer {
 
     private final Picker picker;
-    private final FogInfo fog_info;
-    private final Water water;
-    private final Sky sky;
+    private final @NonNull FogInfo fog_info;
+    private final @NonNull Water water;
+    private final @NonNull Sky sky;
     private final LandscapeRenderer landscape_renderer;
     private final World world;
-    private final ElementRenderer element_renderer;
-    private final TreeRenderer tree_renderer;
-    private final SpriteSorter sprite_sorter;
+    private final @NonNull ElementRenderer element_renderer;
+    private final @NonNull TreeRenderer tree_renderer;
+    private final @NonNull SpriteSorter sprite_sorter;
     private final RenderQueues render_queues;
-    private final FloatBuffer light_array;
+    private final @NonNull FloatBuffer light_array;
     private final Cheat cheat;
 
     private Building selected_building;
@@ -69,7 +71,7 @@ public final class DefaultRenderer implements UIRenderer {
         }
     }
 
-    public DefaultRenderer(Cheat cheat, Player local_player, RenderQueues render_queues, Landscape.TerrainType terrain, WorldInfo world_info, LandscapeRenderer landscape_renderer, Picker picker, Selection selection, WorldGenerator generator) {
+    public DefaultRenderer(Cheat cheat, @NonNull Player local_player, RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, LandscapeRenderer landscape_renderer, @NonNull Picker picker, Selection selection, @NonNull WorldGenerator generator) {
         this.world = local_player.getWorld();
         this.cheat = cheat;
         this.light_array = BufferUtils.createByteBuffer(4 * 4).asFloatBuffer();
@@ -87,7 +89,7 @@ public final class DefaultRenderer implements UIRenderer {
     }
 
     @Override
-    public void renderGUI(GUIRoot gui_root) {
+    public void renderGUI(@NonNull GUIRoot gui_root) {
         if (cheat.isEnabled())
             Icons.getIcons().getCheatIcon().render(gui_root.getWidth() - Icons.getIcons().getCheatIcon().getWidth() - 10, 5);
     }
@@ -96,12 +98,12 @@ public final class DefaultRenderer implements UIRenderer {
         this.selected_building = building;
     }
 
-    private void renderRallyPoint(CameraState camera_state) {
+    private void renderRallyPoint(@NonNull CameraState camera_state) {
         if (selected_building != null && !selected_building.isDead() && selected_building.hasRallyPoint())
             doRenderRallyPoint(camera_state);
     }
 
-    private void doRenderRallyPoint(CameraState camera_state) {
+    private void doRenderRallyPoint(@NonNull CameraState camera_state) {
         float rally_point_dir_x = 1f;
         float rally_point_dir_y = 0f;
         Target rally_point = selected_building.getRallyPoint();
@@ -132,7 +134,7 @@ public final class DefaultRenderer implements UIRenderer {
     }
 
     @Override
-    public void pickHover(boolean can_hover_behind, CameraState camera, int x, int y) {
+    public void pickHover(boolean can_hover_behind, @NonNull CameraState camera, int x, int y) {
         if (can_hover_behind) {
             picker.pickHover(camera, LocalInput.getMouseX(), LocalInput.getMouseY());
         } else {
@@ -141,7 +143,7 @@ public final class DefaultRenderer implements UIRenderer {
     }
 
     @Override
-    public ToolTip getToolTip() {
+    public @Nullable ToolTip getToolTip() {
         return picker.getCurrentToolTip();
     }
 
@@ -155,7 +157,7 @@ public final class DefaultRenderer implements UIRenderer {
     }
 
     @Override
-    public void render(AmbientAudio ambient, CameraState frustum_state, GUIRoot gui_root) {
+    public void render(@NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
         ambient.updateSoundListener(frustum_state, world.getHeightMap());
         if (Globals.line_mode || cheat.line_mode) {
             GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_LINE);

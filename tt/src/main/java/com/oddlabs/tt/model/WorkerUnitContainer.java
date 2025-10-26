@@ -1,15 +1,18 @@
 package com.oddlabs.tt.model;
 
-public final class WorkerUnitContainer extends UnitContainer {
-	private final Building building;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-	public WorkerUnitContainer(Building building) {
+public final class WorkerUnitContainer extends UnitContainer {
+	private final @NonNull Building building;
+
+	public WorkerUnitContainer(@NonNull Building building) {
 		super(building.getOwner().getWorld().getMaxUnitCount());
 		this.building = building;
 	}
 
         @Override
-	public void enter(Unit unit) {
+	public void enter(@NonNull Unit unit) {
 		assert canEnter(unit);
 		unit.removeNow();
 		increaseSupply(1);
@@ -26,7 +29,7 @@ public final class WorkerUnitContainer extends UnitContainer {
 	}
 
         @Override
-	public Unit exit() {
+	public @Nullable Unit exit() {
 		assert getNumSupplies() > 0;
 		increaseSupply(-1);
 		return null;

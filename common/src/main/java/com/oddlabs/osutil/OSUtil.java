@@ -1,9 +1,10 @@
 package com.oddlabs.osutil;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.LWJGLUtil;
 
 public abstract class OSUtil {
-	public static OSUtil create() {
+	public static @NonNull OSUtil create() {
 		int platform = LWJGLUtil.getPlatform();
 		switch (platform) {
 			case LWJGLUtil.PLATFORM_MACOSX:

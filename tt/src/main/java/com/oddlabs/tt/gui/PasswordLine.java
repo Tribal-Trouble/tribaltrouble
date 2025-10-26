@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.util.CryptUtils;
+import org.jspecify.annotations.NonNull;
 
 public class PasswordLine extends EditLine {
 	private final static StringBuffer star_string = new StringBuffer();
@@ -13,7 +14,7 @@ public class PasswordLine extends EditLine {
 	}
 
         @Override
-	protected final void renderText(TextLineRenderer text_renderer, int x, int y, int offset_x, float clip_left, float clip_right, float clip_bottom, float clip_top, int render_index) {
+	protected final void renderText(@NonNull TextLineRenderer text_renderer, int x, int y, int offset_x, float clip_left, float clip_right, float clip_bottom, float clip_top, int render_index) {
 		star_string.delete(0, star_string.length());
 		for (int i = 0; i < getText().length(); i++) {
             star_string.append('*');

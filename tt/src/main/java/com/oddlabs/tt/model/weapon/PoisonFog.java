@@ -11,6 +11,7 @@ import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -44,7 +45,7 @@ public final class PoisonFog implements Magic {
 	private int num_hits = 0;
 	private boolean first_run = true;
 
-	public PoisonFog(float offset_x, float offset_y, float offset_z, float hit_radius, float hit_chance, float interval, float time, int damage, Unit src) {
+	public PoisonFog(float offset_x, float offset_y, float offset_z, float hit_radius, float hit_chance, float interval, float time, int damage, @NonNull Unit src) {
 		this.hit_radius = hit_radius;
 		this.hit_chance = hit_chance;
 		this.interval = interval;

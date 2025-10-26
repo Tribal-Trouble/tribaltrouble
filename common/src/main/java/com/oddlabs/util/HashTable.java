@@ -1,5 +1,7 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Integer to object map
  *
@@ -34,7 +36,7 @@ public final class HashTable<T> {
 			return hash + entries.length;
 	}
 
-	public Object put(int key, T val) {
+	public @Nullable Object put(int key, T val) {
 		int hash = hash(key);
 		if (entries[hash] == null) {
 			entries[hash] = new LinkedList<>();
@@ -57,7 +59,7 @@ public final class HashTable<T> {
 		return null;
 	}
 
-	public T get(int key) {
+	public @Nullable T get(int key) {
 		int hash = hash(key);
 		if (entries[hash] == null)
 			return null;
@@ -71,7 +73,7 @@ public final class HashTable<T> {
 		return null;
 	}
 
-	public T remove(int key) {
+	public @Nullable T remove(int key) {
 		int hash = hash(key);
 
 		if (entries[hash] == null)

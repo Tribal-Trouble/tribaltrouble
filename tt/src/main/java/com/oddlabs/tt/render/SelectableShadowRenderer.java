@@ -3,6 +3,7 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.procedural.GeneratorHalos;
 import com.oddlabs.tt.resource.Resources;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ final class SelectableShadowRenderer extends ShadowListRenderer {
 	}
 
         @Override
-	protected void renderShadows(LandscapeRenderer renderer) {
+	protected void renderShadows(@NonNull LandscapeRenderer renderer) {
 		setupShadows();
 		GL11.glColor3f(1f, 1f, 1f);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, halos[GeneratorHalos.SHADOWED].getHandle());

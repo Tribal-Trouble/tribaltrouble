@@ -1,5 +1,8 @@
 package com.oddlabs.procedural;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -15,7 +18,7 @@ public final class Layer {
 	public Channel r;
 	public Channel g;
 	public Channel b;
-	public Channel a;
+	public @Nullable Channel a;
 
 	public Layer(int width, int height) {
 		this.width = width;
@@ -28,7 +31,7 @@ public final class Layer {
 		this.a = null;
 	}
 
-	public Layer(Channel r, Channel g, Channel b, Channel a) {
+	public Layer(@NonNull Channel r, @NonNull Channel g, @NonNull Channel b, @Nullable Channel a) {
 		this.width = r.getWidth();
 		this.height = r.getHeight();
 		assert g.getWidth() == width
@@ -43,11 +46,11 @@ public final class Layer {
 		this.a = a;
 	}
 
-	public Layer(Channel r, Channel g, Channel b) {
+	public Layer(@NonNull Channel r, @NonNull Channel g, @NonNull Channel b) {
 		this(r, g, b, null);
 	}
 
-	public Layer(Layer rgb, Channel a) {
+	public Layer(@NonNull Layer rgb, Channel a) {
 		this.r = rgb.r;
 		this.g = rgb.g;
 		this.b = rgb.b;
@@ -99,7 +102,7 @@ public final class Layer {
 		return byte_pixel_data;
 	}
 
-	private BufferedImage convertToImage() {
+	private @NonNull BufferedImage convertToImage() {
 		byte[] byte_pixel_data = convertToBytes();
 		BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
 		image.getRaster().setDataElements(0, 0, getWidth(), getHeight(), byte_pixel_data);
@@ -110,7 +113,7 @@ public final class Layer {
 		saveAsPNG(new File(filename + ".png"));
 	}
 
-	public void saveAsPNG(File file) {
+	public void saveAsPNG(@NonNull File file) {
 		BufferedImage image = convertToImage();
 		try (FileOutputStream fos = new FileOutputStream(file)) {
 			ImageIO.write(image, "PNG", fos);
@@ -231,7 +234,7 @@ public final class Layer {
 		return Math.max(max_r, Math.max(max_g, max_b));
 	}
 
-	public Layer copy() {
+	public @NonNull Layer copy() {
 		if (a != null) {
 			return new Layer(r.copy(), g.copy(), b.copy(), a.copy());
 		} else {
@@ -239,7 +242,7 @@ public final class Layer {
 		}
 	}
 
-	public Layer dynamicRange() {
+	public @NonNull Layer dynamicRange() {
 		float min_r = r.findMin();
 		float min_g = g.findMin();
 		float min_b = b.findMin();
@@ -260,7 +263,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer dynamicRange(float new_min, float new_max) {
+	public @NonNull Layer dynamicRange(float new_min, float new_max) {
 		float min_r = r.findMin();
 		float min_g = g.findMin();
 		float min_b = b.findMin();
@@ -281,21 +284,21 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer dynamicRange(float min, float max, float new_min, float new_max) {
+	public @NonNull Layer dynamicRange(float min, float max, float new_min, float new_max) {
 		r.dynamicRange(min, max, new_min, new_max);
 		g.dynamicRange(min, max, new_min, new_max);
 		b.dynamicRange(min, max, new_min, new_max);
 		return this;
 	}
 
-	public Layer clip() {
+	public @NonNull Layer clip() {
 		r.clip();
 		g.clip();
 		b.clip();
 		return this;
 	}
 
-	public Layer crop(int x_lo, int y_lo, int x_hi, int y_hi) {
+	public @NonNull Layer crop(int x_lo, int y_lo, int x_hi, int y_hi) {
 		r = r.crop(x_lo, y_lo, x_hi, y_hi);
 		g = g.crop(x_lo, y_lo, x_hi, y_hi);
 		b = b.crop(x_lo, y_lo, x_hi, y_hi);
@@ -307,7 +310,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer cropWrap(int x_lo, int y_lo, int x_hi, int y_hi) {
+	public @NonNull Layer cropWrap(int x_lo, int y_lo, int x_hi, int y_hi) {
 		r = r.cropWrap(x_lo, y_lo, x_hi, y_hi);
 		g = g.cropWrap(x_lo, y_lo, x_hi, y_hi);
 		b = b.cropWrap(x_lo, y_lo, x_hi, y_hi);
@@ -319,7 +322,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer tile(int new_width, int new_height) {
+	public @NonNull Layer tile(int new_width, int new_height) {
 		r = r.tile(new_width, new_height);
 		g = g.tile(new_width, new_height);
 		b = b.tile(new_width, new_height);
@@ -331,7 +334,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer tileDouble() {
+	public @NonNull Layer tileDouble() {
 		r = r.tileDouble();
 		g = g.tileDouble();
 		b = b.tileDouble();
@@ -343,7 +346,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer offset(int x_offset, int y_offset) {
+	public @NonNull Layer offset(int x_offset, int y_offset) {
 		r = r.offset(x_offset, y_offset);
 		g = g.offset(x_offset, y_offset);
 		b = b.offset(x_offset, y_offset);
@@ -353,35 +356,35 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer brightness(float brightness) {
+	public @NonNull Layer brightness(float brightness) {
 		r.brightness(brightness);
 		g.brightness(brightness);
 		b.brightness(brightness);
 		return this;
 	}
 
-	public Layer brightness(float r, float g, float b) {
+	public @NonNull Layer brightness(float r, float g, float b) {
 		this.r.brightness(r);
 		this.g.brightness(g);
 		this.b.brightness(b);
 		return this;
 	}
 
-	public Layer multiply(float factor) {
+	public @NonNull Layer multiply(float factor) {
 		r.multiply(factor);
 		g.multiply(factor);
 		b.multiply(factor);
 		return this;
 	}
 
-	public Layer multiply(float r, float g, float b) {
+	public @NonNull Layer multiply(float r, float g, float b) {
 		this.r.multiply(r);
 		this.g.multiply(g);
 		this.b.multiply(b);
 		return this;
 	}
 
-	public Layer multiply(float r, float g, float b, float a) {
+	public @NonNull Layer multiply(float r, float g, float b, float a) {
 		this.r.multiply(r);
 		this.g.multiply(g);
 		this.b.multiply(b);
@@ -391,28 +394,28 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer add(float add) {
+	public @NonNull Layer add(float add) {
 		r.add(add);
 		g.add(add);
 		b.add(add);
 		return this;
 	}
 
-	public Layer add(float r, float g, float b) {
+	public @NonNull Layer add(float r, float g, float b) {
 		this.r.add(r);
 		this.g.add(g);
 		this.b.add(b);
 		return this;
 	}
 
-	public Layer addClip(float r, float g, float b) {
+	public @NonNull Layer addClip(float r, float g, float b) {
 		this.r.addClip(r);
 		this.g.addClip(g);
 		this.b.addClip(b);
 		return this;
 	}
 
-	public Layer addClip(float r, float g, float b, float a) {
+	public @NonNull Layer addClip(float r, float g, float b, float a) {
 		this.r.addClip(r);
 		this.g.addClip(g);
 		this.b.addClip(b);
@@ -422,70 +425,70 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer contrast(float contrast) {
+	public @NonNull Layer contrast(float contrast) {
 		r.contrast(contrast);
 		g.contrast(contrast);
 		b.contrast(contrast);
 		return this;
 	}
 
-	public Layer contrast(float r, float g, float b) {
+	public @NonNull Layer contrast(float r, float g, float b) {
 		this.r.contrast(r);
 		this.g.contrast(g);
 		this.b.contrast(b);
 		return this;
 	}
 
-	public Layer gamma(float gamma) {
+	public @NonNull Layer gamma(float gamma) {
 		r.gamma(gamma);
 		g.gamma(gamma);
 		b.gamma(gamma);
 		return this;
 	}
 
-	public Layer gamma(float r, float g, float b) {
+	public @NonNull Layer gamma(float r, float g, float b) {
 		this.r.gamma(r);
 		this.g.gamma(g);
 		this.b.gamma(b);
 		return this;
 	}
 
-	public Layer gamma2() {
+	public @NonNull Layer gamma2() {
 		r.gamma2();
 		g.gamma2();
 		b.gamma2();
 		return this;
 	}
 
-	public Layer gamma4() {
+	public @NonNull Layer gamma4() {
 		r.gamma4();
 		g.gamma4();
 		b.gamma4();
 		return this;
 	}
 
-	public Layer gamma8() {
+	public @NonNull Layer gamma8() {
 		r.gamma8();
 		g.gamma8();
 		b.gamma8();
 		return this;
 	}
 
-	public Layer invert() {
+	public @NonNull Layer invert() {
 		r.invert();
 		g.invert();
 		b.invert();
 		return this;
 	}
 
-	public Layer threshold(float start, float end) {
+	public @NonNull Layer threshold(float start, float end) {
 		r.threshold(start, end);
 		g.threshold(start, end);
 		b.threshold(start, end);
 		return this;
 	}
 
-	public Layer scaleHalf() {
+	public @NonNull Layer scaleHalf() {
 		r = r.scaleHalf();
 		g = g.scaleHalf();
 		b = b.scaleHalf();
@@ -497,7 +500,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer scale(int new_width, int new_height) {
+	public @NonNull Layer scale(int new_width, int new_height) {
 		r = r.scale(new_width, new_height);
 		g = g.scale(new_width, new_height);
 		b = b.scale(new_width, new_height);
@@ -509,7 +512,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer scaleCubic(int new_width, int new_height) {
+	public @NonNull Layer scaleCubic(int new_width, int new_height) {
 		r = r.scaleCubic(new_width, new_height);
 		g = g.scaleCubic(new_width, new_height);
 		b = b.scaleCubic(new_width, new_height);
@@ -521,7 +524,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer scaleFast(int new_width, int new_height) {
+	public @NonNull Layer scaleFast(int new_width, int new_height) {
 		r = r.scaleFast(new_width, new_height);
 		g = g.scaleFast(new_width, new_height);
 		b = b.scaleFast(new_width, new_height);
@@ -533,7 +536,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer rotate(int degrees) {
+	public @NonNull Layer rotate(int degrees) {
 		r = r.rotate(degrees);
 		g = g.rotate(degrees);
 		b = b.rotate(degrees);
@@ -545,7 +548,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer shear(float offset) {
+	public @NonNull Layer shear(float offset) {
 		r = r.shear(offset);
 		g = g.shear(offset);
 		b = b.shear(offset);
@@ -555,7 +558,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer flipH() {
+	public @NonNull Layer flipH() {
 		r = r.flipH();
 		g = g.flipH();
 		b = b.flipH();
@@ -565,7 +568,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer flipV() {
+	public @NonNull Layer flipV() {
 		r = r.flipV();
 		g = g.flipV();
 		b = b.flipV();
@@ -575,14 +578,14 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer smooth(int radius) {
+	public @NonNull Layer smooth(int radius) {
 		r.smooth(radius);
 		g.smooth(radius);
 		b.smooth(radius);
 		return this;
 	}
 
-	public Layer sharpen(int radius) {
+	public @NonNull Layer sharpen(int radius) {
 		r.sharpen(radius);
 		g.sharpen(radius);
 		b.sharpen(radius);
@@ -590,21 +593,21 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer convolution(float[][] filter, float divisor, float offset) {
+	public @NonNull Layer convolution(float[] @NonNull [] filter, float divisor, float offset) {
 		r.convolution(filter, divisor, offset);
 		g.convolution(filter, divisor, offset);
 		b.convolution(filter, divisor, offset);
 		return this;
 	}
 
-	public Layer grow(float r, float g, float b, int radius) {
+	public @NonNull Layer grow(float r, float g, float b, int radius) {
 		this.r.grow(r, radius);
 		this.g.grow(g, radius);
 		this.b.grow(b, radius);
 		return this;
 	}
 
-	public Layer bump(Channel bumpmap, float lx, float ly, float shadow, float light_r, float light_g, float light_b, float ambient_r, float ambient_g, float ambient_b) {
+	public @NonNull Layer bump(@NonNull Channel bumpmap, float lx, float ly, float shadow, float light_r, float light_g, float light_b, float ambient_r, float ambient_g, float ambient_b) {
 		assert bumpmap.getWidth() == width && bumpmap.getHeight() == height: "bumpmap size does not match layer size";
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
@@ -625,7 +628,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer bumpFast(Channel bumpmap, float lx, float light, float ambient) {
+	public @NonNull Layer bumpFast(@NonNull Channel bumpmap, float lx, float light, float ambient) {
 		assert bumpmap.getWidth() == width && bumpmap.getHeight() == height: "bumpmap size does not match layer size";
 		ambient = 1f - ambient;
 		for (int y = 0; y < height; y++) {
@@ -647,7 +650,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer bumpSpecular(Channel bumpmap, float lx, float ly, float lz, float shadow, float light_r, float light_g, float light_b, int specular) {
+	public @NonNull Layer bumpSpecular(@NonNull Channel bumpmap, float lx, float ly, float lz, float shadow, float light_r, float light_g, float light_b, int specular) {
 		assert bumpmap.getWidth() == width && bumpmap.getHeight() == height: "bumpmap size does not match layer size";
 		float lnorm = (float)Math.sqrt(lx*lx + ly*ly + lz*lz);
 		float nz = 4*(1f/Math.min(width, height));
@@ -675,7 +678,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer toHSV() {
+	public @NonNull Layer toHSV() {
 		float min = 0;
 		float max = 0;
 		float delta = 0;
@@ -723,7 +726,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer toRGB() {
+	public @NonNull Layer toRGB() {
 		int i;
 		float f;
 		float p;
@@ -801,7 +804,7 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer saturation(float saturation) {
+	public @NonNull Layer saturation(float saturation) {
 		toHSV();
 		float s_val;
 		for (int y = 0; y < height; y++) {
@@ -820,7 +823,7 @@ public final class Layer {
 		return toRGB();
 	}
 
-	public Layer hue(float hue) {
+	public @NonNull Layer hue(float hue) {
 		toHSV();
 		float h_val;
 		for (int y = 0; y < height; y++) {
@@ -839,20 +842,20 @@ public final class Layer {
 		return toRGB();
 	}
 
-	public Layer hueRotation(float min, float max, float new_min, float new_max) {
+	public @NonNull Layer hueRotation(float min, float max, float new_min, float new_max) {
 		toHSV();
 		r.dynamicRange(min, max, new_min, new_max);
 		return toRGB();
 	}
 
-	public Layer lineart() {
+	public @NonNull Layer lineart() {
 		r.lineart();
 		g.lineart();
 		b.lineart();
 		return this;
 	}
 
-	public Layer place(Layer sprite, int x_offset, int y_offset) {
+	public @NonNull Layer place(@NonNull Layer sprite, int x_offset, int y_offset) {
 		r.place(sprite.r, x_offset, y_offset);
 		g.place(sprite.g, x_offset, y_offset);
 		b.place(sprite.b, x_offset, y_offset);
@@ -861,25 +864,25 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer abs() {
+	public @NonNull Layer abs() {
 		r.abs();
 		g.abs();
 		b.abs();
 		return this;
 	}
 
-	public Layer layerBlend(Layer layer, float alpha) {
+	public @NonNull Layer layerBlend(@NonNull Layer layer, float alpha) {
 		r.channelBlend(layer.r, alpha);
 		g.channelBlend(layer.g, alpha);
 		b.channelBlend(layer.b, alpha);
 		return this;
 	}
 
-	public Layer layerBlend(Layer rgb, Channel a) {
+	public @NonNull Layer layerBlend(@NonNull Layer rgb, Channel a) {
 		return layerBlend(new Layer(rgb.r, rgb.g, rgb.b, a));
 	}
 
-	public Layer layerBlend(Layer layer) {
+	public @NonNull Layer layerBlend(@NonNull Layer layer) {
 		assert layer.a != null : "cannot blend RGB only layer";
 
 		if (a == null) {
@@ -916,49 +919,49 @@ public final class Layer {
 		return this;
 	}
 
-	public Layer layerAdd(Layer layer) {
+	public @NonNull Layer layerAdd(@NonNull Layer layer) {
 		r.channelAdd(layer.r);
 		g.channelAdd(layer.g);
 		b.channelAdd(layer.b);
 		return this;
 	}
 
-	public Layer layerSubtract(Layer layer) {
+	public @NonNull Layer layerSubtract(@NonNull Layer layer) {
 		r.channelSubtract(layer.r);
 		g.channelSubtract(layer.g);
 		b.channelSubtract(layer.b);
 		return this;
 	}
 
-	public Layer layerAverage(Layer layer) {
+	public @NonNull Layer layerAverage(@NonNull Layer layer) {
 		r.channelAverage(layer.r);
 		g.channelAverage(layer.g);
 		b.channelAverage(layer.b);
 		return this;
 	}
 
-	public Layer layerMultiply(Layer layer) {
+	public @NonNull Layer layerMultiply(@NonNull Layer layer) {
 		r.channelMultiply(layer.r);
 		g.channelMultiply(layer.g);
 		b.channelMultiply(layer.b);
 		return this;
 	}
 
-	public Layer layerDifference(Layer layer) {
+	public @NonNull Layer layerDifference(@NonNull Layer layer) {
 		r.channelDifference(layer.r);
 		g.channelDifference(layer.g);
 		b.channelDifference(layer.b);
 		return this;
 	}
 
-	public Layer layerDarkest(Layer layer) {
+	public @NonNull Layer layerDarkest(@NonNull Layer layer) {
 		r.channelDarkest(layer.r);
 		g.channelDarkest(layer.g);
 		b.channelDarkest(layer.b);
 		return this;
 	}
 
-	public Layer layerBrightest(Layer layer) {
+	public @NonNull Layer layerBrightest(@NonNull Layer layer) {
 		r.channelBrightest(layer.r);
 		g.channelBrightest(layer.g);
 		b.channelBrightest(layer.b);

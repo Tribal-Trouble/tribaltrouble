@@ -9,6 +9,7 @@ import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.gui.Arrow;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.World;
+import org.jspecify.annotations.NonNull;
 
 public class Notification implements Updatable {
 
@@ -17,10 +18,10 @@ public class Notification implements Updatable {
     private final float center_x;
     private final float center_y;
     private final NotificationManager manager;
-    private final TimerAnimation timer;
-    private final Arrow arrow;
+    private final @NonNull TimerAnimation timer;
+    private final @NonNull Arrow arrow;
 
-    public Notification(World world, GUIRoot gui_root, float x, float y, NotificationManager manager, float r, float g, float b, Audio sound, boolean show_always, AnimationManager animation_manager) {
+    public Notification(@NonNull World world, @NonNull GUIRoot gui_root, float x, float y, NotificationManager manager, float r, float g, float b, Audio sound, boolean show_always, AnimationManager animation_manager) {
         this.center_x = x;
         this.center_y = y;
         this.manager = manager;

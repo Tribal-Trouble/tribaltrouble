@@ -3,6 +3,7 @@ package com.oddlabs.tt.particle;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.TextureKey;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -30,13 +31,13 @@ public class ParametricEmitter extends Emitter {
 	private float particle_counter = 0;
 	private boolean started = true;
 
-	public ParametricEmitter(World world, ParametricFunction function, Vector3f position,
-				   float area_xy, float area_z, float velocity_u, float velocity_v, float velocity_random_margin,
-				   int num_particles, float particles_per_second,
-				   Vector4f color, Vector4f delta_color,
-				   Vector3f particle_radius, Vector3f growth_rate, float energy,
-				   int src_blend_func, int dst_blend_func, TextureKey[] textures,
-				   AnimationManager manager) {
+	public ParametricEmitter(@NonNull World world, ParametricFunction function, Vector3f position,
+                             float area_xy, float area_z, float velocity_u, float velocity_v, float velocity_random_margin,
+                             int num_particles, float particles_per_second,
+                             Vector4f color, Vector4f delta_color,
+                             Vector3f particle_radius, Vector3f growth_rate, float energy,
+                             int src_blend_func, int dst_blend_func, TextureKey @NonNull [] textures,
+                             AnimationManager manager) {
 		super(world, position, src_blend_func, dst_blend_func, textures, null, textures.length, manager);
 		this.function = function;
 		this.area_xy = area_xy;
@@ -135,7 +136,7 @@ public class ParametricEmitter extends Emitter {
 		}
 	}
 
-	protected int initParticle(ParametricFunction function, float velocity_u, float velocity_v, Vector4f color, Vector4f delta_color, Vector3f particle_radius, Vector3f growth_rate, float energy) {
+	protected int initParticle(ParametricFunction function, float velocity_u, float velocity_v, @NonNull Vector4f color, @NonNull Vector4f delta_color, @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy) {
 
 		Vector3f offset = randomOffset(area_xy, area_xy, area_z);
 		ParametricParticle particle = new ParametricParticle(function, random.nextFloat()*(float)Math.PI*2f, random.nextFloat()*(float)Math.PI*2f,
@@ -153,7 +154,7 @@ public class ParametricEmitter extends Emitter {
 		return 1;
 	}
 
-	protected final Vector3f randomOffset(float a, float b, float c) {
+	protected final @NonNull Vector3f randomOffset(float a, float b, float c) {
 		float x = random.nextFloat()*2*a - a;
 		float y = random.nextFloat()*2*b - b;
 		float z = random.nextFloat()*2*c - c;

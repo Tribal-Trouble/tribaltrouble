@@ -5,13 +5,14 @@ import com.oddlabs.procedural.Layer;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLIntImage;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class GeneratorRock extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;
 
         @Override
-	public Texture[] generate() {
+	public Texture @NonNull [] generate() {
 		int seed = Globals.LANDSCAPE_SEED;
 		Channel voronoi4 = new Voronoi(TEXTURE_SIZE, 4, 4, 1, 1f, seed).getDistance(0f, -1f, 1f);
 		Channel voronoi8 = new Voronoi(TEXTURE_SIZE, 8, 8, 1, 1f, seed).getDistance(0f, -1f, 1f);

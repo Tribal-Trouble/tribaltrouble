@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.ListElement;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public class Group extends GUIObject {
@@ -92,7 +93,7 @@ public class Group extends GUIObject {
 	}
 
         @Override
-	protected void keyRepeat(KeyboardEvent event) {
+	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_TAB:
 				switchFocus(event.isShiftDown() ? -1 : 1);

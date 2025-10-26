@@ -1,5 +1,7 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
+
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -27,7 +29,7 @@ public final class CryptUtils {
 		}
 	}
 
-	private static String digest(byte[] message_bytes) {
+	private static @NonNull String digest(byte[] message_bytes) {
 		byte[] digest_bytes = digest.digest(message_bytes);
 		StringBuilder buf = new StringBuilder();
         for (byte digestByte : digest_bytes) {
@@ -40,7 +42,7 @@ public final class CryptUtils {
 		return buf.toString();
 	}
 
-	private static String buggyDigest(byte[] message_bytes) {
+	private static @NonNull String buggyDigest(byte[] message_bytes) {
 		byte[] digest_bytes = digest.digest(message_bytes);
 		// Pad array with one zeroed byte to make the hash unsigned
 		byte[] unsigned_digest_bytes = new byte[digest_bytes.length + 1];
@@ -49,12 +51,12 @@ public final class CryptUtils {
 		return b.toString(16);
 	}
 
-	public static String digest(String str) {
+	public static @NonNull String digest(@NonNull String str) {
         byte[] message_bytes = str.getBytes(StandardCharsets.UTF_8);
         return buggyDigest(message_bytes);
     }
 
-	public static void  setupHttpsConnection(HttpsURLConnection https_connection) throws Exception {
+	public static void  setupHttpsConnection(@NonNull HttpsURLConnection https_connection) throws Exception {
 		SSLContext ssl_context = SSLContext.getInstance("SSL");
 		ssl_context.init(null, new TrustManager[]{new X509TrustManager() {
                         @Override
@@ -66,7 +68,7 @@ public final class CryptUtils {
 			}
 
                         @Override
-			public X509Certificate[] getAcceptedIssuers() {
+			public X509Certificate @NonNull [] getAcceptedIssuers() {
 				return new X509Certificate[]{};
 			}
 		}}, null);

@@ -4,6 +4,7 @@ import com.oddlabs.tt.delegate.GameStatsDelegate;
 import com.oddlabs.tt.delegate.InGameMainMenu;
 import com.oddlabs.tt.gui.FreeQuitLabel;
 import com.oddlabs.tt.gui.Group;
+import org.jspecify.annotations.NonNull;
 
 public final class MultiplayerInGameInfo extends DefaultInGameInfo {
 
@@ -16,7 +17,7 @@ public final class MultiplayerInGameInfo extends DefaultInGameInfo {
     }
 
     @Override
-    public void addGUI(WorldViewer viewer, InGameMainMenu menu, Group game_infos) {
+    public void addGUI(@NonNull WorldViewer viewer, @NonNull InGameMainMenu menu, @NonNull Group game_infos) {
         super.addGUI(viewer, menu, game_infos);
         FreeQuitLabel free_quit_label = new FreeQuitLabel(viewer.getWorld(), viewer.getAnimationManagerLocal());
         menu.addChild(free_quit_label);
@@ -24,7 +25,7 @@ public final class MultiplayerInGameInfo extends DefaultInGameInfo {
     }
 
     @Override
-    public void addGameOverGUI(WorldViewer viewer, GameStatsDelegate delegate, int header_y, Group buttons) {
+    public void addGameOverGUI(@NonNull WorldViewer viewer, @NonNull GameStatsDelegate delegate, int header_y, @NonNull Group buttons) {
         addGameOverGUI(viewer, delegate, header_y, buttons, false);
     }
 

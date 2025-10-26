@@ -3,6 +3,7 @@ package com.oddlabs.tt.tutorial;
 import com.oddlabs.tt.form.TutorialForm;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -16,7 +17,7 @@ public final class UnitCountTrigger extends TutorialTrigger {
 	}
 
         @Override
-	protected void run(Tutorial tutorial) {
+	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
 		Iterator<Selectable> it = set.iterator();
 		int count = 0;

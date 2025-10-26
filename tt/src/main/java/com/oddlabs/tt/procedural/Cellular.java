@@ -2,6 +2,7 @@ package com.oddlabs.tt.procedural;
 
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Random;
 
@@ -27,7 +28,7 @@ public final class Cellular {
 	public static final int HITPOINT = 1;
 	public static final int HITCLIP = 2;
 
-	private final Random random;
+	private final @NonNull Random random;
 	public Channel channel;
 	public Channel dist1;
 	public Channel dist2;
@@ -204,7 +205,7 @@ public final class Cellular {
 		channel = channel.dynamicRange();
 	}
 
-	public Layer toLayer() {
+	public @NonNull Layer toLayer() {
 		return new Layer(channel, channel, channel);
 	}
 

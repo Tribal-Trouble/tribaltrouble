@@ -1,5 +1,7 @@
 package com.oddlabs.tt.util;
 
+import org.jspecify.annotations.NonNull;
+
 public final class StrictGLU {
 	private final static StrictMatrix4f final_matrix = new StrictMatrix4f();
 	private final static StrictMatrix4f perspective_matrix = new StrictMatrix4f();
@@ -8,7 +10,7 @@ public final class StrictGLU {
 	private final static StrictVector4f out = new StrictVector4f();
 	private final static StrictVector3f vector_3f = new StrictVector3f();
 
-	public static void gluPerspective(StrictMatrix4f proj, float fovy, float aspect, float zNear, float zFar) {
+	public static void gluPerspective(@NonNull StrictMatrix4f proj, float fovy, float aspect, float zNear, float zFar) {
 		float sine, cotangent, deltaZ;
 		float radians = fovy / 2 * (float)Math.PI / 180;
 
@@ -73,7 +75,7 @@ public final class StrictGLU {
 		return true;
 	}
 
-	public static void gluPickMatrix(StrictMatrix4f proj, float x, float y, float width, float height, int[] viewport) {
+	public static void gluPickMatrix(@NonNull StrictMatrix4f proj, float x, float y, float width, float height, int[] viewport) {
 		if (width <= 0 || height <= 0) 
 			return;
 

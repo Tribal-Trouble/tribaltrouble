@@ -3,6 +3,7 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.ScanFilter;
 import com.oddlabs.tt.player.Player;
+import org.jspecify.annotations.Nullable;
 
 public final class AttackScanFilter implements ScanFilter {
 	public final static int PRIORITY_QUARTERS = 1;
@@ -18,7 +19,7 @@ public final class AttackScanFilter implements ScanFilter {
 
 	private final Player owner;
 
-	private Selectable target = null;
+	private @Nullable Selectable target = null;
 	private int target_priority = 0;
 
 	public AttackScanFilter(Player owner, int max_range) {

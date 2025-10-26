@@ -1,9 +1,12 @@
 package com.oddlabs.tt.net;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 public final class Network {
 	private final static ChatHub chat_hub = new ChatHub();
 	private final static MatchmakingClient matchmaking_client = new MatchmakingClient();
-	private static MatchmakingListener matchmaking_listener;
+	private static @Nullable MatchmakingListener matchmaking_listener;
 
 	public static MatchmakingListener getMatchmakingListener() {
 		return matchmaking_listener;
@@ -18,11 +21,11 @@ public final class Network {
 		matchmaking_client.close();
 	}
 
-	public static ChatHub getChatHub() {
+	public static @NonNull ChatHub getChatHub() {
 		return chat_hub;
 	}
 
-	public static MatchmakingClient getMatchmakingClient() {
+	public static @NonNull MatchmakingClient getMatchmakingClient() {
 		return matchmaking_client;
 	}
 

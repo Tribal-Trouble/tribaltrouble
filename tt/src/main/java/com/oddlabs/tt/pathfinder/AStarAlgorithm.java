@@ -1,17 +1,20 @@
 package com.oddlabs.tt.pathfinder;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 abstract class AStarAlgorithm implements PathFinderAlgorithm {
 	private final int dst_x;
 	private final int dst_y;
 	private final Region dst_region;
 	private final boolean allow_second_best;
-	private final UnitGrid unit_grid;
+	private final @NonNull UnitGrid unit_grid;
 
 	private int nodes_visited;
 	private int best_dist_squared = Integer.MAX_VALUE;
-	private Node second_best_node;
+	private @Nullable Node second_best_node;
 
-	protected AStarAlgorithm(UnitGrid unit_grid, int dst_x, int dst_y, boolean allow_second_best) {
+	protected AStarAlgorithm(@NonNull UnitGrid unit_grid, int dst_x, int dst_y, boolean allow_second_best) {
 		this.dst_x = dst_x;
 		this.dst_y = dst_y;
 		this.dst_region = unit_grid.getRegion(dst_x, dst_y);
@@ -24,13 +27,13 @@ abstract class AStarAlgorithm implements PathFinderAlgorithm {
 	}
 
     @Override
-	public final int computeEstimatedCost(Node node) {
+	public final int computeEstimatedCost(@NonNull Node node) {
 		return node.estimateCost(dst_x, dst_y);
 	}
 
 	protected abstract boolean isPathComplete(int dist_squared, Node node);
 
-	private NodeResult defaultTouchNode() {
+	private @Nullable NodeResult defaultTouchNode() {
 		nodes_visited++;
 		if (nodes_visited == RegionBuilder.MAX_EXAMINED_NODES_PER_PATH) {
 			if (allow_second_best) {
@@ -44,7 +47,7 @@ abstract class AStarAlgorithm implements PathFinderAlgorithm {
 	}
 
     @Override
-	public final NodeResult touchNode(Node node) {
+	public final @Nullable NodeResult touchNode(@NonNull Node node) {
 		int dx = node.getGridX() - dst_x;
 		int dy = node.getGridY() - dst_y;
 		int dist_squared = dx*dx + dy*dy;
@@ -61,7 +64,7 @@ abstract class AStarAlgorithm implements PathFinderAlgorithm {
 	}
 
     @Override
-	public final NodeResult getBestNode() {
+	public final @Nullable NodeResult getBestNode() {
 		return null;
 	}
 }

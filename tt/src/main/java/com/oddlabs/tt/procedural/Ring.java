@@ -3,15 +3,16 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
+import org.jspecify.annotations.NonNull;
 
 public final class Ring {
-	public final Channel channel;
+	public final @NonNull Channel channel;
 	public Channel channelfinal;
 
 	public static final int LINEAR = 1;
 	public static final int SMOOTH = 2;
 
-	public Ring(int width, int height, float[][] gradient_list, int interpolation) {
+	public Ring(int width, int height, float[] @NonNull [] gradient_list, int interpolation) {
 		channel = new Channel(width>>1, height>>1);
 		float x_coord;
 		float y_coord;
@@ -57,7 +58,7 @@ public final class Ring {
 		channelfinal.quadJoin(channel, channel.copy().rotate(270), channel.copy().rotate(90), channel.copy().rotate(180));
 	}
 
-	public Layer toLayer() {
+	public @NonNull Layer toLayer() {
 		return new Layer(channelfinal, channelfinal.copy(), channelfinal.copy());
 	}
 

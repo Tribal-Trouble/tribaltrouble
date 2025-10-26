@@ -31,6 +31,9 @@
  */
 package com.oddlabs.tt.util;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.nio.FloatBuffer;
 
 /**
@@ -98,7 +101,7 @@ public class StrictVector4f {
 	 * @param y the translation in y
 	 * @return this
 	 */
-	public StrictVector4f translate(float x, float y, float z, float w) {
+	public @NonNull StrictVector4f translate(float x, float y, float z, float w) {
 		this.x += x;
 		this.y += y;
 		this.z += z;
@@ -114,7 +117,7 @@ public class StrictVector4f {
 	 * @param dest The destination vector, or null if a new vector is to be created
 	 * @return the sum of left and right in dest
 	 */
-	public static StrictVector4f add(StrictVector4f left, StrictVector4f right, StrictVector4f dest) {
+	public static @NonNull StrictVector4f add(@NonNull StrictVector4f left, @NonNull StrictVector4f right, @Nullable StrictVector4f dest) {
 		if (dest == null)
 			return new StrictVector4f(left.x + right.x, left.y + right.y, left.z + right.z, left.w + right.w);
 		else {
@@ -131,7 +134,7 @@ public class StrictVector4f {
 	 * @param dest The destination vector, or null if a new vector is to be created
 	 * @return left minus right in dest
 	 */
-	public static StrictVector4f sub(StrictVector4f left, StrictVector4f right, StrictVector4f dest) {
+	public static @NonNull StrictVector4f sub(@NonNull StrictVector4f left, @NonNull StrictVector4f right, @Nullable StrictVector4f dest) {
 		if (dest == null)
 			return new StrictVector4f(left.x - right.x, left.y - right.y, left.z - right.z, left.w - right.w);
 		else {
@@ -145,7 +148,7 @@ public class StrictVector4f {
 	 * Negate a vector
 	 * @return this
 	 */
-	public StrictVector4f negate() {
+	public @NonNull StrictVector4f negate() {
 		x = -x;
 		y = -y;
 		z = -z;
@@ -158,7 +161,7 @@ public class StrictVector4f {
 	 * @param dest The destination vector or null if a new vector is to be created
 	 * @return the negated vector
 	 */
-	public StrictVector4f negate(StrictVector4f dest) {
+	public @NonNull StrictVector4f negate(@Nullable StrictVector4f dest) {
 		if (dest == null)
 			dest = new StrictVector4f();
 		dest.x = -x;
@@ -194,7 +197,7 @@ public class StrictVector4f {
 	 * @param dest The destination vector, or null if a new vector is to be created
 	 * @return the normalised vector
 	 */
-	public StrictVector4f normalise(StrictVector4f dest) {
+	public @NonNull StrictVector4f normalise(@Nullable StrictVector4f dest) {
 		float l = length();
 
 		if (dest == null)
@@ -212,7 +215,7 @@ public class StrictVector4f {
 	 * @param right The RHS vector
 	 * @return left dot right
 	 */
-	public static float dot(StrictVector4f left, StrictVector4f right) {
+	public static float dot(@NonNull StrictVector4f left, @NonNull StrictVector4f right) {
 		return left.x * right.x + left.y * right.y + left.z * right.z + left.w * right.w;
 	}
 
@@ -222,7 +225,7 @@ public class StrictVector4f {
 	 * @param b The other vector
 	 * @return the angle between the two vectors, in degrees
 	 */
-	public static float angle(StrictVector4f a, StrictVector4f b) {
+	public static float angle(@NonNull StrictVector4f a, @NonNull StrictVector4f b) {
 		float dls = dot(a, b) / (a.length() * b.length());
 		if (dls < -1f)
 			dls = -1f;
@@ -234,7 +237,7 @@ public class StrictVector4f {
 	/* (non-Javadoc)
 	 * @see org.lwjgl.vector.StrictVector4f#load(FloatBuffer)
 	 */
-	public StrictVector4f load(FloatBuffer buf) {
+	public @NonNull StrictVector4f load(@NonNull FloatBuffer buf) {
 		x = buf.get();
 		y = buf.get();
 		z = buf.get();
@@ -245,7 +248,7 @@ public class StrictVector4f {
 	/* (non-Javadoc)
 	 * @see org.lwjgl.vector.StrictVector4f#scale(float)
 	 */
-	public StrictVector4f scale(float scale) {
+	public @NonNull StrictVector4f scale(float scale) {
 		x *= scale;
 		y *= scale;
 		z *= scale;
@@ -256,7 +259,7 @@ public class StrictVector4f {
 	/* (non-Javadoc)
 	 * @see org.lwjgl.vector.StrictVector4f#store(FloatBuffer)
 	 */
-	public StrictVector4f store(FloatBuffer buf) {
+	public @NonNull StrictVector4f store(@NonNull FloatBuffer buf) {
 
 		buf.put(x);
 		buf.put(y);
@@ -267,7 +270,7 @@ public class StrictVector4f {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "StrictVector4f: " + x + " " + y + " " + z + " " + w;
 	}
 

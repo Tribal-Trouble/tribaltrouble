@@ -6,6 +6,7 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public class ZoomDelegate extends InGameDelegate {
@@ -18,7 +19,7 @@ public class ZoomDelegate extends InGameDelegate {
 
 	private boolean done = false;
 
-	public ZoomDelegate(WorldViewer viewer, GameCamera camera) {
+	public ZoomDelegate(@NonNull WorldViewer viewer, GameCamera camera) {
 		super(viewer, camera);
 		game_camera = camera;
 		start_x = LocalInput.getMouseX();
@@ -42,7 +43,7 @@ public class ZoomDelegate extends InGameDelegate {
 	}
 
         @Override
-	public void keyReleased(KeyboardEvent event) {
+	public void keyReleased(@NonNull KeyboardEvent event) {
 		if (!done) {
 			switch (event.getKeyCode()) {
 				case Keyboard.KEY_Z:

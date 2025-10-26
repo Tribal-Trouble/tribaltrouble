@@ -4,6 +4,7 @@ import com.oddlabs.tt.audio.AbstractAudioPlayer;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.particle.LinearEmitter;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ public class WeaponsProducer {
 	private final LinearEmitter emitter;
 
 	private float break_time = 0f;
-	private AbstractAudioPlayer production_player;
+	private @Nullable AbstractAudioPlayer production_player;
 
 	public WeaponsProducer(Building building, WorkerUnitContainer unit_container, BuildProductionContainer[] production_containers, LinearEmitter emitter) {
 		this.building = building;

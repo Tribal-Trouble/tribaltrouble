@@ -1,6 +1,7 @@
 package com.oddlabs.tt.model.weapon;
 
 import com.oddlabs.tt.particle.ParametricEmitter;
+import org.jspecify.annotations.NonNull;
 
 public final class PoisonCloud {
 	private final static float START_SCALE = .1f;
@@ -15,7 +16,7 @@ public final class PoisonCloud {
 
 	private float time;
 
-	public PoisonCloud(ParametricEmitter emitter, float src_x, float src_y, float dst_x, float dst_y, float velocity) {
+	public PoisonCloud(@NonNull ParametricEmitter emitter, float src_x, float src_y, float dst_x, float dst_y, float velocity) {
 		this.emitter = emitter;
 		this.src_x = src_x;
 		this.src_y = src_y;

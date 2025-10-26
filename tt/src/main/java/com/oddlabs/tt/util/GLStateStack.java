@@ -1,5 +1,6 @@
 package com.oddlabs.tt.util;
 
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayDeque;
@@ -17,7 +18,7 @@ public final class GLStateStack {
 		state_stack.addLast(new GLState());
 	}
 
-	private GLState getCurrentState() {
+	private @Nullable GLState getCurrentState() {
 		return state_stack.peekLast();
 	}
 

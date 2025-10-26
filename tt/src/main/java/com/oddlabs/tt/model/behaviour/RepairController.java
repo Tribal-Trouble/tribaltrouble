@@ -4,6 +4,7 @@ import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Unit;
+import org.jspecify.annotations.NonNull;
 
 public final class RepairController extends Controller {
 	private final static int HARVEST_STATE = 0;
@@ -23,7 +24,7 @@ public final class RepairController extends Controller {
 	}
 
         @Override
-	public String getKey() {
+	public @NonNull String getKey() {
 		return super.getKey() + building.hashCode();
 	}
 

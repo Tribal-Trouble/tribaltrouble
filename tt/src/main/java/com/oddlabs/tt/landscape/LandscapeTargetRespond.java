@@ -5,6 +5,7 @@ import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.model.Element;
 import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 
 public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond> implements Animated {
 	public final static int SIZE = 128;
@@ -12,7 +13,7 @@ public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond
 
 	private float time;
 
-	public LandscapeTargetRespond(World world, float x, float y) {
+	public LandscapeTargetRespond(@NonNull World world, float x, float y) {
 		super(world.getElementRoot());
 		setPosition(x, y);
 		setPositionZ(world.getHeightMap().getNearestHeight(x, y));
@@ -45,7 +46,7 @@ public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond
 	}
 
     @Override
-	public void visit(ElementVisitor visitor) {
+	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitRespond(this);
 	}
 

@@ -2,24 +2,25 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.model.Model;
+import org.jspecify.annotations.NonNull;
 
 abstract class ModelVisitor {
-	public void markDetailPoint(ElementRenderState render_state) {
+	public void markDetailPoint(@NonNull ElementRenderState render_state) {
 		Model model = render_state.model;
 		render_state.getRenderer(model.getSpriteRenderer()).addToNoDetailList(render_state);
 	}
 
-	public void markDetailPolygon(ElementRenderState render_state, int index) {
+	public void markDetailPolygon(@NonNull ElementRenderState render_state, int index) {
 		Model model = render_state.model;
 		render_state.getRenderer(model.getSpriteRenderer()).addToRenderList(index, render_state, render_state.render_state.isResponding(model));
 	}
 
-	public final int getTriangleCount(ElementRenderState render_state, int index) {
+	public final int getTriangleCount(@NonNull ElementRenderState render_state, int index) {
 		Model model = render_state.model;
 		return render_state.getRenderer(model.getSpriteRenderer()).getTriangleCount(index);
 	}
 
-	public final float getEyeDistanceSquared(ElementRenderState render_state) {
+	public final float getEyeDistanceSquared(@NonNull ElementRenderState render_state) {
 		Model model = render_state.model;
 		CameraState camera = render_state.render_state.getCamera();
 		return RenderTools.getEyeDistanceSquared(model, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());

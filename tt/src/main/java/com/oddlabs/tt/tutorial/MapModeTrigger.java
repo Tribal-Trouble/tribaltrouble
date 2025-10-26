@@ -1,6 +1,7 @@
 package com.oddlabs.tt.tutorial;
 
 import com.oddlabs.tt.camera.MapCamera;
+import org.jspecify.annotations.NonNull;
 
 public final class MapModeTrigger extends TutorialTrigger {
 	public MapModeTrigger() {
@@ -8,7 +9,7 @@ public final class MapModeTrigger extends TutorialTrigger {
 	}
 
         @Override
-	protected void run(Tutorial tutorial) {
+	protected void run(@NonNull Tutorial tutorial) {
 		if (tutorial.getViewer().getDelegate().getCamera() instanceof MapCamera)
 			tutorial.next(new FromMapModeTrigger());
 	}

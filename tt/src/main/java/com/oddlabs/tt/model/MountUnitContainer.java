@@ -1,10 +1,13 @@
 package com.oddlabs.tt.model;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 public final class MountUnitContainer extends UnitContainer {
 	public static final float ATTACK_RANGE_INCREASE = 8f;
 
 	private final Building building;
-	private Unit unit;
+	private @Nullable Unit unit;
 
 	public MountUnitContainer(Building building) {
 		super(1);
@@ -12,7 +15,7 @@ public final class MountUnitContainer extends UnitContainer {
 	}
 
     @Override
-	public void enter(Unit unit) {
+	public void enter(@NonNull Unit unit) {
 		this.unit = unit;
 		unit.mount(building);
 		unit.increaseRange(ATTACK_RANGE_INCREASE);
@@ -21,7 +24,7 @@ public final class MountUnitContainer extends UnitContainer {
 	}
 
     @Override
-	public Unit exit() {
+	public @NonNull Unit exit() {
 		assert unit != null;
 		unit.unmount();
 		unit.increaseRange(-ATTACK_RANGE_INCREASE);
@@ -33,7 +36,7 @@ public final class MountUnitContainer extends UnitContainer {
 	}
 
     @Override
-	public boolean canEnter(Unit unit) {
+	public boolean canEnter(@NonNull Unit unit) {
 		return !isSupplyFull() && unit.getAbilities().hasAbilities(Abilities.THROW);
 	}
 

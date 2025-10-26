@@ -2,14 +2,15 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class PulldownButton extends GUIObject {
 	private final PulldownMenu menu;
-	private final Label label;
+	private final @NonNull Label label;
 	private final GUIRoot gui_root;
 	private boolean menu_active;
 
-	public PulldownButton(GUIRoot gui_root, PulldownMenu menu, int width) {
+	public PulldownButton(GUIRoot gui_root, @NonNull PulldownMenu menu, int width) {
 		this.menu = menu;
 		this.gui_root = gui_root;
 		setCanFocus(true);
@@ -19,7 +20,7 @@ public final class PulldownButton extends GUIObject {
 		setDim(width, Skin.getSkin().getPulldownData().getPulldownButton().getHeight());
 	}
 
-	public PulldownButton(GUIRoot gui_root, PulldownMenu menu, int item_index, int width) {
+	public PulldownButton(GUIRoot gui_root, @NonNull PulldownMenu menu, int item_index, int width) {
 		this(gui_root, menu, width);
 		menu.chooseItem(item_index);
 	}
@@ -97,7 +98,7 @@ public final class PulldownButton extends GUIObject {
 
 	private final class ItemListener implements ItemChosenListener {
                 @Override
-		public void itemChosen(PulldownMenu menu, int item_index) {
+		public void itemChosen(@NonNull PulldownMenu menu, int item_index) {
 			PulldownItem item = menu.getItem(item_index);
 			label.set(item.getLabelString());
 			if (menu.isActive())

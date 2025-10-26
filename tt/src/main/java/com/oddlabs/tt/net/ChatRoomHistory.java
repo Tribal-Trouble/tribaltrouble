@@ -3,6 +3,7 @@ package com.oddlabs.tt.net;
 import com.oddlabs.matchmaking.ChatRoomUser;
 import com.oddlabs.tt.gui.ChatPanel;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -37,7 +38,7 @@ public final class ChatRoomHistory extends ChatHistory {
 	}
 
     @Override
-	public void chat(ChatMessage message) {
+	public void chat(@NonNull ChatMessage message) {
 		if (message.type != ChatMessage.Type.PRIVATE && message.type != ChatMessage.Type.CHATROOM)
 			return;
 		addMessage(message.formatLong());

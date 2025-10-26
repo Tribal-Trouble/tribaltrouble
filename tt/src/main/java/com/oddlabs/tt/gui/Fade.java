@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 final class Fade {
@@ -20,7 +21,7 @@ final class Fade {
 		this.renderer = renderer;
 	}
 
-	public void animate(GUI gui, float t) {
+	public void animate(@NonNull GUI gui, float t) {
 		time += t;
 		if (!image_switched && time >= FADE_TIME/2) {
 			image_switched = true;

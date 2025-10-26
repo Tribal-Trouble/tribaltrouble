@@ -1,6 +1,8 @@
 package com.oddlabs.tt.vbo;
 
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL11;
@@ -9,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 public final class FloatVBO extends VBO {
-	private FloatBuffer saved_buffer = null;
+	private @Nullable FloatBuffer saved_buffer = null;
 //	private FloatBuffer mapped_buffer = null;
 
 	public FloatVBO(int usage, int size) {
@@ -19,12 +21,12 @@ public final class FloatVBO extends VBO {
 			saved_buffer = buffer.asFloatBuffer();
 	}
 
-	public FloatVBO(int usage, FloatBuffer initial_data) {
+	public FloatVBO(int usage, @NonNull FloatBuffer initial_data) {
 		this(usage, initial_data.remaining());
 		put(initial_data);
 	}
 
-	public FloatVBO(int usage, float[] initial_data) {
+	public FloatVBO(int usage, float @NonNull [] initial_data) {
 		this(usage, initial_data.length);
 		put(initial_data);
 	}
@@ -85,11 +87,11 @@ public final class FloatVBO extends VBO {
 		}
 	}
 
-	public void put(FloatBuffer buffer) {
+	public void put(@NonNull FloatBuffer buffer) {
 		putSubData(0, buffer);
 	}
 
-	public void put(float[] buffer) {
+	public void put(float @NonNull [] buffer) {
 		putSubData(0, Utils.toBuffer(buffer));
 //		do {
 //			map(ARBBufferObject.GL_WRITE_ONLY_ARB);
@@ -97,7 +99,7 @@ public final class FloatVBO extends VBO {
 //		} while (!unmap());
 	}
 
-	public void putSubData(int index, FloatBuffer buffer) {
+	public void putSubData(int index, @NonNull FloatBuffer buffer) {
 		if (!use_vbo) {
 			saved_buffer.position(index);
 			saved_buffer.put(buffer);

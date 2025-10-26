@@ -1,5 +1,8 @@
 package com.oddlabs.event;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,14 +16,14 @@ import java.util.zip.GZIPInputStream;
 
 public final class LoadDeterministic extends Deterministic {
 	private final ReadableByteChannel channel;
-	private final ByteBuffer buffer;
+	private final @NonNull ByteBuffer buffer;
 
 	private final ByteBufferInputStream byte_buffer_input_stream = new ByteBufferInputStream();
 
 	private int total_bytes_read;
 	private int num_defaults = MIN_DEFAULTS;
 
-	public LoadDeterministic(File logging_file, boolean zipped) {
+	public LoadDeterministic(@NonNull File logging_file, boolean zipped) {
 		try {
 			buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 			if (zipped)
@@ -162,7 +165,7 @@ public final class LoadDeterministic extends Deterministic {
 		}
 	}
 
-    protected Path log(Path p, Path def) {
+    protected @Nullable Path log(Path p, @NonNull Path def) {
         try {
             // Deserialize from File
             File file = logObject(def.toFile());
@@ -183,7 +186,7 @@ public final class LoadDeterministic extends Deterministic {
 	}
 
     @Override
-	protected void logBuffer(ByteBuffer b) {
+	protected void logBuffer(@NonNull ByteBuffer b) {
 		boolean isdefault = isDefault(0);
 		assert !isdefault;
 		while (true) {

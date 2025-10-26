@@ -2,11 +2,12 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.MatchmakingClientInterface;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 public final class ChatErrorForm extends MessageForm {
-	private static String getErrorFromCode(int error_code) {
+	private static @NonNull String getErrorFromCode(int error_code) {
 		ResourceBundle bundle = ResourceBundle.getBundle(ChatErrorForm.class.getName());
 		switch (error_code) {
 			case MatchmakingClientInterface.CHAT_ERROR_TOO_MANY_USERS:

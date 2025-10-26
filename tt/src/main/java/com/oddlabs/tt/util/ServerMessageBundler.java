@@ -2,13 +2,14 @@ package com.oddlabs.tt.util;
 
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.registration.RegistrationKeyFormatException;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 public final class ServerMessageBundler {
 	private final static ResourceBundle bundle = ResourceBundle.getBundle(ServerMessageBundler.class.getName());
 	
-	public static String getSizeString(int index) {
+	public static @NonNull String getSizeString(int index) {
 		switch (index) {
 			case Game.SIZE_SMALL:
 				return Utils.getBundleString(bundle, "size_small");
@@ -21,7 +22,7 @@ public final class ServerMessageBundler {
 		}
 	}
 
-	public static String getTerrainTypeString(int index) {
+	public static @NonNull String getTerrainTypeString(int index) {
 		switch (index) {
 			case Game.TERRAIN_TYPE_NATIVE:
 				return Utils.getBundleString(bundle, "terrain_type_native");
@@ -32,14 +33,14 @@ public final class ServerMessageBundler {
 		}
 	}
 
-	public static String getRatedString(boolean rated) {
+	public static @NonNull String getRatedString(boolean rated) {
 		if (rated)
 			return Utils.getBundleString(bundle, "rated_yes");
 		else
 			return Utils.getBundleString(bundle, "rated_no");
 	}
 
-	public static String getGamespeedString(int index) {
+	public static @NonNull String getGamespeedString(int index) {
 		switch (index) {
 			case Game.GAMESPEED_PAUSE:
 				return Utils.getBundleString(bundle, "gamespeed_pause");
@@ -56,19 +57,19 @@ public final class ServerMessageBundler {
 		}
 	}
 
-	public static String getHillsString(int index) {
+	public static @NonNull String getHillsString(int index) {
 		return (10*index) + "%";
 	}
 
-	public static String getTreesString(int index) {
+	public static @NonNull String getTreesString(int index) {
 		return (10*index) + "%";
 	}
 
-	public static String getSuppliesString(int index) {
+	public static @NonNull String getSuppliesString(int index) {
 		return (10*index) + "%";
 	}
 
-	public static String getRegistrationKeyFormatExceptionMessage(RegistrationKeyFormatException e) {
+	public static @NonNull String getRegistrationKeyFormatExceptionMessage(@NonNull RegistrationKeyFormatException e) {
 		switch (e.getType()) {
 			case RegistrationKeyFormatException.TYPE_INVALID_CHAR:
 				return Utils.getBundleString(bundle, "invalid_char", e.getInvalidChar());

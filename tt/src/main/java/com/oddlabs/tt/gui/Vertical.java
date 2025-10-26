@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class Vertical {
 	private final Quad[] bottom;
@@ -10,7 +11,7 @@ public final class Vertical {
 	private final int top_height;
 	private final int width;
 
-	public Vertical(Quad[] bottom, Quad[] center, Quad[] top) {
+	public Vertical(Quad @NonNull [] bottom, Quad[] center, Quad @NonNull [] top) {
 		this.bottom = bottom;
 		this.center = center;
 		this.top = top;

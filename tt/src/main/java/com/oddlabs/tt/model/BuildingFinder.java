@@ -4,6 +4,8 @@ import com.oddlabs.tt.pathfinder.FinderFilter;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.player.Player;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -17,7 +19,7 @@ public final class BuildingFinder implements FinderFilter<Building> {
 	}
 
     @Override
-	public Building getOccupantFromRegion(Region region, boolean one_region) {
+	public @Nullable Building getOccupantFromRegion(@NonNull Region region, boolean one_region) {
 		List<Building> buildings = region.getObjects(Building.class);
 		for (Building b : buildings) {
 			if (accept(b))
@@ -27,11 +29,11 @@ public final class BuildingFinder implements FinderFilter<Building> {
 	}
 
     @Override
-	public Building getBest() {
+	public @Nullable Building getBest() {
 		return null;
 	}
 
-	private boolean accept(Building building) {
+	private boolean accept(@NonNull Building building) {
 		return building.getOwner() == owner && building.getAbilities().hasAbilities(abilities);
 	}
 

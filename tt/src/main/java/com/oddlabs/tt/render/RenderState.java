@@ -24,6 +24,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.GeneratorRing;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.viewer.Selection;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public final class RenderState implements ElementVisitor {
 	private final List<Emitter> emitter_queue = new ArrayList<>();
 	private final List<Lightning> lightning_queue = new ArrayList<>();
 	private final SpriteSorter sprite_sorter;
-	private final RenderStateCache render_state_cache;
+	private final @NonNull RenderStateCache render_state_cache;
 	private final RenderQueues render_queues;
 	private final TargetRespondRenderer target_respond_renderer;
 	private final SelectableShadowRenderer default_shadow_renderer;
@@ -46,7 +47,7 @@ public final class RenderState implements ElementVisitor {
 	private boolean visible_override;
 	private CameraState camera;
 
-	public RenderState(Player local_player, LandscapeRenderer renderer, SpriteSorter sprite_sorter, RenderQueues render_queues, Picker picker, Selection selection) {
+	public RenderState(Player local_player, LandscapeRenderer renderer, SpriteSorter sprite_sorter, @NonNull RenderQueues render_queues, Picker picker, Selection selection) {
 		this.local_player = local_player;
 		this.landscape_renderer = renderer;
 		this.selection = selection;
@@ -96,7 +97,7 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor unit_visitor = new SelectableVisitor() {
                 @Override
-		public void markDetailPolygon(ElementRenderState render_state, int level) {
+		public void markDetailPolygon(@NonNull ElementRenderState render_state, int level) {
 			Unit unit = (Unit)render_state.model;
 			super.markDetailPolygon(render_state, level);
 			UnitSupplyContainer supply_container = unit.getSupplyContainer();
@@ -109,7 +110,7 @@ public final class RenderState implements ElementVisitor {
 		}
 	};
         @Override
-	public void visitUnit(final Unit unit) {
+	public void visitUnit(final @NonNull Unit unit) {
 		float z_offset = getVisuallyCorrectHeight(unit.getPositionX(), unit.getPositionY()) + unit.getOffsetZ();
 		visitSelectable(unit_visitor, unit, z_offset, unit.getUnitTemplate().getSelectionRadius(), unit.getUnitTemplate().getSelectionHeight());
 	}
@@ -118,20 +119,20 @@ public final class RenderState implements ElementVisitor {
 		return (ElementRenderState)render_state_cache.get();
 	}
 
-	private ModelState getCachedState(ModelVisitor visitor, Model model) {
+	private @NonNull ModelState getCachedState(ModelVisitor visitor, Model model) {
 		ElementRenderState state = doGetCachedState();
 		state.setup(visitor, model);
 		return state;
 	}
 
-	private ModelState getCachedState(ModelVisitor visitor, Model model, float dist_squared) {
+	private @NonNull ModelState getCachedState(ModelVisitor visitor, Model model, float dist_squared) {
 		ElementRenderState state = doGetCachedState();
 		state.setup(visitor, model, dist_squared);
 		return state;
 	}
 
 	private final static BoundingBox picking_selection_box = new BoundingBox();
-	private static boolean pickingInFrustum(Selectable selectable, float[][] frustum, float z_offset, float selection_radius, float selection_height) {
+	private static boolean pickingInFrustum(@NonNull Selectable selectable, float[][] frustum, float z_offset, float selection_radius, float selection_height) {
 		picking_selection_box.setBounds(-selection_radius + selectable.getPositionX(), selection_radius + selectable.getPositionX(), -selection_radius + selectable.getPositionY(), selection_radius + selectable.getPositionY(), z_offset, z_offset + selection_height);
 		return RenderTools.inFrustum(picking_selection_box, frustum) >= RenderTools.IN_FRUSTUM;
 	}
@@ -144,7 +145,7 @@ public final class RenderState implements ElementVisitor {
 		return selection.getCurrentSelection().contains(selectable);
 	}
 
-	private void visitSelectable(ModelVisitor visitor, Selectable selectable, float z_offset, float selection_radius, float selection_height) {
+	private void visitSelectable(ModelVisitor visitor, @NonNull Selectable selectable, float z_offset, float selection_radius, float selection_height) {
 		boolean in_view = !picking || (selectable.isEnabled() && (visible_override || pickingInFrustum(selectable, camera.getFrustum(), z_offset, selection_radius, selection_height)));
 		if (in_view) {
 			Player owner = selectable.getOwnerNoCheck();
@@ -167,7 +168,7 @@ public final class RenderState implements ElementVisitor {
 		return local_player.getWorld().getHeightMap().computeInterpolatedHeight(patch_level, x_f, y_f);
 	}
 
-	private static float getBuildingSelectionRadius(Building building) {
+	private static float getBuildingSelectionRadius(@NonNull Building building) {
 		Building.BuildState render_level = building.getRenderLevel();
 		switch (render_level) {
 			case START:
@@ -181,7 +182,7 @@ public final class RenderState implements ElementVisitor {
 		}
 	}
 
-	private static float getBuildingSelectionHeight(Building building) {
+	private static float getBuildingSelectionHeight(@NonNull Building building) {
 		Building.BuildState render_level = building.getRenderLevel();
 		switch (render_level) {
             case START:
@@ -197,7 +198,7 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor building_visitor = new SelectableVisitor();
         @Override
-	public void visitBuilding(final Building building) {
+	public void visitBuilding(final @NonNull Building building) {
 		visitSelectable(building_visitor, building, building.getPositionZ(), getBuildingSelectionRadius(building), getBuildingSelectionHeight(building));
 	}
 
@@ -229,7 +230,7 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor supply_model_visitor = new SupplyModelVisitor() {
                 @Override
-		public void transform(ElementRenderState render_state) {
+		public void transform(@NonNull ElementRenderState render_state) {
 			SupplyModel model = (SupplyModel)render_state.getModel();
 			GL11.glTranslatef(model.getPositionX(), model.getPositionY(), model.getPositionZ());
 			GL11.glRotatef(model.getRotation(), 0f, 0f, 1f);
@@ -242,13 +243,13 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor rubber_model_visitor = new SupplyModelVisitor() {
                 @Override
-		public void transform(ElementRenderState render_state) {
+		public void transform(@NonNull ElementRenderState render_state) {
 			Model model = render_state.model;
 			RenderTools.translateAndRotate(model.getPositionX(), model.getPositionY(), render_state.f, model.getDirectionX(), model.getDirectionY());
 		}
 	};
         @Override
-	public void visitRubberSupply(final RubberSupply model) {
+	public void visitRubberSupply(final @NonNull RubberSupply model) {
 		float z_offset = getVisuallyCorrectHeight(model.getPositionX(), model.getPositionY()) + model.getOffsetZ();
 		ModelState state = getCachedState(rubber_model_visitor, model, z_offset);
 		addToRenderList(state);
@@ -258,13 +259,13 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor scenery_model_visitor = new WhiteModelVisitor() {
                 @Override
-		public void transform(ElementRenderState render_state) {
+		public void transform(@NonNull ElementRenderState render_state) {
 			RenderTools.translateAndRotate(render_state.getModel());
 			GL11.glColor4f(1f, 1f, 1f, 1f);
 		}
 	};
         @Override
-	public void visitSceneryModel(final SceneryModel model) {
+	public void visitSceneryModel(final @NonNull SceneryModel model) {
 		ModelState state = getCachedState(scenery_model_visitor, model);
 		addToRenderList(state);
 		if (!picking) {
@@ -278,7 +279,7 @@ public final class RenderState implements ElementVisitor {
 		private final static float START_FADE_DIST = 100;
 
                 @Override
-		public void transform(ElementRenderState render_state) {
+		public void transform(@NonNull ElementRenderState render_state) {
 			Plants plants = (Plants)render_state.getModel();
 			RenderTools.translateAndRotate(plants);
 			float dist_squared = render_state.f;
@@ -290,7 +291,7 @@ public final class RenderState implements ElementVisitor {
 		}
 	};
         @Override
-	public void visitPlants(final Plants plants) {
+	public void visitPlants(final @NonNull Plants plants) {
 		if (!picking && Globals.draw_plants) {
 			float camera_dist_sqr = RenderTools.getEyeDistanceSquared(plants, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());
 			if (camera_dist_sqr <= PLANTS_CUT_DIST*PLANTS_CUT_DIST)
@@ -300,7 +301,7 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor directed_weapon_model_visitor = new WhiteModelVisitor() {
                 @Override
-		public void transform(ElementRenderState render_state) {
+		public void transform(@NonNull ElementRenderState render_state) {
 			DirectedThrowingWeapon model = (DirectedThrowingWeapon)render_state.getModel();
 			RenderTools.translateAndRotate(render_state.getModel());
 			GL11.glRotatef(-model.getZSpeed(), 0f, 1f, 0f);
@@ -315,7 +316,7 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor rotating_weapon_model_visitor = new WhiteModelVisitor() {
                 @Override
-		public void transform(ElementRenderState render_state) {
+		public void transform(@NonNull ElementRenderState render_state) {
 			RotatingThrowingWeapon model = (RotatingThrowingWeapon)render_state.getModel();
 			RenderTools.translateAndRotate(render_state.getModel());
 			GL11.glRotatef(model.getAngle(), 0f, 1f, 0f);
@@ -328,11 +329,11 @@ public final class RenderState implements ElementVisitor {
 		}
 	}
 
-	public List<Emitter> getEmitterQueue() {
+	public @NonNull List<Emitter> getEmitterQueue() {
 		return emitter_queue;
 	}
 
-	public List<Lightning> getLightningQueue() {
+	public @NonNull List<Lightning> getLightningQueue() {
 		return lightning_queue;
 	}
 }

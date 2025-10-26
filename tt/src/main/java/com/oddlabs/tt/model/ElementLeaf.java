@@ -1,6 +1,7 @@
 package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.landscape.HeightMap;
+import org.jspecify.annotations.NonNull;
 
 public final class ElementLeaf<T> extends AbstractElementNode<T> {
 	public ElementLeaf(AbstractElementNode<T> owner/*, int level*/, int size, int x, int y) {
@@ -9,13 +10,13 @@ public final class ElementLeaf<T> extends AbstractElementNode<T> {
 	}
 
     @Override
-	protected AbstractElementNode<T> doInsertElement(Element<T> model) {
+	protected @NonNull AbstractElementNode<T> doInsertElement(Element<T> model) {
 		incElementCount();
 		return addElement(model);
 	}
 
     @Override
-	public void visit(ElementNodeVisitor<T> visitor) {
+	public void visit(@NonNull ElementNodeVisitor<T> visitor) {
 		visitor.visitLeaf(this);
 	}
 }

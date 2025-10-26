@@ -4,19 +4,20 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public abstract class ControllableCameraDelegate extends InGameDelegate {
 	private final GameCamera game_camera;
 	private FirstPersonDelegate first_person_delegate;
 
-	public ControllableCameraDelegate(WorldViewer viewer, GameCamera game_camera) {
+	public ControllableCameraDelegate(@NonNull WorldViewer viewer, GameCamera game_camera) {
 		super(viewer, game_camera);
 		this.game_camera = game_camera;
 	}
 
         @Override
-	public void keyPressed(KeyboardEvent event) {
+	public void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_F:
 				pushFirstPersonDelegate(true);

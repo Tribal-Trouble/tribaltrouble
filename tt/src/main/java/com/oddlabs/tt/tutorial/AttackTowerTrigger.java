@@ -6,14 +6,15 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 
 public final class AttackTowerTrigger extends TutorialTrigger {
 	private final static int NUM_UNITS = 12;
 	
-	private final Building tower;
+	private final @NonNull Building tower;
 	private final Player ai;
 	
-	public AttackTowerTrigger(Building tower) {
+	public AttackTowerTrigger(@NonNull Building tower) {
 		super(.1f, 0f, "attack_tower");
 		this.ai = tower.getOwner().getWorld().getPlayers()[1];
 		this.tower = tower;
@@ -25,7 +26,7 @@ public final class AttackTowerTrigger extends TutorialTrigger {
 	}
 
         @Override
-	public void run(Tutorial tutorial) {
+	public void run(@NonNull Tutorial tutorial) {
 		if (ai.getUnitCountContainer().getNumSupplies() == 0) {
 			tutorial.next(new RepairTowerTrigger(tower));
 		}

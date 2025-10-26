@@ -1,9 +1,10 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import org.jspecify.annotations.NonNull;
 
 public class BackgroundLabelBox extends LabelBox {
-	public BackgroundLabelBox(CharSequence text, Font font, int width) {
+	public BackgroundLabelBox(@NonNull CharSequence text, Font font, int width) {
 		super(text, font, width);
 	}
 

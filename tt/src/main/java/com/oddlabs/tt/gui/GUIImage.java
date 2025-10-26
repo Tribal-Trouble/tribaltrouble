@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class GUIImage extends GUIObject {
@@ -16,7 +17,7 @@ public final class GUIImage extends GUIObject {
 		this(width, height, u1, v1, u2, v2, Resources.findResource(new TextureFile(texture_name, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)));
 	}
 
-	public GUIImage(int width, int height, float u1, float v1, float u2, float v2, Texture texture) {
+	public GUIImage(int width, int height, float u1, float v1, float u2, float v2, @NonNull Texture texture) {
 		this.u1 = u1;
 		this.v1 = v1;
 		this.u2 = u2;

@@ -2,14 +2,15 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextBoxRenderer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public class LabelBox extends TextField implements Comparable<LabelBox> {
-	private final TextBoxRenderer text_renderer;
+	private final @NonNull TextBoxRenderer text_renderer;
 
 	private float[] color = new float[]{1f, 1f, 1f, 1f};
 
-	public LabelBox(CharSequence text, Font font, int width) {
+	public LabelBox(@NonNull CharSequence text, Font font, int width) {
 		super(text, font, Integer.MAX_VALUE);
 		text_renderer = new TextBoxRenderer(font, width, LocalInput.getViewHeight());
 		setDim(width, text_renderer.getTextHeight(text));
@@ -42,7 +43,7 @@ public class LabelBox extends TextField implements Comparable<LabelBox> {
 	}
 
         @Override
-	public int compareTo(LabelBox o) {
+	public int compareTo(@NonNull LabelBox o) {
 		return getText().toString().compareToIgnoreCase(o.getText().toString());
 	}
 }

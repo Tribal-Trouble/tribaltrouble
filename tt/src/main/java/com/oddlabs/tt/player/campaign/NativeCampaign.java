@@ -9,6 +9,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.NativeCampaignIcons;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 public final class NativeCampaign extends Campaign {
 	public final static int MAX_UNITS = 41;
@@ -32,7 +33,7 @@ public final class NativeCampaign extends Campaign {
 		CampaignState.ISLAND_UNAVAILABLE,
 		CampaignState.ISLAND_HIDDEN};
 
-	private final Island[] islands;
+	private final Island @NonNull [] islands;
 
 	static {
 		NativeCampaignIcons.load();
@@ -66,7 +67,7 @@ public final class NativeCampaign extends Campaign {
 	}
 
     @Override
-	public void islandChosen(NetworkSelector network, GUIRoot gui_root, int number) {
+	public void islandChosen(NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
 		if (Renderer.isRegistered()) {
 			Form dialog = new CampaignDialogForm(islands[number].getHeader(),
 					islands[number].getDescription(),
@@ -86,7 +87,7 @@ public final class NativeCampaign extends Campaign {
 	}
 
         @Override
-	public void defeated(WorldViewer viewer, String game_over_message) {
+	public void defeated(@NonNull WorldViewer viewer, String game_over_message) {
 		if (getState().getCurrentIsland() == 4)
 			((NativeIsland4)islands[4]).removeCounter();
 		super.defeated(viewer, game_over_message);

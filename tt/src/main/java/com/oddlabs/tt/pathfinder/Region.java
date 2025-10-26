@@ -1,6 +1,8 @@
 package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.landscape.HeightMap;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -31,11 +33,11 @@ public final class Region extends Node {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "Region: " + center_x + " " + center_y;
 	}
         @Override
-	public PathNode newPath() {
+	public @NonNull PathNode newPath() {
 		Node graph_node = this;
 		assert graph_node != null;
 		RegionNode current_node = null;
@@ -46,14 +48,14 @@ public final class Region extends Node {
 		return current_node;
 	}
 
-	public static void link(Region r1, Region r2) {
+	public static void link(@Nullable Region r1, @Nullable Region r2) {
 		if (r1 == null || r2 == null || r1 == r2 || r1.neighbours.contains(r2))
 			return;
 		r1.addNeighbour(r2);
 		r2.addNeighbour(r1);
 	}
 
-	public <K> List<K> getObjects(Class<? super K> key) {
+	public <K> @NonNull List<K> getObjects(Class<? super K> key) {
                 @SuppressWarnings("unchecked")
 		List<K> list = (List<K>) object_lists.get(key);
 		if (list == null) {
@@ -79,7 +81,7 @@ public final class Region extends Node {
 	}
 
         @Override
-	public boolean addNeighbours(PathFinderAlgorithm finder, UnitGrid unit_grid) {
+	public boolean addNeighbours(@NonNull PathFinderAlgorithm finder, UnitGrid unit_grid) {
             for (Region neighbour : neighbours) {
                 if (!neighbour.isVisited())
                     PathFinder.addToOpenList(finder, neighbour, this, estimateCost(neighbour.getGridX(), neighbour.getGridY()));
@@ -87,7 +89,7 @@ public final class Region extends Node {
 		return false;
 	}
 
-	private void debugVertex(HeightMap heightmap) {
+	private void debugVertex(@NonNull HeightMap heightmap) {
 		float xf = UnitGrid.coordinateFromGrid(getGridX());
 		float yf = UnitGrid.coordinateFromGrid(getGridY());
 		GL11.glVertex3f(xf, yf, heightmap.getNearestHeight(xf, yf) + 2f);
@@ -102,7 +104,7 @@ public final class Region extends Node {
         }
 	}
 
-	public void debugRenderConnections(HeightMap heightmap) {
+	public void debugRenderConnections(@NonNull HeightMap heightmap) {
 		if (isVisited())
 			return;
 		setVisited(true);

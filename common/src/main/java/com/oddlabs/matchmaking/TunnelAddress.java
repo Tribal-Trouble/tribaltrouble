@@ -1,5 +1,7 @@
 package com.oddlabs.matchmaking;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 import java.net.InetAddress;
 
@@ -28,7 +30,7 @@ public final class TunnelAddress implements Serializable {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "host id = " + host_id + " address = " + address + " local_address = " + local_address;
 	}
 }	

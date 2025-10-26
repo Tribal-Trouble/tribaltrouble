@@ -36,6 +36,8 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,25 +58,25 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 
 	private final static int RATING_WIDTH = 80;
 
-	private final PulldownButton[] slot_buttons;
-	private final PulldownButton[] race_buttons;
-	private final PulldownButton[] team_buttons;
-	private final Label[] ratings;
-	private final Label chat_info;
-	private final TextBox chat_box;
-	private final EditLine chat_line;
-	private final Diode[] ready_marks;
-	private final HorizButton send_button;
-	private final HorizButton ready_button;
-	private final HorizButton start_button;
+	private final PulldownButton @NonNull [] slot_buttons;
+	private final PulldownButton @NonNull [] race_buttons;
+	private final PulldownButton @NonNull [] team_buttons;
+	private final Label @NonNull [] ratings;
+	private final @NonNull Label chat_info;
+	private final @NonNull TextBox chat_box;
+	private final @NonNull EditLine chat_line;
+	private final Diode @NonNull [] ready_marks;
+	private final @NonNull HorizButton send_button;
+	private final @NonNull HorizButton ready_button;
+	private final @NonNull HorizButton start_button;
 	private final SelectGameMenu owner;
 	private final GUIRoot gui_root;
 	private final int local_player_slot;
 	private final boolean rated;
-	private final Game game;
+	private final @NonNull Game game;
 	private final ResourceBundle bundle = getBundle();
 	private final GameNetwork game_network;
-	private SortedSet<String> human_names = new TreeSet<>();
+	private @NonNull SortedSet<String> human_names = new TreeSet<>();
 
 	private boolean updating;
 	private boolean ready;
@@ -83,7 +85,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		return ResourceBundle.getBundle(GameMenu.class.getName());
 	}
 
-	public GameMenu(GameNetwork game_network, GUIRoot gui_root, SelectGameMenu owner, Game game, WorldGenerator generator, int player_slot, int compare_width, int compare_height, int button_width) {
+	public GameMenu(GameNetwork game_network, GUIRoot gui_root, SelectGameMenu owner, @NonNull Game game, WorldGenerator generator, int player_slot, int compare_width, int compare_height, int button_width) {
 		super(Utils.getBundleString(getBundle(), "game_caption"));
 		this.game_network = game_network;
 		this.owner = owner;
@@ -226,7 +228,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		chat_line.setFocus();
 	}
 
-	private int countHumans(PlayerSlot[] players) {
+	private int countHumans(PlayerSlot @NonNull [] players) {
 		int result = 0;
             for (PlayerSlot player : players) {
                 if (player.getType() == PlayerSlot.HUMAN) {
@@ -237,7 +239,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	}
 
         @Override
-	public void setPlayers(PlayerSlot[] players) {
+	public void setPlayers(PlayerSlot @NonNull [] players) {
 		int num_humans = countHumans(players);
 		int[] player_slots = new int[num_humans];
 		int[] player_ratings = new int[num_humans];
@@ -309,7 +311,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		updating = false;
 	}
 
-	private void updateRatedLabels(int[] player_slots, int[] player_ratings, int[][] points) {
+	private void updateRatedLabels(int @NonNull [] player_slots, int[] player_ratings, int[][] points) {
             for (Label rating : ratings) {
                 rating.clear();
             }
@@ -330,15 +332,15 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		return local_player_slot == 0 || slot == local_player_slot;
 	}
 
-	private GUIObject createPlayerPulldown(GUIRoot gui_root, Group group,
-			GUIObject previous,
-			PulldownButton[] slot_buttons,
-			PulldownButton[] race_buttons,
-			PulldownButton[] team_buttons,
-			Diode[] ready_marks,
-			Label[] ratings,
-			int index,
-			int num_players) {
+	private @NonNull GUIObject createPlayerPulldown(GUIRoot gui_root, @NonNull Group group,
+                                                    @Nullable GUIObject previous,
+                                                    PulldownButton[] slot_buttons,
+                                                    PulldownButton[] race_buttons,
+                                                    PulldownButton[] team_buttons,
+                                                    Diode[] ready_marks,
+                                                    Label[] ratings,
+                                                    int index,
+                                                    int num_players) {
 		PulldownMenu pulldown_menu = new PulldownMenu();
 		PulldownItem open_item = new PulldownItem(Utils.getBundleString(bundle, "open"));
 		PulldownItem closed_item = new PulldownItem(Utils.getBundleString(bundle, "closed"));
@@ -439,7 +441,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	}
 
         @Override
-	public void chat(ChatMessage message) {
+	public void chat(@NonNull ChatMessage message) {
 		if (message.type != ChatMessage.Type.GAME_MENU)
 			return;
 		if (chat_box.length() > 0)
@@ -473,7 +475,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		}
 	}
 
-	private void setStartEnable(PlayerSlot[] players) {
+	private void setStartEnable(PlayerSlot @NonNull [] players) {
 		start_button.setDisabled(true);
 		if (local_player_slot != 0)
 			return;
@@ -511,7 +513,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		}
 	}
 
-	private static int getNumTeams(PlayerSlot[] players) {
+	private static int getNumTeams(PlayerSlot @NonNull [] players) {
 		Set<Integer> teams = new HashSet<>();
             for (PlayerSlot current : players) {
                 if (current.getInfo() != null)
@@ -550,7 +552,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 
 	private final class ChatListener implements EnterListener {
                 @Override
-		public void enterPressed(CharSequence text) {
+		public void enterPressed(@NonNull CharSequence text) {
 			String chat = text.toString();
 			if (!chat.isEmpty()) {
 				chat_line.clear();

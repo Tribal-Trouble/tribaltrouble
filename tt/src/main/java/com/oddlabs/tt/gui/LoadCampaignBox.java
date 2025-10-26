@@ -7,6 +7,7 @@ import com.oddlabs.tt.player.campaign.CampaignState;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.DeterministicSerializer;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
+import org.jspecify.annotations.NonNull;
 
 import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
@@ -23,7 +24,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 	private final static int WIDTH_DIFFICULTY = 130;
 	private final static int WIDTH_DATE = 170;
 
-	private final MultiColumnComboBox list_box;
+	private final @NonNull MultiColumnComboBox list_box;
 	private final GUIRoot gui_root;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(LoadCampaignBox.class.getName());
 
@@ -47,7 +48,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 		DeterministicSerializer.save(LocalEventQueue.getQueue().getDeterministic(), states, getSaveSavegamesFile(), callback);
 	}
 
-	private static Path getSaveSavegamesFile() {
+	private static @NonNull Path getSaveSavegamesFile() {
 		return LocalInput.getGameDir().resolve(SAVEGAMES_FILE_NAME);
 	}
 
@@ -55,7 +56,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 		DeterministicSerializer.load(LocalEventQueue.getQueue().getDeterministic(), getLoadSavegamesFile(), callback);
 	}
 
-	private static Path getLoadSavegamesFile() {
+	private static @NonNull Path getLoadSavegamesFile() {
 		Path file = getSaveSavegamesFile();
 		if (!Files.isReadable(file))
 			return Utils.getInstallDir().resolve(SAVEGAMES_FILE_NAME);
@@ -81,7 +82,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 		LoadCampaignBox.loadSavegames(this);
 	}
 
-	private void fillSlots(CampaignState[] campaign_states) {
+	private void fillSlots(CampaignState @NonNull [] campaign_states) {
             for (CampaignState campaign_state : campaign_states) {
                 String race;
                 switch (campaign_state.getRace()) {
@@ -114,7 +115,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 	}
 
         @Override
-	public void loadSucceeded(CampaignState[] campaign_states) {
+	public void loadSucceeded(CampaignState @NonNull [] campaign_states) {
 		fillSlots(campaign_states);
 	}
 

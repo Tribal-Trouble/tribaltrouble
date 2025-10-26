@@ -1,6 +1,7 @@
 package com.oddlabs.net;
 
 import com.oddlabs.event.Deterministic;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
@@ -15,7 +16,7 @@ public final class NetworkSelector {
 	private final static long PING_TIMEOUT = 4*60*1000;
 	private final static long PING_DELAY = PING_TIMEOUT/2;
 
-	private final MonotoneTimeManager time_manager;
+	private final @NonNull MonotoneTimeManager time_manager;
 	private int current_handler_id;
 	private final Map<Object,Handler> handler_map = new HashMap<>();
 	private TaskThread task_thread;
@@ -25,11 +26,11 @@ public final class NetworkSelector {
 
 	private final Deterministic deterministic;
 
-	public NetworkSelector(final Deterministic deterministic) {
+	public NetworkSelector(final @NonNull Deterministic deterministic) {
 		this(deterministic, () -> deterministic.log(System.currentTimeMillis()));
 	}
 
-	public NetworkSelector(Deterministic deterministic, TimeManager time_manager) {
+	public NetworkSelector(Deterministic deterministic, @NonNull TimeManager time_manager) {
 		this.deterministic = deterministic;
 		this.time_manager = new MonotoneTimeManager(time_manager);
 	}
@@ -48,7 +49,7 @@ public final class NetworkSelector {
 		getTaskThread().addTask(task);
 	}
 
-	public TaskThread getTaskThread() {
+	public @NonNull TaskThread getTaskThread() {
 		if (task_thread == null) {
 			task_thread = new TaskThread(deterministic, selector::wakeup);
 		}
@@ -155,7 +156,7 @@ public final class NetworkSelector {
 		return time_manager;
 	}
 
-	void cancelKey(SelectionKey key, Handler handler) {
+	void cancelKey(@NonNull SelectionKey key, Handler handler) {
 		Object handler_key = null;
 		if (!deterministic.isPlayback()) {
 			handler_key = key.attachment();
@@ -165,7 +166,7 @@ public final class NetworkSelector {
 		handler_map.remove(handler_key);
 	}
 
-	void attachToKey(SelectionKey key, Handler handler) {
+	void attachToKey(@NonNull SelectionKey key, Handler handler) {
 		Object handler_key = null;
 		if (!deterministic.isPlayback()) {
 			handler_key = current_handler_id++;

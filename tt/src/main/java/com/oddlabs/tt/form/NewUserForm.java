@@ -18,6 +18,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -29,10 +30,10 @@ public final class NewUserForm extends Form {
 	private final static int EDITLINE_WIDTH = 240;
 
 	private final MainMenu main_menu;
-	private final EditLine editline_username;
-	private final EditLine editline_email;
-	private final PasswordLine editline_password;
-	private final PasswordLine editline_verify;
+	private final @NonNull EditLine editline_username;
+	private final @NonNull EditLine editline_email;
+	private final @NonNull PasswordLine editline_password;
+	private final @NonNull PasswordLine editline_verify;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(NewUserForm.class.getName());
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;

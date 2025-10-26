@@ -6,6 +6,7 @@ import com.oddlabs.tt.particle.Lightning;
 import com.oddlabs.tt.particle.StretchParticle;
 import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector3f;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
@@ -18,7 +19,7 @@ final class LightningRenderer {
     private final static StrictMatrix4f view_matrix = new StrictMatrix4f();
     private final static CameraState tmp_camera = new CameraState();
 
-    public static void render(RenderQueues render_queues, List<Lightning> emitter_queue, CameraState state) {
+    public static void render(@NonNull RenderQueues render_queues, @NonNull List<Lightning> emitter_queue, @NonNull CameraState state) {
         tmp_camera.set(state);
         view_matrix.setIdentity();
         tmp_camera.setView(view_matrix);
@@ -43,7 +44,7 @@ final class LightningRenderer {
         GL11.glEnable(GL11.GL_CULL_FACE);
     }
 
-    private static void render2DParticle(StretchParticle particle) {
+    private static void render2DParticle(@NonNull StretchParticle particle) {
         float src_x = particle.getSrcX();
         float src_y = particle.getSrcY();
         float src_z = particle.getSrcZ();
@@ -81,7 +82,7 @@ final class LightningRenderer {
         GL11.glVertex3f(src_x, src_y - particle.getSrcWidth(), src_z);
     }
 
-    private static void render(RenderQueues render_queues, Lightning lightning) {
+    private static void render(@NonNull RenderQueues render_queues, @NonNull Lightning lightning) {
         if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS)) {
             RenderTools.draw(lightning, 1f, 1f, 1f);
         }

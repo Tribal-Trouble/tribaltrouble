@@ -6,6 +6,7 @@ import com.oddlabs.net.IllegalARMIEventException;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.player.PlayerInterface;
+import org.jspecify.annotations.NonNull;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +33,7 @@ public final class Peer implements PeerHubInterface {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "player: " + player.toString();
 	}
 

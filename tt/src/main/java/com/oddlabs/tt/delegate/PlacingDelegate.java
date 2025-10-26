@@ -18,6 +18,7 @@ import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.SpriteRenderer;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -38,7 +39,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
 		color.rewind();
 	}
 
-	public PlacingDelegate(WorldViewer viewer, CameraState old_camera, int building_index) {
+	public PlacingDelegate(@NonNull WorldViewer viewer, CameraState old_camera, int building_index) {
 		super(viewer, new GameCamera(viewer, old_camera));
 		this.building_index = building_index;
 	}
@@ -69,7 +70,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
 	}
 	*/
     @Override
-	public void keyPressed(KeyboardEvent event) {
+	public void keyPressed(@NonNull KeyboardEvent event) {
 		getCamera().keyPressed(event);
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:
@@ -108,7 +109,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
 	}
 
     @Override
-	public void render3D(LandscapeRenderer renderer, RenderQueues queues) {
+	public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues) {
 		getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit);
 		UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
 		int placing_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x) - (getTemplate().getPlacingSize() - 1);

@@ -2,6 +2,7 @@ package com.oddlabs.tt.net;
 
 import com.oddlabs.net.DefaultARMIArgumentWriter;
 import com.oddlabs.util.ByteBufferOutputStream;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 
@@ -13,7 +14,7 @@ final class GameArgumentWriter extends DefaultARMIArgumentWriter {
 	}
 
         @Override
-	public void writeArgument(Class<?> type, Object arg, ByteBufferOutputStream out) throws IOException {
+	public void writeArgument(@NonNull Class<?> type, Object arg, @NonNull ByteBufferOutputStream out) throws IOException {
 		if (Distributable.class.isAssignableFrom(type)) {
 			int name = distributable_table.getName((Distributable)arg);
 			out.buffer().putInt(name);

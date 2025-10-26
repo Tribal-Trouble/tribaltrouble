@@ -17,6 +17,7 @@ import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.vbo.ShortVBO;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
@@ -30,16 +31,16 @@ import java.util.Set;
 
 public final class LandscapeRenderer implements Animated {
 
-    private final List<PatchLevel>[] patch_lists;
+    private final List<PatchLevel> @NonNull [] patch_lists;
     private final List<LandscapeLeaf> render_list = new ArrayList<>();
     private final GUIRoot gui_root;
-    private final World world;
+    private final @NonNull World world;
     private final Texture[][] colormaps;
     private final Texture detail;
-    private final PatchLevel[][] patch_levels;
-    private final LandscapeTileVertices landscape_vertices;
+    private final PatchLevel[] @NonNull [] patch_levels;
+    private final @NonNull LandscapeTileVertices landscape_vertices;
     private final ShortBuffer shadow_indices_buffer;
-    private final ShortVBO indices_vbo;
+    private final @NonNull ShortVBO indices_vbo;
     private final AnimationManager manager;
 
     private int current_map_x;
@@ -52,7 +53,7 @@ public final class LandscapeRenderer implements Animated {
     private int edit_patch_y1;
 
     @SuppressWarnings("unchecked")
-    public LandscapeRenderer(World world, WorldInfo world_info, GUIRoot gui_root, AnimationManager manager) {
+    public LandscapeRenderer(@NonNull World world, @NonNull WorldInfo world_info, GUIRoot gui_root, @NonNull AnimationManager manager) {
         ShortBuffer indices = world.getLandscapeIndices().getIndices();
         this.indices_vbo = new ShortVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, indices.remaining());
         this.indices_vbo.put(indices);
@@ -100,7 +101,7 @@ public final class LandscapeRenderer implements Animated {
         return patch_levels[patch_y][patch_x];
     }
 
-    public PatchLevel getPatchLevel(LandscapeLeaf leaf) {
+    public PatchLevel getPatchLevel(@NonNull LandscapeLeaf leaf) {
         return getPatchLevel(leaf.getPatchX(), leaf.getPatchY());
     }
 
@@ -118,7 +119,7 @@ public final class LandscapeRenderer implements Animated {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, colormaps[y][x].getHandle());
     }
 
-    void bindLeaf(LandscapeLeaf leaf) {
+    void bindLeaf(@NonNull LandscapeLeaf leaf) {
         landscape_vertices.bind(leaf.getPatchX(), leaf.getPatchY());
     }
 
@@ -130,7 +131,7 @@ public final class LandscapeRenderer implements Animated {
         render_list.clear();
     }
 
-    private void renderPatch(LandscapeLeaf leaf) {
+    private void renderPatch(@NonNull LandscapeLeaf leaf) {
         bindLeaf(leaf);
         PatchLevel patch_level = getPatchLevel(leaf);
         int patch_index = world.getLandscapeIndices().getPatchIndex(patch_level.getLevel(), patch_level.getBorderSet());
@@ -200,7 +201,7 @@ public final class LandscapeRenderer implements Animated {
         disableLandscape();
     }
 
-    private int calculateLevel(LandscapeLeaf leaf) {
+    private int calculateLevel(@NonNull LandscapeLeaf leaf) {
         CameraState camera = gui_root.getDelegate().getCamera().getState();
         float dist2 = RenderTools.getEyeDistanceSquared(leaf, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());
         // Find appropriate patch size
@@ -215,12 +216,12 @@ public final class LandscapeRenderer implements Animated {
 
     private final PatchGroupVisitor level_updater = new PatchGroupVisitor() {
         @Override
-        public void visitGroup(PatchGroup group) {
+        public void visitGroup(@NonNull PatchGroup group) {
             group.visitChildren(this);
         }
 
         @Override
-        public void visitLeaf(LandscapeLeaf leaf) {
+        public void visitLeaf(@NonNull LandscapeLeaf leaf) {
             int wanted_level = calculateLevel(leaf);
             PatchLevel patch_level = getPatchLevel(leaf);
             patch_lists[wanted_level].add(patch_level);
@@ -317,7 +318,7 @@ public final class LandscapeRenderer implements Animated {
         }
 
         @Override
-        public void visitGroup(PatchGroup group) {
+        public void visitGroup(@NonNull PatchGroup group) {
             int frustum_state = RenderTools.NOT_IN_FRUSTUM;
             if (visible_override || (frustum_state = RenderTools.inFrustum(group, camera.getFrustum())) >= RenderTools.IN_FRUSTUM) {
                 boolean old_override = visible_override;
@@ -328,7 +329,7 @@ public final class LandscapeRenderer implements Animated {
         }
 
         @Override
-        public void visitLeaf(LandscapeLeaf leaf) {
+        public void visitLeaf(@NonNull LandscapeLeaf leaf) {
             if (visible_override || RenderTools.inFrustum(leaf, camera.getFrustum()) >= RenderTools.IN_FRUSTUM) {
                 result.add(leaf);
             }

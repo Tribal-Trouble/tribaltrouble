@@ -2,6 +2,7 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 
 
 public class SupplySpawnAnimation implements Animated {
@@ -10,7 +11,7 @@ public class SupplySpawnAnimation implements Animated {
 
 	private float time = 0;
 	
-	public SupplySpawnAnimation(Supply supply, float limit) {
+	public SupplySpawnAnimation(@NonNull Supply supply, float limit) {
 		this.supply = supply;
 		this.limit = limit;
 		supply.getWorld().getAnimationManagerGameTime().registerAnimation(this);

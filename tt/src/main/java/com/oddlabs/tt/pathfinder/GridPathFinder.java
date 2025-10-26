@@ -1,10 +1,12 @@
 package com.oddlabs.tt.pathfinder;
 
+import org.jspecify.annotations.NonNull;
+
 abstract class GridPathFinder extends AStarAlgorithm {
 	private final Node dst_region;
 	private final Node dst_region2;
 
-	public GridPathFinder(UnitGrid unit_grid, Node dst_region, Node dst_region2, int dst_x, int dst_y, boolean allow_second_best) {
+	public GridPathFinder(@NonNull UnitGrid unit_grid, Node dst_region, Node dst_region2, int dst_x, int dst_y, boolean allow_second_best) {
 		super(unit_grid, dst_x, dst_y, allow_second_best);
 		this.dst_region = dst_region;
 		this.dst_region2 = dst_region2;

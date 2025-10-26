@@ -17,6 +17,7 @@ import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector4f;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
@@ -29,18 +30,18 @@ public final class TreeLowDetail {
 	private final static StrictVector4f dest = new StrictVector4f();
 	private final static FloatBuffer update_buffer = BufferUtils.createFloatBuffer(1000);
 
-	private final FloatVBO vertices;
-	private final FloatVBO texcoords;
-	private final ShortVBO tree_indices;
-	private final Texture[] lowdetail_textures;
+	private final @NonNull FloatVBO vertices;
+	private final @NonNull FloatVBO texcoords;
+	private final @NonNull ShortVBO tree_indices;
+	private final Texture @NonNull [] lowdetail_textures;
 	private final Tree[] trees;
 	private final LowDetailModel[] low_details;
 
-	private final Landscape.TerrainType terrain;
+	private final Landscape.@NonNull TerrainType terrain;
 
 	private int current_vertex_index;
 
-	public TreeLowDetail(World world, Tree[] trees, LowDetailModel[] tree_low_details, List<int[]> tree_positions, List<int[]> palm_tree_positions, Landscape.TerrainType terrain) {
+	public TreeLowDetail(World world, Tree[] trees, LowDetailModel[] tree_low_details, @NonNull List<int[]> tree_positions, @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
 		lowdetail_textures = new Texture[]{
 			Resources.findResource(new TextureFile("/textures/models/lowdetail_tree", Globals.COMPRESSED_RGBA_FORMAT)),
 				Resources.findResource(new TextureFile("/textures/models/viking_lowdetail_tree", Globals.COMPRESSED_RGBA_FORMAT))};
@@ -75,7 +76,7 @@ public final class TreeLowDetail {
 		return trees;
 	}
 
-	void build(AbstractTreeGroup tree_root) {
+	void build(@NonNull AbstractTreeGroup tree_root) {
 		int index_count = tree_indices.capacity();
 
 		BuildVisitor visitor = new BuildVisitor();
@@ -87,7 +88,7 @@ public final class TreeLowDetail {
 		tree_indices.put(visitor.tree_index_array);
 	}
 
-	private int numTreesTotal(int[] num_trees) {
+	private int numTreesTotal(int @NonNull [] num_trees) {
 		int count = 0;
         for (int numTree : num_trees) {
             count += numTree;
@@ -95,14 +96,14 @@ public final class TreeLowDetail {
 		return count;
 	}
 
-	void loadMatrix(StrictMatrix4f matrix) {
+	void loadMatrix(@NonNull StrictMatrix4f matrix) {
 		update_buffer.clear();
 		matrix.store(update_buffer);
 		update_buffer.flip();
 		GL11.glMultMatrix(update_buffer);
 	}
 
-	private int putCoordinate(int index, float x, float y, float z, float u, float v, float[] vertice_array, float[] texcoord_array) {
+	private int putCoordinate(int index, float x, float y, float z, float u, float v, float @NonNull [] vertice_array, float @NonNull [] texcoord_array) {
 		vertice_array[index*3] = x;
 		vertice_array[index*3 + 1] = y;
 		vertice_array[index*3 + 2] = z;
@@ -112,14 +113,14 @@ public final class TreeLowDetail {
 		return index + 1;
 	}
 
-	private int putIndex(int index, int tree_index, short[] tree_indice_array) {
+	private int putIndex(int index, int tree_index, short @NonNull [] tree_indice_array) {
 		assert tree_index <= Character.MAX_VALUE;
 		short tree_char_index = (short)tree_index;
 		tree_indice_array[index] = tree_char_index;
 		return index + 1;
 	}
 
-	private int[] putLowDetail(int start_index, StrictMatrix4f matrix, LowDetailModel low_detail_model, float[] vertice_array, float[] texcoord_array, short[] tree_indice_array) {
+	private int[] putLowDetail(int start_index, @NonNull StrictMatrix4f matrix, @NonNull LowDetailModel low_detail_model, float @NonNull [] vertice_array, float @NonNull [] texcoord_array, short @NonNull [] tree_indice_array) {
 		float[] vertices = low_detail_model.getVertices();
 		float[] tex_coords = low_detail_model.getTexCoords();
 		short[] indices = low_detail_model.getIndices();
@@ -138,7 +139,7 @@ public final class TreeLowDetail {
 		return new int[]{end, start_vertex_index};
 	}
 
-	public void updateLowDetail(StrictMatrix4f matrix, TreeSupply tree) {
+	public void updateLowDetail(@NonNull StrictMatrix4f matrix, @NonNull TreeSupply tree) {
 		int start_vertex_index = tree.getLowDetailStartIndex();
 		int tree_type_index = tree.getTreeTypeIndex();
 		LowDetailModel low_detail_model = low_details[tree_type_index];
@@ -177,21 +178,21 @@ public final class TreeLowDetail {
 		private final short[] tree_index_array = new short[tree_indices.capacity()];
 
                 @Override
-		public void visitLeaf(TreeLeaf tree_leaf) {
+		public void visitLeaf(@NonNull TreeLeaf tree_leaf) {
 			int start = end;
 			tree_leaf.visitTrees(this);
 			tree_leaf.initLowDetailBuffer(start, end);
 		}
 
                 @Override
-		public void visitNode(TreeGroup tree_group) {
+		public void visitNode(@NonNull TreeGroup tree_group) {
 			int start = end;
 			tree_group.visitChildren(this);
 			tree_group.initLowDetailBuffer(start, end);
 		}
 
                 @Override
-		public void visitTree(TreeSupply tree_supply) {
+		public void visitTree(@NonNull TreeSupply tree_supply) {
 			int start_index = end;
 			int tree_type_index = tree_supply.getTreeTypeIndex();
 			int[] values = putLowDetail(end, tree_supply.getMatrix(), low_details[tree_type_index], vertex_array, texcoord_array, tree_index_array);

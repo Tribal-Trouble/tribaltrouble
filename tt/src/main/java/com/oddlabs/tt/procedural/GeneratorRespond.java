@@ -4,13 +4,14 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class GeneratorRespond extends TextureGenerator {
 	private final static int COLOR = 0x80808080;
 
     @Override
-	public Texture[] generate() {
+	public Texture @NonNull [] generate() {
 		GLIntImage img = new GLIntImage(1, 1, GL11.GL_RGBA);
 		img.putPixel(0, 0, COLOR);
 		Texture[] textures = new Texture[1];

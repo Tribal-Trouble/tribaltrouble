@@ -4,6 +4,7 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.DebugRender;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -25,7 +26,7 @@ final class RenderTools {
 		transform_matrix.rewind();
 	}
 
-	static void translateAndRotate(Model model) {
+	static void translateAndRotate(@NonNull Model model) {
 		translateAndRotate(model.getPositionX(), model.getPositionY(), model.getPositionZ(), model.getDirectionX(), model.getDirectionY());
 	}
 	
@@ -72,7 +73,7 @@ final class RenderTools {
 		GL11.glMultMatrix(transform_matrix);
 	}
 
-	static int inFrustum(BoundingBox box, float[][] frustum) {
+	static int inFrustum(@NonNull BoundingBox box, float[][] frustum) {
 		boolean all_in = true;
 
 		for (int f = 0; f < 6; f++) {
@@ -175,7 +176,7 @@ final class RenderTools {
 			return IN_FRUSTUM;
 	}
 
-	static float getEyeDistanceSquared(BoundingBox box, float camera_x, float camera_y, float camera_z) {
+	static float getEyeDistanceSquared(@NonNull BoundingBox box, float camera_x, float camera_y, float camera_z) {
 		float distx = camera_x - box.getCX();
 		float disty = camera_y - box.getCY();
 		float distz = camera_z - box.getCZ();
@@ -183,28 +184,28 @@ final class RenderTools {
 		return dist2;
 	}
 
-	static float getCameraDistanceXYSquared(BoundingBox box, float camera_x, float camera_y) {
+	static float getCameraDistanceXYSquared(@NonNull BoundingBox box, float camera_x, float camera_y) {
 		float distx = camera_x - box.getCX();
 		float disty = camera_y - box.getCY();
 		float dist2 = distx*distx + disty*disty;
 		return dist2;
 	}
 
-	static float getCameraDistanceSquared(BoundingBox box, float camera_x, float camera_y, float camera_z) {
+	static float getCameraDistanceSquared(@NonNull BoundingBox box, float camera_x, float camera_y, float camera_z) {
 		float distz = camera_z - box.getCZ();
 		float dist2 = getCameraDistanceXYSquared(box, camera_x, camera_y) + distz*distz;
 		return dist2;
 	}
 
-	static void draw(BoundingBox box) {
+	static void draw(@NonNull BoundingBox box) {
 		draw(box, 1f, 1f, 1f);
 	}
 	
-	static void draw(BoundingBox box, float r, float g, float b) {
+	static void draw(@NonNull BoundingBox box, float r, float g, float b) {
 		DebugRender.drawBox(box.bmin_x, box.bmax_x, box.bmin_y, box.bmax_y, box.bmin_z, box.bmax_z, r, g, b);
 	}
 
-	static void draw(BoundingBox box, int bound_type, float r, float g, float b) {
+	static void draw(@NonNull BoundingBox box, int bound_type, float r, float g, float b) {
 		if (Globals.isBoundsEnabled(bound_type))
 			draw(box, r, g, b);
 	}

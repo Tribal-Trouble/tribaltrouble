@@ -9,11 +9,12 @@ import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.OKListener;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
+import org.jspecify.annotations.NonNull;
 
 public class QuestionForm extends Form {
-	private final HorizButton yes_button;
+	private final @NonNull HorizButton yes_button;
 
-	public QuestionForm(String message, MouseClickListener yes_action) {
+	public QuestionForm(@NonNull String message, MouseClickListener yes_action) {
 		int message_width = Skin.getSkin().getEditFont().getWidth(message);
 		LabelBox info_label = new LabelBox(message, Skin.getSkin().getEditFont(), Math.min(400, message_width));
 		addChild(info_label);

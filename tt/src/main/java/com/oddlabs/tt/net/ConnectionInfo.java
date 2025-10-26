@@ -1,6 +1,7 @@
 package com.oddlabs.tt.net;
 
 import com.oddlabs.net.ARMIEvent;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public final class ConnectionInfo {
 		backlog.add(event);
 	}
 
-	public List<ARMIEvent> getBackLog() {
+	public @NonNull List<ARMIEvent> getBackLog() {
 		return backlog;
 	}
 }

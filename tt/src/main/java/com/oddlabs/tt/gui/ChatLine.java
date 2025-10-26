@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.TabListener;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,14 +23,14 @@ public final class ChatLine extends EditLine {
 	}
 
         @Override
-	protected void keyRepeat(KeyboardEvent e) {
+	protected void keyRepeat(@NonNull KeyboardEvent e) {
 		if (catch_tab && e.getKeyChar() == '\t')
 			tabComplete(getText());
 		else
 			super.keyRepeat(e);
 	}
 
-	private void tabComplete(StringBuffer line) {
+	private void tabComplete(@NonNull StringBuffer line) {
 		int index = getIndex();
 
 		int word_start = line.lastIndexOf(" ", index - 1) + 1;

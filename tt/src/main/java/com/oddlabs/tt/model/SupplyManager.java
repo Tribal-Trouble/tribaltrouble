@@ -3,6 +3,7 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class SupplyManager implements Animated {
 	private float time;
 
 	
-	public SupplyManager(World world) {
+	public SupplyManager(@NonNull World world) {
 		this.world = world;
 		world.getAnimationManagerGameTime().registerAnimation(this);
 		resetCounter();

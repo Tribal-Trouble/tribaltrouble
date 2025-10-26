@@ -5,6 +5,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public class TargetDelegate extends ControllableCameraDelegate {
@@ -26,7 +27,7 @@ public class TargetDelegate extends ControllableCameraDelegate {
 	}
 
         @Override
-	public final void keyPressed(KeyboardEvent event) {
+	public final void keyPressed(@NonNull KeyboardEvent event) {
 		getCamera().keyPressed(event);
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:
@@ -42,7 +43,7 @@ public class TargetDelegate extends ControllableCameraDelegate {
 	}
 
         @Override
-	public void keyReleased(KeyboardEvent event) {
+	public void keyReleased(@NonNull KeyboardEvent event) {
 		if (event.getKeyCode() != Keyboard.KEY_SPACE || event.getKeyCode() != Keyboard.KEY_RETURN)
 			getCamera().keyReleased(event);
 	}

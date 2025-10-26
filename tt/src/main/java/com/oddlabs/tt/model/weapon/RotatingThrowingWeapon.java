@@ -5,11 +5,12 @@ import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.render.SpriteKey;
+import org.jspecify.annotations.NonNull;
 
 public abstract class RotatingThrowingWeapon extends ThrowingWeapon {
 	private float angle = 0;
 
-	public RotatingThrowingWeapon(boolean hit, Unit src, Selectable target, SpriteKey sprite_renderer, Audio throw_sound, Audio[] hit_sounds) {
+	public RotatingThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable target, SpriteKey sprite_renderer, Audio throw_sound, Audio[] hit_sounds) {
 		super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
 	}
 
@@ -30,7 +31,7 @@ public abstract class RotatingThrowingWeapon extends ThrowingWeapon {
 	protected abstract float getAngleVelocity();
 
         @Override
-	public final void visit(ElementVisitor visitor) {
+	public final void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitRotatingThrowingWeapon(this);
 	}
 }

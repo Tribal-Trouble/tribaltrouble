@@ -1,5 +1,7 @@
 package com.oddlabs.matchmaking;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 
 public final class Game implements Serializable {
@@ -35,7 +37,7 @@ public final class Game implements Serializable {
 	
 	private int database_id;
 
-	public Game(String game_name, byte size, byte terrain, byte hills, byte trees, byte supplies, boolean rated, byte gamespeed, String mapcode, float random_start_pos, int max_unit_count) {
+	public Game(@NonNull String game_name, byte size, byte terrain, byte hills, byte trees, byte supplies, boolean rated, byte gamespeed, String mapcode, float random_start_pos, int max_unit_count) {
 		this.game_name = game_name;
 		this.size = size;
 		this.terrain = terrain;

@@ -2,17 +2,18 @@ package com.oddlabs.tt.render;
 
 
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 final class SpriteListRenderer {
 	private final SpriteList sprite_list;
-	private final List<ModelState>[][] render_lists;
-	private final List<ModelState>[][] respond_render_lists;
+	private final List<ModelState>[] @NonNull [] render_lists;
+	private final List<ModelState>[] @NonNull [] respond_render_lists;
 
         @SuppressWarnings("unchecked")
-	SpriteListRenderer(SpriteList sprite_list) {
+	SpriteListRenderer(@NonNull SpriteList sprite_list) {
 		this.sprite_list = sprite_list;
 		int num_sprites = sprite_list.getNumSprites();
 		render_lists = (List<ModelState>[][]) new ArrayList<?>[num_sprites][];
@@ -36,7 +37,7 @@ final class SpriteListRenderer {
 		respond_render_lists[sprite_index][tex_index].add(model);
 	}
 
-	public void getAllPicks(List<Target> pick_list, int sprite_index, int tex_index) {
+	public void getAllPicks(@NonNull List<Target> pick_list, int sprite_index, int tex_index) {
 		List<ModelState> render_list = render_lists[sprite_index][tex_index];
 		pickFromList(render_list, pick_list);
 		render_list.clear();
@@ -46,7 +47,7 @@ final class SpriteListRenderer {
 		render_list.clear();
 	}
 
-	private void pickFromList(List<ModelState> render_list, List<Target> pick_list) {
+	private void pickFromList(@NonNull List<ModelState> render_list, @NonNull List<Target> pick_list) {
 		for (int i = 0; i < render_list.size(); i++) {
 			ModelState model = render_list.get(i);
 			render_list.set(i, null);

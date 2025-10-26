@@ -9,6 +9,7 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public final class CampaignMapMenu extends Menu {
@@ -37,7 +38,7 @@ public final class CampaignMapMenu extends Menu {
 	}
 
     @Override
-	protected void keyPressed(KeyboardEvent event) {
+	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch(event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:
 				pop();

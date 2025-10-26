@@ -1,5 +1,7 @@
 package com.oddlabs.matchmaking;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -65,7 +67,7 @@ public final class GameSession implements Serializable {
 		return rated;
 	}
 
-	public static int[][] calculateMatchPoints(int[] player_ratings, int[] player_teams) {
+	public static int[][] calculateMatchPoints(int @NonNull [] player_ratings, int @NonNull [] player_teams) {
 		assert player_ratings.length == player_teams.length;
 		int num_players = player_ratings.length;
 

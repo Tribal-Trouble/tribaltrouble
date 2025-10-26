@@ -3,14 +3,15 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.util.LinkedList;
 import com.oddlabs.util.ListElement;
+import org.jspecify.annotations.Nullable;
 
 public abstract class Element<T> extends BoundingBox implements ListElement<T> {
 	private final AbstractElementNode<T> element_root;
-	private AbstractElementNode<T>node_parent;
+	private @Nullable AbstractElementNode<T>node_parent;
 
 	private LinkedList<T> parent;
-	private ListElement<T> next = null;
-	private ListElement<T> prior = null;
+	private @Nullable ListElement<T> next = null;
+	private @Nullable ListElement<T> prior = null;
 
 	private float render_pos_z;
 

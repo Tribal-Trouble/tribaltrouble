@@ -27,6 +27,8 @@ import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.Selection;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -54,15 +56,15 @@ public final class Picker implements Updatable {
 	private final CameraState tmp_camera = new CameraState();
 	private final SortedSet<LandscapeLeaf> patch_pick_set = new TreeSet<>(new LandscapeLeafComparator());
 	private final LandscapeRenderer landscape_renderer;
-	private final ElementRenderer element_renderer;
-	private final TreePicker tree_renderer;
-	private final SpriteSorter sprite_sorter;
+	private final @NonNull ElementRenderer element_renderer;
+	private final @NonNull TreePicker tree_renderer;
+	private final @NonNull SpriteSorter sprite_sorter;
 	private final RenderQueues render_queues;
-	private final RespondManager respond_manager;
+	private final @NonNull RespondManager respond_manager;
 	private final Player local_player;
 
-	private Target current_hovered;
-	private ToolTip current_tooltip;
+	private @Nullable Target current_hovered;
+	private @Nullable ToolTip current_tooltip;
 	private final TimerAnimation tool_tip_timer = new TimerAnimation(this, TOOL_TIP_DELAY);
 	private boolean render_tool_tip = false;
 	
@@ -70,16 +72,16 @@ public final class Picker implements Updatable {
 	private float patch_hit_y;
 	private float patch_hit_z;
 
-	private Selectable[] old_target_selection = new Selectable[0];
+	private Selectable @NonNull [] old_target_selection = new Selectable[0];
 	private int old_target_action;
 	private boolean old_target_aggressive;
 
 	private int old_landscape_target_grid_x;
 	private int old_landscape_target_grid_y;
 
-	private Target old_set_target_target;
+	private @Nullable Target old_set_target_target;
 	
-	public Picker(AnimationManager manager, Player local_player, RenderQueues render_queues, LandscapeRenderer landscape_renderer, Selection selection) {
+	public Picker(@NonNull AnimationManager manager, Player local_player, RenderQueues render_queues, LandscapeRenderer landscape_renderer, Selection selection) {
 		this.local_player = local_player;
 		this.render_queues = render_queues;
 		this.sprite_sorter = new SpriteSorter();
@@ -89,11 +91,11 @@ public final class Picker implements Updatable {
 		this.landscape_renderer = landscape_renderer;
 	}
 
-	public RespondManager getRespondManager() {
+	public @NonNull RespondManager getRespondManager() {
 		return respond_manager;
 	}
 
-	private <T extends Target> T getNearestPick(List<T> pick_list, Class<?> filter) {
+	private <T extends Target> @Nullable T getNearestPick(@NonNull List<T> pick_list, @NonNull Class<?> filter) {
 		T nearest_pickable = null;
 		float nearest_squared_distance = Float.POSITIVE_INFINITY;
 		for (int i = 0; i <pick_list.size(); i++) {
@@ -108,7 +110,7 @@ public final class Picker implements Updatable {
 		return nearest_pickable;
 	}
 
-	public void pickTarget(Army selected_army, CameraState camera, PlayerInterface player_interface, int x, int y, int action) {
+	public void pickTarget(@NonNull Army selected_army, @NonNull CameraState camera, @NonNull PlayerInterface player_interface, int x, int y, int action) {
 		setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
 		pickObjects();
 		Target nearest_pickable = getNearestPick(element_pick_list, Target.class);
@@ -137,7 +139,7 @@ public final class Picker implements Updatable {
 		}
 	}
 
-	private boolean isNewSetTarget(Selectable[] selection, Target target, int action, boolean aggressive) {
+	private boolean isNewSetTarget(Selectable @NonNull [] selection, Target target, int action, boolean aggressive) {
 		old_landscape_target_grid_x = -1;
 		old_landscape_target_grid_y = -1;
 		
@@ -149,7 +151,7 @@ public final class Picker implements Updatable {
 		return new_target;
 	}
 
-	private boolean isNewLandscapeTarget(Selectable[] selection, int grid_x, int grid_y, int action, boolean aggressive) {
+	private boolean isNewLandscapeTarget(Selectable @NonNull [] selection, int grid_x, int grid_y, int action, boolean aggressive) {
 		old_set_target_target = null;
 		
 		boolean new_target = isNewOrder(selection, action, aggressive);
@@ -162,7 +164,7 @@ public final class Picker implements Updatable {
 		return new_target;
 	}
 
-	private boolean isNewOrder(Selectable[] selection, int action, boolean aggressive) {
+	private boolean isNewOrder(Selectable @NonNull [] selection, int action, boolean aggressive) {
 		boolean new_order = false;
 		if (selection.length == old_target_selection.length) {
 			for (int i = 0; i < selection.length; i++) {
@@ -182,7 +184,7 @@ public final class Picker implements Updatable {
 		return new_order;
 	}
 
-	public Selectable[] pickBoxed(CameraState camera, int x1, int y1, int x2, int y2, int clicks) {
+	public Selectable @NonNull [] pickBoxed(@NonNull CameraState camera, int x1, int y1, int x2, int y2, int clicks) {
 		float cx = (x1 + x2)*0.5f;
 		float cy = (y1 + y2)*0.5f;
 		int width = Math.abs(x1 - x2) + 1;
@@ -197,7 +199,7 @@ public final class Picker implements Updatable {
 			return createBoxedPick();
 	}
 
-	private Selectable[] createSinglePick(CameraState camera, int clicks) {
+	private Selectable @NonNull [] createSinglePick(@NonNull CameraState camera, int clicks) {
 		Selectable nearest = (Selectable)getNearestPick(element_pick_list, Selectable.class);
 		if (nearest != null) {
 			if (clicks > 1) {
@@ -216,7 +218,7 @@ public final class Picker implements Updatable {
 		}
 	}
 
-	private Selectable[] createBoxedPick() {
+	private Selectable @NonNull [] createBoxedPick() {
 		List<Selectable> selectables = new ArrayList<>();
 		for (int i = 0; i < element_pick_list.size(); i++) {
 			Target pickable = element_pick_list.get(i);
@@ -229,7 +231,7 @@ public final class Picker implements Updatable {
 		return array;
 	}
 
-	private Selectable[] pickAll(CameraState camera, int ability_filter) {
+	private Selectable @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter) {
 		List<Selectable> result = new ArrayList<>();
 		Selectable[] complete_list = pickBoxed(camera, 0, 0, LocalInput.getViewWidth() - 1, LocalInput.getViewHeight() - 1, 2);
             for (Selectable selectable : complete_list) {
@@ -242,7 +244,7 @@ public final class Picker implements Updatable {
 		return array;
 	}
 
-	public void pickRotate(GameCamera camera) {
+	public void pickRotate(@NonNull GameCamera camera) {
 		int x = LocalInput.getViewWidth()/2;
 		int y = camera.getRotateY();
 		setupPicking(camera.getState(), x, y, PICK_SIZE, PICK_SIZE);
@@ -385,13 +387,13 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		return local_player.getWorld().getHeightMap().getNearestHeight(x, y);
 	}
 
-	public void pickMapGoto(int x, int y, MapCamera camera) {
+	public void pickMapGoto(int x, int y, @NonNull MapCamera camera) {
 		setupPicking(camera.getState(), x, y, PICK_SIZE, PICK_SIZE);
 		if (nearestLandscape(x, y))
 			camera.mapGoto(patch_hit_x, patch_hit_y);
 	}
 
-	public Target pickRallyPoint(CameraState camera, int x, int y, Building building) {
+	public @Nullable Target pickRallyPoint(@NonNull CameraState camera, int x, int y, @NonNull Building building) {
 		setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
 		pickObjects();
 		Target nearest = getNearestPick(element_pick_list, Target.class);
@@ -406,7 +408,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		}
 	}
 
-	public void pickHover(CameraState camera, int x, int y) {
+	public void pickHover(@NonNull CameraState camera, int x, int y) {
 		setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
 		pickObjects();
 		Target nearest = getNearestPick(element_pick_list, Target.class);
@@ -445,7 +447,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		tool_tip_timer.stop();
 	}
 
-	public ToolTip getCurrentToolTip() {
+	public @Nullable ToolTip getCurrentToolTip() {
 		return canRenderToolTip() ? current_tooltip : null;
 	}
 
@@ -462,7 +464,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		current_tooltip = null;
 	}
 
-	public boolean pickLocation(CameraState camera, LandscapeLocation landscape_location) {
+	public boolean pickLocation(@NonNull CameraState camera, @NonNull LandscapeLocation landscape_location) {
 		int x = LocalInput.getMouseX();
 		int y = LocalInput.getMouseY();
 		setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
@@ -473,7 +475,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		return true;
 	}
 
-	private void setupPicking(CameraState camera, float x_center, float y_center, int width, int height) {
+	private void setupPicking(@NonNull CameraState camera, float x_center, float y_center, int width, int height) {
 		proj.setIdentity();
 		viewport[0] = 0; viewport[1] = 0; viewport[2] = LocalInput.getViewWidth(); viewport[3] = LocalInput.getViewHeight();
 		StrictGLU.gluPickMatrix(proj, x_center, y_center, width, height, viewport);
@@ -514,7 +516,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 	}
 
 	private final class LandscapeLeafComparator implements Comparator<LandscapeLeaf> {
-		private int compare(CameraState camera_state, LandscapeLeaf l1, LandscapeLeaf l2) {
+		private int compare(@NonNull CameraState camera_state, @NonNull LandscapeLeaf l1, @NonNull LandscapeLeaf l2) {
 			float l1_dist = RenderTools.getCameraDistanceXYSquared(l1, camera_state.getCurrentX(), camera_state.getCurrentY());
 			float l2_dist = RenderTools.getCameraDistanceXYSquared(l2, camera_state.getCurrentX(), camera_state.getCurrentY());
 			if (l1_dist < l2_dist)
@@ -536,7 +538,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		}
 
                 @Override
-		public int compare(LandscapeLeaf l1, LandscapeLeaf l2) {
+		public int compare(@NonNull LandscapeLeaf l1, @NonNull LandscapeLeaf l2) {
 			return compare(tmp_camera, l1, l2);
 		}
 	}

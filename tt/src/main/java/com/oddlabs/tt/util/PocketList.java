@@ -1,10 +1,12 @@
 package com.oddlabs.tt.util;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public final class PocketList {
-	private final List<Object>[] pockets;
+	private final List<Object> @NonNull [] pockets;
 	private int min_list_index;
 	private int max_list_index;
 	private int size;

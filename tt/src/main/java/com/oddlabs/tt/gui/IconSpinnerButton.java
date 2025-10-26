@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class IconSpinnerButton extends NonFocusIconButton {
 	private final IconSpinner owner;
@@ -11,7 +12,7 @@ public final class IconSpinnerButton extends NonFocusIconButton {
 	}
 
     @Override
-	public void appendToolTip(ToolTipBox tool_tip_box) {
+	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		if (isDisabled())
 			owner.appendToolTip(tool_tip_box);
 		else

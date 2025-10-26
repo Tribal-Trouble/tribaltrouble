@@ -5,6 +5,7 @@ import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.Unit;
+import org.jspecify.annotations.NonNull;
 
 public final class HarvestBehaviour implements Behaviour {
 	private final static float SECONDS_PER_ANIMATION_CYCLE = 1f;
@@ -13,7 +14,7 @@ public final class HarvestBehaviour implements Behaviour {
 	private float anim_time;
 	private boolean sound;
 
-	public HarvestBehaviour(Unit unit, Supply supply) {
+	public HarvestBehaviour(@NonNull Unit unit, @NonNull Supply supply) {
 		this.unit = unit;
 		this.supply = supply;
 		unit.aimAtTarget(supply);

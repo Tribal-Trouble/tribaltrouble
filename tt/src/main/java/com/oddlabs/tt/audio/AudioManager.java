@@ -3,6 +3,8 @@ package com.oddlabs.tt.audio;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.AudioImplementation;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
@@ -65,18 +67,18 @@ public final class AudioManager implements AudioImplementation {
 		}
 	}
 
-	public AbstractAudioPlayer newAudio(CameraState camera_state, AudioParameters<?> params) {
+	public @NonNull AbstractAudioPlayer newAudio(@NonNull CameraState camera_state, @NonNull AudioParameters<?> params) {
 		AudioSource source = getSource(camera_state, params);
 		return doNewAudio(source, params);
 	}
 
         @Override
-	public AbstractAudioPlayer newAudio(AudioParameters<?> params) {
+	public @NonNull AbstractAudioPlayer newAudio(@NonNull AudioParameters<?> params) {
 		AudioSource source = getSource(params);
 		return doNewAudio(source, params);
 	}
 
-	private static AbstractAudioPlayer doNewAudio(AudioSource source, AudioParameters<?> params) {
+	private static @NonNull AbstractAudioPlayer doNewAudio(@NonNull AudioSource source, @NonNull AudioParameters<?> params) {
 		if (params.sound instanceof Audio)
 			return new AudioPlayer(source, (AudioParameters<Audio>) params);
         else if (params.sound instanceof String) try {
@@ -109,7 +111,7 @@ public final class AudioManager implements AudioImplementation {
 		return sound_play_counter > 0;
 	}
 
-	private AudioSource findSource(AudioParameters<?> params) {
+	private @Nullable AudioSource findSource(@NonNull AudioParameters<?> params) {
 		// Check for free sources
 		int worst_rank = Integer.MAX_VALUE;
             for (AudioSource source1 : sources) {
@@ -135,7 +137,7 @@ public final class AudioManager implements AudioImplementation {
 		return null;
 	}
 
-	private AudioSource getSource(AudioParameters<?> params) {
+	private @Nullable AudioSource getSource(@NonNull AudioParameters<?> params) {
 		if (!AL.isCreated())
 			return null;
 		AudioSource best_source = findSource(params);
@@ -143,7 +145,7 @@ public final class AudioManager implements AudioImplementation {
 		return best_source;
 	}
 
-	private AudioSource getSource(CameraState camera_state, AudioParameters<?> params) {
+	private @Nullable AudioSource getSource(@NonNull CameraState camera_state, @NonNull AudioParameters<?> params) {
 		if (!AL.isCreated())
 			return null;
 		float this_dist_squared;
@@ -178,13 +180,13 @@ public final class AudioManager implements AudioImplementation {
 		return best_source;
 	}
 
-	private static void stopSource(AudioSource source) {
+	private static void stopSource(@Nullable AudioSource source) {
 		if (source != null && source.getAudioPlayer() != null) {
 			source.getAudioPlayer().stop();
 		}
 	}
 
-	private static float getCamDistSquared(CameraState camera_state, float x, float y, float z) {
+	private static float getCamDistSquared(@NonNull CameraState camera_state, float x, float y, float z) {
 		float dx = x - camera_state.getCurrentX();
 		float dy = y - camera_state.getCurrentY();
 		float dz = z - camera_state.getCurrentZ();

@@ -10,6 +10,7 @@ import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.StrictGLU;
 import com.oddlabs.tt.util.StrictMatrix4f;
+import org.jspecify.annotations.NonNull;
 
 /**
  * The View
@@ -41,7 +42,7 @@ public abstract class Camera implements Animated {
     }
 
     @Override
-    public final void updateChecksum(StateChecksum checksum) {
+    public final void updateChecksum(@NonNull StateChecksum checksum) {
 //System.out.println("camera_x = " + camera_x + " | camera_y = " + camera_y + " | camera_z = " + camera_z + " | dir_x = " + dir_x + " | dir_y = " + dir_y + " | dir_z = " + dir_z);
             state.updateChecksum(checksum);
     }

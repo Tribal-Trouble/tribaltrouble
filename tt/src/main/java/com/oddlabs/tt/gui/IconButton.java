@@ -1,12 +1,14 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class IconButton extends ButtonObject {
-	private final Quad[] icon_quad;
-	private IconDisabler icon_disabler = null;
+	private final Quad @NonNull [] icon_quad;
+	private @Nullable IconDisabler icon_disabler = null;
 
-	public IconButton(Quad[] icon_quad) {
+	public IconButton(Quad @NonNull [] icon_quad) {
 		setDim(icon_quad[Skin.NORMAL].getWidth(), icon_quad[Skin.NORMAL].getHeight());
 		this.icon_quad = icon_quad;
 	}

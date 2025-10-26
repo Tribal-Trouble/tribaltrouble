@@ -14,6 +14,7 @@ import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
@@ -21,7 +22,7 @@ public final class CreateChatRoomForm extends Form {
 	private final static int BUTTON_WIDTH = 100;
 	private final static int EDITLINE_WIDTH = 240;
 
-	private final EditLine editline_name;
+	private final @NonNull EditLine editline_name;
 	private final Menu main_menu;
 	private final SelectGameMenu menu;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(CreateChatRoomForm.class.getName());

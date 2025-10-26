@@ -8,6 +8,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Renderer;
+import org.jspecify.annotations.NonNull;
 
 public final class QuitScreen extends CameraDelegate implements Updatable {
 	private final static float DELAY = 5f;
@@ -18,12 +19,12 @@ public final class QuitScreen extends CameraDelegate implements Updatable {
 	private final static int overlay_image_height = 600;
 	private final static String overlay_texture_name = "/textures/gui/quitscreen";
 
-	private final GUIImage overlay;
+	private final @NonNull GUIImage overlay;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
 	private boolean key_pressed = false;
 	private boolean time_out = false;
 
-	public QuitScreen(GUIRoot gui_root, Camera camera) {
+	public QuitScreen(@NonNull GUIRoot gui_root, Camera camera) {
 		super(gui_root, camera);
 		setCanFocus(true);
 		setFocusCycle(true);

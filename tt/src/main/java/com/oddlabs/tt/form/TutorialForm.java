@@ -32,6 +32,8 @@ import com.oddlabs.tt.tutorial.TutorialTrigger;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ResourceBundle;
 
@@ -50,7 +52,7 @@ public final class TutorialForm extends Form {
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;
 
-	private static String formatTutorial(int tutorial_number) {
+	private static @NonNull String formatTutorial(int tutorial_number) {
 		return Utils.getBundleString(bundle, "tutorial", Integer.toString(tutorial_number));
 	}
 
@@ -140,14 +142,14 @@ public final class TutorialForm extends Form {
 		TutorialTrigger create(WorldViewer viewer);
 	}
 
-	private static void startNewGame(NetworkSelector network, GUIRoot gui_root, TriggerFactory factory, int tutorial_num) {
+	private static void startNewGame(NetworkSelector network, @NonNull GUIRoot gui_root, TriggerFactory factory, int tutorial_num) {
 		TutorialInGameInfo ingame_info = new TutorialInGameInfo();
 		GameNetwork game_network = doStartNewGame(network, gui_root, ingame_info, new TutorialAction(factory, ingame_info), Player.INITIAL_UNIT_COUNT, tutorial_num);
 		game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN, RacesResources.RACE_NATIVES, 0, true, PlayerSlot.AI_NONE);
 		game_network.getClient().getServerInterface().startServer();
 	}
 
-	private static GameNetwork doStartNewGame(NetworkSelector network, GUIRoot gui_root, InGameInfo ingame_info, final WorldInitAction initial_action, int initial_unit_count, int tutorial_num) {
+	private static @NonNull GameNetwork doStartNewGame(NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull InGameInfo ingame_info, final @Nullable WorldInitAction initial_action, int initial_unit_count, int tutorial_num) {
 		int size = 256;
 		float hills = 1f;
 		float trees = 1f;
@@ -166,7 +168,7 @@ public final class TutorialForm extends Form {
 		return true;
 	}
 
-	public static void startTutorial(NetworkSelector network, GUIRoot gui_root, int tutorial_number) {
+	public static void startTutorial(NetworkSelector network, @NonNull GUIRoot gui_root, int tutorial_number) {
 		final TutorialInGameInfo ingame_info;
 		GameNetwork game_network;
 		switch (tutorial_number) {

@@ -1,5 +1,7 @@
 package com.oddlabs.tt.model;
 
+import org.jspecify.annotations.NonNull;
+
 public final class Abilities {
     // No abilities
     public final static int NONE = 0;
@@ -34,7 +36,7 @@ public final class Abilities {
         return (this.abilities | abilities) == this.abilities;
     }
 
-    public void addAbilities(Abilities abilities) {
+    public void addAbilities(@NonNull Abilities abilities) {
         addAbilities(abilities.abilities);
     }
 
@@ -42,7 +44,7 @@ public final class Abilities {
         this.abilities = this.abilities | abilities;
     }
 
-    public void removeAbilities(Abilities abilities) {
+    public void removeAbilities(@NonNull Abilities abilities) {
         removeAbilities(abilities.abilities);
     }
 

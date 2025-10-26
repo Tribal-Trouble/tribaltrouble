@@ -9,6 +9,8 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,8 +21,8 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 	public final static int INTERRUPTIBLE = 2;
 	public final static int DONE = 3;
 
-	private final Player owner;
-	private Behaviour current_behaviour;
+	private final @NonNull Player owner;
+	private @Nullable Behaviour current_behaviour;
 	private final Abilities abilities = new Abilities(Abilities.NONE);
 	private final Template template;
 	private final List<Controller> controller_stack = new ArrayList<>();
@@ -32,7 +34,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 	private int grid_x;
 	private int grid_y;
 
-	protected Selectable(Player owner, Template template) {
+	protected Selectable(@NonNull Player owner, Template template) {
 		super(owner.getWorld());
 		this.owner = owner;
 		this.template = template;
@@ -101,12 +103,12 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return owner.getWorld().getUnitGrid();
 	}
 
-	public final void scanVicinity(ScanFilter filter) {
+	public final void scanVicinity(@NonNull ScanFilter filter) {
 		assert !isDead();
 		getUnitGrid().scan(filter, getGridX(), getGridY());
 	}
 
-	private static boolean isAdjacent(UnitGrid unit_grid, int grid_x, int grid_y, Occupant occ) {
+	private static boolean isAdjacent(@NonNull UnitGrid unit_grid, int grid_x, int grid_y, @NonNull Occupant occ) {
 		int t_x = occ.getGridX();
 		int t_y = occ.getGridY();
 		int dx = 0;
@@ -128,7 +130,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return isCloseEnough(getUnitGrid(), max_dist, getGridX(), getGridY(), target);
 	}
 
-	public static boolean isCloseEnough(UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, Target target) {
+	public static boolean isCloseEnough(@NonNull UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, Target target) {
 		if (max_dist == 0f && target instanceof Occupant) {
 			return isAdjacent(unit_grid, grid_x, grid_y, (Occupant)target);
 		} else {
@@ -211,7 +213,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		controller_stack.add(default_controller);
 	}
 
-	public final void initTarget(Target target, int action, boolean aggressive) {
+	public final void initTarget(@Nullable Target target, int action, boolean aggressive) {
 		assert !isDead();
 		if (target == null)
 			return;
@@ -223,7 +225,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 	public abstract int getAttackPriority();
 	public abstract int getStatusValue();
 
-	public final Abilities getAbilities() {
+	public final @NonNull Abilities getAbilities() {
 		return abilities;
 	}
 
@@ -287,7 +289,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return dead;
 	}
 
-	public void hit(int damage, float direction_x, float direction_y, Player attacker) {
+	public void hit(int damage, float direction_x, float direction_y, @NonNull Player attacker) {
 		if (owner.isEnemy(attacker))
 			owner.getWorld().getNotificationListener().newAttackNotification(this);
 	}

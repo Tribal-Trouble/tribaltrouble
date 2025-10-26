@@ -3,6 +3,8 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.util.LinkedList;
 import com.oddlabs.util.ListElement;
 import com.oddlabs.util.ListElementImpl;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 public abstract class Renderable extends ListElementImpl<Renderable> {
@@ -15,7 +17,7 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 
 	private final LinkedList<Renderable> children = new LinkedList<>();
 
-	private Renderable parent = null;
+	private @Nullable Renderable parent = null;
 
 	public void setDim(int w, int h) {
 		width = w;
@@ -59,7 +61,7 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 		children.putFirst(child);
 	}
 
-	public void removeChild(Renderable child) {
+	public void removeChild(@NonNull Renderable child) {
 		child.parent = null;
 		children.remove(child);
 	}
@@ -90,7 +92,7 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 //		enableTree();
 	}
 
-	protected final GUIRoot getParentGUIRoot() {
+	protected final @Nullable GUIRoot getParentGUIRoot() {
 		Renderable current = this;
 		while (current != null && !(current instanceof GUIRoot)) {
 			current = current.getParent();
@@ -98,7 +100,7 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 		return (GUIRoot)current;
 	}
 
-	public void addChild(Renderable child) {
+	public void addChild(@NonNull Renderable child) {
 		child.remove();
 		children.addFirst(child);
 		child.parent = this;
@@ -211,7 +213,7 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 		return y/scale_y - getY();
 	}
 
-	protected final Renderable pick(float x, float y) {
+	protected final @Nullable Renderable pick(float x, float y) {
 		float trans_x = transformX(x);
 		float trans_y = transformY(y);
 		if (isFocusable() && trans_x >= 0 && trans_y >= 0 && trans_x < getWidth() && trans_y < getHeight()) {

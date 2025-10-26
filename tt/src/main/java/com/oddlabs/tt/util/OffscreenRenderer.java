@@ -4,12 +4,14 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 public abstract class OffscreenRenderer {
 	private final int width;
 	private final int height;
-	private final GLImage image;
+	private final @Nullable GLImage image;
 	private final boolean use_copyteximage;
 
 	public final int getWidth() {
@@ -45,7 +47,7 @@ public abstract class OffscreenRenderer {
 		image.saveAsPNG(filename);
 	}
 
-	public final void copyToTexture(Texture tex, int mip_level, int format, int x0, int y0, int x1, int y1) {
+	public final void copyToTexture(@NonNull Texture tex, int mip_level, int format, int x0, int y0, int x1, int y1) {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex.getHandle());
 		assert x0 >= 0 && y0 >= 0 && x1 <= width && y1 <= height;
 		if (use_copyteximage) {

@@ -1,5 +1,7 @@
 package com.oddlabs.tt.pathfinder;
 
+import org.jspecify.annotations.NonNull;
+
 final class RegionBuilderNode {
 	private final int x;
 	private final int y;
@@ -12,7 +14,7 @@ final class RegionBuilderNode {
 		total_cost = Integer.MAX_VALUE;
 	}
 
-	public Region getRegion(UnitGrid unit_grid) {
+	public Region getRegion(@NonNull UnitGrid unit_grid) {
 		return unit_grid.getRegion(x, y);
 	}
 

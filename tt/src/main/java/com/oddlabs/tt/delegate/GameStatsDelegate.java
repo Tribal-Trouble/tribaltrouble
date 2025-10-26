@@ -18,6 +18,7 @@ import com.oddlabs.tt.gui.SortedLabel;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
@@ -30,10 +31,10 @@ public final class GameStatsDelegate extends CameraDelegate implements Updatable
 	public final static ResourceBundle bundle = ResourceBundle.getBundle(GameStatsDelegate.class.getName());
 
 	private final TimerAnimation delay_timer = new TimerAnimation(this, .6f);
-	private final Group group_buttons;
-	private final WorldViewer viewer;
+	private final @NonNull Group group_buttons;
+	private final @NonNull WorldViewer viewer;
 
-	public GameStatsDelegate(WorldViewer viewer, Camera old_camera, String label_str) {
+	public GameStatsDelegate(@NonNull WorldViewer viewer, @NonNull Camera old_camera, @NonNull String label_str) {
 		super(viewer.getGUIRoot(), new StaticCamera(old_camera.getState()));
 		this.viewer = viewer;
 		setDim(LocalInput.getViewWidth(), LocalInput.getViewHeight());
@@ -169,7 +170,7 @@ public final class GameStatsDelegate extends CameraDelegate implements Updatable
 	}
 
         @Override
-	protected void keyRepeat(KeyboardEvent event) {
+	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_TAB:
 				switchFocus(event.isShiftDown() ? -1 : 1);

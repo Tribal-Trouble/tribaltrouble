@@ -4,6 +4,7 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 
 public final class CounterLabel extends Label implements Animated {
 	private final static String colon = ":";
@@ -12,14 +13,14 @@ public final class CounterLabel extends Label implements Animated {
 	private AnimationManager manager;
 	private float seconds;
 
-	public CounterLabel(float seconds, Font font, boolean render_seconds) {
+	public CounterLabel(float seconds, @NonNull Font font, boolean render_seconds) {
 		super("", font, 300);
 		this.render_seconds = render_seconds;
 		initial_seconds = seconds;
 		setTime(initial_seconds);
 	}
 
-	public void start(AnimationManager manager) {
+	public void start(@NonNull AnimationManager manager) {
 		this.manager = manager;
 		setTime(initial_seconds);
 		manager.registerAnimation(this);

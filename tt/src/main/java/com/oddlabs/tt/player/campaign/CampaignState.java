@@ -1,5 +1,7 @@
 package com.oddlabs.tt.player.campaign;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 
 public final class CampaignState implements Serializable {
@@ -18,7 +20,7 @@ public final class CampaignState implements Serializable {
 	public final static int ISLAND_SEMI_AVAILABLE = 4;
 	public final static int ISLAND_HIDDEN = 5;
 
-	private final int[] island_states;
+	private final int @NonNull [] island_states;
 
 	private int prev_island;
 	private int current_island = -1;
@@ -35,7 +37,7 @@ public final class CampaignState implements Serializable {
 	private int race;
 	private int difficulty;
 
-	public CampaignState(int[] initial_states) {
+	public CampaignState(int @NonNull [] initial_states) {
 		island_states = new int[initial_states.length];
             System.arraycopy(initial_states, 0, island_states, 0, island_states.length);
 	}

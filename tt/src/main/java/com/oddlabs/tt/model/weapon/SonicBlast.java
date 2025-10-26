@@ -11,6 +11,7 @@ import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -41,7 +42,7 @@ public final class SonicBlast implements Magic {
 	private int rings_sent = 0;
 	private boolean first_ring_sent = false;
 
-	public SonicBlast(float offset_x, float offset_y, float offset_z, float hit_radius, float hit_chance_closest, float hit_chance_farthest, int damage_closest, int damage_farthest, float seconds, Unit src) {
+	public SonicBlast(float offset_x, float offset_y, float offset_z, float hit_radius, float hit_chance_closest, float hit_chance_farthest, int damage_closest, int damage_farthest, float seconds, @NonNull Unit src) {
 		this.hit_radius = hit_radius;
 		this.hit_chance_closest = hit_chance_closest;
 		this.hit_chance_farthest = hit_chance_farthest;

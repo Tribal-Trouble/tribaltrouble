@@ -11,6 +11,7 @@ import com.oddlabs.tt.net.ChatListener;
 import com.oddlabs.tt.net.ChatMessage;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.ResourceBundle;
@@ -20,12 +21,12 @@ public class ChatPanel extends Panel implements ChatListener {
 	private final static int PULLDOWN_INDEX_INFO = 1;
 	private final static int PULLDOWN_INDEX_IGNORE = 2;
 
-	private final MultiColumnComboBox lobby_users_list_box;
-	private final MultiColumnComboBox playing_users_list_box;
-	private final TextBox chat_box;
-	private final EditLine chat_line;
-	private final HorizButton button_send;
-	private final HorizButton button_leave;
+	private final @NonNull MultiColumnComboBox lobby_users_list_box;
+	private final @NonNull MultiColumnComboBox playing_users_list_box;
+	private final @NonNull TextBox chat_box;
+	private final @NonNull EditLine chat_line;
+	private final @NonNull HorizButton button_send;
+	private final @NonNull HorizButton button_leave;
 	private final GUIRoot gui_root;
 
 	private final int user_list_width;
@@ -36,11 +37,11 @@ public class ChatPanel extends Panel implements ChatListener {
 		return ResourceBundle.getBundle(ChatPanel.class.getName());
 	}
 
-	private static String getI18N(String key) {
+	private static @NonNull String getI18N(String key) {
 		return Utils.getBundleString(getBundle(), key);
 	}
 
-	public ChatPanel(GUIRoot gui_root, ChatRoomInfo info, int compare_width, int compare_height, int button_width, EnterListener chat_listener, MouseClickListener leave_listener) {
+	public ChatPanel(GUIRoot gui_root, @NonNull ChatRoomInfo info, int compare_width, int compare_height, int button_width, EnterListener chat_listener, MouseClickListener leave_listener) {
 		super(getI18N("chat"));
 		this.gui_root = gui_root;
 		FormData fdata = Skin.getSkin().getFormData();
@@ -114,7 +115,7 @@ public class ChatPanel extends Panel implements ChatListener {
 		update(info);
 	}
 
-	public final void update(ChatRoomInfo info) {
+	public final void update(@NonNull ChatRoomInfo info) {
 		ChatRoomUser[] users = info.getUsers();
 		if (users != null) {
 			lobby_users_list_box.clear();
@@ -134,7 +135,7 @@ public class ChatPanel extends Panel implements ChatListener {
 	}
 
         @Override
-	public final void chat(ChatMessage message) {
+	public final void chat(@NonNull ChatMessage message) {
 		if (message.type != ChatMessage.Type.PRIVATE && message.type != ChatMessage.Type.CHATROOM)
 			return;
 		if (message.type != ChatMessage.Type.PRIVATE) {

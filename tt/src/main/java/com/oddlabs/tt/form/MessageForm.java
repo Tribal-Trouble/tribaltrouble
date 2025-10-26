@@ -7,15 +7,17 @@ import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.OKListener;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class MessageForm extends Form {
 	private final static int MAX_WIDTH = 500;
 
-	public MessageForm(String head, String message) {
+	public MessageForm(@NonNull String head, @NonNull String message) {
 		this(head, message, null, null);
 	}
 
-	public MessageForm(String head, String message, String button, MouseClickListener listener) {
+	public MessageForm(@NonNull String head, @NonNull String message, @Nullable String button, MouseClickListener listener) {
 		int head_width = Math.min(MAX_WIDTH, Skin.getSkin().getHeadlineFont().getWidth(head));
 		int message_width = Math.min(MAX_WIDTH, Skin.getSkin().getEditFont().getWidth(message));
 		int width = Math.max(head_width, message_width);
@@ -43,7 +45,7 @@ public class MessageForm extends Form {
 		centerPos();
 	}
 	
-	public MessageForm(String message) {
+	public MessageForm(@NonNull String message) {
 		int width = Math.min(500, Skin.getSkin().getEditFont().getWidth(message));
 		LabelBox info_label = new LabelBox(message, Skin.getSkin().getEditFont(), width);
 		addChild(info_label);

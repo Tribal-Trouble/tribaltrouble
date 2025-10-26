@@ -2,6 +2,7 @@ package com.oddlabs.tt.animation;
 
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
 
 public final class TimerAnimation implements Animated {
 	private final AnimationManager manager;
@@ -21,12 +22,12 @@ public final class TimerAnimation implements Animated {
 	}
 
     @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "TimerAnimation{owner=" + timer_owner + "}";
 	}
 
     @Override
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 		checksum.update(time);
 	}
 

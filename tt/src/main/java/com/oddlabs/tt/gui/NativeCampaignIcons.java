@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.Texture;
+import org.jspecify.annotations.NonNull;
 import org.w3c.dom.Node;
 
 public final class NativeCampaignIcons implements CampaignIcons {
@@ -10,7 +11,7 @@ public final class NativeCampaignIcons implements CampaignIcons {
 
 	private final Texture texture;
 
-	private final IconQuad map;
+	private final @NonNull IconQuad map;
 	private final MapIslandData[] islands = new MapIslandData[NUM_ISLANDS];
 	private final IconQuad[] flags = new IconQuad[3];
 	private final IconQuad[] boats = new IconQuad[3];
@@ -63,7 +64,7 @@ public final class NativeCampaignIcons implements CampaignIcons {
 		height = Icons.getInt(map_node, "height");
 	}
 
-	private MapIslandData loadMapIslandData(Node root, String name, Texture texture) {
+	private @NonNull MapIslandData loadMapIslandData(@NonNull Node root, String name, @NonNull Texture texture) {
 		Node node = Icons.getNodeByName(name, root);
 		IconQuad[] quads = Icons.getNamedIconQuads(node, "island", texture);
 		Node n = Icons.getNodeByName("island", node);
@@ -75,7 +76,7 @@ public final class NativeCampaignIcons implements CampaignIcons {
 		return new MapIslandData(quads, x, y, flags[pin_index], boats[pin_index], pin_x, pin_y);
 	}
 
-	private GUIIcon getNamedGUIIcon(Node root, String name, Texture texture) {
+	private @NonNull GUIIcon getNamedGUIIcon(@NonNull Node root, String name, @NonNull Texture texture) {
 		IconQuad temp = Icons.getNamedIconQuad(root, name, texture);
 		Node n = Icons.getNodeByName(name, root);
 		int x = Icons.getInt(n, "x");
@@ -86,12 +87,12 @@ public final class NativeCampaignIcons implements CampaignIcons {
 	}
 
         @Override
-	public GUIIcon[] getHiddenRoutes() {
+	public GUIIcon @NonNull [] getHiddenRoutes() {
 		return hidden;
 	}
 
         @Override
-	public IconQuad[] getFaces() {
+	public IconQuad @NonNull [] getFaces() {
 		return faces;
 	}
 

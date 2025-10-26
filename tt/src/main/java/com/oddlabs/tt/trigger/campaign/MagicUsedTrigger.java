@@ -3,9 +3,10 @@ package com.oddlabs.tt.trigger.campaign;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.behaviour.MagicController;
 import com.oddlabs.tt.trigger.IntervalTrigger;
+import org.jspecify.annotations.NonNull;
 
 public final class MagicUsedTrigger extends IntervalTrigger {
-	private final Unit chieftain;
+	private final @NonNull Unit chieftain;
 	private final float x;
 	private final float y;
 	private final float r;
@@ -14,7 +15,7 @@ public final class MagicUsedTrigger extends IntervalTrigger {
 
 	private boolean blowing = false;
 
-	public MagicUsedTrigger(Unit chieftain, float x, float y, float r, int index, Runnable runnable) {
+	public MagicUsedTrigger(@NonNull Unit chieftain, float x, float y, float r, int index, Runnable runnable) {
 		super(chieftain.getOwner().getWorld(), 0f, 0f);
 		this.chieftain = chieftain;
 		this.x = x;

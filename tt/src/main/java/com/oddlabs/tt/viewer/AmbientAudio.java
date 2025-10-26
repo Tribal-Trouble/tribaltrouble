@@ -12,6 +12,7 @@ import com.oddlabs.tt.landscape.AudioImplementation;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.util.StrictVector3f;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
@@ -33,7 +34,7 @@ public final class AmbientAudio {
 	private final StrictVector3f s = new StrictVector3f();
 	private final StrictVector3f u = new StrictVector3f();
 
-	public AmbientAudio(AudioImplementation audio_implementation) {
+	public AmbientAudio(@NonNull AudioImplementation audio_implementation) {
 		ambient_forest_buffer = Resources.findResource(new AudioFile("/sfx/ambient_forest.ogg"));
 		ambient_beach_buffer = Resources.findResource(new AudioFile("/sfx/ambient_beach.ogg"));
 		ambient_wind_buffer = Resources.findResource(new AudioFile("/sfx/ambient_wind.ogg"));
@@ -54,7 +55,7 @@ public final class AmbientAudio {
 		ambient_wind.removeAmbient();
 	}
 
-	public void updateSoundListener(CameraState camera, HeightMap heightmap) {
+	public void updateSoundListener(@NonNull CameraState camera, @NonNull HeightMap heightmap) {
 		if (AL.isCreated() && Settings.getSettings().play_sfx) {
 			AL10.alListener3f(AL10.AL_POSITION, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());
 			camera.updateDirectionAndNormal(f, u, s);

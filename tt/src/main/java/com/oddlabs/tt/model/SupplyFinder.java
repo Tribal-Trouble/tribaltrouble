@@ -4,6 +4,8 @@ import com.oddlabs.tt.pathfinder.FinderFilter;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.pathfinder.RegionBuilder;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +22,7 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 	}
 
     @Override
-	public S getOccupantFromRegion(Region region, boolean one_region) {
+	public @Nullable S getOccupantFromRegion(@NonNull Region region, boolean one_region) {
 		List<S> supplies = region.getObjects(supply_class);
 		if (one_region) {
 			if (!supplies.isEmpty()) {
@@ -55,7 +57,7 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 		return findClosest();
 	}
 
-	private S findClosest(List<S> supplies) {
+	private @Nullable S findClosest(@NonNull List<S> supplies) {
 		int min_dist = Integer.MAX_VALUE;
 		S closest = null;
 		for (S current : supplies) {
@@ -70,7 +72,7 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 		return closest;
 	}
 
-	private S findClosest() {
+	private @Nullable S findClosest() {
 		int min_dist = Integer.MAX_VALUE;
 		S closest = null;
 		for (List<S> supplies :region_list) {

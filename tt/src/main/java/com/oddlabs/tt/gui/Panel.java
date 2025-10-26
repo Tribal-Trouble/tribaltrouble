@@ -1,13 +1,15 @@
 package com.oddlabs.tt.gui;
 
+import org.jspecify.annotations.NonNull;
+
 public class Panel extends Group {
-	private final PanelTab tab;
+	private final @NonNull PanelTab tab;
 
 	public Panel(String caption) {
 		tab = new PanelTab(caption);
 	}
 
-	public final PanelTab getTab() {
+	public final @NonNull PanelTab getTab() {
 		return tab;
 	}
 

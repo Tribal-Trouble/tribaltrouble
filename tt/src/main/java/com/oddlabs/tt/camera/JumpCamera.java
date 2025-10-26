@@ -2,6 +2,7 @@ package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.delegate.CameraDelegate;
 import com.oddlabs.tt.delegate.JumpDelegate;
+import org.jspecify.annotations.NonNull;
 
 public final class JumpCamera extends Camera {
     private final static float DEFAULT_METERS_PER_SECOND = 300f;
@@ -21,11 +22,11 @@ public final class JumpCamera extends Camera {
     private float z_speed;
     private float temp_z;
 
-    public JumpCamera(JumpDelegate delegate, GameCamera old_camera, float x, float y) {
+    public JumpCamera(@NonNull JumpDelegate delegate, @NonNull GameCamera old_camera, float x, float y) {
             this(delegate, old_camera, x, y, DEFAULT_METERS_PER_SECOND, DEFAULT_MAX_SECONDS);
     }
 
-    public JumpCamera(JumpDelegate delegate, GameCamera old_camera, float x, float y, float meters_per_second, float max_seconds) {
+    public JumpCamera(@NonNull JumpDelegate delegate, @NonNull GameCamera old_camera, float x, float y, float meters_per_second, float max_seconds) {
             super(old_camera.getHeightMap(), old_camera.getState());
             this.delegate = delegate;
             delegate.getViewer().getPicker().pickRotate(old_camera);

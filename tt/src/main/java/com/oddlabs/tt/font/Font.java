@@ -6,6 +6,7 @@ import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.util.FontInfo;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class Font {
@@ -15,7 +16,7 @@ public final class Font {
 	private final int y_border;
 	private final int height;
 
-	public Font(FontInfo font_info) {
+	public Font(@NonNull FontInfo font_info) {
 		this.key_array = font_info.getKeyMap();
 		TextureFile file = new TextureFile(font_info.getTextureName(),
 										   GL11.GL_RGBA,
@@ -65,7 +66,7 @@ public final class Font {
 		return height;
 	}
 
-	public char getWidestChar(CharSequence text) {
+	public char getWidestChar(@NonNull CharSequence text) {
 		assert text.length() > 0: "Empty CharSequence";
 
 		int widest = 0;
@@ -83,7 +84,7 @@ public final class Font {
 		return widest_char;
 	}
 
-	public int getWidth(CharSequence text) {
+	public int getWidth(@NonNull CharSequence text) {
 		if (text.length() == 0)
 			return 0;
 		int width = 0;

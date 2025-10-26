@@ -7,6 +7,8 @@ import com.oddlabs.tt.net.ChatListener;
 import com.oddlabs.tt.net.ChatMessage;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -55,11 +57,11 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 	}
 
         @Override
-	public void chat(ChatMessage message) {
+	public void chat(@NonNull ChatMessage message) {
 		chat(message.formatShort(), message.type);
 	}
 
-	public void chat(String text, ChatMessage.Type type) {
+	public void chat(@NonNull String text, ChatMessage.@NonNull Type type) {
 		switch (type) {
 			case NORMAL:
 				print(text);
@@ -75,11 +77,11 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 		}
 	}
 
-	public void print(String text) {
+	public void print(@NonNull String text) {
 		print(text, null);
 	}
 
-	public void print(String text, float[] color) {
+	public void print(@NonNull String text, float @Nullable [] color) {
 		int width = Math.min(font.getWidth(text), getWidth());
 		LabelBox label_box = new BackgroundLabelBox(text, font, width);
 		if (color != null)

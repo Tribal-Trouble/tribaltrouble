@@ -21,6 +21,8 @@ import com.oddlabs.tt.model.behaviour.WalkController;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Random;
 
@@ -49,7 +51,7 @@ public abstract class AI implements Animated {
 	private boolean tower_under_construction = false;
 	private float sleep_time;
 
-	public AI(Player owner, UnitInfo unit_info) {
+	public AI(@NonNull Player owner, @Nullable UnitInfo unit_info) {
 		this.owner = owner;
 		owner.getWorld().getAnimationManagerRealTime().registerAnimation(this);
 		reset();
@@ -110,98 +112,98 @@ public abstract class AI implements Animated {
 		classifyIndex(lists);
 	}
 
-	protected final Selectable[] getIdlePeons() {
+	protected final Selectable @Nullable [] getIdlePeons() {
 		if (INDEX_IDLE_PEONS == -1)
 			return null;
 		else
 			return lists[INDEX_IDLE_PEONS];
 	}
 
-	protected final Selectable[] getIdleChieftains() {
+	protected final Selectable @Nullable [] getIdleChieftains() {
 		if (INDEX_IDLE_CHIEFTAINS == -1)
 			return null;
 		else
 			return lists[INDEX_IDLE_CHIEFTAINS];
 	}
 
-	protected final Selectable[] getIdleWarriors() {
+	protected final Selectable @Nullable [] getIdleWarriors() {
 		if (INDEX_IDLE_WARRIORS == -1)
 			return null;
 		else
 			return lists[INDEX_IDLE_WARRIORS];
 	}
 
-	protected final Selectable[] getGatherTreePeons() {
+	protected final Selectable @Nullable [] getGatherTreePeons() {
 		if (INDEX_GATHER_TREE_PEONS == -1)
 			return null;
 		else
 			return lists[INDEX_GATHER_TREE_PEONS];
 	}
 
-	protected final Selectable[] getGatherRockPeons() {
+	protected final Selectable @Nullable [] getGatherRockPeons() {
 		if (INDEX_GATHER_ROCK_PEONS == -1)
 			return null;
 		else
 			return lists[INDEX_GATHER_ROCK_PEONS];
 	}
 
-	protected final Selectable[] getGatherIronPeons() {
+	protected final Selectable @Nullable [] getGatherIronPeons() {
 		if (INDEX_GATHER_IRON_PEONS == -1)
 			return null;
 		else
 			return lists[INDEX_GATHER_IRON_PEONS];
 	}
 
-	protected final Selectable[] getGatherRubberPeons() {
+	protected final Selectable @Nullable [] getGatherRubberPeons() {
 		if (INDEX_GATHER_RUBBER_PEONS == -1)
 			return null;
 		else
 			return lists[INDEX_GATHER_RUBBER_PEONS];
 	}
 
-	protected final Selectable[] getArmory() {
+	protected final Selectable @Nullable [] getArmory() {
 		if (INDEX_ARMORY == -1)
 			return null;
 		else
 			return lists[INDEX_ARMORY];
 	}
 
-	protected final Selectable[] getQuarters() {
+	protected final Selectable @Nullable [] getQuarters() {
 		if (INDEX_QUARTERS == -1)
 			return null;
 		else
 			return lists[INDEX_QUARTERS];
 	}
 
-	protected final Selectable[] getTowers() {
+	protected final Selectable @Nullable [] getTowers() {
 		if (INDEX_TOWERS == -1)
 			return null;
 		else
 			return lists[INDEX_TOWERS];
 	}
 
-	protected final Selectable[] getConstructionSites() {
+	protected final Selectable @Nullable [] getConstructionSites() {
 		if (INDEX_CONSTRUCTION_SITES == -1)
 			return null;
 		else
 			return lists[INDEX_CONSTRUCTION_SITES];
 	}
 
-	protected final Selectable[] getPlaceBuildingPeons() {
+	protected final Selectable @Nullable [] getPlaceBuildingPeons() {
 		if (INDEX_PLACE_BUILDING_PEONS == -1)
 			return null;
 		else
 			return lists[INDEX_PLACE_BUILDING_PEONS];
 	}
 
-	protected final Selectable[] getDefendingUnits() {
+	protected final Selectable @Nullable [] getDefendingUnits() {
 		if (INDEX_DEFENDING_UNITS == -1)
 			return null;
 		else
 			return lists[INDEX_DEFENDING_UNITS];
 	}
 
-	private void classifyIndex(Selectable[][] lists) {
+	private void classifyIndex(Selectable[] @NonNull [] lists) {
 		INDEX_IDLE_PEONS = -1;
 		INDEX_IDLE_CHIEFTAINS = -1;
 		INDEX_IDLE_WARRIORS = -1;
@@ -314,7 +316,7 @@ public abstract class AI implements Animated {
 		}
 	}
 
-	public static int attackLandscape(Player owner, Target target, int num_warriors) {
+	public static int attackLandscape(@NonNull Player owner, @NonNull Target target, int num_warriors) {
 		int ordered = 0;
 		Selectable[][] lists = owner.classifyUnits();
             for (Selectable[] list : lists) {
@@ -335,7 +337,7 @@ public abstract class AI implements Animated {
 		return ordered;
 	}
 
-	public static Unit getWarrior(Player owner) {
+	public static @Nullable Unit getWarrior(@NonNull Player owner) {
 		Selectable[][] lists = owner.classifyUnits();
             for (Selectable[] list : lists) {
                 Selectable s = list[0];
@@ -346,7 +348,7 @@ public abstract class AI implements Animated {
 		return null;
 	}
 
-	protected final Target getTarget(Random random) {
+	protected final Target getTarget(@NonNull Random random) {
 		float RADIUS = 30;
 		float target_x = owner.getStartX() + (random.nextFloat()*2-1)*RADIUS;
 		float target_y = owner.getStartY() + (random.nextFloat()*2-1)*RADIUS;

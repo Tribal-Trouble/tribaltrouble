@@ -1,5 +1,7 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
 import javax.crypto.NoSuchPaddingException;
@@ -54,7 +56,7 @@ public final class KeyManager {
 		}
 	}
 
-	public static Cipher createCipher(int cipher_mode, KeyAgreement key_agreement, PublicKey public_key) throws InvalidKeyException, IOException, InvalidAlgorithmParameterException {
+	public static @NonNull Cipher createCipher(int cipher_mode, @NonNull KeyAgreement key_agreement, PublicKey public_key) throws InvalidKeyException, IOException, InvalidAlgorithmParameterException {
 		try {
 			key_agreement.doPhase(public_key, true);
 			SecretKey secret_key = key_agreement.generateSecret("DESede");
@@ -86,7 +88,7 @@ public final class KeyManager {
 		}
 	}
 
-	public static KeyAgreement generateAgreement(PrivateKey private_key) {
+	public static @NonNull KeyAgreement generateAgreement(PrivateKey private_key) {
 		try {
 			KeyAgreement key_agreement = KeyAgreement.getInstance(AGREEMENT_ALGORITHM);
 			key_agreement.init(private_key);
@@ -109,7 +111,7 @@ public final class KeyManager {
 		}
 	}
 
-	public static Cipher createPasswordCipherFromPassword(char[] password, int mode) throws IOException, GeneralSecurityException {
+	public static @NonNull Cipher createPasswordCipherFromPassword(char[] password, int mode) throws IOException, GeneralSecurityException {
 		PBEKeySpec pbeKeySpec;
 		PBEParameterSpec pbeParamSpec;
 		SecretKeyFactory keyFac;
@@ -143,14 +145,14 @@ public final class KeyManager {
 		return pbeCipher;
 	}
 
-	public static Cipher createPasswordCipher(String pass_prompt, int mode) throws IOException, GeneralSecurityException {
+	public static @NonNull Cipher createPasswordCipher(String pass_prompt, int mode) throws IOException, GeneralSecurityException {
 		return createPasswordCipherFromPassword(readPassword(pass_prompt, System.in), mode);
 	}
 
 	/**
 	 * Reads user password from given input stream.
 	 */
-	public static char[] readPassword(String pass_prompt, InputStream in) throws IOException {
+	public static char[] readPassword(String pass_prompt, @NonNull InputStream in) throws IOException {
 		char[] lineBuffer;
 		char[] buf;
 		buf = lineBuffer = new char[128];

@@ -19,6 +19,8 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.Notification;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -29,8 +31,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 public final class SelectionDelegate extends ControllableCameraDelegate {
-	private final InGameChatForm chat_form;
-	private final Label observer_label;
+	private final @NonNull InGameChatForm chat_form;
+	private final @NonNull Label observer_label;
 	private final GameCamera game_camera;
 
 	private boolean close_chat_override = false;
@@ -79,7 +81,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
         @Override
-	public void keyPressed(KeyboardEvent event) {
+	public void keyPressed(@NonNull KeyboardEvent event) {
 		getCamera().keyPressed(event);
 		int army_number = 0;
 		switch (event.getKeyCode()) {
@@ -214,7 +216,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
         @Override
-	public void keyRepeat(KeyboardEvent event) {
+	public void keyRepeat(@NonNull KeyboardEvent event) {
 //		getCamera().keyRepeat(event);
 		switch (event.getKeyChar()) {
 			case '+':
@@ -231,7 +233,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
         @Override
-	public void keyReleased(KeyboardEvent event) {
+	public void keyReleased(@NonNull KeyboardEvent event) {
 		getCamera().keyReleased(event);
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_RETURN:
@@ -279,7 +281,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 	}
 
-	private void updateSelection(List<Selectable> friendly_units, Selectable friendly_building, Selectable enemy) {
+	private void updateSelection(@NonNull List<Selectable> friendly_units, Selectable friendly_building, Selectable enemy) {
 		Army current_selection = getViewer().getSelection().getCurrentSelection();
 		Selectable first = current_selection.getSet().iterator().next();
 		if (first instanceof Building || first.getOwner() != getViewer().getLocalPlayer()) {
@@ -306,7 +308,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         }
 	}
 
-	private void replaceSelection(List<Selectable> friendly_units, Selectable friendly_building, Selectable enemy) {
+	private void replaceSelection(@NonNull List<Selectable> friendly_units, @Nullable Selectable friendly_building, @Nullable Selectable enemy) {
 		Army current_selection = getViewer().getSelection().getCurrentSelection();
 		current_selection.clear();
 		if (!friendly_units.isEmpty()) {

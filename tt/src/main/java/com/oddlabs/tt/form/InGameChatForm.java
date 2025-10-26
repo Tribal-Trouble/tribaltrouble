@@ -17,6 +17,7 @@ import com.oddlabs.tt.net.ChatMethod;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,12 +29,12 @@ public final class InGameChatForm extends Form implements ChatListener {
 	private static final int BUTTON_WIDTH = 50;
 	private static final int CHAT_HEIGHT = 150;
 
-	private final EditLine chat_line;
+	private final @NonNull EditLine chat_line;
 	private final InfoPrinter info_printer;
-	private final TextBox chat_box;
-	private final RadioButtonGroup radio_button_group;
-	private final RadioButton radio_all;
-	private final RadioButton radio_team;
+	private final @NonNull TextBox chat_box;
+	private final @NonNull RadioButtonGroup radio_button_group;
+	private final @NonNull RadioButton radio_all;
+	private final @NonNull RadioButton radio_team;
 	private final ResourceBundle bundle = getBundle();
 	private final WorldViewer viewer;
 
@@ -119,7 +120,7 @@ public final class InGameChatForm extends Form implements ChatListener {
 
 	private final class ChatListener implements EnterListener {
         @Override
-		public void enterPressed(CharSequence text) {
+		public void enterPressed(@NonNull CharSequence text) {
 			String chat = text.toString();
 			if (!chat.isEmpty()) {
 				chat_line.clear();

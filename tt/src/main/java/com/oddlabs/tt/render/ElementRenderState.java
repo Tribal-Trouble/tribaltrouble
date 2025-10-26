@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.model.Model;
+import org.jspecify.annotations.NonNull;
 
 final class ElementRenderState implements ModelState {
 
@@ -64,7 +65,7 @@ final class ElementRenderState implements ModelState {
         return visitor.getEyeDistanceSquared(this);
     }
 
-    SpriteRenderer getRenderer(SpriteKey key) {
+    SpriteRenderer getRenderer(@NonNull SpriteKey key) {
         return render_state.getRenderQueues().getRenderer(key);
     }
 }

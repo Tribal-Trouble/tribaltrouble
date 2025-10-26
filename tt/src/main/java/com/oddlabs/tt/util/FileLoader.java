@@ -1,6 +1,7 @@
 package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.event.LocalEventQueue;
+import org.jspecify.annotations.NonNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,9 +13,9 @@ import java.nio.channels.ReadableByteChannel;
 public final class FileLoader implements FileLoaderInterface {
 	private final FileLoaderListener listener;
 	private final ReadableByteChannel file_channel;
-	private final ByteBuffer buffer;
+	private final @NonNull ByteBuffer buffer;
 
-	public FileLoader(File file, FileLoaderListener listener, int num_bytes) {
+	public FileLoader(@NonNull File file, FileLoaderListener listener, int num_bytes) {
 		this.buffer = ByteBuffer.allocate(num_bytes);
 		this.listener = listener;
 		IOException exception;

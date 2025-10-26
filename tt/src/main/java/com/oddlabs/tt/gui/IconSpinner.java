@@ -5,6 +5,8 @@ import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ResourceBundle;
 
@@ -12,15 +14,15 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 	private final IconQuad[] icon_quad;
 	private final String tool_tip;
 	private final Quad[] tool_tip_icons;
-	private final TextField label;
-	private final GUIObject button_plus;
-	private final GUIObject button_minus;
+	private final @NonNull TextField label;
+	private final @NonNull GUIObject button_plus;
+	private final @NonNull GUIObject button_minus;
 	private final WorldViewer viewer;
-	private IconDisabler icon_disabler = null;
+	private @Nullable IconDisabler icon_disabler = null;
 
 	private int text_count = 0;
 
-	public IconSpinner(WorldViewer viewer, IconQuad[] icon_quad, String tool_tip, Quad[] tool_tip_icons, String shortcut_key) {
+	public IconSpinner(WorldViewer viewer, IconQuad @NonNull [] icon_quad, String tool_tip, Quad[] tool_tip_icons, String shortcut_key) {
 		this.icon_quad = icon_quad;
 		this.tool_tip = tool_tip;
 		this.tool_tip_icons = tool_tip_icons;
@@ -82,7 +84,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 	}
 
         @Override
-	public void appendToolTip(ToolTipBox tool_tip_box) {
+	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		tool_tip_box.append(tool_tip);
 		tool_tip_box.append(tool_tip_icons);
 	}

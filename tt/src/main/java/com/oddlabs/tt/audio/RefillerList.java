@@ -1,6 +1,7 @@
 package com.oddlabs.tt.audio;
 
 import com.oddlabs.tt.Main;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.openal.AL;
 
 import java.io.IOException;
@@ -12,7 +13,7 @@ public final class RefillerList {
     private final static int THREAD_SLEEP_MILLIS = 50;
 
     private boolean finished = false;
-    private final Thread refill_thread;
+    private final @NonNull Thread refill_thread;
     private final List<QueuedAudioPlayer> players = new ArrayList<>();
 
     public RefillerList() {

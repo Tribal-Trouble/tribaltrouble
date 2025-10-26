@@ -1,6 +1,7 @@
 package com.oddlabs.router;
 
 import com.oddlabs.net.MonotoneTimeManager;
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,7 @@ final class SessionManager {
 		this.time_manager = time_manager;
 	}
 
-	Session get(SessionID session_id, SessionInfo session_info, int client_id) {
+	@NonNull Session get(SessionID session_id, @NonNull SessionInfo session_info, int client_id) {
 		Session session = id_to_session.get(session_id);
 		if (session == null) {
 			session = new Session(logger, session_id, session_info, this);
@@ -58,7 +59,7 @@ final class SessionManager {
 //		verify();
 	}
 
-	private boolean heartbeat(long next_timeout, RouterClient client, long millis) {
+	private boolean heartbeat(long next_timeout, @NonNull RouterClient client, long millis) {
 		if (millis < next_timeout)
 			return false;
 		//logger.finer(id + ": next_tick " + next_tick);
@@ -67,16 +68,16 @@ final class SessionManager {
 		return true;
 	}
 
-	private int computeNextTick(RouterClient client, long millis) {
+	private int computeNextTick(@NonNull RouterClient client, long millis) {
 		return doComputeNextTick(client.getSession(), millis);
 	}
 
 
-	private Timeout createTimeout(RouterClient client, long millis) {
+	private @NonNull Timeout createTimeout(@NonNull RouterClient client, long millis) {
 		return new Timeout(internal_session_id++, client, millis);
 	}
 
-	long start(Session session) {
+	long start(@NonNull Session session) {
 		remove(session);
 		final long initial_time = time_manager.getMillis();
 		session.visit((RouterClient client) -> {
@@ -92,18 +93,18 @@ final class SessionManager {
 		return timeouts.remove(timeout) != null;
 	}
 
-	void remove(Session session) {
+	void remove(@NonNull Session session) {
 		id_to_session.remove(session.session_id);
 		logger.log(Level.INFO, "Removing session: {0}", session);
 	}
 
-	int getNextTick(Session session) {
+	int getNextTick(@NonNull Session session) {
 		final long millis = time_manager.getMillis();
 		session.visit((RouterClient client) -> unregister(client.getTimeout()));
 		return doComputeNextTick(session, millis);
 	}
 
-	public void startTimeout(RouterClient client) {
+	public void startTimeout(@NonNull RouterClient client) {
 		unregister(client.getTimeout());
 		long millis = time_manager.getMillis();
 		Timeout timeout = createTimeout(client, millis);
@@ -111,7 +112,7 @@ final class SessionManager {
 		timeouts.put(timeout, client);
 	}
 
-	private static int doComputeNextTick(Session session, long millis) {
+	private static int doComputeNextTick(@NonNull Session session, long millis) {
 		return (int)(millis - session.getInitialTime());
 	}
 
@@ -120,7 +121,7 @@ final class SessionManager {
 
 		private final long next_timeout;
 
-		Timeout(int id, RouterClient client, long millis) {
+		Timeout(int id, @NonNull RouterClient client, long millis) {
 			this.id = id;
 			this.next_timeout = millis + client.getSession().info.milliseconds_per_heartbeat;
 		}
@@ -147,7 +148,7 @@ final class SessionManager {
 		}
 
                 @Override
-		public String toString() {
+		public @NonNull String toString() {
 			return "Timout: id = " + id + " timeout " + next_timeout;
 		}
 	}

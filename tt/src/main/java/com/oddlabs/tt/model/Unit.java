@@ -28,6 +28,8 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -56,13 +58,13 @@ public class Unit extends Selectable implements Occupant, Movable {
 
     private final static Quad[] icon = new Quad[1];
 
-    private final UnitSupplyContainer supply_container;
+    private final @Nullable UnitSupplyContainer supply_container;
     private final String name;
-    private final PathTracker path_tracker;
+    private final @NonNull PathTracker path_tracker;
     private final float[] magic_energy = new float[2];
     private int last_magic_index = -1;
 
-    private BalancedParametricEmitter stun_marker;
+    private @Nullable BalancedParametricEmitter stun_marker;
     private int hit_points;
     private int animation;
     private float anim_speed;
@@ -73,19 +75,19 @@ public class Unit extends Selectable implements Occupant, Movable {
     private Building mounted_building;
     private float range_bonus;
 
-    public Unit(Player owner, float x, float y, Target rally_point, UnitTemplate unit_template) {
+    public Unit(@NonNull Player owner, float x, float y, Target rally_point, @NonNull UnitTemplate unit_template) {
         this(owner, x, y, rally_point, unit_template, null);
     }
 
-    public Unit(Player owner, float x, float y, Target rally_point, UnitTemplate unit_template, String name) {
+    public Unit(@NonNull Player owner, float x, float y, Target rally_point, @NonNull UnitTemplate unit_template, String name) {
         this(owner, x, y, rally_point, unit_template, name, true);
     }
 
-    public Unit(Player owner, float x, float y, Target rally_point, UnitTemplate unit_template, String name, boolean notify_by_chieftain) {
+    public Unit(@NonNull Player owner, float x, float y, Target rally_point, @NonNull UnitTemplate unit_template, String name, boolean notify_by_chieftain) {
         this(owner, x, y, rally_point, unit_template, name, notify_by_chieftain, false);
     }
 
-    public Unit(Player owner, float x, float y, Target rally_point, UnitTemplate unit_template, String name, boolean notify_by_chieftain, boolean grid_targets_only) {
+    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template, String name, boolean notify_by_chieftain, boolean grid_targets_only) {
         super(owner, unit_template);
         this.name = name;
         getAbilities().addAbilities(unit_template.getAbilities());
@@ -140,7 +142,7 @@ public class Unit extends Selectable implements Occupant, Movable {
     }
 
     @Override
-    public final void visit(ElementVisitor visitor) {
+    public final void visit(@NonNull ElementVisitor visitor) {
         visitor.visitUnit(this);
     }
 
@@ -192,7 +194,7 @@ public class Unit extends Selectable implements Occupant, Movable {
     }
 
     @Override
-    public final void visit(ToolTipVisitor visitor) {
+    public final void visit(@NonNull ToolTipVisitor visitor) {
         visitor.visitUnit(this);
     }
 
@@ -214,7 +216,7 @@ public class Unit extends Selectable implements Occupant, Movable {
         findInitialPosition(getPositionX(), getPositionY(), true);
     }
 
-    public final void mount(Building building) {
+    public final void mount(@NonNull Building building) {
         assert !isDead();
         mounted_building = building;
         mount_offset = building.getBuildingTemplate().getMountOffset();
@@ -243,7 +245,7 @@ public class Unit extends Selectable implements Occupant, Movable {
             return getUnitTemplate().getMetersPerSecond();
     }
 
-    public final void aimAtTarget(Target target) {
+    public final void aimAtTarget(@NonNull Target target) {
         assert !isDead();
         float dx = target.getPositionX() - getPositionX();
         float dy = target.getPositionY() - getPositionY();
@@ -263,7 +265,7 @@ public class Unit extends Selectable implements Occupant, Movable {
         return getUnitTemplate().getWeaponFactory();
     }
 
-    public final float getRange(Target target) {
+    public final float getRange(@NonNull Target target) {
         assert !isDead();
         return getWeaponFactory().getRange() + range_bonus + target.getSize();
     }
@@ -373,7 +375,7 @@ public class Unit extends Selectable implements Occupant, Movable {
 	}
      */
     @Override
-    public final void hit(int damage, float direction_x, float direction_y, Player owner) {
+    public final void hit(int damage, float direction_x, float direction_y, @NonNull Player owner) {
         super.hit(damage, direction_x, direction_y, owner);
         if (mounted) {
             mounted_building.hit(damage, direction_x, direction_y, owner);
@@ -421,7 +423,7 @@ public class Unit extends Selectable implements Occupant, Movable {
         forceDecide();
     }
 
-    private BalancedParametricEmitter createStunStar(float x, float y, float z, float time, float velocity) {
+    private @NonNull BalancedParametricEmitter createStunStar(float x, float y, float z, float time, float velocity) {
         int num_particles = 5;
         return new BalancedParametricEmitter(getOwner().getWorld(), new StunFunction(.4f, .15f), new Vector3f(x, y, z),
                 velocity, 5f, (float) Math.PI * 2, (float) Math.PI * 2,
@@ -477,13 +479,13 @@ public class Unit extends Selectable implements Occupant, Movable {
             return super.getDefenseChance();
     }
 
-    private void walkToTarget(Target target, boolean scan_attack) {
+    private void walkToTarget(@NonNull Target target, boolean scan_attack) {
         Target walkable_target = getUnitGrid().findGridTargets(target.getGridX(), target.getGridY(), 1, false)[0];
         pushController(new WalkController(this, walkable_target, scan_attack));
     }
 
     @Override
-    public final void setTarget(Target target, int action, boolean aggressive) {
+    public final void setTarget(@NonNull Target target, int action, boolean aggressive) {
         if (target == this)
             return;
         assert !target.isDead() : "Setting dead target";

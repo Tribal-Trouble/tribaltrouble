@@ -3,13 +3,14 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.guievent.KeyListener;
 import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public final class ScrollBar extends GUIObject {
-	private final Group focus_group;
-	private final ArrowButton less_button;
-	private final ArrowButton more_button;
-	private final ScrollButton scroll_button;
+	private final @NonNull Group focus_group;
+	private final @NonNull ArrowButton less_button;
+	private final @NonNull ArrowButton more_button;
+	private final @NonNull ScrollButton scroll_button;
 	private final Scrollable owner;
 
 	public ScrollBar(int height, Scrollable owner) {
@@ -169,7 +170,7 @@ public final class ScrollBar extends GUIObject {
 
 	private final class ButtonKeyListener implements KeyListener {
                 @Override
-		public void keyRepeat(KeyboardEvent event) {
+		public void keyRepeat(@NonNull KeyboardEvent event) {
 			switch (event.getKeyCode()) {
 				case Keyboard.KEY_UP:
 					owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());

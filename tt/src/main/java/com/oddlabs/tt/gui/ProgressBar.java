@@ -5,6 +5,7 @@ import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.Display;
 
 import java.util.ResourceBundle;
@@ -22,7 +23,7 @@ public final class ProgressBar extends GUIObject {
 	private int index;
 	private float step;
 
-	public ProgressBar(NetworkSelector network, GUI gui, int width, ProgressBarInfo[] info, boolean text_only) {
+	public ProgressBar(NetworkSelector network, GUI gui, int width, ProgressBarInfo @NonNull [] info, boolean text_only) {
 		this.info = info;
 		this.network = network;
 		this.text_only = text_only;
@@ -92,7 +93,7 @@ public final class ProgressBar extends GUIObject {
 		}
 	}
 
-	private void pixelize(ProgressBarInfo[] info, int width) {
+	private void pixelize(ProgressBarInfo @NonNull [] info, int width) {
 		float sum = 0;
             for (ProgressBarInfo info1 : info) {
                 sum += info1.getWeight();

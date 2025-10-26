@@ -17,14 +17,15 @@ import com.oddlabs.tt.player.campaign.NativeCampaign;
 import com.oddlabs.tt.player.campaign.VikingCampaign;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
+import org.jspecify.annotations.NonNull;
 
 import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
 import java.util.ResourceBundle;
 
 public final class CampaignForm extends Form implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
-	private final HorizButton button_vikings;
-	private final LoadCampaignBox load_campaign_box;
+	private final @NonNull HorizButton button_vikings;
+	private final @NonNull LoadCampaignBox load_campaign_box;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(CampaignForm.class.getName());
 	private final Menu main_menu;
 	private final GUIRoot gui_root;
@@ -78,7 +79,7 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
 		button_vikings.setFocus();
 	}
 
-	public void load(CampaignState campaign_state) {
+	public void load(@NonNull CampaignState campaign_state) {
 		Campaign campaign;
 		if (campaign_state.getRace() == CampaignState.RACE_VIKINGS)
 			campaign = new VikingCampaign(network, gui_root, campaign_state);
@@ -97,7 +98,7 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
 	}
 
         @Override
-	public void loadSucceeded(CampaignState[] campaign_states) {
+	public void loadSucceeded(CampaignState @NonNull [] campaign_states) {
 		CampaignState selected = (CampaignState)load_campaign_box.getSelected();
 		if (selected != null) {
 			CampaignState[] new_states = new CampaignState[campaign_states.length - 1];

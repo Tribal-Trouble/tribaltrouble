@@ -3,12 +3,13 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.ReproduceUnitContainer;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class WatchStatusIcon extends StatusIcon {
 	private Building building;
 
-	public WatchStatusIcon(int label_width, Quad icon, String tooltip) {
+	public WatchStatusIcon(int label_width, @NonNull Quad icon, String tooltip) {
 		super(label_width, icon, tooltip);
 	}
 

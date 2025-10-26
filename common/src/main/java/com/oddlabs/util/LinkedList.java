@@ -1,11 +1,14 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 public final class LinkedList<T> {
-	private ListElement<T> first = null;
-	private ListElement<T> last = null;
+	private @Nullable ListElement<T> first = null;
+	private @Nullable ListElement<T> last = null;
 	private int size = 0;
 
-	private boolean checkParent(ListElement<T> elem) {
+	private boolean checkParent(@NonNull ListElement<T> elem) {
 		if (elem.getListOwner() == null) {
 			elem.setListOwner(this);
 			return false;
@@ -16,7 +19,7 @@ public final class LinkedList<T> {
 		return false;
 	}
 
-	public void addLast(ListElement<T> elem) {
+	public void addLast(@NonNull ListElement<T> elem) {
 		if (checkParent(elem)) return;
 		if (last == null) {
 			first = elem;
@@ -32,7 +35,7 @@ public final class LinkedList<T> {
 		size++;
 	}
 
-	public void addFirst(ListElement<T> elem) {
+	public void addFirst(@NonNull ListElement<T> elem) {
 		if (checkParent(elem)) return;
 		if (last == null) {
 			first = elem;
@@ -48,7 +51,7 @@ public final class LinkedList<T> {
 		size++;
 	}
 
-	public void remove(ListElement<T> element) {
+	public void remove(@NonNull ListElement<T> element) {
 		assert element.getListOwner() == this;
 		element.setListOwner(null);
 		if (last == element && first == element) {
@@ -67,7 +70,7 @@ public final class LinkedList<T> {
 		size--;
 	}
 
-	public void insert(ListElement<T> element, ListElement<T> next_elem) {
+	public void insert(@NonNull ListElement<T> element, @Nullable ListElement<T> next_elem) {
 		if (next_elem == null) {
 			addLast(element);
 			return;
@@ -99,12 +102,12 @@ public final class LinkedList<T> {
 		return last;
 	}
 
-	public void putLast(ListElement<T> element) {
+	public void putLast(@NonNull ListElement<T> element) {
 		remove(element);
 		addLast(element);
 	}
 
-	public void putFirst(ListElement<T> element) {
+	public void putFirst(@NonNull ListElement<T> element) {
 		remove(element);
 		addFirst(element);
 	}

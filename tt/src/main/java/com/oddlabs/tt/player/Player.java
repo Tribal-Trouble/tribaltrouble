@@ -21,6 +21,8 @@ import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,16 +47,16 @@ public final class Player implements PlayerInterface {
 	private final World world;
 	private final PlayerInfo player_info;
 	private final Army units = new Army();
-	private final SupplyContainer unit_count;
+	private final @NonNull SupplyContainer unit_count;
 	private final SupplyContainer building_count = new SupplyContainer(MAX_BUILDING_COUNT);
 
 	private final float[] color;
 
 //	private final String team_tip;
 
-	private AI ai = null;
+	private @Nullable AI ai = null;
 
-	private Unit chieftain = null;
+	private @Nullable Unit chieftain = null;
 	private boolean training_chieftain = false;
 	private float start_x;
 	private float start_y;
@@ -91,7 +93,7 @@ public final class Player implements PlayerInterface {
 
 	private int preferred_speed = World.GAMESPEED_DONTCARE;
 
-	public Player(World world, PlayerInfo player_info, float[] color) {
+	public Player(@NonNull World world, PlayerInfo player_info, float[] color) {
 		this.world = world;
 		this.color = color;
         Arrays.fill(can_do_magic, true);
@@ -265,7 +267,7 @@ public final class Player implements PlayerInterface {
 		return ai;
 	}
 
-	public Building buildBuilding(int building_type, int grid_x, int grid_y) {
+	public @Nullable Building buildBuilding(int building_type, int grid_x, int grid_y) {
 		BuildingSiteScanFilter filter = new BuildingSiteScanFilter(world.getUnitGrid(), getRace().getBuildingTemplate(building_type), 40, true);
 		world.getUnitGrid().scan(filter, grid_x, grid_y);
 		List<LandscapeTarget> target_list = filter.getResult();
@@ -279,7 +281,7 @@ public final class Player implements PlayerInterface {
 		return b;
 	}
 
-	public void init(float[] starting_location) {
+	public void init(float @NonNull [] starting_location) {
 		this.start_x = starting_location[0];
 		this.start_y = starting_location[1];
 	}
@@ -303,7 +305,7 @@ public final class Player implements PlayerInterface {
 		return status;
 	}
 
-	public Selectable findNearestEnemy(int start_x, int start_y, Selectable target, Class<? extends Selectable> type) {
+	public @Nullable Selectable findNearestEnemy(int start_x, int start_y, Selectable target, @NonNull Class<? extends Selectable> type) {
 		Player[] players = world.getPlayers();
 		int best_dist_squared = Integer.MAX_VALUE;
 		Selectable best_target = null;
@@ -339,7 +341,7 @@ public final class Player implements PlayerInterface {
 		return unit_count;
 	}
 
-	public SupplyContainer getBuildingCountContainer() {
+	public @NonNull SupplyContainer getBuildingCountContainer() {
 		return building_count;
 	}
 
@@ -347,7 +349,7 @@ public final class Player implements PlayerInterface {
 		this.chieftain = chieftain;
 	}
 
-	public Building getArmory() {
+	public @Nullable Building getArmory() {
 		Selectable[][] lists = classifyUnits();
             for (Selectable[] list : lists) {
                 Selectable s = list[0];
@@ -358,7 +360,7 @@ public final class Player implements PlayerInterface {
 		return null;
 	}
 
-	public Building getQuarters() {
+	public @Nullable Building getQuarters() {
 		Selectable[][] lists = classifyUnits();
             for (Selectable[] list : lists) {
                 Selectable s = list[0];
@@ -397,55 +399,55 @@ public final class Player implements PlayerInterface {
 	}
 
         @Override
-	public void deployUnits(Building building, DeployType type, int num_units) {
+	public void deployUnits(@NonNull Building building, @NonNull DeployType type, int num_units) {
 		if (isValid(building))
 			building.deployUnits(type, num_units);
 	}
 
         @Override
-	public void createHarvesters(Building building, int num_tree, int num_rock, int num_iron, int num_rubber) {
+	public void createHarvesters(@NonNull Building building, int num_tree, int num_rock, int num_iron, int num_rubber) {
 		if (isValid(building))
 			building.createHarvesters(num_tree, num_rock, num_iron, num_rubber);
 	}
 
         @Override
-	public void buildRockWeapons(Building building, int num_weapons, boolean infinite) {
+	public void buildRockWeapons(@NonNull Building building, int num_weapons, boolean infinite) {
 		if (isValid(building))
 			building.buildWeapons(RockAxeWeapon.class, num_weapons, infinite);
 	}
 
         @Override
-	public void buildIronWeapons(Building building, int num_weapons, boolean infinite) {
+	public void buildIronWeapons(@NonNull Building building, int num_weapons, boolean infinite) {
 		if (isValid(building))
 			building.buildWeapons(IronAxeWeapon.class, num_weapons, infinite);
 	}
 
         @Override
-	public void buildRubberWeapons(Building building, int num_weapons, boolean infinite) {
+	public void buildRubberWeapons(@NonNull Building building, int num_weapons, boolean infinite) {
 		if (isValid(building))
 			building.buildWeapons(RubberAxeWeapon.class, num_weapons, infinite);
 	}
 
         @Override
-	public void doMagic(Unit chieftain, int magic) {
+	public void doMagic(@NonNull Unit chieftain, int magic) {
 		if (isValid(chieftain))
 			chieftain.doMagic(magic, true);
 	}
 
         @Override
-	public void exitTower(Building building) {
+	public void exitTower(@NonNull Building building) {
 		if (isValid(building))
 			building.exitTower();
 	}
 
         @Override
-	public void trainChieftain(Building building, boolean start) {
+	public void trainChieftain(@NonNull Building building, boolean start) {
 		if (isValid(building))
 			building.trainChieftain(start);
 	}
 
         @Override
-	public void placeBuilding(Selectable[] selection, int template_id, int placing_grid_x, int placing_grid_y) {
+	public void placeBuilding(Selectable @NonNull [] selection, int template_id, int placing_grid_x, int placing_grid_y) {
 		Building building = new Building(this, getRace().getBuildingTemplate(template_id), placing_grid_x, placing_grid_y);
             for (Selectable selection1 : selection) {
                 if (isValid(selection1)) {
@@ -455,18 +457,18 @@ public final class Player implements PlayerInterface {
 	}
 
         @Override
-	public void setRallyPoint(Building building, Target target) {
+	public void setRallyPoint(@NonNull Building building, @Nullable Target target) {
 		if (isValid(building) && target != null)
 			building.setRallyPoint(target);
 	}
 
         @Override
-	public void setRallyPoint(Building building, int grid_x, int grid_y) {
+	public void setRallyPoint(@NonNull Building building, int grid_x, int grid_y) {
 		setRallyPoint(building, new LandscapeTarget(grid_x, grid_y));
 	}
 
         @Override
-	public void setTarget(Selectable[] selection, Target target, int action, boolean aggressive) {
+	public void setTarget(Selectable @NonNull [] selection, Target target, int action, boolean aggressive) {
             for (Selectable selection1 : selection) {
                 if (isValid(selection1)) {
                     selection1.initTarget(target, action, aggressive);
@@ -474,7 +476,7 @@ public final class Player implements PlayerInterface {
             }
 	}
 
-	public void killSelection(Selectable[] selection) {
+	public void killSelection(Selectable @NonNull [] selection) {
             for (Selectable selection1 : selection) {
                 if (selection1 != null) {
                     selection1.hit(10000, 0f, 1f, this);
@@ -483,7 +485,7 @@ public final class Player implements PlayerInterface {
 	}
 
         @Override
-	public void setLandscapeTarget(Selectable[] selection, int grid_x, int grid_y, int action, boolean aggressive) {
+	public void setLandscapeTarget(Selectable @NonNull [] selection, int grid_x, int grid_y, int action, boolean aggressive) {
 		if (selection.length == 0)
 			return;
 		int grid_size = world.getUnitGrid().getGridSize();
@@ -496,7 +498,7 @@ public final class Player implements PlayerInterface {
 		}
 	}
 
-	private boolean isValid(Selectable s) {
+	private boolean isValid(@Nullable Selectable s) {
 		return s != null && !s.isDead() && s.getOwner() == this;
 	}
 
@@ -516,7 +518,7 @@ public final class Player implements PlayerInterface {
 		start_y = y;
 	}
 
-	public boolean isEnemy(Player other_player) {
+	public boolean isEnemy(@NonNull Player other_player) {
 		if (other_player.player_info.getTeam() == PlayerInfo.TEAM_NEUTRAL
 				|| this.player_info.getTeam() == PlayerInfo.TEAM_NEUTRAL) {
 			return false;
@@ -534,11 +536,11 @@ public final class Player implements PlayerInterface {
 		return false;
 	}
 
-	public Army getUnits() {
+	public @NonNull Army getUnits() {
 		return units;
 	}
 
-	public Selectable[][] classifyUnits() {
+	public Selectable[] @NonNull [] classifyUnits() {
 		Map<String, List<Selectable>> map = new HashMap<>();
 		List<List<Selectable>> lists = new ArrayList<>();
             for (Selectable unit : units.getSet()) {

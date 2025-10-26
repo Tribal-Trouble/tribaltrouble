@@ -5,15 +5,16 @@ import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.delegate.GameStatsDelegate;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 public final class GameOverDelayTrigger implements Updatable {
 
-    private final TimerAnimation delay_timer;
+    private final @NonNull TimerAnimation delay_timer;
     private final WorldViewer viewer;
     private final Camera camera;
     private final String label_str;
 
-    public GameOverDelayTrigger(WorldViewer viewer, Camera camera, String label_str) {
+    public GameOverDelayTrigger(@NonNull WorldViewer viewer, Camera camera, String label_str) {
         this.viewer = viewer;
         this.camera = camera;
         this.label_str = label_str;

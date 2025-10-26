@@ -1,7 +1,9 @@
 package com.oddlabs.tt.landscape;
 
+import org.jspecify.annotations.NonNull;
+
 public final class TreeLeaf extends AbstractTreeGroup {
-	private TreeSupply[] infos = new TreeSupply[0];
+	private TreeSupply @NonNull [] infos = new TreeSupply[0];
 
 	public TreeLeaf(AbstractTreeGroup parent) {
 		super(parent);
@@ -32,11 +34,11 @@ public final class TreeLeaf extends AbstractTreeGroup {
 	}
 
     @Override
-	public void visit(TreeNodeVisitor visitor) {
+	public void visit(@NonNull TreeNodeVisitor visitor) {
 		visitor.visitLeaf(this);
 	}
 
-	public void visitTrees(TreeNodeVisitor visitor) {
+	public void visitTrees(@NonNull TreeNodeVisitor visitor) {
         for (TreeSupply info : infos) {
             visitor.visitTree(info);
         }

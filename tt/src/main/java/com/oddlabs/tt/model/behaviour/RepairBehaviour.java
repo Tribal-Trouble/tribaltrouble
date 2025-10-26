@@ -6,6 +6,7 @@ import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
+import org.jspecify.annotations.NonNull;
 
 public final class RepairBehaviour implements Behaviour {
 	private final static int REPAIRS_PER_SUPPLY = 5;
@@ -17,7 +18,7 @@ public final class RepairBehaviour implements Behaviour {
 	private int repairs;
 	private boolean sound;
 
-	public RepairBehaviour(Unit unit, Building building) {
+	public RepairBehaviour(@NonNull Unit unit, @NonNull Building building) {
 		this.unit = unit;
 		this.building = building;
 		unit.aimAtTarget(building);

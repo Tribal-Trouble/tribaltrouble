@@ -14,6 +14,7 @@ import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.StrictVector3f;
 import com.oddlabs.tt.util.StrictVector4f;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 
 public final class TreeSupply extends AbstractTreeGroup implements Supply, Target, Animated, ModelToolTip {
 	private final static int INITIAL_SUPPLIES = 10;
@@ -45,7 +46,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		low_detail_x_axis.set(1f, 0f, 0f);
 	}
 
-	public TreeSupply(World world, AbstractTreeGroup parent, float x, float y, int grid_x, int grid_y, int grid_size, float size, StrictMatrix4f matrix, int tree_type_index, float[] vertices) {
+	public TreeSupply(@NonNull World world, AbstractTreeGroup parent, float x, float y, int grid_x, int grid_y, int grid_size, float size, @NonNull StrictMatrix4f matrix, int tree_type_index, float @NonNull [] vertices) {
 		super(parent);
 		this.world = world;
 		this.x = x;
@@ -80,7 +81,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	}
 
         @Override
-	public void visit(ToolTipVisitor visitor) {
+	public void visit(@NonNull ToolTipVisitor visitor) {
 		visitor.visitSupply(this);
 	}
 
@@ -97,7 +98,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	}
 
         @Override
-	public Supply respawn() {
+	public @NonNull Supply respawn() {
 		occupyTree();
 		hide = false;
 		num_supplies = INITIAL_SUPPLIES;
@@ -119,7 +120,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "Tree at " + grid_x + " " + grid_y + " isEmpty() " + isEmpty();
 	}
 
@@ -250,7 +251,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	public void updateChecksum(StateChecksum checksum) {}
 
         @Override
-	public void visit(TreeNodeVisitor visitor) {
+	public void visit(@NonNull TreeNodeVisitor visitor) {
 		visitor.visitTree(this);
 	}
 }

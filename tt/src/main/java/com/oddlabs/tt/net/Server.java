@@ -16,6 +16,8 @@ import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -30,19 +32,19 @@ public final class Server implements ConnectionListenerInterface {
 	private final static int SYNCHRONIZING = 2;
 	private final static int CLOSED = 3;
 
-	private final PlayerSlot[] players;
+	private final PlayerSlot @NonNull [] players;
 	private final String[] ai_names;
 	private final WorldGenerator generator;
 	private final Game game;
-	private final AbstractConnectionListener local_listener;
+	private final @NonNull AbstractConnectionListener local_listener;
 	private final Map<AbstractConnection, ClientConnection> connection_to_client = new LinkedHashMap<>();
-	private final Random random;
+	private final @NonNull Random random;
 	private AbstractConnectionListener tunnelled_listener;
 
 	private int state = NEGOTIATING;
 	private final boolean register_server;
 
-	public Server(NetworkSelector network, Game game, InetAddress ip, WorldGenerator generator, boolean register_server, String[] ai_names) {
+	public Server(@NonNull NetworkSelector network, Game game, InetAddress ip, WorldGenerator generator, boolean register_server, String[] ai_names) {
 		this.local_listener = new ConnectionListener(network, ip, Globals.NET_PORT, this);
 		this.game = game;
 		this.generator = generator;
@@ -60,7 +62,7 @@ public final class Server implements ConnectionListenerInterface {
 		}
 	}
 
-	private Iterator<ClientConnection> getClientIterator() {
+	private @NonNull Iterator<ClientConnection> getClientIterator() {
 		return connection_to_client.values().iterator();
 	}
 	
@@ -126,13 +128,13 @@ public final class Server implements ConnectionListenerInterface {
 		}
 	}
 
-	private void disconnectClient(ClientConnection client) {
+	private void disconnectClient(@NonNull ClientConnection client) {
 		assert client != null;
 		client.getConnection().close();
 		connection_to_client.remove(client.getConnection());
 	}
 
-	private ClientConnection locateClientForSlot(PlayerSlot player_slot) {
+	private @Nullable ClientConnection locateClientForSlot(PlayerSlot player_slot) {
 		Iterator<ClientConnection> it = getClientIterator();
 		while (it.hasNext()) {
 			ClientConnection client = it.next();
@@ -142,13 +144,13 @@ public final class Server implements ConnectionListenerInterface {
 		return null;
 	}
 
-	public void resetSlotState(PlayerSlot client_slot, int slot, boolean open) {
+	public void resetSlotState(@NonNull PlayerSlot client_slot, int slot, boolean open) {
 		if (!canControlSlot(client_slot, slot))
 			return;
 		resetSlotState(players[slot], open);
 	}
 
-	private void resetSlotState(PlayerSlot client_slot, boolean open) {
+	private void resetSlotState(@NonNull PlayerSlot client_slot, boolean open) {
 		client_slot.setType(open ? PlayerSlot.OPEN : PlayerSlot.CLOSED);
 		client_slot.setInfo(null);
 		client_slot.setAddress(null);
@@ -160,12 +162,12 @@ public final class Server implements ConnectionListenerInterface {
 		broadcastPlayers(true);
 	}
 
-	private boolean canControlSlot(PlayerSlot client_slot, int slot) {
+	private boolean canControlSlot(@NonNull PlayerSlot client_slot, int slot) {
 		return slot >= 0 && slot < players.length && state == NEGOTIATING &&
 			((client_slot.getSlot() == 0 || client_slot.getSlot() == slot));
 	}
 
-	public void startServer(PlayerSlot slot) {
+	public void startServer(@NonNull PlayerSlot slot) {
 		if (!canControlSlot(slot, 0) || getNumReady() != getNumClients())// || PlayerSlot.getNumTeams(players) < 2)
 			return;
 		state = SYNCHRONIZING;
@@ -173,7 +175,7 @@ public final class Server implements ConnectionListenerInterface {
 		broadcastInits();
 	}
 
-	public void setPlayerSlot(PlayerSlot client_slot, int slot, int type, int race, int team, boolean ready, int ai_difficulty) {
+	public void setPlayerSlot(@NonNull PlayerSlot client_slot, int slot, int type, int race, int team, boolean ready, int ai_difficulty) {
 		if (!PlayerSlot.isValidType(type) || !RacesResources.isValidRace(race))
 			return;
 		if (!canControlSlot(client_slot, slot) || (client_slot.getSlot() == slot && type != PlayerSlot.HUMAN))
@@ -222,7 +224,7 @@ public final class Server implements ConnectionListenerInterface {
 		}
 	}
 
-	public void chat(PlayerSlot player_slot, String chat) {
+	public void chat(@NonNull PlayerSlot player_slot, String chat) {
 		Iterator<ClientConnection> it = getClientIterator();
 		while (it.hasNext()) {
 			ClientConnection client = it.next();
@@ -248,7 +250,7 @@ public final class Server implements ConnectionListenerInterface {
 	}
 
         @Override
-	public void incomingConnection(AbstractConnectionListener connection_listener, Object remote_address) {
+	public void incomingConnection(@NonNull AbstractConnectionListener connection_listener, Object remote_address) {
 System.out.println("Incoming host connection from " + remote_address);
 		short available_slot = locateAvailableSlot();
 		if (state != NEGOTIATING || available_slot == -1 ||

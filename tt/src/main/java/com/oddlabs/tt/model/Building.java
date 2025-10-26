@@ -25,6 +25,8 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -55,11 +57,11 @@ public final class Building extends Selectable implements Occupant {
 	private final Map<Class<?>, SupplyContainer> supply_containers = new HashMap<>();
 	private final Map<Class<?>, BuildProductionContainer> build_containers = new HashMap<>();
 	private final Map<DeployType, DeployContainer> deploy_containers = new EnumMap<>(DeployType.class);
-	private final LinearEmitter damaged_emitter;
-	private final LinearEmitter production_emitter;
+	private final @NonNull LinearEmitter damaged_emitter;
+	private final @NonNull LinearEmitter production_emitter;
 
-	private ChieftainContainer chieftain_container = null;
-	private WeaponsProducer weapons_producer = null;
+	private @Nullable ChieftainContainer chieftain_container = null;
+	private @Nullable WeaponsProducer weapons_producer = null;
 	private float remove_delay = 0;
 	private int hit_points = 1;
 	private int build_points = 0;
@@ -68,7 +70,7 @@ public final class Building extends Selectable implements Occupant {
 	private Target rally_point = this;
 	private boolean is_training_chieftain = false;
 
-	public Building(Player owner, BuildingTemplate template, int grid_x, int grid_y) {
+	public Building(@NonNull Player owner, BuildingTemplate template, int grid_x, int grid_y) {
 		super(owner, template);
 		setGridPosition(grid_x, grid_y);
 		UnitGrid unit_grid = getUnitGrid();
@@ -121,7 +123,7 @@ public final class Building extends Selectable implements Occupant {
 	}
 
         @Override
-	public void visit(ElementVisitor visitor) {
+	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitBuilding(this);
 	}
 
@@ -238,7 +240,7 @@ public final class Building extends Selectable implements Occupant {
 		}
 	}
 
-	public void deployUnits(DeployType type, int num_units) {
+	public void deployUnits(@NonNull DeployType type, int num_units) {
 		assert !isDead();
 		getOwner().getWorld().updateGlobalChecksum(type.ordinal());
 		getOwner().getWorld().updateGlobalChecksum(num_units);
@@ -300,7 +302,7 @@ public final class Building extends Selectable implements Occupant {
 		getOwner().setActiveChieftain(chieftain);
 	}
 
-	private Unit createUnit(Target rally_point, UnitTemplate template) {
+	private @NonNull Unit createUnit(Target rally_point, @NonNull UnitTemplate template) {
 		return new Unit(getOwner(), getPositionX(), getPositionY(), rally_point, template, null, true, true);
 	}
 
@@ -452,7 +454,7 @@ public final class Building extends Selectable implements Occupant {
 		}
 	}
 
-	public static boolean isPlacingLegal(UnitGrid unit_grid, BuildingTemplate template, int grid_x, int grid_y) {
+	public static boolean isPlacingLegal(@NonNull UnitGrid unit_grid, @NonNull BuildingTemplate template, int grid_x, int grid_y) {
 		return doIsPlacingLegal(unit_grid, grid_x, grid_y, template.getPlacingSize());
 	}
 
@@ -475,7 +477,7 @@ public final class Building extends Selectable implements Occupant {
 		return getTemplate().getHitOffsetZ(getRenderLevel().ordinal());
 	}
 
-	public static boolean doIsPlacingLegal(UnitGrid unit_grid, int grid_x, int grid_y, int size) {
+	public static boolean doIsPlacingLegal(@NonNull UnitGrid unit_grid, int grid_x, int grid_y, int size) {
 		if (!unit_grid.getHeightMap().canBuild(grid_x, grid_y, size))
 			return false;
 
@@ -502,7 +504,7 @@ public final class Building extends Selectable implements Occupant {
 	}
 
         @Override
-	protected void setTarget(Target target, int action, boolean aggressive) {
+	protected void setTarget(@NonNull Target target, int action, boolean aggressive) {
 		if (getAbilities().hasAbilities(Abilities.ATTACK)) {
 			if (target != this) {
 				Unit unit = ((MountUnitContainer)getUnitContainer()).getUnit();
@@ -587,7 +589,7 @@ public final class Building extends Selectable implements Occupant {
 		return getOwner() == b.getOwner() && b.getAbilities().hasAbilities(Abilities.RALLY_TO);
 	}
 
-	public void setRallyPoint(Target target) {
+	public void setRallyPoint(@NonNull Target target) {
 		if (!getOwner().canSetRallyPoints())
 			return;
 		if (isValidRallyPoint(target)) {
@@ -597,7 +599,7 @@ public final class Building extends Selectable implements Occupant {
 		}
 	}
 
-	public BuildState getRenderLevel() {
+	public @NonNull BuildState getRenderLevel() {
 		if (build_points == getBuildingTemplate().getMaxHitPoints())
 			return BuildState.BUILT;
 		else if ((float)build_points/getBuildingTemplate().getMaxHitPoints() < .5)
@@ -622,7 +624,7 @@ public final class Building extends Selectable implements Occupant {
 	}
 
     @Override
-	public void visit(ToolTipVisitor visitor) {
+	public void visit(@NonNull ToolTipVisitor visitor) {
 		visitor.visitBuilding(this);
 	}
 
@@ -685,7 +687,7 @@ public final class Building extends Selectable implements Occupant {
 	}
 
         @Override
-	public void hit(int damage, float dir_x, float dir_y, Player owner) {
+	public void hit(int damage, float dir_x, float dir_y, @NonNull Player owner) {
 		super.hit(damage, dir_x, dir_y, owner);
 		if (!isDead()) {
 			setHitPoints(hit_points - damage);
@@ -703,7 +705,7 @@ public final class Building extends Selectable implements Occupant {
 	}
 
         @Override
-	public String toString() {
+	public @NonNull String toString() {
 		return "Building: isDead() = " + isDead();
 	}
 

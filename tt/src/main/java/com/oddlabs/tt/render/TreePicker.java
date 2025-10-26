@@ -12,6 +12,7 @@ import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.util.BoundingBox;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,15 +22,15 @@ class TreePicker implements TreeNodeVisitor {
 	private final static int CROWN_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
 	private final static float SELECTION_RADIUS = 1.5f;
 
-	private final List<TreeSupply>[] render_lists;
-	private final List<TreeSupply>[] respond_render_lists;
+	private final List<TreeSupply> @NonNull [] render_lists;
+	private final List<TreeSupply> @NonNull [] respond_render_lists;
 	private final List<AbstractTreeGroup> low_detail_render_list = new ArrayList<>();
 
 	private final BoundingBox picking_selection_box = new BoundingBox();
 	private final SpriteSorter sprite_sorter;
-	private final RenderStateCache render_state_cache;
-	private final Tree[] trees;
-	private final LowDetailModel[] tree_low_details;
+	private final @NonNull RenderStateCache render_state_cache;
+	private final Tree @NonNull [] trees;
+	private final LowDetailModel @NonNull [] tree_low_details;
 	private final RespondManager respond_manager;
 	private CameraState camera;
 
@@ -46,7 +47,7 @@ class TreePicker implements TreeNodeVisitor {
 		render_state_cache = new RenderStateCache(() -> new TreeRenderState(TreePicker.this));
 	}
 
-	private static Tree[] loadTrees() {
+	private static Tree @NonNull [] loadTrees() {
 		SpriteList jungle_crown = Resources.findResource(new SpriteFile("/geometry/misc/jungle_tree_crown.binsprite", CROWN_MIPMAP_CUTOFF, false, false, true, false));
 		SpriteList jungle_trunk = Resources.findResource(new SpriteFile("/geometry/misc/jungle_tree_trunk.binsprite", CROWN_MIPMAP_CUTOFF, true, true, true, false));
 
@@ -76,7 +77,7 @@ class TreePicker implements TreeNodeVisitor {
 		return tree_low_details;
 	}
 
-	protected final List<AbstractTreeGroup> getLowDetailRenderList() {
+	protected final @NonNull List<AbstractTreeGroup> getLowDetailRenderList() {
 		return low_detail_render_list;
 	}
 
@@ -88,7 +89,7 @@ class TreePicker implements TreeNodeVisitor {
 		return respond_render_lists;
 	}
 
-	public final void getAllPicks(List<TreeSupply> pick_list) {
+	public final void getAllPicks(@NonNull List<TreeSupply> pick_list) {
             for (List<TreeSupply> render_list : render_lists) {
                 getAllPicksFromRenderList(render_list, pick_list);
             }
@@ -97,7 +98,7 @@ class TreePicker implements TreeNodeVisitor {
             }
 	}
 
-	private void getAllPicksFromRenderList(List<TreeSupply> render_list, List<TreeSupply> pick_list) {
+	private void getAllPicksFromRenderList(@NonNull List<TreeSupply> render_list, @NonNull List<TreeSupply> pick_list) {
 		for (int i = 0; i < render_list.size(); i++) {
 			TreeSupply group = render_list.get(i);
 			render_list.set(i, null);
@@ -114,7 +115,7 @@ class TreePicker implements TreeNodeVisitor {
 		}
 	}
 
-	public final void markDetailPolygon(TreeSupply tree_supply, int level) {
+	public final void markDetailPolygon(@NonNull TreeSupply tree_supply, int level) {
 		if (level == SpriteRenderer.HIGH_POLY || tree_supply.hasRespondingTrees()) {
 			addToHighDetailList(tree_supply.getTreeTypeIndex(), tree_supply, respond_manager.isResponding(tree_supply));
 		} else
@@ -131,7 +132,7 @@ class TreePicker implements TreeNodeVisitor {
 	}
 
         @Override
-	public final void visitLeaf(TreeLeaf tree_leaf) {
+	public final void visitLeaf(@NonNull TreeLeaf tree_leaf) {
 		int frustum_state = RenderTools.NOT_IN_FRUSTUM;
 		if (tree_leaf.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_leaf, camera.getFrustum())) >= RenderTools.IN_FRUSTUM)) {
 			boolean old_override = visible_override;
@@ -146,7 +147,7 @@ class TreePicker implements TreeNodeVisitor {
 	}
 
         @Override
-	public final void visitNode(TreeGroup tree_group) {
+	public final void visitNode(@NonNull TreeGroup tree_group) {
 		int frustum_state = RenderTools.NOT_IN_FRUSTUM;
 		if (tree_group.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_group, camera.getFrustum())) >= RenderTools.IN_FRUSTUM)) {
 			boolean old_override = visible_override;
@@ -174,26 +175,26 @@ class TreePicker implements TreeNodeVisitor {
 		}
 	}
 
-	private boolean pickingInFrustum(TreeSupply tree_supply, float[][] frustum) {
+	private boolean pickingInFrustum(@NonNull TreeSupply tree_supply, float[][] frustum) {
 		picking_selection_box.setBounds(-SELECTION_RADIUS + tree_supply.getPositionX(), SELECTION_RADIUS + tree_supply.getPositionX(), -SELECTION_RADIUS + tree_supply.getPositionY(), SELECTION_RADIUS + tree_supply.getPositionY(), tree_supply.bmin_z, tree_supply.bmin_z + (tree_supply.bmax_z - tree_supply.bmin_z)*getHeightScale(tree_supply.getTreeTypeIndex()));
 		return RenderTools.inFrustum(picking_selection_box, frustum) >= RenderTools.IN_FRUSTUM;
 	}
 
-	private void addToRenderList(TreeSupply tree, CameraState camera) {
+	private void addToRenderList(@NonNull TreeSupply tree, CameraState camera) {
 		if (isPicking())
 			markDetailPolygon(tree, SpriteRenderer.HIGH_POLY);
 		else
 			sprite_sorter.add(getRenderState(tree), camera, false);
 	}
 
-	private LODObject getRenderState(TreeSupply tree_supply) {
+	private @NonNull LODObject getRenderState(TreeSupply tree_supply) {
 		TreeRenderState render_state = (TreeRenderState)render_state_cache.get();
 		render_state.setup(tree_supply);
 		return render_state;
 	}
 
         @Override
-	public final void visitTree(TreeSupply tree_supply) {
+	public final void visitTree(@NonNull TreeSupply tree_supply) {
 		if (tree_supply.isHidden())
 			return;
 		boolean in_view;
@@ -210,11 +211,11 @@ class TreePicker implements TreeNodeVisitor {
 		}
 	}
 
-	private boolean canRenderLowDetail(AbstractTreeGroup tree_group) {
+	private boolean canRenderLowDetail(@NonNull AbstractTreeGroup tree_group) {
 		return !isPicking() && !tree_group.hasRespondingTrees() && isLowDetailDistance(tree_group);
 	}
 
-	private boolean isLowDetailDistance(AbstractTreeGroup tree_group) {
+	private boolean isLowDetailDistance(@NonNull AbstractTreeGroup tree_group) {
 		float eye_dist = RenderTools.getEyeDistanceSquared(tree_group, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());
 		return eye_dist >= tree_group.getGroupMinSquared();
 	}

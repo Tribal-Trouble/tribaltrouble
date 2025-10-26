@@ -4,9 +4,10 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
+import org.jspecify.annotations.NonNull;
 
 public final class TerrainMenuForm extends Form implements TerrainMenuListener {
-	private final TerrainMenu terrain;
+	private final @NonNull TerrainMenu terrain;
 
 	public TerrainMenuForm(NetworkSelector network, GUIRoot gui_root, Menu main_menu) {
 		terrain = new TerrainMenu(network, gui_root, main_menu, false, this);

@@ -1,12 +1,14 @@
 package com.oddlabs.net;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 public final class ByteBufferInputStream extends InputStream {
-	private final ByteBuffer buffer;
+	private final @NonNull ByteBuffer buffer;
 
-	public ByteBufferInputStream(byte[] array) {
+	public ByteBufferInputStream(byte @NonNull [] array) {
 		buffer = ByteBuffer.wrap(array);
 	}
 	

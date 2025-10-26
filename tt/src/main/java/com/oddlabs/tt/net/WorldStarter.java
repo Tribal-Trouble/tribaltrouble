@@ -14,6 +14,7 @@ import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,7 @@ final class WorldStarter implements LoadCallback {
 	}
 
     @Override
-	public UIRenderer load(GUIRoot gui_root) {
+	public @NonNull UIRenderer load(GUIRoot gui_root) {
 		AnimationManager.freezeTime();
 		List<PlayerSlot> player_slot_list = new ArrayList<>();
 		List<UnitInfo> unit_info_list = new ArrayList<>();

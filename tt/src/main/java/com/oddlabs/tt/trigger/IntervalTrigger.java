@@ -3,13 +3,15 @@ package com.oddlabs.tt.trigger;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.landscape.World;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public abstract class IntervalTrigger {
 	private final float after_done_time;
 	private final AnimationManager animation_manager;
-	private TimerAnimation timer;
+	private @Nullable TimerAnimation timer;
 	
-	public IntervalTrigger(World world, float check_interval, float after_done_time) {
+	public IntervalTrigger(@NonNull World world, float check_interval, float after_done_time) {
 		this(check_interval, after_done_time, world.getAnimationManagerRealTime());
 	}
 

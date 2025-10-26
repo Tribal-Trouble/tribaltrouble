@@ -1,5 +1,7 @@
 package com.oddlabs.tt.pathfinder;
 
+import org.jspecify.annotations.Nullable;
+
 public final class TargetRegionFinder implements PathFinderAlgorithm {
 	private final FinderFilter filter;
 	private final UnitGrid unit_grid;
@@ -20,7 +22,7 @@ public final class TargetRegionFinder implements PathFinderAlgorithm {
 	}
 
     @Override
-	public NodeResult touchNode(Node node) {
+	public @Nullable NodeResult touchNode(Node node) {
 		Region region = (Region)node;
 		Occupant occ = filter.getOccupantFromRegion(region, false);
 		if (occ != null) {
@@ -30,7 +32,7 @@ public final class TargetRegionFinder implements PathFinderAlgorithm {
 	}
 
     @Override
-	public NodeResult getBestNode() {
+	public @Nullable NodeResult getBestNode() {
 		Occupant occ = filter.getBest();
 		if (occ != null) {
 			return new NodeResult(unit_grid.getRegion(occ.getGridX(), occ.getGridY()));

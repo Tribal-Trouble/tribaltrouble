@@ -3,13 +3,14 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeTileIndices;
 import com.oddlabs.tt.vbo.FloatVBO;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBBufferObject;
 
 import java.nio.FloatBuffer;
 
 final class LandscapeTileVertices {
-	private final FloatVBO patch_vertex_buffer;
+	private final @NonNull FloatVBO patch_vertex_buffer;
 	private final FloatBuffer edit_buffer;
 	private final int patch_size;
 	private final int elements_per_patch;
@@ -52,7 +53,7 @@ final class LandscapeTileVertices {
 		patch_vertex_buffer.vertexPointer(3, 0, position);
 	}
 
-	private void fillVertexData(FloatBuffer vertex_array, int grid_origin_x, int grid_origin_y) {
+	private void fillVertexData(@NonNull FloatBuffer vertex_array, int grid_origin_x, int grid_origin_y) {
 		grid_origin_x *= patch_size - 1;
 		grid_origin_y *= patch_size - 1;
 		int world_border_mask = ~(patch_size - 2);

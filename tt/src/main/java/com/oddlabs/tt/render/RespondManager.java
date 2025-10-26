@@ -3,6 +3,8 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.util.StateChecksum;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +21,7 @@ public final class RespondManager implements Animated {
 
 	private float time;
 
-	RespondManager(AnimationManager manager) {
+	RespondManager(@NonNull AnimationManager manager) {
 		manager.registerAnimation(this);
 	}
 
@@ -67,7 +69,7 @@ public final class RespondManager implements Animated {
 			return isResponding(respond_targets.get(target));
 	}
 
-	private boolean isResponding(Timeout timeout) {
+	private boolean isResponding(@Nullable Timeout timeout) {
 		if (timeout == null)
 			return false;
 		float time_diff = timeout.timeout - time;
@@ -110,7 +112,7 @@ public final class RespondManager implements Animated {
         }
 
         @Override
-		public int compareTo(Timeout other) {
+		public int compareTo(@NonNull Timeout other) {
 			float diff = timeout - other.timeout;
 			if (diff != 0f)
 				return (int)diff;

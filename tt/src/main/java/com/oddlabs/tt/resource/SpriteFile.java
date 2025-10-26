@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.render.SpriteList;
+import org.jspecify.annotations.NonNull;
 
 public final class SpriteFile extends File<SpriteList> {
 	private final boolean lighting;
@@ -25,7 +26,7 @@ public final class SpriteFile extends File<SpriteList> {
 	}
 
     @Override
-	public SpriteList get() {
+	public @NonNull SpriteList get() {
 		return new SpriteList(this);
 	}
 

@@ -5,6 +5,7 @@ import com.oddlabs.net.ARMIInterfaceMethods;
 import com.oddlabs.net.AbstractConnection;
 import com.oddlabs.net.ConnectionInterface;
 import com.oddlabs.net.IllegalARMIEventException;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -14,7 +15,7 @@ import java.util.logging.Logger;
 
 final class RouterClient implements ConnectionInterface {
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(RouterInterface.class);
-	private final RouterClientInterface client_interface;
+	private final @NonNull RouterClientInterface client_interface;
 	private final Logger logger;
 	private final AbstractConnection connection;
 	private final Router router;
@@ -24,7 +25,7 @@ final class RouterClient implements ConnectionInterface {
 	private Session session;
 	private Interface current_interface;
 
-	RouterClient(final SessionManager session_manager, AbstractConnection conn, Logger logger, Router router) {
+	RouterClient(final @NonNull SessionManager session_manager, AbstractConnection conn, Logger logger, Router router) {
 		this.router = router;
 		this.connection = conn;
 		this.logger = logger;
@@ -35,7 +36,7 @@ final class RouterClient implements ConnectionInterface {
                 });
 	}
 
-	List<Integer> getChecksums() {
+	@NonNull List<Integer> getChecksums() {
 		return checksums;
 	}
 
@@ -69,7 +70,7 @@ final class RouterClient implements ConnectionInterface {
 		return client_id;
 	}
 
-	private void doLogin(Session session, SessionInfo session_info, int client_id) {
+	private void doLogin(@NonNull Session session, SessionInfo session_info, int client_id) {
 		this.session = session;
 		this.client_id = client_id;
 		this.current_interface = new Interface(GameInterface.class, new GameInterface() {
@@ -119,7 +120,7 @@ final class RouterClient implements ConnectionInterface {
 	}
 
         @Override
-	public void handle(Object sender, ARMIEvent event) {
+	public void handle(Object sender, @NonNull ARMIEvent event) {
 		try {
 			event.execute(current_interface.methods, current_interface.instance);
 		} catch (IllegalARMIEventException e) {
@@ -153,9 +154,9 @@ final class RouterClient implements ConnectionInterface {
 
 	private static class Interface {
 		private final Object instance;
-		private final ARMIInterfaceMethods methods;
+		private final @NonNull ARMIInterfaceMethods methods;
 
-		Interface(Class<?> interface_class, Object instance) {
+		Interface(@NonNull Class<?> interface_class, Object instance) {
 			this.instance = instance;
 			this.methods = new ARMIInterfaceMethods(interface_class);
 		}

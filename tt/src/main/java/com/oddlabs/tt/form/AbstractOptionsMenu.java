@@ -36,6 +36,7 @@ import com.oddlabs.tt.render.SerializableDisplayMode;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Cursor;
 
 import java.util.Locale;
@@ -48,16 +49,16 @@ public abstract class AbstractOptionsMenu extends Form {
 	private final static int SLIDER_WIDTH = 270;
 
 	private final static boolean TEMPORARILY_DISABLE_MUSIC_CONTROLS = false;
-	private final CheckBox cb_fullscreen;
+	private final @NonNull CheckBox cb_fullscreen;
 
-	private final Slider slider_music;
-	private final Slider slider_sound;
+	private final @NonNull Slider slider_music;
+	private final @NonNull Slider slider_sound;
 	private final GUIRoot gui_root;
 
-	private final PulldownMenu pm_detail;
+	private final @NonNull PulldownMenu pm_detail;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(OptionsMenu.class.getName());
-	private final MultiColumnComboBox language_list_box;
-	private final PulldownMenu pm_gamespeed;
+	private final @NonNull MultiColumnComboBox language_list_box;
+	private final @NonNull PulldownMenu pm_gamespeed;
 	private int last_detail_value;
 
 	public AbstractOptionsMenu(GUIRoot gui_root) {

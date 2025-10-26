@@ -3,9 +3,10 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.procedural.Tools;
+import org.jspecify.annotations.NonNull;
 
 public final class Pie {
-	public final Channel channel;
+	public final @NonNull Channel channel;
 
 	public static final int CIRCLE = 1;
 	public static final int FULL = 2;
@@ -67,7 +68,7 @@ public final class Pie {
 		}
 	}
 
-	public Layer toLayer() {
+	public @NonNull Layer toLayer() {
 		return new Layer(channel, channel.copy(), channel.copy());
 	}
 

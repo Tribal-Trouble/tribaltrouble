@@ -1,9 +1,11 @@
 package com.oddlabs.tt.pathfinder;
 
-final class RegionPathFinder extends AStarAlgorithm {
-	private final Node dst_region;
+import org.jspecify.annotations.NonNull;
 
-	public RegionPathFinder(UnitGrid unit_grid, Node dst_region) {
+final class RegionPathFinder extends AStarAlgorithm {
+	private final @NonNull Node dst_region;
+
+	public RegionPathFinder(@NonNull UnitGrid unit_grid, @NonNull Node dst_region) {
 		super(unit_grid, dst_region.getGridX(), dst_region.getGridY(), false);
 		this.dst_region = dst_region;
 	}

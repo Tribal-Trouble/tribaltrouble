@@ -1,14 +1,16 @@
 package com.oddlabs.net;
 
+import org.jspecify.annotations.NonNull;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
 public final class ARMIInterfaceMethods {
-	private final Class<?> armi_interface;
-	private final Method[] methods;
+	private final @NonNull Class<?> armi_interface;
+	private final Method @NonNull [] methods;
 
-	public ARMIInterfaceMethods(Class<?> armi_interface) {
+	public ARMIInterfaceMethods(@NonNull Class<?> armi_interface) {
 		assert armi_interface.isInterface();
 		this.armi_interface = armi_interface;
 		this.methods = armi_interface.getMethods();
@@ -18,7 +20,7 @@ public final class ARMIInterfaceMethods {
             }
 	}
 
-	private boolean isLegal(Method method) {
+	private boolean isLegal(@NonNull Method method) {
 		return method.getReturnType().equals(void.class) && method.getExceptionTypes().length == 0;
 	}
 	
@@ -30,7 +32,7 @@ public final class ARMIInterfaceMethods {
 		return armi_interface;
 	}
 	
-	void invoke(Object instance, Method method, Object[] args) throws IllegalARMIEventException {
+	void invoke(Object instance, @NonNull Method method, Object[] args) throws IllegalARMIEventException {
 		try {
 			method.invoke(instance, args);
 		} catch (IllegalAccessException | IllegalArgumentException e) {

@@ -3,6 +3,7 @@ package com.oddlabs.tt.render;
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.LocalInput;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -22,7 +23,7 @@ public final class SerializableDisplayMode implements Serializable {
     private final int freq;
     private final int bpp;
 
-    public SerializableDisplayMode(DisplayMode mode) {
+    public SerializableDisplayMode(@NonNull DisplayMode mode) {
         this(mode.getWidth(), mode.getHeight(), mode.getBitsPerPixel(), mode.getFrequency());
     }
 
@@ -96,7 +97,7 @@ public final class SerializableDisplayMode implements Serializable {
         throw last_exception;
     }
 
-    public static boolean isModeValid(DisplayMode mode) {
+    public static boolean isModeValid(@NonNull DisplayMode mode) {
         return mode.getWidth() >= 800 && mode.getHeight() >= 600;
     }
 
@@ -112,7 +113,7 @@ public final class SerializableDisplayMode implements Serializable {
         LocalInput.getLocalInput().fullscreenToggled(fullscreen, switch_now);
     }
 
-    private static void nativeSetMode(DisplayMode mode) throws LWJGLException {
+    private static void nativeSetMode(@NonNull DisplayMode mode) throws LWJGLException {
         if (!Display.getDisplayMode().equals(mode)) {
             System.out.println("setting mode = " + mode);
             Display.setDisplayMode(mode);
@@ -134,7 +135,7 @@ public final class SerializableDisplayMode implements Serializable {
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return width + "x" + height + " " + bpp + "bit " + freq + "Hz";
     }
 
@@ -162,7 +163,7 @@ public final class SerializableDisplayMode implements Serializable {
         return isEquivalent(other_mode) && getFrequency() == other_mode.getFrequency() && getBitsPerPixel() == other_mode.getBitsPerPixel();
     }
 
-    public boolean isEquivalent(SerializableDisplayMode other_mode) {
+    public boolean isEquivalent(@NonNull SerializableDisplayMode other_mode) {
         return getWidth() == other_mode.getWidth() && getHeight() == other_mode.getHeight();
     }
 

@@ -1,13 +1,14 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import org.jspecify.annotations.NonNull;
 
 public final class ProgressBarInfo {
-	private final Label label;
+	private final @NonNull Label label;
 	private final float weight;
 	private int waypoint;
 
-	public ProgressBarInfo(String title, float weight) {
+	public ProgressBarInfo(@NonNull String title, float weight) {
 		Font font = Skin.getSkin().getProgressBarData().getFont();
 		label = new Label(title, font);
 		this.weight = weight;

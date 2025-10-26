@@ -7,16 +7,17 @@ import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.viewer.Cheat;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
 public final class TreeRenderer extends TreePicker {
-	private final TreeLowDetail tree_low_detail;
+	private final @NonNull TreeLowDetail tree_low_detail;
 	private final WaveAnimation wave_animation = new WaveAnimation();
 	private final Cheat cheat;
 
-	TreeRenderer(World world, Cheat cheat, Landscape.TerrainType terrain, List<int[]> tree_positions, List<int[]> palm_tree_positions, SpriteSorter sprite_sorter, RespondManager respond_manager) {
+	TreeRenderer(@NonNull World world, Cheat cheat, Landscape.@NonNull TerrainType terrain, List<int[]> tree_positions, List<int[]> palm_tree_positions, SpriteSorter sprite_sorter, RespondManager respond_manager) {
 		super(sprite_sorter, respond_manager);
 		this.cheat = cheat;
 		this.tree_low_detail = new TreeLowDetail(world, getTrees(), getLowDetails(), tree_positions, palm_tree_positions, terrain);
@@ -27,7 +28,7 @@ public final class TreeRenderer extends TreePicker {
 		return tree_low_detail;
 	}
 
-	private void renderLowDetail(AbstractTreeGroup group) {
+	private void renderLowDetail(@NonNull AbstractTreeGroup group) {
 		tree_low_detail.renderLowDetail(group.getLowDetailStart(), group.getLowDetailCount());
 	}
 
@@ -58,7 +59,7 @@ public final class TreeRenderer extends TreePicker {
         }
 	}
 
-	private void loadMatrix(TreeSupply tree) {
+	private void loadMatrix(@NonNull TreeSupply tree) {
 		tree_low_detail.loadMatrix(tree.getMatrix());
 		if (tree.isEmpty()) {
 			float time = tree.getTreeFallProgress();
@@ -71,7 +72,7 @@ public final class TreeRenderer extends TreePicker {
 		}
 	}
 
-	private void renderList(Tree tree, List<TreeSupply> render_list, boolean respond) {
+	private void renderList(@NonNull Tree tree, @NonNull List<TreeSupply> render_list, boolean respond) {
 		tree.getCrown().getSprite(0).setup(0, respond);
         for (TreeSupply group : render_list) {
             if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS))

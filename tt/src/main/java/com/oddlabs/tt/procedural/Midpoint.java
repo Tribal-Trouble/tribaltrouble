@@ -3,12 +3,13 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Random;
 
 public final class Midpoint {
 
-	private final Random random;
+	private final @NonNull Random random;
 	public Channel channel;
 
 	public Midpoint(int size, int base_freq, float pers, long seed) {
@@ -168,7 +169,7 @@ public final class Midpoint {
 		channel.dynamicRange();
 	}
 
-	public Layer toLayer() {
+	public @NonNull Layer toLayer() {
 		return new Layer(channel, channel.copy(), channel.copy());
 	}
 

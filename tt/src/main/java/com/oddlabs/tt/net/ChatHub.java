@@ -1,5 +1,7 @@
 package com.oddlabs.tt.net;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +19,7 @@ public final class ChatHub implements ChatListener {
 	}
 
     @Override
-	public void chat(ChatMessage message) {
+	public void chat(@NonNull ChatMessage message) {
 		if (!ChatCommand.isIgnoring(message.nick)) {
 			listeners.forEach(listener -> listener.chat(message));
 		}
