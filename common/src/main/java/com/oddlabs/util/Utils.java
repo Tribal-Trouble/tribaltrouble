@@ -10,6 +10,8 @@ import java.io.UncheckedIOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
@@ -137,20 +139,28 @@ System.out.println("loopback address = " + best_address);
         }
 	}
 
-	public static @NonNull URL makeURL(@NonNull String location) {
+    public static @NonNull URI makeURI(@NonNull String location) throws UncheckedIOException {
 		try {
-			return tryMakeURL(location);
-		} catch (IOException e) {
-			throw new UncheckedIOException("Unusable location", e);
-		}
-	}
+			return makeURL(location).toURI();
+		} catch (URISyntaxException e) {
+            throw new UncheckedIOException("Unusable location: " + location, new IOException(e));
+        }
+    }
 
-	public static @NonNull URL tryMakeURL(@NonNull String location) throws IOException {
-		URL url = Utils.class.getResource(location);
-		if (url == null)
-			throw new IOException(location + " not found");
-		return url;
-	}
+    public static @NonNull URL makeURL(@NonNull String location) throws UncheckedIOException {
+        try {
+            return tryMakeURL(location);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Unusable location: " + location, e);
+        }
+    }
+
+    public static @NonNull URL tryMakeURL(@NonNull String location) throws IOException {
+        URL url = Utils.class.getResource(location);
+        if (url == null)
+            throw new IOException(location + " not found");
+        return url;
+    }
 
     private Utils() {
     }
