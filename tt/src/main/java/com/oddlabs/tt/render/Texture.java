@@ -181,22 +181,13 @@ GLUtils.saveTexture(i, new java.io.File(texture_file.getURL().getFile() + dxt_im
 			GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, mipmap, GL13.GL_TEXTURE_COMPRESSED_IMAGE_SIZE, size_buffer);
 			return size_buffer.get(0);
 		} else {
-			switch (internal_format) {
-				case GL13.GL_COMPRESSED_RGB:
-				case GL11.GL_RGB:
-					return width*height*3;
-				case GL13.GL_COMPRESSED_RGBA:
-				case GL11.GL_RGBA:
-					return width*height*4;
-				case GL11.GL_LUMINANCE:
-				case GL11.GL_ALPHA8:
-				case GL11.GL_ALPHA:
-				case GL13.GL_COMPRESSED_LUMINANCE:
-				case GL13.GL_COMPRESSED_ALPHA:
-					return width*height;
-				default:
-					throw new RuntimeException("0x" + Integer.toHexString(internal_format));
-			}
+            return switch (internal_format) {
+                case GL13.GL_COMPRESSED_RGB, GL11.GL_RGB -> width * height * 3;
+                case GL13.GL_COMPRESSED_RGBA, GL11.GL_RGBA -> width * height * 4;
+                case GL11.GL_LUMINANCE, GL11.GL_ALPHA8, GL11.GL_ALPHA, GL13.GL_COMPRESSED_LUMINANCE,
+                     GL13.GL_COMPRESSED_ALPHA -> width * height;
+                default -> throw new RuntimeException("0x" + Integer.toHexString(internal_format));
+            };
 		}
 	}
 

@@ -17,23 +17,21 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 public final class Convert {
 	private static String current_ext;
 
-	public static void main(String @NonNull [] args) throws IOException {
+    static void main(String @NonNull ... args) throws IOException {
 		if (args.length < 2) {
 			System.out.println("Usage: Convert <infile> <operations> <outfile>");
 			System.exit(1);
 		}
 		File infile = new File(args[0]);
 		File outfile = new File(args[args.length - 1]);
-		List<String> args_list = new ArrayList<>();
-		for (int i = 1; i < args.length - 1; i++) {
-            args_list.add(args[i]);
-        }
+        List<String> args_list = new ArrayList<>(Arrays.asList(args).subList(1, args.length - 1));
 		System.out.println("Converting " + infile);
 		Layer[] images = new Layer[]{loadFile(infile)};
 		images = processOperations(args_list.iterator(), images);
@@ -139,7 +137,7 @@ System.out.println("outfile = " + outfile);
 		return image_layer;
 	}
 
-	private static void saveImage(File file, Layer @NonNull [] images) throws IOException {
+	private static void saveImage(File file, Layer @NonNull [] images) throws IllegalArgumentException {
 		if (images.length != 1)
 			throw new IllegalArgumentException("Can't save more than 1 image in .image format");
 		byte[] bytes = images[0].convertToBytes();
