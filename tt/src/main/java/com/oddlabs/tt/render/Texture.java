@@ -8,7 +8,7 @@ import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.GLState;
 import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Utils;
-import gr.zdimensions.jsquish.Squish;
+import io.github.memo33.jsquish.Squish;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTTextureCompressionS3TC;

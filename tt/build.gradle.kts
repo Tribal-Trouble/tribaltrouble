@@ -2,11 +2,15 @@ plugins {
     application
 }
 
+repositories {
+    mavenCentral()
+}
+
 application {
     mainClass.set("com.oddlabs.tt.Main")
     applicationDefaultJvmArgs = listOf(
         "-ea", "-esa",
-        "-Djava.library.path=${project(":common").projectDir}/lib/native",
+        "-Djava.library.path=${project(":common").projectDir}/build/libs/native",
         "-Dcom.oddlabs.tt.developer=true",
         "-Dorg.lwjgl.util.Debug=true",
         "-Xmx80m"
@@ -16,6 +20,8 @@ application {
 dependencies {
     implementation(project(":common"))
     implementation(project(":tools"))
+    implementation("org.jcraft:jorbis:0.0.17")
+    implementation("io.github.memo33:jsquish:2.1.0")
 }
 
 val revision = tasks.register("revision") {

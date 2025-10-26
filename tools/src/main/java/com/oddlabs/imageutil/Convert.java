@@ -4,7 +4,7 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Image;
-import gr.zdimensions.jsquish.Squish;
+import io.github.memo33.jsquish.Squish;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 
