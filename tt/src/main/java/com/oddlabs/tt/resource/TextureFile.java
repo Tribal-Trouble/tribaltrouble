@@ -116,55 +116,8 @@ public final class TextureFile extends File<Texture> {
 	}
 
 	public @NonNull GLImage getImage() {
-		GLImage img;
-/*		URL url_jpg = Utils.class.getResource(loc + ".jpg");
-		if (url_jpg != null) {
-			BufferedImage bi_rgb = readFile(url_jpg);
-			int components = bi_rgb.getColorModel().getNumComponents();
-			assert components == 1 || components == 3;
-			int width = bi_rgb.getWidth();
-			int height = bi_rgb.getHeight();
-			byte[] data_rgb = (byte[]) bi_rgb.getRaster().getDataElements(0, 0, width, height, null);
-
-			URL url_png_alpha = Utils.class.getResource(loc + "_a.png");
-			byte[] data_a;
-			if (url_png_alpha != null) {
-				BufferedImage bi_a = readFile(url_png_alpha);
-				assert bi_a.getColorModel().getNumComponents() == 1;
-				assert width == bi_a.getWidth() && height == bi_a.getHeight();
-				data_a = (byte[]) bi_a.getRaster().getDataElements(0, 0, width, height, null);
-			} else
-				data_a = null;
-
-			ByteBuffer buf = ByteBuffer.allocateDirect(4*width*height);
-			IntBuffer int_buf = buf.asIntBuffer();
-			for (int i = 0; i < int_buf.capacity(); i++) {
-				int r = data_rgb[i*components] & 0xff;
-				int g;
-				int b;
-				if (components == 3) {
-					g = data_rgb[i*3 + 1] & 0xff;
-					b = data_rgb[i*3 + 2] & 0xff;
-				} else {
-					g = r;
-					b = r;
-				}
-
-				int a;
-				if (data_a != null)
-					a = data_a[i] & 0xff;
-				else
-					a = 0xff;
-				int pixel = (r << 24) | (g << 16) | (b << 8) | a;
-				int_buf.put(i, pixel);
-			}
-			buf.rewind();
-			img = new GLIntImage(width, height, buf, GL11.GL_RGBA);
-		} else {*/
-			Image image = Image.read(getURL());
-			img = new GLIntImage(image.getWidth(), image.getHeight(), image.getPixels(), GL11.GL_RGBA);
-//		}
-		return img;
+		Image image = Image.read(getURL());
+		return new GLIntImage(image.getWidth(), image.getHeight(), image.getPixels(), GL11.GL_RGBA);
 	}
 
         @Override

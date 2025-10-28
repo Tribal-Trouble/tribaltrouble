@@ -118,9 +118,7 @@ System.out.println("Landscape created in = " + (time_after-time_before));
 	}
 
 	private static Texture[] @Nullable [] blendTextures(@NonNull OffscreenRendererFactory factory, int chunks_per_colormap, BlendInfo @NonNull [] blend_infos, int alpha_size, int structure_size, int scale) {
-		boolean use_pbuffer = Settings.getSettings().usePbuffer();
-		boolean use_fbo = Settings.getSettings().useFBO();
-		OffscreenRenderer offscreen = factory.createRenderer(TEXELS_PER_CHUNK, TEXELS_PER_CHUNK, new PixelFormat(Globals.VIEW_BIT_DEPTH, 0, 0, 0, 0), Settings.getSettings().use_copyteximage, use_pbuffer, use_fbo);
+		OffscreenRenderer offscreen = factory.createRenderer(TEXELS_PER_CHUNK, TEXELS_PER_CHUNK, new PixelFormat(Globals.VIEW_BIT_DEPTH, 0, 0, 0, 0));
 		GL11.glColor4f(1f, 1f, 1f, 1f);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);

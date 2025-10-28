@@ -80,25 +80,10 @@ public final class Settings implements Serializable {
 
 	public boolean warning_no_sound = true;
 
-	//reg key
-	public boolean online = true;
-	public @NonNull String reg_key = "";
-
-	//portal stuff
-	public boolean hide_update = false;
-	public boolean hide_register = false;
 	public final boolean hide_multiplayer = false;
-	public boolean hide_bugreporter = false;
-	public boolean hide_regkey = false;
-	public boolean buy_now_only_quit = false;
 
 	/* optional extensions */
 	public final boolean use_vbo_draw_range_elements = false;
-	private final boolean use_vbo = false;
-	private final boolean use_pbuffer = LWJGLUtil.getPlatform() != LWJGLUtil.PLATFORM_MACOSX;
-	private final boolean use_fbo = true;
-	public final boolean use_copyteximage = false;
-	private final boolean use_texture_compression = true;
 
 	public final int frame_grab_milliseconds_per_frame = 40;
 
@@ -108,22 +93,6 @@ public final class Settings implements Serializable {
 
 	public static Settings getSettings() {
 		return settings;
-	}
-
-	public boolean useFBO() {
-		return use_fbo && GLContext.getCapabilities().GL_EXT_framebuffer_object && !GLUtils.isIntelGMA950();
-	}
-
-	public boolean usePbuffer() {
-		return use_pbuffer && ((Pbuffer.getCapabilities() & Pbuffer.PBUFFER_SUPPORTED) != 0);
-	}
-
-	public boolean useTextureCompression() {
-		return use_texture_compression && (GLContext.getCapabilities().GL_ARB_texture_compression || GLContext.getCapabilities().OpenGL13);
-	}
-
-	public boolean useVBO() {
-		return use_vbo && GLContext.getCapabilities().GL_ARB_vertex_buffer_object;
 	}
 
 	public boolean inDeveloperMode() {

@@ -40,12 +40,10 @@ import com.oddlabs.tt.resource.IslandGenerator;
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
-import com.oddlabs.tt.util.BackBufferRenderer;
 import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.StatCounter;
-import com.oddlabs.tt.util.StrictGLU;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.TeeOutputStream;
 import com.oddlabs.tt.util.Utils;
@@ -155,11 +153,24 @@ public final class Renderer {
 	}
 
 	public static void multProjection(@NonNull Matrix4f matrix) {
-		StrictGLU.gluPerspective(matrix,
-				Globals.FOV,
-				LocalInput.getViewAspect(),
-				Globals.VIEW_MIN,
-				Globals.VIEW_MAX);
+		float fovy = Globals.FOV;
+		float aspect = LocalInput.getViewAspect();
+		float zNear = Globals.VIEW_MIN;
+		float zFar = Globals.VIEW_MAX;
+
+		float yScale = 1.0f / (float) Math.tan(Math.toRadians(fovy / 2.0f));
+		float xScale = yScale / aspect;
+		float frustumLength = zFar - zNear;
+
+		Matrix4f perspectiveMatrix = new Matrix4f();
+		perspectiveMatrix.m00 = xScale;
+		perspectiveMatrix.m11 = yScale;
+		perspectiveMatrix.m22 = -((zFar + zNear) / frustumLength);
+		perspectiveMatrix.m23 = -1;
+		perspectiveMatrix.m32 = -((2 * zNear * zFar) / frustumLength);
+		perspectiveMatrix.m33 = 0;
+
+		Matrix4f.mul(matrix, perspectiveMatrix, matrix);
 	}
 
 	public static void registerTrianglesRendered(int count) {
@@ -362,7 +373,7 @@ e.printStackTrace();
 						reset_keyboard = false;
 						LocalInput.resetKeyboard();
 					}
-					if (!first_frame && !BackBufferRenderer.isBackBufferDirty()) {
+					if (!first_frame) {
 						Display.update();
 					}
 					display(gui);
@@ -603,37 +614,18 @@ e.printStackTrace();
 		String extensions = GL11.glGetString(GL11.GL_EXTENSIONS);
 		System.out.println("GL extensions: '" + extensions + "'");
 
-		if (GLUtils.isIntelGMA950() || !Settings.getSettings().useTextureCompression()) {  // Intel mac mini hack
-			Globals.disableTextureCompression();
-		}
-
 		dumpWindowInfo();
-		try {
-			if (!GLContext.getCapabilities().OpenGL13) {
-				if (!GLContext.getCapabilities().GL_ARB_multitexture)
-					throw new LWJGLException("Neither OpenGL 1.3 nor GL_ARB_multitexture is supported, one of which is required for the game to run. Please upgrade your video drivers and/or video card.");
-				System.out.println("OpenGL 1.3 is not supported, using GL_ARB_multitexture and GL_ARB_texture_compression instead");
-			} else
-				System.out.println("OpenGL 1.3 is supported");
-			int num_tex_units = GLUtils.getGLInteger(GL13.GL_MAX_TEXTURE_UNITS);
-			if (num_tex_units < 2)
-				throw new LWJGLException("Number of texture units " + num_tex_units + " < 2");
-		} catch (LWJGLException e) {
-			destroyAL();
-			Display.destroy();
-			failedOpenGL(e);
-			throw e;
-		}
-		if (!GLContext.getCapabilities().OpenGL12)
-			System.out.println("OpenGL 1.2 is not supported");
+
+		// We assume a modern context, so OpenGL 1.3 and multitexturing are guaranteed.
+		System.out.println("OpenGL 1.3 is supported");
+		int num_tex_units = GLUtils.getGLInteger(GL13.GL_MAX_TEXTURE_UNITS);
+		if (num_tex_units < 2)
+			throw new LWJGLException("Number of texture units " + num_tex_units + " is less than the required 2.");
+
 		display_state_stack = new GLStateStack();
 		GLStateStack.setCurrent(display_state_stack);
 		resetInput();
 System.out.println("vsync = " + Settings.getSettings().vsync);
-System.out.println("vbo = " + Settings.getSettings().useVBO());
-System.out.println("pbuffer = " + Settings.getSettings().usePbuffer());
-System.out.println("fbo = " + Settings.getSettings().useFBO());
-System.out.println("use_texture_compression = " + Settings.getSettings().useTextureCompression());
 		if (Settings.getSettings().vsync)
 			Display.setVSyncEnabled(true);
 		initGL();

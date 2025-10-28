@@ -80,14 +80,6 @@ public final class Globals {
 	public static int COMPRESSED_LUMINANCE_FORMAT = GL11.GL_LUMINANCE;
 	public static int LOW_DETAIL_TEXTURE_SHIFT = 1;
 
-	public static void disableTextureCompression() {
-		System.out.println("Disabling texture compression");
-		COMPRESSED_RGB_FORMAT = GL11.GL_RGB;
-		COMPRESSED_RGBA_FORMAT = GL11.GL_RGBA;
-		COMPRESSED_A_FORMAT = GL11.GL_ALPHA;
-		COMPRESSED_LUMINANCE_FORMAT = GL11.GL_LUMINANCE;
-	}
-
 	public final static float LANDSCAPE_HILLS = 1f;
 	public final static float LANDSCAPE_VEGETATION = 2f;
 	public final static float LANDSCAPE_RESOURCES = 0f;

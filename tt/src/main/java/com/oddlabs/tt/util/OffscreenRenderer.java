@@ -12,7 +12,6 @@ public abstract class OffscreenRenderer {
 	private final int width;
 	private final int height;
 	private final @Nullable GLImage image;
-	private final boolean use_copyteximage;
 
 	public final int getWidth() {
 		return width;
@@ -22,15 +21,10 @@ public abstract class OffscreenRenderer {
 		return height;
 	}
 
-	protected OffscreenRenderer(int width, int height, boolean use_copyteximage) {
+	protected OffscreenRenderer(int width, int height) {
 		this.width = width;
 		this.height = height;
-		this.use_copyteximage = use_copyteximage;
-		
-		if (!use_copyteximage)
-			image = new GLIntImage(width, height, GL11.GL_RGBA);
-		else
-			image = null;
+		image = new GLIntImage(width, height, GL11.GL_RGBA);
 	}
 
 	protected final void init() {
@@ -49,13 +43,9 @@ public abstract class OffscreenRenderer {
 
 	public final void copyToTexture(@NonNull Texture tex, int mip_level, int format, int x0, int y0, int x1, int y1) {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex.getHandle());
-		assert x0 >= 0 && y0 >= 0 && x1 <= width && y1 <= height;
-		if (use_copyteximage) {
-			GL11.glCopyTexImage2D(GL11.GL_TEXTURE_2D, mip_level, format, x0, y0, x1, y1, 0);
-		} else {
-			GL11.glReadPixels(x0, y0, x1, y1, image.getGLFormat(), image.getGLType(), image.getPixels());
-			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, mip_level, format, x1 - x0, y1 - y0, 0, image.getGLFormat(), image.getGLType(), image.getPixels());
-		}
+		assert x0 >= 0 && y0 >= 0 && x1 <= width && y1 <= height && image != null;
+		GL11.glReadPixels(x0, y0, x1, y1, image.getGLFormat(), image.getGLType(), image.getPixels());
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, mip_level, format, x1 - x0, y1 - y0, 0, image.getGLFormat(), image.getGLType(), image.getPixels());
 	}
 
 	public abstract boolean isLost();

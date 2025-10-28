@@ -40,16 +40,7 @@ public final class Texture extends NativeResource {
 		border_color_buffer = BufferUtils.createFloatBuffer(4);
 	}
 
-	private static int bestWrap(int wrap) {
-		if (wrap == GL12.GL_CLAMP_TO_EDGE && !GLContext.getCapabilities().OpenGL12) {
-			return GL11.GL_CLAMP;
-		} else
-			return wrap;
-	}
-
 	private static int initTexture(int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level) {
-		wrap_s = bestWrap(wrap_s);
-		wrap_t = bestWrap(wrap_t);
 		GL11.glGenTextures(handle_buffer);
 		int tex_handle = handle_buffer.get(0);
 		assert tex_handle != 0;
@@ -58,8 +49,7 @@ public final class Texture extends NativeResource {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, wrap_t);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, min_filter);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, mag_filter);
-		if (GLContext.getCapabilities().OpenGL12)
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, max_mipmap_level);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, max_mipmap_level);
 		border_color_buffer.put(0, 0f).put(1, 0f).put(2, 0f).put(3, 0f);
 		GL11.glTexParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_BORDER_COLOR, border_color_buffer);
 //		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, org.lwjgl.opengl.EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, 10f);
@@ -172,11 +162,9 @@ GLUtils.saveTexture(i, new java.io.File(texture_file.getURL().getFile() + dxt_im
 	}
 
 	private static int determineMipMapSize(int mipmap, int internal_format, int width, int height) {
-		boolean compressed = false;
-		if (Settings.getSettings().useTextureCompression()) {
-			GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, mipmap, GL13.GL_TEXTURE_COMPRESSED, size_buffer);
-			compressed = size_buffer.get(0) == GL11.GL_TRUE;
-		}
+		GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, mipmap, GL13.GL_TEXTURE_COMPRESSED, size_buffer);
+		boolean compressed = size_buffer.get(0) == GL11.GL_TRUE;
+
 		if (compressed) {
 			GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, mipmap, GL13.GL_TEXTURE_COMPRESSED_IMAGE_SIZE, size_buffer);
 			return size_buffer.get(0);

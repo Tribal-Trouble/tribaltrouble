@@ -8,9 +8,13 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.StateChecksum;
-import com.oddlabs.tt.util.StrictGLU;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Matrix4f;
+
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 /**
  * The View
@@ -19,10 +23,17 @@ public abstract class Camera implements Animated {
     private final static float LANDSCAPE_OFFSET = 5f;
     private final static float SMOOTHNESS_FACTOR = 15;
 
-    private final int[] viewport = new int[4];
+    private final IntBuffer viewport = BufferUtils.createIntBuffer(16);
     private final Matrix4f proj = new Matrix4f();
     private final CameraState tmp_camera = new CameraState();
-    private final float[] hit_result = new float[3];
+
+    // Buffers for GLU methods
+    private final FloatBuffer model_buffer = BufferUtils.createFloatBuffer(16);
+    private final FloatBuffer proj_buffer = BufferUtils.createFloatBuffer(16);
+    private final FloatBuffer hit_result_buffer = BufferUtils.createFloatBuffer(3);
+    private final float[] hit_result_array = new float[3];
+
+
     private final HeightMap heightmap;
 
     private final CameraState state;
@@ -73,29 +84,39 @@ public abstract class Camera implements Animated {
 
     protected final boolean bounce(float x, float y, float z) {
             boolean bounced = false;
-            viewport[0] = 0;
-            viewport[1] = 0;
-            viewport[2] = LocalInput.getViewWidth();
-            viewport[3] = LocalInput.getViewHeight();
+            viewport.clear();
+            viewport.put(0).put(0).put(LocalInput.getViewWidth()).put(LocalInput.getViewHeight());
+            viewport.flip();
+
             for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 2; j++) {
                             proj.setIdentity();
-                            StrictGLU.gluPerspective(proj,
-                                            Globals.FOV,
-                                            LocalInput.getViewAspect(),
-                                            Globals.VIEW_MIN,
-                                            Globals.VIEW_MAX);
+                            float fovy = Globals.FOV;
+                            float aspect = LocalInput.getViewAspect();
+                            float zNear = Globals.VIEW_MIN;
+                            float zFar = Globals.VIEW_MAX;
 
+                            // Create a perspective projection matrix manually, since LWJGL 2's Matrix4f lacks a frustum() method.
+                            float yScale = 1.0f / (float) Math.tan(Math.toRadians(fovy / 2.0f));
+                            float xScale = yScale / aspect;
+                            float frustumLength = zFar - zNear;
+
+                            proj.m00 = xScale;
+                            proj.m11 = yScale;
+                            proj.m22 = -((zFar + zNear) / frustumLength);
+                            proj.m23 = -1;
+                            proj.m32 = -((2 * zNear * zFar) / frustumLength);
+                            proj.m33 = 0;
                             tmp_camera.set(state);
                             tmp_camera.setTargetView(proj);
 
-                            StrictGLU.gluUnProject(i*LocalInput.getViewWidth(),
+                            gluUnProject(i*LocalInput.getViewWidth(),
                                             j*LocalInput.getViewHeight(),
                                             0f,
-                                            tmp_camera.getModelView(), proj, viewport, hit_result);
-                            float hit_x = hit_result[0];
-                            float hit_y = hit_result[1];
-                            float hit_z = hit_result[2];
+                                            tmp_camera.getModelView(), proj);
+                            float hit_x = hit_result_array[0];
+                            float hit_y = hit_result_array[1];
+                            float hit_z = hit_result_array[2];
 
                             float dx1 = hit_x - x;
                             float dy1 = hit_y - y;
@@ -124,6 +145,21 @@ public abstract class Camera implements Animated {
             return bounced;
     }
 
+    private boolean gluUnProject(float winx, float winy, float winz, Matrix4f model, Matrix4f proj) {
+        model_buffer.clear();
+        model.store(model_buffer);
+        model_buffer.flip();
+
+        proj_buffer.clear();
+        proj.store(proj_buffer);
+        proj_buffer.flip();
+
+        hit_result_buffer.clear();
+        boolean result = GLU.gluUnProject(winx, winy, winz, model_buffer, proj_buffer, viewport, hit_result_buffer);
+        hit_result_buffer.get(hit_result_array);
+        return result;
+    }
+
     public final CameraState getState() {
             return state;
     }
@@ -148,4 +184,3 @@ public abstract class Camera implements Animated {
     public void mouseMoved(int x, int y) {
     }
 }
-

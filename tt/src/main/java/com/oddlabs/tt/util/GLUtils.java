@@ -15,14 +15,9 @@ import java.nio.IntBuffer;
 public final class GLUtils {
 	public final static String SCREENSHOT_DEFAULT = "screenshot";
 	
-	private final static @NonNull ByteBuffer byte_buf;
-	private final static IntBuffer int_buf;
-	private final static FloatBuffer plane = BufferUtils.createFloatBuffer(4);
-
-	static {
-		byte_buf = BufferUtils.createByteBuffer(16);
-		int_buf = BufferUtils.createIntBuffer(16);
-	}
+	private final static @NonNull ByteBuffer byte_buf = BufferUtils.createByteBuffer(16);
+	private final static IntBuffer int_buf = BufferUtils.createIntBuffer(16);
+	private final static FloatBuffer plane = BufferUtils.createFloatBuffer(Float.BYTES);
 
 	public static @NonNull GLIntImage loadAsGLImage(String location) {
 		Image img = null;
@@ -103,12 +98,6 @@ public final class GLUtils {
 		com.oddlabs.util.Utils.flip(pixel_data.getPixels(), width*4, height);
 		pixel_data.saveAsPNG(filename);
 		System.gc();
-	}
-
-	public static boolean isIntelGMA950() {
-		String os_name = System.getProperty("os.name");
-		String renderer = GL11.glGetString(GL11.GL_RENDERER);
-		return os_name.equals("Mac OS X") && renderer.equals("Intel GMA 950 OpenGL Engine");
 	}
 
     private GLUtils() {

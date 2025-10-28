@@ -22,15 +22,19 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.BoundingBox;
-import com.oddlabs.tt.util.StrictGLU;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.Selection;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -46,9 +50,17 @@ public final class Picker implements Updatable {
 
 	private final Matrix4f proj = new Matrix4f();
 	private final Matrix4f modl = new Matrix4f();
-	private final int[] viewport = new int[4];
-	private final float[] hit_result = new float[3];
+	private final IntBuffer viewport = BufferUtils.createIntBuffer(16);
+	private final float[] hit_result_array = new float[3];
 	private final float[] dir_vector = new float[3];
+
+	// Buffers for GLU methods
+	private final FloatBuffer model_buffer = BufferUtils.createFloatBuffer(16);
+	private final FloatBuffer proj_buffer = BufferUtils.createFloatBuffer(16);
+	private final FloatBuffer hit_result_buffer = BufferUtils.createFloatBuffer(3);
+
+	// Temp vector for matrix operations
+	private final Vector3f temp_vector = new Vector3f();
 
 	private final List<Target> element_pick_list = new ArrayList<>();
 	private final List<TreeSupply> tree_pick_list = new ArrayList<>();
@@ -262,17 +274,17 @@ public final class Picker implements Updatable {
 
 	private void calcPosAndDir(int pixel_x, int pixel_y) {
 		float pixel_z = 0.5f;
-		StrictGLU.gluUnProject(pixel_x, pixel_y, pixel_z, modl, tmp_camera.getProjectionModelView(), viewport, hit_result);
-		float hit_x = hit_result[0];
-		float hit_y = hit_result[1];
-		float hit_z = hit_result[2];
+		gluUnProject(pixel_x, pixel_y, pixel_z, modl, tmp_camera.getProjectionModelView());
+		float hit_x = hit_result_array[0];
+		float hit_y = hit_result_array[1];
+		float hit_z = hit_result_array[2];
 
 		pixel_z = 0.1f;
-		StrictGLU.gluUnProject(pixel_x, pixel_y, pixel_z, modl, tmp_camera.getProjectionModelView(), viewport, hit_result);
+		gluUnProject(pixel_x, pixel_y, pixel_z, modl, tmp_camera.getProjectionModelView());
 
-		float dx = hit_x - hit_result[0];
-		float dy = hit_y - hit_result[1];
-		float dz = hit_z - hit_result[2];
+		float dx = hit_x - hit_result_array[0];
+		float dy = hit_y - hit_result_array[1];
+		float dz = hit_z - hit_result_array[2];
 		float vec_len_inv = 1f/(float)Math.sqrt(dx*dx + dy*dy + dz*dz);
 		dir_vector[0] = dx*vec_len_inv;
 		dir_vector[1] = dy*vec_len_inv;
@@ -282,7 +294,22 @@ public final class Picker implements Updatable {
 	private boolean nearestLandscape(int pixel_x, int pixel_y) {
 		pickLandscape();
 		calcPosAndDir(pixel_x, pixel_y);
-		return doNearestLandscape(hit_result[0], hit_result[1], hit_result[2], dir_vector[0], dir_vector[1], dir_vector[2]);
+		return doNearestLandscape(hit_result_array[0], hit_result_array[1], hit_result_array[2], dir_vector[0], dir_vector[1], dir_vector[2]);
+	}
+
+	private boolean gluUnProject(float winx, float winy, float winz, Matrix4f model, Matrix4f proj) {
+		model_buffer.clear();
+		model.store(model_buffer);
+		model_buffer.flip();
+
+		proj_buffer.clear();
+		proj.store(proj_buffer);
+		proj_buffer.flip();
+
+		hit_result_buffer.clear();
+		boolean result = GLU.gluUnProject(winx, winy, winz, model_buffer, proj_buffer, viewport, hit_result_buffer);
+		hit_result_buffer.get(hit_result_array);
+		return result;
 	}
 
 	private static float computeTMax(float bmin, float bmax, float c, float d) {
@@ -477,9 +504,19 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 
 	private void setupPicking(@NonNull CameraState camera, float x_center, float y_center, int width, int height) {
 		proj.setIdentity();
-		viewport[0] = 0; viewport[1] = 0; viewport[2] = LocalInput.getViewWidth(); viewport[3] = LocalInput.getViewHeight();
-		StrictGLU.gluPickMatrix(proj, x_center, y_center, width, height, viewport);
+		viewport.clear();
+		viewport.put(0).put(0).put(LocalInput.getViewWidth()).put(LocalInput.getViewHeight());
+		viewport.flip();
+
+		if (width > 0 && height > 0) {
+			temp_vector.set((viewport.get(2) - 2 * (x_center - viewport.get(0))) / width, (viewport.get(3) - 2 * (y_center - viewport.get(1))) / height, 0);
+			proj.translate(temp_vector);
+			temp_vector.set((float)viewport.get(2) / width, (float)viewport.get(3) / height, 1.0f);
+			proj.scale(temp_vector);
+		}
+
 		Renderer.multProjection(proj);
+
 		tmp_camera.set(camera);
 		tmp_camera.setView(proj);
 	}

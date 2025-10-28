@@ -12,8 +12,8 @@ public final class FramebufferTextureRenderer extends OffscreenRenderer {
 	private final int fb_id;
 	private final int rb_id;
 
-	protected FramebufferTextureRenderer(int width, int height, boolean has_alpha, boolean use_copyteximage) throws Exception {
-		super(width, height, use_copyteximage);
+	public FramebufferTextureRenderer(int width, int height, boolean has_alpha) {
+		super(width, height);
 		pushGLState();
 		IntBuffer tmp = BufferUtils.createIntBuffer(1);
 		EXTFramebufferObject.glGenFramebuffersEXT(tmp);
@@ -33,7 +33,7 @@ public final class FramebufferTextureRenderer extends OffscreenRenderer {
 		if (status != EXTFramebufferObject.GL_FRAMEBUFFER_COMPLETE_EXT) {
 			assert status == EXTFramebufferObject.GL_FRAMEBUFFER_UNSUPPORTED_EXT: status;
 			deleteBuffers();
-			throw new Exception("Failed to setup FBO");
+			throw new RuntimeException("Failed to setup FBO");
 		}
 		GL11.glDrawBuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT);
 		GL11.glReadBuffer(EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT);

@@ -2,23 +2,16 @@ package com.oddlabs.tt.vbo;
 
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.ARBBufferObject;
-import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
 
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 public final class FloatVBO extends VBO {
-	private @Nullable FloatBuffer saved_buffer = null;
 //	private FloatBuffer mapped_buffer = null;
 
 	public FloatVBO(int usage, int size) {
-		super(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, usage, size * Float.BYTES);
-		ByteBuffer buffer = getSavedBuffer();
-		if (buffer != null)
-			saved_buffer = buffer.asFloatBuffer();
+		super(GL15.GL_ARRAY_BUFFER, usage, size * Float.BYTES);
 	}
 
 	public FloatVBO(int usage, @NonNull FloatBuffer initial_data) {
@@ -48,43 +41,23 @@ public final class FloatVBO extends VBO {
 	}
 */
 	public void vertexPointer(int size, int stride, int index) {
-		if (!use_vbo) {
-			saved_buffer.position(index);
-			GL11.glVertexPointer(size, stride, saved_buffer);
-		} else {
-			makeCurrent();
-			GL11.glVertexPointer(size, GL11.GL_FLOAT, stride, index<<2);
-		}
+        makeCurrent();
+        GL11.glVertexPointer(size, GL11.GL_FLOAT, stride, index<<2);
 	}
 
 	public void texCoordPointer(int size, int stride, int index) {
-		if (!use_vbo) {
-			saved_buffer.position(index);
-			GL11.glTexCoordPointer(size, stride, saved_buffer);
-		} else {
-			makeCurrent();
-			GL11.glTexCoordPointer(size, GL11.GL_FLOAT, stride, index<<2);
-		}
+        makeCurrent();
+        GL11.glTexCoordPointer(size, GL11.GL_FLOAT, stride, index<<2);
 	}
 
 	public void normalPointer(int stride, int index) {
-		if (!use_vbo) {
-			saved_buffer.position(index);
-			GL11.glNormalPointer(stride, saved_buffer);
-		} else {
-			makeCurrent();
-			GL11.glNormalPointer(GL11.GL_FLOAT, stride, index<<2);
-		}
+        makeCurrent();
+        GL11.glNormalPointer(GL11.GL_FLOAT, stride, index<<2);
 	}
 
 	public void colorPointer(int size, int stride, int index) {
-		if (!use_vbo) {
-			saved_buffer.position(index);
-			GL11.glColorPointer(size, stride, saved_buffer);
-		} else {
-			makeCurrent();
-			GL11.glColorPointer(size, GL11.GL_FLOAT, stride, index<<2);
-		}
+        makeCurrent();
+        GL11.glColorPointer(size, GL11.GL_FLOAT, stride, index<<2);
 	}
 
 	public void put(@NonNull FloatBuffer buffer) {
@@ -100,14 +73,9 @@ public final class FloatVBO extends VBO {
 	}
 
 	public void putSubData(int index, @NonNull FloatBuffer buffer) {
-		if (!use_vbo) {
-			saved_buffer.position(index);
-			saved_buffer.put(buffer);
-		} else {
-			makeCurrent();
-			ARBBufferObject.glBufferSubDataARB(getTarget(), index<<2, buffer);
-			buffer.position(buffer.limit());
-		}
+        makeCurrent();
+        GL15.glBufferSubData(getTarget(), (long) index << 2, buffer);
+        buffer.position(buffer.limit());
 	}
 
     @Override

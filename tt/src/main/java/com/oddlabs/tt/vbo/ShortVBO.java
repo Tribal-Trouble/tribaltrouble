@@ -4,25 +4,17 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.ARBBufferObject;
-import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GLContext;
 
-import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 
 public final class ShortVBO extends VBO {
-	private @Nullable ShortBuffer saved_buffer = null;
-//	private ShortBuffer mapped_buffer = null;
 
 	public ShortVBO(int usage, int size) {
-		super(ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, usage, size * Short.BYTES);
-		ByteBuffer buffer = getSavedBuffer();
-		if (buffer != null)
-			saved_buffer = buffer.asShortBuffer();
+		super(GL15.GL_ELEMENT_ARRAY_BUFFER, usage, size * Short.BYTES);
 	}
 
 	public ShortVBO(int usage, @NonNull ShortBuffer initial_data) {
@@ -76,32 +68,17 @@ public final class ShortVBO extends VBO {
 
 	public void drawRangeElements(int mode, int start, int end, int count, int index) {
 		registerTrianglesRendered(mode, count);
-		if (!use_vbo) {
-			saved_buffer.position(index);
-			saved_buffer.limit(index + count);
-			if (GLContext.getCapabilities().OpenGL12)
-				GL12.glDrawRangeElements(mode, start, end, saved_buffer);
-			else
-				GL11.glDrawElements(mode, saved_buffer);
-			saved_buffer.clear();
-		} else {
-			makeCurrent();
-			if (Settings.getSettings().use_vbo_draw_range_elements && GLContext.getCapabilities().OpenGL12)
-				GL12.glDrawRangeElements(mode, start, end, count, GL11.GL_UNSIGNED_SHORT, index<<1);
-			else
-				GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_SHORT, index<<1);
-		}
+        makeCurrent();
+        if (Settings.getSettings().use_vbo_draw_range_elements && GLContext.getCapabilities().OpenGL12)
+            GL12.glDrawRangeElements(mode, start, end, count, GL11.GL_UNSIGNED_SHORT, index<<1);
+        else
+            GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_SHORT, index<<1);
 	}
 
 	public void put(@NonNull ShortBuffer buffer) {
-		if (!use_vbo) {
-//			saved_buffer.position(index);
-			saved_buffer.put(buffer);
-		} else {
-			makeCurrent();
-			ARBBufferObject.glBufferSubDataARB(getTarget(), 0, buffer);
-			buffer.position(buffer.limit());
-		}
+        makeCurrent();
+        GL15.glBufferSubData(getTarget(), 0, buffer);
+        buffer.position(buffer.limit());
 //		do {
 //			map(ARBBufferObject.GL_WRITE_ONLY_ARB);
 //			buffer().put(buffer);
@@ -119,15 +96,8 @@ public final class ShortVBO extends VBO {
 
 	public void drawElements(int mode, int count, int index) {
 		registerTrianglesRendered(mode, count);
-		if (!use_vbo) {
-			saved_buffer.position(index);
-			saved_buffer.limit(index + count);
-			GL11.glDrawElements(mode, saved_buffer);
-			saved_buffer.clear();
-		} else {
-			makeCurrent();
-			GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_SHORT, index<<1);
-		}
+        makeCurrent();
+        GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_SHORT, index<<1);
 	}
 
         @Override
