@@ -382,7 +382,7 @@ final class Sprite {
 
 		vertices_and_normals.normalPointer(0, normal_index);
 		vertices_and_normals.vertexPointer(3, 0, vertex_index);
-		indices.drawRangeElements(GL11.GL_TRIANGLES, 0, num_vertices - 1, num_triangles*3, 0);
+		indices.drawElements(GL11.GL_TRIANGLES, num_triangles*3, 0);
 	}
 
 	public void renderModel(int tex_index) {

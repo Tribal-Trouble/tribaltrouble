@@ -3,15 +3,17 @@ package com.oddlabs.tt.vbo;
 import com.oddlabs.tt.resource.NativeResource;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
-
 import java.nio.IntBuffer;
 
 public abstract class VBO extends NativeResource {
-    private final static IntBuffer handle_buffer = BufferUtils.createIntBuffer(1);
-
 	private final int handle;
 	private final int target;
 	private final int size;
+	private final static IntBuffer handle_buffer;
+
+	static {
+		handle_buffer = BufferUtils.createIntBuffer(1);
+	}
 
 	private int createBuffer(int target, int usage, int size) {
 		GL15.glGenBuffers(handle_buffer);
@@ -42,7 +44,6 @@ public abstract class VBO extends NativeResource {
 	public VBO(int target, int usage, int size) {
 		this.target = target;
 		this.size = size;
-		//		mapped_buffer = null;
 		handle = createBuffer(target, usage, size);
 	}
 
@@ -55,6 +56,7 @@ public abstract class VBO extends NativeResource {
 	protected final int getTarget() {
 		return target;
 	}
+
 	protected final int getSize() {
 		return size;
 	}

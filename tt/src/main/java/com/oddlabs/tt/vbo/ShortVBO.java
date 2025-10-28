@@ -1,13 +1,10 @@
 package com.oddlabs.tt.vbo;
 
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GLContext;
 
 import java.nio.ShortBuffer;
 
@@ -21,23 +18,6 @@ public final class ShortVBO extends VBO {
 		this(usage, initial_data.remaining());
 		put(initial_data);
 	}
-
-/*	public final void map(int access) {
-		if (!doMap(access))
-			saved_buffer = getMappedBuffer().asShortBuffer();
-		mapped_buffer = saved_buffer;
-	}
-
-	public final ShortBuffer buffer() {
-		return mapped_buffer;
-	}
-
-	public final boolean unmap() {
-		saved_buffer.clear();
-		mapped_buffer = null;
-		return doUnmap();
-	}
-*/
 
 	private static void registerTrianglesRendered(int mode, int count) {
 		int num_triangles = getNumTriangles(mode, count);
@@ -66,32 +46,14 @@ public final class ShortVBO extends VBO {
 		}
 	}
 
-	public void drawRangeElements(int mode, int start, int end, int count, int index) {
-		registerTrianglesRendered(mode, count);
-        makeCurrent();
-        if (Settings.getSettings().use_vbo_draw_range_elements && GLContext.getCapabilities().OpenGL12)
-            GL12.glDrawRangeElements(mode, start, end, count, GL11.GL_UNSIGNED_SHORT, index<<1);
-        else
-            GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_SHORT, index<<1);
-	}
-
 	public void put(@NonNull ShortBuffer buffer) {
         makeCurrent();
         GL15.glBufferSubData(getTarget(), 0, buffer);
         buffer.position(buffer.limit());
-//		do {
-//			map(ARBBufferObject.GL_WRITE_ONLY_ARB);
-//			buffer().put(buffer);
-//			buffer.clear();
-//		} while (!unmap());
 	}
 
 	public void put(short @NonNull [] buffer) {
 		put(Utils.toBuffer(buffer));
-//		do {
-//			map(ARBBufferObject.GL_WRITE_ONLY_ARB);
-//			buffer().put(buffer);
-//		} while (!unmap());
 	}
 
 	public void drawElements(int mode, int count, int index) {

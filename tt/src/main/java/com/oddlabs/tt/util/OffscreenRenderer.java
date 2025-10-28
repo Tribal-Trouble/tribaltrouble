@@ -8,7 +8,10 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
+import java.util.logging.Logger;
+
 public abstract class OffscreenRenderer {
+	private static final Logger logger = Logger.getLogger(OffscreenRenderer.class.getName());
 	private final int width;
 	private final int height;
 	private final @Nullable GLImage image;
@@ -36,7 +39,7 @@ public abstract class OffscreenRenderer {
 	public final void dumpToFile(String filename) {
 		GLIntImage image = new GLIntImage(width, height, GL11.GL_RGBA);
 		GL11.glReadPixels(0, 0, image.getWidth(), image.getHeight(), image.getGLFormat(), image.getGLType(), image.getPixels());
-		System.out.println("filename = " + filename);
+		logger.info("Dumping offscreen buffer to file: " + filename);
 		com.oddlabs.util.Utils.flip(image.getPixels(), image.getWidth()*4, image.getHeight());
 		image.saveAsPNG(filename);
 	}

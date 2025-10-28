@@ -53,7 +53,7 @@ public final class Water {
         setup();
 
         sky.getWaterVertices().vertexPointer(3, 0, 0);
-        sky.getWaterIndices().drawRangeElements(GL11.GL_TRIANGLES, 0, sky.getWaterVertices().capacity() / 3, sky.getWaterIndices().capacity(), 0);
+        sky.getWaterIndices().drawElements(GL11.GL_TRIANGLES, sky.getWaterIndices().capacity(), 0);
 
         // render patches
         patch_vertices.vertexPointer(3, 0, 0);

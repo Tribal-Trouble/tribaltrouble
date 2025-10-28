@@ -110,11 +110,10 @@ public final class Sky {
     public void render() {
         setupSky();
 
-        int end = subdiv_axis * (subdiv_height - 1);
         for (ShortVBO strip_indice : strip_indices) {
-            strip_indice.drawRangeElements(GL11.GL_TRIANGLE_STRIP, 0, end, subdiv_axis * 2 + 2, 0);
+            strip_indice.drawElements(GL11.GL_TRIANGLE_STRIP, subdiv_axis * 2 + 2, 0);
         }
-        fan_indices.drawRangeElements(GL11.GL_TRIANGLE_FAN, 0, end, subdiv_axis + 2, 0);
+        fan_indices.drawElements(GL11.GL_TRIANGLE_FAN, subdiv_axis + 2, 0);
         resetSky();
     }
 
@@ -136,7 +135,7 @@ public final class Sky {
         }
 
         bottom_vertices.vertexPointer(3, 0, 0);
-        water_indices.drawRangeElements(GL11.GL_TRIANGLES, 0, bottom_vertices.capacity() / 3, water_indices.capacity(), 0);
+        water_indices.drawElements(GL11.GL_TRIANGLES, water_indices.capacity(), 0);
 
         if (Globals.draw_detail) {
             GL11.glDisable(GL11.GL_TEXTURE_GEN_S);

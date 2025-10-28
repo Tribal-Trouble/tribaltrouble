@@ -73,10 +73,8 @@ public final class TextureGenerator {
 		for (int i = 0; i < models.length; i++) {
 			indices[i] = i;
 		}
-		do {
-			drawBillboardsToBuffer(models, this, indices, buffer, Globals.COMPRESSED_RGBA_FORMAT, LOWDETAIL_MIPMAP_CUTOFF, 0);
-			buffer.dumpToFile(dest);
-		} while (buffer.isLost());
+        drawBillboardsToBuffer(models, this, indices, buffer, Globals.COMPRESSED_RGBA_FORMAT, LOWDETAIL_MIPMAP_CUTOFF, 0);
+        buffer.dumpToFile(dest);
 	}
 
 	private static void generateBillboardMip(@NonNull LowDetailModel lowdetail, @NonNull TextureGenerator renderer, int mode, float ortho_size, int tex_index) {

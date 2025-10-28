@@ -78,9 +78,6 @@ public final class Settings implements Serializable {
 
 	public final boolean hide_multiplayer = false;
 
-	/* optional extensions */
-	public final boolean use_vbo_draw_range_elements = false;
-
 	public final int frame_grab_milliseconds_per_frame = 40;
 
 	public static void setSettings(Settings new_settings) {

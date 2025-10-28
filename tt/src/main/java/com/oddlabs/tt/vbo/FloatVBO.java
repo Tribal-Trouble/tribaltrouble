@@ -8,7 +8,6 @@ import org.lwjgl.opengl.GL15;
 import java.nio.FloatBuffer;
 
 public final class FloatVBO extends VBO {
-//	private FloatBuffer mapped_buffer = null;
 
 	public FloatVBO(int usage, int size) {
 		super(GL15.GL_ARRAY_BUFFER, usage, size * Float.BYTES);
@@ -24,22 +23,6 @@ public final class FloatVBO extends VBO {
 		put(initial_data);
 	}
 
-/*	public final void map(int access) {
-		if (!doMap(access))
-			saved_buffer = getMappedBuffer().asFloatBuffer();
-		mapped_buffer = saved_buffer;
-	}
-
-	public final boolean unmap() {
-		saved_buffer.clear();
-		mapped_buffer = null;
-		return doUnmap();
-	}
-
-	public final FloatBuffer buffer() {
-		return mapped_buffer;
-	}
-*/
 	public void vertexPointer(int size, int stride, int index) {
         makeCurrent();
         GL11.glVertexPointer(size, GL11.GL_FLOAT, stride, index<<2);
@@ -66,10 +49,6 @@ public final class FloatVBO extends VBO {
 
 	public void put(float @NonNull [] buffer) {
 		putSubData(0, Utils.toBuffer(buffer));
-//		do {
-//			map(ARBBufferObject.GL_WRITE_ONLY_ARB);
-//			buffer().put(buffer);
-//		} while (!unmap());
 	}
 
 	public void putSubData(int index, @NonNull FloatBuffer buffer) {

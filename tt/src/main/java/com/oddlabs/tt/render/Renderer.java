@@ -67,10 +67,7 @@ import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.vector.Matrix4f;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.Files;
@@ -78,6 +75,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.prefs.Preferences;
 
 public final class Renderer {
@@ -90,6 +92,8 @@ public final class Renderer {
 	private static int num_triangles_rendered;
 
 	private static boolean grab_frames = false;
+
+	private static final Logger logger = Logger.getLogger(Renderer.class.getName());
 
 	private final Locale default_locale = new Locale(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(), "default");
 	private final Matrix4f proj = new Matrix4f();
@@ -225,8 +229,8 @@ public final class Renderer {
 	private void run(String @Nullable [] args) throws IOException {
 		long start_time = System.currentTimeMillis();
 		boolean first_frame = true;
-		System.out.println("********** Running tt **********");
-		System.out.flush();
+		// This will be configured by setupLogging, but we need to log before that.
+		logger.info("********** Running tt **********");
 		String platform_dir_name;
 		switch (LWJGLUtil.getPlatform()) {
 			case LWJGLUtil.PLATFORM_MACOSX:
@@ -282,10 +286,10 @@ public final class Renderer {
 		settings.load(game_dir);
 
 		if (eventload || grab_frames) {
-			String last_event_log_path = settings.last_event_log_dir + File.separator + "event.log";
+			String last_event_log_path = settings.last_event_log_dir.resolve("event.log").toString();
 			if (zipped)
 				last_event_log_path += ".gz";
-System.out.println("last_event_log_path = " + last_event_log_path);
+			logger.info("last_event_log_path = " + last_event_log_path);
 			// Only use when anal debugging
 //			ChecksumLogger.initLogging();
 			LocalEventQueue.getQueue().loadEvents(new File(last_event_log_path), zipped);
@@ -295,27 +299,8 @@ System.out.println("last_event_log_path = " + last_event_log_path);
 		Path event_logs_dir = game_dir.resolve("logs");
 		Path event_log_dir = event_logs_dir.resolve(Long.toString(System.currentTimeMillis()));
 		if (LocalEventQueue.getQueue().getDeterministic() == null && settings.save_event_log) {
-			Files.createDirectories(event_log_dir);
-			System.out.println("Writing log files in " + event_log_dir);
+			setupLogging(event_log_dir, silent);
 			LocalEventQueue.getQueue().setEventsLogged(new File(event_log_dir + File.separator + com.oddlabs.util.Utils.EVENT_LOG));
-
-			try {
-				OutputStream std_err_file = Files.newOutputStream(event_log_dir.resolve(com.oddlabs.util.Utils.STD_ERR));
-				OutputStream std_out_file = Files.newOutputStream(event_log_dir.resolve(com.oddlabs.util.Utils.STD_OUT));
-				OutputStream new_err;
-				OutputStream new_out;
-				if (!silent) {
-					new_err = new TeeOutputStream(System.err, std_err_file);
-					new_out = new TeeOutputStream(System.out, std_out_file);
-				} else {
-					new_err = std_err_file;
-					new_out = std_out_file;
-				}
-				System.setErr(new PrintStream(new_err));
-				System.setOut(new PrintStream(new_out));
-			} catch (FileNotFoundException e) {
-				System.err.println("Failed to setup logging to " + event_log_dir + " exception: " + e);
-			}
 		}
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		game_dir = deterministic.log(game_dir);
@@ -329,7 +314,7 @@ System.out.println("last_event_log_path = " + last_event_log_path);
 			language = "en";
 		Locale.setDefault(new Locale(language));
 		Settings.setSettings(settings);
-		Path last_event_log_dir = Paths.get(settings.last_event_log_dir);
+		Path last_event_log_dir = settings.last_event_log_dir;
 		boolean crashed = settings.crashed;
 		NetworkSelector network = new NetworkSelector(LocalEventQueue.getQueue().getDeterministic(), LocalEventQueue.getQueue()::getMillis);
                 initNetwork(network);
@@ -349,8 +334,8 @@ System.out.println("last_event_log_path = " + last_event_log_path);
 		GlobalsInit.init();
 		LocalInput.init();
 
-long startup_timei = System.currentTimeMillis() - start_time;
-System.out.println("Init done after " + startup_timei);
+		long startup_time_init = System.currentTimeMillis() - start_time;
+		logger.info("Init done after " + startup_time_init + "ms");
 		ambient = new AmbientAudio(AudioManager.getManager());
 
 		setupMainMenu(network, gui, true);
@@ -379,7 +364,7 @@ e.printStackTrace();
 					display(gui);
 					if (first_frame) {
 						long startup_time = System.currentTimeMillis() - start_time;
-						System.out.println("First frame rendered after " + startup_time + " milliseconds");
+						logger.info("First frame rendered after " + startup_time + " milliseconds");
 						first_frame = false;
 					}
 					if (grab_frames && movie_recording_started)
@@ -406,10 +391,31 @@ e.printStackTrace();
 		return default_locale;
 	}
 
-	private static void failedOpenGL(@NonNull LWJGLException e) {
-        System.err.println("OpenGL Failure");
-		e.printStackTrace(System.err);
+	private void setupLogging(Path event_log_dir, boolean silent) throws IOException {
+		Files.createDirectories(event_log_dir);
+		logger.info("Writing log files in " + event_log_dir);
 
+		// Get the root logger and remove default handlers to prevent duplicate console output
+		Logger rootLogger = Logger.getLogger("");
+		for (java.util.logging.Handler handler : rootLogger.getHandlers()) {
+			rootLogger.removeHandler(handler);
+		}
+
+		// Add a file handler
+		FileHandler fileHandler = new FileHandler(event_log_dir.resolve("output.log").toString());
+		fileHandler.setFormatter(new SimpleFormatter());
+		rootLogger.addHandler(fileHandler);
+
+		// Add a console handler unless in silent mode
+		if (!silent) {
+			ConsoleHandler consoleHandler = new ConsoleHandler();
+			consoleHandler.setFormatter(new SimpleFormatter());
+			rootLogger.addHandler(consoleHandler);
+		}
+	}
+
+	private static void failedOpenGL(@NonNull LWJGLException e) {
+		logger.log(Level.SEVERE, "OpenGL Failure", e);
 		Main.shutdown();
 	}
 
@@ -438,7 +444,7 @@ e.printStackTrace();
 			} else
 				return result;
 		} catch (Exception e) {
-			System.out.println("Could not access preferences");
+			logger.warning("Could not access preferences");
 			return value;
 		}
 	}
@@ -522,22 +528,22 @@ e.printStackTrace();
 			com.oddlabs.util.Utils.tryGetLoopbackAddress();
 			is_network_created = true;
 		} catch (IOException e) {
-			System.err.println("Failed to initialize network: " + e);
+			logger.log(Level.SEVERE, "Failed to initialize network", e);
 			is_network_created = false;
 		}
 		return LocalEventQueue.getQueue().getDeterministic().log(is_network_created);
 	}
 
 	public void startMovieRecording() {
-		System.out.println("ACTION!");
+		logger.info("ACTION! Movie recording started.");
 		movie_recording_started = true;
 	}
 
 	public void cleanup() {
-		System.out.println("Cleaning up...");
+		logger.info("Cleaning up...");
 		LocalEventQueue.getQueue().dispose();
 		destroyNative();
-		System.out.println("Cleanup complete. Exiting");
+		logger.info("Cleanup complete. Exiting");
 	}
 
 	public static void resetInput() {
@@ -562,28 +568,28 @@ e.printStackTrace();
 			sample_buffers = GLUtils.getGLInteger(ARBMultisample.GL_SAMPLE_BUFFERS_ARB);
 			samples = GLUtils.getGLInteger(ARBMultisample.GL_SAMPLES_ARB);
 		}
-		System.out.println("r = " + r + " | g = " + g + " | b = " + b + " | a = " + a + " | depth = " + depth + " | stencil = " + stencil + " | sample_buffers = " + sample_buffers + " | samples = " + samples);
+		logger.info("Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil + " sample_buffers=" + sample_buffers + " samples=" + samples);
 	}
 
 	private void initNative(boolean crashed) throws LWJGLException {
 		String os_name = System.getProperty("os.name");
-		System.out.println("os_name = '" + os_name + "'");
+		logger.info("os.name = '" + os_name + "'");
 		String os_arch = System.getProperty("os.arch");
-		System.out.println("os_arch = '" + os_arch + "'");
+		logger.info("os.arch = '" + os_arch + "'");
 		String os_version = System.getProperty("os.version");
-		System.out.println("os_version = '" + os_version + "'");
+		logger.info("os.version = '" + os_version + "'");
 		String java_version = System.getProperty("java.version");
-		System.out.println("java_version = '" + java_version + "'");
+		logger.info("java.version = '" + java_version + "'");
 		String java_vendor = System.getProperty("java.vendor");
-		System.out.println("java_vendor = '" + java_vendor + "'");
+		logger.info("java.vendor = '" + java_vendor + "'");
 		long total_mem = Runtime.getRuntime().maxMemory();
-		System.out.println("total_mem = '" + total_mem + "'");
+		logger.info("maxMemory = '" + total_mem + "'");
 
 		try {
 			AL.create(null, -1, -1, false);
 			initAL();
 		} catch (LWJGLException e) {
-			System.err.println("Could not create sound system: " + e);
+			logger.log(Level.WARNING, "Could not create sound system", e);
 		}
 
 		try {
@@ -606,18 +612,18 @@ e.printStackTrace();
 			throw e;
 		}
 		String version = GL11.glGetString(GL11.GL_VERSION);
-		System.out.println("GL version: '" + version + "'");
+		logger.info("GL version: '" + version + "'");
 		String vendor = GL11.glGetString(GL11.GL_VENDOR);
-		System.out.println("GL vendor: '" + vendor + "'");
+		logger.info("GL vendor: '" + vendor + "'");
 		String renderer = GL11.glGetString(GL11.GL_RENDERER);
-		System.out.println("GL renderer: '" + renderer + "'");
+		logger.info("GL renderer: '" + renderer + "'");
 		String extensions = GL11.glGetString(GL11.GL_EXTENSIONS);
-		System.out.println("GL extensions: '" + extensions + "'");
+		logger.info("GL extensions: '" + extensions + "'");
 
 		dumpWindowInfo();
 
 		// We assume a modern context, so OpenGL 1.3 and multitexturing are guaranteed.
-		System.out.println("OpenGL 1.3 is supported");
+		logger.info("OpenGL 1.3 is supported");
 		int num_tex_units = GLUtils.getGLInteger(GL13.GL_MAX_TEXTURE_UNITS);
 		if (num_tex_units < 2)
 			throw new LWJGLException("Number of texture units " + num_tex_units + " is less than the required 2.");
@@ -625,7 +631,7 @@ e.printStackTrace();
 		display_state_stack = new GLStateStack();
 		GLStateStack.setCurrent(display_state_stack);
 		resetInput();
-System.out.println("vsync = " + Settings.getSettings().vsync);
+		logger.info("vsync = " + Settings.getSettings().vsync);
 		if (Settings.getSettings().vsync)
 			Display.setVSyncEnabled(true);
 		initGL();
