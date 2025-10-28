@@ -1,23 +1,23 @@
 package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.util.StateChecksum;
-import com.oddlabs.tt.util.StrictMatrix4f;
-import com.oddlabs.tt.util.StrictVector3f;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 public final class CameraState {
 	final static float MIN_ANGLE = -(float)Math.PI/2f;//+ 0.01f;
 //  private final static float MAX_ANGLE = (float)Math.PI/2f;// - 0.0001f;
 	private final static float MAX_ANGLE = -0.0001f;
 
-	private final static StrictVector3f vector = new StrictVector3f();
+	private final static Vector3f vector = new Vector3f();
 
-	private final StrictMatrix4f modl = new StrictMatrix4f();
-	private final StrictMatrix4f proj_modl = new StrictMatrix4f();
+	private final Matrix4f modl = new Matrix4f();
+	private final Matrix4f proj_modl = new Matrix4f();
 	private final float[][] frustum = new float[6][4];
-	private final StrictVector3f f = new StrictVector3f();
-	private final StrictVector3f s = new StrictVector3f();
-	private final StrictVector3f u = new StrictVector3f();
+	private final Vector3f f = new Vector3f();
+	private final Vector3f s = new Vector3f();
+	private final Vector3f u = new Vector3f();
 
 	private float target_camera_x;
 	private float target_camera_y;
@@ -178,39 +178,39 @@ public final class CameraState {
 		setCurrentHorizAngle(ha);
 	}
 
-	public void updateDirectionAndNormal(@NonNull StrictVector3f f, @NonNull StrictVector3f u, @NonNull StrictVector3f s) {
+	public void updateDirectionAndNormal(@NonNull Vector3f f, @NonNull Vector3f u, @NonNull Vector3f s) {
 		updateDirectionAndNormal(horiz_angle, vert_angle, f, u, s);
 	}
 
-	private final static StrictVector3f tmp = new StrictVector3f();
-	private final static StrictVector3f tmp2 = new StrictVector3f();
-	private static void updateDirectionAndNormal(float hangle, float vangle, @NonNull StrictVector3f f, @NonNull StrictVector3f u, @NonNull StrictVector3f s) {
+	private final static Vector3f tmp = new Vector3f();
+	private final static Vector3f tmp2 = new Vector3f();
+	private static void updateDirectionAndNormal(float hangle, float vangle, @NonNull Vector3f f, @NonNull Vector3f u, @NonNull Vector3f s) {
 		float radius = (float)Math.cos(vangle);
 		float dir_x = (float)Math.cos(hangle);
 		float dir_y = (float)Math.sin(hangle);
 		float dir_z = (float)Math.sin(vangle);
 		f.set(dir_x*radius, dir_y*radius, dir_z);
 		tmp.set(-dir_y, dir_x, 0);
-		StrictVector3f.cross(f, tmp, tmp2);
-		StrictVector3f.cross(f, tmp2, s);
+		Vector3f.cross(f, tmp, tmp2);
+		Vector3f.cross(f, tmp2, s);
 		s.normalise();
-		StrictVector3f.cross(s, f, u);
+		Vector3f.cross(s, f, u);
 		u.normalise();
 	}
 
-	public void setTargetView(@NonNull StrictMatrix4f proj) {
+	public void setTargetView(@NonNull Matrix4f proj) {
 		doSetView(target_camera_x, target_camera_y, target_camera_z, target_horiz_angle, target_vert_angle, proj);
 	}
 
-	public void setView(@NonNull StrictMatrix4f proj) {
+	public void setView(@NonNull Matrix4f proj) {
 		doSetView(camera_x, camera_y, camera_z, horiz_angle, vert_angle, proj);
 	}
 
-	public @NonNull StrictMatrix4f getModelView() {
+	public @NonNull Matrix4f getModelView() {
 		return modl;
 	}
 
-	public @NonNull StrictMatrix4f getProjectionModelView() {
+	public @NonNull Matrix4f getProjectionModelView() {
 		return proj_modl;
 	}
 
@@ -218,7 +218,7 @@ public final class CameraState {
 		return frustum;
 	}
 
-	private void doSetView(float cx, float cy, float cz, float hangle, float vangle, @NonNull StrictMatrix4f proj) {
+	private void doSetView(float cx, float cy, float cz, float hangle, float vangle, @NonNull Matrix4f proj) {
 		updateDirectionAndNormal(hangle, vangle, f, u, s);
 		vector.set(-cx, -cy, -cz);
 		modl.m00 = s.x;
@@ -238,11 +238,11 @@ public final class CameraState {
 		modl.m23 = 0;
 		modl.m33 = 1;
 		modl.translate(vector);
-		StrictMatrix4f.mul(proj, modl, proj_modl);
+		Matrix4f.mul(proj, modl, proj_modl);
 		findFrustumPlanes(proj_modl);
 	}
 
-	public void findFrustumPlanes(@NonNull StrictMatrix4f matrix) {
+	public void findFrustumPlanes(@NonNull Matrix4f matrix) {
 		/* Extract the numbers for the RIGHT plane */
 		frustum[0][0] = matrix.m03 - matrix.m00;
 		frustum[0][1] = matrix.m13 - matrix.m10;

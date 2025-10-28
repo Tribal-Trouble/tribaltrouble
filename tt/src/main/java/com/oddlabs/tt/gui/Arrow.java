@@ -2,10 +2,10 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.landscape.HeightMap;
-import com.oddlabs.tt.util.StrictMatrix4f;
-import com.oddlabs.tt.util.StrictVector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector4f;
 
 public final class Arrow extends GUIObject {
 	private final static float SECONDS_PER_FLASH = .5f;
@@ -37,10 +37,10 @@ public final class Arrow extends GUIObject {
 		setDim(width, height);
 	}
 
-	private final static StrictVector4f point = new StrictVector4f();
-	private @NonNull StrictVector4f project3DTo2D(float x, float y, float z) {
+	private final static Vector4f point = new Vector4f();
+	private @NonNull Vector4f project3DTo2D(float x, float y, float z) {
 		point.set(x,y,z,1);
-		StrictMatrix4f.transform(gui_root.getDelegate().getCamera().getState().getProjectionModelView(), point, point);
+		Matrix4f.transform(gui_root.getDelegate().getCamera().getState().getProjectionModelView(), point, point);
 		if (point.w < .1f)
 			point.w = .1f;
 		float inv_w = 1/point.w;
@@ -50,7 +50,7 @@ public final class Arrow extends GUIObject {
 
     @Override
 	protected void renderGeometry() {
-		StrictVector4f result = project3DTo2D(target_x, target_y, target_z);
+		Vector4f result = project3DTo2D(target_x, target_y, target_z);
 		float x = result.x;
 		float y = result.y;
 		float dx = x - LocalInput.getViewWidth()/2f;

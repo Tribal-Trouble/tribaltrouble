@@ -1,16 +1,19 @@
 package com.oddlabs.tt.util;
 
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 public final class StrictGLU {
-	private final static StrictMatrix4f final_matrix = new StrictMatrix4f();
-	private final static StrictMatrix4f perspective_matrix = new StrictMatrix4f();
-	private final static StrictMatrix4f proj_matrix = new StrictMatrix4f();
-	private final static StrictVector4f in = new StrictVector4f();
-	private final static StrictVector4f out = new StrictVector4f();
-	private final static StrictVector3f vector_3f = new StrictVector3f();
+	private final static Matrix4f final_matrix = new Matrix4f();
+	private final static Matrix4f perspective_matrix = new Matrix4f();
+	private final static Matrix4f proj_matrix = new Matrix4f();
+	private final static Vector4f in = new Vector4f();
+	private final static Vector4f out = new Vector4f();
+	private final static Vector3f vector_3f = new Vector3f();
 
-	public static void gluPerspective(@NonNull StrictMatrix4f proj, float fovy, float aspect, float zNear, float zFar) {
+	public static void gluPerspective(@NonNull Matrix4f proj, float fovy, float aspect, float zNear, float zFar) {
 		float sine, cotangent, deltaZ;
 		float radians = fovy / 2 * (float)Math.PI / 180;
 
@@ -42,12 +45,12 @@ public final class StrictGLU {
 
 //		GL11.glMultMatrix(matrix);
 		proj_matrix.load(proj);
-		StrictMatrix4f.mul(proj_matrix, perspective_matrix, proj);
+		Matrix4f.mul(proj_matrix, perspective_matrix, proj);
 
 	}
 
-	public static boolean gluUnProject(float winx, float winy, float winz, StrictMatrix4f model_matrix, StrictMatrix4f proj_matrix, int[] viewport, float[] obj_pos) {
-		StrictMatrix4f.mul(proj_matrix, model_matrix, final_matrix);
+	public static boolean gluUnProject(float winx, float winy, float winz, Matrix4f model_matrix, Matrix4f proj_matrix, int[] viewport, float[] obj_pos) {
+		Matrix4f.mul(proj_matrix, model_matrix, final_matrix);
 
 		if (final_matrix.invert() == null) {
 			return false;
@@ -61,7 +64,7 @@ public final class StrictGLU {
 		// Map to range -1 to 1
 		in.set(in.getX() * 2 - 1, in.getY() * 2 - 1, in.getZ() * 2 - 1);
 
-		StrictMatrix4f.transform(final_matrix, in, out);
+		Matrix4f.transform(final_matrix, in, out);
 
 		if (out.getW() == 0.0)
 			return false;
@@ -75,7 +78,7 @@ public final class StrictGLU {
 		return true;
 	}
 
-	public static void gluPickMatrix(@NonNull StrictMatrix4f proj, float x, float y, float width, float height, int[] viewport) {
+	public static void gluPickMatrix(@NonNull Matrix4f proj, float x, float y, float width, float height, int[] viewport) {
 		if (width <= 0 || height <= 0) 
 			return;
 

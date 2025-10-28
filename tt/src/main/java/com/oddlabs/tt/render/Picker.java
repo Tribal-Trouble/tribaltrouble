@@ -23,13 +23,13 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.StrictGLU;
-import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.Selection;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -44,8 +44,8 @@ public final class Picker implements Updatable {
 	private final static float PATCH_PICK_STEP = 2f;
 	private final static float TOOL_TIP_DELAY = .1f;
 
-	private final StrictMatrix4f proj = new StrictMatrix4f();
-	private final StrictMatrix4f modl = new StrictMatrix4f();
+	private final Matrix4f proj = new Matrix4f();
+	private final Matrix4f modl = new Matrix4f();
 	private final int[] viewport = new int[4];
 	private final float[] hit_result = new float[3];
 	private final float[] dir_vector = new float[3];

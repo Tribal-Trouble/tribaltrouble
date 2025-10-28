@@ -5,9 +5,9 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.util.BoundingBox;
-import com.oddlabs.tt.util.StrictMatrix4f;
-import com.oddlabs.tt.util.StrictVector3f;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.util.List;
 
@@ -76,11 +76,11 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 	}
 
 	private void buildTrees(final @NonNull World world, LowDetailModel @NonNull [] tree_low_details, final int tree_type_index, final int grid_size, final float radius, @NonNull List<int[]> tree_positions, float scale_factor, float min_size) {
-		StrictMatrix4f matrix2 = new StrictMatrix4f();
-		StrictVector3f vector = new StrictVector3f();
+		Matrix4f matrix2 = new Matrix4f();
+		Vector3f vector = new Vector3f();
 		final float[] tree_low_vertices = tree_low_details[tree_type_index].getVertices();
 		for (int[] coords : tree_positions) {
-			final StrictMatrix4f matrix = new StrictMatrix4f();
+			final Matrix4f matrix = new Matrix4f();
 			final int center_grid_x = coords[0];
 			final int center_grid_y = coords[1];
 			final float tree_x = UnitGrid.coordinateFromGrid(center_grid_x);
@@ -98,7 +98,7 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 			matrix2.setIdentity();
 			vector.set(tree_x, tree_y, world.getHeightMap().getNearestHeight(tree_x, tree_y));
 			matrix2.translate(vector);
-			StrictMatrix4f.mul(matrix2, matrix, matrix);
+			Matrix4f.mul(matrix2, matrix, matrix);
 			visit(new TreeNodeVisitor() {
 				private int child_size = world.getHeightMap().getMetersPerWorld();
 				private int x;

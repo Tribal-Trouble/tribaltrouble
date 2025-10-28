@@ -3,6 +3,7 @@ package com.oddlabs.tt.util;
 import com.oddlabs.tt.global.Globals;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.util.vector.Matrix4f;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -225,7 +226,7 @@ public final class Utils {
 		return x;
 	}
 
-	public static void storeMatrixInArray(@NonNull StrictMatrix4f m, float[] @NonNull [] a) {
+	public static void storeMatrixInArray(@NonNull Matrix4f m, float[] @NonNull [] a) {
 		a[0][0] = m.m00;
 		a[0][1] = m.m01;
 		a[0][2] = m.m02;

@@ -9,8 +9,8 @@ import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.StrictGLU;
-import com.oddlabs.tt.util.StrictMatrix4f;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.util.vector.Matrix4f;
 
 /**
  * The View
@@ -20,7 +20,7 @@ public abstract class Camera implements Animated {
     private final static float SMOOTHNESS_FACTOR = 15;
 
     private final int[] viewport = new int[4];
-    private final StrictMatrix4f proj = new StrictMatrix4f();
+    private final Matrix4f proj = new Matrix4f();
     private final CameraState tmp_camera = new CameraState();
     private final float[] hit_result = new float[3];
     private final HeightMap heightmap;

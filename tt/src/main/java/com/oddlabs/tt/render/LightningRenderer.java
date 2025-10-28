@@ -4,19 +4,19 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.particle.Lightning;
 import com.oddlabs.tt.particle.StretchParticle;
-import com.oddlabs.tt.util.StrictMatrix4f;
-import com.oddlabs.tt.util.StrictVector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.util.List;
 
 final class LightningRenderer {
 
     private final static float SQRT_2 = (float) Math.sqrt(2f);
-    private final static StrictVector3f right_vector = new StrictVector3f();
+    private final static Vector3f right_vector = new Vector3f();
 
-    private final static StrictMatrix4f view_matrix = new StrictMatrix4f();
+    private final static Matrix4f view_matrix = new Matrix4f();
     private final static CameraState tmp_camera = new CameraState();
 
     public static void render(@NonNull RenderQueues render_queues, @NonNull List<Lightning> emitter_queue, @NonNull CameraState state) {

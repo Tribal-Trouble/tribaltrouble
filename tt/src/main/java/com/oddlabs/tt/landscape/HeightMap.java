@@ -1,8 +1,8 @@
 package com.oddlabs.tt.landscape;
 
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.util.StrictVector3f;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.util.List;
 
@@ -12,9 +12,9 @@ public final class HeightMap {
 	public final static int GRID_UNITS_PER_PATCH = 1 << GRID_UNITS_PER_PATCH_EXP;
 
 	final static int MIN_INTERSECTING_LEVEL = 5;
-	private final static StrictVector3f vec1 = new StrictVector3f();
-	private final static StrictVector3f vec2 = new StrictVector3f();
-	private final static StrictVector3f plane = new StrictVector3f();
+	private final static Vector3f vec1 = new Vector3f();
+	private final static Vector3f vec2 = new Vector3f();
+	private final static Vector3f plane = new Vector3f();
 
 	private final float[][] world;
 	private final LandscapeLeaf[] @NonNull [] landscape_leaves;
@@ -130,13 +130,13 @@ public final class HeightMap {
 		return access_grid;
 	}
 
-	void makePlaneVector(int x0, int y0, int x1, int y1, int x2, int y2, @NonNull StrictVector3f plane) {
+	void makePlaneVector(int x0, int y0, int x1, int y1, int x2, int y2, @NonNull Vector3f plane) {
 		makePlaneVector(x0, y0, getWrappedHeight(x0, y0),
 				x1, y1, getWrappedHeight(x1, y1),
 				x2, y2, getWrappedHeight(x2, y2), plane);
 	}
 
-	private static void makePlaneVector(float h1x, float h1y, float h1z, float h2x, float h2y, float h2z, float h3x, float h3y, float h3z, @NonNull StrictVector3f plane) {
+	private static void makePlaneVector(float h1x, float h1y, float h1z, float h2x, float h2y, float h2z, float h3x, float h3y, float h3z, @NonNull Vector3f plane) {
 		float v1x = h2x - h1x;
 		float v1y = h2y - h1y;
 		float v1z = h2z - h1z;
@@ -146,14 +146,14 @@ public final class HeightMap {
 
 		vec1.set(v1x, v1y, v1z);
 		vec2.set(v2x, v2y, v2z);
-		StrictVector3f.cross(vec2, vec1, vec2);
+		Vector3f.cross(vec2, vec1, vec2);
 
 		// Optimization for planeHeight!
 		float inv_z = -1f/vec2.z;
 		plane.set(vec2.x*inv_z, vec2.y*inv_z, (-vec2.x*h1x - vec2.y*h1y)*inv_z + h1z);
 	}
 
-	static float planeHeight(float x, float y, @NonNull StrictVector3f plane) {
+	static float planeHeight(float x, float y, @NonNull Vector3f plane) {
 		return plane.x*x + plane.y*y + plane.z;
 	}
 

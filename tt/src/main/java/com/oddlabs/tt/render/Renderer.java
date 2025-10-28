@@ -46,7 +46,6 @@ import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.StrictGLU;
-import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.TeeOutputStream;
 import com.oddlabs.tt.util.Utils;
@@ -67,6 +66,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.vector.Matrix4f;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -94,7 +94,7 @@ public final class Renderer {
 	private static boolean grab_frames = false;
 
 	private final Locale default_locale = new Locale(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(), "default");
-	private final StrictMatrix4f proj = new StrictMatrix4f();
+	private final Matrix4f proj = new Matrix4f();
 
 	private static AbstractAudioPlayer music;
 	private static String music_path;
@@ -154,7 +154,7 @@ public final class Renderer {
 		GL11.glLoadMatrix(matrix_buf);
 	}
 
-	public static void multProjection(@NonNull StrictMatrix4f matrix) {
+	public static void multProjection(@NonNull Matrix4f matrix) {
 		StrictGLU.gluPerspective(matrix,
 				Globals.FOV,
 				LocalInput.getViewAspect(),
@@ -469,7 +469,7 @@ e.printStackTrace();
 			public void unregisterTarget(Target target) {
 			}
                         @Override
-			public void updateTreeLowDetail(StrictMatrix4f matrix, TreeSupply tree) {
+			public void updateTreeLowDetail(Matrix4f matrix, TreeSupply tree) {
 			}
                         @Override
 			public void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {

@@ -10,22 +10,22 @@ import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.util.StateChecksum;
-import com.oddlabs.tt.util.StrictMatrix4f;
-import com.oddlabs.tt.util.StrictVector3f;
-import com.oddlabs.tt.util.StrictVector4f;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 public final class TreeSupply extends AbstractTreeGroup implements Supply, Target, Animated, ModelToolTip {
 	private final static int INITIAL_SUPPLIES = 10;
 	private final static float SECOND_PER_TREEFALL = 3f;
 
-	private static final StrictVector3f low_detail_x_axis = new StrictVector3f();
-	private static final StrictVector3f low_detail_translate = new StrictVector3f();
-	private static final StrictVector3f low_detail_scale = new StrictVector3f();
-	private static final StrictMatrix4f low_detail_matrix = new StrictMatrix4f();
+	private static final Vector3f low_detail_x_axis = new Vector3f();
+	private static final Vector3f low_detail_translate = new Vector3f();
+	private static final Vector3f low_detail_scale = new Vector3f();
+	private static final Matrix4f low_detail_matrix = new Matrix4f();
 
-	private final StrictMatrix4f matrix;
+	private final Matrix4f matrix;
 	private final int tree_type_index;
 	private final float x;
 	private final float y;
@@ -46,7 +46,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		low_detail_x_axis.set(1f, 0f, 0f);
 	}
 
-	public TreeSupply(@NonNull World world, AbstractTreeGroup parent, float x, float y, int grid_x, int grid_y, int grid_size, float size, @NonNull StrictMatrix4f matrix, int tree_type_index, float @NonNull [] vertices) {
+	public TreeSupply(@NonNull World world, AbstractTreeGroup parent, float x, float y, int grid_x, int grid_y, int grid_size, float size, @NonNull Matrix4f matrix, int tree_type_index, float @NonNull [] vertices) {
 		super(parent);
 		this.world = world;
 		this.x = x;
@@ -57,11 +57,11 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		this.size = size;
 		this.tree_type_index = tree_type_index;
 		this.matrix = matrix;
-		StrictVector4f src = new StrictVector4f();
-		StrictVector4f dest = new StrictVector4f();
+		Vector4f src = new Vector4f();
+		Vector4f dest = new Vector4f();
 		for (int i = 0; i < vertices.length; i += 3) {
 			src.set(vertices[i], vertices[i + 1], vertices[i + 2], 1f);
-			StrictMatrix4f.transform(matrix, src, dest);
+			Matrix4f.transform(matrix, src, dest);
 			checkBoundsX(dest.x);
 			checkBoundsY(dest.y);
 			checkBoundsZ(dest.z);
@@ -111,7 +111,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		scale = 1 - inv*inv*inv*inv*inv*inv;
 
 		low_detail_scale.set(scale, scale, scale);
-		StrictMatrix4f.scale(matrix, low_detail_scale, low_detail_matrix);
+		Matrix4f.scale(low_detail_scale, matrix, low_detail_matrix);
 		world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
 	}
 
@@ -228,7 +228,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		animation_time += t;
 		float time = getTreeFallProgress();
 		low_detail_translate.set(0f, 0f, -13f*(time*time*time*time*time*time));
-		StrictMatrix4f.translate(matrix, low_detail_translate, low_detail_matrix);
+        matrix.translate(low_detail_translate, low_detail_matrix);
 		low_detail_matrix.rotate((.5f*(float)Math.PI)*time*time, low_detail_x_axis);
 		world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
 		if (animation_time >= SECOND_PER_TREEFALL) {
@@ -239,7 +239,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		}
 	}
 
-	public StrictMatrix4f getMatrix() {
+	public Matrix4f getMatrix() {
 		return matrix;
 	}
 

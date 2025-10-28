@@ -1,9 +1,9 @@
 package com.oddlabs.tt.landscape;
 
 
-import com.oddlabs.tt.util.StrictVector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.nio.ShortBuffer;
 
@@ -42,7 +42,7 @@ public final class LandscapeTileTriangle {
 	private final @Nullable LandscapeTileTriangle t0;
 	private final @Nullable LandscapeTileTriangle t1;
 
-	private final StrictVector3f current_plane = new StrictVector3f();
+	private final Vector3f current_plane = new Vector3f();
 
 	private static int getDirection(int patch_exp, int i0, int i1, int i2) {
 		int dir = getDirection(patch_exp, i0, i1);

@@ -4,11 +4,11 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Particle;
-import com.oddlabs.tt.util.StrictMatrix4f;
-import com.oddlabs.tt.util.StrictVector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -17,11 +17,11 @@ final class EmitterRenderer {
 	private final static float SQRT_2 = (float)Math.sqrt(2f);
 	private final static float ROTATION_FACTOR = 60f;
 
-	private final static StrictVector3f right_plus_up = new StrictVector3f();
-	private final static StrictVector3f right_minus_up = new StrictVector3f();
+	private final static Vector3f right_plus_up = new Vector3f();
+	private final static Vector3f right_minus_up = new Vector3f();
 	private final static FloatBuffer color_buffer = BufferUtils.createFloatBuffer(4);
 
-	private final static StrictMatrix4f view_matrix = new StrictMatrix4f();
+	private final static Matrix4f view_matrix = new Matrix4f();
 	private final static CameraState tmp_camera = new CameraState();
 
 	public static void render(@NonNull RenderQueues render_queues, @NonNull List<Emitter> emitter_queue, @NonNull CameraState state) {

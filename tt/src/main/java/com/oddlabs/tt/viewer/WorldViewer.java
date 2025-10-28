@@ -45,10 +45,10 @@ import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.StateChecksum;
-import com.oddlabs.tt.util.StrictMatrix4f;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.util.vector.Matrix4f;
 
 import java.util.ResourceBundle;
 
@@ -140,7 +140,7 @@ public final class WorldViewer implements Animated {
             }
 
             @Override
-            public void updateTreeLowDetail(@NonNull StrictMatrix4f matrix, @NonNull TreeSupply tree) {
+            public void updateTreeLowDetail(@NonNull Matrix4f matrix, @NonNull TreeSupply tree) {
                 getRenderer().getTreeRenderer().getLowDetail().updateLowDetail(matrix, tree);
             }
 

@@ -11,11 +11,11 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.AudioImplementation;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.resource.Resources;
-import com.oddlabs.tt.util.StrictVector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.nio.FloatBuffer;
 
@@ -30,9 +30,9 @@ public final class AmbientAudio {
 	private final AbstractAudioPlayer ambient_beach;
 	private final AbstractAudioPlayer ambient_wind;
 
-	private final StrictVector3f f = new StrictVector3f();
-	private final StrictVector3f s = new StrictVector3f();
-	private final StrictVector3f u = new StrictVector3f();
+	private final Vector3f f = new Vector3f();
+	private final Vector3f s = new Vector3f();
+	private final Vector3f u = new Vector3f();
 
 	public AmbientAudio(@NonNull AudioImplementation audio_implementation) {
 		ambient_forest_buffer = Resources.findResource(new AudioFile("/sfx/ambient_forest.ogg"));
