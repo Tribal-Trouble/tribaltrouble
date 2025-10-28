@@ -18,13 +18,16 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.opengl.Display;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
+ import java.util.logging.Logger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public final class AnimationManager {
+	private static final Logger logger = Logger.getLogger(AnimationManager.class.getName());
 	public final static int ANIMATION_MILLISECONDS_PER_TICK = 20;
 	public final static int ANIMATION_MILLISECONDS_PER_PRECISION_TICK = ANIMATION_MILLISECONDS_PER_TICK/5;
 	public final static float ANIMATION_SECONDS_PER_TICK = ANIMATION_MILLISECONDS_PER_TICK/1000f;
@@ -32,10 +35,10 @@ public final class AnimationManager {
 	private final static int ANIMATION_MILLISECONDS_PER_CHECKSUM = 2000;
 	public final static int MAX_STEP_MILLIS = 30000;
 
-	public final static StatCounter pathfinds_per_tick = new StatCounter(100);
+	public final static StatCounter pathfindsPerTick = new StatCounter(100);
 
-	private final static StatCounter frame_time = new StatCounter(10);
-	private final static @NonNull MonotoneTimeManager time_source;
+	private final static StatCounter frameTime = new StatCounter(10);
+	private final static @NonNull MonotoneTimeManager timeSource;
 
 	private static long current_time ;
 	private static long last_frame_time;
@@ -87,7 +90,7 @@ public final class AnimationManager {
 	};
 */
 	static {
-		time_source = new MonotoneTimeManager(LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_WINDOWS
+		timeSource = new MonotoneTimeManager(LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_WINDOWS
                 ? System::currentTimeMillis
                 : () -> TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) );
 		current_time = getSystemTime();
@@ -103,7 +106,7 @@ public final class AnimationManager {
 		if (time_frozen) {
 			return frozen_start_time_warped;
 		} else
-			return time_source.getMillis() + time_warp;
+			return timeSource.getMillis() + time_warp;
 	}
 
 	public static void toggleTimeStop() {
@@ -112,14 +115,14 @@ public final class AnimationManager {
 		else
 			freezeTime();
 		time_stopped = time_frozen;
-        System.out.println("time_stopped = " + time_stopped);
+        logger.config("time_stopped = " + time_stopped);
 	}
 
 	private static void unfreezeTime() {
 		if (!time_frozen)
 			return;
 		time_frozen = false;
-		time_warp -= time_source.getMillis() - frozen_start_time;
+		time_warp -= timeSource.getMillis() - frozen_start_time;
 	}
 
 	public static void freezeTime() {
@@ -127,7 +130,7 @@ public final class AnimationManager {
 			return;
 		frozen_start_time_warped = getSystemTime();
 		time_frozen = true;
-		frozen_start_time = time_source.getMillis();
+		frozen_start_time = timeSource.getMillis();
 	}
 
     @SuppressWarnings("UseOfSystemOutOrSystemErr")
@@ -143,14 +146,14 @@ public final class AnimationManager {
 		long time_diff = current_time - last_frame_time;
 		last_frame_time = current_time;
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
-		if (time_diff > MAX_STEP_MILLIS && !deterministic.isPlayback()) {
-			System.out.println("Skipping large time diff: " + time_diff + " ms.");
+		if (time_diff > MAX_STEP_MILLIS && !Objects.requireNonNull(deterministic).isPlayback()) {
+			logger.warning("Skipping large time diff: " + time_diff + " ms.");
 			time_diff = 0;
 		}
 
-		frame_time.updateAbsolute(time_diff);
-		execution_time_precision += frame_time.getAveragePerUpdate();
-		deterministic.setEnabled(true);
+		frameTime.updateAbsolute(time_diff);
+		execution_time_precision += frameTime.getAveragePerUpdate();
+		Objects.requireNonNull(deterministic).setEnabled(true);
 		while (execution_time_precision >= ANIMATION_MILLISECONDS_PER_PRECISION_TICK && !Renderer.isFinished()) {
             /*
             // Used for replaying warp control in clientload
@@ -174,7 +177,7 @@ public final class AnimationManager {
 				if (deterministic.log(Display.isCreated() && Display.isCloseRequested())) {
 					gui.getGUIRoot().addModalForm(new QuitForm(gui.getGUIRoot()));
 				}
-				pathfinds_per_tick.updateAbsolute(PathFinder.stat_pathfinder_per_frame);
+				pathfindsPerTick.updateAbsolute(PathFinder.stat_pathfinder_per_frame);
 				PathFinder.stat_pathfinder_per_frame = 0;
 				LocalEventQueue.getQueue().tickLowPrecision(ANIMATION_SECONDS_PER_TICK);
 				execution_time -= ANIMATION_MILLISECONDS_PER_TICK;
@@ -184,7 +187,7 @@ public final class AnimationManager {
 					int checksum = LocalEventQueue.getQueue().computeChecksum();
 					int logged_checksum = deterministic.log(checksum);
 					if (checksum != logged_checksum && checksum_complain) {
-						System.out.println("********** ERROR: Checksum mismatch at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " | checksum = " + checksum + " | logged_checksum = " + logged_checksum + " **********");
+						logger.severe("********** ERROR: Checksum mismatch at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " | checksum = " + checksum + " | logged_checksum = " + logged_checksum + " **********");
 						checksum_complain = false;
 					}
 				}
@@ -201,7 +204,7 @@ public final class AnimationManager {
 			}
 
 			if (LocalEventQueue.getQueue().getHighPrecisionManager().getTick() > 2529461 + 2000) {
-				System.out.println("FORCE QUIT: getHighPrecisionManager().getTick() = " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+				logger.severe("FORCE QUIT: getHighPrecisionManager().getTick() = " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
 				com.oddlabs.tt.Main.shutdown();
 			}*/
 		}
@@ -245,6 +248,6 @@ public final class AnimationManager {
 
 	public void debugPrintAnimations() {
 		flushAnimations();
-        animations.forEach(anim -> System.out.println("anim = " + anim));
+        animations.forEach(anim -> logger.fine("anim = " + anim));
 	}
 }

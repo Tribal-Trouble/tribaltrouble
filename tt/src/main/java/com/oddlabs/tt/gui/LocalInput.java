@@ -20,10 +20,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.logging.Logger;
 import java.util.TreeSet;
 
 public final class LocalInput {
-	public final static int LEFT_BUTTON = 0;
+	public static final int LEFT_BUTTON = 0;
+	private static final Logger logger = Logger.getLogger(LocalInput.class.getName());
+
 	public final static int RIGHT_BUTTON = 1;
 	public final static int MIDDLE_BUTTON = 2;
 
@@ -105,7 +108,7 @@ public final class LocalInput {
 
 	public static boolean isKeyDown(int key_code) {
 		if (key_code >= keys.length) {
-			System.out.println("Unsupported key " + key_code);
+			logger.warning("Unsupported key " + key_code);
 			return false;
 		}
 		return keys[key_code];
@@ -199,10 +202,10 @@ public final class LocalInput {
 	}
 
 	public void setSettings(Path game_dir, @NonNull Path event_log_dir, int revision, @NonNull Settings settings) {
-		System.out.println("revision = " + revision);
+		logger.config("revision = " + revision);
 		LocalInput.game_dir = game_dir;
 		LocalInput.revision = revision;
-		settings.last_event_log_dir = event_log_dir.toAbsolutePath().toUri();
+		settings.last_event_log_dir = event_log_dir.toAbsolutePath();
 		settings.last_revision = revision;
 		settings.crashed = true;
 		settings.save();
@@ -232,7 +235,7 @@ public final class LocalInput {
 		SerializableDisplayMode new_mode = LocalEventQueue.getQueue().getDeterministic().log(new SerializableDisplayMode(Display.getDisplayMode()));
 		view_width = new_mode.getWidth();
 		view_height = new_mode.getHeight();
-		System.out.println("Switched mode to " + new_mode);
+		logger.info("Switched mode to " + new_mode);
 		Settings.getSettings().view_width = new_mode.getWidth();
 		Settings.getSettings().view_height = new_mode.getHeight();
 		Settings.getSettings().view_freq = new_mode.getFrequency();
@@ -242,7 +245,7 @@ public final class LocalInput {
 		Settings.getSettings().fullscreen = fullscreen;
 		if (switch_now && LocalInput.fullscreen != fullscreen) {
 			toggleFullscreen();
-			System.out.println("Fullscreen toggled");
+			logger.info("Fullscreen toggled");
 		}
 	}
 
@@ -252,7 +255,7 @@ public final class LocalInput {
 			Display.setFullscreen(fullscreen && !LocalEventQueue.getQueue().getDeterministic().isPlayback());
 			Renderer.resetInput();
 		} catch (LWJGLException e) {
-			System.out.println("Mode switching failed with exception: " + e);
+			logger.log(java.util.logging.Level.SEVERE, "Mode switching failed with exception", e);
 			throw new RuntimeException("Mode switching failed");
 		}
 	}

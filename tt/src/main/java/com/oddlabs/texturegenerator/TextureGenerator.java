@@ -25,9 +25,6 @@ public final class TextureGenerator {
 	private final static int LOWDETAIL_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
 	private final static int CROWN_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
 
-	private SpriteList[] crowns;
-	private SpriteList[] trunks;
-
 	public static void main(String @NonNull [] args) throws LWJGLException {
 		assert args.length == 1;
 		new TextureGenerator(args[0]);
@@ -43,41 +40,49 @@ public final class TextureGenerator {
 
 		Display.setDisplayMode(new DisplayMode(LOW_DETAIL_TEX_SIZE, LOW_DETAIL_TEX_SIZE));
 		Display.create(new PixelFormat(Globals.VIEW_BIT_DEPTH, 1, 16, 0, 0));
-		OffscreenRenderer buffer = new FBORenderer(LOW_DETAIL_TEX_SIZE, LOW_DETAIL_TEX_SIZE);
-		SpriteList jungle_crown = Resources.findResource(new SpriteFile("/geometry/misc/jungle_tree_crown.binsprite", CROWN_MIPMAP_CUTOFF, false, false, true, false));
-		SpriteList jungle_trunk = Resources.findResource(new SpriteFile("/geometry/misc/jungle_tree_trunk.binsprite", CROWN_MIPMAP_CUTOFF, true, true, false, false));
-		SpriteList palm_crown = Resources.findResource(new SpriteFile("/geometry/misc/palm_crown.binsprite", CROWN_MIPMAP_CUTOFF, false, false, true, false));
-		SpriteList palm_trunk = Resources.findResource(new SpriteFile("/geometry/misc/palm_trunk.binsprite", CROWN_MIPMAP_CUTOFF, true, true, false, false));
-		crowns = new SpriteList[]{jungle_crown, palm_crown};
-		trunks = new SpriteList[]{jungle_trunk, palm_trunk};
-		LowDetailModel jungle_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/tree_low.binlowdetail"));
-		LowDetailModel palm_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/palm_low.binlowdetail"));
-		generateLowDetailTexture(buffer, new LowDetailModel[]{jungle_lowdetail, palm_lowdetail}, dest + "/lowdetail_tree");
 
-		OffscreenRenderer viking_buffer = new FBORenderer(LOW_DETAIL_TEX_SIZE, LOW_DETAIL_TEX_SIZE);
-		SpriteList oak_crown = Resources.findResource(new SpriteFile("/geometry/misc/oak_tree_crown.binsprite", CROWN_MIPMAP_CUTOFF, false, false, true, false));
-		SpriteList oak_trunk = Resources.findResource(new SpriteFile("/geometry/misc/oak_tree_trunk.binsprite", CROWN_MIPMAP_CUTOFF, true, true, false, false));
-		SpriteList pine_crown = Resources.findResource(new SpriteFile("/geometry/misc/pine_tree_crown.binsprite", CROWN_MIPMAP_CUTOFF, false, false, true, false));
-		SpriteList pine_trunk = Resources.findResource(new SpriteFile("/geometry/misc/pine_tree_trunk.binsprite", CROWN_MIPMAP_CUTOFF, true, true, false, false));
-		crowns = new SpriteList[]{oak_crown, pine_crown};
-		trunks = new SpriteList[]{oak_trunk, pine_trunk};
-		LowDetailModel oak_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/oak_tree_low.binlowdetail"));
-		LowDetailModel pine_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/pine_tree_low.binlowdetail"));
-		generateLowDetailTexture(viking_buffer, new LowDetailModel[]{oak_lowdetail, pine_lowdetail}, dest + "/viking_lowdetail_tree");
+		// Generate Native/Jungle tree textures
+		generateTextureSet(
+				new String[]{"/geometry/misc/jungle_tree_crown.binsprite", "/geometry/misc/palm_crown.binsprite"},
+				new String[]{"/geometry/misc/jungle_tree_trunk.binsprite", "/geometry/misc/palm_trunk.binsprite"},
+				new String[]{"/geometry/misc/tree_low.binlowdetail", "/geometry/misc/palm_low.binlowdetail"},
+				dest + "/lowdetail_tree"
+		);
+
+		// Generate Viking tree textures
+		generateTextureSet(
+				new String[]{"/geometry/misc/oak_tree_crown.binsprite", "/geometry/misc/pine_tree_crown.binsprite"},
+				new String[]{"/geometry/misc/oak_tree_trunk.binsprite", "/geometry/misc/pine_tree_trunk.binsprite"},
+				new String[]{"/geometry/misc/oak_tree_low.binlowdetail", "/geometry/misc/pine_tree_low.binlowdetail"},
+				dest + "/viking_lowdetail_tree"
+		);
+
 		Display.destroy();
 	}
 
+	private void generateTextureSet(String[] crownFiles, String[] trunkFiles, String[] lowDetailFiles, String dest) {
+		OffscreenRenderer buffer = new FBORenderer(LOW_DETAIL_TEX_SIZE, LOW_DETAIL_TEX_SIZE);
 
-	private void generateLowDetailTexture(@NonNull OffscreenRenderer buffer, LowDetailModel @NonNull [] models, String dest) {
+		SpriteList[] crowns = new SpriteList[crownFiles.length];
+		SpriteList[] trunks = new SpriteList[trunkFiles.length];
+		LowDetailModel[] models = new LowDetailModel[lowDetailFiles.length];
+
+		for (int i = 0; i < crownFiles.length; i++) {
+			crowns[i] = Resources.findResource(new SpriteFile(crownFiles[i], CROWN_MIPMAP_CUTOFF, false, false, true, false));
+			trunks[i] = Resources.findResource(new SpriteFile(trunkFiles[i], CROWN_MIPMAP_CUTOFF, true, true, false, false));
+			models[i] = Utils.loadObject(Utils.makeURL(lowDetailFiles[i]));
+		}
+
 		int[] indices = new int[models.length];
 		for (int i = 0; i < models.length; i++) {
 			indices[i] = i;
 		}
-        drawBillboardsToBuffer(models, this, indices, buffer, Globals.COMPRESSED_RGBA_FORMAT, LOWDETAIL_MIPMAP_CUTOFF, 0);
+        drawBillboardsToBuffer(models, this, indices, buffer, crowns, trunks, 0);
         buffer.dumpToFile(dest);
+		buffer.destroy();
 	}
 
-	private static void generateBillboardMip(@NonNull LowDetailModel lowdetail, @NonNull TextureGenerator renderer, int mode, float ortho_size, int tex_index) {
+	private static void generateBillboardMip(@NonNull LowDetailModel lowdetail, @NonNull TextureGenerator renderer, int mode, float ortho_size, SpriteList[] crowns, SpriteList[] trunks, int tex_index) {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0.0f, ortho_size, 0.0f, ortho_size, -50.0f, 50.0f);
@@ -85,29 +90,25 @@ public final class TextureGenerator {
 		BillboardPainter.init();
 		for (int i = 0; i < lowdetail.getIndices().length/3; i++) {
 			BillboardPainter.loadFaceMatrixAndClipPlanes(i, lowdetail.getIndices(), lowdetail.getVertices(), lowdetail.getTexCoords());
-			renderer.renderModel(mode, tex_index);
+			renderer.renderModel(mode, crowns, trunks, tex_index);
 //buffer.dumpToFile("test_bill" + i + ".image");
 //GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		}
 		BillboardPainter.finish();
 	}
 
-	private static void drawBillboardsToBuffer(LowDetailModel @NonNull [] lowdetails, @NonNull TextureGenerator renderer, int[] modes, OffscreenRenderer buffer, int format, int mipmap_cutoff, int tex_index) {
+	private static void drawBillboardsToBuffer(LowDetailModel @NonNull [] lowdetails, @NonNull TextureGenerator renderer, int[] modes, OffscreenRenderer buffer, SpriteList[] crowns, SpriteList[] trunks, int tex_index) {
 		int ortho_size = 1;
-		float[] clear_color = renderer.getModelClearColor();
+		float[] clear_color = trunks[0].getClearColor();
 		GL11.glClearColor(clear_color[0], clear_color[1], clear_color[2], 0f);
 		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		for (int i = 0; i < lowdetails.length; i++) {
-            generateBillboardMip(lowdetails[i], renderer, modes[i], ortho_size, tex_index);
+            generateBillboardMip(lowdetails[i], renderer, modes[i], ortho_size, crowns, trunks, tex_index);
         }
 	}
 
-	public float[] getModelClearColor() {
-		return trunks[0].getClearColor();
-	}
-
-	public void renderModel(int mode, int tex_index) {
+	public void renderModel(int mode, SpriteList[] crowns, SpriteList[] trunks, int tex_index) {
 		trunks[mode].renderModel(tex_index);
 		crowns[mode].renderModel(tex_index);
 	}

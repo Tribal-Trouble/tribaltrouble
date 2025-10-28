@@ -40,6 +40,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 public final class MatchmakingClient implements MatchmakingClientInterface, ConnectionInterface {
+    private static final String MATCHMAKING_HOST = "127.0.0.1";
+
 	private final static int STATE_NOT_CONNECTED = 1;
 	private final static int STATE_AWAITING_OK = 2;
 	private final static int STATE_LOGGED_IN = 4;
@@ -288,7 +290,8 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 
 	private void open(@NonNull NetworkSelector network) {
 		close();
-		this.conn = new SecureConnection(network.getDeterministic(), new Connection(network, Settings.getSettings().matchmaking_address, MatchmakingServerInterface.MATCHMAKING_SERVER_PORT, this), null);
+
+		this.conn = new SecureConnection(network.getDeterministic(), new Connection(network, MATCHMAKING_HOST, MatchmakingServerInterface.MATCHMAKING_SERVER_PORT, this), null);
 		this.matchmaking_login_interface = (MatchmakingServerLoginInterface)ARMIEvent.createProxy(conn, MatchmakingServerLoginInterface.class);
 	}
 

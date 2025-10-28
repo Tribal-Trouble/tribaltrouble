@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 public final class PeerHub implements Animated, RouterHandler {
+    private static final String ROUTER_ADDRESS = "127.0.0.1";
 	public final static ResourceBundle bundle = ResourceBundle.getBundle(PeerHub.class.getName());
 	public final static @NonNull String SYSTEM_NAME;
 
@@ -99,7 +100,7 @@ public final class PeerHub implements Animated, RouterHandler {
 			this.router_client = new RouterClient(network, this, router.getPort());
 		} else {
 			this.router = null;
-			this.router_client = new RouterClient(network, Settings.getSettings().router_address, this);
+			this.router_client = new RouterClient(network, ROUTER_ADDRESS, this);
 		}
 		for (short i = 0; i < players.length; i++) {
 			Player player = players[i];

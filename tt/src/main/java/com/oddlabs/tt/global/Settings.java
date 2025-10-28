@@ -8,28 +8,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public final class Settings implements Serializable {
-	private final static long serialVersionUID = 1L;
+    private final static long serialVersionUID = 1L;
 
 	private static Settings settings;
 
 	// event logging
-	public @NonNull URI last_event_log_dir = Paths.get("").toUri();
+	private static final Logger logger = Logger.getLogger(Settings.class.getName());
+	public transient @NonNull Path last_event_log_dir = Paths.get("");
 	public int last_revision = -1;
 	public boolean crashed = false;
 
 	// network
-	public @NonNull String registration_address = "registration.oddlabs.com";
-	public final String matchmaking_address = "matchmaking.oddlabs.com";
-	public final String router_address = "router.oddlabs.com";
 	public String username = "";
 	public String pw_digest = "";
 	public boolean remember_login = false;
@@ -95,92 +92,174 @@ public final class Settings implements Serializable {
 	public void save() {
 		if (LocalEventQueue.getQueue().getDeterministic().isPlayback())
 			return;
-		Settings original_settings = new Settings();
+		Settings defaults = new Settings();
 		Properties props = new Properties();
-		Field[] pref_fields = Settings.class.getDeclaredFields();
-        for (Field field : pref_fields) {
-            int mods = field.getModifiers();
-            if (!hasValidModifiers(mods))
-                continue;
-            assert !Modifier.isStatic(mods);
-            Class<?> field_type = field.getType();
-            try {
-                if (field_type.equals(boolean.class)) {
-                    boolean field_value = field.getBoolean(this);
-                    if (field_value != field.getBoolean(original_settings))
-                        props.setProperty(field.getName(), ""+field_value);
-                } else if (field_type.equals(int.class)) {
-                    int field_value = field.getInt(this);
-                    if (field_value != field.getInt(original_settings))
-                        props.setProperty(field.getName(), ""+field_value);
-                } else if (field_type.equals(float.class)) {
-                    float field_value = field.getFloat(this);
-                    if (field_value != field.getFloat(original_settings))
-                        props.setProperty(field.getName(), ""+field_value);
-                } else if (field_type.equals(String.class)) {
-                    String field_value = (String)field.get(this);
-                    if (!field_value.equals(field.get(original_settings)))
-                        props.setProperty(field.getName(), field_value);
-                } else if (field_type.equals(URI.class)) {
-                    URI field_value = (URI)field.get(this);
-                    if (!field_value.equals(field.get(original_settings)))
-                        props.setProperty(field.getName(), ""+field_value);
-                } else
-                    throw new RuntimeException("Unsupported Settings type " + field_type);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
+
+		setProperty(props, "last_event_log_dir", last_event_log_dir, defaults.last_event_log_dir);
+		setProperty(props, "last_revision", last_revision, defaults.last_revision);
+		setProperty(props, "crashed", crashed, defaults.crashed);
+		setProperty(props, "username", username, defaults.username);
+		setProperty(props, "pw_digest", pw_digest, defaults.pw_digest);
+		setProperty(props, "remember_login", remember_login, defaults.remember_login);
+		setProperty(props, "graphic_detail", graphic_detail, defaults.graphic_detail);
+		setProperty(props, "play_music", play_music, defaults.play_music);
+		setProperty(props, "play_sfx", play_sfx, defaults.play_sfx);
+		setProperty(props, "music_gain", music_gain, defaults.music_gain);
+		setProperty(props, "sound_gain", sound_gain, defaults.sound_gain);
+		setProperty(props, "language", language, defaults.language);
+		setProperty(props, "view_width", view_width, defaults.view_width);
+		setProperty(props, "view_height", view_height, defaults.view_height);
+		setProperty(props, "view_freq", view_freq, defaults.view_freq);
+		setProperty(props, "new_view_width", new_view_width, defaults.new_view_width);
+		setProperty(props, "new_view_height", new_view_height, defaults.new_view_height);
+		setProperty(props, "new_view_freq", new_view_freq, defaults.new_view_freq);
+		setProperty(props, "fullscreen", fullscreen, defaults.fullscreen);
+		setProperty(props, "samples", samples, defaults.samples);
+		setProperty(props, "invert_camera_pitch", invert_camera_pitch, defaults.invert_camera_pitch);
+		setProperty(props, "aggressive_units", aggressive_units, defaults.aggressive_units);
+		setProperty(props, "use_native_cursor", use_native_cursor, defaults.use_native_cursor);
+		setProperty(props, "mapmode_delay", mapmode_delay, defaults.mapmode_delay);
+		setProperty(props, "tooltip_delay", tooltip_delay, defaults.tooltip_delay);
+		setProperty(props, "first_run", first_run, defaults.first_run);
+		setProperty(props, "warning_no_sound", warning_no_sound, defaults.warning_no_sound);
+
 		Path settings_file = LocalInput.getGameDir().resolve(Globals.SETTINGS_FILE_NAME);
 		try (OutputStream out = Files.newOutputStream(settings_file)) {
 			props.store(out, "comment");
 		} catch (IOException e) {
-			System.err.println("Failed to write settings to " + settings_file + " exception: " + e);
+			logger.warning("Failed to write settings to " + settings_file + " exception: " + e);
 		}
 	}
-
+	
 	public void load(@NonNull Path game_dir) {
-		Field[] pref_fields = getClass().getDeclaredFields();
 		Properties props = new Properties();
 		Path settings_file = game_dir.resolve(Globals.SETTINGS_FILE_NAME);
-		try {
-			InputStream in = Files.newInputStream(settings_file);
+		if (!Files.exists(settings_file)) {
+			return;
+		}
+		try (InputStream in = Files.newInputStream(settings_file)) {
 			props.load(in);
 		} catch (IOException e) {
-			System.err.println("Could not read settings from " + settings_file);
+			logger.warning("WARNING: Could not read settings from " + settings_file + ". Using defaults.");
 			return;
 		}
 
-            for (Field field : pref_fields) {
-                int mods = field.getModifiers();
-                if (!hasValidModifiers(mods))
-                    continue;
-                assert !Modifier.isStatic(mods);
-                String value = props.getProperty(field.getName());
-                if (value == null)
-                    continue;
-                Class<?> field_type = field.getType();
-                try {
-                    if (field_type.equals(boolean.class)) {
-                        boolean field_value = Boolean.parseBoolean(value);
-                        field.setBoolean(this, field_value);
-                    } else if (field_type.equals(int.class)) {
-                        int field_value = Integer.parseInt(value);
-                        field.setInt(this, field_value);
-                    } else if (field_type.equals(float.class)) {
-                        float field_value = Float.parseFloat(value);
-                        field.setFloat(this, field_value);
-                    } else if (field_type.equals(String.class)) {
-                        field.set(this, value);
-                    } else
-                        throw new RuntimeException("Unsupported Settings type " + field_type);
-                } catch (IllegalAccessException | RuntimeException e) {
-                    System.out.println("WARNING: " + field.getName() + " is not of type: " + field.getType() + ". Skipped");
-                }
-            }
+		last_event_log_dir = getPath(props, "last_event_log_dir", last_event_log_dir);
+		last_revision = getInt(props, "last_revision", last_revision);
+		crashed = getBoolean(props, "crashed", crashed);
+		username = props.getProperty("username", username);
+		pw_digest = props.getProperty("pw_digest", pw_digest);
+		remember_login = getBoolean(props, "remember_login", remember_login);
+		graphic_detail = getInt(props, "graphic_detail", graphic_detail);
+		play_music = getBoolean(props, "play_music", play_music);
+		play_sfx = getBoolean(props, "play_sfx", play_sfx);
+		music_gain = getFloat(props, "music_gain", music_gain);
+		sound_gain = getFloat(props, "sound_gain", sound_gain);
+		language = props.getProperty("language", language);
+		view_width = getInt(props, "view_width", view_width);
+		view_height = getInt(props, "view_height", view_height);
+		view_freq = getInt(props, "view_freq", view_freq);
+		new_view_width = getInt(props, "new_view_width", new_view_width);
+		new_view_height = getInt(props, "new_view_height", new_view_height);
+		new_view_freq = getInt(props, "new_view_freq", new_view_freq);
+		fullscreen = getBoolean(props, "fullscreen", fullscreen);
+		samples = getInt(props, "samples", samples);
+		invert_camera_pitch = getBoolean(props, "invert_camera_pitch", invert_camera_pitch);
+		aggressive_units = getBoolean(props, "aggressive_units", aggressive_units);
+		use_native_cursor = getBoolean(props, "use_native_cursor", use_native_cursor);
+		mapmode_delay = getFloat(props, "mapmode_delay", mapmode_delay);
+		tooltip_delay = getFloat(props, "tooltip_delay", tooltip_delay);
+		first_run = getBoolean(props, "first_run", first_run);
+		warning_no_sound = getBoolean(props, "warning_no_sound", warning_no_sound);
 	}
 
-	private static boolean hasValidModifiers(int mods) {
-		return !Modifier.isStatic(mods) && !Modifier.isFinal(mods);
+	// --- Save Helpers ---
+	private void setProperty(Properties props, String key, Path value, Path defaultValue) {
+		if (!value.equals(defaultValue)) {
+			props.setProperty(key, value.toString());
+		}
+	}
+
+	private void setProperty(Properties props, String key, String value, String defaultValue) {
+		if (!value.equals(defaultValue)) {
+			props.setProperty(key, value);
+		}
+	}
+
+	private void setProperty(Properties props, String key, int value, int defaultValue) {
+		if (value != defaultValue) {
+			props.setProperty(key, String.valueOf(value));
+		}
+	}
+
+	private void setProperty(Properties props, String key, float value, float defaultValue) {
+		if (value != defaultValue) {
+			props.setProperty(key, String.valueOf(value));
+		}
+	}
+
+	private void setProperty(Properties props, String key, boolean value, boolean defaultValue) {
+		if (value != defaultValue) {
+			props.setProperty(key, String.valueOf(value));
+		}
+	}
+
+	// --- Load Helpers ---
+	private boolean getBoolean(Properties props, String key, boolean defaultValue) {
+		String value = props.getProperty(key);
+		if (value == null) {
+			return defaultValue;
+		}
+		// Boolean.parseBoolean is robust and doesn't throw exceptions
+		return Boolean.parseBoolean(value);
+	}
+
+	private int getInt(Properties props, String key, int defaultValue) {
+		String value = props.getProperty(key);
+		if (value == null) {
+			return defaultValue;
+		}
+		try {
+			return Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+			return defaultValue;
+		}
+	}
+
+	private float getFloat(Properties props, String key, float defaultValue) {
+		String value = props.getProperty(key);
+		if (value == null) {
+			return defaultValue;
+		}
+		try {
+			return Float.parseFloat(value);
+		} catch (NumberFormatException e) {
+			logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+			return defaultValue;
+		}
+	}
+
+	private Path getPath(Properties props, String key, Path defaultValue) {
+		String value = props.getProperty(key);
+		if (value == null || value.isEmpty()) {
+			return defaultValue;
+		}
+		try {
+			return Paths.get(value);
+		} catch (InvalidPathException e) {
+			logger.warning("Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+			return defaultValue;
+		}
+	}
+
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeObject(last_event_log_dir.toString());
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		last_event_log_dir = Paths.get((String) in.readObject());
 	}
 }
