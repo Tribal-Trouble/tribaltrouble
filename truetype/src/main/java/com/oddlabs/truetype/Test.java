@@ -32,7 +32,7 @@ public final class Test {
 	private final static BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
 	private final static Graphics2D g2d = (Graphics2D)image.getGraphics();
 
-	public static void main(String[] args) {
+    static void main(String... args) {
 		try {
 			Display.setDisplayMode(new DisplayMode(DISPLAY_WIDTH, DISPLAY_HEIGHT));
 			Display.create();

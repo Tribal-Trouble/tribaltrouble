@@ -33,12 +33,9 @@ public final class Main {
 		System.exit(0);
 	}
 
-	public static void main(String[] args) {
+    static void main(@NonNull String... args) {
 		try {
 			Logger.getLogger(Main.class.getName()).info("Starting game....");
-			System.setProperty("org.lwjgl.util.Debug", "true");
-            Logger.getLogger(Main.class.getName()).log(Level.CONFIG, "System.getProperty(\"java.library.path\") = {0}", System.getProperty("java.library.path"));
-			Main.class.getClassLoader().setDefaultAssertionStatus(true);
 			Renderer.runGame(args);
 		} catch (Throwable t) {
 			fail(t);
