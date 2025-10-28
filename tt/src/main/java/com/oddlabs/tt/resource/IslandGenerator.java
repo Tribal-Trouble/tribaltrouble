@@ -6,17 +6,16 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.Texture;
+import com.oddlabs.tt.util.FBORenderer;
 import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.OffscreenRenderer;
-import com.oddlabs.tt.util.OffscreenRendererFactory;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.PixelFormat;
 
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -109,16 +108,15 @@ System.out.println("Landscape created in = " + (time_after-time_before));
 		float[][] starting_locations = landscape.getStartingLocations();
 		int alpha_size = grid_units;
 		Texture[][] chunk_maps;
-		OffscreenRendererFactory factory = new OffscreenRendererFactory();
 		do {
-			chunk_maps = blendTextures(factory, chunks_per_colormap, blend_infos, alpha_size, Globals.STRUCTURE_SIZE, colormap_size/alpha_size);
+			chunk_maps = blendTextures(chunks_per_colormap, blend_infos, alpha_size, Globals.STRUCTURE_SIZE, colormap_size/alpha_size);
 		} while (chunk_maps == null);
 		ProgressForm.progress();
 		return new WorldInfo(meters_per_world, landscape.getSeaLevelMeters(), colormap_size, chunks_per_colormap, chunk_maps, detail, heightmap, trees, palm_trees, rock, iron, plants, access_grid, build_grid, starting_locations);
 	}
 
-	private static Texture[] @Nullable [] blendTextures(@NonNull OffscreenRendererFactory factory, int chunks_per_colormap, BlendInfo @NonNull [] blend_infos, int alpha_size, int structure_size, int scale) {
-		OffscreenRenderer offscreen = factory.createRenderer(TEXELS_PER_CHUNK, TEXELS_PER_CHUNK, new PixelFormat(Globals.VIEW_BIT_DEPTH, 0, 0, 0, 0));
+	private static Texture[] @Nullable [] blendTextures(int chunks_per_colormap, BlendInfo @NonNull [] blend_infos, int alpha_size, int structure_size, int scale) {
+		OffscreenRenderer offscreen = new FBORenderer(TEXELS_PER_CHUNK, TEXELS_PER_CHUNK);
 		GL11.glColor4f(1f, 1f, 1f, 1f);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);

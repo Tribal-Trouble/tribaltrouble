@@ -1,25 +1,17 @@
 package com.oddlabs.tt.vbo;
 
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.resource.NativeResource;
-import org.jspecify.annotations.Nullable;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
-import java.nio.ByteBuffer;
+
 import java.nio.IntBuffer;
 
 public abstract class VBO extends NativeResource {
+    private final static IntBuffer handle_buffer = BufferUtils.createIntBuffer(1);
+
 	private final int handle;
 	private final int target;
 	private final int size;
-	private final static IntBuffer handle_buffer;
-
-	private final @Nullable ByteBuffer saved_buffer;
-
-	static {
-		handle_buffer = BufferUtils.createIntBuffer(1);
-	}
 
 	private int createBuffer(int target, int usage, int size) {
 		GL15.glGenBuffers(handle_buffer);
@@ -52,7 +44,6 @@ public abstract class VBO extends NativeResource {
 		this.size = size;
 		//		mapped_buffer = null;
 		handle = createBuffer(target, usage, size);
-		saved_buffer = null;
 	}
 
     @Override
@@ -64,31 +55,6 @@ public abstract class VBO extends NativeResource {
 	protected final int getTarget() {
 		return target;
 	}
-
-/*	protected final boolean doMap(int access) {
-		assert mapped_buffer == null;
-			makeCurrent();
-			mapped_buffer = ARBBufferObject.glMapBufferARB(target, access, size, saved_buffer);
-			assert mapped_buffer != null;
-			mapped_buffer.order(ByteOrder.nativeOrder());
-			boolean result = mapped_buffer == saved_buffer;
-			saved_buffer = mapped_buffer;
-			return result;
-	}
-
-	protected final boolean doUnmap() {
-		assert mapped_buffer != null;
-		mapped_buffer.clear();
-		mapped_buffer = null;
-        makeCurrent();
-        return ARBBufferObject.glUnmapBufferARB(target);
-	}
-*/
-/*
-	protected final ByteBuffer getMappedBuffer() {
-		return mapped_buffer;
-	}
-*/
 	protected final int getSize() {
 		return size;
 	}

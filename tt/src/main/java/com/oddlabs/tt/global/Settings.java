@@ -2,11 +2,7 @@ package com.oddlabs.tt.global;
 
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.LocalInput;
-import com.oddlabs.tt.util.GLUtils;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.LWJGLUtil;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.opengl.Pbuffer;
 
 import java.io.IOException;
 import java.io.InputStream;

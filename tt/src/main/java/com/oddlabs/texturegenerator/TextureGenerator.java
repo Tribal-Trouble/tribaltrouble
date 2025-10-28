@@ -7,9 +7,9 @@ import com.oddlabs.tt.render.BillboardPainter;
 import com.oddlabs.tt.render.SpriteList;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
+import com.oddlabs.tt.util.FBORenderer;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.OffscreenRenderer;
-import com.oddlabs.tt.util.OffscreenRendererFactory;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.LWJGLException;
@@ -43,8 +43,7 @@ public final class TextureGenerator {
 
 		Display.setDisplayMode(new DisplayMode(LOW_DETAIL_TEX_SIZE, LOW_DETAIL_TEX_SIZE));
 		Display.create(new PixelFormat(Globals.VIEW_BIT_DEPTH, 1, 16, 0, 0));
-		OffscreenRendererFactory factory = new OffscreenRendererFactory();
-		OffscreenRenderer buffer = factory.createRenderer(LOW_DETAIL_TEX_SIZE, LOW_DETAIL_TEX_SIZE, new PixelFormat(Globals.VIEW_BIT_DEPTH, 1, 16, 0, 0));
+		OffscreenRenderer buffer = new FBORenderer(LOW_DETAIL_TEX_SIZE, LOW_DETAIL_TEX_SIZE);
 		SpriteList jungle_crown = Resources.findResource(new SpriteFile("/geometry/misc/jungle_tree_crown.binsprite", CROWN_MIPMAP_CUTOFF, false, false, true, false));
 		SpriteList jungle_trunk = Resources.findResource(new SpriteFile("/geometry/misc/jungle_tree_trunk.binsprite", CROWN_MIPMAP_CUTOFF, true, true, false, false));
 		SpriteList palm_crown = Resources.findResource(new SpriteFile("/geometry/misc/palm_crown.binsprite", CROWN_MIPMAP_CUTOFF, false, false, true, false));
@@ -55,7 +54,7 @@ public final class TextureGenerator {
 		LowDetailModel palm_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/palm_low.binlowdetail"));
 		generateLowDetailTexture(buffer, new LowDetailModel[]{jungle_lowdetail, palm_lowdetail}, dest + "/lowdetail_tree");
 
-		OffscreenRenderer viking_buffer = factory.createRenderer(LOW_DETAIL_TEX_SIZE, LOW_DETAIL_TEX_SIZE, new PixelFormat(Globals.VIEW_BIT_DEPTH, 1, 16, 0, 0));
+		OffscreenRenderer viking_buffer = new FBORenderer(LOW_DETAIL_TEX_SIZE, LOW_DETAIL_TEX_SIZE);
 		SpriteList oak_crown = Resources.findResource(new SpriteFile("/geometry/misc/oak_tree_crown.binsprite", CROWN_MIPMAP_CUTOFF, false, false, true, false));
 		SpriteList oak_trunk = Resources.findResource(new SpriteFile("/geometry/misc/oak_tree_trunk.binsprite", CROWN_MIPMAP_CUTOFF, true, true, false, false));
 		SpriteList pine_crown = Resources.findResource(new SpriteFile("/geometry/misc/pine_tree_crown.binsprite", CROWN_MIPMAP_CUTOFF, false, false, true, false));
