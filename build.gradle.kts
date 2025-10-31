@@ -3,7 +3,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.oddlabs"
+    group = "com.oddlabs.tribaltrouble"
     version = "1.0"
     repositories { mavenCentral() }
 }
