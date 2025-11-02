@@ -104,7 +104,7 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 	}
 
         @Override
-	public PathTracker getTracker() {
+	public @NonNull PathTracker getTracker() {
 		return path_tracker;
 	}
 

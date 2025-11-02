@@ -6,8 +6,8 @@ import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 
 public final class Cost {
-	private final Class<? extends Supply>[] supply_types;
-	private final int[] supply_amounts;
+	private final Class<? extends Supply> @NonNull [] supply_types;
+	private final int @NonNull [] supply_amounts;
 
 	public Cost(Class<? extends Supply> @NonNull [] supply_types, int @NonNull [] supply_amounts) {
 		this.supply_types = supply_types;

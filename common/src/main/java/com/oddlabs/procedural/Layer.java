@@ -150,7 +150,7 @@ public final class Layer {
 		return b;
 	}
 
-	public Channel getA() {
+	public @Nullable Channel getA() {
 		return a;
 	}
 

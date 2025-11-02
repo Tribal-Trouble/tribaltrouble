@@ -4,8 +4,8 @@ import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 
 public final class IconLabel extends GUIObject implements Comparable<IconLabel> {
-	private final Quad icon;
-	private final Label label;
+	private final @NonNull Quad icon;
+	private final @NonNull Label label;
 
 	public IconLabel(@NonNull Quad icon, @NonNull Label label) {
 		this.icon = icon;

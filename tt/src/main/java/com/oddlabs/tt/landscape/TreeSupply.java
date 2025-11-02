@@ -25,7 +25,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	private static final Vector3f low_detail_scale = new Vector3f();
 	private static final Matrix4f low_detail_matrix = new Matrix4f();
 
-	private final Matrix4f matrix;
+	private final @NonNull Matrix4f matrix;
 	private final int tree_type_index;
 	private final float x;
 	private final float y;
@@ -33,7 +33,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	private final int grid_y;
 	private final int grid_size;
 	private final float size;
-	private final World world;
+	private final @NonNull World world;
 
 	private int low_detail_start_vertex_index;
 	private int num_supplies = INITIAL_SUPPLIES;

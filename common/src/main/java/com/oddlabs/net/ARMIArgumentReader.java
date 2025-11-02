@@ -1,7 +1,9 @@
 package com.oddlabs.net;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 public interface ARMIArgumentReader {
-	Object readArgument(Class<?> type, ByteBufferInputStream in) throws IOException, ClassNotFoundException;
+	@Nullable Object readArgument(Class<?> type, ByteBufferInputStream in) throws IOException, ClassNotFoundException;
 }

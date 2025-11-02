@@ -14,7 +14,7 @@ public class SupplyManager implements Animated {
 	private final static float MAX_EMPTY_SUPPLIES = .75f;
 	
 	private final List<Supply> empty_supplies = new ArrayList<>();
-	private final World world;
+	private final @NonNull World world;
 
 	private int total_num_supplies = 0;
 	private float time;

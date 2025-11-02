@@ -110,20 +110,20 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	private final ResourceBundle bundle = ResourceBundle.getBundle(ActionButtonPanel.class.getName());
 
 	private final GameCamera camera;
-	private final WorldViewer viewer;
+	private final @NonNull WorldViewer viewer;
 
 	private @Nullable Group current_submenu = null;
 	private boolean update = false;
 	private boolean current_quarters = false;
 	private boolean current_armory = false;
-	private Building current_building;
+	private @Nullable Building current_building;
 	private boolean current_unit = false;
 	private boolean current_peon = false;
-	private Unit current_chieftain;
+	private @Nullable Unit current_chieftain;
 	private boolean current_tower = false;
 //	private boolean[] magic_disabled = new boolean[2];
 
-	private @NonNull String formatTip(String tip_key, String shortcut_key) {
+	private @NonNull String formatTip(@NonNull String tip_key, String shortcut_key) {
 		return Utils.getBundleString(bundle, tip_key, shortcut_key);
 	}
 

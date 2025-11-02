@@ -68,7 +68,7 @@ public final class KeyManager {
 		}
 	}
 
-	public static PrivateKey readPrivateKey(byte[] encoded_private_key, String algorithm) throws InvalidKeySpecException {
+	public static PrivateKey readPrivateKey(byte @NonNull [] encoded_private_key, @NonNull String algorithm) throws InvalidKeySpecException {
 		try {
 			KeyFactory key_factory = KeyFactory.getInstance(algorithm);
 			KeySpec key_spec = new PKCS8EncodedKeySpec(encoded_private_key);
@@ -78,7 +78,7 @@ public final class KeyManager {
 		}
 	}
 
-	public static PublicKey readPublicKey(byte[] encoded_public_key, String algorithm) throws InvalidKeySpecException {
+	public static PublicKey readPublicKey(byte @NonNull [] encoded_public_key, @NonNull String algorithm) throws InvalidKeySpecException {
 		try {
 			KeyFactory key_factory = KeyFactory.getInstance(algorithm);
 			KeySpec key_spec = new X509EncodedKeySpec(encoded_public_key);

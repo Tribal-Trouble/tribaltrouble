@@ -150,7 +150,7 @@ System.out.println("total_time = " + total_time);
 		GL11.glEnable(GL11.GL_BLEND);
 	}
 
-	private static void updateTexture(int width, int height, IntBuffer pixel_data) {
+	private static void updateTexture(int width, int height, @NonNull IntBuffer pixel_data) {
 		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL12.GL_UNSIGNED_INT_8_8_8_8, pixel_data);
 	}
 

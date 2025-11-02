@@ -35,7 +35,7 @@ public final class RenderState implements ElementVisitor {
 	private final List<Lightning> lightning_queue = new ArrayList<>();
 	private final SpriteSorter sprite_sorter;
 	private final @NonNull RenderStateCache render_state_cache;
-	private final RenderQueues render_queues;
+	private final @NonNull RenderQueues render_queues;
 	private final TargetRespondRenderer target_respond_renderer;
 	private final SelectableShadowRenderer default_shadow_renderer;
 	private final Picker picker;
@@ -97,14 +97,14 @@ public final class RenderState implements ElementVisitor {
 
 	private final static ModelVisitor unit_visitor = new SelectableVisitor() {
                 @Override
-		public void markDetailPolygon(@NonNull ElementRenderState render_state, int level) {
+		public void markDetailPolygon(@NonNull ElementRenderState render_state, @NonNull PolyDetail detail) {
 			Unit unit = (Unit)render_state.model;
-			super.markDetailPolygon(render_state, level);
+			super.markDetailPolygon(render_state, detail);
 			UnitSupplyContainer supply_container = unit.getSupplyContainer();
 			if (!render_state.render_state.isPicking() && unit.getAbilities().hasAbilities(Abilities.BUILD) && supply_container.getSupplyType() != null) {
 				if (supply_container.getNumSupplies() > 0) {
 					SpriteRenderer supply_sprite = render_state.getRenderer(supply_container.getSupplySpriteRenderer(supply_container.getSupplyType()));
-					supply_sprite.addToRenderList(level, render_state, false);
+					supply_sprite.addToRenderList(detail, render_state, false);
 				}
 			}
 		}
@@ -202,11 +202,11 @@ public final class RenderState implements ElementVisitor {
 		visitSelectable(building_visitor, building, building.getPositionZ(), getBuildingSelectionRadius(building), getBuildingSelectionHeight(building));
 	}
 
-	int addToRenderList(LODObject model) {
+	int addToRenderList(@NonNull LODObject model) {
 		return addToRenderList(model, false);
 	}
 
-	int addToRenderList(LODObject model, boolean point_on_map) {
+	int addToRenderList(@NonNull LODObject model, boolean point_on_map) {
 		return sprite_sorter.add(model, camera, point_on_map);
 	}
 

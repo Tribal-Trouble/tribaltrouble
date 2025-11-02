@@ -37,7 +37,7 @@ public class ChatPanel extends Panel implements ChatListener {
 		return ResourceBundle.getBundle(ChatPanel.class.getName());
 	}
 
-	private static @NonNull String getI18N(String key) {
+	private static @NonNull String getI18N(@NonNull String key) {
 		return Utils.getBundleString(getBundle(), key);
 	}
 

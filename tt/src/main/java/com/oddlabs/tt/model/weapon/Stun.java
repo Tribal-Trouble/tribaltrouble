@@ -31,7 +31,7 @@ public final class Stun implements Magic {
 	private final @NonNull RandomVelocityEmitter emitter;
 	private final AbstractAudioPlayer sound;
 
-	private final List<Selectable> target_list;
+	private final @NonNull List<Selectable> target_list;
 
 	public Stun(float offset_x, float offset_y, float offset_z, float hit_radius, float stun_time_closest, float stun_time_farthest, @NonNull Unit src) {
 		this.hit_radius = hit_radius;

@@ -5,7 +5,7 @@ import org.jspecify.annotations.NonNull;
 public abstract class RadioButtonGroupElement extends GUIObject {
 	private boolean marked = false;
 
-	private final RadioButtonGroup group;
+	private final @NonNull RadioButtonGroup group;
 
 	public RadioButtonGroupElement(boolean marked, @NonNull RadioButtonGroup group) {
 		this.group = group;

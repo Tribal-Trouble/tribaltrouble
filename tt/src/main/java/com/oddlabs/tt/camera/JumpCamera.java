@@ -8,7 +8,7 @@ public final class JumpCamera extends Camera {
     private final static float DEFAULT_METERS_PER_SECOND = 300f;
     private final static float DEFAULT_MAX_SECONDS = .5f;
 
-    private final CameraDelegate delegate;
+    private final @NonNull CameraDelegate delegate;
 
     private final float dst_x;
     private final float dst_y;

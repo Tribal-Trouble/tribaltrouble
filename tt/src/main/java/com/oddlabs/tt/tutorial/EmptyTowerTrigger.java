@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Building;
 import org.jspecify.annotations.NonNull;
 
 public final class EmptyTowerTrigger extends TutorialTrigger {
-	private final Building tower;
+	private final @NonNull Building tower;
 	
 	public EmptyTowerTrigger(@NonNull Building tower) {
 		super(.1f, 0f, "empty_tower");

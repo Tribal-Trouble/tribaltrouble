@@ -85,6 +85,8 @@ public final class Globals {
 	public final static float LANDSCAPE_RESOURCES = 0f;
 	public final static int LANDSCAPE_SEED = 1;
 
+	public final static float LANDSCAPE_TEXTURE_SCALE = 1.0f / 16.0f;
+
 	public final static int VIEW_BIT_DEPTH = 16;
 	public final static float FOV = 45.0f;
 	public final static float VIEW_MIN = 2f;

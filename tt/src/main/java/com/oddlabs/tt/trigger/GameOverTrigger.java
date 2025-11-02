@@ -19,7 +19,7 @@ public final class GameOverTrigger implements Animated {
     private final int @NonNull [] teams;
     private final boolean @NonNull [] dead_tribes;
     private final ResourceBundle bundle = ResourceBundle.getBundle(GameOverTrigger.class.getName());
-    private final WorldViewer viewer;
+    private final @NonNull WorldViewer viewer;
 
     public GameOverTrigger(@NonNull WorldViewer viewer) {
         this.viewer = viewer;

@@ -55,7 +55,7 @@ public final class PulldownItem extends ButtonObject {
 		label.set(label_str);
 	}
 
-	public CharSequence getLabelString() {
+	public @NonNull CharSequence getLabelString() {
 		return label;
 	}
 

@@ -43,11 +43,11 @@ public class Notification implements Updatable {
         manager.removeNotification(this);
     }
 
-    protected final Arrow getArrow() {
+    protected final @NonNull Arrow getArrow() {
         return arrow;
     }
 
-    protected final TimerAnimation getTimer() {
+    protected final @NonNull TimerAnimation getTimer() {
         return timer;
     }
 

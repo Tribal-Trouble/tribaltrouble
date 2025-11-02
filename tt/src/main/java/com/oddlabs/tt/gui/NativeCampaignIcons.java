@@ -31,7 +31,7 @@ public final class NativeCampaignIcons implements CampaignIcons {
 		return icons;
 	}
 
-	private NativeCampaignIcons(String xml_file) {
+	private NativeCampaignIcons(@NonNull String xml_file) {
 		Node root = Icons.loadFile(xml_file, new GUIErrorHandler());
 		texture = Icons.loadTexture(root);
 
@@ -97,7 +97,7 @@ public final class NativeCampaignIcons implements CampaignIcons {
 	}
 
         @Override
-	public IconQuad getMap() {
+	public @NonNull IconQuad getMap() {
 		return map;
 	}
 

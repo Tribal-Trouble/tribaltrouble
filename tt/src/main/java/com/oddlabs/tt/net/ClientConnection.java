@@ -15,7 +15,7 @@ final class ClientConnection {
 		this.client = client;
 	}
 
-	public GameClientInterface getClientInterface() {
+	public @NonNull GameClientInterface getClientInterface() {
 		return gameclient_interface;
 	}
 

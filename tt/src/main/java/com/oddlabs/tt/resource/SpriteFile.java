@@ -11,11 +11,11 @@ public final class SpriteFile extends File<SpriteList> {
 	private final boolean max_alpha;
 	private final int mipmap_cutoff;
 
-	public SpriteFile(String location, int mipmap_cutoff, boolean lighting, boolean cullface, boolean alpha, boolean modulate_color) {
+	public SpriteFile(@NonNull String location, int mipmap_cutoff, boolean lighting, boolean cullface, boolean alpha, boolean modulate_color) {
 		this(location, mipmap_cutoff, lighting, cullface, alpha, modulate_color, false);
 	}
 
-	public SpriteFile(String location, int mipmap_cutoff, boolean lighting, boolean cullface, boolean alpha, boolean modulate_color, boolean max_alpha) {
+	public SpriteFile(@NonNull String location, int mipmap_cutoff, boolean lighting, boolean cullface, boolean alpha, boolean modulate_color, boolean max_alpha) {
 		super(location);
 		this.lighting = lighting;
 		this.cullface = cullface;

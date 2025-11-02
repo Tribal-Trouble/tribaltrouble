@@ -44,7 +44,7 @@ public final class Player implements PlayerInterface {
 											{.75f, 0f, 1f, 1f},
 											{.75f, 1f, 0f, 1f}};
 
-	private final World world;
+	private final @NonNull World world;
 	private final PlayerInfo player_info;
 	private final Army units = new Army();
 	private final @NonNull SupplyContainer unit_count;
@@ -263,7 +263,7 @@ public final class Player implements PlayerInterface {
 		this.ai = ai;
 	}
 
-	public AI getAI() {
+	public @Nullable AI getAI() {
 		return ai;
 	}
 
@@ -290,7 +290,7 @@ public final class Player implements PlayerInterface {
 		return findNearestEnemy(start_x, start_y, null);
 	}
 
-	public Selectable findNearestEnemy(int start_x, int start_y, Selectable target) {
+	public @Nullable Selectable findNearestEnemy(int start_x, int start_y, Selectable target) {
 		return findNearestEnemy(start_x, start_y, target, Selectable.class);
 	}
 
@@ -329,7 +329,7 @@ public final class Player implements PlayerInterface {
 		return best_target;
 	}
 
-	public Selectable findNearestEnemyBuilding(int start_x, int start_y) {
+	public @Nullable Selectable findNearestEnemyBuilding(int start_x, int start_y) {
 		return findNearestEnemy(start_x, start_y, null, Building.class);
 	}
 
@@ -337,7 +337,7 @@ public final class Player implements PlayerInterface {
 		return getWorld().getRacesResources().getRace(player_info.getRace());
 	}
 
-	public SupplyContainer getUnitCountContainer() {
+	public @NonNull SupplyContainer getUnitCountContainer() {
 		return unit_count;
 	}
 
@@ -381,7 +381,7 @@ public final class Player implements PlayerInterface {
 		return chieftain != null;
 	}
 
-	public Unit getChieftain() {
+	public @Nullable Unit getChieftain() {
 		return chieftain;
 	}
 

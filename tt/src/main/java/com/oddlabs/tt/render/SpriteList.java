@@ -53,7 +53,7 @@ public final class SpriteList {
 		getSprite(0).renderModel(tex_index);
 	}
 
-	public BoundingBox[] getBounds() {
+	public BoundingBox @NonNull [] getBounds() {
 		return bounds;
 	}
 

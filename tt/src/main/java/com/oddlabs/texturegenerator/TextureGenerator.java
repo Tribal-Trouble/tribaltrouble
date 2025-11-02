@@ -60,7 +60,7 @@ public final class TextureGenerator {
 		Display.destroy();
 	}
 
-	private void generateTextureSet(String[] crownFiles, String[] trunkFiles, String[] lowDetailFiles, String dest) {
+	private void generateTextureSet(String @NonNull [] crownFiles, String @NonNull [] trunkFiles, String @NonNull [] lowDetailFiles, String dest) {
 		OffscreenRenderer buffer = new FBORenderer(LOW_DETAIL_TEX_SIZE, LOW_DETAIL_TEX_SIZE);
 
 		SpriteList[] crowns = new SpriteList[crownFiles.length];
@@ -82,7 +82,7 @@ public final class TextureGenerator {
 		buffer.destroy();
 	}
 
-	private static void generateBillboardMip(@NonNull LowDetailModel lowdetail, @NonNull TextureGenerator renderer, int mode, float ortho_size, SpriteList[] crowns, SpriteList[] trunks, int tex_index) {
+	private static void generateBillboardMip(@NonNull LowDetailModel lowdetail, @NonNull TextureGenerator renderer, int mode, float ortho_size, SpriteList @NonNull [] crowns, SpriteList @NonNull [] trunks, int tex_index) {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0.0f, ortho_size, 0.0f, ortho_size, -50.0f, 50.0f);
@@ -97,7 +97,7 @@ public final class TextureGenerator {
 		BillboardPainter.finish();
 	}
 
-	private static void drawBillboardsToBuffer(LowDetailModel @NonNull [] lowdetails, @NonNull TextureGenerator renderer, int[] modes, OffscreenRenderer buffer, SpriteList[] crowns, SpriteList[] trunks, int tex_index) {
+	private static void drawBillboardsToBuffer(LowDetailModel @NonNull [] lowdetails, @NonNull TextureGenerator renderer, int[] modes, OffscreenRenderer buffer, SpriteList @NonNull [] crowns, SpriteList @NonNull [] trunks, int tex_index) {
 		int ortho_size = 1;
 		float[] clear_color = trunks[0].getClearColor();
 		GL11.glClearColor(clear_color[0], clear_color[1], clear_color[2], 0f);
@@ -108,7 +108,7 @@ public final class TextureGenerator {
         }
 	}
 
-	public void renderModel(int mode, SpriteList[] crowns, SpriteList[] trunks, int tex_index) {
+	public void renderModel(int mode, SpriteList @NonNull [] crowns, SpriteList @NonNull [] trunks, int tex_index) {
 		trunks[mode].renderModel(tex_index);
 		crowns[mode].renderModel(tex_index);
 	}

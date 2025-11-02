@@ -119,7 +119,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 			update_requested_types.add(type);
 	}
 
-	public Profile getProfile() {
+	public @Nullable Profile getProfile() {
 		return active_profile;
 	}
 
@@ -272,7 +272,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		chat_room_info = null;
 	}
 
-	public ChatRoomInfo getChatRoomInfo() {
+	public @Nullable ChatRoomInfo getChatRoomInfo() {
 		return chat_room_info;
 	}
 
@@ -309,12 +309,12 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		listener.loginError(error_code);
 	}
 
-	public MatchmakingServerLoginInterface getLoginInterface() {
+	public @Nullable MatchmakingServerLoginInterface getLoginInterface() {
 		assert !isConnected();
 		return matchmaking_login_interface;
 	}
 
-	public MatchmakingServerInterface getInterface() {
+	public @Nullable MatchmakingServerInterface getInterface() {
 		assert isConnected();
 		return matchmaking_interface;
 	}
@@ -387,7 +387,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 	}
 
         @Override
-	public void tunnelOpened(HostSequenceID from, InetAddress inet_from, InetAddress local_inet_from, Profile other) {
+	public void tunnelOpened(@NonNull HostSequenceID from, InetAddress inet_from, InetAddress local_inet_from, Profile other) {
 		if (tunnelled_listener != null) {
 			tunnelled_listener.requestTunnelledConnection(from, inet_from, local_inet_from, other);
 		} else

@@ -49,15 +49,15 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 		return children.size();
 	}
 
-	public final Renderable getParent() {
+	public final @Nullable Renderable getParent() {
 		return parent;
 	}
 
-	public final void putLast(Renderable child) {
+	public final void putLast(@NonNull Renderable child) {
 		children.putLast(child);
 	}
 
-	public final void putFirst(Renderable child) {
+	public final void putFirst(@NonNull Renderable child) {
 		children.putFirst(child);
 	}
 
@@ -107,11 +107,11 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 		child.addTree();
 	}
 
-	public final Renderable getLastChild() {
+	public final @Nullable Renderable getLastChild() {
 		return (Renderable)children.getLast();
 	}
 
-	public final Renderable getFirstChild() {
+	public final @Nullable Renderable getFirstChild() {
 		return (Renderable)children.getFirst();
 	}
 

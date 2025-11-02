@@ -207,7 +207,7 @@ public final class Building extends Selectable implements Occupant {
 		return deploy_containers.get(type);
 	}
 
-	public ChieftainContainer getChieftainContainer() {
+	public @Nullable ChieftainContainer getChieftainContainer() {
 		assert !isDead();
 		return chieftain_container;
 	}

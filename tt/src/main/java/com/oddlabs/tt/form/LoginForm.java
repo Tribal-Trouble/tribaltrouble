@@ -27,7 +27,7 @@ public final class LoginForm extends Form {
 	private final static int BUTTON_WIDTH = 100;
 	private final static int EDITLINE_WIDTH = 240;
 
-	private final MainMenu main_menu;
+	private final @NonNull MainMenu main_menu;
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;
 	private final @NonNull EditLine editline_username;
@@ -35,7 +35,7 @@ public final class LoginForm extends Form {
 	private final @NonNull CheckBox remember_checkbox;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(LoginForm.class.getName());
 
-	public LoginForm(NetworkSelector network, GUIRoot gui_root, @NonNull MainMenu main_menu) {
+	public LoginForm(@NonNull NetworkSelector network, GUIRoot gui_root, @NonNull MainMenu main_menu) {
 		this.main_menu = main_menu;
 		this.gui_root = gui_root;
 		this.network = network;

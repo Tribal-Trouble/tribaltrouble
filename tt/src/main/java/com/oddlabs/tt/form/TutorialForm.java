@@ -142,14 +142,14 @@ public final class TutorialForm extends Form {
 		TutorialTrigger create(WorldViewer viewer);
 	}
 
-	private static void startNewGame(NetworkSelector network, @NonNull GUIRoot gui_root, TriggerFactory factory, int tutorial_num) {
+	private static void startNewGame(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, TriggerFactory factory, int tutorial_num) {
 		TutorialInGameInfo ingame_info = new TutorialInGameInfo();
 		GameNetwork game_network = doStartNewGame(network, gui_root, ingame_info, new TutorialAction(factory, ingame_info), Player.INITIAL_UNIT_COUNT, tutorial_num);
 		game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN, RacesResources.RACE_NATIVES, 0, true, PlayerSlot.AI_NONE);
 		game_network.getClient().getServerInterface().startServer();
 	}
 
-	private static @NonNull GameNetwork doStartNewGame(NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull InGameInfo ingame_info, final @Nullable WorldInitAction initial_action, int initial_unit_count, int tutorial_num) {
+	private static @NonNull GameNetwork doStartNewGame(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull InGameInfo ingame_info, final @Nullable WorldInitAction initial_action, int initial_unit_count, int tutorial_num) {
 		int size = 256;
 		float hills = 1f;
 		float trees = 1f;
@@ -168,7 +168,7 @@ public final class TutorialForm extends Form {
 		return true;
 	}
 
-	public static void startTutorial(NetworkSelector network, @NonNull GUIRoot gui_root, int tutorial_number) {
+	public static void startTutorial(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int tutorial_number) {
 		final TutorialInGameInfo ingame_info;
 		GameNetwork game_network;
 		switch (tutorial_number) {

@@ -38,19 +38,19 @@ public final class TreeGroup extends AbstractTreeGroup {
 		visitor.visitNode(this);
 	}
 
-	public AbstractTreeGroup getChild0() {
+	public @NonNull AbstractTreeGroup getChild0() {
 		return child0;
 	}
 
-	public AbstractTreeGroup getChild1() {
+	public @NonNull AbstractTreeGroup getChild1() {
 		return child1;
 	}
 
-	public AbstractTreeGroup getChild2() {
+	public @NonNull AbstractTreeGroup getChild2() {
 		return child2;
 	}
 
-	public AbstractTreeGroup getChild3() {
+	public @NonNull AbstractTreeGroup getChild3() {
 		return child3;
 	}
 

@@ -32,7 +32,7 @@ public abstract class AbstractConnection implements ARMIEventWriter {
 			connection_interface.writeBufferDrained(this);
 	}
 
-	protected final ConnectionInterface getConnectionInterface() {
+	protected final @Nullable ConnectionInterface getConnectionInterface() {
 		return connection_interface;
 	}
 

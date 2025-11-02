@@ -173,7 +173,7 @@ System.out.println("indices.remaining() = " + indices.remaining());*/
 		indices.position(saved_pos);
 	}
 
-	public void fillCoverIndices(ShortBuffer buffer, int lod, int border_set, int start_x, int start_y, int end_x, int end_y) {
+	public void fillCoverIndices(@NonNull ShortBuffer buffer, int lod, int border_set, int start_x, int start_y, int end_x, int end_y) {
 		border_set = adjustBorderSet(lod, border_set);
 		int num_quads_exp = getNumQuadsExp(lod);
 		int quad_size_exp = patch_exp - num_quads_exp;

@@ -20,7 +20,7 @@ public final class NotificationManager {
 		this.gui_root = gui_root;
 	}
 
-	public Notification getLatestNotification() {
+	public @Nullable Notification getLatestNotification() {
 		return latest_notification;
 	}
 

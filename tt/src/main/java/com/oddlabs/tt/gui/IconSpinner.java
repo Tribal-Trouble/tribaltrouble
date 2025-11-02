@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ResourceBundle;
 
 public abstract class IconSpinner extends GUIObject implements ToolTip {
-	private final IconQuad[] icon_quad;
+	private final IconQuad @NonNull [] icon_quad;
 	private final String tool_tip;
 	private final Quad[] tool_tip_icons;
 	private final @NonNull TextField label;

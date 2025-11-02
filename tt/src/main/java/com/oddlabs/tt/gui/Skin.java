@@ -72,7 +72,7 @@ public final class Skin {
 		return skin;
 	}
 
-	private Skin(String xml_file) {
+	private Skin(@NonNull String xml_file) {
 		Node root = loadFile(xml_file, new GUIErrorHandler());
 		texture = loadTexture(root);
 		edit_font = parseEditFont(root);
@@ -110,7 +110,7 @@ public final class Skin {
 		flag_it = getNamedQuad(root, "flag_it");
 	}
 
-	private static Node loadFile(String xml_file, ErrorHandler error_handler) {
+	private static Node loadFile(@NonNull String xml_file, ErrorHandler error_handler) {
 		URL url = Utils.makeURL(xml_file);
 
 		try {
@@ -306,7 +306,7 @@ public final class Skin {
 		return getQuads(node, texture);
 	}
 
-	public Quad[] getCheckBoxMarked() {
+	public Quad @NonNull [] getCheckBoxMarked() {
 		return check_box_marked;
 	}
 
@@ -316,7 +316,7 @@ public final class Skin {
 		return getQuads(node, texture);
 	}
 
-	public Quad[] getCheckBoxUnmarked() {
+	public Quad @NonNull [] getCheckBoxUnmarked() {
 		return check_box_unmarked;
 	}
 
@@ -326,7 +326,7 @@ public final class Skin {
 		return getQuads(node, texture);
 	}
 
-	public Quad[] getRadioButtonMarked() {
+	public Quad @NonNull [] getRadioButtonMarked() {
 		return radio_button_marked;
 	}
 
@@ -336,7 +336,7 @@ public final class Skin {
 		return getQuads(node, texture);
 	}
 
-	public Quad[] getRadioButtonUnmarked() {
+	public Quad @NonNull [] getRadioButtonUnmarked() {
 		return radio_button_unmarked;
 	}
 
@@ -346,7 +346,7 @@ public final class Skin {
 		return getHorizontal(node);
 	}
 
-	public Horizontal getHorizButtonPressed() {
+	public @NonNull Horizontal getHorizButtonPressed() {
 		return horiz_button_pressed;
 	}
 
@@ -356,7 +356,7 @@ public final class Skin {
 		return getHorizontal(node);
 	}
 
-	public Horizontal getHorizButtonUnpressed() {
+	public @NonNull Horizontal getHorizButtonUnpressed() {
 		return horiz_button_unpressed;
 	}
 
@@ -407,7 +407,7 @@ public final class Skin {
 								 getInt(node, "top_offset"));
 	}
 
-	public ScrollBarData getScrollBarData() {
+	public @NonNull ScrollBarData getScrollBarData() {
 		return scroll_bar_data;
 	}
 
@@ -423,7 +423,7 @@ public final class Skin {
 							  getInt(node, "right_offset"));
 	}
 
-	public SliderData getSliderData() {
+	public @NonNull SliderData getSliderData() {
 		return slider_data;
 	}
 
@@ -455,7 +455,7 @@ public final class Skin {
 								getFont(getNodeByName("pulldownfont", n)));
 	}
 
-	public PulldownData getPulldownData() {
+	public @NonNull PulldownData getPulldownData() {
 		return pulldown_data;
 	}
 
@@ -480,7 +480,7 @@ public final class Skin {
 								   getFont(getNodeByName("progressfont", n)));
 	}
 
-	public ProgressBarData getProgressBarData() {
+	public @NonNull ProgressBarData getProgressBarData() {
 		return progress_bar_data;
 	}
 
@@ -501,31 +501,31 @@ public final class Skin {
 							getFont(getNodeByName("formfont", n)));
 	}
 
-	public FormData getFormData() {
+	public @NonNull FormData getFormData() {
 		return form_data;
 	}
 
-	public Quad[] getPlusButton() {
+	public Quad @NonNull [] getPlusButton() {
 		return plus_button;
 	}
 
-	public Quad[] getMinusButton() {
+	public Quad @NonNull [] getMinusButton() {
 		return minus_button;
 	}
 
-	public Quad[] getAcceptButton() {
+	public Quad @NonNull [] getAcceptButton() {
 		return accept_button;
 	}
 
-	public Quad[] getCancelButton() {
+	public Quad @NonNull [] getCancelButton() {
 		return cancel_button;
 	}
 
-	public Quad[] getBackButton() {
+	public Quad @NonNull [] getBackButton() {
 		return back_button;
 	}
 
-	public Quad[] getDiode() {
+	public Quad @NonNull [] getDiode() {
 		return diode;
 	}
 
@@ -534,11 +534,11 @@ public final class Skin {
 		return getBox(node);
 	}
 
-	public Box getEditBox() {
+	public @NonNull Box getEditBox() {
 		return edit_box;
 	}
 
-	public Box getBackgroundBox() {
+	public @NonNull Box getBackgroundBox() {
 		return background_box;
 	}
 
@@ -551,7 +551,7 @@ public final class Skin {
 							 getFont(getNodeByName("groupfont", n)));
 	}
 
-	public GroupData getGroupData() {
+	public @NonNull GroupData getGroupData() {
 		return group_data;
 	}
 
@@ -574,7 +574,7 @@ public final class Skin {
 										   getInt(node, "caption_offset"));
 	}
 
-	public MultiColumnComboBoxData getMultiColumnComboBoxData() {
+	public @NonNull MultiColumnComboBoxData getMultiColumnComboBoxData() {
 		return multi_columnCombo_box_data;
 	}
 
@@ -587,7 +587,7 @@ public final class Skin {
 							  getInt(node, "top_offset"));
 	}
 
-	public ToolTipBoxInfo getToolTipInfo() {
+	public @NonNull ToolTipBoxInfo getToolTipInfo() {
 		return tool_tip;
 	}
 
@@ -602,31 +602,31 @@ public final class Skin {
 							 getInt(node, "bottom_tab_offset"));
 	}
 
-	public PanelData getPanelData() {
+	public @NonNull PanelData getPanelData() {
 		return panel_data;
 	}
 
-	public Quad getFlagDefault() {
+	public @NonNull Quad getFlagDefault() {
 		return flag_default;
 	}
 
-	public Quad getFlagDa() {
+	public @NonNull Quad getFlagDa() {
 		return flag_da;
 	}
 
-	public Quad getFlagEn() {
+	public @NonNull Quad getFlagEn() {
 		return flag_en;
 	}
 
-	public Quad getFlagDe() {
+	public @NonNull Quad getFlagDe() {
 		return flag_de;
 	}
 
-	public Quad getFlagEs() {
+	public @NonNull Quad getFlagEs() {
 		return flag_es;
 	}
 
-	public Quad getFlagIt() {
+	public @NonNull Quad getFlagIt() {
 		return flag_it;
 	}
 }

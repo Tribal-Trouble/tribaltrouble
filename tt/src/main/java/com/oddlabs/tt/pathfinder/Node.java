@@ -32,7 +32,7 @@ abstract class Node {
 		return y;
 	}
 */
-	public final Node getParent() {
+	public final @Nullable Node getParent() {
 		return parent;
 	}
 
@@ -90,7 +90,7 @@ abstract class Node {
 	}
 
 	public abstract boolean addNeighbours(PathFinderAlgorithm finder, UnitGrid unit_grid);
-	public abstract PathNode newPath();
+	public abstract @Nullable PathNode newPath();
 	public abstract int getGridX();
 	public abstract int getGridY();
 }

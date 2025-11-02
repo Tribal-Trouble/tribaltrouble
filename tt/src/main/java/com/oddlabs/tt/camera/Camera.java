@@ -145,7 +145,7 @@ public abstract class Camera implements Animated {
             return bounced;
     }
 
-    private boolean gluUnProject(float winx, float winy, float winz, Matrix4f model, Matrix4f proj) {
+    private boolean gluUnProject(float winx, float winy, float winz, @NonNull Matrix4f model, @NonNull Matrix4f proj) {
         model_buffer.clear();
         model.store(model_buffer);
         model_buffer.flip();

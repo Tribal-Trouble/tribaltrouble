@@ -47,7 +47,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 		register();
 	}
 
-	public final World getWorld() {
+	public final @NonNull World getWorld() {
 		return world;
 	}
 
@@ -55,7 +55,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 		return sprite_renderers;
 	}
 
-	public final List<Particle>[] getParticles() {
+	public final List<Particle> @NonNull [] getParticles() {
 		return particles;
 	}
 

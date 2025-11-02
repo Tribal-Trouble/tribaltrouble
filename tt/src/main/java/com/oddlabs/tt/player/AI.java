@@ -30,7 +30,7 @@ public abstract class AI implements Animated {
 	private final static float SLEEP_SECONDS = 2f;
 	private final static float MIN_SLEEP_SECONDS = 5f;
 
-	private final Player owner;
+	private final @NonNull Player owner;
 	private int INDEX_IDLE_PEONS;
 	private int INDEX_IDLE_CHIEFTAINS;
 	private int INDEX_IDLE_WARRIORS;
@@ -99,7 +99,7 @@ public abstract class AI implements Animated {
 		}
 	}
 
-	protected final UnitGrid getUnitGrid() {
+	protected final @NonNull UnitGrid getUnitGrid() {
 		return owner.getWorld().getUnitGrid();
 	}
 

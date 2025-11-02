@@ -93,7 +93,7 @@ public final class Picker implements Updatable {
 
 	private @Nullable Target old_set_target_target;
 	
-	public Picker(@NonNull AnimationManager manager, Player local_player, RenderQueues render_queues, LandscapeRenderer landscape_renderer, Selection selection) {
+	public Picker(@NonNull AnimationManager manager, Player local_player, @NonNull RenderQueues render_queues, LandscapeRenderer landscape_renderer, Selection selection) {
 		this.local_player = local_player;
 		this.render_queues = render_queues;
 		this.sprite_sorter = new SpriteSorter();
@@ -297,7 +297,7 @@ public final class Picker implements Updatable {
 		return doNearestLandscape(hit_result_array[0], hit_result_array[1], hit_result_array[2], dir_vector[0], dir_vector[1], dir_vector[2]);
 	}
 
-	private boolean gluUnProject(float winx, float winy, float winz, Matrix4f model, Matrix4f proj) {
+	private boolean gluUnProject(float winx, float winy, float winz, @NonNull Matrix4f model, @NonNull Matrix4f proj) {
 		model_buffer.clear();
 		model.store(model_buffer);
 		model_buffer.flip();
@@ -478,7 +478,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		return canRenderToolTip() ? current_tooltip : null;
 	}
 
-	public Target getCurrentHovered() {
+	public @Nullable Target getCurrentHovered() {
 		return current_hovered;
 	}
 

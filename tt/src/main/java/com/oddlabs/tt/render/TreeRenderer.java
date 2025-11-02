@@ -17,14 +17,14 @@ public final class TreeRenderer extends TreePicker {
 	private final WaveAnimation wave_animation = new WaveAnimation();
 	private final Cheat cheat;
 
-	TreeRenderer(@NonNull World world, Cheat cheat, Landscape.@NonNull TerrainType terrain, List<int[]> tree_positions, List<int[]> palm_tree_positions, SpriteSorter sprite_sorter, RespondManager respond_manager) {
+	TreeRenderer(@NonNull World world, Cheat cheat, Landscape.@NonNull TerrainType terrain, @NonNull List<int[]> tree_positions, @NonNull List<int[]> palm_tree_positions, SpriteSorter sprite_sorter, RespondManager respond_manager) {
 		super(sprite_sorter, respond_manager);
 		this.cheat = cheat;
 		this.tree_low_detail = new TreeLowDetail(world, getTrees(), getLowDetails(), tree_positions, palm_tree_positions, terrain);
 		tree_low_detail.build(world.getTreeRoot());
 	}
 
-	public TreeLowDetail getLowDetail() {
+	public @NonNull TreeLowDetail getLowDetail() {
 		return tree_low_detail;
 	}
 

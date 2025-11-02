@@ -47,7 +47,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	private boolean observer = false;
 	private int last_idle_peon_name = -1;
 
-	public SelectionDelegate(WorldViewer viewer, GameCamera camera) {
+	public SelectionDelegate(@NonNull WorldViewer viewer, GameCamera camera) {
 		super(viewer, camera);
 		String observer_mode = Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()), "observer_mode");
 		this.observer_label = new Label(observer_mode, Skin.getSkin().getHeadlineFont());
@@ -65,11 +65,11 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		((GameCamera)getCamera()).setOwner(this);
 	}
 
-	public InGameChatForm getChatForm() {
+	public @NonNull InGameChatForm getChatForm() {
 		return chat_form;
 	}
 
-	public ActionButtonPanel getActionButtonPanel() {
+	public @NonNull ActionButtonPanel getActionButtonPanel() {
 		return getViewer().getPanel();
 	}
 

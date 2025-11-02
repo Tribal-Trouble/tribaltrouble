@@ -5,7 +5,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class TextLineRenderer {
-	private final Font font;
+	private final @NonNull Font font;
 	private final int dot_limit;
 
 	private int render_x;

@@ -61,7 +61,7 @@ System.out.println("outfile = " + outfile);
 		return images;
 	}
 
-	private static Layer[] processOperation(@NonNull String op, @NonNull Iterator<String> args, Layer @NonNull [] images) {
+	private static Layer @NonNull [] processOperation(@NonNull String op, @NonNull Iterator<String> args, Layer @NonNull [] images) {
         switch (op) {
             case "-mipmaps":
                 if (images.length != 1)
@@ -107,7 +107,7 @@ System.out.println("outfile = " + outfile);
 		return images;
 	}
 
-	private static @NonNull Layer loadFile(File file) throws IOException {
+	private static @NonNull Layer loadFile(@NonNull File file) throws IOException {
 
 		BufferedImage image = ImageIO.read(file);
 		int width = image.getWidth();
@@ -137,7 +137,7 @@ System.out.println("outfile = " + outfile);
 		return image_layer;
 	}
 
-	private static void saveImage(File file, Layer @NonNull [] images) throws IllegalArgumentException {
+	private static void saveImage(@NonNull File file, Layer @NonNull [] images) throws IllegalArgumentException {
 		if (images.length != 1)
 			throw new IllegalArgumentException("Can't save more than 1 image in .image format");
 		byte[] bytes = images[0].convertToBytes();
@@ -145,7 +145,7 @@ System.out.println("outfile = " + outfile);
 		image.write(file);
 	}
 
-	private static void saveDxtn(File file, Layer @NonNull [] images) throws IOException {
+	private static void saveDxtn(@NonNull File file, Layer @NonNull [] images) throws IOException {
 		int internal_format;
 		Squish.CompressionType type;
 		if (images[0].a == null) {

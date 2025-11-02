@@ -25,7 +25,7 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
 	private final MainMenu main_menu;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(MatchmakingConnectingForm.class.getName());
 	private final GUIRoot gui_root;
-	private final NetworkSelector network;
+	private final @NonNull NetworkSelector network;
 
 	public MatchmakingConnectingForm(@NonNull NetworkSelector network, GUIRoot gui_root, Form parent_form, MainMenu main_menu, Login login, LoginDetails login_details) {
 		this.parent_form = parent_form;

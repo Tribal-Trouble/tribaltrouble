@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class SpriteListRenderer {
-	private final SpriteList sprite_list;
+	private final @NonNull SpriteList sprite_list;
 	private final List<ModelState>[] @NonNull [] render_lists;
 	private final List<ModelState>[] @NonNull [] respond_render_lists;
 

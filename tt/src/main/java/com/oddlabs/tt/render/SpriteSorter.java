@@ -30,11 +30,11 @@ final class SpriteSorter {
 			model.markDetailPoint();
 			return DETAIL_POINT;
 		}
-		used_polys += model.getTriangleCount(SpriteRenderer.LOW_POLY);
+		used_polys += model.getTriangleCount(PolyDetail.LOW_POLY);
 
 		float dist_squared = model.getEyeDistanceSquared();
 		if (dist_squared >= LOW_DETAIL_DIST*LOW_DETAIL_DIST) {
-			model.markDetailPolygon(SpriteRenderer.LOW_POLY);
+			model.markDetailPolygon(PolyDetail.LOW_POLY);
 		} else {
 			addToPocket(dist_squared, model);
 		}
@@ -51,7 +51,7 @@ final class SpriteSorter {
 		distributeHighPolygons();
 		while (sorted_models.size() > 0) {
 			LODObject model = (LODObject)sorted_models.removeBest();
-			model.markDetailPolygon(SpriteRenderer.LOW_POLY);
+			model.markDetailPolygon(PolyDetail.LOW_POLY);
 		}
 		assert sorted_models.size() == 0;
 		sorted_models.clear();
@@ -62,9 +62,9 @@ final class SpriteSorter {
 		while (used_polys < polycount_limit) {
 			if (sorted_models.size() > 0) {
 				LODObject model = (LODObject)sorted_models.removeBest();
-				used_polys -= model.getTriangleCount(SpriteRenderer.LOW_POLY);
-				used_polys += model.getTriangleCount(SpriteRenderer.HIGH_POLY);
-				model.markDetailPolygon(SpriteRenderer.HIGH_POLY);
+				used_polys -= model.getTriangleCount(PolyDetail.LOW_POLY);
+				used_polys += model.getTriangleCount(PolyDetail.HIGH_POLY);
+				model.markDetailPolygon(PolyDetail.HIGH_POLY);
 			} else
 				return;
 		}

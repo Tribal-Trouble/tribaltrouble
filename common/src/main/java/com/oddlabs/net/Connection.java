@@ -23,7 +23,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 	private final ByteBuffer write_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 	private final @NonNull ConnectionPeerInterface peer_interface;
 	private final boolean ping_reply;
-	private final NetworkSelector network;
+	private final @NonNull NetworkSelector network;
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(ConnectionPeerInterface.class);
 	private boolean writing = false;
 	private boolean pinged = false;

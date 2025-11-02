@@ -44,7 +44,7 @@ public class TextBox extends TextField implements Scrollable {
 		scroll_bar.update();
 	}
 
-	protected final TextBoxRenderer getTextRenderer() {
+	protected final @NonNull TextBoxRenderer getTextRenderer() {
 		return text_renderer;
 	}
 

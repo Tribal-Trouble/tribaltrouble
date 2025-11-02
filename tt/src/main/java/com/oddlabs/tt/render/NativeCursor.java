@@ -41,7 +41,7 @@ public final class NativeCursor extends NativeResource {
 		cursor = native_cursor;
 	}
 
-	public org.lwjgl.input.Cursor getCursor() {
+	public org.lwjgl.input.@Nullable Cursor getCursor() {
 		return cursor;
 	}
 

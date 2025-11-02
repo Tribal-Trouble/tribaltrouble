@@ -37,7 +37,7 @@ public final class SonicBlast implements Magic {
 	private final AbstractAudioPlayer rumble;
 
 	private float time = 0f;
-	private final List<Selectable> target_list;
+	private final @NonNull List<Selectable> target_list;
 
 	private int rings_sent = 0;
 	private boolean first_ring_sent = false;

@@ -101,12 +101,12 @@ public abstract class Element<T> extends BoundingBox implements ListElement<T> {
 	}
 
     @Override
-	public final ListElement<T> getPrior() {
+	public final @Nullable ListElement<T> getPrior() {
 		return prior;
 	}
 
     @Override
-	public final ListElement<T> getNext() {
+	public final @Nullable ListElement<T> getNext() {
 		return next;
 	}
 }

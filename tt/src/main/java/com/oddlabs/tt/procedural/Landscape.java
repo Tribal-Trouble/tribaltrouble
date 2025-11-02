@@ -71,7 +71,7 @@ public final class Landscape {
 	private final int max_plants;
 	private final float access_threshold;
 	private final float build_threshold;
-	private final TerrainType terrain;
+	private final @NonNull TerrainType terrain;
 
 	private byte[][] build;
 	private float[][] player_locations;
@@ -317,7 +317,7 @@ public final class Landscape {
 		return grass;
 	}
 
-	private @NonNull Layer genRubble(int size, Channel noise8, @NonNull Channel voronoi4, @NonNull Channel voronoi8, @NonNull Channel voronoi16, @NonNull Layer rubble) {
+	private @NonNull Layer genRubble(int size, @NonNull Channel noise8, @NonNull Channel voronoi4, @NonNull Channel voronoi8, @NonNull Channel voronoi16, @NonNull Layer rubble) {
 		Channel rubble_bump1 = voronoi4.multiply(0.4f);
 		Channel rubble_bump2 = voronoi8.multiply(0.3f);
 		Channel rubble_bump3 = voronoi16.multiply(0.2f);
@@ -732,7 +732,7 @@ public final class Landscape {
 	}
 
 	// generate snow alpha
-	private @NonNull Channel generateSnowAlpha(Channel cliff_alpha) {
+	private @NonNull Channel generateSnowAlpha(@NonNull Channel cliff_alpha) {
 		Channel snow_alpha = height.copy().dynamicRange(0.5f, 0.6f, 0f, 1f);
 		snow_alpha.channelSubtract(cliff_alpha);
 		snow_alpha.smooth(1).smooth(1);
@@ -950,7 +950,7 @@ public final class Landscape {
 	}
 
 	// place plants on map
-	private Channel placePlants(@NonNull Channel probability, @NonNull Channel place, int intervals, int max_count, int plant_type) {
+	private @NonNull Channel placePlants(@NonNull Channel probability, @NonNull Channel place, int intervals, int max_count, int plant_type) {
 		max_count = Math.min(probability.width*probability.height, max_count);
 		int i = 0;
 		float interval_size = 1f/intervals;
@@ -1069,7 +1069,7 @@ public final class Landscape {
 		}
 	}
 
-	public BlendInfo[] getBlendInfos() {
+	public BlendInfo @NonNull [] getBlendInfos() {
 		return blend_infos;
 	}
 

@@ -52,7 +52,7 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
 	private ConfigurationListener configuration_listener;
 
 //	public Client(int host_id, int gametype, boolean rated, int start_speed, String map_code, int initial_unit_count, Runnable initial_action, float random_start_pos, int max_unit_count) {
-	public Client(Runnable cleanup_action, NetworkSelector network, GUI gui, int host_id, WorldParameters world_params, InGameInfo ingame_info, WorldInitAction initial_action) {
+	public Client(Runnable cleanup_action, @NonNull NetworkSelector network, GUI gui, int host_id, WorldParameters world_params, InGameInfo ingame_info, WorldInitAction initial_action) {
 		this.cleanup_action = cleanup_action;
 		this.network = network;
 		this.gui = gui;
@@ -83,7 +83,7 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
 		this.unit_infos[slot] = unit_info;
 	}
 
-	public GameServerInterface getServerInterface() {
+	public @NonNull GameServerInterface getServerInterface() {
 		return gameserver_interface;
 	}
 

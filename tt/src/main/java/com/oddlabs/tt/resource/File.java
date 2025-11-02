@@ -29,11 +29,11 @@ public abstract class File<R> implements Supplier<R> {
         this.uri = uri;
     }
 
-    protected File(String location) {
+    protected File(@NonNull String location) {
         this(Utils.makeURI(location));
     }
 
-    public final URL getURL() {
+    public final @NonNull URL getURL() {
         try {
             return uri.toURL();
         } catch (MalformedURLException e) {

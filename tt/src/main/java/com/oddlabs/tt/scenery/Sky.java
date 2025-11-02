@@ -54,7 +54,7 @@ public final class Sky {
     private final @NonNull FloatVBO water_vertices;
     private final @NonNull FloatVBO bottom_vertices;
     private final @NonNull ShortVBO water_indices;
-    private final LandscapeRenderer landscape_renderer;
+    private final @NonNull LandscapeRenderer landscape_renderer;
     private FloatVBO sky_vertices;
     private FloatVBO sky_tex0;
     private FloatVBO sky_tex1;
@@ -63,7 +63,7 @@ public final class Sky {
     private final Texture[] clouds;
     private final int subdiv_axis;
     private final int subdiv_height;
-    private final Landscape.TerrainType terrain;
+    private final Landscape.@NonNull TerrainType terrain;
 
     public Sky(@NonNull LandscapeRenderer renderer, Landscape.@NonNull TerrainType terrain) {
         this(renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * Math.sqrt(2) / 2), 6000f, 20, 20, SKYDOME_OUTER_UTILING, SKYDOME_OUTER_VTILING, SKYDOME_INNER_UTILING, SKYDOME_INNER_VTILING, renderer.getHeightMap().getMetersPerWorld() / 2, renderer.getHeightMap().getMetersPerWorld() / 2, SKYDOME_HEIGHT);
@@ -216,11 +216,11 @@ public final class Sky {
         return new FloatVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, vertex_buffer);
     }
 
-    public FloatVBO getWaterVertices() {
+    public @NonNull FloatVBO getWaterVertices() {
         return water_vertices;
     }
 
-    public ShortVBO getWaterIndices() {
+    public @NonNull ShortVBO getWaterIndices() {
         return water_indices;
     }
 
@@ -373,7 +373,7 @@ public final class Sky {
         private final float x;
         private final float y;
         private final float theta;
-        private final HeightMap heightmap;
+        private final @NonNull HeightMap heightmap;
 
         private SkyStitchVertex(@NonNull HeightMap heightmap, int index, int side, float x, float y) {
             super(index, side);

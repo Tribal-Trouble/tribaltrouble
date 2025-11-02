@@ -19,7 +19,7 @@ public final class GLUtils {
 	private final static IntBuffer int_buf = BufferUtils.createIntBuffer(16);
 	private final static FloatBuffer plane = BufferUtils.createFloatBuffer(Float.BYTES);
 
-	public static @NonNull GLIntImage loadAsGLImage(String location) {
+	public static @NonNull GLIntImage loadAsGLImage(@NonNull String location) {
 		Image img = null;
 		img = Image.read(com.oddlabs.util.Utils.makeURL(location));
 		GLIntImage glimage = new GLIntImage(img.getWidth(), img.getHeight(), img.getPixels(), GL11.GL_RGBA);

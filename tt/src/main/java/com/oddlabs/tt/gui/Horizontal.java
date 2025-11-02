@@ -4,9 +4,9 @@ import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 
 public final class Horizontal {
-	private final Quad[] left;
+	private final Quad @NonNull [] left;
 	private final Quad[] center;
-	private final Quad[] right;
+	private final Quad @NonNull [] right;
 	private final int height;
 	private final int left_width;
 	private final int right_width;

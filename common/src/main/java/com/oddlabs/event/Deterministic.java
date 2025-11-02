@@ -1,5 +1,7 @@
 package com.oddlabs.event;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,7 +59,7 @@ public abstract class Deterministic {
 
 	protected abstract float log(float f, float def);
 
-    protected abstract Path log(Path p, Path def);
+    protected abstract @Nullable Path log(Path p, Path def);
 
     public final Path log(Path p) {
         assert enabled;

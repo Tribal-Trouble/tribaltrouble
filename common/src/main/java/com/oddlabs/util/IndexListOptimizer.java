@@ -155,7 +155,7 @@ dumpBuffer(buffer);*/
 	}
 
 	private final static class Triangle {
-		private final Index[] indices;
+		private final Index @NonNull [] indices;
 
 /*		private float score;
 */

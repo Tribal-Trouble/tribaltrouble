@@ -23,7 +23,7 @@ public final class Game implements Serializable {
 	public final static int MIN_LENGTH = 2;
 	public final static int MAX_LENGTH = 30;
 	
-	private final String game_name;
+	private final @NonNull String game_name;
 	private final byte size;
 	private final byte terrain;
 	private final byte hills;

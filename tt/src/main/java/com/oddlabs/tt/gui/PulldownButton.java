@@ -5,7 +5,7 @@ import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 
 public final class PulldownButton extends GUIObject {
-	private final PulldownMenu menu;
+	private final @NonNull PulldownMenu menu;
 	private final @NonNull Label label;
 	private final GUIRoot gui_root;
 	private boolean menu_active;

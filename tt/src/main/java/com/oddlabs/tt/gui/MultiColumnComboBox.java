@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class MultiColumnComboBox extends GUIObject implements Scrollable {
-	private final ColumnInfo[] column_infos;
+	private final ColumnInfo @NonNull [] column_infos;
 	private final RadioButtonGroup group = new RadioButtonGroup();
 	private final Group focus_group = new Group();
 	private final RowCollection rows = new RowCollection(this, 0, true);
@@ -122,7 +122,7 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 		return rows.getSelected();
 	}
 
-	public Object getRightClickedRowData() {
+	public @Nullable Object getRightClickedRowData() {
 		return right_clicked_row_data;
 	}
 

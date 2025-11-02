@@ -20,7 +20,7 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
 public final class HttpRequest {
-	public static Task doPost(@NonNull TaskThread task_thread, @NonNull HttpRequestParameters parameters, @NonNull HttpResponseParser parser, @NonNull HttpCallback callback) {
+	public static @NonNull Task doPost(@NonNull TaskThread task_thread, @NonNull HttpRequestParameters parameters, @NonNull HttpResponseParser parser, @NonNull HttpCallback callback) {
 		try {
 			URL url = new URL(parameters.url);
 			return spawnPostRequest(task_thread, url, parameters, parser, callback);
@@ -29,12 +29,12 @@ public final class HttpRequest {
 		}
 	}
 
-	public static Task doGet(@NonNull TaskThread task_thread, @NonNull HttpRequestParameters parameters, @NonNull HttpResponseParser parser, @NonNull HttpCallback callback) {
+	public static @NonNull Task doGet(@NonNull TaskThread task_thread, @NonNull HttpRequestParameters parameters, @NonNull HttpResponseParser parser, @NonNull HttpCallback callback) {
 		URL url = constructURL(parameters);
 		return spawnGetRequest(task_thread, url, parser, callback);
 	}
 
-	private static Task spawnPostRequest(@NonNull TaskThread task_thread, final @NonNull URL url, final @NonNull HttpRequestParameters parameters, final @NonNull HttpResponseParser parser, final @NonNull HttpCallback callback) {
+	private static @NonNull Task spawnPostRequest(@NonNull TaskThread task_thread, final @NonNull URL url, final @NonNull HttpRequestParameters parameters, final @NonNull HttpResponseParser parser, final @NonNull HttpCallback callback) {
 		return task_thread.addTask(new Callable<HttpResponse>() {
             @Override
 			public @NonNull HttpResponse call() throws IOException {
@@ -53,7 +53,7 @@ public final class HttpRequest {
 		});
 	}
 
-	private static Task spawnGetRequest(@NonNull TaskThread task_thread, final @NonNull URL url, final @NonNull HttpResponseParser parser, final @NonNull HttpCallback callback) {
+	private static @NonNull Task spawnGetRequest(@NonNull TaskThread task_thread, final @NonNull URL url, final @NonNull HttpResponseParser parser, final @NonNull HttpCallback callback) {
 		return task_thread.addTask(new Callable<HttpResponse>() {
                         @Override
 			public @NonNull HttpResponse call() throws IOException {

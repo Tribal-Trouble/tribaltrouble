@@ -16,7 +16,7 @@ public final class GLIntImage extends GLImage {
 		return 4;
 	}
 
-	public IntBuffer getIntPixels() {
+	public @NonNull IntBuffer getIntPixels() {
 		return pixels;
 	}
 

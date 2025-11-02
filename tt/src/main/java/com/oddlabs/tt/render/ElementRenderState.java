@@ -51,13 +51,13 @@ final class ElementRenderState implements ModelState {
     }
 
     @Override
-    public void markDetailPolygon(int index) {
-        visitor.markDetailPolygon(this, index);
+    public void markDetailPolygon(@NonNull PolyDetail detail) {
+        visitor.markDetailPolygon(this, detail);
     }
 
     @Override
-    public int getTriangleCount(int index) {
-        return visitor.getTriangleCount(this, index);
+    public int getTriangleCount(@NonNull PolyDetail detail) {
+        return visitor.getTriangleCount(this, detail);
     }
 
     @Override

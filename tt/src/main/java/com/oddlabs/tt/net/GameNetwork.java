@@ -4,7 +4,7 @@ import org.jspecify.annotations.NonNull;
 
 public final class GameNetwork {
 	private final Server server;
-	private final Client client;
+	private final @NonNull Client client;
 
 	public GameNetwork(Server server, @NonNull Client client) {
 		this.server = server;

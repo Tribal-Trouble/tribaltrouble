@@ -5,7 +5,7 @@ import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 
 public final class InGameCampaignDialogForm extends CampaignDialogForm {
-	private final WorldViewer viewer;
+	private final @NonNull WorldViewer viewer;
 
 	public InGameCampaignDialogForm(@NonNull WorldViewer viewer, @NonNull CharSequence header, @NonNull CharSequence text, Quad image, int align) {
 		this(viewer, header, text, image, align, null);

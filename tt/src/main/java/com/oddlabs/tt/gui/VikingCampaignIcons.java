@@ -31,7 +31,7 @@ public final class VikingCampaignIcons implements CampaignIcons {
 		return icons;
 	}
 
-	private VikingCampaignIcons(String xml_file) {
+	private VikingCampaignIcons(@NonNull String xml_file) {
 		Node root = Icons.loadFile(xml_file, new GUIErrorHandler());
 		texture = Icons.loadTexture(root);
 
@@ -102,7 +102,7 @@ public final class VikingCampaignIcons implements CampaignIcons {
 	}
 
         @Override
-	public IconQuad getMap() {
+	public @NonNull IconQuad getMap() {
 		return map;
 	}
 

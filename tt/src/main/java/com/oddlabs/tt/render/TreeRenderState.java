@@ -2,6 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.landscape.TreeSupply;
+import org.jspecify.annotations.NonNull;
 
 final class TreeRenderState implements LODObject {
 	private final TreePicker tree_renderer;
@@ -21,21 +22,19 @@ final class TreeRenderState implements LODObject {
 	}
 
     @Override
-	public void markDetailPolygon(int level) {
+	public void markDetailPolygon(PolyDetail level) {
 		tree_renderer.markDetailPolygon(tree_supply, level);
 	}
 
     @Override
-	public int getTriangleCount(int index) {
+	public int getTriangleCount(@NonNull PolyDetail level) {
+        int index = level.ordinal();
 		Tree tree = tree_renderer.getTrees()[tree_supply.getTreeTypeIndex()];
-            switch (index) {
-                case SpriteRenderer.HIGH_POLY:
-                    return tree.getTrunk().getSprite(0).getTriangleCount() + tree.getCrown().getSprite(0).getTriangleCount();
-                case SpriteRenderer.LOW_POLY:
-                    return tree_renderer.getLowDetails()[tree_supply.getTreeTypeIndex()].getPolyCount();
-                default:
-                    throw new RuntimeException();
-            }
+        return switch (PolyDetail.values()[index]) {
+            case HIGH_POLY ->
+                    tree.getTrunk().getSprite(0).getTriangleCount() + tree.getCrown().getSprite(0).getTriangleCount();
+            case LOW_POLY -> tree_renderer.getLowDetails()[tree_supply.getTreeTypeIndex()].getPolyCount();
+        };
 	}
 
     @Override

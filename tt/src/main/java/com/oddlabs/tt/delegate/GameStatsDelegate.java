@@ -186,7 +186,7 @@ public final class GameStatsDelegate extends CameraDelegate implements Updatable
 		setDisabled(true);
 	}
 
-	public WorldViewer getViewer() {
+	public @NonNull WorldViewer getViewer() {
 		return viewer;
 	}
 }

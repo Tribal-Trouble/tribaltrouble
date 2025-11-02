@@ -8,6 +8,7 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.DeterministicSerializer;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
@@ -44,7 +45,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 		refresh();
 	}
 
-	public static <T> void saveSavegames(CampaignState[] states, DeterministicSerializerLoopbackInterface<T> callback) {
+	public static <T> void saveSavegames(CampaignState[] states, @NonNull DeterministicSerializerLoopbackInterface<T> callback) {
 		DeterministicSerializer.save(LocalEventQueue.getQueue().getDeterministic(), states, getSaveSavegamesFile(), callback);
 	}
 
@@ -52,7 +53,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 		return LocalInput.getGameDir().resolve(SAVEGAMES_FILE_NAME);
 	}
 
-	public static <T> void loadSavegames(DeterministicSerializerLoopbackInterface<T>  callback) {
+	public static <T> void loadSavegames(@NonNull DeterministicSerializerLoopbackInterface<T>  callback) {
 		DeterministicSerializer.load(LocalEventQueue.getQueue().getDeterministic(), getLoadSavegamesFile(), callback);
 	}
 
@@ -73,7 +74,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 	protected void renderGeometry() {
 	}
 
-	public Object getSelected() {
+	public @Nullable Object getSelected() {
 		return list_box.getSelected();
 	}
 

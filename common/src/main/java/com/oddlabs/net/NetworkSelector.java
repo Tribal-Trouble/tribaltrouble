@@ -152,7 +152,7 @@ public final class NetworkSelector {
 		}
 	}
 
-	public MonotoneTimeManager getTimeManager() {
+	public @NonNull MonotoneTimeManager getTimeManager() {
 		return time_manager;
 	}
 

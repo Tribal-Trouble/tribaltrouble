@@ -10,7 +10,7 @@ import org.jspecify.annotations.NonNull;
 public final class GameOverDelayTrigger implements Updatable {
 
     private final @NonNull TimerAnimation delay_timer;
-    private final WorldViewer viewer;
+    private final @NonNull WorldViewer viewer;
     private final Camera camera;
     private final String label_str;
 

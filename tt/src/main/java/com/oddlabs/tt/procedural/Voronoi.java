@@ -137,7 +137,7 @@ public final class Voronoi {
 		return channel.dynamicRange();
 	}
 
-	public Channel getHitpoint() {
+	public @NonNull Channel getHitpoint() {
 		return hit;
 	}
 

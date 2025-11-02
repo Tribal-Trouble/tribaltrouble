@@ -67,7 +67,7 @@ public final class World {
 		return new RacesResources(queues);
 	}
 
-	public static @NonNull World newWorld(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel[] tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
+	public static @NonNull World newWorld(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel @NonNull [] tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
 		NativeResource.gc();
 		ProgressForm.progress();
 		World world = new World(audio_implementation, landscape_resources, races_resources, tree_low_details, notification_listener, world_params, world_info, terrain, player_infos, colors);
@@ -144,7 +144,7 @@ public final class World {
 		return getAnimationManagerRealTime().getTick();
 	}
 
-	private World(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel[] tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
+	private World(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel @NonNull [] tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
 		System.out.println("****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
 		this.landscape_resources = landscape_resources;
 		this.races_resources = races_resources;
@@ -183,23 +183,23 @@ public final class World {
 		AbstractElementNode.buildSupplies(this, world_info.iron, world_info.rocks, world_info.plants, terrain);
 	}
 
-	public AbstractElementNode getElementRoot() {
+	public @NonNull AbstractElementNode getElementRoot() {
 		return element_root;
 	}
 
-	public AbstractTreeGroup getTreeRoot() {
+	public @NonNull AbstractTreeGroup getTreeRoot() {
 		return tree_root;
 	}
 
-	public LandscapeTileIndices getLandscapeIndices() {
+	public @NonNull LandscapeTileIndices getLandscapeIndices() {
 		return landscape_indices;
 	}
 
-	public AbstractPatchGroup getPatchRoot() {
+	public @NonNull AbstractPatchGroup getPatchRoot() {
 		return patch_root;
 	}
 
-	public UnitGrid getUnitGrid() {
+	public @NonNull UnitGrid getUnitGrid() {
 		return unit_grid;
 	}
 
@@ -207,7 +207,7 @@ public final class World {
 		return supply_managers.getSupplyManager(cl);
 	}
 
-	public Player[] getPlayers() {
+	public Player @NonNull [] getPlayers() {
 		return players;
 	}
 
@@ -219,19 +219,19 @@ public final class World {
 		return notification_listener;
 	}
 
-	public HeightMap getHeightMap() {
+	public @NonNull HeightMap getHeightMap() {
 		return world;
 	}
 
-	public AnimationManager getAnimationManagerGameTime() {
+	public @NonNull AnimationManager getAnimationManagerGameTime() {
 		return animation_manager_game_time;
 	}
 
-	public AnimationManager getAnimationManagerRealTime() {
+	public @NonNull AnimationManager getAnimationManagerRealTime() {
 		return animation_manager_real_time;
 	}
 
-	public Random getRandom() {
+	public @NonNull Random getRandom() {
 		return random;
 	}
 }

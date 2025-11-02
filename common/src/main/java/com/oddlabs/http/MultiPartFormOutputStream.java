@@ -328,7 +328,7 @@ public class MultiPartFormOutputStream{
 	 *
 	 * @return  the boundary
 	 */
-	public String getBoundary(){
+	public @NonNull String getBoundary(){
 		return this.boundary;
 	}
 

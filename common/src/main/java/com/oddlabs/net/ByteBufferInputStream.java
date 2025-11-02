@@ -12,7 +12,7 @@ public final class ByteBufferInputStream extends InputStream {
 		buffer = ByteBuffer.wrap(array);
 	}
 	
-	public ByteBuffer buffer() {
+	public @NonNull ByteBuffer buffer() {
 		return buffer;
 	}
 

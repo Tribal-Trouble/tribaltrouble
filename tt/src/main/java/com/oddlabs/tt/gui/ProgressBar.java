@@ -11,7 +11,7 @@ import org.lwjgl.opengl.Display;
 import java.util.ResourceBundle;
 
 public final class ProgressBar extends GUIObject {
-	private final ProgressBarInfo[] info;
+	private final ProgressBarInfo @NonNull [] info;
 	private final boolean text_only;
 	
 	private final TextLineRenderer text_renderer = new TextLineRenderer(Skin.getSkin().getHeadlineFont());

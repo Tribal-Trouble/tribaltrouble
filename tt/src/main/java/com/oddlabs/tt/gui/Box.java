@@ -5,13 +5,13 @@ import org.jspecify.annotations.NonNull;
 
 public final class Box {
 	private final Quad[] left_bottom;
-	private final Quad[] bottom;
+	private final Quad @NonNull [] bottom;
 	private final Quad[] right_bottom;
-	private final Quad[] right;
+	private final Quad @NonNull [] right;
 	private final Quad[] right_top;
-	private final Quad[] top;
+	private final Quad @NonNull [] top;
 	private final Quad[] left_top;
-	private final Quad[] left;
+	private final Quad @NonNull [] left;
 	private final Quad[] center;
 	private final int left_offset;
 	private final int bottom_offset;

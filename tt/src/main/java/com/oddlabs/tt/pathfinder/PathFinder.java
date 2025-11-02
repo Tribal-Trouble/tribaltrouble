@@ -13,7 +13,7 @@ public final class PathFinder {
 	final static List<Node> visited_list = new ArrayList<>();
 	public static int stat_pathfinder_per_frame = 0;
 
-	public static Region findPathRegion(UnitGrid unit_grid, @NonNull Region src_region, @NonNull Region dst_region) {
+	public static Region findPathRegion(@NonNull UnitGrid unit_grid, @NonNull Region src_region, @NonNull Region dst_region) {
 /*		Node src_region = unit_grid.getRegion(src_grid_x, src_grid_y);
 		Node dst_region = unit_grid.getRegion(dst_grid_x, dst_grid_y);*/
 		assert src_region != null;// : "src_grid_x = " + src_grid_x + " | src_grid_y = " + src_grid_y;
@@ -40,7 +40,7 @@ public final class PathFinder {
 			return null;
 	}
 
-	public static @Nullable GridPathNode findPathGrid(UnitGrid unit_grid, Region dst_region, Region dst_region2, int src_grid_x, int src_grid_y, int dst_grid_x, int dst_grid_y, Target target, float max_dist, boolean allow_second_best) {
+	public static @Nullable GridPathNode findPathGrid(@NonNull UnitGrid unit_grid, Region dst_region, Region dst_region2, int src_grid_x, int src_grid_y, int dst_grid_x, int dst_grid_y, Target target, float max_dist, boolean allow_second_best) {
 		GridNode.Offset offset = GridNode.setupPathFinding(src_grid_x, src_grid_y, src_grid_x, src_grid_y);
 		if (offset == null)
 			return null;

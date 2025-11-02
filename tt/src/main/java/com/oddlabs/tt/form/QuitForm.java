@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class QuitForm extends QuestionForm {
-	private static @NonNull String getI18N(String key) {
+	private static @NonNull String getI18N(@NonNull String key) {
 		ResourceBundle bundle = ResourceBundle.getBundle(QuitForm.class.getName());
 		return Utils.getBundleString(bundle, key);
 	}

@@ -29,7 +29,7 @@ import java.nio.FloatBuffer;
 
 public final class DefaultRenderer implements UIRenderer {
 
-    private final Picker picker;
+    private final @NonNull Picker picker;
     private final @NonNull FogInfo fog_info;
     private final @NonNull Water water;
     private final @NonNull Sky sky;
@@ -71,7 +71,7 @@ public final class DefaultRenderer implements UIRenderer {
         }
     }
 
-    public DefaultRenderer(Cheat cheat, @NonNull Player local_player, RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, LandscapeRenderer landscape_renderer, @NonNull Picker picker, Selection selection, @NonNull WorldGenerator generator) {
+    public DefaultRenderer(Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, Selection selection, @NonNull WorldGenerator generator) {
         this.world = local_player.getWorld();
         this.cheat = cheat;
         this.light_array = BufferUtils.createByteBuffer(4 * 4).asFloatBuffer();
@@ -147,7 +147,7 @@ public final class DefaultRenderer implements UIRenderer {
         return picker.getCurrentToolTip();
     }
 
-    public TreeRenderer getTreeRenderer() {
+    public @NonNull TreeRenderer getTreeRenderer() {
         return tree_renderer;
     }
 

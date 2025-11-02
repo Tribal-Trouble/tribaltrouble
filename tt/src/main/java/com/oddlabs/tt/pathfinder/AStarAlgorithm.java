@@ -22,7 +22,7 @@ abstract class AStarAlgorithm implements PathFinderAlgorithm {
 		this.unit_grid = unit_grid;
 	}
 
-	protected final UnitGrid getUnitGrid() {
+	protected final @NonNull UnitGrid getUnitGrid() {
 		return unit_grid;
 	}
 

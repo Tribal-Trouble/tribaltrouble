@@ -30,7 +30,7 @@ public abstract class TextField extends GUIObject implements CharSequence {
 		return text.toString();
 	}
 
-	protected final StringBuffer getText() {
+	protected final @NonNull StringBuffer getText() {
 		return text;
 	}
 

@@ -106,7 +106,7 @@ public final class LandscapeResources {
 		return plant_sprites;
 	}
 
-	public SpriteKey getChicken() {
+	public @NonNull SpriteKey getChicken() {
 		return chicken;
 	}
 

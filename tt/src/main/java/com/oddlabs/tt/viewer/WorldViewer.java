@@ -61,10 +61,10 @@ public final class WorldViewer implements Animated {
     private final @NonNull SelectionDelegate delegate;
     private final @NonNull DistributableTable distributable_table;
     private final @NonNull PeerHub peerhub;
-    private final GUIRoot gui_root;
+    private final @NonNull GUIRoot gui_root;
     private final @NonNull NotificationManager notification_manager;
-    private final InGameInfo ingame_info;
-    private final NetworkSelector network;
+    private final @NonNull InGameInfo ingame_info;
+    private final @NonNull NetworkSelector network;
     private final @NonNull Selection selection;
     private final @NonNull World world;
     private final @NonNull Picker picker;
@@ -72,7 +72,7 @@ public final class WorldViewer implements Animated {
     private final @NonNull LandscapeRenderer landscape_renderer;
     private final Player local_player;
     private final @NonNull Cheat cheat;
-    private final WorldParameters world_params;
+    private final @NonNull WorldParameters world_params;
     private final @NonNull AnimationManager animation_manager_local;
 
     public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator, PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, float[][] colors, short player_slot, SessionID session_id) {
@@ -170,7 +170,7 @@ public final class WorldViewer implements Animated {
         LocalEventQueue.getQueue().getManager().registerAnimation(this);
     }
 
-    public AnimationManager getAnimationManagerLocal() {
+    public @NonNull AnimationManager getAnimationManagerLocal() {
         return animation_manager_local;
     }
 
@@ -187,7 +187,7 @@ public final class WorldViewer implements Animated {
         return world_params;
     }
 
-    public Cheat getCheat() {
+    public @NonNull Cheat getCheat() {
         return cheat;
     }
 
@@ -271,19 +271,19 @@ public final class WorldViewer implements Animated {
         }
     }
 
-    private LandscapeRenderer getLandscapeRenderer() {
+    private @NonNull LandscapeRenderer getLandscapeRenderer() {
         return landscape_renderer;
     }
 
-    public Picker getPicker() {
+    public @NonNull Picker getPicker() {
         return picker;
     }
 
-    public DefaultRenderer getRenderer() {
+    public @NonNull DefaultRenderer getRenderer() {
         return renderer;
     }
 
-    public World getWorld() {
+    public @NonNull World getWorld() {
         return world;
     }
 
@@ -291,15 +291,15 @@ public final class WorldViewer implements Animated {
         return network;
     }
 
-    public Selection getSelection() {
+    public @NonNull Selection getSelection() {
         return selection;
     }
 
-    public NotificationManager getNotificationManager() {
+    public @NonNull NotificationManager getNotificationManager() {
         return notification_manager;
     }
 
-    public DistributableTable getDistributableTable() {
+    public @NonNull DistributableTable getDistributableTable() {
         return distributable_table;
     }
 
@@ -330,19 +330,19 @@ public final class WorldViewer implements Animated {
         ingame_info.close(this);
     }
 
-    public GameCamera getCamera() {
+    public @NonNull GameCamera getCamera() {
         return camera;
     }
 
-    public PeerHub getPeerHub() {
+    public @NonNull PeerHub getPeerHub() {
         return peerhub;
     }
 
-    public ActionButtonPanel getPanel() {
+    public @NonNull ActionButtonPanel getPanel() {
         return panel;
     }
 
-    public SelectionDelegate getDelegate() {
+    public @NonNull SelectionDelegate getDelegate() {
         return delegate;
     }
 }

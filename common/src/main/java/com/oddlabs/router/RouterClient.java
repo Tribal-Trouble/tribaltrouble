@@ -56,7 +56,7 @@ final class RouterClient implements ConnectionInterface {
 		client_interface.heartbeat(millis);
 	}
 
-	RouterClientInterface getInterface() {
+	@NonNull RouterClientInterface getInterface() {
 		return client_interface;
 	}
 

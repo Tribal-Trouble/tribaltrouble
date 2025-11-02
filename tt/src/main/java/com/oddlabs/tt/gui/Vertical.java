@@ -4,9 +4,9 @@ import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 
 public final class Vertical {
-	private final Quad[] bottom;
+	private final Quad @NonNull [] bottom;
 	private final Quad[] center;
-	private final Quad[] top;
+	private final Quad @NonNull [] top;
 	private final int bottom_height;
 	private final int top_height;
 	private final int width;

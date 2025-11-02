@@ -550,7 +550,7 @@ public final class TerrainMenu extends Group {
 		button_ok.setFocus();
 	}
 
-	public GUIObject getButtonOK() {
+	public @NonNull GUIObject getButtonOK() {
 		return button_ok;
 	}
 

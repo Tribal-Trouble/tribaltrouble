@@ -135,7 +135,7 @@ public abstract class InGameDelegate extends CameraDelegate {
 		}
 	}
 
-	public final WorldViewer getViewer() {
+	public final @NonNull WorldViewer getViewer() {
 		return viewer;
 	}
 }

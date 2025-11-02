@@ -94,11 +94,11 @@ public final class LinkedList<T> {
 		return size;
 	}
 
-	public ListElement<T> getFirst() {
+	public @Nullable ListElement<T> getFirst() {
 		return first;
 	}
 
-	public ListElement<T> getLast() {
+	public @Nullable ListElement<T> getLast() {
 		return last;
 	}
 

@@ -11,8 +11,8 @@ import org.jspecify.annotations.NonNull;
 public final class RepairBehaviour implements Behaviour {
 	private final static int REPAIRS_PER_SUPPLY = 5;
 	private final static float SECONDS_PER_ANIMATION_CYCLE = 1f;
-	private final Building building;
-	private final Unit unit;
+	private final @NonNull Building building;
+	private final @NonNull Unit unit;
 
 	private float anim_time;
 	private int repairs;

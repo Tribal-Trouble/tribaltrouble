@@ -4,13 +4,14 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 public class ChieftainButton extends NonFocusIconButton implements ToolTip {
 	private final PlayerInterface player_interface;
 	private final WorldViewer viewer;
 	private Building current_building;
 
-	public ChieftainButton(WorldViewer viewer, PlayerInterface player_interface, IconQuad[] icon_quad, String tool_tip) {
+	public ChieftainButton(WorldViewer viewer, PlayerInterface player_interface, IconQuad @NonNull [] icon_quad, String tool_tip) {
 		super(icon_quad, tool_tip);
 		this.player_interface = player_interface;
 		this.viewer = viewer;

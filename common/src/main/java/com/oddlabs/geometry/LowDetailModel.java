@@ -9,7 +9,7 @@ public final class LowDetailModel implements Serializable {
 
 	private final float[] vertices;
 	private final float[] tex_coords;
-	private final short[] indices;
+	private final short @NonNull [] indices;
 	private final int poly_count;
 
 	public LowDetailModel(short @NonNull [] indices, float[] vertices, float[] tex_coords) {

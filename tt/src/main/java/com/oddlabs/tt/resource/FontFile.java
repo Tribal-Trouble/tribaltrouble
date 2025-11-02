@@ -6,7 +6,7 @@ import org.jspecify.annotations.NonNull;
 
 public final class FontFile extends File<Font> {
 
-    public FontFile(String file_name) {
+    public FontFile(@NonNull String file_name) {
         super(file_name);
     }
 

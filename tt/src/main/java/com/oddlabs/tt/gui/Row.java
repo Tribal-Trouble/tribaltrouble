@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 public final class Row extends GUIObject implements Comparable<Row> {
-	private final Object[] columns;
+	private final Object @NonNull [] columns;
 	private final Object content_object;
 	private int sort_index;
 	private @Nullable Color color = null;

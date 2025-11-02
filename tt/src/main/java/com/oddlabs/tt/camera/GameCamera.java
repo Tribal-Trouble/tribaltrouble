@@ -364,7 +364,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         scroll_start_speed = Math.min((float)Math.sqrt(dx*dx + dy*dy + dz*dz), SCROLL_START_MAX_SPEED);
     }
 
-    public World getWorld() {
+    public @NonNull World getWorld() {
         return viewer.getWorld();
     }
 

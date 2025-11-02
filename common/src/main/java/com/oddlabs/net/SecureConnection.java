@@ -58,7 +58,7 @@ public final class SecureConnection extends AbstractConnection implements Secure
 			this.key_agreement = null;
 	}
 
-	public AbstractConnection getWrappedConnection() {
+	public @NonNull AbstractConnection getWrappedConnection() {
 		return wrapped_connection;
 	}
 

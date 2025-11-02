@@ -3,13 +3,14 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.ToolTip;
+import org.jspecify.annotations.NonNull;
 
 public class RechargeButton extends NonFocusIconButton implements ToolTip {
 	private final PlayerInterface player_interface;
 	private final int magic_index;
 	private Unit unit;
 
-	public RechargeButton(PlayerInterface player_interface, IconQuad[] icon_quad, String tool_tip, int magic_index) {
+	public RechargeButton(PlayerInterface player_interface, IconQuad @NonNull [] icon_quad, String tool_tip, int magic_index) {
 		super(icon_quad, tool_tip);
 		this.player_interface = player_interface;
 		this.magic_index = magic_index;

@@ -12,7 +12,7 @@ import java.util.Random;
 
 public class ParametricEmitter extends Emitter {
 	private final static float SQRT_2 = (float)Math.sqrt(2f);
-	private final Random random;
+	private final @NonNull Random random;
 	private final Vector3f randomized_offset = new Vector3f();
 	private final ParametricFunction function;
 	private final float area_xy;

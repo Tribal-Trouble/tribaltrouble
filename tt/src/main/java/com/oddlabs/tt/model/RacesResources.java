@@ -817,7 +817,7 @@ public final class RacesResources {
 		return poison_textures;
 	}
 
-	public TextureKey getLightningTexture() {
+	public @NonNull TextureKey getLightningTexture() {
 		return lightning_texture;
 	}
 
@@ -838,7 +838,7 @@ public final class RacesResources {
 		return sounds[random.nextInt(sounds.length)];
 	}
 
-	public Audio[] getTreeFallSound() {
+	public Audio @NonNull [] getTreeFallSound() {
 		return tree_fall_sound;
 	}
 

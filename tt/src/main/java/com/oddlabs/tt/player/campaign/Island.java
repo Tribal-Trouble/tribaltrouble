@@ -49,7 +49,7 @@ public abstract class Island {
 		world_viewer.getGUIRoot().addModalForm(form);
 	}
 
-	protected final @NonNull GameNetwork startNewGame(NetworkSelector network, @NonNull GUIRoot gui_root, int meters_per_world, Landscape.TerrainType terrain, float hills, float vegetation_amount, float supplies_amount, int seed, int campaign_num, int initial_units, String[] ai_names) {
+	protected final @NonNull GameNetwork startNewGame(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int meters_per_world, Landscape.TerrainType terrain, float hills, float vegetation_amount, float supplies_amount, int seed, int campaign_num, int initial_units, String[] ai_names) {
 		InGameInfo ingame_info = new CampaignInGameInfo(campaign);
 		WorldInitAction init_action = (WorldViewer viewer) -> {
                     world_viewer = viewer;

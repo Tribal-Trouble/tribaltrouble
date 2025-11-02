@@ -31,7 +31,7 @@ public final class PoisonFog implements Magic {
 	private final float hit_chance;
 	private final float interval;
 	private final int damage;
-	private final Unit src;
+	private final @NonNull Unit src;
 	private final Player owner;
 	private final float start_x;
 	private final float start_y;

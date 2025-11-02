@@ -28,7 +28,7 @@ public abstract class Campaign {
 		return state;
 	}
 
-	public final void pushDelegate(NetworkSelector network, @NonNull GUI gui) {
+	public final void pushDelegate(@NonNull NetworkSelector network, @NonNull GUI gui) {
 		final GUIRoot gui_root = gui.newFade();
 		gui_root.pushDelegate(new CampaignMapForm(network, gui_root, Campaign.this));
 	}

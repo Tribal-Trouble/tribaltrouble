@@ -69,11 +69,11 @@ class TreePicker implements TreeNodeVisitor {
 		return trees;
 	}
 
-	final Tree[] getTrees() {
+	final Tree @NonNull [] getTrees() {
 		return trees;
 	}
 
-	final LowDetailModel[] getLowDetails() {
+	final LowDetailModel @NonNull [] getLowDetails() {
 		return tree_low_details;
 	}
 
@@ -81,11 +81,11 @@ class TreePicker implements TreeNodeVisitor {
 		return low_detail_render_list;
 	}
 
-	protected final List<TreeSupply>[] getRenderLists() {
+	protected final List<TreeSupply> @NonNull [] getRenderLists() {
 		return render_lists;
 	}
 
-	protected final List<TreeSupply>[] getRespondRenderLists() {
+	protected final List<TreeSupply> @NonNull [] getRespondRenderLists() {
 		return respond_render_lists;
 	}
 
@@ -115,8 +115,8 @@ class TreePicker implements TreeNodeVisitor {
 		}
 	}
 
-	public final void markDetailPolygon(@NonNull TreeSupply tree_supply, int level) {
-		if (level == SpriteRenderer.HIGH_POLY || tree_supply.hasRespondingTrees()) {
+	public final void markDetailPolygon(@NonNull TreeSupply tree_supply, PolyDetail level) {
+		if (level == PolyDetail.HIGH_POLY || tree_supply.hasRespondingTrees()) {
 			addToHighDetailList(tree_supply.getTreeTypeIndex(), tree_supply, respond_manager.isResponding(tree_supply));
 		} else
 			addToLowDetailRenderList(tree_supply);
@@ -180,9 +180,9 @@ class TreePicker implements TreeNodeVisitor {
 		return RenderTools.inFrustum(picking_selection_box, frustum) >= RenderTools.IN_FRUSTUM;
 	}
 
-	private void addToRenderList(@NonNull TreeSupply tree, CameraState camera) {
+	private void addToRenderList(@NonNull TreeSupply tree, @NonNull CameraState camera) {
 		if (isPicking())
-			markDetailPolygon(tree, SpriteRenderer.HIGH_POLY);
+			markDetailPolygon(tree, PolyDetail.HIGH_POLY);
 		else
 			sprite_sorter.add(getRenderState(tree), camera, false);
 	}

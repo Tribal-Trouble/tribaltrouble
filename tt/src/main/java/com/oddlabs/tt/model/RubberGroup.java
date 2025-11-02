@@ -16,7 +16,7 @@ public final class RubberGroup {
 
 	private final static float SPAWN_TIME = 2f;
 
-	private final World world;
+	private final @NonNull World world;
 	private final List<Supply> supplies = new ArrayList<>();
 
 	public RubberGroup(@NonNull World world) {

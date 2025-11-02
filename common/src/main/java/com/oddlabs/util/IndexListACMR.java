@@ -5,7 +5,7 @@ import org.jspecify.annotations.NonNull;
 import java.nio.ShortBuffer;
 
 public final class IndexListACMR {
-	public static float computeACMR(short[] indices, int fifo_size) {
+	public static float computeACMR(short @NonNull [] indices, int fifo_size) {
 		return computeACMR(ShortBuffer.wrap(indices), fifo_size);
 	}
 

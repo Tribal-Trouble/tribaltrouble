@@ -16,7 +16,7 @@ final class SelectableShadowRenderer extends ShadowListRenderer {
 	private final List<ModelState> selection_list = new ArrayList<>();
 	private final List<ModelState> shadowed_list = new ArrayList<>();
 
-	public SelectableShadowRenderer(Supplier<Texture[]> halos_desc) {
+	public SelectableShadowRenderer(@NonNull Supplier<Texture[]> halos_desc) {
 		halos = Resources.findResource(halos_desc);
 	}
 

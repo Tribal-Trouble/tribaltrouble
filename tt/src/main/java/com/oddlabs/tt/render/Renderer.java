@@ -135,7 +135,7 @@ public final class Renderer {
 		return renderer_instance;
 	}
 
-	private void runGameLoop(NetworkSelector network, GUI gui) {
+	private void runGameLoop(@NonNull NetworkSelector network, @NonNull GUI gui) {
 		AnimationManager.runGameLoop(network, gui, grab_frames);
 	}
 
@@ -393,7 +393,7 @@ e.printStackTrace();
 		return default_locale;
 	}
 
-	private void setupLogging(Path event_log_dir, boolean silent) throws IOException {
+	private void setupLogging(@NonNull Path event_log_dir, boolean silent) throws IOException {
 		Files.createDirectories(event_log_dir);
 		logger.info("Writing log files in " + event_log_dir);
 

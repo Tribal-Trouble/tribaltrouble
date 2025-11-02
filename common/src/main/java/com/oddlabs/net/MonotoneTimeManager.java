@@ -3,7 +3,7 @@ package com.oddlabs.net;
 import org.jspecify.annotations.NonNull;
 
 public final class MonotoneTimeManager implements TimeManager {
-	private final TimeManager source;
+	private final @NonNull TimeManager source;
 	private long last_time;
 
 	public MonotoneTimeManager(@NonNull TimeManager source) {

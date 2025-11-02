@@ -41,7 +41,7 @@ public final class LandscapeRenderer implements Animated {
     private final @NonNull LandscapeTileVertices landscape_vertices;
     private final ShortBuffer shadow_indices_buffer;
     private final @NonNull ShortVBO indices_vbo;
-    private final AnimationManager manager;
+    private final @NonNull AnimationManager manager;
 
     private int current_map_x;
     private int current_map_y;
@@ -87,7 +87,7 @@ public final class LandscapeRenderer implements Animated {
         resetEditing();
     }
 
-    public HeightMap getHeightMap() {
+    public @NonNull HeightMap getHeightMap() {
         return world.getHeightMap();
     }
 
@@ -264,7 +264,7 @@ public final class LandscapeRenderer implements Animated {
         current_map_y = -1;
         GL11.glEnable(GL11.GL_TEXTURE_GEN_S);
         GL11.glEnable(GL11.GL_TEXTURE_GEN_T);
-        GLStateStack.switchState(GLState.VERTEX_ARRAY);
+        GLStateStack.switchState(GLState.VERTEX_ARRAY | GLState.NORMAL_ARRAY | GLState.TEXCOORD0_ARRAY);
         if (Globals.draw_detail) {
             GLState.activeTexture(GL13.GL_TEXTURE1);
             GL11.glEnable(GL11.GL_TEXTURE_2D);

@@ -17,7 +17,7 @@ public final class WalkBehaviour implements Behaviour {
 	private final static float WAIT_RETRY_DELAY = 1f/2f;
 	private final static float MAX_WAIT_RETRY_DELAY = 5f;
 
-	private final Unit unit;
+	private final @NonNull Unit unit;
 	private final TrackerAlgorithm tracker_algorithm;
 	private final @NonNull AttackScanFilter scan_filter;
 	private final boolean scan_attack;

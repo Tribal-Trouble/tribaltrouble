@@ -16,7 +16,7 @@ public final class TargetRespondRenderer extends ShadowListRenderer {
 
 	private final List<LandscapeTargetRespond> target_list = new ArrayList<>();
 
-	public TargetRespondRenderer(Supplier<Texture[]> desc) {
+	public TargetRespondRenderer(@NonNull Supplier<Texture[]> desc) {
 		ring = Resources.findResource(desc)[0];
 	}
 

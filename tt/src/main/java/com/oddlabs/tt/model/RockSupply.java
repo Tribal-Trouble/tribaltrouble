@@ -7,7 +7,7 @@ import org.jspecify.annotations.NonNull;
 public final class RockSupply extends SupplyModel {
 	private final static int INITIAL_SUPPLIES = 10;
 
-	public RockSupply(World world, SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, boolean increase) {
+	public RockSupply(@NonNull World world, SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, boolean increase) {
 		super(world, sprite_renderer, size, grid_x, grid_y, x, y, rotation, INITIAL_SUPPLIES, increase);
 	}
 

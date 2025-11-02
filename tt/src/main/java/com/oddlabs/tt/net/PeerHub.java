@@ -57,12 +57,12 @@ public final class PeerHub implements Animated, RouterHandler {
 	private final Map<Peer, Player> peer_to_player = new LinkedHashMap<>();
 	private final Set<Player> nonhuman_players = new HashSet<>();
 	private final GUIRoot gui_root;
-	private final NetworkSelector network;
+	private final @NonNull NetworkSelector network;
 	private final @NonNull RouterClient router_client;
 	private final @Nullable Router router;
 	private final NotificationManager notification_manager;
-	private final Player local_player;
-	private final AnimationManager manager;
+	private final @NonNull Player local_player;
+	private final @NonNull AnimationManager manager;
 	private final boolean is_multiplayer;
 	private final boolean is_rated;
 	private final StallHandler stall_handler;
@@ -224,7 +224,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		return (nonhuman_players.contains(player) || locatePeerFromPlayer(player) != null) && player.isAlive();
 	}
 
-	public PlayerInterface getPlayerInterface() {
+	public @NonNull PlayerInterface getPlayerInterface() {
 		return player_interface;
 	}
 
@@ -316,7 +316,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		return peer_to_player.keySet().iterator();
 	}
 
-	public PeerHubInterface getInterface() {
+	public @NonNull PeerHubInterface getInterface() {
 		return peerhubs_interface;
 	}
 

@@ -10,7 +10,7 @@ import org.lwjgl.util.vector.Vector4f;
 public final class RingEmitter extends LinearEmitter {
 	private final int num_particles;
 
-	public RingEmitter(World world, Vector3f position, float offset_z,
+	public RingEmitter(@NonNull World world, @NonNull Vector3f position, float offset_z,
                        float emitter_radius, float emitter_height,
                        int num_particles, float particles_per_second,
                        Vector3f velocity, Vector3f acceleration,

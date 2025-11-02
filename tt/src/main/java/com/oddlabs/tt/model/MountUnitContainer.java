@@ -44,7 +44,7 @@ public final class MountUnitContainer extends UnitContainer {
 	public void animate(float t) {
 	}
 
-	public Unit getUnit() {
+	public @Nullable Unit getUnit() {
 		return unit;
 	}
 }

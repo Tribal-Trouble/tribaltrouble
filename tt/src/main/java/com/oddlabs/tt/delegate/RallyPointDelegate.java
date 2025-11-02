@@ -4,11 +4,12 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 public final class RallyPointDelegate extends TargetDelegate {
 	private final Building building;
 
-	public RallyPointDelegate(WorldViewer viewer, GameCamera camera, Building building) {
+	public RallyPointDelegate(@NonNull WorldViewer viewer, GameCamera camera, Building building) {
 		super(viewer, camera, 0);
 		this.building = building;
 	}

@@ -9,8 +9,8 @@ import org.jspecify.annotations.NonNull;
 
 public final class HarvestBehaviour implements Behaviour {
 	private final static float SECONDS_PER_ANIMATION_CYCLE = 1f;
-	private final Supply supply;
-	private final Unit unit;
+	private final @NonNull Supply supply;
+	private final @NonNull Unit unit;
 	private float anim_time;
 	private boolean sound;
 

@@ -64,7 +64,7 @@ public final class Bricks {
 		return new Layer(channel, channel, channel);
 	}
 
-	public Channel toChannel() {
+	public @NonNull Channel toChannel() {
 		return channel;
 	}
 

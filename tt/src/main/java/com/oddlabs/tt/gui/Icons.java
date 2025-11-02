@@ -56,7 +56,7 @@ public class Icons {
 		return icons;
 	}
 
-	private Icons(String xml_file) {
+	private Icons(@NonNull String xml_file) {
 		Node root = loadFile(xml_file, new GUIErrorHandler());
 		texture = loadTexture(root);
 
@@ -121,51 +121,51 @@ public class Icons {
 							 magic2_desc);
 	}
 
-	public final RaceIcons getVikingIcons() {
+	public final @NonNull RaceIcons getVikingIcons() {
 		return viking_icons;
 	}
 
-	public final RaceIcons getNativeIcons() {
+	public final @NonNull RaceIcons getNativeIcons() {
 		return native_icons;
 	}
 
-	public final IconQuad[] getHarvestIcon() {
+	public final IconQuad @NonNull [] getHarvestIcon() {
 		return harvest_icon;
 	}
 
-	public final IconQuad getTreeStatusIcon() {
+	public final @NonNull IconQuad getTreeStatusIcon() {
 		return tree_status_icon;
 	}
 
-	public final IconQuad getRockStatusIcon() {
+	public final @NonNull IconQuad getRockStatusIcon() {
 		return rock_status_icon;
 	}
 
-	public final IconQuad getIronStatusIcon() {
+	public final @NonNull IconQuad getIronStatusIcon() {
 		return iron_status_icon;
 	}
 
-	public final IconQuad getRubberStatusIcon() {
+	public final @NonNull IconQuad getRubberStatusIcon() {
 		return rubber_status_icon;
 	}
 
-	public final IconQuad getCheatIcon() {
+	public final @NonNull IconQuad getCheatIcon() {
 		return cheat_icon;
 	}
 
-	public final IconQuad[] getTreeIcon() {
+	public final IconQuad @NonNull [] getTreeIcon() {
 		return tree_icon;
 	}
 
-	public final IconQuad[] getRockIcon() {
+	public final IconQuad @NonNull [] getRockIcon() {
 		return rock_icon;
 	}
 
-	public final IconQuad[] getIronIcon() {
+	public final IconQuad @NonNull [] getIronIcon() {
 		return iron_icon;
 	}
 
-	public final IconQuad[] getRubberIcon() {
+	public final IconQuad @NonNull [] getRubberIcon() {
 		return rubber_icon;
 	}
 
@@ -183,15 +183,15 @@ public class Icons {
 		return result;
 	}
 
-	public final IconQuad[] getWatch() {
+	public final IconQuad @NonNull [] getWatch() {
 		return watch;
 	}
 
-	public final IconQuad getInfinite() {
+	public final @NonNull IconQuad getInfinite() {
 		return infinite;
 	}
 
-	public final NotifyArrowData getNotifyArrowData() {
+	public final @NonNull NotifyArrowData getNotifyArrowData() {
 		return notify_arrow_data;
 	}
 
@@ -209,7 +209,7 @@ public class Icons {
 				texture);
 	}
 
-	public static Node loadFile(String xml_file, ErrorHandler error_handler) {
+	public static Node loadFile(@NonNull String xml_file, ErrorHandler error_handler) {
 		URL url = Utils.makeURL(xml_file);
 
 		try {

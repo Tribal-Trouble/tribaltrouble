@@ -28,11 +28,11 @@ public final class SelectionArmy extends Army {
         return num_units;
     }
 
-    public Unit getChieftain() {
+    public @Nullable Unit getChieftain() {
         return chieftain;
     }
 
-    public Building getBuilding() {
+    public @Nullable Building getBuilding() {
         return building;
     }
 

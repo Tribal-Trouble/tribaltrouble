@@ -8,7 +8,7 @@ public final class Network {
 	private final static MatchmakingClient matchmaking_client = new MatchmakingClient();
 	private static @Nullable MatchmakingListener matchmaking_listener;
 
-	public static MatchmakingListener getMatchmakingListener() {
+	public static @Nullable MatchmakingListener getMatchmakingListener() {
 		return matchmaking_listener;
 	}
 

@@ -15,7 +15,7 @@ import java.util.List;
 public final class UnitGrid {
 	private final Region[] @NonNull [] regions;
 	private final Occupant[] @NonNull [] occupants;
-	private final HeightMap heightmap;
+	private final @NonNull HeightMap heightmap;
 
 	private boolean filter(@NonNull ScanFilter filter, int x, int y) {
 		if (x < 0 || y < 0 || x >= occupants.length || y >= occupants.length)
@@ -23,7 +23,7 @@ public final class UnitGrid {
 		return filter.filter(x, y, occupants[y][x]);
 	}
 
-	public Target[] findGridTargets(int center_grid_x, int center_grid_y, int num_targets, boolean grid_targets_only) {
+	public Target @NonNull [] findGridTargets(int center_grid_x, int center_grid_y, int num_targets, boolean grid_targets_only) {
 		FindTargetsFilter filter = new FindTargetsFilter(num_targets, occupants.length, grid_targets_only);
 		scan(filter, center_grid_x, center_grid_y);
 		return filter.getTargets();

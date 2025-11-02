@@ -45,7 +45,7 @@ public final class PathTracker {
 		tool_tip_box.append(next_unit_grid_y);
 	}
 
-	public State animate(float speed) {
+	public @NonNull State animate(float speed) {
 		doAnimate(speed);
 		if (state != State.SOFTBLOCKED && state != State.BLOCKED) {
 			current_blocker = null;
@@ -87,7 +87,7 @@ public final class PathTracker {
                 : State.OK;
 	}
 
-	public Occupant getBlocker() {
+	public @Nullable Occupant getBlocker() {
 		return current_blocker;
 	}
 

@@ -40,7 +40,7 @@ public abstract class Model extends Element<Model> {
 		return world.getHeightMap().getLeafFromCoordinates(getPositionX(), getPositionY()).getMaxError();
 	}
 
-	public final World getWorld() {
+	public final @NonNull World getWorld() {
 		return world;
 	}
 

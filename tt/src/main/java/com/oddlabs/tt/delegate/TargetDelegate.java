@@ -11,7 +11,7 @@ import org.lwjgl.input.Keyboard;
 public class TargetDelegate extends ControllableCameraDelegate {
 	private final int action;
 
-	public TargetDelegate(WorldViewer viewer, GameCamera camera, int action) {
+	public TargetDelegate(@NonNull WorldViewer viewer, GameCamera camera, int action) {
 		super(viewer, camera);
 		this.action = action;
 	}

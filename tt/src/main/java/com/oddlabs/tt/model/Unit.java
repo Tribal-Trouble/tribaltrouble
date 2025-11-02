@@ -150,7 +150,7 @@ public class Unit extends Selectable implements Occupant, Movable {
         return (UnitTemplate) getTemplate();
     }
 
-    public final UnitSupplyContainer getSupplyContainer() {
+    public final @Nullable UnitSupplyContainer getSupplyContainer() {
         return supply_container;
     }
 
@@ -303,7 +303,7 @@ public class Unit extends Selectable implements Occupant, Movable {
     }
 
     @Override
-    public final PathTracker getTracker() {
+    public final @NonNull PathTracker getTracker() {
         assert !isDead();
         return path_tracker;
     }

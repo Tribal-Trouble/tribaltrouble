@@ -11,7 +11,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class DisplayChangeForm extends Form {
-	private final DoNowListener donow_listener;
+	private final @NonNull DoNowListener donow_listener;
 	private final @NonNull HorizButton later_button;
 
 	public DisplayChangeForm(@NonNull DoNowListener donow_listener) {

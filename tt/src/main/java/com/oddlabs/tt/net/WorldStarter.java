@@ -43,7 +43,7 @@ final class WorldStarter implements LoadCallback {
 	}
 
     @Override
-	public @NonNull UIRenderer load(GUIRoot gui_root) {
+	public @NonNull UIRenderer load(@NonNull GUIRoot gui_root) {
 		AnimationManager.freezeTime();
 		List<PlayerSlot> player_slot_list = new ArrayList<>();
 		List<UnitInfo> unit_info_list = new ArrayList<>();

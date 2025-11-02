@@ -28,8 +28,8 @@ public final class CampaignMapForm extends CameraDelegate {
 	private final static int base_width = 800;
 	private final static int base_height = 600;
 
-	private final Campaign campaign;
-	private final NetworkSelector network;
+	private final @NonNull Campaign campaign;
+	private final @NonNull NetworkSelector network;
 
 	public CampaignMapForm(final @NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull Campaign campaign) {
 		super(gui_root, new StaticCamera(new CameraState()));

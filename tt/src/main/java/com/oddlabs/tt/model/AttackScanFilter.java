@@ -27,7 +27,7 @@ public final class AttackScanFilter implements ScanFilter {
 		this.max_range = max_range;
 	}
 
-	public Selectable removeTarget() {
+	public @Nullable Selectable removeTarget() {
 		Selectable result = target;
 		target = null;
 		target_priority = 0;

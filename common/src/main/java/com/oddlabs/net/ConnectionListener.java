@@ -15,7 +15,7 @@ import java.util.List;
 
 
 public final class ConnectionListener extends AbstractConnectionListener implements Handler {
-	private final NetworkSelector network;
+	private final @NonNull NetworkSelector network;
 	private SelectionKey key;
 
 	private final List<SocketChannel> incoming_connections = new LinkedList<>();

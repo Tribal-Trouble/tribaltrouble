@@ -26,7 +26,7 @@ public final class ProgressBarInfo {
 		return waypoint;
 	}
 
-	public Label getLabel() {
+	public @NonNull Label getLabel() {
 		return label;
 	}
 }

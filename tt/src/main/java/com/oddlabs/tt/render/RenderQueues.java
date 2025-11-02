@@ -20,14 +20,14 @@ public final class RenderQueues {
 	private final Map<Supplier<?>, ShadowListKey> desc_to_shadow_key = new HashMap<>();
 	private final List<Texture> texture_lookup = new ArrayList<>();
 
-	public @NonNull TextureKey registerTexture(Supplier<Texture[]> desc, int index) {
+	public @NonNull TextureKey registerTexture(@NonNull Supplier<Texture[]> desc, int index) {
 		TextureKey key = new TextureKey(texture_lookup.size());
 		Texture[] textures = Resources.findResource(desc);
 		texture_lookup.add(textures[index]);
 		return key;
 	}
 
-	public @NonNull TextureKey registerTexture(Supplier<Texture> desc) {
+	public @NonNull TextureKey registerTexture(@NonNull Supplier<Texture> desc) {
 		TextureKey key = new TextureKey(texture_lookup.size());
 		texture_lookup.add(Resources.findResource(desc));
 		return key;
@@ -65,11 +65,11 @@ public final class RenderQueues {
 		return shadow_renderer_lookup.get(key.getKey());
 	}
 
-	public @NonNull SpriteKey register(SpriteFile sprite_file) {
+	public @NonNull SpriteKey register(@NonNull SpriteFile sprite_file) {
 		return register(sprite_file, 0);
 	}
 
-	public @NonNull SpriteKey register(SpriteFile sprite_file, int tex_index) {
+	public @NonNull SpriteKey register(@NonNull SpriteFile sprite_file, int tex_index) {
 		int index = sprite_list_lookup.size();
 		SpriteList sprite_list = Resources.findResource(sprite_file);
 		SpriteRenderer sprite_renderer = new SpriteRenderer(sprite_list, tex_index);
@@ -90,7 +90,7 @@ public final class RenderQueues {
 		}
 	}
 
-	void getAllPicks(List<Target> pick_list) {
+	void getAllPicks(@NonNull List<Target> pick_list) {
         for (SpriteRenderer spriteRenderer : sprite_renderers) {
             spriteRenderer.getAllPicks(pick_list);
         }

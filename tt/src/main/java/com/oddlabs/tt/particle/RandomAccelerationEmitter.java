@@ -11,11 +11,11 @@ import org.lwjgl.util.vector.Vector4f;
 import java.util.Random;
 
 public final class RandomAccelerationEmitter extends LinearEmitter {
-	private final Random random;
+	private final @NonNull Random random;
 
 	private final float angle_bound;
 	private final float angle_max_jump;
-	private final Vector3f acceleration;
+	private final @NonNull Vector3f acceleration;
 	private final @NonNull Vector3f offset_acceleration;
 	private final float acceleration_factor;
 

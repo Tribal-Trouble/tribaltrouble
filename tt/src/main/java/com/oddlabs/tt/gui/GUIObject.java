@@ -220,7 +220,7 @@ public abstract class GUIObject extends Renderable {
 		return hovered;
 	}
 
-	public final GUIObject getNextHover() {
+	public final @Nullable GUIObject getNextHover() {
 		return next_hover;
 	}
 
@@ -228,7 +228,7 @@ public abstract class GUIObject extends Renderable {
 		this.next_hover = next_hover;
 	}
 
-	public final GUIObject getFocusedChild() {
+	public final @Nullable GUIObject getFocusedChild() {
 		return focused_child;
 	}
 

@@ -138,7 +138,8 @@ public final class DXTImage {
 	}
 
 	public void write(@NonNull File file) throws IOException {
-            try (WritableByteChannel out = new FileOutputStream(file).getChannel()) {
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            try (WritableByteChannel out = fos.getChannel()) {
                 ByteBuffer header = ByteBuffer.allocate(2 + 2 + 4);
                 header.putShort(width).putShort(height).putInt(internal_format);
                 header.flip();
@@ -150,6 +151,7 @@ public final class DXTImage {
                 mipmaps.position(old_position);
                 mipmaps.limit(old_limit);
             }
+        }
 	}
 
 	private static void writeContents(@NonNull WritableByteChannel out, @NonNull ByteBuffer data) throws IOException {

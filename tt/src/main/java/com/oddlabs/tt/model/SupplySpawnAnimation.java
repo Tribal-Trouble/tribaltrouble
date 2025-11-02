@@ -6,7 +6,7 @@ import org.jspecify.annotations.NonNull;
 
 
 public class SupplySpawnAnimation implements Animated {
-	private final Supply supply;
+	private final @NonNull Supply supply;
 	private final float limit;
 
 	private float time = 0;

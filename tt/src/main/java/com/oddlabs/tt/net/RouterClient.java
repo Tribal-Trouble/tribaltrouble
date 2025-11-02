@@ -24,13 +24,13 @@ public final class RouterClient implements ConnectionInterface {
 	private final @NonNull GameInterface game_interface;
 	private final RouterHandler router_handler;
 
-	public RouterClient(NetworkSelector network, RouterHandler router_handler, int port) {
+	public RouterClient(@NonNull NetworkSelector network, RouterHandler router_handler, int port) {
 		this.router_handler = router_handler;
 		this.connection = new Connection(network, new InetSocketAddress(Utils.getLoopbackAddress(), port), this);
 		this.game_interface = (GameInterface)ARMIEvent.createProxy(connection, GameInterface.class);
 	}
 
-	public RouterClient(NetworkSelector network, String address, RouterHandler router_handler) {
+	public RouterClient(@NonNull NetworkSelector network, String address, RouterHandler router_handler) {
 		this.router_handler = router_handler;
 		this.connection = new Connection(network, address, RouterInterface.PORT, this);
 		this.game_interface = (GameInterface)ARMIEvent.createProxy(connection, GameInterface.class);
@@ -41,7 +41,7 @@ public final class RouterClient implements ConnectionInterface {
 		router_interface.login(session_id, session_info, client_id);
 	}
 
-	public GameInterface getInterface() {
+	public @NonNull GameInterface getInterface() {
 		return game_interface;
 	}
 	

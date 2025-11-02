@@ -95,11 +95,11 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return current_behaviour.isBlocking();
 	}
 
-	public final Behaviour getCurrentBehaviour() {
+	public final @Nullable Behaviour getCurrentBehaviour() {
 		return current_behaviour;
 	}
 
-	public final UnitGrid getUnitGrid() {
+	public final @NonNull UnitGrid getUnitGrid() {
 		return owner.getWorld().getUnitGrid();
 	}
 
@@ -246,11 +246,11 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		this.grid_y = grid_y;
 	}
 
-	public final Player getOwnerNoCheck() {
+	public final @NonNull Player getOwnerNoCheck() {
 		return owner;
 	}
 
-	public final Player getOwner() {
+	public final @NonNull Player getOwner() {
 		return getOwnerNoCheck();
 	}
 

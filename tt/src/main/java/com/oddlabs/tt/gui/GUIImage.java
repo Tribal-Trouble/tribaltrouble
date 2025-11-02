@@ -11,7 +11,7 @@ public final class GUIImage extends GUIObject {
 	private final float v1;
 	private final float u2;
 	private final float v2;
-	private final Texture texture;
+	private final @NonNull Texture texture;
 
 	public GUIImage(int width, int height, float u1, float v1, float u2, float v2, String texture_name) {
 		this(width, height, u1, v1, u2, v2, Resources.findResource(new TextureFile(texture_name, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)));

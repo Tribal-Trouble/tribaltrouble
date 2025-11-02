@@ -31,7 +31,7 @@ public final class LocalEventQueue {
 		return queue_instance;
 	}
 
-	public void setEventsLogged(File log_file) {
+	public void setEventsLogged(@NonNull File log_file) {
 		assert deterministic == null;
 		this.deterministic = new SaveDeterministic(log_file);
 	}
@@ -43,7 +43,7 @@ public final class LocalEventQueue {
 	}
 
 //public static Deterministic stack_deterministic;
-	public void loadEvents(File log_file, boolean zipped) {
+	public void loadEvents(@NonNull File log_file, boolean zipped) {
 		this.deterministic = new LoadDeterministic(log_file, zipped);
 /*		File stack_file = new File("stack.log");
 		if (stack_file.exists())
@@ -69,7 +69,7 @@ public final class LocalEventQueue {
 		return checksum.getValue();
 	}
 
-	public Deterministic getDeterministic() {
+	public @Nullable Deterministic getDeterministic() {
 		return deterministic;
 	}
 

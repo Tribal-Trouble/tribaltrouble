@@ -67,7 +67,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 	private @NonNull GUIObject current_gui_object = this;
 	private GUIObject global_focus = this;
 
-	private GUIObject cursor_object = this;
+	private @NonNull GUIObject cursor_object = this;
 
 	GUIRoot(GUI gui) {
 		this.gui = gui;
@@ -107,11 +107,11 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		tool_tip_timer.stop();
 	}
 
-	public InfoPrinter getInfoPrinter() {
+	public @NonNull InfoPrinter getInfoPrinter() {
 		return info_printer;
 	}
 
-	public void pushDelegate(CameraDelegate delegate) {
+	public void pushDelegate(@NonNull CameraDelegate delegate) {
 		if (!delegate_stack.isEmpty()) {
 			getDelegate().remove();
 		}
@@ -140,7 +140,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 			return delegate_stack.get(delegate_stack.size() - 1);
 	}
 
-	private void pushModalDelegate(ModalDelegate delegate) {
+	private void pushModalDelegate(@NonNull ModalDelegate delegate) {
 		if (!modal_delegate_stack.isEmpty()) {
 			getModalDelegate().remove();
 		}
@@ -484,7 +484,7 @@ System.out.println("GC Forced");
 		}
 	}
 
-	public GUIObject getCurrentGUIObject() {
+	public @NonNull GUIObject getCurrentGUIObject() {
 		return current_gui_object;
 	}
 
@@ -502,7 +502,7 @@ System.out.println("GC Forced");
 	}
 
         @Override
-	public void addChild(Renderable child) {
+	public void addChild(@NonNull Renderable child) {
 		super.addChild(child);
 		ModalDelegate modal_delegate = getModalDelegate();
 		putFirst(info_printer);

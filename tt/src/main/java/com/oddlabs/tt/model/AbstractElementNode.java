@@ -59,7 +59,7 @@ public abstract class AbstractElementNode<T> extends BoundingBox {
 			return 0;
 	}
 
-	protected final @NonNull AbstractElementNode<T> addElement(Element<T> model) {
+	protected final @NonNull AbstractElementNode<T> addElement(@NonNull Element<T> model) {
 		models.addLast(model);
 		return this;
 	}

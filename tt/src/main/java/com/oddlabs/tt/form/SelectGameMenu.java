@@ -57,7 +57,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 	private final static int PANEL_INDEX_CHAT = 1;
 	private final static int PANEL_INDEX_HIGHSCORE = 2;
 
-	private final Menu main_menu;
+	private final @NonNull Menu main_menu;
 	private final @NonNull ProfilesForm profiles_form;
 	private final Panel[] panels = new Panel[3];
 

@@ -12,7 +12,7 @@ public class AbstractAudioPlayer implements Animated {
 	protected final static float ROLLOFF_FACTOR = .03f; // was 0.05
 
 	protected final @Nullable AudioSource source;
-	private final AudioParameters<?> parameters;
+	private final @NonNull AudioParameters<?> parameters;
 	private boolean playing = false;
 
 	private float fadeout_time;

@@ -44,7 +44,7 @@ public final class InputState {
 		press_obj = gui_root;
 	}
 
-	private GUIObject pick() {
+	private @NonNull GUIObject pick() {
 		gui_root.mousePick();
 		return gui_root.getCurrentGUIObject();
 	}

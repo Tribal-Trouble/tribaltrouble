@@ -27,7 +27,7 @@ public final class VikingIsland6 extends Island {
 	}
 
         @Override
-	public void init(NetworkSelector network, @NonNull GUIRoot gui_root) {
+	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
 		String[] ai_names = new String[]{Utils.getBundleString(bundle, "name0"),
 			Utils.getBundleString(bundle, "name1"),
 			Utils.getBundleString(bundle, "name2"),
