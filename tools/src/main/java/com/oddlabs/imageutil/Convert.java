@@ -67,17 +67,16 @@ System.out.println("outfile = " + outfile);
                 if (images.length != 1)
                     throw new IllegalArgumentException("Can only create mipmaps from one image, not " + images.length);
                 List<Layer> mipmaps = new ArrayList<>();
-                Layer last_mipmap = images[0];
-                int mip_width = last_mipmap.getWidth();
-                int mip_height = last_mipmap.getHeight();
-                mipmaps.add(last_mipmap);
+                Layer original_image = images[0];
+                int mip_width = original_image.getWidth();
+                int mip_height = original_image.getHeight();
+                mipmaps.add(original_image);
                 while (mip_width > 1 && mip_height > 1) {
                     mip_width /= 2;
                     mip_height /= 2;
-                    Layer mipmap = last_mipmap.copy();
-                    mipmap.scaleHalf();
+                    Layer mipmap = original_image.copy();
+                    mipmap.scaleCubic(mip_width, mip_height);
                     mipmaps.add(mipmap);
-                    last_mipmap = mipmap;
                 }
                 images = mipmaps.toArray(new Layer[0]);
                 break;
