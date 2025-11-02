@@ -29,7 +29,7 @@ public final class LoginForm extends Form {
 
 	private final @NonNull MainMenu main_menu;
 	private final GUIRoot gui_root;
-	private final NetworkSelector network;
+	private final @NonNull NetworkSelector network;
 	private final @NonNull EditLine editline_username;
 	private final @NonNull PasswordLine editline_password;
 	private final @NonNull CheckBox remember_checkbox;

@@ -22,7 +22,7 @@ public final class GeneratorDamageSmoke extends TextureGenerator {
 		GLIntImage smoke_img = new GLIntImage(smoke);
 		if (Landscape.DEBUG) smoke_img.saveAsPNG("generator_smoke");
 		Texture[] textures = new Texture[1];
-		textures[0] = new Texture(smoke_img.createMipMaps(), Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_NEAREST, GL11.GL_LINEAR, GL11.GL_CLAMP, GL11.GL_CLAMP);
+		textures[0] = new Texture(smoke_img.createMipMaps(), Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_CLAMP, GL11.GL_CLAMP);
 		return textures;
 	}
 

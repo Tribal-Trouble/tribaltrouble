@@ -37,7 +37,7 @@ public final class RenderQueues {
 		return texture_lookup.get(key.getKey());
 	}
 
-	public @NonNull ShadowListKey registerRespondRenderer(Supplier<Texture[]> desc) {
+	public @NonNull ShadowListKey registerRespondRenderer(@NonNull Supplier<Texture[]> desc) {
 		ShadowListKey key = desc_to_shadow_key.get(desc);
 		if (key != null)
 			return key;
@@ -53,7 +53,7 @@ public final class RenderQueues {
 		return key;
 	}
 
-	public @NonNull ShadowListKey registerSelectableShadowList(Supplier<Texture[]> desc) {
+	public @NonNull ShadowListKey registerSelectableShadowList(@NonNull Supplier<Texture[]> desc) {
 		ShadowListKey key = desc_to_shadow_key.get(desc);
 		if (key != null)
 			return key;

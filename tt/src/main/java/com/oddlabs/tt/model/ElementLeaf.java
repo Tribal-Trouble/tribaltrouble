@@ -10,7 +10,7 @@ public final class ElementLeaf<T> extends AbstractElementNode<T> {
 	}
 
     @Override
-	protected @NonNull AbstractElementNode<T> doInsertElement(Element<T> model) {
+	protected @NonNull AbstractElementNode<T> doInsertElement(@NonNull Element<T> model) {
 		incElementCount();
 		return addElement(model);
 	}

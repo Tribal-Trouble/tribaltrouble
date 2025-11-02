@@ -22,7 +22,7 @@ public final class IconLabel extends GUIObject implements Comparable<IconLabel> 
 		icon.render(0, 0);
 	}
 
-	private Label getLabel() {
+	private @NonNull Label getLabel() {
 		return label;
 	}
 

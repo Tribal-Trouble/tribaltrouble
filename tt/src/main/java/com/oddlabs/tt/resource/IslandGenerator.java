@@ -163,7 +163,7 @@ System.out.println("Landscape created in = " + (time_after-time_before));
 		GLState.clientActiveTexture(GL13.GL_TEXTURE0);
 		for (int y = 0; y < chunk_maps.length; y++) {
 			for (int x = 0; x < chunk_maps[y].length; x++) {
-				chunk_maps[y][x] = new Texture(TEXELS_PER_CHUNK, TEXELS_PER_CHUNK, GL11.GL_LINEAR_MIPMAP_NEAREST, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE, Globals.NO_MIPMAP_CUTOFF);
+				chunk_maps[y][x] = new Texture(TEXELS_PER_CHUNK, TEXELS_PER_CHUNK, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE, Globals.NO_MIPMAP_CUTOFF);
 				int mip_scale = 1;
 				int mip_level = 0;
 				int mip_size = TEXELS_PER_CHUNK;

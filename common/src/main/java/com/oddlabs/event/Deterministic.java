@@ -61,7 +61,7 @@ public abstract class Deterministic {
 
     protected abstract @Nullable Path log(Path p, Path def);
 
-    public final Path log(Path p) {
+    public final @Nullable Path log(Path p) {
         assert enabled;
         return log(p, Paths.get(""));
     }

@@ -3,9 +3,10 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.render.LandscapeLocation;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 public final class BeaconDelegate extends TargetDelegate {
-	public BeaconDelegate(WorldViewer viewer, GameCamera camera) {
+	public BeaconDelegate(@NonNull WorldViewer viewer, GameCamera camera) {
 		super(viewer, camera, 0);
 	}
 

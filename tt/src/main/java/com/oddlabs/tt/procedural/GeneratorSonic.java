@@ -39,7 +39,7 @@ public final class GeneratorSonic extends TextureGenerator {
 		GLIntImage sonic_img = new GLIntImage(sonic);
 		if (Landscape.DEBUG) sonic_img.saveAsPNG("generator_sonic");
 		Texture[] textures = new Texture[1];
-		textures[0] = new Texture(sonic_img.createMipMaps(), Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_NEAREST, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
+		textures[0] = new Texture(sonic_img.createMipMaps(), Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
 		return textures;
 	}
 

@@ -69,7 +69,7 @@ public final class RenderState implements ElementVisitor {
 		return picker.getRespondManager().isResponding(target);
 	}
 
-	RenderQueues getRenderQueues() {
+	@NonNull RenderQueues getRenderQueues() {
 		return render_queues;
 	}
 

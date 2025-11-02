@@ -142,7 +142,7 @@ public final class Player implements PlayerInterface {
 		this.hit_bonus = bonus;
 	}
 
-	public World getWorld() {
+	public @NonNull World getWorld() {
 		return world;
 	}
 
@@ -286,7 +286,7 @@ public final class Player implements PlayerInterface {
 		this.start_y = starting_location[1];
 	}
 
-	public Selectable findNearestEnemy(int start_x, int start_y) {
+	public @Nullable Selectable findNearestEnemy(int start_x, int start_y) {
 		return findNearestEnemy(start_x, start_y, null);
 	}
 

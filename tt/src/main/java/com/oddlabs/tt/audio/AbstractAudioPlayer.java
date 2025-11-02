@@ -34,7 +34,7 @@ public class AbstractAudioPlayer implements Animated {
 		return playing;
 	}
 
-	public final AudioParameters<?> getParameters() {
+	public final @NonNull AudioParameters<?> getParameters() {
 		return parameters;
 	}
 

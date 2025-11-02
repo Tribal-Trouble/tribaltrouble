@@ -25,7 +25,7 @@ public final class Stun implements Magic {
 	private final float hit_radius;
 	private final float stun_time_closest;
 	private final float stun_time_farthest;
-	private final Player owner;
+	private final @NonNull Player owner;
 	private final float start_x;
 	private final float start_y;
 	private final @NonNull RandomVelocityEmitter emitter;

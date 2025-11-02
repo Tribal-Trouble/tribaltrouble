@@ -103,7 +103,7 @@ public abstract class AI implements Animated {
 		return owner.getWorld().getUnitGrid();
 	}
 
-	protected final Player getOwner() {
+	protected final @NonNull Player getOwner() {
 		return owner;
 	}
 

@@ -127,7 +127,7 @@ public final class TextLineRenderer {
 		}
 	}
 
-	public Font getFont() {
+	public @NonNull Font getFont() {
 		return font;
 	}
 }

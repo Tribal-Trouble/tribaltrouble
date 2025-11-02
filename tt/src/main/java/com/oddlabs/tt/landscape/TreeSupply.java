@@ -72,7 +72,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	}
 
         @Override
-	public World getWorld() {
+	public @NonNull World getWorld() {
 		return world;
 	}
 
@@ -239,7 +239,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		}
 	}
 
-	public Matrix4f getMatrix() {
+	public @NonNull Matrix4f getMatrix() {
 		return matrix;
 	}
 

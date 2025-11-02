@@ -51,7 +51,7 @@ public final class Optimizer {
         }
 	}
 
-	private static boolean floatArrayEquals(int index1, int index2, float[] @NonNull  [] array1, float[] @NonNull [] array2) {
+	private static boolean floatArrayEquals(int index1, int index2, float[] @NonNull [] array1, float[] @NonNull [] array2) {
 		return floatsEquals(0, 0, array1[index1].length, array1[index1], array2[index2]);
 	}
 

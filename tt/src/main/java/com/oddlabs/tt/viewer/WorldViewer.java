@@ -183,7 +183,7 @@ public final class WorldViewer implements Animated {
     public void updateChecksum(StateChecksum sum) {
     }
 
-    public WorldParameters getParameters() {
+    public @NonNull WorldParameters getParameters() {
         return world_params;
     }
 
@@ -287,7 +287,7 @@ public final class WorldViewer implements Animated {
         return world;
     }
 
-    public NetworkSelector getNetwork() {
+    public @NonNull NetworkSelector getNetwork() {
         return network;
     }
 
@@ -303,7 +303,7 @@ public final class WorldViewer implements Animated {
         return distributable_table;
     }
 
-    public GUIRoot getGUIRoot() {
+    public @NonNull GUIRoot getGUIRoot() {
         return gui_root;
     }
 

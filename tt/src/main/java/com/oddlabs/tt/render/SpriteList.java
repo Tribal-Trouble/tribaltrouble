@@ -20,9 +20,9 @@ public final class SpriteList {
 	private final Sprite @NonNull [] sprites;
 	private final int @NonNull [] type_array;
 
-	private final ShortVBO indices;
-	private final FloatVBO vertices_and_normals;
-	private final FloatVBO texcoords;
+	private final @NonNull ShortVBO indices;
+	private final @NonNull FloatVBO vertices_and_normals;
+	private final @NonNull FloatVBO texcoords;
 
 	public SpriteList(@NonNull SpriteFile sprite_file) {
 		Object[] sprites_and_animations = Utils.loadObject(sprite_file.getURL());
@@ -106,7 +106,7 @@ public final class SpriteList {
 		getSprite(0).renderModel(tex_index, this);
 	}
 
-	public BoundingBox[] getBounds() {
+	public BoundingBox @NonNull [] getBounds() {
 		return bounds;
 	}
 
@@ -122,15 +122,15 @@ public final class SpriteList {
 		return type_array;
 	}
 
-	public ShortVBO getIndices() {
+	public @NonNull ShortVBO getIndices() {
 		return indices;
 	}
 
-	public FloatVBO getVerticesAndNormals() {
+	public @NonNull FloatVBO getVerticesAndNormals() {
 		return vertices_and_normals;
 	}
 
-	public FloatVBO getTexcoords() {
+	public @NonNull FloatVBO getTexcoords() {
 		return texcoords;
 	}
 }

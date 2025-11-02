@@ -27,7 +27,7 @@ public final class LightningCloud implements Magic {
 	private final static float BRIGHTNESS = .2f;
 	private final static float LIGHTNING_TIME = .1f;
 
-	private final Player owner;
+	private final @NonNull Player owner;
 	private final float seconds_per_hit;
 	private final float meters_per_second;
 	private final float hit_chance;

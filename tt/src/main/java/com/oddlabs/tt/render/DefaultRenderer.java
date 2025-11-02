@@ -33,12 +33,12 @@ public final class DefaultRenderer implements UIRenderer {
     private final @NonNull FogInfo fog_info;
     private final @NonNull Water water;
     private final @NonNull Sky sky;
-    private final LandscapeRenderer landscape_renderer;
-    private final World world;
+    private final @NonNull LandscapeRenderer landscape_renderer;
+    private final @NonNull World world;
     private final @NonNull ElementRenderer element_renderer;
     private final @NonNull TreeRenderer tree_renderer;
     private final @NonNull SpriteSorter sprite_sorter;
-    private final RenderQueues render_queues;
+    private final @NonNull RenderQueues render_queues;
     private final @NonNull FloatBuffer light_array;
     private final Cheat cheat;
 

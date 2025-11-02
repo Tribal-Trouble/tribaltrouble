@@ -85,7 +85,7 @@ public final class PulldownButton extends GUIObject {
 		menu.remove();
 	}
 
-	public PulldownMenu getMenu() {
+	public @NonNull PulldownMenu getMenu() {
 		return menu;
 	}
 

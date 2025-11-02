@@ -23,7 +23,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	private final static float OFFSET_Z = 1.382f;
 	private final AbstractAudioPlayer audio_player;
 	private final Audio[] hit_sounds;
-	private final Player owner;
+	private final @NonNull Player owner;
 	private final boolean hit;
 
 	private Selectable target;

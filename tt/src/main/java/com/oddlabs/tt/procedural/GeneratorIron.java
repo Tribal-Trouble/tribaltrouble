@@ -31,7 +31,7 @@ public final class GeneratorIron extends TextureGenerator {
 		
 		if (Landscape.DEBUG) new GLIntImage(rock).saveAsPNG("generator_iron");
 		Texture[] textures = new Texture[1];
-		textures[0] = new Texture(new GLIntImage(rock).createMipMaps(), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_NEAREST, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
+		textures[0] = new Texture(new GLIntImage(rock).createMipMaps(), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
 		return textures;
 	}
 	

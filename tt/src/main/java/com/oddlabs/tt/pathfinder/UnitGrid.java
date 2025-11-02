@@ -156,7 +156,7 @@ public final class UnitGrid {
 		GL11.glVertex3f(xf - RADIUS, yf + RADIUS, z);
 	}
 
-	public HeightMap getHeightMap() {
+	public @NonNull HeightMap getHeightMap() {
 		return heightmap;
 	}
 

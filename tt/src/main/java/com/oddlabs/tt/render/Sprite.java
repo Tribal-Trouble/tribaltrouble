@@ -53,7 +53,7 @@ final class Sprite {
 		white_color.rewind();
 	}
 
-	public Sprite(@NonNull SpriteInfo sprite_info, AnimationInfo @NonNull [] animations, boolean alpha, boolean lighted, boolean culled, boolean modulate_color, boolean max_alpha, int mipmap_cutoff, BoundingBox[] bounds, float[] cpw_array, int[] type_array, int[] animation_length_array, ShortBuffer all_indices, FloatBuffer all_texcoords, FloatBuffer all_vertices_and_normals) {
+	public Sprite(@NonNull SpriteInfo sprite_info, AnimationInfo @NonNull [] animations, boolean alpha, boolean lighted, boolean culled, boolean modulate_color, boolean max_alpha, int mipmap_cutoff, BoundingBox[] bounds, float[] cpw_array, int[] type_array, int[] animation_length_array, @NonNull ShortBuffer all_indices, @NonNull FloatBuffer all_texcoords, @NonNull FloatBuffer all_vertices_and_normals) {
 		this.culled = culled;
 		this.alpha = alpha;
 		this.lighted = lighted;
@@ -131,7 +131,7 @@ final class Sprite {
 		setupDecalColor(color);
 	}
 
-	public void renderAll(@NonNull List<ModelState> render_list, int tex_index, boolean respond, SpriteList sprite_list) {
+	public void renderAll(@NonNull List<ModelState> render_list, int tex_index, boolean respond, @NonNull SpriteList sprite_list) {
 		for (int i = 0; i < render_list.size(); i++) {
 			ModelState model = render_list.get(i);
 			render_list.set(i, null);
@@ -246,19 +246,19 @@ final class Sprite {
 				throw new RuntimeException(e);
 			}
 		} else {
-			return Resources.findResource(new TextureFile("/textures/models/" + texture_name, color_format, GL11.GL_LINEAR_MIPMAP_NEAREST, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT, mipmap_cutoff, 100000, 0.1f, max_alpha));
+			return Resources.findResource(new TextureFile("/textures/models/" + texture_name, color_format, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT, mipmap_cutoff, 100000, 0.1f, max_alpha));
 		}
 	}
 
-	public void setup(int tex_index, boolean respond, SpriteList sprite_list) {
+	public void setup(int tex_index, boolean respond, @NonNull SpriteList sprite_list) {
 		setupWithColor(white_color, tex_index, respond, modulate_color, sprite_list);
 	}
 
-	public void setupWithColor(@NonNull FloatBuffer color, int tex_index, boolean respond, boolean modulate_color, SpriteList sprite_list) {
+	public void setupWithColor(@NonNull FloatBuffer color, int tex_index, boolean respond, boolean modulate_color, @NonNull SpriteList sprite_list) {
 		doSetup(color, tex_index, respond, modulate_color, sprite_list);
 	}
 
-	private void doSetup(@NonNull FloatBuffer color, int tex_index, boolean respond, boolean modulate_color, SpriteList sprite_list) {
+	private void doSetup(@NonNull FloatBuffer color, int tex_index, boolean respond, boolean modulate_color, @NonNull SpriteList sprite_list) {
 		int gl_flags = setupBasic(sprite_list);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_NORMAL].getHandle());
 		if (modulate_color) {
@@ -287,7 +287,7 @@ final class Sprite {
 		GLStateStack.switchState(gl_flags);
 	}
 
-	private int setupBasic(SpriteList sprite_list) {
+	private int setupBasic(@NonNull SpriteList sprite_list) {
 		int gl_flags = GLState.VERTEX_ARRAY | GLState.TEXCOORD0_ARRAY;
 		if (!culled) {
 			GL11.glDisable(GL11.GL_CULL_FACE);
@@ -351,7 +351,7 @@ final class Sprite {
 			return Math.min(frame, anim_length - 1);
 	}
 
-	public void render(int animation, float anim_ticks, SpriteList sprite_list) {
+	public void render(int animation, float anim_ticks, @NonNull SpriteList sprite_list) {
 		float anim_position = anim_ticks*cpw_array[animation];
 		int frame_non_capped = (int)(anim_position*animation_length_array[animation]);
 		int frame = getFrameCapped(animation, frame_non_capped);
@@ -365,7 +365,7 @@ final class Sprite {
 		sprite_list.getIndices().drawElements(GL11.GL_TRIANGLES, num_triangles*3, indices_offset);
 	}
 
-	public void renderModel(int tex_index, SpriteList sprite_list) {
+	public void renderModel(int tex_index, @NonNull SpriteList sprite_list) {
 		int gl_flags = setupBasic(sprite_list);
 		GLStateStack.switchState(gl_flags);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_NORMAL].getHandle());

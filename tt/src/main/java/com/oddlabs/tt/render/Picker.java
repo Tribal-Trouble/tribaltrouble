@@ -71,7 +71,7 @@ public final class Picker implements Updatable {
 	private final @NonNull ElementRenderer element_renderer;
 	private final @NonNull TreePicker tree_renderer;
 	private final @NonNull SpriteSorter sprite_sorter;
-	private final RenderQueues render_queues;
+	private final @NonNull RenderQueues render_queues;
 	private final @NonNull RespondManager respond_manager;
 	private final Player local_player;
 

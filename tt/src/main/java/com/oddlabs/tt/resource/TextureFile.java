@@ -34,7 +34,7 @@ public final class TextureFile extends File<Texture> {
 	}
 
 	public TextureFile(String location, int internal_format) {
-		this(location, internal_format, GL11.GL_LINEAR_MIPMAP_NEAREST, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
+		this(location, internal_format, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
 	}
 
 	public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t) {

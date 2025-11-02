@@ -60,7 +60,7 @@ public final class Game implements Serializable {
 		return true;
 	}
 	
-	public String getName() {
+	public @NonNull String getName() {
 		return game_name;
 	}
 

@@ -71,7 +71,7 @@ public final class SecureConnection extends AbstractConnection implements Secure
 	}
 
         @Override
-	public void initAgreement(byte[] public_key_encoded) {
+	public void initAgreement(byte @NonNull [] public_key_encoded) {
 		if (isConnected())
 			return;
 		try {

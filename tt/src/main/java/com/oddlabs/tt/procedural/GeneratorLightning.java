@@ -17,7 +17,7 @@ public final class GeneratorLightning extends TextureGenerator {
 		GLIntImage img = new GLIntImage(layer);
 		if (Landscape.DEBUG) img.saveAsPNG("generator_lightning");
 		Texture[] textures = new Texture[1];
-		textures[0] = new Texture(img.createMipMaps(), Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_NEAREST, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
+		textures[0] = new Texture(img.createMipMaps(), Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
 		return textures;
 	}
 

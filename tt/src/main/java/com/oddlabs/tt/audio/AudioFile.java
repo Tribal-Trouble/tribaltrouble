@@ -6,7 +6,7 @@ import org.jspecify.annotations.NonNull;
 import java.io.IOException;
 
 public final class AudioFile extends File<Audio> {
-	public AudioFile(String location) {
+	public AudioFile(@NonNull String location) {
 		super(location);
 	}
 

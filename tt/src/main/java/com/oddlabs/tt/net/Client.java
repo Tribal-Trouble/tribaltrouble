@@ -39,7 +39,7 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
 	private final WorldInitAction initial_action;
 	private final InGameInfo ingame_info;
 	private final GUI gui;
-	private final NetworkSelector network;
+	private final @NonNull NetworkSelector network;
 	private final Runnable cleanup_action;
 	private int state = CONNECTING;
 	private int session_id;

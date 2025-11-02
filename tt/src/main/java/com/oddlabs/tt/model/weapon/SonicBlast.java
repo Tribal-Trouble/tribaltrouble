@@ -29,7 +29,7 @@ public final class SonicBlast implements Magic {
 	private final int damage_closest;
 	private final int damage_farthest;
 	private final float seconds;
-	private final Player owner;
+	private final @NonNull Player owner;
 	private final float start_x;
 	private final float start_y;
 	private final float start_z;

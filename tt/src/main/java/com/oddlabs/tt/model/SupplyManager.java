@@ -26,7 +26,7 @@ public class SupplyManager implements Animated {
 		resetCounter();
 	}
 
-	protected final World getWorld() {
+	protected final @NonNull World getWorld() {
 		return world;
 	}
 
