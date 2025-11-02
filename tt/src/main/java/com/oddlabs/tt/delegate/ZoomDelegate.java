@@ -39,7 +39,7 @@ public class ZoomDelegate extends InGameDelegate {
 	}
 
         @Override
-	public void keyPressed(KeyboardEvent event) {
+	public void keyPressed(@NonNull KeyboardEvent event) {
 	}
 
         @Override

@@ -84,7 +84,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
 	}
 
     @Override
-	public void keyReleased(KeyboardEvent event) {
+	public void keyReleased(@NonNull KeyboardEvent event) {
 		getCamera().keyReleased(event);
 	}
 

@@ -3,6 +3,7 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.NullCamera;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
+import org.jspecify.annotations.NonNull;
 
 public class NullDelegate extends CameraDelegate {
 	private final boolean render_cursor;
@@ -13,11 +14,11 @@ public class NullDelegate extends CameraDelegate {
 	}
 
         @Override
-	public void keyPressed(KeyboardEvent event) {
+	public void keyPressed(@NonNull KeyboardEvent event) {
 	}
 
         @Override
-	public void keyReleased(KeyboardEvent event) {
+	public void keyReleased(@NonNull KeyboardEvent event) {
 	}
 
         @Override

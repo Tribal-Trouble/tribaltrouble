@@ -27,7 +27,7 @@ public final class JumpDelegate extends InGameDelegate {
 	}
 
     @Override
-	public void keyPressed(KeyboardEvent event) {
+	public void keyPressed(@NonNull KeyboardEvent event) {
 	}
 
     @Override
@@ -35,7 +35,7 @@ public final class JumpDelegate extends InGameDelegate {
 	}
 
     @Override
-	public void keyReleased(KeyboardEvent event) {
+	public void keyReleased(@NonNull KeyboardEvent event) {
 	}
 
     @Override

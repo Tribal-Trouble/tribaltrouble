@@ -77,7 +77,7 @@ public final class LogoScreen extends CameraDelegate implements Updatable {
 	}
 	
         @Override
-	protected void keyPressed(KeyboardEvent event) {
+	protected void keyPressed(@NonNull KeyboardEvent event) {
 		fade();
 	}
 

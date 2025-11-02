@@ -15,7 +15,7 @@ public final class ScrollButton extends GUIObject {
 	}
 
         @Override
-	public void keyPressed(KeyboardEvent event) {
+	public void keyPressed(@NonNull KeyboardEvent event) {
 	}
 
         @Override
@@ -28,7 +28,7 @@ public final class ScrollButton extends GUIObject {
 	}
 
         @Override
-	public void keyReleased(KeyboardEvent event) {
+	public void keyReleased(@NonNull KeyboardEvent event) {
 	}
 
         @Override

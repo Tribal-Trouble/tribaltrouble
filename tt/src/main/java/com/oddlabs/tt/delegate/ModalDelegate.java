@@ -1,14 +1,15 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.gui.KeyboardEvent;
+import org.jspecify.annotations.NonNull;
 
 public final class ModalDelegate extends Delegate {
     @Override
-	public void keyPressed(KeyboardEvent event) {
+	public void keyPressed(@NonNull KeyboardEvent event) {
 	}
 
     @Override
-	public void keyReleased(KeyboardEvent event) {
+	public void keyReleased(@NonNull KeyboardEvent event) {
 	}
 
     @Override

@@ -21,7 +21,6 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":tools"))
     implementation("org.jcraft:jorbis:0.0.17")
-    implementation("io.github.memo33:jsquish:2.1.0")
 }
 
 val revision = tasks.register("revision") {
