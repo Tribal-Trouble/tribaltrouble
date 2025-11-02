@@ -4,8 +4,10 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Particle;
+import com.oddlabs.tt.vbo.FloatVBO;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
@@ -24,6 +26,17 @@ final class EmitterRenderer {
 	private final static Matrix4f view_matrix = new Matrix4f();
 	private final static CameraState tmp_camera = new CameraState();
 
+	private static FloatVBO particle_vbo;
+	private static FloatBuffer particle_buffer;
+
+	private static final int MAX_PARTICLES = 10000;
+	private static final int FLOATS_PER_PARTICLE = 36; // 4 vertices * 9 floats (x,y,z,u,v,r,g,b,a)
+
+	static {
+		particle_buffer = BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE);
+		particle_vbo = new FloatVBO(ARBBufferObject.GL_STREAM_DRAW_ARB, particle_buffer.capacity());
+	}
+
 	public static void render(@NonNull RenderQueues render_queues, @NonNull List<Emitter> emitter_queue, @NonNull CameraState state) {
 		tmp_camera.set(state);
 		view_matrix.setIdentity();
@@ -33,18 +46,26 @@ final class EmitterRenderer {
 		right_plus_up.set(rx + upx, ry + upy, rz + upz);
 		right_minus_up.set(rx - upx, ry - upy, rz - upz);
 
+		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+		GL11.glPushClientAttrib(GL11.GL_ALL_CLIENT_ATTRIB_BITS);
+
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
 		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		GL11.glDepthMask(false);
+
+		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+		GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+		GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
+
         for (Emitter emitter : emitter_queue) {
             if (Globals.draw_particles)
                 render(render_queues, emitter);
         }
 		emitter_queue.clear();
-		GL11.glDepthMask(true);
-		GL11.glDisable(GL11.GL_ALPHA_TEST);
-		GL11.glDisable(GL11.GL_BLEND);
+
+		GL11.glPopClientAttrib();
+		GL11.glPopAttrib();
 	}
 
 	private static void render2DParticle(@NonNull Particle particle, @NonNull Emitter emitter) {
@@ -55,15 +76,15 @@ final class EmitterRenderer {
 		float radius_y = particle.getRadiusY()*emitter.getScaleY();
 		float radius_z = particle.getRadiusZ()*emitter.getScaleZ();
 
-		GL11.glColor4f(particle.getColorR(), particle.getColorG(), particle.getColorB(), particle.getColorA());
-		GL11.glTexCoord2f(particle.getU1(), particle.getV1());
-		GL11.glVertex3f(x - right_plus_up.getX()*radius_x, y - right_plus_up.getY()*radius_y, z - right_plus_up.getZ()*radius_z);
-		GL11.glTexCoord2f(particle.getU2(), particle.getV2());
-		GL11.glVertex3f(x + right_minus_up.getX()*radius_x, y + right_minus_up.getY()*radius_y, z + right_minus_up.getZ()*radius_z);
-		GL11.glTexCoord2f(particle.getU3(), particle.getV3());
-		GL11.glVertex3f(x + right_plus_up.getX()*radius_x, y + right_plus_up.getY()*radius_y, z + right_plus_up.getZ()*radius_z);
-		GL11.glTexCoord2f(particle.getU4(), particle.getV4());
-		GL11.glVertex3f(x - right_minus_up.getX()*radius_x, y - right_minus_up.getY()*radius_y, z - right_minus_up.getZ()*radius_z);
+		float r = particle.getColorR();
+		float g = particle.getColorG();
+		float b = particle.getColorB();
+		float a = particle.getColorA();
+
+		particle_buffer.put(x - right_plus_up.getX()*radius_x).put(y - right_plus_up.getY()*radius_y).put(z - right_plus_up.getZ()*radius_z).put(particle.getU1()).put(particle.getV1()).put(r).put(g).put(b).put(a);
+		particle_buffer.put(x + right_minus_up.getX()*radius_x).put(y + right_minus_up.getY()*radius_y).put(z + right_minus_up.getZ()*radius_z).put(particle.getU2()).put(particle.getV2()).put(r).put(g).put(b).put(a);
+		particle_buffer.put(x + right_plus_up.getX()*radius_x).put(y + right_plus_up.getY()*radius_y).put(z + right_plus_up.getZ()*radius_z).put(particle.getU3()).put(particle.getV3()).put(r).put(g).put(b).put(a);
+		particle_buffer.put(x - right_minus_up.getX()*radius_x).put(y - right_minus_up.getY()*radius_y).put(z - right_minus_up.getZ()*radius_z).put(particle.getU4()).put(particle.getV4()).put(r).put(g).put(b).put(a);
 	}
 
 	private static void render(@NonNull RenderQueues render_queues, @NonNull Emitter emitter) {
@@ -80,12 +101,18 @@ final class EmitterRenderer {
 
 			for (int j = 0; j < particles.length; j++) {
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, render_queues.getTexture(textures[j]).getHandle());
-				GL11.glBegin(GL11.GL_QUADS);
+				particle_buffer.clear();
 				for (int i = particles[j].size() - 1; i >= 0; i--) {
 					Particle particle = particles[j].get(i);
 					render2DParticle(particle, emitter);
 				}
-				GL11.glEnd();
+				particle_buffer.flip();
+				particle_vbo.put(particle_buffer);
+
+				particle_vbo.vertexPointer(3, 36, 0);
+				particle_vbo.texCoordPointer(2, 36, 3);
+				particle_vbo.colorPointer(4, 36, 5);
+				GL11.glDrawArrays(GL11.GL_QUADS, 0, particles[j].size() * 4);
 			}
 
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
