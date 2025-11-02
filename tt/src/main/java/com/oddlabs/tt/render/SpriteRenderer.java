@@ -60,11 +60,11 @@ public final class SpriteRenderer {
 	}
 
 	public void setupWithColor(int index, @NonNull FloatBuffer material_color, boolean respond, boolean modulate_tex1) {
-		getSpriteList().getSprite(index).setupWithColor(material_color, tex_index, respond, modulate_tex1);
+		getSpriteList().getSprite(index).setupWithColor(material_color, tex_index, respond, modulate_tex1, getSpriteList());
 	}
 
 	public void setup(int index, boolean respond) {
-		getSpriteList().getSprite(index).setup(tex_index, respond);
+		getSpriteList().getSprite(index).setup(tex_index, respond, getSpriteList());
 	}
 
 	void addToNoDetailList(ModelState model) {
@@ -81,11 +81,12 @@ public final class SpriteRenderer {
 		}
 	}
 
-	public int getTriangleCount(@NonNull PolyDetail detail) {
+	int getTriangleCount(@NonNull PolyDetail detail) {
         int index = detail.ordinal();
 		index = Math.min(sprite_list.getNumSprites() - 1, index);
 		return sprite_list.getSprite(index).getTriangleCount();
 	}
+
 
 	private void clearRenderLists() {
 		no_detail_render_list.clear();

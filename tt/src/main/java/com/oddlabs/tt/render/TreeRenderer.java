@@ -73,26 +73,26 @@ public final class TreeRenderer extends TreePicker {
 	}
 
 	private void renderList(@NonNull Tree tree, @NonNull List<TreeSupply> render_list, boolean respond) {
-		tree.getCrown().getSprite(0).setup(0, respond);
+		tree.getCrown().setup(0, respond);
         for (TreeSupply group : render_list) {
             if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS))
                 RenderTools.draw(group);
             if (Globals.draw_trees && cheat.draw_trees) {
                 GL11.glPushMatrix();
                 loadMatrix(group);
-                tree.getCrown().render(0, 0, 0);
+                tree.getCrown().getSprite(0).render(0, 0, tree.getCrown());
                 GL11.glPopMatrix();
             }
         }
 		tree.getCrown().reset(0, respond, false);
-		tree.getTrunk().getSprite(0).setup(0, respond);
+		tree.getTrunk().setup(0, respond);
 		for (int i = 0; i < render_list.size(); i++) {
 			TreeSupply group = render_list.get(i);
 			render_list.set(i, null);
 			if (Globals.draw_trees && cheat.draw_trees) {
 				GL11.glPushMatrix();
 				loadMatrix(group);
-				tree.getTrunk().render(0, 0, 0);
+				tree.getTrunk().getSprite(0).render(0, 0, tree.getTrunk());
 				GL11.glPopMatrix();
 			}
 		}

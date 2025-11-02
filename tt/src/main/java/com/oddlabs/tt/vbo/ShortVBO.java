@@ -25,25 +25,16 @@ public final class ShortVBO extends VBO {
 	}
 
 	private static int getNumTriangles(int mode, int count) {
-		switch (mode) {
-			case GL11.GL_TRIANGLES:
-				return count/3;
-			case GL11.GL_QUADS:
-				return count >> 2;
-			case GL11.GL_TRIANGLE_FAN:
-			case GL11.GL_TRIANGLE_STRIP:
-				return count - 2;
-			case GL11.GL_QUAD_STRIP:
-				return count - 3;
-			case GL11.GL_LINES:
-				return count; // Assume a line is two triangles
-			case GL11.GL_POINTS:
-				return count*3; // assume a line is one triangle;
-			case GL11.GL_LINE_STRIP:
-				return (count - 1)*2;
-			default:
-				throw new RuntimeException("Unknown primitive type: 0x" + Integer.toHexString(mode));
-		}
+        return switch (mode) {
+            case GL11.GL_TRIANGLES -> count / 3;
+            case GL11.GL_QUADS -> count >> 2;
+            case GL11.GL_TRIANGLE_FAN, GL11.GL_TRIANGLE_STRIP -> count - 2;
+            case GL11.GL_QUAD_STRIP -> count - 3;
+            case GL11.GL_LINES -> count; // Assume a line is two triangles
+            case GL11.GL_POINTS -> count * 3; // assume a line is one triangle;
+            case GL11.GL_LINE_STRIP -> (count - 1) * 2;
+            default -> throw new RuntimeException("Unknown primitive type: 0x" + Integer.toHexString(mode));
+        };
 	}
 
 	public void put(@NonNull ShortBuffer buffer) {

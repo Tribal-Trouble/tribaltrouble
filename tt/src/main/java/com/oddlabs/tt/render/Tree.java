@@ -1,27 +1,26 @@
 package com.oddlabs.tt.render;
 
-final class Tree {
-	private final SpriteList crown;
-	private final SpriteList trunk;
+import org.jspecify.annotations.NonNull;
 
-	public Tree(SpriteList trunk, SpriteList crown) {
+final class Tree {
+	private final @NonNull SpriteList crown;
+	private final @NonNull SpriteList trunk;
+
+	public Tree(@NonNull SpriteList trunk, @NonNull SpriteList crown) {
 		this.trunk = trunk;
 		this.crown = crown;
 	}
 
-	public SpriteList getTrunk() {
+	public @NonNull SpriteList getTrunk() {
 		return trunk;
 	}
 
-	public SpriteList getCrown() {
+	public @NonNull SpriteList getCrown() {
 		return crown;
 	}
 
-        @Override
+    @Override
 	public boolean equals(Object other) {
-		if (!(other instanceof Tree))
-			return false;
-		Tree other_tree = (Tree)other;
-		return crown == other_tree.crown && trunk == other_tree.trunk;
-	}
+        return other instanceof Tree other_tree && crown == other_tree.crown && trunk == other_tree.trunk;
+    }
 }

@@ -11,7 +11,7 @@ The source is released "as is", and Oddlabs will not be available for help build
 About this fork
 ---------------
 
-I have been working to restore this enjoyable game to working order with modern Java. This has included updating to more recent LWJGL, JInput and OpenAL, removing the need for registration, removing demo mode, removing updater as well as many Java modernizations and cleanups. The build system has been migrated from Ant to Gradle for better dependency management and faster builds.
+I (bondolo) have occasionally played with restoring this enjoyable game to working order with modern Java. This has included updating to more recent LWJGL, JInput and OpenAL, removing the need for registration, removing demo mode, removing updater as well as many Java modernizations and cleanups. The build system has been migrated from Ant to Gradle for better dependency management and faster builds.
 
 Building
 --------
@@ -22,7 +22,7 @@ cd tribaltrouble
 ```
 
 Requirements:
-- Java SDK 8 or later
+- Java SDK 25 or later
 - Gradle 9.1+ (or use included wrapper)
 
 Build and run the game:
@@ -34,13 +34,6 @@ Build all modules:
 ```
 gradle build
 ```
-
-The Gradle build includes:
-- Parallel execution for faster builds
-- Configuration cache for quick subsequent builds
-- Build cache to reuse outputs across clean builds
-- Incremental compilation
-- Automatic resource generation (geometry, textures)
 
 Common tasks:
 - `gradle clean` - Clean all build outputs

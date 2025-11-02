@@ -9,11 +9,8 @@ import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
-import com.oddlabs.tt.vbo.FloatVBO;
-import com.oddlabs.tt.vbo.ShortVBO;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.util.vector.Matrix4f;
@@ -21,6 +18,7 @@ import org.lwjgl.util.vector.Vector4f;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -33,10 +31,6 @@ final class Sprite {
 
 	public static int global_size = 0;
 	private final static FloatBuffer white_color;
-
-	private final @NonNull ShortVBO indices;
-	private final @NonNull FloatVBO vertices_and_normals;
-	private final @NonNull FloatVBO texcoords;
 
 	private final Texture[] @NonNull [] textures;
 	private final int num_triangles;
@@ -51,13 +45,15 @@ final class Sprite {
 	private final int[] animation_length_array;
 	private final int[] type_array;
 	private final Texture respond_texture;
+	private final int indices_offset;
+	private final int texcoords_offset;
 
 	static {
 		white_color = BufferUtils.createFloatBuffer(4).put(new float[]{1f, 1f, 1f, 1f});
 		white_color.rewind();
 	}
 
-	public Sprite(@NonNull SpriteInfo sprite_info, AnimationInfo @NonNull [] animations, boolean alpha, boolean lighted, boolean culled, boolean modulate_color, boolean max_alpha, int mipmap_cutoff, BoundingBox[] bounds, float[] cpw_array, int[] type_array, int[] animation_length_array) {
+	public Sprite(@NonNull SpriteInfo sprite_info, AnimationInfo @NonNull [] animations, boolean alpha, boolean lighted, boolean culled, boolean modulate_color, boolean max_alpha, int mipmap_cutoff, BoundingBox[] bounds, float[] cpw_array, int[] type_array, int[] animation_length_array, ShortBuffer all_indices, FloatBuffer all_texcoords, FloatBuffer all_vertices_and_normals) {
 		this.culled = culled;
 		this.alpha = alpha;
 		this.lighted = lighted;
@@ -71,6 +67,12 @@ final class Sprite {
 		num_vertices = tmp_texcoords.length/2;
 		num_triangles = tmp_indices.length/3;
 
+		indices_offset = all_indices.position();
+		texcoords_offset = all_texcoords.position();
+
+		all_indices.put(tmp_indices);
+		all_texcoords.put(tmp_texcoords);
+
 		// Expand animations
 		float[][][] tmp_vertices = new float[animations.length][][];
 		float[][][] tmp_normals = new float[animations.length][][];
@@ -78,38 +80,16 @@ final class Sprite {
 
 		clear_color = sprite_info.getClearColor();
 
-		indices = new ShortVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, tmp_indices.length);
-		indices.put(tmp_indices);
-
-		texcoords = new FloatVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, tmp_texcoords.length);
-		texcoords.put(tmp_texcoords);
-
-		int vert_and_normal_buffer_size = 0;
 		int frame_size = num_vertices*3*2;
 		buffer_indices = new int[tmp_vertices.length];
 		for (int j = 0; j < tmp_vertices.length; j++) {
-			int num_frames = tmp_vertices[j].length;
-			buffer_indices[j] = vert_and_normal_buffer_size;
-			vert_and_normal_buffer_size += num_frames*frame_size;
-			for (int i = 1; i < tmp_vertices[j].length; i++) {
-                assert tmp_vertices[j][i].length + tmp_normals[j][i].length == frame_size;
-            }
-		}
-		FloatBuffer temp_vertices_and_normals = BufferUtils.createFloatBuffer(vert_and_normal_buffer_size);
-
-		for (int j = 0; j < tmp_vertices.length; j++) {
+			buffer_indices[j] = all_vertices_and_normals.position();
 			for (int i = 0; i < tmp_vertices[j].length; i++) {
-				temp_vertices_and_normals.put(tmp_vertices[j][i]);
-				temp_vertices_and_normals.put(tmp_normals[j][i]);
+				all_vertices_and_normals.put(tmp_vertices[j][i]);
+				all_vertices_and_normals.put(tmp_normals[j][i]);
 			}
 		}
-		vertices_and_normals = new FloatVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, vert_and_normal_buffer_size);
-		temp_vertices_and_normals.rewind();
-		vertices_and_normals.put(temp_vertices_and_normals);
 
-		int memory_size = tmp_indices.length*2 + (tmp_texcoords.length + vert_and_normal_buffer_size)*4;
-		global_size += memory_size;
-//		System.out.println("sprite size: " + memory_size);
 		int color_format = Globals.COMPRESSED_RGB_FORMAT;
 		if (alpha)
 			color_format = Globals.COMPRESSED_RGBA_FORMAT;
@@ -151,7 +131,7 @@ final class Sprite {
 		setupDecalColor(color);
 	}
 
-	public void renderAll(@NonNull List<ModelState> render_list, int tex_index, boolean respond) {
+	public void renderAll(@NonNull List<ModelState> render_list, int tex_index, boolean respond, SpriteList sprite_list) {
 		for (int i = 0; i < render_list.size(); i++) {
 			ModelState model = render_list.get(i);
 			render_list.set(i, null);
@@ -160,7 +140,7 @@ final class Sprite {
 			if (Globals.draw_misc) {
 				GL11.glPushMatrix();
 				transformAndColor(model, respond);
-				render(model.getModel().getAnimation(), model.getModel().getAnimationTicks());
+				render(model.getModel().getAnimation(), model.getModel().getAnimationTicks(), sprite_list);
 				GL11.glPopMatrix();
 			}
 		}
@@ -270,16 +250,16 @@ final class Sprite {
 		}
 	}
 
-	public void setup(int tex_index, boolean respond) {
-		setupWithColor(white_color, tex_index, respond, modulate_color);
+	public void setup(int tex_index, boolean respond, SpriteList sprite_list) {
+		setupWithColor(white_color, tex_index, respond, modulate_color, sprite_list);
 	}
 
-	public void setupWithColor(@NonNull FloatBuffer color, int tex_index, boolean respond, boolean modulate_color) {
-		doSetup(color, tex_index, respond, modulate_color);
+	public void setupWithColor(@NonNull FloatBuffer color, int tex_index, boolean respond, boolean modulate_color, SpriteList sprite_list) {
+		doSetup(color, tex_index, respond, modulate_color, sprite_list);
 	}
 
-	private void doSetup(@NonNull FloatBuffer color, int tex_index, boolean respond, boolean modulate_color) {
-		int gl_flags = setupBasic();
+	private void doSetup(@NonNull FloatBuffer color, int tex_index, boolean respond, boolean modulate_color, SpriteList sprite_list) {
+		int gl_flags = setupBasic(sprite_list);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_NORMAL].getHandle());
 		if (modulate_color) {
 			GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
@@ -301,13 +281,13 @@ final class Sprite {
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_TEAM].getHandle());
 			}
 			GLState.clientActiveTexture(GL13.GL_TEXTURE1);
-			texcoords.texCoordPointer(2, 0, 0);
+			sprite_list.getTexcoords().texCoordPointer(2, 0, texcoords_offset);
 			GLState.clientActiveTexture(GL13.GL_TEXTURE0);
 		}
 		GLStateStack.switchState(gl_flags);
 	}
 
-	private int setupBasic() {
+	private int setupBasic(SpriteList sprite_list) {
 		int gl_flags = GLState.VERTEX_ARRAY | GLState.TEXCOORD0_ARRAY;
 		if (!culled) {
 			GL11.glDisable(GL11.GL_CULL_FACE);
@@ -316,7 +296,7 @@ final class Sprite {
 			GL11.glEnable(GL11.GL_ALPHA_TEST);
 			GL11.glAlphaFunc(GL11.GL_GREATER, .3f);
 		}
-		texcoords.texCoordPointer(2, 0, 0);
+		sprite_list.getTexcoords().texCoordPointer(2, 0, texcoords_offset);
 		return gl_flags;
 	}
 
@@ -371,7 +351,7 @@ final class Sprite {
 			return Math.min(frame, anim_length - 1);
 	}
 
-	public void render(int animation, float anim_ticks) {
+	public void render(int animation, float anim_ticks, SpriteList sprite_list) {
 		float anim_position = anim_ticks*cpw_array[animation];
 		int frame_non_capped = (int)(anim_position*animation_length_array[animation]);
 		int frame = getFrameCapped(animation, frame_non_capped);
@@ -380,16 +360,16 @@ final class Sprite {
 		int vertex_index = buffer_indices[animation] + frame_index*frame_size;
 		int normal_index = vertex_index + frame_size;
 
-		vertices_and_normals.normalPointer(0, normal_index);
-		vertices_and_normals.vertexPointer(3, 0, vertex_index);
-		indices.drawElements(GL11.GL_TRIANGLES, num_triangles*3, 0);
+		sprite_list.getVerticesAndNormals().normalPointer(0, normal_index);
+		sprite_list.getVerticesAndNormals().vertexPointer(3, 0, vertex_index);
+		sprite_list.getIndices().drawElements(GL11.GL_TRIANGLES, num_triangles*3, indices_offset);
 	}
 
-	public void renderModel(int tex_index) {
-		int gl_flags = setupBasic();
+	public void renderModel(int tex_index, SpriteList sprite_list) {
+		int gl_flags = setupBasic(sprite_list);
 		GLStateStack.switchState(gl_flags);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_NORMAL].getHandle());
-		render(0, 0); // Render 1st frame of 1st animation to low detail texture
+		render(0, 0, sprite_list); // Render 1st frame of 1st animation to low detail texture
 		resetBasic();
 	}
 
