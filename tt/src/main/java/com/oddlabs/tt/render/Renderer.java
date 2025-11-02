@@ -63,6 +63,7 @@ import org.lwjgl.opengl.ARBMultisample;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.vector.Matrix4f;
 
@@ -83,6 +84,7 @@ import java.util.logging.SimpleFormatter;
 import java.util.prefs.Preferences;
 
 public final class Renderer {
+
 	private final static FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
 
 	private static @NonNull GLStateStack display_state_stack = new GLStateStack();
@@ -343,7 +345,7 @@ public final class Renderer {
 		boolean reset_keyboard = false;
 // Registry hack for mikkel!
 /*try {
-String value = com.oddlabs.tt.util.WindowsRegistryInterface.queryRegistrationKey("HKEY_LOCAL_MACHINE", "HARDWARE\\DeviceMap\\Video", "\\Device\\Video0");
+String value = com.oddlabs.tt.util.WindowsRegistryInterface.queryRegistrationKey("HKEY_LOCAL_MACHINE", "HARDWARE\DeviceMap\Video", "\Device\Video0");
 System.out.println("value = " + value);
 } catch (Exception e) {
 e.printStackTrace();
@@ -505,7 +507,7 @@ e.printStackTrace();
 			gui_root.addModalForm(new WarningForm(Utils.getBundleString(bundle, "sound_not_available_caption"), Utils.getBundleString(bundle, "sound_not_available_message")));
 		}
 		if (!initNetwork(network)) {
-//		if (true) {
+//			if (true) {
 			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
 			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "network_not_available_caption"),
 						Utils.getBundleString(bundle, "network_not_available_message"),
@@ -617,16 +619,21 @@ e.printStackTrace();
 		logger.info("GL vendor: '" + vendor + "'");
 		String renderer = GL11.glGetString(GL11.GL_RENDERER);
 		logger.info("GL renderer: '" + renderer + "'");
+		if (GLContext.getCapabilities().OpenGL20) {
+			logger.info("GL shading language version: '" + GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION) + "'");
+		}
 		String extensions = GL11.glGetString(GL11.GL_EXTENSIONS);
 		logger.info("GL extensions: '" + extensions + "'");
 
 		dumpWindowInfo();
 
-		// We assume a modern context, so OpenGL 1.3 and multitexturing are guaranteed.
-		logger.info("OpenGL 1.3 is supported");
+		if (!GLContext.getCapabilities().OpenGL13) {
+			throw new LWJGLException("OpenGL 1.3 is required.");
+		}
 		int num_tex_units = GLUtils.getGLInteger(GL13.GL_MAX_TEXTURE_UNITS);
-		if (num_tex_units < 2)
+		if (num_tex_units < 2) {
 			throw new LWJGLException("Number of texture units " + num_tex_units + " is less than the required 2.");
+		}
 
 		display_state_stack = new GLStateStack();
 		GLStateStack.setCurrent(display_state_stack);
@@ -640,6 +647,9 @@ e.printStackTrace();
 
 	private void initAL() {
 		if (AL.isCreated()) {
+			logger.info("OpenAL version: " + AL10.alGetString(AL10.AL_VERSION));
+			logger.info("OpenAL vendor: " + AL10.alGetString(AL10.AL_VENDOR));
+			logger.info("OpenAL renderer: " + AL10.alGetString(AL10.AL_RENDERER));
 			AL10.alDistanceModel(AL10.AL_INVERSE_DISTANCE);
 //			resetMusicPath();
 //			if (Settings.getSettings().play_music)

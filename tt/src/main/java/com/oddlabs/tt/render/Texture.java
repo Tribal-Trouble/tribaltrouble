@@ -8,16 +8,14 @@ import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.GLState;
 import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Utils;
-import io.github.memo33.jsquish.Squish;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.EXTTextureCompressionS3TC;
+import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GLContext;
 
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -52,7 +50,12 @@ public final class Texture extends NativeResource {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, max_mipmap_level);
 		border_color_buffer.put(0, 0f).put(1, 0f).put(2, 0f).put(3, 0f);
 		GL11.glTexParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_BORDER_COLOR, border_color_buffer);
-//		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, org.lwjgl.opengl.EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, 10f);
+
+		if (GLContext.getCapabilities().GL_EXT_texture_filter_anisotropic) {
+			float max_anisotropy = GL11.glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+			GL11.glTexParameterf(GL11.GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
+		}
+
 		return tex_handle;
 	}
 
@@ -120,20 +123,8 @@ public final class Texture extends NativeResource {
 		for (int i = 0; i < max_index; i++) {
 			int mipmap_level = i + detail_shift;
 			dxt_image.position(mipmap_level);
-			if (GLContext.getCapabilities().GL_EXT_texture_compression_s3tc) {
-				total_size += dxt_image.getMipMap().remaining();
-				GLState.glCompressedTexImage2D(GL11.GL_TEXTURE_2D, i, dxt_image.getInternalFormat(), dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), 0, dxt_image.getMipMap());
-			} else {
-				byte[] blocks = new byte[dxt_image.getMipMap().remaining()];
-				dxt_image.getMipMap().get(blocks);
-				Squish.CompressionType type = dxt_image.getInternalFormat() == EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT ? Squish.CompressionType.DXT5 : Squish.CompressionType.DXT1;
-				byte[] rgba = Squish.decompressImage(null, dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), blocks, type);
-				ByteBuffer buf = BufferUtils.createByteBuffer(rgba.length);
-				buf.put(rgba);
-				buf.flip();
-				GL11.glTexImage2D(GL11.GL_TEXTURE_2D, i, texture_file.getInternalFormat(), dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
-				total_size += determineMipMapSize(i, texture_file.getInternalFormat(), dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level));
-			}
+			total_size += dxt_image.getMipMap().remaining();
+			GLState.glCompressedTexImage2D(GL11.GL_TEXTURE_2D, i, dxt_image.getInternalFormat(), dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), 0, dxt_image.getMipMap());
 		}
 		setSize(total_size);
 /*for (int i = 0; i < max_index; i++) {

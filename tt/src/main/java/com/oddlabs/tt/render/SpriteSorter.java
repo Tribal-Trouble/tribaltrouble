@@ -6,7 +6,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.util.PocketList;
 import org.jspecify.annotations.NonNull;
 
-public final class SpriteSorter {
+final class SpriteSorter {
 	public final static int DETAIL_POINT = 1;
 	public final static int DETAIL_POLYGON = 2;
 

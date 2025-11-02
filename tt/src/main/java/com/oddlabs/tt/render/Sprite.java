@@ -19,17 +19,17 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.FloatBuffer;
 import java.util.List;
 import java.util.function.Supplier;
 
 final class Sprite {
-	public final static int LOWDETAIL_NORMAL = 1;
-	public final static int LOWDETAIL_TEAMDECAL = 2;
 	private final static int TEXTURE_NORMAL = 0;
 	private final static int TEXTURE_TEAM = 1;
 	private final static float[] respond_color = new float[]{1f, 1f, 1f, 1f};
 	private final static FloatBuffer decal_color = BufferUtils.createFloatBuffer(4);
+    private final static String GENERATOR_STRING = "Generator:";
 
 	public static int global_size = 0;
 	private final static FloatBuffer white_color;
@@ -255,14 +255,14 @@ final class Sprite {
 	}
 
 	private static Texture getTextureForName(@NonNull String texture_name, int color_format, int mipmap_cutoff, boolean max_alpha) {
-		String GENERATOR_STRING = "Generator:";
 		if (texture_name.startsWith(GENERATOR_STRING)) {
 			String generator_class_name = texture_name.substring(GENERATOR_STRING.length());
 			try {
 				Class<?> generator_class = Class.forName(generator_class_name);
-				Supplier<Texture[]> descriptor = (Supplier<Texture[]>) generator_class.newInstance();
+				Supplier<Texture[]> descriptor = (Supplier<Texture[]>) generator_class.getDeclaredConstructor().newInstance();
 				return Resources.findResource(descriptor)[0];
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
+                     InvocationTargetException e) {
 				throw new RuntimeException(e);
 			}
 		} else {

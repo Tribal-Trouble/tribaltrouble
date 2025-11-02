@@ -132,6 +132,7 @@ System.out.println("loopback address = " + best_address);
         try (InputStream urlStream = url.openStream()) {
             try (InputStream input_stream = zipped ? new GZIPInputStream(urlStream) : new BufferedInputStream(urlStream)) {
                 try (ObjectInputStream obj_stream = new ObjectInputStream(input_stream)) {
+                    @SuppressWarnings("unchecked")
                     T obj = (T) obj_stream.readObject();
                     return obj;
                 }
