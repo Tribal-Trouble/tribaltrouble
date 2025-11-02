@@ -54,7 +54,6 @@ public final class Settings implements Serializable {
 	public boolean fullscreen = true;
 	public final boolean vsync = true;
 //	public int view_bpp = 32;
-	public int samples = 0;
 
 	// control
 	public boolean invert_camera_pitch = false;
@@ -114,7 +113,6 @@ public final class Settings implements Serializable {
 		setProperty(props, "new_view_height", new_view_height, defaults.new_view_height);
 		setProperty(props, "new_view_freq", new_view_freq, defaults.new_view_freq);
 		setProperty(props, "fullscreen", fullscreen, defaults.fullscreen);
-		setProperty(props, "samples", samples, defaults.samples);
 		setProperty(props, "invert_camera_pitch", invert_camera_pitch, defaults.invert_camera_pitch);
 		setProperty(props, "aggressive_units", aggressive_units, defaults.aggressive_units);
 		setProperty(props, "use_native_cursor", use_native_cursor, defaults.use_native_cursor);
@@ -163,7 +161,6 @@ public final class Settings implements Serializable {
 		new_view_height = getInt(props, "new_view_height", new_view_height);
 		new_view_freq = getInt(props, "new_view_freq", new_view_freq);
 		fullscreen = getBoolean(props, "fullscreen", fullscreen);
-		samples = getInt(props, "samples", samples);
 		invert_camera_pitch = getBoolean(props, "invert_camera_pitch", invert_camera_pitch);
 		aggressive_units = getBoolean(props, "aggressive_units", aggressive_units);
 		use_native_cursor = getBoolean(props, "use_native_cursor", use_native_cursor);

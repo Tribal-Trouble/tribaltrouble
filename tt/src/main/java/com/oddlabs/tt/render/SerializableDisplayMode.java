@@ -79,7 +79,7 @@ public final class SerializableDisplayMode implements Serializable {
 
     private static void createWindow() throws LWJGLException {
         int[] depth_array = new int[]{24, 16};
-        int[] samples_array = new int[]{/*Settings.getSettings().samples, */0};
+        int[] samples_array = new int[]{8, 4, 2, 0};
         LWJGLException last_exception = new LWJGLException("Could not find a suitable pixel format");
         for (int j : depth_array) {
             for (int i : samples_array) {

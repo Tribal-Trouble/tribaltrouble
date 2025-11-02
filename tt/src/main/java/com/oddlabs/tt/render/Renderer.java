@@ -564,13 +564,7 @@ e.printStackTrace();
 		int a = GLUtils.getGLInteger(GL11.GL_ALPHA_BITS);
 		int depth = GLUtils.getGLInteger(GL11.GL_DEPTH_BITS);
 		int stencil = GLUtils.getGLInteger(GL11.GL_STENCIL_BITS);
-		int sample_buffers = 0;
-		int samples = 0;
-		if (GLContext.getCapabilities().GL_ARB_multisample) {
-			sample_buffers = GLUtils.getGLInteger(ARBMultisample.GL_SAMPLE_BUFFERS_ARB);
-			samples = GLUtils.getGLInteger(ARBMultisample.GL_SAMPLES_ARB);
-		}
-		logger.info("Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil + " sample_buffers=" + sample_buffers + " samples=" + samples);
+		logger.info("Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil);
 	}
 
 	private void initNative(boolean crashed) throws LWJGLException {
@@ -760,6 +754,9 @@ e.printStackTrace();
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthFunc(GL11.GL_LEQUAL);
 		GL11.glShadeModel(GL11.GL_SMOOTH);
+		if (GLContext.getCapabilities().GL_ARB_multisample) {
+			GL11.glEnable(ARBMultisample.GL_MULTISAMPLE_ARB);
+		}
 //		GL11.glAlphaFunc(GL11.GL_GREATER, Globals.ALPHA_CUTOFF);
 		// Setup landscape texture coordinate gen
 		GL11.glTexGeni(GL11.GL_S, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
