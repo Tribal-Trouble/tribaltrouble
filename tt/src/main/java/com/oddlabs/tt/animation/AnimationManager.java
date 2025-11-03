@@ -15,16 +15,15 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.LWJGLUtil;
 import org.lwjgl.opengl.Display;
 
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
- import java.util.logging.Logger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 public final class AnimationManager {
 	private static final Logger logger = Logger.getLogger(AnimationManager.class.getName());
@@ -90,9 +89,7 @@ public final class AnimationManager {
 	};
 */
 	static {
-		timeSource = new MonotoneTimeManager(LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_WINDOWS
-                ? System::currentTimeMillis
-                : () -> TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) );
+		timeSource = new MonotoneTimeManager(() -> TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
 		current_time = getSystemTime();
 		last_frame_time = current_time;
 		freezeTime();
@@ -103,10 +100,7 @@ public final class AnimationManager {
 	}
 
 	public static long getSystemTime() {
-		if (time_frozen) {
-			return frozen_start_time_warped;
-		} else
-			return timeSource.getMillis() + time_warp;
+        return time_frozen ? frozen_start_time_warped : timeSource.getMillis() + time_warp;
 	}
 
 	public static void toggleTimeStop() {

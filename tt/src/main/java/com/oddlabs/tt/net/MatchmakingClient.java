@@ -19,7 +19,6 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.net.SecureConnection;
 import com.oddlabs.tt.form.ChatErrorForm;
 import com.oddlabs.tt.form.InfoForm;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ChatRoomInfo;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.LocalInput;

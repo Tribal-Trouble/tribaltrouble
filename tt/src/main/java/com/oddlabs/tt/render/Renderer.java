@@ -45,7 +45,6 @@ import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.Target;
-import com.oddlabs.tt.util.TeeOutputStream;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.vbo.VBO;
 import com.oddlabs.tt.viewer.AmbientAudio;

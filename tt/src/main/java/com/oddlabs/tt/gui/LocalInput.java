@@ -11,7 +11,6 @@ import com.oddlabs.tt.render.SerializableDisplayModeComparator;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -21,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.logging.Logger;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 public final class LocalInput {
 	public static final int LEFT_BUTTON = 0;

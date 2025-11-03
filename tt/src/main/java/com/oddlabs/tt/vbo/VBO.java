@@ -3,6 +3,7 @@ package com.oddlabs.tt.vbo;
 import com.oddlabs.tt.resource.NativeResource;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
+
 import java.nio.IntBuffer;
 
 public abstract class VBO extends NativeResource {

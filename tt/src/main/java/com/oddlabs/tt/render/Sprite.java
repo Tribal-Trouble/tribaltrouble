@@ -19,7 +19,6 @@ import org.lwjgl.util.vector.Vector4f;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-import java.util.List;
 import java.util.function.Supplier;
 
 final class Sprite {
@@ -90,18 +89,15 @@ final class Sprite {
 			}
 		}
 
-		int color_format = Globals.COMPRESSED_RGB_FORMAT;
-		if (alpha)
-			color_format = Globals.COMPRESSED_RGBA_FORMAT;
+        int color_format = alpha ? Globals.COMPRESSED_RGBA_FORMAT : Globals.COMPRESSED_RGB_FORMAT;
 
 		String[][] texture_names = sprite_info.getTextures();
 		textures = new Texture[texture_names.length][2];
 		for (int i = 0; i < texture_names.length; i++) {
 			textures[i][TEXTURE_NORMAL] = getTextureForName(texture_names[i][0], color_format, mipmap_cutoff, max_alpha);
-			if (texture_names[i][TEXTURE_TEAM] != null)
-				textures[i][TEXTURE_TEAM] = getTextureForName(texture_names[i][1], Globals.COMPRESSED_RGB_FORMAT, mipmap_cutoff, max_alpha);
-			else
-				textures[i][TEXTURE_TEAM] = null;
+            textures[i][TEXTURE_TEAM] = texture_names[i][TEXTURE_TEAM] != null
+                    ? getTextureForName(texture_names[i][1], Globals.COMPRESSED_RGB_FORMAT, mipmap_cutoff, max_alpha)
+                    : null;
 		}
 		this.respond_texture = Resources.findResource(new GeneratorRespond())[0];
 	}
@@ -117,33 +113,6 @@ final class Sprite {
 	static void setupDecalColor(float @NonNull [] color) {
 		decal_color.put(color).rewind();
 		GL11.glTexEnv(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_COLOR, decal_color);
-	}
-
-	private void transformAndColor(@NonNull ModelState model, boolean respond) {
-		model.transform();
-		float[] color;
-		if (respond) {
-			color = respond_color;
-		} else {
-			color = model.getTeamColor();
-		}
-		assert color != null: "object = " + this;
-		setupDecalColor(color);
-	}
-
-	public void renderAll(@NonNull List<ModelState> render_list, int tex_index, boolean respond, @NonNull SpriteList sprite_list) {
-		for (int i = 0; i < render_list.size(); i++) {
-			ModelState model = render_list.get(i);
-			render_list.set(i, null);
-			if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS))
-				RenderTools.draw(model.getModel());
-			if (Globals.draw_misc) {
-				GL11.glPushMatrix();
-				transformAndColor(model, respond);
-				render(model.getModel().getAnimation(), model.getModel().getAnimationTicks(), sprite_list);
-				GL11.glPopMatrix();
-			}
-		}
 	}
 
 	private void expandAnimation(AnimationInfo @NonNull [] animations, float[][][] tmp_vertices, float[][][] tmp_normals, float[] initial_pose_vertices, float[] initial_pose_normals, byte[][] skin_names, float[][] skin_weights, BoundingBox[] bounding_boxes) {

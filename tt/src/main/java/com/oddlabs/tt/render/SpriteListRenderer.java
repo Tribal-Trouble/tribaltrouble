@@ -11,6 +11,7 @@ final class SpriteListRenderer {
 	private final @NonNull SpriteList sprite_list;
 	private final List<ModelState>[] @NonNull [] render_lists;
 	private final List<ModelState>[] @NonNull [] respond_render_lists;
+	private final SpriteBatch batch = new SpriteBatch();
 
         @SuppressWarnings("unchecked")
 	SpriteListRenderer(@NonNull SpriteList sprite_list) {
@@ -58,16 +59,21 @@ final class SpriteListRenderer {
 	public void renderAll(int index, int tex_index) {
 		List<ModelState> render_list = render_lists[index][tex_index];
 		Sprite sprite = sprite_list.getSprite(index);
-		sprite.setup(tex_index, false, sprite_list);
-		sprite.renderAll(render_list, tex_index, false, sprite_list);
-		sprite.reset(false, sprite.modulateColor());
+		
+		batch.clear();
+		for (ModelState model : render_list) {
+			batch.add(model);
+		}
+		batch.render(sprite, tex_index, false, sprite_list);
 		render_list.clear();
 
 		render_list = respond_render_lists[index][tex_index];
 		if (!render_list.isEmpty()) {
-			sprite.setup(tex_index, true, sprite_list);
-			sprite.renderAll(render_list, tex_index, true, sprite_list);
-			sprite.reset(true, sprite.modulateColor());
+			batch.clear();
+			for (ModelState model : render_list) {
+				batch.add(model);
+			}
+			batch.render(sprite, tex_index, true, sprite_list);
 			render_list.clear();
 		}
 	}
