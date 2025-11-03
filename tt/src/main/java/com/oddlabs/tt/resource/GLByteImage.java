@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.procedural.Channel;
+import com.oddlabs.procedural.Layer;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -39,6 +40,19 @@ public final class GLByteImage extends GLImage {
     @Override
     public @NonNull GLImage createImage(int width, int height, int format) {
         return new GLByteImage(width, height, format);
+    }
+
+    @Override
+    public @NonNull GLImage createFromLayer(@NonNull Layer layer, int format) {
+        Channel sourceChannel;
+        if (format == GL11.GL_ALPHA && layer.a != null) {
+            sourceChannel = layer.a;
+        } else {
+            // For GL_LUMINANCE or other single-channel uses, default to red channel
+            // A more accurate luminance calculation could be implemented here if needed.
+            sourceChannel = layer.r; 
+        }
+        return new GLByteImage(sourceChannel, format);
     }
 
     @Override

@@ -45,21 +45,17 @@ public abstract class GLImage {
 	}
 
 	private int determineType(int format) {
-		switch (format) {
-			case GL11.GL_RGBA:
-			case GL12.GL_BGRA:
-			case GL13.GL_COMPRESSED_RGBA:
-				assert width*height*4 == pixel_data.remaining();
-				return GL11.GL_UNSIGNED_BYTE;
-			case GL11.GL_LUMINANCE:
-			case GL13.GL_COMPRESSED_LUMINANCE:
-			case GL11.GL_ALPHA:
-			case GL13.GL_COMPRESSED_ALPHA:
-				assert width*height == pixel_data.remaining();
-				return GL11.GL_UNSIGNED_BYTE;
-			default:
-				throw new RuntimeException("Invalid format: " + format);
-		}
+        return switch (format) {
+            case GL11.GL_RGBA, GL12.GL_BGRA, GL13.GL_COMPRESSED_RGBA -> {
+                assert width * height * 4 == pixel_data.remaining();
+                yield GL11.GL_UNSIGNED_BYTE;
+            }
+            case GL11.GL_LUMINANCE, GL13.GL_COMPRESSED_LUMINANCE, GL11.GL_ALPHA, GL13.GL_COMPRESSED_ALPHA -> {
+                assert width * height == pixel_data.remaining();
+                yield GL11.GL_UNSIGNED_BYTE;
+            }
+            default -> throw new RuntimeException("Invalid format: " + format);
+        };
 	}
 
 	public final int getGLFormat() {
@@ -67,6 +63,7 @@ public abstract class GLImage {
 	}
 
 	public abstract GLImage createImage(int width, int height, int format);
+	public abstract GLImage createFromLayer(@NonNull Layer layer, int format);
 
 	public final GLImage @NonNull [] createMipMaps() {
 		GLImage[] result = buildMipMaps();
@@ -75,20 +72,29 @@ public abstract class GLImage {
 	}
 
 	public final GLImage @NonNull [] buildMipMaps() {
-		int current_width = width;
-		int current_height = height;
 		int max = Math.max(height, width);
 		int max_level = (int)(Math.log(max)/Math.log(2));
 		GLImage[] result = new GLImage[max_level + 1];
 		result[0] = this;
+
+		// Convert the original GLImage to a Layer for bicubic scaling
+		Layer originalLayer = this.toLayer();
+
 		for (int i = 1; i < result.length; i++) {
-			current_width /= 2;
-			current_height /= 2;
-			if (current_height == 0)
-				current_height = 1;
+			int current_width = width >> i; // Calculate target width for this mipmap level
+			int current_height = height >> i; // Calculate target height for this mipmap level
+
 			if (current_width == 0)
 				current_width = 1;
-			result[i] = createImage(current_width, current_height, format);
+			if (current_height == 0)
+				current_height = 1;
+
+			// Create a copy of the original layer and scale it bicubically
+			Layer scaledLayer = originalLayer.copy();
+			scaledLayer.scaleCubic(current_width, current_height);
+
+			// Convert the scaled Layer back to the appropriate GLImage subclass
+			result[i] = createFromLayer(scaledLayer, format);
 		}
 		return result;
 	}

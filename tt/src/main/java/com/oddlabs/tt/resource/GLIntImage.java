@@ -81,6 +81,11 @@ public final class GLIntImage extends GLImage {
 	}
 
         @Override
+        public @NonNull GLImage createFromLayer(@NonNull Layer layer, int format) {
+            return new GLIntImage(layer);
+        }
+
+        @Override
 	public int getPixel(int x, int y) {
 		return pixels.get(y*getWidth() + x);
 	}
