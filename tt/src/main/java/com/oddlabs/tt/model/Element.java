@@ -9,7 +9,7 @@ public abstract class Element<T> extends BoundingBox implements ListElement<T> {
 	private final AbstractElementNode<T> element_root;
 	private @Nullable AbstractElementNode<T>node_parent;
 
-	private LinkedList<T> parent;
+	private @Nullable LinkedList<T> parent;
 	private @Nullable ListElement<T> next = null;
 	private @Nullable ListElement<T> prior = null;
 
@@ -41,6 +41,7 @@ public abstract class Element<T> extends BoundingBox implements ListElement<T> {
 	}
 
 	protected void remove() {
+        assert node_parent != null;
 		node_parent.removeElement(this);
 		node_parent = null;
 	}
@@ -81,22 +82,22 @@ public abstract class Element<T> extends BoundingBox implements ListElement<T> {
 	}
 
     @Override
-	public final void setListOwner(LinkedList<T> parent) {
+	public final void setListOwner(@Nullable LinkedList<T> parent) {
 		this.parent = parent;
 	}
 
     @Override
-	public final LinkedList<T> getListOwner() {
+	public final @Nullable LinkedList<T> getListOwner() {
 		return parent;
 	}
 
     @Override
-	public final void setPrior(ListElement<T> prior) {
+	public final void setPrior(@Nullable ListElement<T> prior) {
 		this.prior = prior;
 	}
 
     @Override
-	public final void setNext(ListElement<T> next) {
+	public final void setNext(@Nullable ListElement<T> next) {
 		this.next = next;
 	}
 
