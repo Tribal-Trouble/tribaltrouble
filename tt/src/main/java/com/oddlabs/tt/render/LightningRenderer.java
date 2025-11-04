@@ -2,6 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.particle.Lightning;
 import com.oddlabs.tt.particle.StretchParticle;
 import com.oddlabs.tt.vbo.FloatVBO;
@@ -91,7 +92,7 @@ final class LightningRenderer {
     }
 
     private static void render(@NonNull RenderQueues render_queues, @NonNull Lightning lightning) {
-        if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS)) {
+        if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
             RenderTools.draw(lightning, 1f, 1f, 1f);
         }
 

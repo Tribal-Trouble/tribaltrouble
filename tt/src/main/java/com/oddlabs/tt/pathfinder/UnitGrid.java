@@ -114,33 +114,26 @@ public final class UnitGrid {
 		int end_x = Math.min(occupants.length - 0, center_x + RADIUS);
 		int start_y = Math.max(0, center_y - RADIUS);
 		int end_y = Math.min(occupants.length - 0, center_y + RADIUS);
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glPointSize(3f);
-		GL11.glBegin(GL11.GL_POINTS);
 		Region last_region = null;
 		for (int y = start_y; y < end_y; y++) {
             for (int x = start_x; x < end_x; x++) {
                 float xf = coordinateFromGrid(x);
                 float yf = coordinateFromGrid(y);
+                float zf = heightmap.getNearestHeight(xf, yf) + 2f;
                 Region region = getRegion(x, y);
                 if (region == null) {
-                    GL11.glColor3f(1f, 0f, 0f);
+                    DebugRender.drawPoint(xf, yf, zf, 3f, 1f, 0f, 0f);
                 } else {
                     last_region = region;
-                    DebugRender.setColor(region.hashCode());
+                    float[] color = DebugRender.debug_colors[region.hashCode() % DebugRender.debug_colors.length];
+                    DebugRender.drawPoint(xf, yf, zf, 3f, color[0], color[1], color[2]);
                 }
-                GL11.glVertex3f(xf, yf, heightmap.getNearestHeight(xf, yf) + 2f);
             }
         }
-		GL11.glEnd();
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glColor3f(1f, 0f, 0f);
 		if (last_region != null) {
 			last_region.debugRenderConnections(heightmap);
 			last_region.debugRenderConnectionsReset();
 		}
-		GL11.glEnd();
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	}
 
 	private void debugRenderQuad(int x, int y) {
@@ -150,10 +143,8 @@ public final class UnitGrid {
 		float xf = (x + .5f)*s;
 		float yf = (y + .5f)*s;
 		float z = heightmap.getNearestHeight(xf, yf) + OFFSET;
-		GL11.glVertex3f(xf - RADIUS, yf - RADIUS, z);
-		GL11.glVertex3f(xf + RADIUS, yf + RADIUS, z);
-		GL11.glVertex3f(xf + RADIUS, yf - RADIUS, z);
-		GL11.glVertex3f(xf - RADIUS, yf + RADIUS, z);
+		DebugRender.drawLine(xf - RADIUS, yf - RADIUS, z, xf + RADIUS, yf + RADIUS, z, 1f, 1f, 0f);
+		DebugRender.drawLine(xf + RADIUS, yf - RADIUS, z, xf - RADIUS, yf + RADIUS, z, 1f, 1f, 0f);
 	}
 
 	public @NonNull HeightMap getHeightMap() {
@@ -161,9 +152,6 @@ public final class UnitGrid {
 	}
 
 	public void debugRender(float landscape_x, float landscape_y) {
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glColor3f(1f, 1f, 0f);
 		int RADIUS = 30;
 		int center_x = toGridCoordinate(landscape_x);
 		int center_y = toGridCoordinate(landscape_y);
@@ -178,57 +166,5 @@ public final class UnitGrid {
                 }
             }
         }
-		GL11.glEnd();
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		Font font = Skin.getSkin().getEditFont();
-		final float OFFSET = 2f;
-		int s = HeightMap.METERS_PER_UNIT_GRID;
-		TextLineRenderer renderer = new TextLineRenderer(font);
-		if (Globals.draw_axes) {
-			GL11.glColor3f(1f, 1f, 1f);
-			GL11.glEnable(GL11.GL_BLEND);
-			for (int y = start_y; y < end_y; y++) {
-                for (int x = start_x; x < end_x; x++) {
-                    if (!isGridOccupied(x, y)) {
-                        float xf = (x + .5f)*s;
-                        float yf = (y + .5f)*s;
-                        float z = heightmap.getNearestHeight(xf, yf) + OFFSET;
-                        GL11.glPushMatrix();
-                        GL11.glTranslatef(xf, yf, z);
-                        GL11.glScalef(.08f, .08f, .08f);
-                        font.setupQuads();
-                        renderer.render(4, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, "" + heightmap.getBuildValue(x, y));
-                        font.resetQuads();
-                        GL11.glPopMatrix();
-                    }
-                }
-            }
-			GL11.glDisable(GL11.GL_BLEND);
-		}
-		GL11.glColor3f(1f, 0f, 0f);
-		List<Node> last_path_search = PathFinder.visited_list;
-		if (last_path_search != null) {
-			for (Node node : last_path_search) {
-//				int[] coords = (int[])last_path_search.get(i);
-				GL11.glPushMatrix();
-				GL11.glDisable(GL11.GL_TEXTURE_2D);
-				GL11.glBegin(GL11.GL_LINES);
-				debugRender(node.getGridX(), node.getGridY());
-				GL11.glEnd();
-
-				GL11.glEnable(GL11.GL_TEXTURE_2D);
-				float xf = node.getGridX()*s;
-				float yf = node.getGridY()*s;
-				float z = heightmap.getNearestHeight(xf, yf) + OFFSET;
-				GL11.glTranslatef(xf, yf, z);
-				GL11.glScalef(.08f, .08f, .08f);
-				GL11.glEnable(GL11.GL_BLEND);
-				font.setupQuads();
-				renderer.render(4, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, "" + node.getTotalCost());
-				font.resetQuads();
-				GL11.glDisable(GL11.GL_BLEND);
-				GL11.glPopMatrix();
-			}
-		}
 	}
 }

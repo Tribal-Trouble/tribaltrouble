@@ -1,9 +1,9 @@
 package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.util.DebugRender;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,12 +89,6 @@ public final class Region extends Node {
 		return false;
 	}
 
-	private void debugVertex(@NonNull HeightMap heightmap) {
-		float xf = UnitGrid.coordinateFromGrid(getGridX());
-		float yf = UnitGrid.coordinateFromGrid(getGridY());
-		GL11.glVertex3f(xf, yf, heightmap.getNearestHeight(xf, yf) + 2f);
-	}
-
 	public void debugRenderConnectionsReset() {
 		if (!isVisited())
 			return;
@@ -109,8 +103,13 @@ public final class Region extends Node {
 			return;
 		setVisited(true);
         for (Region neighbour : neighbours) {
-            debugVertex(heightmap);
-            neighbour.debugVertex(heightmap);
+            float x1 = UnitGrid.coordinateFromGrid(getGridX());
+            float y1 = UnitGrid.coordinateFromGrid(getGridY());
+            float z1 = heightmap.getNearestHeight(x1, y1) + 2f;
+            float x2 = UnitGrid.coordinateFromGrid(neighbour.getGridX());
+            float y2 = UnitGrid.coordinateFromGrid(neighbour.getGridY());
+            float z2 = heightmap.getNearestHeight(x2, y2) + 2f;
+            DebugRender.drawLine(x1, y1, z1, x2, y2, z2, 1f, 1f, 0f);
             neighbour.debugRenderConnections(heightmap);
         }
 	}

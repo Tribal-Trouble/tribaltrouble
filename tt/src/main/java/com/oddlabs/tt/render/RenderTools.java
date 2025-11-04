@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.DebugRender;
@@ -205,7 +206,7 @@ final class RenderTools {
 		DebugRender.drawBox(box.bmin_x, box.bmax_x, box.bmin_y, box.bmax_y, box.bmin_z, box.bmax_z, r, g, b);
 	}
 
-	static void draw(@NonNull BoundingBox box, int bound_type, float r, float g, float b) {
+	static void draw(@NonNull BoundingBox box, BoundingMode bound_type, float r, float g, float b) {
 		if (Globals.isBoundsEnabled(bound_type))
 			draw(box, r, g, b);
 	}

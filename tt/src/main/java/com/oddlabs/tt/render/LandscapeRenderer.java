@@ -4,6 +4,7 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeLeaf;
@@ -143,7 +144,7 @@ public final class LandscapeRenderer implements Animated {
 
     private void doRenderAll() {
         for (LandscapeLeaf patch : render_list) {
-            RenderTools.draw(patch, Globals.BOUNDING_LANDSCAPE, 1f, 0f, 0f);
+            RenderTools.draw(patch, BoundingMode.LANDSCAPE, 1f, 0f, 0f);
             setupColormap(patch.getColorMapX(), patch.getColorMapY());
             if (Globals.draw_landscape)
                 renderPatch(patch);

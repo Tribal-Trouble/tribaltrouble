@@ -2,6 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Particle;
 import com.oddlabs.tt.vbo.FloatVBO;
@@ -88,7 +89,7 @@ final class EmitterRenderer {
 	}
 
 	private static void render(@NonNull RenderQueues render_queues, @NonNull Emitter emitter) {
-		if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS)) {
+		if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
 			RenderTools.draw(emitter, 1f, 1f, 1f);
 		}
 

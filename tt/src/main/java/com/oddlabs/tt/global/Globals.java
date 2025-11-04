@@ -1,5 +1,6 @@
 package com.oddlabs.tt.global;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
@@ -7,15 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public final class Globals {
-	public final static int BOUNDING_NONE = 0;
-	public final static int BOUNDING_UNIT_GRID = 1;
-	public final static int BOUNDING_LANDSCAPE = 2;
-	public final static int BOUNDING_TREES = 3;
-	public final static int BOUNDING_PLAYERS = 4;
-	public final static int BOUNDING_OCCUPATION = 5;
-	public final static int BOUNDING_REGIONS = 6;
-	public final static int BOUNDING_ALL = 7;
-
 	public final static int DETAIL_LOW = 0;
 	public final static int DETAIL_NORMAL = 1;
 	public final static int DETAIL_HIGH = 2;
@@ -58,14 +50,16 @@ public final class Globals {
 
 	public static boolean checksum_error_in_last_game = false;
 
-	private static int bounding = BOUNDING_NONE;
+    /** Drawing of debug bounding boxes. */
+	private static @NonNull BoundingMode bounding = BoundingMode.NONE;
 
 	public static void switchBoundingMode() {
-		bounding = (bounding + 1)%(BOUNDING_ALL + 1);
+		bounding = bounding.next();
+		System.out.println("Bounding mode: " + bounding);
 	}
 
-	public static boolean isBoundsEnabled(int bounding_type) {
-		return bounding == bounding_type || bounding == BOUNDING_ALL;
+	public static boolean isBoundsEnabled(@NonNull BoundingMode mode) {
+		return bounding == mode || bounding == BoundingMode.ALL;
 	}
 
 	public static int COMPRESSED_RGB_FORMAT = GL13.GL_COMPRESSED_RGB;

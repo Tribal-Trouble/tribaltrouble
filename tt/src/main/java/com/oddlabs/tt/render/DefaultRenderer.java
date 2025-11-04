@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Icons;
@@ -260,27 +261,22 @@ public final class DefaultRenderer implements UIRenderer {
         EmitterRenderer.render(render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state);
         renderRallyPoint(frustum_state);
 
-        /*		float landscape_x = GUIRoot.getGUIRoot().getLandscapeLocationX();
-		float landscape_y = GUIRoot.getGUIRoot().getLandscapeLocationY();
-		if (Globals.isBoundsEnabled(Globals.BOUNDING_REGIONS)) {
-			UnitGrid.getGrid().debugRenderRegions(landscape_x, landscape_y);
-		}
-         */
-        if (Globals.isBoundsEnabled(Globals.BOUNDING_OCCUPATION)) {
+        float landscape_x = frustum_state.getCurrentX();
+        float landscape_y = frustum_state.getCurrentY();
+        
+        if (Globals.isBoundsEnabled(BoundingMode.REGIONS)) {
+            syncMatrixStacks();
+            world.getUnitGrid().debugRenderRegions(landscape_x, landscape_y);
+        }
+        
+        if (Globals.isBoundsEnabled(BoundingMode.OCCUPATION)) {
             picker.debugRender();
         }
-
-        /*		if (Globals.isBoundsEnabled(Globals.BOUNDING_UNIT_GRID)) {
-			java.util.Iterator<?> it = com.oddlabs.tt.model.SelectionArmy.getSelection().getSet().iterator();
-			while (it.hasNext()) {
-				Object next = it.next();
-				if (next instanceof com.oddlabs.tt.model.Unit) {
-					com.oddlabs.tt.model.Unit s_unit = (com.oddlabs.tt.model.Unit)next;
-					s_unit.debugRender();
-				}
-			}
-//			UnitGrid.getGrid().debugRender(landscape_x, landscape_y);
-		}*/
+        
+        if (Globals.isBoundsEnabled(BoundingMode.UNIT_GRID)) {
+            syncMatrixStacks();
+            world.getUnitGrid().debugRender(landscape_x, landscape_y);
+        }
         fog_info.disableFog();
         if (Globals.line_mode || (cheat.line_mode)) {
             GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL);

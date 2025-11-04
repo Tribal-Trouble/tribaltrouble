@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 public final class DebugRender {
-	private final static float[][] debug_colors = {{7f, 1f, 1f}, {7f, 1f, 0f}, {7f, 0f, 1f}, {.3f, .7f, 0f},
+	public final static float[][] debug_colors = {{7f, 1f, 1f}, {7f, 1f, 0f}, {7f, 0f, 1f}, {.3f, .7f, 0f},
 												   {0f, 1f, 1f}, {0f, 1f, 0f}, {0f, 0f, 1f}, {0f, 0f, 0f},
 												   {0f, .5f, .5f}, {0f, .5f, 0f}, {0f, 0f, .5f}, {.5f, .8f, .8f},
 												   {.3f, .5f, 1f}, {5f, .5f, .8f}, {.3f, .2f, .5f}, {.3f, .3f, .3f},

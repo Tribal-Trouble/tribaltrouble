@@ -2,6 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.landscape.AbstractTreeGroup;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
@@ -75,7 +76,7 @@ public final class TreeRenderer extends TreePicker {
 	private void renderList(@NonNull Tree tree, @NonNull List<TreeSupply> render_list, boolean respond) {
 		tree.getCrown().setup(0, respond);
         for (TreeSupply group : render_list) {
-            if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS))
+            if (Globals.isBoundsEnabled(BoundingMode.PLAYERS))
                 RenderTools.draw(group);
             if (Globals.draw_trees && cheat.draw_trees) {
                 GL11.glPushMatrix();

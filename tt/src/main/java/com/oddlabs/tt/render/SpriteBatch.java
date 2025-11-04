@@ -1,5 +1,6 @@
 package com.oddlabs.tt.render;
 
+import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
@@ -22,7 +23,7 @@ final class SpriteBatch {
 		sprite.setup(tex_index, respond, sprite_list);
 		
 		for (ModelState model : models) {
-			if (Globals.isBoundsEnabled(Globals.BOUNDING_PLAYERS))
+			if (Globals.isBoundsEnabled(BoundingMode.PLAYERS))
 				RenderTools.draw(model.getModel());
 			if (Globals.draw_misc) {
 				GL11.glPushMatrix();
