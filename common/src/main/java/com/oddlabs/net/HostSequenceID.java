@@ -2,10 +2,12 @@ package com.oddlabs.net;
 
 import org.jspecify.annotations.NonNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public final class HostSequenceID implements Serializable {
-	private static final long serialVersionUID = -8670168662221748395L;
+	@Serial
+    private static final long serialVersionUID = -8670168662221748395L;
 
 	private final int host_id;
 	private final int seq_id;
@@ -35,9 +37,6 @@ public final class HostSequenceID implements Serializable {
 
         @Override
 	public boolean equals(Object other) {
-		if (!(other instanceof HostSequenceID))
-			return false;
-		HostSequenceID other_id = (HostSequenceID)other;
-		return host_id == other_id.host_id && seq_id == other_id.seq_id;
+        return other instanceof HostSequenceID other_id && host_id == other_id.host_id && seq_id == other_id.seq_id;
 	}
 }

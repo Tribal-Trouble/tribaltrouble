@@ -15,9 +15,9 @@ public final class ARMIInterfaceMethods {
 		this.armi_interface = armi_interface;
 		this.methods = armi_interface.getMethods();
 		Arrays.sort(methods, new MethodComparator());
-            for (Method method : methods) {
-                assert isLegal(method);
-            }
+        for (Method method : methods) {
+            assert isLegal(method);
+        }
 	}
 
 	private boolean isLegal(@NonNull Method method) {
