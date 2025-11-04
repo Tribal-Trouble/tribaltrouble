@@ -1,8 +1,5 @@
 package com.oddlabs.tt.render.shader;
 
-import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
-
 public final class ShaderTest {
 	private static ShaderProgram testShader;
 	private static ShaderRenderer testRenderer;

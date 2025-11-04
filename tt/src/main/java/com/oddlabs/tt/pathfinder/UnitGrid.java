@@ -1,16 +1,9 @@
 package com.oddlabs.tt.pathfinder;
 
-import com.oddlabs.tt.font.Font;
-import com.oddlabs.tt.font.TextLineRenderer;
-import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
-
-import java.util.List;
 
 public final class UnitGrid {
 	private final Region[] @NonNull [] regions;

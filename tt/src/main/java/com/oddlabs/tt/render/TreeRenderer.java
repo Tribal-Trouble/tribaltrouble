@@ -1,8 +1,8 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.event.LocalEventQueue;
-import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.BoundingMode;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.AbstractTreeGroup;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
