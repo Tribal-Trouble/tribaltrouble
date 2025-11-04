@@ -54,7 +54,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.LWJGLUtil;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
@@ -233,17 +233,14 @@ public final class Renderer {
 		// This will be configured by setupLogging, but we need to log before that.
 		logger.info("********** Running tt **********");
 		String platform_dir_name;
-		switch (LWJGLUtil.getPlatform()) {
-			case LWJGLUtil.PLATFORM_MACOSX:
-				platform_dir_name = "Library/Application Support" + File.separator;
-				break;
-			case LWJGLUtil.PLATFORM_LINUX:
-				platform_dir_name = ".";
-				break;
-			case LWJGLUtil.PLATFORM_WINDOWS:
-			default:
-				platform_dir_name = "";
-				break;
+		String os_name = System.getProperty("os.name").toLowerCase();
+		if (os_name.contains("mac")) {
+			platform_dir_name = "Library/Application Support" + File.separator;
+		} else if (os_name.contains("linux") || os_name.contains("unix")) {
+			platform_dir_name = ".";
+		} else {
+			// Windows or other
+			platform_dir_name = "";
 		}
         Path homeDir = Paths.get(System.getProperty("user.home"));
         if (!Files.isDirectory(homeDir)) {
