@@ -22,6 +22,7 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.BoundingBox;
+import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.Selection;
@@ -543,13 +544,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 	}
 
 	public void debugRender() {
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glPointSize(10f);
-		GL11.glColor3f(1.0f, 1.0f, 1.0f);
-		GL11.glBegin(GL11.GL_POINTS);
-		GL11.glVertex3f(patch_hit_x, patch_hit_y, patch_hit_z);
-		GL11.glEnd();
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		DebugRender.drawPoint(patch_hit_x, patch_hit_y, patch_hit_z, 10f, 1f, 1f, 1f);
 	}
 
 	private final class LandscapeLeafComparator implements Comparator<LandscapeLeaf> {
