@@ -7,7 +7,7 @@ package com.oddlabs.tt.global;
 public enum BoundingMode {
 	/** No debug visualization */
 	NONE,
-	/** Show unit grid occupation with yellow X marks */
+	/** Show unit grid occupation with yellow X marks and selected unit paths (red/blue/white lines) */
 	UNIT_GRID,
 	/** Show landscape patch bounding boxes */
 	LANDSCAPE,

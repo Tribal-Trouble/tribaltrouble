@@ -9,6 +9,7 @@ import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Race;
+import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.shader.DebugShaderRenderer;
@@ -50,6 +51,7 @@ public final class DefaultRenderer implements UIRenderer {
     private final @NonNull MatrixStack projectionStack = new MatrixStack();
     private final @Nullable ShaderProgram debugShader;
     private final @Nullable DebugShaderRenderer debugRenderer;
+    private final Selection selection;
 
     private Building selected_building;
 
@@ -95,6 +97,7 @@ public final class DefaultRenderer implements UIRenderer {
         this.render_queues = render_queues;
         this.sprite_sorter = new SpriteSorter();
         this.picker = picker;
+        this.selection = selection;
         this.element_renderer = new ElementRenderer(local_player, landscape_renderer, render_queues, picker, false, sprite_sorter, selection);
         this.tree_renderer = new TreeRenderer(world, cheat, terrain, world_info.trees, world_info.palm_trees, sprite_sorter, picker.getRespondManager());
         this.landscape_renderer = landscape_renderer;
@@ -275,6 +278,14 @@ public final class DefaultRenderer implements UIRenderer {
         if (Globals.isBoundsEnabled(BoundingMode.UNIT_GRID)) {
             syncMatrixStacks();
             world.getUnitGrid().debugRender(landscape_x, landscape_y);
+            // Render paths for selected units
+            if (selection != null) {
+                for (Object obj : selection.getCurrentSelection().getSet()) {
+                    if (obj instanceof Unit) {
+                        ((Unit)obj).debugRender();
+                    }
+                }
+            }
         }
         fog_info.disableFog();
         if (Globals.line_mode || (cheat.line_mode)) {

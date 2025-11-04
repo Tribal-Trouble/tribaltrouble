@@ -2,8 +2,12 @@ package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.landscape.HeightMap;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
+/**
+ * Cubic Bezier curve path for smooth unit movement.
+ * Uses four control points to generate smooth curves between waypoints.
+ * Debug visualization shows the curve as a white line (enable with UNIT_GRID mode).
+ */
 public final class BezierPath {
 	private final static int PREVIOUS = 0;
 	private final static int START = 1;
@@ -129,14 +133,20 @@ public final class BezierPath {
 	}
 
 	public void debugRender(@NonNull HeightMap heightmap) {
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glColor3f(1f, 1f, 1f);
-		GL11.glBegin(GL11.GL_LINE_STRIP);
+		float prev_x = 0, prev_y = 0, prev_z = 0;
+		boolean first = true;
 		for (float t = 0f; t < 1f; t += .01f) {
 			computeCurvePointFromTime(t, debug_point, debug_dir);
-			GL11.glVertex3f(debug_point[0], debug_point[1], heightmap.getNearestHeight(debug_point[0], debug_point[1]) + 0.5f);
+			float x = debug_point[0];
+			float y = debug_point[1];
+			float z = heightmap.getNearestHeight(x, y) + 0.5f;
+			if (!first) {
+				DebugRender.drawLine(prev_x, prev_y, prev_z, x, y, z, 1f, 1f, 1f);
+			}
+			prev_x = x;
+			prev_y = y;
+			prev_z = z;
+			first = false;
 		}
-		GL11.glEnd();
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	}
 }

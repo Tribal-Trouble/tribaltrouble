@@ -3,10 +3,20 @@ package com.oddlabs.tt.pathfinder;
 import com.oddlabs.tt.gui.ToolTipBox;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.BezierPath;
+import com.oddlabs.tt.util.DebugRender;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
+/**
+ * Tracks and manages unit pathfinding through the game world.
+ * Combines high-level region pathfinding with low-level grid navigation
+ * and smooth Bezier curve movement.
+ * 
+ * Debug visualization (UNIT_GRID mode) shows:
+ * - Red line: Grid-based path (step-by-step navigation)
+ * - Blue line: Region-based path (high-level waypoints)
+ * - White line: Bezier curve (smooth movement)
+ */
 public final class PathTracker {
     public enum State {
         OK,OK_INTERRUPTIBLE,DONE,SOFTBLOCKED,BLOCKED
@@ -15,7 +25,7 @@ public final class PathTracker {
     private final static int REGION_SEARCH_TRIES = 4;
 
 	private final @NonNull BezierPath bezier_path;
-	private final UnitGrid unit_grid;
+	private final @NonNull UnitGrid unit_grid;
 	private final Movable unit;
 
 	private @Nullable RegionNode region_path;
@@ -32,7 +42,7 @@ public final class PathTracker {
 	private boolean initial_path;
 	private @NonNull State state = State.DONE;
 
-	public PathTracker(UnitGrid unit_grid, Movable unit) {
+	public PathTracker(@NonNull UnitGrid unit_grid, Movable unit) {
 		this.unit_grid = unit_grid;
 		this.unit = unit;
 		this.bezier_path = new BezierPath();
@@ -296,36 +306,34 @@ public final class PathTracker {
 		final float OFFSET = 2f;
 		float next_node_x = UnitGrid.coordinateFromGrid(next_unit_grid_x);
 		float next_node_y = UnitGrid.coordinateFromGrid(next_unit_grid_y);
-		float next_x = next_node_x;
-		float next_y = next_node_y;
-		float z = heightmap.getNearestHeight(next_x, next_y) + OFFSET;
+		float prev_x = next_node_x;
+		float prev_y = next_node_y;
+		float prev_z = heightmap.getNearestHeight(prev_x, prev_y) + OFFSET;
 		GridPathNode node = grid_path;
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glColor3f(1f, 0f, 0f);
-		GL11.glLineWidth(2f);
-		GL11.glBegin(GL11.GL_LINE_STRIP);
-		GL11.glVertex3f(next_x, next_y, z);
 		while (node != null) {
-			next_x += HeightMap.METERS_PER_UNIT_GRID*node.getDirection().getDirectionX();
-			next_y += HeightMap.METERS_PER_UNIT_GRID*node.getDirection().getDirectionY();
-			z = heightmap.getNearestHeight(next_x, next_y) + OFFSET;
-			GL11.glVertex3f(next_x, next_y, z);
+			float next_x = prev_x + HeightMap.METERS_PER_UNIT_GRID*node.getDirection().getDirectionX();
+			float next_y = prev_y + HeightMap.METERS_PER_UNIT_GRID*node.getDirection().getDirectionY();
+			float z = heightmap.getNearestHeight(next_x, next_y) + OFFSET;
+			DebugRender.drawLine(prev_x, prev_y, prev_z, next_x, next_y, z, 1f, 0f, 0f);
+			prev_x = next_x;
+			prev_y = next_y;
+			prev_z = z;
 			node = (GridPathNode)node.getParent();
 		}
-		GL11.glEnd();
-		GL11.glColor3f(0f, 0f, 1f);
-		GL11.glLineWidth(5f);
-		GL11.glBegin(GL11.GL_LINE_STRIP);
 		RegionNode region_node = region_path;
+		boolean first = true;
 		while (region_node != null) {
 			float x = UnitGrid.coordinateFromGrid(region_node.getRegion().getGridX());
 			float y = UnitGrid.coordinateFromGrid(region_node.getRegion().getGridY());
-			z = heightmap.getNearestHeight(x, y) + OFFSET;
-			GL11.glVertex3f(x, y, z);
+			float z = heightmap.getNearestHeight(x, y) + OFFSET;
+			if (!first) {
+				DebugRender.drawLine(prev_x, prev_y, prev_z, x, y, z, 0f, 0f, 1f);
+			}
+			prev_x = x;
+			prev_y = y;
+			prev_z = z;
+			first = false;
 			region_node = (RegionNode)region_node.getParent();
 		}
-		GL11.glEnd();
-		GL11.glLineWidth(1f);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	}
 }
