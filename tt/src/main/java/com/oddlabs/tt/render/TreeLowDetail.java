@@ -17,8 +17,8 @@ import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -67,9 +67,9 @@ public final class TreeLowDetail {
 			vertex_count += num_trees[i]*low_details[i].getVertices().length/3;
 			index_count += num_trees[i]*low_details[i].getIndices().length;
 		}
-		vertices = new FloatVBO(ARBBufferObject.GL_DYNAMIC_DRAW_ARB, vertex_count*3);
-		texcoords = new FloatVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, vertex_count*2);
-		tree_indices = new ShortVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, index_count);
+		vertices = new FloatVBO(GL15.GL_DYNAMIC_DRAW, vertex_count*3);
+		texcoords = new FloatVBO(GL15.GL_STATIC_DRAW, vertex_count*2);
+		tree_indices = new ShortVBO(GL15.GL_STATIC_DRAW, index_count);
 	}
 
 	Tree[] getTrees() {

@@ -8,7 +8,7 @@ import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.ARBBufferObject;
+import org.lwjgl.opengl.GL15;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -70,15 +70,15 @@ public final class SpriteList {
         }
 
 		all_indices.flip();
-		indices = new ShortVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, all_indices.remaining());
+		indices = new ShortVBO(GL15.GL_STATIC_DRAW, all_indices.remaining());
 		indices.put(all_indices);
 
 		all_texcoords.flip();
-		texcoords = new FloatVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, all_texcoords.remaining());
+		texcoords = new FloatVBO(GL15.GL_STATIC_DRAW, all_texcoords.remaining());
 		texcoords.put(all_texcoords);
 
 		all_vertices_and_normals.flip();
-		vertices_and_normals = new FloatVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, all_vertices_and_normals.remaining());
+		vertices_and_normals = new FloatVBO(GL15.GL_STATIC_DRAW, all_vertices_and_normals.remaining());
 		vertices_and_normals.put(all_vertices_and_normals);
 
             for (BoundingBox bound : bounds) {

@@ -8,8 +8,8 @@ import com.oddlabs.tt.particle.StretchParticle;
 import com.oddlabs.tt.vbo.FloatVBO;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -32,7 +32,7 @@ final class LightningRenderer {
 
 	static {
 		particle_buffer = BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE);
-		particle_vbo = new FloatVBO(ARBBufferObject.GL_STREAM_DRAW_ARB, particle_buffer.capacity());
+		particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
 	}
 
     public static void render(@NonNull RenderQueues render_queues, @NonNull List<Lightning> emitter_queue, @NonNull CameraState state) {

@@ -6,8 +6,8 @@ import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.vbo.FloatVBO;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public final class SpriteRenderer {
 				 1.0f,  1.0f, 0.0f,
 				-1.0f,  1.0f, 0.0f
 			};
-			quad_vbo = new FloatVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, quad_vertices);
+			quad_vbo = new FloatVBO(GL15.GL_STATIC_DRAW, quad_vertices);
 		}
 	}
 

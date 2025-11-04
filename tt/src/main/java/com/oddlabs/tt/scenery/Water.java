@@ -13,9 +13,9 @@ import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.vbo.FloatVBO;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
 
@@ -113,7 +113,7 @@ public final class Water {
         }
         assert !temp.hasRemaining();
         temp.flip();
-        FloatVBO vertices = new FloatVBO(ARBBufferObject.GL_STATIC_DRAW_ARB, temp.remaining());
+        FloatVBO vertices = new FloatVBO(GL15.GL_STATIC_DRAW, temp.remaining());
         vertices.put(temp);
         return vertices;
     }

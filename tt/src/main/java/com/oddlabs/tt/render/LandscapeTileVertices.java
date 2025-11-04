@@ -6,7 +6,7 @@ import com.oddlabs.tt.landscape.LandscapeTileIndices;
 import com.oddlabs.tt.vbo.FloatVBO;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.ARBBufferObject;
+import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.vector.Vector3f;
 
 import java.nio.FloatBuffer;
@@ -56,13 +56,13 @@ final class LandscapeTileVertices {
 		normals.rewind();
 		texcoords.rewind();
 
-		patch_vertex_buffer = new FloatVBO(ARBBufferObject.GL_DYNAMIC_DRAW_ARB, vertices.remaining());
+		patch_vertex_buffer = new FloatVBO(GL15.GL_DYNAMIC_DRAW, vertices.remaining());
 		patch_vertex_buffer.put(vertices);
 
-		patch_normal_buffer = new FloatVBO(ARBBufferObject.GL_DYNAMIC_DRAW_ARB, normals.remaining());
+		patch_normal_buffer = new FloatVBO(GL15.GL_DYNAMIC_DRAW, normals.remaining());
 		patch_normal_buffer.put(normals);
 
-		patch_texcoord_buffer = new FloatVBO(ARBBufferObject.GL_DYNAMIC_DRAW_ARB, texcoords.remaining());
+		patch_texcoord_buffer = new FloatVBO(GL15.GL_DYNAMIC_DRAW, texcoords.remaining());
 		patch_texcoord_buffer.put(texcoords);
 	}
 
