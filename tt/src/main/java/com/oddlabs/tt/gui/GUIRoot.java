@@ -79,6 +79,8 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		this.info_printer = new InfoPrinter(this, 4, Skin.getSkin().getEditFont());
 		addChild(info_printer);
 		info_printer.setPos(0, 0);
+		
+		UIRenderer.initialize();
 	}
 
 	public GUI getGUI() {

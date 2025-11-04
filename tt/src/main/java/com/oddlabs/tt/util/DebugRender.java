@@ -1,5 +1,7 @@
 package com.oddlabs.tt.util;
 
+import com.oddlabs.tt.render.shader.DebugShaderRenderer;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 public final class DebugRender {
@@ -12,7 +14,13 @@ public final class DebugRender {
 	private final static float ANGLE_DELTA = (float)java.lang.Math.PI/20;
 	private final static float SUBDIV = 0.4f;
 
+	private static @Nullable DebugShaderRenderer shaderRenderer;
+	
 	private DebugRender() {
+	}
+	
+	public static void setShaderRenderer(@Nullable DebugShaderRenderer renderer) {
+		shaderRenderer = renderer;
 	}
 
 	public static void setColor(int i) {
@@ -21,130 +29,127 @@ public final class DebugRender {
 	}
 
 	public static void drawBox(float bmin_x, float bmax_x, float bmin_y, float bmax_y, float bmin_z, float bmax_z, float r, float g, float b) {
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-//		GL11.glDisable(GL11.GL_LIGHTING);
-		GL11.glColor3f(r, g, b);
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glVertex3f(bmin_x, bmin_y, bmin_z);
-		GL11.glVertex3f(bmin_x, bmin_y, bmax_z);
-
-		GL11.glVertex3f(bmin_x, bmin_y, bmin_z);
-		GL11.glVertex3f(bmin_x, bmax_y, bmin_z);
-
-		GL11.glVertex3f(bmin_x, bmin_y, bmin_z);
-		GL11.glVertex3f(bmax_x, bmin_y, bmin_z);
-
-
-		GL11.glVertex3f(bmax_x, bmax_y, bmax_z);
-		GL11.glVertex3f(bmax_x, bmax_y, bmin_z);
-
-		GL11.glVertex3f(bmax_x, bmax_y, bmax_z);
-		GL11.glVertex3f(bmax_x, bmin_y, bmax_z);
-
-		GL11.glVertex3f(bmax_x, bmax_y, bmax_z);
-		GL11.glVertex3f(bmin_x, bmax_y, bmax_z);
-
-
-		GL11.glVertex3f(bmin_x, bmin_y, bmax_z);
-		GL11.glVertex3f(bmin_x, bmax_y, bmax_z);
-
-		GL11.glVertex3f(bmin_x, bmin_y, bmax_z);
-		GL11.glVertex3f(bmax_x, bmin_y, bmax_z);
-
-		GL11.glVertex3f(bmin_x, bmax_y, bmin_z);
-		GL11.glVertex3f(bmin_x, bmax_y, bmax_z);
-
-		GL11.glVertex3f(bmin_x, bmax_y, bmin_z);
-		GL11.glVertex3f(bmax_x, bmax_y, bmin_z);
-
-		GL11.glVertex3f(bmax_x, bmin_y, bmin_z);
-		GL11.glVertex3f(bmax_x, bmax_y, bmin_z);
-
-		GL11.glVertex3f(bmax_x, bmin_y, bmin_z);
-		GL11.glVertex3f(bmax_x, bmin_y, bmax_z);
-		GL11.glEnd();
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		if (shaderRenderer != null) {
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			shaderRenderer.begin(GL11.GL_LINES);
+			
+			shaderRenderer.vertex(bmin_x, bmin_y, bmin_z, r, g, b);
+			shaderRenderer.vertex(bmin_x, bmin_y, bmax_z, r, g, b);
+			shaderRenderer.vertex(bmin_x, bmin_y, bmin_z, r, g, b);
+			shaderRenderer.vertex(bmin_x, bmax_y, bmin_z, r, g, b);
+			shaderRenderer.vertex(bmin_x, bmin_y, bmin_z, r, g, b);
+			shaderRenderer.vertex(bmax_x, bmin_y, bmin_z, r, g, b);
+			
+			shaderRenderer.vertex(bmax_x, bmax_y, bmax_z, r, g, b);
+			shaderRenderer.vertex(bmax_x, bmax_y, bmin_z, r, g, b);
+			shaderRenderer.vertex(bmax_x, bmax_y, bmax_z, r, g, b);
+			shaderRenderer.vertex(bmax_x, bmin_y, bmax_z, r, g, b);
+			shaderRenderer.vertex(bmax_x, bmax_y, bmax_z, r, g, b);
+			shaderRenderer.vertex(bmin_x, bmax_y, bmax_z, r, g, b);
+			
+			shaderRenderer.vertex(bmin_x, bmin_y, bmax_z, r, g, b);
+			shaderRenderer.vertex(bmin_x, bmax_y, bmax_z, r, g, b);
+			shaderRenderer.vertex(bmin_x, bmin_y, bmax_z, r, g, b);
+			shaderRenderer.vertex(bmax_x, bmin_y, bmax_z, r, g, b);
+			
+			shaderRenderer.vertex(bmin_x, bmax_y, bmin_z, r, g, b);
+			shaderRenderer.vertex(bmin_x, bmax_y, bmax_z, r, g, b);
+			shaderRenderer.vertex(bmin_x, bmax_y, bmin_z, r, g, b);
+			shaderRenderer.vertex(bmax_x, bmax_y, bmin_z, r, g, b);
+			
+			shaderRenderer.vertex(bmax_x, bmin_y, bmin_z, r, g, b);
+			shaderRenderer.vertex(bmax_x, bmax_y, bmin_z, r, g, b);
+			shaderRenderer.vertex(bmax_x, bmin_y, bmin_z, r, g, b);
+			shaderRenderer.vertex(bmax_x, bmin_y, bmax_z, r, g, b);
+			
+			shaderRenderer.end();
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+		}
 	}
 
 	public static void drawPoint(float x, float y, float z, float size, float r, float g, float b) {
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glColor3f(r, g, b);
-		GL11.glPointSize(size);
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glVertex3f(x, y, z);
-		GL11.glEnd();
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		if (shaderRenderer != null) {
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			GL11.glPointSize(size);
+			shaderRenderer.begin(GL11.GL_POINTS);
+			shaderRenderer.vertex(x, y, z, r, g, b);
+			shaderRenderer.end();
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+		}
 	}
 	
 	public static void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float r, float g, float b) {
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glColor3f(r, g, b);
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glVertex3f(x1, y1, z1);
-		GL11.glVertex3f(x2, y2, z2);
-		GL11.glEnd();
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		if (shaderRenderer != null) {
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			shaderRenderer.begin(GL11.GL_LINES);
+			shaderRenderer.vertex(x1, y1, z1, r, g, b);
+			shaderRenderer.vertex(x2, y2, z2, r, g, b);
+			shaderRenderer.end();
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+		}
 	}
 
 	public static void drawQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float z, float r, float g, float b) {
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glColor3f(r, g, b);
-		GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_LINE);
-		GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_LINE);
-		GL11.glDisable(GL11.GL_CULL_FACE);
-		GL11.glBegin(GL11.GL_QUADS);
-			GL11.glVertex3f(x1, y1, z);
-			GL11.glVertex3f(x2, y2, z);
-			GL11.glVertex3f(x3, y3, z);
-			GL11.glVertex3f(x4, y4, z);
-		GL11.glEnd();
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL);
-		GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_FILL);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		if (shaderRenderer != null) {
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_LINE);
+			GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_LINE);
+			GL11.glDisable(GL11.GL_CULL_FACE);
+			
+			shaderRenderer.begin(GL11.GL_LINE_LOOP);
+			shaderRenderer.vertex(x1, y1, z, r, g, b);
+			shaderRenderer.vertex(x2, y2, z, r, g, b);
+			shaderRenderer.vertex(x3, y3, z, r, g, b);
+			shaderRenderer.vertex(x4, y4, z, r, g, b);
+			shaderRenderer.end();
+			
+			GL11.glEnable(GL11.GL_CULL_FACE);
+			GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL);
+			GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_FILL);
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+		}
 	}
 
-	public static void drawCylinder(float origin_x, float origin_y, float origin_z, float radius, int num_circles/*, float height*/, float r, float g, float b) {
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glColor3f(r, g, b);
-//		for (float z = origin_z; z < origin_z + height; z += SUBDIV)
-		float z = 0f;
-		for (int i = 0; i < num_circles; i++) {
-			 drawCircle(radius, origin_x, origin_y,  origin_z + z);
-			 z += SUBDIV;
+	public static void drawCylinder(float origin_x, float origin_y, float origin_z, float radius, int num_circles, float r, float g, float b) {
+		if (shaderRenderer != null) {
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			float z = 0f;
+			for (int i = 0; i < num_circles; i++) {
+				drawCircle(radius, origin_x, origin_y, origin_z + z, r, g, b);
+				z += SUBDIV;
+			}
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
 		}
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	}
 
-	private static void drawCircle(float radius, float origin_x, float origin_y, float origin_z) {
-		float x, y;
-		GL11.glBegin(GL11.GL_LINE_LOOP);
-		for (float phi = 0f; phi < (float)java.lang.Math.PI*2; phi += ANGLE_DELTA) {
-			x = radius*(float)java.lang.Math.cos(phi);
-			y = radius*(float)java.lang.Math.sin(phi);
-			GL11.glVertex3f(x + origin_x, y + origin_y, origin_z);
+	private static void drawCircle(float radius, float origin_x, float origin_y, float origin_z, float r, float g, float b) {
+		if (shaderRenderer != null) {
+			shaderRenderer.begin(GL11.GL_LINE_LOOP);
+			for (float phi = 0f; phi < (float)java.lang.Math.PI*2; phi += ANGLE_DELTA) {
+				float x = radius*(float)java.lang.Math.cos(phi);
+				float y = radius*(float)java.lang.Math.sin(phi);
+				shaderRenderer.vertex(x + origin_x, y + origin_y, origin_z, r, g, b);
+			}
+			shaderRenderer.end();
 		}
-		GL11.glEnd();
 	}
 
 	public static void drawSphere(float origin_x, float origin_y, float origin_z, float radius, float r, float g, float b) {
-		float x, y, z;
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-//		GL11.glDisable(GL11.GL_LIGHTING);
-		GL11.glColor3f(r, g, b);
-		for (float phi = 0; phi < (float)java.lang.Math.PI; phi += CIRCLE_DELTA) {
-			GL11.glBegin(GL11.GL_LINE_LOOP);
-			for (float rho = 0f; rho < (float)java.lang.Math.PI*2; rho += ANGLE_DELTA) {
-				x = radius*(float)java.lang.Math.cos(rho);
-				z = radius*(float)java.lang.Math.sin(rho);
-				y = x*(float)java.lang.Math.sin(phi);
-				x *= (float)java.lang.Math.cos(phi);
-				GL11.glVertex3f(x + origin_x, y + origin_y, z + origin_z);
+		if (shaderRenderer != null) {
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			for (float phi = 0; phi < (float)java.lang.Math.PI; phi += CIRCLE_DELTA) {
+				shaderRenderer.begin(GL11.GL_LINE_LOOP);
+				for (float rho = 0f; rho < (float)java.lang.Math.PI*2; rho += ANGLE_DELTA) {
+					float x = radius*(float)java.lang.Math.cos(rho);
+					float z = radius*(float)java.lang.Math.sin(rho);
+					float y = x*(float)java.lang.Math.sin(phi);
+					x *= (float)java.lang.Math.cos(phi);
+					shaderRenderer.vertex(x + origin_x, y + origin_y, z + origin_z, r, g, b);
+				}
+				shaderRenderer.end();
 			}
-			GL11.glEnd();
+			drawCircle(radius, origin_x, origin_y, origin_z, r, g, b);
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
 		}
-		drawCircle(radius, origin_x, origin_y, origin_z);
-//		GL11.glEnable(GL11.GL_LIGHTING);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	}
 }

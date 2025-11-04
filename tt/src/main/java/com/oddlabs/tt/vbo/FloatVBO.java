@@ -42,6 +42,11 @@ public final class FloatVBO extends VBO {
         makeCurrent();
         GL11.glColorPointer(size, GL11.GL_FLOAT, stride, index<<2);
 	}
+	
+	public void vertexAttribPointer(int location, int size, int stride, long offset) {
+		makeCurrent();
+		org.lwjgl.opengl.GL20.glVertexAttribPointer(location, size, GL11.GL_FLOAT, false, stride, offset);
+	}
 
 	public void put(@NonNull FloatBuffer buffer) {
 		putSubData(0, buffer);
