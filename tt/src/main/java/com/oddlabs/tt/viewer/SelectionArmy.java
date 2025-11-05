@@ -50,8 +50,8 @@ public final class SelectionArmy extends Army {
             else
                 if (abilities.hasAbilities(Abilities.MAGIC))
                     chieftain = (Unit) s;
-            if (s instanceof Building) {
-                building = (Building) s;
+            if (s instanceof Building building1) {
+                building = building1;
             } else {
                 num_units++;
             }

@@ -103,12 +103,10 @@ public abstract class InGameDelegate extends CameraDelegate {
 					Set<Selectable> set = viewer.getSelection().getCurrentSelection().getSet();
 					if (!set.isEmpty()) {
 						Selectable s = set.iterator().next();
-						if (s instanceof Building) {
-							Building building = (Building)s;
+						if (s instanceof Building building) {
 							if (!building.isDead() && !building.getAbilities().hasAbilities(Abilities.ATTACK))
 								building.printDebugInfo();
-						} else if (s instanceof Unit) {
-							Unit unit = (Unit)s;
+						} else if (s instanceof Unit unit) {
 							if (!unit.isDead())
 								unit.printDebugInfo();
 						}

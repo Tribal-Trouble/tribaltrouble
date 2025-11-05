@@ -72,7 +72,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.ConsoleHandler;
@@ -242,7 +241,7 @@ public final class Renderer {
 			// Windows or other
 			platform_dir_name = "";
 		}
-        Path homeDir = Paths.get(System.getProperty("user.home"));
+        Path homeDir = Path.of(System.getProperty("user.home"));
         if (!Files.isDirectory(homeDir)) {
             homeDir = Files.createTempDirectory(Globals.GAME_NAME);
         }

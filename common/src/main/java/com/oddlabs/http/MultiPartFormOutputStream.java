@@ -344,8 +344,7 @@ public class MultiPartFormOutputStream{
 	 */
 	public static @NonNull URLConnection createConnection(@NonNull URL url) throws java.io.IOException{
 		URLConnection urlConn = url.openConnection();
-		if(urlConn instanceof HttpURLConnection){
-			HttpURLConnection httpConn = (HttpURLConnection)urlConn;
+		if(urlConn instanceof HttpURLConnection httpConn){
 			httpConn.setRequestMethod("POST");
 		}
 		urlConn.setDoInput(true);

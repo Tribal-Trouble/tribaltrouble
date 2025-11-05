@@ -322,10 +322,10 @@ public final class NativeIsland0 extends Island {
                     int x = 230*2;
                     int y = 108*2;
                     Camera camera = getViewer().getGUIRoot().getDelegate().getCamera();
-                    if (camera instanceof GameCamera) {
-                        getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera)camera, x, y, 200f, 3f, dialog2));
-                    } else if (camera instanceof MapCamera) {
-                        ((MapCamera)camera).mapGoto(x, y, true);
+                    if (camera instanceof GameCamera gameCamera) {
+                        getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), gameCamera, x, y, 200f, 3f, dialog2));
+                    } else if (camera instanceof MapCamera mapCamera) {
+                        mapCamera.mapGoto(x, y, true);
                         dialog2.run();
                     } else if (camera instanceof JumpCamera || camera instanceof FirstPersonCamera) {
                         getViewer().getGUIRoot().getDelegate().pop();

@@ -18,8 +18,7 @@ public final class IntegerLabel extends Label {
 
     @Override
 	public int compareTo(Label o) {
-		if (o instanceof IntegerLabel) {
-			IntegerLabel other = (IntegerLabel)o;
+		if (o instanceof IntegerLabel other) {
 			return val - other.val;
 		} else
 			return -1;

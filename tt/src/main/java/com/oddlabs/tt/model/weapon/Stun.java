@@ -71,12 +71,11 @@ public final class Stun implements Magic {
 	public void animate(float t) {
             for (Selectable selectable : target_list) {
                 Unit unit = null;
-                if (selectable instanceof Unit) {
-                    unit = (Unit) selectable;
-                } else if (selectable instanceof Building) {
-                    Building building = (Building) selectable;
+                if (selectable instanceof Unit unit1) {
+                    unit = unit1;
+                } else if (selectable instanceof Building building) {
                     if (!building.isDead() && building.getAbilities().hasAbilities(Abilities.ATTACK)) {
-                        MountUnitContainer muc = (MountUnitContainer) ((Building) selectable).getUnitContainer();
+                        MountUnitContainer muc = (MountUnitContainer) building.getUnitContainer();
                         if (muc.getNumSupplies() > 0) {
                             unit = muc.getUnit();
                         }

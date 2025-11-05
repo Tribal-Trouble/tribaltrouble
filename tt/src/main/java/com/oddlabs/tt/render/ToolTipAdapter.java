@@ -104,8 +104,7 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 			assert hit_points > 0 && hit_points <= unit.getUnitTemplate().getMaxHitPoints(): "Invalid hit points";
 			icon[0] = watch[index];
 			tool_tip_box.append(icon);
-		} else if (unit.getOwner() == local_player && c instanceof GatherController) {
-			GatherController<?> gc = (GatherController<?>)c;
+		} else if (unit.getOwner() == local_player && c instanceof GatherController<?> gc) {
 			tool_tip_box.append(Icons.getIcons().getToolTipIcon(gc.getSupplyType()));
 		}
 		/*      if (getCurrentBehaviour() instanceof WalkBehaviour)

@@ -1,8 +1,10 @@
 package com.oddlabs.geometry;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public final class AnimationInfo implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	public final static int ANIM_LOOP = 1;

@@ -2,9 +2,11 @@ package com.oddlabs.matchmaking;
 
 import com.oddlabs.util.Utils;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public final class LoginDetails implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	public final static int MAX_EMAIL_LENGTH = 60;

@@ -236,8 +236,8 @@ public final class Picker implements Updatable {
 		for (int i = 0; i < element_pick_list.size(); i++) {
 			Target pickable = element_pick_list.get(i);
 			element_pick_list.set(i, null);
-			if (pickable instanceof Selectable)
-				selectables.add((Selectable)pickable);
+			if (pickable instanceof Selectable selectable)
+				selectables.add(selectable);
 		}
 		Selectable[] array = new Selectable[selectables.size()];
 		selectables.toArray(array);

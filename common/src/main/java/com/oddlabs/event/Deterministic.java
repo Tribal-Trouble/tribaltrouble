@@ -4,7 +4,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public abstract class Deterministic {
 	protected final static int BUFFER_SIZE = 4096;
@@ -63,7 +62,7 @@ public abstract class Deterministic {
 
     public final @Nullable Path log(Path p) {
         assert enabled;
-        return log(p, Paths.get(""));
+        return log(p, Path.of(""));
     }
 
 	public final <T> T log(T o) {

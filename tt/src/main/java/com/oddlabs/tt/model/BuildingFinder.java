@@ -39,8 +39,8 @@ public final class BuildingFinder implements FinderFilter<Building> {
 
     @Override
 	public boolean acceptOccupant(Occupant occ) {
-		if (occ instanceof Building) {
-			return accept((Building) occ);
+		if (occ instanceof Building building) {
+			return accept(building);
 		} else
 			return false;
 	}

@@ -2,10 +2,12 @@ package com.oddlabs.matchmaking;
 
 import org.jspecify.annotations.NonNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 
 public final class GameSession implements Serializable {
+	@Serial
 	private static final long serialVersionUID = 2768150608081852612L;
 
 	public final static int MIN_WINS_FOR_RANKING = 5;

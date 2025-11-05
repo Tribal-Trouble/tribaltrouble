@@ -14,7 +14,6 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +28,7 @@ public final class Utils {
 	}
 
 	public static @NonNull Path getInstallDir() {
-		return Paths.get(System.getProperty("user.dir"));
+		return Path.of(System.getProperty("user.dir"));
 	}
 
 	public static @NonNull FloatBuffer toBuffer(float @NonNull [] floats) {
@@ -129,7 +128,7 @@ public final class Utils {
 
 		}
 		buffer.rewind();
-		Path image_file = Paths.get(filename);
+		Path image_file = Path.of(filename);
 		try (OutputStream fout = Files.newOutputStream(image_file)) {
 			fout.write(buffer.array());
 		} catch (IOException e) {

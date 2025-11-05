@@ -19,8 +19,7 @@ public final class ChieftainBuiltTrigger extends TutorialTrigger {
 	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
             for (Selectable s : set) {
-                if (s instanceof Unit) {
-                    Unit u = (Unit) s;
+                if (s instanceof Unit u) {
                     if (u.getAbilities().hasAbilities(Abilities.MAGIC)) {
                         chieftain = u;
                         tutorial.next(new MagicTrigger(chieftain));

@@ -15,16 +15,15 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 public final class Utils {
 	public final static Pattern EMAIL_PATTERN = Pattern.compile("(.+@.+\\.[a-z]+)?");
-	public final static Path STD_OUT = Paths.get("std.out");
-	public final static Path STD_ERR = Paths.get("std.err");
-	public final static Path EVENT_LOG = Paths.get("event.log");
+	public final static Path STD_OUT = Path.of("std.out");
+	public final static Path STD_ERR = Path.of("std.err");
+	public final static Path EVENT_LOG = Path.of("event.log");
 
 	public final static Path[] LOG_FILES = {STD_OUT, STD_ERR, EVENT_LOG};
 

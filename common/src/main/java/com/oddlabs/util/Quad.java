@@ -3,9 +3,11 @@ package com.oddlabs.util;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class Quad implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	private final float u1;

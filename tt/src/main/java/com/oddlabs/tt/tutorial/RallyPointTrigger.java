@@ -15,8 +15,7 @@ public final class RallyPointTrigger extends TutorialTrigger {
 	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet();
             for (Selectable s : set) {
-                if (s instanceof Building) {
-                    Building b = (Building) s;
+                if (s instanceof Building b) {
                     if (b.hasRallyPoint())
                         tutorial.next(new UnitCountTrigger(30));
                 }

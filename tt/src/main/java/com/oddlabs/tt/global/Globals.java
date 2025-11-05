@@ -5,7 +5,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public final class Globals {
 	public final static int DETAIL_LOW = 0;
@@ -18,7 +17,7 @@ public final class Globals {
 	public final static boolean[] INSERT_PLANTS = new boolean[]{false, false, true};
 
 	public final static String GAME_NAME = "TribalTrouble";
-	public final static Path SETTINGS_FILE_NAME = Paths.get("settings");
+	public final static Path SETTINGS_FILE_NAME = Path.of("settings");
 
 	public static boolean run_ai = true;
 

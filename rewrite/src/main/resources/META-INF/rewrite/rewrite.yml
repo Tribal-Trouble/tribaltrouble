@@ -1,0 +1,19 @@
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: com.oddlabs.tribaltrouble.MigrateLWJGLToJOML
+displayName: Migrate LWJGL2 to JOML
+description: Complete migration from LWJGL2 util.vector to JOML
+recipeList:
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: org.lwjgl.util.vector.Vector2f
+      newFullyQualifiedTypeName: org.joml.Vector2f
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: org.lwjgl.util.vector.Vector3f
+      newFullyQualifiedTypeName: org.joml.Vector3f
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: org.lwjgl.util.vector.Vector4f
+      newFullyQualifiedTypeName: org.joml.Vector4f
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: org.lwjgl.util.vector.Matrix4f
+      newFullyQualifiedTypeName: org.joml.Matrix4f
+  - com.oddlabs.rewrite.LWJGLToJOMLRecipe

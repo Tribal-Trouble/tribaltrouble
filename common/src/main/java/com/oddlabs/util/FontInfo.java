@@ -2,15 +2,11 @@ package com.oddlabs.util;
 
 import org.jspecify.annotations.NonNull;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.net.URL;
 
 public final class FontInfo implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	private final String texture_name;

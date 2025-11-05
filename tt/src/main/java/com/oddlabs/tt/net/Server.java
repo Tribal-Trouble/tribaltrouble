@@ -254,9 +254,9 @@ public final class Server implements ConnectionListenerInterface {
 System.out.println("Incoming host connection from " + remote_address);
 		short available_slot = locateAvailableSlot();
 		if (state != NEGOTIATING || available_slot == -1 ||
-			(remote_address instanceof InetAddress && !((InetAddress)remote_address).isLoopbackAddress()) ||
-			(remote_address instanceof TunnelIdentifier && game != null && game.isRated() && 
-			((TunnelIdentifier)remote_address).getProfile().getWins() < GameSession.MIN_WINS_FOR_RANKING)) {
+			(remote_address instanceof InetAddress address && !address.isLoopbackAddress()) ||
+			(remote_address instanceof TunnelIdentifier identifier && game != null && game.isRated() && 
+			identifier.getProfile().getWins() < GameSession.MIN_WINS_FOR_RANKING)) {
 			System.out.println("rejecting incoming connection since state = " + state + " | locateAvailableSlot() = " + available_slot + " remote_address = " + remote_address);
 			connection_listener.rejectConnection();
 			return;

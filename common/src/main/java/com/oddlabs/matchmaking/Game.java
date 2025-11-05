@@ -2,9 +2,11 @@ package com.oddlabs.matchmaking;
 
 import org.jspecify.annotations.NonNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public final class Game implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 3;
 
 	public final static int SIZE_SMALL = 0;

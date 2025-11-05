@@ -7,22 +7,23 @@ import org.jspecify.annotations.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 public final class Settings implements Serializable {
-    private final static long serialVersionUID = 1L;
+	@Serial
+	private final static long serialVersionUID = 1L;
 
 	private static Settings settings;
 
 	// event logging
 	private static final Logger logger = Logger.getLogger(Settings.class.getName());
-	public transient @NonNull Path last_event_log_dir = Paths.get("");
+	public transient @NonNull Path last_event_log_dir = Path.of("");
 	public int last_revision = -1;
 	public boolean crashed = false;
 
@@ -243,7 +244,7 @@ public final class Settings implements Serializable {
 			return defaultValue;
 		}
 		try {
-			return Paths.get(value);
+			return Path.of(value);
 		} catch (InvalidPathException e) {
 			logger.warning("Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
 			return defaultValue;
@@ -257,6 +258,6 @@ public final class Settings implements Serializable {
 
 	private void readObject(java.io.@NonNull ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
-		last_event_log_dir = Paths.get((String) in.readObject());
+		last_event_log_dir = Path.of((String) in.readObject());
 	}
 }

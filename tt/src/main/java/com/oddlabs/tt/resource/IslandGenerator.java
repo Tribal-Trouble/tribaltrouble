@@ -17,10 +17,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 
+import java.io.Serial;
 import java.nio.FloatBuffer;
 import java.util.List;
 
 public final class IslandGenerator implements WorldGenerator {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	private final static int TEXELS_PER_CHUNK = 512;

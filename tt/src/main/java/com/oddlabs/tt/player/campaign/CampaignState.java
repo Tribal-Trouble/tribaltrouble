@@ -2,9 +2,11 @@ package com.oddlabs.tt.player.campaign;
 
 import org.jspecify.annotations.NonNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public final class CampaignState implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	public final static int RACE_VIKINGS = 0; // DON'T CHANGE! will ruin serializability

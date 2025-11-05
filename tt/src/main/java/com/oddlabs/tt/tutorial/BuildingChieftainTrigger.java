@@ -29,8 +29,7 @@ public final class BuildingChieftainTrigger extends TutorialTrigger {
 	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
             for (Selectable s : set) {
-                if (s instanceof Building) {
-                    Building b = (Building) s;
+                if (s instanceof Building b) {
                     ChieftainContainer container = b.getChieftainContainer();
                     if (container != null && container.isTraining())
                         tutorial.next(new ChieftainBuiltTrigger());

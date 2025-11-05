@@ -10,13 +10,15 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 public final class SerializableDisplayMode implements Serializable {
 
-    private final static long serialVersionUID = 1;
+	@Serial
+	private final static long serialVersionUID = 1;
 
     private final int width;
     private final int height;

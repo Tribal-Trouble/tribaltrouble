@@ -3,9 +3,11 @@ package com.oddlabs.tt.net;
 import com.oddlabs.matchmaking.TunnelAddress;
 import com.oddlabs.tt.player.PlayerInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public final class PlayerSlot implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	public final static int AI_NONE = 0;

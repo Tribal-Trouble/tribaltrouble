@@ -314,8 +314,8 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	private void switchFocusToObject(GUIObject obj, int dir) {
-		if (obj instanceof Group) {
-			((Group)obj).setGroupFocus(dir);
+		if (obj instanceof Group group) {
+			group.setGroupFocus(dir);
 		} else {
 			obj.setFocus();
 		}

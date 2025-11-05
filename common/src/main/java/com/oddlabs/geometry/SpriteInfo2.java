@@ -5,9 +5,11 @@ import com.oddlabs.util.ShortCompressedFloatArray;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public final class SpriteInfo2 implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	private final short[] indices;

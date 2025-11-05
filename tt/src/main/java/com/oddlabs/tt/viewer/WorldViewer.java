@@ -135,8 +135,8 @@ public final class WorldViewer implements Animated {
             @Override
             public void unregisterTarget(Target target) {
                 distributable_table.unregister(target);
-                if (target instanceof Selectable)
-                    getSelection().removeFromArmies((Selectable) target);
+                if (target instanceof Selectable selectable)
+                    getSelection().removeFromArmies(selectable);
             }
 
             @Override

@@ -2,9 +2,11 @@ package com.oddlabs.router;
 
 import org.jspecify.annotations.NonNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class SessionInfo implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	public final int milliseconds_per_heartbeat;
@@ -17,7 +19,7 @@ public class SessionInfo implements Serializable {
 
         @Override
 	public final boolean equals(Object other) {
-		return other instanceof SessionInfo && ((SessionInfo)other).num_participants == num_participants;
+		return other instanceof SessionInfo si && si.num_participants == num_participants;
 	}
 
         @Override

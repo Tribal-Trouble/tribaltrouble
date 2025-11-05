@@ -88,8 +88,8 @@ public final class WalkBehaviour implements Behaviour {
 			case BLOCKED: /* fall through */
 			case SOFTBLOCKED:
 				Occupant blocker = tracker.getBlocker();
-				if (blocker instanceof Movable) {
-					blocking_movable = (Movable)blocker;
+				if (blocker instanceof Movable movable) {
+					blocking_movable = movable;
 					if (!blocking_movable.isDead()) {
 						blocking_movable.markBlocking();
 						blocker_x = blocking_movable.getGridX();

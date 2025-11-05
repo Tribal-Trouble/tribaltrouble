@@ -1,8 +1,10 @@
 package com.oddlabs.tt.player;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public final class PlayerInfo implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 3;
 
 	public final static int TEAM_NEUTRAL = -1;

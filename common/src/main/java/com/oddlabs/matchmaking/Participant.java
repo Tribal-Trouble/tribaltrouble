@@ -1,8 +1,10 @@
 package com.oddlabs.matchmaking;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public final class Participant implements Serializable {
+	@Serial
 	private static final long serialVersionUID = -3344403341742210958L;
 
 	private final int match_id;

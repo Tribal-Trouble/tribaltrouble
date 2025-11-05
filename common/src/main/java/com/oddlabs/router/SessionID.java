@@ -2,9 +2,11 @@ package com.oddlabs.router;
 
 import org.jspecify.annotations.NonNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public final class SessionID implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	private final long session_id;
@@ -15,7 +17,7 @@ public final class SessionID implements Serializable {
 
         @Override
 	public boolean equals(Object other) {
-		return other instanceof SessionID && ((SessionID)other).session_id == session_id;
+		return other instanceof SessionID sid && sid.session_id == session_id;
 	}
 
         @Override

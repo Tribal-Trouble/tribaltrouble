@@ -1,8 +1,10 @@
 package com.oddlabs.matchmaking;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public final class ChatRoomUser implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	private final String nick;

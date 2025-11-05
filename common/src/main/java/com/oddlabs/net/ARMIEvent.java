@@ -5,12 +5,14 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.nio.ByteBuffer;
 
 public final class ARMIEvent implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	private final static ByteBufferOutputStream static_byte_stream = new ByteBufferOutputStream(false);

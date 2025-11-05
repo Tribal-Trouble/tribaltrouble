@@ -165,8 +165,7 @@ public final class DefaultRenderer implements UIRenderer {
         float x = rally_point.getPositionX();
         float y = rally_point.getPositionY();
         float z = world.getHeightMap().getNearestHeight(rally_point.getPositionX(), rally_point.getPositionY());
-        if (rally_point instanceof Building) {
-            Building rally_building = (Building) rally_point;
+        if (rally_point instanceof Building rally_building) {
             x += rally_building.getBuildingTemplate().getRallyX();
             y += rally_building.getBuildingTemplate().getRallyY();
             z += rally_building.getBuildingTemplate().getRallyZ();
@@ -281,8 +280,8 @@ public final class DefaultRenderer implements UIRenderer {
             // Render paths for selected units
             if (selection != null) {
                 for (Object obj : selection.getCurrentSelection().getSet()) {
-                    if (obj instanceof Unit) {
-                        ((Unit)obj).debugRender();
+                    if (obj instanceof Unit unit) {
+                        unit.debugRender();
                     }
                 }
             }

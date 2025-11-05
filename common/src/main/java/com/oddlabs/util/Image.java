@@ -2,20 +2,13 @@ package com.oddlabs.util;
 
 import org.jspecify.annotations.NonNull;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 public final class Image implements Serializable {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	private transient ByteBuffer data;

@@ -149,8 +149,7 @@ public abstract class Menu extends CameraDelegate {
 	private void disableButtons(boolean disabled) {
 		Renderable child = getLastChild();
 		while (child != null) {
-			if (child instanceof MenuButton) {
-				MenuButton button = (MenuButton)child;
+			if (child instanceof MenuButton button) {
 				button.setDisabled(disabled);
 			}
 			child = (Renderable)child.getPrior();
@@ -164,8 +163,7 @@ public abstract class Menu extends CameraDelegate {
 		} else {
 			Renderable child = getLastChild();
 			while (child != null) {
-				if (child instanceof MenuButton) {
-					MenuButton button = (MenuButton)child;
+				if (child instanceof MenuButton button) {
 					button.setFocus();
 					break;
 				}

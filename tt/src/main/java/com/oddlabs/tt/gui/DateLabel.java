@@ -28,8 +28,7 @@ public final class DateLabel extends Label {
 
     @Override
 	public int compareTo(Label o) {
-		if (o instanceof DateLabel) {
-			DateLabel other = (DateLabel)o;
+		if (o instanceof DateLabel other) {
 			return val < other.val ? -1 : 1;
 		} else
 			return -1;

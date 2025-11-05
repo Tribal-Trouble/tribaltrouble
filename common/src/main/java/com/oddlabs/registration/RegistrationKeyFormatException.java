@@ -1,6 +1,9 @@
 package com.oddlabs.registration;
 
+import java.io.Serial;
+
 public final class RegistrationKeyFormatException extends NumberFormatException {
+	@Serial
 	private static final long serialVersionUID = 3673901824484153336L;
 
 	public final static int TYPE_INVALID_CHAR = 0;

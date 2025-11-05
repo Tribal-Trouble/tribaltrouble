@@ -96,8 +96,7 @@ public final class RespondManager implements Animated {
 
         @Override
 		public boolean equals(Object other) {
-            if (other instanceof Timeout) {
-                Timeout timeout_obj = (Timeout)other;
+            if (other instanceof Timeout timeout_obj) {
                 return timeout_obj.timeout == timeout && timeout_obj.id == id;
             }
             return false;

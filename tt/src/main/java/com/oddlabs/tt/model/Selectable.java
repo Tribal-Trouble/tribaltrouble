@@ -131,8 +131,8 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 	}
 
 	public static boolean isCloseEnough(@NonNull UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, Target target) {
-		if (max_dist == 0f && target instanceof Occupant) {
-			return isAdjacent(unit_grid, grid_x, grid_y, (Occupant)target);
+		if (max_dist == 0f && target instanceof Occupant occupant) {
+			return isAdjacent(unit_grid, grid_x, grid_y, occupant);
 		} else {
 			int dx = grid_x - target.getGridX();
 			int dy = grid_y - target.getGridY();

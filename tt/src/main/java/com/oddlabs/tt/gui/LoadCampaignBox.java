@@ -14,11 +14,10 @@ import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 public final class LoadCampaignBox extends GUIObject implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
-	public final static Path SAVEGAMES_FILE_NAME = Paths.get("savegames");
+	public final static Path SAVEGAMES_FILE_NAME = Path.of("savegames");
 
 	private final static int WIDTH_NAME = 210;
 	private final static int WIDTH_RACE = 70;

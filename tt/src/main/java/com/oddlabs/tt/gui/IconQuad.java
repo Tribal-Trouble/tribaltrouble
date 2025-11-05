@@ -4,7 +4,10 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.util.Quad;
 import org.lwjgl.opengl.GL11;
 
+import java.io.Serial;
+
 public final class IconQuad extends Quad {
+	@Serial
 	private final static long serialVersionUID = 1;
 
 	private final Texture texture;

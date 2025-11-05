@@ -321,9 +321,8 @@ public abstract class AI implements Animated {
 		Selectable[][] lists = owner.classifyUnits();
             for (Selectable[] list : lists) {
                 Selectable s = list[0];
-                if (s instanceof Unit && !(s.getPrimaryController() instanceof WalkController && ((WalkController)s.getPrimaryController()).isAgressive())) {
+                if (s instanceof Unit unit && !(s.getPrimaryController() instanceof WalkController && ((WalkController)s.getPrimaryController()).isAgressive())) {
                     for (Selectable thrower : list) {
-                        Unit unit = (Unit)s;
                         if (unit.getAbilities().hasAbilities(Abilities.THROW)) {
                             owner.setLandscapeTarget(new Selectable[]{thrower}, target.getGridX(), target.getGridY(), Target.ACTION_ATTACK, true);
                             ordered++;
@@ -341,8 +340,8 @@ public abstract class AI implements Animated {
 		Selectable[][] lists = owner.classifyUnits();
             for (Selectable[] list : lists) {
                 Selectable s = list[0];
-                if (s instanceof Unit && s.getAbilities().hasAbilities(Abilities.THROW)) {
-                    return (Unit)s;
+                if (s instanceof Unit unit && s.getAbilities().hasAbilities(Abilities.THROW)) {
+                    return unit;
                 }
             }
 		return null;

@@ -106,8 +106,8 @@ public final class HttpRequest {
 	public static URLConnection openConnection(@NonNull URL url) throws IOException {
 		URLConnection conn = url.openConnection();
 		try {
-			if (conn instanceof HttpsURLConnection)
-				CryptUtils.setupHttpsConnection((HttpsURLConnection)conn);
+			if (conn instanceof HttpsURLConnection connection)
+				CryptUtils.setupHttpsConnection(connection);
 			return conn;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
