@@ -4,7 +4,7 @@ import com.oddlabs.procedural.Channel;
 
 public final class Main {
 
-	public static void main(String[] args) {
+	void main() {
 		long time = System.currentTimeMillis();
 		
 		/*
@@ -85,8 +85,8 @@ public final class Main {
 		Channel height = hitpoint.channelMultiply(noise.copy()).channelAdd(hitpoint2.channelMultiply(noise.invert()));
 		
 		height.toLayer().saveAsPNG("test_voronoi");
-		
-		
-		System.out.println("******** Time taken: " + ((System.currentTimeMillis() - time)/1000f) + " seconds");
+
+
+		IO.println("******** Time taken: " + ((System.currentTimeMillis() - time) / 1000f) + " seconds");
 	}
 }

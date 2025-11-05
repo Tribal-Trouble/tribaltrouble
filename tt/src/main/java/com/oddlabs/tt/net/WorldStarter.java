@@ -85,7 +85,7 @@ final class WorldStarter implements LoadCallback {
 			GameSession game_session = new GameSession(session_id, participants, ingame_info.isRated());
 			Network.getMatchmakingClient().getInterface().gameStartedNotify(game_session);
 		}
-		System.out.println("PeerHub created (session_id = " + session_id + ") Player list:");
+		IO.println("PeerHub created (session_id = " + session_id + ") Player list:");
 		return viewer.getRenderer();
 	}
 }

@@ -336,7 +336,7 @@ public final class Picker implements Updatable {
 			return false;
 		}
 		while (!patch_pick_set.isEmpty()) {
-			BoundingBox bb = patch_pick_set.first();
+			BoundingBox bb = patch_pick_set.getFirst();
 			assert patch_pick_set.contains(bb);
 			patch_pick_set.remove(bb);
 			float tx_min = computeTMin(bb.bmin_x, bb.bmax_x, x, dx);

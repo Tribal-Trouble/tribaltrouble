@@ -536,19 +536,19 @@ public class Unit extends Selectable implements Occupant, Movable {
                 pushController(new DefendController(this, target));
                 break;
             default:
-                System.out.println("Invalid action: " + action);
+				IO.println("Invalid action: " + action);
                 break;
         }
     }
 
     public final void printDebugInfo() {
-        System.out.println("-----------------------------------");
-        System.out.println("Primary Controller = " + getPrimaryController());
+		IO.println("-----------------------------------");
+		IO.println("Primary Controller = " + getPrimaryController());
         if (getAbilities().hasAbilities(Abilities.MAGIC)) {
-            System.out.println("Hit Points = " + hit_points);
-            System.out.println("Magic Energy 0 = " + magic_energy[0]);
-            System.out.println("Magic Energy 1 = " + magic_energy[1]);
-            System.out.println("Controller = " + getPrimaryController());
+			IO.println("Hit Points = " + hit_points);
+			IO.println("Magic Energy 0 = " + magic_energy[0]);
+			IO.println("Magic Energy 1 = " + magic_energy[1]);
+			IO.println("Controller = " + getPrimaryController());
         }
     }
 

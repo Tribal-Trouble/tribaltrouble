@@ -467,7 +467,7 @@ public final class ErosionVelocity {
 			}
 
 			// step 2b - perform erosion on terrain based on w, v and dir
-			System.out.println("v.min: " + v.findMin() + " v.max: " + v.findMax());
+			IO.println("v.min: " + v.findMin() + " v.max: " + v.findMax());
 			v.add(1f).log().dynamicRange().smooth(1).smooth(1);
 			s_max = v.copy().add(1f).power2().add(-1f);
 			for (int s_iter = 0; s_iter < s_iters; s_iter++) {

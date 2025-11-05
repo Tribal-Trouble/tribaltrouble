@@ -744,18 +744,18 @@ public final class Building extends Selectable implements Occupant {
 	}
 
 	public void printDebugInfo() {
-		System.out.println("-----------------------------------");
+		IO.println("-----------------------------------");
 		if (getAbilities().hasAbilities(Abilities.REPRODUCE)) {
-			System.out.println("Units = " + getUnitContainer().getNumSupplies());
+			IO.println("Units = " + getUnitContainer().getNumSupplies());
 		} else if (getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
-			System.out.println("Units = " + getUnitContainer().getNumSupplies());
-			System.out.println("Tree = " + getSupplyContainer(TreeSupply.class).getNumSupplies());
-			System.out.println("Rock = " + getSupplyContainer(RockSupply.class).getNumSupplies());
-			System.out.println("Iron = " + getSupplyContainer(IronSupply.class).getNumSupplies());
-			System.out.println("Rubber = " + getSupplyContainer(RubberSupply.class).getNumSupplies());
-			System.out.println("Rock Weapons = " + getSupplyContainer(RockAxeWeapon.class).getNumSupplies());
-			System.out.println("Iron Weapons = " + getSupplyContainer(IronAxeWeapon.class).getNumSupplies());
-			System.out.println("Rubber Weapons = " + getSupplyContainer(RubberAxeWeapon.class).getNumSupplies());
+			IO.println("Units = " + getUnitContainer().getNumSupplies());
+			IO.println("Tree = " + getSupplyContainer(TreeSupply.class).getNumSupplies());
+			IO.println("Rock = " + getSupplyContainer(RockSupply.class).getNumSupplies());
+			IO.println("Iron = " + getSupplyContainer(IronSupply.class).getNumSupplies());
+			IO.println("Rubber = " + getSupplyContainer(RubberSupply.class).getNumSupplies());
+			IO.println("Rock Weapons = " + getSupplyContainer(RockAxeWeapon.class).getNumSupplies());
+			IO.println("Iron Weapons = " + getSupplyContainer(IronAxeWeapon.class).getNumSupplies());
+			IO.println("Rubber Weapons = " + getSupplyContainer(RubberAxeWeapon.class).getNumSupplies());
 		}
 	}
 }

@@ -19,8 +19,8 @@ public final class GUIErrorHandler implements ErrorHandler {
 	// dump warnings too
         @Override
 	public void warning(@NonNull SAXParseException err) {
-		System.out.println ("** Warning, line " + err.getLineNumber () + ", uri " + err.getSystemId ());
-		System.out.println("   " + err.getMessage ());
+			IO.println("** Warning, line " + err.getLineNumber() + ", uri " + err.getSystemId());
+			IO.println("   " + err.getMessage());
 	}
 }
 

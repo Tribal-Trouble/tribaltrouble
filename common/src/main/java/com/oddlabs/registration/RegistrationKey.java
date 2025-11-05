@@ -127,7 +127,7 @@ public final class RegistrationKey {
 	}
 
 	// test
-	public static void main(String[] args) {
+	void main() {
 		//System.out.println(Long.toHexString(decode(args[0])));
 		//System.out.println(encode(Long.parseLong(args[0])));
 		//System.out.println("checksum: " + computeChecksum(Long.parseLong(args[0])));

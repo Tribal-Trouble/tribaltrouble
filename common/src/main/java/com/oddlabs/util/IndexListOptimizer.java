@@ -109,9 +109,9 @@ dumpBuffer(buffer);*/
 
 	private static void dumpBuffer(@NonNull ShortBuffer buffer) {
 		for (int i = 0; i < buffer.remaining(); i++) {
-            System.out.print(buffer.get(buffer.position() + i) + " ");
+			IO.print(buffer.get(buffer.position() + i) + " ");
         }
-		System.out.println();
+		IO.println();
 	}
 
 	private final static class Index {

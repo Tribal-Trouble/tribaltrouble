@@ -52,7 +52,7 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
 		button_load.addMouseClickListener((MouseClickListener)listener);
 
 		HorizButton button_cancel = new CancelButton(120);
-		button_cancel.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
+		button_cancel.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
 
 		// Add objects
 		addChild(button_delete);

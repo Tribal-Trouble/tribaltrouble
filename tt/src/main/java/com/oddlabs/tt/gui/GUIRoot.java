@@ -139,7 +139,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		if (delegate_stack.isEmpty())
 			return null;
 		else
-			return delegate_stack.get(delegate_stack.size() - 1);
+			return delegate_stack.getLast();
 	}
 
 	private void pushModalDelegate(@NonNull ModalDelegate delegate) {
@@ -173,7 +173,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 
 	public @Nullable ModalDelegate getModalDelegate() {
 		if (!modal_delegate_stack.isEmpty())
-			return modal_delegate_stack.get(modal_delegate_stack.size() - 1);
+			return modal_delegate_stack.getLast();
 		else
 			return null;
 	}
@@ -188,7 +188,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 	}
 
 	public void swapFocusBackup(GUIObject o) {
-		focus_backup_stack.remove(focus_backup_stack.size() - 1);
+		focus_backup_stack.removeLast();
 		focus_backup_stack.add(o);
 	}
 
@@ -297,7 +297,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 			case Keyboard.KEY_R:
 				if (event.isControlDown()) {
 					Globals.run_ai = !Globals.run_ai;
-System.out.println("Globals.run_ai = " + Globals.run_ai);
+					IO.println("Globals.run_ai = " + Globals.run_ai);
 				} else {
 //System.out.println("R pressed !!!!");
 //					SupplyManager.debugSpawn();
@@ -328,7 +328,7 @@ System.out.println("Globals.run_ai = " + Globals.run_ai);
 				if (event.isControlDown())
 					Globals.draw_misc = !Globals.draw_misc;
 				else {
-					System.out.println("WARNING: KEY_M pressed!");
+					IO.println("WARNING: KEY_M pressed!");
 					Globals.process_misc = !Globals.process_misc;
 				}
 				break;
@@ -350,7 +350,7 @@ System.out.println("Globals.run_ai = " + Globals.run_ai);
 				break;
 			case Keyboard.KEY_C:
 				if (event.isControlDown()) {
-					System.out.println("crash!");
+					IO.println("crash!");
 					throw new RuntimeException("Ctrl+C pressed -> throwing a runtime exception.");
 				} else {
 					Globals.clear_frame_buffer = !Globals.clear_frame_buffer;
@@ -361,7 +361,7 @@ System.out.println("Globals.run_ai = " + Globals.run_ai);
 				break;
 			case Keyboard.KEY_V:
 				Globals.frustum_freeze = !Globals.frustum_freeze;
-				System.out.println("Globals.frustum_freeze = " + Globals.frustum_freeze);
+				IO.println("Globals.frustum_freeze = " + Globals.frustum_freeze);
 				break;
 //			case Keyboard.KEY_Q:
 //				Renderer.getRenderer().shutdown();
@@ -440,15 +440,15 @@ public RandomVelocityEmitter(Vector3f position,
 */
 		//		break;
 			case Keyboard.KEY_F1:
-System.out.println("*********************************************************");
+				IO.println("*********************************************************");
 				LocalEventQueue.getQueue().debugPrintAnimations();
-System.out.println("Texture.global_size = " + Texture.global_size);
+				IO.println("Texture.global_size = " + Texture.global_size);
 				break;
 			case Keyboard.KEY_F11:
 				LocalInput.toggleFullscreen();
 				break;
 			case Keyboard.KEY_F12:
-System.out.println("GC Forced");
+				IO.println("GC Forced");
 				System.gc();
 				Runtime.getRuntime().runFinalization();
 				System.gc();

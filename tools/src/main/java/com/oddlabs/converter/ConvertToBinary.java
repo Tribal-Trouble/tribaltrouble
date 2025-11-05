@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class ConvertToBinary {
-	public static void main(String @NonNull [] args) {
+	void main(String @NonNull [] args) {
 		if (args.length != 3)
 			throw new RuntimeException("Invalid number of arguments : <xml_file> <src_dir> <build_dir>");
 		String xml_file = args[0];

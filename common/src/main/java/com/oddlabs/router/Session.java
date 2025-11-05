@@ -58,7 +58,7 @@ final class Session {
 					missing_checksum[0] = true;
 					return;
 				}
-				Integer client_checksum = client.getChecksums().get(0);
+				Integer client_checksum = client.getChecksums().getFirst();
 				Integer count = checksum_to_count.get(client_checksum);
 				if (count == null) {
 					count = 1;
@@ -80,9 +80,9 @@ final class Session {
                     if (missing_checksum[0]) {
                         if (client.getChecksums().isEmpty())
                             return;
-                        client_checksum = client.getChecksums().get(0);
+                        client_checksum = client.getChecksums().getFirst();
                     } else
-                        client_checksum = client.getChecksums().remove(0);
+                        client_checksum = client.getChecksums().removeFirst();
                     if (client_checksum != best_checksum[0]) {
                         logger.log(Level.WARNING, "Kicking client because of checksum error: {0} != {1}", new Object[]{client_checksum, best_checksum[0]});
                         clients_to_be_kicked.add(client);

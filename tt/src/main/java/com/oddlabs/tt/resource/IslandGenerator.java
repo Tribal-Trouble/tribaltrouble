@@ -93,7 +93,7 @@ public final class IslandGenerator implements WorldGenerator {
 			base_level = 1;
 		Landscape landscape = new Landscape(num_players, meters_per_world, terrain, detail_prefade, hills, vegetation_amount, supplies_amount, seed, initial_unit_count, random_start_pos);
 		long time_after = System.currentTimeMillis();
-System.out.println("Landscape created in = " + (time_after-time_before));
+			IO.println("Landscape created in = " + (time_after - time_before));
 		BlendInfo[] blend_infos = landscape.getBlendInfos();
 		Texture detail = createDetail(landscape.getDetail(), base_level);
 		float[][] heightmap = landscape.getHeight();

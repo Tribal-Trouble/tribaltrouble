@@ -138,7 +138,7 @@ public final class Settings implements Serializable {
 		}
 		try (InputStream in = Files.newInputStream(settings_file)) {
 			props.load(in);
-		} catch (IOException e) {
+		} catch (IOException _) {
 			logger.warning("WARNING: Could not read settings from " + settings_file + ". Using defaults.");
 			return;
 		}
@@ -219,7 +219,7 @@ public final class Settings implements Serializable {
 		}
 		try {
 			return Integer.parseInt(value);
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException _) {
 			logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
 			return defaultValue;
 		}
@@ -232,7 +232,7 @@ public final class Settings implements Serializable {
 		}
 		try {
 			return Float.parseFloat(value);
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException _) {
 			logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
 			return defaultValue;
 		}
@@ -245,7 +245,7 @@ public final class Settings implements Serializable {
 		}
 		try {
 			return Path.of(value);
-		} catch (InvalidPathException e) {
+		} catch (InvalidPathException _) {
 			logger.warning("Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
 			return defaultValue;
 		}

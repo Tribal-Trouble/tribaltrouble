@@ -161,7 +161,7 @@ public final class KeyManager {
 		int offset = 0;
 		int c;
 
-		System.out.print(pass_prompt);
+		IO.print(pass_prompt);
 		System.out.flush();
 loop:   while (true) {
 			switch (c = in.read()) {

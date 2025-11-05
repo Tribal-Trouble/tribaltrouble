@@ -19,7 +19,7 @@ public abstract class ChatHistory implements ChatListener {
 
 	protected final void addMessage(String msg) {
         while (messages.size() >= MAX_HISTORY) {
-            messages.remove(0);
+            messages.removeFirst();
         }
 		messages.add(msg);
 	}

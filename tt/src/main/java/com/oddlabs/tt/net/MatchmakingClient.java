@@ -424,7 +424,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		SignedObject signed_key = null;
 		Connection wrapped_connection = (Connection)conn.getWrappedConnection();
 		matchmaking_login_interface.setLocalRemoteAddress(wrapped_connection.getLocalAddress());
-System.out.println("wrapped_connection.getLocalAddress()	 = " + wrapped_connection.getLocalAddress()	);
+			IO.println("wrapped_connection.getLocalAddress()	 = " + wrapped_connection.getLocalAddress());
 		int revision = LocalInput.getRevision();
 		if (!Renderer.isRegistered())
                     matchmaking_login_interface.loginAsGuest(revision);

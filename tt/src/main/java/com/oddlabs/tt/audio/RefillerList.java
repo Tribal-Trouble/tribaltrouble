@@ -63,19 +63,19 @@ public final class RefillerList {
                         if (AL.isCreated()) {
                             for (QueuedAudioPlayer player: players) try {
                                 player.refill();
-                            } catch (IOException ioe) {
+                            } catch (IOException _) {
                                 System.err.println("Refill failed for " + player);
                             }
                         }
                         while (players.isEmpty() && !finished) try {
                             RefillerList.this.wait();
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException _) {
                             Thread.interrupted();
                         }
                     }
                     try {
                         Thread.sleep(THREAD_SLEEP_MILLIS);
-                    } catch (InterruptedException e) {
+                    } catch (InterruptedException _) {
                         Thread.interrupted();
                         // ignore
                     }

@@ -87,7 +87,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 	private void notifyIncomingConnection() {
 		InetAddress remote_inet_address = null;
 		if (!network.getDeterministic().isPlayback()) {
-			SocketChannel channel = incoming_connections.get(0);
+			SocketChannel channel = incoming_connections.getFirst();
 			SocketAddress remote_address = channel.socket().getRemoteSocketAddress();
 			remote_inet_address = ((InetSocketAddress)remote_address).getAddress();
 		}
@@ -95,7 +95,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 	}
 
 	private SocketChannel removeNextChannel() {
-		return incoming_connections.remove(0);
+		return incoming_connections.removeFirst();
 	}
 	
 	private SocketChannel getNextConnection() {

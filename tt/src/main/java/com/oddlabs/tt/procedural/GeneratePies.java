@@ -6,7 +6,7 @@ import com.oddlabs.tt.resource.GLIntImage;
 
 public final class GeneratePies {
 
-	public static void main(String[] args) {
+	void main() {
 		int dia = 20;
 		Channel channel;
 		Channel alpha = new Pie(dia, 1f, Pie.CIRCLE).toChannel().channelBrightest(new Pie(dia, 1f, Pie.CIRCLE).toChannel().flipH());
@@ -30,7 +30,7 @@ public final class GeneratePies {
 			} else {
 				new GLIntImage(layer).saveAsPNG("pie" + degrees);
 			}
-			System.out.println("degrees: " + degrees + " - fill %:" + fill);
+			IO.println("degrees: " + degrees + " - fill %:" + fill);
 			canvas.place(layer, x_offset, y_offset);
 			x_offset += 32;
 			if (x_offset > 384) {

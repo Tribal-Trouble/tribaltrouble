@@ -121,7 +121,7 @@ public final class HttpRequest {
 				copy(is, null); // Make sure the entire stream is read
 				return response;
 			}
-		} catch (IOException e) {
+		} catch (IOException _) {
 			int response_code = ((HttpURLConnection)conn).getResponseCode();
 			String response_message = ((HttpURLConnection)conn).getResponseMessage();
 			ByteArrayOutputStream byte_os = new ByteArrayOutputStream();

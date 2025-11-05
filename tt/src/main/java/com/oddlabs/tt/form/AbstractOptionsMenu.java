@@ -297,7 +297,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		Quad[] flags = Languages.getFlags();
 		for (int i = 0; i < languages.length; i++) {
 			label = new IconLabel(flags[i], new Label(languages[i][1], Skin.getSkin().getMultiColumnComboBoxData().getFont()));
-			row = new Row(new GUIObject[]{label}, new Locale(languages[i][0]));
+			row = new Row(new GUIObject[]{label}, Locale.of(languages[i][0]));
 			language_list_box.addRow(row);
 			if (languages[i][0].equals(Settings.getSettings().language))
 				current_row = row;

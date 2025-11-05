@@ -27,7 +27,7 @@ public final class SaveDeterministic extends Deterministic {
 		try {
 			buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 			channel = new FileOutputStream(logging_file).getChannel();
-			System.out.println("Logging to " + logging_file);
+			IO.println("Logging to " + logging_file);
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		}
@@ -56,7 +56,7 @@ public final class SaveDeterministic extends Deterministic {
 		try {
 			flushBuffer();
 			channel.close();
-			System.out.println("Closed log file, bytes written: " + total_bytes_written);
+			IO.println("Closed log file, bytes written: " + total_bytes_written);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -128,7 +128,7 @@ public final class SaveDeterministic extends Deterministic {
             // For bacwards compatibility we convert to Serializable File
             logObject(p.toFile());
             return p;
-        } catch(Throwable all) {
+        } catch(Throwable _) {
             return def;
         }
     }

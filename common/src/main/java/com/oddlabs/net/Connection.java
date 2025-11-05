@@ -186,10 +186,10 @@ public final class Connection extends AbstractConnection implements Handler, Con
 	private boolean writeNextEvent() {
 		if (back_log_list.isEmpty())
 			return false;
-		ARMIEvent event = back_log_list.get(0);
+		ARMIEvent event = back_log_list.getFirst();
 		boolean success = writeEvent(event);
 		if (success)
-			back_log_list.remove(0);
+			back_log_list.removeFirst();
 		return success;
 	}
 
@@ -341,17 +341,17 @@ public final class Connection extends AbstractConnection implements Handler, Con
 				SocketChannel channel = (SocketChannel)key.channel();
 				try {
 					channel.socket().shutdownInput();
-				} catch (IOException e) {
+				} catch (IOException _) {
 					// ignore
 				}
 				try {
 					channel.socket().shutdownOutput();
-				} catch (IOException e) {
+				} catch (IOException _) {
 					// Ignore
 				}
 				try {
 					channel.close();
-				} catch (IOException e) {
+				} catch (IOException _) {
 					// ignore
 				}
 			}

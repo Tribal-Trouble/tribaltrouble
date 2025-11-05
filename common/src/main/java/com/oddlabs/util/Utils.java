@@ -54,7 +54,7 @@ out:
 			}
 		}
 		if (best_address != null) {
-System.out.println("loopback address = " + best_address);
+			IO.println("loopback address = " + best_address);
 			return best_address;
 		}
 		throw new IOException("Could not find a loopback address");

@@ -42,25 +42,25 @@ public final class SerializableDisplayMode implements Serializable {
         SortedSet<DisplayMode> set = new TreeSet<>(new DisplayModeComparator(target_mode));
         for (DisplayMode mode : modes) {
             if (isModeValid(mode)) {
-                System.out.println("modes[i] = " + mode);
+				IO.println("modes[i] = " + mode);
                 set.add(mode);
             }
         }
 
-        System.out.println("target_mode = " + target_mode);
+		IO.println("target_mode = " + target_mode);
         if (set.isEmpty())
             throw new LWJGLException("No modes available");
-        DisplayMode nearest_mode = set.first();
+        DisplayMode nearest_mode = set.getFirst();
         LWJGLException last_exception = new LWJGLException("No suitable mode found");
         DisplayMode mode = null;
         while (!set.isEmpty()) {
-            mode = set.first();
+            mode = set.getFirst();
             set.remove(mode);
             // Only consider modes with the same size as the nearest mode to avoid too many tries
             if (mode.getHeight() != nearest_mode.getHeight() || mode.getWidth() != nearest_mode.getWidth())
                 continue;
             try {
-                System.out.println("considering mode = " + mode);
+				IO.println("considering mode = " + mode);
                 nativeSetMode(mode);
                 createWindow();
                 GL11.glViewport(0, 0, mode.getWidth(), mode.getHeight());
@@ -71,7 +71,7 @@ public final class SerializableDisplayMode implements Serializable {
             } catch (LWJGLException e) {
                 mode = null;
                 last_exception = e;
-                System.out.println(mode + " failed because of " + e.getMessage());
+				IO.println(mode + " failed because of " + e.getMessage());
             }
         }
         last_exception = deterministic.log(last_exception);
@@ -92,7 +92,7 @@ public final class SerializableDisplayMode implements Serializable {
                     return;
                 } catch (LWJGLException e) {
                     last_exception = e;
-                    System.out.println("Failed window: depthbits = " + depth + " | samples = " + samples + " with exception " + e);
+					IO.println("Failed window: depthbits = " + depth + " | samples = " + samples + " with exception " + e);
                 }
             }
         }
@@ -117,7 +117,7 @@ public final class SerializableDisplayMode implements Serializable {
 
     private static void nativeSetMode(@NonNull DisplayMode mode) throws LWJGLException {
         if (!Display.getDisplayMode().equals(mode)) {
-            System.out.println("setting mode = " + mode);
+			IO.println("setting mode = " + mode);
             Display.setDisplayMode(mode);
             Renderer.resetInput();
         }

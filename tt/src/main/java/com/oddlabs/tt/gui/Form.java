@@ -49,7 +49,7 @@ public class Form extends Group {
 			close_button.setPos(getWidth() - close_button.getWidth() - form_data.getCloseRight(),
 								getHeight() - close_button.getHeight() - form_data.getCloseTop());
 			addChild(close_button);
-			close_button.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
+			close_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
 		} else {
 			form = Skin.getSkin().getFormData().getSlimForm();
 			super.compileCanvas(form.getLeftOffset() + spacing,

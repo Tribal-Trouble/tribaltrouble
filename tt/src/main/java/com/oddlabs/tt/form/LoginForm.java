@@ -88,7 +88,7 @@ public final class LoginForm extends Form {
 		ButtonObject button_ok = new HorizButton(Utils.getBundleString(bundle, "login"), BUTTON_WIDTH);
 		button_ok.addMouseClickListener(login_listener);
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
+		button_cancel.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
 
 		group_buttons.addChild(button_newuser);
 		group_buttons.addChild(button_ok);

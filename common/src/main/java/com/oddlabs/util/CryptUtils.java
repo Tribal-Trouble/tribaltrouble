@@ -73,7 +73,7 @@ public final class CryptUtils {
 			}
 		}}, null);
 		https_connection.setSSLSocketFactory(ssl_context.getSocketFactory());
-		https_connection.setHostnameVerifier((String hostname, SSLSession session) -> true);
+		https_connection.setHostnameVerifier((String _, SSLSession _) -> true);
 	}
 /*
 	public final static void main(String[] args) {

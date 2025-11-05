@@ -79,7 +79,7 @@ public abstract class AbstractElementNode<T> extends BoundingBox {
 	private static void buildRockSupplies(@NonNull World world, @NonNull List<int[]> positions) {
 		SpriteKey[] sprite_renderers = world.getLandscapeResources().getRockFragments();
 		int num_supplies = positions.size();
-System.out.println("num_rocks = " + num_supplies);
+		IO.println("num_rocks = " + num_supplies);
 		for (int i = 0; i < num_supplies; i++) {
 			int[] coords = positions.get(i);
 			int grid_x = coords[0];
@@ -94,7 +94,7 @@ System.out.println("num_rocks = " + num_supplies);
 	private static void buildIronSupplies(@NonNull World world, @NonNull List<int[]> positions) {
 		SpriteKey[] sprite_renderers = world.getLandscapeResources().getIronFragments();
 		int num_supplies = positions.size();
-System.out.println("num_iron = " + num_supplies);
+		IO.println("num_iron = " + num_supplies);
 		for (int i = 0; i < num_supplies; i++) {
 			int[] coords = positions.get(i);
 			int grid_x = coords[0];
@@ -125,7 +125,7 @@ System.out.println("num_iron = " + num_supplies);
 				new Plants(world, plants[t][2*p], plants[t][2*p+1], dir_x, dir_y, world.getLandscapeResources().getPlants()[terrain.ordinal()][t]);
 			}
 		}
-System.out.println("num_plants = " + num_plants);
+		IO.println("num_plants = " + num_plants);
 	}
 
 	public abstract void visit(ElementNodeVisitor<T> visitor);

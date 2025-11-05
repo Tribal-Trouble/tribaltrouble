@@ -65,7 +65,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 	}
 
 	public final Controller getCurrentController() {
-		return controller_stack.get(controller_stack.size() - 1);
+		return controller_stack.getLast();
 	}
 
     @Override
@@ -183,13 +183,13 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 
 	public final void swapController(Controller controller) {
 		assert !isDead();
-		controller_stack.remove(controller_stack.size() - 1);
+		controller_stack.removeLast();
 		pushController(controller);
 	}
 
 	public final void popController() {
 		assert !isDead();
-		controller_stack.remove(controller_stack.size() - 1);
+		controller_stack.removeLast();
 		decide();
 	}
 
@@ -204,11 +204,11 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		if (controller_stack.size() > 1)
 			return controller_stack.get(1); // Jump over the default controller
 		else
-			return controller_stack.get(0);
+			return controller_stack.getFirst();
 	}
 
 	protected final void clearControllerStack() {
-		Controller default_controller = controller_stack.get(0);
+		Controller default_controller = controller_stack.getFirst();
 		controller_stack.clear();
 		controller_stack.add(default_controller);
 	}

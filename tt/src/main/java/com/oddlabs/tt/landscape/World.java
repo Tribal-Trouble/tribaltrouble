@@ -145,7 +145,7 @@ public final class World {
 	}
 
 	private World(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel @NonNull [] tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
-		System.out.println("****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
+		IO.println("****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
 		this.landscape_resources = landscape_resources;
 		this.races_resources = races_resources;
 		this.audio_impl = audio_implementation;
@@ -172,7 +172,7 @@ public final class World {
 		player_list.toArray(players);
 
 		long time_stop = System.currentTimeMillis();
-		System.out.println("****************** Finished landscape in " + ((time_stop - time_start)/1000f) +" sec ********************");
+		IO.println("****************** Finished landscape in " + ((time_stop - time_start) / 1000f) + " sec ********************");
 		this.supply_managers = new SupplyManagers(this);
 		this.unit_grid = new UnitGrid(world);
 		RegionBuilder.buildRegions(unit_grid, world_info.starting_locations[0][0], world_info.starting_locations[0][1]);

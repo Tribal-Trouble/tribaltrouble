@@ -22,7 +22,7 @@ public final class Audio extends NativeResource {
 		Wave wave;
 		try {
 			wave = new Wave(file);
-		} catch (UnsupportedAudioFileException | IOException e) {
+		} catch (UnsupportedAudioFileException | IOException _) {
 			// Assume it's an ogg vorbis file
 			wave = loadOGG(file);
 		}

@@ -54,7 +54,7 @@ public final class Globals {
 
 	public static void switchBoundingMode() {
 		bounding = bounding.next();
-		System.out.println("Bounding mode: " + bounding);
+		IO.println("Bounding mode: " + bounding);
 	}
 
 	public static boolean isBoundsEnabled(@NonNull BoundingMode mode) {

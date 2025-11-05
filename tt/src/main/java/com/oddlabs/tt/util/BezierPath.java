@@ -43,7 +43,7 @@ public final class BezierPath {
 
 	public void dumpPoints() {
             for (float[] point : points) {
-                System.out.println("points[i][0] = " + point[0] + " | points[i][1] = " + point[1]);
+				IO.println("points[i][0] = " + point[0] + " | points[i][1] = " + point[1]);
             }
 	}
 

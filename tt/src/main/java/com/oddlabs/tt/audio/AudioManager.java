@@ -40,7 +40,7 @@ public final class AudioManager implements AudioImplementation {
 			try {
 				AudioSource source = new AudioSource();
 				list.add(source);
-			} catch (OpenALException e) {
+			} catch (OpenALException _) {
 				break;
 			}
 		}

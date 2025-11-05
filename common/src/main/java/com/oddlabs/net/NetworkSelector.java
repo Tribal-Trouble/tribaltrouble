@@ -94,10 +94,10 @@ public final class NetworkSelector {
 	private long processPings(long millis) {
 		long next_select_timeout = PING_DELAY;
 		while (!ping_timeouts.isEmpty()) {
-			TimedConnection first_conn = ping_timeouts.get(0);
+			TimedConnection first_conn = ping_timeouts.getFirst();
 			long first = first_conn.getTimeout();
 			if (first <= millis) {
-				ping_timeouts.remove(0);
+				ping_timeouts.removeFirst();
 				first_conn.getConnection().timeout();
 			} else {
 				next_select_timeout = first - millis;
@@ -105,10 +105,10 @@ public final class NetworkSelector {
 			}
 		}
 		while (!ping_connections.isEmpty()) {
-			TimedConnection first_conn = ping_connections.get(0);
+			TimedConnection first_conn = ping_connections.getFirst();
 			long first = first_conn.getTimeout();
 			if (first <= millis) {
-				ping_connections.remove(0);
+				ping_connections.removeFirst();
 				Connection conn = first_conn.getConnection();
 				if (conn.isConnected()) {
 					conn.doPing();

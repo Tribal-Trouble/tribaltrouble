@@ -16,8 +16,8 @@ public final class GeometryErrorHandler implements ErrorHandler {
 
 	// dump warnings too
 	public void warning(@NonNull SAXParseException err) {
-		System.out.println ("** Warning, line " + err.getLineNumber () + ", uri " + err.getSystemId ());
-		System.out.println("   " + err.getMessage ());
+		IO.println("** Warning, line " + err.getLineNumber() + ", uri " + err.getSystemId());
+		IO.println("   " + err.getMessage());
 	}
 }
 

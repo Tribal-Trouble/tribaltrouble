@@ -16,7 +16,7 @@ public final class ShaderTest {
 			testShader = FixedFunctionShader.create();
 			testRenderer = new ShaderRenderer(testShader);
 			initialized = true;
-			System.out.println("Shader system initialized successfully");
+			IO.println("Shader system initialized successfully");
 		} catch (Exception e) {
 			System.err.println("Shader initialization failed: " + e.getMessage());
 			e.printStackTrace();

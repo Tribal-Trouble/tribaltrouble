@@ -109,7 +109,7 @@ updateTexture(WIDTH, HEIGHT, pixel_data);
 				Display.update();
 }
 long total_time = System.currentTimeMillis() - start_time;
-System.out.println("total_time = " + total_time);
+				IO.println("total_time = " + total_time);
 
 			}
 			Display.destroy();

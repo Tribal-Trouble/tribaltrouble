@@ -52,7 +52,7 @@ public final class ChatLine extends EditLine {
                 }
             }
 		if (num_hits == 1) {
-			String new_word = new_words.get(0);
+			String new_word = new_words.getFirst();
 			line.replace(word_start, word_end, new_word);
 			// move index to end of new_word
 			int new_index = word_start + new_word.length();

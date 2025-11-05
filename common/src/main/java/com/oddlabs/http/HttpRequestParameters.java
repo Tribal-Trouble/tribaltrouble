@@ -27,7 +27,7 @@ public final class HttpRequestParameters {
             buffer.append('=');
             try {
                 buffer.append(URLEncoder.encode(parameter.getValue(), "UTF-8"));
-            } catch (UnsupportedEncodingException never) { }
+            } catch (UnsupportedEncodingException _) { }
             if (parameter_entries.hasNext())
                 buffer.append('&');
         }

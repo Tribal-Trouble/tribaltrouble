@@ -53,13 +53,13 @@ public final class SkeletonLoader {
 			String parent = bone_parent_map.get(name);
 			if (bone_parent_map.get(parent) == null) {
 			   if (root != null) {
-				   System.out.println("WARNING: Multiple roots in skeleton, root = " + root + ", additional root = " + name);
+					IO.println("WARNING: Multiple roots in skeleton, root = " + root + ", additional root = " + name);
 				   parent = root;
 				   bone_parent_map.put(name, parent);
 			   } else
 				   root = name;
 			}
-            List<String> parent_children = bone_children_map.computeIfAbsent(parent, k -> new ArrayList<>());
+            List<String> parent_children = bone_children_map.computeIfAbsent(parent, _ -> new ArrayList<>());
             parent_children.add(name);
 		}
 		Bone bone_root = buildBone((byte)0, bone_children_map, root, name_to_bone_map);

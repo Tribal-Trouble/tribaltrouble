@@ -22,17 +22,17 @@ public final class MainMenu extends Menu {
 	private void addGameTypeButtons() {
 		MenuButton tutorial = new MenuButton(Utils.getBundleString(bundle, "tutorial"), COLOR_NORMAL, COLOR_ACTIVE);
 		addChild(tutorial);
-		tutorial.addMouseClickListener((int button, int x, int y, int clicks) -> setMenu(new TutorialForm(getNetwork(), getGUIRoot())));
+		tutorial.addMouseClickListener((int _, int _, int _, int _) -> setMenu(new TutorialForm(getNetwork(), getGUIRoot())));
 		MenuButton campaign_menu = new MenuButton(Utils.getBundleString(bundle, "campaign"), COLOR_NORMAL, COLOR_ACTIVE);
 		addChild(campaign_menu);
-		campaign_menu.addMouseClickListener((int button, int x, int y, int clicks) -> setMenu(new CampaignForm(getNetwork(), getGUIRoot(), MainMenu.this)));
+		campaign_menu.addMouseClickListener((int _, int _, int _, int _) -> setMenu(new CampaignForm(getNetwork(), getGUIRoot(), MainMenu.this)));
 		MenuButton single_player = new MenuButton(Utils.getBundleString(bundle, "skirmish"), COLOR_NORMAL, COLOR_ACTIVE);
 		addChild(single_player);
-		single_player.addMouseClickListener((int button, int x, int y, int clicks) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(), MainMenu.this)));
+		single_player.addMouseClickListener((int _, int _, int _, int _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(), MainMenu.this)));
 		if (!Settings.getSettings().hide_multiplayer) {
 			MenuButton multi_player = new MenuButton(Utils.getBundleString(bundle, "multiplayer"), COLOR_NORMAL, COLOR_ACTIVE);
 			addChild(multi_player);
-			multi_player.addMouseClickListener((int button, int x, int y, int clicks) -> {
+			multi_player.addMouseClickListener((int _, int _, int _, int _) -> {
                 if (Network.getMatchmakingClient().isConnected()) {
                     new SelectGameMenu(getNetwork(), getGUIRoot(), MainMenu.this);
                 } else {

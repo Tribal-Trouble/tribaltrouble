@@ -273,7 +273,7 @@ public final class Player implements PlayerInterface {
 		List<LandscapeTarget> target_list = filter.getResult();
 		Building b = null;
 		if (!target_list.isEmpty()) {
-			Target t = target_list.get(0);
+			Target t = target_list.getFirst();
 			b = new Building(this, getRace().getBuildingTemplate(building_type), t.getGridX(), t.getGridY());
 			b.place();
 			b.repair(1000);

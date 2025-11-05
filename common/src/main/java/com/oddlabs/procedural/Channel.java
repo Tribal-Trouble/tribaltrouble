@@ -985,7 +985,7 @@ public final class Channel {
 		list.add(new int[]{init_x, init_y});
 
 		while (!list.isEmpty()) {
-			int[] coords = list.remove(0);
+			int[] coords = list.removeFirst();
 			int x = coords[0];
 			int y = coords[1];
 			putPixel(x, y, value);
@@ -1025,7 +1025,7 @@ public final class Channel {
 			List<int[]> list = new java.util.LinkedList<>();
 			list.add(new int[]{init_x, init_y});
 			while (!list.isEmpty()) {
-				int[] coords = list.remove(0);
+				int[] coords = list.removeFirst();
 				int x = coords[0];
 				int y = coords[1];
 				tmp.putPixel(x, y, -1f);
@@ -1073,7 +1073,7 @@ public final class Channel {
 			List<int[]> list = new java.util.LinkedList<>();
 			list.add(new int[]{init_x, init_y});
 			while (!list.isEmpty()) {
-				int[] coords = list.remove(0);
+				int[] coords = list.removeFirst();
 				int x = coords[0];
 				int y = coords[1];
 				tmp.putPixel(x, y, -1f);

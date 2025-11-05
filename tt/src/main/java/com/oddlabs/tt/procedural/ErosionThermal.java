@@ -310,7 +310,7 @@ public final class ErosionThermal {
 	}
 	
 	private static void save(int i) {
-		System.out.println("height " + i + " checksum: " + height.sum());
+		IO.println("height " + i + " checksum: " + height.sum());
 		if (i < 10) {
 			new GLIntImage(height.toLayer()).saveAsBMP("height00" + i);
 		} else if (i < 100) {
@@ -325,17 +325,17 @@ public final class ErosionThermal {
 		float average = Analyzer.average(slope);
 		float deviation = Analyzer.deviation(slope);
 		float score = deviation/average;
-		System.out.println(score);
+		IO.println(score);
 	}
 	
 	private static void timer(int i, long start) {
 		long stop = System.currentTimeMillis();
-		System.out.println((stop - start)/1000f);
+		IO.println((stop - start) / 1000f);
 	}
 	
 	private static void diff(int i) {
 		float diff = old.channelDifference(height).sum();
-		System.out.println(diff/(old.width*old.height));
+		IO.println(diff / (old.width * old.height));
 		old = height.copy();
 	}
 

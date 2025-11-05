@@ -504,7 +504,7 @@ else
 		getUnitGrid().scan(filter, grid_x, grid_y);
 		List<? extends Target> target_list = filter.getResult();
 		if (!target_list.isEmpty()) {
-			Target target = target_list.get(0);
+			Target target = target_list.getFirst();
 			getOwner().placeBuilding(selection, building_type, target.getGridX(), target.getGridY());
 			return true;
 		} else {

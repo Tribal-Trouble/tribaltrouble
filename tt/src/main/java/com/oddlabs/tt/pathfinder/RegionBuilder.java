@@ -53,7 +53,7 @@ public final class RegionBuilder {
             }
         }
 		ProgressForm.progress(1f);
-System.out.println("actual_num_regions = " + actual_num_regions);
+		IO.println("actual_num_regions = " + actual_num_regions);
 	}
 
 	private static void testNeighbour(@NonNull UnitGrid unit_grid, int grid_x, int grid_y, Region region) {

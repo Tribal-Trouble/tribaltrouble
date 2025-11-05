@@ -31,7 +31,7 @@ public final class LoadDeterministic extends Deterministic {
 			else
 				channel = new FileInputStream(logging_file).getChannel();
 			buffer.limit(0);
-			System.out.println("Reading log from " + logging_file);
+			IO.println("Reading log from " + logging_file);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -58,7 +58,7 @@ public final class LoadDeterministic extends Deterministic {
 		if (num_defaults > MIN_DEFAULTS) {
 			num_defaults--;
 			if (isEndOfLog())
-				System.out.println("***** End of log ***** ");
+				IO.println("***** End of log ***** ");
 			return true;
 		} else {
 			fillBuffer(num_bytes);
@@ -107,7 +107,7 @@ public final class LoadDeterministic extends Deterministic {
 		fillBuffer(DEFAULTS_SIZE);
 		num_defaults = buffer.getShort();
 		if (isEndOfLog())
-			System.out.println("***** End of log *****");
+			IO.println("***** End of log *****");
 	}
 
     @Override
@@ -170,7 +170,7 @@ public final class LoadDeterministic extends Deterministic {
             // Deserialize from File
             File file = logObject(def.toFile());
             return file.toPath();
-        } catch(Throwable all) {
+        } catch(Throwable _) {
             return def;
         }
     }

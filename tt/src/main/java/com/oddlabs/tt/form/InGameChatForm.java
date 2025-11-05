@@ -53,7 +53,7 @@ public final class InGameChatForm extends Form implements ChatListener {
 
 		HorizButton button_send = new HorizButton(Utils.getBundleString(bundle, "send"), BUTTON_WIDTH);
 		addChild(button_send);
-		button_send.addMouseClickListener((int button, int x, int y, int clicks) -> chat_line.enterPressedAll());
+		button_send.addMouseClickListener((int _, int _, int _, int _) -> chat_line.enterPressedAll());
 
 		chat_box = new TextBox(CHAT_WIDTH + BUTTON_WIDTH, CHAT_HEIGHT, Skin.getSkin().getEditFont(), -1);
 		addChild(chat_box);
@@ -125,7 +125,7 @@ public final class InGameChatForm extends Form implements ChatListener {
 			if (!chat.isEmpty()) {
 				chat_line.clear();
 				Map<String,ChatMethod> commands = new HashMap<>();
-				ChatMethod cheat = (InfoPrinter info_printer1, String text1) -> viewer.getCheat().enable();
+				ChatMethod cheat = (InfoPrinter _, String _) -> viewer.getCheat().enable();
 				commands.put("iamacheater", cheat);
 				if (!ChatCommand.filterCommand(info_printer, commands, chat)) {
 					viewer.getPeerHub().sendChat(chat, radio_button_group.getMarked() == radio_team);

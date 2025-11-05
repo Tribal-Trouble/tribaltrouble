@@ -212,7 +212,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 		HorizButton logout_button = new HorizButton(Utils.getBundleString(bundle, "logout"), BUTTON_WIDTH);
 		addChild(logout_button);
-		logout_button.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
+		logout_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
 
 		panel_group.place();
 		logout_button.place(ORIGIN_BOTTOM_RIGHT);

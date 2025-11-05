@@ -220,9 +220,9 @@ public final class ErosionHydraulic {
 	
 	private static void save(int i) {
 		if (i%10 == 0) {
-			System.out.println("height   " + i + " checksum: " + height.sum());
-			System.out.println("water    " + i + " checksum: " + water.sum());
-			if (sediment != null) System.out.println("sediment " + i + " checksum: " + sediment.sum());
+			IO.println("height   " + i + " checksum: " + height.sum());
+			IO.println("water    " + i + " checksum: " + water.sum());
+			if (sediment != null) IO.println("sediment " + i + " checksum: " + sediment.sum());
 			//System.out.println("material " + i + " checksum: " + (height.sum() + sediment.sum()));
 			if (i < 10) {
 				new GLIntImage(height.toLayer()).saveAsBMP("height00" + i);
@@ -245,17 +245,17 @@ public final class ErosionHydraulic {
 		float average = Analyzer.average(slope);
 		float deviation = Analyzer.deviation(slope);
 		float score = deviation/average;
-		System.out.println(score);
+		IO.println(score);
 	}
 	
 	private static void timer(int i, long start) {
 		long stop = System.currentTimeMillis();
-		System.out.println((stop - start)/1000f);
+		IO.println((stop - start) / 1000f);
 	}
 	
 	private static void diff(int i) {
 		float diff = old.channelDifference(height).sum();
-		System.out.println(diff/(old.width*old.height));
+		IO.println(diff / (old.width * old.height));
 		old = height.copy();
 	}
 

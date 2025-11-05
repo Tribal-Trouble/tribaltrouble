@@ -81,7 +81,7 @@ public final class FileLoader implements FileLoaderInterface {
 		if (file_channel != null) {
 			try {
 				file_channel.close();
-			} catch (IOException e) {
+			} catch (IOException _) {
 				//ignore
 			}
 		}

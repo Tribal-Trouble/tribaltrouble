@@ -46,14 +46,14 @@ public final class KeyboardInput {
 					AnimationManager.warpTime(LARGE_WARP);
 					break;
 				case Keyboard.KEY_Q:
-					System.out.println("Exit forced with ctrl+Q");
+					IO.println("Exit forced with ctrl+Q");
 					Renderer.shutdown();
 					break;
 				case Keyboard.KEY_SPACE:
 					AnimationManager.toggleTimeStop();
 					break;
 				case Keyboard.KEY_END:
-					System.out.println("WARP UNTIL END OF EVENT LOG");
+					IO.println("WARP UNTIL END OF EVENT LOG");
 					AnimationManager.warpTime(GOTO_END_OF_LOG_WARP);
 					break;
 				default:

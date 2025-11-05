@@ -144,7 +144,7 @@ public final class Client implements ARMIEventBroker, GameClientInterface, Conne
 	public void handle(Object sender, @NonNull ARMIEvent armi_event) {
 		try {
 			armi_event.execute(interface_methods, this);
-		} catch (IllegalARMIEventException e) {
+		} catch (IllegalARMIEventException _) {
 			error();
 		}
 	}

@@ -95,7 +95,7 @@ public final class Renderer {
 
 	private static final Logger logger = Logger.getLogger(Renderer.class.getName());
 
-	private final Locale default_locale = new Locale(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(), "default");
+	private final Locale default_locale = Locale.of(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(), "default");
 	private final Matrix4f proj = new Matrix4f();
 
 	private static AbstractAudioPlayer music;
@@ -221,7 +221,7 @@ public final class Renderer {
                 if (!log.isDirectory() || log.equals(last_log_dir) || log.equals(new_log_dir))
                     continue;
                 deleteLog(log.toPath());
-            } catch (IOException ignored) {
+            } catch (IOException _) {
 
             }
 	}
@@ -309,7 +309,7 @@ public final class Renderer {
 			language = default_language;
 		if (!Languages.hasLanguage(language))
 			language = "en";
-		Locale.setDefault(new Locale(language));
+		Locale.setDefault(Locale.of(language));
 		Settings.setSettings(settings);
 		Path last_event_log_dir = settings.last_event_log_dir;
 		boolean crashed = settings.crashed;
@@ -426,7 +426,7 @@ e.printStackTrace();
 		try {
 			int result = Integer.parseInt(result_string);
 			return result;
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException _) {
 			return 0;
 		}
 	}
@@ -440,7 +440,7 @@ e.printStackTrace();
 				return value;
 			} else
 				return result;
-		} catch (Exception e) {
+		} catch (Exception _) {
 			logger.warning("Could not access preferences");
 			return value;
 		}
@@ -506,7 +506,7 @@ e.printStackTrace();
 			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
 			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "network_not_available_caption"),
 						Utils.getBundleString(bundle, "network_not_available_message"),
-						Utils.getBundleString(bundle, "quit"), (int button, int x, int y, int clicks) -> shutdown()));
+						Utils.getBundleString(bundle, "quit"), (int _, int _, int _, int _) -> shutdown()));
 		}
 		// We'll leave out the reporting, since checksum errors can happen when a peer is disconnected halfway through it's EOT
 		// broadcast

@@ -34,15 +34,15 @@ public final class FontRenderer {
 		   }
 		 */
         if (7 != args.length) {
-            System.out.println("FontRenderer <font_name> <font_size> <max_chars> <font_info_dir> <font_tex_dir> <font_tex_classpath>");
+			IO.println("FontRenderer <font_name> <font_size> <max_chars> <font_info_dir> <font_tex_dir> <font_tex_classpath>");
         }
 		new FontRenderer(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]),
 				args[4], args[5], args[6]);
-		System.out.println("Conversion complete\n");
+		IO.println("Conversion complete\n");
 	}
 
 	public FontRenderer(@NonNull String src_font_name, int font_size, int max_image_size, int max_chars, String font_info_dir, String font_tex_dir, String font_tex_classpath) throws Exception {
-		System.out.println("Converting first " + max_chars + " chars of " + src_font_name + " size " + font_size);
+		IO.println("Converting first " + max_chars + " chars of " + src_font_name + " size " + font_size);
 		String dest_font_name = src_font_name.toLowerCase();
         java.awt.Font src_font;
 		try (InputStream font_is = Utils.makeURL("/" + dest_font_name + ".ttf").openStream()) {
@@ -70,7 +70,7 @@ public final class FontRenderer {
 		Rectangle2D glyph_bounds2 = glyph_shape2.getBounds2D();
 		float space_width_f= (int)Math.ceil(glyph_bounds2.getMinX()) - (int)Math.floor(glyph_bounds0.getMaxX());
 		int space_width = (int)Math.ceil(space_width_f*SPACE_SCALE) + 2*GLYPH_X_BORDER;
-		System.out.println("space_width: " + space_width);
+		IO.println("space_width: " + space_width);
 
 		// calculate optimal image width and height
 		int min_area = Integer.MAX_VALUE;
@@ -92,7 +92,7 @@ public final class FontRenderer {
 		}
 
 		// draw font images
-		System.out.println("optimal width*height: " + best_width + "*" + best_height);
+		IO.println("optimal width*height: " + best_width + "*" + best_height);
 		int max_glyph_height = heights[1];
 		int max_baseline_height = heights[2];
 		Channel white_alpha = drawFont(src_font, font_tex_classpath, font_info_dir, dest_font_name, font_size, max_glyph_height, max_baseline_height, best_width, best_height, space_width, chars, true);
@@ -127,11 +127,11 @@ public final class FontRenderer {
 		int current_x = 0;
 
 		// place chars
-		System.out.println("Calculating char placement for width = " + image_width);
-		System.out.print("Progress");
+		IO.println("Calculating char placement for width = " + image_width);
+		IO.print("Progress");
 		for (int i = 0; i < chars.length; i++) {
 			if (i % 1000 == 0) {
-				System.out.print(".");
+				IO.print(".");
 			}
 			char ch = (char)i;
 			if (src_font.canDisplay(chars[ch])) {
@@ -162,7 +162,7 @@ public final class FontRenderer {
 				current_x += glyph_width;
 			}
 		}
-		System.out.println("done");
+		IO.println("done");
 		int max_glyph_height = max_under_baseline_height + max_baseline_height;
 		int image_height = Utils.nextPowerOf2(max_glyph_height*num_lines);
 		return new int[]{image_height, max_glyph_height, max_baseline_height};
@@ -184,11 +184,11 @@ public final class FontRenderer {
 			key_map = new Quad[Character.MAX_VALUE];
 		}
 
-		System.out.println("Drawing chars for width*height = " + image_width + "*" + image_height);
-		System.out.print("Progress");
+		IO.println("Drawing chars for width*height = " + image_width + "*" + image_height);
+		IO.print("Progress");
 		for (int i = 0; i < chars.length; i++) {
 			if (i % 1000 == 0) {
-				System.out.print(".");
+				IO.print(".");
 			}
 			char ch = (char)i;
 			if (src_font.canDisplay(chars[ch])) {
@@ -227,13 +227,13 @@ public final class FontRenderer {
 			}
 		}
 
-		System.out.println("done");
+		IO.println("done");
 		if (create_xml) {
 			String tex_name = font_tex_classpath + "/" + dest_font_name + "_" + font_size;
 			FontInfo font_info = new FontInfo(tex_name, key_map, GLYPH_X_OVERLAP, GLYPH_Y_OVERLAP, max_glyph_height);
 			String font_file_name = font_info_dir + File.separator + dest_font_name + "_" + font_size + ".font";
 			font_info.saveToFile(font_file_name);
-			System.out.println("Number of valid chars found: " + valid_chars);
+			IO.println("Number of valid chars found: " + valid_chars);
 		}
 
 		Channel channel = new Channel(image_width, image_height);

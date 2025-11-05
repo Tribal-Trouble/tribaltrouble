@@ -65,7 +65,7 @@ public final class ProfilesForm extends Form {
 
 		HorizButton logout_button = new HorizButton(Utils.getBundleString(bundle, "logout"), 100);
 		addChild(logout_button);
-		logout_button.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
+		logout_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
 
 		label_headline.place();
 		profile_list_box.place(label_headline, BOTTOM_LEFT);

@@ -100,7 +100,7 @@ public final class TutorialForm extends Form {
 
 		HorizButton cancel_button = new CancelButton(120);
 		addChild(cancel_button);
-		cancel_button.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
+		cancel_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
 
 		// Place objects
 		headline.place();
@@ -205,7 +205,7 @@ public final class TutorialForm extends Form {
 				break;
 			case TUTORIAL_BATTLE:
 				ingame_info = new TutorialInGameInfo();
-				game_network = doStartNewGame(network, gui_root, ingame_info, new TutorialAction((WorldViewer viewer) -> new TutorialOverTrigger(), ingame_info), Player.INITIAL_UNIT_COUNT, 6);
+				game_network = doStartNewGame(network, gui_root, ingame_info, new TutorialAction((WorldViewer _) -> new TutorialOverTrigger(), ingame_info), Player.INITIAL_UNIT_COUNT, 6);
 				game_network.getClient().getServerInterface().setPlayerSlot(0, PlayerSlot.HUMAN, RacesResources.RACE_NATIVES, 0, true, PlayerSlot.AI_NONE);
 				game_network.getClient().getServerInterface().setPlayerSlot(1, PlayerSlot.AI, RacesResources.RACE_VIKINGS, 1, true, PlayerSlot.AI_BATTLE_TUTORIAL);
 				game_network.getClient().setUnitInfo(1, new UnitInfo(true, true, 0, false, 0, 15, 0, 0));

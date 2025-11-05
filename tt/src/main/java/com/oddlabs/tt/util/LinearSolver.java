@@ -41,7 +41,7 @@ dumpEquation(eq_system);*/
             }
             float left_side = eq_system1[eq_system[0].length - 1];
             if (!isEqual(right_side, left_side)) {
-                System.out.println("mismatch " + right_side + " != " + left_side);
+				IO.println("mismatch " + right_side + " != " + left_side);
                 return false;
             }
         }
@@ -146,9 +146,9 @@ dumpEquation(eq_system);*/
      */
     public static void dumpSolution(float @NonNull [] solution) {
         for (float v : solution) {
-            System.out.print(v + " ");
+			IO.print(v + " ");
         }
-        System.out.println();
+		IO.println();
     }
 
     /*	public final static void main(String[] args) {

@@ -42,7 +42,7 @@ public final class TutorialOverDelegate extends CameraDelegate implements Updata
 		HorizButton button_restart = new HorizButton(Utils.getBundleString(bundle, "restart_tutorial"), 170);
 		button_restart.addMouseClickListener(new StartTutorialListener(tutorial_number));
 		HorizButton button_end = new HorizButton(Utils.getBundleString(bundle, "main_menu"), 170);
-		button_end.addMouseClickListener((int button, int x1, int y1, int clicks) -> {
+		button_end.addMouseClickListener((int _, int _, int _, int _) -> {
                     viewer.close();
                     TutorialOverDelegate.this.setDisabled(true);
                 });

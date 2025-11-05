@@ -18,7 +18,7 @@ public abstract class IntervalTrigger {
 	public IntervalTrigger(float check_interval, float after_done_time, AnimationManager animation_manager) {
 		this.after_done_time = after_done_time;
 		this.animation_manager = animation_manager;
-		this.timer = new TimerAnimation(animation_manager, (Object anim) -> check(), check_interval);
+		this.timer = new TimerAnimation(animation_manager, (Object _) -> check(), check_interval);
 		timer.start();
 	}
 

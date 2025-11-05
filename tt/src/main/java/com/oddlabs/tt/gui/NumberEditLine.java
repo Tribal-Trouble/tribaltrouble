@@ -45,7 +45,7 @@ public class NumberEditLine extends EditLine {
 
 		try {
 			value = crop(Integer.parseInt(str));
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException _) {
 			// ignore exception, assume minimum value
 			value = max_value;
 		}

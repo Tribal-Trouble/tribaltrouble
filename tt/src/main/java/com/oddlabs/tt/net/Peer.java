@@ -43,10 +43,10 @@ public final class Peer implements PeerHubInterface {
 
 	public void executeEvents(int tick) throws IllegalARMIEventException {
 		while (!event_queue.isEmpty()) {
-			GameEvent game_event = event_queue.get(0);
+			GameEvent game_event = event_queue.getFirst();
 			if (game_event.tick != tick)
 				return;
-			event_queue.remove(0);
+			event_queue.removeFirst();
 			game_event.event.execute(interface_methods, argument_reader, player);
 		}
 	}

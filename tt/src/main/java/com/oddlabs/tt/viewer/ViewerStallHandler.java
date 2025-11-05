@@ -39,7 +39,7 @@ final class ViewerStallHandler implements StallHandler {
     @Override
     public void processStall(int tick) {
         if (stall_tick != tick) {
-            System.out.println("Stalled on tick " + tick);
+			IO.println("Stalled on tick " + tick);
             stall_tick = tick;
             resetStallTime();
         }

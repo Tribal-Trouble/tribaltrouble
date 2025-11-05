@@ -30,7 +30,7 @@ public final class TunnelledConnectionListener extends AbstractConnectionListene
 	}
 	
 	private TunnelledConnection getNextTunnel() {
-		return incoming_connections.remove(0);
+		return incoming_connections.removeFirst();
 	}
 
         @Override

@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -257,7 +258,7 @@ public class MultiPartFormOutputStream{
 		// close input stream, but ignore any possible exception for it
 		try{
 			is.close();
-		}catch (IOException e){}
+		}catch (IOException _){}
 		out.writeBytes(NEWLINE);
 		out.flush();
 	}
@@ -387,8 +388,8 @@ public class MultiPartFormOutputStream{
 	}
 
 	//Test method
-	public static void main(String[] args) throws Exception{
-		URL url = new URL("http://www.domain.com/webems/upload.do");
+	void main() throws Exception{
+		URL url = URI.create("http://www.domain.com/webems/upload.do").toURL();
 		//--create a boundary string
 		String boundary = MultiPartFormOutputStream.createBoundary();
 		URLConnection urlConn = MultiPartFormOutputStream.createConnection(url);
@@ -411,7 +412,7 @@ public class MultiPartFormOutputStream{
 		BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 		String line = "";
 		while ((line = in.readLine()) != null){
-			System.out.println(line);
+			IO.println(line);
 		}
 		in.close();
 	}

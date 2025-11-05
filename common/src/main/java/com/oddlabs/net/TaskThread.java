@@ -64,11 +64,11 @@ public final class TaskThread {
 				while (tasks.isEmpty()) {
 					try {
 						lock.wait();
-					} catch (InterruptedException e) {
+					} catch (InterruptedException _) {
 						// ignore
 					}
 				}
-				task = tasks.get(0);
+				task = tasks.getFirst();
 				callable = lookupCallable(task);
 			}
 			TaskResult<?> result;
@@ -80,7 +80,7 @@ public final class TaskThread {
 			}
 			synchronized (lock) {
 				task.result = result;
-				tasks.remove(0);
+				tasks.removeFirst();
 				finished_tasks.add(task);
 			}
 		}
@@ -118,13 +118,13 @@ public final class TaskThread {
 				if (!deterministic.log(!finished_tasks.isEmpty())) {
 					// Check for cancelled task blocking thread
 					if (!tasks.isEmpty()) {
-						BlockingTask current_task = tasks.get(0);
+						BlockingTask current_task = tasks.getFirst();
 						if (current_task.cancelled && thread != null)
 							thread.interrupt();
 					}
 					return;
 				}
-				task = deterministic.log(deterministic.isPlayback() ? null : finished_tasks.remove(0));
+				task = deterministic.log(deterministic.isPlayback() ? null : finished_tasks.removeFirst());
 				callable = lookupCallable(task);
 			}
 			if (!task.cancelled)

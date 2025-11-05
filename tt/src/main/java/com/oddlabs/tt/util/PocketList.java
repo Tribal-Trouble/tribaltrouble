@@ -37,7 +37,7 @@ public final class PocketList {
 			min_list_index++;
 			current_pocket = pockets[min_list_index];
 		}
-		Object node = current_pocket.remove(current_pocket.size() - 1);
+		Object node = current_pocket.removeLast();
 		size--;
 		return node;
 	}

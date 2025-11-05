@@ -49,18 +49,18 @@ public class DefaultInGameInfo implements InGameInfo {
 		map_code.setPos((delegate.getWidth() - map_code.getWidth())/2, header_y - map_code.getHeight());
 
 		HorizButton button_replay = new HorizButton(Utils.getBundleString(GameStatsDelegate.bundle, "replay_island"), 150);
-		button_replay.addMouseClickListener((int button, int x, int y, int clicks) -> {
+		button_replay.addMouseClickListener((int _, int _, int _, int _) -> {
                     replay_island_flag = true;
                     delegate.startMenu();
                 });
 		HorizButton button_observer = new HorizButton(Utils.getBundleString(GameStatsDelegate.bundle, "observer_mode"), 150);
-		button_observer.addMouseClickListener((int button, int x, int y, int clicks) -> {
+		button_observer.addMouseClickListener((int _, int _, int _, int _) -> {
                     delegate.getViewer().getDelegate().setObserverMode();
                     delegate.pop();
                 });
 
 		HorizButton button_end = new HorizButton(Utils.getBundleString(GameStatsDelegate.bundle, "main_menu"), 150);
-		button_end.addMouseClickListener((int button, int x, int y, int clicks) -> delegate.startMenu());
+		button_end.addMouseClickListener((int _, int _, int _, int _) -> delegate.startMenu());
 
 		if (replay)
 			group.addChild(button_replay);

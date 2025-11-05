@@ -846,10 +846,10 @@ public final class Landscape {
 		if (DEBUG) iron.toLayer().saveAsPNG("supplies_iron_placed");
 
 		if (DEBUG) {
-			System.out.println("Number of trees placed: " + trees.count(1f));
-			System.out.println("Number of palmtrees placed: " + palmtrees.count(1f));
-			System.out.println("Number of rocks placed: " + rock.count(1f));
-			System.out.println("Number of iron ore placed: " + iron.count(1f));
+			IO.println("Number of trees placed: " + trees.count(1f));
+			IO.println("Number of palmtrees placed: " + palmtrees.count(1f));
+			IO.println("Number of rocks placed: " + rock.count(1f));
+			IO.println("Number of iron ore placed: " + iron.count(1f));
 		}
 
 		// place extra supplies around starting locations

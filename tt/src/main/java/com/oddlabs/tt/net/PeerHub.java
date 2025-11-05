@@ -107,7 +107,7 @@ public final class PeerHub implements Animated, RouterHandler {
 				nonhuman_players.add(player);
 				continue;
 			}
-			System.out.println("index " + i + " contains player " + player);
+			IO.println("index " + i + " contains player " + player);
 			final int peer_index = peer_index_to_peer_list.size();
 			ARMIEventWriter router_handler = (ARMIEvent event) -> router_client.getInterface().relayEventTo(peer_index, event);
 			PeerHubInterface peer_interface = (PeerHubInterface)ARMIEvent.createProxy(router_handler, PeerHubInterface.class);
@@ -133,7 +133,7 @@ public final class PeerHub implements Animated, RouterHandler {
 
         @Override
 	public void routerFailed(Exception e) {
-		System.out.println("Router failed with exception: " + e);
+			IO.println("Router failed with exception: " + e);
 		closeNetwork();
 		stall_handler.peerhubFailed();
 	}
@@ -186,7 +186,7 @@ public final class PeerHub implements Animated, RouterHandler {
 	}
 
 	private void peerChecksumError(@NonNull Peer peer) {
-		System.out.println("Disconnecting peer because of checksum mismatch: " + peer.getPlayerInfo().getName());
+		IO.println("Disconnecting peer because of checksum mismatch: " + peer.getPlayerInfo().getName());
 		peerDisconnected(peer, "Checksum error");
 		Globals.checksum_error_in_last_game = true;
 	}
@@ -324,7 +324,7 @@ public final class PeerHub implements Animated, RouterHandler {
 	}
 
 	private void removePeerFromActiveList(@NonNull Peer peer) {
-		System.out.println("Removing from active list:" + peer);
+		IO.println("Removing from active list:" + peer);
 		peer_index_to_peer[peer.getPeerIndex()] = null;
 		peer.getPlayer().setPreferredGamespeed(World.GAMESPEED_DONTCARE);
 	}
@@ -401,7 +401,7 @@ public final class PeerHub implements Animated, RouterHandler {
 	public void close() {
 		closeNetwork();
 		LocalEventQueue.getQueue().getManager().removeAnimation(this);
-System.out.println("PeerHub closed");
+		IO.println("PeerHub closed");
 	}
 
 	private static int getFreeQuitTicksLeft(@NonNull World world) {

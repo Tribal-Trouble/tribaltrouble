@@ -113,12 +113,12 @@ public final class Server implements ConnectionListenerInterface {
 
         @Override
 	public void error(AbstractConnectionListener listener, IOException e) {
-		System.out.println("Listener failed: " + e);
+			IO.println("Listener failed: " + e);
 		close();
 	}
 
 	public void handleError(AbstractConnection conn, Exception e) {
-		System.out.println("Disconnecting client because of exception: " + e);
+		IO.println("Disconnecting client because of exception: " + e);
 		ClientConnection client = getClientFromConnection(conn);
 		if (client != null) {
 			disconnectClient(client);
@@ -251,13 +251,13 @@ public final class Server implements ConnectionListenerInterface {
 
         @Override
 	public void incomingConnection(@NonNull AbstractConnectionListener connection_listener, Object remote_address) {
-System.out.println("Incoming host connection from " + remote_address);
+			IO.println("Incoming host connection from " + remote_address);
 		short available_slot = locateAvailableSlot();
 		if (state != NEGOTIATING || available_slot == -1 ||
 			(remote_address instanceof InetAddress address && !address.isLoopbackAddress()) ||
 			(remote_address instanceof TunnelIdentifier identifier && game != null && game.isRated() && 
 			identifier.getProfile().getWins() < GameSession.MIN_WINS_FOR_RANKING)) {
-			System.out.println("rejecting incoming connection since state = " + state + " | locateAvailableSlot() = " + available_slot + " remote_address = " + remote_address);
+			IO.println("rejecting incoming connection since state = " + state + " | locateAvailableSlot() = " + available_slot + " remote_address = " + remote_address);
 			connection_listener.rejectConnection();
 			return;
 		}

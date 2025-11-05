@@ -35,7 +35,7 @@ public final class MapcodeForm extends Form {
 		HorizButton button_ok = new OKButton(BUTTON_WIDTH);
 		button_ok.addMouseClickListener(new OKListener());
 		HorizButton button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener((int button, int x, int y, int clicks) -> this.cancel());
+		button_cancel.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
 		HorizButton button_rand = new HorizButton(Utils.getBundleString(bundle, "randomize"), BUTTON_WIDTH);
 		button_rand.addMouseClickListener(new RandButtonListener());
 

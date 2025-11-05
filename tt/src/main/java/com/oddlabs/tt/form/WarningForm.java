@@ -40,7 +40,7 @@ public final class WarningForm extends Form {
 
 		HorizButton ok_button = new OKButton(70);
 		addChild(ok_button);
-		ok_button.addMouseClickListener((button,x,y,clicks) -> {
+		ok_button.addMouseClickListener((_,_,_,_) -> {
             Settings.getSettings().warning_no_sound = !show_next_time.isMarked();
 			remove();
         });

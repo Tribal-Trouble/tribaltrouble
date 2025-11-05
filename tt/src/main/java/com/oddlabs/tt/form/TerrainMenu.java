@@ -615,7 +615,7 @@ public final class TerrainMenu extends Group {
 		if (multiplayer)
 			menu = (SelectGameMenu)owner;
 		int gametype;
-System.out.println("hills = " + hills/(float)SLIDER_MAX_VALUE + " | vegetation_amount = " + vegetation_amount/(float)SLIDER_MAX_VALUE + " | supplies_amount = " + supplies_amount/(float)SLIDER_MAX_VALUE + " | seed = " + seed*seed);
+		IO.println("hills = " + hills / (float)SLIDER_MAX_VALUE + " | vegetation_amount = " + vegetation_amount / (float)SLIDER_MAX_VALUE + " | supplies_amount = " + supplies_amount / (float)SLIDER_MAX_VALUE + " | seed = " + seed * seed);
 		String ai_string = Utils.getBundleString(bundle, "ai");
 		InGameInfo ingame_info = multiplayer ? new MultiplayerInGameInfo(game.getRandomStartPos(), game.isRated()) : new DefaultInGameInfo();
 		GameNetwork game_network = Menu.startNewGame(network, gui_root,
@@ -640,9 +640,9 @@ System.out.println("hills = " + hills/(float)SLIDER_MAX_VALUE + " | vegetation_a
 					game_network.getClient().getServerInterface().setPlayerSlot(i, PlayerSlot.AI, race_pulldown_menus[i].getChosenItemIndex(), team_pulldown_menus[i].getChosenItemIndex(), true, difficulty_pulldown_menus[i].getChosenItemIndex());
 			}
 			game_network.getClient().getServerInterface().startServer();
-System.out.println("Start server");
+			IO.println("Start server");
 		}
-		System.out.println("Map code: " + label_mapcode.getContents());
+		IO.println("Map code: " + label_mapcode.getContents());
 		return true;
 	}
 

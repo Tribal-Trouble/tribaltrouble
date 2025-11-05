@@ -135,7 +135,7 @@ public final class Utils {
 			e.printStackTrace();
 		}
 		long after = System.nanoTime();
-		System.out.println("File " + filename + " saved in " + TimeUnit.NANOSECONDS.toMillis(after - before) + " milliseconds");
+		IO.println("File " + filename + " saved in " + TimeUnit.NANOSECONDS.toMillis(after - before) + " milliseconds");
 	}
 
 	public static void saveAsTGA(String filename, @NonNull ByteBuffer pixel_data, int width, int height) {
@@ -173,7 +173,7 @@ public final class Utils {
 			e.printStackTrace();
 		}
 		long after = System.nanoTime();
-		System.out.println("File " + filename + " saved in " + TimeUnit.NANOSECONDS.toMillis(after - before) + " milliseconds");
+		IO.println("File " + filename + " saved in " + TimeUnit.NANOSECONDS.toMillis(after - before) + " milliseconds");
 	}
 
 	public static int numTextureSplits(int size) {
