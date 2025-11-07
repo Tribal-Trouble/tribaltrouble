@@ -1,4 +1,4 @@
-package com.oddlabs.converter2;
+package com.oddlabs.converter;
 
 import com.oddlabs.geometry.AnimationInfo;
 import com.oddlabs.geometry.LowDetailModel;
@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public final class ConvertToBinary {
-	public static void main(String @NonNull [] args) {
+public final class ConvertToBinary2 {
+	void main(String @NonNull ... args) {
 		if (args.length != 3)
 			throw new RuntimeException("Invalid number of arguments : <xml_file> <src_dir> <build_dir>");
 		String xml_file = args[0];
@@ -41,7 +41,7 @@ public final class ConvertToBinary {
 		}
 	}
 
-	private static void parseGeometry(@NonNull Node n, String src_dir, String build_dir) {
+	private static void parseGeometry(@NonNull Node n, String src_dir, @NonNull String build_dir) {
 		if (n.hasChildNodes()) {
 			NodeList nl = n.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
@@ -51,7 +51,7 @@ public final class ConvertToBinary {
 		}
 	}
 
-	private static void parseGroup(@NonNull Node n, String src_dir, String build_dir) {
+	private static void parseGroup(@NonNull Node n, String src_dir, @NonNull String build_dir) {
 		if (n.hasChildNodes()) {
 			String new_build_dir = build_dir + File.separatorChar + getName(n);
 			NodeList nl = n.getChildNodes();
@@ -126,7 +126,7 @@ public final class ConvertToBinary {
 		return object_infos.toArray(infos);
 	}
 
-	private static void parseSprite(@NonNull Node n, String src_dir, String build_dir) {
+	private static void parseSprite(@NonNull Node n, String src_dir, @NonNull String build_dir) {
 		String name = getName(n);
 		AnimObjectInfo[] anim_object_infos = getAnimObjectInfos(n, src_dir);
 		ModelObjectInfo[] model_object_infos = getModelObjectInfos(n, src_dir);
@@ -154,7 +154,7 @@ public final class ConvertToBinary {
 				scale = 1f;
 			ObjectInfo skeleton_info = getSkeletonObjectInfo(n, src_dir);
 			AnimationInfo[] animations;
-			Map<String,Bone> name_to_bone_map;
+			Map<String, Bone> name_to_bone_map;
 			if (skeleton_info != null) {
 				Skeleton skeleton = SkeletonLoader.loadSkeleton(getSkeletonObjectInfo(n, src_dir).getFile());
 				name_to_bone_map = skeleton.getNameToBoneMap();
@@ -163,7 +163,7 @@ public final class ConvertToBinary {
 					AnimObjectInfo current = anim_object_infos[i];
 					Map<String,float[]>[] animation_map = AnimationLoader.loadAnimation(current.getFile());
 					assert animations[i] == null;
-					animations[i] = Optimizer.convertToAnimation(skeleton.getBoneRoot(), skeleton.getInitialPose(), animation_map, current.getType(), current.getWPC());
+					animations[i] = Optimizer2.convertToAnimation(skeleton.getBoneRoot(), skeleton.getInitialPose(), animation_map, current.getType(), current.getWPC());
 				}
 			} else {
 				float[][] identity_frame = {{1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0}};
@@ -173,9 +173,9 @@ public final class ConvertToBinary {
 			SpriteInfo2[] sprite_models = new SpriteInfo2[model_object_infos.length];
 			for (int i = 0; i < model_object_infos.length; i++) {
 				ModelObjectInfo current = model_object_infos[i];
-				ModelInfo model_info = MeshLoader.loadMesh(current.getFile(), name_to_bone_map, scale);
+				ModelInfo model_info = MeshLoader2.loadMesh(current.getFile(), name_to_bone_map, scale);
 				assert sprite_models[i] == null;
-				sprite_models[i] = Optimizer.convertToSprite(current.getTextures(), model_info, current.getClearColor());
+				sprite_models[i] = Optimizer2.convertToSprite(current.getTextures(), model_info, current.getClearColor());
 			}
 			write(new Object[]{sprite_models, animations}, build_file);
 		}
@@ -198,7 +198,7 @@ public final class ConvertToBinary {
 		File build_file = new File(build_dir + File.separatorChar + name + ".binlowdetail");
 
 		if (isModified(object_info.getFile(), build_file)) {
-			ModelInfo model_info = MeshLoader.loadMesh(object_info.getFile(), null, 1f);
+			ModelInfo model_info = MeshLoader2.loadMesh(object_info.getFile(), null, 1f);
 			LowDetailModel lowdetailmodel = new LowDetailModel(model_info.indices, model_info.vertices, model_info.texcoords);
 			write(lowdetailmodel, build_file);
 		}
@@ -239,15 +239,14 @@ public final class ConvertToBinary {
 
 	private static void write(Object output, @NonNull File file) {
 		System.err.println("Saving to " + file);
-		FileOutputStream file_stream;
-		ObjectOutputStream obj_stream;
 
 		try {
 			file.getParentFile().mkdirs();
-			file_stream = new FileOutputStream(file);
-			obj_stream = new ObjectOutputStream(new BufferedOutputStream(file_stream));
+			try (FileOutputStream file_stream = new FileOutputStream(file)) {
+                try (ObjectOutputStream obj_stream = new ObjectOutputStream(new BufferedOutputStream(file_stream))) {
 			obj_stream.writeObject(output);
-			obj_stream.close();
+                }
+            }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1,4 +1,4 @@
-package com.oddlabs.converter2;
+package com.oddlabs.converter;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -13,8 +13,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Map;
 
-public final class MeshLoader {
-	private MeshLoader() {
+public final class MeshLoader2 {
+	private MeshLoader2() {
 	}
 
 	public static @NonNull ModelInfo loadMesh(@NonNull File file, Map<String, Bone> name_to_bone_map, float scale) {
@@ -35,7 +35,7 @@ public final class MeshLoader {
 	private static @NonNull ModelInfo createModelInfo(@NonNull Node node, @Nullable Map<String,Bone> name_to_bone_map, float scale) {
 //		String texture_name = cutTextureName(node.getAttributes().getNamedItem("texture").getNodeValue());
 
-		NodeList polygon_list = ConvertToBinary.getNodeByName("polygons", node).getChildNodes();
+		NodeList polygon_list = ConvertToBinary2.getNodeByName("polygons", node).getChildNodes();
 		int num_polygons = countPolys(polygon_list);
 		int num_vertices = num_polygons*3;
 		float[] vertices = new float[num_vertices*3];
@@ -110,7 +110,7 @@ public final class MeshLoader {
 			}
 		}
 		assert polygon_index == num_polygons;
-		return Optimizer.optimize(/*texture_name, */num_vertices, vertices, normals, colors, uvs, uvs2, skin_names, skin_weights);
+		return Optimizer2.optimize(/*texture_name, */num_vertices, vertices, normals, colors, uvs, uvs2, skin_names, skin_weights);
 	}
 
 	private static @NonNull String cutTextureName(@NonNull String name) {

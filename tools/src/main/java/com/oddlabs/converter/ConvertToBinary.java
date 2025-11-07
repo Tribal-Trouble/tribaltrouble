@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class ConvertToBinary {
-	void main(String @NonNull [] args) {
+	void main(String @NonNull ... args) {
 		if (args.length != 3)
 			throw new RuntimeException("Invalid number of arguments : <xml_file> <src_dir> <build_dir>");
 		String xml_file = args[0];
@@ -41,7 +41,7 @@ public final class ConvertToBinary {
 		}
 	}
 
-	private static void parseGeometry(@NonNull Node n, String src_dir, String build_dir) {
+	private static void parseGeometry(@NonNull Node n, String src_dir, @NonNull String build_dir) {
 		if (n.hasChildNodes()) {
 			NodeList nl = n.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
@@ -51,7 +51,7 @@ public final class ConvertToBinary {
 		}
 	}
 
-	private static void parseGroup(@NonNull Node n, String src_dir, String build_dir) {
+	private static void parseGroup(@NonNull Node n, String src_dir, @NonNull String build_dir) {
 		if (n.hasChildNodes()) {
 			String new_build_dir = build_dir + File.separatorChar + getName(n);
 			NodeList nl = n.getChildNodes();
@@ -126,7 +126,7 @@ public final class ConvertToBinary {
 		return object_infos.toArray(infos);
 	}
 
-	private static void parseSprite(@NonNull Node n, String src_dir, String build_dir) {
+	private static void parseSprite(@NonNull Node n, String src_dir, @NonNull String build_dir) {
 		String name = getName(n);
 		AnimObjectInfo[] anim_object_infos = getAnimObjectInfos(n, src_dir);
 		ModelObjectInfo[] model_object_infos = getModelObjectInfos(n, src_dir);

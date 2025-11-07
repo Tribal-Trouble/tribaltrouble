@@ -114,8 +114,8 @@ public final class MeshLoader {
 		if (name.isEmpty())
 			return name;
 		String result = name.replaceAll("\\\\", "/");
-		int last_slash = result.lastIndexOf("/");
-		int dot_index = result.lastIndexOf(".");
+		int last_slash = result.lastIndexOf('/');
+		int dot_index = result.lastIndexOf('.');
 		if (dot_index != -1)
 			result = result.substring(last_slash + 1, dot_index);
 		return result;
