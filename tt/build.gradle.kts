@@ -46,8 +46,8 @@ tasks.register("renderTahomaFont", JavaExec::class) {
     args = listOf(
         "Tahoma",
         "13",
-        "256",
         "1024",
+        "1200",
         fontInfoDir,
         fontTexDir,
         fontTexClasspath
@@ -71,8 +71,8 @@ tasks.register("renderImpactFont", JavaExec::class) {
     args = listOf(
         "Impact",
         "24",
-        "256",
         "1024",
+        "600",
         fontInfoDir,
         fontTexDir,
         fontTexClasspath
