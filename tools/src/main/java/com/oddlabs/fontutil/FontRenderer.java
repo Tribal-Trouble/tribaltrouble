@@ -25,16 +25,9 @@ public final class FontRenderer {
 	private final static int GLYPH_Y_OVERLAP = 5;
 	private final static float SPACE_SCALE = 0.66666f;
 
-	public static void main(String @NonNull [] args) throws Exception {
-		/*
-		   System.out.println("Available fonts:");
-		   String[] fontnames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-		   for (int i = 0; i < fontnames.length; i++) {
-		   System.out.println(fontnames[i]);
-		   }
-		 */
+	static void main(String @NonNull ... args) throws Exception {
         if (7 != args.length) {
-			IO.println("FontRenderer <font_name> <font_size> <max_chars> <font_info_dir> <font_tex_dir> <font_tex_classpath>");
+			IO.println("FontRenderer <font_name> <font_size> <max_image_width> <max_chars> <font_info_dir> <font_tex_dir> <font_tex_classpath>");
         }
 		new FontRenderer(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]),
 				args[4], args[5], args[6]);
@@ -45,7 +38,12 @@ public final class FontRenderer {
 		IO.println("Converting first " + max_chars + " chars of " + src_font_name + " size " + font_size);
 		String dest_font_name = src_font_name.toLowerCase();
         java.awt.Font src_font;
-		try (InputStream font_is = Utils.makeURL("/" + dest_font_name + ".ttf").openStream()) {
+
+		String ttf_resource_path = "/fonts/" + src_font_name + ".ttf";
+		try (InputStream font_is = FontRenderer.class.getResourceAsStream(ttf_resource_path)) {
+			if (font_is == null) {
+				throw new Exception("Cannot find font resource: " + ttf_resource_path);
+			}
             src_font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, font_is).deriveFont((float)font_size);
         }
 
@@ -179,10 +177,7 @@ public final class FontRenderer {
 		int current_x = 0;
 		int current_y = 0;
 		int valid_chars = 0;
-		Quad[] key_map = null;
-		if (create_xml) {
-			key_map = new Quad[Character.MAX_VALUE];
-		}
+		Quad[] key_map = create_xml ? new Quad[Character.MAX_VALUE] : null;
 
 		IO.println("Drawing chars for width*height = " + image_width + "*" + image_height);
 		IO.print("Progress");

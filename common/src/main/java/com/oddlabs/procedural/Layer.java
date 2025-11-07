@@ -8,8 +8,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class Layer {
+    private static final Logger logger = Logger.getLogger(Layer.class.getSimpleName());
 	public final static float GAMMA_EXPONENT = 2.2f;
 	public final static float INV_GAMMA_EXPONENT = 1f/GAMMA_EXPONENT;
 
@@ -110,16 +116,19 @@ public final class Layer {
 	}
 
 	public void saveAsPNG(String filename) {
-		saveAsPNG(new File(filename + ".png"));
+        Path file = Path.of(  filename + ".png");
+        try {
+		    saveAsPNG(file);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Failed writing image to " + file, e);
+        }
 	}
 
-	public void saveAsPNG(@NonNull File file) {
+	public void saveAsPNG(@NonNull Path file) throws IOException {
 		BufferedImage image = convertToImage();
-		try (FileOutputStream fos = new FileOutputStream(file)) {
-			ImageIO.write(image, "PNG", fos);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		try (OutputStream outputStream = Files.newOutputStream(file)) {
+            ImageIO.write(image, "PNG", outputStream);
+        }
 	}
 
 	public void addAlpha() {

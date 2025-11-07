@@ -7,12 +7,13 @@ import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.util.FontInfo;
 import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 public final class Font {
-	private final Quad[] key_array;
-	private final Texture texture;
-	private final int x_border;
+	private final @NonNull Quad[] key_array;
+	private final @NonNull Texture texture;
+	private final @NonNull int x_border;
 	private final int y_border;
 	private final int height;
 
@@ -30,7 +31,7 @@ public final class Font {
 		this.height = font_info.getHeight();
 	}
 
-	public Quad getQuad(char c) {
+	public @Nullable Quad getQuad(char c) {
 		return key_array[c];
 	}
 
@@ -67,7 +68,7 @@ public final class Font {
 	}
 
 	public char getWidestChar(@NonNull CharSequence text) {
-		assert text.length() > 0: "Empty CharSequence";
+		assert !text.isEmpty() : "Empty CharSequence";
 
 		int widest = 0;
 		char widest_char = ' ';
@@ -85,7 +86,7 @@ public final class Font {
 	}
 
 	public int getWidth(@NonNull CharSequence text) {
-		if (text.length() == 0)
+		if (text.isEmpty())
 			return 0;
 		int width = 0;
 		for (int i = 0; i < text.length(); i++) {
