@@ -7,20 +7,34 @@ import org.lwjgl.openal.AL10;
 
 import java.nio.IntBuffer;
 
-public final class AudioSource extends NativeResource {
-	private final IntBuffer source;
+public final class AudioSource extends NativeResource<AudioSource.Source> {
+
+    static final class Source extends NativeResource.NativeState {
+        private final IntBuffer source;
+
+        Source() {
+            source = BufferUtils.createIntBuffer(1);
+        }
+
+        @Override
+        public void close() {
+            if (source != null && AL.isCreated()) {
+                assert AL10.alGetSourcei(source.get(0), AL10.AL_SOURCE_STATE) != AL10.AL_PLAYING;
+                AL10.alDeleteSources(source);
+            }
+        }
+    }
+
 	private AbstractAudioPlayer audio_player;
 
 	public AudioSource() {
-		IntBuffer source_buffer = BufferUtils.createIntBuffer(1);
+        super(new Source());
 		if (AL.isCreated())
-			AL10.alGenSources(source_buffer);
-		// if alGenSources fails, the source object will be null (default value)
-		source = source_buffer;
+			AL10.alGenSources(state.source);
 	}
 
 	public int getSource() {
-		return source.get(0);
+		return state.source.get(0);
 	}
 
 	public int getRank() {
@@ -37,13 +51,5 @@ public final class AudioSource extends NativeResource {
 		if (this.audio_player != null)
 			this.audio_player.stop();
 		this.audio_player = audio_player;
-	}
-
-    @Override
-	protected void doDelete() {
-		if (source != null && AL.isCreated()) {
-			assert AL10.alGetSourcei(getSource(), AL10.AL_SOURCE_STATE) != AL10.AL_PLAYING;
-			AL10.alDeleteSources(source);
-		}
 	}
 }

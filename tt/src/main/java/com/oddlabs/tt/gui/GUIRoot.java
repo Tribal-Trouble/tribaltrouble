@@ -442,16 +442,14 @@ public RandomVelocityEmitter(Vector3f position,
 			case Keyboard.KEY_F1:
 				IO.println("*********************************************************");
 				LocalEventQueue.getQueue().debugPrintAnimations();
-				IO.println("Texture.global_size = " + Texture.global_size);
+				IO.println("Texture.globalSize() = " + Texture.globalSize());
 				break;
 			case Keyboard.KEY_F11:
 				LocalInput.toggleFullscreen();
 				break;
 			case Keyboard.KEY_F12:
 				IO.println("GC Forced");
-				System.gc();
-				Runtime.getRuntime().runFinalization();
-				System.gc();
+                System.gc();
 				break;
 			default:
 				break;

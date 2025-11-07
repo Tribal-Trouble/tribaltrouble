@@ -16,7 +16,6 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.RenderQueues;
-import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.resource.WorldInfo;
 import org.jspecify.annotations.NonNull;
 
@@ -68,7 +67,6 @@ public final class World {
 	}
 
 	public static @NonNull World newWorld(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel @NonNull [] tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
-		NativeResource.gc();
 		ProgressForm.progress();
 		World world = new World(audio_implementation, landscape_resources, races_resources, tree_low_details, notification_listener, world_params, world_info, terrain, player_infos, colors);
 		ProgressForm.progress();

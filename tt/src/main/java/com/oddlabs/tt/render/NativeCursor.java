@@ -7,59 +7,68 @@ import com.oddlabs.tt.resource.NativeResource;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Cursor;
 
-public final class NativeCursor extends NativeResource {
-	private final org.lwjgl.input.@Nullable Cursor cursor;
-	
-	public NativeCursor(@NonNull GLIntImage image_16_1, int offset_x_16_1, int offset_y_16_1,
+public final class NativeCursor extends NativeResource<NativeCursor.Cursor> {
+    static final class Cursor extends NativeResource.NativeState {
+        private final  org.lwjgl.input.@Nullable Cursor cursor;
+
+        Cursor(@NonNull GLIntImage image_16_1, int offset_x_16_1, int offset_y_16_1,
+               @NonNull GLIntImage image_32_1, int offset_x_32_1, int offset_y_32_1,
+               @NonNull GLIntImage image_32_8, int offset_x_32_8, int offset_y_32_8) {
+            org.lwjgl.input.Cursor native_cursor = null;
+            int caps = org.lwjgl.input.Cursor.getCapabilities();
+
+            int alpha_bits = 0;
+            if ((caps & org.lwjgl.input.Cursor.CURSOR_8_BIT_ALPHA) != 0)
+                alpha_bits = 8;
+            else if ((caps & org.lwjgl.input.Cursor.CURSOR_ONE_BIT_TRANSPARENCY) != 0)
+                alpha_bits = 1;
+
+            int max_size = org.lwjgl.input.Cursor.getMaxCursorSize();
+
+            try {
+                if (max_size < 32 && max_size >= 16 && alpha_bits >= 1)
+                    native_cursor = new org.lwjgl.input.Cursor(image_16_1.getWidth(), image_16_1.getHeight(), offset_x_16_1, offset_y_16_1, 1, image_16_1.createCursorPixels(), null);
+                else if (max_size >= 32) {
+                    if (alpha_bits == 8)
+                        native_cursor = new org.lwjgl.input.Cursor(image_32_8.getWidth(), image_32_8.getHeight(), offset_x_32_8, offset_y_32_8, 1, image_32_8.createCursorPixels(), null);
+                    else if (alpha_bits == 1)
+                        native_cursor = new org.lwjgl.input.Cursor(image_32_1.getWidth(), image_32_1.getHeight(), offset_x_32_1, offset_y_32_1, 1, image_32_1.createCursorPixels(), null);
+                }
+            } catch (LWJGLException e) {
+                e.printStackTrace();
+            }
+            cursor = native_cursor;
+        }
+
+        @Override
+        public void close() {
+            if (cursor != null) {
+                PointerInput.deletingCursor(cursor);
+                cursor.destroy();
+            }
+        }
+    }
+
+    public NativeCursor(@NonNull GLIntImage image_16_1, int offset_x_16_1, int offset_y_16_1,
                         @NonNull GLIntImage image_32_1, int offset_x_32_1, int offset_y_32_1,
                         @NonNull GLIntImage image_32_8, int offset_x_32_8, int offset_y_32_8) {
-		org.lwjgl.input.Cursor native_cursor = null;
-		int caps = Cursor.getCapabilities();
-		
-		int alpha_bits = 0;
-		if ((caps & Cursor.CURSOR_8_BIT_ALPHA) != 0)
-			alpha_bits = 8;
-		else if ((caps & Cursor.CURSOR_ONE_BIT_TRANSPARENCY) != 0)
-			alpha_bits = 1;
-
-		int max_size = Cursor.getMaxCursorSize();
-			
-		try {
-			if (max_size < 32 && max_size >= 16 && alpha_bits >= 1)
-				native_cursor = new org.lwjgl.input.Cursor(image_16_1.getWidth(), image_16_1.getHeight(), offset_x_16_1, offset_y_16_1, 1, image_16_1.createCursorPixels(), null);
-			else if (max_size >= 32) {
-				if (alpha_bits == 8)
-					native_cursor = new org.lwjgl.input.Cursor(image_32_8.getWidth(), image_32_8.getHeight(), offset_x_32_8, offset_y_32_8, 1, image_32_8.createCursorPixels(), null);
-				else if (alpha_bits == 1)
-					native_cursor = new org.lwjgl.input.Cursor(image_32_1.getWidth(), image_32_1.getHeight(), offset_x_32_1, offset_y_32_1, 1, image_32_1.createCursorPixels(), null);
-			}
-		} catch (LWJGLException e) {
-			e.printStackTrace();
-		}
-		cursor = native_cursor;
-	}
+        super(new NativeCursor.Cursor(image_16_1, offset_x_16_1, offset_y_16_1,
+                image_32_1, offset_x_32_1, offset_y_32_1,
+                image_32_8, offset_x_32_8, offset_y_32_8));
+    }
 
 	public org.lwjgl.input.@Nullable Cursor getCursor() {
-		return cursor;
+		return state.cursor;
 	}
 
 	public boolean setActive() {
-		if (Settings.getSettings().use_native_cursor && cursor != null) {
-			PointerInput.setActiveCursor(cursor);
+		if (Settings.getSettings().use_native_cursor && state.cursor != null) {
+			PointerInput.setActiveCursor(state.cursor);
 			return true;
 		} else {
 			PointerInput.setActiveCursor(null);
 			return false;
-		}
-	}
-
-        @Override
-	public void doDelete() {
-		if (cursor != null) {
-			PointerInput.deletingCursor(cursor);
-			cursor.destroy();
 		}
 	}
 }

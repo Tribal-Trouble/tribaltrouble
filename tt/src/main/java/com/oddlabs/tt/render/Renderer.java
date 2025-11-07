@@ -54,7 +54,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
@@ -102,7 +101,7 @@ public final class Renderer {
 	private static String music_path;
 	private static @Nullable TimerAnimation music_timer;
 
-	private static boolean finished = false;
+	private static volatile boolean finished = false;
 
 	private final CameraState frustum_state = new CameraState();
 	private boolean movie_recording_started = false;
@@ -188,7 +187,7 @@ public final class Renderer {
 	private void display(@NonNull GUI gui) {
 		num_triangles_rendered = 0;
 		fps.updateDelta(System.currentTimeMillis());
-		NativeResource.deleteFinalized();
+        NativeResource.processGLCleanupTasks();
 		setupMatrices(gui.getGUIRoot());
 		gui.render(ambient, frustum_state);
 	}
@@ -540,6 +539,7 @@ e.printStackTrace();
 		logger.info("Cleaning up...");
 		LocalEventQueue.getQueue().dispose();
 		destroyNative();
+        logger.fine("Native resources still registered: " + NativeResource.getCount());
 		logger.info("Cleanup complete. Exiting");
 	}
 

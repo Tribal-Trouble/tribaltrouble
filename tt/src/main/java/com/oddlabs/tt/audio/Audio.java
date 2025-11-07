@@ -12,8 +12,22 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.IntBuffer;
 
-public final class Audio extends NativeResource {
-	private final IntBuffer al_buffers;
+public final class Audio extends NativeResource<Audio.Buffers> {
+    static final class Buffers extends NativeResource.NativeState {
+        private final @NonNull IntBuffer al_buffers;
+
+        Buffers(int num_buffers) {
+            al_buffers = BufferUtils.createIntBuffer(num_buffers);
+        }
+
+        @Override
+        public void close() {
+            if (AL.isCreated()) {
+                al_buffers.clear();
+                AL10.alDeleteBuffers(al_buffers);
+            }
+        }
+    }
 
 	public Audio(@NonNull URL file) throws IOException {
 		this(1);
@@ -26,15 +40,15 @@ public final class Audio extends NativeResource {
 			// Assume it's an ogg vorbis file
 			wave = loadOGG(file);
 		}
-		AL10.alBufferData(al_buffers.get(0), wave.getFormat(), wave.getData(), wave.getSampleRate());
+		AL10.alBufferData(getBuffer(), wave.getFormat(), wave.getData(), wave.getSampleRate());
 	}
 
 	public Audio(int num_buffers) {
-		al_buffers = BufferUtils.createIntBuffer(num_buffers);
+		super(new Buffers(num_buffers));
 
 		if (!AL.isCreated())
 			return;
-		AL10.alGenBuffers(al_buffers);
+		AL10.alGenBuffers(state.al_buffers);
 	}
 
 	private @NonNull Wave loadOGG(@NonNull URL file) throws IOException {
@@ -54,18 +68,10 @@ public final class Audio extends NativeResource {
 	}
 
 	public IntBuffer getBuffers() {
-		return al_buffers;
+		return state.al_buffers;
 	}
 
 	public int getBuffer() {
-		return al_buffers.get(0);
-	}
-
-        @Override
-	protected void doDelete() {
-		if (AL.isCreated()) {
-			al_buffers.clear();
-			AL10.alDeleteBuffers(al_buffers);
-		}
+		return state.al_buffers.get(0);
 	}
 }
