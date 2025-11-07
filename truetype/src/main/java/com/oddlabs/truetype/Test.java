@@ -1,13 +1,11 @@
 package com.oddlabs.truetype;
 
-import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
-import org.lwjgl.util.glu.GLU;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -39,12 +37,12 @@ public final class Test {
 			initGL();
 
 			// Load font
-			InputStream font_is = Utils.makeURL("/fonts/tahoma.ttf").openStream();
+			InputStream font_is = Test.class.getResourceAsStream("/fonts/Tahoma.ttf");
 			java.awt.Font src_font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, font_is);
 			java.awt.Font font = src_font.deriveFont(14f);
 
 			// Load text
-			InputStreamReader text_is = new InputStreamReader(Utils.makeURL("/test_text.txt").openStream());
+			InputStreamReader text_is = new InputStreamReader(Test.class.getResourceAsStream("/test_text.txt"));
 			StringBuilder str_buffer = new StringBuilder();
 			int c = text_is.read();
 			do {
@@ -143,7 +141,7 @@ long total_time = System.currentTimeMillis() - start_time;
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 
-		GLU.gluOrtho2D(0f, Display.getDisplayMode().getWidth(), 0f, Display.getDisplayMode().getHeight());
+		GL11.glOrtho(0f, Display.getDisplayMode().getWidth(), 0f, Display.getDisplayMode().getHeight(), -1f, 1f);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

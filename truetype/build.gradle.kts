@@ -1,10 +1,17 @@
 plugins {
-    application
+    java
 }
 
-application {
+dependencies {
+    implementation(project(":common"))
+}
+
+tasks.register("run", JavaExec::class) {
+    group = "application"
+    description = "Runs the truetype Test"
     mainClass.set("com.oddlabs.truetype.Test")
-    applicationDefaultJvmArgs = listOf(
+    classpath = sourceSets["main"].runtimeClasspath
+    jvmArgs = listOf(
         "-ea", "-esa",
         "-Djava.library.path=${project(":common").projectDir}/build/libs/native",
         "-Dcom.oddlabs.tt.developer=true",
@@ -12,8 +19,3 @@ application {
         "-Xmx80m"
     )
 }
-
-dependencies {
-    implementation(project(":common"))
-}
-
