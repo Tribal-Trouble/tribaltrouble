@@ -31,13 +31,14 @@ public final class AnimationManager {
 	public final static int ANIMATION_MILLISECONDS_PER_PRECISION_TICK = ANIMATION_MILLISECONDS_PER_TICK/5;
 	public final static float ANIMATION_SECONDS_PER_TICK = ANIMATION_MILLISECONDS_PER_TICK/1000f;
 	public final static float ANIMATION_SECONDS_PER_PRECISION_TICK = ANIMATION_MILLISECONDS_PER_PRECISION_TICK/1000f;
-	private final static int ANIMATION_MILLISECONDS_PER_CHECKSUM = 2000;
-	public final static int MAX_STEP_MILLIS = 30000;
+	private final static long ANIMATION_MILLISECONDS_PER_CHECKSUM = TimeUnit.SECONDS.toMillis(2);
+	public final static long MAX_STEP_MILLIS = TimeUnit.SECONDS.toMillis(30);
 
 	public final static StatCounter pathfindsPerTick = new StatCounter(100);
 
 	private final static StatCounter frameTime = new StatCounter(10);
-	private final static @NonNull MonotoneTimeManager timeSource;
+	private final static MonotoneTimeManager timeSource =
+            new MonotoneTimeManager(() -> TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
 
 	private static long current_time ;
 	private static long last_frame_time;
@@ -89,7 +90,6 @@ public final class AnimationManager {
 	};
 */
 	static {
-		timeSource = new MonotoneTimeManager(() -> TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
 		current_time = getSystemTime();
 		last_frame_time = current_time;
 		freezeTime();

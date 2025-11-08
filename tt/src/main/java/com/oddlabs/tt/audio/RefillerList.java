@@ -5,19 +5,19 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.openal.AL;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 public final class RefillerList {
 
-    private final static int THREAD_SLEEP_MILLIS = 50;
+    private final static long THREAD_SLEEP_MILLIS = TimeUnit.MILLISECONDS.toMillis(50);
 
-    private boolean finished = false;
-    private final @NonNull Thread refill_thread;
-    private final List<QueuedAudioPlayer> players = new ArrayList<>();
+    private volatile boolean finished = false;
+    private final Thread refill_thread = new Refiller();
+    private final Set<@NonNull QueuedAudioPlayer> players = new CopyOnWriteArraySet<>();
 
     public RefillerList() {
-        refill_thread = new Refiller();
         refill_thread.start();
     }
 

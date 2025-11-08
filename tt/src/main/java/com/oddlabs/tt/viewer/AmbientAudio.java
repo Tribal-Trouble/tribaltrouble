@@ -3,6 +3,7 @@ package com.oddlabs.tt.viewer;
 import com.oddlabs.tt.audio.AbstractAudioPlayer;
 import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.audio.AudioFile;
+import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.camera.CameraState;
@@ -13,8 +14,6 @@ import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.resource.Resources;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.openal.AL;
-import org.lwjgl.openal.AL10;
 import org.lwjgl.util.vector.Vector3f;
 
 import java.nio.FloatBuffer;
@@ -56,8 +55,7 @@ public final class AmbientAudio {
 	}
 
 	public void updateSoundListener(@NonNull CameraState camera, @NonNull HeightMap heightmap) {
-		if (AL.isCreated() && Settings.getSettings().play_sfx) {
-			AL10.alListener3f(AL10.AL_POSITION, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());
+		if (Settings.getSettings().play_sfx) {
 			camera.updateDirectionAndNormal(f, u, s);
 			orientation_buffer.put(0, f.x);
 			orientation_buffer.put(1, f.y);
@@ -65,7 +63,9 @@ public final class AmbientAudio {
 			orientation_buffer.put(3, u.x);
 			orientation_buffer.put(4, u.y);
 			orientation_buffer.put(5, u.z);
-			AL10.alListener(AL10.AL_ORIENTATION, orientation_buffer);
+            AudioManager.getManager()
+                    .updatePosition(camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ())
+                    .updateOrientation(orientation_buffer);
 
 			int meters_per_world = heightmap.getMetersPerWorld();
 			float dx = Math.abs(camera.getCurrentX() - meters_per_world/2);

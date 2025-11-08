@@ -52,7 +52,7 @@ public final class Wave {
         } else if (channels == 2 && sample_size_in_bits == 16) {
             return AL10.AL_FORMAT_STEREO16;
         } else {
-            throw new RuntimeException("Unsupported wave format");
+            throw new RuntimeException("Unsupported wave format channels=" + channels + " sample_size_in_bits=" + sample_size_in_bits);
         }
     }
 

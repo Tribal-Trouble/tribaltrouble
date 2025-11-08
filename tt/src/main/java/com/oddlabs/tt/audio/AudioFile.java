@@ -4,6 +4,7 @@ import com.oddlabs.tt.resource.File;
 import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 public final class AudioFile extends File<Audio> {
 	public AudioFile(@NonNull String location) {
@@ -11,11 +12,11 @@ public final class AudioFile extends File<Audio> {
 	}
 
     @Override
-	public @NonNull Audio get() {
+	public @NonNull Audio get() throws UncheckedIOException {
         try {
-            return new Audio(this.getURL());
+            return AudioManager.getManager().createAudio(getURL());
         } catch (IOException ex) {
-            throw new IllegalArgumentException("Could not load " + this.getURL(), ex);
+            throw new UncheckedIOException("Could not load " + this.getURL(), ex);
         }
 	}
 

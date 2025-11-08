@@ -3,19 +3,20 @@ package com.oddlabs.tt.animation;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class TimerAnimation implements Animated {
-	private final AnimationManager manager;
+	private final @NonNull AnimationManager manager;
 	private float time = 0;
 	private float interval;
-	private Updatable timer_owner;
+	private @Nullable Updatable timer_owner;
 	private boolean running = false;
 
-	public TimerAnimation(Updatable owner, float interval) {
+	public TimerAnimation(@NonNull Updatable owner, float interval) {
 		this(LocalEventQueue.getQueue().getManager(), owner, interval);
 	}
 
-	public TimerAnimation(AnimationManager manager, Updatable owner, float interval) {
+	public TimerAnimation(@NonNull AnimationManager manager, @NonNull Updatable owner, float interval) {
 		this.manager = manager;
 		this.interval = interval;
 		this.timer_owner = owner;
@@ -45,11 +46,11 @@ public final class TimerAnimation implements Animated {
 		manager.registerAnimation(this);
 	}
 
-	public void setTimerOwner(Updatable obj) {
+	public void setTimerOwner(@Nullable Updatable obj) {
 		this.timer_owner = obj;
 	}
 
-	public Updatable getTimerOwner() {
+	public @Nullable Updatable getTimerOwner() {
 		return timer_owner;
 	}
 

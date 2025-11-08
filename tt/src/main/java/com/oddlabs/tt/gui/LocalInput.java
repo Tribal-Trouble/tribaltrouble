@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.event.Deterministic;
+import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
@@ -11,7 +12,6 @@ import com.oddlabs.tt.render.SerializableDisplayModeComparator;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
-import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
@@ -134,8 +134,8 @@ public final class LocalInput {
 		return mouse_x;
 	}
 
-	public static boolean alIsCreated() {
-		return LocalEventQueue.getQueue().getDeterministic().log(AL.isCreated());
+	public static boolean audioIsCreated() {
+		return LocalEventQueue.getQueue().getDeterministic().log(AudioManager.getManager() != null);
 	}
 
 	public static Path getGameDir() {

@@ -8,7 +8,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.openal.AL10;
 
-public class AbstractAudioPlayer implements Animated {
+public abstract class AbstractAudioPlayer implements Animated {
 	protected final static float ROLLOFF_FACTOR = .03f; // was 0.05
 
 	protected final @Nullable AudioSource source;
@@ -21,12 +21,12 @@ public class AbstractAudioPlayer implements Animated {
 
 	protected AbstractAudioPlayer(@Nullable AudioSource source, @NonNull AudioParameters<?> params) {
 		this.parameters = params;
-		if (source == null || (!params.music && !Settings.getSettings().play_sfx)) {
-			this.source = null;
-			return;
-		}
-		this.source = source;
-		source.setAudioPlayer(this);
+        if (source == null || (!params.music && !Settings.getSettings().play_sfx)) {
+            this.source = null;
+            return;
+        }
+        this.source = source;
+        source.setAudioPlayer(this);
 		playing = true;
 	}
 
@@ -39,26 +39,22 @@ public class AbstractAudioPlayer implements Animated {
 	}
 
 	public final void setGain(float gain) {
-		if (playing) {
-			if (parameters.music) {
-				AL10.alSourcef(source.getSource(), AL10.AL_GAIN, gain*Settings.getSettings().music_gain);
-			} else {
-				AL10.alSourcef(source.getSource(), AL10.AL_GAIN, gain*Settings.getSettings().sound_gain);
-			}
+		if (playing && source != null) {
+            var settings = Settings.getSettings();
+			source.setGain(gain * (parameters.music ? settings.music_gain : settings.sound_gain));
 		}
 	}
 
 	public final void setPos(float x, float y, float z) {
-		if (playing)
-			AL10.alSource3f(source.getSource(), AL10.AL_POSITION, x, y, z);
-
+		if (playing && source != null)
+			source.setPosition(x, y, z);
 	}
 
 	public void stop() {
-		if (playing) {
-			AL10.alSourceStop(source.getSource());
-			AL10.alSourcei(source.getSource(), AL10.AL_BUFFER, AL10.AL_NONE);
-			AL10.alSourceRewind(source.getSource());
+		if (playing && source != null) {
+			source.stop();
+			source.setBuffer(AL10.AL_NONE); // AL10.AL_NONE is still needed
+			source.rewind();
 			playing = false;
 		}
 	}

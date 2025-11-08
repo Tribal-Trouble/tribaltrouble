@@ -18,7 +18,6 @@ import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.openal.AL;
 
 import java.util.Random;
 import java.util.ResourceBundle;
@@ -27,15 +26,13 @@ public final class ProgressForm {
 	private final static int PROGRESSBAR_LOADINGTIP_SPACING = 45;
 	private final static int NUM_TIPS = 39;
 	private final static String TIP_PREFIX = "tip";
-	private final static String @NonNull [] LOADING_TIPS;
+	private final static @NonNull String [] LOADING_TIPS = new String[NUM_TIPS];
 
 	private static @Nullable ProgressForm current_progress = null;
 
 	private final @NonNull ProgressBar progress_bar;
-	private final @NonNull GUIImage image;
 
 	static {
-		LOADING_TIPS = new String[NUM_TIPS];
 		ResourceBundle bundle = ResourceBundle.getBundle(ProgressForm.class.getName());
 		for (int i = 0; i < LOADING_TIPS.length; i++) {
             LOADING_TIPS[i] = Utils.getBundleString(bundle, TIP_PREFIX + i);
@@ -94,8 +91,7 @@ public final class ProgressForm {
 	}
 
 	private ProgressForm(NetworkSelector network, final @NonNull GUI gui, final Fadable load_fadable, boolean first_progress, ProgressBarInfo @NonNull [] info, String texture_name, int texture_width, int texture_height, int image_width, int image_height, int progress_x, int progress_y, int progress_width, boolean show_tip) {
-		if (AL.isCreated())
-			AudioManager.getManager().stopSources();
+		AudioManager.getManager().stopSources();
 		final GUIRoot gui_root;
 		if (!first_progress) {
 			gui_root = gui.newFade(load_fadable, null);
@@ -110,7 +106,7 @@ public final class ProgressForm {
 		progress_x = (int)(progress_x*(float)screen_width/image_width);
 		progress_y = (int)(progress_y*(float)screen_height/image_height);
 
-		image = new GUIImage(screen_width, screen_height, 0f, 0f, (float)image_width/texture_width, (float)image_height/texture_height, texture_name);
+        GUIImage image = new GUIImage(screen_width, screen_height, 0f, 0f, (float)image_width/texture_width, (float)image_height/texture_height, texture_name);
 		image.setPos(0, 0);
 
 		progress_bar = new ProgressBar(network, gui, progress_width, info, false);
@@ -132,10 +128,7 @@ public final class ProgressForm {
 	}
 
 	private static void callback(@NonNull GUI gui, @NonNull LoadCallback callback, boolean first_progress) {
-		Fadable start_sources_fadable = () -> {
-                    if (AL.isCreated())
-                        AudioManager.getManager().startSources();
-                };
+		Fadable start_sources_fadable = () -> AudioManager.getManager().startSources();
 
 		GUIRoot client_root = gui.createRoot();
 		UIRenderer renderer = callback.load(client_root);

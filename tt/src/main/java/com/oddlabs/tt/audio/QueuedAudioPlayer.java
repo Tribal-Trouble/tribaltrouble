@@ -1,11 +1,13 @@
 package com.oddlabs.tt.audio;
 
+import com.oddlabs.tt.audio.openal.ALBufferUtils;
+import com.oddlabs.tt.audio.openal.OpenALAudio;
+import com.oddlabs.tt.audio.openal.OpenALAudioSource;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.util.ByteBufferOutputStream;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL10;
 
 import java.io.IOException;
@@ -15,15 +17,15 @@ import java.nio.IntBuffer;
 final class QueuedAudioPlayer extends AbstractAudioPlayer {
 	private final static int NUM_BUFFERS = 12;
 	private final @NonNull ByteBufferOutputStream buffer_stream;
-	private final @Nullable Audio audio;
-	private final IntBuffer al_return_buffers = BufferUtils.createIntBuffer(1);
+	private final @Nullable OpenALAudio audio;
+	private final IntBuffer al_return_buffers = ALBufferUtils.createIntBuffer(1);
 	private final @NonNull URL url;
 	private final int channels;
 
 	private @Nullable OGGStream ogg_stream;
 	private int oldest_buffer = 0;
 
-	QueuedAudioPlayer(@NonNull AudioSource source, @NonNull AudioParameters<String> params) throws IOException {
+	QueuedAudioPlayer(@Nullable AudioSource source, @NonNull AudioParameters<@NonNull String> params) throws IOException {
 		super(source, params);
 		this.url = Utils.makeURL(params.sound);
 		this.buffer_stream = new ByteBufferOutputStream(true);
@@ -34,15 +36,12 @@ final class QueuedAudioPlayer extends AbstractAudioPlayer {
 			return;
 		}
 
-		if (params.relative)
-			AL10.alSourcei(source.getSource(), AL10.AL_SOURCE_RELATIVE, AL10.AL_TRUE);
-		else
-			AL10.alSourcei(source.getSource(), AL10.AL_SOURCE_RELATIVE, AL10.AL_FALSE);
+        source.setRelative(params.relative);
 
 		setGain(params.gain);
 		setPos(params.x, params.y, params.z);
 
-		audio = new Audio(NUM_BUFFERS);
+        audio = new OpenALAudio(NUM_BUFFERS);
 		IntBuffer al_buffers = audio.getBuffers();
 		this.ogg_stream = new OGGStream(url);
 		this.channels = ogg_stream.getChannels();
@@ -50,15 +49,15 @@ final class QueuedAudioPlayer extends AbstractAudioPlayer {
 			fillBuffer(al_buffers.get(i));
 		}
 
-		AL10.alSourcei(source.getSource(), AL10.AL_LOOPING, AL10.AL_FALSE);
-		AL10.alSourcef(source.getSource(), AL10.AL_ROLLOFF_FACTOR, ROLLOFF_FACTOR);
-		AL10.alSourcef(source.getSource(), AL10.AL_REFERENCE_DISTANCE, params.radius);
-		AL10.alSourcef(source.getSource(), AL10.AL_MIN_GAIN, 0f);
-		AL10.alSourcef(source.getSource(), AL10.AL_MAX_GAIN, 1f);
-		AL10.alSourcef(source.getSource(), AL10.AL_PITCH, params.pitch);
-		AL10.alSourceQueueBuffers(source.getSource(), al_buffers);
+		source.setLooping(false);
+		source.setRolloff(ROLLOFF_FACTOR);
+		source.setDistance(params.radius);
+		source.setMinGain(0f);
+        source.setMaxGain(1f);
+		source.setPitch(params.pitch);
+        ((OpenALAudioSource)source).queue(al_buffers);
 		if (params.music || AudioManager.getManager().startPlaying())
-			AL10.alSourcePlay(source.getSource());
+			source.play();
 
 		AudioManager.getManager().registerQueuedPlayer(this);
 	}
@@ -88,14 +87,14 @@ final class QueuedAudioPlayer extends AbstractAudioPlayer {
 	}
 
 	public void refill() throws IOException { // Run by the Refiller thread
-		int processed = AL10.alGetSourcei(source.getSource(), AL10.AL_BUFFERS_PROCESSED);
+		int processed = ((OpenALAudioSource)source).processed();
 //System.out.println("this = " + this + " | processed = " + processed);
 		while (processed > 0) {
 //			assert processed <= al_buffers.capacity();
 //			al_buffers.position(oldest_buffer);
 //			al_buffers.limit(oldest_buffer + 1);
 //			assert AL10.alIsBuffer(al_buffers.get(al_buffers.position())): al_buffers.get(al_buffers.position()) + " is not a buffer";
-			AL10.alSourceUnqueueBuffers(source.getSource(), al_return_buffers);
+            ((OpenALAudioSource)source).unqueued(al_return_buffers);
 //			assert al_return_buffers.get(0) == al_buffers.get(al_buffers.position()): "Unexpected buffer removed: " + al_return_buffers.get(0) + " should be " + al_buffers.get(al_buffers.position());
 			int bytes = fillBuffer(al_return_buffers.get(0));
 			if (bytes == 0) {
@@ -103,19 +102,19 @@ final class QueuedAudioPlayer extends AbstractAudioPlayer {
 				return;
 			}
 //			assert AL10.alIsBuffer(al_buffers.get(al_buffers.position())): al_buffers.get(al_buffers.position()) + " is not a buffer";
-			AL10.alSourceQueueBuffers(source.getSource(), al_return_buffers);
+            ((OpenALAudioSource)source).queue(al_return_buffers);
 //System.out.println("oldest_buffer = " + oldest_buffer + " | processed = " + processed + " | capacity = " + buffer_streams[oldest_buffer].buffer().capacity() + " | position " + buffer_streams[oldest_buffer].buffer().position() + " | limit " + buffer_streams[oldest_buffer].buffer().limit() + " al_size = " + AL10.alGetBufferi(al_buffers.get(oldest_buffer), AL10.AL_SIZE));
 			oldest_buffer = (oldest_buffer + 1)%NUM_BUFFERS;
 			processed--;
 /*			int test_processed = AL10.alGetSourcei(source.getSource(), AL10.AL_BUFFERS_PROCESSED);
 			assert test_processed >= processed: test_processed + " " + processed;*/
 		}
-		if (AL10.alGetSourcei(source.getSource(), AL10.AL_SOURCE_STATE) == AL10.AL_STOPPED)
-			AL10.alSourcePlay(source.getSource());
+		if (source.getState() == AudioSource.State.STOPPED)
+			source.play();;
 //System.out.println("		AL10.alGetSourcei(source_index,AL10.AL_SOURCE_STATE) = " + 		AL10.alGetSourcei(source.getSource(),AL10.AL_SOURCE_STATE) + " | AL10.AL_STOPPED = " + AL10.AL_STOPPED + " | AL10.AL_PLAYING = " + AL10.AL_PLAYING);
 	}
 
-        @Override
+    @Override
 	public void stop() {
 		if (isPlaying()) {
 			AudioManager.getManager().removeQueuedPlayer(this);

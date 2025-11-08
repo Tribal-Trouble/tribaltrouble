@@ -1,5 +1,3 @@
-import java.io.File
-
 plugins {
     application
 }
@@ -37,7 +35,14 @@ tasks.register("renderTahomaFont", JavaExec::class) {
     description = "Renders Tahoma TTF font to PNG texture and font metadata."
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
     classpath = fontRenderer
-    
+
+    val ttfFile = File("${project(":common").projectDir}/src/main/resources/fonts/Tahoma.ttf")
+    inputs.file(ttfFile)
+    outputs.files(
+        "$fontInfoDir/tahoma_13.font",
+        "$fontTexDir/tahoma_13.png"
+    )
+
     doFirst {
         File(fontInfoDir).mkdirs()
         File(fontTexDir).mkdirs()
@@ -53,7 +58,6 @@ tasks.register("renderTahomaFont", JavaExec::class) {
         fontTexClasspath
     )
 
-    val ttfFile = File("${project(":common").projectDir}/src/main/resources/fonts/Tahoma.ttf")
     onlyIf { ttfFile.exists() }
 }
 
@@ -62,6 +66,13 @@ tasks.register("renderImpactFont", JavaExec::class) {
     description = "Renders Impact TTF font to PNG texture and font metadata."
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
     classpath = fontRenderer
+
+    val ttfFile = File("${project(":common").projectDir}/src/main/resources/fonts/Impact.ttf")
+    inputs.file(ttfFile)
+    outputs.files(
+        "$fontInfoDir/impact_24.font",
+        "$fontTexDir/impact_24.png"
+    )
 
     doFirst {
         File(fontInfoDir).mkdirs()
@@ -78,7 +89,6 @@ tasks.register("renderImpactFont", JavaExec::class) {
         fontTexClasspath
     )
 
-    val ttfFile = File("${project(":common").projectDir}/src/main/resources/fonts/Impact.ttf")
     onlyIf { ttfFile.exists() }
 }
 

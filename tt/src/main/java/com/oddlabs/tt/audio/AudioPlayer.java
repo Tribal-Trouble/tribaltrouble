@@ -1,8 +1,7 @@
 package com.oddlabs.tt.audio;
 
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.openal.AL10;
-
+import org.jspecify.annotations.Nullable;
 
 public final class AudioPlayer extends AbstractAudioPlayer {
 	public final static int AUDIO_RANK_AMBIENT = 75;
@@ -77,31 +76,26 @@ public final class AudioPlayer extends AbstractAudioPlayer {
 	public final static float AUDIO_RADIUS_BLAST_BLAST = 1f;
 	public final static float AUDIO_RADIUS_ARMORY = .05f;
 
-	AudioPlayer(@NonNull AudioSource source, @NonNull AudioParameters<Audio> params) {
+	AudioPlayer(@Nullable AudioSource source, @NonNull AudioParameters<Audio> params) {
 		super(source, params);
 		if (this.source == null) {
 			return;
 		}
-		AL10.alSourcei(source.getSource(), AL10.AL_LOOPING, params.looping ? AL10.AL_TRUE : AL10.AL_FALSE);
-
-		AL10.alSourcei(source.getSource(), AL10.AL_SOURCE_RELATIVE, params.relative ? AL10.AL_TRUE : AL10.AL_FALSE);
+        source.setLooping(params.looping);
+        source.setRelative(params.relative);
 
 		setGain(params.gain);
 		setPos(params.x, params.y, params.z);
-//System.out.println("source.getSource() = " + source.getSource() + " | sound.getBuffer() = " + sound.getBuffer());
-		Audio sound = params.sound;
-		assert sound.getBuffer() != AL10.AL_NONE;
-		int source_state = AL10.alGetSourcei(source.getSource(), AL10.AL_SOURCE_STATE);
-		assert source_state == AL10.AL_STOPPED || source_state == AL10.AL_INITIAL;
+		var state = source.getState();
+		assert state == AudioSource.State.STOPPED || state == AudioSource.State.INITIAL;
 
-		AL10.alSourcei(source.getSource(), AL10.AL_BUFFER, sound.getBuffer());
-		AL10.alSourcef(source.getSource(), AL10.AL_ROLLOFF_FACTOR, ROLLOFF_FACTOR);
-		AL10.alSourcef(source.getSource(), AL10.AL_REFERENCE_DISTANCE, params.radius);
-		AL10.alSourcef(source.getSource(), AL10.AL_MIN_GAIN, 0f);
-		AL10.alSourcef(source.getSource(), AL10.AL_MAX_GAIN, 1f);
-		AL10.alSourcef(source.getSource(), AL10.AL_PITCH, params.pitch);
+		source.setRolloff(ROLLOFF_FACTOR);
+		source.setDistance(params.radius);
+        source.setMinGain(0f);
+        source.setMaxGain(1f);
+        source.setPitch(params.pitch);
 		if (params.music || AudioManager.getManager().startPlaying()) {
-			AL10.alSourcePlay(source.getSource());
+			source.play();
 		}
 	}
 }

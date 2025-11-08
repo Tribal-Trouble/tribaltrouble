@@ -85,10 +85,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		group_music.addChild(label_music);
 		cb_music.addCheckBoxListener(new CBMusicListener());
 		slider_music = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int)(Settings.getSettings().music_gain*(MAX_VALUE)));
-		if (TEMPORARILY_DISABLE_MUSIC_CONTROLS)
-			slider_music.setDisabled(true);
-		else
-			slider_music.setDisabled(!cb_music.isMarked());
+        slider_music.setDisabled(TEMPORARILY_DISABLE_MUSIC_CONTROLS || !cb_music.isMarked());
 		group_music.addChild(slider_music);
 		slider_music.addValueListener(new SliderMusicListener());
 		cb_music.place();
@@ -97,11 +94,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		slider_music.place(label_music_low, RIGHT_MID);
 		label_music_high.place(slider_music, RIGHT_MID);
 		group_music.compileCanvas();
-		if (TEMPORARILY_DISABLE_MUSIC_CONTROLS)
-			group_music.setDisabled(true);
-		else
-			group_music.setDisabled(!LocalInput.alIsCreated());
-
+        group_music.setDisabled(TEMPORARILY_DISABLE_MUSIC_CONTROLS || !LocalInput.audioIsCreated());
 
 		Group group_sound = new Group();
 		sound.addChild(group_sound);
@@ -124,7 +117,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		slider_sound.place(label_sound_low, RIGHT_MID);
 		label_sound_high.place(slider_sound, RIGHT_MID);
 		group_sound.compileCanvas();
-		group_sound.setDisabled(!LocalInput.alIsCreated());
+		group_sound.setDisabled(!LocalInput.audioIsCreated());
 
 		// Fullscreen
 		Group group_fullscreen = new Group();

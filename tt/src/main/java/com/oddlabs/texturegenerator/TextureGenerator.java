@@ -25,7 +25,7 @@ public final class TextureGenerator {
 	private final static int LOWDETAIL_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
 	private final static int CROWN_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
 
-	void main(String @NonNull [] args) throws LWJGLException {
+	void main(@NonNull String @NonNull ... args) throws LWJGLException {
 		assert args.length == 1;
 		new TextureGenerator(args[0]);
 	}

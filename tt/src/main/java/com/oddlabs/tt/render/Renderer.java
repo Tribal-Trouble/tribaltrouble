@@ -38,6 +38,7 @@ import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.resource.IslandGenerator;
 import com.oddlabs.tt.resource.NativeResource;
+import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.util.GLState;
@@ -55,8 +56,6 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.openal.AL;
-import org.lwjgl.openal.AL10;
 import org.lwjgl.opengl.ARBMultisample;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
@@ -73,6 +72,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -337,19 +337,11 @@ public final class Renderer {
 		setupMainMenu(network, gui, true);
 
 		boolean reset_keyboard = false;
-// Registry hack for mikkel!
-/*try {
-String value = com.oddlabs.tt.util.WindowsRegistryInterface.queryRegistrationKey("HKEY_LOCAL_MACHINE", "HARDWARE\DeviceMap\Video", "\Device\Video0");
-System.out.println("value = " + value);
-} catch (Exception e) {
-e.printStackTrace();
-}*/
 		try {
 			while (!finished) {
 				runGameLoop(network, gui);
 				if (Display.isVisible()) {
-					if (AL.isCreated())
-						AL10.alListenerf(AL10.AL_GAIN, 1f);
+                    AudioManager.getManager().masterGain(1f);
 					if (reset_keyboard) {
 						reset_keyboard = false;
 						LocalInput.resetKeyboard();
@@ -367,12 +359,11 @@ e.printStackTrace();
 						GLUtils.takeScreenshot("");
 				} else {
 					reset_keyboard = true;
-					if (AL.isCreated())
-						AL10.alListenerf(AL10.AL_GAIN, 0f);
+                    AudioManager.getManager().masterGain(0f);
 					try {
-						Thread.sleep(10);
+						TimeUnit.MILLISECONDS.sleep(10);;
 					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
+						throw new RuntimeException("woken", e);
 					}
 				}
 			}
@@ -496,7 +487,7 @@ e.printStackTrace();
 		setMusicPath("/music/menu.ogg", 0f);
 		MainMenu main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
 		gui_root.pushDelegate(main_menu);
-		if (first_progress && Settings.getSettings().warning_no_sound && !LocalInput.alIsCreated()) {
+		if (first_progress && Settings.getSettings().warning_no_sound && !LocalInput.audioIsCreated()) {
 			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
 			gui_root.addModalForm(new WarningForm(Utils.getBundleString(bundle, "sound_not_available_caption"), Utils.getBundleString(bundle, "sound_not_available_message")));
 		}
@@ -548,8 +539,9 @@ e.printStackTrace();
 	}
 
 	private static void destroyNative() {
-		destroyAL();
+        AudioManager.getManager().destroy();
 		Display.destroy();
+        Resources.clearResources();
 	}
 
 	public static void dumpWindowInfo() {
@@ -576,12 +568,7 @@ e.printStackTrace();
 		long total_mem = Runtime.getRuntime().maxMemory();
 		logger.info("maxMemory = '" + total_mem + "'");
 
-		try {
-			AL.create(null, -1, -1, false);
-			initAL();
-		} catch (LWJGLException e) {
-			logger.log(Level.WARNING, "Could not create sound system", e);
-		}
+        AudioManager.getManager();
 
 		try {
 			int bpp = Display.getDisplayMode().getBitsPerPixel();
@@ -598,7 +585,7 @@ e.printStackTrace();
 //if (System.currentTimeMillis() > 0)
 //throw new LWJGLException("Det fejlede fordi du bad den om det");
 		} catch (LWJGLException e) {
-			destroyAL();
+            AudioManager.getManager().destroy();
 			failedOpenGL(e);
 			throw e;
 		}
@@ -634,18 +621,6 @@ e.printStackTrace();
 		initVisibleGL();
 	}
 
-	private void initAL() {
-		if (AL.isCreated()) {
-			logger.info("OpenAL version: " + AL10.alGetString(AL10.AL_VERSION));
-			logger.info("OpenAL vendor: " + AL10.alGetString(AL10.AL_VENDOR));
-			logger.info("OpenAL renderer: " + AL10.alGetString(AL10.AL_RENDERER));
-			AL10.alDistanceModel(AL10.AL_INVERSE_DISTANCE);
-//			resetMusicPath();
-//			if (Settings.getSettings().play_music)
-//				initMusicPlayer();
-		}
-	}
-
 	public void toggleSound() {
 		Settings.getSettings().play_sfx = !Settings.getSettings().play_sfx;
 		if (Settings.getSettings().play_sfx)
@@ -668,18 +643,16 @@ e.printStackTrace();
 	}
 
 	public static void setMusicPath(String music_path, float delay) {
-		if (AL.isCreated()) {
-			if (music != null && Settings.getSettings().play_music) {
-				music.stop(2.5f, Settings.getSettings().music_gain);
-			}
-			Renderer.music_path = music_path;
-			if (Settings.getSettings().play_music) {
-				if (music_timer != null)
-					music_timer.stop();
-				music_timer = new TimerAnimation(new MusicTimer(), delay);
-				music_timer.start();
-			}
-		}
+        if (music != null && Settings.getSettings().play_music) {
+            music.stop(2.5f, Settings.getSettings().music_gain);
+        }
+        Renderer.music_path = music_path;
+        if (Settings.getSettings().play_music) {
+            if (music_timer != null)
+                music_timer.stop();
+            music_timer = new TimerAnimation(new MusicTimer(), delay);
+            music_timer.start();
+        }
 	}
 
 	private final static class MusicTimer implements Updatable {
@@ -699,10 +672,7 @@ e.printStackTrace();
 	}
 
 	private static void destroyAL() {
-		if (AL.isCreated()) {
-			AudioManager.getManager().destroy();
-			AL.destroy();
-		}
+
 	}
 
 	private void initVisibleGL() {
