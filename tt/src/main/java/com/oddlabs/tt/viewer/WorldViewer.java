@@ -180,7 +180,7 @@ public final class WorldViewer implements Animated {
     }
 
     @Override
-    public void updateChecksum(StateChecksum sum) {
+    public void updateChecksum(@NonNull StateChecksum sum) {
     }
 
     public @NonNull WorldParameters getParameters() {

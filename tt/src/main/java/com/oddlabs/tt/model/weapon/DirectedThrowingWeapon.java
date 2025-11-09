@@ -8,7 +8,7 @@ import com.oddlabs.tt.render.SpriteKey;
 import org.jspecify.annotations.NonNull;
 
 public abstract class DirectedThrowingWeapon extends ThrowingWeapon {
-	public DirectedThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable target, SpriteKey sprite_renderer, Audio throw_sound, Audio[] hit_sounds) {
+	public DirectedThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable target, SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio[] hit_sounds) {
 		super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
 	}
 

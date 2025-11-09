@@ -143,10 +143,7 @@ public final class MapCamera extends Camera {
         switch (event.getKeyCode()) {
             case Keyboard.KEY_SPACE:
             case Keyboard.KEY_NUMPAD5:
-                if (map_mode == MapMode.TO_MAP || map_mode == MapMode.IN_MAP)
-                    changeMode(MapMode.FROM_MAP);
-                else
-                    changeMode(MapMode.TO_MAP);
+                changeMode((map_mode == MapMode.TO_MAP || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
                 break;
         }
     }

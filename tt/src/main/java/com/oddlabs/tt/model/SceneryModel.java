@@ -106,7 +106,7 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 	}
 
 	@Override
-	public final void updateChecksum(StateChecksum checksum) {
+	public final void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 
 	@Override

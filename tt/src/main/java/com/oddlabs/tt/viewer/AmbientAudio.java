@@ -21,9 +21,9 @@ import java.nio.FloatBuffer;
 public final class AmbientAudio {
 	private final static FloatBuffer orientation_buffer = BufferUtils.createFloatBuffer(3*2);
 
-	private final Audio ambient_forest_buffer;
-	private final Audio ambient_beach_buffer;
-	private final Audio ambient_wind_buffer;
+	private final @NonNull Audio ambient_forest_buffer;
+	private final @NonNull Audio ambient_beach_buffer;
+	private final @NonNull Audio ambient_wind_buffer;
 
 	private final AbstractAudioPlayer ambient_forest;
 	private final AbstractAudioPlayer ambient_beach;

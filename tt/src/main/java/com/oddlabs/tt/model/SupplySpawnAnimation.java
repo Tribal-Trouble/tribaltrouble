@@ -29,6 +29,6 @@ public class SupplySpawnAnimation implements Animated {
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 }

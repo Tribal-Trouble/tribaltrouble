@@ -1,5 +1,6 @@
 package com.oddlabs.tt.audio.openal;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;
@@ -23,7 +24,7 @@ public final class ALBufferUtils {
         return BufferUtils.createIntBuffer(size);
     }
 
-    public static ByteBuffer createByteBuffer(int size) {
+    public static @NonNull ByteBuffer createByteBuffer(int size) {
         return BufferUtils.createByteBuffer(size);
     }
 }

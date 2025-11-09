@@ -22,7 +22,7 @@ import java.nio.FloatBuffer;
 public final class Water {
 
     private final @NonNull FloatVBO patch_vertices;
-    private final Texture[] ocean;
+    private final Texture @NonNull [] ocean;
 
     public Water(@NonNull HeightMap heightmap, Landscape.TerrainType terrain) {
         TextureGenerator ocean_desc = new GeneratorOcean(terrain);

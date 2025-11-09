@@ -63,7 +63,7 @@ public final class CounterLabel extends Label implements Animated {
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum check_sum) {
+	public void updateChecksum(@NonNull StateChecksum check_sum) {
 	}
 }
 

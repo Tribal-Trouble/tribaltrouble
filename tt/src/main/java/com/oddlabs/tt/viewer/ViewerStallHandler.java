@@ -3,19 +3,20 @@ package com.oddlabs.tt.viewer;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.WaitingForPlayersForm;
 import com.oddlabs.tt.net.StallHandler;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 final class ViewerStallHandler implements StallHandler {
 
     private final static float SHOW_WAITING_DELAY_SECONDS = 3f;
 
-    private final WorldViewer viewer;
+    private final @NonNull WorldViewer viewer;
 
     private float local_stall_time;
     private int stall_tick;
     private @Nullable WaitingForPlayersForm waiting_for_players_form;
 
-    ViewerStallHandler(WorldViewer viewer) {
+    ViewerStallHandler(@NonNull WorldViewer viewer) {
         this.viewer = viewer;
     }
 

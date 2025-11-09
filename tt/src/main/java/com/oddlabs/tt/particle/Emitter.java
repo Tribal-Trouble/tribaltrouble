@@ -143,6 +143,6 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 	}
 
 	@Override
-	public final void updateChecksum(StateChecksum checksum) {
+	public final void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 }

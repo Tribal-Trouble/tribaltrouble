@@ -51,7 +51,7 @@ public final class GUI implements Animated {
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 
 	void switchRoot(GUIRoot gui_root, UIRenderer renderer) {

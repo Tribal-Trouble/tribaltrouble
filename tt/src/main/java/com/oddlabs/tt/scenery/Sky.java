@@ -60,7 +60,7 @@ public final class Sky {
     private FloatVBO sky_tex1;
     private FloatVBO sky_colors;
 
-    private final Texture[] clouds;
+    private final Texture @NonNull [] clouds;
     private final int subdiv_axis;
     private final int subdiv_height;
     private final Landscape.@NonNull TerrainType terrain;

@@ -209,12 +209,12 @@ public final class AnimationManager {
 		return tick;
 	}
 
-	public void registerAnimation(Animated anim) {
+	public void registerAnimation(@NonNull Animated anim) {
 		deleted_animations.remove(anim);
         animations.add(anim);
 	}
 
-	public void removeAnimation(Animated anim) {
+	public void removeAnimation(@NonNull Animated anim) {
 		if (animations.contains(anim)) {
 			deleted_animations.add(anim);
 		}
@@ -225,7 +225,7 @@ public final class AnimationManager {
 		deleted_animations.clear();
 	}
 
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 		flushAnimations();
         animations.forEach(anim -> anim.updateChecksum(checksum));
 	}
@@ -234,10 +234,9 @@ public final class AnimationManager {
 		tick++;
 		flushAnimations();
         Predicate<Animated> notDeleted = ((Predicate<Animated>) deleted_animations::contains).negate();
-        Consumer<Animated> animate = (Animated anim) -> anim.animate(t);
         animations.stream()
                 .filter(notDeleted)
-                .forEach(animate);
+                .forEach(a -> a.animate(t));
 	}
 
 	public void debugPrintAnimations() {

@@ -38,7 +38,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	private float z_speed;
 	private float deterministic_z;
 
-	public ThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable target, SpriteKey sprite_renderer, Audio throw_sound, Audio[] hit_sounds) {
+	public ThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable target, SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio[] hit_sounds) {
 		super(target.getOwner().getWorld(), sprite_renderer);
 		this.hit = hit;
 		this.hit_sounds = hit_sounds;

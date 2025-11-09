@@ -248,7 +248,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum checksum) {}
+	public void updateChecksum(@NonNull StateChecksum checksum) {}
 
 	@Override
 	public void visit(@NonNull TreeNodeVisitor visitor) {

@@ -368,7 +368,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum sum) {
+	public void updateChecksum(@NonNull StateChecksum sum) {
 	}
 
 	@Override

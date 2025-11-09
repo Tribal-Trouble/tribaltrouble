@@ -261,7 +261,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 	}
 
 	@Override
-	public final void updateChecksum(StateChecksum checksum) {
+	public final void updateChecksum(@NonNull StateChecksum checksum) {
 /*		checksum.update(getGridX());
 		checksum.update(getGridY());
 		checksum.update(getPositionX());

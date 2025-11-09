@@ -263,6 +263,6 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 }

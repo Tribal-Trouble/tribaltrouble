@@ -66,7 +66,7 @@ public class SupplyManager implements Animated {
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 
 	protected void insertSupply() {

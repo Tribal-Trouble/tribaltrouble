@@ -34,8 +34,8 @@ class TreePicker implements TreeNodeVisitor {
 	private final BoundingBox picking_selection_box = new BoundingBox();
 	private final SpriteSorter sprite_sorter;
 	private final @NonNull RenderStateCache render_state_cache;
-	private final Map<@NonNull TreeType,@NonNull Tree> trees;
-	private final Map<@NonNull TreeType,@NonNull LowDetailModel> tree_low_details;
+	private final @NonNull Map<@NonNull TreeType,@NonNull Tree> trees;
+	private final @NonNull Map<@NonNull TreeType,@NonNull LowDetailModel> tree_low_details;
 	private final RespondManager respond_manager;
 	private CameraState camera;
 

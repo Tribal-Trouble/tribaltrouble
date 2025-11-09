@@ -78,7 +78,7 @@ public final class RespondManager implements Animated {
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 
 	private final static class Timeout implements Comparable<Timeout> {

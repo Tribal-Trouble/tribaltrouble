@@ -11,11 +11,10 @@ public final class Index implements Updatable {
 
 	private final static Index index = new Index();
 
-	private final @NonNull TimerAnimation timer;
+	private final TimerAnimation timer = new TimerAnimation(this, BLINK_INTERVAL);
 	private boolean blink_on;
 
 	private Index() {
-		timer = new TimerAnimation(this, BLINK_INTERVAL);
 		timer.start();
 		blink_on = true;
 	}

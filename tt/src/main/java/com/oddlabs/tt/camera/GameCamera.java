@@ -56,10 +56,6 @@ public final class GameCamera extends Camera {
             updateDirection();
     }
 
-/*	public GameCamera() {
-            super();
-    }
-*/
     public void setOwner(SelectionDelegate owner) {
         this.owner = owner;
     }

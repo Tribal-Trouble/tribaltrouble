@@ -156,6 +156,6 @@ public final class Lightning extends Element<Lightning> implements Animated {
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 }

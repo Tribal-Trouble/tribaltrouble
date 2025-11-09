@@ -11,9 +11,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Main {
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
+
 	public static void fail(@NonNull Throwable t) {
 		try {
-			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Critical Failure", t);
+            logger.log(Level.SEVERE, "Critical Failure", t);
 			if (Display.isCreated())
 				Display.destroy();
 			while (t.getCause() != null) {
@@ -29,13 +31,13 @@ public final class Main {
 	}
 
 	public static void shutdown() {
-        Logger.getLogger(Main.class.getName()).info("Exiting");
+        logger.info("Exiting");
 		System.exit(0);
 	}
 
     static void main(@NonNull String... args) {
 		try {
-			Logger.getLogger(Main.class.getName()).info("Starting game....");
+            logger.info("Starting game....");
 			Renderer.runGame(args);
 		} catch (Throwable t) {
 			fail(t);

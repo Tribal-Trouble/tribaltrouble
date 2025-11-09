@@ -37,11 +37,11 @@ public final class Optimizer {
 		return true;
 	}
 
-	private static void copyFloats(int index1, int index2, int size, float[] array1, float[] array2) {
+	private static void copyFloats(int index1, int index2, int size, float @NonNull [] array1, float @NonNull [] array2) {
         if (size >= 0) System.arraycopy(array1, index1 * size, array2, index2 * size, size);
 	}
 
-	private static void copyObjects(int index1, int index2, int size, Object[] array1, Object[] array2) {
+	private static void copyObjects(int index1, int index2, int size, Object @NonNull [] array1, Object @NonNull [] array2) {
         if (size >= 0) System.arraycopy(array1, index1 * size, array2, index2 * size, size);
 	}
 
@@ -117,19 +117,19 @@ public final class Optimizer {
 		return new ModelInfo(/*tex_name,*/ indices, r_vertices, r_normals, r_colors, r_uvs, r_skin_names, r_skin_weights);
 	}
 
-	private static float[][] stripArray(int length, float[][] array) {
+	private static float[][] stripArray(int length, float[] @NonNull [] array) {
 		float[][] copy = new float[length][];
         System.arraycopy(array, 0, copy, 0, length);
 		return copy;
 	}
 
-	private static byte[][] stripArray(int length, byte[][] array) {
+	private static byte[][] stripArray(int length, byte[] @NonNull [] array) {
 		byte[][] copy = new byte[length][];
         System.arraycopy(array, 0, copy, 0, length);
 		return copy;
 	}
 
-	private static float[] stripArray(int length, float[] array) {
+	private static float[] stripArray(int length, float @NonNull [] array) {
 		float[] copy = new float[length];
         System.arraycopy(array, 0, copy, 0, length);
 		return copy;

@@ -356,6 +356,6 @@ public abstract class AI implements Animated {
 	}
 
 	@Override
-	public final void updateChecksum(StateChecksum checksum) {
+	public final void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 }

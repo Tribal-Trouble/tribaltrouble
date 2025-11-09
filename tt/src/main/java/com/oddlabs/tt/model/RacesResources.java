@@ -86,16 +86,16 @@ public final class RacesResources {
 	private final TextureKey[] star_textures = new TextureKey[1];
 	private final Audio @NonNull [] tree_fall_sound;
 	private final Audio @NonNull [] building_hit_sound;
-	private final Audio gas_sound;
-	private final Audio bubbling_sound;
-	private final Audio lightning_sound;
-	private final Audio cloud_sound;
+	private final @NonNull Audio gas_sound;
+	private final @NonNull Audio bubbling_sound;
+	private final @NonNull Audio lightning_sound;
+	private final @NonNull Audio cloud_sound;
 	private final Audio @NonNull [] stun_sound;
 	private final Audio @NonNull [] blast_lur_sound;
-	private final Audio blast_rumble_sound;
-	private final Audio blast_blast_sound;
-	private final Audio armory_sound;
-	private final Audio building_collapse_sound;
+	private final @NonNull Audio blast_rumble_sound;
+	private final @NonNull Audio blast_blast_sound;
+	private final @NonNull Audio armory_sound;
+	private final @NonNull Audio building_collapse_sound;
 	private final Map<Class<? extends Supply>,Audio[]> harvest_sounds = new HashMap<>();
 	private final SpriteKey[] wood_fragment_sprites = new SpriteKey[4];
 	private final SpriteKey[] treasure_sprites = new SpriteKey[6];
@@ -848,19 +848,19 @@ public final class RacesResources {
 		return building_hit_sound[random.nextInt(building_hit_sound.length)];
 	}
 
-	public Audio getGasSound() {
+	public @NonNull Audio getGasSound() {
 		return gas_sound;
 	}
 
-	public Audio getBubblingSound() {
+	public @NonNull Audio getBubblingSound() {
 		return bubbling_sound;
 	}
 
-	public Audio getLightningSound() {
+	public @NonNull Audio getLightningSound() {
 		return lightning_sound;
 	}
 
-	public Audio getCloudSound() {
+	public @NonNull Audio getCloudSound() {
 		return cloud_sound;
 	}
 
@@ -872,19 +872,19 @@ public final class RacesResources {
 		return blast_lur_sound[random.nextInt(blast_lur_sound.length)];
 	}
 
-	public Audio getBlastRumbleSound() {
+	public @NonNull Audio getBlastRumbleSound() {
 		return blast_rumble_sound;
 	}
 
-	public Audio getBlastBlastSound() {
+	public @NonNull Audio getBlastBlastSound() {
 		return blast_blast_sound;
 	}
 
-	public Audio getArmorySound() {
+	public @NonNull Audio getArmorySound() {
 		return armory_sound;
 	}
 
-	public Audio getBuildingCollapseSound() {
+	public @NonNull Audio getBuildingCollapseSound() {
 		return building_collapse_sound;
 	}
 

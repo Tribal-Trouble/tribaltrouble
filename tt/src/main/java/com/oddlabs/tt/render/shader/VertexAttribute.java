@@ -10,7 +10,7 @@ public enum VertexAttribute {
 	COLOR(FixedFunctionShader.Attributes.COLOR, 4, GL11.GL_FLOAT),
 	TEX_COORD_0(FixedFunctionShader.Attributes.TEX_COORD_0, 2, GL11.GL_FLOAT);
 
-	private final String name;
+	private final @NonNull String name;
 	private final int componentCount;
 	private final int glType;
 	

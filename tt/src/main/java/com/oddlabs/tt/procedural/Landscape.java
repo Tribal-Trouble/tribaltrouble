@@ -1059,14 +1059,12 @@ public final class Landscape {
 	// ***************
 
 	public static @NonNull FogInfo getFogInfo(@NonNull TerrainType terrain, int meters_per_world) {
-		switch (terrain) {
-			case NATIVE:
-				return new FogInfo(new float[] {.65f, .75f, 1f, 1f}, GL11.GL_EXP2, 1.3f*meters_per_world, .0015f, 0f, meters_per_world>>2);
-			case VIKING:
-				return new FogInfo(new float[] {.2f, .4f, .55f, 1f}, GL11.GL_EXP2, 1.3f*meters_per_world, .0015f, 0f, meters_per_world>>2);
-			default:
-				throw new RuntimeException("Unknown terrain type: " + terrain);
-		}
+        return switch (terrain) {
+            case NATIVE ->
+                    new FogInfo(new float[]{.65f, .75f, 1f, 1f}, GL11.GL_EXP2, 1.3f * meters_per_world, .0015f, 0f, meters_per_world >> 2);
+            case VIKING ->
+                    new FogInfo(new float[]{.2f, .4f, .55f, 1f}, GL11.GL_EXP2, 1.3f * meters_per_world, .0015f, 0f, meters_per_world >> 2);
+        };
 	}
 
 	public BlendInfo @NonNull [] getBlendInfos() {
@@ -1096,7 +1094,7 @@ public final class Landscape {
 		return build;
 	}
 
-	public @NonNull List<int[]> getTrees() {
+	public @NonNull List<int @NonNull[]> getTrees() {
 		List<int[]> list = new ArrayList<>();
 		for (int y = 0; y < trees.height; y++) {
 			for (int x = 0; x < trees.width; x++) {
@@ -1108,7 +1106,7 @@ public final class Landscape {
 		return list;
 	}
 
-	public @NonNull List<int[]> getPalmtrees() {
+	public @NonNull List<int @NonNull[]> getPalmtrees() {
 		List<int[]> list = new ArrayList<>();
 		for (int y = 0; y < palmtrees.height; y++) {
 			for (int x = 0; x < palmtrees.width; x++) {
@@ -1120,7 +1118,7 @@ public final class Landscape {
 		return list;
 	}
 
-	public @NonNull List<int[]> getRock() {
+	public @NonNull List<int @NonNull[]> getRock() {
 		List<int[]> list = new ArrayList<>();
 		for (int y = 0; y < rock.height; y++) {
 			for (int x = 0; x < rock.width; x++) {
@@ -1132,7 +1130,7 @@ public final class Landscape {
 		return list;
 	}
 
-	public @NonNull List<int[]> getIron() {
+	public @NonNull List<int @NonNull[]> getIron() {
 		List<int[]> list = new ArrayList<>();
 		for (int y = 0; y < iron.height; y++) {
 			for (int x = 0; x < iron.width; x++) {

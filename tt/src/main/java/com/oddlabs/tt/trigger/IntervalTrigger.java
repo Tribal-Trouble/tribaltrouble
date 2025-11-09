@@ -8,14 +8,14 @@ import org.jspecify.annotations.Nullable;
 
 public abstract class IntervalTrigger {
 	private final float after_done_time;
-	private final AnimationManager animation_manager;
+	private final @NonNull AnimationManager animation_manager;
 	private @Nullable TimerAnimation timer;
 	
 	public IntervalTrigger(@NonNull World world, float check_interval, float after_done_time) {
 		this(check_interval, after_done_time, world.getAnimationManagerRealTime());
 	}
 
-	public IntervalTrigger(float check_interval, float after_done_time, AnimationManager animation_manager) {
+	public IntervalTrigger(float check_interval, float after_done_time, @NonNull AnimationManager animation_manager) {
 		this.after_done_time = after_done_time;
 		this.animation_manager = animation_manager;
 		this.timer = new TimerAnimation(animation_manager, (Object _) -> check(), check_interval);

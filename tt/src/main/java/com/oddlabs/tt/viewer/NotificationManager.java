@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class NotificationManager {
-	private final List<AttackNotification> attack_notifies = new ArrayList<>();
-	private final List<Notification> notifies = new ArrayList<>();
+	private final List<@NonNull AttackNotification> attack_notifies = new ArrayList<>();
+	private final List<@NonNull Notification> notifies = new ArrayList<>();
 	private final GUIRoot gui_root;
 	private @Nullable Notification latest_notification = null;
 
@@ -24,7 +24,7 @@ public final class NotificationManager {
 		return latest_notification;
 	}
 
-	public void newAttackNotification(AnimationManager manager, @NonNull Selectable target, @NonNull Player local_player) {
+	public void newAttackNotification(@NonNull AnimationManager manager, @NonNull Selectable target, @NonNull Player local_player) {
 		for (AttackNotification current : attack_notifies) {
 			if (current.contains(target)) {
 				current.restartTimer();
@@ -34,28 +34,28 @@ public final class NotificationManager {
 		addNotification(new AttackNotification(local_player, gui_root, target, this, manager), attack_notifies);
 	}
 
-	public void newSelectableNotification(@NonNull Selectable s, AnimationManager manager, @NonNull Player local_player) {
+	public void newSelectableNotification(@NonNull Selectable s, @NonNull AnimationManager manager, @NonNull Player local_player) {
 		newNotification(manager, local_player, s.getPositionX(), s.getPositionY(), 0f, 1f, 0f, false);
 	}
 
-	public void newBeacon(AnimationManager manager, @NonNull Player local_player, float x, float y) {
+	public void newBeacon(@NonNull AnimationManager manager, @NonNull Player local_player, float x, float y) {
 		newNotification(manager, local_player, x, y, 0f, 0f, 1f, true);
 	}
 
-	private void newNotification(AnimationManager manager, @NonNull Player local_player, float x, float y, float r, float g, float b, boolean show_always) {
+	private void newNotification(@NonNull AnimationManager manager, @NonNull Player local_player, float x, float y, float r, float g, float b, boolean show_always) {
 		addNotification(new Notification(local_player.getWorld(), gui_root, x, y, this, r, g, b, local_player.getRace().getBuildingNotificationAudio(), show_always, manager), notifies);
 	}
 
-	private <N extends Notification> void addNotification(N notification, @NonNull List<N> list) {
+	private <N extends @NonNull Notification> void addNotification(N notification, @NonNull List<N> list) {
 		list.add(notification);
 		latest_notification = notification;
 	}
 
-	void removeAttackNotification(AttackNotification current) {
+	void removeAttackNotification(@NonNull AttackNotification current) {
 		attack_notifies.remove(current);
 	}
 
-	public void removeNotification(Notification current) {
+	public void removeNotification(@NonNull Notification current) {
 		notifies.remove(current);
 	}
 }

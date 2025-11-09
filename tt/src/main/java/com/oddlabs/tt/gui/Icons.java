@@ -27,7 +27,7 @@ import java.util.ResourceBundle;
 public class Icons {
 	private static Icons icons;
 
-	private final Texture texture;
+	private final @NonNull Texture texture;
 
 	private final IconQuad @NonNull [] harvest_icon;
 	private final IconQuad @NonNull [] tree_icon;
@@ -224,11 +224,11 @@ public class Icons {
 		}
 	}
 
-	public static Texture loadTexture(@NonNull Node n) {
+	public static @NonNull Texture loadTexture(@NonNull Node n) {
 		return loadTexture(n.getAttributes().getNamedItem("texture").getNodeValue());
 	}
 
-	private static Texture loadTexture(String tex_file) {
+	private static @NonNull Texture loadTexture(String tex_file) {
 		TextureFile file = new TextureFile(tex_file,
 										   GL11.GL_RGBA,
 										   GL11.GL_LINEAR,

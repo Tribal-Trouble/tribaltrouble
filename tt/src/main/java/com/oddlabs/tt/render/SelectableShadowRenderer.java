@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 final class SelectableShadowRenderer extends ShadowListRenderer {
-	private final Texture[] halos;
+	private final Texture @NonNull [] halos;
 
 	private final List<ModelState> selection_list = new ArrayList<>();
 	private final List<ModelState> shadowed_list = new ArrayList<>();

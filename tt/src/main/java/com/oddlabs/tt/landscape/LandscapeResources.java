@@ -23,8 +23,8 @@ public final class LandscapeResources {
 	private final SpriteKey[] @NonNull [] plant_sprites;
 	private final @NonNull SpriteKey chicken;
 	private final Audio @NonNull [] bird_idle_sound;
-	private final Audio bird_peck_sound;
-	private final Audio bird_death_sound;
+	private final @NonNull Audio bird_peck_sound;
+	private final @NonNull Audio bird_death_sound;
 
 	public LandscapeResources(@NonNull RenderQueues queues) {
 		int num_progress = 13;
@@ -123,11 +123,11 @@ public final class LandscapeResources {
 		return bird_idle_sound[random.nextInt(bird_idle_sound.length)];
 	}
 
-	public Audio getBirdPeckSound() {
+	public @NonNull Audio getBirdPeckSound() {
 		return bird_peck_sound;
 	}
 
-	public Audio getBirdDeathSound() {
+	public @NonNull Audio getBirdDeathSound() {
 		return bird_death_sound;
 	}
 }

@@ -116,7 +116,7 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 
 	@Override

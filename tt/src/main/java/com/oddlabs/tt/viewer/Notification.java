@@ -21,7 +21,7 @@ public class Notification implements Updatable {
     private final @NonNull TimerAnimation timer;
     private final @NonNull Arrow arrow;
 
-    public Notification(@NonNull World world, @NonNull GUIRoot gui_root, float x, float y, NotificationManager manager, float r, float g, float b, Audio sound, boolean show_always, AnimationManager animation_manager) {
+    public Notification(@NonNull World world, @NonNull GUIRoot gui_root, float x, float y, NotificationManager manager, float r, float g, float b, @NonNull Audio sound, boolean show_always, @NonNull AnimationManager animation_manager) {
         this.center_x = x;
         this.center_y = y;
         this.manager = manager;

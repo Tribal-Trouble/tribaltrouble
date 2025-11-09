@@ -245,7 +245,7 @@ public final class LandscapeRenderer implements Animated {
     }
 
     @Override
-    public void updateChecksum(StateChecksum sum) {
+    public void updateChecksum(@NonNull StateChecksum sum) {
     }
 
     private void setupColormap(int map_x, int map_y) {

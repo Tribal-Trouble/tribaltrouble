@@ -28,10 +28,10 @@ public final class Skin {
 
 	private static Skin skin;
 
-	private final Texture texture;
-	private final Font edit_font;
-	private final Font button_font;
-	private final Font headline_font;
+	private final @NonNull Texture texture;
+	private final @NonNull Font edit_font;
+	private final @NonNull Font button_font;
+	private final @NonNull Font headline_font;
 
 	private final Quad @NonNull [] plus_button;
 	private final Quad @NonNull [] minus_button;
@@ -125,11 +125,11 @@ public final class Skin {
 		}
 	}
 
-	private static Texture loadTexture(@NonNull Node n) {
+	private static @NonNull Texture loadTexture(@NonNull Node n) {
 		return loadTexture(n.getAttributes().getNamedItem("texture").getNodeValue());
 	}
 
-	private static Texture loadTexture(String tex_file) {
+	private static @NonNull Texture loadTexture(String tex_file) {
 		TextureFile file = new TextureFile(tex_file,
 										   GL11.GL_RGBA,
 										   GL11.GL_LINEAR,
@@ -263,7 +263,7 @@ public final class Skin {
 					   top_offset);
 	}
 
-	private Font getFont(@NonNull Node n) {
+	private @NonNull Font getFont(@NonNull Node n) {
 		String path = n.getFirstChild().getNodeValue();
 		FontFile font_file = new FontFile(path);
 		return Resources.findResource(font_file);
@@ -273,30 +273,30 @@ public final class Skin {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
 	}
 
-	private Font parseEditFont(@NonNull Node n) {
+	private @NonNull Font parseEditFont(@NonNull Node n) {
 		Node node = getNodeByName("editfont", n);
 		return getFont(node);
 	}
 
-	public Font getEditFont() {
+	public @NonNull Font getEditFont() {
 		return edit_font;
 	}
 
-	private Font parseButtonFont(@NonNull Node n) {
+	private @NonNull Font parseButtonFont(@NonNull Node n) {
 		Node node = getNodeByName("buttonfont", n);
 		return getFont(node);
 	}
 
-	public Font getButtonFont() {
+	public @NonNull Font getButtonFont() {
 		return button_font;
 	}
 
-	private Font parseHeadlineFont(@NonNull Node n) {
+	private @NonNull Font parseHeadlineFont(@NonNull Node n) {
 		Node node = getNodeByName("headlinefont", n);
 		return getFont(node);
 	}
 
-	public Font getHeadlineFont() {
+	public @NonNull Font getHeadlineFont() {
 		return headline_font;
 	}
 

@@ -132,7 +132,7 @@ public final class PoisonFog implements Magic {
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 
 	@Override

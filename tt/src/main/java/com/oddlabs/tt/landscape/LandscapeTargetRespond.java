@@ -35,7 +35,7 @@ public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond
 	}
 
 	@Override
-	public void updateChecksum(StateChecksum checksum) {
+	public void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 
 	@Override

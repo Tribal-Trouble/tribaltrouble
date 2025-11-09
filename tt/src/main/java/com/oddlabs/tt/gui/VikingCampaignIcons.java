@@ -9,7 +9,7 @@ public final class VikingCampaignIcons implements CampaignIcons {
 
 	private static CampaignIcons icons;
 
-	private final Texture texture;
+	private final @NonNull Texture texture;
 
 	private final @NonNull IconQuad map;
 	private final MapIslandData[] islands = new MapIslandData[NUM_ISLANDS];

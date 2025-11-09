@@ -30,7 +30,7 @@ public final class IslandGenerator implements WorldGenerator {
 	private final static float IDEAL_DETAIL_ALPHA = .15f;
 
 	private final int meters_per_world;
-	private final Landscape.TerrainType terrain;
+	private final Landscape.@NonNull TerrainType terrain;
 	private final int grid_units;
 
 	private final float hills;
@@ -38,7 +38,7 @@ public final class IslandGenerator implements WorldGenerator {
 	private final float supplies_amount;
 	private final int seed;
 
-	public IslandGenerator(int meters_per_world, Landscape.TerrainType terrain, float hills, float vegetation_amount, float supplies_amount, int seed) {
+	public IslandGenerator(int meters_per_world, Landscape.@NonNull TerrainType terrain, float hills, float vegetation_amount, float supplies_amount, int seed) {
 		this.hills = hills;
 		this.vegetation_amount = vegetation_amount;
 		this.supplies_amount = supplies_amount;
@@ -62,7 +62,7 @@ public final class IslandGenerator implements WorldGenerator {
 	}
 
 	@Override
-	public Landscape.TerrainType getTerrainType() {
+	public Landscape.@NonNull TerrainType getTerrainType() {
 		return terrain;
 	}
 

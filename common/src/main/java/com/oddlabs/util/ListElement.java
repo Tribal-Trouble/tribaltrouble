@@ -8,5 +8,5 @@ public interface ListElement<T> {
 	@Nullable ListElement<T> getNext();
 	@Nullable ListElement<T> getPrior();
 	void setListOwner(LinkedList<T> list);
-	LinkedList<T> getListOwner();
+	@Nullable LinkedList<T> getListOwner();
 }
