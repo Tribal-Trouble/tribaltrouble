@@ -29,7 +29,6 @@ import com.oddlabs.tt.viewer.Selection;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -54,10 +53,11 @@ public final class Picker implements Updatable {
 	private final float[] hit_result_array = new float[3];
 	private final float[] dir_vector = new float[3];
 
-	// Buffers for GLU methods
-	private final FloatBuffer model_buffer = BufferUtils.createFloatBuffer(16);
-	private final FloatBuffer proj_buffer = BufferUtils.createFloatBuffer(16);
-	private final FloatBuffer hit_result_buffer = BufferUtils.createFloatBuffer(3);
+	// JOML replacements for GLU
+	private final org.joml.Matrix4f jomlTempMatrix = new org.joml.Matrix4f();
+	private final org.joml.Vector3f jomlTempVector = new org.joml.Vector3f();
+	private final FloatBuffer jomlConvBuffer = BufferUtils.createFloatBuffer(16);
+	private final int[] viewportArray = new int[4];
 
 	// Temp vector for matrix operations
 	private final Vector3f temp_vector = new Vector3f();
@@ -274,13 +274,13 @@ public final class Picker implements Updatable {
 
 	private void calcPosAndDir(int pixel_x, int pixel_y) {
 		float pixel_z = 0.5f;
-		gluUnProject(pixel_x, pixel_y, pixel_z, modl, tmp_camera.getProjectionModelView());
+		unproject(pixel_x, pixel_y, pixel_z, tmp_camera.getProjectionModelView());
 		float hit_x = hit_result_array[0];
 		float hit_y = hit_result_array[1];
 		float hit_z = hit_result_array[2];
 
 		pixel_z = 0.1f;
-		gluUnProject(pixel_x, pixel_y, pixel_z, modl, tmp_camera.getProjectionModelView());
+		unproject(pixel_x, pixel_y, pixel_z, tmp_camera.getProjectionModelView());
 
 		float dx = hit_x - hit_result_array[0];
 		float dy = hit_y - hit_result_array[1];
@@ -297,19 +297,31 @@ public final class Picker implements Updatable {
 		return doNearestLandscape(hit_result_array[0], hit_result_array[1], hit_result_array[2], dir_vector[0], dir_vector[1], dir_vector[2]);
 	}
 
-	private boolean gluUnProject(float winx, float winy, float winz, @NonNull Matrix4f model, @NonNull Matrix4f proj) {
-		model_buffer.clear();
-		model.store(model_buffer);
-		model_buffer.flip();
+	/**
+	 * Unprojects a 2D screen coordinate into a 3D world coordinate.
+	 *
+	 * @param winx The window x-coordinate.
+	 * @param winy The window y-coordinate.
+	 * @param winz The window z-coordinate (depth).
+	 * @param proj The combined projection-model-view matrix from the camera.
+	 */
+	private void unproject(float winx, float winy, float winz, @NonNull Matrix4f proj) {
+		// Convert LWJGL matrix to JOML matrix.
+		jomlConvBuffer.clear();
+		proj.store(jomlConvBuffer);
+		jomlConvBuffer.flip();
+		jomlTempMatrix.set(jomlConvBuffer);
 
-		proj_buffer.clear();
-		proj.store(proj_buffer);
-		proj_buffer.flip();
+		// Convert viewport buffer to array. The buffer position is reset in setupPicking().
+		viewport.get(0, viewportArray, 0, 4);
 
-		hit_result_buffer.clear();
-		boolean result = GLU.gluUnProject(winx, winy, winz, model_buffer, proj_buffer, viewport, hit_result_buffer);
-		hit_result_buffer.get(hit_result_array);
-		return result;
+		// Unproject using JOML.
+		jomlTempMatrix.unproject(winx, winy, winz, viewportArray, jomlTempVector);
+
+		// Store result in the original class field array.
+		hit_result_array[0] = jomlTempVector.x;
+		hit_result_array[1] = jomlTempVector.y;
+		hit_result_array[2] = jomlTempVector.z;
 	}
 
 	private static float computeTMax(float bmin, float bmax, float c, float d) {

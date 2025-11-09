@@ -19,7 +19,6 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -494,7 +493,14 @@ public RandomVelocityEmitter(Vector3f position,
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GLU.gluPerspective(Globals.FOV, LocalInput.getViewAspect(), Globals.VIEW_MIN, Globals.VIEW_MAX);
+
+		// Use JOML for perspective projection
+		org.joml.Matrix4f projectionMatrix = new org.joml.Matrix4f();
+		projectionMatrix.perspective((float) Math.toRadians(Globals.FOV), LocalInput.getViewAspect(), Globals.VIEW_MIN, Globals.VIEW_MAX, true);
+		FloatBuffer fb = BufferUtils.createFloatBuffer(16);
+		projectionMatrix.get(fb);
+		GL11.glMultMatrix(fb);
+
 		GL11.glMultMatrix(matrix_buf);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();

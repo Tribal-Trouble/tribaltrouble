@@ -10,7 +10,6 @@ import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Matrix4f;
 
 import java.nio.FloatBuffer;
@@ -24,13 +23,15 @@ public abstract class Camera implements Animated {
     private final static float SMOOTHNESS_FACTOR = 15;
 
     private final IntBuffer viewport = BufferUtils.createIntBuffer(16);
-    private final Matrix4f proj = new Matrix4f();
+    private final org.lwjgl.util.vector.Matrix4f proj = new org.lwjgl.util.vector.Matrix4f();
     private final CameraState tmp_camera = new CameraState();
 
-    // Buffers for GLU methods
-    private final FloatBuffer model_buffer = BufferUtils.createFloatBuffer(16);
-    private final FloatBuffer proj_buffer = BufferUtils.createFloatBuffer(16);
-    private final FloatBuffer hit_result_buffer = BufferUtils.createFloatBuffer(3);
+    // JOML replacements for GLU
+    private final org.joml.Matrix4f jomlProjMatrix = new org.joml.Matrix4f();
+    private final org.joml.Matrix4f jomlModelMatrix = new org.joml.Matrix4f();
+    private final org.joml.Vector3f jomlTempVector = new org.joml.Vector3f();
+    private final FloatBuffer jomlConvBuffer = BufferUtils.createFloatBuffer(16);
+    private final int[] viewportArray = new int[4];
     private final float[] hit_result_array = new float[3];
 
 
@@ -110,7 +111,7 @@ public abstract class Camera implements Animated {
                             tmp_camera.set(state);
                             tmp_camera.setTargetView(proj);
 
-                            gluUnProject(i*LocalInput.getViewWidth(),
+                            unproject(i*LocalInput.getViewWidth(),
                                             j*LocalInput.getViewHeight(),
                                             0f,
                                             tmp_camera.getModelView(), proj);
@@ -145,19 +146,30 @@ public abstract class Camera implements Animated {
             return bounced;
     }
 
-    private boolean gluUnProject(float winx, float winy, float winz, @NonNull Matrix4f model, @NonNull Matrix4f proj) {
-        model_buffer.clear();
-        model.store(model_buffer);
-        model_buffer.flip();
+    private void unproject(float winx, float winy, float winz, @NonNull Matrix4f model, @NonNull Matrix4f proj) {
+        jomlConvBuffer.clear();
+        model.store(jomlConvBuffer);
+        jomlConvBuffer.flip();
+        jomlModelMatrix.set(jomlConvBuffer);
 
-        proj_buffer.clear();
-        proj.store(proj_buffer);
-        proj_buffer.flip();
+        jomlConvBuffer.clear();
+        proj.store(jomlConvBuffer);
+        jomlConvBuffer.flip();
+        jomlProjMatrix.set(jomlConvBuffer);
 
-        hit_result_buffer.clear();
-        boolean result = GLU.gluUnProject(winx, winy, winz, model_buffer, proj_buffer, viewport, hit_result_buffer);
-        hit_result_buffer.get(hit_result_array);
-        return result;
+        unproject(winx, winy, winz, jomlModelMatrix, jomlProjMatrix);
+    }
+
+    private void unproject(float winx, float winy, float winz, org.joml.@NonNull Matrix4f model, org.joml.@NonNull Matrix4f proj) {
+        // Use an absolute get to avoid changing the buffer's position
+        viewport.get(0, viewportArray, 0, 4);
+
+        proj.mul(model);
+        proj.unproject(winx, winy, winz, viewportArray, jomlTempVector);
+
+        hit_result_array[0] = jomlTempVector.x;
+        hit_result_array[1] = jomlTempVector.y;
+        hit_result_array[2] = jomlTempVector.z;
     }
 
     public final CameraState getState() {
