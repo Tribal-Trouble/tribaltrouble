@@ -60,7 +60,7 @@ final class RouterClient implements ConnectionInterface {
 		return client_interface;
 	}
 
-        @Override
+	@Override
 	public void writeBufferDrained(AbstractConnection conn) {
 		if (session != null && session.isComplete())
 			session.startTimeout(this);
@@ -74,19 +74,19 @@ final class RouterClient implements ConnectionInterface {
 		this.session = session;
 		this.client_id = client_id;
 		this.current_interface = new Interface(GameInterface.class, new GameInterface() {
-                        @Override
+			@Override
 			public void checksum(int checksum) {
 				doChecksum(checksum);
 			}
-                        @Override
+			@Override
 			public void relayEventTo(int client_id, ARMIEvent event) {
 				doRelayEventTo(client_id, event);
 			}
-                        @Override
+			@Override
 			public void relayGameStateEvent(ARMIEvent event) {
 				doRelayGameStateEvent(event);
 			}
-                        @Override
+			@Override
 			public void relayEvent(ARMIEvent event) {
 				doRelayEvent(event);
 			}
@@ -119,7 +119,7 @@ final class RouterClient implements ConnectionInterface {
                 });
 	}
 
-        @Override
+	@Override
 	public void handle(Object sender, @NonNull ARMIEvent event) {
 		try {
 			event.execute(current_interface.methods, current_interface.instance);
@@ -128,11 +128,11 @@ final class RouterClient implements ConnectionInterface {
 		}
 	}
 
-        @Override
+	@Override
 	public void connected(AbstractConnection conn) {
 	}
 
-        @Override
+	@Override
 	public void error(AbstractConnection conn, IOException e) {
 		doError(false, e);
 	}

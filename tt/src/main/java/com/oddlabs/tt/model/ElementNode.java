@@ -37,7 +37,7 @@ public final class ElementNode<T> extends AbstractElementNode<T> {
 			return new ElementLeaf<>(this, /*level + 1, */size, x, y);
 	}
 
-    @Override
+	@Override
 	protected AbstractElementNode<T> doInsertElement(@NonNull Element<T> model) {
 		incElementCount();
 		if (model.bmin_x >= getCX()) {
@@ -54,7 +54,7 @@ public final class ElementNode<T> extends AbstractElementNode<T> {
 		return addElement(model);
 	}
 
-    @Override
+	@Override
 	public void visit(@NonNull ElementNodeVisitor<T> visitor) {
 		visitor.visitNode(this);
 	}

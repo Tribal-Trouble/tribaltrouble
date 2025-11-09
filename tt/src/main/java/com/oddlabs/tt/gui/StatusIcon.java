@@ -40,13 +40,13 @@ public class StatusIcon extends GUIObject implements ToolTip {
 		}
 	}
 
-        @Override
+	@Override
 	public final void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		String tooltip_str = Utils.getBundleString(ResourceBundle.getBundle(StatusIcon.class.getName()), "max", tooltip, counter.getMaxSupplies());
 		tool_tip_box.append(tooltip_str);
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		int x = getWidth() - icon_quad.getWidth();
 		int y = (getHeight() - icon_quad.getHeight())/2;

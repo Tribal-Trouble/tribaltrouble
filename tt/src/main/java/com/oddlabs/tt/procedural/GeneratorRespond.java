@@ -10,7 +10,7 @@ import org.lwjgl.opengl.GL11;
 public final class GeneratorRespond extends TextureGenerator {
 	private final static int COLOR = 0x80808080;
 
-    @Override
+	@Override
 	public Texture @NonNull [] generate() {
 		GLIntImage img = new GLIntImage(1, 1, GL11.GL_RGBA);
 		img.putPixel(0, 0, COLOR);
@@ -19,7 +19,7 @@ public final class GeneratorRespond extends TextureGenerator {
 		return textures;
 	}
 
-    @Override
+	@Override
 	public int hashCode() {
 		return 1234;
 	}

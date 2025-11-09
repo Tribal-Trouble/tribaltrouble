@@ -52,7 +52,7 @@ final class Session {
 		visit(new SessionVisitor() {
 			private int best_checksum_count = 0;
 
-                        @Override
+			@Override
 			public void visit(@NonNull RouterClient client) {
 				if (client.getChecksums().isEmpty()) {
 					missing_checksum[0] = true;
@@ -131,7 +131,7 @@ final class Session {
 		return players.size();
 	}
 
-        @Override
+	@Override
 	public @NonNull String toString() {
 		String result = "(Session: info = " + info + " players : (";
             for (RouterClient player : players) {

@@ -13,7 +13,7 @@ public final class EmptyTowerTrigger extends TutorialTrigger {
 		tower.getOwner().enableTowerExits(true);
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		if (tower.getUnitContainer().getNumSupplies() == 0) {
 			tutorial.done(TutorialForm.TUTORIAL_TOWER);

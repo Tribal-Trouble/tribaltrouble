@@ -11,7 +11,7 @@ public final class QuartersTrigger extends TutorialTrigger {
 		super(1f, 0f, "quarters");
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
             for (Selectable s : set) {

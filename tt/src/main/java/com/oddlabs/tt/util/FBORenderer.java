@@ -49,7 +49,7 @@ public final class FBORenderer extends OffscreenRenderer {
 		GL11.glDeleteTextures(render_texture_id);
 	}
 
-    @Override
+	@Override
 	protected void finish() {
 		deleteBuffers();
 		popGLState();

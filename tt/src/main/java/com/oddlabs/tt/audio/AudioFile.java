@@ -11,7 +11,7 @@ public final class AudioFile extends File<Audio> {
 		super(location);
 	}
 
-    @Override
+	@Override
 	public @NonNull Audio get() throws UncheckedIOException {
         try {
             return AudioManager.getManager().createAudio(getURL());
@@ -20,7 +20,7 @@ public final class AudioFile extends File<Audio> {
         }
 	}
 
-    @Override
+	@Override
 	public boolean equals(Object o) {
 		return o instanceof AudioFile && super.equals(o);
 	}

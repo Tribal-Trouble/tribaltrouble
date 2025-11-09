@@ -80,7 +80,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 			addChild(observer_label);
 	}
 
-        @Override
+	@Override
 	public void keyPressed(@NonNull KeyboardEvent event) {
 		getCamera().keyPressed(event);
 		int army_number = 0;
@@ -215,7 +215,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	public void keyRepeat(@NonNull KeyboardEvent event) {
 //		getCamera().keyRepeat(event);
 		switch (event.getKeyChar()) {
@@ -232,7 +232,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
 		getCamera().keyReleased(event);
 		switch (event.getKeyCode()) {
@@ -255,7 +255,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	protected int getCursorIndex() {
 		if (map_mode) {
 			return GUIRoot.CURSOR_TARGET;
@@ -322,7 +322,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	public void mouseClicked(int button, int x, int y, int clicks) {
 		if (button == LocalInput.LEFT_BUTTON && !map_mode && !observer) {
 			if (selection) {
@@ -354,7 +354,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	public void mouseReleased(int button, int x, int y) {
 		if (map_mode) {
 			if (button == LocalInput.LEFT_BUTTON) {
@@ -370,12 +370,12 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	public boolean canHoverBehind() {
 		return true;
 	}
 
-        @Override
+	@Override
 	public void mouseDragged(int button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 		if (!map_mode) {
 			if (!observer) {
@@ -391,7 +391,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	public void mousePressed(int button, int x, int y) {
 		if (!map_mode) {
 			if (!observer) {
@@ -428,12 +428,12 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		return selection;
 	}
 
-        @Override
+	@Override
 	public boolean keyboardBlocked() {
 		return chat_visible && chat_form.isActive();
 	}
 
-        @Override
+	@Override
 	public void render2D() {
 		if (selection) {
 			GL11.glColor3f(.3f, 1f, 0f);
@@ -454,7 +454,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	public void displayChangedNotify(int width, int height) {
 		super.displayChangedNotify(width, height);
 		observer_label.setPos((width - observer_label.getWidth())/2, height - observer_label.getHeight());

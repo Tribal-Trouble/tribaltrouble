@@ -11,7 +11,7 @@ public final class UnitInTowerTrigger extends TutorialTrigger {
 		this.tower = tower;
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		if (tower.getUnitContainer().getNumSupplies() > 0) {
 			tutorial.next(new AttackTowerTrigger(tower));

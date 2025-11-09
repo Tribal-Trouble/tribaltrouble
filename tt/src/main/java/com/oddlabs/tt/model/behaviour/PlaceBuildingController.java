@@ -21,7 +21,7 @@ public final class PlaceBuildingController extends Controller {
 		return unit.isCloseEnough(building.getSize(), building);
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		if (building.isDead()) {
 			unit.popController();

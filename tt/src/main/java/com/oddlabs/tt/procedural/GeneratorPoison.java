@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL11;
 public final class GeneratorPoison extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;
 
-        @Override
+	@Override
 	public Texture @NonNull [] generate() {
 		int seed = Globals.LANDSCAPE_SEED;
 		
@@ -35,7 +35,7 @@ public final class GeneratorPoison extends TextureGenerator {
 		return textures;
 	}
 
-        @Override
+	@Override
 	public int hashCode() {
 		return TEXTURE_SIZE + 398;
 	}

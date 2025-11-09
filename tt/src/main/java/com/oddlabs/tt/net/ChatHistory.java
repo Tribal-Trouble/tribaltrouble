@@ -14,7 +14,7 @@ public abstract class ChatHistory implements ChatListener {
 		messages.clear();
 	}
 
-    @Override
+	@Override
 	public abstract void chat(ChatMessage message);
 
 	protected final void addMessage(String msg) {

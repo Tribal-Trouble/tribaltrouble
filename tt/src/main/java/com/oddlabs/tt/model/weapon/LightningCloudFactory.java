@@ -32,27 +32,27 @@ public final class LightningCloudFactory implements MagicFactory {
 		this.release_ratio = release_ratio;
 	}
 
-        @Override
+	@Override
 	public float getHitRadius() {
 		return 0;
 	}
 
-        @Override
+	@Override
 	public float getSecondsPerAnim() {
 		return seconds_per_anim;
 	}
 
-        @Override
+	@Override
 	public float getSecondsPerInit() {
 		return init_ratio*seconds_per_anim;
 	}
 
-        @Override
+	@Override
 	public float getSecondsPerRelease() {
 		return release_ratio*seconds_per_anim;
 	}
 
-        @Override
+	@Override
 	public @NonNull Magic execute(@NonNull Unit src) {
 		float seconds_to_init = getSecondsPerRelease() - getSecondsPerInit();
 		return new LightningCloud(src.getOwner().getWorld(), offset_x, offset_y, offset_z, seconds_to_live, seconds_per_hit, seconds_to_init, meters_per_second, hit_chance, damage, height, src);

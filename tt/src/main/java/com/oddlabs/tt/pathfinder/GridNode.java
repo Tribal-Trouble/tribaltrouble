@@ -37,7 +37,7 @@ final class GridNode extends Node {
 		return dir_node_grid[dx + 1][dy + 1];
 	}
 
-        @Override
+	@Override
 	public @Nullable PathNode newPath() {
 		Node graph_node = this;
 		GridPathNode current_node = null;
@@ -57,12 +57,12 @@ final class GridNode extends Node {
 		this.local_grid_y = y;
 	}
 
-        @Override
+	@Override
 	public int getGridX() {
 		return local_grid_x + offset.offset_x;
 	}
 
-        @Override
+	@Override
 	public int getGridY() {
 		return local_grid_y + offset.offset_y;
 	}
@@ -108,7 +108,7 @@ final class GridNode extends Node {
 		return false;
 	}
 
-        @Override
+	@Override
 	public boolean addNeighbours(@NonNull PathFinderAlgorithm finder, @NonNull UnitGrid unit_grid) {
 		int x = getGridX();
 		int y = getGridY();

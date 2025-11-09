@@ -62,7 +62,7 @@ public final class ByteCompressedFloatArray implements Serializable {
 		return result;
 	}
 
-        @Override
+	@Override
 	public @NonNull String toString() {
 		float[] array = getFloatArray();
 		String result = "";

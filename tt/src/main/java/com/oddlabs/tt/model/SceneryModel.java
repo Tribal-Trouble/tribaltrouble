@@ -46,7 +46,7 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 		return name;
 	}
 
-        @Override
+	@Override
 	public final float getShadowDiameter() {
 		return shadow_diameter;
 	}
@@ -59,7 +59,7 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 			getWorld().getAnimationManagerGameTime().registerAnimation(this);
 	}
 
-        @Override
+	@Override
 	public final void remove() {
 		if (occupy) {
 			getWorld().getUnitGrid().freeGrid(getGridX(), getGridY(), this);
@@ -70,17 +70,17 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 			getWorld().getAnimationManagerGameTime().removeAnimation(this);
 	}
 
-        @Override
+	@Override
 	public final void visit(@NonNull ToolTipVisitor visitor) {
 		visitor.visitSceneryModel(this);
 	}
 
-        @Override
+	@Override
 	public final float getOffsetZ() {
 		return 0;
 	}
 
-        @Override
+	@Override
 	public final void animate(float t) {
 		anim_time += t/2.5f;
 		if (seconds_per_animation_cycle > -1 && anim_time > seconds_per_animation_cycle)
@@ -88,7 +88,7 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 		reinsert();
 	}
 		
-        @Override
+	@Override
 	public final int getAnimation() {
 		if (animation > -1)
 			return animation;
@@ -96,7 +96,7 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 			return 0;
 	}
 	
-        @Override
+	@Override
 	public final float getAnimationTicks() {
 		if (animation > -1) {
 			return anim_time;
@@ -105,36 +105,36 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 		}
 	}
 
-        @Override
+	@Override
 	public final void updateChecksum(StateChecksum checksum) {
 	}
 
-        @Override
+	@Override
 	public final float getNoDetailSize() {
 		return 0f;
 	}
 
-        @Override
+	@Override
 	public int getPenalty() {
 		return Occupant.STATIC;
 	}
 
-        @Override
+	@Override
 	public final int getGridX() {
 		return UnitGrid.toGridCoordinate(getPositionX());
 	}
 
-        @Override
+	@Override
 	public final int getGridY() {
 		return UnitGrid.toGridCoordinate(getPositionY());
 	}
 
-        @Override
+	@Override
 	public final float getSize() {
 		throw new RuntimeException();
 	}
 
-        @Override
+	@Override
 	public final boolean isDead() {
 		return false;
 	}
@@ -143,12 +143,12 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 		return occupy;
 	}
 
-        @Override
+	@Override
 	public final SpriteKey getSpriteRenderer() {
 		return sprite_renderer;
 	}
 
-        @Override
+	@Override
 	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitSceneryModel(this);
 	}

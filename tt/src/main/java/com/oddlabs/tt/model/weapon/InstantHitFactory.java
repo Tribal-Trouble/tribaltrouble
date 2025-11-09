@@ -20,7 +20,7 @@ public final class InstantHitFactory extends WeaponFactory {
 		this.sounds = sounds;
 	}
 
-        @Override
+	@Override
 	protected void doAttack(boolean hit, @NonNull Unit src, Selectable target) {
 		int damage = 1;
 		if (target instanceof Building && target.getTemplate().getAbilities().hasAbilities(Abilities.ATTACK))
@@ -42,7 +42,7 @@ public final class InstantHitFactory extends WeaponFactory {
 		target.hit(damage, dx*dir_len_inv, dy*dir_len_inv, src.getOwner());
 	}
 
-        @Override
+	@Override
 	public @Nullable Class<? extends ThrowingWeapon> getType() {
 		return null;
 	}

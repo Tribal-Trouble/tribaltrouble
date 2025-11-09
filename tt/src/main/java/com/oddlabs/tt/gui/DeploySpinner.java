@@ -29,7 +29,7 @@ public final class DeploySpinner extends IconSpinner {
 			num_orders = current_building.getDeployContainer(deploy_type).getNumOrders();
 	}
 
-        @Override
+	@Override
 	public int computeCount() {
 		if (current_building != null && !current_building.isDead()) {
 			DeployContainer deploy_container = current_building.getDeployContainer(deploy_type);
@@ -39,7 +39,7 @@ public final class DeploySpinner extends IconSpinner {
 			return 0;
 	}
 
-        @Override
+	@Override
 	public boolean renderInfinite() {
 		return false;
 	}
@@ -57,7 +57,7 @@ public final class DeploySpinner extends IconSpinner {
 			player_interface.deployUnits(current_building, deploy_type, num);
 	}
 
-        @Override
+	@Override
 	protected void increase(int amount) {
 		if (!current_building.isDead()) {
 			int num_units = current_building.getUnitContainer().getNumSupplies();
@@ -79,7 +79,7 @@ public final class DeploySpinner extends IconSpinner {
 		}
 	}
 
-        @Override
+	@Override
 	protected void decrease(int amount) {
 		if (!current_building.isDead() && computeCount() > 0) {
 			int num_units = current_building.getDeployContainer(deploy_type).getNumSupplies();
@@ -99,18 +99,18 @@ public final class DeploySpinner extends IconSpinner {
 		}
 	}
 
-        @Override
+	@Override
 	protected void release() {
 		order(order_size);
 		order_size = 0;
 	}
 
-        @Override
+	@Override
 	protected int getOrderSize() {
 		return order_size;
 	}
 
-        @Override
+	@Override
 	protected float getProgress() {
 		if (!current_building.isDead())
 			return current_building.getDeployContainer(deploy_type).getBuildProgress();

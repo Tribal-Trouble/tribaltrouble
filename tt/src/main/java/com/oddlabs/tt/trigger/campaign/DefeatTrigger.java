@@ -31,7 +31,7 @@ public final class DefeatTrigger extends IntervalTrigger {
 		this.runnable = runnable;
 	}
 
-    @Override
+	@Override
 	protected void check() {
 		Player current = viewer.getLocalPlayer();
 		if (chieftain != current.getChieftain()) {
@@ -45,7 +45,7 @@ public final class DefeatTrigger extends IntervalTrigger {
 		}
 	}
 
-    @Override
+	@Override
 	protected void done() {
 		if (runnable == null) {
 			GUIRoot gui_root = viewer.getGUIRoot();

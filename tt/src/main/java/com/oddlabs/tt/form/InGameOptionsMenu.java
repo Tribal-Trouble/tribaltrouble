@@ -20,7 +20,7 @@ public final class InGameOptionsMenu extends AbstractOptionsMenu {
 		return gamespeed;
 	}
 
-    @Override
+	@Override
 	protected void changeGamespeed(int index) {
 		super.changeGamespeed(index);
 		viewer.getPeerHub().getPlayerInterface().setPreferredGamespeed(index);

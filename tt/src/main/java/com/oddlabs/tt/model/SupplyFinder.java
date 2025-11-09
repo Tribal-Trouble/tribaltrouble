@@ -21,7 +21,7 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 		this.supply_class = supply_class;
 	}
 
-    @Override
+	@Override
 	public @Nullable S getOccupantFromRegion(@NonNull Region region, boolean one_region) {
 		List<S> supplies = region.getObjects(supply_class);
 		if (one_region) {
@@ -52,7 +52,7 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 		return null;
 	}
 
-    @Override
+	@Override
 	public S getBest() {
 		return findClosest();
 	}
@@ -90,7 +90,7 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 		return closest;
 	}
 
-    @Override
+	@Override
 	public boolean acceptOccupant(Occupant occ) {
 		if (supply_class.isInstance(occ)) {
 			Supply supply = (Supply)occ;

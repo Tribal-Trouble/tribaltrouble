@@ -12,7 +12,7 @@ public abstract class DirectedThrowingWeapon extends ThrowingWeapon {
 		super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
 	}
 
-    @Override
+	@Override
 	public final void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitDirectedThrowingWeapon(this);
 	}

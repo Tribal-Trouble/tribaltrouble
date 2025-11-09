@@ -33,18 +33,18 @@ public final class SecureConnection extends AbstractConnection implements Secure
 		setConnectionInterface(wrapped_conn.getConnectionInterface());
 		this.wrapped_connection = wrapped_conn;
 		wrapped_connection.setConnectionInterface(new ConnectionInterface() {
-                        @Override
+			@Override
 			public void error(AbstractConnection conn, IOException e) {
 				notifyError(e);
 			}
-                        @Override
+			@Override
 			public void connected(AbstractConnection conn) {
 			}
-                        @Override
+			@Override
 			public void handle(Object sender, @NonNull ARMIEvent event) {
 				processEvent(event);
 			}
-                        @Override
+			@Override
 			public void writeBufferDrained(AbstractConnection conn) {
 				SecureConnection.this.writeBufferDrained();
 			}
@@ -70,7 +70,7 @@ public final class SecureConnection extends AbstractConnection implements Secure
 		}
 	}
 
-        @Override
+	@Override
 	public void initAgreement(byte @NonNull [] public_key_encoded) {
 		if (isConnected())
 			return;
@@ -95,7 +95,7 @@ public final class SecureConnection extends AbstractConnection implements Secure
 		}
 	}
 
-        @Override
+	@Override
 	public void tunnelEvent(@NonNull SealedObject sealed_event) {
 		try {
 			if (decrypt_cipher == null)
@@ -114,7 +114,7 @@ public final class SecureConnection extends AbstractConnection implements Secure
 		return wrapped_connection;
 	}
 	
-        @Override
+	@Override
 	protected void doClose() {
 		wrapped_connection.close();
 	}
@@ -131,7 +131,7 @@ public final class SecureConnection extends AbstractConnection implements Secure
 		}
 	}
 	
-        @Override
+	@Override
 	public void handle(ARMIEvent event) {
 		if (encrypt_cipher == null)
 			event_backlog.add(event);

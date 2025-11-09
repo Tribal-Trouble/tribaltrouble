@@ -34,7 +34,7 @@ public class PanelTab extends GUIObject {
 			return Skin.NORMAL;
 	}
 
-        @Override
+	@Override
 	protected final void renderGeometry() {
 		Skin.getSkin().getPanelData().getTab().render(0, 0, getWidth(), getRenderState());
 	}

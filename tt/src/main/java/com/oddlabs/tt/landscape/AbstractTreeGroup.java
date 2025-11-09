@@ -104,12 +104,12 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 				private int x;
 				private int y;
 
-                @Override
+				@Override
 				public void visitLeaf(@NonNull TreeLeaf tree_leaf) {
 					TreeSupply tree = new TreeSupply(world, tree_leaf, tree_x, tree_y, center_grid_x, center_grid_y, grid_size, radius, matrix, tree_type_index, tree_low_vertices);
 					tree_leaf.insertTree(tree);
 				}
-                @Override
+				@Override
 				public void visitNode(@NonNull TreeGroup tree_group) {
 					int old_x = x;
 					int old_y = y;
@@ -136,7 +136,7 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 					y = old_y;
 					child_size = old_size;
 				}
-                @Override
+				@Override
 				public void visitTree(TreeSupply tree_supply) {
 					throw new RuntimeException();
 				}

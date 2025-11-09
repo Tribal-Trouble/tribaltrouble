@@ -21,7 +21,7 @@ public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond
 		register();
 	}
 
-    @Override
+	@Override
 	public void animate(float t) {
 		if (time > 0) {
 			time = Math.max(0, time - t);
@@ -34,23 +34,23 @@ public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond
 		return time/SECOND_PER_PICK_RESPOND;
 	}
 
-    @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 
-    @Override
+	@Override
 	protected void register() {
 		super.register();
 		time = SECOND_PER_PICK_RESPOND;
 		LocalEventQueue.getQueue().getManager().registerAnimation(this);
 	}
 
-    @Override
+	@Override
 	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitRespond(this);
 	}
 
-    @Override
+	@Override
 	protected void remove() {
 		super.remove();
 		LocalEventQueue.getQueue().getManager().removeAnimation(this);

@@ -12,7 +12,7 @@ public final class ZoomTrigger extends TutorialTrigger {
 		viewer.getCamera().resetLastZoomFactor();
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		GameCamera camera = tutorial.getViewer().getCamera();
 		if (camera.getLastZoomFactor() > 0f) {

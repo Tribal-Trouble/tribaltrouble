@@ -17,7 +17,7 @@ public final class IconLabel extends GUIObject implements Comparable<IconLabel> 
 		setDim(width, height);
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		icon.render(0, 0);
 	}
@@ -26,7 +26,7 @@ public final class IconLabel extends GUIObject implements Comparable<IconLabel> 
 		return label;
 	}
 
-        @Override
+	@Override
 	public int compareTo(@NonNull IconLabel o) {
 		return label.compareTo(o.getLabel());
 	}

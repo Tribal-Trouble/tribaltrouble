@@ -39,12 +39,12 @@ public final class LoadDeterministic extends Deterministic {
 		getDefaults();
 	}
 
-        @Override
+	@Override
 	public boolean isPlayback() {
 		return true;
 	}
 
-        @Override
+	@Override
 	public void endLog() {
 //		assert isEndOfLog();
 		try {
@@ -110,7 +110,7 @@ public final class LoadDeterministic extends Deterministic {
 			IO.println("***** End of log *****");
 	}
 
-    @Override
+	@Override
 	protected byte log(byte b, byte def) {
 		if (isDefault(1))
 			return def;
@@ -121,7 +121,7 @@ public final class LoadDeterministic extends Deterministic {
 		}
 	}
 
-        @Override
+	@Override
 	protected char log(char c, char def) {
 		if (isDefault(2))
 			return def;
@@ -132,7 +132,7 @@ public final class LoadDeterministic extends Deterministic {
 		}
 	}
 
-        @Override
+	@Override
 	protected int log(int i, int def) {
 		if (isDefault(4))
 			return def;
@@ -143,7 +143,7 @@ public final class LoadDeterministic extends Deterministic {
 		}
 	}
 
-        @Override
+	@Override
 	protected long log(long l, long def) {
 		if (isDefault(8))
 			return def;
@@ -154,7 +154,7 @@ public final class LoadDeterministic extends Deterministic {
 		}
 	}
 
-        @Override
+	@Override
 	protected float log(float f, float def) {
 		if (isDefault(4))
 			return def;
@@ -175,7 +175,7 @@ public final class LoadDeterministic extends Deterministic {
         }
     }
 
-    @Override
+	@Override
 	protected <T> T logObject(T o) {
 		try (ObjectInputStream object_input_stream = new ObjectInputStream(byte_buffer_input_stream)) {
 			o = (T) object_input_stream.readObject();
@@ -185,7 +185,7 @@ public final class LoadDeterministic extends Deterministic {
                 return o;
 	}
 
-    @Override
+	@Override
 	protected void logBuffer(@NonNull ByteBuffer b) {
 		boolean isdefault = isDefault(0);
 		assert !isdefault;
@@ -202,7 +202,7 @@ public final class LoadDeterministic extends Deterministic {
 	}
 
 	public final class ByteBufferInputStream extends InputStream {
-        @Override
+		@Override
 		public int read() throws IOException {
 			byte b = log((byte)0);
 			return ((int)b) & 0xFF;

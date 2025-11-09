@@ -20,7 +20,7 @@ public final class GeneratorClouds extends TextureGenerator {
 		this.terrain = terrain;
 	}
 
-    @Override
+	@Override
 	public Texture @NonNull [] generate() {
 		int seed = Globals.LANDSCAPE_SEED;
 		Channel clouds1 = new Midpoint(TEXTURE_SIZE, 3, 0.55f, seed).toChannel();
@@ -50,12 +50,12 @@ public final class GeneratorClouds extends TextureGenerator {
 		return textures;
 	}
 
-    @Override
+	@Override
 	public int hashCode() {
 		return TEXTURE_SIZE;
 	}
 
-    @Override
+	@Override
 	public boolean equals(@NonNull Object o) {
 		return super.equals(o) && ((GeneratorClouds)o).terrain == terrain;
 	}

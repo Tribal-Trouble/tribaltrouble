@@ -43,7 +43,7 @@ public final class WalkBehaviour implements Behaviour {
 		this(unit, new TargetTrackerAlgorithm(unit.getUnitGrid(), range, t), scan_attack);
 	}
 
-    @Override
+	@Override
 	public boolean isBlocking() {
 		return state == PathTracker.State.BLOCKED;
 	}
@@ -63,7 +63,7 @@ public final class WalkBehaviour implements Behaviour {
 		unit.switchAnimation(unit.getMetersPerSecond(), Unit.ANIMATION_MOVING);
 	}
 
-    @Override
+	@Override
 	public int animate(float t) {
 		retry_delay_counter -= t;
 		boolean blocker_moved = blocking_movable != null && (blocking_movable.getGridX() != blocker_x || blocking_movable.getGridY() != blocker_y);
@@ -131,7 +131,7 @@ public final class WalkBehaviour implements Behaviour {
 		unit.getTracker().setTarget(tracker_algorithm);
 	}
 
-        @Override
+	@Override
 	public void forceInterrupted() {
 	}
 }

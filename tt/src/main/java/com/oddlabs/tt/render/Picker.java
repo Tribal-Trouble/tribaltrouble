@@ -480,7 +480,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		}
 	}
 
-        @Override
+	@Override
 	public void update(Object anim) {
 		render_tool_tip = true;
 		tool_tip_timer.stop();
@@ -580,7 +580,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 			}
 		}
 
-                @Override
+		@Override
 		public int compare(@NonNull LandscapeLeaf l1, @NonNull LandscapeLeaf l2) {
 			return compare(tmp_camera, l1, l2);
 		}

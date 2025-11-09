@@ -19,7 +19,7 @@ public final class GeneratorRing extends TextureGenerator {
 		this.ring_parms = ring_parms;
 	}
 
-        @Override
+	@Override
 	public Texture @NonNull [] generate() {
 		Channel channel_ring = new Ring(size, size, ring_parms, Ring.LINEAR).toChannel();
 		Channel channel_white = new Channel(size, size).fill(1f);
@@ -29,7 +29,7 @@ public final class GeneratorRing extends TextureGenerator {
 		return textures;
 	}
 	
-        @Override
+	@Override
 	public int hashCode() {
 		return size*Arrays.deepHashCode(ring_parms);
 	}
@@ -44,7 +44,7 @@ public final class GeneratorRing extends TextureGenerator {
 		return true;
 	}
 
-        @Override
+	@Override
 	public boolean equals(Object o) {
 		if (!super.equals(o))
 			return false;

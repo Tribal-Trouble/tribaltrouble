@@ -17,7 +17,7 @@ public final class ReinforcementsTrigger extends IntervalTrigger {
 		this.type = type;
 	}
 
-        @Override
+	@Override
 	protected void check() {
 		if (player.getArmory() == null) {
 			triggered();
@@ -33,7 +33,7 @@ public final class ReinforcementsTrigger extends IntervalTrigger {
 		}
 	}
 
-        @Override
+	@Override
 	protected void done() {
 	}
 }

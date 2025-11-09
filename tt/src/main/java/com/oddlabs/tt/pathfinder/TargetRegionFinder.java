@@ -11,17 +11,17 @@ public final class TargetRegionFinder implements PathFinderAlgorithm {
 		this.filter = filter;
 	}
 
-    @Override
+	@Override
 	public int computeEstimatedCost(Node node) {
 		return 0;
 	}
 
-    @Override
+	@Override
 	public boolean touchNeighbour(Occupant occ) {
 		return false;
 	}
 
-    @Override
+	@Override
 	public @Nullable NodeResult touchNode(Node node) {
 		Region region = (Region)node;
 		Occupant occ = filter.getOccupantFromRegion(region, false);
@@ -31,7 +31,7 @@ public final class TargetRegionFinder implements PathFinderAlgorithm {
 			return null;
 	}
 
-    @Override
+	@Override
 	public @Nullable NodeResult getBestNode() {
 		Occupant occ = filter.getBest();
 		if (occ != null) {

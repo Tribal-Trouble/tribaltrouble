@@ -42,7 +42,7 @@ final class WorldStarter implements LoadCallback {
 		this.network = network;
 	}
 
-    @Override
+	@Override
 	public @NonNull UIRenderer load(@NonNull GUIRoot gui_root) {
 		AnimationManager.freezeTime();
 		List<PlayerSlot> player_slot_list = new ArrayList<>();

@@ -15,7 +15,7 @@ public final class ChieftainBuiltTrigger extends TutorialTrigger {
 		super(.1f, 0f, "chieftain_built");
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
             for (Selectable s : set) {

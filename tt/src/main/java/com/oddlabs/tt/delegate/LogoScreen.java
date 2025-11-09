@@ -49,14 +49,14 @@ public final class LogoScreen extends CameraDelegate implements Updatable {
 		gui_root.pushDelegate(this);
 	}
 
-        @Override
+	@Override
 	public void displayChangedNotify(int width, int height) {
 		setDim(width, height);
 		if (overlay != null)
 			overlay.setDim(width, height);
 	}
 
-        @Override
+	@Override
 	public void update(Object anim) {
 		delay_timer.stop();
 		fade();
@@ -76,12 +76,12 @@ public final class LogoScreen extends CameraDelegate implements Updatable {
 	public void fadingDone(GUIRoot gui_root) {
 	}
 	
-        @Override
+	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		fade();
 	}
 
-        @Override
+	@Override
 	protected void mouseClicked(int button, int x, int y, int clicks) {
 		fade();
 	}

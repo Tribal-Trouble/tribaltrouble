@@ -12,7 +12,7 @@ public final class IdleBehaviour implements Behaviour {
 		this.unit = unit;
 	}
 
-    @Override
+	@Override
 	public int animate(float t) {
 		unit.switchToIdleAnimation();
 		return controller.shouldSleep(t)
@@ -20,12 +20,12 @@ public final class IdleBehaviour implements Behaviour {
                 : Selectable.DONE;
 	}
 
-    @Override
+	@Override
 	public boolean isBlocking() {
 		return true;
 	}
 
-    @Override
+	@Override
 	public void forceInterrupted() {
 	}
 }

@@ -17,17 +17,17 @@ public class SessionInfo implements Serializable {
 		this.milliseconds_per_heartbeat = milliseconds_per_heartbeat;
 	}
 
-        @Override
+	@Override
 	public final boolean equals(Object other) {
 		return other instanceof SessionInfo si && si.num_participants == num_participants;
 	}
 
-        @Override
+	@Override
 	public final int hashCode() {
 		return num_participants;
 	}
 
-        @Override
+	@Override
 	public final @NonNull String toString() {
 		return "(SessionInfo: num_participants = " + num_participants + ")";
 	}

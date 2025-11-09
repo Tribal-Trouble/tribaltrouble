@@ -134,7 +134,7 @@ public class ChatPanel extends Panel implements ChatListener {
 		refreshMessages();
 	}
 
-        @Override
+	@Override
 	public final void chat(@NonNull ChatMessage message) {
 		if (message.type != ChatMessage.Type.PRIVATE && message.type != ChatMessage.Type.CHATROOM)
 			return;
@@ -155,7 +155,7 @@ public class ChatPanel extends Panel implements ChatListener {
 		chat_box.setOffsetY(Integer.MAX_VALUE);
 	}
 
-        @Override
+	@Override
 	public final void setFocus() {
 		chat_line.setFocus();
 	}
@@ -172,7 +172,7 @@ public class ChatPanel extends Panel implements ChatListener {
 			this.box = box;
 		}
 
-                @Override
+		@Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 			ChatRoomUser user = (ChatRoomUser)box.getRightClickedRowData();
 			String nick = user.getNick();
@@ -203,14 +203,14 @@ public class ChatPanel extends Panel implements ChatListener {
 			this.menu = menu;
 		}
 
-                @Override
+		@Override
 		public void rowDoubleClicked(Object context) {
 			ChatRoomUser user = (ChatRoomUser)context;
 			private_message_form = new PrivateMessageForm(gui_root, user.getNick());
 			gui_root.addModalForm(private_message_form);
 		}
 
-                @Override
+		@Override
 		public void rowChosen(Object context) {
 			ChatRoomUser user = (ChatRoomUser)context;
 			String item_text;

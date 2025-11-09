@@ -50,26 +50,26 @@ public final class ScrollBar extends GUIObject {
 			scroll_button.setupPos(this);
 	}
 
-        @Override
+	@Override
 	public void setPos(int x, int y) {
 		super.setPos(x, y);
 		if (scroll_button != null)
 			scroll_button.setupPos(this);
 	}
 
-        @Override
+	@Override
 	public void setDim(int width, int height) {
 		super.setDim(width, height);
 		if (scroll_button != null)
 			scroll_button.setupPos(this);
 	}
 
-        @Override
+	@Override
 	public void setFocus() {
 		focus_group.setGroupFocus(LocalInput.isShiftDownCurrently() ? -1 : 1);
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		ScrollBarData data = Skin.getSkin().getScrollBarData();
 		Vertical scroll_bar = data.getScrollBar();
@@ -98,7 +98,7 @@ public final class ScrollBar extends GUIObject {
 		return size;
 	}
 
-        @Override
+	@Override
 	protected void mouseClicked(int button, int x, int y, int clicks) {
 		int button_y = getButtonY();
 		owner.jumpPage(y > button_y);
@@ -106,32 +106,32 @@ public final class ScrollBar extends GUIObject {
 	}
 
 	private final class LessListener implements MouseButtonListener {
-                @Override
+		@Override
 		public void mousePressed(int button, int x, int y) {
 			owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
 			scroll_button.setupPos(ScrollBar.this);
 		}
 
-                @Override
+		@Override
 		public void mouseReleased(int button, int x, int y) {}
-                @Override
+		@Override
 		public void mouseHeld(int button, int x, int y) {}
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {}
 	}
 
 	private final class MoreListener implements MouseButtonListener {
-                @Override
+		@Override
 		public void mousePressed(int button, int x, int y) {
 			owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
 			scroll_button.setupPos(ScrollBar.this);
 		}
 
-                @Override
+		@Override
 		public void mouseReleased(int button, int x, int y) {}
-                @Override
+		@Override
 		public void mouseHeld(int button, int x, int y) {}
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {}
 	}
 
@@ -139,12 +139,12 @@ public final class ScrollBar extends GUIObject {
 		final ScrollBarData data = Skin.getSkin().getScrollBarData();
 		float start_offset;
 
-                @Override
+		@Override
 		public void mousePressed(int button, int x, int y) {
 			start_offset = owner.getScrollBarOffset();
 		}
 
-                @Override
+		@Override
 		public void mouseDragged(int button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
 			int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.getBottomOffset() - data.getTopOffset();
 			float ratio = owner.getScrollBarRatio();
@@ -154,22 +154,22 @@ public final class ScrollBar extends GUIObject {
 			scroll_button.setupPos(ScrollBar.this);
 		}
 
-                @Override
+		@Override
 		public void mouseMoved(int x, int y) {}
-                @Override
+		@Override
 		public void mouseEntered() {}
-                @Override
+		@Override
 		public void mouseExited() {}
-                @Override
+		@Override
 		public void mouseReleased(int button, int x, int y) {}
-                @Override
+		@Override
 		public void mouseHeld(int button, int x, int y) {}
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {}
 	}
 
 	private final class ButtonKeyListener implements KeyListener {
-                @Override
+		@Override
 		public void keyRepeat(@NonNull KeyboardEvent event) {
 			switch (event.getKeyCode()) {
 				case Keyboard.KEY_UP:
@@ -185,9 +185,9 @@ public final class ScrollBar extends GUIObject {
 			}
 		}
 
-                @Override
+		@Override
 		public void keyPressed(KeyboardEvent event) {}
-                @Override
+		@Override
 		public void keyReleased(KeyboardEvent event) {}
 	}
 }

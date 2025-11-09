@@ -14,12 +14,12 @@ public abstract class Delegate extends GUIObject {
 		setDim(LocalInput.getViewWidth(), LocalInput.getViewHeight());
 	}
 
-    @Override
+	@Override
 	public void displayChangedNotify(int width, int height) {
 		setDim(width, height);
 	}
 
-    @Override
+	@Override
 	protected void doAdd() {
 		super.doAdd();
 		setFocus();
@@ -31,7 +31,7 @@ public abstract class Delegate extends GUIObject {
 	public void render2D() {
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 	}
 

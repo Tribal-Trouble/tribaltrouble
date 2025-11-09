@@ -4,31 +4,31 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import org.jspecify.annotations.NonNull;
 
 public final class ModalDelegate extends Delegate {
-    @Override
+	@Override
 	public void keyPressed(@NonNull KeyboardEvent event) {
 	}
 
-    @Override
+	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
 	}
 
-    @Override
+	@Override
 	public void mouseScrolled(int amount) {
 	}
 
-    @Override
+	@Override
 	public void mouseMoved(int x, int y) {
 	}
 
-    @Override
+	@Override
 	public void mouseDragged(int button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 	}
 
-    @Override
+	@Override
 	public void mousePressed(int button, int x, int y) {
 	}
 
-    @Override
+	@Override
 	public void mouseReleased(int button, int x, int y) {
 	}
 }

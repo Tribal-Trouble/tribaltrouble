@@ -55,26 +55,26 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 		//}
 	}
 
-    @Override
+	@Override
 	public void appendToolTip(ToolTipBox tool_tip) {
 		tool_tip_box = tool_tip;
 		model.visit(this);
 	}
 
-    @Override
+	@Override
 	public void visitSceneryModel(@NonNull SceneryModel model) {
 		String name = model.getName();
 		if (name != null)
 			tool_tip_box.append(name);
 	}
 
-    @Override
+	@Override
 	public void visitSupply(@NonNull Supply model) {
 		tool_tip_box.append(Utils.getBundleString(ResourceBundle.getBundle(model.getClass().getName()), "name"));
 		tool_tip_box.append(Icons.getIcons().getToolTipIcon(model.getClass()));
 	}
 
-    @Override
+	@Override
 	public void visitBuilding(@NonNull Building building) {
 		visitSelectable(building);
 		tool_tip_box.append(building.getTemplate().getName());
@@ -88,7 +88,7 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 
 	}
 
-    @Override
+	@Override
 	public void visitUnit(@NonNull Unit unit) {
 		visitSelectable(unit);
 		String name = unit.getName();

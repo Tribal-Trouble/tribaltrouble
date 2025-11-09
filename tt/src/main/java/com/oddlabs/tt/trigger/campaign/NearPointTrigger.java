@@ -20,7 +20,7 @@ public final class NearPointTrigger extends IntervalTrigger {
 		this.runnable = runnable;
 	}
 
-        @Override
+	@Override
 	protected void check() {
 		if (!unit.isDead()) {
 			int dx = unit.getGridX() - grid_x;
@@ -31,7 +31,7 @@ public final class NearPointTrigger extends IntervalTrigger {
 		}
 	}
 
-        @Override
+	@Override
 	protected void done() {
 		runnable.run();
 	}

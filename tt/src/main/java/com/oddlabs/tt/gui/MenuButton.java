@@ -36,7 +36,7 @@ public final class MenuButton extends ButtonObject {
 		GL11.glScalef(scale, scale, 1f);
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
 		GL11.glEnd();
 		GL11.glPushMatrix();
@@ -62,7 +62,7 @@ public final class MenuButton extends ButtonObject {
 		GL11.glBegin(GL11.GL_QUADS);
 	}
 
-        @Override
+	@Override
 	protected void mouseEntered() {
 		if (!isActive()) {
 			start_hover_time = LocalEventQueue.getQueue().getTime()%SECONDS_PER_HOVER_CYCLE;

@@ -11,7 +11,7 @@ public final class RallyPointTrigger extends TutorialTrigger {
 		super(1f, 0f, "rally_point");
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet();
             for (Selectable s : set) {

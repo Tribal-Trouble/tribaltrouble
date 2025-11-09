@@ -25,7 +25,7 @@ public final class PulldownButton extends GUIObject {
 		menu.chooseItem(item_index);
 	}
 
-        @Override
+	@Override
 	public void setDim(int width, int height) {
 		super.setDim(width, height);
 		PulldownData data = Skin.getSkin().getPulldownData();
@@ -35,7 +35,7 @@ public final class PulldownButton extends GUIObject {
 			menu.setDim(width, menu.getHeight());
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		PulldownData data = Skin.getSkin().getPulldownData();
 		Quad[] arrow = data.getArrow();
@@ -52,7 +52,7 @@ public final class PulldownButton extends GUIObject {
 		}
 	}
 
-        @Override
+	@Override
 	protected void mousePressed(int button, int x, int y) {
 		if (menu_active) {
 			deactivateMenu();
@@ -61,12 +61,12 @@ public final class PulldownButton extends GUIObject {
 		}
 	}
 
-        @Override
+	@Override
 	protected void mouseEntered() {
 		menu_active = menu.isActive();
 	}
 
-        @Override
+	@Override
 	protected void mouseReleased(int button, int x, int y) {
 		if (!menu.isActive())
 			menu.getItem(menu.getChosenItemIndex()).setFocus();
@@ -89,7 +89,7 @@ public final class PulldownButton extends GUIObject {
 		return menu;
 	}
 
-        @Override
+	@Override
 	protected void doRemove() {
 		super.doRemove();
 		if (!menu.isActive())
@@ -97,7 +97,7 @@ public final class PulldownButton extends GUIObject {
 	}
 
 	private final class ItemListener implements ItemChosenListener {
-                @Override
+		@Override
 		public void itemChosen(@NonNull PulldownMenu menu, int item_index) {
 			PulldownItem item = menu.getItem(item_index);
 			label.set(item.getLabelString());

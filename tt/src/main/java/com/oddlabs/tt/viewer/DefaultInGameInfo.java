@@ -27,17 +27,17 @@ public class DefaultInGameInfo implements InGameInfo {
 		menu.addAbortButton(abort_text);
 	}
 
-        @Override
+	@Override
 	public float getRandomStartPosition() {
 		return 0f;
 	}
 
-        @Override
+	@Override
 	public boolean isRated() {
 		return false;
 	}
 
-        @Override
+	@Override
 	public void addGameOverGUI(@NonNull WorldViewer viewer, @NonNull GameStatsDelegate delegate, int header_y, @NonNull Group group) {
 		addGameOverGUI(viewer, delegate, header_y, group, true);
 	}
@@ -126,13 +126,13 @@ public class DefaultInGameInfo implements InGameInfo {
 		game_infos.compileCanvas();
 	}
 
-        @Override
+	@Override
 	public void addGUI(@NonNull WorldViewer viewer, @NonNull InGameMainMenu menu, @NonNull Group game_infos) {
 		addAbortButton(menu);
 		addGameInfos(viewer, menu, game_infos);
 	}
 
-        @Override
+	@Override
 	public final void close(@NonNull WorldViewer viewer) {
 		if (replay_island_flag) {
 			TerrainMenu menu = new TerrainMenu(viewer.getNetwork(), viewer.getGUIRoot(), null, false, null);
@@ -142,12 +142,12 @@ public class DefaultInGameInfo implements InGameInfo {
 			Renderer.startMenu(viewer.getNetwork(), viewer.getGUIRoot().getGUI());
 	}
 
-        @Override
+	@Override
 	public final void abort(@NonNull WorldViewer viewer) {
 		viewer.getGUIRoot().pushDelegate(new GameStatsDelegate(viewer, viewer.getGUIRoot().getDelegate().getCamera(), Utils.getBundleString(Menu.bundle, "game_aborted")));
 	}
 
-        @Override
+	@Override
 	public boolean isMultiplayer() {
 		return false;
 	}

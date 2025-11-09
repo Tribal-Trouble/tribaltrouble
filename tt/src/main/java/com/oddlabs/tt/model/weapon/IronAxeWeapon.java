@@ -15,17 +15,17 @@ public final class IronAxeWeapon extends RotatingThrowingWeapon {
 		super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
 	}
 
-        @Override
+	@Override
 	protected float getAngleVelocity() {
 		return ANGLE_DELTA;
 	}
 
-        @Override
+	@Override
 	protected float getMetersPerSecond() {
 		return METERS_PER_SECOND;
 	}
 
-        @Override
+	@Override
 	protected int getDamage() {
 		return 2;
 	}

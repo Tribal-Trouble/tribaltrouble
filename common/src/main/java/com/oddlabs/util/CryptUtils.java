@@ -59,15 +59,15 @@ public final class CryptUtils {
 	public static void  setupHttpsConnection(@NonNull HttpsURLConnection https_connection) throws Exception {
 		SSLContext ssl_context = SSLContext.getInstance("SSL");
 		ssl_context.init(null, new TrustManager[]{new X509TrustManager() {
-                        @Override
+			@Override
 			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 			}
 
-                        @Override
+			@Override
 			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 			}
 
-                        @Override
+			@Override
 			public X509Certificate @NonNull [] getAcceptedIssuers() {
 				return new X509Certificate[]{};
 			}

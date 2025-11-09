@@ -16,7 +16,7 @@ public final class UnitCountTrigger extends TutorialTrigger {
 		this.target_count = target_count;
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
 		Iterator<Selectable> it = set.iterator();

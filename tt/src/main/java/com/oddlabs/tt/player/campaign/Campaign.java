@@ -48,17 +48,17 @@ public abstract class Campaign {
 		new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), Utils.getBundleString(bundle, "island_complete"));
 		LoadCampaignBox.loadSavegames(
 				new DeterministicSerializerLoopbackInterface<CampaignState[]>() {
-                    @Override
+					@Override
 					public void loadSucceeded(CampaignState[] campaign_states) {
 						Campaign.this.campaign_states = campaign_states;
 						doSave(viewer);
 					}
 
-                     @Override
+					@Override
 					public void saveSucceeded() {
 					}
 
-                    @Override
+					@Override
 					public void failed(@NonNull Throwable e) {
 						doFailed(e, viewer);
 					}
@@ -73,15 +73,15 @@ public abstract class Campaign {
 		}
 		LoadCampaignBox.saveSavegames(campaign_states,
 				new DeterministicSerializerLoopbackInterface<CampaignState[]>() {
-                    @Override
+					@Override
 					public void loadSucceeded(CampaignState[] object) {
 					}
 
-                    @Override
+					@Override
 					public void saveSucceeded() {
 					}
 
-                    @Override
+					@Override
 					public void failed(@NonNull Throwable e) {
 						doFailed(e, viewer);
 					}

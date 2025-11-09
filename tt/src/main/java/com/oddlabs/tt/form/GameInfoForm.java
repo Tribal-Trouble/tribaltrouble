@@ -107,7 +107,7 @@ public final class GameInfoForm extends Form {
 		centerPos();
 	}
 
-    @Override
+	@Override
 	public void setFocus() {
 		ok_button.setFocus();
 	}

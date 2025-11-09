@@ -76,7 +76,7 @@ public abstract class AbstractAudioPlayer implements Animated {
 		LocalEventQueue.getQueue().getManager().registerAnimation(this);
 	}
 
-    @Override
+	@Override
 	public final void animate(float t) {
 		fadeout_gain -= t*(end_gain/fadeout_time);
 		if (fadeout_gain <= 0) {
@@ -87,7 +87,7 @@ public abstract class AbstractAudioPlayer implements Animated {
 		}
 	}
 
-    @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 }

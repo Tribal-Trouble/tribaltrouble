@@ -15,7 +15,7 @@ public final class WalkController extends Controller {
 		this.scan_attack = scan_attack;
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		if (shouldGiveUp(0))
 			unit.popController();

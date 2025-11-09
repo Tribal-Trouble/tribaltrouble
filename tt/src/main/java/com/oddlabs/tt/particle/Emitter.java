@@ -125,24 +125,24 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 		return types;
 	}
 
-    @Override
+	@Override
 	protected void register() {
 		super.register();
 		manager.registerAnimation(this);
 	}
 
-    @Override
+	@Override
 	public final void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitEmitter(this);
 	}
 
-    @Override
+	@Override
 	protected final void remove() {
 		super.remove();
 		manager.removeAnimation(this);
 	}
 
-    @Override
+	@Override
 	public final void updateChecksum(StateChecksum checksum) {
 	}
 }

@@ -17,7 +17,7 @@ public final class TimedConnection {
 		return conn;
 	}
 
-        @Override
+	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof TimedConnection))
 			return false;
@@ -25,7 +25,7 @@ public final class TimedConnection {
 		return other_timed.conn.equals(this.conn);
 	}
 
-        @Override
+	@Override
 	public int hashCode() {
 		return conn.hashCode();
 	}

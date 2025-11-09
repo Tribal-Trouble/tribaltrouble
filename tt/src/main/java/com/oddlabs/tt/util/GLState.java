@@ -20,7 +20,7 @@ public final class GLState implements Cloneable {
 	private boolean texcoord1_array;
 	private boolean color_array;
 
-    @Override
+	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}

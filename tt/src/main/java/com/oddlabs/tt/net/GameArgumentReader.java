@@ -15,7 +15,7 @@ final class GameArgumentReader extends DefaultARMIArgumentReader {
 		this.distributable_table = table;
 	}
 
-        @Override
+	@Override
 	public @Nullable Object readArgument(@NonNull Class<?> type, @NonNull ByteBufferInputStream in) throws IOException, ClassNotFoundException {
 		if (Distributable.class.isAssignableFrom(type)) {
 			int name = in.buffer().getInt();

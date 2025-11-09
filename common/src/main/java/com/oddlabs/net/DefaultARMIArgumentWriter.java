@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 public class DefaultARMIArgumentWriter implements ARMIArgumentWriter {
-        @Override
+	@Override
 	public void writeArgument(@NonNull Class<?> type, @NonNull Object arg, @NonNull ByteBufferOutputStream out) throws IOException {
 		if (type.equals(char.class)) {
 			char c = ((Character)arg);

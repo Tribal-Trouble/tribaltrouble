@@ -34,7 +34,7 @@ public final class FileLoader implements FileLoaderInterface {
 			newFile(file, LocalEventQueue.getQueue().getDeterministic().log(file.length()));
 	}
 
-        @Override
+	@Override
 	public void newFile(File file, long length) {
 		listener.newFile(file, length);
 	}
@@ -66,12 +66,12 @@ public final class FileLoader implements FileLoaderInterface {
 					LocalEventQueue.getQueue().getDeterministic().log(eof));
 	}
 
-        @Override
+	@Override
 	public void data(byte[] data, int num_bytes_read, boolean eof) {
 		listener.data(data, num_bytes_read, eof);
 	}
 	
-        @Override
+	@Override
 	public void error(IOException e) {
 		close();
 		listener.error(e);

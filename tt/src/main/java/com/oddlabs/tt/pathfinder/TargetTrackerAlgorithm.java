@@ -15,17 +15,17 @@ public final class TargetTrackerAlgorithm implements TrackerAlgorithm {
 		this.target = target;
 	}
 
-    @Override
+	@Override
 	public boolean isDone(int x, int y) {
 		return target.isDead() || Selectable.isCloseEnough(unit_grid, max_dist, x, y, target);
 	}
 
-    @Override
+	@Override
 	public boolean acceptRegion(Region region) {
 		return !target.isDead() && unit_grid.getRegion(target.getGridX(), target.getGridY()) == region;
 	}
 
-    @Override
+	@Override
 	public @Nullable Region findPathRegion(int src_x, int src_y) {
 		return target.isDead()
                 ? null
@@ -34,7 +34,7 @@ public final class TargetTrackerAlgorithm implements TrackerAlgorithm {
                         unit_grid.getRegion(target.getGridX(), target.getGridY()));
 	}
 
-    @Override
+	@Override
 	public @Nullable GridPathNode findPathGrid(Region target_region, Region next_region, int src_x, int src_y, boolean allow_secondary_targets) {
 		return target.isDead()
             ? null

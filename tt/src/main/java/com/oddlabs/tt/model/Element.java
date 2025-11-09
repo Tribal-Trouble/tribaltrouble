@@ -81,32 +81,32 @@ public abstract class Element<T> extends BoundingBox implements ListElement<T> {
 		return render_pos_z;
 	}
 
-    @Override
+	@Override
 	public final void setListOwner(@Nullable LinkedList<T> parent) {
 		this.parent = parent;
 	}
 
-    @Override
+	@Override
 	public final @Nullable LinkedList<T> getListOwner() {
 		return parent;
 	}
 
-    @Override
+	@Override
 	public final void setPrior(@Nullable ListElement<T> prior) {
 		this.prior = prior;
 	}
 
-    @Override
+	@Override
 	public final void setNext(@Nullable ListElement<T> next) {
 		this.next = next;
 	}
 
-    @Override
+	@Override
 	public final @Nullable ListElement<T> getPrior() {
 		return prior;
 	}
 
-    @Override
+	@Override
 	public final @Nullable ListElement<T> getNext() {
 		return next;
 	}

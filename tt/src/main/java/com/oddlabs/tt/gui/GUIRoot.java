@@ -102,7 +102,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		tool_tip_timer.setTimerInterval(Settings.getSettings().tooltip_delay*ToolTipBox.MAX_DELAY_SECONDS);
 	}
 
-        @Override
+	@Override
 	public void update(Object anim) {
 		render_tool_tip = true;
 		tool_tip_timer.stop();
@@ -199,7 +199,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		displayChanged(Settings.getSettings().view_width, Settings.getSettings().view_height);
 	}
 
-        @Override
+	@Override
 	protected void displayChangedNotify(int width, int height) {
 		//Reset The Current Viewport And Perspective Transformation
 		setDim(width, height);
@@ -225,7 +225,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
             }
 	}
 
-        @Override
+	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_S:
@@ -507,7 +507,7 @@ public RandomVelocityEmitter(Vector3f position,
 		GL11.glEnable(GL11.GL_BLEND);
 	}
 
-        @Override
+	@Override
 	public void addChild(@NonNull Renderable child) {
 		super.addChild(child);
 		ModalDelegate modal_delegate = getModalDelegate();
@@ -517,7 +517,7 @@ public RandomVelocityEmitter(Vector3f position,
 		}
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		getDelegate().render2D();
 

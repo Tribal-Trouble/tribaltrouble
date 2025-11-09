@@ -14,7 +14,7 @@ public final class PlayerEleminatedTrigger extends IntervalTrigger {
 		this.player = player;
 	}
 
-        @Override
+	@Override
 	protected void check() {
 		int units = player.getUnitCountContainer().getNumSupplies();
 		if (units == 0 && !player.hasActiveChieftain()) {
@@ -22,7 +22,7 @@ public final class PlayerEleminatedTrigger extends IntervalTrigger {
 		}
 	}
 
-        @Override
+	@Override
 	protected void done() {
 		runnable.run();
 	}

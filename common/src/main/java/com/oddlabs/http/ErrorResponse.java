@@ -11,12 +11,12 @@ final class ErrorResponse implements HttpResponse {
 		this.error_message = error_message;
 	}
 
-        @Override
+	@Override
 	public @NonNull String toString() {
 		return error_code + " " + error_message;
 	}
 
-        @Override
+	@Override
 	public void notify(@NonNull HttpCallback callback) {
 		callback.error(error_code, error_message);
 	}

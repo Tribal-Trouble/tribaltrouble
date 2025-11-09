@@ -21,7 +21,7 @@ public final class InGameCampaignDialogForm extends CampaignDialogForm {
 		viewer.setPaused(true);
 	}
 
-    @Override
+	@Override
 	protected void run() {
 		viewer.setPaused(false);
 		super.run();

@@ -17,18 +17,18 @@ public final class DNSTask implements Callable<InetSocketAddress> {
 		this.connection = conn;
 	}
 
-        @Override
+	@Override
 	public void taskCompleted(InetSocketAddress result) {
 		connection.connect(result);
 	}
 
-        @Override
+	@Override
 	public void taskFailed(Exception e) {
 		connection.dnsError((IOException)e);
 	}
 
 	/* WARNING: Potentially threaded and not deterministic. See Callable.java for details */
-        @Override
+	@Override
 	public @NonNull InetSocketAddress call() throws Exception {
 		InetAddress inet_address = InetAddress.getByName(dns_name);
 		InetSocketAddress address = new InetSocketAddress(inet_address, port);

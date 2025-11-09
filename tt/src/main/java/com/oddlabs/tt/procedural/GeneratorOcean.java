@@ -18,7 +18,7 @@ public final class GeneratorOcean extends TextureGenerator {
 		this.terrain = terrain;
 	}
 
-        @Override
+	@Override
 	public Texture @NonNull [] generate() {
 		int seed = Globals.LANDSCAPE_SEED + 1;
 
@@ -73,12 +73,12 @@ public final class GeneratorOcean extends TextureGenerator {
 		return textures;
 	}
 
-        @Override
+	@Override
 	public int hashCode() {
 		return TEXTURE_SIZE;
 	}
 
-        @Override
+	@Override
 	public boolean equals(@NonNull Object o) {
 		return super.equals(o) && ((GeneratorOcean)o).terrain == terrain;
 	}

@@ -121,7 +121,7 @@ public final class CampaignMapForm extends CameraDelegate {
 		}
 	}
 
-    @Override
+	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:
@@ -137,12 +137,12 @@ public final class CampaignMapForm extends CameraDelegate {
 		Renderer.startMenu(network, gui);
 	}
 
-    @Override
+	@Override
 	public boolean forceRender() {
 		return true;
 	}
 
-    @Override
+	@Override
 	protected void renderGeometry() {
 		campaign.getIcons().getMap().render(0, 0);
 //		campaign.extraRender();
@@ -163,7 +163,7 @@ public final class CampaignMapForm extends CameraDelegate {
 			this.number = number;
 		}
 
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			campaign.islandChosen(network, getGUIRoot(), number);
 		}

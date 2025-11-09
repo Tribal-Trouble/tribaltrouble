@@ -32,7 +32,7 @@ public final class Arrow extends GUIObject {
 		displayChangedNotify(LocalInput.getViewWidth(), LocalInput.getViewHeight());
 	}
 
-    @Override
+	@Override
 	protected void displayChangedNotify(int width, int height) {
 		setDim(width, height);
 	}
@@ -48,7 +48,7 @@ public final class Arrow extends GUIObject {
 		return point;
 	}
 
-    @Override
+	@Override
 	protected void renderGeometry() {
 		Vector4f result = project3DTo2D(target_x, target_y, target_z);
 		float x = result.x;

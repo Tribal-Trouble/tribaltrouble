@@ -9,7 +9,7 @@ public final class ArmyMenuTrigger extends TutorialTrigger {
 		local_player.enableArmies(true);
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		if (tutorial.getViewer().getPanel().inArmyMenu())
 			tutorial.next(new ArmyTrigger(tutorial.getViewer().getLocalPlayer()));

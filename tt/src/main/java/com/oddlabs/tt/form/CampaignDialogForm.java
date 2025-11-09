@@ -46,7 +46,7 @@ public class CampaignDialogForm extends Form {
 			runnable.run();
 	}
 
-        @Override
+	@Override
 	protected final void doCancel() {
 		if (!cancel)
 			run();
@@ -88,7 +88,7 @@ public class CampaignDialogForm extends Form {
 		centerPos();
 	}
 
-        @Override
+	@Override
 	public final void setFocus() {
 		ok_button.setFocus();
 	}

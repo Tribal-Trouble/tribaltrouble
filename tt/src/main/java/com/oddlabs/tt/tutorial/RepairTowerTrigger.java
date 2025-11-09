@@ -12,7 +12,7 @@ public final class RepairTowerTrigger extends TutorialTrigger {
 		tower.getOwner().enableRepairing(true);
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		if (!tower.isDamaged()) {
 			tutorial.next(new EmptyTowerTrigger(tower));

@@ -22,7 +22,7 @@ public final class NearArmyTrigger extends IntervalTrigger {
 		this.runnable = runnable;
 	}
 
-    @Override
+	@Override
 	protected void check() {
             for (Unit src1 : src) {
                 if (src1.isDead()) {
@@ -40,7 +40,7 @@ public final class NearArmyTrigger extends IntervalTrigger {
             }
 	}
 
-        @Override
+	@Override
 	protected void done() {
 		runnable.run();
 	}

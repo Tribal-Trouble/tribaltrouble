@@ -30,7 +30,7 @@ public final class IdleController extends Controller {
 		return redecide_time > 0;
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		unit.setBehaviour(idle_behaviour);
 		if (shouldSleep(0f))
@@ -47,7 +47,7 @@ public final class IdleController extends Controller {
         }
 	}
 
-    @Override
+	@Override
 	public @NonNull String getKey() {
 		return super.getKey() + unit.getAbilities().hasAbilities(Abilities.BUILD) + unit.getAbilities().hasAbilities(Abilities.MAGIC);
 	}

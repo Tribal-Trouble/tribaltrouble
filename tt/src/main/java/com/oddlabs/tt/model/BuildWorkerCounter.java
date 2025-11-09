@@ -8,7 +8,7 @@ public final class BuildWorkerCounter<S extends Supply> extends SupplyCounter {
 		setDelta(building.getBuildSupplyContainer(supply_type).getNumOrders());
 	}
 
-    @Override
+	@Override
 	public int getNumSupplies() {
 		if (!getBuilding().isDead())
 			return getBuilding().getSupplyContainer(getSupplyType()).getNumSupplies() - (getDelta() - getBuilding().getBuildSupplyContainer(getSupplyType()).getNumOrders());

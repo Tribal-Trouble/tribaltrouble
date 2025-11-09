@@ -76,7 +76,7 @@ public final class LightningCloud implements Magic {
 				1f, true, false));
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
 		if (first_run) {
 			cloud_sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getCloudSound(), position.x(), position.y(), position.z(),
@@ -164,11 +164,11 @@ public final class LightningCloud implements Magic {
 				owner.getWorld().getAnimationManagerGameTime());
 	}
 
-        @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 
-        @Override
+	@Override
 	public void interrupt() {
 		if (bubbling_sound != null)
 			bubbling_sound.stop(.2f, Settings.getSettings().sound_gain);

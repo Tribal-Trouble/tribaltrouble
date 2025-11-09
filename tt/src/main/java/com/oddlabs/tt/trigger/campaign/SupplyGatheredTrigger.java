@@ -23,7 +23,7 @@ public final class SupplyGatheredTrigger extends IntervalTrigger {
 		this.goal = goal;
 	}
 
-        @Override
+	@Override
 	protected void check() {
 		int count = 0;
 		Selectable[][] selectables = local_player.classifyUnits();
@@ -43,7 +43,7 @@ public final class SupplyGatheredTrigger extends IntervalTrigger {
 			triggered();
 	}
 
-        @Override
+	@Override
 	protected void done() {
 		runnable.run();
 	}

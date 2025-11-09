@@ -14,7 +14,7 @@ public final class SliderButton extends ButtonObject {
 		this.button = button;
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		GUIObject parent = (GUIObject)getParent();
 		if (parent.isDisabled()) {
@@ -26,11 +26,11 @@ public final class SliderButton extends ButtonObject {
 		}
 	}
 
-        @Override
+	@Override
 	public void mouseHeld(int button, int x, int y) {
 	}
 
-        @Override
+	@Override
 	public void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_RIGHT:

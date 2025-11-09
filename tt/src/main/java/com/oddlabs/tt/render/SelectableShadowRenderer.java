@@ -30,7 +30,7 @@ final class SelectableShadowRenderer extends ShadowListRenderer {
 			shadowed_list.add(model);
 	}
 
-        @Override
+	@Override
 	protected void renderShadows(@NonNull LandscapeRenderer renderer) {
 		setupShadows();
 		GL11.glColor3f(1f, 1f, 1f);

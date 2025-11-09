@@ -16,12 +16,12 @@ public final class ByteBufferInputStream extends InputStream {
 		return buffer;
 	}
 
-        @Override
+	@Override
 	public int available() {
 		return buffer.remaining();
 	}
 
-        @Override
+	@Override
 	public int read(byte[] bytes, int offset, int length) {
 		if (available() == 0)
 			return -1;
@@ -30,7 +30,7 @@ public final class ByteBufferInputStream extends InputStream {
 		return length;
 	}
 	
-        @Override
+	@Override
 	public int read() {
 		if (available() > 0) {
 			int b = buffer.get();

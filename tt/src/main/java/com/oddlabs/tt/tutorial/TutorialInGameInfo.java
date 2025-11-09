@@ -23,38 +23,38 @@ public final class TutorialInGameInfo implements InGameInfo {
 			return false;
 	}
 
-        @Override
+	@Override
 	public boolean isRated() {
 		return false;
 	}
 
-        @Override
+	@Override
 	public boolean isMultiplayer() {
 		return false;
 	}
 
-        @Override
+	@Override
 	public float getRandomStartPosition() {
 		return 0f;
 	}
 
-        @Override
+	@Override
 	public void addGUI(WorldViewer viewer, @NonNull InGameMainMenu menu, Group game_infos) {
 		menu.addAbortButton(Utils.getBundleString(Menu.bundle, "end_tutorial"));
 	}
 
-        @Override
+	@Override
 	public void addGameOverGUI(WorldViewer viewer, GameStatsDelegate delegate, int header_y, Group group) {
 		throw new RuntimeException("Not implemented");
 	}
 
-        @Override
+	@Override
 	public void abort(@NonNull WorldViewer viewer) {
 		next_tutorial = -1;
 		viewer.close();
 	}
 
-        @Override
+	@Override
 	public void close(@NonNull WorldViewer viewer) {
 		if (next_tutorial != -1)
 			TutorialForm.startTutorial(viewer.getNetwork(), viewer.getGUIRoot(), next_tutorial);

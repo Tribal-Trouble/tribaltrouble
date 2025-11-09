@@ -58,7 +58,7 @@ public final class PrivateMessageForm extends Form {
 		centerPos();
 	}
 
-        @Override
+	@Override
 	public void setFocus() {
 		editline_name.setFocus();
 	}
@@ -70,12 +70,12 @@ public final class PrivateMessageForm extends Form {
 	}
 
 	private final class OKListener implements MouseClickListener, EnterListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			send();
 		}
 
-                @Override
+		@Override
 		public void enterPressed(CharSequence text) {
 			send();
 		}

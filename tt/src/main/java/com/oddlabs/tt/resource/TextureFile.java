@@ -120,12 +120,12 @@ public final class TextureFile extends File<Texture> {
 		return new GLIntImage(image.getWidth(), image.getHeight(), image.getPixels(), GL11.GL_RGBA);
 	}
 
-        @Override
+	@Override
 	public @NonNull Texture get() {
 		return new Texture(this);
 	}
 
-        @Override
+	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof TextureFile))
 			return false;

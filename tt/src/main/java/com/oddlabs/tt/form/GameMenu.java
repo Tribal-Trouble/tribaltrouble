@@ -218,12 +218,12 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		}
 	}
 
-        @Override
+	@Override
 	public void connected(Client client, Game game, WorldGenerator generator, int player_slot) {
 		assert false;
 	}
 
-        @Override
+	@Override
 	public void setFocus() {
 		chat_line.setFocus();
 	}
@@ -238,7 +238,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		return result;
 	}
 
-        @Override
+	@Override
 	public void setPlayers(PlayerSlot @NonNull [] players) {
 		int num_humans = countHumans(players);
 		int[] player_slots = new int[num_humans];
@@ -410,26 +410,26 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		return pulldown_button;
 	}
 
-        @Override
+	@Override
 	protected void doAdd() {
 		super.doAdd();
 		Network.getChatHub().addListener(this);
 	}
 
-        @Override
+	@Override
 	protected void doRemove() {
 		super.doRemove();
 		Network.getChatHub().removeListener(this);
 	}
 
-        @Override
+	@Override
 	public void connectionLost() {
 		remove();
 		owner.removeGameMenu();
 		gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "connection_lost")));
 	}
 
-        @Override
+	@Override
 	public void gameStarted() {
 //		owner.removeGameMenu();
 		setDisabled(true);
@@ -440,7 +440,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		getTab().updateNotify();
 	}
 
-        @Override
+	@Override
 	public void chat(@NonNull ChatMessage message) {
 		if (message.type != ChatMessage.Type.GAME_MENU)
 			return;
@@ -493,21 +493,21 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	}
 
 	private final class InfoButtonListener implements MouseClickListener {
-        @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			gui_root.addModalForm(new GameInfoForm(game));
 		}
 	}
 
 	private final class CancelButtonListener implements MouseClickListener {
-        @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			cancel();
 		}
 	}
 
 	private final class ReadyListener implements MouseClickListener {
-        @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			setReady(true);
 		}
@@ -523,7 +523,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	}
 
 	private final class StartListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			final int MIN_TEAMS = 2;
 			int num_teams = getNumTeams(game_network.getClient().getPlayers());
@@ -543,7 +543,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			this.player_slot = player_slot;
 		}
 
-                @Override
+		@Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 			setReady(false);
 			adjustPlayerSlot(player_slot);
@@ -551,7 +551,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	}
 
 	private final class ChatListener implements EnterListener {
-                @Override
+		@Override
 		public void enterPressed(@NonNull CharSequence text) {
 			String chat = text.toString();
 			if (!chat.isEmpty()) {
@@ -563,7 +563,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	}
 
 	private final class SendListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			chat_line.enterPressedAll();
 		}

@@ -82,7 +82,7 @@ public abstract class LinearEmitter extends Emitter {
 		num_particles = 0;
 	}
 
-        @Override
+	@Override
 	public final void animate(float t) {
 		if (started)
 			particle_counter += particles_per_second*t;

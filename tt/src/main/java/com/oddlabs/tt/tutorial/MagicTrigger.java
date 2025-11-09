@@ -15,7 +15,7 @@ public final class MagicTrigger extends TutorialTrigger {
 		this.chieftain = chieftain;
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		int last = chieftain.getLastMagicIndex();
 		if (last != -1)

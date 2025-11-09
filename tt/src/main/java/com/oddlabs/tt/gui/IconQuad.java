@@ -17,7 +17,7 @@ public final class IconQuad extends Quad {
 		this.texture = texture;
 	}
 
-        @Override
+	@Override
 	public void render(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
 		GL11.glEnd();
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());

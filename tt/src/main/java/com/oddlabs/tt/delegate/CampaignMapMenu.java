@@ -26,7 +26,7 @@ public final class CampaignMapMenu extends Menu {
 		abort.addMouseClickListener(new AbortListener());
 	}
 
-    @Override
+	@Override
 	protected void addButtons() {
 		addResumeButton();
 
@@ -37,7 +37,7 @@ public final class CampaignMapMenu extends Menu {
 		addExitButton();
 	}
 
-    @Override
+	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch(event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:
@@ -49,28 +49,28 @@ public final class CampaignMapMenu extends Menu {
 		}
 	}
 
-    @Override
+	@Override
 	protected void renderGeometry() {
 		super.renderGeometry();
 		renderBackgroundAlpha();
 	}
 
 	private final class ResumeListener implements MouseClickListener {
-        @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			pop();
 		}
 	}
 
 	private final class AbortListener implements MouseClickListener {
-        @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			setMenuCentered(new QuestionForm(Utils.getBundleString(bundle, "end_game_confirm"), new ActionAbortListener()));
 		}
 	}
 
 	private final class ActionAbortListener implements MouseClickListener {
-        @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			CampaignMapForm.closeCampaign(getNetwork(), getGUIRoot().getGUI());
 		}

@@ -22,12 +22,12 @@ public final class TimerAnimation implements Animated {
 		this.timer_owner = owner;
 	}
 
-    @Override
+	@Override
 	public @NonNull String toString() {
 		return "TimerAnimation{owner=" + timer_owner + "}";
 	}
 
-    @Override
+	@Override
 	public void updateChecksum(@NonNull StateChecksum checksum) {
 		checksum.update(time);
 	}
@@ -62,7 +62,7 @@ public final class TimerAnimation implements Animated {
 		time = 0;
 	}
 
-    @Override
+	@Override
 	public void animate(float t) {
 		time += t;
 		while (time > interval) {

@@ -24,13 +24,13 @@ public final class InGameMainMenu extends Menu {
 		reload();
 	}
 
-        @Override
+	@Override
 	protected void doAdd() {
 		super.doAdd();
 		viewer.setPaused(true);
 	}
 
-        @Override
+	@Override
 	protected void doRemove() {
 		super.doRemove();
 		viewer.setPaused(false);
@@ -42,7 +42,7 @@ public final class InGameMainMenu extends Menu {
 		abort.addMouseClickListener(new AbortListener());
 	}
 
-        @Override
+	@Override
 	protected void addButtons() {
 		addResumeButton();
 
@@ -55,14 +55,14 @@ public final class InGameMainMenu extends Menu {
 		addExitButton();
 	}
 
-        @Override
+	@Override
 	public void displayChangedNotify(int width, int height) {
 		super.displayChangedNotify(width, height);
 		if (game_infos != null)
 			game_infos.setPos((width - game_infos.getWidth())/2, (height - game_infos.getHeight())/2);
 	}
 
-        @Override
+	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch(event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:
@@ -74,21 +74,21 @@ public final class InGameMainMenu extends Menu {
 		}
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		super.renderGeometry();
 		renderBackgroundAlpha();
 	}
 
 	private final class AbortListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			setMenuCentered(new QuestionForm(Utils.getBundleString(bundle, "end_game_confirm"), new ActionAbortListener()));
 		}
 	}
 
 	private final class ActionAbortListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			viewer.abort();
 		}

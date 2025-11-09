@@ -13,12 +13,12 @@ public final class RockSpearWeapon extends DirectedThrowingWeapon {
 		super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
 	}
 
-        @Override
+	@Override
 	protected float getMetersPerSecond() {
 		return METERS_PER_SECOND;
 	}
 
-        @Override
+	@Override
 	protected int getDamage() {
 		return 1;
 	}

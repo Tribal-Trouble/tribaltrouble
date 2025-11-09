@@ -18,7 +18,7 @@ public final class BuildingFinder implements FinderFilter<Building> {
 		this.abilities = abilities;
 	}
 
-    @Override
+	@Override
 	public @Nullable Building getOccupantFromRegion(@NonNull Region region, boolean one_region) {
 		List<Building> buildings = region.getObjects(Building.class);
 		for (Building b : buildings) {
@@ -28,7 +28,7 @@ public final class BuildingFinder implements FinderFilter<Building> {
 		return null;
 	}
 
-    @Override
+	@Override
 	public @Nullable Building getBest() {
 		return null;
 	}
@@ -37,7 +37,7 @@ public final class BuildingFinder implements FinderFilter<Building> {
 		return building.getOwner() == owner && building.getAbilities().hasAbilities(abilities);
 	}
 
-    @Override
+	@Override
 	public boolean acceptOccupant(Occupant occ) {
 		if (occ instanceof Building building) {
 			return accept(building);

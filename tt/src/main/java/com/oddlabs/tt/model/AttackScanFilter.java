@@ -34,17 +34,17 @@ public final class AttackScanFilter implements ScanFilter {
 		return result;
 	}
 
-    @Override
+	@Override
 	public int getMinRadius() {
 		return 1;
 	}
 
-    @Override
+	@Override
 	public int getMaxRadius() {
 		return max_range;
 	}
 
-    @Override
+	@Override
 	public boolean filter(int grid_x, int grid_y, Occupant occ) {
 		if (occ instanceof Selectable s) {
 			if (owner.isEnemy(s.getOwner())) {

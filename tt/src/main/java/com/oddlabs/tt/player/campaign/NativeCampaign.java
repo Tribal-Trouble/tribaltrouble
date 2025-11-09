@@ -61,12 +61,12 @@ public final class NativeCampaign extends Campaign {
 		getState().setHasRubberWeapons(true);
 	}
 
-    @Override
+	@Override
 	public CampaignIcons getIcons() {
 		return NativeCampaignIcons.getIcons();
 	}
 
-    @Override
+	@Override
 	public void islandChosen(NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
 		if (Renderer.isRegistered()) {
 			Form dialog = new CampaignDialogForm(islands[number].getHeader(),
@@ -78,7 +78,7 @@ public final class NativeCampaign extends Campaign {
 		}
 	}
 
-    @Override
+	@Override
 	public CharSequence getCurrentObjective() {
 		if (getState().getCurrentIsland() != -1) {
 			return islands[getState().getCurrentIsland()].getCurrentObjective();
@@ -86,14 +86,14 @@ public final class NativeCampaign extends Campaign {
 		throw new RuntimeException();
 	}
 
-        @Override
+	@Override
 	public void defeated(@NonNull WorldViewer viewer, String game_over_message) {
 		if (getState().getCurrentIsland() == 4)
 			((NativeIsland4)islands[4]).removeCounter();
 		super.defeated(viewer, game_over_message);
 	}
 
-        @Override
+	@Override
 	public void startIsland(NetworkSelector network, GUIRoot gui_root, int number) {
 		getState().setCurrentIsland(number);
 		islands[number].chosen(network, gui_root);
@@ -110,7 +110,7 @@ public final class NativeCampaign extends Campaign {
 			this.network = network;
 		}
 
-                @Override
+		@Override
 		public void run() {
 			startIsland(network, gui_root, number);
 		}

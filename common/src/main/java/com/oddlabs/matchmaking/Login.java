@@ -16,7 +16,7 @@ public final class Login implements Serializable {
 		this.password_digest = password_digest;
 	}
 
-        @Override
+	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof Login))
 			return false;
@@ -24,7 +24,7 @@ public final class Login implements Serializable {
 		return other_login.getUsername().equals(username) && other_login.getPasswordDigest().equals(password_digest);
 	}
 
-        @Override
+	@Override
 	public int hashCode() {
 		return username.hashCode();
 	}

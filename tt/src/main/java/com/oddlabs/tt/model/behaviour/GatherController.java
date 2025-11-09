@@ -30,7 +30,7 @@ public final class GatherController<S extends Supply> extends Controller {
 		return supply_type;
 	}
 
-    @Override
+	@Override
 	public @NonNull String getKey() {
 		return super.getKey() + supply_type;
 	}
@@ -76,7 +76,7 @@ public final class GatherController<S extends Supply> extends Controller {
 		}
 	}
 
-        @Override
+	@Override
 	public void decide() {
 		if (unit.getSupplyContainer().getNumSupplies() > 0 && unit.getSupplyContainer().getSupplyType() == supply_type) {
 			dropoff();

@@ -10,12 +10,12 @@ final class RegionPathFinder extends AStarAlgorithm {
 		this.dst_region = dst_region;
 	}
 
-    @Override
+	@Override
 	public boolean touchNeighbour(Occupant occ) {
 		return false;
 	}
 
-    @Override
+	@Override
 	protected boolean isPathComplete(int dist_squared, Node node) {
 		return node == dst_region;
 	}

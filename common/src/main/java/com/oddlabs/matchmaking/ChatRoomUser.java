@@ -23,12 +23,12 @@ public final class ChatRoomUser implements Serializable {
 		return playing;
 	}
 
-        @Override
+	@Override
 	public int hashCode() {
 		return nick.hashCode();
 	}
 
-        @Override
+	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof ChatRoomUser))
 			return false;

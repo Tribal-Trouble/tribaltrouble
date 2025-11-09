@@ -14,7 +14,7 @@ public class ImageButton extends ButtonObject {
 		this.disabled = disabled;
 	}
 
-        @Override
+	@Override
 	public final void setPos(int x, int y) {
 		super.setPos(x, y);
 		normal.setPos(x, y);
@@ -22,7 +22,7 @@ public class ImageButton extends ButtonObject {
 		disabled.setPos(x, y);
 	}
 
-        @Override
+	@Override
 	protected final void renderGeometry() {
 		if (isDisabled())
 			disabled.renderGeometry();
@@ -32,7 +32,7 @@ public class ImageButton extends ButtonObject {
 			normal.renderGeometry();
 	}
 
-        @Override
+	@Override
 	protected void mouseClicked(int button, int x, int y, int clicks) {
 	}
 }

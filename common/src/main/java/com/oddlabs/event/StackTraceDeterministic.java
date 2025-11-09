@@ -12,12 +12,12 @@ public final class StackTraceDeterministic extends Deterministic {
 		this.stack_deterministic = stack_deterministic;
 	}
 
-        @Override
+	@Override
 	public boolean isPlayback() {
 		return deterministic.isPlayback();
 	}
 
-        @Override
+	@Override
 	public void endLog() {
 		deterministic.endLog();
 		stack_deterministic.endLog();
@@ -30,43 +30,43 @@ public final class StackTraceDeterministic extends Deterministic {
 			throw new Error("old_stack_trace_hash = " + old_stack_trace_hash + " | stack_trace_hash = " + stack_trace_hash);
 	}
 
-        @Override
+	@Override
 	protected byte log(byte b, byte def) {
 		logTrace();
 		return deterministic.log(b, def);
 	}
 
-        @Override
+	@Override
 	protected char log(char c, char def) {
 		logTrace();
 		return deterministic.log(c, def);
 	}
 
-        @Override
+	@Override
 	protected int log(int i, int def) {
 		logTrace();
 		return deterministic.log(i, def);
 	}
 
-        @Override
+	@Override
 	protected long log(long l, long def) {
 		logTrace();
 		return deterministic.log(l, def);
 	}
 
-        @Override
+	@Override
 	protected float log(float f, float def) {
 		logTrace();
 		return deterministic.log(f, def);
 	}
 
-        @Override
+	@Override
 	protected Object logObject(Object o) {
 		logTrace();
 		return deterministic.log(o);
 	}
 
-        @Override
+	@Override
 	protected void logBuffer(ByteBuffer b) {
 		logTrace();
 		deterministic.log(b);

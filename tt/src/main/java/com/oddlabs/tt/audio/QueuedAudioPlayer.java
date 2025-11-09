@@ -114,7 +114,7 @@ final class QueuedAudioPlayer extends AbstractAudioPlayer {
 //System.out.println("		AL10.alGetSourcei(source_index,AL10.AL_SOURCE_STATE) = " + 		AL10.alGetSourcei(source.getSource(),AL10.AL_SOURCE_STATE) + " | AL10.AL_STOPPED = " + AL10.AL_STOPPED + " | AL10.AL_PLAYING = " + AL10.AL_PLAYING);
 	}
 
-    @Override
+	@Override
 	public void stop() {
 		if (isPlaying()) {
 			AudioManager.getManager().removeQueuedPlayer(this);

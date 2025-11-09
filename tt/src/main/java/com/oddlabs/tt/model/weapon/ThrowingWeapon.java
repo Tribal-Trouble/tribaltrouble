@@ -67,7 +67,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 		src.getOwner().weaponThrown();
 	}
 
-        @Override
+	@Override
 	public @NonNull String toString() {
 		return "ThrowingWeapon: start_x = " + start_x + " | start_y = " + start_y + " | end_x = " + end_x + " | end_y = " + end_y + " | target = " + target + "  "  + super.toString();
 	}
@@ -110,27 +110,27 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 		setDirection(dir_x, dir_y);
 	}
 
-        @Override
+	@Override
 	public final void updateChecksum(@NonNull StateChecksum checksum) {
 		checksum.update(time);
 	}
 
-        @Override
+	@Override
 	public final float getOffsetZ() {
 		return deterministic_z;
 	}
 
-        @Override
+	@Override
 	public final float getAnimationTicks() {
 		return 0;
 	}
 
-        @Override
+	@Override
 	public final int getAnimation() {
 		return 0;
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
 		if (time >= time_limit) {
 			hitTarget(hit, owner, target);
@@ -185,7 +185,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 		return z_speed;
 	}
 
-        @Override
+	@Override
 	public final float getNoDetailSize() {
 		return NO_DETAIL_SIZE;
 	}

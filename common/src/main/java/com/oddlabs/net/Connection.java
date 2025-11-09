@@ -72,7 +72,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 			peer_interface.ping();
 	}
 
-        @Override
+	@Override
 	public void ping() {
 		if (ping_reply)
 			peer_interface.ping();
@@ -178,7 +178,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		writing = true;
 	}
 
-        @Override
+	@Override
 	public void handle(ARMIEvent event) {
 		peer_interface.receiveEvent(event);
 	}
@@ -288,7 +288,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		} while (bytes_read && network.getDeterministic().log(network.getDeterministic().isPlayback() || channel.isOpen()));
 	}
 
-        @Override
+	@Override
 	public void handle() throws IOException {
 		SocketChannel channel;
 		if (!network.getDeterministic().isPlayback())
@@ -333,7 +333,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		return !network.getDeterministic().log(network.getDeterministic().isPlayback() || !(key != null && key.isValid()));
 	}
 
-        @Override
+	@Override
 	protected void doClose() {
 		if (isKeyValid()) {
 			network.cancelKey(key, this);
@@ -359,7 +359,7 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		network.unregisterForPinging(this);
 	}
 	
-        @Override
+	@Override
 	public void handleError(IOException e) {
 		error(e);
 	}

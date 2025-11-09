@@ -67,7 +67,7 @@ public final class Stun implements Magic {
                 1f));
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
             for (Selectable selectable : target_list) {
                 Unit unit = null;
@@ -105,11 +105,11 @@ public final class Stun implements Magic {
 		return result;
 	}
 
-        @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 
-        @Override
+	@Override
 	public void interrupt() {
 		if (emitter != null) {
 			emitter.done();

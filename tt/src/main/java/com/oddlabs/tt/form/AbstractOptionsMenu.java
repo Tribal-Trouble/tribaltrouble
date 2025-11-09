@@ -381,7 +381,7 @@ public abstract class AbstractOptionsMenu extends Form {
 
 	// Sound
 	private final class CBMusicListener implements CheckBoxListener {
-                @Override
+		@Override
 		public void checked(boolean marked) {
 			if (Settings.getSettings().play_music != marked)
 				Renderer.getRenderer().toggleMusic();
@@ -391,7 +391,7 @@ public abstract class AbstractOptionsMenu extends Form {
 	}
 
 	private final class CBSFXListener implements CheckBoxListener {
-                @Override
+		@Override
 		public void checked(boolean marked) {
 			if (Settings.getSettings().play_sfx != marked)
 				Renderer.getRenderer().toggleSound();
@@ -401,7 +401,7 @@ public abstract class AbstractOptionsMenu extends Form {
 	}
 
 	private static final class SliderMusicListener implements ValueListener {
-                @Override
+		@Override
 		public void valueSet(int value) {
 			float music_gain = (float)value/(MAX_VALUE);
 			Settings.getSettings().music_gain = music_gain;
@@ -410,21 +410,21 @@ public abstract class AbstractOptionsMenu extends Form {
 	}
 
 	private static final class SliderSFXListener implements ValueListener {
-                @Override
+		@Override
 		public void valueSet(int value) {
 			Settings.getSettings().sound_gain = (float)value/(MAX_VALUE);
 		}
 	}
 
 	private static final class SliderMapmodeListener implements ValueListener {
-                @Override
+		@Override
 		public void valueSet(int value) {
 			Settings.getSettings().mapmode_delay = (float)value/(MAX_VALUE);
 		}
 	}
 
 	private final class SliderTooltipListener implements ValueListener {
-                @Override
+		@Override
 		public void valueSet(int value) {
 			Settings.getSettings().tooltip_delay = (float)value/(MAX_VALUE);
 			gui_root.setToolTipTimer();
@@ -432,12 +432,12 @@ public abstract class AbstractOptionsMenu extends Form {
 	}
 
 	private final class CBFullscreen implements CheckBoxListener, DoNowListener {
-                @Override
+		@Override
 		public void doChange(boolean switch_now) {
 			SerializableDisplayMode.setFullscreen(cb_fullscreen.isMarked(), switch_now);
 		}
 
-                @Override
+		@Override
 		public void checked(boolean marked) {
 			DisplayChangeForm display_change_form = new DisplayChangeForm(this);
 			gui_root.addModalForm(display_change_form);
@@ -446,21 +446,21 @@ public abstract class AbstractOptionsMenu extends Form {
 
 
 	private static final class CBHardwareCursor implements CheckBoxListener {
-                @Override
+		@Override
 		public void checked(boolean marked) {
 			Settings.getSettings().use_native_cursor = marked;
 		}
 	}
 
 	private static final class CBAggressiveUnits implements CheckBoxListener {
-                @Override
+		@Override
 		public void checked(boolean marked) {
 			Settings.getSettings().aggressive_units = marked;
 		}
 	}
 
 	private static final class CBInvertCamera implements CheckBoxListener {
-                @Override
+		@Override
 		public void checked(boolean marked) {
 			Settings.getSettings().invert_camera_pitch = marked;
 		}
@@ -469,26 +469,26 @@ public abstract class AbstractOptionsMenu extends Form {
 	private final class DisplayModeListener implements RowListener, DoNowListener {
 		private SerializableDisplayMode mode;
 
-                @Override
+		@Override
 		public void doChange(boolean switch_now) {
 			LocalInput.getLocalInput().switchMode(mode, switch_now);
 			gui_root.displayChanged();
 		}
 
-                @Override
+		@Override
 		public void rowChosen(Object o) {
 			mode = (SerializableDisplayMode)o;
 			DisplayChangeForm display_change_form = new DisplayChangeForm(this);
 			gui_root.addModalForm(display_change_form);
 		}
 
-        @Override
+		@Override
 		public void rowDoubleClicked(Object o) {
 		}
 	}
 
 	private final class LanguageListener implements RowListener {
-        @Override
+		@Override
 		public void rowChosen(Object o) {
 			Locale locale = (Locale)o;
 			if (locale.getVariant().equals("default"))
@@ -498,20 +498,20 @@ public abstract class AbstractOptionsMenu extends Form {
 			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "language_change_next_run")));
 		}
 
-        @Override
+		@Override
 		public void rowDoubleClicked(Object o) {
 		}
 	}
 
 	private final class GamespeedListener implements ItemChosenListener {
-        @Override
+		@Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 			changeGamespeed(item_index);
 		}
 	}
 
 	private final class AboutListener implements MouseClickListener {
-        @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			gui_root.addModalForm(new CreditsForm());
 		}

@@ -42,14 +42,14 @@ public final class CreatingProfileForm extends Form implements ProfileListener {
 		Network.getMatchmakingClient().createProfile(nick);
 	}
 
-        @Override
+	@Override
 	public void success() {
 		remove();
 		main_menu.setMenuCentered(profiles_form);
 		Network.getMatchmakingClient().requestProfiles();
 	}
 
-        @Override
+	@Override
 	public void error(int error_code) {
 		remove();
 		String error_message;
@@ -78,7 +78,7 @@ public final class CreatingProfileForm extends Form implements ProfileListener {
 		gui_root.addModalForm(new MessageForm(error_message));
 	}
 
-        @Override
+	@Override
 	protected void doCancel() {
 	}
 }

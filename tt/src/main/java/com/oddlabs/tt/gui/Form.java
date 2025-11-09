@@ -26,7 +26,7 @@ public class Form extends Group {
 		this(null);
 	}
 
-    @Override
+	@Override
 	public final void compileCanvas() {
 		int spacing = Skin.getSkin().getFormData().getObjectSpacing();
 		Box form;
@@ -63,7 +63,7 @@ public class Form extends Group {
 		setPos((LocalInput.getViewWidth() - getWidth())/2, (LocalInput.getViewHeight() - getHeight())/2);
 	}
 
-        @Override
+	@Override
 	protected final void renderGeometry() {
 		if (isDisabled()) {
 			if (caption != null)
@@ -84,54 +84,54 @@ public class Form extends Group {
 
 	}
 
-    @Override
+	@Override
 	protected final void mousePressed(int button, int x, int y) {
 		if (caption != null && y >= getHeight() - Skin.getSkin().getFormData().getForm().getTopOffset())
 			drag = true;
 	}
 
-    @Override
+	@Override
 	protected final void mouseReleased(int button, int x, int y) {
 		drag = false;
 	}
 
-    @Override
+	@Override
 	public final void mouseDragged(int button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
 		if (drag)
 			setPos(getX() + rel_x, getY() + rel_y);
 	}
 
-    @Override
+	@Override
 	protected final void mouseScrolled(int amount) {
 	}
 
-        @Override
+	@Override
 	protected void mouseMoved(int x, int y) {
 	}
 
-        @Override
+	@Override
 	protected final void mouseExited() {
 	}
 
-        @Override
+	@Override
 	protected final void mouseEntered() {
 	}
 
-        @Override
+	@Override
 	protected final void mouseClicked(int button, int x, int y, int clicks) {
 	}
 
-        @Override
+	@Override
 	protected final void keyPressed(@NonNull KeyboardEvent event) {
 		if (event.getKeyCode() == Keyboard.KEY_H && event.isControlDown())
 			super.keyPressed(event);
 	}
 
-        @Override
+	@Override
 	protected final void keyReleased(@NonNull KeyboardEvent event) {
 	}
 
-        @Override
+	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_TAB:
@@ -145,7 +145,7 @@ public class Form extends Group {
 		}
 	}
 
-        @Override
+	@Override
 	protected final void mouseHeld(int button, int x, int y) {
 	}
 
@@ -173,7 +173,7 @@ public class Form extends Group {
 	protected void doCancel() {
 	}
 
-        @Override
+	@Override
 	public final void remove() {
 		if (getParent() != null)
 			closedAll();
@@ -186,16 +186,16 @@ public class Form extends Group {
 			this.owner = owner;
 		}
 
-                @Override
+		@Override
 		public void mouseDragged(int button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
 			owner.mouseDragged(button, x, y, rel_x, rel_y, abs_x, abs_y);
 		}
 
-                @Override
+		@Override
 		public void mouseMoved(int x, int y) {}
-                @Override
+		@Override
 		public void mouseEntered() {}
-                @Override
+		@Override
 		public void mouseExited() {}
 	}
 }

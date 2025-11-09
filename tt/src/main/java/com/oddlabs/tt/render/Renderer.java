@@ -454,28 +454,28 @@ public final class Renderer {
 		PlayerInfo[] players = new PlayerInfo[]{player_info};
 		WorldInfo world_info = generator.generate(players.length, world_params.getInitialUnitCount(), 0f);
 		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {
-                        @Override
+			@Override
 			public void gamespeedChanged(int speed) {
 			}
-                        @Override
+			@Override
 			public void playerGamespeedChanged() {
 			}
-                        @Override
+			@Override
 			public void newAttackNotification(Selectable target) {
 			}
-                        @Override
+			@Override
 			public void newSelectableNotification(Selectable target) {
 			}
-                        @Override
+			@Override
 			public void registerTarget(Target target) {
 			}
-                        @Override
+			@Override
 			public void unregisterTarget(Target target) {
 			}
-                        @Override
+			@Override
 			public void updateTreeLowDetail(Matrix4f matrix, TreeSupply tree) {
 			}
-                        @Override
+			@Override
 			public void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
 			}
 		}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Player.COLORS[0]});
@@ -656,7 +656,7 @@ public final class Renderer {
 	}
 
 	private final static class MusicTimer implements Updatable {
-                @Override
+		@Override
 		public void update(Object anim) {
 			if (music_timer != null)
 				music_timer.stop();

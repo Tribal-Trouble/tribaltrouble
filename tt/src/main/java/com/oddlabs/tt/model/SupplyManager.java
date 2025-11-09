@@ -51,7 +51,7 @@ public class SupplyManager implements Animated {
 		empty_supplies.add(supply);
 	}
 
-        @Override
+	@Override
 	public final void animate(float t) {
 		if (time < 0) {
 			resetCounter();
@@ -65,7 +65,7 @@ public class SupplyManager implements Animated {
 		return (int)(total_num_supplies*MAX_EMPTY_SUPPLIES) < empty_supplies.size();
 	}
 
-        @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 

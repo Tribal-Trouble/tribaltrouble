@@ -48,7 +48,7 @@ public final class Router implements ConnectionListenerInterface {
 		manager.process();
 	}
 
-        @Override
+	@Override
 	public void incomingConnection(@NonNull AbstractConnectionListener connection_listener, Object remote_address) {
 		logger.log(Level.INFO, "Incoming connection from {0}", remote_address);
 		AbstractConnection conn = connection_listener.acceptConnection(null);
@@ -61,7 +61,7 @@ public final class Router implements ConnectionListenerInterface {
 		clients.remove(client);
 	}
 
-        @Override
+	@Override
 	public void error(AbstractConnectionListener conn_id, IOException e) {
 		close();
 		logger.log(Level.SEVERE, "Server socket failed: {0}", e);

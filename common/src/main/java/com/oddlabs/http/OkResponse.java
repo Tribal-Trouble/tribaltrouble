@@ -9,7 +9,7 @@ final class OkResponse implements HttpResponse {
 		this.result = result;
 	}
 
-        @Override
+	@Override
 	public void notify(@NonNull HttpCallback callback) {
 		callback.success(result);
 	}

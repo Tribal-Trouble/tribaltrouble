@@ -13,7 +13,7 @@ public final class UnitSupplyContainerFactory extends SupplyContainerFactory {
 		this.supply_sprite_lists = supply_sprite_lists;
 	}
 
-        @Override
+	@Override
 	public @NonNull SupplyContainer createContainer(Selectable selectable) {
 		return new UnitSupplyContainer(getMaxResourceCount(), supply_sprite_lists);
 	}

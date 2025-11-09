@@ -44,7 +44,7 @@ public final class Row extends GUIObject implements Comparable<Row> {
 		this.sort_index = sort_index;
 	}
 
-        @Override
+	@Override
 	public int compareTo(@NonNull Row o) {
 		@SuppressWarnings("unchecked")
 		Comparable<Object> local_object = (Comparable<Object>)getColumn(sort_index);
@@ -55,7 +55,7 @@ public final class Row extends GUIObject implements Comparable<Row> {
 		this.color = color;
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom ,float clip_top) {
 		GL11.glEnd();
 		if (marked) {

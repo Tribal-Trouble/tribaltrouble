@@ -19,7 +19,7 @@ public final class ScrollTrigger extends TutorialTrigger {
 		player.enableChieftains(false);
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		GameCamera camera = tutorial.getViewer().getCamera();
 		if (camera.getScrollX() > 0) {

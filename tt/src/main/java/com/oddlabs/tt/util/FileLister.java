@@ -15,7 +15,7 @@ public final class FileLister implements FileListerInterface {
 		newFiles(LocalEventQueue.getQueue().getDeterministic().log(dir.listFiles(new PatternFilenameFilter(pattern))));
 	}
 
-        @Override
+	@Override
 	public void newFiles(File[] new_files) {
 		listener.newFiles(new_files);
 	}
@@ -27,7 +27,7 @@ public final class FileLister implements FileListerInterface {
 			this.pattern = pattern;
 		}
 
-                @Override
+		@Override
 		public boolean accept(File dir, String name) {
 			return Pattern.matches(pattern, name);
 		}

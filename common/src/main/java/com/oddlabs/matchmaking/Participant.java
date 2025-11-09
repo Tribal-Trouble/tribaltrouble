@@ -39,12 +39,12 @@ public final class Participant implements Serializable {
 		return race;
 	}
 
-        @Override
+	@Override
 	public int hashCode() {
 		return match_id ^ team;
 	}
 
-        @Override
+	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof Participant))
 			return false;

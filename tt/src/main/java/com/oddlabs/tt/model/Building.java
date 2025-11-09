@@ -117,12 +117,12 @@ public final class Building extends Selectable implements Occupant {
 		production_emitter.stop();
 	}
 
-        @Override
+	@Override
 	public float getOffsetZ() {
 		return 0;
 	}
 
-        @Override
+	@Override
 	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitBuilding(this);
 	}
@@ -139,7 +139,7 @@ public final class Building extends Selectable implements Occupant {
 		return rally_point;
 	}
 
-        @Override
+	@Override
 	protected void doAnimate(float t) {
 		if (!isDead()) {
 			UnitContainer unit_container = getUnitContainer();
@@ -212,7 +212,7 @@ public final class Building extends Selectable implements Occupant {
 		return chieftain_container;
 	}
 
-    @Override
+	@Override
 	public boolean isEnabled() {
 		return !isDead();
 	}
@@ -472,7 +472,7 @@ public final class Building extends Selectable implements Occupant {
 		return build_points == getBuildingTemplate().getMaxHitPoints();
 	}
 
-    @Override
+	@Override
 	public float getHitOffsetZ() {
 		return getTemplate().getHitOffsetZ(getRenderLevel().ordinal());
 	}
@@ -493,7 +493,7 @@ public final class Building extends Selectable implements Occupant {
 		 return true;
 	}
 
-        @Override
+	@Override
 	public int getAttackPriority() {
 		if (getAbilities().hasAbilities(Abilities.ATTACK))
 			return AttackScanFilter.PRIORITY_TOWER;
@@ -503,7 +503,7 @@ public final class Building extends Selectable implements Occupant {
 			return AttackScanFilter.PRIORITY_QUARTERS;
 	}
 
-        @Override
+	@Override
 	protected void setTarget(@NonNull Target target, int action, boolean aggressive) {
 		if (getAbilities().hasAbilities(Abilities.ATTACK)) {
 			if (target != this) {
@@ -531,20 +531,20 @@ public final class Building extends Selectable implements Occupant {
 		reinsert();
 	}
 
-        @Override
+	@Override
 	public float getSize() {
 		assert !isDead();
 		float radius = (getBuildingTemplate().getPlacingSize() - 1);
 		return (float)Math.sqrt(2)*radius + .1f;
 	}
 
-        @Override
+	@Override
 	public int getPenalty() {
 		assert !isDead();
 		return Occupant.STATIC;
 	}
 
-        @Override
+	@Override
 	protected void removeDying() {
 
 		new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(), getPositionZ()), 0f, 0f,
@@ -608,7 +608,7 @@ public final class Building extends Selectable implements Occupant {
 			return BuildState.HALFBUILT;
 	}
 
-        @Override
+	@Override
 	public SpriteKey getSpriteRenderer() {
 		BuildState render_level = getRenderLevel();
 		switch (render_level) {
@@ -623,7 +623,7 @@ public final class Building extends Selectable implements Occupant {
 		}
 	}
 
-    @Override
+	@Override
 	public void visit(@NonNull ToolTipVisitor visitor) {
 		visitor.visitBuilding(this);
 	}
@@ -686,7 +686,7 @@ public final class Building extends Selectable implements Occupant {
         }
 	}
 
-        @Override
+	@Override
 	public void hit(int damage, float dir_x, float dir_y, @NonNull Player owner) {
 		super.hit(damage, dir_x, dir_y, owner);
 		if (!isDead()) {
@@ -704,17 +704,17 @@ public final class Building extends Selectable implements Occupant {
 		}
 	}
 
-        @Override
+	@Override
 	public @NonNull String toString() {
 		return "Building: isDead() = " + isDead();
 	}
 
-        @Override
+	@Override
 	public float getAnimationTicks() {
 		return 0;
 	}
 
-        @Override
+	@Override
 	public int getAnimation() {
 		return 0;
 	}
@@ -733,7 +733,7 @@ public final class Building extends Selectable implements Occupant {
 		}
 	}
 
-    @Override
+	@Override
 	public int getStatusValue() {
 		if (getAbilities().hasAbilities(Abilities.REPRODUCE)) {
 			return getUnitContainer().getNumSupplies();

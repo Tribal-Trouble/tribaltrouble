@@ -35,7 +35,7 @@ public final class BuildSpinner extends IconSpinner {
 			num_orders = current_building.getBuildSupplyContainer(type).getNumOrders();
 	}
 
-        @Override
+	@Override
 	public int computeCount() {
 		if (!current_building.isDead()) {
 			BuildSupplyContainer build_container = current_building.getBuildSupplyContainer(type);
@@ -47,7 +47,7 @@ public final class BuildSpinner extends IconSpinner {
 			return 0;
 	}
 
-        @Override
+	@Override
 	public boolean renderInfinite() {
 		return infinite;
 	}
@@ -66,13 +66,13 @@ public final class BuildSpinner extends IconSpinner {
 		}
 	}
 
-        @Override
+	@Override
 	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		if (!isDisabled())
 			super.appendToolTip(tool_tip_box);
 	}
 
-        @Override
+	@Override
 	protected float getProgress() {
 		if (!current_building.isDead())
 			return ((BuildProductionContainer)current_building.getBuildSupplyContainer(type)).getBuildProgress();
@@ -91,30 +91,30 @@ public final class BuildSpinner extends IconSpinner {
 			return 0;
 	}
 
-        @Override
+	@Override
 	protected void increase(int amount) {
 		order_size += amount;
 		num_orders += amount;
 	}
 
-        @Override
+	@Override
 	protected void decrease(int amount) {
 		order_size -= amount;
 		num_orders -= amount;
 	}
 
-        @Override
+	@Override
 	protected void release() {
 		order(order_size);
 		order_size = 0;
 	}
 
-        @Override
+	@Override
 	protected int getOrderSize() {
 		return order_size;
 	}
 
-        @Override
+	@Override
 	protected void postRender() {
 		if (renderInfinite())
 			Icons.getIcons().getInfinite().render(0,  0);		

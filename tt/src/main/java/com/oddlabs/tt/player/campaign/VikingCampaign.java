@@ -79,12 +79,12 @@ public final class VikingCampaign extends Campaign {
 		}
 	}
 
-    @Override
+	@Override
 	public CampaignIcons getIcons() {
 		return VikingCampaignIcons.getIcons();
 	}
 
-    @Override
+	@Override
 	public void islandChosen(NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
 		if (number == 1 || number == 2) {
 			Form dialog = new CampaignDialogForm(islands[number].getHeader(),
@@ -96,7 +96,7 @@ public final class VikingCampaign extends Campaign {
 		}
 	}
 
-    @Override
+	@Override
 	public CharSequence getCurrentObjective() {
 		if (getState().getCurrentIsland() != -1) {
 			return islands[getState().getCurrentIsland()].getCurrentObjective();
@@ -104,14 +104,14 @@ public final class VikingCampaign extends Campaign {
 		throw new RuntimeException();
 	}
 
-    @Override
+	@Override
 	public void defeated(@NonNull WorldViewer viewer, String game_over_message) {
 		if (getState().getCurrentIsland() == 13)
 			((VikingIsland13)islands[13]).removeCounter();
 		super.defeated(viewer, game_over_message);
 	}
 
-    @Override
+	@Override
 	public void startIsland(NetworkSelector network, GUIRoot gui_root, int number) {
 		getState().setCurrentIsland(number);
 		islands[number].chosen(network, gui_root);
@@ -128,7 +128,7 @@ public final class VikingCampaign extends Campaign {
 			this.network = network;
 		}
 
-        @Override
+		@Override
 		public void run() {
 			startIsland(network, gui_root, number);
 		}

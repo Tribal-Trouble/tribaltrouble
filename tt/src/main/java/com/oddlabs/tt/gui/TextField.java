@@ -34,12 +34,12 @@ public abstract class TextField extends GUIObject implements CharSequence {
 		return text;
 	}
 
-        @Override
+	@Override
 	public final char charAt(int i) {
 		return text.charAt(i);
 	}
 
-        @Override
+	@Override
 	public final int length() {
 		return text.length();
 	}
@@ -48,12 +48,12 @@ public abstract class TextField extends GUIObject implements CharSequence {
 		return font.getWidth(text);
 	}
 
-        @Override
+	@Override
 	public final @NonNull CharSequence subSequence(int start, int end) {
 		return text.subSequence(start, end);
 	}
 
-        @Override
+	@Override
 	public final @NonNull String toString() {
 		return text.toString();
 	}
@@ -126,13 +126,13 @@ public abstract class TextField extends GUIObject implements CharSequence {
 	protected void appendNotify(CharSequence str) {
 	}
 
-        @Override
+	@Override
 	protected final void keyPressed(@NonNull KeyboardEvent event) {
 		if (event.getKeyCode() != Keyboard.KEY_SPACE && event.getKeyCode() != Keyboard.KEY_RETURN)
 			super.keyPressed(event);
 	}
 
-        @Override
+	@Override
 	protected void keyReleased(@NonNull KeyboardEvent event) {
 		if (event.getKeyCode() != Keyboard.KEY_SPACE && event.getKeyCode() != Keyboard.KEY_RETURN)
 			super.keyReleased(event);

@@ -189,14 +189,14 @@ public final class InputState {
 	}
 
 	private final class DoubleClickTimer implements Updatable {
-                @Override
+		@Override
 		public void update(Object anim) {
 			stopDoubleClickTimer();
 		}
 	}
 
 	private final class DoubleKeyTimer implements Updatable {
-                @Override
+		@Override
 		public void update(Object anim) {
 			stopDoubleKeyTimer();
 		}

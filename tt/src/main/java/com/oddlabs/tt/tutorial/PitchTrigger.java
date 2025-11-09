@@ -10,7 +10,7 @@ public final class PitchTrigger extends TutorialTrigger {
 		super(.1f, 2f, "pitch");
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		GameCamera camera = tutorial.getViewer().getCamera();
 		if (camera.pitchUp()) {

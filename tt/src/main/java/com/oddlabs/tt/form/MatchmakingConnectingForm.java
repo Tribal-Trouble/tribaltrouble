@@ -49,44 +49,44 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
 		Network.getMatchmakingClient().login(network, login, login_details);
 	}
 
-        @Override
+	@Override
 	public void clearList(int type) {
 		assert false;
 	}
 
-        @Override
+	@Override
 	public void receivedList(int type, Object[] names) {
 		assert false;
 	}
 
-        @Override
+	@Override
 	public void joinedChat(ChatRoomInfo info) {
 		assert false;
 	}
 
-        @Override
+	@Override
 	public void updateChatRoom(ChatRoomInfo info) {
 		assert false;
 	}
 
-        @Override
+	@Override
 	public void receivedProfiles(Profile[] profiles, String last_nick) {
 		assert false;
 	}
 
-        @Override
+	@Override
 	public void doRemove() {
 		super.doRemove();
 		Network.setMatchmakingListener(null);
 	}
 
-        @Override
+	@Override
 	public void connectionLost() {
 		remove();
 		gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "connection_failed")));
 	}
 
-        @Override
+	@Override
 	public void loginError(int error_code) {
 		remove();
 		String error_message;
@@ -121,7 +121,7 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
 		gui_root.addModalForm(new MessageForm(error_message));
 	}
 
-        @Override
+	@Override
 	public void loggedIn() {
 		remove();
 		if (parent_form != null)
@@ -129,7 +129,7 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
 		new SelectGameMenu(network, gui_root, main_menu);
 	}
 
-        @Override
+	@Override
 	protected void doCancel() {
 		Network.getMatchmakingClient().close();
 	}

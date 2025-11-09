@@ -75,14 +75,14 @@ public final class InGameChatForm extends Form implements ChatListener {
 		Network.getMatchmakingClient().clearInGameChatHistory();
 	}
 
-    @Override
+	@Override
 	protected void doAdd() {
 		super.doAdd();
 		Network.getChatHub().addListener(this);
 		refreshMessages();
 	}
 
-    @Override
+	@Override
 	protected void doRemove() {
 		super.doRemove();
 		Network.getChatHub().removeListener(this);
@@ -92,12 +92,12 @@ public final class InGameChatForm extends Form implements ChatListener {
 		radio_button_group.mark(all ? radio_all : radio_team);
 	}
 
-    @Override
+	@Override
 	public void setFocus() {
 		chat_line.setFocus();
 	}
 
-    @Override
+	@Override
 	public void chat(ChatMessage message) {
 		refreshMessages();
 	}
@@ -113,13 +113,13 @@ public final class InGameChatForm extends Form implements ChatListener {
 		chat_box.setOffsetY(Integer.MAX_VALUE);
 	}
 
-    @Override
+	@Override
 	public void mouseMoved(int x, int y) {
 		((ControllableCameraDelegate)getParent()).mouseMoved(x, y);
 	}
 
 	private final class ChatListener implements EnterListener {
-        @Override
+		@Override
 		public void enterPressed(@NonNull CharSequence text) {
 			String chat = text.toString();
 			if (!chat.isEmpty()) {

@@ -16,14 +16,14 @@ public final class TeeOutputStream extends OutputStream {
 		this.streams = Arrays.copyOf(streams, streams.length);
 	}
 
-    @Override
+	@Override
 	public void write(byte @NonNull [] bytes, int offset, int length) throws IOException {
         for (OutputStream stream : streams) {
             stream.write(bytes, offset, length);
         }
 	}
 
-    @Override
+	@Override
 	public void write(int b) throws IOException {
         for (OutputStream stream : streams) {
             stream.write(b);

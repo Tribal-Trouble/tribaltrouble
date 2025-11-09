@@ -25,12 +25,12 @@ public final class SpriteFile extends File<SpriteList> {
 		this.max_alpha = max_alpha;
 	}
 
-    @Override
+	@Override
 	public @NonNull SpriteList get() {
 		return new SpriteList(this);
 	}
 
-    @Override
+	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof SpriteFile))
 			return false;

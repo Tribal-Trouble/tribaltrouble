@@ -17,7 +17,7 @@ public final class EnterController extends Controller {
 		this.building = building;
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		if (building.isDead()) {
 			unit.popController();

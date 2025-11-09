@@ -13,12 +13,12 @@ final class TargetGridPathFinder extends GridPathFinder {
 		this.target = t;
 	}
 
-     @Override
+	@Override
 	public boolean touchNeighbour(Occupant occ) {
 		return occ == target;
 	}
 
-    @Override
+	@Override
 	protected boolean isPathComplete(int dist_squared, Node node) {
 		return dist_squared <= max_dist_squared || super.isPathComplete(dist_squared, node);
 	}

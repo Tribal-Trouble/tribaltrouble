@@ -44,7 +44,7 @@ public abstract class Model extends Element<Model> {
 		return world;
 	}
 
-    @Override
+	@Override
 	public final void setPosition(float x, float y) {
 		super.setPosition(x, y);
 		reinsert();

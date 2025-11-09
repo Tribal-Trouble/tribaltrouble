@@ -13,37 +13,37 @@ public class LandscapeTarget implements Target {
 		this.grid_y = grid_y;
 	}
 
-    @Override
+	@Override
 	public final float getPositionX() {
 		return UnitGrid.coordinateFromGrid(grid_x);
 	}
 
-    @Override
+	@Override
 	public final float getPositionY() {
 		return UnitGrid.coordinateFromGrid(grid_y);
 	}
 
-    @Override
+	@Override
 	public final int getGridX() {
 		return grid_x;
 	}
 
-    @Override
+	@Override
 	public final int getGridY() {
 		return grid_y;
 	}
 
-    @Override
+	@Override
 	public final float getSize() {
 		return 0;
 	}
 
-    @Override
+	@Override
 	public final boolean isDead() {
 		return false;
 	}
 
-    @Override
+	@Override
 	public final @NonNull String toString() {
 		return "LandscapeTarget: grid_x = " + grid_x + " | grid_y = " + grid_y;
 	}

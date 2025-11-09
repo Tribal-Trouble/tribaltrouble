@@ -13,7 +13,7 @@ public final class DefendController extends Controller {
 		this.target = t;
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		if (shouldGiveUp(0))
 			unit.popController();

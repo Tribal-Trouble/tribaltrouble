@@ -25,7 +25,7 @@ public final class AttackTowerTrigger extends TutorialTrigger {
 		ai.setTarget(units, tower, Target.ACTION_ATTACK, false);
 	}
 
-        @Override
+	@Override
 	public void run(@NonNull Tutorial tutorial) {
 		if (ai.getUnitCountContainer().getNumSupplies() == 0) {
 			tutorial.next(new RepairTowerTrigger(tower));

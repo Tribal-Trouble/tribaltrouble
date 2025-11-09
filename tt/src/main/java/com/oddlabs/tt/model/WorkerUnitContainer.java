@@ -11,14 +11,14 @@ public final class WorkerUnitContainer extends UnitContainer {
 		this.building = building;
 	}
 
-        @Override
+	@Override
 	public void enter(@NonNull Unit unit) {
 		assert canEnter(unit);
 		unit.removeNow();
 		increaseSupply(1);
 	}
 
-        @Override
+	@Override
 	public boolean canEnter(Unit unit) {
 		return getTotalSupplies() != getMaxSupplyCount();
 	}
@@ -28,21 +28,21 @@ public final class WorkerUnitContainer extends UnitContainer {
 		return getNumSupplies() + getNumPreparing();
 	}
 
-        @Override
+	@Override
 	public @Nullable Unit exit() {
 		assert getNumSupplies() > 0;
 		increaseSupply(-1);
 		return null;
 	}
 
-        @Override
+	@Override
 	public int increaseSupply(int amount) {
 		int result = building.getOwner().getUnitCountContainer().increaseSupply(amount);
 		assert result == amount: "result = " + result + " | amount = " + amount;
 		return super.increaseSupply(amount);
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
 	}
 }

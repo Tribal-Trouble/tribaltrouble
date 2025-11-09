@@ -37,7 +37,7 @@ public final class BalancedParametricEmitter extends ParametricEmitter {
 //		register();
 	}
 
-    @Override
+	@Override
 	protected int initParticle(ParametricFunction function, float velocity_u, float velocity_v, @NonNull Vector4f color, @NonNull Vector4f delta_color, @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy) {
 
 		for (int i = 0; i < num_particles; i++) {

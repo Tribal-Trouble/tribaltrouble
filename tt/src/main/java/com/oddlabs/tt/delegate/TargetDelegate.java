@@ -16,17 +16,17 @@ public class TargetDelegate extends ControllableCameraDelegate {
 		this.action = action;
 	}
 
-        @Override
+	@Override
 	public boolean canHoverBehind() {
 		return true;
 	}
 
-        @Override
+	@Override
 	protected final int getCursorIndex() {
 		return GUIRoot.CURSOR_TARGET;
 	}
 
-        @Override
+	@Override
 	public final void keyPressed(@NonNull KeyboardEvent event) {
 		getCamera().keyPressed(event);
 		switch (event.getKeyCode()) {
@@ -42,13 +42,13 @@ public class TargetDelegate extends ControllableCameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
 		if (event.getKeyCode() != Keyboard.KEY_SPACE || event.getKeyCode() != Keyboard.KEY_RETURN)
 			getCamera().keyReleased(event);
 	}
 
-        @Override
+	@Override
 	public void mousePressed(int button, int x, int y) {
 		if (button == LocalInput.LEFT_BUTTON) {
 			getViewer().getPicker().pickTarget(getViewer().getSelection().getCurrentSelection(), getViewer().getGUIRoot().getDelegate().getCamera().getState(), getViewer().getPeerHub().getPlayerInterface(), x, y, action);

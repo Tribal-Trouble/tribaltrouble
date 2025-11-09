@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL11;
 public final class GeneratorSonic extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;
 
-    @Override
+	@Override
 	public Texture @NonNull [] generate() {
 		Channel sonic_alpha = new Channel(TEXTURE_SIZE>>1, TEXTURE_SIZE>>1);
 
@@ -43,7 +43,7 @@ public final class GeneratorSonic extends TextureGenerator {
 		return textures;
 	}
 
-    @Override
+	@Override
 	public int hashCode() {
 		return TEXTURE_SIZE + 3;
 	}

@@ -87,11 +87,11 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		in_game_chat_history.clear();
 	}
 
-        @Override
+	@Override
 	public void writeBufferDrained(AbstractConnection conn) {
 	}
 
-        @Override
+	@Override
 	public void loginOK(String username, TunnelAddress address) {
 		if (state == STATE_AWAITING_OK) {
 			this.update_allowed = true;
@@ -133,7 +133,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		matchmaking_interface.setProfile(nick);
 	}
 
-        @Override
+	@Override
 	public void updateProfile(Profile profile) {
 		active_profile = profile;
 	}
@@ -142,7 +142,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		create_profile_listener = listener;
 	}
 
-        @Override
+	@Override
 	public void createProfileSuccess() {
 		if (create_profile_listener != null) {
 			create_profile_listener.success();
@@ -150,7 +150,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		}
 	}
 
-        @Override
+	@Override
 	public void createProfileError(int error_code) {
 		if (create_profile_listener != null) {
 			create_profile_listener.error(error_code);
@@ -170,12 +170,12 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		matchmaking_interface.logPriority(nick, priority);
 	}
 
-        @Override
+	@Override
 	public void gameWonAck() {
 		PeerHub.receivedAck();
 	}
 
-        @Override
+	@Override
 	public void updateStart(int type) {
 		MatchmakingListener listener = Network.getMatchmakingListener();
 		if (listener != null) {
@@ -183,14 +183,14 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		}
 	}
 
-        @Override
+	@Override
 	public void updateList(int type, /*GameHost[]*/Object[] names) {
 		MatchmakingListener listener = Network.getMatchmakingListener();
 		if (listener != null)
 			listener.receivedList(type, names);
 	}
 
-        @Override
+	@Override
 	public void updateComplete(int next_update_key) {
 		this.update_key = next_update_key;
 		update_allowed = true;
@@ -202,14 +202,14 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		}
 	}
 
-        @Override
+	@Override
 	public void updateProfileList(Profile[] profiles, String last_profile_nick) {
 		MatchmakingListener listener = Network.getMatchmakingListener();
 		if (listener != null)
 			listener.receivedProfiles(profiles, last_profile_nick);
 	}
 
-        @Override
+	@Override
 	public void joiningChatRoom(String room_name) {
 		assert chat_room_info == null;
 		chat_room_info = new ChatRoomInfo(room_name);
@@ -220,7 +220,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 			listener.joinedChat(chat_room_info);
 	}
 
-        @Override
+	@Override
 	public void receiveChatRoomUsers(ChatRoomUser[] users) {
 		if (chat_room_info != null) {
 			chat_room_info.setUsers(users);
@@ -232,12 +232,12 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		}
 	}
 
-        @Override
+	@Override
 	public void receiveChatRoomMessage(String owner, String msg) {
 		Network.getChatHub().chat(new ChatMessage(owner, msg, ChatMessage.Type.CHATROOM));
 	}
 
-        @Override
+	@Override
 	public void receivePrivateMessage(String nick, String msg) {
 		Network.getChatHub().chat(new ChatMessage(nick, msg, ChatMessage.Type.PRIVATE));
 	}
@@ -257,7 +257,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		getInterface().requestInfo(nick);
 	}
 
-        @Override
+	@Override
 	public void receiveInfo(@NonNull Profile profile) {
 		if (chat_gui_root != null) {
 			chat_gui_root.addModalForm(new InfoForm(profile));
@@ -275,7 +275,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		return chat_room_info;
 	}
 
-        @Override
+	@Override
 	public void error(int error_code) {
 		if (chat_gui_root != null) {
 			chat_gui_root.addModalForm(new ChatErrorForm(error_code));
@@ -301,7 +301,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		state = STATE_AWAITING_OK;
 	}
 
-        @Override
+	@Override
 	public void loginError(int error_code) {
 		close();
 		MatchmakingListener listener = Network.getMatchmakingListener();
@@ -369,14 +369,14 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		return tunnels.get(from);
 	}
 
-        @Override
+	@Override
 	public void tunnelClosed(HostSequenceID from) {
 		TunnelledConnection tunnel = removeTunnel(from);
 		if (tunnel != null)
 			tunnel.tunnelClosed();
 	}
 
-        @Override
+	@Override
 	public void tunnelAccepted(HostSequenceID from) {
 		TunnelledConnection tunnel = getTunnel(from);
 		if (tunnel != null)
@@ -385,7 +385,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 			closeTunnel(from);
 	}
 
-        @Override
+	@Override
 	public void tunnelOpened(@NonNull HostSequenceID from, InetAddress inet_from, InetAddress local_inet_from, Profile other) {
 		if (tunnelled_listener != null) {
 			tunnelled_listener.requestTunnelledConnection(from, inet_from, local_inet_from, other);
@@ -393,7 +393,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 			closeTunnel(from);
 	}
 
-        @Override
+	@Override
 	public void receiveRoutedEvent(HostSequenceID from, ARMIEvent event) {
 		TunnelledConnection tunnel = getTunnel(from);
 		if (tunnel != null)
@@ -402,7 +402,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 			closeTunnel(from);
 	}
 
-        @Override
+	@Override
 	public void handle(Object sender, @NonNull ARMIEvent event) {
 		try {
 			event.execute(interface_methods, this);
@@ -418,7 +418,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 			listener.connectionLost();
 	}
 
-        @Override
+	@Override
 	public void connected(AbstractConnection connection) {
                 // FIXME replace registratration key.
 		SignedObject signed_key = null;
@@ -434,7 +434,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 			matchmaking_login_interface.login(login, signed_key, revision);
 	}
 
-        @Override
+	@Override
 	public void error(AbstractConnection conn, IOException e) {
 		handleError(e);
 	}

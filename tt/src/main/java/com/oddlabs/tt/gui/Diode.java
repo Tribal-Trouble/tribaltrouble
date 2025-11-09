@@ -12,7 +12,7 @@ public final class Diode extends GUIObject {
 		this.lit = lit;
 	}
 
-    @Override
+	@Override
 	protected void renderGeometry() {
 		if (isDisabled()) {
 			Skin.getSkin().getDiode()[Skin.DISABLED].render(0, 0);

@@ -8,7 +8,7 @@ public final class MapModeTrigger extends TutorialTrigger {
 		super(.1f, 1f, "map_mode");
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		if (tutorial.getViewer().getDelegate().getCamera() instanceof MapCamera)
 			tutorial.next(new FromMapModeTrigger());

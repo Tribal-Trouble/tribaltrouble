@@ -12,7 +12,7 @@ public final class EditBox extends TextBox {
 		index = 0;
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		Box edit_box = Skin.getSkin().getEditBox();
 		TextBoxRenderer text_renderer = getTextRenderer();
@@ -26,7 +26,7 @@ public final class EditBox extends TextBox {
 			text_renderer.render(edit_box.getLeftOffset(), edit_box.getBottomOffset(), getOffsetY(), getText());
 	}
 
-    @Override
+	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		//char ch = event.getKeyChar();
 		Box edit_box = Skin.getSkin().getEditBox();
@@ -120,12 +120,12 @@ public final class EditBox extends TextBox {
 		setOffsetY(offset_y);
 	}
 
-        @Override
+	@Override
 	protected int getCursorIndex() {
 		return GUIRoot.CURSOR_TEXT;
 	}
 
-        @Override
+	@Override
 	protected void mouseClicked(int button, int x, int y, int clicks) {
 		if (button == LocalInput.LEFT_BUTTON) {
 			Box edit_box = Skin.getSkin().getEditBox();

@@ -124,7 +124,7 @@ public final class RandomVelocityEmitter extends LinearEmitter {
 				manager);
 	}
 
-        @Override
+	@Override
 	protected int initParticle(Vector3f position, @NonNull Vector3f velocity, @NonNull Vector3f acceleration, @NonNull Vector4f color, @NonNull Vector4f delta_color, @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy) {
 		randomizeVelocity();
 

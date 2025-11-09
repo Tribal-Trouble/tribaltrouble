@@ -101,7 +101,7 @@ public final class TreeRenderer extends TreePicker {
 		render_list.clear();
 	}
 
-        @Override
+	 @Override
 	 boolean isPicking() {
 		return false;
 	}

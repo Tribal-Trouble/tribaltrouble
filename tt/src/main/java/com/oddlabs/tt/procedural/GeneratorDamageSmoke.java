@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL11;
 public final class GeneratorDamageSmoke extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;
 
-        @Override
+	@Override
 	public Texture @NonNull [] generate() {
 		Channel voronoi = new Voronoi(TEXTURE_SIZE, 4, 4, 1, 1f, 42).getDistance(-1f, 0f, 0f);
 		Channel smoke_alpha = new Ring(TEXTURE_SIZE, TEXTURE_SIZE, new float[][] {{0f, 1f},{0.5f, 0f}}, Ring.SMOOTH).toChannel().gamma(1.5f).brightness(.5f);
@@ -26,7 +26,7 @@ public final class GeneratorDamageSmoke extends TextureGenerator {
 		return textures;
 	}
 
-        @Override
+	@Override
 	public int hashCode() {
 		return TEXTURE_SIZE + 3;
 	}

@@ -14,7 +14,7 @@ public final class MoveUnitTrigger extends TutorialTrigger {
 		local_player.enableMoving(true);
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet();
             for (Selectable s : set) {

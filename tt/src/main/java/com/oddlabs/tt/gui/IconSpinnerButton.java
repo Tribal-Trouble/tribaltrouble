@@ -11,7 +11,7 @@ public final class IconSpinnerButton extends NonFocusIconButton {
 		this.owner = owner;
 	}
 
-    @Override
+	@Override
 	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		if (isDisabled())
 			owner.appendToolTip(tool_tip_box);

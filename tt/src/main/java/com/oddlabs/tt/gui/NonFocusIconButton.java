@@ -12,12 +12,12 @@ public class NonFocusIconButton extends IconButton implements ToolTip {
 		this.tool_tip = tool_tip;
 	}
 
-        @Override
+	@Override
 	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		tool_tip_box.append(tool_tip);
 	}
 
-        @Override
+	@Override
 	public final void setFocus() {
 	}
 }

@@ -120,7 +120,7 @@ public abstract class InGameDelegate extends CameraDelegate {
 		return false;
 	}
 
-    @Override
+	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:

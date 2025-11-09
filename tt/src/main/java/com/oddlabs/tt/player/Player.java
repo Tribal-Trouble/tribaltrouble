@@ -103,14 +103,14 @@ public final class Player implements PlayerInterface {
 //		this.team_tip = Utils.getBundleString(bundle, "team", new Object[]{Integer.toString(player_info.getTeam() + 1)});
 	}
 
-        @Override
+	@Override
 	public void changePreferredGamespeed(int delta) {
 		int old_speed = getGamespeed();
 		int new_speed = Math.max(Game.GAMESPEED_PAUSE, Math.min(old_speed + delta, Game.GAMESPEED_LUDICROUS));
 		setPreferredGamespeed(new_speed);
 	}
 
-        @Override
+	@Override
 	public void setPreferredGamespeed(int speed) {
 		if (!World.isValidPreferredGamespeed(speed))
 			return;
@@ -250,7 +250,7 @@ public final class Player implements PlayerInterface {
 		return can_build_chieftains;
 	}
 
-        @Override
+	@Override
 	public String toString() {
 		return player_info.toString();
 	}
@@ -398,55 +398,55 @@ public final class Player implements PlayerInterface {
 		return color;
 	}
 
-        @Override
+	@Override
 	public void deployUnits(@NonNull Building building, @NonNull DeployType type, int num_units) {
 		if (isValid(building))
 			building.deployUnits(type, num_units);
 	}
 
-        @Override
+	@Override
 	public void createHarvesters(@NonNull Building building, int num_tree, int num_rock, int num_iron, int num_rubber) {
 		if (isValid(building))
 			building.createHarvesters(num_tree, num_rock, num_iron, num_rubber);
 	}
 
-        @Override
+	@Override
 	public void buildRockWeapons(@NonNull Building building, int num_weapons, boolean infinite) {
 		if (isValid(building))
 			building.buildWeapons(RockAxeWeapon.class, num_weapons, infinite);
 	}
 
-        @Override
+	@Override
 	public void buildIronWeapons(@NonNull Building building, int num_weapons, boolean infinite) {
 		if (isValid(building))
 			building.buildWeapons(IronAxeWeapon.class, num_weapons, infinite);
 	}
 
-        @Override
+	@Override
 	public void buildRubberWeapons(@NonNull Building building, int num_weapons, boolean infinite) {
 		if (isValid(building))
 			building.buildWeapons(RubberAxeWeapon.class, num_weapons, infinite);
 	}
 
-        @Override
+	@Override
 	public void doMagic(@NonNull Unit chieftain, int magic) {
 		if (isValid(chieftain))
 			chieftain.doMagic(magic, true);
 	}
 
-        @Override
+	@Override
 	public void exitTower(@NonNull Building building) {
 		if (isValid(building))
 			building.exitTower();
 	}
 
-        @Override
+	@Override
 	public void trainChieftain(@NonNull Building building, boolean start) {
 		if (isValid(building))
 			building.trainChieftain(start);
 	}
 
-        @Override
+	@Override
 	public void placeBuilding(Selectable @NonNull [] selection, int template_id, int placing_grid_x, int placing_grid_y) {
 		Building building = new Building(this, getRace().getBuildingTemplate(template_id), placing_grid_x, placing_grid_y);
             for (Selectable selection1 : selection) {
@@ -456,18 +456,18 @@ public final class Player implements PlayerInterface {
             }
 	}
 
-        @Override
+	@Override
 	public void setRallyPoint(@NonNull Building building, @Nullable Target target) {
 		if (isValid(building) && target != null)
 			building.setRallyPoint(target);
 	}
 
-        @Override
+	@Override
 	public void setRallyPoint(@NonNull Building building, int grid_x, int grid_y) {
 		setRallyPoint(building, new LandscapeTarget(grid_x, grid_y));
 	}
 
-        @Override
+	@Override
 	public void setTarget(Selectable @NonNull [] selection, Target target, int action, boolean aggressive) {
             for (Selectable selection1 : selection) {
                 if (isValid(selection1)) {
@@ -484,7 +484,7 @@ public final class Player implements PlayerInterface {
             }
 	}
 
-        @Override
+	@Override
 	public void setLandscapeTarget(Selectable @NonNull [] selection, int grid_x, int grid_y, int action, boolean aggressive) {
 		if (selection.length == 0)
 			return;

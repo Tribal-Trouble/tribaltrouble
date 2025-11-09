@@ -177,21 +177,21 @@ public final class TreeLowDetail {
 		private final float[] texcoord_array = new float[texcoords.capacity()];
 		private final short[] tree_index_array = new short[tree_indices.capacity()];
 
-                @Override
+		@Override
 		public void visitLeaf(@NonNull TreeLeaf tree_leaf) {
 			int start = end;
 			tree_leaf.visitTrees(this);
 			tree_leaf.initLowDetailBuffer(start, end);
 		}
 
-                @Override
+		@Override
 		public void visitNode(@NonNull TreeGroup tree_group) {
 			int start = end;
 			tree_group.visitChildren(this);
 			tree_group.initLowDetailBuffer(start, end);
 		}
 
-                @Override
+		@Override
 		public void visitTree(@NonNull TreeSupply tree_supply) {
 			int start_index = end;
 			int tree_type_index = tree_supply.getTreeTypeIndex();

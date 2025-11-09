@@ -36,17 +36,17 @@ public final class HttpRequest {
 
 	private static @NonNull Task spawnPostRequest(@NonNull TaskThread task_thread, final @NonNull URL url, final @NonNull HttpRequestParameters parameters, final @NonNull HttpResponseParser parser, final @NonNull HttpCallback callback) {
 		return task_thread.addTask(new Callable<HttpResponse>() {
-            @Override
+			@Override
 			public @NonNull HttpResponse call() throws IOException {
 				return runPostRequest(url, parameters, parser);
 			}
 
-            @Override
+			@Override
 			public void taskCompleted(@NonNull HttpResponse result) {
 				result.notify(callback);
 			}
 
-            @Override
+			@Override
 			public void taskFailed(Exception e) {
 				callback.error((IOException)e);
 			}
@@ -55,17 +55,17 @@ public final class HttpRequest {
 
 	private static @NonNull Task spawnGetRequest(@NonNull TaskThread task_thread, final @NonNull URL url, final @NonNull HttpResponseParser parser, final @NonNull HttpCallback callback) {
 		return task_thread.addTask(new Callable<HttpResponse>() {
-                        @Override
+			@Override
 			public @NonNull HttpResponse call() throws IOException {
 				return runGetRequest(url, parser);
 			}
 
-                        @Override
+			@Override
 			public void taskCompleted(@NonNull HttpResponse result) {
 				result.notify(callback);
 			}
 
-                        @Override
+			@Override
 			public void taskFailed(Exception e) {
 				callback.error((IOException)e);
 			}

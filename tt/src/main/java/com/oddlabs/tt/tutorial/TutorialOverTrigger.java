@@ -10,7 +10,7 @@ public final class TutorialOverTrigger extends TutorialTrigger {
 		super(1f, 0f, "tutorial_over");
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		Player[] players = tutorial.getViewer().getWorld().getPlayers();
 		Player local_player = tutorial.getViewer().getLocalPlayer();

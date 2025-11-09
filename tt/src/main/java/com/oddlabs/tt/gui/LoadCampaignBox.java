@@ -64,12 +64,12 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 			return file;
 	}
 
-    @Override
+	@Override
 	public void setFocus() {
 		list_box.setFocus();
 	}
 
-    @Override
+	@Override
 	protected void renderGeometry() {
 	}
 
@@ -114,16 +114,16 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
             }
 	}
 
-        @Override
+	@Override
 	public void loadSucceeded(CampaignState @NonNull [] campaign_states) {
 		fillSlots(campaign_states);
 	}
 
-        @Override
+	@Override
 	public void saveSucceeded() {
 	}
 
-        @Override
+	@Override
 	public void failed(Throwable e) {
 		if (e instanceof FileNotFoundException) {
 		} else if (e instanceof InvalidClassException) {

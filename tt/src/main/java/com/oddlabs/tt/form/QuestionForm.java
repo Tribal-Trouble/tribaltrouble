@@ -39,7 +39,7 @@ public class QuestionForm extends Form {
 		centerPos();
 	}
 
-        @Override
+	@Override
 	public final void setFocus() {
 		yes_button.setFocus();
 	}

@@ -42,12 +42,12 @@ public class EditLine extends TextField {
 		clear();
 	}
 
-        @Override
+	@Override
 	protected final int getCursorIndex() {
 		return GUIRoot.CURSOR_TEXT;
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
 		Box edit_box = Skin.getSkin().getEditBox();
 		if (isDisabled())
@@ -64,7 +64,7 @@ public class EditLine extends TextField {
 		text_renderer.render(x, y, offset_x, clip_left, clip_right, clip_bottom, clip_top, getText(), render_index);
 	}
 
-        @Override
+	@Override
 	protected void keyReleased(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_RETURN:
@@ -76,7 +76,7 @@ public class EditLine extends TextField {
 		}
 	}
 
-        @Override
+	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_BACK:
@@ -132,7 +132,7 @@ public class EditLine extends TextField {
 		correctOffsetX();
 	}
 
-        @Override
+	@Override
 	public final boolean isAllowed(char ch) {
 		return super.isAllowed(ch) && getFont().getQuad(ch) != null && (allowed_chars == null || allowed_chars.indexOf(ch) != -1);
 	}
@@ -166,7 +166,7 @@ public class EditLine extends TextField {
 		this.index = index;
 	}
 
-        @Override
+	@Override
 	public final void clear() {
 		super.clear();
 		index = 0;
@@ -178,7 +178,7 @@ public class EditLine extends TextField {
 		}
 	}
 
-        @Override
+	@Override
 	protected final void appendNotify(@NonNull CharSequence str) {
 		if (alignment == RIGHT_ALIGNED) {
 			for (int i = 0; i < str.length(); i++) {
@@ -188,21 +188,21 @@ public class EditLine extends TextField {
 		}
 	}
 
-        @Override
+	@Override
 	protected void focusNotify(boolean focus) {
 		if (focus)
 			index = getText().length();
 	}
 
-        @Override
+	@Override
 	protected final void mouseEntered() {
 	}
 
-        @Override
+	@Override
 	protected final void mouseExited() {
 	}
 
-        @Override
+	@Override
 	protected final void mousePressed(int button, int x, int y) {
 		if (button == LocalInput.LEFT_BUTTON) {
 			Box edit_box = Skin.getSkin().getEditBox();

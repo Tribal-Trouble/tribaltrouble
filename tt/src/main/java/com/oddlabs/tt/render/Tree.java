@@ -19,7 +19,7 @@ final class Tree {
 		return crown;
 	}
 
-    @Override
+	@Override
 	public boolean equals(Object other) {
         return other instanceof Tree other_tree && crown == other_tree.crown && trunk == other_tree.trunk;
     }

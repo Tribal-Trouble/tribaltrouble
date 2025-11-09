@@ -17,7 +17,7 @@ public final class LoginDetails implements Serializable {
 		this.email = email;
 	}
 
-        @Override
+	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof LoginDetails))
 			return false;
@@ -25,7 +25,7 @@ public final class LoginDetails implements Serializable {
 		return other_login.getEmail().equals(email);
 	}
 
-        @Override
+	@Override
 	public int hashCode() {
 		return email.hashCode();
 	}

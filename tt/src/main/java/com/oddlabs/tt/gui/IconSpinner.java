@@ -48,7 +48,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 		label.setPos(0, (getHeight() - label.getHeight())/2);
 	}
 
-        @Override
+	@Override
 	public final void setFocus() {
 		viewer.getGUIRoot().getDelegate().setFocus();
 	}
@@ -83,7 +83,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 		}
 	}
 
-        @Override
+	@Override
 	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		tool_tip_box.append(tool_tip);
 		tool_tip_box.append(tool_tip_icons);
@@ -110,7 +110,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 		}
 	}
 
-        @Override
+	@Override
 	protected final void renderGeometry() {
 		int x = (getWidth() - icon_quad[Skin.NORMAL].getWidth())/2;
 		int y = (getHeight() - icon_quad[Skin.NORMAL].getHeight())/2;
@@ -128,33 +128,33 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 		}
 	}
 
-        @Override
+	@Override
 	protected final void mouseReleased(int button, int x, int y) {
 	}
 
-        @Override
+	@Override
 	protected final void mousePressed(int button, int x, int y) {
 	}
 
-        @Override
+	@Override
 	protected final void mouseClicked(int button, int x, int y, int clicks) {
 	}
 
-        @Override
+	@Override
 	protected final void mouseHeld(int button, int x, int y) {
 	}
 
 	private final class IncreaseListener implements MouseButtonListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 		}
 
-                @Override
+		@Override
 		public void mouseHeld(int button, int x, int y) {
 			mousePressed(button, x, y);
 		}
 
-                @Override
+		@Override
 		public void mousePressed(int button, int x, int y) {
 			if (button == LocalInput.RIGHT_BUTTON)
 					increase(10);
@@ -162,23 +162,23 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 					increase(1);
 		}
 
-                @Override
+		@Override
 		public void mouseReleased(int button, int x, int y) {
 			release();
 		}
 	}
 
 	private final class DecreaseListener implements MouseButtonListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 		}
 
-                @Override
+		@Override
 		public void mouseHeld(int button, int x, int y) {
 			mousePressed(button, x, y);
 		}
 
-                @Override
+		@Override
 		public void mousePressed(int button, int x, int y) {
 			if (button == LocalInput.RIGHT_BUTTON)
 					decrease(10);
@@ -186,7 +186,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 					decrease(1);
 		}
 
-                @Override
+		@Override
 		public void mouseReleased(int button, int x, int y) {
 			release();
 		}

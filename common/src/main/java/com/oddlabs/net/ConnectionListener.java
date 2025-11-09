@@ -52,7 +52,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 		return network.getDeterministic().log(key != null ? ((ServerSocketChannel)key.channel()).socket().getLocalPort() : -1);
 	}
 
-        @Override
+	@Override
 	public void handle() throws IOException {
 		IOException exception = null;
 		SocketChannel channel = null;
@@ -115,7 +115,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 		}
 	}
 
-        @Override
+	@Override
 	protected @NonNull AbstractConnection doAcceptConnection(ConnectionInterface conn_interface) {
 		SelectionKey socket_key;
 		if (!network.getDeterministic().isPlayback())
@@ -125,7 +125,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 		return new Connection(network, socket_key, conn_interface);
 	}
 
-        @Override
+	@Override
 	public void rejectConnection() {
 		try {
 			SocketChannel channel = getNextConnection();
@@ -136,7 +136,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 		}
 	}
 
-        @Override
+	@Override
 	public void close() {
 		if (key != null && key.isValid()) {
 			try {
@@ -151,7 +151,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 			network.cancelKey(key, this);
 	}
 	
-        @Override
+	@Override
 	public void handleError(IOException e) throws IOException {
 		error(e);
 	}

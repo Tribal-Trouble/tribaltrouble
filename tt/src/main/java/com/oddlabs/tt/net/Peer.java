@@ -32,7 +32,7 @@ public final class Peer implements PeerHubInterface {
 		return peer_index;
 	}
 
-        @Override
+	@Override
 	public @NonNull String toString() {
 		return "player: " + player.toString();
 	}
@@ -51,12 +51,12 @@ public final class Peer implements PeerHubInterface {
 		}
 	}
 	
-        @Override
+	@Override
 	public void chat(String text, boolean team) {
 		peer_hub.receiveChat(player.getPlayerInfo().getName(), text, team);
 	}
 
-        @Override
+	@Override
 	public void beacon(float x, float y) {
 		peer_hub.receiveBeacon(x, y, player.getPlayerInfo().getName());
 	}

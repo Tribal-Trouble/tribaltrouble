@@ -37,7 +37,7 @@ public final class TaskThread {
 			this.result = e;
 		}
 
-        @Override
+		@Override
 		public void deliverResult(@NonNull TaskExecutorLoopbackInterface<T> callback) {
 			callback.taskFailed(result);
 		}
@@ -50,7 +50,7 @@ public final class TaskThread {
 			this.result = result;
 		}
 
-                @Override
+		@Override
 		public void deliverResult(@NonNull TaskExecutorLoopbackInterface<T> callback) {
 			callback.taskCompleted(result);
 		}

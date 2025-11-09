@@ -25,7 +25,7 @@ public final class TargetRespondRenderer extends ShadowListRenderer {
 			target_list.add(target);
 	}
 
-    @Override
+	@Override
 	public void renderShadows(@NonNull LandscapeRenderer renderer) {
 		setupShadows();
 		GL11.glColor3f(0f, 1f, 0f);

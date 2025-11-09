@@ -15,7 +15,7 @@ public final class VictoryTrigger extends IntervalTrigger {
 		this.runnable = runnable;
 	}
 
-        @Override
+	@Override
 	protected void check() {
 		Player[] players = viewer.getWorld().getPlayers();
 		Player local = viewer.getLocalPlayer();
@@ -31,7 +31,7 @@ public final class VictoryTrigger extends IntervalTrigger {
 		triggered();
 	}
 
-        @Override
+	@Override
 	protected void done() {
 		runnable.run();
 	}

@@ -23,12 +23,12 @@ public class ChieftainButton extends NonFocusIconButton implements ToolTip {
 		this.current_building = current_building;
 	}
 
-        @Override
+	@Override
 	protected void mouseClicked(int button, int x, int y, int clicks) {
                 player_interface.trainChieftain(current_building, !current_building.getChieftainContainer().isTraining());
 	}
 
-        @Override
+	@Override
 	protected final void postRender() {
 		IconQuad[] watch = Icons.getIcons().getWatch();
 		int index = (int)(getProgress()*(watch.length - 1));

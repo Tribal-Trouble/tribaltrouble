@@ -12,7 +12,7 @@ public final class StunBehaviour implements Behaviour {
 		this.unit = unit;
 	}
 
-    @Override
+	@Override
 	public int animate(float t) {
 		unit.switchToIdleAnimation();
 		if (!controller.shouldSleep(t))
@@ -21,12 +21,12 @@ public final class StunBehaviour implements Behaviour {
 			return Selectable.UNINTERRUPTIBLE;
 	}
 
-    @Override
+	@Override
 	public boolean isBlocking() {
 		return true;
 	}
 
-    @Override
+	@Override
 	public void forceInterrupted() {
 	}
 }

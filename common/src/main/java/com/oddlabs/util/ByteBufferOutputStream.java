@@ -44,13 +44,13 @@ public final class ByteBufferOutputStream extends OutputStream {
 		}
 	}
 	
-        @Override
+	@Override
 	public void write(byte[] bytes, int offset, int length) {
 		ensureCapacity(length);
 		buffer.put(bytes, offset, length);
 	}
 	
-        @Override
+	@Override
 	public void write(int b_int) {
 		ensureCapacity(1);
 		byte b = (byte)(b_int & 0xff);

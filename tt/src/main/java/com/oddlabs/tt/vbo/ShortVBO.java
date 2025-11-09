@@ -53,7 +53,7 @@ public final class ShortVBO extends VBO {
         GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_SHORT, index<<1);
 	}
 
-        @Override
+	@Override
 	public int capacity() {
 		return getSize() / Short.BYTES;
 	}

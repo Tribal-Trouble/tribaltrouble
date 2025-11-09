@@ -7,17 +7,17 @@ import java.util.function.Supplier;
 public abstract class TextureGenerator implements Supplier<Texture[]> {
 	protected abstract Texture[] generate();
 
-    @Override
+	@Override
 	public final Texture[] get() {
 		return generate();
 	}
 
-    @Override
+	@Override
 	public int hashCode() {
 		return 0;
 	}
 
-    @Override
+	@Override
 	public boolean equals(Object o) {
 		return getClass().isInstance(o);
 	}

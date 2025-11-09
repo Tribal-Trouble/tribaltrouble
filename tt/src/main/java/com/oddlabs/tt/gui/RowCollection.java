@@ -103,7 +103,7 @@ public final class RowCollection extends GUIObject {
 			this.row = row;
 		}
 
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			selectRow(row);
 			if (button == LocalInput.RIGHT_BUTTON) {

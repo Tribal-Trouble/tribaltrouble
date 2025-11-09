@@ -29,7 +29,7 @@ public final class VikingIsland1 extends Island {
 		super(campaign);
 	}
 
-        @Override
+	@Override
 	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
 		String[] ai_names = new String[]{Utils.getBundleString(bundle, "name0"),
 			Utils.getBundleString(bundle, "name1"),
@@ -67,7 +67,7 @@ public final class VikingIsland1 extends Island {
 		game_network.getClient().getServerInterface().startServer();
 	}
 
-        @Override
+	@Override
 	protected void start() {
 		Runnable runnable;
 		final Player local_player = getViewer().getLocalPlayer();
@@ -157,17 +157,17 @@ public final class VikingIsland1 extends Island {
 		new PlayerEleminatedTrigger(runnable, captives);
 	}
 
-        @Override
+	@Override
 	public @NonNull CharSequence getHeader() {
 		return Utils.getBundleString(bundle, "header");
 	}
 
-        @Override
+	@Override
 	public @NonNull CharSequence getDescription() {
 		return Utils.getBundleString(bundle, "description");
 	}
 
-        @Override
+	@Override
 	public @NonNull CharSequence getCurrentObjective() {
 		return Utils.getBundleString(bundle, "objective");
 	}

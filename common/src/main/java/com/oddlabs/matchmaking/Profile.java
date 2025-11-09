@@ -23,7 +23,7 @@ public final class Profile implements Serializable {
 		this.revision = revision;
 	}
 
-        @Override
+	@Override
 	public String toString() {
 		return nick;
 	}

@@ -14,7 +14,7 @@ public final class UnitSupplyContainer extends SupplyContainer {
 		this.supply_sprite_renderers = supply_sprite_renderers;
 	}
 
-        @Override
+	@Override
 	public int increaseSupply(int amount) {
 		throw new RuntimeException();
 	}

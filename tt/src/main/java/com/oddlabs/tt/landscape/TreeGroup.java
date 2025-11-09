@@ -33,7 +33,7 @@ public final class TreeGroup extends AbstractTreeGroup {
 		}
 	}
 
-        @Override
+	@Override
 	public void visit(@NonNull TreeNodeVisitor visitor) {
 		visitor.visitNode(this);
 	}
@@ -61,7 +61,7 @@ public final class TreeGroup extends AbstractTreeGroup {
 		child3.visit(visitor);
 	}
 
-        @Override
+	@Override
 	protected boolean initBounds() {
 		boolean child0_bounds = child0.initBounds();
 		boolean child1_bounds = child1.initBounds();

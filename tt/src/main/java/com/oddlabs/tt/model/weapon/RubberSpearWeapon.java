@@ -16,7 +16,7 @@ public final class RubberSpearWeapon extends DirectedThrowingWeapon {
 		super( hit, src, target, sprite_renderer, throw_sound, hit_sounds);
 	}
 
-        @Override
+	@Override
 	protected void hitTarget(boolean hit, @NonNull Player owner, @NonNull Selectable target) {
 		if (hit)
 			damageTarget(target);
@@ -30,12 +30,12 @@ public final class RubberSpearWeapon extends DirectedThrowingWeapon {
 	}
 
 
-        @Override
+	@Override
 	protected float getMetersPerSecond() {
 		return METERS_PER_SECOND;
 	}
 
-        @Override
+	@Override
 	protected int getDamage() {
 		return 2;
 	}

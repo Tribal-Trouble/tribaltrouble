@@ -38,12 +38,12 @@ public final class DisplayChangeForm extends Form {
 		centerPos();
 	}
 
-    @Override
+	@Override
 	public void setFocus() {
 		later_button.setFocus();
 	}
 
-    @Override
+	@Override
 	protected void doCancel() {
 		donow_listener.doChange(false);
 	}

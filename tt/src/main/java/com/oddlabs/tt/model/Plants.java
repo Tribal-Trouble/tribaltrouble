@@ -11,7 +11,7 @@ public final class Plants extends SceneryModel {
 		super(world, x, y, dir_x, dir_y, sprite_renderer);
 	}
 
-    @Override
+	@Override
 	protected void doRegister() {
 		if (Globals.INSERT_PLANTS[Settings.getSettings().graphic_detail]) {
 			register();
@@ -19,7 +19,7 @@ public final class Plants extends SceneryModel {
 		}
 	}
 
-    @Override
+	@Override
 	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitPlants(this);
 	}

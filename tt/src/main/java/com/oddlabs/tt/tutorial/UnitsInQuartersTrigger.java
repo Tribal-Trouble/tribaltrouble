@@ -12,7 +12,7 @@ public final class UnitsInQuartersTrigger extends TutorialTrigger {
 		super(1f, 0f, "units_in_quarters");
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
 		Iterator<Selectable> it = set.iterator();

@@ -111,7 +111,7 @@ public final class Server implements ConnectionListenerInterface {
 		return count;
 	}
 
-        @Override
+	@Override
 	public void error(AbstractConnectionListener listener, IOException e) {
 			IO.println("Listener failed: " + e);
 		close();
@@ -249,7 +249,7 @@ public final class Server implements ConnectionListenerInterface {
 		return (short)-1;
 	}
 
-        @Override
+	@Override
 	public void incomingConnection(@NonNull AbstractConnectionListener connection_listener, Object remote_address) {
 			IO.println("Incoming host connection from " + remote_address);
 		short available_slot = locateAvailableSlot();

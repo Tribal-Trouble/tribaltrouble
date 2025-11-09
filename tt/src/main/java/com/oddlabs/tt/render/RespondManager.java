@@ -25,7 +25,7 @@ public final class RespondManager implements Animated {
 		manager.registerAnimation(this);
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
 		time += t;
 		timeout();
@@ -77,7 +77,7 @@ public final class RespondManager implements Animated {
 		return time_diff > 0 && (time_diff >= SECONDS_PER_PICK_RESPOND - blink || time_diff <= blink);
 	}
 
-    @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 
@@ -94,7 +94,7 @@ public final class RespondManager implements Animated {
 			this.stop_action = stop_action;
 		}
 
-        @Override
+		@Override
 		public boolean equals(Object other) {
             if (other instanceof Timeout timeout_obj) {
                 return timeout_obj.timeout == timeout && timeout_obj.id == id;
@@ -110,7 +110,7 @@ public final class RespondManager implements Animated {
             return hash;
         }
 
-        @Override
+		@Override
 		public int compareTo(@NonNull Timeout other) {
 			float diff = timeout - other.timeout;
 			if (diff != 0f)

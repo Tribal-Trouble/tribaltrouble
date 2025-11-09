@@ -15,7 +15,7 @@ public final class BorderGroup extends Group {
 		label = new Label(caption, data.getCaptionFont());
 	}
 
-        @Override
+	@Override
 	public void compileCanvas() {
 		GroupData data = Skin.getSkin().getGroupData();
 		Box group = data.getGroup();
@@ -32,7 +32,7 @@ public final class BorderGroup extends Group {
 		setCanFocus(true);
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		Skin.getSkin().getGroupData().getGroup().render(0, 0, getWidth(), getHeight(), Skin.NORMAL);
 	}

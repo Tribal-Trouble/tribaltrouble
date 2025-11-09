@@ -10,7 +10,7 @@ public final class DieController extends Controller {
 		this.unit = unit;
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		unit.setBehaviour(new DieBehaviour(unit));
 	}

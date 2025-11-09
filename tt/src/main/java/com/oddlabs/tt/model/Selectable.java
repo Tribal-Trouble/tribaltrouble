@@ -40,7 +40,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		this.template = template;
 	}
 
-    @Override
+	@Override
 	public final float getShadowDiameter() {
 		return template.getShadowDiameter();
 	}
@@ -53,7 +53,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return template.getDefenseChance();
 	}
 
-    @Override
+	@Override
 	public final float getNoDetailSize() {
 		return template.getNoDetailSize();
 	}
@@ -68,7 +68,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return controller_stack.getLast();
 	}
 
-    @Override
+	@Override
 	public final void animate(float t) {
 		last_behaviour_state = current_behaviour.animate(t);
 		switch (last_behaviour_state) {
@@ -142,7 +142,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		}
 	}
 
-    @Override
+	@Override
 	protected final void register() {
 		super.register();
 		owner.getWorld().getAnimationManagerGameTime().registerAnimation(this);
@@ -229,12 +229,12 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return abilities;
 	}
 
-        @Override
+	@Override
 	public final int getGridX() {
 		return grid_x;
 	}
 
-        @Override
+	@Override
 	public final int getGridY() {
 		return grid_y;
 	}
@@ -254,13 +254,13 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return getOwnerNoCheck();
 	}
 
-        @Override
+	@Override
 	public void remove() {
 		super.remove();
 		owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
 	}
 
-        @Override
+	@Override
 	public final void updateChecksum(StateChecksum checksum) {
 /*		checksum.update(getGridX());
 		checksum.update(getGridY());
@@ -284,7 +284,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		dead = true;
 	}
 
-        @Override
+	@Override
 	public final boolean isDead() {
 		return dead;
 	}

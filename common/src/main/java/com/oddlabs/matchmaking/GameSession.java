@@ -39,12 +39,12 @@ public final class GameSession implements Serializable {
 		return team_count >= MatchmakingServerInterface.MIN_PLAYERS;
 	}
 	
-        @Override
+	@Override
 	public int hashCode() {
 		return session_id;
 	}
 	
-        @Override
+	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof GameSession))
 			return false;

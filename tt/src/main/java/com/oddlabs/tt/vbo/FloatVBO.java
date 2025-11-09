@@ -62,7 +62,7 @@ public final class FloatVBO extends VBO {
         buffer.position(buffer.limit());
 	}
 
-    @Override
+	@Override
 	public int capacity() {
 		return getSize() / Float.BYTES;
 	}

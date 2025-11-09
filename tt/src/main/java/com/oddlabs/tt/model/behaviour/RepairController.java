@@ -23,12 +23,12 @@ public final class RepairController extends Controller {
 		return building;
 	}
 
-        @Override
+	@Override
 	public @NonNull String getKey() {
 		return super.getKey() + building.hashCode();
 	}
 
-        @Override
+	@Override
 	public void decide() {
 		if (building.isDead()) {
 			unit.popController();

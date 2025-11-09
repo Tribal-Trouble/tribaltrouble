@@ -21,12 +21,12 @@ public final class HarvestBehaviour implements Behaviour {
 		restartAnimation();
 	}
 
-    @Override
+	@Override
 	public boolean isBlocking() {
 		return true;
 	}
 
-    @Override
+	@Override
 	public int animate(float t) {
 		anim_time += t;
 		if (anim_time > unit.getWeaponFactory().getSecondsPerRelease(1f/SECONDS_PER_ANIMATION_CYCLE) && !sound) {
@@ -58,7 +58,7 @@ public final class HarvestBehaviour implements Behaviour {
 		sound = false;
 	}
 
-    @Override
+	@Override
 	public void forceInterrupted() {
 	}
 }

@@ -50,7 +50,7 @@ public final class Index implements Updatable {
 		}
 	}
 
-    @Override
+	@Override
 	public void update(Object anim) {
 		blink_on = !blink_on;
 	}

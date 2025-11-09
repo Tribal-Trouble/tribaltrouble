@@ -131,7 +131,7 @@ class TreePicker implements TreeNodeVisitor {
 		render_state_cache.clear();
 	}
 
-        @Override
+	@Override
 	public final void visitLeaf(@NonNull TreeLeaf tree_leaf) {
 		int frustum_state = RenderTools.NOT_IN_FRUSTUM;
 		if (tree_leaf.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_leaf, camera.getFrustum())) >= RenderTools.IN_FRUSTUM)) {
@@ -146,7 +146,7 @@ class TreePicker implements TreeNodeVisitor {
 		}
 	}
 
-        @Override
+	@Override
 	public final void visitNode(@NonNull TreeGroup tree_group) {
 		int frustum_state = RenderTools.NOT_IN_FRUSTUM;
 		if (tree_group.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_group, camera.getFrustum())) >= RenderTools.IN_FRUSTUM)) {
@@ -193,7 +193,7 @@ class TreePicker implements TreeNodeVisitor {
 		return render_state;
 	}
 
-        @Override
+	@Override
 	public final void visitTree(@NonNull TreeSupply tree_supply) {
 		if (tree_supply.isHidden())
 			return;

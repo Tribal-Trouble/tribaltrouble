@@ -86,22 +86,22 @@ public final class NativeCampaignIcons implements CampaignIcons {
 		return gui_icon;
 	}
 
-        @Override
+	@Override
 	public GUIIcon @NonNull [] getHiddenRoutes() {
 		return hidden;
 	}
 
-        @Override
+	@Override
 	public IconQuad @NonNull [] getFaces() {
 		return faces;
 	}
 
-        @Override
+	@Override
 	public @NonNull IconQuad getMap() {
 		return map;
 	}
 
-        @Override
+	@Override
 	public int getNumIslands() {
 		return islands.length;
 	}
@@ -122,7 +122,7 @@ public final class NativeCampaignIcons implements CampaignIcons {
 		return height;
 	}
 
-        @Override
+	@Override
 	public MapIslandData getMapIslandData(int i) {
 		return islands[i];
 	}

@@ -25,7 +25,7 @@ public final class BuildingChieftainTrigger extends TutorialTrigger {
 	//	player.enableChieftains(false);
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
             for (Selectable s : set) {

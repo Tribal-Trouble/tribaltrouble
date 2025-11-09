@@ -11,7 +11,7 @@ public final class SortedLabel extends Label {
 		this.index = index;
 	}
 
-    @Override
+	@Override
 	public int compareTo(Label o) {
 		if (o instanceof IntegerLabel) {
 			SortedLabel other = (SortedLabel)o;

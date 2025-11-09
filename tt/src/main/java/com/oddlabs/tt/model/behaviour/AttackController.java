@@ -18,7 +18,7 @@ public final class AttackController extends Controller {
 		return unit.isCloseEnough(unit.getRange(target), target);
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		if (target.isDead() || !canAttack()) {
 			unit.popController();

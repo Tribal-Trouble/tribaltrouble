@@ -53,7 +53,7 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
 		centerPos();
 	}
 
-        @Override
+	@Override
 	public void connected(@NonNull Client client, @NonNull Game game, WorldGenerator generator, int player_slot) {
 		if (multiplayer) {
 			Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
@@ -76,25 +76,25 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
 	public void chat(int player_slot, String chat) {
 	}
 
-        @Override
+	@Override
 	public void setPlayers(PlayerSlot[] players) {
 		assert !multiplayer;
 	}
 
-        @Override
+	@Override
 	public void connectionLost() {
 		remove();
 		gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "connection_lost")));
 	}
 
-        @Override
+	@Override
 	public void gameStarted() {
 		remove();
 //		main_menu.remove();
 		assert !multiplayer;
 	}
 
-        @Override
+	@Override
 	protected void doCancel() {
 		game_network.close();
 	}

@@ -35,7 +35,7 @@ public final class Slider extends GUIObject {
 		button.addMouseButtonListener(drag_listener);
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		Horizontal slider = Skin.getSkin().getSliderData().getSlider();
 		if (isDisabled())
@@ -56,12 +56,12 @@ public final class Slider extends GUIObject {
 		return (int)(offset/step + .5f);
 	}
 	
-        @Override
+	@Override
 	public void mouseHeld(int button, int x, int y) {
 		mousePressed(button, x, y);
 	}
 
-        @Override
+	@Override
 	public void mouseScrolled(int amount) {
 		if (!isDisabled()) {
 			if (amount < 0)
@@ -72,7 +72,7 @@ public final class Slider extends GUIObject {
 		}
 	}
 
-        @Override
+	@Override
 	public void mousePressed(int button, int x, int y) {
 		if (!isDisabled()) {
 			int dx = x - this.button.getX();
@@ -128,29 +128,29 @@ public final class Slider extends GUIObject {
 	private final class DragListener implements MouseMotionListener, MouseButtonListener {
 		private int start_offset;
 
-                @Override
+		@Override
 		public void mousePressed(int button, int x, int y) {
 			start_offset = valueToOffset(value);
 		}
 
-                @Override
+		@Override
 		public void mouseDragged(int button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
 			if (!isDisabled()) {
 				setValue(offsetToValue(start_offset + abs_x) + min);
 			}
 		}
 
-                @Override
+		@Override
 		public void mouseMoved(int x, int y) {}
-                @Override
+		@Override
 		public void mouseEntered() {}
-                @Override
+		@Override
 		public void mouseExited() {}
-                @Override
+		@Override
 		public void mouseReleased(int button, int x, int y) {}
-                @Override
+		@Override
 		public void mouseHeld(int button, int x, int y) {}
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {}
 	}
 }

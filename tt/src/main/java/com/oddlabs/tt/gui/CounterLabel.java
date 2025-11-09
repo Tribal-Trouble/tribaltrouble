@@ -57,12 +57,12 @@ public final class CounterLabel extends Label implements Animated {
 		}
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
 		setTime(seconds - t);
 	}
 
-        @Override
+	@Override
 	public void updateChecksum(StateChecksum check_sum) {
 	}
 }

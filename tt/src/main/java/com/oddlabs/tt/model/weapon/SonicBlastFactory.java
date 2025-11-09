@@ -32,27 +32,27 @@ public final class SonicBlastFactory implements MagicFactory {
 		this.release_ratio = release_ratio;
 	}
 
-        @Override
+	@Override
 	public float getHitRadius() {
 		return hit_radius;
 	}
 
-        @Override
+	@Override
 	public float getSecondsPerAnim() {
 		return seconds_per_anim;
 	}
 
-        @Override
+	@Override
 	public float getSecondsPerInit() {
 		return init_ratio*seconds_per_anim;
 	}
 
-        @Override
+	@Override
 	public float getSecondsPerRelease() {
 		return release_ratio*seconds_per_anim;
 	}
 
-        @Override
+	@Override
 	public @NonNull Magic execute(@NonNull Unit src) {
 		return new SonicBlast(offset_x, offset_y, offset_z, hit_radius, hit_chance_closest, hit_chance_farthest, damage_closest, damage_farthest, seconds, src);
 	}

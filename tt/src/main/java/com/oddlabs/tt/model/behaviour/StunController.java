@@ -21,7 +21,7 @@ public final class StunController extends Controller {
 		return time > 0;
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		unit.setBehaviour(stun_behaviour);
 		if (!shouldSleep(0f)) {

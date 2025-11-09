@@ -19,7 +19,7 @@ public final class ClientInfo implements GameServerInterface, ConnectionInterfac
 		this.server = server;
 	}
 
-        @Override
+	@Override
 	public void handle(Object sender, @NonNull ARMIEvent armi_event) {
 		try {
 			armi_event.execute(interface_methods, this);
@@ -28,16 +28,16 @@ public final class ClientInfo implements GameServerInterface, ConnectionInterfac
 		}
 	}
 
-        @Override
+	@Override
 	public void writeBufferDrained(AbstractConnection conn) {
 	}
 
-        @Override
+	@Override
 	public void error(AbstractConnection conn, IOException e) {
 		server.handleError(conn, e);
 	}
 
-        @Override
+	@Override
 	public void connected(AbstractConnection conn) { 
 	}
 
@@ -45,22 +45,22 @@ public final class ClientInfo implements GameServerInterface, ConnectionInterfac
 		return player_slot;
 	}
 
-        @Override
+	@Override
 	public void resetSlotState(int slot, boolean open) {
 		server.resetSlotState(player_slot, slot, open);
 	}
 
-        @Override
+	@Override
 	public void setPlayerSlot(int slot, int type, int race, int team, boolean ready, int ai_difficulty) {
 		server.setPlayerSlot(player_slot, slot, type, race, team, ready, ai_difficulty);
 	}
 
-        @Override
+	@Override
 	public void startServer() {
 		server.startServer(player_slot);
 	}
 
-        @Override
+	@Override
 	public void chat(String chat) {
 		server.chat(player_slot, chat);
 	}

@@ -15,7 +15,7 @@ public final class TransferUnitController extends Controller {
 		this.unit = unit;
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		if (building_tracker != null && building_tracker.getOccupant() != null && unit.isCloseEnough(0f, building_tracker.getOccupant())) {
 			Building building = (Building)building_tracker.getOccupant();

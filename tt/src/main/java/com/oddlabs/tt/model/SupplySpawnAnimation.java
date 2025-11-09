@@ -18,7 +18,7 @@ public class SupplySpawnAnimation implements Animated {
 		supply.animateSpawn(0, 0);
 	}
 
-        @Override
+	@Override
 	public final void animate(float t) {
 		time = Math.min(time + t, limit);
 		supply.animateSpawn(t, time/limit);
@@ -28,7 +28,7 @@ public class SupplySpawnAnimation implements Animated {
 		}
 	}
 
-        @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 }

@@ -19,7 +19,7 @@ public final class MagicController extends Controller {
 		should_pop = true;
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		if (should_pop) {
 			unit.popController();

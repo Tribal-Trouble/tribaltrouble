@@ -61,12 +61,12 @@ public final class IslandGenerator implements WorldGenerator {
 		return texels_per_grid_unit;
 	}
 
-    @Override
+	@Override
 	public Landscape.TerrainType getTerrainType() {
 		return terrain;
 	}
 
-        @Override
+	@Override
 	public int getMetersPerWorld() {
 		return meters_per_world;
 	}
@@ -75,7 +75,7 @@ public final class IslandGenerator implements WorldGenerator {
 		return Landscape.getFogInfo(terrain, meters_per_world);
 	}
 
-        @Override
+	@Override
 	public @NonNull WorldInfo generate(int num_players, int initial_unit_count, float random_start_pos) {
 		int colormap_size = grid_units*getTexelsPerGridUnit();
 		int chunks_per_colormap = colormap_size/TEXELS_PER_CHUNK;

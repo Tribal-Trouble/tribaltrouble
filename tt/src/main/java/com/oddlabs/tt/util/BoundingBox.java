@@ -20,7 +20,7 @@ public class BoundingBox {
 	private float cy;
 	private float cz;
 
-    @Override
+	@Override
 	public String toString() {
 		return "bmx " + bmin_x + " bmy " + bmin_y + " bmz " + bmin_z + " bxx " + bmax_x + " bxy " + bmax_y + " bxz " + bmax_z;
 	}

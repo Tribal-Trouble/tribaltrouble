@@ -22,7 +22,7 @@ public final class ChatLine extends EditLine {
 		tab_complete_list = list;
 	}
 
-        @Override
+	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent e) {
 		if (catch_tab && e.getKeyChar() == '\t')
 			tabComplete(getText());

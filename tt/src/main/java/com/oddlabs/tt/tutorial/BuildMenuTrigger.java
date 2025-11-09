@@ -9,7 +9,7 @@ public final class BuildMenuTrigger extends TutorialTrigger {
 		local_player.enableWeapons(true);
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		if (tutorial.getViewer().getPanel().inBuildMenu())
 			tutorial.next(new WeaponTrigger(tutorial.getViewer().getLocalPlayer()));

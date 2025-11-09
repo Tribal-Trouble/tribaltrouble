@@ -148,7 +148,7 @@ dumpBuffer(buffer);*/
 			assert success;
 		}
 
-                @Override
+		@Override
 		public @NonNull String toString() {
 			return "[index = " + index + " score = " + score + " round = " + round_added + " num_triangles = " + triangle_list.size() + "]";
 		}
@@ -192,7 +192,7 @@ dumpBuffer(buffer);*/
                     }
 		}
 
-                @Override
+		@Override
 		public @NonNull String toString() {
 			String result = "Triangle score = " + getScore();
                     for (Index indice : indices) {

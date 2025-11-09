@@ -13,7 +13,7 @@ final class GameArgumentWriter extends DefaultARMIArgumentWriter {
 		this.distributable_table = table;
 	}
 
-        @Override
+	@Override
 	public void writeArgument(@NonNull Class<?> type, @NonNull Object arg, @NonNull ByteBufferOutputStream out) throws IOException {
 		if (Distributable.class.isAssignableFrom(type)) {
 			int name = distributable_table.getName((Distributable)arg);

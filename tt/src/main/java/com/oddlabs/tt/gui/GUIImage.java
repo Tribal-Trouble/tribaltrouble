@@ -30,7 +30,7 @@ public final class GUIImage extends GUIObject {
 		setCanFocus(false);
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		int width = getWidth();
 		int height = getHeight();

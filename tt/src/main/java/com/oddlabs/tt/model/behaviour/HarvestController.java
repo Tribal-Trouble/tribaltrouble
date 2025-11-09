@@ -32,7 +32,7 @@ public final class HarvestController<S extends Supply> extends Controller {
 		}
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		if (unit.getSupplyContainer().getSupplyType() == supply_class && unit.getSupplyContainer().isSupplyFull()) {
 			unit.popController();

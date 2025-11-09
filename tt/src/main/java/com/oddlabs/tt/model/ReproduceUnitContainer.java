@@ -27,14 +27,14 @@ public final class ReproduceUnitContainer extends UnitContainer {
 		unit_reproduction = 0f;
 	}
 
-    @Override
+	@Override
 	public void enter(@NonNull Unit unit) {
 		assert canEnter(unit);
 		unit.removeNow();
 		increaseSupply(1);
 	}
 
-    @Override
+	@Override
 	public boolean canEnter(@NonNull Unit unit) {
 		return !unit.getAbilities().hasAbilities(Abilities.THROW) && getTotalSupplies() != getMaxSupplyCount();
 	}
@@ -44,21 +44,21 @@ public final class ReproduceUnitContainer extends UnitContainer {
 		return getNumSupplies() + getNumPreparing();
 	}
 
-    @Override
+	@Override
 	public @Nullable Unit exit() {
 		assert getNumSupplies() > 0;
 		increaseSupply(-1);
 		return null;
 	}
 
-    @Override
+	@Override
 	public int increaseSupply(int amount) {
 		int result = building.getOwner().getUnitCountContainer().increaseSupply(amount);
 		assert result == amount: "result = " + result + " | amount = " + amount;
 		return super.increaseSupply(amount);
 	}
 
-    @Override
+	@Override
 	public void animate(float t) {
 		ChieftainContainer chieftain_container = building.getChieftainContainer();
 

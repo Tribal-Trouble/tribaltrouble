@@ -43,7 +43,7 @@ public final class MainMenu extends Menu {
 		}
 	}
 
-    @Override
+	@Override
 	protected void addButtons() {
 		addGameTypeButtons();
 

@@ -28,17 +28,17 @@ public final class ColumnButton extends RadioButtonGroupElement {
 		setCanFocus(true);
 	}
 
-        @Override
+	@Override
 	protected void mouseReleased(int button, int x, int y) {
 		pressed = false;
 	}
 
-        @Override
+	@Override
 	protected void mousePressed(int button, int x, int y) {
 		pressed = true;
 	}
 
-        @Override
+	@Override
 	protected void mouseClicked(int button, int x, int y, int clicks) {
 		if (isMarked())
 			sorted_descending = !sorted_descending;
@@ -52,7 +52,7 @@ public final class ColumnButton extends RadioButtonGroupElement {
 		return column_index;
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		if (isDisabled()) {
 			Skin.getSkin().getMultiColumnComboBoxData().getButtonUnpressed().render(0, 0, getWidth(), Skin.DISABLED);

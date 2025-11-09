@@ -17,7 +17,7 @@ public final class HuntController extends Controller {
 		return unit.isCloseEnough(unit.getRange(target), target);
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		if (target.isDead()) {
 			unit.popController();

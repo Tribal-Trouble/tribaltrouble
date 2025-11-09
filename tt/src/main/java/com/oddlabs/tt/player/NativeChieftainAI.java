@@ -12,7 +12,7 @@ public final class NativeChieftainAI extends ChieftainAI {
 	private final static int NUM_UNITS_FOR_LIGHTNING = 2;
 	private final static int NUM_UNITS_FOR_POISON = 5;
 
-        @Override
+	@Override
 	public void decide(@NonNull Unit chieftain) {
 		nodeLightningCloud(chieftain);
 		nodePoisonFog(chieftain);

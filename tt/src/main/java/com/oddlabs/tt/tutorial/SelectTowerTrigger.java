@@ -26,7 +26,7 @@ public final class SelectTowerTrigger extends TutorialTrigger {
 		player.enableTowerExits(false);
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		Building building = tutorial.getViewer().getSelection().getCurrentSelection().getBuilding();
 		if (building != null && building.getAbilities().hasAbilities(Abilities.ATTACK)) {

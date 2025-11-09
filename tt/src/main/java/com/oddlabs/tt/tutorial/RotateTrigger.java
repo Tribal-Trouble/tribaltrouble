@@ -10,7 +10,7 @@ public final class RotateTrigger extends TutorialTrigger {
 		super(.1f, 2f, "rotate");
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		GameCamera camera = tutorial.getViewer().getCamera();
 		if (camera.rotateRight()) {

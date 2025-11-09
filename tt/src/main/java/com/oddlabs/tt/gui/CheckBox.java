@@ -39,7 +39,7 @@ public final class CheckBox extends GUIObject implements ToolTip {
 		}
 	}
 	
-        @Override
+	@Override
 	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
 		tool_tip_box.append(tool_tip);
 	}
@@ -49,22 +49,22 @@ public final class CheckBox extends GUIObject implements ToolTip {
 		checkedAll(marked);
 	}
 
-        @Override
+	@Override
 	protected void mouseClicked(int button, int x, int y, int clicks) {
 		toggleMarked();
 	}
 
-        @Override
+	@Override
 	protected void mouseReleased(int button, int x, int y) {
 		pressed = false;
 	}
 
-        @Override
+	@Override
 	protected void mousePressed(int button, int x, int y) {
 		pressed = true;
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		if (isDisabled()) {
 			if (marked)

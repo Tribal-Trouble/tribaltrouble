@@ -25,17 +25,17 @@ public final class HostSequenceID implements Serializable {
 		return seq_id;
 	}
 
-        @Override
+	@Override
 	public int hashCode() {
 		return host_id ^ seq_id;
 	}
 
-        @Override
+	@Override
 	public @NonNull String toString() {
 		return host_id + " " + seq_id;
 	}
 
-        @Override
+	@Override
 	public boolean equals(Object other) {
         return other instanceof HostSequenceID other_id && host_id == other_id.host_id && seq_id == other_id.seq_id;
 	}

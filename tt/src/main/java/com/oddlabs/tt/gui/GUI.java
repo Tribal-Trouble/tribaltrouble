@@ -40,7 +40,7 @@ public final class GUI implements Animated {
 		return gui_root;
 	}
 
-    @Override
+	@Override
 	public void animate(float t) {
 		fade.animate(this, t);
 	}
@@ -50,7 +50,7 @@ public final class GUI implements Animated {
 		LocalEventQueue.getQueue().getManager().removeAnimation(this);
 	}
 
-    @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 

@@ -33,7 +33,7 @@ public final class TunnelledConnectionListener extends AbstractConnectionListene
 		return incoming_connections.removeFirst();
 	}
 
-        @Override
+	@Override
 	protected @NonNull AbstractConnection doAcceptConnection(ConnectionInterface connection_interface) {
 		TunnelledConnection conn = getNextTunnel();
 		conn.setConnectionInterface(connection_interface);
@@ -41,7 +41,7 @@ public final class TunnelledConnectionListener extends AbstractConnectionListene
 		return conn;
 	}
 	
-        @Override
+	@Override
 	public void rejectConnection() {
 		getNextTunnel().close();
 	}
@@ -51,7 +51,7 @@ public final class TunnelledConnectionListener extends AbstractConnectionListene
 		notifyError(new ClosedChannelException());
 	}
 
-        @Override
+	@Override
 	public void close() {
 		if (open) {
 			Network.getMatchmakingClient().unregisterTunnelledListener(this);

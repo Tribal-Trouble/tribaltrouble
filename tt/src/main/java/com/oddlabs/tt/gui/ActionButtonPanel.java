@@ -355,23 +355,23 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		displayChangedNotify(width, height);
 	}
 
-        @Override
+	@Override
 	public void doAdd() {
 		super.doAdd();
 		viewer.getAnimationManagerLocal().registerAnimation(this);
 	}
 
-        @Override
+	@Override
 	protected void doRemove() {
 		super.doRemove();
 		viewer.getAnimationManagerLocal().removeAnimation(this);
 	}
 
-        @Override
+	@Override
 	public void updateChecksum(StateChecksum sum) {
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
 		Building new_building = viewer.getSelection().getCurrentSelection().getBuilding();
 		boolean different_building = new_building != current_building;
@@ -577,7 +577,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		transport_rubber_button.setIconDisabler(new EmptySupplyDisabler(new SupplyCounter[]{unit_counter, rubber_counter}));
 	}
 
-        @Override
+	@Override
 	public void displayChangedNotify(int width, int height) {
 		setDim(width, height);
 		updateGroups();
@@ -603,12 +603,12 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		transport_group.setPos(width - transport_group.getWidth(), status_group.getY() - transport_group.getHeight());
 	}
 
-        @Override
+	@Override
 	protected void keyReleased(@NonNull KeyboardEvent event) {
 		((GUIObject)getParent()).keyReleased(event);
 	}
 
-        @Override
+	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		((GUIObject)getParent()).keyPressed(event);
 	}
@@ -934,12 +934,12 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		return false;
 	}
 
-        @Override
+	@Override
 	public boolean canHoverBehind() {
 		return true;
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 	}
 
@@ -960,7 +960,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	}
 
 
-        @Override
+	@Override
 	public void mouseDragged(int button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 		if (getParent() != null)
 			((GUIObject)getParent()).mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
@@ -973,7 +973,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			this.action = action;
 		}
 
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, action));
 		}
@@ -988,7 +988,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			this.add_group = add_group;
 		}
 
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			remove_group.remove();
 			addChild(add_group);
@@ -999,7 +999,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	}
 
 	private final class CancelListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			removeGroups();
 			update = true;
@@ -1007,7 +1007,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	}
 
 	private final class TowerExitListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			if (!current_building.isDead())
 				viewer.getPeerHub().getPlayerInterface().exitTower(current_building);
@@ -1017,7 +1017,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	}
 
 	private final class RallyPointListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			if (!current_building.isDead())
 				viewer.getGUIRoot().pushDelegate(new RallyPointDelegate(viewer,  camera, current_building));
@@ -1033,7 +1033,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			this.building = building;
 		}
 
-                @Override
+		@Override
 		public boolean isDisabled() {
 			return !building.canBuildChieftain() && !building.canStopChieftain();
 		}
@@ -1048,7 +1048,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			this.magic_index = magic_index;
 		}
 
-                @Override
+		@Override
 		public boolean isDisabled() {
 			return !unit.canDoMagic(magic_index);
 		}
@@ -1061,7 +1061,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			this.counters = counters;
 		}
 
-                @Override
+		@Override
 		public boolean isDisabled() {
                     for (SupplyCounter counter : counters) {
                         if (counter.getNumSupplies() == 0) {
@@ -1081,7 +1081,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			this.exit = exit;
 		}
 
-                @Override
+		@Override
 		public boolean isDisabled() {
 			if (exit)
 				return !building.canExitTower();
@@ -1097,14 +1097,14 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			this.building = building;
 		}
 
-                @Override
+		@Override
 		public boolean isDisabled() {
 			return !viewer.getLocalPlayer().canBuild(building);
 		}
 	}
 
 	private final class TowerPlaceListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			viewer.getGUIRoot().pushDelegate(new PlacingDelegate(viewer, camera.getState(), Race.BUILDING_TOWER));
 		}
@@ -1117,7 +1117,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			this.building_index = building_index;
 		}
 
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			viewer.getGUIRoot().pushDelegate(new PlacingDelegate(viewer, camera.getState(), building_index));
 		}

@@ -65,7 +65,7 @@ public final class PoisonFog implements Magic {
 				1f, true, false));
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
 		time += t;
 		if (time >= total_time) {
@@ -131,11 +131,11 @@ public final class PoisonFog implements Magic {
         }
 	}
 
-        @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 
-        @Override
+	@Override
 	public void interrupt() {
 		if (bubbling_sound != null)
 			bubbling_sound.stop(.2f, Settings.getSettings().sound_gain);

@@ -132,7 +132,7 @@ public final class TutorialForm extends Form {
 			this.ingame_info = ingame_info;
 		}
 
-                @Override
+		@Override
 		public void run(WorldViewer viewer) {
 			new Tutorial(viewer, ingame_info, factory.create(viewer));
 		}
@@ -223,7 +223,7 @@ public final class TutorialForm extends Form {
 			this.number = number;
 		}
 
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			if (checkTutorial(gui_root, number)) {
 				startTutorial(network, gui_root, number);

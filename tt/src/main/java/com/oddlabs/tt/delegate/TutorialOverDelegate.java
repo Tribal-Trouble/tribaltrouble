@@ -63,12 +63,12 @@ public final class TutorialOverDelegate extends CameraDelegate implements Updata
 		delay_timer.start();
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		renderBackgroundAlpha();
 	}
 
-        @Override
+	@Override
 	public void update(Object anim) {
 		addChild(group_buttons);
 		delay_timer.stop();
@@ -81,7 +81,7 @@ public final class TutorialOverDelegate extends CameraDelegate implements Updata
 			this.tutorial_number = tutorial_number;
 		}
 
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			if (tutorial_info.setNextTutorial(viewer.getGUIRoot(), tutorial_number))
 				viewer.close();

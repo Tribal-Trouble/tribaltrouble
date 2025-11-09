@@ -108,7 +108,7 @@ public abstract class Menu extends CameraDelegate {
 		displayChangedNotify(LocalInput.getViewWidth(), LocalInput.getViewHeight());
 	}
 
-        @Override
+	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch(event.getKeyCode()) {
 			case Keyboard.KEY_ESCAPE:
@@ -119,7 +119,7 @@ public abstract class Menu extends CameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	public void displayChangedNotify(int width, int height) {
 		setDim(width, height);
 
@@ -156,7 +156,7 @@ public abstract class Menu extends CameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	public final void setFocus() {
 		if (current_menu != null) {
 			current_menu.setFocus();
@@ -174,7 +174,7 @@ public abstract class Menu extends CameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	protected final void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_TAB:
@@ -191,11 +191,11 @@ public abstract class Menu extends CameraDelegate {
 		}
 	}
 
-        @Override
+	@Override
 	public void mouseScrolled(int amount) {
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 	}
 
@@ -236,7 +236,7 @@ public abstract class Menu extends CameraDelegate {
 	}
 
 	public final static class DefaultWorldInitAction implements WorldInitAction {
-                @Override
+		@Override
 		public void run(@NonNull WorldViewer viewer) {
 			new GameOverTrigger(viewer);
 			completeGameSetupHack(viewer);
@@ -276,14 +276,14 @@ public abstract class Menu extends CameraDelegate {
 			this.factory = factory;
 		}
 
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			setMenu(factory.create());
 		}
 	}
 
 	private final class ExitListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			setMenuCentered(new QuitForm(getGUIRoot()));
 		}

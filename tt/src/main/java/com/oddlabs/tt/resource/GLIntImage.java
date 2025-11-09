@@ -11,7 +11,7 @@ import java.nio.IntBuffer;
 public final class GLIntImage extends GLImage {
 	private final @NonNull IntBuffer pixels;
 
-        @Override
+	@Override
 	public int getPixelSize() {
 		return 4;
 	}
@@ -75,7 +75,7 @@ public final class GLIntImage extends GLImage {
         }
 	}
 
-        @Override
+	@Override
 	public @NonNull GLImage createImage(int width, int height, int format) {
 		return new GLIntImage(width, height, format);
 	}
@@ -85,12 +85,12 @@ public final class GLIntImage extends GLImage {
             return new GLIntImage(layer);
         }
 
-        @Override
+	@Override
 	public int getPixel(int x, int y) {
 		return pixels.get(y*getWidth() + x);
 	}
 
-        @Override
+	@Override
 	public void putPixel(int x, int y, int pixel) {
 		pixels.put(y*getWidth() + x, pixel);
 	}

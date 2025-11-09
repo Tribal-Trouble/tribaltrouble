@@ -16,7 +16,7 @@ final class LinearParticle extends Particle {
 		super(angle);
 	}
 
-    @Override
+	@Override
 	public void update(float t) {
 		super.update(t);
 		velocity_x += acceleration_x*t;

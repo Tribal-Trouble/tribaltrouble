@@ -13,7 +13,7 @@ public class Panel extends Group {
 		return tab;
 	}
 
-        @Override
+	@Override
 	public final void compileCanvas() {
 		Box box = Skin.getSkin().getPanelData().getBox();
 		super.compileCanvas(box.getLeftOffset(), box.getBottomOffset(), box.getRightOffset(), box.getTopOffset());

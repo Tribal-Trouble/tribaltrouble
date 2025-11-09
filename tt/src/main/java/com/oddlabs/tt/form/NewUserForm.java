@@ -119,7 +119,7 @@ public final class NewUserForm extends Form {
 		compileCanvas();
 	}
 
-        @Override
+	@Override
 	public void setFocus() {
 		editline_username.setFocus();
 	}
@@ -154,12 +154,12 @@ public final class NewUserForm extends Form {
 	}
 
 	private final class CreateUserListener implements MouseClickListener, EnterListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			createUser();
 		}
 
-                @Override
+		@Override
 		public void enterPressed(CharSequence text) {
 			createUser();
 		}

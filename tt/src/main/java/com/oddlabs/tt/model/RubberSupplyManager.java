@@ -13,17 +13,17 @@ public final class RubberSupplyManager extends SupplyManager {
 		super(world);
 	}
 
-        @Override
+	@Override
 	protected float getSleepTime() {
 		return SLEEP_TICKS;
 	}
 
-        @Override
+	@Override
 	protected boolean shouldSpawn() {
 		return current_groups < MAX_NUM_GROUPS;
 	}
 
-        @Override
+	@Override
 	protected void insertSupply() {
 		new RubberGroup(getWorld());
 	}

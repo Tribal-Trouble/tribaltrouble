@@ -11,7 +11,7 @@ public final class SerializableDisplayModeComparator implements Comparator<Seria
 		this.target_mode = target_mode;
 	}
 
-        @Override
+	@Override
 	public int compare(@NonNull SerializableDisplayMode d1, @NonNull SerializableDisplayMode d2) {
 		/*
 		 * Elias: sort after largest bpp first, then lowest freq

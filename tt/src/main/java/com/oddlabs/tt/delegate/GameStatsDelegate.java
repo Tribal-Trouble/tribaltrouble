@@ -158,18 +158,18 @@ public final class GameStatsDelegate extends CameraDelegate implements Updatable
 		delay_timer.start();
 	}
 
-        @Override
+	@Override
 	public void update(Object anim) {
 		addChild(group_buttons);
 		delay_timer.stop();
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 		renderBackgroundAlpha();
 	}
 
-        @Override
+	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_TAB:

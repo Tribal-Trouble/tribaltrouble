@@ -17,7 +17,7 @@ public final class SupplyTrigger extends TutorialTrigger {
 		player.enableHarvesting(true);
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet();
             for (Selectable s : set) {

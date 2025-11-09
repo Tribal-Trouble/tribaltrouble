@@ -92,7 +92,7 @@ public class Group extends GUIObject {
 		current = null;
 	}
 
-        @Override
+	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_TAB:
@@ -109,7 +109,7 @@ public class Group extends GUIObject {
 		switchFocus(dir);
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {}
 
 /*

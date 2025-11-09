@@ -102,7 +102,7 @@ public final class Lightning extends Element<Lightning> implements Animated {
 		particle.setEnergy(energy);
 	}
 
-    @Override
+	@Override
 	public void animate(float t) {
 		float x_min = Float.POSITIVE_INFINITY;
 		float x_max = Float.NEGATIVE_INFINITY;
@@ -138,24 +138,24 @@ public final class Lightning extends Element<Lightning> implements Animated {
 		}
 	}
 
-    @Override
+	@Override
 	protected void register() {
 		super.register();
 		manager.registerAnimation(this);
 	}
 
-    @Override
+	@Override
 	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitLightning(this);
 	}
 
-    @Override
+	@Override
 	protected void remove() {
 		super.remove();
 		manager.removeAnimation(this);
 	}
 
-    @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 }

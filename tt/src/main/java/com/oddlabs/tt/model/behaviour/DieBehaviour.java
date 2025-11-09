@@ -28,7 +28,7 @@ public final class DieBehaviour implements Behaviour {
 		init();
 	}
 
-    @Override
+	@Override
 	public int animate(float t) {
 		anim_time -= t;
 		offset_z -= dz*t;
@@ -60,7 +60,7 @@ public final class DieBehaviour implements Behaviour {
 		return offset_z;
 	}
 
-    @Override
+	@Override
 	public boolean isBlocking() {
 		throw new RuntimeException();
 	}
@@ -71,7 +71,7 @@ public final class DieBehaviour implements Behaviour {
 		unit.switchAnimation(1f/anim_time, Unit.ANIMATION_DYING);
 	}
 
-    @Override
+	@Override
 	public void forceInterrupted() {
 	}
 }

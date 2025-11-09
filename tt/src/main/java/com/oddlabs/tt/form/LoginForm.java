@@ -120,7 +120,7 @@ public final class LoginForm extends Form {
 		}
 	}
 
-    @Override
+	@Override
 	public void setFocus() {
 		editline_username.setFocus();
 	}
@@ -146,7 +146,7 @@ public final class LoginForm extends Form {
 	}
 
 	private final class NewUserListener implements MouseClickListener {
-        @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			remove();
 			main_menu.setMenu(new NewUserForm(network, gui_root, main_menu));
@@ -154,12 +154,12 @@ public final class LoginForm extends Form {
 	}
 
 	private final class LoginListener implements MouseClickListener, EnterListener {
-        @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			login();
 		}
 
-        @Override
+		@Override
 		public void enterPressed(CharSequence text) {
 			login();
 		}

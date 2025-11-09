@@ -68,12 +68,12 @@ public final class NewProfileForm extends Form {
 		compileCanvas();
 	}
 
-        @Override
+	@Override
 	public void setFocus() {
 		editline_nick.setFocus();
 	}
 
-        @Override
+	@Override
 	public void doCancel() {
 		done();
 	}
@@ -92,12 +92,12 @@ public final class NewProfileForm extends Form {
 	}
 
 	private final class CreateProfileListener implements MouseClickListener, EnterListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			createProfile();
 		}
 
-                @Override
+		@Override
 		public void enterPressed(CharSequence text) {
 			createProfile();
 		}

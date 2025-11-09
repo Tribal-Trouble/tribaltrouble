@@ -16,7 +16,7 @@ public final class TreeLeaf extends AbstractTreeGroup {
 		infos = new_infos;
 	}
 
-    @Override
+	@Override
 	protected boolean initBounds() {
 		if (infos.length != 0) {
 			TreeSupply info = infos[0];
@@ -33,7 +33,7 @@ public final class TreeLeaf extends AbstractTreeGroup {
 		return false;
 	}
 
-    @Override
+	@Override
 	public void visit(@NonNull TreeNodeVisitor visitor) {
 		visitor.visitLeaf(this);
 	}

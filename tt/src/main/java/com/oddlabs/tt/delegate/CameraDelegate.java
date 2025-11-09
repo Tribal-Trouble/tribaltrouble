@@ -25,13 +25,13 @@ public abstract class CameraDelegate extends Delegate {
 		return camera;
 	}
 
-        @Override
+	@Override
 	protected void doAdd() {
 		super.doAdd();
 		getCamera().enable();
 	}
 
-        @Override
+	@Override
 	protected void doRemove() {
 		super.doRemove();
 		getCamera().disable();

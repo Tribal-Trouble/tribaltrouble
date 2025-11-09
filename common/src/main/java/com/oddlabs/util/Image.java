@@ -162,7 +162,7 @@ public final class Image implements Serializable {
 		return height;
 	}
 
-        @Override
+	@Override
 	public @NonNull String toString() {
 		return "Image: width = " + width + " | height = " + height;
 	}

@@ -15,7 +15,7 @@ public final class PlacingDelegateTrigger extends TutorialTrigger {
 		player.enableChieftains(false);
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		if (tutorial.getViewer().getGUIRoot().getDelegate() instanceof PlacingDelegate)
 			tutorial.next(new QuartersTrigger());

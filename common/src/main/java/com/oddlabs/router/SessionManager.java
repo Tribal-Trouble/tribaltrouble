@@ -126,7 +126,7 @@ final class SessionManager {
 			this.next_timeout = millis + client.getSession().info.milliseconds_per_heartbeat;
 		}
 
-                @Override
+		@Override
 		public int compareTo(Timeout other) {
 			Timeout other_session = other;
 			int diff = (int)(next_timeout - other_session.next_timeout);
@@ -136,18 +136,18 @@ final class SessionManager {
 				return id - other_session.id;
 		}
 
-                @Override
+		@Override
 		public boolean equals(Object other) {
 			Timeout other_session = (Timeout)other;
 			return compareTo(other_session) == 0;
 		}
 
-                @Override
+		@Override
 		public int hashCode() {
 			return (int)(id + next_timeout);
 		}
 
-                @Override
+		@Override
 		public @NonNull String toString() {
 			return "Timout: id = " + id + " timeout " + next_timeout;
 		}

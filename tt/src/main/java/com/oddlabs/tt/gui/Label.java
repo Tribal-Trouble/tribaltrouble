@@ -36,7 +36,7 @@ public class Label extends TextField implements Comparable<Label> {
 		this.color = color;
 	}
 
-        @Override
+	@Override
 	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
 		// Radeon 9200 doesn't like glColor between Begin/End if not followed by a glVertex
 		GL11.glEnd();
@@ -64,7 +64,7 @@ public class Label extends TextField implements Comparable<Label> {
 		GL11.glBegin(GL11.GL_QUADS);
 	}
 
-        @Override
+	@Override
 	public int compareTo(@NonNull Label o) {
 		return getText().toString().compareToIgnoreCase(o.getText().toString());
 	}

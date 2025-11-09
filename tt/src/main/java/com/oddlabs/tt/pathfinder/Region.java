@@ -17,12 +17,12 @@ public final class Region extends Node {
 	private int center_x;
 	private int center_y;
 
-        @Override
+	@Override
 	public int getGridX() {
 		return center_x;
 	}
 
-        @Override
+	@Override
 	public int getGridY() {
 		return center_y;
 	}
@@ -32,11 +32,11 @@ public final class Region extends Node {
 		this.center_y = center_y;
 	}
 
-        @Override
+	@Override
 	public @NonNull String toString() {
 		return "Region: " + center_x + " " + center_y;
 	}
-        @Override
+	@Override
 	public @NonNull PathNode newPath() {
 		Node graph_node = this;
 		assert graph_node != null;
@@ -80,7 +80,7 @@ public final class Region extends Node {
 		neighbours.add(n);
 	}
 
-        @Override
+	@Override
 	public boolean addNeighbours(@NonNull PathFinderAlgorithm finder, UnitGrid unit_grid) {
             for (Region neighbour : neighbours) {
                 if (!neighbour.isVisited())

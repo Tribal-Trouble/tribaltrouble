@@ -79,7 +79,7 @@ public final class InfoForm extends Form {
 		centerPos();
 	}
 
-    @Override
+	@Override
 	public void setFocus() {
 		ok_button.setFocus();
 	}

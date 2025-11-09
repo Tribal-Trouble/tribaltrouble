@@ -98,7 +98,7 @@ public class DeployContainer extends SupplyContainer {
 		}
 	}
 
-    @Override
+	@Override
 	public int increaseSupply(int amount) {
 		int result = building.getOwner().getUnitCountContainer().increaseSupply(amount);
 		assert result == amount;

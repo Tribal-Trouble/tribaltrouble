@@ -203,7 +203,7 @@ public final class LandscapeTileTriangle {
 		return HeightMap.planeHeight(x, y, current_plane);
 	}
 
-        @Override
+	@Override
 	public @NonNull String toString() {
 		return "i0_x = " + i0_x + " | i0_y = " + i0_y + " | i1_x = " + i1_x + " | i1_y = " + i1_y + " | i2_x = " + i2_x + " | i2_y = " + i2_y;
 	}

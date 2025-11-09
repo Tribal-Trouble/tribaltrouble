@@ -45,7 +45,7 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 			world.getSupplyManager(getClass()).newSupply();
 	}
 
-        @Override
+	@Override
 	public final void visit(@NonNull ToolTipVisitor visitor) {
 		visitor.visitSupply(this);
 	}
@@ -54,22 +54,22 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 		return rotation;
 	}
 
-        @Override
+	@Override
 	public void animateSpawn(float t, float progress) {
 		offset_z = SPAWN_OFFSET_Z*(1 - progress);
 		reinsert();
 	}
 
-        @Override
+	@Override
 	public void spawnComplete() {
 	}
 
-        @Override
+	@Override
 	public final boolean isEmpty() {
 		return num_supplies == 0;
 	}
 
-        @Override
+	@Override
 	public boolean hit() {
 		hit_counter++;
 		if (hit_counter == Supply.HITS_PER_HARVEST) {
@@ -80,7 +80,7 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 			return false;
 	}
 
-        @Override
+	@Override
 	public final boolean isDead() {
 		return isEmpty();
 	}
@@ -99,22 +99,22 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 		}
 	}
 
-        @Override
+	@Override
 	public final float getNoDetailSize() {
 		throw new RuntimeException();
 	}
 
-        @Override
+	@Override
 	public final float getSize() {
 		return size;
 	}
 
-        @Override
+	@Override
 	public final int getGridX() {
 		return grid_x;
 	}
 
-        @Override
+	@Override
 	public final int getGridY() {
 		return grid_y;
 	}
@@ -125,37 +125,37 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 		this.grid_y = grid_y;
 	}
 
-        @Override
+	@Override
 	public float getOffsetZ() {
 		return offset_z;
 	}
 
-        @Override
+	@Override
 	public int getAnimation() {
 		return 0;
 	}
 
-        @Override
+	@Override
 	public float getAnimationTicks() {
 		return 0;
 	}
 
-        @Override
+	@Override
 	public final SpriteKey getSpriteRenderer() {
 		return sprite_renderer;
 	}
 
-        @Override
+	@Override
 	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitSupplyModel(this);
 	}
 
-        @Override
+	@Override
 	public float getShadowDiameter() {
 		return 0f;
 	}
 
-        @Override
+	@Override
 	public int getPenalty() {
 		return Occupant.STATIC;
 	}

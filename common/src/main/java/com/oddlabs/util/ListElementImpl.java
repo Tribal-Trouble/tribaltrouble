@@ -8,32 +8,32 @@ public abstract class ListElementImpl<T> implements ListElement<T> {
 	private @Nullable ListElement<T> next = null;
 	private @Nullable ListElement<T> prior = null;
 
-        @Override
+	@Override
 	public final void setListOwner(LinkedList<T> owner) {
 		parent = owner;
 	}
 
-    @Override
+	@Override
 	public final LinkedList<T> getListOwner() {
 		return parent;
 	}
 
-    @Override
+	@Override
 	public final void setPrior(ListElement<T> prior) {
 		this.prior = prior;
 	}
 
-    @Override
+	@Override
 	public final void setNext(ListElement<T> next) {
 		this.next = next;
 	}
 
-    @Override
+	@Override
 	public final @Nullable ListElement<T> getPrior() {
 		return prior;
 	}
 
-    @Override
+	@Override
 	public final @Nullable ListElement<T> getNext() {
 		return next;
 	}

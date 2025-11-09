@@ -545,7 +545,7 @@ public final class TerrainMenu extends Group {
 		this.seed = seed;
 	}
 
-        @Override
+	@Override
 	public void setFocus() {
 		button_ok.setFocus();
 	}
@@ -555,7 +555,7 @@ public final class TerrainMenu extends Group {
 	}
 
 	private final class CancelButtonListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			owner.terrainMenuCancel();
 		}
@@ -647,14 +647,14 @@ public final class TerrainMenu extends Group {
 	}
 
 	private final class MapcodeListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			gui_root.addModalForm(new MapcodeForm(TerrainMenu.this));
 		}
 	}
 
 	private final class OKListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			boolean started = startGame();
 			if (started)
@@ -669,7 +669,7 @@ public final class TerrainMenu extends Group {
 			this.i = i;
 		}
 
-                @Override
+		@Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 			if (item_index == 0) {
 				labels_players[i].setDisabled(true);
@@ -684,32 +684,32 @@ public final class TerrainMenu extends Group {
 	}
 
 	private final class PulldownUpdateMapcodeListener implements ItemChosenListener {
-                @Override
+		@Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 			setMapcode();
 		}
 	}
 
 	private static final class PulldownUpdateSizeListener implements ItemChosenListener {
-                @Override
+		@Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 		}
 	}
 
 	private static final class PulldownUpdateHardListener implements ItemChosenListener {
-                @Override
+		@Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 		}
 	}
 
 	private static final class PulldownUpdateTerrainListener implements ItemChosenListener {
-                @Override
+		@Override
 		public void itemChosen(PulldownMenu menu, int item_index) {
 		}
 	}
 
 	private final class SliderUpdateMapcodeListener implements ValueListener {
-                @Override
+		@Override
 		public void valueSet(int value) {
 			setMapcode();
 		}

@@ -26,7 +26,7 @@ abstract class AStarAlgorithm implements PathFinderAlgorithm {
 		return unit_grid;
 	}
 
-    @Override
+	@Override
 	public final int computeEstimatedCost(@NonNull Node node) {
 		return node.estimateCost(dst_x, dst_y);
 	}
@@ -46,7 +46,7 @@ abstract class AStarAlgorithm implements PathFinderAlgorithm {
 			return null;
 	}
 
-    @Override
+	@Override
 	public final @Nullable NodeResult touchNode(@NonNull Node node) {
 		int dx = node.getGridX() - dst_x;
 		int dy = node.getGridY() - dst_y;
@@ -63,7 +63,7 @@ abstract class AStarAlgorithm implements PathFinderAlgorithm {
 		return defaultTouchNode();
 	}
 
-    @Override
+	@Override
 	public final @Nullable NodeResult getBestNode() {
 		return null;
 	}

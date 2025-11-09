@@ -33,7 +33,7 @@ public final class PatchGroup extends AbstractPatchGroup {
 		checkBounds(child3);
 	}
 
-    @Override
+	@Override
 	public void visit(@NonNull PatchGroupVisitor visitor) {
 		visitor.visitGroup(this);
 	}

@@ -12,7 +12,7 @@ public final class VikingChieftainAI extends ChieftainAI {
 	private final static int NUM_UNITS_FOR_STUN = 5;
 	private final static int NUM_UNITS_FOR_BLAST = 7;
 
-    @Override
+	@Override
 	public void decide(@NonNull Unit chieftain) {
 		nodeBlast(chieftain);
 		nodeStun(chieftain);

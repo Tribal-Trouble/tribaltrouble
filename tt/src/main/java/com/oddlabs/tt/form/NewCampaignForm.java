@@ -115,12 +115,12 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		LoadCampaignBox.loadSavegames(this);
 	}
 
-    @Override
+	@Override
 	protected void doCancel() {
 		main_menu.setMenu(campaign_form);
 	}
 
-    @Override
+	@Override
 	public void setFocus() {
 		editline_name.setFocus();
 	}
@@ -190,16 +190,16 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		remove();
 	}
 
-        @Override
+	@Override
 	public void saveSucceeded() {
 	}
 
-        @Override
+	@Override
 	public void loadSucceeded(CampaignState[] campaign_states) {
 		this.campaign_states = campaign_states;
 	}
 
-        @Override
+	@Override
 	public void failed(Throwable e) {
 		if (e instanceof FileNotFoundException) {
 		} else if (e instanceof InvalidClassException) {
@@ -210,19 +210,19 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 	}
 
 	private final class NameListener implements MouseClickListener, EnterListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			save();
 		}
 
-                @Override
+		@Override
 		public void enterPressed(CharSequence text) {
 			save();
 		}
 	}
 
 	private final class RaceListener implements ItemChosenListener {
-                @Override
+		@Override
 		public void itemChosen(@NonNull PulldownMenu menu, int item_index) {
 			if (item_index == INDEX_NATIVES && (!Settings.getSettings().has_native_campaign)) {
 				menu.chooseItem(INDEX_VIKINGS);

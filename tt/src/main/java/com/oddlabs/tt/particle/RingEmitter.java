@@ -41,7 +41,7 @@ public final class RingEmitter extends LinearEmitter {
 		this.num_particles = num_particles;
 	}
 
-    @Override
+	@Override
 	protected int initParticle(Vector3f position, @NonNull Vector3f velocity, @NonNull Vector3f acceleration, @NonNull Vector4f color, @NonNull Vector4f delta_color, @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy) {
 		float angle = 2*(float)Math.PI/num_particles;
 		for (int i = 0; i < num_particles; i++) {

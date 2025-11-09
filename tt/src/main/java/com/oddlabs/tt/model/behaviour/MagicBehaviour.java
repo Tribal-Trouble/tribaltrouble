@@ -25,12 +25,12 @@ public final class MagicBehaviour implements Behaviour {
 		init();
 	}
 
-    @Override
+	@Override
 	public boolean isBlocking() {
 		return true;
 	}
 
-    @Override
+	@Override
 	public int animate(float t) {
 		anim_time -= t;
 		switch (state) {
@@ -66,7 +66,7 @@ public final class MagicBehaviour implements Behaviour {
 		unit.switchAnimation(1f/magic_factory.getSecondsPerAnim(), Unit.ANIMATION_MAGIC);
 	}
 
-    @Override
+	@Override
 	public void forceInterrupted() {
 		if (magic != null)
 			magic.interrupt();

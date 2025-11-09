@@ -15,23 +15,23 @@ public abstract class ButtonObject extends GUIObject {
 		return pressed;
 	}
 
-        @Override
+	@Override
 	protected final void mouseReleased(int button, int x, int y) {
 		pressed = false;
 	}
 
-        @Override
+	@Override
 	protected final void mousePressed(int button, int x, int y) {
 		pressed = true;
 	}
 
-        @Override
+	@Override
 	protected void mouseHeld(int button, int x, int y) {
 		if (pressed)
 			mousePressedAll(button, x, y);
 	}
 
-        @Override
+	@Override
 	public void setDisabled(boolean disabled) {
 		if (disabled)
 			pressed = false;

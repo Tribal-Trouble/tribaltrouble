@@ -84,7 +84,7 @@ System.out.println("x = " + x + " | y = " + y + " | clip_left = " + clip_left + 
 		return height;
 	}
 
-        @Override
+	@Override
 	public final @NonNull String toString() {
 		return "u1 = " + u1 + " | v1 = " + v1 + " | u2 = " + u2 + " | v2 = " + v2 + " | width = " + width + " | height = " + height;
 	}

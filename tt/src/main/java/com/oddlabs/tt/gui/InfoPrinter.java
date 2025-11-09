@@ -38,25 +38,25 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 		return gui_root;
 	}
 
-        @Override
+	@Override
 	protected void doAdd() {
 		super.doAdd();
 		Network.getChatHub().addListener(this);
 	}
 
-        @Override
+	@Override
 	protected void doRemove() {
 		super.doRemove();
 		Network.getChatHub().removeListener(this);
 		LocalEventQueue.getQueue().getManager().removeAnimation(this);
 	}
 
-        @Override
+	@Override
 	protected void displayChangedNotify(int width, int height) {
 		setDim(width, height);
 	}
 
-        @Override
+	@Override
 	public void chat(@NonNull ChatMessage message) {
 		chat(message.formatShort(), message.type);
 	}
@@ -104,7 +104,7 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 		setLabelsPos();
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
 		time += t;
 		for (int i = timers.size() - 1; i >= 0; i--) {
@@ -115,11 +115,11 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 		}
 	}
 
-        @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {
 	}
 

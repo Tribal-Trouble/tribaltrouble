@@ -199,7 +199,7 @@ public abstract class GUIObject extends Renderable {
 		return this == getGlobalFocus();
 	}
 
-        @Override
+	@Override
 	public final boolean isFocusable() {
 		return can_focus;
 	}
@@ -239,7 +239,7 @@ public abstract class GUIObject extends Renderable {
 		focused_child = gui_object;
 	}
 
-        @Override
+	@Override
 	public void addChild(@NonNull Renderable child) {
 		super.addChild(child);
 		GUIObject current;
@@ -256,7 +256,7 @@ public abstract class GUIObject extends Renderable {
 		return tab_order;
 	}
 
-        @Override
+	@Override
 	public final void removeChild(@NonNull Renderable child) {
 		GUIObject current;
 		if (child == focused_child) {

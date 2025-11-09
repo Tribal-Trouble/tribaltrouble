@@ -8,7 +8,7 @@ public final class FromMapModeTrigger extends TutorialTrigger {
 		super(.1f, 1f, "from_map_mode");
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		if (tutorial.getViewer().getDelegate().getCamera() instanceof GameCamera)
 			tutorial.next(new SelectUnitTrigger());

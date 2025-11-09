@@ -22,7 +22,7 @@ public abstract class RotatingThrowingWeapon extends ThrowingWeapon {
 		return angle;
 	}
 
-        @Override
+	@Override
 	public final void animate(float t) {
 		super.animate(t);
 		setAngle(getAngle() + getAngleVelocity()*t);
@@ -30,7 +30,7 @@ public abstract class RotatingThrowingWeapon extends ThrowingWeapon {
 
 	protected abstract float getAngleVelocity();
 
-        @Override
+	@Override
 	public final void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitRotatingThrowingWeapon(this);
 	}

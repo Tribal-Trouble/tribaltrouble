@@ -74,7 +74,7 @@ public final class SonicBlast implements Magic {
 				1f));
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
 		time = Math.min(time + t, seconds);
 		if (time >= seconds) {
@@ -154,11 +154,11 @@ public final class SonicBlast implements Magic {
 		return result;
 	}
 
-        @Override
+	@Override
 	public void updateChecksum(StateChecksum checksum) {
 	}
 
-        @Override
+	@Override
 	public void interrupt() {
 		if (lur != null) {
 			lur.stop(.2f, Settings.getSettings().sound_gain);

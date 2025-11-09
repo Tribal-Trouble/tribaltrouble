@@ -13,17 +13,17 @@ public final class FinderTrackerAlgorithm<O extends Occupant> implements Tracker
 		this.filter = filter;
 	}
 
-    @Override
+	@Override
 	public boolean isDone(int x, int y) {
 		return target != null && !target.isDead() && Selectable.isCloseEnough(unit_grid, 0f, x, y, target);
 	}
 
-    @Override
+	@Override
 	public boolean acceptRegion(Region region) {
 		return filter.getOccupantFromRegion(region, true) != null;
 	}
 
-    @Override
+	@Override
 	public @Nullable Region findPathRegion(int src_x, int src_y) {
 		TargetRegionFinder region_finder = new TargetRegionFinder(unit_grid, filter);
 		Region region = PathFinder.findPathRegion(unit_grid, region_finder, unit_grid.getRegion(src_x, src_y));
@@ -38,7 +38,7 @@ public final class FinderTrackerAlgorithm<O extends Occupant> implements Tracker
                 : target;
 	}
 
-    @Override
+	@Override
 	public @Nullable GridPathNode findPathGrid(Region target_region, Region next_region, int src_x, int src_y, boolean allow_secondary_targets) {
 		O hint_occupant = filter.getOccupantFromRegion(target_region, true);
 		TargetFinderAlgorithm<O> grid_finder = new TargetFinderAlgorithm<>(unit_grid, filter, next_region, hint_occupant.getGridX(), hint_occupant.getGridY(), allow_secondary_targets);

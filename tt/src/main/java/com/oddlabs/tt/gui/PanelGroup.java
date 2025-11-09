@@ -61,12 +61,12 @@ public final class PanelGroup extends GUIObject {
 		panels[index].setFocus();
 	}
 
-        @Override
+	@Override
 	public void setFocus() {
 		focus_group.setGroupFocus(LocalInput.isShiftDownCurrently() ? -1 : 1);
 	}
 
-        @Override
+	@Override
 	protected void renderGeometry() {}
 
 	private final class PanelBox extends GUIObject {
@@ -75,7 +75,7 @@ public final class PanelGroup extends GUIObject {
 			setPos(0, 0);
 		}
 
-                @Override
+		@Override
 		protected void renderGeometry() {
 			Skin.getSkin().getPanelData().getBox().render(0, 0, getWidth(), getHeight(), panels[selected].getTab().getRenderState());
 		}
@@ -88,16 +88,16 @@ public final class PanelGroup extends GUIObject {
 			this.index = index;
 		}
 
-                @Override
+		@Override
 		public void mousePressed(int button, int x, int y) {
 			selectPanel(index);
 		}
 
-                @Override
+		@Override
 		public void mouseReleased(int button, int x, int y) {}
-                @Override
+		@Override
 		public void mouseHeld(int button, int x, int y) {}
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {}
 	}
 }

@@ -29,7 +29,7 @@ final class AttackNotification extends Notification {
 			getTimer().resetTime();
 	}
 
-        @Override
+	@Override
 	public void update(Object anim) {
 		if (active) {
 			active = false;

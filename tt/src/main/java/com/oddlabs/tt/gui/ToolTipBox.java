@@ -16,7 +16,7 @@ public final class ToolTipBox extends TextField {
 		tool_tip_renderer = new TextLineRenderer(getFont());
 	}
 	
-        @Override
+	@Override
 	protected void renderGeometry() {
 		throw new RuntimeException();
 	}
@@ -25,7 +25,7 @@ public final class ToolTipBox extends TextField {
 		this.icons = icons;
 	}
 
-        @Override
+	@Override
 	public void clear() {
 		super.clear();
 		icons = null;

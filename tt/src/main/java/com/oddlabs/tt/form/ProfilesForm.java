@@ -77,12 +77,12 @@ public final class ProfilesForm extends Form {
 		compileCanvas();
 	}
 
-        @Override
+	@Override
 	public void setFocus() {
 		join_button.setFocus();
 	}
 
-        @Override
+	@Override
 	protected void doCancel() {
 		Network.getMatchmakingClient().close();
 	}
@@ -111,7 +111,7 @@ public final class ProfilesForm extends Form {
 	}
 
 	private final class CreateProfileListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			new_profile_form = new NewProfileForm(gui_root, main_menu, ProfilesForm.this);
 			main_menu.setMenu(new_profile_form);
@@ -119,7 +119,7 @@ public final class ProfilesForm extends Form {
 	}
 
 	private final class DeleteProfileListener implements MouseClickListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			String nick = (String)profile_list_box.getSelected();
 			if (nick == null) {
@@ -147,7 +147,7 @@ public final class ProfilesForm extends Form {
 			this.nick = nick;
 		}
 
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			Network.getMatchmakingClient().deleteProfile(nick);
 			Network.getMatchmakingClient().requestProfiles();
@@ -155,7 +155,7 @@ public final class ProfilesForm extends Form {
 	}
 
 	private final class JoinListener implements MouseClickListener, RowListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			String nick = (String)profile_list_box.getSelected();
 			if (nick == null) {
@@ -165,14 +165,14 @@ public final class ProfilesForm extends Form {
 			}
 		}
 
-                @Override
+		@Override
 		public void rowDoubleClicked(Object row_context) {
 			String nick = (String)row_context;
 			if (nick != null)
 				join(nick);
 		}
 
-                @Override
+		@Override
 		public void rowChosen(Object row_context) {
 		}
 	}

@@ -9,7 +9,7 @@ public final class CancelListener implements MouseClickListener {
 		this.form = form;
 	}
 
-    @Override
+	@Override
 	public void mouseClicked(int button, int x, int y, int clicks) {
 		form.cancel();
 	}

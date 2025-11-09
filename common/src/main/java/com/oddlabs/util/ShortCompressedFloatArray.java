@@ -62,7 +62,7 @@ public final class ShortCompressedFloatArray implements Serializable {
 		return result;
 	}
 
-        @Override
+	@Override
 	public @NonNull String toString() {
 		float[] array = getFloatArray();
 		String result = "";

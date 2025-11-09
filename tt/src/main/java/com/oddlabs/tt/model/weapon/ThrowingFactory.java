@@ -22,7 +22,7 @@ public final class ThrowingFactory extends WeaponFactory {
 		this.hit_sounds = hit_sounds;
 	}
 
-        @Override
+	@Override
 	protected void doAttack(boolean hit, Unit src, Selectable target) {
 		Object[] args = new Object[]{hit, src, target, weapon_sprite, throw_sound, hit_sounds};
 		try {
@@ -32,7 +32,7 @@ public final class ThrowingFactory extends WeaponFactory {
 		}
 	}
 
-        @Override
+	@Override
 	public Class<? extends ThrowingWeapon> getType() {
 		return weapon_type;
 	}

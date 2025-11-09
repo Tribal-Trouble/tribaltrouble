@@ -16,17 +16,17 @@ final class TreeRenderState implements LODObject {
 		this.tree_supply = tree_supply;
 	}
 
-    @Override
+	@Override
 	public void markDetailPoint() {
 		tree_renderer.addToLowDetailRenderList(tree_supply);
 	}
 
-    @Override
+	@Override
 	public void markDetailPolygon(PolyDetail level) {
 		tree_renderer.markDetailPolygon(tree_supply, level);
 	}
 
-    @Override
+	@Override
 	public int getTriangleCount(@NonNull PolyDetail level) {
         int index = level.ordinal();
 		Tree tree = tree_renderer.getTrees()[tree_supply.getTreeTypeIndex()];
@@ -37,7 +37,7 @@ final class TreeRenderState implements LODObject {
         };
 	}
 
-    @Override
+	@Override
 	public float getEyeDistanceSquared() {
 		CameraState camera = tree_renderer.getCamera();
 		return RenderTools.getEyeDistanceSquared(tree_supply, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());

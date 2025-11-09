@@ -12,12 +12,12 @@ public final class NullController extends Controller {
 		this.selectable = s;
 	}
 
-    @Override
+	@Override
 	public @NonNull String getKey() {
 		return super.getKey() + selectable.getAbilities().hasAbilities(Abilities.BUILD_ARMIES) + selectable.getAbilities().hasAbilities(Abilities.REPRODUCE) + selectable.getAbilities().hasAbilities(Abilities.ATTACK);
 	}
 
-    @Override
+	@Override
 	public void decide() {
 		selectable.setBehaviour(new NullBehaviour());
 	}

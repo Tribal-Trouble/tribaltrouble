@@ -12,7 +12,7 @@ public class GUIIcon extends GUIObject {
 		this.icon_quad = icon;
 	}
 
-        @Override
+	@Override
 	public void renderGeometry() {
 		icon_quad.render(0, 0);
 	}

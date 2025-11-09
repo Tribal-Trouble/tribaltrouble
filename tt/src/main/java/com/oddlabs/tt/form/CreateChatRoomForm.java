@@ -64,12 +64,12 @@ public final class CreateChatRoomForm extends Form {
 		compileCanvas();
 	}
 
-        @Override
+	@Override
 	public void setFocus() {
 		editline_name.setFocus();
 	}
 
-        @Override
+	@Override
 	protected void doCancel() {
 		main_menu.setMenuCentered(menu);
 	}
@@ -86,12 +86,12 @@ public final class CreateChatRoomForm extends Form {
 	}
 
 	private final class OKListener implements MouseClickListener, EnterListener {
-                @Override
+		@Override
 		public void mouseClicked(int button, int x, int y, int clicks) {
 			create();
 		}
 
-                @Override
+		@Override
 		public void enterPressed(CharSequence text) {
 			create();
 		}

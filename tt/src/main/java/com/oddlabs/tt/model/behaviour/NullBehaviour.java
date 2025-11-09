@@ -6,17 +6,17 @@ public final class NullBehaviour implements Behaviour {
 	public NullBehaviour() {
 	}
 
-    @Override
+	@Override
 	public int animate(float t) {
 		return Selectable.INTERRUPTIBLE;
 	}
 
-    @Override
+	@Override
 	public boolean isBlocking() {
 		return true;
 	}
 
-    @Override
+	@Override
 	public void forceInterrupted() {
 	}
 }

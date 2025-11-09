@@ -9,7 +9,7 @@ public final class HarvestMenuTrigger extends TutorialTrigger {
 		local_player.enableHarvesting(true);
 	}
 
-        @Override
+	@Override
 	protected void run(@NonNull Tutorial tutorial) {
 		if (tutorial.getViewer().getPanel().inHarvestMenu())
 			tutorial.next(new SupplyTrigger(tutorial.getViewer().getLocalPlayer()));

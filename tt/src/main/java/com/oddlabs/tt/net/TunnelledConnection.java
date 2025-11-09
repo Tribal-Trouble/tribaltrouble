@@ -36,7 +36,7 @@ public final class TunnelledConnection extends AbstractConnection {
 		Network.getMatchmakingClient().getInterface().acceptTunnel(address);
 	}
 
-        @Override
+	@Override
 	public void handle(ARMIEvent event) {
 		Network.getMatchmakingClient().getInterface().routeEvent(address, event);
 		writeBufferDrained();
@@ -46,7 +46,7 @@ public final class TunnelledConnection extends AbstractConnection {
 		return address;
 	}
 
-        @Override
+	@Override
 	protected void doClose() {
 		if (open) {
 			Network.getMatchmakingClient().unregisterTunnel(address, this);

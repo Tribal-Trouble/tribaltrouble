@@ -9,13 +9,13 @@ public final class ElementLeaf<T> extends AbstractElementNode<T> {
 		setBounds(x*HeightMap.METERS_PER_UNIT_GRID, (x + size)*HeightMap.METERS_PER_UNIT_GRID, y*HeightMap.METERS_PER_UNIT_GRID, (y + size)*HeightMap.METERS_PER_UNIT_GRID, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY);
 	}
 
-    @Override
+	@Override
 	protected @NonNull AbstractElementNode<T> doInsertElement(@NonNull Element<T> model) {
 		incElementCount();
 		return addElement(model);
 	}
 
-    @Override
+	@Override
 	public void visit(@NonNull ElementNodeVisitor<T> visitor) {
 		visitor.visitLeaf(this);
 	}

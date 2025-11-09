@@ -21,19 +21,19 @@ public final class FreeQuitLabel extends Label implements Animated {
 		this.manager = manager;
 	}
 	
-        @Override
+	@Override
 	protected void doAdd() {
 		super.doAdd();
 		manager.registerAnimation(this);
 	}
 
-        @Override
+	@Override
 	protected void doRemove() {
 		super.doRemove();
 		manager.removeAnimation(this);
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
 		int time_left = (int)PeerHub.getFreeQuitTimeLeft(world);
 		if (time_left > 0) {
@@ -42,7 +42,7 @@ public final class FreeQuitLabel extends Label implements Animated {
 		}
 	}
 
-        @Override
+	@Override
 	public void updateChecksum(StateChecksum check_sum) {
 	}
 }

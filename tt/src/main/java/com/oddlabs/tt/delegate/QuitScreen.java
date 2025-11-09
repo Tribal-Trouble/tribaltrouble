@@ -42,13 +42,13 @@ public final class QuitScreen extends CameraDelegate implements Updatable {
 		quit_root.pushDelegate(this);
 	}
 
-    @Override
+	@Override
 	public void displayChangedNotify(int width, int height) {
 		setDim(width, height);
 		overlay.setDim(width, height);
 	}
 
-    @Override
+	@Override
 	public void update(Object anim) {
 		delay_timer.stop();
 		time_out = true;
@@ -60,13 +60,13 @@ public final class QuitScreen extends CameraDelegate implements Updatable {
 			Renderer.shutdown();
 	}
 
-    @Override
+	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		key_pressed = true;
 		quit();
 	}
 
-    @Override
+	@Override
 	protected void mouseClicked(int button, int x, int y, int clicks) {
 		key_pressed = true;
 		quit();

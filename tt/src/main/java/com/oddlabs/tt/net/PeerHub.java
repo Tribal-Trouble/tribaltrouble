@@ -131,14 +131,14 @@ public final class PeerHub implements Animated, RouterHandler {
 		router_client.connect(session_id, new SessionInfo(num_participants, MILLISECONDS_PER_HEARTBEAT), local_peer_index);
 	}
 
-        @Override
+	@Override
 	public void routerFailed(Exception e) {
 			IO.println("Router failed with exception: " + e);
 		closeNetwork();
 		stall_handler.peerhubFailed();
 	}
 
-        @Override
+	@Override
 	public void heartbeat(int millis) {
 		if (millis < server_millis) {
 			routerFailed(new IOException("Invalid time received: " + millis + " (tick currently at " + getTick() + ")"));
@@ -147,7 +147,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		server_millis = millis;
 	}
 
-        @Override
+	@Override
 	public void receiveEvent(int client_id, @NonNull ARMIEvent event) {
 		Peer peer = getPeerFromClientID(client_id);
 		if (peer == null) {
@@ -161,7 +161,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		}
 	}
 
-        @Override
+	@Override
 	public void receiveGameStateEvent(int client_id, int millis, ARMIEvent event) {
 		if (millis < server_millis) {
 			routerFailed(new IOException("Invalid time received for event: " + millis + " (tick currently at " + getTick() + ")"));
@@ -176,7 +176,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		peer.addEvent(millisToTickCeil(millis), event);
 	}
 
-        @Override
+	@Override
 	public void playerDisconnected(int client_id, boolean checksum_error) {
 		Peer peer = getPeerFromClientID(client_id);
 		if (checksum_error)
@@ -202,7 +202,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		return peer_index_to_peer[client_id];
 	}
 
-        @Override
+	@Override
 	public void start() {
 		is_synchronized = true;
 	}
@@ -235,7 +235,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		return millis/AnimationManager.ANIMATION_MILLISECONDS_PER_TICK - pause_ticks;
 	}
 
-        @Override
+	@Override
 	public void animate(float t) {
 		if (router != null)
 			router.process();
@@ -329,7 +329,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		peer.getPlayer().setPreferredGamespeed(World.GAMESPEED_DONTCARE);
 	}
 
-        @Override
+	@Override
 	public void updateChecksum(@NonNull StateChecksum sum) {
 		sum.update(getTick());
 		sum.update(checksum.getValue());
