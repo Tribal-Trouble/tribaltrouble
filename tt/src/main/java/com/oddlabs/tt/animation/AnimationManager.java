@@ -127,7 +127,7 @@ public final class AnimationManager {
 		frozen_start_time = timeSource.getMillis();
 	}
 
-    @SuppressWarnings("UseOfSystemOutOrSystemErr")
+	@SuppressWarnings("UseOfSystemOutOrSystemErr")
 	public static void runGameLoop(@NonNull NetworkSelector network, @NonNull GUI gui, boolean grab_frames) {
 		KeyboardInput.checkMagicKeys();
 		if (time_frozen && !time_stopped)

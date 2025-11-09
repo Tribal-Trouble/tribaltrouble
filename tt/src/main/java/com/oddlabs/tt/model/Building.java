@@ -662,7 +662,7 @@ public final class Building extends Selectable implements Occupant {
         }
 	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	private void occupy() {
 		UnitGrid grid = getUnitGrid();
 		grid.getRegion(getGridX(), getGridY()).registerObject((Class<Building>) getClass(), this);
@@ -674,7 +674,7 @@ public final class Building extends Selectable implements Occupant {
         }
 	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	private void free() {
 		UnitGrid grid = getUnitGrid();
 		grid.getRegion(getGridX(), getGridY()).unregisterObject((Class<Building>) getClass(), this);

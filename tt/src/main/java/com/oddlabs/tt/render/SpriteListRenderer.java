@@ -13,7 +13,7 @@ final class SpriteListRenderer {
 	private final List<ModelState>[] @NonNull [] respond_render_lists;
 	private final SpriteBatch batch = new SpriteBatch();
 
-        @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	SpriteListRenderer(@NonNull SpriteList sprite_list) {
 		this.sprite_list = sprite_list;
 		int num_sprites = sprite_list.getNumSprites();

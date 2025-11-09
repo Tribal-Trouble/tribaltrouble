@@ -29,7 +29,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 	private float scale_y = 1f;
 	private float scale_z = 1f;
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public Emitter(@NonNull World world, Vector3f position, int src_blend_func, int dst_blend_func, TextureKey[] textures, SpriteKey[] sprite_renderers, int types, AnimationManager manager) {
 		super(world.getElementRoot());
 		this.world = world;

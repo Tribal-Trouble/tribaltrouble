@@ -24,7 +24,7 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 	private int num_supplies;
 	private int hit_counter = 0;
 
-        @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public SupplyModel(@NonNull World world, SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, int num_supplies, boolean increase_count) {
 		super(world);
 		this.sprite_renderer = sprite_renderer;
@@ -85,7 +85,7 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 		return isEmpty();
 	}
 
-        @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	private void decreaseSupply() {
 		num_supplies--;
 		if (isEmpty()) {

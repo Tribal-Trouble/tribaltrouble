@@ -128,7 +128,7 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 	}
 
     @Override
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public void setGridPosition(int grid_x, int grid_y) {
 		Region current_region = getWorld().getUnitGrid().getRegion(getGridX(), getGridY());
 		Region new_region = getWorld().getUnitGrid().getRegion(grid_x, grid_y);
