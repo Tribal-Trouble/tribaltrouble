@@ -17,7 +17,7 @@ public final class UIRenderer {
 	private static @Nullable SpriteBatchRenderer batchRenderer;
 	private static final @NonNull MatrixStack modelViewStack = new MatrixStack();
 	private static final @NonNull MatrixStack projectionStack = new MatrixStack();
-	
+
 	private UIRenderer() {}
 	
 	public static void initialize() {
@@ -32,20 +32,22 @@ public final class UIRenderer {
 			System.err.println("Failed to initialize UI shader: " + e.getMessage());
 		}
 	}
-	
+
 	public static void syncMatrices() {
 		if (batchRenderer == null) {
 			return;
 		}
-		
+
 		FloatBuffer mvBuffer = BufferUtils.createFloatBuffer(16);
 		FloatBuffer pBuffer = BufferUtils.createFloatBuffer(16);
-		
+
 		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, mvBuffer);
+		mvBuffer.flip();
 		GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, pBuffer);
-		
-		modelViewStack.current().load(mvBuffer);
-		projectionStack.current().load(pBuffer);
+		pBuffer.flip();
+
+		modelViewStack.current().set(mvBuffer);
+		projectionStack.current().set(pBuffer);
 	}
 	
 	public static void drawQuad(float x, float y, float width, float height,

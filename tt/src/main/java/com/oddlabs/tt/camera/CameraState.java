@@ -13,6 +13,7 @@ public final class CameraState {
 	private final static Vector3f vector = new Vector3f();
 
 	private final Matrix4f modl = new Matrix4f();
+	private final Matrix4f proj = new Matrix4f();
 	private final Matrix4f proj_modl = new Matrix4f();
 	private final float[][] frustum = new float[6][4];
 	private final Vector3f f = new Vector3f();
@@ -127,6 +128,7 @@ public final class CameraState {
 		vert_angle = camera.vert_angle;
 		horiz_angle = camera.horiz_angle;
 		modl.load(camera.modl);
+		proj.load(camera.proj);
 		proj_modl.load(camera.proj_modl);
 		for (int i = 0; i < frustum.length; i++) {
             System.arraycopy(camera.frustum[i], 0, frustum[i], 0, frustum[i].length);
@@ -210,6 +212,10 @@ public final class CameraState {
 		return modl;
 	}
 
+	public @NonNull Matrix4f getProjectionMatrix() {
+		return proj;
+	}
+
 	public @NonNull Matrix4f getProjectionModelView() {
 		return proj_modl;
 	}
@@ -238,6 +244,7 @@ public final class CameraState {
 		modl.m23 = 0;
 		modl.m33 = 1;
 		modl.translate(vector);
+		this.proj.load(proj);
 		Matrix4f.mul(proj, modl, proj_modl);
 		findFrustumPlanes(proj_modl);
 	}

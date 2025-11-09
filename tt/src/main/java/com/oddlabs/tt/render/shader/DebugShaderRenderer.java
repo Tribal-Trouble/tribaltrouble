@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render.shader;
 
 import com.oddlabs.tt.render.MatrixStack;
+import com.oddlabs.tt.util.GLUtils; // Added import for GLUtils
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -79,20 +80,27 @@ public final class DebugShaderRenderer {
 		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboHandle);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexBuffer, GL15.GL_STREAM_DRAW);
+		GLUtils.checkGLError("DebugShaderRenderer.flush() - after glBufferData()"); // Error check
 		
 		shader.use();
+		GLUtils.checkGLError("DebugShaderRenderer.flush() - after shader.use()"); // Error check
+		
 		shader.setUniformMatrix4(FixedFunctionShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.toBuffer());
 		shader.setUniformMatrix4(FixedFunctionShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.toBuffer());
 		shader.setUniform(FixedFunctionShader.Uniforms.ENABLE_LIGHTING, 0);
 		shader.setUniform(FixedFunctionShader.Uniforms.ENABLE_TEXTURE, 0);
+		GLUtils.checkGLError("DebugShaderRenderer.flush() - after setting uniforms()"); // Error check
 		
 		layout.bind(shader);
+		GLUtils.checkGLError("DebugShaderRenderer.flush() - after layout.bind()"); // Error check
 		
 		GL11.glDrawArrays(mode, 0, vertexCount);
+		GLUtils.checkGLError("DebugShaderRenderer.flush() - after glDrawArrays()"); // Error check
 		
 		layout.unbind(shader);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		ShaderProgram.unbind();
+		GLUtils.checkGLError("DebugShaderRenderer.flush() - after ShaderProgram.unbind()"); // Error check
 		
 		vertexCount = 0;
 	}

@@ -11,6 +11,8 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger; // Added import for Logger
 
 public final class GLUtils {
 	public final static String SCREENSHOT_DEFAULT = "screenshot";
@@ -18,6 +20,7 @@ public final class GLUtils {
 	private final static @NonNull ByteBuffer byte_buf = BufferUtils.createByteBuffer(16);
 	private final static IntBuffer int_buf = BufferUtils.createIntBuffer(16);
 	private final static FloatBuffer plane = BufferUtils.createFloatBuffer(Float.BYTES);
+    private static final Logger logger = Logger.getLogger(GLUtils.class.getName()); // Added Logger
 
 	public static @NonNull GLIntImage loadAsGLImage(@NonNull String location) {
 		Image img = null;
@@ -99,6 +102,35 @@ public final class GLUtils {
 		pixel_data.saveAsPNG(filename);
 		System.gc();
 	}
+
+    /**
+     * Checks for OpenGL errors and logs them.
+     * @param message A descriptive message for the context of the OpenGL call.
+     */
+    public static void checkGLError(@NonNull String message) {
+        int error = GL11.glGetError();
+        if (error != GL11.GL_NO_ERROR) {
+            logger.log(Level.WARNING, "OpenGL Error (" + message + "): " + errorToString(error), new Throwable("stacktrace"));
+        }
+    }
+
+    /**
+     * Converts an OpenGL error code to a descriptive string.
+     * @param error The OpenGL error code.
+     * @return A string representation of the error.
+     */
+    private static @NonNull String errorToString(int error) {
+        return switch (error) {
+            case GL11.GL_NO_ERROR -> "GL_NO_ERROR";
+            case GL11.GL_INVALID_ENUM -> "GL_INVALID_ENUM";
+            case GL11.GL_INVALID_VALUE -> "GL_INVALID_VALUE";
+            case GL11.GL_INVALID_OPERATION -> "GL_INVALID_OPERATION";
+            case GL11.GL_STACK_OVERFLOW -> "GL_STACK_OVERFLOW";
+            case GL11.GL_STACK_UNDERFLOW -> "GL_STACK_UNDERFLOW";
+            case GL11.GL_OUT_OF_MEMORY -> "GL_OUT_OF_MEMORY";
+            default -> "Unknown OpenGL Error: " + error;
+        };
+    }
 
     private GLUtils() {
     }

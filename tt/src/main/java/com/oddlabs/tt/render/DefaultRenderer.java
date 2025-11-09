@@ -60,8 +60,6 @@ public final class DefaultRenderer implements UIRenderer {
             return;
         }
         
-        syncMatrixStacks();
-        
         float center = world.getHeightMap().getMetersPerWorld() / 2;
         float z = world.getHeightMap().getNearestHeight(center, center);
         
@@ -76,7 +74,7 @@ public final class DefaultRenderer implements UIRenderer {
         
         // Y axis - green
         debugRenderer.vertex(center, center, z, 0, 1, 0);
-        debugRenderer.vertex(center, center + 10, z, 0, 1, 0);
+        debugRenderer.vertex(center, center + 10, z, 0, 1, 0); 
         
         // Z axis - blue
         debugRenderer.vertex(center, center, z, 0, 0, 1);
@@ -121,17 +119,6 @@ public final class DefaultRenderer implements UIRenderer {
         }
     }
     
-    private void syncMatrixStacks() {
-        FloatBuffer mvBuffer = BufferUtils.createFloatBuffer(16);
-        FloatBuffer pBuffer = BufferUtils.createFloatBuffer(16);
-        
-        GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, mvBuffer);
-        GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, pBuffer);
-        
-        modelViewStack.current().load(mvBuffer);
-        projectionStack.current().load(pBuffer);
-    }
-
     @Override
     public void renderGUI(@NonNull GUIRoot gui_root) {
         if (cheat.isEnabled())
@@ -250,6 +237,10 @@ public final class DefaultRenderer implements UIRenderer {
             render_queues.renderAll();
         }
 
+        // Update debug renderer's matrix stacks from camera state
+        modelViewStack.current().set(toJOML(frustum_state.getModelView()));
+        projectionStack.current().set(toJOML(frustum_state.getProjectionMatrix()));
+
         drawAxes();
 
         if (Globals.draw_water)
@@ -266,7 +257,9 @@ public final class DefaultRenderer implements UIRenderer {
         float landscape_y = frustum_state.getCurrentY();
         
         if (Globals.isBoundsEnabled(BoundingMode.REGIONS)) {
-            syncMatrixStacks();
+            // Update debug renderer's matrix stacks from camera state
+            modelViewStack.current().set(toJOML(frustum_state.getModelView()));
+            projectionStack.current().set(toJOML(frustum_state.getProjectionMatrix()));
             world.getUnitGrid().debugRenderRegions(landscape_x, landscape_y);
         }
         
@@ -275,7 +268,9 @@ public final class DefaultRenderer implements UIRenderer {
         }
         
         if (Globals.isBoundsEnabled(BoundingMode.UNIT_GRID)) {
-            syncMatrixStacks();
+            // Update debug renderer's matrix stacks from camera state
+            modelViewStack.current().set(toJOML(frustum_state.getModelView()));
+            projectionStack.current().set(toJOML(frustum_state.getProjectionMatrix()));
             world.getUnitGrid().debugRender(landscape_x, landscape_y);
             // Render paths for selected units
             if (selection != null) {
@@ -288,8 +283,20 @@ public final class DefaultRenderer implements UIRenderer {
         }
         fog_info.disableFog();
         if (Globals.line_mode || (cheat.line_mode)) {
-            GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL);
+            GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL); 
             GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_FILL);
         }
+    }
+
+    /**
+     * Helper method to convert an LWJGL Matrix4f to a JOML Matrix4f.
+     * @param lwjglMatrix The LWJGL Matrix4f to convert.
+     * @return A new JOML Matrix4f with the same contents.
+     */
+    private static org.joml.@NonNull Matrix4f toJOML(org.lwjgl.util.vector.@NonNull Matrix4f lwjglMatrix) {
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+        lwjglMatrix.store(buffer);
+        buffer.flip(); // Flip after store to prepare for reading by JOML
+        return new org.joml.Matrix4f().set(buffer);
     }
 }

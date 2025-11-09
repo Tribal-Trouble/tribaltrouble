@@ -2,7 +2,7 @@ package com.oddlabs.tt.render;
 
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.util.vector.Matrix4f;
+import org.joml.Matrix4f;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
@@ -20,7 +20,7 @@ public final class MatrixStack {
 	
 	public void push() {
 		Matrix4f copy = new Matrix4f();
-		Matrix4f.load(current(), copy);
+		copy.set(current());
 		stack.push(copy);
 	}
 	
@@ -36,29 +36,29 @@ public final class MatrixStack {
 	}
 	
 	public void loadIdentity() {
-		current().setIdentity();
+		current().identity();
 	}
 	
 	public void translate(float x, float y, float z) {
-		Matrix4f.translate(new org.lwjgl.util.vector.Vector3f(x, y, z), current(), current());
+		current().translate(x, y, z);
 	}
 	
 	public void rotate(float angle, float x, float y, float z) {
-		Matrix4f.rotate(angle, new org.lwjgl.util.vector.Vector3f(x, y, z), current(), current());
+		current().rotate((float)Math.toRadians(angle), x, y, z);
 	}
 	
 	public void scale(float x, float y, float z) {
-		Matrix4f.scale(new org.lwjgl.util.vector.Vector3f(x, y, z), current(), current());
+		current().scale(x, y, z);
 	}
 	
 	public void multiply(@NonNull Matrix4f matrix) {
-		Matrix4f.mul(current(), matrix, current());
+		current().mul(matrix);
 	}
 	
 	public @NonNull FloatBuffer toBuffer() {
 		buffer.clear();
-		current().store(buffer);
-		buffer.flip();
+		current().get(buffer); // JOML's get() does not advance the buffer's position.
+		// Do NOT flip the buffer here. glUniformMatrix4fv reads from the current position.
 		return buffer;
 	}
 }
