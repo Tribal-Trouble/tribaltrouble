@@ -21,6 +21,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public final class World {
@@ -66,7 +67,7 @@ public final class World {
 		return new RacesResources(queues);
 	}
 
-	public static @NonNull World newWorld(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel @NonNull [] tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
+	public static @NonNull World newWorld(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
 		ProgressForm.progress();
 		World world = new World(audio_implementation, landscape_resources, races_resources, tree_low_details, notification_listener, world_params, world_info, terrain, player_infos, colors);
 		ProgressForm.progress();
@@ -142,7 +143,7 @@ public final class World {
 		return getAnimationManagerRealTime().getTick();
 	}
 
-	private World(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, LowDetailModel @NonNull [] tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
+	private World(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
 		IO.println("****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
 		this.landscape_resources = landscape_resources;
 		this.races_resources = races_resources;

@@ -15,7 +15,12 @@ import com.oddlabs.tt.util.BoundingBox;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.oddlabs.tt.landscape.AbstractTreeGroup.TreeType;
 
 
 class TreePicker implements TreeNodeVisitor {
@@ -29,8 +34,8 @@ class TreePicker implements TreeNodeVisitor {
 	private final BoundingBox picking_selection_box = new BoundingBox();
 	private final SpriteSorter sprite_sorter;
 	private final @NonNull RenderStateCache render_state_cache;
-	private final Tree @NonNull [] trees;
-	private final LowDetailModel @NonNull [] tree_low_details;
+	private final Map<@NonNull TreeType,@NonNull Tree> trees;
+	private final Map<@NonNull TreeType,@NonNull LowDetailModel> tree_low_details;
 	private final RespondManager respond_manager;
 	private CameraState camera;
 
@@ -47,7 +52,7 @@ class TreePicker implements TreeNodeVisitor {
 		render_state_cache = new RenderStateCache(() -> new TreeRenderState(TreePicker.this));
 	}
 
-	private static Tree @NonNull [] loadTrees() {
+	private static @NonNull Map<@NonNull TreeType,@NonNull Tree> loadTrees() {
 		SpriteList jungle_crown = Resources.findResource(new SpriteFile("/geometry/misc/jungle_tree_crown.binsprite", CROWN_MIPMAP_CUTOFF, false, false, true, false));
 		SpriteList jungle_trunk = Resources.findResource(new SpriteFile("/geometry/misc/jungle_tree_trunk.binsprite", CROWN_MIPMAP_CUTOFF, true, true, true, false));
 
@@ -60,20 +65,19 @@ class TreePicker implements TreeNodeVisitor {
 		SpriteList pine_crown = Resources.findResource(new SpriteFile("/geometry/misc/pine_tree_crown.binsprite", CROWN_MIPMAP_CUTOFF, false, false, true, false));
 		SpriteList pine_trunk = Resources.findResource(new SpriteFile("/geometry/misc/pine_tree_trunk.binsprite", CROWN_MIPMAP_CUTOFF, true, true, true, false));
 
-		Tree[] trees = new Tree[]{
-			new Tree(jungle_trunk, jungle_crown),
-			new Tree(palm_trunk, palm_crown),
-			new Tree(oak_trunk, oak_crown),
-			new Tree(pine_trunk, pine_crown)
-		};
+        var trees = new EnumMap<TreeType,@NonNull Tree>(TreeType.class);
+        trees.put(TreeType.JUNGLE, new Tree(jungle_trunk, jungle_crown));
+        trees.put(TreeType.PALM, new Tree(palm_trunk, palm_crown));
+        trees.put(TreeType.OAK, new Tree(oak_trunk, oak_crown));
+		trees.put(TreeType.PINE, new Tree(pine_trunk, pine_crown));
+		return Collections.unmodifiableMap(trees);
+	}
+
+	final @NonNull Map<@NonNull TreeType,@NonNull Tree> getTrees() {
 		return trees;
 	}
 
-	final Tree @NonNull [] getTrees() {
-		return trees;
-	}
-
-	final LowDetailModel @NonNull [] getLowDetails() {
+	final @NonNull Map<@NonNull TreeType,@NonNull LowDetailModel> getLowDetails() {
 		return tree_low_details;
 	}
 
@@ -117,7 +121,7 @@ class TreePicker implements TreeNodeVisitor {
 
 	public final void markDetailPolygon(@NonNull TreeSupply tree_supply, PolyDetail level) {
 		if (level == PolyDetail.HIGH_POLY || tree_supply.hasRespondingTrees()) {
-			addToHighDetailList(tree_supply.getTreeTypeIndex(), tree_supply, respond_manager.isResponding(tree_supply));
+			addToHighDetailList(tree_supply.getTreeType().ordinal(), tree_supply, respond_manager.isResponding(tree_supply));
 		} else
 			addToLowDetailRenderList(tree_supply);
 	}
@@ -160,23 +164,17 @@ class TreePicker implements TreeNodeVisitor {
 		}
 	}
 
-	private float getHeightScale(int tree_type_index) {
-		switch (tree_type_index) {
-			case AbstractTreeGroup.TREE_INDEX:
-				return .9f;
-			case AbstractTreeGroup.PALMTREE_INDEX:
-				return .95f;
-			case AbstractTreeGroup.OAKTREE_INDEX:
-				return .7f;
-			case AbstractTreeGroup.PINETREE_INDEX:
-				return .65f;
-			default:
-				throw new RuntimeException("Illegal enum: " + tree_type_index);
-		}
+	private float getHeightScale(@NonNull TreeType tree_type) {
+        return switch (tree_type) {
+            case JUNGLE -> .9f;
+            case PALM -> .95f;
+            case OAK -> .7f;
+            case PINE -> .65f;
+        };
 	}
 
 	private boolean pickingInFrustum(@NonNull TreeSupply tree_supply, float[][] frustum) {
-		picking_selection_box.setBounds(-SELECTION_RADIUS + tree_supply.getPositionX(), SELECTION_RADIUS + tree_supply.getPositionX(), -SELECTION_RADIUS + tree_supply.getPositionY(), SELECTION_RADIUS + tree_supply.getPositionY(), tree_supply.bmin_z, tree_supply.bmin_z + (tree_supply.bmax_z - tree_supply.bmin_z)*getHeightScale(tree_supply.getTreeTypeIndex()));
+		picking_selection_box.setBounds(-SELECTION_RADIUS + tree_supply.getPositionX(), SELECTION_RADIUS + tree_supply.getPositionX(), -SELECTION_RADIUS + tree_supply.getPositionY(), SELECTION_RADIUS + tree_supply.getPositionY(), tree_supply.bmin_z, tree_supply.bmin_z + (tree_supply.bmax_z - tree_supply.bmin_z)*getHeightScale(tree_supply.getTreeType()));
 		return RenderTools.inFrustum(picking_selection_box, frustum) >= RenderTools.IN_FRUSTUM;
 	}
 

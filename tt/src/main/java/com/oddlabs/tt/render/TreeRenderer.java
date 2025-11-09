@@ -51,12 +51,13 @@ public final class TreeRenderer extends TreePicker {
 		low_detail_render_list.clear();
 		List<TreeSupply>[] render_lists = getRenderLists();
 		List<TreeSupply>[] respond_render_lists = getRespondRenderLists();
+        AbstractTreeGroup.TreeType[] ordinals = AbstractTreeGroup.TreeType.values();
 		for (int i = 0; i < render_lists.length; i++) {
-            renderList(tree_low_detail.getTrees()[i], render_lists[i], false);
+            renderList(tree_low_detail.getTrees().get(ordinals[i]), render_lists[i], false);
         }
 		for (int i = 0; i < respond_render_lists.length; i++) {
             if (!respond_render_lists[i].isEmpty())
-                renderList(tree_low_detail.getTrees()[i], respond_render_lists[i], true);
+                renderList(tree_low_detail.getTrees().get(ordinals[i]), respond_render_lists[i], true);
         }
 	}
 

@@ -26,7 +26,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	private static final Matrix4f low_detail_matrix = new Matrix4f();
 
 	private final @NonNull Matrix4f matrix;
-	private final int tree_type_index;
+	private final @NonNull TreeType tree_type;
 	private final float x;
 	private final float y;
 	private final int grid_x;
@@ -46,7 +46,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		low_detail_x_axis.set(1f, 0f, 0f);
 	}
 
-	public TreeSupply(@NonNull World world, AbstractTreeGroup parent, float x, float y, int grid_x, int grid_y, int grid_size, float size, @NonNull Matrix4f matrix, int tree_type_index, float @NonNull [] vertices) {
+	public TreeSupply(@NonNull World world, AbstractTreeGroup parent, float x, float y, int grid_x, int grid_y, int grid_size, float size, @NonNull Matrix4f matrix, @NonNull TreeType tree_type, float @NonNull [] vertices) {
 		super(parent);
 		this.world = world;
 		this.x = x;
@@ -55,7 +55,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		this.grid_y = grid_y;
 		this.grid_size = grid_size;
 		this.size = size;
-		this.tree_type_index = tree_type_index;
+		this.tree_type = tree_type;
 		this.matrix = matrix;
 		Vector4f src = new Vector4f();
 		Vector4f dest = new Vector4f();
@@ -207,14 +207,14 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		if (isEmpty()) {
 			unoccupyTree();
 			world.getSupplyManager(getClass()).emptySupply(this);
-			world.getAudio().newAudio(new AudioParameters<>(world.getRacesResources().getTreeFallSound()[tree_type_index%2]/* reusing native tree sounds*/, getCX(), getCY(), getCZ(), AudioPlayer.AUDIO_RANK_TREE_FALL, AudioPlayer.AUDIO_DISTANCE_TREE_FALL, AudioPlayer.AUDIO_GAIN_TREE_FALL, AudioPlayer.AUDIO_RADIUS_TREE_FALL));
+			world.getAudio().newAudio(new AudioParameters<>(world.getRacesResources().getTreeFallSound()[tree_type.ordinal()%2]/* reusing native tree sounds*/, getCX(), getCY(), getCZ(), AudioPlayer.AUDIO_RANK_TREE_FALL, AudioPlayer.AUDIO_DISTANCE_TREE_FALL, AudioPlayer.AUDIO_GAIN_TREE_FALL, AudioPlayer.AUDIO_RADIUS_TREE_FALL));
 			world.getAnimationManagerRealTime().registerAnimation(this);
 			animation_time = 0f;
 		}
 	}
 
-	public int getTreeTypeIndex() {
-		return tree_type_index;
+	public @NonNull TreeType getTreeType() {
+		return tree_type;
 	}
 
 	@Override

@@ -24,6 +24,9 @@ import org.lwjgl.util.vector.Vector4f;
 
 import java.nio.FloatBuffer;
 import java.util.List;
+import java.util.Map;
+
+import static com.oddlabs.tt.landscape.AbstractTreeGroup.TreeType;
 
 public final class TreeLowDetail {
 	private final static Vector4f src = new Vector4f();
@@ -34,45 +37,39 @@ public final class TreeLowDetail {
 	private final @NonNull FloatVBO texcoords;
 	private final @NonNull ShortVBO tree_indices;
 	private final Texture @NonNull [] lowdetail_textures;
-	private final Tree[] trees;
-	private final LowDetailModel[] low_details;
+	private final @NonNull Map<@NonNull TreeType,@NonNull Tree> trees;
+	private final @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> low_details;
 
 	private final Landscape.@NonNull TerrainType terrain;
 
 	private int current_vertex_index;
 
-	public TreeLowDetail(World world, Tree[] trees, LowDetailModel[] tree_low_details, @NonNull List<int[]> tree_positions, @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
+	public TreeLowDetail(@NonNull World world, @NonNull Map<@NonNull TreeType,@NonNull Tree> trees, @NonNull Map<@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull List<int[]> tree_positions, @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
 		lowdetail_textures = new Texture[]{
 			Resources.findResource(new TextureFile("/textures/models/lowdetail_tree", Globals.COMPRESSED_RGBA_FORMAT)),
 				Resources.findResource(new TextureFile("/textures/models/viking_lowdetail_tree", Globals.COMPRESSED_RGBA_FORMAT))};
-		int[] num_trees;
-		switch (terrain) {
-			case NATIVE:
-				num_trees = new int[]{tree_positions.size(), palm_tree_positions.size(), 0, 0};
-				break;
-			case VIKING:
-				num_trees = new int[]{0, 0, tree_positions.size(), palm_tree_positions.size()};
-				break;
-			default:
-				throw new RuntimeException();
-		}
+		int[] num_trees = switch (terrain) {
+            case NATIVE -> new int[]{tree_positions.size(), palm_tree_positions.size(), 0, 0};
+            case VIKING -> new int[]{0, 0, tree_positions.size(), palm_tree_positions.size()};
+        };
 
-		this.low_details = tree_low_details;
+        this.low_details = tree_low_details;
 		this.trees = trees;
 		this.terrain = terrain;
 		current_vertex_index = 0;
 		int vertex_count = 0;
 		int index_count = 0;
+        TreeType[] ordinals = TreeType.values();
 		for (int i = 0; i < num_trees.length; i++) {
-			vertex_count += num_trees[i]*low_details[i].getVertices().length/3;
-			index_count += num_trees[i]*low_details[i].getIndices().length;
+			vertex_count += num_trees[i]*low_details.get(ordinals[i]).getVertices().length/3;
+			index_count += num_trees[i]*low_details.get(ordinals[i]).getIndices().length;
 		}
 		vertices = new FloatVBO(GL15.GL_DYNAMIC_DRAW, vertex_count*3);
 		texcoords = new FloatVBO(GL15.GL_STATIC_DRAW, vertex_count*2);
 		tree_indices = new ShortVBO(GL15.GL_STATIC_DRAW, index_count);
 	}
 
-	Tree[] getTrees() {
+    @NonNull Map<@NonNull TreeType,@NonNull Tree> getTrees() {
 		return trees;
 	}
 
@@ -141,8 +138,8 @@ public final class TreeLowDetail {
 
 	public void updateLowDetail(@NonNull Matrix4f matrix, @NonNull TreeSupply tree) {
 		int start_vertex_index = tree.getLowDetailStartIndex();
-		int tree_type_index = tree.getTreeTypeIndex();
-		LowDetailModel low_detail_model = low_details[tree_type_index];
+		TreeType tree_type = tree.getTreeType();
+		LowDetailModel low_detail_model = low_details.get(tree_type);
 		float[] vertex_array = low_detail_model.getVertices();
 		update_buffer.clear();
 		update_buffer.limit(vertex_array.length);
@@ -194,8 +191,8 @@ public final class TreeLowDetail {
 		@Override
 		public void visitTree(@NonNull TreeSupply tree_supply) {
 			int start_index = end;
-			int tree_type_index = tree_supply.getTreeTypeIndex();
-			int[] values = putLowDetail(end, tree_supply.getMatrix(), low_details[tree_type_index], vertex_array, texcoord_array, tree_index_array);
+			TreeType tree_type = tree_supply.getTreeType();
+			int[] values = putLowDetail(end, tree_supply.getMatrix(), low_details.get(tree_type), vertex_array, texcoord_array, tree_index_array);
 			int end_index = values[0];
 			tree_supply.setLowDetailStartIndex(values[1]);
 			tree_supply.initLowDetailBuffer(start_index, end_index);

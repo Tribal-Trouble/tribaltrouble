@@ -12,6 +12,9 @@ import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Random;
 
 public final class LandscapeResources {
@@ -86,12 +89,18 @@ public final class LandscapeResources {
         ProgressForm.progress(1f/num_progress);
 	}
 
-	public static LowDetailModel @NonNull [] loadTreeLowDetails() {
+	public static @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> loadTreeLowDetails() {
 		LowDetailModel jungle_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/tree_low.binlowdetail"));
 		LowDetailModel palm_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/palm_low.binlowdetail"));
 		LowDetailModel oak_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/oak_tree_low.binlowdetail"));
 		LowDetailModel pine_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/pine_tree_low.binlowdetail"));
-		return new LowDetailModel[]{jungle_lowdetail, palm_lowdetail, oak_lowdetail, pine_lowdetail};
+
+        var trees = new EnumMap<AbstractTreeGroup.TreeType,@NonNull LowDetailModel>(AbstractTreeGroup.TreeType.class);
+        trees.put(AbstractTreeGroup.TreeType.JUNGLE, jungle_lowdetail);
+        trees.put(AbstractTreeGroup.TreeType.PALM, palm_lowdetail);
+        trees.put(AbstractTreeGroup.TreeType.OAK, oak_lowdetail);
+        trees.put(AbstractTreeGroup.TreeType.PINE, pine_lowdetail);
+        return Collections.unmodifiableMap(trees);
 	}
 
 	public SpriteKey @NonNull [] getRockFragments() {

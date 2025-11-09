@@ -10,12 +10,16 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractTreeGroup extends BoundingBox {
-	public final static int TREE_INDEX = 0;
-	public final static int PALMTREE_INDEX = 1;
-	public final static int OAKTREE_INDEX = 2;
-	public final static int PINETREE_INDEX = 3;
+
+	public enum TreeType {
+        JUNGLE,
+		PALM,
+        OAK,
+        PINE;
+	}
 
 	private final AbstractTreeGroup parent;
 	private int start;
@@ -55,30 +59,28 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 		return num_responding_trees > 0;
 	}
 
-	public static @NonNull AbstractTreeGroup newRoot(@NonNull World world, LowDetailModel @NonNull [] tree_low_details, @NonNull List<int[]> tree_positions, @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
+	public static @NonNull AbstractTreeGroup newRoot(@NonNull World world, @NonNull Map<@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull List<int[]> tree_positions, @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
 		AbstractTreeGroup root = new TreeGroup(null, 0);
 
 		switch (terrain) {
 			case NATIVE:
-				root.buildTrees(world, tree_low_details, TREE_INDEX, 3, 2.3f, tree_positions, 0.25f, 0.75f);
-				root.buildTrees(world, tree_low_details, PALMTREE_INDEX, 1, 1.6f, palm_tree_positions, 0.5f, 1f);
+				root.buildTrees(world, tree_low_details, TreeType.JUNGLE, 3, 2.3f, tree_positions, 0.25f, 0.75f);
+				root.buildTrees(world, tree_low_details, TreeType.PALM, 1, 1.6f, palm_tree_positions, 0.5f, 1f);
 				break;
 			case VIKING:
-				root.buildTrees(world, tree_low_details, OAKTREE_INDEX, 3, 2.3f, tree_positions, 0.5f, 1f);
-				root.buildTrees(world, tree_low_details, PINETREE_INDEX, 1, 1.6f, palm_tree_positions, 0.5f, 1f);
+				root.buildTrees(world, tree_low_details, TreeType.OAK, 3, 2.3f, tree_positions, 0.5f, 1f);
+				root.buildTrees(world, tree_low_details, TreeType.PINE, 1, 1.6f, palm_tree_positions, 0.5f, 1f);
 				break;
-			default:
-				throw new RuntimeException();
 		}
 
 		root.initBounds();
 		return root;
 	}
 
-	private void buildTrees(final @NonNull World world, LowDetailModel @NonNull [] tree_low_details, final int tree_type_index, final int grid_size, final float radius, @NonNull List<int[]> tree_positions, float scale_factor, float min_size) {
+	private void buildTrees(final @NonNull World world, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, final @NonNull TreeType tree_type, final int grid_size, final float radius, @NonNull List<int[]> tree_positions, float scale_factor, float min_size) {
 		Matrix4f matrix2 = new Matrix4f();
 		Vector3f vector = new Vector3f();
-		final float[] tree_low_vertices = tree_low_details[tree_type_index].getVertices();
+		final float[] tree_low_vertices = tree_low_details.get(tree_type).getVertices();
 		for (int[] coords : tree_positions) {
 			final Matrix4f matrix = new Matrix4f();
 			final int center_grid_x = coords[0];
@@ -106,7 +108,7 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 
 				@Override
 				public void visitLeaf(@NonNull TreeLeaf tree_leaf) {
-					TreeSupply tree = new TreeSupply(world, tree_leaf, tree_x, tree_y, center_grid_x, center_grid_y, grid_size, radius, matrix, tree_type_index, tree_low_vertices);
+					TreeSupply tree = new TreeSupply(world, tree_leaf, tree_x, tree_y, center_grid_x, center_grid_y, grid_size, radius, matrix, tree_type, tree_low_vertices);
 					tree_leaf.insertTree(tree);
 				}
 				@Override

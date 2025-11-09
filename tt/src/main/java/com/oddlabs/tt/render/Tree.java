@@ -2,7 +2,7 @@ package com.oddlabs.tt.render;
 
 import org.jspecify.annotations.NonNull;
 
-final class Tree {
+public final class Tree {
 	private final @NonNull SpriteList crown;
 	private final @NonNull SpriteList trunk;
 

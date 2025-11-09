@@ -5,7 +5,6 @@ import com.oddlabs.tt.audio.AudioFile;
 import com.oddlabs.tt.form.ProgressForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.Icons;
-import com.oddlabs.tt.landscape.AbstractTreeGroup;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.weapon.InstantHitFactory;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
@@ -46,6 +45,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
+
+import static com.oddlabs.tt.landscape.AbstractTreeGroup.TreeType;
 
 public final class RacesResources {
 	public final static int QUARTERS_SIZE = 5;
@@ -288,9 +289,10 @@ public final class RacesResources {
 		Audio axe_throw_sound = Resources.findResource(new AudioFile("/sfx/weapon_axe.ogg"));
 		Audio spear_throw_sound = Resources.findResource(new AudioFile("/sfx/weapon_spear.ogg"));
 
-		tree_fall_sound = new Audio[2];
-		tree_fall_sound[AbstractTreeGroup.TREE_INDEX] = Resources.findResource(new AudioFile("/sfx/felling_tree.ogg"));
-		tree_fall_sound[AbstractTreeGroup.PALMTREE_INDEX] = Resources.findResource(new AudioFile("/sfx/felling_palmtree.ogg"));
+		tree_fall_sound = new Audio[] {
+            Resources.findResource(new AudioFile("/sfx/felling_tree.ogg")),
+            Resources.findResource(new AudioFile("/sfx/felling_palmtree.ogg"))
+        };
 
 		ProgressForm.progress(1f/num_progress);
 
