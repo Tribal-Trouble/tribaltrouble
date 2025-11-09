@@ -6,6 +6,7 @@
             background-image: url("background.png");
             background-repeat: no-repeat;
             background-size: cover;
+            background-attachment: fixed;
             background-color: rgba(255, 255, 255, 0.2);
             background-blend-mode: lighten;
             font-family: "Tahoma";
@@ -17,13 +18,27 @@
         }
 
         h2 {
-            font-family: Impact, Charcoal, sans-serif;
+            text-shadow: none;
+        }
+
+        .os-logo {
+            height: 70px;
+        }
+
+        .downloadable {
+            text-align: center;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .downloadable:hover {
+            background-color: #FFF9;
+            box-shadow: 0px 0px 5px 3px #FFF9;
         }
 
         .nav_button {
-            background-image: linear-gradient(to bottom right,
-                    #fdf7c0b0,
-                    #e0d784b0);
+            background-color: #836353;
+            background-image: linear-gradient(#836353, #b69686);
             text-align: center;
             vertical-align: center;
             width: 25%;
@@ -31,12 +46,15 @@
             border-radius: 7px;
             border: none;
             color: black;
-            text-shadow: 2px 2px #FFF9;
+            text-shadow: 1px 1px #0007;
+            font-size: 23px;
+            color: white;
         }
 
         .nav_button:hover {
-            background-image: linear-gradient(to bottom right, #fdf7c0, #e0d784);
             font-weight: bold;
+            background-color: #838353;
+            background-image: linear-gradient(#838353, #b69886);
         }
 
         .nav_table {
@@ -67,6 +85,17 @@
             display: none;
         }
 
+        .screenshot {
+            height: 25vh;
+            margin: 10px;
+            border-radius: 15px;
+            border: 2px solid grey;
+        }
+
+        .screenshot:hover {
+            border: 2px solid white;
+        }
+
         .content {
             margin-top: 40px;
             border-radius: 15px;
@@ -79,9 +108,9 @@
             background: #0007;
             vertical-align: center;
             min-height: 50%;
+            overflow: auto;
             color: white;
             text-shadow: 2px 2px black;
-
         }
 
         .popup {
@@ -104,6 +133,7 @@
             position: fixed;
             color: white;
             text-shadow: 1px 1px black;
+            display: none;
         }
 
         .popup-btn {
@@ -123,9 +153,11 @@
         .tableheader {
             background-color: #836353;
             background-image: linear-gradient(#836353, #b69686);
-            padding: 2px;
-            min-width: 200px;
-            padding-left: 5px;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            padding-left: 20px;
+            padding-right: 20px;
+            // min-width: 200px;
             color: white;
             text-shadow: 2px 2px black;
             border-style: outset;
@@ -316,38 +348,45 @@
                 });
         }
 
+        function formatTeam(arr) {
+            const counts = arr.reduce((acc, item) => {
+                acc[item] = (acc[item] || 0) + 1;
+                return acc;
+            }, {});
+            return Object.entries(counts).map(([item, count]) => count > 1 ? `${count} ${item} together` : item).join(' / ');
+        }
+
+        function formatAllTeams(arr) {
+            const counts = arr.reduce((acc, item) => {
+                acc[item] = (acc[item] || 0) + 1;
+                return acc;
+            }, {});
+            return Object.entries(counts).map(([item, count]) => count > 1 ? `${count} of (${item})` : item).join(' VS ');
+        }
+
         function gameInfo(row) {
             var all = '';
             var winner = '';
             var teams = new Map();
             var winnerId = row['winner'];
             var players = row['players'];
+            var grouping = new Map();
             for (var i = 0; i < players.length; i++) {
                 const name = players[i]['nick'];
                 const team = players[i]['team'];
                 if (!teams.has(team)) {
-                    teams.set(team, "");
-                } else {
-                    teams.set(team, teams.get(team) + " / ");
+                    teams.set(team, []);
                 }
-                teams.set(team, teams.get(team) + playerURL(name));
-                if (team == winnerId) {
-                    if (winner == '') {
-                        winner = playerURL(name);
-                    } else {
-                        winner += " / " + playerURL(name);
-                    }
-                }
+                teams.get(team).push(playerURL(name));
             }
-            var firstOne = true;
-            for (const text of teams.values()) {
-                if (!firstOne) {
-                    all += " VS ";
+            var formatted = [];
+            teams.forEach((text, team) => {
+                formatted.push(formatTeam(text));
+                if (winnerId == team) {
+                    winner = formatTeam(text);
                 }
-                all += text;
-                firstOne = false;
-            }
-            return [all, winner];
+            });
+            return [formatAllTeams(formatted), winner];
         }
 
         let games_offset = 0;
@@ -514,7 +553,15 @@
         }
 
         window.addEventListener('hashchange', hashChanged);
-        window.onload = hashChanged;
+        window.onload = function() {
+            hashChanged();
+            const imgs = document.querySelectorAll('.screenshot');
+            for (var img of imgs) {
+                img.addEventListener('click', function(event) {
+                    window.open(event.target.src, '_blank');
+                });
+            }
+        }
     </script>
 </head>
 
@@ -556,14 +603,66 @@
 
         This is what remained of the original website:
         <a href="https://web.archive.org/web/20070729233824/http://tribaltrouble.com" target="_blank">Archived version</a><br /><br />
+
+        <h2>The setup</h2>
+        <div class='screenshots'>
+            The game is set in an Island in the middle of the ocean<br>
+            <img class='screenshot' src='01.jpg' /><br>
+            There are several tribes there. Some are native tribes,<br>
+            <img class='screenshot' src='11.jpg' /><br>
+            others are vikings.<br>
+            <img class='screenshot' src='02.jpg' /><br>
+            They're building colonies ..<br>
+            <img class='screenshot' src='03.jpg' /><br>
+            collecting resources ..<br>
+            <img class='screenshot' src='04.jpg' /><br>
+            <img class='screenshot' src='05.jpg' /><br>
+            building armies ..<br>
+            <img class='screenshot' src='06.jpg' /><br>
+            Only to fight the other tribes over control of the island<br>
+            <img class='screenshot' src='07.jpg' /><br>
+            <img class='screenshot' src='08.jpg' /><br>
+            <img class='screenshot' src='09.jpg' /><br>
+            <img class='screenshot' src='10.jpg' /><br>
+        </div>
     </div>
+
+    <div id="show-image" class="popup">
+    </div>
+
 
     <div id="download" class="content">
         <h2>Download binaries</h2>
-        <a href="linux.zip">Linux</a>
-        <a href="windows.zip">Windows</a>
-        <a href="mac-x86.zip">Mac x86</a>
-        <a href="mac-arm64.zip">Mac ARM</a>
+        <table>
+            <tr>
+                <td class='downloadable'>
+                    <a href="linux.zip">
+                        <img src='linux.png' class='os-logo' />
+                    </a>
+                </td>
+                <td class='downloadable'>
+                    <a href="windows.zip">
+                        <img src='windows.png' class='os-logo' />
+                    </a>
+                </td>
+                <td class='downloadable'>
+                    <a href="mac-x86.zip">
+                        <img src='mac-x86.png' class='os-logo' />
+                    </a>
+                </td>
+                <td class='downloadable'>
+                    <a href="mac-arm64.zip">
+                        <img src='mac-arm.png' class='os-logo' />
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td class='downloadable'><a href="linux.zip">Linux</a></td>
+                <td class='downloadable'><a href="windows.zip">Windows</a></td>
+                <td class='downloadable'><a href="mac-x86.zip">Mac x86</a></td>
+                <td class='downloadable'><a href="mac-arm64.zip">Mac ARM</a></td>
+            </tr>
+        </table>
         <h2>Building from source</h2>
         Clone this
         <a href="https://github.com/OmarAMokhtar/tribaltrouble">github repository</a>
@@ -642,6 +741,8 @@
         <a href="https://github.com/OmarAMokhtar" target="_blank">OmarAMokhtar</a><br />
         <a href="https://github.com/Merikrotti" target="_blank">Merikrotti</a><br />
         <a href="https://github.com/ryan-linehan" target="_blank">Ryan-Linehan</a><br />
+        <a href="https://github.com/Melodious-Funk" target="_blank">Ian</a><br />
+        <a href="https://github.com/TimmyTonkaBuilder" target="_blank">Timmy</a><br />
         <br />
         Join our discussion on discord!
         <a href="https://discord.gg/j8PZyGBZt5" target="_blank"><img width="20" height="20" src="discord.png" /> Discord server</a>
