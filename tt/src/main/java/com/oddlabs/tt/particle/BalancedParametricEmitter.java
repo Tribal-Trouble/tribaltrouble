@@ -4,8 +4,8 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.TextureKey;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public final class BalancedParametricEmitter extends ParametricEmitter {
 	private final int num_particles;
@@ -45,11 +45,11 @@ public final class BalancedParametricEmitter extends ParametricEmitter {
 			float v = dist_v*i/num_particles;
 			ParametricParticle particle = new ParametricParticle(function, u, v, 0f, 0f, 0f);
 			Vector3f offset = randomOffset(margin_u, margin_v, 0f);
-			particle.setVelocity(velocity_u + offset.getX(), velocity_v + offset.getY());
-			particle.setColor(color.getX(), color.getY(), color.getZ(), color.getW());
-			particle.setDeltaColor(delta_color.getX(), delta_color.getY(), delta_color.getZ(), delta_color.getW());
-			particle.setRadius(particle_radius.getX(), particle_radius.getY(), particle_radius.getZ());
-			particle.setGrowthRate(growth_rate.getX(), growth_rate.getY(), growth_rate.getZ());
+			particle.setVelocity(velocity_u + offset.x(), velocity_v + offset.y());
+			particle.setColor(color.x(), color.y(), color.z(), color.w());
+			particle.setDeltaColor(delta_color.x(), delta_color.y(), delta_color.z(), delta_color.w());
+			particle.setRadius(particle_radius.x(), particle_radius.y(), particle_radius.z());
+			particle.setGrowthRate(growth_rate.x(), growth_rate.y(), growth_rate.z());
 			particle.setEnergy(energy);
 			particle.setType(getWorld().getRandom().nextInt(getTypes()));
 			particle.update(0);

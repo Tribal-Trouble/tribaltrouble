@@ -18,8 +18,8 @@ import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public final class LightningCloud implements Magic {
 	private final static int NUM_STRIKES = 6;
@@ -58,9 +58,7 @@ public final class LightningCloud implements Magic {
 
 		float start_x = src.getPositionX() + offset_x*src.getDirectionX() - offset_y*(-src.getDirectionY());
 		float start_y = src.getPositionY() + offset_x*src.getDirectionY() + offset_y*src.getDirectionX();
-		position.setX(start_x);
-		position.setY(start_y);
-		position.setZ(world.getHeightMap().getNearestHeight(position.getX(), position.getY()) + height);
+		position.set(start_x, start_y, world.getHeightMap().getNearestHeight(start_x, start_y) + height);
 
 		cloud = new ParametricEmitter(world, new CloudFunction(2.5f, .7f), position,
 				0f, 0f, .5f, .5f, .2f,
@@ -70,7 +68,7 @@ public final class LightningCloud implements Magic {
 				GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, world.getRacesResources().getSmokeTextures(),
 				world.getAnimationManagerGameTime());
 
-		bubbling_sound = world.getAudio().newAudio(new AudioParameters<>(world.getRacesResources().getBubblingSound(), position.getX(), position.getY(), world.getHeightMap().getNearestHeight(position.getX(), position.getY()),
+		bubbling_sound = world.getAudio().newAudio(new AudioParameters<>(world.getRacesResources().getBubblingSound(), position.x(), position.y(), world.getHeightMap().getNearestHeight(position.x(), position.y()),
 				AudioPlayer.AUDIO_RANK_MAGIC,
 				AudioPlayer.AUDIO_DISTANCE_MAGIC,
 				AudioPlayer.AUDIO_GAIN_BUBBLING,
@@ -81,7 +79,7 @@ public final class LightningCloud implements Magic {
         @Override
 	public void animate(float t) {
 		if (first_run) {
-			cloud_sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getCloudSound(), position.getX(), position.getY(), position.getZ(),
+			cloud_sound = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getCloudSound(), position.x(), position.y(), position.z(),
 					AudioPlayer.AUDIO_RANK_MAGIC,
 					AudioPlayer.AUDIO_DISTANCE_MAGIC,
 					AudioPlayer.AUDIO_GAIN_CLOUD,
@@ -90,7 +88,7 @@ public final class LightningCloud implements Magic {
 			first_run = false;
 			bubbling_sound.stop(.2f, Settings.getSettings().sound_gain);
 		}
-		cloud_sound.setPos(position.getX(), position.getY(), position.getZ());
+		cloud_sound.setPos(position.x(), position.y(), position.z());
 		seconds_to_live -= t;
 		if (seconds_to_live <= 0f) {
 			owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
@@ -106,17 +104,17 @@ public final class LightningCloud implements Magic {
 
 		if (hit_timer > seconds_per_hit) {
 			if (target == null) {
-				target = owner.findNearestEnemy(UnitGrid.toGridCoordinate(position.getX()), UnitGrid.toGridCoordinate(position.getY()), prev_target);
+				target = owner.findNearestEnemy(UnitGrid.toGridCoordinate(position.x()), UnitGrid.toGridCoordinate(position.y()), prev_target);
 				if (target == null) {
-					target = owner.findNearestEnemy(UnitGrid.toGridCoordinate(position.getX()), UnitGrid.toGridCoordinate(position.getY()), null);
+					target = owner.findNearestEnemy(UnitGrid.toGridCoordinate(position.x()), UnitGrid.toGridCoordinate(position.y()), null);
 					if (target == null) {
 						return;
 					}
 				}
 			}
 
-			float dx = target.getPositionX() - position.getX();
-			float dy = target.getPositionY() - position.getY();
+			float dx = target.getPositionX() - position.x();
+			float dy = target.getPositionY() - position.y();
 			float dist = (float)Math.sqrt(dx*dx + dy*dy);
 			dx /= dist;
 			dy /= dist;
@@ -139,8 +137,8 @@ public final class LightningCloud implements Magic {
 				hit_timer = 0f;
 				strike_counter = 0;
 			} else {
-				float x = position.getX() + dx*(meters_per_second*t);
-				float y = position.getY() + dy*(meters_per_second*t);
+				float x = position.x() + dx*(meters_per_second*t);
+				float y = position.y() + dy*(meters_per_second*t);
 				float z = owner.getWorld().getHeightMap().getNearestHeight(x, y) + height;
 				position.set(x, y, z);
 			}

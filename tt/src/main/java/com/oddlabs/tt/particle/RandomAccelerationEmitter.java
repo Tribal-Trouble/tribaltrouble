@@ -5,8 +5,8 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.TextureKey;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.Random;
 
@@ -53,7 +53,7 @@ public final class RandomAccelerationEmitter extends LinearEmitter {
 				manager);
 		this.random = world.getRandom();
 		this.acceleration = acceleration;
-		offset_acceleration = new Vector3f(acceleration.getX(), acceleration.getY(), acceleration.getZ());
+		offset_acceleration = new Vector3f(acceleration.x(), acceleration.y(), acceleration.z());
 		this.angle_bound = angle_bound;
 		this.angle_max_jump = angle_max_jump;
 		this.acceleration_factor = acceleration_factor;
@@ -130,13 +130,13 @@ public final class RandomAccelerationEmitter extends LinearEmitter {
 
 		LinearParticle particle = new LinearParticle();
 		Vector3f pos = randomPosition();
-		particle.setPos(pos.getX(), pos.getY(), pos.getZ());
-		particle.setVelocity(velocity.getX(), velocity.getY(), velocity.getZ());
-		particle.setAcceleration(acceleration.getX(), acceleration.getY(), acceleration.getZ());
-		particle.setColor(color.getX(), color.getY(), color.getZ(), color.getW());
-		particle.setDeltaColor(delta_color.getX(), delta_color.getY(), delta_color.getZ(), delta_color.getW());
-		particle.setRadius(particle_radius.getX(), particle_radius.getY(), particle_radius.getZ());
-		particle.setGrowthRate(growth_rate.getX(), growth_rate.getY(), growth_rate.getZ());
+		particle.setPos(pos.x(), pos.y(), pos.z());
+		particle.setVelocity(velocity.x(), velocity.y(), velocity.z());
+		particle.setAcceleration(acceleration.x(), acceleration.y(), acceleration.z());
+		particle.setColor(color.x(), color.y(), color.z(), color.w());
+		particle.setDeltaColor(delta_color.x(), delta_color.y(), delta_color.z(), delta_color.w());
+		particle.setRadius(particle_radius.x(), particle_radius.y(), particle_radius.z());
+		particle.setGrowthRate(growth_rate.x(), growth_rate.y(), growth_rate.z());
 		particle.setEnergy(energy);
 		particle.setType(random.nextInt(getTypes()));
 		add(particle);
@@ -157,9 +157,9 @@ public final class RandomAccelerationEmitter extends LinearEmitter {
 		else
 			y_angle += dy_angle;
 
-		float x = offset_acceleration.getX() + acceleration_factor*(float)Math.sin(x_angle);
-		float y = offset_acceleration.getY() + acceleration_factor*(float)Math.sin(y_angle);
-		acceleration.set(x, y, offset_acceleration.getZ());
+		float x = offset_acceleration.x() + acceleration_factor*(float)Math.sin(x_angle);
+		float y = offset_acceleration.y() + acceleration_factor*(float)Math.sin(y_angle);
+		acceleration.set(x, y, offset_acceleration.z());
 	}
 
 }

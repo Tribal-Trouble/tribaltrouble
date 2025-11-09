@@ -9,7 +9,7 @@ import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.TextureKey;
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,15 +84,15 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 	}
 
 	final float getX() {
-		return position.getX();
+		return position.x();
 	}
 
 	final float getY() {
-		return position.getY();
+		return position.y();
 	}
 
 	final float getZ() {
-		return position.getZ();
+		return position.z();
 	}
 
 	public final void scale(float scale_x, float scale_y, float scale_z) {

@@ -1,8 +1,8 @@
 package com.oddlabs.tt.particle;
 
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class Particle {
 	private final float u1;
@@ -14,23 +14,12 @@ public class Particle {
 	private final float u4;
 	private final float v4;
 
-	private float position_x = 0f;
-	private float position_y = 0f;
-	private float position_z = 0f;
-	private float color_r = 0f;
-	private float color_g = 0f;
-	private float color_b = 0f;
-	private float color_a = 0f;
-	private float delta_color_r = 0f;
-	private float delta_color_g = 0f;
-	private float delta_color_b = 0f;
-	private float delta_color_a = 0f;
-	private float growth_rate_x;
-	private float growth_rate_y;
-	private float growth_rate_z;
-	private float radius_x;
-	private float radius_y;
-	private float radius_z;
+	private final Vector3f position = new Vector3f();
+	private final Vector4f color = new Vector4f();
+	private final Vector4f deltaColor = new Vector4f();
+	private final Vector3f growthRate = new Vector3f();
+	private final Vector3f radius = new Vector3f();
+	
 	private int type;
 	private float energy;
 
@@ -39,34 +28,31 @@ public class Particle {
 	}
 
 	public Particle(float angle) {
-		Matrix4f rot_matrix = new Matrix4f();
-		Vector3f axis = new Vector3f();
-		Vector4f uv_vector = new Vector4f();
-		Vector4f transform_uv_vector = new Vector4f();
+		Matrix4f rotMatrix = new Matrix4f();
+		Vector3f axis = new Vector3f(0f, 0f, 1f);
+		Vector4f uvVector = new Vector4f();
 		
-		rot_matrix.setIdentity();
-		axis.set(0f, 0f, 1f);
-		rot_matrix.rotate(angle, axis);
+		rotMatrix.rotate(angle, axis);
 
-		uv_vector.set(-.5f, -.5f, 0f, 0f);
-		Matrix4f.transform(rot_matrix, uv_vector, transform_uv_vector);
-		u1 = transform_uv_vector.getX() + .5f;
-		v1 = transform_uv_vector.getY() + .5f;
+		uvVector.set(-.5f, -.5f, 0f, 0f);
+		rotMatrix.transform(uvVector);
+		u1 = uvVector.x() + .5f;
+		v1 = uvVector.y() + .5f;
 		
-		uv_vector.set(.5f, -.5f, 0f, 0f);
-		Matrix4f.transform(rot_matrix, uv_vector, transform_uv_vector);
-		u2 = transform_uv_vector.getX() + .5f;
-		v2 = transform_uv_vector.getY() + .5f;
+		uvVector.set(.5f, -.5f, 0f, 0f);
+		rotMatrix.transform(uvVector);
+		u2 = uvVector.x() + .5f;
+		v2 = uvVector.y() + .5f;
 
-		uv_vector.set(.5f, .5f, 0f, 0f);
-		Matrix4f.transform(rot_matrix, uv_vector, transform_uv_vector);
-		u3 = transform_uv_vector.getX() + .5f;
-		v3 = transform_uv_vector.getY() + .5f;
+		uvVector.set(.5f, .5f, 0f, 0f);
+		rotMatrix.transform(uvVector);
+		u3 = uvVector.x() + .5f;
+		v3 = uvVector.y() + .5f;
 
-		uv_vector.set(-.5f, .5f, 0f, 0f);
-		Matrix4f.transform(rot_matrix, uv_vector, transform_uv_vector);
-		u4 = transform_uv_vector.getX() + .5f;
-		v4 = transform_uv_vector.getY() + .5f;
+		uvVector.set(-.5f, .5f, 0f, 0f);
+		rotMatrix.transform(uvVector);
+		u4 = uvVector.x() + .5f;
+		v4 = uvVector.y() + .5f;
 	}
 
 	public final float getU1() {
@@ -102,76 +88,65 @@ public class Particle {
 	}
 
 	public void update(float t) {
-		color_r += delta_color_r*t;
-		color_g += delta_color_g*t;
-		color_b += delta_color_b*t;
-		color_a += delta_color_a*t;
-		setRadius(radius_x + growth_rate_x*t, radius_y + growth_rate_y*t, radius_z + growth_rate_z*t);
+		color.add(deltaColor.x() * t, deltaColor.y() * t, deltaColor.z() * t, deltaColor.w() * t);
+		radius.add(growthRate.x() * t, growthRate.y() * t, growthRate.z() * t);
 		energy -= t;
 	}
 
 	public final void setPos(float x, float y, float z) {
-		position_x = x;
-		position_y = y;
-		position_z = z;
+		position.set(x, y, z);
 	}
 
 	public final float getPosX() {
-		return position_x;
+		return position.x();
 	}
 
 	public final float getPosY() {
-		return position_y;
+		return position.y();
 	}
 
 	public final float getPosZ() {
-		return position_z;
+		return position.z();
 	}
 
 	final void setColor(float r, float g, float b, float a) {
-		color_r = r;
-		color_g = g;
-		color_b = b;
-		color_a = a;
+		color.set(r, g, b, a);
 	}
 
 	public final float getColorR() {
-		return color_r;
+		return color.x();
 	}
 
 	public final float getColorG() {
-		return color_g;
+		return color.y();
 	}
 
 	public final float getColorB() {
-		return color_b;
+		return color.z();
 	}
 
 	public final float getColorA() {
-		return color_a;
+		return color.w();
 	}
 
 	public final void setDeltaColor(float r, float g, float b, float a) {
-		delta_color_r = r;
-		delta_color_g = g;
-		delta_color_b = b;
-		delta_color_a = a;
+		deltaColor.set(r, g, b, a);
 	}
 
 	public final float getDeltaColorR() {
-		return delta_color_r;
+		return deltaColor.x();
 	}
 
 	public final float getDeltaColorG() {
-		return delta_color_g;
+		return deltaColor.y();
 	}
 
 	public final float getDeltaColorB() {
-		return delta_color_b;
+		return deltaColor.z();
 	}
 
 	public final float getDeltaColorA() {
-		return delta_color_a;
+		return deltaColor.w();
 	}
 
 	public final void setEnergy(float energy) {
@@ -191,38 +166,34 @@ public class Particle {
 	}
 
 	public final void setGrowthRate(float growth_rate_x, float growth_rate_y, float growth_rate_z) {
-		this.growth_rate_x = growth_rate_x;
-		this.growth_rate_y = growth_rate_y;
-		this.growth_rate_z = growth_rate_z;
+		this.growthRate.set(growth_rate_x, growth_rate_y, growth_rate_z);
 	}
 
 	public final float getGrowthRateX() {
-		return growth_rate_x;
+		return growthRate.x();
 	}
 
 	public final float getGrowthRateY() {
-		return growth_rate_y;
+		return growthRate.y();
 	}
 
 	public final float getGrowthRateZ() {
-		return growth_rate_z;
+		return growthRate.z();
 	}
 
 	public final void setRadius(float radius_x, float radius_y, float radius_z) {
-		this.radius_x = radius_x;
-		this.radius_y = radius_y;
-		this.radius_z = radius_z;
+		this.radius.set(radius_x, radius_y, radius_z);
 	}
 
 	public final float getRadiusX() {
-		return radius_x;
+		return radius.x();
 	}
 
 	public final float getRadiusY() {
-		return radius_y;
+		return radius.y();
 	}
 
 	public final float getRadiusZ() {
-		return radius_z;
+		return radius.z();
 	}
 }

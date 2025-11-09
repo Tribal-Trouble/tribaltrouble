@@ -4,8 +4,8 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.TextureKey;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public final class RingEmitter extends LinearEmitter {
 	private final int num_particles;
@@ -47,14 +47,14 @@ public final class RingEmitter extends LinearEmitter {
 		for (int i = 0; i < num_particles; i++) {
 			LinearParticle particle = new LinearParticle();
 			Vector3f pos = position;
-			particle.setPos(pos.getX(), pos.getY(), pos.getZ());
+			particle.setPos(pos.x(), pos.y(), pos.z());
 			// in this special case velocity.getZ() is the actual velocity. not the velocity in the z direction
-			particle.setVelocity(velocity.getZ()*(float)Math.cos(angle*i), velocity.getZ()*(float)Math.sin(angle*i), 0);
-			particle.setAcceleration(acceleration.getX(), acceleration.getY(), acceleration.getZ());
-			particle.setColor(color.getX(), color.getY(), color.getZ(), color.getW());
-			particle.setDeltaColor(delta_color.getX(), delta_color.getY(), delta_color.getZ(), delta_color.getW());
-			particle.setRadius(particle_radius.getX(), particle_radius.getY(), particle_radius.getZ());
-			particle.setGrowthRate(growth_rate.getX(), growth_rate.getY(), growth_rate.getZ());
+			particle.setVelocity(velocity.z()*(float)Math.cos(angle*i), velocity.z()*(float)Math.sin(angle*i), 0);
+			particle.setAcceleration(acceleration.x(), acceleration.y(), acceleration.z());
+			particle.setColor(color.x(), color.y(), color.z(), color.w());
+			particle.setDeltaColor(delta_color.x(), delta_color.y(), delta_color.z(), delta_color.w());
+			particle.setRadius(particle_radius.x(), particle_radius.y(), particle_radius.z());
+			particle.setGrowthRate(growth_rate.x(), growth_rate.y(), growth_rate.z());
 			particle.setEnergy(energy);
 			particle.setType(0);
 			add(particle);

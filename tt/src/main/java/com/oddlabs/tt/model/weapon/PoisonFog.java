@@ -13,8 +13,8 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.List;
 

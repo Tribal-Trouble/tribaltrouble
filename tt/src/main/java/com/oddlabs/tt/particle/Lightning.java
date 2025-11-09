@@ -8,8 +8,8 @@ import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.render.TextureKey;
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,25 +61,25 @@ public final class Lightning extends Element<Lightning> implements Animated {
 	private void initParticles() {
 		Random random = world.getRandom();
 		random.nextFloat();
-		float x = src.getX();
-		float y = src.getY();
-		float z = src.getZ();
-		float height = dst.getZ() - src.getZ();
+		float x = src.x();
+		float y = src.y();
+		float z = src.z();
+		float height = dst.z() - src.z();
 		float random_limit = height/6f;
 		float dz = (height)/num_particles;
 
 		for (int i = 0; i < num_particles; i++) {
-			float base_dx = (dst.getX() - x)/(num_particles - i);
-			float base_dy = (dst.getY() - y)/(num_particles - i);
+			float base_dx = (dst.x() - x)/(num_particles - i);
+			float base_dy = (dst.y() - y)/(num_particles - i);
 			float dx = base_dx + (random.nextFloat() - .5f)*random_limit;
 			float dy = base_dy + (random.nextFloat() - .5f)*random_limit;
 			StretchParticle particle = new StretchParticle();
 			particle.setSrc(x, y, z);
 
 			if (i == num_particles - 1) {
-				x = dst.getX();
-				y = dst.getY();
-				z = dst.getZ();
+				x = dst.x();
+				y = dst.y();
+				z = dst.z();
 				particle.setDstWidth(width/2);
 			} else {
 				x += dx;
@@ -95,8 +95,8 @@ public final class Lightning extends Element<Lightning> implements Animated {
 
 	private void initParticle(@NonNull StretchParticle particle) {
 		particle.setSrcWidth(width);
-		particle.setColor(color.getX(), color.getY(), color.getZ(), color.getW());
-		particle.setDeltaColor(delta_color.getX(), delta_color.getY(), delta_color.getZ(), delta_color.getW());
+		particle.setColor(color.x(), color.y(), color.z(), color.w());
+		particle.setDeltaColor(delta_color.x(), delta_color.y(), delta_color.z(), delta_color.w());
 		particle.setRadius(0f, 0f, 0f);
 		particle.setGrowthRate(0f, 0f, 0f);
 		particle.setEnergy(energy);

@@ -5,8 +5,8 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.TextureKey;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.Random;
@@ -56,8 +56,8 @@ public abstract class LinearEmitter extends Emitter {
 		this.growth_rate = growth_rate;
 		this.energy = energy;
 		this.friction = friction;
-		random = new Random((long)(position.getX() * position.getY() * position.getZ()));
-		position.setZ(position.getZ() + offset_z);
+		random = new Random((long)(position.x() * position.y() * position.z()));
+		position.set(position.x(), position.y(), position.z() + offset_z);
 
 		register();
 	}
@@ -150,9 +150,7 @@ public abstract class LinearEmitter extends Emitter {
 		float y = (float)Math.sin(a)*r;
 		float z = random.nextFloat()*emitter_height;
 
-		randomized_position.setX(getX() + x);
-		randomized_position.setY(getY() + y);
-		randomized_position.setZ(getZ() + z);
+		randomized_position.set(getX() + x, getY() + y, getZ() + z);
 		return randomized_position;
 	}
 }

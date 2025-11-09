@@ -2,8 +2,8 @@ package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.landscape.HeightMap;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 public class BoundingBox {
 
@@ -166,12 +166,12 @@ public class BoundingBox {
 
 	public final void transformBounds(@NonNull Matrix4f matrix) {
 		temp_vec.set(bmin_x, bmin_y, bmin_z, 1f);
-		Matrix4f.transform(matrix, temp_vec, temp_vec2);
+		matrix.transform(temp_vec, temp_vec2);
 		bmin_x = temp_vec2.x;
 		bmin_y = temp_vec2.y;
 		bmin_z = temp_vec2.z;
 		temp_vec.set(bmax_x, bmax_y, bmax_z, 1f);
-		Matrix4f.transform(matrix, temp_vec, temp_vec2);
+		matrix.transform(temp_vec, temp_vec2);
 		bmax_x = temp_vec2.x;
 		bmax_y = temp_vec2.y;
 		bmax_z = temp_vec2.z;
