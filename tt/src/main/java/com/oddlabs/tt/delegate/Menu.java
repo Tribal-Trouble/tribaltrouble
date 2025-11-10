@@ -195,10 +195,6 @@ public abstract class Menu extends CameraDelegate {
 	public void mouseScrolled(int amount) {
 	}
 
-	@Override
-	protected void renderGeometry() {
-	}
-
 	public final void setMenuCentered(@NonNull Form menu) {
 		setMenu(menu);
 		menu.centerPos();

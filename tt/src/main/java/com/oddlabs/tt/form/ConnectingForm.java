@@ -57,7 +57,7 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
 	public void connected(@NonNull Client client, @NonNull Game game, WorldGenerator generator, int player_slot) {
 		if (multiplayer) {
 			Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
-			random.nextFloat(); // first one allways in same area
+			random.nextFloat(); // first one always in same area
 			int race = (int)(random.nextFloat()*(RacesResources.getNumRaces() - 1) + .5f);
 			int team = player_slot;
 			if (game.isRated())

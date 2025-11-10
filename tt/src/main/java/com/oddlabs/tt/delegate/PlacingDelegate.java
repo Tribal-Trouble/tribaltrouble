@@ -28,14 +28,13 @@ import java.util.List;
 
 public final class PlacingDelegate extends ControllableCameraDelegate {
 	private final static int GRID_RADIUS = 20;
-	private final static FloatBuffer color;
+	private final static FloatBuffer color = BufferUtils.createFloatBuffer(4).put(new float[]{1f, 1f, 1f, 1f});
 	private final static LandscapeLocation landscape_hit = new LandscapeLocation();
 
 	private final BuildingSiteRenderer site_renderer = new BuildingSiteRenderer();
 	private final int building_index;
 
 	static {
-		color = BufferUtils.createFloatBuffer(4).put(new float[]{1f, 1f, 1f, 1f});
 		color.rewind();
 	}
 

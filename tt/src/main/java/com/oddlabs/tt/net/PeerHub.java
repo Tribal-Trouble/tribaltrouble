@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 public final class PeerHub implements Animated, RouterHandler {
     private static final String ROUTER_ADDRESS = "127.0.0.1";
 	public final static ResourceBundle bundle = ResourceBundle.getBundle(PeerHub.class.getName());
-	public final static @NonNull String SYSTEM_NAME;
+	public final static @NonNull String SYSTEM_NAME = Utils.getBundleString(bundle, "system_name");
 
 	private final static int MILLISECONDS_PER_HEARTBEAT = 60;
 	private final static int CLIENT_MAX_DELAY_MILLIS = 60;
@@ -72,10 +72,6 @@ public final class PeerHub implements Animated, RouterHandler {
 	private boolean is_synchronized;
 
 //private int ignore_peer = -1;
-
-	static {
-		SYSTEM_NAME = Utils.getBundleString(bundle, "system_name");
-	}
 
 	public PeerHub(@NonNull AnimationManager manager, boolean is_multiplayer, boolean is_rated, @NonNull Player local_player, PlayerSlot[] player_slots, @NonNull NetworkSelector network, GUIRoot gui_root, NotificationManager notification_manager, DistributableTable distributable_table, SessionID session_id, StallHandler stall_handler) {
 		this.stall_handler = stall_handler;

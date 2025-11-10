@@ -50,7 +50,9 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.vector.Matrix4f;
 
+import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public final class WorldViewer implements Animated {
 
@@ -97,19 +99,11 @@ public final class WorldViewer implements Animated {
 
             @Override
             public void playerGamespeedChanged() {
-                String result = "";
-                Player[] players = world.getPlayers();
-                int count = 0;
-                for (Player player : players) {
-                    int preferred_gamespeed = player.getPreferredGamespeed();
-                    if (World.isValidGamespeed(preferred_gamespeed)) {
-                        if (count > 0)
-                            result += ", ";
-                        count++;
-                        result += player.getPlayerInfo().getName() + ": " + ServerMessageBundler.getGamespeedString(preferred_gamespeed);
-                    }
-                }
-                if (count > 0 && isMultiplayer())
+                String result = Arrays.stream(world.getPlayers())
+                        .filter(p -> World.isValidGamespeed(p.getPreferredGamespeed()))
+                        .map(p -> p.getPlayerInfo().getName() + ": " + ServerMessageBundler.getGamespeedString(p.getPreferredGamespeed()))
+                        .collect(Collectors.joining(", "));
+                if (!result.isEmpty() && isMultiplayer())
                     gui_root.getInfoPrinter().print(result);
             }
 

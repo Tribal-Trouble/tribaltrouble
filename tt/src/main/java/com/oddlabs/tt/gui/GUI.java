@@ -66,7 +66,7 @@ public final class GUI implements Animated {
 	}
 
 	public void render(AmbientAudio ambient, CameraState frustum_state) {
-		boolean clear_color = renderer != null ? renderer.clearColorBuffer() : true;
+		boolean clear_color = renderer == null || renderer.clearColorBuffer();
 		if (clear_color)
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		else

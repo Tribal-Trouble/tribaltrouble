@@ -27,16 +27,11 @@ final class EmitterRenderer {
 	private final static Matrix4f view_matrix = new Matrix4f();
 	private final static CameraState tmp_camera = new CameraState();
 
-	private static FloatVBO particle_vbo;
-	private static FloatBuffer particle_buffer;
+    private static final int MAX_PARTICLES = 10000;
+    private static final int FLOATS_PER_PARTICLE = 36; // 4 vertices * 9 floats (x,y,z,u,v,r,g,b,a)
 
-	private static final int MAX_PARTICLES = 10000;
-	private static final int FLOATS_PER_PARTICLE = 36; // 4 vertices * 9 floats (x,y,z,u,v,r,g,b,a)
-
-	static {
-		particle_buffer = BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE);
-		particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
-	}
+    private static FloatBuffer particle_buffer = BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE);
+    private static FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
 
 	public static void render(@NonNull RenderQueues render_queues, @NonNull List<Emitter> emitter_queue, @NonNull CameraState state) {
 		tmp_camera.set(state);

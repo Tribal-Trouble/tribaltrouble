@@ -109,7 +109,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	private final @NonNull NonFocusIconButton transport_back_button;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(ActionButtonPanel.class.getName());
 
-	private final GameCamera camera;
+	private final @NonNull GameCamera camera;
 	private final @NonNull WorldViewer viewer;
 
 	private @Nullable Group current_submenu = null;
@@ -127,11 +127,11 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		return Utils.getBundleString(bundle, tip_key, shortcut_key);
 	}
 
-	public ActionButtonPanel(@NonNull WorldViewer viewer, GameCamera camera) {
+	public ActionButtonPanel(@NonNull WorldViewer viewer, @NonNull GameCamera camera) {
 		this(viewer, camera, viewer.getGUIRoot().getWidth(), viewer.getGUIRoot().getHeight());
 	}
 
-	public ActionButtonPanel(final @NonNull WorldViewer viewer, GameCamera camera, int width, int height) {
+	public ActionButtonPanel(final @NonNull WorldViewer viewer, @NonNull GameCamera camera, int width, int height) {
 		this.viewer = viewer;
 		this.camera = camera;
 		RaceIcons race_icons = viewer.getLocalPlayer().getRace().getIcons();

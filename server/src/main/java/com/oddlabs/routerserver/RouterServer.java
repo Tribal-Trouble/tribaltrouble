@@ -13,10 +13,9 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public final class RouterServer {
-	private final static Logger logger;
+	private final static Logger logger = Logger.getLogger("com.oddlabs.router.Router");
 	
 	static {
-		logger = Logger.getLogger("com.oddlabs.router.Router");
 		try {
 			Handler fh = new FileHandler("logs/router.%g.log", 10*1024*1024, 50);
 			fh.setFormatter(new SimpleFormatter());

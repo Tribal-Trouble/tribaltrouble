@@ -12,6 +12,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -111,8 +112,9 @@ public final class Lightning extends Element<Lightning> implements Animated {
 		float z_min = Float.POSITIVE_INFINITY;
 		float z_max = Float.NEGATIVE_INFINITY;
 
-		for (int i = 0; i < particles.size(); i++) {
-			StretchParticle particle = particles.get(i);
+        Iterator<StretchParticle> each = particles.iterator();
+		while (each.hasNext()) {
+			StretchParticle particle = each.next();
 			if (particle.getEnergy() > 0f) {
 				particle.update(t);
 				float x = particle.getSrcX();
@@ -128,7 +130,7 @@ public final class Lightning extends Element<Lightning> implements Animated {
 				z_min = Math.min(z_min, z - radius_z);
 				z_max = Math.max(z_max, z + radius_z);
 			} else {
-				particles.remove(i);
+				each.remove();
 			}
 		}
 		setBounds(x_min, x_max, y_min, y_max, z_min, z_max);

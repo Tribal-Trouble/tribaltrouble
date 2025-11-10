@@ -385,7 +385,7 @@ public final class Sky {
         }
 
         @Override
-        public final int compareTo(Stitcher.Vertex o) {
+        public final int compareTo(Stitcher.@NonNull Vertex o) {
             SkyStitchVertex other = (SkyStitchVertex) o;
             if (equals(o))
                 return 0;
@@ -394,8 +394,7 @@ public final class Sky {
 
         @Override
         public final boolean equals(Object o) {
-            SkyStitchVertex other = (SkyStitchVertex) o;
-            return other == this || other.theta == theta;
+            return o == this || o instanceof SkyStitchVertex other && other.theta == theta;
         }
 
         @Override

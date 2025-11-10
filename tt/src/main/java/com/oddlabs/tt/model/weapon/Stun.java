@@ -69,31 +69,31 @@ public final class Stun implements Magic {
 
 	@Override
 	public void animate(float t) {
-            for (Selectable selectable : target_list) {
-                Unit unit = null;
-                if (selectable instanceof Unit unit1) {
-                    unit = unit1;
-                } else if (selectable instanceof Building building) {
-                    if (!building.isDead() && building.getAbilities().hasAbilities(Abilities.ATTACK)) {
-                        MountUnitContainer muc = (MountUnitContainer) building.getUnitContainer();
-                        if (muc.getNumSupplies() > 0) {
-                            unit = muc.getUnit();
-                        }
+        for (Selectable selectable : target_list) {
+            Unit unit = null;
+            if (selectable instanceof Unit unit1) {
+                unit = unit1;
+            } else if (selectable instanceof Building building) {
+                if (!building.isDead() && building.getAbilities().hasAbilities(Abilities.ATTACK)) {
+                    MountUnitContainer muc = (MountUnitContainer) building.getUnitContainer();
+                    if (muc.getNumSupplies() > 0) {
+                        unit = muc.getUnit();
                     }
                 }
-
-                if (unit == null || unit.isDead())
-                    continue;
-
-                float dx = unit.getPositionX() - start_x;
-                float dy = unit.getPositionY() - start_y;
-                float squared_dist = dx * dx + dy * dy;
-                if (owner.isEnemy(unit.getOwner()) && squared_dist < hit_radius * hit_radius) {
-                    float dist = (float) Math.sqrt(squared_dist);
-                    float time = calculateValueFromCurrentRadius(dist, stun_time_closest, stun_time_farthest);
-                    unit.stun(time);
-                }
             }
+
+            if (unit == null || unit.isDead())
+                continue;
+
+            float dx = unit.getPositionX() - start_x;
+            float dy = unit.getPositionY() - start_y;
+            float squared_dist = dx * dx + dy * dy;
+            if (owner.isEnemy(unit.getOwner()) && squared_dist < hit_radius * hit_radius) {
+                float dist = (float) Math.sqrt(squared_dist);
+                float time = calculateValueFromCurrentRadius(dist, stun_time_closest, stun_time_farthest);
+                unit.stun(time);
+            }
+        }
 		interrupt();
 	}
 
@@ -111,9 +111,7 @@ public final class Stun implements Magic {
 
 	@Override
 	public void interrupt() {
-		if (emitter != null) {
-			emitter.done();
-		}
+        emitter.done();
 		if (sound != null) {
 			sound.stop(.3f, Settings.getSettings().sound_gain);
 		}

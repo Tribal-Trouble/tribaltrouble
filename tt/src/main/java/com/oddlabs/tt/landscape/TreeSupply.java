@@ -20,7 +20,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	private final static int INITIAL_SUPPLIES = 10;
 	private final static float SECOND_PER_TREEFALL = 3f;
 
-	private static final Vector3f low_detail_x_axis = new Vector3f();
+	private static final Vector3f low_detail_x_axis = new Vector3f(1f, 0f, 0f);
 	private static final Vector3f low_detail_translate = new Vector3f();
 	private static final Vector3f low_detail_scale = new Vector3f();
 	private static final Matrix4f low_detail_matrix = new Matrix4f();
@@ -41,10 +41,6 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	private boolean hide = false;
 	private float scale = 1f;
 	private int hit_counter = 0;
-
-	static {
-		low_detail_x_axis.set(1f, 0f, 0f);
-	}
 
 	public TreeSupply(@NonNull World world, AbstractTreeGroup parent, float x, float y, int grid_x, int grid_y, int grid_size, float size, @NonNull Matrix4f matrix, @NonNull TreeType tree_type, float @NonNull [] vertices) {
 		super(parent);

@@ -46,8 +46,6 @@ import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
 
-import static com.oddlabs.tt.landscape.AbstractTreeGroup.TreeType;
-
 public final class RacesResources {
 	public final static int QUARTERS_SIZE = 5;
 	public final static int ARMORY_SIZE = 5;
