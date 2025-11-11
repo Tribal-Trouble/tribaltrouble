@@ -48,7 +48,7 @@ import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Matrix4f;
+import org.joml.Matrix4f;
 
 import java.util.Arrays;
 import java.util.ResourceBundle;
@@ -122,12 +122,12 @@ public final class WorldViewer implements Animated {
             }
 
             @Override
-            public void registerTarget(Target target) {
+            public void registerTarget(@NonNull Target target) {
                 distributable_table.register(target);
             }
 
             @Override
-            public void unregisterTarget(Target target) {
+            public void unregisterTarget(@NonNull Target target) {
                 distributable_table.unregister(target);
                 if (target instanceof Selectable selectable)
                     getSelection().removeFromArmies(selectable);

@@ -19,8 +19,7 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Matrix4f;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -206,19 +205,18 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		if (width != 0) {
 			float scale = getUnitsPerPixel(Globals.GUI_Z);
 			Matrix4f m1 = new Matrix4f();
-			m1.setIdentity();
+			m1.identity();
 			Matrix4f m2 = new Matrix4f();
-			m2.setIdentity();
+			m2.identity();
 			Matrix4f m3 = new Matrix4f();
-			m1.scale(new Vector3f(scale, scale, scale));
-			m2.translate(new Vector3f(0f, 0f, -Globals.GUI_Z));
-			Matrix4f.mul(m2, m1, m3);
-			m2.load(m3);
-			m3.setIdentity();
-			m3.translate(new Vector3f(-width/2f, -height/2f, 0f));
-			Matrix4f.mul(m2, m3, m1);
-			m1.store(matrix_buf);
-			matrix_buf.rewind();
+			m1.scale(scale, scale, scale);
+			m2.translate(0f, 0f, -Globals.GUI_Z);
+			m2.mul(m1, m3);
+			m2.set(m3);
+			m3.identity();
+			m3.translate(-width/2f, -height/2f, 0f);
+			m2.mul(m3, m1);
+			m1.get(matrix_buf);
 		}
             for (CameraDelegate cameraDelegate : delegate_stack) {
                 cameraDelegate.displayChanged(width, height);
@@ -494,8 +492,7 @@ public RandomVelocityEmitter(Vector3f position,
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 
-		// Use JOML for perspective projection
-		org.joml.Matrix4f projectionMatrix = new org.joml.Matrix4f();
+		Matrix4f projectionMatrix = new Matrix4f();
 		projectionMatrix.perspective((float) Math.toRadians(Globals.FOV), LocalInput.getViewAspect(), Globals.VIEW_MIN, Globals.VIEW_MAX, true);
 		FloatBuffer fb = BufferUtils.createFloatBuffer(16);
 		projectionMatrix.get(fb);

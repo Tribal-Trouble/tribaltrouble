@@ -6,8 +6,8 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.util.BoundingBox;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Map;
@@ -92,15 +92,13 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 			float scale_x = scale_base + world.getRandom().nextFloat()*0.2f - 0.1f;
 			float scale_y = scale_base + world.getRandom().nextFloat()*0.2f - 0.1f;
 			float scale_z = scale_base + world.getRandom().nextFloat()*0.2f - 0.1f;
-			matrix.setIdentity();
-			vector.set(scale_x, scale_y, scale_z);
-			matrix.scale(vector);
+			matrix.identity();
+			matrix.scale(scale_x, scale_y, scale_z);
 			vector.set(0f, 0f, 1f);
-			matrix.rotate(rotation, vector);
-			matrix2.setIdentity();
-			vector.set(tree_x, tree_y, world.getHeightMap().getNearestHeight(tree_x, tree_y));
-			matrix2.translate(vector);
-			Matrix4f.mul(matrix2, matrix, matrix);
+			matrix.rotate((float) Math.toRadians(rotation), vector);
+			matrix2.identity();
+			matrix2.translate(tree_x, tree_y, world.getHeightMap().getNearestHeight(tree_x, tree_y));
+            matrix2.mul(matrix, matrix);
 			visit(new TreeNodeVisitor() {
 				private int child_size = world.getHeightMap().getMetersPerWorld();
 				private int x;

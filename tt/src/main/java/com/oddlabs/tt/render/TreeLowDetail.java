@@ -19,8 +19,8 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -36,7 +36,7 @@ public final class TreeLowDetail {
 	private final @NonNull FloatVBO vertices;
 	private final @NonNull FloatVBO texcoords;
 	private final @NonNull ShortVBO tree_indices;
-	private final Texture @NonNull [] lowdetail_textures;
+	private final @NonNull Texture @NonNull [] lowdetail_textures;
 	private final @NonNull Map<@NonNull TreeType,@NonNull Tree> trees;
 	private final @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> low_details;
 
@@ -95,8 +95,7 @@ public final class TreeLowDetail {
 
 	void loadMatrix(@NonNull Matrix4f matrix) {
 		update_buffer.clear();
-		matrix.store(update_buffer);
-		update_buffer.flip();
+		matrix.get(update_buffer);
 		GL11.glMultMatrix(update_buffer);
 	}
 
@@ -128,7 +127,7 @@ public final class TreeLowDetail {
         }
 		for (int i = 0; i < vertices.length/3; i++) {
 			src.set(vertices[i*3], vertices[i*3 + 1], vertices[i*3 + 2], 1f);
-			Matrix4f.transform(matrix, src, dest);
+			matrix.transform(src, dest);
 			float u = tex_coords[i*2];
 			float v = tex_coords[i*2 + 1];
 			current_vertex_index = putCoordinate(current_vertex_index, dest.x, dest.y, dest.z, u, v, vertice_array, texcoord_array);
@@ -145,10 +144,10 @@ public final class TreeLowDetail {
 		update_buffer.limit(vertex_array.length);
 		for (int i = 0; i < vertex_array.length/3; i++) {
 			src.set(vertex_array[i*3], vertex_array[i*3 + 1], vertex_array[i*3 + 2], 1f);
-			Matrix4f.transform(matrix, src, dest);
-			update_buffer.put(i*3, dest.getX());
-			update_buffer.put(i*3 + 1, dest.getY());
-			update_buffer.put(i*3 + 2, dest.getZ());
+			matrix.transform(src, dest);
+			update_buffer.put(i*3, dest.x);
+			update_buffer.put(i*3 + 1, dest.y);
+			update_buffer.put(i*3 + 2, dest.z);
 		}
 		vertices.putSubData(start_vertex_index*3, update_buffer);
 	}

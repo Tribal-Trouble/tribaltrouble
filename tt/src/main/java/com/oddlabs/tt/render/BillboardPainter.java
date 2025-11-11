@@ -3,9 +3,9 @@ package com.oddlabs.tt.render;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector2f;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -22,11 +22,11 @@ public abstract class BillboardPainter {
 		Vector3f vec1 = new Vector3f(0f, 0f, 1f);
 		Vector3f vec2 = new Vector3f(u2 - u1, v2 - v1, 0);
 		Vector3f vec3 = new Vector3f();
-		Vector3f.cross(vec1, vec2, vec3);
-		vec3.scale(handedness);
-		vec3.normalise();
+		vec1.cross(vec2, vec3);
+		vec3.mul(handedness);
+		vec3.normalize(vec3);
 		vec1.set(u1, v1, 0f);
-		float d = -Vector3f.dot(vec3, vec1);
+		float d = -vec3.dot(vec1);
 		plane_buf.put(0, vec3.x).put(1, vec3.y).put(2, vec3.z).put(3, d);
 		GL11.glClipPlane(clip_enum, plane_buf);
 	}
@@ -85,55 +85,53 @@ public abstract class BillboardPainter {
 		Vector3f v1v2 = new Vector3f();
 		Vector3f v1v3 = new Vector3f();
 		Vector2f w1w2 = new Vector2f();
-		Vector3f.sub(v2, v1, v1v2);
-		Vector3f.sub(v3, v1, v1v3);
-		Vector2f.sub(w2, w1, w1w2);
+		v2.sub(v1, v1v2);
+		v3.sub(v1, v1v3);
+		w2.sub(w1, w1w2);
 		Vector3f n = new Vector3f();
-		Vector3f.cross(v1v2, v1v3, n);
-		n.normalise();
+		v1v2.cross(v1v3, n);
+		n.normalize(n);
 		Vector3f tangent3 = new Vector3f(n);
-		float dot = Vector3f.dot(n, tan1);
-		tangent3.scale(dot);
-		Vector3f.sub(tan1, tangent3, tangent3);
-		tangent3.normalise();
+		float dot = n.dot(tan1);
+		tangent3.mul(dot);
+		tan1.sub(tangent3, tangent3);
+		tangent3.normalize(tangent3);
 		Vector3f cross = new Vector3f();
-		Vector3f.cross(n, tan1, cross);
-		float handedness = Vector3f.dot(cross, tan2) < 0f ? -1f : 1f;
-		Vector3f.cross(n, tangent3, cross);
-		cross.scale(handedness);
+		n.cross(tan1, cross);
+		float handedness = cross.dot(tan2) < 0f ? -1f : 1f;
+		n.cross(tangent3, cross);
+		cross.mul(handedness);
 
-		Matrix4f obj_to_tex_matrix = new Matrix4f();
-		obj_to_tex_matrix.m00 = tangent3.x; obj_to_tex_matrix.m01 = tangent3.y; obj_to_tex_matrix.m02 = tangent3.z; obj_to_tex_matrix.m03 = 0;
-		obj_to_tex_matrix.m10 = cross.x; obj_to_tex_matrix.m11 = cross.y; obj_to_tex_matrix.m12 = cross.z; obj_to_tex_matrix.m13 = 0;
-		obj_to_tex_matrix.m20 = n.x; obj_to_tex_matrix.m21 = n.y; obj_to_tex_matrix.m22 = n.z; obj_to_tex_matrix.m23 = 0;
-		obj_to_tex_matrix.m30 = 0; obj_to_tex_matrix.m31 = 0; obj_to_tex_matrix.m32 = 0; obj_to_tex_matrix.m33 = 1;
+		Matrix4f obj_to_tex_matrix = new Matrix4f(
+                tangent3.x, tangent3.y, tangent3.z, 0,
+		        cross.x, cross.y, cross.z, 0,
+		        n.x, n.y, n.z, 0,
+                0, 0, 0,1);
 
 		Matrix4f result = new Matrix4f();
 		Matrix4f result1 = new Matrix4f();
 		Matrix4f result2 = new Matrix4f();
 		// Find the texture translation
 		Matrix4f tex_translation = new Matrix4f();
-		tex_translation.translate(new Vector3f(-w1.x, -w1.y, 0f));
+		tex_translation.translate(-w1.x, -w1.y, 0f);
 		// Find the object space translation
 		Matrix4f vert_translation = new Matrix4f();
-		vert_translation.translate(new Vector3f(v1.x, v1.y, v1.z));
+		vert_translation.translate(v1.x, v1.y, v1.z);
 		// Find the relative scaling between object space and texture space
 		Matrix4f scaling = new Matrix4f();
 		float scale_factor = v1v2.length()/w1w2.length();
-		scaling.scale(new Vector3f(scale_factor, scale_factor, scale_factor));
+		scaling.scale(scale_factor, scale_factor, scale_factor);
 		// Combine matrices resulting in the matrix converting points in texture space to points in object space
-		Matrix4f.mul(vert_translation, obj_to_tex_matrix, result1);
-		Matrix4f.mul(result1, scaling, result2);
-		Matrix4f.mul(result2, tex_translation, result);
+		vert_translation.mul(obj_to_tex_matrix, result1);
+		result1.mul(scaling, result2);
+		result2.mul(tex_translation, result);
 		//Invert the matrix to get the matrix from points in object space to points in texture space
 		result.invert();
-		result.store(matrix_buf);
-
+		result.get(matrix_buf);
 		GL11.glLoadIdentity();
 		initClipPlane(GL11.GL_CLIP_PLANE0, face_index, 0, 1, indices, face_tex_coords, handedness);
 		initClipPlane(GL11.GL_CLIP_PLANE1, face_index, 1, 2, indices, face_tex_coords, handedness);
 		initClipPlane(GL11.GL_CLIP_PLANE2, face_index, 2, 0, indices, face_tex_coords, handedness);
-		matrix_buf.rewind();
 		GL11.glLoadMatrix(matrix_buf);
 	}
 

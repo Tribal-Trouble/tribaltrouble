@@ -3,7 +3,7 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Vector3f;
 
 public final class WaveAnimation {
 	private final static float TREE_WAVE_SCALE = 2f;
@@ -39,14 +39,14 @@ public final class WaveAnimation {
 		x = TREE_WAVE_SCALE*0.5f*(float)Math.cos(time*0.001f);
 		y = TREE_WAVE_SCALE*(float)Math.sin(time*0.001f);
 		wave_dir.set(x, y, 1);
-		wave_dir.normalise();
+		wave_dir.normalize();
 	}
 
 	private void computeRotation() {
-		Vector3f.cross(wave_dir, up_vec, rot_axis);
+		wave_dir.cross(up_vec, rot_axis);
 		float length = rot_axis.length();
 		rot_angle = (float)Math.asin(length);
 		float inv_length = 1f/length;
-		rot_axis.scale(inv_length);
+		rot_axis.mul(inv_length);
 	}
 }

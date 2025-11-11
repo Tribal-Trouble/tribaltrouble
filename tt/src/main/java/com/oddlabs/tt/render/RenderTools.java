@@ -14,9 +14,11 @@ import java.nio.FloatBuffer;
 final class RenderTools {
 	private final static FloatBuffer transform_matrix;
 
-	final static int NOT_IN_FRUSTUM = 1;
-	final static int IN_FRUSTUM = 2;
-	final static int ALL_IN_FRUSTUM = 3;
+	enum FrustumIntersection {
+        ALL_OUTSIDE,
+        INTERSECTING,
+        ALL_INSIDE
+	}
 
 	static {
 		transform_matrix = BufferUtils.createFloatBuffer(16);
@@ -74,107 +76,47 @@ final class RenderTools {
 		GL11.glMultMatrix(transform_matrix);
 	}
 
-	static int inFrustum(@NonNull BoundingBox box, float[][] frustum) {
-		boolean all_in = true;
+	static @NonNull FrustumIntersection inFrustum(@NonNull BoundingBox box, float[][] frustum) {
+		boolean all_corners_in_all_planes = true;
 
 		for (int f = 0; f < 6; f++) {
-			boolean one_in = false;
+			boolean any_corner_in_this_plane = false;
 
-			if (frustum[f][0] * box.bmin_x + frustum[f][1] * box.bmin_y + frustum[f][2] * box.bmin_z + frustum[f][3] > 0) {
-				if (!all_in)
-					continue;
-				else
-					one_in = true;
-			} else {
-				all_in = false;
-				if (one_in)
-					continue;
+			// Cache plane components for current plane
+			float planeA = frustum[f][0];
+			float planeB = frustum[f][1];
+			float planeC = frustum[f][2];
+			float planeD = frustum[f][3];
+
+			// Check each corner against the current plane
+			for (int corners_x = 0; corners_x <= 1; corners_x++ ) {
+                float x = 0 == corners_x ? box.bmin_x : box.bmax_x;
+				for (int corners_y = 0; corners_y <= 1; corners_y++ ) {
+                    float y = 0 == corners_y ? box.bmin_y : box.bmax_y;
+					for (int corners_z = 0; corners_z <= 1; corners_z++ ) {
+                        float z = 0 == corners_z ? box.bmin_z : box.bmax_z;
+						// Calculate signed distance from corner to plane
+						float distance = planeA * x + planeB * y + planeC * z + planeD;
+
+						if (distance > 0) { // If this corner is inside the plane
+							any_corner_in_this_plane = true;
+						} else { // If this corner is outside the plane
+							all_corners_in_all_planes = false; // At least one corner is outside at least one plane
+						}
+					}
+				}
 			}
 
-			if (frustum[f][0] * box.bmin_x + frustum[f][1] * box.bmin_y + frustum[f][2] * box.bmax_z + frustum[f][3] > 0) {
-				if (!all_in)
-					continue;
-				else
-					one_in = true;
-			} else {
-				all_in = false;
-				if (one_in)
-					continue;
+			// If no corner was inside this plane, then the entire box is outside this plane.
+			// Therefore, the box is not in the frustum.
+			if (!any_corner_in_this_plane) {
+				return FrustumIntersection.ALL_OUTSIDE;
 			}
-
-			if (frustum[f][0] * box.bmin_x + frustum[f][1] * box.bmax_y + frustum[f][2] * box.bmin_z + frustum[f][3] > 0) {
-				if (!all_in)
-					continue;
-				else
-					one_in = true;
-			} else {
-				all_in = false;
-				if (one_in)
-					continue;
-			}
-
-			if (frustum[f][0] * box.bmin_x + frustum[f][1] * box.bmax_y + frustum[f][2] * box.bmax_z + frustum[f][3] > 0) {
-				if (!all_in)
-					continue;
-				else
-					one_in = true;
-			} else {
-				all_in = false;
-				if (one_in)
-					continue;
-			}
-
-			if (frustum[f][0] * box.bmax_x + frustum[f][1] * box.bmin_y + frustum[f][2] * box.bmin_z + frustum[f][3] > 0) {
-				if (!all_in)
-					continue;
-				else
-					one_in = true;
-			} else {
-				all_in = false;
-				if (one_in)
-					continue;
-			}
-
-			if (frustum[f][0] * box.bmax_x + frustum[f][1] * box.bmin_y + frustum[f][2] * box.bmax_z + frustum[f][3] > 0) {
-				if (!all_in)
-					continue;
-				else
-					one_in = true;
-			} else {
-				all_in = false;
-				if (one_in)
-					continue;
-			}
-
-			if (frustum[f][0] * box.bmax_x + frustum[f][1] * box.bmax_y + frustum[f][2] * box.bmin_z + frustum[f][3] > 0) {
-				if (!all_in)
-					continue;
-				else
-					one_in = true;
-			} else {
-				all_in = false;
-				if (one_in)
-					continue;
-			}
-
-			if (frustum[f][0] * box.bmax_x + frustum[f][1] * box.bmax_y + frustum[f][2] * box.bmax_z + frustum[f][3] > 0) {
-				if (!all_in)
-					continue;
-				else
-					one_in = true;
-			} else {
-				all_in = false;
-				if (one_in)
-					continue;
-			}
-
-			if (!one_in)
-				return NOT_IN_FRUSTUM;
 		}
-		if (all_in)
-			return ALL_IN_FRUSTUM;
-		else
-			return IN_FRUSTUM;
+
+		// If we reach here, the box is not entirely outside any single frustum plane.
+		// Now, determine if it's fully inside or intersecting.
+        return all_corners_in_all_planes ? FrustumIntersection.ALL_INSIDE : FrustumIntersection.INTERSECTING;
 	}
 
 	static float getEyeDistanceSquared(@NonNull BoundingBox box, float camera_x, float camera_y, float camera_z) {

@@ -57,7 +57,7 @@ public final class MatrixStack {
 	
 	public @NonNull FloatBuffer toBuffer() {
 		buffer.clear();
-		current().get(buffer); // JOML's get() does not advance the buffer's position.
+		current().get(buffer);
 		// Do NOT flip the buffer here. glUniformMatrix4fv reads from the current position.
 		return buffer;
 	}

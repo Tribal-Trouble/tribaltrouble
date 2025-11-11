@@ -33,10 +33,16 @@ final class ElementRenderer implements ElementNodeVisitor<Element<?>> {
 
     @Override
     public void visitNode(@NonNull ElementNode<Element<?>> node) {
-        int frustum_state = RenderTools.NOT_IN_FRUSTUM;
-        if (visible_override || (frustum_state = RenderTools.inFrustum(node, camera.getFrustum())) >= RenderTools.IN_FRUSTUM) {
+        RenderTools.FrustumIntersection frustum_state;
+        if (camera.inNoDetailMode()) {
+            frustum_state = RenderTools.FrustumIntersection.ALL_INSIDE; // Force all in frustum for map mode
+        } else {
+            frustum_state = RenderTools.inFrustum(node, camera.getFrustum());
+        }
+
+        if (visible_override || frustum_state != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
             boolean old_override = visible_override;
-            visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+            visible_override = visible_override || frustum_state == RenderTools.FrustumIntersection.ALL_INSIDE;
             node.visitChildren(this);
             node.visitElements(this);
             visible_override = old_override;
@@ -45,10 +51,16 @@ final class ElementRenderer implements ElementNodeVisitor<Element<?>> {
 
     @Override
     public void visitLeaf(@NonNull ElementLeaf<Element<?>> leaf) {
-        int frustum_state = RenderTools.NOT_IN_FRUSTUM;
-        if (visible_override || (frustum_state = RenderTools.inFrustum(leaf, camera.getFrustum())) >= RenderTools.IN_FRUSTUM) {
+        RenderTools.FrustumIntersection frustum_state;
+        if (camera.inNoDetailMode()) {
+            frustum_state = RenderTools.FrustumIntersection.ALL_INSIDE; // Force all in frustum for map mode
+        } else {
+            frustum_state = RenderTools.inFrustum(leaf, camera.getFrustum());
+        }
+
+        if (visible_override || frustum_state != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
             boolean old_override = visible_override;
-            visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+            visible_override = visible_override || frustum_state == RenderTools.FrustumIntersection.ALL_INSIDE;
             leaf.visitElements(this);
             visible_override = old_override;
         }
@@ -56,10 +68,16 @@ final class ElementRenderer implements ElementNodeVisitor<Element<?>> {
 
     @Override
     public void visit(@NonNull Element<Element<?>> element) {
-        int frustum_state = RenderTools.NOT_IN_FRUSTUM;
-        if (visible_override || (frustum_state = RenderTools.inFrustum(element, camera.getFrustum())) >= RenderTools.IN_FRUSTUM) {
+        RenderTools.FrustumIntersection frustum_state;
+        if (camera.inNoDetailMode()) {
+            frustum_state = RenderTools.FrustumIntersection.ALL_INSIDE; // Force all in frustum for map mode
+        } else {
+            frustum_state = RenderTools.inFrustum(element, camera.getFrustum());
+        }
+
+        if (visible_override || frustum_state != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
             boolean old_override = visible_override;
-            visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+            visible_override = visible_override || frustum_state == RenderTools.FrustumIntersection.ALL_INSIDE;
             render_state.setVisibleOverride(visible_override);
             element.visit(render_state);
             visible_override = old_override;

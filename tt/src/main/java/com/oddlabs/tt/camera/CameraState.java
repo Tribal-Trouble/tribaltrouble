@@ -2,15 +2,13 @@ package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 public final class CameraState {
 	final static float MIN_ANGLE = -(float)Math.PI/2f;//+ 0.01f;
 //  private final static float MAX_ANGLE = (float)Math.PI/2f;// - 0.0001f;
 	private final static float MAX_ANGLE = -0.0001f;
-
-	private final static Vector3f vector = new Vector3f();
 
 	private final Matrix4f modl = new Matrix4f();
 	private final Matrix4f proj = new Matrix4f();
@@ -127,9 +125,9 @@ public final class CameraState {
 		camera_z = camera.camera_z;
 		vert_angle = camera.vert_angle;
 		horiz_angle = camera.horiz_angle;
-		modl.load(camera.modl);
-		proj.load(camera.proj);
-		proj_modl.load(camera.proj_modl);
+		modl.set(camera.modl);
+		proj.set(camera.proj);
+		proj_modl.set(camera.proj_modl);
 		for (int i = 0; i < frustum.length; i++) {
             System.arraycopy(camera.frustum[i], 0, frustum[i], 0, frustum[i].length);
         }
@@ -193,11 +191,11 @@ public final class CameraState {
 		float dir_z = (float)Math.sin(vangle);
 		f.set(dir_x*radius, dir_y*radius, dir_z);
 		tmp.set(-dir_y, dir_x, 0);
-		Vector3f.cross(f, tmp, tmp2);
-		Vector3f.cross(f, tmp2, s);
-		s.normalise();
-		Vector3f.cross(s, f, u);
-		u.normalise();
+		f.cross(tmp, tmp2);
+		f.cross(tmp2, s);
+		s.normalize();
+		s.cross(f, u);
+		u.normalize();
 	}
 
 	public void setTargetView(@NonNull Matrix4f proj) {
@@ -226,65 +224,54 @@ public final class CameraState {
 
 	private void doSetView(float cx, float cy, float cz, float hangle, float vangle, @NonNull Matrix4f proj) {
 		updateDirectionAndNormal(hangle, vangle, f, u, s);
-		vector.set(-cx, -cy, -cz);
-		modl.m00 = s.x;
-		modl.m10 = s.y;
-		modl.m20 = s.z;
-		modl.m30 = 0;
-		modl.m01 = u.x;
-		modl.m11 = u.y;
-		modl.m21 = u.z;
-		modl.m31 = 0;
-		modl.m02 = -f.x;
-		modl.m12 = -f.y;
-		modl.m22 = -f.z;
-		modl.m32 = 0;
-		modl.m03 = 0;
-		modl.m13 = 0;
-		modl.m23 = 0;
-		modl.m33 = 1;
-		modl.translate(vector);
-		this.proj.load(proj);
-		Matrix4f.mul(proj, modl, proj_modl);
+		// Eye position: (cx, cy, cz)
+		// Center position: (cx + f.x, cy + f.y, cz + f.z) - looking along the forward vector
+		// Up vector: (u.x, u.y, u.z) - the calculated up direction
+		modl.identity().lookAt(cx, cy, cz,
+		                       cx + f.x, cy + f.y, cz + f.z,
+		                       u.x, u.y, u.z);
+
+		this.proj.set(proj);
+		proj.mul(modl, proj_modl);
 		findFrustumPlanes(proj_modl);
 	}
 
 	public void findFrustumPlanes(@NonNull Matrix4f matrix) {
 		/* Extract the numbers for the RIGHT plane */
-		frustum[0][0] = matrix.m03 - matrix.m00;
-		frustum[0][1] = matrix.m13 - matrix.m10;
-		frustum[0][2] = matrix.m23 - matrix.m20;
-		frustum[0][3] = matrix.m33 - matrix.m30;
+		frustum[0][0] = matrix.m03() - matrix.m00();
+		frustum[0][1] = matrix.m13() - matrix.m10();
+		frustum[0][2] = matrix.m23() - matrix.m20();
+		frustum[0][3] = matrix.m33() - matrix.m30();
 
 		/* Extract the numbers for the LEFT plane */
-		frustum[1][0] = matrix.m03 + matrix.m00;
-		frustum[1][1] = matrix.m13 + matrix.m10;
-		frustum[1][2] = matrix.m23 + matrix.m20;
-		frustum[1][3] = matrix.m33 + matrix.m30;
+		frustum[1][0] = matrix.m03() + matrix.m00();
+		frustum[1][1] = matrix.m13() + matrix.m10();
+		frustum[1][2] = matrix.m23() + matrix.m20();
+		frustum[1][3] = matrix.m33() + matrix.m30();
 
 		/* Extract the BOTTOM plane */
-		frustum[2][0] = matrix.m03 + matrix.m01;
-		frustum[2][1] = matrix.m13 + matrix.m11;
-		frustum[2][2] = matrix.m23 + matrix.m21;
-		frustum[2][3] = matrix.m33 + matrix.m31;
+		frustum[2][0] = matrix.m03() + matrix.m01();
+		frustum[2][1] = matrix.m13() + matrix.m11();
+		frustum[2][2] = matrix.m23() + matrix.m21();
+		frustum[2][3] = matrix.m33() + matrix.m31();
 
 		/* Extract the TOP plane */
-		frustum[3][0] = matrix.m03 - matrix.m01;
-		frustum[3][1] = matrix.m13 - matrix.m11;
-		frustum[3][2] = matrix.m23 - matrix.m21;
-		frustum[3][3] = matrix.m33 - matrix.m31;
+		frustum[3][0] = matrix.m03() - matrix.m01();
+		frustum[3][1] = matrix.m13() - matrix.m11();
+		frustum[3][2] = matrix.m23() - matrix.m21();
+		frustum[3][3] = matrix.m33() - matrix.m31();
 
 		/* Extract the FAR plane */
-		frustum[4][0] = matrix.m03 - matrix.m02;
-		frustum[4][1] = matrix.m13 - matrix.m12;
-		frustum[4][2] = matrix.m23 - matrix.m22;
-		frustum[4][3] = matrix.m33 - matrix.m32;
+		frustum[4][0] = matrix.m03() - matrix.m02();
+		frustum[4][1] = matrix.m13() - matrix.m12();
+		frustum[4][2] = matrix.m23() - matrix.m22();
+		frustum[4][3] = matrix.m33() - matrix.m32();
 
 		/* Extract the NEAR plane */
-		frustum[5][0] = matrix.m03 + matrix.m02;
-		frustum[5][1] = matrix.m13 + matrix.m12;
-		frustum[5][2] = matrix.m23 + matrix.m22;
-		frustum[5][3] = matrix.m33 + matrix.m32;
+		frustum[5][0] = matrix.m03() + matrix.m02();
+		frustum[5][1] = matrix.m13() + matrix.m12();
+		frustum[5][2] = matrix.m23() + matrix.m22();
+		frustum[5][3] = matrix.m33() + matrix.m32();
 
             for (float[] frustum1 : frustum) {
                 /* Normalize the result */

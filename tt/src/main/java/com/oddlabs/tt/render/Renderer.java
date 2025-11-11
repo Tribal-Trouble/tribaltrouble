@@ -62,7 +62,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLContext;
-import org.lwjgl.util.vector.Matrix4f;
+import org.joml.Matrix4f;
 
 import java.io.File;
 import java.io.IOException;
@@ -124,7 +124,7 @@ public final class Renderer {
 		}
 	}
 
-	public static void runGame(String[] args) throws IOException {
+	public static void runGame(@NonNull String @NonNull ... args) throws IOException {
 		renderer_instance.run(args);
 	}
 
@@ -137,7 +137,7 @@ public final class Renderer {
 	}
 
 	private void setupMatrices(@NonNull GUIRoot gui_root) {
-		proj.setIdentity();
+		proj.identity();
 		multProjection(proj);
 		CameraState camera = gui_root.getDelegate().getCamera().getState();
 		camera.setView(proj);
@@ -146,12 +146,10 @@ public final class Renderer {
 			frustum_state.set(camera);
 		}
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		proj.store(matrix_buf);
-		matrix_buf.rewind();
+		proj.get(matrix_buf);
 		GL11.glLoadMatrix(matrix_buf);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
-		camera.getModelView().store(matrix_buf);
-		matrix_buf.rewind();
+		camera.getModelView().get(matrix_buf);
 		GL11.glLoadMatrix(matrix_buf);
 	}
 
@@ -161,19 +159,8 @@ public final class Renderer {
 		float zNear = Globals.VIEW_MIN;
 		float zFar = Globals.VIEW_MAX;
 
-		float yScale = 1.0f / (float) Math.tan(Math.toRadians(fovy / 2.0f));
-		float xScale = yScale / aspect;
-		float frustumLength = zFar - zNear;
-
-		Matrix4f perspectiveMatrix = new Matrix4f();
-		perspectiveMatrix.m00 = xScale;
-		perspectiveMatrix.m11 = yScale;
-		perspectiveMatrix.m22 = -((zFar + zNear) / frustumLength);
-		perspectiveMatrix.m23 = -1;
-		perspectiveMatrix.m32 = -((2 * zNear * zFar) / frustumLength);
-		perspectiveMatrix.m33 = 0;
-
-		Matrix4f.mul(matrix, perspectiveMatrix, matrix);
+		Matrix4f perspectiveMatrix = new Matrix4f().perspective((float)Math.toRadians(fovy), aspect, zNear, zFar);
+		matrix.mul(perspectiveMatrix);
 	}
 
 	public static void registerTrianglesRendered(int count) {
@@ -225,7 +212,7 @@ public final class Renderer {
             }
 	}
 
-	private void run(String @Nullable [] args) throws IOException {
+	private void run(@NonNull String @NonNull ... args) throws IOException {
 		long start_time = System.currentTimeMillis();
 		boolean first_frame = true;
 		// This will be configured by setupLogging, but we need to log before that.
@@ -250,32 +237,30 @@ public final class Renderer {
 		boolean zipped = false;
 		boolean silent = false;
 		Settings settings = new Settings();
-		if (args != null) {
-			for (int i = 0; i < args.length; i++) {
-                switch (args[i]) {
-                    case "--grabframes":
-                        grab_frames = true;
-                        break;
-                    case "--eventload":
-                        eventload = true;
-                        i++;
-                        switch (args[i]) {
-                            case "zipped":
-                                zipped = true;
-                                break;
-                            case "normal":
-                                break;
-                            default:
-                                throw new RuntimeException("Unknown event load mode: " + args[i]);
-                        }
-                        break;
-                    case "--silent":
-                        silent = true;
-                        break;
-                    default:
-                        throw new RuntimeException("Unknown command line flag: " + args[i]);
-                }
-			}
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]) {
+                case "--grabframes":
+                    grab_frames = true;
+                    break;
+                case "--eventload":
+                    eventload = true;
+                    i++;
+                    switch (args[i]) {
+                        case "zipped":
+                            zipped = true;
+                            break;
+                        case "normal":
+                            break;
+                        default:
+                            throw new RuntimeException("Unknown event load mode: " + args[i]);
+                    }
+                    break;
+                case "--silent":
+                    silent = true;
+                    break;
+                default:
+                    throw new RuntimeException("Unknown command line flag: " + args[i]);
+            }
 		}
 
 		// fetch initial settings
@@ -461,19 +446,19 @@ public final class Renderer {
 			public void playerGamespeedChanged() {
 			}
 			@Override
-			public void newAttackNotification(Selectable target) {
+			public void newAttackNotification(@NonNull Selectable target) {
 			}
 			@Override
 			public void newSelectableNotification(Selectable target) {
 			}
 			@Override
-			public void registerTarget(Target target) {
+			public void registerTarget(@NonNull Target target) {
 			}
 			@Override
-			public void unregisterTarget(Target target) {
+			public void unregisterTarget(@NonNull Target target) {
 			}
 			@Override
-			public void updateTreeLowDetail(Matrix4f matrix, TreeSupply tree) {
+			public void updateTreeLowDetail(@NonNull Matrix4f matrix, @NonNull TreeSupply tree) {
 			}
 			@Override
 			public void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {

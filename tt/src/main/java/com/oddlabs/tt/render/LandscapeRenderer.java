@@ -151,7 +151,7 @@ public final class LandscapeRenderer implements Animated {
         }
     }
 
-    public void pick(CameraState camera, boolean visible_override, Set<LandscapeLeaf> set) {
+    public void pick(@NonNull CameraState camera, boolean visible_override, @NonNull Set<LandscapeLeaf> set) {
         doPrepareAll(camera, visible_override, set);
     }
 
@@ -162,7 +162,7 @@ public final class LandscapeRenderer implements Animated {
 
     private final static Visitor patch_visitor = new Visitor();
 
-    private void doPrepareAll(final CameraState camera, final boolean visible_override, final Collection<LandscapeLeaf> result) {
+    private void doPrepareAll(@NonNull CameraState camera, final boolean visible_override, @NonNull Collection<LandscapeLeaf> result) {
         endEdit();
         patch_visitor.setup(camera, visible_override, result);
         world.getPatchRoot().visit(patch_visitor);
@@ -312,7 +312,7 @@ public final class LandscapeRenderer implements Animated {
         private boolean visible_override;
         private Collection<LandscapeLeaf> result;
 
-        private void setup(CameraState camera, boolean visible_override, Collection<LandscapeLeaf> result) {
+        private void setup(@NonNull CameraState camera, boolean visible_override, @NonNull Collection<LandscapeLeaf> result) {
             this.camera = camera;
             this.visible_override = visible_override;
             this.result = result;
@@ -320,10 +320,10 @@ public final class LandscapeRenderer implements Animated {
 
         @Override
         public void visitGroup(@NonNull PatchGroup group) {
-            int frustum_state = RenderTools.NOT_IN_FRUSTUM;
-            if (visible_override || (frustum_state = RenderTools.inFrustum(group, camera.getFrustum())) >= RenderTools.IN_FRUSTUM) {
+            RenderTools.FrustumIntersection frustum_state = RenderTools.FrustumIntersection.ALL_OUTSIDE;
+            if (visible_override || (frustum_state = RenderTools.inFrustum(group, camera.getFrustum())) != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
                 boolean old_override = visible_override;
-                visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+                visible_override = visible_override || frustum_state == RenderTools.FrustumIntersection.ALL_INSIDE;
                 group.visitChildren(this);
                 visible_override = old_override;
             }
@@ -331,7 +331,7 @@ public final class LandscapeRenderer implements Animated {
 
         @Override
         public void visitLeaf(@NonNull LandscapeLeaf leaf) {
-            if (visible_override || RenderTools.inFrustum(leaf, camera.getFrustum()) >= RenderTools.IN_FRUSTUM) {
+            if (visible_override || RenderTools.inFrustum(leaf, camera.getFrustum()) != RenderTools.FrustumIntersection.ALL_OUTSIDE) {
                 result.add(leaf);
             }
         }

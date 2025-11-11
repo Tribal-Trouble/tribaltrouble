@@ -14,7 +14,7 @@ import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.resource.Resources;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Vector3f;
 
 import java.nio.FloatBuffer;
 

@@ -2,7 +2,7 @@ package com.oddlabs.tt.landscape;
 
 import com.oddlabs.tt.global.Globals;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Vector3f;
 
 import java.util.List;
 
@@ -12,8 +12,6 @@ public final class HeightMap {
 	public final static int GRID_UNITS_PER_PATCH = 1 << GRID_UNITS_PER_PATCH_EXP;
 
 	final static int MIN_INTERSECTING_LEVEL = 5;
-	private final static Vector3f vec1 = new Vector3f();
-	private final static Vector3f vec2 = new Vector3f();
 	private final static Vector3f plane = new Vector3f();
 
 	private final float[][] world;
@@ -144,9 +142,9 @@ public final class HeightMap {
 		float v2y = h3y - h1y;
 		float v2z = h3z - h1z;
 
-		vec1.set(v1x, v1y, v1z);
-		vec2.set(v2x, v2y, v2z);
-		Vector3f.cross(vec2, vec1, vec2);
+		Vector3f vec1 = new Vector3f(v1x, v1y, v1z);
+        Vector3f vec2 = new Vector3f(v2x, v2y, v2z);
+		vec2.cross(vec1);
 
 		// Optimization for planeHeight!
 		float inv_z = -1f/vec2.z;

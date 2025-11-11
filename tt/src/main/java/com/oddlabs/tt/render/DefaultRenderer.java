@@ -238,8 +238,8 @@ public final class DefaultRenderer implements UIRenderer {
         }
 
         // Update debug renderer's matrix stacks from camera state
-        modelViewStack.current().set(toJOML(frustum_state.getModelView()));
-        projectionStack.current().set(toJOML(frustum_state.getProjectionMatrix()));
+        modelViewStack.current().set(frustum_state.getModelView());
+        projectionStack.current().set(frustum_state.getProjectionMatrix());
 
         drawAxes();
 
@@ -258,8 +258,8 @@ public final class DefaultRenderer implements UIRenderer {
         
         if (Globals.isBoundsEnabled(BoundingMode.REGIONS)) {
             // Update debug renderer's matrix stacks from camera state
-            modelViewStack.current().set(toJOML(frustum_state.getModelView()));
-            projectionStack.current().set(toJOML(frustum_state.getProjectionMatrix()));
+            modelViewStack.current().set(frustum_state.getModelView());
+            projectionStack.current().set(frustum_state.getProjectionMatrix());
             world.getUnitGrid().debugRenderRegions(landscape_x, landscape_y);
         }
         
@@ -269,8 +269,8 @@ public final class DefaultRenderer implements UIRenderer {
         
         if (Globals.isBoundsEnabled(BoundingMode.UNIT_GRID)) {
             // Update debug renderer's matrix stacks from camera state
-            modelViewStack.current().set(toJOML(frustum_state.getModelView()));
-            projectionStack.current().set(toJOML(frustum_state.getProjectionMatrix()));
+            modelViewStack.current().set(frustum_state.getModelView());
+            projectionStack.current().set(frustum_state.getProjectionMatrix());
             world.getUnitGrid().debugRender(landscape_x, landscape_y);
             // Render paths for selected units
             if (selection != null) {
@@ -288,15 +288,5 @@ public final class DefaultRenderer implements UIRenderer {
         }
     }
 
-    /**
-     * Helper method to convert an LWJGL Matrix4f to a JOML Matrix4f.
-     * @param lwjglMatrix The LWJGL Matrix4f to convert.
-     * @return A new JOML Matrix4f with the same contents.
-     */
-    private static org.joml.@NonNull Matrix4f toJOML(org.lwjgl.util.vector.@NonNull Matrix4f lwjglMatrix) {
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-        lwjglMatrix.store(buffer);
-        buffer.flip(); // Flip after store to prepare for reading by JOML
-        return new org.joml.Matrix4f().set(buffer);
-    }
+
 }

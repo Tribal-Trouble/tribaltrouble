@@ -4,8 +4,7 @@ import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.landscape.HeightMap;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Vector4f;
 
 public final class Arrow extends GUIObject {
 	private final static float SECONDS_PER_FLASH = .5f;
@@ -40,11 +39,11 @@ public final class Arrow extends GUIObject {
 	private final static Vector4f point = new Vector4f();
 	private @NonNull Vector4f project3DTo2D(float x, float y, float z) {
 		point.set(x,y,z,1);
-		Matrix4f.transform(gui_root.getDelegate().getCamera().getState().getProjectionModelView(), point, point);
+		gui_root.getDelegate().getCamera().getState().getProjectionModelView().transform(point, point);
 		if (point.w < .1f)
 			point.w = .1f;
 		float inv_w = 1/point.w;
-		point.set((point.x*inv_w + 1)*.5f*LocalInput.getViewWidth(), (point.y*inv_w + 1)*.5f*LocalInput.getViewHeight());
+		point.set((point.x*inv_w + 1)*.5f*LocalInput.getViewWidth(), (point.y*inv_w + 1)*.5f*LocalInput.getViewHeight(), 0, 0);
 		return point;
 	}
 

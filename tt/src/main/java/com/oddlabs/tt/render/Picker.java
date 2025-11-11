@@ -29,10 +29,9 @@ import com.oddlabs.tt.viewer.Selection;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -48,19 +47,12 @@ public final class Picker implements Updatable {
 	private final static float TOOL_TIP_DELAY = .1f;
 
 	private final Matrix4f proj = new Matrix4f();
-	private final Matrix4f modl = new Matrix4f();
+
 	private final IntBuffer viewport = BufferUtils.createIntBuffer(16);
 	private final float[] hit_result_array = new float[3];
 	private final float[] dir_vector = new float[3];
 
-	// JOML replacements for GLU
-	private final org.joml.Matrix4f jomlTempMatrix = new org.joml.Matrix4f();
-	private final org.joml.Vector3f jomlTempVector = new org.joml.Vector3f();
-	private final FloatBuffer jomlConvBuffer = BufferUtils.createFloatBuffer(16);
 	private final int[] viewportArray = new int[4];
-
-	// Temp vector for matrix operations
-	private final Vector3f temp_vector = new Vector3f();
 
 	private final List<Target> element_pick_list = new ArrayList<>();
 	private final List<TreeSupply> tree_pick_list = new ArrayList<>();
@@ -305,23 +297,17 @@ public final class Picker implements Updatable {
 	 * @param winz The window z-coordinate (depth).
 	 * @param proj The combined projection-model-view matrix from the camera.
 	 */
-	private void unproject(float winx, float winy, float winz, @NonNull Matrix4f proj) {
-		// Convert LWJGL matrix to JOML matrix.
-		jomlConvBuffer.clear();
-		proj.store(jomlConvBuffer);
-		jomlConvBuffer.flip();
-		jomlTempMatrix.set(jomlConvBuffer);
-
+	private void unproject(float winx, float winy, float winz, Matrix4f proj) {
 		// Convert viewport buffer to array. The buffer position is reset in setupPicking().
 		viewport.get(0, viewportArray, 0, 4);
 
-		// Unproject using JOML.
-		jomlTempMatrix.unproject(winx, winy, winz, viewportArray, jomlTempVector);
+        Vector3f tempVector = new Vector3f();
+        proj.unproject(winx, winy, winz, viewportArray, tempVector);
 
 		// Store result in the original class field array.
-		hit_result_array[0] = jomlTempVector.x;
-		hit_result_array[1] = jomlTempVector.y;
-		hit_result_array[2] = jomlTempVector.z;
+		hit_result_array[0] = tempVector.x;
+		hit_result_array[1] = tempVector.y;
+		hit_result_array[2] = tempVector.z;
 	}
 
 	private static float computeTMax(float bmin, float bmax, float c, float d) {
@@ -515,16 +501,16 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 	}
 
 	private void setupPicking(@NonNull CameraState camera, float x_center, float y_center, int width, int height) {
-		proj.setIdentity();
+		proj.identity();
 		viewport.clear();
 		viewport.put(0).put(0).put(LocalInput.getViewWidth()).put(LocalInput.getViewHeight());
 		viewport.flip();
 
 		if (width > 0 && height > 0) {
-			temp_vector.set((viewport.get(2) - 2 * (x_center - viewport.get(0))) / width, (viewport.get(3) - 2 * (y_center - viewport.get(1))) / height, 0);
-			proj.translate(temp_vector);
+			Vector3f temp_vector = new Vector3f((viewport.get(2) - 2 * (x_center - viewport.get(0))) / width, (viewport.get(3) - 2 * (y_center - viewport.get(1))) / height, 0);
+			proj.translate(temp_vector.x, temp_vector.y, temp_vector.z);
 			temp_vector.set((float)viewport.get(2) / width, (float)viewport.get(3) / height, 1.0f);
-			proj.scale(temp_vector);
+			proj.scale(temp_vector.x, temp_vector.y, temp_vector.z);
 		}
 
 		Renderer.multProjection(proj);

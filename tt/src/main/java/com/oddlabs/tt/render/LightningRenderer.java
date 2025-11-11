@@ -10,8 +10,8 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -27,16 +27,16 @@ final class LightningRenderer {
     private static final int MAX_PARTICLES = 1000;
     private static final int FLOATS_PER_PARTICLE = 72; // 8 vertices * 9 floats (x,y,z,u,v,r,g,b,a)
 
-	private static FloatBuffer particle_buffer = BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE);
-    private static FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
+	private static final FloatBuffer particle_buffer = BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE);
+    private static final FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
 
     public static void render(@NonNull RenderQueues render_queues, @NonNull List<Lightning> emitter_queue, @NonNull CameraState state) {
         tmp_camera.set(state);
-        view_matrix.setIdentity();
+        view_matrix.identity();
         tmp_camera.setView(view_matrix);
-        float rx = tmp_camera.getModelView().m00;
-        float ry = tmp_camera.getModelView().m10;
-        float rz = tmp_camera.getModelView().m20;
+        float rx = tmp_camera.getModelView().m00();
+        float ry = tmp_camera.getModelView().m10();
+        float rz = tmp_camera.getModelView().m20();
         right_vector.set(rx, ry, rz);
 
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);

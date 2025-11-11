@@ -8,12 +8,12 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.StateChecksum;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.util.vector.Matrix4f;
 
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 /**
@@ -24,17 +24,11 @@ public abstract class Camera implements Animated {
     private final static float SMOOTHNESS_FACTOR = 15;
 
     private final IntBuffer viewport = BufferUtils.createIntBuffer(16);
-    private final org.lwjgl.util.vector.Matrix4f proj = new org.lwjgl.util.vector.Matrix4f();
+    private final Matrix4f proj = new Matrix4f();
     private final CameraState tmp_camera = new CameraState();
 
-    // JOML replacements for GLU
-    private final org.joml.Matrix4f jomlProjMatrix = new org.joml.Matrix4f();
-    private final org.joml.Matrix4f jomlModelMatrix = new org.joml.Matrix4f();
-    private final org.joml.Vector3f jomlTempVector = new org.joml.Vector3f();
-    private final FloatBuffer jomlConvBuffer = BufferUtils.createFloatBuffer(16);
     private final int[] viewportArray = new int[4];
     private final float[] hit_result_array = new float[3];
-
 
     private final @Nullable HeightMap heightmap;
 
@@ -92,30 +86,19 @@ public abstract class Camera implements Animated {
 
         for (int i = 0; i < 2; i++) {
                 for (int j = 0; j < 2; j++) {
-                        proj.setIdentity();
                         float fovy = Globals.FOV;
                         float aspect = LocalInput.getViewAspect();
                         float zNear = Globals.VIEW_MIN;
                         float zFar = Globals.VIEW_MAX;
-
-                        // Create a perspective projection matrix manually, since LWJGL 2's Matrix4f lacks a frustum() method.
-                        float yScale = 1.0f / (float) Math.tan(Math.toRadians(fovy / 2.0f));
-                        float xScale = yScale / aspect;
-                        float frustumLength = zFar - zNear;
-
-                        proj.m00 = xScale;
-                        proj.m11 = yScale;
-                        proj.m22 = -((zFar + zNear) / frustumLength);
-                        proj.m23 = -1;
-                        proj.m32 = -((2 * zNear * zFar) / frustumLength);
-                        proj.m33 = 0;
+                        proj.setPerspective((float)Math.toRadians(fovy), aspect, zNear, zFar);
                         tmp_camera.set(state);
                         tmp_camera.setTargetView(proj);
 
+                        Matrix4f combinedMatrix = new Matrix4f(proj).mul(tmp_camera.getModelView());
                         unproject(i*LocalInput.getViewWidth(),
                                         j*LocalInput.getViewHeight(),
                                         0f,
-                                        tmp_camera.getModelView(), proj);
+                                        tmp_camera.getModelView(), combinedMatrix);
                         float hit_x = hit_result_array[0];
                         float hit_y = hit_result_array[1];
                         float hit_z = hit_result_array[2];
@@ -148,29 +131,16 @@ public abstract class Camera implements Animated {
     }
 
     private void unproject(float winx, float winy, float winz, @NonNull Matrix4f model, @NonNull Matrix4f proj) {
-        jomlConvBuffer.clear();
-        model.store(jomlConvBuffer);
-        jomlConvBuffer.flip();
-        jomlModelMatrix.set(jomlConvBuffer);
-
-        jomlConvBuffer.clear();
-        proj.store(jomlConvBuffer);
-        jomlConvBuffer.flip();
-        jomlProjMatrix.set(jomlConvBuffer);
-
-        unproject(winx, winy, winz, jomlModelMatrix, jomlProjMatrix);
-    }
-
-    private void unproject(float winx, float winy, float winz, org.joml.@NonNull Matrix4f model, org.joml.@NonNull Matrix4f proj) {
         // Use an absolute get to avoid changing the buffer's position
         viewport.get(0, viewportArray, 0, 4);
 
+        Vector3f tempVector = new Vector3f();
         proj.mul(model);
-        proj.unproject(winx, winy, winz, viewportArray, jomlTempVector);
+        proj.unproject(winx, winy, winz, viewportArray, tempVector);
 
-        hit_result_array[0] = jomlTempVector.x;
-        hit_result_array[1] = jomlTempVector.y;
-        hit_result_array[2] = jomlTempVector.z;
+        hit_result_array[0] = tempVector.x;
+        hit_result_array[1] = tempVector.y;
+        hit_result_array[2] = tempVector.z;
     }
 
     public final CameraState getState() {

@@ -10,8 +10,8 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -30,15 +30,15 @@ final class EmitterRenderer {
     private static final int MAX_PARTICLES = 10000;
     private static final int FLOATS_PER_PARTICLE = 36; // 4 vertices * 9 floats (x,y,z,u,v,r,g,b,a)
 
-    private static FloatBuffer particle_buffer = BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE);
-    private static FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
+    private static final FloatBuffer particle_buffer = BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE);
+    private static final FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
 
 	public static void render(@NonNull RenderQueues render_queues, @NonNull List<Emitter> emitter_queue, @NonNull CameraState state) {
 		tmp_camera.set(state);
-		view_matrix.setIdentity();
+		view_matrix.identity();
 		tmp_camera.setView(view_matrix);
-		float rx = tmp_camera.getModelView().m00; float ry = tmp_camera.getModelView().m10; float rz = tmp_camera.getModelView().m20;
-		float upx = tmp_camera.getModelView().m01; float upy = tmp_camera.getModelView().m11; float upz = tmp_camera.getModelView().m21;
+		float rx = tmp_camera.getModelView().m00(); float ry = tmp_camera.getModelView().m10(); float rz = tmp_camera.getModelView().m20();
+		float upx = tmp_camera.getModelView().m01(); float upy = tmp_camera.getModelView().m11(); float upz = tmp_camera.getModelView().m21();
 		right_plus_up.set(rx + upx, ry + upy, rz + upz);
 		right_minus_up.set(rx - upx, ry - upy, rz - upz);
 
@@ -77,10 +77,10 @@ final class EmitterRenderer {
 		float b = particle.getColorB();
 		float a = particle.getColorA();
 
-		particle_buffer.put(x - right_plus_up.getX()*radius_x).put(y - right_plus_up.getY()*radius_y).put(z - right_plus_up.getZ()*radius_z).put(particle.getU1()).put(particle.getV1()).put(r).put(g).put(b).put(a);
-		particle_buffer.put(x + right_minus_up.getX()*radius_x).put(y + right_minus_up.getY()*radius_y).put(z + right_minus_up.getZ()*radius_z).put(particle.getU2()).put(particle.getV2()).put(r).put(g).put(b).put(a);
-		particle_buffer.put(x + right_plus_up.getX()*radius_x).put(y + right_plus_up.getY()*radius_y).put(z + right_plus_up.getZ()*radius_z).put(particle.getU3()).put(particle.getV3()).put(r).put(g).put(b).put(a);
-		particle_buffer.put(x - right_minus_up.getX()*radius_x).put(y - right_minus_up.getY()*radius_y).put(z - right_minus_up.getZ()*radius_z).put(particle.getU4()).put(particle.getV4()).put(r).put(g).put(b).put(a);
+		particle_buffer.put(x - right_plus_up.x*radius_x).put(y - right_plus_up.y*radius_y).put(z - right_plus_up.z*radius_z).put(particle.getU1()).put(particle.getV1()).put(r).put(g).put(b).put(a);
+		particle_buffer.put(x + right_minus_up.x*radius_x).put(y + right_minus_up.y*radius_y).put(z + right_minus_up.z*radius_z).put(particle.getU2()).put(particle.getV2()).put(r).put(g).put(b).put(a);
+		particle_buffer.put(x + right_plus_up.x*radius_x).put(y + right_plus_up.y*radius_y).put(z + right_plus_up.z*radius_z).put(particle.getU3()).put(particle.getV3()).put(r).put(g).put(b).put(a);
+		particle_buffer.put(x - right_minus_up.x*radius_x).put(y - right_minus_up.y*radius_y).put(z - right_minus_up.z*radius_z).put(particle.getU4()).put(particle.getV4()).put(r).put(g).put(b).put(a);
 	}
 
 	private static void render(@NonNull RenderQueues render_queues, @NonNull Emitter emitter) {

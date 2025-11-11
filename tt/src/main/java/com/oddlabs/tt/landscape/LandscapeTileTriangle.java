@@ -3,7 +3,7 @@ package com.oddlabs.tt.landscape;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Vector3f;
 
 import java.nio.ShortBuffer;
 

@@ -12,9 +12,9 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public final class TreeSupply extends AbstractTreeGroup implements Supply, Target, Animated, ModelToolTip {
 	private final static int INITIAL_SUPPLIES = 10;
@@ -57,7 +57,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		Vector4f dest = new Vector4f();
 		for (int i = 0; i < vertices.length; i += 3) {
 			src.set(vertices[i], vertices[i + 1], vertices[i + 2], 1f);
-			Matrix4f.transform(matrix, src, dest);
+			matrix.transform(src, dest);
 			checkBoundsX(dest.x);
 			checkBoundsY(dest.y);
 			checkBoundsZ(dest.z);
@@ -107,7 +107,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		scale = 1 - inv*inv*inv*inv*inv*inv;
 
 		low_detail_scale.set(scale, scale, scale);
-		Matrix4f.scale(low_detail_scale, matrix, low_detail_matrix);
+		matrix.scale(low_detail_scale, low_detail_matrix);
 		world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
 	}
 
@@ -229,7 +229,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
 		if (animation_time >= SECOND_PER_TREEFALL) {
 			world.getAnimationManagerRealTime().removeAnimation(this);
-			low_detail_matrix.setZero();
+			low_detail_matrix.zero();
 			world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
 			hide = true;
 		}

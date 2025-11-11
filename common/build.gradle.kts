@@ -10,7 +10,6 @@ dependencies {
     api("org.jspecify:jspecify:1.0.0")
     api("org.joml:joml:1.10.8")
     api("org.lwjgl.lwjgl:lwjgl:$lwjglVersion")
-    api("org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}")
     natives("org.lwjgl.lwjgl:lwjgl-platform:$lwjglVersion:natives-windows")
     natives("org.lwjgl.lwjgl:lwjgl-platform:$lwjglVersion:natives-linux")
     natives("org.lwjgl.lwjgl:lwjgl-platform:$lwjglVersion:natives-osx")

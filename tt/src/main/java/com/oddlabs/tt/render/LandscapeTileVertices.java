@@ -7,7 +7,7 @@ import com.oddlabs.tt.vbo.FloatVBO;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Vector3f;
 
 import java.nio.FloatBuffer;
 
@@ -23,7 +23,6 @@ final class LandscapeTileVertices {
 
 	private final static Vector3f v1 = new Vector3f();
 	private final static Vector3f v2 = new Vector3f();
-	private final static Vector3f normal = new Vector3f();
 
 	public LandscapeTileVertices(HeightMap heightmap, int patch_exp, int num_patches) {
 		this.heightmap = heightmap;
@@ -147,8 +146,7 @@ final class LandscapeTileVertices {
 
 		v1.set(HeightMap.METERS_PER_UNIT_GRID * 2, 0, hR - hL);
 		v2.set(0, HeightMap.METERS_PER_UNIT_GRID * 2, hU - hD);
-		Vector3f.cross(v1, v2, normal);
-		normal.normalise();
+        Vector3f normal = v1.cross(v2, new Vector3f()).normalize();
 		return normal;
 	}
 }

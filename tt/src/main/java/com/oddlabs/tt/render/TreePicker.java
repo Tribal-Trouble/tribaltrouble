@@ -137,10 +137,10 @@ class TreePicker implements TreeNodeVisitor {
 
 	@Override
 	public final void visitLeaf(@NonNull TreeLeaf tree_leaf) {
-		int frustum_state = RenderTools.NOT_IN_FRUSTUM;
-		if (tree_leaf.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_leaf, camera.getFrustum())) >= RenderTools.IN_FRUSTUM)) {
+        RenderTools.FrustumIntersection frustum_state = RenderTools.FrustumIntersection.ALL_OUTSIDE;
+		if (tree_leaf.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_leaf, camera.getFrustum())) != RenderTools.FrustumIntersection.ALL_OUTSIDE)) {
 			boolean old_override = visible_override;
-			visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+			visible_override = visible_override || frustum_state == RenderTools.FrustumIntersection.ALL_INSIDE;
 			if (visible_override && canRenderLowDetail(tree_leaf)) {
 				addToLowDetailRenderList(tree_leaf);
 			} else {
@@ -152,10 +152,10 @@ class TreePicker implements TreeNodeVisitor {
 
 	@Override
 	public final void visitNode(@NonNull TreeGroup tree_group) {
-		int frustum_state = RenderTools.NOT_IN_FRUSTUM;
-		if (tree_group.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_group, camera.getFrustum())) >= RenderTools.IN_FRUSTUM)) {
+        RenderTools.FrustumIntersection frustum_state = RenderTools.FrustumIntersection.ALL_OUTSIDE;
+		if (tree_group.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_group, camera.getFrustum())) != RenderTools.FrustumIntersection.ALL_OUTSIDE)) {
 			boolean old_override = visible_override;
-			visible_override = visible_override || frustum_state == RenderTools.ALL_IN_FRUSTUM;
+			visible_override = visible_override || frustum_state == RenderTools.FrustumIntersection.ALL_INSIDE;
 			if (visible_override && canRenderLowDetail(tree_group))
 				addToLowDetailRenderList(tree_group);
 			else
@@ -175,7 +175,7 @@ class TreePicker implements TreeNodeVisitor {
 
 	private boolean pickingInFrustum(@NonNull TreeSupply tree_supply, float[][] frustum) {
 		picking_selection_box.setBounds(-SELECTION_RADIUS + tree_supply.getPositionX(), SELECTION_RADIUS + tree_supply.getPositionX(), -SELECTION_RADIUS + tree_supply.getPositionY(), SELECTION_RADIUS + tree_supply.getPositionY(), tree_supply.bmin_z, tree_supply.bmin_z + (tree_supply.bmax_z - tree_supply.bmin_z)*getHeightScale(tree_supply.getTreeType()));
-		return RenderTools.inFrustum(picking_selection_box, frustum) >= RenderTools.IN_FRUSTUM;
+		return RenderTools.inFrustum(picking_selection_box, frustum) != RenderTools.FrustumIntersection.ALL_OUTSIDE;
 	}
 
 	private void addToRenderList(@NonNull TreeSupply tree, @NonNull CameraState camera) {
@@ -199,7 +199,7 @@ class TreePicker implements TreeNodeVisitor {
 		if (isPicking())
 			in_view = !tree_supply.isDead() && (visible_override || pickingInFrustum(tree_supply, camera.getFrustum()));
 		else
-			in_view = visible_override || RenderTools.inFrustum(tree_supply, camera.getFrustum()) >= RenderTools.IN_FRUSTUM;
+			in_view = visible_override || RenderTools.inFrustum(tree_supply, camera.getFrustum()) != RenderTools.FrustumIntersection.ALL_OUTSIDE;
 		if (in_view) {
 			if (canRenderLowDetail(tree_supply)) {
 				addToLowDetailRenderList(tree_supply);

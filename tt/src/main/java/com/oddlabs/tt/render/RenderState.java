@@ -134,7 +134,7 @@ public final class RenderState implements ElementVisitor {
 	private final static BoundingBox picking_selection_box = new BoundingBox();
 	private static boolean pickingInFrustum(@NonNull Selectable selectable, float[][] frustum, float z_offset, float selection_radius, float selection_height) {
 		picking_selection_box.setBounds(-selection_radius + selectable.getPositionX(), selection_radius + selectable.getPositionX(), -selection_radius + selectable.getPositionY(), selection_radius + selectable.getPositionY(), z_offset, z_offset + selection_height);
-		return RenderTools.inFrustum(picking_selection_box, frustum) >= RenderTools.IN_FRUSTUM;
+		return RenderTools.inFrustum(picking_selection_box, frustum) != RenderTools.FrustumIntersection.ALL_OUTSIDE;
 	}
 
 	boolean isHovered(Selectable selectable) {

@@ -3,7 +3,6 @@ package com.oddlabs.tt.util;
 import com.oddlabs.tt.global.Globals;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.util.vector.Matrix4f;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -223,25 +222,6 @@ public final class Utils {
 		x = sqrtFloatBuf.get(0);
 		x *= (1.5f - xhalf * x * x); // This line may be duplicated for more accuracy.
 		return x;
-	}
-
-	public static void storeMatrixInArray(@NonNull Matrix4f m, float[] @NonNull [] a) {
-		a[0][0] = m.m00;
-		a[0][1] = m.m01;
-		a[0][2] = m.m02;
-		a[0][3] = m.m03;
-		a[1][0] = m.m10;
-		a[1][1] = m.m11;
-		a[1][2] = m.m12;
-		a[1][3] = m.m13;
-		a[2][0] = m.m20;
-		a[2][1] = m.m21;
-		a[2][2] = m.m22;
-		a[2][3] = m.m23;
-		a[3][0] = m.m30;
-		a[3][1] = m.m31;
-		a[3][2] = m.m32;
-		a[3][3] = m.m33;
 	}
 
     private Utils() {

@@ -13,8 +13,8 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.FloatBuffer;
@@ -137,7 +137,7 @@ final class Sprite {
 					matrix_buffer.clear();
 					matrix_buffer.put(frame_animation, bone*12, 12);
 					matrix_buffer.rewind();
-					frame_bones[bone].loadTranspose(matrix_buffer);
+					frame_bones[bone].setTransposed(matrix_buffer);
 				}
 				float[] frame_normals = tmp_normals[anim][frame];
 				float[] frame_vertices = tmp_vertices[anim][frame];
@@ -162,12 +162,12 @@ final class Sprite {
 					for (int bone = 0; bone < vertex_skin_names.length; bone++) {
 						float weight = vertex_skin_weights[bone];
 						Matrix4f bone_matrix = frame_bones[vertex_skin_names[bone]];
-						Matrix4f.transform(bone_matrix, v, temp);
+						bone_matrix.transform(v, temp);
 						result_x += temp.x*weight;
 						result_y += temp.y*weight;
 						result_z += temp.z*weight;
 						// Assume matrix is only translation and scaling
-						Matrix4f.transform(bone_matrix, n, temp);
+						bone_matrix.transform(n, temp);
 						result_nx += temp.x*weight;
 						result_ny += temp.y*weight;
 						result_nz += temp.z*weight;
