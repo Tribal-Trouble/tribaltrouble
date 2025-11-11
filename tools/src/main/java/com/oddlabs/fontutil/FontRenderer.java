@@ -25,7 +25,7 @@ public final class FontRenderer {
 	private final static int GLYPH_Y_OVERLAP = 5;
 	private final static float SPACE_SCALE = 0.66666f;
 
-	static void main(String @NonNull ... args) throws Exception {
+	static void main(@NonNull String @NonNull ... args) throws Exception {
         if (7 != args.length) {
 			IO.println("FontRenderer <font_name> <font_size> <max_image_width> <max_chars> <font_info_dir> <font_tex_dir> <font_tex_classpath>");
         }
@@ -117,16 +117,19 @@ public final class FontRenderer {
 		Graphics2D g2d = (Graphics2D)image.getGraphics();
 		g2d.setFont(src_font);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		FontRenderContext frc = g2d.getFontRenderContext();
 
 		int max_baseline_height = 0;
 		int max_under_baseline_height = 0;
-		int num_lines = 1;
+        char tallest_char = ' ';
+        char lowest_char = ' ';
+        int num_lines = 1;
 		int current_x = 0;
 
 		// place chars
 		IO.println("Calculating char placement for width = " + image_width);
-		IO.print("Progress");
+		IO.print("Progress...");
 		for (int i = 0; i < chars.length; i++) {
 			if (i % 1000 == 0) {
 				IO.print(".");
@@ -142,11 +145,15 @@ public final class FontRenderer {
 				int max_x = (int)Math.ceil(glyph_bounds.getMaxX()) + GLYPH_X_BORDER;
 				int max_y = (int)Math.ceil(glyph_bounds.getMaxY()) + GLYPH_Y_BORDER;
 				int baseline_height = -min_y;
-				if (baseline_height > max_baseline_height)
-					max_baseline_height = baseline_height;
+				if (baseline_height > max_baseline_height) {
+                    max_baseline_height = baseline_height;
+                    tallest_char = ch;
+                }
 				int under_baseline_height = max_y;
-				if (under_baseline_height > max_under_baseline_height)
-					max_under_baseline_height = under_baseline_height;
+				if (under_baseline_height > max_under_baseline_height) {
+                    max_under_baseline_height = under_baseline_height;
+                    lowest_char = ch;
+                }
 				int glyph_width;
 				if (i == ' ')
 					glyph_width = space_width;
@@ -160,7 +167,9 @@ public final class FontRenderer {
 				current_x += glyph_width;
 			}
 		}
-		IO.println("done");
+		IO.println("done.");
+        IO.print(" tallest char='" + tallest_char + "'(\\u" + Integer.toHexString(tallest_char) + "):" + max_baseline_height);
+        IO.println(" lowest char='" + lowest_char + "'(\\u" + Integer.toHexString(lowest_char) + "):" + max_under_baseline_height);
 		int max_glyph_height = max_under_baseline_height + max_baseline_height;
 		int image_height = Utils.nextPowerOf2(max_glyph_height*num_lines);
 		return new int[]{image_height, max_glyph_height, max_baseline_height};
@@ -171,6 +180,7 @@ public final class FontRenderer {
 		Graphics2D g2d = (Graphics2D)image.getGraphics();
 		g2d.setFont(src_font);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		FontRenderContext frc = g2d.getFontRenderContext();
 
 		g2d.translate(0, max_baseline_height);
@@ -180,7 +190,7 @@ public final class FontRenderer {
 		Quad[] key_map = create_xml ? new Quad[Character.MAX_VALUE] : null;
 
 		IO.println("Drawing chars for width*height = " + image_width + "*" + image_height);
-		IO.print("Progress");
+		IO.print("Progress...");
 		for (int i = 0; i < chars.length; i++) {
 			if (i % 1000 == 0) {
 				IO.print(".");
@@ -201,6 +211,7 @@ public final class FontRenderer {
 					glyph_width = space_width;
 				else
 					glyph_width = max_x - min_x;
+				assert glyph_width <= image_width : "character too wide to fit in image";
 				if (current_x + glyph_width > image_width) {
 					g2d.translate(-current_x, max_glyph_height);
 					current_x = 0;
