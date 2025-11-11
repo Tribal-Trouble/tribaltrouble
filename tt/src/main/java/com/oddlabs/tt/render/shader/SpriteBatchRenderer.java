@@ -61,8 +61,6 @@ public final class SpriteBatchRenderer {
 			indexBuffer = BufferUtils.createShortBuffer(INITIAL_BATCH_SIZE * INDICES_PER_SPRITE);
 		}
 		
-		vertexBuffer.clear();
-		indexBuffer.clear();
 		spriteCount = 0;
 		currentTexture = texture;
 		drawing = true;
@@ -147,8 +145,14 @@ public final class SpriteBatchRenderer {
 		GL11.glDrawElements(GL11.GL_TRIANGLES, indexBuffer.limit(), GL11.GL_UNSIGNED_SHORT, 0);
 		
 		layout.unbind(shader);
+		
+		if (currentTexture != null) {
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+		}
+		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+		ShaderProgram.unbind();
 		
 		vertexBuffer.clear();
 		indexBuffer.clear();

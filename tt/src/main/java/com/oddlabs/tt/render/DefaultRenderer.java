@@ -46,47 +46,41 @@ public final class DefaultRenderer implements UIRenderer {
     private final @NonNull SpriteSorter sprite_sorter;
     private final @NonNull RenderQueues render_queues;
     private final @NonNull FloatBuffer light_array;
-    private final Cheat cheat;
+    private final @NonNull Cheat cheat;
     private final @NonNull MatrixStack modelViewStack = new MatrixStack();
     private final @NonNull MatrixStack projectionStack = new MatrixStack();
-    private final @Nullable ShaderProgram debugShader;
-    private final @Nullable DebugShaderRenderer debugRenderer;
+    private final @NonNull DebugShaderRenderer debugRenderer;
     private final Selection selection;
 
     private Building selected_building;
 
     private void drawAxes() {
-        if (!Globals.draw_axes || debugRenderer == null) {
+        if (!Globals.draw_axes) {
             return;
         }
         
         float center = world.getHeightMap().getMetersPerWorld() / 2;
         float z = world.getHeightMap().getNearestHeight(center, center);
         
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        
         debugRenderer.begin(GL11.GL_LINES);
-        
-        // X axis - red
-        debugRenderer.vertex(center, center, z, 1, 0, 0);
-        debugRenderer.vertex(center + 10, center, z, 1, 0, 0);
-        
-        // Y axis - green
-        debugRenderer.vertex(center, center, z, 0, 1, 0);
-        debugRenderer.vertex(center, center + 10, z, 0, 1, 0); 
-        
-        // Z axis - blue
-        debugRenderer.vertex(center, center, z, 0, 0, 1);
-        debugRenderer.vertex(center, center, z + 10, 0, 0, 1);
-        
-        debugRenderer.end();
-        
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        try {
+            // X axis - red
+            debugRenderer.vertex(center, center, z, 1, 0, 0);
+            debugRenderer.vertex(center + 10, center, z, 1, 0, 0);
+
+            // Y axis - green
+            debugRenderer.vertex(center, center, z, 0, 1, 0);
+            debugRenderer.vertex(center, center + 10, z, 0, 1, 0);
+
+            // Z axis - blue
+            debugRenderer.vertex(center, center, z, 0, 0, 1);
+            debugRenderer.vertex(center, center, z + 10, 0, 0, 1);
+        } finally {
+            debugRenderer.end();
+        }
     }
 
-    public DefaultRenderer(Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, Selection selection, @NonNull WorldGenerator generator) {
+    public DefaultRenderer(@NonNull Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, Selection selection, @NonNull WorldGenerator generator) {
         this.world = local_player.getWorld();
         this.cheat = cheat;
         this.light_array = BufferUtils.createByteBuffer(4 * 4).asFloatBuffer();
@@ -102,21 +96,9 @@ public final class DefaultRenderer implements UIRenderer {
         this.fog_info = Landscape.getFogInfo(generator.getTerrainType(), generator.getMetersPerWorld());
         this.water = new Water(world.getHeightMap(), generator.getTerrainType());
         this.sky = new Sky(landscape_renderer, generator.getTerrainType());
-        
-        ShaderProgram shader = null;
-        DebugShaderRenderer renderer = null;
-        try {
-            shader = FixedFunctionShader.create();
-            renderer = new DebugShaderRenderer(shader, modelViewStack, projectionStack);
-        } catch (Exception e) {
-            System.err.println("Failed to initialize debug shader: " + e.getMessage());
-        }
-        this.debugShader = shader;
-        this.debugRenderer = renderer;
-        
-        if (renderer != null) {
-            DebugRender.setShaderRenderer(renderer);
-        }
+        this.debugRenderer = new DebugShaderRenderer(modelViewStack, projectionStack);
+
+        DebugRender.setShaderRenderer(debugRenderer);
     }
     
     @Override

@@ -10,6 +10,13 @@ public final class UnitGrid {
 	private final Occupant[] @NonNull [] occupants;
 	private final @NonNull HeightMap heightmap;
 
+    public UnitGrid(@NonNull HeightMap heightmap) {
+        this.heightmap = heightmap;
+        int unit_grid_size = heightmap.getAccessGrid().length;
+        occupants = new Occupant[unit_grid_size][unit_grid_size];
+        regions = new Region[unit_grid_size][unit_grid_size];
+    }
+
 	private boolean filter(@NonNull ScanFilter filter, int x, int y) {
 		if (x < 0 || y < 0 || x >= occupants.length || y >= occupants.length)
 			return false;
@@ -62,13 +69,6 @@ public final class UnitGrid {
 
 	public int getGridSize() {
 		return occupants.length;
-	}
-
-	public UnitGrid(@NonNull HeightMap heightmap) {
-		this.heightmap = heightmap;
-		int unit_grid_size = heightmap.getAccessGrid().length;
-		occupants = new Occupant[unit_grid_size][unit_grid_size];
-		regions = new Region[unit_grid_size][unit_grid_size];
 	}
 
 	public Region getRegion(int grid_x, int grid_y) {

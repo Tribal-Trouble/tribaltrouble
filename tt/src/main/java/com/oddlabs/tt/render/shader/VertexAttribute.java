@@ -45,6 +45,6 @@ public enum VertexAttribute {
 	}
 	
 	public void setPointer(int location, int stride, int offset) {
-		GL20.glVertexAttribPointer(location, componentCount, glType, false, stride, offset * Float.BYTES);
+		GL20.glVertexAttribPointer(location, componentCount, glType, false, stride, offset * (long) Float.BYTES);
 	}
 }

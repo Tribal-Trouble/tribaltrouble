@@ -59,8 +59,8 @@ final class WorldStarter implements LoadCallback {
 			}
 		}
 		assert corrected_player_slot != -1;
-		PlayerSlot[] player_slots = player_slot_list.toArray(new PlayerSlot[player_slot_list.size()]);
-		UnitInfo[] corrected_unit_infos = unit_info_list.toArray(new UnitInfo[unit_info_list.size()]);
+		PlayerSlot[] player_slots = player_slot_list.toArray(new PlayerSlot[0]);
+		UnitInfo[] corrected_unit_infos = unit_info_list.toArray(new UnitInfo[0]);
 		float[][] corrected_colors = color_list.toArray(new float[color_list.size()][]);
 		WorldViewer viewer = new WorldViewer(network, gui_root, world_params, ingame_info, generator, player_slots, corrected_unit_infos, corrected_colors, corrected_player_slot, new SessionID(session_id));
 		if (initial_action != null)

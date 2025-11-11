@@ -23,8 +23,7 @@ public final class GLUtils {
     private static final Logger logger = Logger.getLogger(GLUtils.class.getName()); // Added Logger
 
 	public static @NonNull GLIntImage loadAsGLImage(@NonNull String location) {
-		Image img = null;
-		img = Image.read(com.oddlabs.util.Utils.makeURL(location));
+		Image img = Image.read(com.oddlabs.util.Utils.makeURL(location));
 		GLIntImage glimage = new GLIntImage(img.getWidth(), img.getHeight(), img.getPixels(), GL11.GL_RGBA);
 		return glimage;
 	}

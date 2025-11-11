@@ -41,7 +41,7 @@ public final class FixedFunctionShader {
 		void main() {
 			gl_Position = u_projectionMatrix * u_modelViewMatrix * vec4(a_position, 1.0);
 			v_texCoord0 = a_texCoord0;
-			
+		
 			if (u_enableLighting) {
 				vec3 normal = normalize((u_modelViewMatrix * vec4(a_normal, 0.0)).xyz);
 				float diffuse = max(dot(normal, vec3(0.0, 0.0, 1.0)), 0.0);
