@@ -78,7 +78,6 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		addChild(info_printer);
 		info_printer.setPos(0, 0);
 		
-		UIRenderer.initialize();
 	}
 
 	public GUI getGUI() {

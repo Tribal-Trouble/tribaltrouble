@@ -7,7 +7,8 @@ import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 
-public final class ShaderProgram extends NativeResource<ShaderProgram.Program> {
+/** Fragment and vertex shader program. */
+public class ShaderProgram extends NativeResource<ShaderProgram.Program> {
     static final class Program extends NativeResource.NativeState {
         private final int programId;
         private final int vertexShaderId;
@@ -36,10 +37,14 @@ public final class ShaderProgram extends NativeResource<ShaderProgram.Program> {
             GL20.glDeleteProgram(programId);
         }
     }
-	
+
+    public ShaderProgram(int vertexProgramId, int fragmentProgramId) {
+        super(new Program(vertexProgramId, fragmentProgramId));
+    }
+
 	public ShaderProgram(@NonNull String vertexSource, @NonNull String fragmentSource) {
-        super(new Program(compileShader(GL20.GL_VERTEX_SHADER, vertexSource),
-                compileShader(GL20.GL_FRAGMENT_SHADER, fragmentSource)));
+        this(compileShader(GL20.GL_VERTEX_SHADER, vertexSource),
+                compileShader(GL20.GL_FRAGMENT_SHADER, fragmentSource));
 	}
 	
 	private static int compileShader(int type, @NonNull String source) {

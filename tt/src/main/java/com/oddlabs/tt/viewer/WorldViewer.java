@@ -39,10 +39,16 @@ import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.player.VikingChieftainAI;
 import com.oddlabs.tt.render.DefaultRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
+import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.Picker;
 import com.oddlabs.tt.render.RenderQueues;
+import com.oddlabs.tt.render.shader.DebugShaderRenderer;
+import com.oddlabs.tt.render.shader.FixedFunctionShader;
+import com.oddlabs.tt.render.shader.ShaderProgram;
+import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
+import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
@@ -85,7 +91,11 @@ public final class WorldViewer implements Animated {
         this.cheat = new Cheat(!ingame_info.isMultiplayer());
         this.animation_manager_local = new AnimationManager();
         final CameraState camera_state = new CameraState();
-        RenderQueues render_queues = new RenderQueues();
+        ShaderProgram ffShader = new FixedFunctionShader();
+        MatrixStack modelViewStack = new MatrixStack();
+        MatrixStack projectionStack = new MatrixStack();
+        DebugRender.setShaderRenderer(new DebugShaderRenderer(ffShader, modelViewStack, projectionStack));
+        RenderQueues render_queues = new RenderQueues(new SpriteBatchRenderer(ffShader, modelViewStack, projectionStack));
         LandscapeResources landscape_resources = World.loadCommon(render_queues);
         RacesResources races_resources = World.loadInGame(render_queues);
         AudioImplementation audio_impl = (AudioParameters<?> params) -> AudioManager.getManager().newAudio(camera_state, params);
@@ -153,7 +163,7 @@ public final class WorldViewer implements Animated {
         this.selection = new Selection(local_player);
         landscape_renderer = new LandscapeRenderer(world, world_info, gui_root, animation_manager_local);
         this.picker = new Picker(animation_manager_local, local_player, render_queues, landscape_renderer, selection);
-        this.renderer = new DefaultRenderer(cheat, local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, picker, selection, generator);
+        this.renderer = new DefaultRenderer(cheat, local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, picker, selection, generator, modelViewStack, projectionStack);
         this.gui_root = gui_root;
         this.peerhub = new PeerHub(animation_manager_local, ingame_info.isMultiplayer(), ingame_info.isRated(), local_player, player_slots, network, gui_root, notification_manager, distributable_table, session_id, new ViewerStallHandler(this));
         this.camera = new GameCamera(this, camera_state);
@@ -245,11 +255,10 @@ public final class WorldViewer implements Animated {
                 Unit chieftain;
                 if (player.getRace().getChieftainAI() instanceof VikingChieftainAI)
                     chieftain = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null, player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(bundle, "chieftain_name"), false);
-                else
-                    if (player.getRace().getChieftainAI() instanceof NativeChieftainAI)
+                else if (player.getRace().getChieftainAI() instanceof NativeChieftainAI)
                         chieftain = new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null, player.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN), Utils.getBundleString(bundle, "native_chieftain_name"), false);
-                    else
-                        throw new RuntimeException();
+                else
+                    throw new RuntimeException("Unknown chieftain AI");
                 chieftain.increaseMagicEnergy(0, 1000);
                 chieftain.increaseMagicEnergy(1, 1000);
                 player.setActiveChieftain(chieftain);

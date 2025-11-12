@@ -1,5 +1,6 @@
 package com.oddlabs.tt.render;
 
+import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.util.Target;
@@ -19,6 +20,11 @@ public final class RenderQueues {
 	private final List<ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
 	private final Map<Supplier<?>, ShadowListKey> desc_to_shadow_key = new HashMap<>();
 	private final List<Texture> texture_lookup = new ArrayList<>();
+	private final @NonNull SpriteBatchRenderer spriteBatchRenderer;
+
+	public RenderQueues(@NonNull SpriteBatchRenderer spriteBatchRenderer) {
+		this.spriteBatchRenderer = spriteBatchRenderer;
+	}
 
 	public @NonNull TextureKey registerTexture(@NonNull Supplier<Texture[]> desc, int index) {
 		TextureKey key = new TextureKey(texture_lookup.size());
@@ -72,7 +78,7 @@ public final class RenderQueues {
 	public @NonNull SpriteKey register(@NonNull SpriteFile sprite_file, int tex_index) {
 		int index = sprite_list_lookup.size();
 		SpriteList sprite_list = Resources.findResource(sprite_file);
-		SpriteRenderer sprite_renderer = new SpriteRenderer(sprite_list, tex_index);
+		SpriteRenderer sprite_renderer = new SpriteRenderer(sprite_list, tex_index, spriteBatchRenderer);
 		sprite_list_lookup.add(sprite_renderer);
 		registerSpriteRenderer(sprite_renderer);
 		return new SpriteKey(index, sprite_list.getBounds(), sprite_list.getAnimationTypes());

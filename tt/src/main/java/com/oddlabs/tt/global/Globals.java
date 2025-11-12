@@ -61,6 +61,10 @@ public final class Globals {
 		return bounding == mode || bounding == BoundingMode.ALL;
 	}
 
+	public static boolean debugRenderingEnabled() {
+		return draw_axes || bounding != BoundingMode.NONE;
+	}
+
 	public static int COMPRESSED_RGB_FORMAT = GL13.GL_COMPRESSED_RGB;
 	public static int COMPRESSED_RGBA_FORMAT = GL13.GL_COMPRESSED_RGBA;
 	public static int COMPRESSED_A_FORMAT = GL13.GL_COMPRESSED_ALPHA;

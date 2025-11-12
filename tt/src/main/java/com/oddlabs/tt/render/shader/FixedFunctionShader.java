@@ -2,7 +2,8 @@ package com.oddlabs.tt.render.shader;
 
 import org.jspecify.annotations.NonNull;
 
-public final class FixedFunctionShader {
+/** A shader that emulates the classic OpenGL fixed-funciton pipeline. */
+public final class FixedFunctionShader extends ShaderProgram {
 	
 	public static final class Uniforms {
 		public static final String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
@@ -70,9 +71,7 @@ public final class FixedFunctionShader {
 		}
 		""";
 	
-	private FixedFunctionShader() {}
-	
-	public static @NonNull ShaderProgram create() {
-		return new ShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-	}
+	public FixedFunctionShader() {
+        super(VERTEX_SHADER, FRAGMENT_SHADER);
+    }
 }

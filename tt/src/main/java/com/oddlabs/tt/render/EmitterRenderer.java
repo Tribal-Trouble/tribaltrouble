@@ -5,6 +5,8 @@ import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Particle;
+import com.oddlabs.tt.util.GLState;
+import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.vbo.FloatVBO;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
@@ -43,16 +45,14 @@ final class EmitterRenderer {
 		right_minus_up.set(rx - upx, ry - upy, rz - upz);
 
 		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-		GL11.glPushClientAttrib(GL11.GL_ALL_CLIENT_ATTRIB_BITS);
+		GLStateStack.pushState();
 
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
 		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		GL11.glDepthMask(false);
 
-		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-		GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-		GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
+		GLStateStack.switchState(GLState.VERTEX_ARRAY | GLState.TEXCOORD0_ARRAY | GLState.COLOR_ARRAY);
 
         for (Emitter emitter : emitter_queue) {
             if (Globals.draw_particles)
@@ -60,7 +60,7 @@ final class EmitterRenderer {
         }
 		emitter_queue.clear();
 
-		GL11.glPopClientAttrib();
+		GLStateStack.popState();
 		GL11.glPopAttrib();
 	}
 

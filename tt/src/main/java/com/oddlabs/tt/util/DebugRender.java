@@ -107,6 +107,32 @@ public final class DebugRender {
         }
 	}
 
+    /**
+     * Draws the classic OpenGL axes at ground level at the center of the map
+     */
+    public static void drawAxes(float center, float z) {
+        DebugShaderRenderer renderer = shaderRenderer;
+        if (null == renderer) {
+            return;
+        }
+        renderer.begin(GL11.GL_LINES);
+        try {
+            // X axis - red
+            renderer.vertex(center, center, z, 1, 0, 0);
+            renderer.vertex(center + 10, center, z, 1, 0, 0);
+
+            // Y axis - green
+            renderer.vertex(center, center, z, 0, 1, 0);
+            renderer.vertex(center, center + 10, z, 0, 1, 0);
+
+            // Z axis - blue
+            renderer.vertex(center, center, z, 0, 0, 1);
+            renderer.vertex(center, center, z + 10, 0, 0, 1);
+        } finally {
+            renderer.end();
+        }
+    }
+
 	/**
 	 * Draws a wireframe quad.
 	 */

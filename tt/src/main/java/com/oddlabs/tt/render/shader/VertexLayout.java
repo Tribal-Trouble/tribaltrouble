@@ -7,7 +7,7 @@ import java.util.Set;
 
 public final class VertexLayout {
 
-	private final Set<VertexAttribute> attributes;
+	private final @NonNull Set<VertexAttribute> attributes;
 	private final int stride;
 	
 	private VertexLayout(@NonNull Set<VertexAttribute> attributes) {

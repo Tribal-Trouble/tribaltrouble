@@ -19,8 +19,7 @@ public final class MatrixStack {
 	}
 	
 	public void push() {
-		Matrix4f copy = new Matrix4f();
-		copy.set(current());
+		Matrix4f copy = new Matrix4f(current());
 		stack.push(copy);
 	}
 	

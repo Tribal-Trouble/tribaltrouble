@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL13;
 
 import java.nio.ByteBuffer;
 
-public final class GLState implements Cloneable {
+public final class GLState {
 	public final static int VERTEX_ARRAY = 1 << 0;
 	public final static int NORMAL_ARRAY = 1 << 1;
 	public final static int TEXCOORD0_ARRAY = 1 << 2;
@@ -14,18 +14,29 @@ public final class GLState implements Cloneable {
 	public final static int COLOR_ARRAY = 1 << 4;
 
 	/* state */
-	private boolean vertex_array;
-	private boolean normal_array;
-	private boolean texcoord0_array;
-	private boolean texcoord1_array;
-	private boolean color_array;
+	public boolean vertex_array;
+	public boolean normal_array;
+	public boolean texcoord0_array;
+	public boolean texcoord1_array;
+	public boolean color_array;
 
-	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
-	}
+    public GLState() {
+    }
 
-	private void matchGLClientState(int gl_flag, boolean enable) {
+    public static GLState createCurrentState() {
+        GLState state = new GLState();
+        state.vertex_array = GL11.glIsEnabled(GL11.GL_VERTEX_ARRAY);
+        state.normal_array = GL11.glIsEnabled(GL11.GL_NORMAL_ARRAY);
+        GL13.glClientActiveTexture(GL13.GL_TEXTURE0);
+        state.texcoord0_array = GL11.glIsEnabled(GL11.GL_TEXTURE_COORD_ARRAY);
+        GL13.glClientActiveTexture(GL13.GL_TEXTURE1);
+        state.texcoord1_array = GL11.glIsEnabled(GL11.GL_TEXTURE_COORD_ARRAY);
+        GL13.glClientActiveTexture(GL13.GL_TEXTURE0); // Restore active texture
+        state.color_array = GL11.glIsEnabled(GL11.GL_COLOR_ARRAY);
+        return state;
+    }
+
+    private void matchGLClientState(int gl_flag, boolean enable) {
 		if (enable)
 			GL11.glEnableClientState(gl_flag);
 		else

@@ -36,11 +36,16 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.procedural.Landscape;
+import com.oddlabs.tt.render.shader.DebugShaderRenderer;
+import com.oddlabs.tt.render.shader.FixedFunctionShader;
+import com.oddlabs.tt.render.shader.ShaderProgram;
+import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.resource.IslandGenerator;
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
+import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.GLUtils;
@@ -78,15 +83,12 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-import java.util.prefs.Preferences;
 
 public final class Renderer {
 
 	private final static FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
 
-	private static @NonNull GLStateStack display_state_stack = new GLStateStack();
-
-	private final static Renderer renderer_instance = new Renderer();
+    private final static Renderer renderer_instance = new Renderer();
 	private final static StatCounter fps = new StatCounter(10);
 	private static int num_triangles_rendered;
 
@@ -104,7 +106,10 @@ public final class Renderer {
 	private static volatile boolean finished = false;
 
 	private final CameraState frustum_state = new CameraState();
-	private boolean movie_recording_started = false;
+
+    private final GLStateStack display_state_stack = new GLStateStack();
+
+    private boolean movie_recording_started = false;
 	private AmbientAudio ambient;
 
 	public static float getFPS() {
@@ -118,7 +123,7 @@ public final class Renderer {
 	public static void makeCurrent() {
 		try {
 			Display.makeCurrent();
-			GLStateStack.setCurrent(display_state_stack);
+			GLStateStack.setCurrent(renderer_instance.display_state_stack);
 		} catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}
@@ -203,36 +208,43 @@ public final class Renderer {
 		File[] logs = logs_dir.listFiles();
 		if (logs == null)
 			return;
-            for (File log : logs) try {
-                if (!log.isDirectory() || log.equals(last_log_dir) || log.equals(new_log_dir))
-                    continue;
-                deleteLog(log.toPath());
-            } catch (IOException _) {
+        for (File log : logs) try {
+            if (!log.isDirectory() || log.equals(last_log_dir) || log.equals(new_log_dir))
+                continue;
+            deleteLog(log.toPath());
+        } catch (IOException _) {
 
-            }
+        }
 	}
+
+    private static Path setupGameDir() throws IOException {
+        String os_name = System.getProperty("os.name").toLowerCase();
+        Path platformGameDir;
+        if (os_name.contains("mac")) {
+            platformGameDir = Path.of("Library","Application Support", Globals.GAME_NAME);
+        } else if (os_name.contains("linux") || os_name.contains("unix")) {
+            platformGameDir = Path.of("." + Globals.GAME_NAME);
+        } else {
+            // Windows or other
+            platformGameDir = Path.of(Globals.GAME_NAME);
+        }
+        Path homeDir = Path.of(System.getProperty("user.home"));
+        if (Files.isDirectory(homeDir)) {
+            try {
+                return Files.createDirectories(homeDir.resolve(platformGameDir));
+            } catch (IOException _) {
+            }
+        }
+        return Files.createTempDirectory(Globals.GAME_NAME);
+    }
 
 	private void run(@NonNull String @NonNull ... args) throws IOException {
 		long start_time = System.currentTimeMillis();
 		boolean first_frame = true;
 		// This will be configured by setupLogging, but we need to log before that.
+        Path game_dir = setupGameDir();
 		logger.info("********** Running tt **********");
-		String platform_dir_name;
-		String os_name = System.getProperty("os.name").toLowerCase();
-		if (os_name.contains("mac")) {
-			platform_dir_name = "Library/Application Support" + File.separator;
-		} else if (os_name.contains("linux") || os_name.contains("unix")) {
-			platform_dir_name = ".";
-		} else {
-			// Windows or other
-			platform_dir_name = "";
-		}
-        Path homeDir = Path.of(System.getProperty("user.home"));
-        if (!Files.isDirectory(homeDir)) {
-            homeDir = Files.createTempDirectory(Globals.GAME_NAME);
-        }
-		Path game_dir = homeDir.resolve(platform_dir_name + Globals.GAME_NAME);
-        Files.createDirectories(game_dir);
+        logger.info("game dir: " + game_dir);
 		boolean eventload = false;
 		boolean zipped = false;
 		boolean silent = false;
@@ -391,36 +403,6 @@ public final class Renderer {
 		Main.shutdown();
 	}
 
-	private static boolean readOrSetPreference(String key, boolean value) {
-		String result_string = readOrSetPreference(key, ""+value);
-		return Boolean.parseBoolean(result_string);
-	}
-
-	private static int readOrSetPreference(String key, int value) {
-		String result_string = readOrSetPreference(key, ""+value);
-		try {
-			int result = Integer.parseInt(result_string);
-			return result;
-		} catch (NumberFormatException _) {
-			return 0;
-		}
-	}
-
-	private static String readOrSetPreference(String key, String value) {
-		try {
-			Preferences pref = Preferences.userNodeForPackage(com.oddlabs.tt.render.Renderer.class);
-			String result = pref.get(key, null);
-			if (result == null) {
-				pref.put(key, value);
-				return value;
-			} else
-				return result;
-		} catch (Exception _) {
-			logger.warning("Could not access preferences");
-			return value;
-		}
-	}
-
 	public static void startMenu(@NonNull NetworkSelector network, @NonNull GUI gui) {
 		setupMainMenu(network, gui, false);
 	}
@@ -433,7 +415,11 @@ public final class Renderer {
 	private static @NonNull UIRenderer finishMainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, boolean first_progress, @NonNull WorldGenerator generator) {
 		AnimationManager.freezeTime();
 		PlayerInfo player_info = new PlayerInfo(0, 0, "");
-		RenderQueues render_queues = new RenderQueues();
+		ShaderProgram ffShader = new FixedFunctionShader();
+        MatrixStack modelViewStack = new MatrixStack();
+        MatrixStack projectionStack = new MatrixStack();
+        DebugRender.setShaderRenderer(new DebugShaderRenderer(ffShader, modelViewStack, projectionStack));
+        RenderQueues render_queues = new RenderQueues(new SpriteBatchRenderer(ffShader, modelViewStack, projectionStack));
 		LandscapeResources landscape_resources = World.loadCommon(render_queues);
 		WorldParameters world_params = new WorldParameters(Game.GAMESPEED_NORMAL, "", 2, Player.DEFAULT_MAX_UNIT_COUNT);
 		PlayerInfo[] players = new PlayerInfo[]{player_info};
@@ -468,7 +454,7 @@ public final class Renderer {
 		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, gui_root, manager);
 		Player local_player = world.getPlayers()[0];
 		Selection selection = new Selection(local_player);
-		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator);
+		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator, modelViewStack, projectionStack);
 		setMusicPath("/music/menu.ogg", 0f);
 		MainMenu main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
 		gui_root.pushDelegate(main_menu);
@@ -596,7 +582,6 @@ public final class Renderer {
 			throw new LWJGLException("Number of texture units " + num_tex_units + " is less than the required 2.");
 		}
 
-		display_state_stack = new GLStateStack();
 		GLStateStack.setCurrent(display_state_stack);
 		resetInput();
 		logger.info("vsync = " + Settings.getSettings().vsync);

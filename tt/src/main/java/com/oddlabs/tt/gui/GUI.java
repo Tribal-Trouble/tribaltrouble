@@ -4,6 +4,7 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.render.UIRenderer;
+import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.AmbientAudio;
@@ -84,20 +85,29 @@ public final class GUI implements Animated {
 	}
 
 	public void renderGUI() {
-		current_root.setupGUIView();
-		current_root.render();
-		if (current_root.showToolTip()) {
-			ToolTip tooltip = current_root.getToolTip();
-			if (tooltip == null && renderer != null)
-				tooltip = renderer.getToolTip();
-			if (tooltip != null)
-				current_root.renderToolTip(tooltip);
+		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+		GL11.glPushClientAttrib(GL11.GL_ALL_CLIENT_ATTRIB_BITS);
+		GLStateStack.pushState();
+		try {
+			current_root.setupGUIView();
+			current_root.render();
+			if (current_root.showToolTip()) {
+				ToolTip tooltip = current_root.getToolTip();
+				if (tooltip == null && renderer != null)
+					tooltip = renderer.getToolTip();
+				if (tooltip != null)
+					current_root.renderToolTip(tooltip);
+			}
+			if (renderer != null)
+				renderer.renderGUI(current_root);
+			current_root.renderTopmost();
+			if (fade != null)
+				fade.render();
+			GUIRoot.resetGUIView();
+		} finally {
+			GLStateStack.popState();
+			GL11.glPopClientAttrib();
+			GL11.glPopAttrib();
 		}
-		if (renderer != null)
-			renderer.renderGUI(current_root);
-		current_root.renderTopmost();
-		if (fade != null)
-			fade.render();
-		GUIRoot.resetGUIView();
 	}
 }

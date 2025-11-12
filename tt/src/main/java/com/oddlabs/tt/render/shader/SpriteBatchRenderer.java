@@ -2,6 +2,8 @@ package com.oddlabs.tt.render.shader;
 
 import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.Texture;
+import com.oddlabs.tt.util.GLState;
+import com.oddlabs.tt.util.GLStateStack;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -18,7 +20,12 @@ public final class SpriteBatchRenderer {
 	private static final int INITIAL_BATCH_SIZE = 256;
 	
 	private final @NonNull ShaderProgram shader;
-	private final @NonNull VertexLayout layout;
+	private final VertexLayout layout = VertexLayout.of(
+            VertexAttribute.POSITION,
+            VertexAttribute.NORMAL,
+            VertexAttribute.COLOR,
+            VertexAttribute.TEX_COORD_0
+    );
 	private final @NonNull MatrixStack modelViewStack;
 	private final @NonNull MatrixStack projectionStack;
 	
@@ -31,31 +38,19 @@ public final class SpriteBatchRenderer {
 	private @Nullable Texture currentTexture;
 	private boolean drawing = false;
 	
-	public SpriteBatchRenderer(@NonNull ShaderProgram shader) {
+	public SpriteBatchRenderer(@NonNull ShaderProgram shader, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
 		this.shader = shader;
-		this.layout = VertexLayout.of(
-			VertexAttribute.POSITION,
-			VertexAttribute.NORMAL,
-			VertexAttribute.COLOR,
-			VertexAttribute.TEX_COORD_0
-		);
-		this.modelViewStack = new MatrixStack();
-		this.projectionStack = new MatrixStack();
+        this.modelViewStack = modelViewStack;
+        this.projectionStack = projectionStack;
 	}
-	
-	public @NonNull MatrixStack getModelViewStack() {
-		return modelViewStack;
-	}
-	
-	public @NonNull MatrixStack getProjectionStack() {
-		return projectionStack;
-	}
-	
+
 	public void begin(@Nullable Texture texture) {
 		if (drawing) {
 			throw new IllegalStateException("Already drawing");
 		}
-		
+		GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_TEXTURE_BIT);
+		GL11.glPushClientAttrib(GL11.GL_ALL_CLIENT_ATTRIB_BITS);
+		GLStateStack.pushState();
 		if (vertexBuffer == null) {
 			vertexBuffer = BufferUtils.createFloatBuffer(INITIAL_BATCH_SIZE * VERTICES_PER_SPRITE * FLOATS_PER_VERTEX);
 			indexBuffer = BufferUtils.createShortBuffer(INITIAL_BATCH_SIZE * INDICES_PER_SPRITE);
@@ -64,6 +59,14 @@ public final class SpriteBatchRenderer {
 		spriteCount = 0;
 		currentTexture = texture;
 		drawing = true;
+
+		// Explicitly manage states
+		if (currentTexture != null) {
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+		} else {
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+		}
+		GL11.glEnable(GL11.GL_DEPTH_TEST); // Sprites usually need depth testing
 	}
 	
 	public void drawQuad(float x, float y, float z, float width, float height,
@@ -108,6 +111,9 @@ public final class SpriteBatchRenderer {
 		}
 		flush();
 		drawing = false;
+		GLStateStack.popState();
+		GL11.glPopClientAttrib();
+		GL11.glPopAttrib();
 	}
 	
 	private void flush() {

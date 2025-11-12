@@ -5,6 +5,8 @@ import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.particle.Lightning;
 import com.oddlabs.tt.particle.StretchParticle;
+import com.oddlabs.tt.util.GLState;
+import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.vbo.FloatVBO;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
@@ -40,7 +42,7 @@ final class LightningRenderer {
         right_vector.set(rx, ry, rz);
 
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-        GL11.glPushClientAttrib(GL11.GL_ALL_CLIENT_ATTRIB_BITS);
+        GLStateStack.pushState();
 
         GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL11.GL_BLEND);
@@ -48,9 +50,7 @@ final class LightningRenderer {
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glDepthMask(false);
 
-		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-		GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-		GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
+		GLStateStack.switchState(GLState.VERTEX_ARRAY | GLState.TEXCOORD0_ARRAY | GLState.COLOR_ARRAY);
 
         for (Lightning emitter : emitter_queue) {
             if (Globals.draw_particles)
@@ -58,7 +58,7 @@ final class LightningRenderer {
         }
         emitter_queue.clear();
 
-        GL11.glPopClientAttrib();
+        GLStateStack.popState();
         GL11.glPopAttrib();
     }
 

@@ -11,8 +11,6 @@ public enum BoundingMode {
 	UNIT_GRID,
 	/** Show landscape patch bounding boxes */
 	LANDSCAPE,
-	/** Show tree bounding boxes */
-	TREES,
 	/** Show player unit/building bounding boxes */
 	PLAYERS,
 	/** Show occupied grid cells (pathfinding) */

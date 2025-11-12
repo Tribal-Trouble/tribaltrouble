@@ -15,6 +15,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.shader.DebugShaderRenderer;
 import com.oddlabs.tt.render.shader.FixedFunctionShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
+import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
@@ -47,40 +48,13 @@ public final class DefaultRenderer implements UIRenderer {
     private final @NonNull RenderQueues render_queues;
     private final @NonNull FloatBuffer light_array;
     private final @NonNull Cheat cheat;
-    private final @NonNull MatrixStack modelViewStack = new MatrixStack();
-    private final @NonNull MatrixStack projectionStack = new MatrixStack();
-    private final @NonNull DebugShaderRenderer debugRenderer;
+    private final @NonNull MatrixStack modelViewStack;
+    private final @NonNull MatrixStack projectionStack;
     private final Selection selection;
 
-    private Building selected_building;
+    private @Nullable Building selected_building;
 
-    private void drawAxes() {
-        if (!Globals.draw_axes) {
-            return;
-        }
-        
-        float center = world.getHeightMap().getMetersPerWorld() / 2;
-        float z = world.getHeightMap().getNearestHeight(center, center);
-        
-        debugRenderer.begin(GL11.GL_LINES);
-        try {
-            // X axis - red
-            debugRenderer.vertex(center, center, z, 1, 0, 0);
-            debugRenderer.vertex(center + 10, center, z, 1, 0, 0);
-
-            // Y axis - green
-            debugRenderer.vertex(center, center, z, 0, 1, 0);
-            debugRenderer.vertex(center, center + 10, z, 0, 1, 0);
-
-            // Z axis - blue
-            debugRenderer.vertex(center, center, z, 0, 0, 1);
-            debugRenderer.vertex(center, center, z + 10, 0, 0, 1);
-        } finally {
-            debugRenderer.end();
-        }
-    }
-
-    public DefaultRenderer(@NonNull Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, Selection selection, @NonNull WorldGenerator generator) {
+    public DefaultRenderer(@NonNull Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         this.world = local_player.getWorld();
         this.cheat = cheat;
         this.light_array = BufferUtils.createByteBuffer(4 * 4).asFloatBuffer();
@@ -96,11 +70,16 @@ public final class DefaultRenderer implements UIRenderer {
         this.fog_info = Landscape.getFogInfo(generator.getTerrainType(), generator.getMetersPerWorld());
         this.water = new Water(world.getHeightMap(), generator.getTerrainType());
         this.sky = new Sky(landscape_renderer, generator.getTerrainType());
-        this.debugRenderer = new DebugShaderRenderer(modelViewStack, projectionStack);
-
-        DebugRender.setShaderRenderer(debugRenderer);
+        this.modelViewStack = modelViewStack;
+        this.projectionStack = projectionStack;
     }
-    
+
+    private void drawAxes() {
+        float center = world.getHeightMap().getMetersPerWorld() / 2f;
+        float z = world.getHeightMap().getNearestHeight(center, center);
+        DebugRender.drawAxes(center, z);
+    }
+
     @Override
     public void renderGUI(@NonNull GUIRoot gui_root) {
         if (cheat.isEnabled())
@@ -211,6 +190,10 @@ public final class DefaultRenderer implements UIRenderer {
 
         gui_root.getDelegate().render3D(landscape_renderer, render_queues);
 
+        // Update matrix stacks used by renderers from camera state
+        modelViewStack.current().set(frustum_state.getModelView());
+        projectionStack.current().set(frustum_state.getProjectionMatrix());
+
         // render
         if (Globals.process_trees) {
             tree_renderer.renderAll();
@@ -219,11 +202,34 @@ public final class DefaultRenderer implements UIRenderer {
             render_queues.renderAll();
         }
 
-        // Update debug renderer's matrix stacks from camera state
-        modelViewStack.current().set(frustum_state.getModelView());
-        projectionStack.current().set(frustum_state.getProjectionMatrix());
+        if (Globals.debugRenderingEnabled()) {
+            if (Globals.draw_axes) {
+                drawAxes();
+            }
 
-        drawAxes();
+            float landscape_x = frustum_state.getCurrentX();
+            float landscape_y = frustum_state.getCurrentY();
+            
+            if (Globals.isBoundsEnabled(BoundingMode.REGIONS)) {
+                world.getUnitGrid().debugRenderRegions(landscape_x, landscape_y);
+            }
+            
+            if (Globals.isBoundsEnabled(BoundingMode.OCCUPATION)) {
+                picker.debugRender();
+            }
+            
+            if (Globals.isBoundsEnabled(BoundingMode.UNIT_GRID)) {
+                world.getUnitGrid().debugRender(landscape_x, landscape_y);
+                // Render paths for selected units
+                if (selection != null) {
+                    for (Object obj : selection.getCurrentSelection().getSet()) {
+                        if (obj instanceof Unit unit) {
+                            unit.debugRender();
+                        }
+                    }
+                }
+            }
+        }
 
         if (Globals.draw_water)
             water.render(sky);
@@ -234,35 +240,7 @@ public final class DefaultRenderer implements UIRenderer {
         LightningRenderer.render(render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state);
         EmitterRenderer.render(render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state);
         renderRallyPoint(frustum_state);
-
-        float landscape_x = frustum_state.getCurrentX();
-        float landscape_y = frustum_state.getCurrentY();
         
-        if (Globals.isBoundsEnabled(BoundingMode.REGIONS)) {
-            // Update debug renderer's matrix stacks from camera state
-            modelViewStack.current().set(frustum_state.getModelView());
-            projectionStack.current().set(frustum_state.getProjectionMatrix());
-            world.getUnitGrid().debugRenderRegions(landscape_x, landscape_y);
-        }
-        
-        if (Globals.isBoundsEnabled(BoundingMode.OCCUPATION)) {
-            picker.debugRender();
-        }
-        
-        if (Globals.isBoundsEnabled(BoundingMode.UNIT_GRID)) {
-            // Update debug renderer's matrix stacks from camera state
-            modelViewStack.current().set(frustum_state.getModelView());
-            projectionStack.current().set(frustum_state.getProjectionMatrix());
-            world.getUnitGrid().debugRender(landscape_x, landscape_y);
-            // Render paths for selected units
-            if (selection != null) {
-                for (Object obj : selection.getCurrentSelection().getSet()) {
-                    if (obj instanceof Unit unit) {
-                        unit.debugRender();
-                    }
-                }
-            }
-        }
         fog_info.disableFog();
         if (Globals.line_mode || (cheat.line_mode)) {
             GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL); 

@@ -1,13 +1,9 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.util.GLState;
-import com.oddlabs.tt.util.GLStateStack;
+import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.util.Target;
-import com.oddlabs.tt.vbo.FloatVBO;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -18,41 +14,13 @@ public final class SpriteRenderer {
 	private final @NonNull SpriteListRenderer sprite_list_renderer;
 	private final int tex_index;
 	private final List<ModelState> no_detail_render_list = new ArrayList<>();
+	private final @NonNull SpriteBatchRenderer spriteBatchRenderer;
 
-	private static FloatVBO quad_vbo;
-
-	public SpriteRenderer(@NonNull SpriteList sprite_list, int tex_index) {
+	public SpriteRenderer(@NonNull SpriteList sprite_list, int tex_index, @NonNull SpriteBatchRenderer spriteBatchRenderer) {
 		this.sprite_list = sprite_list;
 		this.tex_index = tex_index;
+		this.spriteBatchRenderer = spriteBatchRenderer;
 		sprite_list_renderer = new SpriteListRenderer(sprite_list);
-
-		if (quad_vbo == null) {
-			float[] quad_vertices = {
-				-1.0f, -1.0f, 0.0f,
-				 1.0f, -1.0f, 0.0f,
-				 1.0f,  1.0f, 0.0f,
-				-1.0f,  1.0f, 0.0f
-			};
-			quad_vbo = new FloatVBO(GL15.GL_STATIC_DRAW, quad_vertices);
-		}
-	}
-
-	void renderNoDetail(@NonNull ModelState model) {
-		float[] color = model.getTeamColor();
-		GL11.glColor3f(color[0], color[1], color[2]);
-
-		GL11.glPushMatrix();
-		float x = model.getModel().getPositionX();
-		float y = model.getModel().getPositionY();
-		float z = model.getModel().getPositionZ();
-		float r = model.getModel().getNoDetailSize();
-
-		GL11.glTranslatef(x, y, z);
-		GL11.glScalef(r, r, 1.0f);
-
-		quad_vbo.vertexPointer(3, 0, 0);
-		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
-		GL11.glPopMatrix();
 	}
 
 	public @NonNull SpriteList getSpriteList() {
@@ -108,27 +76,21 @@ public final class SpriteRenderer {
 		for (int i = 0; i < sprite_list.getNumSprites(); i++) {
 			sprite_list_renderer.renderAll(i, tex_index);
 		}
-		setupNoDetail();
-		for (int i = 0; i < no_detail_render_list.size(); i++) {
-			ModelState model = no_detail_render_list.get(i);
-			no_detail_render_list.set(i, null);
-			if (Globals.draw_misc)
-				renderNoDetail(model);
-		}
-		finishNoDetail();
-		clearRenderLists();
-	}
-	
-	private static void setupNoDetail() {
-		GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		GLStateStack.pushState();
-		GLStateStack.switchState(GLState.VERTEX_ARRAY);
-	}
 
-	private static void finishNoDetail() {
-		GLStateStack.popState();
-		GL11.glPopAttrib();
+		if (!no_detail_render_list.isEmpty()) {
+			spriteBatchRenderer.begin(null);
+			for (ModelState model : no_detail_render_list) {
+				if (Globals.draw_misc) {
+					float[] color = model.getTeamColor();
+					float x = model.getModel().getPositionX();
+					float y = model.getModel().getPositionY();
+					float z = model.getModel().getPositionZ();
+					float r = model.getModel().getNoDetailSize();
+					spriteBatchRenderer.drawQuad(x - r, y - r, z, r * 2, r * 2, color[0], color[1], color[2], 1f, 0, 0, 1, 1);
+				}
+			}
+			spriteBatchRenderer.end();
+		}
+		clearRenderLists();
 	}
 }

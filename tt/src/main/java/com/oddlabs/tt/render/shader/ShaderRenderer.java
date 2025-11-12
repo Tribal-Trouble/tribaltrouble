@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render.shader;
 
 import com.oddlabs.tt.render.MatrixStack;
+import com.oddlabs.tt.util.GLStateStack;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -9,7 +10,10 @@ import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
 
-public final class ShaderRenderer {
+/**
+ * Renders geometry using a shader program abstracting away the OpenGL VBO and shader setup.
+ */
+public class ShaderRenderer {
 	private static final int FLOATS_PER_VERTEX = 12; // pos(3) + normal(3) + color(4) + uv(2)
 	private static final int INITIAL_VERTEX_CAPACITY = 1024;
 	
@@ -21,33 +25,33 @@ public final class ShaderRenderer {
 	private @Nullable FloatBuffer vertexBuffer;
 	private int vboHandle = 0;
 	private int vertexCount = 0;
+	private int mode = GL11.GL_TRIANGLES;
 	
-	public ShaderRenderer(@NonNull ShaderProgram shader) {
+	public ShaderRenderer(@NonNull ShaderProgram shader, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
 		this.shader = shader;
+        this.modelViewStack = modelViewStack;
+        this.projectionStack = projectionStack;
 		this.layout = VertexLayout.of(
 			VertexAttribute.POSITION,
 			VertexAttribute.NORMAL,
 			VertexAttribute.COLOR,
 			VertexAttribute.TEX_COORD_0
 		);
-		this.modelViewStack = new MatrixStack();
-		this.projectionStack = new MatrixStack();
 	}
-	
-	public @NonNull MatrixStack getModelViewStack() {
-		return modelViewStack;
-	}
-	
-	public @NonNull MatrixStack getProjectionStack() {
-		return projectionStack;
-	}
-	
-	public void begin() {
+
+    /**
+     * Begins a new drawing sequence.
+     * @param glMode The OpenGL primitive mode (e.g., GL11.GL_LINES, GL11.GL_TRIANGLES).
+     */
+	public void begin(int glMode) {
+		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS); // Use GL_ALL_ATTRIB_BITS for comprehensive state saving
+		GLStateStack.pushState();
 		if (vertexBuffer == null) {
 			vertexBuffer = BufferUtils.createFloatBuffer(INITIAL_VERTEX_CAPACITY * FLOATS_PER_VERTEX);
 		}
 		vertexBuffer.clear();
 		vertexCount = 0;
+		this.mode = glMode;
 	}
 	
 	public void vertex(float x, float y, float z, 
@@ -69,9 +73,14 @@ public final class ShaderRenderer {
 		vertexBuffer.put(u).put(v);
 		vertexCount++;
 	}
-	
-	public void end() {
+
+    /**
+     * Ends the drawing sequence and flushes any remaining vertices.
+     */
+    public void end() {
 		flush();
+		GLStateStack.popState();
+		GL11.glPopAttrib();
 	}
 	
 	private void flush() {
@@ -89,15 +98,19 @@ public final class ShaderRenderer {
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexBuffer, GL15.GL_STREAM_DRAW);
 		
 		shader.use();
-		shader.setUniformMatrix4(FixedFunctionShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.toBuffer());
-		shader.setUniformMatrix4(FixedFunctionShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.toBuffer());
-		
-		layout.bind(shader);
-		
-		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, vertexCount);
-		
-		layout.unbind(shader);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        try {
+            shader.setUniformMatrix4(FixedFunctionShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.toBuffer());
+            shader.setUniformMatrix4(FixedFunctionShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.toBuffer());
+
+            layout.bind(shader);
+
+            GL11.glDrawArrays(mode, 0, vertexCount);
+
+            layout.unbind(shader);
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        } finally {
+            ShaderProgram.unbind();
+        }
 		
 		vertexCount = 0;
 	}
