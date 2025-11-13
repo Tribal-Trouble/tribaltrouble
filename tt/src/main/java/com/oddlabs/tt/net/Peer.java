@@ -65,7 +65,7 @@ public final class Peer implements PeerHubInterface {
 		return peerhub_interface;
 	}
 	
-	public PlayerInfo getPlayerInfo() {
+	public @NonNull PlayerInfo getPlayerInfo() {
 		return player.getPlayerInfo();
 	}
 	

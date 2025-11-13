@@ -5,6 +5,7 @@ import com.oddlabs.tt.gui.RaceIcons;
 import com.oddlabs.tt.model.weapon.MagicFactory;
 import com.oddlabs.tt.player.ChieftainAI;
 import com.oddlabs.tt.render.SpriteKey;
+import org.jspecify.annotations.NonNull;
 
 public final class Race {
 	public final static int BUILDING_QUARTERS = 0;
@@ -19,31 +20,25 @@ public final class Race {
 	public final static int UNIT_PEON = 3;
 	public final static int UNIT_CHIEFTAIN = 4;
 
-	private final BuildingTemplate[] buildings = new BuildingTemplate[NUM_BUILDINGS];
-	private final UnitTemplate[] units = new UnitTemplate[5];
-	private final SpriteKey rally_point;
-	private final RaceIcons icons;
-	private final Audio attack_notification;
-	private final Audio building_notification;
-	private final MagicFactory[] magic_factory;
-	private final ChieftainAI chieftain_ai;
-	private final String music_path;
+	private final @NonNull BuildingTemplate[] buildings = new BuildingTemplate[NUM_BUILDINGS];
+	private final @NonNull UnitTemplate[] units = new UnitTemplate[5];
+	private final @NonNull SpriteKey rally_point;
+	private final @NonNull RaceIcons icons;
+	private final @NonNull Audio attack_notification;
+	private final @NonNull Audio building_notification;
+	private final @NonNull MagicFactory @NonNull [] magic_factory;
+	private final @NonNull ChieftainAI chieftain_ai;
+	private final @NonNull String music_path;
 
-	public Race(BuildingTemplate quarters,
-			BuildingTemplate armory,
-			BuildingTemplate tower,
-			UnitTemplate warrior_rock,
-			UnitTemplate warrior_iron,
-			UnitTemplate warrior_rubber,
-			UnitTemplate peon,
-			UnitTemplate chieftain,
-			SpriteKey rally_point,
-			RaceIcons icons,
-			Audio attack_notification,
-			Audio building_notification,
-			MagicFactory[] magic_factory,
-			ChieftainAI chieftain_ai,
-			String music_path) {
+	public Race(@NonNull BuildingTemplate quarters, @NonNull BuildingTemplate armory, @NonNull BuildingTemplate tower,
+			@NonNull UnitTemplate warrior_rock, @NonNull UnitTemplate warrior_iron, @NonNull UnitTemplate warrior_rubber,
+			@NonNull UnitTemplate peon, @NonNull UnitTemplate chieftain,
+			@NonNull SpriteKey rally_point,
+			@NonNull RaceIcons icons,
+			@NonNull Audio attack_notification, @NonNull Audio building_notification,
+			@NonNull MagicFactory @NonNull [] magic_factory,
+			@NonNull ChieftainAI chieftain_ai,
+			@NonNull String music_path) {
 		buildings[BUILDING_QUARTERS] = quarters;
 		buildings[BUILDING_ARMORY] = armory;
 		buildings[BUILDING_TOWER] = tower;
@@ -64,39 +59,39 @@ public final class Race {
 		this.music_path = music_path;
 	}
 
-	public BuildingTemplate getBuildingTemplate(int index) {
+	public @NonNull BuildingTemplate getBuildingTemplate(int index) {
 		return buildings[index];
 	}
 
-	public UnitTemplate getUnitTemplate(int index) {
+	public @NonNull UnitTemplate getUnitTemplate(int index) {
 		return units[index];
 	}
 
-	public SpriteKey getRallyPoint() {
+	public @NonNull SpriteKey getRallyPoint() {
 		return rally_point;
 	}
 
-	public RaceIcons getIcons() {
+	public @NonNull RaceIcons getIcons() {
 		return icons;
 	}
 
-	public Audio getAttackNotificationAudio() {
+	public @NonNull Audio getAttackNotificationAudio() {
 		return attack_notification;
 	}
 
-	public Audio getBuildingNotificationAudio() {
+	public @NonNull Audio getBuildingNotificationAudio() {
 		return building_notification;
 	}
 
-	public MagicFactory getMagicFactory(int i) {
+	public @NonNull MagicFactory getMagicFactory(int i) {
 		return magic_factory[i];
 	}
 
-	public ChieftainAI getChieftainAI() {
+	public @NonNull ChieftainAI getChieftainAI() {
 		return chieftain_ai;
 	}
 
-	public String getMusicPath() {
+	public @NonNull String getMusicPath() {
 		return music_path;
 	}
 }

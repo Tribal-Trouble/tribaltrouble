@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class Player implements PlayerInterface {
 	public final static int INITIAL_UNIT_COUNT = 20;
@@ -45,7 +46,7 @@ public final class Player implements PlayerInterface {
 											{.75f, 1f, 0f, 1f}};
 
 	private final @NonNull World world;
-	private final PlayerInfo player_info;
+	private final @NonNull PlayerInfo player_info;
 	private final Army units = new Army();
 	private final @NonNull SupplyContainer unit_count;
 	private final SupplyContainer building_count = new SupplyContainer(MAX_BUILDING_COUNT);
@@ -93,7 +94,7 @@ public final class Player implements PlayerInterface {
 
 	private int preferred_speed = World.GAMESPEED_DONTCARE;
 
-	public Player(@NonNull World world, PlayerInfo player_info, float[] color) {
+	public Player(@NonNull World world, @NonNull PlayerInfo player_info, float[] color) {
 		this.world = world;
 		this.color = color;
         Arrays.fill(can_do_magic, true);
@@ -255,11 +256,11 @@ public final class Player implements PlayerInterface {
 		return player_info.toString();
 	}
 
-	public PlayerInfo getPlayerInfo() {
+	public @NonNull PlayerInfo getPlayerInfo() {
 		return player_info;
 	}
 
-	public void setAI(AI ai) {
+	public void setAI(@Nullable AI ai) {
 		this.ai = ai;
 	}
 
@@ -295,37 +296,28 @@ public final class Player implements PlayerInterface {
 	}
 
 	public int getStatus() {
-		Set<Selectable> units = getUnits().getSet();
-		Iterator<Selectable> it = units.iterator();
-		int status = 0;
-		while (it.hasNext()) {
-			Selectable s = it.next();
-			status += s.getStatusValue();
-		}
-		return status;
-	}
+        return getUnits().getSet().stream().mapToInt(Selectable::getStatusValue).sum();
+    }
 
 	public @Nullable Selectable findNearestEnemy(int start_x, int start_y, Selectable target, @NonNull Class<? extends Selectable> type) {
-		Player[] players = world.getPlayers();
 		int best_dist_squared = Integer.MAX_VALUE;
 		Selectable best_target = null;
-            for (Player player : players) {
-                if (isEnemy(player)) {
-                    Set<Selectable> units = player.getUnits().getSet();
-                    for (Selectable s : units) {
-                        if (!(type.isInstance(s)) || s == target) {
-                            continue;
-                        }
-                        int dx = s.getGridX() - start_x;
-                        int dy = s.getGridY() - start_y;
-                        int dist_squared = dx * dx + dy * dy;
-                        if (best_dist_squared > dist_squared) {
-                            best_dist_squared = dist_squared;
-                            best_target = s;
-                        }
+        for (Player player : world.getPlayers()) {
+            if (isEnemy(player)) {
+                for (Selectable s : player.getUnits().getSet()) {
+                    if (!(type.isInstance(s)) || s == target) {
+                        continue;
+                    }
+                    int dx = s.getGridX() - start_x;
+                    int dy = s.getGridY() - start_y;
+                    int dist_squared = dx * dx + dy * dy;
+                    if (best_dist_squared > dist_squared) {
+                        best_dist_squared = dist_squared;
+                        best_target = s;
                     }
                 }
             }
+        }
 		return best_target;
 	}
 
@@ -333,7 +325,7 @@ public final class Player implements PlayerInterface {
 		return findNearestEnemy(start_x, start_y, null, Building.class);
 	}
 
-	public Race getRace() {
+	public @NonNull Race getRace() {
 		return getWorld().getRacesResources().getRace(player_info.getRace());
 	}
 
@@ -351,23 +343,23 @@ public final class Player implements PlayerInterface {
 
 	public @Nullable Building getArmory() {
 		Selectable[][] lists = classifyUnits();
-            for (Selectable[] list : lists) {
-                Selectable s = list[0];
-                if (s.getPrimaryController() instanceof NullController && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
-                    return (Building)s;
-                }
+        for (Selectable[] list : lists) {
+            Selectable s = list[0];
+            if (s.getPrimaryController() instanceof NullController && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
+                return (Building)s;
             }
+        }
 		return null;
 	}
 
 	public @Nullable Building getQuarters() {
 		Selectable[][] lists = classifyUnits();
-            for (Selectable[] list : lists) {
-                Selectable s = list[0];
-                if (s.getPrimaryController() instanceof NullController && s.getAbilities().hasAbilities(Abilities.REPRODUCE)) {
-                    return (Building)s;
-                }
+        for (Selectable[] list : lists) {
+            Selectable s = list[0];
+            if (s.getPrimaryController() instanceof NullController && s.getAbilities().hasAbilities(Abilities.REPRODUCE)) {
+                return (Building)s;
             }
+        }
 		return null;
 	}
 
@@ -449,11 +441,11 @@ public final class Player implements PlayerInterface {
 	@Override
 	public void placeBuilding(Selectable @NonNull [] selection, int template_id, int placing_grid_x, int placing_grid_y) {
 		Building building = new Building(this, getRace().getBuildingTemplate(template_id), placing_grid_x, placing_grid_y);
-            for (Selectable selection1 : selection) {
-                if (isValid(selection1)) {
-                    selection1.initTarget(building, Target.ACTION_DEFAULT, false);
-                }
+        for (Selectable selection1 : selection) {
+            if (isValid(selection1)) {
+                selection1.initTarget(building, Target.ACTION_DEFAULT, false);
             }
+        }
 	}
 
 	@Override
@@ -469,19 +461,19 @@ public final class Player implements PlayerInterface {
 
 	@Override
 	public void setTarget(Selectable @NonNull [] selection, Target target, int action, boolean aggressive) {
-            for (Selectable selection1 : selection) {
-                if (isValid(selection1)) {
-                    selection1.initTarget(target, action, aggressive);
-                }
+        for (Selectable selection1 : selection) {
+            if (isValid(selection1)) {
+                selection1.initTarget(target, action, aggressive);
             }
+        }
 	}
 
 	public void killSelection(Selectable @NonNull [] selection) {
-            for (Selectable selection1 : selection) {
-                if (selection1 != null) {
-                    selection1.hit(10000, 0f, 1f, this);
-                }
+        for (Selectable selection1 : selection) {
+            if (selection1 != null) {
+                selection1.hit(10000, 0f, 1f, this);
             }
+        }
 	}
 
 	@Override
@@ -527,12 +519,11 @@ public final class Player implements PlayerInterface {
 	}
 
 	public boolean teamHasBuilding() {
-		Player[] players = world.getPlayers();
-            for (Player player : players) {
-                if (player.getPlayerInfo().getTeam() == player_info.getTeam() && player.getBuildingCountContainer().getNumSupplies() > 0) {
-                    return true;
-                }
+        for (Player player : world.getPlayers()) {
+            if (player.getPlayerInfo().getTeam() == player_info.getTeam() && player.getBuildingCountContainer().getNumSupplies() > 0) {
+                return true;
             }
+        }
 		return false;
 	}
 
@@ -540,27 +531,12 @@ public final class Player implements PlayerInterface {
 		return units;
 	}
 
-	public Selectable[] @NonNull [] classifyUnits() {
-		Map<String, List<Selectable>> map = new HashMap<>();
-		List<List<Selectable>> lists = new ArrayList<>();
-            for (Selectable unit : units.getSet()) {
-                String key = unit.getPrimaryController().getKey();
-                List<Selectable> list = map.get(key);
-                if (list == null) {
-                    list = new ArrayList<>();
-                    map.put(key, list);
-                    lists.add(list);
-                }
-                list.add(unit);
-            }
-		Selectable[][] result = new Selectable[lists.size()][];
-		for (int i = 0; i < result.length; i++) {
-			List<Selectable> list = lists.get(i);
-			Selectable[] array = new Selectable[list.size()];
-			list.toArray(array);
-			result[i] = array;
-		}
-		return result;
+	public @NonNull Selectable @NonNull [] @NonNull [] classifyUnits() {
+        Map<String, List<Selectable>> map = units.getSet().stream()
+                .collect(Collectors.groupingBy(u -> u.getPrimaryController().getKey()));
+        return map.values().stream()
+                .map(list -> list.toArray(Selectable[]::new))
+                .toArray(Selectable[][]::new);
 	}
 
 	public void magicCast() {
@@ -619,7 +595,7 @@ public final class Player implements PlayerInterface {
 		return buildings_destroyed;
 	}
 
-	public void harvested(Class<?> type) {
+	public void harvested(@NonNull Class<?> type) {
 		if (type == TreeSupply.class) {
 			tree_harvested++;
 		} else if (type == RockSupply.class) {

@@ -3,20 +3,22 @@ package com.oddlabs.tt.viewer;
 import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
 public final class Selection {
-	private final Army[] shortcut_armies = new Army[10];
-	private final Player local_player;
-	private SelectionArmy current_selection;
+	private final @Nullable Army[] shortcut_armies = new Army[10];
+	private final @NonNull Player local_player;
+	private @NonNull SelectionArmy current_selection;
 
-	public Selection(Player local_player) {
+	public Selection(@NonNull Player local_player) {
 		this.local_player = local_player;
 		clearSelection();
 	}
 
-	public SelectionArmy getCurrentSelection() {
+	public @NonNull SelectionArmy getCurrentSelection() {
 		return current_selection;
 	}
 
@@ -28,7 +30,7 @@ public final class Selection {
         Arrays.fill(shortcut_armies, null);
 	}
 
-	void removeFromArmies(Selectable selectable) {
+	void removeFromArmies(@NonNull Selectable selectable) {
 		current_selection.remove(selectable);
             for (Army shortcut_armie : shortcut_armies) {
                 if (shortcut_armie != null) {
@@ -52,10 +54,10 @@ public final class Selection {
 		boolean empty = true;
 		if (shortcut_armies[index] != null) {
 			current_selection.clear();
-                    for (Selectable s : shortcut_armies[index].getSet()) {
-                        current_selection.add(s);
-                        empty = false;
-                    }
+            for (Selectable s : shortcut_armies[index].getSet()) {
+                current_selection.add(s);
+                empty = false;
+            }
 		}
 		return !empty;
 	}

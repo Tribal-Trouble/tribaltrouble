@@ -21,6 +21,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public final class AdvancedAI extends AI {
 	public final static int DIFFICULTY_EASY = 0;
@@ -164,13 +167,13 @@ public final class AdvancedAI extends AI {
 
 	private int addFromList(Selectable @NonNull [] list, @NonNull List<Unit> new_list, int progress, int score) {
 		int result = progress;
-            for (Selectable list1 : list) {
-                Unit unit = (Unit) list1;
-                new_list.add(unit);
-                result += getUnitScore(unit);
-                if (result > score)
-                    break;
-            }
+        for (Selectable list1 : list) {
+            Unit unit = (Unit) list1;
+            new_list.add(unit);
+            result += getUnitScore(unit);
+            if (result > score)
+                break;
+        }
 		return result;
 	}
 
@@ -226,12 +229,8 @@ public final class AdvancedAI extends AI {
 			if (builders.length == 0)
 				return;
 
-			Building origin;
-			if (number%2 == 1)
-				origin = (Building)getQuarters()[0];
-			else
-				origin = (Building)getArmory()[0];
-			int ox = origin.getGridX();
+			Building origin = number % 2 == 1 ? (Building) getQuarters()[0] : (Building) getArmory()[0];
+            int ox = origin.getGridX();
 			int oy = origin.getGridY();
 			int center = getOwner().getWorld().getHeightMap().getGridUnitsPerWorld()/2;
 			int dx = center - ox;
@@ -439,25 +438,15 @@ else
 	}
 
 	private Selectable @NonNull [] getPeons(int min_num_peons) {
-		List<Selectable> builders = new ArrayList<>();
-		if (getIdlePeons() != null) {
-                    builders.addAll(Arrays.asList(getIdlePeons()));
-		}
-
-		Selectable[][] peon_types = new Selectable[][]{getGatherIronPeons(), getGatherRockPeons(), getGatherTreePeons(), getGatherRubberPeons()};
-            for (Selectable[] peon_type : peon_types) {
-                if (builders.size() < min_num_peons && peon_type != null) {
-                    for (Selectable apeon : peon_type) {
-                        builders.add(apeon);
-                        if (builders.size() == min_num_peons) {
-                            break;
-                        }
-                    }
-                }
-            }
-		Selectable[] result = new Selectable[builders.size()];
-		builders.toArray(result);
-		return result;
+        var idle = getIdlePeons();
+        int idleCount = null != idle ? idle.length : 0;
+        var active = Stream.of((Supplier<Selectable[]>) this::getGatherIronPeons, this::getGatherRockPeons, this::getGatherTreePeons, this::getGatherRubberPeons)
+                .map(Supplier::get)
+                .filter(Objects::nonNull)
+                .flatMap(Arrays::stream)
+                .limit(Math.max(min_num_peons - idleCount, 0));
+        return (null != idle ? Stream.concat(Arrays.stream(idle), active) : active)
+                .toArray(Selectable[]::new);
 	}
 
 /*	private final int getNumUnitsDeploying() {
@@ -493,10 +482,7 @@ else
 		int squared_dist_target = (best_target.getGridX() - start_x)*(best_target.getGridX() - start_x)
 			+ (best_target.getGridY() - start_y)*(best_target.getGridY() - start_y);
 
-		if (squared_dist_target < squared_dist_building/2)
-			return best_target;
-		else
-			return best_building;
+        return squared_dist_target < squared_dist_building / 2 ? best_target : best_building;
 	}
 
 	private boolean buildBuilding(int building_type, Selectable @NonNull [] selection, int grid_x, int grid_y) {

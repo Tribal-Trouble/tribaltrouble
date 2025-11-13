@@ -23,7 +23,7 @@ public final class GLState {
     public GLState() {
     }
 
-    public static GLState createCurrentState() {
+    public static @NonNull GLState createCurrentState() {
         GLState state = new GLState();
         state.vertex_array = GL11.glIsEnabled(GL11.GL_VERTEX_ARRAY);
         state.normal_array = GL11.glIsEnabled(GL11.GL_NORMAL_ARRAY);

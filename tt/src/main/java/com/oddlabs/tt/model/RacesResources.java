@@ -69,35 +69,35 @@ public final class RacesResources {
 	public final static GeneratorHalos DEFAULT_SHADOW_DESC = new GeneratorHalos(128, new float[][]{{0f, 0.75f}, {0.5f, 0f}}, new float[][]{{0.40f, 0f}, {0.41f, 1f}, {0.48f, 1f}, {0.49f, 0f}});
 
 	private final static ResourceBundle bundle = ResourceBundle.getBundle(RacesResources.class.getName());
-	private final static String[] race_names = new String[]{
+	private final static String[] race_names = {
             Utils.getBundleString(bundle, "natives"),
             Utils.getBundleString(bundle, "vikings")
     };
 	private final static int MAX_UNIT_RESOURCES = 1;
 
-	private final TextureKey[] smoke_textures = new TextureKey[1];
-	private final TextureKey[] damage_smoke_textures = new TextureKey[1];
-	private final TextureKey[] poison_textures = new TextureKey[1];
+	private final @NonNull TextureKey[] smoke_textures = new TextureKey[1];
+	private final @NonNull TextureKey[] damage_smoke_textures = new TextureKey[1];
+	private final @NonNull TextureKey[] poison_textures = new TextureKey[1];
 	private final @NonNull TextureKey lightning_texture;
-	private final TextureKey[] sonic_textures = new TextureKey[1];
-	private final TextureKey[] note_textures = new TextureKey[8];
-	private final TextureKey[] star_textures = new TextureKey[1];
-	private final Audio @NonNull [] tree_fall_sound;
-	private final Audio @NonNull [] building_hit_sound;
+	private final @NonNull TextureKey[] sonic_textures = new TextureKey[1];
+	private final @NonNull TextureKey[] note_textures = new TextureKey[8];
+	private final @NonNull TextureKey[] star_textures = new TextureKey[1];
+	private final @NonNull Audio @NonNull [] tree_fall_sound;
+	private final @NonNull Audio @NonNull [] building_hit_sound;
 	private final @NonNull Audio gas_sound;
 	private final @NonNull Audio bubbling_sound;
 	private final @NonNull Audio lightning_sound;
 	private final @NonNull Audio cloud_sound;
-	private final Audio @NonNull [] stun_sound;
-	private final Audio @NonNull [] blast_lur_sound;
+	private final @NonNull Audio @NonNull [] stun_sound;
+	private final @NonNull Audio @NonNull [] blast_lur_sound;
 	private final @NonNull Audio blast_rumble_sound;
 	private final @NonNull Audio blast_blast_sound;
 	private final @NonNull Audio armory_sound;
 	private final @NonNull Audio building_collapse_sound;
-	private final Map<Class<? extends Supply>,Audio[]> harvest_sounds = new HashMap<>();
-	private final SpriteKey[] wood_fragment_sprites = new SpriteKey[4];
-	private final SpriteKey[] treasure_sprites = new SpriteKey[6];
-	private final Race @NonNull [] races;
+	private final Map<@NonNull Class<? extends Supply>, @NonNull Audio[]> harvest_sounds = new HashMap<>();
+	private final @NonNull SpriteKey[] wood_fragment_sprites = new SpriteKey[4];
+	private final @NonNull SpriteKey[] treasure_sprites = new SpriteKey[6];
+	private final @NonNull Race @NonNull [] races;
 
 	public static boolean isValidRace(int race) {
 		return race == RACE_NATIVES || race == RACE_VIKINGS;
@@ -140,14 +140,14 @@ public final class RacesResources {
 		Supplier<Texture[]> building_shadow_desc = new GeneratorHalos(256, new float[][]{{0.15f, 0.5f}, {0.5f, 0f}}, new float[][]{{ring_mid - ring_thickness/2 - fadeout, 0f}, {ring_mid - ring_thickness/2, 1f}, {ring_mid + ring_thickness/2, 1f}, {ring_mid + ring_thickness/2 + fadeout, 0f}});
 		ShadowListKey shadow_renderer = queues.registerSelectableShadowList(building_shadow_desc);
 		SpriteFile building = new SpriteFile(built_name,
-																 Globals.NO_MIPMAP_CUTOFF,
-																 true, true, true, false);
+                                             Globals.NO_MIPMAP_CUTOFF,
+                                             true, true, true, false);
 		SpriteFile building_halfbuilt = new SpriteFile(halfbuilt_name,
-																		   Globals.NO_MIPMAP_CUTOFF,
-																		   true, true, true, false);
+                                                       Globals.NO_MIPMAP_CUTOFF,
+                                                       true, true, true, false);
 		SpriteFile building_start = new SpriteFile(start_name,
-																		   Globals.NO_MIPMAP_CUTOFF,
-																		   true, true, true, false);
+                                                   Globals.NO_MIPMAP_CUTOFF,
+                                                   true, true, true, false);
 		return new BuildingTemplate(template_id,
 									placing_size,
 									smoke_radius,
@@ -805,15 +805,15 @@ public final class RacesResources {
 		ProgressForm.progress(1f/num_progress);
 	}
 
-	public TextureKey @NonNull [] getSmokeTextures() {
+	public @NonNull TextureKey @NonNull [] getSmokeTextures() {
 		return smoke_textures;
 	}
 
-	public TextureKey @NonNull [] getDamageSmokeTextures() {
+	public @NonNull TextureKey @NonNull [] getDamageSmokeTextures() {
 		return damage_smoke_textures;
 	}
 
-	public TextureKey @NonNull [] getPoisonTextures() {
+	public @NonNull TextureKey @NonNull [] getPoisonTextures() {
 		return poison_textures;
 	}
 
@@ -821,28 +821,28 @@ public final class RacesResources {
 		return lightning_texture;
 	}
 
-	public TextureKey @NonNull [] getSonicTextures() {
+	public @NonNull TextureKey @NonNull [] getSonicTextures() {
 		return sonic_textures;
 	}
 
-	public TextureKey @NonNull [] getNoteTextures() {
+	public @NonNull TextureKey @NonNull [] getNoteTextures() {
 		return note_textures;
 	}
 
-	public TextureKey @NonNull [] getStarTextures() {
+	public @NonNull TextureKey @NonNull [] getStarTextures() {
 		return star_textures;
 	}
 
-	public Audio getHarvestSound(Class<? extends Supply> key, @NonNull Random random) {
+	public @NonNull Audio getHarvestSound(Class<? extends Supply> key, @NonNull Random random) {
 		Audio[] sounds = harvest_sounds.get(key);
 		return sounds[random.nextInt(sounds.length)];
 	}
 
-	public Audio @NonNull [] getTreeFallSound() {
+	public @NonNull Audio @NonNull [] getTreeFallSound() {
 		return tree_fall_sound;
 	}
 
-	public Audio getBuildingHitSound(@NonNull Random random) {
+	public @NonNull Audio getBuildingHitSound(@NonNull Random random) {
 		return building_hit_sound[random.nextInt(building_hit_sound.length)];
 	}
 
@@ -862,11 +862,11 @@ public final class RacesResources {
 		return cloud_sound;
 	}
 
-	public Audio getStunSound(@NonNull Random random) {
+	public @NonNull Audio getStunSound(@NonNull Random random) {
 		return stun_sound[random.nextInt(stun_sound.length)];
 	}
 
-	public Audio getBlastLurSound(@NonNull Random random) {
+	public @NonNull Audio getBlastLurSound(@NonNull Random random) {
 		return blast_lur_sound[random.nextInt(blast_lur_sound.length)];
 	}
 
@@ -886,7 +886,7 @@ public final class RacesResources {
 		return building_collapse_sound;
 	}
 
-	public Race getRace(int i) {
+	public @NonNull Race getRace(int i) {
 		return races[i];
 	}
 
@@ -898,11 +898,11 @@ public final class RacesResources {
 		return race_names.length;
 	}
 
-	public SpriteKey @NonNull [] getWoodFragments() {
+	public @NonNull SpriteKey @NonNull [] getWoodFragments() {
 		return wood_fragment_sprites;
 	}
 
-	public SpriteKey @NonNull [] getTreasures() {
+	public @NonNull SpriteKey @NonNull [] getTreasures() {
 		return treasure_sprites;
 	}
 }

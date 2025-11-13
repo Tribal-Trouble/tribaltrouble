@@ -2,57 +2,40 @@ package com.oddlabs.tt.model;
 
 import org.jspecify.annotations.NonNull;
 
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class Army {
-	private final Set<Selectable> selection = new LinkedHashSet<>();
+	private final Set<@NonNull Selectable> selection = new LinkedHashSet<>();
 
-	public final Selectable @NonNull [] filter(int ability_filter) {
-		int count = 0;
-		Iterator<Selectable> it = selection.iterator();
-		while (it.hasNext()) {
-			Selectable s = it.next();
-			if (s.getAbilities().hasAbilities(ability_filter))
-				count++;
-		}
-		Selectable[] filtered = new Selectable[count];
-		it = selection.iterator();
-		int index = 0;
-		while (it.hasNext()) {
-			Selectable s = it.next();
-			if (s.getAbilities().hasAbilities(ability_filter))
-				filtered[index++] = s;
-		}
-		return filtered;
+	public final @NonNull Selectable @NonNull [] filter(int ability_filter) {
+        return selection.stream()
+                .filter(s -> s.getAbilities().hasAbilities(ability_filter))
+                .toArray(Selectable[]::new);
 	}
 
 	public final boolean containsAbility(int ability_filter) {
-        for (Selectable s : selection) {
-            if (s.getAbilities().hasAbilities(ability_filter))
-                return true;
-        }
-		return false;
+        return selection.stream()
+                .anyMatch(s -> s.getAbilities().hasAbilities(ability_filter));
 	}
 
 	public void clear() {
 		selection.clear();
 	}
 
-	public void remove(Selectable selectable) {
+	public void remove(@NonNull Selectable selectable) {
 		selection.remove(selectable);
 	}
 
-	public final boolean contains(Selectable selectable) {
+	public final boolean contains(@NonNull Selectable selectable) {
 		return selection.contains(selectable);
 	}
 
-	public final @NonNull Set<Selectable> getSet() {
+	public final @NonNull Set<@NonNull Selectable> getSet() {
 		return selection;
 	}
 
-	public void add(Selectable selectable) {
+	public void add(@NonNull Selectable selectable) {
 		selection.add(selectable);
 	}
 

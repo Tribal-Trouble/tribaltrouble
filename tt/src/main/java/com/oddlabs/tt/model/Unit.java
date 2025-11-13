@@ -187,10 +187,9 @@ public class Unit extends Selectable implements Occupant, Movable {
     @Override
     public final int getAttackPriority() {
         assert !isDead();
-        if (getAbilities().hasAbilities(Abilities.BUILD))
-            return AttackScanFilter.PRIORITY_PEON;
-        else
-            return AttackScanFilter.PRIORITY_WARRIOR;
+        return getAbilities().hasAbilities(Abilities.BUILD)
+                ? AttackScanFilter.PRIORITY_PEON
+                : AttackScanFilter.PRIORITY_WARRIOR;
     }
 
     @Override
@@ -317,10 +316,7 @@ public class Unit extends Selectable implements Occupant, Movable {
     @Override
     public final int getPenalty() {
         assert !isDead();
-        if (isBlocking())
-            return Occupant.STATIC;
-        else
-            return path_penalty;
+        return isBlocking() ? Occupant.STATIC : path_penalty;
     }
 
     @Override
@@ -436,17 +432,15 @@ public class Unit extends Selectable implements Occupant, Movable {
 
     public final boolean canAttack(Target target, boolean kill_friendly) {
         assert !isDead();
-        if (!(target instanceof Selectable) || !getAbilities().hasAbilities(Abilities.ATTACK))
+        if (!(target instanceof Selectable selectable) || !getAbilities().hasAbilities(Abilities.ATTACK))
             return false;
-        Selectable selectable = (Selectable) target;
         Player target_player = selectable.getOwner();
         return kill_friendly || getOwner().isEnemy(target_player);
     }
 
     private boolean canBuild(Target target) {
-        if (!(target instanceof Building) || !getAbilities().hasAbilities(Abilities.BUILD))
+        if (!(target instanceof Building building) || !getAbilities().hasAbilities(Abilities.BUILD))
             return false;
-        Building building = (Building) target;
         return !building.isPlaced();
     }
 
@@ -455,9 +449,8 @@ public class Unit extends Selectable implements Occupant, Movable {
     }
 
     private boolean canRepair(Target target, boolean action_repair) {
-        if (!(target instanceof Building) || !getAbilities().hasAbilities(Abilities.BUILD))
+        if (!(target instanceof Building building) || !getAbilities().hasAbilities(Abilities.BUILD))
             return false;
-        Building building = (Building) target;
         if (!action_repair && building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER) && building.isComplete())
             return false;
         //return getOwner() == building.getOwner() && building.isPlaced() && building.isDamaged();
@@ -465,9 +458,8 @@ public class Unit extends Selectable implements Occupant, Movable {
     }
 
     private boolean canEnter(Target target) {
-        if (!(target instanceof Building) || getAbilities().hasAbilities(Abilities.MAGIC))
+        if (!(target instanceof Building building) || getAbilities().hasAbilities(Abilities.MAGIC))
             return false;
-        Building building = (Building) target;
         return building.getUnitContainer() != null && getOwner() == building.getOwner() && building.getUnitContainer().canEnter(this);
     }
 

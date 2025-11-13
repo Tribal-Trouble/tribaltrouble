@@ -155,7 +155,7 @@ public final class LandscapeRenderer implements Animated {
         doPrepareAll(camera, visible_override, set);
     }
 
-    public void prepareAll(CameraState camera, boolean visible_override) {
+    public void prepareAll(@NonNull CameraState camera, boolean visible_override) {
         clearRenderList();
         doPrepareAll(camera, visible_override, render_list);
     }

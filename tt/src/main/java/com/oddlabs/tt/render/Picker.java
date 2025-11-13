@@ -297,7 +297,7 @@ public final class Picker implements Updatable {
 	 * @param winz The window z-coordinate (depth).
 	 * @param proj The combined projection-model-view matrix from the camera.
 	 */
-	private void unproject(float winx, float winy, float winz, Matrix4f proj) {
+	private void unproject(float winx, float winy, float winz, @NonNull Matrix4f proj) {
 		// Convert viewport buffer to array. The buffer position is reset in setupPicking().
 		viewport.get(0, viewportArray, 0, 4);
 

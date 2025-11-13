@@ -141,7 +141,7 @@ public final class RenderState implements ElementVisitor {
 		return selectable == picker.getCurrentHovered();
 	}
 
-	boolean isSelected(Selectable selectable) {
+	boolean isSelected(@NonNull Selectable selectable) {
 		return selection.getCurrentSelection().contains(selectable);
 	}
 

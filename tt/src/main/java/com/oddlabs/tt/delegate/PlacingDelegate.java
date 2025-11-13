@@ -43,7 +43,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
 		this.building_index = building_index;
 	}
 
-	private BuildingTemplate getTemplate() {
+	private @NonNull BuildingTemplate getTemplate() {
 		return getViewer().getLocalPlayer().getRace().getBuildingTemplate(building_index);
 	}
 
