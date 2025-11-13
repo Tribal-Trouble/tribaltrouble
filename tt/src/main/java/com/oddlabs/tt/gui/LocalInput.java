@@ -116,7 +116,9 @@ public final class LocalInput {
 
 	public static void setPos(int x, int y) {
 		mouse_x = x;
-		mouse_y = y;
+		// Adjust Y-coordinate to be relative to the window's top edge
+		// Raw y is from top of display, Display.getY() is window's y from top of display
+		mouse_y = y - Display.getY();
 	}
 
 	public static void resetKeyboard() {

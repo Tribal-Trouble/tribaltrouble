@@ -418,7 +418,7 @@ public RandomVelocityEmitter(Vector3f position,
 //				float z1 = World.getHeightMap().getNearestHeight(x1, y1);
 //				new Lightning(new Vector3f(x1, y1, z1), new Vector3f(x1, y1, z1 + 15f), .5f,
 //						15, new Vector4f(1f, 1f, 1f, 1f), new Vector4f(0f, 0f, 0f, -1f/10f),
-//						GL11.GL_SRC_ALPHA, GL11.GL_ONE, RacesResources.getLightningTexture(), 10f,
+//						GL11.GL_SRC_ALPHA, GL11.GL_ONE, RacesResources.getLightningTexture(), 100,
 //						World.getAnimationManagerGameTime());
 
 /*
@@ -546,7 +546,12 @@ public RandomVelocityEmitter(Vector3f position,
 		if (cursor_object.getCursorIndex() != CURSOR_NULL) {
 			cursors[cursor_object.getCursorIndex()].setActive();
 			if (getModalDelegate() != null || getDelegate().renderCursor()) {
-				cursors[cursor_object.getCursorIndex()].render(LocalInput.getMouseX(), LocalInput.getMouseY());
+				// Mouse coordinates are now Y-up from LocalInput
+				float mouse_x = LocalInput.getMouseX();
+				float mouse_y = LocalInput.getMouseY();
+				
+				// Pass directly, as LocalInput now provides Y-up coordinates
+				cursors[cursor_object.getCursorIndex()].render(mouse_x, mouse_y);
 			}
 		} else
 			PointerInput.setActiveCursor(null);
