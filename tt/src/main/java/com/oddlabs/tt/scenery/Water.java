@@ -24,7 +24,7 @@ public final class Water {
     private final @NonNull FloatVBO patch_vertices;
     private final Texture @NonNull [] ocean;
 
-    public Water(@NonNull HeightMap heightmap, Landscape.TerrainType terrain) {
+    public Water(@NonNull HeightMap heightmap, Landscape.@NonNull TerrainType terrain) {
         TextureGenerator ocean_desc = new GeneratorOcean(terrain);
         ocean = Resources.findResource(ocean_desc);
         patch_vertices = makePatchVertices(heightmap);

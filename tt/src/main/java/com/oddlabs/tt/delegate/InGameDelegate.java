@@ -68,7 +68,7 @@ public abstract class InGameDelegate extends CameraDelegate {
 				}
 				break;
 			case Keyboard.KEY_F5:
-                // F5 creates a chieftan at the center of the view unless the player already has one or is training one
+                // F5 creates a chieftain at the center of the view unless the player already has one or is training one
 				if (!viewer.getLocalPlayer().hasActiveChieftain() && !viewer.getLocalPlayer().isTrainingChieftain()) {
 					Unit chieftain = new Unit(viewer.getLocalPlayer(), landscape_x, landscape_y, null,
 							viewer.getLocalPlayer().getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN));

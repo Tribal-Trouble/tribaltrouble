@@ -7,7 +7,7 @@ public final class Cheat {
 	public boolean line_mode = false;
 
 	public Cheat() {
-		this(false);
+		this(Boolean.getBoolean("com.oddlabs.tt.developer"));
 	}
 
 	Cheat(boolean can_enable) {
