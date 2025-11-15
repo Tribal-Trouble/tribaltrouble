@@ -1,5 +1,6 @@
 package com.oddlabs.tt.global;
 
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -108,7 +109,10 @@ public final class Globals {
 
 	public final static String SCREENSHOT_DEFAULT = "screenshot";
 
-	public final static float[][] SEA_BOTTOM_COLOR = {{0.45f, 0.25f, 0.6f}, {0f, 0f, 0f}};
+	public static final float[][] SEA_BOTTOM_COLOR = {
+			Color.rgb3f(0x734099), // NATIVE
+			Color.rgb3f(0x000000)  // VIKING
+	};
 
 	public final static float TREE_ERROR_DISTANCE = 100f;
 

@@ -18,6 +18,7 @@ import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.SpriteRenderer;
 import com.oddlabs.tt.viewer.WorldViewer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
@@ -28,7 +29,7 @@ import java.util.List;
 
 public final class PlacingDelegate extends ControllableCameraDelegate {
 	private final static int GRID_RADIUS = 20;
-	private final static FloatBuffer color = BufferUtils.createFloatBuffer(4).put(new float[]{1f, 1f, 1f, 1f});
+	private final static FloatBuffer color = BufferUtils.createFloatBuffer(4).put(Color.argb4f(0xFF_FF_FF_FF));
 	private final static LandscapeLocation landscape_hit = new LandscapeLocation();
 
 	private final BuildingSiteRenderer site_renderer = new BuildingSiteRenderer();

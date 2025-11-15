@@ -9,6 +9,7 @@ import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -24,7 +25,6 @@ import java.util.function.Supplier;
 final class Sprite {
 	private final static int TEXTURE_NORMAL = 0;
 	private final static int TEXTURE_TEAM = 1;
-	private final static float[] respond_color = new float[]{1f, 1f, 1f, 1f};
 	private final static FloatBuffer decal_color = BufferUtils.createFloatBuffer(4);
     private final static String GENERATOR_STRING = "Generator:";
 
@@ -48,7 +48,7 @@ final class Sprite {
 	private final int texcoords_offset;
 
 	static {
-		white_color = BufferUtils.createFloatBuffer(4).put(new float[]{1f, 1f, 1f, 1f});
+		white_color = BufferUtils.createFloatBuffer(4).put(Color.argb4f(0xFF_FF_FF_FF));
 		white_color.rewind();
 	}
 
@@ -340,10 +340,6 @@ final class Sprite {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_NORMAL].getHandle());
 		render(0, 0, sprite_list); // Render 1st frame of 1st animation to low detail texture
 		resetBasic();
-	}
-
-	public float[] getModelClearColor() {
-		return getClearColor();
 	}
 
 	public float[] getClearColor() {

@@ -4,7 +4,7 @@ import com.oddlabs.tt.font.Font;
 import org.jspecify.annotations.NonNull;
 
 public class PanelTab extends GUIObject {
-	private final static float[] HIGHLIGHT_COLOR = new float[]{0f, 1f, 0f, 1f};
+	private final static float[] HIGHLIGHT_COLOR = com.oddlabs.util.Color.argb4f(0x00_FF_00_FF);
 	private boolean selected;
 	private final @NonNull Label label;
 
@@ -26,12 +26,7 @@ public class PanelTab extends GUIObject {
 	}
 
 	public final int getRenderState() {
-		if (isDisabled())
-			return Skin.DISABLED;
-		else if (isActive() || selected)
-			return Skin.ACTIVE;
-		else
-			return Skin.NORMAL;
+        return isDisabled() ? Skin.DISABLED : isActive() || selected ? Skin.ACTIVE : Skin.NORMAL;
 	}
 
 	@Override

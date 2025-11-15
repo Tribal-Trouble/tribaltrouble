@@ -6,6 +6,7 @@ import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.util.Quad;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -209,7 +210,7 @@ public class Icons {
 				texture);
 	}
 
-	public static Node loadFile(@NonNull String xml_file, ErrorHandler error_handler) {
+	public static Node loadFile(@NonNull String xml_file, @Nullable ErrorHandler error_handler) {
 		URL url = Utils.makeURL(xml_file);
 
 		try {

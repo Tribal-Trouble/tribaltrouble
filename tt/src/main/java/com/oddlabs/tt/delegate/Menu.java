@@ -39,8 +39,8 @@ import java.net.InetAddress;
 import java.util.ResourceBundle;
 
 public abstract class Menu extends CameraDelegate {
-	protected final static float[] COLOR_NORMAL = new float[]{1f, 1f, 1f};
-	protected final static float[] COLOR_ACTIVE = new float[]{1f, .8f, .63f};
+	protected final static int COLOR_NORMAL = 0xFFFFFF;
+	protected final static int COLOR_ACTIVE = 0xFFCC9F;
 	private final static int MENU_X = 160;
 	private final static int overlay_texture_width = 1024;
 	private final static int overlay_texture_height = 1024;

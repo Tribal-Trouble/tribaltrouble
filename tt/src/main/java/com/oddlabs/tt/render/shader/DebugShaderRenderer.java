@@ -34,6 +34,21 @@ public final class DebugShaderRenderer extends ShaderRenderer {
 	public void vertex(float x, float y, float z, float r, float g, float b) {
 		super.vertex(x, y, z, 0, 0, 1, r, g, b, 1, 0, 0);
 	}
+
+    /**
+     * Adds a vertex to the buffer with specified position and color.
+     */
+    public void vertex(float x, float y, float z, float r, float g, float b, float a) {
+        super.vertex(x, y, z, 0, 0, 1, r, g, b, a, 0, 0);
+    }
+
+	/**
+	 * Adds a vertex to the buffer with specified position and color.
+	 * @param color A float array containing the RGB or RGBA color components.
+	 */
+	public void vertex(float x, float y, float z, float @NonNull[] color) {
+		vertex(x, y, z, color[0], color[1], color[2], color.length >= 4 ? color[3] : 1);
+	}
 	
 	/**
 	 * Ends the drawing sequence and flushes any remaining vertices.

@@ -7,21 +7,18 @@ public final class IntegerLabel extends Label {
 	private final int val;
 
 	public IntegerLabel(int val, @NonNull Font font, int width) {
-		super("" + val, font, width, ALIGN_RIGHT);
+		super(Integer.toString(val), font, width, ALIGN_RIGHT);
 		this.val = val;
 	}
 
 	public IntegerLabel(int val, @NonNull Font font) {
-		super("" + val, font);
+		super(Integer.toString(val), font);
 		this.val = val;
 	}
 
 	@Override
-	public int compareTo(Label o) {
-		if (o instanceof IntegerLabel other) {
-			return val - other.val;
-		} else
-			return -1;
+	public int compareTo(@NonNull Label o) {
+        return o instanceof IntegerLabel other ? val - other.val : -1;
 	}
 }
 

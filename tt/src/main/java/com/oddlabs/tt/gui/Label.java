@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
@@ -9,8 +10,8 @@ public class Label extends TextField implements Comparable<Label> {
 	public final static int ALIGN_LEFT		= 0;
 	public final static int ALIGN_CENTER	= 1;
 	public final static int ALIGN_RIGHT		= 2;
-	public final static float[] DEFAULT_COLOR = new float[]{1f, 1f, 1f, 1f};
-	public final static float[] DISABLED_COLOR = new float[]{.7f, .7f, .7f, .7f};
+	public final static float[] DEFAULT_COLOR = Color.argb4f(0xFFFFFFFF);
+	public final static float[] DISABLED_COLOR = Color.argb4f(0xB2B2B2B2);
 
 	private final int align;
 	private final @NonNull TextLineRenderer text_renderer;
@@ -69,4 +70,3 @@ public class Label extends TextField implements Comparable<Label> {
 		return getText().toString().compareToIgnoreCase(o.getText().toString());
 	}
 }
-

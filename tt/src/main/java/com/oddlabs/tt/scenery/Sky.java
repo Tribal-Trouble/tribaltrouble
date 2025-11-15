@@ -9,6 +9,7 @@ import com.oddlabs.tt.procedural.TextureGenerator;
 import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.Resources;
+import com.oddlabs.util.Color;
 import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.GLUtils;
@@ -34,8 +35,14 @@ public final class Sky {
     private final static int SKYDOME_GRADIENT_LENGTH = 20;
     private final static int SKYDOME_DEFAULT_COLOR = 8;
 
-    private final static float[][] SKYDOME_INITCOLOR = {{0.90f, 0.95f, 1f}, {1.50f, 0.90f, 0.65f}};
-    private final static float[][] SKYDOME_GRADIENT = {{0.75f, 0.825f, 0.95f}, {0.6f, 0.6f, 0.85f}};
+    private final static float[][] SKYDOME_INITCOLOR = {
+        /* Native */ Color.rgb3f(0xE5F2FF),
+        /* Viking */ Color.rgb3f(0xFFE5A6)
+    };
+    private final static float[][] SKYDOME_GRADIENT = {
+        /* Native */ Color.rgb3f(0xBFCFDA),
+        /* Viking */ Color.rgb3f(0x9999D9)
+    };
 
     private final static float SKYDOME_OUTER_UTILING = 8f;
     private final static float SKYDOME_OUTER_VTILING = 8f;
@@ -46,7 +53,10 @@ public final class Sky {
 
     private final static float START_ANGLE = -(float) Math.PI / 4f;
 
-    private final static float[][] tex_env_color = new float[][]{{0.95f, 0.975f, 1f, 1f}, {1f, 0.95f, 0.8f, 1f}};
+    private final static float[][] tex_env_color = new float[][]{
+    /* Native */ Color.argb4f(0xFF_F2_F8_FF),
+    /* Viking */ Color.argb4f(0xFF_FF_F2_CC)
+    };
 
     private final FloatBuffer color;
     private final ShortVBO @NonNull [] strip_indices;
@@ -262,18 +272,12 @@ public final class Sky {
             z = (float) java.lang.Math.sin(h_angle_inc * i) * radius;
             r = (float) java.lang.Math.cos(h_angle_inc * i) * radius;
 
-            if (java.lang.Math.abs(z) < 250f)
-                height_coeff = dome_height / 250f;
-            else
-                height_coeff = dome_height / z;
+            height_coeff = Math.abs(z) < 250f ? dome_height / 250f : dome_height / z;
 
             for (int j = 0; j < subdiv_axis; j++) {
                 x = (float) java.lang.Math.cos(START_ANGLE + a_angle_inc * j + offset_angle * i) * r;
                 y = (float) java.lang.Math.sin(START_ANGLE + a_angle_inc * j + offset_angle * i) * r;
-                if (i < SKYDOME_GRADIENT_LENGTH)
-                    putArray(skydome_gradient[i], i * subdiv_axis + j, colors);
-                else
-                    putArray(skydome_default_color, i * subdiv_axis + j, colors);
+                putArray(i < SKYDOME_GRADIENT_LENGTH ? skydome_gradient[i] : skydome_default_color, i * subdiv_axis + j, colors);
 
                 putArray(new float[]{x + origin_x, y + origin_y, z + origin_z}, i * subdiv_axis + j, vertices);
                 putArray(new float[]{x * height_coeff / (radius * outer_utile) + 0.5f, y * height_coeff / (radius * outer_vtile) + 0.5f}, i * subdiv_axis + j, tex0);
@@ -281,10 +285,7 @@ public final class Sky {
             }
         }
         int last_index = subdiv_axis * (subdiv_height - 1);
-        if (subdiv_height - 1 < SKYDOME_GRADIENT_LENGTH)
-            putArray(skydome_gradient[subdiv_height - 1], last_index, colors);
-        else
-            putArray(skydome_default_color, last_index, colors);
+        putArray(subdiv_height - 1 < SKYDOME_GRADIENT_LENGTH ? skydome_gradient[subdiv_height - 1] : skydome_default_color, last_index, colors);
 
         putArray(new float[]{origin_x, origin_y, radius + origin_z}, last_index, vertices);
         putArray(new float[]{0.5f, 0.5f}, last_index, tex0);
@@ -387,9 +388,7 @@ public final class Sky {
         @Override
         public final int compareTo(Stitcher.@NonNull Vertex o) {
             SkyStitchVertex other = (SkyStitchVertex) o;
-            if (equals(o))
-                return 0;
-            return theta < other.theta ? 1 : -1;
+            return equals(o) ? 0 : theta < other.theta ? 1 : -1;
         }
 
         @Override

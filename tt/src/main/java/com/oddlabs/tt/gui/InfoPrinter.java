@@ -7,25 +7,27 @@ import com.oddlabs.tt.net.ChatListener;
 import com.oddlabs.tt.net.ChatMessage;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.StateChecksum;
+import com.oddlabs.util.Color; // Import the Color utility class
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public final class InfoPrinter extends GUIObject implements Animated, ChatListener {
 	private final static float SECONDS_PER_TIMEOUT = 8f;
-	private final static float[] PRIVATE_COLOR = new float[]{1f, .2f, .4f, 1f};
-	private final static float[] TEAM_COLOR = new float[]{.3f, .5f, 1f, 1f};
+	private final static float[] PRIVATE_COLOR = Color.rgba4f(0xFF3366FF);
+	private final static float[] TEAM_COLOR = Color.rgba4f(0x4C7FFFFF);
 
-	private final Font font;
-	private final ArrayList<LabelBox> history = new ArrayList<>();
-	private final ArrayList<Float> timers = new ArrayList<>();
+	private final @NonNull Font font;
+	private final List<LabelBox> history = new ArrayList<>();
+	private final List<Float> timers = new ArrayList<>();
 	private final int lines;
-	private final GUIRoot gui_root;
+	private final @NonNull GUIRoot gui_root;
 
 	private float time;
 
-	public InfoPrinter(GUIRoot gui_root, int lines, Font font) {
+	public InfoPrinter(@NonNull GUIRoot gui_root, int lines, @NonNull Font font) {
 		this.gui_root = gui_root;
 		this.lines = lines;
 		this.font = font;
@@ -34,7 +36,7 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 		time = 0;
 	}
 
-	public GUIRoot getGUIRoot() {
+	public @NonNull GUIRoot getGUIRoot() {
 		return gui_root;
 	}
 
@@ -119,10 +121,6 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 	public void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 
-	@Override
-	protected void renderGeometry() {
-	}
-
 	private void setLabelsPos() {
 		int y = getHeight();
         for (LabelBox label_box : history) {
@@ -131,4 +129,3 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
         }
 	}
 }
-

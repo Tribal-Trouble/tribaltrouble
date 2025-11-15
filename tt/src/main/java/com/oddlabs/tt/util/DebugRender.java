@@ -3,16 +3,23 @@ package com.oddlabs.tt.util;
 import com.oddlabs.tt.render.shader.DebugShaderRenderer;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
+import com.oddlabs.util.Color;
 
 /**
  * Utilities for rendering debug shapes (boxes, lines, spheres, etc.) using a {@link DebugShaderRenderer}.
  */
 public final class DebugRender {
-	public final static float[][] debug_colors = {{7f, 1f, 1f}, {7f, 1f, 0f}, {7f, 0f, 1f}, {.3f, .7f, 0f},
-												   {0f, 1f, 1f}, {0f, 1f, 0f}, {0f, 0f, 1f}, {0f, 0f, 0f},
-												   {0f, .5f, .5f}, {0f, .5f, 0f}, {0f, 0f, .5f}, {.5f, .8f, .8f},
-												   {.3f, .5f, 1f}, {5f, .5f, .8f}, {.3f, .2f, .5f}, {.3f, .3f, .3f},
-												   {.5f, 1f, 1f}, {.5f, 1f, .5f}, {.5f, .5f, 1f}, {.5f, .5f, .5f}};
+	private static final float[] AXIS_X_COLOR = Color.rgb3f(0xFF0000);
+	private static final float[] AXIS_Y_COLOR = Color.rgb3f(0x00FF00);
+	private static final float[] AXIS_Z_COLOR = Color.rgb3f(0x0000FF);
+
+	public final static float[][] debug_colors = {
+			Color.rgb3f(0x7f1f1f), Color.rgb3f(0x7f1f00), Color.rgb3f(0x7f001f), Color.rgb3f(0x3f7f00),
+			Color.rgb3f(0x001f1f), Color.rgb3f(0x001f00), Color.rgb3f(0x00001f), Color.rgb3f(0x000000),
+			Color.rgb3f(0x005f5f), Color.rgb3f(0x005f00), Color.rgb3f(0x00005f), Color.rgb3f(0x5f8f8f),
+			Color.rgb3f(0x3f5f1f), Color.rgb3f(0x5f5f8f), Color.rgb3f(0x3f2f5f), Color.rgb3f(0x3f3f3f),
+			Color.rgb3f(0x5f1f1f), Color.rgb3f(0x5f1f5f), Color.rgb3f(0x5f5f1f), Color.rgb3f(0x5f5f5f)
+	};
 	private final static float CIRCLE_DELTA = (float)java.lang.Math.PI/2;
 	private final static float ANGLE_DELTA = (float)java.lang.Math.PI/20;
 	private final static float SUBDIV = 0.4f;
@@ -118,16 +125,16 @@ public final class DebugRender {
         renderer.begin(GL11.GL_LINES);
         try {
             // X axis - red
-            renderer.vertex(center, center, z, 1, 0, 0);
-            renderer.vertex(center + 10, center, z, 1, 0, 0);
+            renderer.vertex(center, center, z, AXIS_X_COLOR);
+            renderer.vertex(center + 10, center, z, AXIS_X_COLOR);
 
             // Y axis - green
-            renderer.vertex(center, center, z, 0, 1, 0);
-            renderer.vertex(center, center + 10, z, 0, 1, 0);
+            renderer.vertex(center, center, z, AXIS_Y_COLOR);
+            renderer.vertex(center, center + 10, z, AXIS_Y_COLOR);
 
             // Z axis - blue
-            renderer.vertex(center, center, z, 0, 0, 1);
-            renderer.vertex(center, center, z + 10, 0, 0, 1);
+            renderer.vertex(center, center, z, AXIS_Z_COLOR);
+            renderer.vertex(center, center, z + 10, AXIS_Z_COLOR);
         } finally {
             renderer.end();
         }

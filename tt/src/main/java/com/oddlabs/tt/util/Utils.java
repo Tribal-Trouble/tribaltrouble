@@ -197,22 +197,6 @@ public final class Utils {
 		return Globals.BEST_SIZES[size];
 	}
 
-	// int = 0xAARRGGBB A=alpha R=red G=green B=blue
-	public static float intToRed(int color) {
-		int red = (color >> 16) & 0xff;
-		return ((float)red)/255;
-	}
-
-	public static float intToGreen(int color) {
-		int green = (color >> 8) & 0xff;
-		return ((float)green)/255;
-	}
-
-	public static float intToBlue(int color) {
-		int blue = color & 0xff;
-		return ((float)blue)/255;
-	}
-
 	public static float invsqrt(float x) {
 		float xhalf = 0.5f * x;
 		sqrtFloatBuf.put(0, x);

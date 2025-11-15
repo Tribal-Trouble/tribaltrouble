@@ -31,7 +31,7 @@ public final class JumpDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public void keyRepeat(KeyboardEvent event) {
+	public void keyRepeat(@NonNull KeyboardEvent event) {
 	}
 
 	@Override

@@ -8,7 +8,7 @@ import org.lwjgl.opengl.GL11;
 public class LabelBox extends TextField implements Comparable<LabelBox> {
 	private final @NonNull TextBoxRenderer text_renderer;
 
-	private float[] color = new float[]{1f, 1f, 1f, 1f};
+	private float[] color = com.oddlabs.util.Color.argb4f(0xFF_FF_FF_FF);
 
 	public LabelBox(@NonNull CharSequence text, Font font, int width) {
 		super(text, font, Integer.MAX_VALUE);

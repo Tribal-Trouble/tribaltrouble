@@ -160,10 +160,7 @@ public final class Skin {
 		int g = getInt(q, "g");
 		int b = getInt(q, "b");
 		int a = getInt(q, "a");
-		return new Color(r/255f,
-						 g/255f,
-						 b/255f,
-						 a/255f);
+		return new Color(r, g, b, a);
 	}
 
 	private Quad @NonNull [] getNamedQuads(@NonNull Node n, String name) {

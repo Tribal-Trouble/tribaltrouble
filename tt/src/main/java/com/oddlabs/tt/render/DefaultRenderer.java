@@ -27,6 +27,7 @@ import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -57,7 +58,7 @@ public final class DefaultRenderer implements UIRenderer {
     public DefaultRenderer(@NonNull Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         this.world = local_player.getWorld();
         this.cheat = cheat;
-        this.light_array = BufferUtils.createByteBuffer(4 * 4).asFloatBuffer();
+        this.light_array = BufferUtils.createFloatBuffer(4);
         light_array.put(new float[]{-1.0f, 0.0f, 1.0f, 0.0f});
         light_array.rewind();
         this.render_queues = render_queues;

@@ -3,15 +3,16 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 class SelectableVisitor extends ModelVisitor {
-	private final static float[] COLOR_RED = {1f, 0f, 0f};
-	private final static float[] COLOR_RED_HOVER = {.7f, 0f, 0f};
-	private final static float[] COLOR_GREEN = {0f, 1f, 0f};
-	private final static float[] COLOR_GREEN_HOVER = {0f, .7f, 0f};
-	private final static float[] COLOR_BLUE = {0f, 0f, 1f};
-	private final static float[] COLOR_BLUE_HOVER = {0f, 0f, .7f};
+	private final static float[] COLOR_RED = Color.rgb3f(0xFF0000);
+	private final static float[] COLOR_RED_HOVER = Color.rgb3f(0x7f0000);
+	private final static float[] COLOR_GREEN = Color.rgb3f(0x00FF00);
+	private final static float[] COLOR_GREEN_HOVER = Color.rgb3f(0x007f00);
+	private final static float[] COLOR_BLUE = Color.rgb3f(0x0000FF);
+	private final static float[] COLOR_BLUE_HOVER = Color.rgb3f(0x00007f);
 
 	@Override
 	public final void transform(@NonNull ElementRenderState render_state) {

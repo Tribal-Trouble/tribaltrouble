@@ -21,6 +21,7 @@ import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.util.Target;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -38,12 +39,14 @@ public final class Player implements PlayerInterface {
 	public final static int MAX_BUILDING_COUNT = 20;
 	public final static int DEFAULT_MAX_UNIT_COUNT = 250;
 
-	public static final float[][] COLORS = {{1f, .75f, 0f, 1f},
-											{0f, .5f, 1f, 1f},
-											{1f, 0f, .25f, 1f},
-											{0f, 1f, .75f, 1f},
-											{.75f, 0f, 1f, 1f},
-											{.75f, 1f, 0f, 1f}};
+	public static final float[][] COLORS = {
+			Color.argb4f(0xFFFFBF00),
+			Color.argb4f(0xFF007FFF),
+			Color.argb4f(0xFFFF0040),
+			Color.argb4f(0xFF00FFBF),
+			Color.argb4f(0xFFBF00FF),
+			Color.argb4f(0xFFBFFF00)
+	};
 
 	private final @NonNull World world;
 	private final @NonNull PlayerInfo player_info;
@@ -566,6 +569,8 @@ public final class Player implements PlayerInterface {
 	public void unitLost() {
 		units_lost++;
 	}
+
+
 
 	public int getUnitsLost() {
 		return units_lost;

@@ -11,6 +11,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 
+import java.util.List;
 import java.util.Objects;
 
 public abstract class GUIObject extends Renderable {
@@ -41,12 +42,12 @@ public abstract class GUIObject extends Renderable {
 	private @Nullable GUIObject focused_child = null;
 	private @Nullable GUIObject next_hover = null;
 
-	private final java.util.List<MouseClickListener> mouse_click_listeners = new java.util.ArrayList<>();
-	private final java.util.List<MouseButtonListener> mouse_button_listeners = new java.util.ArrayList<>();
-	private final java.util.List<MouseMotionListener> mouse_motion_listeners = new java.util.ArrayList<>();
-	private final java.util.List<MouseWheelListener> mouse_wheel_listeners = new java.util.ArrayList<>();
-	private final java.util.List<KeyListener> key_listeners = new java.util.ArrayList<>();
-	private final java.util.List<FocusListener> focus_listeners = new java.util.ArrayList<>();
+	private final List<@NonNull MouseClickListener> mouse_click_listeners = new java.util.ArrayList<>();
+	private final List<@NonNull MouseButtonListener> mouse_button_listeners = new java.util.ArrayList<>();
+	private final List<@NonNull MouseMotionListener> mouse_motion_listeners = new java.util.ArrayList<>();
+	private final List<@NonNull MouseWheelListener> mouse_wheel_listeners = new java.util.ArrayList<>();
+	private final List<@NonNull KeyListener> key_listeners = new java.util.ArrayList<>();
+	private final List<@NonNull FocusListener> focus_listeners = new java.util.ArrayList<>();
 
 	private boolean placed = false;
 	private int origin;
@@ -59,18 +60,12 @@ public abstract class GUIObject extends Renderable {
 
 	public int translateXToLocal(int x) {
 		GUIObject parent = (GUIObject)getParent();
-		if (parent == null)
-			return x - getX();
-		else
-			return parent.translateXToLocal(x) - getX();
+        return parent == null ? x - getX() : parent.translateXToLocal(x) - getX();
 	}
 
 	public int translateYToLocal(int y) {
 		GUIObject parent = (GUIObject)getParent();
-		if (parent == null)
-			return y - getY();
-		else
-			return parent.translateYToLocal(y) - getY();
+        return parent == null ? y - getY() : parent.translateYToLocal(y) - getY();
 	}
 
 	public void correctPos(int dx, int dy) {
@@ -103,51 +98,25 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	private int getXFromDirection(int direction, int spacing, int neightbour_x, int neighbour_width) {
-		switch (direction) {
-			case BOTTOM_LEFT:
-			case TOP_LEFT:
-				return neightbour_x;
-			case BOTTOM_MID:
-			case TOP_MID:
-				return neightbour_x + (neighbour_width - getWidth())/2;
-			case BOTTOM_RIGHT:
-			case TOP_RIGHT:
-				return neightbour_x + neighbour_width - getWidth();
-			case RIGHT_BOTTOM:
-			case RIGHT_MID:
-			case RIGHT_TOP:
-				return neightbour_x + neighbour_width + spacing;
-			case LEFT_BOTTOM:
-			case LEFT_MID:
-			case LEFT_TOP:
-				return neightbour_x - getWidth() - spacing;
-			default:
-				throw new RuntimeException("Invalid direction");
-		}
+        return switch (direction) {
+            case BOTTOM_LEFT, TOP_LEFT -> neightbour_x;
+            case BOTTOM_MID, TOP_MID -> neightbour_x + (neighbour_width - getWidth()) / 2;
+            case BOTTOM_RIGHT, TOP_RIGHT -> neightbour_x + neighbour_width - getWidth();
+            case RIGHT_BOTTOM, RIGHT_MID, RIGHT_TOP -> neightbour_x + neighbour_width + spacing;
+            case LEFT_BOTTOM, LEFT_MID, LEFT_TOP -> neightbour_x - getWidth() - spacing;
+            default -> throw new RuntimeException("Invalid direction");
+        };
 	}
 
 	private int getYFromDirection(int direction, int spacing, int neighbour_y, int neighbour_height) {
-		switch (direction) {
-			case BOTTOM_LEFT:
-			case BOTTOM_MID:
-			case BOTTOM_RIGHT:
-				return neighbour_y - getHeight() - spacing;
-			case TOP_LEFT:
-			case TOP_RIGHT:
-			case TOP_MID:
-				return neighbour_y + neighbour_height + spacing;
-			case RIGHT_BOTTOM:
-			case LEFT_BOTTOM:
-				return neighbour_y;
-			case RIGHT_TOP:
-			case LEFT_TOP:
-				return neighbour_y + neighbour_height - getHeight();
-			case LEFT_MID:
-			case RIGHT_MID:
-				return neighbour_y + (neighbour_height - getHeight())/2;
-			default:
-				throw new RuntimeException("Invalid direction");
-		}
+        return switch (direction) {
+            case BOTTOM_LEFT, BOTTOM_MID, BOTTOM_RIGHT -> neighbour_y - getHeight() - spacing;
+            case TOP_LEFT, TOP_RIGHT, TOP_MID -> neighbour_y + neighbour_height + spacing;
+            case RIGHT_BOTTOM, LEFT_BOTTOM -> neighbour_y;
+            case RIGHT_TOP, LEFT_TOP -> neighbour_y + neighbour_height - getHeight();
+            case LEFT_MID, RIGHT_MID -> neighbour_y + (neighbour_height - getHeight()) / 2;
+            default -> throw new RuntimeException("Invalid direction");
+        };
 	}
 
 	public final int getOrigin() {
@@ -577,40 +546,40 @@ public abstract class GUIObject extends Renderable {
 		}
 	}
 
-	public final void keyRepeatAll(KeyboardEvent event) {
+	public final void keyRepeatAll(@NonNull KeyboardEvent event) {
 		keyRepeat(event);
 		for (KeyListener listener : key_listeners) {
 			listener.keyRepeat(event);
 		}
 	}
 
-	protected void keyRepeat(KeyboardEvent event) {
+	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		GUIObject parent = (GUIObject)getParent();
 		if (parent != null)
 			parent.keyRepeatAll(event);
 	}
 
-	public final void addMouseClickListener(MouseClickListener listener) {
+	public final void addMouseClickListener(@NonNull MouseClickListener listener) {
 		mouse_click_listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
-	public final void addMouseButtonListener(MouseButtonListener listener) {
+	public final void addMouseButtonListener(@NonNull MouseButtonListener listener) {
 		mouse_button_listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
-	public final void addMouseMotionListener(MouseMotionListener listener) {
+	public final void addMouseMotionListener(@NonNull MouseMotionListener listener) {
 		mouse_motion_listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
-	public final void addMouseWheelListener(MouseWheelListener listener) {
+	public final void addMouseWheelListener(@NonNull MouseWheelListener listener) {
 		mouse_wheel_listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
-	public final void addKeyListener(KeyListener listener) {
+	public final void addKeyListener(@NonNull KeyListener listener) {
 		key_listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
-	public final void addFocusListener(FocusListener listener) {
+	public final void addFocusListener(@NonNull FocusListener listener) {
 		focus_listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 }
