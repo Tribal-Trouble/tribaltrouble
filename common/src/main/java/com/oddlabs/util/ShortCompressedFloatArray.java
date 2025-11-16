@@ -4,6 +4,8 @@ import org.jspecify.annotations.NonNull;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class ShortCompressedFloatArray implements Serializable {
 	@Serial
@@ -64,18 +66,9 @@ public final class ShortCompressedFloatArray implements Serializable {
 
 	@Override
 	public @NonNull String toString() {
-		float[] array = getFloatArray();
-		String result = "";
-            for (float v : array) {
-                result += v + ", ";
-            }
-		return result;
+        float[] array = getFloatArray();
+        return IntStream.range(0, array.length)
+                .mapToObj(i -> Float.toString(array[i]))
+                .collect(Collectors.joining(", "));
 	}
-/*
-	public final static void main(String[] args) {
-		float[] array = {200f, 30f, 23.7765f};
-		ShortCompressedFloatArray scfa = new ShortCompressedFloatArray(array, 1);
-System.out.println("array = " + scfa);
-	}
-*/
 }
