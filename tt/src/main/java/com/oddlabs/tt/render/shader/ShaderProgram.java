@@ -79,6 +79,10 @@ public class ShaderProgram extends NativeResource<ShaderProgram.Program> {
 	public void setUniform(@NonNull String name, float value) {
 		GL20.glUniform1f(getUniformLocation(name), value);
 	}
+
+    public void setUniform(@NonNull String name, boolean value) {
+        GL20.glUniform1i(getUniformLocation(name), value ? 1 : 0);
+    }
 	
 	public void setUniform(@NonNull String name, float x, float y, float z) {
 		GL20.glUniform3f(getUniformLocation(name), x, y, z);

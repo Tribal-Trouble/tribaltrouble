@@ -12,10 +12,6 @@ import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.Landscape;
-import com.oddlabs.tt.render.shader.DebugShaderRenderer;
-import com.oddlabs.tt.render.shader.FixedFunctionShader;
-import com.oddlabs.tt.render.shader.ShaderProgram;
-import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
@@ -27,7 +23,6 @@ import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -52,6 +47,7 @@ public final class DefaultRenderer implements UIRenderer {
     private final @NonNull MatrixStack modelViewStack;
     private final @NonNull MatrixStack projectionStack;
     private final Selection selection;
+    // Removed private final @NonNull WaterRenderer waterRenderer;
 
     private @Nullable Building selected_building;
 
@@ -69,10 +65,10 @@ public final class DefaultRenderer implements UIRenderer {
         this.tree_renderer = new TreeRenderer(world, cheat, terrain, world_info.trees, world_info.palm_trees, sprite_sorter, picker.getRespondManager());
         this.landscape_renderer = landscape_renderer;
         this.fog_info = Landscape.getFogInfo(generator.getTerrainType(), generator.getMetersPerWorld());
-        this.water = new Water(world.getHeightMap(), generator.getTerrainType());
         this.sky = new Sky(landscape_renderer, generator.getTerrainType());
         this.modelViewStack = modelViewStack;
         this.projectionStack = projectionStack;
+        this.water = new Water(world.getHeightMap(), generator.getTerrainType(), sky, modelViewStack, projectionStack);
     }
 
     private void drawAxes() {
@@ -233,7 +229,7 @@ public final class DefaultRenderer implements UIRenderer {
         }
 
         if (Globals.draw_water)
-            water.render(sky);
+            water.render();
 
         if (Globals.process_misc)
             render_queues.renderBlends();
@@ -248,6 +244,4 @@ public final class DefaultRenderer implements UIRenderer {
             GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_FILL);
         }
     }
-
-
 }
