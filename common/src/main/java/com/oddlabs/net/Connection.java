@@ -15,8 +15,8 @@ import java.util.List;
 
 
 public final class Connection extends AbstractConnection implements Handler, ConnectionPeerInterface {
-	public final static int BUFFER_SIZE = 16382;
-	private final static short HEADER_SIZE = 2;
+	public static final int BUFFER_SIZE = 16382;
+	private static final short HEADER_SIZE = 2;
 
 	private final ByteBuffer read_buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 	private final List<ARMIEvent> back_log_list = new LinkedList<>();

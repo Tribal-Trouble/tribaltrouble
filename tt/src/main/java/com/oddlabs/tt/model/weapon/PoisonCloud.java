@@ -4,7 +4,7 @@ import com.oddlabs.tt.particle.ParametricEmitter;
 import org.jspecify.annotations.NonNull;
 
 public final class PoisonCloud {
-	private final static float START_SCALE = .1f;
+	private static final float START_SCALE = .1f;
 	private final @NonNull ParametricEmitter emitter;
 	private final float src_x;
 	private final float src_y;

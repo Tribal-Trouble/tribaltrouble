@@ -6,10 +6,10 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class Index implements Updatable {
-	public final static int INDEX_WIDTH = 1;
-	private final static float BLINK_INTERVAL = .5f;
+	public static final int INDEX_WIDTH = 1;
+	private static final float BLINK_INTERVAL = .5f;
 
-	private final static Index index = new Index();
+	private static final Index index = new Index();
 
 	private final TimerAnimation timer = new TimerAnimation(this, BLINK_INTERVAL);
 	private boolean blink_on;

@@ -25,8 +25,8 @@ import org.lwjgl.input.Keyboard;
 import java.util.ResourceBundle;
 
 public final class CampaignMapForm extends CameraDelegate {
-	private final static int base_width = 800;
-	private final static int base_height = 600;
+	private static final int base_width = 800;
+	private static final int base_height = 600;
 
 	private final @NonNull Campaign campaign;
 	private final @NonNull NetworkSelector network;

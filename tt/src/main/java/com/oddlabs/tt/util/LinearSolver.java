@@ -4,7 +4,7 @@ import org.jspecify.annotations.NonNull;
 
 public final class LinearSolver {
 
-    private final static float THRESHOLD = 0.001f;
+    private static final float THRESHOLD = 0.001f;
 
     public static void solve(float[] @NonNull [] eq_system_orig, float @NonNull [] solution) {
         float[][] eq_system = copyEquation(eq_system_orig);
@@ -138,7 +138,7 @@ dumpEquation(eq_system);*/
         return false;
     }
 
-    /*	private final static void dumpEquation(float[][] eq_system) {
+    /*	private static final void dumpEquation(float[][] eq_system) {
 		for (int row = 0; row < eq_system.length; row++)
 			dumpSolution(eq_system[row]);
 		System.out.println();
@@ -151,7 +151,7 @@ dumpEquation(eq_system);*/
 		IO.println();
     }
 
-    /*	public final static void main(String[] args) {
+    /*	public static final void main(String[] args) {
 		float[][] system0 = new float[][]{{1, 2, 1, 3}, {3, -1, -3, -1}, {2, 3, 1, 4}};
 		float[][] system1 = new float[][]{{0, -1, -1, 1, 0}, {1, 1, 1, 1, 6}, {2, 4, 1, -2, -1}, {3, 1, -2, 2, 3}};
 		float[][] system2 = new float[][]{{1, 1, 1, 1, 1, 1}, {-1, -1, 0, 0, 1, -1}, {-2, -2, 0, 0, 3, 1}, {0, 0, 1, 1, 3, -1}, {1, 1, 2, 2, 4, 1}};

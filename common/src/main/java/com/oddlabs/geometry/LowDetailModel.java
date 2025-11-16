@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public final class LowDetailModel implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
 	private final float[] vertices;
 	private final float[] tex_coords;

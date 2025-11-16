@@ -15,11 +15,11 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class LogoScreen extends CameraDelegate implements Updatable {
-	private final static float DELAY = 4f;
-	private final static int overlay_texture_width = 1024;
-	private final static int overlay_texture_height = 1024;
-	private final static int overlay_image_width = 800;
-	private final static int overlay_image_height = 600;
+	private static final float DELAY = 4f;
+	private static final int overlay_texture_width = 1024;
+	private static final int overlay_texture_height = 1024;
+	private static final int overlay_image_width = 800;
+	private static final int overlay_image_height = 600;
 
 	private final @Nullable GUIImage overlay;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);

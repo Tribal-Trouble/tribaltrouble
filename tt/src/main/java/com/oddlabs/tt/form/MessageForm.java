@@ -11,7 +11,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class MessageForm extends Form {
-	private final static int MAX_WIDTH = 500;
+	private static final int MAX_WIDTH = 500;
 
 	public MessageForm(@NonNull String head, @NonNull String message) {
 		this(head, message, null, null);

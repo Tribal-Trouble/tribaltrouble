@@ -25,9 +25,9 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
      */
     static final class NativeTexture extends NativeResource.NativeState {
         public static int global_size = 0;
-        private final static IntBuffer handle_buffer = BufferUtils.createIntBuffer(1);
-        private final static IntBuffer size_buffer = BufferUtils.createIntBuffer(4);
-        private final static FloatBuffer border_color_buffer = BufferUtils.createFloatBuffer(4);
+        private static final IntBuffer handle_buffer = BufferUtils.createIntBuffer(1);
+        private static final IntBuffer size_buffer = BufferUtils.createIntBuffer(4);
+        private static final FloatBuffer border_color_buffer = BufferUtils.createFloatBuffer(4);
 
         private int size;
         private final int texture_handle;

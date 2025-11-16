@@ -18,7 +18,7 @@ import java.nio.IntBuffer;
 
 public final class Image implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
 	private transient ByteBuffer data;
 	

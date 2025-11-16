@@ -49,13 +49,13 @@ import java.util.ResourceBundle;
 
 public final class SelectGameMenu extends Form implements MatchmakingListener, TerrainMenuListener {
 	private static final int BUTTON_WIDTH_SHORT = 60;
-	private final static int BUTTON_WIDTH = 110;
-	private final static int BUTTON_WIDTH_LONG = 150;
-	private final static int BUTTON_WIDTH_EXTRA_LONG = 170;
+	private static final int BUTTON_WIDTH = 110;
+	private static final int BUTTON_WIDTH_LONG = 150;
+	private static final int BUTTON_WIDTH_EXTRA_LONG = 170;
 
-	private final static int PANEL_INDEX_GAME = 0;
-	private final static int PANEL_INDEX_CHAT = 1;
-	private final static int PANEL_INDEX_HIGHSCORE = 2;
+	private static final int PANEL_INDEX_GAME = 0;
+	private static final int PANEL_INDEX_CHAT = 1;
+	private static final int PANEL_INDEX_HIGHSCORE = 2;
 
 	private final @NonNull Menu main_menu;
 	private final @NonNull ProfilesForm profiles_form;

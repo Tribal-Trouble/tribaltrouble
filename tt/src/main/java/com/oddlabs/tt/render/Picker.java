@@ -40,11 +40,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public final class Picker implements Updatable {
-	private final static int PICK_SIZE = 5;
-	private final static int SELECTION_THRESHOLD = 5;
-	private final static float PATCH_PICK_PRECISION = .1f;
-	private final static float PATCH_PICK_STEP = 2f;
-	private final static float TOOL_TIP_DELAY = .1f;
+	private static final int PICK_SIZE = 5;
+	private static final int SELECTION_THRESHOLD = 5;
+	private static final float PATCH_PICK_PRECISION = .1f;
+	private static final float PATCH_PICK_STEP = 2f;
+	private static final float TOOL_TIP_DELAY = .1f;
 
 	private final Matrix4f proj = new Matrix4f();
 

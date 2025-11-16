@@ -9,7 +9,7 @@ import com.oddlabs.tt.render.SpriteKey;
 import org.jspecify.annotations.NonNull;
 
 public final class RubberSpearWeapon extends DirectedThrowingWeapon {
-	private final static float METERS_PER_SECOND = 30; //multiplied by meters/second (in 2D)
+	private static final float METERS_PER_SECOND = 30; //multiplied by meters/second (in 2D)
 	private final int MAX_BOUNDS_LENGTH = 3;
 	
 	public RubberSpearWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable target, SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio[] hit_sounds) {

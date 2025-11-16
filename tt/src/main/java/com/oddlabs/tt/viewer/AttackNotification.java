@@ -8,8 +8,8 @@ import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 
 final class AttackNotification extends Notification {
-	private final static float RADIUS = 30f;
-	private final static float FADE_OUT = 5f;
+	private static final float RADIUS = 30f;
+	private static final float FADE_OUT = 5f;
 	
 	private boolean active = true;
 

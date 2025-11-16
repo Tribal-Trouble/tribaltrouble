@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class ChatPanel extends Panel implements ChatListener {
-	private final static int PULLDOWN_INDEX_MESSAGE = 0;
-	private final static int PULLDOWN_INDEX_INFO = 1;
-	private final static int PULLDOWN_INDEX_IGNORE = 2;
+	private static final int PULLDOWN_INDEX_MESSAGE = 0;
+	private static final int PULLDOWN_INDEX_INFO = 1;
+	private static final int PULLDOWN_INDEX_IGNORE = 2;
 
 	private final @NonNull MultiColumnComboBox lobby_users_list_box;
 	private final @NonNull MultiColumnComboBox playing_users_list_box;

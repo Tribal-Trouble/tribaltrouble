@@ -9,8 +9,8 @@ import org.jspecify.annotations.NonNull;
 import java.util.Set;
 
 public final class SupplyTrigger extends TutorialTrigger {
-	private final static int TREE = 20;
-	private final static int ROCK = 10;
+	private static final int TREE = 20;
+	private static final int ROCK = 10;
 
 	public SupplyTrigger(@NonNull Player player) {
 		super(.5f, 0f, "supply", new Object[]{TREE, ROCK});

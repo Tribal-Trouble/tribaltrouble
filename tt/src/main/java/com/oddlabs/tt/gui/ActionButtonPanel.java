@@ -33,10 +33,10 @@ import org.lwjgl.input.Keyboard;
 import java.util.ResourceBundle;
 
 public final class ActionButtonPanel extends GUIObject implements Animated {
-	private final static int GROUP_LEFT_OFFSET = 10;
-	private final static int GROUP_BOTTOM_OFFSET = 10;
-	private final static int GROUP_RIGHT_OFFSET = 10;
-	private final static int GROUP_TOP_OFFSET = 20;
+	private static final int GROUP_LEFT_OFFSET = 10;
+	private static final int GROUP_BOTTOM_OFFSET = 10;
+	private static final int GROUP_RIGHT_OFFSET = 10;
+	private static final int GROUP_TOP_OFFSET = 20;
 
 	private final Group unit_group = new NonFocusGroup();
 	private final Group peon_group = new NonFocusGroup();

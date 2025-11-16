@@ -17,8 +17,8 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class PrivateMessageForm extends Form {
-	private final static int BUTTON_WIDTH = 100;
-	private final static int EDITLINE_WIDTH = 240;
+	private static final int BUTTON_WIDTH = 100;
+	private static final int EDITLINE_WIDTH = 240;
 
 	private final @NonNull EditLine editline_name;
 	private final String nick;

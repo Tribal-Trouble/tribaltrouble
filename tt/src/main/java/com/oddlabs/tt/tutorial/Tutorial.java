@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class Tutorial {
-	private final static int BORDER_OFFSET = 90;
+	private static final int BORDER_OFFSET = 90;
 
 	private final WorldViewer viewer;
 	private final TutorialInGameInfo tutorial_info;

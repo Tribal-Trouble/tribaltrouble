@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 final class ViewerStallHandler implements StallHandler {
 
-    private final static float SHOW_WAITING_DELAY_SECONDS = 3f;
+    private static final float SHOW_WAITING_DELAY_SECONDS = 3f;
 
     private final @NonNull WorldViewer viewer;
 

@@ -26,10 +26,10 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public final class MatchmakingServer implements ConnectionListenerInterface {
-	private final static Map<String, Client> online_users = new HashMap<>();
+	private static final Map<String, Client> online_users = new HashMap<>();
 	private static int current_id = 1;
 
-	private final static Logger logger = Logger.getLogger("com.oddlabs.matchserver");
+	private static final Logger logger = Logger.getLogger("com.oddlabs.matchserver");
 
 	private final Logger chat_logger = Logger.getLogger("chatlog");
 

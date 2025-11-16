@@ -21,7 +21,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
-	private final static Quad[] icon = new Quad[1];
+	private static final Quad[] icon = new Quad[1];
 
 	private final ModelToolTip model;
 	private final Player local_player;

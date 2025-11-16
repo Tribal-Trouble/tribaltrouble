@@ -5,7 +5,7 @@ import com.oddlabs.tt.util.ToolTip;
 import org.jspecify.annotations.NonNull;
 
 public final class CheckBox extends GUIObject implements ToolTip {
-	private final static int CHECK_BOX_LISTENER = 0;
+	private static final int CHECK_BOX_LISTENER = 0;
 	private final java.util.List<CheckBoxListener>[] event_listeners = new java.util.ArrayList[1];
 
 	private final String tool_tip;

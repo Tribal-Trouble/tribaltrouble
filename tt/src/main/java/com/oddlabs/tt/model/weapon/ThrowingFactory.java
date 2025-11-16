@@ -8,7 +8,7 @@ import com.oddlabs.tt.render.SpriteKey;
 import java.lang.reflect.InvocationTargetException;
 
 public final class ThrowingFactory extends WeaponFactory {
-	private final static Class<?>[] types = new Class<?>[]{boolean.class, Unit.class, Selectable.class, SpriteKey.class, Audio.class, Audio[].class};
+	private static final Class<?>[] types = new Class<?>[]{boolean.class, Unit.class, Selectable.class, SpriteKey.class, Audio.class, Audio[].class};
 	private final Class<? extends ThrowingWeapon> weapon_type;
 	private final SpriteKey weapon_sprite;
 	private final Audio throw_sound;

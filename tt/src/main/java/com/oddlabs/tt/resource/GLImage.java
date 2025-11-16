@@ -134,7 +134,7 @@ public abstract class GLImage {
 		}
 	}
 
-/*	private final static int averagePixel(GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
+/*	private static final int averagePixel(GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
 		float inv_num_averaged = 1f/(height_div * width_div);
 		int col1 = 0;
 		int col2 = 0;

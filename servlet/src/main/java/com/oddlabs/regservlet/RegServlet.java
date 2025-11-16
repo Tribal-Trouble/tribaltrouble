@@ -32,8 +32,8 @@ import java.security.SignedObject;
 import java.sql.SQLException;
 
 public final class RegServlet extends HttpServlet {
-	private final static String GG_IGNITION_URL = "http://www.garagegames.com/ignition/validate.php?ProductId=0xFA00E87&Key=";
-	private final static String LOCAL_KEYGEN_URL = "http://oddlabs.com/keygen_gg.php?";
+	private static final String GG_IGNITION_URL = "http://www.garagegames.com/ignition/validate.php?ProductId=0xFA00E87&Key=";
+	private static final String LOCAL_KEYGEN_URL = "http://oddlabs.com/keygen_gg.php?";
 
 	private PrivateKey private_reg_key;
 

@@ -4,7 +4,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 
 public final class AttackBehaviour implements Behaviour {
-	private final static float SECONDS_PER_ATTACK = 2f;
+	private static final float SECONDS_PER_ATTACK = 2f;
 
     enum AttackState {
         THROWING,

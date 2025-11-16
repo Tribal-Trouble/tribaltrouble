@@ -17,12 +17,12 @@ import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 public final class LoadCampaignBox extends GUIObject implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
-	public final static Path SAVEGAMES_FILE_NAME = Path.of("savegames");
+	public static final Path SAVEGAMES_FILE_NAME = Path.of("savegames");
 
-	private final static int WIDTH_NAME = 210;
-	private final static int WIDTH_RACE = 70;
-	private final static int WIDTH_DIFFICULTY = 130;
-	private final static int WIDTH_DATE = 170;
+	private static final int WIDTH_NAME = 210;
+	private static final int WIDTH_RACE = 70;
+	private static final int WIDTH_DIFFICULTY = 130;
+	private static final int WIDTH_DATE = 170;
 
 	private final @NonNull MultiColumnComboBox list_box;
 	private final GUIRoot gui_root;

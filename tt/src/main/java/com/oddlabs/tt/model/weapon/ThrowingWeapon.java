@@ -15,12 +15,12 @@ import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 
 public abstract class ThrowingWeapon extends Accessories implements Animated {
-	private final static float GRAVITY = -6*9.82f;
-	private final static float NO_DETAIL_SIZE = .5f;
+	private static final float GRAVITY = -6*9.82f;
+	private static final float NO_DETAIL_SIZE = .5f;
 
-	private final static float OFFSET_X = 1.316f;
-	private final static float OFFSET_Y = -.347f;
-	private final static float OFFSET_Z = 1.382f;
+	private static final float OFFSET_X = 1.316f;
+	private static final float OFFSET_Y = -.347f;
+	private static final float OFFSET_Z = 1.382f;
 	private final AbstractAudioPlayer audio_player;
 	private final Audio[] hit_sounds;
 	private final @NonNull Player owner;

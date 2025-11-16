@@ -15,12 +15,12 @@ import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
 public final class RegistrationKey {
-	private final static int STRIPPED_LENGTH = 16;
-	public final static int LENGTH = STRIPPED_LENGTH + 3;
-	public final static String CHAR_TO_WORD = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-	public final static String LOWER_CASE_CHARS = "abcdefghjklmnpqrstuvwxyz";
-	public final static String SEPARATOR = "-";
-	public final static String ALLOWED_CHARS = CHAR_TO_WORD + SEPARATOR + LOWER_CASE_CHARS;
+	private static final int STRIPPED_LENGTH = 16;
+	public static final int LENGTH = STRIPPED_LENGTH + 3;
+	public static final String CHAR_TO_WORD = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+	public static final String LOWER_CASE_CHARS = "abcdefghjklmnpqrstuvwxyz";
+	public static final String SEPARATOR = "-";
+	public static final String ALLOWED_CHARS = CHAR_TO_WORD + SEPARATOR + LOWER_CASE_CHARS;
 
 	public static PublicKey loadPublicKey() throws Exception {
 		URL key_url = Utils.tryMakeURL("/" + RegServiceInterface.PUBLIC_KEY_FILE);

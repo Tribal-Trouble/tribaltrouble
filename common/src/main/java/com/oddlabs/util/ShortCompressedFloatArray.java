@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
 
 public final class ShortCompressedFloatArray implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
 	private final float @NonNull [] scale;
 	private final float @NonNull [] offset;

@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public final class RouterServer {
-	private final static Logger logger = Logger.getLogger("com.oddlabs.router.Router");
+	private static final Logger logger = Logger.getLogger("com.oddlabs.router.Router");
 	
 	static {
 		try {

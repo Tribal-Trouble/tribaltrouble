@@ -41,22 +41,22 @@ import java.util.Set;
 
 public class Unit extends Selectable implements Occupant, Movable {
 
-    private final static float IDLE_SPEED = 1f / 2.5f;
-    private final static float TRANSPORT_SPEED_SCALE = 4f / 5f;
+    private static final float IDLE_SPEED = 1f / 2.5f;
+    private static final float TRANSPORT_SPEED_SCALE = 4f / 5f;
 
-    private final static int PENALTY_INCREMENT = 3;
-    private final static int INITIAL_PATH_PENALTY = 5;
-    private final static float[] MAX_MAGIC_ENERGY = new float[]{40f, 70f};
+    private static final int PENALTY_INCREMENT = 3;
+    private static final int INITIAL_PATH_PENALTY = 5;
+    private static final float[] MAX_MAGIC_ENERGY = new float[]{40f, 70f};
 
-    private final static int ANIMATION_IDLING = 0;
-    public final static int ANIMATION_MOVING = 1;
-    public final static int ANIMATION_THROWING = 2;
-    public final static int ANIMATION_DYING = 3;
-    public final static int ANIMATION_MAGIC = 4;
-    public final static int ANIMATION_THOR = 5;
-    public final static int SPEAR_RELEASE_FRAME = 29;
+    private static final int ANIMATION_IDLING = 0;
+    public static final int ANIMATION_MOVING = 1;
+    public static final int ANIMATION_THROWING = 2;
+    public static final int ANIMATION_DYING = 3;
+    public static final int ANIMATION_MAGIC = 4;
+    public static final int ANIMATION_THOR = 5;
+    public static final int SPEAR_RELEASE_FRAME = 29;
 
-    private final static Quad[] icon = new Quad[1];
+    private static final Quad[] icon = new Quad[1];
 
     private final @Nullable UnitSupplyContainer supply_container;
     private final String name;

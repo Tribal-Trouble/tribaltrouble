@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Random;
 
 public abstract class LinearEmitter extends Emitter {
-	private final static float SQRT_2 = (float)Math.sqrt(2f);
+	private static final float SQRT_2 = (float)Math.sqrt(2f);
 
 	private final @NonNull Random random;
 	private final Vector3f randomized_position = new Vector3f();

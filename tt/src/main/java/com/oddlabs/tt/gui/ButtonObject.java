@@ -1,9 +1,9 @@
 package com.oddlabs.tt.gui;
 
 public abstract class ButtonObject extends GUIObject {
-	public final static int ALIGN_LEFT = 1;
-	public final static int ALIGN_CENTER = 2;
-	public final static int ALIGN_RIGHT = 3;
+	public static final int ALIGN_LEFT = 1;
+	public static final int ALIGN_CENTER = 2;
+	public static final int ALIGN_RIGHT = 3;
 
 	private boolean pressed = false;
 

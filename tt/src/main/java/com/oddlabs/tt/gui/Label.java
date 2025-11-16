@@ -7,11 +7,11 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public class Label extends TextField implements Comparable<Label> {
-	public final static int ALIGN_LEFT		= 0;
-	public final static int ALIGN_CENTER	= 1;
-	public final static int ALIGN_RIGHT		= 2;
-	public final static float[] DEFAULT_COLOR = Color.argb4f(0xFFFFFFFF);
-	public final static float[] DISABLED_COLOR = Color.argb4f(0xB2B2B2B2);
+	public static final int ALIGN_LEFT		= 0;
+	public static final int ALIGN_CENTER	= 1;
+	public static final int ALIGN_RIGHT		= 2;
+	public static final float[] DEFAULT_COLOR = Color.argb4f(0xFFFFFFFF);
+	public static final float[] DISABLED_COLOR = Color.argb4f(0xB2B2B2B2);
 
 	private final int align;
 	private final @NonNull TextLineRenderer text_renderer;

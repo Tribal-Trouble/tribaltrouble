@@ -7,20 +7,20 @@ import java.io.Serializable;
 
 public final class CampaignState implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
-	public final static int RACE_VIKINGS = 0; // DON'T CHANGE! will ruin serializability
-	public final static int RACE_NATIVES = 1;
+	public static final int RACE_VIKINGS = 0; // DON'T CHANGE! will ruin serializability
+	public static final int RACE_NATIVES = 1;
 
-	public final static int DIFFICULTY_EASY = 1;
-	public final static int DIFFICULTY_NORMAL = 0; //Serializable defaults to 0
-	public final static int DIFFICULTY_HARD = 2;
+	public static final int DIFFICULTY_EASY = 1;
+	public static final int DIFFICULTY_NORMAL = 0; //Serializable defaults to 0
+	public static final int DIFFICULTY_HARD = 2;
 
-	public final static int ISLAND_AVAILABLE = 1;
-	public final static int ISLAND_UNAVAILABLE = 2;
-	public final static int ISLAND_COMPLETED = 3;
-	public final static int ISLAND_SEMI_AVAILABLE = 4;
-	public final static int ISLAND_HIDDEN = 5;
+	public static final int ISLAND_AVAILABLE = 1;
+	public static final int ISLAND_UNAVAILABLE = 2;
+	public static final int ISLAND_COMPLETED = 3;
+	public static final int ISLAND_SEMI_AVAILABLE = 4;
+	public static final int ISLAND_HIDDEN = 5;
 
 	private final int @NonNull [] island_states;
 

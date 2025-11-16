@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SupplyManager implements Animated {
-	private final static float SLEEP_TIME = 10f;
-	private final static float SPAWN_TIME = 3f;
-	private final static float MAX_EMPTY_SUPPLIES = .75f;
+	private static final float SLEEP_TIME = 10f;
+	private static final float SPAWN_TIME = 3f;
+	private static final float MAX_EMPTY_SUPPLIES = .75f;
 	
 	private final List<Supply> empty_supplies = new ArrayList<>();
 	private final @NonNull World world;

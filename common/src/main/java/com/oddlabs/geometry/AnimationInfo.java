@@ -5,10 +5,10 @@ import java.io.Serializable;
 
 public final class AnimationInfo implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
-	public final static int ANIM_LOOP = 1;
-	public final static int ANIM_PLAIN = 2;
+	public static final int ANIM_LOOP = 1;
+	public static final int ANIM_PLAIN = 2;
 
 	private final float[][] frames;
 	private final int type;

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public final class TargetRespondRenderer extends ShadowListRenderer {
-	private final static float SHADOW_SIZE = 1.6f;
+	private static final float SHADOW_SIZE = 1.6f;
 	private final Texture ring;
 
 	private final List<LandscapeTargetRespond> target_list = new ArrayList<>();

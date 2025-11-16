@@ -7,12 +7,12 @@ import org.joml.Vector3f;
 import java.util.List;
 
 public final class HeightMap {
-	public final static int METERS_PER_UNIT_GRID = 2;
-	public final static int GRID_UNITS_PER_PATCH_EXP = 4;
-	public final static int GRID_UNITS_PER_PATCH = 1 << GRID_UNITS_PER_PATCH_EXP;
+	public static final int METERS_PER_UNIT_GRID = 2;
+	public static final int GRID_UNITS_PER_PATCH_EXP = 4;
+	public static final int GRID_UNITS_PER_PATCH = 1 << GRID_UNITS_PER_PATCH_EXP;
 
-	final static int MIN_INTERSECTING_LEVEL = 5;
-	private final static Vector3f plane = new Vector3f();
+	static final int MIN_INTERSECTING_LEVEL = 5;
+	private static final Vector3f plane = new Vector3f();
 
 	private final float[][] world;
 	private final LandscapeLeaf[] @NonNull [] landscape_leaves;

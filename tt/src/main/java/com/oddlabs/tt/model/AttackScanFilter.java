@@ -6,14 +6,14 @@ import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.Nullable;
 
 public final class AttackScanFilter implements ScanFilter {
-	public final static int PRIORITY_QUARTERS = 1;
-	public final static int PRIORITY_ARMORY = 1;
-	public final static int PRIORITY_TOWER = 2;
-	public final static int PRIORITY_PEON = 3;
-	public final static int PRIORITY_WARRIOR = 4;
+	public static final int PRIORITY_QUARTERS = 1;
+	public static final int PRIORITY_ARMORY = 1;
+	public static final int PRIORITY_TOWER = 2;
+	public static final int PRIORITY_PEON = 3;
+	public static final int PRIORITY_WARRIOR = 4;
 
-	public final static int UNIT_RANGE = 8;
-	public final static int TOWER_RANGE = (int)(RacesResources.THROW_RANGE + MountUnitContainer.ATTACK_RANGE_INCREASE);
+	public static final int UNIT_RANGE = 8;
+	public static final int TOWER_RANGE = (int)(RacesResources.THROW_RANGE + MountUnitContainer.ATTACK_RANGE_INCREASE);
 
 	private final int max_range;
 

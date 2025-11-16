@@ -38,16 +38,16 @@ import org.jspecify.annotations.Nullable;
 import java.util.ResourceBundle;
 
 public final class TutorialForm extends Form {
-	public final static int TUTORIAL_CAMERA = 1;
-	public final static int TUTORIAL_QUARTERS = 2;
-	public final static int TUTORIAL_ARMORY = 3;
-	public final static int TUTORIAL_TOWER = 4;
-	public final static int TUTORIAL_CHIEFTAIN = 5;
-	public final static int TUTORIAL_BATTLE = 6;
+	public static final int TUTORIAL_CAMERA = 1;
+	public static final int TUTORIAL_QUARTERS = 2;
+	public static final int TUTORIAL_ARMORY = 3;
+	public static final int TUTORIAL_TOWER = 4;
+	public static final int TUTORIAL_CHIEFTAIN = 5;
+	public static final int TUTORIAL_BATTLE = 6;
 
-	public final static int NUM_TUTORIALS = 6;
+	public static final int NUM_TUTORIALS = 6;
 
-	private final static ResourceBundle bundle = ResourceBundle.getBundle(TutorialForm.class.getName());
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(TutorialForm.class.getName());
 
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;
@@ -123,7 +123,7 @@ public final class TutorialForm extends Form {
 		centerPos();
 	}
 
-	private final static class TutorialAction implements WorldInitAction {
+	private static final class TutorialAction implements WorldInitAction {
 		private final TriggerFactory factory;
 		private final TutorialInGameInfo ingame_info;
 

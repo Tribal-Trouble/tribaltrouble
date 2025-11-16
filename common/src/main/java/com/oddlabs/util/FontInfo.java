@@ -13,7 +13,7 @@ import java.net.URL;
 
 public final class FontInfo implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
 	private final @NonNull String texture_name;
 	private final @NonNull Quad[] key_map;

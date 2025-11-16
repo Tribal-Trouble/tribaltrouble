@@ -47,33 +47,33 @@ import java.util.ResourceBundle;
 import java.util.function.Supplier;
 
 public final class RacesResources {
-	public final static int QUARTERS_SIZE = 5;
-	public final static int ARMORY_SIZE = 5;
-	public final static int TOWER_SIZE = 3;
-	public final static int QUARTERS_HIT_POINTS = 200;
-	public final static int ARMORY_HIT_POINTS = 200;
-	public final static int TOWER_HIT_POINTS = 100;
-	public final static int VIKING_CHIEFTAIN_HIT_POINTS = 60;
-	public final static int NATIVE_CHIEFTAIN_HIT_POINTS = 40;
+	public static final int QUARTERS_SIZE = 5;
+	public static final int ARMORY_SIZE = 5;
+	public static final int TOWER_SIZE = 3;
+	public static final int QUARTERS_HIT_POINTS = 200;
+	public static final int ARMORY_HIT_POINTS = 200;
+	public static final int TOWER_HIT_POINTS = 100;
+	public static final int VIKING_CHIEFTAIN_HIT_POINTS = 60;
+	public static final int NATIVE_CHIEFTAIN_HIT_POINTS = 40;
 
-	public final static int RACE_NATIVES = 0;
-	public final static int RACE_VIKINGS = 1;
+	public static final int RACE_NATIVES = 0;
+	public static final int RACE_VIKINGS = 1;
 
-	public final static int NUM_MAGIC = 2;
-	public final static int INDEX_MAGIC_POISON = 0;
-	public final static int INDEX_MAGIC_LIGHTNING = 1;
-	public final static int INDEX_MAGIC_STUN = 0;
-	public final static int INDEX_MAGIC_BLAST = 1;
-	public final static float THROW_RANGE = 6f;
+	public static final int NUM_MAGIC = 2;
+	public static final int INDEX_MAGIC_POISON = 0;
+	public static final int INDEX_MAGIC_LIGHTNING = 1;
+	public static final int INDEX_MAGIC_STUN = 0;
+	public static final int INDEX_MAGIC_BLAST = 1;
+	public static final float THROW_RANGE = 6f;
 
-	public final static GeneratorHalos DEFAULT_SHADOW_DESC = new GeneratorHalos(128, new float[][]{{0f, 0.75f}, {0.5f, 0f}}, new float[][]{{0.40f, 0f}, {0.41f, 1f}, {0.48f, 1f}, {0.49f, 0f}});
+	public static final GeneratorHalos DEFAULT_SHADOW_DESC = new GeneratorHalos(128, new float[][]{{0f, 0.75f}, {0.5f, 0f}}, new float[][]{{0.40f, 0f}, {0.41f, 1f}, {0.48f, 1f}, {0.49f, 0f}});
 
-	private final static ResourceBundle bundle = ResourceBundle.getBundle(RacesResources.class.getName());
-	private final static String[] race_names = {
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(RacesResources.class.getName());
+	private static final String[] race_names = {
             Utils.getBundleString(bundle, "natives"),
             Utils.getBundleString(bundle, "vikings")
     };
-	private final static int MAX_UNIT_RESOURCES = 1;
+	private static final int MAX_UNIT_RESOURCES = 1;
 
 	private final @NonNull TextureKey[] smoke_textures = new TextureKey[1];
 	private final @NonNull TextureKey[] damage_smoke_textures = new TextureKey[1];

@@ -19,7 +19,7 @@ import java.util.Random;
 import java.util.ResourceBundle;
 
 public final class MapcodeForm extends Form {
-	private final static int BUTTON_WIDTH = 100;
+	private static final int BUTTON_WIDTH = 100;
 
 	private final TerrainMenu menu;
 

@@ -21,7 +21,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class ProfilesForm extends Form {
-	private final static int NICK_SIZE = 200;
+	private static final int NICK_SIZE = 200;
 
 	private final Menu main_menu;
 	private final SelectGameMenu game_menu;

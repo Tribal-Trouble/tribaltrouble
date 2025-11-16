@@ -11,8 +11,8 @@ import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 
 public abstract class BillboardPainter {
-	private final static FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
-	private final static DoubleBuffer plane_buf = BufferUtils.createDoubleBuffer(4);
+	private static final FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
+	private static final DoubleBuffer plane_buf = BufferUtils.createDoubleBuffer(4);
 
 	private static void initClipPlane(int clip_enum, int face_index, int vertex_index1, int vertex_index2, short @NonNull [] indices, float @NonNull [] face_tex_coords, float handedness) {
 		float u1 = getElement(face_index, vertex_index1, 0, 2, indices, face_tex_coords);

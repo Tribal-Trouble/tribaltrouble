@@ -7,10 +7,10 @@ import com.oddlabs.tt.util.PocketList;
 import org.jspecify.annotations.NonNull;
 
 final class SpriteSorter {
-	public final static int DETAIL_POINT = 1;
-	public final static int DETAIL_POLYGON = 2;
+	public static final int DETAIL_POINT = 1;
+	public static final int DETAIL_POLYGON = 2;
 
-	private final static int LOW_DETAIL_DIST = 200;
+	private static final int LOW_DETAIL_DIST = 200;
 
 	private final PocketList sorted_models = new PocketList(LOW_DETAIL_DIST);
 	private final int polycount_limit;

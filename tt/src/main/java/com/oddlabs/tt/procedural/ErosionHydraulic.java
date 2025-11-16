@@ -6,15 +6,15 @@ import org.jspecify.annotations.NonNull;
 
 public final class ErosionHydraulic {
 
-	private final static boolean save_frames = false;
-	private final static boolean show_score = false;
-	private final static boolean show_time = false;
-	private final static boolean show_diff = false;
+	private static final boolean save_frames = false;
+	private static final boolean show_score = false;
+	private static final boolean show_time = false;
+	private static final boolean show_diff = false;
 
-	private final static int rain_freq = 1;
-	private final static float rain = 0.01f;
-	private final static float solulibility = 0.01f;
-	private final static float vaporization = 0.5f;
+	private static final int rain_freq = 1;
+	private static final float rain = 0.01f;
+	private static final float solulibility = 0.01f;
+	private static final float vaporization = 0.5f;
 	
 	private static Channel height;
 	private static Channel height_d;

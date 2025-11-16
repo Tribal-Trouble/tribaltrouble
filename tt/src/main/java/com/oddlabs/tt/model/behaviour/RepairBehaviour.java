@@ -9,8 +9,8 @@ import com.oddlabs.tt.model.Unit;
 import org.jspecify.annotations.NonNull;
 
 public final class RepairBehaviour implements Behaviour {
-	private final static int REPAIRS_PER_SUPPLY = 5;
-	private final static float SECONDS_PER_ANIMATION_CYCLE = 1f;
+	private static final int REPAIRS_PER_SUPPLY = 5;
+	private static final float SECONDS_PER_ANIMATION_CYCLE = 1f;
 	private final @NonNull Building building;
 	private final @NonNull Unit unit;
 

@@ -73,7 +73,7 @@ public final class Peer implements PeerHubInterface {
 		return player;
 	}
 
-	private final static class GameEvent {
+	private static final class GameEvent {
 		private final int tick;
 		private final ARMIEvent event;
 		

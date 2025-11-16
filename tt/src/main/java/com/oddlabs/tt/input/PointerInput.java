@@ -16,15 +16,15 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 public final class PointerInput {
-	private final static int NUM_BUTTONS = 8;
+	private static final int NUM_BUTTONS = 8;
 
-	private final static boolean[] buttons = new boolean[NUM_BUTTONS];
+	private static final boolean[] buttons = new boolean[NUM_BUTTONS];
 	private static short last_x;
 	private static short last_y;
 	private static Cursor active_cursor;
 	private static int drag_button = -1;
 
-	private final static @NonNull NativeCursor debug_cursor;
+	private static final @NonNull NativeCursor debug_cursor;
 
 	static {
 		Image image_16_1 = Image.read(Utils.makeURL("/textures/gui/pointer_clientload_16_1.image"));

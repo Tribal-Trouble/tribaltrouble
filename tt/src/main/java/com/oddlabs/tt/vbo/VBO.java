@@ -8,7 +8,7 @@ import java.nio.IntBuffer;
 
 public abstract class VBO extends NativeResource<VBO.Buffer> {
     static final class Buffer extends NativeResource.NativeState {
-        private final static IntBuffer handle_buffer = BufferUtils.createIntBuffer(1);
+        private static final IntBuffer handle_buffer = BufferUtils.createIntBuffer(1);
 
         private final int handle;
 

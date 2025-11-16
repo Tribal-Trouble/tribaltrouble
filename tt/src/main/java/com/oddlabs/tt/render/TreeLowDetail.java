@@ -29,9 +29,9 @@ import java.util.Map;
 import static com.oddlabs.tt.landscape.AbstractTreeGroup.TreeType;
 
 public final class TreeLowDetail {
-	private final static Vector4f src = new Vector4f();
-	private final static Vector4f dest = new Vector4f();
-	private final static FloatBuffer update_buffer = BufferUtils.createFloatBuffer(1000);
+	private static final Vector4f src = new Vector4f();
+	private static final Vector4f dest = new Vector4f();
+	private static final FloatBuffer update_buffer = BufferUtils.createFloatBuffer(1000);
 
 	private final @NonNull FloatVBO vertices;
 	private final @NonNull FloatVBO texcoords;

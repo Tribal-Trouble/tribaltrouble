@@ -24,8 +24,8 @@ import static com.oddlabs.tt.landscape.AbstractTreeGroup.TreeType;
 
 
 class TreePicker implements TreeNodeVisitor {
-	private final static int CROWN_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
-	private final static float SELECTION_RADIUS = 1.5f;
+	private static final int CROWN_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
+	private static final float SELECTION_RADIUS = 1.5f;
 
 	private final List<TreeSupply> @NonNull [] render_lists;
 	private final List<TreeSupply> @NonNull [] respond_render_lists;

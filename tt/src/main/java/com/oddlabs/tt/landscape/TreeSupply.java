@@ -17,8 +17,8 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public final class TreeSupply extends AbstractTreeGroup implements Supply, Target, Animated, ModelToolTip {
-	private final static int INITIAL_SUPPLIES = 10;
-	private final static float SECOND_PER_TREEFALL = 3f;
+	private static final int INITIAL_SUPPLIES = 10;
+	private static final float SECOND_PER_TREEFALL = 3f;
 
 	private static final Vector3f low_detail_x_axis = new Vector3f(1f, 0f, 0f);
 	private static final Vector3f low_detail_translate = new Vector3f();

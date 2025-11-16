@@ -11,8 +11,8 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
 public final class VikingCampaign extends Campaign {
-	public final static int MAX_UNITS = 46;
-	private final static int[] INITIAL_STATES = new int[]{
+	public static final int MAX_UNITS = 46;
+	private static final int[] INITIAL_STATES = new int[]{
 /*
 		CampaignState.ISLAND_AVAILABLE,
 		CampaignState.ISLAND_AVAILABLE,

@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.Random;
 
 public final class World {
-	public final static int GAMESPEED_DONTCARE = -2;
+	public static final int GAMESPEED_DONTCARE = -2;
 
-	private final static float[] GAMESPEEDS = new float[]{
+	private static final float[] GAMESPEEDS = new float[]{
 		0f,
 			AnimationManager.ANIMATION_SECONDS_PER_TICK/2,
 			AnimationManager.ANIMATION_SECONDS_PER_TICK,

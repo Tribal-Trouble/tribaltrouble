@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL11;
 import java.nio.FloatBuffer;
 
 final class RenderTools {
-	private final static FloatBuffer transform_matrix;
+	private static final FloatBuffer transform_matrix;
 
 	enum FrustumIntersection {
         ALL_OUTSIDE,

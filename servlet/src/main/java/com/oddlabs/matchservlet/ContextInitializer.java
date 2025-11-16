@@ -12,8 +12,8 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 
 public final class ContextInitializer implements ServletContextListener {
-	private final static int KEY_SIZE = 1024;
-	private final static String KEY_ALGORITHM = "RSA";
+	private static final int KEY_SIZE = 1024;
+	private static final String KEY_ALGORITHM = "RSA";
 
 	public void contextDestroyed(ServletContextEvent sce) {
 	}

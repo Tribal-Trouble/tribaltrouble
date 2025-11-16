@@ -14,16 +14,16 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 
 public final class GameCamera extends Camera {
-    public final static int SCROLL_BUFFER = 5;
-    private final static float INIT_DISTANCE = 50;
-    private final static float ANGLE_DELTA = (float)(Math.PI/2);
-    public final static float MAX_Z = 100f;
-    private final static float ZOOM_Z_DIR_MIN = -(float)Math.tan(Math.PI/6);
-    private final static float SCROLL_ACCELERATION_SECONDS_MAX = 1f;
-    private final static float SCROLL_ACCELERATION_FACTOR = 2.5f;
-    private final static float SCROLL_START_MAX_SPEED = 60f;
-    private final static float ROTATE_PICKING_ANGLE_MAX = (-(Globals.FOV) - 10)*((float)Math.PI/180)*.5f;
-    private final static float ZOOM_SPEED = 50f;
+    public static final int SCROLL_BUFFER = 5;
+    private static final float INIT_DISTANCE = 50;
+    private static final float ANGLE_DELTA = (float)(Math.PI/2);
+    public static final float MAX_Z = 100f;
+    private static final float ZOOM_Z_DIR_MIN = -(float)Math.tan(Math.PI/6);
+    private static final float SCROLL_ACCELERATION_SECONDS_MAX = 1f;
+    private static final float SCROLL_ACCELERATION_FACTOR = 2.5f;
+    private static final float SCROLL_START_MAX_SPEED = 60f;
+    private static final float ROTATE_PICKING_ANGLE_MAX = (-(Globals.FOV) - 10)*((float)Math.PI/180)*.5f;
+    private static final float ZOOM_SPEED = 50f;
 
     private final @NonNull WorldViewer viewer;
 

@@ -19,15 +19,15 @@ import java.nio.FloatBuffer;
 import java.util.List;
 
 final class EmitterRenderer {
-	private final static float SQRT_2 = (float)Math.sqrt(2f);
-	private final static float ROTATION_FACTOR = 60f;
+	private static final float SQRT_2 = (float)Math.sqrt(2f);
+	private static final float ROTATION_FACTOR = 60f;
 
-	private final static Vector3f right_plus_up = new Vector3f();
-	private final static Vector3f right_minus_up = new Vector3f();
-	private final static FloatBuffer color_buffer = BufferUtils.createFloatBuffer(4);
+	private static final Vector3f right_plus_up = new Vector3f();
+	private static final Vector3f right_minus_up = new Vector3f();
+	private static final FloatBuffer color_buffer = BufferUtils.createFloatBuffer(4);
 
-	private final static Matrix4f view_matrix = new Matrix4f();
-	private final static CameraState tmp_camera = new CameraState();
+	private static final Matrix4f view_matrix = new Matrix4f();
+	private static final CameraState tmp_camera = new CameraState();
 
     private static final int MAX_PARTICLES = 10000;
     private static final int FLOATS_PER_PARTICLE = 36; // 4 vertices * 9 floats (x,y,z,u,v,r,g,b,a)

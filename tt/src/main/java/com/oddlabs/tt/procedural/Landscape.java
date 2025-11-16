@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Random;
 
 public final class Landscape {
-	public final static boolean DEBUG = false;
-	private final static int STRUCTURE_SEED = 42; // must be constant; otherwise distinct repeating patterns might appear
+	public static final boolean DEBUG = false;
+	private static final int STRUCTURE_SEED = 42; // must be constant; otherwise distinct repeating patterns might appear
 
-	private final static int NUM_PLANT_TYPES = 4;
+	private static final int NUM_PLANT_TYPES = 4;
 	private static final float[] NATIVE_FOG_COLOR = Color.argb4f(0xFFa6bfff);
 	private static final float[] VIKING_FOG_COLOR = Color.argb4f(0xFF33668c);
 

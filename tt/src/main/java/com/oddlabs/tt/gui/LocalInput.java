@@ -27,15 +27,15 @@ public final class LocalInput {
 	public static final int LEFT_BUTTON = 0;
 	private static final Logger logger = Logger.getLogger(LocalInput.class.getName());
 
-	public final static int RIGHT_BUTTON = 1;
-	public final static int MIDDLE_BUTTON = 2;
+	public static final int RIGHT_BUTTON = 1;
+	public static final int MIDDLE_BUTTON = 2;
 
 	private static int mouse_x;
 	private static int mouse_y;
 	private static boolean global_menu_state = false;
 	private static boolean global_control_state = false;
 	private static boolean global_shift_state = false;
-	private final static boolean[] keys = new boolean[256];
+	private static final boolean[] keys = new boolean[256];
 
 	private static int view_width;
 	private static int view_height;
@@ -43,7 +43,7 @@ public final class LocalInput {
 	private static Path game_dir;
 	private static int revision;
 
-	private final static LocalInput instance = new LocalInput();
+	private static final LocalInput instance = new LocalInput();
 
 	public static void setKeys(int key_code, boolean state, boolean shift_down, boolean control_down, boolean menu_down) {
 		keys[key_code] = state;

@@ -11,8 +11,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class GatherController<S extends Supply> extends Controller {
-	private final static int HARVEST_STATE = 0;
-	private final static int DROPOFF_STATE = 1;
+	private static final int HARVEST_STATE = 0;
+	private static final int DROPOFF_STATE = 1;
 
 	private final Unit unit;
 	private final Class<S> supply_type;

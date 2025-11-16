@@ -8,22 +8,22 @@ import java.io.Serializable;
 
 public final class PlayerSlot implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
-	public final static int AI_NONE = 0;
-	public final static int AI_EASY = 1;
-	public final static int AI_NORMAL = 2;
-	public final static int AI_HARD = 3;
-	public final static int AI_TOWER_TUTORIAL = 4;
-	public final static int AI_CHIEFTAIN_TUTORIAL = 5;
-	public final static int AI_BATTLE_TUTORIAL = 6;
-	public final static int AI_PASSIVE_CAMPAIGN = 7;
-	public final static int AI_NEUTRAL_CAMPAIGN = 8;
+	public static final int AI_NONE = 0;
+	public static final int AI_EASY = 1;
+	public static final int AI_NORMAL = 2;
+	public static final int AI_HARD = 3;
+	public static final int AI_TOWER_TUTORIAL = 4;
+	public static final int AI_CHIEFTAIN_TUTORIAL = 5;
+	public static final int AI_BATTLE_TUTORIAL = 6;
+	public static final int AI_PASSIVE_CAMPAIGN = 7;
+	public static final int AI_NEUTRAL_CAMPAIGN = 8;
 
-	public final static int OPEN = 1;
-	public final static int CLOSED = 2;
-	public final static int HUMAN = 3;
-	public final static int AI = 4;
+	public static final int OPEN = 1;
+	public static final int CLOSED = 2;
+	public static final int HUMAN = 3;
+	public static final int AI = 4;
 
 	private final int slot;
 

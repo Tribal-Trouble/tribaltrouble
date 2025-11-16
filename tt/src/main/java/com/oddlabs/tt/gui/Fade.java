@@ -6,7 +6,7 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 final class Fade {
-	private final static float FADE_TIME = 1f;
+	private static final float FADE_TIME = 1f;
 	
 	private final Fadable fadable;
 	private final GUIRoot gui_root;

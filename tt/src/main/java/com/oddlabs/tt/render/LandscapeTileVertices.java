@@ -21,8 +21,8 @@ final class LandscapeTileVertices {
 	private final int num_patches;
 	private final HeightMap heightmap;
 
-	private final static Vector3f v1 = new Vector3f();
-	private final static Vector3f v2 = new Vector3f();
+	private static final Vector3f v1 = new Vector3f();
+	private static final Vector3f v2 = new Vector3f();
 
 	public LandscapeTileVertices(HeightMap heightmap, int patch_exp, int num_patches) {
 		this.heightmap = heightmap;

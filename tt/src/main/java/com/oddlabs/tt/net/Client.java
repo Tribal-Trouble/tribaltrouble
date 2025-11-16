@@ -26,9 +26,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public final class Client implements ARMIEventBroker, GameClientInterface, ConnectionInterface {
-	private final static int CONNECTING = 1;
-	private final static int NEGOTIATING = 2;
-	private final static int CLOSED = 5;
+	private static final int CONNECTING = 1;
+	private static final int NEGOTIATING = 2;
+	private static final int CLOSED = 5;
 
 	private final @NonNull AbstractConnection connection;
 

@@ -13,16 +13,16 @@ public final class DebugRender {
 	private static final float[] AXIS_Y_COLOR = Color.rgb3f(0x00FF00);
 	private static final float[] AXIS_Z_COLOR = Color.rgb3f(0x0000FF);
 
-	public final static float[][] debug_colors = {
+	public static final float[][] debug_colors = {
 			Color.rgb3f(0x7f1f1f), Color.rgb3f(0x7f1f00), Color.rgb3f(0x7f001f), Color.rgb3f(0x3f7f00),
 			Color.rgb3f(0x001f1f), Color.rgb3f(0x001f00), Color.rgb3f(0x00001f), Color.rgb3f(0x000000),
 			Color.rgb3f(0x005f5f), Color.rgb3f(0x005f00), Color.rgb3f(0x00005f), Color.rgb3f(0x5f8f8f),
 			Color.rgb3f(0x3f5f1f), Color.rgb3f(0x5f5f8f), Color.rgb3f(0x3f2f5f), Color.rgb3f(0x3f3f3f),
 			Color.rgb3f(0x5f1f1f), Color.rgb3f(0x5f1f5f), Color.rgb3f(0x5f5f1f), Color.rgb3f(0x5f5f5f)
 	};
-	private final static float CIRCLE_DELTA = (float)java.lang.Math.PI/2;
-	private final static float ANGLE_DELTA = (float)java.lang.Math.PI/20;
-	private final static float SUBDIV = 0.4f;
+	private static final float CIRCLE_DELTA = (float)java.lang.Math.PI/2;
+	private static final float ANGLE_DELTA = (float)java.lang.Math.PI/20;
+	private static final float SUBDIV = 0.4f;
 
 	private static @Nullable DebugShaderRenderer shaderRenderer;
 	

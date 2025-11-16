@@ -6,9 +6,9 @@ import com.oddlabs.tt.model.weapon.Magic;
 import com.oddlabs.tt.model.weapon.MagicFactory;
 
 public final class MagicBehaviour implements Behaviour {
-	private final static int PREPARING = 1;
-	private final static int CASTING = 2;
-	private final static int ENDING = 3;
+	private static final int PREPARING = 1;
+	private static final int CASTING = 2;
+	private static final int ENDING = 3;
 
 	private final Unit unit;
 	private final MagicFactory magic_factory;

@@ -5,7 +5,7 @@ import com.oddlabs.util.CryptUtils;
 import org.jspecify.annotations.NonNull;
 
 public class PasswordLine extends EditLine {
-	private final static StringBuffer star_string = new StringBuffer();
+	private static final StringBuffer star_string = new StringBuffer();
 
 	private String password_digest;
 

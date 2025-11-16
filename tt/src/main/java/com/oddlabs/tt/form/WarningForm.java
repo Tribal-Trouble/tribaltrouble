@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class WarningForm extends Form {
-	private final static int MAX_WIDTH = 500;
+	private static final int MAX_WIDTH = 500;
 
 	private final @NonNull CheckBox show_next_time;
 

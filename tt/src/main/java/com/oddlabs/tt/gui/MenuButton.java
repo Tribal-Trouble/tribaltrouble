@@ -8,8 +8,8 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class MenuButton extends ButtonObject {
-	private final static float SECONDS_PER_HOVER_CYCLE = 1.5f;
-	private final static float HOVER_SCALE_FACTOR = 0.06f;
+	private static final float SECONDS_PER_HOVER_CYCLE = 1.5f;
+	private static final float HOVER_SCALE_FACTOR = 0.06f;
 
 	private final @NonNull TextLineRenderer text_renderer;
 	private final @NonNull CharSequence text;

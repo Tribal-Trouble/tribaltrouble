@@ -23,13 +23,13 @@ import java.nio.ShortBuffer;
 import java.util.function.Supplier;
 
 final class Sprite {
-	private final static int TEXTURE_NORMAL = 0;
-	private final static int TEXTURE_TEAM = 1;
-	private final static FloatBuffer decal_color = BufferUtils.createFloatBuffer(4);
-    private final static String GENERATOR_STRING = "Generator:";
+	private static final int TEXTURE_NORMAL = 0;
+	private static final int TEXTURE_TEAM = 1;
+	private static final FloatBuffer decal_color = BufferUtils.createFloatBuffer(4);
+    private static final String GENERATOR_STRING = "Generator:";
 
 	public static int global_size = 0;
-	private final static FloatBuffer white_color;
+	private static final FloatBuffer white_color;
 
 	private final Texture[] @NonNull [] textures;
 	private final int num_triangles;

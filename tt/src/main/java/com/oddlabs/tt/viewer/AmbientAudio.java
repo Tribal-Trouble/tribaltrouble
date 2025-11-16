@@ -19,7 +19,7 @@ import org.joml.Vector3f;
 import java.nio.FloatBuffer;
 
 public final class AmbientAudio {
-	private final static FloatBuffer orientation_buffer = BufferUtils.createFloatBuffer(3*2);
+	private static final FloatBuffer orientation_buffer = BufferUtils.createFloatBuffer(3*2);
 
 	private final @NonNull Audio ambient_forest_buffer;
 	private final @NonNull Audio ambient_beach_buffer;

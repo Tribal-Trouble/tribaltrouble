@@ -5,8 +5,8 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public abstract class TextField extends GUIObject implements CharSequence {
-	private final static StringBuffer digit_buf = new StringBuffer();
-	private final static String[] digits = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+	private static final StringBuffer digit_buf = new StringBuffer();
+	private static final String[] digits = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
 	private final @NonNull StringBuffer text;
 	private final Font font;

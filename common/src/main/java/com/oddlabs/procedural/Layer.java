@@ -14,8 +14,8 @@ import java.util.logging.Logger;
 
 public final class Layer {
     private static final Logger logger = Logger.getLogger(Layer.class.getSimpleName());
-	public final static float GAMMA_EXPONENT = 2.2f;
-	public final static float INV_GAMMA_EXPONENT = 1f/GAMMA_EXPONENT;
+	public static final float GAMMA_EXPONENT = 2.2f;
+	public static final float INV_GAMMA_EXPONENT = 1f/GAMMA_EXPONENT;
 
 	private int width;
 	private int height;

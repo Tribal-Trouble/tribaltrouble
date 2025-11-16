@@ -13,12 +13,12 @@ import java.nio.ByteBuffer;
 
 public final class ARMIEvent implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
-	private final static ByteBufferOutputStream static_byte_stream = new ByteBufferOutputStream(false);
-	private final static short HEADER_SIZE = 1;
-	private final static ARMIArgumentWriter default_writer = new DefaultARMIArgumentWriter();
-	private final static ARMIArgumentReader default_reader = new DefaultARMIArgumentReader();
+	private static final ByteBufferOutputStream static_byte_stream = new ByteBufferOutputStream(false);
+	private static final short HEADER_SIZE = 1;
+	private static final ARMIArgumentWriter default_writer = new DefaultARMIArgumentWriter();
+	private static final ARMIArgumentReader default_reader = new DefaultARMIArgumentReader();
 
 	private final byte method_id;
 	private final byte[] command_stream;

@@ -16,8 +16,8 @@ import java.security.cert.X509Certificate;
 
 
 public final class CryptUtils {
-	private final static MessageDigest digest;
-	public final static int PASSWORD_DIGEST_LENGTH;
+	private static final MessageDigest digest;
+	public static final int PASSWORD_DIGEST_LENGTH;
 
 	static {
 		try {
@@ -76,7 +76,7 @@ public final class CryptUtils {
 		https_connection.setHostnameVerifier((String _, SSLSession _) -> true);
 	}
 /*
-	public final static void main(String[] args) {
+	public static final void main(String[] args) {
 //		String bla = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.:;?+={}[]()/&%¤#!1§<\\>'*";
 System.out.println("		digest(\"xarerenlamer4kasbdvljh\") = " + 		digest("xarerenlamer4kasbdvljh"));
 //		digest(bla);

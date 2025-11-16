@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 public final class RankingEntry implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
 	private final int ranking;
 	private final String name;

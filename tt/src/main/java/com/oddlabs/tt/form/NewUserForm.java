@@ -23,11 +23,11 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class NewUserForm extends Form {
-	private final static int MIN_PASSWORD_LENGTH = 6;
+	private static final int MIN_PASSWORD_LENGTH = 6;
 
-	private final static int BUTTON_WIDTH = 100;
-	private final static int BUTTON_WIDTH_LONG = 150;
-	private final static int EDITLINE_WIDTH = 240;
+	private static final int BUTTON_WIDTH = 100;
+	private static final int BUTTON_WIDTH_LONG = 150;
+	private static final int EDITLINE_WIDTH = 240;
 
 	private final MainMenu main_menu;
 	private final @NonNull EditLine editline_username;

@@ -1,7 +1,7 @@
 package com.oddlabs.tt.render;
 
 abstract class WhiteModelVisitor extends ModelVisitor {
-	private final static float[] COLOR_TEAM = {1f, 1f, 1f};
+	private static final float[] COLOR_TEAM = {1f, 1f, 1f};
 
 	@Override
 	public final float[] getSelectionColor(ElementRenderState render_state) {

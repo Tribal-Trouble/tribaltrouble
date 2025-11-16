@@ -27,8 +27,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.Random;
 
 public abstract class AI implements Animated {
-	private final static float SLEEP_SECONDS = 2f;
-	private final static float MIN_SLEEP_SECONDS = 5f;
+	private static final float SLEEP_SECONDS = 2f;
+	private static final float MIN_SLEEP_SECONDS = 5f;
 
 	private final @NonNull Player owner;
 	private int INDEX_IDLE_PEONS;

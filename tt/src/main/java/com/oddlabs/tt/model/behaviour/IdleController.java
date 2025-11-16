@@ -8,8 +8,8 @@ import com.oddlabs.tt.model.Unit;
 import org.jspecify.annotations.NonNull;
 
 public final class IdleController extends Controller {
-	private final static float MIN_SCAN_DELAY = 1f;
-	private final static float MAX_SCAN_DELAY = 2f;
+	private static final float MIN_SCAN_DELAY = 1f;
+	private static final float MAX_SCAN_DELAY = 2f;
 
 	private final Unit unit;
 	private final AttackScanFilter scan_filter;

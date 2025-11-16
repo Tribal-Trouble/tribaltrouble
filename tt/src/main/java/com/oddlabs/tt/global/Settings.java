@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 public final class Settings implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
 	private static Settings settings;
 

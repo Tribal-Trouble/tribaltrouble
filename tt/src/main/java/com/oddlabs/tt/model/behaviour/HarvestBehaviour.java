@@ -8,7 +8,7 @@ import com.oddlabs.tt.model.Unit;
 import org.jspecify.annotations.NonNull;
 
 public final class HarvestBehaviour implements Behaviour {
-	private final static float SECONDS_PER_ANIMATION_CYCLE = 1f;
+	private static final float SECONDS_PER_ANIMATION_CYCLE = 1f;
 	private final @NonNull Supply supply;
 	private final @NonNull Unit unit;
 	private float anim_time;

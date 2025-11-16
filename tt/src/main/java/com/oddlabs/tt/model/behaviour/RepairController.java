@@ -7,8 +7,8 @@ import com.oddlabs.tt.model.Unit;
 import org.jspecify.annotations.NonNull;
 
 public final class RepairController extends Controller {
-	private final static int HARVEST_STATE = 0;
-	private final static int REPAIR_STATE = 1;
+	private static final int HARVEST_STATE = 0;
+	private static final int REPAIR_STATE = 1;
 
 	private final Building building;
 	private final Unit unit;

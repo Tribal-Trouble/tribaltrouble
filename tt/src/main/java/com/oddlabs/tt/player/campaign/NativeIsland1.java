@@ -27,7 +27,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class NativeIsland1 extends Island {
-	private final static int NUM_CAPTIVES = 10;
+	private static final int NUM_CAPTIVES = 10;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(NativeIsland1.class.getName());
 
 	private int objective = 0;

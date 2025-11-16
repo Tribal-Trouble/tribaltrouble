@@ -7,7 +7,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class ServerMessageBundler {
-	private final static ResourceBundle bundle = ResourceBundle.getBundle(ServerMessageBundler.class.getName());
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(ServerMessageBundler.class.getName());
 	
 	public static @NonNull String getSizeString(int index) {
 		switch (index) {

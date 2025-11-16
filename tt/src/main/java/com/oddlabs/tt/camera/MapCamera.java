@@ -13,10 +13,10 @@ import org.lwjgl.input.Keyboard;
 import java.util.ResourceBundle;
 
 public final class MapCamera extends Camera {
-    private final static float MAP_THRESHOLD = .1f;
-    private final static float MAP_TIME_FACTOR = 1000f;
-    private final static float SMOOTHNESS_FACTOR = 200f;
-    public final static float MAP_Z_FACTOR = 1.3f;
+    private static final float MAP_THRESHOLD = .1f;
+    private static final float MAP_TIME_FACTOR = 1000f;
+    private static final float SMOOTHNESS_FACTOR = 200f;
+    public static final float MAP_Z_FACTOR = 1.3f;
 
     // map modes
     private enum MapMode {

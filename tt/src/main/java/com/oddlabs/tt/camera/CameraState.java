@@ -6,9 +6,9 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public final class CameraState {
-	final static float MIN_ANGLE = -(float)Math.PI/2f;//+ 0.01f;
-//  private final static float MAX_ANGLE = (float)Math.PI/2f;// - 0.0001f;
-	private final static float MAX_ANGLE = -0.0001f;
+	static final float MIN_ANGLE = -(float)Math.PI/2f;//+ 0.01f;
+//  private static final float MAX_ANGLE = (float)Math.PI/2f;// - 0.0001f;
+	private static final float MAX_ANGLE = -0.0001f;
 
 	private final Matrix4f modl = new Matrix4f();
 	private final Matrix4f proj = new Matrix4f();
@@ -182,8 +182,8 @@ public final class CameraState {
 		updateDirectionAndNormal(horiz_angle, vert_angle, f, u, s);
 	}
 
-	private final static Vector3f tmp = new Vector3f();
-	private final static Vector3f tmp2 = new Vector3f();
+	private static final Vector3f tmp = new Vector3f();
+	private static final Vector3f tmp2 = new Vector3f();
 	private static void updateDirectionAndNormal(float hangle, float vangle, @NonNull Vector3f f, @NonNull Vector3f u, @NonNull Vector3f s) {
 		float radius = (float)Math.cos(vangle);
 		float dir_x = (float)Math.cos(hangle);

@@ -26,27 +26,27 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public final class AdvancedAI extends AI {
-	public final static int DIFFICULTY_EASY = 0;
-	public final static int DIFFICULTY_NORMAL = 1;
-	public final static int DIFFICULTY_HARD = 2;
+	public static final int DIFFICULTY_EASY = 0;
+	public static final int DIFFICULTY_NORMAL = 1;
+	public static final int DIFFICULTY_HARD = 2;
 
-	private final static int SCORE_PEON = 1;
-	private final static int SCORE_WARRIOR_ROCK = 4;
-	private final static int SCORE_WARRIOR_IRON = 5;
-	private final static int SCORE_WARRIOR_RUBBER = 10;
-	private final static int SCORE_CHIEFTAIN = 25;
-	private final static float[] DEFENSE_FACTOR = new float[]{1f, 1.5f, 2f};
+	private static final int SCORE_PEON = 1;
+	private static final int SCORE_WARRIOR_ROCK = 4;
+	private static final int SCORE_WARRIOR_IRON = 5;
+	private static final int SCORE_WARRIOR_RUBBER = 10;
+	private static final int SCORE_CHIEFTAIN = 25;
+	private static final float[] DEFENSE_FACTOR = new float[]{1f, 1.5f, 2f};
 
-	private final static int[] MIN_UNITS_BUILDING_WEAPONS = new int[]{0, 3, 8};
-	private final static int[] MIN_WEAPONS_IN_STOCK = new int[]{10, 5, 0}; // rushing penalty
-	private final static int[] MIN_UNITS_REPRODUCING = new int[]{0, 5, 20};
-	private final static int[] MAX_UNITS_GATHERING_TREE = new int[]{2, 5, 15};
-	private final static int[] MAX_UNITS_GATHERING_ROCK = new int[]{1, 3, 9};
-	private final static int[] MAX_UNITS_GATHERING_IRON = new int[]{1, 3, 10};
-	private final static int[] MAX_UNITS_GATHERING_RUBBER = new int[]{0, 0, 3};
+	private static final int[] MIN_UNITS_BUILDING_WEAPONS = new int[]{0, 3, 8};
+	private static final int[] MIN_WEAPONS_IN_STOCK = new int[]{10, 5, 0}; // rushing penalty
+	private static final int[] MIN_UNITS_REPRODUCING = new int[]{0, 5, 20};
+	private static final int[] MAX_UNITS_GATHERING_TREE = new int[]{2, 5, 15};
+	private static final int[] MAX_UNITS_GATHERING_ROCK = new int[]{1, 3, 9};
+	private static final int[] MAX_UNITS_GATHERING_IRON = new int[]{1, 3, 10};
+	private static final int[] MAX_UNITS_GATHERING_RUBBER = new int[]{0, 0, 3};
 
-	private final static int[] UNITS_PER_TOWER1 = new int[]{1000, 1000, 90};
-	private final static int[] UNITS_PER_TOWER2 = new int[]{1000, 1000, 120};
+	private static final int[] UNITS_PER_TOWER1 = new int[]{1000, 1000, 90};
+	private static final int[] UNITS_PER_TOWER2 = new int[]{1000, 1000, 120};
 
 	private final int difficulty;
 

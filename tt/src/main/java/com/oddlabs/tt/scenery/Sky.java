@@ -29,31 +29,31 @@ import java.util.List;
 
 public final class Sky {
 
-    private final static float[] SKYDOME_SPEED_OUTER = {0.2f, 0f};
-    private final static float[] SKYDOME_SPEED_INNER = {0.4f, 0f};
-    private final static float SKYDOME_HEIGHT = 0f;
-    private final static int SKYDOME_GRADIENT_LENGTH = 20;
-    private final static int SKYDOME_DEFAULT_COLOR = 8;
+    private static final float[] SKYDOME_SPEED_OUTER = {0.2f, 0f};
+    private static final float[] SKYDOME_SPEED_INNER = {0.4f, 0f};
+    private static final float SKYDOME_HEIGHT = 0f;
+    private static final int SKYDOME_GRADIENT_LENGTH = 20;
+    private static final int SKYDOME_DEFAULT_COLOR = 8;
 
-    private final static float[][] SKYDOME_INITCOLOR = {
+    private static final float[][] SKYDOME_INITCOLOR = {
         /* Native */ Color.rgb3f(0xE5F2FF),
         /* Viking */ Color.rgb3f(0xFFE5A6)
     };
-    private final static float[][] SKYDOME_GRADIENT = {
+    private static final float[][] SKYDOME_GRADIENT = {
         /* Native */ Color.rgb3f(0xBFCFDA),
         /* Viking */ Color.rgb3f(0x9999D9)
     };
 
-    private final static float SKYDOME_OUTER_UTILING = 8f;
-    private final static float SKYDOME_OUTER_VTILING = 8f;
-    private final static float SKYDOME_INNER_UTILING = 8f;
-    private final static float SKYDOME_INNER_VTILING = 8f;
+    private static final float SKYDOME_OUTER_UTILING = 8f;
+    private static final float SKYDOME_OUTER_VTILING = 8f;
+    private static final float SKYDOME_INNER_UTILING = 8f;
+    private static final float SKYDOME_INNER_VTILING = 8f;
 
-    private final static int NUM_WATER_RINGS = 6;
+    private static final int NUM_WATER_RINGS = 6;
 
-    private final static float START_ANGLE = -(float) Math.PI / 4f;
+    private static final float START_ANGLE = -(float) Math.PI / 4f;
 
-    private final static float[][] tex_env_color = new float[][]{
+    private static final float[][] tex_env_color = new float[][]{
     /* Native */ Color.argb4f(0xFF_F2_F8_FF),
     /* Viking */ Color.argb4f(0xFF_FF_F2_CC)
     };

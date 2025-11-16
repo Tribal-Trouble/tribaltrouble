@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 public final class RowCollection extends GUIObject {
-	private final static DoubleBuffer plane_buf = BufferUtils.createDoubleBuffer(4);
+	private static final DoubleBuffer plane_buf = BufferUtils.createDoubleBuffer(4);
 	private final List<Row> rows = new ArrayList<>();
 	private final MultiColumnComboBox multi_box;
 	private @Nullable Row selected_row = null;

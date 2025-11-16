@@ -11,12 +11,12 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public final class KeyboardInput {
-	private final static int LITTLE_WARP = 1000;
-	public final static int MEDIUM_WARP = 10000;
-	public final static int LARGE_WARP = 100000;
-	private final static int GOTO_END_OF_LOG_WARP = Integer.MAX_VALUE/2;
+	private static final int LITTLE_WARP = 1000;
+	public static final int MEDIUM_WARP = 10000;
+	public static final int LARGE_WARP = 100000;
+	private static final int GOTO_END_OF_LOG_WARP = Integer.MAX_VALUE/2;
 
-	private final static KeyboardInput instance = new KeyboardInput();
+	private static final KeyboardInput instance = new KeyboardInput();
 
 	private boolean shift_down;
 	private boolean control_down;

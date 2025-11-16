@@ -47,26 +47,26 @@ import java.util.Random;
 import java.util.ResourceBundle;
 
 public final class TerrainMenu extends Group {
-	public final static byte SMALL = 0;
-	public final static byte MEDIUM = 1;
-	public final static byte LARGE = 2;
+	public static final byte SMALL = 0;
+	public static final byte MEDIUM = 1;
+	public static final byte LARGE = 2;
 
-	private final static int NORMAL = 2;
-	private final static int HARD = 3;
-	private final static int[] SIZES = new int[]{256, 512, 1024};
+	private static final int NORMAL = 2;
+	private static final int HARD = 3;
+	private static final int[] SIZES = new int[]{256, 512, 1024};
 
-	private final static int SLIDER_LENGTH = 250;
-	private final static int BUTTON_WIDTH = 100;
-	private final static int SLIDER_MAX_VALUE = 10;
+	private static final int SLIDER_LENGTH = 250;
+	private static final int BUTTON_WIDTH = 100;
+	private static final int SLIDER_MAX_VALUE = 10;
 
-	private final static String SEED_CARDINALITY = "40000";
-	private final static int SLIDER_CARDINALITY = 11;
-	private final static int TERRAIN_TYPE_CARDINALITY = 2;
-	private final static int SIZE_CARDINALITY = 3;
-	private final static int DIFFICULTY_CARDINALITY = 4;
-	private final static int RACE_CARDINALITY = 2;
-	private final static int TEAM_CARDINALITY = 6;
-	private final static @NonNull BigInteger MAX_VALUE;
+	private static final String SEED_CARDINALITY = "40000";
+	private static final int SLIDER_CARDINALITY = 11;
+	private static final int TERRAIN_TYPE_CARDINALITY = 2;
+	private static final int SIZE_CARDINALITY = 3;
+	private static final int DIFFICULTY_CARDINALITY = 4;
+	private static final int RACE_CARDINALITY = 2;
+	private static final int TEAM_CARDINALITY = 6;
+	private static final @NonNull BigInteger MAX_VALUE;
 
 	private final Menu main_menu;
 	private final TerrainMenuListener owner;

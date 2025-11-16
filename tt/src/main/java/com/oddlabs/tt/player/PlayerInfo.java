@@ -5,9 +5,9 @@ import java.io.Serializable;
 
 public final class PlayerInfo implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 3;
+	private static final long serialVersionUID = 3;
 
-	public final static int TEAM_NEUTRAL = -1;
+	public static final int TEAM_NEUTRAL = -1;
 
 	private final int race;
 	private final String name;

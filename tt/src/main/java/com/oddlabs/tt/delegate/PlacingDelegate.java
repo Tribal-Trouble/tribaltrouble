@@ -28,9 +28,9 @@ import java.nio.FloatBuffer;
 import java.util.List;
 
 public final class PlacingDelegate extends ControllableCameraDelegate {
-	private final static int GRID_RADIUS = 20;
-	private final static FloatBuffer color = BufferUtils.createFloatBuffer(4).put(Color.argb4f(0xFF_FF_FF_FF));
-	private final static LandscapeLocation landscape_hit = new LandscapeLocation();
+	private static final int GRID_RADIUS = 20;
+	private static final FloatBuffer color = BufferUtils.createFloatBuffer(4).put(Color.argb4f(0xFF_FF_FF_FF));
+	private static final LandscapeLocation landscape_hit = new LandscapeLocation();
 
 	private final BuildingSiteRenderer site_renderer = new BuildingSiteRenderer();
 	private final int building_index;

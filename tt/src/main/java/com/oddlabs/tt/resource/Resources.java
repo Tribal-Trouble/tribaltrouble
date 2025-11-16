@@ -11,7 +11,7 @@ import java.util.function.Supplier;
  */
 public final class Resources {
     // TODO Consider replacing with WeakHashMap, but some native resources may not be strongly held so would be GCed.
-	private final static ConcurrentMap<@NonNull Supplier<? extends @NonNull Object>, @NonNull Object> LOADED_RESOURCES = new ConcurrentHashMap<>();
+	private static final ConcurrentMap<@NonNull Supplier<? extends @NonNull Object>, @NonNull Object> LOADED_RESOURCES = new ConcurrentHashMap<>();
     public static <R extends @NonNull Object> R findResource(@NonNull Supplier<R> resSupplier) {
         Object resource = LOADED_RESOURCES.get(resSupplier);
         // We can't use computeIfAbsent because some resources are recursive

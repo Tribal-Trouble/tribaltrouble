@@ -22,10 +22,10 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public final class LightningCloud implements Magic {
-	private final static int NUM_STRIKES = 6;
-	private final static float SECONDS_BETWEEN_STRIKES = .125f;
-	private final static float BRIGHTNESS = .2f;
-	private final static float LIGHTNING_TIME = .1f;
+	private static final int NUM_STRIKES = 6;
+	private static final float SECONDS_BETWEEN_STRIKES = .125f;
+	private static final float BRIGHTNESS = .2f;
+	private static final float LIGHTNING_TIME = .1f;
 
 	private final @NonNull Player owner;
 	private final float seconds_per_hit;

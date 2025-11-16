@@ -7,11 +7,11 @@ import org.lwjgl.opengl.GL13;
 import java.nio.ByteBuffer;
 
 public final class GLState {
-	public final static int VERTEX_ARRAY = 1 << 0;
-	public final static int NORMAL_ARRAY = 1 << 1;
-	public final static int TEXCOORD0_ARRAY = 1 << 2;
-	public final static int TEXCOORD1_ARRAY = 1 << 3;
-	public final static int COLOR_ARRAY = 1 << 4;
+	public static final int VERTEX_ARRAY = 1 << 0;
+	public static final int NORMAL_ARRAY = 1 << 1;
+	public static final int TEXCOORD0_ARRAY = 1 << 2;
+	public static final int TEXCOORD1_ARRAY = 1 << 3;
+	public static final int COLOR_ARRAY = 1 << 4;
 
 	/* state */
 	public boolean vertex_array;

@@ -5,7 +5,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.Arrays;
 
 public abstract class Controller {
-	private final static int MAX_TRIES = 1;
+	private static final int MAX_TRIES = 1;
 	private final int @NonNull [] give_up_counters;
 
 	protected Controller(int num_states) {

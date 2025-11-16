@@ -11,7 +11,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class FreeQuitLabel extends Label implements Animated {
-	private final static ResourceBundle bundle = ResourceBundle.getBundle(FreeQuitLabel.class.getName());
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(FreeQuitLabel.class.getName());
 
 	private final World world;
 	private final AnimationManager manager;

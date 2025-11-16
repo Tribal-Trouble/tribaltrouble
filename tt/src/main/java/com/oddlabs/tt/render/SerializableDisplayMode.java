@@ -18,7 +18,7 @@ import java.util.TreeSet;
 public final class SerializableDisplayMode implements Serializable {
 
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
     private final int width;
     private final int height;

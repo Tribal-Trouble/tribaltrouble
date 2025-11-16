@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.Set;
 
 public final class WeaponTrigger extends TutorialTrigger {
-	private final static int WEAPONS = 10;
+	private static final int WEAPONS = 10;
 
 	public WeaponTrigger(@NonNull Player local_player) {
 		super(.5f, 0f, "weapon", new Object[]{WEAPONS});

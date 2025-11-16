@@ -30,7 +30,7 @@ public final class TaskThread {
 		void deliverResult(TaskExecutorLoopbackInterface<T> callback);
 	}
 
-	final static class TaskFailed<T> implements TaskResult<T> {
+	static final class TaskFailed<T> implements TaskResult<T> {
 		private final Exception result;
 
 		TaskFailed(Exception e) {
@@ -43,7 +43,7 @@ public final class TaskThread {
 		}
 	}
 
-	final static class TaskSucceeded<T> implements TaskResult<T> {
+	static final class TaskSucceeded<T> implements TaskResult<T> {
 		private final T result;
 
 		TaskSucceeded(T result) {

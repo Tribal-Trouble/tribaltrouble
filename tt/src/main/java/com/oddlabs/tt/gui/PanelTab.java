@@ -4,7 +4,7 @@ import com.oddlabs.tt.font.Font;
 import org.jspecify.annotations.NonNull;
 
 public class PanelTab extends GUIObject {
-	private final static float[] HIGHLIGHT_COLOR = com.oddlabs.util.Color.argb4f(0x00_FF_00_FF);
+	private static final float[] HIGHLIGHT_COLOR = com.oddlabs.util.Color.argb4f(0x00_FF_00_FF);
 	private boolean selected;
 	private final @NonNull Label label;
 

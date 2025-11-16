@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
 
 public class Notification implements Updatable {
 
-    private final static float ACTIVE_SECONDS = 5f;
+    private static final float ACTIVE_SECONDS = 5f;
 
     private final float center_x;
     private final float center_y;

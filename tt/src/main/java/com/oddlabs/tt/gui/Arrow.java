@@ -7,8 +7,8 @@ import org.lwjgl.opengl.GL11;
 import org.joml.Vector4f;
 
 public final class Arrow extends GUIObject {
-	private final static float SECONDS_PER_FLASH = .5f;
-	private final static float COLOR_DELTA = .5f;
+	private static final float SECONDS_PER_FLASH = .5f;
+	private static final float COLOR_DELTA = .5f;
 
 	private final float target_x;
 	private final float target_y;
@@ -36,7 +36,7 @@ public final class Arrow extends GUIObject {
 		setDim(width, height);
 	}
 
-	private final static Vector4f point = new Vector4f();
+	private static final Vector4f point = new Vector4f();
 	private @NonNull Vector4f project3DTo2D(float x, float y, float z) {
 		point.set(x,y,z,1);
 		gui_root.getDelegate().getCamera().getState().getProjectionModelView().transform(point, point);

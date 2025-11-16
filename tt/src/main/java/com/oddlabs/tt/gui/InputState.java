@@ -8,11 +8,11 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class InputState {
-	private final static float MOUSE_REPEAT_DELAY = .5f;
-	private final static float MOUSE_REPEAT_RATE = .05f;
+	private static final float MOUSE_REPEAT_DELAY = .5f;
+	private static final float MOUSE_REPEAT_RATE = .05f;
 
-	private final static float DOUBLE_CLICK_TIMEOUT = .4f;
-	private final static int DOUBLE_CLICK_THRESHOLD = 2;
+	private static final float DOUBLE_CLICK_TIMEOUT = .4f;
+	private static final int DOUBLE_CLICK_THRESHOLD = 2;
 
 	private final @NonNull TimerAnimation double_click_timer;
 	private final @NonNull TimerAnimation double_key_timer;

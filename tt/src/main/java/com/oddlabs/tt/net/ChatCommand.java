@@ -12,7 +12,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 public final class ChatCommand {
-	private final static Map<String, ChatMethod> commands = new HashMap<>();
+	private static final Map<String, ChatMethod> commands = new HashMap<>();
 
 	static {
 			commands.put("message", ChatCommand::sendMessage);
@@ -26,9 +26,9 @@ public final class ChatCommand {
 			commands.put("ignorelist", ChatCommand::ignoreList);
 	}
 
-    private final static Set<String> ignored_nicks = new HashSet<>();
+    private static final Set<String> ignored_nicks = new HashSet<>();
 
-	private final static ResourceBundle bundle = ResourceBundle.getBundle(ChatCommand.class.getName());
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(ChatCommand.class.getName());
 
 	public static boolean filterCommand(@NonNull InfoPrinter info_printer, @NonNull String text) {
 		return filterCommand(info_printer, Collections.emptyMap(), text);

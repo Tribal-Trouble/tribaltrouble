@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class SessionInfo implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
 	public final int milliseconds_per_heartbeat;
 	public final int num_participants;

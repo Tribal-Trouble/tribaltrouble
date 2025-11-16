@@ -48,15 +48,15 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public final class GameMenu extends Panel implements ConfigurationListener, ChatListener {
-	private final static int OPEN_INDEX = 0;
-	private final static int CLOSED_INDEX = 1;
-	private final static int COMPUTER_EASY_INDEX = 2;
-	private final static int COMPUTER_NORMAL_INDEX = 3;
-	private final static int COMPUTER_HARD_INDEX = 4;
+	private static final int OPEN_INDEX = 0;
+	private static final int CLOSED_INDEX = 1;
+	private static final int COMPUTER_EASY_INDEX = 2;
+	private static final int COMPUTER_NORMAL_INDEX = 3;
+	private static final int COMPUTER_HARD_INDEX = 4;
 
-	private final static int SEND_BUTTON_WIDTH = 60;
+	private static final int SEND_BUTTON_WIDTH = 60;
 
-	private final static int RATING_WIDTH = 80;
+	private static final int RATING_WIDTH = 80;
 
 	private final PulldownButton @NonNull [] slot_buttons;
 	private final PulldownButton @NonNull [] race_buttons;

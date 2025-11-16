@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
 
 public final class WorldViewer implements Animated {
 
-    private final static String[] GAMESPEED_STRINGS = new String[]{"paused", "slow", "normal", "fast", "ludicrous"};
+    private static final String[] GAMESPEED_STRINGS = new String[]{"paused", "slow", "normal", "fast", "ludicrous"};
 
     private final @NonNull GameCamera camera;
     private final @NonNull ActionButtonPanel panel;

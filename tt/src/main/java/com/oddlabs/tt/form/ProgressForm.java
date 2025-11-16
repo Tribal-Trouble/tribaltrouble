@@ -23,10 +23,10 @@ import java.util.Random;
 import java.util.ResourceBundle;
 
 public final class ProgressForm {
-	private final static int PROGRESSBAR_LOADINGTIP_SPACING = 45;
-	private final static int NUM_TIPS = 39;
-	private final static String TIP_PREFIX = "tip";
-	private final static @NonNull String [] LOADING_TIPS = new String[NUM_TIPS];
+	private static final int PROGRESSBAR_LOADINGTIP_SPACING = 45;
+	private static final int NUM_TIPS = 39;
+	private static final String TIP_PREFIX = "tip";
+	private static final @NonNull String [] LOADING_TIPS = new String[NUM_TIPS];
 
 	private static @Nullable ProgressForm current_progress = null;
 

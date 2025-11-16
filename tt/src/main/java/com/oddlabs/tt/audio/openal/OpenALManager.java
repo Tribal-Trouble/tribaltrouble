@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  */
 public final class OpenALManager extends AudioManager {
     private static final Logger logger = Logger.getLogger(OpenALManager.class.getName());
-    private final static int MAX_NUM_SOURCES = 32;
+    private static final int MAX_NUM_SOURCES = 32;
 
     public OpenALManager() throws LWJGLException {
         AL.create(null, -1, -1, false);

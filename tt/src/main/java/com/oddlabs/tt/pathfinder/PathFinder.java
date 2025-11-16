@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class PathFinder {
-	private final static PocketList open_list = new PocketList(RegionBuilder.MAX_PATH_COST);
-	final static List<Node> visited_list = new ArrayList<>();
+	private static final PocketList open_list = new PocketList(RegionBuilder.MAX_PATH_COST);
+	static final List<Node> visited_list = new ArrayList<>();
 	public static int stat_pathfinder_per_frame = 0;
 
 	public static Region findPathRegion(@NonNull UnitGrid unit_grid, @NonNull Region src_region, @NonNull Region dst_region) {

@@ -39,16 +39,16 @@ import java.net.InetAddress;
 import java.util.ResourceBundle;
 
 public abstract class Menu extends CameraDelegate {
-	protected final static int COLOR_NORMAL = 0xFFFFFF;
-	protected final static int COLOR_ACTIVE = 0xFFCC9F;
-	private final static int MENU_X = 160;
-	private final static int overlay_texture_width = 1024;
-	private final static int overlay_texture_height = 1024;
-	private final static int overlay_image_width = 800;
-	private final static int overlay_image_height = 600;
-	private final static String overlay_texture_name = "/textures/gui/mainmenu";
+	protected static final int COLOR_NORMAL = 0xFFFFFF;
+	protected static final int COLOR_ACTIVE = 0xFFCC9F;
+	private static final int MENU_X = 160;
+	private static final int overlay_texture_width = 1024;
+	private static final int overlay_texture_height = 1024;
+	private static final int overlay_image_width = 800;
+	private static final int overlay_image_height = 600;
+	private static final String overlay_texture_name = "/textures/gui/mainmenu";
 
-	public final static ResourceBundle bundle = ResourceBundle.getBundle(MainMenu.class.getName());
+	public static final ResourceBundle bundle = ResourceBundle.getBundle(MainMenu.class.getName());
 
 	private final NetworkSelector network;
 
@@ -231,7 +231,7 @@ public abstract class Menu extends CameraDelegate {
 		Renderer.setMusicPath(world_viewer.getLocalPlayer().getRace().getMusicPath(), 10f);
 	}
 
-	public final static class DefaultWorldInitAction implements WorldInitAction {
+	public static final class DefaultWorldInitAction implements WorldInitAction {
 		@Override
 		public void run(@NonNull WorldViewer viewer) {
 			new GameOverTrigger(viewer);

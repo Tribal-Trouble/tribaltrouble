@@ -3,7 +3,7 @@ package com.oddlabs.tt.landscape;
 import org.jspecify.annotations.NonNull;
 
 public final class TreeGroup extends AbstractTreeGroup {
-	private final static int LANDSCAPE_TREES_MAX_LEVEL = 5;
+	private static final int LANDSCAPE_TREES_MAX_LEVEL = 5;
 
 	/*
 	 * child2 | child3

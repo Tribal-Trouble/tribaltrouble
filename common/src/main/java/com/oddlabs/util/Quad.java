@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public class Quad implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
 	private final float u1;
 	private final float v1;

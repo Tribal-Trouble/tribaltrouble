@@ -8,8 +8,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public abstract class WeaponFactory {
-	private final static float TERRAIN_MAX_BONUS = .25f;
-	private final static float TERRAIN_BONUS_PER_HEIGHT = TERRAIN_MAX_BONUS/20f;
+	private static final float TERRAIN_MAX_BONUS = .25f;
+	private static final float TERRAIN_BONUS_PER_HEIGHT = TERRAIN_MAX_BONUS/20f;
 
 	private final float hit_chance;
 	private final float range;

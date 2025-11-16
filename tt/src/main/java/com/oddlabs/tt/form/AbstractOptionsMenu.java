@@ -43,12 +43,12 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public abstract class AbstractOptionsMenu extends Form {
-	private final static int BUTTON_WIDTH = 100;
-	private final static int MAX_VALUE = 20;
+	private static final int BUTTON_WIDTH = 100;
+	private static final int MAX_VALUE = 20;
 
-	private final static int SLIDER_WIDTH = 270;
+	private static final int SLIDER_WIDTH = 270;
 
-	private final static boolean TEMPORARILY_DISABLE_MUSIC_CONTROLS = false;
+	private static final boolean TEMPORARILY_DISABLE_MUSIC_CONTROLS = false;
 	private final @NonNull CheckBox cb_fullscreen;
 
 	private final @NonNull Slider slider_music;

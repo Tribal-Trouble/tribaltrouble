@@ -13,10 +13,10 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class CampaignDialogForm extends Form {
-	public final static int ALIGN_IMAGE_LEFT = 1;
-	public final static int ALIGN_IMAGE_RIGHT = 2;
+	public static final int ALIGN_IMAGE_LEFT = 1;
+	public static final int ALIGN_IMAGE_RIGHT = 2;
 
-	private final static int WIDTH = 300;
+	private static final int WIDTH = 300;
 
 	private final Runnable runnable;
 	private final boolean cancel;

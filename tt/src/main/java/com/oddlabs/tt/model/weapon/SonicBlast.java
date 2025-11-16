@@ -19,9 +19,9 @@ import org.joml.Vector4f;
 import java.util.List;
 
 public final class SonicBlast implements Magic {
-	private final static float SECONDS_AFTER_FIRST = 0.005f;
-	private final static float SECONDS_BETWEEN_RINGS = 0.01f;
-	private final static int NUM_RINGS = 3;
+	private static final float SECONDS_AFTER_FIRST = 0.005f;
+	private static final float SECONDS_BETWEEN_RINGS = 0.01f;
+	private static final int NUM_RINGS = 3;
 
 	private final float hit_radius;
 	private final float hit_chance_closest;

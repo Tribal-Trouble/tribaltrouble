@@ -27,15 +27,15 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public final class GUIRoot extends GUIObject implements Updatable {
-	public final static int CURSOR_NORMAL = 0;
-	public final static int CURSOR_TARGET = 1;
-	public final static int CURSOR_TEXT = 2;
-	public final static int CURSOR_NULL = 3;
+	public static final int CURSOR_NORMAL = 0;
+	public static final int CURSOR_TARGET = 1;
+	public static final int CURSOR_TEXT = 2;
+	public static final int CURSOR_NULL = 3;
 
 //	private static int inc_seed = 2;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(GUIRoot.class.getName());
 
-	private final static int CURSOR_OFFSET_Y = 27;
+	private static final int CURSOR_OFFSET_Y = 27;
 	private final com.oddlabs.tt.resource.Cursor[] cursors = new com.oddlabs.tt.resource.Cursor[]{
 		new com.oddlabs.tt.resource.Cursor(Utils.makeURL("/textures/gui/pointer_16_1.image"), 1, 15,
 										   Utils.makeURL("/textures/gui/pointer_32_1.image"), 2, 29,

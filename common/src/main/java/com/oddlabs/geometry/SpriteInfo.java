@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 public final class SpriteInfo implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
 	private final short[] indices;
 	private final @NonNull ShortCompressedFloatArray vertices;

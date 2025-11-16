@@ -35,9 +35,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class Player implements PlayerInterface {
-	public final static int INITIAL_UNIT_COUNT = 20;
-	public final static int MAX_BUILDING_COUNT = 20;
-	public final static int DEFAULT_MAX_UNIT_COUNT = 250;
+	public static final int INITIAL_UNIT_COUNT = 20;
+	public static final int MAX_BUILDING_COUNT = 20;
+	public static final int DEFAULT_MAX_UNIT_COUNT = 250;
 
 	public static final float[][] COLORS = {
 			Color.argb4f(0xFFFFBF00),

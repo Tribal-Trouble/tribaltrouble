@@ -6,9 +6,9 @@ public final class RegistrationKeyFormatException extends NumberFormatException 
 	@Serial
 	private static final long serialVersionUID = 3673901824484153336L;
 
-	public final static int TYPE_INVALID_CHAR = 0;
-	public final static int TYPE_INVALID_LENGTH = 1;
-	public final static int TYPE_INVALID_KEY = 2;
+	public static final int TYPE_INVALID_CHAR = 0;
+	public static final int TYPE_INVALID_LENGTH = 1;
+	public static final int TYPE_INVALID_KEY = 2;
 
 	private final int type;
 

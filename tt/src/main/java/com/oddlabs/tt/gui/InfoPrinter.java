@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class InfoPrinter extends GUIObject implements Animated, ChatListener {
-	private final static float SECONDS_PER_TIMEOUT = 8f;
-	private final static float[] PRIVATE_COLOR = Color.rgba4f(0xFF3366FF);
-	private final static float[] TEAM_COLOR = Color.rgba4f(0x4C7FFFFF);
+	private static final float SECONDS_PER_TIMEOUT = 8f;
+	private static final float[] PRIVATE_COLOR = Color.rgba4f(0xFF3366FF);
+	private static final float[] TEAM_COLOR = Color.rgba4f(0x4C7FFFFF);
 
 	private final @NonNull Font font;
 	private final List<LabelBox> history = new ArrayList<>();

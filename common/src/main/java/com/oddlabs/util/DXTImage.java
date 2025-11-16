@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
 public final class DXTImage {
-	private final static int INITIAL_BUFFER_SIZE = 100000;
+	private static final int INITIAL_BUFFER_SIZE = 100000;
 	private static byte @NonNull [] scratch_buffer = new byte[INITIAL_BUFFER_SIZE];
 	private final short width;
 	private final short height;

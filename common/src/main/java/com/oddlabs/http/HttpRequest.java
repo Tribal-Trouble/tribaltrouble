@@ -157,7 +157,7 @@ public final class HttpRequest {
 		doPost(deterministic, new HttpRequestParameters("https://localhost/matchservlet/login", parameters), parser, callback);
 	}
 
-	public final static void main(String[] args) throws IOException {
+	public static final void main(String[] args) throws IOException {
 		final Deterministic deterministic = new com.oddlabs.event.NotDeterministic();
 		final HttpResponseParser parser = new HttpResponseParser() {
 			public final Object parse(InputStream in) throws IOException {

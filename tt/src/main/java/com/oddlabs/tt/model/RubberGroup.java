@@ -14,7 +14,7 @@ public final class RubberGroup {
 	private final int MIN_CHICKENS_PER_GROUP = 3;
 	private final int MAX_CHICKENS_PER_GROUP = 7;
 
-	private final static float SPAWN_TIME = 2f;
+	private static final float SPAWN_TIME = 2f;
 
 	private final @NonNull World world;
 	private final List<Supply> supplies = new ArrayList<>();

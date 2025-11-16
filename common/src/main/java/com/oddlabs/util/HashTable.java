@@ -7,9 +7,9 @@ import org.jspecify.annotations.Nullable;
  *
  */
 public final class HashTable<T> {
-	private final static int DEFAULT_INITIAL_ENTRIES = 10;
-	private final static int DEFAULT_MUL_FACTOR = 2;
-	private final static float DEFAULT_LOAD_FACTOR = 0.75f;
+	private static final int DEFAULT_INITIAL_ENTRIES = 10;
+	private static final int DEFAULT_MUL_FACTOR = 2;
+	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
 	@SuppressWarnings("rawtypes")
 	private LinkedList[] entries;

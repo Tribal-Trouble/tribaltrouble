@@ -86,10 +86,10 @@ import java.util.logging.SimpleFormatter;
 
 public final class Renderer {
 
-	private final static FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
+	private static final FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
 
-    private final static Renderer renderer_instance = new Renderer();
-	private final static StatCounter fps = new StatCounter(10);
+    private static final Renderer renderer_instance = new Renderer();
+	private static final StatCounter fps = new StatCounter(10);
 	private static int num_triangles_rendered;
 
 	private static boolean grab_frames = false;
@@ -625,7 +625,7 @@ public final class Renderer {
         }
 	}
 
-	private final static class MusicTimer implements Updatable {
+	private static final class MusicTimer implements Updatable {
 		@Override
 		public void update(Object anim) {
 			if (music_timer != null)

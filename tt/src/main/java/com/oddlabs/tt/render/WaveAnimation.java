@@ -6,8 +6,8 @@ import org.lwjgl.opengl.GL11;
 import org.joml.Vector3f;
 
 public final class WaveAnimation {
-	private final static float TREE_WAVE_SCALE = 2f;
-	private final static float TRANSLATE_SCALE = .025f;
+	private static final float TREE_WAVE_SCALE = 2f;
+	private static final float TRANSLATE_SCALE = .025f;
 
 	private final Vector3f wave_dir = new Vector3f(0, 0, 1);
 	private final Vector3f up_vec = new Vector3f(0, 0, 1);

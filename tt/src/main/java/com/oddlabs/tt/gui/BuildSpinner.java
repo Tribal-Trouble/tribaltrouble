@@ -13,7 +13,7 @@ import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 
 public final class BuildSpinner extends IconSpinner {
-	public final static int INFINITE_LIMIT = 30;
+	public static final int INFINITE_LIMIT = 30;
 
 	private final PlayerInterface player_interface;
 

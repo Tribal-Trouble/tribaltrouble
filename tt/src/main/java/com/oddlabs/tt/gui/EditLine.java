@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EditLine extends TextField {
-	public final static int RIGHT_ALIGNED = 1;
-	public final static int LEFT_ALIGNED = 2;
+	public static final int RIGHT_ALIGNED = 1;
+	public static final int LEFT_ALIGNED = 2;
 	
 	private final List<EnterListener> enter_listeners = new ArrayList<>();
 	private final int alignment;

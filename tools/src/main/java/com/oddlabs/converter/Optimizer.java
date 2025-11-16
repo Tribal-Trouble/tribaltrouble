@@ -10,7 +10,7 @@ import java.nio.ShortBuffer;
 import java.util.Map;
 
 public final class Optimizer {
-	private final static float VERTEX_TRESHOLD = 0.000001f;
+	private static final float VERTEX_TRESHOLD = 0.000001f;
 
 	private static boolean shortsEquals(int index1, int index2, int size, short[] array1, short[] array2) {
 		for (int i = 0; i < size; i++) {

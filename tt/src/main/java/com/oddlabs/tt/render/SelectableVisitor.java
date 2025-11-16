@@ -7,12 +7,12 @@ import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 class SelectableVisitor extends ModelVisitor {
-	private final static float[] COLOR_RED = Color.rgb3f(0xFF0000);
-	private final static float[] COLOR_RED_HOVER = Color.rgb3f(0x7f0000);
-	private final static float[] COLOR_GREEN = Color.rgb3f(0x00FF00);
-	private final static float[] COLOR_GREEN_HOVER = Color.rgb3f(0x007f00);
-	private final static float[] COLOR_BLUE = Color.rgb3f(0x0000FF);
-	private final static float[] COLOR_BLUE_HOVER = Color.rgb3f(0x00007f);
+	private static final float[] COLOR_RED = Color.rgb3f(0xFF0000);
+	private static final float[] COLOR_RED_HOVER = Color.rgb3f(0x7f0000);
+	private static final float[] COLOR_GREEN = Color.rgb3f(0x00FF00);
+	private static final float[] COLOR_GREEN_HOVER = Color.rgb3f(0x007f00);
+	private static final float[] COLOR_BLUE = Color.rgb3f(0x0000FF);
+	private static final float[] COLOR_BLUE_HOVER = Color.rgb3f(0x00007f);
 
 	@Override
 	public final void transform(@NonNull ElementRenderState render_state) {

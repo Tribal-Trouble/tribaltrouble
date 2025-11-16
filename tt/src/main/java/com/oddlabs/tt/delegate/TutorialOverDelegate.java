@@ -19,7 +19,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class TutorialOverDelegate extends CameraDelegate implements Updatable {
-	private final static float DELAY = 1f;
+	private static final float DELAY = 1f;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
 	private final @NonNull Group group_buttons;
 	private final TutorialInGameInfo tutorial_info;

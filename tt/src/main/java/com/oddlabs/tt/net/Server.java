@@ -28,9 +28,9 @@ import java.util.Random;
 import java.util.ResourceBundle;
 
 public final class Server implements ConnectionListenerInterface {
-	private final static int NEGOTIATING = 1;
-	private final static int SYNCHRONIZING = 2;
-	private final static int CLOSED = 3;
+	private static final int NEGOTIATING = 1;
+	private static final int SYNCHRONIZING = 2;
+	private static final int CLOSED = 3;
 
 	private final PlayerSlot @NonNull [] players;
 	private final String[] ai_names;

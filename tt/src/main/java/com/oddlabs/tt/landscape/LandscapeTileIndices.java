@@ -8,7 +8,7 @@ import java.nio.ShortBuffer;
 
 /* http://www.gamasutra.com/features/20061221/dallaire_03.shtml */
 public final class LandscapeTileIndices {
-	private final static int NUM_LINK_TILES = 15;
+	private static final int NUM_LINK_TILES = 15;
 
 	private final HeightMap heightmap;
 	private final int patch_exp;

@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 public final class NetworkSelector {
-	private final static long PING_TIMEOUT = 4*60*1000;
-	private final static long PING_DELAY = PING_TIMEOUT/2;
+	private static final long PING_TIMEOUT = 4*60*1000;
+	private static final long PING_DELAY = PING_TIMEOUT/2;
 
 	private final @NonNull MonotoneTimeManager time_manager;
 	private int current_handler_id;

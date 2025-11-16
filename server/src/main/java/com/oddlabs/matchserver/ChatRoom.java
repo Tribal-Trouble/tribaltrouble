@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 public final class ChatRoom {
-	private final static Map<String, ChatRoom> chat_rooms = new HashMap<>();
+	private static final Map<String, ChatRoom> chat_rooms = new HashMap<>();
 	
 	private final Set<Client> users = new HashSet<>();
 	private final String name;

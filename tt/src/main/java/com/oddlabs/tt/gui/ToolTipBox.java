@@ -6,7 +6,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class ToolTipBox extends TextField {
-	public final static float MAX_DELAY_SECONDS = 1.5f;
+	public static final float MAX_DELAY_SECONDS = 1.5f;
 		
 	private final @NonNull TextLineRenderer tool_tip_renderer;
 	private Quad @Nullable [] icons;

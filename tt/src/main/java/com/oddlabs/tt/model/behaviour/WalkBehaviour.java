@@ -14,8 +14,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class WalkBehaviour implements Behaviour {
-	private final static float WAIT_RETRY_DELAY = 1f/2f;
-	private final static float MAX_WAIT_RETRY_DELAY = 5f;
+	private static final float WAIT_RETRY_DELAY = 1f/2f;
+	private static final float MAX_WAIT_RETRY_DELAY = 5f;
 
 	private final @NonNull Unit unit;
 	private final TrackerAlgorithm tracker_algorithm;

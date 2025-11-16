@@ -6,10 +6,10 @@ import org.jspecify.annotations.NonNull;
 
 public final class ErosionThermal {
 
-	private final static boolean save_frames = false;
-	private final static boolean show_score = false;
-	private final static boolean show_time = false;
-	private final static boolean show_diff = false;
+	private static final boolean save_frames = false;
+	private static final boolean show_score = false;
+	private static final boolean show_time = false;
+	private static final boolean show_diff = false;
 	
 	private static Channel height;
 	private static Channel height_d;

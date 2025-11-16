@@ -19,13 +19,13 @@ import org.joml.Vector4f;
 import java.util.List;
 
 public final class PoisonFog implements Magic {
-	public final static float OFFSET_Z = 1.1f;
+	public static final float OFFSET_Z = 1.1f;
 
-	private final static int PARTICLES_PER_BURST = 4;
-	private final static float SECONDS_BETWEEN_BURSTS = .15f;
-	private final static float BURST_RADIUS = 2f;
-	private final static float GAUSSIAN_LIMIT = 2.5f;
-	private final static int MIN_BURSTS_PER_SOUND = 2;
+	private static final int PARTICLES_PER_BURST = 4;
+	private static final float SECONDS_BETWEEN_BURSTS = .15f;
+	private static final float BURST_RADIUS = 2f;
+	private static final float GAUSSIAN_LIMIT = 2.5f;
+	private static final int MIN_BURSTS_PER_SOUND = 2;
 
 	private final float hit_radius;
 	private final float hit_chance;

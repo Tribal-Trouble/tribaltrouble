@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 public final class Profile implements Serializable {
 	@Serial
-	private final static long serialVersionUID = -3399364532017471737L;
+	private static final long serialVersionUID = -3399364532017471737L;
 	
 	private final String nick;
 	private final int rating;

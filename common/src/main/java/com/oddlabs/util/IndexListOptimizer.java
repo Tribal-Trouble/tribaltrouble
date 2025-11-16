@@ -13,11 +13,11 @@ import java.util.Set;
 
 /* http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html*/
 public final class IndexListOptimizer {
-	private final static int LRU_SIZE = 32;
-	private final static float INITIAL_SCORE = .7f;
-	private final static float CACHE_SCORE_POWER = 1.5f;
-	private final static float VALENCE_BOOST_SCALE = 2f;
-	private final static float VALENCE_BOOST_POWER = .5f;
+	private static final int LRU_SIZE = 32;
+	private static final float INITIAL_SCORE = .7f;
+	private static final float CACHE_SCORE_POWER = 1.5f;
+	private static final float VALENCE_BOOST_SCALE = 2f;
+	private static final float VALENCE_BOOST_POWER = .5f;
 
 	public static void optimize(@NonNull ShortBuffer buffer) {
 /*System.out.println("buffer:");
@@ -114,7 +114,7 @@ dumpBuffer(buffer);*/
 		IO.println();
 	}
 
-	private final static class Index {
+	private static final class Index {
 		private final List<Triangle> triangle_list = new ArrayList<>();
 		private final short index;
 
@@ -154,7 +154,7 @@ dumpBuffer(buffer);*/
 		}
 	}
 
-	private final static class Triangle {
+	private static final class Triangle {
 		private final Index @NonNull [] indices;
 
 /*		private float score;

@@ -10,7 +10,7 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public class ZoomDelegate extends InGameDelegate {
-	private final static float ZOOM_FACTOR_CORRECTION = .25f;
+	private static final float ZOOM_FACTOR_CORRECTION = .25f;
 
 	private final int start_x;
 	private final int start_y;

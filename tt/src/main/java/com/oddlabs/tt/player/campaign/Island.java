@@ -27,7 +27,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public abstract class Island {
-	private final static float CAMPAIGN_DIFFICULTY_BONUS = .75f;
+	private static final float CAMPAIGN_DIFFICULTY_BONUS = .75f;
 
 	private final Campaign campaign;
 

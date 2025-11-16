@@ -95,7 +95,7 @@ public final class RenderState implements ElementVisitor {
 		return visible_override;
 	}
 
-	private final static ModelVisitor unit_visitor = new SelectableVisitor() {
+	private static final ModelVisitor unit_visitor = new SelectableVisitor() {
 		@Override
 		public void markDetailPolygon(@NonNull ElementRenderState render_state, @NonNull PolyDetail detail) {
 			Unit unit = (Unit)render_state.model;
@@ -131,7 +131,7 @@ public final class RenderState implements ElementVisitor {
 		return state;
 	}
 
-	private final static BoundingBox picking_selection_box = new BoundingBox();
+	private static final BoundingBox picking_selection_box = new BoundingBox();
 	private static boolean pickingInFrustum(@NonNull Selectable selectable, float[][] frustum, float z_offset, float selection_radius, float selection_height) {
 		picking_selection_box.setBounds(-selection_radius + selectable.getPositionX(), selection_radius + selectable.getPositionX(), -selection_radius + selectable.getPositionY(), selection_radius + selectable.getPositionY(), z_offset, z_offset + selection_height);
 		return RenderTools.inFrustum(picking_selection_box, frustum) != RenderTools.FrustumIntersection.ALL_OUTSIDE;
@@ -196,7 +196,7 @@ public final class RenderState implements ElementVisitor {
 		}
 	}
 
-	private final static ModelVisitor building_visitor = new SelectableVisitor();
+	private static final ModelVisitor building_visitor = new SelectableVisitor();
 	@Override
 	public void visitBuilding(final @NonNull Building building) {
 		visitSelectable(building_visitor, building, building.getPositionZ(), getBuildingSelectionRadius(building), getBuildingSelectionHeight(building));
@@ -228,7 +228,7 @@ public final class RenderState implements ElementVisitor {
 			target_respond_renderer.addToTargetList(respond);
 	}
 
-	private final static ModelVisitor supply_model_visitor = new SupplyModelVisitor() {
+	private static final ModelVisitor supply_model_visitor = new SupplyModelVisitor() {
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
 			SupplyModel model = (SupplyModel)render_state.getModel();
@@ -241,7 +241,7 @@ public final class RenderState implements ElementVisitor {
 		addToRenderList(getCachedState(supply_model_visitor, model));
 	}
 
-	private final static ModelVisitor rubber_model_visitor = new SupplyModelVisitor() {
+	private static final ModelVisitor rubber_model_visitor = new SupplyModelVisitor() {
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
 			Model model = render_state.model;
@@ -257,7 +257,7 @@ public final class RenderState implements ElementVisitor {
 			default_shadow_renderer.addToShadowList(state);
 	}
 
-	private final static ModelVisitor scenery_model_visitor = new WhiteModelVisitor() {
+	private static final ModelVisitor scenery_model_visitor = new WhiteModelVisitor() {
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
 			RenderTools.translateAndRotate(render_state.getModel());
@@ -274,9 +274,9 @@ public final class RenderState implements ElementVisitor {
 		}
 	}
 
-	private final static float PLANTS_CUT_DIST = 200;
-	private final static ModelVisitor plants_model_visitor = new WhiteModelVisitor() {
-		private final static float START_FADE_DIST = 100;
+	private static final float PLANTS_CUT_DIST = 200;
+	private static final ModelVisitor plants_model_visitor = new WhiteModelVisitor() {
+		private static final float START_FADE_DIST = 100;
 
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
@@ -299,7 +299,7 @@ public final class RenderState implements ElementVisitor {
 		}
 	}
 
-	private final static ModelVisitor directed_weapon_model_visitor = new WhiteModelVisitor() {
+	private static final ModelVisitor directed_weapon_model_visitor = new WhiteModelVisitor() {
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
 			DirectedThrowingWeapon model = (DirectedThrowingWeapon)render_state.getModel();
@@ -314,7 +314,7 @@ public final class RenderState implements ElementVisitor {
 		}
 	}
 
-	private final static ModelVisitor rotating_weapon_model_visitor = new WhiteModelVisitor() {
+	private static final ModelVisitor rotating_weapon_model_visitor = new WhiteModelVisitor() {
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
 			RotatingThrowingWeapon model = (RotatingThrowingWeapon)render_state.getModel();

@@ -13,7 +13,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.file.Path;
 
 public final class SaveDeterministic extends Deterministic {
-	private final static short MAX_DEFAULTS = Short.MAX_VALUE;
+	private static final short MAX_DEFAULTS = Short.MAX_VALUE;
 
 	private final @NonNull ByteChannel channel;
 	private final @NonNull ByteBuffer buffer;

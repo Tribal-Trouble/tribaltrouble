@@ -9,13 +9,13 @@ import org.jspecify.annotations.NonNull;
  * Debug visualization shows the curve as a white line (enable with UNIT_GRID mode).
  */
 public final class BezierPath {
-	private final static int PREVIOUS = 0;
-	private final static int START = 1;
-	private final static int END = 2;
-	private final static int NEXT = 3;
+	private static final int PREVIOUS = 0;
+	private static final int START = 1;
+	private static final int END = 2;
+	private static final int NEXT = 3;
 
-	private final static float[] debug_point = new float[2];
-	private final static float[] debug_dir = new float[2];
+	private static final float[] debug_point = new float[2];
+	private static final float[] debug_dir = new float[2];
 
 	private final float[][] points = new float[4][2];
 	private final float[] current_point = new float[2];

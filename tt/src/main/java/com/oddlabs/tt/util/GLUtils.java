@@ -15,11 +15,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger; // Added import for Logger
 
 public final class GLUtils {
-	public final static String SCREENSHOT_DEFAULT = "screenshot";
+	public static final String SCREENSHOT_DEFAULT = "screenshot";
 	
-	private final static @NonNull ByteBuffer byte_buf = BufferUtils.createByteBuffer(16);
-	private final static IntBuffer int_buf = BufferUtils.createIntBuffer(16);
-	private final static FloatBuffer plane = BufferUtils.createFloatBuffer(Float.BYTES);
+	private static final @NonNull ByteBuffer byte_buf = BufferUtils.createByteBuffer(16);
+	private static final IntBuffer int_buf = BufferUtils.createIntBuffer(16);
+	private static final FloatBuffer plane = BufferUtils.createFloatBuffer(Float.BYTES);
     private static final Logger logger = Logger.getLogger(GLUtils.class.getName()); // Added Logger
 
 	public static @NonNull GLIntImage loadAsGLImage(@NonNull String location) {

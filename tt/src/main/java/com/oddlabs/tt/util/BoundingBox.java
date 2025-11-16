@@ -7,8 +7,8 @@ import org.joml.Vector4f;
 
 public class BoundingBox {
 
-	private final static Vector4f temp_vec = new Vector4f();
-	private final static Vector4f temp_vec2 = new Vector4f();
+	private static final Vector4f temp_vec = new Vector4f();
+	private static final Vector4f temp_vec2 = new Vector4f();
 
 	public float bmin_x = Float.POSITIVE_INFINITY;
 	public float bmin_y = Float.POSITIVE_INFINITY;

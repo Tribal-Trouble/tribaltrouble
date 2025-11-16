@@ -11,13 +11,13 @@ import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
 public final class QuitScreen extends CameraDelegate implements Updatable {
-	private final static float DELAY = 5f;
+	private static final float DELAY = 5f;
 
-	private final static int overlay_texture_width = 1024;
-	private final static int overlay_texture_height = 1024;
-	private final static int overlay_image_width = 800;
-	private final static int overlay_image_height = 600;
-	private final static String overlay_texture_name = "/textures/gui/quitscreen";
+	private static final int overlay_texture_width = 1024;
+	private static final int overlay_texture_height = 1024;
+	private static final int overlay_image_width = 800;
+	private static final int overlay_image_height = 600;
+	private static final String overlay_texture_name = "/textures/gui/quitscreen";
 
 	private final @NonNull GUIImage overlay;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);

@@ -15,7 +15,7 @@ import java.net.URL;
 import java.nio.IntBuffer;
 
 final class QueuedAudioPlayer extends AbstractAudioPlayer {
-	private final static int NUM_BUFFERS = 12;
+	private static final int NUM_BUFFERS = 12;
 	private final @NonNull ByteBufferOutputStream buffer_stream;
 	private final @Nullable OpenALAudio audio;
 	private final IntBuffer al_return_buffers = ALBufferUtils.createIntBuffer(1);

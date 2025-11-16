@@ -32,11 +32,11 @@ import java.io.InvalidClassException;
 import java.util.ResourceBundle;
 
 public final class NewCampaignForm extends Form implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
-	private final static int BUTTON_WIDTH = 100;
-	private final static int EDITLINE_WIDTH = 240;
+	private static final int BUTTON_WIDTH = 100;
+	private static final int EDITLINE_WIDTH = 240;
 
-	private final static int INDEX_VIKINGS = 0;
-	private final static int INDEX_NATIVES = 1;
+	private static final int INDEX_VIKINGS = 0;
+	private static final int INDEX_NATIVES = 1;
 
 	private final Menu main_menu;
 	private final CampaignForm campaign_form;

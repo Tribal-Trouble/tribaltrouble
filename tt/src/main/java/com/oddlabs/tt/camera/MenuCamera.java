@@ -5,13 +5,13 @@ import com.oddlabs.tt.landscape.World;
 import org.jspecify.annotations.NonNull;
 
 public final class MenuCamera extends Camera {
-    private final static float ANGLE_DELTA = 0.020f;
-    private final static float RADIUS = 176f;
-    private final static float HEIGHT = 0f;
-    private final static float LANDSCAPE_OFFSET = 5f;
-    private final static float CENTER_X = 128f;
-    private final static float CENTER_Y = 128f;
-    private final static float CENTER_Z = 128f; // NOT HEIGHT!
+    private static final float ANGLE_DELTA = 0.020f;
+    private static final float RADIUS = 176f;
+    private static final float HEIGHT = 0f;
+    private static final float LANDSCAPE_OFFSET = 5f;
+    private static final float CENTER_X = 128f;
+    private static final float CENTER_Y = 128f;
+    private static final float CENTER_Z = 128f; // NOT HEIGHT!
 
     private final @NonNull World world;
     private final @NonNull AnimationManager manager;

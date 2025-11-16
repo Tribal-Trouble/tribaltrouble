@@ -12,7 +12,7 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 public final class RespondManager implements Animated {
-	private final static float SECONDS_PER_PICK_RESPOND = 1f/3f;
+	private static final float SECONDS_PER_PICK_RESPOND = 1f/3f;
 
 	private final NavigableMap<Timeout,Object> respond_timeouts = new TreeMap<>();
 	private final Map<Object,Timeout> respond_targets = new HashMap<>();
@@ -81,7 +81,7 @@ public final class RespondManager implements Animated {
 	public void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 
-	private final static class Timeout implements Comparable<Timeout> {
+	private static final class Timeout implements Comparable<Timeout> {
 		private final float timeout;
 		private final int id;
 		private final Object target;

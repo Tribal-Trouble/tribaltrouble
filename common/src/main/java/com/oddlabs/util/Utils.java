@@ -20,12 +20,12 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 public final class Utils {
-	public final static Pattern EMAIL_PATTERN = Pattern.compile("(.+@.+\\.[a-z]+)?");
-	public final static Path STD_OUT = Path.of("std.out");
-	public final static Path STD_ERR = Path.of("std.err");
-	public final static Path EVENT_LOG = Path.of("event.log");
+	public static final Pattern EMAIL_PATTERN = Pattern.compile("(.+@.+\\.[a-z]+)?");
+	public static final Path STD_OUT = Path.of("std.out");
+	public static final Path STD_ERR = Path.of("std.err");
+	public static final Path EVENT_LOG = Path.of("event.log");
 
-	public final static Path[] LOG_FILES = {STD_OUT, STD_ERR, EVENT_LOG};
+	public static final Path[] LOG_FILES = {STD_OUT, STD_ERR, EVENT_LOG};
 
 	public static @NonNull InetAddress getLoopbackAddress() {
 		try {

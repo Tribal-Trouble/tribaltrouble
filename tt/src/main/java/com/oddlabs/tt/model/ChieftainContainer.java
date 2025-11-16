@@ -1,7 +1,7 @@
 package com.oddlabs.tt.model;
 
 public final class ChieftainContainer {
-	private final static float PROGRESS_AMOUNT = 1f/40f;
+	private static final float PROGRESS_AMOUNT = 1f/40f;
 
 	private final Building building;
 

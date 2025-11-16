@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class RefillerList {
 
-    private final static long THREAD_SLEEP_MILLIS = TimeUnit.MILLISECONDS.toMillis(50);
+    private static final long THREAD_SLEEP_MILLIS = TimeUnit.MILLISECONDS.toMillis(50);
 
     private volatile boolean finished = false;
     private final Thread refill_thread = new Refiller();

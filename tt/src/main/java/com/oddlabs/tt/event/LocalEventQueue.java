@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 
 public final class LocalEventQueue {
-	private final static LocalEventQueue queue_instance = new LocalEventQueue();
+	private static final LocalEventQueue queue_instance = new LocalEventQueue();
 
 	private final StateChecksum checksum = new StateChecksum();
 	private final AnimationManager manager = new AnimationManager();

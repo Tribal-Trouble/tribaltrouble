@@ -9,7 +9,7 @@ import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 
 public final class AttackTowerTrigger extends TutorialTrigger {
-	private final static int NUM_UNITS = 12;
+	private static final int NUM_UNITS = 12;
 	
 	private final @NonNull Building tower;
 	private final Player ai;

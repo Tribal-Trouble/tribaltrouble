@@ -4,8 +4,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class Network {
-	private final static ChatHub chat_hub = new ChatHub();
-	private final static MatchmakingClient matchmaking_client = new MatchmakingClient();
+	private static final ChatHub chat_hub = new ChatHub();
+	private static final MatchmakingClient matchmaking_client = new MatchmakingClient();
 	private static @Nullable MatchmakingListener matchmaking_listener;
 
 	public static @Nullable MatchmakingListener getMatchmakingListener() {

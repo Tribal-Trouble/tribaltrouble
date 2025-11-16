@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WeaponsProducer {
-	private final static float MAX_BREAK_TIME = .25f;
-	private final static float BREAK_PROBABILITY = .2f;
+	private static final float MAX_BREAK_TIME = .25f;
+	private static final float BREAK_PROBABILITY = .2f;
 
-	private final static List<BuildProductionContainer> build_list = new ArrayList<>();
+	private static final List<BuildProductionContainer> build_list = new ArrayList<>();
 
 	private final Building building;
 	private final WorkerUnitContainer unit_container;

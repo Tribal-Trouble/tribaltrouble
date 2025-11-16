@@ -5,7 +5,7 @@ import org.jspecify.annotations.NonNull;
 import org.w3c.dom.Node;
 
 public final class NativeCampaignIcons implements CampaignIcons {
-	private final static int NUM_ISLANDS = 8;
+	private static final int NUM_ISLANDS = 8;
 
 	private static CampaignIcons icons;
 

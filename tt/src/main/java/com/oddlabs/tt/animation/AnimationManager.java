@@ -27,17 +27,17 @@ import java.util.logging.Logger;
 
 public final class AnimationManager {
 	private static final Logger logger = Logger.getLogger(AnimationManager.class.getName());
-	public final static int ANIMATION_MILLISECONDS_PER_TICK = 20;
-	public final static int ANIMATION_MILLISECONDS_PER_PRECISION_TICK = ANIMATION_MILLISECONDS_PER_TICK/5;
-	public final static float ANIMATION_SECONDS_PER_TICK = ANIMATION_MILLISECONDS_PER_TICK/1000f;
-	public final static float ANIMATION_SECONDS_PER_PRECISION_TICK = ANIMATION_MILLISECONDS_PER_PRECISION_TICK/1000f;
-	private final static long ANIMATION_MILLISECONDS_PER_CHECKSUM = TimeUnit.SECONDS.toMillis(2);
-	public final static long MAX_STEP_MILLIS = TimeUnit.SECONDS.toMillis(30);
+	public static final int ANIMATION_MILLISECONDS_PER_TICK = 20;
+	public static final int ANIMATION_MILLISECONDS_PER_PRECISION_TICK = ANIMATION_MILLISECONDS_PER_TICK/5;
+	public static final float ANIMATION_SECONDS_PER_TICK = ANIMATION_MILLISECONDS_PER_TICK/1000f;
+	public static final float ANIMATION_SECONDS_PER_PRECISION_TICK = ANIMATION_MILLISECONDS_PER_PRECISION_TICK/1000f;
+	private static final long ANIMATION_MILLISECONDS_PER_CHECKSUM = TimeUnit.SECONDS.toMillis(2);
+	public static final long MAX_STEP_MILLIS = TimeUnit.SECONDS.toMillis(30);
 
-	public final static StatCounter pathfindsPerTick = new StatCounter(100);
+	public static final StatCounter pathfindsPerTick = new StatCounter(100);
 
-	private final static StatCounter frameTime = new StatCounter(10);
-	private final static MonotoneTimeManager timeSource =
+	private static final StatCounter frameTime = new StatCounter(10);
+	private static final MonotoneTimeManager timeSource =
             new MonotoneTimeManager(() -> TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
 
 	private static long current_time ;

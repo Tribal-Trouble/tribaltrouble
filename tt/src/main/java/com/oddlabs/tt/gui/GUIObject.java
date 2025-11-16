@@ -15,21 +15,21 @@ import java.util.List;
 import java.util.Objects;
 
 public abstract class GUIObject extends Renderable {
-	public final static int TOP_LEFT	 =  1;
-	public final static int TOP_MID	  =  2;
-	public final static int TOP_RIGHT	=  3;
-	public final static int BOTTOM_LEFT  =  4;
-	public final static int BOTTOM_MID   =  5;
-	public final static int BOTTOM_RIGHT =  6;
-	public final static int LEFT_TOP	 =  7;
-	public final static int LEFT_MID	 =  8;
-	public final static int LEFT_BOTTOM  =  9;
-	public final static int RIGHT_TOP	= 10;
-	public final static int RIGHT_MID	= 11;
-	public final static int RIGHT_BOTTOM = 12;
+	public static final int TOP_LEFT	 =  1;
+	public static final int TOP_MID	  =  2;
+	public static final int TOP_RIGHT	=  3;
+	public static final int BOTTOM_LEFT  =  4;
+	public static final int BOTTOM_MID   =  5;
+	public static final int BOTTOM_RIGHT =  6;
+	public static final int LEFT_TOP	 =  7;
+	public static final int LEFT_MID	 =  8;
+	public static final int LEFT_BOTTOM  =  9;
+	public static final int RIGHT_TOP	= 10;
+	public static final int RIGHT_MID	= 11;
+	public static final int RIGHT_BOTTOM = 12;
 
-	public final static int ORIGIN_TOP_LEFT	 = 0;
-	public final static int ORIGIN_BOTTOM_RIGHT = 1;
+	public static final int ORIGIN_TOP_LEFT	 = 0;
+	public static final int ORIGIN_BOTTOM_RIGHT = 1;
 
 	private boolean disabled;
 	private boolean hovered;

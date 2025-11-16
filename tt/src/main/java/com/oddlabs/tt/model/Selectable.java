@@ -17,9 +17,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class Selectable extends Model implements Target, Animated, ModelToolTip {
-	public final static int UNINTERRUPTIBLE = 1;
-	public final static int INTERRUPTIBLE = 2;
-	public final static int DONE = 3;
+	public static final int UNINTERRUPTIBLE = 1;
+	public static final int INTERRUPTIBLE = 2;
+	public static final int DONE = 3;
 
 	private final @NonNull Player owner;
 	private @Nullable Behaviour current_behaviour;

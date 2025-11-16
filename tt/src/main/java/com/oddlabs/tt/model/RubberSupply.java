@@ -16,20 +16,20 @@ import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 
 public final class RubberSupply extends SupplyModel implements Animated, Movable {
-	private final static float MIN_TREE_FALL_HEIGHT = 4f;
-	private final static float MAX_TREE_FALL_HEIGHT = 8f;
+	private static final float MIN_TREE_FALL_HEIGHT = 4f;
+	private static final float MAX_TREE_FALL_HEIGHT = 8f;
 
-	private final static int ANIMATION_IDLING = 0;
-	private final static int ANIMATION_PECKING = 1;
-	private final static int ANIMATION_DYING = 2;
-	private final static int ANIMATION_RUNNING = 3;
-	private final static int ANIMATION_FLYING = 4;
+	private static final int ANIMATION_IDLING = 0;
+	private static final int ANIMATION_PECKING = 1;
+	private static final int ANIMATION_DYING = 2;
+	private static final int ANIMATION_RUNNING = 3;
+	private static final int ANIMATION_FLYING = 4;
 
-	private final static float @NonNull [] ANIMATION_SPEEDS;
+	private static final float @NonNull [] ANIMATION_SPEEDS;
 
-	private final static int INITIAL_SUPPLIES = 1;
-	private final static float METERS_PER_SECOND = 8f;
-	private final static int MAX_MOVE_GRIDS = 5;
+	private static final int INITIAL_SUPPLIES = 1;
+	private static final float METERS_PER_SECOND = 8f;
+	private static final int MAX_MOVE_GRIDS = 5;
 
 	private final @NonNull PathTracker path_tracker;
 	private final int start_grid_x;

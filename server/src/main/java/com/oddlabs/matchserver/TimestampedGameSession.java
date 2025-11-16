@@ -7,29 +7,29 @@ import com.oddlabs.matchmaking.Participant;
 import java.sql.SQLException;
 
 public final class TimestampedGameSession {
-	private final static long JOIN_MAX_TIME = 3*60*1000;
-	private final static long END_GAME_MIN_TIME = 1*60*1000; // replace with clients reporting back there end time
+	private static final long JOIN_MAX_TIME = 3*60*1000;
+	private static final long END_GAME_MIN_TIME = 1*60*1000; // replace with clients reporting back there end time
 
-	private final static int PARTICIPANT_UNKNOWN = 0;
-	private final static int PARTICIPANT_JOINED = 1;
-	private final static int PARTICIPANT_FREE_QUIT = 2;
-	private final static int PARTICIPANT_QUIT = 3;
-	private final static int PARTICIPANT_LOST = 4;
-	private final static int PARTICIPANT_WON = 5;
+	private static final int PARTICIPANT_UNKNOWN = 0;
+	private static final int PARTICIPANT_JOINED = 1;
+	private static final int PARTICIPANT_FREE_QUIT = 2;
+	private static final int PARTICIPANT_QUIT = 3;
+	private static final int PARTICIPANT_LOST = 4;
+	private static final int PARTICIPANT_WON = 5;
 
-	private final static String[] PARTICIPANT_DEBUG_CHARS = {"U", "J", "F", "Q", "L", "W"};
+	private static final String[] PARTICIPANT_DEBUG_CHARS = {"U", "J", "F", "Q", "L", "W"};
 	
-	private final static int TEAM_UNKNOWN = 0;
-	private final static int TEAM_QUIT = 1;
-	private final static int TEAM_LOST = 2;
-	private final static int TEAM_WON = 3;
+	private static final int TEAM_UNKNOWN = 0;
+	private static final int TEAM_QUIT = 1;
+	private static final int TEAM_LOST = 2;
+	private static final int TEAM_WON = 3;
 
-	private final static int GAME_STARTING = 1;
-	private final static int GAME_ALL_JOINED = 2;
-	private final static int GAME_INVALID = 3;
+	private static final int GAME_STARTING = 1;
+	private static final int GAME_ALL_JOINED = 2;
+	private static final int GAME_INVALID = 3;
 
-	private final static float STATUS_WINNING_FACTOR = 2f;
-	private final static int STATUS_WINNING_TICK = 10000;
+	private static final float STATUS_WINNING_FACTOR = 2f;
+	private static final int STATUS_WINNING_TICK = 10000;
 
 	private final long create_timestamp;
 	private final int[] participant_state;

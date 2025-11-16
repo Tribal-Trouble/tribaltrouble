@@ -36,23 +36,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class Building extends Selectable implements Occupant {
-	private final static float REMOVE_DELAY = 1f/10f;
+	private static final float REMOVE_DELAY = 1f/10f;
 
     public enum BuildState {
         START, HALFBUILT, BUILT
     }
 
-    private final static int PLACING_BORDER = 1;
-	private final static int MAX_SUPPLY_COUNT = 200;
+    private static final int PLACING_BORDER = 1;
+	private static final int MAX_SUPPLY_COUNT = 200;
 
 	@SuppressWarnings({"unchecked"})
-	public final static Cost COST_ROCK_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class}, new int[]{2, 1});
+	public static final Cost COST_ROCK_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class}, new int[]{2, 1});
 	@SuppressWarnings({"unchecked"})
-	public final static Cost COST_IRON_WEAPON = new Cost(new Class[]{TreeSupply.class, IronSupply.class}, new int[]{2, 1});
+	public static final Cost COST_IRON_WEAPON = new Cost(new Class[]{TreeSupply.class, IronSupply.class}, new int[]{2, 1});
 	@SuppressWarnings({"unchecked"})
-	public final static Cost COST_RUBBER_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class, IronSupply.class, RubberSupply.class}, new int[]{2, 1, 1, 1});
+	public static final Cost COST_RUBBER_WEAPON = new Cost(new Class[]{TreeSupply.class, RockSupply.class, IronSupply.class, RubberSupply.class}, new int[]{2, 1, 1, 1});
 
-	private final static float DAMAGED_PARTICLE_ALPHA = 3f;
+	private static final float DAMAGED_PARTICLE_ALPHA = 3f;
 
 	private final Map<Class<?>, SupplyContainer> supply_containers = new HashMap<>();
 	private final Map<Class<?>, BuildProductionContainer> build_containers = new HashMap<>();

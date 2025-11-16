@@ -5,9 +5,9 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 final class GridNode extends Node {
-	private final static DirectionNode[][] dir_node_grid = new DirectionNode[3][3];
+	private static final DirectionNode[][] dir_node_grid = new DirectionNode[3][3];
 
-	private final static GridNode[] @NonNull [] pathfinder_grid;
+	private static final GridNode[] @NonNull [] pathfinder_grid;
 	private final int local_grid_x;
 	private final int local_grid_y;
 	private Offset offset;
@@ -122,7 +122,7 @@ final class GridNode extends Node {
 				addNeighbour(finder, unit_grid, x + 1, y + 1, RegionBuilder.DIAGONAL);
 	}
 
-	final static class Offset {
+	static final class Offset {
 		final int offset_x;
 		final int offset_y;
 

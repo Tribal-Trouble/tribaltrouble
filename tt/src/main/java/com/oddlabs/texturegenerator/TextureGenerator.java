@@ -21,9 +21,9 @@ import org.lwjgl.opengl.PixelFormat;
 import java.io.File;
 
 public final class TextureGenerator {
-	private final static int LOW_DETAIL_TEX_SIZE = 256;
-	private final static int LOWDETAIL_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
-	private final static int CROWN_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
+	private static final int LOW_DETAIL_TEX_SIZE = 256;
+	private static final int LOWDETAIL_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
+	private static final int CROWN_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
 
 	void main(@NonNull String @NonNull ... args) throws LWJGLException {
 		assert args.length == 1;

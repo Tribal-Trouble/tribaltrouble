@@ -8,17 +8,17 @@ import com.oddlabs.tt.render.SpriteKey;
 import org.jspecify.annotations.NonNull;
 
 public final class Race {
-	public final static int BUILDING_QUARTERS = 0;
-	public final static int BUILDING_ARMORY = 1;
-	public final static int BUILDING_TOWER = 2;
+	public static final int BUILDING_QUARTERS = 0;
+	public static final int BUILDING_ARMORY = 1;
+	public static final int BUILDING_TOWER = 2;
 
-	public final static int NUM_BUILDINGS = 3;
+	public static final int NUM_BUILDINGS = 3;
 
-	public final static int UNIT_WARRIOR_ROCK = 0;
-	public final static int UNIT_WARRIOR_IRON = 1;
-	public final static int UNIT_WARRIOR_RUBBER = 2;
-	public final static int UNIT_PEON = 3;
-	public final static int UNIT_CHIEFTAIN = 4;
+	public static final int UNIT_WARRIOR_ROCK = 0;
+	public static final int UNIT_WARRIOR_IRON = 1;
+	public static final int UNIT_WARRIOR_RUBBER = 2;
+	public static final int UNIT_PEON = 3;
+	public static final int UNIT_CHIEFTAIN = 4;
 
 	private final @NonNull BuildingTemplate[] buildings = new BuildingTemplate[NUM_BUILDINGS];
 	private final @NonNull UnitTemplate[] units = new UnitTemplate[5];

@@ -10,10 +10,10 @@ public final class GameSession implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 2768150608081852612L;
 
-	public final static int MIN_WINS_FOR_RANKING = 5;
+	public static final int MIN_WINS_FOR_RANKING = 5;
 	
-	public final static int WIN = 0;
-	public final static int LOSE = 1;
+	public static final int WIN = 0;
+	public static final int LOSE = 1;
 
 	private final int session_id;
 	private final Participant[] participants;

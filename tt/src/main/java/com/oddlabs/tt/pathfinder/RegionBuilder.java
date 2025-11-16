@@ -6,15 +6,15 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class RegionBuilder {
-	public final static int MAX_EXAMINED_NODES_PER_PATH = 600;
-	public final static int REGION_PATH_MAX_COST = 70;
-	public final static int MAX_PATH_COST = 1024;
-	public final static int GRID_SIZE = 128;
+	public static final int MAX_EXAMINED_NODES_PER_PATH = 600;
+	public static final int REGION_PATH_MAX_COST = 70;
+	public static final int MAX_PATH_COST = 1024;
+	public static final int GRID_SIZE = 128;
 
-	public final static int DIAGONAL = 3;
-	public final static int STRAIGHT = 2;
+	public static final int DIAGONAL = 3;
+	public static final int STRAIGHT = 2;
 
-	private final static Occupant unreachable_obj = new StaticOccupant();
+	private static final Occupant unreachable_obj = new StaticOccupant();
 
 	public static void buildRegions(@NonNull UnitGrid unit_grid, float start_x_f, float start_y_f) {
 		boolean[][] access_grid = unit_grid.getHeightMap().getAccessGrid();

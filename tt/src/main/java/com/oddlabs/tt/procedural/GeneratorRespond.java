@@ -8,7 +8,7 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public final class GeneratorRespond extends TextureGenerator {
-	private final static int COLOR = 0x80808080;
+	private static final int COLOR = 0x80808080;
 
 	@Override
 	public Texture @NonNull [] generate() {

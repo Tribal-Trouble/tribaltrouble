@@ -7,23 +7,23 @@ import java.io.Serializable;
 
 public final class Game implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 3;
+	private static final long serialVersionUID = 3;
 
-	public final static int SIZE_SMALL = 0;
-	public final static int SIZE_MEDIUM = 1;
-	public final static int SIZE_LARGE = 2;
+	public static final int SIZE_SMALL = 0;
+	public static final int SIZE_MEDIUM = 1;
+	public static final int SIZE_LARGE = 2;
 
-	public final static int TERRAIN_TYPE_NATIVE = 0;
-	public final static int TERRAIN_TYPE_VIKING = 1;
+	public static final int TERRAIN_TYPE_NATIVE = 0;
+	public static final int TERRAIN_TYPE_VIKING = 1;
 
-	public final static int GAMESPEED_PAUSE = 0;
-	public final static int GAMESPEED_SLOW = 1;
-	public final static int GAMESPEED_NORMAL = 2;
-	public final static int GAMESPEED_FAST = 3;
-	public final static int GAMESPEED_LUDICROUS = 4;
+	public static final int GAMESPEED_PAUSE = 0;
+	public static final int GAMESPEED_SLOW = 1;
+	public static final int GAMESPEED_NORMAL = 2;
+	public static final int GAMESPEED_FAST = 3;
+	public static final int GAMESPEED_LUDICROUS = 4;
 	
-	public final static int MIN_LENGTH = 2;
-	public final static int MAX_LENGTH = 30;
+	public static final int MIN_LENGTH = 2;
+	public static final int MAX_LENGTH = 30;
 	
 	private final @NonNull String game_name;
 	private final byte size;

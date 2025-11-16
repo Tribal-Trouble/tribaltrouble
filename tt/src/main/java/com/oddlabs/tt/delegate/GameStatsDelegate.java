@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public final class GameStatsDelegate extends CameraDelegate implements Updatable {
-	private final static int PLAYER_COLUMN_WIDTH = 100;
-	private final static int TEXT_OFFSET = -4;
-	public final static ResourceBundle bundle = ResourceBundle.getBundle(GameStatsDelegate.class.getName());
+	private static final int PLAYER_COLUMN_WIDTH = 100;
+	private static final int TEXT_OFFSET = -4;
+	public static final ResourceBundle bundle = ResourceBundle.getBundle(GameStatsDelegate.class.getName());
 
 	private final TimerAnimation delay_timer = new TimerAnimation(this, .6f);
 	private final @NonNull Group group_buttons;

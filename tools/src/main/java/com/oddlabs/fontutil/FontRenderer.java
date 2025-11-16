@@ -19,11 +19,11 @@ import java.io.File;
 import java.io.InputStream;
 
 public final class FontRenderer {
-	private final static int GLYPH_X_BORDER = 4;
-	private final static int GLYPH_Y_BORDER = 3;
-	private final static int GLYPH_X_OVERLAP = 7;
-	private final static int GLYPH_Y_OVERLAP = 5;
-	private final static float SPACE_SCALE = 0.66666f;
+	private static final int GLYPH_X_BORDER = 4;
+	private static final int GLYPH_Y_BORDER = 3;
+	private static final int GLYPH_X_OVERLAP = 7;
+	private static final int GLYPH_Y_OVERLAP = 5;
+	private static final float SPACE_SCALE = 0.66666f;
 
 	static void main(@NonNull String @NonNull ... args) throws Exception {
         if (7 != args.length) {

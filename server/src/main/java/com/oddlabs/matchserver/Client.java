@@ -26,9 +26,9 @@ import java.util.Random;
 import java.util.Set;
 
 public final class Client implements MatchmakingServerInterface, ConnectionInterface {
-	private final static int CHUNK_SIZE = 10;
-	private final static Set<Client> game_hosts = new HashSet<>();
-	private final static Map<String, Client> active_clients = new HashMap<>();
+	private static final int CHUNK_SIZE = 10;
+	private static final Set<Client> game_hosts = new HashSet<>();
+	private static final Map<String, Client> active_clients = new HashMap<>();
 
 	private static int current_random_seed = 1;
 

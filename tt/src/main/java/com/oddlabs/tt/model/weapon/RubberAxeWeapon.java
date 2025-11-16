@@ -12,8 +12,8 @@ public final class RubberAxeWeapon extends RotatingThrowingWeapon {
 	private final float ROTS_PER_SECOND = 9;
 	private final float ANGLE_DELTA = ROTS_PER_SECOND*360f;
 	private final int MAX_BOUNDS_LENGTH = 3;
-	private final static float METERS_PER_SECOND = 30; //multiplied by meters/second (in 2D)
-	private final static float BOUNCING_METERS_PER_SECOND = 10; //multiplied by meters/second (in 2D)
+	private static final float METERS_PER_SECOND = 30; //multiplied by meters/second (in 2D)
+	private static final float BOUNCING_METERS_PER_SECOND = 10; //multiplied by meters/second (in 2D)
 
 	private boolean bouncing = false;
 

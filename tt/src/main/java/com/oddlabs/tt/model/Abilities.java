@@ -4,27 +4,27 @@ import org.jspecify.annotations.NonNull;
 
 public final class Abilities {
     // No abilities
-    public final static int NONE = 0;
+    public static final int NONE = 0;
     // Can build/repair buildings
-    public final static int BUILD = 1;
+    public static final int BUILD = 1;
     // Can attack other units
-    public final static int ATTACK = 2;
+    public static final int ATTACK = 2;
     // Can harvest resources
-    public final static int HARVEST = 4;
+    public static final int HARVEST = 4;
     // contains supplies
-    public final static int SUPPLY_CONTAINER = 8;
+    public static final int SUPPLY_CONTAINER = 8;
     // builds warriors
-    public final static int BUILD_ARMIES = 16;
+    public static final int BUILD_ARMIES = 16;
     // creates peons
-    public final static int REPRODUCE = 32;
+    public static final int REPRODUCE = 32;
     // Can target other units
-    public final static int TARGET = 64;
+    public static final int TARGET = 64;
     // Can throw weapon
-    public final static int THROW = 128;
+    public static final int THROW = 128;
     // Can be a rally target
-    public final static int RALLY_TO = 256;
+    public static final int RALLY_TO = 256;
     // Can use magic
-    public final static int MAGIC = 512;
+    public static final int MAGIC = 512;
 
     private int abilities;
 

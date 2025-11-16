@@ -8,8 +8,8 @@ import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 
 public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond> implements Animated {
-	public final static int SIZE = 128;
-	private final static float SECOND_PER_PICK_RESPOND = 1f/3f;
+	public static final int SIZE = 128;
+	private static final float SECOND_PER_PICK_RESPOND = 1f/3f;
 
 	private float time;
 

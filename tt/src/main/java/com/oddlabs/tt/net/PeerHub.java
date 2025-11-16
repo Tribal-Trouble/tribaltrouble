@@ -35,14 +35,14 @@ import java.util.logging.Logger;
 
 public final class PeerHub implements Animated, RouterHandler {
     private static final String ROUTER_ADDRESS = "127.0.0.1";
-	public final static ResourceBundle bundle = ResourceBundle.getBundle(PeerHub.class.getName());
-	public final static @NonNull String SYSTEM_NAME = Utils.getBundleString(bundle, "system_name");
+	public static final ResourceBundle bundle = ResourceBundle.getBundle(PeerHub.class.getName());
+	public static final @NonNull String SYSTEM_NAME = Utils.getBundleString(bundle, "system_name");
 
-	private final static int MILLISECONDS_PER_HEARTBEAT = 60;
-	private final static int CLIENT_MAX_DELAY_MILLIS = 60;
-	private final static float FREE_QUIT_TIME = 120f;
-	private final static int TICKS_PER_STATUS_UPDATE = (int)(20/AnimationManager.ANIMATION_SECONDS_PER_TICK);
-	private final static int TICKS_PER_CHECKSUM = (int)(10/AnimationManager.ANIMATION_SECONDS_PER_TICK);
+	private static final int MILLISECONDS_PER_HEARTBEAT = 60;
+	private static final int CLIENT_MAX_DELAY_MILLIS = 60;
+	private static final float FREE_QUIT_TIME = 120f;
+	private static final int TICKS_PER_STATUS_UPDATE = (int)(20/AnimationManager.ANIMATION_SECONDS_PER_TICK);
+	private static final int TICKS_PER_CHECKSUM = (int)(10/AnimationManager.ANIMATION_SECONDS_PER_TICK);
 
 	private static boolean waiting_for_ack = false;
 

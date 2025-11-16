@@ -20,11 +20,11 @@ import java.util.List;
 
 final class LightningRenderer {
 
-    private final static float SQRT_2 = (float) Math.sqrt(2f);
-    private final static Vector3f right_vector = new Vector3f();
+    private static final float SQRT_2 = (float) Math.sqrt(2f);
+    private static final Vector3f right_vector = new Vector3f();
 
-    private final static Matrix4f view_matrix = new Matrix4f();
-    private final static CameraState tmp_camera = new CameraState();
+    private static final Matrix4f view_matrix = new Matrix4f();
+    private static final CameraState tmp_camera = new CameraState();
 
     private static final int MAX_PARTICLES = 1000;
     private static final int FLOATS_PER_PARTICLE = 72; // 8 vertices * 9 floats (x,y,z,u,v,r,g,b,a)

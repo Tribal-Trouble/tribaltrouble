@@ -22,7 +22,7 @@ public final class PathTracker {
         OK,OK_INTERRUPTIBLE,DONE,SOFTBLOCKED,BLOCKED
     }
 
-    private final static int REGION_SEARCH_TRIES = 4;
+    private static final int REGION_SEARCH_TRIES = 4;
 
 	private final @NonNull BezierPath bezier_path;
 	private final @NonNull UnitGrid unit_grid;

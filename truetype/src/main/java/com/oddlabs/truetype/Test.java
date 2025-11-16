@@ -21,14 +21,14 @@ import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 
 public final class Test {
-	private final static int WIDTH = 1024;
-	private final static int HEIGHT = 1024;
-	private final static int DISPLAY_WIDTH = 1280;
-	private final static int DISPLAY_HEIGHT = 1024;
-	private final static float RENDER_SIZE = WIDTH*1f;
+	private static final int WIDTH = 1024;
+	private static final int HEIGHT = 1024;
+	private static final int DISPLAY_WIDTH = 1280;
+	private static final int DISPLAY_HEIGHT = 1024;
+	private static final float RENDER_SIZE = WIDTH*1f;
 
-	private final static BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
-	private final static Graphics2D g2d = (Graphics2D)image.getGraphics();
+	private static final BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
+	private static final Graphics2D g2d = (Graphics2D)image.getGraphics();
 
     static void main(String... args) {
 		try {

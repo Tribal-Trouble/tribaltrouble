@@ -34,9 +34,9 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 
 public final class KeyManager {
-	private final static int KEY_SIZE = 1024;
-	public final static String AGREEMENT_ALGORITHM = "DH";
-	private final static String PASSWORD_ALGORITHM = "PBEWithMD5AndDES";
+	private static final int KEY_SIZE = 1024;
+	public static final String AGREEMENT_ALGORITHM = "DH";
+	private static final String PASSWORD_ALGORITHM = "PBEWithMD5AndDES";
 
 	public static AlgorithmParameterSpec generateParameterSpec() throws GeneralSecurityException {
 		AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator.getInstance(AGREEMENT_ALGORITHM);

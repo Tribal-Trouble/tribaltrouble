@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 public final class ChatRoomEntry implements Serializable {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
 	private final String name;
 	private final int num_joined;

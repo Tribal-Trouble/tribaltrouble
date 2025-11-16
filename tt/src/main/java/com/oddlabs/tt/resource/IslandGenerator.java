@@ -23,11 +23,11 @@ import java.util.List;
 
 public final class IslandGenerator implements WorldGenerator {
 	@Serial
-	private final static long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
-	private final static int TEXELS_PER_CHUNK = 512;
-	private final static int IDEAL_TEXELS_PER_DETAIL = 256;
-	private final static float IDEAL_DETAIL_ALPHA = .15f;
+	private static final int TEXELS_PER_CHUNK = 512;
+	private static final int IDEAL_TEXELS_PER_DETAIL = 256;
+	private static final float IDEAL_DETAIL_ALPHA = .15f;
 
 	private final int meters_per_world;
 	private final Landscape.@NonNull TerrainType terrain;

@@ -41,9 +41,9 @@ import java.util.Set;
 public final class MatchmakingClient implements MatchmakingClientInterface, ConnectionInterface {
     private static final String MATCHMAKING_HOST = "127.0.0.1";
 
-	private final static int STATE_NOT_CONNECTED = 1;
-	private final static int STATE_AWAITING_OK = 2;
-	private final static int STATE_LOGGED_IN = 4;
+	private static final int STATE_NOT_CONNECTED = 1;
+	private static final int STATE_AWAITING_OK = 2;
+	private static final int STATE_LOGGED_IN = 4;
 
 	private final Map<HostSequenceID,TunnelledConnection> tunnels = new HashMap<>();
 	private final ARMIInterfaceMethods interface_methods = new ARMIInterfaceMethods(MatchmakingClientInterface.class);

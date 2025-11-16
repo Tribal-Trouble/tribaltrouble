@@ -18,7 +18,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public final class Login extends HttpServlet {
-	private final static String SIGN_ALGORITHM = "SHA1WithRSA";
+	private static final String SIGN_ALGORITHM = "SHA1WithRSA";
 
 	private PrivateKey getPrivateKey() {
 		return (PrivateKey)getServletContext().getAttribute("private_key");

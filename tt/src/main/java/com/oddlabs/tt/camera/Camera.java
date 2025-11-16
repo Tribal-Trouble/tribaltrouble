@@ -20,8 +20,8 @@ import java.nio.IntBuffer;
  * The View
  */
 public abstract class Camera implements Animated {
-    private final static float LANDSCAPE_OFFSET = 5f;
-    private final static float SMOOTHNESS_FACTOR = 15;
+    private static final float LANDSCAPE_OFFSET = 5f;
+    private static final float SMOOTHNESS_FACTOR = 15;
 
     private final IntBuffer viewport = BufferUtils.createIntBuffer(16);
     private final Matrix4f proj = new Matrix4f();

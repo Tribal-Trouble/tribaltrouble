@@ -6,11 +6,11 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
 public abstract class Deterministic {
-	protected final static int BUFFER_SIZE = 4096;
-	protected final static int DEFAULTS_SIZE = 2;
-	protected final static int MIN_DEFAULTS = Short.MIN_VALUE;
+	protected static final int BUFFER_SIZE = 4096;
+	protected static final int DEFAULTS_SIZE = 2;
+	protected static final int MIN_DEFAULTS = Short.MIN_VALUE;
 
-	private final static long CHECKPOINT_SIGNATURE = 0xdeadbabecafebeefL;
+	private static final long CHECKPOINT_SIGNATURE = 0xdeadbabecafebeefL;
 
 	private boolean enabled = true;
 

@@ -7,7 +7,7 @@ import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 
 public final class CounterLabel extends Label implements Animated {
-	private final static String colon = ":";
+	private static final String colon = ":";
 	private final float initial_seconds;
 	private final boolean render_seconds;
 	private AnimationManager manager;

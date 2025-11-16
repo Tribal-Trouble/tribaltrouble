@@ -7,8 +7,8 @@ import com.oddlabs.tt.landscape.HeightMap;
 import org.lwjgl.input.Keyboard;
 
 public final class FirstPersonCamera extends Camera {
-    private final static float SCALE_HORIZ = .002f;
-    private final static float SCALE_VERT = .002f;
+    private static final float SCALE_HORIZ = .002f;
+    private static final float SCALE_VERT = .002f;
 
     private final int last_x;
     private final int last_y;

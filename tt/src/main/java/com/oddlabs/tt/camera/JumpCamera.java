@@ -5,8 +5,8 @@ import com.oddlabs.tt.delegate.JumpDelegate;
 import org.jspecify.annotations.NonNull;
 
 public final class JumpCamera extends Camera {
-    private final static float DEFAULT_METERS_PER_SECOND = 300f;
-    private final static float DEFAULT_MAX_SECONDS = .5f;
+    private static final float DEFAULT_METERS_PER_SECOND = 300f;
+    private static final float DEFAULT_MAX_SECONDS = .5f;
 
     private final @NonNull CameraDelegate delegate;
 

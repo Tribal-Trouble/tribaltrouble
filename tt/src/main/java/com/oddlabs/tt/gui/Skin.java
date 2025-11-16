@@ -22,9 +22,9 @@ import java.io.IOException;
 import java.net.URL;
 
 public final class Skin {
-	public final static int NORMAL = 0;
-	public final static int ACTIVE = 1;
-	public final static int DISABLED = 2;
+	public static final int NORMAL = 0;
+	public static final int ACTIVE = 1;
+	public static final int DISABLED = 2;
 
 	private static Skin skin;
 

@@ -160,7 +160,7 @@ public final class LandscapeRenderer implements Animated {
         doPrepareAll(camera, visible_override, render_list);
     }
 
-    private final static Visitor patch_visitor = new Visitor();
+    private static final Visitor patch_visitor = new Visitor();
 
     private void doPrepareAll(@NonNull CameraState camera, final boolean visible_override, @NonNull Collection<LandscapeLeaf> result) {
         endEdit();
@@ -306,7 +306,7 @@ public final class LandscapeRenderer implements Animated {
         GL11.glDrawElements(GL11.GL_TRIANGLES, shadow_indices_buffer);
     }
 
-    private final static class Visitor implements PatchGroupVisitor {
+    private static final class Visitor implements PatchGroupVisitor {
 
         private CameraState camera;
         private boolean visible_override;

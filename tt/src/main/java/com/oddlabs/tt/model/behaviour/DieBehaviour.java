@@ -4,11 +4,11 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 
 public final class DieBehaviour implements Behaviour {
-	private final static float SECONDS_PER_DEATH = 3f;
-	private final static float LYING_SECONDS = 1f;
-	private final static float MOVING_SECONDS = 60f;
+	private static final float SECONDS_PER_DEATH = 3f;
+	private static final float LYING_SECONDS = 1f;
+	private static final float MOVING_SECONDS = 60f;
 
-	private final static int MOVING_METERS = 3;
+	private static final int MOVING_METERS = 3;
 
     enum DieState {
         DYING,

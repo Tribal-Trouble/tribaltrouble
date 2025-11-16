@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ChatHistory implements ChatListener {
-	private final static int MAX_HISTORY = 50;
+	private static final int MAX_HISTORY = 50;
 
 	private final List<String> messages = new ArrayList<>(MAX_HISTORY);
 
