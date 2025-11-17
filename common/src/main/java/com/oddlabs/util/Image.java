@@ -12,6 +12,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serial;
 import java.io.Serializable;
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -33,19 +34,17 @@ public final class Image implements Serializable {
 	}	
 	
 	public static Image read(@NonNull URL url) {
-		try {
-			return (Image)(new ObjectInputStream(new BufferedInputStream(url.openStream()))).readObject();
+		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(url.openStream()))) {
+			return (Image) ois.readObject();
 		} catch (ClassNotFoundException | IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
 	private static void write(Image image, OutputStream os) throws IOException {
-            try (ObjectOutputStream oos = new ObjectOutputStream(os)) {
-                oos.writeObject(image);
-                //	oos.flush();
-                //	oos.reset();
-            }
+        try (ObjectOutputStream oos = new ObjectOutputStream(os)) {
+            oos.writeObject(image);
+        }
 		
 	}
 
@@ -56,14 +55,15 @@ public final class Image implements Serializable {
 	public void write(@NonNull File file) {
 		data.rewind();
 		//Utils.saveAsPNG(filename, data, width, height);
-		try {
-			write(this, new BufferedOutputStream(new FileOutputStream(file)));
+		try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))){
+			write(this, bos);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 	
-	private void writeObject(@NonNull ObjectOutputStream stream) throws IOException {
+	@Serial
+    private void writeObject(@NonNull ObjectOutputStream stream) throws IOException {
 		stream.defaultWriteObject();
 		
 		data.rewind();
@@ -72,7 +72,8 @@ public final class Image implements Serializable {
 		stream.write(split.array());
 	}
 
-	private void readObject(@NonNull ObjectInputStream stream) throws IOException, ClassNotFoundException {
+	@Serial
+    private void readObject(@NonNull ObjectInputStream stream) throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
 		
 		int length = width*height*4;
