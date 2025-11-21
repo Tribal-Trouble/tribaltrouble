@@ -1,9 +1,9 @@
 import net.ltgt.gradle.errorprone.errorprone
-import net.ltgt.gradle.errorprone.CheckSeverity
 
 plugins {
     java
     id("net.ltgt.errorprone") version "4.3.0" apply false
+    id("net.ltgt.nullaway") version "2.3.0" apply false
 }
 
 allprojects {
@@ -19,6 +19,7 @@ subprojects {
     dependencies {
         implementation("org.jspecify:jspecify:1.0.0")
         "errorprone"("com.google.errorprone:error_prone_core:2.44.0")
+        "errorprone"("com.uber.nullaway:nullaway:0.12.12")
     }
 
     java {
@@ -28,7 +29,9 @@ subprojects {
 
     tasks.withType<JavaCompile>().configureEach {
         options.errorprone {
-            disable( "IntLongMath",
+            option("NullAway:AnnotatedPackages", "com.oddlabs")
+
+            disable( "NullAway", "IntLongMath",
                 "NarrowingCompoundAssignment", "InstanceOfAndCastMatchWrongType",
                 "TimeUnitConversionChecker", "UnusedNestedClass", "SameNameButDifferent", "AssignmentExpression",
                 "NullablePrimitive", "ObjectToString", "FallThrough", "ByteBufferBackingArray",
