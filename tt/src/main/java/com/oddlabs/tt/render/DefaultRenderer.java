@@ -239,7 +239,7 @@ public final class DefaultRenderer implements UIRenderer {
         renderRallyPoint(frustum_state);
         
         fog_info.disableFog();
-        if (Globals.line_mode || (cheat.line_mode)) {
+        if (Globals.line_mode || cheat.line_mode) {
             GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL); 
             GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_FILL);
         }

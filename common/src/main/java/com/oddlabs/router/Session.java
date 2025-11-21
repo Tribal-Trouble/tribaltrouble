@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 final class Session {
 	public final SessionInfo info;
@@ -134,9 +135,7 @@ final class Session {
 	@Override
 	public @NonNull String toString() {
 		String result = "(Session: info = " + info + " players : (";
-            for (RouterClient player : players) {
-                result += player.toString() + " ";
-            }
+        result += players.stream().map(RouterClient::toString).collect(Collectors.joining(" "));
 		return result + "))";
 	}
 }

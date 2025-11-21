@@ -392,6 +392,11 @@ public final class Sky {
         }
 
         @Override
+        public int hashCode() {
+            return Float.hashCode(theta);
+        }
+
+        @Override
         public final boolean equals(Object o) {
             return o == this || o instanceof SkyStitchVertex other && other.theta == theta;
         }

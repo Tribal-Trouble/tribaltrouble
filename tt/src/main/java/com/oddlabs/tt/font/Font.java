@@ -13,7 +13,7 @@ import org.lwjgl.opengl.GL11;
 public final class Font {
 	private final @NonNull Quad[] key_array;
 	private final @NonNull Texture texture;
-	private final @NonNull int x_border;
+	private final int x_border;
 	private final int y_border;
 	private final int height;
 
