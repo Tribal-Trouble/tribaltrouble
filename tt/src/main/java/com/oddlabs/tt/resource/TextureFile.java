@@ -12,21 +12,38 @@ import org.lwjgl.opengl.GL11;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * Defines the properties and loading parameters for a texture resource.
+ * This class specifies how a texture should be loaded and configured in OpenGL.
+ */
 public final class TextureFile extends File<Texture> {
+	/** The internal format of the texture, e.g., GL_RGBA or a compressed format. */
 	private final int internal_format;
+	/** The minification filter, used when the texture is scaled down. */
 	private final int min_filter;
+	/** The magnification filter, used when the texture is scaled up. */
 	private final int mag_filter;
+	/** The wrap mode for the S (U) texture coordinate. */
 	private final int wrap_s;
+	/** The wrap mode for the T (V) texture coordinate. */
 	private final int wrap_t;
+	/** The base mipmap level for fadeout effects. */
 	private final int base_fadeout_level;
+	/** The maximum mipmap level to generate and use. */
 	private final int max_mipmap_level;
+	/** The factor by which mipmap levels fade out. */
 	private final float fadeout_factor;
+	/** If true, alpha values are maximized during processing. */
 	private final boolean max_alpha;
+	/** If true, the texture is a DXT compressed image. */
 	private final boolean is_dxt;
 
 	public TextureFile(String location) {
@@ -59,48 +76,31 @@ public final class TextureFile extends File<Texture> {
 		this.max_alpha = max_alpha;
 	}
 
-	private static @Nullable URL locate(@NonNull String location_with_ext) {
+	private static @Nullable URI locate(@NonNull String location_with_ext) {
 		URL url_classpath = Utils.class.getResource(location_with_ext);
-		if (url_classpath != null)
-			return url_classpath;
-		try {
-			Path file =  com.oddlabs.tt.util.Utils.getInstallDir().resolve(location_with_ext);
-			if (Files.isRegularFile(file) && Files.isReadable(file)) {
-				return file.toUri().toURL();
-            }
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-		return null;
+		if (url_classpath != null) try {
+            return url_classpath.toURI();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e);
+        }
+        Path file = com.oddlabs.tt.util.Utils.getInstallDir().resolve(location_with_ext);
+        return Files.isRegularFile(file) && Files.isReadable(file) ? file.toUri() : null;
 	}
 
-	private static @Nullable URL locateDXT(String location) {
+	private static @Nullable URI locateDXT(String location) {
 		return locate(location + ".dxtn");
 	}
 
-	private static @NonNull URL locateTexture(String location) {
-		URL url = locateDXT(location);
+	private static @NonNull URI locateTexture(String location) {
+		URI url = locateDXT(location);
 		if (url != null)
 			return url;
-
-/*		String location_jpg = location + ".jpg";
-		URL url_jpg = Utils.class.getResource(location_jpg);
-		if (url_jpg != null)
-			return url_jpg;*/
 
 		url = locate(location + ".image");
 		if (url != null)
 			return url;
 
-		throw new RuntimeException(location);
-	}
-
-	private BufferedImage readFile(@NonNull URL url) {
-		try {
-			return ImageIO.read(url);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		throw new IllegalArgumentException(location);
 	}
 
 	public boolean isDXTImage() {
@@ -111,7 +111,7 @@ public final class TextureFile extends File<Texture> {
 		try {
 			return DXTImage.read(getURL());
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 
@@ -127,14 +127,13 @@ public final class TextureFile extends File<Texture> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof TextureFile))
-			return false;
-		TextureFile other = (TextureFile)o;
-		if (internal_format != other.internal_format || min_filter != other.min_filter || mag_filter != other.mag_filter ||
-			max_mipmap_level != other.max_mipmap_level ||
-			wrap_s != other.wrap_s || wrap_t != other.wrap_t || base_fadeout_level != other.base_fadeout_level || fadeout_factor != other.fadeout_factor)
-			return false;
-		return super.equals(o);
+        return o instanceof TextureFile other &&
+                internal_format == other.internal_format &&
+                min_filter == other.min_filter && mag_filter == other.mag_filter &&
+                max_mipmap_level == other.max_mipmap_level &&
+                wrap_s == other.wrap_s && wrap_t == other.wrap_t &&
+                base_fadeout_level == other.base_fadeout_level && fadeout_factor == other.fadeout_factor &&
+                super.equals(o);
 	}
 
 	public int getInternalFormat() {

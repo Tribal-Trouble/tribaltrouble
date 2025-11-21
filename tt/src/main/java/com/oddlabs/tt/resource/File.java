@@ -15,16 +15,6 @@ public abstract class File<R> implements Supplier<R> {
 
     private final @NonNull URI uri;
 
-    protected File(@NonNull URL url) {
-        URI asURI;
-        try {
-            asURI = url.toURI();
-        } catch (URISyntaxException e) {
-            throw new UncheckedIOException(new IOException("unusable location: " + url, e));
-        }
-        this(asURI);
-    }
-
     public File(@NonNull URI uri) {
         this.uri = uri;
     }
@@ -42,11 +32,11 @@ public abstract class File<R> implements Supplier<R> {
     }
 
     @Override
-    public abstract R get();
+    public abstract @NonNull R get();
 
     @Override
-    public String toString() {
-        return uri.toASCIIString();
+    public @NonNull String toString() {
+        return getClass().getSimpleName() + "{uri=" + uri.toASCIIString() + '}';
     }
 
     @Override
@@ -56,8 +46,6 @@ public abstract class File<R> implements Supplier<R> {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof File<?> other))
-            return false;
-        return uri.equals(other.uri);
+        return o instanceof File<?> other && uri.equals(other.uri);
     }
 }

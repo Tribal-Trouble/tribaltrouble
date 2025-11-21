@@ -66,37 +66,59 @@ public abstract class GLImage {
 	public abstract GLImage createFromLayer(@NonNull Layer layer, int format);
 
 	public final GLImage @NonNull [] createMipMaps() {
-		GLImage[] result = buildMipMaps();
-		updateMipMapsArea(result, 10000, 1.0f, 0, 0, getWidth(), getHeight(), false);
-		return result;
+		return buildMipMaps();
 	}
 
 	public final GLImage @NonNull [] buildMipMaps() {
+		return buildMipMaps(10000, 1.0f);
+	}
+
+	public final GLImage @NonNull [] buildMipMaps(int base_fadeout_level, float fadeout_factor) {
 		int max = Math.max(height, width);
 		int max_level = (int)(Math.log(max)/Math.log(2));
 		GLImage[] result = new GLImage[max_level + 1];
 		result[0] = this;
 
-		// Convert the original GLImage to a Layer for bicubic scaling
+		// Convert the original GLImage to a Layer for high-quality bicubic scaling.
 		Layer originalLayer = this.toLayer();
 
 		for (int i = 1; i < result.length; i++) {
-			int current_width = width >> i; // Calculate target width for this mipmap level
-			int current_height = height >> i; // Calculate target height for this mipmap level
+			int current_width = Math.max(width >> i, 1);
+			int current_height = Math.max(height >> i, 1);
 
-			if (current_width == 0)
-				current_width = 1;
-			if (current_height == 0)
-				current_height = 1;
-
-			// Create a copy of the original layer and scale it bicubically
+			// Create a copy of the original layer and scale it down.
+			// This yields higher quality than averaging from the previous mipmap level.
 			Layer scaledLayer = originalLayer.copy();
 			scaledLayer.scaleCubic(current_width, current_height);
 
-			// Convert the scaled Layer back to the appropriate GLImage subclass
+			// Convert the scaled Layer back to a GLImage.
 			result[i] = createFromLayer(scaledLayer, format);
+
+			// Apply fadeout if the current mipmap level is at or beyond the base level.
+			if (i >= base_fadeout_level) {
+				applyFadeout(result[i], fadeout_factor);
+			}
 		}
 		return result;
+	}
+
+	private static void applyFadeout(GLImage image, float factor) {
+		for (int y = 0; y < image.getHeight(); y++) {
+			for (int x = 0; x < image.getWidth(); x++) {
+				int pixel = image.getPixel(x, y);
+				int a = (pixel >>> 24);
+				int r = (pixel >>> 16) & 0xff;
+				int g = (pixel >>> 8) & 0xff;
+				int b = pixel & 0xff;
+
+				a = (int) (a * factor);
+				r = (int) (r * factor);
+				g = (int) (g * factor);
+				b = (int) (b * factor);
+
+				image.putPixel(x, y, (a << 24) | (r << 16) | (g << 8) | b);
+			}
+		}
 	}
 
 	public static void updateMipMapsArea(GLImage @NonNull [] mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height, boolean max_alpha) {
@@ -134,7 +156,24 @@ public abstract class GLImage {
 		}
 	}
 
-/*	private static final int averagePixel(GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
+	/**
+	 * Calculates the average pixel value from a block of pixels in a source image,
+	 * used for generating mipmap levels. It can apply a fadeout effect and uses
+	 * the maximum alpha value from the source block instead of averaging if specified.
+	 *
+	 * @param last_img           The source image (previous mipmap level).
+	 * @param x                  The top-left x-coordinate of the block in the source image.
+	 * @param y                  The top-left y-coordinate of the block in the source image.
+	 * @param height_div         The height of the pixel block to average.
+	 * @param width_div          The width of the pixel block to average.
+	 * @param base_fadeout_level The mipmap level at which to begin applying fadeout.
+	 * @param fadeout_factor     The factor by which to reduce color components for fading.
+	 * @param current_level      The current mipmap level being generated.
+	 * @param max_alpha          If true, the resulting alpha is the maximum from the source block;
+	 *                           otherwise, it's the average.
+	 * @return The calculated 32-bit ARGB pixel value.
+	 */
+	private static int averagePixel(GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
 		float inv_num_averaged = 1f/(height_div * width_div);
 		int col1 = 0;
 		int col2 = 0;
@@ -167,8 +206,25 @@ public abstract class GLImage {
 			col4 = (int)(col4*inv_num_averaged);
 		return (col1 << 24) + (col2 << 16) + (col3 << 8) + col4;
 	}
-*/	
-	private static int averagePixel(@NonNull GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
+
+    /**
+	 * Calculates the average pixel value from a block of pixels in a source image.
+	 * This alternative implementation averages all channels, including alpha, and then
+     * applies a simple threshold to the averaged alpha if {@code max_alpha} is true.
+	 *
+	 * @param last_img           The source image (previous mipmap level).
+	 * @param x                  The top-left x-coordinate of the block in the source image.
+	 * @param y                  The top-left y-coordinate of the block in the source image.
+	 * @param height_div         The height of the pixel block to average.
+	 * @param width_div          The width of the pixel block to average.
+	 * @param base_fadeout_level The mipmap level at which to begin applying fadeout.
+	 * @param fadeout_factor     The factor by which to reduce color components for fading.
+	 * @param current_level      The current mipmap level being generated.
+	 * @param max_alpha          If true, sets alpha to 255 if the average is >= 128.
+	 * @return The calculated 32-bit ARGB pixel value.
+	 */
+
+	private static int averagePixelThreshold(@NonNull GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
 		float inv_num_averaged = 1f/(height_div * width_div);
 		int col1 = 0;
 		int col2 = 0;

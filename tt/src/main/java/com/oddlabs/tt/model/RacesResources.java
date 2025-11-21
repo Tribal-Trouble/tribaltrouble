@@ -222,54 +222,14 @@ public final class RacesResources {
 		lightning_texture = queues.registerTexture(new GeneratorLightning(), 0);
 		sonic_textures[0] = queues.registerTexture(new GeneratorSonic(), 0);
 
-		note_textures[0] = queues.registerTexture(new TextureFile("/textures/effects/note1",
+		for (int i = 0; i < note_textures.length; i++) {
+			note_textures[i] = queues.registerTexture(new TextureFile("/textures/effects/note" + (i + 1),
 					Globals.COMPRESSED_RGBA_FORMAT,
 					GL11.GL_LINEAR_MIPMAP_LINEAR,
 					GL11.GL_LINEAR,
 					GL11.GL_CLAMP,
 					GL11.GL_CLAMP));
-		note_textures[1] = queues.registerTexture(new TextureFile("/textures/effects/note2",
-					Globals.COMPRESSED_RGBA_FORMAT,
-					GL11.GL_LINEAR_MIPMAP_LINEAR,
-					GL11.GL_LINEAR,
-					GL11.GL_CLAMP,
-					GL11.GL_CLAMP));
-		note_textures[2] = queues.registerTexture(new TextureFile("/textures/effects/note3",
-					Globals.COMPRESSED_RGBA_FORMAT,
-					GL11.GL_LINEAR_MIPMAP_LINEAR,
-					GL11.GL_LINEAR,
-					GL11.GL_CLAMP,
-					GL11.GL_CLAMP));
-		note_textures[3] = queues.registerTexture(new TextureFile("/textures/effects/note4",
-					Globals.COMPRESSED_RGBA_FORMAT,
-					GL11.GL_LINEAR_MIPMAP_LINEAR,
-					GL11.GL_LINEAR,
-					GL11.GL_CLAMP,
-					GL11.GL_CLAMP));
-		note_textures[4] = queues.registerTexture(new TextureFile("/textures/effects/note5",
-					Globals.COMPRESSED_RGBA_FORMAT,
-					GL11.GL_LINEAR_MIPMAP_LINEAR,
-					GL11.GL_LINEAR,
-					GL11.GL_CLAMP,
-					GL11.GL_CLAMP));
-		note_textures[5] = queues.registerTexture(new TextureFile("/textures/effects/note6",
-					Globals.COMPRESSED_RGBA_FORMAT,
-					GL11.GL_LINEAR_MIPMAP_LINEAR,
-					GL11.GL_LINEAR,
-					GL11.GL_CLAMP,
-					GL11.GL_CLAMP));
-		note_textures[6] = queues.registerTexture(new TextureFile("/textures/effects/note7",
-					Globals.COMPRESSED_RGBA_FORMAT,
-					GL11.GL_LINEAR_MIPMAP_LINEAR,
-					GL11.GL_LINEAR,
-					GL11.GL_CLAMP,
-					GL11.GL_CLAMP));
-		note_textures[7] = queues.registerTexture(new TextureFile("/textures/effects/note8",
-					Globals.COMPRESSED_RGBA_FORMAT,
-					GL11.GL_LINEAR_MIPMAP_LINEAR,
-					GL11.GL_LINEAR,
-					GL11.GL_CLAMP,
-					GL11.GL_CLAMP));
+		}
 
 		star_textures[0] = queues.registerTexture(new TextureFile("/textures/effects/star",
 					Globals.COMPRESSED_RGBA_FORMAT,

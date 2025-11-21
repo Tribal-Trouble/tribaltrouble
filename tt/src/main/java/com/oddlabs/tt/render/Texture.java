@@ -85,9 +85,8 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 			this.width = img.getWidth();
 			this.height = img.getHeight();
 			GLImage[] mipmaps;
-			if (texture_file.getMinFilter() == GL11.GL_LINEAR_MIPMAP_LINEAR || texture_file.getMinFilter() == GL11.GL_LINEAR_MIPMAP_LINEAR) {
-				mipmaps = img.buildMipMaps();
-				GLImage.updateMipMapsArea(mipmaps, texture_file.getBaseFadeoutLevel(), texture_file.getFadeoutFactor(), 0, 0, width, height, texture_file.hasMaxAlpha());
+			if (texture_file.getMinFilter() == GL11.GL_LINEAR_MIPMAP_LINEAR || texture_file.getMinFilter() == GL11.GL_NEAREST_MIPMAP_LINEAR) {
+				mipmaps = img.buildMipMaps(texture_file.getBaseFadeoutLevel(), texture_file.getFadeoutFactor());
 			} else
 				mipmaps = new GLImage[]{img};
 			total_size = uploadTexture(mipmaps, texture_file.getInternalFormat(), texture_file.getMaxMipmapLevel());
