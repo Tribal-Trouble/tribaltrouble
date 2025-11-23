@@ -14,6 +14,8 @@ import com.oddlabs.tt.util.Utils;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_MID;
+
 public final class CreatingProfileForm extends Form implements ProfileListener {
 	private final Form profiles_form;
 	private final Menu main_menu;

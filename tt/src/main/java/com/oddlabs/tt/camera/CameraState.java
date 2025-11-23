@@ -1,9 +1,9 @@
 package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.util.StateChecksum;
-import org.jspecify.annotations.NonNull;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.jspecify.annotations.NonNull;
 
 public final class CameraState {
 	static final float MIN_ANGLE = -(float)Math.PI/2f;//+ 0.01f;

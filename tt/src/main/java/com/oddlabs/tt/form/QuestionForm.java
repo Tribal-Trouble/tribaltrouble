@@ -11,6 +11,9 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import org.jspecify.annotations.NonNull;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_MID;
+import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
+
 public class QuestionForm extends Form {
 	private final @NonNull HorizButton yes_button;
 

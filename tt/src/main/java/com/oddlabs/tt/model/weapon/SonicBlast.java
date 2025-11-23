@@ -11,10 +11,10 @@ import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.StateChecksum;
-import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 

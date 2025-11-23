@@ -1,9 +1,9 @@
 package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.render.shader.DebugShaderRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
-import com.oddlabs.util.Color;
 
 /**
  * Utilities for rendering debug shapes (boxes, lines, spheres, etc.) using a {@link DebugShaderRenderer}.

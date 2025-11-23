@@ -26,11 +26,11 @@ import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.Selection;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;

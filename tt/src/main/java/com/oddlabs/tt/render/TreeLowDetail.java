@@ -15,12 +15,12 @@ import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
-import org.joml.Matrix4f;
-import org.joml.Vector4f;
 
 import java.nio.FloatBuffer;
 import java.util.List;

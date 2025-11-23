@@ -4,9 +4,9 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.TextureKey;
-import org.jspecify.annotations.NonNull;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Random;
 

@@ -12,9 +12,9 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.AudioImplementation;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.resource.Resources;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
-import org.joml.Vector3f;
 
 import java.nio.FloatBuffer;
 

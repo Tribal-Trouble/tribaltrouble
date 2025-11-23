@@ -1,9 +1,9 @@
 package com.oddlabs.tt.landscape;
 
 
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.joml.Vector3f;
 
 import java.nio.ShortBuffer;
 

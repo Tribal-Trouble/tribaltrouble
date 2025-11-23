@@ -18,6 +18,10 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_RIGHT;
+import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
+
 public final class MapcodeForm extends Form {
 	private static final int BUTTON_WIDTH = 100;
 

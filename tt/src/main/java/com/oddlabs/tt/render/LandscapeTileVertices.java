@@ -4,10 +4,10 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeTileIndices;
 import com.oddlabs.tt.vbo.FloatVBO;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
-import org.joml.Vector3f;
 
 import java.nio.FloatBuffer;
 

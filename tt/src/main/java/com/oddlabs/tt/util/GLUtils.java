@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.logging.Level;
-import java.util.logging.Logger; // Added import for Logger
+import java.util.logging.Logger;
 
 public final class GLUtils {
 	public static final String SCREENSHOT_DEFAULT = "screenshot";

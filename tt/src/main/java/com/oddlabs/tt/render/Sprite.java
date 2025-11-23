@@ -10,12 +10,12 @@ import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.util.Color;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
-import org.joml.Matrix4f;
-import org.joml.Vector4f;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.FloatBuffer;

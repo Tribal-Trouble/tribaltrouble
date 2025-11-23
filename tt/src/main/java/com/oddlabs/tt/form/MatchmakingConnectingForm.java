@@ -20,6 +20,8 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_MID;
+
 public final class MatchmakingConnectingForm extends Form implements MatchmakingListener {
 	private final Form parent_form;
 	private final MainMenu main_menu;

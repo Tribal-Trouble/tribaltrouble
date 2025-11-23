@@ -1,7 +1,6 @@
 package com.oddlabs.tt.util;
 
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

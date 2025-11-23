@@ -7,9 +7,9 @@ import com.oddlabs.tt.model.Element;
 import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.render.TextureKey;
 import com.oddlabs.tt.util.StateChecksum;
-import org.jspecify.annotations.NonNull;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;

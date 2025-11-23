@@ -1,11 +1,11 @@
 package com.oddlabs.tt.render;
 
-import org.jspecify.annotations.NonNull;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.jspecify.annotations.NonNull;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;

@@ -1,9 +1,9 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.util.StateChecksum;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
-import org.joml.Vector3f;
 
 public final class WaveAnimation {
 	private static final float TREE_WAVE_SCALE = 2f;

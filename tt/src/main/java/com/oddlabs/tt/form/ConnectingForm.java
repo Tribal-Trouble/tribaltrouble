@@ -20,6 +20,8 @@ import org.jspecify.annotations.NonNull;
 import java.util.Random;
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_MID;
+
 public final class ConnectingForm extends Form implements ConfigurationListener {
 	private final SelectGameMenu owner;
 	private final boolean multiplayer;

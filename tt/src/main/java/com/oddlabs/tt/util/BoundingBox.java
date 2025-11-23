@@ -1,9 +1,9 @@
 package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.landscape.HeightMap;
-import org.jspecify.annotations.NonNull;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
+import org.jspecify.annotations.NonNull;
 
 public class BoundingBox {
 

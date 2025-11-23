@@ -13,8 +13,8 @@ import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.GLByteImage;
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.tt.resource.StructureBlend;
-import com.oddlabs.util.Utils;
 import com.oddlabs.util.Color;
+import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
