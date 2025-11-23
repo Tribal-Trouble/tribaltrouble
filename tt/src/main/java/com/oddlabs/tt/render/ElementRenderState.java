@@ -6,7 +6,7 @@ import org.jspecify.annotations.NonNull;
 final class ElementRenderState implements ModelState {
 
     final RenderState render_state;
-    ModelVisitor visitor;
+    private ModelVisitor visitor;
     Model model;
     float f;
 

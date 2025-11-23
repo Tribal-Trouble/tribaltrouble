@@ -9,7 +9,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.viewer.Selection;
 import org.jspecify.annotations.NonNull;
 
-final class ElementRenderer implements ElementNodeVisitor<Element<?>> {
+final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<T> {
 
     private final @NonNull RenderState render_state;
     private final boolean picking;
@@ -32,7 +32,7 @@ final class ElementRenderer implements ElementNodeVisitor<Element<?>> {
     }
 
     @Override
-    public void visitNode(@NonNull ElementNode<Element<?>> node) {
+    public void visitNode(@NonNull ElementNode<T> node) {
         RenderTools.FrustumIntersection frustum_state;
         if (camera.inNoDetailMode()) {
             frustum_state = RenderTools.FrustumIntersection.ALL_INSIDE; // Force all in frustum for map mode
@@ -50,7 +50,7 @@ final class ElementRenderer implements ElementNodeVisitor<Element<?>> {
     }
 
     @Override
-    public void visitLeaf(@NonNull ElementLeaf<Element<?>> leaf) {
+    public void visitLeaf(@NonNull ElementLeaf<T> leaf) {
         RenderTools.FrustumIntersection frustum_state;
         if (camera.inNoDetailMode()) {
             frustum_state = RenderTools.FrustumIntersection.ALL_INSIDE; // Force all in frustum for map mode
@@ -67,7 +67,7 @@ final class ElementRenderer implements ElementNodeVisitor<Element<?>> {
     }
 
     @Override
-    public void visit(@NonNull Element<Element<?>> element) {
+    public void visit(@NonNull T element) {
         RenderTools.FrustumIntersection frustum_state;
         if (camera.inNoDetailMode()) {
             frustum_state = RenderTools.FrustumIntersection.ALL_INSIDE; // Force all in frustum for map mode

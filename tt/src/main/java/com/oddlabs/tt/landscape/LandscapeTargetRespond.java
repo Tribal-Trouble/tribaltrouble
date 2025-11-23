@@ -21,7 +21,12 @@ public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond
 		register();
 	}
 
-	@Override
+    @Override
+    protected @NonNull LandscapeTargetRespond self() {
+        return this;
+    }
+
+    @Override
 	public void animate(float t) {
 		if (time > 0) {
 			time = Math.max(0, time - t);

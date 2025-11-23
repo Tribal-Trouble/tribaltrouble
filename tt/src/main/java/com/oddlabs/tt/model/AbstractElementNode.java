@@ -11,7 +11,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-public abstract class AbstractElementNode<T> extends BoundingBox {
+public abstract class AbstractElementNode<T extends Element<T>> extends BoundingBox {
 	private final LinkedList<T> models = new LinkedList<>();
 
 	private int child_count = 0;
@@ -26,15 +26,15 @@ public abstract class AbstractElementNode<T> extends BoundingBox {
 		return child_count - models.size();
 	}
 
-	protected final AbstractElementNode<T> insertElement(@NonNull Element<T> model) {
+	protected final AbstractElementNode<T> insertElement(@NonNull T model) {
 		checkBoundsZ(model.bmin_z);
 		checkBoundsZ(model.bmax_z);
 		return doInsertElement(model);
 	}
 
-	protected abstract AbstractElementNode<T> doInsertElement(Element<T>model);
+	protected abstract AbstractElementNode<T> doInsertElement(T model);
 
-	public final void removeElement(@NonNull Element<T>model) {
+	public final void removeElement(@NonNull T model) {
 		models.remove(model);
 	}
 
@@ -42,7 +42,7 @@ public abstract class AbstractElementNode<T> extends BoundingBox {
 		child_count++;
 	}
 
-	protected final AbstractElementNode<T> reinsertElement(@NonNull Element<T> model) {
+	protected final AbstractElementNode<T> reinsertElement(@NonNull T model) {
 		child_count--;
 		assert child_count >= 0;
 		if (contains(model)) {
@@ -59,12 +59,12 @@ public abstract class AbstractElementNode<T> extends BoundingBox {
 			return 0;
 	}
 
-	protected final @NonNull AbstractElementNode<T> addElement(@NonNull Element<T> model) {
+	protected final @NonNull AbstractElementNode<T> addElement(@NonNull T model) {
 		models.addLast(model);
 		return this;
 	}
 
-	public static <T> @NonNull AbstractElementNode<T> newRoot(@NonNull HeightMap heightmap) {
+	public static <T extends Element<T>> @NonNull AbstractElementNode<T> newRoot(@NonNull HeightMap heightmap) {
 		AbstractElementNode<T> root = new ElementNode<>(null, heightmap.getGridUnitsPerWorld(), 0, 0);
 		root.setInfiniteBounds();
 		return root;
@@ -131,10 +131,10 @@ public abstract class AbstractElementNode<T> extends BoundingBox {
 	public abstract void visit(ElementNodeVisitor<T> visitor);
 
 	public final void visitElements(@NonNull ElementNodeVisitor<T> visitor) {
-		Element<T> model = (Element<T>) models.getFirst();
+		T model = models.getFirst();
 		while (model != null) {
 			visitor.visit(model);
-			model = (Element<T>)model.getNext();
+			model = model.getNext();
 		}
 	}
 }

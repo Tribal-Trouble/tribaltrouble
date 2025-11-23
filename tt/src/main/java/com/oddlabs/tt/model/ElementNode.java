@@ -2,7 +2,7 @@ package com.oddlabs.tt.model;
 
 import org.jspecify.annotations.NonNull;
 
-public final class ElementNode<T> extends AbstractElementNode<T> {
+public final class ElementNode<T extends Element<T>> extends AbstractElementNode<T> {
 	private final int MIN_NODE_SIZE = 4;
 	/*
 	 * child2 | child3
@@ -38,7 +38,7 @@ public final class ElementNode<T> extends AbstractElementNode<T> {
 	}
 
 	@Override
-	protected AbstractElementNode<T> doInsertElement(@NonNull Element<T> model) {
+	protected AbstractElementNode<T> doInsertElement(@NonNull T model) {
 		incElementCount();
 		if (model.bmin_x >= getCX()) {
 			if (model.bmin_y >= getCY())

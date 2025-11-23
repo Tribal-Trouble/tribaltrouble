@@ -51,7 +51,12 @@ public final class Lightning extends Element<Lightning> implements Animated {
 		register();
 	}
 
-	public @NonNull List<StretchParticle> getParticles() {
+    @Override
+    protected @NonNull Lightning self() {
+        return this;
+    }
+
+    public @NonNull List<StretchParticle> getParticles() {
 		return particles;
 	}
 

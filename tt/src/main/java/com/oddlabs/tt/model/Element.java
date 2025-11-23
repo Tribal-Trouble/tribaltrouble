@@ -3,15 +3,16 @@ package com.oddlabs.tt.model;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.util.LinkedList;
 import com.oddlabs.util.ListElement;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public abstract class Element<T> extends BoundingBox implements ListElement<T> {
+public abstract class Element<T extends Element<T>> extends BoundingBox implements ListElement<T> {
 	private final AbstractElementNode<T> element_root;
-	private @Nullable AbstractElementNode<T>node_parent;
+	private @Nullable AbstractElementNode<T> node_parent;
 
 	private @Nullable LinkedList<T> parent;
-	private @Nullable ListElement<T> next = null;
-	private @Nullable ListElement<T> prior = null;
+	private @Nullable T next = null;
+	private @Nullable T prior = null;
 
 	private float render_pos_z;
 
@@ -24,15 +25,17 @@ public abstract class Element<T> extends BoundingBox implements ListElement<T> {
 		this.element_root = element_root;
 	}
 
+	protected abstract @NonNull T self();
+
 	public abstract void visit(ElementVisitor visitor);
 
 	protected void register() {
-		node_parent = element_root.insertElement(this);
+		node_parent = element_root.insertElement(self());
 		assert node_parent != null;
 	}
 
 	protected final void reregister() {
-		node_parent = element_root.reinsertElement(this);
+		node_parent = element_root.reinsertElement(self());
 		assert node_parent != null;
 	}
 
@@ -42,7 +45,7 @@ public abstract class Element<T> extends BoundingBox implements ListElement<T> {
 
 	protected void remove() {
         assert node_parent != null;
-		node_parent.removeElement(this);
+		node_parent.removeElement(self());
 		node_parent = null;
 	}
 
@@ -92,22 +95,22 @@ public abstract class Element<T> extends BoundingBox implements ListElement<T> {
 	}
 
 	@Override
-	public final void setPrior(@Nullable ListElement<T> prior) {
+	public final void setPrior(@Nullable T prior) {
 		this.prior = prior;
 	}
 
 	@Override
-	public final void setNext(@Nullable ListElement<T> next) {
+	public final void setNext(@Nullable T next) {
 		this.next = next;
 	}
 
 	@Override
-	public final @Nullable ListElement<T> getPrior() {
+	public final @Nullable T getPrior() {
 		return prior;
 	}
 
 	@Override
-	public final @Nullable ListElement<T> getNext() {
+	public final @Nullable T getNext() {
 		return next;
 	}
 }

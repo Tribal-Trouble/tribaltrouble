@@ -47,7 +47,12 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 		register();
 	}
 
-	public final @NonNull World getWorld() {
+    @Override
+    protected @NonNull Emitter self() {
+        return this;
+    }
+
+    public final @NonNull World getWorld() {
 		return world;
 	}
 

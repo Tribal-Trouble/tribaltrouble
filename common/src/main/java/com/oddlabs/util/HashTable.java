@@ -1,27 +1,23 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Integer to object map
- *
  */
 public final class HashTable<T> {
 	private static final int DEFAULT_INITIAL_ENTRIES = 10;
 	private static final int DEFAULT_MUL_FACTOR = 2;
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
-	@SuppressWarnings("rawtypes")
-	private LinkedList[] entries;
-	private final float load_factor;
-	private int num_entries;
-	private final int mul_factor;
+	@SuppressWarnings("unchecked")
+    private @Nullable LinkedList<@NonNull HashEntry<T>> @NonNull [] entries = new LinkedList[DEFAULT_INITIAL_ENTRIES];
+	private final float load_factor = DEFAULT_LOAD_FACTOR;
+	private final int mul_factor = DEFAULT_MUL_FACTOR;
+    private int num_entries;
 
 	public HashTable() {
-		load_factor = DEFAULT_LOAD_FACTOR;
-		mul_factor = DEFAULT_MUL_FACTOR;
-		entries = new LinkedList[DEFAULT_INITIAL_ENTRIES];
-		num_entries = 0;
 	}
 
 	public int size() {
@@ -30,25 +26,22 @@ public final class HashTable<T> {
 
 	private int hash(int key) {
 		int hash = key % entries.length;
-		if (hash >= 0)
-			return hash;
-		else
-			return hash + entries.length;
+        return hash >= 0 ? hash : hash + entries.length;
 	}
 
-	public @Nullable Object put(int key, T val) {
+	public @Nullable T put(int key, @NonNull T val) {
 		int hash = hash(key);
 		if (entries[hash] == null) {
 			entries[hash] = new LinkedList<>();
 		} else {
-			HashEntry<T> current_entry = (HashEntry<T>) entries[hash].getFirst();
+			HashEntry<T> current_entry = entries[hash].getFirst();
 			while (current_entry != null) {
 				int current_key = current_entry.getKey();
 				if (current_key == key) {
-					Object result = current_entry.setEntry(val);
+					T result = current_entry.setEntry(val);
 					return result;
 				}
-				current_entry = (HashEntry<T>) current_entry.getNext();
+				current_entry = current_entry.getNext();
 			}
 		}
 		HashEntry<T> hash_entry = new HashEntry<>(key, val);
@@ -63,12 +56,12 @@ public final class HashTable<T> {
 		int hash = hash(key);
 		if (entries[hash] == null)
 			return null;
-		HashEntry<T> current_entry = (HashEntry<T>) entries[hash].getFirst();
+		HashEntry<T> current_entry = entries[hash].getFirst();
 		while (current_entry != null) {
 			int current_key = current_entry.getKey();
 			if (current_key == key)
 				return current_entry.getEntry();
-			current_entry = (HashEntry<T>) current_entry.getNext();
+			current_entry = current_entry.getNext();
 		}
 		return null;
 	}
@@ -78,7 +71,7 @@ public final class HashTable<T> {
 
 		if (entries[hash] == null)
 			return null;
-		HashEntry<T> current_entry = (HashEntry<T>) entries[hash].getFirst();
+		HashEntry<T> current_entry = entries[hash].getFirst();
 		while (current_entry != null) {
 			int current_key = current_entry.getKey();
 			if (current_key == key) {
@@ -86,21 +79,21 @@ public final class HashTable<T> {
 				entries[hash].remove(current_entry);
 				return result;
 			}
-			current_entry = (HashEntry<T>) current_entry.getNext();
+			current_entry = current_entry.getNext();
 		}
 		return null;
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void rehash() {
-		LinkedList[] old_entries = entries;
-		entries = new LinkedList[entries.length*mul_factor];
-        for (LinkedList old_entry : old_entries) {
+		LinkedList<HashEntry<T>>[] old_entries = entries;
+        //noinspection unchecked
+        entries = (@Nullable LinkedList<@NonNull HashEntry<T>> @NonNull []) new LinkedList[entries.length*mul_factor];
+        for (LinkedList<HashEntry<T>> old_entry : old_entries) {
             if (old_entry != null) {
-                HashEntry<T> current_entry = (HashEntry<T>) old_entry.getFirst();
+                HashEntry<T> current_entry = old_entry.getFirst();
                 while (current_entry != null) {
                     int hash = hash(current_entry.getKey());
-                    HashEntry<T> next_entry = (HashEntry<T>) current_entry.getNext();
+                    HashEntry<T> next_entry = current_entry.getNext();
                     if (entries[hash] == null)
                         entries[hash] = new LinkedList<>();
                     entries[hash].addLast(current_entry);

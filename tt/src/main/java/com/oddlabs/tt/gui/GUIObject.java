@@ -58,7 +58,12 @@ public abstract class GUIObject extends Renderable {
 		disabled = false;
 	}
 
-	public int translateXToLocal(int x) {
+    @Override
+    protected @NonNull GUIObject self() {
+        return this;
+    }
+
+    public int translateXToLocal(int x) {
 		GUIObject parent = (GUIObject)getParent();
         return parent == null ? x - getX() : parent.translateXToLocal(x) - getX();
 	}

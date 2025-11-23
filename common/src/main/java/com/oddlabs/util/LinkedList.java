@@ -3,24 +3,23 @@ package com.oddlabs.util;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public final class LinkedList<T> {
-	private @Nullable ListElement<T> first = null;
-	private @Nullable ListElement<T> last = null;
+public final class LinkedList<T extends ListElement<T>> {
+	private @Nullable T first;
+	private @Nullable T last;
 	private int size = 0;
 
-	private boolean checkParent(@NonNull ListElement<T> elem) {
-		if (elem.getListOwner() == null) {
-			elem.setListOwner(this);
-			return false;
-		}
-		if (elem.getListOwner() == this) return true;
-		elem.getListOwner().remove(elem);
+    /** {@return true if element is already in list otherwise false} */
+	private boolean checkOwner(@NonNull T elem) {
+        if (elem.getListOwner() == this) return true;
+		if (elem.getListOwner() != null) {
+            elem.getListOwner().remove(elem);
+        }
 		elem.setListOwner(this);
 		return false;
 	}
 
-	public void addLast(@NonNull ListElement<T> elem) {
-		if (checkParent(elem)) return;
+	public void addLast(@NonNull T elem) {
+		if (checkOwner(elem)) return;
 		if (last == null) {
 			first = elem;
 			last = elem;
@@ -35,8 +34,8 @@ public final class LinkedList<T> {
 		size++;
 	}
 
-	public void addFirst(@NonNull ListElement<T> elem) {
-		if (checkParent(elem)) return;
+	public void addFirst(@NonNull T elem) {
+		if (checkOwner(elem)) return;
 		if (last == null) {
 			first = elem;
 			last = elem;
@@ -51,7 +50,7 @@ public final class LinkedList<T> {
 		size++;
 	}
 
-	public void remove(@NonNull ListElement<T> element) {
+	public void remove(@NonNull T element) {
 		assert element.getListOwner() == this;
 		element.setListOwner(null);
 		if (last == element && first == element) {
@@ -70,18 +69,18 @@ public final class LinkedList<T> {
 		size--;
 	}
 
-	public void insert(@NonNull ListElement<T> element, @Nullable ListElement<T> next_elem) {
+	public void insert(@NonNull T element, @Nullable T next_elem) {
 		if (next_elem == null) {
 			addLast(element);
 			return;
 		}
-		checkParent(element);
+		checkOwner(element);
 		assert next_elem.getListOwner() == this: "owner " + next_elem.getListOwner() + " != " + this;
 		if (first == next_elem) {
 			first = element;
 			element.setPrior(null);
 		} else {
-			ListElement<T> prev = next_elem.getPrior();
+			T prev = next_elem.getPrior();
 			element.setPrior(prev);
 			prev.setNext(element);
 		}
@@ -94,20 +93,24 @@ public final class LinkedList<T> {
 		return size;
 	}
 
-	public @Nullable ListElement<T> getFirst() {
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+	public @Nullable T getFirst() {
 		return first;
 	}
 
-	public @Nullable ListElement<T> getLast() {
+	public @Nullable T getLast() {
 		return last;
 	}
 
-	public void putLast(@NonNull ListElement<T> element) {
+	public void putLast(@NonNull T element) {
 		remove(element);
 		addLast(element);
 	}
 
-	public void putFirst(@NonNull ListElement<T> element) {
+	public void putFirst(@NonNull T element) {
 		remove(element);
 		addFirst(element);
 	}

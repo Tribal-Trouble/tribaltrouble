@@ -15,7 +15,12 @@ public abstract class Model extends Element<Model> {
         this.world = world ;
 	}
 
-	public abstract float getShadowDiameter();
+    @Override
+    protected @NonNull Model self() {
+        return this;
+    }
+
+    public abstract float getShadowDiameter();
 
 	public abstract float getOffsetZ();
 	public abstract int getAnimation();
