@@ -19,21 +19,30 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public final class TextureGenerator {
 	private static final int LOW_DETAIL_TEX_SIZE = 256;
 	private static final int LOWDETAIL_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
 	private static final int CROWN_MIPMAP_CUTOFF = Globals.NO_MIPMAP_CUTOFF;
 
-	void main(@NonNull String @NonNull ... args) throws LWJGLException {
+	void main(@NonNull String @NonNull ... args) {
 		assert args.length == 1;
-		new TextureGenerator(args[0]);
-	}
+        try {
+            new TextureGenerator(args[0]);
+        } catch (IOException | LWJGLException e) {
+            IO.println("Texture generation failed for " + args[0]);
+            e.printStackTrace(System.err);
+            System.exit(1);
+        }
+    }
 
-	public TextureGenerator(@NonNull String dest) throws LWJGLException {
+	public TextureGenerator(@NonNull String dest) throws IOException, LWJGLException {
 		Settings.setSettings(new Settings());
-		File path = new File(dest);
-		path.mkdirs();
+		Path path = Path.of(dest);
+        Files.createDirectories(path);
 
 		GLStateStack display_state_stack = new GLStateStack();
 		GLStateStack.setCurrent(display_state_stack);
