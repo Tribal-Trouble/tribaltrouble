@@ -1,41 +1,67 @@
 package com.oddlabs.tt.render;
 
-import org.jspecify.annotations.NonNull;
-import org.lwjgl.BufferUtils;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+/** Maintains a stack of transformation matrix that are applied to the drawing. */
 public final class MatrixStack {
 	private static final int MATRIX_ELEMENTS = 16;
 	
-	private final Deque<Matrix4f> stack = new ArrayDeque<>();
+	private final Deque<@NonNull Matrix4f> stack = new ArrayDeque<>();
 	private final FloatBuffer buffer = BufferUtils.createFloatBuffer(MATRIX_ELEMENTS);
-	
-	public MatrixStack() {
-		stack.push(new Matrix4f());
+
+    public interface TopListener {
+        void topChanging(@NonNull Matrix4fc matrix);
+    }
+
+    private final @Nullable TopListener topListener;
+
+    public MatrixStack() {
+        this(null);
+    }
+
+	public MatrixStack(@Nullable TopListener topListener) {
+		clear();
+        this.topListener = topListener;
 	}
 	
-	public void push() {
+	public Matrix4f push() {
 		Matrix4f copy = new Matrix4f(current());
 		stack.push(copy);
+        if (null != topListener) {
+            topListener.topChanging(current());
+        }
+        return current();
 	}
 	
-	public void pop() {
-		if (stack.size() <= 1) {
-			throw new IllegalStateException("Cannot pop last matrix");
-		}
-		stack.pop();
+	public Matrix4f pop() {
+        if (null != topListener) {
+            topListener.topChanging(current());
+        }
+		if (stack.size() > 1) {
+            stack.pop();
+        } else {
+            clear();
+        }
+        return current();
 	}
 	
 	public @NonNull Matrix4f current() {
-		return stack.peek();
+		return stack.element();
 	}
 	
-	public void loadIdentity() {
-		current().identity();
+	Matrix4f clear() {
+		stack.clear();
+        stack.push(new Matrix4f());
+
+        return current();
 	}
 	
 	public void translate(float x, float y, float z) {
@@ -53,11 +79,17 @@ public final class MatrixStack {
 	public void multiply(@NonNull Matrix4f matrix) {
 		current().mul(matrix);
 	}
-	
+
+    /** @implNote The returned FloatBuffer is yours only until it is needed again. Use the {@link #toBuffer(FloatBuffer)}
+     * overload if you need the buffer for longer term use. */
 	public @NonNull FloatBuffer toBuffer() {
-		buffer.clear();
-		current().get(buffer);
-		// Do NOT flip the buffer here. glUniformMatrix4fv reads from the current position.
-		return buffer;
+		return toBuffer(buffer);
 	}
+
+    public @NonNull FloatBuffer toBuffer(FloatBuffer buffer) {
+        buffer.clear();
+        current().get(buffer);
+        // Do NOT flip the buffer here. glUniformMatrix4fv reads from the current position.
+        return buffer;
+    }
 }
