@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class ConvertToBinary {
-	void main(String @NonNull ... args) {
+	void main(@NonNull String @NonNull ... args) {
 		if (args.length != 3)
 			throw new RuntimeException("Invalid number of arguments : <xml_file> <src_dir> <build_dir>");
 		String xml_file = args[0];
@@ -37,7 +37,9 @@ public final class ConvertToBinary {
 			org.w3c.dom.Element root = document.getDocumentElement();
 			parseGeometry(root, src_dir, build_dir);
 		} catch (Exception e) {
-			e.printStackTrace();
+            System.err.println("Error processing " + xml_file );
+			e.printStackTrace(System.err);
+            System.exit(1);
 		}
 	}
 
