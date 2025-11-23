@@ -115,42 +115,41 @@ public final class DXTImage {
 	}
 
 	public static @NonNull DXTImage read(@NonNull URL url) throws IOException {
-		InputStream in = new BufferedInputStream(url.openStream());
-		int index = 0;
-		int bytes_read;
-		while ((bytes_read = in.read(scratch_buffer, index, scratch_buffer.length - index)) != -1) {
-			index += bytes_read;
-			if (index == scratch_buffer.length) {
-				byte[] new_scratch_buffer = new byte[scratch_buffer.length*2];
-				System.arraycopy(scratch_buffer, 0, new_scratch_buffer, 0, scratch_buffer.length);
-				scratch_buffer = new_scratch_buffer;
-			}
-		}
-		ByteBuffer header = ByteBuffer.wrap(scratch_buffer);
-		short width = header.getShort();
-		short height = header.getShort();
-		int internal_format = header.getInt();
-		int data_length = index - header.position();
-		ByteBuffer buffer = BufferUtils.createByteBuffer(data_length);
-		buffer.put(scratch_buffer, header.position(), data_length);
-		buffer.flip();
-		return new DXTImage(width, height, internal_format, buffer);
+		try (InputStream in = new BufferedInputStream(url.openStream())) {
+            int index = 0;
+            int bytes_read;
+            while ((bytes_read = in.read(scratch_buffer, index, scratch_buffer.length - index)) != -1) {
+                index += bytes_read;
+                if (index == scratch_buffer.length) {
+                    byte[] new_scratch_buffer = new byte[scratch_buffer.length * 2];
+                    System.arraycopy(scratch_buffer, 0, new_scratch_buffer, 0, scratch_buffer.length);
+                    scratch_buffer = new_scratch_buffer;
+                }
+            }
+            ByteBuffer header = ByteBuffer.wrap(scratch_buffer);
+            short width = header.getShort();
+            short height = header.getShort();
+            int internal_format = header.getInt();
+            int data_length = index - header.position();
+            ByteBuffer buffer = BufferUtils.createByteBuffer(data_length);
+            buffer.put(scratch_buffer, header.position(), data_length);
+            buffer.flip();
+            return new DXTImage(width, height, internal_format, buffer);
+        }
 	}
 
 	public void write(@NonNull File file) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            try (WritableByteChannel out = fos.getChannel()) {
-                ByteBuffer header = ByteBuffer.allocate(2 + 2 + 4);
-                header.putShort(width).putShort(height).putInt(internal_format);
-                header.flip();
-                writeContents(out, header);
-                int old_position = mipmaps.position();
-                int old_limit = mipmaps.limit();
-                mipmaps.clear();
-                writeContents(out, mipmaps);
-                mipmaps.position(old_position);
-                mipmaps.limit(old_limit);
-            }
+        try (FileOutputStream fos = new FileOutputStream(file); WritableByteChannel out = fos.getChannel()) {
+            ByteBuffer header = ByteBuffer.allocate(Short.BYTES + Short.BYTES + Integer.BYTES);
+            header.putShort(width).putShort(height).putInt(internal_format);
+            header.flip();
+            writeContents(out, header);
+            int old_position = mipmaps.position();
+            int old_limit = mipmaps.limit();
+            mipmaps.clear();
+            writeContents(out, mipmaps);
+            mipmaps.position(old_position);
+            mipmaps.limit(old_limit);
         }
 	}
 
