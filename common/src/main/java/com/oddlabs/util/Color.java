@@ -6,15 +6,26 @@ import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
-/** Converts integer colors to floating-point representations for OpenGL. */
+/** Converts integer colors to/from floating-point representations for OpenGL. */
 public final class Color {
-    /** The normalization factor for converting 8-bit color components to floats. */
+    public static final int TRANSPARENT_INT = 0x00_00_00_00;
+    public static final int BLACK_INT = 0xFF_00_00_00;
+    public static final int WHITE_INT = 0xFF_FF_FF_FF;
+    public static final int RED_INT = 0xFF_FF_00_00;
+    public static final int GREEN_INT = 0xFF_00_FF_00;
+    public static final int BLUE_INT = 0xFF_00_00_FF;
+    public static final int YELLOW_INT = 0xFF_FF_FF_00;
+    public static final int MAGENTA_INT = 0xFF_FF_00_FF;
+
+    public static final float[] BLACK = argb4f(BLACK_INT);
+    public static final float[] WHITE = argb4f(WHITE_INT);
+
+    /** The normalization factor for converting 8-bit color components to/from floats. */
     private static final float NORMALIZE_8_BIT = 255.0f;
 
     private Color() {
         // no instances
     }
-
 
     public static int rgbi(byte r, byte g, byte b) {
         return (Byte.toUnsignedInt(r) << 16) | (Byte.toUnsignedInt(g) << 8) | Byte.toUnsignedInt(b);
@@ -22,6 +33,13 @@ public final class Color {
 
     public static int rgbai(byte r, byte g, byte b, byte a) {
         return (Byte.toUnsignedInt(a) << 24) | (Byte.toUnsignedInt(r) << 16) | (Byte.toUnsignedInt(g) << 8) | Byte.toUnsignedInt(b);
+    }
+
+    public static int rgbai(float r,  float g, float b, float a) {
+        return ((int) (a * NORMALIZE_8_BIT) << 24) |
+                ((int) (r * NORMALIZE_8_BIT) << 16) |
+                ((int) (g * NORMALIZE_8_BIT) << 8)  |
+                ((int) (b * NORMALIZE_8_BIT));
     }
 
     /**
