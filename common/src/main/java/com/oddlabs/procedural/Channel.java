@@ -5,26 +5,51 @@ import org.jspecify.annotations.NonNull;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
+/**
+ * Represents a 2D grid of floating-point values, typically used to store a single color channel (e.g., red, green, blue, or alpha)
+ * or other procedural generation data like heightmaps.
+ */
 public final class Channel {
-	public float[][] pixels;
+	private float[][] pixels;
 	public int width;
 	public int height;
-	public final boolean powerof2;
+	private final boolean powerof2;
 
-	public Channel(int width, int height) {
+	/**
+	 * Constructs a new Channel with the specified dimensions.
+	 *
+	 * @param width  the width of the channel in pixels.
+	 * @param height the height of the channel in pixels.
+	 * @throws IllegalArgumentException if width or height are not positive.
+	 */
+	public Channel(int width, int height) throws IllegalArgumentException {
+		if (width <= 0 || height <= 0) {
+			throw new IllegalArgumentException("Width and height must be positive.");
+		}
 		pixels = new float[height][width];
 		this.width = width;
 		this.height = height;
 		this.powerof2 = Utils.isPowerOf2(width) && Utils.isPowerOf2(height);
 	}
 
+	/**
+	 * Converts this single channel into a 3-channel (grayscale) Layer.
+	 *
+	 * @return a new Layer with this channel copied to its R, G, and B channels.
+	 */
 	public @NonNull Layer toLayer() {
 		return new Layer(this.copy(), this.copy(), this.copy());
 	}
 
+	/**
+	 * Calculates a CRC32 checksum of the channel's pixel data.
+	 *
+	 * @return the CRC32 checksum value.
+	 */
 	public long getChecksum() {
 		byte[] bytes = new byte[4];
 		ByteBuffer bytebuffer = ByteBuffer.wrap(bytes);
@@ -38,26 +63,67 @@ public final class Channel {
 		return checksum.getValue();
 	}
 
+	/**
+	 * Returns the width of the channel.
+	 * @return the width in pixels.
+	 */
 	public int getWidth() {
 		return width;
 	}
 
+	/**
+	 * Returns the height of the channel.
+	 * @return the height in pixels.
+	 */
 	public int getHeight() {
 		return height;
 	}
 
-	public void putPixel(int x, int y, float value) {
+	/**
+	 * Sets the value of a pixel at the specified coordinates.
+	 *
+	 * @param x     the x-coordinate of the pixel.
+	 * @param y     the y-coordinate of the pixel.
+	 * @param value the new value for the pixel.
+	 * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
+	 */
+	public void putPixel(int x, int y, float value) throws IndexOutOfBoundsException {
+		Objects.checkIndex(x, width);
+		Objects.checkIndex(y, height);
 		pixels[y][x] = value;
 	}
 
-	public float getPixel(int x, int y) {
+	/**
+	 * Gets the value of a pixel at the specified coordinates.
+	 *
+	 * @param x the x-coordinate of the pixel.
+	 * @param y the y-coordinate of the pixel.
+	 * @return the value of the pixel.
+	 * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
+	 */
+	public float getPixel(int x, int y) throws IndexOutOfBoundsException {
+		Objects.checkIndex(x, width);
+		Objects.checkIndex(y, height);
 		return pixels[y][x];
 	}
 
+	/**
+	 * Returns the raw 2D float array backing this channel.
+	 *
+	 * @return the pixel data.
+	 */
 	public float[][] getPixels() {
 		return pixels;
 	}
 
+	/**
+	 * Sets the value of a pixel with wrapping coordinates.
+	 * If coordinates are out of bounds, they are wrapped around to the other side.
+	 *
+	 * @param x     the x-coordinate.
+	 * @param y     the y-coordinate.
+	 * @param value the new value.
+	 */
 	public void putPixelWrap(int x, int y, float value) {
 		if (this.powerof2) {
 			if (x < 0 || x >= width) x = (width + x) & (width - 1);
@@ -72,6 +138,14 @@ public final class Channel {
 		}
 	}
 
+	/**
+	 * Gets the value of a pixel with wrapping coordinates.
+	 * If coordinates are out of bounds, they are wrapped around to the other side.
+	 *
+	 * @param x the x-coordinate.
+	 * @param y the y-coordinate.
+	 * @return the pixel value.
+	 */
 	public float getPixelWrap(int x, int y) {
 		if (this.powerof2) {
 			if (x < 0 || x >= width) x = (width + x) & (width - 1);
@@ -86,6 +160,13 @@ public final class Channel {
 		}
 	}
 
+	/**
+	 * Gets the value of a pixel safely. If coordinates are out of bounds, returns 0.
+	 *
+	 * @param x the x-coordinate.
+	 * @param y the y-coordinate.
+	 * @return the pixel value or 0 if out of bounds.
+	 */
 	public float getPixelSafe(int x, int y) {
 		if (x < 0 || x >= width || y < 0 || y >= height) {
 			return 0f;
@@ -94,18 +175,38 @@ public final class Channel {
 		}
 	}
 
+	/**
+	 * Sets the value of a pixel safely. If coordinates are out of bounds, the operation is ignored.
+	 *
+	 * @param x     the x-coordinate.
+	 * @param y     the y-coordinate.
+	 * @param value the new value.
+	 */
 	public void putPixelSafe(int x, int y, float value) {
 		if (x >= 0 && x < width && y >= 0 && y < height) {
 			pixels[y][x] = value;
 		}
 	}
 
+	/**
+	 * Sets the value of a pixel, clamping it to the [0, 1] range.
+	 *
+	 * @param x     the x-coordinate.
+	 * @param y     the y-coordinate.
+	 * @param value the new value.
+	 */
 	public void putPixelClip(int x, int y, float value) {
 		if (value < 0) pixels[y][x] = 0;
 		else if (value > 1) pixels[y][x] = 1;
 		else pixels[y][x] = value;
 	}
 
+	/**
+	 * Fills the entire channel with a single value.
+	 *
+	 * @param value the value to fill with.
+	 * @return this channel, for chaining.
+	 */
 	public @NonNull Channel fill(float value) {
 		for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
