@@ -9,7 +9,7 @@ repositories {
 application {
     mainClass.set("com.oddlabs.tt.Main")
     applicationDefaultJvmArgs = listOf(
-        "-ea", "-esa", "-Xcheck:jni",
+        "-ea", "-esa", // "-Xcheck:jni",
         "-Djava.library.path=${project(":common").projectDir}/build/libs/native",
         "-Dcom.oddlabs.tt.developer=true",
         "-Dorg.lwjgl.util.Debug=true",

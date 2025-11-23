@@ -67,7 +67,8 @@ public final class LocalInput {
 	}
 
 	public static void mouseDragged(@NonNull GUIRoot gui_root, int button, short x, short y) {
-		setPos(x, y);
+		mouse_x = x;
+		mouse_y = y;
 		gui_root.getInputState().mouseDragged(button, x, y);
 	}
 
@@ -84,7 +85,8 @@ public final class LocalInput {
 	}
 
 	public static void mouseMoved(@NonNull GUIRoot gui_root, short x, short y) {
-		setPos(x, y);
+		mouse_x = x;
+		mouse_y = y;
 		gui_root.getInputState().mouseMoved(x, y);
 	}
 
@@ -112,13 +114,6 @@ public final class LocalInput {
 			return false;
 		}
 		return keys[key_code];
-	}
-
-	public static void setPos(int x, int y) {
-		mouse_x = x;
-		// Adjust Y-coordinate to be relative to the window's top edge
-		// Raw y is from top of display, Display.getY() is window's y from top of display
-		mouse_y = y - Display.getY();
 	}
 
 	public static void resetKeyboard() {
@@ -212,6 +207,7 @@ public final class LocalInput {
 		settings.crashed = true;
 		settings.save();
 		settings.crashed = false;
+
 		fullscreen = settings.fullscreen;
 	}
 
