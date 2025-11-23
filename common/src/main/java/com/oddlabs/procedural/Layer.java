@@ -9,13 +9,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Represents a multi-channel image, typically RGBA, where each channel is a 2D grid of floating-point values.
+ * This class is used for procedural image generation and manipulation.
+ */
 public final class Layer {
     private static final Logger logger = Logger.getLogger(Layer.class.getSimpleName());
-	public static final float GAMMA_EXPONENT = 2.2f;
-	public static final float INV_GAMMA_EXPONENT = 1f/GAMMA_EXPONENT;
+	private static final float GAMMA_EXPONENT = 2.2f;
+	private static final float INV_GAMMA_EXPONENT = 1f/GAMMA_EXPONENT;
 
 	private int width;
 	private int height;
@@ -24,7 +29,17 @@ public final class Layer {
 	public Channel b;
 	public @Nullable Channel a;
 
-	public Layer(int width, int height) {
+	/**
+	 * Constructs a new, opaque white Layer with the specified dimensions.
+	 *
+	 * @param width  the width of the layer in pixels.
+	 * @param height the height of the layer in pixels.
+	 * @throws IllegalArgumentException if width or height are not positive.
+	 */
+	public Layer(int width, int height) throws IllegalArgumentException {
+		if (width <= 0 || height <= 0) {
+			throw new IllegalArgumentException("Width and height must be positive.");
+		}
 		this.width = width;
 		this.height = height;
 		Channel empty = new Channel(width, height);
@@ -35,30 +50,59 @@ public final class Layer {
 		this.a = null;
 	}
 
-	public Layer(@NonNull Channel r, @NonNull Channel g, @NonNull Channel b, @Nullable Channel a) {
+	/**
+	 * Constructs a new Layer from the given R, G, B, and optional A channels.
+	 *
+	 * @param r the red channel.
+	 * @param g the green channel.
+	 * @param b the blue channel.
+	 * @param a the alpha channel (optional, can be null).
+	 * @throws NullPointerException if R, G, or B channels are null.
+	 * @throws IllegalArgumentException if channels have mismatching dimensions.
+	 */
+	public Layer(@NonNull Channel r, @NonNull Channel g, @NonNull Channel b, @Nullable Channel a)
+			throws NullPointerException, IllegalArgumentException {
+		Objects.requireNonNull(r, "Red channel cannot be null.");
+		Objects.requireNonNull(g, "Green channel cannot be null.");
+		Objects.requireNonNull(b, "Blue channel cannot be null.");
+
 		this.width = r.getWidth();
 		this.height = r.getHeight();
-		assert g.getWidth() == width
-			&& b.getWidth() == width
-			&& g.getHeight() == height
-			&& b.getHeight() == height
-			&& (a == null || (a.getWidth() == width && a.getHeight() == height))
-			: "trying to combine channels of differing sizes";
+		if (g.getWidth() != width || b.getWidth() != width || g.getHeight() != height || b.getHeight() != height
+				|| (a != null && (a.getWidth() != width || a.getHeight() != height))) {
+			throw new IllegalArgumentException("All channels must have the same dimensions.");
+		}
 		this.r = r;
 		this.g = g;
 		this.b = b;
 		this.a = a;
 	}
 
-	public Layer(@NonNull Channel r, @NonNull Channel g, @NonNull Channel b) {
+	/**
+	 * Constructs a new opaque Layer from the given R, G, and B channels.
+	 *
+	 * @param r the red channel.
+	 * @param g the green channel.
+	 * @param b the blue channel.
+	 * @throws NullPointerException if R, G, or B channels are null.
+	 * @throws IllegalArgumentException if channels have mismatching dimensions.
+	 */
+	public Layer(@NonNull Channel r, @NonNull Channel g, @NonNull Channel b)
+			throws NullPointerException, IllegalArgumentException {
 		this(r, g, b, null);
 	}
 
-	public Layer(@NonNull Layer rgb, Channel a) {
-		this.r = rgb.r;
-		this.g = rgb.g;
-		this.b = rgb.b;
-		this.a = a;
+	/**
+	 * Constructs a new Layer from an existing RGB Layer and a new alpha channel.
+	 *
+	 * @param rgb the source RGB layer.
+	 * @param a the new alpha channel.
+	 * @throws NullPointerException if the rgb layer or alpha channel is null.
+	 * @throws IllegalArgumentException if the alpha channel's dimensions do not match the layer's.
+	 */
+	public Layer(@NonNull Layer rgb, @NonNull Channel a)
+			throws NullPointerException, IllegalArgumentException {
+		this(rgb.r, rgb.g, rgb.b, a);
 	}
 
 	public void loadFromBytes(byte[] data) {
@@ -161,13 +205,34 @@ public final class Layer {
 		return a;
 	}
 
-	public void putPixel(int x, int y, float r, float g, float b) {
+	/**
+	 * Sets the RGB values of a pixel at the specified coordinates.
+	 *
+	 * @param x the x-coordinate of the pixel.
+	 * @param y the y-coordinate of the pixel.
+	 * @param r the new red value.
+	 * @param g the new green value.
+	 * @param b the new blue value.
+	 * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
+	 */
+	public void putPixel(int x, int y, float r, float g, float b) throws IndexOutOfBoundsException {
 		this.r.putPixel(x, y, r);
 		this.g.putPixel(x, y, g);
 		this.b.putPixel(x, y, b);
 	}
 
-	public void putPixel(int x, int y, float r, float g, float b, float a) {
+	/**
+	 * Sets the RGBA values of a pixel at the specified coordinates.
+	 *
+	 * @param x the x-coordinate of the pixel.
+	 * @param y the y-coordinate of the pixel.
+	 * @param r the new red value.
+	 * @param g the new green value.
+	 * @param b the new blue value.
+	 * @param a the new alpha value.
+	 * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
+	 */
+	public void putPixel(int x, int y, float r, float g, float b, float a) throws IndexOutOfBoundsException {
 		this.r.putPixel(x, y, r);
 		this.g.putPixel(x, y, g);
 		this.b.putPixel(x, y, b);
@@ -490,7 +555,7 @@ public final class Layer {
 
 	public @NonNull Layer threshold(float start, float end) {
 		r.threshold(start, end);
-		g.threshold(start, end);
+g.threshold(start, end);
 		b.threshold(start, end);
 		return this;
 	}
@@ -970,7 +1035,7 @@ public final class Layer {
 
 	public @NonNull Layer layerBrightest(@NonNull Layer layer) {
 		r.channelBrightest(layer.r);
-		g.channelBrightest(layer.g);
+g.channelBrightest(layer.g);
 		b.channelBrightest(layer.b);
 		return this;
 	}
