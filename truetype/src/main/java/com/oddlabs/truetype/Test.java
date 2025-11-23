@@ -15,10 +15,11 @@ import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.IntBuffer;
+import java.nio.charset.StandardCharsets;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
+import java.util.Objects;
 
 public final class Test {
 	private static final int WIDTH = 1024;
@@ -30,26 +31,24 @@ public final class Test {
 	private static final BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
 	private static final Graphics2D g2d = (Graphics2D)image.getGraphics();
 
-    static void main(String... args) {
+    static void main(@NonNull String @NonNull ... args) {
 		try {
 			Display.setDisplayMode(new DisplayMode(DISPLAY_WIDTH, DISPLAY_HEIGHT));
 			Display.create();
 			initGL();
 
 			// Load font
-			InputStream font_is = Test.class.getResourceAsStream("/fonts/Tahoma.ttf");
-			java.awt.Font src_font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, font_is);
-			java.awt.Font font = src_font.deriveFont(14f);
+            java.awt.Font font;
+			try (InputStream font_is = Test.class.getResourceAsStream("/fonts/Tahoma.ttf")) {
+                java.awt.Font src_font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, Objects.requireNonNull(font_is));
+                font = src_font.deriveFont(14f);
+            }
 
 			// Load text
-			InputStreamReader text_is = new InputStreamReader(Test.class.getResourceAsStream("/test_text.txt"));
-			StringBuilder str_buffer = new StringBuilder();
-			int c = text_is.read();
-			do {
-				str_buffer.append((char)c);
-				c = text_is.read();
-			} while (c != -1);
-			String str = str_buffer.toString();
+            String str;
+            try (InputStream text_is = Test.class.getResourceAsStream("/test_text.txt")) {
+                str = new String(Objects.requireNonNull(text_is).readAllBytes(), StandardCharsets.UTF_8);
+            }
 
 			// Build texture
 			int[] pixels = new int[WIDTH*HEIGHT];
