@@ -12,7 +12,7 @@ public final class GLByteImage extends GLImage {
 
     @Override
     public int getPixelSize() {
-        return 1;
+        return Byte.BYTES;
     }
 
     public GLByteImage(int width, int height, ByteBuffer pixel_data, int format) {
