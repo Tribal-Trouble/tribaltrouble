@@ -11,7 +11,7 @@ final class GUIErrorHandler implements ErrorHandler {
     private static final Logger logger = Logger.getLogger("SAXParseError");
 
 	@Override
-	public void fatalError(SAXParseException e) {
+	public void fatalError(@NonNull SAXParseException e) {
         logger.log(Level.SEVERE,"fatal line " + e.getLineNumber() + ", uri " + e.getSystemId(), e);
 		// ignore fatal errors (an exception is guaranteed)
 	}

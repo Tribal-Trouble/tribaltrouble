@@ -2,7 +2,6 @@ package com.oddlabs.tt.render.shader;
 
 import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.Texture;
-import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

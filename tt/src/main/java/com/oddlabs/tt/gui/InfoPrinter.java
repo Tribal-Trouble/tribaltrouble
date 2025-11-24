@@ -7,7 +7,7 @@ import com.oddlabs.tt.net.ChatListener;
 import com.oddlabs.tt.net.ChatMessage;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.StateChecksum;
-import com.oddlabs.util.Color; // Import the Color utility class
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 

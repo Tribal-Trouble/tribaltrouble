@@ -17,7 +17,7 @@ import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
 public class QuestionForm extends Form {
 	private final @NonNull HorizButton yes_button;
 
-	public QuestionForm(@NonNull String message, MouseClickListener yes_action) {
+	public QuestionForm(@NonNull String message, @NonNull MouseClickListener yes_action) {
 		int message_width = Skin.getSkin().getEditFont().getWidth(message);
 		LabelBox info_label = new LabelBox(message, Skin.getSkin().getEditFont(), Math.min(400, message_width));
 		addChild(info_label);

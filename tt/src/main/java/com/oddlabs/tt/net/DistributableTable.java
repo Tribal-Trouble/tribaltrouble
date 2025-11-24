@@ -1,6 +1,7 @@
 package com.oddlabs.tt.net;
 
 import com.oddlabs.util.HashTable;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
@@ -10,7 +11,7 @@ public final class DistributableTable {
 	private final HashMap<Distributable, Integer> names = new HashMap<>();
 	private int current_name = 1;
 
-	public int register(Distributable distributable) {
+	public int register(@NonNull Distributable distributable) {
 		int name = current_name++;
 		Object o = distributables.put(name, distributable);
 		assert o == null: "Error registering distributable.";

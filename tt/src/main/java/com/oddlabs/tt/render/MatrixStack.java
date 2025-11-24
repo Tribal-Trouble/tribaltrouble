@@ -32,7 +32,7 @@ public final class MatrixStack {
         this.topListener = topListener;
 	}
 	
-	public Matrix4f push() {
+	public @NonNull Matrix4f push() {
 		Matrix4f copy = new Matrix4f(current());
 		stack.push(copy);
         if (null != topListener) {
@@ -41,7 +41,7 @@ public final class MatrixStack {
         return current();
 	}
 	
-	public Matrix4f pop() {
+	public @NonNull Matrix4f pop() {
         if (null != topListener) {
             topListener.topChanging(current());
         }
@@ -57,7 +57,7 @@ public final class MatrixStack {
 		return stack.element();
 	}
 	
-	Matrix4f clear() {
+	@NonNull Matrix4f clear() {
 		stack.clear();
         stack.push(new Matrix4f());
 
@@ -86,7 +86,7 @@ public final class MatrixStack {
 		return toBuffer(buffer);
 	}
 
-    public @NonNull FloatBuffer toBuffer(FloatBuffer buffer) {
+    public @NonNull FloatBuffer toBuffer(@NonNull FloatBuffer buffer) {
         buffer.clear();
         current().get(buffer);
         // Do NOT flip the buffer here. glUniformMatrix4fv reads from the current position.

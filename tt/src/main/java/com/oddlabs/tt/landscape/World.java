@@ -18,6 +18,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.resource.WorldInfo;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -202,7 +203,7 @@ public final class World {
 		return unit_grid;
 	}
 
-	public SupplyManager getSupplyManager(Class<? extends Supply> cl) {
+	public @Nullable SupplyManager getSupplyManager(@NonNull Class<? extends Supply> cl) {
 		return supply_managers.getSupplyManager(cl);
 	}
 

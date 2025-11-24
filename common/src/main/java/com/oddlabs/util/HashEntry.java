@@ -6,7 +6,7 @@ public final class HashEntry<T> extends ListElementImpl<HashEntry<T>> {
 	private @NonNull T hash_entry;
 	private final int key;
 
-	public HashEntry(int key, T entry) {
+	public HashEntry(int key, @NonNull T entry) {
 		this.key = key;
 		this.hash_entry = entry;
 	}
@@ -20,7 +20,7 @@ public final class HashEntry<T> extends ListElementImpl<HashEntry<T>> {
 		return hash_entry;
 	}
 
-	public T setEntry(@NonNull T entry) {
+	public @NonNull T setEntry(@NonNull T entry) {
 		T old = hash_entry;
 		hash_entry = entry;
 		return old;

@@ -65,12 +65,12 @@ public abstract class Deterministic {
         return log(p, Path.of(""));
     }
 
-	public final <T> T log(T o) {
+	public final <T> @Nullable T log(@Nullable T o) {
 		assert enabled;
 		return logObject(o);
 	}
 
-	protected abstract <T> T logObject(T o);
+	protected abstract <T> @Nullable T logObject(@Nullable T o);
 
 	public final void log(ByteBuffer o) {
 		assert enabled;

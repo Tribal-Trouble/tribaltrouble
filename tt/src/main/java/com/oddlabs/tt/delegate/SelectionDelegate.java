@@ -256,7 +256,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	protected CursorType getCursorType() {
+	protected @NonNull CursorType getCursorType() {
         return map_mode ? CursorType.TARGET : CursorType.NORMAL;
 	}
 

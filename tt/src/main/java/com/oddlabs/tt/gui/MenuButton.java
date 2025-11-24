@@ -13,8 +13,8 @@ public final class MenuButton extends ButtonObject {
 
 	private final @NonNull TextLineRenderer text_renderer;
 	private final @NonNull CharSequence text;
-	private final float[] color_normal;
-	private final float[] color_active;
+	private final float @NonNull [] color_normal;
+	private final float @NonNull [] color_active;
 	
 	private float start_hover_time;
 

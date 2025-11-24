@@ -56,6 +56,7 @@ import com.oddlabs.tt.vbo.VBO;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -67,7 +68,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLContext;
-import org.joml.Matrix4f;
 
 import java.io.File;
 import java.io.IOException;

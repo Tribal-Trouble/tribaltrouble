@@ -72,7 +72,7 @@ public class FirstPersonDelegate extends InGameDelegate {
 	}
 
 	@Override
-	protected CursorType getCursorType() {
+	protected @NonNull CursorType getCursorType() {
 		return CursorType.NULL;
 	}
 

@@ -102,7 +102,7 @@ public abstract class GLImage {
 		return result;
 	}
 
-	private static void applyFadeout(GLImage image, float factor) {
+	private static void applyFadeout(@NonNull GLImage image, float factor) {
 		for (int y = 0; y < image.getHeight(); y++) {
 			for (int x = 0; x < image.getWidth(); x++) {
 				int pixel = image.getPixel(x, y);
@@ -173,7 +173,7 @@ public abstract class GLImage {
 	 *                           otherwise, it's the average.
 	 * @return The calculated 32-bit ARGB pixel value.
 	 */
-	private static int averagePixel(GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
+	private static int averagePixel(@NonNull GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
 		float inv_num_averaged = 1f/(height_div * width_div);
 		int col1 = 0;
 		int col2 = 0;

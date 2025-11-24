@@ -1,7 +1,5 @@
 package com.oddlabs.tt.render.shader;
 
-import org.jspecify.annotations.NonNull;
-
 /** A shader that emulates the classic OpenGL fixed-funciton pipeline. */
 public final class FixedFunctionShader extends ShaderProgram {
 	

@@ -379,7 +379,7 @@ public abstract class GUIObject extends Renderable {
 		}
 	}
 
-	protected CursorType getCursorType() {
+	protected @NonNull CursorType getCursorType() {
 		return CursorType.NORMAL;
 	}
 

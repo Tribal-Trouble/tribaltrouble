@@ -22,7 +22,7 @@ public class TargetDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	protected final CursorType getCursorType() {
+	protected final @NonNull CursorType getCursorType() {
 		return CursorType.TARGET;
 	}
 

@@ -43,7 +43,7 @@ public class EditLine extends TextField {
 	}
 
 	@Override
-	protected final CursorType getCursorType() {
+	protected final @NonNull CursorType getCursorType() {
 		return CursorType.TEXT;
 	}
 

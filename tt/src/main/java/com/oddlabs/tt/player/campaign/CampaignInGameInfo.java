@@ -3,7 +3,6 @@ package com.oddlabs.tt.player.campaign;
 import com.oddlabs.tt.delegate.GameStatsDelegate;
 import com.oddlabs.tt.delegate.InGameMainMenu;
 import com.oddlabs.tt.delegate.Menu;
-import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.LabelBox;

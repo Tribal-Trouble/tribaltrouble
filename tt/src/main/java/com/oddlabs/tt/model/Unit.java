@@ -28,11 +28,11 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.util.Quad;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.Arrays;

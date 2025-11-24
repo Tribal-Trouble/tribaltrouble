@@ -1,5 +1,7 @@
 package com.oddlabs.matchmaking;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -7,15 +9,15 @@ public final class ChatRoomUser implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 1;
 
-	private final String nick;
+	private final @NonNull String nick;
 	private final boolean playing;
 
-	public ChatRoomUser(String nick, boolean playing) {
+	public ChatRoomUser(@NonNull String nick, boolean playing) {
 		this.nick = nick;
 		this.playing = playing;
 	}
 
-	public String getNick() {
+	public @NonNull String getNick() {
 		return nick;
 	}
 
@@ -30,8 +32,6 @@ public final class ChatRoomUser implements Serializable {
 
 	@Override
 	public boolean equals(Object other) {
-		if (!(other instanceof ChatRoomUser))
-			return false;
-		return ((ChatRoomUser)other).nick.equals(nick);
+        return other instanceof ChatRoomUser && ((ChatRoomUser) other).nick.equals(nick);
 	}
 }

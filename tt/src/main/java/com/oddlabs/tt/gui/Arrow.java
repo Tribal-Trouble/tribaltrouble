@@ -2,9 +2,9 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.landscape.HeightMap;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
-import org.joml.Vector4f;
 
 public final class Arrow extends GUIObject {
 	private static final float SECONDS_PER_FLASH = .5f;

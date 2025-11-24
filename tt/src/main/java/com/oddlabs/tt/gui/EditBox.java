@@ -121,7 +121,7 @@ public final class EditBox extends TextBox {
 	}
 
 	@Override
-	protected CursorType getCursorType() {
+	protected @NonNull CursorType getCursorType() {
 		return CursorType.TEXT;
 	}
 

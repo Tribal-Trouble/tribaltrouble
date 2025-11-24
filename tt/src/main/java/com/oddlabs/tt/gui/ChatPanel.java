@@ -45,7 +45,7 @@ public class ChatPanel extends Panel implements ChatListener {
 		return Utils.getBundleString(getBundle(), key);
 	}
 
-	public ChatPanel(GUIRoot gui_root, @NonNull ChatRoomInfo info, int compare_width, int compare_height, int button_width, EnterListener chat_listener, MouseClickListener leave_listener) {
+	public ChatPanel(GUIRoot gui_root, @NonNull ChatRoomInfo info, int compare_width, int compare_height, int button_width, EnterListener chat_listener, @NonNull MouseClickListener leave_listener) {
 		super(getI18N("chat"));
 		this.gui_root = gui_root;
 		FormData fdata = Skin.getSkin().getFormData();
