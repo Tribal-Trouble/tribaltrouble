@@ -28,7 +28,7 @@ public final class WaitingForPlayersForm extends Form {
 		addChild(info_label);
 		addChild(abort_button);
 		info_label.place();
-		abort_button.place(ORIGIN_BOTTOM_RIGHT);
+		abort_button.place(Origin.AT_END);
 		compileCanvas();
 		centerPos();
 	}

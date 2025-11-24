@@ -119,7 +119,7 @@ public final class NewUserForm extends Form {
 		login_group.place(label_one_user, BOTTOM_LEFT);
 
 
-		group_buttons.place(ORIGIN_BOTTOM_RIGHT);
+		group_buttons.place(Origin.AT_END);
 
 		compileCanvas();
 	}

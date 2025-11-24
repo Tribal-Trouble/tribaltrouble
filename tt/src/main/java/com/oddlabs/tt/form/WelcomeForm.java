@@ -33,7 +33,7 @@ public final class WelcomeForm extends Form {
 		// Place objects
 		label_headline.place();
 		box.place(label_headline, BOTTOM_LEFT);
-		ok_button.place(ORIGIN_BOTTOM_RIGHT);
+		ok_button.place(Origin.AT_END);
 
 		// headline
 		compileCanvas();

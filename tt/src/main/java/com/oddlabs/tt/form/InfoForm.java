@@ -13,6 +13,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Origin.AT_END;
 import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_TOP;
 
@@ -77,7 +78,7 @@ public final class InfoForm extends Form {
 		types.place(label_headline, BOTTOM_LEFT);
 		values.place(types, RIGHT_TOP);
 
-		ok_button.place(ORIGIN_BOTTOM_RIGHT);
+		ok_button.place(AT_END);
 		compileCanvas();
 		centerPos();
 	}

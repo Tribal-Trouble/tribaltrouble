@@ -10,6 +10,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Origin.AT_END;
 import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
 
 public final class DisplayChangeForm extends Form {
@@ -33,7 +34,7 @@ public final class DisplayChangeForm extends Form {
 
 		// Place objects
 		info_label.place();
-		now_button.place(ORIGIN_BOTTOM_RIGHT);
+		now_button.place(AT_END);
 		later_button.place(now_button, LEFT_MID);
 
 		compileCanvas();

@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Origin.AT_END;
 import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
 
@@ -218,7 +219,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		logout_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
 
 		panel_group.place();
-		logout_button.place(ORIGIN_BOTTOM_RIGHT);
+		logout_button.place(AT_END);
 		compileCanvas();
 
 		Network.setMatchmakingListener(this);

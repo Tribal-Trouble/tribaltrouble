@@ -12,6 +12,7 @@ import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import static com.oddlabs.tt.gui.GUIObject.Origin.AT_END;
 import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
 import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
 import static com.oddlabs.tt.gui.GUIObject.Placement.TOP_LEFT;
@@ -80,7 +81,7 @@ public class CampaignDialogForm extends Form {
 			label_box.place();
 		}
 		header_label.place(label_box, TOP_LEFT);
-		ok_button.place(ORIGIN_BOTTOM_RIGHT);
+		ok_button.place(AT_END);
 		if (cancel) {
 			HorizButton cancel_button = new CancelButton(80);
 			addChild(cancel_button);

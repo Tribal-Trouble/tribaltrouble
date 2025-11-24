@@ -118,7 +118,7 @@ public final class TutorialForm extends Form {
 		label_tutorial5.place(button_tutorial5, RIGHT_MID);
 		button_tutorial6.place(button_tutorial5, BOTTOM_LEFT);
 		label_tutorial6.place(button_tutorial6, RIGHT_MID);
-		cancel_button.place(ORIGIN_BOTTOM_RIGHT);
+		cancel_button.place(Origin.AT_END);
 
 		// headline
 		compileCanvas();

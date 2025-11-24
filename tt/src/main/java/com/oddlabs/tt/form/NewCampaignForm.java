@@ -110,7 +110,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		label_headline.place();
 		group.place(label_headline, BOTTOM_LEFT);
 
-		button_cancel.place(ORIGIN_BOTTOM_RIGHT);
+		button_cancel.place(Origin.AT_END);
 		button_ok.place(button_cancel, LEFT_MID);
 
 		compileCanvas();

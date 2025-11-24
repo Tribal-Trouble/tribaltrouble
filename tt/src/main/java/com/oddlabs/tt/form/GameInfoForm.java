@@ -105,7 +105,7 @@ public final class GameInfoForm extends Form {
 		types.place(label_headline, BOTTOM_LEFT);
 		values.place(types, RIGHT_TOP);
 
-		ok_button.place(ORIGIN_BOTTOM_RIGHT);
+		ok_button.place(Origin.AT_END);
 		compileCanvas();
 		centerPos();
 	}

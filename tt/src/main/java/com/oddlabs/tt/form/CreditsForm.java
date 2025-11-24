@@ -114,7 +114,7 @@ public final class CreditsForm extends Form {
 		HorizButton ok_button = new OKButton(100);
 		addChild(ok_button);
 		ok_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
-		ok_button.place(ORIGIN_BOTTOM_RIGHT);
+		ok_button.place(Origin.AT_END);
 		compileCanvas();
 		centerPos();
 	}

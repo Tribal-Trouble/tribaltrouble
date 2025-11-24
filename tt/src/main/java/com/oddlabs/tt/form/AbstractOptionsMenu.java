@@ -42,6 +42,7 @@ import org.lwjgl.input.Cursor;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Origin.AT_END;
 import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
 import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
@@ -350,7 +351,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		// Place objects
 		label_headline.place();
 		panel_group.place(label_headline, BOTTOM_LEFT);
-		button_close.place(ORIGIN_BOTTOM_RIGHT);
+		button_close.place(AT_END);
 		button_about.place(button_close, LEFT_MID);
 		compileCanvas();
 	}

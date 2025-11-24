@@ -20,6 +20,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Origin.AT_END;
 import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
 
@@ -72,7 +73,7 @@ public final class ProfilesForm extends Form {
 
 		label_headline.place();
 		profile_list_box.place(label_headline, BOTTOM_LEFT);
-		logout_button.place(ORIGIN_BOTTOM_RIGHT);
+		logout_button.place(AT_END);
 		join_button.place(logout_button, LEFT_MID);
 		delete_profile_button.place(join_button, LEFT_MID);
 		create_profile_button.place(delete_profile_button, LEFT_MID);

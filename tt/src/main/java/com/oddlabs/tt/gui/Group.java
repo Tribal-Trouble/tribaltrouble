@@ -34,7 +34,7 @@ public class Group extends GUIObject {
 		ListElement<Renderable> current = getFirstChild();
 		while (current != null) {
 			GUIObject gui_object = (GUIObject)current;
-			if (gui_object.getOrigin() == ORIGIN_TOP_LEFT) {
+			if (gui_object.getOrigin() == Origin.AT_START) {
 				origin_top_left = true;
 				int x = gui_object.getX();
 				int y = gui_object.getY();
@@ -80,7 +80,7 @@ public class Group extends GUIObject {
 		while (current != null) {
 			GUIObject gui_object = (GUIObject)current;
 
-			if (gui_object.getOrigin() == ORIGIN_TOP_LEFT) {
+			if (gui_object.getOrigin() == Origin.AT_START) {
 				gui_object.correctPos(-min_x_tl + left_offset,
 									  height - max_y_tl - top_offset);
 			} else {

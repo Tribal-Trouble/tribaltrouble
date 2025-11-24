@@ -30,8 +30,10 @@ public abstract class GUIObject extends Renderable {
 		RIGHT_BOTTOM
 	}
 
-	public static final int ORIGIN_TOP_LEFT	 = 0;
-	public static final int ORIGIN_BOTTOM_RIGHT = 1;
+	public enum Origin {
+        AT_START,
+        AT_END
+	}
 
 	private boolean disabled;
 	private boolean hovered;
@@ -52,7 +54,7 @@ public abstract class GUIObject extends Renderable {
 	private final List<@NonNull FocusListener> focus_listeners = new java.util.ArrayList<>();
 
 	private boolean placed = false;
-	private int origin;
+	private @Nullable Origin origin;
 
 	public GUIObject() {
 		focus_cycle = false;
@@ -80,12 +82,12 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	public final void place() {
-		place(ORIGIN_TOP_LEFT);
+		place(Origin.AT_START);
 	}
 
-	public final void place(int origin_index) {
+	public final void place(@NonNull Origin origin) {
 		assert !placed : "Object already placed";
-		origin = origin_index;
+		this.origin = origin;
 		setPos(0, 0);
 		placed = true;
 	}
@@ -124,7 +126,7 @@ public abstract class GUIObject extends Renderable {
         };
 	}
 
-	public final int getOrigin() {
+	public final @Nullable Origin getOrigin() {
 		assert placed : "Object " + this + " compiled before being placed";
 		return origin;
 	}

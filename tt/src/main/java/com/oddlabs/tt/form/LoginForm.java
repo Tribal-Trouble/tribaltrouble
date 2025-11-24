@@ -112,7 +112,7 @@ public final class LoginForm extends Form {
 		label_headline.place();
 		login_group.place(label_headline, BOTTOM_LEFT);
 
-		group_buttons.place(ORIGIN_BOTTOM_RIGHT);
+		group_buttons.place(Origin.AT_END);
 
 		compileCanvas();
 

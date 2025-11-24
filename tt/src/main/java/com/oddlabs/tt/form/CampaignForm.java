@@ -67,7 +67,7 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
 		// Place objects
 		headline.place();
 		load_campaign_box.place(button_vikings, BOTTOM_LEFT);
-		button_cancel.place(ORIGIN_BOTTOM_RIGHT);
+		button_cancel.place(Origin.AT_END);
 		button_delete.place(button_cancel, LEFT_MID);
 		button_load.place(button_delete, LEFT_MID);
 		button_vikings.place(button_load, LEFT_MID);

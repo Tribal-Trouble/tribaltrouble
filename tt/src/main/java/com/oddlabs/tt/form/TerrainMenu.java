@@ -410,7 +410,7 @@ public final class TerrainMenu extends Group {
 		panel_group.place(label_headline, BOTTOM_LEFT);
 
 		// buttons
-		group_buttons.place(ORIGIN_BOTTOM_RIGHT);
+		group_buttons.place(Origin.AT_END);
 
 		compileCanvas();
 		randomize();

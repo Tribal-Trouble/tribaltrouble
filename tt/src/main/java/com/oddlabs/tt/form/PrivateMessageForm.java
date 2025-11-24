@@ -16,6 +16,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Origin.AT_END;
 import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
 import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
@@ -56,7 +57,7 @@ public final class PrivateMessageForm extends Form {
 		label_headline.place();
 		label_name.place(label_headline, BOTTOM_LEFT);
 		editline_name.place(label_name, RIGHT_MID);
-		button_cancel.place(ORIGIN_BOTTOM_RIGHT);
+		button_cancel.place(AT_END);
 		button_ok.place(button_cancel, LEFT_MID);
 		compileCanvas();
 		centerPos();
