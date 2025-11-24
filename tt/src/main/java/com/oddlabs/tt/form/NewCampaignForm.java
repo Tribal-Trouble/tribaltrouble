@@ -31,6 +31,9 @@ import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
+
 public final class NewCampaignForm extends Form implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
 	private static final int BUTTON_WIDTH = 100;
 	private static final int EDITLINE_WIDTH = 240;

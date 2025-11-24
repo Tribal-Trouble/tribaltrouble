@@ -47,6 +47,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
+
 public final class SelectGameMenu extends Form implements MatchmakingListener, TerrainMenuListener {
 	private static final int BUTTON_WIDTH_SHORT = 60;
 	private static final int BUTTON_WIDTH = 110;

@@ -18,6 +18,8 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
+
 public final class TutorialOverDelegate extends CameraDelegate implements Updatable {
 	private static final float DELAY = 1f;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);

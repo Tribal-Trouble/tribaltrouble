@@ -13,6 +13,8 @@ import com.oddlabs.tt.util.Utils;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+
 public final class WelcomeForm extends Form {
 
 

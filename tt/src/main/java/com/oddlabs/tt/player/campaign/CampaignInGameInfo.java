@@ -16,6 +16,8 @@ import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+
 final class CampaignInGameInfo implements InGameInfo {
 	private final Campaign campaign;
 
@@ -46,7 +48,7 @@ final class CampaignInGameInfo implements InGameInfo {
 		game_infos.addChild(label_objective);
 		game_infos.addChild(label_description);
 		label_objective.place();
-		label_description.place(label_objective, GUIObject.BOTTOM_LEFT);
+		label_description.place(label_objective, BOTTOM_LEFT);
 		game_infos.compileCanvas();
 	}
 

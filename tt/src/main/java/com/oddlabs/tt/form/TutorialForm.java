@@ -30,12 +30,14 @@ import com.oddlabs.tt.tutorial.TutorialInGameInfo;
 import com.oddlabs.tt.tutorial.TutorialOverTrigger;
 import com.oddlabs.tt.tutorial.TutorialTrigger;
 import com.oddlabs.tt.util.Utils;
-import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ResourceBundle;
+
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
 
 public final class TutorialForm extends Form {
 	public static final int TUTORIAL_CAMERA = 1;
@@ -149,7 +151,7 @@ public final class TutorialForm extends Form {
 		game_network.getClient().getServerInterface().startServer();
 	}
 
-	private static @NonNull GameNetwork doStartNewGame(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull InGameInfo ingame_info, final @Nullable WorldInitAction initial_action, int initial_unit_count, int tutorial_num) {
+	private static @NonNull GameNetwork doStartNewGame(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull TutorialInGameInfo ingame_info, final @Nullable WorldInitAction initial_action, int initial_unit_count, int tutorial_num) {
 		int size = 256;
 		float hills = 1f;
 		float trees = 1f;

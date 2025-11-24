@@ -18,6 +18,10 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_TOP;
+
 public class DefaultInGameInfo implements InGameInfo {
 	private final ResourceBundle terrain_menu_bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
 	private boolean replay_island_flag;
@@ -68,9 +72,9 @@ public class DefaultInGameInfo implements InGameInfo {
 		group.addChild(button_end);
 
 		button_end.place();
-		button_observer.place(button_end, GUIObject.LEFT_MID);
+		button_observer.place(button_end, LEFT_MID);
 		if (replay)
-			button_replay.place(button_observer, GUIObject.LEFT_MID);
+			button_replay.place(button_observer, LEFT_MID);
 	}
 
 	private void addGameInfos(@NonNull WorldViewer viewer, Menu menu, @NonNull Group game_infos) {
@@ -97,19 +101,19 @@ public class DefaultInGameInfo implements InGameInfo {
                 team.setColor(color);
                 names.addChild(name);
                 if (last_name != null)
-                    name.place(last_name, GUIObject.BOTTOM_LEFT);
+                    name.place(last_name, BOTTOM_LEFT);
                 else
                     name.place();
                 last_name = name;
                 races.addChild(race);
                 if (last_race != null)
-                    race.place(last_race, GUIObject.BOTTOM_LEFT);
+                    race.place(last_race, BOTTOM_LEFT);
                 else
                     race.place();
                 last_race = race;
                 teams.addChild(team);
                 if (last_team != null)
-                    team.place(last_team, GUIObject.BOTTOM_LEFT);
+                    team.place(last_team, BOTTOM_LEFT);
                 else
                     team.place();
                 last_team = team;
@@ -121,8 +125,8 @@ public class DefaultInGameInfo implements InGameInfo {
 		game_infos.addChild(races);
 		game_infos.addChild(teams);
 		names.place();
-		races.place(names, GUIObject.RIGHT_TOP);
-		teams.place(races, GUIObject.RIGHT_TOP);
+		races.place(names, RIGHT_TOP);
+		teams.place(races, RIGHT_TOP);
 		game_infos.compileCanvas();
 	}
 

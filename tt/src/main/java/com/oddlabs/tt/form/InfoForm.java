@@ -13,6 +13,9 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_TOP;
+
 public final class InfoForm extends Form {
 	private final @NonNull HorizButton ok_button;
 

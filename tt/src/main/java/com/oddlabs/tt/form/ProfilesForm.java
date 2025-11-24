@@ -20,6 +20,9 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
+
 public final class ProfilesForm extends Form {
 	private static final int NICK_SIZE = 200;
 

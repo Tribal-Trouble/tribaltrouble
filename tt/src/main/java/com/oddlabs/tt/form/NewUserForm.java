@@ -22,6 +22,11 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_RIGHT;
+import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
+
 public final class NewUserForm extends Form {
 	private static final int MIN_PASSWORD_LENGTH = 6;
 

@@ -13,6 +13,8 @@ import com.oddlabs.tt.util.Utils;
 
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+
 // unicode codes: ae: 00E6 - oe: 00F8 - aa: 00E5 - AE: 00C6 - OE: 00D8 - AA: 00C5 - (C): 00A9
 
 public final class CreditsForm extends Form {

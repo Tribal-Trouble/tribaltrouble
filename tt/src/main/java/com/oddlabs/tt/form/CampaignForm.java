@@ -23,6 +23,9 @@ import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
+
 public final class CampaignForm extends Form implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
 	private final @NonNull HorizButton button_vikings;
 	private final @NonNull LoadCampaignBox load_campaign_box;

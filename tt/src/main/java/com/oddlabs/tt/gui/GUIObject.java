@@ -15,18 +15,20 @@ import java.util.List;
 import java.util.Objects;
 
 public abstract class GUIObject extends Renderable {
-	public static final int TOP_LEFT	 =  1;
-	public static final int TOP_MID	  =  2;
-	public static final int TOP_RIGHT	=  3;
-	public static final int BOTTOM_LEFT  =  4;
-	public static final int BOTTOM_MID   =  5;
-	public static final int BOTTOM_RIGHT =  6;
-	public static final int LEFT_TOP	 =  7;
-	public static final int LEFT_MID	 =  8;
-	public static final int LEFT_BOTTOM  =  9;
-	public static final int RIGHT_TOP	= 10;
-	public static final int RIGHT_MID	= 11;
-	public static final int RIGHT_BOTTOM = 12;
+	public enum Placement {
+		TOP_LEFT,
+		TOP_MID,
+		TOP_RIGHT,
+		BOTTOM_LEFT,
+		BOTTOM_MID,
+		BOTTOM_RIGHT,
+		LEFT_TOP,
+		LEFT_MID,
+		LEFT_BOTTOM,
+		RIGHT_TOP,
+		RIGHT_MID,
+		RIGHT_BOTTOM
+	}
 
 	public static final int ORIGIN_TOP_LEFT	 = 0;
 	public static final int ORIGIN_BOTTOM_RIGHT = 1;
@@ -88,11 +90,11 @@ public abstract class GUIObject extends Renderable {
 		placed = true;
 	}
 
-	public final void place(@NonNull GUIObject neighbor, int direction) {
+	public final void place(@NonNull GUIObject neighbor, @NonNull Placement direction) {
 		place(neighbor, direction, Skin.getSkin().getFormData().getObjectSpacing());
 	}
 
-	public final void place(@NonNull GUIObject neighbor, int direction, int spacing) {
+	public final void place(@NonNull GUIObject neighbor, @NonNull Placement direction, int spacing) {
 		assert !placed : "Object already placed";
 		int new_x = getXFromDirection(direction, spacing, neighbor.getX(), neighbor.getWidth());
 		int new_y = getYFromDirection(direction, spacing, neighbor.getY(), neighbor.getHeight());
@@ -102,25 +104,23 @@ public abstract class GUIObject extends Renderable {
 		placed = true;
 	}
 
-	private int getXFromDirection(int direction, int spacing, int neightbour_x, int neighbour_width) {
+	private int getXFromDirection(@NonNull Placement direction, int spacing, int neightbour_x, int neighbour_width) {
         return switch (direction) {
             case BOTTOM_LEFT, TOP_LEFT -> neightbour_x;
             case BOTTOM_MID, TOP_MID -> neightbour_x + (neighbour_width - getWidth()) / 2;
             case BOTTOM_RIGHT, TOP_RIGHT -> neightbour_x + neighbour_width - getWidth();
             case RIGHT_BOTTOM, RIGHT_MID, RIGHT_TOP -> neightbour_x + neighbour_width + spacing;
             case LEFT_BOTTOM, LEFT_MID, LEFT_TOP -> neightbour_x - getWidth() - spacing;
-            default -> throw new RuntimeException("Invalid direction");
         };
 	}
 
-	private int getYFromDirection(int direction, int spacing, int neighbour_y, int neighbour_height) {
+	private int getYFromDirection(@NonNull Placement direction, int spacing, int neighbour_y, int neighbour_height) {
         return switch (direction) {
             case BOTTOM_LEFT, BOTTOM_MID, BOTTOM_RIGHT -> neighbour_y - getHeight() - spacing;
             case TOP_LEFT, TOP_RIGHT, TOP_MID -> neighbour_y + neighbour_height + spacing;
             case RIGHT_BOTTOM, LEFT_BOTTOM -> neighbour_y;
             case RIGHT_TOP, LEFT_TOP -> neighbour_y + neighbour_height - getHeight();
             case LEFT_MID, RIGHT_MID -> neighbour_y + (neighbour_height - getHeight()) / 2;
-            default -> throw new RuntimeException("Invalid direction");
         };
 	}
 

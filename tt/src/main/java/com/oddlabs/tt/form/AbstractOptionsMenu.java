@@ -42,6 +42,11 @@ import org.lwjgl.input.Cursor;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
+import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_TOP;
+
 public abstract class AbstractOptionsMenu extends Form {
 	private static final int BUTTON_WIDTH = 100;
 	private static final int MAX_VALUE = 20;
