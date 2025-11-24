@@ -3,7 +3,6 @@ package com.oddlabs.tt.camera;
 import com.oddlabs.tt.delegate.SelectionDelegate;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.World;
@@ -272,9 +271,10 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                 return center_y;
         } else {
                 float da = getState().getTargetVertAngle() - ROTATE_PICKING_ANGLE_MAX;
-                float pixels_per_unit = 1f/GUIRoot.getUnitsPerPixel(Globals.VIEW_MIN);
-                int pixels_to_screen = (int)(Globals.VIEW_MIN*pixels_per_unit);
-                int dy = (int)(((float)Math.tan(da))*pixels_to_screen);
+                // float pixels_per_unit = 1f/GUIRoot.getUnitsPerPixel(Globals.VIEW_MIN);
+                // int pixels_to_screen = (int)(Globals.VIEW_MIN*pixels_per_unit);
+                // int dy = (int)(((float)Math.tan(da))*pixels_to_screen);
+                int dy = (int)(Math.tan(da) * Globals.VIEW_MIN);
                 int y = center_y - dy;
                 return y;
         }
