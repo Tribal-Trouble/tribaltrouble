@@ -4,7 +4,7 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.MapCamera;
 import com.oddlabs.tt.form.InGameChatForm;
 import com.oddlabs.tt.gui.ActionButtonPanel;
-import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
@@ -256,12 +256,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	protected int getCursorIndex() {
-		if (map_mode) {
-			return GUIRoot.CURSOR_TARGET;
-		} else {
-			return GUIRoot.CURSOR_NORMAL;
-		}
+	protected CursorType getCursorType() {
+        return map_mode ? CursorType.TARGET : CursorType.NORMAL;
 	}
 
 	public void exitMapMode() {

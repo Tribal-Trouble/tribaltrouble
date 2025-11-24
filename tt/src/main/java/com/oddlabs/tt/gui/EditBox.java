@@ -121,8 +121,8 @@ public final class EditBox extends TextBox {
 	}
 
 	@Override
-	protected int getCursorIndex() {
-		return GUIRoot.CURSOR_TEXT;
+	protected CursorType getCursorType() {
+		return CursorType.TEXT;
 	}
 
 	@Override

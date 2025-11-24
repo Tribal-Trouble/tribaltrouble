@@ -1,7 +1,7 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
-import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -22,8 +22,8 @@ public class TargetDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	protected final int getCursorIndex() {
-		return GUIRoot.CURSOR_TARGET;
+	protected final CursorType getCursorType() {
+		return CursorType.TARGET;
 	}
 
 	@Override

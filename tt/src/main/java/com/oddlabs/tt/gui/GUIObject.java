@@ -379,8 +379,8 @@ public abstract class GUIObject extends Renderable {
 		}
 	}
 
-	protected int getCursorIndex() {
-		return GUIRoot.CURSOR_NORMAL;
+	protected CursorType getCursorType() {
+		return CursorType.NORMAL;
 	}
 
 	public boolean canHoverBehind() {

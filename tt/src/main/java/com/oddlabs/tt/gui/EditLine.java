@@ -43,8 +43,8 @@ public class EditLine extends TextField {
 	}
 
 	@Override
-	protected final int getCursorIndex() {
-		return GUIRoot.CURSOR_TEXT;
+	protected final CursorType getCursorType() {
+		return CursorType.TEXT;
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.FirstPersonCamera;
 import com.oddlabs.tt.event.LocalEventQueue;
-import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -72,8 +72,8 @@ public class FirstPersonDelegate extends InGameDelegate {
 	}
 
 	@Override
-	protected int getCursorIndex() {
-		return GUIRoot.CURSOR_NULL;
+	protected CursorType getCursorType() {
+		return CursorType.NULL;
 	}
 
 	@Override

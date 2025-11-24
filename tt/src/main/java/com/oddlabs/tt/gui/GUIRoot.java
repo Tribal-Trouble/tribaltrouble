@@ -27,12 +27,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public final class GUIRoot extends GUIObject implements Updatable {
-	public static final int CURSOR_NORMAL = 0;
-	public static final int CURSOR_TARGET = 1;
-	public static final int CURSOR_TEXT = 2;
-	public static final int CURSOR_NULL = 3;
 
-//	private static int inc_seed = 2;
+    //	private static int inc_seed = 2;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(GUIRoot.class.getName());
 
 	private static final int CURSOR_OFFSET_Y = 27;
@@ -543,15 +539,15 @@ public RandomVelocityEmitter(Vector3f position,
 		GL11.glEnd(); // Started in renderGeometry()
 		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
 
-		if (cursor_object.getCursorIndex() != CURSOR_NULL) {
-			cursors[cursor_object.getCursorIndex()].setActive();
+		if (cursor_object.getCursorType() != CursorType.NULL) {
+			cursors[cursor_object.getCursorType().ordinal()].setActive();
 			if (getModalDelegate() != null || getDelegate().renderCursor()) {
 				// Mouse coordinates are now Y-up from LocalInput
 				float mouse_x = LocalInput.getMouseX();
 				float mouse_y = LocalInput.getMouseY();
 				
 				// Pass directly, as LocalInput now provides Y-up coordinates
-				cursors[cursor_object.getCursorIndex()].render(mouse_x, mouse_y);
+				cursors[cursor_object.getCursorType().ordinal()].render(mouse_x, mouse_y);
 			}
 		} else
 			PointerInput.setActiveCursor(null);
