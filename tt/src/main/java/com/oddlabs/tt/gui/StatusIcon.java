@@ -21,7 +21,7 @@ public class StatusIcon extends GUIObject implements ToolTip {
 		setDim(icon.getWidth() + label_width, icon.getHeight());
 		setCanFocus(true); //only to enable tool tips. focus is given to delegate
 		this.icon_quad = icon;
-		label = new Label("", Skin.getSkin().getEditFont(), label_width, Label.ALIGN_RIGHT);
+		label = new Label("", Skin.getSkin().getEditFont(), label_width, Label.Alignment.RIGHT);
 		addChild(label);
 //		label.setPos(icon.getWidth(), (getHeight() - label.getFont().getHeight())/2);
 		label.setPos(0, (getHeight() - label.getFont().getHeight())/2);

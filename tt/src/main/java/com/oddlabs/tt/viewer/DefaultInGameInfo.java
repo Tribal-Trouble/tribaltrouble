@@ -85,39 +85,39 @@ public class DefaultInGameInfo implements InGameInfo {
 		GUIObject last_race = null;
 		Group teams = new Group();
 		GUIObject last_team = null;
-            for (Player player : players) {
-                PlayerInfo player_info = player.getPlayerInfo();
-                float[] color = player.getColor();
-                if (!viewer.getPeerHub().isAlive(player)) {
-                    color = new float[]{color[0], color[1], color[2], .25f};
-                }
-                Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont());
-                name.setColor(color);
-                String race_str = RacesResources.getRaceName(player_info.getRace());
-                Label race = new Label(race_str, Skin.getSkin().getHeadlineFont());
-                race.setColor(color);
-                String team_str = Utils.getBundleString(terrain_menu_bundle, "team", Integer.toString(player_info.getTeam() + 1));
-                Label team = new Label(team_str, Skin.getSkin().getHeadlineFont());
-                team.setColor(color);
-                names.addChild(name);
-                if (last_name != null)
-                    name.place(last_name, BOTTOM_LEFT);
-                else
-                    name.place();
-                last_name = name;
-                races.addChild(race);
-                if (last_race != null)
-                    race.place(last_race, BOTTOM_LEFT);
-                else
-                    race.place();
-                last_race = race;
-                teams.addChild(team);
-                if (last_team != null)
-                    team.place(last_team, BOTTOM_LEFT);
-                else
-                    team.place();
-                last_team = team;
+        for (Player player : players) {
+            PlayerInfo player_info = player.getPlayerInfo();
+            float[] color = player.getColor();
+            if (!viewer.getPeerHub().isAlive(player)) {
+                color = new float[]{color[0], color[1], color[2], .25f};
             }
+            Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont());
+            name.setColor(color);
+            String race_str = RacesResources.getRaceName(player_info.getRace());
+            Label race = new Label(race_str, Skin.getSkin().getHeadlineFont());
+            race.setColor(color);
+            String team_str = Utils.getBundleString(terrain_menu_bundle, "team", Integer.toString(player_info.getTeam() + 1));
+            Label team = new Label(team_str, Skin.getSkin().getHeadlineFont());
+            team.setColor(color);
+            names.addChild(name);
+            if (last_name != null)
+                name.place(last_name, BOTTOM_LEFT);
+            else
+                name.place();
+            last_name = name;
+            races.addChild(race);
+            if (last_race != null)
+                race.place(last_race, BOTTOM_LEFT);
+            else
+                race.place();
+            last_race = race;
+            teams.addChild(team);
+            if (last_team != null)
+                team.place(last_team, BOTTOM_LEFT);
+            else
+                team.place();
+            last_team = team;
+        }
 		names.compileCanvas();
 		races.compileCanvas();
 		teams.compileCanvas();

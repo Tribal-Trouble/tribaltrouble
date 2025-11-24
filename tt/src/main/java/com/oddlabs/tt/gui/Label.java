@@ -7,26 +7,28 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public class Label extends TextField implements Comparable<Label> {
-	public static final int ALIGN_LEFT		= 0;
-	public static final int ALIGN_CENTER	= 1;
-	public static final int ALIGN_RIGHT		= 2;
+	public enum Alignment {
+		LEFT,
+		CENTER,
+		RIGHT
+	}
 	public static final float[] DEFAULT_COLOR = Color.argb4f(0xFFFFFFFF);
 	public static final float[] DISABLED_COLOR = Color.argb4f(0xB2B2B2B2);
 
-	private final int align;
+	private final @NonNull Alignment align;
 	private final @NonNull TextLineRenderer text_renderer;
 
 	private float[] color = DEFAULT_COLOR;
 
 	public Label(@NonNull CharSequence text, @NonNull Font font) {
-		this(text, font, font.getWidth(text), ALIGN_LEFT);
+		this(text, font, font.getWidth(text), Alignment.LEFT);
 	}
 
 	public Label(@NonNull CharSequence text, @NonNull Font font, int width) {
-		this(text, font, width, ALIGN_LEFT);
+		this(text, font, width, Alignment.LEFT);
 	}
 
-	public Label(@NonNull CharSequence text, @NonNull Font font, int width, int align) {
+	public Label(@NonNull CharSequence text, @NonNull Font font, int width, @NonNull Alignment align) {
 		super(text, font, Integer.MAX_VALUE);
 		this.align = align;
 		text_renderer = new TextLineRenderer(font);
@@ -48,13 +50,13 @@ public class Label extends TextField implements Comparable<Label> {
 		}
 		GL11.glBegin(GL11.GL_QUADS);
             switch (align) {
-                case ALIGN_LEFT:
+                case LEFT:
                     text_renderer.renderCropped(0, 0, clip_left, clip_right, clip_bottom, clip_top, getText());
                     break;
-                case ALIGN_CENTER:
+                case CENTER:
                     text_renderer.render(0, 0, (getWidth() - getFont().getWidth(getText()))/2, clip_left, clip_right, clip_bottom, clip_top, getText(), -1);
                     break;
-                case ALIGN_RIGHT:
+                case RIGHT:
                     text_renderer.render(0, 0, getWidth() - getFont().getWidth(getText()), clip_left, clip_right, clip_bottom, clip_top, getText(), -1);
                     break;
                 default:
