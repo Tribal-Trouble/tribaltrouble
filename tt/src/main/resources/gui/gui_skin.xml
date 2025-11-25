@@ -336,7 +336,7 @@
 					<quad left="499" top="112" right="512" bottom="113"/>
 				</active>
 				<disabled>
-					<quad left="499" top="146" right="512" bottom="145"/>
+					<quad left="499" top="145" right="512" bottom="146"/>
 				</disabled>
 			</right>
 			<right_top>
@@ -1138,10 +1138,10 @@
 					<quad left="324" top="44" right="348" bottom="45"/>
 				</normal>
 				<active>
-					<quad left="324" top="117" right="348" bottom="109"/>
+					<quad left="324" top="109" right="348" bottom="117"/>
 				</active>
 				<disabled>
-					<quad left="324" top="181" right="348" bottom="173"/>
+					<quad left="324" top="173" right="348" bottom="181"/>
 				</disabled>
 			</center>
 			<top>
