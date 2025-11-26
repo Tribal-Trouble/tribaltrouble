@@ -16,7 +16,9 @@ import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 
 public final class FontRenderer {
 	private static final int GLYPH_X_BORDER = 4;
@@ -25,16 +27,22 @@ public final class FontRenderer {
 	private static final int GLYPH_Y_OVERLAP = 5;
 	private static final float SPACE_SCALE = 0.66666f;
 
-	static void main(@NonNull String @NonNull ... args) throws Exception {
+	static void main(@NonNull String @NonNull ... args) {
         if (7 != args.length) {
 			IO.println("FontRenderer <font_name> <font_size> <max_image_width> <max_chars> <font_info_dir> <font_tex_dir> <font_tex_classpath>");
         }
-		new FontRenderer(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]),
-				args[4], args[5], args[6]);
-		IO.println("Conversion complete\n");
+        try {
+            new FontRenderer(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]),
+                    Path.of(args[4]), Path.of(args[5]), args[6]);
+            IO.println("Conversion complete\n");
+        } catch(Throwable all) {
+            IO.println("Conversion failed");
+            all.printStackTrace(System.err);
+            System.exit(1);
+        }
 	}
 
-	public FontRenderer(@NonNull String src_font_name, int font_size, int max_image_size, int max_chars, String font_info_dir, String font_tex_dir, String font_tex_classpath) throws Exception {
+	public FontRenderer(@NonNull String src_font_name, int font_size, int max_image_size, int max_chars, @NonNull Path font_info_dir, @NonNull Path font_tex_dir, String font_tex_classpath) throws Exception {
 		IO.println("Converting first " + max_chars + " chars of " + src_font_name + " size " + font_size);
 		String dest_font_name = src_font_name.toLowerCase();
         java.awt.Font src_font;
@@ -42,7 +50,7 @@ public final class FontRenderer {
 		String ttf_resource_path = "/fonts/" + src_font_name + ".ttf";
 		try (InputStream font_is = FontRenderer.class.getResourceAsStream(ttf_resource_path)) {
 			if (font_is == null) {
-				throw new Exception("Cannot find font resource: " + ttf_resource_path);
+				throw new IOException("Cannot find font resource: " + ttf_resource_path);
 			}
             src_font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, font_is).deriveFont((float)font_size);
         }
@@ -175,7 +183,7 @@ public final class FontRenderer {
 		return new int[]{image_height, max_glyph_height, max_baseline_height};
 	}
 
-	private @NonNull Channel drawFont(@NonNull Font src_font, String font_tex_classpath, String font_info_dir, String dest_font_name, int font_size, int max_glyph_height, int max_baseline_height, int image_width, int image_height, int space_width, char @NonNull [] chars, boolean create_xml) {
+	private @NonNull Channel drawFont(@NonNull Font src_font, String font_tex_classpath, @NonNull Path font_info_dir, String dest_font_name, int font_size, int max_glyph_height, int max_baseline_height, int image_width, int image_height, int space_width, char @NonNull [] chars, boolean create_xml) {
 		BufferedImage image = new BufferedImage(image_width, image_height, BufferedImage.TYPE_4BYTE_ABGR);
 		Graphics2D g2d = (Graphics2D)image.getGraphics();
 		g2d.setFont(src_font);
@@ -187,10 +195,11 @@ public final class FontRenderer {
 		int current_x = 0;
 		int current_y = 0;
 		int valid_chars = 0;
-		Quad[] key_map = create_xml ? new Quad[Character.MAX_VALUE] : null;
+		Quad[] key_map = create_xml ? new Quad[chars.length] : null;
 
 		IO.println("Drawing chars for width*height = " + image_width + "*" + image_height);
 		IO.print("Progress...");
+        char[] current_char = new char[1];
 		for (int i = 0; i < chars.length; i++) {
 			if (i % 1000 == 0) {
 				IO.print(".");
@@ -198,7 +207,7 @@ public final class FontRenderer {
 			char ch = (char)i;
 			if (src_font.canDisplay(chars[ch])) {
 				valid_chars++;
-				char[] current_char = new char[] {chars[ch]};
+                current_char[0] = chars[ch];
 				GlyphVector gv = src_font.createGlyphVector(frc, current_char);
 				Shape glyph_shape = gv.getGlyphOutline(0);
 				Rectangle2D glyph_bounds = glyph_shape.getBounds2D();
@@ -237,7 +246,7 @@ public final class FontRenderer {
 		if (create_xml) {
 			String tex_name = font_tex_classpath + "/" + dest_font_name + "_" + font_size;
 			FontInfo font_info = new FontInfo(tex_name, key_map, GLYPH_X_OVERLAP, GLYPH_Y_OVERLAP, max_glyph_height);
-			String font_file_name = font_info_dir + File.separator + dest_font_name + "_" + font_size + ".font";
+			Path font_file_name = font_info_dir.resolve(dest_font_name + "_" + font_size + ".font");
 			font_info.saveToFile(font_file_name);
 			IO.println("Number of valid chars found: " + valid_chars);
 		}
