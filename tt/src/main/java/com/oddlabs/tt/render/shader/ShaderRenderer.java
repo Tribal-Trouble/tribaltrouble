@@ -18,7 +18,7 @@ public class ShaderRenderer {
 	private static final int INITIAL_VERTEX_CAPACITY = 1024;
 	
 	private final @NonNull ShaderProgram shader;
-	private final @NonNull VertexLayout layout;
+	private final @NonNull VertexLayout<FixedFunctionShader.Attribute> layout;
 	private final @NonNull MatrixStack modelViewStack;
 	private final @NonNull MatrixStack projectionStack;
 	
@@ -31,11 +31,11 @@ public class ShaderRenderer {
 		this.shader = shader;
         this.modelViewStack = modelViewStack;
         this.projectionStack = projectionStack;
-		this.layout = VertexLayout.of(
-			VertexAttribute.POSITION,
-			VertexAttribute.NORMAL,
-			VertexAttribute.COLOR,
-			VertexAttribute.TEX_COORD_0
+		this.layout = new VertexLayout<>(
+			FixedFunctionShader.Attribute.POSITION,
+			FixedFunctionShader.Attribute.NORMAL,
+			FixedFunctionShader.Attribute.COLOR,
+			FixedFunctionShader.Attribute.TEX_COORD_0
 		);
 	}
 

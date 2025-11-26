@@ -1,6 +1,9 @@
 package com.oddlabs.tt.render.shader;
 
-/** A shader that emulates the classic OpenGL fixed-funciton pipeline. */
+import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
+
+/** A shader that emulates the classic OpenGL fixed-function pipeline. */
 public final class FixedFunctionShader extends ShaderProgram {
 	
 	public static final class Uniforms {
@@ -21,7 +24,50 @@ public final class FixedFunctionShader extends ShaderProgram {
 		
 		private Attributes() {}
 	}
-	
+
+	public enum Attribute implements VertexAttribute {
+		POSITION(Attributes.POSITION, 3, GL11.GL_FLOAT),
+		NORMAL(Attributes.NORMAL, 3, GL11.GL_FLOAT),
+		COLOR(Attributes.COLOR, 4, GL11.GL_FLOAT),
+		TEX_COORD_0(Attributes.TEX_COORD_0, 2, GL11.GL_FLOAT);
+
+		private final @NonNull String name;
+		private final int componentCount;
+		private final int glType;
+		private final boolean normalized;
+
+		Attribute(@NonNull String name, int componentCount, int glType) {
+			this(name, componentCount, glType, false);
+		}
+
+		Attribute(@NonNull String name, int componentCount, int glType, boolean normalized) {
+			this.name = name;
+			this.componentCount = componentCount;
+			this.glType = glType;
+			this.normalized = normalized;
+		}
+
+		@Override
+		public @NonNull String getName() {
+			return name;
+		}
+
+		@Override
+		public int getComponentCount() {
+			return componentCount;
+		}
+
+		@Override
+		public int getGlType() {
+			return glType;
+		}
+
+		@Override
+		public boolean isNormalized() {
+			return normalized;
+		}
+	}
+
 	private static final String VERTEX_SHADER = """
 		#version 120
 		

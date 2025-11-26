@@ -86,7 +86,7 @@ public final class SpriteRenderer {
 					float y = model.getModel().getPositionY();
 					float z = model.getModel().getPositionZ();
 					float r = model.getModel().getNoDetailSize();
-					spriteBatchRenderer.drawQuad(x - r, y - r, z, r * 2, r * 2, color[0], color[1], color[2], 1f, 0, 0, 1, 1);
+					spriteBatchRenderer.drawQuad(x - r, y - r, z, r * 2, r * 2, color[0], color[1], color[2], 1f, 0, 0, 0, 0);
 				}
 			}
 			spriteBatchRenderer.end();

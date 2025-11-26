@@ -19,17 +19,17 @@ public final class SpriteBatchRenderer {
 	private static final int INITIAL_BATCH_SIZE = 256;
 	
 	private final @NonNull ShaderProgram shader;
-	private final VertexLayout layout = VertexLayout.of(
-            VertexAttribute.POSITION,
-            VertexAttribute.NORMAL,
-            VertexAttribute.COLOR,
-            VertexAttribute.TEX_COORD_0
+	private final VertexLayout<FixedFunctionShader.Attribute> layout = new VertexLayout<>(
+            FixedFunctionShader.Attribute.POSITION,
+            FixedFunctionShader.Attribute.NORMAL,
+            FixedFunctionShader.Attribute.COLOR,
+            FixedFunctionShader.Attribute.TEX_COORD_0
     );
 	private final @NonNull MatrixStack modelViewStack;
 	private final @NonNull MatrixStack projectionStack;
 	
-	private @Nullable FloatBuffer vertexBuffer;
-	private @Nullable ShortBuffer indexBuffer;
+	private final FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(INITIAL_BATCH_SIZE * VERTICES_PER_SPRITE * FLOATS_PER_VERTEX);
+	private final ShortBuffer indexBuffer = BufferUtils.createShortBuffer(INITIAL_BATCH_SIZE * INDICES_PER_SPRITE);
 	private int vboHandle = 0;
 	private int iboHandle = 0;
 	private int spriteCount = 0;
@@ -50,16 +50,11 @@ public final class SpriteBatchRenderer {
 		GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_TEXTURE_BIT);
 		GL11.glPushClientAttrib(GL11.GL_ALL_CLIENT_ATTRIB_BITS);
 		GLStateStack.pushState();
-		if (vertexBuffer == null) {
-			vertexBuffer = BufferUtils.createFloatBuffer(INITIAL_BATCH_SIZE * VERTICES_PER_SPRITE * FLOATS_PER_VERTEX);
-			indexBuffer = BufferUtils.createShortBuffer(INITIAL_BATCH_SIZE * INDICES_PER_SPRITE);
-		}
 		
 		spriteCount = 0;
 		currentTexture = texture;
 		drawing = true;
 
-		// Explicitly manage states
 		if (currentTexture != null) {
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 		} else {
@@ -101,7 +96,11 @@ public final class SpriteBatchRenderer {
 		vertexBuffer.put(x).put(y).put(z);
 		vertexBuffer.put(nx).put(ny).put(nz);
 		vertexBuffer.put(r).put(g).put(b).put(a);
-		vertexBuffer.put(u).put(v);
+        if (currentTexture != null) {
+            vertexBuffer.put(u).put(v);
+        } else {
+            vertexBuffer.put(0f).put(0f);
+        }
 	}
 	
 	public void end() {
