@@ -7,9 +7,9 @@ import java.util.Comparator;
 
 public final class DisplayModeComparator implements Comparator<DisplayMode> {
 
-    private final SerializableDisplayMode target_mode;
+    private final @NonNull SerializableDisplayMode target_mode;
 
-    public DisplayModeComparator(SerializableDisplayMode target_mode) {
+    public DisplayModeComparator(@NonNull SerializableDisplayMode target_mode) {
         this.target_mode = target_mode;
     }
 

@@ -90,7 +90,7 @@ public final class ProgressForm {
 			load_fadable.fadingDone();
 	}
 
-	private ProgressForm(NetworkSelector network, final @NonNull GUI gui, final Fadable load_fadable, boolean first_progress, ProgressBarInfo @NonNull [] info, String texture_name, int texture_width, int texture_height, int image_width, int image_height, int progress_x, int progress_y, int progress_width, boolean show_tip) {
+	private ProgressForm(NetworkSelector network, final @NonNull GUI gui, final Fadable load_fadable, boolean first_progress, ProgressBarInfo @NonNull [] info, @NonNull String texture_name, int texture_width, int texture_height, int image_width, int image_height, int progress_x, int progress_y, int progress_width, boolean show_tip) {
 		AudioManager.getManager().stopSources();
 		final GUIRoot gui_root;
 		if (!first_progress) {
@@ -116,7 +116,6 @@ public final class ProgressForm {
 		delegate.addChild(progress_bar);
 		if (show_tip) {
 			Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
-//			CharSequence tip_string = LOADING_TIPS[7];
 			CharSequence tip_string = LOADING_TIPS[random.nextInt(LOADING_TIPS.length)];
 			int tip_width = Skin.getSkin().getEditFont().getWidth(tip_string);
 			tip_width = Math.min(LocalInput.getViewWidth() - 10, tip_width);
@@ -136,10 +135,12 @@ public final class ProgressForm {
 	}
 
 	public static void progress() {
-		current_progress.progress_bar.progress();
+        if (null != current_progress)
+		    current_progress.progress_bar.progress();
 	}
 
 	public static void progress(float step) {
-		current_progress.progress_bar.progress(step);
+        if (null != current_progress)
+		    current_progress.progress_bar.progress(step);
 	}
 }

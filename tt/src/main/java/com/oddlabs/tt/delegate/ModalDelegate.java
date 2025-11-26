@@ -3,6 +3,9 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * Captures keyboard and mouse input
+ */
 public final class ModalDelegate extends Delegate {
 	@Override
 	public void keyPressed(@NonNull KeyboardEvent event) {

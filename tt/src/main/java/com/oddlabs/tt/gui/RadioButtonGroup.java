@@ -7,10 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class RadioButtonGroup {
-	private final @NonNull List<RadioButtonGroupElement> buttons;
+	private final List<@NonNull RadioButtonGroupElement> buttons = new ArrayList<>();
 
 	public RadioButtonGroup() {
-		buttons = new ArrayList<>();
 	}
 
 	public void mark(@NonNull RadioButtonGroupElement button) {
@@ -20,7 +19,7 @@ public final class RadioButtonGroup {
 		button.setMarked(true);
 	}
 
-	public void add(RadioButtonGroupElement button) {
+	public void add(@NonNull RadioButtonGroupElement button) {
 		buttons.add(button);
 //		button.setMarked(false);
 	}

@@ -13,6 +13,7 @@ import com.oddlabs.tt.render.LandscapeLocation;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Set;
@@ -20,7 +21,7 @@ import java.util.Set;
 public abstract class InGameDelegate extends CameraDelegate {
 	private final @NonNull WorldViewer viewer;
 
-	protected InGameDelegate(@NonNull WorldViewer viewer, Camera camera) {
+	protected InGameDelegate(@NonNull WorldViewer viewer, @Nullable Camera camera) {
 		super(viewer.getGUIRoot(), camera);
 		this.viewer = viewer;
 	}

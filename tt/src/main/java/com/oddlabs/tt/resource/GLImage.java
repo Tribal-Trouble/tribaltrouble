@@ -54,7 +54,7 @@ public abstract class GLImage {
                 assert width * height == pixel_data.remaining();
                 yield GL11.GL_UNSIGNED_BYTE;
             }
-            default -> throw new RuntimeException("Invalid format: " + format);
+            default -> throw new IllegalArgumentException("Invalid format: " + format);
         };
 	}
 
@@ -65,11 +65,11 @@ public abstract class GLImage {
 	public abstract GLImage createImage(int width, int height, int format);
 	public abstract GLImage createFromLayer(@NonNull Layer layer, int format);
 
-	public final GLImage @NonNull [] createMipMaps() {
+	public final @NonNull GLImage @NonNull [] createMipMaps() {
 		return buildMipMaps();
 	}
 
-	public final GLImage @NonNull [] buildMipMaps() {
+	public final @NonNull GLImage @NonNull [] buildMipMaps() {
 		return buildMipMaps(10000, 1.0f);
 	}
 
@@ -121,6 +121,19 @@ public abstract class GLImage {
 		}
 	}
 
+	/**
+	 * Applies a progressive alpha fade-out effect to a series of mipmaps.
+	 * This is used to smoothly fade objects out of view at a distance.
+	 *
+	 * @param mipmaps           An array of GLImages representing the mipmap levels.
+	 * @param base_fadeout_level The mipmap level at which to start the fade-out.
+	 * @param fadeout_factor    The factor by which to reduce the alpha at each successive level.
+	 * @param start_x           The starting X coordinate of the area to modify.
+	 * @param start_y           The starting Y coordinate of the area to modify.
+	 * @param width             The width of the area to modify.
+	 * @param height            The height of the area to modify.
+	 * @param max_alpha         If true, only pixels with full alpha (255) are faded.
+	 */
 	public static void updateMipMapsArea(GLImage @NonNull [] mipmaps, int base_fadeout_level, float fadeout_factor, int start_x, int start_y, int width, int height, boolean max_alpha) {
 		for (int i = 1; i < mipmaps.length; i++) {
 			int height_div = mipmaps[i - 1].getHeight()/mipmaps[i].getHeight();
@@ -257,11 +270,7 @@ public abstract class GLImage {
 	}
 
 	public final void clearAll(int color) {
-		for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                putPixel(x, y, color);
-            }
-        }
+        clear(0, 0, width, height, color);
 	}
 
 	public final void clear(int x, int y, int width, int height, int color) {

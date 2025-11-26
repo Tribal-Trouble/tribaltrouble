@@ -2,26 +2,27 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.gui.GUIRoot;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public abstract class CameraDelegate extends Delegate {
-	private final GUIRoot gui_root;
-	private Camera camera;
+	private final @NonNull GUIRoot gui_root;
+	private @Nullable Camera camera;
 
-	public CameraDelegate(GUIRoot gui_root, Camera camera) {
-		super();
+	public CameraDelegate(@NonNull GUIRoot gui_root, @Nullable Camera camera) {
 		this.camera = camera;
 		this.gui_root = gui_root;
 	}
 
-	protected final GUIRoot getGUIRoot() {
+	protected final @NonNull GUIRoot getGUIRoot() {
 		return gui_root;
 	}
 
-	public final void setCamera(Camera camera) {
+	public final void setCamera(@Nullable Camera camera) {
 		this.camera = camera;
 	}
 
-	public final Camera getCamera() {
+	public final @Nullable Camera getCamera() {
 		return camera;
 	}
 

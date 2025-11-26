@@ -75,11 +75,11 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 		Network.getChatHub().addListener(in_game_chat_history);
 	}
 
-	public @NonNull List<String> getChatRoomHistory() {
+	public @NonNull List<@NonNull String> getChatRoomHistory() {
 		return chat_room_history.getMessages();
 	}
 
-	public @NonNull List<String> getInGameChatHistory() {
+	public @NonNull List<@NonNull String> getInGameChatHistory() {
 		return in_game_chat_history.getMessages();
 	}
 

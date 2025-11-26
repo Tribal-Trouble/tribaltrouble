@@ -3,11 +3,12 @@ package com.oddlabs.tt.form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.jspecify.annotations.NonNull;
 
 public final class InGameOptionsMenu extends AbstractOptionsMenu {
-	private final WorldViewer viewer;
+	private final @NonNull WorldViewer viewer;
 
-	public InGameOptionsMenu(GUIRoot gui_root, WorldViewer viewer) {
+	public InGameOptionsMenu(@NonNull GUIRoot gui_root, @NonNull WorldViewer viewer) {
 		super(gui_root);
 		this.viewer = viewer;
 		chooseGamespeed(getGamespeed());

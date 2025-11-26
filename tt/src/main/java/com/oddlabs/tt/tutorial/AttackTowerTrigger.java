@@ -12,7 +12,7 @@ public final class AttackTowerTrigger extends TutorialTrigger {
 	private static final int NUM_UNITS = 12;
 	
 	private final @NonNull Building tower;
-	private final Player ai;
+	private final @NonNull Player ai;
 	
 	public AttackTowerTrigger(@NonNull Building tower) {
 		super(.1f, 0f, "attack_tower");
