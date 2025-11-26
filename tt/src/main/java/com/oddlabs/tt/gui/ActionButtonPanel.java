@@ -32,8 +32,8 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_MID;
-import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
+import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
 public final class ActionButtonPanel extends GUIObject implements Animated {
 	private static final int GROUP_LEFT_OFFSET = 10;

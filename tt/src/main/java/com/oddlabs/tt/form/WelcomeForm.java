@@ -8,12 +8,13 @@ import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.OKListener;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
 
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 
 public final class WelcomeForm extends Form {
 

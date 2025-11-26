@@ -5,6 +5,7 @@ import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.OKButton;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PanelGroup;
 import com.oddlabs.tt.gui.Skin;
@@ -13,7 +14,7 @@ import com.oddlabs.tt.util.Utils;
 
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 
 // unicode codes: ae: 00E6 - oe: 00F8 - aa: 00E5 - AE: 00C6 - OE: 00D8 - AA: 00C5 - (C): 00A9
 

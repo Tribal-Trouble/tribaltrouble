@@ -15,27 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 public abstract class GUIObject extends Renderable {
-	public enum Placement {
-		TOP_LEFT,
-		TOP_MID,
-		TOP_RIGHT,
-		BOTTOM_LEFT,
-		BOTTOM_MID,
-		BOTTOM_RIGHT,
-		LEFT_TOP,
-		LEFT_MID,
-		LEFT_BOTTOM,
-		RIGHT_TOP,
-		RIGHT_MID,
-		RIGHT_BOTTOM
-	}
-
-	public enum Origin {
-        AT_START,
-        AT_END
-	}
-
-	private boolean disabled;
+    private boolean disabled;
 	private boolean hovered;
 	private boolean active;
 	private boolean focus_cycle;
@@ -165,10 +145,7 @@ public abstract class GUIObject extends Renderable {
 
 	private @Nullable GUIObject getGlobalFocus() {
 		GUIRoot gui_root = getParentGUIRoot();
-		if (gui_root != null)
-			return gui_root.getGlobalFocus();
-		else
-			return null;
+        return gui_root != null ? gui_root.getGlobalFocus() : null;
 	}
 
 	public final boolean isFocused() {
@@ -368,15 +345,9 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	private boolean modalRelative(ModalDelegate modal_delegate) {
-		if (this == modal_delegate) {
-			return true;
-		} else if (getParent() == null) {
-			return false;
-		} else if (getParent() == modal_delegate) {
-			return true;
-		} else {
-			return ((GUIObject)getParent()).modalRelative(modal_delegate);
-		}
+        return this == modal_delegate ||
+                getParent() != null && (getParent() == modal_delegate ||
+                        ((GUIObject) getParent()).modalRelative(modal_delegate));
 	}
 
 	protected @NonNull CursorType getCursorType() {

@@ -17,6 +17,7 @@ import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.OKButton;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PanelGroup;
 import com.oddlabs.tt.gui.PulldownButton;
@@ -46,12 +47,12 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_RIGHT;
-import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
-import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
-import static com.oddlabs.tt.gui.GUIObject.Placement.TOP_LEFT;
-import static com.oddlabs.tt.gui.GUIObject.Placement.TOP_MID;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_RIGHT;
+import static com.oddlabs.tt.gui.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
+import static com.oddlabs.tt.gui.Placement.TOP_LEFT;
+import static com.oddlabs.tt.gui.Placement.TOP_MID;
 
 public final class TerrainMenu extends Group {
 	public static final byte SMALL = 0;

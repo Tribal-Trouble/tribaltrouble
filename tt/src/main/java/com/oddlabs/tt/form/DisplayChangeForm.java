@@ -10,8 +10,8 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.GUIObject.Origin.AT_END;
-import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.Origin.AT_END;
+import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
 public final class DisplayChangeForm extends Form {
 	private final @NonNull DoNowListener donow_listener;

@@ -42,11 +42,11 @@ import org.lwjgl.input.Cursor;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.GUIObject.Origin.AT_END;
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
-import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
-import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
-import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_TOP;
+import static com.oddlabs.tt.gui.Origin.AT_END;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
+import static com.oddlabs.tt.gui.Placement.RIGHT_TOP;
 
 public abstract class AbstractOptionsMenu extends Form {
 	private static final int BUTTON_WIDTH = 100;

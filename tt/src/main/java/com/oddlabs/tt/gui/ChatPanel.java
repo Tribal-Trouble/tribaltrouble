@@ -16,9 +16,9 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
-import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
-import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_TOP;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
+import static com.oddlabs.tt.gui.Placement.RIGHT_TOP;
 
 public class ChatPanel extends Panel implements ChatListener {
 	private static final int PULLDOWN_INDEX_MESSAGE = 0;

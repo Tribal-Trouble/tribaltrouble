@@ -12,10 +12,10 @@ import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import static com.oddlabs.tt.gui.GUIObject.Origin.AT_END;
-import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
-import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
-import static com.oddlabs.tt.gui.GUIObject.Placement.TOP_LEFT;
+import static com.oddlabs.tt.gui.Origin.AT_END;
+import static com.oddlabs.tt.gui.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
+import static com.oddlabs.tt.gui.Placement.TOP_LEFT;
 
 public class CampaignDialogForm extends Form {
 	public static final int ALIGN_IMAGE_LEFT = 1;

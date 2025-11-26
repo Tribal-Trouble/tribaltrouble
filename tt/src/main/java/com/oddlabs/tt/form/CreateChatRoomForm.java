@@ -9,6 +9,7 @@ import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.OKButton;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
@@ -18,9 +19,9 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
-import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
-import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 
 public final class CreateChatRoomForm extends Form {
 	private static final int BUTTON_WIDTH = 100;

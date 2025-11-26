@@ -18,9 +18,9 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
-import static com.oddlabs.tt.gui.GUIObject.Placement.LEFT_MID;
-import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_TOP;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.LEFT_MID;
+import static com.oddlabs.tt.gui.Placement.RIGHT_TOP;
 
 public class DefaultInGameInfo implements InGameInfo {
 	private final ResourceBundle terrain_menu_bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());

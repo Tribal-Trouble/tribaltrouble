@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_RIGHT;
-import static com.oddlabs.tt.gui.GUIObject.Placement.RIGHT_MID;
-import static com.oddlabs.tt.gui.GUIObject.Placement.TOP_LEFT;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_RIGHT;
+import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
+import static com.oddlabs.tt.gui.Placement.TOP_LEFT;
 
 public final class InGameChatForm extends Form implements ChatListener {
 	private static final int CHAT_WIDTH = 400;

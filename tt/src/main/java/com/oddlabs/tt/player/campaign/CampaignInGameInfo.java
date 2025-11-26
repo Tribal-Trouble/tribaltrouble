@@ -15,7 +15,7 @@ import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 
 final class CampaignInGameInfo implements InGameInfo {
 	private final Campaign campaign;

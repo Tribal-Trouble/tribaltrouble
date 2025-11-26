@@ -10,8 +10,8 @@ import com.oddlabs.tt.guievent.MouseClickListener;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_LEFT;
-import static com.oddlabs.tt.gui.GUIObject.Placement.BOTTOM_MID;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
 
 public class MessageForm extends Form {
 	private static final int MAX_WIDTH = 500;
