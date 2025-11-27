@@ -5,6 +5,7 @@ import com.oddlabs.tt.delegate.JumpDelegate;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.SceneryModel;
@@ -87,7 +88,7 @@ public final class VikingIsland8 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
                             Utils.getBundleString(bundle, "dialog0"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             camera_jump);
                     addModalForm(dialog);
                 };
@@ -115,7 +116,7 @@ public final class VikingIsland8 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
                             Utils.getBundleString(bundle, "dialog1"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT);
+                            Origin.AT_START);
                     addModalForm(dialog);
                     getViewer().getLocalPlayer().enableMagic(0, true);
                     local_player.getChieftain().increaseMagicEnergy(0, 1000);
@@ -318,7 +319,7 @@ public final class VikingIsland8 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header2"),
                             Utils.getBundleString(bundle, "dialog2"),
                             getCampaign().getIcons().getFaces()[4],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT);
+                            Origin.AT_END);
                     addModalForm(dialog);
                     for (Unit neutral : neutrals) {
                         if (!neutral.isDead()) {

@@ -5,9 +5,6 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public abstract class TextField extends GUIObject implements CharSequence {
-	private static final StringBuffer digit_buf = new StringBuffer();
-	private static final String[] digits = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
-
 	private final @NonNull StringBuffer text;
 	private final Font font;
 	private final int max_chars;
@@ -83,27 +80,7 @@ public abstract class TextField extends GUIObject implements CharSequence {
 	}
 
 	public final void append(long i) {
-		fillDigitBuffer(i);
-		append(digit_buf);
-	}
-
-	private static void fillDigitBuffer(long i) {
-		digit_buf.delete(0, digit_buf.length());
-		boolean sign = i < 0;
-		if (sign)
-			i = -i;
-		do {
-			byte digit = (byte)(i % 10);
-			digit_buf.insert(0, digits[digit]);
-			i /= 10;
-		} while (i > 0);
-		if (sign)
-			digit_buf.insert(0, '-');
-	}
-
-	public static void appendNumberToStringBuffer(long i, @NonNull StringBuffer buffer) {
-		fillDigitBuffer(i);
-		buffer.append(digit_buf);
+		append(Long.toString(i));
 	}
 
 	protected boolean insert(int index, char key) {

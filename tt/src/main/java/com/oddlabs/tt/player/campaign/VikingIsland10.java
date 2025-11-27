@@ -5,6 +5,7 @@ import com.oddlabs.tt.delegate.JumpDelegate;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
@@ -75,7 +76,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
                             Utils.getBundleString(bundle, "dialog0"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             camera_jump);
                     addModalForm(dialog);
                 };
@@ -123,7 +124,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header11"),
                             Utils.getBundleString(bundle, "dialog11"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT);
+                            Origin.AT_START);
                     addModalForm(dialog);
                     changeObjective(1);
                 };
@@ -131,7 +132,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header10"),
                             Utils.getBundleString(bundle, "dialog10"),
                             getCampaign().getIcons().getFaces()[8],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog11);
                     addModalForm(dialog);
                 };
@@ -139,7 +140,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header9"),
                             Utils.getBundleString(bundle, "dialog9"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             dialog10);
                     addModalForm(dialog);
                 };
@@ -147,7 +148,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header8"),
                             Utils.getBundleString(bundle, "dialog8"),
                             getCampaign().getIcons().getFaces()[8],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog9);
                     addModalForm(dialog);
                 };
@@ -155,7 +156,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header7"),
                             Utils.getBundleString(bundle, "dialog7"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             dialog8);
                     addModalForm(dialog);
                 };
@@ -163,7 +164,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header6"),
                             Utils.getBundleString(bundle, "dialog6"),
                             getCampaign().getIcons().getFaces()[8],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog7);
                     addModalForm(dialog);
                 };
@@ -171,7 +172,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header5"),
                             Utils.getBundleString(bundle, "dialog5"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             dialog6);
                     addModalForm(dialog);
                 };
@@ -179,7 +180,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header4"),
                             Utils.getBundleString(bundle, "dialog4"),
                             getCampaign().getIcons().getFaces()[8],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog5);
                     addModalForm(dialog);
                 };
@@ -187,7 +188,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header3"),
                             Utils.getBundleString(bundle, "dialog3"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             dialog4);
                     addModalForm(dialog);
                 };
@@ -195,7 +196,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header2"),
                             Utils.getBundleString(bundle, "dialog2"),
                             getCampaign().getIcons().getFaces()[8],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog3);
                     addModalForm(dialog);
                 };
@@ -203,7 +204,7 @@ public final class VikingIsland10 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
                             Utils.getBundleString(bundle, "dialog1"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             dialog2);
                     addModalForm(dialog);
                     getViewer().getLocalPlayer().enableMagic(1, true);

@@ -4,7 +4,6 @@ import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Skin;
-import com.oddlabs.tt.gui.TextField;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.NativeResource;
 
@@ -21,31 +20,31 @@ public final class Status {
 		long free_mem = Runtime.getRuntime().freeMemory();
 		buf.delete(0, buf.length());
 		if (Settings.getSettings().inDeveloperMode()) {
-			buf.append("TPF ");
-			TextField.appendNumberToStringBuffer(Renderer.getTrianglesRendered(), buf);
-			buf.append(" JHeap ");
-			TextField.appendNumberToStringBuffer(free_mem, buf);
-			buf.append("(");
+			buf.append("TPF ")
+                    .append(Renderer.getTrianglesRendered())
+			        .append(" JHeap ")
+                    .append(free_mem)
+			        .append("(");
 			int total_jheap = (int)(Runtime.getRuntime().totalMemory()/(1024*1024));
-			TextField.appendNumberToStringBuffer(total_jheap, buf);
-			buf.append("M) globj ");
-			TextField.appendNumberToStringBuffer(NativeResource.getCount(), buf);
+			buf.append(total_jheap)
+			        .append("M) globj ")
+                    .append(NativeResource.getCount());
 /*			float x = gui_root.getLandscapeLocationX();
 			float y = gui_root.getLandscapeLocationY();
 			if (UnitGrid.getGrid() != null) {
 				int grid_x = UnitGrid.getGrid().toGridCoordinate(x);
 				int grid_y = UnitGrid.getGrid().toGridCoordinate(y);
 				buf.append(" X ");
-				TextField.appendNumberToStringBuffer(grid_x, buf);
-				buf.append(" Y ");
-				TextField.appendNumberToStringBuffer(grid_y, buf);
+				    .append(grid_x,);
+				    .append(" Y ")
+				    .append(grid_y);
 			}*/
 		}
-		buf.append(" FPS ");
-		TextField.appendNumberToStringBuffer(Math.round(1000f/Renderer.getFPS()), buf);
-		buf.append(" (");
-		TextField.appendNumberToStringBuffer(Math.round(Renderer.getFPS()), buf);
-		buf.append(" ms/frame)");
+		buf.append(" FPS ")
+                .append(Math.round(1000f/Renderer.getFPS()))
+		        .append(" (")
+                .append(Math.round(Renderer.getFPS()))
+                .append(" ms/frame)");
 
 		text_renderer.renderCropped(0, 0, clip_left, clip_right, clip_bottom, clip_top, buf);
 	}

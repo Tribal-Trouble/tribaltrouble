@@ -10,8 +10,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.Label.Alignment.CENTER;
-
 public abstract class IconSpinner extends GUIObject implements ToolTip {
 	private final IconQuad @NonNull [] icon_quad;
 	private final String tool_tip;
@@ -45,7 +43,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 		button_minus.setPos(button_plus.getWidth(), 0);
 		button_minus.addMouseButtonListener(new DecreaseListener());
 
-		label = new Label("", Skin.getSkin().getHeadlineFont(), icon_quad[0].getWidth(), CENTER);
+		label = new Label("", Skin.getSkin().getHeadlineFont(), icon_quad[0].getWidth(), Origin.AT_MIDDLE);
 		addChild(label);
 		label.setPos(0, (getHeight() - label.getHeight())/2);
 	}

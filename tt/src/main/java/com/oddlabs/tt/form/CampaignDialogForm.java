@@ -7,20 +7,17 @@ import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.OKButton;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import static com.oddlabs.tt.gui.Origin.AT_END;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 import static com.oddlabs.tt.gui.Placement.TOP_LEFT;
 
 public class CampaignDialogForm extends Form {
-	public static final int ALIGN_IMAGE_LEFT = 1;
-	public static final int ALIGN_IMAGE_RIGHT = 2;
-
 	private static final int WIDTH = 300;
 
 	private final Runnable runnable;
@@ -28,15 +25,15 @@ public class CampaignDialogForm extends Form {
 
 	private HorizButton ok_button;
 
-	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, int align) {
+	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, @NonNull Origin align) {
 		this(header, text, image, align, null);
 	}
 
-	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, int align, Runnable runnable) {
+	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, @NonNull Origin align, Runnable runnable) {
 		this(header, text, image, align, runnable, false);
 	}
 
-	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, int align, Runnable runnable, boolean cancel) {
+	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, @NonNull Origin align, Runnable runnable, boolean cancel) {
 		this.runnable = runnable;
 		this.cancel = cancel;
 		buildForm(header, text, image, align, cancel);
@@ -57,7 +54,7 @@ public class CampaignDialogForm extends Form {
 			run();
 	}
 
-	private void buildForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable Quad image, int align, boolean cancel) {
+	private void buildForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable Quad image, @NonNull Origin align, boolean cancel) {
 		GUIIcon gui_icon = null;
 		if (image != null) {
 			gui_icon = new GUIIcon(image);
@@ -72,7 +69,7 @@ public class CampaignDialogForm extends Form {
 
 		if (gui_icon != null) {
 			gui_icon.place();
-			if (align == ALIGN_IMAGE_LEFT) {
+			if (align == Origin.AT_START) {
 				label_box.place(gui_icon, RIGHT_MID);
 			} else {
 				label_box.place(gui_icon, LEFT_MID);
@@ -81,7 +78,7 @@ public class CampaignDialogForm extends Form {
 			label_box.place();
 		}
 		header_label.place(label_box, TOP_LEFT);
-		ok_button.place(AT_END);
+		ok_button.place(Origin.AT_END);
 		if (cancel) {
 			HorizButton cancel_button = new CancelButton(80);
 			addChild(cancel_button);

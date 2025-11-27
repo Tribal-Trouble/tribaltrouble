@@ -14,6 +14,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PulldownButton;
 import com.oddlabs.tt.gui.PulldownItem;
@@ -169,7 +170,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			start_button.place(ready_button, LEFT_MID);
 		Font font = Skin.getSkin().getEditFont();
 		if (rated) {
-			Label rating = new Label(Utils.getBundleString(bundle, "rating"), font, RATING_WIDTH, Label.Alignment.RIGHT);
+			Label rating = new Label(Utils.getBundleString(bundle, "rating"), font, RATING_WIDTH, Origin.AT_END);
 			addChild(rating);
 			rating.place(player_group, TOP_RIGHT);
 		}
@@ -403,7 +404,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		group.addChild(ready_mark);
 		ready_mark.place(team_pulldown_button, RIGHT_MID);
 		Font font = Skin.getSkin().getEditFont();
-		ratings[index] = new Label("", font, RATING_WIDTH, Label.Alignment.RIGHT);
+		ratings[index] = new Label("", font, RATING_WIDTH, Origin.AT_END);
 		if (rated) {
 			group.addChild(ratings[index]);
 			ratings[index].place(ready_mark, RIGHT_MID);

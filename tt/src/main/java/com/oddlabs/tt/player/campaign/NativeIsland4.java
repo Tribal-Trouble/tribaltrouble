@@ -5,6 +5,7 @@ import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.CounterLabel;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Building;
@@ -91,14 +92,14 @@ public final class NativeIsland4 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
                             Utils.getBundleString(bundle, "dialog1"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT);
+                            Origin.AT_START);
                     addModalForm(dialog);
                 };
 		final Runnable dialog0 = () -> {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
                             Utils.getBundleString(bundle, "dialog0"),
                             getCampaign().getIcons().getFaces()[2],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog1);
                     addModalForm(dialog);
                 };

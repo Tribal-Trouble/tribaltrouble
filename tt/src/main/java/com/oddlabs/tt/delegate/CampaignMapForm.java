@@ -13,6 +13,7 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MapIslandData;
 import com.oddlabs.tt.gui.NonFocusIconButton;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.player.campaign.Campaign;
@@ -53,14 +54,14 @@ public final class CampaignMapForm extends CameraDelegate {
                                     CampaignDialogForm dialog = new CampaignDialogForm(Utils.getBundleString(bundle, "native_campaign_opened_header"),
                                             Utils.getBundleString(bundle, "native_campaign_opened"),
                                             null,
-                                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                                            Origin.AT_START,
                                             runnable_menu);
                                     gui_root.addModalForm(dialog);
                                 };
 				CampaignDialogForm dialog = new CampaignDialogForm(Utils.getBundleString(bundle, "viking_header"),
 						Utils.getBundleString(bundle, "viking_campaign_completed"),
 						campaign.getIcons().getFaces()[0],
-						CampaignDialogForm.ALIGN_IMAGE_LEFT,
+						Origin.AT_START,
 						runnable_next);
 				gui_root.addModalForm(dialog);
 				Settings.getSettings().has_native_campaign = true;
@@ -76,7 +77,7 @@ public final class CampaignMapForm extends CameraDelegate {
 				CampaignDialogForm dialog = new CampaignDialogForm(Utils.getBundleString(bundle, "native_header"),
 						Utils.getBundleString(bundle, "native_campaign_completed"),
 						campaign.getIcons().getFaces()[0],
-						CampaignDialogForm.ALIGN_IMAGE_LEFT,
+						Origin.AT_START,
 						runnable);
 				gui_root.addModalForm(dialog);
 			}

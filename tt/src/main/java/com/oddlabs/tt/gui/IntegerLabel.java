@@ -7,7 +7,7 @@ public final class IntegerLabel extends Label {
 	private final int val;
 
 	public IntegerLabel(int val, @NonNull Font font, int width) {
-		super(Integer.toString(val), font, width, Alignment.RIGHT);
+		super(Integer.toString(val), font, width, Origin.AT_END);
 		this.val = val;
 	}
 

@@ -4,8 +4,6 @@ import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 
-import static com.oddlabs.tt.gui.Label.Alignment.LEFT;
-
 public final class PulldownButton extends GUIObject {
 	private final @NonNull PulldownMenu menu;
 	private final @NonNull Label label;
@@ -17,7 +15,7 @@ public final class PulldownButton extends GUIObject {
 		this.gui_root = gui_root;
 		setCanFocus(true);
 		menu.addItemChosenListener(new ItemListener());
-		label = new Label("", Skin.getSkin().getEditFont(), 0, LEFT);
+		label = new Label("", Skin.getSkin().getEditFont(), 0, Origin.AT_START);
 		addChild(label);
 		setDim(width, Skin.getSkin().getPulldownData().getPulldownButton().getHeight());
 	}

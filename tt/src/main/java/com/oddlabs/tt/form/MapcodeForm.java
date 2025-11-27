@@ -8,6 +8,7 @@ import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.OKButton;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
@@ -33,7 +34,7 @@ public final class MapcodeForm extends Form {
 		this.menu = menu;
 		ResourceBundle bundle = ResourceBundle.getBundle(MapcodeForm.class.getName());
 		Label label_seed = new Label(Utils.getBundleString(bundle, "map_code"), Skin.getSkin().getEditFont());
-		editline_seed = new EditLine(200, 12, RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS, EditLine.LEFT_ALIGNED);
+		editline_seed = new EditLine(200, 12, RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS, Origin.AT_START);
 		editline_seed.addEnterListener(new CodeEnterListener());
 
 		HorizButton button_ok = new OKButton(BUTTON_WIDTH);

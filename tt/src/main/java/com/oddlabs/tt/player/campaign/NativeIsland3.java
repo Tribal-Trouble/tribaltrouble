@@ -5,6 +5,7 @@ import com.oddlabs.tt.delegate.JumpDelegate;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
@@ -90,7 +91,7 @@ public final class NativeIsland3 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
                             Utils.getBundleString(bundle, "dialog0"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             camera_jump);
                     addModalForm(dialog);
                 };
@@ -139,14 +140,14 @@ public final class NativeIsland3 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header8"),
                             Utils.getBundleString(bundle, "dialog8"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT);
+                            Origin.AT_START);
                     addModalForm(dialog);
                 };
 		final Runnable dialog7 = () -> {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header7"),
                             Utils.getBundleString(bundle, "dialog7"),
                             getCampaign().getIcons().getFaces()[7],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog8);
                     addModalForm(dialog);
                 };
@@ -154,7 +155,7 @@ public final class NativeIsland3 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header6"),
                             Utils.getBundleString(bundle, "dialog6"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             dialog7);
                     addModalForm(dialog);
                 };
@@ -162,7 +163,7 @@ public final class NativeIsland3 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header5"),
                             Utils.getBundleString(bundle, "dialog5"),
                             getCampaign().getIcons().getFaces()[7],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog6);
                     addModalForm(dialog);
                 };
@@ -170,7 +171,7 @@ public final class NativeIsland3 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header4"),
                             Utils.getBundleString(bundle, "dialog4"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             dialog5);
                     addModalForm(dialog);
                 };
@@ -178,7 +179,7 @@ public final class NativeIsland3 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header3"),
                             Utils.getBundleString(bundle, "dialog3"),
                             getCampaign().getIcons().getFaces()[7],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog4);
                     addModalForm(dialog);
                 };
@@ -186,7 +187,7 @@ public final class NativeIsland3 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header2"),
                             Utils.getBundleString(bundle, "dialog2"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             dialog3);
                     addModalForm(dialog);
                 };
@@ -194,7 +195,7 @@ public final class NativeIsland3 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
                             Utils.getBundleString(bundle, "dialog1"),
                             getCampaign().getIcons().getFaces()[7],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog2);
                     addModalForm(dialog);
                     local_player.getChieftain().increaseMagicEnergy(0, 1000);
@@ -264,21 +265,13 @@ public final class NativeIsland3 extends Island {
                             new_unit.setTarget(new LandscapeTarget(62, 62), Target.ACTION_DEFAULT, true);
                     }
                 };
-		float interval;
-		switch (getCampaign().getState().getDifficulty()) {
-			case CampaignState.DIFFICULTY_EASY:
-				interval = 120f;
-				break;
-			case CampaignState.DIFFICULTY_NORMAL:
-				interval = 60f;
-				break;
-			case CampaignState.DIFFICULTY_HARD:
-				interval = 30f;
-				break;
-			default:
-				throw new RuntimeException();
-		}
-		float time = interval;
+		float interval = switch (getCampaign().getState().getDifficulty()) {
+            case CampaignState.DIFFICULTY_EASY -> 120f;
+            case CampaignState.DIFFICULTY_NORMAL -> 60f;
+            case CampaignState.DIFFICULTY_HARD -> 30f;
+            default -> throw new RuntimeException("unrecognized difficulty");
+        };
+        float time = interval;
 		for (int i = 0;i < 10; i++) {
 			new TimeTrigger(getViewer().getWorld(), time, reinforce);
 			time += interval;

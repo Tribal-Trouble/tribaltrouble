@@ -45,7 +45,7 @@ public final class CreateChatRoomForm extends Form {
 		editline_name = new EditLine(EDITLINE_WIDTH,
 				MatchmakingServerInterface.MAX_ROOM_NAME_LENGTH,
 				MatchmakingServerInterface.ALLOWED_ROOM_CHARS,
-				EditLine.LEFT_ALIGNED);
+				Origin.AT_START);
 		editline_name.addEnterListener(new OKListener());
 
 		addChild(label_name);

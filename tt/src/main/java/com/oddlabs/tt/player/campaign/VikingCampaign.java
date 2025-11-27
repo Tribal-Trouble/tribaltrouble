@@ -6,6 +6,7 @@ import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.gui.CampaignIcons;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.VikingCampaignIcons;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -90,7 +91,7 @@ public final class VikingCampaign extends Campaign {
 			Form dialog = new CampaignDialogForm(islands[number].getHeader(),
 					islands[number].getDescription(),
 					null,
-					CampaignDialogForm.ALIGN_IMAGE_LEFT,
+					Origin.AT_START,
 					new IslandListener(network, gui_root, number), true);
 			gui_root.addModalForm(dialog);
 		}

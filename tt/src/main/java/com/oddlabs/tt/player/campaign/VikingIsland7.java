@@ -4,6 +4,7 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
@@ -95,7 +96,7 @@ public final class VikingIsland7 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
                             Utils.getBundleString(bundle, "dialog0"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT);
+                            Origin.AT_START);
                     addModalForm(dialog);
                 };
 		new GameStartedTrigger(getViewer().getWorld(), runnable);

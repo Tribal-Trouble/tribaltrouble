@@ -10,11 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EditLine extends TextField {
-	public static final int RIGHT_ALIGNED = 1;
-	public static final int LEFT_ALIGNED = 2;
-	
 	private final List<EnterListener> enter_listeners = new ArrayList<>();
-	private final int alignment;
+	private final @NonNull Origin alignment;
 	private final String allowed_chars;
 	private final int max_text_width;
 
@@ -23,14 +20,14 @@ public class EditLine extends TextField {
 	private int index;
 
 	public EditLine(int width, int max_chars) {
-		this(width, max_chars, LEFT_ALIGNED);
+		this(width, max_chars, Origin.AT_START);
 	}
 
-	public EditLine(int width, int max_chars, int alignment) {
+	public EditLine(int width, int max_chars, @NonNull Origin alignment) {
 		this(width, max_chars, null, alignment);
 	}
 
-	public EditLine(int width, int max_chars, String allowed_chars, int alignment) {
+	public EditLine(int width, int max_chars, String allowed_chars, @NonNull Origin alignment) {
 		super(Skin.getSkin().getEditFont(), max_chars);
 		this.allowed_chars = allowed_chars;
 		this.alignment = alignment;
@@ -82,7 +79,7 @@ public class EditLine extends TextField {
 			case Keyboard.KEY_BACK:
 				if (index > 0) {
 					index--;
-					if (alignment == RIGHT_ALIGNED) {
+					if (alignment == Origin.AT_END) {
 						char key = getText().charAt(index);
 						offset_x += (getFont().getQuad(key).getWidth() - getFont().getXBorder());
 					}
@@ -91,7 +88,7 @@ public class EditLine extends TextField {
 				break;
 			case Keyboard.KEY_DELETE:
 				if (index < getText().length()) {
-					if (alignment == RIGHT_ALIGNED) {
+					if (alignment == Origin.AT_END) {
 						char key = getText().charAt(index);
 						offset_x += (getFont().getQuad(key).getWidth() - getFont().getXBorder());
 					}
@@ -122,7 +119,7 @@ public class EditLine extends TextField {
 					boolean result = insert(index, key);
 					assert result;
 					index++;
-					if (alignment == RIGHT_ALIGNED)
+					if (alignment == Origin.AT_END)
 						offset_x -= (getFont().getQuad(key).getWidth() - getFont().getXBorder());
 				} else {
 					super.keyRepeat(event);
@@ -170,7 +167,7 @@ public class EditLine extends TextField {
 	public final void clear() {
 		super.clear();
 		index = 0;
-		if (alignment == LEFT_ALIGNED)
+		if (alignment == Origin.AT_START)
 			offset_x = -getFont().getXBorder()/2;
 		else {
 			int text_width = Skin.getSkin().getEditFont().getWidth(getText());
@@ -180,7 +177,7 @@ public class EditLine extends TextField {
 
 	@Override
 	protected final void appendNotify(@NonNull CharSequence str) {
-		if (alignment == RIGHT_ALIGNED) {
+		if (alignment == Origin.AT_END) {
 			for (int i = 0; i < str.length(); i++) {
 				char key = str.charAt(i);
 				offset_x -= (getFont().getQuad(key).getWidth() - getFont().getXBorder());

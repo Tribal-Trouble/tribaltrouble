@@ -4,6 +4,7 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.net.GameNetwork;
@@ -91,14 +92,14 @@ public final class VikingIsland12 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
                             Utils.getBundleString(bundle, "dialog0"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT);
+                            Origin.AT_START);
                     addModalForm(dialog);
                 };
 		runnable = () -> {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
                             Utils.getBundleString(bundle, "dialog1"),
                             getCampaign().getIcons().getFaces()[2],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             answer);
                     addModalForm(dialog);
                 };
@@ -128,7 +129,7 @@ public final class VikingIsland12 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "new_units_header"),
                             new_units,
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             prize);
                     addModalForm(dialog);
                 };

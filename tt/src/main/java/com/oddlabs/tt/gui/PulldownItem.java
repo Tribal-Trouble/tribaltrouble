@@ -3,8 +3,6 @@ package com.oddlabs.tt.gui;
 
 import org.jspecify.annotations.NonNull;
 
-import static com.oddlabs.tt.gui.Label.Alignment.LEFT;
-
 public final class PulldownItem extends ButtonObject {
 	private final @NonNull Label label;
 	private final Object attachment;
@@ -16,7 +14,7 @@ public final class PulldownItem extends ButtonObject {
 	public PulldownItem(@NonNull String label_str, Object attachment) {
 		this.attachment = attachment;
 		PulldownData data = Skin.getSkin().getPulldownData();
-		label = new Label(label_str, data.getFont(), 0, LEFT);
+		label = new Label(label_str, data.getFont(), 0, Origin.AT_START);
 		addChild(label);
 		setDim(0, label.getHeight());
 	}

@@ -15,7 +15,7 @@ public class NumberEditLine extends EditLine {
 	}
 
 	public NumberEditLine(int width, int max_chars, int min_value, int max_value, int init_value) {
-		super(width, max_chars, "0123456789", RIGHT_ALIGNED);
+		super(width, max_chars, "0123456789", Origin.AT_END);
 		this.min_value = min_value;
 		this.max_value = max_value;
 		setValue(init_value);

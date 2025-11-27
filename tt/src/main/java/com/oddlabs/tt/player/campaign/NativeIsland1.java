@@ -5,6 +5,7 @@ import com.oddlabs.tt.delegate.JumpDelegate;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Race;
@@ -88,7 +89,7 @@ public final class NativeIsland1 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
                             Utils.getBundleString(bundle, "dialog1"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             camera_jump0);
                     addModalForm(dialog);
                 };
@@ -96,7 +97,7 @@ public final class NativeIsland1 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
                             Utils.getBundleString(bundle, "dialog0"),
                             getCampaign().getIcons().getFaces()[4],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog1);
                     addModalForm(dialog);
                 };
@@ -172,7 +173,7 @@ public final class NativeIsland1 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header5"),
                             Utils.getBundleString(bundle, "dialog5"),
                             getCampaign().getIcons().getFaces()[3],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             free_captives);
                     addModalForm(dialog);
                 };
@@ -180,7 +181,7 @@ public final class NativeIsland1 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header4"),
                             Utils.getBundleString(bundle, "dialog4"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             dialog5);
                     addModalForm(dialog);
                 };
@@ -188,7 +189,7 @@ public final class NativeIsland1 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header3"),
                             Utils.getBundleString(bundle, "dialog3"),
                             getCampaign().getIcons().getFaces()[3],
-                            CampaignDialogForm.ALIGN_IMAGE_RIGHT,
+                            Origin.AT_END,
                             dialog4);
                     addModalForm(dialog);
                 };
@@ -196,7 +197,7 @@ public final class NativeIsland1 extends Island {
                     CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header2"),
                             Utils.getBundleString(bundle, "dialog2"),
                             getCampaign().getIcons().getFaces()[0],
-                            CampaignDialogForm.ALIGN_IMAGE_LEFT,
+                            Origin.AT_START,
                             dialog3);
                     addModalForm(dialog);
                 };
