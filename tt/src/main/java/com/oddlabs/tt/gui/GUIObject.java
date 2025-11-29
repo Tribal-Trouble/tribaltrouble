@@ -373,7 +373,7 @@ public abstract class GUIObject extends Renderable {
 			parent.mouseScrolledAll(amount);
 	}
 
-	public final void mouseDraggedAll(MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+	public final void mouseDraggedAll (@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 		if (disabled)
 			return;
 		mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
@@ -382,7 +382,7 @@ public abstract class GUIObject extends Renderable {
 		}
 	}
 
-	protected void mouseDragged(MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+	protected void mouseDragged (@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 		// do not send this to parents, because it would move the form if unstopped
 	}
 
@@ -429,7 +429,7 @@ public abstract class GUIObject extends Renderable {
 			parent.mouseEnteredAll();
 	}
 
-	public final void mouseClickedAll(MouseButton button, int x, int y, int clicks) {
+	public final void mouseClickedAll (@NonNull MouseButton button, int x, int y, int clicks) {
 		if (disabled)
 			return;
 		mouseClicked(button, x, y, clicks);
@@ -438,13 +438,13 @@ public abstract class GUIObject extends Renderable {
         }
 	}
 
-	protected void mouseClicked(MouseButton button, int x, int y, int clicks) {
+	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
 		GUIObject parent = (GUIObject)getParent();
 		if (parent != null)
 			parent.mouseClickedAll(button, x, y, clicks);
 	}
 
-	public final void mouseReleasedAll(MouseButton button, int x, int y) {
+	public final void mouseReleasedAll (@NonNull MouseButton button, int x, int y) {
 		if (disabled)
 			return;
 		mouseReleased(button, x, y);
@@ -453,13 +453,13 @@ public abstract class GUIObject extends Renderable {
         }
 	}
 
-	protected void mouseReleased(MouseButton button, int x, int y) {
+	protected void mouseReleased (@NonNull MouseButton button, int x, int y) {
 		GUIObject parent = (GUIObject)getParent();
 		if (parent != null)
 			parent.mouseReleasedAll(button, x, y);
 	}
 
-	public final void mousePressedAll(MouseButton button, int x, int y) {
+	public final void mousePressedAll (@NonNull MouseButton button, int x, int y) {
 		if (disabled)
 			return;
 		mousePressed(button, x, y);
@@ -468,13 +468,13 @@ public abstract class GUIObject extends Renderable {
 		}
 	}
 
-	protected void mousePressed(MouseButton button, int x, int y) {
+	protected void mousePressed (@NonNull MouseButton button, int x, int y) {
 		GUIObject parent = (GUIObject)getParent();
 		if (parent != null)
 			parent.mousePressedAll(button, x, y);
 	}
 
-	public final void mouseHeldAll(MouseButton button, int x, int y) {
+	public final void mouseHeldAll (@NonNull MouseButton button, int x, int y) {
 		if (disabled)
 			return;
 		mouseHeld(button, x, y);
@@ -483,7 +483,7 @@ public abstract class GUIObject extends Renderable {
 		}
 	}
 
-	protected void mouseHeld(MouseButton button, int x, int y) {
+	protected void mouseHeld (@NonNull MouseButton button, int x, int y) {
 		GUIObject parent = (GUIObject)getParent();
 		if (parent != null)
 			parent.mouseHeldAll(button, x, y);

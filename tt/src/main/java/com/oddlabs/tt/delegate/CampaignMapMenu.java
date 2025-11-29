@@ -15,7 +15,7 @@ import org.lwjgl.input.Keyboard;
 
 public final class CampaignMapMenu extends Menu {
 
-	public CampaignMapMenu(NetworkSelector network, GUIRoot gui_root, Camera camera) {
+	public CampaignMapMenu(NetworkSelector network, @NonNull GUIRoot gui_root, Camera camera) {
 		super(network, gui_root, camera);
 		reload();
 	}

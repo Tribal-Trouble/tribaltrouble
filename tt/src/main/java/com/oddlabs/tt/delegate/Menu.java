@@ -13,8 +13,8 @@ import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
-import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.MenuButton;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Renderable;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.landscape.WorldParameters;
@@ -59,7 +59,7 @@ public abstract class Menu extends CameraDelegate {
 	private GUIImage overlay;
 	private GUIImage logo;
 
-	protected Menu(NetworkSelector network, GUIRoot gui_root, Camera camera) {
+	protected Menu(NetworkSelector network, @NonNull GUIRoot gui_root, Camera camera) {
 		super(gui_root, camera);
 		this.network = network;
 		setCanFocus(true);

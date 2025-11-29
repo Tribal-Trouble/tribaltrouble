@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
 public class NullDelegate extends CameraDelegate {
 	private final boolean render_cursor;
 
-	public NullDelegate(GUIRoot gui_root, boolean render_cursor) {
+	public NullDelegate(@NonNull GUIRoot gui_root, boolean render_cursor) {
 		super(gui_root, new NullCamera());
 		this.render_cursor = render_cursor;
 	}
@@ -31,15 +31,15 @@ public class NullDelegate extends CameraDelegate {
 	}
 
 	@Override
-	public void mouseDragged(MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+	public void mouseDragged (@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 	}
 
 	@Override
-	public void mousePressed(MouseButton button, int x, int y) {
+	public void mousePressed (@NonNull MouseButton button, int x, int y) {
 	}
 
 	@Override
-	public void mouseReleased(MouseButton button, int x, int y) {
+	public void mouseReleased (@NonNull MouseButton button, int x, int y) {
 	}
 
 	@Override

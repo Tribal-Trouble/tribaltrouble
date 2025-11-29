@@ -9,13 +9,13 @@ import com.oddlabs.tt.form.TerrainMenuForm;
 import com.oddlabs.tt.form.TutorialForm;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
-import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 public final class MainMenu extends Menu {
-	public MainMenu(NetworkSelector network, GUIRoot gui_root, Camera camera) {
+	public MainMenu(NetworkSelector network, @NonNull GUIRoot gui_root, Camera camera) {
 		super(network, gui_root, camera);
 		reload();
 	}

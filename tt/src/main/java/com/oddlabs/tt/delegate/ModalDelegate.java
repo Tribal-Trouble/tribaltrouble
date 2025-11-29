@@ -25,14 +25,14 @@ public final class ModalDelegate extends Delegate {
 	}
 
 	@Override
-	public void mouseDragged(MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+	public void mouseDragged (@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 	}
 
 	@Override
-	public void mousePressed(MouseButton button, int x, int y) {
+	public void mousePressed (@NonNull MouseButton button, int x, int y) {
 	}
 
 	@Override
-	public void mouseReleased(MouseButton button, int x, int y) {
+	public void mouseReleased (@NonNull MouseButton button, int x, int y) {
 	}
 }

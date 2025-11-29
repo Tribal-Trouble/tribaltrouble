@@ -4,7 +4,6 @@ import com.oddlabs.tt.gui.DoNowListener;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.LabelBox;
-import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;

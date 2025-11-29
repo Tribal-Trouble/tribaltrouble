@@ -200,7 +200,7 @@ public class EditLine extends TextField {
 	}
 
 	@Override
-	protected final void mousePressed(MouseButton button, int x, int y) {
+	protected final void mousePressed (@NonNull MouseButton button, int x, int y) {
 		if (button == MouseButton.LEFT) {
 			Box edit_box = Skin.getSkin().getEditBox();
 			index = text_renderer.jumpDirect(edit_box.getLeftOffset() + offset_x,

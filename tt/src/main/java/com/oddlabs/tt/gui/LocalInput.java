@@ -10,6 +10,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.SerializableDisplayMode;
 import com.oddlabs.tt.render.SerializableDisplayModeComparator;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
 import org.lwjgl.opengl.Display;
@@ -180,7 +181,7 @@ public final class LocalInput {
 		}
 	}
 
-	public static SerializableDisplayMode getCurrentMode() {
+	public static @Nullable SerializableDisplayMode getCurrentMode() {
 		return LocalEventQueue.getQueue().getDeterministic().log(new SerializableDisplayMode(Display.getDisplayMode()));
 	}
 

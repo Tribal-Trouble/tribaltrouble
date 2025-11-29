@@ -16,7 +16,7 @@ public final class RallyPointDelegate extends TargetDelegate {
 	}
 
 	@Override
-	public void mousePressed(MouseButton button, int x, int y) {
+	public void mousePressed (@NonNull MouseButton button, int x, int y) {
 		if (building.isDead()) {
 			pop();
 			return;

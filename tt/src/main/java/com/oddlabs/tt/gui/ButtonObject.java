@@ -1,5 +1,7 @@
 package com.oddlabs.tt.gui;
 
+import org.jspecify.annotations.NonNull;
+
 public abstract class ButtonObject extends GUIObject {
 	private boolean pressed = false;
 
@@ -12,17 +14,17 @@ public abstract class ButtonObject extends GUIObject {
 	}
 
 	@Override
-	protected final void mouseReleased(MouseButton button, int x, int y) {
+	protected final void mouseReleased (@NonNull MouseButton button, int x, int y) {
 		pressed = false;
 	}
 
 	@Override
-	protected final void mousePressed(MouseButton button, int x, int y) {
+	protected final void mousePressed (@NonNull MouseButton button, int x, int y) {
 		pressed = true;
 	}
 
 	@Override
-	protected void mouseHeld(MouseButton button, int x, int y) {
+	protected void mouseHeld (@NonNull MouseButton button, int x, int y) {
 		if (pressed)
 			mousePressedAll(button, x, y);
 	}

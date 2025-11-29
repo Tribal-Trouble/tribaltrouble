@@ -2,7 +2,6 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.net.PeerHub;
-import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;

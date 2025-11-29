@@ -128,7 +128,7 @@ public final class VikingCampaignIcons implements CampaignIcons {
 	}
 
 	@Override
-	public MapIslandData getMapIslandData(int i) {
+	public @NonNull MapIslandData getMapIslandData(int i) {
 		return islands[i];
 	}
 }

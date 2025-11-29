@@ -57,7 +57,7 @@ public final class Slider extends GUIObject {
 	}
 	
 	@Override
-	public void mouseHeld(MouseButton button, int x, int y) {
+	public void mouseHeld (@NonNull MouseButton button, int x, int y) {
 		mousePressed(button, x, y);
 	}
 
@@ -73,7 +73,7 @@ public final class Slider extends GUIObject {
 	}
 
 	@Override
-	public void mousePressed(MouseButton button, int x, int y) {
+	public void mousePressed (@NonNull MouseButton button, int x, int y) {
 		if (!isDisabled()) {
 			int dx = x - this.button.getX();
 			if (dx < -step/2)

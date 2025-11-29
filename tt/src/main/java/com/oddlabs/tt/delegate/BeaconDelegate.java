@@ -12,7 +12,7 @@ public final class BeaconDelegate extends TargetDelegate {
 	}
 
 	@Override
-	public void mousePressed(MouseButton button, int x, int y) {
+	public void mousePressed (@NonNull MouseButton button, int x, int y) {
 		LandscapeLocation landscape_hit = new LandscapeLocation();
 		getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit);
 		getViewer().getPeerHub().sendBeacon(landscape_hit.x, landscape_hit.y);

@@ -85,18 +85,18 @@ public class Form extends Group {
 	}
 
 	@Override
-	protected final void mousePressed(MouseButton button, int x, int y) {
+	protected final void mousePressed (@NonNull MouseButton button, int x, int y) {
 		if (caption != null && y >= getHeight() - Skin.getSkin().getFormData().getForm().getTopOffset())
 			drag = true;
 	}
 
 	@Override
-	protected final void mouseReleased(MouseButton button, int x, int y) {
+	protected final void mouseReleased (@NonNull MouseButton button, int x, int y) {
 		drag = false;
 	}
 
 	@Override
-	public final void mouseDragged(MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
+	public final void mouseDragged (@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
 		if (drag)
 			setPos(getX() + rel_x, getY() + rel_y);
 	}
@@ -118,7 +118,7 @@ public class Form extends Group {
 	}
 
 	@Override
-	protected final void mouseClicked(MouseButton button, int x, int y, int clicks) {
+	protected final void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
 	}
 
 	@Override
@@ -146,7 +146,7 @@ public class Form extends Group {
 	}
 
 	@Override
-	protected final void mouseHeld(MouseButton button, int x, int y) {
+	protected final void mouseHeld (@NonNull MouseButton button, int x, int y) {
 	}
 
 	public final void closedAll() {

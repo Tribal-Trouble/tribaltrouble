@@ -68,7 +68,7 @@ public final class QuitScreen extends CameraDelegate implements Updatable {
 	}
 
 	@Override
-	protected void mouseClicked(MouseButton button, int x, int y, int clicks) {
+	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
 		key_pressed = true;
 		quit();
 	}

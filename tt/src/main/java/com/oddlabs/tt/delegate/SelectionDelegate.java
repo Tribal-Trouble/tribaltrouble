@@ -34,7 +34,7 @@ import java.util.Set;
 public final class SelectionDelegate extends ControllableCameraDelegate {
 	private final @NonNull InGameChatForm chat_form;
 	private final @NonNull Label observer_label;
-	private final GameCamera game_camera;
+	private final @Nullable GameCamera game_camera;
 
 	private boolean close_chat_override = false;
 	private boolean chat_visible;
@@ -320,7 +320,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void mouseClicked(MouseButton button, int x, int y, int clicks) {
+	public void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
 		if (button == MouseButton.LEFT && !map_mode && !observer) {
 			if (selection) {
 				selection = false;
@@ -352,7 +352,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void mouseReleased(MouseButton button, int x, int y) {
+	public void mouseReleased (@NonNull MouseButton button, int x, int y) {
 		if (map_mode) {
 			if (button == MouseButton.LEFT) {
 				getViewer().getPicker().pickMapGoto(x, y, (MapCamera)getCamera());
@@ -373,7 +373,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void mouseDragged(MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+	public void mouseDragged (@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 		if (!map_mode) {
 			if (!observer) {
 				if (button == MouseButton.LEFT) {
@@ -389,7 +389,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void mousePressed(MouseButton button, int x, int y) {
+	public void mousePressed (@NonNull MouseButton button, int x, int y) {
 		if (!map_mode) {
 			if (!observer) {
                             switch (button) {

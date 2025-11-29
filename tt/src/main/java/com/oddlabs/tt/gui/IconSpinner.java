@@ -129,19 +129,19 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 	}
 
 	@Override
-	protected final void mouseReleased(MouseButton button, int x, int y) {
+	protected final void mouseReleased (@NonNull MouseButton button, int x, int y) {
 	}
 
 	@Override
-	protected final void mousePressed(MouseButton button, int x, int y) {
+	protected final void mousePressed (@NonNull MouseButton button, int x, int y) {
 	}
 
 	@Override
-	protected final void mouseClicked(MouseButton button, int x, int y, int clicks) {
+	protected final void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
 	}
 
 	@Override
-	protected final void mouseHeld(MouseButton button, int x, int y) {
+	protected final void mouseHeld (@NonNull MouseButton button, int x, int y) {
 	}
 
 	private final class IncreaseListener implements MouseButtonListener {

@@ -83,7 +83,7 @@ public final class LogoScreen extends CameraDelegate implements Updatable {
 	}
 
 	@Override
-	protected void mouseClicked(MouseButton button, int x, int y, int clicks) {
+	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
 		fade();
 	}
 }

@@ -44,6 +44,6 @@ public final class ScrollButton extends GUIObject {
 	}
 
 	@Override
-	public void mouseClicked(MouseButton button, int x, int y, int clicks) {
+	public void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
 	}
 }

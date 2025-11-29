@@ -23,7 +23,7 @@ public class RechargeButton extends NonFocusIconButton implements ToolTip {
 	}
 
 	@Override
-	public final void mouseClicked(MouseButton button, int x, int y, int clicks) {
+	public final void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
 		if (unit.canDoMagic(magic_index))
 			player_interface.doMagic(unit, magic_index);
 	}

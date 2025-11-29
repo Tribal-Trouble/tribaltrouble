@@ -2,7 +2,6 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.event.LocalEventQueue;
-import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;

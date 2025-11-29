@@ -99,7 +99,7 @@ public final class PulldownMenu extends Group {// GUIObject {
 	}
 
 	// Sending click on to appropiate item when PulldownButton has been pressed and released on an item
-	void clickItem(MouseButton button, int x, int y, int clicks) {
+	void clickItem (@NonNull MouseButton button, int x, int y, int clicks) {
 		for (int i = 0; i < items.size(); i++) {
 			PulldownItem item = getItem(i);
 			if (item.isHovered())

@@ -126,7 +126,7 @@ public final class EditBox extends TextBox {
 	}
 
 	@Override
-	protected void mouseClicked(MouseButton button, int x, int y, int clicks) {
+	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
 		if (button == MouseButton.LEFT) {
 			Box edit_box = Skin.getSkin().getEditBox();
 			index = getTextRenderer().jumpDirect(edit_box.getLeftOffset(),

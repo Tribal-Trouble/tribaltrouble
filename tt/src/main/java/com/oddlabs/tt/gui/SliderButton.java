@@ -27,7 +27,7 @@ public final class SliderButton extends ButtonObject {
 	}
 
 	@Override
-	public void mouseHeld(MouseButton button, int x, int y) {
+	public void mouseHeld (@NonNull MouseButton button, int x, int y) {
 	}
 
 	@Override

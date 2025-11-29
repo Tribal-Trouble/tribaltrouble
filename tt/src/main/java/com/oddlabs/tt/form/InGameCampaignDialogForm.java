@@ -8,15 +8,15 @@ import org.jspecify.annotations.NonNull;
 public final class InGameCampaignDialogForm extends CampaignDialogForm {
 	private final @NonNull WorldViewer viewer;
 
-	public InGameCampaignDialogForm(@NonNull WorldViewer viewer, @NonNull CharSequence header, @NonNull CharSequence text, Quad image, Origin align) {
+	public InGameCampaignDialogForm(@NonNull WorldViewer viewer, @NonNull CharSequence header, @NonNull CharSequence text, Quad image, @NonNull Origin align) {
 		this(viewer, header, text, image, align, null);
 	}
 
-	public InGameCampaignDialogForm(@NonNull WorldViewer viewer, @NonNull CharSequence header, @NonNull CharSequence text, Quad image, Origin align, Runnable runnable) {
+	public InGameCampaignDialogForm(@NonNull WorldViewer viewer, @NonNull CharSequence header, @NonNull CharSequence text, Quad image, @NonNull Origin align, Runnable runnable) {
 		this(viewer, header, text, image, align, runnable, false);
 	}
 
-	public InGameCampaignDialogForm(@NonNull WorldViewer viewer, @NonNull CharSequence header, @NonNull CharSequence text, Quad image, Origin align, Runnable runnable, boolean cancel) {
+	public InGameCampaignDialogForm(@NonNull WorldViewer viewer, @NonNull CharSequence header, @NonNull CharSequence text, Quad image, @NonNull Origin align, Runnable runnable, boolean cancel) {
 		super(header, text, image, align, runnable, cancel);
 		this.viewer = viewer;
 		viewer.setPaused(true);

@@ -6,7 +6,6 @@ import com.oddlabs.matchmaking.MatchmakingClientInterface;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.MainMenu;
-import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.ChatRoomInfo;
 import com.oddlabs.tt.gui.Form;

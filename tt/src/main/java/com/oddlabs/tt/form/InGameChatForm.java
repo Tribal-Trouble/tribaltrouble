@@ -5,7 +5,6 @@ import com.oddlabs.tt.gui.EditLine;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.InfoPrinter;
-import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.RadioButton;
 import com.oddlabs.tt.gui.RadioButtonGroup;
 import com.oddlabs.tt.gui.Skin;

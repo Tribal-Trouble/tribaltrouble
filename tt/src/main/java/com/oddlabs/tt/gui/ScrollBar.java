@@ -99,7 +99,7 @@ public final class ScrollBar extends GUIObject {
 	}
 
 	@Override
-	protected void mouseClicked(MouseButton button, int x, int y, int clicks) {
+	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
 		int button_y = getButtonY();
 		owner.jumpPage(y > button_y);
 		scroll_button.setupPos(this);
