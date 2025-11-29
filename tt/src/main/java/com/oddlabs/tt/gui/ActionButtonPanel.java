@@ -20,6 +20,7 @@ import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
@@ -961,7 +962,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 	}
 
 	public boolean inHarvestMenu() {

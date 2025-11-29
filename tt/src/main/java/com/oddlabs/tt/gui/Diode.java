@@ -1,6 +1,8 @@
 package com.oddlabs.tt.gui;
 
-import org.lwjgl.opengl.GL11;
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
+import org.jspecify.annotations.NonNull;
 
 public final class Diode extends GUIObject {
 	private boolean lit;
@@ -16,16 +18,13 @@ public final class Diode extends GUIObject {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		ModeIconQuads.Mode skinMode =  isDisabled()
             ? ModeIconQuads.Mode.DISABLED
             : lit
                 ? ModeIconQuads.Mode.ACTIVE
                 : ModeIconQuads.Mode.NORMAL;
 
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, Skin.getSkin().getDiode().get(skinMode).getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		Skin.getSkin().getDiode().get(skinMode).render(0, 0);
-		GL11.glEnd();
+		renderer.drawQuad(Skin.getSkin().getDiode(), 0, 0, skinMode, Color.WHITE_INT);
 	}
 }

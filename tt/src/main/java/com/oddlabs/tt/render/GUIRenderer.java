@@ -141,6 +141,7 @@ public final class GUIRenderer {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
         }
 
+        // Top-left vertex
         vertexBuffer.putFloat(x);
         vertexBuffer.putFloat(y);
         vertexBuffer.putFloat(0);
@@ -148,6 +149,7 @@ public final class GUIRenderer {
         vertexBuffer.putFloat(u1);
         vertexBuffer.putFloat(v1);
 
+        // Top-right vertex
         vertexBuffer.putFloat(x + w);
         vertexBuffer.putFloat(y);
         vertexBuffer.putFloat(0);
@@ -155,6 +157,7 @@ public final class GUIRenderer {
         vertexBuffer.putFloat(u2);
         vertexBuffer.putFloat(v1);
 
+        // Bottom-right vertex
         vertexBuffer.putFloat(x + w);
         vertexBuffer.putFloat(y + h);
         vertexBuffer.putFloat(0);
@@ -162,6 +165,7 @@ public final class GUIRenderer {
         vertexBuffer.putFloat(u2);
         vertexBuffer.putFloat(v2);
 
+        // Bottom-left vertex
         vertexBuffer.putFloat(x);
         vertexBuffer.putFloat(y + h);
         vertexBuffer.putFloat(0);

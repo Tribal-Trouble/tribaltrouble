@@ -3,22 +3,23 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.UIRenderer;
-import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 
 public final class GUI implements Animated {
+	private final @NonNull GUIRenderer guiRenderer;
 	private @NonNull GUIRoot current_root;
 	private @Nullable Fade fade;
 	private @Nullable UIRenderer renderer;
 
 	public GUI() {
+		this.guiRenderer = new GUIRenderer();
 		this.current_root = createRoot();
 	}
 
@@ -70,12 +71,12 @@ public final class GUI implements Animated {
 	}
 
     private void setupGUIView(int width, int height) {
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glLoadIdentity();
-        GL11.glOrtho(0, width, 0, height, -1, 1);
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glLoadIdentity();
         GL11.glViewport(0, 0, width, height);
+        guiRenderer.beginFrame(width, height);
+    }
+
+    private void finishGUIView() {
+        guiRenderer.endFrame();
     }
 
 	@Nullable Fade getFade() {
@@ -102,34 +103,14 @@ public final class GUI implements Animated {
 		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
 		GL11.glPushClientAttrib(GL11.GL_ALL_CLIENT_ATTRIB_BITS);
 		GLStateStack.pushState();
-
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glDisable(GL11.GL_CULL_FACE);
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_COLOR_MATERIAL); // Added this
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GLState.activeTexture(GL13.GL_TEXTURE1);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GLState.activeTexture(GL13.GL_TEXTURE0);
-        
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_TEXTURE_GEN_S);
-        GL11.glDisable(GL11.GL_TEXTURE_GEN_T);
-        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-        GL11.glColor4f(1f, 1f, 1f, 1f);
-        
-        GL11.glMatrixMode(GL11.GL_TEXTURE);
-        GL11.glLoadIdentity();
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-
         GUIRoot guiRoot = getGUIRoot();
         setupGUIView(guiRoot.getWidth(), guiRoot.getHeight());
 		try {
-            guiRoot.render();
-            guiRoot.renderTopmost(null != renderer ? renderer.getToolTip() : null, null != renderer && renderer.isCheater());
+            guiRoot.render(guiRenderer);
+
+            guiRoot.renderTopmost(guiRenderer, null != renderer ? renderer.getToolTip() : null, null != renderer && renderer.isCheater());
 		} finally {
+            finishGUIView();
 			GLStateStack.popState();
 			GL11.glPopClientAttrib();
 			GL11.glPopAttrib();

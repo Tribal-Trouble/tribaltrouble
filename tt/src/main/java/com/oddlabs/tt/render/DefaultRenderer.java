@@ -142,6 +142,7 @@ public final class DefaultRenderer implements UIRenderer {
         return Globals.clear_frame_buffer || cheat.line_mode;
     }
 
+    /** Renders the 3D scene. */
     @Override
     public void render(@NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
         ambient.updateSoundListener(frustum_state, world.getHeightMap());

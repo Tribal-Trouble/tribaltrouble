@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.guievent.EnterListener;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -49,24 +50,24 @@ public class EditLine extends TextField implements Clipped {
     }
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		Box edit_box = Skin.getSkin().getEditBox();
         var mode = isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL;
-        edit_box.render(0f, 0f, getWidth(), getHeight(), mode);
+        edit_box.render(renderer, 0f, 0f, getWidth(), getHeight(), mode);
 		int render_index = isActive() ? index : -1;
-		renderText(edit_box.getLeftOffset(), edit_box.getBottomOffset(), offset_x, clip_left, clip_right, render_index);
+		renderText(renderer, edit_box, offset_x, render_index);
 	}
 
 	protected int getRenderedWidth(@NonNull CharSequence text) {
         return text.isEmpty() ? 0 : getFont().getWidth(text) - getFont().getXBorder();
 	}
 
-	protected void renderText(int x, int y, int offset_x, float clip_left, float clip_right, int render_index) {
+	protected void renderText(@NonNull GUIRenderer renderer, @NonNull Box box, int offset_x, int render_index) {
         var displayText = getDisplayText();
-		TextLineRenderer.render(getFont(), displayText, x + offset_x, y, clip_left, clip_right, Color.WHITE_INT);
+		TextLineRenderer.render(renderer, getFont(), displayText, box.getLeftOffset() + offset_x, box.getBottomOffset(), box.getLeftOffset() + 1, getWidth() - box.getRightOffset() - 1, Color.WHITE_INT);
 		if (render_index != -1) {
 			int cursorX = getRenderedWidth(displayText.subSequence(0, render_index));
-			Index.renderIndex(x + offset_x + cursorX, y, getFont());
+			Index.renderIndex(renderer, box.getLeftOffset() + offset_x + cursorX, box.getBottomOffset(), getFont());
 		}
 	}
 

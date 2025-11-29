@@ -1,9 +1,9 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 public final class Row<T,C extends GUIObject & Comparable<C>> extends GUIObject implements Comparable<Row<T,C>> {
 	private final @NonNull C @NonNull [] columns;
@@ -55,17 +55,10 @@ public final class Row<T,C extends GUIObject & Comparable<C>> extends GUIObject 
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
         var c = marked ? Skin.getSkin().getMultiColumnComboBoxData().getColorMarked() : color;
 		if (c != Color.TRANSPARENT_INT) {
-			float[] ca = Color.argb4f(c);
-			GL11.glColor4f(ca[0], ca[1], ca[2], ca[3]);
-			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glVertex2f(0, 0);
-			GL11.glVertex2f(0, getHeight());
-			GL11.glVertex2f(getWidth(), getHeight());
-			GL11.glVertex2f(getWidth(), 0);
-			GL11.glEnd();
+			renderer.drawColoredQuad(0, 0, getWidth(), getHeight(), c);
 		}
 	}
 

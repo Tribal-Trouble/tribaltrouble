@@ -1,7 +1,8 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public final class Horizontal {
 	private final @NonNull ModeIconQuads left;
@@ -20,16 +21,12 @@ public final class Horizontal {
 		right_width = right.quad(ModeIconQuads.Mode.NORMAL).getWidth();
 	}
 
-	public void render(float x, float y, int width, ModeIconQuads.@NonNull Mode skinMode) {
+	public void render(@NonNull GUIRenderer renderer, float x, float y, int width, ModeIconQuads.@NonNull Mode skinMode) {
 		int center_width = width - left_width - right_width;
 
-		GL11.glColor4f(1f, 1f, 1f, 1f);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, left.quad(skinMode).getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		left.quad(skinMode).render(x, y);
-		center.quad(skinMode).render(x + left_width, y, center_width, height);
-		right.quad(skinMode).render(x + left_width + center_width, y);
-		GL11.glEnd();
+		renderer.drawQuad(left.quad(skinMode), x, y, Color.WHITE_INT);
+		renderer.drawQuad(center.quad(skinMode), x + left_width, y, center_width, height, Color.WHITE_INT);
+		renderer.drawQuad(right.quad(skinMode), x + left_width + center_width, y, Color.WHITE_INT);
 	}
 
 	public int getHeight() {

@@ -1,7 +1,8 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public final class RadioButton extends RadioButtonGroupElement {
 	private boolean pressed = false;
@@ -26,7 +27,7 @@ public final class RadioButton extends RadioButtonGroupElement {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
                 : isActive()
@@ -40,9 +41,6 @@ public final class RadioButton extends RadioButtonGroupElement {
                     ? Skin.getSkin().getRadioButtonMarked().quad(skinMode)
                     : Skin.getSkin().getRadioButtonUnmarked().quad(skinMode);
 
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, quad_to_render.getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		quad_to_render.render(0, 0);
-		GL11.glEnd();
+		renderer.drawQuad(quad_to_render, 0, 0, Color.WHITE_INT);
 	}
 }

@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLayout;
 import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
@@ -16,19 +17,19 @@ public final class EditBox extends TextBox {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		Box edit_box = Skin.getSkin().getEditBox();
-    	super.renderBox(isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
+    	super.renderBox(renderer, isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
 		int c = isDisabled() ? Label.DISABLED_COLOR : Color.WHITE_INT;
 
-		TextLineRenderer.render(getTextLayout(), edit_box.getLeftOffset(), getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + getOffsetY(), c);
+		TextLineRenderer.render(renderer, getTextLayout(), edit_box.getLeftOffset(), getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + getOffsetY(), edit_box.getLeftOffset(), getWidth() - edit_box.getRightOffset(), c);
 
 		if (isActive()) {
 			TextLayout layout = getTextLayout();
 			int cursorLine = layout.getCursorLine(index);
 			int cursorX = layout.getCursorX(index);
 			int cursorY = getHeight() - edit_box.getBottomOffset() - getFont().getHeight() - (cursorLine * getFont().getHeight()) + getOffsetY();
-			Index.renderIndex(edit_box.getLeftOffset() + cursorX, cursorY, getFont());
+			Index.renderIndex(renderer, edit_box.getLeftOffset() + cursorX, cursorY, getFont());
 		}
 	}
 

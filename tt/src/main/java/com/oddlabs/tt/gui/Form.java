@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
+import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
@@ -50,7 +51,7 @@ public class Form extends Group {
 			close_button.setPos(getWidth() - close_button.getWidth() - form_data.getCloseRight(),
 								getHeight() - close_button.getHeight() - form_data.getCloseTop());
 			addChild(close_button);
-			close_button.addMouseClickListener(( _,  _,  _,  _) -> this.cancel());
+			close_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
 		} else {
 			form = Skin.getSkin().getFormData().getSlimForm();
 			super.compileCanvas(form.getLeftOffset() + spacing,
@@ -65,7 +66,7 @@ public class Form extends Group {
 	}
 
 	@Override
-	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected final void renderGeometry(@NonNull GUIRenderer renderer) {
         var data = Skin.getSkin().getFormData();
         var form = caption != null
                 ? data.getForm()
@@ -73,7 +74,7 @@ public class Form extends Group {
         var skinMode = isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
                 : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
-		form.render(0f, 0f, getWidth(), getHeight(), skinMode);
+		form.render(renderer, 0f, 0f, getWidth(), getHeight(), skinMode);
 	}
 
 	@Override

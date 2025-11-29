@@ -2,9 +2,10 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public final class Arrow extends GUIObject {
 	private static final float SECONDS_PER_FLASH = .5f;
@@ -48,7 +49,7 @@ public final class Arrow extends GUIObject {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		Vector4f result = project3DTo2D(target_x, target_y, target_z);
 		float x = result.x;
 		float y = result.y;
@@ -82,20 +83,17 @@ public final class Arrow extends GUIObject {
 			var data = GUIIcons.getIcons().getNotifyArrowData();
 			float head_x = data.getHeadX();
 			float head_y = data.getHeadY();
-			GL11.glPushMatrix();
-			GL11.glTranslatef(LocalInput.getViewWidth()/2f + dx*t, LocalInput.getViewHeight()/2f + dy*t, 0f);
-			GL11.glRotatef(angle, 0f, 0f, 1f);
+			renderer.getMatrixStack().push();
+			renderer.getMatrixStack().translate(LocalInput.getViewWidth()/2f + dx*t, LocalInput.getViewHeight()/2f + dy*t, 0f);
+			renderer.getMatrixStack().rotate(angle, 0f, 0f, 1f);
 			float val = (LocalEventQueue.getQueue().getTime()%SECONDS_PER_FLASH)/(SECONDS_PER_FLASH*.5f);
 			if (val > 1f)
 				val = 2f - val;
 			val = COLOR_DELTA*val;
-			GL11.glColor4f(r, g, b, 1f - val);
+			int color = Color.argbi(r, g, b, 1f - val);
 			IconQuad arrow = data.getArrow();
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, arrow.getTexture().getHandle());
-			GL11.glBegin(GL11.GL_QUADS);
-			arrow.render(-head_x, -head_y);
-			GL11.glEnd();
-			GL11.glPopMatrix();
+			renderer.drawQuad(arrow, -head_x, -head_y, color);
+			renderer.getMatrixStack().pop();
 		}
 	}
 }

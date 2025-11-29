@@ -1,5 +1,6 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
 public class ImageButton extends ButtonObject {
@@ -24,11 +25,11 @@ public class ImageButton extends ButtonObject {
 	}
 
 	@Override
-	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected final void renderGeometry(@NonNull GUIRenderer renderer) {
         var render = isDisabled()
                 ? disabled
                 : isHovered() || isActive() ? hovered : normal;
-        render.renderGeometry(clip_left, clip_right, clip_bottom, clip_top);
+        render.renderGeometry(renderer);
 	}
 
 	@Override

@@ -16,15 +16,14 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.behaviour.IdleController;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.Notification;
 import com.oddlabs.tt.viewer.WorldViewer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -331,20 +330,20 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 				List<Selectable> friendly_units = new ArrayList<>();
 				Selectable friendly_building = null;
 				Selectable enemy = null;
-                for (Selectable selectable : picked) {
-                    if (selectable != null) {
-                        if (selectable.getOwner() == getViewer().getLocalPlayer()) {
-                            if (selectable instanceof Building)
-                                friendly_building = selectable;
-                            else if (selectable instanceof Unit)
-                                friendly_units.add(selectable);
-                            else
-                                throw new RuntimeException();
-                        } else {
-                            enemy = selectable;
-                        }
-                    }
-                }
+                            for (Selectable selectable : picked) {
+                                if (selectable != null) {
+                                    if (selectable.getOwner() == getViewer().getLocalPlayer()) {
+                                        if (selectable instanceof Building)
+                                            friendly_building = selectable;
+                                        else if (selectable instanceof Unit)
+                                            friendly_units.add(selectable);
+                                        else
+                                            throw new RuntimeException();
+                                    } else {
+                                        enemy = selectable;
+                                    }
+                                }
+                            }
 				if (LocalInput.isShiftDownCurrently() && getViewer().getSelection().getCurrentSelection().size() > 0)
 					updateSelection(friendly_units, friendly_building, enemy);
 				else
@@ -433,7 +432,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void render2D() {
+	public void render2D(@NonNull GUIRenderer renderer) {
 		if (selection) {
 			float minX = Math.min(selection_x1, selection_x2);
 			float minY = Math.min(selection_y1, selection_y2);
@@ -442,28 +441,10 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 			float w = maxX - minX;
 			float h = maxY - minY;
 
-			float[] c = Color.argb4f(SELECTION_COLOR);
-			GL11.glColor4f(c[0], c[1], c[2], c[3]);
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glVertex2f(minX, minY);
-			GL11.glVertex2f(minX + w, minY);
-			GL11.glVertex2f(minX + w, minY + 1);
-			GL11.glVertex2f(minX, minY + 1);
-			GL11.glVertex2f(minX, maxY - 1);
-			GL11.glVertex2f(minX + w, maxY - 1);
-			GL11.glVertex2f(minX + w, maxY);
-			GL11.glVertex2f(minX, maxY);
-			GL11.glVertex2f(minX, minY + 1);
-			GL11.glVertex2f(minX + 1, minY + 1);
-			GL11.glVertex2f(minX + 1, maxY - 1);
-			GL11.glVertex2f(minX, maxY - 1);
-			GL11.glVertex2f(maxX - 1, minY + 1);
-			GL11.glVertex2f(maxX, minY + 1);
-			GL11.glVertex2f(maxX, maxY - 1);
-			GL11.glVertex2f(maxX - 1, maxY - 1);
-			GL11.glEnd();
-			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			renderer.drawColoredQuad(minX, minY, w, 1, SELECTION_COLOR);
+			renderer.drawColoredQuad(minX, maxY - 1, w, 1, SELECTION_COLOR);
+			renderer.drawColoredQuad(minX, minY + 1, 1, h - 2, SELECTION_COLOR);
+			renderer.drawColoredQuad(maxX - 1, minY + 1, 1, h - 2, SELECTION_COLOR);
 		}
 	}
 

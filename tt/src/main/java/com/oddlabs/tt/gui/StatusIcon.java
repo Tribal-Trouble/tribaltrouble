@@ -1,10 +1,11 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.model.SupplyCounter;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ResourceBundle;
 
@@ -47,12 +48,9 @@ public class StatusIcon extends GUIObject implements ToolTip {
 	}
 
 	@Override
-	protected void renderGeometry() {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		int x = getWidth() - icon.getWidth();
 		int y = (getHeight() - icon.getHeight())/2;
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, icon.getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		icon.render(x, y);
-		GL11.glEnd();
+		renderer.drawQuad(icon, x, y, Color.WHITE_INT);
 	}
 }

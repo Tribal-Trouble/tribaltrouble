@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.MouseButtonListener;
+import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
 public final class PanelGroup extends GUIObject {
@@ -73,9 +74,9 @@ public final class PanelGroup extends GUIObject {
 		}
 
 		@Override
-		protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+		protected void renderGeometry(@NonNull GUIRenderer renderer) {
 			Box panelBox = Skin.getSkin().getPanelData().getBox();
-			panelBox.render(0f, 0f, getWidth(), getHeight(), panels[selected].getTab().getRenderState());
+			panelBox.render(renderer,  0f, 0f, getWidth(), getHeight(), panels[selected].getTab().getRenderState());
 		}
 	}
 

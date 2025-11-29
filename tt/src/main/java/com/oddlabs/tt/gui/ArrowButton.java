@@ -1,8 +1,9 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 public final class ArrowButton extends ButtonObject {
 	private final @NonNull ModeIconQuads pressed;
@@ -47,7 +48,7 @@ public final class ArrowButton extends ButtonObject {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
         ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
                 : isPressed() && isHovered()
@@ -58,11 +59,8 @@ public final class ArrowButton extends ButtonObject {
 
         var quad_to_render_button = (!isDisabled() && isPressed() && isHovered() ? pressed : unpressed);
 
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, quad_to_render_button.quad(skinMode).getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		quad_to_render_button.quad(skinMode).render(0, 0);
-		arrow.quad(skinMode).render(0, 0);
-		GL11.glEnd();
+		renderer.drawQuad(quad_to_render_button, 0, 0, skinMode, Color.WHITE_INT);
+		renderer.drawQuad(arrow, 0, 0, skinMode, Color.WHITE_INT);
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import com.oddlabs.tt.gui.Row;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.SortedLabel;
 import com.oddlabs.tt.player.Player;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -164,8 +165,8 @@ public final class GameStatsDelegate extends CameraDelegate implements Updatable
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
-		renderBackgroundAlpha();
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
+		renderBackgroundAlpha(renderer);
 	}
 
 	@Override

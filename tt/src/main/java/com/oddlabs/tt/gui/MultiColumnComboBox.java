@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.RowListener;
+import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -46,9 +47,9 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 		focus_group.setPos(0, 0);
 		addChild(focus_group);
 		if (use_buttons)
-			rows.setDim(width - box.getLeftOffset(), height - box.getBottomOffset() - box.getTopOffset() - group.getMarked().getHeight());
+			rows.setDim(width - box.getLeftOffset() - box.getRightOffset(), height - box.getBottomOffset() - box.getTopOffset() - group.getMarked().getHeight());
 		else
-			rows.setDim(width - box.getLeftOffset(), height - box.getBottomOffset() - box.getTopOffset());
+			rows.setDim(width - box.getLeftOffset() - box.getRightOffset(), height - box.getBottomOffset() - box.getTopOffset());
 		rows.setPos(box.getLeftOffset(), box.getBottomOffset());
 		addChild(rows);
 		setCanFocus(true);
@@ -87,9 +88,9 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
         Box box = Skin.getSkin().getMultiColumnComboBoxData().getBox();
-		box.render(0f, 0f, getWidth() - scroll_bar.getWidth(), getHeight() - (use_buttons ? group.getMarked().getHeight() : 0), ModeIconQuads.Mode.NORMAL);
+		box.render(renderer, 0f, 0f, getWidth() - scroll_bar.getWidth(), getHeight() - (use_buttons ? group.getMarked().getHeight() : 0), ModeIconQuads.Mode.NORMAL);
 	}
 
 	@Override

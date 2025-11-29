@@ -1,5 +1,6 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
@@ -32,14 +33,14 @@ public final class ScrollButton extends GUIObject {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
         ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
                 : isActive()
                     ? ModeIconQuads.Mode.ACTIVE
                     : ModeIconQuads.Mode.NORMAL;
         Skin.getSkin().getScrollBarData().getScrollButton()
-		        .render(0, 0, getHeight(), skinMode);
+		        .render(renderer, 0, 0, getHeight(), skinMode);
 	}
 
 	@Override

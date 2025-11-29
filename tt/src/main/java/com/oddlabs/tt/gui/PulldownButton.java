@@ -1,8 +1,9 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.ItemChosenListener;
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public final class PulldownButton extends GUIObject {
 	private final @NonNull PulldownMenu<Void> menu;
@@ -36,7 +37,7 @@ public final class PulldownButton extends GUIObject {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		PulldownData data = Skin.getSkin().getPulldownData();
 		Horizontal pulldownButton = data.getPulldownButton();
 
@@ -46,13 +47,10 @@ public final class PulldownButton extends GUIObject {
                     ? ModeIconQuads.Mode.ACTIVE
                     : ModeIconQuads.Mode.NORMAL;
 
-        pulldownButton.render(0, 0, getWidth(), skinTYpe);
+        pulldownButton.render(renderer,  0, 0, getWidth(), skinTYpe);
 
 		IconQuad arrowQuad = data.getArrow().quad(skinTYpe);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, arrowQuad.getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		arrowQuad.render(getWidth() - data.getArrowOffsetRight() - arrowQuad.getWidth(), 0);
-		GL11.glEnd();
+		renderer.drawQuad(arrowQuad, getWidth() - data.getArrowOffsetRight() - arrowQuad.getWidth(), 0, Color.WHITE_INT);
 	}
 
 	@Override

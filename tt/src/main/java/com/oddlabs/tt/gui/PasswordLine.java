@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import com.oddlabs.util.CryptUtils;
 import org.jspecify.annotations.NonNull;
@@ -31,12 +32,12 @@ public class PasswordLine extends EditLine {
     }
 
 	@Override
-	protected void renderText(int x, int y, int offset_x, float clip_left, float clip_right, int render_index) {
+	protected void renderText(@NonNull GUIRenderer renderer, @NonNull Box box, int offset_x, int render_index) {
 		var displayText = getDisplayText();
-		TextLineRenderer.render(getFont(), displayText, x + offset_x, y, clip_left, clip_right, Color.WHITE_INT);
+		TextLineRenderer.render(renderer, getFont(), displayText, box.getLeftOffset() + offset_x, box.getBottomOffset(), box.getLeftOffset(), getWidth() - box.getRightOffset(), Color.WHITE_INT);
 		if (render_index != -1) {
 			int cursorX = getRenderedWidth(displayText.subSequence(0, render_index));
-			Index.renderIndex(x + offset_x + cursorX, y, getFont());
+			Index.renderIndex(renderer, box.getLeftOffset() + offset_x + cursorX, box.getBottomOffset(), getFont());
 		}
 	}
 	

@@ -8,7 +8,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.gui.MouseButton;
-import com.oddlabs.tt.guievent.MouseClickListener;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
@@ -53,8 +53,8 @@ final class CampaignMapMenu extends Menu {
     }
 
     @Override
-    protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
-        super.renderGeometry(clip_left, clip_right, clip_bottom, clip_top);
-        renderBackgroundAlpha();
+    protected void renderGeometry(@NonNull GUIRenderer renderer) {
+        super.renderGeometry(renderer);
+        renderBackgroundAlpha(renderer);
     }
 }

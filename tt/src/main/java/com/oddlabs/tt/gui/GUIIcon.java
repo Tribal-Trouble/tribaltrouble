@@ -1,7 +1,8 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public class GUIIcon extends GUIObject {
 	private final @NonNull IconQuad icon;
@@ -13,11 +14,7 @@ public class GUIIcon extends GUIObject {
 	}
 
 	@Override
-	public void renderGeometry() {
-		GL11.glColor4f(1f, 1f, 1f, 1f);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, icon.getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		icon.render(0, 0);
-		GL11.glEnd();
+	public void renderGeometry(@NonNull GUIRenderer renderer) {
+		renderer.drawQuad(icon, 0, 0, Color.WHITE_INT);
 	}
 }

@@ -1,8 +1,9 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 public class IconButton extends ButtonObject {
 	private final @NonNull ModeIconQuads icon;
@@ -24,16 +25,13 @@ public class IconButton extends ButtonObject {
 	}
 
 	@Override
-	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected final void renderGeometry(@NonNull GUIRenderer renderer) {
         ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
                 :  isHovered() || isActive()
                         ? ModeIconQuads.Mode.ACTIVE
                         : ModeIconQuads.Mode.NORMAL;
 
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, icon.quad(skinMode).getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		icon.quad(skinMode).render(0, 0);
-		GL11.glEnd();
+		renderer.drawQuad(icon, 0, 0, skinMode, Color.WHITE_INT);
 	}
 }

@@ -3,14 +3,16 @@ package com.oddlabs.tt.form;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.util.Color;
+import org.jspecify.annotations.NonNull;
 
 public final class Status {
 	private final StringBuilder buf = new StringBuilder();
 
-	public void render() {
+	public void render(@NonNull GUIRenderer renderer) {
 		long free_mem = Runtime.getRuntime().freeMemory();
 		buf.delete(0, buf.length());
 		if (Settings.getSettings().inDeveloperMode()) {
@@ -40,6 +42,6 @@ public final class Status {
                 .append(Math.round(Renderer.getFPS()))
                 .append(" ms/frame)");
 
-		TextLineRenderer.render(Skin.getSkin().getEditFont(), buf, 0, 0, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE_INT);
+		TextLineRenderer.render(renderer, Skin.getSkin().getEditFont(), buf, 0, 0, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE_INT);
 	}
 }

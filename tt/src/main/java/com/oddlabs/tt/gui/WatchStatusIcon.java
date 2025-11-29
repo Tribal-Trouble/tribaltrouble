@@ -2,9 +2,9 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.ReproduceUnitContainer;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public final class WatchStatusIcon extends StatusIcon {
 	private Building building;
@@ -18,8 +18,8 @@ public final class WatchStatusIcon extends StatusIcon {
 	}
 
 	@Override
-	protected void renderGeometry() {
-		super.renderGeometry();
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
+		super.renderGeometry(renderer);
 		if (!building.isDead() && !building.getChieftainContainer().isTraining() && building.getOwner().getUnitCountContainer().getNumSupplies() < building.getOwner().getWorld().getMaxUnitCount()) {
 			IconQuad[] watch = GUIIcons.getIcons().getWatch();
 			float progress = ((ReproduceUnitContainer)(building.getUnitContainer())).getBuildProgress();
@@ -27,14 +27,9 @@ public final class WatchStatusIcon extends StatusIcon {
 			int x = getWidth() - watch[0].getWidth();
 			int y = (getHeight() - watch[0].getHeight())/2;
 			x -= 5; // visual HAX
-			float[] c = Color.argb4f(Color.argbi(1f, 1f, 1f, .75f));
-			GL11.glColor4f(c[0], c[1], c[2], c[3]);
+			int color = Color.argbi(1f, 1f, 1f, .75f);
 			IconQuad icon = watch[index];
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, icon.getTexture().getHandle());
-			GL11.glBegin(GL11.GL_QUADS);
-			icon.render(x, y);
-			GL11.glEnd();
-			GL11.glColor4f(1f, 1f, 1f, 1f);
+			renderer.drawQuad(icon.getTexture(), x, y, icon.getWidth(), icon.getHeight(), icon.getU1(), icon.getV1(), icon.getU2(), icon.getV2(), color);
 		}
 	}
 }

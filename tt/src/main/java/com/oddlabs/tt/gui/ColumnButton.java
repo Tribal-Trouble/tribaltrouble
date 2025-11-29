@@ -1,8 +1,9 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public final class ColumnButton<T> extends RadioButtonGroupElement {
 	private final @NonNull RowCollection<T> rows;
@@ -52,7 +53,7 @@ public final class ColumnButton<T> extends RadioButtonGroupElement {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
                 : isHovered() && pressed
@@ -66,21 +67,18 @@ public final class ColumnButton<T> extends RadioButtonGroupElement {
                 ? data.getButtonPressed()
                 : data.getButtonUnpressed();
 
-		buttonHorizontal.render(0, 0, getWidth(), skinMode);
+		buttonHorizontal.render(renderer, 0, 0, getWidth(), skinMode);
 		if (isMarked())
-			renderMark(skinMode);
+			renderMark(renderer, skinMode);
 	}
 
-	private void renderMark(ModeIconQuads.@NonNull Mode skinMode) {
+	private void renderMark(@NonNull GUIRenderer renderer, ModeIconQuads.@NonNull Mode skinMode) {
         var data = Skin.getSkin().getMultiColumnComboBoxData();
         ModeIconQuads arrow = sorted_descending
                 ? data.getDescending()
                 : data.getAscending();
 
         IconQuad arrowQuad = arrow.quad(skinMode);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, arrowQuad.getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		arrowQuad.render(arrow_offset, (getHeight() - arrowQuad.getHeight())/2);
-		GL11.glEnd();
+		renderer.drawQuad(arrowQuad, arrow_offset, (getHeight() - arrowQuad.getHeight())/2, Color.WHITE_INT);
 	}
 }

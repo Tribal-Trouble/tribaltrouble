@@ -1,7 +1,8 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public final class Box {
 	private final @NonNull ModeIconQuads left_bottom;
@@ -56,23 +57,19 @@ public final class Box {
 		top_height = top.quad(ModeIconQuads.Mode.NORMAL).getHeight();
 	}
 
-	public void render(float x, float y, int width, int height, ModeIconQuads.@NonNull Mode skinMode) {
+	public void render(@NonNull GUIRenderer renderer, float x, float y, int width, int height, ModeIconQuads.@NonNull Mode skinMode) {
 		int center_width = width - left_width - right_width;
 		int center_height = height - bottom_height - top_height;
-
-		GL11.glColor4f(1f, 1f, 1f, 1f);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, left_bottom.quad(skinMode).getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		left_bottom.quad(skinMode).render(x, y);
-		bottom.quad(skinMode).render(x + left_width, y, center_width, bottom_height);
-		right_bottom.quad(skinMode).render(x + left_width + center_width, y);
-		right.quad(skinMode).render(x + left_width + center_width, y + bottom_height, right_width, center_height);
-		right_top.quad(skinMode).render(x + left_width + center_width, y + bottom_height + center_height);
-		top.quad(skinMode).render(x + left_width, y + bottom_height + center_height, center_width, top_height);
-		left_top.quad(skinMode).render(x, y + bottom_height + center_height);
-		left.quad(skinMode).render(x, y + bottom_height, left_width, center_height);
-		center.quad(skinMode).render(x + left_width, y + bottom_height, center_width, center_height);
-		GL11.glEnd();
+        
+		renderer.drawQuad(left_bottom.quad(skinMode), x, y, Color.WHITE_INT);
+		renderer.drawQuad(bottom.quad(skinMode), x + left_width, y, center_width, bottom_height, Color.WHITE_INT);
+		renderer.drawQuad(right_bottom.quad(skinMode), x + left_width + center_width, y, Color.WHITE_INT);
+		renderer.drawQuad(right.quad(skinMode), x + left_width + center_width, y + bottom_height, right_width, center_height, Color.WHITE_INT);
+		renderer.drawQuad(right_top.quad(skinMode), x + left_width + center_width, y + bottom_height + center_height, Color.WHITE_INT);
+		renderer.drawQuad(top.quad(skinMode), x + left_width, y + bottom_height + center_height, center_width, top_height, Color.WHITE_INT);
+		renderer.drawQuad(left_top.quad(skinMode), x, y + bottom_height + center_height, Color.WHITE_INT);
+		renderer.drawQuad(left.quad(skinMode), x, y + bottom_height, left_width, center_height, Color.WHITE_INT);
+		renderer.drawQuad(center.quad(skinMode), x + left_width, y + bottom_height, center_width, center_height, Color.WHITE_INT);
 	}
 
 	public int getLeftOffset() {

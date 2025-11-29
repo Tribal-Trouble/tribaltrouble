@@ -2,9 +2,9 @@ package com.oddlabs.tt.font;
 
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 /**
  *  Text insertion point.
@@ -32,20 +32,13 @@ public final class Index implements Updatable {
 		timer.resetTime();
 	}
 
-	public static void renderIndex(int render_x, int render_y, @NonNull Font font) {
-		index.doRenderIndex(render_x, render_y, font);
+	public static void renderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font) {
+		index.doRenderIndex(renderer, render_x, render_y, font);
 	}
 
-	private void doRenderIndex(int render_x, int render_y, @NonNull Font font) {
+	private void doRenderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font) {
 		if (blink_on) {
-			float[] c = Color.argb4f(Color.WHITE_INT);
-			GL11.glColor4f(c[0], c[1], c[2], c[3]);
-			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glVertex2f(render_x, render_y + 3);
-			GL11.glVertex2f(render_x, render_y + font.getHeight() - 6);
-			GL11.glVertex2f(render_x + INDEX_WIDTH, render_y + font.getHeight() - 6);
-			GL11.glVertex2f(render_x + INDEX_WIDTH, render_y + 3);
-			GL11.glEnd();
+			renderer.drawColoredQuad(render_x, render_y + 3, INDEX_WIDTH, font.getHeight() - 6, Color.WHITE_INT);
 		}
 	}
 

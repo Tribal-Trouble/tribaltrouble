@@ -8,10 +8,11 @@ import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RotatingThrowingWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.player.PlayerInterface;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.viewer.WorldViewer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 public final class BuildSpinner extends IconSpinner {
 	public static final int INFINITE_LIMIT = 30;
@@ -25,7 +26,7 @@ public final class BuildSpinner extends IconSpinner {
 	private boolean infinite;
 
 	BuildSpinner(@NonNull WorldViewer viewer, @NonNull PlayerInterface player_interface,
-                 @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip, @NonNull IconQuad @Nullable [] tool_tip_icons,
+                 @NonNull ModeIconQuads icon_quad, String tool_tip, @NonNull IconQuad @Nullable [] tool_tip_icons,
                  @NonNull String shortcut_key) {
 		super(viewer, icon_quad, tool_tip, tool_tip_icons, shortcut_key);
 		this.player_interface = player_interface;
@@ -116,13 +117,10 @@ public final class BuildSpinner extends IconSpinner {
 	}
 
 	@Override
-	protected void postRender() {
+	protected void postRender(@NonNull GUIRenderer renderer) {
 		if (renderInfinite()) {
 			IconQuad infiniteQuad = GUIIcons.getIcons().getInfinite();
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, infiniteQuad.getTexture().getHandle());
-			GL11.glBegin(GL11.GL_QUADS);
-			infiniteQuad.render(0, 0);
-			GL11.glEnd();
+			renderer.drawQuad(infiniteQuad, 0, 0, Color.WHITE_INT);
 		}		
 	}
 }

@@ -2,11 +2,11 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ResourceBundle;
 
@@ -58,23 +58,23 @@ public final class ProgressBar extends GUIObject {
 		update();
 	}
 
-	private void renderText() {
+	private void renderText(@NonNull GUIRenderer renderer) {
 		int offset = index > 0 ? info[index - 1].getWaypoint() : 0;
         float done = (offset + step)/getWidth();
 		ResourceBundle bundle = ResourceBundle.getBundle(ProgressBar.class.getName());
 		int percentage = (int)(done*100);
 		String string = Utils.getBundleString(bundle, "loading", percentage);
-		TextLineRenderer.render(Skin.getSkin().getHeadlineFont(), string, 0, 0, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE_INT);
+		TextLineRenderer.render(renderer, Skin.getSkin().getHeadlineFont(), string, 0, 0, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE_INT);
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		if (text_only)
-			renderText();
+			renderText(renderer);
 		else {
 			Skin.getSkin().getProgressBarData().getProgressBar()
-			    .render(0, 0, getWidth(), ModeIconQuads.Mode.NORMAL);
-			renderFill(0);
+			    .render(renderer, 0, 0, getWidth(), ModeIconQuads.Mode.NORMAL);
+			renderFill(renderer, 0);
 		}
 	}
 
@@ -99,7 +99,7 @@ public final class ProgressBar extends GUIObject {
         }
 	}
 
-	private void renderFill(int y) {
+	private void renderFill(@NonNull GUIRenderer renderer, int y) {
 		if (index == 0 && step < left_margin)
 			return;
 		ProgressBarData data = Skin.getSkin().getProgressBarData();
@@ -107,18 +107,15 @@ public final class ProgressBar extends GUIObject {
         ModeIconQuads center = data.getCenterFill();
         ModeIconQuads right = data.getRightFill();
 
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, left.get(ModeIconQuads.Mode.NORMAL).getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		left.get(ModeIconQuads.Mode.NORMAL).render(0, y);
+		renderer.drawQuad(left.get(ModeIconQuads.Mode.NORMAL), 0, y, Color.WHITE_INT);
 
 		int offset = index > 0 ? info[index - 1].getWaypoint() : 0;
         IconQuad c = center.quad(ModeIconQuads.Mode.NORMAL);
-		c.render(left_margin, y, offset - left_margin + (int)step, c.getHeight());
+		renderer.drawQuad(c.getTexture(), left_margin, y, offset - left_margin + (int)step, c.getHeight(), c.getU1(), c.getV1(), c.getU2(), c.getV2(), Color.WHITE_INT);
 		
 		if (index == info.length) {
-			right.get(ModeIconQuads.Mode.NORMAL).render(info[index - 1].getWaypoint(), y);
+			renderer.drawQuad(right.get(ModeIconQuads.Mode.NORMAL), info[index - 1].getWaypoint(), y, Color.WHITE_INT);
 		}
-		GL11.glEnd();
 	}
 
 	private void update() {

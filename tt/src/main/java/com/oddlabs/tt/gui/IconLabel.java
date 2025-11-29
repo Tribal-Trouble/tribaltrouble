@@ -1,7 +1,8 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public final class IconLabel extends GUIObject implements Comparable<IconLabel> {
 	private final @NonNull IconQuad icon;
@@ -18,11 +19,8 @@ public final class IconLabel extends GUIObject implements Comparable<IconLabel> 
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, icon.getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		icon.render(0, 0);
-		GL11.glEnd();
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
+		renderer.drawQuad(icon, 0, 0, Color.WHITE_INT);
 	}
 
 	private @NonNull Label getLabel() {

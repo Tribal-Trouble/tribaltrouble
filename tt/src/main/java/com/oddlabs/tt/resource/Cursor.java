@@ -2,8 +2,10 @@ package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.IconQuad;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.NativeCursor;
 import com.oddlabs.tt.render.Texture;
+import com.oddlabs.util.Color;
 import com.oddlabs.util.Image;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
@@ -25,7 +27,7 @@ public final class Cursor {
         render_gl_cursor = !native_cursor.setActive();
     }
 
-    public void render(float x, float y) {
+    public void render(@NonNull GUIRenderer renderer, float x, float y) {
         if (render_gl_cursor || LocalEventQueue.getQueue().getDeterministic().isPlayback()) {
             // x and y are the desired hotspot coordinates in the GUI's Y-up system
             // offset_x is hotspot_x_from_left
@@ -35,10 +37,7 @@ public final class Cursor {
             float draw_x = x - offset_x;
             // Corrected: Calculate bottom-left Y based on hotspot_y_from_top and image height
             float draw_y = y - (height - offset_y); 
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, cursor.getTexture().getHandle());
-			GL11.glBegin(GL11.GL_QUADS);
-			cursor.render(draw_x, draw_y);
-			GL11.glEnd();
+            renderer.drawQuad(cursor, draw_x, draw_y, Color.WHITE_INT);
         }
     }
 

@@ -3,8 +3,8 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public final class MenuButton extends ButtonObject {
 	private static final float SECONDS_PER_HOVER_CYCLE = 1.5f;
@@ -28,30 +28,29 @@ public final class MenuButton extends ButtonObject {
 		this.color_active = color_active;
 	}
 
-	private void scaleHovered() {
+	private void scaleHovered(@NonNull GUIRenderer renderer) {
 		float time = (LocalEventQueue.getQueue().getTime() - start_hover_time)%SECONDS_PER_HOVER_CYCLE;
 		float cycle_position = time/SECONDS_PER_HOVER_CYCLE;
 		float scale = 1f + HOVER_SCALE_FACTOR*(float)Math.sin(cycle_position*2*Math.PI);
-		GL11.glScalef(scale, scale, 1f);
+		renderer.getMatrixStack().scale(scale, scale, 1f);
 	}
 
 	@Override
-	protected void renderGeometry() {
-		GL11.glPushMatrix();
-		GL11.glTranslatef(getWidth()/2f, getHeight()/2f, 0);
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
+		renderer.getMatrixStack().push()
+                .translate(getWidth()/2f, getHeight()/2f, 0);
 		int c;
 		if (isActive()) {
 			c = color_active;
-			scaleHovered();
+			scaleHovered(renderer);
 		} else if (isDisabled()) {
 			c = Label.DISABLED_COLOR;
 		} else {
 			c = color_normal;
 		}
 
-		TextLineRenderer.render(getFont(), text, -getWidth()/2f, -getHeight()/2f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, c);
-		GL11.glPopMatrix();
-		GL11.glColor4f(1f, 1f, 1f, 1f); // Reset color after rendering
+		TextLineRenderer.render(renderer, getFont(), text, -getWidth()/2f, -getHeight()/2f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, c);
+		renderer.getMatrixStack().pop();
 	}
 
 	@Override

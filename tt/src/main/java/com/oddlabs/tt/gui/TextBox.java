@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLayout;
 import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
@@ -48,16 +49,16 @@ public class TextBox extends TextField implements Scrollable, Clipped {
 		return textLayout;
 	}
 
-	protected final void renderBox(ModeIconQuads.@NonNull Mode skinMode) {
+	protected final void renderBox(@NonNull GUIRenderer renderer, ModeIconQuads.@NonNull Mode skinMode) {
 		Box edit_box = Skin.getSkin().getEditBox();
-		edit_box.render(0f, 0f, getWidth() - scroll_bar.getWidth(), getHeight(), skinMode);
+		edit_box.render(renderer, 0f, 0f, getWidth() - scroll_bar.getWidth(), getHeight(), skinMode);
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		Box edit_box = Skin.getSkin().getEditBox();
-		renderBox(ModeIconQuads.Mode.NORMAL);
-		TextLineRenderer.render(textLayout, edit_box.getLeftOffset(), getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + offset_y, Color.WHITE_INT);
+		renderBox(renderer, ModeIconQuads.Mode.NORMAL);
+		TextLineRenderer.render(renderer, textLayout, edit_box.getLeftOffset(), getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + offset_y, edit_box.getLeftOffset(), getWidth() - edit_box.getRightOffset(), Color.WHITE_INT);
 	}
 
 	@Override

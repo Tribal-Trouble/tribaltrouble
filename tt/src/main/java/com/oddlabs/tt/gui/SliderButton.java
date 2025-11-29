@@ -1,8 +1,9 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 public final class SliderButton extends ButtonObject {
 	private final @NonNull Slider slider;
@@ -16,7 +17,7 @@ public final class SliderButton extends ButtonObject {
 	}
 
 	@Override
-	protected void renderGeometry() {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		GUIObject parent = getParent();
         ModeIconQuads.Mode skinMode = parent.isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
@@ -24,11 +25,7 @@ public final class SliderButton extends ButtonObject {
                     ? ModeIconQuads.Mode.ACTIVE
                     : ModeIconQuads.Mode.NORMAL;
 
-		GL11.glColor4f(1f, 1f, 1f, 1f);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, button.quad(skinMode).getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		button.quad(skinMode).render(0, 0);
-		GL11.glEnd();
+		renderer.drawQuad(button.quad(skinMode), 0, 0, Color.WHITE_INT);
 	}
 
 	@Override

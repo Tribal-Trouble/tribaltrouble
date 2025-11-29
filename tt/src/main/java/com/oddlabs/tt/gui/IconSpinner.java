@@ -1,18 +1,19 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.MouseButtonListener;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ResourceBundle;
 
 public abstract class IconSpinner extends GUIObject implements ToolTip {
 	private final @NonNull ModeIconQuads icon_quad;
-	private final @NonNull String tool_tip;
+	private final String tool_tip;
 	private final @NonNull IconQuad @Nullable [] tool_tip_icons;
 	private final @NonNull TextField label;
 	private final @NonNull GUIObject button_plus;
@@ -107,7 +108,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 	}
 
 	@Override
-	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected final void renderGeometry(@NonNull GUIRenderer renderer) {
 		int x = (getWidth() - icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth())/2;
 		int y = (getHeight() - icon_quad.quad(ModeIconQuads.Mode.NORMAL).getHeight())/2;
 
@@ -117,19 +118,13 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
                     ? ModeIconQuads.Mode.ACTIVE
                     : ModeIconQuads.Mode.NORMAL;
 
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, icon_quad.quad(skinMode).getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		icon_quad.quad(skinMode).render(x, y);
-		GL11.glEnd();
+		renderer.drawQuad(icon_quad.quad(skinMode), x, y, Color.WHITE_INT);
 
 		if (text_count > 0) {
 			IconQuad[] watch = GUIIcons.getIcons().getWatch();
 			int index = (int)(getProgress()*(watch.length - 1));
 			IconQuad watchQuad = watch[index];
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, watchQuad.getTexture().getHandle());
-			GL11.glBegin(GL11.GL_QUADS);
-			watchQuad.render(getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight());
-			GL11.glEnd();
+			renderer.drawQuad(watchQuad, getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight(), Color.WHITE_INT);
 		}
 	}
 

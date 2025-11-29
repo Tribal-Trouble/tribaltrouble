@@ -1,9 +1,10 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.CheckBoxListener;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.ToolTip;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
@@ -66,7 +67,7 @@ public final class CheckBox extends GUIObject implements ToolTip {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
         ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
                 : isActive()
@@ -83,10 +84,7 @@ public final class CheckBox extends GUIObject implements ToolTip {
                     ? Skin.getSkin().getCheckBoxMarked()
                     : Skin.getSkin().getCheckBoxUnmarked());
 
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, quad_to_render.quad(skinMode).getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		quad_to_render.quad(skinMode).render(0, 0);
-		GL11.glEnd();
+		renderer.drawQuad(quad_to_render, 0, 0, skinMode, Color.WHITE_INT);
 	}
 
 	public void checkedAll(boolean marked) {

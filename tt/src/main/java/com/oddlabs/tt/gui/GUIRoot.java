@@ -10,15 +10,16 @@ import com.oddlabs.tt.form.Status;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.input.PointerInput;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.ToolTip;
+import com.oddlabs.util.Color;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -365,15 +366,15 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		return getModalDelegate() != null || getDelegate().renderCursor();
 	}
 
-	void renderTopmost(@Nullable ToolTip hovered, boolean cheater) {
+	void renderTopmost(@NonNull GUIRenderer renderer, @Nullable ToolTip hovered, boolean cheater) {
         if (cheater) {
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, GUIIcons.getIcons().getCheatIcon().getTexture().getHandle());
-			GL11.glBegin(GL11.GL_QUADS);
-			GUIIcons.getIcons().getCheatIcon().render(getWidth() - GUIIcons.getIcons().getCheatIcon().getWidth() - 10, 5);
-			GL11.glEnd();
+            renderer.drawQuad(GUIIcons.getIcons().getCheatIcon(),
+                    getWidth() - GUIIcons.getIcons().getCheatIcon().getWidth() - 10,
+                    5,
+                    Color.WHITE_INT);
         }
 
-        getDelegate().render2D();
+        getDelegate().render2D(renderer);
 
 		// render forced delegates
         boolean initial = true; // Skip the first element which is the current delegate
@@ -381,16 +382,16 @@ public final class GUIRoot extends GUIObject implements Updatable {
             if (initial) {
                 initial = false;
             } else if (delegate.forceRender()) {
-                delegate.render();
+                delegate.render(renderer);
             }
         }
 
 		if (Globals.draw_status) {
-			status.render();
+			status.render(renderer);
 		}
 
 		if (gui.getFade() != null) {
-			gui.getFade().render();
+			gui.getFade().render(renderer);
 		}
 
 		if (cursor_object.getCursorType() != CursorType.NULL) {
@@ -398,7 +399,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 			if (getModalDelegate() != null || getDelegate().renderCursor()) {
 				float mouse_x = LocalInput.getMouseX();
 				float mouse_y = LocalInput.getMouseY();
-				cursors[cursor_object.getCursorType().ordinal()].render(mouse_x, mouse_y);
+				cursors[cursor_object.getCursorType().ordinal()].render(renderer, mouse_x, mouse_y);
 			}
 		} else
 			PointerInput.setActiveCursor(null);
@@ -408,7 +409,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
             if (tooltip == null)
                 tooltip = hovered;
             if (tooltip != null)
-                renderToolTip(tooltip);
+                renderToolTip(renderer, tooltip);
         }
     }
 
@@ -416,9 +417,9 @@ public final class GUIRoot extends GUIObject implements Updatable {
         return render_tool_tip && getCurrentGUIObject() instanceof ToolTip tip ? tip : null;
 	}
 
-	private void renderToolTip(@NonNull ToolTip hovered) {
+	private void renderToolTip(@NonNull GUIRenderer renderer, @NonNull ToolTip hovered) {
         tool_tip.clear();
         hovered.appendToolTip(tool_tip);
-        tool_tip.render(LocalInput.getMouseX(), LocalInput.getMouseY() - CURSOR_OFFSET_Y);
+        tool_tip.render(renderer, LocalInput.getMouseX(), LocalInput.getMouseY() - CURSOR_OFFSET_Y);
 	}
 }

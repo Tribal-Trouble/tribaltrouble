@@ -1,10 +1,14 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.LinkedList;
 import com.oddlabs.util.ListElementImpl;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+
+import java.nio.IntBuffer;
 
 public abstract class Renderable<R extends Renderable<R>> extends ListElementImpl<R> {
 	private int x = 0;
@@ -114,11 +118,40 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 		return scale_y;
 	}
 
-	public final void render() {
-		render(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+	public final void render(@NonNull GUIRenderer renderer) {
+		render(renderer, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
 	}
 
-	protected void render(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+    /** Render the component and children first applying appropriate clipping, transformation and setting the drawing
+     * origin to relative (0,0).
+     */
+	protected void render(@NonNull GUIRenderer renderer, float clip_left, float clip_right, float clip_bottom, float clip_top) {
+		if (this instanceof Clipped) {
+			IntBuffer scissor_box;
+			if (GL11.glIsEnabled(GL11.GL_SCISSOR_TEST)) {
+				scissor_box = BufferUtils.createIntBuffer(4);
+				GL11.glGetInteger(GL11.GL_SCISSOR_BOX, scissor_box);
+			} else {
+				scissor_box = null;
+			}
+			renderer.flush();
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			GL11.glScissor((int) getRootX(), (int) getRootY(), getWidth(), getHeight());
+
+			renderClipped(renderer, clip_left, clip_right, clip_bottom, clip_top);
+
+			renderer.flush();
+			if (null != scissor_box) {
+				GL11.glScissor(scissor_box.get(0), scissor_box.get(1), scissor_box.get(2), scissor_box.get(3));
+			} else {
+				GL11.glDisable(GL11.GL_SCISSOR_TEST);
+			}
+		} else {
+			renderClipped(renderer, clip_left, clip_right, clip_bottom, clip_top);
+		}
+	}
+
+	private void renderClipped(@NonNull GUIRenderer renderer, float clip_left, float clip_right, float clip_bottom, float clip_top) {
 		clip_left = Math.max(transformX(clip_left), 0);
 		clip_right = Math.min( transformX(clip_right), width);
 		clip_bottom = Math.max(transformY(clip_bottom), 0);
@@ -128,35 +161,43 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 		}
 
 		if (!(this instanceof GUIRoot)) {
-			GL11.glPushMatrix();
+			renderer.getMatrixStack().push();
 			if (scale_x != 1f || scale_y != 1f) {
-				GL11.glScalef(scale_x, scale_y, 1f);
+				renderer.getMatrixStack().scale(scale_x, scale_y, 1f);
 			}
-			GL11.glTranslatef(getX(), getY(), 0);
+			renderer.getMatrixStack().translate(getX(), getY(), 0);
 		}
 
-		renderGeometry(clip_left, clip_right, clip_bottom, clip_top);
+		renderGeometry(renderer);
 
         R current = children.getLast();
         while (current != null) {
-            current.render(clip_left, clip_right, clip_bottom, clip_top);
+            current.render(renderer, clip_left, clip_right, clip_bottom, clip_top);
             current = current.getPrior();
         }
 
-		postRender();
+		postRender(renderer);
 
 		if (!(this instanceof GUIRoot)) {
-			GL11.glPopMatrix();
+			renderer.getMatrixStack().pop();
 		}
 	}
 
-	       protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
-	               renderGeometry();
-	       }
-	
-	       protected void renderGeometry() {
-	       }
-    protected void postRender() {
+	/**
+	 * Renders the geometry of this object. This method should only issue drawing commands for this specific object.
+	 * It should operate in its own local coordinate space, from (0,0) to (getWidth(), getHeight()).
+	 * The parent {@link #render(GUIRenderer, float, float, float, float)} method is responsible for setting up
+	 * the transformation matrix and clipping.
+	 *
+	 * @param renderer The renderer to use for drawing.
+	 */
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
+        // nothing to show
+	}
+
+    /** Geometry endering done after the children have been rendered. Useful for badging, etc. */
+    protected void postRender(@NonNull GUIRenderer renderer) {
+        // nothing to do
     }
 
 	protected abstract boolean isFocusable();

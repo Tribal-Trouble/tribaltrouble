@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
 public class PanelTab extends GUIObject {
@@ -34,9 +35,9 @@ public class PanelTab extends GUIObject {
 	}
 
 	@Override
-	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected final void renderGeometry(@NonNull GUIRenderer renderer) {
         Skin.getSkin().getPanelData().getTab()
-                .render(0, 0, getWidth(), getRenderState());
+                .render(renderer, 0, 0, getWidth(), getRenderState());
 	}
 
 	public final void updateNotify() {

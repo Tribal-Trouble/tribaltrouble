@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 
+import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -43,14 +44,14 @@ public final class PulldownItem<T> extends ButtonObject {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		Box item = Skin.getSkin().getPulldownData().getPulldownItem();
 		ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.NORMAL
                 : isActive() || isHovered()
                     ? ModeIconQuads.Mode.ACTIVE
                     : ModeIconQuads.Mode.NORMAL;
-        item.render(0f, 0f, getWidth(), getHeight(), skinMode);
+        item.render(renderer, 0f, 0f, getWidth(), getHeight(), skinMode);
 	}
 
 	public void setLabelString(@NonNull CharSequence label_str) {

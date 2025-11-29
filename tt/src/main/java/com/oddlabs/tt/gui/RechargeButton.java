@@ -2,9 +2,10 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.PlayerInterface;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.ToolTip;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public class RechargeButton extends NonFocusIconButton implements ToolTip {
 	private final @NonNull PlayerInterface player_interface;
@@ -31,16 +32,13 @@ public class RechargeButton extends NonFocusIconButton implements ToolTip {
 	}
 
 	@Override
-	protected final void postRender() {
+	protected final void postRender(@NonNull GUIRenderer renderer) {
 		IconQuad[] watch = GUIIcons.getIcons().getWatch();
 		float progress = unit.getMagicProgress(magic_index);
 		int index = (int)(progress*(watch.length - 1));
 		if (!unit.isDead() && progress < 1f) {
 			IconQuad watchQuad = watch[index];
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, watchQuad.getTexture().getHandle());
-			GL11.glBegin(GL11.GL_QUADS);
-			watchQuad.render(getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight());
-			GL11.glEnd();
+			renderer.drawQuad(watchQuad, getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight(), Color.WHITE_INT);
 		}
 	}
 }

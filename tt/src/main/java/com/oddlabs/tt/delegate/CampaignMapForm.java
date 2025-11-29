@@ -19,11 +19,12 @@ import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.player.campaign.Campaign;
 import com.oddlabs.tt.player.campaign.CampaignState;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ResourceBundle;
 
@@ -117,7 +118,7 @@ public final class CampaignMapForm extends CameraDelegate {
 					island = null;
 					break;
 				default:
-					throw new RuntimeException();
+					throw new IllegalArgumentException("Unexpcted island state: " + state);
 			}
 			if (island != null)
 				island.setPos(data.getX(), data.getY());
@@ -146,11 +147,8 @@ public final class CampaignMapForm extends CameraDelegate {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, campaign.getIcons().getMap().getTexture().getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-		campaign.getIcons().getMap().render(0, 0);
-		GL11.glEnd();
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
+		renderer.drawQuad(campaign.getIcons().getMap(),0f, 0f, Color.WHITE_INT);
 //		campaign.extraRender();
 	}
 

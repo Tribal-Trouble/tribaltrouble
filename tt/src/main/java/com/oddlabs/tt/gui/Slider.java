@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.guievent.ValueListener;
+import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Set;
@@ -39,9 +40,9 @@ public final class Slider extends GUIObject {
 	}
 
 	@Override
-	protected void renderGeometry() {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		Skin.getSkin().getSliderData().getSlider()
-		    .render(0, 0, getWidth(), isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
+		    .render(renderer, 0, 0, getWidth(), isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
 	}
 
 	public int getValue() {

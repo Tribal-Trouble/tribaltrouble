@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
+import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
@@ -30,14 +31,14 @@ public final class PulldownMenu<T> extends Group {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		// Render bottom edge
 		Horizontal bot = Skin.getSkin().getPulldownData().getPulldownBottom();
-		bot.render(0, 0, getWidth(), ModeIconQuads.Mode.NORMAL);
+		bot.render(renderer, 0, 0, getWidth(), ModeIconQuads.Mode.NORMAL);
 
 		// Render top edge
         Horizontal top = Skin.getSkin().getPulldownData().getPulldownTop();
-        top.render(0, getHeight() - top.getHeight(), getWidth(), ModeIconQuads.Mode.NORMAL);
+        top.render(renderer, 0, getHeight() - top.getHeight(), getWidth(), ModeIconQuads.Mode.NORMAL);
 	}
 
 	public void addItem(@NonNull PulldownItem<T> item) {

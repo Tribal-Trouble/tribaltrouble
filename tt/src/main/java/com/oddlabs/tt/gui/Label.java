@@ -2,13 +2,14 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public class Label extends TextField implements Comparable<Label> {
 	public static final int DEFAULT_COLOR = Color.WHITE_INT;
 	public static final int DISABLED_COLOR = 0xB2B2B2B2;
+	private static final int INSET = 2;
 
 	private final @NonNull Origin align;
 
@@ -33,16 +34,15 @@ public class Label extends TextField implements Comparable<Label> {
 	}
 
 	@Override
-	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected final void renderGeometry(@NonNull GUIRenderer renderer) {
 		int c = isDisabled() ? DISABLED_COLOR : color;
 		int textWidth = getFont().getWidth(getText());
 		int x = switch (align) {
 			case AT_START -> 0;
 			case AT_MIDDLE -> (getWidth() - Math.min(getWidth(), textWidth)) / 2;
-			case AT_END -> getWidth() - textWidth;
+			case AT_END -> getWidth() - textWidth - INSET;
 		};
-		TextLineRenderer.render(getFont(), getText(), x, 0, clip_left, clip_right, c);
-		GL11.glColor4f(1f, 1f, 1f, 1f);
+		TextLineRenderer.render(renderer, getFont(), getText(), x, 0, 0, getWidth() - INSET, c);
 	}
 
 	@Override

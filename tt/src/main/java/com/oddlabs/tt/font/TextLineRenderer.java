@@ -1,34 +1,34 @@
 package com.oddlabs.tt.font;
 
-import com.oddlabs.util.Color;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public final class TextLineRenderer {
 
     private TextLineRenderer() {
-        // no instances
+        // private constructor for utility class
     }
 
-    public static void render(@NonNull TextLayout layout, float x, float y, int color) {
+    public static void render(@NonNull GUIRenderer renderer, @NonNull TextLayout layout, float x, float y, int color) {
+        render(renderer, layout, x, y, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, color);
+    }
+
+    public static void render(@NonNull GUIRenderer renderer, @NonNull TextLayout layout, float x, float y, float clipLeft, float clipRight, int color) {
         float currentY = y;
         for (TextLayout.Line line : layout.getLines()) {
-            render(layout.getFont(), line.content(), x, currentY, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, color);
+            render(renderer, layout.getFont(), line.content(), x, currentY, clipLeft, clipRight, color);
             currentY -= layout.getFont().getHeight();
         }
     }
 
-    public static float render(@NonNull Font font, @NonNull CharSequence text, float x, float y, float clipLeft, float clipRight, int color) {
-        float[] c = Color.argb4f(color);
-        GL11.glColor4f(c[0], c[1], c[2], c[3]);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, font.getTexture().getHandle());
-        GL11.glBegin(GL11.GL_QUADS);
-
-        float finalX = (float) text.codePoints().asDoubleStream().reduce(x, (currentX, codePointAsDouble) -> {
+    /** Render a single line of text with the provided renderer using the provided font, location and color. The text will be clipped to the specified left and right bounds. */
+    public static float render(@NonNull GUIRenderer renderer, @NonNull Font font, @NonNull CharSequence text, float x, float y, float clipLeft, float clipRight, int color) {
+        return (float) text.codePoints().asDoubleStream().reduce(x, (currentX, codePointAsDouble) -> {
             int codePoint = (int) codePointAsDouble;
 
             if (codePoint == '\n') {
+                // This renderer doesn't handle newlines, that's the layout's job
                 return currentX;
             }
 
@@ -37,43 +37,43 @@ public final class TextLineRenderer {
                 float quadWidth = quad.getWidth();
                 float charAdvance = quadWidth - font.getXBorder();
 
-                if (currentX + quadWidth >= clipLeft && currentX <= clipRight) {
-                    float renderX = (float) currentX;
-                    float renderWidth = quadWidth;
-                    float u1 = quad.getU1();
-                    float u2 = quad.getU2();
-                    float textureUWidth = u2 - u1;
+                // Check if the character is completely outside the clipping region
+                if (currentX + quadWidth < clipLeft || currentX > clipRight) {
+                    return currentX + charAdvance;
+                }
 
-                    if (renderX < clipLeft) {
-                        float leftClipPixels = clipLeft - renderX;
-                        u1 += textureUWidth * (leftClipPixels / quadWidth);
-                        renderWidth -= leftClipPixels;
-                        renderX = clipLeft;
-                    }
+                // By this point, we know at least part of the character is visible.
+                // We need to calculate the visible portion and adjust texture coordinates.
 
-                    if (renderX + renderWidth > clipRight) {
-                        float rightClipPixels = (renderX + renderWidth) - clipRight;
-                        u2 -= textureUWidth * (rightClipPixels / quadWidth);
-                        renderWidth -= rightClipPixels;
-                    }
+                float renderX = (float) currentX;
+                float renderWidth = quadWidth;
+                float u1 = quad.getU1();
+                float u2 = quad.getU2();
+                float textureUWidth = u2 - u1;
 
-                    if (renderWidth > 0) {
-						GL11.glTexCoord2f(u1, quad.getV1());
-						GL11.glVertex2f(renderX, y);
-						GL11.glTexCoord2f(u1, quad.getV2());
-						GL11.glVertex2f(renderX, y + quad.getHeight());
-						GL11.glTexCoord2f(u2, quad.getV2());
-						GL11.glVertex2f(renderX + renderWidth, y + quad.getHeight());
-						GL11.glTexCoord2f(u2, quad.getV1());
-						GL11.glVertex2f(renderX + renderWidth, y);
-                    }
+                // Handle left clipping
+                if (renderX < clipLeft) {
+                    float leftClipPixels = clipLeft - renderX;
+                    float leftClipRatio = leftClipPixels / quadWidth;
+                    u1 += textureUWidth * leftClipRatio;
+                    renderWidth -= leftClipPixels;
+                    renderX = clipLeft;
+                }
+
+                // Handle right clipping
+                if (renderX + renderWidth > clipRight) {
+                    float rightClipPixels = (renderX + renderWidth) - clipRight;
+                    float rightClipRatio = rightClipPixels / quadWidth;
+                    u2 -= textureUWidth * rightClipRatio;
+                    renderWidth -= rightClipPixels;
+                }
+
+                if (renderWidth > 0) {
+                    renderer.drawQuad(font.getTexture(), renderX, y, renderWidth, quad.getHeight(), u1, quad.getV1(), u2, quad.getV2(), color);
                 }
                 return currentX + charAdvance;
             }
             return currentX;
         });
-
-        GL11.glEnd();
-        return finalX;
     }
 }

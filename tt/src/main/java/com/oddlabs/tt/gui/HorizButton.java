@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
 public class HorizButton extends ButtonObject {
@@ -14,7 +15,7 @@ public class HorizButton extends ButtonObject {
 	}
 
 	@Override
-	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected final void renderGeometry(@NonNull GUIRenderer renderer) {
         ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
                 : isPressed() && isHovered()
@@ -26,6 +27,6 @@ public class HorizButton extends ButtonObject {
                 ? Skin.getSkin().getHorizButtonPressed()
                 : Skin.getSkin().getHorizButtonUnpressed();
 
-        horizButton.render(0, 0, getWidth(), skinMode);
+        horizButton.render(renderer, 0, 0, getWidth(), skinMode);
 	}
 }

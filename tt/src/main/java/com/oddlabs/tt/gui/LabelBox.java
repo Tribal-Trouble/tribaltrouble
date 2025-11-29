@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLayout;
 import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
@@ -38,9 +39,9 @@ public class LabelBox extends TextField implements Comparable<LabelBox>, Clipped
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		int c = isDisabled() ? Label.DISABLED_COLOR : color;
-		TextLineRenderer.render(textLayout, 0, getHeight() - getFont().getHeight(), c);
+		TextLineRenderer.render(renderer, textLayout, 0, getHeight() - getFont().getHeight(), c);
 	}
 
 	@Override
