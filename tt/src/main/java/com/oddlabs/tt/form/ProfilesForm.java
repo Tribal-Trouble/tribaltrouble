@@ -9,6 +9,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.IntegerLabel;
 import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Row;
 import com.oddlabs.tt.gui.Skin;
@@ -69,7 +70,7 @@ public final class ProfilesForm extends Form {
 
 		HorizButton logout_button = new HorizButton(Utils.getBundleString(bundle, "logout"), 100);
 		addChild(logout_button);
-		logout_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		logout_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
 
 		label_headline.place();
 		profile_list_box.place(label_headline, BOTTOM_LEFT);
@@ -116,7 +117,7 @@ public final class ProfilesForm extends Form {
 
 	private final class CreateProfileListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			new_profile_form = new NewProfileForm(gui_root, main_menu, ProfilesForm.this);
 			main_menu.setMenu(new_profile_form);
 		}
@@ -124,7 +125,7 @@ public final class ProfilesForm extends Form {
 
 	private final class DeleteProfileListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			String nick = (String)profile_list_box.getSelected();
 			if (nick == null) {
 				gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "no_profiles")));
@@ -152,7 +153,7 @@ public final class ProfilesForm extends Form {
 		}
 
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			Network.getMatchmakingClient().deleteProfile(nick);
 			Network.getMatchmakingClient().requestProfiles();
 		}
@@ -160,7 +161,7 @@ public final class ProfilesForm extends Form {
 
 	private final class JoinListener implements MouseClickListener, RowListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			String nick = (String)profile_list_box.getSelected();
 			if (nick == null) {
 				gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "no_profiles")));

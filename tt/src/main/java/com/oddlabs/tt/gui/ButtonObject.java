@@ -12,17 +12,17 @@ public abstract class ButtonObject extends GUIObject {
 	}
 
 	@Override
-	protected final void mouseReleased(int button, int x, int y) {
+	protected final void mouseReleased(MouseButton button, int x, int y) {
 		pressed = false;
 	}
 
 	@Override
-	protected final void mousePressed(int button, int x, int y) {
+	protected final void mousePressed(MouseButton button, int x, int y) {
 		pressed = true;
 	}
 
 	@Override
-	protected void mouseHeld(int button, int x, int y) {
+	protected void mouseHeld(MouseButton button, int x, int y) {
 		if (pressed)
 			mousePressedAll(button, x, y);
 	}

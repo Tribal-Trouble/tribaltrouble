@@ -4,6 +4,7 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Abilities;
@@ -89,12 +90,12 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void mousePressed(int button, int x, int y) {
+	public void mousePressed(MouseButton button, int x, int y) {
             switch (button) {
-                case LocalInput.LEFT_BUTTON:
+                case LEFT:
                     placeObject();
                     break;
-                case LocalInput.RIGHT_BUTTON:
+                case RIGHT:
                     pop();
                     break;
                 default:

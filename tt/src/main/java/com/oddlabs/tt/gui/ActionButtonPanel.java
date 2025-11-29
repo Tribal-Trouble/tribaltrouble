@@ -5,6 +5,7 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.delegate.PlacingDelegate;
 import com.oddlabs.tt.delegate.RallyPointDelegate;
 import com.oddlabs.tt.delegate.TargetDelegate;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Abilities;
@@ -665,46 +666,46 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_M:
 				if (current_unit) {
-					move_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+					move_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
 				}
 				break;
 			case Keyboard.KEY_A:
 				if (!event.isControlDown()) {
 					if (current_unit) {
-						attack_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						attack_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 						return true;
 					} else if (current_armory) {
 						if (current_submenu == null) {
-							army_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+							army_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 						} else {
 							break;
 						}
 						return true;
 					} else if (current_tower) {
-						tower_attack_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						tower_attack_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 						return true;
 					}
 				}
 				break;
 			case Keyboard.KEY_G:
 				if (current_unit) {
-					gather_repair_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+					gather_repair_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
 				} else if (current_armory) {
-					harvest_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+					harvest_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
 				}
 				break;
 			case Keyboard.KEY_C:
 				if (current_quarters) {
 //					if (Settings.getSettings().developer_mode) {
-						quarters_chieftain_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						quarters_chieftain_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 //					}
 				} else if (current_chieftain != null) {
 					Player player = viewer.getLocalPlayer();
 					if (player.canDoMagic(1)) {
-						magic2_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						magic2_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					}
 				} else if (current_armory) {
 					if (current_submenu == harvest_group) {
@@ -723,7 +724,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 				break;
 			case Keyboard.KEY_Q:
 				if (current_peon) {
-					quarters_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+					quarters_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
 				}
 				break;
@@ -759,7 +760,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 				break;
 			case Keyboard.KEY_R:
 				if (current_peon) {
-					armory_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+					armory_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
 				} else if (current_armory) {
 					if (current_submenu == harvest_group) {
@@ -771,13 +772,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					} else if (current_submenu == transport_group) {
 						transport_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
 					} else if (current_submenu == null) {
-						rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						rally_point_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					} else {
 						break;
 					}
 					return true;
 				} else if (current_quarters) {
-					quarters_rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+					quarters_rally_point_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
 				}
 				break;
@@ -785,17 +786,17 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 				if (current_chieftain != null) {
 					Player player = viewer.getLocalPlayer();
 					if (player.canDoMagic(0)) {
-						magic1_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						magic1_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					}
 				}
 				break;
 			case Keyboard.KEY_T:
 				if (current_peon) {
-					tower_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+					tower_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
 				} else if (current_armory) {
 					if (current_submenu == null) {
-						transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						transport_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					} else {
 						break;
 					}
@@ -804,14 +805,14 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 				break;
 			case Keyboard.KEY_X:
 				if (current_tower) {
-					tower_exit_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+					tower_exit_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
 				}
 				break;
 			case Keyboard.KEY_W:
 				if (current_armory) {
 					if (current_submenu == null) {
-						build_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						build_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					} else if (current_submenu == harvest_group) {
 						harvest_tree_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
 					} else if (current_submenu == transport_group) {
@@ -826,13 +827,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			case Keyboard.KEY_ESCAPE:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
-						harvest_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						harvest_back_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					} else if (current_submenu == build_group) {
-						build_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						build_back_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					} else if (current_submenu == army_group) {
-						army_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						army_back_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					} else if (current_submenu == transport_group) {
-						transport_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						transport_back_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					} else {
 						break;
 					}
@@ -912,7 +913,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			case Keyboard.KEY_T:
 				if (current_armory) {
 					if (current_submenu == null) {
-						transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+						transport_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					} else {
 						break;
 					}
@@ -964,7 +965,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
 
 	@Override
-	public void mouseDragged(int button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+	public void mouseDragged(MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 		if (getParent() != null)
 			((GUIObject)getParent()).mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
 	}
@@ -972,13 +973,12 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	private final class TargetListener implements MouseClickListener {
 		private final int action;
 
-		public TargetListener(int action) {
-			this.action = action;
-		}
-
-		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
-			viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, action));
+		        public TargetListener(int action) {
+		            this.action = action;
+		        }
+		
+		        @Override
+		        public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {			viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, action));
 		}
 	}
 
@@ -992,7 +992,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		}
 
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			remove_group.remove();
 			addChild(add_group);
 			current_submenu = add_group;
@@ -1003,7 +1003,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
 	private final class CancelListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			removeGroups();
 			update = true;
 		}
@@ -1011,7 +1011,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
 	private final class TowerExitListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			if (!current_building.isDead())
 				viewer.getPeerHub().getPlayerInterface().exitTower(current_building);
 			removeGroups();
@@ -1021,7 +1021,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
 	private final class RallyPointListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			if (!current_building.isDead())
 				viewer.getGUIRoot().pushDelegate(new RallyPointDelegate(viewer,  camera, current_building));
 			removeGroups();
@@ -1108,7 +1108,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
 	private final class TowerPlaceListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			viewer.getGUIRoot().pushDelegate(new PlacingDelegate(viewer, camera.getState(), Race.BUILDING_TOWER));
 		}
 	}
@@ -1121,7 +1121,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		}
 
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			viewer.getGUIRoot().pushDelegate(new PlacingDelegate(viewer, camera.getState(), building_index));
 		}
 	}

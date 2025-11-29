@@ -6,6 +6,7 @@ import com.oddlabs.tt.gui.GUIIcon;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LabelBox;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
@@ -37,7 +38,7 @@ public class CampaignDialogForm extends Form {
 		this.runnable = runnable;
 		this.cancel = cancel;
 		buildForm(header, text, image, align, cancel);
-		ok_button.addMouseClickListener((int _, int _, int _, int _) -> {
+		ok_button.addMouseClickListener( (_, _, _, _) -> {
                     remove();
                     run();
                 });
@@ -83,7 +84,7 @@ public class CampaignDialogForm extends Form {
 			HorizButton cancel_button = new CancelButton(80);
 			addChild(cancel_button);
 			cancel_button.place(ok_button, RIGHT_MID);
-			cancel_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+			cancel_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
 		}
 
 		compileCanvas();

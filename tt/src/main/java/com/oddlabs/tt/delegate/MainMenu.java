@@ -9,6 +9,7 @@ import com.oddlabs.tt.form.TerrainMenuForm;
 import com.oddlabs.tt.form.TutorialForm;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
@@ -22,17 +23,17 @@ public final class MainMenu extends Menu {
 	private void addGameTypeButtons() {
 		MenuButton tutorial = new MenuButton(Utils.getBundleString(bundle, "tutorial"), COLOR_NORMAL, COLOR_ACTIVE);
 		addChild(tutorial);
-		tutorial.addMouseClickListener((int _, int _, int _, int _) -> setMenu(new TutorialForm(getNetwork(), getGUIRoot())));
+		tutorial.addMouseClickListener( (_, _, _, _) -> setMenu(new TutorialForm(getNetwork(), getGUIRoot())));
 		MenuButton campaign_menu = new MenuButton(Utils.getBundleString(bundle, "campaign"), COLOR_NORMAL, COLOR_ACTIVE);
 		addChild(campaign_menu);
-		campaign_menu.addMouseClickListener((int _, int _, int _, int _) -> setMenu(new CampaignForm(getNetwork(), getGUIRoot(), MainMenu.this)));
+		campaign_menu.addMouseClickListener( (_, _, _, _) -> setMenu(new CampaignForm(getNetwork(), getGUIRoot(), MainMenu.this)));
 		MenuButton single_player = new MenuButton(Utils.getBundleString(bundle, "skirmish"), COLOR_NORMAL, COLOR_ACTIVE);
 		addChild(single_player);
-		single_player.addMouseClickListener((int _, int _, int _, int _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(), MainMenu.this)));
+		single_player.addMouseClickListener( (_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(), MainMenu.this)));
 		if (!Settings.getSettings().hide_multiplayer) {
 			MenuButton multi_player = new MenuButton(Utils.getBundleString(bundle, "multiplayer"), COLOR_NORMAL, COLOR_ACTIVE);
 			addChild(multi_player);
-			multi_player.addMouseClickListener((int _, int _, int _, int _) -> {
+			multi_player.addMouseClickListener( (_, _, _, _) -> {
                 if (Network.getMatchmakingClient().isConnected()) {
                     new SelectGameMenu(getNetwork(), getGUIRoot(), MainMenu.this);
                 } else {

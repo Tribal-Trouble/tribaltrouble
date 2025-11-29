@@ -22,6 +22,7 @@ import com.oddlabs.tt.form.WarningForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.GlobalsInit;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Languages;
@@ -467,7 +468,7 @@ public final class Renderer {
 			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
 			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "network_not_available_caption"),
 						Utils.getBundleString(bundle, "network_not_available_message"),
-						Utils.getBundleString(bundle, "quit"), (int _, int _, int _, int _) -> shutdown()));
+						Utils.getBundleString(bundle, "quit"),  (_, _, _, _) -> shutdown()));
 		}
 		// We'll leave out the reporting, since checksum errors can happen when a peer is disconnected halfway through it's EOT
 		// broadcast

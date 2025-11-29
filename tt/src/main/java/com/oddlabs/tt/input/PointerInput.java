@@ -4,6 +4,7 @@ import com.oddlabs.event.Deterministic;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.render.NativeCursor;
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.util.Image;
@@ -82,7 +83,9 @@ public final class PointerInput {
 			last_x = (short)x;
 			last_y = (short)y;
 			if (drag_button != -1 && buttons[drag_button]) {
-				LocalInput.mouseDragged(gui_root, drag_button, last_x, last_y);
+				MouseButton mb = MouseButton.fromInt(drag_button);
+				if (mb != null)
+					LocalInput.mouseDragged(gui_root, mb, last_x, last_y);
 			} else {
 				LocalInput.mouseMoved(gui_root, last_x, last_y);
 			}
@@ -108,14 +111,17 @@ public final class PointerInput {
 				updateMouse(gui_root, accum_x, accum_y, accum_dz);
 				accum_dz = 0;
 				buttons[button] = deterministic.log(Mouse.getEventButtonState());
+				MouseButton mb = MouseButton.fromInt(button);
 				if (buttons[button]) {
 					if (drag_button == -1) {
 						drag_button = button;
 					}
-					LocalInput.mousePressed(gui_root, button);
+					if (mb != null)
+						LocalInput.mousePressed(gui_root, mb);
 				} else {
 					drag_button = -1;
-					LocalInput.mouseReleased(gui_root, button);
+					if (mb != null)
+						LocalInput.mouseReleased(gui_root, mb);
 				}
 			}
 		}

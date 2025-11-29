@@ -6,6 +6,7 @@ import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
@@ -52,21 +53,21 @@ public class FirstPersonDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public void mouseDragged(int button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+	public void mouseDragged(MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 		if (created_tick == LocalEventQueue.getQueue().getManager().getTick())
 			return;
-		if ((button == LocalInput.MIDDLE_BUTTON || key_pressed) && !done && getGUIRoot().getModalDelegate() == null) {
+		if ((button == MouseButton.MIDDLE || key_pressed) && !done && getGUIRoot().getModalDelegate() == null) {
 			getCamera().mouseMoved(x, y);
 		}
 	}
 
 	@Override
-	public void mousePressed(int button, int x, int y) {
+	public void mousePressed(MouseButton button, int x, int y) {
 	}
 
 	@Override
-	public void mouseReleased(int button, int x, int y) {
-		if (button == LocalInput.MIDDLE_BUTTON && !key_pressed && !done) {
+	public void mouseReleased(MouseButton button, int x, int y) {
+		if (button == MouseButton.MIDDLE && !key_pressed && !done) {
 			pop();
 		}
 	}

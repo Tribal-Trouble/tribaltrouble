@@ -2,6 +2,7 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
 import com.oddlabs.tt.gui.Form;
@@ -40,7 +41,7 @@ public final class MapcodeForm extends Form {
 		HorizButton button_ok = new OKButton(BUTTON_WIDTH);
 		button_ok.addMouseClickListener(new OKListener());
 		HorizButton button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
 		HorizButton button_rand = new HorizButton(Utils.getBundleString(bundle, "randomize"), BUTTON_WIDTH);
 		button_rand.addMouseClickListener(new RandButtonListener());
 
@@ -71,14 +72,14 @@ public final class MapcodeForm extends Form {
 
 	private final class OKListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			done();
 		}
 	}
 
 	private final class RandButtonListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick()*LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
 			random.nextInt();
 			BigInteger rand_int = new BigInteger(60, random);

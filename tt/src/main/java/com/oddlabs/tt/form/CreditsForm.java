@@ -4,6 +4,7 @@ import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Panel;
@@ -114,7 +115,7 @@ public final class CreditsForm extends Form {
 		panel_group.place(head_label, BOTTOM_LEFT);
 		HorizButton ok_button = new OKButton(100);
 		addChild(ok_button);
-		ok_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		ok_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
 		ok_button.place(Origin.AT_END);
 		compileCanvas();
 		centerPos();

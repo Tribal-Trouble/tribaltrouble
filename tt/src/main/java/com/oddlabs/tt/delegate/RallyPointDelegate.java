@@ -1,6 +1,7 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -15,7 +16,7 @@ public final class RallyPointDelegate extends TargetDelegate {
 	}
 
 	@Override
-	public void mousePressed(int button, int x, int y) {
+	public void mousePressed(MouseButton button, int x, int y) {
 		if (building.isDead()) {
 			pop();
 			return;

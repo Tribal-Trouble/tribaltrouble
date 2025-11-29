@@ -14,6 +14,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PulldownButton;
@@ -502,21 +503,21 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 
 	private final class InfoButtonListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			gui_root.addModalForm(new GameInfoForm(game));
 		}
 	}
 
 	private final class CancelButtonListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			cancel();
 		}
 	}
 
 	private final class ReadyListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			setReady(true);
 		}
 	}
@@ -532,7 +533,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 
 	private final class StartListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			final int MIN_TEAMS = 2;
 			int num_teams = getNumTeams(game_network.getClient().getPlayers());
 			if (num_teams < MIN_TEAMS) {
@@ -572,7 +573,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 
 	private final class SendListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			chat_line.enterPressedAll();
 		}
 	}

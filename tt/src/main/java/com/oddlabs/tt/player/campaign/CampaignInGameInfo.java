@@ -7,6 +7,7 @@ import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.render.Renderer;
@@ -54,7 +55,7 @@ final class CampaignInGameInfo implements InGameInfo {
 	@Override
 	public void addGameOverGUI(WorldViewer viewer, final @NonNull GameStatsDelegate delegate, int header_y, @NonNull Group group) {
 		HorizButton button_ok = new OKButton(150);
-		button_ok.addMouseClickListener((int _, int _, int _, int _) -> delegate.startMenu());
+		button_ok.addMouseClickListener( (_, _, _, _) -> delegate.startMenu());
 
 		group.addChild(button_ok);
 		button_ok.place();

@@ -53,7 +53,7 @@ public final class PulldownButton extends GUIObject {
 	}
 
 	@Override
-	protected void mousePressed(int button, int x, int y) {
+	protected void mousePressed(MouseButton button, int x, int y) {
 		if (menu_active) {
 			deactivateMenu();
 		} else {
@@ -67,7 +67,7 @@ public final class PulldownButton extends GUIObject {
 	}
 
 	@Override
-	protected void mouseReleased(int button, int x, int y) {
+	protected void mouseReleased(MouseButton button, int x, int y) {
 		if (!menu.isActive())
 			menu.getItem(menu.getChosenItemIndex()).setFocus();
 		menu.clickItem(button, x, y, 1);

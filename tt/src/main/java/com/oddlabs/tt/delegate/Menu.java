@@ -13,6 +13,7 @@ import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.gui.Renderable;
 import com.oddlabs.tt.guievent.MouseClickListener;
@@ -223,7 +224,7 @@ public abstract class Menu extends CameraDelegate {
 	protected final void addResumeButton() {
 		MenuButton resume = new MenuButton(Utils.getBundleString(bundle, "resume"), COLOR_NORMAL, COLOR_ACTIVE);
 		addChild(resume);
-		resume.addMouseClickListener((int _, int _, int _, int _) -> pop());
+		resume.addMouseClickListener( (_, _, _, _) -> pop());
 	}
 
 	public static void completeGameSetupHack(@NonNull WorldViewer world_viewer) {
@@ -273,14 +274,14 @@ public abstract class Menu extends CameraDelegate {
 		}
 
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			setMenu(factory.create());
 		}
 	}
 
 	private final class ExitListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			setMenuCentered(new QuitForm(getGUIRoot()));
 		}
 	}

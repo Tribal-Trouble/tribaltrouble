@@ -15,6 +15,7 @@ import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.PasswordLine;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
@@ -101,7 +102,7 @@ public final class NewUserForm extends Form {
 		ButtonObject button_create = new HorizButton(Utils.getBundleString(bundle, "create_user"), BUTTON_WIDTH_LONG);
 		button_create.addMouseClickListener(create_listener);
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
 
 		group_buttons.addChild(button_create);
 		group_buttons.addChild(button_cancel);
@@ -161,7 +162,7 @@ public final class NewUserForm extends Form {
 
 	private final class CreateUserListener implements MouseClickListener, EnterListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			createUser();
 		}
 

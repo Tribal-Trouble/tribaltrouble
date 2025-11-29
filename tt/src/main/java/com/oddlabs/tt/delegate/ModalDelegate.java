@@ -1,6 +1,7 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.gui.KeyboardEvent;
+import com.oddlabs.tt.gui.MouseButton;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -24,14 +25,14 @@ public final class ModalDelegate extends Delegate {
 	}
 
 	@Override
-	public void mouseDragged(int button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+	public void mouseDragged(MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 	}
 
 	@Override
-	public void mousePressed(int button, int x, int y) {
+	public void mousePressed(MouseButton button, int x, int y) {
 	}
 
 	@Override
-	public void mouseReleased(int button, int x, int y) {
+	public void mouseReleased(MouseButton button, int x, int y) {
 	}
 }

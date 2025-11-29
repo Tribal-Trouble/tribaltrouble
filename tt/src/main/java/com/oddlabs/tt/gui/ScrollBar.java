@@ -99,7 +99,7 @@ public final class ScrollBar extends GUIObject {
 	}
 
 	@Override
-	protected void mouseClicked(int button, int x, int y, int clicks) {
+	protected void mouseClicked(MouseButton button, int x, int y, int clicks) {
 		int button_y = getButtonY();
 		owner.jumpPage(y > button_y);
 		scroll_button.setupPos(this);
@@ -107,32 +107,32 @@ public final class ScrollBar extends GUIObject {
 
 	private final class LessListener implements MouseButtonListener {
 		@Override
-		public void mousePressed(int button, int x, int y) {
+		public void mousePressed(@NonNull MouseButton button, int x, int y) {
 			owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
 			scroll_button.setupPos(ScrollBar.this);
 		}
 
 		@Override
-		public void mouseReleased(int button, int x, int y) {}
+		public void mouseReleased(@NonNull MouseButton button, int x, int y) {}
 		@Override
-		public void mouseHeld(int button, int x, int y) {}
+		public void mouseHeld(@NonNull MouseButton button, int x, int y) {}
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {}
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {}
 	}
 
 	private final class MoreListener implements MouseButtonListener {
 		@Override
-		public void mousePressed(int button, int x, int y) {
+		public void mousePressed(@NonNull MouseButton button, int x, int y) {
 			owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
 			scroll_button.setupPos(ScrollBar.this);
 		}
 
 		@Override
-		public void mouseReleased(int button, int x, int y) {}
+		public void mouseReleased(@NonNull MouseButton button, int x, int y) {}
 		@Override
-		public void mouseHeld(int button, int x, int y) {}
+		public void mouseHeld(@NonNull MouseButton button, int x, int y) {}
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {}
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {}
 	}
 
 	private final class DragListener implements MouseMotionListener, MouseButtonListener {
@@ -140,12 +140,12 @@ public final class ScrollBar extends GUIObject {
 		float start_offset;
 
 		@Override
-		public void mousePressed(int button, int x, int y) {
+		public void mousePressed(@NonNull MouseButton button, int x, int y) {
 			start_offset = owner.getScrollBarOffset();
 		}
 
 		@Override
-		public void mouseDragged(int button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
+		public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
 			int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.getBottomOffset() - data.getTopOffset();
 			float ratio = owner.getScrollBarRatio();
 			int size = (int)(ratio*max_height);
@@ -161,11 +161,11 @@ public final class ScrollBar extends GUIObject {
 		@Override
 		public void mouseExited() {}
 		@Override
-		public void mouseReleased(int button, int x, int y) {}
+		public void mouseReleased(@NonNull MouseButton button, int x, int y) {}
 		@Override
-		public void mouseHeld(int button, int x, int y) {}
+		public void mouseHeld(@NonNull MouseButton button, int x, int y) {}
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {}
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {}
 	}
 
 	private final class ButtonKeyListener implements KeyListener {

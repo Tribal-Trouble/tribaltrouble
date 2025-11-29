@@ -13,6 +13,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.PasswordLine;
 import com.oddlabs.tt.gui.Skin;
@@ -31,6 +32,7 @@ import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 
 public final class LoginForm extends Form {
 	private static final int BUTTON_WIDTH = 100;
+	private static final int BUTTON_WIDTH_LONG = 150;
 	private static final int EDITLINE_WIDTH = 240;
 
 	private final @NonNull MainMenu main_menu;
@@ -94,7 +96,7 @@ public final class LoginForm extends Form {
 		ButtonObject button_ok = new HorizButton(Utils.getBundleString(bundle, "login"), BUTTON_WIDTH);
 		button_ok.addMouseClickListener(login_listener);
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
 
 		group_buttons.addChild(button_newuser);
 		group_buttons.addChild(button_ok);
@@ -153,7 +155,7 @@ public final class LoginForm extends Form {
 
 	private final class NewUserListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			remove();
 			main_menu.setMenu(new NewUserForm(network, gui_root, main_menu));
 		}
@@ -161,7 +163,7 @@ public final class LoginForm extends Form {
 
 	private final class LoginListener implements MouseClickListener, EnterListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			login();
 		}
 

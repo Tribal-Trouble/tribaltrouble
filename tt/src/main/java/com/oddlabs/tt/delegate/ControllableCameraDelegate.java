@@ -3,6 +3,7 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
@@ -32,15 +33,15 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public void mousePressed(int button, int x, int y) {
-		if (button == LocalInput.MIDDLE_BUTTON) {
+	public void mousePressed(MouseButton button, int x, int y) {
+		if (button == MouseButton.MIDDLE) {
 			pushFirstPersonDelegate(false);
 		}
 	}
 
 	@Override
-	public void mouseReleased(int button, int x, int y) {
-		if (button == LocalInput.MIDDLE_BUTTON && first_person_delegate != null) {
+	public void mouseReleased(MouseButton button, int x, int y) {
+		if (button == MouseButton.MIDDLE && first_person_delegate != null) {
 			first_person_delegate.mouseReleased(button, x, y);
 		}
 	}
@@ -62,8 +63,8 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public void mouseDragged(int button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
-		if (button == LocalInput.MIDDLE_BUTTON && first_person_delegate != null) {
+	public void mouseDragged(MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+		if (button == MouseButton.MIDDLE && first_person_delegate != null) {
 			first_person_delegate.mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
 		}
 	}

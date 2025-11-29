@@ -7,6 +7,7 @@ import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
@@ -67,7 +68,7 @@ public final class QuitScreen extends CameraDelegate implements Updatable {
 	}
 
 	@Override
-	protected void mouseClicked(int button, int x, int y, int clicks) {
+	protected void mouseClicked(MouseButton button, int x, int y, int clicks) {
 		key_pressed = true;
 		quit();
 	}

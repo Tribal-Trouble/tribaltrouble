@@ -49,7 +49,7 @@ public class Form extends Group {
 			close_button.setPos(getWidth() - close_button.getWidth() - form_data.getCloseRight(),
 								getHeight() - close_button.getHeight() - form_data.getCloseTop());
 			addChild(close_button);
-			close_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+			close_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
 		} else {
 			form = Skin.getSkin().getFormData().getSlimForm();
 			super.compileCanvas(form.getLeftOffset() + spacing,
@@ -85,18 +85,18 @@ public class Form extends Group {
 	}
 
 	@Override
-	protected final void mousePressed(int button, int x, int y) {
+	protected final void mousePressed(MouseButton button, int x, int y) {
 		if (caption != null && y >= getHeight() - Skin.getSkin().getFormData().getForm().getTopOffset())
 			drag = true;
 	}
 
 	@Override
-	protected final void mouseReleased(int button, int x, int y) {
+	protected final void mouseReleased(MouseButton button, int x, int y) {
 		drag = false;
 	}
 
 	@Override
-	public final void mouseDragged(int button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
+	public final void mouseDragged(MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
 		if (drag)
 			setPos(getX() + rel_x, getY() + rel_y);
 	}
@@ -118,7 +118,7 @@ public class Form extends Group {
 	}
 
 	@Override
-	protected final void mouseClicked(int button, int x, int y, int clicks) {
+	protected final void mouseClicked(MouseButton button, int x, int y, int clicks) {
 	}
 
 	@Override
@@ -146,7 +146,7 @@ public class Form extends Group {
 	}
 
 	@Override
-	protected final void mouseHeld(int button, int x, int y) {
+	protected final void mouseHeld(MouseButton button, int x, int y) {
 	}
 
 	public final void closedAll() {
@@ -187,7 +187,7 @@ public class Form extends Group {
 		}
 
 		@Override
-		public void mouseDragged(int button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
+		public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
 			owner.mouseDragged(button, x, y, rel_x, rel_y, abs_x, abs_y);
 		}
 

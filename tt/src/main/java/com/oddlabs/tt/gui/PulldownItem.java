@@ -60,7 +60,7 @@ public final class PulldownItem extends ButtonObject {
 	}
 
 	@Override
-	protected void mouseClicked(int button, int x, int y, int clicks) {
+	protected void mouseClicked(MouseButton button, int x, int y, int clicks) {
             // Prevent super.mouseClicked from being called to avoid infinite loop.
 
 	}

@@ -16,6 +16,7 @@ import com.oddlabs.tt.gui.IconLabel;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PanelGroup;
@@ -518,7 +519,7 @@ public abstract class AbstractOptionsMenu extends Form {
 
 	private final class AboutListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			gui_root.addModalForm(new CreditsForm());
 		}
 	}

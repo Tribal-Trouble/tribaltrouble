@@ -91,11 +91,11 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 
 	public final void shortcutPressed(boolean shift_down, boolean ctrl_down) {
 		if (!isDisabled()) {
-				int mouse_button;
+				MouseButton mouse_button;
 				if (ctrl_down)
-					mouse_button = LocalInput.RIGHT_BUTTON;
+					mouse_button = MouseButton.RIGHT;
 				else
-					mouse_button = LocalInput.LEFT_BUTTON;
+					mouse_button = MouseButton.LEFT;
 
 				if (shift_down)
 					button_minus.mousePressedAll(mouse_button, 0, 0);
@@ -129,65 +129,65 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 	}
 
 	@Override
-	protected final void mouseReleased(int button, int x, int y) {
+	protected final void mouseReleased(MouseButton button, int x, int y) {
 	}
 
 	@Override
-	protected final void mousePressed(int button, int x, int y) {
+	protected final void mousePressed(MouseButton button, int x, int y) {
 	}
 
 	@Override
-	protected final void mouseClicked(int button, int x, int y, int clicks) {
+	protected final void mouseClicked(MouseButton button, int x, int y, int clicks) {
 	}
 
 	@Override
-	protected final void mouseHeld(int button, int x, int y) {
+	protected final void mouseHeld(MouseButton button, int x, int y) {
 	}
 
 	private final class IncreaseListener implements MouseButtonListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 		}
 
 		@Override
-		public void mouseHeld(int button, int x, int y) {
+		public void mouseHeld(@NonNull MouseButton button, int x, int y) {
 			mousePressed(button, x, y);
 		}
 
 		@Override
-		public void mousePressed(int button, int x, int y) {
-			if (button == LocalInput.RIGHT_BUTTON)
+		public void mousePressed(@NonNull MouseButton button, int x, int y) {
+			if (button == MouseButton.RIGHT)
 					increase(10);
 				else
 					increase(1);
 		}
 
 		@Override
-		public void mouseReleased(int button, int x, int y) {
+		public void mouseReleased(@NonNull MouseButton button, int x, int y) {
 			release();
 		}
 	}
 
 	private final class DecreaseListener implements MouseButtonListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 		}
 
 		@Override
-		public void mouseHeld(int button, int x, int y) {
+		public void mouseHeld(@NonNull MouseButton button, int x, int y) {
 			mousePressed(button, x, y);
 		}
 
 		@Override
-		public void mousePressed(int button, int x, int y) {
-			if (button == LocalInput.RIGHT_BUTTON)
+		public void mousePressed(@NonNull MouseButton button, int x, int y) {
+			if (button == MouseButton.RIGHT)
 					decrease(10);
 				else
 					decrease(1);
 		}
 
 		@Override
-		public void mouseReleased(int button, int x, int y) {
+		public void mouseReleased(@NonNull MouseButton button, int x, int y) {
 			release();
 		}
 	}

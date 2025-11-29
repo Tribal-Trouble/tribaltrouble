@@ -3,6 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.MainMenu;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
@@ -103,7 +104,7 @@ public final class TutorialForm extends Form {
 
 		HorizButton cancel_button = new CancelButton(120);
 		addChild(cancel_button);
-		cancel_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		cancel_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
 
 		// Place objects
 		headline.place();
@@ -227,7 +228,7 @@ public final class TutorialForm extends Form {
 		}
 
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			if (checkTutorial(gui_root, number)) {
 				startTutorial(network, gui_root, number);
 				TutorialForm.this.remove();

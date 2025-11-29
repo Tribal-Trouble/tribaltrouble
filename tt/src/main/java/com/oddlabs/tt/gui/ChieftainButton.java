@@ -24,7 +24,7 @@ public class ChieftainButton extends NonFocusIconButton implements ToolTip {
 	}
 
 	@Override
-	protected void mouseClicked(int button, int x, int y, int clicks) {
+	protected void mouseClicked(MouseButton button, int x, int y, int clicks) {
                 player_interface.trainChieftain(current_building, !current_building.getChieftainContainer().isTraining());
 	}
 

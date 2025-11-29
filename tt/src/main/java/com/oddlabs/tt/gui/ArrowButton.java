@@ -21,7 +21,7 @@ public final class ArrowButton extends ButtonObject {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_SPACE:
 			case Keyboard.KEY_RETURN:
-				mousePressedAll(LocalInput.LEFT_BUTTON, 0, 0);
+				mousePressedAll(MouseButton.LEFT, 0, 0);
 				break;
 		}
 	}
@@ -40,7 +40,7 @@ public final class ArrowButton extends ButtonObject {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_SPACE:
 			case Keyboard.KEY_RETURN:
-				mouseReleasedAll(LocalInput.LEFT_BUTTON, 0, 0);
+				mouseReleasedAll(MouseButton.LEFT, 0, 0);
 				break;
 		}
 	}
@@ -63,7 +63,7 @@ public final class ArrowButton extends ButtonObject {
 	}
 
 	@Override
-	protected void mouseClicked(int button, int x, int y, int clicks) {
+	protected void mouseClicked(MouseButton button, int x, int y, int clicks) {
 		// Steal click from scrollbar
 	}
 }

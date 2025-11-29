@@ -1,6 +1,7 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.delegate.Menu;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
@@ -57,7 +58,7 @@ public final class NewProfileForm extends Form {
 		ButtonObject button_create = new HorizButton(Utils.getBundleString(bundle, "create_profile"), BUTTON_WIDTH_LONG);
 		button_create.addMouseClickListener(new CreateProfileListener());
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
 
 		group_buttons.addChild(button_create);
 		group_buttons.addChild(button_cancel);
@@ -98,7 +99,7 @@ public final class NewProfileForm extends Form {
 
 	private final class CreateProfileListener implements MouseClickListener, EnterListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			createProfile();
 		}
 

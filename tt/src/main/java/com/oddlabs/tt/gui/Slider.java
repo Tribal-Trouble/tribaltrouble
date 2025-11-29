@@ -57,7 +57,7 @@ public final class Slider extends GUIObject {
 	}
 	
 	@Override
-	public void mouseHeld(int button, int x, int y) {
+	public void mouseHeld(MouseButton button, int x, int y) {
 		mousePressed(button, x, y);
 	}
 
@@ -73,7 +73,7 @@ public final class Slider extends GUIObject {
 	}
 
 	@Override
-	public void mousePressed(int button, int x, int y) {
+	public void mousePressed(MouseButton button, int x, int y) {
 		if (!isDisabled()) {
 			int dx = x - this.button.getX();
 			if (dx < -step/2)
@@ -126,17 +126,18 @@ public final class Slider extends GUIObject {
 	}
 
 	private final class DragListener implements MouseMotionListener, MouseButtonListener {
-		private int start_offset;
+		final SliderData data = Skin.getSkin().getSliderData();
+		float start_offset;
 
 		@Override
-		public void mousePressed(int button, int x, int y) {
+		public void mousePressed(@NonNull MouseButton button, int x, int y) {
 			start_offset = valueToOffset(value);
 		}
 
 		@Override
-		public void mouseDragged(int button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
+		public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
 			if (!isDisabled()) {
-				setValue(offsetToValue(start_offset + abs_x) + min);
+				setValue(offsetToValue((int)(start_offset + abs_x)) + min);
 			}
 		}
 
@@ -147,10 +148,10 @@ public final class Slider extends GUIObject {
 		@Override
 		public void mouseExited() {}
 		@Override
-		public void mouseReleased(int button, int x, int y) {}
+		public void mouseReleased(@NonNull MouseButton button, int x, int y) {}
 		@Override
-		public void mouseHeld(int button, int x, int y) {}
+		public void mouseHeld(@NonNull MouseButton button, int x, int y) {}
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {}
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {}
 	}
 }

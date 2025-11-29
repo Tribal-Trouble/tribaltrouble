@@ -2,6 +2,7 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.net.PeerHub;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -16,6 +17,6 @@ public final class QuitForm extends QuestionForm {
 
 	public QuitForm(final GUIRoot gui_root) {
 		super(!PeerHub.isWaitingForAck() ? getI18N("confirm_quit") : getI18N("confirm_quit_waiting_for_ack"),
-                (int _, int _, int _, int _) -> Renderer.shutdown());
+                 (_, _, _, _) -> Renderer.shutdown());
 	}
 }

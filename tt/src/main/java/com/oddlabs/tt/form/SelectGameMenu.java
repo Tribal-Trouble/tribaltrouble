@@ -20,6 +20,7 @@ import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.IntegerLabel;
 import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PanelGroup;
@@ -216,7 +217,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 		HorizButton logout_button = new HorizButton(Utils.getBundleString(bundle, "logout"), BUTTON_WIDTH);
 		addChild(logout_button);
-		logout_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		logout_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
 
 		panel_group.place();
 		logout_button.place(AT_END);
@@ -481,7 +482,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 	private final class JoinGameListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			GameHost selected_game = (GameHost)game_list_box.getSelected();
 			joinGame(selected_game);
 		}
@@ -489,21 +490,21 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 	private static final class UpdateScoresListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			updateList(MatchmakingServerInterface.TYPE_RANKING_LIST);
 		}
 	}
 
 	private static final class UpdateGameListListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			updateList(MatchmakingServerInterface.TYPE_GAME);
 		}
 	}
 
 	private final class CreateGameListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			if (Network.getMatchmakingClient().getProfile() != null) {
 				Panel panel = new Panel(Utils.getBundleString(bundle, "game"));
 				Group g = new TerrainMenu(network, gui_root, main_menu, true, SelectGameMenu.this);
@@ -517,7 +518,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 	private final class JoinRoomListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			ChatRoomEntry chat_room_info = (ChatRoomEntry)chat_room_list_box.getSelected();
 			joinRoom(chat_room_info);
 		}
@@ -525,14 +526,14 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 	private static final class UpdateRoomListListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			updateList(MatchmakingServerInterface.TYPE_CHAT_ROOM_LIST);
 		}
 	}
 
 	private final class CreateRoomListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			if (Network.getMatchmakingClient().getProfile() != null) {
 				main_menu.setMenuCentered(new CreateChatRoomForm(gui_root, main_menu, SelectGameMenu.this));
 			}
@@ -553,7 +554,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 	private final class LeaveListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			leaveChatRoom();
 		}
 	}

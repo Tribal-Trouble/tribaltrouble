@@ -8,6 +8,7 @@ import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Army;
@@ -319,8 +320,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void mouseClicked(int button, int x, int y, int clicks) {
-		if (button == LocalInput.LEFT_BUTTON && !map_mode && !observer) {
+	public void mouseClicked(MouseButton button, int x, int y, int clicks) {
+		if (button == MouseButton.LEFT && !map_mode && !observer) {
 			if (selection) {
 				selection = false;
 				Selectable[] picked = getViewer().getPicker().pickBoxed(getViewer().getGUIRoot().getDelegate().getCamera().getState(), selection_x1, selection_y1, selection_x2, selection_y2, clicks);
@@ -351,9 +352,9 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void mouseReleased(int button, int x, int y) {
+	public void mouseReleased(MouseButton button, int x, int y) {
 		if (map_mode) {
-			if (button == LocalInput.LEFT_BUTTON) {
+			if (button == MouseButton.LEFT) {
 				getViewer().getPicker().pickMapGoto(x, y, (MapCamera)getCamera());
 			}
 		} else if (!observer) {
@@ -372,10 +373,10 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void mouseDragged(int button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+	public void mouseDragged(MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 		if (!map_mode) {
 			if (!observer) {
-				if (button == LocalInput.LEFT_BUTTON) {
+				if (button == MouseButton.LEFT) {
 					selection_x2 += relative_x;
 					selection_y2 += relative_y;
 				} else {
@@ -388,11 +389,11 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void mousePressed(int button, int x, int y) {
+	public void mousePressed(MouseButton button, int x, int y) {
 		if (!map_mode) {
 			if (!observer) {
                             switch (button) {
-                                case LocalInput.LEFT_BUTTON:
+                                case LEFT:
                                     if (!LocalInput.isKeyDown(Keyboard.KEY_SPACE)) {
                                         selection = true;
                                     }
@@ -401,7 +402,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                                     selection_x2 = x;
                                     selection_y2 = y;
                                     break;
-                                case LocalInput.RIGHT_BUTTON:
+                                case RIGHT:
                                     {
                                         Army selection = getViewer().getSelection().getCurrentSelection();
                                         if (selection.size() > 0 && selection.containsAbility(Abilities.TARGET)) {

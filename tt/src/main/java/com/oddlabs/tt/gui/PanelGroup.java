@@ -89,15 +89,15 @@ public final class PanelGroup extends GUIObject {
 		}
 
 		@Override
-		public void mousePressed(int button, int x, int y) {
+		public void mousePressed(@NonNull MouseButton button, int x, int y) {
 			selectPanel(index);
 		}
 
 		@Override
-		public void mouseReleased(int button, int x, int y) {}
+		public void mouseReleased(@NonNull MouseButton button, int x, int y) {}
 		@Override
-		public void mouseHeld(int button, int x, int y) {}
+		public void mouseHeld(@NonNull MouseButton button, int x, int y) {}
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {}
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {}
 	}
 }

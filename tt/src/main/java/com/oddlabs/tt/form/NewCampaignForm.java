@@ -3,6 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
@@ -104,7 +105,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		button_ok.addMouseClickListener(new NameListener());
 		addChild(button_ok);
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
 		addChild(button_cancel);
 
 		// place
@@ -215,7 +216,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 
 	private final class NameListener implements MouseClickListener, EnterListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			save();
 		}
 

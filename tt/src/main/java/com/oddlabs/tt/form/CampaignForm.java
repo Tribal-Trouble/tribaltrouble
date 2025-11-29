@@ -2,6 +2,7 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.Menu;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
@@ -56,7 +57,7 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
 		button_load.addMouseClickListener((MouseClickListener)listener);
 
 		HorizButton button_cancel = new CancelButton(120);
-		button_cancel.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
 
 		// Add objects
 		addChild(button_delete);
@@ -130,7 +131,7 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
 
 	private final class DeleteListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			CampaignState state = (CampaignState)load_campaign_box.getSelected();
 			if (state != null) {
 				String confirm_str = Utils.getBundleString(bundle, "confirm_delete", state.getName());
@@ -141,21 +142,21 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
 
 	private final class ActionDeleteListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			LoadCampaignBox.loadSavegames(CampaignForm.this);
 		}
 	}
 
 	private final class VikingsListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			main_menu.setMenu(new NewCampaignForm(network, gui_root, main_menu, CampaignForm.this));
 		}
 	}
 
 	private final class LoadListener implements MouseClickListener, RowListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			Object selected = load_campaign_box.getSelected();
 			if (selected != null)
 				load((CampaignState)selected);

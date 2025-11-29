@@ -24,10 +24,10 @@ public final class InputState {
 	private int absolute_drag_x;
 	private int absolute_drag_y;
 	private @Nullable GUIObject drag_obj;
-	private int drag_button;
+	private MouseButton drag_button;
 	private GUIObject press_obj;
 	private @Nullable GUIObject clicked_obj;
-	private int held_button;
+	private MouseButton held_button;
 	private int click_counter = 0;
 	private int clicked_x;
 	private int clicked_y;
@@ -65,7 +65,7 @@ public final class InputState {
 		gui_hit.mouseScrolledAll(scroll_amount);
 	}
 
-	public void mousePressed(int button) {
+	public void mousePressed(MouseButton button) {
 		GUIObject gui_hit = pick();
 		int local_x = gui_hit.translateXToLocal(LocalInput.getMouseX());
 		int local_y = gui_hit.translateYToLocal(LocalInput.getMouseY());
@@ -98,7 +98,7 @@ public final class InputState {
 		mouse_timer.start();
 	}
 
-	public void mouseReleased(int button) {
+	public void mouseReleased(MouseButton button) {
 		GUIObject gui_hit = pick();
 		int local_x = gui_hit.translateXToLocal(LocalInput.getMouseX());
 		int local_y = gui_hit.translateYToLocal(LocalInput.getMouseY());
@@ -126,7 +126,7 @@ public final class InputState {
 			mouse_timer.stop();
 	}
 
-	public void mouseDragged(int button, short x, short y) {
+	public void mouseDragged(MouseButton button, short x, short y) {
 		if (drag_obj != null)
 			drag_obj.mouseDraggedAll(button, x, y, x - drag_x, y - drag_y, x - absolute_drag_x, y - absolute_drag_y);
 		drag_x = x;

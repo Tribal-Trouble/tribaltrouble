@@ -12,6 +12,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MapIslandData;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.NonFocusIconButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
@@ -165,7 +166,7 @@ public final class CampaignMapForm extends CameraDelegate {
 		}
 
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			campaign.islandChosen(network, getGUIRoot(), number);
 		}
 	}

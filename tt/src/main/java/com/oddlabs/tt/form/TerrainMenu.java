@@ -8,6 +8,7 @@ import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.CheckBox;
 import com.oddlabs.tt.gui.EditLine;
@@ -564,7 +565,7 @@ public final class TerrainMenu extends Group {
 
 	private final class CancelButtonListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			owner.terrainMenuCancel();
 		}
 	}
@@ -656,14 +657,14 @@ public final class TerrainMenu extends Group {
 
 	private final class MapcodeListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			gui_root.addModalForm(new MapcodeForm(TerrainMenu.this));
 		}
 	}
 
 	private final class OKListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			boolean started = startGame();
 			if (started)
 				button_ok.setDisabled(true);

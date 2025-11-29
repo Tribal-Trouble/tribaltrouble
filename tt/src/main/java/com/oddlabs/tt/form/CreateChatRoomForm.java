@@ -2,6 +2,7 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.delegate.Menu;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
@@ -55,7 +56,7 @@ public final class CreateChatRoomForm extends Form {
 		ButtonObject button_ok = new OKButton(BUTTON_WIDTH);
 		button_ok.addMouseClickListener(new OKListener());
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
 
 		addChild(button_ok);
 		addChild(button_cancel);
@@ -92,7 +93,7 @@ public final class CreateChatRoomForm extends Form {
 
 	private final class OKListener implements MouseClickListener, EnterListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			create();
 		}
 

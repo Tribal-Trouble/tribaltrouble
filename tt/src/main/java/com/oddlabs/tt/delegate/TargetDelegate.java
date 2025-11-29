@@ -4,6 +4,7 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
@@ -49,8 +50,8 @@ public class TargetDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void mousePressed(int button, int x, int y) {
-		if (button == LocalInput.LEFT_BUTTON) {
+	public void mousePressed(MouseButton button, int x, int y) {
+		if (button == MouseButton.LEFT) {
 			getViewer().getPicker().pickTarget(getViewer().getSelection().getCurrentSelection(), getViewer().getGUIRoot().getDelegate().getCamera().getState(), getViewer().getPeerHub().getPlayerInterface(), x, y, action);
 			pop();
 		} else {

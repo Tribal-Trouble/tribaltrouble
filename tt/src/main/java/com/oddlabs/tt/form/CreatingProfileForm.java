@@ -2,6 +2,7 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.MatchmakingClientInterface;
 import com.oddlabs.tt.delegate.Menu;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
@@ -30,7 +31,7 @@ public final class CreatingProfileForm extends Form implements ProfileListener {
 		addChild(info_label);
 		HorizButton cancel_button = new CancelButton(120);
 		addChild(cancel_button);
-		cancel_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		cancel_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
 
 		// Place objects
 		info_label.place();

@@ -254,3 +254,4 @@ gradle-app.setting
 /common/src/main/resources/fonts/Impact.ttf
 /common/src/main/resources/fonts/Tahoma.ttf
 /gradle/wrapper/gradle-wrapper.jar
+/.gradle_local/

@@ -10,6 +10,7 @@ import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.model.RacesResources;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.render.Renderer;
@@ -53,18 +54,18 @@ public class DefaultInGameInfo implements InGameInfo {
 		map_code.setPos((delegate.getWidth() - map_code.getWidth())/2, header_y - map_code.getHeight());
 
 		HorizButton button_replay = new HorizButton(Utils.getBundleString(GameStatsDelegate.bundle, "replay_island"), 150);
-		button_replay.addMouseClickListener((int _, int _, int _, int _) -> {
+		button_replay.addMouseClickListener( (_, _, _, _) -> {
                     replay_island_flag = true;
                     delegate.startMenu();
                 });
 		HorizButton button_observer = new HorizButton(Utils.getBundleString(GameStatsDelegate.bundle, "observer_mode"), 150);
-		button_observer.addMouseClickListener((int _, int _, int _, int _) -> {
+		button_observer.addMouseClickListener( (_, _, _, _) -> {
                     delegate.getViewer().getDelegate().setObserverMode();
                     delegate.pop();
                 });
 
 		HorizButton button_end = new HorizButton(Utils.getBundleString(GameStatsDelegate.bundle, "main_menu"), 150);
-		button_end.addMouseClickListener((int _, int _, int _, int _) -> delegate.startMenu());
+		button_end.addMouseClickListener( (_, _, _, _) -> delegate.startMenu());
 
 		if (replay)
 			group.addChild(button_replay);

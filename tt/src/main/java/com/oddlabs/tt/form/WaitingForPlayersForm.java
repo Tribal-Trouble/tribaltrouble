@@ -1,5 +1,6 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.CancelListener;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
@@ -47,7 +48,7 @@ public final class WaitingForPlayersForm extends Form {
 
 	private final class AbortListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			viewer.getGUIRoot().addModalForm(new QuestionForm(Utils.getBundleString(bundle, "confirm_abort"), new CancelListener(WaitingForPlayersForm.this)));
 		}
 	}

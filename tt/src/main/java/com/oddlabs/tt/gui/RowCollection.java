@@ -104,9 +104,9 @@ public final class RowCollection extends GUIObject {
 		}
 
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			selectRow(row);
-			if (button == LocalInput.RIGHT_BUTTON) {
+			if (button == MouseButton.RIGHT) {
 				multi_box.clickedRow();
 				multi_box.rightClickedRow((int)(row.getRootX() + x), (int)(row.getRootY() + y));
 			} else if (clicks == 1) {

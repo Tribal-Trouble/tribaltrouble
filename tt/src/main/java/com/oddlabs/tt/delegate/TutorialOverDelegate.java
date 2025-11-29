@@ -9,6 +9,7 @@ import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.tutorial.TutorialInGameInfo;
@@ -44,7 +45,7 @@ public final class TutorialOverDelegate extends CameraDelegate implements Updata
 		HorizButton button_restart = new HorizButton(Utils.getBundleString(bundle, "restart_tutorial"), 170);
 		button_restart.addMouseClickListener(new StartTutorialListener(tutorial_number));
 		HorizButton button_end = new HorizButton(Utils.getBundleString(bundle, "main_menu"), 170);
-		button_end.addMouseClickListener((int _, int _, int _, int _) -> {
+		button_end.addMouseClickListener( (_, _, _, _) -> {
                     viewer.close();
                     TutorialOverDelegate.this.setDisabled(true);
                 });
@@ -84,7 +85,7 @@ public final class TutorialOverDelegate extends CameraDelegate implements Updata
 		}
 
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			if (tutorial_info.setNextTutorial(viewer.getGUIRoot(), tutorial_number))
 				viewer.close();
 		}

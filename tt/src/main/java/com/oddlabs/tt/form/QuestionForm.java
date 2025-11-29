@@ -5,6 +5,7 @@ import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.LabelBox;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.OKListener;
 import com.oddlabs.tt.gui.Skin;
@@ -27,7 +28,7 @@ public class QuestionForm extends Form {
 		yes_button.addMouseClickListener(yes_action);
 		button_group.addChild(yes_button);
 		HorizButton no_button = new CancelButton(80);
-		no_button.addMouseClickListener((int _, int _, int _, int _) -> this.cancel());
+		no_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
 		button_group.addChild(no_button);
 		yes_button.place();
 		no_button.place(yes_button, RIGHT_MID);

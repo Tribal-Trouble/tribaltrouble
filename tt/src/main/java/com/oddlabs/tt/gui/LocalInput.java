@@ -24,67 +24,62 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 
 public final class LocalInput {
-	public static final int LEFT_BUTTON = 0;
-	private static final Logger logger = Logger.getLogger(LocalInput.class.getName());
-
-	public static final int RIGHT_BUTTON = 1;
-	public static final int MIDDLE_BUTTON = 2;
-
-	private static int mouse_x;
-	private static int mouse_y;
-	private static boolean global_menu_state = false;
-	private static boolean global_control_state = false;
-	private static boolean global_shift_state = false;
-	private static final boolean[] keys = new boolean[256];
-
-	private static int view_width;
-	private static int view_height;
-	private static boolean fullscreen;
-	private static Path game_dir;
-	private static int revision;
-
-	private static final LocalInput instance = new LocalInput();
-
-	public static void setKeys(int key_code, boolean state, boolean shift_down, boolean control_down, boolean menu_down) {
-		keys[key_code] = state;
-		global_menu_state = menu_down;
-		global_control_state = control_down;
-		global_shift_state = shift_down;
-	}
-
-	public static void keyTyped(@NonNull GUIRoot gui_root, int key_code, char key_char) {
-		gui_root.getInputState().keyTyped(key_code, key_char);
-	}
-
-	public static void keyPressed(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
-		setKeys(key_code, true, shift_down, control_down, menu_down);
-		gui_root.getInputState().keyPressed(key_code, key_char, shift_down, control_down, menu_down, repeat);
-	}
-
-	public static void keyReleased(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
-		setKeys(key_code, false, shift_down, control_down, menu_down);
-		gui_root.getInputState().keyReleased(key_code, key_char, shift_down, control_down, menu_down);
-	}
-
-	public static void mouseDragged(@NonNull GUIRoot gui_root, int button, short x, short y) {
-		mouse_x = x;
-		mouse_y = y;
-		gui_root.getInputState().mouseDragged(button, x, y);
-	}
-
-	public static void mouseReleased(@NonNull GUIRoot gui_root, int button) {
-		gui_root.getInputState().mouseReleased(button);
-	}
-
-	public static void mousePressed(@NonNull GUIRoot gui_root, int button) {
-		gui_root.getInputState().mousePressed(button);
-	}
-
-	public static void mouseScrolled(@NonNull GUIRoot gui_root, int dz) {
-		gui_root.getInputState().mouseScrolled(dz);
-	}
-
-	public static void mouseMoved(@NonNull GUIRoot gui_root, short x, short y) {
+    	private static final Logger logger = Logger.getLogger(LocalInput.class.getName());
+    
+    	private static int mouse_x;
+    	private static int mouse_y;
+    	private static boolean global_menu_state = false;
+    	private static boolean global_control_state = false;
+    	private static boolean global_shift_state = false;
+    	private static final boolean[] keys = new boolean[256];
+    
+    	private static int view_width;
+    	private static int view_height;
+    	private static boolean fullscreen;
+    	private static Path game_dir;
+    	private static int revision;
+    
+    	private static final LocalInput instance = new LocalInput();
+    
+    	public static void setKeys(int key_code, boolean state, boolean shift_down, boolean control_down, boolean menu_down) {
+    		keys[key_code] = state;
+    		global_menu_state = menu_down;
+    		global_control_state = control_down;
+    		global_shift_state = shift_down;
+    	}
+    
+    	public static void keyTyped(@NonNull GUIRoot gui_root, int key_code, char key_char) {
+    		gui_root.getInputState().keyTyped(key_code, key_char);
+    	}
+    
+    	public static void keyPressed(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
+    		setKeys(key_code, true, shift_down, control_down, menu_down);
+    		gui_root.getInputState().keyPressed(key_code, key_char, shift_down, control_down, menu_down, repeat);
+    	}
+    
+    	public static void keyReleased(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
+    		setKeys(key_code, false, shift_down, control_down, menu_down);
+    		gui_root.getInputState().keyReleased(key_code, key_char, shift_down, control_down, menu_down);
+    	}
+    
+    	public static void mouseDragged(@NonNull GUIRoot gui_root, @NonNull MouseButton button, short x, short y) {
+    		mouse_x = x;
+    		mouse_y = y;
+    		gui_root.getInputState().mouseDragged(button, x, y);
+    	}
+    
+    	public static void mouseReleased(@NonNull GUIRoot gui_root, @NonNull MouseButton button) {
+    		gui_root.getInputState().mouseReleased(button);
+    	}
+    
+    	public static void mousePressed(@NonNull GUIRoot gui_root, @NonNull MouseButton button) {
+    		gui_root.getInputState().mousePressed(button);
+    	}
+    
+    	public static void mouseScrolled(@NonNull GUIRoot gui_root, int dz) {
+    		gui_root.getInputState().mouseScrolled(dz);
+    	}
+    	public static void mouseMoved(@NonNull GUIRoot gui_root, short x, short y) {
 		mouse_x = x;
 		mouse_y = y;
 		gui_root.getInputState().mouseMoved(x, y);

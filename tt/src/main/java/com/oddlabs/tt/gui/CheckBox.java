@@ -50,17 +50,17 @@ public final class CheckBox extends GUIObject implements ToolTip {
 	}
 
 	@Override
-	protected void mouseClicked(int button, int x, int y, int clicks) {
+	protected void mouseClicked(MouseButton button, int x, int y, int clicks) {
 		toggleMarked();
 	}
 
 	@Override
-	protected void mouseReleased(int button, int x, int y) {
+	protected void mouseReleased(MouseButton button, int x, int y) {
 		pressed = false;
 	}
 
 	@Override
-	protected void mousePressed(int button, int x, int y) {
+	protected void mousePressed(MouseButton button, int x, int y) {
 		pressed = true;
 	}
 

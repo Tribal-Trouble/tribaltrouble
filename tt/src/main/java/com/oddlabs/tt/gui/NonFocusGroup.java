@@ -6,6 +6,6 @@ public class NonFocusGroup extends Group {
 	}
 
 	@Override
-	public final void mousePressed(int button, int x, int y) {
+	public final void mousePressed(MouseButton button, int x, int y) {
 	}
 }

@@ -6,6 +6,7 @@ import com.oddlabs.tt.form.InGameOptionsMenu;
 import com.oddlabs.tt.form.QuestionForm;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.KeyboardEvent;
+import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
@@ -82,14 +83,14 @@ public final class InGameMainMenu extends Menu {
 
 	private final class AbortListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			setMenuCentered(new QuestionForm(Utils.getBundleString(bundle, "end_game_confirm"), new ActionAbortListener()));
 		}
 	}
 
 	private final class ActionAbortListener implements MouseClickListener {
 		@Override
-		public void mouseClicked(int button, int x, int y, int clicks) {
+		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			viewer.abort();
 		}
 	}
