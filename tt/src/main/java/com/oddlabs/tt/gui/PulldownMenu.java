@@ -7,11 +7,13 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
-public final class PulldownMenu extends Group {// GUIObject {
-	private final java.util.List<ItemChosenListener> chosen_listeners = new java.util.ArrayList<>();
+public final class PulldownMenu<T> extends Group {
+	private final Set<@NonNull ItemChosenListener<T>> chosen_listeners = new CopyOnWriteArraySet<>();
 
-	private final List<PulldownItem> items = new ArrayList<>();
+	private final List<@NonNull PulldownItem<T>> items = new ArrayList<>();
 	private int chosen_item_index = -1;
 	
 	public PulldownMenu() {
@@ -19,7 +21,7 @@ public final class PulldownMenu extends Group {// GUIObject {
 		setFocusCycle(true);
 	}
 
-	public PulldownItem getItem(int index) {
+	public @NonNull PulldownItem<T> getItem(int index) {
 		return items.get(index);
 	}
 
@@ -28,17 +30,17 @@ public final class PulldownMenu extends Group {// GUIObject {
 	}
 
 	@Override
-	protected void renderGeometry() {
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
 		// Render bottom edge
 		Horizontal bot = Skin.getSkin().getPulldownData().getPulldownBottom();
-		bot.render(0, 0, getWidth(), Skin.NORMAL);
+		bot.render(0, 0, getWidth(), ModeIconQuads.Mode.NORMAL);
 
 		// Render top edge
-		Horizontal top = Skin.getSkin().getPulldownData().getPulldownTop();
-		top.render(0, getHeight() - top.getHeight(), getWidth(), Skin.NORMAL);
+        Horizontal top = Skin.getSkin().getPulldownData().getPulldownTop();
+        top.render(0, getHeight() - top.getHeight(), getWidth(), ModeIconQuads.Mode.NORMAL);
 	}
 
-	public void addItem(@NonNull PulldownItem item) {
+	public void addItem(@NonNull PulldownItem<T> item) {
 		items.add(item);
 		addChild(item);
 		item.addMouseClickListener(new ItemListener(items.size() - 1));
@@ -50,14 +52,14 @@ public final class PulldownMenu extends Group {// GUIObject {
 		int min_width = 0;
 		Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
 		// Adjust all items
-            for (PulldownItem item : items) {
+            for (PulldownItem<T> item : items) {
                 if (item.getTextWidth() > min_width)
                     min_width = item.getTextWidth();
             }
 		int item_pos_count = Skin.getSkin().getPulldownData().getPulldownBottom().getHeight();
 		min_width = Math.max(width, item_box.getLeftOffset() + min_width + item_box.getRightOffset());
 		for (int i = 0; i < items.size(); i++) {
-			PulldownItem item = items.get(items.size() - 1 - i);
+			PulldownItem<T> item = items.get(items.size() - 1 - i);
 			int item_height = item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
 			item.setDim(min_width, item_height);
 			item.setPos(0, item_pos_count);
@@ -98,27 +100,25 @@ public final class PulldownMenu extends Group {// GUIObject {
 		}
 	}
 
-	// Sending click on to appropiate item when PulldownButton has been pressed and released on an item
+	// Sending click on to appropriate item when PulldownButton has been pressed and released on an item
 	void clickItem (@NonNull MouseButton button, int x, int y, int clicks) {
-		for (int i = 0; i < items.size(); i++) {
-			PulldownItem item = getItem(i);
-			if (item.isHovered())
-				item.mouseClickedAll(button, x, y, clicks);
-		}
-	}
-
-	public void itemChosenAll() {
-        for (ItemChosenListener listener : chosen_listeners) {
-            if (listener != null)
-                listener.itemChosen(this, chosen_item_index);
+        for (PulldownItem<T> item : items) {
+            if (item.isHovered())
+                item.mouseClickedAll(button, x, y, clicks);
         }
 	}
 
-	public void addItemChosenListener(ItemChosenListener listener) {
+	public void itemChosenAll() {
+        for (ItemChosenListener <T> listener : chosen_listeners) {
+            listener.itemChosen(this, chosen_item_index);
+        }
+	}
+
+	public void addItemChosenListener(@NonNull ItemChosenListener listener) {
 		chosen_listeners.add(listener);
 	}
 
-	public void removeItemChosenListener(ItemChosenListener listener) {
+	public void removeItemChosenListener(@NonNull ItemChosenListener listener) {
 		chosen_listeners.remove(listener);
 	}
 

@@ -3,7 +3,6 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
-import com.oddlabs.util.Quad;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -19,198 +18,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
 
-public class Icons {
-	private static Icons icons;
+/** Utilities for loading icon atlases */
+final class Icons {
+    private Icons() {
+        // no instances
+    }
 
-	private final @NonNull Texture texture;
-
-	private final IconQuad @NonNull [] harvest_icon;
-	private final IconQuad @NonNull [] tree_icon;
-	private final IconQuad @NonNull [] rock_icon;
-	private final IconQuad @NonNull [] iron_icon;
-	private final IconQuad @NonNull [] rubber_icon;
-	private final @NonNull IconQuad tree_status_icon;
-	private final @NonNull IconQuad rock_status_icon;
-	private final @NonNull IconQuad iron_status_icon;
-	private final @NonNull IconQuad rubber_status_icon;
-	private final @NonNull IconQuad cheat_icon;
-	private final @NonNull RaceIcons native_icons;
-	private final @NonNull RaceIcons viking_icons;
-	private final IconQuad @NonNull [] watch;
-	private final @NonNull IconQuad infinite;
-	private final @NonNull NotifyArrowData notify_arrow_data;
-
-	private final @NonNull Map<Class<?>, Quad[]> tool_tip_icons;
-
-	public static void load() {
-		if (icons == null)
-			icons = new Icons("/gui/icons.xml");
-	}
-
-	public static Icons getIcons() {
-		return icons;
-	}
-
-	private Icons(@NonNull String xml_file) {
-		Node root = loadFile(xml_file, new GUIErrorHandler());
-		texture = loadTexture(root);
-
-		harvest_icon = getNamedIconQuads(root, "harvest_icon", texture);
-		tree_icon = getNamedIconQuads(root, "tree_icon", texture);
-		rock_icon = getNamedIconQuads(root, "rock_icon", texture);
-		iron_icon = getNamedIconQuads(root, "iron_icon", texture);
-		rubber_icon = getNamedIconQuads(root, "rubber_icon", texture);
-		tree_status_icon = getNamedIconQuad(root, "tree_status_icon", texture);
-		rock_status_icon = getNamedIconQuad(root, "rock_status_icon", texture);
-		iron_status_icon = getNamedIconQuad(root, "iron_status_icon", texture);
-		rubber_status_icon = getNamedIconQuad(root, "rubber_status_icon", texture);
-		cheat_icon = getNamedIconQuad(root, "cheat_icon", texture);
-		ResourceBundle bundle = ResourceBundle.getBundle(Icons.class.getName());
-		String tt_caption = com.oddlabs.tt.util.Utils.getBundleString(bundle, "terrifying_toot", "S");
-		String rr_caption = com.oddlabs.tt.util.Utils.getBundleString(bundle, "ravaging_roar", "C");
-		String ss_caption = com.oddlabs.tt.util.Utils.getBundleString(bundle, "stinking_stew", "S");
-		String cc_caption = com.oddlabs.tt.util.Utils.getBundleString(bundle, "crackling_cloud", "C");
-		viking_icons = parseRaceIcons(root, "vikings", tt_caption, rr_caption);
-		native_icons = parseRaceIcons(root, "natives", ss_caption, cc_caption);
-		watch = parseWatch(root);
-		infinite = getNamedIconQuad(root, "infinite", texture);
-		notify_arrow_data = parseNotifyArrowData(root);
-		tool_tip_icons = new HashMap<>();
-		tool_tip_icons.put(com.oddlabs.tt.landscape.TreeSupply.class, new Quad[]{tree_status_icon});
-		tool_tip_icons.put(com.oddlabs.tt.model.RockSupply.class, new Quad[]{rock_status_icon});
-		tool_tip_icons.put(com.oddlabs.tt.model.IronSupply.class, new Quad[]{iron_status_icon});
-		tool_tip_icons.put(com.oddlabs.tt.model.RubberSupply.class, new Quad[]{rubber_status_icon});
-	}
-
-	public Quad[] getToolTipIcon(Class<?> key) {
-		return tool_tip_icons.get(key);
-	}
-
-	private @NonNull RaceIcons parseRaceIcons(@NonNull Node n, String head, String magic1_desc, String magic2_desc) {
-		return new RaceIcons(getNamedIconQuad(n, head + "_unit_status_icon", texture),
-							 getNamedIconQuad(n, head + "_weapon_rock_status_icon", texture),
-							 getNamedIconQuad(n, head + "_weapon_iron_status_icon", texture),
-							 getNamedIconQuad(n, head + "_weapon_rubber_status_icon", texture),
-							 getNamedIconQuads(n, head + "_build_weapons_icon", texture),
-							 getNamedIconQuads(n, head + "_build_weapon_rock_icon", texture),
-							 getNamedIconQuads(n, head + "_build_weapon_iron_icon", texture),
-							 getNamedIconQuads(n, head + "_build_weapon_rubber_icon", texture),
-							 getNamedIconQuads(n, head + "_army_icon", texture),
-							 getNamedIconQuads(n, head + "_warrior_rock_icon", texture),
-							 getNamedIconQuads(n, head + "_warrior_iron_icon", texture),
-							 getNamedIconQuads(n, head + "_warrior_rubber_icon", texture),
-							 getNamedIconQuads(n, head + "_peon_icon", texture),
-							 getNamedIconQuads(n, head + "_chieftain_icon", texture),
-							 getNamedIconQuads(n, head + "_transport_icon", texture),
-							 getNamedIconQuads(n, head + "_attack_icon", texture),
-							 getNamedIconQuads(n, head + "_move_icon", texture),
-							 getNamedIconQuads(n, head + "_gather_repair_icon", texture),
-							 getNamedIconQuads(n, head + "_quarters_icon", texture),
-							 getNamedIconQuads(n, head + "_armory_icon", texture),
-							 getNamedIconQuads(n, head + "_tower_icon", texture),
-							 getNamedIconQuads(n, head + "_tower_exit_icon", texture),
-							 getNamedIconQuads(n, head + "_rally_point_icon", texture),
-							 getNamedIconQuads(n, head + "_magic1_icon", texture),
-							 magic1_desc,
-							 getNamedIconQuads(n, head + "_magic2_icon", texture),
-							 magic2_desc);
-	}
-
-	public final @NonNull RaceIcons getVikingIcons() {
-		return viking_icons;
-	}
-
-	public final @NonNull RaceIcons getNativeIcons() {
-		return native_icons;
-	}
-
-	public final IconQuad @NonNull [] getHarvestIcon() {
-		return harvest_icon;
-	}
-
-	public final @NonNull IconQuad getTreeStatusIcon() {
-		return tree_status_icon;
-	}
-
-	public final @NonNull IconQuad getRockStatusIcon() {
-		return rock_status_icon;
-	}
-
-	public final @NonNull IconQuad getIronStatusIcon() {
-		return iron_status_icon;
-	}
-
-	public final @NonNull IconQuad getRubberStatusIcon() {
-		return rubber_status_icon;
-	}
-
-	public final @NonNull IconQuad getCheatIcon() {
-		return cheat_icon;
-	}
-
-	public final IconQuad @NonNull [] getTreeIcon() {
-		return tree_icon;
-	}
-
-	public final IconQuad @NonNull [] getRockIcon() {
-		return rock_icon;
-	}
-
-	public final IconQuad @NonNull [] getIronIcon() {
-		return iron_icon;
-	}
-
-	public final IconQuad @NonNull [] getRubberIcon() {
-		return rubber_icon;
-	}
-
-	private IconQuad @NonNull [] parseWatch(@NonNull Node n) {
-		List<IconQuad> list = new ArrayList<>();
-		Node node = getNodeByName("watch", n);
-		NodeList nl = node.getChildNodes();
-		for (int i = 0; i < nl.getLength(); i++) {
-			if (nl.item(i).getNodeName().equals("quad")) {
-				list.add(readQuadData(nl.item(i), texture));
-			}
-		}
-		IconQuad[] result = new IconQuad[list.size()];
-		list.toArray(result);
-		return result;
-	}
-
-	public final IconQuad @NonNull [] getWatch() {
-		return watch;
-	}
-
-	public final @NonNull IconQuad getInfinite() {
-		return infinite;
-	}
-
-	public final @NonNull NotifyArrowData getNotifyArrowData() {
-		return notify_arrow_data;
-	}
-
-	public static @NonNull IconQuad readQuadData(@NonNull Node n, @NonNull Texture texture) {
-		int left = getInt(n, "left");
-		int top = getInt(n, "top");
-		int right = getInt(n, "right");
-		int bottom = getInt(n, "bottom");
-		return new IconQuad(left/(float)texture.getWidth(),
-				1f - bottom/(float)texture.getHeight(),
-				right/(float)texture.getWidth(),
-				1f - top/(float)texture.getHeight(),
-				right - left,
-				bottom - top,
-				texture);
-	}
-
-	public static Node loadFile(@NonNull String xml_file, @Nullable ErrorHandler error_handler) {
+	static Node loadFile(@NonNull String xml_file, @Nullable ErrorHandler error_handler) {
 		URL url = Utils.makeURL(xml_file);
 
 		try {
@@ -225,11 +40,11 @@ public class Icons {
 		}
 	}
 
-	public static @NonNull Texture loadTexture(@NonNull Node n) {
+	static @NonNull Texture loadTexture(@NonNull Node n) {
 		return loadTexture(n.getAttributes().getNamedItem("texture").getNodeValue());
 	}
 
-	private static @NonNull Texture loadTexture(String tex_file) {
+	public static @NonNull Texture loadTexture(@NonNull String tex_file) {
 		TextureFile file = new TextureFile(tex_file,
 										   GL11.GL_RGBA,
 										   GL11.GL_LINEAR,
@@ -239,7 +54,7 @@ public class Icons {
 		return Resources.findResource(file);
 	}
 
-	public static Node getNodeByName(String name, @NonNull Node n) {
+	static @NonNull Node getNodeByName(@NonNull String name, @NonNull Node n) {
 		NodeList nl = n.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			if (nl.item(i).getNodeName().equals(name))
@@ -249,42 +64,33 @@ public class Icons {
 		return null;
 	}
 
-	public static int getInt(@NonNull Node n, String key) {
+	static int getInt(@NonNull Node n, @NonNull String key) {
 		String string = n.getAttributes().getNamedItem(key).getNodeValue();
 		return Integer.parseInt(string);
 	}
 
-	private @NonNull NotifyArrowData parseNotifyArrowData(@NonNull Node n) {
-		Node node = getNodeByName("notify_arrow", n);
-		IconQuad arrow = getIconQuad(node, texture);
-		return new NotifyArrowData(arrow,
-				getInt(node, "head_x"),
-				getInt(node, "head_y"),
-				getInt(node, "end_x"),
-				getInt(node, "end_y"));
-	}
-
-	public static IconQuad @NonNull [] getNamedIconQuads(@NonNull Node n, String name, @NonNull Texture texture) {
+	static @NonNull ModeIconQuads getNamedIconQuads(@NonNull Node n, @NonNull String name, @NonNull Texture texture) {
 		return getIconQuads(getNodeByName(name, n), texture);
 	}
 
-	public static @NonNull IconQuad getNamedIconQuad(@NonNull Node n, String name, @NonNull Texture texture) {
+    static @NonNull IconQuad getNamedIconQuad(@NonNull Node n, @NonNull String name, @NonNull Texture texture) {
 		return getIconQuad(getNodeByName(name, n), texture);
 	}
 
-	private static IconQuad @NonNull [] getIconQuads(@NonNull Node n, @NonNull Texture texture) {
-		IconQuad[] result = new IconQuad[3];
-		Node normal = getNodeByName("normal", n);
-		result[Skin.NORMAL] = getIconQuad(normal, texture);
-		Node active = getNodeByName("active", n);
-		result[Skin.ACTIVE] = getIconQuad(active, texture);
-		Node disabled = getNodeByName("disabled", n);
-		result[Skin.DISABLED] = getIconQuad(disabled, texture);
-		return result;
+    static @NonNull ModeIconQuads getIconQuads(@NonNull Node n, @NonNull Texture texture) {
+        return new ModeIconQuads(
+                getIconQuad(getNodeByName("normal", n), texture),
+                getIconQuad(getNodeByName("active", n), texture),
+                getIconQuad(getNodeByName("disabled", n), texture)
+        );
 	}
 
-	private static @NonNull IconQuad getIconQuad(@NonNull Node n, @NonNull Texture texture) {
-		Node q = getNodeByName("quad", n);
+    static @NonNull IconQuad getIconQuad(@NonNull Node n, @NonNull Texture texture) {
+        Node q = getNodeByName("quad", n);
+        return parseIconQuad(q, texture);
+    }
+
+    static @NonNull IconQuad parseIconQuad(@NonNull Node q, @NonNull Texture texture) {
 		int left = getInt(q, "left");
 		int top = getInt(q, "top");
 		int right = getInt(q, "right");
@@ -296,5 +102,18 @@ public class Icons {
 						right - left,
 						bottom - top,
 						texture);
+	}
+
+    static int getNamedColor(@NonNull Node n, @NonNull String name) {
+        return getColor(getNodeByName(name, n));
+    }
+
+    static int getColor(@NonNull Node n) {
+		Node q = getNodeByName("color", n);
+		byte r = (byte) getInt(q, "r");
+        byte g = (byte) getInt(q, "g");
+        byte b = (byte) getInt(q, "b");
+        byte a = (byte) getInt(q, "a");
+		return com.oddlabs.util.Color.argbi(r, g, b, a);
 	}
 }

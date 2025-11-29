@@ -2,16 +2,18 @@ package com.oddlabs.tt.gui;
 
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-public final class PulldownItem extends ButtonObject {
+public final class PulldownItem<T> extends ButtonObject {
 	private final @NonNull Label label;
-	private final Object attachment;
+	private final @Nullable T attachment;
 
 	public PulldownItem(@NonNull String label_str) {
 		this(label_str, null);
 	}
 	
-	public PulldownItem(@NonNull String label_str, Object attachment) {
+	public PulldownItem(@NonNull String label_str, @Nullable T attachment) {
+		super(Skin.getSkin().getPulldownData().getFont());
 		this.attachment = attachment;
 		PulldownData data = Skin.getSkin().getPulldownData();
 		label = new Label(label_str, data.getFont(), 0, Origin.AT_START);
@@ -19,7 +21,7 @@ public final class PulldownItem extends ButtonObject {
 		setDim(0, label.getHeight());
 	}
 
-	public Object getAttachment() {
+	public @Nullable T getAttachment() {
 		return attachment;
 	}
 	
@@ -41,14 +43,14 @@ public final class PulldownItem extends ButtonObject {
 	}
 
 	@Override
-	protected void renderGeometry() {
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
 		Box item = Skin.getSkin().getPulldownData().getPulldownItem();
-		if (isDisabled())
-			item.render(0, 0, getWidth(), getHeight(), Skin.NORMAL);
-		else if (isActive() || isHovered())
-			item.render(0, 0, getWidth(), getHeight(), Skin.ACTIVE);
-		else			
-			item.render(0, 0, getWidth(), getHeight(), Skin.NORMAL);
+		ModeIconQuads.Mode skinMode = isDisabled()
+                ? ModeIconQuads.Mode.NORMAL
+                : isActive() || isHovered()
+                    ? ModeIconQuads.Mode.ACTIVE
+                    : ModeIconQuads.Mode.NORMAL;
+        item.render(0f, 0f, getWidth(), getHeight(), skinMode);
 	}
 
 	public void setLabelString(@NonNull CharSequence label_str) {

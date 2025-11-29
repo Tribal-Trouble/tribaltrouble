@@ -5,23 +5,23 @@ import com.oddlabs.tt.model.DeployContainer;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.viewer.WorldViewer;
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class DeploySpinner extends IconSpinner {
-	private final PlayerInterface player_interface;
-	private Class<?> supply_type;
+	private final @NonNull PlayerInterface player_interface;
+	private @Nullable Class<?> supply_type;
 	private DeployType deploy_type;
 	private Building current_building;
 	private int num_orders = 0;
 	private int order_size = 0;
 
-	public DeploySpinner(WorldViewer viewer, PlayerInterface player_interface, IconQuad @NonNull [] icon_quad, String tool_tip, Quad[] tool_tip_icons, String shortcut_key) {
+	public DeploySpinner(@NonNull WorldViewer viewer, @NonNull PlayerInterface player_interface, @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip, @NonNull IconQuad @Nullable [] tool_tip_icons, @NonNull String shortcut_key) {
 		super(viewer, icon_quad, tool_tip, tool_tip_icons, shortcut_key);
 		this.player_interface = player_interface;
 	}
 
-	public void setContainers(@NonNull Building current_building, DeployType deploy_type, Class<?> supply_type) {
+	public void setContainers(@NonNull Building current_building, @NonNull DeployType deploy_type, @Nullable Class<?> supply_type) {
 		this.current_building = current_building;
 		this.deploy_type = deploy_type;
 		this.supply_type = supply_type;

@@ -7,32 +7,31 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class MultiColumnComboBox extends GUIObject implements Scrollable {
-	private final ColumnInfo @NonNull [] column_infos;
+public final class MultiColumnComboBox<T> extends GUIObject implements Scrollable {
+	private final @NonNull ColumnInfo @NonNull [] column_infos;
 	private final RadioButtonGroup group = new RadioButtonGroup();
 	private final Group focus_group = new Group();
-	private final RowCollection rows = new RowCollection(this, 0, true);
-	private final List<RowListener> row_listeners = new ArrayList<>();
+	private final RowCollection<T> rows = new RowCollection<>(this, 0, true);
+	private final List<@NonNull RowListener<T>> row_listeners = new ArrayList<>();
 	private final @NonNull ScrollBar scroll_bar;
 	private final boolean use_buttons;
-	private final GUIRoot gui_root;
+	private final @NonNull GUIRoot gui_root;
 	private int offset_y = 0;
-	private @Nullable PulldownMenu pulldown_menu = null;
-	private @Nullable Object right_clicked_row_data;
+	private @Nullable PulldownMenu<Void> pulldown_menu = null;
+	private @Nullable T right_clicked_row_data;
 
-
-	public MultiColumnComboBox(GUIRoot gui_root, ColumnInfo @NonNull [] column_infos, int height) {
+	public MultiColumnComboBox(@NonNull GUIRoot gui_root, @NonNull ColumnInfo @NonNull [] column_infos, int height) {
 		this(gui_root, column_infos, height, true);
 	}
 
-	public MultiColumnComboBox(GUIRoot gui_root, ColumnInfo @NonNull [] column_infos, int height, boolean use_buttons) {
+	public MultiColumnComboBox(@NonNull GUIRoot gui_root, @NonNull ColumnInfo @NonNull [] column_infos, int height, boolean use_buttons) {
 		this.column_infos = column_infos;
 		this.use_buttons = use_buttons;
 		this.gui_root = gui_root;
 		Box box = Skin.getSkin().getMultiColumnComboBoxData().getBox();
 		int width = 0;
 		for (int i = 0; i < column_infos.length; i++) {
-			ColumnButton column_button = new ColumnButton(group, rows, column_infos[i], i, true);
+			ColumnButton<T> column_button = new ColumnButton<>(group, rows, column_infos[i], i, true);
 			if (use_buttons) {
 				column_button.setPos(width, height - column_button.getHeight());
 				focus_group.addChild(column_button);
@@ -61,24 +60,18 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 	}
 	
 	public void clickedRow() {
-        for (RowListener listener : row_listeners) {
-            if (listener != null)
-                listener.rowChosen(rows.getSelected());
-        }
+        row_listeners.forEach(listener -> listener.rowChosen(rows.getSelected()));
 	}
 
-	public void addRowListener(RowListener listener) {
+	public void addRowListener(@NonNull RowListener<T> listener) {
 		row_listeners.add(listener);
 	}
 
 	public void doubleClickedRow() {
-        for (RowListener listener : row_listeners) {
-            if (listener != null)
-                listener.rowDoubleClicked(rows.getSelected());
-        }
+        row_listeners.forEach(listener -> listener.rowDoubleClicked(rows.getSelected()));
 	}
 
-	public void setPulldownMenu(PulldownMenu pulldown_menu) {
+	public void setPulldownMenu(PulldownMenu<Void> pulldown_menu) {
 		this.pulldown_menu = pulldown_menu;
 	}
 
@@ -94,13 +87,9 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 	}
 
 	@Override
-	protected void renderGeometry() {
-		MultiColumnComboBoxData data = Skin.getSkin().getMultiColumnComboBoxData();
-		Box box = data.getBox();
-		if (use_buttons)
-			box.render(0, 0, getWidth() - scroll_bar.getWidth(), getHeight() - group.getMarked().getHeight(), Skin.NORMAL);
-		else
-			box.render(0, 0, getWidth() - scroll_bar.getWidth(), getHeight(), Skin.NORMAL);
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+        Box box = Skin.getSkin().getMultiColumnComboBoxData().getBox();
+		box.render(0f, 0f, getWidth() - scroll_bar.getWidth(), getHeight() - (use_buttons ? group.getMarked().getHeight() : 0), ModeIconQuads.Mode.NORMAL);
 	}
 
 	@Override
@@ -112,30 +101,27 @@ public final class MultiColumnComboBox extends GUIObject implements Scrollable {
 		rows.clear();
 	}
 
-	public void addRow(@NonNull Row row) {
+	public void addRow(@NonNull Row<T,?> row) {
 		row.setColumnInfos(column_infos);
 		rows.addRow(row);
 		scroll_bar.update();
 	}
 
-	public @Nullable Object getSelected() {
+	public @Nullable T getSelected() {
 		return rows.getSelected();
 	}
 
-	public @Nullable Object getRightClickedRowData() {
+	public @Nullable T getRightClickedRowData() {
 		return right_clicked_row_data;
 	}
 
-	public void selectRow(Row row) {
+	public void selectRow(Row<T,?> row) {
 		rows.selectRow(row);
 	}
 
 	@Override
 	protected void mouseScrolled(int amount) {
-		if (amount > 0)
-			setOffsetY(offset_y - 3*Skin.getSkin().getMultiColumnComboBoxData().getFont().getHeight());
-		else
-			setOffsetY(offset_y + 3*Skin.getSkin().getMultiColumnComboBoxData().getFont().getHeight());
+        setOffsetY(offset_y + (amount > 0 ? - 3 : 3) * getStepHeight());
 	}
 
 	@Override

@@ -3,7 +3,6 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
@@ -11,10 +10,9 @@ public final class MenuButton extends ButtonObject {
 	private static final float SECONDS_PER_HOVER_CYCLE = 1.5f;
 	private static final float HOVER_SCALE_FACTOR = 0.06f;
 
-	private final @NonNull TextLineRenderer text_renderer;
 	private final @NonNull CharSequence text;
-	private final float @NonNull [] color_normal;
-	private final float @NonNull [] color_active;
+	private final int color_normal;
+	private final int color_active;
 	
 	private float start_hover_time;
 
@@ -23,11 +21,11 @@ public final class MenuButton extends ButtonObject {
 	}
 
 	private MenuButton(@NonNull CharSequence text, @NonNull Font font, int color_normal, int color_active) {
+		super(font);
 		setDim(font.getWidth(text), font.getHeight());
 		this.text = text;
-		this.color_normal = Color.rgb3f(color_normal);
-		this.color_active = Color.rgb3f(color_active);
-		text_renderer = new TextLineRenderer(font);
+		this.color_normal = color_normal;
+		this.color_active = color_active;
 	}
 
 	private void scaleHovered() {
@@ -38,29 +36,22 @@ public final class MenuButton extends ButtonObject {
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
-		GL11.glEnd();
+	protected void renderGeometry() {
 		GL11.glPushMatrix();
-		GL11.glTranslatef(getWidth()/2, getHeight()/2, 0);
-		clip_left -= getWidth()/2;
-		clip_right -= getWidth()/2;
-		clip_top -= getHeight()/2;
-		clip_bottom -= getHeight()/2;
+		GL11.glTranslatef(getWidth()/2f, getHeight()/2f, 0);
+		int c;
 		if (isActive()) {
-			GL11.glColor3f(color_active[0], color_active[1], color_active[2]);
+			c = color_active;
 			scaleHovered();
 		} else if (isDisabled()) {
-			GL11.glColor4f(Label.DISABLED_COLOR[0], Label.DISABLED_COLOR[1], Label.DISABLED_COLOR[2], Label.DISABLED_COLOR[3]);
+			c = Label.DISABLED_COLOR;
 		} else {
-			GL11.glColor3f(color_normal[0], color_normal[1], color_normal[2]);
+			c = color_normal;
 		}
-		GL11.glBegin(GL11.GL_QUADS);
 
-		text_renderer.render(-getWidth()/2, -getHeight()/2, clip_left, clip_right, clip_bottom, clip_top, text);
-		GL11.glEnd();
+		TextLineRenderer.render(getFont(), text, -getWidth()/2f, -getHeight()/2f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, c);
 		GL11.glPopMatrix();
-		GL11.glColor3f(1f, 1f, 1f);
-		GL11.glBegin(GL11.GL_QUADS);
+		GL11.glColor4f(1f, 1f, 1f, 1f); // Reset color after rendering
 	}
 
 	@Override

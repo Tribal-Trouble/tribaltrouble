@@ -3,19 +3,20 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.guievent.EnterListener;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
-public class EditLine extends TextField {
-	private final List<EnterListener> enter_listeners = new ArrayList<>();
+public class EditLine extends TextField implements Clipped {
+	private final Set<@NonNull EnterListener> enter_listeners = new CopyOnWriteArraySet<>();
 	private final @NonNull Origin alignment;
-	private final String allowed_chars;
-	private final int max_text_width;
+	private final @Nullable String allowed_chars;
+	protected final int max_text_width;
 
-	private final @NonNull TextLineRenderer text_renderer;
 	private int offset_x;
 	private int index;
 
@@ -27,14 +28,13 @@ public class EditLine extends TextField {
 		this(width, max_chars, null, alignment);
 	}
 
-	public EditLine(int width, int max_chars, String allowed_chars, @NonNull Origin alignment) {
+	public EditLine(int width, int max_chars, @Nullable String allowed_chars, @NonNull Origin alignment) {
 		super(Skin.getSkin().getEditFont(), max_chars);
 		this.allowed_chars = allowed_chars;
 		this.alignment = alignment;
 		Box edit_box = Skin.getSkin().getEditBox();
 		setDim(width, getFont().getHeight() + edit_box.getBottomOffset() + edit_box.getTopOffset());
 		setCanFocus(true);
-		text_renderer = new TextLineRenderer(getFont()); 
 		this.max_text_width = width - edit_box.getLeftOffset() - edit_box.getRightOffset();
 		clear();
 	}
@@ -44,21 +44,30 @@ public class EditLine extends TextField {
 		return CursorType.TEXT;
 	}
 
+    protected @NonNull CharSequence getDisplayText() {
+        return getText();
+    }
+
 	@Override
 	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
 		Box edit_box = Skin.getSkin().getEditBox();
-		if (isDisabled())
-			edit_box.render(0, 0, getWidth(), getHeight(), Skin.DISABLED);
-		else
-			edit_box.render(0, 0, getWidth(), getHeight(), Skin.NORMAL);
+        var mode = isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL;
+        edit_box.render(0f, 0f, getWidth(), getHeight(), mode);
 		int render_index = isActive() ? index : -1;
-		renderText(text_renderer, edit_box.getLeftOffset(), edit_box.getBottomOffset(), offset_x, clip_left, clip_right, clip_bottom, clip_top, render_index);
+		renderText(edit_box.getLeftOffset(), edit_box.getBottomOffset(), offset_x, clip_left, clip_right, render_index);
 	}
 
-	protected void renderText(@NonNull TextLineRenderer text_renderer, int x, int y, int offset_x, float clip_left, float clip_right, float clip_bottom, float clip_top, int render_index) {
-		clip_left = Math.max(clip_left, x);
-		clip_right = Math.min(clip_right, x + max_text_width);
-		text_renderer.render(x, y, offset_x, clip_left, clip_right, clip_bottom, clip_top, getText(), render_index);
+	protected int getRenderedWidth(@NonNull CharSequence text) {
+        return text.isEmpty() ? 0 : getFont().getWidth(text) - getFont().getXBorder();
+	}
+
+	protected void renderText(int x, int y, int offset_x, float clip_left, float clip_right, int render_index) {
+        var displayText = getDisplayText();
+		TextLineRenderer.render(getFont(), displayText, x + offset_x, y, clip_left, clip_right, Color.WHITE_INT);
+		if (render_index != -1) {
+			int cursorX = getRenderedWidth(displayText.subSequence(0, render_index));
+			Index.renderIndex(x + offset_x + cursorX, y, getFont());
+		}
 	}
 
 	@Override
@@ -78,20 +87,11 @@ public class EditLine extends TextField {
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_BACK:
 				if (index > 0) {
-					index--;
-					if (alignment == Origin.AT_END) {
-						char key = getText().charAt(index);
-						offset_x += (getFont().getQuad(key).getWidth() - getFont().getXBorder());
-					}
-					delete(index);
+					delete(--index);
 				}
 				break;
 			case Keyboard.KEY_DELETE:
 				if (index < getText().length()) {
-					if (alignment == Origin.AT_END) {
-						char key = getText().charAt(index);
-						offset_x += (getFont().getQuad(key).getWidth() - getFont().getXBorder());
-					}
 					delete(index);
 				}
 				break;
@@ -116,11 +116,9 @@ public class EditLine extends TextField {
 			default:
 				char key = event.getKeyChar();
 				if (isAllowed(key)) {
-					boolean result = insert(index, key);
-					assert result;
-					index++;
-					if (alignment == Origin.AT_END)
-						offset_x -= (getFont().getQuad(key).getWidth() - getFont().getXBorder());
+					if (insert(index, key)) {
+						index++;
+					}
 				} else {
 					super.keyRepeat(event);
 				}
@@ -135,24 +133,31 @@ public class EditLine extends TextField {
 	}
 	
 	private void correctOffsetX() {
-		Box edit_box = Skin.getSkin().getEditBox();
-		int index_render_x = text_renderer.getIndexRenderX(edit_box.getLeftOffset(),
-										   edit_box.getBottomOffset(),
-										   offset_x,
-										   getText(),
-										   index);
+        var displayText = getDisplayText();
+        int cursorX = getRenderedWidth(displayText.subSequence(0, index));
+		int textWidth = getRenderedWidth(displayText);
 
-		int max_x = computeMaxX();
-		if (index_render_x > max_x) {
-			offset_x -= index_render_x - max_x;
-		} else if (index_render_x < edit_box.getLeftOffset()) {
-			offset_x += edit_box.getLeftOffset() - index_render_x;
+		if (alignment == Origin.AT_END) {
+			offset_x = max_text_width - textWidth;
+		} else { // AT_START or AT_MIDDLE
+			// First, ensure the cursor is visible
+			if (cursorX + offset_x >= max_text_width) {
+				offset_x = max_text_width - cursorX - Index.INDEX_WIDTH;
+			}
+			if (cursorX + offset_x < 0) {
+				offset_x = -cursorX;
+			}
+
+			// Then, if there's empty space on the right, pull the text back
+			if (textWidth + offset_x < max_text_width) {
+				offset_x = Math.min(0, max_text_width - textWidth);
+			}
+
+			// Finally, ensure we haven't scrolled too far left
+			if (offset_x > 0) {
+				offset_x = 0;
+			}
 		}
-	}
-
-	private int computeMaxX() {
-		Box edit_box = Skin.getSkin().getEditBox();
-		return getWidth() - edit_box.getRightOffset() - Index.INDEX_WIDTH/* - getFont().getXBorder()/2*/;
 	}
 
 	public final int getIndex() {
@@ -167,22 +172,12 @@ public class EditLine extends TextField {
 	public final void clear() {
 		super.clear();
 		index = 0;
-		if (alignment == Origin.AT_START)
-			offset_x = -getFont().getXBorder()/2;
-		else {
-			int text_width = Skin.getSkin().getEditFont().getWidth(getText());
-			offset_x = max_text_width - text_width - Index.INDEX_WIDTH - getFont().getXBorder()/2;
-		}
+		correctOffsetX();
 	}
 
 	@Override
 	protected final void appendNotify(@NonNull CharSequence str) {
-		if (alignment == Origin.AT_END) {
-			for (int i = 0; i < str.length(); i++) {
-				char key = str.charAt(i);
-				offset_x -= (getFont().getQuad(key).getWidth() - getFont().getXBorder());
-			}
-		}
+		correctOffsetX();
 	}
 
 	@Override
@@ -203,11 +198,22 @@ public class EditLine extends TextField {
 	protected final void mousePressed (@NonNull MouseButton button, int x, int y) {
 		if (button == MouseButton.LEFT) {
 			Box edit_box = Skin.getSkin().getEditBox();
-			index = text_renderer.jumpDirect(edit_box.getLeftOffset() + offset_x,
-											 edit_box.getBottomOffset(),
-											 x,
-											 getText(),
-											 index);
+			float relativeX = x - (getRootX() + edit_box.getLeftOffset() + offset_x);
+
+			int bestIndex = 0;
+			float bestDx = Float.MAX_VALUE;
+
+            var displayText = getDisplayText();
+			for (int i = 0; i <= displayText.length(); i++) {
+				int charX = getRenderedWidth(displayText.subSequence(0, i));
+				float dx = Math.abs(relativeX - charX);
+				if (dx < bestDx) {
+					bestDx = dx;
+					bestIndex = i;
+				}
+			}
+			index = bestIndex;
+			correctOffsetX();
 		}
 	}
 
@@ -215,15 +221,14 @@ public class EditLine extends TextField {
 		CharSequence text = getText();
 		enterPressed(text);
         for (EnterListener listener : enter_listeners) {
-            if (listener != null)
-                listener.enterPressed(text);
+            listener.enterPressed(text);
         }
 	}
 
-	protected void enterPressed(CharSequence text) {
+	protected void enterPressed(@NonNull CharSequence text) {
 	}
 
-	public final void addEnterListener(EnterListener listener) {
+	public final void addEnterListener(@NonNull EnterListener listener) {
 		enter_listeners.add(listener);
 	}
 }

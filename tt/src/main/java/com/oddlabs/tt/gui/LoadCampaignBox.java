@@ -13,10 +13,14 @@ import org.jspecify.annotations.Nullable;
 import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class LoadCampaignBox extends GUIObject implements DeterministicSerializerLoopbackInterface<CampaignState[]> {
+    private static final Logger logger = Logger.getLogger(LoadCampaignBox.class.getSimpleName());
 	public static final Path SAVEGAMES_FILE_NAME = Path.of("savegames");
 
 	private static final int WIDTH_NAME = 210;
@@ -24,18 +28,18 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 	private static final int WIDTH_DIFFICULTY = 130;
 	private static final int WIDTH_DATE = 170;
 
-	private final @NonNull MultiColumnComboBox list_box;
-	private final GUIRoot gui_root;
+	private final @NonNull MultiColumnComboBox<CampaignState> list_box;
+	private final @NonNull GUIRoot gui_root;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(LoadCampaignBox.class.getName());
 
-	public LoadCampaignBox(GUIRoot gui_root, RowListener listener) {
+	public LoadCampaignBox(@NonNull GUIRoot gui_root, @NonNull RowListener<CampaignState> listener) {
 		this.gui_root = gui_root;
-		ColumnInfo[] infos = new ColumnInfo[]{
+		ColumnInfo[] infos = {
 			new ColumnInfo(Utils.getBundleString(bundle, "name"), WIDTH_NAME),
 			new ColumnInfo(Utils.getBundleString(bundle, "race"), WIDTH_RACE),
 			new ColumnInfo(Utils.getBundleString(bundle, "difficulty"), WIDTH_DIFFICULTY),
 			new ColumnInfo(Utils.getBundleString(bundle, "date"), WIDTH_DATE)};
-		list_box = new MultiColumnComboBox(gui_root, infos, 262);
+		list_box = new MultiColumnComboBox<>(gui_root, infos, 262);
 		list_box.addRowListener(listener);
 		addChild(list_box);
 		setCanFocus(true);
@@ -58,10 +62,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 
 	private static @NonNull Path getLoadSavegamesFile() {
 		Path file = getSaveSavegamesFile();
-		if (!Files.isReadable(file))
-			return Utils.getInstallDir().resolve(SAVEGAMES_FILE_NAME);
-		else
-			return file;
+        return !Files.isReadable(file) ? Utils.getInstallDir().resolve(SAVEGAMES_FILE_NAME) : file;
 	}
 
 	@Override
@@ -69,11 +70,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 		list_box.setFocus();
 	}
 
-	@Override
-	protected void renderGeometry() {
-	}
-
-	public @Nullable Object getSelected() {
+	public @Nullable CampaignState getSelected() {
 		return list_box.getSelected();
 	}
 
@@ -83,35 +80,27 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 	}
 
 	private void fillSlots(CampaignState @NonNull [] campaign_states) {
-            for (CampaignState campaign_state : campaign_states) {
-                String race;
-                switch (campaign_state.getRace()) {
-                    case CampaignState.RACE_VIKINGS:
-                        race = Utils.getBundleString(bundle, "vikings");
-                        break;
-                    case CampaignState.RACE_NATIVES:
-                        race = Utils.getBundleString(bundle, "natives");
-                        break;
-                    default:
-                        throw new RuntimeException();
-                }
-                String difficulty;
-                switch (campaign_state.getDifficulty()) {
-                    case CampaignState.DIFFICULTY_EASY:
-                        difficulty = Utils.getBundleString(bundle, "easy");
-                        break;
-                    case CampaignState.DIFFICULTY_NORMAL:
-                        difficulty = Utils.getBundleString(bundle, "normal");
-                        break;
-                    case CampaignState.DIFFICULTY_HARD:
-                        difficulty = Utils.getBundleString(bundle, "hard");
-                        break;
-                    default:
-                        throw new RuntimeException();
-                }
-                Row row = new Row(new GUIObject[]{new Label(campaign_state.getName(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_NAME), new Label(race, Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_RACE), new Label(difficulty, Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_DIFFICULTY), new DateLabel(campaign_state.getDate(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_DATE)}, campaign_state);
-                list_box.addRow(row);
-            }
+        for (CampaignState campaign_state : campaign_states) {
+            String race = switch (campaign_state.getRace()) {
+                case CampaignState.RACE_VIKINGS -> Utils.getBundleString(bundle, "vikings");
+                case CampaignState.RACE_NATIVES -> Utils.getBundleString(bundle, "natives");
+                default -> throw new RuntimeException("invalid race");
+            };
+            String difficulty = switch (campaign_state.getDifficulty()) {
+                case CampaignState.DIFFICULTY_EASY -> Utils.getBundleString(bundle, "easy");
+                case CampaignState.DIFFICULTY_NORMAL -> Utils.getBundleString(bundle, "normal");
+                case CampaignState.DIFFICULTY_HARD -> Utils.getBundleString(bundle, "hard");
+                default -> throw new RuntimeException("invalid difficulty");
+            };
+            Row<CampaignState,Label> row = new Row<>(
+                    new Label[]{
+                            new Label(campaign_state.getName(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_NAME),
+                            new Label(race, Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_RACE),
+                            new Label(difficulty, Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_DIFFICULTY),
+                            new DateLabel(campaign_state.getDate(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_DATE)
+                    }, campaign_state);
+            list_box.addRow(row);
+        }
 	}
 
 	@Override
@@ -124,8 +113,9 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 	}
 
 	@Override
-	public void failed(Throwable e) {
-		if (e instanceof FileNotFoundException) {
+	public void failed(@NonNull Throwable e) {
+        logger.log(Level.SEVERE, "Failed to load savegames", e);
+		if (e instanceof FileNotFoundException || e instanceof NoSuchFileException) {
 		} else if (e instanceof InvalidClassException) {
 			String invalid_message = Utils.getBundleString(bundle, "invalid_message", SAVEGAMES_FILE_NAME);
 			gui_root.addModalForm(new MessageForm(invalid_message));

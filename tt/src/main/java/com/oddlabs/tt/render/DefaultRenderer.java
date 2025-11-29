@@ -4,7 +4,6 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.GUIRoot;
-import com.oddlabs.tt.gui.Icons;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.Building;
@@ -12,6 +11,7 @@ import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.Landscape;
+import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
@@ -77,13 +77,11 @@ public final class DefaultRenderer implements UIRenderer {
         DebugRender.drawAxes(center, z);
     }
 
-    @Override
-    public void renderGUI(@NonNull GUIRoot gui_root) {
-        if (cheat.isEnabled())
-            Icons.getIcons().getCheatIcon().render(gui_root.getWidth() - Icons.getIcons().getCheatIcon().getWidth() - 10, 5);
+    public boolean isCheater() {
+        return cheat.isEnabled();
     }
 
-    public void setSelectedBuilding(Building building) {
+    public void setSelectedBuilding(@Nullable Building building) {
         this.selected_building = building;
     }
 
@@ -237,6 +235,8 @@ public final class DefaultRenderer implements UIRenderer {
         LightningRenderer.render(render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state);
         EmitterRenderer.render(render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state);
         renderRallyPoint(frustum_state);
+        
+        ShaderProgram.unbind();
         
         fog_info.disableFog();
         if (Globals.line_mode || cheat.line_mode) {

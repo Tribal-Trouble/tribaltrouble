@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
 public final class TerrainMenuForm extends Form implements TerrainMenuListener {
 	private final @NonNull TerrainMenu terrain;
 
-	public TerrainMenuForm(NetworkSelector network, GUIRoot gui_root, Menu main_menu) {
+	public TerrainMenuForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, Menu main_menu) {
 		terrain = new TerrainMenu(network, gui_root, main_menu, false, this);
 		addChild(terrain);
 		terrain.place();

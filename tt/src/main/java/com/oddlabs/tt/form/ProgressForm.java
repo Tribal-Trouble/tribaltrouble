@@ -39,11 +39,11 @@ public final class ProgressForm {
         }
 	}
 
-	public static void setProgressForm(NetworkSelector network, @NonNull GUI gui, @NonNull LoadCallback callback) {
+	public static void setProgressForm(@NonNull NetworkSelector network, @NonNull GUI gui, @NonNull LoadCallback callback) {
 		setProgressForm(network, gui, callback, false);
 	}
 
-	public static void setProgressForm(NetworkSelector network, final @NonNull GUI gui, final @NonNull LoadCallback callback, final boolean first_progress) {
+	public static void setProgressForm(@NonNull NetworkSelector network, final @NonNull GUI gui, final @NonNull LoadCallback callback, final boolean first_progress) {
 		String texture;
 		int texture_width;
 		int texture_height;
@@ -90,7 +90,7 @@ public final class ProgressForm {
 			load_fadable.fadingDone();
 	}
 
-	private ProgressForm(NetworkSelector network, final @NonNull GUI gui, final Fadable load_fadable, boolean first_progress, ProgressBarInfo @NonNull [] info, @NonNull String texture_name, int texture_width, int texture_height, int image_width, int image_height, int progress_x, int progress_y, int progress_width, boolean show_tip) {
+	private ProgressForm(@NonNull NetworkSelector network, final @NonNull GUI gui, final Fadable load_fadable, boolean first_progress, ProgressBarInfo @NonNull [] info, @NonNull String texture_name, int texture_width, int texture_height, int image_width, int image_height, int progress_x, int progress_y, int progress_width, boolean show_tip) {
 		AudioManager.getManager().stopSources();
 		final GUIRoot gui_root;
 		if (!first_progress) {
@@ -109,7 +109,7 @@ public final class ProgressForm {
         GUIImage image = new GUIImage(screen_width, screen_height, 0f, 0f, (float)image_width/texture_width, (float)image_height/texture_height, texture_name);
 		image.setPos(0, 0);
 
-		progress_bar = new ProgressBar(network, gui, progress_width, info, false);
+		progress_bar = new ProgressBar(network, progress_width, info, false);
 		progress_y -= progress_bar.getHeight();
 		progress_bar.setPos(progress_x, progress_y);
 		delegate.addChild(image);

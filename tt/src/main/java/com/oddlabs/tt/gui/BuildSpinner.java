@@ -9,13 +9,14 @@ import com.oddlabs.tt.model.weapon.RotatingThrowingWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.viewer.WorldViewer;
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 public final class BuildSpinner extends IconSpinner {
 	public static final int INFINITE_LIMIT = 30;
 
-	private final PlayerInterface player_interface;
+	private final @NonNull PlayerInterface player_interface;
 
 	private Building current_building;
 	private Class<? extends RotatingThrowingWeapon> type;
@@ -23,12 +24,14 @@ public final class BuildSpinner extends IconSpinner {
 	private int order_size;
 	private boolean infinite;
 
-	public BuildSpinner(WorldViewer viewer, PlayerInterface player_interface, IconQuad @NonNull [] icon_quad, String tool_tip, Quad[] tool_tip_icons, String shortcut_key) {
+	BuildSpinner(@NonNull WorldViewer viewer, @NonNull PlayerInterface player_interface,
+                 @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip, @NonNull IconQuad @Nullable [] tool_tip_icons,
+                 @NonNull String shortcut_key) {
 		super(viewer, icon_quad, tool_tip, tool_tip_icons, shortcut_key);
 		this.player_interface = player_interface;
 	}
 
-	public void setBuildSupplyContainer(@NonNull Building current_building, Class<? extends RotatingThrowingWeapon> type) {
+	void setBuildSupplyContainer(@NonNull Building current_building, @NonNull Class<? extends RotatingThrowingWeapon> type) {
 		this.current_building = current_building;
 		this.type = type;
 		if (!current_building.isDead())
@@ -74,21 +77,19 @@ public final class BuildSpinner extends IconSpinner {
 
 	@Override
 	protected float getProgress() {
-		if (!current_building.isDead())
-			return ((BuildProductionContainer)current_building.getBuildSupplyContainer(type)).getBuildProgress();
-		else
-			return 0;
+        return current_building.isDead()
+                ? 0
+                : ((BuildProductionContainer) current_building.getBuildSupplyContainer(type)).getBuildProgress();
 	}
 
 	Building getBuilding() {
 		return current_building;
 	}
 
-	int getOrderDiff() {
-		if (!current_building.isDead())
-			return num_orders - current_building.getBuildSupplyContainer(type).getNumOrders();
-		else
-			return 0;
+	private int getOrderDiff() {
+        return current_building.isDead()
+                ? 0
+                : num_orders - current_building.getBuildSupplyContainer(type).getNumOrders();
 	}
 
 	@Override
@@ -116,7 +117,12 @@ public final class BuildSpinner extends IconSpinner {
 
 	@Override
 	protected void postRender() {
-		if (renderInfinite())
-			Icons.getIcons().getInfinite().render(0,  0);		
+		if (renderInfinite()) {
+			IconQuad infiniteQuad = GUIIcons.getIcons().getInfinite();
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, infiniteQuad.getTexture().getHandle());
+			GL11.glBegin(GL11.GL_QUADS);
+			infiniteQuad.render(0, 0);
+			GL11.glEnd();
+		}		
 	}
 }

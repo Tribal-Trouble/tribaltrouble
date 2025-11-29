@@ -84,17 +84,17 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	private final boolean rated;
 	private final @NonNull Game game;
 	private final ResourceBundle bundle = getBundle();
-	private final GameNetwork game_network;
+	private final @NonNull GameNetwork game_network;
 	private @NonNull SortedSet<String> human_names = new TreeSet<>();
 
 	private boolean updating;
 	private boolean ready;
 
-	public static ResourceBundle getBundle() {
+	public static @NonNull ResourceBundle getBundle() {
 		return ResourceBundle.getBundle(GameMenu.class.getName());
 	}
 
-	public GameMenu(GameNetwork game_network, GUIRoot gui_root, SelectGameMenu owner, @NonNull Game game, WorldGenerator generator, int player_slot, int compare_width, int compare_height, int button_width) {
+	public GameMenu(@NonNull GameNetwork game_network, GUIRoot gui_root, SelectGameMenu owner, @NonNull Game game, WorldGenerator generator, int player_slot, int compare_width, int compare_height, int button_width) {
 		super(Utils.getBundleString(getBundle(), "game_caption"));
 		this.game_network = game_network;
 		this.owner = owner;
@@ -147,7 +147,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		}
 		int height = compare_height - pdata.getTopOffset() - pdata.getBottomOffset() - chat_info.getHeight()
 			- chat_line.getHeight() - game_name_label.getHeight() - player_group.getHeight() - start_button.getHeight() - 5*fdata.getObjectSpacing();
-		chat_box = new TextBox(width, height, Skin.getSkin().getEditFont(), -1);
+		chat_box = new TextBox(width, height, Skin.getSkin().getEditFont(), Integer.MAX_VALUE);
 		addChild(chat_box);
 		ready_button = new HorizButton(Utils.getBundleString(bundle, "ready"), button_width);
 		addChild(ready_button);
@@ -205,7 +205,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			case CLOSED_INDEX:
 				if (player.getType() != PlayerSlot.CLOSED || race_changed || team_changed) {
 					slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(Utils.getBundleString(bundle, "open"));
-					game_network.getClient().getServerInterface().resetSlotState(player_slot, false);
+					slot_button.getMenu().chooseItem(OPEN_INDEX);
 				}
 				break;
 			case COMPUTER_EASY_INDEX:
@@ -343,19 +343,19 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 
 	private @NonNull GUIObject createPlayerPulldown(GUIRoot gui_root, @NonNull Group group,
                                                     @Nullable GUIObject previous,
-                                                    PulldownButton[] slot_buttons,
-                                                    PulldownButton[] race_buttons,
-                                                    PulldownButton[] team_buttons,
-                                                    Diode[] ready_marks,
-                                                    Label[] ratings,
+                                                    @NonNull PulldownButton[] slot_buttons,
+                                                    @NonNull PulldownButton[] race_buttons,
+                                                    @NonNull PulldownButton[] team_buttons,
+                                                    @NonNull Diode[] ready_marks,
+                                                    @NonNull Label[] ratings,
                                                     int index,
                                                     int num_players) {
-		PulldownMenu pulldown_menu = new PulldownMenu();
-		PulldownItem open_item = new PulldownItem(Utils.getBundleString(bundle, "open"));
-		PulldownItem closed_item = new PulldownItem(Utils.getBundleString(bundle, "closed"));
-		PulldownItem computer_easy_item = new PulldownItem(Utils.getBundleString(bundle, "easy_ai"));
-		PulldownItem computer_normal_item = new PulldownItem(Utils.getBundleString(bundle, "normal_ai"));
-		PulldownItem computer_hard_item = new PulldownItem(Utils.getBundleString(bundle, "hard_ai"));
+		PulldownMenu<Void> pulldown_menu = new PulldownMenu<>();
+		PulldownItem<Void> open_item = new PulldownItem<>(Utils.getBundleString(bundle, "open"));
+		PulldownItem<Void> closed_item = new PulldownItem<>(Utils.getBundleString(bundle, "closed"));
+		PulldownItem<Void> computer_easy_item = new PulldownItem<>(Utils.getBundleString(bundle, "easy_ai"));
+		PulldownItem<Void> computer_normal_item = new PulldownItem<>(Utils.getBundleString(bundle, "normal_ai"));
+		PulldownItem<Void> computer_hard_item = new PulldownItem<>(Utils.getBundleString(bundle, "hard_ai"));
 		pulldown_menu.addItem(open_item);
 		pulldown_menu.addItem(closed_item);
 		if (!rated) {
@@ -373,18 +373,18 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		pulldown_menu.addItemChosenListener(new PlayerSlotListener(index));
 		pulldown_button.setDisabled(local_player_slot != 0 || index == local_player_slot);
 
-		PulldownMenu race_pulldown_menu = new PulldownMenu();
+		PulldownMenu<Void> race_pulldown_menu = new PulldownMenu<>();
 		for (int i = 0; i < RacesResources.getNumRaces(); i++) {
-			PulldownItem race_item = new PulldownItem(RacesResources.getRaceName(i));
+			PulldownItem<Void> race_item = new PulldownItem<>(RacesResources.getRaceName(i));
 			race_pulldown_menu.addItem(race_item);
 		}
-		PulldownMenu team_pulldown_menu = new PulldownMenu();
+		PulldownMenu<Void> team_pulldown_menu = new PulldownMenu<>();
 		int num_teams = num_players;
 		if (rated)
 			num_teams = 2;
 		for (int i = 0; i < num_teams; i++) {
 			String team_str = Utils.getBundleString(bundle, "team", Integer.toString(i + 1));
-			PulldownItem race_item = new PulldownItem(team_str);
+			PulldownItem<Void> race_item = new PulldownItem<>(team_str);
 			team_pulldown_menu.addItem(race_item);
 		}
 		PulldownButton race_pulldown_button = new PulldownButton(gui_root, race_pulldown_menu, 0, 115);
@@ -453,7 +453,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	public void chat(@NonNull ChatMessage message) {
 		if (message.type != ChatMessage.Type.GAME_MENU)
 			return;
-		if (chat_box.length() > 0)
+		if (!chat_box.isEmpty())
 			chat_box.append("\n");
 
 		ResourceBundle ingame_bundle = ResourceBundle.getBundle(InGameChatForm.class.getName());
@@ -463,14 +463,14 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	}
 
 	private void playerLeft(String name) {
-		if (chat_box.length() > 0)
+		if (!chat_box.isEmpty())
 			chat_box.append("\n");
 		chat_box.append(Utils.getBundleString(bundle, "left_game", name));
 		finishChatAppend();
 	}
 
 	private void playerJoined(String name) {
-		if (chat_box.length() > 0)
+		if (!chat_box.isEmpty())
 			chat_box.append("\n");
 		chat_box.append(Utils.getBundleString(bundle, "joined_game", name));
 		finishChatAppend();
@@ -545,7 +545,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		}
 	}
 
-	private final class PlayerSlotListener implements ItemChosenListener {
+	private final class PlayerSlotListener implements ItemChosenListener<Void> {
 		private final int player_slot;
 
 		public PlayerSlotListener(int player_slot) {
@@ -553,7 +553,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		}
 
 		@Override
-		public void itemChosen(PulldownMenu menu, int item_index) {
+		public void itemChosen(PulldownMenu<Void> menu, int item_index) {
 			setReady(false);
 			adjustPlayerSlot(player_slot);
 		}

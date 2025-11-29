@@ -32,15 +32,14 @@ public final class ScrollButton extends GUIObject {
 	}
 
 	@Override
-	protected void renderGeometry() {
-		Vertical button = Skin.getSkin().getScrollBarData().getScrollButton();
-		if (isDisabled()) {
-			button.render(0, 0, getHeight(), Skin.DISABLED);
-		} else if (isActive()) {
-			button.render(0, 0, getHeight(), Skin.ACTIVE);
-		} else {
-			button.render(0, 0, getHeight(), Skin.NORMAL);
-		}
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+        ModeIconQuads.Mode skinMode = isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : isActive()
+                    ? ModeIconQuads.Mode.ACTIVE
+                    : ModeIconQuads.Mode.NORMAL;
+        Skin.getSkin().getScrollBarData().getScrollButton()
+		        .render(0, 0, getHeight(), skinMode);
 	}
 
 	@Override

@@ -76,14 +76,29 @@ public final class IconQuad extends Quad {
 		return atlas;
 	}
 
-	@Override
+	public void render(float x, float y) {
+		render(x, y, width, height);
+	}
+
+	public void render(float x, float y, float w, float h) {
+		render(x, y, x + w, y, x + w, y + h, x, y + h);
+	}
+
 	public void render(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
 		GL11.glEnd();
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, atlas.getHandle());
 		GL11.glBegin(GL11.GL_QUADS);
-		super.render(x1, y1, x2, y2, x3, y3, x4, y4);
+		
+		GL11.glTexCoord2f(u1, v1);
+		GL11.glVertex3f(x1, y1, 0);
+		GL11.glTexCoord2f(u2, v1);
+		GL11.glVertex3f(x2, y2, 0);
+		GL11.glTexCoord2f(u2, v2);
+		GL11.glVertex3f(x3, y3, 0);
+		GL11.glTexCoord2f(u1, v2);
+		GL11.glVertex3f(x4, y4, 0);
+
 		GL11.glEnd();
-		Skin.getSkin().bindTexture();
 		GL11.glBegin(GL11.GL_QUADS);
 	}
 }

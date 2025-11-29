@@ -2,20 +2,22 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.util.StateChecksum;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 final class Fade {
 	private static final float FADE_TIME = 1f;
-	
-	private final Fadable fadable;
-	private final GUIRoot gui_root;
-	private final UIRenderer renderer;
+
+	private final @Nullable Fadable fadable;
+	private final @NonNull GUIRoot gui_root;
+	private final @Nullable UIRenderer renderer;
 
 	private float time = 0;
 	private boolean image_switched = false;
 	
-	Fade(Fadable fadable, GUIRoot gui_root, UIRenderer renderer) {
+	Fade(@Nullable Fadable fadable, @NonNull GUIRoot gui_root, @Nullable UIRenderer renderer) {
 		this.fadable = fadable;
 		this.gui_root = gui_root;
 		this.renderer = renderer;
@@ -39,16 +41,14 @@ final class Fade {
 	}
 
 	void render() {
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		float alpha = (float)Math.sin(Math.PI*time/FADE_TIME);
-		GL11.glColor4f(0f, 0f, 0f, alpha);
+		float[] color = Color.argb4f(Color.argbi(0f, 0f, 0f, alpha));
+		GL11.glColor4f(color[0], color[1], color[2], color[3]);
 		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glVertex3f(0, 0, 0f);
-		GL11.glVertex3f(LocalInput.getViewWidth(), 0, 0f);
-		GL11.glVertex3f(LocalInput.getViewWidth(), LocalInput.getViewHeight(), 0f);
-		GL11.glVertex3f(0, LocalInput.getViewHeight(), 0f);
+		GL11.glVertex2f(0, 0);
+		GL11.glVertex2f(0, LocalInput.getViewHeight());
+		GL11.glVertex2f(LocalInput.getViewWidth(), LocalInput.getViewHeight());
+		GL11.glVertex2f(LocalInput.getViewWidth(), 0);
 		GL11.glEnd();
-		GL11.glColor4f(1f, 1f, 1f, 1f);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	}
 }

@@ -6,18 +6,18 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.CancelListener;
 import com.oddlabs.tt.gui.CheckBox;
 import com.oddlabs.tt.gui.ColumnInfo;
-import com.oddlabs.tt.gui.DoNowListener;
 import com.oddlabs.tt.gui.Form;
-import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.IconLabel;
+import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
+import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.PanelGroup;
 import com.oddlabs.tt.gui.PulldownButton;
@@ -27,23 +27,17 @@ import com.oddlabs.tt.gui.Row;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.gui.SortedLabel;
-import com.oddlabs.tt.guievent.CheckBoxListener;
-import com.oddlabs.tt.guievent.ItemChosenListener;
-import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.RowListener;
-import com.oddlabs.tt.guievent.ValueListener;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.SerializableDisplayMode;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Cursor;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.Origin.AT_END;
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
@@ -60,16 +54,14 @@ public abstract class AbstractOptionsMenu extends Form {
 
 	private final @NonNull Slider slider_music;
 	private final @NonNull Slider slider_sound;
-	private final GUIRoot gui_root;
+	private final @NonNull GUIRoot gui_root;
 
-	private final @NonNull PulldownMenu pm_detail;
+	private final @NonNull PulldownMenu<Void> pm_detail;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(OptionsMenu.class.getName());
-	private final @NonNull MultiColumnComboBox language_list_box;
-	private final @NonNull PulldownMenu pm_gamespeed;
+    private final @NonNull PulldownMenu<Void> pm_gamespeed;
 	private int last_detail_value;
 
-	public AbstractOptionsMenu(GUIRoot gui_root) {
-		super();
+	AbstractOptionsMenu(@NonNull GUIRoot gui_root) {
 		this.gui_root = gui_root;
 		Label label_headline = new Label(Utils.getBundleString(bundle, "options_caption"), Skin.getSkin().getHeadlineFont());
 		addChild(label_headline);
@@ -90,11 +82,11 @@ public abstract class AbstractOptionsMenu extends Form {
 		group_music.addChild(cb_music);
 		Label label_music = new Label(Utils.getBundleString(bundle, "music_volume"), Skin.getSkin().getEditFont());
 		group_music.addChild(label_music);
-		cb_music.addCheckBoxListener(new CBMusicListener());
+		cb_music.addCheckBoxListener(this::musicListener);
 		slider_music = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int)(Settings.getSettings().music_gain*(MAX_VALUE)));
         slider_music.setDisabled(TEMPORARILY_DISABLE_MUSIC_CONTROLS || !cb_music.isMarked());
 		group_music.addChild(slider_music);
-		slider_music.addValueListener(new SliderMusicListener());
+		slider_music.addValueListener(this::musicSliderListener);
 		cb_music.place();
 		label_music.place(cb_music, BOTTOM_LEFT);
 		label_music_low.place(label_music, BOTTOM_LEFT);
@@ -113,11 +105,11 @@ public abstract class AbstractOptionsMenu extends Form {
 		group_sound.addChild(cb_sound);
 		Label label_sound = new Label(Utils.getBundleString(bundle, "sound_effects_volume"), Skin.getSkin().getEditFont());
 		group_sound.addChild(label_sound);
-		cb_sound.addCheckBoxListener(new CBSFXListener());
+		cb_sound.addCheckBoxListener(this::sfxListener);
 		slider_sound = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int)(Settings.getSettings().sound_gain*(MAX_VALUE)));
 		slider_sound.setDisabled(!cb_sound.isMarked());
 		group_sound.addChild(slider_sound);
-		slider_sound.addValueListener(new SliderSFXListener());
+		slider_sound.addValueListener(value -> Settings.getSettings().sound_gain = (float)value/(MAX_VALUE));
 		cb_sound.place();
 		label_sound.place(cb_sound, BOTTOM_LEFT);
 		label_sound_low.place(label_sound, BOTTOM_LEFT);
@@ -130,7 +122,11 @@ public abstract class AbstractOptionsMenu extends Form {
 		Group group_fullscreen = new Group();
 		display.addChild(group_fullscreen);
 		cb_fullscreen = new CheckBox(LocalInput.inFullscreen(), Utils.getBundleString(bundle, "fullscreen"), Utils.getBundleString(bundle, "fullscreen_tip"));
-		cb_fullscreen.addCheckBoxListener(new CBFullscreen());
+		cb_fullscreen.addCheckBoxListener(_ -> {
+            DisplayChangeForm display_change_form = new DisplayChangeForm(
+                    switch_now -> SerializableDisplayMode.setFullscreen(cb_fullscreen.isMarked(), switch_now));
+            gui_root.addModalForm(display_change_form);
+        });
 		group_fullscreen.addChild(cb_fullscreen);
 		cb_fullscreen.place();
 		group_fullscreen.compileCanvas();
@@ -139,7 +135,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		Group group_hardware_cursor = new Group();
 		display.addChild(group_hardware_cursor);
 		CheckBox cb_hardware_cursor = new CheckBox(Settings.getSettings().use_native_cursor, Utils.getBundleString(bundle, "hardware_cursor"), Utils.getBundleString(bundle, "hardware_cursor_tip", "Ctrl-H"));
-		cb_hardware_cursor.addCheckBoxListener(new CBHardwareCursor());
+		cb_hardware_cursor.addCheckBoxListener(marked -> Settings.getSettings().use_native_cursor = marked);
 		group_hardware_cursor.addChild(cb_hardware_cursor);
 		cb_hardware_cursor.place();
 		group_hardware_cursor.compileCanvas();
@@ -149,7 +145,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		Group group_invert_camera = new Group();
 		general.addChild(group_invert_camera);
 		CheckBox cb_invert_camera = new CheckBox(Settings.getSettings().invert_camera_pitch, Utils.getBundleString(bundle, "invert_camera"), Utils.getBundleString(bundle, "invert_camera_tip"));
-		cb_invert_camera.addCheckBoxListener(new CBInvertCamera());
+		cb_invert_camera.addCheckBoxListener(marked -> Settings.getSettings().invert_camera_pitch = marked);
 		group_invert_camera.addChild(cb_invert_camera);
 		cb_invert_camera.place();
 		group_invert_camera.compileCanvas();
@@ -158,7 +154,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		Group group_aggressive_units = new Group();
 		general.addChild(group_aggressive_units);
 		CheckBox cb_aggressive_units = new CheckBox(Settings.getSettings().aggressive_units, Utils.getBundleString(bundle, "aggressive_units"), Utils.getBundleString(bundle, "aggressive_units_tip", "Ctrl-A"));
-		cb_aggressive_units.addCheckBoxListener(new CBAggressiveUnits());
+		cb_aggressive_units.addCheckBoxListener(marked -> Settings.getSettings().aggressive_units = marked);
 		group_aggressive_units.addChild(cb_aggressive_units);
 		cb_aggressive_units.place();
 		group_aggressive_units.compileCanvas();
@@ -171,10 +167,10 @@ public abstract class AbstractOptionsMenu extends Form {
 		group_detail.addChild(label_detail);
 
 		last_detail_value = Settings.getSettings().graphic_detail;
-		pm_detail = new PulldownMenu();
-		pm_detail.addItem(new PulldownItem(Utils.getBundleString(bundle, "low")));
-		pm_detail.addItem(new PulldownItem(Utils.getBundleString(bundle, "medium")));
-		pm_detail.addItem(new PulldownItem(Utils.getBundleString(bundle, "high")));
+		pm_detail = new PulldownMenu<>();
+		pm_detail.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "low")));
+		pm_detail.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "medium")));
+		pm_detail.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "high")));
 		PulldownButton pb_detail = new PulldownButton(gui_root, pm_detail, last_detail_value, 150);
 
 		group_detail.addChild(pb_detail);
@@ -191,20 +187,21 @@ public abstract class AbstractOptionsMenu extends Form {
 		mode_group.addChild(mode_label);
 
 		ColumnInfo[] mode_infos = new ColumnInfo[]{new ColumnInfo("", 150)};
-		MultiColumnComboBox mode_list_box = new MultiColumnComboBox(gui_root, mode_infos, 200, false);
+		MultiColumnComboBox<SerializableDisplayMode> mode_list_box = new MultiColumnComboBox<>(gui_root, mode_infos, 200, false);
+
 		addChild(mode_list_box);
 
-		SerializableDisplayMode[] modes = LocalInput.getAvailableModes();
+		SerializableDisplayMode[] modes = SerializableDisplayMode.getAvailableModes();
 		SerializableDisplayMode current_mode = LocalInput.getCurrentMode();
-//		PulldownMenu mode_menu = new PulldownMenu();
-		Row current_row = null;
+//		PulldownMenu<Void> mode_menu = new PulldownMenu<>();
+		Row<SerializableDisplayMode, Label> current_row = null;
 		int index = 0;
 		for (int i = 0; i < modes.length; i++) {
 			if (modes[i].getBitsPerPixel() == current_mode.getBitsPerPixel()) {
 				String mode_string = Utils.getBundleString(bundle, "mode", Integer.toString(modes[i].getWidth()), Integer.toString(modes[i].getHeight()), Integer.toString(modes[i].getFrequency()));
-//				mode_menu.addItem(new PulldownItem(mode_string, modes[i]));
+//				mode_menu.addItem(new PulldownItem<>(mode_string, modes[i]));
 				Label label = new SortedLabel(mode_string, i, Skin.getSkin().getMultiColumnComboBoxData().getFont());
-				Row row = new Row(new GUIObject[]{label}, modes[i]);
+				Row<SerializableDisplayMode, Label> row = new Row<>(new Label[]{label}, modes[i]);
 				mode_list_box.addRow(row);
 				if (modes[i].equals(current_mode))
 					current_row = row;
@@ -233,7 +230,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		group_mapmode.addChild(label_mapmode_high);
 		Slider slider_mapmode = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int)(Settings.getSettings().mapmode_delay*(MAX_VALUE)));
 		group_mapmode.addChild(slider_mapmode);
-		slider_mapmode.addValueListener(new SliderMapmodeListener());
+		slider_mapmode.addValueListener(value -> Settings.getSettings().mapmode_delay = (float)value/(MAX_VALUE));
 		label_mapmode_headline.place();
 		label_mapmode_none.place(label_mapmode_headline, BOTTOM_LEFT);
 		slider_mapmode.place(label_mapmode_none, RIGHT_MID);
@@ -251,7 +248,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		group_tooltip.addChild(label_tooltip_high);
 		Slider slider_tooltip = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int)(Settings.getSettings().tooltip_delay*(MAX_VALUE)));
 		group_tooltip.addChild(slider_tooltip);
-		slider_tooltip.addValueListener(new SliderTooltipListener());
+		slider_tooltip.addValueListener(this::tooltipSliderListener);
 		label_tooltip_headline.place();
 		label_tooltip_none.place(label_tooltip_headline, BOTTOM_LEFT);
 		slider_tooltip.place(label_tooltip_none, RIGHT_MID);
@@ -263,14 +260,14 @@ public abstract class AbstractOptionsMenu extends Form {
 		general.addChild(group_gamespeed);
 		Label label_gamespeed = new Label(Utils.getBundleString(bundle, "gamespeed"), Skin.getSkin().getEditFont());
 		group_gamespeed.addChild(label_gamespeed);
-		this.pm_gamespeed = new PulldownMenu();
-		pm_gamespeed.addItem(new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_PAUSE)));
-		pm_gamespeed.addItem(new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_SLOW)));
-		pm_gamespeed.addItem(new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_NORMAL)));
-		pm_gamespeed.addItem(new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
-		pm_gamespeed.addItem(new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
+		this.pm_gamespeed = new PulldownMenu<>();
+		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_PAUSE)));
+		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_SLOW)));
+		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_NORMAL)));
+		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
+		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
 		PulldownButton pb_gamespeed = new PulldownButton(gui_root, pm_gamespeed, 150);
-		pm_gamespeed.addItemChosenListener(new GamespeedListener());
+		pm_gamespeed.addItemChosenListener((_, item_index) -> changeGamespeed(item_index));
 		group_gamespeed.addChild(pb_gamespeed);
 		label_gamespeed.place();
 		pb_gamespeed.place(label_gamespeed, RIGHT_MID);
@@ -283,28 +280,28 @@ public abstract class AbstractOptionsMenu extends Form {
 		language_group.addChild(language_label);
 
 		ColumnInfo[] language_infos = new ColumnInfo[]{new ColumnInfo("", 300)};
-		language_list_box = new MultiColumnComboBox(gui_root, language_infos, 200, false);
+        var language_list_box = new MultiColumnComboBox<@NonNull Locale>(gui_root, language_infos, 200, false);
 //		addChild(language_list_box);
 
 		checkLanguage();
-		current_row = null;
+		Row<Locale,IconLabel> selectedLanguage = null;
 		IconLabel label = new IconLabel(Skin.getSkin().getFlagDefault(), new Label(Utils.getBundleString(bundle, "system_default"), Skin.getSkin().getMultiColumnComboBoxData().getFont()));
-		Row row = new Row(new GUIObject[]{label}, Renderer.getRenderer().getDefaultLocale());
+		Row<Locale,IconLabel> row = new Row<>(new IconLabel[]{label}, Renderer.getRenderer().getDefaultLocale());
 		language_list_box.addRow(row);
 		if (Settings.getSettings().language.equals("default"))
-			current_row = row;
+            selectedLanguage = row;
 		String[][] languages = Languages.getLanguages();
-		Quad[] flags = Languages.getFlags();
+		IconQuad[] flags = Languages.getFlags();
 		for (int i = 0; i < languages.length; i++) {
 			label = new IconLabel(flags[i], new Label(languages[i][1], Skin.getSkin().getMultiColumnComboBoxData().getFont()));
-			row = new Row(new GUIObject[]{label}, Locale.of(languages[i][0]));
+			row = new Row<>(new IconLabel[]{label}, Locale.of(languages[i][0]));
 			language_list_box.addRow(row);
 			if (languages[i][0].equals(Settings.getSettings().language))
-				current_row = row;
+                selectedLanguage = row;
 		}
 
 		assert current_row != null;
-		language_list_box.selectRow(current_row);
+		language_list_box.selectRow(selectedLanguage);
 		language_list_box.addRowListener(new LanguageListener());
 
 		language_group.addChild(language_list_box);
@@ -318,7 +315,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		addChild(button_close);
 
 		HorizButton button_about = new HorizButton(Utils.getBundleString(bundle, "about"), BUTTON_WIDTH);
-		button_about.addMouseClickListener(new AboutListener());
+		button_about.addMouseClickListener((_,_,_,_) -> gui_root.addModalForm(new CreditsForm()));
 		addChild(button_about);
 
 		//general panel
@@ -352,9 +349,15 @@ public abstract class AbstractOptionsMenu extends Form {
 		// Place objects
 		label_headline.place();
 		panel_group.place(label_headline, BOTTOM_LEFT);
-		button_close.place(AT_END);
+		button_close.place(Origin.AT_END);
 		button_about.place(button_close, LEFT_MID);
 		compileCanvas();
+	}
+
+	@Override
+	protected void displayChangedNotify(int width, int height) {
+		super.displayChangedNotify(width, height);
+		centerPos();
 	}
 
 	protected final void chooseGamespeed(int speed) {
@@ -387,140 +390,48 @@ public abstract class AbstractOptionsMenu extends Form {
 	}
 
 	// Sound
-	private final class CBMusicListener implements CheckBoxListener {
+	private void musicListener(boolean marked) {
+        if (Settings.getSettings().play_music != marked)
+            Renderer.getRenderer().toggleMusic();
+        slider_music.setDisabled(!marked);
+        Settings.getSettings().play_music = marked;
+    }
+
+	private void sfxListener(boolean marked) {
+        if (Settings.getSettings().play_sfx != marked)
+            Renderer.getRenderer().toggleSound();
+        slider_sound.setDisabled(!marked);
+        Settings.getSettings().play_sfx = marked;
+    }
+
+	private void musicSliderListener(long value) {
+        float music_gain = (float)value/(MAX_VALUE);
+        Settings.getSettings().music_gain = music_gain;
+        Renderer.getMusicPlayer().setGain(music_gain);
+	}
+
+	private void tooltipSliderListener(long value) {
+        Settings.getSettings().tooltip_delay = (float)value/(MAX_VALUE);
+        gui_root.setToolTipTimer();
+	}
+
+	private final class DisplayModeListener implements RowListener<@NonNull SerializableDisplayMode> {
+
 		@Override
-		public void checked(boolean marked) {
-			if (Settings.getSettings().play_music != marked)
-				Renderer.getRenderer().toggleMusic();
-			slider_music.setDisabled(!marked);
-			Settings.getSettings().play_music = marked;
+		public void rowChosen(@NonNull SerializableDisplayMode mode) {
+			gui_root.addModalForm(new DisplayChangeForm((boolean switch_now) -> {
+                LocalInput.getLocalInput().switchMode(mode, switch_now);
+                gui_root.displayChanged();
+            }));
 		}
 	}
 
-	private final class CBSFXListener implements CheckBoxListener {
+	private final class LanguageListener implements RowListener<@NonNull Locale> {
 		@Override
-		public void checked(boolean marked) {
-			if (Settings.getSettings().play_sfx != marked)
-				Renderer.getRenderer().toggleSound();
-			slider_sound.setDisabled(!marked);
-			Settings.getSettings().play_sfx = marked;
-		}
-	}
-
-	private static final class SliderMusicListener implements ValueListener {
-		@Override
-		public void valueSet(int value) {
-			float music_gain = (float)value/(MAX_VALUE);
-			Settings.getSettings().music_gain = music_gain;
-			Renderer.getMusicPlayer().setGain(music_gain);
-		}
-	}
-
-	private static final class SliderSFXListener implements ValueListener {
-		@Override
-		public void valueSet(int value) {
-			Settings.getSettings().sound_gain = (float)value/(MAX_VALUE);
-		}
-	}
-
-	private static final class SliderMapmodeListener implements ValueListener {
-		@Override
-		public void valueSet(int value) {
-			Settings.getSettings().mapmode_delay = (float)value/(MAX_VALUE);
-		}
-	}
-
-	private final class SliderTooltipListener implements ValueListener {
-		@Override
-		public void valueSet(int value) {
-			Settings.getSettings().tooltip_delay = (float)value/(MAX_VALUE);
-			gui_root.setToolTipTimer();
-		}
-	}
-
-	private final class CBFullscreen implements CheckBoxListener, DoNowListener {
-		@Override
-		public void doChange(boolean switch_now) {
-			SerializableDisplayMode.setFullscreen(cb_fullscreen.isMarked(), switch_now);
-		}
-
-		@Override
-		public void checked(boolean marked) {
-			DisplayChangeForm display_change_form = new DisplayChangeForm(this);
-			gui_root.addModalForm(display_change_form);
-		}
-	}
-
-
-	private static final class CBHardwareCursor implements CheckBoxListener {
-		@Override
-		public void checked(boolean marked) {
-			Settings.getSettings().use_native_cursor = marked;
-		}
-	}
-
-	private static final class CBAggressiveUnits implements CheckBoxListener {
-		@Override
-		public void checked(boolean marked) {
-			Settings.getSettings().aggressive_units = marked;
-		}
-	}
-
-	private static final class CBInvertCamera implements CheckBoxListener {
-		@Override
-		public void checked(boolean marked) {
-			Settings.getSettings().invert_camera_pitch = marked;
-		}
-	}
-
-	private final class DisplayModeListener implements RowListener, DoNowListener {
-		private SerializableDisplayMode mode;
-
-		@Override
-		public void doChange(boolean switch_now) {
-			LocalInput.getLocalInput().switchMode(mode, switch_now);
-			gui_root.displayChanged();
-		}
-
-		@Override
-		public void rowChosen(Object o) {
-			mode = (SerializableDisplayMode)o;
-			DisplayChangeForm display_change_form = new DisplayChangeForm(this);
-			gui_root.addModalForm(display_change_form);
-		}
-
-		@Override
-		public void rowDoubleClicked(Object o) {
-		}
-	}
-
-	private final class LanguageListener implements RowListener {
-		@Override
-		public void rowChosen(Object o) {
-			Locale locale = (Locale)o;
-			if (locale.getVariant().equals("default"))
-				Settings.getSettings().language = "default";
-			else
-				Settings.getSettings().language = locale.getLanguage();
+		public void rowChosen(@NonNull Locale locale) {
+            Settings.getSettings().language = locale.getVariant().equals("default") ? "default" : locale.getLanguage();
 			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "language_change_next_run")));
 		}
-
-		@Override
-		public void rowDoubleClicked(Object o) {
-		}
 	}
 
-	private final class GamespeedListener implements ItemChosenListener {
-		@Override
-		public void itemChosen(PulldownMenu menu, int item_index) {
-			changeGamespeed(item_index);
-		}
-	}
-
-	private final class AboutListener implements MouseClickListener {
-		@Override
-		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			gui_root.addModalForm(new CreditsForm());
-		}
-	}
 }

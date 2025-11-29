@@ -2,21 +2,15 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.NativeResource;
+import com.oddlabs.util.Color;
 
 public final class Status {
-	private final TextLineRenderer text_renderer = new TextLineRenderer(Skin.getSkin().getEditFont());
-	private final StringBuffer buf = new StringBuffer();
-	private final GUIRoot gui_root;
+	private final StringBuilder buf = new StringBuilder();
 
-	public Status(GUIRoot gui_root) {
-		this.gui_root = gui_root;
-	}
-
-	public void render(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	public void render() {
 		long free_mem = Runtime.getRuntime().freeMemory();
 		buf.delete(0, buf.length());
 		if (Settings.getSettings().inDeveloperMode()) {
@@ -26,7 +20,7 @@ public final class Status {
                     .append(free_mem)
 			        .append("(");
 			int total_jheap = (int)(Runtime.getRuntime().totalMemory()/(1024*1024));
-			buf.append(total_jheap)
+            buf.append(total_jheap)
 			        .append("M) globj ")
                     .append(NativeResource.getCount());
 /*			float x = gui_root.getLandscapeLocationX();
@@ -46,6 +40,6 @@ public final class Status {
                 .append(Math.round(Renderer.getFPS()))
                 .append(" ms/frame)");
 
-		text_renderer.renderCropped(0, 0, clip_left, clip_right, clip_bottom, clip_top, buf);
+		TextLineRenderer.render(Skin.getSkin().getEditFont(), buf, 0, 0, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE_INT);
 	}
 }

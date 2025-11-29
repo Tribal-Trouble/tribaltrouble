@@ -14,6 +14,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
@@ -87,9 +88,10 @@ public class DefaultInGameInfo implements InGameInfo {
 		GUIObject last_team = null;
         for (Player player : players) {
             PlayerInfo player_info = player.getPlayerInfo();
-            float[] color = player.getColor();
+            float[] color_floats = player.getColor();
+            int color = Color.argbi(color_floats[0], color_floats[1], color_floats[2], color_floats[3]);
             if (!viewer.getPeerHub().isAlive(player)) {
-                color = new float[]{color[0], color[1], color[2], .25f};
+                color = Color.argbi(color_floats[0], color_floats[1], color_floats[2], .25f);
             }
             Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont());
             name.setColor(color);

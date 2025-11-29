@@ -12,6 +12,7 @@ import com.oddlabs.tt.net.ChatMessage;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.ResourceBundle;
@@ -25,17 +26,15 @@ public class ChatPanel extends Panel implements ChatListener {
 	private static final int PULLDOWN_INDEX_INFO = 1;
 	private static final int PULLDOWN_INDEX_IGNORE = 2;
 
-	private final @NonNull MultiColumnComboBox lobby_users_list_box;
-	private final @NonNull MultiColumnComboBox playing_users_list_box;
+	private final @NonNull MultiColumnComboBox<ChatRoomUser> lobby_users_list_box;
+	private final @NonNull MultiColumnComboBox<ChatRoomUser> playing_users_list_box;
 	private final @NonNull TextBox chat_box;
 	private final @NonNull EditLine chat_line;
-	private final @NonNull HorizButton button_send;
-	private final @NonNull HorizButton button_leave;
-	private final GUIRoot gui_root;
+    private final @NonNull GUIRoot gui_root;
 
 	private final int user_list_width;
 
-	private PrivateMessageForm private_message_form;
+	private @Nullable PrivateMessageForm private_message_form;
 
 	private static ResourceBundle getBundle() {
 		return ResourceBundle.getBundle(ChatPanel.class.getName());
@@ -45,7 +44,7 @@ public class ChatPanel extends Panel implements ChatListener {
 		return Utils.getBundleString(getBundle(), key);
 	}
 
-	public ChatPanel(GUIRoot gui_root, @NonNull ChatRoomInfo info, int compare_width, int compare_height, int button_width, EnterListener chat_listener, @NonNull MouseClickListener leave_listener) {
+	public ChatPanel(@NonNull GUIRoot gui_root, @NonNull ChatRoomInfo info, int compare_width, int compare_height, int button_width, @NonNull EnterListener chat_listener, @NonNull MouseClickListener leave_listener) {
 		super(getI18N("chat"));
 		this.gui_root = gui_root;
 		FormData fdata = Skin.getSkin().getFormData();
@@ -62,28 +61,28 @@ public class ChatPanel extends Panel implements ChatListener {
 
 		ColumnInfo[] lobby_infos = new ColumnInfo[]{
 			new ColumnInfo(getI18N("lobby"), user_list_width)};
-		lobby_users_list_box = new MultiColumnComboBox(gui_root, lobby_infos, user_list_height, true);
+		lobby_users_list_box = new MultiColumnComboBox<>(gui_root, lobby_infos, user_list_height, true);
 		addChild(lobby_users_list_box);
 
 		ColumnInfo[] playing_infos = new ColumnInfo[]{
 			new ColumnInfo(getI18N("playing"), user_list_width)};
-		playing_users_list_box = new MultiColumnComboBox(gui_root, playing_infos, user_list_height, true);
+		playing_users_list_box = new MultiColumnComboBox<>(gui_root, playing_infos, user_list_height, true);
 		addChild(playing_users_list_box);
 
-		PulldownMenu lobby_pulldown_menu = new PulldownMenu();
-		lobby_pulldown_menu.addItem(new PulldownItem(getI18N("message")));
-		lobby_pulldown_menu.addItem(new PulldownItem(getI18N("info")));
-		lobby_pulldown_menu.addItem(new PulldownItem(""));
+		PulldownMenu<Void> lobby_pulldown_menu = new PulldownMenu<>();
+		lobby_pulldown_menu.addItem(new PulldownItem<>(getI18N("message")));
+		lobby_pulldown_menu.addItem(new PulldownItem<>(getI18N("info")));
+		lobby_pulldown_menu.addItem(new PulldownItem<>(""));
 		lobby_pulldown_menu.addItemChosenListener(new PulldownListener(lobby_users_list_box));
 		lobby_users_list_box.setPulldownMenu(lobby_pulldown_menu);
 
 		ChatRoomUserDoubleClickedListener lobby_double_clicked = new ChatRoomUserDoubleClickedListener(lobby_pulldown_menu);
 		lobby_users_list_box.addRowListener(lobby_double_clicked);
 
-		PulldownMenu playing_pulldown_menu = new PulldownMenu();
-		playing_pulldown_menu.addItem(new PulldownItem(getI18N("message")));
-		playing_pulldown_menu.addItem(new PulldownItem(getI18N("info")));
-		playing_pulldown_menu.addItem(new PulldownItem(""));
+		PulldownMenu<Void> playing_pulldown_menu = new PulldownMenu<>();
+		playing_pulldown_menu.addItem(new PulldownItem<>(getI18N("message")));
+		playing_pulldown_menu.addItem(new PulldownItem<>(getI18N("info")));
+		playing_pulldown_menu.addItem(new PulldownItem<>(""));
 		playing_pulldown_menu.addItemChosenListener(new PulldownListener(playing_users_list_box));
 		playing_users_list_box.setPulldownMenu(playing_pulldown_menu);
 
@@ -91,24 +90,24 @@ public class ChatPanel extends Panel implements ChatListener {
 		playing_users_list_box.addRowListener(playing_double_clicked);
 
 		int width = compare_width - pdata.getLeftOffset() - pdata.getRightOffset() - lobby_users_list_box.getWidth();
-		chat_box = new TextBox(width, height, Skin.getSkin().getEditFont(), -1);
+		chat_box = new TextBox(width, height, Skin.getSkin().getEditFont(), Integer.MAX_VALUE);
 		addChild(chat_box);
 
 		chat_line = new EditLine(width, 256);
+        chat_line.addEnterListener(chat_listener);
+        chat_line.addEnterListener(_ -> chat_line.clear());
 		addChild(chat_line);
-		chat_line.addEnterListener(chat_listener);
-		chat_line.addEnterListener(_ -> chat_line.clear());
 
-		button_send = new HorizButton(getI18N("send"), button_width);
+        HorizButton button_send = new HorizButton(getI18N("send"), button_width);
+        button_send.addMouseClickListener((_, _, _, _) -> chat_line.enterPressedAll());
 		addChild(button_send);
-		button_send.addMouseClickListener((_,_,_,_) -> chat_line.enterPressedAll());
 
-		button_leave = new HorizButton(getI18N("leave"), button_width);
+        HorizButton button_leave = new HorizButton(getI18N("leave"), button_width);
+        button_leave.addMouseClickListener(leave_listener);
 		addChild(button_leave);
-		button_leave.addMouseClickListener(leave_listener);
 
 		// Place chat panel objects
-		label_headline.place();
+		label_headline.place(Origin.AT_START);
 		chat_box.place(label_headline, BOTTOM_LEFT);
 		lobby_users_list_box.place(chat_box, RIGHT_TOP, 0);
 		playing_users_list_box.place(lobby_users_list_box, BOTTOM_LEFT);
@@ -124,16 +123,16 @@ public class ChatPanel extends Panel implements ChatListener {
 		if (users != null) {
 			lobby_users_list_box.clear();
 			playing_users_list_box.clear();
-                    for (ChatRoomUser user : users) {
-                        int label_width = user_list_width - (Skin.getSkin().getMultiColumnComboBoxData().getBox().getLeftOffset() + Skin.getSkin().getMultiColumnComboBoxData().getBox().getRightOffset());
-                        Label label = new Label(user.getNick(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), label_width);
-                        Row row = new Row(new GUIObject[]{label}, user);
-                        if (!user.isPlaying()) {
-                            lobby_users_list_box.addRow(row);
-                        } else {
-                            playing_users_list_box.addRow(row);
-                        }
-                    }
+            for (ChatRoomUser user : users) {
+                int label_width = user_list_width - (Skin.getSkin().getMultiColumnComboBoxData().getBox().getLeftOffset() + Skin.getSkin().getMultiColumnComboBoxData().getBox().getRightOffset());
+                Label label = new Label(user.getNick(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), label_width);
+                Row<ChatRoomUser,Label> row = new Row<>(new Label[]{label}, user);
+                if (!user.isPlaying()) {
+                    lobby_users_list_box.addRow(row);
+                } else {
+                    playing_users_list_box.addRow(row);
+                }
+            }
 		}
 		refreshMessages();
 	}
@@ -149,12 +148,16 @@ public class ChatPanel extends Panel implements ChatListener {
 	}
 
 	private void refreshMessages() {
-		List<String> messages = Network.getMatchmakingClient().getChatRoomHistory();
+		List<@NonNull String> messages = Network.getMatchmakingClient().getChatRoomHistory();
 		chat_box.clear();
-		for (int i = 0; i < messages.size(); i++) {
-			if (i != 0)
-				chat_box.append("\n");
-			chat_box.append(messages.get(i));
+        boolean first = true;
+		for (var message : messages) {
+			if (!first) {
+                chat_box.append("\n");
+            } else {
+                first = false;
+            }
+			chat_box.append(message);
 		}
 		chat_box.setOffsetY(Integer.MAX_VALUE);
 	}
@@ -169,16 +172,16 @@ public class ChatPanel extends Panel implements ChatListener {
 			private_message_form.remove();
 	}
 
-	private final class PulldownListener implements ItemChosenListener {
-		private final MultiColumnComboBox box;
+	private final class PulldownListener implements ItemChosenListener<@NonNull ChatRoomUser> {
+		private final MultiColumnComboBox<ChatRoomUser> box;
 
-		public PulldownListener(MultiColumnComboBox box) {
+		public PulldownListener(MultiColumnComboBox<@NonNull ChatRoomUser> box) {
 			this.box = box;
 		}
 
 		@Override
-		public void itemChosen(PulldownMenu menu, int item_index) {
-			ChatRoomUser user = (ChatRoomUser)box.getRightClickedRowData();
+		public void itemChosen(PulldownMenu<@NonNull ChatRoomUser> menu, int item_index) {
+			ChatRoomUser user = box.getRightClickedRowData();
 			String nick = user.getNick();
 			switch (item_index) {
 				case PULLDOWN_INDEX_MESSAGE:
@@ -194,35 +197,30 @@ public class ChatPanel extends Panel implements ChatListener {
 						ChatCommand.ignore(gui_root.getInfoPrinter(), nick);
 					break;
 				default:
-					throw new RuntimeException();
+					throw new IllegalArgumentException("Unexpected pulldown index");
 			}
 			box.setFocus();
 		}
 	}
 
-	private final class ChatRoomUserDoubleClickedListener implements RowListener {
-		private final PulldownMenu menu;
+	private final class ChatRoomUserDoubleClickedListener implements RowListener<ChatRoomUser> {
+		private final PulldownMenu<Void> menu;
 
-		public ChatRoomUserDoubleClickedListener(PulldownMenu menu) {
+		public ChatRoomUserDoubleClickedListener(PulldownMenu<Void> menu) {
 			this.menu = menu;
 		}
 
 		@Override
-		public void rowDoubleClicked(Object context) {
-			ChatRoomUser user = (ChatRoomUser)context;
+		public void rowDoubleClicked(@NonNull ChatRoomUser user) {
 			private_message_form = new PrivateMessageForm(gui_root, user.getNick());
 			gui_root.addModalForm(private_message_form);
 		}
 
 		@Override
-		public void rowChosen(Object context) {
-			ChatRoomUser user = (ChatRoomUser)context;
-			String item_text;
-			if (ChatCommand.isIgnoring(user.getNick()))
-				item_text = getI18N("unignore");
-			else
-				item_text = getI18N("ignore");
-			menu.getItem(PULLDOWN_INDEX_IGNORE).setLabelString(item_text);
+		public void rowChosen(@NonNull ChatRoomUser user) {
+			String item_text = ChatCommand.isIgnoring(user.getNick())
+                    ? getI18N("unignore") : getI18N("ignore");
+            menu.getItem(PULLDOWN_INDEX_IGNORE).setLabelString(item_text);
 		}
 	}
 

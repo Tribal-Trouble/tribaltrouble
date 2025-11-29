@@ -1,14 +1,18 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.ValueListener;
+import org.jspecify.annotations.NonNull;
+
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class NumberEditLine extends EditLine {
-	private final java.util.List<ValueListener> value_listeners = new java.util.ArrayList<>();
-		
-	private final int min_value;
-	private final int max_value;
+	private final Set<@NonNull ValueListener> value_listeners = new CopyOnWriteArraySet<>();
 
-	private int value;
+	private final long min_value;
+	private final long max_value;
+
+	private long value;
 
 	public NumberEditLine(int width, int max_chars, int max_value) {
 		this(width, max_chars, 0, max_value, 0);
@@ -21,58 +25,50 @@ public class NumberEditLine extends EditLine {
 		setValue(init_value);
 	}
 
-	public final void addValueListener(ValueListener listener) {
+	public final void addValueListener(@NonNull ValueListener listener) {
 		value_listeners.add(listener);
 	}
 
-	public final void removeValueListener(ValueListener listener) {
+	public final void removeValueListener(@NonNull ValueListener listener) {
 		value_listeners.remove(listener);
 	}
 
 	@Override
-	protected final void enterPressed(CharSequence text) {
+	protected final void enterPressed(@NonNull CharSequence text) {
 		validate();
 	}
 
-/*	private final void setOffset() {
-		int text_width = getTextLineRenderer().getFont().getWidth(getText());
-		setOffsetX(getTextLineRenderer().getWidth() - text_width);
-	}
-*/
 	private void validate() {
-		int value;
 		String str = getText().toString();
 
-		try {
-			value = crop(Integer.parseInt(str));
+        long value;
+        try {
+			value = crop(Long.parseLong(str));
 		} catch (NumberFormatException _) {
 			// ignore exception, assume minimum value
-			value = max_value;
+			value = min_value;
 		}
 		setValue(value);
 	}
 
-	private int crop(int value) {
-		if (value > max_value) {
-			return max_value;
-		} else return Math.max(value, min_value);
+	private long crop(long value) {
+		return Math.clamp(value, min_value, max_value);
 	}
 
-	public final void setValue(int value) {
+	public final void setValue(long value) {
 		clear();
 		value = crop(value);
 		append(value);
 
 		if (value != this.value) {
-			this.value = value;
+            this.value = value;
             for (ValueListener listener : value_listeners) {
-                if (listener != null)
-                    listener.valueSet(this.value);
+                listener.valueSet(this.value);
             }
-		}
+        }
 	}
 
-	public final int getValue() {
+	public final long getValue() {
 		validate();
 		return value;
 	}

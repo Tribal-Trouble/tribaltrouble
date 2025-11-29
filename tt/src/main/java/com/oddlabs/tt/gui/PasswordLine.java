@@ -1,26 +1,43 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.util.Color;
 import com.oddlabs.util.CryptUtils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
+/** provides password entry substituting the password characters with asterisks */
 public class PasswordLine extends EditLine {
-	private static final StringBuffer star_string = new StringBuffer();
-
-	private String password_digest;
+	private @Nullable String password_digest;
 
 	public PasswordLine(int width, int max_chars) {
 		super(width, max_chars);
 	}
 
 	@Override
-	protected final void renderText(@NonNull TextLineRenderer text_renderer, int x, int y, int offset_x, float clip_left, float clip_right, float clip_bottom, float clip_top, int render_index) {
-		star_string.delete(0, star_string.length());
-		for (int i = 0; i < getText().length(); i++) {
-            star_string.append('*');
+	protected @NonNull CharSequence getDisplayText() {
+        if (getText().isEmpty()) {
+            return "";
         }
+		if (isActive()) {
+			return "*".repeat(getText().length());
+		} else {
+			int asteriskWidth = getRenderedWidth("*");
+			if (asteriskWidth == 0) return "";
+			int numAsterisks = max_text_width / asteriskWidth;
+			return "*".repeat(numAsterisks);
+		}
+    }
 
-		text_renderer.render(x, y, offset_x, clip_left, clip_right, clip_bottom, clip_top, star_string, render_index);
+	@Override
+	protected void renderText(int x, int y, int offset_x, float clip_left, float clip_right, int render_index) {
+		var displayText = getDisplayText();
+		TextLineRenderer.render(getFont(), displayText, x + offset_x, y, clip_left, clip_right, Color.WHITE_INT);
+		if (render_index != -1) {
+			int cursorX = getRenderedWidth(displayText.subSequence(0, render_index));
+			Index.renderIndex(x + offset_x + cursorX, y, getFont());
+		}
 	}
 	
 	@Override
@@ -41,11 +58,11 @@ public class PasswordLine extends EditLine {
 		password_digest = CryptUtils.digest(getText().toString());
 	}
 	
-	public final String getPasswordDigest() {
+	public final @Nullable String getPasswordDigest() {
 		return password_digest;
 	}
 
-	public final void setPasswordDigest(String password_digest) {
+	public final void setPasswordDigest(@Nullable String password_digest) {
 		this.password_digest = password_digest;
 	}
 }

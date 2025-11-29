@@ -4,18 +4,20 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.ToolTip;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
 
 public class RechargeButton extends NonFocusIconButton implements ToolTip {
-	private final PlayerInterface player_interface;
+	private final @NonNull PlayerInterface player_interface;
 	private final int magic_index;
 	private Unit unit;
 
-	public RechargeButton(PlayerInterface player_interface, IconQuad @NonNull [] icon_quad, String tool_tip, int magic_index) {
-		super(icon_quad, tool_tip);
+	public RechargeButton(@NonNull PlayerInterface player_interface, @NonNull ModeIconQuads icon, @NonNull String tool_tip, int magic_index) {
+		super(icon, tool_tip);
 		this.player_interface = player_interface;
 		this.magic_index = magic_index;
 		setCanFocus(true);
-		setDim(icon_quad[0].getWidth(), icon_quad[0].getHeight());
+        var normal = icon.quad(ModeIconQuads.Mode.NORMAL);
+		setDim(normal.getWidth(), normal.getHeight());
 	}
 
 	public final void setUnit(Unit unit) {
@@ -30,10 +32,15 @@ public class RechargeButton extends NonFocusIconButton implements ToolTip {
 
 	@Override
 	protected final void postRender() {
-		IconQuad[] watch = Icons.getIcons().getWatch();
+		IconQuad[] watch = GUIIcons.getIcons().getWatch();
 		float progress = unit.getMagicProgress(magic_index);
 		int index = (int)(progress*(watch.length - 1));
-		if (!unit.isDead() && progress < 1f)
-			watch[index].render(getWidth() - watch[index].getWidth(),  getHeight() - watch[index].getHeight());
+		if (!unit.isDead() && progress < 1f) {
+			IconQuad watchQuad = watch[index];
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, watchQuad.getTexture().getHandle());
+			GL11.glBegin(GL11.GL_QUADS);
+			watchQuad.render(getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight());
+			GL11.glEnd();
+		}
 	}
 }

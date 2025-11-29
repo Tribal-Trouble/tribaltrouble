@@ -1,30 +1,35 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
 
 public final class Vertical {
-	private final Quad @NonNull [] bottom;
-	private final Quad[] center;
-	private final Quad @NonNull [] top;
+	private final @NonNull ModeIconQuads bottom;
+	private final @NonNull ModeIconQuads center;
+	private final @NonNull ModeIconQuads top;
 	private final int bottom_height;
 	private final int top_height;
 	private final int width;
 
-	public Vertical(Quad @NonNull [] bottom, Quad[] center, Quad @NonNull [] top) {
+	public Vertical(@NonNull ModeIconQuads bottom, @NonNull ModeIconQuads center, @NonNull ModeIconQuads top) {
 		this.bottom = bottom;
 		this.center = center;
 		this.top = top;
-		bottom_height = bottom[Skin.NORMAL].getHeight();
-		top_height = top[Skin.NORMAL].getHeight();
-		width = bottom[Skin.NORMAL].getWidth();
+		bottom_height = bottom.quad(ModeIconQuads.Mode.NORMAL).getHeight();
+		top_height = top.quad(ModeIconQuads.Mode.NORMAL).getHeight();
+		width = bottom.quad(ModeIconQuads.Mode.NORMAL).getWidth();
 	}
 
-	public void render(float x, float y, int height, int type) {
+	public void render(float x, float y, int height, ModeIconQuads.@NonNull Mode skinMode) {
 		int center_height = height - bottom_height - top_height;
-		bottom[type].render(x, y);
-		center[type].render(x, y + bottom_height, width, center_height);
-		top[type].render(x, y + bottom_height + center_height);
+
+		GL11.glColor4f(1f, 1f, 1f, 1f);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, bottom.quad(skinMode).getTexture().getHandle());
+		GL11.glBegin(GL11.GL_QUADS);
+		bottom.quad(skinMode).render(x, y);
+		center.quad(skinMode).render(x, y + bottom_height, width, center_height);
+		top.quad(skinMode).render(x, y + bottom_height + center_height);
+		GL11.glEnd();
 	}
 
 	public int getWidth() {
@@ -32,6 +37,6 @@ public final class Vertical {
 	}
 
 	public int getMinHeight() {
-		return bottom[Skin.NORMAL].getHeight() + top[Skin.NORMAL].getHeight();
+		return bottom.quad(ModeIconQuads.Mode.NORMAL).getHeight() + top.quad(ModeIconQuads.Mode.NORMAL).getHeight();
 	}
 }

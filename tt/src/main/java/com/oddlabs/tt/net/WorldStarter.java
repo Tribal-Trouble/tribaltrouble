@@ -14,6 +14,7 @@ import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ final class WorldStarter implements LoadCallback {
 					corrected_player_slot = (short)player_slot_list.size();
 				player_slot_list.add(player_slots[i]);
 				unit_info_list.add(unit_infos[i]);
-				color_list.add(Player.COLORS[i]);
+				color_list.add(Color.argb4f(Player.COLORS[i]));
 			}
 		}
 		assert corrected_player_slot != -1;
@@ -65,27 +66,32 @@ final class WorldStarter implements LoadCallback {
 		WorldViewer viewer = new WorldViewer(network, gui_root, world_params, ingame_info, generator, player_slots, corrected_unit_infos, corrected_colors, corrected_player_slot, new SessionID(session_id));
 		if (initial_action != null)
 			initial_action.run(viewer);
-		List<Participant> participant_list = new ArrayList<>();
-		Player[] players = viewer.getWorld().getPlayers();
-		for (short i = 0; i < players.length; i++) {
-			Player player = players[i];
-			if (player_slots[i].getType() != PlayerSlot.HUMAN)
-				continue;
-			int host_id;
-			if (player_slots[i].getAddress() != null)
-				host_id = player_slots[i].getAddress().getHostID();
-			else
-				host_id = -1;
-			Participant p = new Participant(host_id, player.getPlayerInfo().getName(),  player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace());
-			participant_list.add(p);
-		}
-		Participant[] participants = new Participant[participant_list.size()];
-		participant_list.toArray(participants);
-		if (Network.getMatchmakingClient().isConnected()) {
+        Participant[] participants = getParticipants(viewer, player_slots);
+        if (Network.getMatchmakingClient().isConnected()) {
 			GameSession game_session = new GameSession(session_id, participants, ingame_info.isRated());
 			Network.getMatchmakingClient().getInterface().gameStartedNotify(game_session);
 		}
 		IO.println("PeerHub created (session_id = " + session_id + ") Player list:");
 		return viewer.getRenderer();
 	}
+
+    private static @NonNull Participant @NonNull [] getParticipants(@NonNull WorldViewer viewer, @NonNull PlayerSlot @NonNull[] player_slots) {
+        List<Participant> participant_list = new ArrayList<>();
+        Player[] players = viewer.getWorld().getPlayers();
+        for (short i = 0; i < players.length; i++) {
+            Player player = players[i];
+            if (player_slots[i].getType() != PlayerSlot.HUMAN)
+                continue;
+            int host_id;
+            if (player_slots[i].getAddress() != null)
+                host_id = player_slots[i].getAddress().getHostID();
+            else
+                host_id = -1;
+            Participant p = new Participant(host_id, player.getPlayerInfo().getName(),  player.getPlayerInfo().getTeam(), player.getPlayerInfo().getRace());
+            participant_list.add(p);
+        }
+        Participant[] participants = new Participant[participant_list.size()];
+        participant_list.toArray(participants);
+        return participants;
+    }
 }

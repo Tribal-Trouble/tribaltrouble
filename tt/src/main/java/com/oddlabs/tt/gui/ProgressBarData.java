@@ -1,16 +1,16 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
-import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class ProgressBarData {
-	private final Horizontal progress_bar;
-	private final Quad[] left_fill;
-	private final Quad[] center_fill;
-	private final Quad[] right_fill;
-	private final Font font;
+	private final @NonNull Horizontal progress_bar;
+	private final @NonNull ModeIconQuads left_fill;
+	private final @NonNull ModeIconQuads center_fill;
+	private final @NonNull ModeIconQuads right_fill;
+	private final @NonNull Font font;
 
-	public ProgressBarData(Horizontal progress_bar, Quad[] left_fill, Quad[] center_fill, Quad[] right_fill, Font font) {
+	public ProgressBarData(@NonNull Horizontal progress_bar, @NonNull ModeIconQuads left_fill, @NonNull ModeIconQuads center_fill, @NonNull ModeIconQuads right_fill, @NonNull Font font) {
 		this.progress_bar = progress_bar;
 		this.left_fill = left_fill;
 		this.center_fill = center_fill;
@@ -18,23 +18,23 @@ public final class ProgressBarData {
 		this.font = font;
 	}
 
-	public Horizontal getProgressBar() {
+	public @NonNull Horizontal getProgressBar() {
 		return progress_bar;
 	}
 
-	public Quad[] getLeftFill() {
+	public @NonNull ModeIconQuads getLeftFill() {
 		return left_fill;
 	}
 
-	public Quad[] getCenterFill() {
+	public @NonNull ModeIconQuads getCenterFill() {
 		return center_fill;
 	}
 
-	public Quad[] getRightFill() {
+	public @NonNull ModeIconQuads getRightFill() {
 		return right_fill;
 	}
 
-	public Font getFont() {
+	public @NonNull Font getFont() {
 		return font;
 	}
 }

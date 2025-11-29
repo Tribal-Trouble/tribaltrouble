@@ -33,7 +33,7 @@ public final class BorderGroup extends Group {
 	}
 
 	@Override
-	protected void renderGeometry() {
-		Skin.getSkin().getGroupData().getGroup().render(0, 0, getWidth(), getHeight(), Skin.NORMAL);
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+		Skin.getSkin().getGroupData().getGroup().render(0f, 0f, getWidth(), getHeight(), ModeIconQuads.Mode.NORMAL);
 	}
 }

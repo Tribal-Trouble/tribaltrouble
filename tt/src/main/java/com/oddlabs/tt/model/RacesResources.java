@@ -4,7 +4,7 @@ import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.audio.AudioFile;
 import com.oddlabs.tt.form.ProgressForm;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.gui.Icons;
+import com.oddlabs.tt.gui.GUIIcons;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.weapon.InstantHitFactory;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
@@ -692,7 +692,7 @@ public final class RacesResources {
 		viking_magic[INDEX_MAGIC_BLAST] = new SonicBlastFactory(2.57f, 0f, 3.8f, 36f, 17f, 2f, 150, 30, .8f, 6f, 57f/159f, 100f/159f);
 
 		ProgressForm.progress(1f/num_progress);
-		Icons icons = Icons.getIcons();
+        GUIIcons icons = GUIIcons.getIcons();
 		Race natives_race = new Race(native_quarters_template,
 				native_armory_template,
 				native_tower_template,

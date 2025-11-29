@@ -11,7 +11,6 @@ import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
-import com.oddlabs.tt.guievent.EnterListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -36,12 +35,12 @@ public final class MapcodeForm extends Form {
 		ResourceBundle bundle = ResourceBundle.getBundle(MapcodeForm.class.getName());
 		Label label_seed = new Label(Utils.getBundleString(bundle, "map_code"), Skin.getSkin().getEditFont());
 		editline_seed = new EditLine(200, 12, RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS, Origin.AT_START);
-		editline_seed.addEnterListener(new CodeEnterListener());
+		editline_seed.addEnterListener( _ -> done());
 
 		HorizButton button_ok = new OKButton(BUTTON_WIDTH);
-		button_ok.addMouseClickListener(new OKListener());
+		button_ok.addMouseClickListener((_, _, _, _) -> done());
 		HorizButton button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
+		button_cancel.addMouseClickListener(( _,  _,  _,  _) -> this.cancel());
 		HorizButton button_rand = new HorizButton(Utils.getBundleString(bundle, "randomize"), BUTTON_WIDTH);
 		button_rand.addMouseClickListener(new RandButtonListener());
 
@@ -70,13 +69,6 @@ public final class MapcodeForm extends Form {
 		menu.setFocus();
 	}
 
-	private final class OKListener implements MouseClickListener {
-		@Override
-		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			done();
-		}
-	}
-
 	private final class RandButtonListener implements MouseClickListener {
 		@Override
 		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
@@ -88,12 +80,4 @@ public final class MapcodeForm extends Form {
 			editline_seed.append(rand_string);
 		}
 	}
-
-	public final class CodeEnterListener implements EnterListener {
-		@Override
-		public void enterPressed(CharSequence text) {
-			done();
-		}
-	}
-
 }

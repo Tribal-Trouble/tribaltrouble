@@ -1,30 +1,30 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
-import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class MultiColumnComboBoxData {
-	private final Box box;
-	private final Horizontal button_pressed;
-	private final Horizontal button_unpressed;
-	private final Quad[] descending;
-	private final Quad[] ascending;
-	private final Color color1;
-	private final Color color2;
-	private final Color color_marked;
-	private final Font font;
+	private final @NonNull Box box;
+	private final @NonNull Horizontal button_pressed;
+	private final @NonNull Horizontal button_unpressed;
+	private final @NonNull ModeIconQuads descending;
+	private final @NonNull ModeIconQuads ascending;
+	private final int color1;
+	private final int color2;
+	private final int color_marked;
+	private final @NonNull Font font;
 	private final int caption_offset;
 
-	public MultiColumnComboBoxData(Box box,
-								   Horizontal button_pressed,
-								   Horizontal button_unpressed,
-								   Quad[] descending,
-								   Quad[] ascending,
-								   Color color1,
-								   Color color2,
-								   Color color_marked,
-								   Font font,
-								   int caption_offset) {
+	MultiColumnComboBoxData(@NonNull Box box,
+                                   @NonNull Horizontal button_pressed,
+                                   @NonNull Horizontal button_unpressed,
+                                   @NonNull ModeIconQuads descending,
+                                   @NonNull ModeIconQuads ascending,
+                                   int color1,
+                                   int color2,
+                                   int color_marked,
+                                   @NonNull Font font,
+                                   int caption_offset) {
 		this.box = box;
 		this.button_pressed = button_pressed;
 		this.button_unpressed = button_unpressed;
@@ -37,39 +37,39 @@ public final class MultiColumnComboBoxData {
 		this.caption_offset = caption_offset;
 	}
 
-	public Box getBox() {
+	public @NonNull Box getBox() {
 		return box;
 	}
 
-	public Horizontal getButtonPressed() {
+	public @NonNull Horizontal getButtonPressed() {
 		return button_pressed;
 	}
 
-	public Horizontal getButtonUnpressed() {
+	public @NonNull Horizontal getButtonUnpressed() {
 		return button_unpressed;
 	}
 
-	public Quad[] getDescending() {
+	public @NonNull ModeIconQuads getDescending() {
 		return descending;
 	}
 
-	public Quad[] getAscending() {
+	public @NonNull ModeIconQuads getAscending() {
 		return ascending;
 	}
 
-	public Color getColor1() {
+	public int getColor1() {
 		return color1;
 	}
 
-	public Color getColor2() {
+	public int getColor2() {
 		return color2;
 	}
 
-	public Color getColorMarked() {
+	public int getColorMarked() {
 		return color_marked;
 	}
 
-	public Font getFont() {
+	public @NonNull Font getFont() {
 		return font;
 	}
 

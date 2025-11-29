@@ -58,7 +58,7 @@ public final class NewProfileForm extends Form {
 		ButtonObject button_create = new HorizButton(Utils.getBundleString(bundle, "create_profile"), BUTTON_WIDTH_LONG);
 		button_create.addMouseClickListener(new CreateProfileListener());
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
-		button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
+		button_cancel.addMouseClickListener(( _,  _,  _,  _) -> this.cancel());
 
 		group_buttons.addChild(button_create);
 		group_buttons.addChild(button_cancel);
@@ -104,7 +104,7 @@ public final class NewProfileForm extends Form {
 		}
 
 		@Override
-		public void enterPressed(CharSequence text) {
+		public void enterPressed(@NonNull CharSequence text) {
 			createProfile();
 		}
 	}

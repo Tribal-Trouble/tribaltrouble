@@ -43,6 +43,7 @@ import com.oddlabs.tt.viewer.DefaultInGameInfo;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.MultiplayerInGameInfo;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -56,12 +57,6 @@ import static com.oddlabs.tt.gui.Placement.TOP_LEFT;
 import static com.oddlabs.tt.gui.Placement.TOP_MID;
 
 public final class TerrainMenu extends Group {
-	public static final byte SMALL = 0;
-	public static final byte MEDIUM = 1;
-	public static final byte LARGE = 2;
-
-	private static final int NORMAL = 2;
-	private static final int HARD = 3;
 	private static final int[] SIZES = new int[]{256, 512, 1024};
 
 	private static final int SLIDER_LENGTH = 250;
@@ -77,32 +72,29 @@ public final class TerrainMenu extends Group {
 	private static final int TEAM_CARDINALITY = 6;
 	private static final @NonNull BigInteger MAX_VALUE;
 
-	private final Menu main_menu;
-	private final TerrainMenuListener owner;
+	private final @Nullable Menu main_menu;
+	private final @Nullable TerrainMenuListener owner;
 
-	private final @NonNull PulldownMenu pulldown_size;
+	private final @NonNull PulldownMenu<Void> pulldown_size;
 	private final @NonNull EditLine editline_name;
-	private final @NonNull PulldownMenu pm_terrain_type;
+	private final @NonNull PulldownMenu<Void> pm_terrain_type;
 	private final @NonNull Slider slider_hills;
 	private final @NonNull Slider slider_vegetation;
 	private final @NonNull Slider slider_supplies;
 	private final @NonNull Label label_mapcode;
 	private final @NonNull HorizButton button_ok;
-	private final @NonNull HorizButton button_cancel;
-	private final @NonNull HorizButton button_mapcode;
-	private final PulldownMenu @NonNull [] difficulty_pulldown_menus;
-	private final PulldownMenu @NonNull [] race_pulldown_menus;
-	private final PulldownMenu @NonNull [] team_pulldown_menus;
-	private final PulldownButton @NonNull [] difficulty_pulldown_buttons;
-	private final PulldownButton @NonNull [] race_pulldown_buttons;
-	private final PulldownButton @NonNull [] team_pulldown_buttons;
-	private final Label @NonNull [] labels_players;
+    private final @NonNull PulldownMenu<Void> @NonNull [] difficulty_pulldown_menus;
+	private final @NonNull PulldownMenu<Void> @NonNull [] race_pulldown_menus;
+	private final @NonNull PulldownMenu<Void> @NonNull [] team_pulldown_menus;
+    private final @NonNull PulldownButton @NonNull [] race_pulldown_buttons;
+	private final @NonNull PulldownButton @NonNull [] team_pulldown_buttons;
+	private final @NonNull Label @NonNull [] labels_players;
 	private final @NonNull CheckBox cb_rated;
 	private final boolean multiplayer;
-	private final @NonNull PulldownMenu pm_gamespeed;
+	private final @NonNull PulldownMenu<Void> pm_gamespeed;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
-	private final GUIRoot gui_root;
-	private final NetworkSelector network;
+	private final @NonNull GUIRoot gui_root;
+	private final @NonNull NetworkSelector network;
 	private int seed;
 
 	static {
@@ -123,7 +115,8 @@ public final class TerrainMenu extends Group {
 		MAX_VALUE = max;
 	}
 
-	public TerrainMenu(NetworkSelector network, GUIRoot gui_root, Menu main_menu, boolean multiplayer, TerrainMenuListener owner) {
+	@SuppressWarnings("unchecked")
+    public TerrainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @Nullable Menu main_menu, boolean multiplayer, @Nullable TerrainMenuListener owner) {
 		this.network = network;
 		this.main_menu = main_menu;
 		this.multiplayer = multiplayer;
@@ -131,13 +124,8 @@ public final class TerrainMenu extends Group {
 		this.gui_root = gui_root;
 
 		// headline
-		Label label_headline;
-		if (multiplayer) {
-			label_headline = new Label(Utils.getBundleString(bundle, "new_game"), Skin.getSkin().getHeadlineFont());
-		} else {
-			label_headline = new Label(Utils.getBundleString(bundle, "skirmish"), Skin.getSkin().getHeadlineFont());
-		}
-		addChild(label_headline);
+		Label label_headline = new Label(Utils.getBundleString(bundle, multiplayer ? "new_game" : "skirmish"), Skin.getSkin().getHeadlineFont());
+        addChild(label_headline);
 		Panel standard = new Panel(Utils.getBundleString(bundle, "standard_options"));
 		Panel advanced = new Panel(Utils.getBundleString(bundle, "advanced_options"));
 		Group group_map_options = new Group();
@@ -167,11 +155,11 @@ public final class TerrainMenu extends Group {
 		Group group_gamespeed = new Group();
 		Label label_gamespeed = new Label(Utils.getBundleString(bundle, "gamespeed"), Skin.getSkin().getEditFont());
 		group_gamespeed.addChild(label_gamespeed);
-		pm_gamespeed = new PulldownMenu();
-		pm_gamespeed.addItem(new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_SLOW)));
-		pm_gamespeed.addItem(new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_NORMAL)));
-		pm_gamespeed.addItem(new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
-		pm_gamespeed.addItem(new PulldownItem(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
+		pm_gamespeed = new PulldownMenu<>();
+		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_SLOW)));
+		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_NORMAL)));
+		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
+		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
 		PulldownButton pb_gamespeed = new PulldownButton(gui_root, pm_gamespeed, 1, 150);
 		group_gamespeed.addChild(pb_gamespeed);
 		label_gamespeed.place();
@@ -187,10 +175,10 @@ public final class TerrainMenu extends Group {
 		Label label_size = new Label(Utils.getBundleString(bundle, "island_size"), Skin.getSkin().getEditFont());
 		group_size.addChild(label_size);
 
-		pulldown_size = new PulldownMenu();
-		pulldown_size.addItem(new PulldownItem(ServerMessageBundler.getSizeString(Game.SIZE_SMALL)));
-		pulldown_size.addItem(new PulldownItem(ServerMessageBundler.getSizeString(Game.SIZE_MEDIUM)));
-		pulldown_size.addItem(new PulldownItem(ServerMessageBundler.getSizeString(Game.SIZE_LARGE)));
+		pulldown_size = new PulldownMenu<>();
+		pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_SMALL)));
+		pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_MEDIUM)));
+		pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_LARGE)));
 
 		PulldownButton pb_size = new PulldownButton(gui_root, pulldown_size, 1, 150);
 		group_size.addChild(pb_size);
@@ -216,9 +204,9 @@ public final class TerrainMenu extends Group {
 		Group group_terrain_type = new Group();
 		Label label_terrain_type = new Label(Utils.getBundleString(bundle, "terrain_type"), Skin.getSkin().getEditFont());
 		group_terrain_type.addChild(label_terrain_type);
-		pm_terrain_type = new PulldownMenu();
-		pm_terrain_type.addItem(new PulldownItem(ServerMessageBundler.getTerrainTypeString(Game.TERRAIN_TYPE_NATIVE)));
-		pm_terrain_type.addItem(new PulldownItem(ServerMessageBundler.getTerrainTypeString(Game.TERRAIN_TYPE_VIKING)));
+		pm_terrain_type = new PulldownMenu<>();
+		pm_terrain_type.addItem(new PulldownItem<>(ServerMessageBundler.getTerrainTypeString(Game.TERRAIN_TYPE_NATIVE)));
+		pm_terrain_type.addItem(new PulldownItem<>(ServerMessageBundler.getTerrainTypeString(Game.TERRAIN_TYPE_VIKING)));
 		PulldownButton pb_terrain_type = new PulldownButton(gui_root, pm_terrain_type, 0, 150);
 		group_terrain_type.addChild(pb_terrain_type);
 		label_terrain_type.place();
@@ -286,23 +274,23 @@ public final class TerrainMenu extends Group {
 		difficulty_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
 		race_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
 		team_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
-		difficulty_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
+        PulldownButton [] difficulty_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
 		race_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
 		team_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-		Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+		Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick()*LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
 		random.nextFloat();
 		for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
-			difficulty_pulldown_menus[i] = new PulldownMenu();
-			race_pulldown_menus[i] = new PulldownMenu();
-			team_pulldown_menus[i] = new PulldownMenu();
+			difficulty_pulldown_menus[i] = new PulldownMenu<>();
+			race_pulldown_menus[i] = new PulldownMenu<>();
+			team_pulldown_menus[i] = new PulldownMenu<>();
 
 			if (i == 0) {
-				difficulty_pulldown_menus[i].addItem(new PulldownItem(Utils.getBundleString(bundle, "human")));
+				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(Utils.getBundleString(bundle, "human")));
 			} else {
-				difficulty_pulldown_menus[i].addItem(new PulldownItem(Utils.getBundleString(bundle, "closed")));
-				difficulty_pulldown_menus[i].addItem(new PulldownItem(Utils.getBundleString(bundle, "easy_ai")));
-				difficulty_pulldown_menus[i].addItem(new PulldownItem(Utils.getBundleString(bundle, "normal_ai")));
-				PulldownItem hard = new PulldownItem(Utils.getBundleString(bundle, "hard_ai"));
+				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(Utils.getBundleString(bundle, "closed")));
+				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(Utils.getBundleString(bundle, "easy_ai")));
+				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(Utils.getBundleString(bundle, "normal_ai")));
+				PulldownItem<Void> hard = new PulldownItem<>(Utils.getBundleString(bundle, "hard_ai"));
 				difficulty_pulldown_menus[i].addItem(hard);
 			}
 
@@ -310,7 +298,7 @@ public final class TerrainMenu extends Group {
 			group_race_team.addChild(difficulty_pulldown_buttons[i]);
 
 			for (int j = 0; j < RacesResources.getNumRaces(); j++) {
-				PulldownItem pulldown_item_race = new PulldownItem(RacesResources.getRaceName(j));
+				PulldownItem<Void> pulldown_item_race = new PulldownItem<>(RacesResources.getRaceName(j));
 				race_pulldown_menus[i].addItem(pulldown_item_race);
 			}
 
@@ -318,7 +306,7 @@ public final class TerrainMenu extends Group {
 			group_race_team.addChild(race_pulldown_buttons[i]);
 			for (int j = 0; j < MatchmakingServerInterface.MAX_PLAYERS; j++) {
 				String team_str = Utils.getBundleString(bundle, "team", Integer.toString(j + 1));
-				PulldownItem pulldown_item_team = new PulldownItem(team_str);
+				PulldownItem<Void> pulldown_item_team = new PulldownItem<>(team_str);
 				team_pulldown_menus[i].addItem(pulldown_item_team);
 			}
 			team_pulldown_buttons[i] = new PulldownButton(gui_root, team_pulldown_menus[i], i, 115);
@@ -357,9 +345,9 @@ public final class TerrainMenu extends Group {
 
 		button_ok = new OKButton(BUTTON_WIDTH);
 		button_ok.addMouseClickListener(new OKListener());
-		button_cancel = new CancelButton(BUTTON_WIDTH);
+        HorizButton button_cancel = new CancelButton(BUTTON_WIDTH);
 		button_cancel.addMouseClickListener(new CancelButtonListener());
-		button_mapcode = new HorizButton(Utils.getBundleString(bundle, "enter_map_code"), 170);
+        HorizButton button_mapcode = new HorizButton(Utils.getBundleString(bundle, "enter_map_code"), 170);
 		button_mapcode.addMouseClickListener(new MapcodeListener());
 
 		group_buttons.addChild(button_mapcode);
@@ -583,7 +571,7 @@ public final class TerrainMenu extends Group {
 			new SelectGameMenu(network, gui_root, main_menu);
 	}
 
-	private boolean isChosen(@NonNull PulldownMenu menu) {
+	private boolean isChosen(@NonNull PulldownMenu<Void> menu) {
 		return menu.getChosenItemIndex() != 0;
 	}
 
@@ -671,7 +659,7 @@ public final class TerrainMenu extends Group {
 		}
 	}
 
-	private final class DisableListener implements ItemChosenListener {
+	private final class DisableListener implements ItemChosenListener<Void> {
 		final int i;
 
 		public DisableListener(int i) {
@@ -679,7 +667,7 @@ public final class TerrainMenu extends Group {
 		}
 
 		@Override
-		public void itemChosen(PulldownMenu menu, int item_index) {
+		public void itemChosen(PulldownMenu<Void> menu, int item_index) {
 			if (item_index == 0) {
 				labels_players[i].setDisabled(true);
 				race_pulldown_buttons[i].setDisabled(true);
@@ -692,34 +680,34 @@ public final class TerrainMenu extends Group {
 		}
 	}
 
-	private final class PulldownUpdateMapcodeListener implements ItemChosenListener {
+	private final class PulldownUpdateMapcodeListener implements ItemChosenListener<Void> {
 		@Override
-		public void itemChosen(PulldownMenu menu, int item_index) {
+		public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
 			setMapcode();
 		}
 	}
 
-	private static final class PulldownUpdateSizeListener implements ItemChosenListener {
+	private static final class PulldownUpdateSizeListener implements ItemChosenListener<Void> {
 		@Override
-		public void itemChosen(PulldownMenu menu, int item_index) {
+		public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
 		}
 	}
 
-	private static final class PulldownUpdateHardListener implements ItemChosenListener {
+	private static final class PulldownUpdateHardListener implements ItemChosenListener<Void> {
 		@Override
-		public void itemChosen(PulldownMenu menu, int item_index) {
+		public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
 		}
 	}
 
-	private static final class PulldownUpdateTerrainListener implements ItemChosenListener {
+	private static final class PulldownUpdateTerrainListener implements ItemChosenListener<Void> {
 		@Override
-		public void itemChosen(PulldownMenu menu, int item_index) {
+		public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
 		}
 	}
 
 	private final class SliderUpdateMapcodeListener implements ValueListener {
 		@Override
-		public void valueSet(int value) {
+		public void valueSet(long value) {
 			setMapcode();
 		}
 	}

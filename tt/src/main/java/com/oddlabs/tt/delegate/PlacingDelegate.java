@@ -89,26 +89,21 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void mousePressed (@NonNull MouseButton button, int x, int y) {
-            switch (button) {
-                case LEFT:
-                    placeObject();
-                    break;
-                case RIGHT:
-                    pop();
-                    break;
-                default:
-                    super.mousePressed(button, x, y);
-                    break;
-            }
-	}
+	public void mousePressed(@NonNull MouseButton button, int x, int y) {
+        switch (button) {
+            case LEFT:
+                placeObject();
+                break;
+            case RIGHT:
+                pop();
+                break;
+            default:
+                super.mousePressed(button, x, y);
+                break;
+        }
+    }
 
-	@Override
-	public boolean renderCursor() {
-		return true;
-	}
-
-	@Override
+    @Override
 	public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues) {
 		getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit);
 		UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();

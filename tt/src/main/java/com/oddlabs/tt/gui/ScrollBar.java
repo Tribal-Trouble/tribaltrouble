@@ -70,10 +70,10 @@ public final class ScrollBar extends GUIObject {
 	}
 
 	@Override
-	protected void renderGeometry() {
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
 		ScrollBarData data = Skin.getSkin().getScrollBarData();
 		Vertical scroll_bar = data.getScrollBar();
-		scroll_bar.render(0, less_button.getHeight(), getHeight() - less_button.getHeight() - more_button.getHeight(), Skin.NORMAL);
+		scroll_bar.render(0, less_button.getHeight(), getHeight() - less_button.getHeight() - more_button.getHeight(), ModeIconQuads.Mode.NORMAL);
 	}
 
 	public int getButtonX() {
@@ -186,8 +186,8 @@ public final class ScrollBar extends GUIObject {
 		}
 
 		@Override
-		public void keyPressed(KeyboardEvent event) {}
+		public void keyPressed(@NonNull KeyboardEvent event) {}
 		@Override
-		public void keyReleased(KeyboardEvent event) {}
+		public void keyReleased(@NonNull KeyboardEvent event) {}
 	}
 }

@@ -47,7 +47,7 @@ public final class PrivateMessageForm extends Form {
         ButtonObject button_ok = new OKButton(BUTTON_WIDTH);
         button_ok.addMouseClickListener((MouseButton _, int _, int _, int _) -> send());
         ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
-        button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
+        button_cancel.addMouseClickListener(( _,  _,  _,  _) -> this.cancel());
 
         addChild(button_ok);
         addChild(button_cancel);

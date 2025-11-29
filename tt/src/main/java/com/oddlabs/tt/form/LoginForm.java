@@ -168,7 +168,7 @@ public final class LoginForm extends Form {
 		}
 
 		@Override
-		public void enterPressed(CharSequence text) {
+		public void enterPressed(@NonNull CharSequence text) {
 			login();
 		}
 	}

@@ -30,7 +30,7 @@ public final class ChatLine extends EditLine {
 			super.keyRepeat(e);
 	}
 
-	private void tabComplete(@NonNull StringBuffer line) {
+	private void tabComplete(@NonNull StringBuilder line) {
 		int index = getIndex();
 
 		int word_start = line.lastIndexOf(" ", index - 1) + 1;
@@ -80,11 +80,10 @@ public final class ChatLine extends EditLine {
 		runCommand(command);
 	}
 */
-	private void tabPressedAll(String[] words) {
+	private void tabPressedAll(String @NonNull [] words) {
 		tabPressed(words);
         for (TabListener listener : tab_listeners) {
-            if (listener != null)
-                listener.tabPressed(words);
+            listener.tabPressed(words);
         }
 	}
 

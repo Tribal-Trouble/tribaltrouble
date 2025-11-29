@@ -1,13 +1,12 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.LinkedList;
-import com.oddlabs.util.ListElement;
 import com.oddlabs.util.ListElementImpl;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
-public abstract class Renderable extends ListElementImpl<Renderable> {
+public abstract class Renderable<R extends Renderable<R>> extends ListElementImpl<R> {
 	private int x = 0;
 	private int y = 0;
 	private int width = 0;
@@ -15,9 +14,9 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 	private float scale_x = 1f;
 	private float scale_y = 1f;
 
-	private final LinkedList<Renderable> children = new LinkedList<>();
+	private final LinkedList<@NonNull R> children = new LinkedList<>();
 
-	private @Nullable Renderable parent = null;
+	protected @Nullable R parent = null;
 
 	public void setDim(int w, int h) {
 		width = w;
@@ -49,77 +48,52 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 		return children.size();
 	}
 
-	public final @Nullable Renderable getParent() {
+	public @Nullable R getParent() {
 		return parent;
 	}
 
-	public final void putLast(@NonNull Renderable child) {
+	public final void putLast(@NonNull R child) {
 		children.putLast(child);
 	}
 
-	public final void putFirst(@NonNull Renderable child) {
+	final void putFirst(@NonNull R child) {
 		children.putFirst(child);
 	}
 
-	public void removeChild(@NonNull Renderable child) {
+	public void removeChild(@NonNull R child) {
 		child.parent = null;
 		children.remove(child);
 	}
 
-	public final void clearChildren() {
-		while (children.size() > 0) {
+	protected final void clearChildren() {
+		while (!children.isEmpty()) {
 			getLastChild().remove();
 		}
 	}
-/*
-	protected final void disableTree() {
-		ListElement current = children.getFirst();
-		while (current != null) {
-			((Renderable)current).disableTree();
-			current = current.getNext();
-		}
-	}
 
-	protected final void enableTree() {
-		ListElement current = children.getFirst();
-		while (current != null) {
-			((Renderable)current).enableTree();
-			current = current.getNext();
-		}
-	}
-*/
 	protected void doAdd() {
-//		enableTree();
 	}
 
-	protected final @Nullable GUIRoot getParentGUIRoot() {
-		Renderable current = this;
-		while (current != null && !(current instanceof GUIRoot)) {
-			current = current.getParent();
-		}
-		return (GUIRoot)current;
-	}
-
-	public void addChild(@NonNull Renderable child) {
+	public void addChild(@NonNull R child) {
 		child.remove();
 		children.addFirst(child);
-		child.parent = this;
+		child.parent = self();
 		child.addTree();
 	}
 
-	public final @Nullable Renderable getLastChild() {
-		return (Renderable)children.getLast();
+	protected final @Nullable R getLastChild() {
+		return children.getLast();
 	}
 
-	public final @Nullable Renderable getFirstChild() {
-		return (Renderable)children.getFirst();
+    protected final @Nullable R getFirstChild() {
+		return children.getFirst();
 	}
 
 	public final void displayChanged(int width, int height) {
 		displayChangedNotify(width, height);
-		ListElement<Renderable> current = children.getFirst();
+		R current = children.getFirst();
 		while (current != null) {
-			((Renderable)current).displayChanged(width, height);
+			current.displayChanged(width, height);
 			current = current.getNext();
 		}
 	}
@@ -127,7 +101,7 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 	protected void displayChangedNotify(int width, int height) {
 	}
 
-	public final void setScale(float scale_x, float scale_y) {
+	protected final void setScale(float scale_x, float scale_y) {
 		this.scale_x = scale_x;
 		this.scale_y = scale_y;
 	}
@@ -144,66 +118,56 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 		render(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
 	}
 
-	private void render(float clip_left, float clip_right, float clip_bottom, float clip_top) {
-		clip_left = transformX(clip_left);
-		clip_right = transformX(clip_right);
-		clip_bottom = transformY(clip_bottom);
-		clip_top = transformY(clip_top);
-		clip_left = Math.max(clip_left, 0);
-		clip_right = Math.min(clip_right, width);
-		clip_bottom = Math.max(clip_bottom, 0);
-		clip_top = Math.min(clip_top, height);
+	protected void render(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+		clip_left = Math.max(transformX(clip_left), 0);
+		clip_right = Math.min( transformX(clip_right), width);
+		clip_bottom = Math.max(transformY(clip_bottom), 0);
+		clip_top = Math.min(transformY(clip_top), height);
 		if (clip_left >= width || clip_right <= 0 || clip_bottom >= height || clip_top <= 0) {
 			return;
 		}
-		ListElement<Renderable> current = children.getLast();
+
 		if (!(this instanceof GUIRoot)) {
-			GL11.glEnd();
 			GL11.glPushMatrix();
 			if (scale_x != 1f || scale_y != 1f) {
 				GL11.glScalef(scale_x, scale_y, 1f);
 			}
 			GL11.glTranslatef(getX(), getY(), 0);
-			GL11.glBegin(GL11.GL_QUADS);
 		}
+
 		renderGeometry(clip_left, clip_right, clip_bottom, clip_top);
-		if (current != null) {
-			while (current != null) {
-				((Renderable)current).render(clip_left, clip_right, clip_bottom, clip_top);
-				current = current.getPrior();
-			}
-		}
+
+        R current = children.getLast();
+        while (current != null) {
+            current.render(clip_left, clip_right, clip_bottom, clip_top);
+            current = current.getPrior();
+        }
+
 		postRender();
+
 		if (!(this instanceof GUIRoot)) {
-			GL11.glEnd();
 			GL11.glPopMatrix();
-			GL11.glBegin(GL11.GL_QUADS);
 		}
 	}
 
-	protected void postRender() {
-	}
-
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
-		renderGeometry();
-	}
-
-	protected void renderGeometry() {
-	}
+	       protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+	               renderGeometry();
+	       }
+	
+	       protected void renderGeometry() {
+	       }
+    protected void postRender() {
+    }
 
 	protected abstract boolean isFocusable();
 
-	public final float getRootX() {
-		if (parent == null)
-			return 0;
-		return (parent.getRootX() + getX())*scale_x;
+	final float getRootX() {
+        return parent == null ? 0 : (parent.getRootX() + getX()) * scale_x;
 	}
 
-	public final float getRootY() {
-		if (parent == null)
-			return 0;
-		return (parent.getRootY() + getY())*scale_y;
-	}
+	final float getRootY() {
+        return parent == null ? 0 : (parent.getRootY() + getY()) * scale_y;
+    }
 
 	private float transformX(float x) {
 		return x/scale_x - getX();
@@ -213,39 +177,36 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 		return y/scale_y - getY();
 	}
 
-	protected final @Nullable Renderable pick(float x, float y) {
+	final @Nullable R pick(float x, float y) {
 		float trans_x = transformX(x);
 		float trans_y = transformY(y);
 		if (isFocusable() && trans_x >= 0 && trans_y >= 0 && trans_x < getWidth() && trans_y < getHeight()) {
-			ListElement<Renderable> current = children.getFirst();
+			R current = children.getFirst();
 			while (current != null) {
-				GUIObject gui = (GUIObject)current;
-				Renderable picked = gui.pick(trans_x, trans_y);
+				R picked = current.pick(trans_x, trans_y);
 				if (picked != null)
 					return picked;
 				current = current.getNext();
 			}
-			return this;
+			return self();
 		}
 		return null;
 	}
 
-	private void addTree() {
-		if (getParentGUIRoot() != null) {
-			doAdd();
-			ListElement<Renderable> current = children.getFirst();
-			while (current != null) {
-				((Renderable)current).addTree();
-				current = current.getNext();
-			}
-		}
+	void addTree() {
+        doAdd();
+        R current = children.getFirst();
+        while (current != null) {
+            current.addTree();
+            current = current.getNext();
+        }
 	}
 
 	final void removeTree() {
 		doRemove();
-		ListElement<Renderable> current = children.getFirst();
+		R current = children.getFirst();
 		while (current != null) {
-			((Renderable)current).removeTree();
+			current.removeTree();
 			current = current.getNext();
 		}
 	}
@@ -254,11 +215,8 @@ public abstract class Renderable extends ListElementImpl<Renderable> {
 	}
 
 	public void remove() {
-		boolean notify_remove = getParentGUIRoot() != null;
 		if (parent != null) {
-			parent.removeChild(this);
-			if (notify_remove)
-				removeTree();
+			parent.removeChild(self());
 		}
 	}
 }

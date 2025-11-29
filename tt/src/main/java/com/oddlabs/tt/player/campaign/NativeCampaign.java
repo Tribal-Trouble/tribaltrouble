@@ -36,11 +36,7 @@ public final class NativeCampaign extends Campaign {
 
 	private final Island @NonNull [] islands;
 
-	static {
-		NativeCampaignIcons.load();
-	}
-
-	public NativeCampaign(NetworkSelector network, GUIRoot gui_root) {
+	public NativeCampaign(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
 		this(network, gui_root, new CampaignState(INITIAL_STATES));
 	}
 
@@ -63,7 +59,7 @@ public final class NativeCampaign extends Campaign {
 	}
 
 	@Override
-	public CampaignIcons getIcons() {
+	public @NonNull CampaignIcons getIcons() {
 		return NativeCampaignIcons.getIcons();
 	}
 

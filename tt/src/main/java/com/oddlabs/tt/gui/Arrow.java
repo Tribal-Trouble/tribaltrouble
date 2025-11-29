@@ -48,7 +48,7 @@ public final class Arrow extends GUIObject {
 	}
 
 	@Override
-	protected void renderGeometry() {
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
 		Vector4f result = project3DTo2D(target_x, target_y, target_z);
 		float x = result.x;
 		float y = result.y;
@@ -79,10 +79,9 @@ public final class Arrow extends GUIObject {
 		float t_y = Math.max(t_min_y, t_max_y);
 		t = Math.min(t, t_y);
 		if (show_always || gui_root.getDelegate().getCamera().getState().inNoDetailMode() || t < real_t) {
-			NotifyArrowData data = Icons.getIcons().getNotifyArrowData();
+			var data = GUIIcons.getIcons().getNotifyArrowData();
 			float head_x = data.getHeadX();
 			float head_y = data.getHeadY();
-			GL11.glEnd();
 			GL11.glPushMatrix();
 			GL11.glTranslatef(LocalInput.getViewWidth()/2f + dx*t, LocalInput.getViewHeight()/2f + dy*t, 0f);
 			GL11.glRotatef(angle, 0f, 0f, 1f);
@@ -91,13 +90,12 @@ public final class Arrow extends GUIObject {
 				val = 2f - val;
 			val = COLOR_DELTA*val;
 			GL11.glColor4f(r, g, b, 1f - val);
+			IconQuad arrow = data.getArrow();
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, arrow.getTexture().getHandle());
 			GL11.glBegin(GL11.GL_QUADS);
-			data.getArrow().render(-head_x, -head_y, data.getArrow().getWidth(), data.getArrow().getHeight());
+			arrow.render(-head_x, -head_y);
 			GL11.glEnd();
 			GL11.glPopMatrix();
-			GL11.glColor4f(1f, 1f, 1f, 1f);
-			GL11.glBegin(GL11.GL_QUADS);
 		}
 	}
 }
-

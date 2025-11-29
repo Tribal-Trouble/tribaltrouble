@@ -66,9 +66,6 @@ public final class PanelGroup extends GUIObject {
 		focus_group.setGroupFocus(LocalInput.isShiftDownCurrently() ? -1 : 1);
 	}
 
-	@Override
-	protected void renderGeometry() {}
-
 	private final class PanelBox extends GUIObject {
 		public PanelBox(int width, int height) {
 			setDim(width, height);
@@ -76,8 +73,9 @@ public final class PanelGroup extends GUIObject {
 		}
 
 		@Override
-		protected void renderGeometry() {
-			Skin.getSkin().getPanelData().getBox().render(0, 0, getWidth(), getHeight(), panels[selected].getTab().getRenderState());
+		protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+			Box panelBox = Skin.getSkin().getPanelData().getBox();
+			panelBox.render(0f, 0f, getWidth(), getHeight(), panels[selected].getTab().getRenderState());
 		}
 	}
 

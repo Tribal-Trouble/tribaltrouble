@@ -58,9 +58,9 @@ public final class InGameChatForm extends Form implements ChatListener {
 
 		HorizButton button_send = new HorizButton(Utils.getBundleString(bundle, "send"), BUTTON_WIDTH);
 		addChild(button_send);
-		button_send.addMouseClickListener( (_, _, _, _) -> chat_line.enterPressedAll());
+		button_send.addMouseClickListener(( _,  _,  _,  _) -> chat_line.enterPressedAll());
 
-		chat_box = new TextBox(CHAT_WIDTH + BUTTON_WIDTH, CHAT_HEIGHT, Skin.getSkin().getEditFont(), -1);
+		chat_box = new TextBox(CHAT_WIDTH + BUTTON_WIDTH, CHAT_HEIGHT, Skin.getSkin().getEditFont(), Integer.MAX_VALUE);
 		addChild(chat_box);
 
 		radio_button_group = new RadioButtonGroup();

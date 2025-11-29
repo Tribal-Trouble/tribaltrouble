@@ -5,6 +5,7 @@ import org.jspecify.annotations.NonNull;
 
 public class HorizButton extends ButtonObject {
 	public HorizButton(@NonNull String caption, int width) {
+		super(Skin.getSkin().getButtonFont());
 		setDim(width, Skin.getSkin().getHorizButtonPressed().getHeight());
 		Font font = Skin.getSkin().getButtonFont();
 		Label label = new Label(caption, font);
@@ -13,14 +14,18 @@ public class HorizButton extends ButtonObject {
 	}
 
 	@Override
-	protected final void renderGeometry() {
-		if (isDisabled())
-			Skin.getSkin().getHorizButtonUnpressed().render(0, 0, getWidth(), Skin.DISABLED);
-		else if (isPressed() && isHovered())
-			Skin.getSkin().getHorizButtonPressed().render(0, 0, getWidth(), Skin.ACTIVE);
-		else if (isActive())
-			Skin.getSkin().getHorizButtonUnpressed().render(0, 0, getWidth(), Skin.ACTIVE);
-		else
-			Skin.getSkin().getHorizButtonUnpressed().render(0, 0, getWidth(), Skin.NORMAL);
+	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+        ModeIconQuads.Mode skinMode = isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : isPressed() && isHovered()
+                    ? ModeIconQuads.Mode.ACTIVE
+                    : isActive()
+                        ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+
+        Horizontal horizButton = skinMode == ModeIconQuads.Mode.ACTIVE && isPressed() && isHovered()
+                ? Skin.getSkin().getHorizButtonPressed()
+                : Skin.getSkin().getHorizButtonUnpressed();
+
+        horizButton.render(0, 0, getWidth(), skinMode);
 	}
 }

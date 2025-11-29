@@ -1,10 +1,13 @@
 package com.oddlabs.tt.gui;
 
+import org.lwjgl.opengl.GL11;
+
 public final class Diode extends GUIObject {
 	private boolean lit;
 
 	public Diode() {
-		setDim(Skin.getSkin().getDiode()[Skin.NORMAL].getWidth(), Skin.getSkin().getDiode()[Skin.NORMAL].getHeight());
+        var normal = Skin.getSkin().getDiode().get(ModeIconQuads.Mode.NORMAL);
+		setDim(normal.getWidth(), normal.getHeight());
 		lit = false;
 	}
 
@@ -13,13 +16,16 @@ public final class Diode extends GUIObject {
 	}
 
 	@Override
-	protected void renderGeometry() {
-		if (isDisabled()) {
-			Skin.getSkin().getDiode()[Skin.DISABLED].render(0, 0);
-		} else if (lit) {
-			Skin.getSkin().getDiode()[Skin.ACTIVE].render(0, 0);
-		} else {
-			Skin.getSkin().getDiode()[Skin.NORMAL].render(0, 0);
-		}
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+		ModeIconQuads.Mode skinMode =  isDisabled()
+            ? ModeIconQuads.Mode.DISABLED
+            : lit
+                ? ModeIconQuads.Mode.ACTIVE
+                : ModeIconQuads.Mode.NORMAL;
+
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, Skin.getSkin().getDiode().get(skinMode).getTexture().getHandle());
+		GL11.glBegin(GL11.GL_QUADS);
+		Skin.getSkin().getDiode().get(skinMode).render(0, 0);
+		GL11.glEnd();
 	}
 }

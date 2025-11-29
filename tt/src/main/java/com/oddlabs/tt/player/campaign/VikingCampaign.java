@@ -49,10 +49,6 @@ public final class VikingCampaign extends Campaign {
 
 	private final Island @NonNull [] islands;
 
-	static {
-		VikingCampaignIcons.load();
-	}
-
 	public VikingCampaign(NetworkSelector network, GUIRoot gui_root) {
 		this(network, gui_root, new CampaignState(INITIAL_STATES));
 	}
@@ -81,7 +77,7 @@ public final class VikingCampaign extends Campaign {
 	}
 
 	@Override
-	public CampaignIcons getIcons() {
+	public @NonNull CampaignIcons getIcons() {
 		return VikingCampaignIcons.getIcons();
 	}
 

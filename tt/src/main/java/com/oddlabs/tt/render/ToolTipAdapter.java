@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
-import com.oddlabs.tt.gui.Icons;
+import com.oddlabs.tt.gui.GUIIcons;
+import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.gui.ToolTipBox;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
@@ -15,14 +16,11 @@ import com.oddlabs.tt.model.behaviour.GatherController;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
-	private static final Quad[] icon = new Quad[1];
-
 	private final ModelToolTip model;
 	private final Player local_player;
 	private ToolTipBox tool_tip_box;
@@ -71,16 +69,15 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 	@Override
 	public void visitSupply(@NonNull Supply model) {
 		tool_tip_box.append(Utils.getBundleString(ResourceBundle.getBundle(model.getClass().getName()), "name"));
-		tool_tip_box.append(Icons.getIcons().getToolTipIcon(model.getClass()));
+		tool_tip_box.append(GUIIcons.getIcons().getToolTipIcon(model.getClass()));
 	}
 
 	@Override
 	public void visitBuilding(@NonNull Building building) {
 		visitSelectable(building);
 		tool_tip_box.append(building.getTemplate().getName());
-		Quad[] watch = Icons.getIcons().getWatch();
-		icon[0] = watch[((watch.length - 1)*building.getHitPoints()/building.getBuildingTemplate().getMaxHitPoints())];
-		tool_tip_box.append(icon);
+		IconQuad[] watch = GUIIcons.getIcons().getWatch();
+		tool_tip_box.append(watch[((watch.length - 1)*building.getHitPoints()/building.getBuildingTemplate().getMaxHitPoints())]);
 		//      if (getUnitContainer() != null && Settings.getSettings().developer_mode) {
 		//          tool_tip_box.append(" units_in_building ");
 		//          tool_tip_box.append(getUnitContainer().getNumSupplies());
@@ -98,14 +95,13 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 			tool_tip_box.append(unit.getTemplate().getName());
 		Controller c = unit.getPrimaryController();
 		if (unit.getAbilities().hasAbilities(Abilities.MAGIC)) {
-			Quad[] watch = Icons.getIcons().getWatch();
+            IconQuad[] watch = GUIIcons.getIcons().getWatch();
 			int hit_points = unit.getHitPoints();
 			int index = ((watch.length - 1)*hit_points/unit.getUnitTemplate().getMaxHitPoints());
 			assert hit_points > 0 && hit_points <= unit.getUnitTemplate().getMaxHitPoints(): "Invalid hit points";
-			icon[0] = watch[index];
-			tool_tip_box.append(icon);
+			tool_tip_box.append(watch[index]);
 		} else if (unit.getOwner() == local_player && c instanceof GatherController<?> gc) {
-			tool_tip_box.append(Icons.getIcons().getToolTipIcon(gc.getSupplyType()));
+			tool_tip_box.append(GUIIcons.getIcons().getToolTipIcon(gc.getSupplyType()));
 		}
 		/*      if (getCurrentBehaviour() instanceof WalkBehaviour)
 				((WalkBehaviour)getCurrentBehaviour()).appendToolTip(tool_tip_box);*/

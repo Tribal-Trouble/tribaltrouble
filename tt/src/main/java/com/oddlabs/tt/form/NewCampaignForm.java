@@ -28,9 +28,11 @@ import com.oddlabs.tt.player.campaign.VikingCampaign;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.io.InvalidClassException;
+import java.nio.file.NoSuchFileException;
 import java.util.ResourceBundle;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
@@ -43,17 +45,17 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 	private static final int INDEX_VIKINGS = 0;
 	private static final int INDEX_NATIVES = 1;
 
-	private final Menu main_menu;
-	private final CampaignForm campaign_form;
+	private final @NonNull Menu main_menu;
+	private final @NonNull CampaignForm campaign_form;
 	private final ResourceBundle bundle = ResourceBundle.getBundle(NewCampaignForm.class.getName());
 	private final @NonNull EditLine editline_name;
-	private final @NonNull PulldownMenu race_pulldown;
-	private final @NonNull PulldownMenu difficulty_pulldown;
-	private final GUIRoot gui_root;
-	private final NetworkSelector network;
-	private CampaignState[] campaign_states;
+	private final @NonNull PulldownMenu<Void> race_pulldown;
+	private final @NonNull PulldownMenu<Void> difficulty_pulldown;
+	private final @NonNull GUIRoot gui_root;
+	private final @NonNull NetworkSelector network;
+	private @NonNull CampaignState @Nullable [] campaign_states;
 
-	public NewCampaignForm(NetworkSelector network, GUIRoot gui_root, Menu main_menu, CampaignForm campaign_form) {
+	public NewCampaignForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu, @NonNull CampaignForm campaign_form) {
 		this.network = network;
 		this.gui_root = gui_root;
 		this.main_menu = main_menu;
@@ -72,9 +74,9 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 
 		// race
 		Label race_label = new Label(Utils.getBundleString(bundle, "race"), Skin.getSkin().getEditFont());
-		race_pulldown = new PulldownMenu();
-		race_pulldown.addItem(new PulldownItem(Utils.getBundleString(bundle, "vikings")));
-		race_pulldown.addItem(new PulldownItem(Utils.getBundleString(bundle, "natives")));
+		race_pulldown = new PulldownMenu<>();
+		race_pulldown.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "vikings")));
+		race_pulldown.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "natives")));
 		race_pulldown.addItemChosenListener(new RaceListener());
 		PulldownButton race_pb = new PulldownButton(gui_root, race_pulldown, INDEX_VIKINGS, 100);
 		group.addChild(race_label);
@@ -82,10 +84,10 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 
 		// difficulty
 		Label difficulty_label = new Label(Utils.getBundleString(bundle, "difficulty"), Skin.getSkin().getEditFont());
-		difficulty_pulldown = new PulldownMenu();
-		difficulty_pulldown.addItem(new PulldownItem(Utils.getBundleString(bundle, "easy")));
-		difficulty_pulldown.addItem(new PulldownItem(Utils.getBundleString(bundle, "normal")));
-		difficulty_pulldown.addItem(new PulldownItem(Utils.getBundleString(bundle, "hard")));
+		difficulty_pulldown = new PulldownMenu<>();
+		difficulty_pulldown.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "easy")));
+		difficulty_pulldown.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "normal")));
+		difficulty_pulldown.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "hard")));
 		PulldownButton difficulty_pb = new PulldownButton(gui_root, difficulty_pulldown, 1, 100);
 		group.addChild(difficulty_label);
 		group.addChild(difficulty_pb);
@@ -205,8 +207,8 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 	}
 
 	@Override
-	public void failed(Throwable e) {
-		if (e instanceof FileNotFoundException) {
+	public void failed(@NonNull Throwable e) {
+		if (e instanceof FileNotFoundException || e instanceof NoSuchFileException) {
 		} else if (e instanceof InvalidClassException) {
 		} else {
 			String failed_message = Utils.getBundleString(bundle, "failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
@@ -221,14 +223,14 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		}
 
 		@Override
-		public void enterPressed(CharSequence text) {
+		public void enterPressed(@NonNull CharSequence text) {
 			save();
 		}
 	}
 
-	private final class RaceListener implements ItemChosenListener {
+	private final class RaceListener implements ItemChosenListener<Void> {
 		@Override
-		public void itemChosen(@NonNull PulldownMenu menu, int item_index) {
+		public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
 			if (item_index == INDEX_NATIVES && (!Settings.getSettings().has_native_campaign)) {
 				menu.chooseItem(INDEX_VIKINGS);
 				gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "native_unavailable")));

@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.procedural.Layer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -13,7 +14,7 @@ public final class GLIntImage extends GLImage {
 
 	@Override
 	public int getPixelSize() {
-		return 4;
+		return Integer.BYTES;
 	}
 
 	public @NonNull IntBuffer getIntPixels() {
@@ -25,13 +26,13 @@ public final class GLIntImage extends GLImage {
 		boolean true_alpha_supported = (org.lwjgl.input.Cursor.getCapabilities() & org.lwjgl.input.Cursor.CURSOR_8_BIT_ALPHA) != 0;
 		while (pixels.hasRemaining()) {
 			int rgba_pixel = pixels.get();
-			int r = (rgba_pixel >> 24) & 0xff;
-			int g = (rgba_pixel >> 16) & 0xff;
-			int b = (rgba_pixel >> 8) & 0xff;
-			int a = rgba_pixel & 0xff;
+			byte r = (byte) (rgba_pixel >> 24);
+            byte g = (byte) (rgba_pixel >> 16);
+            byte b = (byte) (rgba_pixel >> 8);
+            byte a = (byte) rgba_pixel;
 			if (!true_alpha_supported && a != 0)
-				a = 0xff;
-			int cursor_pixel = (a << 24) | (r << 16) | (g << 8) | b;
+				a = (byte) 0xff;
+			int cursor_pixel = Color.argbi(r,g, b, a);
 			cursor_pixels.put(cursor_pixel);
 		}
 		pixels.clear();

@@ -8,6 +8,7 @@ public class ImageButton extends ButtonObject {
 	private final GUIObject disabled;
 
 	public ImageButton(@NonNull GUIObject normal, GUIObject hovered, GUIObject disabled) {
+		super(Skin.getSkin().getEditFont());
 		setDim(normal.getWidth(), normal.getHeight());
 		this.normal = normal;
 		this.hovered = hovered;
@@ -23,13 +24,11 @@ public class ImageButton extends ButtonObject {
 	}
 
 	@Override
-	protected final void renderGeometry() {
-		if (isDisabled())
-			disabled.renderGeometry();
-		else if (isHovered() || isActive())
-			hovered.renderGeometry();
-		else
-			normal.renderGeometry();
+	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+        var render = isDisabled()
+                ? disabled
+                : isHovered() || isActive() ? hovered : normal;
+        render.renderGeometry(clip_left, clip_right, clip_bottom, clip_top);
 	}
 
 	@Override

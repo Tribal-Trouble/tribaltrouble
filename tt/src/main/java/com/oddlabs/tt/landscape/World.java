@@ -4,7 +4,6 @@ import com.oddlabs.geometry.LowDetailModel;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.ProgressForm;
-import com.oddlabs.tt.gui.Icons;
 import com.oddlabs.tt.model.AbstractElementNode;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Supply;
@@ -20,8 +19,8 @@ import com.oddlabs.tt.resource.WorldInfo;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
@@ -30,29 +29,30 @@ public final class World {
 
 	private static final float[] GAMESPEEDS = new float[]{
 		0f,
-			AnimationManager.ANIMATION_SECONDS_PER_TICK/2,
-			AnimationManager.ANIMATION_SECONDS_PER_TICK,
-			AnimationManager.ANIMATION_SECONDS_PER_TICK*1.75f,
-			AnimationManager.ANIMATION_SECONDS_PER_TICK*4};
+        AnimationManager.ANIMATION_SECONDS_PER_TICK/2,
+        AnimationManager.ANIMATION_SECONDS_PER_TICK,
+        AnimationManager.ANIMATION_SECONDS_PER_TICK*1.75f,
+        AnimationManager.ANIMATION_SECONDS_PER_TICK*4
+    };
 
 	private final @NonNull HeightMap world;
 	private final @NonNull Random random;
 	private final @NonNull AnimationManager animation_manager_game_time;
 	private final @NonNull AnimationManager animation_manager_real_time;
-	private final AudioImplementation audio_impl;
+	private final @NonNull AudioImplementation audio_impl;
 
 	private final int max_unit_count;
-	private final NotificationListener notification_listener;
+	private final @NonNull NotificationListener notification_listener;
 
-	private final Player @NonNull [] players;
+	private final @NonNull Player @NonNull [] players;
 	private final @NonNull SupplyManagers supply_managers;
 	private final @NonNull UnitGrid unit_grid;
 	private final @NonNull LandscapeTileIndices landscape_indices;
 	private final @NonNull AbstractPatchGroup patch_root;
 	private final @NonNull AbstractTreeGroup tree_root;
 	private final @NonNull AbstractElementNode<?> element_root;
-	private final RacesResources races_resources;
-	private final LandscapeResources landscape_resources;
+	private final @Nullable RacesResources races_resources;
+	private final @NonNull LandscapeResources landscape_resources;
 
 	private int global_checksum;
 	private int gamespeed;
@@ -64,11 +64,10 @@ public final class World {
 	}
 
 	public static @NonNull RacesResources loadInGame(@NonNull RenderQueues queues) {
-		Icons.load();
 		return new RacesResources(queues);
 	}
 
-	public static @NonNull World newWorld(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
+	public static @NonNull World newWorld(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, float @NonNull [] @NonNull [] colors) {
 		ProgressForm.progress();
 		World world = new World(audio_implementation, landscape_resources, races_resources, tree_low_details, notification_listener, world_params, world_info, terrain, player_infos, colors);
 		ProgressForm.progress();
@@ -83,15 +82,15 @@ public final class World {
 		return world;
 	}
 
-	public LandscapeResources getLandscapeResources() {
+	public @NonNull LandscapeResources getLandscapeResources() {
 		return landscape_resources;
 	}
 
-	public RacesResources getRacesResources() {
+	public @Nullable RacesResources getRacesResources() {
 		return races_resources;
 	}
 
-	public AudioImplementation getAudio() {
+	public @NonNull AudioImplementation getAudio() {
 		return audio_impl;
 	}
 
@@ -144,7 +143,7 @@ public final class World {
 		return getAnimationManagerRealTime().getTick();
 	}
 
-	private World(AudioImplementation audio_implementation, LandscapeResources landscape_resources, RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, PlayerInfo @NonNull [] player_infos, float[][] colors) {
+	private World(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, float @NonNull [] @NonNull [] colors) {
 		IO.println("****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
 		this.landscape_resources = landscape_resources;
 		this.races_resources = races_resources;
@@ -154,22 +153,15 @@ public final class World {
 		this.gamespeed = world_params.getInitialGameSpeed();
 		long time_start = System.currentTimeMillis();
 
-		int num_players = player_infos.length;
-
 		world = new HeightMap(this, world_info.meters_per_world, world_info.sea_level_meters, world_info.texels_per_colormap, world_info.chunks_per_colormap, world_info.heightmap, world_info.trees, world_info.access_grid, world_info.build_grid);
 		animation_manager_game_time = new AnimationManager();
 		animation_manager_real_time = new AnimationManager();
 		random = new Random(42);
 
-		List<Player> player_list = new ArrayList<>();
-		for (short i = 0; i < player_infos.length; i++) {
-//			slot_to_participant_index[i] = -1;
-			Player player = new Player(this, player_infos[i], colors[i]);
-			player_list.add(player);
-		}
-
-		players = new Player[player_list.size()];
-		player_list.toArray(players);
+        Iterator<float[]> eachColor = Arrays.asList(colors).iterator();
+        players = Arrays.stream(player_infos)
+                .map(info -> new Player(this, info, eachColor.next()))
+                .toArray(Player[]::new);
 
 		long time_stop = System.currentTimeMillis();
 		IO.println("****************** Finished landscape in " + ((time_stop - time_start) / 1000f) + " sec ********************");
@@ -207,7 +199,7 @@ public final class World {
 		return supply_managers.getSupplyManager(cl);
 	}
 
-	public Player @NonNull [] getPlayers() {
+	public @NonNull Player @NonNull [] getPlayers() {
 		return players;
 	}
 
@@ -215,7 +207,7 @@ public final class World {
 		return max_unit_count;
 	}
 
-	public NotificationListener getNotificationListener() {
+	public @NonNull NotificationListener getNotificationListener() {
 		return notification_listener;
 	}
 

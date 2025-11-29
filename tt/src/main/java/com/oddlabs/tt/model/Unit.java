@@ -137,6 +137,11 @@ public class Unit extends Selectable implements Occupant, Movable {
     }
 
     @Override
+    protected @NonNull Unit self() {
+        return this;
+    }
+
+    @Override
     protected final float getZError() {
         return getLandscapeError();
     }

@@ -26,7 +26,6 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.LocalInput;
-import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.landscape.LandscapeResources;
 import com.oddlabs.tt.landscape.NotificationListener;
 import com.oddlabs.tt.landscape.TreeSupply;
@@ -56,6 +55,7 @@ import com.oddlabs.tt.vbo.VBO;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
+import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -248,13 +248,10 @@ public final class Renderer {
 		boolean eventload = false;
 		boolean zipped = false;
 		boolean silent = false;
-		Settings settings = new Settings();
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
-                case "--grabframes":
-                    grab_frames = true;
-                    break;
-                case "--eventload":
+                case "--grabframes" -> grab_frames = true;
+                case "--eventload" -> {
                     eventload = true;
                     i++;
                     switch (args[i]) {
@@ -266,26 +263,23 @@ public final class Renderer {
                         default:
                             throw new RuntimeException("Unknown event load mode: " + args[i]);
                     }
-                    break;
-                case "--silent":
-                    silent = true;
-                    break;
-                default:
-                    throw new RuntimeException("Unknown command line flag: " + args[i]);
+                }
+                case "--silent" -> silent = true;
+                default -> throw new RuntimeException("Unknown command line flag: " + args[i]);
             }
 		}
 
 		// fetch initial settings
-		settings.load(game_dir);
+        Settings settings = new Settings();
+        settings.load(game_dir);
 
 		if (eventload || grab_frames) {
-			Path last_event_log_path = settings.last_event_log_dir.resolve(zipped ? "event.log.gz" : "event.log");
+			Path last_event_log_path = settings.last_event_log_dir.resolve(zipped ? "event.log.gz" :"event.log");
 			logger.info("last_event_log_path = " + last_event_log_path);
 			// Only use when anal debugging
 //			ChecksumLogger.initLogging();
 			LocalEventQueue.getQueue().loadEvents(last_event_log_path, zipped);
 		}
-
 
 		Path event_logs_dir = game_dir.resolve("logs");
 		Path event_log_dir = event_logs_dir.resolve(Long.toString(System.currentTimeMillis()));
@@ -319,7 +313,6 @@ public final class Renderer {
 		TaskThread task_thread = network.getTaskThread();
 		if (!settings.inDeveloperMode() && !deterministic.isPlayback())
 			deleteOldLogs(last_event_log_dir.toFile(), event_log_dir.toFile(), event_logs_dir.toFile());
-		Skin.load();
 		GUI gui = new GUI();
 
 		GlobalsInit.init();
@@ -343,6 +336,16 @@ public final class Renderer {
 					}
 					if (!first_frame) {
 						Display.update();
+					}
+					if (Display.wasResized()) {
+						int width = Display.getWidth();
+						int height = Display.getHeight();
+						Settings.getSettings().view_width = width;
+						Settings.getSettings().view_height = height;
+						LocalInput.setViewDimensions(width, height);
+						GL11.glViewport(0, 0, width, height);
+						initGL();
+						gui.getGUIRoot().displayChanged();
 					}
 					display(gui);
 					if (first_frame) {
@@ -447,7 +450,7 @@ public final class Renderer {
 			@Override
 			public void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
 			}
-		}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Player.COLORS[0]});
+		}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Color.argb4f(Player.COLORS[0])});
 		AnimationManager manager = new AnimationManager();
 		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, gui_root, manager);
 		Player local_player = world.getPlayers()[0];

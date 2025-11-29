@@ -1,6 +1,5 @@
 package com.oddlabs.tt.font;
 
-import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
@@ -23,8 +22,8 @@ public final class Font {
 										   GL11.GL_RGBA,
 										   GL11.GL_LINEAR,
 										   GL11.GL_LINEAR,
-										   GL11.GL_CLAMP,
-										   GL11.GL_CLAMP);
+                                           GL11.GL_CLAMP,
+                                           GL11.GL_CLAMP);
 		this.texture = Resources.findResource(file);
 		this.x_border = font_info.getBorderX();
 		this.y_border = font_info.getBorderY();
@@ -33,26 +32,6 @@ public final class Font {
 
 	public @Nullable Quad getQuad(int codepoint) {
 		return codepoint < key_array.length ? key_array[codepoint] : null;
-	}
-
-	public void setup() {
-		GL11.glEnd();
-		setupQuads();
-	}
-
-	public void setupQuads() {
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
-		GL11.glBegin(GL11.GL_QUADS);
-	}
-
-	public void resetQuads() {
-		GL11.glEnd();
-	}
-
-	public void reset() {
-		resetQuads();
-		Skin.getSkin().bindTexture();
-		GL11.glBegin(GL11.GL_QUADS);
 	}
 
 	public int getXBorder() {

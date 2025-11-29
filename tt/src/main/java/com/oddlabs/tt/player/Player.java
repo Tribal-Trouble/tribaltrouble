@@ -21,7 +21,6 @@ import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.util.Target;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -35,14 +34,9 @@ public final class Player implements PlayerInterface {
 	public static final int MAX_BUILDING_COUNT = 20;
 	public static final int DEFAULT_MAX_UNIT_COUNT = 250;
 
-	public static final float[][] COLORS = {
-			Color.argb4f(0xFFFFBF00),
-			Color.argb4f(0xFF007FFF),
-			Color.argb4f(0xFFFF0040),
-			Color.argb4f(0xFF00FFBF),
-			Color.argb4f(0xFFBF00FF),
-			Color.argb4f(0xFFBFFF00)
-	};
+	public static final int[] COLORS = {
+            0xFFFFBF00, 0xFF007FFF, 0xFFFF0040,
+            0xFF00FFBF, 0xFFBF00FF, 0xFFBFFF00 };
 
 	private final @NonNull World world;
 	private final @NonNull PlayerInfo player_info;
@@ -124,10 +118,9 @@ public final class Player implements PlayerInterface {
 	}
 
 	public int getGamespeed() {
-		if (World.isValidGamespeed(preferred_speed))
-			return preferred_speed;
-		else
-			return world.getGamespeed();
+        return World.isValidGamespeed(preferred_speed)
+                ? preferred_speed
+                : world.getGamespeed();
 	}
 
 	public int getPreferredGamespeed() {
@@ -251,7 +244,7 @@ public final class Player implements PlayerInterface {
 	}
 
 	@Override
-	public String toString() {
+	public @NonNull String toString() {
 		return player_info.toString();
 	}
 

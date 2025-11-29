@@ -12,10 +12,10 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MapIslandData;
+import com.oddlabs.tt.gui.ModeIconQuads;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.NonFocusIconButton;
 import com.oddlabs.tt.gui.Origin;
-import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.player.campaign.Campaign;
 import com.oddlabs.tt.player.campaign.CampaignState;
@@ -23,6 +23,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ResourceBundle;
 
@@ -96,11 +97,11 @@ public final class CampaignMapForm extends CameraDelegate {
 					break;
 				case CampaignState.ISLAND_SEMI_AVAILABLE:
 				case CampaignState.ISLAND_UNAVAILABLE:
-					island = new GUIIcon(data.getButton()[Skin.DISABLED]);
+					island = new GUIIcon(data.getButton().quad(ModeIconQuads.Mode.DISABLED));
 					addChild(island);
 					break;
 				case CampaignState.ISLAND_COMPLETED:
-					island = new GUIIcon(data.getButton()[Skin.NORMAL]);
+					island = new GUIIcon(data.getButton().quad(ModeIconQuads.Mode.NORMAL));
 					addChild(island);
 					if (campaign.getState().getCurrentIsland() != i) {
 						GUIIcon flag = new GUIIcon(data.getFlag());
@@ -145,8 +146,11 @@ public final class CampaignMapForm extends CameraDelegate {
 	}
 
 	@Override
-	protected void renderGeometry() {
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, campaign.getIcons().getMap().getTexture().getHandle());
+		GL11.glBegin(GL11.GL_QUADS);
 		campaign.getIcons().getMap().render(0, 0);
+		GL11.glEnd();
 //		campaign.extraRender();
 	}
 

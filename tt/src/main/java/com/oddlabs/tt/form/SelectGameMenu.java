@@ -14,7 +14,6 @@ import com.oddlabs.tt.gui.ChatPanel;
 import com.oddlabs.tt.gui.ChatRoomInfo;
 import com.oddlabs.tt.gui.ColumnInfo;
 import com.oddlabs.tt.gui.Form;
-import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
@@ -68,17 +67,17 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 	// List of games
 	private final @NonNull Panel game_list_panel;
-	private final @NonNull MultiColumnComboBox game_list_box;
+	private final @NonNull MultiColumnComboBox<GameHost> game_list_box;
 	private final List<GameHost> game_hosts = new ArrayList<>();
 
 	// List of chat rooms
 	private final @NonNull Panel chat_room_list_panel;
-	private final @NonNull MultiColumnComboBox chat_room_list_box;
+	private final @NonNull MultiColumnComboBox<ChatRoomEntry> chat_room_list_box;
 	private final List<ChatRoomEntry> chat_rooms = new ArrayList<>();
-	private final GUIRoot gui_root;
+	private final @NonNull GUIRoot gui_root;
 	private final NetworkSelector network;
 
-	private final @NonNull MultiColumnComboBox ranking_list_box;
+	private final @NonNull MultiColumnComboBox<RankingEntry> ranking_list_box;
 
 	private final int game_name_size;
 	private final int user_name_size;
@@ -90,11 +89,11 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 	private @Nullable ChatPanel chat_panel;
 	private PanelGroup panel_group;
 
-	public SelectGameMenu(NetworkSelector network, GUIRoot gui_root, @NonNull Menu main_menu) {
+	public SelectGameMenu(NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu) {
 		this(network, gui_root, main_menu, 0);
 	}
 
-	public SelectGameMenu(NetworkSelector network, GUIRoot gui_root, @NonNull Menu main_menu, int panel_index) {
+	public SelectGameMenu(NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu, int panel_index) {
 		this.main_menu = main_menu;
 		this.gui_root = gui_root;
 		this.network = network;
@@ -110,13 +109,13 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 			new ColumnInfo(Utils.getBundleString(bundle, "rated"), 120),
 			new ColumnInfo(Utils.getBundleString(bundle, "speed"), 120),
 			new ColumnInfo(Utils.getBundleString(bundle, "map_size"), 120)};
-		game_list_box = new MultiColumnComboBox(gui_root, infos, 350);
+		game_list_box = new MultiColumnComboBox<>(gui_root, infos, 350);
 		game_list_box.addRowListener(new GameDoubleClickedListener());
 		game_list_panel.addChild(game_list_box);
 
-		PulldownMenu game_list_pulldown_menu = new PulldownMenu();
-		game_list_pulldown_menu.addItem(new PulldownItem(Utils.getBundleString(bundle, "join")));
-		game_list_pulldown_menu.addItem(new PulldownItem(Utils.getBundleString(bundle, "game_info")));
+		PulldownMenu<Void> game_list_pulldown_menu = new PulldownMenu<>();
+		game_list_pulldown_menu.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "join")));
+		game_list_pulldown_menu.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "game_info")));
 		game_list_pulldown_menu.addItemChosenListener(new PulldownListener(game_list_box));
 		game_list_box.setPulldownMenu(game_list_pulldown_menu);
 
@@ -130,7 +129,10 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 		HorizButton join_button = new HorizButton(Utils.getBundleString(bundle, "join_game"), BUTTON_WIDTH);
 		game_list_panel.addChild(join_button);
-		join_button.addMouseClickListener(new JoinGameListener());
+		join_button.addMouseClickListener((_,_,_,_) -> {
+            GameHost selected_game = game_list_box.getSelected();
+            joinGame(selected_game);
+        });
 
 		// Place game panel objects
 		label_headline.place();
@@ -155,7 +157,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 			new ColumnInfo(Utils.getBundleString(bundle, "wins"), 100),
 			new ColumnInfo(Utils.getBundleString(bundle, "losses"), 100),
 			new ColumnInfo(Utils.getBundleString(bundle, "invalid"), 100)};
-		ranking_list_box = new MultiColumnComboBox(gui_root, score_infos, 350);
+		ranking_list_box = new MultiColumnComboBox<>(gui_root, score_infos, 350);
 		highscore_list_panel.addChild(ranking_list_box);
 
 		HorizButton update_scores_button = new HorizButton(Utils.getBundleString(bundle, "update_scores"), BUTTON_WIDTH_EXTRA_LONG);
@@ -180,7 +182,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		infos = new ColumnInfo[]{
 			new ColumnInfo(Utils.getBundleString(bundle, "room"), room_name_size),
 			new ColumnInfo(Utils.getBundleString(bundle, "users"), 100)};
-		chat_room_list_box = new MultiColumnComboBox(gui_root, infos, 350);
+		chat_room_list_box = new MultiColumnComboBox<>(gui_root, infos, 350);
 		chat_room_list_box.addRowListener(new RoomDoubleClickedListener());
 		chat_room_list_panel.addChild(chat_room_list_box);
 
@@ -248,7 +250,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 	}
 
 	private @NonNull ChatPanel createChatRoomPanel(@NonNull ChatRoomInfo info) {
-		ChatPanel panel = new ChatPanel(gui_root, info, chat_room_list_panel.getWidth(), chat_room_list_panel.getHeight(), BUTTON_WIDTH_SHORT, new SendChatListener(), new LeaveListener());
+		ChatPanel panel = new ChatPanel(gui_root, info, chat_room_list_panel.getWidth(), chat_room_list_panel.getHeight(), BUTTON_WIDTH_SHORT, new SendChatListener(), (_,_,_,_) -> leaveChatRoom());
 		Network.getChatHub().addListener(panel);
 		return panel;
 	}
@@ -272,8 +274,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 	public void connectionLost() {
 		leaveChatRoom();
 		remove();
-		if (profiles_form != null)
-			profiles_form.connectionLost();
+		profiles_form.connectionLost();
 		gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "connection_lost")));
 	}
 
@@ -349,7 +350,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
                 }
 				break;
 			default:
-				throw new RuntimeException();
+				throw new IllegalArgumentException("Unexpected list type " + type);
 		}
 	}
 
@@ -368,12 +369,12 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 				ranking_list_box.clear();
 				break;
 			default:
-				throw new RuntimeException();
+				throw new IllegalArgumentException("Unexpected list type " + type);
 		}
 	}
 
 	private void updateRankingList(@NonNull RankingEntry ranking) {
-		Row row = new Row(new GUIObject[]{
+		Row<RankingEntry,Label> row = new Row<>(new Label[]{
 			new IntegerLabel(ranking.getRanking(), Skin.getSkin().getMultiColumnComboBoxData().getFont()),
 			new Label(ranking.getName(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), user_name_size),
 			new IntegerLabel(ranking.getRating(), Skin.getSkin().getMultiColumnComboBoxData().getFont()),
@@ -388,7 +389,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
         for (GameHost game_host : game_hosts) {
             String rated = ServerMessageBundler.getRatedString(game_host.getGame().isRated());
             String size = ServerMessageBundler.getSizeString(game_host.getGame().getSize());
-            Row row = new Row(new GUIObject[]{
+            Row<GameHost,Label> row = new Row<>(new Label[]{
                     new Label(game_host.getGame().getName(), combofont, game_name_size),
                     new Label(rated, combofont),
                     new Label(ServerMessageBundler.getGamespeedString(game_host.getGame().getGamespeed()), combofont),
@@ -402,7 +403,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		Font combofont = Skin.getSkin().getMultiColumnComboBoxData().getFont();
         for (ChatRoomEntry chat_room_info : chat_rooms) {
             String users_and_max = Utils.getBundleString(bundle, "users_and_max", chat_room_info.getNumJoined(), MatchmakingServerInterface.MAX_ROOM_USERS);
-            Row row = new Row(new GUIObject[]{
+            Row<ChatRoomEntry,Label> row = new Row<>(new Label[]{
                     new Label(chat_room_info.getName(), combofont, room_name_size),
                     new Label(users_and_max, combofont)},
                     chat_room_info);
@@ -448,15 +449,10 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		}
 	}
 
-	private final class RoomDoubleClickedListener implements RowListener {
+	private final class RoomDoubleClickedListener implements RowListener<ChatRoomEntry> {
 		@Override
-		public void rowDoubleClicked(Object context) {
-			ChatRoomEntry chat_room_info = (ChatRoomEntry)context;
+		public void rowDoubleClicked(ChatRoomEntry chat_room_info) {
 			joinRoom(chat_room_info);
-		}
-
-		@Override
-		public void rowChosen(Object context) {
 		}
 	}
 
@@ -468,22 +464,9 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		}
 	}
 
-	private final class GameDoubleClickedListener implements RowListener {
+	private final class GameDoubleClickedListener implements RowListener<GameHost> {
 		@Override
-		public void rowDoubleClicked(Object context) {
-			GameHost selected_game = (GameHost)context;
-			joinGame(selected_game);
-		}
-
-		@Override
-		public void rowChosen(Object context) {
-		}
-	}
-
-	private final class JoinGameListener implements MouseClickListener {
-		@Override
-		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			GameHost selected_game = (GameHost)game_list_box.getSelected();
+		public void rowDoubleClicked(GameHost selected_game) {
 			joinGame(selected_game);
 		}
 	}
@@ -519,7 +502,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 	private final class JoinRoomListener implements MouseClickListener {
 		@Override
 		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			ChatRoomEntry chat_room_info = (ChatRoomEntry)chat_room_list_box.getSelected();
+			ChatRoomEntry chat_room_info = chat_room_list_box.getSelected();
 			joinRoom(chat_room_info);
 		}
 	}
@@ -552,23 +535,16 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		}
 	}
 
-	private final class LeaveListener implements MouseClickListener {
-		@Override
-		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			leaveChatRoom();
-		}
-	}
+	private final class PulldownListener implements ItemChosenListener<GameHost> {
+		private final @NonNull MultiColumnComboBox<GameHost> box;
 
-	private final class PulldownListener implements ItemChosenListener {
-		private final MultiColumnComboBox box;
-
-		public PulldownListener(MultiColumnComboBox box) {
+		public PulldownListener(@NonNull MultiColumnComboBox<GameHost> box) {
 			this.box = box;
 		}
 
 		@Override
-		public void itemChosen(PulldownMenu menu, int item_index) {
-			GameHost host = (GameHost)box.getRightClickedRowData();
+		public void itemChosen(PulldownMenu<GameHost> menu, int item_index) {
+			GameHost host = box.getRightClickedRowData();
 			switch (item_index) {
 				case 0: //Join
 					joinGame(host);
@@ -577,7 +553,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 					gui_root.addModalForm(new GameInfoForm(host.getGame()));
 					break;
 				default:
-					throw new RuntimeException();
+					throw new IllegalArgumentException("Unexpected action " + item_index);
 			}
 			box.setFocus();
 		}

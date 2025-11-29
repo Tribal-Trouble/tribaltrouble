@@ -1,31 +1,32 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
-public final class Row extends GUIObject implements Comparable<Row> {
-	private final Object @NonNull [] columns;
-	private final Object content_object;
+public final class Row<T,C extends GUIObject & Comparable<C>> extends GUIObject implements Comparable<Row<T,C>> {
+	private final @NonNull C @NonNull [] columns;
+	private final @Nullable T content_object;
 	private int sort_index;
-	private @Nullable Color color = null;
+	private int color = com.oddlabs.util.Color.TRANSPARENT_INT;
 	private boolean marked = false;
 
-	public Row(GUIObject @NonNull [] columns, Object content_object) {
+	public Row(@NonNull C @NonNull [] columns, @Nullable T content_object) {
 		this.columns = columns;
 		this.content_object = content_object;
 		setDim(0, columns[0].getHeight());
 		setCanFocus(true);
 	}
 
-	public Object getColumn(int index) {
+	public @NonNull C getColumn(int index) {
 		return columns[index];
 	}
 
-	public void setColumnInfos(ColumnInfo @NonNull [] column_infos) {
+	public void setColumnInfos(@NonNull ColumnInfo @NonNull [] column_infos) {
 		int x = 0;
 		for (int i = 0; i < column_infos.length; i++) {
-			GUIObject gui_object = (GUIObject)getColumn(i);
+			C gui_object = getColumn(i);
 			gui_object.setPos(x, 0);
 			addChild(gui_object);
 			x += column_infos[i].getWidth();
@@ -45,38 +46,30 @@ public final class Row extends GUIObject implements Comparable<Row> {
 	}
 
 	@Override
-	public int compareTo(@NonNull Row o) {
-		@SuppressWarnings("unchecked")
-		Comparable<Object> local_object = (Comparable<Object>)getColumn(sort_index);
-		return local_object.compareTo(o.getColumn(sort_index));
+	public int compareTo(@NonNull Row<T,C> o) {
+		return getColumn(sort_index).compareTo(o.getColumn(sort_index));
 	}
 
-	public void setColor(Color color) {
+	public void setColor(int color) {
 		this.color = color;
 	}
 
 	@Override
-	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom ,float clip_top) {
-		GL11.glEnd();
-		if (marked) {
-			Color color = Skin.getSkin().getMultiColumnComboBoxData().getColorMarked();
-			GL11.glColor4f(color.getR(), color.getG(), color.getB(), color.getA());
-		} else {
-			GL11.glColor4f(color.getR(), color.getG(), color.getB(), color.getA());
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+        var c = marked ? Skin.getSkin().getMultiColumnComboBoxData().getColorMarked() : color;
+		if (c != Color.TRANSPARENT_INT) {
+			float[] ca = Color.argb4f(c);
+			GL11.glColor4f(ca[0], ca[1], ca[2], ca[3]);
+			GL11.glBegin(GL11.GL_QUADS);
+			GL11.glVertex2f(0, 0);
+			GL11.glVertex2f(0, getHeight());
+			GL11.glVertex2f(getWidth(), getHeight());
+			GL11.glVertex2f(getWidth(), 0);
+			GL11.glEnd();
 		}
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glVertex3f(clip_left, clip_bottom, 0);
-		GL11.glVertex3f(clip_right, clip_bottom, 0);
-		GL11.glVertex3f(clip_right, clip_top, 0);
-		GL11.glVertex3f(clip_left, clip_top, 0);
-		GL11.glEnd();
-		GL11.glColor4f(1f, 1f, 1f, 1f);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glBegin(GL11.GL_QUADS);
 	}
 
-	public Object getContentObject() {
+	public @Nullable T getContentObject() {
 		return content_object;
 	}
 

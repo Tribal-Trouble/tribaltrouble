@@ -4,49 +4,49 @@ import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ResourceBundle;
 
 public abstract class IconSpinner extends GUIObject implements ToolTip {
-	private final IconQuad @NonNull [] icon_quad;
-	private final String tool_tip;
-	private final Quad[] tool_tip_icons;
+	private final @NonNull ModeIconQuads icon_quad;
+	private final @NonNull String tool_tip;
+	private final @NonNull IconQuad @Nullable [] tool_tip_icons;
 	private final @NonNull TextField label;
 	private final @NonNull GUIObject button_plus;
 	private final @NonNull GUIObject button_minus;
-	private final WorldViewer viewer;
+	private final @NonNull WorldViewer viewer;
 	private @Nullable IconDisabler icon_disabler = null;
 
 	private int text_count = 0;
 
-	public IconSpinner(WorldViewer viewer, IconQuad @NonNull [] icon_quad, String tool_tip, Quad[] tool_tip_icons, String shortcut_key) {
+	public IconSpinner(@NonNull WorldViewer viewer, @NonNull ModeIconQuads icon_quad, @NonNull String tool_tip, @NonNull IconQuad @Nullable [] tool_tip_icons, @NonNull String shortcut_key) {
 		this.icon_quad = icon_quad;
 		this.tool_tip = tool_tip;
 		this.tool_tip_icons = tool_tip_icons;
 		this.viewer = viewer;
 		ResourceBundle bundle = ResourceBundle.getBundle(IconSpinner.class.getName());
 		setCanFocus(true);
-		setDim(icon_quad[0].getWidth(), icon_quad[0].getHeight());
+		setDim(icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth(), icon_quad.quad(ModeIconQuads.Mode.NORMAL).getHeight());
 
 		String inc_str = Utils.getBundleString(bundle, "increase", shortcut_key);
 		button_plus = new IconSpinnerButton(Skin.getSkin().getPlusButton(), inc_str, this);
-		addChild(button_plus);
 		button_plus.setPos(0, 0);
 		button_plus.addMouseButtonListener(new IncreaseListener());
+        addChild(button_plus);
 
 		String dec_str = Utils.getBundleString(bundle, "decrease", shortcut_key);
 		button_minus = new IconSpinnerButton(Skin.getSkin().getMinusButton(), dec_str, this);
-		addChild(button_minus);
 		button_minus.setPos(button_plus.getWidth(), 0);
 		button_minus.addMouseButtonListener(new DecreaseListener());
+        addChild(button_minus);
 
-		label = new Label("", Skin.getSkin().getHeadlineFont(), icon_quad[0].getWidth(), Origin.AT_MIDDLE);
-		addChild(label);
+		label = new Label("", Skin.getSkin().getHeadlineFont(), icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth(), Origin.AT_MIDDLE);
 		label.setPos(0, (getHeight() - label.getHeight())/2);
-	}
+        addChild(label);
+    }
 
 	@Override
 	public final void setFocus() {
@@ -69,8 +69,8 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 	protected abstract void decrease(int amount);
 	protected abstract void release();
 	protected abstract int getOrderSize();
-	protected abstract boolean renderInfinite();
-	protected abstract float getProgress();
+	public abstract boolean renderInfinite();
+    protected abstract float getProgress();
 
 	private void setCount() {
 		int count = computeCount();
@@ -91,13 +91,9 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 
 	public final void shortcutPressed(boolean shift_down, boolean ctrl_down) {
 		if (!isDisabled()) {
-				MouseButton mouse_button;
-				if (ctrl_down)
-					mouse_button = MouseButton.RIGHT;
-				else
-					mouse_button = MouseButton.LEFT;
+			MouseButton mouse_button = ctrl_down ? MouseButton.RIGHT : MouseButton.LEFT;
 
-				if (shift_down)
+            if (shift_down)
 					button_minus.mousePressedAll(mouse_button, 0, 0);
 				else
 					button_plus.mousePressedAll(mouse_button, 0, 0);
@@ -111,20 +107,29 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 	}
 
 	@Override
-	protected final void renderGeometry() {
-		int x = (getWidth() - icon_quad[Skin.NORMAL].getWidth())/2;
-		int y = (getHeight() - icon_quad[Skin.NORMAL].getHeight())/2;
-		if (isDisabled())
-			icon_quad[Skin.DISABLED].render(x, y);
-		else if (isHovered())
-			icon_quad[Skin.ACTIVE].render(x, y);
-		else
-			icon_quad[Skin.NORMAL].render(x, y);
+	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+		int x = (getWidth() - icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth())/2;
+		int y = (getHeight() - icon_quad.quad(ModeIconQuads.Mode.NORMAL).getHeight())/2;
+
+		ModeIconQuads.Mode skinMode = isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : isHovered()
+                    ? ModeIconQuads.Mode.ACTIVE
+                    : ModeIconQuads.Mode.NORMAL;
+
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, icon_quad.quad(skinMode).getTexture().getHandle());
+		GL11.glBegin(GL11.GL_QUADS);
+		icon_quad.quad(skinMode).render(x, y);
+		GL11.glEnd();
 
 		if (text_count > 0) {
-			IconQuad[] watch = Icons.getIcons().getWatch();
+			IconQuad[] watch = GUIIcons.getIcons().getWatch();
 			int index = (int)(getProgress()*(watch.length - 1));
-			watch[index].render(getWidth() - watch[index].getWidth(),  getHeight() - watch[index].getHeight());
+			IconQuad watchQuad = watch[index];
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, watchQuad.getTexture().getHandle());
+			GL11.glBegin(GL11.GL_QUADS);
+			watchQuad.render(getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight());
+			GL11.glEnd();
 		}
 	}
 
@@ -156,10 +161,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 
 		@Override
 		public void mousePressed(@NonNull MouseButton button, int x, int y) {
-			if (button == MouseButton.RIGHT)
-					increase(10);
-				else
-					increase(1);
+            increase(button == MouseButton.RIGHT ? 10 : 1);
 		}
 
 		@Override
@@ -180,10 +182,7 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 
 		@Override
 		public void mousePressed(@NonNull MouseButton button, int x, int y) {
-			if (button == MouseButton.RIGHT)
-					decrease(10);
-				else
-					decrease(1);
+            decrease(button == MouseButton.RIGHT ? 10 : 1);
 		}
 
 		@Override

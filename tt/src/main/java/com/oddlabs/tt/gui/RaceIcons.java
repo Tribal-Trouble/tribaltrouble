@@ -1,61 +1,63 @@
 package com.oddlabs.tt.gui;
 
-public final class RaceIcons {
-	private final IconQuad unit_status_icon;
-	private final IconQuad weapon_rock_status_icon;
-	private final IconQuad weapon_iron_status_icon;
-	private final IconQuad weapon_rubber_status_icon;
-	private final IconQuad[] build_weapons_icon;
-	private final IconQuad[] build_weapon_rock_icon;
-	private final IconQuad[] build_weapon_iron_icon;
-	private final IconQuad[] build_weapon_rubber_icon;
-	private final IconQuad[] army_icon;
-	private final IconQuad[] warrior_rock_icon;
-	private final IconQuad[] warrior_iron_icon;
-	private final IconQuad[] warrior_rubber_icon;
-	private final IconQuad[] peon_icon;
-	private final IconQuad[] chieftain_icon;
-	private final IconQuad[] transport_icon;
-	private final IconQuad[] attack_icon;
-	private final IconQuad[] move_icon;
-	private final IconQuad[] gather_repair_icon;
-	private final IconQuad[] quarters_icon;
-	private final IconQuad[] armory_icon;
-	private final IconQuad[] tower_icon;
-	private final IconQuad[] tower_exit_icon;
-	private final IconQuad[] rally_point_icon;
-	private final IconQuad[] magic1_icon;
-	private final String magic1_desc;
-	private final IconQuad[] magic2_icon;
-	private final String magic2_desc;
+import org.jspecify.annotations.NonNull;
 
-	public RaceIcons(IconQuad unit_status_icon,
-			IconQuad weapon_rock_status_icon,
-			IconQuad weapon_iron_status_icon,
-			IconQuad weapon_rubber_status_icon,
-			IconQuad[] build_weapons_icon,
-			IconQuad[] build_weapon_rock_icon,
-			IconQuad[] build_weapon_iron_icon,
-			IconQuad[] build_weapon_rubber_icon,
-			IconQuad[] army_icon,
-			IconQuad[] warrior_rock_icon,
-			IconQuad[] warrior_iron_icon,
-			IconQuad[] warrior_rubber_icon,
-			IconQuad[] peon_icon,
-			IconQuad[] chieftain_icon,
-			IconQuad[] transport_icon,
-			IconQuad[] attack_icon,
-			IconQuad[] move_icon,
-			IconQuad[] gather_repair_icon,
-			IconQuad[] quarters_icon,
-			IconQuad[] armory_icon,
-			IconQuad[] tower_icon,
-			IconQuad[] tower_exit_icon,
-			IconQuad[] rally_point_icon,
-			IconQuad[] magic1_icon,
-			String magic1_desc,
-			IconQuad[] magic2_icon,
-			String magic2_desc) {
+public final class RaceIcons {
+	private final @NonNull IconQuad unit_status_icon;
+	private final @NonNull IconQuad weapon_rock_status_icon;
+	private final @NonNull IconQuad weapon_iron_status_icon;
+	private final @NonNull IconQuad weapon_rubber_status_icon;
+	private final @NonNull ModeIconQuads build_weapons_icon;
+	private final @NonNull ModeIconQuads build_weapon_rock_icon;
+	private final @NonNull ModeIconQuads build_weapon_iron_icon;
+	private final @NonNull ModeIconQuads build_weapon_rubber_icon;
+	private final @NonNull ModeIconQuads army_icon;
+	private final @NonNull ModeIconQuads warrior_rock_icon;
+	private final @NonNull ModeIconQuads warrior_iron_icon;
+	private final @NonNull ModeIconQuads warrior_rubber_icon;
+	private final @NonNull ModeIconQuads peon_icon;
+	private final @NonNull ModeIconQuads chieftain_icon;
+	private final @NonNull ModeIconQuads transport_icon;
+	private final @NonNull ModeIconQuads attack_icon;
+	private final @NonNull ModeIconQuads move_icon;
+	private final @NonNull ModeIconQuads gather_repair_icon;
+	private final @NonNull ModeIconQuads quarters_icon;
+	private final @NonNull ModeIconQuads armory_icon;
+	private final @NonNull ModeIconQuads tower_icon;
+	private final @NonNull ModeIconQuads tower_exit_icon;
+	private final @NonNull ModeIconQuads rally_point_icon;
+	private final @NonNull ModeIconQuads magic1_icon;
+	private final @NonNull String magic1_desc;
+	private final @NonNull ModeIconQuads magic2_icon;
+	private final @NonNull String magic2_desc;
+
+	public RaceIcons(@NonNull IconQuad unit_status_icon,
+                     @NonNull IconQuad weapon_rock_status_icon,
+                     @NonNull IconQuad weapon_iron_status_icon,
+                     @NonNull IconQuad weapon_rubber_status_icon,
+                     @NonNull ModeIconQuads build_weapons_icon,
+                     @NonNull ModeIconQuads build_weapon_rock_icon,
+                     @NonNull ModeIconQuads build_weapon_iron_icon,
+                     @NonNull ModeIconQuads build_weapon_rubber_icon,
+                     @NonNull ModeIconQuads army_icon,
+                     @NonNull ModeIconQuads warrior_rock_icon,
+                     @NonNull ModeIconQuads warrior_iron_icon,
+                     @NonNull ModeIconQuads warrior_rubber_icon,
+                     @NonNull ModeIconQuads peon_icon,
+                     @NonNull ModeIconQuads chieftain_icon,
+                     @NonNull ModeIconQuads transport_icon,
+                     @NonNull ModeIconQuads attack_icon,
+                     @NonNull ModeIconQuads move_icon,
+                     @NonNull ModeIconQuads gather_repair_icon,
+                     @NonNull ModeIconQuads quarters_icon,
+                     @NonNull ModeIconQuads armory_icon,
+                     @NonNull ModeIconQuads tower_icon,
+                     @NonNull ModeIconQuads tower_exit_icon,
+                     @NonNull ModeIconQuads rally_point_icon,
+                     @NonNull ModeIconQuads magic1_icon,
+                     @NonNull String magic1_desc,
+                     @NonNull ModeIconQuads magic2_icon,
+                     @NonNull String magic2_desc) {
 		this.unit_status_icon = unit_status_icon;
 		this.weapon_rock_status_icon = weapon_rock_status_icon;
 		this.weapon_iron_status_icon = weapon_iron_status_icon;
@@ -85,111 +87,111 @@ public final class RaceIcons {
 		this.magic2_desc = magic2_desc;
 	}
 
-	public IconQuad getUnitStatusIcon() {
+	public @NonNull IconQuad getUnitStatusIcon() {
 		return unit_status_icon;
 	}
 
-	public IconQuad getWeaponRockStatusIcon() {
+	public @NonNull IconQuad getWeaponRockStatusIcon() {
 		return weapon_rock_status_icon;
 	}
 
-	public IconQuad getWeaponIronStatusIcon() {
+	public @NonNull IconQuad getWeaponIronStatusIcon() {
 		return weapon_iron_status_icon;
 	}
 
-	public IconQuad getWeaponRubberStatusIcon() {
+	public @NonNull IconQuad getWeaponRubberStatusIcon() {
 		return weapon_rubber_status_icon;
 	}
 
-	public IconQuad[] getBuildWeaponsIcon() {
+	public @NonNull ModeIconQuads getBuildWeaponsIcon() {
 		return build_weapons_icon;
 	}
 
-	public IconQuad[] getBuildWeaponRockIcon() {
+	public @NonNull ModeIconQuads getBuildWeaponRockIcon() {
 		return build_weapon_rock_icon;
 	}
 
-	public IconQuad[] getBuildWeaponIronIcon() {
+	public @NonNull ModeIconQuads getBuildWeaponIronIcon() {
 		return build_weapon_iron_icon;
 	}
 
-	public IconQuad[] getBuildWeaponRubberIcon() {
+	public @NonNull ModeIconQuads getBuildWeaponRubberIcon() {
 		return build_weapon_rubber_icon;
 	}
 
-	public IconQuad[] getArmyIcon() {
+	public @NonNull ModeIconQuads getArmyIcon() {
 		return army_icon;
 	}
 
-	public IconQuad[] getWarriorRockIcon() {
+	public @NonNull ModeIconQuads getWarriorRockIcon() {
 		return warrior_rock_icon;
 	}
 
-	public IconQuad[] getWarriorIronIcon() {
+	public @NonNull ModeIconQuads getWarriorIronIcon() {
 		return warrior_iron_icon;
 	}
 
-	public IconQuad[] getWarriorRubberIcon() {
+	public @NonNull ModeIconQuads getWarriorRubberIcon() {
 		return warrior_rubber_icon;
 	}
 
-	public IconQuad[] getPeonIcon() {
+	public @NonNull ModeIconQuads getPeonIcon() {
 		return peon_icon;
 	}
 
-	public IconQuad[] getChieftainIcon() {
+	public @NonNull ModeIconQuads getChieftainIcon() {
 		return chieftain_icon;
 	}
 
-	public IconQuad[] getTransportIcon() {
+	public @NonNull ModeIconQuads getTransportIcon() {
 		return transport_icon;
 	}
 
-	public IconQuad[] getAttackIcon() {
+	public @NonNull ModeIconQuads getAttackIcon() {
 		return attack_icon;
 	}
 
-	public IconQuad[] getMoveIcon() {
+	public @NonNull ModeIconQuads getMoveIcon() {
 		return move_icon;
 	}
 
-	public IconQuad[] getGatherRepairIcon() {
+	public @NonNull ModeIconQuads getGatherRepairIcon() {
 		return gather_repair_icon;
 	}
 
-	public IconQuad[] getQuartersIcon() {
+	public @NonNull ModeIconQuads getQuartersIcon() {
 		return quarters_icon;
 	}
 
-	public IconQuad[] getArmoryIcon() {
+	public @NonNull ModeIconQuads getArmoryIcon() {
 		return armory_icon;
 	}
 
-	public IconQuad[] getTowerIcon() {
+	public @NonNull ModeIconQuads getTowerIcon() {
 		return tower_icon;
 	}
 
-	public IconQuad[] getTowerExitIcon() {
+	public @NonNull ModeIconQuads getTowerExitIcon() {
 		return tower_exit_icon;
 	}
 
-	public IconQuad[] getRallyPointIcon() {
+	public @NonNull ModeIconQuads getRallyPointIcon() {
 		return rally_point_icon;
 	}
 
-	public IconQuad[] getMagic1Icon() {
+	public @NonNull ModeIconQuads getMagic1Icon() {
 		return magic1_icon;
 	}
 
-	public String getMagic1Desc() {
+	public @NonNull String getMagic1Desc() {
 		return magic1_desc;
 	}
 
-	public IconQuad[] getMagic2Icon() {
+	public @NonNull ModeIconQuads getMagic2Icon() {
 		return magic2_icon;
 	}
 
-	public String getMagic2Desc() {
+	public @NonNull String getMagic2Desc() {
 		return magic2_desc;
 	}
 }

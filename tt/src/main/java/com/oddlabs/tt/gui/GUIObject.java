@@ -11,10 +11,11 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
-public abstract class GUIObject extends Renderable {
+public abstract class GUIObject extends Renderable<GUIObject> {
     private boolean disabled;
 	private boolean hovered;
 	private boolean active;
@@ -26,20 +27,17 @@ public abstract class GUIObject extends Renderable {
 	private @Nullable GUIObject focused_child = null;
 	private @Nullable GUIObject next_hover = null;
 
-	private final List<@NonNull MouseClickListener> mouse_click_listeners = new java.util.ArrayList<>();
-	private final List<@NonNull MouseButtonListener> mouse_button_listeners = new java.util.ArrayList<>();
-	private final List<@NonNull MouseMotionListener> mouse_motion_listeners = new java.util.ArrayList<>();
-	private final List<@NonNull MouseWheelListener> mouse_wheel_listeners = new java.util.ArrayList<>();
-	private final List<@NonNull KeyListener> key_listeners = new java.util.ArrayList<>();
-	private final List<@NonNull FocusListener> focus_listeners = new java.util.ArrayList<>();
+	private final Set<@NonNull MouseClickListener> mouse_click_listeners = new CopyOnWriteArraySet<>();
+	private final Set<@NonNull MouseButtonListener> mouse_button_listeners = new CopyOnWriteArraySet<>();
+	private final Set<@NonNull MouseMotionListener> mouse_motion_listeners = new CopyOnWriteArraySet<>();
+	private final Set<@NonNull MouseWheelListener> mouse_wheel_listeners = new CopyOnWriteArraySet<>();
+	private final Set<@NonNull KeyListener> key_listeners = new CopyOnWriteArraySet<>();
+	private final Set<@NonNull FocusListener> focus_listeners = new CopyOnWriteArraySet<>();
 
 	private boolean placed = false;
-	private @Nullable Origin origin;
+	private @NonNull Origin origin = Origin.AT_START;
 
 	public GUIObject() {
-		focus_cycle = false;
-		can_focus = false;
-		disabled = false;
 	}
 
     @Override
@@ -47,17 +45,35 @@ public abstract class GUIObject extends Renderable {
         return this;
     }
 
+    @Nullable GUIRoot getParentGUIRoot() {
+        return null != parent ? parent.getParentGUIRoot() : null;
+    }
+
+    void addTree() {
+        if (getParentGUIRoot() != null) {
+            super.addTree();
+        }
+    }
+
+    public void remove() {
+        boolean notify_remove = getParentGUIRoot() != null && parent != null;
+        super.remove();
+        if (notify_remove) {
+            removeTree();
+        }
+    }
+
     public int translateXToLocal(int x) {
-		GUIObject parent = (GUIObject)getParent();
+		GUIObject parent = getParent();
         return parent == null ? x - getX() : parent.translateXToLocal(x) - getX();
 	}
 
-	public int translateYToLocal(int y) {
-		GUIObject parent = (GUIObject)getParent();
+	int translateYToLocal(int y) {
+		GUIObject parent = getParent();
         return parent == null ? y - getY() : parent.translateYToLocal(y) - getY();
 	}
 
-	public void correctPos(int dx, int dy) {
+	void correctPos(int dx, int dy) {
 		setPos(getX() + dx, getY() + dy);
 	}
 
@@ -86,13 +102,13 @@ public abstract class GUIObject extends Renderable {
 		placed = true;
 	}
 
-	private int getXFromDirection(@NonNull Placement direction, int spacing, int neightbour_x, int neighbour_width) {
+	private int getXFromDirection(@NonNull Placement direction, int spacing, int neighbour_x, int neighbour_width) {
         return switch (direction) {
-            case BOTTOM_LEFT, TOP_LEFT -> neightbour_x;
-            case BOTTOM_MID, TOP_MID -> neightbour_x + (neighbour_width - getWidth()) / 2;
-            case BOTTOM_RIGHT, TOP_RIGHT -> neightbour_x + neighbour_width - getWidth();
-            case RIGHT_BOTTOM, RIGHT_MID, RIGHT_TOP -> neightbour_x + neighbour_width + spacing;
-            case LEFT_BOTTOM, LEFT_MID, LEFT_TOP -> neightbour_x - getWidth() - spacing;
+            case BOTTOM_LEFT, TOP_LEFT -> neighbour_x;
+            case BOTTOM_MID, TOP_MID -> neighbour_x + (neighbour_width - getWidth()) / 2;
+            case BOTTOM_RIGHT, TOP_RIGHT -> neighbour_x + neighbour_width - getWidth();
+            case RIGHT_BOTTOM, RIGHT_MID, RIGHT_TOP -> neighbour_x + neighbour_width + spacing;
+            case LEFT_BOTTOM, LEFT_MID, LEFT_TOP -> neighbour_x - getWidth() - spacing;
         };
 	}
 
@@ -106,7 +122,7 @@ public abstract class GUIObject extends Renderable {
         };
 	}
 
-	public final @Nullable Origin getOrigin() {
+	public final @NonNull Origin getOrigin() {
 		assert placed : "Object " + this + " compiled before being placed";
 		return origin;
 	}
@@ -124,10 +140,10 @@ public abstract class GUIObject extends Renderable {
 			return;
 
 		this.disabled = disabled;
-		GUIObject gui_child = (GUIObject)getFirstChild();
+		GUIObject gui_child = getFirstChild();
 		while (gui_child != null) {
 			gui_child.setDisabled(disabled);
-			gui_child = (GUIObject)gui_child.getNext();
+			gui_child = gui_child.getNext();
 		}
 		if (isFocused())
 			focusNext();
@@ -148,7 +164,7 @@ public abstract class GUIObject extends Renderable {
         return gui_root != null ? gui_root.getGlobalFocus() : null;
 	}
 
-	public final boolean isFocused() {
+	private boolean isFocused() {
 		return this == getGlobalFocus();
 	}
 
@@ -157,16 +173,13 @@ public abstract class GUIObject extends Renderable {
 		return can_focus;
 	}
 
-	public final boolean canFocus() {
+	private boolean canFocus() {
 		return can_focus && !disabled;
 	}
 
 	public final boolean isDisabled() {
-		GUIObject parent = (GUIObject)getParent();
-		if (parent != null)
-			return disabled || parent.isDisabled();
-		else
-			return disabled;
+		GUIObject parent = getParent();
+        return disabled || (parent != null && parent.isDisabled());
 	}
 
 	public final boolean isHovered() {
@@ -177,11 +190,11 @@ public abstract class GUIObject extends Renderable {
 		return next_hover;
 	}
 
-	protected final void setNextHover(GUIObject next_hover) {
+	protected final void setNextHover(@Nullable GUIObject next_hover) {
 		this.next_hover = next_hover;
 	}
 
-	public final @Nullable GUIObject getFocusedChild() {
+	private @Nullable GUIObject getFocusedChild() {
 		return focused_child;
 	}
 
@@ -193,29 +206,27 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	@Override
-	public void addChild(@NonNull Renderable child) {
+	public void addChild(@NonNull GUIObject child) {
 		super.addChild(child);
-		GUIObject current;
-		current = (GUIObject)child;
-		current.setTabOrder(current_taborder);
+        child.setTabOrder(current_taborder);
 		current_taborder++;
 	}
 
-	protected final void setTabOrder(int tab_order) {
+	private void setTabOrder(int tab_order) {
 		this.tab_order = tab_order;
 	}
 
-	protected final int getTabOrder() {
+	private int getTabOrder() {
 		return tab_order;
 	}
 
 	@Override
-	public final void removeChild(@NonNull Renderable child) {
+	public final void removeChild(@NonNull GUIObject child) {
 		GUIObject current;
 		if (child == focused_child) {
 			focused_child = null;
 			// If child is in the current focused path, select new current focus
-			current = (GUIObject)child;
+			current = child;
 			while (current.getFocusedChild() != null) {
                 current = current.getFocusedChild();
             }
@@ -226,22 +237,22 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	private void switchFocusToFirstChild(int dir) {
-		GUIObject gui_child = (GUIObject)getFirstChild();
+		GUIObject gui_child = getFirstChild();
 		GUIObject min_obj = null;
 		while (gui_child != null) {
 			if (gui_child.canFocus() && (min_obj == null || dir*gui_child.getTabOrder() < dir*min_obj.getTabOrder()))
 				min_obj = gui_child;
-			gui_child = (GUIObject)gui_child.getNext();
+			gui_child = gui_child.getNext();
 		}
 		if (min_obj != null)
 			switchFocusToObject(min_obj, dir);
 		else if (!focus_cycle)
-			((GUIObject)getParent()).switchFocusToNextChild(dir);
+			getParent().switchFocusToNextChild(dir);
 	}
 
 	private void switchFocusToNextChild(int dir) {
 		int tab_order = focused_child.getTabOrder();
-		GUIObject gui_child = (GUIObject)getFirstChild();
+		GUIObject gui_child = getFirstChild();
 		GUIObject greater_obj = null;
 		GUIObject min_obj = null;
 		while (gui_child != null) {
@@ -251,7 +262,7 @@ public abstract class GUIObject extends Renderable {
 				if (dir*gui_child.getTabOrder() > dir*tab_order && (greater_obj == null || dir*gui_child.getTabOrder() < dir*greater_obj.getTabOrder()))
 					greater_obj = gui_child;
 			}
-			gui_child = (GUIObject)gui_child.getNext();
+			gui_child = gui_child.getNext();
 		}
 		if (greater_obj != null) {
 			switchFocusToObject(greater_obj, dir);
@@ -262,7 +273,7 @@ public abstract class GUIObject extends Renderable {
 		} else if (canFocus()) {
 			switchFocusToObject(this, dir);
 		} else {
-			((GUIObject)getParent()).switchFocusToNextChild(dir);
+			getParent().switchFocusToNextChild(dir);
 		}
 	}
 
@@ -274,7 +285,7 @@ public abstract class GUIObject extends Renderable {
 		}
 	}
 
-	public final void switchFocus(int direction) {
+	protected final void switchFocus(int direction) {
 		// find any GUIObject to focus
 		if (focused_child == null) {
 			switchFocusToFirstChild(direction);
@@ -284,15 +295,15 @@ public abstract class GUIObject extends Renderable {
 		switchFocusToNextChild(direction);
 	}
 
-	public final void focusNext() {
+	protected final void focusNext() {
 		switchFocus(1);
 	}
 
-	public final void focusPrior() {
+	protected final void focusPrior() {
 		switchFocus(-1);
 	}
 
-	public final void defocusBranch() {
+	private void defocusBranch() {
 		if (getFocusedChild() != null)
 			getFocusedChild().defocusBranch();
 		focusNotifyAll(false);
@@ -300,7 +311,7 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	private void refocusTree(GUIObject caller_child) {
-		GUIObject parent = (GUIObject)getParent();
+		GUIObject parent = getParent();
 		if (parent != null) {
 			parent.refocusTree(this);
 		}
@@ -328,7 +339,7 @@ public abstract class GUIObject extends Renderable {
 		setGlobalFocus();
 	}
 
-	protected final void focusNotifyAll(boolean focus) {
+	final void focusNotifyAll(boolean focus) {
 		active = focus;
 		focusNotify(focus);
 		for (FocusListener listener : focus_listeners) {
@@ -346,8 +357,7 @@ public abstract class GUIObject extends Renderable {
 
 	private boolean modalRelative(ModalDelegate modal_delegate) {
         return this == modal_delegate ||
-                getParent() != null && (getParent() == modal_delegate ||
-                        ((GUIObject) getParent()).modalRelative(modal_delegate));
+                getParent() != null && (getParent() == modal_delegate || getParent().modalRelative(modal_delegate));
 	}
 
 	protected @NonNull CursorType getCursorType() {
@@ -358,7 +368,7 @@ public abstract class GUIObject extends Renderable {
 		return false;
 	}
 
-	public final void mouseScrolledAll(int amount) {
+	final void mouseScrolledAll(int amount) {
 		if (disabled)
 			return;
 		mouseScrolled(amount);
@@ -368,12 +378,12 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	protected void mouseScrolled(int amount) {
-		GUIObject parent = (GUIObject)getParent();
+		GUIObject parent = getParent();
 		if (parent != null)
 			parent.mouseScrolledAll(amount);
 	}
 
-	public final void mouseDraggedAll (@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
+	final void mouseDraggedAll (@NonNull MouseButton button, int x, int y, int relative_x, int relative_y, int absolute_x, int absolute_y) {
 		if (disabled)
 			return;
 		mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
@@ -386,7 +396,7 @@ public abstract class GUIObject extends Renderable {
 		// do not send this to parents, because it would move the form if unstopped
 	}
 
-	public final void mouseMovedAll(int x, int y) {
+	final void mouseMovedAll(int x, int y) {
 		if (disabled)
 			return;
 		mouseMoved(x, y);
@@ -396,12 +406,12 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	protected void mouseMoved(int x, int y) {
-		GUIObject parent = (GUIObject)getParent();
+		GUIObject parent = getParent();
 		if (parent != null)
 			parent.mouseMovedAll(x, y);
 	}
 
-	public final void mouseExitedAll() {
+	final void mouseExitedAll() {
 		hovered = false;
 		mouseExited();
 		for (MouseMotionListener listener : mouse_motion_listeners) {
@@ -410,12 +420,12 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	protected void mouseExited() {
-		GUIObject parent = (GUIObject)getParent();
+		GUIObject parent = getParent();
 		if (parent != null)
 			parent.mouseExitedAll();
 	}
 
-	public final void mouseEnteredAll() {
+	final void mouseEnteredAll() {
 		hovered = true;
 		mouseEntered();
 		for (MouseMotionListener listener : mouse_motion_listeners) {
@@ -424,12 +434,12 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	protected void mouseEntered() {
-		GUIObject parent = (GUIObject)getParent();
+		GUIObject parent = getParent();
 		if (parent != null)
 			parent.mouseEnteredAll();
 	}
 
-	public final void mouseClickedAll (@NonNull MouseButton button, int x, int y, int clicks) {
+	final void mouseClickedAll (@NonNull MouseButton button, int x, int y, int clicks) {
 		if (disabled)
 			return;
 		mouseClicked(button, x, y, clicks);
@@ -439,12 +449,12 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
-		GUIObject parent = (GUIObject)getParent();
+		GUIObject parent = getParent();
 		if (parent != null)
 			parent.mouseClickedAll(button, x, y, clicks);
 	}
 
-	public final void mouseReleasedAll (@NonNull MouseButton button, int x, int y) {
+	final void mouseReleasedAll (@NonNull MouseButton button, int x, int y) {
 		if (disabled)
 			return;
 		mouseReleased(button, x, y);
@@ -454,12 +464,12 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	protected void mouseReleased (@NonNull MouseButton button, int x, int y) {
-		GUIObject parent = (GUIObject)getParent();
+		GUIObject parent = getParent();
 		if (parent != null)
 			parent.mouseReleasedAll(button, x, y);
 	}
 
-	public final void mousePressedAll (@NonNull MouseButton button, int x, int y) {
+	final void mousePressedAll (@NonNull MouseButton button, int x, int y) {
 		if (disabled)
 			return;
 		mousePressed(button, x, y);
@@ -469,12 +479,12 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	protected void mousePressed (@NonNull MouseButton button, int x, int y) {
-		GUIObject parent = (GUIObject)getParent();
+		GUIObject parent = getParent();
 		if (parent != null)
 			parent.mousePressedAll(button, x, y);
 	}
 
-	public final void mouseHeldAll (@NonNull MouseButton button, int x, int y) {
+	final void mouseHeldAll (@NonNull MouseButton button, int x, int y) {
 		if (disabled)
 			return;
 		mouseHeld(button, x, y);
@@ -484,12 +494,12 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	protected void mouseHeld (@NonNull MouseButton button, int x, int y) {
-		GUIObject parent = (GUIObject)getParent();
+		GUIObject parent = getParent();
 		if (parent != null)
 			parent.mouseHeldAll(button, x, y);
 	}
 
-	public final void keyPressedAll(@NonNull KeyboardEvent event) {
+	final void keyPressedAll(@NonNull KeyboardEvent event) {
 		keyPressed(event);
         for (KeyListener listener : key_listeners) {
             listener.keyPressed(event);
@@ -500,13 +510,13 @@ public abstract class GUIObject extends Renderable {
 		if (event.getKeyCode() == Keyboard.KEY_SPACE || event.getKeyCode() == Keyboard.KEY_RETURN) {
 			mousePressedAll(MouseButton.LEFT, 0, 0);
 		} else {
-			GUIObject parent = (GUIObject)getParent();
+			GUIObject parent = getParent();
 			if (parent != null)
 				parent.keyPressedAll(event);
 		}
 	}
 
-	public final void keyReleasedAll(@NonNull KeyboardEvent event) {
+	final void keyReleasedAll(@NonNull KeyboardEvent event) {
 		keyReleased(event);
 		for (KeyListener listener : key_listeners) {
 			listener.keyReleased(event);
@@ -518,13 +528,13 @@ public abstract class GUIObject extends Renderable {
 			mouseReleasedAll(MouseButton.LEFT, 0, 0);
 			mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 		} else {
-			GUIObject parent = (GUIObject)getParent();
+			GUIObject parent = getParent();
 			if (parent != null)
 				parent.keyReleasedAll(event);
 		}
 	}
 
-	public final void keyRepeatAll(@NonNull KeyboardEvent event) {
+	final void keyRepeatAll(@NonNull KeyboardEvent event) {
 		keyRepeat(event);
 		for (KeyListener listener : key_listeners) {
 			listener.keyRepeat(event);
@@ -532,7 +542,7 @@ public abstract class GUIObject extends Renderable {
 	}
 
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		GUIObject parent = (GUIObject)getParent();
+		GUIObject parent = getParent();
 		if (parent != null)
 			parent.keyRepeatAll(event);
 	}
@@ -541,11 +551,11 @@ public abstract class GUIObject extends Renderable {
 		mouse_click_listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
-	public final void addMouseButtonListener(@NonNull MouseButtonListener listener) {
+	final void addMouseButtonListener(@NonNull MouseButtonListener listener) {
 		mouse_button_listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
-	public final void addMouseMotionListener(@NonNull MouseMotionListener listener) {
+	final void addMouseMotionListener(@NonNull MouseMotionListener listener) {
 		mouse_motion_listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
@@ -553,7 +563,7 @@ public abstract class GUIObject extends Renderable {
 		mouse_wheel_listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
-	public final void addKeyListener(@NonNull KeyListener listener) {
+	final void addKeyListener(@NonNull KeyListener listener) {
 		key_listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 

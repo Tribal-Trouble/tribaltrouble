@@ -9,18 +9,17 @@ import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class InfoPrinter extends GUIObject implements Animated, ChatListener {
 	private static final float SECONDS_PER_TIMEOUT = 8f;
-	private static final float[] PRIVATE_COLOR = Color.rgba4f(0xFF3366FF);
-	private static final float[] TEAM_COLOR = Color.rgba4f(0x4C7FFFFF);
+	private static final int PRIVATE_COLOR = 0xFF_33_66_FF;
+	private static final int TEAM_COLOR = 0xFF_4C_7F_FF;
 
 	private final @NonNull Font font;
-	private final List<LabelBox> history = new ArrayList<>();
+	private final List<@NonNull LabelBox> history = new ArrayList<>();
 	private final List<Float> timers = new ArrayList<>();
 	private final int lines;
 	private final @NonNull GUIRoot gui_root;
@@ -80,13 +79,13 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 	}
 
 	public void print(@NonNull String text) {
-		print(text, null);
+		print(text, Color.TRANSPARENT_INT);
 	}
 
-	public void print(@NonNull String text, float @Nullable [] color) {
+	public void print(@NonNull String text, int color) {
 		int width = Math.min(font.getWidth(text), getWidth());
 		LabelBox label_box = new BackgroundLabelBox(text, font, width);
-		if (color != null)
+		if (color != Color.TRANSPARENT_INT)
 			label_box.setColor(color);
 		addChild(label_box);
 		history.add(label_box);

@@ -3,10 +3,12 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.guievent.CheckBoxListener;
 import com.oddlabs.tt.util.ToolTip;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
+
+import java.util.List;
 
 public final class CheckBox extends GUIObject implements ToolTip {
-	private static final int CHECK_BOX_LISTENER = 0;
-	private final java.util.List<CheckBoxListener>[] event_listeners = new java.util.ArrayList[1];
+	private final List<@NonNull CheckBoxListener> event_listeners = new java.util.ArrayList<>();
 
 	private final String tool_tip;
 	
@@ -22,9 +24,8 @@ public final class CheckBox extends GUIObject implements ToolTip {
 		this.tool_tip = tool_tip;
 		Label label = new Label(text, Skin.getSkin().getEditFont());
 		addChild(label);
-		label.setPos(Skin.getSkin().getCheckBoxMarked()[Skin.NORMAL].getWidth(), (Skin.getSkin().getCheckBoxMarked()[Skin.NORMAL].getHeight() - label.getHeight())/2);
-		event_listeners[CHECK_BOX_LISTENER] = new java.util.ArrayList<>();
-		setDim(Skin.getSkin().getCheckBoxMarked()[Skin.NORMAL].getWidth() + label.getWidth(), Skin.getSkin().getCheckBoxMarked()[Skin.NORMAL].getHeight());
+		label.setPos(Skin.getSkin().getCheckBoxMarked().quad(ModeIconQuads.Mode.NORMAL).getWidth(), (Skin.getSkin().getCheckBoxMarked().quad(ModeIconQuads.Mode.NORMAL).getHeight() - label.getHeight())/2);
+		setDim(Skin.getSkin().getCheckBoxMarked().quad(ModeIconQuads.Mode.NORMAL).getWidth() + label.getWidth(), Skin.getSkin().getCheckBoxMarked().quad(ModeIconQuads.Mode.NORMAL).getHeight());
 		setCanFocus(true);
 	}
 
@@ -65,38 +66,33 @@ public final class CheckBox extends GUIObject implements ToolTip {
 	}
 
 	@Override
-	protected void renderGeometry() {
-		if (isDisabled()) {
-			if (marked)
-				Skin.getSkin().getCheckBoxMarked()[Skin.DISABLED].render(0, 0);
-			else
-				Skin.getSkin().getCheckBoxUnmarked()[Skin.DISABLED].render(0, 0);
-		} else if (isActive()) {
-			if (marked) {
-				if (pressed && isHovered())
-					Skin.getSkin().getCheckBoxUnmarked()[Skin.ACTIVE].render(0, 0);
-				else
-					Skin.getSkin().getCheckBoxMarked()[Skin.ACTIVE].render(0, 0);
-			} else {
-				if (pressed && isHovered())
-					Skin.getSkin().getCheckBoxMarked()[Skin.ACTIVE].render(0, 0);
-				else
-					Skin.getSkin().getCheckBoxUnmarked()[Skin.ACTIVE].render(0, 0);
-			}
-		} else {
-			if (marked)
-				Skin.getSkin().getCheckBoxMarked()[Skin.NORMAL].render(0, 0);
-			else
-				Skin.getSkin().getCheckBoxUnmarked()[Skin.NORMAL].render(0, 0);
-		}
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+        ModeIconQuads.Mode skinMode = isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : isActive()
+                    ? ModeIconQuads.Mode.ACTIVE
+                    : ModeIconQuads.Mode.NORMAL;
+
+        // When marked, active, pressed, and hovered, it should show the unmarked state
+        // When unmarked, active, pressed, and hovered, it should show the marked state
+        ModeIconQuads quad_to_render = isMarked()
+                ? (skinMode == ModeIconQuads.Mode.ACTIVE && pressed && isHovered()
+                    ? Skin.getSkin().getCheckBoxUnmarked()
+                    : Skin.getSkin().getCheckBoxMarked())
+                : (skinMode == ModeIconQuads.Mode.ACTIVE && pressed && isHovered()
+                    ? Skin.getSkin().getCheckBoxMarked()
+                    : Skin.getSkin().getCheckBoxUnmarked());
+
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, quad_to_render.quad(skinMode).getTexture().getHandle());
+		GL11.glBegin(GL11.GL_QUADS);
+		quad_to_render.quad(skinMode).render(0, 0);
+		GL11.glEnd();
 	}
 
 	public void checkedAll(boolean marked) {
 		checked(marked);
-		java.util.List<CheckBoxListener> list = getCheckBoxListeners();
-        for (CheckBoxListener listener : list) {
-            if (listener != null)
-                listener.checked(marked);
+        for (var listener : event_listeners) {
+            listener.checked(marked);
         }
 	}
 
@@ -108,15 +104,11 @@ public final class CheckBox extends GUIObject implements ToolTip {
 */
 	}
 
-	public void addCheckBoxListener(CheckBoxListener listener) {
-		event_listeners[CHECK_BOX_LISTENER].add(listener);
+	public void addCheckBoxListener(@NonNull CheckBoxListener listener) {
+		event_listeners.add(listener);
 	}
 
-	private java.util.List<CheckBoxListener> getCheckBoxListeners() {
-		return event_listeners[CHECK_BOX_LISTENER];
-	}
-
-	public void removeCheckBoxListener(CheckBoxListener listener) {
-		event_listeners[CHECK_BOX_LISTENER].remove(listener);
+	public void removeCheckBoxListener(@NonNull CheckBoxListener listener) {
+		event_listeners.remove(listener);
 	}
 }

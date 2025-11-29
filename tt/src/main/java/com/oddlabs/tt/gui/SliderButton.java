@@ -1,29 +1,34 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 public final class SliderButton extends ButtonObject {
-	private final Slider slider;
-	private final Quad @NonNull [] button;
+	private final @NonNull Slider slider;
+	private final @NonNull ModeIconQuads button;
 
-	public SliderButton(Slider slider, Quad @NonNull [] button) {
-		setDim(button[Skin.NORMAL].getWidth(), button[Skin.NORMAL].getHeight());
+	public SliderButton(@NonNull Slider slider, @NonNull ModeIconQuads button) {
+		super(Skin.getSkin().getEditFont());
+		setDim(button.quad(ModeIconQuads.Mode.NORMAL).getWidth(), button.quad(ModeIconQuads.Mode.NORMAL).getHeight());
 		this.slider = slider;
 		this.button = button;
 	}
 
 	@Override
 	protected void renderGeometry() {
-		GUIObject parent = (GUIObject)getParent();
-		if (parent.isDisabled()) {
-			button[Skin.DISABLED].render(0, 0);
-		} else if (isHovered() || parent.isActive()) {
-			button[Skin.ACTIVE].render(0, 0);
-		} else {
-			button[Skin.NORMAL].render(0, 0);
-		}
+		GUIObject parent = getParent();
+        ModeIconQuads.Mode skinMode = parent.isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : (isHovered() || parent.isActive())
+                    ? ModeIconQuads.Mode.ACTIVE
+                    : ModeIconQuads.Mode.NORMAL;
+
+		GL11.glColor4f(1f, 1f, 1f, 1f);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, button.quad(skinMode).getTexture().getHandle());
+		GL11.glBegin(GL11.GL_QUADS);
+		button.quad(skinMode).render(0, 0);
+		GL11.glEnd();
 	}
 
 	@Override

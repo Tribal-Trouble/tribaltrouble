@@ -272,7 +272,7 @@ public final class NativeIsland3 extends Island {
             default -> throw new RuntimeException("unrecognized difficulty");
         };
         float time = interval;
-		for (int i = 0;i < 10; i++) {
+		for (int i = 0; i < 10; i++) {
 			new TimeTrigger(getViewer().getWorld(), time, reinforce);
 			time += interval;
 		}

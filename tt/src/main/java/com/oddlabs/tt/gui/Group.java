@@ -1,6 +1,5 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.util.ListElement;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
@@ -31,33 +30,32 @@ public class Group extends GUIObject {
 		boolean origin_bottom_right = false;
 
 		// Calculate the width an height of the top_left- and bottom_right blocks.
-		ListElement<Renderable> current = getFirstChild();
+		GUIObject current = getFirstChild();
 		while (current != null) {
-			GUIObject gui_object = (GUIObject)current;
-			if (gui_object.getOrigin() == Origin.AT_START) {
+			if (current.getOrigin() == Origin.AT_START) {
 				origin_top_left = true;
-				int x = gui_object.getX();
-				int y = gui_object.getY();
+				int x = current.getX();
+				int y = current.getY();
 				if (x < min_x_tl)
 					min_x_tl = x;
 				if (y < min_y_tl)
 					min_y_tl = y;
-				x += gui_object.getWidth();
-				y += gui_object.getHeight();
+				x += current.getWidth();
+				y += current.getHeight();
 				if (x > max_x_tl)
 					max_x_tl = x;
 				if (y > max_y_tl)
 					max_y_tl = y;
 			} else {
 				origin_bottom_right = true;
-				int x = gui_object.getX();
-				int y = gui_object.getY();
+				int x = current.getX();
+				int y = current.getY();
 				if (x < min_x_br)
 					min_x_br = x;
 				if (y < min_y_br)
 					min_y_br = y;
-				x += gui_object.getWidth();
-				y += gui_object.getHeight();
+				x += current.getWidth();
+				y += current.getHeight();
 				if (x > max_x_br)
 					max_x_br = x;
 				if (y > max_y_br)
@@ -78,7 +76,7 @@ public class Group extends GUIObject {
 		// correct the objects positions.
 		current = getFirstChild();
 		while (current != null) {
-			GUIObject gui_object = (GUIObject)current;
+			GUIObject gui_object = current;
 
 			if (gui_object.getOrigin() == Origin.AT_START) {
 				gui_object.correctPos(-min_x_tl + left_offset,
@@ -109,16 +107,13 @@ public class Group extends GUIObject {
 		switchFocus(dir);
 	}
 
-	@Override
-	protected void renderGeometry() {}
-
 /*
 	public final void correctPos(int dx, int dy) {
 		setPos(getX() + dx, getY() + dy);
 		ListElement current = getLastChild();
 		while (current != null) {
 			((GUIObject)current).correctPosRecurseGroup(getX(), getY());
-			current = current.getPrior();
+			current = current.getNext();
 		}
 	}
 */

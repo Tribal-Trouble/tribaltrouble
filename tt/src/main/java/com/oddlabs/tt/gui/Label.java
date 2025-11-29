@@ -7,13 +7,12 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 public class Label extends TextField implements Comparable<Label> {
-	public static final float[] DEFAULT_COLOR = Color.argb4f(0xFFFFFFFF);
-	public static final float[] DISABLED_COLOR = Color.argb4f(0xB2B2B2B2);
+	public static final int DEFAULT_COLOR = Color.WHITE_INT;
+	public static final int DISABLED_COLOR = 0xB2B2B2B2;
 
 	private final @NonNull Origin align;
-	private final @NonNull TextLineRenderer text_renderer;
 
-	private float[] color = DEFAULT_COLOR;
+	private int color = DEFAULT_COLOR;
 
 	public Label(@NonNull CharSequence text, @NonNull Font font) {
 		this(text, font, font.getWidth(text), Origin.AT_START);
@@ -26,40 +25,24 @@ public class Label extends TextField implements Comparable<Label> {
 	public Label(@NonNull CharSequence text, @NonNull Font font, int width, @NonNull Origin align) {
 		super(text, font, Integer.MAX_VALUE);
 		this.align = align;
-		text_renderer = new TextLineRenderer(font);
 		setDim(width, font.getHeight());
 	}
 
-	public final void setColor(float[] color) {
+	public final void setColor(int color) {
 		this.color = color;
 	}
 
 	@Override
 	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
-		// Radeon 9200 doesn't like glColor between Begin/End if not followed by a glVertex
-		GL11.glEnd();
-		if (isDisabled()) {
-			GL11.glColor4f(DISABLED_COLOR[0], DISABLED_COLOR[1], DISABLED_COLOR[2], DISABLED_COLOR[3]);
-		} else {
-			GL11.glColor4f(color[0], color[1], color[2], color[3]);
-		}
-		GL11.glBegin(GL11.GL_QUADS);
-            switch (align) {
-                case AT_START:
-                    text_renderer.renderCropped(0, 0, clip_left, clip_right, clip_bottom, clip_top, getText());
-                    break;
-                case AT_MIDDLE:
-                    text_renderer.render(0, 0, (getWidth() - getFont().getWidth(getText()))/2, clip_left, clip_right, clip_bottom, clip_top, getText(), -1);
-                    break;
-                case AT_END:
-                    text_renderer.render(0, 0, getWidth() - getFont().getWidth(getText()), clip_left, clip_right, clip_bottom, clip_top, getText(), -1);
-                    break;
-                default:
-                    break;
-            }
-		GL11.glEnd();
-		GL11.glColor3f(1f, 1f, 1f);
-		GL11.glBegin(GL11.GL_QUADS);
+		int c = isDisabled() ? DISABLED_COLOR : color;
+		int textWidth = getFont().getWidth(getText());
+		int x = switch (align) {
+			case AT_START -> 0;
+			case AT_MIDDLE -> (getWidth() - Math.min(getWidth(), textWidth)) / 2;
+			case AT_END -> getWidth() - textWidth;
+		};
+		TextLineRenderer.render(getFont(), getText(), x, 0, clip_left, clip_right, c);
+		GL11.glColor4f(1f, 1f, 1f, 1f);
 	}
 
 	@Override

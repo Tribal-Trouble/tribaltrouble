@@ -5,8 +5,11 @@ import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.guievent.ValueListener;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
 public final class Slider extends GUIObject {
-	private final java.util.List<ValueListener> value_listeners = new java.util.ArrayList<>();
+	private final Set<@NonNull ValueListener> value_listeners = new CopyOnWriteArraySet<>();
 
 	private final @NonNull SliderButton button;
 	private final int left_offset;
@@ -37,11 +40,8 @@ public final class Slider extends GUIObject {
 
 	@Override
 	protected void renderGeometry() {
-		Horizontal slider = Skin.getSkin().getSliderData().getSlider();
-		if (isDisabled())
-			slider.render(0, 0, getWidth(), Skin.DISABLED);
-		else
-			slider.render(0, 0, getWidth(), Skin.NORMAL);
+		Skin.getSkin().getSliderData().getSlider()
+		    .render(0, 0, getWidth(), isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
 	}
 
 	public int getValue() {
@@ -104,8 +104,7 @@ public final class Slider extends GUIObject {
 	public void valueSetAll(int value) {
 		valueSet(value);
         for (ValueListener listener : value_listeners) {
-            if (listener != null)
-                listener.valueSet(value);
+            listener.valueSet(value);
         }
 	}
 
@@ -117,11 +116,11 @@ public final class Slider extends GUIObject {
 */
 	}
 
-	public void addValueListener(ValueListener listener) {
+	public void addValueListener(@NonNull ValueListener listener) {
 		value_listeners.add(listener);
 	}
 
-	public void removeValueListener(ValueListener listener) {
+	public void removeValueListener(@NonNull ValueListener listener) {
 		value_listeners.remove(listener);
 	}
 

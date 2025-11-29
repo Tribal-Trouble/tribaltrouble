@@ -5,41 +5,42 @@ import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 public class ChieftainButton extends NonFocusIconButton implements ToolTip {
-	private final PlayerInterface player_interface;
-	private final WorldViewer viewer;
-	private Building current_building;
+	private final @NonNull PlayerInterface player_interface;
+    private @Nullable Building current_building;
 
-	public ChieftainButton(WorldViewer viewer, PlayerInterface player_interface, IconQuad @NonNull [] icon_quad, String tool_tip) {
-		super(icon_quad, tool_tip);
+	public ChieftainButton(@NonNull WorldViewer viewer, @NonNull PlayerInterface player_interface, @NonNull ModeIconQuads icon, @NonNull String tool_tip) {
+		super(icon, tool_tip);
 		this.player_interface = player_interface;
-		this.viewer = viewer;
-		setCanFocus(true);
-		setDim(icon_quad[0].getWidth(), icon_quad[0].getHeight());
+        setCanFocus(true);
 	}
 
-	public final void setBuilding(Building current_building) {
+	public final void setBuilding(@NonNull Building current_building) {
 		this.current_building = current_building;
 	}
 
 	@Override
 	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
-                player_interface.trainChieftain(current_building, !current_building.getChieftainContainer().isTraining());
+        player_interface.trainChieftain(current_building, !current_building.getChieftainContainer().isTraining());
 	}
 
 	@Override
 	protected final void postRender() {
-		IconQuad[] watch = Icons.getIcons().getWatch();
+		IconQuad[] watch = GUIIcons.getIcons().getWatch();
 		int index = (int)(getProgress()*(watch.length - 1));
-		if (!current_building.isDead() && current_building.getChieftainContainer().isTraining())
-			watch[index].render(getWidth() - watch[index].getWidth(),  getHeight() - watch[index].getHeight());
+		if (!current_building.isDead() && current_building.getChieftainContainer().isTraining()) {
+			IconQuad watchQuad = watch[index];
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, watchQuad.getTexture().getHandle());
+			GL11.glBegin(GL11.GL_QUADS);
+			watchQuad.render(getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight());
+			GL11.glEnd();
+		}
 	}
 
 	protected final float getProgress() {
-		if (!current_building.isDead())
-			return current_building.getChieftainContainer().getBuildProgress();
-		else
-			return 0;
+        return !current_building.isDead() ? current_building.getChieftainContainer().getBuildProgress() : 0;
 	}
 }

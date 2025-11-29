@@ -1,19 +1,23 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
 
 public class GUIIcon extends GUIObject {
-	private final @NonNull Quad icon_quad;
-	
-	public GUIIcon(@NonNull Quad icon) {
+	private final @NonNull IconQuad icon;
+
+    public GUIIcon(@NonNull IconQuad icon) {
+        this.icon = icon;
 		setDim(icon.getWidth(), icon.getHeight());
 		setCanFocus(false);
-		this.icon_quad = icon;
 	}
 
 	@Override
 	public void renderGeometry() {
-		icon_quad.render(0, 0);
+		GL11.glColor4f(1f, 1f, 1f, 1f);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, icon.getTexture().getHandle());
+		GL11.glBegin(GL11.GL_QUADS);
+		icon.render(0, 0);
+		GL11.glEnd();
 	}
 }

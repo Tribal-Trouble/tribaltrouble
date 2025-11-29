@@ -1,6 +1,9 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.font.TextBoxRenderer;
+import com.oddlabs.tt.font.Index;
+import com.oddlabs.tt.font.TextLayout;
+import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
@@ -13,23 +16,24 @@ public final class EditBox extends TextBox {
 	}
 
 	@Override
-	protected void renderGeometry() {
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
 		Box edit_box = Skin.getSkin().getEditBox();
-		TextBoxRenderer text_renderer = getTextRenderer();
-		if (isDisabled())
-			renderBox(Skin.DISABLED);
-		else
-			renderBox(Skin.NORMAL);
-		if (isActive())
-			text_renderer.render(edit_box.getLeftOffset(), edit_box.getBottomOffset(), getOffsetY(), getText(), index);
-		else
-			text_renderer.render(edit_box.getLeftOffset(), edit_box.getBottomOffset(), getOffsetY(), getText());
+    	super.renderBox(isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
+		int c = isDisabled() ? Label.DISABLED_COLOR : Color.WHITE_INT;
+
+		TextLineRenderer.render(getTextLayout(), edit_box.getLeftOffset(), getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + getOffsetY(), c);
+
+		if (isActive()) {
+			TextLayout layout = getTextLayout();
+			int cursorLine = layout.getCursorLine(index);
+			int cursorX = layout.getCursorX(index);
+			int cursorY = getHeight() - edit_box.getBottomOffset() - getFont().getHeight() - (cursorLine * getFont().getHeight()) + getOffsetY();
+			Index.renderIndex(edit_box.getLeftOffset() + cursorX, cursorY, getFont());
+		}
 	}
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		//char ch = event.getKeyChar();
-		Box edit_box = Skin.getSkin().getEditBox();
 		switch (event.getKeyCode()) {
 			case Keyboard.KEY_RETURN:
 				if (insert(index, '\n')) {
@@ -53,36 +57,28 @@ public final class EditBox extends TextBox {
 					index++;
 				break;
 			case Keyboard.KEY_UP:
-				index = getTextRenderer().jump(edit_box.getLeftOffset(),
-											   edit_box.getBottomOffset(),
-											   0,
-											   getFont().getHeight(),
-											   getText(),
-											   index);
+				int currentLine = getTextLayout().getCursorLine(index);
+				if (currentLine > 0) {
+					int xPos = getTextLayout().getCursorX(index);
+					index = getTextLayout().getCharacterIndexAt(xPos, (currentLine - 0.5f) * getFont().getHeight(), getTextLayout().getTextHeight());
+				} else {
+					index = 0;
+				}
 				break;
 			case Keyboard.KEY_DOWN:
-				index = getTextRenderer().jump(edit_box.getLeftOffset(),
-											   edit_box.getBottomOffset(),
-											   0,
-											   -getFont().getHeight(),
-											   getText(),
-											   index);
+				currentLine = getTextLayout().getCursorLine(index);
+				if (currentLine < getTextLayout().getLines().size() - 1) {
+					int xPos = getTextLayout().getCursorX(index);
+					index = getTextLayout().getCharacterIndexAt(xPos, (currentLine + 1.5f) * getFont().getHeight(), getTextLayout().getTextHeight());
+				} else {
+					index = getText().length();
+				}
 				break;
 			case Keyboard.KEY_HOME:
-				index = getTextRenderer().jump(edit_box.getLeftOffset(),
-											   edit_box.getBottomOffset(),
-											   -getWidth(),
-											   0,
-											   getText(),
-											   index);
+				index = getTextLayout().getLineStartCharIndex(getTextLayout().getCursorLine(index));
 				break;
 			case Keyboard.KEY_END:
-				index = getTextRenderer().jump(edit_box.getLeftOffset(),
-											   edit_box.getBottomOffset(),
-											   getWidth(),
-											   0,
-											   getText(),
-											   index);
+				index = getTextLayout().getLineEndCharIndex(getTextLayout().getCursorLine(index));
 				break;
 			case Keyboard.KEY_TAB:
 			case Keyboard.KEY_ESCAPE:
@@ -96,28 +92,27 @@ public final class EditBox extends TextBox {
 				} else {
 					super.keyRepeat(event);
 				}
-
 				break;
 		}
 		correctOffsetY();
 	}
 
 	private void correctOffsetY() {
+		TextLayout layout = getTextLayout();
+		int cursorLine = layout.getCursorLine(index);
+		int lineHeight = getFont().getHeight();
+
 		Box edit_box = Skin.getSkin().getEditBox();
-		int offset_y = getOffsetY();
-		int index_render_y = getTextRenderer().getIndexRenderY(edit_box.getLeftOffset(),
-										   edit_box.getBottomOffset(),
-										   offset_y,
-										   getText(),
-										   index);
-		int max_y = getY() + getHeight() - edit_box.getTopOffset() - getFont().getHeight();
-		int min_y = getY() + edit_box.getBottomOffset();
-		if (index_render_y > max_y) {
-			offset_y -= index_render_y - max_y;
-		} else if (index_render_y < min_y) {
-			offset_y += min_y - index_render_y;
+		int visibleHeight = getHeight() - edit_box.getTopOffset() - edit_box.getBottomOffset();
+		int visibleLines = visibleHeight / lineHeight;
+
+		int currentTopLine = -getOffsetY() / lineHeight;
+
+		if (cursorLine < currentTopLine) {
+			setOffsetY(-cursorLine * lineHeight);
+		} else if (cursorLine >= currentTopLine + visibleLines) {
+			setOffsetY(-(cursorLine - visibleLines + 1) * lineHeight);
 		}
-		setOffsetY(offset_y);
 	}
 
 	@Override
@@ -129,12 +124,10 @@ public final class EditBox extends TextBox {
 	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
 		if (button == MouseButton.LEFT) {
 			Box edit_box = Skin.getSkin().getEditBox();
-			index = getTextRenderer().jumpDirect(edit_box.getLeftOffset(),
-												 edit_box.getBottomOffset() + getFont().getHeight()/2 + getOffsetY(),
-												 x,
-												 y,
-												 getText(),
-												 index);
+			float relativeX = x - (getRootX() + edit_box.getLeftOffset());
+			float relativeY = y - (getRootY() + edit_box.getBottomOffset() + getOffsetY());
+			index = getTextLayout().getCharacterIndexAt(relativeX, relativeY, getTextLayout().getTextHeight());
+			correctOffsetY();
 		}
 	}
 }

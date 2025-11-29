@@ -98,7 +98,7 @@ public final class CreateChatRoomForm extends Form {
 		}
 
 		@Override
-		public void enterPressed(CharSequence text) {
+		public void enterPressed(@NonNull CharSequence text) {
 			create();
 		}
 	}

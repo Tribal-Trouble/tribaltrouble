@@ -13,7 +13,6 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -24,62 +23,63 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public final class LocalInput {
-    	private static final Logger logger = Logger.getLogger(LocalInput.class.getName());
-    
-    	private static int mouse_x;
-    	private static int mouse_y;
-    	private static boolean global_menu_state = false;
-    	private static boolean global_control_state = false;
-    	private static boolean global_shift_state = false;
-    	private static final boolean[] keys = new boolean[256];
-    
-    	private static int view_width;
-    	private static int view_height;
-    	private static boolean fullscreen;
-    	private static Path game_dir;
-    	private static int revision;
-    
-    	private static final LocalInput instance = new LocalInput();
-    
-    	public static void setKeys(int key_code, boolean state, boolean shift_down, boolean control_down, boolean menu_down) {
-    		keys[key_code] = state;
-    		global_menu_state = menu_down;
-    		global_control_state = control_down;
-    		global_shift_state = shift_down;
-    	}
-    
-    	public static void keyTyped(@NonNull GUIRoot gui_root, int key_code, char key_char) {
-    		gui_root.getInputState().keyTyped(key_code, key_char);
-    	}
-    
-    	public static void keyPressed(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
-    		setKeys(key_code, true, shift_down, control_down, menu_down);
-    		gui_root.getInputState().keyPressed(key_code, key_char, shift_down, control_down, menu_down, repeat);
-    	}
-    
-    	public static void keyReleased(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
-    		setKeys(key_code, false, shift_down, control_down, menu_down);
-    		gui_root.getInputState().keyReleased(key_code, key_char, shift_down, control_down, menu_down);
-    	}
-    
-    	public static void mouseDragged(@NonNull GUIRoot gui_root, @NonNull MouseButton button, short x, short y) {
-    		mouse_x = x;
-    		mouse_y = y;
-    		gui_root.getInputState().mouseDragged(button, x, y);
-    	}
-    
-    	public static void mouseReleased(@NonNull GUIRoot gui_root, @NonNull MouseButton button) {
-    		gui_root.getInputState().mouseReleased(button);
-    	}
-    
-    	public static void mousePressed(@NonNull GUIRoot gui_root, @NonNull MouseButton button) {
-    		gui_root.getInputState().mousePressed(button);
-    	}
-    
-    	public static void mouseScrolled(@NonNull GUIRoot gui_root, int dz) {
-    		gui_root.getInputState().mouseScrolled(dz);
-    	}
-    	public static void mouseMoved(@NonNull GUIRoot gui_root, short x, short y) {
+    private static final Logger logger = Logger.getLogger(LocalInput.class.getName());
+
+	private static int mouse_x;
+	private static int mouse_y;
+	private static boolean global_menu_state = false;
+	private static boolean global_control_state = false;
+	private static boolean global_shift_state = false;
+	private static final boolean[] keys = new boolean[256];
+
+	private static int view_width;
+	private static int view_height;
+	private static boolean fullscreen;
+	private static @Nullable Path game_dir;
+	private static int revision;
+
+	private static final LocalInput instance = new LocalInput();
+
+	public static void setKeys(int key_code, boolean state, boolean shift_down, boolean control_down, boolean menu_down) {
+		keys[key_code] = state;
+		global_menu_state = menu_down;
+		global_control_state = control_down;
+		global_shift_state = shift_down;
+	}
+
+	public static void keyTyped(@NonNull GUIRoot gui_root, int key_code, char key_char) {
+		gui_root.getInputState().keyTyped(key_code, key_char);
+	}
+
+	public static void keyPressed(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
+		setKeys(key_code, true, shift_down, control_down, menu_down);
+		gui_root.getInputState().keyPressed(key_code, key_char, shift_down, control_down, menu_down, repeat);
+	}
+
+	public static void keyReleased(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
+		setKeys(key_code, false, shift_down, control_down, menu_down);
+		gui_root.getInputState().keyReleased(key_code, key_char, shift_down, control_down, menu_down);
+	}
+
+	public static void mouseDragged(@NonNull GUIRoot gui_root, @NonNull MouseButton button, short x, short y) {
+		mouse_x = x;
+		mouse_y = y;
+        gui_root.getInputState().mouseDragged(button, x, y);
+    }
+
+	public static void mouseReleased(@NonNull GUIRoot gui_root, @NonNull MouseButton button) {
+        gui_root.getInputState().mouseReleased(button);
+    }
+
+	public static void mousePressed(@NonNull GUIRoot gui_root, @NonNull MouseButton button) {
+        gui_root.getInputState().mousePressed(button);
+    }
+
+	public static void mouseScrolled(@NonNull GUIRoot gui_root, int dz) {
+		gui_root.getInputState().mouseScrolled(dz);
+	}
+
+	public static void mouseMoved(@NonNull GUIRoot gui_root, short x, short y) {
 		mouse_x = x;
 		mouse_y = y;
 		gui_root.getInputState().mouseMoved(x, y);
@@ -130,7 +130,7 @@ public final class LocalInput {
 		return LocalEventQueue.getQueue().getDeterministic().log(AudioManager.getManager() != null);
 	}
 
-	public static Path getGameDir() {
+	public static @Nullable Path getGameDir() {
 		return game_dir;
 	}
 
@@ -146,6 +146,11 @@ public final class LocalInput {
 		return view_height;
 	}
 
+	public static void setViewDimensions(int width, int height) {
+		view_width = width;
+		view_height = height;
+	}
+
 	public static boolean inFullscreen() {
 		return fullscreen;
 	}
@@ -154,7 +159,7 @@ public final class LocalInput {
 		return instance;
 	}
 
-	public static SerializableDisplayMode @NonNull [] getAvailableModes() {
+	public static @NonNull SerializableDisplayMode @NonNull [] getAvailableModes() {
 		try {
 			return Arrays.stream(Display.getAvailableDisplayModes())
 					.filter(SerializableDisplayMode::isModeValid)
@@ -174,20 +179,21 @@ public final class LocalInput {
 		}
 	}
 
-	public static @Nullable SerializableDisplayMode getCurrentMode() {
-		return LocalEventQueue.getQueue().getDeterministic().log(new SerializableDisplayMode(Display.getDisplayMode()));
+	public static @NonNull SerializableDisplayMode getCurrentMode() {
+		return LocalEventQueue.getQueue().getDeterministic()
+                .log(new SerializableDisplayMode(Display.getDisplayMode()));
 	}
 
 	public static int getNativeCursorCaps() {
-		return LocalEventQueue.getQueue().getDeterministic().log(Cursor.getCapabilities());
+		return LocalEventQueue.getQueue().getDeterministic()
+                .log(Cursor.getCapabilities());
 	}
 
-	public static void settings(Path game_dir, @NonNull Path event_log_dir, @NonNull Settings settings) {
-		instance.setSettings(game_dir, event_log_dir,
-				revision, settings);
+	public static void settings(@NonNull Path game_dir, @NonNull Path event_log_dir, @NonNull Settings settings) {
+		instance.setSettings(game_dir, event_log_dir, revision, settings);
 	}
 
-	public void setSettings(Path game_dir, @NonNull Path event_log_dir, int revision, @NonNull Settings settings) {
+	public void setSettings(@NonNull Path game_dir, @NonNull Path event_log_dir, int revision, @NonNull Settings settings) {
 		logger.config("revision = " + revision);
 		LocalInput.game_dir = game_dir;
 		LocalInput.revision = revision;

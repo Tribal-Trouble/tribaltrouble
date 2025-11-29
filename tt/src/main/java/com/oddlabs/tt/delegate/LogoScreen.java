@@ -5,8 +5,9 @@ import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.StaticCamera;
 import com.oddlabs.tt.gui.Fadable;
-import com.oddlabs.tt.gui.GUIImage;
+import com.oddlabs.tt.gui.GUIIcon;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
@@ -22,7 +23,7 @@ public final class LogoScreen extends CameraDelegate implements Updatable {
 	private static final int overlay_image_width = 800;
 	private static final int overlay_image_height = 600;
 
-	private final @Nullable GUIImage overlay;
+	private final @Nullable GUIIcon overlay;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
 	private final GUIRoot client_root;
 	private final Fadable fadable;
@@ -40,7 +41,7 @@ public final class LogoScreen extends CameraDelegate implements Updatable {
 		int screen_width = LocalInput.getViewWidth();
 		int screen_height = LocalInput.getViewHeight();
 		if (logo != null) { 
-			overlay = new GUIImage(screen_width, screen_height, 0f, 0f, (float)overlay_image_width/overlay_texture_width, (float)overlay_image_height/overlay_texture_height, logo);
+			overlay = new GUIIcon(new IconQuad(screen_width, screen_height, 0f, 0f, overlay_image_width/overlay_texture_width, overlay_image_height/overlay_texture_height, logo));
 			overlay.setPos(0, 0);
 			addChild(overlay);
 		} else

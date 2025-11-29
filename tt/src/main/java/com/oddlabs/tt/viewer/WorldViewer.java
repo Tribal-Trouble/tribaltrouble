@@ -78,12 +78,12 @@ public final class WorldViewer implements Animated {
     private final @NonNull Picker picker;
     private final @NonNull DefaultRenderer renderer;
     private final @NonNull LandscapeRenderer landscape_renderer;
-    private final Player local_player;
+    private final @NonNull Player local_player;
     private final @NonNull Cheat cheat;
     private final @NonNull WorldParameters world_params;
     private final @NonNull AnimationManager animation_manager_local;
 
-    public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator, PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, float[][] colors, short player_slot, SessionID session_id) {
+    public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator, PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, float[] @NonNull [] colors, short player_slot, SessionID session_id) {
         this.world_params = world_params;
         this.ingame_info = ingame_info;
         this.network = network;
@@ -199,7 +199,7 @@ public final class WorldViewer implements Animated {
         peerhub.setPaused(p);
     }
 
-    public Player getLocalPlayer() {
+    public @NonNull Player getLocalPlayer() {
         return local_player;
     }
 

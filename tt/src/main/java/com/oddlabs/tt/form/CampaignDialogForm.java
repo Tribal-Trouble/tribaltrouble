@@ -4,12 +4,12 @@ import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIIcon;
 import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -20,24 +20,24 @@ import static com.oddlabs.tt.gui.Placement.TOP_LEFT;
 public class CampaignDialogForm extends Form {
 	private static final int WIDTH = 300;
 
-	private final Runnable runnable;
+	private final @Nullable Runnable runnable;
 	private final boolean cancel;
 
-	private HorizButton ok_button;
+	private final HorizButton ok_button = new OKButton(80);
 
-	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, @NonNull Origin align) {
+	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image, @NonNull Origin align) {
 		this(header, text, image, align, null);
 	}
 
-	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, @NonNull Origin align, Runnable runnable) {
+	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image, @NonNull Origin align, @Nullable Runnable runnable) {
 		this(header, text, image, align, runnable, false);
 	}
 
-	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, Quad image, @NonNull Origin align, Runnable runnable, boolean cancel) {
+	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image, @NonNull Origin align, @Nullable Runnable runnable, boolean cancel) {
 		this.runnable = runnable;
 		this.cancel = cancel;
 		buildForm(header, text, image, align, cancel);
-		ok_button.addMouseClickListener( (_, _, _, _) -> {
+		ok_button.addMouseClickListener(( _,  _,  _,  _) -> {
                     remove();
                     run();
                 });
@@ -54,7 +54,7 @@ public class CampaignDialogForm extends Form {
 			run();
 	}
 
-	private void buildForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable Quad image, @NonNull Origin align, boolean cancel) {
+	private void buildForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image, @NonNull Origin align, boolean cancel) {
 		GUIIcon gui_icon = null;
 		if (image != null) {
 			gui_icon = new GUIIcon(image);
@@ -64,16 +64,11 @@ public class CampaignDialogForm extends Form {
 		addChild(header_label);
 		LabelBox label_box = new LabelBox(text, Skin.getSkin().getEditFont(), WIDTH);
 		addChild(label_box);
-		ok_button = new OKButton(80);
 		addChild(ok_button);
 
 		if (gui_icon != null) {
 			gui_icon.place();
-			if (align == Origin.AT_START) {
-				label_box.place(gui_icon, RIGHT_MID);
-			} else {
-				label_box.place(gui_icon, LEFT_MID);
-			}
+            label_box.place(gui_icon, align == Origin.AT_START ? RIGHT_MID : LEFT_MID);
 		} else {
 			label_box.place();
 		}

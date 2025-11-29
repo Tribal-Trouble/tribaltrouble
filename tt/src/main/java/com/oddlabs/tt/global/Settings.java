@@ -175,38 +175,38 @@ public final class Settings implements Serializable {
 	}
 
 	// --- Save Helpers ---
-	private void setProperty(@NonNull Properties props, String key, @NonNull Path value, Path defaultValue) {
+	private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull Path value, Path defaultValue) {
 		if (!value.equals(defaultValue)) {
 			props.setProperty(key, value.toString());
 		}
 	}
 
-	private void setProperty(@NonNull Properties props, String key, @NonNull String value, String defaultValue) {
+	private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull String value, String defaultValue) {
 		if (!value.equals(defaultValue)) {
 			props.setProperty(key, value);
 		}
 	}
 
-	private void setProperty(@NonNull Properties props, String key, int value, int defaultValue) {
+	private void setProperty(@NonNull Properties props, @NonNull String key, int value, int defaultValue) {
 		if (value != defaultValue) {
 			props.setProperty(key, String.valueOf(value));
 		}
 	}
 
-	private void setProperty(@NonNull Properties props, String key, float value, float defaultValue) {
+	private void setProperty(@NonNull Properties props, @NonNull String key, float value, float defaultValue) {
 		if (value != defaultValue) {
 			props.setProperty(key, String.valueOf(value));
 		}
 	}
 
-	private void setProperty(@NonNull Properties props, String key, boolean value, boolean defaultValue) {
+	private void setProperty(@NonNull Properties props, @NonNull String key, boolean value, boolean defaultValue) {
 		if (value != defaultValue) {
 			props.setProperty(key, String.valueOf(value));
 		}
 	}
 
 	// --- Load Helpers ---
-	private boolean getBoolean(@NonNull Properties props, String key, boolean defaultValue) {
+	private boolean getBoolean(@NonNull Properties props, @NonNull String key, boolean defaultValue) {
 		String value = props.getProperty(key);
 		if (value == null) {
 			return defaultValue;
@@ -215,7 +215,7 @@ public final class Settings implements Serializable {
 		return Boolean.parseBoolean(value);
 	}
 
-	private int getInt(@NonNull Properties props, String key, int defaultValue) {
+	private int getInt(@NonNull Properties props, @NonNull String key, int defaultValue) {
 		String value = props.getProperty(key);
 		if (value == null) {
 			return defaultValue;
@@ -228,7 +228,7 @@ public final class Settings implements Serializable {
 		}
 	}
 
-	private float getFloat(@NonNull Properties props, String key, float defaultValue) {
+	private float getFloat(@NonNull Properties props, @NonNull String key, float defaultValue) {
 		String value = props.getProperty(key);
 		if (value == null) {
 			return defaultValue;
@@ -241,7 +241,7 @@ public final class Settings implements Serializable {
 		}
 	}
 
-	private Path getPath(@NonNull Properties props, String key, Path defaultValue) {
+	private Path getPath(@NonNull Properties props, @NonNull String key, Path defaultValue) {
 		String value = props.getProperty(key);
 		if (value == null || value.isEmpty()) {
 			return defaultValue;

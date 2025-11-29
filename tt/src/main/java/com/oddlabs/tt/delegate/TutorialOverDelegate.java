@@ -67,7 +67,7 @@ public final class TutorialOverDelegate extends CameraDelegate implements Updata
 	}
 
 	@Override
-	protected void renderGeometry() {
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
 		renderBackgroundAlpha();
 	}
 

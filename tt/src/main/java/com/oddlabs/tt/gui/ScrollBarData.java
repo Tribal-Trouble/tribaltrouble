@@ -1,28 +1,28 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.util.Quad;
+import org.jspecify.annotations.NonNull;
 
 public final class ScrollBarData {
-	private final Vertical scroll_bar;
-	private final Quad[] scroll_down_button_pressed;
-	private final Quad[] scroll_down_button_unpressed;
-	private final Quad[] scroll_down_arrow;
-	private final Quad[] scroll_up_button_pressed;
-	private final Quad[] scroll_up_button_unpressed;
-	private final Quad[] scroll_up_arrow;
-	private final Vertical scroll_button;
+	private final @NonNull Vertical scroll_bar;
+	private final @NonNull ModeIconQuads scroll_down_button_pressed;
+	private final @NonNull ModeIconQuads scroll_down_button_unpressed;
+	private final @NonNull ModeIconQuads scroll_down_arrow;
+	private final @NonNull ModeIconQuads scroll_up_button_pressed;
+	private final @NonNull ModeIconQuads scroll_up_button_unpressed;
+	private final @NonNull ModeIconQuads scroll_up_arrow;
+	private final @NonNull Vertical scroll_button;
 	private final int left_offset;
 	private final int bottom_offset;
 	private final int top_offset;
 
-	public ScrollBarData(Vertical scroll_bar,
-						 Quad[] scroll_down_button_pressed,
-						 Quad[] scroll_down_button_unpressed,
-						 Quad[] scroll_down_arrow,
-						 Quad[] scroll_up_button_pressed,
-						 Quad[] scroll_up_button_unpressed,
-						 Quad[] scroll_up_arrow,
-						 Vertical scroll_button,
+	public ScrollBarData(@NonNull Vertical scroll_bar,
+                         @NonNull ModeIconQuads scroll_down_button_pressed,
+                         @NonNull ModeIconQuads scroll_down_button_unpressed,
+                         @NonNull ModeIconQuads scroll_down_arrow,
+                         @NonNull ModeIconQuads scroll_up_button_pressed,
+                         @NonNull ModeIconQuads scroll_up_button_unpressed,
+                         @NonNull ModeIconQuads scroll_up_arrow,
+                         @NonNull Vertical scroll_button,
 						 int left_offset,
 						 int bottom_offset,
 						 int top_offset) {
@@ -39,35 +39,35 @@ public final class ScrollBarData {
 		 this.top_offset = top_offset;
 	}
 
-	public Vertical getScrollBar() {
+	public @NonNull Vertical getScrollBar() {
 		return scroll_bar;
 	}
 
-	public Quad[] getScrollDownButtonPressed() {
+	public @NonNull ModeIconQuads getScrollDownButtonPressed() {
 		return scroll_down_button_pressed;
 	}
 
-	public Quad[] getScrollDownButtonUnpressed() {
+	public @NonNull ModeIconQuads getScrollDownButtonUnpressed() {
 		return scroll_down_button_unpressed;
 	}
 
-	public Quad[] getScrollDownArrow() {
+	public @NonNull ModeIconQuads getScrollDownArrow() {
 		return scroll_down_arrow;
 	}
 
-	public Quad[] getScrollUpButtonPressed() {
+	public @NonNull ModeIconQuads getScrollUpButtonPressed() {
 		return scroll_up_button_pressed;
 	}
 
-	public Quad[] getScrollUpButtonUnpressed() {
+	public @NonNull ModeIconQuads getScrollUpButtonUnpressed() {
 		return scroll_up_button_unpressed;
 	}
 
-	public Quad[] getScrollUpArrow() {
+	public @NonNull ModeIconQuads getScrollUpArrow() {
 		return scroll_up_arrow;
 	}
 
-	public Vertical getScrollButton() {
+	public @NonNull Vertical getScrollButton() {
 		return scroll_button;
 	}
 

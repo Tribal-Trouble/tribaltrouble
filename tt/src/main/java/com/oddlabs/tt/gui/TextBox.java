@@ -1,85 +1,77 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
-import com.oddlabs.tt.font.TextBoxRenderer;
+import com.oddlabs.tt.font.TextLayout;
+import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
-public class TextBox extends TextField implements Scrollable {
-	private final @NonNull TextBoxRenderer text_renderer;
+public class TextBox extends TextField implements Scrollable, Clipped {
+	private @NonNull TextLayout textLayout;
 	private final @NonNull ScrollBar scroll_bar;
 
 	private int offset_y;
 
-	public TextBox(int width, int height, Font font, int max_chars) {
+	public TextBox(int width, int height, @NonNull Font font, int max_chars) {
 		super(font, max_chars);
 		setDim(width, height);
 		setCanFocus(true);
 		offset_y = 0;
 
-		Box edit_box = Skin.getSkin().getEditBox();
 		scroll_bar = new ScrollBar(height, this);
 
-		text_renderer = new TextBoxRenderer(font,
-											width - edit_box.getLeftOffset() - edit_box.getRightOffset() - scroll_bar.getWidth(),
-											height - edit_box.getBottomOffset() - edit_box.getTopOffset());
+		updateLayout();
 		scroll_bar.setPos(width - scroll_bar.getWidth(), 0);
 		addChild(scroll_bar);
 	}
 
-	@Override
-	public final void append(String str) {
-		super.append(str);
-		scroll_bar.update();
-	}
-
-	@Override
-	public final void append(StringBuffer str) {
-		super.append(str);
-		scroll_bar.update();
-	}
-
-	@Override
-	public final void append(CharSequence str) {
-		super.append(str);
-		scroll_bar.update();
-	}
-
-	protected final @NonNull TextBoxRenderer getTextRenderer() {
-		return text_renderer;
-	}
-
-	protected final void renderBox(int mode) {
+	private void updateLayout() {
 		Box edit_box = Skin.getSkin().getEditBox();
-		edit_box.render(0, 0, getWidth() - scroll_bar.getWidth(), getHeight(), mode);
+		int wrapWidth = getWidth() - edit_box.getLeftOffset() - edit_box.getRightOffset() - scroll_bar.getWidth();
+		textLayout = new TextLayout(getFont(), getText(), wrapWidth);
+		scroll_bar.update();
 	}
 
 	@Override
-	protected void renderGeometry() {
+	public void setText(@NonNull CharSequence text) {
+		super.setText(text);
+		updateLayout();
+	}
+
+	@Override
+	public final void append(@NonNull CharSequence str) {
+		super.append(str);
+		updateLayout();
+	}
+
+	protected final @NonNull TextLayout getTextLayout() {
+		return textLayout;
+	}
+
+	protected final void renderBox(ModeIconQuads.@NonNull Mode skinMode) {
 		Box edit_box = Skin.getSkin().getEditBox();
-		renderBox(Skin.NORMAL);
-		text_renderer.render(edit_box.getLeftOffset(), edit_box.getBottomOffset(), offset_y, getText());
+		edit_box.render(0f, 0f, getWidth() - scroll_bar.getWidth(), getHeight(), skinMode);
+	}
+
+	@Override
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+		Box edit_box = Skin.getSkin().getEditBox();
+		renderBox(ModeIconQuads.Mode.NORMAL);
+		TextLineRenderer.render(textLayout, edit_box.getLeftOffset(), getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + offset_y, Color.WHITE_INT);
 	}
 
 	@Override
 	protected final void mouseScrolled(int amount) {
-		if (amount > 0)
-			setOffsetY(offset_y - 3*getFont().getHeight());
-		else
-			setOffsetY(offset_y + 3*getFont().getHeight());
+        setOffsetY(offset_y + (amount > 0  ? - 3 : 3 ) * getFont().getHeight());
 	}
 
 	@Override
 	public final void setOffsetY(int new_offset) {
-		offset_y = new_offset;
+		offset_y = Math.max(new_offset, 0);
 
-		if (offset_y < 0)
-			offset_y = 0;
 		Box edit_box = Skin.getSkin().getEditBox();
-		int max_offset_y = text_renderer.getTextHeight(getText()) - (getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset());
-		if (max_offset_y < 0)
-			max_offset_y = 0;
-		if (offset_y > max_offset_y)
-			offset_y = max_offset_y;
+		int max_offset_y = Math.max(0, textLayout.getTextHeight() - (getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset()));
+		offset_y = Math.min(offset_y, max_offset_y);
 		scroll_bar.update();
 	}
 
@@ -97,42 +89,33 @@ public class TextBox extends TextField implements Scrollable {
 	public final void jumpPage(boolean up) {
 		Box edit_box = Skin.getSkin().getEditBox();
 		int inner_height = getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset();
-		if (up)
-			setOffsetY(offset_y - inner_height);
-		else
-			setOffsetY(offset_y + inner_height);
+        setOffsetY(offset_y + (up ? -inner_height : inner_height));
 	}
 
 	@Override
 	public final float getScrollBarRatio() {
-		int text_height = text_renderer.getTotalTextHeight(getText());
+		int text_height = textLayout.getTextHeight();
 		Box edit_box = Skin.getSkin().getEditBox();
 		int inner_height = getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset();
-		int offset_height = offset_y + inner_height;
-		return inner_height/(float)Math.max(text_height, offset_height);
+		return (float) inner_height / text_height;
 	}
 
 	@Override
 	public final float getScrollBarOffset() {
-		int text_height = text_renderer.getTotalTextHeight(getText());
+		int text_height = textLayout.getTextHeight();
 		Box edit_box = Skin.getSkin().getEditBox();
 		int inner_height = getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset();
-		int offset_height = offset_y + inner_height;
-		int length = Math.max(text_height, offset_height);
-		return offset_y/(float)(length - inner_height);
+		int max_offset = text_height - inner_height;
+        return max_offset <= 0 ? 0 : (float) offset_y / max_offset;
 	}
 
 	@Override
 	public final void setScrollBarOffset(float offset) {
-		int text_height = text_renderer.getTotalTextHeight(getText());
+		int text_height = textLayout.getTextHeight();
 		Box edit_box = Skin.getSkin().getEditBox();
 		int inner_height = getHeight() - edit_box.getBottomOffset() - edit_box.getTopOffset();
-		int offset_height = offset_y + inner_height;
-		int length = Math.max(text_height, offset_height);
-		offset_y = (int)(offset*(length - inner_height));
-		if (offset_y < 0)
-			offset_y = 0;
-		else if (offset_y > length - inner_height)
-			offset_y = length - inner_height;
+		int max_offset = text_height - inner_height;
+		if (max_offset <= 0) return;
+		setOffsetY((int) (offset * max_offset));
 	}
 }

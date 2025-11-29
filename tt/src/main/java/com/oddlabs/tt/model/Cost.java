@@ -1,15 +1,15 @@
 package com.oddlabs.tt.model;
 
-import com.oddlabs.tt.gui.Icons;
+ import com.oddlabs.tt.gui.GUIIcons;
+import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.landscape.TreeSupply;
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 
 public final class Cost {
-	private final Class<? extends Supply> @NonNull [] supply_types;
+	private final @NonNull Class<? extends Supply> @NonNull [] supply_types;
 	private final int @NonNull [] supply_amounts;
 
-	public Cost(Class<? extends Supply> @NonNull [] supply_types, int @NonNull [] supply_amounts) {
+	public Cost(@NonNull Class<? extends Supply> @NonNull [] supply_types, int @NonNull [] supply_amounts) {
 		this.supply_types = supply_types;
 		this.supply_amounts = supply_amounts;
 		assert supply_types.length == supply_amounts.length;
@@ -23,32 +23,36 @@ public final class Cost {
 		return supply_amounts;
 	}
 
-	public Quad @NonNull [] toIconArray() {
+	public @NonNull IconQuad @NonNull [] toIconArray() {
 		int size = 0;
         for (int supplyAmount : supply_amounts) {
             size += supplyAmount;
         }
-		Quad[] result = new Quad[size];
+        IconQuad[] result = new IconQuad[size];
 		int index = 0;
 		for (int i = 0; i < supply_types.length; i++) {
-			Class<? extends Supply> type = supply_types[i];
-			Quad icon;
-			if (type == TreeSupply.class) {
-				icon = Icons.getIcons().getTreeStatusIcon();
-			} else if (type == RockSupply.class) {
-				icon = Icons.getIcons().getRockStatusIcon();
-			} else if (type == IronSupply.class) {
-				icon = Icons.getIcons().getIronStatusIcon();
-			} else if (type == RubberSupply.class) {
-				icon = Icons.getIcons().getRubberStatusIcon();
-			} else {
-				throw new RuntimeException("Wrong supply_type");
-			}
-			for (int j = 0; j < supply_amounts[i]; j++) {
+            IconQuad icon = getIconQuad(supply_types[i]);
+            for (int j = 0; j < supply_amounts[i]; j++) {
                 result[index++] = icon;
             }
 		}
 		assert index == result.length;
 		return result;
 	}
+
+    private @NonNull IconQuad getIconQuad(@NonNull Class<? extends Supply> supply_type) {
+        IconQuad icon;
+        if (supply_type == TreeSupply.class) {
+            icon = GUIIcons.getIcons().getTreeStatusIcon();
+        } else if (supply_type == RockSupply.class) {
+            icon = GUIIcons.getIcons().getRockStatusIcon();
+        } else if (supply_type == IronSupply.class) {
+            icon = GUIIcons.getIcons().getIronStatusIcon();
+        } else if (supply_type == RubberSupply.class) {
+            icon = GUIIcons.getIcons().getRubberStatusIcon();
+        } else {
+            throw new RuntimeException("Wrong supply_type");
+        }
+        return icon;
+    }
 }

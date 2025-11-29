@@ -1,133 +1,79 @@
 package com.oddlabs.tt.font;
 
+import com.oddlabs.util.Color;
 import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 public final class TextLineRenderer {
-	private final @NonNull Font font;
-	private final int dot_limit;
 
-	private int render_x;
-	private int render_y;
-	private int index_render_x;
-	private int target_render_x;
-	private int best_dx;
-	private int new_index;
+    private TextLineRenderer() {
+        // no instances
+    }
 
-	public TextLineRenderer(@NonNull Font font) {
-		this.font = font;
-		dot_limit = font.getWidth("...");
-	}
+    public static void render(@NonNull TextLayout layout, float x, float y, int color) {
+        float currentY = y;
+        for (TextLayout.Line line : layout.getLines()) {
+            render(layout.getFont(), line.content(), x, currentY, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, color);
+            currentY -= layout.getFont().getHeight();
+        }
+    }
 
-	public int getIndexRenderX(int x, int y, int offset_x, @NonNull CharSequence text, int index) {
-		render(x, y, offset_x, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, text, index, false);
-		return index_render_x;
-	}
+    public static float render(@NonNull Font font, @NonNull CharSequence text, float x, float y, float clipLeft, float clipRight, int color) {
+        float[] c = Color.argb4f(color);
+        GL11.glColor4f(c[0], c[1], c[2], c[3]);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, font.getTexture().getHandle());
+        GL11.glBegin(GL11.GL_QUADS);
 
-	public int jumpDirect(int x, int y, int new_x, @NonNull CharSequence text, int index) {
-		target_render_x = new_x;
-		best_dx = Integer.MAX_VALUE;
-		render(x, y, 0, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, text, index, false);
-		return new_index;
-	}
+        float finalX = (float) text.codePoints().asDoubleStream().reduce(x, (currentX, codePointAsDouble) -> {
+            int codePoint = (int) codePointAsDouble;
 
-	public void renderCropped(int x, int y, float clip_left, float clip_right, float clip_bottom, float clip_top, @NonNull CharSequence text) {
-		render(x, y, 0, clip_left, clip_right, clip_bottom, clip_top, text, -1, true, true);
-	}
+            if (codePoint == '\n') {
+                return currentX;
+            }
 
-	public void render(int x, int y, float clip_left, float clip_right, float clip_bottom, float clip_top, @NonNull CharSequence text) {
-		render(x, y, 0, clip_left, clip_right, clip_bottom, clip_top, text, -1);
-	}
+            Quad quad = font.getQuad(codePoint);
+            if (quad != null) {
+                float quadWidth = quad.getWidth();
+                float charAdvance = quadWidth - font.getXBorder();
 
-	public void render(int x, int y, int offset_x, float clip_left, float clip_right, float clip_bottom, float clip_top, @NonNull CharSequence text, int index) {
-		render(x, y, offset_x, clip_left, clip_right, clip_bottom, clip_top, text, index, true, false);
-	}
+                if (currentX + quadWidth >= clipLeft && currentX <= clipRight) {
+                    float renderX = (float) currentX;
+                    float renderWidth = quadWidth;
+                    float u1 = quad.getU1();
+                    float u2 = quad.getU2();
+                    float textureUWidth = u2 - u1;
 
-	private void render(int x, int y, int offset_x, float clip_left, float clip_right, float clip_bottom, float clip_top, @NonNull CharSequence text, int index, boolean render) {
-		render(x, y, offset_x, clip_left, clip_right, clip_bottom, clip_top, text, index, render, false);
-	}
+                    if (renderX < clipLeft) {
+                        float leftClipPixels = clipLeft - renderX;
+                        u1 += textureUWidth * (leftClipPixels / quadWidth);
+                        renderWidth -= leftClipPixels;
+                        renderX = clipLeft;
+                    }
 
-	private void render(int x, int y, int offset_x, float clip_left, float clip_right, float clip_bottom, float clip_top, @NonNull CharSequence text, int index, boolean render, boolean render_dots) {
-		if (render) {
-			font.setup();
-		}
-		int render_pos = 0;
-		render_x = x + offset_x;
-		render_y = y;
-		renderIndex(index, render_pos, render);
-		while (render_pos < text.length()) {
-			if (render_dots && nearEnd(text, render_pos, (int)clip_right - render_x)) {
-				renderDots(render_x, render_y, clip_left, clip_right, clip_bottom, clip_top, render);
-				break;
-			}
-			Quad quad = font.getQuad(text.charAt(render_pos));
-			if (render && quad != null)
-				quad.renderClipped(render_x, render_y, clip_left, clip_right, clip_bottom, clip_top);
-			render_x += getQuadWidth(quad);
-			render_pos++;
-			renderIndex(index, render_pos, render);
-		}
-		if (render) {
-			font.reset();
-		}
-	}
+                    if (renderX + renderWidth > clipRight) {
+                        float rightClipPixels = (renderX + renderWidth) - clipRight;
+                        u2 -= textureUWidth * (rightClipPixels / quadWidth);
+                        renderWidth -= rightClipPixels;
+                    }
 
-	private void renderDots(int render_x, int render_y, float clip_left, float clip_right, float clip_bottom, float clip_top, boolean render) {
-		if (render) {
-			Quad quad = font.getQuad('.');
-			int dx = getQuadWidth(quad);
-			for (int i = 0; i < 3; i++) {
-				quad.renderClipped(render_x, render_y, clip_left, clip_right, clip_bottom, clip_top);
-				render_x += dx;
-			}
-		}
-	}
+                    if (renderWidth > 0) {
+						GL11.glTexCoord2f(u1, quad.getV1());
+						GL11.glVertex2f(renderX, y);
+						GL11.glTexCoord2f(u1, quad.getV2());
+						GL11.glVertex2f(renderX, y + quad.getHeight());
+						GL11.glTexCoord2f(u2, quad.getV2());
+						GL11.glVertex2f(renderX + renderWidth, y + quad.getHeight());
+						GL11.glTexCoord2f(u2, quad.getV1());
+						GL11.glVertex2f(renderX + renderWidth, y);
+                    }
+                }
+                return currentX + charAdvance;
+            }
+            return currentX;
+        });
 
-	private int getQuadWidth(@Nullable Quad quad) {
-		return (quad != null)
-            ? quad.getWidth() - font.getXBorder()
-            : 0;
-	}
-
-	private boolean nearEnd(@NonNull CharSequence text, int render_pos, int available) {
-		int length = getQuadWidth(font.getQuad(text.charAt(render_pos)));
-
-		if (length + dot_limit < available) {
-			return false;
-		}
-
-		render_pos++;
-		while (render_pos < text.length()) {
-			length += getQuadWidth(font.getQuad(text.charAt(render_pos)));
-
-			if (length > available) {
-				return true;
-			}
-			render_pos++;
-		}
-		return false;
-	}
-
-	private void renderIndex(int index, int render_pos, boolean render) {
-		if (!render) {
-			int dx = Math.abs(render_x + font.getXBorder()/2 - target_render_x);
-			if (dx < best_dx) {
-				best_dx = dx;
-				new_index = render_pos;
-			}
-		}
-
-		if (render_pos == index) {
-			if (render) {
-				Index.renderIndex(render_x + font.getXBorder()/2, render_y, font);
-			} else {
-				index_render_x = render_x + font.getXBorder()/2;
-			}
-		}
-	}
-
-	public @NonNull Font getFont() {
-		return font;
-	}
+        GL11.glEnd();
+        return finalX;
+    }
 }

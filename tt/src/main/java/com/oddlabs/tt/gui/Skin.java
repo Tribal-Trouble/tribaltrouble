@@ -4,49 +4,41 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.FontFile;
 import com.oddlabs.tt.resource.Resources;
-import com.oddlabs.tt.resource.TextureFile;
-import com.oddlabs.util.Quad;
-import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.net.URL;
+import static com.oddlabs.tt.gui.Icons.getIconQuads;
+import static com.oddlabs.tt.gui.Icons.getInt;
+import static com.oddlabs.tt.gui.Icons.getNamedColor;
+import static com.oddlabs.tt.gui.Icons.getNamedIconQuad;
+import static com.oddlabs.tt.gui.Icons.getNamedIconQuads;
+import static com.oddlabs.tt.gui.Icons.getNodeByName;
 
+/**
+ *  Skin for GUI
+ */
 public final class Skin {
-	public static final int NORMAL = 0;
-	public static final int ACTIVE = 1;
-	public static final int DISABLED = 2;
 
-	private static Skin skin;
+    private static final Skin SKIN = new Skin("/gui/gui_skin.xml");
 
-	private final @NonNull Texture texture;
 	private final @NonNull Font edit_font;
 	private final @NonNull Font button_font;
 	private final @NonNull Font headline_font;
 
-	private final Quad @NonNull [] plus_button;
-	private final Quad @NonNull [] minus_button;
-	private final Quad @NonNull [] accept_button;
-	private final Quad @NonNull [] cancel_button;
-	private final Quad @NonNull [] back_button;
+	private final @NonNull ModeIconQuads plus_button;
+	private final @NonNull ModeIconQuads minus_button;
+	private final @NonNull ModeIconQuads accept_button;
+	private final @NonNull ModeIconQuads cancel_button;
+	private final @NonNull ModeIconQuads back_button;
 	private final @NonNull Horizontal horiz_button_pressed;
 	private final @NonNull Horizontal horiz_button_unpressed;
 	private final @NonNull FormData form_data;
 	private final @NonNull Box edit_box;
 	private final @NonNull Box background_box;
-	private final Quad @NonNull [] check_box_marked;
-	private final Quad @NonNull [] check_box_unmarked;
-	private final Quad @NonNull [] radio_button_marked;
-	private final Quad @NonNull [] radio_button_unmarked;
+	private final @NonNull ModeIconQuads check_box_marked;
+	private final @NonNull ModeIconQuads check_box_unmarked;
+	private final @NonNull ModeIconQuads radio_button_marked;
+	private final @NonNull ModeIconQuads radio_button_unmarked;
 	private final @NonNull GroupData group_data;
 	private final @NonNull ScrollBarData scroll_bar_data;
 	private final @NonNull SliderData slider_data;
@@ -54,194 +46,95 @@ public final class Skin {
 	private final @NonNull ProgressBarData progress_bar_data;
 	private final @NonNull MultiColumnComboBoxData multi_columnCombo_box_data;
 	private final @NonNull ToolTipBoxInfo tool_tip;
-	private final Quad @NonNull [] diode;
+	private final @NonNull ModeIconQuads diode;
 	private final @NonNull PanelData panel_data;
-	private final @NonNull Quad flag_default;
-	private final @NonNull Quad flag_da;
-	private final @NonNull Quad flag_en;
-	private final @NonNull Quad flag_de;
-	private final @NonNull Quad flag_es;
-	private final @NonNull Quad flag_it;
+	private final @NonNull IconQuad flag_default;
+	private final @NonNull IconQuad flag_da;
+	private final @NonNull IconQuad flag_en;
+	private final @NonNull IconQuad flag_de;
+	private final @NonNull IconQuad flag_es;
+	private final @NonNull IconQuad flag_it;
 
-	public static void load() {
-		if (skin == null)
-			skin = new Skin("/gui/gui_skin.xml");
-	}
-
-	public static Skin getSkin() {
-		return skin;
+	public static @NonNull Skin getSkin() {
+		return SKIN;
 	}
 
 	private Skin(@NonNull String xml_file) {
-		Node root = loadFile(xml_file, new GUIErrorHandler());
-		texture = loadTexture(root);
+		Node root = Icons.loadFile(xml_file, new GUIErrorHandler());
+		Texture texture = Icons.loadTexture(root);
 		edit_font = parseEditFont(root);
 		button_font = parseButtonFont(root);
 		headline_font = parseHeadlineFont(root);
 
-		plus_button = getNamedQuads(root, "plus_button");
-		minus_button = getNamedQuads(root, "minus_button");
-		accept_button = getNamedQuads(root, "accept_button");
-		cancel_button = getNamedQuads(root, "cancel_button");
-		back_button = getNamedQuads(root, "back_button");
-		check_box_marked = parseCheckBoxMarked(root);
-		check_box_unmarked = parseCheckBoxUnmarked(root);
-		radio_button_marked = parseRadioButtonMarked(root);
-		radio_button_unmarked = parseRadioButtonUnmarked(root);
-		horiz_button_pressed = parseHorizButtonPressed(root);
-		horiz_button_unpressed = parseHorizButtonUnpressed(root);
-		form_data = parseFormData(root);
-		edit_box = parseBox(root, "editbox");
-		background_box = parseBox(root, "backgroundbox");
-		group_data = parseGroupData(root);
-		scroll_bar_data = parseScrollBarData(root);
-		slider_data = parseSliderData(root);
-		pulldown_data = parsePulldownData(root);
-		progress_bar_data = parseProgressBarData(root);
-		multi_columnCombo_box_data = parseMultiColumnComboBoxData(root);
-		tool_tip = parseToolTipInfo(root);
-		diode = getNamedQuads(root, "diode");
-		panel_data = parsePanelData(root);
-		flag_default = getNamedQuad(root, "flag_default");
-		flag_da = getNamedQuad(root, "flag_da");
-		flag_en = getNamedQuad(root, "flag_en");
-		flag_de = getNamedQuad(root, "flag_de");
-		flag_es = getNamedQuad(root, "flag_es");
-		flag_it = getNamedQuad(root, "flag_it");
+		plus_button = getNamedIconQuads(root, "plus_button", texture);
+		minus_button = getNamedIconQuads(root, "minus_button", texture);
+		accept_button = getNamedIconQuads(root, "accept_button", texture);
+		cancel_button = getNamedIconQuads(root, "cancel_button", texture);
+		back_button = getNamedIconQuads(root, "back_button", texture);
+		check_box_marked = parseCheckBoxMarked(root, texture);
+		check_box_unmarked = parseCheckBoxUnmarked(root, texture);
+		radio_button_marked = parseRadioButtonMarked(root, texture);
+		radio_button_unmarked = parseRadioButtonUnmarked(root, texture);
+		horiz_button_pressed = parseHorizButtonPressed(root, texture);
+		horiz_button_unpressed = parseHorizButtonUnpressed(root, texture);
+		form_data = parseFormData(root, texture);
+		edit_box = parseBox(root, "editbox", texture);
+		background_box = parseBox(root, "backgroundbox", texture);
+		group_data = parseGroupData(root, texture);
+		scroll_bar_data = parseScrollBarData(root, texture);
+		slider_data = parseSliderData(root, texture);
+		pulldown_data = parsePulldownData(root, texture);
+		progress_bar_data = parseProgressBarData(root, texture);
+		multi_columnCombo_box_data = parseMultiColumnComboBoxData(root, texture);
+		tool_tip = parseToolTipInfo(root, texture);
+		diode = getNamedIconQuads(root, "diode", texture);
+		panel_data = parsePanelData(root, texture);
+		flag_default = getNamedIconQuad(root, "flag_default", texture);
+		flag_da = getNamedIconQuad(root, "flag_da", texture);
+		flag_en = getNamedIconQuad(root, "flag_en", texture);
+		flag_de = getNamedIconQuad(root, "flag_de", texture);
+		flag_es = getNamedIconQuad(root, "flag_es", texture);
+		flag_it = getNamedIconQuad(root, "flag_it", texture);
 	}
 
-	private static Node loadFile(@NonNull String xml_file, ErrorHandler error_handler) {
-		URL url = Utils.makeURL(xml_file);
-
-		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setValidating(true);
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			builder.setErrorHandler(error_handler);
-			Document document = builder.parse(url.openStream());
-			return document.getDocumentElement();
-		} catch (ParserConfigurationException | SAXException | IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private static @NonNull Texture loadTexture(@NonNull Node n) {
-		return loadTexture(n.getAttributes().getNamedItem("texture").getNodeValue());
-	}
-
-	private static @NonNull Texture loadTexture(String tex_file) {
-		TextureFile file = new TextureFile(tex_file,
-										   GL11.GL_RGBA,
-										   GL11.GL_LINEAR,
-										   GL11.GL_LINEAR,
-										   GL11.GL_CLAMP,
-										   GL11.GL_CLAMP);
-		return Resources.findResource(file);
-	}
-
-	private static Node getNodeByName(String name, @NonNull Node n) {
-		NodeList nl = n.getChildNodes();
-		for (int i = 0; i < nl.getLength(); i++) {
-			if (nl.item(i).getNodeName().equals(name))
-				return nl.item(i);
-		}
-		assert false : "Missing node: " + name;
-		return null;
-	}
-
-	private static int getInt(@NonNull Node n, String key) {
-		String string = n.getAttributes().getNamedItem(key).getNodeValue();
-		return Integer.parseInt(string);
-	}
-
-	private @NonNull Color getColor(@NonNull Node n) {
-		Node q = getNodeByName("color", n);
-		int r = getInt(q, "r");
-		int g = getInt(q, "g");
-		int b = getInt(q, "b");
-		int a = getInt(q, "a");
-		return new Color(r, g, b, a);
-	}
-
-	private Quad @NonNull [] getNamedQuads(@NonNull Node n, String name) {
-		return getQuads(getNodeByName(name, n), texture);
-	}
-
-	private @NonNull Quad getNamedQuad(@NonNull Node n, String name) {
-		return getQuad(getNodeByName(name, n), texture);
-	}
-
-	private Quad @NonNull [] getQuads(@NonNull Node n, @NonNull Texture texture) {
-		Quad[] result = new Quad[3];
-		Node normal = getNodeByName("normal", n);
-		result[NORMAL] = getQuad(normal, texture);
-		Node active = getNodeByName("active", n);
-		result[ACTIVE] = getQuad(active, texture);
-		Node disabled = getNodeByName("disabled", n);
-		result[DISABLED] = getQuad(disabled, texture);
-		return result;
-	}
-
-	private @NonNull Quad getQuad(@NonNull Node n, @NonNull Texture texture) {
-		Node q = getNodeByName("quad", n);
-		return readQuadData(q, texture);
-	}
-
-	private @NonNull Quad readQuadData(@NonNull Node n, @NonNull Texture texture) {
-		int left = getInt(n, "left");
-		int top = getInt(n, "top");
-		int right = getInt(n, "right");
-		int bottom = getInt(n, "bottom");
-		return new Quad(left/(float)texture.getWidth(),
-						1f - bottom/(float)texture.getHeight(),
-						right/(float)texture.getWidth(),
-						1f - top/(float)texture.getHeight(),
-						right - left,
-						bottom - top);
-	}
-
-	private @NonNull Horizontal getHorizontal(@NonNull Node n) {
+	private @NonNull Horizontal getHorizontal(@NonNull Node n, @NonNull Texture texture) {
 		Node horizontal_node = getNodeByName("horizontal", n);
-		Node left_node = getNodeByName("left", horizontal_node);
-		Quad[] left = getQuads(left_node, texture);
-		Node center_node = getNodeByName("center", horizontal_node);
-		Quad[] center = getQuads(center_node, texture);
-		Node right_node = getNodeByName("right", horizontal_node);
-		Quad[] right = getQuads(right_node, texture);
-		return new Horizontal(left, center, right);
+		return new Horizontal(
+                getIconQuads(getNodeByName("left", horizontal_node), texture),
+                getIconQuads(getNodeByName("center", horizontal_node), texture),
+                getIconQuads(getNodeByName("right", horizontal_node), texture)
+        );
 	}
 
-	private @NonNull Vertical getVertical(@NonNull Node n) {
-		Node vertical_node = getNodeByName("vertical", n);
-		Node bottom_node = getNodeByName("bottom", vertical_node);
-		Quad[] bottom = getQuads(bottom_node, texture);
-		Node center_node = getNodeByName("center", vertical_node);
-		Quad[] center = getQuads(center_node, texture);
-		Node top_node = getNodeByName("top", vertical_node);
-		Quad[] top = getQuads(top_node, texture);
-		return new Vertical(bottom, center, top);
+	private @NonNull Vertical getVertical(@NonNull Node n, @NonNull Texture texture) {
+        Node vertical_node = getNodeByName("vertical", n);
+        return new Vertical(
+                getIconQuads(getNodeByName("bottom", vertical_node), texture),
+                getIconQuads(getNodeByName("center", vertical_node), texture),
+                getIconQuads(getNodeByName("top", vertical_node), texture)
+        );
 	}
 
-	private @NonNull Box getBox(@NonNull Node n) {
+	private @NonNull Box getBox(@NonNull Node n, @NonNull Texture texture) {
 		Node box_node = getNodeByName("box", n);
 		Node left_bottom_node = getNodeByName("left_bottom", box_node);
-		Quad[] left_bottom = getQuads(left_bottom_node, texture);
+        ModeIconQuads left_bottom = getIconQuads(left_bottom_node, texture);
 		Node bottom_node = getNodeByName("bottom", box_node);
-		Quad[] bottom = getQuads(bottom_node, texture);
+        ModeIconQuads bottom = getIconQuads(bottom_node, texture);
 		Node right_bottom_node = getNodeByName("right_bottom", box_node);
-		Quad[] right_bottom = getQuads(right_bottom_node, texture);
+        ModeIconQuads right_bottom = getIconQuads(right_bottom_node, texture);
 		Node right_node = getNodeByName("right", box_node);
-		Quad[] right = getQuads(right_node, texture);
+        ModeIconQuads right = getIconQuads(right_node, texture);
 		Node right_top_node = getNodeByName("right_top", box_node);
-		Quad[] right_top = getQuads(right_top_node, texture);
+        ModeIconQuads right_top = getIconQuads(right_top_node, texture);
 		Node top_node = getNodeByName("top", box_node);
-		Quad[] top = getQuads(top_node, texture);
+        ModeIconQuads top = getIconQuads(top_node, texture);
 		Node left_top_node = getNodeByName("left_top", box_node);
-		Quad[] left_top = getQuads(left_top_node, texture);
+        ModeIconQuads left_top = getIconQuads(left_top_node, texture);
 		Node left_node = getNodeByName("left", box_node);
-		Quad[] left = getQuads(left_node, texture);
+        ModeIconQuads left = getIconQuads(left_node, texture);
 		Node center_node = getNodeByName("center", box_node);
-		Quad[] center = getQuads(center_node, texture);
+        ModeIconQuads center = getIconQuads(center_node, texture);
 		int left_offset = getInt(box_node, "left_offset");
 		int bottom_offset = getInt(box_node, "bottom_offset");
 		int right_offset = getInt(box_node, "right_offset");
@@ -264,10 +157,6 @@ public final class Skin {
 		String path = n.getFirstChild().getNodeValue();
 		FontFile font_file = new FontFile(path);
 		return Resources.findResource(font_file);
-	}
-
-	public void bindTexture() {
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
 	}
 
 	private @NonNull Font parseEditFont(@NonNull Node n) {
@@ -297,99 +186,99 @@ public final class Skin {
 		return headline_font;
 	}
 
-	private Quad @NonNull [] parseCheckBoxMarked(@NonNull Node n) {
+	private @NonNull ModeIconQuads parseCheckBoxMarked(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("checkbox", n);
 		node = getNodeByName("marked", node);
-		return getQuads(node, texture);
+		return getIconQuads(node, texture);
 	}
 
-	public Quad @NonNull [] getCheckBoxMarked() {
+	public @NonNull ModeIconQuads getCheckBoxMarked() {
 		return check_box_marked;
 	}
 
-	private Quad @NonNull [] parseCheckBoxUnmarked(@NonNull Node n) {
+	private @NonNull ModeIconQuads parseCheckBoxUnmarked(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("checkbox", n);
 		node = getNodeByName("unmarked", node);
-		return getQuads(node, texture);
+		return getIconQuads(node, texture);
 	}
 
-	public Quad @NonNull [] getCheckBoxUnmarked() {
+	public @NonNull ModeIconQuads getCheckBoxUnmarked() {
 		return check_box_unmarked;
 	}
 
-	private Quad @NonNull [] parseRadioButtonMarked(@NonNull Node n) {
+	private @NonNull ModeIconQuads parseRadioButtonMarked(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("radiobutton", n);
 		node = getNodeByName("marked", node);
-		return getQuads(node, texture);
+		return getIconQuads(node, texture);
 	}
 
-	public Quad @NonNull [] getRadioButtonMarked() {
+	public @NonNull ModeIconQuads getRadioButtonMarked() {
 		return radio_button_marked;
 	}
 
-	private Quad @NonNull [] parseRadioButtonUnmarked(@NonNull Node n) {
+	private @NonNull ModeIconQuads parseRadioButtonUnmarked(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("radiobutton", n);
 		node = getNodeByName("unmarked", node);
-		return getQuads(node, texture);
+		return getIconQuads(node, texture);
 	}
 
-	public Quad @NonNull [] getRadioButtonUnmarked() {
+	public @NonNull ModeIconQuads getRadioButtonUnmarked() {
 		return radio_button_unmarked;
 	}
 
-	private @NonNull Horizontal parseHorizButtonPressed(@NonNull Node n) {
+	private @NonNull Horizontal parseHorizButtonPressed(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("horiz_button", n);
 		node = getNodeByName("horiz_pressed", node);
-		return getHorizontal(node);
+		return getHorizontal(node, texture);
 	}
 
 	public @NonNull Horizontal getHorizButtonPressed() {
 		return horiz_button_pressed;
 	}
 
-	private @NonNull Horizontal parseHorizButtonUnpressed(@NonNull Node n) {
+	private @NonNull Horizontal parseHorizButtonUnpressed(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("horiz_button", n);
 		node = getNodeByName("horiz_unpressed", node);
-		return getHorizontal(node);
+		return getHorizontal(node, texture);
 	}
 
 	public @NonNull Horizontal getHorizButtonUnpressed() {
 		return horiz_button_unpressed;
 	}
 
-	private @NonNull ScrollBarData parseScrollBarData(@NonNull Node n) {
+	private @NonNull ScrollBarData parseScrollBarData(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("vert_scroll", n);
-		Vertical scroll_bar = getVertical(node);
+		Vertical scroll_bar = getVertical(node, texture);
 
 		Node temp;
 		temp = getNodeByName("less", node);
 		temp = getNodeByName("pushbutton", temp);
 		temp = getNodeByName("pressed", temp);
-		Quad[] scroll_down_button_pressed = getQuads(temp, texture);
+		ModeIconQuads scroll_down_button_pressed = getIconQuads(temp, texture);
 
 		temp = getNodeByName("less", node);
 		temp = getNodeByName("pushbutton", temp);
 		temp = getNodeByName("unpressed", temp);
-		Quad[] scroll_down_button_unpressed = getQuads(temp, texture);
+		ModeIconQuads scroll_down_button_unpressed = getIconQuads(temp, texture);
 
 		temp = getNodeByName("less", node);
-		Quad[] scroll_down_arrow = getQuads(temp, texture);
+		ModeIconQuads scroll_down_arrow = getIconQuads(temp, texture);
 
 		temp = getNodeByName("more", node);
 		temp = getNodeByName("pushbutton", temp);
 		temp = getNodeByName("pressed", temp);
-		Quad[] scroll_up_button_pressed = getQuads(temp, texture);
+		ModeIconQuads scroll_up_button_pressed = getIconQuads(temp, texture);
 
 		temp = getNodeByName("more", node);
 		temp = getNodeByName("pushbutton", temp);
 		temp = getNodeByName("unpressed", temp);
-		Quad[] scroll_up_button_unpressed = getQuads(temp, texture);
+		ModeIconQuads scroll_up_button_unpressed = getIconQuads(temp, texture);
 
 		temp = getNodeByName("more", node);
-		Quad[] scroll_up_arrow = getQuads(temp, texture);
+		ModeIconQuads scroll_up_arrow = getIconQuads(temp, texture);
 
 		temp = getNodeByName("vert_scroll_button", n);
-		Vertical scroll_button = getVertical(temp);
+		Vertical scroll_button = getVertical(temp, texture);
 
 		return new ScrollBarData(scroll_bar,
 								 scroll_down_button_pressed,
@@ -408,11 +297,11 @@ public final class Skin {
 		return scroll_bar_data;
 	}
 
-	private @NonNull SliderData parseSliderData(@NonNull Node n) {
+	private @NonNull SliderData parseSliderData(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("slider", n);
-		Horizontal slider = getHorizontal(node);
+		Horizontal slider = getHorizontal(node, texture);
 
-		Quad[] button = getQuads(node, texture);
+        ModeIconQuads button = getIconQuads(node, texture);
 
 		return new SliderData(slider,
 							  button,
@@ -424,23 +313,23 @@ public final class Skin {
 		return slider_data;
 	}
 
-	private @NonNull PulldownData parsePulldownData(@NonNull Node n) {
+	private @NonNull PulldownData parsePulldownData(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("pulldown_menu", n);
 
 		Node temp;
 		temp = getNodeByName("pulldown_top", node);
-		Horizontal pulldown_top = getHorizontal(temp);
+		Horizontal pulldown_top = getHorizontal(temp, texture);
 
 		temp = getNodeByName("pulldown_bottom", node);
-		Horizontal pulldown_bottom = getHorizontal(temp);
+		Horizontal pulldown_bottom = getHorizontal(temp, texture);
 
 		Node item_node = getNodeByName("pulldown_item", n);
-		Box pulldown_item = getBox(item_node);
+		Box pulldown_item = getBox(item_node, texture);
 
 		Node button_node = getNodeByName("pulldown_button", n);
-		Horizontal pulldown_button = getHorizontal(button_node);
+		Horizontal pulldown_button = getHorizontal(button_node, texture);
 
-		Quad[] arrow = getQuads(button_node, texture);
+		ModeIconQuads arrow = getIconQuads(button_node, texture);
 
 		return new PulldownData(pulldown_top,
 								pulldown_bottom,
@@ -456,19 +345,19 @@ public final class Skin {
 		return pulldown_data;
 	}
 
-	private @NonNull ProgressBarData parseProgressBarData(@NonNull Node n) {
+	private @NonNull ProgressBarData parseProgressBarData(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("progressbar", n);
-		Horizontal progressbar = getHorizontal(node);
+		Horizontal progressbar = getHorizontal(node, texture);
 
 		Node temp;
 		temp = getNodeByName("left", node);
-		Quad[] left = getQuads(temp, texture);
+		ModeIconQuads left = getIconQuads(temp, texture);
 
 		temp = getNodeByName("center", node);
-		Quad[] center = getQuads(temp, texture);
+		ModeIconQuads center = getIconQuads(temp, texture);
 
 		temp = getNodeByName("right", node);
-		Quad[] right = getQuads(temp, texture);
+		ModeIconQuads right = getIconQuads(temp, texture);
 
 		return new ProgressBarData(progressbar,
 								   left,
@@ -481,14 +370,14 @@ public final class Skin {
 		return progress_bar_data;
 	}
 
-	private @NonNull FormData parseFormData(@NonNull Node n) {
+	private @NonNull FormData parseFormData(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("slim_form", n);
-		Box slim_form = getBox(node);
+		Box slim_form = getBox(node, texture);
 
 		node = getNodeByName("form", n);
-		return new FormData(getBox(node),
+		return new FormData(getBox(node, texture),
 							slim_form,
-							getQuads(node, texture),
+							getIconQuads(node, texture),
 							getInt(node, "spacing"),
 							getInt(node, "section_spacing"),
 							getInt(node, "caption_left"),
@@ -502,33 +391,33 @@ public final class Skin {
 		return form_data;
 	}
 
-	public Quad @NonNull [] getPlusButton() {
+	public @NonNull ModeIconQuads getPlusButton() {
 		return plus_button;
 	}
 
-	public Quad @NonNull [] getMinusButton() {
+	public @NonNull ModeIconQuads getMinusButton() {
 		return minus_button;
 	}
 
-	public Quad @NonNull [] getAcceptButton() {
+	public @NonNull ModeIconQuads getAcceptButton() {
 		return accept_button;
 	}
 
-	public Quad @NonNull [] getCancelButton() {
+	public @NonNull ModeIconQuads getCancelButton() {
 		return cancel_button;
 	}
 
-	public Quad @NonNull [] getBackButton() {
+	public @NonNull ModeIconQuads getBackButton() {
 		return back_button;
 	}
 
-	public Quad @NonNull [] getDiode() {
+	public @NonNull ModeIconQuads getDiode() {
 		return diode;
 	}
 
-	private @NonNull Box parseBox(@NonNull Node n, String name) {
+	private @NonNull Box parseBox(@NonNull Node n, @NonNull String name, @NonNull Texture texture) {
 		Node node = getNodeByName(name, n);
-		return getBox(node);
+		return getBox(node, texture);
 	}
 
 	public @NonNull Box getEditBox() {
@@ -539,9 +428,9 @@ public final class Skin {
 		return background_box;
 	}
 
-	private @NonNull GroupData parseGroupData(@NonNull Node n) {
+	private @NonNull GroupData parseGroupData(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("group", n);
-		return new GroupData(getBox(node),
+		return new GroupData(getBox(node, texture),
 							 getInt(node, "caption_left"),
 							 getInt(node, "caption_y"),
 							 getInt(node, "caption_offset"),
@@ -552,21 +441,18 @@ public final class Skin {
 		return group_data;
 	}
 
-	private @NonNull MultiColumnComboBoxData parseMultiColumnComboBoxData(@NonNull Node n) {
+	private @NonNull MultiColumnComboBoxData parseMultiColumnComboBoxData(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("multi_column_combo", n);
 		Node desc = getNodeByName("descending", node);
 		Node asc = getNodeByName("ascending", node);
-		Node color1 = getNodeByName("color1", node);
-		Node color2 = getNodeByName("color2", node);
-		Node color_marked = getNodeByName("color_marked", node);
-		return new MultiColumnComboBoxData(getBox(node),
-										   parseHorizButtonPressed(node),
-										   parseHorizButtonUnpressed(node),
-										   getQuads(desc, texture),
-										   getQuads(asc, texture),
-										   getColor(color1),
-										   getColor(color2),
-										   getColor(color_marked),
+		return new MultiColumnComboBoxData(getBox(node, texture),
+										   parseHorizButtonPressed(node, texture),
+										   parseHorizButtonUnpressed(node, texture),
+										   getIconQuads(desc, texture),
+										   getIconQuads(asc, texture),
+										   getNamedColor(node, "color1"),
+                                           getNamedColor(node, "color2"),
+                                           getNamedColor(node,"color_marked"),
 										   getFont(getNodeByName("combofont", n)),
 										   getInt(node, "caption_offset"));
 	}
@@ -575,9 +461,9 @@ public final class Skin {
 		return multi_columnCombo_box_data;
 	}
 
-	private @NonNull ToolTipBoxInfo parseToolTipInfo(@NonNull Node n) {
+	private @NonNull ToolTipBoxInfo parseToolTipInfo(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("tool_tip", n);
-		return new ToolTipBoxInfo(getHorizontal(node),
+		return new ToolTipBoxInfo(getHorizontal(node, texture),
 							  getInt(node, "left_offset"),
 							  getInt(node, "bottom_offset"),
 							  getInt(node, "right_offset"),
@@ -588,10 +474,10 @@ public final class Skin {
 		return tool_tip;
 	}
 
-	private @NonNull PanelData parsePanelData(@NonNull Node n) {
+	private @NonNull PanelData parsePanelData(@NonNull Node n, @NonNull Texture texture) {
 		Node node = getNodeByName("panel", n);
-		return new PanelData(getBox(node),
-							 getHorizontal(node),
+		return new PanelData(getBox(node, texture),
+							 getHorizontal(node, texture),
 							 getInt(node, "left_caption_offset"),
 							 getInt(node, "right_caption_offset"),
 							 getInt(node, "bottom_caption_offset"),
@@ -603,27 +489,27 @@ public final class Skin {
 		return panel_data;
 	}
 
-	public @NonNull Quad getFlagDefault() {
+	public @NonNull IconQuad getFlagDefault() {
 		return flag_default;
 	}
 
-	public @NonNull Quad getFlagDa() {
+	public @NonNull IconQuad getFlagDa() {
 		return flag_da;
 	}
 
-	public @NonNull Quad getFlagEn() {
+	public @NonNull IconQuad getFlagEn() {
 		return flag_en;
 	}
 
-	public @NonNull Quad getFlagDe() {
+	public @NonNull IconQuad getFlagDe() {
 		return flag_de;
 	}
 
-	public @NonNull Quad getFlagEs() {
+	public @NonNull IconQuad getFlagEs() {
 		return flag_es;
 	}
 
-	public @NonNull Quad getFlagIt() {
+	public @NonNull IconQuad getFlagIt() {
 		return flag_it;
 	}
 }

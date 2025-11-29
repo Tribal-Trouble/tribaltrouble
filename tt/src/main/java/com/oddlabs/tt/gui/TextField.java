@@ -4,22 +4,26 @@ import com.oddlabs.tt.font.Font;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
+/**
+ * A mutable text field that allows text to be appended
+ */
 public abstract class TextField extends GUIObject implements CharSequence {
-	private final @NonNull StringBuffer text;
-	private final Font font;
+	private final @NonNull StringBuilder text;
+	private final @NonNull Font font;
 	private final int max_chars;
 
-	public TextField(Font font, int max_chars) {
+	public TextField(@NonNull Font font, int max_chars) {
 		this("", font, max_chars);
 	}
 
-	public TextField(@NonNull CharSequence text, Font font, int max_chars) {
+	public TextField(@NonNull CharSequence text, @NonNull Font font, int max_chars) {
 		this.font = font;
-		this.text = new StringBuffer(text.toString());
+		this.text =  new StringBuilder(max_chars < Integer.MAX_VALUE ? max_chars : text.length());
 		this.max_chars = max_chars;
+        this.text.append(text);
 	}
 
-	public final Font getFont() {
+	public final @NonNull Font getFont() {
 		return font;
 	}
 
@@ -27,7 +31,7 @@ public abstract class TextField extends GUIObject implements CharSequence {
 		return text.toString();
 	}
 
-	protected final @NonNull StringBuffer getText() {
+	protected final @NonNull StringBuilder getText() {
 		return text;
 	}
 
@@ -55,6 +59,11 @@ public abstract class TextField extends GUIObject implements CharSequence {
 		return text.toString();
 	}
 
+	public void setText(@NonNull CharSequence text) {
+		this.text.setLength(0);
+		this.text.append(text);
+	}
+
 	public final void set(@NonNull CharSequence str) {
 		clear();
 		append(str.toString());
@@ -64,23 +73,13 @@ public abstract class TextField extends GUIObject implements CharSequence {
 		text.delete(0, text.length());
 	}
 
-	public void append(String str) {
-		text.append(str);
-		appendNotify(str);
-	}
-
-	public void append(StringBuffer str) {
-		text.append(str);
-		appendNotify(str);
-	}
-
-	public void append(CharSequence str) {
+	public void append(@NonNull CharSequence str) {
 		text.append(str);
 		appendNotify(str);
 	}
 
 	public final void append(long i) {
-		append(Long.toString(i));
+        append(Long.toString(i));
 	}
 
 	protected boolean insert(int index, char key) {
@@ -100,7 +99,7 @@ public abstract class TextField extends GUIObject implements CharSequence {
 		text.deleteCharAt(index);
 	}
 
-	protected void appendNotify(CharSequence str) {
+	protected void appendNotify(@NonNull CharSequence str) {
 	}
 
 	@Override

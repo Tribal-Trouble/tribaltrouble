@@ -1,27 +1,25 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.TextLineRenderer;
-import com.oddlabs.util.Quad;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 public final class ToolTipBox extends TextField {
-	public static final float MAX_DELAY_SECONDS = 1.5f;
+	static final float MAX_DELAY_SECONDS = 1.5f;
 		
-	private final @NonNull TextLineRenderer tool_tip_renderer;
-	private Quad @Nullable [] icons;
+	private @NonNull IconQuad @Nullable [] icons;
 	
 	public ToolTipBox() {
 		super(Skin.getSkin().getEditFont(), 1000);
-		tool_tip_renderer = new TextLineRenderer(getFont());
 	}
 	
 	@Override
-	protected void renderGeometry() {
-		throw new RuntimeException();
-	}
+			protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+					throw new RuntimeException("ToolTipBox.renderGeometry should not be called directly.");	}
 
-	public void append(Quad[] icons) {
+	public final void append(@NonNull IconQuad @Nullable ... icons) {
 		this.icons = icons;
 	}
 
@@ -31,8 +29,8 @@ public final class ToolTipBox extends TextField {
 		icons = null;
 	}
 	
-	public void render(int center_x, int top_y, int clip_left, int clip_right, int clip_bottom, int clip_top) {
-		if (getText().length() == 0)
+	public void render(int center_x, int top_y) {
+		if (getText().isEmpty())
 			return;
 		ToolTipBoxInfo box = Skin.getSkin().getToolTipInfo();
 		int text_width = getFont().getWidth(getText());
@@ -45,29 +43,21 @@ public final class ToolTipBox extends TextField {
 			}
 			box_width += icons[i - 1].getWidth()*2/3;
 		}
-		int x = center_x - box_width/2;
-		int y = top_y - box_height;
-		if (x < 0)
-			x = 0;
-		if (x > LocalInput.getViewWidth() - box_width)
-			x = LocalInput.getViewWidth() - box_width;
-		if (y < 0)
-			y = 0;
-		if (y > LocalInput.getViewWidth() - box_height)
-			y = LocalInput.getViewWidth() - box_height;
-		
+		float x = Math.clamp(center_x - box_width/2f, 0, LocalInput.getViewWidth() - box_width);
+		float y = Math.clamp(top_y - box_height, 0, LocalInput.getViewHeight() - box_height);
 
-		box.getBox().render(x, y, box_width, Skin.NORMAL);
+		box.getBox().render(x, y, box_width, ModeIconQuads.Mode.NORMAL);
 
-		clip_left = Math.max(clip_left, x + box.getLeftOffset());
-		clip_right = Math.min(clip_right, x + box.getLeftOffset() + text_width);
-		tool_tip_renderer.render(x + box.getLeftOffset(), y + box.getBottomOffset(), clip_left, clip_right, clip_bottom, clip_top, getText());
-		if (icons != null) {
-			int render_x = box_width - box.getRightOffset() - icons[icons.length - 1].getWidth();
-                    for (Quad icon : icons) {
-                        icon.render(x + render_x, y + (box_height - icon.getHeight())/2);
-                        render_x -= icon.getWidth()/3;
-                    }
+		               TextLineRenderer.render(getFont(), getText(), x + box.getLeftOffset(), y + box.getBottomOffset(), Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE_INT);
+		               GL11.glColor4f(1f, 1f, 1f, 1f); // Reset color after rendering
+		               if (icons != null) {			float render_x = box_width - box.getRightOffset() - icons[icons.length - 1].getWidth();
+            for (IconQuad icon : icons) {
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, icon.getTexture().getHandle());
+				GL11.glBegin(GL11.GL_QUADS);
+				icon.render(x + render_x, y + (box_height - icon.getHeight())/2f);
+				GL11.glEnd();
+                render_x -= icon.getWidth()/3f;
+            }
 		}
 	}
 }

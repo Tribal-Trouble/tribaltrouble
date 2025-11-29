@@ -1,16 +1,17 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 public final class ArrowButton extends ButtonObject {
-	private final Quad @NonNull [] pressed;
-	private final Quad[] unpressed;
-	private final Quad[] arrow;
+	private final @NonNull ModeIconQuads pressed;
+	private final @NonNull ModeIconQuads unpressed;
+	private final @NonNull ModeIconQuads arrow;
 
-	public ArrowButton(Quad @NonNull [] pressed, Quad[] unpressed, Quad[] arrow) {
-		setDim(pressed[Skin.NORMAL].getWidth(), pressed[Skin.NORMAL].getHeight());
+	public ArrowButton(@NonNull ModeIconQuads pressed, @NonNull ModeIconQuads unpressed, @NonNull ModeIconQuads arrow) {
+		super(Skin.getSkin().getEditFont());
+		setDim(pressed.quad(ModeIconQuads.Mode.NORMAL).getWidth(), pressed.quad(ModeIconQuads.Mode.NORMAL).getHeight());
 		this.pressed = pressed;
 		this.unpressed = unpressed;
 		this.arrow = arrow;
@@ -46,20 +47,22 @@ public final class ArrowButton extends ButtonObject {
 	}
 
 	@Override
-	protected void renderGeometry() {
-		if (isDisabled()) {
-			unpressed[Skin.DISABLED].render(0, 0);
-			arrow[Skin.DISABLED].render(0, 0);
-		} else if (isPressed() && isHovered()) {
-			pressed[Skin.ACTIVE].render(0, 0);
-			arrow[Skin.ACTIVE].render(0, 0);
-		} else if (isActive()) {
-			unpressed[Skin.ACTIVE].render(0, 0);
-			arrow[Skin.ACTIVE].render(0, 0);
-		} else {
-			unpressed[Skin.NORMAL].render(0, 0);
-			arrow[Skin.NORMAL].render(0, 0);
-		}
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+        ModeIconQuads.Mode skinMode = isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : isPressed() && isHovered()
+                    ? ModeIconQuads.Mode.ACTIVE
+                    : isActive()
+                        ? ModeIconQuads.Mode.ACTIVE // Active state for button
+                        : ModeIconQuads.Mode.NORMAL;
+
+        var quad_to_render_button = (!isDisabled() && isPressed() && isHovered() ? pressed : unpressed);
+
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, quad_to_render_button.quad(skinMode).getTexture().getHandle());
+		GL11.glBegin(GL11.GL_QUADS);
+		quad_to_render_button.quad(skinMode).render(0, 0);
+		arrow.quad(skinMode).render(0, 0);
+		GL11.glEnd();
 	}
 
 	@Override

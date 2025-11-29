@@ -1,10 +1,10 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.render.NativeCursor;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.util.Image;
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
@@ -12,12 +12,11 @@ import java.net.URL;
 
 public final class Cursor {
 
-    private final @NonNull Texture texture;
     private final @NonNull NativeCursor native_cursor;
 
     private final int offset_x;
     private final int offset_y; // This is hotspot_y_from_top
-    private final @NonNull Quad cursor;
+    private final @NonNull IconQuad cursor;
     private final int height;
 
     private boolean render_gl_cursor;
@@ -28,8 +27,6 @@ public final class Cursor {
 
     public void render(float x, float y) {
         if (render_gl_cursor || LocalEventQueue.getQueue().getDeterministic().isPlayback()) {
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
-            GL11.glBegin(GL11.GL_QUADS);
             // x and y are the desired hotspot coordinates in the GUI's Y-up system
             // offset_x is hotspot_x_from_left
             // offset_y is hotspot_y_from_top
@@ -38,8 +35,10 @@ public final class Cursor {
             float draw_x = x - offset_x;
             // Corrected: Calculate bottom-left Y based on hotspot_y_from_top and image height
             float draw_y = y - (height - offset_y); 
-            cursor.render(draw_x, draw_y);
-            GL11.glEnd();
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, cursor.getTexture().getHandle());
+			GL11.glBegin(GL11.GL_QUADS);
+			cursor.render(draw_x, draw_y);
+			GL11.glEnd();
         }
     }
 
@@ -62,12 +61,12 @@ public final class Cursor {
                 img_32_1, offset_x_32_1, offset_y_32_1,
                 img_32_8, offset_x_32_8, offset_y_32_8);
 
-        texture = new Texture(new GLImage[]{img_32_8},
+        var texture = new Texture(new GLImage[]{img_32_8},
                 GL11.GL_RGBA,
                 GL11.GL_NEAREST,
                 GL11.GL_NEAREST,
                 GL11.GL_REPEAT,
                 GL11.GL_REPEAT);
-        cursor = new Quad(0, 0, 1, 1, width, height); // FIXED: Use actual width and height
+        cursor = new IconQuad(0, 0, 1, 1, width, height, texture);
     }
 }

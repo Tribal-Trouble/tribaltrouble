@@ -1,29 +1,31 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
 
-public final class ColumnButton extends RadioButtonGroupElement {
-	private final RowCollection rows;
+public final class ColumnButton<T> extends RadioButtonGroupElement {
+	private final @NonNull RowCollection<T> rows;
 	private final int arrow_offset;
 	private final int column_index;
 
 	private boolean sorted_descending;
 	private boolean pressed = false;
 
-	public ColumnButton(@NonNull RadioButtonGroup group, RowCollection rows, @NonNull ColumnInfo info, int column_index, boolean sorted_descending) {
+	ColumnButton(@NonNull RadioButtonGroup group, @NonNull RowCollection<T> rows, @NonNull ColumnInfo info, int column_index, boolean sorted_descending) {
 		super(column_index == 0, group);
 		this.rows = rows;
 		this.column_index = column_index;
 		this.sorted_descending = sorted_descending;
 		MultiColumnComboBoxData data = Skin.getSkin().getMultiColumnComboBoxData();
 		setDim(info.getWidth(), data.getButtonUnpressed().getHeight());
-		Font font = data.getFont();
+
+        Font font = data.getFont();
 		Label label = new Label(info.getCaption(), font);
+        label.setPos(data.getCaptionOffset(), (getHeight() - font.getHeight())/2 + 1);
 		addChild(label);
-		label.setPos(data.getCaptionOffset(), (getHeight() - font.getHeight())/2 + 1);
-		Quad arrow = Skin.getSkin().getMultiColumnComboBoxData().getDescending()[0];
+
+		IconQuad arrow = Skin.getSkin().getMultiColumnComboBoxData().getDescending().quad(ModeIconQuads.Mode.NORMAL);
 		arrow_offset = info.getWidth() - arrow.getWidth();
 		setCanFocus(true);
 	}
@@ -40,10 +42,7 @@ public final class ColumnButton extends RadioButtonGroupElement {
 
 	@Override
 	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {
-		if (isMarked())
-			sorted_descending = !sorted_descending;
-		else
-			sorted_descending = true;
+        sorted_descending = !isMarked() || !sorted_descending;
 		super.mouseClicked(button, x, y, clicks);
 		rows.markChanged(column_index, sorted_descending);
 	}
@@ -53,33 +52,35 @@ public final class ColumnButton extends RadioButtonGroupElement {
 	}
 
 	@Override
-	protected void renderGeometry() {
-		if (isDisabled()) {
-			Skin.getSkin().getMultiColumnComboBoxData().getButtonUnpressed().render(0, 0, getWidth(), Skin.DISABLED);
-			if (isMarked())
-				renderMark(Skin.DISABLED);
-		} else if (isHovered() && pressed) {
-			Skin.getSkin().getMultiColumnComboBoxData().getButtonPressed().render(0, 0, getWidth(), Skin.ACTIVE);
-			if (isMarked())
-				renderMark(Skin.ACTIVE);
-		} else if (isActive()) {
-			Skin.getSkin().getMultiColumnComboBoxData().getButtonUnpressed().render(0,0, getWidth(), Skin.ACTIVE);
-			if (isMarked())
-				renderMark(Skin.ACTIVE);
-		} else {
-			Skin.getSkin().getMultiColumnComboBoxData().getButtonUnpressed().render(0, 0, getWidth(), Skin.NORMAL);
-			if (isMarked())
-				renderMark(Skin.NORMAL);
-		}
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+		ModeIconQuads.Mode skinMode = isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : isHovered() && pressed
+                    ? ModeIconQuads.Mode.ACTIVE
+                    : isActive()
+                        ? ModeIconQuads.Mode.ACTIVE
+                        : ModeIconQuads.Mode.NORMAL;
+
+        var data = Skin.getSkin().getMultiColumnComboBoxData();
+        Horizontal buttonHorizontal = skinMode == ModeIconQuads.Mode.ACTIVE && isHovered() && pressed
+                ? data.getButtonPressed()
+                : data.getButtonUnpressed();
+
+		buttonHorizontal.render(0, 0, getWidth(), skinMode);
+		if (isMarked())
+			renderMark(skinMode);
 	}
 
-	private void renderMark(int mode) {
-		Quad[] arrow;
-		if (sorted_descending)
-			arrow = Skin.getSkin().getMultiColumnComboBoxData().getDescending();
-		else
-			arrow = Skin.getSkin().getMultiColumnComboBoxData().getAscending();
+	private void renderMark(ModeIconQuads.@NonNull Mode skinMode) {
+        var data = Skin.getSkin().getMultiColumnComboBoxData();
+        ModeIconQuads arrow = sorted_descending
+                ? data.getDescending()
+                : data.getAscending();
 
-		arrow[mode].render(arrow_offset, (getHeight() - arrow[Skin.NORMAL].getHeight())/2);
+        IconQuad arrowQuad = arrow.quad(skinMode);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, arrowQuad.getTexture().getHandle());
+		GL11.glBegin(GL11.GL_QUADS);
+		arrowQuad.render(arrow_offset, (getHeight() - arrowQuad.getHeight())/2);
+		GL11.glEnd();
 	}
 }

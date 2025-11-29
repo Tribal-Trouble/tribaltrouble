@@ -4,20 +4,20 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Form extends Group {
-	private final Set<CloseListener> close_listeners = new CopyOnWriteArraySet<>();
+	private final Set<@NonNull CloseListener> close_listeners = new CopyOnWriteArraySet<>();
 
-	private final String caption;
+	private final @Nullable String caption;
 
 	private boolean drag = false;
 
-	public Form(String caption) {
+	public Form(@Nullable String caption) {
 		this.caption = caption;
 		setFocusCycle(true);
 	}
@@ -30,6 +30,7 @@ public class Form extends Group {
 	public final void compileCanvas() {
 		int spacing = Skin.getSkin().getFormData().getObjectSpacing();
 		Box form;
+
 		if (caption != null) {
 			form = Skin.getSkin().getFormData().getForm();
 			super.compileCanvas(form.getLeftOffset() + spacing,
@@ -49,7 +50,7 @@ public class Form extends Group {
 			close_button.setPos(getWidth() - close_button.getWidth() - form_data.getCloseRight(),
 								getHeight() - close_button.getHeight() - form_data.getCloseTop());
 			addChild(close_button);
-			close_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
+			close_button.addMouseClickListener(( _,  _,  _,  _) -> this.cancel());
 		} else {
 			form = Skin.getSkin().getFormData().getSlimForm();
 			super.compileCanvas(form.getLeftOffset() + spacing,
@@ -64,24 +65,15 @@ public class Form extends Group {
 	}
 
 	@Override
-	protected final void renderGeometry() {
-		if (isDisabled()) {
-			if (caption != null)
-				Skin.getSkin().getFormData().getForm().render(0, 0, getWidth(), getHeight(), Skin.DISABLED);
-			else
-				Skin.getSkin().getFormData().getSlimForm().render(0, 0, getWidth(), getHeight(), Skin.DISABLED);
-		} else if (isActive()) {
-			if (caption != null)
-				Skin.getSkin().getFormData().getForm().render(0, 0, getWidth(), getHeight(), Skin.ACTIVE);
-			else
-				Skin.getSkin().getFormData().getSlimForm().render(0, 0, getWidth(), getHeight(), Skin.ACTIVE);
-		} else {
-			if (caption != null)
-				Skin.getSkin().getFormData().getForm().render(0, 0, getWidth(), getHeight(), Skin.NORMAL);
-			else
-				Skin.getSkin().getFormData().getSlimForm().render(0, 0, getWidth(), getHeight(), Skin.NORMAL);
-		}
-
+	protected final void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+        var data = Skin.getSkin().getFormData();
+        var form = caption != null
+                ? data.getForm()
+                : data.getSlimForm();
+        var skinMode = isDisabled()
+                ? ModeIconQuads.Mode.DISABLED
+                : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+		form.render(0f, 0f, getWidth(), getHeight(), skinMode);
 	}
 
 	@Override
@@ -157,11 +149,11 @@ public class Form extends Group {
 	protected void closed() {
 	}
 
-	public final void addCloseListener(CloseListener listener) {
-		close_listeners.add(Objects.requireNonNull(listener, "listener"));
+	public final void addCloseListener(@NonNull CloseListener listener) {
+		close_listeners.add(listener);
 	}
 
-	public final void removeCloseListener(CloseListener listener) {
+	public final void removeCloseListener(@NonNull CloseListener listener) {
 		close_listeners.remove(listener);
 	}
 

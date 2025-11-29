@@ -1,9 +1,10 @@
 package com.oddlabs.tt.guievent;
 
 import com.oddlabs.tt.gui.KeyboardEvent;
+import org.jspecify.annotations.NonNull;
 
 public interface KeyListener extends EventListener {
-	void keyPressed(KeyboardEvent event);
-	void keyReleased(KeyboardEvent event);
-	void keyRepeat(KeyboardEvent event);
+	void keyPressed(@NonNull KeyboardEvent event);
+	void keyReleased(@NonNull KeyboardEvent event);
+	void keyRepeat(@NonNull KeyboardEvent event);
 }

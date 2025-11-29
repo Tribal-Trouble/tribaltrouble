@@ -73,7 +73,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		return chat_form;
 	}
 
-	private @NonNull ActionButtonPanel getActionButtonPanel() {
+    private @NonNull ActionButtonPanel getActionButtonPanel() {
 		return getViewer().getPanel();
 	}
 
@@ -416,7 +416,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                         super.mousePressed(button, x, y);
                         break;
                 }
-			} else {
+            } else {
 				super.mousePressed(button, x, y);
 			}
 		}
@@ -435,21 +435,35 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	@Override
 	public void render2D() {
 		if (selection) {
-			GL11.glColor3f(.3f, 1f, 0f);
-			GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_LINE);
-			GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_LINE);
-			GL11.glDisable(GL11.GL_CULL_FACE);
+			float minX = Math.min(selection_x1, selection_x2);
+			float minY = Math.min(selection_y1, selection_y2);
+			float maxX = Math.max(selection_x1, selection_x2);
+			float maxY = Math.max(selection_y1, selection_y2);
+			float w = maxX - minX;
+			float h = maxY - minY;
+
+			float[] c = Color.argb4f(SELECTION_COLOR);
+			GL11.glColor4f(c[0], c[1], c[2], c[3]);
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
 			GL11.glBegin(GL11.GL_QUADS);
-				GL11.glVertex3f(selection_x1, selection_y1, 0f);
-				GL11.glVertex3f(selection_x2, selection_y1, 0f);
-				GL11.glVertex3f(selection_x2, selection_y2, 0f);
-				GL11.glVertex3f(selection_x1, selection_y2, 0f);
+			GL11.glVertex2f(minX, minY);
+			GL11.glVertex2f(minX + w, minY);
+			GL11.glVertex2f(minX + w, minY + 1);
+			GL11.glVertex2f(minX, minY + 1);
+			GL11.glVertex2f(minX, maxY - 1);
+			GL11.glVertex2f(minX + w, maxY - 1);
+			GL11.glVertex2f(minX + w, maxY);
+			GL11.glVertex2f(minX, maxY);
+			GL11.glVertex2f(minX, minY + 1);
+			GL11.glVertex2f(minX + 1, minY + 1);
+			GL11.glVertex2f(minX + 1, maxY - 1);
+			GL11.glVertex2f(minX, maxY - 1);
+			GL11.glVertex2f(maxX - 1, minY + 1);
+			GL11.glVertex2f(maxX, minY + 1);
+			GL11.glVertex2f(maxX, maxY - 1);
+			GL11.glVertex2f(maxX - 1, maxY - 1);
 			GL11.glEnd();
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
-			GL11.glEnable(GL11.GL_CULL_FACE);
-			GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL);
-			GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_FILL);
 		}
 	}
 

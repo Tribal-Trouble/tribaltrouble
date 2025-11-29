@@ -1,14 +1,13 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.util.ToolTip;
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 
 public class NonFocusIconButton extends IconButton implements ToolTip {
-	private final String tool_tip;
+	private final @NonNull String tool_tip;
 
-	public NonFocusIconButton(Quad @NonNull [] icon_quad, String tool_tip) {
-		super(icon_quad);
+	public NonFocusIconButton(@NonNull ModeIconQuads icon, @NonNull String tool_tip) {
+		super(icon);
 		this.tool_tip = tool_tip;
 	}
 

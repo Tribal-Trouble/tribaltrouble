@@ -3,24 +3,24 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.model.SupplyCounter;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
-import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ResourceBundle;
 
 public class StatusIcon extends GUIObject implements ToolTip {
-	private final @NonNull Quad icon_quad;
+	private final @NonNull IconQuad icon;
 	private final @NonNull TextField label;
-	private final String tooltip;
+	private final @NonNull String tooltip;
 
 	private SupplyCounter counter;
 	private int text_count = -1;
 	
-	public StatusIcon(int label_width, @NonNull Quad icon, String tooltip) {
+	public StatusIcon(int label_width, @NonNull IconQuad icon, @NonNull String tooltip) {
 		this.tooltip = tooltip;
 		setDim(icon.getWidth() + label_width, icon.getHeight());
 		setCanFocus(true); //only to enable tool tips. focus is given to delegate
-		this.icon_quad = icon;
+		this.icon = icon;
 		label = new Label("", Skin.getSkin().getEditFont(), label_width, Origin.AT_END);
 		addChild(label);
 //		label.setPos(icon.getWidth(), (getHeight() - label.getFont().getHeight())/2);
@@ -48,8 +48,11 @@ public class StatusIcon extends GUIObject implements ToolTip {
 
 	@Override
 	protected void renderGeometry() {
-		int x = getWidth() - icon_quad.getWidth();
-		int y = (getHeight() - icon_quad.getHeight())/2;
-		icon_quad.render(x, y);
+		int x = getWidth() - icon.getWidth();
+		int y = (getHeight() - icon.getHeight())/2;
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, icon.getTexture().getHandle());
+		GL11.glBegin(GL11.GL_QUADS);
+		icon.render(x, y);
+		GL11.glEnd();
 	}
 }

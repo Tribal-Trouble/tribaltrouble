@@ -76,8 +76,8 @@ public final class InGameMainMenu extends Menu {
 	}
 
 	@Override
-	protected void renderGeometry() {
-		super.renderGeometry();
+	protected void renderGeometry(float clip_left, float clip_right, float clip_bottom, float clip_top) {
+		super.renderGeometry(clip_left, clip_right, clip_bottom, clip_top);
 		renderBackgroundAlpha();
 	}
 
