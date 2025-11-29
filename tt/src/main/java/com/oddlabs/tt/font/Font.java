@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 public final class Font {
-	private final @NonNull Quad @NonNull [] key_array;
+	private final @Nullable Quad @NonNull [] key_array;
 	private final @NonNull Texture texture;
 	private final int x_border;
 	private final int y_border;
@@ -23,16 +23,16 @@ public final class Font {
 										   GL11.GL_RGBA,
 										   GL11.GL_LINEAR,
 										   GL11.GL_LINEAR,
-										   GL11.GL_REPEAT,
-										   GL11.GL_REPEAT);
+										   GL11.GL_CLAMP,
+										   GL11.GL_CLAMP);
 		this.texture = Resources.findResource(file);
 		this.x_border = font_info.getBorderX();
 		this.y_border = font_info.getBorderY();
 		this.height = font_info.getHeight();
 	}
 
-	public @Nullable Quad getQuad(char c) {
-		return key_array[c];
+	public @Nullable Quad getQuad(int codepoint) {
+		return codepoint < key_array.length ? key_array[codepoint] : null;
 	}
 
 	public void setup() {
@@ -67,6 +67,11 @@ public final class Font {
 		return height;
 	}
 
+	public @NonNull Texture getTexture() {
+		return texture;
+	}
+
+    // TODO: not unicode-safe
 	public char getWidestChar(@NonNull CharSequence text) {
 		assert !text.isEmpty() : "Empty CharSequence";
 
@@ -88,12 +93,11 @@ public final class Font {
 	public int getWidth(@NonNull CharSequence text) {
 		if (text.isEmpty())
 			return 0;
-		int width = 0;
-		for (int i = 0; i < text.length(); i++) {
-			Quad quad = getQuad(text.charAt(i));
-			if (quad != null)
-				width += quad.getWidth() - x_border;
-		}
-		return width + x_border;
+
+        int width = text.codePoints().reduce(0, (current, codePoint) -> {
+            var quad = getQuad(codePoint);
+            return current + (null != quad ? quad.getWidth() - x_border : 0);
+        });
+        return width + x_border;
 	}
 }

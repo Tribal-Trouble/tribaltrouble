@@ -33,15 +33,17 @@ public final class DeterministicSerializer {
 		Throwable throwable;
 		try {
 			ObjectInputStream is = new ObjectInputStream(Files.newInputStream(file));
-			object = (T) is.readObject();
+            //noinspection unchecked
+            object = (T) is.readObject();
 			throwable = null;
 		} catch (Throwable all) {
 			throwable = all;
 			object = null;
 		}
-		if (deterministic.log(throwable != null))
-			callback_loopback.failed(deterministic.log(throwable));
-		else
-			callback_loopback.loadSucceeded(deterministic.log(object));
+		if (deterministic.log(throwable != null)) {
+            callback_loopback.failed(deterministic.log(throwable));
+        } else {
+            callback_loopback.loadSucceeded(deterministic.log(object));
+        }
 	}
 }

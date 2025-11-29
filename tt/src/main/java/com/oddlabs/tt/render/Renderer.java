@@ -279,13 +279,11 @@ public final class Renderer {
 		settings.load(game_dir);
 
 		if (eventload || grab_frames) {
-			String last_event_log_path = settings.last_event_log_dir.resolve("event.log").toString();
-			if (zipped)
-				last_event_log_path += ".gz";
+			Path last_event_log_path = settings.last_event_log_dir.resolve(zipped ? "event.log.gz" : "event.log");
 			logger.info("last_event_log_path = " + last_event_log_path);
 			// Only use when anal debugging
 //			ChecksumLogger.initLogging();
-			LocalEventQueue.getQueue().loadEvents(new File(last_event_log_path), zipped);
+			LocalEventQueue.getQueue().loadEvents(last_event_log_path, zipped);
 		}
 
 

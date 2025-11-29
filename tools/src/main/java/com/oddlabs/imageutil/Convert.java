@@ -75,7 +75,7 @@ System.out.println("outfile = " + outfile);
                     mip_width /= 2;
                     mip_height /= 2;
                     Layer mipmap = original_image.copy();
-                    mipmap.scaleCubic(mip_width, mip_height);
+                    mipmap.scaleCubicWrapping(mip_width, mip_height);
                     mipmaps.add(mipmap);
                 }
                 images = mipmaps.toArray(new Layer[0]);

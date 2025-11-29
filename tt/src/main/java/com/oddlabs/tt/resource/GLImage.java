@@ -89,7 +89,7 @@ public abstract class GLImage {
 			// Create a copy of the original layer and scale it down.
 			// This yields higher quality than averaging from the previous mipmap level.
 			Layer scaledLayer = originalLayer.copy();
-			scaledLayer.scaleCubic(current_width, current_height);
+			scaledLayer.scaleCubicWrapping(current_width, current_height);
 
 			// Convert the scaled Layer back to a GLImage.
 			result[i] = createFromLayer(scaledLayer, format);

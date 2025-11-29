@@ -20,6 +20,7 @@ import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.Notification;
 import com.oddlabs.tt.viewer.WorldViewer;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
@@ -32,9 +33,11 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 public final class SelectionDelegate extends ControllableCameraDelegate {
+	private static final int SELECTION_COLOR = 0xFF_4C_FF_00;
+
 	private final @NonNull InGameChatForm chat_form;
 	private final @NonNull Label observer_label;
-	private final @Nullable GameCamera game_camera;
+	private final @NonNull GameCamera game_camera;
 
 	private boolean close_chat_override = false;
 	private boolean chat_visible;
@@ -70,7 +73,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		return chat_form;
 	}
 
-	public @NonNull ActionButtonPanel getActionButtonPanel() {
+	private @NonNull ActionButtonPanel getActionButtonPanel() {
 		return getViewer().getPanel();
 	}
 
@@ -328,20 +331,20 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 				List<Selectable> friendly_units = new ArrayList<>();
 				Selectable friendly_building = null;
 				Selectable enemy = null;
-                            for (Selectable selectable : picked) {
-                                if (selectable != null) {
-                                    if (selectable.getOwner() == getViewer().getLocalPlayer()) {
-                                        if (selectable instanceof Building)
-                                            friendly_building = selectable;
-                                        else if (selectable instanceof Unit)
-                                            friendly_units.add(selectable);
-                                        else
-                                            throw new RuntimeException();
-                                    } else {
-                                        enemy = selectable;
-                                    }
-                                }
-                            }
+                for (Selectable selectable : picked) {
+                    if (selectable != null) {
+                        if (selectable.getOwner() == getViewer().getLocalPlayer()) {
+                            if (selectable instanceof Building)
+                                friendly_building = selectable;
+                            else if (selectable instanceof Unit)
+                                friendly_units.add(selectable);
+                            else
+                                throw new RuntimeException();
+                        } else {
+                            enemy = selectable;
+                        }
+                    }
+                }
 				if (LocalInput.isShiftDownCurrently() && getViewer().getSelection().getCurrentSelection().size() > 0)
 					updateSelection(friendly_units, friendly_building, enemy);
 				else
@@ -392,28 +395,27 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	public void mousePressed (@NonNull MouseButton button, int x, int y) {
 		if (!map_mode) {
 			if (!observer) {
-                            switch (button) {
-                                case LEFT:
-                                    if (!LocalInput.isKeyDown(Keyboard.KEY_SPACE)) {
-                                        selection = true;
-                                    }
-                                    selection_x1 = x;
-                                    selection_y1 = y;
-                                    selection_x2 = x;
-                                    selection_y2 = y;
-                                    break;
-                                case RIGHT:
-                                    {
-                                        Army selection = getViewer().getSelection().getCurrentSelection();
-                                        if (selection.size() > 0 && selection.containsAbility(Abilities.TARGET)) {
-                                            getViewer().getPicker().pickTarget(selection, getViewer().getGUIRoot().getDelegate().getCamera().getState(), getViewer().getPeerHub().getPlayerInterface(), x, y, Target.ACTION_DEFAULT);
-                                        }
-                                        break;
-                                    }
-                                default:
-                                    super.mousePressed(button, x, y);
-                                    break;
-                            }
+                switch (button) {
+                    case LEFT:
+                        if (!LocalInput.isKeyDown(Keyboard.KEY_SPACE)) {
+                            selection = true;
+                        }
+                        selection_x1 = x;
+                        selection_y1 = y;
+                        selection_x2 = x;
+                        selection_y2 = y;
+                        break;
+                    case RIGHT: {
+                        Army selection = getViewer().getSelection().getCurrentSelection();
+                        if (selection.size() > 0 && selection.containsAbility(Abilities.TARGET)) {
+                            getViewer().getPicker().pickTarget(selection, getViewer().getGUIRoot().getDelegate().getCamera().getState(), getViewer().getPeerHub().getPlayerInterface(), x, y, Target.ACTION_DEFAULT);
+                        }
+                        break;
+                    }
+                    default:
+                        super.mousePressed(button, x, y);
+                        break;
+                }
 			} else {
 				super.mousePressed(button, x, y);
 			}

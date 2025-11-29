@@ -10,8 +10,8 @@ import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
 /**
- * Represents a 2D grid of floating-point values, typically used to store a single color channel (e.g., red, green, blue, or alpha)
- * or other procedural generation data like heightmaps.
+ * Represents a 2D grid of floating-point values, typically used to store a single color channel
+ * (e.g., red, green, blue, or alpha) or other procedural generation data like heightmaps.
  */
 public final class Channel {
 	private float[][] pixels;
@@ -690,7 +690,7 @@ public final class Channel {
 		return this;
 	}
 
-	public @NonNull Channel scaleCubic(int new_width, int new_height) {
+	public @NonNull Channel scaleCubicWrapping(int new_width, int new_height) {
 		if (width == new_width && height == new_height) {
 			return this;
 		}
@@ -738,6 +738,66 @@ public final class Channel {
 					getPixelWrap(x_coord_hihi, y_coord_lo),
 					getPixelWrap(x_coord_hihi, y_coord_hi),
 					getPixelWrap(x_coord_hihi, y_coord_hihi),
+					y_diff);
+				channel.putPixel(x, y, Tools.interpolateCubic(val0, val1, val2, val3, x_diff));
+			}
+		}
+		pixels = channel.getPixels();
+		width = new_width;
+		height = new_height;
+		return this;
+	}
+
+	public @NonNull Channel scaleCubicNonWrapping(int new_width, int new_height) {
+		if (width == new_width && height == new_height) {
+			return this;
+		}
+		Channel channel = new Channel(new_width, new_height);
+		float x_coord, y_coord;
+		float val0, val1, val2, val3;
+		float height_ratio = (float)height/new_height;
+		float width_ratio = (float)width/new_width;
+		float x_diff, y_diff;
+		int x_coord_lo, x_coord_lolo, x_coord_hi, x_coord_hihi, y_coord_lo, y_coord_lolo, y_coord_hi, y_coord_hihi;
+		for (int y = 0; y < new_height; y++) {
+			y_coord = y*height_ratio - 0.5f;
+			y_coord_lo = (int)y_coord;
+			y_coord_lolo = y_coord_lo - 1;
+			y_coord_hi = y_coord_lo + 1;
+			y_coord_hihi = y_coord_hi + 1;
+			y_diff = y_coord - y_coord_lo;
+			for (int x = 0; x < new_width; x++) {
+				x_coord = x*width_ratio - 0.5f;
+				x_coord_lo = (int)x_coord;
+				x_coord_lolo = x_coord_lo - 1;
+				x_coord_hi = x_coord_lo + 1;
+				x_coord_hihi = x_coord_hi + 1;
+				x_diff = x_coord - x_coord_lo;
+
+				// Use getPixelSafe for non-wrapping behavior
+				val0 = Tools.interpolateCubic(
+					getPixelSafe(x_coord_lolo, y_coord_lolo),
+					getPixelSafe(x_coord_lolo, y_coord_lo),
+					getPixelSafe(x_coord_lolo, y_coord_hi),
+					getPixelSafe(x_coord_lolo, y_coord_hihi),
+					y_diff);
+				val1 = Tools.interpolateCubic(
+					getPixelSafe(x_coord_lo, y_coord_lolo),
+					getPixelSafe(x_coord_lo, y_coord_lo),
+					getPixelSafe(x_coord_lo, y_coord_hi),
+					getPixelSafe(x_coord_lo, y_coord_hihi),
+					y_diff);
+				val2 = Tools.interpolateCubic(
+					getPixelSafe(x_coord_hi, y_coord_lolo),
+					getPixelSafe(x_coord_hi, y_coord_lo),
+					getPixelSafe(x_coord_hi, y_coord_hi),
+					getPixelSafe(x_coord_hi, y_coord_hihi),
+					y_diff);
+				val3 = Tools.interpolateCubic(
+					getPixelSafe(x_coord_hihi, y_coord_lolo),
+					getPixelSafe(x_coord_hihi, y_coord_lo),
+					getPixelSafe(x_coord_hihi, y_coord_hi),
+					getPixelSafe(x_coord_hihi, y_coord_hihi),
 					y_diff);
 				channel.putPixel(x, y, Tools.interpolateCubic(val0, val1, val2, val3, x_diff));
 			}

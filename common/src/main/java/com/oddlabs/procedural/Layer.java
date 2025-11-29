@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -161,17 +162,17 @@ public final class Layer {
         Path file = Path.of(  filename + ".png");
         try {
 		    saveAsPNG(file);
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed writing image to " + file, e);
+        } catch (IOException ioe) {
+            logger.log(Level.SEVERE, "Failed writing image to " + file, ioe);
+            throw new UncheckedIOException(ioe);
         }
 	}
 
 	public void saveAsPNG(@NonNull Path file) throws IOException {
-		BufferedImage image = convertToImage();
-		try (OutputStream outputStream = Files.newOutputStream(file)) {
-            ImageIO.write(image, "PNG", outputStream);
+        try (OutputStream outputStream = Files.newOutputStream(file)) {
+            ImageIO.write(convertToImage(), "PNG", outputStream);
         }
-	}
+    }
 
 	public void addAlpha() {
 		a = new Channel(width, height);
@@ -584,12 +585,24 @@ g.threshold(start, end);
 		return this;
 	}
 
-	public @NonNull Layer scaleCubic(int new_width, int new_height) {
-		r = r.scaleCubic(new_width, new_height);
-		g = g.scaleCubic(new_width, new_height);
-		b = b.scaleCubic(new_width, new_height);
+    public @NonNull Layer scaleCubicNonWrapping(int new_width, int new_height) {
+        r = r.scaleCubicNonWrapping(new_width, new_height);
+        g = g.scaleCubicNonWrapping(new_width, new_height);
+        b = b.scaleCubicNonWrapping(new_width, new_height);
+        if (a != null) {
+            a = a.scaleCubicNonWrapping(new_width, new_height);
+        }
+        width = new_width;
+        height = new_height;
+        return this;
+    }
+
+	public @NonNull Layer scaleCubicWrapping(int new_width, int new_height) {
+		r = r.scaleCubicWrapping(new_width, new_height);
+		g = g.scaleCubicWrapping(new_width, new_height);
+		b = b.scaleCubicWrapping(new_width, new_height);
 		if (a != null) {
-			a = a.scaleCubic(new_width, new_height);
+			a = a.scaleCubicWrapping(new_width, new_height);
 		}
 		width = new_width;
 		height = new_height;
@@ -1035,9 +1048,8 @@ g.threshold(start, end);
 
 	public @NonNull Layer layerBrightest(@NonNull Layer layer) {
 		r.channelBrightest(layer.r);
-g.channelBrightest(layer.g);
+        g.channelBrightest(layer.g);
 		b.channelBrightest(layer.b);
 		return this;
 	}
-
 }

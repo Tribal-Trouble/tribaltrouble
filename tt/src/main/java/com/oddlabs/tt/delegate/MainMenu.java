@@ -14,26 +14,31 @@ import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * The game main menu
+ */
 public final class MainMenu extends Menu {
-	public MainMenu(NetworkSelector network, @NonNull GUIRoot gui_root, Camera camera) {
+	public MainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, Camera camera) {
 		super(network, gui_root, camera);
 		reload();
 	}
 
 	private void addGameTypeButtons() {
 		MenuButton tutorial = new MenuButton(Utils.getBundleString(bundle, "tutorial"), COLOR_NORMAL, COLOR_ACTIVE);
+        tutorial.addMouseClickListener((_, _, _, _) -> setMenu(new TutorialForm(getNetwork(), getGUIRoot())));
 		addChild(tutorial);
-		tutorial.addMouseClickListener( (_, _, _, _) -> setMenu(new TutorialForm(getNetwork(), getGUIRoot())));
+
 		MenuButton campaign_menu = new MenuButton(Utils.getBundleString(bundle, "campaign"), COLOR_NORMAL, COLOR_ACTIVE);
+        campaign_menu.addMouseClickListener((_, _, _, _) -> setMenu(new CampaignForm(getNetwork(), getGUIRoot(), MainMenu.this)));
 		addChild(campaign_menu);
-		campaign_menu.addMouseClickListener( (_, _, _, _) -> setMenu(new CampaignForm(getNetwork(), getGUIRoot(), MainMenu.this)));
+
 		MenuButton single_player = new MenuButton(Utils.getBundleString(bundle, "skirmish"), COLOR_NORMAL, COLOR_ACTIVE);
+        single_player.addMouseClickListener((_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(), MainMenu.this)));
 		addChild(single_player);
-		single_player.addMouseClickListener( (_, _, _, _) -> setMenu(new TerrainMenuForm(getNetwork(), getGUIRoot(), MainMenu.this)));
+
 		if (!Settings.getSettings().hide_multiplayer) {
 			MenuButton multi_player = new MenuButton(Utils.getBundleString(bundle, "multiplayer"), COLOR_NORMAL, COLOR_ACTIVE);
-			addChild(multi_player);
-			multi_player.addMouseClickListener( (_, _, _, _) -> {
+            multi_player.addMouseClickListener( (_, _, _, _) -> {
                 if (Network.getMatchmakingClient().isConnected()) {
                     new SelectGameMenu(getNetwork(), getGUIRoot(), MainMenu.this);
                 } else {
@@ -41,6 +46,7 @@ public final class MainMenu extends Menu {
                     new LoginForm(getNetwork(), getGUIRoot(), MainMenu.this);
                 }
             });
+			addChild(multi_player);
 		}
 	}
 

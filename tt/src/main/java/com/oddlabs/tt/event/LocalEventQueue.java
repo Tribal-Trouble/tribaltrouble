@@ -9,6 +9,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.nio.file.Path;
 
 public final class LocalEventQueue {
 	private static final LocalEventQueue queue_instance = new LocalEventQueue();
@@ -43,7 +44,7 @@ public final class LocalEventQueue {
 	}
 
 //public static Deterministic stack_deterministic;
-	public void loadEvents(@NonNull File log_file, boolean zipped) {
+	public void loadEvents(@NonNull Path log_file, boolean zipped) {
 		this.deterministic = new LoadDeterministic(log_file, zipped);
 /*		File stack_file = new File("stack.log");
 		if (stack_file.exists())

@@ -31,11 +31,11 @@ public final class Color {
         return (Byte.toUnsignedInt(r) << 16) | (Byte.toUnsignedInt(g) << 8) | Byte.toUnsignedInt(b);
     }
 
-    public static int rgbai(byte r, byte g, byte b, byte a) {
+    public static int argbi(byte r, byte g, byte b, byte a) {
         return (Byte.toUnsignedInt(a) << 24) | (Byte.toUnsignedInt(r) << 16) | (Byte.toUnsignedInt(g) << 8) | Byte.toUnsignedInt(b);
     }
 
-    public static int rgbai(float r,  float g, float b, float a) {
+    public static int argbi(float r, float g, float b, float a) {
         return ((int) (a * NORMALIZE_8_BIT) << 24) |
                 ((int) (r * NORMALIZE_8_BIT) << 16) |
                 ((int) (g * NORMALIZE_8_BIT) << 8)  |
@@ -73,7 +73,7 @@ public final class Color {
      * @param color The 32-bit ARGB integer color.
      * @return A new float array with 4 elements: [red, green, blue, alpha], normalized to [0.0, 1.0].
      */
-    public static float @NonNull[] argb4f(int color) {
+    public static float @NonNull [] argb4f(int color) {
         return new float[] {
             ((color >> 16) & 0xFF) / NORMALIZE_8_BIT,
             ((color >> 8) & 0xFF) / NORMALIZE_8_BIT,

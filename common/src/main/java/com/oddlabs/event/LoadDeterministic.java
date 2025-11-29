@@ -4,13 +4,14 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
 
@@ -23,17 +24,16 @@ public final class LoadDeterministic extends Deterministic {
 	private int total_bytes_read;
 	private int num_defaults = MIN_DEFAULTS;
 
-	public LoadDeterministic(@NonNull File logging_file, boolean zipped) {
+	public LoadDeterministic(@NonNull Path logging_file, boolean zipped) {
 		try {
 			buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-			if (zipped)
-				channel = Channels.newChannel(new GZIPInputStream(new FileInputStream(logging_file)));
-			else
-				channel = new FileInputStream(logging_file).getChannel();
-			buffer.limit(0);
+            buffer.limit(0);
+            channel = zipped
+                    ? Channels.newChannel(new GZIPInputStream(Files.newInputStream(logging_file)))
+                    : Files.newByteChannel(logging_file);
 			IO.println("Reading log from " + logging_file);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 		isDefault(0);
 		getDefaults();
@@ -112,7 +112,7 @@ public final class LoadDeterministic extends Deterministic {
 
 	@Override
 	protected byte log(byte b, byte def) {
-		if (isDefault(1))
+		if (isDefault(Byte.BYTES))
 			return def;
 		else {
 			b = buffer.get();
@@ -123,7 +123,7 @@ public final class LoadDeterministic extends Deterministic {
 
 	@Override
 	protected char log(char c, char def) {
-		if (isDefault(2))
+		if (isDefault(Character.BYTES))
 			return def;
 		else {
 			c = buffer.getChar();
@@ -134,7 +134,7 @@ public final class LoadDeterministic extends Deterministic {
 
 	@Override
 	protected int log(int i, int def) {
-		if (isDefault(4))
+		if (isDefault(Integer.BYTES))
 			return def;
 		else {
 			i = buffer.getInt();
@@ -145,7 +145,7 @@ public final class LoadDeterministic extends Deterministic {
 
 	@Override
 	protected long log(long l, long def) {
-		if (isDefault(8))
+		if (isDefault(Long.BYTES))
 			return def;
 		else {
 			l = buffer.getLong();
@@ -156,7 +156,7 @@ public final class LoadDeterministic extends Deterministic {
 
 	@Override
 	protected float log(float f, float def) {
-		if (isDefault(4))
+		if (isDefault(Float.BYTES))
 			return def;
 		else {
 			f = buffer.getFloat();
@@ -169,20 +169,21 @@ public final class LoadDeterministic extends Deterministic {
         try {
             // Deserialize from File
             File file = logObject(def.toFile());
-            return file.toPath();
+            return null != file ? file.toPath() : null;
         } catch(Throwable _) {
             return def;
         }
     }
 
-	@Override
-	protected <T> T logObject(T o) {
+	@SuppressWarnings("unchecked")
+    @Override
+	protected <T> @Nullable T logObject(@Nullable T o) {
 		try (ObjectInputStream object_input_stream = new ObjectInputStream(byte_buffer_input_stream)) {
 			o = (T) object_input_stream.readObject();
 		} catch (IOException | ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
-                return o;
+        return o;
 	}
 
 	@Override
