@@ -5,7 +5,7 @@ import org.jspecify.annotations.NonNull;
 
 public final class Analyzer {
 
-	public static void analyze(@NonNull Channel height, String name) {
+	public static void analyze(@NonNull Channel height, String name) throws Exception {
 		IO.println("*** Performing image analysis on \"" + name + "\" ****");
 		height.flipV();
 		IO.println("Height map...");

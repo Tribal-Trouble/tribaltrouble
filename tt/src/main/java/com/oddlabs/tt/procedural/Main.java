@@ -4,7 +4,7 @@ import com.oddlabs.procedural.Channel;
 
 public final class Main {
 
-	void main() {
+	void main() throws Exception {
 		long time = System.currentTimeMillis();
 		
 		/*

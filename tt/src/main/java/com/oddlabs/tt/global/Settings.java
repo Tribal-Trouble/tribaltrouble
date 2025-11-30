@@ -6,12 +6,15 @@ import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -124,7 +127,7 @@ public final class Settings implements Serializable {
 
 		Path settings_file = LocalInput.getGameDir().resolve(Globals.SETTINGS_FILE_NAME);
 		try (OutputStream out = Files.newOutputStream(settings_file)) {
-			props.store(out, "comment");
+			props.store(out, Instant.now().toString());
 		} catch (IOException e) {
 			logger.warning("Failed to write settings to " + settings_file + " exception: " + e);
 		}
@@ -251,12 +254,14 @@ public final class Settings implements Serializable {
 		}
 	}
 
-	private void writeObject(java.io.@NonNull ObjectOutputStream out) throws IOException {
+	@Serial
+    private void writeObject(@NonNull ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 		out.writeObject(last_event_log_dir.toString());
 	}
 
-	private void readObject(java.io.@NonNull ObjectInputStream in) throws IOException, ClassNotFoundException {
+	@Serial
+    private void readObject(@NonNull ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
 		last_event_log_dir = Path.of((String) in.readObject());
 	}
