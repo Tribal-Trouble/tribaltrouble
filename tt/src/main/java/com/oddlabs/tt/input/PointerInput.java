@@ -110,19 +110,18 @@ public final class PointerInput {
 				updateMouse(gui_root, accum_x, accum_y, accum_dz);
 				accum_dz = 0;
 				if (deterministic.log(Mouse.getEventButtonState())) {
-                    buttons.add(button);
-                } else {
-                    buttons.remove(button);
-                }
-				if (buttons.contains(button)) {
-					if (drag_button == null) {
-						drag_button = button;
+                    if (buttons.add(button)) {
+						if (drag_button == null) {
+							drag_button = button;
+						}
+						LocalInput.mousePressed(gui_root, button);
 					}
-                    LocalInput.mousePressed(gui_root, button);
-				} else {
-					drag_button = null;
-                    LocalInput.mouseReleased(gui_root, button);
-				}
+                } else {
+                    if (buttons.remove(button)) {
+						drag_button = null;
+						LocalInput.mouseReleased(gui_root, button);
+					}
+                }
 			}
 		}
 		updateMouse(gui_root, accum_x, accum_y, accum_dz);
