@@ -66,14 +66,10 @@ public abstract class GLImage {
 	public abstract GLImage createFromLayer(@NonNull Layer layer, int format);
 
 	public final @NonNull GLImage @NonNull [] createMipMaps() {
-		return buildMipMaps();
+		return buildMipMaps(10000, 1.0f, false);
 	}
 
-	public final @NonNull GLImage @NonNull [] buildMipMaps() {
-		return buildMipMaps(10000, 1.0f);
-	}
-
-	public final GLImage @NonNull [] buildMipMaps(int base_fadeout_level, float fadeout_factor) {
+	public final @NonNull GLImage @NonNull [] buildMipMaps(int base_fadeout_level, float fadeout_factor, boolean wrapping) {
 		int max = Math.max(height, width);
 		int max_level = (int)(Math.log(max)/Math.log(2));
 		GLImage[] result = new GLImage[max_level + 1];
@@ -89,7 +85,10 @@ public abstract class GLImage {
 			// Create a copy of the original layer and scale it down.
 			// This yields higher quality than averaging from the previous mipmap level.
 			Layer scaledLayer = originalLayer.copy();
-			scaledLayer.scaleCubicWrapping(current_width, current_height);
+            if (wrapping)
+                scaledLayer.scaleCubicWrapping(current_width, current_height);
+            else
+                scaledLayer.scaleCubicNonWrapping(current_width, current_height);
 
 			// Convert the scaled Layer back to a GLImage.
 			result[i] = createFromLayer(scaledLayer, format);

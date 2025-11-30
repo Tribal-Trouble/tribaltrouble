@@ -16,14 +16,15 @@ import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-public final class PointerInput {
-	private static final int NUM_BUTTONS = 8;
+import java.util.EnumSet;
+import java.util.Set;
 
-	private static final boolean[] buttons = new boolean[NUM_BUTTONS];
+public final class PointerInput {
+	private static final Set<@NonNull MouseButton> buttons = EnumSet.noneOf(MouseButton.class);
 	private static short last_x;
 	private static short last_y;
 	private static Cursor active_cursor;
-	private static int drag_button = -1;
+	private static @Nullable MouseButton drag_button = null;
 
 	private static final @NonNull NativeCursor debug_cursor;
 
@@ -82,10 +83,8 @@ public final class PointerInput {
 		if (x != last_x || y != last_y) {
 			last_x = (short)x;
 			last_y = (short)y;
-			if (drag_button != -1 && buttons[drag_button]) {
-				MouseButton mb = MouseButton.fromInt(drag_button);
-				if (mb != null)
-					LocalInput.mouseDragged(gui_root, mb, last_x, last_y);
+			if (drag_button != null && buttons.contains(drag_button)) {
+				LocalInput.mouseDragged(gui_root, drag_button, last_x, last_y);
 			} else {
 				LocalInput.mouseMoved(gui_root, last_x, last_y);
 			}
@@ -106,22 +105,23 @@ public final class PointerInput {
 			accum_x = deterministic.log(Mouse.getEventX());
 			accum_y = deterministic.log(Mouse.getEventY());
 			accum_dz += deterministic.log(Mouse.getEventDWheel());
-			int button = deterministic.log(Mouse.getEventButton());
-			if (button >= 0 && button < buttons.length) {
+			MouseButton button = MouseButton.fromInt(deterministic.log(Mouse.getEventButton()));
+			if (button != null) {
 				updateMouse(gui_root, accum_x, accum_y, accum_dz);
 				accum_dz = 0;
-				buttons[button] = deterministic.log(Mouse.getEventButtonState());
-				MouseButton mb = MouseButton.fromInt(button);
-				if (buttons[button]) {
-					if (drag_button == -1) {
+				if (deterministic.log(Mouse.getEventButtonState())) {
+                    buttons.add(button);
+                } else {
+                    buttons.remove(button);
+                }
+				if (buttons.contains(button)) {
+					if (drag_button == null) {
 						drag_button = button;
 					}
-					if (mb != null)
-						LocalInput.mousePressed(gui_root, mb);
+                    LocalInput.mousePressed(gui_root, button);
 				} else {
-					drag_button = -1;
-					if (mb != null)
-						LocalInput.mouseReleased(gui_root, mb);
+					drag_button = null;
+                    LocalInput.mouseReleased(gui_root, button);
 				}
 			}
 		}

@@ -8,7 +8,6 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.SerializableDisplayMode;
-import com.oddlabs.tt.render.SerializableDisplayModeComparator;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.LWJGLException;
@@ -17,12 +16,12 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Comparator;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public final class LocalInput {
     	private static final Logger logger = Logger.getLogger(LocalInput.class.getName());
@@ -157,27 +156,21 @@ public final class LocalInput {
 
 	public static SerializableDisplayMode @NonNull [] getAvailableModes() {
 		try {
-			DisplayMode[] lwjgl_modes = Display.getAvailableDisplayModes();
-			List<SerializableDisplayMode> modes = new ArrayList<>();
-                    for (DisplayMode lwjgl_mode : lwjgl_modes) {
-                        assert lwjgl_mode != null;
-                        if (SerializableDisplayMode.isModeValid(lwjgl_mode)) {
-                            SerializableDisplayMode mode = new SerializableDisplayMode(lwjgl_mode);
-                            modes.add(mode);
-                        }
-                    }
-			modes = LocalEventQueue.getQueue().getDeterministic().log(modes);
-
-			SerializableDisplayMode target_mode = new SerializableDisplayMode(0, 0, 0, 0);
-			SortedSet<SerializableDisplayMode> set = new TreeSet<>(new SerializableDisplayModeComparator(target_mode));
-            for (SerializableDisplayMode mode : modes) {
-                set.add(mode);
-            }
-			SerializableDisplayMode[] available_modes = new SerializableDisplayMode[set.size()];
-			set.toArray(available_modes);
-			return available_modes;
+			return Arrays.stream(Display.getAvailableDisplayModes())
+					.filter(SerializableDisplayMode::isModeValid)
+					.map(SerializableDisplayMode::new)
+					.collect(Collectors.toMap(
+							mode -> mode.getWidth() + "x" + mode.getHeight(),
+							Function.identity(),
+							BinaryOperator.maxBy(Comparator.comparing(SerializableDisplayMode::getBitsPerPixel)
+									.thenComparing(SerializableDisplayMode::getFrequency))
+					))
+					.values()
+					.stream()
+					.sorted()
+					.toArray(SerializableDisplayMode[]::new);
 		} catch (LWJGLException e) {
-			throw new RuntimeException(e);
+			throw new IllegalStateException("Could not get available modes", e);
 		}
 	}
 

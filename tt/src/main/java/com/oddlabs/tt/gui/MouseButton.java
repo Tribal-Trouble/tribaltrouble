@@ -7,12 +7,12 @@ public enum MouseButton {
 	RIGHT,
 	MIDDLE;
 
-	public static @Nullable MouseButton fromInt(int button) {
-		switch (button) {
-			case 0: return LEFT;
-			case 1: return RIGHT;
-			case 2: return MIDDLE;
-			default: return null;
-		}
-	}
+    public static @Nullable MouseButton fromInt(int button) {
+        return switch (button) {
+            case 0 -> LEFT;
+            case 1 -> RIGHT;
+            case 2 -> MIDDLE;
+            default -> null;
+        };
+    }
 }

@@ -9,6 +9,7 @@ import com.oddlabs.tt.util.GLState;
 import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.opengl.GL11;
@@ -18,13 +19,16 @@ import org.lwjgl.opengl.GLContext;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
+/** A 2D graphic image for drawing */
 public final class Texture extends NativeResource<Texture.NativeTexture> {
     /**
      * This class is not thread safe.
      */
     static final class NativeTexture extends NativeResource.NativeState {
-        public static int global_size = 0;
+        static final AtomicInteger global_size = new AtomicInteger();
         private static final IntBuffer handle_buffer = BufferUtils.createIntBuffer(1);
         private static final IntBuffer size_buffer = BufferUtils.createIntBuffer(4);
         private static final FloatBuffer border_color_buffer = BufferUtils.createFloatBuffer(4);
@@ -38,7 +42,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 
         @Override
         public void close() {
-            global_size -= size;
+            global_size.addAndGet(-size);
             handle_buffer.put(0, texture_handle);
             GL11.glDeleteTextures(handle_buffer);
         }
@@ -69,45 +73,69 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 	}
 
     public static int globalSize() {
-        return NativeTexture.global_size;
+        return NativeTexture.global_size.intValue();
     }
 
 	public Texture(@NonNull TextureFile texture_file) {
-        super(new NativeTexture(initTexture(texture_file.getMinFilter(), texture_file.getMagFilter(), texture_file.getWrapS(), texture_file.getWrapT(), texture_file.getMaxMipmapLevel())));
-        int total_size;
-		if (texture_file.isDXTImage()) {
-			DXTImage dxt_image = texture_file.getDXTImage();
-			this.width = dxt_image.getWidth();
-			this.height =  dxt_image.getHeight();
-			total_size = uploadDXTTexture(dxt_image, texture_file);
-		} else {
-			GLImage img = texture_file.getImage();
-			this.width = img.getWidth();
-			this.height = img.getHeight();
-			GLImage[] mipmaps;
-			if (texture_file.getMinFilter() == GL11.GL_LINEAR_MIPMAP_LINEAR || texture_file.getMinFilter() == GL11.GL_NEAREST_MIPMAP_LINEAR) {
-				mipmaps = img.buildMipMaps(texture_file.getBaseFadeoutLevel(), texture_file.getFadeoutFactor());
-			} else
-				mipmaps = new GLImage[]{img};
-			total_size = uploadTexture(mipmaps, texture_file.getInternalFormat(), texture_file.getMaxMipmapLevel());
-		}
-        setSize(total_size);
+		this(texture_file.isDXTImage() ? texture_file.getDXTImage() : null,
+			!texture_file.isDXTImage() ? texture_file.getImage() : null,
+			texture_file.getInternalFormat(),
+			texture_file.getMinFilter(),
+			texture_file.getMagFilter(),
+			texture_file.getWrapS(),
+			texture_file.getWrapT(),
+			texture_file.getMaxMipmapLevel(),
+			texture_file.getBaseFadeoutLevel(),
+			texture_file.getFadeoutFactor());
 	}
 
-	public Texture(int width, int height, int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level) {
+	private Texture(@Nullable DXTImage dxtImage, @Nullable GLImage image, int internalFormat, int minFilter, int magFilter, int wrapS, int wrapT, int maxMipmapLevel, int baseFadeoutLevel, float fadeoutFactor) {
+		this(dxtImage != null ? dxtImage.getWidth() : image.getWidth(),
+			dxtImage != null ? dxtImage.getHeight() : image.getHeight(),
+			minFilter, magFilter, wrapS, wrapT, maxMipmapLevel);
+
+		int total_size;
+		if (dxtImage != null) {
+			total_size = uploadDXTTexture(dxtImage, maxMipmapLevel);
+		} else {
+			GLImage[] mipmaps;
+			if (minFilter == GL11.GL_LINEAR_MIPMAP_LINEAR || minFilter == GL11.GL_NEAREST_MIPMAP_LINEAR) {
+				boolean isWrapping = wrapS == GL11.GL_REPEAT || wrapT == GL11.GL_REPEAT;
+				mipmaps = image.buildMipMaps(baseFadeoutLevel, fadeoutFactor, isWrapping);
+			} else {
+				mipmaps = new GLImage[]{image};
+			}
+			total_size = uploadTexture(mipmaps, internalFormat, maxMipmapLevel);
+		}
+		setSize(total_size);
+	}
+
+	public Texture(int width, int height, int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level) throws IllegalArgumentException {
         super(new NativeTexture(initTexture(min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level)));
+		if (width <= 0 || height <= 0) {
+			throw new IllegalArgumentException("Width and height must be positive.");
+		}
 		this.width = width;
 		this.height = height;
 	}
 
-	public Texture(GLImage @NonNull [] mipmaps, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t) {
+	public Texture(GLImage @NonNull [] mipmaps, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t) throws IllegalArgumentException, NullPointerException {
 		this(mipmaps, internal_format, min_filter, mag_filter, wrap_s, wrap_t, Globals.NO_MIPMAP_CUTOFF);
 	}
 
-	public Texture(GLImage @NonNull [] mipmaps, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level) {
-		this(mipmaps[0].getWidth(), mipmaps[0].getHeight(), min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level);
+	public Texture(@NonNull GLImage @NonNull [] mipmaps, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level) throws IllegalArgumentException, NullPointerException {
+		this(getCheckedMipmaps(mipmaps)[0].getWidth(), mipmaps[0].getHeight(), min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level);
         int total_size = uploadTexture(mipmaps, internal_format, max_mipmap_level);
         setSize(total_size);
+	}
+
+	private static @NonNull GLImage @NonNull [] getCheckedMipmaps(@NonNull GLImage @NonNull [] mipmaps) {
+		Objects.requireNonNull(mipmaps, "Mipmaps array cannot be null.");
+		if (mipmaps.length == 0) {
+			throw new IllegalArgumentException("Mipmaps array cannot be empty.");
+		}
+		Objects.requireNonNull(mipmaps[0], "First mipmap cannot be null.");
+		return mipmaps;
 	}
 
 	private static int getDetailShift(int num_mipmaps) {
@@ -127,13 +155,13 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
     }
 
     private void setSize(int size) {
-        NativeTexture.global_size += size - state.size;
-        state.size = size;
+        NativeTexture.global_size.addAndGet(size - state.size);
+        state.size += size;
     }
 
-    private int uploadDXTTexture(@NonNull DXTImage dxt_image, @NonNull TextureFile texture_file) {
+    private int uploadDXTTexture(@NonNull DXTImage dxt_image, int max_mipmap_level) {
 		int detail_shift = getDetailShift(dxt_image.getNumMipMaps());
-		int max_index = getMaxMipmapIndex(dxt_image.getNumMipMaps(), texture_file.getMaxMipmapLevel(), detail_shift);
+		int max_index = getMaxMipmapIndex(dxt_image.getNumMipMaps(), max_mipmap_level, detail_shift);
 		int total_size = 0;
 		for (int i = 0; i < max_index; i++) {
 			int mipmap_level = i + detail_shift;
@@ -142,10 +170,6 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 			GLState.glCompressedTexImage2D(GL11.GL_TEXTURE_2D, i, dxt_image.getInternalFormat(), dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), 0, dxt_image.getMipMap());
 		}
 		return total_size;
-/*for (int i = 0; i < max_index; i++) {
-int mipmap_level = i + detail_shift;
-GLUtils.saveTexture(i, new java.io.File(texture_file.getURL().getFile() + dxt_image.getWidth(mipmap_level) + "x" + dxt_image.getHeight(mipmap_level)).getName());
-}*/
 	}
 
 	private int uploadTexture(GLImage @NonNull [] mipmaps, int internal_format, int max_mipmap_level) {

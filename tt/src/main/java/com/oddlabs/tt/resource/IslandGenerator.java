@@ -48,12 +48,11 @@ public final class IslandGenerator implements WorldGenerator {
 		this.terrain = terrain;
 	}
 
-	private static @NonNull Texture createDetail(@NonNull GLImage detail_image, int base_level) {
-		GLImage[] detail_mipmaps = detail_image.buildMipMaps(base_level, Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR);
-		return new Texture(detail_mipmaps, Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_LINEAR,
-								  GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
-	}
-
+		private static @NonNull Texture createDetail(@NonNull GLImage detail_image, int base_level) {
+			GLImage[] detail_mipmaps = detail_image.buildMipMaps(base_level, Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR, true);
+			return new Texture(detail_mipmaps, Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_LINEAR,
+									   GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
+		}
 	private int getTexelsPerGridUnit() {
 		int texels_per_grid_unit = Globals.TEXELS_PER_GRID_UNIT/(int)Math.pow(2, Globals.TEXTURE_MIP_SHIFT[Settings.getSettings().graphic_detail]);
 		return texels_per_grid_unit;
@@ -82,9 +81,7 @@ public final class IslandGenerator implements WorldGenerator {
 		long time_before = System.currentTimeMillis();
 		int base_level = Globals.LANDSCAPE_DETAIL_FADEOUT_BASE_LEVEL;
 		int detail_mip_level = IDEAL_TEXELS_PER_DETAIL/Globals.DETAIL_SIZE - 1;
-		int detail_prefade_level = detail_mip_level - base_level;
-		if (detail_prefade_level < 0)
-			detail_prefade_level = 0;
+		int detail_prefade_level = Math.max(detail_mip_level - base_level, 0);
 		float detail_prefade = IDEAL_DETAIL_ALPHA*(float)Math.pow(Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR, detail_prefade_level);
 		base_level -= detail_mip_level;
 		if (base_level < 1)
