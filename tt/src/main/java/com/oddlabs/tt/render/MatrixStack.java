@@ -64,20 +64,24 @@ public final class MatrixStack {
         return current();
 	}
 	
-	public void translate(float x, float y, float z) {
+	public @NonNull MatrixStack translate(float x, float y, float z) {
 		current().translate(x, y, z);
-	}
+        return this;
+    }
 	
-	public void rotate(float angle, float x, float y, float z) {
+	public @NonNull MatrixStack rotate(float angle, float x, float y, float z) {
 		current().rotate((float)Math.toRadians(angle), x, y, z);
-	}
+        return this;
+    }
 	
-	public void scale(float x, float y, float z) {
+	public @NonNull MatrixStack scale(float x, float y, float z) {
 		current().scale(x, y, z);
-	}
+        return this;
+    }
 	
-	public void multiply(@NonNull Matrix4f matrix) {
+	public @NonNull MatrixStack multiply(@NonNull Matrix4f matrix) {
 		current().mul(matrix);
+        return this;
 	}
 
     /** @implNote The returned FloatBuffer is yours only until it is needed again. Use the {@link #toBuffer(FloatBuffer)}

@@ -26,6 +26,10 @@ public final class RenderQueues {
 		this.spriteBatchRenderer = spriteBatchRenderer;
 	}
 
+    public @NonNull SpriteBatchRenderer getSpriteBatchRenderer() {
+        return spriteBatchRenderer;
+    }
+
 	public @NonNull TextureKey registerTexture(@NonNull Supplier<Texture[]> desc, int index) {
 		TextureKey key = new TextureKey(texture_lookup.size());
 		Texture[] textures = Resources.findResource(desc);

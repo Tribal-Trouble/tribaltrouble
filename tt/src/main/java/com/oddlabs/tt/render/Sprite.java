@@ -4,6 +4,7 @@ import com.oddlabs.geometry.AnimationInfo;
 import com.oddlabs.geometry.SpriteInfo;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.procedural.GeneratorRespond;
+import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.BoundingBox;
@@ -16,6 +17,7 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL20;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.FloatBuffer;
@@ -218,6 +220,81 @@ final class Sprite {
 			return Resources.findResource(new TextureFile("/textures/models/" + texture_name, color_format, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT, mipmap_cutoff, 100000, 0.1f, max_alpha));
 		}
 	}
+
+	public void setupShader(@NonNull SpriteShader shader, int tex_index, boolean respond, @NonNull SpriteList sprite_list) {
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_NORMAL].getHandle());
+        shader.setUniform(SpriteShader.Uniforms.TEXTURE_0, 0);
+
+        if (modulate_color) {
+            shader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, true);
+            shader.setUniform(SpriteShader.Uniforms.ENABLE_LIGHTING, false);
+            shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, false);
+        } else {
+            shader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, false);
+            shader.setUniform(SpriteShader.Uniforms.ENABLE_LIGHTING, Globals.draw_light && lighted);
+
+            if (hasTeamDecal() || respond) {
+                shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, true);
+                GL13.glActiveTexture(GL13.GL_TEXTURE1);
+                if (respond) {
+                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, respond_texture.getHandle());
+                } else {
+                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_TEAM].getHandle());
+                }
+                shader.setUniform(SpriteShader.Uniforms.TEXTURE_1, 1);
+            } else {
+                shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, false);
+            }
+        }
+
+        int texCoordLoc = shader.getAttributeLocation(SpriteShader.Attributes.TEX_COORD);
+        sprite_list.getTexcoords().vertexAttribPointer(texCoordLoc, 2, 0, texcoords_offset * 4L);
+        GL20.glEnableVertexAttribArray(texCoordLoc);
+        
+        if (!culled) {
+            GL11.glDisable(GL11.GL_CULL_FACE);
+        }
+        // Alpha test handled by shader
+	}
+
+    public void renderShader(@NonNull SpriteShader shader, int animation, float anim_ticks, @NonNull SpriteList sprite_list) {
+        float anim_position = anim_ticks*cpw_array[animation];
+        int frame_non_capped = (int)(anim_position*animation_length_array[animation]);
+        int frame = getFrameCapped(animation, frame_non_capped);
+        int frame_size = num_vertices*3;
+        int frame_index = frame*2;
+        int vertex_index = buffer_indices[animation] + frame_index*frame_size;
+        int normal_index = vertex_index + frame_size;
+
+        int posLoc = shader.getAttributeLocation(SpriteShader.Attributes.POSITION);
+        int normLoc = shader.getAttributeLocation(SpriteShader.Attributes.NORMAL);
+
+        sprite_list.getVerticesAndNormals().vertexAttribPointer(posLoc, 3, 0, vertex_index * 4L);
+        GL20.glEnableVertexAttribArray(posLoc);
+        
+        if (normLoc >= 0) {
+            sprite_list.getVerticesAndNormals().vertexAttribPointer(normLoc, 3, 0, normal_index * 4L);
+            GL20.glEnableVertexAttribArray(normLoc);
+        }
+
+        sprite_list.getIndices().drawElements(GL11.GL_TRIANGLES, num_triangles*3, indices_offset);
+    }
+
+    public void resetShader(@NonNull SpriteShader shader, boolean respond, boolean modulate_color) {
+        if (!modulate_color && (hasTeamDecal() || respond)) {
+            GL13.glActiveTexture(GL13.GL_TEXTURE1);
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        }
+        if (!culled) {
+            GL11.glEnable(GL11.GL_CULL_FACE);
+        }
+        
+        GL20.glDisableVertexAttribArray(shader.getAttributeLocation(SpriteShader.Attributes.POSITION));
+        GL20.glDisableVertexAttribArray(shader.getAttributeLocation(SpriteShader.Attributes.NORMAL));
+        GL20.glDisableVertexAttribArray(shader.getAttributeLocation(SpriteShader.Attributes.TEX_COORD));
+    }
 
 	public void setup(int tex_index, boolean respond, @NonNull SpriteList sprite_list) {
 		setupWithColor(white_color, tex_index, respond, modulate_color, sprite_list);

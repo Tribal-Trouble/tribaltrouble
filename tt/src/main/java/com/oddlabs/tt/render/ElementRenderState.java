@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.model.Model;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 
 final class ElementRenderState implements ModelState {
@@ -9,14 +10,27 @@ final class ElementRenderState implements ModelState {
     private ModelVisitor visitor;
     Model model;
     float f;
+    final Vector4f color = new Vector4f(1f, 1f, 1f, 1f);
 
     ElementRenderState(RenderState render_state) {
         this.render_state = render_state;
     }
 
+    public Vector4f getColor() {
+        return color;
+    }
+
+    public void resetColor() {
+        color.set(1f, 1f, 1f, 1f);
+    }
+
     @Override
     public Model getModel() {
         return model;
+    }
+
+    @NonNull MatrixStack getModelViewStack() {
+        return render_state.getModelViewStack();
     }
 
     @Override
@@ -38,11 +52,13 @@ final class ElementRenderState implements ModelState {
         this.visitor = visitor;
         this.model = model;
         this.f = f;
+        resetColor();
     }
 
     void setup(ModelVisitor visitor, Model model) {
         this.visitor = visitor;
         this.model = model;
+        resetColor();
     }
 
     @Override

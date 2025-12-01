@@ -16,6 +16,7 @@ public class ShaderProgram extends NativeResource<ShaderProgram.Program> {
         private final int vertexShaderId;
         private final int fragmentShaderId;
         private final Map<@NonNull String, @NonNull Integer> uniformLocations = new HashMap<>();
+        private final Map<@NonNull String, @NonNull Integer> attributeLocations = new HashMap<>();
 
         Program(int vertexShaderId, int fragmentShaderId) {
             this.vertexShaderId = vertexShaderId;
@@ -68,7 +69,7 @@ public class ShaderProgram extends NativeResource<ShaderProgram.Program> {
 	}
 	
 	public int getAttributeLocation(@NonNull String name) {
-		return GL20.glGetAttribLocation(state.programId, name);
+		return state.attributeLocations.computeIfAbsent(name, n -> GL20.glGetAttribLocation(state.programId, n));
 	}
 	
 	public int getUniformLocation(@NonNull String name) {

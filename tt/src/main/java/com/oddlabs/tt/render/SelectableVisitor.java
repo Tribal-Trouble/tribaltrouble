@@ -17,7 +17,7 @@ class SelectableVisitor extends ModelVisitor {
 	@Override
 	public final void transform(@NonNull ElementRenderState render_state) {
 		Model model = render_state.model;
-		RenderTools.translateAndRotate(model.getPositionX(), model.getPositionY(), render_state.f, model.getDirectionX(), model.getDirectionY());
+		RenderTools.translateAndRotate(model.getPositionX(), model.getPositionY(), render_state.f, model.getDirectionX(), model.getDirectionY(), render_state.getModelViewStack());
 	}
 
 	static float[] getTeamColor(@NonNull Selectable model) {

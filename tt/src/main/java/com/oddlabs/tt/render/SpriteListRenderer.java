@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
 
+import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 
@@ -11,11 +12,12 @@ final class SpriteListRenderer {
 	private final @NonNull SpriteList sprite_list;
 	private final List<ModelState>[] @NonNull [] render_lists;
 	private final List<ModelState>[] @NonNull [] respond_render_lists;
-	private final SpriteBatch batch = new SpriteBatch();
+	private final SpriteBatch batch;
 
 	@SuppressWarnings("unchecked")
-	SpriteListRenderer(@NonNull SpriteList sprite_list) {
+	SpriteListRenderer(@NonNull SpriteList sprite_list, @NonNull SpriteBatchRenderer spriteBatchRenderer) {
 		this.sprite_list = sprite_list;
+        this.batch = new SpriteBatch(spriteBatchRenderer);
 		int num_sprites = sprite_list.getNumSprites();
 		render_lists = (List<ModelState>[][]) new ArrayList<?>[num_sprites][];
 		respond_render_lists = (List<ModelState>[][]) new ArrayList<?>[num_sprites][];

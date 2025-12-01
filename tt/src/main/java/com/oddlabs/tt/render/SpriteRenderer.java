@@ -21,7 +21,7 @@ public final class SpriteRenderer {
 		this.sprite_list = sprite_list;
 		this.tex_index = tex_index;
 		this.spriteBatchRenderer = spriteBatchRenderer;
-		sprite_list_renderer = new SpriteListRenderer(sprite_list);
+		sprite_list_renderer = new SpriteListRenderer(sprite_list, spriteBatchRenderer);
 	}
 
 	public @NonNull SpriteList getSpriteList() {

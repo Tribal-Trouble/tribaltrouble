@@ -73,6 +73,10 @@ public final class RenderState implements ElementVisitor {
 		return render_queues;
 	}
 
+    @NonNull MatrixStack getModelViewStack() {
+        return render_queues.getSpriteBatchRenderer().getModelViewStack();
+    }
+
 	public void setVisibleOverride(boolean override) {
 		this.visible_override = override;
 	}
@@ -232,8 +236,8 @@ public final class RenderState implements ElementVisitor {
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
 			SupplyModel model = (SupplyModel)render_state.getModel();
-			GL11.glTranslatef(model.getPositionX(), model.getPositionY(), model.getPositionZ());
-			GL11.glRotatef(model.getRotation(), 0f, 0f, 1f);
+            render_state.getModelViewStack().translate(model.getPositionX(), model.getPositionY(), model.getPositionZ())
+                .rotate(model.getRotation(), 0f, 0f, 1f);
 		}
 	};
 	@Override
@@ -245,7 +249,7 @@ public final class RenderState implements ElementVisitor {
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
 			Model model = render_state.model;
-			RenderTools.translateAndRotate(model.getPositionX(), model.getPositionY(), render_state.f, model.getDirectionX(), model.getDirectionY());
+			RenderTools.translateAndRotate(model.getPositionX(), model.getPositionY(), render_state.f, model.getDirectionX(), model.getDirectionY(), render_state.getModelViewStack());
 		}
 	};
 	@Override
@@ -260,8 +264,8 @@ public final class RenderState implements ElementVisitor {
 	private static final ModelVisitor scenery_model_visitor = new WhiteModelVisitor() {
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
-			RenderTools.translateAndRotate(render_state.getModel());
-			GL11.glColor4f(1f, 1f, 1f, 1f);
+			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
+            // Color is reset to white by default
 		}
 	};
 	@Override
@@ -281,12 +285,12 @@ public final class RenderState implements ElementVisitor {
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
 			Plants plants = (Plants)render_state.getModel();
-			RenderTools.translateAndRotate(plants);
+			RenderTools.translateAndRotate(plants, render_state.getModelViewStack());
 			float dist_squared = render_state.f;
 			if (dist_squared > START_FADE_DIST*START_FADE_DIST) {
 				float camera_dist = (float)Math.sqrt(dist_squared);
 				float alpha = 1f - ((camera_dist - START_FADE_DIST)/(PLANTS_CUT_DIST - START_FADE_DIST));
-				GL11.glColor4f(1f, 1f, 1f, alpha);
+				render_state.getColor().set(1f, 1f, 1f, alpha);
 			}
 		}
 	};
@@ -303,8 +307,8 @@ public final class RenderState implements ElementVisitor {
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
 			DirectedThrowingWeapon model = (DirectedThrowingWeapon)render_state.getModel();
-			RenderTools.translateAndRotate(render_state.getModel());
-			GL11.glRotatef(-model.getZSpeed(), 0f, 1f, 0f);
+			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
+            render_state.getModelViewStack().rotate(-model.getZSpeed(), 0f, 1f, 0f);
 		}
 	};
 	@Override
@@ -318,8 +322,8 @@ public final class RenderState implements ElementVisitor {
 		@Override
 		public void transform(@NonNull ElementRenderState render_state) {
 			RotatingThrowingWeapon model = (RotatingThrowingWeapon)render_state.getModel();
-			RenderTools.translateAndRotate(render_state.getModel());
-			GL11.glRotatef(model.getAngle(), 0f, 1f, 0f);
+			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
+            render_state.getModelViewStack().rotate(model.getAngle(), 0f, 1f, 0f);
 		}
 	};
 	@Override

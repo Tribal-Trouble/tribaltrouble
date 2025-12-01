@@ -29,6 +29,15 @@ final class RenderTools {
 		transform_matrix.rewind();
 	}
 
+    static void translateAndRotate(@NonNull Model model, @NonNull MatrixStack stack) {
+        translateAndRotate(model.getPositionX(), model.getPositionY(), model.getPositionZ(), model.getDirectionX(), model.getDirectionY(), stack);
+    }
+
+    static void translateAndRotate(float x, float y, float z, float dir_x, float dir_y, @NonNull MatrixStack stack) {
+        float angle = (float) Math.atan2(dir_y, dir_x);
+        stack.translate(x, y, z).rotate(angle, 0f, 0f, 1f);
+    }
+
 	static void translateAndRotate(@NonNull Model model) {
 		translateAndRotate(model.getPositionX(), model.getPositionY(), model.getPositionZ(), model.getDirectionX(), model.getDirectionY());
 	}

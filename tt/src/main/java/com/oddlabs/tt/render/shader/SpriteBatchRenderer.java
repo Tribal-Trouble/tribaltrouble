@@ -43,6 +43,14 @@ public final class SpriteBatchRenderer {
         this.projectionStack = projectionStack;
 	}
 
+    public @NonNull MatrixStack getModelViewStack() {
+        return modelViewStack;
+    }
+
+    public @NonNull MatrixStack getProjectionStack() {
+        return projectionStack;
+    }
+
 	public void begin(@Nullable Texture texture) {
 		if (drawing) {
 			throw new IllegalStateException("Already drawing");
