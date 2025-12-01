@@ -9,10 +9,10 @@ import com.oddlabs.tt.landscape.TreeNodeVisitor;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.procedural.Landscape;
+import com.oddlabs.tt.render.shader.ShaderProgram;
+import com.oddlabs.tt.render.shader.TreeLowDetailShader;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
-import com.oddlabs.tt.util.GLState;
-import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import org.joml.Matrix4f;
@@ -20,7 +20,9 @@ import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -38,11 +40,14 @@ public final class TreeLowDetail {
 	private final @NonNull ShortVBO tree_indices;
 	private final @NonNull Texture @NonNull [] lowdetail_textures;
 	private final @NonNull Map<@NonNull TreeType,@NonNull Tree> trees;
-	private final @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> low_details;
+	private final @NonNull Map<@NonNull TreeType, @NonNull LowDetailModel> low_details;
 
 	private final Landscape.@NonNull TerrainType terrain;
 
 	private int current_vertex_index;
+
+    private static TreeLowDetailShader shader;
+    private static final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
 	public TreeLowDetail(@NonNull World world, @NonNull Map<@NonNull TreeType,@NonNull Tree> trees, @NonNull Map<@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull List<int[]> tree_positions, @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
 		lowdetail_textures = new Texture[]{
@@ -85,18 +90,8 @@ public final class TreeLowDetail {
 		tree_indices.put(visitor.tree_index_array);
 	}
 
-	private int numTreesTotal(int @NonNull [] num_trees) {
-		int count = 0;
-        for (int numTree : num_trees) {
-            count += numTree;
-        }
-		return count;
-	}
-
-	void loadMatrix(@NonNull Matrix4f matrix) {
-		update_buffer.clear();
-		matrix.get(update_buffer);
-		GL11.glMultMatrix(update_buffer);
+	void loadMatrix(@NonNull Matrix4f matrix, @NonNull MatrixStack stack) { // Modified to use MatrixStack
+		stack.multiply(matrix);
 	}
 
 	private int putCoordinate(int index, float x, float y, float z, float u, float v, float @NonNull [] vertice_array, float @NonNull [] texcoord_array) {
@@ -152,20 +147,49 @@ public final class TreeLowDetail {
 		vertices.putSubData(start_vertex_index*3, update_buffer);
 	}
 
-	void setupTrees() {
-		bindTreeTexture();
-		GLStateStack.switchState(GLState.VERTEX_ARRAY | GLState.TEXCOORD0_ARRAY);
-		vertices.vertexPointer(3, 0, 0);
-		texcoords.texCoordPointer(2, 0, 0);
+	void setupTrees(@NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) { // Modified to accept stacks
+        if (shader == null) {
+            shader = new TreeLowDetailShader();
+        }
+        shader.use();
+
+        Matrix4f mvpMatrix = new Matrix4f(projectionStack.current()).mul(modelViewStack.current()); // Compute MVP here
+        mvpMatrix.get(matrixBuffer);
+        shader.setUniformMatrix4(TreeLowDetailShader.Uniforms.MVP_MATRIX, false, matrixBuffer);
+        
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, lowdetail_textures[terrain.ordinal()].getHandle());
+        shader.setUniform(TreeLowDetailShader.Uniforms.TEXTURE_0, 0);
+
+        vertices.makeCurrent();
+        vertices.vertexAttribPointer(shader.getAttributeLocation(TreeLowDetailShader.Attributes.POSITION), 3, 0, 0L);
+        GL20.glEnableVertexAttribArray(shader.getAttributeLocation(TreeLowDetailShader.Attributes.POSITION));
+        
+        texcoords.makeCurrent();
+        texcoords.vertexAttribPointer(shader.getAttributeLocation(TreeLowDetailShader.Attributes.TEX_COORD), 2, 0, 0L);
+        GL20.glEnableVertexAttribArray(shader.getAttributeLocation(TreeLowDetailShader.Attributes.TEX_COORD));
+
+        // Remove FFP state settings
+        // GL11.glEnable(GL11.GL_ALPHA_TEST); // Handled by shader discard
+        // GL11.glAlphaFunc(GL11.GL_GREATER, .3f);
+        GL11.glDisable(GL11.GL_CULL_FACE);
 	}
 
-	void bindTreeTexture() {
+	void bindTreeTexture() { // FFP method, kept for now. Will be removed.
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, lowdetail_textures[terrain.ordinal()].getHandle());
 	}
 
 	void renderLowDetail(int start, int count) {
 		tree_indices.drawElements(GL11.GL_TRIANGLES, count, start);
 	}
+
+    void unbindTrees() {
+        GL20.glDisableVertexAttribArray(shader.getAttributeLocation(TreeLowDetailShader.Attributes.POSITION));
+        GL20.glDisableVertexAttribArray(shader.getAttributeLocation(TreeLowDetailShader.Attributes.TEX_COORD));
+        ShaderProgram.unbind();
+        GL11.glEnable(GL11.GL_CULL_FACE); // Re-enable for other FFP elements
+        // GL11.glDisable(GL11.GL_ALPHA_TEST); // No, this might have been left enabled by another FFP element
+    }
 
 	private final class BuildVisitor implements TreeNodeVisitor {
 		private int end = 0;

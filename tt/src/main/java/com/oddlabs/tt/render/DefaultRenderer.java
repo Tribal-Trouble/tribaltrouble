@@ -192,7 +192,7 @@ public final class DefaultRenderer implements UIRenderer {
 
         // render
         if (Globals.process_trees) {
-            tree_renderer.renderAll();
+            tree_renderer.renderAll(modelViewStack, projectionStack);
         }
         if (Globals.process_misc) {
             render_queues.renderAll();
