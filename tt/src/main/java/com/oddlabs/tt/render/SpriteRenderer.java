@@ -4,6 +4,7 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -79,6 +80,7 @@ public final class SpriteRenderer {
 
 		if (!no_detail_render_list.isEmpty()) {
 			spriteBatchRenderer.begin(null);
+			GL11.glDisable(GL11.GL_DEPTH_TEST);
 			for (ModelState model : no_detail_render_list) {
 				if (Globals.draw_misc) {
 					float[] color = model.getTeamColor();
