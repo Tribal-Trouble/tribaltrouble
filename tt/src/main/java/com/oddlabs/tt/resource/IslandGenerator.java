@@ -49,7 +49,7 @@ public final class IslandGenerator implements WorldGenerator {
 	}
 
 		private static @NonNull Texture createDetail(@NonNull GLImage detail_image, int base_level) {
-			GLImage[] detail_mipmaps = detail_image.buildMipMaps(base_level, Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR, true);
+			GLImage[] detail_mipmaps = detail_image.buildMipMaps(base_level, Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR, true, false);
 			return new Texture(detail_mipmaps, Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_LINEAR,
 									   GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
 		}

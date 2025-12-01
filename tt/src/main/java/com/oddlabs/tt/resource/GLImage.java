@@ -66,36 +66,29 @@ public abstract class GLImage {
 	public abstract GLImage createFromLayer(@NonNull Layer layer, int format);
 
 	public final @NonNull GLImage @NonNull [] createMipMaps() {
-		return buildMipMaps(10000, 1.0f, false);
+		return buildMipMaps(10000, 1.0f, false, false);
 	}
 
-	public final @NonNull GLImage @NonNull [] buildMipMaps(int base_fadeout_level, float fadeout_factor, boolean wrapping) {
+	public final @NonNull GLImage @NonNull [] buildMipMaps(int base_fadeout_level, float fadeout_factor, boolean wrapping, boolean max_alpha) {
 		int max = Math.max(height, width);
 		int max_level = (int)(Math.log(max)/Math.log(2));
 		GLImage[] result = new GLImage[max_level + 1];
 		result[0] = this;
 
-		// Convert the original GLImage to a Layer for high-quality bicubic scaling.
-		Layer originalLayer = this.toLayer();
-
 		for (int i = 1; i < result.length; i++) {
 			int current_width = Math.max(width >> i, 1);
 			int current_height = Math.max(height >> i, 1);
 
-			// Create a copy of the original layer and scale it down.
-			// This yields higher quality than averaging from the previous mipmap level.
-			Layer scaledLayer = originalLayer.copy();
-            if (wrapping)
-                scaledLayer.scaleCubicWrapping(current_width, current_height);
-            else
-                scaledLayer.scaleCubicNonWrapping(current_width, current_height);
+			result[i] = createImage(current_width, current_height, format);
 
-			// Convert the scaled Layer back to a GLImage.
-			result[i] = createFromLayer(scaledLayer, format);
+			GLImage prev = result[i - 1];
+			int width_div = prev.getWidth() / current_width;
+			int height_div = prev.getHeight() / current_height;
 
-			// Apply fadeout if the current mipmap level is at or beyond the base level.
-			if (i >= base_fadeout_level) {
-				applyFadeout(result[i], fadeout_factor);
+			for (int y = 0; y < current_height; y++) {
+				for (int x = 0; x < current_width; x++) {
+					result[i].putPixel(x, y, averagePixel(prev, x * width_div, y * height_div, height_div, width_div, base_fadeout_level, fadeout_factor, i, max_alpha));
+				}
 			}
 		}
 		return result;

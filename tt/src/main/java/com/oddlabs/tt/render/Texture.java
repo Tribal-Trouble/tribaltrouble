@@ -86,10 +86,11 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 			texture_file.getWrapT(),
 			texture_file.getMaxMipmapLevel(),
 			texture_file.getBaseFadeoutLevel(),
-			texture_file.getFadeoutFactor());
+			texture_file.getFadeoutFactor(),
+            texture_file.hasMaxAlpha());
 	}
 
-	private Texture(@Nullable DXTImage dxtImage, @Nullable GLImage image, int internalFormat, int minFilter, int magFilter, int wrapS, int wrapT, int maxMipmapLevel, int baseFadeoutLevel, float fadeoutFactor) {
+	private Texture(@Nullable DXTImage dxtImage, @Nullable GLImage image, int internalFormat, int minFilter, int magFilter, int wrapS, int wrapT, int maxMipmapLevel, int baseFadeoutLevel, float fadeoutFactor, boolean max_alpha) {
 		this(dxtImage != null ? dxtImage.getWidth() : image.getWidth(),
 			dxtImage != null ? dxtImage.getHeight() : image.getHeight(),
 			minFilter, magFilter, wrapS, wrapT, maxMipmapLevel);
@@ -101,7 +102,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 			GLImage[] mipmaps;
 			if (minFilter == GL11.GL_LINEAR_MIPMAP_LINEAR || minFilter == GL11.GL_NEAREST_MIPMAP_LINEAR) {
 				boolean isWrapping = wrapS == GL11.GL_REPEAT || wrapT == GL11.GL_REPEAT;
-				mipmaps = image.buildMipMaps(baseFadeoutLevel, fadeoutFactor, isWrapping);
+				mipmaps = image.buildMipMaps(baseFadeoutLevel, fadeoutFactor, isWrapping, max_alpha);
 			} else {
 				mipmaps = new GLImage[]{image};
 			}
