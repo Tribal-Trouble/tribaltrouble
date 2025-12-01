@@ -5,6 +5,9 @@ import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Particle;
+import com.oddlabs.tt.render.shader.ParticleShader;
+import com.oddlabs.tt.render.shader.ShaderProgram;
+import com.oddlabs.tt.render.shader.VertexLayout;
 import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.vbo.FloatVBO;
@@ -13,6 +16,7 @@ import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
@@ -35,7 +39,19 @@ final class EmitterRenderer {
     private static final FloatBuffer particle_buffer = BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE);
     private static final FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
 
+    private static ParticleShader shader;
+    private static final VertexLayout<ParticleShader.Attribute> layout = new VertexLayout<>(
+            ParticleShader.Attribute.POSITION,
+            ParticleShader.Attribute.TEX_COORD,
+            ParticleShader.Attribute.COLOR
+    );
+    private static final FloatBuffer matrix_buffer = BufferUtils.createFloatBuffer(16);
+
 	public static void render(@NonNull RenderQueues render_queues, @NonNull List<Emitter> emitter_queue, @NonNull CameraState state) {
+        if (shader == null) {
+            shader = new ParticleShader();
+        }
+
 		tmp_camera.set(state);
 		view_matrix.identity();
 		tmp_camera.setView(view_matrix);
@@ -44,15 +60,24 @@ final class EmitterRenderer {
 		right_plus_up.set(rx + upx, ry + upy, rz + upz);
 		right_minus_up.set(rx - upx, ry - upy, rz - upz);
 
-		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-		GLStateStack.pushState();
+        shader.use();
+        state.getModelView().get(matrix_buffer);
+        shader.setUniformMatrix4(ParticleShader.Uniforms.MODEL_VIEW_MATRIX, false, matrix_buffer);
+        state.getProjectionMatrix().get(matrix_buffer);
+        shader.setUniformMatrix4(ParticleShader.Uniforms.PROJECTION_MATRIX, false, matrix_buffer);
+        shader.setUniform(ParticleShader.Uniforms.TEXTURE_0, 0);
+
+		GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_COLOR_BUFFER_BIT);
 
 		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
-		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		// Alpha test logic handled by blend/shader.
 		GL11.glDepthMask(false);
 
-		GLStateStack.switchState(GLState.VERTEX_ARRAY | GLState.TEXCOORD0_ARRAY | GLState.COLOR_ARRAY);
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+        particle_vbo.makeCurrent();
+        layout.bind(shader);
 
         for (Emitter emitter : emitter_queue) {
             if (Globals.draw_particles)
@@ -60,8 +85,11 @@ final class EmitterRenderer {
         }
 		emitter_queue.clear();
 
-		GLStateStack.popState();
+        layout.unbind(shader);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+
 		GL11.glPopAttrib();
+        ShaderProgram.unbind();
 	}
 
 	private static void render2DParticle(@NonNull Particle particle, @NonNull Emitter emitter) {
@@ -92,7 +120,6 @@ final class EmitterRenderer {
 		List<Particle>[] particles = emitter.getParticles();
 		SpriteKey[] sprite_renderers = emitter.getSpriteRenderers();
 		if (textures != null) {
-			GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 			GL11.glBlendFunc(emitter.getSrcBlendFunc(), emitter.getDstBlendFunc());
 
 			for (int j = 0; j < particles.length; j++) {
@@ -105,38 +132,48 @@ final class EmitterRenderer {
 				particle_buffer.flip();
 				particle_vbo.put(particle_buffer);
 
-				particle_vbo.vertexPointer(3, 36, 0);
-				particle_vbo.texCoordPointer(2, 36, 3);
-				particle_vbo.colorPointer(4, 36, 5);
 				GL11.glDrawArrays(GL11.GL_QUADS, 0, particles[j].size() * 4);
 			}
 
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
 		} else if (sprite_renderers != null) {
-                    for (List<Particle> particle1 : particles) {
-                        for (int i = particle1.size() - 1; i >= 0; i--) {
-                            Particle particle = particle1.get(i);
-                            int index = particle.getType();
-                            color_buffer.put(0, particle.getColorR());
-                            color_buffer.put(1, particle.getColorG());
-                            color_buffer.put(2, particle.getColorB());
-                            color_buffer.put(3, Math.min(particle.getColorA(), 1f));
-                            SpriteRenderer sprite_renderer = render_queues.getRenderer(sprite_renderers[index]);
-                            sprite_renderer.setupWithColor(0, color_buffer, false, false);
-                            //					sprite_renderer.setup(0, false);
-                            float x = particle.getPosX();
-                            float y = particle.getPosY();
-                            float z = particle.getPosZ();
-                            GL11.glPushMatrix();
-                            GL11.glTranslatef(x, y, z);
-                            GL11.glRotatef(ROTATION_FACTOR*(y + x), SQRT_2, SQRT_2, 0f);
-                            //					GL11.glScalef(scale_x, scale_y, scale_z);
-                            sprite_renderer.getSpriteList().render(0, 0, 0f);
-                            sprite_renderer.getSpriteList().reset(0, false, false);
-                            GL11.glPopMatrix();
-                        }
-                    }
+            // Legacy Sprite Path: Unbind shader/layout
+            layout.unbind(shader);
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+            ShaderProgram.unbind();
+            GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT); // Minimal state save
+
+            for (List<Particle> particle1 : particles) {
+                for (int i = particle1.size() - 1; i >= 0; i--) {
+                    Particle particle = particle1.get(i);
+                    int index = particle.getType();
+                    color_buffer.put(0, particle.getColorR());
+                    color_buffer.put(1, particle.getColorG());
+                    color_buffer.put(2, particle.getColorB());
+                    color_buffer.put(3, Math.min(particle.getColorA(), 1f));
+                    SpriteRenderer sprite_renderer = render_queues.getRenderer(sprite_renderers[index]);
+                    sprite_renderer.setupWithColor(0, color_buffer, false, false);
+                    //					sprite_renderer.setup(0, false);
+                    float x = particle.getPosX();
+                    float y = particle.getPosY();
+                    float z = particle.getPosZ();
+                    GL11.glPushMatrix();
+                    GL11.glTranslatef(x, y, z);
+                    GL11.glRotatef(ROTATION_FACTOR*(y + x), SQRT_2, SQRT_2, 0f);
+                    //					GL11.glScalef(scale_x, scale_y, scale_z);
+                    sprite_renderer.getSpriteList().render(0, 0, 0f);
+                    sprite_renderer.getSpriteList().reset(0, false, false);
+                    GL11.glPopMatrix();
+                }
+            }
+            
+            GL11.glPopAttrib();
+            // Restore Shader State
+            shader.use();
+            particle_vbo.makeCurrent();
+            layout.bind(shader);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glDepthMask(false);
 		}
 	}
 

@@ -52,7 +52,7 @@ public abstract class VBO extends NativeResource<VBO.Buffer> {
 	    makeCurrent(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
-	protected final void makeCurrent() {
+	public final void makeCurrent() {
 		makeCurrent(target, state.handle);
 	}
 
