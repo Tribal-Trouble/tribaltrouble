@@ -4,14 +4,15 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public class TargetDelegate extends ControllableCameraDelegate {
-	private final int action;
+	private final @NonNull Action action;
 
-	public TargetDelegate(@NonNull WorldViewer viewer, GameCamera camera, int action) {
+	public TargetDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera camera, @NonNull Action action) {
 		super(viewer, camera);
 		this.action = action;
 	}

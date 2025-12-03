@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class PathFinder {
-	private static final PocketList open_list = new PocketList(RegionBuilder.MAX_PATH_COST);
-	static final List<Node> visited_list = new ArrayList<>();
+	private static final PocketList<@NonNull Node> open_list = new PocketList<>(RegionBuilder.MAX_PATH_COST);
+	private static final List<@NonNull Node> visited_list = new ArrayList<>();
 	public static int stat_pathfinder_per_frame = 0;
 
 	public static Region findPathRegion(@NonNull UnitGrid unit_grid, @NonNull Region src_region, @NonNull Region dst_region) {
@@ -22,7 +22,7 @@ public final class PathFinder {
 		return (Region)doFindPath(finder, src_region, unit_grid);
 	}
 
-	public static Region findPathRegion(UnitGrid unit_grid, @NonNull PathFinderAlgorithm finder, @NonNull Region current_region) {
+	public static Region findPathRegion(@NonNull UnitGrid unit_grid, @NonNull PathFinderAlgorithm finder, @NonNull Region current_region) {
 //		Node current_region = UnitGrid.getGrid().getRegion(src_grid_x, src_grid_y);
 		assert current_region != null;// : "src_grid_x = " + src_grid_x + " | src_grid_y = " + src_grid_y + " | occupant " + UnitGrid.getGrid().getOccupant(src_grid_x, src_grid_y);
 		return (Region)doFindPath(finder, current_region, unit_grid);
@@ -34,10 +34,7 @@ public final class PathFinder {
 			return null;
 		Node current_node = GridNode.getPathfinderNode(offset, src_grid_x, src_grid_y);
 		Node grid_node = doFindPath(finder, current_node, unit_grid);
-		if (grid_node != null)
-			return (GridPathNode)grid_node.newPath();
-		else
-			return null;
+        return grid_node != null ? (GridPathNode) grid_node.newPath() : null;
 	}
 
 	public static @Nullable GridPathNode findPathGrid(@NonNull UnitGrid unit_grid, Region dst_region, Region dst_region2, int src_grid_x, int src_grid_y, int dst_grid_x, int dst_grid_y, Target target, float max_dist, boolean allow_second_best) {
@@ -47,10 +44,7 @@ public final class PathFinder {
 		Node current_node = GridNode.getPathfinderNode(offset, src_grid_x, src_grid_y);
 		PathFinderAlgorithm finder = new TargetGridPathFinder(unit_grid, max_dist, dst_region, dst_region2, dst_grid_x, dst_grid_y, target, allow_second_best);
 		Node grid_node = doFindPath(finder, current_node, unit_grid);
-		if (grid_node != null)
-			return (GridPathNode)grid_node.newPath();
-		else
-			return null;
+        return grid_node != null ? (GridPathNode) grid_node.newPath() : null;
 	}
 
 	private static Node doFindPath(@NonNull PathFinderAlgorithm finder, @Nullable Node start_node, UnitGrid unit_grid) {
@@ -61,8 +55,8 @@ public final class PathFinder {
 		initSearch();
 		current_node.setPathInitial(finder.computeEstimatedCost(current_node));
 		addToLists(current_node);
-		while (open_list.size() != 0) {
-			current_node = (Node)open_list.removeBest();
+		while (!open_list.isEmpty()) {
+			current_node = open_list.removeBest();
 			NodeResult result = finder.touchNode(current_node);
 			if (result != null)
 				return result.get();
@@ -71,10 +65,7 @@ public final class PathFinder {
 				return current_node;
 		}
 		NodeResult result = finder.getBestNode();
-		if (result != null)
-			return result.get();
-		else
-			return null;
+        return result != null ? result.get() : null;
 	}
 
 	public static void addToOpenList(@NonNull PathFinderAlgorithm finder, @NonNull Node current_node, @NonNull Node parent, int cost) {
@@ -96,5 +87,6 @@ public final class PathFinder {
 	}
 
     private PathFinder() {
+        // no instances
     }
 }

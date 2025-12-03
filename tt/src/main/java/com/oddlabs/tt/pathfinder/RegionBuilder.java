@@ -36,7 +36,7 @@ public final class RegionBuilder {
         }
 		RegionBuilderNode start_node = dir_finder_grid[start_y][start_x];
 		QueueArray start_nodes = new QueueArray(grid_size*grid_size);
-		PocketList region_nodes = new PocketList(grid_size);
+		PocketList<RegionBuilderNode> region_nodes = new PocketList<>(grid_size);
 		start_nodes.addLast(start_node);
 		int actual_num_regions = 0;
 		while ((start_node = findStartNode(unit_grid, region_nodes, start_nodes)) != null) {
@@ -72,13 +72,13 @@ public final class RegionBuilder {
 		testNeighbour(unit_grid, grid_x + 1, grid_y - 1, region);
 	}
 
-	private static void addRegionNodes(@NonNull UnitGrid unit_grid, RegionBuilderNode[] @NonNull [] dir_finder_grid, @NonNull QueueArray start_nodes, @NonNull Region region, int start_x, int start_y, @NonNull PocketList region_nodes) {
+	private static void addRegionNodes(@NonNull UnitGrid unit_grid, RegionBuilderNode[] @NonNull [] dir_finder_grid, @NonNull QueueArray start_nodes, @NonNull Region region, int start_x, int start_y, @NonNull PocketList<RegionBuilderNode> region_nodes) {
 		int min_x = start_x;
 		int max_x = start_x;
 		int min_y = start_y;
 		int max_y = start_y;
 		while (region_nodes.size() > 0) {
-			RegionBuilderNode node = (RegionBuilderNode)region_nodes.removeBest();
+			RegionBuilderNode node = region_nodes.removeBest();
 			if (unit_grid.getRegion(node.getGridX(), node.getGridY()) != null)
 				continue;
 			if (node.getTotalCost() > REGION_PATH_MAX_COST) {
@@ -103,7 +103,7 @@ public final class RegionBuilder {
 		region.setPosition((max_x + min_x)/2, (max_y + min_y)/2);
 	}
 
-	private static void addNeighbour(@NonNull UnitGrid unit_grid, RegionBuilderNode[] @NonNull [] dir_finder_grid, @NonNull PocketList region_nodes, int x, int y, int cost) {
+	private static void addNeighbour(@NonNull UnitGrid unit_grid, RegionBuilderNode[] @NonNull [] dir_finder_grid, @NonNull PocketList<RegionBuilderNode> region_nodes, int x, int y, int cost) {
 		RegionBuilderNode node = dir_finder_grid[y][x];
 		if (unit_grid.getRegion(node.getGridX(), node.getGridY()) != null)
 			return;
@@ -112,7 +112,7 @@ public final class RegionBuilder {
 			region_nodes.add(node.getTotalCost(), node);
 	}
 
-	private static void addNeighbours(@NonNull UnitGrid unit_grid, RegionBuilderNode[] @NonNull [] dir_finder_grid, @NonNull PocketList region_nodes, @NonNull RegionBuilderNode node) {
+	private static void addNeighbours(@NonNull UnitGrid unit_grid, RegionBuilderNode[] @NonNull [] dir_finder_grid, @NonNull PocketList<RegionBuilderNode> region_nodes, @NonNull RegionBuilderNode node) {
 		int x = node.getGridX();
 		int y = node.getGridY();
 		int cost = node.getTotalCost();
@@ -126,7 +126,7 @@ public final class RegionBuilder {
 		addNeighbour(unit_grid, dir_finder_grid, region_nodes, x + 1, y + 1, cost + DIAGONAL);
 	}
 
-	private static @Nullable RegionBuilderNode findStartNode(@NonNull UnitGrid unit_grid, @NonNull PocketList region_nodes, @NonNull QueueArray start_nodes) {
+	private static @Nullable RegionBuilderNode findStartNode(@NonNull UnitGrid unit_grid, @NonNull PocketList<RegionBuilderNode> region_nodes, @NonNull QueueArray start_nodes) {
 		region_nodes.clear();
 		while (!start_nodes.isEmpty()) {
 			RegionBuilderNode node = start_nodes.removeFirst();

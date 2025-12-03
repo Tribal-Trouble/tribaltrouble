@@ -2,6 +2,7 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -10,8 +11,8 @@ import org.jspecify.annotations.NonNull;
 public final class RallyPointDelegate extends TargetDelegate {
 	private final Building building;
 
-	public RallyPointDelegate(@NonNull WorldViewer viewer, GameCamera camera, Building building) {
-		super(viewer, camera, 0);
+	public RallyPointDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera camera, @NonNull Building building) {
+		super(viewer, camera, Action.DEFAULT);
 		this.building = building;
 	}
 

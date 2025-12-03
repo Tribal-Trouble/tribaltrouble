@@ -13,15 +13,15 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class InstantHitFactory extends WeaponFactory {
-	private final Audio[] sounds;
+	private final @NonNull Audio @NonNull [] sounds;
 
-	public InstantHitFactory(float hit_chance, float range, float release_ratio, Audio[] sounds) {
+	public InstantHitFactory(float hit_chance, float range, float release_ratio, @NonNull Audio @NonNull[] sounds) {
 		super(hit_chance, range, release_ratio);
 		this.sounds = sounds;
 	}
 
 	@Override
-	protected void doAttack(boolean hit, @NonNull Unit src, Selectable target) {
+	protected void doAttack(boolean hit, @NonNull Unit src, @NonNull Selectable target) {
 		int damage = 1;
 		if (target instanceof Building && target.getTemplate().getAbilities().hasAbilities(Abilities.ATTACK))
 			damage = 6;

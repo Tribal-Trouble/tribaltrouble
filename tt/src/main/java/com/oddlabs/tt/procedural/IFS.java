@@ -7,12 +7,11 @@ import org.jspecify.annotations.NonNull;
 import java.util.Random;
 
 public final class IFS {
-	private final @NonNull Random random;
 	public final @NonNull Channel channel;
 
 	public IFS(int width, int height, int maxpoints, int seed, float[][] @NonNull [] transformations, float[] probabilities) {
 		channel = new Channel(width, height);
-		random = new Random(seed);
+        Random random = new Random(seed);
 		
 		// init image
 		for (int x = 0; x < width; x++) {

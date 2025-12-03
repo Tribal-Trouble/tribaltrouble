@@ -18,7 +18,7 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.Set;
 
-public abstract class InGameDelegate extends CameraDelegate {
+public abstract class InGameDelegate extends CameraDelegate<Camera> {
 	private final @NonNull WorldViewer viewer;
 
 	protected InGameDelegate(@NonNull WorldViewer viewer, @Nullable Camera camera) {

@@ -19,7 +19,7 @@ public final class WorkerUnitContainer extends UnitContainer {
 	}
 
 	@Override
-	public boolean canEnter(Unit unit) {
+	public boolean canEnter(@NonNull Unit unit) {
 		return getTotalSupplies() != getMaxSupplyCount();
 	}
 
@@ -40,9 +40,5 @@ public final class WorkerUnitContainer extends UnitContainer {
 		int result = building.getOwner().getUnitCountContainer().increaseSupply(amount);
 		assert result == amount: "result = " + result + " | amount = " + amount;
 		return super.increaseSupply(amount);
-	}
-
-	@Override
-	public void animate(float t) {
 	}
 }

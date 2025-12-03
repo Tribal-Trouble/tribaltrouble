@@ -13,6 +13,7 @@ import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.landscape.LandscapeTargetRespond;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Abilities;
+import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.ModelToolTip;
@@ -77,7 +78,7 @@ public final class Picker implements Updatable {
 	private float patch_hit_z;
 
 	private Selectable @NonNull [] old_target_selection = new Selectable[0];
-	private int old_target_action;
+	private @Nullable Action old_target_action;
 	private boolean old_target_aggressive;
 
 	private int old_landscape_target_grid_x;
@@ -114,7 +115,7 @@ public final class Picker implements Updatable {
 		return nearest_pickable;
 	}
 
-	public void pickTarget(@NonNull Army selected_army, @NonNull CameraState camera, @NonNull PlayerInterface player_interface, int x, int y, int action) {
+	public void pickTarget(@NonNull Army selected_army, @NonNull CameraState camera, @NonNull PlayerInterface player_interface, int x, int y, @NonNull Action action) {
 		setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
 		pickObjects();
 		Target nearest_pickable = getNearestPick(element_pick_list, Target.class);
@@ -143,7 +144,7 @@ public final class Picker implements Updatable {
 		}
 	}
 
-	private boolean isNewSetTarget(Selectable @NonNull [] selection, Target target, int action, boolean aggressive) {
+	private boolean isNewSetTarget(Selectable @NonNull [] selection, @NonNull Target target, @NonNull Action action, boolean aggressive) {
 		old_landscape_target_grid_x = -1;
 		old_landscape_target_grid_y = -1;
 		
@@ -155,7 +156,7 @@ public final class Picker implements Updatable {
 		return new_target;
 	}
 
-	private boolean isNewLandscapeTarget(Selectable @NonNull [] selection, int grid_x, int grid_y, int action, boolean aggressive) {
+	private boolean isNewLandscapeTarget(Selectable @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive) {
 		old_set_target_target = null;
 		
 		boolean new_target = isNewOrder(selection, action, aggressive);
@@ -168,7 +169,7 @@ public final class Picker implements Updatable {
 		return new_target;
 	}
 
-	private boolean isNewOrder(Selectable @NonNull [] selection, int action, boolean aggressive) {
+	private boolean isNewOrder(Selectable @NonNull [] selection, @NonNull Action action, boolean aggressive) {
 		boolean new_order = false;
 		if (selection.length == old_target_selection.length) {
 			for (int i = 0; i < selection.length; i++) {
@@ -422,7 +423,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
 		pickObjects();
 		Target nearest = getNearestPick(element_pick_list, Target.class);
-		if (nearest != null && nearest instanceof Building) {
+		if (nearest instanceof Building) {
 			return nearest;
 		} else if (nearestLandscape(x, y)) {
 			int grid_x = UnitGrid.toGridCoordinate(patch_hit_x);

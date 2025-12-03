@@ -42,7 +42,7 @@ public final class PathTracker {
 	private boolean initial_path;
 	private @NonNull State state = State.DONE;
 
-	public PathTracker(@NonNull UnitGrid unit_grid, Movable unit) {
+	public PathTracker(@NonNull UnitGrid unit_grid, @NonNull Movable unit) {
 		this.unit_grid = unit_grid;
 		this.unit = unit;
 		this.bezier_path = new BezierPath();
@@ -274,7 +274,7 @@ public final class PathTracker {
 		bezier_path.init(dir_node.getInvLength(), unit.getPositionX(), unit.getPositionY(), next_node_x, next_node_y);
 	}
 
-	public void setTarget(TrackerAlgorithm tracker_algorithm) {
+	public void setTarget(@NonNull TrackerAlgorithm tracker_algorithm) {
 		this.tracker_algorithm = tracker_algorithm;
 		initial_path = true;
 		region_path = null;

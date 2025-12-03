@@ -5,11 +5,11 @@ import com.oddlabs.tt.gui.GUIRoot;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public abstract class CameraDelegate extends Delegate {
+public abstract class CameraDelegate<C extends Camera> extends Delegate {
 	private final @NonNull GUIRoot gui_root;
-	private @Nullable Camera camera;
+	private @Nullable C camera;
 
-	public CameraDelegate(@NonNull GUIRoot gui_root, @Nullable Camera camera) {
+	public CameraDelegate(@NonNull GUIRoot gui_root, @Nullable C camera) {
 		this.camera = camera;
 		this.gui_root = gui_root;
 	}
@@ -18,11 +18,11 @@ public abstract class CameraDelegate extends Delegate {
 		return gui_root;
 	}
 
-	public final void setCamera(@Nullable Camera camera) {
+	public final void setCamera(@Nullable C camera) {
 		this.camera = camera;
 	}
 
-	public final @Nullable Camera getCamera() {
+	public final @Nullable C getCamera() {
 		return camera;
 	}
 

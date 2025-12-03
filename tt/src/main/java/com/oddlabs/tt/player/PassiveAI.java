@@ -1,5 +1,6 @@
 package com.oddlabs.tt.player;
 
+import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.behaviour.IdleController;
 import com.oddlabs.tt.util.Target;
@@ -27,7 +28,7 @@ public final class PassiveAI extends AI {
                                 float r = getOwner().getWorld().getRandom().nextFloat();
                                 if (r < .2) {
                                     Target walkable_target = getTarget(getOwner().getWorld().getRandom());
-                                    getOwner().setTarget(new Selectable[]{thrower}, walkable_target, Target.ACTION_ATTACK, true);
+                                    getOwner().setTarget(new Selectable[]{thrower}, walkable_target, Action.ATTACK, true);
                                 }
                             }
                         }

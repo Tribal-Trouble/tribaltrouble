@@ -1,29 +1,31 @@
 package com.oddlabs.tt.player;
 
+import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 
 public interface PlayerInterface {
-	void deployUnits(Building building, DeployType type, int num_units);
+	void deployUnits(@NonNull Building building, @NonNull DeployType type, int num_units);
 /*	void deployPeons(Building building, int num_units);
 	void deployRockWarriors(Building building, int num_units);
 	void deployIronWarriors(Building building, int num_units);
 	void deployRubberWarriors(Building building, int num_units);*/
-	void createHarvesters(Building building, int num_tree, int num_rock, int num_iron, int num_rubber);
-	void buildRockWeapons(Building building, int num_weapons, boolean infinite);
-	void buildIronWeapons(Building building, int num_weapons, boolean infinite);
-	void buildRubberWeapons(Building building, int num_weapons, boolean infinite);
-	void doMagic(Unit chieftain, int magic);
-	void exitTower(Building building);
-	void trainChieftain(Building building, boolean start);
-	void placeBuilding(Selectable[] selection, int template_id, int placing_grid_x, int placing_grid_y);
-	void setRallyPoint(Building building, Target target);
-	void setTarget(Selectable[] selection, Target target, int action, boolean aggressive);
-	void setRallyPoint(Building building, int grid_x, int grid_y);
-	void setLandscapeTarget(Selectable[] selection, int grid_x, int grid_y, int action, boolean aggressive);
+	void createHarvesters(@NonNull Building building, int num_tree, int num_rock, int num_iron, int num_rubber);
+	void buildRockWeapons(@NonNull Building building, int num_weapons, boolean infinite);
+	void buildIronWeapons(@NonNull Building building, int num_weapons, boolean infinite);
+	void buildRubberWeapons(@NonNull Building building, int num_weapons, boolean infinite);
+	void doMagic(@NonNull Unit chieftain, int magic);
+	void exitTower(@NonNull Building building);
+	void trainChieftain(@NonNull Building building, boolean start);
+	void placeBuilding(Selectable @NonNull [] selection, int template_id, int placing_grid_x, int placing_grid_y);
+	void setRallyPoint(@NonNull Building building, @NonNull Target target);
+	void setTarget(Selectable @NonNull [] selection, @NonNull Target target, @NonNull Action action, boolean aggressive);
+	void setRallyPoint(@NonNull Building building, int grid_x, int grid_y);
+	void setLandscapeTarget(Selectable @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive);
 	void setPreferredGamespeed(int speed);
 	void changePreferredGamespeed(int delta);
 }

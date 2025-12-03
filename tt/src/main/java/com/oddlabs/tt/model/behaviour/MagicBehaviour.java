@@ -1,29 +1,32 @@
 package com.oddlabs.tt.model.behaviour;
 
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.weapon.Magic;
 import com.oddlabs.tt.model.weapon.MagicFactory;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class MagicBehaviour implements Behaviour {
-	private static final int PREPARING = 1;
-	private static final int CASTING = 2;
-	private static final int ENDING = 3;
+	private enum MagicState {
+		PREPARING,
+		CASTING,
+		ENDING
+	}
 
-	private final Unit unit;
-	private final MagicFactory magic_factory;
-	private final MagicController controller;
-	private Magic magic;
+	private final @NonNull Unit unit;
+	private final @NonNull MagicFactory magic_factory;
+	private final @NonNull MagicController controller;
+	private @Nullable Magic magic;
 
 	private float anim_time;
-	private int state;
+	private @NonNull MagicState state = MagicState.PREPARING;
 
-	public MagicBehaviour(Unit unit, MagicFactory magic_factory, MagicController controller) {
+	public MagicBehaviour(@NonNull Unit unit, @NonNull MagicFactory magic_factory, @NonNull MagicController controller) {
 		this.unit = unit;
 		this.magic_factory = magic_factory;
 		this.controller = controller;
-		init();
-	}
+        anim_time = magic_factory.getSecondsPerInit();
+        unit.switchAnimation(1f/magic_factory.getSecondsPerAnim(), Unit.ANIMATION_MAGIC);	}
 
 	@Override
 	public boolean isBlocking() {
@@ -31,39 +34,34 @@ public final class MagicBehaviour implements Behaviour {
 	}
 
 	@Override
-	public int animate(float t) {
+	public @NonNull State animate(float t) {
 		anim_time -= t;
-		switch (state) {
-			case PREPARING:
-				if (anim_time <= 0) {
-					state = CASTING;
-					magic = magic_factory.execute(unit);
-					anim_time += magic_factory.getSecondsPerRelease() - magic_factory.getSecondsPerInit();
-				}
-				return Selectable.UNINTERRUPTIBLE;
-			case CASTING:
-				if (anim_time <= 0) {
-					state = ENDING;
-					unit.getOwner().getWorld().getAnimationManagerGameTime().registerAnimation(magic);
-					anim_time += magic_factory.getSecondsPerAnim() - magic_factory.getSecondsPerRelease();
-				}
-				return Selectable.UNINTERRUPTIBLE;
-			case ENDING:
-				if (anim_time > 0)
-					return Selectable.UNINTERRUPTIBLE;
-				else {
-					controller.popNextTime();
-					return Selectable.DONE;
-				}
-			default:
-				throw new RuntimeException("Invalid state: " + state);
-		}
-	}
-
-	private void init() {
-		state = PREPARING;
-		anim_time = magic_factory.getSecondsPerInit();
-		unit.switchAnimation(1f/magic_factory.getSecondsPerAnim(), Unit.ANIMATION_MAGIC);
+        return switch (state) {
+            case PREPARING -> {
+                if (anim_time <= 0) {
+                    state = MagicState.CASTING;
+                    magic = magic_factory.execute(unit);
+                    anim_time += magic_factory.getSecondsPerRelease() - magic_factory.getSecondsPerInit();
+                }
+                yield  State.UNINTERRUPTIBLE;
+            }
+            case CASTING -> {
+                if (anim_time <= 0) {
+                    state = MagicState.ENDING;
+                    unit.getOwner().getWorld().getAnimationManagerGameTime().registerAnimation(magic);
+                    anim_time += magic_factory.getSecondsPerAnim() - magic_factory.getSecondsPerRelease();
+                }
+                yield State.UNINTERRUPTIBLE;
+            }
+            case ENDING -> {
+                if (anim_time > 0)
+                    yield State.UNINTERRUPTIBLE;
+                else {
+                    controller.popNextTime();
+                    yield State.DONE;
+                }
+            }
+        };
 	}
 
 	@Override

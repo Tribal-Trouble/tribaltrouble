@@ -6,10 +6,10 @@ import org.jspecify.annotations.Nullable;
 public final class MountUnitContainer extends UnitContainer {
 	public static final float ATTACK_RANGE_INCREASE = 8f;
 
-	private final Building building;
+	private final @NonNull Building building;
 	private @Nullable Unit unit;
 
-	public MountUnitContainer(Building building) {
+	public MountUnitContainer(@NonNull Building building) {
 		super(1);
 		this.building = building;
 	}
@@ -38,10 +38,6 @@ public final class MountUnitContainer extends UnitContainer {
 	@Override
 	public boolean canEnter(@NonNull Unit unit) {
 		return !isSupplyFull() && unit.getAbilities().hasAbilities(Abilities.THROW);
-	}
-
-	@Override
-	public void animate(float t) {
 	}
 
 	public @Nullable Unit getUnit() {

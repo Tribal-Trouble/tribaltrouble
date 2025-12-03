@@ -25,29 +25,28 @@ import com.oddlabs.tt.procedural.GeneratorRing;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.viewer.Selection;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class RenderState implements ElementVisitor {
-	private final List<Emitter> emitter_queue = new ArrayList<>();
-	private final List<Lightning> lightning_queue = new ArrayList<>();
-	private final SpriteSorter sprite_sorter;
-	private final @NonNull RenderStateCache render_state_cache;
+	private final List<@NonNull Emitter> emitter_queue = new ArrayList<>();
+	private final List<@NonNull Lightning> lightning_queue = new ArrayList<>();
+	private final @NonNull SpriteSorter sprite_sorter;
+	private final @NonNull RenderStateCache<ElementRenderState<Model>> render_state_cache;
 	private final @NonNull RenderQueues render_queues;
 	private final TargetRespondRenderer target_respond_renderer;
 	private final SelectableShadowRenderer default_shadow_renderer;
-	private final Picker picker;
+	private final @NonNull Picker picker;
 	private final Selection selection;
-	private final LandscapeRenderer landscape_renderer;
-	private final Player local_player;
+	private final @NonNull LandscapeRenderer landscape_renderer;
+	private final @NonNull Player local_player;
 
 	private boolean picking;
 	private boolean visible_override;
 	private CameraState camera;
 
-	public RenderState(Player local_player, LandscapeRenderer renderer, SpriteSorter sprite_sorter, @NonNull RenderQueues render_queues, Picker picker, Selection selection) {
+	public RenderState(@NonNull Player local_player, @NonNull LandscapeRenderer renderer, @NonNull SpriteSorter sprite_sorter, @NonNull RenderQueues render_queues, @NonNull Picker picker, Selection selection) {
 		this.local_player = local_player;
 		this.landscape_renderer = renderer;
 		this.selection = selection;
@@ -58,10 +57,10 @@ public final class RenderState implements ElementVisitor {
 		this.target_respond_renderer = (TargetRespondRenderer)render_queues.getShadowRenderer(key);
 		this.default_shadow_renderer = (SelectableShadowRenderer)render_queues.getShadowRenderer(
 				render_queues.registerSelectableShadowList(RacesResources.DEFAULT_SHADOW_DESC));
-		this.render_state_cache = new RenderStateCache(() -> new ElementRenderState(RenderState.this));
+		this.render_state_cache = new RenderStateCache<>(() -> new ElementRenderState<>(RenderState.this));
 	}
 
-	Player getLocalPlayer() {
+	@NonNull Player getLocalPlayer() {
 		return local_player;
 	}
 
@@ -99,10 +98,10 @@ public final class RenderState implements ElementVisitor {
 		return visible_override;
 	}
 
-	private static final ModelVisitor unit_visitor = new SelectableVisitor() {
+	private static final ModelVisitor<Unit> unit_visitor = new SelectableVisitor<>() {
 		@Override
-		public void markDetailPolygon(@NonNull ElementRenderState render_state, @NonNull PolyDetail detail) {
-			Unit unit = (Unit)render_state.model;
+		public void markDetailPolygon(@NonNull ElementRenderState<Unit> render_state, @NonNull PolyDetail detail) {
+			Unit unit = render_state.model;
 			super.markDetailPolygon(render_state, detail);
 			UnitSupplyContainer supply_container = unit.getSupplyContainer();
 			if (!render_state.render_state.isPicking() && unit.getAbilities().hasAbilities(Abilities.BUILD) && supply_container.getSupplyType() != null) {
@@ -119,18 +118,18 @@ public final class RenderState implements ElementVisitor {
 		visitSelectable(unit_visitor, unit, z_offset, unit.getUnitTemplate().getSelectionRadius(), unit.getUnitTemplate().getSelectionHeight());
 	}
 
-	private ElementRenderState doGetCachedState() {
-		return (ElementRenderState)render_state_cache.get();
+	private <M extends Model> @NonNull ElementRenderState<M> doGetCachedState() {
+		return (ElementRenderState<M>) render_state_cache.get();
 	}
 
-	private @NonNull ModelState getCachedState(ModelVisitor visitor, Model model) {
-		ElementRenderState state = doGetCachedState();
+	private @NonNull <M extends Model> ModelState<M> getCachedState(ModelVisitor<M> visitor, M model) {
+		ElementRenderState<M> state = doGetCachedState();
 		state.setup(visitor, model);
 		return state;
 	}
 
-	private @NonNull ModelState getCachedState(ModelVisitor visitor, Model model, float dist_squared) {
-		ElementRenderState state = doGetCachedState();
+	private @NonNull <M extends Model> ModelState<M> getCachedState(ModelVisitor<M> visitor, M model, float dist_squared) {
+		ElementRenderState<M> state = doGetCachedState();
 		state.setup(visitor, model, dist_squared);
 		return state;
 	}
@@ -149,12 +148,12 @@ public final class RenderState implements ElementVisitor {
 		return selection.getCurrentSelection().contains(selectable);
 	}
 
-	private void visitSelectable(ModelVisitor visitor, @NonNull Selectable selectable, float z_offset, float selection_radius, float selection_height) {
+	private <S extends Selectable> void visitSelectable(@NonNull ModelVisitor<S> visitor, @NonNull S selectable, float z_offset, float selection_radius, float selection_height) {
 		boolean in_view = !picking || (selectable.isEnabled() && (visible_override || pickingInFrustum(selectable, camera.getFrustum(), z_offset, selection_radius, selection_height)));
 		if (in_view) {
 			Player owner = selectable.getOwnerNoCheck();
 			boolean point_on_map = !local_player.isEnemy(owner) || (!owner.teamHasBuilding() && PeerHub.getFreeQuitTimeLeft(local_player.getWorld()) < 0f);
-			ModelState state = getCachedState(visitor, selectable, z_offset);
+			ModelState<S> state = getCachedState(visitor, selectable, z_offset);
 			int sort_status = addToRenderList(state, point_on_map);
 			if (!picking && selectable.isEnabled() && sort_status == SpriteSorter.DETAIL_POLYGON) {
 				SelectableShadowRenderer shadow_renderer = (SelectableShadowRenderer)render_queues.getShadowRenderer(selectable.getTemplate().getSelectableShadowRenderer());
@@ -174,33 +173,23 @@ public final class RenderState implements ElementVisitor {
 
 	private static float getBuildingSelectionRadius(@NonNull Building building) {
 		Building.BuildState render_level = building.getRenderLevel();
-		switch (render_level) {
-			case START:
-				return building.getBuildingTemplate().getStartSelectionRadius();
-			case HALFBUILT:
-				return building.getBuildingTemplate().getHalfbuiltSelectionRadius();
-			case BUILT:
-				return building.getBuildingTemplate().getBuiltSelectionRadius();
-			default:
-				throw new IllegalStateException();
-		}
+        return switch (render_level) {
+            case START -> building.getBuildingTemplate().getStartSelectionRadius();
+            case HALFBUILT -> building.getBuildingTemplate().getHalfbuiltSelectionRadius();
+            case BUILT -> building.getBuildingTemplate().getBuiltSelectionRadius();
+        };
 	}
 
 	private static float getBuildingSelectionHeight(@NonNull Building building) {
 		Building.BuildState render_level = building.getRenderLevel();
-		switch (render_level) {
-            case START:
-				return building.getBuildingTemplate().getStartSelectionHeight();
-			case HALFBUILT:
-				return building.getBuildingTemplate().getHalfbuiltSelectionHeight();
-			case BUILT:
-				return building.getBuildingTemplate().getBuiltSelectionHeight();
-			default:
-				throw new IllegalStateException();
-		}
+        return switch (render_level) {
+            case START -> building.getBuildingTemplate().getStartSelectionHeight();
+            case HALFBUILT -> building.getBuildingTemplate().getHalfbuiltSelectionHeight();
+            case BUILT -> building.getBuildingTemplate().getBuiltSelectionHeight();
+        };
 	}
 
-	private static final ModelVisitor building_visitor = new SelectableVisitor();
+	private static final ModelVisitor<Building> building_visitor = new SelectableVisitor<>();
 	@Override
 	public void visitBuilding(final @NonNull Building building) {
 		visitSelectable(building_visitor, building, building.getPositionZ(), getBuildingSelectionRadius(building), getBuildingSelectionHeight(building));
@@ -232,10 +221,10 @@ public final class RenderState implements ElementVisitor {
 			target_respond_renderer.addToTargetList(respond);
 	}
 
-	private static final ModelVisitor supply_model_visitor = new SupplyModelVisitor() {
+	private static final ModelVisitor<SupplyModel> supply_model_visitor = new SupplyModelVisitor<>() {
 		@Override
-		public void transform(@NonNull ElementRenderState render_state) {
-			SupplyModel model = (SupplyModel)render_state.getModel();
+		public void transform(@NonNull ElementRenderState<SupplyModel> render_state) {
+			SupplyModel model = render_state.getModel();
             render_state.getModelViewStack().translate(model.getPositionX(), model.getPositionY(), model.getPositionZ())
                 .rotate(model.getRotation(), 0f, 0f, 1f);
 		}
@@ -245,9 +234,9 @@ public final class RenderState implements ElementVisitor {
 		addToRenderList(getCachedState(supply_model_visitor, model));
 	}
 
-	private static final ModelVisitor rubber_model_visitor = new SupplyModelVisitor() {
+	private static final ModelVisitor<RubberSupply> rubber_model_visitor = new SupplyModelVisitor<>() {
 		@Override
-		public void transform(@NonNull ElementRenderState render_state) {
+		public void transform(@NonNull ElementRenderState<RubberSupply> render_state) {
 			Model model = render_state.model;
 			RenderTools.translateAndRotate(model.getPositionX(), model.getPositionY(), render_state.f, model.getDirectionX(), model.getDirectionY(), render_state.getModelViewStack());
 		}
@@ -255,22 +244,22 @@ public final class RenderState implements ElementVisitor {
 	@Override
 	public void visitRubberSupply(final @NonNull RubberSupply model) {
 		float z_offset = getVisuallyCorrectHeight(model.getPositionX(), model.getPositionY()) + model.getOffsetZ();
-		ModelState state = getCachedState(rubber_model_visitor, model, z_offset);
+		ModelState<RubberSupply> state = getCachedState(rubber_model_visitor, model, z_offset);
 		addToRenderList(state);
 		if (!picking && !model.isHit())
 			default_shadow_renderer.addToShadowList(state);
 	}
 
-	private static final ModelVisitor scenery_model_visitor = new WhiteModelVisitor() {
+	private static final ModelVisitor<SceneryModel> scenery_model_visitor = new WhiteModelVisitor<>() {
 		@Override
-		public void transform(@NonNull ElementRenderState render_state) {
+		public void transform(@NonNull ElementRenderState<SceneryModel> render_state) {
 			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
             // Color is reset to white by default
 		}
 	};
 	@Override
 	public void visitSceneryModel(final @NonNull SceneryModel model) {
-		ModelState state = getCachedState(scenery_model_visitor, model);
+		ModelState<SceneryModel> state = getCachedState(scenery_model_visitor, model);
 		addToRenderList(state);
 		if (!picking) {
 			if (model.getShadowDiameter() > 0f)
@@ -279,12 +268,12 @@ public final class RenderState implements ElementVisitor {
 	}
 
 	private static final float PLANTS_CUT_DIST = 200;
-	private static final ModelVisitor plants_model_visitor = new WhiteModelVisitor() {
+	private static final ModelVisitor<Plants> plants_model_visitor = new WhiteModelVisitor<>() {
 		private static final float START_FADE_DIST = 100;
 
 		@Override
-		public void transform(@NonNull ElementRenderState render_state) {
-			Plants plants = (Plants)render_state.getModel();
+		public void transform(@NonNull ElementRenderState<Plants> render_state) {
+			Plants plants = render_state.getModel();
 			RenderTools.translateAndRotate(plants, render_state.getModelViewStack());
 			float dist_squared = render_state.f;
 			if (dist_squared > START_FADE_DIST*START_FADE_DIST) {
@@ -303,10 +292,10 @@ public final class RenderState implements ElementVisitor {
 		}
 	}
 
-	private static final ModelVisitor directed_weapon_model_visitor = new WhiteModelVisitor() {
+	private static final ModelVisitor<DirectedThrowingWeapon> directed_weapon_model_visitor = new WhiteModelVisitor<>() {
 		@Override
-		public void transform(@NonNull ElementRenderState render_state) {
-			DirectedThrowingWeapon model = (DirectedThrowingWeapon)render_state.getModel();
+		public void transform(@NonNull ElementRenderState<DirectedThrowingWeapon> render_state) {
+			DirectedThrowingWeapon model = render_state.getModel();
 			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
             render_state.getModelViewStack().rotate(-model.getZSpeed(), 0f, 1f, 0f);
 		}
@@ -318,10 +307,10 @@ public final class RenderState implements ElementVisitor {
 		}
 	}
 
-	private static final ModelVisitor rotating_weapon_model_visitor = new WhiteModelVisitor() {
+	private static final ModelVisitor<RotatingThrowingWeapon> rotating_weapon_model_visitor = new WhiteModelVisitor<>() {
 		@Override
-		public void transform(@NonNull ElementRenderState render_state) {
-			RotatingThrowingWeapon model = (RotatingThrowingWeapon)render_state.getModel();
+		public void transform(@NonNull ElementRenderState<RotatingThrowingWeapon> render_state) {
+			RotatingThrowingWeapon model = render_state.getModel();
 			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
             render_state.getModelViewStack().rotate(model.getAngle(), 0f, 1f, 0f);
 		}
@@ -333,11 +322,11 @@ public final class RenderState implements ElementVisitor {
 		}
 	}
 
-	public @NonNull List<Emitter> getEmitterQueue() {
+	public @NonNull List<@NonNull Emitter> getEmitterQueue() {
 		return emitter_queue;
 	}
 
-	public @NonNull List<Lightning> getLightningQueue() {
+	public @NonNull List<@NonNull Lightning> getLightningQueue() {
 		return lightning_queue;
 	}
 }

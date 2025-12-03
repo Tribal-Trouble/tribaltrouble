@@ -6,7 +6,7 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
 import org.jspecify.annotations.NonNull;
 
-public class NullDelegate extends CameraDelegate {
+public class NullDelegate extends CameraDelegate<NullCamera> {
 	private final boolean render_cursor;
 
 	public NullDelegate(@NonNull GUIRoot gui_root, boolean render_cursor) {

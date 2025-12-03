@@ -1,14 +1,20 @@
 package com.oddlabs.tt.render;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
-final class RenderStateCache {
-	private final RenderStateFactory factory;
-	private final List<Object> cache = new ArrayList<>();
+/**
+ * Caches render state objects for reuse.
+ * @param <RS>
+ */
+final class RenderStateCache<RS extends LODObject> {
+	private final RenderStateFactory<RS> factory;
+	private final List<@NonNull RS> cache = new ArrayList<>();
 	private int current_index;
 
-	RenderStateCache(RenderStateFactory factory) {
+	RenderStateCache(@NonNull RenderStateFactory<@NonNull RS> factory) {
 		this.factory = factory;
 	}
 
@@ -16,7 +22,7 @@ final class RenderStateCache {
 		current_index = 0;
 	}
 
-	Object get() {
+	@NonNull RS get() {
 		if (current_index == cache.size()) {
 			cache.add(factory.create());
 		}

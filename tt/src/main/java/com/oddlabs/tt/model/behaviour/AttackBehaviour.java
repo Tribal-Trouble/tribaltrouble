@@ -2,6 +2,7 @@ package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
+import org.jspecify.annotations.NonNull;
 
 public final class AttackBehaviour implements Behaviour {
 	private static final float SECONDS_PER_ATTACK = 2f;
@@ -11,15 +12,16 @@ public final class AttackBehaviour implements Behaviour {
         RELEASED
     }
 
-	private final Selectable target;
-	private final Unit unit;
+	private final @NonNull Selectable target;
+	private final @NonNull Unit unit;
 	private float anim_time;
-	private AttackState state;
+	private @NonNull AttackState state = AttackState.THROWING;
 
-	public AttackBehaviour(Unit unit, Selectable target) {
+	public AttackBehaviour(@NonNull Unit unit, @NonNull Selectable target) {
 		this.unit = unit;
 		this.target = target;
-		init();
+        anim_time = unit.getWeaponFactory().getSecondsPerRelease(1f/SECONDS_PER_ATTACK);
+        unit.switchAnimation(1f/SECONDS_PER_ATTACK, Unit.ANIMATION_THROWING);
 	}
 
 	@Override
@@ -28,40 +30,31 @@ public final class AttackBehaviour implements Behaviour {
 	}
 
 	@Override
-	public int animate(float t) {
-		switch (state) {
-			case THROWING:
-				updateAttack(t);
-				if (anim_time <= 0) {
-					if (unit.isMounted())
-						unit.getWeaponFactory().attack(unit, target, 3f);
-					else
-						unit.getWeaponFactory().attack(unit, target);
+	public @NonNull State animate(float t) {
+        return switch (state) {
+            case THROWING -> {
+                updateAttack(t);
+                if (anim_time <= 0) {
+                    if (unit.isMounted())
+                        unit.getWeaponFactory().attack(unit, target, 3f);
+                    else
+                        unit.getWeaponFactory().attack(unit, target);
 
-					anim_time += SECONDS_PER_ATTACK - unit.getWeaponFactory().getSecondsPerRelease(1f/SECONDS_PER_ATTACK);
-					state = AttackState.RELEASED;
-				}
-				return Selectable.UNINTERRUPTIBLE;
-			case RELEASED:
-				updateAttack(t);
-				if (anim_time > 0)
-					return Selectable.UNINTERRUPTIBLE;
-				else
-					return Selectable.DONE;
-			default:
-				throw new RuntimeException("Invalid state: " + state);
-		}
+                    anim_time += SECONDS_PER_ATTACK - unit.getWeaponFactory().getSecondsPerRelease(1f / SECONDS_PER_ATTACK);
+                    state = AttackState.RELEASED;
+                }
+                yield State.UNINTERRUPTIBLE;
+            }
+            case RELEASED -> {
+                updateAttack(t);
+                yield anim_time > 0 ? State.UNINTERRUPTIBLE : State.DONE;
+            }
+        };
 	}
 
 	private void updateAttack(float t) {
 		anim_time -= t;
 		unit.aimAtTarget(target);
-	}
-
-	private void init() {
-		state = AttackState.THROWING;
-		anim_time += unit.getWeaponFactory().getSecondsPerRelease(1f/SECONDS_PER_ATTACK);
-		unit.switchAnimation(1f/SECONDS_PER_ATTACK, Unit.ANIMATION_THROWING);
 	}
 
 	@Override

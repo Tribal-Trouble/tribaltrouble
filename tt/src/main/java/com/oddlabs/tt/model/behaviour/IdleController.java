@@ -11,13 +11,13 @@ public final class IdleController extends Controller {
 	private static final float MIN_SCAN_DELAY = 1f;
 	private static final float MAX_SCAN_DELAY = 2f;
 
-	private final Unit unit;
-	private final AttackScanFilter scan_filter;
+	private final @NonNull Unit unit;
+	private final @NonNull AttackScanFilter scan_filter;
 	private final @NonNull IdleBehaviour idle_behaviour;
 	private final boolean can_move;
 	private float redecide_time;
 
-	public IdleController(Unit unit, AttackScanFilter filter, boolean can_move) {
+	public IdleController(@NonNull Unit unit, @NonNull AttackScanFilter filter, boolean can_move) {
 		super(0);
 		this.unit = unit;
 		this.scan_filter = filter;
@@ -41,7 +41,7 @@ public final class IdleController extends Controller {
         Selectable s = scan_filter.removeTarget();
         if (s != null) {
             if (can_move)
-                unit.pushControllers(new Controller[]{new WalkController(unit, new LandscapeTarget(unit.getGridX(), unit.getGridY()), true), new HuntController(unit, s)});
+                unit.pushControllers(new WalkController(unit, new LandscapeTarget(unit.getGridX(), unit.getGridY()), true), new HuntController(unit, s));
             else
                 unit.pushController(new AttackController(unit, s));
         }

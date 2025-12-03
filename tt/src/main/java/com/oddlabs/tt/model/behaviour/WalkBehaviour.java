@@ -18,7 +18,7 @@ public final class WalkBehaviour implements Behaviour {
 	private static final float MAX_WAIT_RETRY_DELAY = 5f;
 
 	private final @NonNull Unit unit;
-	private final TrackerAlgorithm tracker_algorithm;
+	private final @NonNull TrackerAlgorithm tracker_algorithm;
 	private final @NonNull AttackScanFilter scan_filter;
 	private final boolean scan_attack;
 
@@ -30,16 +30,16 @@ public final class WalkBehaviour implements Behaviour {
 
 	private PathTracker.State state;
 
-	public WalkBehaviour(@NonNull Unit unit, TrackerAlgorithm tracker_algorithm, boolean scan_attack) {
+	public WalkBehaviour(@NonNull Unit unit, @NonNull TrackerAlgorithm tracker_algorithm, boolean scan_attack) {
 		this.unit = unit;
 		this.tracker_algorithm = tracker_algorithm;
 		this.scan_attack = scan_attack;
 		scan_filter = new AttackScanFilter(unit.getOwner(), AttackScanFilter.UNIT_RANGE);
 		retry_delay = WAIT_RETRY_DELAY;
-		init();
+        unit.getTracker().setTarget(tracker_algorithm);
 	}
 
-	public WalkBehaviour(@NonNull Unit unit, Target t, float range, boolean scan_attack) {
+	public WalkBehaviour(@NonNull Unit unit, @NonNull Target t, float range, boolean scan_attack) {
 		this(unit, new TargetTrackerAlgorithm(unit.getUnitGrid(), range, t), scan_attack);
 	}
 
@@ -64,46 +64,45 @@ public final class WalkBehaviour implements Behaviour {
 	}
 
 	@Override
-	public int animate(float t) {
+	public @NonNull State animate(float t) {
 		retry_delay_counter -= t;
 		boolean blocker_moved = blocking_movable != null && (blocking_movable.getGridX() != blocker_x || blocking_movable.getGridY() != blocker_y);
 		if (retry_delay_counter > 0 && !blocker_moved) {
-			return Selectable.INTERRUPTIBLE;
+			return State.INTERRUPTIBLE;
 		}
 		retry_delay_counter = 0;
 		blocking_movable = null;
 		PathTracker tracker = unit.getTracker();
 		state = tracker.animate(unit.getMetersPerSecond()*t);
-		switch (state) {
-			case OK:
-				switchToMoving();
-				return Selectable.UNINTERRUPTIBLE;
-			case OK_INTERRUPTIBLE:
-				retry_delay = WAIT_RETRY_DELAY;
-				switchToMoving();
-				scan();
-				return Selectable.INTERRUPTIBLE;
-			case DONE:
-				return Selectable.DONE;
-			case BLOCKED: /* fall through */
-			case SOFTBLOCKED:
-				Occupant blocker = tracker.getBlocker();
-				if (blocker instanceof Movable movable) {
-					blocking_movable = movable;
-					if (!blocking_movable.isDead()) {
-						blocking_movable.markBlocking();
-						blocker_x = blocking_movable.getGridX();
-						blocker_y = blocking_movable.getGridY();
-					} else {
-						blocking_movable = null;
-					}
-				}
-				scan();
-				retry_delay = Math.min(2*retry_delay, MAX_WAIT_RETRY_DELAY);
-				return doRetry();
-			default:
-				throw new IllegalStateException("Invalid tracker state: " + state);
-		}
+        return switch (state) {
+            case OK -> {
+                switchToMoving();
+                yield State.UNINTERRUPTIBLE;
+            }
+            case OK_INTERRUPTIBLE -> {
+                retry_delay = WAIT_RETRY_DELAY;
+                switchToMoving();
+                scan();
+                yield State.INTERRUPTIBLE;
+            }
+            case DONE -> State.DONE;
+            case BLOCKED, SOFTBLOCKED -> {
+                Occupant blocker = tracker.getBlocker();
+                if (blocker instanceof Movable movable) {
+                    blocking_movable = movable;
+                    if (!blocking_movable.isDead()) {
+                        blocking_movable.markBlocking();
+                        blocker_x = blocking_movable.getGridX();
+                        blocker_y = blocking_movable.getGridY();
+                    } else {
+                        blocking_movable = null;
+                    }
+                }
+                scan();
+                retry_delay = Math.min(2 * retry_delay, MAX_WAIT_RETRY_DELAY);
+                yield doRetry();
+            }
+        };
 	}
 
 	private void scan() {
@@ -121,14 +120,10 @@ public final class WalkBehaviour implements Behaviour {
 		retry_delay_counter = 0f;
 	}
 */
-	private int doRetry() {
+	private @NonNull State doRetry() {
 		retry_delay_counter = retry_delay;
 		unit.switchToIdleAnimation();
-		return Selectable.INTERRUPTIBLE;
-	}
-
-	private void init() {
-		unit.getTracker().setTarget(tracker_algorithm);
+		return State.INTERRUPTIBLE;
 	}
 
 	@Override

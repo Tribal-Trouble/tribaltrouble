@@ -2,7 +2,6 @@ package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.Unit;
 import org.jspecify.annotations.NonNull;
@@ -27,7 +26,7 @@ public final class HarvestBehaviour implements Behaviour {
 	}
 
 	@Override
-	public int animate(float t) {
+	public @NonNull State animate(float t) {
 		anim_time += t;
 		if (anim_time > unit.getWeaponFactory().getSecondsPerRelease(1f/SECONDS_PER_ANIMATION_CYCLE) && !sound) {
 			sound = true;
@@ -46,10 +45,10 @@ public final class HarvestBehaviour implements Behaviour {
 		if (anim_time > SECONDS_PER_ANIMATION_CYCLE) {
 			restartAnimation();
 			if (unit.getSupplyContainer().isSupplyFull() || supply.isEmpty())
-				return Selectable.DONE;
+				return State.DONE;
 		}
 
-		return Selectable.INTERRUPTIBLE;
+		return State.INTERRUPTIBLE;
 	}
 
 	private void restartAnimation() {

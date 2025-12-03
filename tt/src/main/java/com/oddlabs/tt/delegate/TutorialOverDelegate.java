@@ -22,7 +22,7 @@ import java.util.ResourceBundle;
 
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
-public final class TutorialOverDelegate extends CameraDelegate implements Updatable {
+public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> implements Updatable {
 	private static final float DELAY = 1f;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
 	private final @NonNull Group group_buttons;

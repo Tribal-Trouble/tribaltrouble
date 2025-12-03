@@ -9,10 +9,10 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public abstract class ControllableCameraDelegate extends InGameDelegate {
-	private final GameCamera game_camera;
+	private final @NonNull GameCamera game_camera;
 	private FirstPersonDelegate first_person_delegate;
 
-	public ControllableCameraDelegate(@NonNull WorldViewer viewer, GameCamera game_camera) {
+	public ControllableCameraDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera game_camera) {
 		super(viewer, game_camera);
 		this.game_camera = game_camera;
 	}

@@ -4,7 +4,6 @@ import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Building;
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import org.jspecify.annotations.NonNull;
 
@@ -33,7 +32,7 @@ public final class RepairBehaviour implements Behaviour {
 	}
 
 	@Override
-	public int animate(float t) {
+	public @NonNull State animate(float t) {
 		anim_time += t;
 		if (anim_time > unit.getWeaponFactory().getSecondsPerRelease(1f/SECONDS_PER_ANIMATION_CYCLE) && !sound) {
 			sound = true;
@@ -48,15 +47,12 @@ public final class RepairBehaviour implements Behaviour {
 			restartAnimation();
 			repairs++;
 			if (building.isDead() || !building.isDamaged()) {
-				return Selectable.DONE;
+				return State.DONE;
 			} else
 				building.repair(1);
 		}
 
-		if (repairs == REPAIRS_PER_SUPPLY) {
-			return Selectable.DONE;
-		}
-		return Selectable.INTERRUPTIBLE;
+        return repairs == REPAIRS_PER_SUPPLY ? State.DONE : State.INTERRUPTIBLE;
 	}
 
 	private void restartAnimation() {

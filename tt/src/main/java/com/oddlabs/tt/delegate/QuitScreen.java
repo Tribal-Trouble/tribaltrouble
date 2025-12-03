@@ -11,7 +11,7 @@ import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
-public final class QuitScreen extends CameraDelegate implements Updatable {
+public final class QuitScreen extends CameraDelegate<Camera> implements Updatable {
 	private static final float DELAY = 5f;
 
 	private static final int overlay_texture_width = 1024;

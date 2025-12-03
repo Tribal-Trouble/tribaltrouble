@@ -1,21 +1,25 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.model.Model;
+import com.oddlabs.util.Color;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-final class ElementRenderState implements ModelState {
+final class ElementRenderState<M extends Model> implements ModelState<M> {
 
     final RenderState render_state;
-    private ModelVisitor visitor;
-    Model model;
+    private ModelVisitor<M> visitor;
+    M model;
     float f;
-    final Vector4f color = new Vector4f(1f, 1f, 1f, 1f);
+    final Vector4f color = Color.argb4v(Color.WHITE_INT);
 
     ElementRenderState(RenderState render_state) {
         this.render_state = render_state;
     }
 
+    @NotNull
     public Vector4f getColor() {
         return color;
     }
@@ -25,7 +29,7 @@ final class ElementRenderState implements ModelState {
     }
 
     @Override
-    public Model getModel() {
+    public @Nullable M getModel() {
         return model;
     }
 
@@ -38,24 +42,26 @@ final class ElementRenderState implements ModelState {
         visitor.transform(this);
     }
 
+    @NotNull
     @Override
     public float[] getTeamColor() {
         return visitor.getTeamColor(this);
     }
 
+    @NotNull
     @Override
     public float[] getSelectionColor() {
         return visitor.getSelectionColor(this);
     }
 
-    void setup(ModelVisitor visitor, Model model, float f) {
+    void setup(ModelVisitor<M> visitor, M model, float f) {
         this.visitor = visitor;
         this.model = model;
         this.f = f;
         resetColor();
     }
 
-    void setup(ModelVisitor visitor, Model model) {
+    void setup(ModelVisitor<M> visitor, M model) {
         this.visitor = visitor;
         this.model = model;
         resetColor();

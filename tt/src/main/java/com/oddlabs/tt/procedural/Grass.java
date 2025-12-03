@@ -57,18 +57,18 @@ public final class Grass {
 			
 			float p1_x = (float)cluster/clusters + Tools.gaussify(Tools.gaussify(random.nextFloat()))/clusters;
 			float p1_y = 0.25f*(1f - ((float)leaf/leaves));
-			float p2_x = Math.max(0.025f, Math.min(p1_x + aspect*Tools.gaussify(random.nextFloat()) - 0.5f*aspect, 0.975f));
-			float p2_y = Math.max(0.25f, Math.min(0.7f*random.nextFloat(), 0.975f));
+			float p2_x = Math.clamp(p1_x + aspect*Tools.gaussify(random.nextFloat()) - 0.5f*aspect, 0.025f, 0.975f);
+			float p2_y = Math.clamp(0.7f*random.nextFloat(), 0.25f, 0.975f);
 			
 			p2_x = (1 - p2_y)*p1_x + p2_y*p2_x;
 			
-			float p3_x = Math.max(0.025f, Math.min(p2_x + p2_x - p1_x, 0.975f));
+			float p3_x = Math.clamp(p2_x + p2_x - p1_x, 0.025f, 0.975f);
 			float p3_y;
 			
 			if (p2_y < 0.2 && random.nextFloat() < 0.5) {
-				p3_y = Math.max(0.025f, Math.min(p2_y*(random.nextFloat() + 1f), 0.975f));
+				p3_y = Math.clamp(p2_y*(random.nextFloat() + 1f), 0.025f, 0.975f);
 			} else {
-				p3_y = Math.max(0.025f, Math.min(p2_y + 1.25f*p2_y*Tools.gaussify(random.nextFloat()) - 0.5f*p2_y, 0.975f));
+				p3_y = Math.clamp(p2_y + 1.25f*p2_y*Tools.gaussify(random.nextFloat()) - 0.5f*p2_y, 0.025f, 0.975f);
 			}
 			p2_x = (p1_x + p3_x)/2f;
 			if (p2_y < 0.25) {

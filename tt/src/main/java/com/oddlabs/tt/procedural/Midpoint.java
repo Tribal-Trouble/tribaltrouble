@@ -9,16 +9,14 @@ import java.util.Random;
 
 public final class Midpoint {
 
-	private final @NonNull Random random;
-	public Channel channel;
+    public final @NonNull Channel channel;
 
 	public Midpoint(int size, int base_freq, float pers, long seed) {
 		assert Utils.isPowerOf2(size) : "size must be power of 2";
+        channel = new Channel(size, size);
 		int iterations = Utils.powerOf2Log2(size);
-		base_freq = Math.max(base_freq, 0);
-		base_freq = Math.min(base_freq, iterations);
-		random = new Random(seed);
-		channel = new Channel(size, size);
+		base_freq = Math.clamp(base_freq, 0, iterations);
+        Random random = new Random(seed);
 
 		if (base_freq > 0) {
 			int block_size = size>>base_freq;

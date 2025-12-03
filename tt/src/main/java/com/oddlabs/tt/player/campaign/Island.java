@@ -6,6 +6,7 @@ import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.WorldParameters;
+import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Race;
@@ -126,7 +127,7 @@ public abstract class Island {
 				UnitGrid.coordinateFromGrid(grid_y),
 				null,
 				owner.getRace().getUnitTemplate(warrior_type));
-		unit.setTarget(tower, Target.ACTION_DEFAULT, false);
+		unit.setTarget(tower, Action.DEFAULT, false);
 	}
 
 	protected final void placePrisoners(@NonNull Player captive, @NonNull Player enemy, int peons, int rock_warriors, int iron_warriors, int rubber_warriors, boolean chieftain) {

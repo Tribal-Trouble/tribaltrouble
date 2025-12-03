@@ -54,9 +54,9 @@ public final class Building extends Selectable implements Occupant {
 
 	private static final float DAMAGED_PARTICLE_ALPHA = 3f;
 
-	private final Map<Class<?>, SupplyContainer> supply_containers = new HashMap<>();
-	private final Map<Class<?>, BuildProductionContainer> build_containers = new HashMap<>();
-	private final Map<DeployType, DeployContainer> deploy_containers = new EnumMap<>(DeployType.class);
+	private final Map<@NonNull Class<?>, @NonNull SupplyContainer> supply_containers = new HashMap<>();
+	private final Map<@NonNull Class<?>, @NonNull BuildProductionContainer> build_containers = new HashMap<>();
+	private final Map<@NonNull DeployType, @NonNull DeployContainer> deploy_containers = new EnumMap<>(DeployType.class);
 	private final @NonNull LinearEmitter damaged_emitter;
 	private final @NonNull LinearEmitter production_emitter;
 
@@ -70,7 +70,7 @@ public final class Building extends Selectable implements Occupant {
 	private Target rally_point = this;
 	private boolean is_training_chieftain = false;
 
-	public Building(@NonNull Player owner, BuildingTemplate template, int grid_x, int grid_y) {
+	public Building(@NonNull Player owner, @NonNull BuildingTemplate template, int grid_x, int grid_y) {
 		super(owner, template);
 		setGridPosition(grid_x, grid_y);
 		UnitGrid unit_grid = getUnitGrid();
@@ -149,18 +149,18 @@ public final class Building extends Selectable implements Occupant {
 				weapons_producer.animate(t);
 
 			int num_deploying = 0;
-                    for (DeployContainer deploy_container : deploy_containers.values()) {
-                        if (deploy_container.getNumSupplies() > 0) {
-                            num_deploying++;
-                        }
-                    }
+            for (DeployContainer deploy_container : deploy_containers.values()) {
+                if (deploy_container.getNumSupplies() > 0) {
+                    num_deploying++;
+                }
+            }
 			if (num_deploying > 0) {
-				float amount = t/num_deploying;
-                        for (DeployContainer deploy_container : deploy_containers.values()) {
-                            if (deploy_container.getNumSupplies() > 0) {
-                                deploy_container.deploy(amount);
-                            }
-                        }
+                float amount = t/num_deploying;
+                for (DeployContainer deploy_container : deploy_containers.values()) {
+                    if (deploy_container.getNumSupplies() > 0) {
+                        deploy_container.deploy(amount);
+                    }
+                }
 			}
 		}
 
@@ -187,17 +187,17 @@ public final class Building extends Selectable implements Occupant {
 		}
 	}
 
-	public UnitContainer getUnitContainer() {
+	public @Nullable UnitContainer getUnitContainer() {
 		assert !isDead();
-		return (UnitContainer)supply_containers.get(Unit.class);
+		return (UnitContainer) getSupplyContainer(Unit.class);
 	}
 
-	public SupplyContainer getSupplyContainer(Class<?> key) {
+	public @Nullable SupplyContainer getSupplyContainer(@NonNull Class<?> key) {
 		assert !isDead();
 		return supply_containers.get(key);
 	}
 
-	public BuildSupplyContainer getBuildSupplyContainer(Class<?> key) {
+	public @Nullable BuildSupplyContainer getBuildSupplyContainer(@NonNull Class<?> key) {
 		assert !isDead();
 		return build_containers.get(key);
 	}
@@ -216,7 +216,6 @@ public final class Building extends Selectable implements Occupant {
 	public boolean isEnabled() {
 		return !isDead();
 	}
-
 	public int getUnitCount() {
 		assert !isDead();
 		return getUnitContainer().getNumSupplies();
@@ -494,24 +493,21 @@ public final class Building extends Selectable implements Occupant {
 	}
 
 	@Override
-	public int getAttackPriority() {
-		if (getAbilities().hasAbilities(Abilities.ATTACK))
-			return AttackScanFilter.PRIORITY_TOWER;
-		else if (getAbilities().hasAbilities(Abilities.BUILD_ARMIES))
-			return AttackScanFilter.PRIORITY_ARMORY;
-		else
-			return AttackScanFilter.PRIORITY_QUARTERS;
+	public AttackScanFilter.@NonNull Priority getAttackPriority() {
+        return getAbilities().hasAbilities(Abilities.ATTACK)
+                ? AttackScanFilter.Priority.TOWER
+                : getAbilities().hasAbilities(Abilities.BUILD_ARMIES)
+                    ? AttackScanFilter.Priority.ARMORY
+                    : AttackScanFilter.Priority.QUARTERS;
 	}
 
 	@Override
-	protected void setTarget(@NonNull Target target, int action, boolean aggressive) {
+	protected void setTarget(@NonNull Target target, @NonNull Action action, boolean aggressive) {
 		if (getAbilities().hasAbilities(Abilities.ATTACK)) {
 			if (target != this) {
 				Unit unit = ((MountUnitContainer)getUnitContainer()).getUnit();
-				boolean kill_friendly = false;
-				if (action == Target.ACTION_ATTACK)
-					kill_friendly = true;
-				if (unit != null && unit.canAttack(target, kill_friendly))
+				boolean kill_friendly = action == Action.ATTACK;
+                if (unit != null && unit.canAttack(target, kill_friendly))
 					unit.pushController(new AttackController(unit, (Selectable)target));
 			}
 		} else {
@@ -592,35 +588,26 @@ public final class Building extends Selectable implements Occupant {
 	public void setRallyPoint(@NonNull Target target) {
 		if (!getOwner().canSetRallyPoints())
 			return;
-		if (isValidRallyPoint(target)) {
-			rally_point = target;
-		} else {
-			rally_point = getUnitGrid().findGridTargets(target.getGridX(), target.getGridY(), 1, false)[0];
-		}
+        rally_point = isValidRallyPoint(target)
+                ? target
+                : getUnitGrid().findGridTargets(target.getGridX(), target.getGridY(), 1, false)[0];
 	}
 
 	public @NonNull BuildState getRenderLevel() {
-		if (build_points == getBuildingTemplate().getMaxHitPoints())
-			return BuildState.BUILT;
-		else if ((float)build_points/getBuildingTemplate().getMaxHitPoints() < .5)
-			return BuildState.START;
-		else
-			return BuildState.HALFBUILT;
+        return build_points == getBuildingTemplate().getMaxHitPoints()
+                ? BuildState.BUILT
+                : (float) build_points / getBuildingTemplate().getMaxHitPoints() < .5
+                    ? BuildState.START : BuildState.HALFBUILT;
 	}
 
 	@Override
 	public SpriteKey getSpriteRenderer() {
 		BuildState render_level = getRenderLevel();
-		switch (render_level) {
-			case START:
-				return getBuildingTemplate().getStartRenderer();
-			case HALFBUILT:
-				return getBuildingTemplate().getHalfbuiltRenderer();
-			case BUILT:
-				return getBuildingTemplate().getBuiltRenderer();
-			default:
-				throw new IllegalStateException();
-		}
+        return switch (render_level) {
+            case START -> getBuildingTemplate().getStartRenderer();
+            case HALFBUILT -> getBuildingTemplate().getHalfbuiltRenderer();
+            case BUILT -> getBuildingTemplate().getBuiltRenderer();
+        };
 	}
 
 	@Override
@@ -735,12 +722,14 @@ public final class Building extends Selectable implements Occupant {
 
 	@Override
 	public int getStatusValue() {
-		if (getAbilities().hasAbilities(Abilities.REPRODUCE)) {
-			return getUnitContainer().getNumSupplies();
-		} else if (getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
-			return getUnitContainer().getNumSupplies() + getSupplyContainer(RockAxeWeapon.class).getNumSupplies() + getSupplyContainer(IronAxeWeapon.class).getNumSupplies()*3 + getSupplyContainer(RubberAxeWeapon.class).getNumSupplies()*8;
-		} else
-			return 0;
+        return getAbilities().hasAbilities(Abilities.REPRODUCE)
+                ? getUnitContainer().getNumSupplies()
+                : getAbilities().hasAbilities(Abilities.BUILD_ARMIES)
+                    ? getUnitContainer().getNumSupplies() +
+                        getSupplyContainer(RockAxeWeapon.class).getNumSupplies() +
+                        getSupplyContainer(IronAxeWeapon.class).getNumSupplies() * 3 +
+                        getSupplyContainer(RubberAxeWeapon.class).getNumSupplies() * 8
+                : 0;
 	}
 
 	public void printDebugInfo() {

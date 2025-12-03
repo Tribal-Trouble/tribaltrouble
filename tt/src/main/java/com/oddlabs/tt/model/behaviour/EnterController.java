@@ -6,12 +6,13 @@ import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.weapon.ThrowingFactory;
 import com.oddlabs.tt.model.weapon.ThrowingWeapon;
+import org.jspecify.annotations.NonNull;
 
 public final class EnterController extends Controller {
-	private final Building building;
-	private final Unit unit;
+	private final @NonNull Building building;
+	private final @NonNull Unit unit;
 
-	public EnterController(Unit unit, Building building) {
+	public EnterController(@NonNull Unit unit, @NonNull Building building) {
 		super(1);
 		this.unit = unit;
 		this.building = building;

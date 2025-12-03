@@ -17,24 +17,20 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class Selectable extends Model implements Target, Animated, ModelToolTip {
-	public static final int UNINTERRUPTIBLE = 1;
-	public static final int INTERRUPTIBLE = 2;
-	public static final int DONE = 3;
-
 	private final @NonNull Player owner;
 	private @Nullable Behaviour current_behaviour;
 	private final Abilities abilities = new Abilities(Abilities.NONE);
-	private final Template template;
-	private final List<Controller> controller_stack = new ArrayList<>();
+	private final @NonNull Template template;
+	private final List<@NonNull Controller> controller_stack = new ArrayList<>();
 
 	private boolean dead;
 	private boolean should_decide;
-	private int last_behaviour_state;
+	private Behaviour.@NonNull State last = Behaviour.State.DONE;
 
 	private int grid_x;
 	private int grid_y;
 
-	protected Selectable(@NonNull Player owner, Template template) {
+	protected Selectable(@NonNull Player owner, @NonNull Template template) {
 		super(owner.getWorld());
 		this.owner = owner;
 		this.template = template;
@@ -45,7 +41,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return template.getShadowDiameter();
 	}
 
-	public final Template getTemplate() {
+	public final @NonNull Template getTemplate() {
 		return template;
 	}
 
@@ -64,26 +60,22 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return template.getHitOffsetZ(0);
 	}
 
-	public final Controller getCurrentController() {
+	public final @NonNull Controller getCurrentController() {
 		return controller_stack.getLast();
 	}
 
 	@Override
 	public final void animate(float t) {
-		last_behaviour_state = current_behaviour.animate(t);
-		switch (last_behaviour_state) {
-			case UNINTERRUPTIBLE:
-				break;
-			case INTERRUPTIBLE:
-				if (should_decide)
-					decide();
-				break;
-			case DONE:
-				decide();
-				break;
-			default:
-				throw new RuntimeException();
-		}
+		last = current_behaviour.animate(t);
+        switch (last) {
+            case UNINTERRUPTIBLE -> {
+            }
+            case INTERRUPTIBLE -> {
+                if (should_decide)
+                    decide();
+            }
+            case DONE -> decide();
+        }
 		doAnimate(t);
 		owner.getWorld().updateGlobalChecksum(grid_x + grid_y);
 	}
@@ -125,12 +117,12 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return unit_grid.getOccupant(grid_x + dx, grid_y + dy) == occ;
 	}
 
-	public final boolean isCloseEnough(float max_dist, Target target) {
+	public final boolean isCloseEnough(float max_dist, @NonNull Target target) {
 		assert !isDead();
 		return isCloseEnough(getUnitGrid(), max_dist, getGridX(), getGridY(), target);
 	}
 
-	public static boolean isCloseEnough(@NonNull UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, Target target) {
+	public static boolean isCloseEnough(@NonNull UnitGrid unit_grid, float max_dist, int grid_x, int grid_y, @NonNull Target target) {
 		if (max_dist == 0f && target instanceof Occupant occupant) {
 			return isAdjacent(unit_grid, grid_x, grid_y, occupant);
 		} else {
@@ -149,14 +141,8 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		enable();
 	}
 
-	public final void pushControllers(Controller[] controllers) {
-		assert !isDead();
-        controller_stack.addAll(Arrays.asList(controllers));
-		decide();
-	}
-
 	private void decide() {
-		if (last_behaviour_state != UNINTERRUPTIBLE) {
+		if (last != Behaviour.State.UNINTERRUPTIBLE) {
 			doDecide();
 		} else {
 			should_decide = true;
@@ -171,17 +157,23 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 
 	protected final void forceDecide() {
 		current_behaviour.forceInterrupted();
-		last_behaviour_state = INTERRUPTIBLE;
+		last = Behaviour.State.INTERRUPTIBLE;
 		doDecide();
 	}
 
-	public final void pushController(Controller controller) {
+	public final void pushController(@NonNull Controller controller) {
 		assert !isDead();
 		controller_stack.add(controller);
 		decide();
 	}
 
-	public final void swapController(Controller controller) {
+    public final void pushControllers(@NonNull Controller @NonNull ... controllers) {
+        assert !isDead();
+        controller_stack.addAll(Arrays.asList(controllers));
+        decide();
+    }
+
+    public final void swapController(@NonNull Controller controller) {
 		assert !isDead();
 		controller_stack.removeLast();
 		pushController(controller);
@@ -193,18 +185,15 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		decide();
 	}
 
-	public final void setBehaviour(Behaviour behaviour) {
+	public final void setBehaviour(@NonNull Behaviour behaviour) {
 		assert !isDead();
-		assert last_behaviour_state != UNINTERRUPTIBLE: "Invalid behaviour state";
+		assert last != Behaviour.State.UNINTERRUPTIBLE: "Invalid behaviour state";
 		current_behaviour = behaviour;
 	}
 
-	public final Controller getPrimaryController() {
+	public final @NonNull Controller getPrimaryController() {
 		assert !isDead();
-		if (controller_stack.size() > 1)
-			return controller_stack.get(1); // Jump over the default controller
-		else
-			return controller_stack.getFirst();
+        return controller_stack.size() > 1 ? controller_stack.get(1) : controller_stack.getFirst(); // Jump over the default controller
 	}
 
 	protected final void clearControllerStack() {
@@ -213,7 +202,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		controller_stack.add(default_controller);
 	}
 
-	public final void initTarget(@Nullable Target target, int action, boolean aggressive) {
+	public final void initTarget(@Nullable Target target, @NonNull Action action, boolean aggressive) {
 		assert !isDead();
 		if (target == null)
 			return;
@@ -221,8 +210,8 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		setTarget(target, action, aggressive);
 	}
 
-	protected abstract void setTarget(Target target, int action, boolean aggressive);
-	public abstract int getAttackPriority();
+	protected abstract void setTarget(@NonNull Target target, @NonNull Action action, boolean aggressive);
+	public abstract AttackScanFilter.@NonNull Priority getAttackPriority();
 	public abstract int getStatusValue();
 
 	public final @NonNull Abilities getAbilities() {
@@ -268,7 +257,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		checksum.update(getPositionY());*/
 	}
 
-	protected final void disable() {
+protected final void disable() {
 		owner.getWorld().getNotificationListener().unregisterTarget(this);
 		owner.getUnits().remove(this);
 	}

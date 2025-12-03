@@ -3,12 +3,13 @@ package com.oddlabs.tt.procedural;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.procedural.Perlin.Interpolation;
+import com.oddlabs.tt.procedural.Perlin.Summation;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
-
 public final class GeneratorOcean extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 256;
 
@@ -23,10 +24,10 @@ public final class GeneratorOcean extends TextureGenerator {
 		int seed = Globals.LANDSCAPE_SEED + 1;
 
 		// water1
-		Channel perlin2 = new Perlin(TEXTURE_SIZE, TEXTURE_SIZE, 4, 4, 0.5f, 1, seed, Perlin.CUBIC, Perlin.NORMAL).toChannel();
-		Channel perlin4 = new Perlin(TEXTURE_SIZE, TEXTURE_SIZE, 4, 4, 0.5f, 3, seed, Perlin.CUBIC, Perlin.NORMAL).toChannel();
-		Channel perlin32 = new Perlin(TEXTURE_SIZE, TEXTURE_SIZE, 32, 32, 0.5f, 2, seed, Perlin.CUBIC, Perlin.NORMAL).toChannel();
-		Channel perlin64 = new Perlin(TEXTURE_SIZE, TEXTURE_SIZE, 64, 64, 0.5f, 2, seed, Perlin.CUBIC, Perlin.NORMAL).toChannel();
+		Channel perlin2 = new Perlin(TEXTURE_SIZE, TEXTURE_SIZE, 4, 4, 0.5f, 1, seed, Interpolation.CUBIC, Summation.NORMAL).toChannel();
+		Channel perlin4 = new Perlin(TEXTURE_SIZE, TEXTURE_SIZE, 4, 4, 0.5f, 3, seed, Interpolation.CUBIC, Summation.NORMAL).toChannel();
+		Channel perlin32 = new Perlin(TEXTURE_SIZE, TEXTURE_SIZE, 32, 32, 0.5f, 2, seed, Interpolation.CUBIC, Summation.NORMAL).toChannel();
+		Channel perlin64 = new Perlin(TEXTURE_SIZE, TEXTURE_SIZE, 64, 64, 0.5f, 2, seed, Interpolation.CUBIC, Summation.NORMAL).toChannel();
 		Channel noise32 = perlin32.copy().abs().dynamicRange().gamma8().gamma2().invert().perturb(perlin4.copy().rotate(90), 0.05f).perturb(perlin2, 0.05f);
 		Channel noise64 = perlin64.copy().abs().dynamicRange().gamma2().invert().channelMultiply(perlin32.copy().rotate(90).contrast(2f)).perturb(perlin4.copy().rotate(180), 0.05f).perturb(perlin2.copy().rotate(90), 0.05f);
 		Channel highlight = noise32.channelBrightest(noise64);

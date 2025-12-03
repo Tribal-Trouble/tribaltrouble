@@ -5,6 +5,7 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.BuildSpinner;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Abilities;
+import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.IronSupply;
 import com.oddlabs.tt.model.Race;
@@ -273,7 +274,7 @@ public abstract class AI implements Animated {
 
 		int length = Math.min(idle_warriors.length, towers.length);
 		for (int i = 0; i < length; i++) {
-			owner.setTarget(new Selectable[]{idle_warriors[i]}, towers[i], Target.ACTION_DEFAULT, false);
+			owner.setTarget(new Selectable[]{idle_warriors[i]}, towers[i], Action.DEFAULT, false);
 		}
 	}
 
@@ -285,7 +286,7 @@ public abstract class AI implements Animated {
             if (s instanceof Unit unit && !(s.getPrimaryController() instanceof WalkController && ((WalkController)s.getPrimaryController()).isAgressive())) {
                 for (Selectable thrower : list) {
                     if (unit.getAbilities().hasAbilities(Abilities.THROW)) {
-                        owner.setLandscapeTarget(new Selectable[]{thrower}, target.getGridX(), target.getGridY(), Target.ACTION_ATTACK, true);
+                        owner.setLandscapeTarget(new Selectable[]{thrower}, target.getGridX(), target.getGridY(), Action.ATTACK, true);
                         ordered++;
                         if (ordered == num_warriors) {
                             return ordered;

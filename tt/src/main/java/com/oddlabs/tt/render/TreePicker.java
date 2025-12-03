@@ -33,7 +33,7 @@ class TreePicker implements TreeNodeVisitor {
 
 	private final BoundingBox picking_selection_box = new BoundingBox();
 	private final SpriteSorter sprite_sorter;
-	private final @NonNull RenderStateCache render_state_cache;
+	private final @NonNull RenderStateCache<@NonNull TreeRenderState> render_state_cache;
 	private final @NonNull Map<@NonNull TreeType,@NonNull Tree> trees;
 	private final @NonNull Map<@NonNull TreeType,@NonNull LowDetailModel> tree_low_details;
 	private final RespondManager respond_manager;
@@ -49,7 +49,7 @@ class TreePicker implements TreeNodeVisitor {
 		this.tree_low_details = LandscapeResources.loadTreeLowDetails();
 
 		this.sprite_sorter = sprite_sorter;
-		render_state_cache = new RenderStateCache(() -> new TreeRenderState(TreePicker.this));
+		render_state_cache = new RenderStateCache<>(() -> new TreeRenderState(TreePicker.this));
 	}
 
 	private static @NonNull Map<@NonNull TreeType,@NonNull Tree> loadTrees() {
@@ -85,33 +85,26 @@ class TreePicker implements TreeNodeVisitor {
 		return low_detail_render_list;
 	}
 
-	protected final List<TreeSupply> @NonNull [] getRenderLists() {
+	protected final @NonNull List<@NonNull TreeSupply> @NonNull [] getRenderLists() {
 		return render_lists;
 	}
 
-	protected final List<TreeSupply> @NonNull [] getRespondRenderLists() {
+	protected final @NonNull List<@NonNull TreeSupply> @NonNull [] getRespondRenderLists() {
 		return respond_render_lists;
 	}
 
-	public final void getAllPicks(@NonNull List<TreeSupply> pick_list) {
-            for (List<TreeSupply> render_list : render_lists) {
-                getAllPicksFromRenderList(render_list, pick_list);
-            }
-            for (List<TreeSupply> respond_render_list : respond_render_lists) {
-                getAllPicksFromRenderList(respond_render_list, pick_list);
-            }
+	public final void getAllPicks(@NonNull List<@NonNull TreeSupply> pick_list) {
+        for (List<@NonNull TreeSupply> render_list : render_lists) {
+            pick_list.addAll(render_list);
+            render_list.clear();
+        }
+        for (List<@NonNull TreeSupply> respond_render_list : respond_render_lists) {
+            pick_list.addAll(respond_render_list);
+            respond_render_list.clear();
+        }
 	}
 
-	private void getAllPicksFromRenderList(@NonNull List<TreeSupply> render_list, @NonNull List<TreeSupply> pick_list) {
-		for (int i = 0; i < render_list.size(); i++) {
-			TreeSupply group = render_list.get(i);
-			render_list.set(i, null);
-			pick_list.add(group);
-		}
-		render_list.clear();
-	}
-
-	private void addToHighDetailList(int index, TreeSupply tree, boolean respond) {
+	private void addToHighDetailList(int index, @NonNull TreeSupply tree, boolean respond) {
 		if (respond) {
 			respond_render_lists[index].add(tree);
 		} else {
@@ -119,7 +112,7 @@ class TreePicker implements TreeNodeVisitor {
 		}
 	}
 
-	public final void markDetailPolygon(@NonNull TreeSupply tree_supply, PolyDetail level) {
+	public final void markDetailPolygon(@NonNull TreeSupply tree_supply, @NonNull PolyDetail level) {
 		if (level == PolyDetail.HIGH_POLY || tree_supply.hasRespondingTrees()) {
 			addToHighDetailList(tree_supply.getTreeType().ordinal(), tree_supply, respond_manager.isResponding(tree_supply));
 		} else
@@ -185,8 +178,8 @@ class TreePicker implements TreeNodeVisitor {
 			sprite_sorter.add(getRenderState(tree), camera, false);
 	}
 
-	private @NonNull LODObject getRenderState(TreeSupply tree_supply) {
-		TreeRenderState render_state = (TreeRenderState)render_state_cache.get();
+	private @NonNull LODObject getRenderState(@NonNull TreeSupply tree_supply) {
+		TreeRenderState render_state = render_state_cache.get();
 		render_state.setup(tree_supply);
 		return render_state;
 	}

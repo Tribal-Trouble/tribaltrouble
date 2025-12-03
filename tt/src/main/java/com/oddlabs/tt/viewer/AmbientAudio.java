@@ -74,7 +74,7 @@ public final class AmbientAudio {
 
 			// update placement and gain of ambient forest source
 			ambient_forest.setPos(0f, 0f, heightmap.getNearestHeight(camera.getCurrentX(), camera.getCurrentY()) - camera.getCurrentZ() + 8f);
-			ambient_forest.setGain(AudioPlayer.AUDIO_GAIN_AMBIENT_FOREST * Math.min(1f, Math.max(0f, 1f - dr + 0.5f)));
+			ambient_forest.setGain(AudioPlayer.AUDIO_GAIN_AMBIENT_FOREST * Math.clamp(1f - dr + 0.5f, 0f, 1f));
 
 			// update placement and gain of ambient beach source
 			float factor = 1f;
@@ -83,7 +83,7 @@ public final class AmbientAudio {
 			float beach_x = camera.getCurrentX()*factor;
 			float beach_y = camera.getCurrentY()*factor;
 			float beach_z = heightmap.getNearestHeight(camera.getCurrentX(), camera.getCurrentY()) - camera.getCurrentZ();
-			float beach_gain = AudioPlayer.AUDIO_GAIN_AMBIENT_BEACH * Math.min(1f, Math.max(0f, 1f - Math.abs(4f*dr - 3.75f)));
+			float beach_gain = AudioPlayer.AUDIO_GAIN_AMBIENT_BEACH * Math.clamp(1f - Math.abs(4f*dr - 3.75f), 0f, 1f);
 			ambient_beach.setPos(beach_x, beach_y, beach_z);
 			ambient_beach.setGain(beach_gain);
 

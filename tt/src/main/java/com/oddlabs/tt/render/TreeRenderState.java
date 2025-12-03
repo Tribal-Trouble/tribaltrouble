@@ -2,17 +2,18 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.landscape.TreeSupply;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 final class TreeRenderState implements LODObject {
-	private final TreePicker tree_renderer;
+	private final @NonNull TreePicker tree_renderer;
 	private TreeSupply tree_supply;
 
-	TreeRenderState(TreePicker tree_renderer) {
+	TreeRenderState(@NonNull TreePicker tree_renderer) {
 		this.tree_renderer = tree_renderer;
 	}
 
-	void setup(TreeSupply tree_supply) {
+	void setup(@NonNull TreeSupply tree_supply) {
 		this.tree_supply = tree_supply;
 	}
 
@@ -22,7 +23,7 @@ final class TreeRenderState implements LODObject {
 	}
 
 	@Override
-	public void markDetailPolygon(PolyDetail level) {
+	public void markDetailPolygon(@NotNull PolyDetail level) {
 		tree_renderer.markDetailPolygon(tree_supply, level);
 	}
 

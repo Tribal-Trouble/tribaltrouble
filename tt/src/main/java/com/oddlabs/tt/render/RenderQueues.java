@@ -13,13 +13,13 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public final class RenderQueues {
-	private final List<SpriteRenderer> sprite_renderers = new ArrayList<>();
-	private final List<SpriteRenderer> blend_sprite_renderers = new ArrayList<>();
+	private final List<@NonNull SpriteRenderer> sprite_renderers = new ArrayList<>();
+	private final List<@NonNull SpriteRenderer> blend_sprite_renderers = new ArrayList<>();
 
-	private final List<SpriteRenderer> sprite_list_lookup = new ArrayList<>();
-	private final List<ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
-	private final Map<Supplier<?>, ShadowListKey> desc_to_shadow_key = new HashMap<>();
-	private final List<Texture> texture_lookup = new ArrayList<>();
+	private final List<@NonNull SpriteRenderer> sprite_list_lookup = new ArrayList<>();
+	private final List<@NonNull ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
+	private final Map<@NonNull Supplier<?>, @NonNull ShadowListKey> desc_to_shadow_key = new HashMap<>();
+	private final List<@NonNull Texture> texture_lookup = new ArrayList<>();
 	private final @NonNull SpriteBatchRenderer spriteBatchRenderer;
 
 	public RenderQueues(@NonNull SpriteBatchRenderer spriteBatchRenderer) {

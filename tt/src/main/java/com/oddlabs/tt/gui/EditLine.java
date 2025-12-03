@@ -59,7 +59,9 @@ public class EditLine extends TextField implements Clipped {
 	}
 
 	protected int getRenderedWidth(@NonNull CharSequence text) {
-        return text.isEmpty() ? 0 : getFont().getWidth(text) - getFont().getXBorder();
+		int x_border = getFont().getXBorder();
+		int half_border = x_border / 2;
+        return text.isEmpty() ? half_border : getFont().getWidth(text) - (x_border - half_border);
 	}
 
 	protected void renderText(@NonNull GUIRenderer renderer, @NonNull Box box, int offset_x, int render_index) {
@@ -73,14 +75,10 @@ public class EditLine extends TextField implements Clipped {
 
 	@Override
 	protected void keyReleased(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_RETURN:
-				enterPressedAll();
-				break;
-			default:
-				super.keyReleased(event);
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case Keyboard.KEY_RETURN -> enterPressedAll();
+            default -> super.keyReleased(event);
+        }
 	}
 
 	@Override

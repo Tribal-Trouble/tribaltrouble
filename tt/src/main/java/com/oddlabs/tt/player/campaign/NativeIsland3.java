@@ -7,6 +7,7 @@ import com.oddlabs.tt.form.InGameCampaignDialogForm;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.landscape.LandscapeTarget;
+import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.SceneryModel;
@@ -258,13 +259,13 @@ public final class NativeIsland3 extends Island {
 
 		// Send reinforcements
 		final Runnable reinforce = () -> {
-                    Unit unit = getWarrior(reinforcements);
-                    if (unit != null && !unit.isDead()) {
-                        Unit new_unit = changeOwner(unit, enemy);
-                        if (new_unit != null && !new_unit.isDead())
-                            new_unit.setTarget(new LandscapeTarget(62, 62), Target.ACTION_DEFAULT, true);
-                    }
-                };
+            Unit unit = getWarrior(reinforcements);
+            if (unit != null && !unit.isDead()) {
+                Unit new_unit = changeOwner(unit, enemy);
+                if (new_unit != null && !new_unit.isDead())
+                    new_unit.setTarget(new LandscapeTarget(62, 62), Action.DEFAULT, true);
+            }
+        };
 		float interval = switch (getCampaign().getState().getDifficulty()) {
             case CampaignState.DIFFICULTY_EASY -> 120f;
             case CampaignState.DIFFICULTY_NORMAL -> 60f;

@@ -8,15 +8,16 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
-	private final Unit unit;
-	private final Class<S> supply_class;
-	private final List<List<S>> region_list = new ArrayList<>();
+	private final @NonNull Unit unit;
+	private final @NonNull Class<S> supply_class;
+	private final List<@NonNull List<@NonNull S>> region_list = new ArrayList<>();
 	private int max_region_dist_sqr;
 
-	public SupplyFinder(Unit unit, Class<S> supply_class) {
+	public SupplyFinder(@NonNull Unit unit, @NonNull Class<S> supply_class) {
 		this.unit = unit;
 		this.supply_class = supply_class;
 	}
@@ -30,7 +31,6 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 				assert !supply.isEmpty();
 				return supply;
 			}
-
 		} else {
 			int dx = region.getGridX() - unit.getGridX();
 			int dy = region.getGridY() - unit.getGridY();
@@ -58,40 +58,28 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 	}
 
 	private @Nullable S findClosest(@NonNull List<S> supplies) {
-		int min_dist = Integer.MAX_VALUE;
-		S closest = null;
-		for (S current : supplies) {
-			int dx = current.getGridX() - unit.getGridX();
-			int dy = current.getGridY() - unit.getGridY();
-			int dist = dx*dx + dy*dy;
-			if (min_dist > dist) {
-				min_dist = dist;
-				closest = current;
-			}
-		}
-		return closest;
+		return supplies.stream()
+				.min(Comparator.comparingInt(this::distanceSquared))
+				.orElse(null);
 	}
 
 	private @Nullable S findClosest() {
-		int min_dist = Integer.MAX_VALUE;
-		S closest = null;
-		for (List<S> supplies :region_list) {
-			for (S current : supplies) {
-				int dx = current.getGridX() - unit.getGridX();
-				int dy = current.getGridY() - unit.getGridY();
-				int dist = dx*dx + dy*dy;
-				if (min_dist > dist) {
-					min_dist = dist;
-					closest = current;
-				}
-			}
-		}
+		S closest = region_list.stream()
+				.flatMap(List::stream)
+				.min(Comparator.comparingInt(this::distanceSquared))
+				.orElse(null);
 		region_list.clear();
 		return closest;
 	}
 
+	private int distanceSquared(S supply) {
+		int dx = supply.getGridX() - unit.getGridX();
+		int dy = supply.getGridY() - unit.getGridY();
+		return dx * dx + dy * dy;
+	}
+
 	@Override
-	public boolean acceptOccupant(Occupant occ) {
+	public boolean acceptOccupant(@NonNull Occupant occ) {
 		if (supply_class.isInstance(occ)) {
 			Supply supply = (Supply)occ;
 			assert !supply.isEmpty();

@@ -103,7 +103,7 @@ public final class Color {
      * @param color The 24-bit integer color.
      * @return A new {@link Vector3f} with components (r, g, b), normalized to [0.0, 1.0].
      */
-    public static @NonNull Vector3fc rgb3v(int color) {
+    public static @NonNull Vector3f rgb3v(int color) {
         return new Vector3f(
             ((color >> 16) & 0xFF) / NORMALIZE_8_BIT,
             ((color >> 8) & 0xFF) / NORMALIZE_8_BIT,
@@ -117,7 +117,7 @@ public final class Color {
      * @param color The 32-bit ARGB integer color.
      * @return A new {@link Vector4f} with components (r, g, b, a), normalized to [0.0, 1.0].
      */
-    public static @NonNull Vector4fc argb4v(int color) {
+    public static @NonNull Vector4f argb4v(int color) {
         return new Vector4f(
             ((color >> 16) & 0xFF) / NORMALIZE_8_BIT,
             ((color >> 8) & 0xFF) / NORMALIZE_8_BIT,
@@ -131,7 +131,7 @@ public final class Color {
      * @param color The 32-bit RGBA integer color.
      * @return A new {@link Vector4f} with components (r, g, b, a), normalized to [0.0, 1.0].
      */
-    public static @NonNull Vector4fc rgba4v(int color) {
+    public static @NonNull Vector4f rgba4v(int color) {
         return new Vector4f(
             ((color >> 24) & 0xFF) / NORMALIZE_8_BIT,
             ((color >> 16) & 0xFF) / NORMALIZE_8_BIT,

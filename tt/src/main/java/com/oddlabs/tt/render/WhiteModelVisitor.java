@@ -1,15 +1,22 @@
 package com.oddlabs.tt.render;
 
-abstract class WhiteModelVisitor extends ModelVisitor {
-	private static final float[] COLOR_TEAM = {1f, 1f, 1f};
+import com.oddlabs.tt.model.Model;
+import com.oddlabs.util.Color;
+import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
-	@Override
-	public final float[] getSelectionColor(ElementRenderState render_state) {
+abstract class WhiteModelVisitor<M extends Model> extends ModelVisitor<M> {
+	private static final float[] COLOR_TEAM = Color.argb4f(Color.WHITE_INT);
+
+	@NotNull
+    @Override
+	public final float@NonNull  [] getSelectionColor(@NotNull ElementRenderState<M> render_state) {
 		return COLOR_TEAM;
 	}
 
-	@Override
-	public final float[] getTeamColor(ElementRenderState render_state) {
+	@NotNull
+    @Override
+	public final float @NonNull [] getTeamColor(@NotNull ElementRenderState<M> render_state) {
 		return COLOR_TEAM;
 	}
 }

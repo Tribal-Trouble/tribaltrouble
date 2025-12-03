@@ -32,7 +32,7 @@ public final class GLByteImage extends GLImage {
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
                 int pixel = Math.round(channel.getPixel(x, y) * 255);
-                putPixel(x, y, Math.min(Math.max(0, pixel), 255));
+                putPixel(x, y, Math.clamp(pixel, 0, 255));
             }
         }
     }

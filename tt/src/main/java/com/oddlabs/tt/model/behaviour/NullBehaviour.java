@@ -1,14 +1,11 @@
 package com.oddlabs.tt.model.behaviour;
 
-import com.oddlabs.tt.model.Selectable;
+import org.jspecify.annotations.NonNull;
 
 public final class NullBehaviour implements Behaviour {
-	public NullBehaviour() {
-	}
-
 	@Override
-	public int animate(float t) {
-		return Selectable.INTERRUPTIBLE;
+	public @NonNull State animate(float t) {
+		return State.INTERRUPTIBLE;
 	}
 
 	@Override

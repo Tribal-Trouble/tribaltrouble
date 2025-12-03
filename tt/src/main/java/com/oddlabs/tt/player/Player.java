@@ -5,6 +5,7 @@ import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.Abilities;
+import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
@@ -14,6 +15,7 @@ import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.RockSupply;
 import com.oddlabs.tt.model.RubberSupply;
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.Supply;
 import com.oddlabs.tt.model.SupplyContainer;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.behaviour.NullController;
@@ -100,7 +102,7 @@ public final class Player implements PlayerInterface {
 	@Override
 	public void changePreferredGamespeed(int delta) {
 		int old_speed = getGamespeed();
-		int new_speed = Math.max(Game.GAMESPEED_PAUSE, Math.min(old_speed + delta, Game.GAMESPEED_LUDICROUS));
+		int new_speed = Math.clamp(old_speed + delta, Game.GAMESPEED_PAUSE, Game.GAMESPEED_LUDICROUS);
 		setPreferredGamespeed(new_speed);
 	}
 
@@ -435,7 +437,7 @@ public final class Player implements PlayerInterface {
 		Building building = new Building(this, getRace().getBuildingTemplate(template_id), placing_grid_x, placing_grid_y);
         for (Selectable selection1 : selection) {
             if (isValid(selection1)) {
-                selection1.initTarget(building, Target.ACTION_DEFAULT, false);
+                selection1.initTarget(building, Action.DEFAULT, false);
             }
         }
 	}
@@ -452,7 +454,7 @@ public final class Player implements PlayerInterface {
 	}
 
 	@Override
-	public void setTarget(Selectable @NonNull [] selection, Target target, int action, boolean aggressive) {
+	public void setTarget(Selectable @NonNull [] selection, @NonNull Target target, @NonNull Action action, boolean aggressive) {
         for (Selectable selection1 : selection) {
             if (isValid(selection1)) {
                 selection1.initTarget(target, action, aggressive);
@@ -469,7 +471,7 @@ public final class Player implements PlayerInterface {
 	}
 
 	@Override
-	public void setLandscapeTarget(Selectable @NonNull [] selection, int grid_x, int grid_y, int action, boolean aggressive) {
+	public void setLandscapeTarget(Selectable @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive) {
 		if (selection.length == 0)
 			return;
 		int grid_size = world.getUnitGrid().getGridSize();
@@ -589,7 +591,7 @@ public final class Player implements PlayerInterface {
 		return buildings_destroyed;
 	}
 
-	public void harvested(@NonNull Class<?> type) {
+	public void harvested(@NonNull Class<? extends Supply> type) {
 		if (type == TreeSupply.class) {
 			tree_harvested++;
 		} else if (type == RockSupply.class) {

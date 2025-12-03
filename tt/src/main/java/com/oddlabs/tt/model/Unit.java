@@ -70,6 +70,7 @@ public class Unit extends Selectable implements Occupant, Movable {
     private float anim_speed;
     private float anim_time;
     private int path_penalty;
+    /** unit is in a tower */
     private boolean mounted;
     private float mount_offset = 0;
     private Building mounted_building;
@@ -132,7 +133,7 @@ public class Unit extends Selectable implements Occupant, Movable {
                 unit_target = rally_point;
 
             boolean aggressive = unit_template.getAbilities().hasAbilities(Abilities.THROW);
-            setTarget(unit_target, Target.ACTION_DEFAULT, aggressive);
+            setTarget(unit_target, Action.DEFAULT, aggressive);
         }
     }
 
@@ -189,13 +190,13 @@ public class Unit extends Selectable implements Occupant, Movable {
         range_bonus += amount;
     }
 
-    @Override
-    public final int getAttackPriority() {
+	@Override
+	public final AttackScanFilter.@NonNull Priority getAttackPriority() {
         assert !isDead();
         return getAbilities().hasAbilities(Abilities.BUILD)
-                ? AttackScanFilter.PRIORITY_PEON
-                : AttackScanFilter.PRIORITY_WARRIOR;
-    }
+				? AttackScanFilter.Priority.PEON
+				: AttackScanFilter.Priority.WARRIOR;
+	}
 
     @Override
     public final void visit(@NonNull ToolTipVisitor visitor) {
@@ -367,7 +368,7 @@ public class Unit extends Selectable implements Occupant, Movable {
 
     @Override
     public final boolean isMoving() {
-        return (getCurrentBehaviour() instanceof WalkBehaviour);
+        return getCurrentBehaviour() instanceof WalkBehaviour;
     }
 
     /*	public final void moveNextAnimate() {
@@ -382,7 +383,7 @@ public class Unit extends Selectable implements Occupant, Movable {
             mounted_building.hit(damage, direction_x, direction_y, owner);
         } else
             if (!isDead()) {
-                hit_points = Math.max(Math.min(hit_points - damage, getUnitTemplate().getMaxHitPoints()), 0);
+                hit_points = Math.clamp(hit_points - damage, 0, getUnitTemplate().getMaxHitPoints());
                 if (hit_points == 0) {
                     // stats
                     owner.unitKilled();
@@ -435,7 +436,7 @@ public class Unit extends Selectable implements Occupant, Movable {
                 getOwner().getWorld().getAnimationManagerGameTime());
     }
 
-    public final boolean canAttack(Target target, boolean kill_friendly) {
+    public final boolean canAttack(@NonNull Target target, boolean kill_friendly) {
         assert !isDead();
         if (!(target instanceof Selectable selectable) || !getAbilities().hasAbilities(Abilities.ATTACK))
             return false;
@@ -443,37 +444,35 @@ public class Unit extends Selectable implements Occupant, Movable {
         return kill_friendly || getOwner().isEnemy(target_player);
     }
 
-    private boolean canBuild(Target target) {
-        if (!(target instanceof Building building) || !getAbilities().hasAbilities(Abilities.BUILD))
-            return false;
-        return !building.isPlaced();
+    private boolean canBuild(@NonNull Target target) {
+        return target instanceof Building building &&
+                getAbilities().hasAbilities(Abilities.BUILD) &&
+                !building.isPlaced();
     }
 
-    private boolean canGather(Target target) {
+    private boolean canGather(@NonNull Target target) {
         return target instanceof Supply && getAbilities().hasAbilities(Abilities.BUILD);
     }
 
-    private boolean canRepair(Target target, boolean action_repair) {
-        if (!(target instanceof Building building) || !getAbilities().hasAbilities(Abilities.BUILD))
-            return false;
-        if (!action_repair && building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER) && building.isComplete())
-            return false;
-        //return getOwner() == building.getOwner() && building.isPlaced() && building.isDamaged();
-        return !getOwner().isEnemy(building.getOwner()) && building.isPlaced() && building.isDamaged();
+    private boolean canRepair(@NonNull Target target, boolean action_repair) {
+        return target instanceof Building building &&
+                getAbilities().hasAbilities(Abilities.BUILD) &&
+                (action_repair || !building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER) || !building.isComplete()) &&
+                // getOwner() == building.getOwner() && building.isPlaced() && building.isDamaged();
+                !getOwner().isEnemy(building.getOwner()) && building.isPlaced() && building.isDamaged();
     }
 
-    private boolean canEnter(Target target) {
-        if (!(target instanceof Building building) || getAbilities().hasAbilities(Abilities.MAGIC))
-            return false;
-        return building.getUnitContainer() != null && getOwner() == building.getOwner() && building.getUnitContainer().canEnter(this);
+    private boolean canEnter(@NonNull Target target) {
+        return target instanceof Building building &&
+                !getAbilities().hasAbilities(Abilities.MAGIC) &&
+                building.getUnitContainer() != null &&
+                getOwner() == building.getOwner() &&
+                building.getUnitContainer().canEnter(this);
     }
 
     @Override
     public final float getDefenseChance() {
-        if (getCurrentController() instanceof StunController)
-            return 0;
-        else
-            return super.getDefenseChance();
+        return getCurrentController() instanceof StunController ? 0 : super.getDefenseChance();
     }
 
     private void walkToTarget(@NonNull Target target, boolean scan_attack) {
@@ -482,13 +481,13 @@ public class Unit extends Selectable implements Occupant, Movable {
     }
 
     @Override
-    public final void setTarget(@NonNull Target target, int action, boolean aggressive) {
+    public void setTarget(@NonNull Target target, @NonNull Action action, boolean aggressive) {
         if (target == this)
             return;
         assert !target.isDead() : "Setting dead target";
         assert !mounted;
         switch (action) {
-            case Target.ACTION_DEFAULT:
+            case DEFAULT:
                 if (canBuild(target)) {
                     pushController(new PlaceBuildingController(this, (Building) target));
                 } else
@@ -507,29 +506,28 @@ public class Unit extends Selectable implements Occupant, Movable {
                                     walkToTarget(target, aggressive);
                                 }
                 break;
-            case Target.ACTION_MOVE:
+            case MOVE:
                 if (canEnter(target)) {
                     pushController(new EnterController(this, (Building) target));
                 } else {
                     walkToTarget(target, false);
                 }
                 break;
-            case Target.ACTION_ATTACK:
+            case ATTACK:
                 if (canAttack(target, true)) {
                     pushController(new HuntController(this, (Selectable) target));
                 } else {
                     walkToTarget(target, true);
                 }
                 break;
-            case Target.ACTION_GATHER_REPAIR:
+            case GATHER_REPAIR:
                 if (canGather(target)) {
                     pushController(new GatherController(this, (Supply) target, target.getClass()));
-                } else
-                    if (canRepair(target, true)) {
-                        pushController(new RepairController(this, (Building) target));
-                    }
+                } else if (canRepair(target, true)) {
+                    pushController(new RepairController(this, (Building) target));
+                }
                 break;
-            case Target.ACTION_DEFEND:
+            case DEFEND:
                 pushController(new DefendController(this, target));
                 break;
             default:

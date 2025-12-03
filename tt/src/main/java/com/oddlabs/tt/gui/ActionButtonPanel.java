@@ -7,6 +7,7 @@ import com.oddlabs.tt.delegate.RallyPointDelegate;
 import com.oddlabs.tt.delegate.TargetDelegate;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.model.Abilities;
+import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.IronSupply;
@@ -143,18 +144,18 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		move_button = new NonFocusIconButton(race_icons.getMoveIcon(), formatTip("move_tip", "M"));
 		move_button.setIconDisabler(() -> !viewer.getLocalPlayer().canMove());
 		unit_group.addChild(move_button);
-		move_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Target.ACTION_MOVE)));
+		move_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Action.MOVE)));
 		attack_button = new NonFocusIconButton(race_icons.getAttackIcon(), formatTip("attack_tip", "A"));
 		attack_button.setIconDisabler(() -> !viewer.getLocalPlayer().canAttack());
 		unit_group.addChild(attack_button);
-		attack_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Target.ACTION_ATTACK)));
+		attack_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Action.ATTACK)));
 		move_button.place();
 		attack_button.place(move_button, Placement.BOTTOM_MID);
 		unit_group.compileCanvas(GROUP_LEFT_OFFSET, 0, GROUP_RIGHT_OFFSET, GROUP_BOTTOM_OFFSET);
 
 		gather_repair_button = new NonFocusIconButton(race_icons.getGatherRepairIcon(), formatTip("gather_repair_tip", "G"));
 		peon_group.addChild(gather_repair_button);
-		gather_repair_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Target.ACTION_GATHER_REPAIR)));
+		gather_repair_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Action.GATHER_REPAIR)));
 		gather_repair_button.setIconDisabler(() -> !viewer.getLocalPlayer().canRepair());
 		quarters_button = new NonFocusIconButton(race_icons.getQuartersIcon(), formatTip("quarters_tip", "Q"));
 		peon_group.addChild(quarters_button);
@@ -187,7 +188,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
 		tower_attack_button = new NonFocusIconButton(race_icons.getAttackIcon(), formatTip("attack_tip", "A"));
 		tower_group.addChild(tower_attack_button);
-		tower_attack_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Target.ACTION_ATTACK)));
+		tower_attack_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Action.ATTACK)));
 		tower_exit_button = new NonFocusIconButton(race_icons.getTowerExitIcon(), formatTip("exit_tip", "X"));
 		tower_group.addChild(tower_exit_button);
 		tower_exit_button.addMouseClickListener((_, _, _, _) -> {

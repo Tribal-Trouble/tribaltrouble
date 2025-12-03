@@ -1,7 +1,7 @@
 package com.oddlabs.tt.model.behaviour;
 
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
+import org.jspecify.annotations.NonNull;
 
 public final class DieBehaviour implements Behaviour {
 	private static final float SECONDS_PER_DEATH = 3f;
@@ -16,44 +16,43 @@ public final class DieBehaviour implements Behaviour {
         MOVING
     }
 
-	private final Unit unit;
-	private float anim_time;
-	private DieState state;
+	private final @NonNull Unit unit;
+	private float anim_time = SECONDS_PER_DEATH;
+	private @NonNull DieState state = DieState.DYING;
 
 	private float offset_z = 0;
 	private float dz = 0;
 
-	public DieBehaviour(Unit unit) {
+	public DieBehaviour(@NonNull Unit unit) {
 		this.unit = unit;
-		init();
-	}
+        unit.switchAnimation(1f/anim_time, Unit.ANIMATION_DYING);
+    }
 
 	@Override
-	public int animate(float t) {
+	public @NonNull State animate(float t) {
 		anim_time -= t;
 		offset_z -= dz*t;
 		if (anim_time < 0)
 			switchState();
-		return Selectable.UNINTERRUPTIBLE;
+		return State.UNINTERRUPTIBLE;
 	}
 
 	private void switchState() {
-		switch (state) {
-			case DYING:
-				anim_time += LYING_SECONDS;
-				state = DieState.LYING;
-				break;
-			case LYING:
-				anim_time += MOVING_SECONDS;
-				state = DieState.MOVING;
-				dz = MOVING_METERS/MOVING_SECONDS;
-				break;
-			case MOVING:
-				unit.remove();
-				break;
-			default:
-				assert false;
-		}
+        switch (state) {
+            case DYING -> {
+                anim_time += LYING_SECONDS;
+                state = DieState.LYING;
+            }
+            case LYING -> {
+                anim_time += MOVING_SECONDS;
+                state = DieState.MOVING;
+                dz = MOVING_METERS / MOVING_SECONDS;
+            }
+            case MOVING -> unit.remove();
+            default -> {
+                assert false;
+            }
+        }
 	}
 
 	public float getOffsetZ() {
@@ -62,13 +61,7 @@ public final class DieBehaviour implements Behaviour {
 
 	@Override
 	public boolean isBlocking() {
-		throw new RuntimeException();
-	}
-
-	private void init() {
-		anim_time = SECONDS_PER_DEATH;
-		state = DieState.DYING;
-		unit.switchAnimation(1f/anim_time, Unit.ANIMATION_DYING);
+		throw new IllegalStateException();
 	}
 
 	@Override

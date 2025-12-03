@@ -71,7 +71,7 @@ public final class TextLayout {
         int lineHeight = font.getHeight();
         // Y is usually from top, so invert for line index from top
         int lineIndex = (int) ((textBlockHeight - y) / lineHeight);
-        return Math.max(0, Math.min(lineIndex, lines.size() - 1));
+        return Math.clamp(lineIndex, 0, lines.size() - 1);
     }
 
     public int getCharacterIndexAt(float x, float y, float textBlockHeight) {

@@ -1,17 +1,18 @@
 package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.render.ShadowListKey;
+import org.jspecify.annotations.NonNull;
 
 public abstract class Template {
-	private final Abilities abilities;
-	private final ShadowListKey shadow_renderer;
+	private final @NonNull Abilities abilities;
+	private final @NonNull ShadowListKey shadow_renderer;
 	private final float[] hit_offset_z;
 	private final float no_detail_size;
 	private final float defense_chance;
 	private final float shadow_diameter;
-	private final String name;
+	private final @NonNull String name;
 
-	protected Template(Abilities abilities, float shadow_diameter, ShadowListKey shadow_renderer, float[] hit_offset_z, float no_detail_size, float defense_chance, String name) {
+	protected Template(@NonNull Abilities abilities, float shadow_diameter, @NonNull ShadowListKey shadow_renderer, float[] hit_offset_z, float no_detail_size, float defense_chance, @NonNull String name) {
 		this.abilities = abilities;
 		this.shadow_renderer = shadow_renderer;
 		this.hit_offset_z = hit_offset_z;
@@ -21,11 +22,11 @@ public abstract class Template {
 		this.shadow_diameter = shadow_diameter;
 	}
 
-	public final String getName() {
+	public final @NonNull String getName() {
 		return name;
 	}
 
-	public final Abilities getAbilities() {
+	public final @NonNull Abilities getAbilities() {
 		return abilities;
 	}
 
@@ -33,7 +34,7 @@ public abstract class Template {
 		return shadow_diameter;
 	}
 
-	public final ShadowListKey getSelectableShadowRenderer() {
+	public final @NonNull ShadowListKey getSelectableShadowRenderer() {
 		return shadow_renderer;
 	}
 

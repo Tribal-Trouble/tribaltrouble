@@ -20,7 +20,7 @@ public final class JumpDelegate extends InGameDelegate {
 		this(viewer, old_camera, x, y, meters_per_second, max_seconds, null);
 	}
 
-	public JumpDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera old_camera, float x, float y, float meters_per_second, float max_seconds, Runnable runnable) {
+	public JumpDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera old_camera, float x, float y, float meters_per_second, float max_seconds, @Nullable Runnable runnable) {
 		super(viewer, null);
 		setCamera(new JumpCamera(this, old_camera, x, y, meters_per_second, max_seconds));
 		this.runnable = runnable;

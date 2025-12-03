@@ -8,7 +8,7 @@ import com.oddlabs.util.CryptUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/** provides password entry substituting the password characters with asterisks */
+/** provides password entry substituting the password characters with asterisks when displayed */
 public class PasswordLine extends EditLine {
 	private @Nullable String password_digest;
 
@@ -16,6 +16,12 @@ public class PasswordLine extends EditLine {
 		super(width, max_chars);
 	}
 
+    /** Password display text has three options. If the field is empty then the empty string is displayed. When the
+     * field is inactive it is filled with stars. When the field is active a string of stars the same length as the
+     * password cleartext is returned.
+     *
+     * @return The blank text or stars to display
+     */
 	@Override
 	protected @NonNull CharSequence getDisplayText() {
         if (getText().isEmpty()) {
@@ -31,16 +37,6 @@ public class PasswordLine extends EditLine {
 		}
     }
 
-	@Override
-	protected void renderText(@NonNull GUIRenderer renderer, @NonNull Box box, int offset_x, int render_index) {
-		var displayText = getDisplayText();
-		TextLineRenderer.render(renderer, getFont(), displayText, box.getLeftOffset() + offset_x, box.getBottomOffset(), box.getLeftOffset(), getWidth() - box.getRightOffset(), Color.WHITE_INT);
-		if (render_index != -1) {
-			int cursorX = getRenderedWidth(displayText.subSequence(0, render_index));
-			Index.renderIndex(renderer, box.getLeftOffset() + offset_x + cursorX, box.getBottomOffset(), getFont());
-		}
-	}
-	
 	@Override
 	protected final boolean insert(int index, char key) {
 		boolean result = super.insert(index, key);

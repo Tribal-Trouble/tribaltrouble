@@ -2,6 +2,7 @@ package com.oddlabs.tt.model;
 
 import org.jspecify.annotations.NonNull;
 
+// TODO convert to enum
 public final class Abilities {
     // No abilities
     public static final int NONE = 0;

@@ -10,35 +10,36 @@ import java.util.Random;
 
 public final class Perlin {
 
-	// interpolation methods
-	public static final int LINEAR = 1;
-	public static final int SMOOTH = 2;
-	public static final int CUBIC = 3;
-	public static final int AUTO = 4;
+	public enum Interpolation {
+		LINEAR,
+		SMOOTH,
+		CUBIC,
+		AUTO
+	}
 
-	// sum methods
-	public static final int NORMAL = 1;
-	public static final int ABS = 2;
-	public static final int SINE = 3;
-	public static final int XSINE = 4;
-	public static final int NORMAL_MOD = 5;
-	public static final int ABS_MOD = 6;
-	public static final int XSINE_MOD = 7;
-	public static final int WOOD1 = 8;
-	public static final int WOOD2 = 9;
+	public enum Summation {
+		NORMAL,
+		ABS,
+		SINE,
+		XSINE,
+		NORMAL_MOD,
+		ABS_MOD,
+		XSINE_MOD,
+		WOOD1,
+		WOOD2
+	}
 
-	private Random random;
-	public Channel channel;
+    public Channel channel;
 	public Channel[] noise_channels;
 
-	public Perlin(int width, int height, int x_factor, int y_factor, float pers, int oct, long seed, int interpolation_method, int sum_method) {
+	public Perlin(int width, int height, int x_factor, int y_factor, float pers, int oct, long seed, @NonNull Interpolation interpolation, @NonNull Summation summation) {
 		assert Utils.isPowerOf2(width) : "width must be power of 2";
 		assert Utils.isPowerOf2(height) : "height must be power of 2";
 		assert Utils.isPowerOf2(x_factor) : "x_factor must be power of 2";
 		assert Utils.isPowerOf2(y_factor) : "y_factor must be power of 2";
 		generateNoiseChannels(x_factor, y_factor, oct, seed);
-		mergeNoiseChannels(width, height, pers, oct, interpolation_method);
-		transformImage(width, height, sum_method);
+		mergeNoiseChannels(width, height, pers, oct, interpolation);
+		transformImage(width, height, summation);
 		channel.dynamicRange();
 	}
 
@@ -47,7 +48,7 @@ public final class Perlin {
 		x_factor = Math.max(2, x_factor);
 		y_factor = Math.max(2, y_factor);
 		noise_channels = new Channel[oct];
-		random = new Random(seed);
+        Random random = new Random(seed);
 		for (int i = 0; i < oct; i++) {
 			int width_noise = x_factor*(1 << i);
 			int height_noise = y_factor*(1 << i);
@@ -61,14 +62,14 @@ public final class Perlin {
 	}
 
 	// interpolate and sum octave channels
-	private void mergeNoiseChannels(int width, int height, float pers, int oct, int interpolation_method) {
+	private void mergeNoiseChannels(int width, int height, float pers, int oct, @NonNull Interpolation interpolation) {
 		channel = new Channel(width, height);
 		int method_threshold = 0;
-		if (interpolation_method == SMOOTH) {
+		if (interpolation == Interpolation.SMOOTH) {
 			method_threshold = noise_channels.length;
-		} else if (interpolation_method == AUTO) {
+		} else if (interpolation == Interpolation.AUTO) {
 			while (width>>3 > (int)Math.pow(2, method_threshold))
-			method_threshold++;
+                method_threshold++;
 		}
 
 		for (int i = 0; i < oct; i++) {
@@ -89,7 +90,7 @@ public final class Perlin {
 						channel.putPixel(x_pixel, y_pixel, channel.getPixel(x_pixel, y_pixel) + octave.getPixel(x_pixel, y_pixel)*amplitude);
 					}
 				}
-			} else if (interpolation_method != CUBIC && i >= method_threshold) { // interpolate linear
+			} else if (interpolation != Interpolation.CUBIC && i >= method_threshold) { // interpolate linear
 				float y_incr1, y_incr2, x_incr;
 				for (y_block_lo = 0; y_block_lo < y_blocks; y_block_lo++) {
 					y_block_hi = (y_block_lo + 1) % octave.height;
@@ -113,7 +114,7 @@ public final class Perlin {
 						}
 					}
 				}
-			} else if (interpolation_method != CUBIC) { // interpolate smooth
+			} else if (interpolation != Interpolation.CUBIC) { // interpolate smooth
 				float y_coord, x_coord, y_diff, x_diff;
 				for (y_block_lo = 0; y_block_lo < y_blocks; y_block_lo++) {
 					y_block_hi = (y_block_lo + 1) % octave.height;
@@ -190,9 +191,9 @@ public final class Perlin {
 	}
 
 	// transform image
-	private void transformImage(int width, int height, int sum_method) {
+	private void transformImage(int width, int height, @NonNull Summation summation) {
 		float value = 0;
-		switch (sum_method) {
+		switch (summation) {
 			case NORMAL:
 				break;
 			case ABS:

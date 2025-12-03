@@ -38,7 +38,7 @@ import org.lwjgl.input.Keyboard;
 import java.net.InetAddress;
 import java.util.ResourceBundle;
 
-public abstract class Menu extends CameraDelegate {
+public abstract class Menu extends CameraDelegate<Camera> {
     static final int COLOR_NORMAL = Color.WHITE_INT;
     static final int COLOR_ACTIVE = 0xFF_FF_CC_9F;
     private static final int MENU_X = 160;
@@ -58,7 +58,7 @@ public abstract class Menu extends CameraDelegate {
     private @Nullable GUIImage overlay;
     private @Nullable GUIImage logo;
 
-    protected Menu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, Camera camera) {
+    protected Menu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Camera camera) {
         super(gui_root, camera);
         this.network = network;
         setCanFocus(true);

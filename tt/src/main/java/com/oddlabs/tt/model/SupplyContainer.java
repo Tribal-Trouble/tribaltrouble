@@ -17,7 +17,7 @@ public class SupplyContainer {
 	}
 
 	public int capAmount(int amount) {
-		return Math.max(0, Math.min(supply_count + amount, max_supply_count)) - supply_count;
+		return Math.clamp(supply_count + amount, 0, max_supply_count) - supply_count;
 	}
 
 	public final void prepareDeploy(int amount) {

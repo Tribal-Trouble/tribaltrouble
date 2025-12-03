@@ -4,23 +4,23 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
-public final class PocketList {
-	private final List<Object> @NonNull [] pockets;
+public final class PocketList<T> {
+	private final @NonNull List<@NonNull T> @NonNull [] pockets;
 	private int min_list_index;
 	private int max_list_index;
 	private int size;
 
 	@SuppressWarnings("unchecked")
 	public PocketList(int num_pockets) {
-		pockets = new List[num_pockets];
-		for (int i = 0; i < pockets.length; i++) {
-            pockets[i] = new ArrayList<>();
-        }
+		pockets = IntStream.rangeClosed(0, num_pockets)
+                .mapToObj(_ -> new ArrayList<T>())
+                .toArray(List[]::new);
 		reset();
 	}
 
-	public void add(int cost, Object obj) {
+	public void add(int cost, @NonNull T obj) {
 		if (cost >= pockets.length)
 			cost = pockets.length - 1;
 		pockets[cost].add(obj);
@@ -31,13 +31,14 @@ public final class PocketList {
 		size++;
 	}
 
-	public Object removeBest() {
-		List<Object> current_pocket = pockets[min_list_index];
+	public @NonNull T removeBest() {
+        assert !isEmpty();
+		List<T> current_pocket = pockets[min_list_index];
 		while (current_pocket.isEmpty()) {
 			min_list_index++;
 			current_pocket = pockets[min_list_index];
 		}
-		Object node = current_pocket.removeLast();
+		T node = current_pocket.removeLast();
 		size--;
 		return node;
 	}
@@ -55,6 +56,11 @@ public final class PocketList {
 			assert pockets[i].isEmpty(): min_list_index + " " + max_list_index + " " + i;
 	}
 */
+
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
 	public int size() {
 		return size;
 	}

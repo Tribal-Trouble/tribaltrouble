@@ -2,6 +2,7 @@ package com.oddlabs.tt.player;
 
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Abilities;
+import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployType;
 import com.oddlabs.tt.model.Race;
@@ -161,7 +162,7 @@ public final class AdvancedAI extends AI {
 		if (result > 0) {
 			Unit[] units = new Unit[unit_list.size()];
 			unit_list.toArray(units);
-			getOwner().setLandscapeTarget(units, defense_target.getGridX(), defense_target.getGridY(), Target.ACTION_DEFEND, true);
+			getOwner().setLandscapeTarget(units, defense_target.getGridX(), defense_target.getGridY(), Action.DEFEND, true);
 		}
 	}
 
@@ -216,7 +217,7 @@ public final class AdvancedAI extends AI {
 				if (!((Building)getTowers()[i]).getUnitContainer().isSupplyFull() && getIdleWarriors() != null && getIdleWarriors().length > i) {
 					Selectable[] warrior = new Selectable[1];
 					warrior[0] = getIdleWarriors()[i];
-					getOwner().setTarget(warrior, getTowers()[i], Target.ACTION_DEFAULT, false);
+					getOwner().setTarget(warrior, getTowers()[i], Action.DEFAULT, false);
 					nodeDeployUnitsInArmory(1);
 				}
 			}
@@ -245,13 +246,13 @@ public final class AdvancedAI extends AI {
 	private void nodeAssignIdlePeons() {
 		if (getIdlePeons() != null) {
 			if (quartersUnderConstruction() && getConstructionSites() != null) {
-				getOwner().setTarget(getIdlePeons(), getConstructionSites()[0], Target.ACTION_DEFAULT, false);
+				getOwner().setTarget(getIdlePeons(), getConstructionSites()[0], Action.DEFAULT, false);
 			} else if (armoryUnderConstruction() && getConstructionSites() != null) {
-				getOwner().setTarget(getIdlePeons(), getConstructionSites()[0], Target.ACTION_DEFAULT, false);
+				getOwner().setTarget(getIdlePeons(), getConstructionSites()[0], Action.DEFAULT, false);
 			} else if (towerUnderConstruction() && getConstructionSites() != null) {
-				getOwner().setTarget(getIdlePeons(), getConstructionSites()[0], Target.ACTION_DEFAULT, false);
+				getOwner().setTarget(getIdlePeons(), getConstructionSites()[0], Action.DEFAULT, false);
 			} else if (getQuarters() != null && !getQuarters()[0].isDead()) {
-				getOwner().setTarget(getIdlePeons(), getQuarters()[0], Target.ACTION_DEFAULT, false);
+				getOwner().setTarget(getIdlePeons(), getQuarters()[0], Action.DEFAULT, false);
 			}
 		}
 	}
@@ -278,7 +279,7 @@ else
                     System.arraycopy(getIdleWarriors(), 0, warriors, 0, num_warriors);
 			Target target = findTarget(warriors[0].getGridX(), warriors[0].getGridY());
 			if (target != null) {
-				getOwner().setLandscapeTarget(warriors, target.getGridX(), target.getGridY(), Target.ACTION_ATTACK, true);
+				getOwner().setLandscapeTarget(warriors, target.getGridX(), target.getGridY(), Action.ATTACK, true);
 				if (NUM_WARRIORS[difficulty] < NUM_WARRIORS_MAX[difficulty])
 					NUM_WARRIORS[difficulty] += NUM_WARRIORS_INCREASE[difficulty];
 			}

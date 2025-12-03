@@ -57,11 +57,7 @@ public final class Region extends Node {
 
 	public <K> @NonNull List<K> getObjects(Class<? super K> key) {
 		@SuppressWarnings("unchecked")
-		List<K> list = (List<K>) object_lists.get(key);
-		if (list == null) {
-			list = new ArrayList<>();
-			object_lists.put(key, list);
-		}
+		List<K> list = (List<K>) object_lists.computeIfAbsent(key, k -> new ArrayList<>());
 		return list;
 	}
 
@@ -72,7 +68,7 @@ public final class Region extends Node {
 	public <K> void unregisterObject(Class<? super K> key, K object) {
 		@SuppressWarnings("unchecked")
 		List<K> list = (List<K>) object_lists.get(key);
-                assert list != null : "Unknown key";
+        assert list != null : "Unknown key";
 		list.remove(object);
 	}
 

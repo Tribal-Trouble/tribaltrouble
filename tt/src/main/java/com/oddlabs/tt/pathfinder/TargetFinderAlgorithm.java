@@ -18,7 +18,7 @@ public final class TargetFinderAlgorithm<O extends Occupant> extends GridPathFin
 	}
 
 	@Override
-	public boolean touchNeighbour(Occupant occ) {
+	public boolean touchNeighbour(@NonNull Occupant occ) {
 		if (filter.acceptOccupant(occ)) {
 			target = (O) occ;
 			return true;

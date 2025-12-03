@@ -11,22 +11,24 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class GatherController<S extends Supply> extends Controller {
-	private static final int HARVEST_STATE = 0;
-	private static final int DROPOFF_STATE = 1;
+	private enum State {
+		HARVEST,
+		DROPOFF
+	}
 
-	private final Unit unit;
-	private final Class<S> supply_type;
+	private final @NonNull Unit unit;
+	private final @NonNull Class<S> supply_type;
 	private @Nullable S supply;
-	private FinderTrackerAlgorithm<Building> building_tracker;
+	private @Nullable FinderTrackerAlgorithm<Building> building_tracker;
 
-	public GatherController(Unit unit, S supply, Class<S> supply_type) {
-		super(2);
+	public GatherController(@NonNull Unit unit, @Nullable S supply, @NonNull Class<S> supply_type) {
+		super(State.values().length);
 		this.unit = unit;
 		this.supply = supply;
 		this.supply_type = supply_type;
 	}
 
-	public Class<S> getSupplyType() {
+	public @NonNull Class<S> getSupplyType() {
 		return supply_type;
 	}
 
@@ -36,15 +38,15 @@ public final class GatherController<S extends Supply> extends Controller {
 	}
 
 	private void gather() {
-		resetGiveUpCounter(DROPOFF_STATE);
+		resetGiveUpCounter(State.DROPOFF.ordinal());
 		if (supply != null && supply.isDead()) {
 			supply = null;
-			resetGiveUpCounter(HARVEST_STATE);
+			resetGiveUpCounter(State.HARVEST.ordinal());
 		}
 
 		if (supply != null && unit.isCloseEnough(unit.getRange(supply), supply)) {
 			unit.pushController(new HarvestController<>(unit, supply, supply_type));
-		} else if (!shouldGiveUp(HARVEST_STATE)) {
+		} else if (!shouldGiveUp(State.HARVEST.ordinal())) {
 			if (supply == null) {
 				unit.pushController(new HarvestController<>(unit, supply, supply_type));
 			} else {
@@ -57,9 +59,9 @@ public final class GatherController<S extends Supply> extends Controller {
 	}
 
 	private void dropoff() {
-		resetGiveUpCounter(HARVEST_STATE);
+		resetGiveUpCounter(State.HARVEST.ordinal());
 		if (building_tracker != null && building_tracker.getOccupant() != null && unit.isCloseEnough(0f, building_tracker.getOccupant())) {
-			Building building = (Building)building_tracker.getOccupant();
+			Building building = building_tracker.getOccupant();
 			Class<? extends Supply> unit_supply_type = unit.getSupplyContainer().getSupplyType();
 			int num_supplies = building.getSupplyContainer(unit_supply_type).increaseSupply(unit.getSupplyContainer().getNumSupplies());
 			unit.getSupplyContainer().increaseSupply(-num_supplies, unit_supply_type);
@@ -68,7 +70,7 @@ public final class GatherController<S extends Supply> extends Controller {
 				unit.pushController(new EnterController(unit, building));
 			} else
 				gather();
-		} else if (!shouldGiveUp(DROPOFF_STATE)) {
+		} else if (!shouldGiveUp(State.DROPOFF.ordinal())) {
 			building_tracker = new FinderTrackerAlgorithm<>(unit.getUnitGrid(), new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
 			unit.setBehaviour(new WalkBehaviour(unit, building_tracker, false));
 		} else {

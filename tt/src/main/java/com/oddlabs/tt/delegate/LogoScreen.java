@@ -16,7 +16,7 @@ import com.oddlabs.tt.render.UIRenderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public final class LogoScreen extends CameraDelegate implements Updatable {
+public final class LogoScreen extends CameraDelegate<StaticCamera> implements Updatable {
 	private static final float DELAY = 4f;
 	private static final int overlay_texture_width = 1024;
 	private static final int overlay_texture_height = 1024;

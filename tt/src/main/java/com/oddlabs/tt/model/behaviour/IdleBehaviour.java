@@ -1,23 +1,21 @@
 package com.oddlabs.tt.model.behaviour;
 
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
+import org.jspecify.annotations.NonNull;
 
 public final class IdleBehaviour implements Behaviour {
-	private final IdleController controller;
-	private final Unit unit;
+	private final @NonNull IdleController controller;
+	private final @NonNull Unit unit;
 
-	public IdleBehaviour(IdleController controller, Unit unit) {
+	public IdleBehaviour(@NonNull IdleController controller, @NonNull Unit unit) {
 		this.controller = controller;
 		this.unit = unit;
 	}
 
 	@Override
-	public int animate(float t) {
+	public @NonNull State animate(float t) {
 		unit.switchToIdleAnimation();
-		return controller.shouldSleep(t)
-                ? Selectable.INTERRUPTIBLE
-                : Selectable.DONE;
+		return controller.shouldSleep(t) ? State.INTERRUPTIBLE : State.DONE;
 	}
 
 	@Override

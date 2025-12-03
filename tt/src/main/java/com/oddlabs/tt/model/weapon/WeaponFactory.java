@@ -32,8 +32,8 @@ public abstract class WeaponFactory {
 	private static float computeTerrainBonus(@NonNull HeightMap heightmap, @NonNull Target src, @NonNull Target dst) {
 		float src_z = heightmap.getNearestHeight(src.getPositionX(), src.getPositionY());
 		float dst_z = heightmap.getNearestHeight(dst.getPositionX(), dst.getPositionY());
-		float bonus = (src_z - dst_z)*TERRAIN_BONUS_PER_HEIGHT;
-		bonus = Math.min(TERRAIN_MAX_BONUS, Math.max(-TERRAIN_MAX_BONUS, bonus));
+		float bonus = (src_z - dst_z) * TERRAIN_BONUS_PER_HEIGHT;
+		bonus = Math.clamp(bonus, -TERRAIN_MAX_BONUS, TERRAIN_MAX_BONUS);
 		return bonus;
 	}
 
@@ -49,7 +49,7 @@ public abstract class WeaponFactory {
 		attack(src, target, 1f);
 	}
 
-	protected abstract void doAttack(boolean hit, Unit src, Selectable target);
+	protected abstract void doAttack(boolean hit, @NonNull Unit src, @NonNull Selectable target);
 
 	public abstract @Nullable Class<? extends ThrowingWeapon> getType();
 }

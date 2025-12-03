@@ -2,13 +2,14 @@ package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.util.Target;
+import org.jspecify.annotations.NonNull;
 
 public final class WalkController extends Controller {
-	private final Unit unit;
-	private final Target target;
+	private final @NonNull Unit unit;
+	private final @NonNull Target target;
 	private final boolean scan_attack;
 
-	public WalkController(Unit unit, Target t, boolean scan_attack) {
+	public WalkController(@NonNull Unit unit, @NonNull Target t, boolean scan_attack) {
 		super(1);
 		this.unit = unit;
 		this.target = t;

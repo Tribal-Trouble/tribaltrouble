@@ -12,7 +12,7 @@ final class SpriteSorter {
 
 	private static final int LOW_DETAIL_DIST = 200;
 
-	private final PocketList sorted_models = new PocketList(LOW_DETAIL_DIST);
+	private final PocketList<LODObject> sorted_models = new PocketList<>(LOW_DETAIL_DIST);
 	private final int polycount_limit;
 
 	private int used_polys = 0;
@@ -42,26 +42,24 @@ final class SpriteSorter {
 	}
 
 	private void addToPocket(float dist_squared, LODObject model) {
-		// We can use Math here instead of Math because the dist does not affect game state
 		int dist = (int)Math.sqrt(dist_squared);
 		sorted_models.add(dist, model);
 	}
 
 	public void distributeModels() {
 		distributeHighPolygons();
-		while (sorted_models.size() > 0) {
-			LODObject model = (LODObject)sorted_models.removeBest();
+		while (!sorted_models.isEmpty()) {
+			LODObject model = sorted_models.removeBest();
 			model.markDetailPolygon(PolyDetail.LOW_POLY);
 		}
-		assert sorted_models.size() == 0;
 		sorted_models.clear();
 		used_polys = 0;
 	}
 
 	private void distributeHighPolygons() {
 		while (used_polys < polycount_limit) {
-			if (sorted_models.size() > 0) {
-				LODObject model = (LODObject)sorted_models.removeBest();
+			if (!sorted_models.isEmpty()) {
+				LODObject model = sorted_models.removeBest();
 				used_polys -= model.getTriangleCount(PolyDetail.LOW_POLY);
 				used_polys += model.getTriangleCount(PolyDetail.HIGH_POLY);
 				model.markDetailPolygon(PolyDetail.HIGH_POLY);

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public final class GameStatsDelegate extends CameraDelegate implements Updatable {
+public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implements Updatable {
 	private static final int PLAYER_COLUMN_WIDTH = 100;
 	private static final int TEXT_OFFSET = -4;
 	public static final ResourceBundle bundle = ResourceBundle.getBundle(GameStatsDelegate.class.getName());
