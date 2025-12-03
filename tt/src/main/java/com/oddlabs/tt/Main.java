@@ -14,20 +14,20 @@ public final class Main {
     private static final Logger logger = Logger.getLogger(Main.class.getName());
 
 	public static void fail(@NonNull Throwable t) {
-		try {
-            logger.log(Level.SEVERE, "Critical Failure", t);
-			if (Display.isCreated())
-				Display.destroy();
-			while (t.getCause() != null) {
+        logger.log(Level.SEVERE, "Critical Failure", t);
+
+        if (Display.isCreated())
+            Display.destroy();
+
+        if (!Boolean.getBoolean("com.oddlabs.tt.developer")) {
+            while (t.getCause() != null) {
                 t = t.getCause();
             }
-			ResourceBundle bundle = ResourceBundle.getBundle(Main.class.getName());
-			String error = Utils.getBundleString(bundle, "error");
-			String error_msg = Utils.getBundleString(bundle, "error_message", t.toString());
-			Sys.alert(error, error_msg);
-		} finally {
-			shutdown();
-		}
+            ResourceBundle bundle = ResourceBundle.getBundle(Main.class.getName());
+            String error = Utils.getBundleString(bundle, "error");
+            String error_msg = Utils.getBundleString(bundle, "error_message", t.toString());
+            Sys.alert(error, error_msg);
+        }
 	}
 
 	public static void shutdown() {
@@ -35,7 +35,7 @@ public final class Main {
 		System.exit(0);
 	}
 
-    static void main(@NonNull String... args) {
+    static void main(@NonNull String @NonNull ... args) {
 		try {
             logger.info("Starting game....");
 			Renderer.runGame(args);
