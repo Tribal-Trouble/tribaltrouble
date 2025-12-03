@@ -261,10 +261,12 @@ public abstract class GLImage {
 		return (col1 << 24) + (col2 << 16) + (col3 << 8) + col4;
 	}
 
+    /** Clear the entire image to the specified color. */
 	public final void clearAll(int color) {
         clear(0, 0, width, height, color);
 	}
 
+    /** Clear a specified rectangle of the image to the specified color. */
 	public final void clear(int x, int y, int width, int height, int color) {
 		int yy = y;
 		for (; yy < y + height; yy++) {
