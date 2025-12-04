@@ -26,10 +26,10 @@ public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> imp
 	private static final float DELAY = 1f;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
 	private final @NonNull Group group_buttons;
-	private final TutorialInGameInfo tutorial_info;
+	private final @NonNull TutorialInGameInfo tutorial_info;
 	private final @NonNull WorldViewer viewer;
 
-	public TutorialOverDelegate(final @NonNull WorldViewer viewer, TutorialInGameInfo tutorial_info, @NonNull Camera old_camera, int tutorial_number) {
+	public TutorialOverDelegate(final @NonNull WorldViewer viewer, @NonNull TutorialInGameInfo tutorial_info, @NonNull Camera old_camera, int tutorial_number) {
 		super(viewer.getGUIRoot(), new StaticCamera(old_camera.getState()));
 		this.viewer = viewer;
 		this.tutorial_info = tutorial_info;

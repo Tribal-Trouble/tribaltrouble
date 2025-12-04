@@ -5,29 +5,26 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.DebugRender;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.FloatBuffer;
 
-final class RenderTools {
-	private static final FloatBuffer transform_matrix;
+public final class RenderTools {
+	private static final FloatBuffer transform_matrix = BufferUtils.createFloatBuffer(16);
 
-	enum FrustumIntersection {
+	static {
+        new Matrix4f().get(transform_matrix);
+		transform_matrix.rewind();
+	}
+
+    enum FrustumIntersection {
         ALL_OUTSIDE,
         INTERSECTING,
         ALL_INSIDE
-	}
-
-	static {
-		transform_matrix = BufferUtils.createFloatBuffer(16);
-		transform_matrix.put(1f).put(0f).put(0f).put(0f);
-		transform_matrix.put(0f).put(1f).put(0f).put(0f);
-		transform_matrix.put(0f).put(0f).put(1f).put(0f);
-		transform_matrix.put(0f).put(0f).put(0f).put(1f);
-		transform_matrix.rewind();
-	}
+    }
 
     static void translateAndRotate(@NonNull Model model, @NonNull MatrixStack stack) {
         translateAndRotate(model.getPositionX(), model.getPositionY(), model.getPositionZ(), model.getDirectionX(), model.getDirectionY(), stack);

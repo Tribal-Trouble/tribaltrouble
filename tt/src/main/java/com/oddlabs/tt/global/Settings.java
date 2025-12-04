@@ -70,7 +70,6 @@ public final class Settings implements Serializable {
 	public boolean has_native_campaign = false;
 
 	public final boolean save_event_log = true;
-	public final boolean fullscreen_depth_workaround = true;
 	public boolean generate_dummy_worlds = false;
 	public boolean first_run = true;
 

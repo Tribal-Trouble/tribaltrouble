@@ -15,7 +15,7 @@ public final class RespondManager implements Animated {
 	private static final float SECONDS_PER_PICK_RESPOND = 1f/3f;
 
 	private final NavigableMap<Timeout,Object> respond_timeouts = new TreeMap<>();
-	private final Map<Object,Timeout> respond_targets = new HashMap<>();
+	private final Map<@NonNull Object, @NonNull Timeout> respond_targets = new HashMap<>();
 
 	private int current_id;
 
@@ -84,10 +84,10 @@ public final class RespondManager implements Animated {
 	private static final class Timeout implements Comparable<Timeout> {
 		private final float timeout;
 		private final int id;
-		private final Object target;
-		private final Runnable stop_action;
+		private final @NonNull Object target;
+		private final @Nullable Runnable stop_action;
 
-		Timeout(float timeout, int id, Object target, Runnable stop_action) {
+		Timeout(float timeout, int id, @NonNull Object target, @Nullable Runnable stop_action) {
 			this.timeout = timeout;
 			this.id = id;
 			this.target = target;
@@ -95,7 +95,7 @@ public final class RespondManager implements Animated {
 		}
 
 		@Override
-		public boolean equals(Object other) {
+		public boolean equals(@Nullable Object other) {
             if (other instanceof Timeout timeout_obj) {
                 return timeout_obj.timeout == timeout && timeout_obj.id == id;
             }
@@ -113,10 +113,7 @@ public final class RespondManager implements Animated {
 		@Override
 		public int compareTo(@NonNull Timeout other) {
 			float diff = timeout - other.timeout;
-			if (diff != 0f)
-				return (int)diff;
-			else
-				return id - other.id;
+			return diff != 0f ? (int)diff : id - other.id;
 		}
 	}
 }

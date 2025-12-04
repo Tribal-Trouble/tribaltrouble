@@ -9,6 +9,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.IntBuffer;
+import java.util.Objects;
 
 public abstract class Renderable<R extends Renderable<R>> extends ListElementImpl<R> {
 	private int x = 0;
@@ -129,7 +130,7 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 		if (this instanceof Clipped) {
 			IntBuffer scissor_box;
 			if (GL11.glIsEnabled(GL11.GL_SCISSOR_TEST)) {
-				scissor_box = BufferUtils.createIntBuffer(4);
+				scissor_box = Objects.requireNonNull(BufferUtils.createIntBuffer(4));
 				GL11.glGetInteger(GL11.GL_SCISSOR_BOX, scissor_box);
 			} else {
 				scissor_box = null;

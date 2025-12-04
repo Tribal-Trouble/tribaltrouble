@@ -25,7 +25,7 @@ public final class LogoScreen extends CameraDelegate<StaticCamera> implements Up
 
 	private final @Nullable GUIIcon overlay;
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
-	private final GUIRoot client_root;
+	private final @NonNull GUIRoot client_root;
 	private final Fadable fadable;
 	private final UIRenderer renderer;
 	private boolean fade_started = false;

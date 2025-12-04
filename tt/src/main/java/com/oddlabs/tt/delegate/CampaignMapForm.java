@@ -35,7 +35,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 	private final @NonNull Campaign campaign;
 	private final @NonNull NetworkSelector network;
 
-	public CampaignMapForm(final @NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull Campaign campaign) {
+	public CampaignMapForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Campaign campaign) {
 		super(gui_root, new StaticCamera(new CameraState()));
 		this.campaign = campaign;
 		this.network = network;

@@ -87,7 +87,7 @@ public abstract class Menu extends CameraDelegate<Camera> {
         addOptionsButton(() -> new OptionsMenu(getGUIRoot()));
     }
 
-    final void addOptionsButton(@NonNull FormFactory factory) {
+    final void addOptionsButton(@NonNull FormFactory<?> factory) {
         MenuButton options = new MenuButton(Utils.getBundleString(bundle, "options"), COLOR_NORMAL, COLOR_ACTIVE);
         options.addMouseClickListener((_,_,_,_) -> setMenu(factory.create()));
         addChild(options);

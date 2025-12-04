@@ -4,10 +4,11 @@ import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class UnitGrid {
-	private final Region[] @NonNull [] regions;
-	private final Occupant[] @NonNull [] occupants;
+	private final @NonNull Region[] @NonNull [] regions;
+	private final @Nullable Occupant @NonNull [] @NonNull [] occupants;
 	private final @NonNull HeightMap heightmap;
 
     public UnitGrid(@NonNull HeightMap heightmap) {
@@ -85,7 +86,7 @@ public final class UnitGrid {
 		return occupants[grid_y][grid_x] != null;
 	}
 
-	public Occupant getOccupant(int grid_x, int grid_y) {
+	public @Nullable Occupant getOccupant(int grid_x, int grid_y) {
 		return occupants[grid_y][grid_x];
 	}
 

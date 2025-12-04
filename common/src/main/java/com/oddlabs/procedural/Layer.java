@@ -15,7 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Represents a multi-channel image, typically RGBA, where each channel is a 2D grid of floating-point values.
+ * Represents a multichannel image, typically RGBA, where each channel is a 2D grid of floating-point values.
  * This class is used for procedural image generation and manipulation.
  */
 public final class Layer {
@@ -25,9 +25,9 @@ public final class Layer {
 
 	private int width;
 	private int height;
-	public Channel r;
-	public Channel g;
-	public Channel b;
+	public @NonNull Channel r;
+	public @NonNull Channel g;
+	public @NonNull Channel b;
 	public @Nullable Channel a;
 
 	/**

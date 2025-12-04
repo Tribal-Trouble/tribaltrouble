@@ -5,10 +5,11 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.IntBuffer;
+import java.util.Objects;
 
 public abstract class VBO extends NativeResource<VBO.Buffer> {
     static final class Buffer extends NativeResource.NativeState {
-        private static final IntBuffer handle_buffer = BufferUtils.createIntBuffer(1);
+        private static final IntBuffer handle_buffer = Objects.requireNonNull(BufferUtils.createIntBuffer(1));
 
         private final int handle;
 

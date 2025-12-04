@@ -37,6 +37,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -49,19 +50,19 @@ public final class Picker implements Updatable {
 
 	private final Matrix4f proj = new Matrix4f();
 
-	private final IntBuffer viewport = BufferUtils.createIntBuffer(16);
+	private final IntBuffer viewport = Objects.requireNonNull(BufferUtils.createIntBuffer(16));
 	private final float[] hit_result_array = new float[3];
 	private final float[] dir_vector = new float[3];
 
 	private final int[] viewportArray = new int[4];
 
-	private final List<Target> element_pick_list = new ArrayList<>();
-	private final List<TreeSupply> tree_pick_list = new ArrayList<>();
+	private final List<@Nullable Target> element_pick_list = new ArrayList<>();
+	private final List<@NonNull TreeSupply> tree_pick_list = new ArrayList<>();
 
 	private final CameraState tmp_camera = new CameraState();
 	private final SortedSet<LandscapeLeaf> patch_pick_set = new TreeSet<>(new LandscapeLeafComparator());
 	private final LandscapeRenderer landscape_renderer;
-	private final @NonNull ElementRenderer element_renderer;
+	private final @NonNull ElementRenderer<?> element_renderer;
 	private final @NonNull TreePicker tree_renderer;
 	private final @NonNull SpriteSorter sprite_sorter;
 	private final @NonNull RenderQueues render_queues;
@@ -91,7 +92,7 @@ public final class Picker implements Updatable {
 		this.render_queues = render_queues;
 		this.sprite_sorter = new SpriteSorter();
 		this.respond_manager = new RespondManager(manager);
-		this.element_renderer = new ElementRenderer(local_player, landscape_renderer, render_queues, this, true, sprite_sorter, selection);
+		this.element_renderer = new ElementRenderer<>(local_player, landscape_renderer, render_queues, this, true, sprite_sorter, selection);
 		this.tree_renderer = new TreePicker(sprite_sorter, respond_manager);
 		this.landscape_renderer = landscape_renderer;
 	}
@@ -100,7 +101,7 @@ public final class Picker implements Updatable {
 		return respond_manager;
 	}
 
-	private <T extends Target> @Nullable T getNearestPick(@NonNull List<T> pick_list, @NonNull Class<?> filter) {
+	private <T extends Target> @Nullable T getNearestPick(@NonNull List<? extends T> pick_list, @NonNull Class<?> filter) {
 		T nearest_pickable = null;
 		float nearest_squared_distance = Float.POSITIVE_INFINITY;
 		for (int i = 0; i <pick_list.size(); i++) {

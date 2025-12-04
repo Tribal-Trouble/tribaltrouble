@@ -15,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 
 import java.nio.IntBuffer;
+import java.util.Objects;
 
 /**
  * The View
@@ -23,7 +24,7 @@ public abstract class Camera implements Animated {
     private static final float LANDSCAPE_OFFSET = 5f;
     private static final float SMOOTHNESS_FACTOR = 15;
 
-    private final IntBuffer viewport = BufferUtils.createIntBuffer(16);
+    private final IntBuffer viewport = Objects.requireNonNull(BufferUtils.createIntBuffer(16));
     private final Matrix4f proj = new Matrix4f();
     private final CameraState tmp_camera = new CameraState();
 

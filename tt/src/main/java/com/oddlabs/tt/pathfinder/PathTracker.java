@@ -7,16 +7,14 @@ import com.oddlabs.tt.util.DebugRender;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Tracks and manages unit pathfinding through the game world.
- * Combines high-level region pathfinding with low-level grid navigation
- * and smooth Bezier curve movement.
- * 
- * Debug visualization (UNIT_GRID mode) shows:
- * - Red line: Grid-based path (step-by-step navigation)
- * - Blue line: Region-based path (high-level waypoints)
- * - White line: Bezier curve (smooth movement)
- */
+/// Tracks and manages unit pathfinding through the game world.
+/// Combines high-level region pathfinding with low-level grid navigation
+/// and smooth Bézier curve movement.
+///
+/// Debug visualization (`UNIT_GRID` mode) shows:
+/// * Red line: Grid-based path (step-by-step navigation)
+/// * Blue line: Region-based path (high-level waypoints)
+/// * White line: Bézier curve (smooth movement)
 public final class PathTracker {
     public enum State {
         OK,OK_INTERRUPTIBLE,DONE,SOFTBLOCKED,BLOCKED
@@ -24,9 +22,9 @@ public final class PathTracker {
 
     private static final int REGION_SEARCH_TRIES = 4;
 
-	private final @NonNull BezierPath bezier_path;
+	private final BezierPath bezier_path = new BezierPath();
 	private final @NonNull UnitGrid unit_grid;
-	private final Movable unit;
+	private @NonNull final Movable unit;
 
 	private @Nullable RegionNode region_path;
 	private @Nullable Region target_region;
@@ -37,7 +35,7 @@ public final class PathTracker {
 	private int next_unit_grid_x;
 	private int next_unit_grid_y;
 
-	private TrackerAlgorithm tracker_algorithm;
+	private @Nullable TrackerAlgorithm tracker_algorithm;
 
 	private boolean initial_path;
 	private @NonNull State state = State.DONE;
@@ -45,7 +43,6 @@ public final class PathTracker {
 	public PathTracker(@NonNull UnitGrid unit_grid, @NonNull Movable unit) {
 		this.unit_grid = unit_grid;
 		this.unit = unit;
-		this.bezier_path = new BezierPath();
 	}
 
 	public void appendToolTip(@NonNull ToolTipBox tool_tip_box) {
@@ -161,7 +158,7 @@ public final class PathTracker {
 		findNextDirection();
 	}
 
-	private Occupant getNextOccupantUnchecked() {
+	private @Nullable Occupant getNextOccupantUnchecked() {
 		return unit_grid.getOccupant(next_unit_grid_x, next_unit_grid_y);
 	}
 
