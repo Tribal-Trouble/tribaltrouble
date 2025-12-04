@@ -21,6 +21,7 @@ import java.util.logging.Logger;
  * This class is responsible for initializing the audio backend, allocating sources,
  * and controlling global audio properties like listener orientation and master gain.
  */
+@SuppressWarnings("UnusedReturnValue")
 public abstract class AudioManager implements AudioImplementation {
     private static final Logger logger = Logger.getLogger(AudioManager.class.getName());
 
@@ -41,7 +42,7 @@ public abstract class AudioManager implements AudioImplementation {
         }
     }
 
-    private final Set<AudioSource> ambients = new CopyOnWriteArraySet<>();
+    private final Set<@NonNull AudioSource> ambients = new CopyOnWriteArraySet<>();
     private final RefillerList queued_players = new RefillerList();
     private final @NonNull AudioSource @NonNull [] sources;
 
@@ -102,7 +103,7 @@ public abstract class AudioManager implements AudioImplementation {
             for (AudioSource source : sources) {
                 int rank = source.getRank();
                 switch (rank) {
-                    case AudioPlayer.AUDIO_RANK_MUSIC:
+                    case AudioPlayer.AUDIO_RANK_MUSIC: // can't stop the music
                         continue;
                     case AudioPlayer.AUDIO_RANK_AMBIENT:
                         source.pause();
@@ -164,11 +165,11 @@ public abstract class AudioManager implements AudioImplementation {
         sound_play_counter++;
     }
 
-    public void registerAmbient(AudioSource source) {
+    public void registerAmbient(@NonNull AudioSource source) {
         ambients.add(source);
     }
 
-    public void removeAmbient(AudioSource source) {
+    public void removeAmbient(@NonNull AudioSource source) {
         ambients.remove(source);
     }
 

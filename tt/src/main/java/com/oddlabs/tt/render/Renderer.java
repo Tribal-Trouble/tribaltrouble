@@ -642,10 +642,6 @@ public final class Renderer {
 		return music;
 	}
 
-	private static void destroyAL() {
-
-	}
-
 	private void initVisibleGL() {
 		FloatBuffer float_array = BufferUtils.createFloatBuffer(4);
 		GL11.glEnable(GL11.GL_LIGHT0);

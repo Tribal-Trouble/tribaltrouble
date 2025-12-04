@@ -9,33 +9,49 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
+import org.lwjgl.openal.OpenALException;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.logging.Logger;
 
 import static com.oddlabs.tt.audio.openal.OpenALManager.checkALError;
 
 public final class OpenALAudioSource extends NativeResource<OpenALAudioSource.Source> implements AudioSource {
+    private static final Logger logger = Logger.getLogger(OpenALAudioSource.class.getSimpleName());
     static final class Source extends NativeResource.NativeState {
-        private final IntBuffer source;
+
+        final int sourceId;
 
         Source() {
-            source = ALBufferUtils.createIntBuffer(1);
+            sourceId = AL10.alGenSources();
+            checkALError("alGenSources");
+        }
+
+        @Override
+        public int hashCode() {
+            return sourceId;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof Source source && sourceId == source.sourceId;
         }
 
         @Override
         public void close() {
-            if (source != null && AL.isCreated()) {
-                int sourceId = source.get(0);
+            if (AL.isCreated()) {
                 // Check if the source is valid before trying to stop it
                 if (AL10.alIsSource(sourceId)) {
                     // Stop the source before deleting it, to be safe
                     AL10.alSourceStop(sourceId);
                     checkALError("alSourceStop before deleting source");
-                }
 
-                AL10.alDeleteSources(source);
-                checkALError("alDeleteSources");
+                    AL10.alDeleteSources(sourceId);
+                    checkALError("alDeleteSources");
+                } else {
+                    logger.warning("Attempted to close invalid source");
+                }
             }
         }
     }
@@ -43,15 +59,24 @@ public final class OpenALAudioSource extends NativeResource<OpenALAudioSource.So
     private @Nullable AbstractAudioPlayer audio_player;
     private final FloatBuffer positionBuffer = ALBufferUtils.createFloatBuffer(3);
 
-    public OpenALAudioSource() {
+    public OpenALAudioSource() throws OpenALException {
         super(new Source());
-        AL10.alGenSources(state.source);
-        checkALError("alGenSources");
+    }
+
+    @Override
+    public int hashCode() {
+        return state.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof OpenALAudioSource source && state.equals(source.state);
     }
 
     @Override
     public @NonNull State getState() {
         int state = AL10.alGetSourcei(getSource(), AL10.AL_SOURCE_STATE);
+        checkALError("alGetSourcei(AL_SOURCE_STATE)");
 
         return switch (state) {
             case AL10.AL_INITIAL -> State.INITIAL;
@@ -190,7 +215,7 @@ public final class OpenALAudioSource extends NativeResource<OpenALAudioSource.So
     }
 
     public int getSource() {
-        return state.source.get(0);
+        return state.sourceId;
     }
 
     @Override

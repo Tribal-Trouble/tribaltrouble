@@ -11,13 +11,13 @@ import org.lwjgl.openal.OpenALException;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
- * OpenALAudio Manager implementation using OpenAL
+ * Audio Manager implementation using OpenAL
  */
 public final class OpenALManager extends AudioManager {
     private static final Logger logger = Logger.getLogger(OpenALManager.class.getName());
@@ -34,17 +34,16 @@ public final class OpenALManager extends AudioManager {
     }
 
     private static @NonNull OpenALAudioSource @NonNull [] generateSources(int max) {
-        List<@NonNull OpenALAudioSource> list = new ArrayList<>();
-        for (int i = 0; i < max; i++) {
-            try {
-                OpenALAudioSource source = new OpenALAudioSource();
-                list.add(source);
-            } catch (OpenALException _) {
-                // If source generation fails, stop trying to create more
-                break;
-            }
-        }
-        return list.toArray(new OpenALAudioSource[0]);
+        return Stream.generate(() -> {
+                    try {
+                        return new OpenALAudioSource();
+                    } catch (OpenALException _) {
+                        // If source generation fails, stop trying to create more
+                        return null;
+                    }
+                }).takeWhile(Objects::nonNull)
+                .limit(max)
+                .toArray(OpenALAudioSource[]::new);
     }
 
     @Override
@@ -83,7 +82,7 @@ public final class OpenALManager extends AudioManager {
      * Checks for OpenAL errors and logs them
      * @param message A descriptive message for the context of the OpenAL call.
      */
-    static void checkALError(String message) {
+    static void checkALError(@NonNull String message) {
         int error = AL10.alGetError();
         if (error != AL10.AL_NO_ERROR) {
             logger.log(Level.WARNING, "OpenAL Error (" + message + "): " + errorToString(error), new Throwable("stacktrace"));
