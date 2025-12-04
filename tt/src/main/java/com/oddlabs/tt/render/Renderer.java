@@ -647,11 +647,6 @@ public final class Renderer {
 	}
 
 	private void initVisibleGL() {
-		if (Settings.getSettings().fullscreen_depth_workaround) {
-			IntBuffer dummy_buf = BufferUtils.createIntBuffer(1);
-			GL11.glReadPixels(0, 0, 1, 1, GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_INT, dummy_buf);
-		}
-
 		FloatBuffer float_array = BufferUtils.createFloatBuffer(4);
 		GL11.glEnable(GL11.GL_LIGHT0);
 		float[] light_diff_color = {1.0f, 1.0f, 1.0f, 1.0f};
