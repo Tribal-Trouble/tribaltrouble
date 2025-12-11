@@ -33,7 +33,6 @@ public abstract class OffscreenRenderer {
 	protected final void init() {
 		Renderer.initGL();
 		GL11.glViewport(0, 0, width, height);
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 	}
 
 	public final void dumpToFile(String filename) {
@@ -57,15 +56,4 @@ public abstract class OffscreenRenderer {
 	}
 
 	protected abstract void finish();
-
-	protected static void pushGLState() {
-		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-		GLStateStack.pushState();
-	}
-
-	protected static void popGLState() {
-		GLStateStack.popState();
-		GL11.glPopAttrib();
-		GL11.glGetError(); // FIXME: Swallow error because of bug in (at least) the r300 DRI drivers
-	}
 }

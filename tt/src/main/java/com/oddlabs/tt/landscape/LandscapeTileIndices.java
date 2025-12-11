@@ -6,15 +6,15 @@ import org.lwjgl.BufferUtils;
 
 import java.nio.ShortBuffer;
 
-/* http://www.gamasutra.com/features/20061221/dallaire_03.shtml */
+/* https://web.archive.org/web/20100606113506/http://www.gamasutra.com/features/20061221/dallaire_03.shtml */
 public final class LandscapeTileIndices {
 	private static final int NUM_LINK_TILES = 15;
 
-	private final HeightMap heightmap;
+	private final @NonNull HeightMap heightmap;
 	private final int patch_exp;
 	private final int @NonNull [] patch_indices_indices;
-	private final LandscapeTileTriangle[][] @NonNull [] quad_to_planes;
-	private final ShortBuffer indices;
+	private final LandscapeTileTriangle[]@NonNull [] @NonNull [] quad_to_planes;
+	private final @NonNull ShortBuffer indices;
 
 	static int getIndex(int patch_exp, int x, int y) {
 		int patch_size = getPatchSize(patch_exp);
@@ -96,7 +96,7 @@ public final class LandscapeTileIndices {
 		return (lod >>1)*(NUM_LINK_TILES + 1 + 1) + (lod&1);
 	}
 
-	public LandscapeTileIndices(HeightMap heightmap, int patch_exp) {
+	public LandscapeTileIndices(@NonNull HeightMap heightmap, int patch_exp) {
 		this.heightmap = heightmap;
 		this.patch_exp = patch_exp;
 		int patch_size = getPatchSize(patch_exp);
@@ -156,7 +156,7 @@ System.out.println("indices.get(i) = " + indices.get(i));
 System.out.println("indices.remaining() = " + indices.remaining());*/
 	}
 
-	public ShortBuffer getIndices() {
+	public @NonNull ShortBuffer getIndices() {
 		return indices;
 	}
 

@@ -1,10 +1,12 @@
 package com.oddlabs.tt.delegate;
 
 
+import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
+import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
@@ -27,7 +29,7 @@ public abstract class Delegate extends GUIObject {
 		setFocus();
 	}
 
-	public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues render_queues) {
+	public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues render_queues, @NonNull CameraState state,  @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
 	}
 
 	public void render2D(@NonNull GUIRenderer renderer) {

@@ -6,19 +6,10 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.Texture;
-import com.oddlabs.tt.util.FBORenderer;
-import com.oddlabs.tt.util.GLState;
-import com.oddlabs.tt.util.GLStateStack;
-import com.oddlabs.tt.util.OffscreenRenderer;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL13;
 
 import java.io.Serial;
-import java.nio.FloatBuffer;
 import java.util.List;
 
 public final class IslandGenerator implements WorldGenerator {
@@ -50,7 +41,7 @@ public final class IslandGenerator implements WorldGenerator {
 
 		private static @NonNull Texture createDetail(@NonNull GLImage detail_image, int base_level) {
 			GLImage[] detail_mipmaps = detail_image.buildMipMaps(base_level, Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR, true, false);
-			return new Texture(detail_mipmaps, Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_LINEAR,
+			return new Texture(detail_mipmaps, GL11.GL_RGBA, GL11.GL_LINEAR_MIPMAP_LINEAR,
 									   GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
 		}
 	private int getTexelsPerGridUnit() {
@@ -103,105 +94,11 @@ public final class IslandGenerator implements WorldGenerator {
 		boolean[][] access_grid = landscape.getAccessGrid();
 		byte[][] build_grid= landscape.getBuildGrid();
 		float[][] starting_locations = landscape.getStartingLocations();
-		int alpha_size = grid_units;
-		Texture[][] chunk_maps;
-		do {
-			chunk_maps = blendTextures(chunks_per_colormap, blend_infos, alpha_size, Globals.STRUCTURE_SIZE, colormap_size/alpha_size);
-		} while (chunk_maps == null);
+		// int alpha_size = grid_units;
+		// Texture[][] chunk_maps = blendTextures(chunks_per_colormap, blend_infos, alpha_size, Globals.STRUCTURE_SIZE, colormap_size/alpha_size);
+        Texture[][] chunk_maps = null;
 		ProgressForm.progress();
-		return new WorldInfo(meters_per_world, landscape.getSeaLevelMeters(), colormap_size, chunks_per_colormap, chunk_maps, detail, heightmap, trees, palm_trees, rock, iron, plants, access_grid, build_grid, starting_locations);
+		return new WorldInfo(meters_per_world, landscape.getSeaLevelMeters(), colormap_size, chunks_per_colormap, chunk_maps, detail, heightmap, trees, palm_trees, rock, iron, plants, access_grid, build_grid, starting_locations, blend_infos);
 	}
 
-	private static Texture[] @Nullable [] blendTextures(int chunks_per_colormap, BlendInfo @NonNull [] blend_infos, int alpha_size, int structure_size, int scale) {
-		OffscreenRenderer offscreen = new FBORenderer(TEXELS_PER_CHUNK, TEXELS_PER_CHUNK);
-		GL11.glColor4f(1f, 1f, 1f, 1f);
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		GL11.glLoadIdentity();
-		GL11.glOrtho(0f, TEXELS_PER_CHUNK, 0, TEXELS_PER_CHUNK, -1f, 1f);
-
-		GL11.glMatrixMode(GL11.GL_TEXTURE);
-		GLState.activeTexture(GL13.GL_TEXTURE1);
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-		GL11.glDisable(GL11.GL_TEXTURE_GEN_S);
-		GL11.glDisable(GL11.GL_TEXTURE_GEN_T);
-		GL11.glLoadIdentity();
-		GLState.activeTexture(GL13.GL_TEXTURE0);
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-		GL11.glDisable(GL11.GL_TEXTURE_GEN_S);
-		GL11.glDisable(GL11.GL_TEXTURE_GEN_T);
-		GL11.glLoadIdentity();
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
-
-		float alpha_texel_size = 1f/(alpha_size*scale);
-		float structure_texel_size = 1f/structure_size;
-		float structure_texels_per_chunk_border = Globals.TEXELS_PER_CHUNK_BORDER*structure_texel_size;
-		float structure_offset = TEXELS_PER_CHUNK*structure_texel_size - 2*structure_texels_per_chunk_border;
-		float structure_length = structure_offset + 2*structure_texels_per_chunk_border;
-
-		float alpha_texels_per_chunk_border = Globals.TEXELS_PER_CHUNK_BORDER*alpha_texel_size;
-		float alpha_offset = TEXELS_PER_CHUNK*alpha_texel_size;
-		float alpha_length = alpha_offset + 2*alpha_texels_per_chunk_border;
-
-		Texture[][] chunk_maps = new Texture[chunks_per_colormap][chunks_per_colormap];
-		FloatBuffer coordinates = BufferUtils.createFloatBuffer(4*3);
-		coordinates.put(new float[]{0f, 0f, 0f,
-									TEXELS_PER_CHUNK, 0f, 0f,
-									TEXELS_PER_CHUNK, TEXELS_PER_CHUNK, 0f,
-									0f, TEXELS_PER_CHUNK, 0f});
-		coordinates.rewind();
-		FloatBuffer structure_tex_coords = BufferUtils.createFloatBuffer(4*2);
-		FloatBuffer alpha_tex_coords = BufferUtils.createFloatBuffer(4*2);
-		GLStateStack.switchState(GLState.VERTEX_ARRAY | GLState.TEXCOORD0_ARRAY | GLState.TEXCOORD1_ARRAY);
-		GL11.glVertexPointer(3, 0, coordinates);
-		GL11.glTexCoordPointer(2, 0, structure_tex_coords);
-		GLState.clientActiveTexture(GL13.GL_TEXTURE1);
-		GL11.glTexCoordPointer(2, 0, alpha_tex_coords);
-		GLState.clientActiveTexture(GL13.GL_TEXTURE0);
-		for (int y = 0; y < chunk_maps.length; y++) {
-			for (int x = 0; x < chunk_maps[y].length; x++) {
-				chunk_maps[y][x] = new Texture(TEXELS_PER_CHUNK, TEXELS_PER_CHUNK, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE, Globals.NO_MIPMAP_CUTOFF);
-				int mip_scale = 1;
-				int mip_level = 0;
-				int mip_size = TEXELS_PER_CHUNK;
-				while (mip_size >= 1) {
-					GL11.glLoadIdentity();
-					GL11.glScalef(1f/mip_scale, 1f/mip_scale, 1f);
-					GL11.glEnable(GL11.GL_BLEND);
-
-                    for (BlendInfo blend_info : blend_infos) {
-                        blend_info.setup();
-                        float structure_offset_u = x*structure_offset - structure_texels_per_chunk_border;
-                        float structure_offset_v = y*structure_offset - structure_texels_per_chunk_border;
-                        float alpha_offset_u = x*alpha_offset - alpha_texels_per_chunk_border;
-                        float alpha_offset_v = y*alpha_offset - alpha_texels_per_chunk_border;
-                        structure_tex_coords.put(0, structure_offset_u).put(1, structure_offset_v);
-                        structure_tex_coords.put(2, structure_offset_u + structure_length).put(3, structure_offset_v);
-                        structure_tex_coords.put(4, structure_offset_u + structure_length).put(5, structure_offset_v + structure_length);
-                        structure_tex_coords.put(6, structure_offset_u).put(7, structure_offset_v + structure_length);
-                        alpha_tex_coords.put(0, alpha_offset_u).put(1, alpha_offset_v);
-                        alpha_tex_coords.put(2, alpha_offset_u + alpha_length).put(3, alpha_offset_v);
-                        alpha_tex_coords.put(4, alpha_offset_u + alpha_length).put(5, alpha_offset_v + alpha_length);
-                        alpha_tex_coords.put(6, alpha_offset_u).put(7, alpha_offset_v + alpha_length);
-                        GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
-                        blend_info.reset();
-                    }
-/*if (mip_level == 0)
-offscreen.dumpToFile("colormap-" + x + "-" + y);*/
-					offscreen.copyToTexture(chunk_maps[y][x], mip_level, Globals.COMPRESSED_RGB_FORMAT, 0, 0, mip_size, mip_size);
-					mip_scale <<= 1;
-					mip_level++;
-					mip_size >>= 1;
-				}
-			}
-		}
-		boolean succeeded = offscreen.destroy();
-		if (!succeeded) {
-/*			for (int y = 0; y < chunk_maps.length; y++)
-				for (int x = 0; x < chunk_maps[y].length; x++)
-					chunk_maps[y][x].delete();*/
-			return null;
-		} else
-			return chunk_maps;
-	}
 }

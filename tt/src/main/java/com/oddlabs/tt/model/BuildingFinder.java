@@ -7,8 +7,6 @@ import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-
 public final class BuildingFinder implements FinderFilter<Building> {
     private final @NonNull Player owner;
 	private final int abilities;

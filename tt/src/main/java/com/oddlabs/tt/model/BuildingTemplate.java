@@ -2,6 +2,7 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
+import org.jspecify.annotations.NonNull;
 
 public final class BuildingTemplate extends Template {
 	private final int template_id;
@@ -29,36 +30,36 @@ public final class BuildingTemplate extends Template {
 	private final float chimney_z;
 
 	public BuildingTemplate(
-			int template_id,
-			int placing_size,
-			float smoke_radius,
-			float smoke_height,
-			int num_fragments,
-			float shadow_diameter,
-			ShadowListKey shadow_renderer,
-			SpriteKey built_renderer,
-			float built_selection_radius,
-			float built_selection_height,
-			SpriteKey halfbuilt_renderer,
-			float halfbuilt_selection_radius,
-			float halfbuilt_selection_height,
-			SpriteKey start_renderer,
-			float start_selection_radius,
-			float start_selection_height,
-			int max_hit_points,
-			UnitContainerFactory unit_container_factory,
-			Abilities abilities,
-			float[] hit_offset_z,
-			float mount_offset,
-			float no_detail_size,
-			float defense_chance,
-			float rally_x,
-			float rally_y,
-			float rally_z,
-			float chimney_x,
-			float chimney_y,
-			float chimney_z,
-			String name) {
+            int template_id,
+            int placing_size,
+            float smoke_radius,
+            float smoke_height,
+            int num_fragments,
+            float shadow_diameter,
+            @NonNull ShadowListKey shadow_renderer,
+            SpriteKey built_renderer,
+            float built_selection_radius,
+            float built_selection_height,
+            SpriteKey halfbuilt_renderer,
+            float halfbuilt_selection_radius,
+            float halfbuilt_selection_height,
+            SpriteKey start_renderer,
+            float start_selection_radius,
+            float start_selection_height,
+            int max_hit_points,
+            UnitContainerFactory unit_container_factory,
+            @NonNull Abilities abilities,
+            float[] hit_offset_z,
+            float mount_offset,
+            float no_detail_size,
+            float defense_chance,
+            float rally_x,
+            float rally_y,
+            float rally_z,
+            float chimney_x,
+            float chimney_y,
+            float chimney_z,
+            @NonNull String name) {
 		super(abilities, shadow_diameter, shadow_renderer, hit_offset_z, no_detail_size, defense_chance, name);
 		this.template_id = template_id;
 		this.built_selection_radius = built_selection_radius;

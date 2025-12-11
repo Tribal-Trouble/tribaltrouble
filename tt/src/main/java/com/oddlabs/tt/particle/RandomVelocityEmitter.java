@@ -29,7 +29,7 @@ public final class RandomVelocityEmitter extends LinearEmitter {
                                   Vector4f color, Vector4f delta_color,
                                   Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
                                   int src_blend_func, int dst_blend_func,
-                                  TextureKey[] textures, SpriteKey[] sprite_renderers, int types,
+                                  TextureKey @NonNull [] textures, SpriteKey[] sprite_renderers, int types,
                                   AnimationManager manager) {
 		super(world, position,
 				offset_z,
@@ -128,7 +128,7 @@ public final class RandomVelocityEmitter extends LinearEmitter {
 	protected int initParticle(Vector3f position, @NonNull Vector3f velocity, @NonNull Vector3f acceleration, @NonNull Vector4f color, @NonNull Vector4f delta_color, @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy) {
 		randomizeVelocity();
 
-		LinearParticle particle = new LinearParticle(uv_angle);
+		LinearParticle particle = new LinearParticle(getWorld(), uv_angle);
 		Vector3f pos = randomPosition();
 		particle.setPos(pos.x(), pos.y(), pos.z());
 		particle.setVelocity(velocity.x(), velocity.y(), velocity.z());

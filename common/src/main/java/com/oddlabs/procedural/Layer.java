@@ -190,15 +190,15 @@ public final class Layer {
 		return height;
 	}
 
-	public Channel getR() {
+	public @NonNull Channel getR() {
 		return r;
 	}
 
-	public Channel getG() {
+	public @NonNull Channel getG() {
 		return g;
 	}
 
-	public Channel getB() {
+	public @NonNull Channel getB() {
 		return b;
 	}
 
@@ -678,7 +678,7 @@ g.threshold(start, end);
 		return this;
 	}
 
-	public @NonNull Layer convolution(float[] @NonNull [] filter, float divisor, float offset) {
+	public @NonNull Layer convolution(float@NonNull [] @NonNull [] filter, float divisor, float offset) {
 		r.convolution(filter, divisor, offset);
 		g.convolution(filter, divisor, offset);
 		b.convolution(filter, divisor, offset);

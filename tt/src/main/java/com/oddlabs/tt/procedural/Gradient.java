@@ -15,7 +15,7 @@ public final class Gradient {
 	public static final int SMOOTH = 2;
 	public static final int POLYNOMIAL = 3;
 
-	public Gradient(int width, int height, float[] @NonNull [] gradient_list, int orientation, int interpolation) {
+	public Gradient(int width, int height, float@NonNull [] @NonNull [] gradient_list, int orientation, int interpolation) {
 		channel = new Channel(width, height);
 		float x_coord = 0;
 		int index = 0;

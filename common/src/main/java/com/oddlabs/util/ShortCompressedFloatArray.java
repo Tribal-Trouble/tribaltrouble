@@ -13,7 +13,7 @@ public final class ShortCompressedFloatArray implements Serializable {
 
 	private final float @NonNull [] scale;
 	private final float @NonNull [] offset;
-	private final short[] @NonNull [] data;
+	private final short@NonNull [] @NonNull [] data;
 
 	public ShortCompressedFloatArray(float @NonNull [] array, int channels) {
 		int channel_length = array.length/channels;

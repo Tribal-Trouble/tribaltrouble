@@ -4,6 +4,7 @@ import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.model.weapon.WeaponFactory;
 import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
+import org.jspecify.annotations.NonNull;
 
 public final class UnitTemplate extends Template {
 	private final float meters_per_second;
@@ -21,25 +22,25 @@ public final class UnitTemplate extends Template {
 	private final int status_value;
 
 	public UnitTemplate(float selection_radius,
-			float selection_height,
-			Abilities abilities,
-			float meters_per_second,
-			WeaponFactory weapon_factory,
-			SpriteKey sprite_renderer,
-			float shadow_diameter,
-			ShadowListKey shadow_renderer,
-			UnitSupplyContainerFactory supply_container_factory,
-			Audio death_sound,
-			float death_pitch,
-			float[] hit_offset_z,
-			float no_detail_size,
-			float defense_chance,
-			String name,
-			int max_hit_points,
-			float stun_x,
-			float stun_y,
-			float stun_z,
-			int status_value) {
+                        float selection_height,
+                        @NonNull Abilities abilities,
+                        float meters_per_second,
+                        WeaponFactory weapon_factory,
+                        SpriteKey sprite_renderer,
+                        float shadow_diameter,
+                        @NonNull ShadowListKey shadow_renderer,
+                        UnitSupplyContainerFactory supply_container_factory,
+                        Audio death_sound,
+                        float death_pitch,
+                        float[] hit_offset_z,
+                        float no_detail_size,
+                        float defense_chance,
+                        @NonNull String name,
+                        int max_hit_points,
+                        float stun_x,
+                        float stun_y,
+                        float stun_z,
+                        int status_value) {
 		super(abilities, shadow_diameter, shadow_renderer,  hit_offset_z, no_detail_size, defense_chance, name);
 		this.selection_radius = selection_radius;
 		this.selection_height = selection_height;

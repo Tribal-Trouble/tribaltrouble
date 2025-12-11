@@ -40,7 +40,7 @@ public abstract class LinearEmitter extends Emitter {
                             Vector4f color, Vector4f delta_color,
                             Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
                             int src_blend_func, int dst_blend_func,
-                            TextureKey[] textures, SpriteKey[] sprite_renderers, int types,
+                            @NonNull TextureKey @NonNull[] textures, SpriteKey[] sprite_renderers, int types,
                             AnimationManager manager) {
 		super(world, position, src_blend_func, dst_blend_func, textures, sprite_renderers, types, manager);
 		this.offset_z = offset_z;

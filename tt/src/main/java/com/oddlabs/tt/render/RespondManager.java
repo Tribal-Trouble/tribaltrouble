@@ -38,15 +38,15 @@ public final class RespondManager implements Animated {
 		}
 	}
 
-	public void addResponder(Object target) {
+	public void addResponder(@NonNull Object target) {
 		addResponder(target, null);
 	}
 
-	void addResponder(Object target, Runnable stop_action) {
+	void addResponder(@NonNull Object target, Runnable stop_action) {
 		addResponder(SECONDS_PER_PICK_RESPOND, target, null);
 	}
 
-	private void addResponder(float respond_time, Object target, Runnable stop_action) {
+	private void addResponder(float respond_time, @NonNull Object target, Runnable stop_action) {
 		removeResponder(target);
 		Timeout timeout = new Timeout(time + respond_time, current_id++, target, stop_action);
 		respond_targets.put(target, timeout);

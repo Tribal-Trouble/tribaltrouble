@@ -9,7 +9,7 @@ import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
 public final class RallyPointDelegate extends TargetDelegate {
-	private final Building building;
+	private final @NonNull Building building;
 
 	public RallyPointDelegate(@NonNull WorldViewer viewer, @NonNull GameCamera camera, @NonNull Building building) {
 		super(viewer, camera, Action.DEFAULT);

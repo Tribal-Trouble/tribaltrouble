@@ -171,7 +171,7 @@ public final class Midpoint {
 		return new Layer(channel, channel.copy(), channel.copy());
 	}
 
-	public Channel toChannel() {
+	public @NonNull Channel toChannel() {
 		return channel;
 	}
 

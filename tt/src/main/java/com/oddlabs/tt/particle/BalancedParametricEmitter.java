@@ -43,7 +43,7 @@ public final class BalancedParametricEmitter extends ParametricEmitter {
 		for (int i = 0; i < num_particles; i++) {
 			float u = dist_u*i/num_particles;
 			float v = dist_v*i/num_particles;
-			ParametricParticle particle = new ParametricParticle(function, u, v, 0f, 0f, 0f);
+			ParametricParticle particle = new ParametricParticle(getWorld(), function, u, v, 0f, 0f, 0f);
 			Vector3f offset = randomOffset(margin_u, margin_v, 0f);
 			particle.setVelocity(velocity_u + offset.x(), velocity_v + offset.y());
 			particle.setColor(color.x(), color.y(), color.z(), color.w());

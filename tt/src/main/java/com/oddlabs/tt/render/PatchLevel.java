@@ -3,12 +3,22 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.landscape.LandscapeTileTriangle;
 import org.jspecify.annotations.NonNull;
 
+import java.util.concurrent.ExecutionException;
+
 final class PatchLevel {
-	private PatchLevel right_neighbour;
-	private PatchLevel left_neighbour;
-	private PatchLevel top_neighbour;
-	private PatchLevel bottom_neighbour;
+	private final @NonNull PatchLevel right_neighbour;
+	private final @NonNull PatchLevel left_neighbour;
+	private final @NonNull PatchLevel top_neighbour;
+	private final @NonNull PatchLevel bottom_neighbour;
 	private int level;
+
+    PatchLevel(LandscapeRenderer.@NonNull PatchFinder finder, int x, int y) throws ExecutionException, InterruptedException {
+        finder.set(x, y, this);
+        left_neighbour = finder.get(x - 1, y);
+        right_neighbour = finder.get(x + 1, y);
+        bottom_neighbour = finder.get(x, y - 1);
+        top_neighbour = finder.get(x, y + 1);
+    }
 
 	public int getLevel() {
 		return level;
@@ -50,20 +60,4 @@ final class PatchLevel {
 		adjusted_level = Math.max(adjusted_level, bottom_neighbour.level - 1);
 		return adjusted_level;
 	}
-
-	public void init(@NonNull PatchLevel right, @NonNull PatchLevel top) {
-		initTopNeighbour(top);
-		initRightNeighbour(right);
-	}
-
-	private void initTopNeighbour(@NonNull PatchLevel top_neighbour) {
-		this.top_neighbour = top_neighbour;
-		top_neighbour.bottom_neighbour = this;
-	}
-
-	private void initRightNeighbour(@NonNull PatchLevel right_neighbour) {
-		this.right_neighbour = right_neighbour;
-		right_neighbour.left_neighbour = this;
-	}
-
 }

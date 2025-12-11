@@ -30,7 +30,7 @@ public final class LogoScreen extends CameraDelegate<StaticCamera> implements Up
 	private final UIRenderer renderer;
 	private boolean fade_started = false;
 	
-	public LogoScreen(@NonNull GUIRoot gui_root, @Nullable Texture logo, Fadable fadable, GUIRoot client_root, UIRenderer renderer) {
+	public LogoScreen(@NonNull GUIRoot gui_root, @Nullable Texture logo, Fadable fadable, @NonNull GUIRoot client_root, UIRenderer renderer) {
 		super(gui_root, new StaticCamera(new CameraState()));
 		this.client_root = client_root;
 		this.fadable = fadable;

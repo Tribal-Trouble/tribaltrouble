@@ -17,7 +17,7 @@ public final class RingEmitter extends LinearEmitter {
                        Vector4f color, Vector4f delta_color,
                        Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
                        int src_blend_func, int dst_blend_func,
-                       TextureKey @NonNull [] textures, AnimationManager manager) {
+                       @NonNull TextureKey @NonNull [] textures, AnimationManager manager) {
 		super(world, position,
 				offset_z,
 				emitter_radius,
@@ -45,7 +45,7 @@ public final class RingEmitter extends LinearEmitter {
 	protected int initParticle(Vector3f position, @NonNull Vector3f velocity, @NonNull Vector3f acceleration, @NonNull Vector4f color, @NonNull Vector4f delta_color, @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy) {
 		float angle = 2*(float)Math.PI/num_particles;
 		for (int i = 0; i < num_particles; i++) {
-			LinearParticle particle = new LinearParticle();
+			LinearParticle particle = new LinearParticle(getWorld());
 			Vector3f pos = position;
 			particle.setPos(pos.x(), pos.y(), pos.z());
 			// in this special case velocity.getZ() is the actual velocity. not the velocity in the z direction

@@ -58,10 +58,13 @@ public final class ChatRoom {
 		return true;
 	}
 
-	public void join(Client client) {
-		// TODO check for size!!!!
+	public boolean join(Client client) {
+		if (users.size() >= MatchmakingServerInterface.MAX_ROOM_USERS) {
+			return false;
+		}
 		users.add(client);
 		sendUsers();
+		return true;
 	}
 
 	public void sendUsers() {

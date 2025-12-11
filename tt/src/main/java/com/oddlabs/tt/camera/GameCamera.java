@@ -47,7 +47,7 @@ public final class GameCamera extends Camera {
     private boolean rotate_left;
     private boolean rotate_right;
 
-    public GameCamera(@NonNull WorldViewer viewer, CameraState camera) {
+    public GameCamera(@NonNull WorldViewer viewer, @NonNull CameraState camera) {
             super(viewer.getWorld().getHeightMap(), camera);
             this.default_rotate_radius = viewer.getWorld().getHeightMap().getMetersPerWorld()/4;
             this.viewer = viewer;
@@ -113,7 +113,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         } else {
                 getState().setCurrentHorizAngle(-(float)(Math.PI + Math.acos(dx/r)));
         }
-//		setHorizAngle(-(float)Math.PI/2f);
+//              setHorizAngle(-(float)Math.PI/2f);
         getState().setCurrentVertAngle(-45f*(float)Math.PI/180f);
 
         setPos(x, y);
@@ -183,7 +183,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                                 getState().setTargetX(temp_x);
                                 getState().setTargetY(temp_y);
                                 getState().setTargetZ(temp_z);
-//					setScrollSpeed();
+//                                      setScrollSpeed();
                         }
                         checkPosition();
                 }
@@ -291,6 +291,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         doPitch(t);
         doRotate(t);
         updateDirection();
+        getState().setFog(viewer.getWorld().getFog());
     }
 
     @Override
@@ -364,7 +365,6 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         return viewer.getWorld();
     }
 
-    @Override
     public void keyPressed(@NonNull KeyboardEvent event) {
         switch (event.getKeyCode()) {
                 case Keyboard.KEY_HOME:

@@ -35,18 +35,14 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.procedural.Landscape;
-import com.oddlabs.tt.render.shader.DebugShaderRenderer;
 import com.oddlabs.tt.render.shader.FixedFunctionShader;
-import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
+import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.IslandGenerator;
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
-import com.oddlabs.tt.util.DebugRender;
-import com.oddlabs.tt.util.GLState;
-import com.oddlabs.tt.util.GLStateStack;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.Target;
@@ -65,14 +61,12 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.ARBMultisample;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLContext;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -107,8 +101,6 @@ public final class Renderer {
 
 	private final CameraState frustum_state = new CameraState();
 
-    private final GLStateStack display_state_stack = new GLStateStack();
-
     private boolean movie_recording_started = false;
 	private AmbientAudio ambient;
 
@@ -123,7 +115,6 @@ public final class Renderer {
 	public static void makeCurrent() {
 		try {
 			Display.makeCurrent();
-			GLStateStack.setCurrent(renderer_instance.display_state_stack);
 		} catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}
@@ -141,21 +132,16 @@ public final class Renderer {
 		AnimationManager.runGameLoop(network, gui, grab_frames);
 	}
 
-	private void setupMatrices(@NonNull GUIRoot gui_root) {
+	private void setupMatrices(@NonNull GUIRoot gui_root, @NonNull Matrix4f proj, @NonNull Matrix4f modelView) {
 		proj.identity();
 		multProjection(proj);
 		CameraState camera = gui_root.getDelegate().getCamera().getState();
 		camera.setView(proj);
+		modelView.set(camera.getModelView());
 
 		if (!Globals.frustum_freeze) {
 			frustum_state.set(camera);
 		}
-		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		proj.get(matrix_buf);
-		GL11.glLoadMatrix(matrix_buf);
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
-		camera.getModelView().get(matrix_buf);
-		GL11.glLoadMatrix(matrix_buf);
 	}
 
 	public static void multProjection(@NonNull Matrix4f matrix) {
@@ -180,8 +166,10 @@ public final class Renderer {
 		num_triangles_rendered = 0;
 		fps.updateDelta(System.currentTimeMillis());
         NativeResource.processGLCleanupTasks();
-		setupMatrices(gui.getGUIRoot());
-		gui.render(ambient, frustum_state);
+		Matrix4f proj = new Matrix4f();
+		Matrix4f modelView = new Matrix4f();
+		setupMatrices(gui.getGUIRoot(), proj, modelView);
+		gui.render(ambient, frustum_state, proj, modelView);
 	}
 
 	public static void shutdownWithQuitScreen(GUIRoot gui_root) {
@@ -400,8 +388,12 @@ public final class Renderer {
 	}
 
 	private static void failedOpenGL(@NonNull LWJGLException e) {
-		logger.log(Level.SEVERE, "OpenGL Failure", e);
-		Main.shutdown();
+        try {
+            logger.log(Level.SEVERE, "OpenGL Failure", e);
+            Main.fail(e);
+        } finally {
+            Main.shutdown();
+        }
 	}
 
 	public static void startMenu(@NonNull NetworkSelector network, @NonNull GUI gui) {
@@ -416,15 +408,15 @@ public final class Renderer {
 	private static @NonNull UIRenderer finishMainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, boolean first_progress, @NonNull WorldGenerator generator) {
 		AnimationManager.freezeTime();
 		PlayerInfo player_info = new PlayerInfo(0, 0, "");
-		ShaderProgram ffShader = new FixedFunctionShader();
+		FixedFunctionShader shader = new FixedFunctionShader();
         MatrixStack modelViewStack = new MatrixStack();
         MatrixStack projectionStack = new MatrixStack();
-        DebugRender.setShaderRenderer(new DebugShaderRenderer(ffShader, modelViewStack, projectionStack));
-        RenderQueues render_queues = new RenderQueues(new SpriteBatchRenderer(ffShader, modelViewStack, projectionStack));
-		LandscapeResources landscape_resources = World.loadCommon(render_queues);
 		WorldParameters world_params = new WorldParameters(Game.GAMESPEED_NORMAL, "", 2, Player.DEFAULT_MAX_UNIT_COUNT);
 		PlayerInfo[] players = new PlayerInfo[]{player_info};
-		WorldInfo world_info = generator.generate(players.length, world_params.getInitialUnitCount(), 0f);
+        WorldInfo world_info = generator.generate(players.length, world_params.getInitialUnitCount(), 0f);
+        FogInfo fog_info = Landscape.getFogInfo(generator.getTerrainType(), world_info.meters_per_world);
+        RenderQueues render_queues = new RenderQueues(new SpriteBatchRenderer(shader, modelViewStack, projectionStack));
+		LandscapeResources landscape_resources = World.loadCommon(render_queues);
 		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {
 			@Override
 			public void gamespeedChanged(int speed) {
@@ -450,7 +442,7 @@ public final class Renderer {
 			@Override
 			public void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
 			}
-		}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Color.argb4f(Player.COLORS[0])});
+		}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Color.argb4f(Player.COLORS[0])}, fog_info);
 		AnimationManager manager = new AnimationManager();
 		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, gui_root, manager);
 		Player local_player = world.getPlayers()[0];
@@ -555,7 +547,7 @@ public final class Renderer {
 			}
 			LocalInput.getLocalInput().setModeToNearest(target_mode);
 //if (System.currentTimeMillis() > 0)
-//throw new LWJGLException("Det fejlede fordi du bad den om det");
+//throw new LWJGLException("It failed because you asked it to.");
 		} catch (LWJGLException e) {
             AudioManager.getManager().destroy();
 			failedOpenGL(e);
@@ -567,23 +559,22 @@ public final class Renderer {
 		logger.info("GL vendor: '" + vendor + "'");
 		String renderer = GL11.glGetString(GL11.GL_RENDERER);
 		logger.info("GL renderer: '" + renderer + "'");
-		if (GLContext.getCapabilities().OpenGL20) {
-			logger.info("GL shading language version: '" + GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION) + "'");
+		if (!GLContext.getCapabilities().OpenGL21) {
+			throw new LWJGLException("OpenGL 2.1 is required.");
 		}
+		logger.info("GL shading language version: '" + GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION) + "'");
+
 		String extensions = GL11.glGetString(GL11.GL_EXTENSIONS);
 		logger.info("GL extensions: '" + extensions + "'");
 
 		dumpWindowInfo();
 
-		if (!GLContext.getCapabilities().OpenGL13) {
-			throw new LWJGLException("OpenGL 1.3 is required.");
-		}
-		int num_tex_units = GLUtils.getGLInteger(GL13.GL_MAX_TEXTURE_UNITS);
-		if (num_tex_units < 2) {
-			throw new LWJGLException("Number of texture units " + num_tex_units + " is less than the required 2.");
+		int num_combined_tex_units = GLUtils.getGLInteger(GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+		logger.info("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: " + num_combined_tex_units);
+		if (num_combined_tex_units < 8) {
+			throw new LWJGLException("Number of combined texture image units " + num_combined_tex_units + " is less than the required 8.");
 		}
 
-		GLStateStack.setCurrent(display_state_stack);
 		resetInput();
 		logger.info("vsync = " + Settings.getSettings().vsync);
 		if (Settings.getSettings().vsync)
@@ -643,22 +634,6 @@ public final class Renderer {
 	}
 
 	private void initVisibleGL() {
-		FloatBuffer float_array = BufferUtils.createFloatBuffer(4);
-		GL11.glEnable(GL11.GL_LIGHT0);
-		float[] light_diff_color = {1.0f, 1.0f, 1.0f, 1.0f};
-		float_array.put(light_diff_color);
-		float_array.rewind();
-		GL11.glLight(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, float_array);
-		GL11.glLightModeli(GL11.GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
-
-		float[] global_ambient = {0.65f, 0.65f, 0.65f, 1.0f};
-		float_array.put(global_ambient);
-		float_array.rewind();
-		GL11.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, float_array);
-		float[] material_color = {1.0f, 1.0f, 1.0f, 1.0f};
-		float_array.put(material_color);
-		float_array.rewind();
-		GL11.glMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE, float_array);
 		Display.update();
 	}
 
@@ -680,22 +655,9 @@ public final class Renderer {
 		GL11.glPixelStorei(GL11.GL_UNPACK_SWAP_BYTES, 0);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthFunc(GL11.GL_LEQUAL);
-		GL11.glShadeModel(GL11.GL_SMOOTH);
 		if (GLContext.getCapabilities().GL_ARB_multisample) {
 			GL11.glEnable(ARBMultisample.GL_MULTISAMPLE_ARB);
 		}
-//		GL11.glAlphaFunc(GL11.GL_GREATER, Globals.ALPHA_CUTOFF);
-		// Setup landscape texture coordinate gen
-		GL11.glTexGeni(GL11.GL_S, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
-		GL11.glTexGeni(GL11.GL_T, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-		GLState.activeTexture(GL13.GL_TEXTURE1);
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_DECAL);
-		GL11.glTexGeni(GL11.GL_S, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
-		GL11.glTexGeni(GL11.GL_T, GL11.GL_TEXTURE_GEN_MODE, GL11.GL_OBJECT_LINEAR);
-		GLState.activeTexture(GL13.GL_TEXTURE0);
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 

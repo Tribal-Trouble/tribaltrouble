@@ -2,6 +2,7 @@ package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.render.SpriteList;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class SpriteFile extends File<SpriteList> {
 	private final boolean lighting;
@@ -31,14 +32,15 @@ public final class SpriteFile extends File<SpriteList> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (!(o instanceof SpriteFile))
-			return false;
-		SpriteFile other = (SpriteFile)o;
-		if (mipmap_cutoff != other.mipmap_cutoff || lighting != other.lighting || cullface != other.cullface || alpha != other.alpha || modulate_color != other.modulate_color)
-			return false;
-		return super.equals(o);
-	}
+	public boolean equals(@Nullable Object o) {
+        return o instanceof SpriteFile other &&
+				mipmap_cutoff == other.mipmap_cutoff &&
+				lighting == other.lighting &&
+				cullface == other.cullface &&
+				alpha == other.alpha &&
+				modulate_color == other.modulate_color &&
+				super.equals(o);
+    }
 
 	public int getMipmapCutoff() {
 		return mipmap_cutoff;

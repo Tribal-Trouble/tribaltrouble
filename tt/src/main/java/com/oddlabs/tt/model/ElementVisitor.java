@@ -5,17 +5,18 @@ import com.oddlabs.tt.model.weapon.DirectedThrowingWeapon;
 import com.oddlabs.tt.model.weapon.RotatingThrowingWeapon;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Lightning;
+import org.jspecify.annotations.NonNull;
 
 public interface ElementVisitor {
-	void visitUnit(Unit selectable);
-	void visitBuilding(Building selectable);
-	void visitEmitter(Emitter emitter);
-	void visitLightning(Lightning lightning);
-	void visitRespond(LandscapeTargetRespond respond);
-	void visitSupplyModel(SupplyModel model);
-	void visitSceneryModel(SceneryModel model);
-	void visitRubberSupply(RubberSupply model);
-	void visitDirectedThrowingWeapon(DirectedThrowingWeapon model);
-	void visitRotatingThrowingWeapon(RotatingThrowingWeapon model);
-	void visitPlants(Plants plants);
+	void visitUnit(@NonNull Unit selectable);
+	void visitBuilding(@NonNull Building selectable);
+	void visitEmitter(@NonNull Emitter emitter);
+	void visitLightning(@NonNull Lightning lightning);
+	void visitRespond(@NonNull LandscapeTargetRespond respond);
+	void visitSupplyModel(@NonNull SupplyModel model);
+	void visitSceneryModel(@NonNull SceneryModel model);
+	void visitRubberSupply(@NonNull RubberSupply model);
+	void visitDirectedThrowingWeapon(@NonNull DirectedThrowingWeapon model);
+	void visitRotatingThrowingWeapon(@NonNull RotatingThrowingWeapon model);
+	void visitPlants(@NonNull Plants plants);
 }

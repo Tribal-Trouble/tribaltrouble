@@ -40,7 +40,7 @@ public abstract class GLImage {
 		this.width = width;
 		this.height = height;
 		this.pixel_data = pixel_data;
-		this.format = format;
+		this.format =  format;
 		this.type = determineType(format);
 	}
 
@@ -180,36 +180,45 @@ public abstract class GLImage {
 	 */
 	private static int averagePixel(@NonNull GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
 		float inv_num_averaged = 1f/(height_div * width_div);
-		int col1 = 0;
-		int col2 = 0;
-		int col3 = 0;
-		int col4 = 0;
+		int a_acc = 0;
+		int r_acc = 0;
+		int g_acc = 0;
+		int b_acc = 0;
 		for (int offset_y = 0; offset_y < height_div; offset_y++)
 			for (int offset_x = 0; offset_x < width_div; offset_x++) {
 				int pixel = last_img.getPixel(x + offset_x, y + offset_y);
-				col1 += (pixel >>> 24);
-				col2 += (pixel >>> 16) & 0xff;
-				col3 += (pixel >>> 8) & 0xff;
 
-				int a = pixel & 0xff;
+				// Unpack ARGB
+				int a = (pixel >>> 24);
+				int r = (pixel >>> 16) & 0xff;
+				int g = (pixel >>> 8) & 0xff;
+				int b = pixel & 0xff;
+
+				r_acc += r;
+				g_acc += g;
+				b_acc += b;
+
 				if (max_alpha) {
-					col4 = Math.max(col4, a);
+					a_acc = Math.max(a_acc, a);
 				} else {
-					col4 += a;
+					a_acc += a;
 				}
 			}
 		if (current_level >= base_fadeout_level) {
-			col1 = (int)(col1*fadeout_factor);
-			col2 = (int)(col2*fadeout_factor);
-			col3 = (int)(col3*fadeout_factor);
-			col4 = (int)(col4*fadeout_factor);
+			a_acc = (int)(a_acc*fadeout_factor);
+			r_acc = (int)(r_acc*fadeout_factor);
+			g_acc = (int)(g_acc*fadeout_factor);
+			b_acc = (int)(b_acc*fadeout_factor);
 		}
-		col1 = (int)(col1*inv_num_averaged);
-		col2 = (int)(col2*inv_num_averaged);
-		col3 = (int)(col3*inv_num_averaged);
+
 		if (!max_alpha)
-			col4 = (int)(col4*inv_num_averaged);
-		return (col1 << 24) + (col2 << 16) + (col3 << 8) + col4;
+			a_acc = (int)(a_acc*inv_num_averaged);
+
+		r_acc = (int)(r_acc*inv_num_averaged);
+		g_acc = (int)(g_acc*inv_num_averaged);
+		b_acc = (int)(b_acc*inv_num_averaged);
+
+		return (a_acc << 24) | (r_acc << 16) | (g_acc << 8) | b_acc;
 	}
 
     /**
@@ -231,10 +240,10 @@ public abstract class GLImage {
 
 	private static int averagePixelThreshold(@NonNull GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
 		float inv_num_averaged = 1f/(height_div * width_div);
-		int col1 = 0;
-		int col2 = 0;
-		int col3 = 0;
-		int col4 = 0;
+        int col1 = 0; // Alpha (MSB)
+        int col2 = 0; // Blue
+        int col3 = 0; // Green
+        int col4 = 0; // Red (LSB)
 		for (int offset_y = 0; offset_y < height_div; offset_y++) {
             for (int offset_x = 0; offset_x < width_div; offset_x++) {
                 int pixel = last_img.getPixel(x + offset_x, y + offset_y);
@@ -255,8 +264,8 @@ public abstract class GLImage {
 		col3 = (int)(col3*inv_num_averaged);
 		col4 = (int)(col4*inv_num_averaged);
 		if (max_alpha) {
-			if (col4 >= 128)
-				col4 = 255;
+			if (col1 >= 128)
+				col1 = 255;
 		}
 		return (col1 << 24) + (col2 << 16) + (col3 << 8) + col4;
 	}
@@ -348,14 +357,14 @@ public abstract class GLImage {
 		Channel g = new Channel(width, height);
 		Channel b = new Channel(width, height);
 		Channel a = new Channel(width, height);
-		int pixel;
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				pixel = getPixel(x, y);
-				r.putPixel(x, y, (pixel>>>24)/255f);
-				g.putPixel(x, y, ((pixel>>16) & 0xff)/255f);
-				b.putPixel(x, y, ((pixel>>8) & 0xff)/255f);
-				a.putPixel(x, y, (pixel & 0xff)/255f);
+                int pixel = getPixel(x, y);
+                // Unpack ABGR
+				a.putPixel(x, y, (pixel>>>24)/255f);
+				b.putPixel(x, y, ((pixel>>16) & 0xff)/255f);
+				g.putPixel(x, y, ((pixel>>8) & 0xff)/255f);
+				r.putPixel(x, y, (pixel & 0xff)/255f);
 			}
 		}
 		return new Layer(r, g, b, a);

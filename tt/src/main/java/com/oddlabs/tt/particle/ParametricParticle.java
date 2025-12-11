@@ -1,5 +1,8 @@
 package com.oddlabs.tt.particle;
 
+import com.oddlabs.tt.landscape.World;
+import org.jspecify.annotations.NonNull;
+
 final class ParametricParticle extends Particle {
 	private final ParametricFunction function;
 	private final float offset_x;
@@ -11,7 +14,8 @@ final class ParametricParticle extends Particle {
 	private float u = 0f;
 	private float v = 0f;
 
-	public ParametricParticle(ParametricFunction function, float u, float v, float offset_x, float offset_y, float offset_z) {
+	public ParametricParticle(@NonNull World world, ParametricFunction function, float u, float v, float offset_x, float offset_y, float offset_z) {
+		super(world);
 		this.function = function;
 		this.u = u;
 		this.v = v;

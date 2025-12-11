@@ -1,5 +1,8 @@
 package com.oddlabs.tt.player;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -10,28 +13,27 @@ public final class PlayerInfo implements Serializable {
 	public static final int TEAM_NEUTRAL = -1;
 
 	private final int race;
-	private final String name;
+	private final @NonNull String name;
 	private final int team;
 
-	public PlayerInfo(int team, int race, String name) {
+	public PlayerInfo(int team, int race, @NonNull String name) {
 		this.team = team;
 		this.race = race;
 		this.name = name;
 	}
 
 	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof PlayerInfo))
-			return false;
-		PlayerInfo player = (PlayerInfo)other;
-		return team == player.team && race == player.race;
-	}
+	public boolean equals(@Nullable Object other) {
+        return other instanceof PlayerInfo player &&
+				team == player.team &&
+				race == player.race;
+    }
 
 	public int getRace() {
 		return race;
 	}
 
-	public String getName() {
+	public @NonNull String getName() {
 		return name;
 	}
 
@@ -40,7 +42,7 @@ public final class PlayerInfo implements Serializable {
 	}
 
 	@Override
-	public String toString() {
+	public @NonNull String toString() {
 		return name;
 	}
 }

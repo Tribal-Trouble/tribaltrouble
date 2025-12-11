@@ -70,18 +70,18 @@ public final class NetworkSelector {
 		return selector;
 	}
 
-	void unregisterForPinging(Connection conn) {
+	void unregisterForPinging(@NonNull Connection conn) {
 		TimedConnection unregister_key = new TimedConnection(-1, conn);
 		ping_timeouts.remove(unregister_key);
 		ping_connections.remove(unregister_key);
 	}
 
-	void registerForPingTimeout(Connection conn) {
+	void registerForPingTimeout(@NonNull Connection conn) {
 		long ping_timeout = time_manager.getMillis() + PING_TIMEOUT;
 		ping_timeouts.add(new TimedConnection(ping_timeout, conn));
 	}
 
-	void registerForPing(Connection conn) {
+	void registerForPing(@NonNull Connection conn) {
 		long ping_time = time_manager.getMillis() + PING_DELAY;
 		ping_connections.add(new TimedConnection(ping_time, conn));
 	}

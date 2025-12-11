@@ -139,7 +139,7 @@ public class ParametricEmitter extends Emitter {
 	protected int initParticle(ParametricFunction function, float velocity_u, float velocity_v, @NonNull Vector4f color, @NonNull Vector4f delta_color, @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy) {
 
 		Vector3f offset = randomOffset(area_xy, area_xy, area_z);
-		ParametricParticle particle = new ParametricParticle(function, random.nextFloat()*(float)Math.PI*2f, random.nextFloat()*(float)Math.PI*2f,
+		ParametricParticle particle = new ParametricParticle(getWorld(), function, random.nextFloat()*(float)Math.PI*2f, random.nextFloat()*(float)Math.PI*2f,
 				offset.x(), offset.y(), offset.z());
 		offset = randomOffset(velocity_random_margin, velocity_random_margin, 0f);
 		particle.setVelocity(velocity_u + offset.x(), velocity_v + offset.y());

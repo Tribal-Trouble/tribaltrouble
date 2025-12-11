@@ -98,7 +98,7 @@ public final class ConvertToBinary2 {
 				float wpc = Float.parseFloat(item.getAttributes().getNamedItem("wpc").getNodeValue());
 				assert wpc != 0f;
 				String type_str = item.getAttributes().getNamedItem("type").getNodeValue();
-				int type = getTypeFromString(type_str);
+				AnimationInfo.AnimationType type = getTypeFromString(type_str);
 				object_infos.add(new AnimObjectInfo(new File(src_dir, getText(item)), wpc, type));
 			}
 		}
@@ -106,7 +106,7 @@ public final class ConvertToBinary2 {
 		return object_infos.toArray(infos);
 	}
 
-	private static String[] @NonNull [] getTextureInfos(@NonNull Node n, String src_dir) {
+	private static String@NonNull [] @NonNull [] getTextureInfos(@NonNull Node n, String src_dir) {
 		NodeList nl = n.getChildNodes();
 		List<String[]> object_infos = new ArrayList<>();
 		for (int i = 0; i < nl.getLength(); i++) {
@@ -167,7 +167,7 @@ public final class ConvertToBinary2 {
 				}
 			} else {
 				float[][] identity_frame = {{1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0}};
-				animations = new AnimationInfo[]{new AnimationInfo(identity_frame, AnimationInfo.ANIM_LOOP, 1f)};
+				animations = new AnimationInfo[]{new AnimationInfo(identity_frame, AnimationInfo.AnimationType.LOOP, 1f)};
 				name_to_bone_map = null;
 			}
 			SpriteInfo2[] sprite_models = new SpriteInfo2[model_object_infos.length];
@@ -222,12 +222,12 @@ public final class ConvertToBinary2 {
 		return Integer.parseInt(string);
 	}
 
-	private static int getTypeFromString(@NonNull String str) {
+	private static AnimationInfo.@NonNull AnimationType getTypeFromString(@NonNull String str) {
         switch (str) {
             case "loop":
-                return AnimationInfo.ANIM_LOOP;
+                return AnimationInfo.AnimationType.LOOP;
             case "plain":
-                return AnimationInfo.ANIM_PLAIN;
+                return AnimationInfo.AnimationType.PLAIN;
             default:
                 throw new RuntimeException("Unknown animation type: " + str);
         }

@@ -1,5 +1,8 @@
 package com.oddlabs.tt.particle;
 
+import com.oddlabs.tt.landscape.World;
+import org.jspecify.annotations.NonNull;
+
 public final class StretchParticle extends Particle {
 	private float src_x = 0f;
 	private float src_y = 0f;
@@ -9,6 +12,10 @@ public final class StretchParticle extends Particle {
 	private float dst_z = 0f;
 	private float src_width = 0f;
 	private float dst_width = 0f;
+
+	public StretchParticle(@NonNull World world) {
+		super(world);
+	}
 
 	@Override
 	public void update(float t) {

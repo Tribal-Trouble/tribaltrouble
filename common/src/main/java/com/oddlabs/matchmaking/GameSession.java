@@ -1,6 +1,7 @@
 package com.oddlabs.matchmaking;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -45,7 +46,7 @@ public final class GameSession implements Serializable {
 	}
 	
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(@Nullable Object other) {
 		if (!(other instanceof GameSession))
 			return false;
 		GameSession other_game = (GameSession)other;

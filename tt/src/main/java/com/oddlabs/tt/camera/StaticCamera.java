@@ -1,8 +1,10 @@
 package com.oddlabs.tt.camera;
 
 
+import org.jspecify.annotations.NonNull;
+
 public  class StaticCamera extends Camera {
-    public StaticCamera(CameraState camera) {
+    public StaticCamera(@NonNull CameraState camera) {
         super(null, camera);
     }
 

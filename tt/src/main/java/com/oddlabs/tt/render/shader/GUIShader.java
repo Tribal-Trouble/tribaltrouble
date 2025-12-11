@@ -48,6 +48,9 @@ import org.lwjgl.opengl.GL20;
             
             void main() {
                 gl_FragColor = texture2D(u_texture, v_TexCoord) * v_Color;
+                if (gl_FragColor.a <= 0.0) {
+                    discard;
+                }
             }
             """;
 

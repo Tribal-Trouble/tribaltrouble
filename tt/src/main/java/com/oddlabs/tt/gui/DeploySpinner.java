@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 public final class DeploySpinner extends IconSpinner {
 	private final @NonNull PlayerInterface player_interface;
-	private Class<?> supply_type;
+	private @Nullable Class<?> supply_type;
 	private DeployType deploy_type;
 	private Building current_building;
 	private int num_orders = 0;

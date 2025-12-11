@@ -204,19 +204,19 @@ public final class RenderState implements ElementVisitor {
 	}
 
 	@Override
-	public void visitEmitter(final Emitter emitter) {
+	public void visitEmitter(final @NonNull Emitter emitter) {
 		if (!picking)
 			emitter_queue.add(emitter);
 	}
 
 	@Override
-	public void visitLightning(final Lightning lightning) {
+	public void visitLightning(@NonNull Lightning lightning) {
 		if (!picking)
 			lightning_queue.add(lightning);
 	}
 
 	@Override
-	public void visitRespond(final LandscapeTargetRespond respond) {
+	public void visitRespond(final @NonNull LandscapeTargetRespond respond) {
 		if (!picking)
 			target_respond_renderer.addToTargetList(respond);
 	}
@@ -230,7 +230,7 @@ public final class RenderState implements ElementVisitor {
 		}
 	};
 	@Override
-	public void visitSupplyModel(final SupplyModel model) {
+	public void visitSupplyModel(final @NonNull SupplyModel model) {
 		addToRenderList(getCachedState(supply_model_visitor, model));
 	}
 
@@ -301,7 +301,7 @@ public final class RenderState implements ElementVisitor {
 		}
 	};
 	@Override
-	public void visitDirectedThrowingWeapon(final DirectedThrowingWeapon model) {
+	public void visitDirectedThrowingWeapon(final @NonNull DirectedThrowingWeapon model) {
 		if (!picking) {
 			addToRenderList(getCachedState(directed_weapon_model_visitor, model));
 		}
@@ -316,7 +316,7 @@ public final class RenderState implements ElementVisitor {
 		}
 	};
 	@Override
-	public void visitRotatingThrowingWeapon(final RotatingThrowingWeapon model) {
+	public void visitRotatingThrowingWeapon(final @NonNull RotatingThrowingWeapon model) {
 		if (!picking) {
 			addToRenderList(getCachedState(rotating_weapon_model_visitor, model));
 		}

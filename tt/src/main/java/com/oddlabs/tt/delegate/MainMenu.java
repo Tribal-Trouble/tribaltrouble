@@ -18,7 +18,7 @@ import org.jspecify.annotations.NonNull;
  * The game main menu
  */
 public final class MainMenu extends Menu {
-	public MainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, Camera camera) {
+	public MainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Camera camera) {
 		super(network, gui_root, camera);
 		reload();
 	}

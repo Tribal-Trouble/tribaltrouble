@@ -27,8 +27,8 @@ import java.util.Set;
 
 public final class Client implements MatchmakingServerInterface, ConnectionInterface {
 	private static final int CHUNK_SIZE = 10;
-	private static final Set<Client> game_hosts = new HashSet<>();
-	private static final Map<String, Client> active_clients = new HashMap<>();
+	private static final Set<@NonNull Client> game_hosts = new HashSet<>();
+	private static final Map<@NonNull String, @NonNull Client> active_clients = new HashMap<>();
 
 	private static int current_random_seed = 1;
 
@@ -37,7 +37,7 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 	private final MatchmakingClientInterface client_interface;
 	
 	private final AbstractConnection conn;
-	private final Map<HostSequenceID, Client> tunnels = new HashMap<>();
+	private final Map<@NonNull HostSequenceID, @NonNull Client> tunnels = new HashMap<>();
 	private final InetAddress remote_address;
 	private final InetAddress local_remote_address;
 	private final int host_id;
@@ -49,13 +49,13 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 	private final int revision;
 	private final String username;
 	private final boolean guest;
-	private Profile active_profile;
+	private @Nullable Profile active_profile;
 
 	private Game current_game;
 	private TimestampedGameSession current_session;
-	private ChatRoom current_room;
+	private @Nullable ChatRoom current_room;
 
-	public Client(MatchmakingServer server, AbstractConnection conn, InetAddress remote_address, InetAddress local_remote_address, String username, boolean guest, int revision, int host_id) {
+	public Client(@NonNull MatchmakingServer server, AbstractConnection conn, InetAddress remote_address, InetAddress local_remote_address, String username, boolean guest, int revision, int host_id) {
 		this.conn = conn;
 		this.server = server;
 		this.remote_address = remote_address;
@@ -497,13 +497,11 @@ public final class Client implements MatchmakingServerInterface, ConnectionInter
 		if (getProfile() != null) {
 			if (current_room == null && ChatRoom.isNameValid(room_name)) {
 				ChatRoom room = ChatRoom.getChatRoom(room_name);
-				if (room.getUsers().size() < MAX_ROOM_USERS) {
+				if (room.join(this)) {
 					MatchmakingServer.getLogger().info(getProfile().getNick() + " joined chat room, name = " + room.getName());
 					current_room = room;
 					client_interface.joiningChatRoom(current_room.getName());
-					current_room.join(this);
 					client_interface.receiveChatRoomMessage("Server", "Welcome to the Tribal Trouble multiplayer server. Please keep a proper tone while playing online: All activity in the chatrooms and the game is logged and any abusive behavior will result in the immediate banning from the multiplayer server at Oddlabs' discretion.");
-					return;
 				} else {
 					client_interface.error(MatchmakingClientInterface.CHAT_ERROR_TOO_MANY_USERS);
 				}

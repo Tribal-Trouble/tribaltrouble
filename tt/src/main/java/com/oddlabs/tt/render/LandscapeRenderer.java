@@ -12,23 +12,33 @@ import com.oddlabs.tt.landscape.LandscapeTileIndices;
 import com.oddlabs.tt.landscape.PatchGroup;
 import com.oddlabs.tt.landscape.PatchGroupVisitor;
 import com.oddlabs.tt.landscape.World;
+import com.oddlabs.tt.render.shader.LandscapeShader;
+import com.oddlabs.tt.render.shader.ShaderProgram;
+import com.oddlabs.tt.resource.BlendInfo;
+import com.oddlabs.tt.resource.GLImage;
+import com.oddlabs.tt.resource.GLIntImage;
+import com.oddlabs.tt.resource.StructureBlend;
 import com.oddlabs.tt.resource.WorldInfo;
-import com.oddlabs.tt.util.GLState;
-import com.oddlabs.tt.util.GLStateStack;
-import com.oddlabs.tt.util.GLUtils;
+import com.oddlabs.tt.util.GLStateHelper;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.vbo.ShortVBO;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class LandscapeRenderer implements Animated {
 
@@ -36,13 +46,20 @@ public final class LandscapeRenderer implements Animated {
     private final List<LandscapeLeaf> render_list = new ArrayList<>();
     private final GUIRoot gui_root;
     private final @NonNull World world;
-    private final Texture[][] colormaps;
-    private final Texture detail;
-    private final PatchLevel[] @NonNull [] patch_levels;
+    private final @NonNull Texture highlightMap;
+    private final @NonNull Texture shadowMap;
+    private final BlendInfo @NonNull [] blendInfos;
+    private final @NonNull PatchLevel @NonNull [] @NonNull [] patch_levels;
     private final @NonNull LandscapeTileVertices landscape_vertices;
     private final ShortBuffer shadow_indices_buffer;
     private final @NonNull ShortVBO indices_vbo;
-    private final @NonNull AnimationManager manager;
+    private final LandscapeShader shader = new LandscapeShader();
+    private final @NonNull Texture packedAlpha0;
+    private final @NonNull Texture packedAlpha1;
+
+    public @NonNull LandscapeShader getShader() {
+        return shader;
+    }
 
     private int current_map_x;
     private int current_map_y;
@@ -53,6 +70,31 @@ public final class LandscapeRenderer implements Animated {
     private int edit_patch_x1;
     private int edit_patch_y1;
 
+    static class PatchFinder {
+        private final @Nullable PatchLevel @NonNull [] @NonNull [] patch_levels;
+        private final @NonNull ExecutorService executor;
+        public PatchFinder(@NonNull ExecutorService executor, @Nullable PatchLevel @NonNull [] @NonNull [] patch_levels) {
+            this.executor = executor;
+            this.patch_levels = patch_levels;
+        }
+
+        public void set(int x, int y, @NonNull PatchLevel value) {
+            assert null == patch_levels[x][y];
+            patch_levels[x][y] = value;
+        }
+
+        public @NonNull PatchLevel get(int x, int y) throws ExecutionException, InterruptedException {
+            var size = patch_levels.length;
+            int wrappedX = (x + size) % size;
+            int wrappedY = (y + size) % size;
+            var value = patch_levels[wrappedX][wrappedY];
+            if (null == value) {
+                value = executor.submit(() -> new PatchLevel(this, wrappedX, wrappedY)).get();
+            }
+            return value;
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public LandscapeRenderer(@NonNull World world, @NonNull WorldInfo world_info, GUIRoot gui_root, @NonNull AnimationManager manager) {
         ShortBuffer indices = world.getLandscapeIndices().getIndices();
@@ -61,23 +103,45 @@ public final class LandscapeRenderer implements Animated {
 
         this.landscape_vertices = new LandscapeTileVertices(world.getHeightMap(), HeightMap.GRID_UNITS_PER_PATCH_EXP, world.getHeightMap().getPatchesPerWorld());
         this.patch_levels = new PatchLevel[world.getHeightMap().getPatchesPerWorld()][world.getHeightMap().getPatchesPerWorld()];
-        for (PatchLevel[] patch_level : patch_levels) {
-            for (int x = 0; x < patch_levels.length; x++) {
-                patch_level[x] = new PatchLevel();
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            var finder = new PatchFinder(executor, patch_levels);
+            PatchLevel first = new PatchLevel(finder, 0, 0);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize patch levels", e);
+        }
+        this.blendInfos = world_info.blend_infos;
+        
+        // Pack alpha maps into two RGBA textures
+        GLImage ref = blendInfos[1].getSourceImage(); // Use Dirt alpha as reference for size
+        int width = ref.getWidth();
+        int height = ref.getHeight();
+        GLIntImage img0 = new GLIntImage(width, height, GL11.GL_RGBA);
+        GLIntImage img1 = new GLIntImage(width, height, GL11.GL_RGBA);
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int r0 = 255; // Base alpha is white (1x1 in source, fill here)
+                int g0 = blendInfos[1].getSourceImage().getPixel(x, y);
+                int b0 = blendInfos[2].getSourceImage().getPixel(x, y);
+                int a0 = blendInfos[3].getSourceImage().getPixel(x, y);
+                img0.putPixel(x, y, (a0 << 24) | (b0 << 16) | (g0 << 8) | r0);
+
+                int r1 = blendInfos[4].getSourceImage().getPixel(x, y);
+                int g1 = blendInfos[5].getSourceImage().getPixel(x, y); // Highlight
+                int b1 = blendInfos[6].getSourceImage().getPixel(x, y); // Shadow
+                int a1 = blendInfos[7].getSourceImage().getPixel(x, y); // Seabottom
+                img1.putPixel(x, y, (a1 << 24) | (b1 << 16) | (g1 << 8) | r1);
             }
         }
-        for (int y = 0; y < patch_levels.length; y++) {
-            for (int x = 0; x < patch_levels.length; x++) {
-                PatchLevel right = getPatchWrapped(x + 1, y);
-                PatchLevel top = getPatchWrapped(x, y + 1);
-                patch_levels[y][x].init(right, top);
-            }
-        }
-        this.detail = world_info.detail;
-        this.colormaps = world_info.colormaps;
+        
+        packedAlpha0 = new Texture(new GLImage[]{img0}, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
+        packedAlpha1 = new Texture(new GLImage[]{img1}, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
+
+        this.highlightMap = world_info.blend_infos[5].getAlphaMap();
+        this.shadowMap = world_info.blend_infos[6].getAlphaMap();
+
         this.gui_root = gui_root;
         this.world = world;
-        this.manager = manager;
         int levels = LandscapeTileIndices.getNumLOD(HeightMap.GRID_UNITS_PER_PATCH_EXP);
         patch_lists = (List<PatchLevel>[]) new ArrayList<?>[levels];
         for (int i = 0; i < patch_lists.length; i++) {
@@ -92,43 +156,32 @@ public final class LandscapeRenderer implements Animated {
         return world.getHeightMap();
     }
 
-    public PatchLevel getPatchLevelFromCoordinates(float x_f, float y_f) {
+    public @NonNull PatchLevel getPatchLevelFromCoordinates(float x_f, float y_f) {
         int patch_x = world.getHeightMap().coordinateToPatch(x_f);
         int patch_y = world.getHeightMap().coordinateToPatch(y_f);
         return getPatchLevel(patch_x, patch_y);
     }
 
-    private PatchLevel getPatchLevel(int patch_x, int patch_y) {
+    private @NonNull PatchLevel getPatchLevel(int patch_x, int patch_y) {
         return patch_levels[patch_y][patch_x];
     }
 
-    public PatchLevel getPatchLevel(@NonNull LandscapeLeaf leaf) {
+    public @NonNull PatchLevel getPatchLevel(@NonNull LandscapeLeaf leaf) {
         return getPatchLevel(leaf.getPatchX(), leaf.getPatchY());
     }
 
-    private PatchLevel getPatchWrapped(int patch_x, int patch_y) {
-        patch_x = (patch_x + patch_levels.length) % patch_levels.length;
-        patch_y = (patch_y + patch_levels.length) % patch_levels.length;
+    private @NonNull PatchLevel getPatchWrapped(int patch_x, int patch_y) {
+        var size = patch_levels.length;
+        patch_x = (patch_x + size) % size;
+        patch_y = (patch_y + size) % size;
         return getPatchLevel(patch_x, patch_y);
     }
 
-    public void bindDetail() {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, detail.getHandle());
-    }
-
-    void bindMap(int x, int y) {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, colormaps[y][x].getHandle());
-    }
-
     void bindLeaf(@NonNull LandscapeLeaf leaf) {
-        landscape_vertices.bind(leaf.getPatchX(), leaf.getPatchY());
+        landscape_vertices.bindAttributes(shader, leaf.getPatchX(), leaf.getPatchY());
     }
 
     private void clearRenderList() {
-        for (int i = 0; i < render_list.size(); i++) {
-            LandscapeLeaf patch = render_list.get(i);
-            render_list.set(i, null);
-        }
         render_list.clear();
     }
 
@@ -140,15 +193,15 @@ public final class LandscapeRenderer implements Animated {
         int triangle_index2 = world.getLandscapeIndices().getTriangleIndex(patch_index + 1);
         int num_triangles = triangle_index2 - triangle_index;
         indices_vbo.drawElements(GL11.GL_TRIANGLES, num_triangles * 3, triangle_index * 3);
-    }
-
-    private void doRenderAll() {
-        for (LandscapeLeaf patch : render_list) {
-            RenderTools.draw(patch, BoundingMode.LANDSCAPE, 1f, 0f, 0f);
-            setupColormap(patch.getColorMapX(), patch.getColorMapY());
-            if (Globals.draw_landscape)
-                renderPatch(patch);
-        }
+        
+        int posLoc = shader.getAttributeLocation(LandscapeShader.Attributes.POSITION);
+        if (posLoc != -1) GL20.glDisableVertexAttribArray(posLoc);
+        int normLoc = shader.getAttributeLocation(LandscapeShader.Attributes.NORMAL);
+        if (normLoc != -1) GL20.glDisableVertexAttribArray(normLoc);
+        int tex0Loc = shader.getAttributeLocation(LandscapeShader.Attributes.TEX_COORD_0);
+        if (tex0Loc != -1) GL20.glDisableVertexAttribArray(tex0Loc);
+        int tex1Loc = shader.getAttributeLocation(LandscapeShader.Attributes.TEX_COORD_1);
+        if (tex1Loc != -1) GL20.glDisableVertexAttribArray(tex1Loc);
     }
 
     public void pick(@NonNull CameraState camera, boolean visible_override, @NonNull Set<LandscapeLeaf> set) {
@@ -169,9 +222,7 @@ public final class LandscapeRenderer implements Animated {
     }
 
     public void endEdit() {
-        if (!editing)
-            return;
-
+        if (!editing) return;
         for (int y = edit_patch_y0; y <= edit_patch_y1; y++) {
             for (int x = edit_patch_x0; x <= edit_patch_x1; x++) {
                 reload(x, y);
@@ -196,21 +247,61 @@ public final class LandscapeRenderer implements Animated {
         edit_patch_y1 = Math.max(edit_patch_y1, patch_y1);
     }
 
-    public void renderAll() {
-        setupLandscape();
-        doRenderAll();
-        disableLandscape();
+    public void renderAll(@NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+        try (var _ = shader.use();
+             var _ = GLStateHelper.blend(false);
+             var _ = GLStateHelper.depthTest(true);
+             var _ = GLStateHelper.cullFace(false);
+             var _ = state.getFog().setup(shader, state.getCurrentZ())) {
+
+            shader.setUniformMatrix4(LandscapeShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+            shader.setUniformMatrix4(LandscapeShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
+            shader.setUniform(LandscapeShader.Uniforms.LIGHT_DIR, -1f, 0f, 1f);
+            shader.setUniform(LandscapeShader.Uniforms.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
+
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, packedAlpha0.getHandle());
+            shader.setUniform("u_packedAlpha0", 0);
+
+            GL13.glActiveTexture(GL13.GL_TEXTURE1);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, packedAlpha1.getHandle());
+            shader.setUniform("u_packedAlpha1", 1);
+
+            int texUnit = 2;
+            for (int i = 0; i < blendInfos.length; i++) {
+                if (blendInfos[i] instanceof StructureBlend blend) {
+                    GL13.glActiveTexture(GL13.GL_TEXTURE0 + texUnit);
+                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, blend.getStructureMap().getHandle());
+                    shader.setUniform("u_structure" + i, texUnit++);
+                }
+            }
+
+            for (LandscapeLeaf patch : render_list) {
+                if (Globals.draw_landscape) renderPatch(patch);
+            }
+            
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+
+        } finally {
+            com.oddlabs.tt.vbo.VBO.releaseIndexVBO();
+        }
+    }
+
+    public void debugRender(@NonNull CameraState frustum_state) {
+        if (Globals.isBoundsEnabled(BoundingMode.LANDSCAPE)) {
+            for (LandscapeLeaf patch : render_list) {
+                RenderTools.draw(patch, BoundingMode.LANDSCAPE, 1f, 0f, 0f);
+            }
+        }
     }
 
     private int calculateLevel(@NonNull LandscapeLeaf leaf) {
         CameraState camera = gui_root.getDelegate().getCamera().getState();
         float dist2 = RenderTools.getEyeDistanceSquared(leaf, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());
-        // Find appropriate patch size
         int i;
         float[] errors = leaf.getErrors();
         for (i = 0; i < errors.length; i++) {
-            if (dist2 >= errors[i])
-                break;
+            if (dist2 >= errors[i]) break;
         }
         return i;
     }
@@ -248,69 +339,30 @@ public final class LandscapeRenderer implements Animated {
     public void updateChecksum(@NonNull StateChecksum sum) {
     }
 
-    private void setupColormap(int map_x, int map_y) {
-        if (current_map_x != map_x || current_map_y != map_y) {
-            bindMap(map_x, map_y);
-            float tex_translate_x = map_x * world.getHeightMap().getMetersPerChunk() - world.getHeightMap().getMetersPerChunkBorder();
-            float tex_translate_y = map_y * world.getHeightMap().getMetersPerChunk() - world.getHeightMap().getMetersPerChunkBorder();
-            GLUtils.setupTexGen(world.getHeightMap().getChunkTexScale(), world.getHeightMap().getChunkTexScale(), -tex_translate_x, -tex_translate_y);
-
-            current_map_x = map_x;
-            current_map_y = map_y;
-        }
-    }
-
-    private void setupLandscape() {
-        current_map_x = -1;
-        current_map_y = -1;
-        GL11.glEnable(GL11.GL_TEXTURE_GEN_S);
-        GL11.glEnable(GL11.GL_TEXTURE_GEN_T);
-        GLStateStack.switchState(GLState.VERTEX_ARRAY | GLState.NORMAL_ARRAY | GLState.TEXCOORD0_ARRAY);
-        if (Globals.draw_detail) {
-            GLState.activeTexture(GL13.GL_TEXTURE1);
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
-            bindDetail();
-            GL11.glEnable(GL11.GL_TEXTURE_GEN_S);
-            GL11.glEnable(GL11.GL_TEXTURE_GEN_T);
-            GLUtils.setupTexGen(Globals.LANDSCAPE_DETAIL_REPEAT_RATE, Globals.LANDSCAPE_DETAIL_REPEAT_RATE, 0, 0);
-            GLState.activeTexture(GL13.GL_TEXTURE0);
-        }
-        GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ZERO);
-        GL11.glEnable(GL11.GL_BLEND);
-    }
-
-    private static void disableLandscape() {
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        if (Globals.draw_detail) {
-            GLState.activeTexture(GL13.GL_TEXTURE1);
-            GL11.glDisable(GL11.GL_TEXTURE_GEN_S);
-            GL11.glDisable(GL11.GL_TEXTURE_GEN_T);
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
-            GLState.activeTexture(GL13.GL_TEXTURE0);
-        }
-        GL11.glDisable(GL11.GL_TEXTURE_GEN_S);
-        GL11.glDisable(GL11.GL_TEXTURE_GEN_T);
-    }
-
     public void reload(int patch_x, int patch_y) {
         landscape_vertices.reload(patch_x, patch_y);
     }
 
-    void renderShadow(int patch_x, int patch_y, int start_x, int start_y, int end_x, int end_y) {
-        landscape_vertices.bind(patch_x, patch_y);
+    void renderShadow(@NonNull ShaderProgram shader, int patch_x, int patch_y, int start_x, int start_y, int end_x, int end_y) {
+        landscape_vertices.bindAttributes(shader, patch_x, patch_y);
         PatchLevel patch_level = getPatchLevel(patch_x, patch_y);
         shadow_indices_buffer.clear();
         world.getLandscapeIndices().fillCoverIndices(shadow_indices_buffer, patch_level.getLevel(), patch_level.getBorderSet(), start_x, start_y, end_x, end_y);
         shadow_indices_buffer.flip();
         GL11.glDrawElements(GL11.GL_TRIANGLES, shadow_indices_buffer);
+        
+        int posLoc = shader.getAttributeLocation("a_position");
+        if (posLoc != -1) GL20.glDisableVertexAttribArray(posLoc);
+        int normLoc = shader.getAttributeLocation("a_normal");
+        if (normLoc != -1) GL20.glDisableVertexAttribArray(normLoc);
+        int texLoc = shader.getAttributeLocation("a_texCoord0");
+        if (texLoc != -1) GL20.glDisableVertexAttribArray(texLoc);
     }
 
     private static final class Visitor implements PatchGroupVisitor {
-
-        private CameraState camera;
+        private @NonNull CameraState camera;
         private boolean visible_override;
-        private Collection<LandscapeLeaf> result;
+        private @NonNull Collection<LandscapeLeaf> result;
 
         private void setup(@NonNull CameraState camera, boolean visible_override, @NonNull Collection<LandscapeLeaf> result) {
             this.camera = camera;

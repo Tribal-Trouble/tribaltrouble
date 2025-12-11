@@ -162,7 +162,7 @@ public final class PathTracker {
 		return unit_grid.getOccupant(next_unit_grid_x, next_unit_grid_y);
 	}
 
-	private Occupant getNextOccupant() {
+	private @Nullable Occupant getNextOccupant() {
 		Occupant occ = getNextOccupantUnchecked();
 		assert occ != unit: unit.getGridX() + " " + unit.getGridY() + " " + next_unit_grid_x + " " + next_unit_grid_y;
 		return occ;

@@ -1,55 +1,60 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.procedural.GeneratorHalos;
 import com.oddlabs.tt.resource.Resources;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 final class SelectableShadowRenderer extends ShadowListRenderer {
-	private final Texture @NonNull [] halos;
+    private final @NonNull Texture @NonNull [] halos;
 
-	private final List<ModelState> selection_list = new ArrayList<>();
-	private final List<ModelState> shadowed_list = new ArrayList<>();
+    private final Deque<@NonNull ModelState<?>> selection_list = new ArrayDeque<>();
+    private final Deque<@NonNull Model> shadowed_list = new ArrayDeque<>();
 
-	public SelectableShadowRenderer(@NonNull Supplier<Texture[]> halos_desc) {
-		halos = Resources.findResource(halos_desc);
-	}
+    public SelectableShadowRenderer(@NonNull Supplier<@NonNull Texture @NonNull []> halos_desc) {
+        halos = Resources.findResource(halos_desc);
+    }
 
-	public void addToSelectionList(ModelState model) {
-		if (Globals.process_shadows)
-			selection_list.add(model);
-	}
+    public void addToSelectionList(@NonNull ModelState<?> modelState) {
+        if (Globals.process_shadows) {
+            selection_list.add(modelState);
+        }
+    }
 
-	public void addToShadowList(ModelState model) {
-		if (Globals.process_shadows)
-			shadowed_list.add(model);
-	}
+    public void addToShadowList(@NonNull ModelState<?> modelState) {
+        if (Globals.process_shadows) {
+            var model = modelState.getModel();
+            if (null != model) {
+                shadowed_list.add(model);
+            }
+        }
+    }
 
-	@Override
-	protected void renderShadows(@NonNull LandscapeRenderer renderer) {
-		setupShadows();
-		GL11.glColor3f(1f, 1f, 1f);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, halos[GeneratorHalos.SHADOWED].getHandle());
-		for (int i = 0; i < shadowed_list.size(); i++) {
-			ModelState model = shadowed_list.get(i);
-			shadowed_list.set(i, null);
-			renderShadow(renderer, model.getModel().getShadowDiameter(), model.getModel().getPositionX(), model.getModel().getPositionY());
-		}
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, halos[GeneratorHalos.SELECTED].getHandle());
-		for (int i = 0; i < selection_list.size(); i++) {
-			ModelState model = selection_list.get(i);
-			selection_list.set(i, null);
-			float[] color = model.getSelectionColor();
-			GL11.glColor3f(color[0], color[1], color[2]);
-			renderShadow(renderer, model.getModel().getShadowDiameter(), model.getModel().getPositionX(), model.getModel().getPositionY());
-		}
-		resetShadows();
-		selection_list.clear();
-		shadowed_list.clear();
-	}
+    @Override
+    protected void renderShadows(@NonNull LandscapeRenderer renderer, @NotNull MatrixStack modelViewStack, @NotNull MatrixStack projectionStack) {
+        try (var _ = setupShadows(modelViewStack, projectionStack)) {
+            setShadowColor(1f, 1f, 1f, 1f);
+            bindShadowTexture(halos[GeneratorHalos.SHADOWED]);
+            while (!shadowed_list.isEmpty()) {
+                var model = shadowed_list.pop();
+                renderShadow(renderer, model.getShadowDiameter(), model.getPositionX(), model.getPositionY());
+            }
+
+            bindShadowTexture(halos[GeneratorHalos.SELECTED]);
+            while (!selection_list.isEmpty()) {
+                var modelState = selection_list.pop();
+                var model = Objects.requireNonNull(modelState.getModel());
+                float[] color = modelState.getSelectionColor();
+                setShadowColor(color[0], color[1], color[2], 1f);
+                renderShadow(renderer, model.getShadowDiameter(), model.getPositionX(), model.getPositionY());
+            }
+        }
+    }
 }

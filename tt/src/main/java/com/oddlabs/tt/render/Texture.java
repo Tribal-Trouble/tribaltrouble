@@ -5,7 +5,6 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.resource.TextureFile;
-import com.oddlabs.tt.util.GLState;
 import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -15,6 +14,7 @@ import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GLContext;
 
 import java.nio.FloatBuffer;
@@ -61,6 +61,9 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, min_filter);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, mag_filter);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, max_mipmap_level);
+		if (min_filter == GL11.GL_LINEAR_MIPMAP_LINEAR || min_filter == GL11.GL_NEAREST_MIPMAP_LINEAR || min_filter == GL11.GL_LINEAR_MIPMAP_NEAREST || min_filter == GL11.GL_NEAREST_MIPMAP_NEAREST) {
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL14.GL_GENERATE_MIPMAP, GL11.GL_TRUE);
+		}
 		NativeTexture.border_color_buffer.put(0, 0f).put(1, 0f).put(2, 0f).put(3, 0f);
 		GL11.glTexParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_BORDER_COLOR, NativeTexture.border_color_buffer);
 
@@ -168,7 +171,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 			int mipmap_level = i + detail_shift;
 			dxt_image.position(mipmap_level);
 			total_size += dxt_image.getMipMap().remaining();
-			GLState.glCompressedTexImage2D(GL11.GL_TEXTURE_2D, i, dxt_image.getInternalFormat(), dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), 0, dxt_image.getMipMap());
+			GL13.glCompressedTexImage2D(GL11.GL_TEXTURE_2D, i, dxt_image.getInternalFormat(), dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), 0, dxt_image.getMipMap());
 		}
 		return total_size;
 	}

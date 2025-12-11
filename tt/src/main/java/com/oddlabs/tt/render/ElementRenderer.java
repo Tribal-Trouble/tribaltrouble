@@ -17,7 +17,7 @@ final class ElementRenderer<T extends Element<T>> implements ElementNodeVisitor<
 
     private boolean visible_override;
 
-    ElementRenderer(Player local_player, LandscapeRenderer renderer, @NonNull RenderQueues render_queues, Picker picker, boolean picking, SpriteSorter sprite_sorter, Selection selection) {
+    ElementRenderer(@NonNull Player local_player, @NonNull LandscapeRenderer renderer, @NonNull RenderQueues render_queues, @NonNull Picker picker, boolean picking, @NonNull SpriteSorter sprite_sorter, Selection selection) {
         this.picking = picking;
         this.render_state = new RenderState(local_player, renderer, sprite_sorter, render_queues, picker, selection);
     }

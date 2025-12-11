@@ -15,7 +15,6 @@ import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.LocalInput;
-import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Panel;

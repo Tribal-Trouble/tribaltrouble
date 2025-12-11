@@ -1,24 +1,24 @@
 package com.oddlabs.tt.render.shader;
 
 /** A shader for rendering water surfaces. */
-public final class WaterShader extends ShaderProgram {
+public final class WaterShader extends ShaderProgram implements FogShader {
 
-    public static final class Uniforms {
-        public static final String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
-        public static final String PROJECTION_MATRIX = "u_projectionMatrix";
-        public static final String TEXTURE_0 = "u_texture0"; // Base water texture
-        public static final String TEXTURE_1 = "u_texture1"; // Detail water texture
-        public static final String WATER_REPEAT_RATE = "u_waterRepeatRate";
-        public static final String WATER_DETAIL_REPEAT_RATE = "u_waterDetailRepeatRate";
-        public static final String ENABLE_DETAIL = "u_enableDetail";
+    public interface Uniforms {
+        String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
+        String PROJECTION_MATRIX = "u_projectionMatrix";
+        String TEXTURE_0 = "u_texture0"; // Base water texture
+        String TEXTURE_1 = "u_texture1"; // Detail water texture
+        String WATER_REPEAT_RATE = "u_waterRepeatRate";
+        String WATER_DETAIL_REPEAT_RATE = "u_waterDetailRepeatRate";
+        String ENABLE_DETAIL = "u_enableDetail";
+        String TIME = "u_time";
 
-        private Uniforms() {}
+        // Fog Uniforms
+        String FOG_HEIGHT_FACTOR = "u_fogHeightFactor";
     }
 
-    public static final class Attributes {
-        public static final String POSITION = "a_position";
-
-        private Attributes() {}
+    public interface Attributes {
+        String POSITION = "a_position";
     }
 
     private static final String VERTEX_SHADER = """
@@ -33,34 +33,58 @@ public final class WaterShader extends ShaderProgram {
 
         varying vec2 v_texCoord0;
         varying vec2 v_texCoord1;
+        varying float v_fogDist; // Pass view-space dist for fog calculation
 
         void main() {
-            gl_Position = u_projectionMatrix * u_modelViewMatrix * vec4(a_position, 1.0);
+            vec4 worldPosition = u_modelViewMatrix * vec4(a_position, 1.0);
+            gl_Position = u_projectionMatrix * worldPosition;
             v_texCoord0 = a_position.xy * u_waterRepeatRate;
             v_texCoord1 = a_position.xy * u_waterDetailRepeatRate;
+            v_fogDist = length(worldPosition.xyz);
         }
         """;
 
-    private static final String FRAGMENT_SHADER = """
+    private static final String FRAGMENT_SHADER =
+        """
         #version 120
-
+        """ +
+        FOG_FUNCTION +
+        """
         uniform sampler2D u_texture0;
         uniform sampler2D u_texture1;
         uniform bool u_enableDetail;
+        uniform float u_time;
 
+        // Fog uniforms
+        uniform vec4 u_fogColor;
+        uniform int u_fogMode;
+        uniform vec3 u_fogParams; // x = density/width, y = start/height, z = end/start
+        uniform float u_fogHeightFactor;
+        uniform float u_cameraHeight;
+        
         varying vec2 v_texCoord0;
         varying vec2 v_texCoord1;
+        varying float v_fogDist;
 
         void main() {
-            vec4 baseColor = texture2D(u_texture0, v_texCoord0);
+            vec2 scrolledTexCoord0 = v_texCoord0 + vec2(u_time * 0.01, u_time * 0.01);
+            vec2 scrolledTexCoord1 = v_texCoord1 + vec2(u_time * 0.02, 0.0);
+
+            vec4 baseColor = texture2D(u_texture0, scrolledTexCoord0);
             vec4 finalColor = baseColor;
 
             if (u_enableDetail) {
-                vec4 detailColor = texture2D(u_texture1, v_texCoord1);
-                // Simple blending for now, can be improved later if needed
-                finalColor = mix(baseColor, detailColor, detailColor.a); // Use alpha of detail for blending
+                vec4 detailColor = texture2D(u_texture1, scrolledTexCoord1);
+                finalColor = mix(baseColor, detailColor, detailColor.a);
             }
+            
             gl_FragColor = finalColor;
+
+            // Apply fog
+            float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
+            
+            // Mix RGB with fog, preserve original alpha
+            gl_FragColor.rgb = mix(u_fogColor.rgb, gl_FragColor.rgb, fogFactor);
         }
         """;
 

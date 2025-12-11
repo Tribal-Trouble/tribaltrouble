@@ -2,7 +2,6 @@ package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.Texture;
-import com.oddlabs.tt.util.GLState;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -19,26 +18,26 @@ public final class StructureBlend extends BlendInfo {
 		structure_map = createStructureMap(structure_image);
 	}
 
+	public @NonNull Texture getStructureMap() {
+		return structure_map;
+	}
+
 	private void bindStructure() {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, structure_map.getHandle());
 	}
 
 	@Override
 	public void setup() {
-		GLState.activeTexture(GL13.GL_TEXTURE1);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL13.glActiveTexture(GL13.GL_TEXTURE1);
 		bindAlpha();
-		GLState.activeTexture(GL13.GL_TEXTURE0);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		bindStructure();
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	@Override
 	public void reset() {
-		GLState.activeTexture(GL13.GL_TEXTURE1);
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GLState.activeTexture(GL13.GL_TEXTURE0);
+		GL13.glActiveTexture(GL13.GL_TEXTURE1);
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
 	}
 }

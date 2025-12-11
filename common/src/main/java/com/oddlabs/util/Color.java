@@ -32,14 +32,14 @@ public final class Color {
     }
 
     public static int argbi(byte r, byte g, byte b, byte a) {
-        return (Byte.toUnsignedInt(a) << 24) | (Byte.toUnsignedInt(r) << 16) | (Byte.toUnsignedInt(g) << 8) | Byte.toUnsignedInt(b);
+        return (Byte.toUnsignedInt(a) << 24) | (Byte.toUnsignedInt(b) << 16) | (Byte.toUnsignedInt(g) << 8) | Byte.toUnsignedInt(r);
     }
 
     public static int argbi(float r, float g, float b, float a) {
         return ((int) (a * NORMALIZE_8_BIT) << 24) |
-                ((int) (r * NORMALIZE_8_BIT) << 16) |
+                ((int) (b * NORMALIZE_8_BIT) << 16) |
                 ((int) (g * NORMALIZE_8_BIT) << 8)  |
-                ((int) (b * NORMALIZE_8_BIT));
+                ((int) (r * NORMALIZE_8_BIT));
     }
 
     /**
@@ -63,7 +63,7 @@ public final class Color {
      * @return A new float array with 4 elements: [red, green, blue, alpha], normalized to [0.0, 1.0].
      */
     public static float @NonNull[] rgb4f(int color) {
-        return argb4f(color | 0xFF000000);
+        return argb4f(color | 0xFF_00_00_00);
     }
 
     /**
@@ -75,10 +75,10 @@ public final class Color {
      */
     public static float @NonNull [] argb4f(int color) {
         return new float[] {
-            ((color >> 16) & 0xFF) / NORMALIZE_8_BIT,
-            ((color >> 8) & 0xFF) / NORMALIZE_8_BIT,
-            (color & 0xFF) / NORMALIZE_8_BIT,
-            ((color >> 24) & 0xFF) / NORMALIZE_8_BIT
+            Byte.toUnsignedInt((byte)(color >> 16)) / NORMALIZE_8_BIT,
+            Byte.toUnsignedInt((byte)(color >> 8)) / NORMALIZE_8_BIT,
+            Byte.toUnsignedInt((byte) color) / NORMALIZE_8_BIT,
+            Byte.toUnsignedInt((byte)(color >> 24)) / NORMALIZE_8_BIT
         };
     }
 

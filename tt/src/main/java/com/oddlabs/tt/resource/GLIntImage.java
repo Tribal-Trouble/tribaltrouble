@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Objects;
 
 public final class GLIntImage extends GLImage {
 	private final @NonNull IntBuffer pixels;
@@ -22,7 +23,7 @@ public final class GLIntImage extends GLImage {
 	}
 
 	public @NonNull IntBuffer createCursorPixels() {
-		IntBuffer cursor_pixels = BufferUtils.createIntBuffer(pixels.capacity());
+		IntBuffer cursor_pixels = Objects.requireNonNull(BufferUtils.createIntBuffer(pixels.capacity()));
 		boolean true_alpha_supported = (org.lwjgl.input.Cursor.getCapabilities() & org.lwjgl.input.Cursor.CURSOR_8_BIT_ALPHA) != 0;
 		while (pixels.hasRemaining()) {
 			int rgba_pixel = pixels.get();
@@ -46,7 +47,7 @@ public final class GLIntImage extends GLImage {
 	}
 
 	public GLIntImage(int width, int height, int format) {
-		this(width, height, ByteBuffer.allocateDirect(width*height*4), format);
+		this(width, height, Objects.requireNonNull(BufferUtils.createByteBuffer(width*height*Integer.BYTES)), format);
 	}
 
 	public GLIntImage(@NonNull Layer layer) {
@@ -70,7 +71,7 @@ public final class GLIntImage extends GLImage {
                 if (gi > 255) gi = 255;
                 if (bi > 255) bi = 255;
                 if (ai > 255) ai = 255;*/
-                int pixel = (ri << 24) | (gi << 16) | (bi << 8) | ai;
+                int pixel = (ai << 24) | (bi << 16) | (gi << 8) | ri;
                 putPixel(x, y, pixel);
             }
         }

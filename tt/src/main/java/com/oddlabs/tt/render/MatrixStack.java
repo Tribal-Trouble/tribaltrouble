@@ -4,18 +4,13 @@ import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.BufferUtils;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 /** Maintains a stack of transformation matrix that are applied to the drawing. */
 public final class MatrixStack {
-	private static final int MATRIX_ELEMENTS = 16;
-	
 	private final Deque<@NonNull Matrix4f> stack = new ArrayDeque<>();
-	private final FloatBuffer buffer = BufferUtils.createFloatBuffer(MATRIX_ELEMENTS);
 
     public interface TopListener {
         void topChanging(@NonNull Matrix4fc matrix);
@@ -83,17 +78,4 @@ public final class MatrixStack {
 		current().mul(matrix);
         return this;
 	}
-
-    /** @implNote The returned FloatBuffer is yours only until it is needed again. Use the {@link #toBuffer(FloatBuffer)}
-     * overload if you need the buffer for longer term use. */
-	public @NonNull FloatBuffer toBuffer() {
-		return toBuffer(buffer);
-	}
-
-    public @NonNull FloatBuffer toBuffer(@NonNull FloatBuffer buffer) {
-        buffer.clear();
-        current().get(buffer);
-        // Do NOT flip the buffer here. glUniformMatrix4fv reads from the current position.
-        return buffer;
-    }
 }

@@ -37,18 +37,17 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.player.VikingChieftainAI;
+import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.DefaultRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.Picker;
 import com.oddlabs.tt.render.RenderQueues;
-import com.oddlabs.tt.render.shader.DebugShaderRenderer;
 import com.oddlabs.tt.render.shader.FixedFunctionShader;
-import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
+import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
-import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
@@ -83,18 +82,18 @@ public final class WorldViewer implements Animated {
     private final @NonNull WorldParameters world_params;
     private final @NonNull AnimationManager animation_manager_local;
 
-    public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator, PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, float[] @NonNull [] colors, short player_slot, SessionID session_id) {
+    public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator, PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, float@NonNull [] @NonNull [] colors, short player_slot, SessionID session_id) {
         this.world_params = world_params;
         this.ingame_info = ingame_info;
         this.network = network;
         this.notification_manager = new NotificationManager(gui_root);
         this.cheat = new Cheat(!ingame_info.isMultiplayer());
         this.animation_manager_local = new AnimationManager();
-        final CameraState camera_state = new CameraState();
-        ShaderProgram ffShader = new FixedFunctionShader();
+        final FogInfo worldFog = Landscape.getFogInfo(generator.getTerrainType(), generator.getMetersPerWorld());
+        final CameraState camera_state = new CameraState(worldFog);
+        FixedFunctionShader ffShader = new FixedFunctionShader();
         MatrixStack modelViewStack = new MatrixStack();
         MatrixStack projectionStack = new MatrixStack();
-        DebugRender.setShaderRenderer(new DebugShaderRenderer(ffShader, modelViewStack, projectionStack));
         RenderQueues render_queues = new RenderQueues(new SpriteBatchRenderer(ffShader, modelViewStack, projectionStack));
         LandscapeResources landscape_resources = World.loadCommon(render_queues);
         RacesResources races_resources = World.loadInGame(render_queues);
@@ -157,8 +156,8 @@ public final class WorldViewer implements Animated {
         for (int i = 0; i < player_slots.length; i++) {
             player_infos[i] = player_slots[i].getInfo();
         }
-        WorldInfo world_info = generator.generate(player_slots.length, world_params.getInitialUnitCount(), ingame_info.getRandomStartPosition());
-        this.world = World.newWorld(audio_impl, landscape_resources, races_resources, LandscapeResources.loadTreeLowDetails(), listener, world_params, world_info, generator.getTerrainType(), player_infos, colors);
+        WorldInfo world_info = generator.generate(player_infos.length, world_params.getInitialUnitCount(), ingame_info.getRandomStartPosition());
+        this.world = World.newWorld(audio_impl, landscape_resources, races_resources, LandscapeResources.loadTreeLowDetails(), listener, world_params, world_info, generator.getTerrainType(), player_infos, colors, worldFog);
         this.local_player = world.getPlayers()[player_slot];
         this.selection = new Selection(local_player);
         landscape_renderer = new LandscapeRenderer(world, world_info, gui_root, animation_manager_local);

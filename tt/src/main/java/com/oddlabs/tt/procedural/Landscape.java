@@ -9,6 +9,7 @@ import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.resource.BlendInfo;
 import com.oddlabs.tt.resource.BlendLighting;
+import com.oddlabs.tt.resource.DistanceFogInfo;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.GLByteImage;
 import com.oddlabs.tt.resource.GLIntImage;
@@ -29,14 +30,15 @@ public final class Landscape {
 	private static final int STRUCTURE_SEED = 42; // must be constant; otherwise distinct repeating patterns might appear
 
 	private static final int NUM_PLANT_TYPES = 4;
-	private static final float[] NATIVE_FOG_COLOR = Color.argb4f(0xFFa6bfff);
-	private static final float[] VIKING_FOG_COLOR = Color.argb4f(0xFF33668c);
+
+	private static final float @NonNull [] NATIVE_FOG_COLOR = Color.argb4f(0xFF_A5_BF_FF);
+	private static final float @NonNull [] VIKING_FOG_COLOR = Color.argb4f(0xFF_33_66_8C);
 
 	// Native terrain colors (RGB)
-	private static final float[] NATIVE_SAND_COLOR = Color.rgb3f(0xFFE6CC);
-	private static final float[] NATIVE_DIRT_COLOR = Color.rgb3f(0xFFB380);
-	private static final float[] NATIVE_GRASS_COLOR = Color.rgb3f(0x337300);
-	private static final float[] NATIVE_ROCK_TINT = Color.rgb3f(0xFFCC99);
+	private static final float[] NATIVE_SAND_COLOR = Color.rgb3f(0xFF_E6_CC);
+	private static final float[] NATIVE_DIRT_COLOR = Color.rgb3f(0xFF_B3_80);
+	private static final float[] NATIVE_GRASS_COLOR = Color.rgb3f(0x33_73_00);
+	private static final float[] NATIVE_ROCK_TINT = Color.rgb3f(0xFF_CC_99);
 
 	// Viking terrain colors (RGB)
 	private static final float[] VIKING_GRAVEL_COLOR = Color.rgb3f(0xB38C66);
@@ -69,8 +71,7 @@ public final class Landscape {
 	private Channel rock;
 	private Channel iron;
 
-	private final int size_multiplier;
-	private final int num_players;
+    private final int num_players;
 	private final int meters_per_world;
 	private final int meters_per_height_unit;
 	private final int unit_grids_per_world;
@@ -94,10 +95,10 @@ public final class Landscape {
 	private final float build_threshold;
 	private final @NonNull TerrainType terrain;
 
-	private byte[][] build;
-	private float[][] player_locations;
-	private int[][] supply_locations;
-	private float[][] plants;
+	private byte @NonNull [] @NonNull [] build;
+	private float @NonNull [] @NonNull [] player_locations;
+	private int @NonNull [] @NonNull [] supply_locations;
+	private float @NonNull [] @NonNull [] plants;
 
 	public Landscape(int num_players, int meters_per_world, @NonNull TerrainType terrain, float detail_alpha_value, float hills, float vegetation_amount, float supplies_amount, int seed, int initial_unit_count, float random_start_pos) {
 
@@ -114,27 +115,28 @@ public final class Landscape {
 		this.meters_per_height_unit = meters_per_world/unit_grids_per_world;
 		int height_scale = 0;
 		float access_threshold = 0f;
-		switch (meters_per_world) {
-			case 256:
-				size_multiplier = 1;
-				height_scale = 32;
-				access_threshold = 0.05f;
-				break;
-			case 512:
-				size_multiplier = 4;
-				height_scale = 48;
-				access_threshold = 0.0375f;
-				break;
-			case 1024:
-				size_multiplier = 16;
-				height_scale = 64;
-				access_threshold = 0.025f;
-				break;
-			default:
-				size_multiplier = 0;
-				assert false : "illegal meters_per_world";
-				break;
-		}
+        int size_multiplier;
+        switch (meters_per_world) {
+            case 256 -> {
+                size_multiplier = 1;
+                height_scale = 32;
+                access_threshold = 0.05f;
+            }
+            case 512 -> {
+                size_multiplier = 4;
+                height_scale = 48;
+                access_threshold = 0.0375f;
+            }
+            case 1024 -> {
+                size_multiplier = 16;
+                height_scale = 64;
+                access_threshold = 0.025f;
+            }
+            default -> {
+                size_multiplier = 0;
+                assert false : "illegal meters_per_world";
+            }
+        }
 		this.height_scale = height_scale;
 		this.access_threshold = access_threshold;
 		this.build_threshold = access_threshold/2f;
@@ -143,8 +145,8 @@ public final class Landscape {
 		this.structure_size = Globals.STRUCTURE_SIZE;
 		this.detail_alpha_value = detail_alpha_value;
 
-		area = size_multiplier*10000f;
-		max_plants = size_multiplier*64;
+		area = size_multiplier *10000f;
+		max_plants = size_multiplier *64;
 
 		if (terrain == TerrainType.NATIVE) {
 			max_trees = (int)Math.pow(2, 2*Utils.powerOf2Log2(meters_per_world) - 9);
@@ -568,7 +570,7 @@ public final class Landscape {
 	}
 
 	// generate build map
-	private byte[][] generateBuildMap(@NonNull Channel thresholdmap) {
+	private byte@NonNull [] @NonNull [] generateBuildMap(@NonNull Channel thresholdmap) {
 		if (DEBUG) thresholdmap.toLayer().saveAsPNG("build_tresholdmap");
 		int size = thresholdmap.getWidth();
 		boolean[][] build_grid = new boolean[size][size];
@@ -1085,7 +1087,7 @@ public final class Landscape {
             case NATIVE -> NATIVE_FOG_COLOR;
             case VIKING -> VIKING_FOG_COLOR;
         };
-        return new FogInfo(color, GL11.GL_EXP2, 1.3f * meters_per_world, .0015f, 0f, meters_per_world >> 2);
+        return new DistanceFogInfo(FogInfo.Mode.EXP2, color, 0.0015f,  1.3f * meters_per_world, 0f, meters_per_world >> 2);
 	}
 
 	public BlendInfo @NonNull [] getBlendInfos() {
@@ -1096,7 +1098,7 @@ public final class Landscape {
 		return detail;
 	}
 
-	public float[][] getHeight() {
+	public float @NonNull [] @NonNull [] getHeight() {
 		return height.getPixels();
 	}
 

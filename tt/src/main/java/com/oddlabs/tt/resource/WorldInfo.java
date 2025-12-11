@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.render.Texture;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -20,8 +21,9 @@ public final class WorldInfo {
 	public final int texels_per_colormap;
 	public final int chunks_per_colormap;
 	public final float[][] starting_locations;
+	public final @NonNull BlendInfo @NonNull [] blend_infos;
 
-	public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, Texture[][] colormaps, Texture detail, float[][] heightmap, List<int[]> trees, List<int[]> palm_trees, List<int[]> rocks, List<int[]> iron, float[][] plants, boolean[][] access_grid, byte[][] build_grid, float[][] starting_locations) {
+	public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, Texture[][] colormaps, Texture detail, float[][] heightmap, List<int[]> trees, List<int[]> palm_trees, List<int[]> rocks, List<int[]> iron, float[][] plants, boolean[][] access_grid, byte[][] build_grid, float[][] starting_locations, BlendInfo @NonNull [] blend_infos) {
 		this.texels_per_colormap = texels_per_colormap;
 		this.chunks_per_colormap = chunks_per_colormap;
 		this.sea_level_meters = sea_level_meters;
@@ -37,5 +39,6 @@ public final class WorldInfo {
 		this.access_grid = access_grid;
 		this.build_grid = build_grid;
 		this.starting_locations = starting_locations;
+		this.blend_infos = blend_infos;
 	}
 }

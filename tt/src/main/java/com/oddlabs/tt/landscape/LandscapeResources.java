@@ -20,7 +20,7 @@ import java.util.Random;
 public final class LandscapeResources {
 	private final SpriteKey[] rock_fragment_sprites = new SpriteKey[5];
 	private final SpriteKey[] iron_fragment_sprites = new SpriteKey[5];
-	private final SpriteKey[] @NonNull [] plant_sprites;
+	private final SpriteKey@NonNull [] @NonNull [] plant_sprites;
 	private final @NonNull SpriteKey chicken;
 	private final Audio @NonNull [] bird_idle_sound;
 	private final @NonNull Audio bird_peck_sound;

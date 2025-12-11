@@ -70,7 +70,7 @@ public abstract class AbstractElementNode<T extends Element<T>> extends Bounding
 		return root;
 	}
 
-	public static void buildSupplies(@NonNull World world, @NonNull List<int[]> iron_positions, @NonNull List<int[]> rock_positions, float[] @NonNull [] plants, Landscape.@NonNull TerrainType terrain) {
+	public static void buildSupplies(@NonNull World world, @NonNull List<int[]> iron_positions, @NonNull List<int[]> rock_positions, float@NonNull [] @NonNull [] plants, Landscape.@NonNull TerrainType terrain) {
 		buildRockSupplies(world, rock_positions);
 		buildIronSupplies(world, iron_positions);
 		addPlants(world, plants, terrain);
@@ -106,7 +106,7 @@ public abstract class AbstractElementNode<T extends Element<T>> extends Bounding
 		}
 	}
 
-	private static void addPlants(@NonNull World world, float[] @NonNull [] plants, Landscape.@NonNull TerrainType terrain) {
+	private static void addPlants(@NonNull World world, float@NonNull [] @NonNull [] plants, Landscape.@NonNull TerrainType terrain) {
 		int num_plants = 0;
 		for (int t = 0; t < plants.length; t++) {
 			num_plants += plants[t].length/2;

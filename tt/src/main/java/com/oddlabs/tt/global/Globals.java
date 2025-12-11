@@ -36,7 +36,7 @@ public final class Globals {
 	public static boolean draw_particles = true;
 	public static boolean draw_water = true;
 	public static final boolean draw_sky = true;
-	public static boolean draw_axes = false;
+	public static boolean draw_axes = true;
 	public static boolean draw_detail = true;
 	public static boolean draw_shadows = true;
 	public static boolean draw_light = true;
@@ -119,8 +119,6 @@ public final class Globals {
 	public static final float WHEEL_SCALE = 0.01f;
 
 	public static final int CURSOR_BLINK_TIME = 1000;
-
-	public static final int MENU_HOVER_DELAY = 500;
 
 	public static final int FPS_WIDTH = 800;
 

@@ -4,25 +4,24 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 /** A shader that emulates the classic OpenGL fixed-function pipeline. */
-public final class FixedFunctionShader extends ShaderProgram {
+public final class FixedFunctionShader extends ShaderProgram implements FogShader, LitShader {
 	
-	public static final class Uniforms {
-		public static final String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
-		public static final String PROJECTION_MATRIX = "u_projectionMatrix";
-		public static final String ENABLE_LIGHTING = "u_enableLighting";
-		public static final String ENABLE_TEXTURE = "u_enableTexture";
-		public static final String TEXTURE_0 = "u_texture0";
-		
-		private Uniforms() {}
+	public interface Uniforms {
+		String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
+		String PROJECTION_MATRIX = "u_projectionMatrix";
+		String ENABLE_LIGHTING = "u_enableLighting";
+		String ENABLE_TEXTURE = "u_enableTexture";
+		String TEXTURE_0 = "u_texture0";
+		String ALPHA_CUTOFF = "u_alphaCutoff";
+		String REPLACE_MODE = "u_replaceMode";
+		String FOG_PARAMS = "u_fogParams";
 	}
 	
-	public static final class Attributes {
-		public static final String POSITION = "a_position";
-		public static final String NORMAL = "a_normal";
-		public static final String COLOR = "a_color";
-		public static final String TEX_COORD_0 = "a_texCoord0";
-		
-		private Attributes() {}
+	public interface Attributes {
+		String POSITION = "a_position";
+		String NORMAL = "a_normal";
+		String COLOR = "a_color";
+		String TEX_COORD_0 = "a_texCoord0";
 	}
 
 	public enum Attribute implements VertexAttribute {
@@ -68,9 +67,12 @@ public final class FixedFunctionShader extends ShaderProgram {
 		}
 	}
 
-	private static final String VERTEX_SHADER = """
+	private static final String VERTEX_SHADER =
+		"""
 		#version 120
-		
+		""" +
+		LIGHTING_FUNCTION +
+		"""
 		attribute vec3 a_position;
 		attribute vec3 a_normal;
 		attribute vec4 a_color;
@@ -79,39 +81,69 @@ public final class FixedFunctionShader extends ShaderProgram {
 		uniform mat4 u_modelViewMatrix;
 		uniform mat4 u_projectionMatrix;
 		uniform bool u_enableLighting;
+		uniform vec3 u_lightDirection;
+		uniform vec3 u_globalAmbient;
 		
 		varying vec4 v_color;
 		varying vec2 v_texCoord0;
+		varying float v_fogDist;
 		
 		void main() {
-			gl_Position = u_projectionMatrix * u_modelViewMatrix * vec4(a_position, 1.0);
+		    vec4 viewPosition = u_modelViewMatrix * vec4(a_position, 1.0);
+			gl_Position = u_projectionMatrix * viewPosition;
 			v_texCoord0 = a_texCoord0;
+			v_fogDist = length(viewPosition.xyz);
 		
 			if (u_enableLighting) {
-				vec3 normal = normalize((u_modelViewMatrix * vec4(a_normal, 0.0)).xyz);
-				float diffuse = max(dot(normal, vec3(0.0, 0.0, 1.0)), 0.0);
-				v_color = a_color * (0.3 + 0.7 * diffuse);
+				v_color = calculateLighting(a_normal, a_color, u_modelViewMatrix, u_lightDirection, u_globalAmbient);
 			} else {
 				v_color = a_color;
 			}
 		}
 		""";
 	
-	private static final String FRAGMENT_SHADER = """
+	private static final String FRAGMENT_SHADER =
+		"""
 		#version 120
-		
+		""" +
+		FOG_FUNCTION +
+		"""
 		uniform sampler2D u_texture0;
 		uniform bool u_enableTexture;
+		uniform float u_alphaCutoff;
+		uniform bool u_replaceMode;
+		
+		// Fog uniforms
+        uniform vec4 u_fogColor;
+        uniform int u_fogMode;
+        uniform vec3 u_fogParams; // x = density, y = start, z = end
+        uniform float u_fogHeightFactor;
+        uniform float u_cameraHeight;
 		
 		varying vec4 v_color;
 		varying vec2 v_texCoord0;
+		varying float v_fogDist;
 		
 		void main() {
-			vec4 color = v_color;
+			vec4 color;
 			if (u_enableTexture) {
-				color *= texture2D(u_texture0, v_texCoord0);
+			    vec4 texColor = texture2D(u_texture0, v_texCoord0);
+			    if (u_replaceMode) {
+			        color = texColor;
+			    } else {
+				    color = v_color * texColor;
+				}
+			} else {
+			    color = v_color;
 			}
-			gl_FragColor = color;
+		
+			if (color.a < u_alphaCutoff) {
+			    discard;
+			}
+		
+			// Apply fog
+            float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
+			gl_FragColor = vec4(mix(u_fogColor.rgb, color.rgb, fogFactor), color.a);
 		}
 		""";
 	

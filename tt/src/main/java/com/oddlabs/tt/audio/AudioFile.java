@@ -2,6 +2,7 @@ package com.oddlabs.tt.audio;
 
 import com.oddlabs.tt.resource.File;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -21,7 +22,7 @@ public final class AudioFile extends File<Audio> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		return o instanceof AudioFile && super.equals(o);
 	}
 }

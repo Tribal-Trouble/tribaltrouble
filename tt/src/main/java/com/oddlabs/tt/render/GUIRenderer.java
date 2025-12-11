@@ -7,6 +7,7 @@ import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.render.shader.VertexLayout;
 import com.oddlabs.tt.resource.GLByteImage;
 import com.oddlabs.tt.resource.GLImage;
+import com.oddlabs.tt.util.GLStateHelper;
 import com.oddlabs.util.Color;
 import com.oddlabs.util.Quad;
 import org.joml.Matrix4f;
@@ -17,7 +18,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 
 /**
  * A renderer for drawing 2D GUI elements using a shader-based batching system.
@@ -31,7 +31,6 @@ public final class GUIRenderer {
     private final @NonNull ShaderProgram shader;
     private final MatrixStack matrixStack = new MatrixStack(_ -> flush());
     private final Matrix4f projectionMatrix = new Matrix4f();
-    private final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
     private final @NonNull VertexLayout<GUIShader.Attribute> layout;
 
     private final int vbo;
@@ -45,9 +44,9 @@ public final class GUIRenderer {
     public GUIRenderer() {
         this.shader = new GUIShader();
         this.layout = new VertexLayout<>(
-                        GUIShader.Attribute.POSITION,
-                        GUIShader.Attribute.COLOR,
-                        GUIShader.Attribute.TEX_COORD
+                GUIShader.Attribute.POSITION,
+                GUIShader.Attribute.COLOR,
+                GUIShader.Attribute.TEX_COORD
         );
 
         this.vbo = GL15.glGenBuffers();
@@ -85,30 +84,24 @@ public final class GUIRenderer {
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    public void beginFrame(float width, float height) {
-        shader.use();
-        projectionMatrix.identity().ortho(0, width, 0, height, -1, 1);
-        shader.setUniformMatrix4(GUIShader.Uniforms.PROJECTION_MATRIX, false, projectionMatrix.get(matrixBuffer));
-        shader.setUniform(GUIShader.Uniforms.TEXTURE, 0);
+    public void renderFrame(float width, float height, @NonNull Runnable frameCommands) {
+        try (var _ = shader.use();
+             var _ = GLStateHelper.blend(true);
+             var _ = GLStateHelper.depthTest(false);
+             var _ = GLStateHelper.cullFace(false)) {
 
-        matrixStack.clear();
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glDisable(GL11.GL_CULL_FACE);
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
-    }
+            projectionMatrix.identity().ortho(0, width, 0, height, -1, 1);
+            shader.setUniformMatrix4(GUIShader.Uniforms.PROJECTION_MATRIX, false, projectionMatrix);
+            shader.setUniform(GUIShader.Uniforms.TEXTURE, 0);
 
-    public void endFrame() {
-        flush();
-        ShaderProgram.unbind();
+            matrixStack.clear();
 
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL11.GL_CULL_FACE);
+            frameCommands.run();
+
+            flush();
+        }
     }
 
     public void drawColoredQuad(float x, float y, float w, float h, int color) {
@@ -141,47 +134,18 @@ public final class GUIRenderer {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
         }
 
-        // Top-left vertex
-        vertexBuffer.putFloat(x);
-        vertexBuffer.putFloat(y);
-        vertexBuffer.putFloat(0);
-        vertexBuffer.putInt(tint);
-        vertexBuffer.putFloat(u1);
-        vertexBuffer.putFloat(v1);
-
-        // Top-right vertex
-        vertexBuffer.putFloat(x + w);
-        vertexBuffer.putFloat(y);
-        vertexBuffer.putFloat(0);
-        vertexBuffer.putInt(tint);
-        vertexBuffer.putFloat(u2);
-        vertexBuffer.putFloat(v1);
-
-        // Bottom-right vertex
-        vertexBuffer.putFloat(x + w);
-        vertexBuffer.putFloat(y + h);
-        vertexBuffer.putFloat(0);
-        vertexBuffer.putInt(tint);
-        vertexBuffer.putFloat(u2);
-        vertexBuffer.putFloat(v2);
-
-        // Bottom-left vertex
-        vertexBuffer.putFloat(x);
-        vertexBuffer.putFloat(y + h);
-        vertexBuffer.putFloat(0);
-        vertexBuffer.putInt(tint);
-        vertexBuffer.putFloat(u1);
-        vertexBuffer.putFloat(v2);
+        vertexBuffer.putFloat(x).putFloat(y).putFloat(0).putInt(tint).putFloat(u1).putFloat(v1);
+        vertexBuffer.putFloat(x + w).putFloat(y).putFloat(0).putInt(tint).putFloat(u2).putFloat(v1);
+        vertexBuffer.putFloat(x + w).putFloat(y + h).putFloat(0).putInt(tint).putFloat(u2).putFloat(v2);
+        vertexBuffer.putFloat(x).putFloat(y + h).putFloat(0).putInt(tint).putFloat(u1).putFloat(v2);
 
         quadCount++;
     }
 
     public void flush() {
-        if (quadCount == 0) {
-            return;
-        }
+        if (quadCount == 0) return;
 
-        shader.setUniformMatrix4(GUIShader.Uniforms.MODEL_VIEW_MATRIX, false, matrixStack.current().get(matrixBuffer));
+        shader.setUniformMatrix4(GUIShader.Uniforms.MODEL_VIEW_MATRIX, false, matrixStack.current());
 
         vertexBuffer.flip();
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);

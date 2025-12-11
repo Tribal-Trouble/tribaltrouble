@@ -2,6 +2,7 @@ package com.oddlabs.tt.resource;
 
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -34,17 +35,17 @@ public abstract class File<R> implements Supplier<R> {
     public abstract @NonNull R get();
 
     @Override
-    public @NonNull String toString() {
-        return getClass().getSimpleName() + "{uri=" + uri.toASCIIString() + '}';
-    }
-
-    @Override
     public final int hashCode() {
         return uri.hashCode();
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         return o instanceof File<?> other && uri.equals(other.uri);
+    }
+
+    @Override
+    public @NonNull String toString() {
+        return getClass().getSimpleName() + "{uri=" + uri.toASCIIString() + '}';
     }
 }

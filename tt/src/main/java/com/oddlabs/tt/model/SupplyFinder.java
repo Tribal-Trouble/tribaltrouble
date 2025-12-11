@@ -72,7 +72,7 @@ public final class SupplyFinder<S extends Supply> implements FinderFilter<S> {
 		return closest;
 	}
 
-	private int distanceSquared(S supply) {
+	private int distanceSquared(@NonNull S supply) {
 		int dx = supply.getGridX() - unit.getGridX();
 		int dy = supply.getGridY() - unit.getGridY();
 		return dx * dx + dy * dy;

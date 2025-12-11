@@ -89,6 +89,11 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
                 // F7 hides and shows terrain grid.
 				cheat.line_mode = !cheat.line_mode;
 				return true;
+			case Keyboard.KEY_F9:
+				// F9 toggles fog
+				com.oddlabs.tt.resource.FogInfo fog_info = viewer.getGUIRoot().getDelegate().getCamera().getState().getFog();
+				fog_info.setEnabled(!fog_info.isEnabled());
+				return true;
 			default:
 				break;
 		}

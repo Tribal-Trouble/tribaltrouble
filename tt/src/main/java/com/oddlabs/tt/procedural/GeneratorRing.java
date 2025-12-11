@@ -6,6 +6,7 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
@@ -21,7 +22,7 @@ public final class GeneratorRing extends TextureGenerator {
 
 	@Override
 	public Texture @NonNull [] generate() {
-		Channel channel_ring = new Ring(size, size, ring_parms, Ring.LINEAR).toChannel();
+		Channel channel_ring = new Ring(size, size, ring_parms, Ring.Interpolation.LINEAR).toChannel();
 		Channel channel_white = new Channel(size, size).fill(1f);
 		Layer layer = new Layer(channel_white.copy(), channel_white.copy(), channel_white.copy(), channel_ring);
 		Texture[] textures = new Texture[1];
@@ -34,7 +35,7 @@ public final class GeneratorRing extends TextureGenerator {
 		return size*Arrays.deepHashCode(ring_parms);
 	}
 
-	private static boolean equals(float[] @NonNull [] a1, float[] @NonNull [] a2) {
+	private static boolean equals(float@NonNull [] @NonNull [] a1, float@NonNull [] @NonNull [] a2) {
 		if (a1.length != a2.length)
 			return false;
 		for (int i = 0; i < a1.length; i++) {
@@ -45,7 +46,7 @@ public final class GeneratorRing extends TextureGenerator {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (!super.equals(o))
 			return false;
 		GeneratorRing other = (GeneratorRing)o;

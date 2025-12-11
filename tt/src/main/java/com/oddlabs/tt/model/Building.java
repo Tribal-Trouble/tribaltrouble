@@ -127,7 +127,7 @@ public final class Building extends Selectable implements Occupant {
 		visitor.visitBuilding(this);
 	}
 
-	public BuildingTemplate getBuildingTemplate() {
+	public @NonNull BuildingTemplate getBuildingTemplate() {
 		return (BuildingTemplate)getTemplate();
 	}
 
@@ -254,7 +254,7 @@ public final class Building extends Selectable implements Occupant {
 		createHarvesters(RubberSupply.class, num_rubber);
 	}
 
-	private void createHarvesters(Class<? extends Supply> supply_type, int amount) {
+	private void createHarvesters(@NonNull Class<? extends Supply> supply_type, int amount) {
 		Race race = getOwner().getRace();
 		for (int i = 0; i < amount; i++) {
 			getUnitContainer().prepareDeploy(-1);
@@ -264,7 +264,7 @@ public final class Building extends Selectable implements Occupant {
 		}
 	}
 
-	public void buildWeapons(Class<? extends ThrowingWeapon> type, int num_weapons, boolean infinite) {
+	public void buildWeapons(@NonNull Class<? extends ThrowingWeapon> type, int num_weapons, boolean infinite) {
 		assert !isDead();
 		if (infinite)
 			getOwner().getWorld().updateGlobalChecksum(num_weapons);
@@ -706,14 +706,14 @@ public final class Building extends Selectable implements Occupant {
 		return 0;
 	}
 
-	public void fillSupplies(Class<?> key, int max) {
+	public void fillSupplies(@NonNull Class<?> key, int max) {
 		SupplyContainer container = getSupplyContainer(key);
 		if (container != null) {
 			container.increaseSupply(Math.min(container.getMaxSupplyCount() - container.getNumSupplies(), max));
 		}
 	}
 
-	public void removeSupplies(Class<?> key) {
+	public void removeSupplies(@NonNull Class<?> key) {
 		SupplyContainer container = getSupplyContainer(key);
 		if (container != null) {
 			container.increaseSupply(-container.getNumSupplies());

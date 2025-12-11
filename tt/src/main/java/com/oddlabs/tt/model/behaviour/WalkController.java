@@ -28,7 +28,7 @@ public final class WalkController extends Controller {
 		return scan_attack;
 	}
 
-	public Target getTarget() {
+	public @NonNull Target getTarget() {
 		return target;
 	}
 }

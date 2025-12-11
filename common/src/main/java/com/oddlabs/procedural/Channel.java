@@ -13,6 +13,7 @@ import java.util.zip.Checksum;
  * Represents a 2D grid of floating-point values, typically used to store a single color channel
  * (e.g., red, green, blue, or alpha) or other procedural generation data like heightmaps.
  */
+@SuppressWarnings("UnusedReturnValue")
 public final class Channel {
 	private float[][] pixels;
 	public int width;
@@ -1117,7 +1118,7 @@ public final class Channel {
 		return this;
 	}
 
-	public @NonNull Channel convolution(float[] @NonNull [] filter, float divisor, float offset) {
+	public @NonNull Channel convolution(float@NonNull [] @NonNull [] filter, float divisor, float offset) {
 		int radius = (filter[0].length - 1)/2;
 		Channel channel = new Channel(width, height);
 		for (int y = 0; y < height; y++) {

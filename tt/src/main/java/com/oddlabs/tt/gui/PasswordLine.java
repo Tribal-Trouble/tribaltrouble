@@ -1,9 +1,5 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.font.Index;
-import com.oddlabs.tt.font.TextLineRenderer;
-import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.util.Color;
 import com.oddlabs.util.CryptUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

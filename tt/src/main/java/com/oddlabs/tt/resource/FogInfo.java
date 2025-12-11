@@ -1,49 +1,71 @@
 package com.oddlabs.tt.resource;
 
+import com.oddlabs.tt.render.shader.FogShader;
+import com.oddlabs.tt.util.GLState;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 
-import java.nio.FloatBuffer;
+public class FogInfo {
 
-public final class FogInfo {
+    public enum Mode {
+        /** No fog should be applied. */
+        NONE,
+        /** Standard distance-based fog (linear, exp, exp2). */
+        LINEAR,
+        EXP,
+        EXP2,
+        /** Screen-space radial fog for map view. */
+        RADIAL;
+    }
 
-    private final FloatBuffer fog_color;
-    private final int fog_mode;
-    private final float fog_height_factor;
-    private final float fog_density;
-    private final float fog_start;
-    private final float fog_end;
+    protected final @NonNull Mode fog_mode;
+    protected final float @NonNull [] fog_color;
+    protected final float fog_density;
+    private boolean enabled = true;
 
-    public FogInfo(float @NonNull [] fog_color_array, int fog_mode, float fog_height_factor, float fog_density, float fog_start, float fog_end) {
-        this.fog_color = BufferUtils.createFloatBuffer(4);
-        this.fog_color.put(fog_color_array).flip();
-        this.fog_height_factor = fog_height_factor;
+    public FogInfo(@NonNull Mode fog_mode, int fog_color, float fog_density) {
         this.fog_mode = fog_mode;
+        this.fog_color = Color.argb4f(fog_color);
         this.fog_density = fog_density;
-        this.fog_start = fog_start;
-        this.fog_end = fog_end;
     }
 
-    public void enableFog(float camera_z) {
-        GL11.glFog(GL11.GL_FOG_COLOR, fog_color);
-        GL11.glFogf(GL11.GL_FOG_MODE, fog_mode);
-        GL11.glFogf(GL11.GL_FOG_START, computeFogOffset(camera_z) + fog_start);
-        GL11.glFogf(GL11.GL_FOG_END, computeFogOffset(camera_z) + fog_end);
-        GL11.glFogi(GL11.GL_FOG_MODE, fog_mode);
-        GL11.glFogf(GL11.GL_FOG_DENSITY, computeFogDensityFactor(camera_z) * fog_density);
-        GL11.glEnable(GL11.GL_FOG);
+    public FogInfo(@NonNull Mode fog_mode, float @NonNull [] fog_color, float fog_density) {
+        this.fog_mode = fog_mode;
+        this.fog_color = fog_color;
+        this.fog_density = fog_density;
     }
 
-    private float computeFogOffset(float camera_z) {
-        return 0;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
-    private float computeFogDensityFactor(float camera_z) {
-        return 1 - (camera_z / fog_height_factor);
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public void disableFog() {
-        GL11.glDisable(GL11.GL_FOG);
+    public float[] getFogColor() {
+        return fog_color;
+    }
+
+    public float getFogDensity() {
+        return fog_density;
+    }
+
+    /**
+     * Sets up fog uniforms for the provided shader and returns a GLState object
+     * that will disable the fog when closed.
+     *
+     * @return A GLState resource to be used in a try-with-resources block.
+     */
+    public @NonNull GLState setup(@NonNull FogShader shader, float camera_z) {
+        assert shader.inUse();
+
+        if (!enabled || fog_mode == Mode.NONE) {
+            shader.setUniform(FogShader.FOG_MODE, -1);
+            return () -> {}; // Return a no-op state object
+        }
+
+        // Actual setup logic will be in subclasses
+        return () -> shader.setUniform(FogShader.FOG_MODE, -1);
     }
 }

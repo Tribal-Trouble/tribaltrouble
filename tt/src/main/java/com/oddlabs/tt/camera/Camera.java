@@ -33,10 +33,10 @@ public abstract class Camera implements Animated {
 
     private final @Nullable HeightMap heightmap;
 
-    private final CameraState state;
+    private final @NonNull CameraState state;
     private float smoothness_factor = SMOOTHNESS_FACTOR;
 
-    public Camera(@Nullable HeightMap heightmap, CameraState state) {
+    public Camera(@Nullable HeightMap heightmap, @NonNull CameraState state) {
         this.heightmap = heightmap;
         this.state = state;
     }
@@ -46,7 +46,7 @@ public abstract class Camera implements Animated {
     }
 
     protected final void setSmoothnessFactor(float f) {
-            smoothness_factor = f;
+        smoothness_factor = f;
     }
 
     @Override
@@ -74,8 +74,8 @@ public abstract class Camera implements Animated {
                 state.setTargetY(dy*scale + mid);
         }
         if (!bounce(state.getTargetX(), state.getTargetY(), state.getTargetZ())) {
-                if (state.getTargetZ() > GameCamera.MAX_Z)
-                        state.setTargetZ(GameCamera.MAX_Z);
+            if (state.getTargetZ() > GameCamera.MAX_Z)
+                state.setTargetZ(GameCamera.MAX_Z);
         }
     }
 
@@ -86,40 +86,40 @@ public abstract class Camera implements Animated {
         viewport.flip();
 
         for (int i = 0; i < 2; i++) {
-                for (int j = 0; j < 2; j++) {
-                        float fovy = Globals.FOV;
-                        float aspect = LocalInput.getViewAspect();
-                        float zNear = Globals.VIEW_MIN;
-                        float zFar = Globals.VIEW_MAX;
-                        proj.setPerspective((float)Math.toRadians(fovy), aspect, zNear, zFar);
-                        tmp_camera.set(state);
-                        tmp_camera.setTargetView(proj);
+            for (int j = 0; j < 2; j++) {
+                float fovy = Globals.FOV;
+                float aspect = LocalInput.getViewAspect();
+                float zNear = Globals.VIEW_MIN;
+                float zFar = Globals.VIEW_MAX;
+                proj.setPerspective((float)Math.toRadians(fovy), aspect, zNear, zFar);
+                tmp_camera.set(state);
+                tmp_camera.setTargetView(proj);
 
-                        Matrix4f combinedMatrix = new Matrix4f(proj).mul(tmp_camera.getModelView());
-                        unproject(i*LocalInput.getViewWidth(),
-                                        j*LocalInput.getViewHeight(),
-                                        0f,
-                                        tmp_camera.getModelView(), combinedMatrix);
-                        float hit_x = hit_result_array[0];
-                        float hit_y = hit_result_array[1];
-                        float hit_z = hit_result_array[2];
+                Matrix4f combinedMatrix = new Matrix4f(proj).mul(tmp_camera.getModelView());
+                unproject(i*LocalInput.getViewWidth(),
+                                j*LocalInput.getViewHeight(),
+                                0f,
+                                tmp_camera.getModelView(), combinedMatrix);
+                float hit_x = hit_result_array[0];
+                float hit_y = hit_result_array[1];
+                float hit_z = hit_result_array[2];
 
-                        float dx1 = hit_x - x;
-                        float dy1 = hit_y - y;
-                        float dz1 = hit_z - z;
-                        float inv_length = LANDSCAPE_OFFSET/(float)Math.sqrt(dx1*dx1 + dy1*dy1 + dz1*dz1);
-                        dx1 *= inv_length;
-                        dy1 *= inv_length;
-                        dz1 *= inv_length;
+                float dx1 = hit_x - x;
+                float dy1 = hit_y - y;
+                float dz1 = hit_z - z;
+                float inv_length = LANDSCAPE_OFFSET/(float)Math.sqrt(dx1*dx1 + dy1*dy1 + dz1*dz1);
+                dx1 *= inv_length;
+                dy1 *= inv_length;
+                dz1 *= inv_length;
 
-                        float min_height = Math.max(heightmap.getNearestHeight(x + dx1, y + dy1),
-                                        heightmap.getSeaLevelMeters());
-                        hit_z = z + dz1;
-                        if (hit_z < min_height) {
-                                bounced = true;
-                                z = z + min_height - hit_z;
-                        }
+                float min_height = Math.max(heightmap.getNearestHeight(x + dx1, y + dy1),
+                                heightmap.getSeaLevelMeters());
+                hit_z = z + dz1;
+                if (hit_z < min_height) {
+                        bounced = true;
+                        z = z + min_height - hit_z;
                 }
+            }
         }
         float min_height = heightmap.getNearestHeight(x, y);
         if (z < min_height) {
@@ -144,8 +144,8 @@ public abstract class Camera implements Animated {
         hit_result_array[2] = tempVector.z;
     }
 
-    public final CameraState getState() {
-            return state;
+    public final @NonNull CameraState getState() {
+        return state;
     }
 
     public final void disable() {

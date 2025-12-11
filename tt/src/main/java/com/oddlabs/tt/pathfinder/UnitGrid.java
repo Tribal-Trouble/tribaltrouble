@@ -7,7 +7,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class UnitGrid {
-	private final @NonNull Region[] @NonNull [] regions;
+	private final @NonNull Region@NonNull [] @NonNull [] regions;
 	private final @Nullable Occupant @NonNull [] @NonNull [] occupants;
 	private final @NonNull HeightMap heightmap;
 

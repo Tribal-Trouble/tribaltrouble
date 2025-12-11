@@ -4,6 +4,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.landscape.HeightMap;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 public final class FirstPersonCamera extends Camera {
@@ -13,7 +14,7 @@ public final class FirstPersonCamera extends Camera {
     private final int last_x;
     private final int last_y;
 
-    public FirstPersonCamera(HeightMap heightmap, CameraState camera) {
+    public FirstPersonCamera(HeightMap heightmap, @NonNull CameraState camera) {
             super(heightmap, camera);
             this.last_x = LocalInput.getMouseX();
             this.last_y = LocalInput.getMouseY();

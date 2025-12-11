@@ -1,10 +1,13 @@
 package com.oddlabs.net;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 public final class TimedConnection {
 	private final long timeout;
-	private final Connection conn;
+	private final @NonNull Connection conn;
 
-	public TimedConnection(long timeout, Connection conn) {
+	public TimedConnection(long timeout, @NonNull Connection conn) {
 		this.timeout = timeout;
 		this.conn = conn;
 	}
@@ -13,17 +16,15 @@ public final class TimedConnection {
 		return timeout;
 	}
 
-	public Connection getConnection() {
+	public @NonNull Connection getConnection() {
 		return conn;
 	}
 
 	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof TimedConnection))
-			return false;
-		TimedConnection other_timed = (TimedConnection)other;
-		return other_timed.conn.equals(this.conn);
-	}
+	public boolean equals(@Nullable Object other) {
+        return other instanceof TimedConnection other_timed &&
+				other_timed.conn.equals(this.conn);
+    }
 
 	@Override
 	public int hashCode() {

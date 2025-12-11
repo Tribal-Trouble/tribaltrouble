@@ -2,6 +2,7 @@ package com.oddlabs.tt.procedural;
 
 import com.oddlabs.tt.render.Texture;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -19,7 +20,7 @@ public abstract class TextureGenerator implements Supplier<@NonNull Texture @Non
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		return getClass().isInstance(o);
 	}
 }

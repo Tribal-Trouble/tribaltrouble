@@ -1,6 +1,8 @@
 package com.oddlabs.tt.camera;
 
+import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.util.StateChecksum;
+import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
@@ -30,9 +32,20 @@ public final class CameraState {
 	private float vert_angle;
 	private float horiz_angle;
 
+    private @NonNull FogInfo fog;
 	private boolean no_detail_mode;
 
-	public void updateChecksum(@NonNull StateChecksum checksum) {
+    public CameraState() {this(new FogInfo(FogInfo.Mode.NONE, Color.BLACK_INT, 0f)); }
+
+    public CameraState(@NonNull FogInfo fog) {
+        this.fog = fog;
+    }
+    
+    public void setFog(@NonNull FogInfo fog) {
+        this.fog = fog;
+    }
+
+   	public void updateChecksum(@NonNull StateChecksum checksum) {
 		//System.out.println("camera_x = " + camera_x + " | camera_y = " + camera_y + " | camera_z = " + camera_z + " | dir_x = " + dir_x + " | dir_y = " + dir_y + " | dir_z = " + dir_z);
 		checksum.update(camera_x); 
 		checksum.update(camera_y);
@@ -81,6 +94,10 @@ public final class CameraState {
 		return camera_z;
 	}
 
+    public @NonNull FogInfo getFog() {
+        return fog;
+    }
+
 	public void animate(float delta_t, float smoothness_factor) {
 		camera_x = animateValue(delta_t, camera_x, target_camera_x, smoothness_factor);
 		camera_y = animateValue(delta_t, camera_y, target_camera_y, smoothness_factor);
@@ -113,13 +130,14 @@ public final class CameraState {
 		no_detail_mode = s;
 	}
 
-	public void set(@NonNull CameraState camera) {
+    public void set(@NonNull CameraState camera) {
 		setTargetX(camera.getTargetX());
 		setTargetY(camera.getTargetY());
 		setTargetZ(camera.getTargetZ());
 		setTargetVertAngle(camera.getTargetVertAngle());
 		setTargetHorizAngle(camera.getTargetHorizAngle());
 		setNoDetailMode(camera.inNoDetailMode());
+        setFog(camera.getFog());
 		camera_x = camera.camera_x;
 		camera_y = camera.camera_y;
 		camera_z = camera.camera_z;

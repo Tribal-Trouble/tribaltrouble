@@ -1,83 +1,80 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.render.shader.ShadowShader;
 import com.oddlabs.tt.util.GLState;
-import com.oddlabs.tt.util.GLStateStack;
-import com.oddlabs.tt.util.GLUtils;
-import com.oddlabs.tt.vbo.VBO;
+import com.oddlabs.tt.util.GLStateHelper;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-
-import java.nio.ShortBuffer;
+import org.lwjgl.opengl.GL13;
 
 abstract class ShadowRenderer {
-	private static final ShortBuffer shadow_indices = BufferUtils.createShortBuffer(HeightMap.GRID_UNITS_PER_PATCH*HeightMap.GRID_UNITS_PER_PATCH*2*3);
-//	private static int shadow_number = 1;
+    private final ShadowShader shader = new ShadowShader();
 
-	protected static void setupShadows() {
-		VBO.releaseIndexVBO();
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-		GL11.glDepthFunc(GL11.GL_EQUAL);
-		GLStateStack.switchState(GLState.VERTEX_ARRAY);
-		GL11.glEnable(GL11.GL_TEXTURE_GEN_S);
-		GL11.glEnable(GL11.GL_TEXTURE_GEN_T);
+    protected @NonNull GLState setupShadows(@NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+        GLState shaderState = shader.use();
+        shader.setUniformMatrix4(ShadowShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+        shader.setUniformMatrix4(ShadowShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
 
-		// Workaround, See comment in renderShadow
-		GL11.glMatrixMode(GL11.GL_TEXTURE);
-	}
+        GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
+        GL11.glPolygonOffset(-1.0f, -1.0f);
+        GL11.glDepthFunc(GL11.GL_LEQUAL);
 
-	protected static void resetShadows() {
-		// Workaround, See comment in renderShadow
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        var blendState = GLStateHelper.blend(true);
+        var depthMaskState = new GLStateHelper.DepthMask(false);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 
-		GL11.glDisable(GL11.GL_TEXTURE_GEN_S);
-		GL11.glDisable(GL11.GL_TEXTURE_GEN_T);
-		GL11.glDepthFunc(GL11.GL_LEQUAL);
-		GL11.glDisable(GL11.GL_BLEND);
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-	}
+        return () -> {
+            depthMaskState.close();
+            blendState.close();
+            GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
+            GL11.glDepthFunc(GL11.GL_LESS); // Restore default
+            shaderState.close();
+        };
+    }
 
-	protected final void renderShadow(@NonNull LandscapeRenderer renderer, float shadow_size, float f_x, float f_y) {
-		assert shadow_size >= 0;
-		// Redundant glLoadIdentity on the texture matrix stack to work around GL_OBJECT_PLANE not always updating
-		GL11.glLoadIdentity();
-		float texture_scale = 1f/shadow_size;
-		float half_shadow_size = shadow_size*0.5f;
-		float texture_x = f_x - half_shadow_size;
-		float texture_y = f_y - half_shadow_size;
-		int meters_per_grid_unit = HeightMap.METERS_PER_UNIT_GRID;
-		int grid_units_per_patch = renderer.getHeightMap().getGridUnitsPerPatch();
-		int grid_start_x = Math.max(0, (int)(texture_x/meters_per_grid_unit));
-		int grid_start_y = Math.max(0, (int)(texture_y/meters_per_grid_unit));
-		int max_grid_index = renderer.getHeightMap().getGridUnitsPerWorld() - 1;
-		int grid_end_x = Math.min(max_grid_index, (int)((f_x + half_shadow_size)/meters_per_grid_unit));
-		int grid_end_y = Math.min(max_grid_index, (int)((f_y + half_shadow_size)/meters_per_grid_unit));
-		int patch_start_x = grid_start_x/grid_units_per_patch;
-		int patch_start_y = grid_start_y/grid_units_per_patch;
-		int patch_end_x = grid_end_x/grid_units_per_patch;
-		int patch_end_y = grid_end_y/grid_units_per_patch;
+    protected void setShadowColor(float r, float g, float b, float a) {
+        shader.setUniform(ShadowShader.Uniforms.COLOR, r, g, b, a);
+    }
 
-		GLUtils.setupTexGen(texture_scale, texture_scale, -texture_x, -texture_y);
+    protected void bindShadowTexture(@NonNull Texture texture) {
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
+        shader.setUniform(ShadowShader.Uniforms.TEXTURE, 0);
+    }
 
-		for (int patch_y = patch_start_y; patch_y <= patch_end_y; patch_y++) {
-			for (int patch_x = patch_start_x; patch_x <= patch_end_x; patch_x++) {
-				int local_start_x = Math.max(grid_start_x, patch_x*grid_units_per_patch)&(grid_units_per_patch - 1);
-				int local_start_y = Math.max(grid_start_y, patch_y*grid_units_per_patch)&(grid_units_per_patch - 1);
-				int local_end_x = Math.min(grid_end_x, (patch_x + 1)*grid_units_per_patch - 1)&(grid_units_per_patch - 1);
-				int local_end_y = Math.min(grid_end_y, (patch_y + 1)*grid_units_per_patch - 1)&(grid_units_per_patch - 1);
-				renderer.renderShadow(patch_x, patch_y, local_start_x, local_start_y, local_end_x, local_end_y);
-/*//				int number = shadow_number++;
-				for (int y = local_start_y; y <= local_end_y; y++) {
-					for (int x = local_start_x; x <= local_end_x; x++) {
-						leaf.renderShadow(x, y, number, shadow_indices);
-					}
-				}
-				shadow_indices.flip();
-				GL11.glDrawElements(GL11.GL_TRIANGLES, shadow_indices);
-				shadow_indices.clear();*/
-			}
-		}
-	}
+    protected final void renderShadow(@NonNull LandscapeRenderer renderer, float shadow_size, float f_x, float f_y) {
+        assert shadow_size >= 0;
+
+        float texture_scale = 1f / shadow_size;
+        float half_shadow_size = shadow_size * 0.5f;
+        float texture_x = f_x - half_shadow_size;
+        float texture_y = f_y - half_shadow_size;
+
+        float offsetX = -texture_x * texture_scale;
+        float offsetY = -texture_y * texture_scale;
+        shader.setUniform(ShadowShader.Uniforms.SHADOW_PARAMS, texture_scale, texture_scale, offsetX, offsetY);
+
+        int meters_per_grid_unit = HeightMap.METERS_PER_UNIT_GRID;
+        int grid_units_per_patch = renderer.getHeightMap().getGridUnitsPerPatch();
+        int grid_start_x = Math.max(0, (int) (texture_x / meters_per_grid_unit));
+        int grid_start_y = Math.max(0, (int) (texture_y / meters_per_grid_unit));
+        int max_grid_index = renderer.getHeightMap().getGridUnitsPerWorld() - 1;
+        int grid_end_x = Math.min(max_grid_index, (int) ((f_x + half_shadow_size) / meters_per_grid_unit));
+        int grid_end_y = Math.min(max_grid_index, (int) ((f_y + half_shadow_size) / meters_per_grid_unit));
+        int patch_start_x = grid_start_x / grid_units_per_patch;
+        int patch_start_y = grid_start_y / grid_units_per_patch;
+        int patch_end_x = grid_end_x / grid_units_per_patch;
+        int patch_end_y = grid_end_y / grid_units_per_patch;
+
+        for (int patch_y = patch_start_y; patch_y <= patch_end_y; patch_y++) {
+            for (int patch_x = patch_start_x; patch_x <= patch_end_x; patch_x++) {
+                int local_start_x = Math.max(grid_start_x, patch_x * grid_units_per_patch) & (grid_units_per_patch - 1);
+                int local_start_y = Math.max(grid_start_y, patch_y * grid_units_per_patch) & (grid_units_per_patch - 1);
+                int local_end_x = Math.min(grid_end_x, (patch_x + 1) * grid_units_per_patch - 1) & (grid_units_per_patch - 1);
+                int local_end_y = Math.min(grid_end_y, (patch_y + 1) * grid_units_per_patch - 1) & (grid_units_per_patch - 1);
+                renderer.renderShadow(shader, patch_x, patch_y, local_start_x, local_start_y, local_end_x, local_end_y);
+            }
+        }
+    }
 }

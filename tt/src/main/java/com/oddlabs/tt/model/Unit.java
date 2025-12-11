@@ -152,7 +152,7 @@ public class Unit extends Selectable implements Occupant, Movable {
         visitor.visitUnit(this);
     }
 
-    public final UnitTemplate getUnitTemplate() {
+    public final @NonNull UnitTemplate getUnitTemplate() {
         return (UnitTemplate) getTemplate();
     }
 
@@ -575,7 +575,7 @@ public class Unit extends Selectable implements Occupant, Movable {
     public final void switchAnimation(float anim_speed, int animation) {
         assert !isDead();
         this.anim_speed = anim_speed;
-        if (this.animation != animation || getUnitTemplate().getSpriteRenderer().getAnimationType(animation) == AnimationInfo.ANIM_PLAIN) {
+        if (this.animation != animation || getUnitTemplate().getSpriteRenderer().getAnimationType(animation) == AnimationInfo.AnimationType.PLAIN.ordinal()) {
             this.animation = animation;
             assert animation != -1;
             this.anim_time = 0f;

@@ -11,64 +11,70 @@ import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.Landscape;
+import com.oddlabs.tt.render.shader.DebugShaderRenderer;
+import com.oddlabs.tt.render.shader.FixedFunctionShader;
+import com.oddlabs.tt.render.shader.LitShader;
+import com.oddlabs.tt.render.shader.SeaBottomShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
-import com.oddlabs.tt.resource.FogInfo;
+import com.oddlabs.tt.render.shader.SkyShader;
+import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.scenery.Sky;
 import com.oddlabs.tt.scenery.Water;
 import com.oddlabs.tt.util.DebugRender;
+import com.oddlabs.tt.util.GLStateHelper;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-
-import java.nio.FloatBuffer;
 
 public final class DefaultRenderer implements UIRenderer {
 
     private final @NonNull Picker picker;
-    private final @NonNull FogInfo fog_info;
     private final @NonNull Water water;
     private final @NonNull Sky sky;
     private final @NonNull LandscapeRenderer landscape_renderer;
     private final @NonNull World world;
-    private final @NonNull ElementRenderer element_renderer;
+    private final @NonNull ElementRenderer<?> element_renderer;
     private final @NonNull TreeRenderer tree_renderer;
     private final @NonNull SpriteSorter sprite_sorter;
     private final @NonNull RenderQueues render_queues;
-    private final @NonNull FloatBuffer light_array;
     private final @NonNull Cheat cheat;
     private final @NonNull MatrixStack modelViewStack;
     private final @NonNull MatrixStack projectionStack;
     private final Selection selection;
-    // Removed private final @NonNull WaterRenderer waterRenderer;
+    private final @NonNull SkyShader skyShader;
+    private final @NonNull SeaBottomShader seaBottomShader;
+    private final @NonNull EmitterRenderer emitterRenderer;
+    private final @NonNull LightningRenderer lightningRenderer;
 
     private @Nullable Building selected_building;
 
     public DefaultRenderer(@NonNull Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         this.world = local_player.getWorld();
         this.cheat = cheat;
-        this.light_array = BufferUtils.createFloatBuffer(4);
-        light_array.put(new float[]{-1.0f, 0.0f, 1.0f, 0.0f});
-        light_array.rewind();
         this.render_queues = render_queues;
         this.sprite_sorter = new SpriteSorter();
         this.picker = picker;
         this.selection = selection;
-        this.element_renderer = new ElementRenderer(local_player, landscape_renderer, render_queues, picker, false, sprite_sorter, selection);
+        this.element_renderer = new ElementRenderer<>(local_player, landscape_renderer, render_queues, picker, false, sprite_sorter, selection);
         this.tree_renderer = new TreeRenderer(world, cheat, terrain, world_info.trees, world_info.palm_trees, sprite_sorter, picker.getRespondManager());
         this.landscape_renderer = landscape_renderer;
-        this.fog_info = Landscape.getFogInfo(generator.getTerrainType(), generator.getMetersPerWorld());
-        this.sky = new Sky(landscape_renderer, generator.getTerrainType());
+        this.skyShader = new SkyShader();
+        this.seaBottomShader = new SeaBottomShader();
+        this.sky = new Sky(landscape_renderer, generator.getTerrainType(), skyShader, seaBottomShader, world_info.detail);
         this.modelViewStack = modelViewStack;
         this.projectionStack = projectionStack;
         this.water = new Water(world.getHeightMap(), generator.getTerrainType(), sky, modelViewStack, projectionStack);
+        this.emitterRenderer = new EmitterRenderer();
+        this.lightningRenderer = new LightningRenderer();
+        DebugRender.setShaderRenderer(new DebugShaderRenderer(new FixedFunctionShader(), modelViewStack, projectionStack));
     }
 
     private void drawAxes() {
@@ -90,33 +96,54 @@ public final class DefaultRenderer implements UIRenderer {
             doRenderRallyPoint(camera_state);
     }
 
+    private static final SpriteShader spriteShader = new SpriteShader(); // For rally point
+
     private void doRenderRallyPoint(@NonNull CameraState camera_state) {
-        float rally_point_dir_x = 1f;
-        float rally_point_dir_y = 0f;
-        Target rally_point = selected_building.getRallyPoint();
-        float dx = camera_state.getCurrentX() - rally_point.getPositionX();
-        float dy = camera_state.getCurrentY() - rally_point.getPositionY();
-        float len = (float) Math.sqrt(dx * dx + dy * dy);
-        if (len > 0.1f) {
-            float inv_len = 1f / len;
-            rally_point_dir_x = dx * inv_len;
-            rally_point_dir_y = dy * inv_len;
+        try (var _ = spriteShader.use();
+             var _ = GLStateHelper.blend(true);
+             var _ = camera_state.getFog().setup(spriteShader, camera_state.getCurrentZ())) {
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+            Target rally_point = selected_building.getRallyPoint();
+            Race race = selected_building.getOwner().getRace();
+            SpriteRenderer rally_point_renderer = render_queues.getRenderer(race.getRallyPoint());
+            Sprite sprite = rally_point_renderer.getSpriteList().getSprite(0);
+
+            spriteShader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+            spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);
+            spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
+
+            sprite.setupShaderUniforms(spriteShader, 0, false);
+
+            float x = rally_point.getPositionX();
+            float y = rally_point.getPositionY();
+            float z = world.getHeightMap().getNearestHeight(rally_point.getPositionX(), rally_point.getPositionY());
+            if (rally_point instanceof Building rally_building) {
+                x += rally_building.getBuildingTemplate().getRallyX();
+                y += rally_building.getBuildingTemplate().getRallyY();
+                z += rally_building.getBuildingTemplate().getRallyZ();
+            }
+
+            modelViewStack.push();
+            float dx = camera_state.getCurrentX() - x;
+            float dy = camera_state.getCurrentY() - y;
+            float len = (float) Math.sqrt(dx * dx + dy * dy);
+            if (len > 0.1f) {
+                RenderTools.translateAndRotate(x, y, z, dx / len, dy / len, modelViewStack);
+            } else {
+                modelViewStack.translate(x, y, z);
+            }
+
+            spriteShader.setUniformMatrix4(SpriteShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
+
+            float[] teamColor = SelectableVisitor.getTeamColor(selected_building);
+            spriteShader.setUniform(SpriteShader.Uniforms.DECAL_COLOR, teamColor[0], teamColor[1], teamColor[2], 1f);
+            spriteShader.setUniform(SpriteShader.Uniforms.COLOR, 1f, 1f, 1f, 1f);
+
+            sprite.renderShader(spriteShader, 0, 0f, rally_point_renderer.getSpriteList());
+
+            modelViewStack.pop();
         }
-        Race race = selected_building.getOwner().getRace();
-        SpriteRenderer rally_point_renderer = render_queues.getRenderer(race.getRallyPoint());
-        rally_point_renderer.setup(0, false);
-        float x = rally_point.getPositionX();
-        float y = rally_point.getPositionY();
-        float z = world.getHeightMap().getNearestHeight(rally_point.getPositionX(), rally_point.getPositionY());
-        if (rally_point instanceof Building rally_building) {
-            x += rally_building.getBuildingTemplate().getRallyX();
-            y += rally_building.getBuildingTemplate().getRallyY();
-            z += rally_building.getBuildingTemplate().getRallyZ();
-        }
-        RenderTools.translateAndRotate(x, y, z, rally_point_dir_x, rally_point_dir_y);
-        Sprite.setupDecalColor(SelectableVisitor.getTeamColor(selected_building));
-        rally_point_renderer.getSpriteList().render(0, 0, 0f);
-        rally_point_renderer.getSpriteList().reset(0, false, false);
     }
 
     @Override
@@ -139,34 +166,49 @@ public final class DefaultRenderer implements UIRenderer {
 
     @Override
     public boolean clearColorBuffer() {
-        return Globals.clear_frame_buffer || cheat.line_mode;
+        return true;
     }
 
-    /** Renders the 3D scene. */
+    private void renderDebugElements(@NonNull CameraState frustum_state) {
+        if (Globals.draw_axes) drawAxes();
+        landscape_renderer.debugRender(frustum_state);
+        render_queues.debugRender();
+        lightningRenderer.debugRender(element_renderer.getRenderState().getLightningQueue());
+        emitterRenderer.debugRender(element_renderer.getRenderState().getEmitterQueue());
+        tree_renderer.debugRender(tree_renderer.getRenderLists(), tree_renderer.getRespondRenderLists());
+
+        if (Globals.isBoundsEnabled(BoundingMode.REGIONS)) world.getUnitGrid().debugRenderRegions(frustum_state.getCurrentX(), frustum_state.getCurrentY());
+        if (Globals.isBoundsEnabled(BoundingMode.OCCUPATION)) picker.debugRender();
+        if (Globals.isBoundsEnabled(BoundingMode.UNIT_GRID)) {
+            world.getUnitGrid().debugRender(frustum_state.getCurrentX(), frustum_state.getCurrentY());
+            if (selection != null) {
+                for (Object obj : selection.getCurrentSelection().getSet()) {
+                    if (obj instanceof Unit unit) unit.debugRender();
+                }
+            }
+        }
+    }
+
     @Override
-    public void render(@NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
+    public void render(@NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root, @NonNull Matrix4f proj, @NonNull Matrix4f modelView) {
         ambient.updateSoundListener(frustum_state, world.getHeightMap());
+
+        modelViewStack.current().set(modelView);
+        projectionStack.current().set(proj);
+
         if (Globals.line_mode || cheat.line_mode) {
-            GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_LINE);
-            GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_LINE);
+            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
         }
 
-        GL11.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, light_array);
         if (Globals.draw_sky) {
-            sky.render();
+            sky.render(frustum_state, modelViewStack, projectionStack);
+            sky.renderSeaBottom(frustum_state, modelViewStack, projectionStack);
         }
 
-        fog_info.enableFog(frustum_state.getCurrentZ());
-        if (Globals.draw_sky) {
-            sky.renderSeaBottom();
-        }
-
-        // render landscape (must be before trees and misc, cause they use data calculated here)
         if (Globals.process_landscape) {
             landscape_renderer.prepareAll(frustum_state, false);
-            landscape_renderer.renderAll();
+            landscape_renderer.renderAll(frustum_state, modelViewStack, projectionStack);
         }
-        // frustum check and placement
         if (Globals.process_trees) {
             tree_renderer.setup(frustum_state);
             world.getTreeRoot().visit(tree_renderer);
@@ -176,73 +218,41 @@ public final class DefaultRenderer implements UIRenderer {
             world.getElementRoot().visit(element_renderer);
         }
 
-        // Sort sprites
         sprite_sorter.distributeModels();
 
-        // render shadows
         if (Globals.process_shadows) {
-            render_queues.renderShadows(landscape_renderer);
+            render_queues.renderShadows(landscape_renderer, modelViewStack, projectionStack);
         }
 
-        gui_root.getDelegate().render3D(landscape_renderer, render_queues);
+        gui_root.getDelegate().render3D(landscape_renderer, render_queues, frustum_state, modelViewStack, projectionStack);
 
-        // Update matrix stacks used by renderers from camera state
-        modelViewStack.current().set(frustum_state.getModelView());
-        projectionStack.current().set(frustum_state.getProjectionMatrix());
-
-        // render
         if (Globals.process_trees) {
-            tree_renderer.renderAll(modelViewStack, projectionStack);
+            tree_renderer.renderAll(frustum_state, modelViewStack, projectionStack);
         }
         if (Globals.process_misc) {
-            render_queues.renderAll();
+            render_queues.renderAll(frustum_state);
+            render_queues.renderNoDetail();
         }
 
         if (Globals.debugRenderingEnabled()) {
-            if (Globals.draw_axes) {
-                drawAxes();
-            }
-
-            float landscape_x = frustum_state.getCurrentX();
-            float landscape_y = frustum_state.getCurrentY();
-            
-            if (Globals.isBoundsEnabled(BoundingMode.REGIONS)) {
-                world.getUnitGrid().debugRenderRegions(landscape_x, landscape_y);
-            }
-            
-            if (Globals.isBoundsEnabled(BoundingMode.OCCUPATION)) {
-                picker.debugRender();
-            }
-            
-            if (Globals.isBoundsEnabled(BoundingMode.UNIT_GRID)) {
-                world.getUnitGrid().debugRender(landscape_x, landscape_y);
-                // Render paths for selected units
-                if (selection != null) {
-                    for (Object obj : selection.getCurrentSelection().getSet()) {
-                        if (obj instanceof Unit unit) {
-                            unit.debugRender();
-                        }
-                    }
-                }
-            }
+            renderDebugElements(frustum_state);
         }
 
-        if (Globals.draw_water)
-            water.render();
+        if (Globals.draw_water) {
+            water.render(frustum_state);
+        }
 
         if (Globals.process_misc)
-            render_queues.renderBlends();
+            render_queues.renderBlends(frustum_state);
 
-        LightningRenderer.render(render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state);
-        EmitterRenderer.render(render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state);
+        lightningRenderer.render(render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state, modelViewStack, projectionStack);
+        emitterRenderer.render(render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state, modelViewStack, projectionStack);
         renderRallyPoint(frustum_state);
-        
-        ShaderProgram.unbind();
-        
-        fog_info.disableFog();
+
+        assert ShaderProgram.activeShader() == null : "Shader still active=" + ShaderProgram.activeShader();
+
         if (Globals.line_mode || cheat.line_mode) {
-            GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL); 
-            GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_FILL);
+            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         }
     }
 }

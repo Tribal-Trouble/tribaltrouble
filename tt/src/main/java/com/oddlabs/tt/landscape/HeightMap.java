@@ -15,7 +15,7 @@ public final class HeightMap {
 	private static final Vector3f plane = new Vector3f();
 
 	private final float[][] world;
-	private final LandscapeLeaf[] @NonNull [] landscape_leaves;
+	private final LandscapeLeaf@NonNull [] @NonNull [] landscape_leaves;
 	private final List<int[]> trees;
 	private final boolean[][] access_grid;
 	private final byte[][] build_grid;
@@ -33,7 +33,7 @@ public final class HeightMap {
 	private final float chunk_tex_scale;
 	private final World world_instance;
 
-	public HeightMap(World world_instance, int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, float[] @NonNull [] world, List<int[]> trees, boolean[][] access_grid, byte[][] build_grid) {
+	public HeightMap(World world_instance, int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, float@NonNull [] @NonNull [] world, List<int[]> trees, boolean[][] access_grid, byte[][] build_grid) {
 		this.world = world;
 		this.world_instance = world_instance;
 		this.trees = trees;

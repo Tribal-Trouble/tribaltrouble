@@ -1,6 +1,7 @@
 package com.oddlabs.net;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -36,7 +37,9 @@ public final class HostSequenceID implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object other) {
-        return other instanceof HostSequenceID other_id && host_id == other_id.host_id && seq_id == other_id.seq_id;
+	public boolean equals(@Nullable Object other) {
+        return other instanceof HostSequenceID other_id &&
+				host_id == other_id.host_id &&
+				seq_id == other_id.seq_id;
 	}
 }

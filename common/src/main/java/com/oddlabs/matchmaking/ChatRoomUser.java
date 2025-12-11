@@ -1,6 +1,7 @@
 package com.oddlabs.matchmaking;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -31,7 +32,7 @@ public final class ChatRoomUser implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(@Nullable Object other) {
         return other instanceof ChatRoomUser && ((ChatRoomUser) other).nick.equals(nick);
 	}
 }

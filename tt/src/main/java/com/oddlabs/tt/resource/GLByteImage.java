@@ -50,7 +50,7 @@ public final class GLByteImage extends GLImage {
         } else {
             // For GL_LUMINANCE or other single-channel uses, default to red channel
             // A more accurate luminance calculation could be implemented here if needed.
-            sourceChannel = layer.r; 
+            sourceChannel = layer.r;
         }
         return new GLByteImage(sourceChannel, format);
     }

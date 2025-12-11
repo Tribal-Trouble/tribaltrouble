@@ -1,6 +1,7 @@
 package com.oddlabs.matchmaking;
 
 import com.oddlabs.util.Utils;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -18,7 +19,7 @@ public final class LoginDetails implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(@Nullable Object other) {
 		if (!(other instanceof LoginDetails))
 			return false;
 		LoginDetails other_login = (LoginDetails)other;

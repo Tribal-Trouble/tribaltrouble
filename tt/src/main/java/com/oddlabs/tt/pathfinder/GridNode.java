@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 final class GridNode extends Node {
 	private static final DirectionNode[][] dir_node_grid = new DirectionNode[3][3];
 
-	private static final GridNode[] @NonNull [] pathfinder_grid;
+	private static final GridNode@NonNull [] @NonNull [] pathfinder_grid;
 	private final int local_grid_x;
 	private final int local_grid_y;
 	private Offset offset;

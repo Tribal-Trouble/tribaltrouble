@@ -7,10 +7,9 @@ import java.util.List;
 
 /**
  * Caches render state objects for reuse.
- * @param <RS>
  */
 final class RenderStateCache<RS extends LODObject> {
-	private final RenderStateFactory<RS> factory;
+	private final @NonNull RenderStateFactory<RS> factory;
 	private final List<@NonNull RS> cache = new ArrayList<>();
 	private int current_index;
 

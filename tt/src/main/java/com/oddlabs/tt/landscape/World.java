@@ -53,6 +53,7 @@ public final class World {
 	private final @NonNull AbstractElementNode<?> element_root;
 	private final @Nullable RacesResources races_resources;
 	private final @NonNull LandscapeResources landscape_resources;
+    private final com.oddlabs.tt.resource.@NonNull FogInfo fog;
 
 	private int global_checksum;
 	private int gamespeed;
@@ -67,9 +68,9 @@ public final class World {
 		return new RacesResources(queues);
 	}
 
-	public static @NonNull World newWorld(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, float @NonNull [] @NonNull [] colors) {
+	public static @NonNull World newWorld(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, float @NonNull [] @NonNull [] colors, com.oddlabs.tt.resource.@NonNull FogInfo fog) {
 		ProgressForm.progress();
-		World world = new World(audio_implementation, landscape_resources, races_resources, tree_low_details, notification_listener, world_params, world_info, terrain, player_infos, colors);
+		World world = new World(audio_implementation, landscape_resources, races_resources, tree_low_details, notification_listener, world_params, world_info, terrain, player_infos, colors, fog);
 		ProgressForm.progress();
 		ProgressForm.progress(1/5f);
 		ProgressForm.progress();
@@ -81,6 +82,10 @@ public final class World {
 		}
 		return world;
 	}
+    
+    public com.oddlabs.tt.resource.@NonNull FogInfo getFog() {
+        return fog;
+    }
 
 	public @NonNull LandscapeResources getLandscapeResources() {
 		return landscape_resources;
@@ -143,8 +148,9 @@ public final class World {
 		return getAnimationManagerRealTime().getTick();
 	}
 
-	private World(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, float @NonNull [] @NonNull [] colors) {
+	private World(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, float @NonNull [] @NonNull [] colors, com.oddlabs.tt.resource.@NonNull FogInfo fog) {
 		IO.println("****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
+        this.fog = fog;
 		this.landscape_resources = landscape_resources;
 		this.races_resources = races_resources;
 		this.audio_impl = audio_implementation;

@@ -41,7 +41,7 @@ final class SpriteSorter {
 		return DETAIL_POLYGON;
 	}
 
-	private void addToPocket(float dist_squared, LODObject model) {
+	private void addToPocket(float dist_squared, @NonNull LODObject model) {
 		int dist = (int)Math.sqrt(dist_squared);
 		sorted_models.add(dist, model);
 	}

@@ -21,7 +21,6 @@ import com.oddlabs.tt.trigger.campaign.GameStartedTrigger;
 import com.oddlabs.tt.trigger.campaign.MagicUsedTrigger;
 import com.oddlabs.tt.trigger.campaign.NearPointTrigger;
 import com.oddlabs.tt.trigger.campaign.TimeTrigger;
-import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 

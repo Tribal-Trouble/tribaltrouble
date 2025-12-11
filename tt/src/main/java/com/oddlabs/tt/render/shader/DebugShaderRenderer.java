@@ -23,9 +23,13 @@ public final class DebugShaderRenderer extends ShaderRenderer {
 	 */
 	@Override
 	public void begin(int glMode) {
+		GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_COLOR_BUFFER_BIT);
 		super.begin(glMode);
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glDepthMask(false);
 	}
 
 	/**
@@ -56,5 +60,25 @@ public final class DebugShaderRenderer extends ShaderRenderer {
 	@Override
 	public void end() {
 		super.end();
+		GL11.glPopAttrib();
+	}
+
+	public void drawAxes(float center, float z, float @NonNull[] xAxisColor, float @NonNull[] yAxisColor, float @NonNull[] zAxisColor) {
+		begin(GL11.GL_LINES);
+		try {
+			// X axis - red
+			vertex(center, center, z, xAxisColor);
+			vertex(center + 10, center, z, xAxisColor);
+
+			// Y axis - green
+			vertex(center, center, z, yAxisColor);
+			vertex(center, center + 10, z, yAxisColor);
+
+			// Z axis - blue
+			vertex(center, center, z, zAxisColor);
+			vertex(center, center, z + 10, zAxisColor);
+		} finally {
+			end();
+		}
 	}
 }

@@ -14,7 +14,6 @@ public final class FBORenderer extends OffscreenRenderer {
 
 	public FBORenderer(int width, int height) {
 		super(width, height);
-		pushGLState();
 
 		// Create and bind the framebuffer
 		framebuffer_id = GL30.glGenFramebuffers();
@@ -52,6 +51,5 @@ public final class FBORenderer extends OffscreenRenderer {
 	@Override
 	protected void finish() {
 		deleteBuffers();
-		popGLState();
 	}
 }

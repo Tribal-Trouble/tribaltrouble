@@ -10,13 +10,14 @@ import com.oddlabs.tt.render.TextureKey;
 import com.oddlabs.tt.util.StateChecksum;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Emitter extends Element<Emitter> implements Animated {
 	private final AnimationManager manager;
-	private final List<Particle> @NonNull [] particles;
+	private final List<@NonNull Particle> @NonNull [] particles;
 	private final TextureKey[] textures;
 	private final SpriteKey[] sprite_renderers;
 	private final int src_blend_func;
@@ -56,15 +57,15 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 		return world;
 	}
 
-	public final SpriteKey[] getSpriteRenderers() {
+	public final @NonNull SpriteKey @Nullable[] getSpriteRenderers() {
 		return sprite_renderers;
 	}
 
-	public final List<Particle> @NonNull [] getParticles() {
+	public final List<@NonNull Particle> @NonNull [] getParticles() {
 		return particles;
 	}
 
-	public final TextureKey[] getTextures() {
+	public final @NonNull TextureKey @Nullable [] getTextures() {
 		return textures;
 	}
 

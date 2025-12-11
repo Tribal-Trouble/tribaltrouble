@@ -7,13 +7,14 @@ import org.jspecify.annotations.NonNull;
 
 public final class Ring {
 	public final @NonNull Channel channel;
-	public Channel channelfinal;
 
-	public static final int LINEAR = 1;
-	public static final int SMOOTH = 2;
+	public enum Interpolation {
+		LINEAR,
+		SMOOTH
+	};
 
-	public Ring(int width, int height, float[] @NonNull [] gradient_list, int interpolation) {
-		channel = new Channel(width>>1, height>>1);
+	public Ring(int width, int height, float@NonNull [] @NonNull [] gradient_list, @NonNull Interpolation interpolation) {
+		var quarter = new Channel(width>>1, height>>1);
 		float x_coord;
 		float y_coord;
 		float radius;
@@ -25,7 +26,7 @@ public final class Ring {
 			for (int y = 0; y < height>>1; y++) {
 				x_coord = 0.5f - (x + 0.5f)/width;
 				y_coord = 0.5f - (y + 0.5f)/height;
-				radius = (float)Math.sqrt(x_coord*x_coord + y_coord*y_coord); // can use math here, not game state affecting
+				radius = (float)Math.sqrt(x_coord*x_coord + y_coord*y_coord);
 				index = 0;
 				
 				while (radius >= gradient_list[index][0] && index < index_max) {
@@ -38,32 +39,28 @@ public final class Ring {
 					if (radius >= gradient_list[index_max][0]) {
 						value = gradient_list[index_max][1];
 					} else {
-						switch (interpolation) {
-							case LINEAR:
-								value = Tools.interpolateLinear(gradient_list[index - 1][1], gradient_list[index][1], (radius - gradient_list[index - 1][0])/(gradient_list[index][0] - gradient_list[index - 1][0]));
-								break;
-							case SMOOTH:
-								value = Tools.interpolateSmooth(gradient_list[index - 1][1], gradient_list[index][1], (radius - gradient_list[index - 1][0])/(gradient_list[index][0] - gradient_list[index - 1][0]));
-								break;
-							default:
-								assert false: "incorrect interpolation method";
-						}
+						value = switch (interpolation) {
+                            case LINEAR ->
+                            	Tools.interpolateLinear(gradient_list[index - 1][1], gradient_list[index][1], (radius - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
+                            case SMOOTH ->
+                            	Tools.interpolateSmooth(gradient_list[index - 1][1], gradient_list[index][1], (radius - gradient_list[index - 1][0]) / (gradient_list[index][0] - gradient_list[index - 1][0]));
+                        };
 					}
 				}
-				channel.putPixel(x, y, value);
+				quarter.putPixel(x, y, value);
 			}
 		}
 		
-		channelfinal = new Channel(width, height);
-		channelfinal.quadJoin(channel, channel.copy().rotate(270), channel.copy().rotate(90), channel.copy().rotate(180));
+		channel = new Channel(width, height);
+		channel.quadJoin(quarter, quarter.copy().rotate(270), quarter.copy().rotate(90), quarter.copy().rotate(180));
 	}
 
 	public @NonNull Layer toLayer() {
-		return new Layer(channelfinal, channelfinal.copy(), channelfinal.copy());
+		return new Layer(channel, channel.copy(), channel.copy());
 	}
 
-	public Channel toChannel() {
-		return channelfinal;
+	public @NonNull Channel toChannel() {
+		return channel;
 	}
 
 }

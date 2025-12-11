@@ -45,7 +45,7 @@ public final class Optimizer {
         if (size >= 0) System.arraycopy(array1, index1 * size, array2, index2 * size, size);
 	}
 
-	private static boolean floatArrayEquals(int index1, int index2, float[] @NonNull [] array1, float[] @NonNull [] array2) {
+	private static boolean floatArrayEquals(int index1, int index2, float@NonNull [] @NonNull [] array1, float@NonNull [] @NonNull [] array2) {
 		if (array1[index1].length != array2[index2].length) {
 			return false;
 		}
@@ -57,7 +57,7 @@ public final class Optimizer {
 		return true;
 	}
 
-	private static boolean byteArrayEquals(int index1, int index2, byte[] @NonNull [] array1, byte[] @NonNull [] array2) {
+	private static boolean byteArrayEquals(int index1, int index2, byte@NonNull [] @NonNull [] array1, byte@NonNull [] @NonNull [] array2) {
 		if (array1[index1].length != array2[index2].length) {
 			return false;
 		}
@@ -69,7 +69,7 @@ public final class Optimizer {
 		return true;
 	}
 
-	static @NonNull ModelInfo optimize(/*String tex_name, */int num_vertices, float @NonNull [] vertices, float @NonNull [] normals, float @NonNull [] colors, float @NonNull [] uvs, byte[] @NonNull [] skin_names, float[] @NonNull [] skin_weights) {
+	static @NonNull ModelInfo optimize(/*String tex_name, */int num_vertices, float @NonNull [] vertices, float @NonNull [] normals, float @NonNull [] colors, float @NonNull [] uvs, byte@NonNull [] @NonNull [] skin_names, float@NonNull [] @NonNull [] skin_weights) {
 		short[] indices = new short[num_vertices];
 		float[] r_vertices = new float[vertices.length];
 		float[] r_colors = new float[colors.length];
@@ -117,13 +117,13 @@ public final class Optimizer {
 		return new ModelInfo(/*tex_name,*/ indices, r_vertices, r_normals, r_colors, r_uvs, r_skin_names, r_skin_weights);
 	}
 
-	private static float[][] stripArray(int length, float[] @NonNull [] array) {
+	private static float[][] stripArray(int length, float@NonNull [] @NonNull [] array) {
 		float[][] copy = new float[length][];
         System.arraycopy(array, 0, copy, 0, length);
 		return copy;
 	}
 
-	private static byte[][] stripArray(int length, byte[] @NonNull [] array) {
+	private static byte[][] stripArray(int length, byte@NonNull [] @NonNull [] array) {
 		byte[][] copy = new byte[length][];
         System.arraycopy(array, 0, copy, 0, length);
 		return copy;
@@ -139,7 +139,7 @@ public final class Optimizer {
 		return new SpriteInfo(textures, model_info.indices, model_info.vertices, model_info.normals, model_info.texcoords, model_info.skin_names, model_info.skin_weights, clear_color);
 	}
 
-	public static @NonNull AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ @NonNull Bone skeleton, @NonNull Map<String,float[]> initial_pose, Map<String,float[]> @NonNull [] anim_map, int type, float wpc) {
+	public static @NonNull AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ @NonNull Bone skeleton, @NonNull Map<String,float[]> initial_pose, Map<String,float[]> @NonNull [] anim_map, AnimationInfo.@NonNull AnimationType type, float wpc) {
 		// animations format: [frames] [bones] [matrix]
 		int num_frames = anim_map.length;
 		float[][] frames = new float[num_frames][];

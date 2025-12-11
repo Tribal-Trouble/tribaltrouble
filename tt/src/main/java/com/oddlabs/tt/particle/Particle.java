@@ -1,10 +1,16 @@
 package com.oddlabs.tt.particle;
 
+import com.oddlabs.tt.landscape.World;
+import com.oddlabs.tt.model.ElementVisitor;
+import com.oddlabs.tt.model.Model;
+import com.oddlabs.tt.render.SpriteKey;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-public class Particle {
+public class Particle extends Model {
 	private final float u1;
 	private final float v1;
 	private final float u2;
@@ -23,11 +29,12 @@ public class Particle {
 	private int type;
 	private float energy;
 
-	public Particle() {
-		this(0f);
+	public Particle(@NonNull World world) {
+		this(world, 0f);
 	}
 
-	public Particle(float angle) {
+	public Particle(@NonNull World world, float angle) {
+		super(world);
 		Matrix4f rotMatrix = new Matrix4f();
 		Vector3f axis = new Vector3f(0f, 0f, 1f);
 		Vector4f uvVector = new Vector4f();
@@ -196,4 +203,39 @@ public class Particle {
 	public final float getRadiusZ() {
 		return radius.z();
 	}
+
+    @Override
+    public float getShadowDiameter() {
+        return 0;
+    }
+
+    @Override
+    public float getOffsetZ() {
+        return 0;
+    }
+
+    @Override
+    public int getAnimation() {
+        return 0;
+    }
+
+    @Override
+    public float getAnimationTicks() {
+        return 0;
+    }
+
+    @Override
+    public @Nullable SpriteKey getSpriteRenderer() {
+        return null;
+    }
+
+    @Override
+    public float getNoDetailSize() {
+        return 0;
+    }
+
+    @Override
+    public void visit(@NonNull ElementVisitor visitor) {
+        // Do nothing
+    }
 }

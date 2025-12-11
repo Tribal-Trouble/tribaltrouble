@@ -6,46 +6,49 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.resource.FogInfo;
+import com.oddlabs.tt.resource.RadialFogInfo;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ResourceBundle;
 
+/**
+ * Camera for showing the island overview map.
+ */
 public final class MapCamera extends Camera {
     private static final float MAP_THRESHOLD = .1f;
     private static final float MAP_TIME_FACTOR = 1000f;
     private static final float SMOOTHNESS_FACTOR = 200f;
     public static final float MAP_Z_FACTOR = 1.3f;
 
-    // map modes
     private enum MapMode {
         TO_MAP,
         IN_MAP,
         FROM_MAP
     }
 
-    private final SelectionDelegate delegate;
-    private float old_x;
-    private float old_y;
-    private float old_z;
-    private final float old_vert_angle;
+    private final @NonNull SelectionDelegate delegate;
+    private final @NonNull CameraState original_camera_state;
     private final float distance_to_landscape;
     private final Label label = new Label(Utils.getBundleString(ResourceBundle.getBundle(MapCamera.class.getName()), "map_mode"), Skin.getSkin().getHeadlineFont());
 
-    private MapMode map_mode = MapMode.TO_MAP;
+    private @NonNull MapMode map_mode = MapMode.TO_MAP;
 
-    public MapCamera(SelectionDelegate delegate, @NonNull GameCamera old_camera) {
-        super(old_camera.getHeightMap(), old_camera.getState());
+    public MapCamera(@NonNull SelectionDelegate delegate, @NonNull GameCamera old_camera) {
+        original_camera_state = old_camera.getState();
+        FogInfo radialFog = new RadialFogInfo(Color.WHITE_INT, 0.25f);
+        CameraState mapCameraState = new CameraState(radialFog);
+        mapCameraState.set(old_camera.getState());
+        mapCameraState.setFog(radialFog);
+        super(old_camera.getHeightMap(), mapCameraState);
         this.delegate = delegate;
-        old_x = getState().getTargetX();
-        old_y = getState().getTargetY();
-        old_z = getState().getTargetZ();
-        old_vert_angle = getState().getTargetVertAngle();
         float[] target = old_camera.getRotationPoint();
-        float dx = target[0] - old_x;
-        float dy = target[1] - old_y;
-        float dz = getHeightMap().getNearestHeight(target[0], target[1]) - old_z;
+        float dx = target[0] - original_camera_state.getTargetX();
+        float dy = target[1] - original_camera_state.getTargetY();
+        float dz = getHeightMap().getNearestHeight(target[0], target[1]) - original_camera_state.getTargetZ();
         distance_to_landscape = (float)Math.sqrt(dx*dx + dy*dy + dz*dz);
 
         setSmoothnessFactor(SMOOTHNESS_FACTOR);
@@ -63,57 +66,64 @@ public final class MapCamera extends Camera {
         float map_z = getHeightMap().getMetersPerWorld()*MAP_Z_FACTOR;
 
         switch (map_mode) {
-            case TO_MAP:
-                dx = map_x - old_x;
-                dy = map_y - old_y;
-                dz = map_z - old_z;
-                getState().setTargetX(getState().getTargetX() + dx*factor);
-                getState().setTargetY(getState().getTargetY() + dy*factor);
-                getState().setTargetZ(getState().getTargetZ() + dz*factor);
-                if (getState().getTargetZ() > map_z - MAP_THRESHOLD) {
-                        getState().setTargetX(map_x);
-                        getState().setTargetY(map_y);
-                        getState().setTargetZ(map_z);
-                        changeMode(MapMode.IN_MAP);
+            case TO_MAP -> {
+                dx = map_x - original_camera_state.getTargetX();
+                dy = map_y - original_camera_state.getTargetY();
+                dz = map_z - original_camera_state.getTargetZ();
+                CameraState state = getState();
+                state.setTargetX(getState().getTargetX() + dx * factor);
+                state.setTargetY(getState().getTargetY() + dy * factor);
+                state.setTargetZ(getState().getTargetZ() + dz * factor);
+                if (state.getTargetZ() > map_z - MAP_THRESHOLD) {
+                    state.setTargetX(map_x);
+                    state.setTargetY(map_y);
+                    state.setTargetZ(map_z);
+                    changeMode(MapMode.IN_MAP);
                 }
 
-                da = CameraState.MIN_ANGLE - old_vert_angle;
-                getState().setTargetVertAngle(getState().getTargetVertAngle() + da*factor);
-                break;
-            case IN_MAP:
-                break;
-            case FROM_MAP:
-                dx = old_x - map_x;
-                dy = old_y - map_y;
-                dz = old_z - map_z;
-                getState().setTargetX(getState().getTargetX() + dx*factor);
-                getState().setTargetY(getState().getTargetY() + dy*factor);
-                getState().setTargetZ(getState().getTargetZ() + dz*factor);
-                if (getState().getTargetZ() <= old_z) {
-                    getState().setTargetX(old_x);
-                    getState().setTargetY(old_y);
-                    getState().setTargetZ(old_z);
-                    getState().setTargetVertAngle(old_vert_angle);
+                da = CameraState.MIN_ANGLE - original_camera_state.getTargetVertAngle();
+                state.setTargetVertAngle(state.getTargetVertAngle() + da * factor);
+            }
+            case IN_MAP -> {
+            }
+            case FROM_MAP -> {
+                dx = original_camera_state.getTargetX() - map_x;
+                dy = original_camera_state.getTargetY() - map_y;
+                dz = original_camera_state.getTargetZ() - map_z;
+                CameraState camera_state = getState();
+                camera_state.setTargetX(getState().getTargetX() + dx * factor);
+                camera_state.setTargetY(getState().getTargetY() + dy * factor);
+                camera_state.setTargetZ(getState().getTargetZ() + dz * factor);
+                if (camera_state.getTargetZ() <= original_camera_state.getTargetZ()) {
+                    camera_state.setTargetX(original_camera_state.getTargetX());
+                    camera_state.setTargetY(original_camera_state.getTargetY());
+                    camera_state.setTargetZ(original_camera_state.getTargetZ());
+                    camera_state.setTargetVertAngle(original_camera_state.getTargetVertAngle());
                     checkPosition();
                     delegate.exitMapMode();
                     break;
                 }
 
-                da = old_vert_angle - CameraState.MIN_ANGLE;
-                getState().setTargetVertAngle(getState().getTargetVertAngle() + da*factor);
-                break;
+                da = original_camera_state.getTargetVertAngle() - CameraState.MIN_ANGLE;
+                camera_state.setTargetVertAngle(getState().getTargetVertAngle() + da * factor);
+            }
         }
     }
 
-    private void changeMode(MapMode mode) {
+    private void changeMode(@NonNull MapMode mode) {
         map_mode = mode;
-        if (mode == MapMode.IN_MAP) {
-            label.setPos((LocalInput.getViewWidth() - label.getWidth())/2, LocalInput.getViewHeight() - label.getHeight());
-            delegate.addChild(label);
-            getState().setNoDetailMode(true);
-        } else if (mode == MapMode.FROM_MAP) {
-            label.remove();
-            getState().setNoDetailMode(false);
+        switch (mode) {
+            case TO_MAP -> {
+            }
+            case IN_MAP -> {
+                label.setPos((LocalInput.getViewWidth() - label.getWidth()) / 2, LocalInput.getViewHeight() - label.getHeight());
+                delegate.addChild(label);
+                getState().setNoDetailMode(true);
+            }
+            case FROM_MAP -> {
+                label.remove();
+                getState().setNoDetailMode(false);
+            }
         }
     }
 
@@ -127,13 +137,14 @@ public final class MapCamera extends Camera {
             //	float old_dir_x = (float)Math.cos(getHorizAngle())*radius;
             //	float old_dir_y = (float)Math.sin(getHorizAngle())*radius;
             //	float old_dir_z = (float)Math.sin(getVertAngle());
-            float radius = (float)Math.cos(old_vert_angle);
+            float radius = (float)Math.cos(original_camera_state.getTargetVertAngle());
             float old_dir_x = (float)Math.cos(getState().getHorizAngle())*radius;
             float old_dir_y = (float)Math.sin(getState().getHorizAngle())*radius;
-            float old_dir_z = (float)Math.sin(old_vert_angle);
-            old_x = x - old_dir_x*distance_to_landscape;
-            old_y = y - old_dir_y*distance_to_landscape;
-            old_z = getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_landscape;
+            float old_dir_z = (float)Math.sin(original_camera_state.getTargetVertAngle());
+            // Adjust the position of the original camera.
+            original_camera_state.setTargetX(x - old_dir_x*distance_to_landscape);
+            original_camera_state.setTargetY(y - old_dir_y*distance_to_landscape);
+            original_camera_state.setTargetZ(getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_landscape);
             changeMode(MapMode.FROM_MAP);
         }
     }

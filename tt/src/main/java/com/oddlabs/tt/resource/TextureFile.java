@@ -123,7 +123,7 @@ public final class TextureFile extends File<Texture> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
         return o instanceof TextureFile other &&
                 internal_format == other.internal_format &&
                 min_filter == other.min_filter && mag_filter == other.mag_filter &&

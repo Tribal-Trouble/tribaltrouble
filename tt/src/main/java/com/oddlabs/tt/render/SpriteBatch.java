@@ -1,91 +1,79 @@
 package com.oddlabs.tt.render;
 
+import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.render.shader.SpriteShader;
-import com.oddlabs.tt.render.shader.ShaderProgram;
+import com.oddlabs.tt.util.GLStateHelper;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 final class SpriteBatch {
-	private static final float[] RESPOND_COLOR = {1f, 1f, 1f};
-	
-	private final List<ModelState> models = new ArrayList<>(256);
+    private final List<@NonNull ModelState<?>> models = new ArrayList<>(256);
     private final SpriteBatchRenderer batchRenderer;
-
-    private static SpriteShader shader;
-    private static final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
     SpriteBatch(SpriteBatchRenderer batchRenderer) {
         this.batchRenderer = batchRenderer;
     }
-	
-	void add(@NonNull ModelState model) {
-		models.add(model);
-	}
-	
-	void render(@NonNull Sprite sprite, int tex_index, boolean respond, @NonNull SpriteList sprite_list) {
-		if (models.isEmpty()) return;
 
-        if (shader == null) {
-            shader = new SpriteShader();
-        }
+    void add(@NonNull ModelState<?> model) {
+        models.add(model);
+    }
 
-        shader.use();
-        batchRenderer.getProjectionStack().toBuffer(matrixBuffer);
-        shader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, matrixBuffer);
-        shader.setUniform(SpriteShader.Uniforms.LIGHT_DIR, -1f, 0f, 1f); // Matches DefaultRenderer
+    void render(@NonNull SpriteShader shader, @NonNull Sprite sprite, int tex_index, boolean respond, @NonNull SpriteList sprite_list, @NonNull CameraState camera_state) {
+        if (models.isEmpty()) return;
 
-		sprite.setupShader(shader, tex_index, respond, sprite_list);
+        try (var _ = GLStateHelper.cullFace(sprite.culled);
+             var _ = GLStateHelper.blend(sprite.modulateColor())) {
 
-        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_COLOR_BUFFER_BIT);
+            sprite.setupShaderUniforms(shader, tex_index, respond);
+            if (sprite.modulateColor()) {
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            }
 
-        if (sprite.modulateColor()) {
-            GL11.glEnable(GL11.GL_BLEND);
-            // Assuming standard blending for modulate color sprites (transparency)
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        }
-		
-		for (ModelState model : models) {
-			if (Globals.isBoundsEnabled(BoundingMode.PLAYERS))
-				RenderTools.draw(model.getModel());
-			if (Globals.draw_misc) {
-                batchRenderer.getModelViewStack().push();
-				model.transform();
+            for (ModelState<?> model : models) {
+                if (Globals.draw_misc) {
+                    batchRenderer.getModelViewStack().push();
+                    model.transform();
+                    shader.setUniformMatrix4(SpriteShader.Uniforms.MODEL_VIEW_MATRIX, false, batchRenderer.getModelViewStack().current());
 
-                batchRenderer.getModelViewStack().toBuffer(matrixBuffer);
-                shader.setUniformMatrix4(SpriteShader.Uniforms.MODEL_VIEW_MATRIX, false, matrixBuffer);
+                    if (respond) {
+                        shader.setUniform(SpriteShader.Uniforms.DECAL_COLOR, 1f, 1f, 1f, 1f);
+                    } else {
+                        float[] tc = model.getTeamColor();
+                        shader.setUniform(SpriteShader.Uniforms.DECAL_COLOR, tc[0], tc[1], tc[2], tc.length > 3 ? tc[3] : 1f);
+                    }
 
-                if (respond) {
-                    shader.setUniform(SpriteShader.Uniforms.DECAL_COLOR, 1f, 1f, 1f, 1f);
-                } else {
-                    float[] tc = model.getTeamColor();
-                    // getTeamColor returns float[3] usually. Shader needs vec4.
-                    shader.setUniform(SpriteShader.Uniforms.DECAL_COLOR, tc[0], tc[1], tc[2], tc.length > 3 ? tc[3] : 1f);
+                    Vector4f color = model.getColor();
+                    shader.setUniform(SpriteShader.Uniforms.COLOR, color.x, color.y, color.z, color.w);
+
+                    sprite.renderShader(shader, model.getModel().getAnimation(), model.getModel().getAnimationTicks(), sprite_list);
+                    batchRenderer.getModelViewStack().pop();
                 }
+            }
+            
+            // Reset texture units
+            if (!sprite.modulateColor() && (sprite.hasTeamDecal() || respond)) {
+                GL13.glActiveTexture(GL13.GL_TEXTURE0);
+            }
+        }
+    }
 
-                Vector4f c = model.getColor();
-                shader.setUniform(SpriteShader.Uniforms.COLOR, c.x, c.y, c.z, c.w);
+    public void debugRender() {
+        if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
+            for (ModelState<?> model : models) {
+                RenderTools.draw(model.getModel());
+            }
+        }
+    }
 
-				sprite.renderShader(shader, model.getModel().getAnimation(), model.getModel().getAnimationTicks(), sprite_list);
-                batchRenderer.getModelViewStack().pop();
-			}
-		}
-		
-		sprite.resetShader(shader, respond, sprite.modulateColor());
-
-        GL11.glPopAttrib();
-        ShaderProgram.unbind();
-	}
-	
-	void clear() {
-		models.clear();
-	}
+    void clear() {
+        models.clear();
+    }
 }

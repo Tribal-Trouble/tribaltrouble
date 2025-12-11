@@ -1,6 +1,7 @@
 package com.oddlabs.router;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -16,7 +17,7 @@ public final class SessionID implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(@Nullable Object other) {
 		return other instanceof SessionID sid && sid.session_id == session_id;
 	}
 

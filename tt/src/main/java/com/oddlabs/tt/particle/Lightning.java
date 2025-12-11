@@ -19,23 +19,23 @@ import java.util.Random;
 public final class Lightning extends Element<Lightning> implements Animated {
 	private static final float SQRT_2 = (float)Math.sqrt(2f);
 
-	private final AnimationManager manager;
-	private final List<StretchParticle> particles = new ArrayList<>();
-	private final Vector3f src;
-	private final Vector3f dst;
+	private final @NonNull AnimationManager manager;
+	private final List<@NonNull StretchParticle> particles = new ArrayList<>();
+	private final @NonNull Vector3f src;
+	private final @NonNull Vector3f dst;
 	private final float width;
 	private final int num_particles;
-	private final Vector4f color;
-	private final Vector4f delta_color;
-	private final TextureKey texture;
+	private final @NonNull Vector4f color;
+	private final @NonNull Vector4f delta_color;
+	private final @NonNull TextureKey texture;
 	private final @NonNull World world;
 
 	private final float energy;
 
-	public Lightning(@NonNull World world, Vector3f src, Vector3f dst, float width,
-                     int num_particles, Vector4f color, Vector4f delta_color,
-                     TextureKey texture, float energy,
-                     AnimationManager manager) {
+	public Lightning(@NonNull World world, @NonNull Vector3f src, @NonNull Vector3f dst, float width,
+                     int num_particles, @NonNull Vector4f color, @NonNull Vector4f delta_color,
+                     @NonNull TextureKey texture, float energy,
+                     @NonNull AnimationManager manager) {
 		super(world.getElementRoot());
 		this.world = world;
 		this.src = src;
@@ -56,11 +56,11 @@ public final class Lightning extends Element<Lightning> implements Animated {
         return this;
     }
 
-    public @NonNull List<StretchParticle> getParticles() {
+    public @NonNull List<@NonNull StretchParticle> getParticles() {
 		return particles;
 	}
 
-	public TextureKey getTexture() {
+	public @NonNull TextureKey getTexture() {
 		return texture;
 	}
 
@@ -79,7 +79,7 @@ public final class Lightning extends Element<Lightning> implements Animated {
 			float base_dy = (dst.y() - y)/(num_particles - i);
 			float dx = base_dx + (random.nextFloat() - .5f)*random_limit;
 			float dy = base_dy + (random.nextFloat() - .5f)*random_limit;
-			StretchParticle particle = new StretchParticle();
+			StretchParticle particle = new StretchParticle(world);
 			particle.setSrc(x, y, z);
 
 			if (i == num_particles - 1) {

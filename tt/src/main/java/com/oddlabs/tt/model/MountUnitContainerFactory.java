@@ -4,7 +4,7 @@ import org.jspecify.annotations.NonNull;
 
 public final class MountUnitContainerFactory implements UnitContainerFactory {
 	@Override
-	public @NonNull UnitContainer createContainer(Building building) {
+	public @NonNull UnitContainer createContainer(@NonNull Building building) {
 		return new MountUnitContainer(building);
 	}
 }

@@ -23,26 +23,6 @@ public final class FloatVBO extends VBO {
 		put(initial_data);
 	}
 
-	public void vertexPointer(int size, int stride, int index) {
-        makeCurrent();
-        GL11.glVertexPointer(size, GL11.GL_FLOAT, stride, index<<2);
-	}
-
-	public void texCoordPointer(int size, int stride, int index) {
-        makeCurrent();
-        GL11.glTexCoordPointer(size, GL11.GL_FLOAT, stride, index<<2);
-	}
-
-	public void normalPointer(int stride, int index) {
-        makeCurrent();
-        GL11.glNormalPointer(GL11.GL_FLOAT, stride, index<<2);
-	}
-
-	public void colorPointer(int size, int stride, int index) {
-        makeCurrent();
-        GL11.glColorPointer(size, GL11.GL_FLOAT, stride, index<<2);
-	}
-	
 	public void vertexAttribPointer(int location, int size, int stride, long offset) {
 		makeCurrent();
 		org.lwjgl.opengl.GL20.glVertexAttribPointer(location, size, GL11.GL_FLOAT, false, stride, offset);

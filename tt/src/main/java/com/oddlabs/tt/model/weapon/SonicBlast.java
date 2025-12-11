@@ -33,11 +33,11 @@ public final class SonicBlast implements Magic {
 	private final float start_x;
 	private final float start_y;
 	private final float start_z;
-	private final AbstractAudioPlayer lur;
-	private final AbstractAudioPlayer rumble;
+	private final @NonNull AbstractAudioPlayer lur;
+	private final @NonNull AbstractAudioPlayer rumble;
 
 	private float time = 0f;
-	private final @NonNull List<Selectable> target_list;
+	private final @NonNull List<@NonNull Selectable> target_list;
 
 	private int rings_sent = 0;
 	private boolean first_ring_sent = false;
@@ -160,11 +160,7 @@ public final class SonicBlast implements Magic {
 
 	@Override
 	public void interrupt() {
-		if (lur != null) {
-			lur.stop(.2f, Settings.getSettings().sound_gain);
-		}
-		if (rumble != null) {
-			rumble.stop(.2f, Settings.getSettings().sound_gain);
-		}
+		lur.stop(.2f, Settings.getSettings().sound_gain);
+		rumble.stop(.2f, Settings.getSettings().sound_gain);
 	}
 }

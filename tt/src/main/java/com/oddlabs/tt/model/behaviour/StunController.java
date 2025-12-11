@@ -9,7 +9,7 @@ public final class StunController extends Controller {
 
 	private float time;
 
-	public StunController(Unit unit, float time) {
+	public StunController(@NonNull Unit unit, float time) {
 		super(0);
 		this.unit = unit;
 		this.time = time;

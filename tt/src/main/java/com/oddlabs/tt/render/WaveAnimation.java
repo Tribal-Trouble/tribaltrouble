@@ -21,8 +21,8 @@ public final class WaveAnimation {
 		GL11.glTranslatef(TRANSLATE_SCALE*x, TRANSLATE_SCALE*y, 0f);
 	}
 
-	public void mulRotation() {
-		GL11.glRotatef(rot_angle, rot_axis.x, rot_axis.y, rot_axis.z);
+	public void mulRotation(@NonNull MatrixStack stack) {
+		stack.rotate(rot_angle, rot_axis.x, rot_axis.y, rot_axis.z);
 	}
 
 	public void updateChecksum(@NonNull StateChecksum checksum) {

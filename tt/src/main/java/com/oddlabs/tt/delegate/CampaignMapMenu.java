@@ -7,7 +7,6 @@ import com.oddlabs.tt.form.QuestionForm;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MenuButton;
-import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -15,7 +14,7 @@ import org.lwjgl.input.Keyboard;
 
 final class CampaignMapMenu extends Menu {
 
-    CampaignMapMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, Camera camera) {
+    CampaignMapMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Camera camera) {
         super(network, gui_root, camera);
         reload();
     }

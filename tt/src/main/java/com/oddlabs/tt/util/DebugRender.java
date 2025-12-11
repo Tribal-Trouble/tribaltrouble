@@ -41,42 +41,41 @@ public final class DebugRender {
 	 * Draws a wireframe box.
 	 */
 	public static void drawBox(float bmin_x, float bmax_x, float bmin_y, float bmax_y, float bmin_z, float bmax_z, float r, float g, float b) {
-        DebugShaderRenderer renderer = shaderRenderer;
-        if (null == renderer) {
+        if (null == shaderRenderer) {
             return;
         }
-        renderer.begin(GL11.GL_LINES);
+        shaderRenderer.begin(GL11.GL_LINES);
         try {
-            renderer.vertex(bmin_x, bmin_y, bmin_z, r, g, b);
-            renderer.vertex(bmin_x, bmin_y, bmax_z, r, g, b);
-            renderer.vertex(bmin_x, bmin_y, bmin_z, r, g, b);
-            renderer.vertex(bmin_x, bmax_y, bmin_z, r, g, b);
-            renderer.vertex(bmin_x, bmin_y, bmin_z, r, g, b);
-            renderer.vertex(bmax_x, bmin_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmin_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmin_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmin_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmax_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmin_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmin_y, bmin_z, r, g, b);
 
-            renderer.vertex(bmax_x, bmax_y, bmax_z, r, g, b);
-            renderer.vertex(bmax_x, bmax_y, bmin_z, r, g, b);
-            renderer.vertex(bmax_x, bmax_y, bmax_z, r, g, b);
-            renderer.vertex(bmax_x, bmin_y, bmax_z, r, g, b);
-            renderer.vertex(bmax_x, bmax_y, bmax_z, r, g, b);
-            renderer.vertex(bmin_x, bmax_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmax_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmax_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmax_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmin_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmax_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmax_y, bmax_z, r, g, b);
 
-            renderer.vertex(bmin_x, bmin_y, bmax_z, r, g, b);
-            renderer.vertex(bmin_x, bmax_y, bmax_z, r, g, b);
-            renderer.vertex(bmin_x, bmin_y, bmax_z, r, g, b);
-            renderer.vertex(bmax_x, bmin_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmin_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmax_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmin_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmin_y, bmax_z, r, g, b);
 
-            renderer.vertex(bmin_x, bmax_y, bmin_z, r, g, b);
-            renderer.vertex(bmin_x, bmax_y, bmax_z, r, g, b);
-            renderer.vertex(bmin_x, bmax_y, bmin_z, r, g, b);
-            renderer.vertex(bmax_x, bmax_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmax_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmax_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmin_x, bmax_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmax_y, bmin_z, r, g, b);
 
-            renderer.vertex(bmax_x, bmin_y, bmin_z, r, g, b);
-            renderer.vertex(bmax_x, bmax_y, bmin_z, r, g, b);
-            renderer.vertex(bmax_x, bmin_y, bmin_z, r, g, b);
-            renderer.vertex(bmax_x, bmin_y, bmax_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmin_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmax_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmin_y, bmin_z, r, g, b);
+            shaderRenderer.vertex(bmax_x, bmin_y, bmax_z, r, g, b);
         } finally {
-            renderer.end();
+            shaderRenderer.end();
         }
 	}
 
@@ -84,16 +83,15 @@ public final class DebugRender {
 	 * Draws a point.
 	 */
 	public static void drawPoint(float x, float y, float z, float size, float r, float g, float b) {
-        DebugShaderRenderer renderer = shaderRenderer;
-        if (null == renderer) {
+        if (null == shaderRenderer) {
             return;
         }
         GL11.glPointSize(size);
-        renderer.begin(GL11.GL_POINTS);
+        shaderRenderer.begin(GL11.GL_POINTS);
         try {
-            renderer.vertex(x, y, z, r, g, b);
+            shaderRenderer.vertex(x, y, z, r, g, b);
         } finally {
-            renderer.end();
+            shaderRenderer.end();
         }
 	}
 	
@@ -101,16 +99,15 @@ public final class DebugRender {
 	 * Draws a line segment.
 	 */
 	public static void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float r, float g, float b) {
-        DebugShaderRenderer renderer = shaderRenderer;
-        if (null == renderer) {
+        if (null == shaderRenderer) {
             return;
         }
-        renderer.begin(GL11.GL_LINES);
+        shaderRenderer.begin(GL11.GL_LINES);
         try {
-            renderer.vertex(x1, y1, z1, r, g, b);
-            renderer.vertex(x2, y2, z2, r, g, b);
+            shaderRenderer.vertex(x1, y1, z1, r, g, b);
+            shaderRenderer.vertex(x2, y2, z2, r, g, b);
         } finally {
-            renderer.end();
+            shaderRenderer.end();
         }
 	}
 
@@ -118,44 +115,27 @@ public final class DebugRender {
      * Draws the classic OpenGL axes at ground level at the center of the map
      */
     public static void drawAxes(float center, float z) {
-        DebugShaderRenderer renderer = shaderRenderer;
-        if (null == renderer) {
+        if (null == shaderRenderer) {
             return;
         }
-        renderer.begin(GL11.GL_LINES);
-        try {
-            // X axis - red
-            renderer.vertex(center, center, z, AXIS_X_COLOR);
-            renderer.vertex(center + 10, center, z, AXIS_X_COLOR);
-
-            // Y axis - green
-            renderer.vertex(center, center, z, AXIS_Y_COLOR);
-            renderer.vertex(center, center + 10, z, AXIS_Y_COLOR);
-
-            // Z axis - blue
-            renderer.vertex(center, center, z, AXIS_Z_COLOR);
-            renderer.vertex(center, center, z + 10, AXIS_Z_COLOR);
-        } finally {
-            renderer.end();
-        }
+        shaderRenderer.drawAxes(center, z, AXIS_X_COLOR, AXIS_Y_COLOR, AXIS_Z_COLOR);
     }
 
 	/**
 	 * Draws a wireframe quad.
 	 */
 	public static void drawQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float z, float r, float g, float b) {
-        DebugShaderRenderer renderer = shaderRenderer;
-        if (null == renderer) {
+        if (null == shaderRenderer) {
             return;
         }
-        renderer.begin(GL11.GL_LINE_LOOP);
+        shaderRenderer.begin(GL11.GL_LINE_LOOP);
         try {
-            renderer.vertex(x1, y1, z, r, g, b);
-            renderer.vertex(x2, y2, z, r, g, b);
-            renderer.vertex(x3, y3, z, r, g, b);
-            renderer.vertex(x4, y4, z, r, g, b);
+            shaderRenderer.vertex(x1, y1, z, r, g, b);
+            shaderRenderer.vertex(x2, y2, z, r, g, b);
+            shaderRenderer.vertex(x3, y3, z, r, g, b);
+            shaderRenderer.vertex(x4, y4, z, r, g, b);
         } finally {
-            renderer.end();
+            shaderRenderer.end();
         }
 	}
 
@@ -163,8 +143,7 @@ public final class DebugRender {
 	 * Draws a wireframe cylinder composed of multiple circles.
 	 */
 	public static void drawCylinder(float origin_x, float origin_y, float origin_z, float radius, int num_circles, float r, float g, float b) {
-        DebugShaderRenderer renderer = shaderRenderer;
-        if (null == renderer) {
+        if (null == shaderRenderer) {
             return;
         }
         float z = 0f;
@@ -178,19 +157,18 @@ public final class DebugRender {
 	 * Draws a wireframe circle.
 	 */
 	private static void drawCircle(float radius, float origin_x, float origin_y, float origin_z, float r, float g, float b) {
-        DebugShaderRenderer renderer = shaderRenderer;
-        if (null == renderer) {
+        if (null == shaderRenderer) {
             return;
         }
-        renderer.begin(GL11.GL_LINE_LOOP);
+        shaderRenderer.begin(GL11.GL_LINE_LOOP);
         try {
             for (float phi = 0f; phi < (float) java.lang.Math.PI * 2; phi += ANGLE_DELTA) {
                 float x = radius * (float) java.lang.Math.cos(phi);
                 float y = radius * (float) java.lang.Math.sin(phi);
-                renderer.vertex(x + origin_x, y + origin_y, origin_z, r, g, b);
+                shaderRenderer.vertex(x + origin_x, y + origin_y, origin_z, r, g, b);
             }
         } finally {
-            renderer.end();
+            shaderRenderer.end();
         }
 	}
 
@@ -198,22 +176,21 @@ public final class DebugRender {
 	 * Draws a wireframe sphere.
 	 */
 	public static void drawSphere(float origin_x, float origin_y, float origin_z, float radius, float r, float g, float b) {
-        DebugShaderRenderer renderer = shaderRenderer;
-        if (null == renderer) {
+        if (null == shaderRenderer) {
             return;
         }
         for (float phi = 0; phi < (float)java.lang.Math.PI; phi += CIRCLE_DELTA) {
-            renderer.begin(GL11.GL_LINE_LOOP);
+            shaderRenderer.begin(GL11.GL_LINE_LOOP);
             try {
                 for (float rho = 0f; rho < (float) java.lang.Math.PI * 2; rho += ANGLE_DELTA) {
                     float x = radius * (float) java.lang.Math.cos(rho);
                     float z = radius * (float) java.lang.Math.sin(rho);
                     float y = x * (float) java.lang.Math.sin(phi);
                     x *= (float) java.lang.Math.cos(phi);
-                    renderer.vertex(x + origin_x, y + origin_y, z + origin_z, r, g, b);
+                    shaderRenderer.vertex(x + origin_x, y + origin_y, z + origin_z, r, g, b);
                 }
             } finally {
-                renderer.end();
+                shaderRenderer.end();
             }
         }
         drawCircle(radius, origin_x, origin_y, origin_z, r, g, b);

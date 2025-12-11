@@ -6,6 +6,7 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
@@ -14,10 +15,10 @@ public final class GeneratorHalos extends TextureGenerator {
 	public static final int SHADOWED = 0;
 	public static final int SELECTED = 1;
 	private final int size;
-	private final float[][] shadow_parms;
-	private final float[][] ring_parms;
+	private final float @NonNull [] @NonNull [] shadow_parms;
+	private final float @NonNull [] @NonNull [] ring_parms;
 
-	public GeneratorHalos(int size, float[][] shadow_parms, float[][] ring_parms) {
+	public GeneratorHalos(int size, float @NonNull [] @NonNull [] shadow_parms, float @NonNull [] @NonNull [] ring_parms) {
 		this.size = size;
 		this.shadow_parms = shadow_parms;
 		this.ring_parms = ring_parms;
@@ -25,8 +26,8 @@ public final class GeneratorHalos extends TextureGenerator {
 
 	@Override
 	public Texture @NonNull [] generate() {
-		Channel channel_shadow = new Ring(size, size, shadow_parms, Ring.SMOOTH).toChannel();
-		Channel channel_ring = new Ring(size, size, ring_parms, Ring.LINEAR).toChannel();
+		Channel channel_shadow = new Ring(size, size, shadow_parms, Ring.Interpolation.SMOOTH).toChannel();
+		Channel channel_ring = new Ring(size, size, ring_parms, Ring.Interpolation.LINEAR).toChannel();
 		Channel channel_black = new Channel(size, size).fill(0f);
 		Channel channel_white = new Channel(size, size).fill(1f);
 		Layer[] layers = new Layer[2];
@@ -47,10 +48,11 @@ public final class GeneratorHalos extends TextureGenerator {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (!super.equals(o))
-			return false;
-		GeneratorHalos other = (GeneratorHalos)o;
-		return size == other.size && Arrays.equals(shadow_parms, other.shadow_parms) && Arrays.equals(ring_parms, other.ring_parms);
+	public boolean equals(@Nullable Object o) {
+        return super.equals(o) &&
+				o instanceof GeneratorHalos other &&
+				size == other.size &&
+				Arrays.equals(shadow_parms, other.shadow_parms) &&
+				Arrays.equals(ring_parms, other.ring_parms);
 	}
 }

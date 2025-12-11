@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 public abstract class BlendInfo {
 	private final @NonNull Texture alpha_map;
+	private final GLByteImage sourceImage;
 
 	private @NonNull Texture createAlphaMap(GLByteImage alpha_image, int format) {
 		return new Texture(new GLByteImage[]{alpha_image}, format, GL11.GL_LINEAR,
@@ -13,7 +14,16 @@ public abstract class BlendInfo {
 	}
 
 	protected BlendInfo(GLByteImage alpha_image, int format) {
+		this.sourceImage = alpha_image;
 		alpha_map = createAlphaMap(alpha_image, format);
+	}
+
+	public @NonNull Texture getAlphaMap() {
+		return alpha_map;
+	}
+
+	public GLByteImage getSourceImage() {
+		return sourceImage;
 	}
 
 /*	public void delete() {

@@ -11,7 +11,7 @@ public final class ByteCompressedFloatArray implements Serializable {
 
 	private final float @NonNull [] scale;
 	private final float @NonNull [] offset;
-	private final byte[] @NonNull [] data;
+	private final byte@NonNull [] @NonNull [] data;
 
 	public ByteCompressedFloatArray(float @NonNull [] array, int channels) {
 		int channel_length = array.length/channels;

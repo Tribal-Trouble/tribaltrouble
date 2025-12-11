@@ -1,7 +1,6 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.BoundingMode;
-import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.DebugRender;
@@ -11,13 +10,13 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.FloatBuffer;
+import java.util.Objects;
 
 public final class RenderTools {
-	private static final FloatBuffer transform_matrix = BufferUtils.createFloatBuffer(16);
+	private static final FloatBuffer transform_matrix = Objects.requireNonNull(BufferUtils.createFloatBuffer(16)).clear();
 
 	static {
         new Matrix4f().get(transform_matrix);
-		transform_matrix.rewind();
 	}
 
     enum FrustumIntersection {
@@ -155,8 +154,7 @@ public final class RenderTools {
 	}
 
 	static void draw(@NonNull BoundingBox box, @NonNull BoundingMode bound_type, float r, float g, float b) {
-		if (Globals.isBoundsEnabled(bound_type))
-			draw(box, r, g, b);
+		draw(box, r, g, b);
 	}
 
     private RenderTools() {

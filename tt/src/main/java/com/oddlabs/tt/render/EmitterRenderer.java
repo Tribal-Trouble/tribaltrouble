@@ -6,11 +6,12 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Particle;
 import com.oddlabs.tt.render.shader.ParticleShader;
-import com.oddlabs.tt.render.shader.ShaderProgram;
+import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.render.shader.VertexLayout;
-import com.oddlabs.tt.util.GLState;
-import com.oddlabs.tt.util.GLStateStack;
+import com.oddlabs.tt.util.GLStateHelper;
 import com.oddlabs.tt.vbo.FloatVBO;
+import com.oddlabs.tt.vbo.VertexArray;
+import com.oddlabs.tt.vbo.VertexArrays;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
@@ -21,162 +22,152 @@ import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
 import java.util.List;
+import java.util.Objects;
 
-final class EmitterRenderer {
-	private static final float SQRT_2 = (float)Math.sqrt(2f);
-	private static final float ROTATION_FACTOR = 60f;
+public final class EmitterRenderer {
 
-	private static final Vector3f right_plus_up = new Vector3f();
-	private static final Vector3f right_minus_up = new Vector3f();
-	private static final FloatBuffer color_buffer = BufferUtils.createFloatBuffer(4);
+    private final Vector3f right_plus_up = new Vector3f();
+    private final Vector3f right_minus_up = new Vector3f();
 
-	private static final Matrix4f view_matrix = new Matrix4f();
-	private static final CameraState tmp_camera = new CameraState();
+    private final Matrix4f view_matrix = new Matrix4f();
+    private final CameraState tmp_camera = new CameraState();
 
     private static final int MAX_PARTICLES = 10000;
-    private static final int FLOATS_PER_PARTICLE = 36; // 4 vertices * 9 floats (x,y,z,u,v,r,g,b,a)
+    private static final int FLOATS_PER_VERTEX = 9; // x,y,z,u,v,r,g,b,a
+    private static final int VERTICES_PER_PARTICLE = 6;
+    private static final int FLOATS_PER_PARTICLE = VERTICES_PER_PARTICLE * FLOATS_PER_VERTEX;
 
-    private static final FloatBuffer particle_buffer = BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE);
-    private static final FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
+    private final FloatBuffer particle_buffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE));
+    private final FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
 
-    private static ParticleShader shader;
-    private static final VertexLayout<ParticleShader.Attribute> layout = new VertexLayout<>(
+    private final ParticleShader shader = new ParticleShader();
+    private final SpriteShader spriteShader = new SpriteShader();
+    private final VertexLayout<ParticleShader.Attribute> layout = new VertexLayout<>(
             ParticleShader.Attribute.POSITION,
             ParticleShader.Attribute.TEX_COORD,
             ParticleShader.Attribute.COLOR
     );
-    private static final FloatBuffer matrix_buffer = BufferUtils.createFloatBuffer(16);
+    private final @NonNull VertexArray vao;
 
-	public static void render(@NonNull RenderQueues render_queues, @NonNull List<Emitter> emitter_queue, @NonNull CameraState state) {
-        if (shader == null) {
-            shader = new ParticleShader();
-        }
-
-		tmp_camera.set(state);
-		view_matrix.identity();
-		tmp_camera.setView(view_matrix);
-		float rx = tmp_camera.getModelView().m00(); float ry = tmp_camera.getModelView().m10(); float rz = tmp_camera.getModelView().m20();
-		float upx = tmp_camera.getModelView().m01(); float upy = tmp_camera.getModelView().m11(); float upz = tmp_camera.getModelView().m21();
-		right_plus_up.set(rx + upx, ry + upy, rz + upz);
-		right_minus_up.set(rx - upx, ry - upy, rz - upz);
-
-        shader.use();
-        state.getModelView().get(matrix_buffer);
-        shader.setUniformMatrix4(ParticleShader.Uniforms.MODEL_VIEW_MATRIX, false, matrix_buffer);
-        state.getProjectionMatrix().get(matrix_buffer);
-        shader.setUniformMatrix4(ParticleShader.Uniforms.PROJECTION_MATRIX, false, matrix_buffer);
-        shader.setUniform(ParticleShader.Uniforms.TEXTURE_0, 0);
-
-		GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_COLOR_BUFFER_BIT);
-
-		GL11.glEnable(GL11.GL_BLEND);
-		// Alpha test logic handled by blend/shader.
-		GL11.glDepthMask(false);
-
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-
-        particle_vbo.makeCurrent();
-        layout.bind(shader);
-
-        for (Emitter emitter : emitter_queue) {
-            if (Globals.draw_particles)
-                render(render_queues, emitter);
-        }
-		emitter_queue.clear();
-
-        layout.unbind(shader);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-
-		GL11.glPopAttrib();
-        ShaderProgram.unbind();
-	}
-
-	private static void render2DParticle(@NonNull Particle particle, @NonNull Emitter emitter) {
-		float x = particle.getPosX();
-		float y = particle.getPosY();
-		float z = particle.getPosZ();
-		float radius_x = particle.getRadiusX()*emitter.getScaleX();
-		float radius_y = particle.getRadiusY()*emitter.getScaleY();
-		float radius_z = particle.getRadiusZ()*emitter.getScaleZ();
-
-		float r = particle.getColorR();
-		float g = particle.getColorG();
-		float b = particle.getColorB();
-		float a = particle.getColorA();
-
-		particle_buffer.put(x - right_plus_up.x*radius_x).put(y - right_plus_up.y*radius_y).put(z - right_plus_up.z*radius_z).put(particle.getU1()).put(particle.getV1()).put(r).put(g).put(b).put(a);
-		particle_buffer.put(x + right_minus_up.x*radius_x).put(y + right_minus_up.y*radius_y).put(z + right_minus_up.z*radius_z).put(particle.getU2()).put(particle.getV2()).put(r).put(g).put(b).put(a);
-		particle_buffer.put(x + right_plus_up.x*radius_x).put(y + right_plus_up.y*radius_y).put(z + right_plus_up.z*radius_z).put(particle.getU3()).put(particle.getV3()).put(r).put(g).put(b).put(a);
-		particle_buffer.put(x - right_minus_up.x*radius_x).put(y - right_minus_up.y*radius_y).put(z - right_minus_up.z*radius_z).put(particle.getU4()).put(particle.getV4()).put(r).put(g).put(b).put(a);
-	}
-
-	private static void render(@NonNull RenderQueues render_queues, @NonNull Emitter emitter) {
-		if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
-			RenderTools.draw(emitter, 1f, 1f, 1f);
-		}
-
-		TextureKey[] textures = emitter.getTextures();
-		List<Particle>[] particles = emitter.getParticles();
-		SpriteKey[] sprite_renderers = emitter.getSpriteRenderers();
-		if (textures != null) {
-			GL11.glBlendFunc(emitter.getSrcBlendFunc(), emitter.getDstBlendFunc());
-
-			for (int j = 0; j < particles.length; j++) {
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, render_queues.getTexture(textures[j]).getHandle());
-				particle_buffer.clear();
-				for (int i = particles[j].size() - 1; i >= 0; i--) {
-					Particle particle = particles[j].get(i);
-					render2DParticle(particle, emitter);
-				}
-				particle_buffer.flip();
-				particle_vbo.put(particle_buffer);
-
-				GL11.glDrawArrays(GL11.GL_QUADS, 0, particles[j].size() * 4);
-			}
-
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		} else if (sprite_renderers != null) {
-            // Legacy Sprite Path: Unbind shader/layout
-            layout.unbind(shader);
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-            ShaderProgram.unbind();
-            GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT); // Minimal state save
-
-            for (List<Particle> particle1 : particles) {
-                for (int i = particle1.size() - 1; i >= 0; i--) {
-                    Particle particle = particle1.get(i);
-                    int index = particle.getType();
-                    color_buffer.put(0, particle.getColorR());
-                    color_buffer.put(1, particle.getColorG());
-                    color_buffer.put(2, particle.getColorB());
-                    color_buffer.put(3, Math.min(particle.getColorA(), 1f));
-                    SpriteRenderer sprite_renderer = render_queues.getRenderer(sprite_renderers[index]);
-                    sprite_renderer.setupWithColor(0, color_buffer, false, false);
-                    //					sprite_renderer.setup(0, false);
-                    float x = particle.getPosX();
-                    float y = particle.getPosY();
-                    float z = particle.getPosZ();
-                    GL11.glPushMatrix();
-                    GL11.glTranslatef(x, y, z);
-                    GL11.glRotatef(ROTATION_FACTOR*(y + x), SQRT_2, SQRT_2, 0f);
-                    //					GL11.glScalef(scale_x, scale_y, scale_z);
-                    sprite_renderer.getSpriteList().render(0, 0, 0f);
-                    sprite_renderer.getSpriteList().reset(0, false, false);
-                    GL11.glPopMatrix();
-                }
-            }
-            
-            GL11.glPopAttrib();
-            // Restore Shader State
-            shader.use();
+    public EmitterRenderer() {
+        vao = VertexArrays.create();
+        if (VertexArrays.isSupported()) {
+            vao.bind();
             particle_vbo.makeCurrent();
             layout.bind(shader);
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glDepthMask(false);
-		}
-	}
+            vao.unbind();
+        }
+    }
 
-    private EmitterRenderer() {
+    public void render(@NonNull RenderQueues render_queues, @NonNull List<Emitter> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+        if (emitter_queue.isEmpty()) return;
+
+        tmp_camera.set(state);
+        view_matrix.identity();
+        tmp_camera.setView(view_matrix);
+        float rx = tmp_camera.getModelView().m00(); float ry = tmp_camera.getModelView().m10(); float rz = tmp_camera.getModelView().m20();
+        float upx = tmp_camera.getModelView().m01(); float upy = tmp_camera.getModelView().m11(); float upz = tmp_camera.getModelView().m21();
+        right_plus_up.set(rx + upx, ry + upy, rz + upz);
+        right_minus_up.set(rx - upx, ry - upy, rz - upz);
+
+        try (var _ = shader.use();
+             var _ = state.getFog().setup(shader, state.getCurrentZ());
+             var _ = GLStateHelper.blend(true);
+             var _ = new GLStateHelper.DepthMask(false)) {
+
+            shader.setUniformMatrix4(ParticleShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
+            shader.setUniformMatrix4(ParticleShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+            shader.setUniform(ParticleShader.Uniforms.TEXTURE_0, 0);
+
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+
+            if (VertexArrays.isSupported()) {
+                vao.bind();
+            } else {
+                particle_vbo.makeCurrent();
+                layout.bind(shader);
+            }
+
+            for (Emitter emitter : emitter_queue) {
+                if (Globals.draw_particles)
+                    renderInternal(render_queues, emitter, state, modelViewStack, projectionStack);
+            }
+
+        } finally {
+            if (VertexArrays.isSupported()) {
+                vao.unbind();
+            } else {
+                layout.unbind(shader);
+                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+            }
+        }
+    }
+
+    private void render2DParticle(@NonNull Particle particle, @NonNull Emitter emitter) {
+        float x = particle.getPosX();
+        float y = particle.getPosY();
+        float z = particle.getPosZ();
+        float radius_x = particle.getRadiusX() * emitter.getScaleX();
+        float radius_y = particle.getRadiusY() * emitter.getScaleY();
+        float radius_z = particle.getRadiusZ() * emitter.getScaleZ();
+
+        float r = particle.getColorR();
+        float g = particle.getColorG();
+        float b = particle.getColorB();
+        float a = particle.getColorA();
+
+        float p1x = x - right_plus_up.x * radius_x; float p1y = y - right_plus_up.y * radius_y; float p1z = z - right_plus_up.z * radius_z;
+        float p2x = x + right_minus_up.x * radius_x; float p2y = y + right_minus_up.y * radius_y; float p2z = z + right_minus_up.z * radius_z;
+        float p3x = x + right_plus_up.x * radius_x; float p3y = y + right_plus_up.y * radius_y; float p3z = z + right_plus_up.z * radius_z;
+        float p4x = x - right_minus_up.x * radius_x; float p4y = y - right_minus_up.y * radius_y; float p4z = z - right_minus_up.z * radius_z;
+
+        // Triangle 1
+        particle_buffer.put(p1x).put(p1y).put(p1z).put(particle.getU1()).put(particle.getV1()).put(r).put(g).put(b).put(a);
+        particle_buffer.put(p2x).put(p2y).put(p2z).put(particle.getU2()).put(particle.getV2()).put(r).put(g).put(b).put(a);
+        particle_buffer.put(p3x).put(p3y).put(p3z).put(particle.getU3()).put(particle.getV3()).put(r).put(g).put(b).put(a);
+
+        // Triangle 2
+        particle_buffer.put(p1x).put(p1y).put(p1z).put(particle.getU1()).put(particle.getV1()).put(r).put(g).put(b).put(a);
+        particle_buffer.put(p3x).put(p3y).put(p3z).put(particle.getU3()).put(particle.getV3()).put(r).put(g).put(b).put(a);
+        particle_buffer.put(p4x).put(p4y).put(p4z).put(particle.getU4()).put(particle.getV4()).put(r).put(g).put(b).put(a);
+    }
+
+    private void renderInternal(@NonNull RenderQueues render_queues, @NonNull Emitter emitter, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+        TextureKey[] textures = emitter.getTextures();
+        List<Particle>[] particles = emitter.getParticles();
+        SpriteKey[] sprite_renderers = emitter.getSpriteRenderers();
+        if (textures != null) {
+            GL11.glBlendFunc(emitter.getSrcBlendFunc(), emitter.getDstBlendFunc());
+
+            for (int j = 0; j < particles.length; j++) {
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, render_queues.getTexture(textures[j]).getHandle());
+                particle_buffer.clear();
+                for (int i = particles[j].size() - 1; i >= 0; i--) {
+                    Particle particle = particles[j].get(i);
+                    render2DParticle(particle, emitter);
+                }
+                particle_buffer.flip();
+                particle_vbo.put(particle_buffer);
+
+                GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, particles[j].size() * VERTICES_PER_PARTICLE);
+            }
+            // Restore default blend func after custom one
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        } else if (sprite_renderers != null) {
+            for (int j = 0; j < particles.length; j++) {
+                SpriteRenderer renderer = render_queues.getRenderer(sprite_renderers[j]);
+                for (Particle particle : particles[j]) {
+                    renderer.addToRenderList(PolyDetail.LOW_POLY, new ParticleModelState(particle, modelViewStack), false);
+                }
+            }
+        }
+    }
+
+    public void debugRender(@NonNull List<@NonNull Emitter> emitter_queue) {
+        if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
+            for (Emitter emitter : emitter_queue) {
+                RenderTools.draw(emitter, 1f, 1f, 1f);
+            }
+        }
     }
 }

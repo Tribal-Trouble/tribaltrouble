@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 
 public abstract class IconSpinner extends GUIObject implements ToolTip {
 	private final @NonNull ModeIconQuads icon_quad;
-	private final String tool_tip;
+	private final @NonNull String tool_tip;
 	private final @NonNull IconQuad @Nullable [] tool_tip_icons;
 	private final @NonNull TextField label;
 	private final @NonNull GUIObject button_plus;

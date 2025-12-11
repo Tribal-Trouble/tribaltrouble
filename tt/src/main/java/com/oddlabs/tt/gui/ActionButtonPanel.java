@@ -23,7 +23,6 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.StateChecksum;
-import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;

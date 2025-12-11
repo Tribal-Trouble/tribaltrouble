@@ -1,15 +1,17 @@
 package com.oddlabs.converter;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.File;
 
 public class ObjectInfo {
-	private final File file;
+	private final @NonNull File file;
 
-	public ObjectInfo(File file) {
+	public ObjectInfo(@NonNull File file) {
 		this.file = file;
 	}
 
-	public final File getFile() {
+	public final @NonNull File getFile() {
 		return file;
 	}
 }

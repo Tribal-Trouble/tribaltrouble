@@ -3,19 +3,24 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeTileIndices;
+import com.oddlabs.tt.render.shader.LandscapeShader;
+import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.vbo.FloatVBO;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
+import java.util.Objects;
 
 final class LandscapeTileVertices {
 	private final @NonNull FloatVBO patch_vertex_buffer;
 	private final @NonNull FloatVBO patch_normal_buffer;
-	private final @NonNull FloatVBO patch_texcoord_buffer;
-	private final FloatBuffer edit_buffer;
+	private final @NonNull FloatVBO patch_colormap_texcoord_buffer;
+	private final @NonNull FloatVBO patch_lightmap_texcoord_buffer;
+	private final @NonNull FloatBuffer edit_buffer;
 	private final int patch_size;
 	private final int elements_per_patch;
 	private final int num_patches;
@@ -32,28 +37,31 @@ final class LandscapeTileVertices {
 		int floats_per_texcoord = patch_size * patch_size * 2; // 2 floats per texcoord (u, v)
 		int floats_per_normal = patch_size * patch_size * 3; // 3 floats per normal (x, y, z)
 
-		this.edit_buffer = BufferUtils.createFloatBuffer(elements_per_patch);
+		this.edit_buffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(elements_per_patch));
 
 		int total_vertex_buffer_size = elements_per_patch * num_patches * num_patches;
 		int total_texcoord_buffer_size = floats_per_texcoord * num_patches * num_patches;
 		int total_normal_buffer_size = floats_per_normal * num_patches * num_patches;
 
-		FloatBuffer vertices = BufferUtils.createFloatBuffer(total_vertex_buffer_size);
-		FloatBuffer normals = BufferUtils.createFloatBuffer(total_normal_buffer_size);
-		FloatBuffer texcoords = BufferUtils.createFloatBuffer(total_texcoord_buffer_size);
+		FloatBuffer vertices = Objects.requireNonNull(BufferUtils.createFloatBuffer(total_vertex_buffer_size));
+		FloatBuffer normals = Objects.requireNonNull(BufferUtils.createFloatBuffer(total_normal_buffer_size));
+		FloatBuffer colormap_texcoords = Objects.requireNonNull(BufferUtils.createFloatBuffer(total_texcoord_buffer_size));
+		FloatBuffer lightmap_texcoords = Objects.requireNonNull(BufferUtils.createFloatBuffer(total_texcoord_buffer_size));
 
 		for (int patch_y = 0; patch_y < num_patches; patch_y++) {
 			for (int patch_x = 0; patch_x < num_patches; patch_x++) {
-				fillVertexData(vertices, normals, texcoords, patch_x, patch_y);
+				fillVertexData(vertices, normals, colormap_texcoords, lightmap_texcoords, patch_x, patch_y);
 			}
 		}
 		assert !vertices.hasRemaining();
 		assert !normals.hasRemaining();
-		assert !texcoords.hasRemaining();
+		assert !colormap_texcoords.hasRemaining();
+		assert !lightmap_texcoords.hasRemaining();
 
 		vertices.rewind();
 		normals.rewind();
-		texcoords.rewind();
+		colormap_texcoords.rewind();
+		lightmap_texcoords.rewind();
 
 		patch_vertex_buffer = new FloatVBO(GL15.GL_DYNAMIC_DRAW, vertices.remaining());
 		patch_vertex_buffer.put(vertices);
@@ -61,23 +69,29 @@ final class LandscapeTileVertices {
 		patch_normal_buffer = new FloatVBO(GL15.GL_DYNAMIC_DRAW, normals.remaining());
 		patch_normal_buffer.put(normals);
 
-		patch_texcoord_buffer = new FloatVBO(GL15.GL_DYNAMIC_DRAW, texcoords.remaining());
-		patch_texcoord_buffer.put(texcoords);
+		patch_colormap_texcoord_buffer = new FloatVBO(GL15.GL_DYNAMIC_DRAW, colormap_texcoords.remaining());
+		patch_colormap_texcoord_buffer.put(colormap_texcoords);
+
+		patch_lightmap_texcoord_buffer = new FloatVBO(GL15.GL_DYNAMIC_DRAW, lightmap_texcoords.remaining());
+		patch_lightmap_texcoord_buffer.put(lightmap_texcoords);
 	}
 
 	public void reload(int patch_x, int patch_y) {
 		edit_buffer.clear();
 		// Need to re-calculate normals and texcoords for the reloaded patch as well
-		FloatBuffer temp_normals = BufferUtils.createFloatBuffer(patch_size * patch_size * 3);
-		FloatBuffer temp_texcoords = BufferUtils.createFloatBuffer(patch_size * patch_size * 2);
-		fillVertexData(edit_buffer, temp_normals, temp_texcoords, patch_x, patch_y);
+		FloatBuffer temp_normals = Objects.requireNonNull(BufferUtils.createFloatBuffer(patch_size * patch_size * 3));
+		FloatBuffer temp_colormap_texcoords = Objects.requireNonNull(BufferUtils.createFloatBuffer(patch_size * patch_size * 2));
+		FloatBuffer temp_lightmap_texcoords = Objects.requireNonNull(BufferUtils.createFloatBuffer(patch_size * patch_size * 2));
+		fillVertexData(edit_buffer, temp_normals, temp_colormap_texcoords, temp_lightmap_texcoords, patch_x, patch_y);
 		edit_buffer.flip();
 		temp_normals.flip();
-		temp_texcoords.flip();
+		temp_colormap_texcoords.flip();
+		temp_lightmap_texcoords.flip();
 
 		patch_vertex_buffer.putSubData(getVertexIndex(patch_x, patch_y), edit_buffer);
 		patch_normal_buffer.putSubData(getNormalIndex(patch_x, patch_y), temp_normals);
-		patch_texcoord_buffer.putSubData(getTexCoordIndex(patch_x, patch_y), temp_texcoords);
+		patch_colormap_texcoord_buffer.putSubData(getTexCoordIndex(patch_x, patch_y), temp_colormap_texcoords);
+		patch_lightmap_texcoord_buffer.putSubData(getTexCoordIndex(patch_x, patch_y), temp_lightmap_texcoords);
 	}
 
 	private int getVertexIndex(int patch_x, int patch_y) {
@@ -92,17 +106,37 @@ final class LandscapeTileVertices {
 		return (patch_x + patch_y * num_patches) * patch_size * patch_size * 2;
 	}
 
-	public void bind(int patch_x, int patch_y) {
-		int vertex_position = getVertexIndex(patch_x, patch_y);
-		int normal_position = getNormalIndex(patch_x, patch_y);
-		int texcoord_position = getTexCoordIndex(patch_x, patch_y);
+    public void bindAttributes(@NonNull ShaderProgram shader, int patch_x, int patch_y) {
+        int vertex_position = getVertexIndex(patch_x, patch_y);
+        int normal_position = getNormalIndex(patch_x, patch_y);
+        int texcoord_position = getTexCoordIndex(patch_x, patch_y);
 
-		patch_vertex_buffer.vertexPointer(3, 0, vertex_position);
-		patch_normal_buffer.normalPointer(0, normal_position);
-		patch_texcoord_buffer.texCoordPointer(2, 0, texcoord_position);
-	}
+        int posLoc = shader.getAttributeLocation(LandscapeShader.Attributes.POSITION);
+        if (posLoc != -1) {
+            patch_vertex_buffer.vertexAttribPointer(posLoc, 3, 0, (long) vertex_position * Float.BYTES);
+            GL20.glEnableVertexAttribArray(posLoc);
+        }
 
-	private void fillVertexData(@NonNull FloatBuffer vertex_array, @NonNull FloatBuffer normal_array, @NonNull FloatBuffer texcoord_array, int grid_origin_x, int grid_origin_y) {
+        int normLoc = shader.getAttributeLocation(LandscapeShader.Attributes.NORMAL);
+        if (normLoc != -1) {
+            patch_normal_buffer.vertexAttribPointer(normLoc, 3, 0, (long) normal_position * Float.BYTES);
+            GL20.glEnableVertexAttribArray(normLoc);
+        }
+
+        int tex0Loc = shader.getAttributeLocation(LandscapeShader.Attributes.TEX_COORD_0);
+        if (tex0Loc != -1) {
+            patch_colormap_texcoord_buffer.vertexAttribPointer(tex0Loc, 2, 0, (long) texcoord_position * Float.BYTES);
+            GL20.glEnableVertexAttribArray(tex0Loc);
+        }
+        
+        int tex1Loc = shader.getAttributeLocation(LandscapeShader.Attributes.TEX_COORD_1);
+        if (tex1Loc != -1) {
+            patch_lightmap_texcoord_buffer.vertexAttribPointer(tex1Loc, 2, 0, (long) texcoord_position * Float.BYTES);
+            GL20.glEnableVertexAttribArray(tex1Loc);
+        }
+    }
+
+	private void fillVertexData(@NonNull FloatBuffer vertex_array, @NonNull FloatBuffer normal_array, @NonNull FloatBuffer colormap_texcoord_array, @NonNull FloatBuffer lightmap_texcoord_array, int grid_origin_x, int grid_origin_y) {
 		grid_origin_x *= patch_size - 1;
 		grid_origin_y *= patch_size - 1;
 		int world_border_mask = ~(patch_size - 2);
@@ -129,11 +163,15 @@ final class LandscapeTileVertices {
 				normal_array.put(calculated_normal.y);
 				normal_array.put(calculated_normal.z);
 
-				// Calculate texture coordinates
-				float tex_u = xf * Globals.LANDSCAPE_TEXTURE_SCALE;
-				float tex_v = yf * Globals.LANDSCAPE_TEXTURE_SCALE;
-				texcoord_array.put(tex_u);
-				texcoord_array.put(tex_v);
+				// Calculate colormap texture coordinates
+				colormap_texcoord_array.put(xf * Globals.LANDSCAPE_TEXTURE_SCALE);
+				colormap_texcoord_array.put(yf * Globals.LANDSCAPE_TEXTURE_SCALE);
+
+                // Calculate lightmap texture coordinates
+                float lightmap_u = xf / heightmap.getMetersPerWorld();
+                float lightmap_v = yf / heightmap.getMetersPerWorld();
+                lightmap_texcoord_array.put(lightmap_u);
+                lightmap_texcoord_array.put(lightmap_v);
 			}
 		}
 	}
@@ -146,7 +184,6 @@ final class LandscapeTileVertices {
 
 		v1.set(HeightMap.METERS_PER_UNIT_GRID * 2, 0, hR - hL);
 		v2.set(0, HeightMap.METERS_PER_UNIT_GRID * 2, hU - hD);
-        Vector3f normal = v1.cross(v2, new Vector3f()).normalize();
-		return normal;
+        return v1.cross(v2, new Vector3f()).normalize();
 	}
 }

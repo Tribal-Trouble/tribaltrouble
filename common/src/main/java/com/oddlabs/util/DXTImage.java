@@ -21,7 +21,7 @@ public final class DXTImage {
 	private final int internal_format;
 	private final ByteBuffer mipmaps;
 
-	private static @NonNull ByteBuffer convertToByteBuffer(int internal_format, int width, int height, byte[] @NonNull [] mipmaps) {
+	private static @NonNull ByteBuffer convertToByteBuffer(int internal_format, int width, int height, byte@NonNull [] @NonNull [] mipmaps) {
 		int size = 0;
 		int mipmap_width = width;
 		int mipmap_height = height;
@@ -39,7 +39,7 @@ public final class DXTImage {
 		return buffer;
 	}
 
-	public DXTImage(short width, short height, int internal_format, byte[] @NonNull [] mipmaps) {
+	public DXTImage(short width, short height, int internal_format, byte@NonNull [] @NonNull [] mipmaps) {
 		this(width, height, internal_format, convertToByteBuffer(internal_format, width, height, mipmaps));
 	}
 	
