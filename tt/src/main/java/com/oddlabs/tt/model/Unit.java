@@ -492,7 +492,7 @@ public class Unit extends Selectable implements Occupant, Movable {
                     pushController(new PlaceBuildingController(this, (Building) target));
                 } else
                     if (canGather(target)) {
-                        pushController(new GatherController(this, (Supply) target, target.getClass()));
+                        pushController(new GatherController(this, (Supply) target, ((Supply) target).getClass()));
                     } else
                         if (canRepair(target, false)) {
                             pushController(new RepairController(this, (Building) target));
@@ -522,7 +522,7 @@ public class Unit extends Selectable implements Occupant, Movable {
                 break;
             case GATHER_REPAIR:
                 if (canGather(target)) {
-                    pushController(new GatherController(this, (Supply) target, target.getClass()));
+                    pushController(new GatherController(this, (Supply) target, ((Supply) target).getClass()));
                 } else if (canRepair(target, true)) {
                     pushController(new RepairController(this, (Building) target));
                 }

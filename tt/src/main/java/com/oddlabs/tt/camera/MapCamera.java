@@ -11,7 +11,6 @@ import com.oddlabs.tt.resource.RadialFogInfo;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 import java.util.ResourceBundle;
 
@@ -152,10 +151,8 @@ public final class MapCamera extends Camera {
     @Override
     public void keyPressed(@NonNull KeyboardEvent event) {
         switch (event.getKeyCode()) {
-            case Keyboard.KEY_SPACE:
-            case Keyboard.KEY_NUMPAD5:
-                changeMode((map_mode == MapMode.TO_MAP || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
-                break;
+            case SPACE, NUMPAD5 ->
+                    changeMode((map_mode == MapMode.TO_MAP || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
         }
     }
 }

@@ -61,13 +61,13 @@ public final class Picker implements Updatable {
 
 	private final CameraState tmp_camera = new CameraState();
 	private final SortedSet<LandscapeLeaf> patch_pick_set = new TreeSet<>(new LandscapeLeafComparator());
-	private final LandscapeRenderer landscape_renderer;
+	private final @NonNull LandscapeRenderer landscape_renderer;
 	private final @NonNull ElementRenderer<?> element_renderer;
 	private final @NonNull TreePicker tree_renderer;
 	private final @NonNull SpriteSorter sprite_sorter;
 	private final @NonNull RenderQueues render_queues;
 	private final @NonNull RespondManager respond_manager;
-	private final Player local_player;
+	private final @NonNull Player local_player;
 
 	private @Nullable Target current_hovered;
 	private @Nullable ToolTip current_tooltip;
@@ -87,7 +87,7 @@ public final class Picker implements Updatable {
 
 	private @Nullable Target old_set_target_target;
 	
-	public Picker(@NonNull AnimationManager manager, Player local_player, @NonNull RenderQueues render_queues, LandscapeRenderer landscape_renderer, Selection selection) {
+	public Picker(@NonNull AnimationManager manager, @NonNull Player local_player, @NonNull RenderQueues render_queues, @NonNull LandscapeRenderer landscape_renderer, Selection selection) {
 		this.local_player = local_player;
 		this.render_queues = render_queues;
 		this.sprite_sorter = new SpriteSorter();

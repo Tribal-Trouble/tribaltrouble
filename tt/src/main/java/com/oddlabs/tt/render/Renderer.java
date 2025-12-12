@@ -347,7 +347,7 @@ public final class Renderer {
 					reset_keyboard = true;
                     AudioManager.getManager().masterGain(0f);
 					try {
-						TimeUnit.MILLISECONDS.sleep(10);;
+						TimeUnit.MILLISECONDS.sleep(10);
 					} catch (InterruptedException e) {
 						throw new RuntimeException("woken", e);
 					}

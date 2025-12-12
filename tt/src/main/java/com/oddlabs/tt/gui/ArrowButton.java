@@ -3,7 +3,6 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 public final class ArrowButton extends ButtonObject {
 	private final @NonNull ModeIconQuads pressed;
@@ -20,31 +19,23 @@ public final class ArrowButton extends ButtonObject {
 
 	@Override
 	public void keyPressed(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_SPACE:
-			case Keyboard.KEY_RETURN:
-				mousePressedAll(MouseButton.LEFT, 0, 0);
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case SPACE, RETURN -> mousePressedAll(MouseButton.LEFT, 0, 0);
+        }
 	}
 
 	@Override
 	public void keyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_TAB:
-				super.keyRepeat(event);
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case TAB -> super.keyRepeat(event);
+        }
 	}
 
 	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_SPACE:
-			case Keyboard.KEY_RETURN:
-				mouseReleasedAll(MouseButton.LEFT, 0, 0);
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case SPACE, RETURN -> mouseReleasedAll(MouseButton.LEFT, 0, 0);
+        }
 	}
 
 	@Override

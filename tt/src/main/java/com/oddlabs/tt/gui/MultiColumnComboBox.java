@@ -18,7 +18,7 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 	private final boolean use_buttons;
 	private final @NonNull GUIRoot gui_root;
 	private int offset_y = 0;
-	private @Nullable PulldownMenu<Void> pulldown_menu = null;
+	private @Nullable PulldownMenu<T> pulldown_menu = null;
 	private @Nullable T right_clicked_row_data;
 
 	public MultiColumnComboBox(@NonNull GUIRoot gui_root, @NonNull ColumnInfo @NonNull [] column_infos, int height) {
@@ -72,7 +72,7 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
         row_listeners.forEach(listener -> listener.rowDoubleClicked(rows.getSelected()));
 	}
 
-	public void setPulldownMenu(PulldownMenu<Void> pulldown_menu) {
+	public void setPulldownMenu(PulldownMenu<T> pulldown_menu) {
 		this.pulldown_menu = pulldown_menu;
 	}
 

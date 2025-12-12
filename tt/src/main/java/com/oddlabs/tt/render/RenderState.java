@@ -35,8 +35,8 @@ public final class RenderState implements ElementVisitor {
 	private final @NonNull SpriteSorter sprite_sorter;
 	private final @NonNull RenderStateCache<ElementRenderState<Model>> render_state_cache;
 	private final @NonNull RenderQueues render_queues;
-	private final TargetRespondRenderer target_respond_renderer;
-	private final SelectableShadowRenderer default_shadow_renderer;
+	private final @NonNull TargetRespondRenderer target_respond_renderer;
+	private final @NonNull SelectableShadowRenderer default_shadow_renderer;
 	private final @NonNull Picker picker;
 	private final Selection selection;
 	private final @NonNull LandscapeRenderer landscape_renderer;

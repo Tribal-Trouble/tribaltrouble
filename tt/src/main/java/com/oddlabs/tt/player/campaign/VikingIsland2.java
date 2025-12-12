@@ -55,21 +55,13 @@ public final class VikingIsland2 extends Island {
 				1,
 				true,
 				PlayerSlot.AI_PASSIVE_CAMPAIGN);
-		int ai_units;
-		switch (getCampaign().getState().getDifficulty()) {
-			case CampaignState.DIFFICULTY_EASY:
-				ai_units = 10;
-				break;
-			case CampaignState.DIFFICULTY_NORMAL:
-				ai_units = 20;
-				break;
-			case CampaignState.DIFFICULTY_HARD:
-				ai_units = 30;
-				break;
-			default:
-				throw new RuntimeException();
-		}
-		game_network.getClient().setUnitInfo(2, new UnitInfo(true, true, 0, false, 0, 0, 0, ai_units));
+		int ai_units = switch (getCampaign().getState().getDifficulty()) {
+            case CampaignState.DIFFICULTY_EASY -> 10;
+            case CampaignState.DIFFICULTY_NORMAL -> 20;
+            case CampaignState.DIFFICULTY_HARD -> 30;
+            default -> throw new IllegalArgumentException();
+        };
+        game_network.getClient().setUnitInfo(2, new UnitInfo(true, true, 0, false, 0, 0, 0, ai_units));
 		game_network.getClient().getServerInterface().startServer();
 	}
 

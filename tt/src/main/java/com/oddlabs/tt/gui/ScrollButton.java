@@ -2,7 +2,6 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 public final class ScrollButton extends GUIObject {
 	public ScrollButton() {
@@ -21,11 +20,9 @@ public final class ScrollButton extends GUIObject {
 
 	@Override
 	public void keyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_TAB:
-				super.keyRepeat(event);
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case TAB -> super.keyRepeat(event);
+        }
 	}
 
 	@Override

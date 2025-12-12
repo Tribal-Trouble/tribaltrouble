@@ -69,7 +69,7 @@ public final class SpriteRenderer {
 		clearRenderLists();
 	}
 
-	public void renderAll(SpriteShader shader, @NonNull CameraState camera_state) {
+	public void renderAll(@NonNull SpriteShader shader, @NonNull CameraState camera_state) {
 		for (int i = 0; i < sprite_list.getNumSprites(); i++) {
 			sprite_list_renderer.renderAll(shader, i, tex_index, camera_state);
 		}

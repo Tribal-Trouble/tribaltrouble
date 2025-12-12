@@ -13,7 +13,6 @@ import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 public final class InGameMainMenu extends Menu {
 	private final @NonNull WorldViewer viewer;
@@ -67,7 +66,7 @@ public final class InGameMainMenu extends Menu {
 	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch(event.getKeyCode()) {
-			case Keyboard.KEY_ESCAPE:
+			case ESCAPE:
 				pop();
 				break;
 			default:

@@ -2,10 +2,10 @@ package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.landscape.HeightMap;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 public final class FirstPersonCamera extends Camera {
     private static final float SCALE_HORIZ = .002f;
@@ -29,14 +29,14 @@ public final class FirstPersonCamera extends Camera {
 
             float scrolling_x = 0;
             float scrolling_y = 0;
-            if (LocalInput.isKeyDown(Keyboard.KEY_LEFT) && !LocalInput.isKeyDown(Keyboard.KEY_RIGHT))
+            if (LocalInput.isKeyDown(Key.LEFT) && !LocalInput.isKeyDown(Key.RIGHT))
                     scrolling_x = -1f;
-            else if (LocalInput.isKeyDown(Keyboard.KEY_RIGHT) && !LocalInput.isKeyDown(Keyboard.KEY_LEFT))
+            else if (LocalInput.isKeyDown(Key.RIGHT) && !LocalInput.isKeyDown(Key.LEFT))
                     scrolling_x = 1f;
 
-            if (LocalInput.isKeyDown(Keyboard.KEY_DOWN) && !LocalInput.isKeyDown(Keyboard.KEY_UP))
+            if (LocalInput.isKeyDown(Key.DOWN) && !LocalInput.isKeyDown(Key.UP))
                     scrolling_y = -1f;
-            else if (LocalInput.isKeyDown(Keyboard.KEY_UP) && !LocalInput.isKeyDown(Keyboard.KEY_DOWN))
+            else if (LocalInput.isKeyDown(Key.UP) && !LocalInput.isKeyDown(Key.DOWN))
                     scrolling_y = 1f;
 
             float scroll_factor = getState().getTargetZ()*t;

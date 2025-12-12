@@ -579,10 +579,9 @@ public final class Building extends Selectable implements Occupant {
 	}
 
 	public boolean isValidRallyPoint(Target t) {
-		if (!(t instanceof Building))
+		if (!(t instanceof Building b))
 			return false;
-		Building b = (Building)t;
-		return getOwner() == b.getOwner() && b.getAbilities().hasAbilities(Abilities.RALLY_TO);
+        return getOwner() == b.getOwner() && b.getAbilities().hasAbilities(Abilities.RALLY_TO);
 	}
 
 	public void setRallyPoint(@NonNull Target target) {

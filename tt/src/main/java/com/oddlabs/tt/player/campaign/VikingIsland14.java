@@ -47,24 +47,22 @@ public final class VikingIsland14 extends Island {
 				PlayerSlot.AI_NONE);
 		game_network.getClient().setUnitInfo(0, new UnitInfo(false, false, 0, false, 0, 0, 0, 0));
 		int ai_difficulty;
-		int ai_peons;
-		switch (getCampaign().getState().getDifficulty()) {
-			case CampaignState.DIFFICULTY_EASY:
-				ai_difficulty = PlayerSlot.AI_NORMAL;
-				ai_peons = 1;
-				break;
-			case CampaignState.DIFFICULTY_NORMAL:
-				ai_difficulty = PlayerSlot.AI_HARD;
-				ai_peons = 5;
-				break;
-			case CampaignState.DIFFICULTY_HARD:
-				ai_difficulty = PlayerSlot.AI_HARD;
-				ai_peons = 12;
-				break;
-			default:
-				throw new RuntimeException();
-		}
-		game_network.getClient().getServerInterface().setPlayerSlot(2,
+		int ai_peons = switch (getCampaign().getState().getDifficulty()) {
+            case CampaignState.DIFFICULTY_EASY -> {
+                ai_difficulty = PlayerSlot.AI_NORMAL;
+                yield 1;
+            }
+            case CampaignState.DIFFICULTY_NORMAL -> {
+                ai_difficulty = PlayerSlot.AI_HARD;
+                yield 5;
+            }
+            case CampaignState.DIFFICULTY_HARD -> {
+                ai_difficulty = PlayerSlot.AI_HARD;
+                yield 12;
+            }
+            default -> throw new IllegalArgumentException();
+        };
+        game_network.getClient().getServerInterface().setPlayerSlot(2,
 				PlayerSlot.AI,
 				RacesResources.RACE_NATIVES,
 				1,

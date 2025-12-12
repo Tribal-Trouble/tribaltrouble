@@ -14,7 +14,6 @@ import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.input.Keyboard;
 
 import java.util.Set;
 
@@ -36,7 +35,7 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 		float landscape_x = landscape_hit.x;
 		float landscape_y = landscape_hit.y;
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_F1:
+			case F1:
                 // F1 creates a peon at the center of the view unless the player already has maximum units.
 				if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters().getMaxUnitCount()) {
 					new Unit(viewer.getLocalPlayer(), landscape_x, landscape_y, null,
@@ -44,7 +43,7 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_F2:
+			case F2:
                 // F2 creates a rock warrior at the center of the view unless the player already has maximum units.
 				if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters().getMaxUnitCount()) {
 					new Unit(viewer.getLocalPlayer(), landscape_x, landscape_y, null,
@@ -52,7 +51,7 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_F3:
+			case F3:
                 // F3 creates a iron warrior at the center of the view unless the player already has maximum units.
 				if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters().getMaxUnitCount()) {
 					new Unit(viewer.getLocalPlayer(), landscape_x, landscape_y, null,
@@ -60,7 +59,7 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_F4:
+			case F4:
                 // F4 creates a chicken warrior at the center of the view unless the player already has maximum units.
 				if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters().getMaxUnitCount()) {
 					new Unit(viewer.getLocalPlayer(), landscape_x, landscape_y, null,
@@ -68,7 +67,7 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_F5:
+			case F5:
                 // F5 creates a chieftain at the center of the view unless the player already has one or is training one
 				if (!viewer.getLocalPlayer().hasActiveChieftain() && !viewer.getLocalPlayer().isTrainingChieftain()) {
 					Unit chieftain = new Unit(viewer.getLocalPlayer(), landscape_x, landscape_y, null,
@@ -77,19 +76,19 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_F6:
+			case F6:
                 // F6 does massive damve on whatever is selected.
 				viewer.getLocalPlayer().killSelection(viewer.getSelection().getCurrentSelection().filter(Abilities.NONE));
 				return true;
-			case Keyboard.KEY_F7:
+			case F7:
                 // F7 hides and shows trees
 				cheat.draw_trees = !cheat.draw_trees;
 				return true;
-			case Keyboard.KEY_F8:
+			case F8:
                 // F7 hides and shows terrain grid.
 				cheat.line_mode = !cheat.line_mode;
 				return true;
-			case Keyboard.KEY_F9:
+			case F9:
 				// F9 toggles fog
 				com.oddlabs.tt.resource.FogInfo fog_info = viewer.getGUIRoot().getDelegate().getCamera().getState().getFog();
 				fog_info.setEnabled(!fog_info.isEnabled());
@@ -103,7 +102,7 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 			return false;
 
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_I:
+			case I:
 				if (event.isControlDown()) {
                     // Ctrl-I prints building or unit info
 					Set<Selectable> set = viewer.getSelection().getCurrentSelection().getSet();
@@ -129,7 +128,7 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_ESCAPE:
+			case ESCAPE:
 				getGUIRoot().pushDelegate(new InGameMainMenu(viewer, new StaticCamera(getCamera().getState())));
 				break;
 			default:

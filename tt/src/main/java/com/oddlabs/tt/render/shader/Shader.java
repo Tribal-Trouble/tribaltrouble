@@ -6,7 +6,7 @@ import java.nio.FloatBuffer;
 
 public interface Shader {
 
-    public boolean inUse();
+    boolean inUse();
 
     int getAttributeLocation(@NonNull String name);
 

@@ -106,9 +106,8 @@ public final class ChatCommand {
 			result = Utils.getBundleString(bundle, "ignore_list_empty");
 		} else {
 			result = Utils.getBundleString(bundle, "ignore_list");
-                    for (String nick : nicks) {
-                        result += " " + nick;
-                    }
+			result += " " + String.join(" ", nicks);
+
 		}
 		info_printer.print(result);
 	}

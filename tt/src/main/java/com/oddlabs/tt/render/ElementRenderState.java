@@ -87,7 +87,7 @@ final class ElementRenderState<M extends Model> implements ModelState<M> {
         return visitor.getEyeDistanceSquared(this);
     }
 
-    SpriteRenderer getRenderer(@NonNull SpriteKey key) {
+    @NonNull SpriteRenderer getRenderer(@NonNull SpriteKey key) {
         return render_state.getRenderQueues().getRenderer(key);
     }
 }

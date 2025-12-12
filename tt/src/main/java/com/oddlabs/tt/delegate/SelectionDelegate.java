@@ -10,6 +10,7 @@ import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Army;
@@ -23,7 +24,6 @@ import com.oddlabs.tt.viewer.Notification;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		addChild(getViewer().getPanel());
 		chat_form = new InGameChatForm(getViewer().getGUIRoot().getInfoPrinter(), getViewer());
 		chat_form.addCloseListener(() -> {
-			if (LocalInput.isKeyDown(Keyboard.KEY_RETURN)) {
+			if (LocalInput.isKeyDown(Key.RETURN)) {
 				close_chat_override = true;
 			}
 			chat_visible = false;
@@ -87,8 +87,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		getCamera().keyPressed(event);
 		int army_number = 0;
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_SPACE:
-			case Keyboard.KEY_NUMPAD5:
+			case SPACE:
+			case NUMPAD5:
 				if (!map_mode) {
 					selection = false;
 					getViewer().getPicker().pickRotate((GameCamera)getCamera());
@@ -102,7 +102,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 					getCamera().enable();
 				}
 				break;
-			case Keyboard.KEY_TAB:
+			case TAB:
 				if (!observer) {
 					Notification n = getViewer().getNotificationManager().getLatestNotification();
 					if (n != null) {
@@ -113,16 +113,16 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 					}
 				}
 				break;
-			case Keyboard.KEY_9: army_number++;
-			case Keyboard.KEY_8: army_number++;
-			case Keyboard.KEY_7: army_number++;
-			case Keyboard.KEY_6: army_number++;
-			case Keyboard.KEY_5: army_number++;
-			case Keyboard.KEY_4: army_number++;
-			case Keyboard.KEY_3: army_number++;
-			case Keyboard.KEY_2: army_number++;
-			case Keyboard.KEY_1: army_number++;
-			case Keyboard.KEY_0:
+			case KEY_9: army_number++;
+			case KEY_8: army_number++;
+			case KEY_7: army_number++;
+			case KEY_6: army_number++;
+			case KEY_5: army_number++;
+			case KEY_4: army_number++;
+			case KEY_3: army_number++;
+			case KEY_2: army_number++;
+			case KEY_1: army_number++;
+			case KEY_0:
 				if (!map_mode && !observer) {
 					if (event.isControlDown()) {
 						getViewer().getSelection().setShortcutArmy(army_number);
@@ -138,20 +138,20 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 					}
 				}
 				break;
-			case Keyboard.KEY_RETURN:
+			case RETURN:
 					if (!chat_visible)
 						chat_form.setReceivers(!event.isShiftDown());
 				break;
-			case Keyboard.KEY_B:
+			case B:
 				if (event.isControlDown() && !map_mode && !observer) {
 					getGUIRoot().pushDelegate(new BeaconDelegate(getViewer(), (GameCamera)getCamera()));
 				}
 				break;
-			case Keyboard.KEY_N:
+			case N:
 				nextIdlePeon();
 				break;
-			case Keyboard.KEY_F:
-			case Keyboard.KEY_Z:
+			case F:
+			case Z:
 				if (!map_mode)
 					super.keyPressed(event);
 				break;
@@ -235,24 +235,24 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
 		getCamera().keyReleased(event);
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_RETURN:
-				if (!close_chat_override) {
-					if (!chat_visible) {
-						addChild(chat_form);
-						chat_form.setPos(GameCamera.SCROLL_BUFFER, GameCamera.SCROLL_BUFFER);
-						chat_form.setFocus();
-						chat_visible = true;
-					}
-				} else {
-					close_chat_override = false;
-				}
-				break;
-			default:
-				if (!map_mode && !observer && !getActionButtonPanel().doKeyReleased(event))
-					super.keyReleased(event);
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case RETURN -> {
+                if (!close_chat_override) {
+                    if (!chat_visible) {
+                        addChild(chat_form);
+                        chat_form.setPos(GameCamera.SCROLL_BUFFER, GameCamera.SCROLL_BUFFER);
+                        chat_form.setFocus();
+                        chat_visible = true;
+                    }
+                } else {
+                    close_chat_override = false;
+                }
+            }
+            default -> {
+                if (!map_mode && !observer && !getActionButtonPanel().doKeyReleased(event))
+                    super.keyReleased(event);
+            }
+        }
 	}
 
 	@Override
@@ -393,7 +393,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 			if (!observer) {
                 switch (button) {
                     case LEFT:
-                        if (!LocalInput.isKeyDown(Keyboard.KEY_SPACE)) {
+                        if (!LocalInput.isKeyDown(Key.SPACE)) {
                             selection = true;
                         }
                         selection_x1 = x;

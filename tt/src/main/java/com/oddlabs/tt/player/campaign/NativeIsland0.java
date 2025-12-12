@@ -140,21 +140,13 @@ public final class NativeIsland0 extends Island {
 		new Unit(natives, 150*2, 125*2, null, natives.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
 
 		// Insert reinforcements
-		int num_reinforcements;
-		switch (getCampaign().getState().getDifficulty()) {
-			case CampaignState.DIFFICULTY_EASY:
-				num_reinforcements = 15;
-				break;
-			case CampaignState.DIFFICULTY_NORMAL:
-				num_reinforcements = 10;
-				break;
-			case CampaignState.DIFFICULTY_HARD:
-				num_reinforcements = 6;
-				break;
-			default:
-				throw new RuntimeException();
-		}
-		final Unit[] reinforcement_peons = new Unit[num_reinforcements];
+		int num_reinforcements = switch (getCampaign().getState().getDifficulty()) {
+            case CampaignState.DIFFICULTY_EASY -> 15;
+            case CampaignState.DIFFICULTY_NORMAL -> 10;
+            case CampaignState.DIFFICULTY_HARD -> 6;
+            default -> throw new IllegalArgumentException();
+        };
+        final Unit[] reinforcement_peons = new Unit[num_reinforcements];
 
 		reinforcement_peons[0] = new Unit(reinforcements, 230*2, 108*2, null, reinforcements.getRace().getUnitTemplate(Race.UNIT_PEON));
 		reinforcement_peons[1] = new Unit(reinforcements, 230*2, 108*2, null, reinforcements.getRace().getUnitTemplate(Race.UNIT_PEON));
@@ -279,21 +271,13 @@ public final class NativeIsland0 extends Island {
                     // Insert new Vikings
                     int new_viking_start_x = 437*2;
                     int new_viking_start_y = 140*2;
-                    int num_peons;
-                    switch (getCampaign().getState().getDifficulty()) {
-                        case CampaignState.DIFFICULTY_EASY:
-                            num_peons = 5;
-                            break;
-                        case CampaignState.DIFFICULTY_NORMAL:
-                            num_peons = 10;
-                            break;
-                        case CampaignState.DIFFICULTY_HARD:
-                            num_peons = 15;
-                            break;
-                        default:
-                            throw new RuntimeException();
-                    }
-                    for (int i = 0; i < num_peons; i++) {
+                    int num_peons = switch (getCampaign().getState().getDifficulty()) {
+                        case CampaignState.DIFFICULTY_EASY -> 5;
+                        case CampaignState.DIFFICULTY_NORMAL -> 10;
+                        case CampaignState.DIFFICULTY_HARD -> 15;
+                        default -> throw new IllegalArgumentException();
+                    };
+            for (int i = 0; i < num_peons; i++) {
                         new Unit(enemy, new_viking_start_x, new_viking_start_y, null, enemy.getRace().getUnitTemplate(Race.UNIT_PEON));
                     }
                     // Remove natives

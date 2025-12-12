@@ -152,7 +152,7 @@ public final class ConnectionListener extends AbstractConnectionListener impleme
 	}
 	
 	@Override
-	public void handleError(IOException e) throws IOException {
+	public void handleError(@NonNull IOException e) throws IOException {
 		error(e);
 	}
 }

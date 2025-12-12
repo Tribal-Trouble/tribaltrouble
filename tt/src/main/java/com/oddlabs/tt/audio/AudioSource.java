@@ -140,5 +140,5 @@ public interface AudioSource extends AutoCloseable {
      * Closes the audio source and releases its native resources.
      */
     @Override
-    void close() throws Exception;
+    void close();
 }

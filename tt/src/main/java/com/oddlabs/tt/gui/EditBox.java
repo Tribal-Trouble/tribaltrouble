@@ -6,7 +6,6 @@ import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 public final class EditBox extends TextBox {
 	private int index;
@@ -36,28 +35,28 @@ public final class EditBox extends TextBox {
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_RETURN:
+			case RETURN:
 				if (insert(index, '\n')) {
 					index++;
 				}
 				break;
-			case Keyboard.KEY_BACK:
+			case BACK:
 				if (index > 0)
 					delete(--index);
 				break;
-			case Keyboard.KEY_DELETE:
+			case DELETE:
 				if (index < getText().length())
 					delete(index);
 				break;
-			case Keyboard.KEY_LEFT:
+			case LEFT:
 				if (index > 0)
 					index--;
 				break;
-			case Keyboard.KEY_RIGHT:
+			case RIGHT:
 				if (index < getText().length())
 					index++;
 				break;
-			case Keyboard.KEY_UP:
+			case UP:
 				int currentLine = getTextLayout().getCursorLine(index);
 				if (currentLine > 0) {
 					int xPos = getTextLayout().getCursorX(index);
@@ -66,7 +65,7 @@ public final class EditBox extends TextBox {
 					index = 0;
 				}
 				break;
-			case Keyboard.KEY_DOWN:
+			case DOWN:
 				currentLine = getTextLayout().getCursorLine(index);
 				if (currentLine < getTextLayout().getLines().size() - 1) {
 					int xPos = getTextLayout().getCursorX(index);
@@ -75,14 +74,14 @@ public final class EditBox extends TextBox {
 					index = getText().length();
 				}
 				break;
-			case Keyboard.KEY_HOME:
+			case HOME:
 				index = getTextLayout().getLineStartCharIndex(getTextLayout().getCursorLine(index));
 				break;
-			case Keyboard.KEY_END:
+			case END:
 				index = getTextLayout().getLineEndCharIndex(getTextLayout().getCursorLine(index));
 				break;
-			case Keyboard.KEY_TAB:
-			case Keyboard.KEY_ESCAPE:
+			case TAB:
+			case ESCAPE:
 				super.keyRepeat(event);
 				break;
 			default:

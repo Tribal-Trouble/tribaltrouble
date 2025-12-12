@@ -54,30 +54,22 @@ public final class CreatingProfileForm extends Form implements ProfileListener {
 	@Override
 	public void error(int error_code) {
 		remove();
-		String error_message;
-		switch (error_code) {
-			case MatchmakingClientInterface.USERNAME_ERROR_TOO_MANY:
-				error_message = Utils.getBundleString(bundle, "username_error_too_many");
-				break;
-			case MatchmakingClientInterface.PROFILE_ERROR_GUEST:
-				error_message = Utils.getBundleString(bundle, "profile_error_guest", "Guest");
-				break;
-			case MatchmakingClientInterface.USERNAME_ERROR_ALREADY_EXISTS:
-				error_message = Utils.getBundleString(bundle, "username_error_already_exists");
-				break;
-			case MatchmakingClientInterface.USERNAME_ERROR_INVALID_CHARACTERS:
-				error_message = Utils.getBundleString(bundle, "username_error_invalid_characters");
-				break;
-			case MatchmakingClientInterface.USERNAME_ERROR_TOO_LONG:
-				error_message = Utils.getBundleString(bundle, "username_error_too_long");
-				break;
-			case MatchmakingClientInterface.USERNAME_ERROR_TOO_SHORT:
-				error_message = Utils.getBundleString(bundle, "username_error_too_short");
-				break;
-			default:
-				throw new RuntimeException("Unknown error code: " + error_code);
-		}
-		gui_root.addModalForm(new MessageForm(error_message));
+		String error_message = switch (error_code) {
+            case MatchmakingClientInterface.USERNAME_ERROR_TOO_MANY ->
+                    Utils.getBundleString(bundle, "username_error_too_many");
+            case MatchmakingClientInterface.PROFILE_ERROR_GUEST ->
+                    Utils.getBundleString(bundle, "profile_error_guest", "Guest");
+            case MatchmakingClientInterface.USERNAME_ERROR_ALREADY_EXISTS ->
+                    Utils.getBundleString(bundle, "username_error_already_exists");
+            case MatchmakingClientInterface.USERNAME_ERROR_INVALID_CHARACTERS ->
+                    Utils.getBundleString(bundle, "username_error_invalid_characters");
+            case MatchmakingClientInterface.USERNAME_ERROR_TOO_LONG ->
+                    Utils.getBundleString(bundle, "username_error_too_long");
+            case MatchmakingClientInterface.USERNAME_ERROR_TOO_SHORT ->
+                    Utils.getBundleString(bundle, "username_error_too_short");
+            default -> throw new RuntimeException("Unknown error code: " + error_code);
+        };
+        gui_root.addModalForm(new MessageForm(error_message));
 	}
 
 	@Override

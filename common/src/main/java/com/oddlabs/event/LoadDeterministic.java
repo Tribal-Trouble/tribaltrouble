@@ -204,7 +204,7 @@ public final class LoadDeterministic extends Deterministic {
 
 	public final class ByteBufferInputStream extends InputStream {
 		@Override
-		public int read() throws IOException {
+		public int read() {
 			byte b = log((byte)0);
 			return ((int)b) & 0xFF;
 		}

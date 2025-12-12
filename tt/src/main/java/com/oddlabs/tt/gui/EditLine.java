@@ -7,7 +7,6 @@ import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.input.Keyboard;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -76,53 +75,46 @@ public class EditLine extends TextField implements Clipped {
 	@Override
 	protected void keyReleased(@NonNull KeyboardEvent event) {
         switch (event.getKeyCode()) {
-            case Keyboard.KEY_RETURN -> enterPressedAll();
+            case RETURN -> enterPressedAll();
             default -> super.keyReleased(event);
         }
 	}
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_BACK:
-				if (index > 0) {
-					delete(--index);
-				}
-				break;
-			case Keyboard.KEY_DELETE:
-				if (index < getText().length()) {
-					delete(index);
-				}
-				break;
-			case Keyboard.KEY_LEFT:
-				if (index > 0)
-					index--;
-				break;
-			case Keyboard.KEY_RIGHT:
-				if (index < getText().length())
-					index++;
-				break;
-			case Keyboard.KEY_HOME:
-				index = 0;
-				break;
-			case Keyboard.KEY_END:
-				index = getText().length();
-				break;
-			case Keyboard.KEY_TAB:
-			case Keyboard.KEY_RETURN:
-				super.keyRepeat(event);
-				break;
-			default:
-				char key = event.getKeyChar();
-				if (isAllowed(key)) {
-					if (insert(index, key)) {
-						index++;
-					}
-				} else {
-					super.keyRepeat(event);
-				}
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case BACK -> {
+                if (index > 0) {
+                    delete(--index);
+                }
+            }
+            case DELETE -> {
+                if (index < getText().length()) {
+                    delete(index);
+                }
+            }
+            case LEFT -> {
+                if (index > 0)
+                    index--;
+            }
+            case RIGHT -> {
+                if (index < getText().length())
+                    index++;
+            }
+            case HOME -> index = 0;
+            case END -> index = getText().length();
+            case TAB, RETURN -> super.keyRepeat(event);
+            default -> {
+                char key = event.getKeyChar();
+                if (isAllowed(key)) {
+                    if (insert(index, key)) {
+                        index++;
+                    }
+                } else {
+                    super.keyRepeat(event);
+                }
+            }
+        }
 		correctOffsetX();
 	}
 

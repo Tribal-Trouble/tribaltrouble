@@ -4,6 +4,7 @@ import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.input.Key;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -151,17 +152,20 @@ public final class InputState {
 		key_counter = 0;
 	}
 
-	public void keyTyped( int key_code, char key_char) {
-		GUIObject focused = gui_root.getGlobalFocus();
-		KeyboardEvent event = new KeyboardEvent(key_code, key_char, LocalInput.isShiftDownCurrently(), LocalInput.isControlDownCurrently());
-		focused.keyRepeatAll(event);
+	public void keyTyped(int key_code, char key_char) {
+		var key = Key.fromLwjglCode(key_code);
+		if (Key.KEY_UNKNOWN != key) {
+			GUIObject focused = gui_root.getGlobalFocus();
+			KeyboardEvent event = new KeyboardEvent(key, key_char, LocalInput.isShiftDownCurrently(), LocalInput.isControlDownCurrently());
+			focused.keyRepeatAll(event);
+		}
 	}
 
-	public void keyPressed(int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
+	public void keyPressed(@NonNull Key key, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
 		GUIObject focused = gui_root.getGlobalFocus();
 		resetKeyTimer();
 		if (!repeat && (key_event == null 
-				|| key_event.getKeyCode() != key_code
+				|| key_event.getKeyCode() != key
 				|| key_event.getKeyChar() != key_char
 				|| key_event.isShiftDown() != shift_down
 				|| key_event.isControlDown() != control_down)) {
@@ -173,7 +177,7 @@ public final class InputState {
 		}
 		if (!repeat)
 			key_counter++;
-		KeyboardEvent event = new KeyboardEvent(key_code, key_char, shift_down, control_down, key_counter);
+		KeyboardEvent event = new KeyboardEvent(key, key_char, shift_down, control_down, key_counter);
 		key_event = event;
 
 		if (!repeat)
@@ -181,10 +185,10 @@ public final class InputState {
 		focused.keyRepeatAll(event);
 	}
 
-	public void keyReleased(int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
+	public void keyReleased(@NonNull Key key, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
 		GUIObject focused = gui_root.getGlobalFocus();
 		resetKeyTimer();
-		KeyboardEvent event = new KeyboardEvent(key_code, key_char, shift_down, control_down);
+		KeyboardEvent event = new KeyboardEvent(key, key_char, shift_down, control_down);
 		focused.keyReleasedAll(event);
 	}
 

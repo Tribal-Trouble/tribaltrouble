@@ -22,7 +22,7 @@ public final class ByteBufferInputStream extends InputStream {
 	}
 
 	@Override
-	public int read(byte[] bytes, int offset, int length) {
+	public int read(byte @NonNull [] bytes, int offset, int length) {
 		if (available() == 0)
 			return -1;
 		length = Math.min(length, available());

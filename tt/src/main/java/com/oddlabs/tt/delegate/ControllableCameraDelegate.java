@@ -6,7 +6,6 @@ import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 public abstract class ControllableCameraDelegate extends InGameDelegate {
 	private final @NonNull GameCamera game_camera;
@@ -19,17 +18,11 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
 
 	@Override
 	public void keyPressed(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_F:
-				pushFirstPersonDelegate(true);
-				break;
-			case Keyboard.KEY_Z:
-				pushZoomDelegate();
-				break;
-			default:
-				super.keyPressed(event);
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case F -> pushFirstPersonDelegate(true);
+            case Z -> pushZoomDelegate();
+            default -> super.keyPressed(event);
+        }
 	}
 
 	@Override

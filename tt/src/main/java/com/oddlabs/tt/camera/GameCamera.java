@@ -5,12 +5,12 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.input.Keyboard;
 
 public final class GameCamera extends Camera {
     public static final int SCROLL_BUFFER = 5;
@@ -196,16 +196,16 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         float scroll_speed = scroll_start_speed*(.4f + (scroll_acceleration_seconds/SCROLL_ACCELERATION_SECONDS_MAX)*SCROLL_ACCELERATION_FACTOR);
         float scroll_factor = time_delta*scroll_speed;
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
-        if (LocalInput.isKeyDown(Keyboard.KEY_LEFT) && !LocalInput.isKeyDown(Keyboard.KEY_RIGHT) && !blocked)
+        if (LocalInput.isKeyDown(Key.LEFT) && !LocalInput.isKeyDown(Key.RIGHT) && !blocked)
                 scrolling_x = -1f;
-        else if (LocalInput.isKeyDown(Keyboard.KEY_RIGHT) && !LocalInput.isKeyDown(Keyboard.KEY_LEFT) && !blocked)
+        else if (LocalInput.isKeyDown(Key.RIGHT) && !LocalInput.isKeyDown(Key.LEFT) && !blocked)
                 scrolling_x = 1f;
         else
                 scrolling_x = scroll_x;
 
-        if (LocalInput.isKeyDown(Keyboard.KEY_DOWN) && !LocalInput.isKeyDown(Keyboard.KEY_UP) && !blocked)
+        if (LocalInput.isKeyDown(Key.DOWN) && !LocalInput.isKeyDown(Key.UP) && !blocked)
                 scrolling_y = -1f;
-        else if (LocalInput.isKeyDown(Keyboard.KEY_UP) && !LocalInput.isKeyDown(Keyboard.KEY_DOWN) && !blocked)
+        else if (LocalInput.isKeyDown(Key.UP) && !LocalInput.isKeyDown(Key.DOWN) && !blocked)
                 scrolling_y = 1f;
         else
                 scrolling_y = scroll_y;
@@ -325,7 +325,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                         x > LocalInput.getViewWidth() - 1 - SCROLL_BUFFER || y > LocalInput.getViewHeight() - 1 - SCROLL_BUFFER)) {
                 if (scroll_start) {
                         scroll_start = false;
-                        if (!scrollSpeedLocked(0)) {
+                        if (!scrollSpeedLocked(null)) {
                                 scroll_acceleration_seconds = 0;
                                 setScrollSpeed();
                         }
@@ -342,13 +342,13 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         }
     }
 
-    private boolean scrollSpeedLocked(int key) {
+    private boolean scrollSpeedLocked(Key key) {
         return scroll_x != 0
                 || scroll_y != 0
-                || (LocalInput.isKeyDown(Keyboard.KEY_UP) && key != Keyboard.KEY_UP)
-                || (LocalInput.isKeyDown(Keyboard.KEY_DOWN) && key != Keyboard.KEY_DOWN)
-                || (LocalInput.isKeyDown(Keyboard.KEY_LEFT) && key != Keyboard.KEY_LEFT)
-                || (LocalInput.isKeyDown(Keyboard.KEY_RIGHT) && key != Keyboard.KEY_RIGHT);
+                || (LocalInput.isKeyDown(Key.UP) && key != Key.UP)
+                || (LocalInput.isKeyDown(Key.DOWN) && key != Key.DOWN)
+                || (LocalInput.isKeyDown(Key.LEFT) && key != Key.LEFT)
+                || (LocalInput.isKeyDown(Key.RIGHT) && key != Key.RIGHT);
     }
 
     private void setScrollSpeed() {
@@ -367,48 +367,48 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
 
     public void keyPressed(@NonNull KeyboardEvent event) {
         switch (event.getKeyCode()) {
-                case Keyboard.KEY_HOME:
-                case Keyboard.KEY_NUMPAD8:
+                case HOME:
+                case NUMPAD8:
                         break;
-                case Keyboard.KEY_END:
-                case Keyboard.KEY_NUMPAD2:
+                case END:
+                case NUMPAD2:
                         break;
-                case Keyboard.KEY_INSERT:
-                case Keyboard.KEY_NUMPAD6:
+                case INSERT:
+                case NUMPAD6:
                         viewer.getPicker().pickRotate(this);
                         break;
-                case Keyboard.KEY_DELETE:
-                case Keyboard.KEY_NUMPAD4:
+                case DELETE:
+                case NUMPAD4:
                         viewer.getPicker().pickRotate(this);
                         break;
-                case Keyboard.KEY_PRIOR:
-                case Keyboard.KEY_NUMPAD9:
+                case PRIOR:
+                case NUMPAD9:
                         mouseScrolled(-2);
                         break;
-                case Keyboard.KEY_NEXT:
-                case Keyboard.KEY_NUMPAD3:
+                case NEXT:
+                case NUMPAD3:
                         mouseScrolled(2);
                         break;
-                case Keyboard.KEY_UP:
-                        if (!scrollSpeedLocked(Keyboard.KEY_UP)) {
+                case UP:
+                        if (!scrollSpeedLocked(Key.UP)) {
                                 scroll_acceleration_seconds = 0;
                                 setScrollSpeed();
                         }
                         break;
-                case Keyboard.KEY_DOWN:
-                        if (!scrollSpeedLocked(Keyboard.KEY_DOWN)) {
+                case DOWN:
+                        if (!scrollSpeedLocked(Key.DOWN)) {
                                 scroll_acceleration_seconds = 0;
                                 setScrollSpeed();
                         }
                         break;
-                case Keyboard.KEY_LEFT:
-                        if (!scrollSpeedLocked(Keyboard.KEY_LEFT)) {
+                case LEFT:
+                        if (!scrollSpeedLocked(Key.LEFT)) {
                                 scroll_acceleration_seconds = 0;
                                 setScrollSpeed();
                         }
                         break;
-                case Keyboard.KEY_RIGHT:
-                        if (!scrollSpeedLocked(Keyboard.KEY_RIGHT)) {
+                case RIGHT:
+                        if (!scrollSpeedLocked(Key.RIGHT)) {
                                 scroll_acceleration_seconds = 0;
                                 setScrollSpeed();
                         }
@@ -425,10 +425,10 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                 return;
         }
 
-        pitch_up = LocalInput.isKeyDown(Keyboard.KEY_HOME) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD8);
-        pitch_down = LocalInput.isKeyDown(Keyboard.KEY_END) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD2);
-        rotate_right = LocalInput.isKeyDown(Keyboard.KEY_INSERT) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD6);
-        rotate_left = LocalInput.isKeyDown(Keyboard.KEY_DELETE) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD4);
+        pitch_up = LocalInput.isKeyDown(Key.HOME) || LocalInput.isKeyDown(Key.NUMPAD8);
+        pitch_down = LocalInput.isKeyDown(Key.END) || LocalInput.isKeyDown(Key.NUMPAD2);
+        rotate_right = LocalInput.isKeyDown(Key.INSERT) || LocalInput.isKeyDown(Key.NUMPAD6);
+        rotate_left = LocalInput.isKeyDown(Key.DELETE) || LocalInput.isKeyDown(Key.NUMPAD4);
     }
 
     @Override

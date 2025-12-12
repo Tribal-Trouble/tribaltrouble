@@ -113,7 +113,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		game_list_box.addRowListener(new GameDoubleClickedListener());
 		game_list_panel.addChild(game_list_box);
 
-		PulldownMenu<Void> game_list_pulldown_menu = new PulldownMenu<>();
+		PulldownMenu<GameHost> game_list_pulldown_menu = new PulldownMenu<>();
 		game_list_pulldown_menu.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "join")));
 		game_list_pulldown_menu.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "game_info")));
 		game_list_pulldown_menu.addItemChosenListener(new PulldownListener(game_list_box));

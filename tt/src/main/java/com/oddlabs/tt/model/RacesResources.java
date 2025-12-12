@@ -123,7 +123,7 @@ public final class RacesResources {
             int num_fragments,
             int max_hit_points,
             UnitContainerFactory unit_container_factory,
-            Abilities abilities,
+            @NonNull Abilities abilities,
             float @NonNull [] hit_offset_z,
             float mount_offset,
             float no_detail_size,
@@ -132,7 +132,7 @@ public final class RacesResources {
             float rally_z,
             float chimney_x,
             float chimney_y,
-            float chimney_z, String name) {
+            float chimney_z, @NonNull String name) {
 		assert hit_offset_z.length == 3;
 
 		final float ring_mid = 0.38f;

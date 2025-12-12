@@ -23,17 +23,11 @@ public final class ChatMessage {
 	}
 
 	public @NonNull String formatLong() {
-		switch (type) {
-			case TEAM:
-				return "(Team) " + formatShort();
-			case PRIVATE:
-				return "(Private) " + formatShort();
-			case NORMAL: /* Fall through */
-			case CHATROOM:
-			case GAME_MENU:
-				return formatShort();
-			default:
-				throw new RuntimeException();
-		}
+        return switch (type) {
+            case TEAM -> "(Team) " + formatShort();
+            case PRIVATE -> "(Private) " + formatShort(); /* Fall through */
+            case NORMAL, CHATROOM, GAME_MENU -> formatShort();
+            default -> throw new RuntimeException();
+        };
 	}
 }

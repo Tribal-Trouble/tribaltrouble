@@ -19,7 +19,7 @@ import java.util.Random;
 public final class Lightning extends Element<Lightning> implements Animated {
 	private static final float SQRT_2 = (float)Math.sqrt(2f);
 
-	private final @NonNull AnimationManager manager;
+	private final AnimationManager manager;
 	private final List<@NonNull StretchParticle> particles = new ArrayList<>();
 	private final @NonNull Vector3f src;
 	private final @NonNull Vector3f dst;

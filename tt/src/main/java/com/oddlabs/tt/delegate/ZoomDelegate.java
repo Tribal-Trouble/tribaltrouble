@@ -8,7 +8,6 @@ import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 public class ZoomDelegate extends InGameDelegate {
 	private static final float ZOOM_FACTOR_CORRECTION = .25f;
@@ -46,11 +45,9 @@ public class ZoomDelegate extends InGameDelegate {
 	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
 		if (!done) {
-			switch (event.getKeyCode()) {
-				case Keyboard.KEY_Z:
-					pop();
-					break;
-			}
+            switch (event.getKeyCode()) {
+                case Z -> pop();
+            }
 		}
 	}
 

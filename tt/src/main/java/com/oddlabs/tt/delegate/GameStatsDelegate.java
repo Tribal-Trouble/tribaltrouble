@@ -19,7 +19,6 @@ import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -172,7 +171,7 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_TAB:
+			case TAB:
 				switchFocus(event.isShiftDown() ? -1 : 1);
 				break;
 			default:

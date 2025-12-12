@@ -56,21 +56,13 @@ public final class NativeIsland6 extends Island {
 				PlayerSlot.AI_HARD);
 		game_network.getClient().setUnitInfo(1, new UnitInfo(true, true, 2, false, 1, 0, 2, 0));
 
-		int ai_peons;
-		switch (getCampaign().getState().getDifficulty()) {
-			case CampaignState.DIFFICULTY_EASY:
-				ai_peons = 10;
-				break;
-			case CampaignState.DIFFICULTY_NORMAL:
-				ai_peons = 20;
-				break;
-			case CampaignState.DIFFICULTY_HARD:
-				ai_peons = 35;
-				break;
-			default:
-				throw new RuntimeException();
-		}
-		game_network.getClient().getServerInterface().setPlayerSlot(2,
+		int ai_peons = switch (getCampaign().getState().getDifficulty()) {
+            case CampaignState.DIFFICULTY_EASY -> 10;
+            case CampaignState.DIFFICULTY_NORMAL -> 20;
+            case CampaignState.DIFFICULTY_HARD -> 35;
+            default -> throw new IllegalArgumentException();
+        };
+        game_network.getClient().getServerInterface().setPlayerSlot(2,
 				PlayerSlot.AI,
 				RacesResources.RACE_VIKINGS,
 				1,

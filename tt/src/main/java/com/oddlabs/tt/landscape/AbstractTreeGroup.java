@@ -18,7 +18,7 @@ public abstract class AbstractTreeGroup extends BoundingBox {
         JUNGLE,
 		PALM,
         OAK,
-        PINE;
+        PINE
 	}
 
 	private final AbstractTreeGroup parent;

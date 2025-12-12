@@ -10,7 +10,6 @@ import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 final class CampaignMapMenu extends Menu {
 
@@ -42,12 +41,8 @@ final class CampaignMapMenu extends Menu {
     @Override
     protected void keyPressed(@NonNull KeyboardEvent event) {
         switch (event.getKeyCode()) {
-            case Keyboard.KEY_ESCAPE:
-                pop();
-                break;
-            default:
-                super.keyPressed(event);
-                break;
+            case ESCAPE -> pop();
+            default -> super.keyPressed(event);
         }
     }
 

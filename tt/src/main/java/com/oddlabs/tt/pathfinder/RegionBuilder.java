@@ -77,7 +77,7 @@ public final class RegionBuilder {
 		int max_x = start_x;
 		int min_y = start_y;
 		int max_y = start_y;
-		while (region_nodes.size() > 0) {
+		while (!region_nodes.isEmpty()) {
 			RegionBuilderNode node = region_nodes.removeBest();
 			if (unit_grid.getRegion(node.getGridX(), node.getGridY()) != null)
 				continue;

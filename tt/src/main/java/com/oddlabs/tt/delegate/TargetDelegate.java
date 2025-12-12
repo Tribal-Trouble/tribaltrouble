@@ -4,10 +4,10 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 public class TargetDelegate extends ControllableCameraDelegate {
 	private final @NonNull Action action;
@@ -30,22 +30,17 @@ public class TargetDelegate extends ControllableCameraDelegate {
 	@Override
 	public final void keyPressed(@NonNull KeyboardEvent event) {
 		getCamera().keyPressed(event);
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_ESCAPE:
-				pop();
-				break;
-			case Keyboard.KEY_SPACE:
-			case Keyboard.KEY_RETURN:
-				break;
-			default:
-				super.keyPressed(event);
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case ESCAPE -> pop();
+            case SPACE, RETURN -> {
+            }
+            default -> super.keyPressed(event);
+        }
 	}
 
 	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() != Keyboard.KEY_SPACE || event.getKeyCode() != Keyboard.KEY_RETURN)
+		if (event.getKeyCode() != Key.SPACE || event.getKeyCode() != Key.RETURN)
 			getCamera().keyReleased(event);
 	}
 

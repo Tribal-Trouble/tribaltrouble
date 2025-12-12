@@ -3,10 +3,10 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.input.Keyboard;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -116,7 +116,7 @@ public class Form extends Group {
 
 	@Override
 	protected final void keyPressed(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() == Keyboard.KEY_H && event.isControlDown())
+		if (event.getKeyCode() == Key.H && event.isControlDown())
 			super.keyPressed(event);
 	}
 
@@ -127,10 +127,10 @@ public class Form extends Group {
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_TAB:
+			case TAB:
 				super.keyRepeat(event);
 				break;
-			case Keyboard.KEY_ESCAPE:
+			case ESCAPE:
 				cancel();
 				break;
 			default:

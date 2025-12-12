@@ -184,21 +184,13 @@ public final class VikingIsland8 extends Island {
 
 		// Insert second blocking army
 		Unit bait2 = new Unit(enemy, 347*2, 455*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
-		int num_hidden;
-		switch (getCampaign().getState().getDifficulty()) {
-			case CampaignState.DIFFICULTY_EASY:
-				num_hidden = 7;
-				break;
-			case CampaignState.DIFFICULTY_NORMAL:
-				num_hidden = 13;
-				break;
-			case CampaignState.DIFFICULTY_HARD:
-				num_hidden = 20;
-				break;
-			default:
-				throw new RuntimeException();
-		}
-		final Selectable[] army2 = new Selectable[num_hidden];
+		int num_hidden = switch (getCampaign().getState().getDifficulty()) {
+            case CampaignState.DIFFICULTY_EASY -> 7;
+            case CampaignState.DIFFICULTY_NORMAL -> 13;
+            case CampaignState.DIFFICULTY_HARD -> 20;
+            default -> throw new RuntimeException();
+        };
+        final Selectable[] army2 = new Selectable[num_hidden];
 		army2[0] = new Unit(enemy, 364*2, 440*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
 		army2[1] = new Unit(enemy, 364*2, 440*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
 		army2[2] = new Unit(enemy, 364*2, 440*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
@@ -281,21 +273,13 @@ public final class VikingIsland8 extends Island {
 		new Unit(enemy, 354*2, 474*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 
 		// Insert Neurtal units
-		int num_neutrals;
-		switch (getCampaign().getState().getDifficulty()) {
-			case CampaignState.DIFFICULTY_EASY:
-				num_neutrals = 15;
-				break;
-			case CampaignState.DIFFICULTY_NORMAL:
-				num_neutrals = 9;
-				break;
-			case CampaignState.DIFFICULTY_HARD:
-				num_neutrals = 6;
-				break;
-			default:
-				throw new RuntimeException();
-		}
-		final Unit[] neutrals = new Unit[num_neutrals];
+		int num_neutrals = switch (getCampaign().getState().getDifficulty()) {
+            case CampaignState.DIFFICULTY_EASY -> 15;
+            case CampaignState.DIFFICULTY_NORMAL -> 9;
+            case CampaignState.DIFFICULTY_HARD -> 6;
+            default -> throw new IllegalArgumentException();
+        };
+        final Unit[] neutrals = new Unit[num_neutrals];
 		neutrals[0] = new Unit(lost, 267*2, 325*2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 		neutrals[1] = new Unit(lost, 268*2, 324*2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
 		neutrals[2] = new Unit(lost, 267*2, 323*2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));

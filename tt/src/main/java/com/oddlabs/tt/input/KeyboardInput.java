@@ -31,34 +31,26 @@ public final class KeyboardInput {
 		return instance.menu_down;
 	}
 
-	private boolean checkMagicKey(Deterministic deterministic, boolean event_key_state, int event_key, boolean override, boolean repeat) {
+	private boolean checkMagicKey(Deterministic deterministic, boolean event_key_state, @NonNull Key event_key, boolean override, boolean repeat) {
 		boolean keys_enabled = Settings.getSettings().inDeveloperMode() && control_down && shift_down && !repeat;
 		if (event_key_state && (keys_enabled || override)) {
 			// check for special events that shouldn't generate events
-			switch (event_key) {
-				case Keyboard.KEY_RIGHT:
-					AnimationManager.warpTime(LITTLE_WARP);
-					break;
-				case Keyboard.KEY_UP:
-					AnimationManager.warpTime(MEDIUM_WARP);
-					break;
-				case Keyboard.KEY_PRIOR:
-					AnimationManager.warpTime(LARGE_WARP);
-					break;
-				case Keyboard.KEY_Q:
-					IO.println("Exit forced with ctrl+Q");
-					Renderer.shutdown();
-					break;
-				case Keyboard.KEY_SPACE:
-					AnimationManager.toggleTimeStop();
-					break;
-				case Keyboard.KEY_END:
-					IO.println("WARP UNTIL END OF EVENT LOG");
-					AnimationManager.warpTime(GOTO_END_OF_LOG_WARP);
-					break;
-				default:
-					break;
-			}
+            switch (event_key) {
+                case RIGHT -> AnimationManager.warpTime(LITTLE_WARP);
+                case UP -> AnimationManager.warpTime(MEDIUM_WARP);
+                case PRIOR -> AnimationManager.warpTime(LARGE_WARP);
+                case Q -> {
+                    IO.println("Exit forced with ctrl+Q");
+                    Renderer.shutdown();
+                }
+                case SPACE -> AnimationManager.toggleTimeStop();
+                case END -> {
+                    IO.println("WARP UNTIL END OF EVENT LOG");
+                    AnimationManager.warpTime(GOTO_END_OF_LOG_WARP);
+                }
+                default -> {
+                }
+            }
 		}
 		return keys_enabled;
 	}
@@ -72,9 +64,12 @@ public final class KeyboardInput {
 		if (deterministic.isPlayback()) {
 			Keyboard.poll();
 			while (Keyboard.next()) {
-				int event_key = Keyboard.getEventKey();
-				boolean event_key_state = Keyboard.getEventKeyState();
-				checkMagicKey(deterministic, event_key_state, event_key, true, Keyboard.isRepeatEvent());
+				int event_key_code = Keyboard.getEventKey();
+				var event_key = Key.fromLwjglCode(event_key_code);
+				if (Key.KEY_UNKNOWN != event_key) {
+					boolean event_key_state = Keyboard.getEventKeyState();
+					checkMagicKey(deterministic, event_key_state, event_key, true, Keyboard.isRepeatEvent());
+				}
 			}
 		}
 	}
@@ -85,37 +80,39 @@ public final class KeyboardInput {
 
 	public boolean doPoll(@NonNull GUIRoot gui_root) {
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
-		LocalInput local_input = LocalInput.getLocalInput();
 		boolean result = false;
 		Keyboard.poll();
 		while (deterministic.log(Keyboard.next())) {
 			result = true;
-			int event_key = deterministic.log(Keyboard.getEventKey());
+			int event_key_code = deterministic.log(Keyboard.getEventKey());
+			Key event_key = Key.fromLwjglCode(event_key_code);
 			boolean event_key_state = deterministic.log(Keyboard.getEventKeyState());
 			char event_character = deterministic.log(Keyboard.getEventCharacter());
 			boolean repeat_event = deterministic.log(Keyboard.isRepeatEvent());
-			switch (event_key) {
-				case Keyboard.KEY_LSHIFT:
-				case Keyboard.KEY_RSHIFT:
-					shift_down = event_key_state;
-					break;
-				case Keyboard.KEY_LCONTROL:
-				case Keyboard.KEY_RCONTROL:
-					control_down = event_key_state;
-					break;
-				case Keyboard.KEY_LMENU:
-				case Keyboard.KEY_RMENU:
-					menu_down = event_key_state;
-					break;
+			if (Key.KEY_UNKNOWN != event_key) {
+				switch (event_key) {
+					case LSHIFT:
+					case RSHIFT:
+						shift_down = event_key_state;
+						break;
+					case LCONTROL:
+					case RCONTROL:
+						control_down = event_key_state;
+						break;
+					case LMENU:
+					case RMENU:
+						menu_down = event_key_state;
+						break;
+				}
+				if (checkMagicKey(deterministic, event_key_state, event_key, false, repeat_event))
+					continue;
 			}
-			if (checkMagicKey(deterministic, event_key_state, event_key, false, repeat_event))
-				continue;
-			if (event_key == Keyboard.KEY_NONE) {
-				LocalInput.keyTyped(gui_root, event_key, event_character);
+			if (event_key_code == Keyboard.KEY_NONE) {
+				LocalInput.keyTyped(gui_root, event_key_code, event_character);
 			} else if (event_key_state) {
-				LocalInput.keyPressed(gui_root, event_key, event_character, shift_down, control_down, menu_down, repeat_event);
+				LocalInput.keyPressed(gui_root, event_key_code, event_character, shift_down, control_down, menu_down, repeat_event);
 			} else {
-				LocalInput.keyReleased(gui_root, event_key, event_character, shift_down, control_down, menu_down);
+				LocalInput.keyReleased(gui_root, event_key_code, event_character, shift_down, control_down, menu_down);
 			}
 		}
 		return result;

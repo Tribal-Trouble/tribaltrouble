@@ -15,7 +15,7 @@ public class FogInfo {
         EXP,
         EXP2,
         /** Screen-space radial fog for map view. */
-        RADIAL;
+        RADIAL
     }
 
     protected final @NonNull Mode fog_mode;

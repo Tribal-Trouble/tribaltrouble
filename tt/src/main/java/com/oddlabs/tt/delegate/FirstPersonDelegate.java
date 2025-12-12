@@ -8,7 +8,6 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 public class FirstPersonDelegate extends InGameDelegate {
 	private final boolean key_pressed;
@@ -27,6 +26,14 @@ public class FirstPersonDelegate extends InGameDelegate {
 	}
 
 	@Override
+	public final void doRemove() {
+		super.doRemove();
+		if (!done) {
+			release();
+		}
+	}
+
+	@Override
 	public void keyPressed(@NonNull KeyboardEvent event) {
 	}
 
@@ -34,7 +41,7 @@ public class FirstPersonDelegate extends InGameDelegate {
 	public void keyReleased(@NonNull KeyboardEvent event) {
 		if (key_pressed && !done) {
 			switch (event.getKeyCode()) {
-				case Keyboard.KEY_F:
+				case F:
 					pop();
 					break;
 			}
@@ -74,13 +81,5 @@ public class FirstPersonDelegate extends InGameDelegate {
 	@Override
 	protected @NonNull CursorType getCursorType() {
 		return CursorType.NULL;
-	}
-
-	@Override
-	public final void doRemove() {
-		super.doRemove();
-		if (!done) {
-			release();
-		}
 	}
 }

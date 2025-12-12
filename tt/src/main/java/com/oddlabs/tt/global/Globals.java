@@ -66,16 +66,16 @@ public final class Globals {
 		return draw_axes || bounding != BoundingMode.NONE;
 	}
 
-	public static int COMPRESSED_RGB_FORMAT = GL13.GL_COMPRESSED_RGB;
-	public static int COMPRESSED_RGBA_FORMAT = GL13.GL_COMPRESSED_RGBA;
-	public static int COMPRESSED_A_FORMAT = GL13.GL_COMPRESSED_ALPHA;
+	public static final int COMPRESSED_RGB_FORMAT = GL13.GL_COMPRESSED_RGB;
+	public static final int COMPRESSED_RGBA_FORMAT = GL13.GL_COMPRESSED_RGBA;
+	public static final int COMPRESSED_A_FORMAT = GL13.GL_COMPRESSED_ALPHA;
 /*	public static int COMPRESSED_LUMINANCE_FORMAT = GL13.GL_COMPRESSED_LUMINANCE;
 */
 
 /*	public static int COMPRESSED_RGB_FORMAT = GL11.GL_RGB;
 	public static int COMPRESSED_RGBA_FORMAT = GL11.GL_RGBA;
 	public static int COMPRESSED_A_FORMAT = GL11.GL_ALPHA8;*/
-	public static int COMPRESSED_LUMINANCE_FORMAT = GL11.GL_LUMINANCE;
+	public static final int COMPRESSED_LUMINANCE_FORMAT = GL11.GL_LUMINANCE;
 	public static int LOW_DETAIL_TEXTURE_SHIFT = 1;
 
 	public static final float LANDSCAPE_HILLS = 1f;

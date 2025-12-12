@@ -69,7 +69,7 @@ public class ChatPanel extends Panel implements ChatListener {
 		playing_users_list_box = new MultiColumnComboBox<>(gui_root, playing_infos, user_list_height, true);
 		addChild(playing_users_list_box);
 
-		PulldownMenu<Void> lobby_pulldown_menu = new PulldownMenu<>();
+		PulldownMenu<ChatRoomUser> lobby_pulldown_menu = new PulldownMenu<>();
 		lobby_pulldown_menu.addItem(new PulldownItem<>(getI18N("message")));
 		lobby_pulldown_menu.addItem(new PulldownItem<>(getI18N("info")));
 		lobby_pulldown_menu.addItem(new PulldownItem<>(""));
@@ -79,7 +79,7 @@ public class ChatPanel extends Panel implements ChatListener {
 		ChatRoomUserDoubleClickedListener lobby_double_clicked = new ChatRoomUserDoubleClickedListener(lobby_pulldown_menu);
 		lobby_users_list_box.addRowListener(lobby_double_clicked);
 
-		PulldownMenu<Void> playing_pulldown_menu = new PulldownMenu<>();
+		PulldownMenu<ChatRoomUser> playing_pulldown_menu = new PulldownMenu<>();
 		playing_pulldown_menu.addItem(new PulldownItem<>(getI18N("message")));
 		playing_pulldown_menu.addItem(new PulldownItem<>(getI18N("info")));
 		playing_pulldown_menu.addItem(new PulldownItem<>(""));
@@ -203,10 +203,10 @@ public class ChatPanel extends Panel implements ChatListener {
 		}
 	}
 
-	private final class ChatRoomUserDoubleClickedListener implements RowListener<ChatRoomUser> {
-		private final PulldownMenu<Void> menu;
+	private final class ChatRoomUserDoubleClickedListener implements RowListener<@NonNull ChatRoomUser> {
+		private final @NonNull PulldownMenu<@NonNull ChatRoomUser> menu;
 
-		public ChatRoomUserDoubleClickedListener(PulldownMenu<Void> menu) {
+		public ChatRoomUserDoubleClickedListener(@NonNull PulldownMenu<@NonNull ChatRoomUser> menu) {
 			this.menu = menu;
 		}
 

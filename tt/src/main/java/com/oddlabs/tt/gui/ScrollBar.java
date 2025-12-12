@@ -5,7 +5,6 @@ import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 public final class ScrollBar extends GUIObject {
 	private final @NonNull Group focus_group;
@@ -172,18 +171,18 @@ public final class ScrollBar extends GUIObject {
 	private final class ButtonKeyListener implements KeyListener {
 		@Override
 		public void keyRepeat(@NonNull KeyboardEvent event) {
-			switch (event.getKeyCode()) {
-				case Keyboard.KEY_UP:
-					owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
-					scroll_button.setupPos(ScrollBar.this);
-					break;
-				case Keyboard.KEY_DOWN:
-					owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
-					scroll_button.setupPos(ScrollBar.this);
-					break;
-				default:
-					break;
-			}
+            switch (event.getKeyCode()) {
+                case UP -> {
+                    owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
+                    scroll_button.setupPos(ScrollBar.this);
+                }
+                case DOWN -> {
+                    owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
+                    scroll_button.setupPos(ScrollBar.this);
+                }
+                default -> {
+                }
+            }
 		}
 
 		@Override

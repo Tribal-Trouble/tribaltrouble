@@ -4,6 +4,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -25,9 +26,7 @@ public final class HttpRequestParameters {
             Map.Entry<String,String> parameter = parameter_entries.next();
             buffer.append(parameter.getKey());
             buffer.append('=');
-            try {
-                buffer.append(URLEncoder.encode(parameter.getValue(), "UTF-8"));
-            } catch (UnsupportedEncodingException _) { }
+            buffer.append(URLEncoder.encode(parameter.getValue(), StandardCharsets.UTF_8));
             if (parameter_entries.hasNext())
                 buffer.append('&');
         }

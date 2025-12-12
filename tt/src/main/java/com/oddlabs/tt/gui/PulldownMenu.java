@@ -4,7 +4,6 @@ import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,17 +87,11 @@ public final class PulldownMenu<T> extends Group {
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_UP:
-				focusPrior();
-				break;
-			case Keyboard.KEY_DOWN:
-				focusNext();
-				break;
-			default:
-				super.keyRepeat(event);
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case UP -> focusPrior();
+            case DOWN -> focusNext();
+            default -> super.keyRepeat(event);
+        }
 	}
 
 	// Sending click on to appropriate item when PulldownButton has been pressed and released on an item
@@ -115,11 +108,11 @@ public final class PulldownMenu<T> extends Group {
         }
 	}
 
-	public void addItemChosenListener(@NonNull ItemChosenListener listener) {
+	public void addItemChosenListener(@NonNull ItemChosenListener<T> listener) {
 		chosen_listeners.add(listener);
 	}
 
-	public void removeItemChosenListener(@NonNull ItemChosenListener listener) {
+	public void removeItemChosenListener(@NonNull ItemChosenListener<T> listener) {
 		chosen_listeners.remove(listener);
 	}
 

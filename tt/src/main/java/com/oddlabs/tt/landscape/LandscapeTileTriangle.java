@@ -100,44 +100,42 @@ public final class LandscapeTileTriangle {
 			int split_x = (i1_x + i2_x)/2;
 			int split_y = (i1_y + i2_y)/2;
 			int t0_dir;
-			int t1_dir;
-			switch (dir) {
-				case NORTH:
-					t0_dir = NORTH_WEST;
-					t1_dir = NORTH_EAST;
-					break;
-				case EAST:
-					t0_dir = NORTH_EAST;
-					t1_dir = SOUTH_EAST;
-					break;
-				case SOUTH:
-					t0_dir = SOUTH_EAST;
-					t1_dir = SOUTH_WEST;
-					break;
-				case WEST:
-					t0_dir = SOUTH_WEST;
-					t1_dir = NORTH_WEST;
-					break;
-				case NORTH_EAST:
-					t0_dir = NORTH;
-					t1_dir = EAST;
-					break;
-				case SOUTH_EAST:
-					t0_dir = EAST;
-					t1_dir = SOUTH;
-					break;
-				case SOUTH_WEST:
-					t0_dir = SOUTH;
-					t1_dir = WEST;
-					break;
-				case NORTH_WEST:
-					t0_dir = WEST;
-					t1_dir = NORTH;
-					break;
-				default:
-					throw new RuntimeException("Unknown dir: " + dir);
-			}
-			int split_index = LandscapeTileIndices.getIndex(patch_exp, split_x, split_y);
+			int t1_dir = switch (dir) {
+                case NORTH -> {
+                    t0_dir = NORTH_WEST;
+                    yield NORTH_EAST;
+                }
+                case EAST -> {
+                    t0_dir = NORTH_EAST;
+                    yield SOUTH_EAST;
+                }
+                case SOUTH -> {
+                    t0_dir = SOUTH_EAST;
+                    yield SOUTH_WEST;
+                }
+                case WEST -> {
+                    t0_dir = SOUTH_WEST;
+                    yield NORTH_WEST;
+                }
+                case NORTH_EAST -> {
+                    t0_dir = NORTH;
+                    yield EAST;
+                }
+                case SOUTH_EAST -> {
+                    t0_dir = EAST;
+                    yield SOUTH;
+                }
+                case SOUTH_WEST -> {
+                    t0_dir = SOUTH;
+                    yield WEST;
+                }
+                case NORTH_WEST -> {
+                    t0_dir = WEST;
+                    yield NORTH;
+                }
+                default -> throw new RuntimeException("Unknown dir: " + dir);
+            };
+            int split_index = LandscapeTileIndices.getIndex(patch_exp, split_x, split_y);
 			t0 = new LandscapeTileTriangle(patch_exp, lod_level + 1, t0_dir, split_index, i0, i1);
 			t1 = new LandscapeTileTriangle(patch_exp, lod_level + 1, t1_dir, split_index, i2, i0);
 		} else {
@@ -158,7 +156,7 @@ public final class LandscapeTileTriangle {
 		buffer.put(i0).put(i1).put(i2);
 	}
 
-	void setupMapping(int patch_exp, int lod, LandscapeTileTriangle[]@NonNull [] @NonNull [] quad_to_planes) {
+	void setupMapping(int patch_exp, int lod, LandscapeTileTriangle @NonNull []@NonNull [] @NonNull [] quad_to_planes) {
 		int min_x = Math.min(i0_x, Math.min(i1_x, i2_x));
 		int min_y = Math.min(i0_y, Math.min(i1_y, i2_y));
 		int num_quads_exp = LandscapeTileIndices.getNumQuadsExp(lod);

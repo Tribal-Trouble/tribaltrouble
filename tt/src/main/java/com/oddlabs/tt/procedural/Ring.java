@@ -11,7 +11,7 @@ public final class Ring {
 	public enum Interpolation {
 		LINEAR,
 		SMOOTH
-	};
+	}
 
 	public Ring(int width, int height, float@NonNull [] @NonNull [] gradient_list, @NonNull Interpolation interpolation) {
 		var quarter = new Channel(width>>1, height>>1);

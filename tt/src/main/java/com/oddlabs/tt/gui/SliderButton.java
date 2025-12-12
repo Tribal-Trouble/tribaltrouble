@@ -3,7 +3,6 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 public final class SliderButton extends ButtonObject {
 	private final @NonNull Slider slider;
@@ -34,13 +33,9 @@ public final class SliderButton extends ButtonObject {
 
 	@Override
 	public void keyPressed(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_RIGHT:
-				slider.setValue(slider.getValue() + 1);
-				break;
-			case Keyboard.KEY_LEFT:
-				slider.setValue(slider.getValue() - 1);
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case RIGHT -> slider.setValue(slider.getValue() + 1);
+            case LEFT -> slider.setValue(slider.getValue() - 1);
+        }
 	}
 }

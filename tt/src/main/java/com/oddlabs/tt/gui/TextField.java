@@ -1,8 +1,8 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import com.oddlabs.tt.input.Key;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 /**
  * A mutable text field that allows text to be appended
@@ -104,13 +104,13 @@ public abstract class TextField extends GUIObject implements CharSequence {
 
 	@Override
 	protected final void keyPressed(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() != Keyboard.KEY_SPACE && event.getKeyCode() != Keyboard.KEY_RETURN)
+		if (event.getKeyCode() != Key.SPACE && event.getKeyCode() != Key.RETURN)
 			super.keyPressed(event);
 	}
 
 	@Override
 	protected void keyReleased(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() != Keyboard.KEY_SPACE && event.getKeyCode() != Keyboard.KEY_RETURN)
+		if (event.getKeyCode() != Key.SPACE && event.getKeyCode() != Key.RETURN)
 			super.keyReleased(event);
 	}
 }

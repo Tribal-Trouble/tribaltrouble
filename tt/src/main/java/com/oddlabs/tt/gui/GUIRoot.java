@@ -19,7 +19,6 @@ import com.oddlabs.util.Color;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -46,7 +45,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 										   Utils.makeURL("/textures/gui/pointer_text_32_1.image"), 6, 20,
 										   Utils.makeURL("/textures/gui/pointer_text_32_8.image"), 6, 20)};
 
-	private final Deque<@NonNull CameraDelegate> delegate_stack = new ArrayDeque<>();
+	private final Deque<@NonNull CameraDelegate<?>> delegate_stack = new ArrayDeque<>();
 	private final Deque<@NonNull ModalDelegate> modal_delegate_stack = new ArrayDeque<>();
 	private final Deque<@NonNull GUIObject> focus_backup_stack = new ArrayDeque<>();
 
@@ -113,7 +112,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		return info_printer;
 	}
 
-	public void pushDelegate(@NonNull CameraDelegate delegate) {
+	public void pushDelegate(@NonNull CameraDelegate<?> delegate) {
 		if (!delegate_stack.isEmpty()) {
 			getDelegate().remove();
 		}
@@ -123,7 +122,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		mousePick();
 	}
 
-	public void removeDelegate(@NonNull CameraDelegate delegate) {
+	public void removeDelegate(@NonNull CameraDelegate<?> delegate) {
 		boolean top_most = getDelegate() == delegate;
 		delegate.remove();
 
@@ -137,8 +136,8 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		mousePick();
 	}
 
-	public @NonNull CameraDelegate getDelegate() {
-		return delegate_stack.peek();
+	public @NonNull CameraDelegate<?> getDelegate() {
+		return delegate_stack.element();
 	}
 
 	private void pushModalDelegate(@NonNull ModalDelegate delegate) {
@@ -158,9 +157,9 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		modal_delegate_stack.remove(delegate);
 		delegate.remove();
 
-		delegate = getModalDelegate();
-		if (top_most && delegate != null)
-			super.addChild(delegate);
+		ModalDelegate modal_delegate = getModalDelegate();
+		if (top_most && modal_delegate != null)
+			super.addChild(modal_delegate);
 
 		GUIObject object = focus_backup_stack.pop();
 		if (!delegate_stack.isEmpty())
@@ -201,14 +200,14 @@ public final class GUIRoot extends GUIObject implements Updatable {
 	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_S:
+			case S:
 				if (event.isControlDown()) {
 					String filename = GLUtils.takeScreenshot("");
 					info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "screenshot_message", filename));
 				}
 				break;
 
-			case Keyboard.KEY_H:
+			case H:
 				if (event.isControlDown() && (LocalInput.getNativeCursorCaps() & org.lwjgl.input.Cursor.CURSOR_ONE_BIT_TRANSPARENCY) != 0) {
 					Settings.getSettings().use_native_cursor = !Settings.getSettings().use_native_cursor;
 					if (Settings.getSettings().use_native_cursor)
@@ -218,7 +217,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 				}
 				break;
 
-			case Keyboard.KEY_A:
+			case A:
 				if (event.isControlDown()) {
 					Settings.getSettings().aggressive_units = !Settings.getSettings().aggressive_units;
 					if (Settings.getSettings().aggressive_units)
@@ -228,7 +227,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 				}
 				break;
 
-			 case Keyboard.KEY_I:
+			 case I:
 				if (event.isControlDown()) {
 					Globals.draw_status = !Globals.draw_status;
 				}
@@ -241,38 +240,38 @@ public final class GUIRoot extends GUIObject implements Updatable {
 			return;
 
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_U:
+			case U:
 				Renderer.getRenderer().startMovieRecording();
 				break;
-			case Keyboard.KEY_W:
+			case W:
 				if (event.isControlDown())
 					Globals.draw_water = !Globals.draw_water;
 				break;
-			case Keyboard.KEY_R:
+			case R:
 				if (event.isControlDown()) {
 					Globals.run_ai = !Globals.run_ai;
 					IO.println("Globals.run_ai = " + Globals.run_ai);
 				}
 				break;
 
-			case Keyboard.KEY_O:
+			case O:
 				Globals.draw_light = !Globals.draw_light;
 				break;
-			case Keyboard.KEY_P:
+			case P:
 				if (event.isControlDown())
 					GLUtils.takeScreenshot("");
 				else
 					Globals.draw_plants = !Globals.draw_plants;
 				break;
-			case Keyboard.KEY_E:
+			case E:
 				Globals.draw_particles = !Globals.draw_particles;
 				break;
-			case Keyboard.KEY_A:
+			case A:
 				if (!event.isControlDown()) {
 					Globals.draw_axes = !Globals.draw_axes;
 				}
 				break;
-			case Keyboard.KEY_M:
+			case M:
 				if (event.isControlDown())
 					Globals.draw_misc = !Globals.draw_misc;
 				else {
@@ -280,15 +279,15 @@ public final class GUIRoot extends GUIObject implements Updatable {
 					Globals.process_misc = !Globals.process_misc;
 				}
 				break;
-			case Keyboard.KEY_J:
+			case J:
 				org.lwjgl.input.Mouse.setCursorPosition(10, 10);
 				break;
-			case Keyboard.KEY_S:
+			case S:
 				if (!event.isControlDown()) {
 					Globals.draw_detail = !Globals.draw_detail;
 				}
 				break;
-			case Keyboard.KEY_C:
+			case C:
 				if (event.isControlDown()) {
 					IO.println("crash!");
 					throw new RuntimeException("Ctrl+C pressed -> throwing a runtime exception.");
@@ -296,22 +295,22 @@ public final class GUIRoot extends GUIObject implements Updatable {
 					Globals.clear_frame_buffer = !Globals.clear_frame_buffer;
 				}
 				break;
-			case Keyboard.KEY_D:
+			case D:
 				Globals.switchBoundingMode();
 				break;
-			case Keyboard.KEY_V:
+			case V:
 				Globals.frustum_freeze = !Globals.frustum_freeze;
 				IO.println("Globals.frustum_freeze = " + Globals.frustum_freeze);
 				break;
-			case Keyboard.KEY_F1:
+			case F1:
 				IO.println("*********************************************************");
 				LocalEventQueue.getQueue().debugPrintAnimations();
 				IO.println("Texture.globalSize() = " + Texture.globalSize());
 				break;
-			case Keyboard.KEY_F11:
+			case F11:
 				LocalInput.toggleFullscreen();
 				break;
-			case Keyboard.KEY_F12:
+			case F12:
 				IO.println("GC Forced");
                 System.gc();
 				break;
@@ -378,7 +377,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 
 		// render forced delegates
         boolean initial = true; // Skip the first element which is the current delegate
-        for (CameraDelegate delegate : delegate_stack) {
+        for (CameraDelegate<?> delegate : delegate_stack) {
             if (initial) {
                 initial = false;
             } else if (delegate.forceRender()) {

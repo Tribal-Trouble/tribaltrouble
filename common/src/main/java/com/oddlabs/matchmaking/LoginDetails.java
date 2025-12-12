@@ -20,10 +20,9 @@ public final class LoginDetails implements Serializable {
 
 	@Override
 	public boolean equals(@Nullable Object other) {
-		if (!(other instanceof LoginDetails))
+		if (!(other instanceof LoginDetails other_login))
 			return false;
-		LoginDetails other_login = (LoginDetails)other;
-		return other_login.getEmail().equals(email);
+        return other_login.getEmail().equals(email);
 	}
 
 	@Override

@@ -47,10 +47,9 @@ public final class GameSession implements Serializable {
 	
 	@Override
 	public boolean equals(@Nullable Object other) {
-		if (!(other instanceof GameSession))
+		if (!(other instanceof GameSession other_game))
 			return false;
-		GameSession other_game = (GameSession)other;
-		return other_game.session_id == session_id && Arrays.equals(other_game.participants, participants) && rated == other_game.rated;
+        return other_game.session_id == session_id && Arrays.equals(other_game.participants, participants) && rated == other_game.rated;
 	}
 	
 	public boolean validate() {

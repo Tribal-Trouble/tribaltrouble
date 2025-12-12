@@ -17,7 +17,7 @@ public final class RubberAxeWeapon extends RotatingThrowingWeapon {
 
 	private boolean bouncing = false;
 
-	public RubberAxeWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable target, SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio[] hit_sounds) {
+	public RubberAxeWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable target, SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio @NonNull [] hit_sounds) {
 		super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
 	}
 

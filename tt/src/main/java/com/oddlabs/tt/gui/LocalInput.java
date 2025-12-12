@@ -5,6 +5,7 @@ import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.SerializableDisplayMode;
@@ -17,6 +18,8 @@ import org.lwjgl.opengl.Display;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -30,7 +33,7 @@ public final class LocalInput {
 	private static boolean global_menu_state = false;
 	private static boolean global_control_state = false;
 	private static boolean global_shift_state = false;
-	private static final boolean[] keys = new boolean[256];
+	private static final Set<Key> keys = EnumSet.noneOf(Key.class);
 
 	private static int view_width;
 	private static int view_height;
@@ -40,8 +43,11 @@ public final class LocalInput {
 
 	private static final LocalInput instance = new LocalInput();
 
-	public static void setKeys(int key_code, boolean state, boolean shift_down, boolean control_down, boolean menu_down) {
-		keys[key_code] = state;
+	public static void setKeys(@NonNull Key key, boolean state, boolean shift_down, boolean control_down, boolean menu_down) {
+		if (state)
+			keys.add(key);
+		else
+			keys.remove(key);
 		global_menu_state = menu_down;
 		global_control_state = control_down;
 		global_shift_state = shift_down;
@@ -52,13 +58,19 @@ public final class LocalInput {
 	}
 
 	public static void keyPressed(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
-		setKeys(key_code, true, shift_down, control_down, menu_down);
-		gui_root.getInputState().keyPressed(key_code, key_char, shift_down, control_down, menu_down, repeat);
+		var key = Key.fromLwjglCode(key_code);
+		if (Key.KEY_UNKNOWN != key) {
+			setKeys(key, true, shift_down, control_down, menu_down);
+			gui_root.getInputState().keyPressed(key, key_char, shift_down, control_down, menu_down, repeat);
+		}
 	}
 
 	public static void keyReleased(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
-		setKeys(key_code, false, shift_down, control_down, menu_down);
-		gui_root.getInputState().keyReleased(key_code, key_char, shift_down, control_down, menu_down);
+		var key = Key.fromLwjglCode(key_code);
+		if (Key.KEY_UNKNOWN != key) {
+			setKeys(key, false, shift_down, control_down, menu_down);
+			gui_root.getInputState().keyReleased(key, key_char, shift_down, control_down, menu_down);
+		}
 	}
 
 	public static void mouseDragged(@NonNull GUIRoot gui_root, @NonNull MouseButton button, short x, short y) {
@@ -100,15 +112,11 @@ public final class LocalInput {
 	public static void resetKeys() {
 		// Clear event queue
 		KeyboardInput.reset();
-        Arrays.fill(keys, false);
+		keys.clear();
 	}
 
-	public static boolean isKeyDown(int key_code) {
-		if (key_code >= keys.length) {
-			logger.warning("Unsupported key " + key_code);
-			return false;
-		}
-		return keys[key_code];
+	public static boolean isKeyDown(@NonNull Key key) {
+		return keys.contains(key);
 	}
 
 	public static void resetKeyboard() {

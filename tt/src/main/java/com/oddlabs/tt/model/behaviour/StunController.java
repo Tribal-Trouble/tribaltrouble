@@ -4,7 +4,7 @@ import com.oddlabs.tt.model.Unit;
 import org.jspecify.annotations.NonNull;
 
 public final class StunController extends Controller {
-	private final Unit unit;
+	private final @NonNull Unit unit;
 	private final @NonNull StunBehaviour stun_behaviour;
 
 	private float time;

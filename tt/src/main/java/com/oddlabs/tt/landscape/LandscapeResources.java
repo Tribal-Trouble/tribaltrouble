@@ -103,15 +103,15 @@ public final class LandscapeResources {
         return Collections.unmodifiableMap(trees);
 	}
 
-	public SpriteKey @NonNull [] getRockFragments() {
+	public @NonNull SpriteKey @NonNull [] getRockFragments() {
 		return rock_fragment_sprites;
 	}
 
-	public SpriteKey @NonNull [] getIronFragments() {
+	public @NonNull SpriteKey @NonNull [] getIronFragments() {
 		return iron_fragment_sprites;
 	}
 
-	public SpriteKey[][] getPlants() {
+	public @NonNull SpriteKey @NonNull [] @NonNull [] getPlants() {
 		return plant_sprites;
 	}
 
@@ -119,7 +119,7 @@ public final class LandscapeResources {
 		return chicken;
 	}
 
-	public Audio getBirdIdleSound(@NonNull Random random) {
+	public @NonNull Audio getBirdIdleSound(@NonNull Random random) {
 		return bird_idle_sound[random.nextInt(bird_idle_sound.length)];
 	}
 

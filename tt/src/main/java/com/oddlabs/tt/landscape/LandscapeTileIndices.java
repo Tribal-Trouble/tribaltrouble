@@ -13,7 +13,7 @@ public final class LandscapeTileIndices {
 	private final @NonNull HeightMap heightmap;
 	private final int patch_exp;
 	private final int @NonNull [] patch_indices_indices;
-	private final LandscapeTileTriangle[]@NonNull [] @NonNull [] quad_to_planes;
+	private final LandscapeTileTriangle @NonNull []@NonNull [] @NonNull [] quad_to_planes;
 	private final @NonNull ShortBuffer indices;
 
 	static int getIndex(int patch_exp, int x, int y) {

@@ -14,7 +14,7 @@ public final class AnimationInfo implements Serializable {
 		PLAIN
 	}
 
-	private final float[] @NonNull [] frames;
+	private final float @NonNull [] @NonNull [] frames;
 	private final @NonNull AnimationType type;
 	private final float wpc;
 

@@ -51,24 +51,22 @@ public final class VikingIsland7 extends Island {
 					getCampaign().getState().getNumIronWarriors(),
 					getCampaign().getState().getNumRubberWarriors()));
 		int ai_difficulty;
-		int ai_peons;
-		switch (getCampaign().getState().getDifficulty()) {
-			case CampaignState.DIFFICULTY_EASY:
-				ai_difficulty = PlayerSlot.AI_EASY;
-				ai_peons = 5;
-				break;
-			case CampaignState.DIFFICULTY_NORMAL:
-				ai_difficulty = PlayerSlot.AI_EASY;
-				ai_peons = 15;
-				break;
-			case CampaignState.DIFFICULTY_HARD:
-				ai_difficulty = PlayerSlot.AI_HARD;
-				ai_peons = 20;
-				break;
-			default:
-				throw new RuntimeException();
-		}
-		game_network.getClient().getServerInterface().setPlayerSlot(2,
+		int ai_peons = switch (getCampaign().getState().getDifficulty()) {
+            case CampaignState.DIFFICULTY_EASY -> {
+                ai_difficulty = PlayerSlot.AI_EASY;
+                yield 5;
+            }
+            case CampaignState.DIFFICULTY_NORMAL -> {
+                ai_difficulty = PlayerSlot.AI_EASY;
+                yield 15;
+            }
+            case CampaignState.DIFFICULTY_HARD -> {
+                ai_difficulty = PlayerSlot.AI_HARD;
+                yield 20;
+            }
+            default -> throw new IllegalArgumentException();
+        };
+        game_network.getClient().getServerInterface().setPlayerSlot(2,
 				PlayerSlot.AI,
 				RacesResources.RACE_NATIVES,
 				1,

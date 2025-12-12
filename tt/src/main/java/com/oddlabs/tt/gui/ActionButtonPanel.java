@@ -27,7 +27,6 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.input.Keyboard;
 
 import java.util.Arrays;
 import java.util.ResourceBundle;
@@ -637,28 +636,28 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
 	public boolean doKeyPressed(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_M:
-			case Keyboard.KEY_Q:
+			case M:
+			case Q:
 				if (current_unit)
 					return true;
 				break;
-			case Keyboard.KEY_A:
+			case A:
 				if ((current_unit || current_armory || current_tower) && !event.isControlDown())
 					return true;
 				break;
-			case Keyboard.KEY_P:
+			case P:
 				if (current_quarters)
 					return true;
 				if (current_unit)
 					break;
-			case Keyboard.KEY_G:
-			case Keyboard.KEY_T:
+			case G:
+			case T:
 				if (current_unit || current_armory)
 					return true;
-			case Keyboard.KEY_C:
-			case Keyboard.KEY_I:
-			case Keyboard.KEY_W:
-			case Keyboard.KEY_ESCAPE:
+			case C:
+			case I:
+			case W:
+			case ESCAPE:
 				if (current_armory)
 					if (current_submenu == harvest_group ||
 							current_submenu == build_group ||
@@ -666,11 +665,11 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 							current_submenu == transport_group)
 						return true;
 				break;
-			case Keyboard.KEY_R:
+			case R:
 				if (current_armory || current_quarters)
 					return true;
 				break;
-			case Keyboard.KEY_X:
+			case X:
 				if (current_tower)
 					return true;
 				break;
@@ -682,13 +681,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
 	public boolean doKeyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_M:
+			case M:
 				if (current_unit) {
 					move_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
 				}
 				break;
-			case Keyboard.KEY_A:
+			case A:
 				if (!event.isControlDown()) {
 					if (current_unit) {
 						attack_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
@@ -706,7 +705,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					}
 				}
 				break;
-			case Keyboard.KEY_G:
+			case G:
 				if (current_unit) {
 					gather_repair_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
@@ -715,7 +714,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_C:
+			case C:
 				if (current_quarters) {
 //					if (Settings.getSettings().developer_mode) {
 						quarters_chieftain_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
@@ -740,13 +739,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_Q:
+			case Q:
 				if (current_peon) {
 					quarters_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
 				}
 				break;
-			case Keyboard.KEY_P:
+			case P:
 				if (current_quarters) {
 					quarters_peon_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
 					return true;
@@ -760,7 +759,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_I:
+			case I:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
 						harvest_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
@@ -776,7 +775,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_R:
+			case R:
 				if (current_peon) {
 					armory_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
@@ -800,7 +799,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_S:
+			case S:
 				if (current_chieftain != null) {
 					Player player = viewer.getLocalPlayer();
 					if (player.canDoMagic(0)) {
@@ -808,7 +807,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					}
 				}
 				break;
-			case Keyboard.KEY_T:
+			case T:
 				if (current_peon) {
 					tower_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
@@ -821,13 +820,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_X:
+			case X:
 				if (current_tower) {
 					tower_exit_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					return true;
 				}
 				break;
-			case Keyboard.KEY_W:
+			case W:
 				if (current_armory) {
 					if (current_submenu == null) {
 						build_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
@@ -842,7 +841,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_ESCAPE:
+			case ESCAPE:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
 						harvest_back_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
@@ -866,7 +865,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
 	public boolean doKeyReleased(@NonNull KeyboardEvent event) {
 		switch (event.getKeyCode()) {
-			case Keyboard.KEY_C:
+			case C:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
 						harvest_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
@@ -882,7 +881,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_P:
+			case P:
 				if (current_quarters) {
 					quarters_peon_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
 					return true;
@@ -896,7 +895,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_I:
+			case I:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
 						harvest_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
@@ -912,7 +911,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_R:
+			case R:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
 						harvest_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
@@ -928,7 +927,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_T:
+			case T:
 				if (current_armory) {
 					if (current_submenu == null) {
 						transport_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
@@ -938,7 +937,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				}
 				break;
-			case Keyboard.KEY_W:
+			case W:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
 						harvest_tree_button.shortcutReleased(event.isShiftDown(), event.isControlDown());

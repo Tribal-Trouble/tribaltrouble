@@ -225,14 +225,11 @@ public final class ConvertToBinary {
 	}
 
 	private static AnimationInfo.@NonNull AnimationType getTypeFromString(@NonNull String str) {
-        switch (str) {
-            case "loop":
-                return AnimationInfo.AnimationType.LOOP;
-            case "plain":
-                return AnimationInfo.AnimationType.PLAIN;
-            default:
-                throw new RuntimeException("Unknown animation type: " + str);
-        }
+        return switch (str) {
+            case "loop" -> AnimationInfo.AnimationType.LOOP;
+            case "plain" -> AnimationInfo.AnimationType.PLAIN;
+            default -> throw new RuntimeException("Unknown animation type: " + str);
+        };
 	}
 
 	private static @NonNull String getText(@NonNull Node n) {

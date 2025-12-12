@@ -1,5 +1,7 @@
 package com.oddlabs.util;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
@@ -45,7 +47,7 @@ public final class ByteBufferOutputStream extends OutputStream {
 	}
 	
 	@Override
-	public void write(byte[] bytes, int offset, int length) {
+	public void write(byte @NonNull [] bytes, int offset, int length) {
 		ensureCapacity(length);
 		buffer.put(bytes, offset, length);
 	}

@@ -20,7 +20,7 @@ public final class ToolTipBox extends TextField {
 		throw new RuntimeException("ToolTipBox.renderGeometry should not be called directly. Use render(GUIRenderer, ...)");
 	}
 
-	public final void append(@NonNull IconQuad @Nullable ... icons) {
+	public void append(@NonNull IconQuad @Nullable ... icons) {
 		this.icons = icons;
 	}
 

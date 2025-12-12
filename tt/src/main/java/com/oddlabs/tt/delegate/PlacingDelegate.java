@@ -4,6 +4,7 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Abilities;
@@ -25,7 +26,6 @@ import com.oddlabs.tt.util.GLStateHelper;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
@@ -65,13 +65,11 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
     public void keyPressed(@NonNull KeyboardEvent event) {
         getCamera().keyPressed(event);
         switch (event.getKeyCode()) {
-            case Keyboard.KEY_ESCAPE:
-                pop();
-                break;
-            default:
-                if (event.getKeyCode() != Keyboard.KEY_SPACE && event.getKeyCode() != Keyboard.KEY_RETURN)
+            case ESCAPE -> pop();
+            default -> {
+                if (event.getKeyCode() != Key.SPACE && event.getKeyCode() != Key.RETURN)
                     super.keyPressed(event);
-                break;
+            }
         }
     }
 
@@ -83,15 +81,9 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
     @Override
     public void mousePressed(@NonNull MouseButton button, int x, int y) {
         switch (button) {
-            case LEFT:
-                placeObject();
-                break;
-            case RIGHT:
-                pop();
-                break;
-            default:
-                super.mousePressed(button, x, y);
-                break;
+            case LEFT -> placeObject();
+            case RIGHT -> pop();
+            default -> super.mousePressed(button, x, y);
         }
     }
 

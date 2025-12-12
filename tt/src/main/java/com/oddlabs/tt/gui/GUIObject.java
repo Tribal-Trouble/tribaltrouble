@@ -7,9 +7,9 @@ import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.guievent.MouseWheelListener;
+import com.oddlabs.tt.input.Key;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.input.Keyboard;
 
 import java.util.Objects;
 import java.util.Set;
@@ -507,7 +507,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	}
 
 	protected void keyPressed(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() == Keyboard.KEY_SPACE || event.getKeyCode() == Keyboard.KEY_RETURN) {
+		if (event.getKeyCode() == Key.SPACE || event.getKeyCode() == Key.RETURN) {
 			mousePressedAll(MouseButton.LEFT, 0, 0);
 		} else {
 			GUIObject parent = getParent();
@@ -524,7 +524,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	}
 
 	protected void keyReleased(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() == Keyboard.KEY_SPACE || event.getKeyCode() == Keyboard.KEY_RETURN) {
+		if (event.getKeyCode() == Key.SPACE || event.getKeyCode() == Key.RETURN) {
 			mouseReleasedAll(MouseButton.LEFT, 0, 0);
 			mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 		} else {

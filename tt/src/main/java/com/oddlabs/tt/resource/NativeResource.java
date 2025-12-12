@@ -85,7 +85,7 @@ public abstract class NativeResource<R extends NativeResource.NativeState> imple
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         cleanable.clean(); // execute the cleaning action immediately
     }
 

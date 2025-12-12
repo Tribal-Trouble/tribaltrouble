@@ -14,9 +14,9 @@ public final class HeightMap {
 	static final int MIN_INTERSECTING_LEVEL = 5;
 	private static final Vector3f plane = new Vector3f();
 
-	private final float[][] world;
-	private final LandscapeLeaf@NonNull [] @NonNull [] landscape_leaves;
-	private final List<int[]> trees;
+	private final float @NonNull [] @NonNull [] world;
+	private final LandscapeLeaf @NonNull [] @NonNull [] landscape_leaves;
+	private final List<int @NonNull []> trees;
 	private final boolean[][] access_grid;
 	private final byte[][] build_grid;
 	private final int meters_per_world;

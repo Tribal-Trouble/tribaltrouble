@@ -177,21 +177,13 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		campaign.getState().setName(name);
 		campaign.getState().setDate(System.currentTimeMillis());
 
-		int difficulty;
-            switch (difficulty_pulldown.getChosenItemIndex()) {
-                case 0:
-                    difficulty = CampaignState.DIFFICULTY_EASY;
-                    break;
-                case 1:
-                    difficulty = CampaignState.DIFFICULTY_NORMAL;
-                    break;
-                case 2:
-                    difficulty = CampaignState.DIFFICULTY_HARD;
-                    break;
-                default:
-                    throw new RuntimeException();
-            }
-		campaign.getState().setDifficulty(difficulty);
+		int difficulty = switch (difficulty_pulldown.getChosenItemIndex()) {
+            case 0 -> CampaignState.DIFFICULTY_EASY;
+            case 1 -> CampaignState.DIFFICULTY_NORMAL;
+            case 2 -> CampaignState.DIFFICULTY_HARD;
+            default -> throw new IllegalArgumentException();
+        };
+        campaign.getState().setDifficulty(difficulty);
 		new_states[new_states.length - 1] = campaign.getState();
 		LoadCampaignBox.saveSavegames(new_states, this);
 		remove();

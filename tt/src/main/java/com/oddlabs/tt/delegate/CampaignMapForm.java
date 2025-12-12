@@ -24,7 +24,6 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
 
 import java.util.ResourceBundle;
 
@@ -127,14 +126,11 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 
 	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
-			case Keyboard.KEY_ESCAPE:
-				getGUIRoot().pushDelegate(new CampaignMapMenu(network, getGUIRoot(), new StaticCamera(getCamera().getState())));
-				break;
-			default:
-				super.keyPressed(event);
-				break;
-		}
+        switch (event.getKeyCode()) {
+            case ESCAPE ->
+                    getGUIRoot().pushDelegate(new CampaignMapMenu(network, getGUIRoot(), new StaticCamera(getCamera().getState())));
+            default -> super.keyPressed(event);
+        }
 	}
 
 	public static void closeCampaign(@NonNull NetworkSelector network, @NonNull GUI gui) {
