@@ -4,7 +4,6 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.Sys;
-import org.lwjgl.opengl.Display;
 
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -16,8 +15,8 @@ public final class Main {
 	public static void fail(@NonNull Throwable t) {
         logger.log(Level.SEVERE, "Critical Failure", t);
 
-        if (Display.isCreated())
-            Display.destroy();
+        if (Renderer.getRenderer().getWindow() != null)
+            Renderer.getRenderer().getWindow().destroy();
 
         if (!Boolean.getBoolean("com.oddlabs.tt.developer")) {
             while (t.getCause() != null) {

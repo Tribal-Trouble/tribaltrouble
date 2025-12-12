@@ -8,7 +8,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Keyboard;
+import com.oddlabs.tt.input.InputProvider;
 
 public final class KeyboardInput {
 	private static final int LITTLE_WARP = 1000;
@@ -23,7 +23,7 @@ public final class KeyboardInput {
 	private boolean menu_down;
 
 	public static void reset() {
-		while (Keyboard.isCreated() && Keyboard.next())
+		while (LocalInput.getInputProvider() != null && LocalInput.getInputProvider().nextKeyboardEvent())
 			;
 	}
 
@@ -62,13 +62,14 @@ public final class KeyboardInput {
 	public void doCheckMagicKeys() {
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		if (deterministic.isPlayback()) {
-			Keyboard.poll();
-			while (Keyboard.next()) {
-				int event_key_code = Keyboard.getEventKey();
+            InputProvider input = LocalInput.getInputProvider();
+			input.pollKeyboard();
+			while (input.nextKeyboardEvent()) {
+				int event_key_code = input.getEventKey();
 				var event_key = Key.fromLwjglCode(event_key_code);
 				if (Key.KEY_UNKNOWN != event_key) {
-					boolean event_key_state = Keyboard.getEventKeyState();
-					checkMagicKey(deterministic, event_key_state, event_key, true, Keyboard.isRepeatEvent());
+					boolean event_key_state = input.getEventKeyState();
+					checkMagicKey(deterministic, event_key_state, event_key, true, input.isRepeatEvent());
 				}
 			}
 		}
@@ -79,16 +80,19 @@ public final class KeyboardInput {
 	}
 
 	public boolean doPoll(@NonNull GUIRoot gui_root) {
+        InputProvider input = LocalInput.getInputProvider();
+        if (input == null) return false;
+        
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		boolean result = false;
-		Keyboard.poll();
-		while (deterministic.log(Keyboard.next())) {
+		input.pollKeyboard();
+		while (deterministic.log(input.nextKeyboardEvent())) {
 			result = true;
-			int event_key_code = deterministic.log(Keyboard.getEventKey());
+			int event_key_code = deterministic.log(input.getEventKey());
 			Key event_key = Key.fromLwjglCode(event_key_code);
-			boolean event_key_state = deterministic.log(Keyboard.getEventKeyState());
-			char event_character = deterministic.log(Keyboard.getEventCharacter());
-			boolean repeat_event = deterministic.log(Keyboard.isRepeatEvent());
+			boolean event_key_state = deterministic.log(input.getEventKeyState());
+			char event_character = deterministic.log(input.getEventCharacter());
+			boolean repeat_event = deterministic.log(input.isRepeatEvent());
 			if (Key.KEY_UNKNOWN != event_key) {
 				switch (event_key) {
 					case LSHIFT:
@@ -107,7 +111,7 @@ public final class KeyboardInput {
 				if (checkMagicKey(deterministic, event_key_state, event_key, false, repeat_event))
 					continue;
 			}
-			if (event_key_code == Keyboard.KEY_NONE) {
+			if (event_key_code == 0) {
 				LocalInput.keyTyped(gui_root, event_key_code, event_character);
 			} else if (event_key_state) {
 				LocalInput.keyPressed(gui_root, event_key_code, event_character, shift_down, control_down, menu_down, repeat_event);

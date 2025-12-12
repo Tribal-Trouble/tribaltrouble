@@ -5,6 +5,7 @@ import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.input.InputProvider;
 import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.render.Renderer;
@@ -13,23 +14,20 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
-import org.lwjgl.opengl.Display;
 
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public final class LocalInput {
     private static final Logger logger = Logger.getLogger(LocalInput.class.getName());
 
 	private static int mouse_x;
 	private static int mouse_y;
+    
+    private static InputProvider inputProvider;
+
 	private static boolean global_menu_state = false;
 	private static boolean global_control_state = false;
 	private static boolean global_shift_state = false;
@@ -169,27 +167,15 @@ public final class LocalInput {
 
 	public static @NonNull SerializableDisplayMode @NonNull [] getAvailableModes() {
 		try {
-			return Arrays.stream(Display.getAvailableDisplayModes())
-					.filter(SerializableDisplayMode::isModeValid)
-					.map(SerializableDisplayMode::new)
-					.collect(Collectors.toMap(
-							mode -> mode.getWidth() + "x" + mode.getHeight(),
-							Function.identity(),
-							BinaryOperator.maxBy(Comparator.comparing(SerializableDisplayMode::getBitsPerPixel)
-									.thenComparing(SerializableDisplayMode::getFrequency))
-					))
-					.values()
-					.stream()
-					.sorted()
-					.toArray(SerializableDisplayMode[]::new);
-		} catch (LWJGLException e) {
+            return Renderer.getRenderer().getWindow().getAvailableDisplayModes();
+		} catch (Exception e) {
 			throw new IllegalStateException("Could not get available modes", e);
 		}
 	}
 
 	public static @NonNull SerializableDisplayMode getCurrentMode() {
 		return LocalEventQueue.getQueue().getDeterministic()
-                .log(new SerializableDisplayMode(Display.getDisplayMode()));
+                .log(Renderer.getRenderer().getWindow().getDisplayMode());
 	}
 
 	public static int getNativeCursorCaps() {
@@ -215,10 +201,15 @@ public final class LocalInput {
 	}
 
 	public static void init() {
+        inputProvider = new com.oddlabs.tt.input.LWJGL2InputProvider();
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
-		mouse_x = deterministic.log(org.lwjgl.input.Mouse.getX());
-		mouse_y = deterministic.log(org.lwjgl.input.Mouse.getY());
+		mouse_x = deterministic.log(inputProvider.getMouseX());
+		mouse_y = deterministic.log(inputProvider.getMouseY());
 	}
+    
+    public static com.oddlabs.tt.input.InputProvider getInputProvider() {
+        return inputProvider;
+    }
 
 	private void modeSwitchedLater(@NonNull SerializableDisplayMode new_mode) {
 		Settings.getSettings().fullscreen = fullscreen;
@@ -233,7 +224,7 @@ public final class LocalInput {
 	}
 
 	private void modeSwitched() {
-		SerializableDisplayMode new_mode = LocalEventQueue.getQueue().getDeterministic().log(new SerializableDisplayMode(Display.getDisplayMode()));
+		SerializableDisplayMode new_mode = LocalEventQueue.getQueue().getDeterministic().log(Renderer.getRenderer().getWindow().getDisplayMode());
 		view_width = new_mode.getWidth();
 		view_height = new_mode.getHeight();
 		logger.info("Switched mode to " + new_mode);
@@ -253,9 +244,10 @@ public final class LocalInput {
 	public static void toggleFullscreen() {
 		fullscreen = !fullscreen;
 		try {
-			Display.setFullscreen(fullscreen && !LocalEventQueue.getQueue().getDeterministic().isPlayback());
+            boolean fs = fullscreen && !LocalEventQueue.getQueue().getDeterministic().isPlayback();
+            Renderer.getRenderer().getWindow().setFullscreen(fs);
 			Renderer.resetInput();
-		} catch (LWJGLException e) {
+		} catch (Exception e) {
 			logger.log(java.util.logging.Level.SEVERE, "Mode switching failed with exception", e);
 			throw new RuntimeException("Mode switching failed");
 		}
@@ -263,14 +255,20 @@ public final class LocalInput {
 
 	public void switchMode(@NonNull SerializableDisplayMode mode, boolean switch_now) {
 		if (switch_now) {
-			SerializableDisplayMode.switchMode(mode);
+            try {
+                Renderer.getRenderer().getWindow().setDisplayMode(mode);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e);
+            }
 			modeSwitchedNow(mode);
 		} else
 			modeSwitchedLater(mode);
 	}
 
-	public void setModeToNearest(@NonNull SerializableDisplayMode mode) throws LWJGLException {
-		SerializableDisplayMode.setModeToNearest(mode);
+	public void setModeToNearest(@NonNull SerializableDisplayMode mode) throws Exception {
+        // Use window create to ensure window is created/resized
+        boolean fs = Settings.getSettings().fullscreen;
+        Renderer.getRenderer().getWindow().create(mode, fs);
 		modeSwitchedNow(mode);
 	}
 

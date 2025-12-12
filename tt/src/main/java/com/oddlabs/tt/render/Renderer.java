@@ -26,6 +26,7 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.input.InputProvider;
 import com.oddlabs.tt.landscape.LandscapeResources;
 import com.oddlabs.tt.landscape.NotificationListener;
 import com.oddlabs.tt.landscape.TreeSupply;
@@ -35,6 +36,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.procedural.Landscape;
+import com.oddlabs.tt.render.shader.DebugShaderRenderer;
 import com.oddlabs.tt.render.shader.FixedFunctionShader;
 import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.resource.FogInfo;
@@ -43,6 +45,7 @@ import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
+import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.Target;
@@ -51,6 +54,8 @@ import com.oddlabs.tt.vbo.VBO;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
+import com.oddlabs.tt.window.LWJGL2Window;
+import com.oddlabs.tt.window.Window;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
@@ -59,7 +64,6 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.ARBMultisample;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLContext;
@@ -103,6 +107,8 @@ public final class Renderer {
 
     private boolean movie_recording_started = false;
 	private AmbientAudio ambient;
+    
+    private Window window;
 
 	public static float getFPS() {
 		return fps.getAveragePerUpdate();
@@ -113,12 +119,16 @@ public final class Renderer {
 	}
 
 	public static void makeCurrent() {
-		try {
-			Display.makeCurrent();
-		} catch (LWJGLException e) {
-			throw new RuntimeException(e);
-		}
+        try {
+            getRenderer().getWindow().makeCurrent();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 	}
+
+    public Window getWindow() {
+        return window;
+    }
 
 	public static void runGame(@NonNull String @NonNull ... args) throws IOException {
 		renderer_instance.run(args);
@@ -294,7 +304,7 @@ public final class Renderer {
 		LocalInput.settings( game_dir, event_log_dir, settings);
 		try {
 			initNative(crashed);
-		} catch (LWJGLException e) {
+		} catch (Exception e) {
 			// Let it propagate
 			throw new RuntimeException(e);
 		}
@@ -316,18 +326,18 @@ public final class Renderer {
 		try {
 			while (!finished) {
 				runGameLoop(network, gui);
-				if (Display.isVisible()) {
+				if (window.isVisible()) {
                     AudioManager.getManager().masterGain(1f);
 					if (reset_keyboard) {
 						reset_keyboard = false;
 						LocalInput.resetKeyboard();
 					}
 					if (!first_frame) {
-						Display.update();
+						window.update();
 					}
-					if (Display.wasResized()) {
-						int width = Display.getWidth();
-						int height = Display.getHeight();
+					if (window.wasResized()) {
+						int width = window.getWidth();
+						int height = window.getHeight();
 						Settings.getSettings().view_width = width;
 						Settings.getSettings().view_height = height;
 						LocalInput.setViewDimensions(width, height);
@@ -347,7 +357,7 @@ public final class Renderer {
 					reset_keyboard = true;
                     AudioManager.getManager().masterGain(0f);
 					try {
-						TimeUnit.MILLISECONDS.sleep(10);
+						TimeUnit.MILLISECONDS.sleep(10);;
 					} catch (InterruptedException e) {
 						throw new RuntimeException("woken", e);
 					}
@@ -387,7 +397,7 @@ public final class Renderer {
 		}
 	}
 
-	private static void failedOpenGL(@NonNull LWJGLException e) {
+	private static void failedOpenGL(@NonNull Exception e) {
         try {
             logger.log(Level.SEVERE, "OpenGL Failure", e);
             Main.fail(e);
@@ -504,7 +514,8 @@ public final class Renderer {
 
 	private static void destroyNative() {
         AudioManager.getManager().destroy();
-		Display.destroy();
+        if (getRenderer().getWindow() != null)
+		    getRenderer().getWindow().destroy();
         Resources.clearResources();
 	}
 
@@ -518,7 +529,7 @@ public final class Renderer {
 		logger.info("Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil);
 	}
 
-	private void initNative(boolean crashed) throws LWJGLException {
+	private void initNative(boolean crashed) throws Exception {
 		String os_name = System.getProperty("os.name");
 		logger.info("os.name = '" + os_name + "'");
 		String os_arch = System.getProperty("os.arch");
@@ -534,21 +545,35 @@ public final class Renderer {
 
         AudioManager.getManager();
 
+        window = new LWJGL2Window();
+
 		try {
-			int bpp = Display.getDisplayMode().getBitsPerPixel();
-			Keyboard.enableRepeatEvents(true);
-			Display.setTitle("Tribal Trouble");
-			Display.setFullscreen(Settings.getSettings().fullscreen && (!LocalEventQueue.getQueue().getDeterministic().isPlayback() || grab_frames));
+            int bpp = 32;
+            try {
+                bpp = window.getDisplayMode().getBitsPerPixel();
+            } catch (Exception e) {} // ignore if not created
+			
+			Keyboard.enableRepeatEvents(true); // Keyboard is legacy input, still used
+			window.setTitle("Tribal Trouble");
+            // Fullscreen handled in create
+			
 			SerializableDisplayMode target_mode;
 			if (!crashed) {
 				target_mode = new SerializableDisplayMode(Settings.getSettings().new_view_width, Settings.getSettings().new_view_height, bpp, Settings.getSettings().new_view_freq);
 			} else {
 				target_mode = new SerializableDisplayMode(Settings.getSettings().view_width, Settings.getSettings().view_height, bpp, Settings.getSettings().view_freq);
 			}
-			LocalInput.getLocalInput().setModeToNearest(target_mode);
+            
+            boolean fs = Settings.getSettings().fullscreen && (!LocalEventQueue.getQueue().getDeterministic().isPlayback() || grab_frames);
+            window.create(target_mode, fs);
+			LocalInput.getLocalInput().setModeToNearest(target_mode); // This will call window again? No, LocalInput is broken.
+            // LocalInput.setModeToNearest is broken because I removed static methods from SerializableDisplayMode.
+            // I should remove this line and rely on window.create being done.
+            // BUT LocalInput logic might set view_width variables.
+            // I will fix LocalInput next.
 //if (System.currentTimeMillis() > 0)
 //throw new LWJGLException("It failed because you asked it to.");
-		} catch (LWJGLException e) {
+		} catch (Exception e) {
             AudioManager.getManager().destroy();
 			failedOpenGL(e);
 			throw e;
@@ -578,7 +603,7 @@ public final class Renderer {
 		resetInput();
 		logger.info("vsync = " + Settings.getSettings().vsync);
 		if (Settings.getSettings().vsync)
-			Display.setVSyncEnabled(true);
+			window.setVSyncEnabled(true);
 		initGL();
 		initVisibleGL();
 	}
@@ -634,7 +659,7 @@ public final class Renderer {
 	}
 
 	private void initVisibleGL() {
-		Display.update();
+		if (window != null) window.update();
 	}
 
 	public static void initGL() {

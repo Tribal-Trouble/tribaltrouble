@@ -123,7 +123,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		cb_fullscreen = new CheckBox(LocalInput.inFullscreen(), Utils.getBundleString(bundle, "fullscreen"), Utils.getBundleString(bundle, "fullscreen_tip"));
 		cb_fullscreen.addCheckBoxListener(_ -> {
             DisplayChangeForm display_change_form = new DisplayChangeForm(
-                    switch_now -> SerializableDisplayMode.setFullscreen(cb_fullscreen.isMarked(), switch_now));
+                    switch_now -> LocalInput.toggleFullscreen());
             gui_root.addModalForm(display_change_form);
         });
 		group_fullscreen.addChild(cb_fullscreen);
@@ -190,7 +190,7 @@ public abstract class AbstractOptionsMenu extends Form {
 
 		addChild(mode_list_box);
 
-		SerializableDisplayMode[] modes = SerializableDisplayMode.getAvailableModes();
+		SerializableDisplayMode[] modes = LocalInput.getAvailableModes();
 		SerializableDisplayMode current_mode = LocalInput.getCurrentMode();
 //		PulldownMenu<Void> mode_menu = new PulldownMenu<>();
 		Row<SerializableDisplayMode, Label> current_row = null;

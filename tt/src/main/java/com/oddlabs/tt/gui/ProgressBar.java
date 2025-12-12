@@ -3,10 +3,10 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.Display;
 
 import java.util.ResourceBundle;
 
@@ -120,6 +120,6 @@ public final class ProgressBar extends GUIObject {
 
 	private void update() {
 		network.tick();
-		Display.update();
+		Renderer.getRenderer().getWindow().update();
 	}
 }
