@@ -6,6 +6,8 @@ import com.oddlabs.tt.landscape.LandscapeTileIndices;
 import com.oddlabs.tt.render.shader.LandscapeShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.vbo.FloatVBO;
+import com.oddlabs.tt.vbo.VertexArray;
+import com.oddlabs.tt.vbo.VertexArrays;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
@@ -25,6 +27,7 @@ final class LandscapeTileVertices {
 	private final int elements_per_patch;
 	private final int num_patches;
 	private final HeightMap heightmap;
+    private VertexArray[] mainVAOs;
 
 	private static final Vector3f v1 = new Vector3f();
 	private static final Vector3f v2 = new Vector3f();
@@ -76,6 +79,21 @@ final class LandscapeTileVertices {
 		patch_lightmap_texcoord_buffer.put(lightmap_texcoords);
 	}
 
+    public void init(LandscapeShader shader) {
+        if (!VertexArrays.isSupported()) return;
+        
+        mainVAOs = new VertexArray[num_patches * num_patches];
+        for (int y = 0; y < num_patches; y++) {
+            for (int x = 0; x < num_patches; x++) {
+                VertexArray vao = VertexArrays.create();
+                vao.bind();
+                bindAttributes(shader, x, y);
+                vao.unbind();
+                mainVAOs[x + y * num_patches] = vao;
+            }
+        }
+    }
+
 	public void reload(int patch_x, int patch_y) {
 		edit_buffer.clear();
 		// Need to re-calculate normals and texcoords for the reloaded patch as well
@@ -106,6 +124,22 @@ final class LandscapeTileVertices {
 		return (patch_x + patch_y * num_patches) * patch_size * patch_size * 2;
 	}
 
+    public void bind(int patch_x, int patch_y, LandscapeShader shader) {
+        if (mainVAOs != null) {
+            mainVAOs[patch_x + patch_y * num_patches].bind();
+        } else {
+            bindAttributes(shader, patch_x, patch_y);
+        }
+    }
+    
+    public void unbind(LandscapeShader shader) {
+        if (mainVAOs != null) {
+            VertexArrays.unbind();
+        } else {
+            unbindAttributes(shader);
+        }
+    }
+
     public void bindAttributes(@NonNull ShaderProgram shader, int patch_x, int patch_y) {
         int vertex_position = getVertexIndex(patch_x, patch_y);
         int normal_position = getNormalIndex(patch_x, patch_y);
@@ -134,6 +168,17 @@ final class LandscapeTileVertices {
             patch_lightmap_texcoord_buffer.vertexAttribPointer(tex1Loc, 2, 0, (long) texcoord_position * Float.BYTES);
             GL20.glEnableVertexAttribArray(tex1Loc);
         }
+    }
+    
+    public void unbindAttributes(@NonNull ShaderProgram shader) {
+        int posLoc = shader.getAttributeLocation(LandscapeShader.Attributes.POSITION);
+        if (posLoc != -1) GL20.glDisableVertexAttribArray(posLoc);
+        int normLoc = shader.getAttributeLocation(LandscapeShader.Attributes.NORMAL);
+        if (normLoc != -1) GL20.glDisableVertexAttribArray(normLoc);
+        int tex0Loc = shader.getAttributeLocation(LandscapeShader.Attributes.TEX_COORD_0);
+        if (tex0Loc != -1) GL20.glDisableVertexAttribArray(tex0Loc);
+        int tex1Loc = shader.getAttributeLocation(LandscapeShader.Attributes.TEX_COORD_1);
+        if (tex1Loc != -1) GL20.glDisableVertexAttribArray(tex1Loc);
     }
 
 	private void fillVertexData(@NonNull FloatBuffer vertex_array, @NonNull FloatBuffer normal_array, @NonNull FloatBuffer colormap_texcoord_array, @NonNull FloatBuffer lightmap_texcoord_array, int grid_origin_x, int grid_origin_y) {

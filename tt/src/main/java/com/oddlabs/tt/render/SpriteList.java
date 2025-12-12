@@ -2,14 +2,18 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.geometry.AnimationInfo;
 import com.oddlabs.geometry.SpriteInfo;
+import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
+import com.oddlabs.tt.vbo.VertexArray;
+import com.oddlabs.tt.vbo.VertexArrays;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
@@ -25,6 +29,7 @@ public final class SpriteList {
 	private final @NonNull ShortVBO indices;
 	private final @NonNull FloatVBO vertices_and_normals;
 	private final @NonNull FloatVBO texcoords;
+    private VertexArray vao;
 
 	public SpriteList(@NonNull SpriteFile sprite_file) {
 		Object[] sprites_and_animations = Utils.loadObject(sprite_file.getURL());
@@ -86,6 +91,30 @@ public final class SpriteList {
             bound.maximizeXYPlane();
         }
 	}
+    
+    public void initVAO(SpriteShader shader) {
+        if (!VertexArrays.isSupported() || vao != null) return;
+        
+        vao = VertexArrays.create();
+        vao.bind();
+        
+        int texCoordLoc = shader.getAttributeLocation(SpriteShader.Attributes.TEX_COORD);
+        int posLoc = shader.getAttributeLocation(SpriteShader.Attributes.POSITION);
+        int normLoc = shader.getAttributeLocation(SpriteShader.Attributes.NORMAL);
+
+        indices.makeCurrent();
+        
+        // Enable arrays
+        GL20.glEnableVertexAttribArray(texCoordLoc);
+        GL20.glEnableVertexAttribArray(posLoc);
+        if (normLoc >= 0) GL20.glEnableVertexAttribArray(normLoc);
+        
+        vao.unbind();
+    }
+    
+    public VertexArray getVAO() {
+        return vao;
+    }
 
 	public float @NonNull [] getClearColor() {
 		return getSprite(0).getClearColor();

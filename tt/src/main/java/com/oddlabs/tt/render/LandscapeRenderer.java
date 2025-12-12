@@ -111,6 +111,9 @@ public final class LandscapeRenderer implements Animated {
         }
         this.blendInfos = world_info.blend_infos;
         
+        // Initialize VAOs if supported
+        landscape_vertices.init(shader);
+        
         // Pack alpha maps into two RGBA textures
         GLImage ref = blendInfos[1].getSourceImage(); // Use Dirt alpha as reference for size
         int width = ref.getWidth();
@@ -170,15 +173,11 @@ public final class LandscapeRenderer implements Animated {
         return getPatchLevel(leaf.getPatchX(), leaf.getPatchY());
     }
 
-    private @NonNull PatchLevel getPatchWrapped(int patch_x, int patch_y) {
+    private PatchLevel getPatchWrapped(int patch_x, int patch_y) {
         var size = patch_levels.length;
         patch_x = (patch_x + size) % size;
         patch_y = (patch_y + size) % size;
         return getPatchLevel(patch_x, patch_y);
-    }
-
-    void bindLeaf(@NonNull LandscapeLeaf leaf) {
-        landscape_vertices.bindAttributes(shader, leaf.getPatchX(), leaf.getPatchY());
     }
 
     private void clearRenderList() {
@@ -186,22 +185,13 @@ public final class LandscapeRenderer implements Animated {
     }
 
     private void renderPatch(@NonNull LandscapeLeaf leaf) {
-        bindLeaf(leaf);
+        landscape_vertices.bind(leaf.getPatchX(), leaf.getPatchY(), shader);
         PatchLevel patch_level = getPatchLevel(leaf);
         int patch_index = world.getLandscapeIndices().getPatchIndex(patch_level.getLevel(), patch_level.getBorderSet());
         int triangle_index = world.getLandscapeIndices().getTriangleIndex(patch_index);
         int triangle_index2 = world.getLandscapeIndices().getTriangleIndex(patch_index + 1);
         int num_triangles = triangle_index2 - triangle_index;
         indices_vbo.drawElements(GL11.GL_TRIANGLES, num_triangles * 3, triangle_index * 3);
-        
-        int posLoc = shader.getAttributeLocation(LandscapeShader.Attributes.POSITION);
-        if (posLoc != -1) GL20.glDisableVertexAttribArray(posLoc);
-        int normLoc = shader.getAttributeLocation(LandscapeShader.Attributes.NORMAL);
-        if (normLoc != -1) GL20.glDisableVertexAttribArray(normLoc);
-        int tex0Loc = shader.getAttributeLocation(LandscapeShader.Attributes.TEX_COORD_0);
-        if (tex0Loc != -1) GL20.glDisableVertexAttribArray(tex0Loc);
-        int tex1Loc = shader.getAttributeLocation(LandscapeShader.Attributes.TEX_COORD_1);
-        if (tex1Loc != -1) GL20.glDisableVertexAttribArray(tex1Loc);
     }
 
     public void pick(@NonNull CameraState camera, boolean visible_override, @NonNull Set<LandscapeLeaf> set) {
@@ -277,8 +267,13 @@ public final class LandscapeRenderer implements Animated {
             }
 
             for (LandscapeLeaf patch : render_list) {
+                if (Globals.isBoundsEnabled(BoundingMode.LANDSCAPE)) {
+                    RenderTools.draw(patch, BoundingMode.LANDSCAPE, 1f, 0f, 0f);
+                    shader.use();
+                }
                 if (Globals.draw_landscape) renderPatch(patch);
             }
+            landscape_vertices.unbind(shader);
             
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
 

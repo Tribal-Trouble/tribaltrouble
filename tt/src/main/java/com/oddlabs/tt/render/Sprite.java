@@ -8,6 +8,8 @@ import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.BoundingBox;
+import com.oddlabs.tt.vbo.VertexArray;
+import com.oddlabs.tt.vbo.VertexArrays;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
@@ -226,13 +228,23 @@ public final class Sprite {
     }
 
     public void renderShader(@NonNull SpriteShader shader, int animation, float anim_ticks, @NonNull SpriteList sprite_list) {
+        VertexArray vao = sprite_list.getVAO();
+        if (vao == null) {
+            sprite_list.initVAO(shader);
+            vao = sprite_list.getVAO();
+        }
+
         int texCoordLoc = shader.getAttributeLocation(SpriteShader.Attributes.TEX_COORD);
         int posLoc = shader.getAttributeLocation(SpriteShader.Attributes.POSITION);
         int normLoc = shader.getAttributeLocation(SpriteShader.Attributes.NORMAL);
 
+        if (VertexArrays.isSupported() && vao != null) {
+            vao.bind();
+        }
+
         try {
             sprite_list.getTexcoords().vertexAttribPointer(texCoordLoc, 2, 0, texcoords_offset * 4L);
-            GL20.glEnableVertexAttribArray(texCoordLoc);
+            if (!VertexArrays.isSupported()) GL20.glEnableVertexAttribArray(texCoordLoc);
 
             float anim_position = anim_ticks * cpw_array[animation];
             int frame_non_capped = (int) (anim_position * animation_length_array[animation]);
@@ -243,20 +255,24 @@ public final class Sprite {
             int normal_index = vertex_index + frame_size;
 
             sprite_list.getVerticesAndNormals().vertexAttribPointer(posLoc, 3, 0, vertex_index * 4L);
-            GL20.glEnableVertexAttribArray(posLoc);
+            if (!VertexArrays.isSupported()) GL20.glEnableVertexAttribArray(posLoc);
 
             if (normLoc >= 0) {
                 sprite_list.getVerticesAndNormals().vertexAttribPointer(normLoc, 3, 0, normal_index * 4L);
-                GL20.glEnableVertexAttribArray(normLoc);
+                if (!VertexArrays.isSupported()) GL20.glEnableVertexAttribArray(normLoc);
             }
 
             sprite_list.getIndices().drawElements(GL11.GL_TRIANGLES, num_triangles * 3, indices_offset);
         } finally {
-            GL20.glDisableVertexAttribArray(posLoc);
-            if (normLoc >= 0) {
-                GL20.glDisableVertexAttribArray(normLoc);
+            if (VertexArrays.isSupported() && vao != null) {
+                vao.unbind();
+            } else {
+                GL20.glDisableVertexAttribArray(posLoc);
+                if (normLoc >= 0) {
+                    GL20.glDisableVertexAttribArray(normLoc);
+                }
+                GL20.glDisableVertexAttribArray(texCoordLoc);
             }
-            GL20.glDisableVertexAttribArray(texCoordLoc);
         }
     }
 
