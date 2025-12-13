@@ -36,11 +36,12 @@ public final class Globals {
 	public static boolean draw_particles = true;
 	public static boolean draw_water = true;
 	public static final boolean draw_sky = true;
-	public static boolean draw_axes = true;
+	public static boolean draw_axes = false;
 	public static boolean draw_detail = true;
 	public static boolean draw_shadows = true;
 	public static boolean draw_light = true;
 	public static boolean draw_plants = true;
+	public static boolean draw_debug_maps = false;
 
 	public static final boolean line_mode = false;
 	public static boolean clear_frame_buffer = false;
