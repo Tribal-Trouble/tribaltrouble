@@ -25,12 +25,20 @@ public final class RenderTools {
         ALL_INSIDE
     }
 
+    /**
+     * Translates and rotates the matrix stack to position and orient a model.
+     * The rotation is calculated from the direction vector (dir_x, dir_y).
+     */
     static void translateAndRotate(@NonNull Model model, @NonNull MatrixStack stack) {
         translateAndRotate(model.getPositionX(), model.getPositionY(), model.getPositionZ(), model.getDirectionX(), model.getDirectionY(), stack);
     }
 
+	/**
+	 * Translates and rotates the matrix stack to position and orient a model.
+	 * The rotation is calculated from the direction vector (dir_x, dir_y).
+	 */
     static void translateAndRotate(float x, float y, float z, float dir_x, float dir_y, @NonNull MatrixStack stack) {
-        float angle = (float) Math.atan2(dir_y, dir_x);
+        float angle = (float) Math.toDegrees(Math.atan2(dir_y, dir_x));
         stack.translate(x, y, z).rotate(angle, 0f, 0f, 1f);
     }
 
