@@ -146,6 +146,6 @@ public final class LandscapeShader extends ShaderProgram implements FogShader {
         }
         """;
     public LandscapeShader() {
-        super(VERTEX_SHADER, FRAGMENT_SHADER);
+        super(VERTEX_SHADER, FRAGMENT_SHADER, STANDARD_ATTRIBUTES);
     }
 }

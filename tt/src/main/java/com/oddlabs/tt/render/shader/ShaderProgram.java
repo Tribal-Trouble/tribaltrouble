@@ -24,6 +24,18 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
     private static final AtomicReference<ShaderProgram> inUse = new AtomicReference<>();
     private static final FloatBuffer matrixBuffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(16)).clear();
 
+    public interface AttributeBinder {
+        void bind(int programId);
+    }
+
+    public static final AttributeBinder STANDARD_ATTRIBUTES = programId -> {
+        GL20.glBindAttribLocation(programId, 0, "a_position");
+        GL20.glBindAttribLocation(programId, 1, "a_normal");
+        GL20.glBindAttribLocation(programId, 2, "a_color");
+        GL20.glBindAttribLocation(programId, 3, "a_texCoord0");
+        GL20.glBindAttribLocation(programId, 4, "a_texCoord1");
+    };
+
     static final class Program extends NativeResource.NativeState {
         private final int programId;
         private final int vertexShaderId;
@@ -31,13 +43,18 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
         private final Map<@NonNull String, @NonNull Integer> uniformLocations = new HashMap<>();
         private final Map<@NonNull String, @NonNull Integer> attributeLocations = new HashMap<>();
 
-        Program(int vertexShaderId, int fragmentShaderId) {
+        Program(int vertexShaderId, int fragmentShaderId, @Nullable AttributeBinder binder) {
             this.vertexShaderId = vertexShaderId;
             this.fragmentShaderId = fragmentShaderId;
             programId = GL20.glCreateProgram();
 
             GL20.glAttachShader(programId, vertexShaderId);
             GL20.glAttachShader(programId, fragmentShaderId);
+
+            if (binder != null) {
+                binder.bind(programId);
+            }
+
             GL20.glLinkProgram(programId);
 
             if (GL20.glGetProgrami(programId, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
@@ -56,11 +73,15 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
     }
 
     public ShaderProgram(int vertexProgramId, int fragmentProgramId) {
-        super(new Program(vertexProgramId, fragmentProgramId));
+        super(new Program(vertexProgramId, fragmentProgramId, null));
     }
 
     public ShaderProgram(@NonNull String vertexSource, @NonNull String fragmentSource) throws IllegalArgumentException {
-        this(compileShader(GL20.GL_VERTEX_SHADER, vertexSource), compileShader(GL20.GL_FRAGMENT_SHADER, fragmentSource));
+        this(vertexSource, fragmentSource, null);
+    }
+
+    public ShaderProgram(@NonNull String vertexSource, @NonNull String fragmentSource, @Nullable AttributeBinder binder) throws IllegalArgumentException {
+        super(new Program(compileShader(GL20.GL_VERTEX_SHADER, vertexSource), compileShader(GL20.GL_FRAGMENT_SHADER, fragmentSource), binder));
     }
 
     private static int compileShader(int type, @NonNull String source) throws IllegalArgumentException {

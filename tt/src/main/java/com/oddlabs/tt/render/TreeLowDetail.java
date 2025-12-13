@@ -181,14 +181,16 @@ public final class TreeLowDetail {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, lowdetail_textures[terrain.ordinal()].getHandle());
         shader.setUniform(TreeLowDetailShader.Uniforms.TEXTURE_0, 0);
 
-        if (VertexArrays.isSupported()) {
+        boolean useVao = VertexArrays.isSupported();
+
+        if (useVao) {
             vao.bind();
         } else {
             setupAttributes();
         }
 
         return () -> {
-            if (VertexArrays.isSupported()) {
+            if (useVao) {
                 vao.unbind();
             } else {
                 int posLoc = shader.getAttributeLocation(TreeLowDetailShader.Attributes.POSITION);

@@ -148,6 +148,6 @@ public final class FixedFunctionShader extends ShaderProgram implements FogShade
 		""";
 	
 	public FixedFunctionShader() {
-        super(VERTEX_SHADER, FRAGMENT_SHADER);
+        super(VERTEX_SHADER, FRAGMENT_SHADER, STANDARD_ATTRIBUTES);
     }
 }

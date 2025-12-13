@@ -238,13 +238,16 @@ public final class Sprite {
         int posLoc = shader.getAttributeLocation(SpriteShader.Attributes.POSITION);
         int normLoc = shader.getAttributeLocation(SpriteShader.Attributes.NORMAL);
 
-        if (VertexArrays.isSupported() && vao != null) {
+        boolean useVao = VertexArrays.isSupported() && vao != null;
+        if (useVao) {
             vao.bind();
         }
 
         try {
-            sprite_list.getTexcoords().vertexAttribPointer(texCoordLoc, 2, 0, texcoords_offset * 4L);
-            if (!VertexArrays.isSupported()) GL20.glEnableVertexAttribArray(texCoordLoc);
+            if (texCoordLoc >= 0) {
+                sprite_list.getTexcoords().vertexAttribPointer(texCoordLoc, 2, 0, texcoords_offset * 4L);
+                if (!useVao) GL20.glEnableVertexAttribArray(texCoordLoc);
+            }
 
             float anim_position = anim_ticks * cpw_array[animation];
             int frame_non_capped = (int) (anim_position * animation_length_array[animation]);
@@ -254,24 +257,24 @@ public final class Sprite {
             int vertex_index = buffer_indices[animation] + frame_index * frame_size;
             int normal_index = vertex_index + frame_size;
 
-            sprite_list.getVerticesAndNormals().vertexAttribPointer(posLoc, 3, 0, vertex_index * 4L);
-            if (!VertexArrays.isSupported()) GL20.glEnableVertexAttribArray(posLoc);
+            if (posLoc >= 0) {
+                sprite_list.getVerticesAndNormals().vertexAttribPointer(posLoc, 3, 0, vertex_index * 4L);
+                if (!useVao) GL20.glEnableVertexAttribArray(posLoc);
+            }
 
             if (normLoc >= 0) {
                 sprite_list.getVerticesAndNormals().vertexAttribPointer(normLoc, 3, 0, normal_index * 4L);
-                if (!VertexArrays.isSupported()) GL20.glEnableVertexAttribArray(normLoc);
+                if (!useVao) GL20.glEnableVertexAttribArray(normLoc);
             }
 
             sprite_list.getIndices().drawElements(GL11.GL_TRIANGLES, num_triangles * 3, indices_offset);
         } finally {
-            if (VertexArrays.isSupported() && vao != null) {
+            if (useVao) {
                 vao.unbind();
             } else {
-                GL20.glDisableVertexAttribArray(posLoc);
-                if (normLoc >= 0) {
-                    GL20.glDisableVertexAttribArray(normLoc);
-                }
-                GL20.glDisableVertexAttribArray(texCoordLoc);
+                if (posLoc >= 0) GL20.glDisableVertexAttribArray(posLoc);
+                if (normLoc >= 0) GL20.glDisableVertexAttribArray(normLoc);
+                if (texCoordLoc >= 0) GL20.glDisableVertexAttribArray(texCoordLoc);
             }
         }
     }

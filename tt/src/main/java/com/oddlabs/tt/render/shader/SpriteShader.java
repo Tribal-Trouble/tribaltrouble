@@ -124,6 +124,6 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
         """;
 
     public SpriteShader() {
-        super(VERTEX_SHADER, FRAGMENT_SHADER);
+        super(VERTEX_SHADER, FRAGMENT_SHADER, STANDARD_ATTRIBUTES);
     }
 }
