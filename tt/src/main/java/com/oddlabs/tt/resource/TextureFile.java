@@ -139,7 +139,7 @@ public final class TextureFile extends File<Texture> {
 			return switch (getDXTImage().getFourCC()) {
 				case DXTImage.FOURCC_DXT1 -> EXTTextureCompressionS3TC.GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
 				case DXTImage.FOURCC_DXT5 -> EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-				default -> throw new IllegalStateException("Unexpected value: " + getDXTImage().getFourCC());
+				default -> throw new IllegalStateException("Unsupported DXT format: " + Integer.toHexString(getDXTImage().getFourCC()));
 			};
 		}
 		return internal_format;
