@@ -30,7 +30,6 @@ public final class EmitterRenderer {
     private final Vector3f right_minus_up = new Vector3f();
 
     private final Matrix4f view_matrix = new Matrix4f();
-    private final CameraState tmp_camera = new CameraState();
 
     private static final int MAX_PARTICLES = 10000;
     private static final int FLOATS_PER_VERTEX = 9; // x,y,z,u,v,r,g,b,a
@@ -62,11 +61,9 @@ public final class EmitterRenderer {
     public void render(@NonNull RenderQueues render_queues, @NonNull List<Emitter> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (emitter_queue.isEmpty()) return;
 
-        tmp_camera.set(state);
-        view_matrix.identity();
-        tmp_camera.setView(view_matrix);
-        float rx = tmp_camera.getModelView().m00(); float ry = tmp_camera.getModelView().m10(); float rz = tmp_camera.getModelView().m20();
-        float upx = tmp_camera.getModelView().m01(); float upy = tmp_camera.getModelView().m11(); float upz = tmp_camera.getModelView().m21();
+        view_matrix.set(state.getModelView());
+        float rx = view_matrix.m00(); float ry = view_matrix.m10(); float rz = view_matrix.m20();
+        float upx = view_matrix.m01(); float upy = view_matrix.m11(); float upz = view_matrix.m21();
         right_plus_up.set(rx + upx, ry + upy, rz + upz);
         right_minus_up.set(rx - upx, ry - upy, rz - upz);
 

@@ -1,6 +1,8 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.particle.Particle;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 
@@ -35,7 +37,17 @@ public final class ParticleModelState implements ModelState<Particle> {
 
     @Override
     public void transform() {
+        // The modelViewStack contains the camera's view matrix.
+        // We want to apply a transformation that cancels out the camera's rotation for billboarding.
+
+        // 1. Get the rotation from the view matrix and invert it (transpose for orthonormal)
+        Matrix3f rotation = new Matrix3f();
+        modelViewStack.current().get3x3(rotation);
+        rotation.transpose();
+
+        // 2. Apply transformations to the stack
         modelViewStack.translate(particle.getPosX(), particle.getPosY(), particle.getPosZ());
+        modelViewStack.multiply(new Matrix4f(rotation));
         modelViewStack.scale(particle.getRadiusX(), particle.getRadiusY(), particle.getRadiusZ());
     }
 

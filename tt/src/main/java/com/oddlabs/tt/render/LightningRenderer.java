@@ -28,7 +28,6 @@ public final class LightningRenderer {
     private final Vector3f right_vector = new Vector3f();
 
     private final Matrix4f view_matrix = new Matrix4f();
-    private final CameraState tmp_camera = new CameraState();
 
     private static final int MAX_PARTICLES = 1000;
     private static final int FLOATS_PER_PARTICLE = 72; // 8 vertices * 9 floats (x,y,z,u,v,r,g,b,a)
@@ -58,12 +57,10 @@ public final class LightningRenderer {
     public void render(@NonNull RenderQueues render_queues, @NonNull List<Lightning> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (emitter_queue.isEmpty()) return;
 
-        tmp_camera.set(state);
-        view_matrix.identity();
-        tmp_camera.setView(view_matrix);
-        float rx = tmp_camera.getModelView().m00();
-        float ry = tmp_camera.getModelView().m10();
-        float rz = tmp_camera.getModelView().m20();
+        view_matrix.set(state.getModelView());
+        float rx = view_matrix.m00();
+        float ry = view_matrix.m10();
+        float rz = view_matrix.m20();
         right_vector.set(rx, ry, rz);
 
         try (var _ = shader.use();
