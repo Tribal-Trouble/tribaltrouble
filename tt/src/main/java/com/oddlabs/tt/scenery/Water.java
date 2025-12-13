@@ -111,7 +111,7 @@ public final class Water implements AutoCloseable {
 
             // Change speed using normal distribution (stddev ~5%)
             float speedChange = flowSpeed * (float) random.nextGaussian() * 0.05f;
-            targetFlowSpeed = Math.clamp(targetFlowSpeed + speedChange, 0.005f, 0.01f);
+            targetFlowSpeed = Math.clamp(targetFlowSpeed + speedChange, 0.0005f, 0.002f);
         }
 
         // Smoothly interpolate towards targets
@@ -145,6 +145,10 @@ public final class Water implements AutoCloseable {
             
             waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_0, scrollOffset0[0], scrollOffset0[1]);
             waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_1, scrollOffset1[0], scrollOffset1[1]);
+            
+            // Specular Lighting Uniforms
+            waterShader.setUniform(WaterShader.Uniforms.LIGHT_DIR, -1f, 0f, 1f);
+            waterShader.setUniform(WaterShader.Uniforms.CAMERA_POS, state.getCurrentX(), state.getCurrentY(), state.getCurrentZ());
 
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, ocean[0].getHandle());

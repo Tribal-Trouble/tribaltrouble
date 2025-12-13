@@ -13,6 +13,8 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         String ENABLE_DETAIL = "u_enableDetail";
         String SCROLL_OFFSET_0 = "u_scrollOffset0";
         String SCROLL_OFFSET_1 = "u_scrollOffset1";
+        String LIGHT_DIR = "u_lightDir";
+        String CAMERA_POS = "u_cameraPos";
 
         // Fog Uniforms
         String FOG_HEIGHT_FACTOR = "u_fogHeightFactor";
@@ -36,14 +38,19 @@ public final class WaterShader extends ShaderProgram implements FogShader {
 
         varying vec2 v_texCoord0;
         varying vec2 v_texCoord1;
-        varying float v_fogDist; // Pass view-space dist for fog calculation
+        varying float v_fogDist;
+        varying vec3 v_worldPos;
 
         void main() {
-            vec4 worldPosition = u_modelViewMatrix * vec4(a_position, 1.0);
-            gl_Position = u_projectionMatrix * worldPosition;
+            // a_position is in World Space
+            v_worldPos = a_position;
+            
+            vec4 viewPosition = u_modelViewMatrix * vec4(a_position, 1.0);
+            gl_Position = u_projectionMatrix * viewPosition;
+            
             v_texCoord0 = a_position.xy * u_waterRepeatRate + u_scrollOffset0;
             v_texCoord1 = a_position.xy * u_waterDetailRepeatRate + u_scrollOffset1;
-            v_fogDist = length(worldPosition.xyz);
+            v_fogDist = length(viewPosition.xyz);
         }
         """;
 
@@ -56,26 +63,64 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         uniform sampler2D u_texture0;
         uniform sampler2D u_texture1;
         uniform bool u_enableDetail;
+        uniform vec3 u_lightDir;
+        uniform vec3 u_cameraPos;
 
         // Fog uniforms
         uniform vec4 u_fogColor;
         uniform int u_fogMode;
-        uniform vec3 u_fogParams; // x = density/width, y = start/height, z = end/start
+        uniform vec3 u_fogParams;
         uniform float u_fogHeightFactor;
         uniform float u_cameraHeight;
         
         varying vec2 v_texCoord0;
         varying vec2 v_texCoord1;
         varying float v_fogDist;
+        varying vec3 v_worldPos;
+
+        float getNoise(vec2 uv) {
+            return texture2D(u_texture0, uv).r;
+        }
+        
+        float getDetailNoise(vec2 uv) {
+            return texture2D(u_texture1, uv).r;
+        }
 
         void main() {
             vec4 baseColor = texture2D(u_texture0, v_texCoord0);
             vec4 finalColor = baseColor;
-
+            
+            // Calculate Bump Normal
+            float eps = 0.01;
+            float h = getNoise(v_texCoord0);
+            float h_x = getNoise(v_texCoord0 + vec2(eps, 0.0));
+            float h_y = getNoise(v_texCoord0 + vec2(0.0, eps));
+            
             if (u_enableDetail) {
                 vec4 detailColor = texture2D(u_texture1, v_texCoord1);
                 finalColor = mix(baseColor, detailColor, detailColor.a);
+                
+                // Add detail to height for normal calc
+                float d = getDetailNoise(v_texCoord1);
+                float d_x = getDetailNoise(v_texCoord1 + vec2(eps, 0.0));
+                float d_y = getDetailNoise(v_texCoord1 + vec2(0.0, eps));
+                
+                h += d * 0.5;
+                h_x += d_x * 0.5;
+                h_y += d_y * 0.5;
             }
+            
+            vec3 normal = normalize(vec3((h - h_x) * 2.0, (h - h_y) * 2.0, 0.1));
+
+            // Specular Lighting (Blinn-Phong)
+            vec3 lightDir = normalize(u_lightDir);
+            vec3 viewDir = normalize(u_cameraPos - v_worldPos);
+            vec3 halfDir = normalize(lightDir + viewDir);
+            
+            float specAngle = max(dot(normal, halfDir), 0.0);
+            float specular = pow(specAngle, 20.0);
+            
+            finalColor.rgb += vec3(specular * 0.04);
             
             gl_FragColor = finalColor;
 
