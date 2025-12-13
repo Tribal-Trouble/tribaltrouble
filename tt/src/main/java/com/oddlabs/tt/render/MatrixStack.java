@@ -64,6 +64,14 @@ public final class MatrixStack {
         return this;
     }
 	
+    /**
+     * Applies a rotation to the current matrix.
+     * @param angle The angle to rotate, in DEGREES.
+     * @param x The x component of the rotation axis.
+     * @param y The y component of the rotation axis.
+     * @param z The z component of the rotation axis.
+     * @return This matrix stack for chaining.
+     */
 	public @NonNull MatrixStack rotate(float angle, float x, float y, float z) {
 		current().rotate((float)Math.toRadians(angle), x, y, z);
         return this;

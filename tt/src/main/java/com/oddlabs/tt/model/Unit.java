@@ -173,6 +173,16 @@ public class Unit extends Selectable implements Occupant, Movable {
         Target reserved_target = unit_grid.findGridTargets(UnitGrid.toGridCoordinate(x), UnitGrid.toGridCoordinate(y), 1, grid_targets_only)[0];
         setGridPosition(reserved_target.getGridX(), reserved_target.getGridY());
         setPosition(reserved_target.getPositionX(), reserved_target.getPositionY());
+        
+        // Orient initially towards world center
+        float center = getOwner().getWorld().getHeightMap().getMetersPerWorld() / 2f;
+        float dx = center - reserved_target.getPositionX();
+        float dy = center - reserved_target.getPositionY();
+        float len = (float)Math.sqrt(dx*dx + dy*dy);
+        if (len > 0) {
+            setDirection(dx/len, dy/len);
+        }
+        
         occupy();
         reinsert();
     }

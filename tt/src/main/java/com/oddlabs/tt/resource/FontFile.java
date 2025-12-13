@@ -18,6 +18,7 @@ public final class FontFile extends File<Font> {
 
     @Override
     public boolean equals(Object o) {
-        return (o instanceof FontFile) && super.equals(o);
+        return (o instanceof FontFile) &&
+                super.equals(o);
     }
 }
