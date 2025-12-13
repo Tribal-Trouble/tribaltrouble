@@ -11,7 +11,8 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         String WATER_REPEAT_RATE = "u_waterRepeatRate";
         String WATER_DETAIL_REPEAT_RATE = "u_waterDetailRepeatRate";
         String ENABLE_DETAIL = "u_enableDetail";
-        String TIME = "u_time";
+        String SCROLL_OFFSET_0 = "u_scrollOffset0";
+        String SCROLL_OFFSET_1 = "u_scrollOffset1";
 
         // Fog Uniforms
         String FOG_HEIGHT_FACTOR = "u_fogHeightFactor";
@@ -30,6 +31,8 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         uniform mat4 u_projectionMatrix;
         uniform float u_waterRepeatRate;
         uniform float u_waterDetailRepeatRate;
+        uniform vec2 u_scrollOffset0;
+        uniform vec2 u_scrollOffset1;
 
         varying vec2 v_texCoord0;
         varying vec2 v_texCoord1;
@@ -38,8 +41,8 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         void main() {
             vec4 worldPosition = u_modelViewMatrix * vec4(a_position, 1.0);
             gl_Position = u_projectionMatrix * worldPosition;
-            v_texCoord0 = a_position.xy * u_waterRepeatRate;
-            v_texCoord1 = a_position.xy * u_waterDetailRepeatRate;
+            v_texCoord0 = a_position.xy * u_waterRepeatRate + u_scrollOffset0;
+            v_texCoord1 = a_position.xy * u_waterDetailRepeatRate + u_scrollOffset1;
             v_fogDist = length(worldPosition.xyz);
         }
         """;
@@ -53,7 +56,6 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         uniform sampler2D u_texture0;
         uniform sampler2D u_texture1;
         uniform bool u_enableDetail;
-        uniform float u_time;
 
         // Fog uniforms
         uniform vec4 u_fogColor;
@@ -67,14 +69,11 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         varying float v_fogDist;
 
         void main() {
-            vec2 scrolledTexCoord0 = v_texCoord0 + vec2(u_time * 0.01, u_time * 0.01);
-            vec2 scrolledTexCoord1 = v_texCoord1 + vec2(u_time * 0.02, 0.0);
-
-            vec4 baseColor = texture2D(u_texture0, scrolledTexCoord0);
+            vec4 baseColor = texture2D(u_texture0, v_texCoord0);
             vec4 finalColor = baseColor;
 
             if (u_enableDetail) {
-                vec4 detailColor = texture2D(u_texture1, scrolledTexCoord1);
+                vec4 detailColor = texture2D(u_texture1, v_texCoord1);
                 finalColor = mix(baseColor, detailColor, detailColor.a);
             }
             

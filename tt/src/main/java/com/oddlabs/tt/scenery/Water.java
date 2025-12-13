@@ -36,6 +36,18 @@ public final class Water implements AutoCloseable {
     private final @NonNull VertexArray skyWaterVao;
     private final @NonNull VertexArray patchWaterVao;
 
+    // Water flow state
+    private final float[] scrollOffset0 = new float[2];
+    private final float[] scrollOffset1 = new float[2];
+    private float flowDirection = (float) Math.toRadians(45f);
+    private float flowSpeed = 0.01f;
+    private float targetFlowDirection = flowDirection;
+    private float targetFlowSpeed = flowSpeed;
+    private float timeSinceChange = 0f;
+    private float changeInterval = 20f;
+    private float lastTime = 0f;
+    private final java.util.Random random = new java.util.Random();
+
     public Water(@NonNull HeightMap heightmap, Landscape.@NonNull TerrainType terrain, @NonNull Sky sky, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         TextureGenerator ocean_desc = new GeneratorOcean(terrain);
         ocean = Resources.findResource(ocean_desc);
@@ -76,6 +88,51 @@ public final class Water implements AutoCloseable {
     }
 
     public void render(@NonNull CameraState state) {
+        float currentTime = LocalEventQueue.getQueue().getTime();
+        float dt = currentTime - lastTime;
+        // Handle time wrap or initial frame
+        if (dt < 0 || dt > 1.0f) dt = 0.016f;
+        lastTime = currentTime;
+
+        // Update flow parameters
+        timeSinceChange += dt;
+        if (timeSinceChange > changeInterval) {
+            timeSinceChange = 0f;
+            
+            // Generate a new changeInterval with a normal distribution between 5 and 30 seconds
+            float mean = 17.5f; // Middle of 5-30
+            float stdDev = 5.0f; // Roughly 3 standard deviations cover the range
+            float gaussianValue = (float) random.nextGaussian();
+            changeInterval = mean + gaussianValue * stdDev;
+
+            // Change direction using normal distribution (stddev ~7.5 degrees)
+            float dirChangeDegrees = (float) random.nextGaussian() * 7.5f;
+            targetFlowDirection += (float) Math.toRadians(dirChangeDegrees);
+
+            // Change speed using normal distribution (stddev ~5%)
+            float speedChange = flowSpeed * (float) random.nextGaussian() * 0.05f;
+            targetFlowSpeed = Math.clamp(targetFlowSpeed + speedChange, 0.005f, 0.01f);
+        }
+
+        // Smoothly interpolate towards targets
+        flowDirection += (targetFlowDirection - flowDirection) * dt * 0.5f;
+        flowSpeed += (targetFlowSpeed - flowSpeed) * dt * 0.5f;
+
+        // Update scroll offsets
+        float dx = (float) Math.cos(flowDirection) * flowSpeed * dt;
+        float dy = (float) Math.sin(flowDirection) * flowSpeed * dt;
+
+        scrollOffset0[0] += dx;
+        scrollOffset0[1] += dy;
+        
+        // Detail layer moves faster and slightly differently to create interference
+        scrollOffset1[0] += dx * 2.0f; 
+        scrollOffset1[1] += dy * 0.5f; // Less Y movement for detail to stretch it? Or keep standard? 
+        // Original shader had u_time * 0.02 for X and 0.0 for Y.
+        // Let's make it follow the flow but faster.
+        // scrollOffset1[0] += dx * 2.0f;
+        // scrollOffset1[1] += dy * 2.0f; 
+
         try (var _ = waterShader.use();
              var _ = state.getFog().setup(waterShader, state.getCurrentZ());
              var _ = GLStateHelper.blend(true);
@@ -85,7 +142,9 @@ public final class Water implements AutoCloseable {
 
             waterShader.setUniformMatrix4(WaterShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
             waterShader.setUniformMatrix4(WaterShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
-            waterShader.setUniform(WaterShader.Uniforms.TIME, LocalEventQueue.getQueue().getTime());
+            
+            waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_0, scrollOffset0[0], scrollOffset0[1]);
+            waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_1, scrollOffset1[0], scrollOffset1[1]);
 
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, ocean[0].getHandle());

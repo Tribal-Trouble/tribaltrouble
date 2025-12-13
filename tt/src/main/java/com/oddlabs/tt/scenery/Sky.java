@@ -90,6 +90,37 @@ public final class Sky {
     private final @NonNull VertexArray skyVAO;
     private final @NonNull VertexArray seaBottomVAO;
 
+    // Cloud animation state
+    private final float[] innerOffset = new float[2];
+    private final float[] outerOffset = new float[2];
+    
+    // Inner layer state
+    private float innerDirection = 0f;
+    private float innerSpeed = SKYDOME_SPEED_INNER[0] * 0.01f;
+    private float targetInnerDirection = innerDirection;
+    private float targetInnerSpeed = innerSpeed;
+    private float innerTimeSinceChange = 0f;
+    private float innerChangeInterval = 20f;
+
+    // Outer layer state
+    private float outerDirection = 0f;
+    private float outerSpeed = SKYDOME_SPEED_OUTER[0] * 0.01f;
+    private float targetOuterDirection = outerDirection;
+    private float targetOuterSpeed = outerSpeed;
+    private float outerTimeSinceChange = 0f;
+    private float outerChangeInterval = 25f;
+
+    // Cloud density state
+    private float innerCloudDensity = 0f;
+    private float targetInnerCloudDensity = 0f;
+    private float outerCloudDensity = 0f;
+    private float targetOuterCloudDensity = 0f;
+    private float densityTimeSinceChange = 0f;
+    private float densityChangeInterval = 60f;
+
+    private float lastTime = 0f;
+    private final java.util.Random random = new java.util.Random();
+
     public Sky(@NonNull LandscapeRenderer renderer, Landscape.@NonNull TerrainType terrain, @NonNull SkyShader skyShader, @NonNull SeaBottomShader seaBottomShader, @NonNull Texture detail) {
         this(renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * Math.sqrt(2) / 2), 6000f, 20, 20, SKYDOME_OUTER_UTILING, SKYDOME_OUTER_VTILING, SKYDOME_INNER_UTILING, SKYDOME_INNER_VTILING, renderer.getHeightMap().getMetersPerWorld() / 2, renderer.getHeightMap().getMetersPerWorld() / 2, SKYDOME_HEIGHT, skyShader, seaBottomShader, detail);
     }
@@ -128,15 +159,73 @@ public final class Sky {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, clouds[GeneratorClouds.OUTER].getHandle());
             skyShader.setUniform(SkyShader.Uniforms.TEXTURE_1, 1);
 
-            float time = LocalEventQueue.getQueue().getTime();
-            float speed_scale = 0.01f;
-            float outer_dx = SKYDOME_SPEED_OUTER[0] * time * speed_scale;
-            float outer_dy = SKYDOME_SPEED_OUTER[1] * time * speed_scale;
-            float inner_dx = SKYDOME_SPEED_INNER[0] * time * speed_scale;
-            float inner_dy = SKYDOME_SPEED_INNER[1] * time * speed_scale;
+            float currentTime = LocalEventQueue.getQueue().getTime();
+            float dt = currentTime - lastTime;
+            if (dt < 0 || dt > 1.0f) dt = 0.016f;
+            lastTime = currentTime;
 
-            skyShader.setUniform(SkyShader.Uniforms.INNER_OFFSET, outer_dx, outer_dy);
-            skyShader.setUniform(SkyShader.Uniforms.OUTER_OFFSET, inner_dx, inner_dy);
+            // Update Inner Layer
+            innerTimeSinceChange += dt;
+            if (innerTimeSinceChange > innerChangeInterval) {
+                innerTimeSinceChange = 0f;
+                // Randomize interval (15-45s)
+                innerChangeInterval = 30f + (float) random.nextGaussian() * 10f; 
+                
+                // Change direction by +/- ~10 degrees
+                float dirChange = (float) random.nextGaussian() * 10f;
+                targetInnerDirection += (float) Math.toRadians(dirChange);
+
+                // Change speed by +/- ~10%
+                float speedChange = innerSpeed * (float) random.nextGaussian() * 0.1f;
+                targetInnerSpeed = Math.clamp(targetInnerSpeed + speedChange, 0.002f, 0.008f);
+            }
+            innerDirection += (targetInnerDirection - innerDirection) * dt * 0.2f;
+            innerSpeed += (targetInnerSpeed - innerSpeed) * dt * 0.2f;
+            
+            innerOffset[0] += (float) Math.cos(innerDirection) * innerSpeed * dt;
+            innerOffset[1] += (float) Math.sin(innerDirection) * innerSpeed * dt;
+
+            // Update Outer Layer
+            outerTimeSinceChange += dt;
+            if (outerTimeSinceChange > outerChangeInterval) {
+                outerTimeSinceChange = 0f;
+                outerChangeInterval = 40f + (float) random.nextGaussian() * 15f; 
+
+                float dirChange = (float) random.nextGaussian() * 8f; // Slower changes for outer layer
+                targetOuterDirection += (float) Math.toRadians(dirChange);
+
+                float speedChange = outerSpeed * (float) random.nextGaussian() * 0.1f;
+                targetOuterSpeed = Math.clamp(targetOuterSpeed + speedChange, 0.001f, 0.004f);
+            }
+            outerDirection += (targetOuterDirection - outerDirection) * dt * 0.1f;
+            outerSpeed += (targetOuterSpeed - outerSpeed) * dt * 0.1f;
+
+            outerOffset[0] += (float) Math.cos(outerDirection) * outerSpeed * dt;
+            outerOffset[1] += (float) Math.sin(outerDirection) * outerSpeed * dt;
+
+            // Update Cloud Density
+            densityTimeSinceChange += dt;
+            if (densityTimeSinceChange > densityChangeInterval) {
+                densityTimeSinceChange = 0f;
+                // Change every 1-2 minutes
+                densityChangeInterval = 60f + random.nextFloat() * 60f;
+                
+                // Target density +/- 0.2 (normal distribution, subtle)
+                float innerChange = (float) random.nextGaussian() * 0.1f;
+                targetInnerCloudDensity = Math.clamp(innerChange, -0.2f, 0.2f);
+
+                // Outer layer varies independently but similarly
+                float outerChange = (float) random.nextGaussian() * 0.1f;
+                targetOuterCloudDensity = Math.clamp(outerChange, -0.2f, 0.2f);
+            }
+            // Very slow interpolation
+            innerCloudDensity += (targetInnerCloudDensity - innerCloudDensity) * dt * 0.05f;
+            outerCloudDensity += (targetOuterCloudDensity - outerCloudDensity) * dt * 0.05f;
+
+            skyShader.setUniform(SkyShader.Uniforms.INNER_OFFSET, innerOffset[0], innerOffset[1]);
+            skyShader.setUniform(SkyShader.Uniforms.OUTER_OFFSET, outerOffset[0], outerOffset[1]);
+            skyShader.setUniform(SkyShader.Uniforms.INNER_CLOUD_DENSITY, innerCloudDensity);
+            skyShader.setUniform(SkyShader.Uniforms.OUTER_CLOUD_DENSITY, outerCloudDensity);
 
             if (VertexArrays.isSupported()) {
                 skyVAO.bind();
