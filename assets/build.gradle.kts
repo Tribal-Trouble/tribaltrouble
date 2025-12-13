@@ -22,17 +22,17 @@ val fontInfoDir = "${layout.buildDirectory.get()}/resources/font"
 val fontTexDir = "${layout.buildDirectory.get()}/font"
 val fontTexClasspath = "/textures/font"
 
-tasks.register("renderTahomaFont", JavaExec::class) {
+tasks.register("renderInterLightFont", JavaExec::class) {
     group = "build"
-    description = "Renders Tahoma TTF font to PNG texture and font metadata."
+    description = "Renders Inter Light TTF font to PNG texture and font metadata."
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
     classpath = fontRenderer + files("resources")
 
-    val ttfFile = File("${project.projectDir}/font/Tahoma.ttf")
+    val ttfFile = File("${project.projectDir}/font/Inter-Light.ttf")
     inputs.file(ttfFile)
     outputs.files(
-        "$fontInfoDir/tahoma_13.font",
-        "$fontTexDir/tahoma_13.png"
+        "$fontInfoDir/inter-light_13.font",
+        "$fontTexDir/inter-light_13.png"
     )
 
     doFirst {
@@ -41,7 +41,7 @@ tasks.register("renderTahomaFont", JavaExec::class) {
     }
 
     args = listOf(
-        "${project.projectDir}/font/Tahoma.ttf",
+        ttfFile.toString(),
         "13",
         "1024",
         "1200",
@@ -53,17 +53,17 @@ tasks.register("renderTahomaFont", JavaExec::class) {
     onlyIf { ttfFile.exists() }
 }
 
-tasks.register("renderImpactFont", JavaExec::class) {
+tasks.register("renderInterTightBlackFont", JavaExec::class) {
     group = "build"
-    description = "Renders Impact TTF font to PNG texture and font metadata."
+    description = "Renders Inter Tight Black TTF font to PNG texture and font metadata."
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
     classpath = fontRenderer + files("resources")
 
-    val ttfFile = File("${project.projectDir}/font/Impact.ttf")
+    val ttfFile = File("${project.projectDir}/font/InterTight-Black.ttf")
     inputs.file(ttfFile)
     outputs.files(
-        "$fontInfoDir/impact_24.font",
-        "$fontTexDir/impact_24.png"
+        "$fontInfoDir/intertight-black_28.font",
+        "$fontTexDir/intertight-black_28.png"
     )
 
     doFirst {
@@ -72,8 +72,8 @@ tasks.register("renderImpactFont", JavaExec::class) {
     }
 
     args = listOf(
-        "${project.projectDir}/font/Impact.ttf",
-        "24",
+        ttfFile.toString(),
+        "28",
         "1024",
         "600",
         fontInfoDir,
@@ -87,7 +87,7 @@ tasks.register("renderImpactFont", JavaExec::class) {
 tasks.register("renderFonts") {
     group = "build"
     description = "Renders all TTF fonts as PNG textures and font metadata."
-    dependsOn("renderTahomaFont", "renderImpactFont")
+    dependsOn("renderInterLightFont", "renderInterTightBlackFont")
 }
 
 tasks.test {
@@ -132,16 +132,16 @@ fileTree("textures") {
     }
 }
 
-val tahomaPng = File("$fontTexDir/tahoma_13.png")
-val convertTahoma = convertTexture("tahoma_13_font", tahomaPng, "-flip", "-format", "dds", "font")
-convertTahoma.configure {
-    dependsOn(tasks.named("renderTahomaFont"))
+val inter_light_png = File("$fontTexDir/inter-light_13.png")
+val convertInterLight = convertTexture("inter-light_13_font", inter_light_png, "-flip", "-format", "dds", "font")
+convertInterLight.configure {
+    dependsOn(tasks.named("renderInterLightFont"))
 }
 
-val impactPng = File("$fontTexDir/impact_24.png")
-val convertImpact = convertTexture("impact_24_font", impactPng, "-flip", "-format", "dds", "font")
-convertImpact.configure {
-    dependsOn(tasks.named("renderImpactFont"))
+val intertight_black_png = File("$fontTexDir/intertight-black_28.png")
+val convertInterTightBlack = convertTexture("intertight-black_28_font", intertight_black_png, "-flip", "-format", "dds", "font")
+convertInterTightBlack.configure {
+    dependsOn(tasks.named("renderInterTightBlackFont"))
 }
 
 val textures = tasks.register("textures") {
