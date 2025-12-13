@@ -99,6 +99,7 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
             vec4 finalColor;
             if (u_replaceMode) {
                 finalColor = base;
+                if (finalColor.a <= 0.3) discard;
             } else if (u_modulateColor) {
                 // Modulate: Color * Texture
                 finalColor = v_color * base;
