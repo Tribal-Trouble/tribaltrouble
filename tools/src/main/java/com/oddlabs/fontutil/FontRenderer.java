@@ -15,9 +15,11 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public final class FontRenderer {
@@ -42,16 +44,15 @@ public final class FontRenderer {
         }
 	}
 
-	public FontRenderer(@NonNull String src_font_name, int font_size, int max_image_size, int max_chars, @NonNull Path font_info_dir, @NonNull Path font_tex_dir, String font_tex_classpath) throws Exception {
+	public FontRenderer(@NonNull String font_path, int font_size, int max_image_size, int max_chars, @NonNull Path font_info_dir, @NonNull Path font_tex_dir, String font_tex_classpath) throws Exception {
+		Path font_file = Path.of(font_path);
+		String font_file_name = font_file.getFileName().toString();
+		int extension = font_file_name.lastIndexOf('.');
+		String src_font_name = extension != -1 ?  font_file_name.substring(0, extension) : font_file_name;
 		IO.println("Converting first " + max_chars + " chars of " + src_font_name + " size " + font_size);
 		String dest_font_name = src_font_name.toLowerCase();
         java.awt.Font src_font;
-
-		String ttf_resource_path = "/fonts/" + src_font_name + ".ttf";
-		try (InputStream font_is = FontRenderer.class.getResourceAsStream(ttf_resource_path)) {
-			if (font_is == null) {
-				throw new IOException("Cannot find font resource: " + ttf_resource_path);
-			}
+		try (InputStream font_is = new BufferedInputStream(Files.newInputStream(font_file))) {
             src_font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, font_is).deriveFont((float)font_size);
         }
 

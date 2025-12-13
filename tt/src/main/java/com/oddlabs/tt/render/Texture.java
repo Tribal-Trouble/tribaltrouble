@@ -100,7 +100,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 
 		int total_size;
 		if (dxtImage != null) {
-			total_size = uploadDXTTexture(dxtImage, maxMipmapLevel);
+			total_size = uploadDXTTexture(dxtImage, internalFormat, maxMipmapLevel);
 		} else {
 			GLImage[] mipmaps;
 			if (minFilter == GL11.GL_LINEAR_MIPMAP_LINEAR || minFilter == GL11.GL_NEAREST_MIPMAP_LINEAR) {
@@ -163,7 +163,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
         state.size += size;
     }
 
-    private int uploadDXTTexture(@NonNull DXTImage dxt_image, int max_mipmap_level) {
+    private int uploadDXTTexture(@NonNull DXTImage dxt_image, int internalFormat, int max_mipmap_level) {
 		int detail_shift = getDetailShift(dxt_image.getNumMipMaps());
 		int max_index = getMaxMipmapIndex(dxt_image.getNumMipMaps(), max_mipmap_level, detail_shift);
 		int total_size = 0;
@@ -171,7 +171,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 			int mipmap_level = i + detail_shift;
 			dxt_image.position(mipmap_level);
 			total_size += dxt_image.getMipMap().remaining();
-			GL13.glCompressedTexImage2D(GL11.GL_TEXTURE_2D, i, dxt_image.getInternalFormat(), dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), 0, dxt_image.getMipMap());
+			GL13.glCompressedTexImage2D(GL11.GL_TEXTURE_2D, i, internalFormat, dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), 0, dxt_image.getMipMap());
 		}
 		return total_size;
 	}

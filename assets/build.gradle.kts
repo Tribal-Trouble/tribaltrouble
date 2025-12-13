@@ -1,7 +1,3 @@
-plugins {
-    id("java")
-}
-
 group = "com.oddlabs.tribaltrouble"
 version = "1.0.0"
 
@@ -22,17 +18,17 @@ dependencies {
 }
 
 
-val fontInfoDir = "${project.projectDir}/src/main/resources/font"
-val fontTexDir = "${project.projectDir}/textures/font"
+val fontInfoDir = "${layout.buildDirectory.get()}/resources/font"
+val fontTexDir = "${layout.buildDirectory.get()}/font"
 val fontTexClasspath = "/textures/font"
 
 tasks.register("renderTahomaFont", JavaExec::class) {
     group = "build"
     description = "Renders Tahoma TTF font to PNG texture and font metadata."
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
-    classpath = fontRenderer
+    classpath = fontRenderer + files("resources")
 
-    val ttfFile = File("${project(":common").projectDir}/src/main/resources/fonts/Tahoma.ttf")
+    val ttfFile = File("${project.projectDir}/font/Tahoma.ttf")
     inputs.file(ttfFile)
     outputs.files(
         "$fontInfoDir/tahoma_13.font",
@@ -45,7 +41,7 @@ tasks.register("renderTahomaFont", JavaExec::class) {
     }
 
     args = listOf(
-        "Tahoma",
+        "${project.projectDir}/font/Tahoma.ttf",
         "13",
         "1024",
         "1200",
@@ -61,9 +57,9 @@ tasks.register("renderImpactFont", JavaExec::class) {
     group = "build"
     description = "Renders Impact TTF font to PNG texture and font metadata."
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
-    classpath = fontRenderer
+    classpath = fontRenderer + files("resources")
 
-    val ttfFile = File("${project(":common").projectDir}/src/main/resources/fonts/Impact.ttf")
+    val ttfFile = File("${project.projectDir}/font/Impact.ttf")
     inputs.file(ttfFile)
     outputs.files(
         "$fontInfoDir/impact_24.font",
@@ -76,7 +72,7 @@ tasks.register("renderImpactFont", JavaExec::class) {
     }
 
     args = listOf(
-        "Impact",
+        "${project.projectDir}/font/Impact.ttf",
         "24",
         "1024",
         "600",
@@ -97,7 +93,6 @@ tasks.register("renderFonts") {
 tasks.test {
     useJUnitPlatform()
 }
-
 
 val geometry = tasks.register<JavaExec>("geometry") {
     classpath(configurations.runtimeClasspath)
@@ -122,23 +117,31 @@ fun convertTexture(name: String, png: File, vararg convertArgs: String) =
         outputs.file("$outdir/${png.nameWithoutExtension}.$ext")
     }
 
-fileTree("textures") { include("**/*.png") }.forEach { png ->
+fileTree("textures") {
+    include("**/*.png")
+    exclude("font/**")
+}.forEach { png ->
     val rel = png.relativeTo(file("textures")).path
     when {
         rel.startsWith("pixelperfect") -> convertTexture("${png.nameWithoutExtension}_pixelperfect", png, "-flip", "-format", "image", "gui")
-        rel.startsWith("gui") -> convertTexture("${png.nameWithoutExtension}_gui", png, "-flip", "-format", "dxtn", "gui")
+        rel.startsWith("gui") -> convertTexture("${png.nameWithoutExtension}_gui", png, "-flip", "-format", "dds", "gui")
         rel.startsWith("pointer") -> convertTexture("${png.nameWithoutExtension}_pointer", png, "-flip", "-format", "image", "gui")
-        rel.startsWith("effects") -> convertTexture("${png.nameWithoutExtension}_effects", png, "-flip", "-mipmaps", "-format", "dxtn", "effects")
-        rel.startsWith("font") -> {
-            val convertTask = convertTexture("${png.nameWithoutExtension}_font", png, "-flip", "-format", "dxtn", "font")
-            when (png.name) {
-                "tahoma_13.png" -> convertTask.configure { dependsOn(tasks.named("renderTahomaFont")) }
-                "impact_24.png" -> convertTask.configure { dependsOn(tasks.named("renderImpactFont")) }
-            }
-        }
-        rel.startsWith("models") -> convertTexture(rel.replace("/", "_").replace(".png", "_models"), png, "-flip", "-gamma", "0.45454545454545453", "-mipmaps", "-gamma", "2.2", "-format", "dxtn", "models")
-        rel.startsWith("teamdecals") -> convertTexture(rel.replace("/", "_").replace(".png", "_teamdecals"), png, "-half", "-flip", "-mipmaps", "-format", "dxtn", "models")
+        rel.startsWith("effects") -> convertTexture("${png.nameWithoutExtension}_effects", png, "-flip", "-mipmaps", "-format", "dds", "effects")
+        rel.startsWith("models") -> convertTexture(rel.replace("/", "_").replace(".png", "_models"), png, "-flip", "-gamma", "0.45454545454545453", "-mipmaps", "-gamma", "2.2", "-format", "dds", "models")
+        rel.startsWith("teamdecals") -> convertTexture(rel.replace("/", "_").replace(".png", "_teamdecals"), png, "-half", "-flip", "-mipmaps", "-format", "dds", "models")
     }
+}
+
+val tahomaPng = File("$fontTexDir/tahoma_13.png")
+val convertTahoma = convertTexture("tahoma_13_font", tahomaPng, "-flip", "-format", "dds", "font")
+convertTahoma.configure {
+    dependsOn(tasks.named("renderTahomaFont"))
+}
+
+val impactPng = File("$fontTexDir/impact_24.png")
+val convertImpact = convertTexture("impact_24_font", impactPng, "-flip", "-format", "dds", "font")
+convertImpact.configure {
+    dependsOn(tasks.named("renderImpactFont"))
 }
 
 val textures = tasks.register("textures") {
@@ -151,5 +154,5 @@ tasks.processResources {
     inputs.files(geometry, textures)
     from("build/geometry") { into("geometry") }
     from("build/textures") { into("textures") }
-    from("font") { into("font") }
+    from(fontInfoDir) { into("font") }
 }

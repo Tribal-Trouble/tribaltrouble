@@ -8,6 +8,7 @@ import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -85,7 +86,7 @@ public final class TextureFile extends File<Texture> {
 	}
 
 	private static @Nullable URI locateDXT(String location) {
-		return locate(location + ".dxtn");
+		return locate(location + ".dds");
 	}
 
 	private static @NonNull URI locateTexture(String location) {
@@ -134,6 +135,13 @@ public final class TextureFile extends File<Texture> {
 	}
 
 	public int getInternalFormat() {
+		if (is_dxt) {
+			return switch (getDXTImage().getFourCC()) {
+				case DXTImage.FOURCC_DXT1 -> EXTTextureCompressionS3TC.GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+				case DXTImage.FOURCC_DXT5 -> EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+				default -> throw new IllegalStateException("Unexpected value: " + getDXTImage().getFourCC());
+			};
+		}
 		return internal_format;
 	}
 

@@ -27,7 +27,7 @@ import java.util.List;
 public final class Convert {
 	private static String current_ext;
 
-    static void main(String @NonNull ... args) throws IOException {
+    static void main(@NonNull String @NonNull ... args) throws IOException {
 		if (args.length < 2) {
 			System.err.println("Usage: Convert <infile> <operations> <outfile>");
 			System.exit(1);
@@ -155,80 +155,35 @@ public final class Convert {
 		}
 	}
 
-	private static void saveDxtn(@NonNull Path file, Layer @NonNull [] images) throws IOException {
+	private static void saveDDS(@NonNull Path file, @NonNull Layer @NonNull [] images) throws IOException {
+		// This is not standard DXTImage constructor so that we don't have to have squisher as a runtime dependency.
 		Squish.CompressionType type = switch (images[0].a) {
             case null -> Squish.CompressionType.DXT1;
             default -> Squish.CompressionType.DXT5;
         };
 		byte[][] mipmap_bytes = new byte[images.length][];
 		for (int i = 0; i < mipmap_bytes.length; i++) {
-//images[i].saveAsPNG(new File(file.getParentFile(), images[i].getWidth() + "x" + images[i].getHeight() + "-" + file.getName() + ".png"));
+//			images[i].saveAsPNG(file.getParent().resolve(images[i].getWidth() + "x" + images[i].getHeight() + "-" + file.getFileName() + ".png"));
 			byte[] mipmap = images[i].convertToBytes();
 			mipmap_bytes[i] = Squish.compressImage(mipmap, images[i].getWidth(), images[i].getHeight(), null, type, Squish.CompressionMethod.CLUSTER_FIT);
-/*System.out.println("Decompressing............");
-			byte[] decompressed = Squish.decompressImage(null, images[i].getWidth(), images[i].getHeight(), mipmap_bytes[i], type);
-System.out.println("Done");*/
 		}
-		int internal_format = switch (type) {
-			case DXT1 -> 0x83F0; // GL_COMPRESSED_RGB_S3TC_DXT1_EXT
-			case DXT5 -> 0x83F3; // GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+		int fourCC = switch (type) {
+			case DXT1 -> DXTImage.FOURCC_DXT1;
+			case DXT5 -> DXTImage.FOURCC_DXT5;
 			default -> throw new IllegalArgumentException("Unsupported compression type: " + type);
 		};
-		new DXTImage((short)images[0].getWidth(),(short)images[0].getHeight(), internal_format, mipmap_bytes).write(file);
+		new DXTImage((short)images[0].getWidth(),(short)images[0].getHeight(), fourCC, mipmap_bytes).write(file);
 	}
 
 	private static void save(@NonNull Path file, Layer @NonNull [] images) throws IOException {
-		if (file.getFileName().toString().endsWith(".dxtn")) {
-			saveDxtn(file, images);
+		if (file.getFileName().toString().endsWith(".dds")) {
+			saveDDS(file, images);
 		} else if (file.getFileName().toString().endsWith(".image")) {
 			saveImage(file, images);
 		} else
 			throw new IllegalArgumentException("unknown extension: " + file);
 	}
 
-/*
-		String filename = new File(infile).getName();
-		filename = filename.substring(0, filename.lastIndexOf("."));
-		System.out.println("Converting " + infile);
-		BufferedImage image = ImageIO.read(new File(infile));
-		int width = image.getWidth();
-		int height = image.getHeight();
-		int channels = image.getRaster().getNumBands() <= 3 ? 3 : 4;
-		final byte[] bytes = getImageData(image);
-		Utils.flip(bytes, width*4, height);
-		Layer image_layer = new Layer(width, height);
-		if (channels == 4)
-			image_layer.a = new Channel(width, height);
-		image_layer.loadFromBytes(bytes);
-image_layer.saveAsPNG(filename + "." + width + "x" + height + "p");
-		image_layer.gamma(Layer.INV_GAMMA_EXPONENT);
-		List mipmaps = new ArrayList();
-		final byte[] blocks = compressImage(channels, width, height, bytes, Squish.CompressionMethod.CLUSTER_FIT);
-		mipmaps.add(blocks);
-		int mip_width = width;
-		int mip_height = height;
-		Layer mipmap_layer = image_layer;
-		while (mip_width > 1 && mip_height > 1) {
-			mip_width /=2;
-			mip_height /= 2;
-			mipmap_layer.scaleHalf();
-			Layer mipmap_layer_export = mipmap_layer.copy();
-			mipmap_layer_export.gamma(Layer.GAMMA_EXPONENT);
-			byte[] mipmap = mipmap_layer_export.convertToBytes();
-mipmap_layer.saveAsPNG(filename + "." + mip_width + "x" + mip_height + "p");
-			byte[] mipmap_blocks = compressImage(channels, mip_width, mip_height, mipmap, Squish.CompressionMethod.CLUSTER_FIT);
-			mipmaps.add(mipmap_blocks);
-		}
-		String outfile = dstdir + File.separatorChar + filename + ".dxtn";
-		int internal_format;
-		if (channels == 3) {
-			internal_format = EXTTextureCompressionS3TC.GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-		} else {
-			internal_format = EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-		}
-		new DXTImage((short)width,(short)height, internal_format, (byte[][])mipmaps.toArray(new byte[][]{})).write(new File(outfile));
-	}
-*/
 	private static byte[] getImageData(@NonNull BufferedImage image) {
 
 		final int type = image.getType();

@@ -37,10 +37,10 @@ gradle build
 
 Common tasks:
 - `gradle clean` - Clean all build outputs
+- `gradle :assets:geometry` - Generate geometry files
+- `gradle :assets:textures` - Convert texture files
 - `gradle :tt:build` - Build game client
 - `gradle :tt:run` - Run the game
-- `gradle :tt:geometry` - Generate geometry files
-- `gradle :tt:textures` - Convert texture files
 
 Note: Server and servlet modules are excluded due to missing dependencies.
 
