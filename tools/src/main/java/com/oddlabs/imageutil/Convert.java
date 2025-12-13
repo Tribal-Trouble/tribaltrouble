@@ -6,16 +6,19 @@ import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Image;
 import io.github.memo33.jsquish.Squish;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
-import java.io.File;
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -26,34 +29,33 @@ public final class Convert {
 
     static void main(String @NonNull ... args) throws IOException {
 		if (args.length < 2) {
-			System.out.println("Usage: Convert <infile> <operations> <outfile>");
+			System.err.println("Usage: Convert <infile> <operations> <outfile>");
 			System.exit(1);
 		}
-		File infile = new File(args[0]);
-		File outfile = new File(args[args.length - 1]);
+		Path infile = Path.of(args[0]);
+		Path outfile = Path.of(args[args.length - 1]);
         List<String> args_list = new ArrayList<>(Arrays.asList(args).subList(1, args.length - 1));
-		System.out.println("Converting " + infile);
+		IO.println("Converting " + infile);
 		Layer[] images = new Layer[]{loadFile(infile)};
 		images = processOperations(args_list.iterator(), images);
-		if (outfile.exists()) {
-			if (outfile.isDirectory()) {
-				String infilename = infile.getName();
+		if (Files.exists(outfile)) {
+			if (Files.isDirectory(outfile)) {
+				String infilename = infile.getFileName().toString();
 				int dot_index = infilename.lastIndexOf(".");
-				outfile = new File(outfile, infilename.substring(0, dot_index));
+				outfile = outfile.resolve(infilename.substring(0, dot_index));
 			}
 		} else {
-			File parent = outfile.getParentFile();
-			if (parent != null)
-				parent.mkdirs();
+			Path parent = outfile.toAbsolutePath().getParent();
+			Files.createDirectories(parent);
 		}
-		if (current_ext != null && !outfile.getName().endsWith(current_ext)) {
-			outfile = new File(outfile.getParentFile(), outfile.getName() + "." + current_ext);
+		if (current_ext != null && !outfile.getFileName().toString().endsWith(current_ext)) {
+			outfile = outfile.getParent().resolve(outfile.getFileName() + "." + current_ext);
 		}
-System.out.println("outfile = " + outfile);
+		IO.println("outfile = " + outfile);
 		save(outfile, images);
 	}
 
-	private static Layer[] processOperations(@NonNull Iterator<String> args, Layer[] images) {
+	private static Layer[] processOperations(@NonNull Iterator<@NonNull String> args, Layer[] images) {
 		while (args.hasNext()) {
 			String op = args.next();
 			images = processOperation(op, args, images);
@@ -106,9 +108,14 @@ System.out.println("outfile = " + outfile);
 		return images;
 	}
 
-	private static @NonNull Layer loadFile(@NonNull File file) throws IOException {
+	private static @NonNull Layer loadFile(@NonNull Path file) throws IOException {
+		try (var in = new BufferedInputStream(Files.newInputStream(file))) {
+			return loadFile(in);
+		}
+	}
 
-		BufferedImage image = ImageIO.read(file);
+	private static @NonNull Layer loadFile(@NonNull InputStream source) throws IOException {
+		BufferedImage image = ImageIO.read(source);
 		int width = image.getWidth();
 		int height = image.getHeight();
 //		int channels = image.getRaster().getNumBands() <= 3 ? 3 : 4;
@@ -136,24 +143,23 @@ System.out.println("outfile = " + outfile);
 		return image_layer;
 	}
 
-	private static void saveImage(@NonNull File file, Layer @NonNull [] images) throws IllegalArgumentException {
+	private static void saveImage(@NonNull Path file, Layer @NonNull [] images) throws IllegalArgumentException, IOException {
 		if (images.length != 1)
 			throw new IllegalArgumentException("Can't save more than 1 image in .image format");
 		byte[] bytes = images[0].convertToBytes();
 		Image image = new Image(images[0].getWidth(), images[0].getHeight(), ByteBuffer.wrap(bytes));
-		image.write(file);
+		try {
+			image.write(file);
+		} catch (UncheckedIOException uioe) {
+			throw uioe.getCause();
+		}
 	}
 
-	private static void saveDxtn(@NonNull File file, Layer @NonNull [] images) throws IOException {
-		int internal_format;
-		Squish.CompressionType type;
-		if (images[0].a == null) {
-			internal_format = EXTTextureCompressionS3TC.GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-			type = Squish.CompressionType.DXT1;
-		} else {
-			internal_format = EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-			type = Squish.CompressionType.DXT5;
-		}
+	private static void saveDxtn(@NonNull Path file, Layer @NonNull [] images) throws IOException {
+		Squish.CompressionType type = switch (images[0].a) {
+            case null -> Squish.CompressionType.DXT1;
+            default -> Squish.CompressionType.DXT5;
+        };
 		byte[][] mipmap_bytes = new byte[images.length][];
 		for (int i = 0; i < mipmap_bytes.length; i++) {
 //images[i].saveAsPNG(new File(file.getParentFile(), images[i].getWidth() + "x" + images[i].getHeight() + "-" + file.getName() + ".png"));
@@ -163,13 +169,18 @@ System.out.println("outfile = " + outfile);
 			byte[] decompressed = Squish.decompressImage(null, images[i].getWidth(), images[i].getHeight(), mipmap_bytes[i], type);
 System.out.println("Done");*/
 		}
+		int internal_format = switch (type) {
+			case DXT1 -> 0x83F0; // GL_COMPRESSED_RGB_S3TC_DXT1_EXT
+			case DXT5 -> 0x83F3; // GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			default -> throw new IllegalArgumentException("Unsupported compression type: " + type);
+		};
 		new DXTImage((short)images[0].getWidth(),(short)images[0].getHeight(), internal_format, mipmap_bytes).write(file);
 	}
 
-	private static void save(@NonNull File file, Layer @NonNull [] images) throws IOException {
-		if (file.getName().endsWith(".dxtn")) {
+	private static void save(@NonNull Path file, Layer @NonNull [] images) throws IOException {
+		if (file.getFileName().toString().endsWith(".dxtn")) {
 			saveDxtn(file, images);
-		} else if (file.getName().endsWith(".image")) {
+		} else if (file.getFileName().toString().endsWith(".image")) {
 			saveImage(file, images);
 		} else
 			throw new IllegalArgumentException("unknown extension: " + file);

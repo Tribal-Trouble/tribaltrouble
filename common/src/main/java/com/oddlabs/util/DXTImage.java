@@ -1,17 +1,22 @@
 package com.oddlabs.util;
 
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.EnumSet;
+
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.READ;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 public final class DXTImage {
 	private static final int INITIAL_BUFFER_SIZE = 100000;
@@ -25,16 +30,16 @@ public final class DXTImage {
 		int size = 0;
 		int mipmap_width = width;
 		int mipmap_height = height;
-            for (byte[] mipmap : mipmaps) {
-                size += mipmap.length;
-                assert mipmap.length == getMipMapSize(internal_format, mipmap_width, mipmap_height);
-                mipmap_width /= 2;
-                mipmap_height /= 2;
-            }
-		ByteBuffer buffer = BufferUtils.createByteBuffer(size);
-            for (byte[] mipmap : mipmaps) {
-                buffer.put(mipmap);
-            }
+		for (byte[] mipmap : mipmaps) {
+			size += mipmap.length;
+			assert mipmap.length == getMipMapSize(internal_format, mipmap_width, mipmap_height);
+			mipmap_width /= 2;
+			mipmap_height /= 2;
+		}
+		ByteBuffer buffer = ByteBuffer.allocateDirect(size);
+		for (byte[] mipmap : mipmaps) {
+			buffer.put(mipmap);
+		}
 		buffer.flip();
 		return buffer;
 	}
@@ -68,9 +73,8 @@ public final class DXTImage {
 	}
 
 	private static int getMipMapSize(int internal_format, int width, int height) {
-		int blocksize = 16;
-		if (internal_format == EXTTextureCompressionS3TC.GL_COMPRESSED_RGB_S3TC_DXT1_EXT)
-			blocksize = 8;
+		int blocksize = internal_format == 0x83F0 // GL_COMPRESSED_RGB_S3TC_DXT1_EXT
+			? 8 : 16;
 		return ((width + 3)/4) * ((height + 3)/4) * blocksize;
 	}
 
@@ -131,15 +135,15 @@ public final class DXTImage {
             short height = header.getShort();
             int internal_format = header.getInt();
             int data_length = index - header.position();
-            ByteBuffer buffer = BufferUtils.createByteBuffer(data_length);
+            ByteBuffer buffer = ByteBuffer.allocateDirect(data_length);
             buffer.put(scratch_buffer, header.position(), data_length);
             buffer.flip();
             return new DXTImage(width, height, internal_format, buffer);
         }
 	}
 
-	public void write(@NonNull File file) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(file); WritableByteChannel out = fos.getChannel()) {
+	public void write(@NonNull Path file) throws IOException {
+        try (var out = Files.newByteChannel(file, EnumSet.of(CREATE,TRUNCATE_EXISTING,READ,WRITE))) {
             ByteBuffer header = ByteBuffer.allocate(Short.BYTES + Short.BYTES + Integer.BYTES);
             header.putShort(width).putShort(height).putInt(internal_format);
             header.flip();

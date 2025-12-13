@@ -16,6 +16,8 @@ import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public final class Image implements Serializable {
 	@Serial
@@ -49,13 +51,13 @@ public final class Image implements Serializable {
 	}
 
 	public void write(String filename) {
-		write(new File(filename + ".image"));
+		write(Path.of(filename + ".image"));
 	}
 	
-	public void write(@NonNull File file) {
+	public void write(@NonNull Path file) {
 		data.rewind();
 		//Utils.saveAsPNG(filename, data, width, height);
-		try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))){
+		try (var bos = new BufferedOutputStream(Files.newOutputStream(file))){
 			write(this, bos);
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
