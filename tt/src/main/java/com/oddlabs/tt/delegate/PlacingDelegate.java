@@ -130,7 +130,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
             spriteShader.setUniformMatrix4(SpriteShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
 
             // Pass 1: Depth Prime (No Color, Depth Write)
-            try (var __ = new GLStateHelper.DepthMask(true)) {
+            try (var _ = new GLStateHelper.DepthMask(true)) {
                 GL11.glColorMask(false, false, false, false);
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
                 GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -140,7 +140,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
             }
 
             // Pass 2: Color Render (Color, No Depth Write, Equal Depth)
-            try (var __ = new GLStateHelper.DepthMask(false)) {
+            try (var _ = new GLStateHelper.DepthMask(false)) {
                 GL11.glColorMask(true, true, true, true);
                 GL11.glDepthFunc(GL11.GL_EQUAL);
                 GL11.glEnable(GL11.GL_BLEND);
@@ -149,9 +149,13 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
                 sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
             }
 
+            modelViewStack.pop();
+        } finally {
             // Cleanup
             GL11.glDepthFunc(GL11.GL_LESS);
-            modelViewStack.pop();
+            GL11.glDisable(GL11.GL_BLEND);
+            spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 0.0f);
+            spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, false);
         }
     }
 }
