@@ -111,11 +111,10 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
         try (var _ = spriteShader.use();
              var _ = state.getFog().setup(spriteShader, state.getCurrentZ())) {
             
-            spriteShader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
-            spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);
-            spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
-            spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 1.0f);
-
+                            spriteShader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+                            spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);
+                            spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
+                            spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 1.0f);
             sprite.setupShaderUniforms(spriteShader, 0, false);
             spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, true);
 

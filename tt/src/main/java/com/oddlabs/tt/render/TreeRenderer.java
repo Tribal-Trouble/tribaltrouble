@@ -60,7 +60,7 @@ public final class TreeRenderer extends TreePicker {
              var _ = state.getFog().setup(spriteShader, state.getCurrentZ())) {
             spriteShader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);
-            spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
+            spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
 
             try (var _ = GLStateHelper.blend(true)) {
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

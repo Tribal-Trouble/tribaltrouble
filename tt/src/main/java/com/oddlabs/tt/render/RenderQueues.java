@@ -119,7 +119,7 @@ public final class RenderQueues {
              var _ = camera_state.getFog().setup(spriteShader, camera_state.getCurrentZ())) {
             spriteShader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, spriteBatchRenderer.getProjectionStack().current());
             spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);
-            spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
+            spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
 
             for (SpriteRenderer spriteRenderer : sprite_renderers) {
                 spriteRenderer.renderAll(spriteShader, camera_state);
@@ -132,7 +132,7 @@ public final class RenderQueues {
              var _ = camera_state.getFog().setup(spriteShader, camera_state.getCurrentZ())) {
             spriteShader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, spriteBatchRenderer.getProjectionStack().current());
             spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);
-            spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
+            spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
 
             for (SpriteRenderer blendSpriteRenderer : blend_sprite_renderers) {
                 blendSpriteRenderer.renderAll(spriteShader, camera_state);
