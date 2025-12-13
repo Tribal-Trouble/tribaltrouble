@@ -38,7 +38,7 @@ public final class PatchGroup extends AbstractPatchGroup {
 		visitor.visitGroup(this);
 	}
 
-	public void visitChildren(PatchGroupVisitor visitor) {
+	public void visitChildren(@NonNull PatchGroupVisitor visitor) {
 		child0.visit(visitor);
 		child1.visit(visitor);
 		child2.visit(visitor);

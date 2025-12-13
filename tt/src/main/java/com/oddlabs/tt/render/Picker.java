@@ -60,7 +60,7 @@ public final class Picker implements Updatable {
 	private final List<@NonNull TreeSupply> tree_pick_list = new ArrayList<>();
 
 	private final CameraState tmp_camera = new CameraState();
-	private final SortedSet<LandscapeLeaf> patch_pick_set = new TreeSet<>(new LandscapeLeafComparator());
+	private final SortedSet<@NonNull LandscapeLeaf> patch_pick_set = new TreeSet<>(new LandscapeLeafComparator());
 	private final @NonNull LandscapeRenderer landscape_renderer;
 	private final @NonNull ElementRenderer<?> element_renderer;
 	private final @NonNull TreePicker tree_renderer;

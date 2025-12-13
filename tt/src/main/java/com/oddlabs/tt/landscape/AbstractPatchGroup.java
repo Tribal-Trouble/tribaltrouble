@@ -37,5 +37,5 @@ public abstract class AbstractPatchGroup extends BoundingBox {
 		return transformed_error*transformed_error;
 	}
 
-	public abstract void visit(PatchGroupVisitor visitor);
+	public abstract void visit(@NonNull PatchGroupVisitor visitor);
 }
