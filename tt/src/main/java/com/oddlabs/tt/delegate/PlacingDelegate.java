@@ -103,6 +103,10 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
         unit_grid.scan(filter, placing_center_grid_x, placing_center_grid_y);
         List<LandscapeTarget> target_list = filter.getResult();
         site_renderer.renderSites(renderer, modelViewStack, projectionStack, target_list, center_x, center_y, 2 * GRID_RADIUS);
+        com.oddlabs.tt.util.GLUtils.checkGLError("Placing: After renderSites");
+
+        SpriteRenderer built_renderer = queues.getRenderer(getTemplate().getBuiltRenderer());
+        Sprite sprite = built_renderer.getSpriteList().getSprite(0);
 
         try (var _ = spriteShader.use();
              var _ = state.getFog().setup(spriteShader, state.getCurrentZ())) {
@@ -111,9 +115,6 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
             spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);
             spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
             spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 1.0f);
-
-            SpriteRenderer built_renderer = queues.getRenderer(getTemplate().getBuiltRenderer());
-            Sprite sprite = built_renderer.getSpriteList().getSprite(0);
 
             sprite.setupShaderUniforms(spriteShader, 0, false);
             spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, true);
@@ -129,33 +130,36 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
             modelViewStack.translate(center_x, center_y, z);
             spriteShader.setUniformMatrix4(SpriteShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
 
-            // Pass 1: Depth Prime (No Color, Depth Write)
-            try (var _ = new GLStateHelper.DepthMask(true)) {
-                GL11.glColorMask(false, false, false, false);
-                GL11.glEnable(GL11.GL_DEPTH_TEST);
-                GL11.glDepthFunc(GL11.GL_LEQUAL);
-                GL11.glDisable(GL11.GL_BLEND); // No blending for depth pass
+            try {
+                // Pass 1: Depth Prime (No Color, Depth Write)
+                try (var _ = new GLStateHelper.DepthMask(true)) {
+                    GL11.glColorMask(false, false, false, false);
+                    GL11.glEnable(GL11.GL_DEPTH_TEST);
+                    GL11.glDepthFunc(GL11.GL_LEQUAL);
+                    GL11.glDisable(GL11.GL_BLEND); // No blending for depth pass
 
-                sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
-            }
+                    sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
+                }
 
-            // Pass 2: Color Render (Color, No Depth Write, Equal Depth)
-            try (var _ = new GLStateHelper.DepthMask(false)) {
-                GL11.glColorMask(true, true, true, true);
-                GL11.glDepthFunc(GL11.GL_EQUAL);
-                GL11.glEnable(GL11.GL_BLEND);
-                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                // Pass 2: Color Render (Color, No Depth Write, Equal Depth)
+                try (var _ = new GLStateHelper.DepthMask(false)) {
+                    GL11.glColorMask(true, true, true, true);
+                    GL11.glDepthFunc(GL11.GL_EQUAL);
+                    GL11.glEnable(GL11.GL_BLEND);
+                    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-                sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
+                    sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
+                }
+            } finally {
+                spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 0.0f);
+                spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, false);
             }
 
             modelViewStack.pop();
         } finally {
-            // Cleanup
+            // Cleanup Global State
             GL11.glDepthFunc(GL11.GL_LESS);
             GL11.glDisable(GL11.GL_BLEND);
-            spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 0.0f);
-            spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, false);
         }
     }
 }
