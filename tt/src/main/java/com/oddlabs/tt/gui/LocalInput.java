@@ -57,7 +57,7 @@ public final class LocalInput {
 
 	public static void keyPressed(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
 		var key = Key.fromLwjglCode(key_code);
-		if (Key.KEY_UNKNOWN != key) {
+		if (Key.KEY_UNKNOWN != key || key_char != 0) {
 			setKeys(key, true, shift_down, control_down, menu_down);
 			gui_root.getInputState().keyPressed(key, key_char, shift_down, control_down, menu_down, repeat);
 		}
@@ -65,7 +65,7 @@ public final class LocalInput {
 
 	public static void keyReleased(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
 		var key = Key.fromLwjglCode(key_code);
-		if (Key.KEY_UNKNOWN != key) {
+		if (Key.KEY_UNKNOWN != key || key_char != 0) {
 			setKeys(key, false, shift_down, control_down, menu_down);
 			gui_root.getInputState().keyReleased(key, key_char, shift_down, control_down, menu_down);
 		}

@@ -154,7 +154,7 @@ public final class InputState {
 
 	public void keyTyped(int key_code, char key_char) {
 		var key = Key.fromLwjglCode(key_code);
-		if (Key.KEY_UNKNOWN != key) {
+		if (Key.KEY_UNKNOWN != key || key_char != 0) {
 			GUIObject focused = gui_root.getGlobalFocus();
 			KeyboardEvent event = new KeyboardEvent(key, key_char, LocalInput.isShiftDownCurrently(), LocalInput.isControlDownCurrently());
 			focused.keyRepeatAll(event);
