@@ -109,7 +109,7 @@ public final class Image implements Serializable {
 				n2 = data.get();
 				n3 = data.get();
 */
-				n0 = pixel >> 24;
+				n0 = pixel >>> 24;
 				n1 = (pixel >> 16) & 0xff;
 				n2 = (pixel >> 8) & 0xff;
 				n3 = pixel & 0xff;
