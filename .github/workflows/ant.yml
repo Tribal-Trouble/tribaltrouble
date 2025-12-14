@@ -159,7 +159,7 @@ jobs:
     - name: Download Linux Artifact
       uses: actions/download-artifact@v5
       with:
-        name: linux
+        name: linux-package
         path: tt/build/dist/linux/
     - name: Upload to steam
       uses: game-ci/steam-deploy@v3
@@ -173,5 +173,5 @@ jobs:
         depot1Path: windows
         depot2Path: macosx-arm64
         depot3Path: macosx-x86-app
-        depot4Path: linux-package
+        depot4Path: linux
         releaseBranch: prerelease
