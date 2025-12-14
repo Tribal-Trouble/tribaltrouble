@@ -101,15 +101,15 @@ public final class RenderState implements ElementVisitor {
 	private static final ModelVisitor<Unit> unit_visitor = new SelectableVisitor<>() {
 		@Override
 		public void markDetailPolygon(@NonNull ElementRenderState<Unit> render_state, @NonNull PolyDetail detail) {
-			Unit unit = render_state.model;
-			super.markDetailPolygon(render_state, detail);
-			UnitSupplyContainer supply_container = unit.getSupplyContainer();
-			if (!render_state.render_state.isPicking() && unit.getAbilities().hasAbilities(Abilities.BUILD) && supply_container.getSupplyType() != null) {
-				if (supply_container.getNumSupplies() > 0) {
-					SpriteRenderer supply_sprite = render_state.getRenderer(supply_container.getSupplySpriteRenderer(supply_container.getSupplyType()));
-					supply_sprite.addToRenderList(detail, render_state, false);
-				}
+		Unit unit = render_state.model;
+		super.markDetailPolygon(render_state, detail);
+		UnitSupplyContainer supply_container = unit.getSupplyContainer();
+		if (!render_state.render_state.isPicking() && unit.getAbilities().hasAbilities(Abilities.BUILD) && supply_container.getSupplyType() != null) {
+			if (supply_container.getNumSupplies() > 0) {
+				SpriteRenderer supply_sprite = render_state.getRenderer(supply_container.getSupplySpriteRenderer(supply_container.getSupplyType()));
+				supply_sprite.addToRenderList(detail, render_state, false);
 			}
+		}
 		}
 	};
 	@Override

@@ -140,13 +140,25 @@ public final class Building extends Selectable implements Occupant {
 	}
 
 	@Override
+	protected void onReinsert() {
+		super.onReinsert();
+		if (production_emitter != null) {
+			float xc = getPositionX() + getBuildingTemplate().getChimneyX();
+			float yc = getPositionY() + getBuildingTemplate().getChimneyY();
+			float zc = getPositionZ() + getBuildingTemplate().getChimneyZ();
+			production_emitter.setPosition(new Vector3f(xc, yc, zc));
+		}
+	}
+
+	@Override
 	protected void doAnimate(float t) {
 		if (!isDead()) {
 			UnitContainer unit_container = getUnitContainer();
 			if (unit_container != null)
 				unit_container.animate(t);
-			if (weapons_producer != null)
+			if (weapons_producer != null) {
 				weapons_producer.animate(t);
+			}
 
 			int num_deploying = 0;
             for (DeployContainer deploy_container : deploy_containers.values()) {

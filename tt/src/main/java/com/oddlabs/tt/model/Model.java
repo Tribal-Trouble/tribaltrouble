@@ -55,10 +55,16 @@ public abstract class Model extends Element<Model> {
 		reinsert();
 	}
 
+	/** update positions related to model position */
+	protected void onReinsert() {
+		// No-op by default
+	}
+
 	protected final void reinsert() {
 		if (isRegistered()) {
 			setPositionZ(world.getHeightMap().getNearestHeight(getPositionX(), getPositionY()) + getOffsetZ());
 			updateBounds();
+			onReinsert();
 			reregister();
 		}
 	}

@@ -4,26 +4,27 @@ import com.oddlabs.tt.audio.AbstractAudioPlayer;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.particle.LinearEmitter;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class WeaponsProducer {
 	private static final float MAX_BREAK_TIME = .25f;
 	private static final float BREAK_PROBABILITY = .2f;
 
-	private static final List<BuildProductionContainer> build_list = new ArrayList<>();
+	private static final Deque<@NonNull BuildProductionContainer> build_list = new ArrayDeque<>();
 
-	private final Building building;
-	private final WorkerUnitContainer unit_container;
-	private final BuildProductionContainer[] production_containers;
-	private final LinearEmitter emitter;
+	private final @NonNull Building building;
+	private final @NonNull WorkerUnitContainer unit_container;
+	private final @NonNull BuildProductionContainer @NonNull [] production_containers;
+	private final @NonNull LinearEmitter emitter;
 
 	private float break_time = 0f;
 	private @Nullable AbstractAudioPlayer production_player;
 
-	public WeaponsProducer(Building building, WorkerUnitContainer unit_container, BuildProductionContainer[] production_containers, LinearEmitter emitter) {
+	public WeaponsProducer(@NonNull Building building, @NonNull WorkerUnitContainer unit_container, @NonNull  BuildProductionContainer @NonNull [] production_containers, @NonNull LinearEmitter emitter) {
 		this.building = building;
 		this.unit_container = unit_container;
 		this.production_containers = production_containers;
@@ -31,11 +32,11 @@ public class WeaponsProducer {
 	}
 
 	public final void animate(float t) {
-            for (BuildProductionContainer production_container : production_containers) {
-                if (production_container.getNumSupplies() > 0 && production_container.hasEnoughSupplies()) {
-                    build_list.add(production_container);
-                }
-            }
+		for (var production_container : production_containers) {
+			if (production_container.getNumSupplies() > 0 && production_container.hasEnoughSupplies()) {
+				build_list.add(production_container);
+			}
+		}
 
 		if (!build_list.isEmpty()) {
 			if (break_time <= 0) {
@@ -48,14 +49,13 @@ public class WeaponsProducer {
 			}
 			startSound();
 			float man_seconds_per_container = unit_container.getNumSupplies()*t/build_list.size();
-            for (BuildProductionContainer current : build_list) {
-                current.build(man_seconds_per_container);
+			while (!build_list.isEmpty()) {
+				build_list.pop().build(man_seconds_per_container);
             }
 		} else {
 			emitter.stop();
 			stopSound();
 		}
-		build_list.clear();
 		break_time -= t;
 	}
 

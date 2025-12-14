@@ -1,20 +1,21 @@
 package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.gui.BuildSpinner;
+import org.jspecify.annotations.NonNull;
 
 public class BuildProductionContainer extends BuildSupplyContainer {
-	private final SupplyContainer dest_container;
-	private final Building building;
-	private final Cost cost;
+	private final @NonNull SupplyContainer dest_container;
+	private final @NonNull Building building;
+	private final @NonNull Cost cost;
 	private final float man_seconds_per_production;
 
 	private float man_seconds = 0;
 	private boolean infinite = false;
 
 	public BuildProductionContainer(int max_supply_count,
-			SupplyContainer dest_container,
-			Building building,
-			Cost cost,
+			@NonNull SupplyContainer dest_container,
+			@NonNull Building building,
+			@NonNull Cost cost,
 			float man_seconds_per_production) {
 		super(max_supply_count);
 		this.dest_container = dest_container;
