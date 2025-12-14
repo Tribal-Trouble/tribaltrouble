@@ -11,7 +11,8 @@
     "java.project.referencedLibraries": {
         "include": [
             "common/lib/java/**/*.jar",
-            "ivy_lib/*.jar"
+            "ivy_lib/*.jar",
+            "ivy_lib_game/*.jar",
         ],
         "exclude": [],
         "sources": {}
