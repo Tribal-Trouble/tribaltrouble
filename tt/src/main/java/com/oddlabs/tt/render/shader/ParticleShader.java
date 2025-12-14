@@ -121,6 +121,6 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
         """;
 
     public ParticleShader() {
-        super(VERTEX_SHADER, FRAGMENT_SHADER);
+        super(VERTEX_SHADER, FRAGMENT_SHADER, STANDARD_ATTRIBUTES);
     }
 }
