@@ -367,11 +367,7 @@
             <fileset dir="${dist}/common">
                 <include name="**" />
             </fileset>
-        </copy>
-        <copy todir="${dist}/linux/TribalTrouble.AppDir/linux-x86">
-            <fileset dir="${dist}/linux-x86">
-                <include name="**" />
-            </fileset>
+            <path refid="game.ivy.classpath" />
         </copy>
         <copy todir="${dist}/linux">
             <fileset dir="linux">
