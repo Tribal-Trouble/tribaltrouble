@@ -173,5 +173,5 @@ jobs:
         depot1Path: windows
         depot2Path: macosx-arm64
         depot3Path: macosx-x86-app
-        depot4Path: linux
+        depot4Path: linux-package
         releaseBranch: prerelease
