@@ -67,7 +67,7 @@ jobs:
     
   build-mac-x86:
   
-    runs-on: macos-13
+    runs-on: macOS-15
     needs: format-check
 
     steps:
