@@ -1,6 +1,7 @@
 package com.oddlabs.routerserver;
 
 import com.oddlabs.event.*;
+import com.oddlabs.matchserver.ServerConfiguration;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.router.Router;
 import com.oddlabs.util.DBUtils;
@@ -54,7 +55,7 @@ public final strictfp class RouterServer {
 
     private static final void postPanic() {
         try {
-            String password = System.getenv("TT_SERVER_PASSWORD");
+            String password = ServerConfiguration.getInstance().get(ServerConfiguration.SQL_PASS);
             DBUtils.initConnection("jdbc:mysql://localhost/oddlabs", "matchmaker", password);
             DBUtils.postHermesMessage("elias, xar, jacob, thufir: Router crashed!");
         } catch (Throwable t) {

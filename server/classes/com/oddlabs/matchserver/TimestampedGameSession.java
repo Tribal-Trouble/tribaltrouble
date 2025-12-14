@@ -3,6 +3,7 @@ package com.oddlabs.matchserver;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.matchmaking.Participant;
+import com.oddlabs.matchserver.discord.DiscordEmbedCreator;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -120,10 +121,15 @@ public final strictfp class TimestampedGameSession {
                                         + ": all joined game "
                                         + getParticipantStates());
 
-                // saving rated player info (someone could lose and delete a profile before the game
+                // saving rated player info (someone could lose and delete a profile before the
+                // game
                 // ends)
                 all_5_wins = true;
                 player_ratings = new int[participants.length];
+
+                // Add game started here
+                DiscordEmbedCreator.SendGameStartedDiscordEmbed(database_id, session);
+
                 for (int i = 0; i < participants.length; i++) {
                     String nick = participants[i].getNick();
                     try {
@@ -300,7 +306,6 @@ public final strictfp class TimestampedGameSession {
                                 + getParticipantStates());
         // if (game_state != GAME_STARTING)
         evaluateGame(server);
-        updateSpectatorInfo(0, "END");
     }
 
     private final void evaluateGame(MatchmakingServer server) {
@@ -339,6 +344,7 @@ public final strictfp class TimestampedGameSession {
             MatchmakingServer.getLogger()
                     .info("Game " + database_id + ". No winning teams " + getParticipantStates());
             DBInterface.endGame(this, end_time, -1);
+            DiscordEmbedCreator.SendHumansLoseToBotsDiscordEmbed(database_id, session);
             game_ended = true;
             return; // last players disconnected
         }
@@ -383,6 +389,7 @@ public final strictfp class TimestampedGameSession {
                                         + " winning teams. "
                                         + getParticipantStates());
                 DBInterface.endGame(this, end_time, -1);
+                DiscordEmbedCreator.SendInvalidatedGameDiscordEmbed(session, database_id);
                 game_ended = true;
                 return;
             }
@@ -397,11 +404,14 @@ public final strictfp class TimestampedGameSession {
                                     + ". No one lost. Playing agains AI "
                                     + getParticipantStates());
             DBInterface.endGame(this, end_time, winning_team_index);
-
+            DiscordEmbedCreator.SendHumansWinAgainstBotsDiscordEmbed(
+                    winning_team_index, database_id, session);
             game_ended = true;
             return;
         }
 
+        DiscordEmbedCreator.SendHumansWinAgainstOtherHumans(
+                winning_team_index, database_id, session);
         DBInterface.endGame(this, end_time, winning_team_index);
         game_ended = true;
     }

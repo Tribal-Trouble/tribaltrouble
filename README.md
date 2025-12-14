@@ -57,7 +57,7 @@ The game is currently unsigned and not available through another platform like s
 
 ## 🏗️ Building
 
-Instruction below assume you are in a terminal at the root of the repository
+Each instruction below assumes you are in a terminal at the root of the repository
 
 ### Build + Run Game Client
 
@@ -96,7 +96,7 @@ Optional Steps (Recommend for server hosting)
     > Make sure to restart any terminals you have open
 
 2. Run the servers
-     - There are two main servers needed. The matchmaker and the router. The matchmaker is what runs the game and most the server logic. The router sends and recieves chat messages and other messages from the client
+     - There are two main servers needed. The matchmaker and the router. The matchmaker is what runs the game and most the server logic. The router sends and receives chat messages and other messages from the client
      - To build and run the matchmaker: `cd server` > `ant run-matchmaker`
      - To build and run the router: `cd server` > `ant run-router`
      - Alternatively run the scripts from the server using: `cd server` > `./matchmaker & ./router`

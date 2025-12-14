@@ -1,10 +1,16 @@
 .svn
 build
 /bin/
-.vscode
 .project
 .classpath
 server/logs
 !server/logs/donot-delete.txt
 
 website/vendor/*
+ivy_lib/*
+!ivy_lib/ivy-2.5.3.jar
+ivy_lib_game/*
+!ivy_lib_game/do-not-delete.txt
+.project
+.classpath
+.vs/*

@@ -67,12 +67,12 @@
 	<!-- Class and build classpaths -->
 	<path id="common.classes.classpath">
 		<pathelement path="../common/build/classes" />
-	</path>	
+	</path>
 
 	<path id="common.static.classpath">
 		<pathelement location="../common/static" />
-	</path>	
-	
+	</path>
+
 	<path id="build.classpath">
 		<pathelement location="build" />
 	</path>
@@ -85,14 +85,14 @@
 	<path id="build.tt.classpath">
 		<pathelement location="../tt/i18n" />
 		<pathelement location="../tt/static" />
-	</path>	
+	</path>
 
 	<!-- For tools build.xml -->
 	<path id="tools.classes.classpath">
 		<pathelement path="../tools/build/classes" />
 	</path>
 
-	<path id="common.static.fonts.classpath" >
+	<path id="common.static.fonts.classpath">
 		<pathelement path="${commonstatic}/fonts" />
 	</path>
 
@@ -122,13 +122,16 @@
 	<path id="library.javasvn.classpath">
 		<pathelement path="${lib}/javasvn.jar" />
 	</path>
-
+	
 	<path id="server.classpath">
 		<fileset dir="${lib}">
 			<include name="commons-pool-1.2.jar" />
 			<include name="commons-dbcp-1.2.1.jar" />
 			<include name="commons-collections-3.1.jar" />
 			<include name="mysql-connector-j-9.3.0.jar" />
+		</fileset>
+		<fileset dir="../ivy_lib">
+			<include name="*.jar" />
 		</fileset>
 	</path>
 </project>

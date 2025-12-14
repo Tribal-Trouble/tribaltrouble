@@ -1,0 +1,6 @@
+<ivy-module version="2.0">
+  <info organisation="tribaltrouble" module="tribaltrouble"/>
+  <dependencies>
+    <dependency org="com.discord4j" name="discord4j-core" rev="3.2.6"/>
+  </dependencies>
+</ivy-module>

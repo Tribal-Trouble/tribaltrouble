@@ -64,7 +64,7 @@ public final strictfp class LoadCampaignBox extends GUIObject
 
     private static File getLoadSavegamesFile() {
         File file = getSaveSavegamesFile();
-        if (!file.canRead()) return new File(Utils.getInstallDir(), SAVEGAMES_FILE_NAME);
+        if (!file.canRead()) return new File(LocalInput.getGameDir(), SAVEGAMES_FILE_NAME);
         else return file;
     }
 
