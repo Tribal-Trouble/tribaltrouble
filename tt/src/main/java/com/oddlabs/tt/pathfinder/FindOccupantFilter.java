@@ -13,7 +13,7 @@ public final class FindOccupantFilter<S extends Selectable> implements ScanFilte
     private final float radius;
     private final Selectable src;
     private final Class<S> type;
-    private final @NonNull List<S> result;
+    private final @NonNull List<@NonNull S> result;
 
     public FindOccupantFilter(float x, float y, float radius, Selectable src, Class<S> type) {
         this.x = x;
@@ -50,7 +50,7 @@ public final class FindOccupantFilter<S extends Selectable> implements ScanFilte
         return false;
     }
 
-    public @NonNull List<S> getResult() {
+    public @NonNull List<@NonNull S> getResult() {
         return result;
     }
 }

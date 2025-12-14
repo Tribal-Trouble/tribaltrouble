@@ -40,7 +40,6 @@ public final class PoisonFog implements Magic {
 
 	private int next_sound = 1;
 	private float time = 0f;
-	private List<Unit> target_list;
 	private int bursts = 0;
 	private int num_hits = 0;
 	private boolean first_run = true;
@@ -90,7 +89,7 @@ public final class PoisonFog implements Magic {
 					BURST_RADIUS, 0f, 0f, 0f,
 					PARTICLES_PER_BURST, PARTICLES_PER_BURST,
 					new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 0f),
-					new Vector4f(1f, 1f, 1f, alpha), new Vector4f(0f, 0f, 0f, -alpha/energy),
+					new Vector4f(0.75f, 1.0f, 0.0f, alpha), new Vector4f(0f, 0f, 0f, -alpha/energy),
 					new Vector3f(0f, 0f, .25f), new Vector3f(3.5f, 3.5f, 0f), energy, 1f,
 					GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
 					owner.getWorld().getRacesResources().getPoisonTextures(),
@@ -117,8 +116,7 @@ public final class PoisonFog implements Magic {
 		FindOccupantFilter<Unit> filter = new FindOccupantFilter<>(start_x, start_y, radius, src, Unit.class);
 		UnitGrid unit_grid = owner.getWorld().getUnitGrid();
 		unit_grid.scan(filter, UnitGrid.toGridCoordinate(start_x), UnitGrid.toGridCoordinate(start_y));
-		target_list = filter.getResult();
-        for (Selectable s : target_list) {
+        for (Selectable s : filter.getResult()) {
             float dx = s.getPositionX() - start_x;
             float dy = s.getPositionY() - start_y;
             float squared_dist = dx * dx + dy * dy;

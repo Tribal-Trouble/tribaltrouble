@@ -12,10 +12,10 @@ public final class GeneratorSmoke extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;
 
 	@Override
-	public Texture @NonNull [] generate() {
+	public @NonNull Texture @NonNull [] generate() {
 		Channel voronoi = new Voronoi(TEXTURE_SIZE, 4, 4, 1, 1f, 42).getDistance(-1f, 0f, 0f);
 		Channel smoke_alpha = new Ring(TEXTURE_SIZE, TEXTURE_SIZE, new float[][] {{0f, 1f},{0.5f, 0f}}, Ring.Interpolation.SMOOTH).toChannel().gamma(1.5f);
-		Channel smoke_color = new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(0.5f);
+		Channel smoke_color = new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(1.0f);
 		Channel smoke_bump = voronoi.gamma(0.25f).smooth(3).smooth(1).dynamicRange(0.925f, 1f).channelMultiply(smoke_alpha);
 		smoke_color.bump(smoke_bump, 0f, -4f, 0f, 1f, 0f);
 		Layer smoke = new Layer(smoke_color, smoke_color, smoke_color, smoke_alpha);

@@ -13,7 +13,7 @@ public final class GeneratorSonic extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;
 
 	@Override
-	public Texture @NonNull [] generate() {
+	public @NonNull Texture @NonNull [] generate() {
 		Channel sonic_alpha = new Channel(TEXTURE_SIZE>>1, TEXTURE_SIZE>>1);
 
 		float x_coord;
@@ -33,7 +33,7 @@ public final class GeneratorSonic extends TextureGenerator {
 		Channel sonic_alpha_final = new Channel(TEXTURE_SIZE, TEXTURE_SIZE);
 		sonic_alpha_final.quadJoin(sonic_alpha, sonic_alpha.copy().rotate(270), sonic_alpha.copy().rotate(90), sonic_alpha.copy().rotate(180));
 
-		Channel sonic_color = new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(.05f);
+		Channel sonic_color = new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(1.0f);
 		//Channel sonic_color = new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(.1f); // screenshot fix
 		Layer sonic = new Layer(sonic_color, sonic_color, sonic_color, sonic_alpha_final);
 		GLIntImage sonic_img = new GLIntImage(sonic);

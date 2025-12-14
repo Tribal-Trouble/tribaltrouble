@@ -56,7 +56,9 @@ final class SpriteListRenderer {
 		for (int i = 0; i < render_list.size(); i++) {
 			ModelState<?> model = render_list.get(i);
 			render_list.set(i, null);
-			pick_list.add((Target)model.getModel());
+			if (model.getModel() instanceof Target) {
+				pick_list.add((Target)model.getModel());
+			}
 		}
 	}
 

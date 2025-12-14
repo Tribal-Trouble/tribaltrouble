@@ -108,7 +108,7 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
 
         void main() {
             vec4 texColor = texture2D(u_texture0, v_texCoord0);
-            vec4 finalColor = v_color * texColor;
+            vec4 finalColor = vec4(v_color.rgb, v_color.a * texColor.a);
 
             if (finalColor.a <= 0.0) {
                 discard;
@@ -116,7 +116,7 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
 
             // Apply fog
             float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
-            gl_FragColor = mix(u_fogColor, finalColor, fogFactor);
+            gl_FragColor = vec4(mix(u_fogColor.rgb, finalColor.rgb, fogFactor), finalColor.a);
         }
         """;
 

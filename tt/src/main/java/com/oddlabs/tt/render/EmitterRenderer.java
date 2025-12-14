@@ -111,7 +111,7 @@ public final class EmitterRenderer {
         float r = particle.getColorR();
         float g = particle.getColorG();
         float b = particle.getColorB();
-        float a = particle.getColorA();
+        float a = Math.min(particle.getColorA(), 1.0f);
 
         float p1x = x - right_plus_up.x * radius_x; float p1y = y - right_plus_up.y * radius_y; float p1z = z - right_plus_up.z * radius_z;
         float p2x = x + right_minus_up.x * radius_x; float p2y = y + right_minus_up.y * radius_y; float p2z = z + right_minus_up.z * radius_z;

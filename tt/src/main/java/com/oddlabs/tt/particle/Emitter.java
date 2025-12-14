@@ -14,24 +14,25 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public abstract class Emitter extends Element<Emitter> implements Animated {
-	private final AnimationManager manager;
-	private final List<@NonNull Particle> @NonNull [] particles;
-	private final TextureKey[] textures;
-	private final SpriteKey[] sprite_renderers;
+	private final @NonNull AnimationManager manager;
+	private final @NonNull List<@NonNull Particle> @NonNull [] particles;
+	private final @NonNull TextureKey @NonNull[] textures;
+	private final @NonNull SpriteKey @NonNull [] sprite_renderers;
 	private final int src_blend_func;
 	private final int dst_blend_func;
 	private final int types;
 	private final @NonNull World world;
 
-	private Vector3f position;
+	private @NonNull Vector3f position;
 	private float scale_x = 1f;
 	private float scale_y = 1f;
 	private float scale_z = 1f;
 
 	@SuppressWarnings("unchecked")
-	public Emitter(@NonNull World world, Vector3f position, int src_blend_func, int dst_blend_func, TextureKey[] textures, SpriteKey[] sprite_renderers, int types, AnimationManager manager) {
+	public Emitter(@NonNull World world, @NonNull Vector3f position, int src_blend_func, int dst_blend_func, @NonNull TextureKey @NonNull [] textures, @NonNull SpriteKey @NonNull [] sprite_renderers, int types, @NonNull AnimationManager manager) {
 		super(world.getElementRoot());
 		this.world = world;
 		this.position = position;
@@ -41,10 +42,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 		this.sprite_renderers = sprite_renderers;
 		this.types = types;
 		this.manager = manager;
-		particles = (List<Particle>[])new ArrayList<?>[types];
-		for (int i = 0; i < particles.length; i++) {
-			particles[i] = new ArrayList<>();
-		}
+		particles = Stream.generate(ArrayList::new).limit(types).toArray(List[]::new);
 		register();
 	}
 
@@ -81,11 +79,11 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 		particles[particle.getType()].add(particle);
 	}
 
-	public final void setPosition(Vector3f position) {
+	public final void setPosition(@NonNull Vector3f position) {
 		this.position = position;
 	}
 
-	public final Vector3f getPosition() {
+	public final @NonNull Vector3f getPosition() {
 		return position;
 	}
 

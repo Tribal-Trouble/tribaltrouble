@@ -76,7 +76,7 @@ public final class TreeLowDetailShader extends ShaderProgram implements FogShade
 
             // Apply fog
             float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
-            gl_FragColor = mix(u_fogColor, treeColor, fogFactor);
+            gl_FragColor = vec4(mix(u_fogColor.rgb, treeColor.rgb, fogFactor), treeColor.a);
         }
         """;
 

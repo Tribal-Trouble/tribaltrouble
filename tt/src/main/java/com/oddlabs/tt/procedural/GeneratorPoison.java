@@ -12,7 +12,7 @@ public final class GeneratorPoison extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;
 
 	@Override
-	public Texture @NonNull [] generate() {
+	public @NonNull Texture @NonNull [] generate() {
 		int seed = Globals.LANDSCAPE_SEED;
 		
 		/*
@@ -27,7 +27,8 @@ public final class GeneratorPoison extends TextureGenerator {
 		Channel noise = new Midpoint(TEXTURE_SIZE, 2, .45f, seed).toChannel();
 		Channel poison_alpha = noise.copy().channelMultiply(blob.copy().dynamicRange(.25f, 1f)).channelSubtract(blob.copy().invert().brightness(.25f));
 		
-		Layer poison = new Layer(noise.copy().rotate(90).dynamicRange(.5f, 1f), new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(1f), new Channel(TEXTURE_SIZE, TEXTURE_SIZE), poison_alpha.brightness(.75f));
+		Channel white = new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(1f);
+		Layer poison = new Layer(white, white, white, poison_alpha.brightness(.75f));
 		GLIntImage poison_img = new GLIntImage(poison);
 		if (Landscape.DEBUG) poison_img.saveAsPNG("generator_poison");
 		Texture[] textures = new Texture[1];

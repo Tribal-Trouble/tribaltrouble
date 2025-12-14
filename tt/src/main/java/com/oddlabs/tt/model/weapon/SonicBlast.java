@@ -89,9 +89,9 @@ public final class SonicBlast implements Magic {
 					0.01f, 1f,
 					45, 1000f,
 					new Vector3f(0f, 0f, 27f), new Vector3f(0f, 0f, 0f),
-					new Vector4f(1f, 1f, 1f, alpha_start), new Vector4f(0f, 0f, 0f, -alpha_start/energy),
+					new Vector4f(0.1f, 0.1f, 0.1f, alpha_start), new Vector4f(0f, 0f, 0f, -alpha_start/energy),
 					new Vector3f(.2f, .2f, .5f), new Vector3f(3.5f, 3.7f, .5f), energy, 1f,
-					GL11.GL_SRC_ALPHA, GL11.GL_ONE,
+					GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
 					owner.getWorld().getRacesResources().getSonicTextures(),
 					owner.getWorld().getAnimationManagerGameTime());
 
@@ -115,9 +115,9 @@ public final class SonicBlast implements Magic {
 					0.01f, 1f,
 					15, 1000f,
 					new Vector3f(0f, 0f, velocity), new Vector3f(0f, 0f, 0f),
-					new Vector4f(1f, 1f, 1f, alpha_start), new Vector4f(0f, 0f, 0f, -alpha_start/energy),
+					new Vector4f(0.1f, 0.1f, 0.1f, alpha_start), new Vector4f(0f, 0f, 0f, -alpha_start/energy),
 					new Vector3f(.2f, .2f, .5f), new Vector3f(12.5f, 12.5f, .5f), energy, 1f,
-					GL11.GL_SRC_ALPHA, GL11.GL_ONE,
+					GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
 					owner.getWorld().getRacesResources().getSonicTextures(),
 					owner.getWorld().getAnimationManagerGameTime());
 		}
