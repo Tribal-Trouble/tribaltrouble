@@ -109,7 +109,7 @@ jobs:
 # We would need to sign it to always use this type. Steam handles it for us.
   build-mac-x86-app:
     if: github.ref == 'refs/heads/steam'
-    runs-on: macos-13
+    runs-on: macOS-15
     needs: format-check
 
     steps:
