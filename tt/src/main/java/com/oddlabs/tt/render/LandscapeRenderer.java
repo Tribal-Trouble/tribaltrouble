@@ -32,18 +32,21 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 
 import java.nio.ShortBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
 public final class LandscapeRenderer implements Animated {
 
-    private final List<PatchLevel> @NonNull [] patch_lists;
-    private final List<LandscapeLeaf> render_list = new ArrayList<>();
+    private final Deque<PatchLevel> @NonNull [] patch_lists;
+    private final List<@NonNull LandscapeLeaf> render_list = new ArrayList<>();
     private final GUIRoot gui_root;
     private final @NonNull World world;
     private final @NonNull Texture highlightMap;
@@ -89,6 +92,8 @@ public final class LandscapeRenderer implements Animated {
             int wrappedY = (y + size) % size;
             var value = patch_levels[wrappedX][wrappedY];
             if (null == value) {
+                // Using a co-routine for computing a patch is ridiculous overkill
+                // But it is heap based rather than stack based as a recursive implementation would be.
                 value = executor.submit(() -> new PatchLevel(this, wrappedX, wrappedY)).get();
             }
             return value;
@@ -146,10 +151,7 @@ public final class LandscapeRenderer implements Animated {
         this.gui_root = gui_root;
         this.world = world;
         int levels = LandscapeTileIndices.getNumLOD(HeightMap.GRID_UNITS_PER_PATCH_EXP);
-        patch_lists = (List<PatchLevel>[]) new ArrayList<?>[levels];
-        for (int i = 0; i < patch_lists.length; i++) {
-            patch_lists[i] = new ArrayList<>();
-        }
+        patch_lists = Stream.generate(ArrayDeque::new).limit(levels).toArray(Deque[]::new);
         manager.registerAnimation(this);
         this.shadow_indices_buffer = BufferUtils.createShortBuffer(LandscapeTileIndices.getNumTriangles(world.getLandscapeIndices().getNumLOD() - 1) * 3);
         resetEditing();
@@ -159,7 +161,7 @@ public final class LandscapeRenderer implements Animated {
         return world.getHeightMap();
     }
 
-    public @NonNull PatchLevel getPatchLevelFromCoordinates(float x_f, float y_f) {
+     @NonNull PatchLevel getPatchLevelFromCoordinates(float x_f, float y_f) {
         int patch_x = world.getHeightMap().coordinateToPatch(x_f);
         int patch_y = world.getHeightMap().coordinateToPatch(y_f);
         return getPatchLevel(patch_x, patch_y);
@@ -169,7 +171,7 @@ public final class LandscapeRenderer implements Animated {
         return patch_levels[patch_y][patch_x];
     }
 
-    public @NonNull PatchLevel getPatchLevel(@NonNull LandscapeLeaf leaf) {
+    private @NonNull PatchLevel getPatchLevel(@NonNull LandscapeLeaf leaf) {
         return getPatchLevel(leaf.getPatchX(), leaf.getPatchY());
     }
 
@@ -202,12 +204,10 @@ public final class LandscapeRenderer implements Animated {
         clearRenderList();
         doPrepareAll(camera, visible_override, render_list);
     }
-
-    private static final Visitor patch_visitor = new Visitor();
-
+    
     private void doPrepareAll(@NonNull CameraState camera, final boolean visible_override, @NonNull Collection<LandscapeLeaf> result) {
         endEdit();
-        patch_visitor.setup(camera, visible_override, result);
+        var patch_visitor = new Visitor(camera, visible_override, result);
         world.getPatchRoot().visit(patch_visitor);
     }
 
@@ -266,17 +266,12 @@ public final class LandscapeRenderer implements Animated {
                 }
             }
 
-            for (LandscapeLeaf patch : render_list) {
-                if (Globals.isBoundsEnabled(BoundingMode.LANDSCAPE)) {
-                    RenderTools.draw(patch, BoundingMode.LANDSCAPE, 1f, 0f, 0f);
-                    shader.use();
-                }
-                if (Globals.draw_landscape) renderPatch(patch);
-            }
+            if (Globals.draw_landscape)
+                render_list.forEach(this::renderPatch);
+
             landscape_vertices.unbind(shader);
             
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
-
         } finally {
             com.oddlabs.tt.vbo.VBO.releaseIndexVBO();
         }
@@ -309,8 +304,8 @@ public final class LandscapeRenderer implements Animated {
 
         @Override
         public void visitLeaf(@NonNull LandscapeLeaf leaf) {
-            int wanted_level = calculateLevel(leaf);
             PatchLevel patch_level = getPatchLevel(leaf);
+            int wanted_level = calculateLevel(leaf);
             patch_lists[wanted_level].add(patch_level);
         }
     };
@@ -319,14 +314,12 @@ public final class LandscapeRenderer implements Animated {
     public void animate(float t) {
         world.getPatchRoot().visit(level_updater);
         for (int i = patch_lists.length - 1; i >= 0; i--) {
-            List<PatchLevel> patches = patch_lists[i];
-            for (int j = 0; j < patches.size(); j++) {
-                PatchLevel patch_level = patches.get(j);
+            var patches = patch_lists[i];
+            while(!patches.isEmpty()) {
+                PatchLevel patch_level = patches.pop();
                 patch_level.setLevel(i);
                 patch_level.adjustLevel();
-                patches.set(j, null);
             }
-            patches.clear();
         }
     }
 
@@ -359,7 +352,7 @@ public final class LandscapeRenderer implements Animated {
         private boolean visible_override;
         private @NonNull Collection<LandscapeLeaf> result;
 
-        private void setup(@NonNull CameraState camera, boolean visible_override, @NonNull Collection<LandscapeLeaf> result) {
+        private Visitor(@NonNull CameraState camera, boolean visible_override, @NonNull Collection<LandscapeLeaf> result) {
             this.camera = camera;
             this.visible_override = visible_override;
             this.result = result;

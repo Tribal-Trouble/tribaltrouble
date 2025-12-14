@@ -104,6 +104,14 @@ public final class GUIRenderer {
         }
     }
 
+    public void drawTexture(@NonNull Texture texture, float x, float y, float w, float h) {
+        drawQuad(texture, x, y, w, h, 0, 0, 1, 1, Color.WHITE_INT);
+    }
+
+    public void drawTexture(@NonNull Texture texture, float x, float y, float w, float h, int tint) {
+        drawQuad(texture, x, y, w, h, 0, 0, 1, 1, tint);
+    }
+
     public void drawColoredQuad(float x, float y, float w, float h, int color) {
         drawQuad(whiteTexture, x, y, w, h, 0, 0, 1, 1, color);
     }
