@@ -45,7 +45,7 @@ jobs:
         name: linux-appimage
         path: tt/build/dist/linux/TribalTrouble-x86_64.AppImage
     - name: Upload Linux Package
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v4
       with:
         name: linux-package
         path: tt/build/dist/linux/TribalTrouble.AppDir
@@ -157,9 +157,9 @@ jobs:
         name: mac-arm64
         path: tt/build/dist/macosx-arm64/
     - name: Download Linux Artifact
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v4
       with:
-        name: linux
+        name: linux-package
         path: tt/build/dist/linux/
     - name: Upload to steam
       uses: game-ci/steam-deploy@v3
