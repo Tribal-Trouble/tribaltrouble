@@ -88,7 +88,7 @@ public final class Globals {
 
 	public static final int VIEW_BIT_DEPTH = 16;
 	public static final float FOV = 45.0f;
-	public static final float VIEW_MIN = 2f;
+	public static final float VIEW_MIN = 0.1f;
 	public static final float VIEW_MAX = 8000.0f;
 	public static final float GUI_Z = VIEW_MIN + 0.1f;
 

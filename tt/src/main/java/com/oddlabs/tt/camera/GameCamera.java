@@ -179,11 +179,6 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                                 getState().setTargetX(backup_x);
                                 getState().setTargetY(backup_y);
                                 getState().setTargetZ(backup_z);
-                        } else {
-                                getState().setTargetX(temp_x);
-                                getState().setTargetY(temp_y);
-                                getState().setTargetZ(temp_z);
-//                                      setScrollSpeed();
                         }
                         checkPosition();
                 }

@@ -21,8 +21,22 @@ import java.util.Objects;
  * The View
  */
 public abstract class Camera implements Animated {
+    /**
+     * The distance to project outwards from the screen corners when checking for landscape collisions.
+     * This ensures the camera pulls up before the terrain goes off-screen.
+     */
     private static final float LANDSCAPE_OFFSET = 5f;
+
+    /**
+     * Controls the interpolation speed for camera movements. A higher value results in faster, more responsive
+     * movement, while a lower value provides a smoother, more dampened feel.
+     */
     private static final float SMOOTHNESS_FACTOR = 15;
+    /**
+     * Minimum vertical distance to maintain between the camera's center and the ground below it.
+     * This prevents the camera from sinking into the terrain.
+     */
+    private static final float GROUND_CLEARANCE = 1.0f;
 
     private final IntBuffer viewport = Objects.requireNonNull(BufferUtils.createIntBuffer(16));
     private final Matrix4f proj = new Matrix4f();
@@ -121,7 +135,7 @@ public abstract class Camera implements Animated {
                 }
             }
         }
-        float min_height = heightmap.getNearestHeight(x, y);
+        float min_height = heightmap.getNearestHeight(x, y) + GROUND_CLEARANCE;
         if (z < min_height) {
                 bounced = true;
                 z = min_height;
