@@ -21,17 +21,26 @@ public final class GeneratorIron extends TextureGenerator {
 		Channel noise2 = new Midpoint(TEXTURE_SIZE, 3, .45f, seed).toChannel();
 		rock_bump.channelAdd(noise.copy().multiply(.02f));
 		Layer rock = noise.copy().dynamicRange(.5f, .75f).toLayer();
-		Layer rust = new Layer(new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(.4f), new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(.15f), new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(0f), noise2.copy().gamma2().invert());
+		Channel rustAlpha = noise2.copy().gamma2().invert();
+		Layer rust = new Layer(new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(.4f), new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(.15f), new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(0f), rustAlpha);
 		rock.layerBlend(rust);
 		rock.bump(rock_bump, TEXTURE_SIZE/256f, 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f).gamma(.5f).dynamicRange(0f, .75f);
-		rock.bumpSpecular(rock_bump, 1f, 0f, 1f, 0f, .1f, .1f, .1f, 1);
-		Layer stain = new Layer(noise2.copy().multiply(.4f), noise2.copy().multiply(.15f), noise2.copy().multiply(0f), noise2.copy().gamma(.75f).rotate(90));
+		// rock.bumpSpecular(rock_bump, 1f, 0f, 1f, 0f, .1f, .1f, .1f, 1); // Removed baked specular
+		Channel stainAlpha = noise2.copy().gamma(.75f).rotate(90);
+		Layer stain = new Layer(noise2.copy().multiply(.4f), noise2.copy().multiply(.15f), noise2.copy().multiply(0f), stainAlpha);
 		stain.bump(noise2.copy(), 8f, 0f, 1f, 1f, 1f, 1f, 0f, 0f, 0f);
 		rock.layerBlend(stain);
 		
+		Channel specular = new Channel(TEXTURE_SIZE, TEXTURE_SIZE).fill(0.65f).channelSubtract(rustAlpha).channelSubtract(stainAlpha).clip();
+
 		if (Landscape.DEBUG) new GLIntImage(rock).saveAsPNG("generator_iron");
-		Texture[] textures = new Texture[1];
+		
+		Layer normalMapLayer = rock_bump.toNormalMap(2.5f, specular);
+		if (Landscape.DEBUG) new GLIntImage(normalMapLayer).saveAsPNG("generator_iron_normal");
+		
+		Texture[] textures = new Texture[2];
 		textures[0] = new Texture(new GLIntImage(rock).createMipMaps(), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
+		textures[1] = new Texture(new GLIntImage(normalMapLayer).createMipMaps(), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
 		return textures;
 	}
 	

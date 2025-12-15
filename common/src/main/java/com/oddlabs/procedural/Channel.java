@@ -1656,6 +1656,48 @@ public final class Channel {
 		}
 	}
 
+	public @NonNull Layer toNormalMap(float strength, @NonNull Channel specularMap) {
+		Layer layer = toNormalMap(strength);
+		layer.addAlpha(specularMap);
+		return layer;
+	}
+
+	public @NonNull Layer toNormalMap(float strength) {
+		Channel r = new Channel(width, height);
+		Channel g = new Channel(width, height);
+		Channel b = new Channel(width, height);
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				// Sobel filter for better quality
+				float tl = getPixelWrap(x - 1, y - 1);
+				float t  = getPixelWrap(x, y - 1);
+				float tr = getPixelWrap(x + 1, y - 1);
+				float l  = getPixelWrap(x - 1, y);
+				float ri = getPixelWrap(x + 1, y);
+				float bl = getPixelWrap(x - 1, y + 1);
+				float bo = getPixelWrap(x, y + 1);
+				float br = getPixelWrap(x + 1, y + 1);
+
+				float dX = (tr + 2.0f * ri + br) - (tl + 2.0f * l + bl);
+				float dY = (bl + 2.0f * bo + br) - (tl + 2.0f * t + tr);
+				
+				float nx = -dX * strength;
+				float ny = -dY * strength;
+				float nz = 1.0f;
+
+				float len = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
+				nx /= len;
+				ny /= len;
+				nz /= len;
+
+				r.putPixel(x, y, (nx + 1.0f) * 0.5f);
+				g.putPixel(x, y, (ny + 1.0f) * 0.5f);
+				b.putPixel(x, y, (nz + 1.0f) * 0.5f);
+			}
+		}
+		return new Layer(r, g, b);
+	}
+
 	public @NonNull Channel erode(float talus, int iterations) {
 		float h, h1, h2, h3, h4, d1, d2, d3, d4, max_d;
 		int i, j;

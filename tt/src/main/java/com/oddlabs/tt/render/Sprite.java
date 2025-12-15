@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 public final class Sprite {
     static final int TEXTURE_NORMAL = 0;
     static final int TEXTURE_TEAM = 1;
+    static final int TEXTURE_BUMP = 2;
     private static final String GENERATOR_STRING = "Generator:";
 
     final Texture@NonNull [] @NonNull [] textures;
@@ -81,11 +82,16 @@ public final class Sprite {
         int color_format = alpha ? Globals.COMPRESSED_RGBA_FORMAT : Globals.COMPRESSED_RGB_FORMAT;
 
         String[][] texture_names = sprite_info.getTextures();
-        textures = new Texture[texture_names.length][2];
+        textures = new Texture[texture_names.length][3];
         for (int i = 0; i < texture_names.length; i++) {
-            textures[i][TEXTURE_NORMAL] = getTextureForName(texture_names[i][0], color_format, mipmap_cutoff, max_alpha);
+            Texture[] diffuseAndBump = getTextureForName(texture_names[i][0], color_format, mipmap_cutoff, max_alpha);
+            textures[i][TEXTURE_NORMAL] = diffuseAndBump[0];
+            if (diffuseAndBump.length > 1) {
+                textures[i][TEXTURE_BUMP] = diffuseAndBump[1];
+            }
+            
             textures[i][TEXTURE_TEAM] = texture_names[i][TEXTURE_TEAM] != null
-                    ? getTextureForName(texture_names[i][1], Globals.COMPRESSED_RGB_FORMAT, mipmap_cutoff, max_alpha)
+                    ? getTextureForName(texture_names[i][1], Globals.COMPRESSED_RGB_FORMAT, mipmap_cutoff, max_alpha)[0]
                     : null;
         }
         this.respond_texture = Resources.findResource(new GeneratorRespond())[0];
@@ -178,24 +184,28 @@ public final class Sprite {
         }
     }
 
-    private static Texture getTextureForName(@NonNull String texture_name, int color_format, int mipmap_cutoff, boolean max_alpha) {
+    private static Texture[] getTextureForName(@NonNull String texture_name, int color_format, int mipmap_cutoff, boolean max_alpha) {
         if (texture_name.startsWith(GENERATOR_STRING)) {
             String generator_class_name = texture_name.substring(GENERATOR_STRING.length());
             try {
                 Class<?> generator_class = Class.forName(generator_class_name);
                 Supplier<Texture[]> descriptor = (Supplier<Texture[]>) generator_class.getDeclaredConstructor().newInstance();
-                return Resources.findResource(descriptor)[0];
+                return Resources.findResource(descriptor);
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
                      InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            return Resources.findResource(new TextureFile("/textures/models/" + texture_name, color_format, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT, mipmap_cutoff, 100000, 0.1f, max_alpha));
+            return new Texture[] { Resources.findResource(new TextureFile("/textures/models/" + texture_name, color_format, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT, mipmap_cutoff, 100000, 0.1f, max_alpha)) };
         }
     }
 
     public boolean hasTeamDecal() {
         return textures[0][TEXTURE_TEAM] != null;
+    }
+    
+    public boolean hasBumpMap(int tex_index) {
+        return textures[tex_index][TEXTURE_BUMP] != null;
     }
 
     public int getNumTextures() {
@@ -224,6 +234,15 @@ public final class Sprite {
             } else {
                 shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, false);
             }
+        }
+        
+        if (hasBumpMap(tex_index)) {
+            shader.setUniform(SpriteShader.Uniforms.ENABLE_NORMAL_MAP, true);
+            GL13.glActiveTexture(GL13.GL_TEXTURE2);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_BUMP].getHandle());
+            shader.setUniform(SpriteShader.Uniforms.NORMAL_MAP, 2);
+        } else {
+            shader.setUniform(SpriteShader.Uniforms.ENABLE_NORMAL_MAP, false);
         }
     }
 
