@@ -187,6 +187,7 @@ public final class DefaultRenderer implements UIRenderer {
                 }
             }
         }
+        DebugRender.flush();
     }
 
     @Override
