@@ -13,7 +13,7 @@ import java.util.function.IntSupplier;
 import java.util.stream.Stream;
 
 public final class GeneratorClouds extends TextureGenerator {
-	private static final int TEXTURE_SIZE = 256;
+	private static final int TEXTURE_SIZE = 512;
 
 	public static final int INNER = 0;
 	public static final int OUTER = 1;

@@ -11,7 +11,7 @@ import com.oddlabs.tt.resource.GLIntImage;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 public final class GeneratorOcean extends TextureGenerator {
-	private static final int TEXTURE_SIZE = 256;
+	private static final int TEXTURE_SIZE = 512;
 
 	private final Landscape.TerrainType terrain;
 
