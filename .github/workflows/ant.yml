@@ -39,11 +39,16 @@ jobs:
         distribution: 'temurin'
     - name: Build with Ant
       run: ant -noinput -buildfile tt/build.xml build-linux
-    - name: Upload files
+    - name: Upload Linux AppImage
       uses: actions/upload-artifact@v4
       with:
-        name: linux
+        name: linux-appimage
         path: tt/build/dist/linux/TribalTrouble-x86_64.AppImage
+    - name: Upload Linux Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-package
+        path: tt/build/dist/linux/TribalTrouble.AppDir
 
   build-windows:
   
@@ -67,7 +72,7 @@ jobs:
     
   build-mac-x86:
   
-    runs-on: macos-13
+    runs-on: macOS-15
     needs: format-check
 
     steps:
@@ -109,7 +114,7 @@ jobs:
 # We would need to sign it to always use this type. Steam handles it for us.
   build-mac-x86-app:
     if: github.ref == 'refs/heads/steam'
-    runs-on: macos-13
+    runs-on: macOS-15
     needs: format-check
 
     steps:
@@ -154,7 +159,7 @@ jobs:
     - name: Download Linux Artifact
       uses: actions/download-artifact@v4
       with:
-        name: linux
+        name: linux-package
         path: tt/build/dist/linux/
     - name: Upload to steam
       uses: game-ci/steam-deploy@v3

@@ -144,6 +144,8 @@
         var scale = 1.0;
         var aspect = 1.0;
         var dragging = false;
+        var twoFinger = false;
+        var initFinger1X, initFinger1Y, initFinger2X, initFinger2Y;
         var mouseLastX, mouseLastY;
         var fetch_lock = false;
 
@@ -163,8 +165,27 @@
         canvas.addEventListener("mousedown", function(event) {
             if (!map_complete) return;
             dragging = true;
+            twoFinger = false;
             mouseLastX = event.clientX;
             mouseLastY = event.clientY;
+        });
+
+        canvas.addEventListener("touchstart", function(event) {
+            if (!map_complete) return;
+            if (event.targetTouches.length == 1) {
+                dragging = true;
+                twoFinger = false;
+                mouseLastX = event.targetTouches[0].clientX;
+                mouseLastY = event.targetTouches[0].clientY;
+            } else if (event.targetTouches.length == 2) {
+                initFinger1X = event.targetTouches[0].clientX;
+                initFinger1Y = event.targetTouches[0].clientY;
+                initFinger2X = event.targetTouches[1].clientX;
+                initFinger2Y = event.targetTouches[1].clientY;
+                twoFinger = true;
+                dragging = false;
+            }
+            event.preventDefault();
         });
 
         canvas.addEventListener("mousemove", function(event) {
@@ -178,14 +199,66 @@
             offset[0] += dx;
             offset[1] -= dy;
             renderTick(ticks[curr_tick_index]);
+            event.preventDefault();
+        });
+
+        canvas.addEventListener("touchmove", function(event) {
+            if (event.targetTouches.length == 1) {
+                if (!dragging) return;
+                var dx = event.targetTouches[0].clientX - mouseLastX;
+                var dy = event.targetTouches[0].clientY - mouseLastY;
+                mouseLastX = event.targetTouches[0].clientX;
+                mouseLastY = event.targetTouches[0].clientY;
+                dx *= 2.0 / canvas.clientHeight;
+                dy *= 2.0 / canvas.clientHeight;
+                offset[0] += dx;
+                offset[1] -= dy;
+                renderTick(ticks[curr_tick_index]);
+                event.preventDefault();
+            } else if (event.targetTouches.length == 2) {
+                if (!twoFinger) return;
+                const d0x = initFinger2X - initFinger1X;
+                const d0y = initFinger2Y - initFinger1Y;
+                const d0 = Math.sqrt(d0x * d0x + d0y * d0y);
+                const d1x = event.targetTouches[1].clientX - event.targetTouches[0].clientX;
+                const d1y = event.targetTouches[1].clientY - event.targetTouches[0].clientY;
+                const d1 = Math.sqrt(d1x * d1x + d1y * d1y);
+                const old = scale;
+                scale *= d1 / d0;
+                scale = Math.max(0.3, scale);
+                scale = Math.min(10.0, scale);
+                offset[0] = offset[0] / (old / scale);
+                offset[1] = offset[1] / (old / scale);
+                initFinger1X = event.targetTouches[0].clientX;
+                initFinger1Y = event.targetTouches[0].clientY;
+                initFinger2X = event.targetTouches[1].clientX;
+                initFinger2Y = event.targetTouches[1].clientY;
+                renderTick(ticks[curr_tick_index]);
+                event.preventDefault();
+            }
+            event.preventDefault();
         });
 
         canvas.addEventListener("mouseup", function(event) {
             dragging = false;
+            twoFinger = false;
+        });
+
+        canvas.addEventListener("touchup", function(event) {
+            dragging = false;
+            twoFinger = false;
+            event.preventDefault();
+        });
+
+        document.addEventListener("touchup", function(event) {
+            dragging = false;
+            twoFinger = false;
+            event.preventDefault();
         });
 
         document.addEventListener("mouseup", function() {
             dragging = false;
+            twoFinger = false;
         });
 
         var state_per_tick = {};

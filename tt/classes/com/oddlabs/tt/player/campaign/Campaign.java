@@ -87,7 +87,7 @@ public abstract class Campaign {
                 Utils.getBundleString(
                         bundle,
                         "failed_message",
-                        new Object[] {LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage()});
+                        new Object[] {LoadCampaignBox.getSavegamesFileName(), e.getMessage()});
         viewer.getGUIRoot().addModalForm(new MessageForm(failed_message));
     }
 
