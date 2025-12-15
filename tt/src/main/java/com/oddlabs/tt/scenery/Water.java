@@ -40,7 +40,7 @@ public final class Water implements AutoCloseable {
     private final float[] scrollOffset0 = new float[2];
     private final float[] scrollOffset1 = new float[2];
     private float flowDirection = (float) Math.toRadians(45f);
-    private float flowSpeed = 0.01f;
+    private float flowSpeed = 0.001f;
     private float targetFlowDirection = flowDirection;
     private float targetFlowSpeed = flowSpeed;
     private float timeSinceChange = 0f;
@@ -126,12 +126,8 @@ public final class Water implements AutoCloseable {
         scrollOffset0[1] += dy;
         
         // Detail layer moves faster and slightly differently to create interference
-        scrollOffset1[0] += dx * 2.0f; 
-        scrollOffset1[1] += dy * 0.5f; // Less Y movement for detail to stretch it? Or keep standard? 
-        // Original shader had u_time * 0.02 for X and 0.0 for Y.
-        // Let's make it follow the flow but faster.
-        // scrollOffset1[0] += dx * 2.0f;
-        // scrollOffset1[1] += dy * 2.0f; 
+        scrollOffset1[0] += dx * 1.2f; 
+        scrollOffset1[1] += dy * 0.8f;
 
         try (var _ = waterShader.use();
              var _ = state.getFog().setup(waterShader, state.getCurrentZ());
