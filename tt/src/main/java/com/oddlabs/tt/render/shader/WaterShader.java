@@ -112,15 +112,19 @@ public final class WaterShader extends ShaderProgram implements FogShader {
             
             vec3 normal = normalize(vec3((h - h_x) * 2.0, (h - h_y) * 2.0, 0.1));
 
-            // Specular Lighting (Blinn-Phong)
+            // Specular Lighting (Blinn-Phong) with Fresnel
             vec3 lightDir = normalize(u_lightDir);
             vec3 viewDir = normalize(u_cameraPos - v_worldPos);
             vec3 halfDir = normalize(lightDir + viewDir);
             
             float specAngle = max(dot(normal, halfDir), 0.0);
-            float specular = pow(specAngle, 20.0);
+            float specular = pow(specAngle, 30.0);
             
-            finalColor.rgb += vec3(specular * 0.04);
+            // Fresnel Schlick approximation
+            float F0 = 0.04; 
+            float F = F0 + (1.0 - F0) * pow(1.0 - max(dot(halfDir, viewDir), 0.0), 5.0);
+            
+            finalColor.rgb += vec3(specular * F);
             
             gl_FragColor = finalColor;
 
