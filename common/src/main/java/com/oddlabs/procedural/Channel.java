@@ -15,7 +15,7 @@ import java.util.zip.Checksum;
  */
 @SuppressWarnings("UnusedReturnValue")
 public final class Channel {
-	private float[][] pixels;
+	private float @NonNull [] @NonNull [] pixels;
 	public int width;
 	public int height;
 	private final boolean powerof2;

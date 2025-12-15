@@ -45,11 +45,13 @@ import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 public final class RacesResources {
 	public static final int QUARTERS_SIZE = 5;
 	public static final int ARMORY_SIZE = 5;
 	public static final int TOWER_SIZE = 3;
+	public static final int MAX_BUILDING_SIZE = IntStream.of(QUARTERS_SIZE, ARMORY_SIZE, TOWER_SIZE).max().orElseThrow();
 	public static final int QUARTERS_HIT_POINTS = 200;
 	public static final int ARMORY_HIT_POINTS = 200;
 	public static final int TOWER_HIT_POINTS = 100;

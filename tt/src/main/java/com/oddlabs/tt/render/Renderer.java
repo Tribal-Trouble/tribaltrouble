@@ -424,7 +424,7 @@ public final class Renderer {
 		WorldParameters world_params = new WorldParameters(Game.GAMESPEED_NORMAL, "", 2, Player.DEFAULT_MAX_UNIT_COUNT);
 		PlayerInfo[] players = new PlayerInfo[]{player_info};
         WorldInfo world_info = generator.generate(players.length, world_params.getInitialUnitCount(), 0f);
-        FogInfo fog_info = Landscape.getFogInfo(generator.getTerrainType(), world_info.meters_per_world);
+        FogInfo fog_info = generator.getFogInfo();
         RenderQueues render_queues = new RenderQueues(new SpriteBatchRenderer(shader, modelViewStack, projectionStack));
 		LandscapeResources landscape_resources = World.loadCommon(render_queues);
 		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {

@@ -37,7 +37,6 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.player.VikingChieftainAI;
-import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.DefaultRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.MatrixStack;
@@ -59,7 +58,7 @@ import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public final class WorldViewer implements Animated {
+public final class WorldViewer implements Animated, AutoCloseable {
 
     private static final String[] GAMESPEED_STRINGS = new String[]{"paused", "slow", "normal", "fast", "ludicrous"};
 
@@ -89,7 +88,7 @@ public final class WorldViewer implements Animated {
         this.notification_manager = new NotificationManager(gui_root);
         this.cheat = new Cheat(!ingame_info.isMultiplayer());
         this.animation_manager_local = new AnimationManager();
-        final FogInfo worldFog = Landscape.getFogInfo(generator.getTerrainType(), generator.getMetersPerWorld());
+        final FogInfo worldFog = generator.getFogInfo();
         final CameraState camera_state = new CameraState(worldFog);
         FixedFunctionShader ffShader = new FixedFunctionShader();
         MatrixStack modelViewStack = new MatrixStack();
@@ -152,10 +151,7 @@ public final class WorldViewer implements Animated {
                 getLandscapeRenderer().patchesEdited(patch_x0, patch_y0, patch_x1, patch_y1);
             }
         };
-        PlayerInfo[] player_infos = new PlayerInfo[player_slots.length];
-        for (int i = 0; i < player_slots.length; i++) {
-            player_infos[i] = player_slots[i].getInfo();
-        }
+        PlayerInfo[] player_infos = Arrays.stream(player_slots).map(PlayerSlot::getInfo).toArray(PlayerInfo[]::new);
         WorldInfo world_info = generator.generate(player_infos.length, world_params.getInitialUnitCount(), ingame_info.getRandomStartPosition());
         this.world = World.newWorld(audio_impl, landscape_resources, races_resources, LandscapeResources.loadTreeLowDetails(), listener, world_params, world_info, generator.getTerrainType(), player_infos, colors, worldFog);
         this.local_player = world.getPlayers()[player_slot];
@@ -186,6 +182,13 @@ public final class WorldViewer implements Animated {
     public void updateChecksum(@NonNull StateChecksum sum) {
     }
 
+    @Override
+    public void close() {
+        LocalEventQueue.getQueue().getManager().removeAnimation(this);
+        peerhub.close();
+        ingame_info.close(this);
+    }
+
     public @NonNull WorldParameters getParameters() {
         return world_params;
     }
@@ -206,33 +209,20 @@ public final class WorldViewer implements Animated {
         if (slot.getType() == PlayerSlot.AI) {
             AI ai = null;
             switch (slot.getAIDifficulty()) {
-                case PlayerSlot.AI_NORMAL:
-                    ai = new AdvancedAI(player, unit_info, AdvancedAI.DIFFICULTY_NORMAL);
-                    break;
-                case PlayerSlot.AI_HARD:
-                    ai = new AdvancedAI(player, unit_info, AdvancedAI.DIFFICULTY_HARD);
-                    break;
-                case PlayerSlot.AI_EASY:
-                    ai = new AdvancedAI(player, unit_info, AdvancedAI.DIFFICULTY_EASY);
-                    break;
-                case PlayerSlot.AI_BATTLE_TUTORIAL:
-                    ai = new PassiveAI(player, unit_info, true);
-                    break;
-                case PlayerSlot.AI_TOWER_TUTORIAL:
-                    break;
-                case PlayerSlot.AI_CHIEFTAIN_TUTORIAL:
+                case PlayerSlot.AI_NORMAL -> ai = new AdvancedAI(player, unit_info, AdvancedAI.DIFFICULTY_NORMAL);
+                case PlayerSlot.AI_HARD -> ai = new AdvancedAI(player, unit_info, AdvancedAI.DIFFICULTY_HARD);
+                case PlayerSlot.AI_EASY -> ai = new AdvancedAI(player, unit_info, AdvancedAI.DIFFICULTY_EASY);
+                case PlayerSlot.AI_BATTLE_TUTORIAL -> ai = new PassiveAI(player, unit_info, true);
+                case PlayerSlot.AI_TOWER_TUTORIAL -> {
+                }
+                case PlayerSlot.AI_CHIEFTAIN_TUTORIAL -> {
                     new Unit(player, 100, 100, null, player.getRace().getUnitTemplate(Race.UNIT_PEON));
                     new Unit(player, 200, 100, null, player.getRace().getUnitTemplate(Race.UNIT_PEON));
                     new Unit(player, 40, 200, null, player.getRace().getUnitTemplate(Race.UNIT_PEON));
-                    break;
-                case PlayerSlot.AI_PASSIVE_CAMPAIGN:
-                    ai = new PassiveAI(player, unit_info, true);
-                    break;
-                case PlayerSlot.AI_NEUTRAL_CAMPAIGN:
-                    ai = new PassiveAI(player, unit_info, false);
-                    break;
-                default:
-                    throw new RuntimeException();
+                }
+                case PlayerSlot.AI_PASSIVE_CAMPAIGN -> ai = new PassiveAI(player, unit_info, true);
+                case PlayerSlot.AI_NEUTRAL_CAMPAIGN -> ai = new PassiveAI(player, unit_info, false);
+                default -> throw new IllegalArgumentException("unexpected difficulty: " + slot.getAIDifficulty());
             }
             player.setAI(ai);
         } else {
@@ -323,13 +313,6 @@ public final class WorldViewer implements Animated {
 
     public void addGUI(InGameMainMenu menu, Group game_infos) {
         ingame_info.addGUI(this, menu, game_infos);
-    }
-
-    public void close() {
-        LocalEventQueue.getQueue().getManager().removeAnimation(this);
-        if (peerhub != null)
-            peerhub.close();
-        ingame_info.close(this);
     }
 
     public @NonNull GameCamera getCamera() {
