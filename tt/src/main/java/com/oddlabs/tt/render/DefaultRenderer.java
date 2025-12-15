@@ -48,7 +48,7 @@ public final class DefaultRenderer implements UIRenderer {
     private final @NonNull Cheat cheat;
     private final @NonNull MatrixStack modelViewStack;
     private final @NonNull MatrixStack projectionStack;
-    private final Selection selection;
+    private final @NonNull Selection selection;
     private final @NonNull SkyShader skyShader;
     private final @NonNull SeaBottomShader seaBottomShader;
     private final @NonNull EmitterRenderer emitterRenderer;
@@ -56,7 +56,7 @@ public final class DefaultRenderer implements UIRenderer {
 
     private @Nullable Building selected_building;
 
-    public DefaultRenderer(@NonNull Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public DefaultRenderer(@NonNull Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, @NonNull Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         this.world = local_player.getWorld();
         this.cheat = cheat;
         this.render_queues = render_queues;
@@ -181,10 +181,8 @@ public final class DefaultRenderer implements UIRenderer {
         if (Globals.isBoundsEnabled(BoundingMode.OCCUPATION)) picker.debugRender();
         if (Globals.isBoundsEnabled(BoundingMode.UNIT_GRID)) {
             world.getUnitGrid().debugRender(frustum_state.getCurrentX(), frustum_state.getCurrentY());
-            if (selection != null) {
-                for (Object obj : selection.getCurrentSelection().getSet()) {
-                    if (obj instanceof Unit unit) unit.debugRender();
-                }
+            for (Object obj : selection.getCurrentSelection().getSet()) {
+                if (obj instanceof Unit unit) unit.debugRender();
             }
         }
         DebugRender.flush();
