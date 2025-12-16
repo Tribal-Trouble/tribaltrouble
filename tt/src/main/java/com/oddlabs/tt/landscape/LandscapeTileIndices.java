@@ -13,7 +13,7 @@ public final class LandscapeTileIndices {
 	private final @NonNull HeightMap heightmap;
 	private final int patch_exp;
 	private final int @NonNull [] patch_indices_indices;
-	private final LandscapeTileTriangle @NonNull []@NonNull [] @NonNull [] quad_to_planes;
+	private final @NonNull LandscapeTileTriangle @NonNull [] @NonNull [] @NonNull [] quad_to_planes;
 	private final @NonNull ShortBuffer indices;
 
 	static int getIndex(int patch_exp, int x, int y) {
@@ -83,15 +83,6 @@ public final class LandscapeTileIndices {
 		}
 	}
 
-	private static int countBits(int v) {
-		int count = 0;
-		for (int i = 0; i < 31; i++) {
-			count += v&1;
-			v >>= 1;
-		}
-		return count;
-	}
-
 	private int getNumPatchesAndLinks(int lod) {
 		return (lod >>1)*(NUM_LINK_TILES + 1 + 1) + (lod&1);
 	}
@@ -127,7 +118,7 @@ public final class LandscapeTileIndices {
 				int num_extra_link_triangles = getNumLinkTriangles(i);
 				for (int j = 1; j <= NUM_LINK_TILES; j++) {
 					patch_indices_indices[index++] = triangle_index;
-					int size = num_triangles + countBits(j)*num_extra_link_triangles;
+					int size = num_triangles + Integer.bitCount(j)*num_extra_link_triangles;
 					triangle_index += size;
 //System.out.println("1i = " + i + " | j = " + j + " | size = " + size);
 				}
