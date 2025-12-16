@@ -42,13 +42,17 @@ public class SteamAchievementManager implements SteamUserStatsCallback, SteamUse
     public SteamAchievementManager(boolean debug) {
         this.debugEnabled = debug;
         if (debug) SteamAPI.printDebugInfo(System.out);
-
-        steamUserStats = new SteamUserStats(this);
-        steamUser = new SteamUser(this);
-        if (steamUserStats.requestCurrentStats()) {
-            debugPrint("Successfully requested current stats.");
+        if (SteamAPI.isSteamRunning()) {
+            steamUserStats = new SteamUserStats(this);
+            steamUser = new SteamUser(this);
+            if (steamUserStats.requestCurrentStats()) {
+                debugPrint("Successfully requested current stats.");
+            } else {
+                debugPrint("Failed to request current stats.");
+            }
         } else {
-            debugPrint("Failed to request current stats.");
+            steamUser = null;
+            steamUserStats = null;
         }
     }
 
@@ -57,20 +61,31 @@ public class SteamAchievementManager implements SteamUserStatsCallback, SteamUse
     }
 
     public int getStat(String stat_name, int default_value) {
-        return steamUserStats.getStatI(stat_name, default_value);
+        if (SteamAPI.isSteamRunning()) {
+            return steamUserStats.getStatI(stat_name, default_value);
+        } else {
+            return 0;
+        }
     }
 
     public void setStat(String stat_name, int value) {
-        steamUserStats.setStatI(stat_name, value);
-        steamUserStats.storeStats();
+        if (SteamAPI.isSteamRunning()) {
+            steamUserStats.setStatI(stat_name, value);
+            steamUserStats.storeStats();
+        }
     }
 
     public boolean isAchievementUnlocked(String achivement_name) {
-        return steamUserStats.isAchieved(achivement_name, false);
+        if (SteamAPI.isSteamRunning()) {
+            return steamUserStats.isAchieved(achivement_name, false);
+        } else {
+            return false;
+        }
     }
 
     public void updateAchievementProgress(
             String achievementId, int currentProgress, int maxProgress) {
+        if (!SteamAPI.isSteamRunning()) return;
         if (steamUserStats.indicateAchievementProgress(
                 achievementId, currentProgress, maxProgress)) {
             debugPrint(
@@ -88,6 +103,8 @@ public class SteamAchievementManager implements SteamUserStatsCallback, SteamUse
     }
 
     public void unlockAchievement(String achievementId) {
+        if (!SteamAPI.isSteamRunning()) return;
+
         if (isAchievementUnlocked(achievementId)) {
             // debugPrint("Achievement already unlocked in this session: " + achievementId);
             return;
@@ -103,6 +120,8 @@ public class SteamAchievementManager implements SteamUserStatsCallback, SteamUse
     }
 
     public void onUserStatsStored(long gameId, int result) {
+        if (!SteamAPI.isSteamRunning()) return;
+
         if (result == SteamResult.OK.ordinal()) {
             debugPrint("User stats successfully stored.");
         } else {
