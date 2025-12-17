@@ -15,6 +15,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GLContext;
 
 import java.nio.FloatBuffer;
@@ -114,6 +116,17 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 		setSize(total_size);
 	}
 
+	public Texture(int width, int height, int internal_format) {
+        this(width, height, internal_format, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_CLAMP);
+	}
+
+    public Texture(int width, int height, int internal_format, int min_filter, int mag_filter, int wrap) {
+        this(width, height, min_filter, mag_filter, wrap, wrap, 1000);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, internal_format, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer)null);
+        int size = determineMipMapSize(0, internal_format, width, height);
+        setSize(size);
+    }
+
 	public Texture(int width, int height, int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level) throws IllegalArgumentException {
         super(new NativeTexture(initTexture(min_filter, mag_filter, wrap_s, wrap_t, max_mipmap_level)));
 		if (width <= 0 || height <= 0) {
@@ -208,6 +221,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
                 case GL13.GL_COMPRESSED_RGBA, GL11.GL_RGBA -> width * height * 4;
                 case GL11.GL_LUMINANCE, GL11.GL_ALPHA8, GL11.GL_ALPHA, GL13.GL_COMPRESSED_LUMINANCE,
                      GL13.GL_COMPRESSED_ALPHA -> width * height;
+                case GL30.GL_R32F -> width * height * 4;
                 default -> throw new RuntimeException("0x" + Integer.toHexString(internal_format));
             };
 		}

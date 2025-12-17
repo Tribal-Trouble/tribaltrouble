@@ -167,8 +167,7 @@ public final class RenderState implements ElementVisitor {
 	}
 
 	private float getVisuallyCorrectHeight(float x_f, float y_f) {
-		int patch_level = landscape_renderer.getPatchLevelFromCoordinates(x_f, y_f).getLevel();
-		return local_player.getWorld().getHeightMap().computeInterpolatedHeight(patch_level, x_f, y_f);
+		return local_player.getWorld().getHeightMap().computeInterpolatedHeight(0, x_f, y_f);
 	}
 
 	private static float getBuildingSelectionRadius(@NonNull Building building) {

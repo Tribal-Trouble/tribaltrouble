@@ -13,7 +13,7 @@ application {
         "-Djava.library.path=build/libs/native",
         "-Dcom.oddlabs.tt.developer=true",
         "-Dorg.lwjgl.util.Debug=true",
-        "-Xmx80m"
+        "-Xms80m", "-Xmx512m"
     )
 }
 

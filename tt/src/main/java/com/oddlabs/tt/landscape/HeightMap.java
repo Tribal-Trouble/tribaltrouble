@@ -32,6 +32,7 @@ public final class HeightMap {
 	private final float meters_per_chunk_border;
 	private final float chunk_tex_scale;
 	private final World world_instance;
+    private final com.oddlabs.tt.render.Texture heightTexture;
 
 	public HeightMap(World world_instance, int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, float@NonNull [] @NonNull [] world, List<int[]> trees, boolean[][] access_grid, byte[][] build_grid) {
 		this.world = world;
@@ -56,7 +57,23 @@ public final class HeightMap {
 		chunk_tex_scale = 1f/(meters_per_chunk + 2f*meters_per_chunk_border);
 
 		landscape_leaves = new LandscapeLeaf[getPatchesPerWorld()][getPatchesPerWorld()];
+        
+        // Create Height Texture
+        java.nio.FloatBuffer buffer = org.lwjgl.BufferUtils.createFloatBuffer(grid_units_per_world * grid_units_per_world);
+        for (int y = 0; y < grid_units_per_world; y++) {
+            for (int x = 0; x < grid_units_per_world; x++) {
+                buffer.put(world[y][x]);
+            }
+        }
+        buffer.flip();
+        heightTexture = new com.oddlabs.tt.render.Texture(grid_units_per_world, grid_units_per_world, org.lwjgl.opengl.GL30.GL_R32F, org.lwjgl.opengl.GL11.GL_LINEAR, org.lwjgl.opengl.GL11.GL_LINEAR, org.lwjgl.opengl.GL11.GL_REPEAT);
+        org.lwjgl.opengl.GL11.glBindTexture(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, heightTexture.getHandle());
+        org.lwjgl.opengl.GL11.glTexImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, org.lwjgl.opengl.GL30.GL_R32F, grid_units_per_world, grid_units_per_world, 0, org.lwjgl.opengl.GL11.GL_RED, org.lwjgl.opengl.GL11.GL_FLOAT, buffer);
 	}
+    
+    public com.oddlabs.tt.render.Texture getHeightTexture() {
+        return heightTexture;
+    }
 
 	public boolean isGridInside(int x, int y) {
 		boolean inside_world = x >= 0 && y >= 0 && x < getGridUnitsPerWorld() && y < getGridUnitsPerWorld();
@@ -186,12 +203,32 @@ public final class HeightMap {
 	public float computeInterpolatedHeight(int lod, float x_f, float y_f) {
 		x_f *= inv_meters_per_grid_unit;
 		y_f *= inv_meters_per_grid_unit;
-		return world_instance.getLandscapeIndices().getHeight(lod, x_f, y_f);
+        
+        int size = getGridUnitsPerWorld();
+        x_f = (x_f % size + size) % size;
+        y_f = (y_f % size + size) % size;
+        
+        int x0 = (int)x_f;
+        int y0 = (int)y_f;
+        int x1 = (x0 + 1) % size;
+        int y1 = (y0 + 1) % size;
+        
+        float dx = x_f - x0;
+        float dy = y_f - y0;
+        
+        float h00 = world[y0][x0];
+        float h10 = world[y0][x1];
+        float h01 = world[y1][x0];
+        float h11 = world[y1][x1];
+        
+        float h0 = h00 * (1 - dx) + h10 * dx;
+        float h1 = h01 * (1 - dx) + h11 * dx;
+        
+        return h0 * (1 - dy) + h1 * dy;
 	}
 
 	public float getNearestHeight(float x_f, float y_f) {
-		float y_z = computeInterpolatedHeight(world_instance.getLandscapeIndices().getNumLOD() - 1, x_f, y_f);
-		return y_z;
+		return computeInterpolatedHeight(0, x_f, y_f);
 	}
 
 	public float getClampedHeight(int grid_x, int grid_y) {
@@ -231,6 +268,12 @@ public final class HeightMap {
 		grid_x = wrapGridCoord(grid_x);
 		grid_y = wrapGridCoord(grid_y);
 		world[grid_y][grid_x] = height;
+        
+        java.nio.FloatBuffer buf = org.lwjgl.BufferUtils.createFloatBuffer(1);
+        buf.put(height).flip();
+        org.lwjgl.opengl.GL11.glBindTexture(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, heightTexture.getHandle());
+        org.lwjgl.opengl.GL11.glTexSubImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, grid_x, grid_y, 1, 1, org.lwjgl.opengl.GL11.GL_RED, org.lwjgl.opengl.GL11.GL_FLOAT, buf);
+
 		int patch_x1 = grid_x/GRID_UNITS_PER_PATCH;
 		int patch_y1 = grid_y/GRID_UNITS_PER_PATCH;
 		boolean x_border = patch_x1*GRID_UNITS_PER_PATCH == grid_x;

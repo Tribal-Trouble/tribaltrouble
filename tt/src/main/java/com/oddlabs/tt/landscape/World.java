@@ -47,7 +47,6 @@ public final class World {
 	private final @NonNull Player @NonNull [] players;
 	private final @NonNull SupplyManagers supply_managers;
 	private final @NonNull UnitGrid unit_grid;
-	private final @NonNull LandscapeTileIndices landscape_indices;
 	private final @NonNull AbstractPatchGroup patch_root;
 	private final @NonNull AbstractTreeGroup tree_root;
 	private final @NonNull AbstractElementNode<?> element_root;
@@ -174,7 +173,6 @@ public final class World {
 		this.supply_managers = new SupplyManagers(this);
 		this.unit_grid = new UnitGrid(world);
 		RegionBuilder.buildRegions(unit_grid, world_info.starting_locations[0][0], world_info.starting_locations[0][1]);
-		this.landscape_indices = new LandscapeTileIndices(world, HeightMap.GRID_UNITS_PER_PATCH_EXP);
 		this.patch_root = new PatchGroup(this);
 		this.tree_root = AbstractTreeGroup.newRoot(this, tree_low_details, world_info.trees, world_info.palm_trees, terrain);
 		this.element_root = AbstractElementNode.newRoot(world);
@@ -187,10 +185,6 @@ public final class World {
 
 	public @NonNull AbstractTreeGroup getTreeRoot() {
 		return tree_root;
-	}
-
-	public @NonNull LandscapeTileIndices getLandscapeIndices() {
-		return landscape_indices;
 	}
 
 	public @NonNull AbstractPatchGroup getPatchRoot() {

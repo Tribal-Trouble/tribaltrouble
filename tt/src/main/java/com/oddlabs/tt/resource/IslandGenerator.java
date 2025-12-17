@@ -85,15 +85,19 @@ public final class IslandGenerator implements WorldGenerator {
 			IO.println("Landscape created in " + Duration.between(time_before, time_after));
 		BlendInfo[] blend_infos = landscape.getBlendInfos();
 		Texture detail = createDetail(landscape.getDetail(), base_level);
-		// int alpha_size = grid_units;
-		// Texture[][] chunk_maps = blendTextures(chunks_per_colormap, blend_infos, alpha_size, Globals.STRUCTURE_SIZE, colormap_size/alpha_size);
-        Texture[][] chunk_maps = null;
-		ProgressForm.progress();
-		return new WorldInfo(meters_per_world, landscape.getSeaLevelMeters(),
-				colormap_size, chunks_per_colormap, chunk_maps, detail,
-				landscape.getHeight(),
-				landscape.getTrees(), landscape.getPalmtrees(), landscape.getRock(), landscape.getIron(), landscape.getPlants(),
-				landscape.getAccessGrid(), landscape.getBuildGrid(), landscape.getStartingLocations(),
-				blend_infos);
+				// int alpha_size = grid_units;
+				// Texture[][] chunk_maps = blendTextures(chunks_per_colormap, blend_infos, alpha_size, Globals.STRUCTURE_SIZE, colormap_size/alpha_size);
+		        
+		        com.oddlabs.tt.landscape.LandscapeBaker baker = new com.oddlabs.tt.landscape.LandscapeBaker();
+		        float textureScale = meters_per_world * Globals.LANDSCAPE_TEXTURE_SCALE;
+		        WorldInfo.Maps maps = baker.bake(colormap_size, textureScale, blend_infos);
+		        
+				ProgressForm.progress();
+				return new WorldInfo(meters_per_world, landscape.getSeaLevelMeters(),
+						colormap_size, chunks_per_colormap, null, maps, detail,
+						landscape.getHeight(),
+						landscape.getTrees(), landscape.getPalmtrees(), landscape.getRock(), landscape.getIron(), landscape.getPlants(),
+						landscape.getAccessGrid(), landscape.getBuildGrid(), landscape.getStartingLocations(),
+						blend_infos);
 	}
 }

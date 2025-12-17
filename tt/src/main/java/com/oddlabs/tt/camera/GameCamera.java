@@ -17,6 +17,7 @@ public final class GameCamera extends Camera {
     private static final float INIT_DISTANCE = 50;
     private static final float ANGLE_DELTA = (float)(Math.PI/2);
     public static final float MAX_Z = 100f;
+    private static final float GROUND_CLEARANCE = 1.0f;
     private static final float ZOOM_Z_DIR_MIN = -(float)Math.tan(Math.PI/6);
     private static final float SCROLL_ACCELERATION_SECONDS_MAX = 1f;
     private static final float SCROLL_ACCELERATION_FACTOR = 2.5f;
@@ -163,6 +164,9 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                 float temp_x = getState().getTargetX() + dir_x*zoom_factor;
                 float temp_y = getState().getTargetY() + dir_y*zoom_factor;
                 float temp_z = getState().getTargetZ() + dir_z*zoom_factor;
+                
+                float min_z_level = getHeightMap().getSeaLevelMeters() + GROUND_CLEARANCE;
+                temp_z = Math.max(temp_z, min_z_level);
                 float backup_x = getState().getTargetX();
                 float backup_y = getState().getTargetY();
                 float backup_z = getState().getTargetZ();

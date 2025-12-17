@@ -148,7 +148,6 @@ public final class WorldViewer implements Animated, AutoCloseable {
 
             @Override
             public void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
-                getLandscapeRenderer().patchesEdited(patch_x0, patch_y0, patch_x1, patch_y1);
             }
         };
         PlayerInfo[] player_infos = Arrays.stream(player_slots).map(PlayerSlot::getInfo).toArray(PlayerInfo[]::new);

@@ -112,7 +112,7 @@ public final class Globals {
 
 	public static final float[][] SEA_BOTTOM_COLOR = {
 			Color.rgb3f(0x734099), // NATIVE
-			Color.rgb3f(0x000000)  // VIKING
+			Color.rgb3f(0x1A_33_3D)  // VIKING (Dark Blue-Green)
 	};
 
 	public static final float TREE_ERROR_DISTANCE = 100f;

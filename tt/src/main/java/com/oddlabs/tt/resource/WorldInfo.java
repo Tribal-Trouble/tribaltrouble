@@ -6,7 +6,10 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 public final class WorldInfo {
+    public record Maps(Texture diffuse, Texture normal) {}
+
 	public final @NonNull Texture @NonNull [] @NonNull [] colormaps;
+    public final Maps maps;
 	public final @NonNull Texture detail;
 	public final float @NonNull [] @NonNull [] heightmap;
 	public final @NonNull List<int[]> trees;
@@ -23,12 +26,13 @@ public final class WorldInfo {
 	public final float @NonNull [] @NonNull [] starting_locations;
 	public final @NonNull BlendInfo @NonNull [] blend_infos;
 
-	public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, @NonNull Texture @NonNull [] @NonNull [] colormaps, @NonNull Texture detail, float @NonNull [] @NonNull [] heightmap, @NonNull List<int[]> trees, @NonNull List<int[]> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron, float @NonNull [] @NonNull [] plants, boolean@NonNull [] @NonNull [] access_grid, byte @NonNull [] @NonNull [] build_grid, float @NonNull [] @NonNull [] starting_locations, @NonNull BlendInfo @NonNull [] blend_infos) {
+	public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, Texture[][] colormaps, Maps maps, Texture detail, float[][] heightmap, List<int[]> trees, List<int[]> palm_trees, List<int[]> rocks, List<int[]> iron, float[][] plants, boolean[][] access_grid, byte[][] build_grid, float[][] starting_locations, BlendInfo @NonNull [] blend_infos) {
 		this.texels_per_colormap = texels_per_colormap;
 		this.chunks_per_colormap = chunks_per_colormap;
 		this.sea_level_meters = sea_level_meters;
 		this.meters_per_world = meters_per_world;
 		this.colormaps = colormaps;
+        this.maps = maps;
 		this.detail = detail;
 		this.heightmap = heightmap;
 		this.trees = trees;
