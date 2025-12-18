@@ -47,7 +47,7 @@ public final class HttpRequest {
 			}
 
 			@Override
-			public void taskFailed(Exception e) {
+			public void taskFailed(@NonNull Throwable e) {
 				callback.error((IOException)e);
 			}
 		});
@@ -66,7 +66,7 @@ public final class HttpRequest {
 			}
 
 			@Override
-			public void taskFailed(Exception e) {
+			public void taskFailed(@NonNull Throwable e) {
 				callback.error((IOException)e);
 			}
 		});
@@ -85,11 +85,12 @@ public final class HttpRequest {
 		HttpURLConnection conn = (HttpURLConnection)openConnection(url);
 		conn.setRequestMethod("POST");
 		conn.setDoOutput(true);
+
 		ByteArrayOutputStream byte_os = new ByteArrayOutputStream();
-            try (OutputStreamWriter out = new OutputStreamWriter(byte_os, StandardCharsets.UTF_8)) {
-                String query_string = parameters.createQueryString();
-                out.write(query_string, 0, query_string.length());
-            }
+		try (OutputStreamWriter out = new OutputStreamWriter(byte_os, StandardCharsets.UTF_8)) {
+			String query_string = parameters.createQueryString();
+			out.write(query_string, 0, query_string.length());
+		}
 
 		conn.setRequestProperty("Content-Length", String.valueOf(byte_os.size()));
 		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -136,7 +137,7 @@ public final class HttpRequest {
 		try {
 			return new URL(parameters.url + "?" + parameters.createQueryString());
 		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
+			throw new IllegalArgumentException(e);
 		}
 	}
 

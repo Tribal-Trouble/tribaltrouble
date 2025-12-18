@@ -22,25 +22,6 @@ public final class GLIntImage extends GLImage {
 		return pixels;
 	}
 
-	public @NonNull IntBuffer createCursorPixels() {
-		IntBuffer cursor_pixels = Objects.requireNonNull(BufferUtils.createIntBuffer(pixels.capacity()));
-		boolean true_alpha_supported = (org.lwjgl.input.Cursor.getCapabilities() & org.lwjgl.input.Cursor.CURSOR_8_BIT_ALPHA) != 0;
-		while (pixels.hasRemaining()) {
-			int rgba_pixel = pixels.get();
-			byte r = (byte) (rgba_pixel >> 24);
-            byte g = (byte) (rgba_pixel >> 16);
-            byte b = (byte) (rgba_pixel >> 8);
-            byte a = (byte) rgba_pixel;
-			if (!true_alpha_supported && a != 0)
-				a = (byte) 0xff;
-			int cursor_pixel = Color.argbi(r,g, b, a);
-			cursor_pixels.put(cursor_pixel);
-		}
-		pixels.clear();
-		cursor_pixels.clear();
-		return cursor_pixels;
-	}
-
 	public GLIntImage(int width, int height, @NonNull ByteBuffer pixel_data, int format) {
 		super(width, height, pixel_data, format);
 		pixels = pixel_data.asIntBuffer();

@@ -1,23 +1,25 @@
+import net.ltgt.gradle.errorprone.errorprone
+
 plugins {
     java
     id("net.ltgt.errorprone") version "4.3.0" apply false
     id("net.ltgt.nullaway") version "2.3.0" apply false
+    id("com.smushytaco.lwjgl3") version "1.0.0" apply false
 }
 
 allprojects {
     group = "com.oddlabs.tribaltrouble"
     version = "1.0"
-    repositories { mavenCentral() }
 }
 
 subprojects {
     apply(plugin = "java")
- //   apply(plugin = "net.ltgt.errorprone")
+    apply(plugin = "net.ltgt.errorprone")
 
     dependencies {
         implementation("org.jspecify:jspecify:1.0.0")
-//        "errorprone"("com.google.errorprone:error_prone_core:2.45.0")
-//        "errorprone"("com.uber.nullaway:nullaway:0.12.12")
+        "errorprone"("com.google.errorprone:error_prone_core:2.45.0")
+        "errorprone"("com.uber.nullaway:nullaway:0.12.12")
     }
 
     java {
@@ -25,22 +27,22 @@ subprojects {
         targetCompatibility = JavaVersion.VERSION_25
     }
 
-//    tasks.withType<JavaCompile>().configureEach {
-//        options.errorprone {
-//            option("NullAway:AnnotatedPackages", "com.oddlabs")
-//
-//            disable( "NullAway", "IntLongMath",
-//                "NarrowingCompoundAssignment", "InstanceOfAndCastMatchWrongType",
-//                "TimeUnitConversionChecker", "UnusedNestedClass", "SameNameButDifferent", "AssignmentExpression",
-//                "NullablePrimitive", "ObjectToString", "FallThrough", "ByteBufferBackingArray",
-//                "InputStreamSlowMultibyteRead", "BadComparable", "CatchAndPrintStackTrace",
-//                "ModifyCollectionInEnhancedForLoop", "StringCaseLocaleUsage", "IdentityBinaryExpression",
-//                "EqualsHashCode", "MissingSummary", "JavaUtilDate", "DoNotCallSuggester",
-//                "MutablePublicArray", "InconsistentCapitalization", "OperatorPrecedence",
-//                "TypeParameterUnusedInFormals", "PatternMatchingInstanceof", "DefaultCharset", "EmptyCatch",
-//                "MissingOverride", "NarrowCalculation", "EqualsUnsafeCast", "StatementSwitchToExpressionSwitch",
-//                "EnumOrdinal", "JdkObsolete", "UnnecessaryParentheses", "UnusedMethod", "UnusedVariable",
-//                "EffectivelyPrivate")
-//        }
-//    }
+    tasks.withType<JavaCompile>().configureEach {
+        options.errorprone {
+            option("NullAway:AnnotatedPackages", "com.oddlabs")
+
+            disable( "NullAway", "IntLongMath",
+                "NarrowingCompoundAssignment", "InstanceOfAndCastMatchWrongType",
+                "TimeUnitConversionChecker", "UnusedNestedClass", "SameNameButDifferent", "AssignmentExpression",
+                "NullablePrimitive", "ObjectToString", "FallThrough", "ByteBufferBackingArray",
+                "InputStreamSlowMultibyteRead", "BadComparable", "CatchAndPrintStackTrace",
+                "ModifyCollectionInEnhancedForLoop", "StringCaseLocaleUsage", "IdentityBinaryExpression",
+                "EqualsHashCode", "MissingSummary", "JavaUtilDate", "DoNotCallSuggester",
+                "MutablePublicArray", "InconsistentCapitalization", "OperatorPrecedence",
+                "TypeParameterUnusedInFormals", "PatternMatchingInstanceof", "DefaultCharset", "EmptyCatch",
+                "MissingOverride", "NarrowCalculation", "EqualsUnsafeCast", "StatementSwitchToExpressionSwitch",
+                "EnumOrdinal", "JdkObsolete", "UnnecessaryParentheses", "UnusedMethod", "UnusedVariable",
+                "EffectivelyPrivate")
+        }
+    }
 }

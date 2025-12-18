@@ -3,8 +3,8 @@ package com.oddlabs.tt.util;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.system.MemoryStack;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -15,19 +15,6 @@ import java.util.logging.Logger;
 public final class GLUtils {
     private static final Logger logger = Logger.getLogger(GLUtils.class.getName());
 	public static final String SCREENSHOT_DEFAULT = "screenshot";
-
-	private static final @NonNull ByteBuffer byte_buf = BufferUtils.createByteBuffer(16);
-	private static final IntBuffer int_buf = BufferUtils.createIntBuffer(16);
-
-	public static boolean getGLBoolean(int gl_enum) {
-		GL11.glGetBoolean(gl_enum, byte_buf);
-		return byte_buf.get(0) == (byte)1;
-	}
-
-	public static int getGLInteger(int gl_enum) {
-		GL11.glGetInteger(gl_enum, int_buf);
-		return int_buf.get(0);
-	}
 
 	public static @NonNull String takeScreenshot(@NonNull String filename) {
 		if (filename.isEmpty()) {
@@ -41,29 +28,35 @@ public final class GLUtils {
 				i++;
 			} while (file.exists());
 		}
-		GL11.glGetInteger(GL11.GL_VIEWPORT, int_buf);
-		GL11.glReadBuffer(GL11.GL_FRONT);
-		int width = int_buf.get(2) - int_buf.get(0);
-		int height = int_buf.get(3) - int_buf.get(1);
-		GLImage pixel_data = new GLIntImage(width, height, GL11.GL_RGBA);
-		GL11.glReadPixels(int_buf.get(0), int_buf.get(1), int_buf.get(2), int_buf.get(3), pixel_data.getGLFormat(), pixel_data.getGLType(), pixel_data.getPixels());
-		GL11.glReadBuffer(GL11.GL_BACK);
-		com.oddlabs.util.Utils.flip(pixel_data.getPixels(), width*4, height);
-		pixel_data.saveAsBMP(filename);
-		System.gc();
+        
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer int_buf = stack.mallocInt(16);
+            GL11.glGetIntegerv(GL11.GL_VIEWPORT, int_buf);
+            GL11.glReadBuffer(GL11.GL_FRONT);
+            int width = int_buf.get(2) - int_buf.get(0);
+            int height = int_buf.get(3) - int_buf.get(1);
+            GLImage pixel_data = new GLIntImage(width, height, GL11.GL_RGBA);
+            GL11.glReadPixels(int_buf.get(0), int_buf.get(1), int_buf.get(2), int_buf.get(3), pixel_data.getGLFormat(), pixel_data.getGLType(), pixel_data.getPixels());
+            GL11.glReadBuffer(GL11.GL_BACK);
+            com.oddlabs.util.Utils.flip(pixel_data.getPixels(), width*4, height);
+            pixel_data.saveAsBMP(filename);
+        }
 		return filename;
 	}
 
 	public static void saveTexture(int mipmap_level, String filename) {
-		GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, mipmap_level, GL11.GL_TEXTURE_WIDTH, int_buf);
-		int width = int_buf.get(0);
-		GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, mipmap_level, GL11.GL_TEXTURE_HEIGHT, int_buf);
-		int height = int_buf.get(0);
-		GLImage pixel_data = new GLIntImage(width, height, GL11.GL_RGBA);
-		GL11.glGetTexImage(GL11.GL_TEXTURE_2D, mipmap_level, pixel_data.getGLFormat(), pixel_data.getGLType(), pixel_data.getPixels());
-//		swizzleColors(pixel_data.getPixels());
-		com.oddlabs.util.Utils.flip(pixel_data.getPixels(), width*4, height);
-		pixel_data.saveAsPNG(filename);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer int_buf = stack.mallocInt(16);
+            GL11.glGetTexLevelParameteriv(GL11.GL_TEXTURE_2D, mipmap_level, GL11.GL_TEXTURE_WIDTH, int_buf);
+            int width = int_buf.get(0);
+            GL11.glGetTexLevelParameteriv(GL11.GL_TEXTURE_2D, mipmap_level, GL11.GL_TEXTURE_HEIGHT, int_buf);
+            int height = int_buf.get(0);
+            GLImage pixel_data = new GLIntImage(width, height, GL11.GL_RGBA);
+            GL11.glGetTexImage(GL11.GL_TEXTURE_2D, mipmap_level, pixel_data.getGLFormat(), pixel_data.getGLType(), pixel_data.getPixels());
+    //		swizzleColors(pixel_data.getPixels());
+            com.oddlabs.util.Utils.flip(pixel_data.getPixels(), width*4, height);
+            pixel_data.saveAsPNG(filename);
+        }
 	}
 
     /**

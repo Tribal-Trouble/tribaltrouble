@@ -7,9 +7,10 @@ import com.oddlabs.tt.audio.AudioSource;
 import com.oddlabs.tt.resource.NativeResource;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.openal.AL;
+
 import org.lwjgl.openal.AL10;
-import org.lwjgl.openal.OpenALException;
+import org.lwjgl.openal.ALC10;
+
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -40,7 +41,7 @@ public final class OpenALAudioSource extends NativeResource<OpenALAudioSource.So
 
         @Override
         public void close() {
-            if (AL.isCreated()) {
+            if (ALC10.alcGetCurrentContext() != 0) {
                 // Check if the source is valid before trying to stop it
                 if (AL10.alIsSource(sourceId)) {
                     // Stop the source before deleting it, to be safe
@@ -57,9 +58,9 @@ public final class OpenALAudioSource extends NativeResource<OpenALAudioSource.So
     }
 
     private @Nullable AbstractAudioPlayer audio_player;
-    private final FloatBuffer positionBuffer = ALBufferUtils.createFloatBuffer(3);
+    private final FloatBuffer positionBuffer = org.lwjgl.BufferUtils.createFloatBuffer(3);
 
-    public OpenALAudioSource() throws OpenALException {
+    public OpenALAudioSource() {
         super(new Source());
     }
 
@@ -209,7 +210,7 @@ public final class OpenALAudioSource extends NativeResource<OpenALAudioSource.So
 
     @Override
     public float @NonNull [] getPosition() {
-        AL10.alGetSource(getSource(), AL10.AL_POSITION, positionBuffer);
+        AL10.alGetSourcefv(getSource(), AL10.AL_POSITION, positionBuffer);
         checkALError("alGetSource AL_POSITION");
         return new float[]{positionBuffer.get(0), positionBuffer.get(1), positionBuffer.get(2)};
     }

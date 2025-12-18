@@ -3,7 +3,7 @@ package com.oddlabs.tt;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.Sys;
+import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -16,7 +16,7 @@ public final class Main {
         logger.log(Level.SEVERE, "Critical Failure", t);
 
         if (Renderer.getRenderer().getWindow() != null)
-            Renderer.getRenderer().getWindow().destroy();
+            Renderer.getRenderer().getWindow().close();
 
         if (!Boolean.getBoolean("com.oddlabs.tt.developer")) {
             while (t.getCause() != null) {
@@ -25,7 +25,7 @@ public final class Main {
             ResourceBundle bundle = ResourceBundle.getBundle(Main.class.getName());
             String error = Utils.getBundleString(bundle, "error");
             String error_msg = Utils.getBundleString(bundle, "error_message", t.toString());
-            Sys.alert(error, error_msg);
+            TinyFileDialogs.tinyfd_messageBox(error, error_msg, "ok", "error", true);
         }
 	}
 

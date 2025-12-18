@@ -2,6 +2,7 @@ package com.oddlabs.net;
 
 import com.oddlabs.event.Deterministic;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,14 +15,14 @@ public final class TaskThread {
 	private final List<BlockingTask> tasks = new ArrayList<>();
 	private final List<BlockingTask> finished_tasks = new ArrayList<>();
 	private final Object lock = new Object();
-	private final Runnable notification_action;
+	private final @Nullable Runnable notification_action;
 	private int current_id = 0;
 	private Thread thread;
 	private volatile boolean finished;
 
-	private final Deterministic deterministic;
+	private final @NonNull Deterministic deterministic;
 
-	public TaskThread(Deterministic deterministic, Runnable notification_action) {
+	public TaskThread(@NonNull Deterministic deterministic, @Nullable Runnable notification_action) {
 		this.deterministic = deterministic;
 		this.notification_action = notification_action;
 	}
@@ -31,9 +32,9 @@ public final class TaskThread {
 	}
 
 	static final class TaskFailed<T> implements TaskResult<T> {
-		private final Exception result;
+		private final @NonNull Throwable result;
 
-		TaskFailed(Exception e) {
+		TaskFailed(@NonNull Throwable e) {
 			this.result = e;
 		}
 

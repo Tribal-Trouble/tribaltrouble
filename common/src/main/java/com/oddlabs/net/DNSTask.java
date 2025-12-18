@@ -23,7 +23,7 @@ public final class DNSTask implements Callable<InetSocketAddress> {
 	}
 
 	@Override
-	public void taskFailed(Exception e) {
+	public void taskFailed(@NonNull Throwable e) {
 		connection.dnsError((IOException)e);
 	}
 

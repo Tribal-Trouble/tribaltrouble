@@ -5,47 +5,69 @@ import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.tt.resource.NativeResource;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-import org.lwjgl.LWJGLException;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
+
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
+import static org.lwjgl.glfw.GLFW.glfwCreateCursor;
+import static org.lwjgl.glfw.GLFW.glfwDestroyCursor;
 
 public final class NativeCursor extends NativeResource<NativeCursor.Cursor> {
     static final class Cursor extends NativeResource.NativeState {
-        private final  org.lwjgl.input.@Nullable Cursor cursor;
+        private final long cursor;
 
         Cursor(@NonNull GLIntImage image_16_1, int offset_x_16_1, int offset_y_16_1,
                @NonNull GLIntImage image_32_1, int offset_x_32_1, int offset_y_32_1,
                @NonNull GLIntImage image_32_8, int offset_x_32_8, int offset_y_32_8) {
-            org.lwjgl.input.Cursor native_cursor = null;
-            int caps = org.lwjgl.input.Cursor.getCapabilities();
+            
+            // Prefer 32x32 with 8-bit alpha if available (standard nowadays)
+            GLIntImage source = image_32_8;
+            int xHot = offset_x_32_8;
+            int yHot = offset_y_32_8;
 
-            int alpha_bits = 0;
-            if ((caps & org.lwjgl.input.Cursor.CURSOR_8_BIT_ALPHA) != 0)
-                alpha_bits = 8;
-            else if ((caps & org.lwjgl.input.Cursor.CURSOR_ONE_BIT_TRANSPARENCY) != 0)
-                alpha_bits = 1;
+            int width = source.getWidth();
+            int height = source.getHeight();
+            // Invert hotspot Y because GLFW coordinates are from top-left, while our source hotspot is from bottom-left
+            yHot = height - 1 - yHot;
 
-            int max_size = org.lwjgl.input.Cursor.getMaxCursorSize();
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                ByteBuffer pixels = stack.malloc(width * height * 4);
+                IntBuffer srcPixels = source.getIntPixels();
+                
+                // Flip image vertically: Read from top row (height-1) down to bottom row (0)
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        int srcIndex = ((height - 1 - y) * width) + x;
+                        int p = srcPixels.get(srcIndex);
 
-            try {
-                if (max_size < 32 && max_size >= 16 && alpha_bits >= 1)
-                    native_cursor = new org.lwjgl.input.Cursor(image_16_1.getWidth(), image_16_1.getHeight(), offset_x_16_1, offset_y_16_1, 1, image_16_1.createCursorPixels(), null);
-                else if (max_size >= 32) {
-                    if (alpha_bits == 8)
-                        native_cursor = new org.lwjgl.input.Cursor(image_32_8.getWidth(), image_32_8.getHeight(), offset_x_32_8, offset_y_32_8, 1, image_32_8.createCursorPixels(), null);
-                    else if (alpha_bits == 1)
-                        native_cursor = new org.lwjgl.input.Cursor(image_32_1.getWidth(), image_32_1.getHeight(), offset_x_32_1, offset_y_32_1, 1, image_32_1.createCursorPixels(), null);
+                        byte r = (byte) (p >> 24);
+                        byte g = (byte) (p >> 16);
+                        byte b = (byte) (p >> 8);
+                        byte a = (byte) p;
+                        
+                        pixels.put(r);
+                        pixels.put(g);
+                        pixels.put(b);
+                        pixels.put(a);
+                    }
                 }
-            } catch (LWJGLException e) {
-                e.printStackTrace();
+                pixels.flip();
+
+                GLFWImage image = GLFWImage.malloc(stack);
+                image.set(width, height, pixels);
+                
+                this.cursor = glfwCreateCursor(image, xHot, yHot);
             }
-            cursor = native_cursor;
         }
 
         @Override
         public void close() {
-            if (cursor != null) {
+            if (cursor != MemoryUtil.NULL) {
                 PointerInput.deletingCursor(cursor);
-                cursor.destroy();
+                glfwDestroyCursor(cursor);
             }
         }
     }
@@ -58,16 +80,16 @@ public final class NativeCursor extends NativeResource<NativeCursor.Cursor> {
                 image_32_8, offset_x_32_8, offset_y_32_8));
     }
 
-	public org.lwjgl.input.@Nullable Cursor getCursor() {
+	public long getCursor() {
 		return state.cursor;
 	}
 
 	public boolean setActive() {
-		if (Settings.getSettings().use_native_cursor && state.cursor != null) {
+		if (Settings.getSettings().use_native_cursor && state.cursor != MemoryUtil.NULL) {
 			PointerInput.setActiveCursor(state.cursor);
 			return true;
 		} else {
-			PointerInput.setActiveCursor(null);
+			PointerInput.setActiveCursor(MemoryUtil.NULL);
 			return false;
 		}
 	}

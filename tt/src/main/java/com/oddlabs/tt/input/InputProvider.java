@@ -1,8 +1,8 @@
 package com.oddlabs.tt.input;
 
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-public interface InputProvider {
+public interface InputProvider<C> extends AutoCloseable {
     // Keyboard
     void pollKeyboard();
     boolean nextKeyboardEvent();
@@ -30,9 +30,8 @@ public interface InputProvider {
     boolean isGrabbed();
     
     // Cursor
-    void setNativeCursor(Object cursor);
-    
-    // Initialization/Teardown
-    void create();
-    void destroy();
+    void setNativeCursor(@Nullable C cursor);
+
+    @Override
+    void close();
 }

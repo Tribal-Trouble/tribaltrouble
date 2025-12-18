@@ -1,6 +1,6 @@
 package com.oddlabs.tt.audio;
 
-import com.oddlabs.tt.audio.openal.ALBufferUtils;
+
 import com.oddlabs.tt.audio.openal.OpenALAudio;
 import com.oddlabs.tt.audio.openal.OpenALAudioSource;
 import com.oddlabs.tt.global.Settings;
@@ -18,7 +18,7 @@ final class QueuedAudioPlayer extends AbstractAudioPlayer {
 	private static final int NUM_BUFFERS = 12;
 	private final @NonNull ByteBufferOutputStream buffer_stream;
 	private final @Nullable OpenALAudio audio;
-	private final IntBuffer al_return_buffers = ALBufferUtils.createIntBuffer(1);
+	private final IntBuffer al_return_buffers = org.lwjgl.BufferUtils.createIntBuffer(1);
 	private final @NonNull URL url;
 	private final int channels;
 

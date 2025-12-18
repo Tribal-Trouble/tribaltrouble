@@ -12,8 +12,6 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.SerializableDisplayMode;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Cursor;
 
 import java.nio.file.Path;
 import java.util.EnumSet;
@@ -23,15 +21,18 @@ import java.util.logging.Logger;
 public final class LocalInput {
     private static final Logger logger = Logger.getLogger(LocalInput.class.getName());
 
+    public static final int CURSOR_ONE_BIT_TRANSPARENCY = 1;
+    public static final int CURSOR_8_BIT_ALPHA = 2;
+
 	private static int mouse_x;
 	private static int mouse_y;
     
-    private static InputProvider inputProvider;
+    private static InputProvider<?> inputProvider;
 
 	private static boolean global_menu_state = false;
 	private static boolean global_control_state = false;
 	private static boolean global_shift_state = false;
-	private static final Set<Key> keys = EnumSet.noneOf(Key.class);
+	private static final Set<@NonNull Key> keys = EnumSet.noneOf(Key.class);
 
 	private static int view_width;
 	private static int view_height;
@@ -180,7 +181,7 @@ public final class LocalInput {
 
 	public static int getNativeCursorCaps() {
 		return LocalEventQueue.getQueue().getDeterministic()
-                .log(Cursor.getCapabilities());
+                .log(CURSOR_8_BIT_ALPHA | CURSOR_ONE_BIT_TRANSPARENCY);
 	}
 
 	public static void settings(@NonNull Path game_dir, @NonNull Path event_log_dir, @NonNull Settings settings) {
@@ -201,13 +202,14 @@ public final class LocalInput {
 	}
 
 	public static void init() {
-        inputProvider = new com.oddlabs.tt.input.LWJGL2InputProvider();
+        inputProvider = new com.oddlabs.tt.input.LWJGL3InputProvider();
+
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		mouse_x = deterministic.log(inputProvider.getMouseX());
 		mouse_y = deterministic.log(inputProvider.getMouseY());
 	}
     
-    public static com.oddlabs.tt.input.InputProvider getInputProvider() {
+    public static InputProvider<?> getInputProvider() {
         return inputProvider;
     }
 

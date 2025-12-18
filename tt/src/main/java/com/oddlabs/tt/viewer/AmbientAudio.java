@@ -14,12 +14,11 @@ import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.resource.Resources;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
 
 public final class AmbientAudio {
-	private static final FloatBuffer orientation_buffer = BufferUtils.createFloatBuffer(3*2);
 
 	private final @NonNull Audio ambient_forest_buffer;
 	private final @NonNull Audio ambient_beach_buffer;
@@ -57,20 +56,19 @@ public final class AmbientAudio {
 	public void updateSoundListener(@NonNull CameraState camera, @NonNull HeightMap heightmap) {
 		if (Settings.getSettings().play_sfx) {
 			camera.updateDirectionAndNormal(f, u, s);
-			orientation_buffer.put(0, f.x);
-			orientation_buffer.put(1, f.y);
-			orientation_buffer.put(2, f.z);
-			orientation_buffer.put(3, u.x);
-			orientation_buffer.put(4, u.y);
-			orientation_buffer.put(5, u.z);
-            AudioManager.getManager()
-                    .updatePosition(camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ())
-                    .updateOrientation(orientation_buffer);
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                FloatBuffer orientation_buffer = stack.mallocFloat(6);
+                f.get(orientation_buffer);
+                u.get(3, orientation_buffer);
+                AudioManager.getManager()
+                        .updatePosition(camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ())
+                        .updateOrientation(orientation_buffer);
+            }
 
 			int meters_per_world = heightmap.getMetersPerWorld();
 			float dx = Math.abs(camera.getCurrentX() - meters_per_world/2);
 			float dy = Math.abs(camera.getCurrentY() - meters_per_world/2);
-			float dr = 2f*(float)Math.sqrt(dx*dx + dy*dy)/meters_per_world; //can use Math here - not gamestate affecting
+			float dr = 2f*(float)Math.sqrt(dx*dx + dy*dy)/meters_per_world;
 
 			// update placement and gain of ambient forest source
 			ambient_forest.setPos(0f, 0f, heightmap.getNearestHeight(camera.getCurrentX(), camera.getCurrentY()) - camera.getCurrentZ() + 8f);

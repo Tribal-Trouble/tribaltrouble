@@ -18,9 +18,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 
 public final class Utils {
-	private static final ByteBuffer sqrtByteBuf = BufferUtils.createByteBuffer(4);
-	private static final IntBuffer sqrtIntBuf = sqrtByteBuf.asIntBuffer();
-	private static final FloatBuffer sqrtFloatBuf = sqrtByteBuf.asFloatBuffer();
 
 	public static @NonNull String getBundleString(@NonNull ResourceBundle bundle, @NonNull String key, Object... object_array) {
 		return MessageFormat.format(bundle.getString(key), object_array);
@@ -199,11 +196,9 @@ public final class Utils {
 
 	public static float invsqrt(float x) {
 		float xhalf = 0.5f * x;
-		sqrtFloatBuf.put(0, x);
-		int i = sqrtIntBuf.get(0);
+		int i = Float.floatToRawIntBits(x);
 		i = 0x5f375a86 - (i >> 1);
-		sqrtIntBuf.put(0, i);
-		x = sqrtFloatBuf.get(0);
+		x = Float.intBitsToFloat(i);
 		x *= (1.5f - xhalf * x * x); // This line may be duplicated for more accuracy.
 		return x;
 	}

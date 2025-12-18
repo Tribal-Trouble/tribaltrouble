@@ -19,7 +19,7 @@ public final class Languages {
 	}
 
 	public static @NonNull IconQuad @NonNull [] getFlags() {
-		IconQuad[] flags = {Skin.getSkin().getFlagDa(), Skin.getSkin().getFlagEn(), Skin.getSkin().getFlagDe(), Skin.getSkin().getFlagEs(), Skin.getSkin().getFlagIt()};
+		IconQuad[] flags = {Skin.getSkin().getFlagEn(), Skin.getSkin().getFlagDa(), Skin.getSkin().getFlagDe(), Skin.getSkin().getFlagEs(), Skin.getSkin().getFlagIt()};
 		return flags;
 	}
 }

@@ -1,7 +1,7 @@
 package com.oddlabs.tt.render;
 
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.DisplayMode;
+
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -18,9 +18,7 @@ public final class SerializableDisplayMode implements Serializable, Comparable<S
     private final int freq;
     private final int bpp;
 
-    public SerializableDisplayMode(@NonNull DisplayMode mode) {
-        this(mode.getWidth(), mode.getHeight(), mode.getBitsPerPixel(), mode.getFrequency());
-    }
+
 
     public SerializableDisplayMode(int width, int height, int bpp, int freq) {
         this.width = width;
@@ -51,13 +49,14 @@ public final class SerializableDisplayMode implements Serializable, Comparable<S
                             : Integer.compare(freq_dist1, freq_dist2);
     }
 
-    private int getDistanceFromBestMode(@NonNull SerializableDisplayMode mode) {
+    private static int getDistanceFromBestMode(@NonNull SerializableDisplayMode mode) {
         int dx = Math.abs(DEFAULT_MODE.getWidth() - mode.getWidth());
         int dy = Math.abs(DEFAULT_MODE.getHeight() - mode.getHeight());
         return dx + dy;
     }
 
-    public static boolean isModeValid(@NonNull DisplayMode mode) {
+
+    public static boolean isModeValid(@NonNull SerializableDisplayMode mode) {
         return mode.getWidth() >= 800 && mode.getHeight() >= 600 && mode.getBitsPerPixel() >= 8 && mode.getFrequency() >= 24;
     }
 

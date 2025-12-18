@@ -132,15 +132,13 @@ public final class LandscapeRenderer implements Animated {
     public void updateChecksum(@NonNull StateChecksum sum) {
     }
 
-    // Shadow rendering not supported in this pass yet
+    // Shadow rendering supported
     void renderShadow(@NonNull ShaderProgram shader, int patch_x, int patch_y, int start_x, int start_y, int end_x, int end_y) {
-        // TODO: Implement shadow geometry if needed, or rely on shadow map baking?
-        // Legacy renderer drew shadow volumes? Or projected texture?
-        // "Projected Texture Mapping (Decals)".
-        // It renders the geometry AGAIN with shadow texture.
-        // So we just need to render the patch.
-        // But `renderShadow` took sub-rect?
-        // For now, empty.
+        float patchSize = world.getHeightMap().getMetersPerPatch();
+        shader.setUniform("u_PatchOffset", patch_x * patchSize, patch_y * patchSize);
+        patchMesh.bind(shader);
+        patchMesh.draw();
+        patchMesh.unbind(shader);
     }
 
     private static final class Visitor implements PatchGroupVisitor {

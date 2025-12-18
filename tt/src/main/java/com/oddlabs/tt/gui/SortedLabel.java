@@ -13,7 +13,7 @@ public final class SortedLabel extends Label {
 
 	@Override
 	public int compareTo(@NonNull Label o) {
-		if (o instanceof IntegerLabel) {
+		if (o instanceof SortedLabel) {
 			SortedLabel other = (SortedLabel)o;
 			return index - other.index;
 		} else

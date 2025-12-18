@@ -26,7 +26,6 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.LocalInput;
-import com.oddlabs.tt.input.InputProvider;
 import com.oddlabs.tt.landscape.LandscapeResources;
 import com.oddlabs.tt.landscape.NotificationListener;
 import com.oddlabs.tt.landscape.TreeSupply;
@@ -36,7 +35,6 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.procedural.Landscape;
-import com.oddlabs.tt.render.shader.DebugShaderRenderer;
 import com.oddlabs.tt.render.shader.FixedFunctionShader;
 import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.resource.FogInfo;
@@ -45,7 +43,6 @@ import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
-import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.Target;
@@ -54,26 +51,30 @@ import com.oddlabs.tt.vbo.VBO;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
-import com.oddlabs.tt.window.LWJGL2Window;
+
 import com.oddlabs.tt.window.Window;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
+
+
+
 import org.lwjgl.opengl.ARBMultisample;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GLContext;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.ConsoleHandler;
@@ -83,9 +84,6 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public final class Renderer {
-
-	private static final FloatBuffer matrix_buf = BufferUtils.createFloatBuffer(16);
-
     private static final Renderer renderer_instance = new Renderer();
 	private static final StatCounter fps = new StatCounter(10);
 	private static int num_triangles_rendered;
@@ -108,7 +106,7 @@ public final class Renderer {
     private boolean movie_recording_started = false;
 	private AmbientAudio ambient;
     
-    private Window window;
+    private @Nullable Window window;
 
 	public static float getFPS() {
 		return fps.getAveragePerUpdate();
@@ -126,7 +124,7 @@ public final class Renderer {
         }
 	}
 
-    public Window getWindow() {
+    public @Nullable Window getWindow() {
         return window;
     }
 
@@ -134,7 +132,7 @@ public final class Renderer {
 		renderer_instance.run(args);
 	}
 
-	public static Renderer getRenderer() {
+	public static @NonNull Renderer getRenderer() {
 		return renderer_instance;
 	}
 
@@ -237,7 +235,7 @@ public final class Renderer {
     }
 
 	private void run(@NonNull String @NonNull ... args) throws IOException {
-		long start_time = System.currentTimeMillis();
+		Instant start_time = Instant.now();
 		boolean first_frame = true;
 		// This will be configured by setupLogging, but we need to log before that.
         Path game_dir = setupGameDir();
@@ -283,7 +281,7 @@ public final class Renderer {
 		Path event_log_dir = event_logs_dir.resolve(Long.toString(System.currentTimeMillis()));
 		if (LocalEventQueue.getQueue().getDeterministic() == null && settings.save_event_log) {
 			setupLogging(event_log_dir, silent);
-			LocalEventQueue.getQueue().setEventsLogged(new File(event_log_dir + File.separator + com.oddlabs.util.Utils.EVENT_LOG));
+			LocalEventQueue.getQueue().setEventsLogged(event_log_dir.resolve(com.oddlabs.util.Utils.EVENT_LOG));
 		}
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		game_dir = deterministic.log(game_dir);
@@ -301,12 +299,12 @@ public final class Renderer {
 		boolean crashed = settings.crashed;
 		NetworkSelector network = new NetworkSelector(LocalEventQueue.getQueue().getDeterministic(), LocalEventQueue.getQueue()::getMillis);
                 initNetwork(network);
-		LocalInput.settings( game_dir, event_log_dir, settings);
+		LocalInput.settings(game_dir, event_log_dir, settings);
 		try {
 			initNative(crashed);
 		} catch (Exception e) {
 			// Let it propagate
-			throw new RuntimeException(e);
+			throw new IllegalStateException("Failed initializing natives", e);
 		}
 		TaskThread task_thread = network.getTaskThread();
 		if (!settings.inDeveloperMode() && !deterministic.isPlayback())
@@ -316,7 +314,7 @@ public final class Renderer {
 		GlobalsInit.init();
 		LocalInput.init();
 
-		long startup_time_init = System.currentTimeMillis() - start_time;
+		Duration startup_time_init = Duration.between(start_time, Instant.now());
 		logger.info("Init done after " + startup_time_init + "ms");
 		ambient = new AmbientAudio(AudioManager.getManager());
 
@@ -347,8 +345,8 @@ public final class Renderer {
 					}
 					display(gui);
 					if (first_frame) {
-						long startup_time = System.currentTimeMillis() - start_time;
-						logger.info("First frame rendered after " + startup_time + " milliseconds");
+						Duration startup_time = Duration.between(start_time, Instant.now());
+						logger.info("First frame rendered after " + startup_time);
 						first_frame = false;
 					}
 					if (grab_frames && movie_recording_started)
@@ -357,7 +355,7 @@ public final class Renderer {
 					reset_keyboard = true;
                     AudioManager.getManager().masterGain(0f);
 					try {
-						TimeUnit.MILLISECONDS.sleep(10);;
+						TimeUnit.MILLISECONDS.sleep(10);
 					} catch (InterruptedException e) {
 						throw new RuntimeException("woken", e);
 					}
@@ -427,32 +425,7 @@ public final class Renderer {
         FogInfo fog_info = generator.getFogInfo();
         RenderQueues render_queues = new RenderQueues(new SpriteBatchRenderer(shader, modelViewStack, projectionStack));
 		LandscapeResources landscape_resources = World.loadCommon(render_queues);
-		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {
-			@Override
-			public void gamespeedChanged(int speed) {
-			}
-			@Override
-			public void playerGamespeedChanged() {
-			}
-			@Override
-			public void newAttackNotification(@NonNull Selectable target) {
-			}
-			@Override
-			public void newSelectableNotification(Selectable target) {
-			}
-			@Override
-			public void registerTarget(@NonNull Target target) {
-			}
-			@Override
-			public void unregisterTarget(@NonNull Target target) {
-			}
-			@Override
-			public void updateTreeLowDetail(@NonNull Matrix4f matrix, @NonNull TreeSupply tree) {
-			}
-			@Override
-			public void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
-			}
-		}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Color.argb4f(Player.COLORS[0])}, fog_info);
+		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Color.argb4f(Player.COLORS[0])}, fog_info);
 		AnimationManager manager = new AnimationManager();
 		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, gui_root, manager);
 		Player local_player = world.getPlayers()[0];
@@ -513,19 +486,19 @@ public final class Renderer {
 	}
 
 	private static void destroyNative() {
-        AudioManager.getManager().destroy();
+        AudioManager.getManager().close();
         if (getRenderer().getWindow() != null)
-		    getRenderer().getWindow().destroy();
+		    getRenderer().getWindow().close();
         Resources.clearResources();
 	}
 
 	public static void dumpWindowInfo() {
-		int r = GLUtils.getGLInteger(GL11.GL_RED_BITS);
-		int g = GLUtils.getGLInteger(GL11.GL_GREEN_BITS);
-		int b = GLUtils.getGLInteger(GL11.GL_BLUE_BITS);
-		int a = GLUtils.getGLInteger(GL11.GL_ALPHA_BITS);
-		int depth = GLUtils.getGLInteger(GL11.GL_DEPTH_BITS);
-		int stencil = GLUtils.getGLInteger(GL11.GL_STENCIL_BITS);
+		int r = GL11.glGetInteger(GL11.GL_RED_BITS);
+		int g = GL11.glGetInteger(GL11.GL_GREEN_BITS);
+		int b = GL11.glGetInteger(GL11.GL_BLUE_BITS);
+		int a = GL11.glGetInteger(GL11.GL_ALPHA_BITS);
+		int depth = GL11.glGetInteger(GL11.GL_DEPTH_BITS);
+		int stencil = GL11.glGetInteger(GL11.GL_STENCIL_BITS);
 		logger.info("Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil);
 	}
 
@@ -545,36 +518,45 @@ public final class Renderer {
 
         AudioManager.getManager();
 
-        window = new LWJGL2Window();
+        window = new com.oddlabs.tt.window.LWJGL3Window();
 
 		try {
             int bpp = 32;
             try {
                 bpp = window.getDisplayMode().getBitsPerPixel();
-            } catch (Exception e) {} // ignore if not created
-			
-			Keyboard.enableRepeatEvents(true); // Keyboard is legacy input, still used
+            } catch (Exception _) {} // ignore if not created
+
 			window.setTitle("Tribal Trouble");
             // Fullscreen handled in create
 			
 			SerializableDisplayMode target_mode;
-			if (!crashed) {
-				target_mode = new SerializableDisplayMode(Settings.getSettings().new_view_width, Settings.getSettings().new_view_height, bpp, Settings.getSettings().new_view_freq);
-			} else {
-				target_mode = new SerializableDisplayMode(Settings.getSettings().view_width, Settings.getSettings().view_height, bpp, Settings.getSettings().view_freq);
-			}
+            int width = crashed ? Settings.getSettings().view_width : Settings.getSettings().new_view_width;
+            int height = crashed ? Settings.getSettings().view_height : Settings.getSettings().new_view_height;
+            int freq = crashed ? Settings.getSettings().view_freq : Settings.getSettings().new_view_freq;
+
+            if (width == -1 || height == -1) {
+                try {
+                    SerializableDisplayMode[] modes = window.getAvailableDisplayModes();
+                    if (modes.length > 0) {
+                        target_mode = modes[0];
+                    } else {
+                        target_mode = new SerializableDisplayMode(800, 600, 32, 60);
+                    }
+                } catch (Exception e) {
+                    logger.log(Level.WARNING, "Failed to get available modes for default selection", e);
+                    target_mode = new SerializableDisplayMode(800, 600, 32, 60);
+                }
+            } else {
+				target_mode = new SerializableDisplayMode(width, height, bpp, freq);
+            }
             
             boolean fs = Settings.getSettings().fullscreen && (!LocalEventQueue.getQueue().getDeterministic().isPlayback() || grab_frames);
             window.create(target_mode, fs);
-			LocalInput.getLocalInput().setModeToNearest(target_mode); // This will call window again? No, LocalInput is broken.
-            // LocalInput.setModeToNearest is broken because I removed static methods from SerializableDisplayMode.
-            // I should remove this line and rely on window.create being done.
-            // BUT LocalInput logic might set view_width variables.
-            // I will fix LocalInput next.
+			LocalInput.getLocalInput().setModeToNearest(target_mode);
 //if (System.currentTimeMillis() > 0)
 //throw new LWJGLException("It failed because you asked it to.");
 		} catch (Exception e) {
-            AudioManager.getManager().destroy();
+            AudioManager.getManager().close();
 			failedOpenGL(e);
 			throw e;
 		}
@@ -584,9 +566,7 @@ public final class Renderer {
 		logger.info("GL vendor: '" + vendor + "'");
 		String renderer = GL11.glGetString(GL11.GL_RENDERER);
 		logger.info("GL renderer: '" + renderer + "'");
-		if (!GLContext.getCapabilities().OpenGL21) {
-			throw new LWJGLException("OpenGL 2.1 is required.");
-		}
+
 		logger.info("GL shading language version: '" + GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION) + "'");
 
 		String extensions = GL11.glGetString(GL11.GL_EXTENSIONS);
@@ -594,10 +574,10 @@ public final class Renderer {
 
 		dumpWindowInfo();
 
-		int num_combined_tex_units = GLUtils.getGLInteger(GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+		int num_combined_tex_units = GL11.glGetInteger(GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		logger.info("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: " + num_combined_tex_units);
 		if (num_combined_tex_units < 8) {
-			throw new LWJGLException("Number of combined texture image units " + num_combined_tex_units + " is less than the required 8.");
+			throw new RuntimeException("Number of combined texture image units " + num_combined_tex_units + " is less than the required 8.");
 		}
 
 		resetInput();
@@ -680,7 +660,7 @@ public final class Renderer {
 		GL11.glPixelStorei(GL11.GL_UNPACK_SWAP_BYTES, 0);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthFunc(GL11.GL_LEQUAL);
-		if (GLContext.getCapabilities().GL_ARB_multisample) {
+		if (org.lwjgl.opengl.GL.getCapabilities().GL_ARB_multisample) {
 			GL11.glEnable(ARBMultisample.GL_MULTISAMPLE_ARB);
 		}
 
@@ -694,6 +674,5 @@ public final class Renderer {
 	public static void clearScreen() {
 		GL11.glClearColor(0f, 0f, 0f, 0f);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-		//GL11.glClearColor(1f, 0f, 1f, 0f);
 	}
 }

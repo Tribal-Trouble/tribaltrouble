@@ -3,10 +3,10 @@ package com.oddlabs.tt.audio.openal;
 import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.audio.AudioManager;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.LWJGLException;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
-import org.lwjgl.openal.OpenALException;
+import org.lwjgl.openal.ALC;
+import org.lwjgl.openal.ALCCapabilities;
 
 import java.io.IOException;
 import java.net.URL;
@@ -16,28 +16,67 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import static org.lwjgl.openal.ALC10.*;
+
 /**
  * Audio Manager implementation using OpenAL
  */
 public final class OpenALManager extends AudioManager {
     private static final Logger logger = Logger.getLogger(OpenALManager.class.getName());
     private static final int MAX_NUM_SOURCES = 32;
+    
+    private final ALData data;
 
-    public OpenALManager() throws LWJGLException {
-        AL.create(null, -1, -1, false);
+    private record ALData(long device, long context) implements AutoCloseable {
+        @Override
+        public void close() {
+            alcDestroyContext(context);
+            alcCloseDevice(device);
+        }
+    }
+
+    public OpenALManager() {
+        this(initAL());
+    }
+
+    private OpenALManager(@NonNull ALData data) {
+        super(generateSources(MAX_NUM_SOURCES));
+        this.data = data;
+
         logger.info("OpenAL version: " + AL10.alGetString(AL10.AL_VERSION));
         logger.info("OpenAL vendor: " + AL10.alGetString(AL10.AL_VENDOR));
         logger.info("OpenAL renderer: " + AL10.alGetString(AL10.AL_RENDERER));
         AL10.alDistanceModel(AL10.AL_INVERSE_DISTANCE);
         checkALError("alDistanceModel");
-        super(generateSources(MAX_NUM_SOURCES));
+    }
+
+    private static ALData initAL() {
+        String defaultDeviceName = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
+        long device = alcOpenDevice(defaultDeviceName);
+        if (device == 0) {
+            throw new IllegalStateException("Failed to open default OpenAL device");
+        }
+        
+        int[] attributes = {0};
+        long context = alcCreateContext(device, attributes);
+        if (context == 0) {
+            alcCloseDevice(device);
+            throw new IllegalStateException("Failed to create OpenAL context");
+        }
+        
+        alcMakeContextCurrent(context);
+        
+        ALCCapabilities alcCapabilities = ALC.createCapabilities(device);
+        AL.createCapabilities(alcCapabilities);
+        
+        return new ALData(device, context);
     }
 
     private static @NonNull OpenALAudioSource @NonNull [] generateSources(int max) {
         return Stream.generate(() -> {
                     try {
                         return new OpenALAudioSource();
-                    } catch (OpenALException _) {
+                    } catch (Exception _) {
                         // If source generation fails, stop trying to create more
                         return null;
                     }
@@ -55,8 +94,8 @@ public final class OpenALManager extends AudioManager {
 
     @Override
     public @NonNull AudioManager updateOrientation(@NonNull FloatBuffer fu) {
-        AL10.alListener(AL10.AL_ORIENTATION, fu);
-        checkALError("alListener3f AL_ORIENTATION");
+        AL10.alListenerfv(AL10.AL_ORIENTATION, fu);
+        checkALError("alListenerfv AL_ORIENTATION");
         return this;
     }
 
@@ -73,9 +112,12 @@ public final class OpenALManager extends AudioManager {
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
-        AL.destroy();
+    public void close() {
+        try {
+            super.close();
+        } finally {
+            data.close();
+        }
     }
 
     /**

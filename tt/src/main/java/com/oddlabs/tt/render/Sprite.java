@@ -114,72 +114,76 @@ public final class Sprite {
         Vector4f v = new Vector4f();
         Vector4f n = new Vector4f();
         Vector4f temp = new Vector4f();
-        FloatBuffer matrix_buffer = FloatBuffer.allocate(16);
-        matrix_buffer.put(15, 1f);
-        for (int anim = 0; anim < animations.length; anim++) {
-            BoundingBox bounding_box = bounding_boxes[anim];
-            int num_frames = animations[anim].getFrames().length;
-            tmp_vertices[anim] = new float[num_frames][num_vertices * 3];
-            tmp_normals[anim] = new float[num_frames][num_vertices * 3];
-            for (int frame = 0; frame < num_frames; frame++) {
-                float[] frame_animation = animations[anim].getFrames()[frame];
-                for (int bone = 0; bone < num_bones; bone++) {
-                    matrix_buffer.clear();
-                    matrix_buffer.put(frame_animation, bone * 12, 12);
-                    matrix_buffer.rewind();
-                    frame_bones[bone].setTransposed(matrix_buffer);
-                }
-                float[] frame_normals = tmp_normals[anim][frame];
-                float[] frame_vertices = tmp_vertices[anim][frame];
-                float bmax_x = Float.NEGATIVE_INFINITY;
-                float bmax_y = Float.NEGATIVE_INFINITY;
-                float bmax_z = Float.NEGATIVE_INFINITY;
-                float bmin_x = Float.POSITIVE_INFINITY;
-                float bmin_y = Float.POSITIVE_INFINITY;
-                float bmin_z = Float.POSITIVE_INFINITY;
-                for (int vertex = 0; vertex < num_vertices; vertex++) {
-                    float x = initial_pose_vertices[vertex * 3 + 0];
-                    float y = initial_pose_vertices[vertex * 3 + 1];
-                    float z = initial_pose_vertices[vertex * 3 + 2];
-                    float nx = initial_pose_normals[vertex * 3 + 0];
-                    float ny = initial_pose_normals[vertex * 3 + 1];
-                    float nz = initial_pose_normals[vertex * 3 + 2];
-                    float result_x = 0, result_y = 0, result_z = 0, result_nx = 0, result_ny = 0, result_nz = 0;
-                    v.set(x, y, z, 1);
-                    n.set(nx, ny, nz, 0);
-                    byte[] vertex_skin_names = skin_names[vertex];
-                    float[] vertex_skin_weights = skin_weights[vertex];
-                    for (int bone = 0; bone < vertex_skin_names.length; bone++) {
-                        float weight = vertex_skin_weights[bone];
-                        Matrix4f bone_matrix = frame_bones[vertex_skin_names[bone]];
-                        bone_matrix.transform(v, temp);
-                        result_x += temp.x * weight;
-                        result_y += temp.y * weight;
-                        result_z += temp.z * weight;
-                        bone_matrix.transform(n, temp);
-                        result_nx += temp.x * weight;
-                        result_ny += temp.y * weight;
-                        result_nz += temp.z * weight;
+        
+        try (org.lwjgl.system.MemoryStack stack = org.lwjgl.system.MemoryStack.stackPush()) {
+            FloatBuffer matrix_buffer = stack.mallocFloat(16);
+            matrix_buffer.put(15, 1f);
+            for (int anim = 0; anim < animations.length; anim++) {
+                BoundingBox bounding_box = bounding_boxes[anim];
+                int num_frames = animations[anim].getFrames().length;
+                tmp_vertices[anim] = new float[num_frames][num_vertices * 3];
+                tmp_normals[anim] = new float[num_frames][num_vertices * 3];
+                for (int frame = 0; frame < num_frames; frame++) {
+                    float[] frame_animation = animations[anim].getFrames()[frame];
+                    for (int bone = 0; bone < num_bones; bone++) {
+                        matrix_buffer.clear();
+                        matrix_buffer.position(0);
+                        matrix_buffer.put(frame_animation, bone * 12, 12);
+                        matrix_buffer.rewind();
+                        frame_bones[bone].setTransposed(matrix_buffer);
                     }
-                    float vec_len_inv = 1f / (float) Math.sqrt(result_nx * result_nx + result_ny * result_ny + result_nz * result_nz);
-                    result_nx *= vec_len_inv;
-                    result_ny *= vec_len_inv;
-                    result_nz *= vec_len_inv;
-                    frame_normals[vertex * 3 + 0] = result_nx;
-                    frame_normals[vertex * 3 + 1] = result_ny;
-                    frame_normals[vertex * 3 + 2] = result_nz;
+                    float[] frame_normals = tmp_normals[anim][frame];
+                    float[] frame_vertices = tmp_vertices[anim][frame];
+                    float bmax_x = Float.NEGATIVE_INFINITY;
+                    float bmax_y = Float.NEGATIVE_INFINITY;
+                    float bmax_z = Float.NEGATIVE_INFINITY;
+                    float bmin_x = Float.POSITIVE_INFINITY;
+                    float bmin_y = Float.POSITIVE_INFINITY;
+                    float bmin_z = Float.POSITIVE_INFINITY;
+                    for (int vertex = 0; vertex < num_vertices; vertex++) {
+                        float x = initial_pose_vertices[vertex * 3 + 0];
+                        float y = initial_pose_vertices[vertex * 3 + 1];
+                        float z = initial_pose_vertices[vertex * 3 + 2];
+                        float nx = initial_pose_normals[vertex * 3 + 0];
+                        float ny = initial_pose_normals[vertex * 3 + 1];
+                        float nz = initial_pose_normals[vertex * 3 + 2];
+                        float result_x = 0, result_y = 0, result_z = 0, result_nx = 0, result_ny = 0, result_nz = 0;
+                        v.set(x, y, z, 1);
+                        n.set(nx, ny, nz, 0);
+                        byte[] vertex_skin_names = skin_names[vertex];
+                        float[] vertex_skin_weights = skin_weights[vertex];
+                        for (int bone = 0; bone < vertex_skin_names.length; bone++) {
+                            float weight = vertex_skin_weights[bone];
+                            Matrix4f bone_matrix = frame_bones[vertex_skin_names[bone]];
+                            bone_matrix.transform(v, temp);
+                            result_x += temp.x * weight;
+                            result_y += temp.y * weight;
+                            result_z += temp.z * weight;
+                            bone_matrix.transform(n, temp);
+                            result_nx += temp.x * weight;
+                            result_ny += temp.y * weight;
+                            result_nz += temp.z * weight;
+                        }
+                        float vec_len_inv = 1f / (float) Math.sqrt(result_nx * result_nx + result_ny * result_ny + result_nz * result_nz);
+                        result_nx *= vec_len_inv;
+                        result_ny *= vec_len_inv;
+                        result_nz *= vec_len_inv;
+                        frame_normals[vertex * 3 + 0] = result_nx;
+                        frame_normals[vertex * 3 + 1] = result_ny;
+                        frame_normals[vertex * 3 + 2] = result_nz;
 
-                    if (result_x < bmin_x) bmin_x = result_x;
-                    else if (result_x > bmax_x) bmax_x = result_x;
-                    if (result_y < bmin_y) bmin_y = result_y;
-                    else if (result_y > bmax_y) bmax_y = result_y;
-                    if (result_z < bmin_z) bmin_z = result_z;
-                    else if (result_z > bmax_z) bmax_z = result_z;
-                    frame_vertices[vertex * 3 + 0] = result_x;
-                    frame_vertices[vertex * 3 + 1] = result_y;
-                    frame_vertices[vertex * 3 + 2] = result_z;
+                        if (result_x < bmin_x) bmin_x = result_x;
+                        else if (result_x > bmax_x) bmax_x = result_x;
+                        if (result_y < bmin_y) bmin_y = result_y;
+                        else if (result_y > bmax_y) bmax_y = result_y;
+                        if (result_z < bmin_z) bmin_z = result_z;
+                        else if (result_z > bmax_z) bmax_z = result_z;
+                        frame_vertices[vertex * 3 + 0] = result_x;
+                        frame_vertices[vertex * 3 + 1] = result_y;
+                        frame_vertices[vertex * 3 + 2] = result_z;
+                    }
+                    bounding_box.checkBounds(bmin_x, bmax_x, bmin_y, bmax_y, bmin_z, bmax_z);
                 }
-                bounding_box.checkBounds(bmin_x, bmax_x, bmin_y, bmax_y, bmin_z, bmax_z);
             }
         }
     }

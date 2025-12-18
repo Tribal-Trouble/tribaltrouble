@@ -32,7 +32,7 @@ public final class LocalEventQueue {
 		return queue_instance;
 	}
 
-	public void setEventsLogged(@NonNull File log_file) {
+	public void setEventsLogged(@NonNull Path log_file) {
 		assert deterministic == null;
 		this.deterministic = new SaveDeterministic(log_file);
 	}

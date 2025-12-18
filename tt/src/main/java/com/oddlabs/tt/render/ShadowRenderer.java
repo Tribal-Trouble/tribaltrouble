@@ -21,11 +21,13 @@ abstract class ShadowRenderer {
         GL11.glDepthFunc(GL11.GL_LEQUAL);
 
         var blendState = GLStateHelper.blend(true);
+        var cullState = GLStateHelper.cullFace(false);
         var depthMaskState = new GLStateHelper.DepthMask(false);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 
         return () -> {
             depthMaskState.close();
+            cullState.close();
             blendState.close();
             GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
             GL11.glDepthFunc(GL11.GL_LESS); // Restore default
@@ -45,6 +47,12 @@ abstract class ShadowRenderer {
 
     protected final void renderShadow(@NonNull LandscapeRenderer renderer, float shadow_size, float f_x, float f_y) {
         assert shadow_size >= 0;
+
+        // Bind HeightMap for VTF
+        GL13.glActiveTexture(GL13.GL_TEXTURE1);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, renderer.getHeightMap().getHeightTexture().getHandle());
+        shader.setUniform(ShadowShader.Uniforms.HEIGHT_MAP, 1);
+        shader.setUniform(ShadowShader.Uniforms.WORLD_SIZE, (float) renderer.getHeightMap().getMetersPerWorld());
 
         float texture_scale = 1f / shadow_size;
         float half_shadow_size = shadow_size * 0.5f;
@@ -76,5 +84,10 @@ abstract class ShadowRenderer {
                 renderer.renderShadow(shader, patch_x, patch_y, local_start_x, local_start_y, local_end_x, local_end_y);
             }
         }
+        
+        // Restore texture state
+        GL13.glActiveTexture(GL13.GL_TEXTURE1);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
     }
 }

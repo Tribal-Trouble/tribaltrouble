@@ -9,15 +9,15 @@ import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
-import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GLContext;
+import org.lwjgl.system.MemoryStack;
+
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -31,9 +31,6 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
      */
     static final class NativeTexture extends NativeResource.NativeState {
         static final AtomicInteger global_size = new AtomicInteger();
-        private static final IntBuffer handle_buffer = Objects.requireNonNull(BufferUtils.createIntBuffer(1));
-        private static final IntBuffer size_buffer = Objects.requireNonNull(BufferUtils.createIntBuffer(4));
-        private static final FloatBuffer border_color_buffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(4));
 
         private int size;
         private final int texture_handle;
@@ -45,8 +42,11 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
         @Override
         public void close() {
             global_size.addAndGet(-size);
-            handle_buffer.put(0, texture_handle);
-            GL11.glDeleteTextures(handle_buffer);
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                IntBuffer handle_buffer = stack.mallocInt(1);
+                handle_buffer.put(0, texture_handle);
+                GL11.glDeleteTextures(handle_buffer);
+            }
         }
     }
 
@@ -54,26 +54,35 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 	private final int height;
 
 	private static int initTexture(int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level) {
-		GL11.glGenTextures(NativeTexture.handle_buffer);
-		int tex_handle = NativeTexture.handle_buffer.get(0);
-		assert tex_handle != 0;
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex_handle);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, wrap_s);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, wrap_t);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, min_filter);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, mag_filter);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, max_mipmap_level);
-		if (min_filter == GL11.GL_LINEAR_MIPMAP_LINEAR || min_filter == GL11.GL_NEAREST_MIPMAP_LINEAR || min_filter == GL11.GL_LINEAR_MIPMAP_NEAREST || min_filter == GL11.GL_NEAREST_MIPMAP_NEAREST) {
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL14.GL_GENERATE_MIPMAP, GL11.GL_TRUE);
-		}
-		NativeTexture.border_color_buffer.put(0, 0f).put(1, 0f).put(2, 0f).put(3, 0f);
-		GL11.glTexParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_BORDER_COLOR, NativeTexture.border_color_buffer);
+        int tex_handle;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer handle_buffer = stack.mallocInt(1);
+            GL11.glGenTextures(handle_buffer);
+            tex_handle = handle_buffer.get(0);
+            assert tex_handle != 0;
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex_handle);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, wrap_s);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, wrap_t);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, min_filter);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, max_mipmap_level);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, mag_filter);
 
-		if (GLContext.getCapabilities().GL_EXT_texture_filter_anisotropic) {
-			float max_anisotropy = GL11.glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-			GL11.glTexParameterf(GL11.GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
-		}
+            if (min_filter == GL11.GL_LINEAR_MIPMAP_LINEAR ||
+					min_filter == GL11.GL_NEAREST_MIPMAP_LINEAR ||
+					min_filter == GL11.GL_LINEAR_MIPMAP_NEAREST ||
+					min_filter == GL11.GL_NEAREST_MIPMAP_NEAREST) {
+                GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL14.GL_GENERATE_MIPMAP, GL11.GL_TRUE);
+            }
+            
+            FloatBuffer border_color_buffer = stack.mallocFloat(4);
+            border_color_buffer.put(0, 0f).put(1, 0f).put(2, 0f).put(3, 0f);
+            GL11.glTexParameterfv(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_BORDER_COLOR, border_color_buffer);
 
+            if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
+                float max_anisotropy = GL11.glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+                GL11.glTexParameterf(GL11.GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
+            }
+        }
 		return tex_handle;
 	}
 
@@ -209,22 +218,25 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 	}
 
 	private static int determineMipMapSize(int mipmap, int internal_format, int width, int height) {
-		GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, mipmap, GL13.GL_TEXTURE_COMPRESSED, NativeTexture.size_buffer);
-		boolean compressed = NativeTexture.size_buffer.get(0) == GL11.GL_TRUE;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer size_buffer = stack.mallocInt(4);
+            GL11.glGetTexLevelParameteriv(GL11.GL_TEXTURE_2D, mipmap, GL13.GL_TEXTURE_COMPRESSED, size_buffer);
+            boolean compressed = size_buffer.get(0) == GL11.GL_TRUE;
 
-		if (compressed) {
-			GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, mipmap, GL13.GL_TEXTURE_COMPRESSED_IMAGE_SIZE, NativeTexture.size_buffer);
-			return NativeTexture.size_buffer.get(0);
-		} else {
-            return switch (internal_format) {
-                case GL13.GL_COMPRESSED_RGB, GL11.GL_RGB -> width * height * 3;
-                case GL13.GL_COMPRESSED_RGBA, GL11.GL_RGBA -> width * height * 4;
-                case GL11.GL_LUMINANCE, GL11.GL_ALPHA8, GL11.GL_ALPHA, GL13.GL_COMPRESSED_LUMINANCE,
-                     GL13.GL_COMPRESSED_ALPHA -> width * height;
-                case GL30.GL_R32F -> width * height * 4;
-                default -> throw new RuntimeException("0x" + Integer.toHexString(internal_format));
-            };
-		}
+            if (compressed) {
+                GL11.glGetTexLevelParameteriv(GL11.GL_TEXTURE_2D, mipmap, GL13.GL_TEXTURE_COMPRESSED_IMAGE_SIZE, size_buffer);
+                return size_buffer.get(0);
+            } else {
+                return switch (internal_format) {
+                    case GL13.GL_COMPRESSED_RGB, GL11.GL_RGB -> width * height * 3;
+                    case GL13.GL_COMPRESSED_RGBA, GL11.GL_RGBA -> width * height * 4;
+                    case GL11.GL_LUMINANCE, GL11.GL_ALPHA8, GL11.GL_ALPHA, GL13.GL_COMPRESSED_LUMINANCE,
+                         GL13.GL_COMPRESSED_ALPHA -> width * height;
+                    case GL30.GL_R32F -> width * height * 4;
+                    default -> throw new RuntimeException("0x" + Integer.toHexString(internal_format));
+                };
+            }
+        }
 	}
 
 	public int getHandle() {

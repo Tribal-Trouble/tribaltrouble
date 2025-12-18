@@ -3,13 +3,15 @@ package com.oddlabs.tt.audio;
 import com.oddlabs.tt.Main;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.openal.AL;
+import org.lwjgl.openal.ALC10;
+import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
-public final class RefillerList {
+public final class RefillerList implements AutoCloseable {
 
     private static final long THREAD_SLEEP_MILLIS = TimeUnit.MILLISECONDS.toMillis(50);
 
@@ -21,7 +23,8 @@ public final class RefillerList {
         refill_thread.start();
     }
 
-    public void destroy() {
+    @Override
+    public void close() {
         synchronized (this) {
             finished = true;
             players.clear();
@@ -36,13 +39,13 @@ public final class RefillerList {
     }
 
 
-    synchronized void registerQueuedPlayer(QueuedAudioPlayer q) {
+    synchronized void registerQueuedPlayer(@NonNull QueuedAudioPlayer q) {
         assert !players.contains(q);
         players.add(q);
         notify();
     }
 
-    synchronized void removeQueuedPlayer(QueuedAudioPlayer q) {
+    synchronized void removeQueuedPlayer(@NonNull QueuedAudioPlayer q) {
         players.remove(q);
         assert !players.contains(q);
     }
@@ -60,7 +63,7 @@ public final class RefillerList {
             try {
                 while (!finished) {
                     synchronized (RefillerList.this) {
-                        if (AL.isCreated()) {
+                        if (ALC10.alcGetCurrentContext() != MemoryUtil.NULL) {
                             for (QueuedAudioPlayer player: players) try {
                                 player.refill();
                             } catch (IOException _) {

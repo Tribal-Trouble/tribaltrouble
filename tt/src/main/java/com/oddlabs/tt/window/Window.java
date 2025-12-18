@@ -3,9 +3,9 @@ package com.oddlabs.tt.window;
 import com.oddlabs.tt.render.SerializableDisplayMode;
 import org.jspecify.annotations.NonNull;
 
-public interface Window {
+public interface Window extends AutoCloseable {
     void create(@NonNull SerializableDisplayMode mode, boolean fullscreen) throws Exception;
-    void destroy();
+    void close();
     void update();
     
     boolean isCloseRequested();
@@ -20,7 +20,7 @@ public interface Window {
     void setVSyncEnabled(boolean enabled);
     void setFullscreen(boolean fullscreen) throws Exception;
     
-    @NonNull SerializableDisplayMode[] getAvailableDisplayModes() throws Exception;
+    @NonNull SerializableDisplayMode @NonNull[] getAvailableDisplayModes() throws Exception;
     @NonNull SerializableDisplayMode getDisplayMode();
     void setDisplayMode(@NonNull SerializableDisplayMode mode) throws Exception;
     

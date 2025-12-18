@@ -20,6 +20,7 @@ import com.oddlabs.util.Color;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.system.MemoryUtil;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -209,7 +210,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 				break;
 
 			case H:
-				if (event.isControlDown() && (LocalInput.getNativeCursorCaps() & org.lwjgl.input.Cursor.CURSOR_ONE_BIT_TRANSPARENCY) != 0) {
+				if (event.isControlDown() && (LocalInput.getNativeCursorCaps() & LocalInput.CURSOR_ONE_BIT_TRANSPARENCY) != 0) {
 					Settings.getSettings().use_native_cursor = !Settings.getSettings().use_native_cursor;
 					if (Settings.getSettings().use_native_cursor)
 						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "hardware_cursor_on"));
@@ -281,7 +282,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 				}
 				break;
 			case J:
-				org.lwjgl.input.Mouse.setCursorPosition(10, 10);
+				LocalInput.getInputProvider().setCursorPosition(10, 10);
 				break;
 			case S:
 				if (!event.isControlDown()) {
@@ -402,7 +403,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 				cursors[cursor_object.getCursorType().ordinal()].render(renderer, mouse_x, mouse_y);
 			}
 		} else
-			PointerInput.setActiveCursor(null);
+			PointerInput.setActiveCursor(MemoryUtil.NULL);
 
         if (showToolTip()) {
             ToolTip tooltip = getToolTip();

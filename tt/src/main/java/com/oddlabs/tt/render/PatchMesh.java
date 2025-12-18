@@ -47,8 +47,8 @@ public final class PatchMesh {
         ibo = new ShortVBO(GL15.GL_STATIC_DRAW, indices);
     }
 
-    public void bind(LandscapeShader shader) {
-        int posLoc = shader.getAttributeLocation(LandscapeShader.Attributes.POSITION);
+    public void bind(ShaderProgram shader) {
+        int posLoc = shader.getAttributeLocation("a_position");
         if (posLoc != -1) {
             vbo.vertexAttribPointer(posLoc, 2, 0, 0);
             GL20.glEnableVertexAttribArray(posLoc);
@@ -60,8 +60,8 @@ public final class PatchMesh {
         ibo.drawElements(org.lwjgl.opengl.GL11.GL_TRIANGLES, INDEX_COUNT, 0);
     }
 
-    public void unbind(LandscapeShader shader) {
-        int posLoc = shader.getAttributeLocation(LandscapeShader.Attributes.POSITION);
+    public void unbind(ShaderProgram shader) {
+        int posLoc = shader.getAttributeLocation("a_position");
         if (posLoc != -1) {
             GL20.glDisableVertexAttribArray(posLoc);
         }

@@ -31,8 +31,8 @@ public final class Settings implements Serializable {
 	public boolean crashed = false;
 
 	// network
-	public String username = "";
-	public String pw_digest = "";
+	public @NonNull String username = "";
+	public @NonNull String pw_digest = "";
 	public boolean remember_login = false;
 
 	public int graphic_detail = Globals.DETAIL_NORMAL;
@@ -47,9 +47,9 @@ public final class Settings implements Serializable {
 	public @NonNull String language = "default";
 
 	// window
-	public int view_width = 800;
-	public int view_height = 600;
-	public int view_freq = 75;
+	public int view_width = -1;
+	public int view_height = -1;
+	public int view_freq = -1;
 
 	public int new_view_width = view_width;
 	public int new_view_height = view_height;

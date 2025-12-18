@@ -1,5 +1,6 @@
 package com.oddlabs.event;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
@@ -60,7 +61,7 @@ public abstract class Deterministic {
 
     protected abstract @Nullable Path log(Path p, Path def);
 
-    public final @Nullable Path log(Path p) {
+    public final @Nullable Path log(@Nullable Path p) {
         assert enabled;
         return log(p, Path.of(""));
     }
@@ -72,12 +73,12 @@ public abstract class Deterministic {
 
 	protected abstract <T> @Nullable T logObject(@Nullable T o);
 
-	public final void log(ByteBuffer o) {
+	public final void log(@NonNull ByteBuffer o) {
 		assert enabled;
 		logBuffer(o);
 	}
 
-	protected abstract void logBuffer(ByteBuffer o);
+	protected abstract void logBuffer(@NonNull ByteBuffer o);
 
 	public abstract void endLog();
 
@@ -112,12 +113,12 @@ public abstract class Deterministic {
 		Throwable t = new Throwable();
 		StackTraceElement[] stack_trace_elements = t.getStackTrace();
 		int hash = 0;
-            for (StackTraceElement stack_trace_element : stack_trace_elements) {
-                if (stack_trace_element.getClassName().startsWith(Deterministic.class.getPackage().getName())) {
-                    continue;
-                }
-                hash += stack_trace_element.getMethodName().hashCode();
-            }
+		for (StackTraceElement stack_trace_element : stack_trace_elements) {
+			if (stack_trace_element.getClassName().startsWith(Deterministic.class.getPackage().getName())) {
+				continue;
+			}
+			hash += stack_trace_element.getMethodName().hashCode();
+		}
 		return hash;
 	}
 }

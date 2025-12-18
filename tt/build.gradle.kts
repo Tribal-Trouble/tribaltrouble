@@ -1,31 +1,41 @@
+import com.smushytaco.lwjgl_gradle.Module
+
 plugins {
     application
+    id("com.smushytaco.lwjgl3")
 }
 
-val natives by configurations.creating
+lwjgl {
+    // Strongly recommended: set LWJGL version explicitly
+    version = "3.3.6"
 
-val lwjglVersion = "2.9.3"
+    // Add LWJGL modules + the correct native artifacts
+    implementation(
+        com.smushytaco.lwjgl_gradle.Module.CORE,
+        com.smushytaco.lwjgl_gradle.Module.GLFW,
+        com.smushytaco.lwjgl_gradle.Module.OPENAL,
+        com.smushytaco.lwjgl_gradle.Module.OPENGL,
+        com.smushytaco.lwjgl_gradle.Module.STB,
+        Module.TINYFD)
+}
 
 application {
     mainClass.set("com.oddlabs.tt.Main")
-    applicationDefaultJvmArgs = listOf(
-        "-ea", "-esa", // "-Xcheck:jni",
-        "-Djava.library.path=build/libs/native",
+    val args = mutableListOf(
+        "-ea", "-esa",
         "-Dcom.oddlabs.tt.developer=true",
-        "-Dorg.lwjgl.util.Debug=true",
         "-Xms80m", "-Xmx512m"
     )
+    if (System.getProperty("os.name").lowercase().contains("mac")) {
+        args.add("-XstartOnFirstThread")
+}
+    applicationDefaultJvmArgs = args
 }
 
 dependencies {
     implementation(project(":common"))
     implementation(project(":assets"))
     implementation("org.jcraft:jorbis:0.0.17")
-    implementation("org.lwjgl.lwjgl:lwjgl:$lwjglVersion")
-
-    natives("org.lwjgl.lwjgl:lwjgl-platform:$lwjglVersion:natives-windows")
-    natives("org.lwjgl.lwjgl:lwjgl-platform:$lwjglVersion:natives-linux")
-    natives("org.lwjgl.lwjgl:lwjgl-platform:$lwjglVersion:natives-osx")
 }
 
 val revision = tasks.register("revision") {
@@ -46,18 +56,4 @@ tasks.processResources {
 
 tasks.run.configure {
     classpath = files(layout.buildDirectory) + sourceSets.main.get().runtimeClasspath
-}
-
-val unpackNatives = tasks.register<Copy>("unpackNatives") {
-    group = "build"
-    description = "Unpack native libraries"
-    destinationDir = file("build/libs/native")
-    from(natives.map { zipTree(it) }) {
-        include("*.dylib", "*.so", "*.dll")
-    }
-    into(destinationDir)
-}
-
-tasks.named("processResources") {
-    dependsOn(unpackNatives)
 }

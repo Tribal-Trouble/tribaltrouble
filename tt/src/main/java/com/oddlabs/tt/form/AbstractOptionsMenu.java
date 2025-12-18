@@ -32,7 +32,7 @@ import com.oddlabs.tt.render.SerializableDisplayMode;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.input.Cursor;
+
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -138,7 +138,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		group_hardware_cursor.addChild(cb_hardware_cursor);
 		cb_hardware_cursor.place();
 		group_hardware_cursor.compileCanvas();
-		group_hardware_cursor.setDisabled((LocalInput.getNativeCursorCaps() & Cursor.CURSOR_ONE_BIT_TRANSPARENCY) == 0);
+		group_hardware_cursor.setDisabled((LocalInput.getNativeCursorCaps() & LocalInput.CURSOR_ONE_BIT_TRANSPARENCY) == 0);
 
 		// Invert camera
 		Group group_invert_camera = new Group();
@@ -299,7 +299,6 @@ public abstract class AbstractOptionsMenu extends Form {
                 selectedLanguage = row;
 		}
 
-		assert current_row != null;
 		language_list_box.selectRow(selectedLanguage);
 		language_list_box.addRowListener(new LanguageListener());
 

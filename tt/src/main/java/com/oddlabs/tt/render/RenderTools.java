@@ -4,20 +4,13 @@ import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.DebugRender;
-import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
-import java.util.Objects;
 
 public final class RenderTools {
-	private static final FloatBuffer transform_matrix = Objects.requireNonNull(BufferUtils.createFloatBuffer(16)).clear();
-
-	static {
-        new Matrix4f().get(transform_matrix);
-	}
 
     enum FrustumIntersection {
         ALL_OUTSIDE,
@@ -47,46 +40,23 @@ public final class RenderTools {
 	}
 	
 	static void translateAndRotate(float x, float y, float z, float dir_x, float dir_y) {
-		// Rotate and translate model
-/*		float c = dir_x;
-		float s = dir_y;
-		float oneminusc = 1.0f - c;
-		float xy = 0;//axis.x*axis.y;
-		float yz = 0;//axis.y*axis.z;
-		float xz = 0;//axis.x*axis.z;
-		float xs = 0;//axis.x*s;
-		float ys = 0;//axis.y*s;
-		float zs = s;//axis.z*s;
-
-		float f00 = c;//axis.x*axis.x*oneminusc+c;
-		float f01 = zs;//xy*oneminusc+zs;
-		float f02 = 0;//xz*oneminusc-ys;
-		// n[3] not used
-		float f10 = -zs;//xy*oneminusc-zs;
-		float f11 = c;//axis.y*axis.y*oneminusc+c;
-		float f12 = 0;//yz*oneminusc+xs;
-		// n[7] not used
-		float f20 = 0;//xz*oneminusc+ys;
-		float f21 = 0;//yz*oneminusc-xs;
-		float f22 = 1f;//axis.z*axis.z*oneminusc+c;
-		transform_matrix.put(f00).put(f01).put(f02).put(0f);
-		transform_matrix.put(f10).put(f11).put(f12).put(0f);
-		transform_matrix.put(f20).put(f21).put(f22).put(0f);
-		transform_matrix.put(x).put(y).put(render_pos_z).put(1f);*/
-
-/*		transform_matrix.put(dir_x).put(dir_y).put(0f).put(0f);
-		transform_matrix.put(-dir_y).put(dir_x).put(0f).put(0f);
-		transform_matrix.put(0f).put(0f).put(1f).put(0f);
-		transform_matrix.put(x).put(y).put(render_pos_z).put(1f);
-		transform_matrix.rewind();*/
-		transform_matrix.put(0, dir_x);
-		transform_matrix.put(1, dir_y);
-		transform_matrix.put(4, -dir_y);
-		transform_matrix.put(5, dir_x);
-		transform_matrix.put(12, x);
-		transform_matrix.put(13, y);
-		transform_matrix.put(14, z);
-		GL11.glMultMatrix(transform_matrix);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer transform_matrix = stack.callocFloat(16);
+            // Identity initialization for parts we don't touch
+            transform_matrix.put(10, 1.0f);
+            transform_matrix.put(15, 1.0f);
+            
+            // Rotation and translation
+            transform_matrix.put(0, dir_x);
+            transform_matrix.put(1, dir_y);
+            transform_matrix.put(4, -dir_y);
+            transform_matrix.put(5, dir_x);
+            transform_matrix.put(12, x);
+            transform_matrix.put(13, y);
+            transform_matrix.put(14, z);
+            
+            GL11.glMultMatrixf(transform_matrix);
+        }
 	}
 
 	static @NonNull FrustumIntersection inFrustum(@NonNull BoundingBox box, float[][] frustum) {

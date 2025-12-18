@@ -1,5 +1,7 @@
 package com.oddlabs.event;
 
+import org.jspecify.annotations.NonNull;
+
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
@@ -67,7 +69,7 @@ public final class StackTraceDeterministic extends Deterministic {
 	}
 
 	@Override
-	protected void logBuffer(ByteBuffer b) {
+	protected void logBuffer(@NonNull ByteBuffer b) {
 		logTrace();
 		deterministic.log(b);
 	}

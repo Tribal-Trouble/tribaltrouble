@@ -1,8 +1,9 @@
 package com.oddlabs.tt.vbo;
 
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.ContextCapabilities;
-import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLCapabilities;
+
 
 /**
  * Factory for creating VertexArray instances based on available OpenGL capabilities.
@@ -18,7 +19,7 @@ public final class VertexArrays {
         private static final @NonNull Availability availability;
 
         static {
-            ContextCapabilities caps = GLContext.getCapabilities();
+            GLCapabilities caps = GL.getCapabilities();
             availability = caps.OpenGL30
                     ? Availability.GL30
                     : caps.GL_ARB_vertex_array_object

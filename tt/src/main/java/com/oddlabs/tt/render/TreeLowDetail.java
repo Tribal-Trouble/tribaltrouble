@@ -36,7 +36,6 @@ import static com.oddlabs.tt.landscape.AbstractTreeGroup.TreeType;
 public final class TreeLowDetail {
     private static final Vector4f src = new Vector4f();
     private static final Vector4f dest = new Vector4f();
-    private static final FloatBuffer update_buffer = BufferUtils.createFloatBuffer(1000);
 
     private final @NonNull FloatVBO vertices;
     private final @NonNull FloatVBO texcoords;
@@ -145,14 +144,11 @@ public final class TreeLowDetail {
         TreeType tree_type = tree.getTreeType();
         LowDetailModel low_detail_model = low_details.get(tree_type);
         float[] vertex_array = low_detail_model.getVertices();
-        update_buffer.clear();
-        update_buffer.limit(vertex_array.length);
+        FloatBuffer update_buffer = BufferUtils.createFloatBuffer(vertex_array.length);
         for (int i = 0; i < vertex_array.length / 3; i++) {
             src.set(vertex_array[i * 3], vertex_array[i * 3 + 1], vertex_array[i * 3 + 2], 1f);
             matrix.transform(src, dest);
-            update_buffer.put(i * 3, dest.x);
-            update_buffer.put(i * 3 + 1, dest.y);
-            update_buffer.put(i * 3 + 2, dest.z);
+            dest.get(i * 3, update_buffer);
         }
         vertices.putSubData(start_vertex_index * 3, update_buffer);
     }

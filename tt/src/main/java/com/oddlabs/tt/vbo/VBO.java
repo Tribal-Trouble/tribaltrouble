@@ -1,15 +1,13 @@
 package com.oddlabs.tt.vbo;
 
 import com.oddlabs.tt.resource.NativeResource;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
-import java.util.Objects;
 
 public abstract class VBO extends NativeResource<VBO.Buffer> {
     static final class Buffer extends NativeResource.NativeState {
-        private static final IntBuffer handle_buffer = Objects.requireNonNull(BufferUtils.createIntBuffer(1));
 
         private final int handle;
 
@@ -18,7 +16,8 @@ public abstract class VBO extends NativeResource<VBO.Buffer> {
         }
 
         private int createBuffer(int target, int usage, int size) {
-            synchronized (handle_buffer) {
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                IntBuffer handle_buffer = stack.mallocInt(1);
                 GL15.glGenBuffers(handle_buffer);
                 int handle = handle_buffer.get(0);
                 assert handle != 0;
@@ -30,7 +29,8 @@ public abstract class VBO extends NativeResource<VBO.Buffer> {
 
         @Override
         public void close() {
-            synchronized (handle_buffer) {
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                IntBuffer handle_buffer = stack.mallocInt(1);
                 handle_buffer.put(0, handle);
                 GL15.glDeleteBuffers(handle_buffer);
             }

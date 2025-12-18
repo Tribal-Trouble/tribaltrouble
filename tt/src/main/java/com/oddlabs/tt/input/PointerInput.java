@@ -1,6 +1,5 @@
 package com.oddlabs.tt.input;
 
-import com.oddlabs.tt.input.InputProvider;
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.GUIRoot;
@@ -12,9 +11,8 @@ import com.oddlabs.util.Image;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Cursor;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.system.MemoryUtil;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -23,7 +21,7 @@ public final class PointerInput {
 	private static final Set<@NonNull MouseButton> buttons = EnumSet.noneOf(MouseButton.class);
 	private static short last_x;
 	private static short last_y;
-	private static Cursor active_cursor;
+	private static long active_cursor = MemoryUtil.NULL;
 	private static @Nullable MouseButton drag_button = null;
 
 	private static final @NonNull NativeCursor debug_cursor;
@@ -40,14 +38,14 @@ public final class PointerInput {
 											 img_32_8, 4, 27);
 	}
 
-	public static void setActiveCursor(@Nullable Cursor cursor) {
-        InputProvider input = LocalInput.getInputProvider();
+	public static void setActiveCursor(long cursor) {
+        InputProvider<?> input = LocalInput.getInputProvider();
         if (input == null) return;
         
-		if (cursor != null && input.isGrabbed()) {
+		if (cursor != MemoryUtil.NULL && input.isGrabbed()) {
 			input.setGrabbed(false);
 			resetCursorPos();
-		} else if (cursor == null && !input.isGrabbed()) {
+		} else if (cursor == MemoryUtil.NULL && !input.isGrabbed()) {
 			input.setGrabbed(true);
 			resetCursorPos();
 		}
@@ -57,7 +55,7 @@ public final class PointerInput {
 	}
 
 	public static void setCursorPosition(int x, int y) {
-        InputProvider input = LocalInput.getInputProvider();
+        InputProvider<?> input = LocalInput.getInputProvider();
 		if (input != null && !LocalEventQueue.getQueue().getDeterministic().isPlayback())
 			input.setCursorPosition(x, y);
 	}
@@ -65,22 +63,24 @@ public final class PointerInput {
 	private static void resetCursorPos() {
 		setCursorPosition(LocalInput.getMouseX(), LocalInput.getMouseY());
 		// clear event queue
-        InputProvider input = LocalInput.getInputProvider();
+        InputProvider<?> input = LocalInput.getInputProvider();
 		while (input != null && input.nextMouseEvent())
             ;
 	}
 
-	private static void doSetActiveCursor(Cursor cursor) {
+	private static void doSetActiveCursor(long cursor) {
 		active_cursor = cursor;
-        InputProvider input = LocalInput.getInputProvider();
+        InputProvider<Long> input = (InputProvider<Long>) LocalInput.getInputProvider();
         if (input != null) {
-		    input.setNativeCursor(LocalEventQueue.getQueue().getDeterministic().isPlayback() ? debug_cursor.getCursor() : cursor);
+			var useCursor = LocalEventQueue.getQueue().getDeterministic().isPlayback()
+					? debug_cursor.getCursor() : cursor;
+		    input.setNativeCursor(useCursor);
         }
 	}
 
-	public static void deletingCursor(Cursor cursor) {
+	public static void deletingCursor(long cursor) {
 		if (active_cursor == cursor)
-			doSetActiveCursor(null);
+			doSetActiveCursor(MemoryUtil.NULL);
 	}
 
 	private static void updateMouse(@NonNull GUIRoot gui_root, int x, int y, int dz) {
@@ -98,7 +98,7 @@ public final class PointerInput {
 	}
 
 	public static void poll(@NonNull GUIRoot gui_root) {
-        InputProvider input = LocalInput.getInputProvider();
+        InputProvider<?> input = LocalInput.getInputProvider();
         if (input == null) return;
         
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();

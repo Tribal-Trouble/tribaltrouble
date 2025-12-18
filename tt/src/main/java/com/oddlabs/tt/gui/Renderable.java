@@ -131,7 +131,7 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 			IntBuffer scissor_box;
 			if (GL11.glIsEnabled(GL11.GL_SCISSOR_TEST)) {
 				scissor_box = Objects.requireNonNull(BufferUtils.createIntBuffer(4));
-				GL11.glGetInteger(GL11.GL_SCISSOR_BOX, scissor_box);
+				GL11.glGetIntegerv(GL11.GL_SCISSOR_BOX, scissor_box);
 			} else {
 				scissor_box = null;
 			}

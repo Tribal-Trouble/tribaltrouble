@@ -366,52 +366,38 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
 
     public void keyPressed(@NonNull KeyboardEvent event) {
         switch (event.getKeyCode()) {
-                case HOME:
-                case NUMPAD8:
-                        break;
-                case END:
-                case NUMPAD2:
-                        break;
-                case INSERT:
-                case NUMPAD6:
-                        viewer.getPicker().pickRotate(this);
-                        break;
-                case DELETE:
-                case NUMPAD4:
-                        viewer.getPicker().pickRotate(this);
-                        break;
-                case PRIOR:
-                case NUMPAD9:
-                        mouseScrolled(-2);
-                        break;
-                case NEXT:
-                case NUMPAD3:
-                        mouseScrolled(2);
-                        break;
-                case UP:
-                        if (!scrollSpeedLocked(Key.UP)) {
-                                scroll_acceleration_seconds = 0;
-                                setScrollSpeed();
-                        }
-                        break;
-                case DOWN:
-                        if (!scrollSpeedLocked(Key.DOWN)) {
-                                scroll_acceleration_seconds = 0;
-                                setScrollSpeed();
-                        }
-                        break;
-                case LEFT:
-                        if (!scrollSpeedLocked(Key.LEFT)) {
-                                scroll_acceleration_seconds = 0;
-                                setScrollSpeed();
-                        }
-                        break;
-                case RIGHT:
-                        if (!scrollSpeedLocked(Key.RIGHT)) {
-                                scroll_acceleration_seconds = 0;
-                                setScrollSpeed();
-                        }
-                        break;
+            case HOME, NUMPAD8 -> {
+            }
+            case END, NUMPAD2 -> {
+            }
+            case INSERT, NUMPAD6 -> viewer.getPicker().pickRotate(this);
+            case DELETE, NUMPAD4 -> viewer.getPicker().pickRotate(this);
+            case PRIOR, NUMPAD9 -> mouseScrolled(-2);
+            case NEXT, NUMPAD3 -> mouseScrolled(2);
+            case UP -> {
+                if (!scrollSpeedLocked(Key.UP)) {
+                    scroll_acceleration_seconds = 0;
+                    setScrollSpeed();
+                }
+            }
+            case DOWN -> {
+                if (!scrollSpeedLocked(Key.DOWN)) {
+                    scroll_acceleration_seconds = 0;
+                    setScrollSpeed();
+                }
+            }
+            case LEFT -> {
+                if (!scrollSpeedLocked(Key.LEFT)) {
+                    scroll_acceleration_seconds = 0;
+                    setScrollSpeed();
+                }
+            }
+            case RIGHT -> {
+                if (!scrollSpeedLocked(Key.RIGHT)) {
+                    scroll_acceleration_seconds = 0;
+                    setScrollSpeed();
+                }
+            }
         }
     }
 

@@ -1,10 +1,6 @@
 group = "com.oddlabs.tribaltrouble"
 version = "1.0.0"
 
-repositories {
-    mavenCentral()
-}
-
 val fontRenderer  by configurations.creating
 
 dependencies {

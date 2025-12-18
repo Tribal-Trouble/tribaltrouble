@@ -1,16 +1,21 @@
 package com.oddlabs.event;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.EnumSet;
+
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 public final class SaveDeterministic extends Deterministic {
 	private static final short MAX_DEFAULTS = Short.MAX_VALUE;
@@ -23,15 +28,15 @@ public final class SaveDeterministic extends Deterministic {
 	private int total_bytes_written;
 	private short num_defaults = MIN_DEFAULTS;
 
-	public SaveDeterministic(@NonNull File logging_file) {
+	public SaveDeterministic(@NonNull Path logging_file) {
 		try {
 			buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-			channel = new FileOutputStream(logging_file).getChannel();
+			channel = Files.newByteChannel(logging_file, EnumSet.of(CREATE,TRUNCATE_EXISTING,WRITE));
 			IO.println("Logging to " + logging_file);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
+		} catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
 	@Override
 	public boolean isPlayback() {
@@ -46,7 +51,7 @@ public final class SaveDeterministic extends Deterministic {
 			}
 			buffer.compact();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 
@@ -58,7 +63,7 @@ public final class SaveDeterministic extends Deterministic {
 			channel.close();
 			IO.println("Closed log file, bytes written: " + total_bytes_written);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 
@@ -114,18 +119,18 @@ public final class SaveDeterministic extends Deterministic {
 	}
 
 	@Override
-	protected Object logObject(Object o) {
+	protected <T> @Nullable T logObject(@Nullable T o) {
 		try (ObjectOutputStream object_output_stream = new ObjectOutputStream(byte_buffer_output_stream)) {
 			object_output_stream.writeObject(o);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
-                return o;
+		return o;
 	}
 
     protected Path log(@NonNull Path p, Path def) {
         try {
-            // For bacwards compatibility we convert to Serializable File
+            // For backwards compatibility we convert to Serializable File
             logObject(p.toFile());
             return p;
         } catch(Throwable _) {

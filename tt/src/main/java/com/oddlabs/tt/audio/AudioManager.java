@@ -6,11 +6,12 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.AudioImplementation;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.LWJGLException;
+
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Level;
@@ -22,7 +23,7 @@ import java.util.logging.Logger;
  * and controlling global audio properties like listener orientation and master gain.
  */
 @SuppressWarnings("UnusedReturnValue")
-public abstract class AudioManager implements AudioImplementation {
+public abstract class AudioManager implements AudioImplementation, AutoCloseable {
     private static final Logger logger = Logger.getLogger(AudioManager.class.getName());
 
     private static final Holder SINGLETON = new Holder();
@@ -35,7 +36,7 @@ public abstract class AudioManager implements AudioImplementation {
             AudioManager instance = null;
             try {
                 instance = new OpenALManager();
-            } catch (LWJGLException e) {
+            } catch (Exception e) {
                 logger.log(Level.SEVERE, "Failed to create audio manager", e);
             }
             manager = instance;
@@ -251,22 +252,23 @@ public abstract class AudioManager implements AudioImplementation {
         return dx * dx + dy * dy + dz * dz;
     }
 
-    void registerQueuedPlayer(QueuedAudioPlayer q) {
+    void registerQueuedPlayer(@NonNull QueuedAudioPlayer q) {
         queued_players.registerQueuedPlayer(q);
     }
 
-    void removeQueuedPlayer(QueuedAudioPlayer q) {
+    void removeQueuedPlayer(@NonNull QueuedAudioPlayer q) {
         queued_players.removeQueuedPlayer(q);
     }
 
-    public void destroy() {
-        queued_players.destroy();
-        for (AudioSource source : sources) {
-            try {
-                source.close(); // Ensure all sources are closed
-            } catch (Exception e) {
-                logger.log(Level.WARNING, "Error closing audio source", e);
-            }
+    @Override
+    public void close() {
+        queued_players.close();
+        for (AudioSource source : sources) try {
+            if (null != source) source.close(); // Ensure all sources are closed
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error closing audio source", e);
+        } finally {
+            Arrays.fill(sources, null);
         }
     }
 }

@@ -6,12 +6,12 @@ import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 public interface NotificationListener {
-	void newAttackNotification(@NonNull Selectable target);
-	void newSelectableNotification(@NonNull Selectable target);
-	void registerTarget(@NonNull Target target);
-	void unregisterTarget(@NonNull Target target);
-	void updateTreeLowDetail(@NonNull Matrix4f matrix, @NonNull TreeSupply tree);
-	void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1);
-	void gamespeedChanged(int speed);
-	void playerGamespeedChanged();
+	default void newAttackNotification(@NonNull Selectable target) {}
+	default void newSelectableNotification(@NonNull Selectable target) {}
+	default void registerTarget(@NonNull Target target) {}
+	default void unregisterTarget(@NonNull Target target) {}
+	default void updateTreeLowDetail(@NonNull Matrix4f matrix, @NonNull TreeSupply tree) {}
+	default void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {}
+	default void gamespeedChanged(int speed) {}
+	default void playerGamespeedChanged() {}
 }

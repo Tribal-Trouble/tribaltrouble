@@ -50,7 +50,7 @@ public abstract class OffscreenRenderer {
 		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, mip_level, format, x1 - x0, y1 - y0, 0, image.getGLFormat(), image.getGLType(), image.getPixels());
 	}
 
-	public final boolean destroy() {
+	public final boolean close() {
 		finish();
 		return true;
 	}

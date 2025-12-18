@@ -23,7 +23,7 @@ public final class OpenALAudio extends NativeResource<OpenALAudio.Buffers> imple
         private final @NonNull IntBuffer al_buffers;
 
         Buffers(int num_buffers) {
-            al_buffers = ALBufferUtils.createIntBuffer(num_buffers);
+            al_buffers = org.lwjgl.BufferUtils.createIntBuffer(num_buffers);
             AL10.alGenBuffers(al_buffers);
             checkALError("alGenBuffers " + num_buffers);
         }

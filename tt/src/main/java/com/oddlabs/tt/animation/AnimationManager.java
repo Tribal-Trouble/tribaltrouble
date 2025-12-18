@@ -15,7 +15,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.Display;
+
 
 import java.util.Objects;
 import java.util.Set;
@@ -167,7 +167,7 @@ public final class AnimationManager {
 				network.tick();
 				PointerInput.poll(gui.getGUIRoot());
 				KeyboardInput.poll(gui.getGUIRoot());
-				if (deterministic.log(Display.isCreated() && Display.isCloseRequested())) {
+				if (deterministic.log(Renderer.getRenderer().getWindow() != null && Renderer.getRenderer().getWindow().isCloseRequested())) {
 					gui.getGUIRoot().addModalForm(new QuitForm(gui.getGUIRoot()));
 				}
 				pathfindsPerTick.updateAbsolute(PathFinder.stat_pathfinder_per_frame);

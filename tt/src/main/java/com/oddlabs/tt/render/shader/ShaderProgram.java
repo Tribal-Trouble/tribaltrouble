@@ -5,14 +5,13 @@ import com.oddlabs.tt.util.GLState;
 import org.joml.Matrix4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,7 +21,6 @@ import static com.oddlabs.tt.util.GLUtils.checkGLError;
 public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program> implements Shader {
     private static final Logger logger = Logger.getLogger(ShaderProgram.class.getSimpleName());
     private static final AtomicReference<ShaderProgram> inUse = new AtomicReference<>();
-    private static final FloatBuffer matrixBuffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(16)).clear();
 
     public interface AttributeBinder {
         void bind(int programId);
@@ -155,13 +153,13 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
     }
 
     public void setUniformMatrix4(@NonNull String name, boolean transpose, @NonNull Matrix4fc matrix) {
-        synchronized (ShaderProgram.matrixBuffer) {
-            setUniformMatrix4(name, transpose, matrix.get(ShaderProgram.matrixBuffer));
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            setUniformMatrix4(name, transpose, matrix.get(stack.mallocFloat(16)));
         }
     }
 
     public void setUniformMatrix4(@NonNull String name, boolean transpose, @NonNull FloatBuffer matrix) {
-        GL20.glUniformMatrix4(getUniformLocation(name), transpose, matrix);
+        GL20.glUniformMatrix4fv(getUniformLocation(name), transpose, matrix);
     }
 
     private void disuse() {
