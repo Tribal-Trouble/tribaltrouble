@@ -1,23 +1,24 @@
 package com.oddlabs.tt.steam;
 
 import com.codedisaster.steamworks.SteamLibraryLoader;
+
 import org.lwjgl.system.Library;
 import org.lwjgl.system.Platform;
 
 /**
- * LWJGL3-based Steam library loader implementation.
- * Based on steamworks4j-lwjgl3 loader from https://github.com/code-disaster/steamworks4j
+ * LWJGL3-based Steam library loader implementation. Based on steamworks4j-lwjgl3 loader from
+ * https://github.com/code-disaster/steamworks4j
  */
 public class SteamLibraryLoaderLwjgl3 implements SteamLibraryLoader {
-    
+
     private static final boolean DEBUG = false;
-    
+
     private void debug(String message) {
         if (DEBUG) {
             System.out.println("[SteamLoader] " + message);
         }
     }
-    
+
     @Override
     public void setLibraryPath(String libraryPath) {
         System.setProperty("org.lwjgl.librarypath", libraryPath);
@@ -36,7 +37,7 @@ public class SteamLibraryLoaderLwjgl3 implements SteamLibraryLoader {
         }
 
         debug("Final library name: " + libraryName);
-        
+
         // Let LWJGL3 do its magic
         try {
             Library.loadSystem("com.codedisaster.steamworks", libraryName);
