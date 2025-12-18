@@ -6,6 +6,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Display;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.steam.SteamLibraryLoaderLwjgl3;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.updater.UpdateInfo;
 
@@ -39,7 +40,7 @@ public final strictfp class Main {
     public static final void main(String[] args) {
         try {
             System.out.println("Loading Steam libraries...");
-            SteamAPI.loadLibraries();
+            SteamAPI.loadLibraries(new SteamLibraryLoaderLwjgl3());
             if (!SteamAPI.init()) {
                 // Steamworks initialization error, e.g. Steam client not running
                 System.out.println("Failed to initialize Steam API.");
