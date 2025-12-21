@@ -61,6 +61,21 @@
 			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_magic.xml</animation>
 			<animation wpc="1" type="loop">vikings/chieftain/thor.xml</animation>
 		</sprite>
+		<sprite name="peon_christmas">
+			<skeleton>vikings/peon/peon_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				vikings/peon/peon_mesh_christmas.xml
+				<texture name="viking_peon_christmas" team="viking_peon_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				vikings/peon/peon_low_poly_mesh.xml
+				<texture name="viking_peon_christmas" team="viking_peon_team_christmas"/>
+			</model>
+			<animation wpc="1" type="loop">vikings/peon/peon_idle.xml</animation>
+			<animation wpc="3.85" type="loop">vikings/peon/peon_run.xml</animation>
+			<animation wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
+			<animation wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
+		</sprite>
 		<sprite name="peon">
 			<skeleton>vikings/peon/peon_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
