@@ -296,6 +296,25 @@
 			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
 			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
 		</sprite>
+		<sprite name="warrior_christmas">
+			<skeleton>natives/warrior/native_warrior_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				natives/warrior/native_warrior_mesh_christmas.xml
+				<texture name="native_warrior_rock_christmas" team="native_warrior_rock_team_christmas"/>
+				<texture name="native_warrior_iron_christmas" team="native_warrior_iron_team_christmas"/>
+				<texture name="native_warrior_rubber_christmas" team="native_warrior_rubber_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				natives/warrior/native_warrior_low_poly_mesh.xml
+				<texture name="native_warrior_rock" team="native_warrior_rock_team"/>
+				<texture name="native_warrior_iron" team="native_warrior_iron_team"/>
+				<texture name="native_warrior_rubber" team="native_warrior_rubber_team"/>
+			</model>
+			<animation wpc="1" type="loop">natives/warrior/native_warrior_idle.xml</animation>
+			<animation wpc="3.2" type="loop">natives/warrior/native_warrior_run.xml</animation>
+			<animation wpc="1" type="plain">natives/warrior/native_warrior_attack.xml</animation>
+			<animation wpc="1" type="plain">natives/warrior/native_warrior_die.xml</animation>
+		</sprite>
 		<sprite name="warrior">
 			<skeleton>natives/warrior/native_warrior_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">

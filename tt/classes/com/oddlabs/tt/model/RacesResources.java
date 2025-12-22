@@ -707,7 +707,7 @@ public final strictfp class RacesResources {
         ProgressForm.progress(1f / num_progress);
         SpriteFile sprite_list_native_warrior =
                 new SpriteFile(
-                        "/geometry/natives/warrior.binsprite",
+                        "/geometry/natives/warrior" + seasonal_suffix + ".binsprite",
                         Globals.NO_MIPMAP_CUTOFF,
                         true,
                         true,
