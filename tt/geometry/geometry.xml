@@ -24,7 +24,26 @@
 ]>
 
 <geometry>
-	<group name="vikings">
+    <group name="vikings">
+		<sprite name="warrior_christmas">
+			<skeleton>vikings/warrior/warrior_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				vikings/warrior/warrior_mesh_christmas.xml
+				<texture name="viking_warrior_rock_christmas" team="viking_warrior_rock_team_christmas"/>
+				<texture name="viking_warrior_iron_christmas" team="viking_warrior_iron_team_christmas"/>
+				<texture name="viking_warrior_rubber_christmas" team="viking_warrior_rubber_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				vikings/warrior/warrior_low_poly_mesh.xml
+				<texture name="viking_warrior_rock" team="viking_warrior_rock_team"/>
+				<texture name="viking_warrior_iron" team="viking_warrior_iron_team"/>
+				<texture name="viking_warrior_rubber" team="viking_warrior_rubber_team"/>
+			</model>
+			<animation wpc="1" type="loop">vikings/warrior/warrior_idle.xml</animation>
+			<animation wpc="5" type="loop">vikings/warrior/warrior_run.xml</animation>
+			<animation wpc="1" type="plain">vikings/warrior/warrior_attack.xml</animation>
+			<animation wpc="1" type="plain">vikings/warrior/warrior_die.xml</animation>
+		</sprite>
 		<sprite name="warrior">
 			<skeleton>vikings/warrior/warrior_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
