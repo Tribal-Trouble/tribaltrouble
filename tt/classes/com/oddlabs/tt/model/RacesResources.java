@@ -41,6 +41,7 @@ import com.oddlabs.tt.util.Utils;
 
 import org.lwjgl.opengl.GL11;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -103,6 +104,8 @@ public final strictfp class RacesResources {
     private final SpriteKey[] wood_fragment_sprites = new SpriteKey[4];
     private final SpriteKey[] treasure_sprites = new SpriteKey[6];
     private final Race[] races;
+
+    private static String seasonal_suffix = "";
 
     public static final boolean isValidRace(int race) {
         return race == RACE_NATIVES || race == RACE_VIKINGS;
@@ -195,6 +198,12 @@ public final strictfp class RacesResources {
 
     public RacesResources(RenderQueues queues) {
         int num_progress = 23;
+
+        int month = LocalDate.now().getMonthValue();
+        if (month == 12) {
+            seasonal_suffix = "_christmas";
+        }
+
         SpriteFile native_rock_sprite =
                 new SpriteFile(
                         "/geometry/natives/rock_resource.binsprite",
@@ -653,7 +662,7 @@ public final strictfp class RacesResources {
 
         SpriteFile sprite_list_warrior =
                 new SpriteFile(
-                        "/geometry/vikings/warrior.binsprite",
+                        "/geometry/vikings/warrior" + seasonal_suffix + ".binsprite",
                         Globals.NO_MIPMAP_CUTOFF,
                         true,
                         true,
@@ -663,7 +672,7 @@ public final strictfp class RacesResources {
 
         SpriteFile sprite_list_chieftain =
                 new SpriteFile(
-                        "/geometry/vikings/chieftain.binsprite",
+                        "/geometry/vikings/chieftain" + seasonal_suffix + ".binsprite",
                         Globals.NO_MIPMAP_CUTOFF,
                         true,
                         true,
@@ -672,7 +681,7 @@ public final strictfp class RacesResources {
         ProgressForm.progress(1f / num_progress);
         SpriteFile sprite_list_native_chieftain =
                 new SpriteFile(
-                        "/geometry/natives/chieftain.binsprite",
+                        "/geometry/natives/chieftain" + seasonal_suffix + ".binsprite",
                         Globals.NO_MIPMAP_CUTOFF,
                         true,
                         true,
@@ -680,7 +689,7 @@ public final strictfp class RacesResources {
                         false);
         SpriteFile sprite_list_peon =
                 new SpriteFile(
-                        "/geometry/vikings/peon.binsprite",
+                        "/geometry/vikings/peon" + seasonal_suffix + ".binsprite",
                         Globals.NO_MIPMAP_CUTOFF,
                         true,
                         true,
@@ -689,7 +698,7 @@ public final strictfp class RacesResources {
         ProgressForm.progress(1f / num_progress);
         SpriteFile sprite_list_native_peon =
                 new SpriteFile(
-                        "/geometry/natives/peon.binsprite",
+                        "/geometry/natives/peon" + seasonal_suffix + ".binsprite",
                         Globals.NO_MIPMAP_CUTOFF,
                         true,
                         true,
@@ -698,7 +707,7 @@ public final strictfp class RacesResources {
         ProgressForm.progress(1f / num_progress);
         SpriteFile sprite_list_native_warrior =
                 new SpriteFile(
-                        "/geometry/natives/warrior.binsprite",
+                        "/geometry/natives/warrior" + seasonal_suffix + ".binsprite",
                         Globals.NO_MIPMAP_CUTOFF,
                         true,
                         true,
