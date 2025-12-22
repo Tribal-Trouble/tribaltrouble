@@ -63,6 +63,23 @@
 			<animation wpc="1" type="plain">vikings/warrior/warrior_attack.xml</animation>
 			<animation wpc="1" type="plain">vikings/warrior/warrior_die.xml</animation>
 		</sprite>
+		<sprite name="chieftain_christmas">
+			<skeleton>vikings/chieftain/viking_chieftain_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				vikings/chieftain/viking_chief_christmas.xml
+				<texture name="viking_chieftain_christmas" team="viking_chieftain_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				vikings/chieftain/viking_chief_lo.xml
+				<texture name="viking_chieftain" team="viking_chieftain_team"/>
+			</model>
+			<animation wpc="1" type="loop">vikings/chieftain/viking_chieftain_idle.xml</animation>
+			<animation wpc="6.4" type="loop">vikings/chieftain/viking_chieftain_run.xml</animation>
+			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_attack.xml</animation>
+			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_die.xml</animation>
+			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_magic.xml</animation>
+			<animation wpc="1" type="loop">vikings/chieftain/thor.xml</animation>
+		</sprite>
 		<sprite name="chieftain">
 			<skeleton>vikings/chieftain/viking_chieftain_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">

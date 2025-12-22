@@ -672,7 +672,7 @@ public final strictfp class RacesResources {
 
         SpriteFile sprite_list_chieftain =
                 new SpriteFile(
-                        "/geometry/vikings/chieftain.binsprite",
+                        "/geometry/vikings/chieftain" + seasonal_suffix + ".binsprite",
                         Globals.NO_MIPMAP_CUTOFF,
                         true,
                         true,
