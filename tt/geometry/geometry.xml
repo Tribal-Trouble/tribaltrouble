@@ -247,6 +247,21 @@
 			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_die.xml</animation>
 			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_magic.xml</animation>
 		</sprite>
+		<sprite name="peon_christmas">
+			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				natives/peon/native_peon_mesh_christmas.xml
+				<texture name="native_peon_christmas" team="native_peon_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				natives/peon/native_peon_low_poly_mesh.xml
+				<texture name="native_peon_christmas" team="native_peon_team_christmas"/>
+			</model>
+			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
+			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
+			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
+			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+		</sprite>
 		<sprite name="peon">
 			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
