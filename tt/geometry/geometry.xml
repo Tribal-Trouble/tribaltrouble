@@ -267,6 +267,22 @@
 		</sprite>
 	</group>
 	<group name="natives">
+		<sprite name="chieftain_christmas">
+			<skeleton>natives/chieftain/native_chieftain_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				natives/chieftain/native_chieftain_mesh_christmas.xml
+				<texture name="native_chieftain_christmas" team="native_chieftain_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				natives/chieftain/native_chieftain_low_poly_mesh.xml
+				<texture name="native_chieftain" team="native_chieftain_team"/>
+			</model>
+			<animation wpc="1" type="loop">natives/chieftain/native_chieftain_idle.xml</animation>
+			<animation wpc="4" type="loop">natives/chieftain/native_chieftain_run.xml</animation>
+			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_attack.xml</animation>
+			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_die.xml</animation>
+			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_magic.xml</animation>
+		</sprite>
 		<sprite name="chieftain">
 			<skeleton>natives/chieftain/native_chieftain_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
