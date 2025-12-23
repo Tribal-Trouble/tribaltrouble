@@ -60,7 +60,7 @@ public final class WalkBehaviour implements Behaviour {
 	}
 
 	private void switchToMoving() {
-		unit.switchAnimation(unit.getMetersPerSecond(), Unit.ANIMATION_MOVING);
+		unit.switchAnimation(unit.getMetersPerSecond(), Unit.Animation.MOVING);
 	}
 
 	@Override

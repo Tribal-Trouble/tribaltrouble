@@ -35,7 +35,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Building extends Selectable implements Occupant {
+public final class Building extends Selectable<BuildingTemplate> implements Occupant {
 	private static final float REMOVE_DELAY = 1f/10f;
 
     public enum BuildState {
@@ -99,9 +99,9 @@ public final class Building extends Selectable implements Occupant {
 				owner.getWorld().getAnimationManagerRealTime());
 		damaged_emitter.stop();
 
-		float xc = getPositionX() + getBuildingTemplate().getChimneyX();
-		float yc = getPositionY() + getBuildingTemplate().getChimneyY();
-		float zc = getPositionZ() + getBuildingTemplate().getChimneyZ();
+		float xc = getPositionX() + getTemplate().getChimneyX();
+		float yc = getPositionY() + getTemplate().getChimneyY();
+		float zc = getPositionZ() + getTemplate().getChimneyZ();
 
 		float energy = 4f;
 		float alpha = .6f;
@@ -127,10 +127,6 @@ public final class Building extends Selectable implements Occupant {
 		visitor.visitBuilding(this);
 	}
 
-	public @NonNull BuildingTemplate getBuildingTemplate() {
-		return (BuildingTemplate)getTemplate();
-	}
-
 	public boolean hasRallyPoint() {
 		return rally_point != this;
 	}
@@ -142,13 +138,11 @@ public final class Building extends Selectable implements Occupant {
 	@Override
 	protected void onReinsert() {
 		super.onReinsert();
-		if (production_emitter != null) {
-			float xc = getPositionX() + getBuildingTemplate().getChimneyX();
-			float yc = getPositionY() + getBuildingTemplate().getChimneyY();
-			float zc = getPositionZ() + getBuildingTemplate().getChimneyZ();
-			production_emitter.setPosition(new Vector3f(xc, yc, zc));
-		}
-	}
+        float xc = getPositionX() + getTemplate().getChimneyX();
+        float yc = getPositionY() + getTemplate().getChimneyY();
+        float zc = getPositionZ() + getTemplate().getChimneyZ();
+        production_emitter.setPosition(new Vector3f(xc, yc, zc));
+    }
 
 	@Override
 	protected void doAnimate(float t) {
@@ -188,8 +182,8 @@ public final class Building extends Selectable implements Occupant {
 				float fade_speed = 2.5f;
 
 				new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(), getPositionZ()), 0f,
-							getBuildingTemplate().getSmokeRadius(), getBuildingTemplate().getSmokeHeight(), 0.05f, (float)Math.PI,
-							getBuildingTemplate().getNumFragments(), getBuildingTemplate().getNumFragments(),
+							getTemplate().getSmokeRadius(), getTemplate().getSmokeHeight(), 0.05f, (float)Math.PI,
+							getTemplate().getNumFragments(), getTemplate().getNumFragments(),
 							new Vector3f(0f, 0f, 5f), new Vector3f(0f, 0f, -25f),
 							new Vector4f(1f, 1f, 1f, energy*fade_speed), new Vector4f(0f, 0f, 0f, -fade_speed),
 							new Vector3f(1f, 1f, 1f), new Vector3f(0f, 0f, 0f), energy, .75f,
@@ -367,7 +361,7 @@ public final class Building extends Selectable implements Occupant {
 
 	public boolean isDamaged() {
 		assert !isDead();
-		return hit_points > 0 && hit_points < getBuildingTemplate().getMaxHitPoints();
+		return hit_points > 0 && hit_points < getTemplate().getMaxHitPoints();
 	}
 
 	public int getHitPoints() {
@@ -377,9 +371,9 @@ public final class Building extends Selectable implements Occupant {
 	private void setHitPoints(int new_hit_points) {
 		final float MIN_ENERGY = 3f;
 		final float MAX_ENERGY = 5f;
-		final int START_SMOKE = getBuildingTemplate().getMaxHitPoints()/2;
-		hit_points = Math.max(Math.min(new_hit_points, getBuildingTemplate().getMaxHitPoints()), 0);
-		if (build_points == getBuildingTemplate().getMaxHitPoints() && hit_points < START_SMOKE) {
+		final int START_SMOKE = getTemplate().getMaxHitPoints()/2;
+		hit_points = Math.max(Math.min(new_hit_points, getTemplate().getMaxHitPoints()), 0);
+		if (build_points == getTemplate().getMaxHitPoints() && hit_points < START_SMOKE) {
 			float energy = MIN_ENERGY + ((1 - (float)hit_points/(START_SMOKE))*(MAX_ENERGY - MIN_ENERGY));
 			damaged_emitter.start();
 			damaged_emitter.setDeltaColor(new Vector4f(0f, 0f, 0f, -DAMAGED_PARTICLE_ALPHA/energy));
@@ -395,13 +389,13 @@ public final class Building extends Selectable implements Occupant {
 			return;
 
 		setHitPoints(hit_points + amount);
-		if (build_points < getBuildingTemplate().getMaxHitPoints()) {
-			build_points = Math.min(build_points + amount, getBuildingTemplate().getMaxHitPoints());
+		if (build_points < getTemplate().getMaxHitPoints()) {
+			build_points = Math.min(build_points + amount, getTemplate().getMaxHitPoints());
 			reinsert();
-			if (build_points == getBuildingTemplate().getMaxHitPoints()) {
+			if (build_points == getTemplate().getMaxHitPoints()) {
 				getOwner().getWorld().getNotificationListener().newSelectableNotification(this);
 				getAbilities().addAbilities(getTemplate().getAbilities());
-				supply_containers.put(Unit.class, getBuildingTemplate().getUnitContainerFactory().createContainer(this));
+				supply_containers.put(Unit.class, getTemplate().getUnitContainerFactory().createContainer(this));
 				if (getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)) {
 					SupplyContainer tree_supply = new SupplyContainer(MAX_SUPPLY_COUNT);
 					SupplyContainer rock_supply = new SupplyContainer(MAX_SUPPLY_COUNT);
@@ -470,8 +464,8 @@ public final class Building extends Selectable implements Occupant {
 	}
 
 	public boolean isPlacingLegal() {
-		return !isDead() && getOwner().canBuild(getBuildingTemplate().getTemplateID()) &&
-			doIsPlacingLegal(getUnitGrid(), getGridX(), getGridY(), getBuildingTemplate().getPlacingSize() - PLACING_BORDER);
+		return !isDead() && getOwner().canBuild(getTemplate().getTemplateID()) &&
+			doIsPlacingLegal(getUnitGrid(), getGridX(), getGridY(), getTemplate().getPlacingSize() - PLACING_BORDER);
 	}
 
 	public boolean isPlaced() {
@@ -480,7 +474,7 @@ public final class Building extends Selectable implements Occupant {
 	}
 
 	public boolean isComplete() {
-		return build_points == getBuildingTemplate().getMaxHitPoints();
+		return build_points == getTemplate().getMaxHitPoints();
 	}
 
 	@Override
@@ -520,7 +514,7 @@ public final class Building extends Selectable implements Occupant {
 				Unit unit = ((MountUnitContainer)getUnitContainer()).getUnit();
 				boolean kill_friendly = action == Action.ATTACK;
                 if (unit != null && unit.canAttack(target, kill_friendly))
-					unit.pushController(new AttackController(unit, (Selectable)target));
+					unit.pushController(new AttackController(unit, (Selectable<?>)target));
 			}
 		} else {
 			setRallyPoint(target);
@@ -542,7 +536,7 @@ public final class Building extends Selectable implements Occupant {
 	@Override
 	public float getSize() {
 		assert !isDead();
-		float radius = (getBuildingTemplate().getPlacingSize() - 1);
+		float radius = (getTemplate().getPlacingSize() - 1);
 		return (float)Math.sqrt(2)*radius + .1f;
 	}
 
@@ -556,7 +550,7 @@ public final class Building extends Selectable implements Occupant {
 	protected void removeDying() {
 
 		new RandomVelocityEmitter(getOwner().getWorld(), new Vector3f(getPositionX(), getPositionY(), getPositionZ()), 0f, 0f,
-					getBuildingTemplate().getSmokeRadius(), getBuildingTemplate().getSmokeHeight(), 1f, 1f,
+					getTemplate().getSmokeRadius(), getTemplate().getSmokeHeight(), 1f, 1f,
 					30, 400f,
 					new Vector3f(0f, 0f, .1f), new Vector3f(0f, 0f, -2.5f),
 					new Vector4f(1f, .8f, .6f, 1f), new Vector4f(0f, 0f, 0f, -1f),
@@ -605,19 +599,19 @@ public final class Building extends Selectable implements Occupant {
 	}
 
 	public @NonNull BuildState getRenderLevel() {
-        return build_points == getBuildingTemplate().getMaxHitPoints()
+        return build_points == getTemplate().getMaxHitPoints()
                 ? BuildState.BUILT
-                : (float) build_points / getBuildingTemplate().getMaxHitPoints() < .5
+                : (float) build_points / getTemplate().getMaxHitPoints() < .5
                     ? BuildState.START : BuildState.HALFBUILT;
 	}
 
 	@Override
-	public SpriteKey getSpriteRenderer() {
+	public @NonNull SpriteKey getSpriteRenderer() {
 		BuildState render_level = getRenderLevel();
         return switch (render_level) {
-            case START -> getBuildingTemplate().getStartRenderer();
-            case HALFBUILT -> getBuildingTemplate().getHalfbuiltRenderer();
-            case BUILT -> getBuildingTemplate().getBuiltRenderer();
+            case START -> getTemplate().getStartRenderer();
+            case HALFBUILT -> getTemplate().getHalfbuiltRenderer();
+            case BUILT -> getTemplate().getBuiltRenderer();
         };
 	}
 
@@ -627,7 +621,7 @@ public final class Building extends Selectable implements Occupant {
 	}
 
 	private void flattenLandscape() {
-		int size = getBuildingTemplate().getPlacingSize();
+		int size = getTemplate().getPlacingSize();
 		int height_points = (size - PLACING_BORDER)*2;
 		int offset_x = getGridX() - (size - 1);
 		int offset_y = getGridY() - (size - 1);
@@ -650,7 +644,7 @@ public final class Building extends Selectable implements Occupant {
 	}
 
 	private void undoLandscape() {
-		int size = getBuildingTemplate().getPlacingSize();
+		int size = getTemplate().getPlacingSize();
 		int offset_x = getGridX() - (size - 1);
 		int offset_y = getGridY() - (size - 1);
 		for (int y = 0; y < old_landscape_heights.length; y++) {
@@ -664,7 +658,7 @@ public final class Building extends Selectable implements Occupant {
 	private void occupy() {
 		UnitGrid grid = getUnitGrid();
 		grid.getRegion(getGridX(), getGridY()).registerObject((Class<Building>) getClass(), this);
-		int size = getBuildingTemplate().getPlacingSize()*2 - 1;
+		int size = getTemplate().getPlacingSize()*2 - 1;
 		for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
                 grid.occupyGrid(getGridX() - size/2 + x, getGridY() - size/2 + y, this);
@@ -676,7 +670,7 @@ public final class Building extends Selectable implements Occupant {
 	private void free() {
 		UnitGrid grid = getUnitGrid();
 		grid.getRegion(getGridX(), getGridY()).unregisterObject((Class<Building>) getClass(), this);
-		int size = getBuildingTemplate().getPlacingSize()*2 - 1;
+		int size = getTemplate().getPlacingSize()*2 - 1;
 		for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
                 grid.freeGrid(getGridX() - size/2 + x, getGridY() - size/2 + y, this);

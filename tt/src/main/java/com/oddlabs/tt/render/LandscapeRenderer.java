@@ -5,7 +5,6 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeLeaf;
 import com.oddlabs.tt.landscape.PatchGroup;
@@ -14,8 +13,8 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.shader.LandscapeShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.resource.WorldInfo;
-import com.oddlabs.tt.util.GLStateHelper;
 import com.oddlabs.tt.util.StateChecksum;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -28,21 +27,20 @@ import java.util.Set;
 public final class LandscapeRenderer implements Animated {
 
     private final List<@NonNull LandscapeLeaf> render_list = new ArrayList<>();
-    private final GUIRoot gui_root;
     private final @NonNull World world;
     private final @NonNull Texture diffuseMap;
     private final @NonNull Texture normalMap;
     private final @NonNull Texture detailMap;
     private final @NonNull PatchMesh patchMesh;
     private final LandscapeShader shader = new LandscapeShader();
+    private final Vector4f lightDir = new Vector4f();
 
     public @NonNull LandscapeShader getShader() {
         return shader;
     }
 
-    public LandscapeRenderer(@NonNull World world, @NonNull WorldInfo world_info, GUIRoot gui_root, @NonNull AnimationManager manager) {
+    public LandscapeRenderer(@NonNull World world, @NonNull WorldInfo world_info, @NonNull AnimationManager manager) {
         this.world = world;
-        this.gui_root = gui_root;
         this.diffuseMap = world_info.maps.diffuse();
         this.normalMap = world_info.maps.normal();
         this.detailMap = world_info.detail;
@@ -70,16 +68,26 @@ public final class LandscapeRenderer implements Animated {
     }
 
     public void renderAll(@NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+        boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
+        boolean depthTestEnabled = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+        boolean cullFaceEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+
         try (var _ = shader.use();
-             var _ = GLStateHelper.blend(false);
-             var _ = GLStateHelper.depthTest(true);
-             var _ = GLStateHelper.cullFace(false);
              var _ = state.getFog().setup(shader, state.getCurrentZ())) {
+            if (blendEnabled) GL11.glDisable(GL11.GL_BLEND);
+            if (!depthTestEnabled) GL11.glEnable(GL11.GL_DEPTH_TEST);
+            if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
 
             shader.setUniformMatrix4(LandscapeShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             shader.setUniformMatrix4(LandscapeShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-            shader.setUniform(LandscapeShader.Uniforms.LIGHT_DIRECTION, -1f, 0f, 1f);
-            shader.setUniform(LandscapeShader.Uniforms.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
+
+            // Transform light direction to view space
+            lightDir.set(-1f, 0f, 1f, 0f);
+            state.getModelView().transform(lightDir);
+            lightDir.normalize();
+            shader.setUniform(LandscapeShader.Uniforms.LIGHT_DIRECTION, lightDir.x, lightDir.y, lightDir.z);
+
+            shader.setUniform(LandscapeShader.Uniforms.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
             
             // Set VTF Uniforms
             shader.setUniform(LandscapeShader.Uniforms.WORLD_SIZE, (float) world.getHeightMap().getMetersPerWorld());
@@ -102,16 +110,20 @@ public final class LandscapeRenderer implements Animated {
             shader.setUniform(LandscapeShader.Uniforms.HEIGHT_MAP, 3);
 
             if (Globals.draw_landscape) {
-                patchMesh.bind(shader);
+                patchMesh.bind();
                 float patchSize = world.getHeightMap().getMetersPerPatch();
                 for (LandscapeLeaf leaf : render_list) {
                     shader.setUniform(LandscapeShader.Uniforms.PATCH_OFFSET, leaf.getPatchX() * patchSize, leaf.getPatchY() * patchSize);
                     patchMesh.draw();
                 }
-                patchMesh.unbind(shader);
+                patchMesh.unbind();
             }
             
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        } finally {
+            if (blendEnabled) GL11.glEnable(GL11.GL_BLEND);
+            if (!depthTestEnabled) GL11.glDisable(GL11.GL_DEPTH_TEST);
+            if (cullFaceEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
         }
     }
 
@@ -136,15 +148,15 @@ public final class LandscapeRenderer implements Animated {
     void renderShadow(@NonNull ShaderProgram shader, int patch_x, int patch_y, int start_x, int start_y, int end_x, int end_y) {
         float patchSize = world.getHeightMap().getMetersPerPatch();
         shader.setUniform("u_PatchOffset", patch_x * patchSize, patch_y * patchSize);
-        patchMesh.bind(shader);
+        patchMesh.bind();
         patchMesh.draw();
-        patchMesh.unbind(shader);
+        patchMesh.unbind();
     }
 
     private static final class Visitor implements PatchGroupVisitor {
-        private @NonNull CameraState camera;
+        private final @NonNull CameraState camera;
         private boolean visible_override;
-        private @NonNull Collection<LandscapeLeaf> result;
+        private final @NonNull Collection<LandscapeLeaf> result;
 
         private Visitor(@NonNull CameraState camera, boolean visible_override, @NonNull Collection<LandscapeLeaf> result) {
             this.camera = camera;

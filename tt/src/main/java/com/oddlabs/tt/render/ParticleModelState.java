@@ -52,6 +52,17 @@ public final class ParticleModelState implements ModelState<Particle> {
     }
 
     @Override
+    public void getTransform(@NonNull Matrix4f dest) {
+        Matrix3f rotation = new Matrix3f();
+        modelViewStack.current().get3x3(rotation);
+        rotation.transpose();
+        
+        dest.translation(particle.getPosX(), particle.getPosY(), particle.getPosZ())
+            .mul(new Matrix4f(rotation))
+            .scale(particle.getRadiusX(), particle.getRadiusY(), particle.getRadiusZ());
+    }
+
+    @Override
     public float getEyeDistanceSquared() {
         return 0;
     }

@@ -16,11 +16,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class Selectable extends Model implements Target, Animated, ModelToolTip {
+public abstract class Selectable<T extends Template> extends Model implements Target, Animated, ModelToolTip {
 	private final @NonNull Player owner;
 	private @Nullable Behaviour current_behaviour;
 	private final Abilities abilities = new Abilities(Abilities.NONE);
-	private final @NonNull Template template;
+	private final @NonNull T template;
 	private final List<@NonNull Controller> controller_stack = new ArrayList<>();
 
 	private boolean dead;
@@ -30,7 +30,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 	private int grid_x;
 	private int grid_y;
 
-	protected Selectable(@NonNull Player owner, @NonNull Template template) {
+	protected Selectable(@NonNull Player owner, @NonNull T template) {
 		super(owner.getWorld());
 		this.owner = owner;
 		this.template = template;
@@ -41,7 +41,7 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 		return template.getShadowDiameter();
 	}
 
-	public final @NonNull Template getTemplate() {
+	public final @NonNull T getTemplate() {
 		return template;
 	}
 

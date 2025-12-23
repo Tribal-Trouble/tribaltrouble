@@ -17,6 +17,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 
+/**  Image format support for DDS/DXT textures */
 public final class DXTImage {
 	// DDS file format constants
 	private static final int DDS_MAGIC = 0x20534444; // "DDS "

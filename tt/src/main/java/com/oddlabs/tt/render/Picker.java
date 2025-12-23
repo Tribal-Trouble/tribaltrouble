@@ -41,7 +41,7 @@ import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public final class Picker implements Updatable {
+public final class Picker implements Updatable<TimerAnimation> {
 	private static final int PICK_SIZE = 5;
 	private static final int SELECTION_THRESHOLD = 5;
 	private static final float PATCH_PICK_PRECISION = .1f;
@@ -92,7 +92,7 @@ public final class Picker implements Updatable {
 		this.render_queues = render_queues;
 		this.sprite_sorter = new SpriteSorter();
 		this.respond_manager = new RespondManager(manager);
-		this.element_renderer = new ElementRenderer<>(local_player, landscape_renderer, render_queues, this, true, sprite_sorter, selection);
+		this.element_renderer = new ElementRenderer<>(local_player, render_queues, this, true, sprite_sorter, selection);
 		this.tree_renderer = new TreePicker(sprite_sorter, respond_manager);
 		this.landscape_renderer = landscape_renderer;
 	}
@@ -469,7 +469,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 	}
 
 	@Override
-	public void update(Object anim) {
+	public void update(@NonNull TimerAnimation anim) {
 		render_tool_tip = true;
 		tool_tip_timer.stop();
 	}

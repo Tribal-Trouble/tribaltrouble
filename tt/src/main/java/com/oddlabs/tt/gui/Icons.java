@@ -7,6 +7,7 @@ import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -45,13 +46,13 @@ final class Icons {
 	}
 
 	public static @NonNull Texture loadTexture(@NonNull String tex_file) {
-		TextureFile file = new TextureFile(tex_file,
-										   GL11.GL_RGBA,
-										   GL11.GL_LINEAR,
-										   GL11.GL_LINEAR,
-										   GL11.GL_CLAMP,
-										   GL11.GL_CLAMP);
-		return Resources.findResource(file);
+				TextureFile file = new TextureFile(tex_file,
+												   GL11.GL_RGBA,
+												   GL11.GL_NEAREST,
+												   GL11.GL_NEAREST,
+												   GL12.GL_CLAMP_TO_EDGE,
+												   GL12.GL_CLAMP_TO_EDGE);
+				return Resources.findResource(file);
 	}
 
 	static @NonNull Node getNodeByName(@NonNull String name, @NonNull Node n) {

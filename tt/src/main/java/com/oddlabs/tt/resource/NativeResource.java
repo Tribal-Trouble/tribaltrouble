@@ -1,5 +1,6 @@
 package com.oddlabs.tt.resource;
 
+import com.oddlabs.tt.util.GLUtils;
 import org.jspecify.annotations.NonNull;
 
 import java.lang.ref.Cleaner;
@@ -40,6 +41,8 @@ public abstract class NativeResource<R extends NativeResource.NativeState> imple
         while ((task = glCleanupTasks.poll()) != null) {
             try {
                 task.run();
+                // Check for errors after each task to isolate issues
+                GLUtils.checkGLError("After closing resource " + task.getClass().getSimpleName());
             } catch (Throwable t) {
                 logger.log(Level.SEVERE, "Error during OpenGL cleanup task execution", t);
             }

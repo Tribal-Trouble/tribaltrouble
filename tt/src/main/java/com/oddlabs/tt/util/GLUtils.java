@@ -64,8 +64,8 @@ public final class GLUtils {
      * @param message A descriptive message for the context of the OpenGL call.
      */
     public static void checkGLError(@NonNull String message) {
-        int error = GL11.glGetError();
-        if (error != GL11.GL_NO_ERROR) {
+        int error;
+        while ((error = GL11.glGetError()) != GL11.GL_NO_ERROR) {
             logger.log(Level.WARNING, "OpenGL Error (" + message + "): " + errorToString(error), new Throwable("stacktrace"));
         }
     }

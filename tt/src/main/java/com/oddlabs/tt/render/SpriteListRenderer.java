@@ -1,10 +1,9 @@
 package com.oddlabs.tt.render;
 
 
-import com.oddlabs.tt.camera.CameraState;
-import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
-import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.util.Target;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
@@ -14,12 +13,15 @@ final class SpriteListRenderer {
 	private final @NonNull SpriteList sprite_list;
 	private final List<ModelState<?>>@NonNull [] @NonNull [] render_lists;
 	private final List<ModelState<?>> @NonNull [] @NonNull [] respond_render_lists;
-	private final @NonNull SpriteBatch batch;
-
-	@SuppressWarnings("unchecked")
-	SpriteListRenderer(@NonNull SpriteList sprite_list, @NonNull SpriteBatchRenderer spriteBatchRenderer) {
+    private final @NonNull InstancedSpriteRenderer instancedSpriteRenderer;
+    private final Matrix4f tempMatrix = new Matrix4f();
+    private final float[] tempColor = new float[4];
+    private final float[] tempDecalColor = new float[4];
+    
+    @SuppressWarnings("unchecked")
+	SpriteListRenderer(@NonNull SpriteList sprite_list, @NonNull InstancedSpriteRenderer instancedSpriteRenderer) {
 		this.sprite_list = sprite_list;
-        this.batch = new SpriteBatch(spriteBatchRenderer);
+        this.instancedSpriteRenderer = instancedSpriteRenderer;
 		int num_sprites = sprite_list.getNumSprites();
 		render_lists = (List<ModelState<?>>[][]) new ArrayList<?>[num_sprites][];
 		respond_render_lists = (List<ModelState<?>>[][]) new ArrayList[num_sprites][];
@@ -61,30 +63,51 @@ final class SpriteListRenderer {
 			}
 		}
 	}
-
-	public void renderAll(@NonNull SpriteShader shader, int index, int tex_index, @NonNull CameraState cameraState) {
-		List<ModelState<?>> render_list = render_lists[index][tex_index];
-		Sprite sprite = sprite_list.getSprite(index);
+    
+    public void renderAll(int index, int tex_index) {
+        List<ModelState<?>> render_list = render_lists[index][tex_index];
 		
-		batch.clear();
-		for (ModelState<?> model : render_list) {
-			batch.add(model);
-		}
-		batch.render(shader, sprite, tex_index, false, sprite_list, cameraState);
+        for (ModelState<?> modelState : render_list) {
+            modelState.getTransform(tempMatrix);
+            Vector4f colorVec = modelState.getColor();
+            tempColor[0] = colorVec.x;
+            tempColor[1] = colorVec.y;
+            tempColor[2] = colorVec.z;
+            tempColor[3] = colorVec.w;
+            
+            float[] teamColor = modelState.getTeamColor();
+            if (teamColor.length >= 3) {
+                tempDecalColor[0] = teamColor[0];
+                tempDecalColor[1] = teamColor[1];
+                tempDecalColor[2] = teamColor[2];
+                tempDecalColor[3] = 1.0f;
+            } else {
+                tempDecalColor[0] = 1.0f;
+                tempDecalColor[1] = 1.0f;
+                tempDecalColor[2] = 1.0f;
+                tempDecalColor[3] = 1.0f;
+            }
+
+            instancedSpriteRenderer.add(sprite_list, index, modelState.getModel().getAnimation(), modelState.getModel().getAnimationTicks(), tex_index, false, true, tempMatrix, tempColor, tempDecalColor);
+        }
 		render_list.clear();
 
 		render_list = respond_render_lists[index][tex_index];
 		if (!render_list.isEmpty()) {
-			batch.clear();
 			for (ModelState<?> model : render_list) {
-				batch.add(model);
+                model.getTransform(tempMatrix);
+                
+                // Respond color is usually white or specific, here using white as placeholder or model color if needed
+                // Respond rendering usually highlights the unit.
+                // Using white for color and decal color for now as per original logic which seemed to use default colors.
+                
+                instancedSpriteRenderer.add(sprite_list, index, model.getModel().getAnimation(), model.getModel().getAnimationTicks(), tex_index, true, true, tempMatrix, new float[]{1f, 1f, 1f, 1f}, new float[]{1f, 1f, 1f, 1f});
 			}
-			batch.render(shader, sprite, tex_index, true, sprite_list, cameraState);
 			render_list.clear();
 		}
-	}
+    }
 
 	public void debugRender() {
-		batch.debugRender();
+        // TODO: Re-implement debug rendering
 	}
 }

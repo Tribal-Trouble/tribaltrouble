@@ -194,11 +194,12 @@ public final class RacesResources {
 																						   Globals.NO_MIPMAP_CUTOFF,
 																						   true, true, true, false);
 		ProgressForm.progress(1f/num_progress);
-		Map<Class<? extends Supply>,SpriteKey> native_supply_sprite_lists = new HashMap<>();
-		native_supply_sprite_lists.put(TreeSupply.class, queues.register(native_wood_sprite));
-		native_supply_sprite_lists.put(RockSupply.class, queues.register(native_rock_sprite));
-		native_supply_sprite_lists.put(IronSupply.class, queues.register(native_rock_sprite, 1));
-		native_supply_sprite_lists.put(RubberSupply.class, queues.register(native_rubber_sprite));
+		Map<Class<? extends Supply>,SpriteKey> native_supply_sprite_lists = Map.of(
+			TreeSupply.class, queues.register(native_wood_sprite),
+			RockSupply.class, queues.register(native_rock_sprite),
+			IronSupply.class, queues.register(native_rock_sprite, 1),
+			RubberSupply.class, queues.register(native_rubber_sprite)
+		);
 
 		SpriteFile viking_wood_sprite = new SpriteFile("/geometry/vikings/wood_resource.binsprite",
 																						   Globals.NO_MIPMAP_CUTOFF,
@@ -211,12 +212,12 @@ public final class RacesResources {
 																						   Globals.NO_MIPMAP_CUTOFF,
 																						   true, true, true, false);
 		ProgressForm.progress(1f/num_progress);
-		Map<Class<? extends Supply>, SpriteKey> viking_supply_sprite_lists = new HashMap<>();
-		viking_supply_sprite_lists.put(TreeSupply.class, queues.register(viking_wood_sprite));
-		viking_supply_sprite_lists.put(RockSupply.class, queues.register(viking_rock_sprite));
-		viking_supply_sprite_lists.put(IronSupply.class, queues.register(viking_rock_sprite, 1));
-		viking_supply_sprite_lists.put(RubberSupply.class, queues.register(viking_rubber_sprite));
-
+		Map<Class<? extends Supply>, SpriteKey> viking_supply_sprite_lists = Map.of(
+			TreeSupply.class, queues.register(viking_wood_sprite),
+			RockSupply.class, queues.register(viking_rock_sprite),
+			IronSupply.class, queues.register(viking_rock_sprite, 1),
+			RubberSupply.class, queues.register(viking_rubber_sprite)
+		);
 
 		smoke_textures[0] = queues.registerTexture(new GeneratorSmoke(), 0);
 		damage_smoke_textures[0] = queues.registerTexture(new GeneratorDamageSmoke(), 0);
@@ -229,16 +230,16 @@ public final class RacesResources {
 					Globals.COMPRESSED_RGBA_FORMAT,
 					GL11.GL_LINEAR_MIPMAP_LINEAR,
 					GL11.GL_LINEAR,
-					GL11.GL_CLAMP,
-					GL11.GL_CLAMP));
+					org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE,
+					org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE));
 		}
 
 		star_textures[0] = queues.registerTexture(new TextureFile("/textures/effects/star",
 					Globals.COMPRESSED_RGBA_FORMAT,
 					GL11.GL_LINEAR_MIPMAP_LINEAR,
 					GL11.GL_LINEAR,
-					GL11.GL_CLAMP,
-					GL11.GL_CLAMP));
+					org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE,
+					org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE));
 
 		Audio death_peon_sound = Resources.findResource(new AudioFile("/sfx/death_peon.ogg"));
 		Audio death_viking1_sound = Resources.findResource(new AudioFile("/sfx/death_viking_warrior1.ogg"));

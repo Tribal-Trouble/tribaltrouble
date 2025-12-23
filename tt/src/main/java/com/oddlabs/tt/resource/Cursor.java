@@ -59,7 +59,7 @@ public final class Cursor {
                 img_32_1, offset_x_32_1, offset_y_32_1,
                 img_32_8, offset_x_32_8, offset_y_32_8);
 
-        var texture = new Texture(new GLImage[]{img_32_8}, GL11.GL_RGBA,
+        var texture = new Texture(new GLImage[]{img_32_8}, GL11.GL_RGBA8,
                 GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_REPEAT, GL11.GL_REPEAT);
         cursor = new IconQuad(0, 0, 1, 1, width, height, texture);
     }

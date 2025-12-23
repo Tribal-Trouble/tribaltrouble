@@ -24,12 +24,13 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.GeneratorRing;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.viewer.Selection;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class RenderState implements ElementVisitor {
+final class RenderState implements ElementVisitor {
 	private final List<@NonNull Emitter> emitter_queue = new ArrayList<>();
 	private final List<@NonNull Lightning> lightning_queue = new ArrayList<>();
 	private final @NonNull SpriteSorter sprite_sorter;
@@ -39,16 +40,15 @@ public final class RenderState implements ElementVisitor {
 	private final @NonNull SelectableShadowRenderer default_shadow_renderer;
 	private final @NonNull Picker picker;
 	private final Selection selection;
-	private final @NonNull LandscapeRenderer landscape_renderer;
 	private final @NonNull Player local_player;
+	private final @NonNull MatrixStack model_view_stack = new MatrixStack();
 
 	private boolean picking;
 	private boolean visible_override;
 	private CameraState camera;
 
-	public RenderState(@NonNull Player local_player, @NonNull LandscapeRenderer renderer, @NonNull SpriteSorter sprite_sorter, @NonNull RenderQueues render_queues, @NonNull Picker picker, Selection selection) {
+	public RenderState(@NonNull Player local_player, @NonNull SpriteSorter sprite_sorter, @NonNull RenderQueues render_queues, @NonNull Picker picker, Selection selection) {
 		this.local_player = local_player;
-		this.landscape_renderer = renderer;
 		this.selection = selection;
 		this.picker = picker;
 		this.sprite_sorter = sprite_sorter;
@@ -73,7 +73,7 @@ public final class RenderState implements ElementVisitor {
 	}
 
     @NonNull MatrixStack getModelViewStack() {
-        return render_queues.getSpriteBatchRenderer().getModelViewStack();
+        return model_view_stack;
     }
 
 	public void setVisibleOverride(boolean override) {
@@ -84,6 +84,7 @@ public final class RenderState implements ElementVisitor {
 		this.picking = picking;
 		this.camera = camera_state;
 		render_state_cache.clear();
+		model_view_stack.clear().set(camera_state.getModelView());
 	}
 
 	CameraState getCamera() {
@@ -101,21 +102,21 @@ public final class RenderState implements ElementVisitor {
 	private static final ModelVisitor<Unit> unit_visitor = new SelectableVisitor<>() {
 		@Override
 		public void markDetailPolygon(@NonNull ElementRenderState<Unit> render_state, @NonNull PolyDetail detail) {
-		Unit unit = render_state.model;
-		super.markDetailPolygon(render_state, detail);
-		UnitSupplyContainer supply_container = unit.getSupplyContainer();
-		if (!render_state.render_state.isPicking() && unit.getAbilities().hasAbilities(Abilities.BUILD) && supply_container.getSupplyType() != null) {
-			if (supply_container.getNumSupplies() > 0) {
-				SpriteRenderer supply_sprite = render_state.getRenderer(supply_container.getSupplySpriteRenderer(supply_container.getSupplyType()));
-				supply_sprite.addToRenderList(detail, render_state, false);
+			Unit unit = render_state.model;
+			super.markDetailPolygon(render_state, detail);
+			UnitSupplyContainer supply_container = unit.getSupplyContainer();
+			if (!render_state.render_state.isPicking() && unit.getAbilities().hasAbilities(Abilities.BUILD) && supply_container.getSupplyType() != null) {
+				if (supply_container.getNumSupplies() > 0) {
+					SpriteRenderer supply_sprite = render_state.getRenderer(supply_container.getSupplySpriteRenderer(supply_container.getSupplyType()));
+					supply_sprite.addToRenderList(detail, render_state, false);
+				}
 			}
-		}
 		}
 	};
 	@Override
 	public void visitUnit(final @NonNull Unit unit) {
 		float z_offset = getVisuallyCorrectHeight(unit.getPositionX(), unit.getPositionY()) + unit.getOffsetZ();
-		visitSelectable(unit_visitor, unit, z_offset, unit.getUnitTemplate().getSelectionRadius(), unit.getUnitTemplate().getSelectionHeight());
+		visitSelectable(unit_visitor, unit, z_offset, unit.getTemplate().getSelectionRadius(), unit.getTemplate().getSelectionHeight());
 	}
 
 	private <M extends Model> @NonNull ElementRenderState<M> doGetCachedState() {
@@ -173,18 +174,18 @@ public final class RenderState implements ElementVisitor {
 	private static float getBuildingSelectionRadius(@NonNull Building building) {
 		Building.BuildState render_level = building.getRenderLevel();
         return switch (render_level) {
-            case START -> building.getBuildingTemplate().getStartSelectionRadius();
-            case HALFBUILT -> building.getBuildingTemplate().getHalfbuiltSelectionRadius();
-            case BUILT -> building.getBuildingTemplate().getBuiltSelectionRadius();
+            case START -> building.getTemplate().getStartSelectionRadius();
+            case HALFBUILT -> building.getTemplate().getHalfbuiltSelectionRadius();
+            case BUILT -> building.getTemplate().getBuiltSelectionRadius();
         };
 	}
 
 	private static float getBuildingSelectionHeight(@NonNull Building building) {
 		Building.BuildState render_level = building.getRenderLevel();
         return switch (render_level) {
-            case START -> building.getBuildingTemplate().getStartSelectionHeight();
-            case HALFBUILT -> building.getBuildingTemplate().getHalfbuiltSelectionHeight();
-            case BUILT -> building.getBuildingTemplate().getBuiltSelectionHeight();
+            case START -> building.getTemplate().getStartSelectionHeight();
+            case HALFBUILT -> building.getTemplate().getHalfbuiltSelectionHeight();
+            case BUILT -> building.getTemplate().getBuiltSelectionHeight();
         };
 	}
 
@@ -227,6 +228,12 @@ public final class RenderState implements ElementVisitor {
             render_state.getModelViewStack().translate(model.getPositionX(), model.getPositionY(), model.getPositionZ())
                 .rotate(model.getRotation(), 0f, 0f, 1f);
 		}
+        @Override
+        public void getTransform(@NonNull ElementRenderState<SupplyModel> render_state, @NonNull Matrix4f dest) {
+            SupplyModel model = render_state.getModel();
+            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
+                .rotate(model.getRotation(), 0f, 0f, 1f);
+        }
 	};
 	@Override
 	public void visitSupplyModel(final @NonNull SupplyModel model) {
@@ -239,6 +246,14 @@ public final class RenderState implements ElementVisitor {
 			Model model = render_state.model;
 			RenderTools.translateAndRotate(model.getPositionX(), model.getPositionY(), render_state.f, model.getDirectionX(), model.getDirectionY(), render_state.getModelViewStack());
 		}
+
+        @Override
+        public void getTransform(@NonNull ElementRenderState<RubberSupply> render_state, @NonNull Matrix4f dest) {
+            Model model = render_state.model;
+            float angle = (float) Math.toDegrees(Math.atan2(model.getDirectionY(), model.getDirectionX()));
+            dest.translation(model.getPositionX(), model.getPositionY(), render_state.f)
+                .rotate(angle, 0f, 0f, 1f);
+        }
 	};
 	@Override
 	public void visitRubberSupply(final @NonNull RubberSupply model) {
@@ -253,8 +268,14 @@ public final class RenderState implements ElementVisitor {
 		@Override
 		public void transform(@NonNull ElementRenderState<SceneryModel> render_state) {
 			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
-            // Color is reset to white by default
 		}
+        @Override
+        public void getTransform(@NonNull ElementRenderState<SceneryModel> render_state, @NonNull Matrix4f dest) {
+            Model model = render_state.getModel();
+            float angle = (float) Math.toDegrees(Math.atan2(model.getDirectionY(), model.getDirectionX()));
+            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
+                .rotate(angle, 0f, 0f, 1f);
+        }
 	};
 	@Override
 	public void visitSceneryModel(final @NonNull SceneryModel model) {
@@ -281,6 +302,14 @@ public final class RenderState implements ElementVisitor {
 				render_state.getColor().set(1f, 1f, 1f, alpha);
 			}
 		}
+
+        @Override
+        public void getTransform(@NonNull ElementRenderState<Plants> render_state, @NonNull Matrix4f dest) {
+            Plants plants = render_state.getModel();
+            float angle = (float) Math.toDegrees(Math.atan2(plants.getDirectionY(), plants.getDirectionX()));
+            dest.translation(plants.getPositionX(), plants.getPositionY(), plants.getPositionZ())
+                .rotate(angle, 0f, 0f, 1f);
+        }
 	};
 	@Override
 	public void visitPlants(final @NonNull Plants plants) {
@@ -298,6 +327,14 @@ public final class RenderState implements ElementVisitor {
 			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
             render_state.getModelViewStack().rotate(-model.getZSpeed(), 0f, 1f, 0f);
 		}
+        @Override
+        public void getTransform(@NonNull ElementRenderState<DirectedThrowingWeapon> render_state, @NonNull Matrix4f dest) {
+            DirectedThrowingWeapon model = render_state.getModel();
+            float angle = (float) Math.toDegrees(Math.atan2(model.getDirectionY(), model.getDirectionX()));
+            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
+                .rotate(angle, 0f, 0f, 1f)
+                .rotate(-model.getZSpeed(), 0f, 1f, 0f);
+        }
 	};
 	@Override
 	public void visitDirectedThrowingWeapon(final @NonNull DirectedThrowingWeapon model) {
@@ -313,6 +350,15 @@ public final class RenderState implements ElementVisitor {
 			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
             render_state.getModelViewStack().rotate(model.getAngle(), 0f, 1f, 0f);
 		}
+
+        @Override
+        public void getTransform(@NonNull ElementRenderState<RotatingThrowingWeapon> render_state, @NonNull Matrix4f dest) {
+            RotatingThrowingWeapon model = render_state.getModel();
+            float angle = (float) Math.toDegrees(Math.atan2(model.getDirectionY(), model.getDirectionX()));
+            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
+                .rotate(angle, 0f, 0f, 1f)
+                .rotate(model.getAngle(), 0f, 1f, 0f);
+        }
 	};
 	@Override
 	public void visitRotatingThrowingWeapon(final @NonNull RotatingThrowingWeapon model) {

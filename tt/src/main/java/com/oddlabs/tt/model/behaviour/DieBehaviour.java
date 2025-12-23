@@ -25,7 +25,7 @@ public final class DieBehaviour implements Behaviour {
 
 	public DieBehaviour(@NonNull Unit unit) {
 		this.unit = unit;
-        unit.switchAnimation(1f/anim_time, Unit.ANIMATION_DYING);
+        unit.switchAnimation(1f/anim_time, Unit.Animation.DYING);
     }
 
 	@Override

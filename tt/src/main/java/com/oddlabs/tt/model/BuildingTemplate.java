@@ -10,9 +10,9 @@ public final class BuildingTemplate extends Template {
 	private final float smoke_radius;
 	private final float smoke_height;
 	private final int num_fragments;
-	private final SpriteKey built_renderer;
-	private final SpriteKey halfbuilt_renderer;
-	private final SpriteKey start_renderer;
+	private final @NonNull SpriteKey built_renderer;
+	private final @NonNull SpriteKey halfbuilt_renderer;
+	private final @NonNull SpriteKey start_renderer;
 	private final int max_hit_points;
 	private final UnitContainerFactory unit_container_factory;
 	private final float mount_offset;
@@ -37,15 +37,9 @@ public final class BuildingTemplate extends Template {
             int num_fragments,
             float shadow_diameter,
             @NonNull ShadowListKey shadow_renderer,
-            SpriteKey built_renderer,
-            float built_selection_radius,
-            float built_selection_height,
-            SpriteKey halfbuilt_renderer,
-            float halfbuilt_selection_radius,
-            float halfbuilt_selection_height,
-            SpriteKey start_renderer,
-            float start_selection_radius,
-            float start_selection_height,
+			@NonNull SpriteKey built_renderer, float built_selection_radius, float built_selection_height,
+			@NonNull SpriteKey halfbuilt_renderer, float halfbuilt_selection_radius, float halfbuilt_selection_height,
+			@NonNull SpriteKey start_renderer, float start_selection_radius, float start_selection_height,
             int max_hit_points,
             UnitContainerFactory unit_container_factory,
             @NonNull Abilities abilities,

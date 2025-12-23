@@ -12,47 +12,35 @@ public final class TreeLowDetailShader extends ShaderProgram implements FogShade
     }
 
     public interface Attributes {
-        String POSITION = "a_position";
-        String TEX_COORD = "a_texCoord0";
+        String POSITION = "in_Position";
+        String TEX_COORD = "in_TexCoord";
     }
 
     private static final String VERTEX_SHADER = """
-        #version 120
+        #version 410 core
 
-        attribute vec3 a_position;
-        attribute vec2 a_texCoord0;
+        layout(location = 0) in vec3 in_Position;
+        layout(location = 1) in vec2 in_TexCoord;
 
         uniform mat4 u_mvpMatrix;
+        uniform mat4 u_modelViewMatrix; // For fog calculation
 
-        // Fog uniforms
-        uniform vec4 u_fogColor;
-        uniform int u_fogMode; // GL_EXP2, etc. (we'll map to custom enum in shader)
-        uniform vec3 u_fogParams; // x = density, y = start, z = end
-        // uniform float u_fogHeightFactor; // Unused
-
-
-        varying vec2 v_texCoord0;
-        // varying float v_fogHeight; // Pass model-space height for fog calculation
-        varying float v_fogDist; // Pass view-space dist for fog calculation
+        out vec2 v_texCoord0;
+        out float v_fogDist;
 
         void main() {
-            vec4 modelPosition = vec4(a_position, 1.0);
-            gl_Position = u_mvpMatrix * modelPosition;
-            v_texCoord0 = a_texCoord0;
-            // v_fogHeight = modelPosition.y; // Pass model-space y
+            gl_Position = u_mvpMatrix * vec4(in_Position, 1.0);
+            v_texCoord0 = in_TexCoord;
             
             // For fog dist, we need View Space position.
-            // u_mvpMatrix is ModelViewProjection. We don't have ModelView separate?
-            // If we don't have ModelView, we can't get View Space Z easily without decomposing matrix.
-            // BUT, usually MVP = P * MV.
-            // Maybe we can use gl_Position.w? In clip space, w is usually -viewZ.
-            v_fogDist = gl_Position.w;
+            vec4 viewPosition = u_modelViewMatrix * vec4(in_Position, 1.0);
+            v_fogDist = length(viewPosition.xyz);
         }
         """;
 
     private static final String FRAGMENT_SHADER =
         """
-        #version 120
+        #version 410 core
         """ +
         FOG_FUNCTION +
         """
@@ -66,21 +54,24 @@ public final class TreeLowDetailShader extends ShaderProgram implements FogShade
         uniform float u_cameraHeight;
 
 
-        varying vec2 v_texCoord0;
-        // varying float v_fogHeight;
-        varying float v_fogDist;
+        in vec2 v_texCoord0;
+        in float v_fogDist;
+        
+        layout(location = 0) out vec4 out_FragColor;
 
         void main() {
-            vec4 treeColor = texture2D(u_texture0, v_texCoord0);
+            vec4 treeColor = texture(u_texture0, v_texCoord0);
             if (treeColor.a <= 0.3) discard; // Hardcoded alpha test for trees
 
             // Apply fog
             float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
-            gl_FragColor = vec4(mix(u_fogColor.rgb, treeColor.rgb, fogFactor), treeColor.a);
+            out_FragColor = vec4(mix(u_fogColor.rgb, treeColor.rgb, fogFactor), treeColor.a);
         }
         """;
 
     public TreeLowDetailShader() {
-        super(VERTEX_SHADER, FRAGMENT_SHADER, STANDARD_ATTRIBUTES);
+        super(VERTEX_SHADER, FRAGMENT_SHADER);
+        // bindFragDataLocation(0, "out_FragColor");
+        link();
     }
 }

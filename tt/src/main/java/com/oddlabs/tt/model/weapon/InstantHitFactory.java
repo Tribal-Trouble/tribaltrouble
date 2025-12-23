@@ -21,7 +21,7 @@ public final class InstantHitFactory extends WeaponFactory {
 	}
 
 	@Override
-	protected void doAttack(boolean hit, @NonNull Unit src, @NonNull Selectable target) {
+	protected void doAttack(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target) {
 		int damage = 1;
 		if (target instanceof Building && target.getTemplate().getAbilities().hasAbilities(Abilities.ATTACK))
 			damage = 6;

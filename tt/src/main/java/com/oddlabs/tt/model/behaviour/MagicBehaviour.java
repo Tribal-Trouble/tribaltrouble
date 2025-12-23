@@ -26,7 +26,7 @@ public final class MagicBehaviour implements Behaviour {
 		this.magic_factory = magic_factory;
 		this.controller = controller;
         anim_time = magic_factory.getSecondsPerInit();
-        unit.switchAnimation(1f/magic_factory.getSecondsPerAnim(), Unit.ANIMATION_MAGIC);	}
+        unit.switchAnimation(1f/magic_factory.getSecondsPerAnim(), Unit.Animation.MAGIC);	}
 
 	@Override
 	public boolean isBlocking() {

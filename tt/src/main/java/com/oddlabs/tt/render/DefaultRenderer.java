@@ -14,9 +14,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.shader.DebugShaderRenderer;
 import com.oddlabs.tt.render.shader.FixedFunctionShader;
 import com.oddlabs.tt.render.shader.LitShader;
-import com.oddlabs.tt.render.shader.SeaBottomShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
-import com.oddlabs.tt.render.shader.SkyShader;
 import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
@@ -43,14 +41,12 @@ public final class DefaultRenderer implements UIRenderer {
     private final @NonNull World world;
     private final @NonNull ElementRenderer<?> element_renderer;
     private final @NonNull TreeRenderer tree_renderer;
-    private final @NonNull SpriteSorter sprite_sorter;
+    private final SpriteSorter sprite_sorter = new SpriteSorter();
     private final @NonNull RenderQueues render_queues;
     private final @NonNull Cheat cheat;
     private final @NonNull MatrixStack modelViewStack;
     private final @NonNull MatrixStack projectionStack;
     private final @NonNull Selection selection;
-    private final @NonNull SkyShader skyShader;
-    private final @NonNull SeaBottomShader seaBottomShader;
     private final @NonNull EmitterRenderer emitterRenderer;
     private final @NonNull LightningRenderer lightningRenderer;
 
@@ -60,15 +56,12 @@ public final class DefaultRenderer implements UIRenderer {
         this.world = local_player.getWorld();
         this.cheat = cheat;
         this.render_queues = render_queues;
-        this.sprite_sorter = new SpriteSorter();
         this.picker = picker;
         this.selection = selection;
-        this.element_renderer = new ElementRenderer<>(local_player, landscape_renderer, render_queues, picker, false, sprite_sorter, selection);
+        this.element_renderer = new ElementRenderer<>(local_player, render_queues, picker, false, sprite_sorter, selection);
         this.tree_renderer = new TreeRenderer(world, cheat, terrain, world_info.trees, world_info.palm_trees, sprite_sorter, picker.getRespondManager());
         this.landscape_renderer = landscape_renderer;
-        this.skyShader = new SkyShader();
-        this.seaBottomShader = new SeaBottomShader();
-        this.sky = new Sky(landscape_renderer, generator.getTerrainType(), skyShader, seaBottomShader, world_info.detail);
+        this.sky = new Sky(landscape_renderer, generator.getTerrainType(), world_info.detail);
         this.modelViewStack = modelViewStack;
         this.projectionStack = projectionStack;
         this.water = new Water(world.getHeightMap(), generator.getTerrainType(), sky, modelViewStack, projectionStack);
@@ -119,9 +112,9 @@ public final class DefaultRenderer implements UIRenderer {
             float y = rally_point.getPositionY();
             float z = world.getHeightMap().getNearestHeight(rally_point.getPositionX(), rally_point.getPositionY());
             if (rally_point instanceof Building rally_building) {
-                x += rally_building.getBuildingTemplate().getRallyX();
-                y += rally_building.getBuildingTemplate().getRallyY();
-                z += rally_building.getBuildingTemplate().getRallyZ();
+                x += rally_building.getTemplate().getRallyX();
+                y += rally_building.getTemplate().getRallyY();
+                z += rally_building.getTemplate().getRallyZ();
             }
 
             modelViewStack.push();
@@ -229,7 +222,7 @@ public final class DefaultRenderer implements UIRenderer {
             tree_renderer.renderAll(frustum_state, modelViewStack, projectionStack);
         }
         if (Globals.process_misc) {
-            render_queues.renderAll(frustum_state);
+            render_queues.renderAll(frustum_state, projectionStack);
             render_queues.renderNoDetail();
         }
 
@@ -242,7 +235,7 @@ public final class DefaultRenderer implements UIRenderer {
         }
 
         if (Globals.process_misc)
-            render_queues.renderBlends(frustum_state);
+            render_queues.renderBlends(frustum_state, projectionStack);
 
         lightningRenderer.render(render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state, modelViewStack, projectionStack);
         emitterRenderer.render(render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state, modelViewStack, projectionStack);

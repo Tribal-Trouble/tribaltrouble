@@ -7,7 +7,9 @@ import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.render.shader.VertexLayout;
 import com.oddlabs.tt.resource.GLByteImage;
 import com.oddlabs.tt.resource.GLImage;
-import com.oddlabs.tt.util.GLStateHelper;
+import com.oddlabs.tt.resource.GLIntImage;
+import com.oddlabs.tt.util.GLUtils;
+import com.oddlabs.tt.vbo.VertexArray;
 import com.oddlabs.util.Color;
 import com.oddlabs.util.Quad;
 import org.joml.Matrix4f;
@@ -15,6 +17,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.ByteBuffer;
@@ -33,8 +36,8 @@ public final class GUIRenderer {
     private final Matrix4f projectionMatrix = new Matrix4f();
     private final @NonNull VertexLayout<GUIShader.Attribute> layout;
 
+    private final VertexArray vao;
     private final int vbo;
-    private final int ibo;
     private final @NonNull ByteBuffer vertexBuffer;
     private final @NonNull Texture whiteTexture;
 
@@ -49,20 +52,23 @@ public final class GUIRenderer {
                 GUIShader.Attribute.TEX_COORD
         );
 
+        this.vao = new VertexArray();
         this.vbo = GL15.glGenBuffers();
-        this.ibo = GL15.glGenBuffers();
+        int ibo = GL15.glGenBuffers();
         this.vertexBuffer = BufferUtils.createByteBuffer(MAX_QUADS * VERTICES_PER_QUAD * layout.getStride());
 
-        setupBuffers();
+        setupBuffers(ibo);
 
         ByteBuffer whitePixel = BufferUtils.createByteBuffer(Integer.BYTES);
         whitePixel.putInt(Color.WHITE_INT);
         whitePixel.flip();
         GLImage whiteImage = new GLByteImage(1, 1, whitePixel, GL11.GL_RGBA);
-        whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_CLAMP, GL11.GL_CLAMP);
+        whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA, GL11.GL_NEAREST, GL11.GL_NEAREST, org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE, org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE);
     }
 
-    private void setupBuffers() {
+    private void setupBuffers(int ibo) {
+        vao.bind();
+
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexBuffer.capacity(), GL15.GL_STREAM_DRAW);
 
@@ -80,16 +86,21 @@ public final class GUIRenderer {
         indexBuffer.flip();
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL15.GL_STATIC_DRAW);
 
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+        layout.bind(shader);
+
+        vao.unbind();
     }
 
     public void renderFrame(float width, float height, @NonNull Runnable frameCommands) {
-        try (var _ = shader.use();
-             var _ = GLStateHelper.blend(true);
-             var _ = GLStateHelper.depthTest(false);
-             var _ = GLStateHelper.cullFace(false)) {
+        GLUtils.checkGLError("Before GUI Render");
+        boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
+        boolean depthTestEnabled = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+        boolean cullFaceEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
 
+        try (var _ = shader.use()) {
+            if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
+            if (depthTestEnabled) GL11.glDisable(GL11.GL_DEPTH_TEST);
+            if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
             projectionMatrix.identity().ortho(0, width, 0, height, -1, 1);
@@ -101,6 +112,10 @@ public final class GUIRenderer {
             frameCommands.run();
 
             flush();
+        } finally {
+            if (!blendEnabled) GL11.glDisable(GL11.GL_BLEND);
+            if (depthTestEnabled) GL11.glEnable(GL11.GL_DEPTH_TEST);
+            if (cullFaceEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
         }
     }
 
@@ -137,10 +152,14 @@ public final class GUIRenderer {
             flush();
         }
 
-        if (currentTexture == null) {
+        if (currentTexture == null || currentTexture.getHandle() != texture.getHandle()) {
             this.currentTexture = texture;
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
         }
+
+        // Convert ARGB (0xAARRGGBB) to ABGR (0xAABBGGRR) for Little Endian byte buffer
+        tint = (tint & 0xFF00FF00) | ((tint & 0x00FF0000) >> 16) | ((tint & 0x000000FF) << 16);
 
         vertexBuffer.putFloat(x).putFloat(y).putFloat(0).putInt(tint).putFloat(u1).putFloat(v1);
         vertexBuffer.putFloat(x + w).putFloat(y).putFloat(0).putInt(tint).putFloat(u2).putFloat(v1);
@@ -159,14 +178,9 @@ public final class GUIRenderer {
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
         GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, vertexBuffer);
 
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
-
-        layout.bind(shader);
+        vao.bind();
         GL11.glDrawElements(GL11.GL_TRIANGLES, quadCount * INDICES_PER_QUAD, GL11.GL_UNSIGNED_SHORT, 0);
-        layout.unbind(shader);
-
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+        vao.unbind();
 
         quadCount = 0;
         currentTexture = null;

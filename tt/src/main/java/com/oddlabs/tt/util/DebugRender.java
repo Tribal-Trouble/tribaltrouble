@@ -29,6 +29,7 @@ public final class DebugRender {
 	private static @Nullable DebugShaderRenderer shaderRenderer;
     private static final FloatList linesBuffer = new FloatList(1024);
     private static final FloatList pointsBuffer = new FloatList(128);
+    private static float currentPointSize = 1.0f;
 	
 	private DebugRender() {
 	}
@@ -68,6 +69,7 @@ public final class DebugRender {
         }
 
         if (!pointsBuffer.isEmpty()) {
+            shaderRenderer.setPointSize(currentPointSize);
             shaderRenderer.begin(GL11.GL_POINTS);
             try {
                 for (int i = 0; i < pointsBuffer.size(); i += 6) {
@@ -113,7 +115,7 @@ public final class DebugRender {
 	 */
 	public static void drawPoint(float x, float y, float z, float size, float r, float g, float b) {
         if (null == shaderRenderer) return;
-        GL11.glPointSize(size); 
+        currentPointSize = size;
         
         pointsBuffer.add(x); pointsBuffer.add(y); pointsBuffer.add(z);
         pointsBuffer.add(r); pointsBuffer.add(g); pointsBuffer.add(b);

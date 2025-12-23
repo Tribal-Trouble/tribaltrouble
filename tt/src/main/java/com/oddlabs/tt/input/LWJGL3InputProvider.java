@@ -222,8 +222,8 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
     @Override
     public void setNativeCursor(@Nullable Long cursor) {
         // cursor object would be GLFW cursor handle (Long)
-        if (cursor instanceof Long glfwCursor && (long) glfwCursor != MemoryUtil.NULL) {
-            glfwSetCursor(windowHandle, (long) glfwCursor);
+        if (null != cursor && cursor != MemoryUtil.NULL) {
+            glfwSetCursor(windowHandle, cursor);
         }
     }
 }

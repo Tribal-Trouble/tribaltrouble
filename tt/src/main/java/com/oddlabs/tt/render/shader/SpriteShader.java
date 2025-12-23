@@ -23,9 +23,9 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
     }
 
     public interface Attributes {
-        String POSITION = "a_position";
-        String NORMAL = "a_normal";
-        String TEX_COORD = "a_texCoord0";
+        String POSITION = "in_Position";
+        String NORMAL = "in_Normal";
+        String TEX_COORD = "in_TexCoord";
     }
 
         private static final String PERTURB_NORMAL_FUNC = """
@@ -58,39 +58,38 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
     
         private static final String VERTEX_SHADER =
             """
-            #version 120
-            """ +
-            """
-            attribute vec3 a_position;
-            attribute vec3 a_normal;
-            attribute vec2 a_texCoord0;
+            #version 410 core
+            
+            layout(location = 0) in vec3 in_Position;
+            layout(location = 1) in vec3 in_Normal;
+            layout(location = 3) in vec2 in_TexCoord;
     
             uniform mat4 u_modelViewMatrix;
             uniform mat4 u_projectionMatrix;
             uniform bool u_enableLighting;
             uniform vec4 u_color;
             
-            varying vec2 v_texCoord0;
-            varying vec4 v_color;
-            varying float v_fogDist;
-            varying vec3 v_viewPosition;
-            varying vec3 v_viewNormal;
+            out vec2 v_texCoord0;
+            out vec4 v_color;
+            out float v_fogDist;
+            out vec3 v_viewPosition;
+            out vec3 v_viewNormal;
     
             void main() {
-                vec4 viewPosition = u_modelViewMatrix * vec4(a_position, 1.0);
+                vec4 viewPosition = u_modelViewMatrix * vec4(in_Position, 1.0);
                 gl_Position = u_projectionMatrix * viewPosition;
-                v_texCoord0 = a_texCoord0;
+                v_texCoord0 = in_TexCoord;
                 v_color = u_color;
                 v_fogDist = length(viewPosition.xyz);
                 
                 v_viewPosition = viewPosition.xyz;
-                v_viewNormal = normalize((u_modelViewMatrix * vec4(a_normal, 0.0)).xyz);
+                v_viewNormal = normalize((u_modelViewMatrix * vec4(in_Normal, 0.0)).xyz);
             }
             """;
     
         private static final String FRAGMENT_SHADER =
             """
-            #version 120
+            #version 410 core
             """ +
             FOG_FUNCTION +
             PERTURB_NORMAL_FUNC +
@@ -115,14 +114,16 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
             uniform float u_fogHeightFactor;
             uniform float u_cameraHeight;
     
-            varying vec2 v_texCoord0;
-            varying vec4 v_color;
-            varying float v_fogDist;
-            varying vec3 v_viewPosition;
-            varying vec3 v_viewNormal;
+            in vec2 v_texCoord0;
+            in vec4 v_color;
+            in float v_fogDist;
+            in vec3 v_viewPosition;
+            in vec3 v_viewNormal;
+            
+            layout(location = 0) out vec4 out_FragColor;
     
             void main() {
-                vec4 base = texture2D(u_texture0, v_texCoord0);
+                vec4 base = texture(u_texture0, v_texCoord0);
     
                 if (u_desaturate > 0.0) {
                     base.rgb = mix(base.rgb, vec3(1.0), u_desaturate);
@@ -141,7 +142,7 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                     float specularStrength = 0.0;
                     
                     if (u_enableNormalMap) {
-                        vec4 normalMapVal = texture2D(u_normalMap, v_texCoord0);
+                        vec4 normalMapVal = texture(u_normalMap, v_texCoord0);
                         normal = perturbNormal(normal, normalize(v_viewPosition), v_texCoord0, normalMapVal.rgb);
                         specularStrength = normalMapVal.a;
                     }
@@ -154,17 +155,18 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                         float diffuse = max(dot(normal, L), 0.0);
                         lightIntensity = u_globalAmbient + vec3(diffuse);
                         
-                                            if (specularStrength > 0.0 && diffuse > 0.0) {
-                                                vec3 V = normalize(-v_viewPosition);
-                                                vec3 H = normalize(L + V);
-                                                float spec = pow(max(dot(normal, H), 0.0), 16.0);
-                                                specular = vec3(0.4) * spec * specularStrength;
-                                            }                    }
+                        if (specularStrength > 0.0 && diffuse > 0.0) {
+                            vec3 V = normalize(-v_viewPosition);
+                            vec3 H = normalize(L + V);
+                            float spec = pow(max(dot(normal, H), 0.0), 16.0);
+                            specular = vec3(0.4) * spec * specularStrength;
+                        }
+                    }
                     
                     finalColor = vec4(v_color.rgb * base.rgb * clamp(lightIntensity, 0.0, 1.0) + specular, v_color.a * base.a);
     
                     if (u_enableTeamColor) {
-                        vec4 tex1 = texture2D(u_texture1, v_texCoord0);
+                        vec4 tex1 = texture(u_texture1, v_texCoord0);
                         // Mix decal color but keep specular on top
                         vec3 mixedColor = mix(finalColor.rgb - specular, u_decalColor.rgb * clamp(lightIntensity, 0.0, 1.0), tex1.rgb);
                         finalColor.rgb = mixedColor + specular;
@@ -174,10 +176,12 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                 }
     
                 float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
-                gl_FragColor = vec4(mix(u_fogColor.rgb, finalColor.rgb, fogFactor), finalColor.a);
+                out_FragColor = vec4(mix(u_fogColor.rgb, finalColor.rgb, fogFactor), finalColor.a);
             }
             """;
     public SpriteShader() {
-        super(VERTEX_SHADER, FRAGMENT_SHADER, STANDARD_ATTRIBUTES);
+        super(VERTEX_SHADER, FRAGMENT_SHADER);
+        // bindFragDataLocation(0, "out_FragColor");
+        link();
     }
 }

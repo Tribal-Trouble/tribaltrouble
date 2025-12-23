@@ -4,6 +4,7 @@ import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL30;
 
 import java.nio.file.Path;
 
@@ -69,14 +70,8 @@ public final class Globals {
 
 	public static final int COMPRESSED_RGB_FORMAT = GL13.GL_COMPRESSED_RGB;
 	public static final int COMPRESSED_RGBA_FORMAT = GL13.GL_COMPRESSED_RGBA;
-	public static final int COMPRESSED_A_FORMAT = GL13.GL_COMPRESSED_ALPHA;
-/*	public static int COMPRESSED_LUMINANCE_FORMAT = GL13.GL_COMPRESSED_LUMINANCE;
-*/
-
-/*	public static int COMPRESSED_RGB_FORMAT = GL11.GL_RGB;
-	public static int COMPRESSED_RGBA_FORMAT = GL11.GL_RGBA;
-	public static int COMPRESSED_A_FORMAT = GL11.GL_ALPHA8;*/
-	public static final int COMPRESSED_LUMINANCE_FORMAT = GL11.GL_LUMINANCE;
+	public static final int COMPRESSED_A_FORMAT = 0x8229; // GL_R8
+	public static final int COMPRESSED_LUMINANCE_FORMAT = GL11.GL_RED;
 	public static int LOW_DETAIL_TEXTURE_SHIFT = 1;
 
 	public static final float LANDSCAPE_HILLS = 1f;
@@ -90,7 +85,6 @@ public final class Globals {
 	public static final float FOV = 45.0f;
 	public static final float VIEW_MIN = 0.1f;
 	public static final float VIEW_MAX = 8000.0f;
-	public static final float GUI_Z = VIEW_MIN + 0.1f;
 
 	public static final int NET_PORT = 21000;
 
@@ -109,11 +103,6 @@ public final class Globals {
 	public static final int MAX_RENDERNODE_DEPTH = 5;
 
 	public static final String SCREENSHOT_DEFAULT = "screenshot";
-
-	public static final float[][] SEA_BOTTOM_COLOR = {
-			Color.rgb3f(0x734099), // NATIVE
-			Color.rgb3f(0x1A_33_3D)  // VIKING (Dark Blue-Green)
-	};
 
 	public static final float TREE_ERROR_DISTANCE = 100f;
 

@@ -9,13 +9,11 @@ import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.vbo.VertexArray;
-import com.oddlabs.tt.vbo.VertexArrays;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.FloatBuffer;
@@ -43,6 +41,25 @@ public final class Sprite {
     final Texture respond_texture;
     final int indices_offset;
     final int texcoords_offset;
+
+    /** Dummy constructor for creating a simple quad sprite. */
+    Sprite(int num_vertices, int num_triangles, int indices_offset, boolean modulate_color) {
+        this.textures = new Texture[0][0];
+        this.num_vertices = num_vertices;
+        this.num_triangles = num_triangles;
+        this.indices_offset = indices_offset;
+        this.texcoords_offset = 0;
+        this.clear_color = null;
+        this.buffer_indices = null;
+        this.alpha = false;
+        this.lighted = false;
+        this.culled = true;
+        this.modulate_color = modulate_color;
+        this.cpw_array = null;
+        this.animation_length_array = null;
+        this.type_array = null;
+        this.respond_texture = null;
+    }
 
     public Sprite(@NonNull SpriteInfo sprite_info, AnimationInfo @NonNull [] animations, boolean alpha, boolean lighted, boolean culled, boolean modulate_color, boolean max_alpha, int mipmap_cutoff, BoundingBox[] bounds, float[] cpw_array, AnimationInfo.AnimationType @NonNull [] type_array, int[] animation_length_array, @NonNull ShortBuffer all_indices, @NonNull FloatBuffer all_texcoords, @NonNull FloatBuffer all_vertices_and_normals) {
         this.culled = culled;
@@ -205,11 +222,11 @@ public final class Sprite {
     }
 
     public boolean hasTeamDecal() {
-        return textures[0][TEXTURE_TEAM] != null;
+        return textures.length > 0 && textures[0].length > TEXTURE_TEAM && textures[0][TEXTURE_TEAM] != null;
     }
     
     public boolean hasBumpMap(int tex_index) {
-        return textures[tex_index][TEXTURE_BUMP] != null;
+        return textures.length > tex_index && textures[tex_index].length > TEXTURE_BUMP && textures[tex_index][TEXTURE_BUMP] != null;
     }
 
     public int getNumTextures() {
@@ -261,45 +278,42 @@ public final class Sprite {
         int posLoc = shader.getAttributeLocation(SpriteShader.Attributes.POSITION);
         int normLoc = shader.getAttributeLocation(SpriteShader.Attributes.NORMAL);
 
-        boolean useVao = VertexArrays.isSupported() && vao != null;
-        if (useVao) {
-            vao.bind();
-        }
+        vao.bind();
 
         try {
             if (texCoordLoc >= 0) {
                 sprite_list.getTexcoords().vertexAttribPointer(texCoordLoc, 2, 0, texcoords_offset * 4L);
-                if (!useVao) GL20.glEnableVertexAttribArray(texCoordLoc);
             }
 
-            float anim_position = anim_ticks * cpw_array[animation];
-            int frame_non_capped = (int) (anim_position * animation_length_array[animation]);
-            int frame = getFrameCapped(animation, frame_non_capped);
-            int frame_size = num_vertices * 3;
-            int frame_index = frame * 2;
-            int vertex_index = buffer_indices[animation] + frame_index * frame_size;
-            int normal_index = vertex_index + frame_size;
+            int vertex_index = getVertexOffset(animation, anim_ticks);
+            int normal_index = getNormalOffset(vertex_index);
 
             if (posLoc >= 0) {
                 sprite_list.getVerticesAndNormals().vertexAttribPointer(posLoc, 3, 0, vertex_index * 4L);
-                if (!useVao) GL20.glEnableVertexAttribArray(posLoc);
             }
 
             if (normLoc >= 0) {
                 sprite_list.getVerticesAndNormals().vertexAttribPointer(normLoc, 3, 0, normal_index * 4L);
-                if (!useVao) GL20.glEnableVertexAttribArray(normLoc);
             }
 
             sprite_list.getIndices().drawElements(GL11.GL_TRIANGLES, num_triangles * 3, indices_offset);
         } finally {
-            if (useVao) {
-                vao.unbind();
-            } else {
-                if (posLoc >= 0) GL20.glDisableVertexAttribArray(posLoc);
-                if (normLoc >= 0) GL20.glDisableVertexAttribArray(normLoc);
-                if (texCoordLoc >= 0) GL20.glDisableVertexAttribArray(texCoordLoc);
-            }
+            vao.unbind();
         }
+    }
+
+    public int getVertexOffset(int animation, float anim_ticks) {
+        if (cpw_array == null) return 0; // For quad instance
+        float anim_position = anim_ticks * cpw_array[animation];
+        int frame_non_capped = (int) (anim_position * animation_length_array[animation]);
+        int frame = getFrameCapped(animation, frame_non_capped);
+        int frame_size = num_vertices * 3;
+        int frame_index = frame * 2;
+        return buffer_indices[animation] + frame_index * frame_size;
+    }
+
+    public int getNormalOffset(int vertex_offset) {
+        return vertex_offset + num_vertices * 3;
     }
 
     private int getFrameCapped(int animation, int frame) {

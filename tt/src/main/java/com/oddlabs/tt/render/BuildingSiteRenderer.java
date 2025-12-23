@@ -15,7 +15,7 @@ public final class BuildingSiteRenderer extends ShadowRenderer {
     public BuildingSiteRenderer() {
         GLIntImage img = new GLIntImage(16, 16, GL11.GL_RGBA);
         img.clear(1, 1, img.getWidth() - 2, img.getHeight() - 2, Color.WHITE_INT);
-        green = new Texture(new GLIntImage[]{img}, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_CLAMP, GL11.GL_CLAMP);
+        green = new Texture(new GLIntImage[]{img}, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR, org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE, org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE);
     }
 
     public void renderSites(@NonNull LandscapeRenderer renderer, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack, @NonNull List<? extends @NonNull Target> targets, float center_x, float center_y, float max_radius) {

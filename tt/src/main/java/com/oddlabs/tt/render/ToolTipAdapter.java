@@ -77,7 +77,7 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 		visitSelectable(building);
 		tool_tip_box.append(building.getTemplate().getName());
 		IconQuad[] watch = GUIIcons.getIcons().getWatch();
-		tool_tip_box.append(watch[((watch.length - 1)*building.getHitPoints()/building.getBuildingTemplate().getMaxHitPoints())]);
+		tool_tip_box.append(watch[((watch.length - 1)*building.getHitPoints()/building.getTemplate().getMaxHitPoints())]);
 		//      if (getUnitContainer() != null && Settings.getSettings().developer_mode) {
 		//          tool_tip_box.append(" units_in_building ");
 		//          tool_tip_box.append(getUnitContainer().getNumSupplies());
@@ -97,8 +97,8 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 		if (unit.getAbilities().hasAbilities(Abilities.MAGIC)) {
             IconQuad[] watch = GUIIcons.getIcons().getWatch();
 			int hit_points = unit.getHitPoints();
-			int index = ((watch.length - 1)*hit_points/unit.getUnitTemplate().getMaxHitPoints());
-			assert hit_points > 0 && hit_points <= unit.getUnitTemplate().getMaxHitPoints(): "Invalid hit points";
+			int index = ((watch.length - 1)*hit_points/unit.getTemplate().getMaxHitPoints());
+			assert hit_points > 0 && hit_points <= unit.getTemplate().getMaxHitPoints(): "Invalid hit points";
 			tool_tip_box.append(watch[index]);
 		} else if (unit.getOwner() == local_player && c instanceof GatherController<?> gc) {
 			tool_tip_box.append(GUIIcons.getIcons().getToolTipIcon(gc.getSupplyType()));

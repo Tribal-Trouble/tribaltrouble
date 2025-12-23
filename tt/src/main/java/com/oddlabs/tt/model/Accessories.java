@@ -5,16 +5,16 @@ import com.oddlabs.tt.render.SpriteKey;
 import org.jspecify.annotations.NonNull;
 
 public abstract class Accessories extends Model {
-	private final SpriteKey sprite_renderer;
+	private final @NonNull SpriteKey sprite_renderer;
 
-	public Accessories(@NonNull World world, SpriteKey sprite_renderer) {
+	public Accessories(@NonNull World world, @NonNull SpriteKey sprite_renderer) {
 		super(world);
 		this.sprite_renderer = sprite_renderer;
 		register();
 	}
 
 	@Override
-	public final SpriteKey getSpriteRenderer() {
+	public final @NonNull SpriteKey getSpriteRenderer() {
 		return sprite_renderer;
 	}
 

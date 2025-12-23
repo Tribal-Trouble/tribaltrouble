@@ -37,7 +37,7 @@ public abstract class WeaponFactory {
 		return bonus;
 	}
 
-	public final void attack(@NonNull Unit src, @NonNull Selectable target, float factor) {
+	public final void attack(@NonNull Unit src, @NonNull Selectable<?> target, float factor) {
 		/* GAMEPLAY: Terrain bonus, according to who is positioned highest */
 		float terrain_bonus = computeTerrainBonus(src.getOwner().getWorld().getHeightMap(), src, target);
 		float difficulty_bonus = src.getOwner().getHitBonus();
@@ -45,11 +45,11 @@ public abstract class WeaponFactory {
 		doAttack(hit, src, target);
 	}
 
-	public final void attack(@NonNull Unit src, @NonNull Selectable target) {
+	public final void attack(@NonNull Unit src, @NonNull Selectable<?> target) {
 		attack(src, target, 1f);
 	}
 
-	protected abstract void doAttack(boolean hit, @NonNull Unit src, @NonNull Selectable target);
+	protected abstract void doAttack(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target);
 
 	public abstract @Nullable Class<? extends ThrowingWeapon> getType();
 }

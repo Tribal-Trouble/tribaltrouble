@@ -4,6 +4,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Arrays;
 import java.util.Set;
 
 public abstract class ChieftainAI {
@@ -11,13 +12,10 @@ public abstract class ChieftainAI {
 
 	protected final int numEnemyUnits(@NonNull Player owner) {
 		Player[] players = owner.getWorld().getPlayers();
-		int count = 0;
-            for (Player player : players) {
-                if (owner.isEnemy(player)) {
-                    Set<Selectable> units = player.getUnits().getSet();
-                    count += units.size();
-                }
-            }
+		int count = Arrays.stream(players)
+				.filter(owner::isEnemy)
+				.mapToInt(p -> p.getUnits().size())
+				.sum();
 		return count;
 	}
 }

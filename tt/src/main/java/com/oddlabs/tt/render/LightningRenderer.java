@@ -5,12 +5,11 @@ import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.particle.Lightning;
 import com.oddlabs.tt.particle.StretchParticle;
-import com.oddlabs.tt.render.shader.ParticleShader;
+import com.oddlabs.tt.render.shader.LightningShader;
 import com.oddlabs.tt.render.shader.VertexLayout;
-import com.oddlabs.tt.util.GLStateHelper;
 import com.oddlabs.tt.vbo.FloatVBO;
+import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
-import com.oddlabs.tt.vbo.VertexArrays;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
@@ -20,38 +19,63 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.List;
 import java.util.Objects;
 
 public final class LightningRenderer {
 
     private final Vector3f right_vector = new Vector3f();
-
     private final Matrix4f view_matrix = new Matrix4f();
 
-    private static final int MAX_PARTICLES = 1000;
-    private static final int FLOATS_PER_PARTICLE = 72; // 8 vertices * 9 floats (x,y,z,u,v,r,g,b,a)
+    private static final int MAX_PARTICLES = 100;
+    private static final int VERTICES_PER_PARTICLE = 8;
+    private static final int INDICES_PER_PARTICLE = 12; // 4 triangles * 3 indices
+    private static final int FLOATS_PER_VERTEX = 9; // x,y,z,u,v,r,g,b,a
 
-    private final FloatBuffer particle_buffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(MAX_PARTICLES * FLOATS_PER_PARTICLE));
+    private final FloatBuffer particle_buffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(MAX_PARTICLES * VERTICES_PER_PARTICLE * FLOATS_PER_VERTEX));
     private final FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
+    private final ShortVBO particle_ibo;
 
-    private final @NonNull ParticleShader shader;
-    private final VertexLayout<ParticleShader.Attribute> layout = new VertexLayout<>(
-            ParticleShader.Attribute.POSITION,
-            ParticleShader.Attribute.TEX_COORD,
-            ParticleShader.Attribute.COLOR
+    private final @NonNull LightningShader shader;
+    private final VertexLayout<LightningShader.Attribute> layout = new VertexLayout<>(
+            LightningShader.Attribute.POSITION,
+            LightningShader.Attribute.TEX_COORD,
+            LightningShader.Attribute.COLOR
     );
     private final @NonNull VertexArray vao;
+    private int vbo_offset = 0;
 
     public LightningRenderer() {
-        shader = new ParticleShader();
-        vao = VertexArrays.create();
-        if (VertexArrays.isSupported()) {
-            vao.bind();
-            particle_vbo.makeCurrent();
-            layout.bind(shader);
-            vao.unbind();
+        shader = new LightningShader();
+        
+        ShortBuffer iboBuffer = BufferUtils.createShortBuffer(MAX_PARTICLES * INDICES_PER_PARTICLE);
+        for (int i = 0; i < MAX_PARTICLES; i++) {
+            int offset = i * VERTICES_PER_PARTICLE;
+            // First quad
+            iboBuffer.put((short) (offset + 0));
+            iboBuffer.put((short) (offset + 1));
+            iboBuffer.put((short) (offset + 2));
+            iboBuffer.put((short) (offset + 2));
+            iboBuffer.put((short) (offset + 3));
+            iboBuffer.put((short) (offset + 0));
+            // Second quad
+            iboBuffer.put((short) (offset + 4));
+            iboBuffer.put((short) (offset + 5));
+            iboBuffer.put((short) (offset + 6));
+            iboBuffer.put((short) (offset + 6));
+            iboBuffer.put((short) (offset + 7));
+            iboBuffer.put((short) (offset + 4));
         }
+        iboBuffer.flip();
+        particle_ibo = new ShortVBO(GL15.GL_STATIC_DRAW, iboBuffer);
+
+        vao = new VertexArray();
+        vao.bind();
+        particle_vbo.makeCurrent();
+        particle_ibo.makeCurrent();
+        layout.bind(shader);
+        vao.unbind();
     }
 
     public void render(@NonNull RenderQueues render_queues, @NonNull List<Lightning> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
@@ -63,24 +87,24 @@ public final class LightningRenderer {
         float rz = view_matrix.m20();
         right_vector.set(rx, ry, rz);
 
-        try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state.getCurrentZ());
-             var _ = GLStateHelper.cullFace(false);
-             var _ = GLStateHelper.blend(true);
-             var _ = new GLStateHelper.DepthMask(false)) {
+        boolean cullFaceEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+        boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
+        boolean depthMaskEnabled = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
 
-            shader.setUniformMatrix4(ParticleShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-            shader.setUniformMatrix4(ParticleShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
-            shader.setUniform(ParticleShader.Uniforms.TEXTURE_0, 0);
+        try (var _ = shader.use();
+             var _ = state.getFog().setup(shader, state.getCurrentZ())) {
+
+            if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
+            if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
+            if (depthMaskEnabled) GL11.glDepthMask(false);
+
+            shader.setUniformMatrix4(LightningShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+            shader.setUniformMatrix4(LightningShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
+            shader.setUniform(LightningShader.Uniforms.TEXTURE_0, 0);
 
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
-            if (VertexArrays.isSupported()) {
-                vao.bind();
-            } else {
-                particle_vbo.makeCurrent();
-                layout.bind(shader);
-            }
+            vao.bind();
 
             if (Globals.draw_particles) {
                 for (Lightning emitter : emitter_queue) {
@@ -89,12 +113,10 @@ public final class LightningRenderer {
             }
         } finally {
             emitter_queue.clear();
-            if (VertexArrays.isSupported()) {
-                vao.unbind();
-            } else {
-                layout.unbind(shader);
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-            }
+            vao.unbind();
+            if (cullFaceEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
+            if (!blendEnabled) GL11.glDisable(GL11.GL_BLEND);
+            if (depthMaskEnabled) GL11.glDepthMask(true);
         }
     }
 
@@ -111,11 +133,13 @@ public final class LightningRenderer {
         float b = particle.getColorB();
         float a = particle.getColorA();
 
+        // Quad 1
         particle_buffer.put(dst_x - particle.getDstWidth()).put(dst_y).put(dst_z).put(0f).put(0f).put(r).put(g).put(b).put(a);
         particle_buffer.put(dst_x + particle.getDstWidth()).put(dst_y).put(dst_z).put(1f).put(0f).put(r).put(g).put(b).put(a);
         particle_buffer.put(src_x + particle.getSrcWidth()).put(src_y).put(src_z).put(1f).put(1f).put(r).put(g).put(b).put(a);
         particle_buffer.put(src_x - particle.getSrcWidth()).put(src_y).put(src_z).put(0f).put(1f).put(r).put(g).put(b).put(a);
 
+        // Quad 2
         particle_buffer.put(dst_x).put(dst_y - particle.getDstWidth()).put(dst_z).put(0f).put(0f).put(r).put(g).put(b).put(a);
         particle_buffer.put(dst_x).put(dst_y + particle.getDstWidth()).put(dst_z).put(1f).put(0f).put(r).put(g).put(b).put(a);
         particle_buffer.put(src_x).put(src_y + particle.getSrcWidth()).put(src_z).put(1f).put(1f).put(r).put(g).put(b).put(a);
@@ -128,16 +152,36 @@ public final class LightningRenderer {
 
         particle_buffer.clear();
         List<StretchParticle> particles = lightning.getParticles();
+        int particleCount = 0;
+        
         for (int i = particles.size() - 1; i >= 0; i--) {
+            if (particleCount >= MAX_PARTICLES) {
+                flush(particleCount);
+                particleCount = 0;
+                particle_buffer.clear();
+            }
             StretchParticle particle = particles.get(i);
             render2DParticle(particle);
+            particleCount++;
         }
-        particle_buffer.flip();
-        particle_vbo.put(particle_buffer);
-
-        GL11.glDrawArrays(GL11.GL_QUADS, 0, particles.size() * 8);
+        flush(particleCount);
 
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+    }
+    
+    private void flush(int count) {
+        if (count == 0) return;
+        particle_buffer.flip();
+        
+        if (vbo_offset + count > MAX_PARTICLES) {
+            particle_vbo.orphan();
+            vbo_offset = 0;
+        }
+        
+        particle_vbo.putSubData(vbo_offset * VERTICES_PER_PARTICLE * FLOATS_PER_VERTEX, particle_buffer);
+        GL11.glDrawElements(GL11.GL_TRIANGLES, count * INDICES_PER_PARTICLE, GL11.GL_UNSIGNED_SHORT, (long) vbo_offset * INDICES_PER_PARTICLE * Short.BYTES);
+        
+        vbo_offset += count;
     }
 
     public void debugRender(@NonNull List<Lightning> emitter_queue) {

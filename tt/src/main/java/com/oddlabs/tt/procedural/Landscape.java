@@ -31,8 +31,11 @@ public final class Landscape {
 
 	private static final int NUM_PLANT_TYPES = 4;
 
-	private static final float @NonNull [] NATIVE_FOG_COLOR = Color.argb4f(0xFF_A5_BF_FF);
-	private static final float @NonNull [] VIKING_FOG_COLOR = Color.argb4f(0xFF_33_66_8C);
+	public static final float[] NATIVE_SEA_BOTTOM_COLOR = Color.argb4f(0xFF_73_40_99);
+	public static final float[] VIKING_SEA_BOTTOM_COLOR = Color.argb4f(0xFF_1A_33_3D);  // (Dark Blue-Green)
+
+	private static final float[] NATIVE_FOG_COLOR = Color.argb4f(0xFF_A5_BF_FF);
+	private static final float[] VIKING_FOG_COLOR = Color.argb4f(0xFF_33_66_8C);
 	private static final float NATIVE_FOG_DENSITY = 0.0012f;
 	private static final float VIKING_FOG_DENSITY = 0.0016f;
 	private static final float NATIVE_FOG_HEIGHT = 1.2f;
@@ -232,7 +235,7 @@ public final class Landscape {
 
 		// create blend infos
 		blend_infos = new BlendInfo[]{
-			new StructureBlend(structures[0], structure_normals[0], new GLByteImage(new Channel(1, 1).fill(1f))),
+			new StructureBlend(structures[0], structure_normals[0], new GLByteImage(new Channel(1, 1).fill(1f), GL11.GL_RED)),
 			new StructureBlend(structures[1], structure_normals[1], alpha_maps[0]),
 			new StructureBlend(structures[2], structure_normals[2], alpha_maps[1]),
 			new StructureBlend(structures[3], structure_normals[3], alpha_maps[2]),
@@ -438,7 +441,10 @@ public final class Landscape {
 	}
 
 	private static @NonNull StructureLayers genSeabottom(@NonNull TerrainType terrain, int size, @NonNull Channel noise8, @NonNull Channel noise256, @NonNull Channel voronoi4, @NonNull Channel voronoi8) {
-		float[] color = Globals.SEA_BOTTOM_COLOR[terrain.ordinal()];
+		float[] color = switch (terrain) {
+			case NATIVE -> NATIVE_SEA_BOTTOM_COLOR;
+			case VIKING -> VIKING_SEA_BOTTOM_COLOR;
+		};
 		Layer seabottom = new Layer(
 			new Channel(size, size).fill(color[0]),
 			new Channel(size, size).fill(color[1]),
@@ -691,10 +697,10 @@ public final class Landscape {
                 if (DEBUG) alpha2.toLayer().saveAsPNG("alpha_rock");
                 alpha3 = generateGrassAlpha(unit_grids_per_world, seed);
                 if (DEBUG) alpha3.toLayer().saveAsPNG("alpha_grass");
-                alpha_maps[0] = new GLByteImage(alpha0);
-                alpha_maps[1] = new GLByteImage(alpha1);
-                alpha_maps[2] = new GLByteImage(alpha2);
-                alpha_maps[3] = new GLByteImage(alpha3);
+                alpha_maps[0] = new GLByteImage(alpha0, GL11.GL_RED);
+                alpha_maps[1] = new GLByteImage(alpha1, GL11.GL_RED);
+                alpha_maps[2] = new GLByteImage(alpha2, GL11.GL_RED);
+                alpha_maps[3] = new GLByteImage(alpha3, GL11.GL_RED);
                 yield alpha3;
             }
             case VIKING -> {
@@ -706,10 +712,10 @@ public final class Landscape {
                 if (DEBUG) alpha2.toLayer().saveAsPNG("alpha_grass");
                 alpha3 = Landscape.generateSnowAlpha(height, alpha1.copy());
                 if (DEBUG) alpha3.toLayer().saveAsPNG("alpha_snow");
-                alpha_maps[0] = new GLByteImage(alpha0);
-                alpha_maps[1] = new GLByteImage(alpha1);
-                alpha_maps[2] = new GLByteImage(alpha2);
-                alpha_maps[3] = new GLByteImage(alpha3);
+                alpha_maps[0] = new GLByteImage(alpha0, GL11.GL_RED);
+                alpha_maps[1] = new GLByteImage(alpha1, GL11.GL_RED);
+                alpha_maps[2] = new GLByteImage(alpha2, GL11.GL_RED);
+                alpha_maps[3] = new GLByteImage(alpha3, GL11.GL_RED);
                 yield alpha2;
             }
         };
@@ -765,11 +771,10 @@ public final class Landscape {
 			peak = 0;
 		}
 		shadow.channelBrightest(shadowcast.smooth(1).brightness(0.67f));
-		if (DEBUG) highlight.toLayer().saveAsPNG("alpha_light");
 		if (DEBUG) shadow.toLayer().saveAsPNG("alpha_shadow");
 		ProgressForm.progress(1/14f);
 
-		alpha_maps[6] = new GLByteImage(seabottom_alpha);
+		alpha_maps[6] = new GLByteImage(seabottom_alpha, GL11.GL_RED);
 
 		return grass_alpha;
 	}
@@ -946,8 +951,8 @@ public final class Landscape {
 		}
 
 		// shadow and highlight are changed by supply placement
-		alpha_maps[4] = new GLByteImage(highlight, GL11.GL_LUMINANCE);
-		alpha_maps[5] = new GLByteImage(shadow);
+		alpha_maps[4] = new GLByteImage(highlight, GL11.GL_RED);
+		alpha_maps[5] = new GLByteImage(shadow, GL11.GL_RED);
 		ProgressForm.progress(1/14f);
 
 		// generate plant maps

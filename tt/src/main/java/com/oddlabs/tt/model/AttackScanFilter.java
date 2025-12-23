@@ -29,7 +29,7 @@ public final class AttackScanFilter implements ScanFilter {
 
 	private final @NonNull Player owner;
 
-	private @Nullable Selectable target = null;
+	private @Nullable Selectable<?> target = null;
 	private @NonNull Priority target_priority = Priority.NONE;
 
 	public AttackScanFilter(@NonNull Player owner, int max_range) {
@@ -37,8 +37,8 @@ public final class AttackScanFilter implements ScanFilter {
 		this.max_range = max_range;
 	}
 
-	public @Nullable Selectable removeTarget() {
-		Selectable result = target;
+	public @Nullable Selectable<?> removeTarget() {
+		Selectable<?> result = target;
 		target = null;
 		target_priority = Priority.NONE;
 		return result;
@@ -56,13 +56,11 @@ public final class AttackScanFilter implements ScanFilter {
 
 	@Override
 	public boolean filter(int grid_x, int grid_y, @NonNull Occupant occ) {
-		if (occ instanceof Selectable s) {
-			if (owner.isEnemy(s.getOwner())) {
-				Priority priority = s.getAttackPriority();
-				if (target_priority.value < priority.value) {
-					target_priority = priority;
-					target = s;
-				}
+		if (occ instanceof Selectable<?> s && owner.isEnemy(s.getOwner())) {
+			Priority priority = s.getAttackPriority();
+			if (target_priority.value < priority.value) {
+				target_priority = priority;
+				target = s;
 			}
 		}
 		return false;

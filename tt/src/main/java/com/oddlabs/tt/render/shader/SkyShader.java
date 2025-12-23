@@ -25,48 +25,45 @@ public final class SkyShader extends ShaderProgram {
     }
 
     public interface Attributes {
-        String POSITION = "a_position";
-        String NORMAL = "a_normal";
-        String TEX_COORD_0 = "a_texCoord0";
-        String TEX_COORD_1 = "a_texCoord1";
-        String COLOR = "a_color";
+        String POSITION = "in_Position";
+        String NORMAL = "in_Normal";
+        String TEX_COORD_0 = "in_TexCoord0";
+        String TEX_COORD_1 = "in_TexCoord1";
+        String COLOR = "in_Color";
     }
 
     private static final String VERTEX_SHADER = """
-        #version 120
+        #version 410 core
 
-        attribute vec3 a_position;
-        attribute vec3 a_normal;
-        attribute vec2 a_texCoord0;
-        attribute vec2 a_texCoord1;
-        attribute vec3 a_color;
+        layout(location = 0) in vec3 in_Position;
+        layout(location = 1) in vec3 in_Normal;
+        layout(location = 2) in vec2 in_TexCoord0;
+        layout(location = 3) in vec2 in_TexCoord1;
+        layout(location = 4) in vec3 in_Color;
 
         uniform mat4 u_modelViewMatrix;
         uniform mat4 u_projectionMatrix;
         uniform vec2 u_innerOffset;
         uniform vec2 u_outerOffset;
 
-        varying vec2 v_texCoord0;
-        varying vec2 v_texCoord1;
-        varying vec4 v_color;
-        varying vec3 v_normal;
+        out vec2 v_texCoord0;
+        out vec2 v_texCoord1;
+        out vec4 v_color;
+        out vec3 v_normal;
 
         void main() {
-            gl_Position = u_projectionMatrix * u_modelViewMatrix * vec4(a_position, 1.0);
+            gl_Position = u_projectionMatrix * u_modelViewMatrix * vec4(in_Position, 1.0);
             
-            // Pass the normal to the fragment shader for fog calculation.
-            // Since the sky dome is not rotated, the model-space normal is also world-space.
-            v_normal = a_normal;
+            v_normal = in_Normal;
             
-            // Apply scrolling offsets for cloud textures
-            v_texCoord0 = a_texCoord0 + u_innerOffset;
-            v_texCoord1 = a_texCoord1 + u_outerOffset;
-            v_color = vec4(a_color, 1.0); 
+            v_texCoord0 = in_TexCoord0 + u_innerOffset;
+            v_texCoord1 = in_TexCoord1 + u_outerOffset;
+            v_color = vec4(in_Color, 1.0); 
         }
         """;
 
     private static final String FRAGMENT_SHADER = """
-        #version 120
+        #version 410 core
 
         uniform sampler2D u_texture0;
         uniform sampler2D u_texture1;
@@ -81,47 +78,42 @@ public final class SkyShader extends ShaderProgram {
         uniform float u_cameraHeight;
         uniform float u_fogHeightFactor;
 
-        varying vec2 v_texCoord0;
-        varying vec2 v_texCoord1;
-        varying vec4 v_color; // Vertex color (gradient for sky)
-        varying vec3 v_normal;
+        in vec2 v_texCoord0;
+        in vec2 v_texCoord1;
+        in vec4 v_color; // Vertex color (gradient for sky)
+        in vec3 v_normal;
+        
+        layout(location = 0) out vec4 out_FragColor;
 
         void main() {
-            vec4 tex0 = texture2D(u_texture0, v_texCoord0);
-            vec4 tex1 = texture2D(u_texture1, v_texCoord1);
+            vec4 tex0 = texture(u_texture0, v_texCoord0);
+            vec4 tex1 = texture(u_texture1, v_texCoord1);
             
-            // Apply density using power function to adjust contrast/coverage
-            // exp(-density): density > 0 -> exp < 1 -> thicker clouds
-            //                density < 0 -> exp > 1 -> thinner clouds
-            float exp0 = exp(-u_innerCloudDensity * 2.0); // Coefficient 2.0 to enhance effect slightly
+            float exp0 = exp(-u_innerCloudDensity * 2.0);
             float exp1 = exp(-u_outerCloudDensity * 2.0);
             
             vec3 cloud0 = pow(tex0.rgb, vec3(exp0));
             vec3 cloud1 = pow(tex1.rgb, vec3(exp1));
             
-            // Layer 0 (Inner Clouds): Mix vertex color with sky color based on texture
             vec3 color0 = mix(v_color.rgb, u_skyColor.rgb, cloud0); 
-            
-            // Layer 1 (Outer Clouds): Mix previous result with sky color based on texture
             vec3 color1 = mix(color0, u_skyColor.rgb, cloud1);
             
             vec4 finalColor = vec4(color1, 1.0);
 
-            // Apply fog based on the world-space normal's Z component.
             float fogFactor = 1.0 - smoothstep(u_fogFadeStart, u_fogFadeEnd, v_normal.z);
             
-            // Reduce fog effect as camera gains altitude
             if (u_fogHeightFactor > 0.0) {
                 fogFactor *= (1.0 - clamp(u_cameraHeight / u_fogHeightFactor, 0.0, 1.0));
             }
             
-            // Mix the final sky color with the fog color.
-            gl_FragColor.rgb = mix(finalColor.rgb, u_fogColor.rgb, fogFactor * 0.25);
-            gl_FragColor.a = finalColor.a;
+            out_FragColor.rgb = mix(finalColor.rgb, u_fogColor.rgb, fogFactor * 0.25);
+            out_FragColor.a = finalColor.a;
         }
         """;
 
     public SkyShader() {
         super(VERTEX_SHADER, FRAGMENT_SHADER);
+        // bindFragDataLocation(0, "out_FragColor");
+        link();
     }
 }

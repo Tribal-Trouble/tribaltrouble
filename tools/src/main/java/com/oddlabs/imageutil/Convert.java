@@ -102,6 +102,29 @@ public final class Convert {
                     image.gamma(gamma);
                 }
                 break;
+            case "-bgra":
+                for (Layer image : images) {
+                    Channel temp = image.r;
+                    image.r = image.b;
+                    image.b = temp;
+                }
+                break;
+            case "-argb":
+                for (Layer image : images) {
+                    Channel old_r = image.r;
+                    Channel old_g = image.g;
+                    Channel old_b = image.b;
+                    Channel old_a = image.a;
+                    if (old_a == null) {
+                        old_a = new Channel(image.getWidth(), image.getHeight());
+                        old_a.fill(1.0f);
+                    }
+                    image.r = old_a;
+                    image.g = old_r;
+                    image.b = old_g;
+                    image.a = old_b;
+                }
+                break;
             default:
                 throw new IllegalArgumentException("Unknown operation: " + op);
         }

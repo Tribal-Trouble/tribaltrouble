@@ -12,7 +12,6 @@ import org.lwjgl.opengl.GL11;
 import java.io.Serial;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 
 public final class IslandGenerator implements WorldGenerator {
 	@Serial
@@ -43,9 +42,8 @@ public final class IslandGenerator implements WorldGenerator {
 
 	private static @NonNull Texture createDetail(@NonNull GLImage detail_image, int base_level) {
 		GLImage[] detail_mipmaps = detail_image.buildMipMaps(base_level, Globals.LANDSCAPE_DETAIL_FADEOUT_FACTOR, true, false);
-		return new Texture(detail_mipmaps, GL11.GL_RGBA, GL11.GL_LINEAR_MIPMAP_LINEAR,
-								   GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
-	}
+				return new Texture(detail_mipmaps, GL11.GL_RGBA8, GL11.GL_LINEAR_MIPMAP_LINEAR,
+						GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);	}
 
 	private static int getTexelsPerGridUnit() {
 		int texels_per_grid_unit = Globals.TEXELS_PER_GRID_UNIT/(int)Math.pow(2, Globals.TEXTURE_MIP_SHIFT[Settings.getSettings().graphic_detail]);

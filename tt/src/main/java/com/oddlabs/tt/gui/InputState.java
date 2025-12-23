@@ -85,8 +85,7 @@ public final class InputState {
 		press_obj.mousePressedAll(button, local_x, local_y);
 		if (mouse_timer != null)
 			mouse_timer.stop();
-		mouse_timer = new TimerAnimation((Object anim) -> {
-                    TimerAnimation timer = (TimerAnimation)anim;
+		mouse_timer = new TimerAnimation(timer -> {
                     timer.setTimerInterval(MOUSE_REPEAT_RATE);
                     timer.resetTime();
                     if (press_obj == gui_root.getCurrentGUIObject()) {
@@ -192,16 +191,16 @@ public final class InputState {
 		focused.keyReleasedAll(event);
 	}
 
-	private final class DoubleClickTimer implements Updatable {
+	private final class DoubleClickTimer implements Updatable<TimerAnimation> {
 		@Override
-		public void update(Object anim) {
+		public void update(@NonNull TimerAnimation anim) {
 			stopDoubleClickTimer();
 		}
 	}
 
-	private final class DoubleKeyTimer implements Updatable {
+	private final class DoubleKeyTimer implements Updatable<TimerAnimation> {
 		@Override
-		public void update(Object anim) {
+		public void update(@NonNull TimerAnimation anim) {
 			stopDoubleKeyTimer();
 		}
 	}

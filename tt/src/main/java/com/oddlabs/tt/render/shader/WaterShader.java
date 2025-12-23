@@ -21,13 +21,13 @@ public final class WaterShader extends ShaderProgram implements FogShader {
     }
 
     public interface Attributes {
-        String POSITION = "a_position";
+        String POSITION = "in_Position";
     }
 
     private static final String VERTEX_SHADER = """
-        #version 120
+        #version 410 core
 
-        attribute vec3 a_position;
+        layout(location = 0) in vec3 in_Position;
 
         uniform mat4 u_modelViewMatrix;
         uniform mat4 u_projectionMatrix;
@@ -36,27 +36,26 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         uniform vec2 u_scrollOffset0;
         uniform vec2 u_scrollOffset1;
 
-        varying vec2 v_texCoord0;
-        varying vec2 v_texCoord1;
-        varying float v_fogDist;
-        varying vec3 v_worldPos;
+        out vec2 v_texCoord0;
+        out vec2 v_texCoord1;
+        out float v_fogDist;
+        out vec3 v_worldPos;
 
         void main() {
-            // a_position is in World Space
-            v_worldPos = a_position;
+            v_worldPos = in_Position;
             
-            vec4 viewPosition = u_modelViewMatrix * vec4(a_position, 1.0);
+            vec4 viewPosition = u_modelViewMatrix * vec4(in_Position, 1.0);
             gl_Position = u_projectionMatrix * viewPosition;
             
-            v_texCoord0 = a_position.xy * u_waterRepeatRate + u_scrollOffset0;
-            v_texCoord1 = a_position.xy * u_waterDetailRepeatRate + u_scrollOffset1;
+            v_texCoord0 = in_Position.xy * u_waterRepeatRate + u_scrollOffset0;
+            v_texCoord1 = in_Position.xy * u_waterDetailRepeatRate + u_scrollOffset1;
             v_fogDist = length(viewPosition.xyz);
         }
         """;
 
     private static final String FRAGMENT_SHADER =
         """
-        #version 120
+        #version 410 core
         """ +
         FOG_FUNCTION +
         """
@@ -73,34 +72,34 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         uniform float u_fogHeightFactor;
         uniform float u_cameraHeight;
         
-        varying vec2 v_texCoord0;
-        varying vec2 v_texCoord1;
-        varying float v_fogDist;
-        varying vec3 v_worldPos;
+        in vec2 v_texCoord0;
+        in vec2 v_texCoord1;
+        in float v_fogDist;
+        in vec3 v_worldPos;
+        
+        layout(location = 0) out vec4 out_FragColor;
 
         float getNoise(vec2 uv) {
-            return texture2D(u_texture0, uv).r;
+            return texture(u_texture0, uv).r;
         }
         
         float getDetailNoise(vec2 uv) {
-            return texture2D(u_texture1, uv).r;
+            return texture(u_texture1, uv).r;
         }
 
         void main() {
-            vec4 baseColor = texture2D(u_texture0, v_texCoord0);
+            vec4 baseColor = texture(u_texture0, v_texCoord0);
             vec4 finalColor = baseColor;
             
-            // Calculate Bump Normal
             float eps = 0.01;
             float h = getNoise(v_texCoord0);
             float h_x = getNoise(v_texCoord0 + vec2(eps, 0.0));
             float h_y = getNoise(v_texCoord0 + vec2(0.0, eps));
             
             if (u_enableDetail) {
-                vec4 detailColor = texture2D(u_texture1, v_texCoord1);
+                vec4 detailColor = texture(u_texture1, v_texCoord1);
                 finalColor = mix(baseColor, detailColor, detailColor.a);
                 
-                // Add detail to height for normal calc
                 float d = getDetailNoise(v_texCoord1);
                 float d_x = getDetailNoise(v_texCoord1 + vec2(eps, 0.0));
                 float d_y = getDetailNoise(v_texCoord1 + vec2(0.0, eps));
@@ -112,7 +111,6 @@ public final class WaterShader extends ShaderProgram implements FogShader {
             
             vec3 normal = normalize(vec3((h - h_x) * 2.0, (h - h_y) * 2.0, 0.1));
 
-            // Specular Lighting (Blinn-Phong) with Fresnel
             vec3 lightDir = normalize(u_lightDir);
             vec3 viewDir = normalize(u_cameraPos - v_worldPos);
             vec3 halfDir = normalize(lightDir + viewDir);
@@ -120,23 +118,21 @@ public final class WaterShader extends ShaderProgram implements FogShader {
             float specAngle = max(dot(normal, halfDir), 0.0);
             float specular = pow(specAngle, 30.0);
             
-            // Fresnel Schlick approximation
             float F0 = 0.04; 
             float F = F0 + (1.0 - F0) * pow(1.0 - max(dot(halfDir, viewDir), 0.0), 5.0);
             
             finalColor.rgb += vec3(specular * F);
             
-            gl_FragColor = finalColor;
-
-            // Apply fog
             float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
             
-            // Mix RGB with fog, preserve original alpha
-            gl_FragColor.rgb = mix(u_fogColor.rgb, gl_FragColor.rgb, fogFactor);
+            out_FragColor.rgb = mix(u_fogColor.rgb, finalColor.rgb, fogFactor);
+            out_FragColor.a = finalColor.a;
         }
         """;
 
     public WaterShader() {
         super(VERTEX_SHADER, FRAGMENT_SHADER);
+        // bindFragDataLocation(0, "out_FragColor");
+        link();
     }
 }

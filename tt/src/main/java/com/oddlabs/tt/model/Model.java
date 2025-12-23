@@ -4,6 +4,7 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.BoundingBox;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -25,7 +26,7 @@ public abstract class Model extends Element<Model> {
 	public abstract float getOffsetZ();
 	public abstract int getAnimation();
 	public abstract float getAnimationTicks();
-	public abstract SpriteKey getSpriteRenderer();
+	public abstract @Nullable SpriteKey getSpriteRenderer();
 	public abstract float getNoDetailSize();
 
 	private void updateBounds() {

@@ -5,6 +5,7 @@ import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.util.Color;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 class SelectableVisitor<S extends Selectable> extends ModelVisitor<S> {
@@ -20,6 +21,14 @@ class SelectableVisitor<S extends Selectable> extends ModelVisitor<S> {
 		Model model = render_state.model;
 		RenderTools.translateAndRotate(model.getPositionX(), model.getPositionY(), render_state.f, model.getDirectionX(), model.getDirectionY(), render_state.getModelViewStack());
 	}
+
+    @Override
+    public void getTransform(@NonNull ElementRenderState<S> render_state, @NonNull Matrix4f dest) {
+        Model model = render_state.model;
+        float angle = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
+        dest.translation(model.getPositionX(), model.getPositionY(), render_state.f)
+            .rotate(angle, 0f, 0f, 1f);
+    }
 
 	static float @NonNull [] getTeamColor(@NonNull Selectable model) {
 		return model.getOwner().getColor();

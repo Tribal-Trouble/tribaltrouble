@@ -24,8 +24,15 @@ public final class Main {
             }
             ResourceBundle bundle = ResourceBundle.getBundle(Main.class.getName());
             String error = Utils.getBundleString(bundle, "error");
-            String error_msg = Utils.getBundleString(bundle, "error_message", t.toString());
-            TinyFileDialogs.tinyfd_messageBox(error, error_msg, "ok", "error", true);
+            String error_msg;
+            try {
+                error_msg = Utils.getBundleString(bundle, "error_message", t.toString());
+            } catch (IllegalArgumentException e) {
+                // Fallback if message formatting fails (e.g. quotes in exception message)
+                error_msg = "Error: " + t.toString();
+            }
+            logger.log(Level.SEVERE, error + ": " + error_msg);
+            TinyFileDialogs.tinyfd_messageBox(error, error_msg.replace("\"", "\\\""), "ok", "error", true);
         }
 	}
 

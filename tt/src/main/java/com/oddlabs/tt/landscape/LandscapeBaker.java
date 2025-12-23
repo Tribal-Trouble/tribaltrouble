@@ -9,30 +9,30 @@ import com.oddlabs.tt.resource.StructureBlend;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.vbo.QuadVBO;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
 
+import static com.oddlabs.tt.util.GLUtils.checkGLError;
+
 public final class LandscapeBaker {
 
     private static final String VERTEX_SHADER = """
-        #version 120
-        attribute vec2 a_position;
-        attribute vec2 a_texCoord0;
-        varying vec2 v_texCoord;
+        #version 410 core
+        layout(location = 0) in vec2 in_Position;
+        layout(location = 1) in vec2 in_TexCoord;
+        out vec2 v_texCoord;
         void main() {
-            gl_Position = vec4(a_position, 0.0, 1.0);
-            v_texCoord = a_texCoord0;
+            gl_Position = vec4(in_Position, 0.0, 1.0);
+            v_texCoord = in_TexCoord;
         }
         """;
 
     private static final String FRAGMENT_SHADER = """
-        #version 120
+        #version 410 core
         uniform sampler2D u_BaseDiffuse;
         uniform sampler2D u_LayerDiffuse;
         uniform sampler2D u_BaseNormal;
@@ -40,44 +40,50 @@ public final class LandscapeBaker {
         uniform sampler2D u_AlphaMap;
         uniform int u_Mode; // 0 = Blend, 1 = Light
         uniform float u_TextureScale;
+        uniform vec3 u_Color;
         
-        varying vec2 v_texCoord;
+        in vec2 v_texCoord;
+
+        layout(location = 0) out vec4 out_Diffuse;
+        layout(location = 1) out vec4 out_Normal;
 
         void main() {
-            vec4 baseDiff = texture2D(u_BaseDiffuse, v_texCoord);
-            vec4 baseNorm = texture2D(u_BaseNormal, v_texCoord);
-            float alpha = texture2D(u_AlphaMap, v_texCoord).a;
+            vec4 baseDiff = texture(u_BaseDiffuse, v_texCoord);
+            vec4 baseNorm = texture(u_BaseNormal, v_texCoord);
+            float alpha = texture(u_AlphaMap, v_texCoord).r;
 
             if (u_Mode == 0) { // Structure Blend
-                vec4 layerDiff = texture2D(u_LayerDiffuse, v_texCoord * u_TextureScale);
-                vec4 layerNorm = texture2D(u_LayerNormal, v_texCoord * u_TextureScale);
+                vec4 layerDiff = texture(u_LayerDiffuse, v_texCoord * u_TextureScale);
+                vec4 layerNorm = texture(u_LayerNormal, v_texCoord * u_TextureScale);
                 
-                gl_FragData[0] = mix(baseDiff, layerDiff, alpha);
-                gl_FragData[1] = mix(baseNorm, layerNorm, alpha);
+                out_Diffuse = mix(baseDiff, layerDiff, alpha);
+                out_Normal = mix(baseNorm, layerNorm, alpha);
             } else { // Lighting Blend
-                // Simple modulate for now
-                gl_FragData[0] = baseDiff * alpha; // Apply light to diffuse
-                gl_FragData[1] = baseNorm;         // Keep normals
+                // Additive blend for highlights
+                out_Diffuse = baseDiff + vec4(u_Color * alpha, 0.0);
+                out_Normal = baseNorm;         // Keep normals
             }
         }
         """;
 
     private static class BlendShader extends ShaderProgram {
         public BlendShader() {
-            super(VERTEX_SHADER, FRAGMENT_SHADER, programId -> {
-                GL20.glBindAttribLocation(programId, 0, "a_position");
-                GL20.glBindAttribLocation(programId, 1, "a_texCoord0");
-            });
+            super(VERTEX_SHADER, FRAGMENT_SHADER);
+            // Layouts are defined in shader, no need for explicit bindFragDataLocation
+            link();
         }
     }
 
     public WorldInfo.@NonNull Maps bake(int colormapSize, float textureScale, BlendInfo[] blendInfos) {
+        checkGLError("Before bake");
         Texture[] diffuse = new Texture[2];
         Texture[] normal = new Texture[2];
         
         for (int i = 0; i < 2; i++) {
-            diffuse[i] = new Texture(colormapSize, colormapSize, GL11.GL_RGBA, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT);
-            normal[i] = new Texture(colormapSize, colormapSize, GL11.GL_RGBA, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT);
+            diffuse[i] = new Texture(colormapSize, colormapSize, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT);
+            checkGLError("After diffuse texture " + i);
+            normal[i] = new Texture(colormapSize, colormapSize, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT);
+            checkGLError("After normal texture " + i);
         }
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -86,13 +92,15 @@ public final class LandscapeBaker {
             GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport);
 
             try (FBO fbo = new FBO(colormapSize, colormapSize);
-                 BlendShader shader = new BlendShader()) {
+                 BlendShader shader = new BlendShader();
+                 QuadVBO quad = new QuadVBO()) {
                  
-                QuadVBO quad = new QuadVBO();
-                
-                int current = 0; 
+                checkGLError("After resource creation");
+
+                int current = 0;
                 
                 try (var _ = shader.use()) {
+                    checkGLError("After shader use");
                     shader.setUniform("u_BaseDiffuse", 0);
                     shader.setUniform("u_LayerDiffuse", 1);
                     shader.setUniform("u_BaseNormal", 2);
@@ -111,60 +119,50 @@ public final class LandscapeBaker {
                         fbo.bind();
                         fbo.attachTexture(GL30.GL_COLOR_ATTACHMENT0, diffuse[dst]);
                         fbo.attachTexture(GL30.GL_COLOR_ATTACHMENT1, normal[dst]);
-                        GL20.glDrawBuffers(drawBuffers);
+                        GL30.glDrawBuffers(drawBuffers);
                         fbo.checkStatus();
+                        checkGLError("After FBO setup " + i);
                         
-                        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+                        // We don't clear here because we are blending on top of previous result
+                        // GL11.glClear(GL11.GL_COLOR_BUFFER_BIT); 
                         
-                        // Bind Previous (Base)
                         GL13.glActiveTexture(GL13.GL_TEXTURE0);
                         GL11.glBindTexture(GL11.GL_TEXTURE_2D, diffuse[src].getHandle());
                         GL13.glActiveTexture(GL13.GL_TEXTURE2);
                         GL11.glBindTexture(GL11.GL_TEXTURE_2D, normal[src].getHandle());
-                        
-                        // Bind Alpha
                         GL13.glActiveTexture(GL13.GL_TEXTURE4);
                         GL11.glBindTexture(GL11.GL_TEXTURE_2D, info.getAlphaMap().getHandle());
                         
-                        if (info instanceof StructureBlend) {
-                            StructureBlend sb = (StructureBlend) info;
+                        if (info instanceof StructureBlend sb) {
                             shader.setUniform("u_Mode", 0);
-                            // Bind Layer
                             GL13.glActiveTexture(GL13.GL_TEXTURE1);
                             GL11.glBindTexture(GL11.GL_TEXTURE_2D, sb.getStructureMap().getHandle());
                             GL13.glActiveTexture(GL13.GL_TEXTURE3);
                             GL11.glBindTexture(GL11.GL_TEXTURE_2D, sb.getNormalMap().getHandle());
-                        } else if (info instanceof BlendLighting) {
+                        } else if (info instanceof BlendLighting bl) {
                             shader.setUniform("u_Mode", 1);
+                            shader.setUniform("u_Color", bl.getR(), bl.getG(), bl.getB());
                         }
                         
-                        quad.render(shader);
+                        quad.render();
+                        checkGLError("After render " + i);
                         
                         current = dst; // Flip
                     }
                 }
                 
                 fbo.unbind();
-                quad.delete();
                 
                 // Restore viewport
                 GL11.glViewport(viewport.get(0), viewport.get(1), viewport.get(2), viewport.get(3));
                 
-                boolean gl30 = org.lwjgl.opengl.GL.getCapabilities().OpenGL30;
-                
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, diffuse[current].getHandle());
-                if (gl30) {
-                    GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
-                } else {
-                    EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
-                }
+                GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+                GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
                 
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, normal[current].getHandle());
-                if (gl30) {
-                    GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
-                } else {
-                    EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
-                }
+                GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+                GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
                 
                 // Delete the unused pair
                 diffuse[1 - current].close();

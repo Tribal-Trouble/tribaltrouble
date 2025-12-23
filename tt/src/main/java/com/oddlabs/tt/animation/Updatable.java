@@ -1,5 +1,8 @@
 package com.oddlabs.tt.animation;
 
-public interface Updatable {
-	void update(Object anim);
+import org.jspecify.annotations.NonNull;
+
+@FunctionalInterface
+public interface Updatable<T> {
+	void update(@NonNull T anim);
 }

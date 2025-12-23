@@ -6,6 +6,8 @@ import com.oddlabs.tt.procedural.GeneratorHalos;
 import com.oddlabs.tt.resource.Resources;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -20,6 +22,11 @@ final class SelectableShadowRenderer extends ShadowListRenderer {
 
     public SelectableShadowRenderer(@NonNull Supplier<@NonNull Texture @NonNull []> halos_desc) {
         halos = Resources.findResource(halos_desc);
+        for (Texture halo : halos) {
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, halo.getHandle());
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+        }
     }
 
     public void addToSelectionList(@NonNull ModelState<?> modelState) {

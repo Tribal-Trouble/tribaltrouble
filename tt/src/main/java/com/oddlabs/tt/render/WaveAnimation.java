@@ -3,11 +3,9 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.util.StateChecksum;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 public final class WaveAnimation {
 	private static final float TREE_WAVE_SCALE = 2f;
-	private static final float TRANSLATE_SCALE = .025f;
 
 	private final Vector3f wave_dir = new Vector3f(0, 0, 1);
 	private final Vector3f up_vec = new Vector3f(0, 0, 1);
@@ -16,10 +14,6 @@ public final class WaveAnimation {
 	private float y;
 	private float rot_angle = 0;
 	private int time = 0;
-
-	public void mulTranslation() {
-		GL11.glTranslatef(TRANSLATE_SCALE*x, TRANSLATE_SCALE*y, 0f);
-	}
 
 	public void mulRotation(@NonNull MatrixStack stack) {
 		stack.rotate(rot_angle, rot_axis.x, rot_axis.y, rot_axis.z);

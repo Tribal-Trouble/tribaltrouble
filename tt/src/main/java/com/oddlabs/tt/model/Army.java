@@ -6,10 +6,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class Army {
-	private final Set<@NonNull Selectable> selection = new LinkedHashSet<>();
+	private final Set<@NonNull Selectable<?>> selection = new LinkedHashSet<>();
 
-	public final @NonNull Selectable @NonNull [] filter(int ability_filter) {
-        return selection.stream()
+	public final Selectable<?>[] filter(int ability_filter) {
+        return (Selectable<?>[]) selection.stream()
                 .filter(s -> s.getAbilities().hasAbilities(ability_filter))
                 .toArray(Selectable[]::new);
 	}
@@ -23,19 +23,19 @@ public class Army {
 		selection.clear();
 	}
 
-	public void remove(@NonNull Selectable selectable) {
+	public void remove(@NonNull Selectable<?> selectable) {
 		selection.remove(selectable);
 	}
 
-	public final boolean contains(@NonNull Selectable selectable) {
+	public final boolean contains(@NonNull Selectable<?> selectable) {
 		return selection.contains(selectable);
 	}
 
-	public final @NonNull Set<@NonNull Selectable> getSet() {
+	public final @NonNull Set<@NonNull Selectable<?>> getSet() {
 		return selection;
 	}
 
-	public void add(@NonNull Selectable selectable) {
+	public void add(@NonNull Selectable<?> selectable) {
 		selection.add(selectable);
 	}
 

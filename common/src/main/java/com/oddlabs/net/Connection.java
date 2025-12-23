@@ -202,15 +202,15 @@ public final class Connection extends AbstractConnection implements Handler, Con
 		int bytes_written;
 		do {
 			bytes_written = 0;
-			write_buffer.flip();
-			if (write_buffer.remaining() > 0) {
-				if (!network.getDeterministic().isPlayback())
-					bytes_written = channel.write(write_buffer);
-				bytes_written = network.getDeterministic().log(bytes_written);
-				int new_position = network.getDeterministic().log(write_buffer.position());
-				write_buffer.position(new_position);
-			}
-			write_buffer.compact();
+            if (write_buffer.position() > 0) {
+			    write_buffer.flip();
+                if (!network.getDeterministic().isPlayback())
+                    bytes_written = channel.write(write_buffer);
+                bytes_written = network.getDeterministic().log(bytes_written);
+                int new_position = network.getDeterministic().log(write_buffer.position());
+                write_buffer.position(new_position);
+			    write_buffer.compact();
+            }
 			writeBackLog();
 		} while (bytes_written > 0);
 		if (write_buffer.position() == 0) {
@@ -261,30 +261,36 @@ public final class Connection extends AbstractConnection implements Handler, Con
 	}
 
 	private void readFromChannel(@NonNull SocketChannel channel) throws IOException {
-		boolean bytes_read = true;
+		boolean bytes_read;
 		do {
 			int num_bytes_read = readDeterministic(channel);
 			if (num_bytes_read == -1)
 				throw new IOException("Channel closed");
 			bytes_read = num_bytes_read > 0;
-			read_buffer.flip();
-			if (read_buffer.remaining() >= HEADER_SIZE) {
-				short event_size = read_buffer.getShort(read_buffer.position());
-				if (event_size > read_buffer.capacity() - HEADER_SIZE)
-					handleError(new IOException("Message too large: " + event_size));
-				if (read_buffer.remaining() >= event_size + HEADER_SIZE) {
-					read_buffer.position(read_buffer.position() + HEADER_SIZE);
-					ARMIEvent event = ARMIEvent.read(read_buffer, event_size);
-					network.getDeterministic().checkpoint();
-					try {
-						event.execute(interface_methods, this);
-					} catch (IllegalARMIEventException e) {
-						throw new IOException(e);
-					}
-					bytes_read = true;
-				}
-			}
-			read_buffer.compact();
+            if (bytes_read) {
+			    read_buffer.flip();
+			    while (read_buffer.remaining() >= HEADER_SIZE) {
+				    short event_size = read_buffer.getShort(read_buffer.position());
+				    if (event_size > read_buffer.capacity() - HEADER_SIZE) {
+					    handleError(new IOException("Message too large: " + event_size));
+                        return; // Stop processing this corrupt buffer
+                    }
+				    if (read_buffer.remaining() >= event_size + HEADER_SIZE) {
+					    read_buffer.position(read_buffer.position() + HEADER_SIZE);
+					    ARMIEvent event = ARMIEvent.read(read_buffer, event_size);
+					    network.getDeterministic().checkpoint();
+					    try {
+						    event.execute(interface_methods, this);
+					    } catch (IllegalARMIEventException e) {
+						    throw new IOException(e);
+					    }
+				    } else {
+                        // Not enough data for the full event, break and wait for more
+                        break;
+                    }
+			    }
+			    read_buffer.compact();
+            }
 		} while (bytes_read && network.getDeterministic().log(network.getDeterministic().isPlayback() || channel.isOpen()));
 	}
 

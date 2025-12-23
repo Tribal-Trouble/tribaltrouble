@@ -1,38 +1,36 @@
 package com.oddlabs.tt.render;
 
-import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
-import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.util.Target;
+import com.oddlabs.util.Color;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class SpriteRenderer {
+	private static final float [] TRANSPARENT = Color.argb4f(Color.TRANSPARENT_INT);
 	private final @NonNull SpriteList sprite_list;
 	private final @NonNull SpriteListRenderer sprite_list_renderer;
 	private final int tex_index;
 	private final List<@NonNull ModelState<?>> no_detail_render_list = new ArrayList<>();
-	private final @NonNull SpriteBatchRenderer spriteBatchRenderer;
+	private final @NonNull InstancedSpriteRenderer instancedSpriteRenderer;
+    private final Matrix4f tempMatrix = new Matrix4f();
 
-	public SpriteRenderer(@NonNull SpriteList sprite_list, int tex_index, @NonNull SpriteBatchRenderer spriteBatchRenderer) {
+	public SpriteRenderer(@NonNull SpriteList sprite_list, int tex_index, @NonNull InstancedSpriteRenderer spriteRenderer) {
 		this.sprite_list = sprite_list;
 		this.tex_index = tex_index;
-		this.spriteBatchRenderer = spriteBatchRenderer;
-		sprite_list_renderer = new SpriteListRenderer(sprite_list, spriteBatchRenderer);
+		this.instancedSpriteRenderer = spriteRenderer;
+		sprite_list_renderer = new SpriteListRenderer(sprite_list, spriteRenderer);
 	}
 
 	public @NonNull SpriteList getSpriteList() {
 		return sprite_list;
 	}
 
-
-
-	void addToNoDetailList(ModelState<?> model) {
+	void addToNoDetailList(@NonNull ModelState<?> model) {
 		no_detail_render_list.add(model);
 	}
 
@@ -52,7 +50,6 @@ public final class SpriteRenderer {
 		return sprite_list.getSprite(index).getTriangleCount();
 	}
 
-
 	private void clearRenderLists() {
 		no_detail_render_list.clear();
 	}
@@ -61,38 +58,32 @@ public final class SpriteRenderer {
 		for (int i = 0; i < sprite_list.getNumSprites(); i++) {
             sprite_list_renderer.getAllPicks(pick_list, i, tex_index);
         }
-		for (int i = 0; i < no_detail_render_list.size(); i++) {
-			var model = no_detail_render_list.get(i);
-			no_detail_render_list.set(i, null);
-			pick_list.add((Target)model.getModel());
+		for (ModelState<?> model : no_detail_render_list) {
+			pick_list.add((Target) model.getModel());
 		}
 		clearRenderLists();
 	}
 
-	public void renderAll(@NonNull SpriteShader shader, @NonNull CameraState camera_state) {
+	public void renderAll() {
 		for (int i = 0; i < sprite_list.getNumSprites(); i++) {
-			sprite_list_renderer.renderAll(shader, i, tex_index, camera_state);
+			sprite_list_renderer.renderAll(i, tex_index);
 		}
 	}
 
 	public void renderNoDetail() {
-		if (!no_detail_render_list.isEmpty()) {
-			spriteBatchRenderer.begin(null, false, false);
-			try {
-				for (var model : no_detail_render_list) {
-					if (Globals.draw_misc) {
-						float[] color = model.getTeamColor();
-						float x = model.getModel().getPositionX();
-						float y = model.getModel().getPositionY();
-						float z = model.getModel().getPositionZ();
-						float r = model.getModel().getNoDetailSize();
-						spriteBatchRenderer.drawQuad(x - r, y - r, z + 0.1f, r * 2, r * 2, color[0], color[1], color[2], 1f, 0, 0, 0, 0);
-					}
-				}
-			} finally {
-				spriteBatchRenderer.end();
-				GL11.glDepthMask(true);
-				GL11.glEnable(GL11.GL_DEPTH_TEST);
+		if (Globals.draw_misc && !no_detail_render_list.isEmpty()) {
+            SpriteList quadList = SpriteList.getQuadInstance();
+			for (var model : no_detail_render_list) {
+				float[] color = model.getTeamColor();
+				float[] renderColor = new float[]{color[0], color[1], color[2], 1.0f};
+				float x = model.getModel().getPositionX();
+				float y = model.getModel().getPositionY();
+				float z = model.getModel().getPositionZ();
+				float r = model.getModel().getNoDetailSize();
+				tempMatrix.identity().translation(x, y, z + 0.1f).scale(r * 2);
+				// Quads don't have animation, so pass 0, 0f
+                // Disable depth test for no-detail sprites (overlays)
+				instancedSpriteRenderer.add(quadList, 0, 0, 0f, 0, false, false, tempMatrix, renderColor, TRANSPARENT);
 			}
 		}
 		clearRenderLists();

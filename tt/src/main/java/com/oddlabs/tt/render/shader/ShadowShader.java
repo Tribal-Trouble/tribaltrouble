@@ -16,15 +16,15 @@ public final class ShadowShader extends ShaderProgram {
     }
 
     public static final class Attributes {
-        public static final String POSITION = "a_position";
+        public static final String POSITION = "in_Position";
 
         private Attributes() {}
     }
 
     private static final String VERTEX_SHADER = """
-        #version 120
+        #version 410 core
 
-        attribute vec2 a_position;
+        layout(location = 0) in vec2 in_Position;
 
         uniform mat4 u_modelViewMatrix;
         uniform mat4 u_projectionMatrix;
@@ -33,13 +33,13 @@ public final class ShadowShader extends ShaderProgram {
         uniform float u_WorldSize;
         uniform sampler2D u_HeightMap;
 
-        varying vec2 v_texCoord;
+        out vec2 v_texCoord;
 
         void main() {
-            vec2 worldPos = u_PatchOffset + a_position;
+            vec2 worldPos = u_PatchOffset + in_Position;
             vec2 uv = worldPos / u_WorldSize;
-            float h = texture2D(u_HeightMap, uv).r;
-            
+            float h = texture(u_HeightMap, uv).r;
+         
             vec4 viewPosition = u_modelViewMatrix * vec4(worldPos, h, 1.0);
             gl_Position = u_projectionMatrix * viewPosition;
             
@@ -49,22 +49,26 @@ public final class ShadowShader extends ShaderProgram {
         """;
 
     private static final String FRAGMENT_SHADER = """
-        #version 120
+        #version 410 core
 
         uniform sampler2D u_texture;
         uniform vec4 u_color;
 
-        varying vec2 v_texCoord;
+        in vec2 v_texCoord;
+        
+        layout(location = 0) out vec4 out_FragColor;
 
         void main() {
-            vec4 texColor = texture2D(u_texture, v_texCoord);
+            vec4 texColor = texture(u_texture, v_texCoord);
         
             // Modulate texture with color
-            gl_FragColor = texColor * u_color;
+            out_FragColor = texColor * u_color;
         }
         """;
 
     public ShadowShader() {
-        super(VERTEX_SHADER, FRAGMENT_SHADER, STANDARD_ATTRIBUTES);
+        super(VERTEX_SHADER, FRAGMENT_SHADER);
+        // bindFragDataLocation(0, "out_FragColor");
+        link();
     }
 }

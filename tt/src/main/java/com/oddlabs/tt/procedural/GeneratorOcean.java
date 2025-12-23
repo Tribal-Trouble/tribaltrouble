@@ -69,8 +69,8 @@ public final class GeneratorOcean extends TextureGenerator {
 		if (Landscape.DEBUG) new GLIntImage(water1).saveAsPNG("generator_water_1");
 		if (Landscape.DEBUG) new GLIntImage(water2).saveAsPNG("generator_water_2");
 		Texture[] textures = new Texture[2];
-		textures[0] = new Texture(new GLImage[]{new GLIntImage(water1)}, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
-		textures[1] = new Texture(new GLImage[]{new GLIntImage(water2)}, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
+		textures[0] = new Texture(new GLImage[]{new GLIntImage(water1)}, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
+		textures[1] = new Texture(new GLImage[]{new GLIntImage(water2)}, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
 		return textures;
 	}
 

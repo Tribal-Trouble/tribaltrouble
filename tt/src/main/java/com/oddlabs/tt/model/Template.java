@@ -6,13 +6,13 @@ import org.jspecify.annotations.NonNull;
 public abstract class Template {
 	private final @NonNull Abilities abilities;
 	private final @NonNull ShadowListKey shadow_renderer;
-	private final float[] hit_offset_z;
+	private final float @NonNull [] hit_offset_z;
 	private final float no_detail_size;
 	private final float defense_chance;
 	private final float shadow_diameter;
 	private final @NonNull String name;
 
-	protected Template(@NonNull Abilities abilities, float shadow_diameter, @NonNull ShadowListKey shadow_renderer, float[] hit_offset_z, float no_detail_size, float defense_chance, @NonNull String name) {
+	protected Template(@NonNull Abilities abilities, float shadow_diameter, @NonNull ShadowListKey shadow_renderer, float @NonNull [] hit_offset_z, float no_detail_size, float defense_chance, @NonNull String name) {
 		this.abilities = abilities;
 		this.shadow_renderer = shadow_renderer;
 		this.hit_offset_z = hit_offset_z;

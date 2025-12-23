@@ -13,10 +13,10 @@ public final class QuartersTrigger extends TutorialTrigger {
 
 	@Override
 	protected void run(@NonNull Tutorial tutorial) {
-		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
-            for (Selectable s : set) {
-                if (s instanceof Building)
-                    tutorial.next(new SelectQuartersTrigger());
-            }
+		var set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
+		for (var s : set) {
+			if (s instanceof Building)
+				tutorial.next(new SelectQuartersTrigger());
+		}
 	}
 }

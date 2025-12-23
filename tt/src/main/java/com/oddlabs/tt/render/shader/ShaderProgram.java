@@ -7,6 +7,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL32;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
@@ -20,41 +22,33 @@ import static com.oddlabs.tt.util.GLUtils.checkGLError;
 
 public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program> implements Shader {
     private static final Logger logger = Logger.getLogger(ShaderProgram.class.getSimpleName());
-    private static final AtomicReference<ShaderProgram> inUse = new AtomicReference<>();
-
-    public interface AttributeBinder {
-        void bind(int programId);
-    }
-
-    public static final AttributeBinder STANDARD_ATTRIBUTES = programId -> {
-        GL20.glBindAttribLocation(programId, 0, "a_position");
-        GL20.glBindAttribLocation(programId, 1, "a_normal");
-        GL20.glBindAttribLocation(programId, 2, "a_color");
-        GL20.glBindAttribLocation(programId, 3, "a_texCoord0");
-        GL20.glBindAttribLocation(programId, 4, "a_texCoord1");
-    };
+    /** the currently active shader or null */
+    private static final AtomicReference<@Nullable ShaderProgram> inUse = new AtomicReference<>();
 
     static final class Program extends NativeResource.NativeState {
-        private final int programId;
+        final int programId;
         private final int vertexShaderId;
         private final int fragmentShaderId;
+        private final int geometryShaderId;
         private final Map<@NonNull String, @NonNull Integer> uniformLocations = new HashMap<>();
         private final Map<@NonNull String, @NonNull Integer> attributeLocations = new HashMap<>();
 
-        Program(int vertexShaderId, int fragmentShaderId, @Nullable AttributeBinder binder) {
+        Program(int vertexShaderId, int fragmentShaderId, int geometryShaderId) {
             this.vertexShaderId = vertexShaderId;
             this.fragmentShaderId = fragmentShaderId;
-            programId = GL20.glCreateProgram();
+            this.geometryShaderId = geometryShaderId;
+            this.programId = GL20.glCreateProgram();
 
             GL20.glAttachShader(programId, vertexShaderId);
             GL20.glAttachShader(programId, fragmentShaderId);
-
-            if (binder != null) {
-                binder.bind(programId);
+            if (geometryShaderId != 0) {
+                GL20.glAttachShader(programId, geometryShaderId);
             }
+        }
 
+        /** complete linking after (optionally) setting up shader layouts */
+        void link() {
             GL20.glLinkProgram(programId);
-
             if (GL20.glGetProgrami(programId, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
                 throw new IllegalArgumentException("Shader link failed: " + GL20.glGetProgramInfoLog(programId, 1024));
             }
@@ -66,20 +60,33 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
             GL20.glDetachShader(programId, fragmentShaderId);
             GL20.glDeleteShader(vertexShaderId);
             GL20.glDeleteShader(fragmentShaderId);
+            if (geometryShaderId != 0) {
+                GL20.glDetachShader(programId, geometryShaderId);
+                GL20.glDeleteShader(geometryShaderId);
+            }
             GL20.glDeleteProgram(programId);
         }
-    }
-
-    public ShaderProgram(int vertexProgramId, int fragmentProgramId) {
-        super(new Program(vertexProgramId, fragmentProgramId, null));
     }
 
     public ShaderProgram(@NonNull String vertexSource, @NonNull String fragmentSource) throws IllegalArgumentException {
         this(vertexSource, fragmentSource, null);
     }
+    
+    public ShaderProgram(@NonNull String vertexSource, @NonNull String fragmentSource, @Nullable String geometrySource) throws IllegalArgumentException {
+        super(new Program(
+            compileShader(GL20.GL_VERTEX_SHADER, vertexSource), 
+            compileShader(GL20.GL_FRAGMENT_SHADER, fragmentSource),
+            geometrySource != null ? compileShader(GL32.GL_GEOMETRY_SHADER, geometrySource) : 0
+        ));
+    }
 
-    public ShaderProgram(@NonNull String vertexSource, @NonNull String fragmentSource, @Nullable AttributeBinder binder) throws IllegalArgumentException {
-        super(new Program(compileShader(GL20.GL_VERTEX_SHADER, vertexSource), compileShader(GL20.GL_FRAGMENT_SHADER, fragmentSource), binder));
+    protected void bindFragDataLocation(int colorNumber, @NonNull String name) {
+        GL30.glBindFragDataLocation(state.programId, colorNumber, name);
+    }
+
+    /** complete linking after (optionally) setting up shader layouts */
+    protected void link() {
+        state.link();
     }
 
     private static int compileShader(int type, @NonNull String source) throws IllegalArgumentException {
@@ -117,11 +124,17 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
     }
 
     public int getAttributeLocation(@NonNull String name) {
-        return state.attributeLocations.computeIfAbsent(name, n -> GL20.glGetAttribLocation(state.programId, n));
+        return state.attributeLocations.computeIfAbsent(name, n -> {
+            int loc = GL20.glGetAttribLocation(state.programId, n);
+            return loc;
+        });
     }
 
     public int getUniformLocation(@NonNull String name) {
-        return state.uniformLocations.computeIfAbsent(name, n -> GL20.glGetUniformLocation(state.programId, n));
+        return state.uniformLocations.computeIfAbsent(name, n -> {
+            int loc = GL20.glGetUniformLocation(state.programId, n);
+            return loc;
+        });
     }
 
     public void setUniform(@NonNull String name, int value) {

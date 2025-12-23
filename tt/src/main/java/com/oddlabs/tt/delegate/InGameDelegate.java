@@ -105,9 +105,9 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 			case I:
 				if (event.isControlDown()) {
                     // Ctrl-I prints building or unit info
-					Set<Selectable> set = viewer.getSelection().getCurrentSelection().getSet();
+					var set = viewer.getSelection().getCurrentSelection().getSet();
 					if (!set.isEmpty()) {
-						Selectable s = set.iterator().next();
+						var s = set.iterator().next();
 						if (s instanceof Building building) {
 							if (!building.isDead() && !building.getAbilities().hasAbilities(Abilities.ATTACK))
 								building.printDebugInfo();

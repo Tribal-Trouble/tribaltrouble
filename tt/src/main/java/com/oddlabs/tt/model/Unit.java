@@ -27,7 +27,6 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
-import com.oddlabs.util.Quad;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
@@ -37,9 +36,8 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
-public class Unit extends Selectable implements Occupant, Movable {
+public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable {
 
     private static final float IDLE_SPEED = 1f / 2.5f;
     private static final float TRANSPORT_SPEED_SCALE = 4f / 5f;
@@ -48,25 +46,26 @@ public class Unit extends Selectable implements Occupant, Movable {
     private static final int INITIAL_PATH_PENALTY = 5;
     private static final float[] MAX_MAGIC_ENERGY = new float[]{40f, 70f};
 
-    private static final int ANIMATION_IDLING = 0;
-    public static final int ANIMATION_MOVING = 1;
-    public static final int ANIMATION_THROWING = 2;
-    public static final int ANIMATION_DYING = 3;
-    public static final int ANIMATION_MAGIC = 4;
-    public static final int ANIMATION_THOR = 5;
+    public enum Animation {
+        IDLING,
+        MOVING,
+        THROWING,
+        DYING,
+        MAGIC,
+        THOR
+    }
+
     public static final int SPEAR_RELEASE_FRAME = 29;
 
-    private static final Quad[] icon = new Quad[1];
-
     private final @Nullable UnitSupplyContainer supply_container;
-    private final String name;
+    private final @Nullable String name;
     private final @NonNull PathTracker path_tracker;
     private final float[] magic_energy = new float[2];
     private int last_magic_index = -1;
 
     private @Nullable BalancedParametricEmitter stun_marker;
     private int hit_points;
-    private int animation;
+    private @NonNull Animation animation = Animation.IDLING;
     private float anim_speed;
     private float anim_time;
     private int path_penalty;
@@ -76,19 +75,19 @@ public class Unit extends Selectable implements Occupant, Movable {
     private Building mounted_building;
     private float range_bonus;
 
-    public Unit(@NonNull Player owner, float x, float y, Target rally_point, @NonNull UnitTemplate unit_template) {
+    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template) {
         this(owner, x, y, rally_point, unit_template, null);
     }
 
-    public Unit(@NonNull Player owner, float x, float y, Target rally_point, @NonNull UnitTemplate unit_template, String name) {
+    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template, @Nullable String name) {
         this(owner, x, y, rally_point, unit_template, name, true);
     }
 
-    public Unit(@NonNull Player owner, float x, float y, Target rally_point, @NonNull UnitTemplate unit_template, String name, boolean notify_by_chieftain) {
+    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template, @Nullable String name, boolean notify_by_chieftain) {
         this(owner, x, y, rally_point, unit_template, name, notify_by_chieftain, false);
     }
 
-    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template, String name, boolean notify_by_chieftain, boolean grid_targets_only) {
+    public Unit(@NonNull Player owner, float x, float y, @Nullable Target rally_point, @NonNull UnitTemplate unit_template, @Nullable String name, boolean notify_by_chieftain, boolean grid_targets_only) {
         super(owner, unit_template);
         this.name = name;
         getAbilities().addAbilities(unit_template.getAbilities());
@@ -96,10 +95,7 @@ public class Unit extends Selectable implements Occupant, Movable {
         hit_points = unit_template.getMaxHitPoints();
         this.path_tracker = new PathTracker(getUnitGrid(), this);
         UnitSupplyContainerFactory factory = unit_template.getUnitSupplyContainerFactory();
-        if (factory != null)
-            supply_container = (UnitSupplyContainer) factory.createContainer(this);
-        else
-            supply_container = null;
+        supply_container = factory != null ? (UnitSupplyContainer) factory.createContainer(this) : null;
 
         findInitialPosition(x, y, grid_targets_only);
         pushController(new IdleController(this, new AttackScanFilter(getOwner(), AttackScanFilter.UNIT_RANGE), true));
@@ -115,8 +111,7 @@ public class Unit extends Selectable implements Occupant, Movable {
             if (rally_point instanceof LandscapeTarget) {
                 UnitGrid grid = getUnitGrid();
                 List<Target> temp_occupants = new ArrayList<>();
-                Set<Selectable> units = getOwner().getUnits().getSet();
-                for (Selectable s : units) {
+                for (var s : getOwner().getUnits().getSet()) {
                     if (s.getCurrentController() instanceof WalkController) {
                         Target target = ((WalkController) s.getCurrentController()).getTarget();
                         if (!grid.isGridOccupied(target.getGridX(), target.getGridY())) {
@@ -150,10 +145,6 @@ public class Unit extends Selectable implements Occupant, Movable {
     @Override
     public final void visit(@NonNull ElementVisitor visitor) {
         visitor.visitUnit(this);
-    }
-
-    public final @NonNull UnitTemplate getUnitTemplate() {
-        return (UnitTemplate) getTemplate();
     }
 
     public final @Nullable UnitSupplyContainer getSupplyContainer() {
@@ -192,7 +183,7 @@ public class Unit extends Selectable implements Occupant, Movable {
         int tower_factor = 1;
         if (mounted)
             tower_factor = 3;
-        return getUnitTemplate().getStatusValue() * tower_factor;
+        return getTemplate().getStatusValue() * tower_factor;
     }
 
     public final void increaseRange(float amount) {
@@ -213,7 +204,7 @@ public class Unit extends Selectable implements Occupant, Movable {
         visitor.visitUnit(this);
     }
 
-    public final String getName() {
+    public final @Nullable String getName() {
         return name;
     }
 
@@ -234,7 +225,7 @@ public class Unit extends Selectable implements Occupant, Movable {
     public final void mount(@NonNull Building building) {
         assert !isDead();
         mounted_building = building;
-        mount_offset = building.getBuildingTemplate().getMountOffset();
+        mount_offset = building.getTemplate().getMountOffset();
         disable();
         free();
         setPosition(building.getPositionX(), building.getPositionY());
@@ -255,9 +246,9 @@ public class Unit extends Selectable implements Occupant, Movable {
     public final float getMetersPerSecond() {
         assert !isDead();
         if (getAbilities().hasAbilities(Abilities.HARVEST) && supply_container.getNumSupplies() > 0)
-            return TRANSPORT_SPEED_SCALE * getUnitTemplate().getMetersPerSecond();
+            return TRANSPORT_SPEED_SCALE * getTemplate().getMetersPerSecond();
         else
-            return getUnitTemplate().getMetersPerSecond();
+            return getTemplate().getMetersPerSecond();
     }
 
     public final void aimAtTarget(@NonNull Target target) {
@@ -272,12 +263,12 @@ public class Unit extends Selectable implements Occupant, Movable {
 
     public final void switchToIdleAnimation() {
         assert !isDead();
-        switchAnimation(IDLE_SPEED, ANIMATION_IDLING);
+        switchAnimation(IDLE_SPEED, Animation.IDLING);
     }
 
-    public final WeaponFactory getWeaponFactory() {
+    public final @NonNull WeaponFactory getWeaponFactory() {
         assert !isDead();
-        return getUnitTemplate().getWeaponFactory();
+        return getTemplate().getWeaponFactory();
     }
 
     public final float getRange(@NonNull Target target) {
@@ -292,8 +283,8 @@ public class Unit extends Selectable implements Occupant, Movable {
     }
 
     @Override
-    public final SpriteKey getSpriteRenderer() {
-        return getUnitTemplate().getSpriteRenderer();
+    public final @NonNull SpriteKey getSpriteRenderer() {
+        return getTemplate().getSpriteRenderer();
     }
 
     @Override
@@ -301,7 +292,7 @@ public class Unit extends Selectable implements Occupant, Movable {
         anim_time += anim_speed * t;
         if (isDead() || mounted)
             reinsert();
-        getOwner().getWorld().updateGlobalChecksum(animation);
+        getOwner().getWorld().updateGlobalChecksum(animation.ordinal());
 
         if (getAbilities().hasAbilities(Abilities.MAGIC)) {
             for (int i = 0; i < magic_energy.length; i++) {
@@ -393,7 +384,7 @@ public class Unit extends Selectable implements Occupant, Movable {
             mounted_building.hit(damage, direction_x, direction_y, owner);
         } else
             if (!isDead()) {
-                hit_points = Math.clamp(hit_points - damage, 0, getUnitTemplate().getMaxHitPoints());
+                hit_points = Math.clamp(hit_points - damage, 0, getTemplate().getMaxHitPoints());
                 if (hit_points == 0) {
                     // stats
                     owner.unitKilled();
@@ -410,12 +401,12 @@ public class Unit extends Selectable implements Occupant, Movable {
 						AudioPlayer.AUDIO_RADIUS_DEATH,
 						1f + (World.getRandom().nextFloat() - .5f)*getUnitTemplate().getDeathPitch());
                      */
-                    getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(getUnitTemplate().getDeathSound(), getPositionX(), getPositionY(), getPositionZ(),
+                    getOwner().getWorld().getAudio().newAudio(new AudioParameters<>(getTemplate().getDeathSound(), getPositionX(), getPositionY(), getPositionZ(),
                             AudioPlayer.AUDIO_RANK_DEATH,
                             AudioPlayer.AUDIO_DISTANCE_DEATH,
                             AudioPlayer.AUDIO_GAIN_DEATH,
                             AudioPlayer.AUDIO_RADIUS_DEATH,
-                            1f + (getOwner().getWorld().getRandom().nextFloat() - .5f) * getUnitTemplate().getDeathPitch()));
+                            1f + (getOwner().getWorld().getRandom().nextFloat() - .5f) * getTemplate().getDeathPitch()));
                     setDirection(-direction_x, -direction_y);
                     removeDying();
                 }
@@ -423,9 +414,9 @@ public class Unit extends Selectable implements Occupant, Movable {
     }
 
     public final void stun(float time) {
-        float x = getPositionX() + getUnitTemplate().getStunX() * getDirectionX() + getUnitTemplate().getStunY() * (-getDirectionY());
-        float y = getPositionY() + getUnitTemplate().getStunX() * getDirectionY() + getUnitTemplate().getStunY() * getDirectionX();
-        float z = getOwner().getWorld().getHeightMap().getNearestHeight(x, y) + getUnitTemplate().getStunZ() + mount_offset;
+        float x = getPositionX() + getTemplate().getStunX() * getDirectionX() + getTemplate().getStunY() * (-getDirectionY());
+        float y = getPositionY() + getTemplate().getStunX() * getDirectionY() + getTemplate().getStunY() * getDirectionX();
+        float z = getOwner().getWorld().getHeightMap().getNearestHeight(x, y) + getTemplate().getStunZ() + mount_offset;
 
         if (stun_marker != null) {
             stun_marker.done();
@@ -448,7 +439,7 @@ public class Unit extends Selectable implements Occupant, Movable {
 
     public final boolean canAttack(@NonNull Target target, boolean kill_friendly) {
         assert !isDead();
-        if (!(target instanceof Selectable selectable) || !getAbilities().hasAbilities(Abilities.ATTACK))
+        if (!(target instanceof Selectable<?> selectable) || !getAbilities().hasAbilities(Abilities.ATTACK))
             return false;
         Player target_player = selectable.getOwner();
         return kill_friendly || getOwner().isEnemy(target_player);
@@ -511,7 +502,7 @@ public class Unit extends Selectable implements Occupant, Movable {
                                 pushController(new EnterController(this, (Building) target));
                             } else
                                 if (canAttack(target, false)) {
-                                    pushController(new HuntController(this, (Selectable) target));
+                                    pushController(new HuntController(this, (Selectable<?>) target));
                                 } else {
                                     walkToTarget(target, aggressive);
                                 }
@@ -525,7 +516,7 @@ public class Unit extends Selectable implements Occupant, Movable {
                 break;
             case ATTACK:
                 if (canAttack(target, true)) {
-                    pushController(new HuntController(this, (Selectable) target));
+                    pushController(new HuntController(this, (Selectable<?>) target));
                 } else {
                     walkToTarget(target, true);
                 }
@@ -582,20 +573,20 @@ public class Unit extends Selectable implements Occupant, Movable {
         return magic_energy[magic_index] / MAX_MAGIC_ENERGY[magic_index];
     }
 
-    public final void switchAnimation(float anim_speed, int animation) {
+    public final void switchAnimation(float anim_speed, Animation animation) {
         assert !isDead();
         this.anim_speed = anim_speed;
-        if (this.animation != animation || getUnitTemplate().getSpriteRenderer().getAnimationType(animation) == AnimationInfo.AnimationType.PLAIN.ordinal()) {
+        if (this.animation != animation) {
             this.animation = animation;
-            assert animation != -1;
+            this.anim_time = 0f;
+        } else if (getTemplate().getSpriteRenderer().getAnimationType(animation.ordinal()) == AnimationInfo.AnimationType.PLAIN.ordinal()) {
             this.anim_time = 0f;
         }
     }
 
     @Override
     public final int getAnimation() {
-        assert animation != -1;
-        return animation;
+        return animation.ordinal();
     }
 
     @Override

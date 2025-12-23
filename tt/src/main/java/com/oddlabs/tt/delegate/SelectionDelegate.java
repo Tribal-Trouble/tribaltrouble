@@ -17,6 +17,7 @@ import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.UnitTemplate;
 import com.oddlabs.tt.model.behaviour.IdleController;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
@@ -129,9 +130,9 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 					} else {
 						boolean selected = getViewer().getSelection().enableShortcutArmy(army_number);
 						if (selected && event.getNumClicks() > 1) {
-							Set<Selectable> set = getViewer().getSelection().getCurrentSelection().getSet();
+							var set = getViewer().getSelection().getCurrentSelection().getSet();
 							if (!set.isEmpty()) {
-								Selectable s = set.iterator().next();
+								var s = set.iterator().next();
 								getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera)getCamera(), s.getPositionX(), s.getPositionY()));
 							}
 						}
@@ -171,16 +172,16 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	private void nextIdlePeon() {
-		Set<@NonNull Selectable> set = getViewer().getLocalPlayer().getUnits().getSet();
+		var set = getViewer().getLocalPlayer().getUnits().getSet();
 
 		boolean has_idle_peon = false;
 		int lowest_name = Integer.MAX_VALUE;
-		Selectable lowest_peon = null;
+		Selectable<?> lowest_peon = null;
 
 		boolean has_greater_name = false;
 		int lowest_greater_name = Integer.MAX_VALUE;
-		Selectable lowest_greater_peon = null;
-		for (Selectable s : set) {
+		Selectable<?> lowest_greater_peon = null;
+		for (var s : set) {
 			if (s.getOwner() != getViewer().getLocalPlayer())
 				continue;
 			Abilities abilities = s.getAbilities();
@@ -199,7 +200,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 			}
 		}
 
-		Selectable target = null;
+		Selectable<?> target = null;
 		if (has_greater_name) {
 			last_idle_peon_name = lowest_greater_name;
 			target = lowest_greater_peon;

@@ -11,7 +11,7 @@ import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
-public final class QuitScreen extends CameraDelegate<Camera> implements Updatable {
+public final class QuitScreen extends CameraDelegate<Camera> implements Updatable<TimerAnimation> {
 	private static final float DELAY = 5f;
 
 	private static final int overlay_texture_width = 1024;
@@ -50,7 +50,7 @@ public final class QuitScreen extends CameraDelegate<Camera> implements Updatabl
 	}
 
 	@Override
-	public void update(Object anim) {
+	public void update(@NonNull TimerAnimation anim) {
 		delay_timer.stop();
 		time_out = true;
 		quit();

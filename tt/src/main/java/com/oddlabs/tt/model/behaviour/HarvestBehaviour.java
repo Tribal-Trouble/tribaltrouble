@@ -52,7 +52,7 @@ public final class HarvestBehaviour implements Behaviour {
 	}
 
 	private void restartAnimation() {
-		unit.switchAnimation(1f/SECONDS_PER_ANIMATION_CYCLE, Unit.ANIMATION_THROWING);
+		unit.switchAnimation(1f/SECONDS_PER_ANIMATION_CYCLE, Unit.Animation.THROWING);
 		anim_time = 0;
 		sound = false;
 	}

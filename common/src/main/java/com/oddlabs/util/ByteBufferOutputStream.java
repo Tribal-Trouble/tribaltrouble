@@ -35,11 +35,13 @@ public final class ByteBufferOutputStream extends OutputStream {
 
 	private void ensureCapacity(int size) {
 		if (buffer.remaining() < size) {
+			int new_capacity = buffer.capacity()*2 + size;
+            new_capacity = (new_capacity + 7) & ~7; // Pad to 8 bytes
 			ByteBuffer new_buffer;
 			if (buffer.isDirect())
-				new_buffer = ByteBuffer.allocateDirect(buffer.capacity()*2 + size);
+				new_buffer = ByteBuffer.allocateDirect(new_capacity);
 			else
-				new_buffer = ByteBuffer.allocate(buffer.capacity()*2 + size);
+				new_buffer = ByteBuffer.allocate(new_capacity);
 			buffer.flip();
 			new_buffer.put(buffer);
 			buffer = new_buffer;

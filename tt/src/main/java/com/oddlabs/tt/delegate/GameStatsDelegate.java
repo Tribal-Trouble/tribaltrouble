@@ -158,7 +158,7 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
 	}
 
 	@Override
-	public void update(Object anim) {
+	public void update(@NonNull Object anim) {
 		addChild(group_buttons);
 		delay_timer.stop();
 	}

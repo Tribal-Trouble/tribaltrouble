@@ -11,17 +11,17 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.World;
 import org.jspecify.annotations.NonNull;
 
-public class Notification implements Updatable {
+public class Notification implements Updatable<TimerAnimation> {
 
     private static final float ACTIVE_SECONDS = 5f;
 
     private final float center_x;
     private final float center_y;
-    private final NotificationManager manager;
+    private final @NonNull NotificationManager manager;
     private final @NonNull TimerAnimation timer;
     private final @NonNull Arrow arrow;
 
-    public Notification(@NonNull World world, @NonNull GUIRoot gui_root, float x, float y, NotificationManager manager, float r, float g, float b, @NonNull Audio sound, boolean show_always, @NonNull AnimationManager animation_manager) {
+    public Notification(@NonNull World world, @NonNull GUIRoot gui_root, float x, float y, @NonNull NotificationManager manager, float r, float g, float b, @NonNull Audio sound, boolean show_always, @NonNull AnimationManager animation_manager) {
         this.center_x = x;
         this.center_y = y;
         this.manager = manager;
@@ -38,7 +38,7 @@ public class Notification implements Updatable {
     }
 
     @Override
-    public void update(Object anim) {
+    public void update(@NonNull TimerAnimation anim) {
         remove();
         manager.removeNotification(this);
     }
@@ -51,7 +51,7 @@ public class Notification implements Updatable {
         return timer;
     }
 
-    protected final NotificationManager getManager() {
+    protected final @NonNull NotificationManager getManager() {
         return manager;
     }
 

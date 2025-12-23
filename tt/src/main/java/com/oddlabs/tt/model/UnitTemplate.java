@@ -8,10 +8,10 @@ import org.jspecify.annotations.NonNull;
 
 public final class UnitTemplate extends Template {
 	private final float meters_per_second;
-	private final WeaponFactory weapon_factory;
-	private final SpriteKey sprite_renderer;
+	private final @NonNull WeaponFactory weapon_factory;
+	private final @NonNull SpriteKey sprite_renderer;
 	private final UnitSupplyContainerFactory supply_container_factory;
-	private final Audio death_sound;
+	private final @NonNull Audio death_sound;
 	private final float death_pitch;
 	private final float selection_radius;
 	private final float selection_height;
@@ -25,12 +25,12 @@ public final class UnitTemplate extends Template {
                         float selection_height,
                         @NonNull Abilities abilities,
                         float meters_per_second,
-                        WeaponFactory weapon_factory,
-                        SpriteKey sprite_renderer,
+                        @NonNull WeaponFactory weapon_factory,
+                        @NonNull SpriteKey sprite_renderer,
                         float shadow_diameter,
                         @NonNull ShadowListKey shadow_renderer,
                         UnitSupplyContainerFactory supply_container_factory,
-                        Audio death_sound,
+                        @NonNull Audio death_sound,
                         float death_pitch,
                         float[] hit_offset_z,
                         float no_detail_size,
@@ -69,7 +69,7 @@ public final class UnitTemplate extends Template {
 		return meters_per_second;
 	}
 
-	public WeaponFactory getWeaponFactory() {
+	public @NonNull WeaponFactory getWeaponFactory() {
 		return weapon_factory;
 	}
 

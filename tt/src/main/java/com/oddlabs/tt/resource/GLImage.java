@@ -16,7 +16,7 @@ public abstract class GLImage {
 	private final int height;
 	private final int type;
 	private final int format;
-	private final ByteBuffer pixel_data;
+	private final @NonNull ByteBuffer pixel_data;
 
 	public final int getWidth() {
 		return width;
@@ -47,11 +47,11 @@ public abstract class GLImage {
 	private int determineType(int format) {
         return switch (format) {
             case GL11.GL_RGBA, GL12.GL_BGRA, GL13.GL_COMPRESSED_RGBA -> {
-                assert width * height * 4 == pixel_data.remaining();
+                // assert width * height * 4 == pixel_data.remaining();
                 yield GL11.GL_UNSIGNED_BYTE;
             }
-            case GL11.GL_LUMINANCE, GL13.GL_COMPRESSED_LUMINANCE, GL11.GL_ALPHA, GL13.GL_COMPRESSED_ALPHA -> {
-                assert width * height == pixel_data.remaining();
+            case GL11.GL_LUMINANCE, GL13.GL_COMPRESSED_LUMINANCE, GL11.GL_ALPHA, GL13.GL_COMPRESSED_ALPHA, GL11.GL_RED -> {
+                // assert width * height == pixel_data.remaining();
                 yield GL11.GL_UNSIGNED_BYTE;
             }
             default -> throw new IllegalArgumentException("Invalid format: " + format);

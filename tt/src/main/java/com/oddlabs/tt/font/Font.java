@@ -8,6 +8,7 @@ import com.oddlabs.util.Quad;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 public final class Font {
 	private final @Nullable Quad @NonNull [] key_array;
@@ -22,8 +23,8 @@ public final class Font {
 										   GL11.GL_RGBA,
 										   GL11.GL_LINEAR,
 										   GL11.GL_LINEAR,
-                                           GL11.GL_CLAMP,
-                                           GL11.GL_CLAMP);
+                                           GL12.GL_CLAMP_TO_EDGE,
+                                           GL12.GL_CLAMP_TO_EDGE);
 		this.texture = Resources.findResource(file);
 		this.x_border = font_info.getBorderX();
 		this.y_border = font_info.getBorderY();

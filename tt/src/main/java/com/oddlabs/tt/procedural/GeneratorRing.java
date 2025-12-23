@@ -8,6 +8,7 @@ import com.oddlabs.tt.resource.GLIntImage;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 import java.util.Arrays;
 
@@ -26,7 +27,7 @@ public final class GeneratorRing extends TextureGenerator {
 		Channel channel_white = new Channel(size, size).fill(1f);
 		Layer layer = new Layer(channel_white.copy(), channel_white.copy(), channel_white.copy(), channel_ring);
 		Texture[] textures = new Texture[1];
-		textures[0] = new Texture(new GLImage[]{new GLIntImage(layer)}, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_CLAMP, GL11.GL_CLAMP);
+		textures[0] = new Texture(new GLImage[]{new GLIntImage(layer)}, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
 		return textures;
 	}
 	

@@ -4,8 +4,6 @@ import org.jspecify.annotations.NonNull;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -47,7 +45,6 @@ public final class Image implements Serializable {
         try (ObjectOutputStream oos = new ObjectOutputStream(os)) {
             oos.writeObject(image);
         }
-		
 	}
 
 	public void write(String filename) {

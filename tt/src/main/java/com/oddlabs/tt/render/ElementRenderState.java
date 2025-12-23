@@ -3,19 +3,20 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.util.Color;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 final class ElementRenderState<M extends Model> implements ModelState<M> {
 
-    final RenderState render_state;
+    final @NonNull RenderState render_state;
     private ModelVisitor<M> visitor;
     M model;
     float f;
     final Vector4f color = Color.argb4v(Color.WHITE_INT);
 
-    ElementRenderState(RenderState render_state) {
+    ElementRenderState(@NonNull RenderState render_state) {
         this.render_state = render_state;
     }
 
@@ -40,6 +41,11 @@ final class ElementRenderState<M extends Model> implements ModelState<M> {
     @Override
     public void transform() {
         visitor.transform(this);
+    }
+
+    @Override
+    public void  getTransform(@NonNull Matrix4f dest) {
+        visitor.getTransform(this, dest);
     }
 
     @NotNull

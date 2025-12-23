@@ -14,14 +14,14 @@ public final class FixedFunctionShader extends ShaderProgram implements FogShade
 		String TEXTURE_0 = "u_texture0";
 		String ALPHA_CUTOFF = "u_alphaCutoff";
 		String REPLACE_MODE = "u_replaceMode";
-		String FOG_PARAMS = "u_fogParams";
+		String POINT_SIZE = "u_pointSize";
 	}
 	
 	public interface Attributes {
-		String POSITION = "a_position";
-		String NORMAL = "a_normal";
-		String COLOR = "a_color";
-		String TEX_COORD_0 = "a_texCoord0";
+		String POSITION = "in_Position";
+		String NORMAL = "in_Normal";
+		String COLOR = "in_Color";
+		String TEX_COORD_0 = "in_TexCoord0";
 	}
 
 	public enum Attribute implements VertexAttribute {
@@ -69,42 +69,47 @@ public final class FixedFunctionShader extends ShaderProgram implements FogShade
 
 	private static final String VERTEX_SHADER =
 		"""
-		#version 120
+		#version 410 core
 		""" +
 		LIGHTING_FUNCTION +
 		"""
-		attribute vec3 a_position;
-		attribute vec3 a_normal;
-		attribute vec4 a_color;
-		attribute vec2 a_texCoord0;
+		layout(location = 0) in vec3 in_Position;
+		layout(location = 1) in vec3 in_Normal;
+		layout(location = 2) in vec4 in_Color;
+		layout(location = 3) in vec2 in_TexCoord0;
 		
 		uniform mat4 u_modelViewMatrix;
 		uniform mat4 u_projectionMatrix;
 		uniform bool u_enableLighting;
 		uniform vec3 u_lightDirection;
 		uniform vec3 u_globalAmbient;
+		uniform float u_pointSize;
 		
-		varying vec4 v_color;
-		varying vec2 v_texCoord0;
-		varying float v_fogDist;
+		out vec4 v_color;
+		out vec2 v_texCoord0;
+		out float v_fogDist;
 		
 		void main() {
-		    vec4 viewPosition = u_modelViewMatrix * vec4(a_position, 1.0);
+		    vec4 viewPosition = u_modelViewMatrix * vec4(in_Position, 1.0);
 			gl_Position = u_projectionMatrix * viewPosition;
-			v_texCoord0 = a_texCoord0;
+			v_texCoord0 = in_TexCoord0;
 			v_fogDist = length(viewPosition.xyz);
+			
+			if (u_pointSize > 0.0) {
+			    gl_PointSize = u_pointSize;
+			}
 		
 			if (u_enableLighting) {
-				v_color = calculateLighting(a_normal, a_color, u_modelViewMatrix, u_lightDirection, u_globalAmbient);
+				v_color = calculateLighting(in_Normal, in_Color, u_modelViewMatrix, u_lightDirection, u_globalAmbient);
 			} else {
-				v_color = a_color;
+				v_color = in_Color;
 			}
 		}
 		""";
 	
 	private static final String FRAGMENT_SHADER =
 		"""
-		#version 120
+		#version 410 core
 		""" +
 		FOG_FUNCTION +
 		"""
@@ -120,14 +125,16 @@ public final class FixedFunctionShader extends ShaderProgram implements FogShade
         uniform float u_fogHeightFactor;
         uniform float u_cameraHeight;
 		
-		varying vec4 v_color;
-		varying vec2 v_texCoord0;
-		varying float v_fogDist;
+		in vec4 v_color;
+		in vec2 v_texCoord0;
+		in float v_fogDist;
+		
+		layout(location = 0) out vec4 out_FragColor;
 		
 		void main() {
 			vec4 color;
 			if (u_enableTexture) {
-			    vec4 texColor = texture2D(u_texture0, v_texCoord0);
+			    vec4 texColor = texture(u_texture0, v_texCoord0);
 			    if (u_replaceMode) {
 			        color = texColor;
 			    } else {
@@ -141,13 +148,14 @@ public final class FixedFunctionShader extends ShaderProgram implements FogShade
 			    discard;
 			}
 		
-			// Apply fog
             float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
-			gl_FragColor = vec4(mix(u_fogColor.rgb, color.rgb, fogFactor), color.a);
+			out_FragColor = vec4(mix(u_fogColor.rgb, color.rgb, fogFactor), color.a);
 		}
 		""";
 	
 	public FixedFunctionShader() {
-        super(VERTEX_SHADER, FRAGMENT_SHADER, STANDARD_ATTRIBUTES);
+        super(VERTEX_SHADER, FRAGMENT_SHADER);
+        // bindFragDataLocation(0, "out_FragColor");
+        link();
     }
 }

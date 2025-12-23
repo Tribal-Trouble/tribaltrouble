@@ -19,14 +19,12 @@ public final class SupplyTrigger extends TutorialTrigger {
 
 	@Override
 	protected void run(@NonNull Tutorial tutorial) {
-		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet();
-            for (Selectable s : set) {
-                if (s instanceof Building armory && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
-                    if (armory.getSupplyContainer(com.oddlabs.tt.model.RockSupply.class).getNumSupplies() >= ROCK &&
-                            armory.getSupplyContainer(com.oddlabs.tt.landscape.TreeSupply.class).getNumSupplies() >= TREE)
-                        tutorial.next(new BuildMenuTrigger(tutorial.getViewer().getLocalPlayer()));
-                }
-            }
-
+		for (var s : tutorial.getViewer().getSelection().getCurrentSelection().getSet()) {
+			if (s instanceof Building armory && s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
+				if (armory.getSupplyContainer(com.oddlabs.tt.model.RockSupply.class).getNumSupplies() >= ROCK &&
+						armory.getSupplyContainer(com.oddlabs.tt.landscape.TreeSupply.class).getNumSupplies() >= TREE)
+					tutorial.next(new BuildMenuTrigger(tutorial.getViewer().getLocalPlayer()));
+			}
+		}
 	}
 }

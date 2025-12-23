@@ -57,10 +57,8 @@ public final class Wave {
     }
 
     private @NonNull ByteBuffer directWaveOrder(byte @NonNull [] buffer, int bits) {
-        ByteBuffer src = ByteBuffer.wrap(buffer);
-        src.order(ByteOrder.LITTLE_ENDIAN);
-        ByteBuffer dest = ByteBuffer.allocateDirect(buffer.length);
-        dest.order(ByteOrder.nativeOrder());
+        ByteBuffer src = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer dest = ByteBuffer.allocateDirect(buffer.length).order(ByteOrder.nativeOrder());
 
         if (bits == 16) {
             ShortBuffer dest_short = dest.asShortBuffer();

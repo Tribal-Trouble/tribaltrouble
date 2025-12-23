@@ -18,11 +18,11 @@ public final class UnitCountTrigger extends TutorialTrigger {
 
 	@Override
 	protected void run(@NonNull Tutorial tutorial) {
-		Set<Selectable> set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
-		Iterator<Selectable> it = set.iterator();
+		var set = tutorial.getViewer().getLocalPlayer().getUnits().getSet();
+		var it = set.iterator();
 		int count = 0;
 		while (it.hasNext()) {
-			Selectable s = it.next();
+			var s = it.next();
 			if (s instanceof Unit)
 				count++;
 		}

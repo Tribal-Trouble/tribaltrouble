@@ -20,11 +20,11 @@ public final class GLByteImage extends GLImage {
     }
 
     public GLByteImage(int width, int height, int format) {
-        this(width, height, BufferUtils.createByteBuffer(width * height), format);
+        this(width, height, BufferUtils.createByteBuffer((width * height + 3) & ~3), format);
     }
 
     public GLByteImage(@NonNull Channel channel) {
-        this(channel, GL11.GL_ALPHA);
+        this(channel, GL11.GL_RED);
     }
 
     public GLByteImage(@NonNull Channel channel, int format) {
@@ -45,7 +45,7 @@ public final class GLByteImage extends GLImage {
     @Override
     public @NonNull GLImage createFromLayer(@NonNull Layer layer, int format) {
         Channel sourceChannel;
-        if (format == GL11.GL_ALPHA && layer.a != null) {
+        if (format == GL11.GL_RED && layer.a != null) {
             sourceChannel = layer.a;
         } else {
             // For GL_LUMINANCE or other single-channel uses, default to red channel

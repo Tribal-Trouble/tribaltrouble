@@ -11,15 +11,15 @@ import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.render.shader.WaterShader;
 import com.oddlabs.tt.resource.Resources;
-import com.oddlabs.tt.util.GLStateHelper;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.VertexArray;
-import com.oddlabs.tt.vbo.VertexArrays;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
+
+import java.util.Random;
 
 /**
  * Renders water surfaces.
@@ -36,7 +36,6 @@ public final class Water implements AutoCloseable {
     private final @NonNull VertexArray skyWaterVao;
     private final @NonNull VertexArray patchWaterVao;
 
-    // Water flow state
     private final float[] scrollOffset0 = new float[2];
     private final float[] scrollOffset1 = new float[2];
     private float flowDirection = (float) Math.toRadians(45f);
@@ -46,7 +45,7 @@ public final class Water implements AutoCloseable {
     private float timeSinceChange = 0f;
     private float changeInterval = 20f;
     private float lastTime = 0f;
-    private final java.util.Random random = new java.util.Random();
+    private final Random random = new Random();
 
     public Water(@NonNull HeightMap heightmap, Landscape.@NonNull TerrainType terrain, @NonNull Sky sky, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         TextureGenerator ocean_desc = new GeneratorOcean(terrain);
@@ -58,21 +57,15 @@ public final class Water implements AutoCloseable {
         this.projectionStack = projectionStack;
         this.waterShader = new WaterShader();
 
-        // Setup skyWaterVao
-        this.skyWaterVao = VertexArrays.create();
-        if (VertexArrays.isSupported()) {
-            skyWaterVao.bind();
-            setupWaterAttributes(sky.getWaterVertices(), waterShader);
-            skyWaterVao.unbind();
-        }
+        this.skyWaterVao = new VertexArray();
+        skyWaterVao.bind();
+        setupWaterAttributes(sky.getWaterVertices(), waterShader);
+        skyWaterVao.unbind();
 
-        // Setup patchWaterVao
-        this.patchWaterVao = VertexArrays.create();
-        if (VertexArrays.isSupported()) {
-            patchWaterVao.bind();
-            setupWaterAttributes(patch_vertices, waterShader);
-            patchWaterVao.unbind();
-        }
+        this.patchWaterVao = new VertexArray();
+        patchWaterVao.bind();
+        setupWaterAttributes(patch_vertices, waterShader);
+        patchWaterVao.unbind();
     }
 
     public @NonNull WaterShader getShader() {
@@ -81,59 +74,22 @@ public final class Water implements AutoCloseable {
 
     private void setupWaterAttributes(@NonNull FloatVBO vbo, @NonNull WaterShader shader) {
         int posLoc = shader.getAttributeLocation(WaterShader.Attributes.POSITION);
-        if (posLoc != -1) {
-            vbo.vertexAttribPointer(posLoc, 3, 0, 0L);
-            GL20.glEnableVertexAttribArray(posLoc);
-        }
+        vbo.makeCurrent();
+        GL20.glEnableVertexAttribArray(posLoc);
+        GL20.glVertexAttribPointer(posLoc, 3, GL11.GL_FLOAT, false, 0, 0L);
     }
 
     public void render(@NonNull CameraState state) {
-        float currentTime = LocalEventQueue.getQueue().getTime();
-        float dt = currentTime - lastTime;
-        // Handle time wrap or initial frame
-        if (dt < 0 || dt > 1.0f) dt = 0.016f;
-        lastTime = currentTime;
+        updateAnimation();
 
-        // Update flow parameters
-        timeSinceChange += dt;
-        if (timeSinceChange > changeInterval) {
-            timeSinceChange = 0f;
-            
-            // Generate a new changeInterval with a normal distribution between 5 and 30 seconds
-            float mean = 17.5f; // Middle of 5-30
-            float stdDev = 5.0f; // Roughly 3 standard deviations cover the range
-            float gaussianValue = (float) random.nextGaussian();
-            changeInterval = mean + gaussianValue * stdDev;
-
-            // Change direction using normal distribution (stddev ~7.5 degrees)
-            float dirChangeDegrees = (float) random.nextGaussian() * 7.5f;
-            targetFlowDirection += (float) Math.toRadians(dirChangeDegrees);
-
-            // Change speed using normal distribution (stddev ~5%)
-            float speedChange = flowSpeed * (float) random.nextGaussian() * 0.05f;
-            targetFlowSpeed = Math.clamp(targetFlowSpeed + speedChange, 0.0005f, 0.002f);
-        }
-
-        // Smoothly interpolate towards targets
-        flowDirection += (targetFlowDirection - flowDirection) * dt * 0.5f;
-        flowSpeed += (targetFlowSpeed - flowSpeed) * dt * 0.5f;
-
-        // Update scroll offsets
-        float dx = (float) Math.cos(flowDirection) * flowSpeed * dt;
-        float dy = (float) Math.sin(flowDirection) * flowSpeed * dt;
-
-        scrollOffset0[0] += dx;
-        scrollOffset0[1] += dy;
-        
-        // Detail layer moves faster and slightly differently to create interference
-        scrollOffset1[0] += dx * 1.2f; 
-        scrollOffset1[1] += dy * 0.8f;
+        boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
+        boolean depthTestEnabled = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
 
         try (var _ = waterShader.use();
-             var _ = state.getFog().setup(waterShader, state.getCurrentZ());
-             var _ = GLStateHelper.blend(true);
-             var _ = GLStateHelper.depthTest(true)) {
+             var _ = state.getFog().setup(waterShader, state.getCurrentZ())) {
 
+            if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
+            if (!depthTestEnabled) GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
             waterShader.setUniformMatrix4(WaterShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
@@ -142,7 +98,6 @@ public final class Water implements AutoCloseable {
             waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_0, scrollOffset0[0], scrollOffset0[1]);
             waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_1, scrollOffset1[0], scrollOffset1[1]);
             
-            // Specular Lighting Uniforms
             waterShader.setUniform(WaterShader.Uniforms.LIGHT_DIR, -1f, 0f, 1f);
             waterShader.setUniform(WaterShader.Uniforms.CAMERA_POS, state.getCurrentX(), state.getCurrentY(), state.getCurrentZ());
 
@@ -162,35 +117,53 @@ public final class Water implements AutoCloseable {
 
             waterShader.setUniform(WaterShader.Uniforms.WATER_REPEAT_RATE, Globals.WATER_REPEAT_RATE);
 
-            // Render water surface from Sky
-            if (VertexArrays.isSupported()) {
-                skyWaterVao.bind();
-            } else {
-                setupWaterAttributes(sky.getWaterVertices(), waterShader);
-            }
+            skyWaterVao.bind();
             sky.getWaterIndices().drawElements(GL11.GL_TRIANGLES, sky.getWaterIndices().capacity(), 0);
-            if (VertexArrays.isSupported()) {
-                skyWaterVao.unbind();
-            } else {
-                GL20.glDisableVertexAttribArray(waterShader.getAttributeLocation(WaterShader.Attributes.POSITION));
-            }
-
-
-            // Render water patches
-            if (VertexArrays.isSupported()) {
-                patchWaterVao.bind();
-            } else {
-                setupWaterAttributes(patch_vertices, waterShader);
-            }
+            
+            patchWaterVao.bind();
             GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, patch_vertices.capacity() / 3);
-            if (VertexArrays.isSupported()) {
-                patchWaterVao.unbind();
-            } else {
-                GL20.glDisableVertexAttribArray(waterShader.getAttributeLocation(WaterShader.Attributes.POSITION));
-            }
-
+            
+            patchWaterVao.unbind();
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        } finally {
+            if (!blendEnabled) GL11.glDisable(GL11.GL_BLEND);
+            if (!depthTestEnabled) GL11.glDisable(GL11.GL_DEPTH_TEST);
         }
+    }
+    
+    private void updateAnimation() {
+        float currentTime = LocalEventQueue.getQueue().getTime();
+        float dt = currentTime - lastTime;
+        if (dt < 0 || dt > 1.0f) dt = 0.016f;
+        lastTime = currentTime;
+
+        timeSinceChange += dt;
+        if (timeSinceChange > changeInterval) {
+            timeSinceChange = 0f;
+            
+            float mean = 17.5f;
+            float stdDev = 5.0f;
+            float gaussianValue = (float) random.nextGaussian();
+            changeInterval = mean + gaussianValue * stdDev;
+
+            float dirChangeDegrees = (float) random.nextGaussian() * 7.5f;
+            targetFlowDirection += (float) Math.toRadians(dirChangeDegrees);
+
+            float speedChange = flowSpeed * (float) random.nextGaussian() * 0.05f;
+            targetFlowSpeed = Math.clamp(targetFlowSpeed + speedChange, 0.0005f, 0.002f);
+        }
+
+        flowDirection += (targetFlowDirection - flowDirection) * dt * 0.5f;
+        flowSpeed += (targetFlowSpeed - flowSpeed) * dt * 0.5f;
+
+        float dx = (float) Math.cos(flowDirection) * flowSpeed * dt;
+        float dy = (float) Math.sin(flowDirection) * flowSpeed * dt;
+
+        scrollOffset0[0] += dx;
+        scrollOffset0[1] += dy;
+        
+        scrollOffset1[0] += dx * 1.2f; 
+        scrollOffset1[1] += dy * 0.8f;
     }
 
     private static @NonNull FloatVBO makePatchVertices(@NonNull HeightMap heightmap) {
@@ -204,7 +177,7 @@ public final class Water implements AutoCloseable {
                 }
             }
         }
-        int size = count * 6 * 3; // 6 vertices per quad, 3 floats per vertex
+        int size = count * 6 * 3;
         float[] vertices = new float[size];
         int vertexIndex = 0;
 
@@ -217,27 +190,22 @@ public final class Water implements AutoCloseable {
                     float y1 = (y + 1) * heightmap.getMetersPerPatch();
                     float z = heightmap.getSeaLevelMeters();
 
-                    // Triangle 1
                     vertices[vertexIndex++] = x0; vertices[vertexIndex++] = y0; vertices[vertexIndex++] = z;
                     vertices[vertexIndex++] = x1; vertices[vertexIndex++] = y0; vertices[vertexIndex++] = z;
                     vertices[vertexIndex++] = x1; vertices[vertexIndex++] = y1; vertices[vertexIndex++] = z;
 
-                    // Triangle 2
                     vertices[vertexIndex++] = x0; vertices[vertexIndex++] = y0; vertices[vertexIndex++] = z;
                     vertices[vertexIndex++] = x1; vertices[vertexIndex++] = y1; vertices[vertexIndex++] = z;
                     vertices[vertexIndex++] = x0; vertices[vertexIndex++] = y1; vertices[vertexIndex++] = z;
                 }
             }
         }
-        assert vertexIndex == vertices.length;
         return new FloatVBO(GL15.GL_STATIC_DRAW, vertices);
     }
 
     @Override
     public void close() {
-        if (VertexArrays.isSupported()) {
-            skyWaterVao.delete();
-            patchWaterVao.delete();
-        }
+        skyWaterVao.close();
+        patchWaterVao.close();
     }
 }

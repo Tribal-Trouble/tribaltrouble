@@ -28,15 +28,11 @@ import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.LandscapeResources;
 import com.oddlabs.tt.landscape.NotificationListener;
-import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.landscape.WorldParameters;
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.procedural.Landscape;
-import com.oddlabs.tt.render.shader.FixedFunctionShader;
-import com.oddlabs.tt.render.shader.SpriteBatchRenderer;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.IslandGenerator;
 import com.oddlabs.tt.resource.NativeResource;
@@ -45,36 +41,27 @@ import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.StatCounter;
-import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.vbo.VBO;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
-
 import com.oddlabs.tt.window.Window;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
-
-
-import org.lwjgl.opengl.ARBMultisample;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
-
+import org.lwjgl.opengl.GL30;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.ConsoleHandler;
@@ -174,6 +161,7 @@ public final class Renderer {
 		num_triangles_rendered = 0;
 		fps.updateDelta(System.currentTimeMillis());
         NativeResource.processGLCleanupTasks();
+        GLUtils.checkGLError("After Cleanup");
 		Matrix4f proj = new Matrix4f();
 		Matrix4f modelView = new Matrix4f();
 		setupMatrices(gui.getGUIRoot(), proj, modelView);
@@ -373,26 +361,30 @@ public final class Renderer {
 	}
 
 	private void setupLogging(@NonNull Path event_log_dir, boolean silent) throws IOException {
-		Files.createDirectories(event_log_dir);
-		logger.info("Writing log files in " + event_log_dir);
+        try {
+            Files.createDirectories(event_log_dir);
+            logger.info("Writing log files in " + event_log_dir);
 
-		// Get the root logger and remove default handlers to prevent duplicate console output
-		Logger rootLogger = Logger.getLogger("");
-		for (java.util.logging.Handler handler : rootLogger.getHandlers()) {
-			rootLogger.removeHandler(handler);
-		}
+            // Get the root logger and remove default handlers to prevent duplicate console output
+            Logger rootLogger = Logger.getLogger("");
+            for (java.util.logging.Handler handler : rootLogger.getHandlers()) {
+                rootLogger.removeHandler(handler);
+            }
 
-		// Add a file handler
-		FileHandler fileHandler = new FileHandler(event_log_dir.resolve("output.log").toString());
-		fileHandler.setFormatter(new SimpleFormatter());
-		rootLogger.addHandler(fileHandler);
+            // Add a file handler
+            FileHandler fileHandler = new FileHandler(event_log_dir.resolve("output.log").toString());
+            fileHandler.setFormatter(new SimpleFormatter());
+            rootLogger.addHandler(fileHandler);
 
-		// Add a console handler unless in silent mode
-		if (!silent) {
-			ConsoleHandler consoleHandler = new ConsoleHandler();
-			consoleHandler.setFormatter(new SimpleFormatter());
-			rootLogger.addHandler(consoleHandler);
-		}
+            // Add a console handler unless in silent mode
+            if (!silent) {
+                ConsoleHandler consoleHandler = new ConsoleHandler();
+                consoleHandler.setFormatter(new SimpleFormatter());
+                rootLogger.addHandler(consoleHandler);
+            }
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Failed to setup file logging", e);
+        }
 	}
 
 	private static void failedOpenGL(@NonNull Exception e) {
@@ -416,18 +408,17 @@ public final class Renderer {
 	private static @NonNull UIRenderer finishMainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, boolean first_progress, @NonNull WorldGenerator generator) {
 		AnimationManager.freezeTime();
 		PlayerInfo player_info = new PlayerInfo(0, 0, "");
-		FixedFunctionShader shader = new FixedFunctionShader();
         MatrixStack modelViewStack = new MatrixStack();
         MatrixStack projectionStack = new MatrixStack();
 		WorldParameters world_params = new WorldParameters(Game.GAMESPEED_NORMAL, "", 2, Player.DEFAULT_MAX_UNIT_COUNT);
 		PlayerInfo[] players = new PlayerInfo[]{player_info};
         WorldInfo world_info = generator.generate(players.length, world_params.getInitialUnitCount(), 0f);
         FogInfo fog_info = generator.getFogInfo();
-        RenderQueues render_queues = new RenderQueues(new SpriteBatchRenderer(shader, modelViewStack, projectionStack));
+        RenderQueues render_queues = new RenderQueues();
 		LandscapeResources landscape_resources = World.loadCommon(render_queues);
 		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Color.argb4f(Player.COLORS[0])}, fog_info);
 		AnimationManager manager = new AnimationManager();
-		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, gui_root, manager);
+		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, manager);
 		Player local_player = world.getPlayers()[0];
 		Selection selection = new Selection(local_player);
 		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator, modelViewStack, projectionStack);
@@ -486,20 +477,25 @@ public final class Renderer {
 	}
 
 	private static void destroyNative() {
+        Resources.clearResources();
         AudioManager.getManager().close();
         if (getRenderer().getWindow() != null)
 		    getRenderer().getWindow().close();
-        Resources.clearResources();
 	}
 
 	public static void dumpWindowInfo() {
-		int r = GL11.glGetInteger(GL11.GL_RED_BITS);
-		int g = GL11.glGetInteger(GL11.GL_GREEN_BITS);
-		int b = GL11.glGetInteger(GL11.GL_BLUE_BITS);
-		int a = GL11.glGetInteger(GL11.GL_ALPHA_BITS);
-		int depth = GL11.glGetInteger(GL11.GL_DEPTH_BITS);
-		int stencil = GL11.glGetInteger(GL11.GL_STENCIL_BITS);
-		logger.info("Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil);
+        try {
+            GLUtils.checkGLError("Pre-dumpWindowInfo");
+            int r = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK, GL30.GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE);
+            int g = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK, GL30.GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE);
+            int b = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK, GL30.GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE);
+            int a = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL11.GL_BACK, GL30.GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE);
+            int depth = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH, GL30.GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE);
+            int stencil = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL30.GL_STENCIL, GL30.GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE);
+            logger.info("Window Info: r=" + r + " g=" + g + " b=" + b + " a=" + a + " depth=" + depth + " stencil=" + stencil);
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Failed to dump window info", e);
+        }
 	}
 
 	private void initNative(boolean crashed) throws Exception {
@@ -567,10 +563,7 @@ public final class Renderer {
 		String renderer = GL11.glGetString(GL11.GL_RENDERER);
 		logger.info("GL renderer: '" + renderer + "'");
 
-		logger.info("GL shading language version: '" + GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION) + "'");
-
-		String extensions = GL11.glGetString(GL11.GL_EXTENSIONS);
-		logger.info("GL extensions: '" + extensions + "'");
+		// logger.info("GL shading language version: '" + GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION) + "'");
 
 		dumpWindowInfo();
 
@@ -624,7 +617,7 @@ public final class Renderer {
 
 	private static final class MusicTimer implements Updatable {
 		@Override
-		public void update(Object anim) {
+		public void update(@NonNull Object anim) {
 			if (music_timer != null)
 				music_timer.stop();
 			music_timer = null;
@@ -660,13 +653,12 @@ public final class Renderer {
 		GL11.glPixelStorei(GL11.GL_UNPACK_SWAP_BYTES, 0);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthFunc(GL11.GL_LEQUAL);
-		if (org.lwjgl.opengl.GL.getCapabilities().GL_ARB_multisample) {
-			GL11.glEnable(ARBMultisample.GL_MULTISAMPLE_ARB);
-		}
+		// if (org.lwjgl.opengl.GL.getCapabilities().GL_ARB_multisample) {
+		// 	GL11.glEnable(ARBMultisample.GL_MULTISAMPLE_ARB);
+		// }
 
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-		GL11.glPointSize(7.0f);
 		clearScreen();
 		GL11.glClearDepth(1.0);
 	}

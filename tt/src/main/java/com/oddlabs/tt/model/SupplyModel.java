@@ -11,7 +11,7 @@ import org.jspecify.annotations.NonNull;
 public abstract class SupplyModel extends Model implements Supply, Target, ModelToolTip {
 	private static final float SPAWN_OFFSET_Z = -2f;
 
-	private final SpriteKey sprite_renderer;
+	private final @NonNull SpriteKey sprite_renderer;
 
 	private final float size;
 	private final float rotation;
@@ -25,7 +25,7 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 	private int hit_counter = 0;
 
 	@SuppressWarnings("unchecked")
-	public SupplyModel(@NonNull World world, SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, int num_supplies, boolean increase_count) {
+	public SupplyModel(@NonNull World world, @NonNull SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, int num_supplies, boolean increase_count) {
 		super(world);
 		this.sprite_renderer = sprite_renderer;
 		this.size = size;
@@ -141,7 +141,7 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 	}
 
 	@Override
-	public final SpriteKey getSpriteRenderer() {
+	public final @NonNull SpriteKey getSpriteRenderer() {
 		return sprite_renderer;
 	}
 

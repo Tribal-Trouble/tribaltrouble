@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
 /**
  *  Text insertion point.
  */
-public final class Index implements Updatable {
+public final class Index implements Updatable<TimerAnimation> {
 	public static final int INDEX_WIDTH = 1;
 	private static final float BLINK_INTERVAL = .5f;
 
@@ -43,7 +43,7 @@ public final class Index implements Updatable {
 	}
 
 	@Override
-	public void update(Object anim) {
+	public void update(@NonNull TimerAnimation anim) {
 		blink_on = !blink_on;
 	}
 }

@@ -207,7 +207,7 @@ public final class NativeIsland3 extends Island {
 		float shadow_diameter = 4.5f;
 
 		float dir = (float)Math.sin(Math.PI/4);
-		new SceneryModel(getViewer().getWorld(), thor_x, thor_y, dir, dir, enemy.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN).getSpriteRenderer(), shadow_diameter, true, Utils.getBundleString(bundle, "god"), Unit.ANIMATION_THOR, -1f, 0f);
+		new SceneryModel(getViewer().getWorld(), thor_x, thor_y, dir, dir, enemy.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN).getSpriteRenderer(), shadow_diameter, true, Utils.getBundleString(bundle, "god"), Unit.Animation.THOR.ordinal(), -1f, 0f);
 
 
 		// Insert reinforcements

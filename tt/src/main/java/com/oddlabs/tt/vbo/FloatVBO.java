@@ -41,6 +41,12 @@ public final class FloatVBO extends VBO {
         GL15.glBufferSubData(getTarget(), (long) index << 2, buffer);
         buffer.position(buffer.limit());
 	}
+    
+    public void orphan() {
+        makeCurrent();
+        // Reallocate buffer storage to orphan the previous buffer
+        GL15.glBufferData(getTarget(), getSize(), GL15.GL_STREAM_DRAW);
+    }
 
 	@Override
 	public int capacity() {

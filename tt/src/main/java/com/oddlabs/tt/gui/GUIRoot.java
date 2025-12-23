@@ -1,6 +1,5 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.delegate.CameraDelegate;
@@ -105,7 +104,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 	}
 
 	@Override
-	public void update(Object anim) {
+	public void update(@NonNull Object anim) {
 		render_tool_tip = true;
 		tool_tip_timer.stop();
 	}

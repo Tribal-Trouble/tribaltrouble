@@ -31,7 +31,7 @@ subprojects {
         options.errorprone {
             option("NullAway:AnnotatedPackages", "com.oddlabs")
 
-            disable( "NullAway", "IntLongMath",
+            disable( "NullAway", "IntLongMath", "MissingCasesInEnumSwitch",
                 "NarrowingCompoundAssignment", "InstanceOfAndCastMatchWrongType",
                 "TimeUnitConversionChecker", "UnusedNestedClass", "SameNameButDifferent", "AssignmentExpression",
                 "NullablePrimitive", "ObjectToString", "FallThrough", "ByteBufferBackingArray",

@@ -8,7 +8,6 @@ import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
-import com.oddlabs.tt.vbo.VertexArrays;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
@@ -22,6 +21,8 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public final class SpriteList {
+    private static final @NonNull SpriteList QUAD_INSTANCE = new SpriteList();
+
 	private final @NonNull BoundingBox @NonNull [] bounds;
 	private final @NonNull Sprite @NonNull [] sprites;
 	private final AnimationInfo.@NonNull AnimationType @NonNull [] type_array;
@@ -30,6 +31,37 @@ public final class SpriteList {
 	private final @NonNull FloatVBO vertices_and_normals;
 	private final @NonNull FloatVBO texcoords;
     private VertexArray vao;
+
+    public static @NonNull SpriteList getQuadInstance() {
+        return QUAD_INSTANCE;
+    }
+
+    private SpriteList() {
+        // Private constructor for the quad instance
+        this.bounds = new BoundingBox[]{new BoundingBox()};
+        this.type_array = new AnimationInfo.AnimationType[]{AnimationInfo.AnimationType.LOOP};
+        
+        float[] quad_vertices = { -0.5f, -0.5f, 0f, 0.5f, -0.5f, 0f, 0.5f, 0.5f, 0f, -0.5f, 0.5f, 0f };
+        float[] quad_normals = { 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1 };
+        float[] quad_texcoords = { 0, 0, 1, 0, 1, 1, 0, 1 };
+        short[] quad_indices = { 0, 1, 2, 0, 2, 3 };
+
+        FloatBuffer vertAndNormBuf = BufferUtils.createFloatBuffer(quad_vertices.length + quad_normals.length);
+        vertAndNormBuf.put(quad_vertices);
+        vertAndNormBuf.put(quad_normals);
+        vertAndNormBuf.flip();
+        this.vertices_and_normals = new FloatVBO(GL15.GL_STATIC_DRAW, vertAndNormBuf);
+
+        FloatBuffer texCoordBuf = BufferUtils.createFloatBuffer(quad_texcoords.length).put(quad_texcoords);
+        texCoordBuf.flip();
+        this.texcoords = new FloatVBO(GL15.GL_STATIC_DRAW, texCoordBuf);
+
+        ShortBuffer indexBuf = BufferUtils.createShortBuffer(quad_indices.length).put(quad_indices);
+        indexBuf.flip();
+        this.indices = new ShortVBO(GL15.GL_STATIC_DRAW, indexBuf);
+        
+        this.sprites = new Sprite[]{ new Sprite(4, 2, 0, true) };
+    }
 
 	public SpriteList(@NonNull SpriteFile sprite_file) {
 		Object[] sprites_and_animations = Utils.loadObject(sprite_file.getURL());
@@ -50,7 +82,7 @@ public final class SpriteList {
 		int vert_and_normal_buffer_size = 0;
         for (SpriteInfo sprite_info : sprite_infos) {
             int num_vertices = sprite_info.getTexCoords().length / 2;
-            int frame_size = num_vertices * 3 * 2;
+            int frame_size = num_vertices * 3 * 2; // pos(3) + norm(3)
             for (AnimationInfo animationInfo : animation_infos) {
                 int num_frames = animationInfo.getFrames().length;
                 vert_and_normal_buffer_size += num_frames * frame_size;
@@ -93,9 +125,9 @@ public final class SpriteList {
 	}
     
     public void initVAO(SpriteShader shader) {
-        if (!VertexArrays.isSupported() || vao != null) return;
+        if (vao != null) return;
         
-        vao = VertexArrays.create();
+        vao = new VertexArray();
         vao.bind();
         
         int texCoordLoc = shader.getAttributeLocation(SpriteShader.Attributes.TEX_COORD);
@@ -104,10 +136,17 @@ public final class SpriteList {
 
         indices.makeCurrent();
         
-        // Enable arrays
-        GL20.glEnableVertexAttribArray(texCoordLoc);
-        GL20.glEnableVertexAttribArray(posLoc);
-        if (normLoc >= 0) GL20.glEnableVertexAttribArray(normLoc);
+        if (texCoordLoc >= 0) {
+            GL20.glEnableVertexAttribArray(texCoordLoc);
+        }
+        
+        if (posLoc >= 0) {
+            GL20.glEnableVertexAttribArray(posLoc);
+        }
+        
+        if (normLoc >= 0) {
+            GL20.glEnableVertexAttribArray(normLoc);
+        }
         
         vao.unbind();
     }

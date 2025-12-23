@@ -17,7 +17,6 @@ import com.oddlabs.tt.util.GLState;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
-import com.oddlabs.tt.vbo.VertexArrays;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
@@ -75,12 +74,22 @@ public final class TreeLowDetail {
         texcoords = new FloatVBO(GL15.GL_STATIC_DRAW, vertex_count * 2);
         tree_indices = new ShortVBO(GL15.GL_STATIC_DRAW, index_count);
 
-        vao = VertexArrays.create();
-        if (VertexArrays.isSupported()) {
-            vao.bind();
-            setupAttributes();
-            vao.unbind();
-        }
+        vao = new VertexArray();
+        vao.bind();
+        
+        int posLoc = shader.getAttributeLocation(TreeLowDetailShader.Attributes.POSITION);
+        vertices.makeCurrent();
+        GL20.glEnableVertexAttribArray(posLoc);
+        GL20.glVertexAttribPointer(posLoc, 3, GL11.GL_FLOAT, false, 0, 0L);
+
+        int texLoc = shader.getAttributeLocation(TreeLowDetailShader.Attributes.TEX_COORD);
+        texcoords.makeCurrent();
+        GL20.glEnableVertexAttribArray(texLoc);
+        GL20.glVertexAttribPointer(texLoc, 2, GL11.GL_FLOAT, false, 0, 0L);
+        
+        tree_indices.makeCurrent();
+        
+        vao.unbind();
     }
 
     @NonNull Map<@NonNull TreeType, @NonNull Tree> getTrees() {
@@ -148,22 +157,11 @@ public final class TreeLowDetail {
         for (int i = 0; i < vertex_array.length / 3; i++) {
             src.set(vertex_array[i * 3], vertex_array[i * 3 + 1], vertex_array[i * 3 + 2], 1f);
             matrix.transform(src, dest);
-            dest.get(i * 3, update_buffer);
+            update_buffer.put(i * 3, dest.x);
+            update_buffer.put(i * 3 + 1, dest.y);
+            update_buffer.put(i * 3 + 2, dest.z);
         }
         vertices.putSubData(start_vertex_index * 3, update_buffer);
-    }
-
-    private void setupAttributes() {
-        int posLoc = shader.getAttributeLocation(TreeLowDetailShader.Attributes.POSITION);
-        int texLoc = shader.getAttributeLocation(TreeLowDetailShader.Attributes.TEX_COORD);
-
-        vertices.makeCurrent();
-        vertices.vertexAttribPointer(posLoc, 3, 0, 0L);
-        GL20.glEnableVertexAttribArray(posLoc);
-
-        texcoords.makeCurrent();
-        texcoords.vertexAttribPointer(texLoc, 2, 0, 0L);
-        GL20.glEnableVertexAttribArray(texLoc);
     }
 
     @NonNull GLState setupTrees(@NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
@@ -171,29 +169,17 @@ public final class TreeLowDetail {
         GLState fogState = state.getFog().setup(shader, state.getCurrentZ());
 
         Matrix4f mvpMatrix = new Matrix4f(projectionStack.current()).mul(modelViewStack.current());
-        shader.setUniformMatrix4(TreeLowDetailShader.Uniforms.MVP_MATRIX, false, mvpMatrix);
+        shader.setUniformMatrix4("u_mvpMatrix", false, mvpMatrix);
+        shader.setUniformMatrix4("u_modelViewMatrix", false, modelViewStack.current());
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, lowdetail_textures[terrain.ordinal()].getHandle());
         shader.setUniform(TreeLowDetailShader.Uniforms.TEXTURE_0, 0);
 
-        boolean useVao = VertexArrays.isSupported();
-
-        if (useVao) {
-            vao.bind();
-        } else {
-            setupAttributes();
-        }
+        vao.bind();
 
         return () -> {
-            if (useVao) {
-                vao.unbind();
-            } else {
-                int posLoc = shader.getAttributeLocation(TreeLowDetailShader.Attributes.POSITION);
-                int texLoc = shader.getAttributeLocation(TreeLowDetailShader.Attributes.TEX_COORD);
-                GL20.glDisableVertexAttribArray(posLoc);
-                GL20.glDisableVertexAttribArray(texLoc);
-            }
+            vao.unbind();
             fogState.close();
             shaderState.close();
         };

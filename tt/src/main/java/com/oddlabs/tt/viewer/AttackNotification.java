@@ -1,6 +1,7 @@
 package com.oddlabs.tt.viewer;
 
 import com.oddlabs.tt.animation.AnimationManager;
+import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
@@ -13,7 +14,7 @@ final class AttackNotification extends Notification {
 	
 	private boolean active = true;
 
-	public AttackNotification(@NonNull Player local_player, @NonNull GUIRoot gui_root, @NonNull Selectable center, NotificationManager manager, @NonNull AnimationManager animation_manager) {
+	public AttackNotification(@NonNull Player local_player, @NonNull GUIRoot gui_root, @NonNull Selectable<?> center, @NonNull NotificationManager manager, @NonNull AnimationManager animation_manager) {
 		super(local_player.getWorld(), gui_root, center.getPositionX(), center.getPositionY(), manager, 1f, 0f, 0f, local_player.getRace().getAttackNotificationAudio(), false, animation_manager);
 	}
 
@@ -30,7 +31,7 @@ final class AttackNotification extends Notification {
 	}
 
 	@Override
-	public void update(Object anim) {
+	public void update(@NonNull TimerAnimation anim) {
 		if (active) {
 			active = false;
 			getArrow().remove();

@@ -7,6 +7,7 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLIntImage;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 public final class GeneratorDamageSmoke extends TextureGenerator {
 	private static final int TEXTURE_SIZE = 128;
@@ -22,7 +23,7 @@ public final class GeneratorDamageSmoke extends TextureGenerator {
 		GLIntImage smoke_img = new GLIntImage(smoke);
 		if (Landscape.DEBUG) smoke_img.saveAsPNG("generator_smoke");
 		Texture[] textures = new Texture[1];
-		textures[0] = new Texture(smoke_img.createMipMaps(), Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_CLAMP, GL11.GL_CLAMP);
+		textures[0] = new Texture(smoke_img.createMipMaps(), Globals.COMPRESSED_RGBA_FORMAT, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
 		return textures;
 	}
 

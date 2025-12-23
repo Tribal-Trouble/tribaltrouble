@@ -52,6 +52,7 @@ tasks.register("renderInterLightFont", JavaExec::class) {
 tasks.register("renderInterTightBlackFont", JavaExec::class) {
     group = "build"
     description = "Renders Inter Tight Black TTF font to PNG texture and font metadata."
+    jvmArgs("-ea", "-Xmx512m", "-Djava.awt.headless=true")
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
     classpath = fontRenderer + files("resources")
 
@@ -94,7 +95,7 @@ val geometry = tasks.register<JavaExec>("geometry") {
     classpath(configurations.runtimeClasspath)
     mainClass.set("com.oddlabs.converter.ConvertToBinary")
     args("geometry.xml", "geometry", "build/geometry")
-    jvmArgs("-ea", "-Xmx512m")
+    jvmArgs("-ea", "-Xmx512m", "-Djava.awt.headless=true")
     inputs.file("geometry/geometry.xml")
     inputs.dir("geometry").withPathSensitivity(PathSensitivity.RELATIVE)
     outputs.dir("build/geometry")

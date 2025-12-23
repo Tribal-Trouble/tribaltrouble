@@ -3,6 +3,7 @@ package com.oddlabs.tt.landscape;
 import com.oddlabs.tt.global.Globals;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
@@ -67,8 +68,12 @@ public final class HeightMap {
         }
         buffer.flip();
         heightTexture = new com.oddlabs.tt.render.Texture(grid_units_per_world, grid_units_per_world, org.lwjgl.opengl.GL30.GL_R32F, org.lwjgl.opengl.GL11.GL_LINEAR, org.lwjgl.opengl.GL11.GL_LINEAR, org.lwjgl.opengl.GL11.GL_REPEAT);
-        org.lwjgl.opengl.GL11.glBindTexture(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, heightTexture.getHandle());
-        org.lwjgl.opengl.GL11.glTexImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, org.lwjgl.opengl.GL30.GL_R32F, grid_units_per_world, grid_units_per_world, 0, org.lwjgl.opengl.GL11.GL_RED, org.lwjgl.opengl.GL11.GL_FLOAT, buffer);
+        GL11.glBindTexture(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, heightTexture.getHandle());
+        GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_ROW_LENGTH, 0);
+        GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_SKIP_PIXELS, 0);
+        GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_SKIP_ROWS, 0);
+        GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_UNPACK_ALIGNMENT, 1);
+        GL11.glTexSubImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, 0, 0, grid_units_per_world, grid_units_per_world, GL11.GL_RED, GL11.GL_FLOAT, buffer);
 	}
     
     public com.oddlabs.tt.render.Texture getHeightTexture() {
@@ -271,8 +276,12 @@ public final class HeightMap {
         
         java.nio.FloatBuffer buf = org.lwjgl.BufferUtils.createFloatBuffer(1);
         buf.put(height).flip();
-        org.lwjgl.opengl.GL11.glBindTexture(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, heightTexture.getHandle());
-        org.lwjgl.opengl.GL11.glTexSubImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, grid_x, grid_y, 1, 1, org.lwjgl.opengl.GL11.GL_RED, org.lwjgl.opengl.GL11.GL_FLOAT, buf);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, heightTexture.getHandle());
+        GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+        GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, grid_x, grid_y, 1, 1, GL11.GL_RED, GL11.GL_FLOAT, buf);
 
 		int patch_x1 = grid_x/GRID_UNITS_PER_PATCH;
 		int patch_y1 = grid_y/GRID_UNITS_PER_PATCH;

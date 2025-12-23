@@ -16,6 +16,18 @@ public final class BlendLighting extends BlendInfo {
         this.b = b;
     }
 
+    public float getR() {
+        return r;
+    }
+
+    public float getG() {
+        return g;
+    }
+
+    public float getB() {
+        return b;
+    }
+
     @Override
     public void setup() {
         GL13.glActiveTexture(GL13.GL_TEXTURE1);

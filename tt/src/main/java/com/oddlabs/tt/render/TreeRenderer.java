@@ -10,7 +10,6 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.shader.LitShader;
 import com.oddlabs.tt.render.shader.SpriteShader;
-import com.oddlabs.tt.util.GLStateHelper;
 import com.oddlabs.tt.viewer.Cheat;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
@@ -43,8 +42,10 @@ public final class TreeRenderer extends TreePicker {
         wave_animation.setTime(LocalEventQueue.getQueue().getTime());
         List<AbstractTreeGroup> low_detail_render_list = getLowDetailRenderList();
 
-        try (var _ = tree_low_detail.setupTrees(state, modelViewStack, projectionStack);
-             var _ = GLStateHelper.cullFace(false)) {
+        boolean cullFaceEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+        try (var _ = tree_low_detail.setupTrees(state, modelViewStack, projectionStack)) {
+            if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
+            
             for (AbstractTreeGroup group : low_detail_render_list) {
                 if (Globals.draw_trees && cheat.draw_trees) {
                     modelViewStack.push();
@@ -53,29 +54,32 @@ public final class TreeRenderer extends TreePicker {
                 }
             }
         } finally {
+            if (cullFaceEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
             low_detail_render_list.clear();
         }
 
+        boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
         try (var _ = spriteShader.use();
              var _ = state.getFog().setup(spriteShader, state.getCurrentZ())) {
             spriteShader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);
             spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
 
-            try (var _ = GLStateHelper.blend(true)) {
-                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-                List<TreeSupply>[] render_lists = getRenderLists();
-                List<TreeSupply>[] respond_render_lists = getRespondRenderLists();
-                AbstractTreeGroup.TreeType[] ordinals = AbstractTreeGroup.TreeType.values();
-                for (int i = 0; i < render_lists.length; i++) {
-                    renderList(tree_low_detail.getTrees().get(ordinals[i]), render_lists[i], false, modelViewStack);
-                }
-                for (int i = 0; i < respond_render_lists.length; i++) {
-                    if (!respond_render_lists[i].isEmpty())
-                        renderList(tree_low_detail.getTrees().get(ordinals[i]), respond_render_lists[i], true, modelViewStack);
-                }
+            List<TreeSupply>[] render_lists = getRenderLists();
+            List<TreeSupply>[] respond_render_lists = getRespondRenderLists();
+            AbstractTreeGroup.TreeType[] ordinals = AbstractTreeGroup.TreeType.values();
+            for (int i = 0; i < render_lists.length; i++) {
+                renderList(tree_low_detail.getTrees().get(ordinals[i]), render_lists[i], false, modelViewStack);
             }
+            for (int i = 0; i < respond_render_lists.length; i++) {
+                if (!respond_render_lists[i].isEmpty())
+                    renderList(tree_low_detail.getTrees().get(ordinals[i]), respond_render_lists[i], true, modelViewStack);
+            }
+        } finally {
+            if (!blendEnabled) GL11.glDisable(GL11.GL_BLEND);
         }
     }
 
@@ -101,7 +105,11 @@ public final class TreeRenderer extends TreePicker {
     private void renderPart(@NonNull SpriteList spriteList, int spriteIndex, boolean respond, @NonNull List<TreeSupply> render_list, @NonNull MatrixStack modelViewStack) {
         Sprite sprite = spriteList.getSprite(spriteIndex);
 
-        try (var _ = GLStateHelper.cullFace(sprite.culled)) {
+        boolean cullFaceEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+        try {
+            if (sprite.culled && !cullFaceEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
+            if (!sprite.culled && cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
+
             sprite.setupShaderUniforms(spriteShader, spriteIndex, respond);
 
             for (TreeSupply group : render_list) {
@@ -114,6 +122,9 @@ public final class TreeRenderer extends TreePicker {
                     modelViewStack.pop();
                 }
             }
+        } finally {
+            if (sprite.culled && !cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
+            if (!sprite.culled && cullFaceEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
         }
     }
 

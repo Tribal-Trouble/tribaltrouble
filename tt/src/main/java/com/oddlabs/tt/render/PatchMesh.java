@@ -1,11 +1,11 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.landscape.HeightMap;
-import com.oddlabs.tt.render.shader.LandscapeShader;
-import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
+import com.oddlabs.tt.vbo.VertexArray;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 
@@ -17,10 +17,13 @@ public final class PatchMesh {
     private static final int VERTEX_COUNT = (PATCH_SIZE + 1) * (PATCH_SIZE + 1);
     private static final int INDEX_COUNT = PATCH_SIZE * PATCH_SIZE * 6;
 
+    private final VertexArray vao;
     private final FloatVBO vbo;
     private final ShortVBO ibo;
 
     public PatchMesh() {
+        vao = new VertexArray();
+
         FloatBuffer vertices = BufferUtils.createFloatBuffer(VERTEX_COUNT * 2); // x, y
         for (int y = 0; y <= PATCH_SIZE; y++) {
             for (int x = 0; x <= PATCH_SIZE; x++) {
@@ -45,31 +48,30 @@ public final class PatchMesh {
         }
         indices.flip();
         ibo = new ShortVBO(GL15.GL_STATIC_DRAW, indices);
+        
+        vao.bind();
+        vbo.makeCurrent();
+        ibo.makeCurrent();
+        GL20.glEnableVertexAttribArray(0);
+        GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT, false, 0, 0);
+        vao.unbind();
     }
 
-    public void bind(ShaderProgram shader) {
-        int posLoc = shader.getAttributeLocation("a_position");
-        if (posLoc != -1) {
-            vbo.vertexAttribPointer(posLoc, 2, 0, 0);
-            GL20.glEnableVertexAttribArray(posLoc);
-        }
-        ibo.makeCurrent();
+    public void bind() {
+        vao.bind();
     }
 
     public void draw() {
-        ibo.drawElements(org.lwjgl.opengl.GL11.GL_TRIANGLES, INDEX_COUNT, 0);
+        ibo.drawElements(GL11.GL_TRIANGLES, INDEX_COUNT, 0);
     }
 
-    public void unbind(ShaderProgram shader) {
-        int posLoc = shader.getAttributeLocation("a_position");
-        if (posLoc != -1) {
-            GL20.glDisableVertexAttribArray(posLoc);
-        }
-        // VBO.releaseAll() handled by caller or frame start usually
+    public void unbind() {
+        vao.unbind();
     }
     
     public void delete() {
         vbo.close();
         ibo.close();
+        vao.close();
     }
 }

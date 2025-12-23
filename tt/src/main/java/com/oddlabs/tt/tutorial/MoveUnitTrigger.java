@@ -16,11 +16,10 @@ public final class MoveUnitTrigger extends TutorialTrigger {
 
 	@Override
 	protected void run(@NonNull Tutorial tutorial) {
-		Set<Selectable> set = tutorial.getViewer().getSelection().getCurrentSelection().getSet();
-            for (Selectable s : set) {
-                if (s.getPrimaryController() instanceof WalkController) {
-                    tutorial.done(TutorialForm.TUTORIAL_CAMERA);
-                }
-            }
+		for (var s : tutorial.getViewer().getSelection().getCurrentSelection().getSet()) {
+			if (s.getPrimaryController() instanceof WalkController) {
+				tutorial.done(TutorialForm.TUTORIAL_CAMERA);
+			}
+		}
 	}
 }

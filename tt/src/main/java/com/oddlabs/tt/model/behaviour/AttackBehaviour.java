@@ -17,11 +17,11 @@ public final class AttackBehaviour implements Behaviour {
 	private float anim_time;
 	private @NonNull AttackState state = AttackState.THROWING;
 
-	public AttackBehaviour(@NonNull Unit unit, @NonNull Selectable target) {
+	public AttackBehaviour(@NonNull Unit unit, @NonNull Selectable<?> target) {
 		this.unit = unit;
 		this.target = target;
         anim_time = unit.getWeaponFactory().getSecondsPerRelease(1f/SECONDS_PER_ATTACK);
-        unit.switchAnimation(1f/SECONDS_PER_ATTACK, Unit.ANIMATION_THROWING);
+        unit.switchAnimation(1f/SECONDS_PER_ATTACK, Unit.Animation.THROWING);
 	}
 
 	@Override
