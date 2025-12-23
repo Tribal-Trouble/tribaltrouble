@@ -201,34 +201,268 @@ public final class Renderer {
         }
 	}
 
-    private static Path setupGameDir() throws IOException {
-        String os_name = System.getProperty("os.name").toLowerCase();
-        Path platformGameDir;
-        if (os_name.contains("mac")) {
-            platformGameDir = Path.of("Library","Application Support", Globals.GAME_NAME);
-        } else if (os_name.contains("linux") || os_name.contains("unix")) {
-            platformGameDir = Path.of("." + Globals.GAME_NAME);
-        } else {
-            // Windows or other
-            platformGameDir = Path.of(Globals.GAME_NAME);
+    /**
+     * Returns a directory path for the specified system property value or, if
+     * the property or path is unavailable, the path of a temp directory.
+     *
+     * @param property name of the system property
+     * @return Path to a directory or null if filesystem operations don't
+     * generally seem to work.
+     */
+    public static @Nullable Path getPropertyPath(@NonNull String property) {
+        String propertyValue;
+        try {
+            propertyValue = System.getProperty(property);
+        } catch (SecurityException disallowed) {
+            // We are probably sandboxed.
+            propertyValue = null;
         }
-        Path homeDir = Path.of(System.getProperty("user.home"));
-        if (Files.isDirectory(homeDir)) {
+        Path result = null;
+        if (null != propertyValue) {
             try {
-                return Files.createDirectories(homeDir.resolve(platformGameDir));
-            } catch (IOException _) {
+                result = Path.of(propertyValue);
+                if (Files.notExists(result))
+                    result = Files.createDirectories(result);
+                if (!Files.isDirectory(result) || !Files.isReadable(result)) {
+                    // Path is not something we can use, fall back to temp
+                    result = null;
+                }
+            } catch (IOException badnews) {
+                result = null;
             }
         }
-        return Files.createTempDirectory(Globals.GAME_NAME);
+
+        if (null == result) {
+            // whelp, let's use a temp directory if we can.
+            try {
+                result = Files.createTempDirectory(property);
+            } catch (IOException | SecurityException totalFailure) {
+                result = null;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns the user's home directory or if that is unavailable a temp
+     * directory.
+     *
+     * @return Path to a directory or null if filesystem operations don't
+     * generally seem to work.
+     */
+    public static @Nullable Path getUserHomePath() {
+        return getPropertyPath("user.home");
+    }
+
+    private static boolean isUsable(@Nullable Path path) {
+        if (path == null) return false;
+        try {
+            if (!Files.exists(path) || !Files.isDirectory(path) || !Files.isWritable(path)) {
+                return false;
+            }
+            // Try creating a temporary file to be absolutely sure we can actually write.
+            // Some sandboxes (like macOS Seatbelt) might allow isWritable to return true
+            // but block the actual creation of new files.
+            try {
+                Path testFile = Files.createTempFile(path, ".tt_write_test", null);
+                Files.delete(testFile);
+                return true;
+            } catch (IOException | SecurityException e) {
+                return false;
+            }
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    public record GamePaths(Path dataDir, Path logDir) {}
+
+    private static GamePaths setupPaths() throws IOException {
+        Path dataDir = null;
+        Path logDir = null;
+        boolean portable = false;
+
+        // 1. Check for Portable Mode (CWD)
+        // If a game directory exists in the current working directory, use it.
+        Path localDir = Path.of(Globals.GAME_NAME);
+        if (isUsable(localDir)) {
+            dataDir = localDir;
+            portable = true;
+        }
+
+        // 2. Check for Portable Mode (App/JAR Directory)
+        // If the JAR is launched from a different CWD, check next to the JAR.
+        if (!portable) {
+            try {
+                java.security.CodeSource codeSource = Renderer.class.getProtectionDomain().getCodeSource();
+                if (codeSource != null) {
+                    Path jarPath = Path.of(codeSource.getLocation().toURI());
+                    Path appDir = jarPath.getParent();
+                    if (appDir != null) {
+                        Path appGameDir = appDir.resolve(Globals.GAME_NAME);
+                        // Avoid checking the same path twice if CWD == AppDir
+                        if (!appGameDir.equals(localDir.toAbsolutePath()) && isUsable(appGameDir)) {
+                            dataDir = appGameDir;
+                            portable = true;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Ignore errors determining app directory
+            }
+        }
+
+        String os_name;
+        try {
+            os_name = System.getProperty("os.name").toLowerCase();
+        } catch (SecurityException e) {
+            os_name = "unknown";
+        }
+
+        Path userHome = getUserHomePath();
+
+        // 3. Resolve Data Directory (if not portable)
+        if (!portable) {
+            String xdgConfigHome = null;
+            String appData = null;
+            try {
+                xdgConfigHome = System.getenv("XDG_CONFIG_HOME");
+                appData = System.getenv("APPDATA");
+            } catch (SecurityException _) {}
+
+            Path preferred = null;
+            Path fallback = null;
+            Path existing = null;
+
+            if (os_name.contains("mac")) {
+                if (userHome != null) {
+                    Path appSupport = userHome.resolve("Library/Application Support/" + Globals.GAME_NAME);
+                    Path config = userHome.resolve(".config/tribaltrouble");
+
+                    if (isUsable(appSupport)) existing = appSupport;
+                    else if (isUsable(config)) existing = config;
+
+                    preferred = appSupport;
+                    fallback = config;
+                }
+            } else if (os_name.contains("linux") || os_name.contains("unix")) {
+                Path legacyDot = userHome != null ? userHome.resolve(".tribaltrouble") : null;
+                Path currentDot = Path.of(".tribaltrouble");
+
+                Path xdg;
+                if (xdgConfigHome != null && !xdgConfigHome.isEmpty()) {
+                    xdg = Path.of(xdgConfigHome).resolve("tribaltrouble");
+                } else if (userHome != null) {
+                    xdg = userHome.resolve(".config/tribaltrouble");
+                } else {
+                    xdg = null;
+                }
+
+                if (legacyDot != null && isUsable(legacyDot)) existing = legacyDot;
+                else if (isUsable(currentDot)) existing = currentDot;
+                else if (xdg != null && isUsable(xdg)) existing = xdg;
+
+                preferred = xdg;
+                fallback = legacyDot;
+            } else {
+                Path roaming = appData != null ? Path.of(appData).resolve(Globals.GAME_NAME) : null;
+                Path homeGame = userHome != null ? userHome.resolve(Globals.GAME_NAME) : null;
+
+                if (roaming != null && isUsable(roaming)) existing = roaming;
+                else if (homeGame != null && isUsable(homeGame)) existing = homeGame;
+
+                preferred = roaming;
+                fallback = homeGame;
+            }
+
+            if (existing != null) {
+                dataDir = existing;
+            } else if (preferred != null) {
+                try {
+                    Files.createDirectories(preferred);
+                    if (isUsable(preferred)) dataDir = preferred;
+                } catch (IOException | SecurityException e) {
+                    // Ignore
+                }
+            }
+
+            if (dataDir == null && fallback != null) {
+                try {
+                    Files.createDirectories(fallback);
+                    if (isUsable(fallback)) dataDir = fallback;
+                } catch (IOException | SecurityException e) {
+                    // Ignore
+                }
+            }
+
+            if (dataDir == null) {
+                dataDir = Files.createTempDirectory(Globals.GAME_NAME);
+            }
+        }
+
+        // 4. Resolve Log Directory
+        if (portable) {
+            logDir = dataDir.resolve("logs");
+        } else {
+            // Try standard OS log locations first
+            Path preferredLog = null;
+            if (os_name.contains("mac")) {
+                if (userHome != null) {
+                    preferredLog = userHome.resolve("Library/Logs/TribalTrouble");
+                }
+            } else if (os_name.contains("linux") || os_name.contains("unix")) {
+                String xdgStateHome = null;
+                try {
+                    xdgStateHome = System.getenv("XDG_STATE_HOME");
+                } catch (SecurityException _) {}
+                
+                if (xdgStateHome != null && !xdgStateHome.isEmpty()) {
+                    preferredLog = Path.of(xdgStateHome).resolve("tribaltrouble/logs");
+                } else if (userHome != null) {
+                    preferredLog = userHome.resolve(".local/state/tribaltrouble/logs");
+                }
+            } else {
+                // Windows
+                String localAppData = null;
+                try {
+                    localAppData = System.getenv("LOCALAPPDATA");
+                } catch (SecurityException _) {}
+                
+                if (localAppData != null) {
+                    preferredLog = Path.of(localAppData).resolve("TribalTrouble\\logs");
+                }
+            }
+
+            if (preferredLog != null) {
+                try {
+                    Files.createDirectories(preferredLog);
+                    if (isUsable(preferredLog)) {
+                        logDir = preferredLog;
+                    }
+                } catch (IOException | SecurityException e) {
+                    // Ignore
+                }
+            }
+
+            // Fallback to dataDir/logs if standard location fails
+            if (logDir == null) {
+                logDir = dataDir.resolve("logs");
+            }
+        }
+
+        return new GamePaths(dataDir, logDir);
     }
 
 	private void run(@NonNull String @NonNull ... args) throws IOException {
 		Instant start_time = Instant.now();
 		boolean first_frame = true;
 		// This will be configured by setupLogging, but we need to log before that.
-        Path game_dir = setupGameDir();
+        GamePaths paths = setupPaths();
+        Path game_dir = paths.dataDir();
 		logger.info("********** Running tt **********");
         logger.info("game dir: " + game_dir);
+        logger.info("logs dir: " + paths.logDir());
 		boolean eventload = false;
 		boolean zipped = false;
 		boolean silent = false;
@@ -265,7 +499,7 @@ public final class Renderer {
 			LocalEventQueue.getQueue().loadEvents(last_event_log_path, zipped);
 		}
 
-		Path event_logs_dir = game_dir.resolve("logs");
+		Path event_logs_dir = paths.logDir();
 		Path event_log_dir = event_logs_dir.resolve(Long.toString(System.currentTimeMillis()));
 		if (LocalEventQueue.getQueue().getDeterministic() == null && settings.save_event_log) {
 			setupLogging(event_log_dir, silent);
