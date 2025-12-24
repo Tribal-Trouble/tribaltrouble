@@ -5,10 +5,6 @@ import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.util.BoundingBox;
 import com.oddlabs.tt.util.DebugRender;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.MemoryStack;
-
-import java.nio.FloatBuffer;
 
 public final class RenderTools {
 
@@ -34,30 +30,6 @@ public final class RenderTools {
         float angle = (float) Math.toDegrees(Math.atan2(dir_y, dir_x));
         stack.translate(x, y, z).rotate(angle, 0f, 0f, 1f);
     }
-
-	static void translateAndRotate(@NonNull Model model) {
-		translateAndRotate(model.getPositionX(), model.getPositionY(), model.getPositionZ(), model.getDirectionX(), model.getDirectionY());
-	}
-	
-	static void translateAndRotate(float x, float y, float z, float dir_x, float dir_y) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            FloatBuffer transform_matrix = stack.callocFloat(16);
-            // Identity initialization for parts we don't touch
-            transform_matrix.put(10, 1.0f);
-            transform_matrix.put(15, 1.0f);
-            
-            // Rotation and translation
-            transform_matrix.put(0, dir_x);
-            transform_matrix.put(1, dir_y);
-            transform_matrix.put(4, -dir_y);
-            transform_matrix.put(5, dir_x);
-            transform_matrix.put(12, x);
-            transform_matrix.put(13, y);
-            transform_matrix.put(14, z);
-            
-            GL11.glMultMatrixf(transform_matrix);
-        }
-	}
 
 	static @NonNull FrustumIntersection inFrustum(@NonNull BoundingBox box, float[][] frustum) {
 		boolean all_corners_in_all_planes = true;
