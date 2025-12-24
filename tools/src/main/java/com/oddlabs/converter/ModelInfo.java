@@ -1,21 +1,24 @@
 package com.oddlabs.converter;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 public final class ModelInfo {
-	public final short[] indices;
-	public final float[] normals;
-	public final float[] vertices;
-	public final float[] colors;
-	public final float[] texcoords;
-	public final float[] texcoords2;
-	public final byte[][] skin_names;
-	public final float[][] skin_weights;
+	public final short @NonNull[] indices;
+	public final float @NonNull[] normals;
+	public final float @NonNull[] vertices;
+	public final float @NonNull[] colors;
+	public final float @NonNull[] texcoords;
+	public final float @Nullable[] texcoords2;
+	public final byte @NonNull[] @NonNull[] skin_names;
+	public final float @NonNull[] @NonNull[] skin_weights;
 //	public final String tex_name;
 
-    public ModelInfo(/*String tex_name, */short[] indices, float[] vertices, float[] normals, float[] colors, float[] texcoords, byte[][] skin_names, float[][] skin_weights) {
+    public ModelInfo(/*String tex_name, */short @NonNull [] indices, float @NonNull [] vertices, float @NonNull[] normals, float @NonNull[] colors, float @NonNull[] texcoords, byte @NonNull[] @NonNull[] skin_names, float @NonNull[] @NonNull[] skin_weights) {
         this(indices, vertices, normals, colors, texcoords, null, skin_names, skin_weights);
     }
 
-	public ModelInfo(/*String tex_name, */short[] indices, float[] vertices, float[] normals, float[] colors, float[] texcoords, float[] texcoords2, byte[][] skin_names, float[][] skin_weights) {
+	public ModelInfo(/*String tex_name, */short @NonNull[] indices, float @NonNull[] vertices, float @NonNull[] normals, float @NonNull[] colors, float @NonNull [] texcoords, float @Nullable[] texcoords2, byte @NonNull[] @NonNull[] skin_names, float @NonNull[] @NonNull[] skin_weights) {
 		this.normals = normals;
 		this.vertices = vertices;
 		this.indices = indices;

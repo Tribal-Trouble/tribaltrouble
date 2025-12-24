@@ -9,17 +9,16 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 public final class MeshLoader2 {
 	private MeshLoader2() {
 	}
 
-	public static @NonNull ModelInfo loadMesh(@NonNull File file, Map<String, Bone> name_to_bone_map, float scale) {
-		try {
-			FileInputStream input_stream = new FileInputStream(file);
+	public static @NonNull ModelInfo loadMesh(@NonNull Path file, @Nullable Map<@NonNull String,@NonNull Bone> name_to_bone_map, float scale) {
+		try (var input_stream = Files.newInputStream(file)) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(true);
 			DocumentBuilder builder = factory.newDocumentBuilder();
@@ -35,7 +34,7 @@ public final class MeshLoader2 {
 	private static @NonNull ModelInfo createModelInfo(@NonNull Node node, @Nullable Map<String,Bone> name_to_bone_map, float scale) {
 //		String texture_name = cutTextureName(node.getAttributes().getNamedItem("texture").getNodeValue());
 
-		NodeList polygon_list = ConvertToBinary2.getNodeByName("polygons", node).getChildNodes();
+		NodeList polygon_list = ConvertToBinary.getNodeByName("polygons", node).getChildNodes();
 		int num_polygons = countPolys(polygon_list);
 		int num_vertices = num_polygons*3;
 		float[] vertices = new float[num_vertices*3];

@@ -12,23 +12,24 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public final class ConvertToBinary {
-	void main(String @NonNull ... args) {
+	void main(@NonNull String @NonNull ... args) {
 		if (args.length != 3)
-			throw new RuntimeException("Invalid number of arguments : <xml_file> <src_dir> <build_dir>");
-		String xml_file = args[0];
-		String src_dir = args[1];
-		String build_dir = args[2];
+			throw new IllegalArgumentException("Invalid number of arguments : <xml_file> <src_dir> <build_dir>");
+		Path xml_file = Path.of(args[0]);
+		Path src_dir = Path.of(args[1]);
+		Path build_dir = Path.of(args[2]);
 
-		try (FileInputStream input_stream = new FileInputStream(src_dir + File.separatorChar + xml_file)) {
+		try (var input_stream = Files.newInputStream(src_dir.resolve(xml_file))) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(true);
 			DocumentBuilder builder = factory.newDocumentBuilder();
@@ -43,7 +44,7 @@ public final class ConvertToBinary {
 		}
 	}
 
-	private static void parseGeometry(@NonNull Node n, String src_dir, @NonNull String build_dir) {
+	private static void parseGeometry(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir) {
 		if (n.hasChildNodes()) {
 			NodeList nl = n.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
@@ -53,9 +54,9 @@ public final class ConvertToBinary {
 		}
 	}
 
-	private static void parseGroup(@NonNull Node n, String src_dir, @NonNull String build_dir) {
+	private static void parseGroup(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir) {
 		if (n.hasChildNodes()) {
-			String new_build_dir = build_dir + File.separatorChar + getName(n);
+			Path new_build_dir = build_dir.resolve(getName(n));
 			NodeList nl = n.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
 				Node child = nl.item(i);
@@ -70,11 +71,15 @@ public final class ConvertToBinary {
 		}
 	}
 
-	private static boolean isModified(@NonNull File src, @NonNull File dest) {
-		return !dest.exists() || dest.lastModified() < src.lastModified();
-	}
+	private static boolean isModified(@NonNull Path src, @NonNull Path dest) {
+        try {
+            return !Files.exists(dest) || Files.getLastModifiedTime(dest).compareTo(Files.getLastModifiedTime(src)) <= 0;
+        } catch (IOException e) {
+            return true;
+        }
+    }
 
-	private static ModelObjectInfo @NonNull [] getModelObjectInfos(@NonNull Node n, String src_dir) {
+	private static ModelObjectInfo @NonNull [] getModelObjectInfos(@NonNull Node n, @NonNull Path src_dir) {
 		NodeList nl = n.getChildNodes();
 		List<ModelObjectInfo> object_infos = new ArrayList<>();
 		for (int i = 0; i < nl.getLength(); i++) {
@@ -84,14 +89,14 @@ public final class ConvertToBinary {
 				float g = getInt(item, "g")/255f;
 				float b = getInt(item, "b")/255f;
 				String[][] textures = getTextureInfos(item, src_dir);
-				object_infos.add(new ModelObjectInfo(new File(src_dir, getText(item)), textures, new float[]{r, g, b}));
+				object_infos.add(new ModelObjectInfo(src_dir.resolve(getText(item)), textures, new float[]{r, g, b}));
 			}
 		}
 		ModelObjectInfo[] infos = new ModelObjectInfo[object_infos.size()];
 		return object_infos.toArray(infos);
 	}
 
-	private static AnimObjectInfo @NonNull [] getAnimObjectInfos(@NonNull Node n, String src_dir) {
+	private static @NonNull AnimObjectInfo @NonNull [] getAnimObjectInfos(@NonNull Node n, @NonNull Path src_dir) {
 		NodeList nl = n.getChildNodes();
 		List<AnimObjectInfo> object_infos = new ArrayList<>();
 		for (int i = 0; i < nl.getLength(); i++) {
@@ -101,14 +106,14 @@ public final class ConvertToBinary {
 				assert wpc != 0f;
 				String type_str = item.getAttributes().getNamedItem("type").getNodeValue();
 				AnimationInfo.AnimationType type = getTypeFromString(type_str);
-				object_infos.add(new AnimObjectInfo(new File(src_dir, getText(item)), wpc, type));
+				object_infos.add(new AnimObjectInfo(src_dir.resolve(getText(item)), wpc, type));
 			}
 		}
 		AnimObjectInfo[] infos = new AnimObjectInfo[object_infos.size()];
 		return object_infos.toArray(infos);
 	}
 
-	private static String@NonNull [] @NonNull [] getTextureInfos(@NonNull Node n, String src_dir) {
+	private static String@NonNull [] @NonNull [] getTextureInfos(@NonNull Node n, @NonNull Path src_dir) {
 		NodeList nl = n.getChildNodes();
 		List<String[]> object_infos = new ArrayList<>();
 		for (int i = 0; i < nl.getLength(); i++) {
@@ -128,11 +133,11 @@ public final class ConvertToBinary {
 		return object_infos.toArray(infos);
 	}
 
-	private static void parseSprite(@NonNull Node n, String src_dir, @NonNull String build_dir) {
+	private static void parseSprite(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir) {
 		String name = getName(n);
 		AnimObjectInfo[] anim_object_infos = getAnimObjectInfos(n, src_dir);
 		ModelObjectInfo[] model_object_infos = getModelObjectInfos(n, src_dir);
-		File build_file = new File(build_dir + File.separatorChar + name + ".binsprite");
+		Path build_file = build_dir.resolve( name + ".binsprite");
 
 		boolean modified = false;
         for (AnimObjectInfo anim_object_info : anim_object_infos) {
@@ -183,21 +188,20 @@ public final class ConvertToBinary {
 		}
 	}
 
-	private static @Nullable ObjectInfo getSkeletonObjectInfo(@NonNull Node n, String src_dir) {
+	private static @Nullable ObjectInfo getSkeletonObjectInfo(@NonNull Node n, @NonNull Path src_dir) {
 		NodeList nl = n.getChildNodes();
-		for (int i = 0; i < nl.getLength(); i++) {
-			Node item = nl.item(i);
-			if (item.getNodeName().equals("skeleton")) {
-				return new ObjectInfo(new File(src_dir, getText(item)));
-			}
-		}
-		return null;
-	}
+        return IntStream.range(0, nl.getLength())
+				.mapToObj(nl::item)
+				.filter(item -> item.getNodeName().equals("skeleton"))
+				.findFirst()
+				.map(item -> new ObjectInfo(src_dir.resolve(getText(item))))
+				.orElse(null);
+    }
 
-	private static void parseLowDetail(@NonNull Node n, String src_dir, String build_dir) {
+	private static void parseLowDetail(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir) {
 		String name = getName(n);
 		ObjectInfo object_info = getModelObjectInfos(n, src_dir)[0];
-		File build_file = new File(build_dir + File.separatorChar + name + ".binlowdetail");
+		Path build_file = build_dir.resolve(name + ".binlowdetail");
 
 		if (isModified(object_info.getFile(), build_file)) {
 			ModelInfo model_info = MeshLoader.loadMesh(object_info.getFile(), null, 1f);
@@ -236,18 +240,16 @@ public final class ConvertToBinary {
 		return n.getFirstChild().getNodeValue().trim();
 	}
 
-	private static void write(Object output, @NonNull File file) {
+	private static void write(Object output, @NonNull Path file) {
 		System.err.println("Saving to " + file);
 
 		try {
-			file.getParentFile().mkdirs();
-			try (FileOutputStream file_stream = new FileOutputStream(file)) {
-                try (ObjectOutputStream obj_stream = new ObjectOutputStream(new BufferedOutputStream(file_stream))) {
+			Files.createDirectories(file.getParent());
+			try (var obj_stream = new ObjectOutputStream(new BufferedOutputStream(Files.newOutputStream(file)))) {
                     obj_stream.writeObject(output);
-                }
-            }
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 
 	}

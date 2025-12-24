@@ -21,6 +21,7 @@ val fontTexClasspath = "/textures/font"
 tasks.register("renderInterLightFont", JavaExec::class) {
     group = "build"
     description = "Renders Inter Light TTF font to PNG texture and font metadata."
+    jvmArgs("-ea", "-Xmx512m", "-Djava.awt.headless=true")
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
     classpath = fontRenderer + files("resources")
 

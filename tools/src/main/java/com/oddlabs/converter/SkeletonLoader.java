@@ -8,8 +8,8 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,8 +19,8 @@ public final class SkeletonLoader {
 	private SkeletonLoader() {
 	}
 
-	public static @NonNull Skeleton loadSkeleton(@NonNull File file) {
-		try (FileInputStream input_stream = new FileInputStream(file)) {
+	public static @NonNull Skeleton loadSkeleton(@NonNull Path file) {
+		try (var input_stream = Files.newInputStream(file)) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(true);
 			DocumentBuilder builder = factory.newDocumentBuilder();
@@ -66,19 +66,15 @@ public final class SkeletonLoader {
 		return new Skeleton(bone_root, initial_pose, name_to_bone_map);
 	}
 
-	private static @NonNull Bone buildBone(byte index, @NonNull Map<String,List<String>> bone_children_map, String bone_name, @NonNull Map<String,Bone> name_to_bone_map) {
-		List<String> children_list = bone_children_map.get(bone_name);
-		Bone[] children_array;
-		if (children_list != null) {
-			children_array = new Bone[children_list.size()];
-			for (int i = 0; i < children_array.length; i++) {
-				String child_name = children_list.get(i);
-				Bone child_bone = buildBone(index, bone_children_map, child_name, name_to_bone_map);
-				children_array[i] = child_bone;
-				index = (byte)(child_bone.getIndex() + 1);
-			}
-		} else
-			children_array = new Bone[0];
+	private static @NonNull Bone buildBone(byte index, @NonNull Map<@NonNull String,@NonNull List<@NonNull String>> bone_children_map, @NonNull String bone_name, @NonNull Map<@NonNull String,@NonNull Bone> name_to_bone_map) {
+		List<String> children_list = bone_children_map.getOrDefault(bone_name, List.of());
+		Bone[] children_array = new Bone[children_list.size()];
+		for (int i = 0; i < children_array.length; i++) {
+			String child_name = children_list.get(i);
+			Bone child_bone = buildBone(index, bone_children_map, child_name, name_to_bone_map);
+			children_array[i] = child_bone;
+			index = (byte)(child_bone.getIndex() + 1);
+		}
 		Bone bone = new Bone(bone_name, index, children_array);
 		name_to_bone_map.put(bone_name, bone);
 		return bone;

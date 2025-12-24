@@ -10,7 +10,7 @@ import java.nio.ShortBuffer;
 import java.util.Map;
 
 public final class Optimizer {
-	private static final float VERTEX_TRESHOLD = 0.000001f;
+	private static final float VERTEX_THRESHOLD = 0.000001f;
 
 	private static boolean shortsEquals(int index1, int index2, int size, short[] array1, short[] array2) {
 		for (int i = 0; i < size; i++) {
@@ -23,7 +23,7 @@ public final class Optimizer {
 
 	private static boolean floatsEquals(int index1, int index2, int size, float[] array1, float[] array2) {
 		for (int i = 0; i < size; i++) {
-			if (Math.abs(array1[index1*size + i] - array2[index2*size + i]) > VERTEX_TRESHOLD)
+			if (Math.abs(array1[index1*size + i] - array2[index2*size + i]) > VERTEX_THRESHOLD)
 				return false;
 		}
 		return true;
@@ -50,7 +50,7 @@ public final class Optimizer {
 			return false;
 		}
 		for (int i = 0; i < array1[index1].length; i++) {
-			if (Math.abs(array1[index1][i] - array2[index2][i]) > VERTEX_TRESHOLD) {
+			if (Math.abs(array1[index1][i] - array2[index2][i]) > VERTEX_THRESHOLD) {
 				return false;
 			}
 		}

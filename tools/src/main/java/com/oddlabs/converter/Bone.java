@@ -1,17 +1,19 @@
 package com.oddlabs.converter;
 
-public final class Bone {
-	private final String name;
-	private final byte index;
-	private final Bone[] children;
+import org.jspecify.annotations.NonNull;
 
-	public Bone(String name, byte index, Bone[] children) {
+public final class Bone {
+	private final @NonNull String name;
+	private final byte index;
+	private final @NonNull Bone @NonNull[] children;
+
+	public Bone(@NonNull String name, byte index, @NonNull Bone @NonNull[] children) {
 		this.name = name;
 		this.children = children;
 		this.index = index;
 	}
 
-	public Bone[] getChildren() {
+	public @NonNull Bone @NonNull[] getChildren() {
 		return children;
 	}
 
@@ -19,7 +21,7 @@ public final class Bone {
 		return index;
 	}
 
-	public String getName() {
+	public @NonNull String getName() {
 		return name;
 	}
 }

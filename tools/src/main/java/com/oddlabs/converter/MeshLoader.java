@@ -9,17 +9,16 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 public final class MeshLoader {
 	private MeshLoader() {
 	}
 
-	public static @NonNull ModelInfo loadMesh(@NonNull File file, Map<String,Bone> name_to_bone_map, float scale) {
-		try {
-			FileInputStream input_stream = new FileInputStream(file);
+	public static @NonNull ModelInfo loadMesh(@NonNull Path file, @Nullable Map<@NonNull String,@NonNull Bone> name_to_bone_map, float scale) {
+		try (var input_stream = Files.newInputStream(file)) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(true);
 			DocumentBuilder builder = factory.newDocumentBuilder();
@@ -131,7 +130,7 @@ public final class MeshLoader {
 		return counter;
 	}
 
-	private static float getAttrFloat(@NonNull Node node, String name) {
+	private static float getAttrFloat(@NonNull Node node, @NonNull String name) {
 		return Float.parseFloat(node.getAttributes().getNamedItem(name).getNodeValue());
 	}
 }
