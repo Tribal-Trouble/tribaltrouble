@@ -5,6 +5,7 @@ import org.jspecify.annotations.NonNull;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
@@ -16,51 +17,66 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterInputStream;
 
 public final class Image implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 1;
 
-	private transient ByteBuffer data;
+	private transient @NonNull ByteBuffer data;
 	
 	private final int width;
 	private final int height;
 	
 	public Image(int width, int height, @NonNull ByteBuffer data) {
-		assert width*height*4 == data.remaining() : "Image is incorrect size.";
+		assert width * height * Integer.BYTES == data.remaining() : "Image is incorrect size.";
 		this.width = width;
 		this.height = height;
 		this.data = data;
 	}	
 	
-	public static Image read(@NonNull URL url) {
-		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(url.openStream()))) {
-			return (Image) ois.readObject();
-		} catch (ClassNotFoundException | IOException e) {
-			throw new RuntimeException(e);
+	public static @NonNull Image read(@NonNull URL url) {
+		try (var source = url.openStream()) {
+			return read(source);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
 		}
 	}
-	
-	private static void write(Image image, OutputStream os) throws IOException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(os)) {
-            oos.writeObject(image);
-        }
+
+	public static @NonNull Image read(@NonNull InputStream source) throws IOException {
+		try (var input = new ObjectInputStream(new InflaterInputStream(new BufferedInputStream(source)))) {
+			var object = input.readObject();
+			if (object instanceof Image image) {
+				return image;
+			} else {
+				throw new IOException("Null object returned from input stream.");
+			}
+		} catch (ClassNotFoundException e) {
+			throw new IOException("Failed to read Image", e);
+		}
 	}
 
 	public void write(String filename) {
 		write(Path.of(filename + ".image"));
 	}
-	
+
 	public void write(@NonNull Path file) {
 		data.rewind();
 		//Utils.saveAsPNG(filename, data, width, height);
-		try (var bos = new BufferedOutputStream(Files.newOutputStream(file))){
-			write(this, bos);
+		try (var output = Files.newOutputStream(file)) {
+			write(this, output);
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
 	}
-	
+
+	private static void write(@NonNull Image image, @NonNull OutputStream os) throws IOException {
+		try (var output = new ObjectOutputStream(new DeflaterOutputStream(new BufferedOutputStream(os)))) {
+			output.writeObject(image);
+		}
+	}
+
 	@Serial
     private void writeObject(@NonNull ObjectOutputStream stream) throws IOException {
 		stream.defaultWriteObject();
@@ -75,7 +91,7 @@ public final class Image implements Serializable {
     private void readObject(@NonNull ObjectInputStream stream) throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
 		
-		int length = width*height*4;
+		int length = width * height * Integer.BYTES;
 
 		ByteBuffer deltaPlanes = ByteBuffer.allocate(length);
 		data = ByteBuffer.allocateDirect(length);
@@ -128,11 +144,11 @@ public final class Image implements Serializable {
 	private void mergePlanes(@NonNull ByteBuffer buf) {
 		buf.flip();
 		
-		buf.position(buf.capacity() / 4);
+		buf.position(buf.capacity() / Integer.BYTES);
 		ByteBuffer buf0 = buf.slice();
-		buf.position(2 * buf.capacity() / 4);
+		buf.position(2 * buf.capacity() / Integer.BYTES);
 		ByteBuffer buf1 = buf.slice();
-		buf.position(3 * buf.capacity() / 4);
+		buf.position(3 * buf.capacity() / Integer.BYTES);
 		ByteBuffer buf2 = buf.slice();
 		buf.position(0);
 		IntBuffer data_ints = data.asIntBuffer();
@@ -150,7 +166,7 @@ public final class Image implements Serializable {
 		data.clear();
 	}
 
-	public ByteBuffer getPixels() {
+	public @NonNull ByteBuffer getPixels() {
 		return data;
 	}
 
