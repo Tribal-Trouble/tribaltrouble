@@ -32,12 +32,11 @@ public final class GLUtils {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer int_buf = stack.mallocInt(16);
             GL11.glGetIntegerv(GL11.GL_VIEWPORT, int_buf);
-            GL11.glReadBuffer(GL11.GL_FRONT);
+            GL11.glReadBuffer(GL11.GL_BACK);
             int width = int_buf.get(2) - int_buf.get(0);
             int height = int_buf.get(3) - int_buf.get(1);
             GLImage pixel_data = new GLIntImage(width, height, GL11.GL_RGBA);
             GL11.glReadPixels(int_buf.get(0), int_buf.get(1), int_buf.get(2), int_buf.get(3), pixel_data.getGLFormat(), pixel_data.getGLType(), pixel_data.getPixels());
-            GL11.glReadBuffer(GL11.GL_BACK);
             com.oddlabs.util.Utils.flip(pixel_data.getPixels(), width*4, height);
             pixel_data.saveAsBMP(filename);
         }
