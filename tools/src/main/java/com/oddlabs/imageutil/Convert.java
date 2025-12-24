@@ -4,14 +4,12 @@ import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Image;
-import io.github.memo33.jsquish.Squish;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.stb.STBDXT;
+import org.lwjgl.system.MemoryUtil;
 
 import javax.imageio.ImageIO;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -141,10 +139,7 @@ public final class Convert {
 		BufferedImage image = ImageIO.read(source);
 		int width = image.getWidth();
 		int height = image.getHeight();
-//		int channels = image.getRaster().getNumBands() <= 3 ? 3 : 4;
-//		assert image.getColorModel() == ColorModel.getRGBdefault();
 		int channels = image.getColorModel().getNumComponents();
-//		final byte[] bytes = getImageData(image);
 		int[] ints = new int[width*height];
         image.getRGB(0, 0, width, height, ints, 0, width);
 		byte[] bytes = new byte[width*height* 4 * Byte.BYTES];
@@ -179,23 +174,79 @@ public final class Convert {
 	}
 
 	private static void saveDDS(@NonNull Path file, @NonNull Layer @NonNull [] images) throws IOException {
-		// This is not standard DXTImage constructor so that we don't have to have squisher as a runtime dependency.
-		Squish.CompressionType type = switch (images[0].a) {
-            case null -> Squish.CompressionType.DXT1;
-            default -> Squish.CompressionType.DXT5;
-        };
-		byte[][] mipmap_bytes = new byte[images.length][];
-		for (int i = 0; i < mipmap_bytes.length; i++) {
-//			images[i].saveAsPNG(file.getParent().resolve(images[i].getWidth() + "x" + images[i].getHeight() + "-" + file.getFileName() + ".png"));
-			byte[] mipmap = images[i].convertToBytes();
-			mipmap_bytes[i] = Squish.compressImage(mipmap, images[i].getWidth(), images[i].getHeight(), null, type, Squish.CompressionMethod.CLUSTER_FIT);
-		}
-		int fourCC = switch (type) {
-			case DXT1 -> DXTImage.FOURCC_DXT1;
-			case DXT5 -> DXTImage.FOURCC_DXT5;
-			default -> throw new IllegalArgumentException("Unsupported compression type: " + type);
-		};
-		new DXTImage((short)images[0].getWidth(),(short)images[0].getHeight(), fourCC, mipmap_bytes).write(file);
+        int width = images[0].getWidth();
+        int height = images[0].getHeight();
+        boolean hasAlpha = images[0].a != null;
+        int fourCC = hasAlpha ? DXTImage.FOURCC_DXT5 : DXTImage.FOURCC_DXT1;
+        
+        byte[][] mipmap_bytes = new byte[images.length][];
+        
+        // Allocate a single block buffer to be reused for 4x4 RGBA pixels (4 * 4 * 4 bytes = 64 bytes)
+        ByteBuffer blockBuffer = MemoryUtil.memAlloc(64);
+
+        try {
+            for (int i = 0; i < images.length; i++) {
+                Layer layer = images[i];
+                int w = layer.getWidth();
+                int h = layer.getHeight();
+                byte[] rgba = layer.convertToBytes();
+                
+                // DXT1/5 blocks are 4x4 pixels. 
+                // DXT1 is 8 bytes per block, DXT5 is 16 bytes per block.
+                int blockSize = hasAlpha ? 16 : 8;
+                int numBlocksX = (w + 3) / 4;
+                int numBlocksY = (h + 3) / 4;
+                int compressedSize = numBlocksX * numBlocksY * blockSize;
+                
+                ByteBuffer compressedBuffer = MemoryUtil.memAlloc(compressedSize);
+                
+                try {
+                    for (int by = 0; by < numBlocksY; by++) {
+                        for (int bx = 0; bx < numBlocksX; bx++) {
+                            // Extract 4x4 block into blockBuffer
+                            blockBuffer.clear();
+                            for (int py = 0; py < 4; py++) {
+                                int sy = by * 4 + py;
+                                if (sy >= h) sy = h - 1; // Clamp height
+                                
+                                for (int px = 0; px < 4; px++) {
+                                    int sx = bx * 4 + px;
+                                    if (sx >= w) sx = w - 1; // Clamp width
+                                    
+                                    int srcIdx = (sy * w + sx) * 4;
+                                    
+                                    blockBuffer.put(rgba[srcIdx]);     // R
+                                    blockBuffer.put(rgba[srcIdx + 1]); // G
+                                    blockBuffer.put(rgba[srcIdx + 2]); // B
+                                    blockBuffer.put(rgba[srcIdx + 3]); // A
+                                }
+                            }
+                            blockBuffer.flip();
+
+                            long compressedBlockAddr = MemoryUtil.memAddress(compressedBuffer) + (long) (by * numBlocksX + bx) * blockSize;
+
+                            // Compress
+                            STBDXT.nstb_compress_dxt_block(
+                                compressedBlockAddr,
+                                MemoryUtil.memAddress(blockBuffer),
+                                hasAlpha ? 1 : 0,
+                                STBDXT.STB_DXT_HIGHQUAL
+                            );
+                        }
+                    }
+                    
+                    byte[] compressedData = new byte[compressedSize];
+                    compressedBuffer.get(compressedData);
+                    mipmap_bytes[i] = compressedData;
+                } finally {
+                    MemoryUtil.memFree(compressedBuffer);
+                }
+            }
+        } finally {
+            MemoryUtil.memFree(blockBuffer);
+        }
+        
+		new DXTImage((short)width,(short)height, fourCC, mipmap_bytes).write(file);
 	}
 
 	private static void save(@NonNull Path file, Layer @NonNull [] images) throws IOException {
@@ -205,56 +256,5 @@ public final class Convert {
 			saveImage(file, images);
 		} else
 			throw new IllegalArgumentException("unknown extension: " + file);
-	}
-
-	private static byte[] getImageData(@NonNull BufferedImage image) {
-
-		final int type = image.getType();
-
-		if ( type != BufferedImage.TYPE_3BYTE_BGR && type != BufferedImage.TYPE_4BYTE_ABGR ) {
-			// Bored to do it right, let Java2D do the conversion for us
-			final BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getRaster().getNumBands() <= 3 ? BufferedImage.TYPE_3BYTE_BGR : BufferedImage.TYPE_4BYTE_ABGR);
-			final Graphics2D g2 = newImage.createGraphics();
-
-			g2.drawImage(image, null, 0, 0);
-
-			image = newImage;
-		}
-
-		final Raster raster = image.getRaster();
-		byte[] data = ((DataBufferByte)raster.getDataBuffer()).getData();
-
-		if ( raster.getNumBands() == 3 ) {
-			final byte[] bytes = new byte[image.getWidth() * image.getHeight() * 4];
-
-			for ( int i = 0, j = 0; i < data.length; ) {
-				final byte b = data[i++];
-				final byte g = data[i++];
-				final byte r = data[i++];
-
-				bytes[j++] = r;
-				bytes[j++] = g;
-				bytes[j++] = b;
-				bytes[j++] = (byte)0xFF;
-			}
-
-			data = bytes;
-		} else {
-			for ( int i = 0; i < data.length; ) {
-				final byte a = data[i + 0];
-				final byte b = data[i + 1];
-				final byte g = data[i + 2];
-				final byte r = data[i + 3];
-
-				data[i + 0] = r;
-				data[i + 1] = g;
-				data[i + 2] = b;
-				data[i + 3] = a;
-
-				i += 4;
-			}
-		}
-
-		return data;
 	}
 }

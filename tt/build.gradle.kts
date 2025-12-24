@@ -11,11 +11,11 @@ lwjgl {
 
     // Add LWJGL modules + the correct native artifacts
     implementation(
-        com.smushytaco.lwjgl_gradle.Module.CORE,
-        com.smushytaco.lwjgl_gradle.Module.GLFW,
-        com.smushytaco.lwjgl_gradle.Module.OPENAL,
-        com.smushytaco.lwjgl_gradle.Module.OPENGL,
-        com.smushytaco.lwjgl_gradle.Module.STB,
+        Module.CORE,
+        Module.GLFW,
+        Module.OPENAL,
+        Module.OPENGL,
+        Module.STB,
         Module.TINYFD)
 }
 
