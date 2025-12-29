@@ -45,11 +45,6 @@ public class SteamAchievementManager implements SteamUserStatsCallback, SteamUse
         if (SteamAPI.isSteamRunning()) {
             steamUserStats = new SteamUserStats(this);
             steamUser = new SteamUser(this);
-            if (steamUserStats.requestCurrentStats()) {
-                debugPrint("Successfully requested current stats.");
-            } else {
-                debugPrint("Failed to request current stats.");
-            }
         } else {
             steamUser = null;
             steamUserStats = null;
