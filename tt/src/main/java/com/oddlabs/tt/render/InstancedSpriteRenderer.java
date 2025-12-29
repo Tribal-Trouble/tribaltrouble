@@ -29,7 +29,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
     private final InstancedSpriteShader shader = new InstancedSpriteShader();
     private final Map<@NonNull BatchKey, @NonNull RenderBatch> batches = new HashMap<>();
-    private final Texture whiteTexture;
+    private final @NonNull Texture whiteTexture;
 
     public InstancedSpriteRenderer() {
         GLImage whiteImage = new GLIntImage(1, 1, GL11.GL_RGBA);
@@ -85,7 +85,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         private final @NonNull BatchKey key;
         private final Map<@NonNull Integer, SubBatch> subBatches = new HashMap<>();
         private FloatVBO vbo;
-        private final VertexArray vao;
+        private final @NonNull VertexArray vao;
         private int totalInstances = 0;
         private int vboCapacity = 1024 * FLOATS_PER_INSTANCE;
 
@@ -146,13 +146,13 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             GL33.glVertexAttribDivisor(decalColorLoc, 1);
         }
 
-        void addInstance(int vertexOffset, Matrix4f modelMatrix, float[] color, float[] decalColor) {
+        void addInstance(int vertexOffset, @NonNull Matrix4f modelMatrix, float @NonNull [] color, float @NonNull [] decalColor) {
             SubBatch sub = subBatches.computeIfAbsent(vertexOffset, k -> new SubBatch());
             sub.add(modelMatrix, color, decalColor);
             totalInstances++;
         }
 
-        void render(InstancedSpriteShader shader, Texture whiteTexture) {
+        void render(@NonNull InstancedSpriteShader shader, Texture whiteTexture) {
             if (totalInstances == 0) return;
 
             if (!key.depthTest) {
@@ -221,7 +221,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             }
         }
         
-        private void setupTextures(InstancedSpriteShader shader, Sprite sprite, Texture whiteTexture) {
+        private void setupTextures(@NonNull InstancedSpriteShader shader, @NonNull Sprite sprite, Texture whiteTexture) {
              Texture texture = (sprite.textures.length > key.texIndex && sprite.textures[key.texIndex].length > 0 && sprite.textures[key.texIndex][0] != null) 
                     ? sprite.textures[key.texIndex][0] : whiteTexture;
             
@@ -279,7 +279,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             buffer = BufferUtils.createFloatBuffer(capacity * RenderBatch.FLOATS_PER_INSTANCE);
         }
         
-        void add(Matrix4f modelMatrix, float[] color, float[] decalColor) {
+        void add(@NonNull Matrix4f modelMatrix, float @NonNull [] color, float @NonNull [] decalColor) {
             if (count >= capacity) {
                 int newCapacity = capacity * 2;
                 FloatBuffer newBuffer = BufferUtils.createFloatBuffer(newCapacity * RenderBatch.FLOATS_PER_INSTANCE);

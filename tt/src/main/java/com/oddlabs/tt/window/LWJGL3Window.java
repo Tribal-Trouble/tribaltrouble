@@ -196,7 +196,7 @@ public final class LWJGL3Window implements Window {
     }
 
     @Override
-    public void setTitle(String title) {
+    public void setTitle(@NonNull String title) {
         this.title = title;
         if (windowHandle != MemoryUtil.NULL) {
             glfwSetWindowTitle(windowHandle, title);
@@ -214,7 +214,7 @@ public final class LWJGL3Window implements Window {
     }
 
     @Override
-    public @NonNull SerializableDisplayMode[] getAvailableDisplayModes() {
+    public @NonNull SerializableDisplayMode @NonNull [] getAvailableDisplayModes() {
         ensureGLFW();
         long monitor = glfwGetPrimaryMonitor();
         GLFWVidMode.Buffer modes = glfwGetVideoModes(monitor);

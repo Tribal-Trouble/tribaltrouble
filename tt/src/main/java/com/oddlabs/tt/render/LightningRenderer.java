@@ -35,7 +35,7 @@ public final class LightningRenderer {
 
     private final FloatBuffer particle_buffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(MAX_PARTICLES * VERTICES_PER_PARTICLE * FLOATS_PER_VERTEX));
     private final FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
-    private final ShortVBO particle_ibo;
+    private final @NonNull ShortVBO particle_ibo;
 
     private final @NonNull LightningShader shader;
     private final VertexLayout<LightningShader.Attribute> layout = new VertexLayout<>(

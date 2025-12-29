@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.global.Globals;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL13;
 
 public final class BlendLighting extends BlendInfo {
@@ -9,7 +10,7 @@ public final class BlendLighting extends BlendInfo {
     private final float g;
     private final float b;
 
-    public BlendLighting(GLByteImage alpha_image, float r, float g, float b) {
+    public BlendLighting(@NonNull GLByteImage alpha_image, float r, float g, float b) {
         super(alpha_image, Globals.COMPRESSED_LUMINANCE_FORMAT);
         this.r = r;
         this.g = g;

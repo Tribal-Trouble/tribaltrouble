@@ -1,12 +1,13 @@
 package com.oddlabs.tt.vbo;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 
 public final class QuadVBO implements AutoCloseable {
-    private final VertexArray vao;
-    private final FloatVBO vbo;
+    private final @NonNull VertexArray vao;
+    private final @NonNull FloatVBO vbo;
 
     public QuadVBO() {
         // Full screen quad in NDC using two triangles

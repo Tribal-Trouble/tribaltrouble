@@ -26,7 +26,7 @@ public final class WorldInfo {
 	public final float @NonNull [] @NonNull [] starting_locations;
 	public final @NonNull BlendInfo @NonNull [] blend_infos;
 
-	public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, Texture[][] colormaps, Maps maps, Texture detail, float[][] heightmap, List<int[]> trees, List<int[]> palm_trees, List<int[]> rocks, List<int[]> iron, float[][] plants, boolean[][] access_grid, byte[][] build_grid, float[][] starting_locations, BlendInfo @NonNull [] blend_infos) {
+	public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, Texture[] @NonNull [] colormaps, Maps maps, @NonNull Texture detail, float[] @NonNull [] heightmap, @NonNull List<int[]> trees, @NonNull List<int[]> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron, float[] @NonNull [] plants, boolean[] @NonNull [] access_grid, byte[] @NonNull [] build_grid, float[] @NonNull [] starting_locations, BlendInfo @NonNull [] blend_infos) {
 		this.texels_per_colormap = texels_per_colormap;
 		this.chunks_per_colormap = chunks_per_colormap;
 		this.sea_level_meters = sea_level_meters;

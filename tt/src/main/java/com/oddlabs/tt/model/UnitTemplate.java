@@ -32,7 +32,7 @@ public final class UnitTemplate extends Template {
                         UnitSupplyContainerFactory supply_container_factory,
                         @NonNull Audio death_sound,
                         float death_pitch,
-                        float[] hit_offset_z,
+                        float @NonNull [] hit_offset_z,
                         float no_detail_size,
                         float defense_chance,
                         @NonNull String name,
@@ -73,7 +73,7 @@ public final class UnitTemplate extends Template {
 		return weapon_factory;
 	}
 
-	public SpriteKey getSpriteRenderer() {
+	public @NonNull SpriteKey getSpriteRenderer() {
 		return sprite_renderer;
 	}
 
@@ -81,7 +81,7 @@ public final class UnitTemplate extends Template {
 		return supply_container_factory;
 	}
 
-	public Audio getDeathSound() {
+	public @NonNull Audio getDeathSound() {
 		return death_sound;
 	}
 

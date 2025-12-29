@@ -74,7 +74,7 @@ public final class LandscapeBaker {
         }
     }
 
-    public WorldInfo.@NonNull Maps bake(int colormapSize, float textureScale, BlendInfo[] blendInfos) {
+    public WorldInfo.@NonNull Maps bake(int colormapSize, float textureScale, BlendInfo @NonNull [] blendInfos) {
         checkGLError("Before bake");
         Texture[] diffuse = new Texture[2];
         Texture[] normal = new Texture[2];

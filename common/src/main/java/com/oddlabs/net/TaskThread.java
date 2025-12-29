@@ -89,7 +89,7 @@ public final class TaskThread {
 			notification_action.run();
 	}
 
-	public Deterministic getDeterministic() {
+	public @NonNull Deterministic getDeterministic() {
 		return deterministic;
 	}
 

@@ -34,7 +34,7 @@ public abstract class GLImage {
 
 	public abstract void putPixel(int x, int y, int pixel);
 
-	public GLImage(int width, int height, ByteBuffer pixel_data, int format) {
+	public GLImage(int width, int height, @NonNull ByteBuffer pixel_data, int format) {
 		//assert Utils.isPowerOf2(width): "Width must be power of 2";
 		//assert Utils.isPowerOf2(height): "Height must be power of 2";
 		this.width = width;
@@ -325,7 +325,7 @@ public abstract class GLImage {
 
 	protected abstract int getPixelSize();
 
-	public final ByteBuffer getPixels() {
+	public final @NonNull ByteBuffer getPixels() {
 		return pixel_data;
 	}
 

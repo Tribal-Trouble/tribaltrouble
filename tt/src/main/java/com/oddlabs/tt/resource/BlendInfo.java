@@ -8,13 +8,13 @@ public abstract class BlendInfo {
 	private final @NonNull Texture alpha_map;
 	private final GLByteImage sourceImage;
 
-	private @NonNull Texture createAlphaMap(GLByteImage alpha_image, int format) {
+	private @NonNull Texture createAlphaMap(@NonNull GLByteImage alpha_image, int format) {
         GLImage[] mipmaps = alpha_image.buildMipMaps(0, 1.0f, true, false);
 		return new Texture(mipmaps, format, GL11.GL_LINEAR_MIPMAP_LINEAR,
 										  GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
 	}
 
-	protected BlendInfo(GLByteImage alpha_image, int format) {
+	protected BlendInfo(@NonNull GLByteImage alpha_image, int format) {
 		this.sourceImage = alpha_image;
 		alpha_map = createAlphaMap(alpha_image, format);
 	}

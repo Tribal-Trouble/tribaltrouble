@@ -33,7 +33,7 @@ public final class HeightMap {
 	private final float meters_per_chunk_border;
 	private final float chunk_tex_scale;
 	private final World world_instance;
-    private final com.oddlabs.tt.render.Texture heightTexture;
+    private final com.oddlabs.tt.render.@NonNull Texture heightTexture;
 
 	public HeightMap(World world_instance, int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, float@NonNull [] @NonNull [] world, List<int[]> trees, boolean[][] access_grid, byte[][] build_grid) {
 		this.world = world;

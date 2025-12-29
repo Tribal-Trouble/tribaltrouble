@@ -6,8 +6,8 @@ import java.util.Map;
 
 public final class Skeleton {
 	private final @NonNull Bone bone_root;
-	private final Map<@NonNull String,float @NonNull[]> initial_pose;
-	private final Map<@NonNull String,@NonNull Bone>  name_to_bone_map;
+	private final @NonNull Map<@NonNull String,float @NonNull[]> initial_pose;
+	private final @NonNull Map<@NonNull String,@NonNull Bone>  name_to_bone_map;
 
 	public Skeleton(@NonNull Bone bone_root, @NonNull Map<@NonNull String,float[]> initial_pose, @NonNull Map<@NonNull String, @NonNull Bone>  name_to_bone_map) {
 		this.bone_root = bone_root;

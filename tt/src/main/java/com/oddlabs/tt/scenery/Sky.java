@@ -75,7 +75,7 @@ public final class Sky {
     private final @NonNull FloatVBO water_vertices;
     private final @NonNull FloatVBO bottom_vertices;
     private final @NonNull ShortVBO water_indices;
-    private final FloatVBO sky_vbo;
+    private final @NonNull FloatVBO sky_vbo;
 
     private final @NonNull Texture @NonNull [] clouds;
     private final int subdiv_axis;
@@ -363,7 +363,7 @@ public final class Sky {
         return water_indices;
     }
 
-    private void makeSkyVertices(float radius, float outer_utile, float outer_vtile, float inner_utile, float inner_vtile, float origin_x, float origin_y, float origin_z, FloatBuffer buffer) {
+    private void makeSkyVertices(float radius, float outer_utile, float outer_vtile, float inner_utile, float inner_vtile, float origin_x, float origin_y, float origin_z, @NonNull FloatBuffer buffer) {
         float r;
         float x, y, z;
         float height_coeff;

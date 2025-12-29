@@ -143,7 +143,7 @@ public final class LoginForm extends Form {
 			doLogin(username, password, login, remember_checkbox.isMarked());
 	}
 
-	private void doLogin(String username, String password, Login login, boolean remember_login) {
+	private void doLogin(@NonNull String username, @NonNull String password, Login login, boolean remember_login) {
 		if (remember_login) {
 			Settings.getSettings().username = username;
 			Settings.getSettings().pw_digest = password;

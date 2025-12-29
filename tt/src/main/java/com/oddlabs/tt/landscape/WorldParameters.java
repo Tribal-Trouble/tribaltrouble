@@ -15,7 +15,7 @@ public final class WorldParameters {
 		this.initial_game_speed = initial_game_speed;
 	}
 
-	public String getMapcode() {
+	public @NonNull String getMapcode() {
 		return map_code;
 	}
 

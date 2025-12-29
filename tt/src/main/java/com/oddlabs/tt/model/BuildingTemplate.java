@@ -43,7 +43,7 @@ public final class BuildingTemplate extends Template {
             int max_hit_points,
             UnitContainerFactory unit_container_factory,
             @NonNull Abilities abilities,
-            float[] hit_offset_z,
+            float @NonNull [] hit_offset_z,
             float mount_offset,
             float no_detail_size,
             float defense_chance,
@@ -124,15 +124,15 @@ public final class BuildingTemplate extends Template {
 		return num_fragments;
 	}
 	
-	public SpriteKey getBuiltRenderer() {
+	public @NonNull SpriteKey getBuiltRenderer() {
 		return built_renderer;
 	}
 
-	public SpriteKey getStartRenderer() {
+	public @NonNull SpriteKey getStartRenderer() {
 		return start_renderer;
 	}
 
-	public SpriteKey getHalfbuiltRenderer() {
+	public @NonNull SpriteKey getHalfbuiltRenderer() {
 		return halfbuilt_renderer;
 	}
 

@@ -15,7 +15,7 @@ public final class GLByteImage extends GLImage {
         return Byte.BYTES;
     }
 
-    public GLByteImage(int width, int height, ByteBuffer pixel_data, int format) {
+    public GLByteImage(int width, int height, @NonNull ByteBuffer pixel_data, int format) {
         super(width, height, pixel_data, format);
     }
 

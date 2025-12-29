@@ -12,6 +12,7 @@ import com.oddlabs.tt.vbo.VertexArray;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
@@ -29,16 +30,16 @@ public final class Sprite {
     final Texture@NonNull [] @NonNull [] textures;
     private final int num_triangles;
     private final int num_vertices;
-    private final float[] clear_color;
+    private final float @Nullable [] clear_color;
     private final int @NonNull [] buffer_indices;
     final boolean alpha;
     final boolean lighted;
     final boolean culled;
     final boolean modulate_color;
-    private final float[] cpw_array;
-    private final int[] animation_length_array;
+    private final float @Nullable [] cpw_array;
+    private final int @Nullable [] animation_length_array;
     private final AnimationInfo.AnimationType @NonNull [] type_array;
-    final Texture respond_texture;
+    final @Nullable Texture respond_texture;
     final int indices_offset;
     final int texcoords_offset;
 
@@ -205,7 +206,7 @@ public final class Sprite {
         }
     }
 
-    private static Texture[] getTextureForName(@NonNull String texture_name, int color_format, int mipmap_cutoff, boolean max_alpha) {
+    private static Texture @NonNull [] getTextureForName(@NonNull String texture_name, int color_format, int mipmap_cutoff, boolean max_alpha) {
         if (texture_name.startsWith(GENERATOR_STRING)) {
             String generator_class_name = texture_name.substring(GENERATOR_STRING.length());
             try {

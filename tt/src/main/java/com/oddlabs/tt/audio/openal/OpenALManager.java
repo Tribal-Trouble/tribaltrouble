@@ -16,7 +16,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static org.lwjgl.openal.ALC10.*;
+import static org.lwjgl.openal.ALC10.ALC_DEFAULT_DEVICE_SPECIFIER;
+import static org.lwjgl.openal.ALC10.alcCloseDevice;
+import static org.lwjgl.openal.ALC10.alcCreateContext;
+import static org.lwjgl.openal.ALC10.alcDestroyContext;
+import static org.lwjgl.openal.ALC10.alcGetString;
+import static org.lwjgl.openal.ALC10.alcMakeContextCurrent;
+import static org.lwjgl.openal.ALC10.alcOpenDevice;
 
 /**
  * Audio Manager implementation using OpenAL
@@ -25,7 +31,7 @@ public final class OpenALManager extends AudioManager {
     private static final Logger logger = Logger.getLogger(OpenALManager.class.getName());
     private static final int MAX_NUM_SOURCES = 32;
     
-    private final ALData data;
+    private final @NonNull ALData data;
 
     private record ALData(long device, long context) implements AutoCloseable {
         @Override
@@ -50,7 +56,7 @@ public final class OpenALManager extends AudioManager {
         checkALError("alDistanceModel");
     }
 
-    private static ALData initAL() {
+    private static @NonNull ALData initAL() {
         String defaultDeviceName = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
         long device = alcOpenDevice(defaultDeviceName);
         if (device == 0) {

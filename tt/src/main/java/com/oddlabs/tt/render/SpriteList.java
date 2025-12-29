@@ -124,7 +124,7 @@ public final class SpriteList {
         }
 	}
     
-    public void initVAO(SpriteShader shader) {
+    public void initVAO(@NonNull SpriteShader shader) {
         if (vao != null) return;
         
         vao = new VertexArray();

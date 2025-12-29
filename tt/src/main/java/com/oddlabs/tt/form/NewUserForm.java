@@ -153,7 +153,7 @@ public final class NewUserForm extends Form {
 		}
 	}
 
-	private void doCreateUser(String username, LoginDetails login_details, String password, Login login) {
+	private void doCreateUser(@NonNull String username, LoginDetails login_details, @NonNull String password, Login login) {
 		Settings.getSettings().username = username;
 		Settings.getSettings().pw_digest = password;
 		Form connecting_form = new MatchmakingConnectingForm(network, gui_root, this, main_menu, login, login_details);

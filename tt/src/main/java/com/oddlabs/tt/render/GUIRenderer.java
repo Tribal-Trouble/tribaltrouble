@@ -7,7 +7,6 @@ import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.render.shader.VertexLayout;
 import com.oddlabs.tt.resource.GLByteImage;
 import com.oddlabs.tt.resource.GLImage;
-import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.vbo.VertexArray;
 import com.oddlabs.util.Color;
@@ -36,7 +35,7 @@ public final class GUIRenderer {
     private final Matrix4f projectionMatrix = new Matrix4f();
     private final @NonNull VertexLayout<GUIShader.Attribute> layout;
 
-    private final VertexArray vao;
+    private final @NonNull VertexArray vao;
     private final int vbo;
     private final @NonNull ByteBuffer vertexBuffer;
     private final @NonNull Texture whiteTexture;
