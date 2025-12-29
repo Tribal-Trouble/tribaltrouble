@@ -23,39 +23,39 @@ import java.nio.ShortBuffer;
 import java.util.List;
 import java.util.Objects;
 
-public final class LightningRenderer {
-
-    private final Vector3f right_vector = new Vector3f();
-    private final Matrix4f view_matrix = new Matrix4f();
-
+public final class LightningRenderer implements AutoCloseable {
     private static final int MAX_PARTICLES = 100;
     private static final int VERTICES_PER_PARTICLE = 8;
     private static final int INDICES_PER_PARTICLE = 12; // 4 triangles * 3 indices
     private static final int FLOATS_PER_VERTEX = 9; // x,y,z,u,v,r,g,b,a
+    private static final VertexLayout<LightningShader.Attribute> LAYOUT = new VertexLayout<>(
+            LightningShader.Attribute.POSITION,
+            LightningShader.Attribute.TEX_COORD,
+            LightningShader.Attribute.COLOR
+    );
+
+    private final Vector3f right_vector = new Vector3f();
+    private final Matrix4f view_matrix = new Matrix4f();
 
     private final FloatBuffer particle_buffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(MAX_PARTICLES * VERTICES_PER_PARTICLE * FLOATS_PER_VERTEX));
     private final FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
     private final @NonNull ShortVBO particle_ibo;
 
     private final @NonNull LightningShader shader;
-    private final VertexLayout<LightningShader.Attribute> layout = new VertexLayout<>(
-            LightningShader.Attribute.POSITION,
-            LightningShader.Attribute.TEX_COORD,
-            LightningShader.Attribute.COLOR
-    );
     private final @NonNull VertexArray vao;
     private int vbo_offset = 0;
 
     public LightningRenderer() {
         shader = new LightningShader();
-        
-        ShortBuffer iboBuffer = BufferUtils.createShortBuffer(MAX_PARTICLES * INDICES_PER_PARTICLE);
+
+        ShortBuffer iboBuffer = Objects.requireNonNull(BufferUtils.createShortBuffer(MAX_PARTICLES * INDICES_PER_PARTICLE));
         for (int i = 0; i < MAX_PARTICLES; i++) {
             int offset = i * VERTICES_PER_PARTICLE;
-            // First quad
+            // First quad, first triangle
             iboBuffer.put((short) (offset + 0));
             iboBuffer.put((short) (offset + 1));
             iboBuffer.put((short) (offset + 2));
+            // second triangle
             iboBuffer.put((short) (offset + 2));
             iboBuffer.put((short) (offset + 3));
             iboBuffer.put((short) (offset + 0));
@@ -74,7 +74,7 @@ public final class LightningRenderer {
         vao.bind();
         particle_vbo.makeCurrent();
         particle_ibo.makeCurrent();
-        layout.bind(shader);
+        LAYOUT.bind(shader);
         vao.unbind();
     }
 
@@ -91,9 +91,7 @@ public final class LightningRenderer {
         boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
         boolean depthMaskEnabled = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
 
-        try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state.getCurrentZ())) {
-
+        try (var _ = shader.use()) {
             if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
             if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
             if (depthMaskEnabled) GL11.glDepthMask(false);
@@ -190,5 +188,13 @@ public final class LightningRenderer {
                 RenderTools.draw(emitter, 1f, 1f, 1f);
             }
         }
+    }
+
+    @Override
+    public void close() {
+        vao.close();
+        particle_vbo.close();
+        particle_ibo.close();
+        shader.close();
     }
 }

@@ -32,7 +32,7 @@ import java.util.Map;
 
 import static com.oddlabs.tt.landscape.AbstractTreeGroup.TreeType;
 
-public final class TreeLowDetail {
+public final class TreeLowDetail implements AutoCloseable {
     private static final Vector4f src = new Vector4f();
     private static final Vector4f dest = new Vector4f();
 
@@ -187,6 +187,14 @@ public final class TreeLowDetail {
 
     void renderLowDetail(int start, int count) {
         tree_indices.drawElements(GL11.GL_TRIANGLES, count, start);
+    }
+
+    @Override
+    public void close() {
+        vao.close();
+        vertices.close();
+        texcoords.close();
+        tree_indices.close();
     }
 
     private final class BuildVisitor implements TreeNodeVisitor {

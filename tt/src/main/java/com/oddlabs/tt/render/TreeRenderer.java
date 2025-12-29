@@ -16,7 +16,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
-public final class TreeRenderer extends TreePicker {
+public final class TreeRenderer extends TreePicker implements AutoCloseable {
     private final @NonNull TreeLowDetail tree_low_detail;
     private final WaveAnimation wave_animation = new WaveAnimation();
     private final Cheat cheat;
@@ -146,5 +146,10 @@ public final class TreeRenderer extends TreePicker {
     @Override
     boolean isPicking() {
         return false;
+    }
+
+    @Override
+    public void close() {
+        tree_low_detail.close();
     }
 }

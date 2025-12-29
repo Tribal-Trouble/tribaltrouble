@@ -38,7 +38,7 @@ import java.util.stream.IntStream;
 import static com.oddlabs.tt.procedural.Landscape.NATIVE_SEA_BOTTOM_COLOR;
 import static com.oddlabs.tt.procedural.Landscape.VIKING_SEA_BOTTOM_COLOR;
 
-public final class Sky {
+public final class Sky implements AutoCloseable {
     private static final float[] SKYDOME_SPEED_OUTER = {0.2f, 0f};
     private static final float[] SKYDOME_SPEED_INNER = {0.4f, 0f};
     private static final float SKYDOME_HEIGHT = 0f;
@@ -523,6 +523,22 @@ public final class Sky {
             x0 *= inv_len;
             y0 *= inv_len;
             return x + " " + y + "\t\t" + x0 + " " + y0 + " " + theta / Math.PI + " " + super.toString();
+        }
+    }
+
+    @Override
+    public void close() {
+        skyVAO.close();
+        seaBottomVAO.close();
+        skyShader.close();
+        seaBottomShader.close();
+        sky_vbo.close();
+        water_vertices.close();
+        bottom_vertices.close();
+        water_indices.close();
+        fan_indices.close();
+        for (ShortVBO vbo : strip_indices) {
+            vbo.close();
         }
     }
 }

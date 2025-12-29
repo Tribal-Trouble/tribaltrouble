@@ -207,5 +207,7 @@ public final class Water implements AutoCloseable {
     public void close() {
         skyWaterVao.close();
         patchWaterVao.close();
+        patch_vertices.close();
+        waterShader.close();
     }
 }

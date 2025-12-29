@@ -32,7 +32,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
-public final class DefaultRenderer implements UIRenderer {
+public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
     private final @NonNull Picker picker;
     private final @NonNull Water water;
@@ -246,5 +246,13 @@ public final class DefaultRenderer implements UIRenderer {
         if (Globals.line_mode || cheat.line_mode) {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         }
+    }
+
+    @Override
+    public void close() {
+        lightningRenderer.close();
+        sky.close();
+        water.close();
+        tree_renderer.close();
     }
 }
