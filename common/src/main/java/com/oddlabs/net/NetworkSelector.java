@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public final class NetworkSelector {
 	private static final long PING_TIMEOUT = 4*60*1000;
@@ -27,7 +28,7 @@ public final class NetworkSelector {
 	private final Deterministic deterministic;
 
 	public NetworkSelector(final @NonNull Deterministic deterministic) {
-		this(deterministic, () -> deterministic.log(System.currentTimeMillis()));
+		this(deterministic, () -> deterministic.log(TimeUnit.NANOSECONDS.toMillis(System.nanoTime())));
 	}
 
 	public NetworkSelector(Deterministic deterministic, @NonNull TimeManager time_manager) {
