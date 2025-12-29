@@ -15,6 +15,7 @@ import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.BuildingTemplate;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.UnitTemplate;
@@ -29,7 +30,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 public final class SelectionDelegate extends ControllableCameraDelegate {
 	private static final int SELECTION_COLOR = 0xFF_4C_FF_00;
@@ -278,9 +278,9 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 	}
 
-	private void updateSelection(@NonNull List<@NonNull Selectable> friendly_units, Selectable friendly_building, Selectable enemy) {
+	private void updateSelection(@NonNull List<@NonNull Selectable<UnitTemplate>> friendly_units, Selectable<BuildingTemplate> friendly_building, Selectable<?> enemy) {
 		Army current_selection = getViewer().getSelection().getCurrentSelection();
-		Selectable first = current_selection.getSet().iterator().next();
+		Selectable<?> first = current_selection.getSet().iterator().next();
 		if (first instanceof Building || first.getOwner() != getViewer().getLocalPlayer()) {
 			if (first == friendly_building || first == enemy) {
 				current_selection.clear();
@@ -289,13 +289,13 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		}
 
 		boolean add = false;
-        for (Selectable selectable : friendly_units) {
+        for (Selectable<?> selectable : friendly_units) {
             if (!current_selection.contains(selectable)) {
                 add = true;
                 break;
             }
         }
-        for (Selectable selectable : friendly_units) {
+        for (Selectable<?> selectable : friendly_units) {
             if (add) {
                 if (!current_selection.contains(selectable))
                     current_selection.add(selectable);
@@ -305,11 +305,11 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
         }
 	}
 
-	private void replaceSelection(@NonNull List<Selectable> friendly_units, @Nullable Selectable friendly_building, @Nullable Selectable enemy) {
+	private void replaceSelection(@NonNull List<Selectable<UnitTemplate>> friendly_units, @Nullable Selectable<BuildingTemplate> friendly_building, @Nullable Selectable<?> enemy) {
 		Army current_selection = getViewer().getSelection().getCurrentSelection();
 		current_selection.clear();
 		if (!friendly_units.isEmpty()) {
-            for (Selectable friendlyUnit : friendly_units) {
+            for (Selectable<?> friendlyUnit : friendly_units) {
                 current_selection.add(friendlyUnit);
             }
 		} else if (friendly_building != null) {
@@ -324,17 +324,17 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		if (button == MouseButton.LEFT && !map_mode && !observer) {
 			if (selection) {
 				selection = false;
-				Selectable[] picked = getViewer().getPicker().pickBoxed(getViewer().getGUIRoot().getDelegate().getCamera().getState(), selection_x1, selection_y1, selection_x2, selection_y2, clicks);
-				List<Selectable> friendly_units = new ArrayList<>();
-				Selectable friendly_building = null;
-				Selectable enemy = null;
-                for (Selectable selectable : picked) {
+				Selectable<?>[] picked = getViewer().getPicker().pickBoxed(getViewer().getGUIRoot().getDelegate().getCamera().getState(), selection_x1, selection_y1, selection_x2, selection_y2, clicks);
+				List<Selectable<UnitTemplate>> friendly_units = new ArrayList<>();
+				Selectable<BuildingTemplate> friendly_building = null;
+				Selectable<?> enemy = null;
+                for (Selectable<?> selectable : picked) {
                     if (selectable != null) {
                         if (selectable.getOwner() == getViewer().getLocalPlayer()) {
-                            if (selectable instanceof Building)
-                                friendly_building = selectable;
-                            else if (selectable instanceof Unit)
-                                friendly_units.add(selectable);
+                            if (selectable instanceof Building building)
+                                friendly_building = building;
+                            else if (selectable instanceof Unit unit)
+                                friendly_units.add(unit);
                             else
                                 throw new RuntimeException();
                         } else {

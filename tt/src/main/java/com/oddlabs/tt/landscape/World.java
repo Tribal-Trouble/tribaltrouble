@@ -15,6 +15,7 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.RenderQueues;
+import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.WorldInfo;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -52,7 +53,7 @@ public final class World {
 	private final @NonNull AbstractElementNode<?> element_root;
 	private final @Nullable RacesResources races_resources;
 	private final @NonNull LandscapeResources landscape_resources;
-    private final com.oddlabs.tt.resource.@NonNull FogInfo fog;
+    private final @NonNull FogInfo fog;
 
 	private int global_checksum;
 	private int gamespeed;

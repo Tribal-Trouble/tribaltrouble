@@ -10,7 +10,7 @@ import org.jspecify.annotations.NonNull;
 public interface ElementVisitor {
 	void visitUnit(@NonNull Unit selectable);
 	void visitBuilding(@NonNull Building selectable);
-	void visitEmitter(@NonNull Emitter emitter);
+	void visitEmitter(@NonNull Emitter<?> emitter);
 	void visitLightning(@NonNull Lightning lightning);
 	void visitRespond(@NonNull LandscapeTargetRespond respond);
 	void visitSupplyModel(@NonNull SupplyModel model);

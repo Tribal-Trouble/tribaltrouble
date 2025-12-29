@@ -65,13 +65,13 @@ public final class SelectionArmy extends Army {
     }
 
     @Override
-    public void remove(@NonNull Selectable selectable) {
+    public void remove(@NonNull Selectable<?> selectable) {
         super.remove(selectable);
         update();
     }
 
     @Override
-    public void add(@NonNull Selectable selectable) {
+    public void add(@NonNull Selectable<?> selectable) {
         super.add(selectable);
         update();
     }

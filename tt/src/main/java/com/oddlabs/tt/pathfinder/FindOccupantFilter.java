@@ -2,20 +2,21 @@ package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.model.Selectable;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class FindOccupantFilter<S extends Selectable> implements ScanFilter {
+public final class FindOccupantFilter<S extends Selectable<?>> implements ScanFilter {
 
     private final float x;
     private final float y;
     private final float radius;
-    private final Selectable src;
+    private final @Nullable Selectable<?> src;
     private final Class<S> type;
     private final @NonNull List<@NonNull S> result;
 
-    public FindOccupantFilter(float x, float y, float radius, Selectable src, Class<S> type) {
+    public FindOccupantFilter(float x, float y, float radius, @Nullable Selectable<?> src, Class<S> type) {
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -50,7 +51,7 @@ public final class FindOccupantFilter<S extends Selectable> implements ScanFilte
         return false;
     }
 
-    public @NonNull List<@NonNull S> getResult() {
+    public @NonNull Iterable<@NonNull S> getResult() {
         return result;
     }
 }

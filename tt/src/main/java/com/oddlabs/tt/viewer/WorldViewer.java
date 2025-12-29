@@ -46,7 +46,6 @@ import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.util.ServerMessageBundler;
-import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import org.joml.Matrix4f;
@@ -113,14 +112,14 @@ public final class WorldViewer implements Animated, AutoCloseable {
             }
 
             @Override
-            public void newAttackNotification(@NonNull Selectable target) {
+            public void newAttackNotification(@NonNull Selectable<?> target) {
                 Player owner = target.getOwner();
                 if (owner == getLocalPlayer())
                     notification_manager.newAttackNotification(animation_manager_local, target, getLocalPlayer());
             }
 
             @Override
-            public void newSelectableNotification(@NonNull Selectable target) {
+            public void newSelectableNotification(@NonNull Selectable<?> target) {
                 Player owner = target.getOwner();
                 if (owner == getLocalPlayer())
                     notification_manager.newSelectableNotification(target, animation_manager_local, getLocalPlayer());
@@ -134,17 +133,13 @@ public final class WorldViewer implements Animated, AutoCloseable {
             @Override
             public void unregisterTarget(@NonNull Target target) {
                 distributable_table.unregister(target);
-                if (target instanceof Selectable selectable)
+                if (target instanceof Selectable<?> selectable)
                     getSelection().removeFromArmies(selectable);
             }
 
             @Override
             public void updateTreeLowDetail(@NonNull Matrix4f matrix, @NonNull TreeSupply tree) {
                 getRenderer().getTreeRenderer().getLowDetail().updateLowDetail(matrix, tree);
-            }
-
-            @Override
-            public void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {
             }
         };
         PlayerInfo[] player_infos = Arrays.stream(player_slots).map(PlayerSlot::getInfo).toArray(PlayerInfo[]::new);
@@ -172,10 +167,6 @@ public final class WorldViewer implements Animated, AutoCloseable {
     @Override
     public void animate(float t) {
         animation_manager_local.runAnimations(t);
-    }
-
-    @Override
-    public void updateChecksum(@NonNull StateChecksum sum) {
     }
 
     @Override

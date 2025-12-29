@@ -4,8 +4,6 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
-import java.nio.ByteBuffer;
-
 public final class FBO implements AutoCloseable {
     private int id;
     private final int width;

@@ -30,7 +30,7 @@ public final class Selection {
         Arrays.fill(shortcut_armies, null);
 	}
 
-	void removeFromArmies(@NonNull Selectable selectable) {
+	void removeFromArmies(@NonNull Selectable<?> selectable) {
 		current_selection.remove(selectable);
             for (Army shortcut_armie : shortcut_armies) {
                 if (shortcut_armie != null) {

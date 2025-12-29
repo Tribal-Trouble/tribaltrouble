@@ -24,7 +24,7 @@ public final class NotificationManager {
 		return latest_notification;
 	}
 
-	public void newAttackNotification(@NonNull AnimationManager manager, @NonNull Selectable target, @NonNull Player local_player) {
+	public void newAttackNotification(@NonNull AnimationManager manager, @NonNull Selectable<?> target, @NonNull Player local_player) {
 		for (AttackNotification current : attack_notifies) {
 			if (current.contains(target)) {
 				current.restartTimer();
@@ -34,7 +34,7 @@ public final class NotificationManager {
 		addNotification(new AttackNotification(local_player, gui_root, target, this, manager), attack_notifies);
 	}
 
-	public void newSelectableNotification(@NonNull Selectable s, @NonNull AnimationManager manager, @NonNull Player local_player) {
+	public void newSelectableNotification(@NonNull Selectable<?> s, @NonNull AnimationManager manager, @NonNull Player local_player) {
 		newNotification(manager, local_player, s.getPositionX(), s.getPositionY(), 0f, 1f, 0f, false);
 	}
 
