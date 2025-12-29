@@ -278,7 +278,7 @@ public final class Renderer {
 
     public record GamePaths(Path dataDir, Path logDir) {}
 
-    private static GamePaths setupPaths() throws IOException {
+    private static @NonNull GamePaths setupPaths() throws IOException {
         Path dataDir = null;
         Path logDir = null;
         boolean portable = false;

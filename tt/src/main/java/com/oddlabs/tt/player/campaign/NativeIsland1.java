@@ -193,15 +193,14 @@ public final class NativeIsland1 extends Island {
                             dialog4);
                     addModalForm(dialog);
                 };
-		final Runnable dialog2 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header2"),
-                            Utils.getBundleString(bundle, "dialog2"),
-                            getCampaign().getIcons().getFaces()[0],
-                            Origin.AT_START,
-                            dialog3);
-                    addModalForm(dialog);
-                };
-		new DeathTrigger(trigger, dialog2);
+		new DeathTrigger(trigger, () -> {
+			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header2"),
+					Utils.getBundleString(bundle, "dialog2"),
+					getCampaign().getIcons().getFaces()[0],
+					Origin.AT_START,
+					dialog3);
+			addModalForm(dialog);
+		});
 
 		// Winner prize
 		final Runnable prize = () -> {

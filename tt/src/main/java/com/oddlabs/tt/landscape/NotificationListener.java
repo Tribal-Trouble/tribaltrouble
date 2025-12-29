@@ -6,8 +6,8 @@ import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 public interface NotificationListener {
-	default void newAttackNotification(@NonNull Selectable target) {}
-	default void newSelectableNotification(@NonNull Selectable target) {}
+	default void newAttackNotification(@NonNull Selectable<?> target) {}
+	default void newSelectableNotification(@NonNull Selectable<?> target) {}
 	default void registerTarget(@NonNull Target target) {}
 	default void unregisterTarget(@NonNull Target target) {}
 	default void updateTreeLowDetail(@NonNull Matrix4f matrix, @NonNull TreeSupply tree) {}

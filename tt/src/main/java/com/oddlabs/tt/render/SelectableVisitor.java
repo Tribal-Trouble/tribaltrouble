@@ -30,7 +30,7 @@ class SelectableVisitor<S extends Selectable> extends ModelVisitor<S> {
             .rotate(angle, 0f, 0f, 1f);
     }
 
-	static float @NonNull [] getTeamColor(@NonNull Selectable model) {
+	static float @NonNull [] getTeamColor(@NonNull Selectable<?> model) {
 		return model.getOwner().getColor();
 	}
 

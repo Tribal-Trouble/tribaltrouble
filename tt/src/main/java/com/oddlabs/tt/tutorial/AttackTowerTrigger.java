@@ -18,7 +18,7 @@ public final class AttackTowerTrigger extends TutorialTrigger {
 		super(.1f, 0f, "attack_tower");
 		this.ai = tower.getOwner().getWorld().getPlayers()[1];
 		this.tower = tower;
-		Selectable[] units = new Selectable[NUM_UNITS];
+		Selectable<?>[] units = Selectable.newArray(NUM_UNITS);
 		for (int i = 0; i < units.length; i++) {
             units[i] = new Unit(ai, tower.getPositionX() - 50, tower.getPositionY() - 50, null, ai.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
         }

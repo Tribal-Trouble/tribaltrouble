@@ -14,7 +14,7 @@ public final class UnitSupplyContainerFactory extends SupplyContainerFactory {
 	}
 
 	@Override
-	public @NonNull SupplyContainer createContainer(Selectable selectable) {
+	public @NonNull SupplyContainer createContainer(Selectable<?> selectable) {
 		return new UnitSupplyContainer(getMaxResourceCount(), supply_sprite_lists);
 	}
 }

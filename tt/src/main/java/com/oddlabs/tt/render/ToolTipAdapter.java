@@ -42,7 +42,7 @@ final class ToolTipAdapter implements ToolTipVisitor, ToolTip {
 		//      }
 	}
 
-	private void visitSelectable(@NonNull Selectable selectable) {
+	private void visitSelectable(@NonNull Selectable<?> selectable) {
 		assert !selectable.isDead();
 		visitPlayer(selectable.getOwner());
 		/*      if (Settings.getSettings().developer_mode) {

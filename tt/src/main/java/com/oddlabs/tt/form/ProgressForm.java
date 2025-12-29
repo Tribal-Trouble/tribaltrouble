@@ -2,6 +2,7 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.audio.AudioManager;
+import com.oddlabs.tt.camera.NullCamera;
 import com.oddlabs.tt.delegate.CameraDelegate;
 import com.oddlabs.tt.delegate.NullDelegate;
 import com.oddlabs.tt.event.LocalEventQueue;
@@ -98,7 +99,7 @@ public final class ProgressForm {
 		} else {
 			gui_root = gui.getGUIRoot();
 		}
-		CameraDelegate delegate = new NullDelegate(gui_root, false);
+		CameraDelegate<NullCamera> delegate = new NullDelegate(gui_root, false);
 		gui_root.pushDelegate(delegate);
 		int screen_width = LocalInput.getViewWidth();
 		int screen_height = LocalInput.getViewHeight();

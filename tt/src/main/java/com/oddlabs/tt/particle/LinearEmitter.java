@@ -5,13 +5,17 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.render.TextureKey;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-public abstract class LinearEmitter extends Emitter {
+public abstract class LinearEmitter extends Emitter<LinearParticle> {
 	private static final float SQRT_2 = (float)Math.sqrt(2f);
 
 	private final @NonNull Random random;
@@ -20,14 +24,14 @@ public abstract class LinearEmitter extends Emitter {
 	private final float emitter_radius;
 	private final float emitter_height;
 	private final float particles_per_second;
-	private final Vector3f velocity;
-	private final Vector3f acceleration;
-	private final Vector4f color;
-	private final Vector3f particle_radius;
-	private final Vector3f growth_rate;
+	private final @NonNull Vector3fc velocity;
+	private final @NonNull Vector3fc acceleration;
+	private final @NonNull Vector4fc color;
+	private final @NonNull Vector3fc particle_radius;
+	private final @NonNull Vector3fc growth_rate;
 	private final float friction;
 
-	private Vector4f delta_color;
+	private @NonNull Vector4fc delta_color;
 	private float energy;
 	private int num_particles;
 	private float particle_counter = 0;
@@ -36,12 +40,12 @@ public abstract class LinearEmitter extends Emitter {
 	protected LinearEmitter(@NonNull World world, @NonNull Vector3f position, float offset_z,
                             float emitter_radius, float emitter_height,
                             int num_particles, float particles_per_second,
-                            Vector3f velocity, Vector3f acceleration,
-                            Vector4f color, Vector4f delta_color,
-                            Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
+                            @NonNull Vector3fc velocity, @NonNull Vector3fc acceleration,
+                            @NonNull Vector4fc color, @NonNull Vector4fc delta_color,
+                            @NonNull Vector3fc particle_radius, @NonNull Vector3fc growth_rate, float energy, float friction,
                             int src_blend_func, int dst_blend_func,
-                            @NonNull TextureKey @NonNull[] textures, SpriteKey[] sprite_renderers, int types,
-                            AnimationManager manager) {
+                            @NonNull TextureKey @NonNull[] textures, @NonNull SpriteKey @Nullable [] sprite_renderers, int types,
+                            @NonNull AnimationManager manager) {
 		super(world, position, src_blend_func, dst_blend_func, textures, sprite_renderers, types, manager);
 		this.offset_z = offset_z;
 		this.emitter_radius = emitter_radius;
@@ -62,7 +66,7 @@ public abstract class LinearEmitter extends Emitter {
 		register();
 	}
 
-	public final void setDeltaColor(Vector4f delta_color) {
+	public final void setDeltaColor(@NonNull Vector4f delta_color) {
 		this.delta_color = delta_color;
 	}
 
@@ -102,46 +106,50 @@ public abstract class LinearEmitter extends Emitter {
 		float z_min = Float.POSITIVE_INFINITY;
 		float z_max = Float.NEGATIVE_INFINITY;
 
-		List<Particle>[] particles = getParticles();
 		int size = 0;
+		for (List<LinearParticle> particles : getParticles()) {
+			Iterator<LinearParticle> iterator = particles.iterator();
+			while (iterator.hasNext()) {
+				LinearParticle particle = iterator.next();
+				if (particle.getEnergy() <= 0f) {
+					iterator.remove();
+					continue;
+				}
 
-            for (List<Particle> particle1 : particles) {
-                for (int i = 0; i < particle1.size(); i++) {
-                    LinearParticle particle = (LinearParticle) particle1.get(i);
-                    if (particle.getEnergy() > 0f) {
-                        particle.update(t);
+				particle.update(t);
 
-                        float x = particle.getPosX();
-                        float y = particle.getPosY();
-                        float z = particle.getPosZ();
-                        float landscape_z = getWorld().getHeightMap().getNearestHeight(x, y);
-                        if (z < landscape_z + particle.getRadiusZ() + offset_z) {
-                            particle.setPos(x, y, landscape_z + particle.getRadiusZ() + offset_z);
-                            particle.setVelocity(particle.getVelocityX()*friction, particle.getVelocityY()*friction, -particle.getVelocityZ()*friction);
-                        }
+				float x = particle.getPosX();
+				float y = particle.getPosY();
+				float z = particle.getPosZ();
+				float landscape_z = getWorld().getHeightMap().getNearestHeight(x, y);
+				if (z < landscape_z + particle.getRadiusZ() + offset_z) {
+					particle.setPos(x, y, landscape_z + particle.getRadiusZ() + offset_z);
+					particle.setVelocity(particle.getVelocityX()*friction, particle.getVelocityY()*friction, -particle.getVelocityZ()*friction);
+				}
 
-                        float radius_x = particle.getRadiusX()*SQRT_2;
-                        float radius_y = particle.getRadiusY()*SQRT_2;
-                        float radius_z = particle.getRadiusZ()*SQRT_2;
-                        x_min = Math.min(x_min, x - radius_x);
-                        x_max = Math.max(x_max, x + radius_x);
-                        y_min = Math.min(y_min, y - radius_y);
-                        y_max = Math.max(y_max, y + radius_y);
-                        z_min = Math.min(z_min, z - radius_z);
-                        z_max = Math.max(z_max, z + radius_z);
-                    } else {
-                        particle1.remove(i);
-                    }
-                }
-                size += particle1.size();
-            }
+				float radius_x = particle.getRadiusX()*SQRT_2;
+				float radius_y = particle.getRadiusY()*SQRT_2;
+				float radius_z = particle.getRadiusZ()*SQRT_2;
+				x_min = Math.min(x_min, x - radius_x);
+				x_max = Math.max(x_max, x + radius_x);
+				y_min = Math.min(y_min, y - radius_y);
+				y_max = Math.max(y_max, y + radius_y);
+				z_min = Math.min(z_min, z - radius_z);
+				z_max = Math.max(z_max, z + radius_z);
+			}
+			size += particles.size();
+		}
 		setBounds(x_min, x_max, y_min, y_max, z_min, z_max);
 		reregister();
 		if (size == 0 && num_particles == 0)
 			remove();
 	}
 
-	protected abstract int initParticle(Vector3f position, Vector3f velocity, Vector3f acceleration, Vector4f color, Vector4f delta_color, Vector3f particle_radius, Vector3f growth_rate, float energy);
+	protected abstract int initParticle(@NonNull Vector3f position,
+										@NonNull Vector3fc velocity, @NonNull Vector3fc acceleration,
+										@NonNull Vector4fc color, @NonNull Vector4fc delta_color,
+										@NonNull Vector3fc particle_radius, @NonNull Vector3fc growth_rate,
+										float energy);
 
 	protected final @NonNull Vector3f randomPosition() {
 		float r = emitter_radius*(float)(1 - random.nextGaussian());

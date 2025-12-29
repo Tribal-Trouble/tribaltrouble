@@ -16,7 +16,7 @@ public abstract class TextureGenerator implements Supplier<@NonNull Texture @Non
 
 	@Override
 	public int hashCode() {
-		return 0;
+		return getClass().getSimpleName().hashCode();
 	}
 
 	@Override

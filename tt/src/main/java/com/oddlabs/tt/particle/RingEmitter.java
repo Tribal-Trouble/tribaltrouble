@@ -4,7 +4,9 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.TextureKey;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 public final class RingEmitter extends LinearEmitter {
@@ -13,9 +15,9 @@ public final class RingEmitter extends LinearEmitter {
 	public RingEmitter(@NonNull World world, @NonNull Vector3f position, float offset_z,
                        float emitter_radius, float emitter_height,
                        int num_particles, float particles_per_second,
-                       Vector3f velocity, Vector3f acceleration,
-                       Vector4f color, Vector4f delta_color,
-                       Vector3f particle_radius, Vector3f growth_rate, float energy, float friction,
+                       @NonNull Vector3f velocity, @NonNull Vector3f acceleration,
+                       @NonNull Vector4f color, @NonNull Vector4f delta_color,
+                       @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy, float friction,
                        int src_blend_func, int dst_blend_func,
                        @NonNull TextureKey @NonNull [] textures, AnimationManager manager) {
 		super(world, position,
@@ -42,7 +44,9 @@ public final class RingEmitter extends LinearEmitter {
 	}
 
 	@Override
-	protected int initParticle(Vector3f position, @NonNull Vector3f velocity, @NonNull Vector3f acceleration, @NonNull Vector4f color, @NonNull Vector4f delta_color, @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy) {
+	protected int initParticle(@NonNull Vector3f position, @NonNull Vector3fc velocity, @NonNull Vector3fc acceleration,
+							   @NonNull Vector4fc color, @NonNull Vector4fc delta_color,
+							   @NonNull Vector3fc particle_radius, @NonNull Vector3fc growth_rate, float energy) {
 		float angle = 2*(float)Math.PI/num_particles;
 		for (int i = 0; i < num_particles; i++) {
 			LinearParticle particle = new LinearParticle(getWorld());

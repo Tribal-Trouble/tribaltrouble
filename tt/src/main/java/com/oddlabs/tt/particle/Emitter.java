@@ -16,11 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public abstract class Emitter extends Element<Emitter> implements Animated {
+public abstract class Emitter<P extends Particle> extends Element<Emitter<P>> implements Animated {
 	private final @NonNull AnimationManager manager;
-	private final @NonNull List<@NonNull Particle> @NonNull [] particles;
+	private final @NonNull List<@NonNull P> @NonNull [] particles;
 	private final @NonNull TextureKey @NonNull[] textures;
-	private final @NonNull SpriteKey @NonNull [] sprite_renderers;
+	private final @NonNull SpriteKey @Nullable [] sprite_renderers;
 	private final int src_blend_func;
 	private final int dst_blend_func;
 	private final int types;
@@ -32,7 +32,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 	private float scale_z = 1f;
 
 	@SuppressWarnings("unchecked")
-	public Emitter(@NonNull World world, @NonNull Vector3f position, int src_blend_func, int dst_blend_func, @NonNull TextureKey @NonNull [] textures, @NonNull SpriteKey @NonNull [] sprite_renderers, int types, @NonNull AnimationManager manager) {
+	public Emitter(@NonNull World world, @NonNull Vector3f position, int src_blend_func, int dst_blend_func, @NonNull TextureKey @NonNull [] textures, @NonNull SpriteKey @Nullable [] sprite_renderers, int types, @NonNull AnimationManager manager) {
 		super(world.getElementRoot());
 		this.world = world;
 		this.position = position;
@@ -47,7 +47,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 	}
 
     @Override
-    protected @NonNull Emitter self() {
+    protected @NonNull Emitter<P> self() {
         return this;
     }
 
@@ -59,7 +59,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 		return sprite_renderers;
 	}
 
-	public final List<@NonNull Particle> @NonNull [] getParticles() {
+	public final List<@NonNull P> @NonNull [] getParticles() {
 		return particles;
 	}
 
@@ -75,7 +75,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 		return dst_blend_func;
 	}
 
-	protected final void add(@NonNull Particle particle) {
+	protected final void add(@NonNull P particle) {
 		particles[particle.getType()].add(particle);
 	}
 
@@ -118,7 +118,7 @@ public abstract class Emitter extends Element<Emitter> implements Animated {
 	}
 
 	public final void forceColorChange(float dr, float dg, float db, float da) {
-            for (List<Particle> particle1 : particles) {
+            for (List<P> particle1 : particles) {
                 for (Particle particle : particle1) {
                     particle.setColor(particle.getColorR() + dr, particle.getColorG() + dg, particle.getColorB() + db, particle.getColorA() + da);
                 }

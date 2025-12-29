@@ -20,7 +20,6 @@ import com.oddlabs.tt.model.behaviour.NullController;
 import com.oddlabs.tt.model.behaviour.PlaceBuildingController;
 import com.oddlabs.tt.model.behaviour.WalkController;
 import com.oddlabs.tt.pathfinder.UnitGrid;
-import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -46,7 +45,7 @@ public abstract class AI implements Animated {
 	private int INDEX_PLACE_BUILDING_PEONS;
 	private int INDEX_DEFENDING_UNITS;
 
-	private Selectable[][] lists;
+	private Selectable<?>[][] lists;
 	private boolean armory_under_construction = false;
 	private boolean quarters_under_construction = false;
 	private boolean tower_under_construction = false;
@@ -67,12 +66,12 @@ public abstract class AI implements Animated {
 				owner.buildBuilding(Race.BUILDING_ARMORY, grid_start_x, grid_start_y);
 			}
 			for (int i = 0; i < unit_info.getNumTowers(); i++) {
-				int center = owner.getWorld().getHeightMap().getGridUnitsPerWorld()/2;
+				int center = owner.getWorld().getHeightMap().getGridUnitsPerWorld() / 2;
 				int dx = center - grid_start_x;
 				int dy = center - grid_start_y;
-				float inv_dist = 1f/(float)Math.sqrt(dx*dx + dy*dy);
-				int tx = (int)(grid_start_x + 10f*dx*inv_dist);
-				int ty = (int)(grid_start_y + 10f*dy*inv_dist);
+				float inv_dist = 1f / (float) Math.sqrt(dx * dx + dy * dy);
+				int tx = (int) (grid_start_x + 10f * dx * inv_dist);
+				int ty = (int) (grid_start_y + 10f * dy * inv_dist);
 				owner.buildBuilding(Race.BUILDING_TOWER, tx, ty);
 			}
 			Random random = new Random(42);
@@ -113,59 +112,59 @@ public abstract class AI implements Animated {
 		classifyIndex(lists);
 	}
 
-	protected final @NonNull Selectable @Nullable [] getIdlePeons() {
-        return INDEX_IDLE_PEONS == -1 ? null : lists[INDEX_IDLE_PEONS];
+	protected final @NonNull Selectable<?> @Nullable [] getIdlePeons() {
+		return INDEX_IDLE_PEONS == -1 ? null : lists[INDEX_IDLE_PEONS];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getIdleChieftains() {
-        return INDEX_IDLE_CHIEFTAINS == -1 ? null : lists[INDEX_IDLE_CHIEFTAINS];
+	protected final @NonNull Selectable<?> @Nullable [] getIdleChieftains() {
+		return INDEX_IDLE_CHIEFTAINS == -1 ? null : lists[INDEX_IDLE_CHIEFTAINS];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getIdleWarriors() {
-        return INDEX_IDLE_WARRIORS == -1 ? null : lists[INDEX_IDLE_WARRIORS];
+	protected final @NonNull Selectable<?> @Nullable [] getIdleWarriors() {
+		return INDEX_IDLE_WARRIORS == -1 ? null : lists[INDEX_IDLE_WARRIORS];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getGatherTreePeons() {
-        return INDEX_GATHER_TREE_PEONS == -1 ? null : lists[INDEX_GATHER_TREE_PEONS];
+	protected final @NonNull Selectable<?> @Nullable [] getGatherTreePeons() {
+		return INDEX_GATHER_TREE_PEONS == -1 ? null : lists[INDEX_GATHER_TREE_PEONS];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getGatherRockPeons() {
-        return INDEX_GATHER_ROCK_PEONS == -1 ? null : lists[INDEX_GATHER_ROCK_PEONS];
+	protected final @NonNull Selectable<?> @Nullable [] getGatherRockPeons() {
+		return INDEX_GATHER_ROCK_PEONS == -1 ? null : lists[INDEX_GATHER_ROCK_PEONS];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getGatherIronPeons() {
-        return INDEX_GATHER_IRON_PEONS == -1 ? null : lists[INDEX_GATHER_IRON_PEONS];
+	protected final @NonNull Selectable<?> @Nullable [] getGatherIronPeons() {
+		return INDEX_GATHER_IRON_PEONS == -1 ? null : lists[INDEX_GATHER_IRON_PEONS];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getGatherRubberPeons() {
-        return INDEX_GATHER_RUBBER_PEONS == -1 ? null : lists[INDEX_GATHER_RUBBER_PEONS];
+	protected final @NonNull Selectable<?> @Nullable [] getGatherRubberPeons() {
+		return INDEX_GATHER_RUBBER_PEONS == -1 ? null : lists[INDEX_GATHER_RUBBER_PEONS];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getArmory() {
-        return INDEX_ARMORY == -1 ? null : lists[INDEX_ARMORY];
+	protected final @NonNull Selectable<?> @Nullable [] getArmory() {
+		return INDEX_ARMORY == -1 ? null : lists[INDEX_ARMORY];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getQuarters() {
-        return INDEX_QUARTERS == -1 ? null : lists[INDEX_QUARTERS];
+	protected final @NonNull Selectable<?> @Nullable [] getQuarters() {
+		return INDEX_QUARTERS == -1 ? null : lists[INDEX_QUARTERS];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getTowers() {
-        return INDEX_TOWERS == -1 ? null : lists[INDEX_TOWERS];
+	protected final @NonNull Selectable<?> @Nullable [] getTowers() {
+		return INDEX_TOWERS == -1 ? null : lists[INDEX_TOWERS];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getConstructionSites() {
-        return INDEX_CONSTRUCTION_SITES == -1 ? null : lists[INDEX_CONSTRUCTION_SITES];
+	protected final @NonNull Selectable<?> @Nullable [] getConstructionSites() {
+		return INDEX_CONSTRUCTION_SITES == -1 ? null : lists[INDEX_CONSTRUCTION_SITES];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getPlaceBuildingPeons() {
-        return INDEX_PLACE_BUILDING_PEONS == -1 ? null : lists[INDEX_PLACE_BUILDING_PEONS];
+	protected final @NonNull Selectable<?> @Nullable [] getPlaceBuildingPeons() {
+		return INDEX_PLACE_BUILDING_PEONS == -1 ? null : lists[INDEX_PLACE_BUILDING_PEONS];
 	}
 
-	protected final @NonNull Selectable @Nullable [] getDefendingUnits() {
-        return INDEX_DEFENDING_UNITS == -1 ? null : lists[INDEX_DEFENDING_UNITS];
+	protected final @NonNull Selectable<?> @Nullable [] getDefendingUnits() {
+		return INDEX_DEFENDING_UNITS == -1 ? null : lists[INDEX_DEFENDING_UNITS];
 	}
 
-	private void classifyIndex(@NonNull Selectable @NonNull [] @NonNull [] lists) {
+	private void classifyIndex(@NonNull Selectable<?> @NonNull [] @NonNull [] lists) {
 		INDEX_IDLE_PEONS = -1;
 		INDEX_IDLE_CHIEFTAINS = -1;
 		INDEX_IDLE_WARRIORS = -1;
@@ -180,7 +179,7 @@ public abstract class AI implements Animated {
 		INDEX_PLACE_BUILDING_PEONS = -1;
 		INDEX_DEFENDING_UNITS = -1;
 		for (int i = 0; i < lists.length; i++) {
-			Selectable s = lists[i][0];
+			Selectable<?> s = lists[i][0];
 
 			if (s.getPrimaryController() instanceof IdleController) {
 				if (s.getAbilities().hasAbilities(Abilities.BUILD)) {
@@ -191,23 +190,23 @@ public abstract class AI implements Animated {
 					INDEX_IDLE_WARRIORS = i;
 				}
 			} else if (s.getPrimaryController() instanceof GatherController<?> gc) {
-                Class<?> supply_type = gc.getSupplyType();
-                if (supply_type == TreeSupply.class) {
+				Class<?> supply_type = gc.getSupplyType();
+				if (supply_type == TreeSupply.class) {
 					INDEX_GATHER_TREE_PEONS = i;
 				} else if (supply_type == RockSupply.class) {
 					INDEX_GATHER_ROCK_PEONS = i;
 				} else if (supply_type == IronSupply.class) {
 					INDEX_GATHER_IRON_PEONS = i;
-				} else if (supply_type== RubberSupply.class) {
+				} else if (supply_type == RubberSupply.class) {
 					INDEX_GATHER_RUBBER_PEONS = i;
 				}
 			} else if (s.getPrimaryController() instanceof NullController) {
 				if (s.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
 					INDEX_ARMORY = i;
 					armory_under_construction = false;
-					getOwner().buildRockWeapons((Building)s, BuildSpinner.INFINITE_LIMIT, true);
-					getOwner().buildIronWeapons((Building)s, BuildSpinner.INFINITE_LIMIT, true);
-					getOwner().buildRubberWeapons((Building)s, BuildSpinner.INFINITE_LIMIT, true);
+					getOwner().buildRockWeapons((Building) s, BuildSpinner.INFINITE_LIMIT, true);
+					getOwner().buildIronWeapons((Building) s, BuildSpinner.INFINITE_LIMIT, true);
+					getOwner().buildRubberWeapons((Building) s, BuildSpinner.INFINITE_LIMIT, true);
 				} else if (s.getAbilities().hasAbilities(Abilities.REPRODUCE)) {
 					INDEX_QUARTERS = i;
 					quarters_under_construction = false;
@@ -254,7 +253,7 @@ public abstract class AI implements Animated {
 	}
 
 	private void reset() {
-		sleep_time = owner.getWorld().getRandom().nextFloat()*SLEEP_SECONDS + MIN_SLEEP_SECONDS;
+		sleep_time = owner.getWorld().getRandom().nextFloat() * SLEEP_SECONDS + MIN_SLEEP_SECONDS;
 	}
 
 	protected final boolean shouldDoAction(float time) {
@@ -267,57 +266,53 @@ public abstract class AI implements Animated {
 
 	public final void manTowers(int num_towers) {
 		reclassify();
-		Selectable[] towers = getTowers();
-		Selectable[] idle_warriors = getIdleWarriors();
+		Selectable<?>[] towers = getTowers();
+		Selectable<?>[] idle_warriors = getIdleWarriors();
 		if (towers == null || idle_warriors == null)
 			return;
 
 		int length = Math.min(idle_warriors.length, towers.length);
 		for (int i = 0; i < length; i++) {
-			owner.setTarget(new Selectable[]{idle_warriors[i]}, towers[i], Action.DEFAULT, false);
+			owner.setTarget(Selectable.newArray(idle_warriors[i]), towers[i], Action.DEFAULT, false);
 		}
 	}
 
 	public static int attackLandscape(@NonNull Player owner, @NonNull Target target, int num_warriors) {
 		int ordered = 0;
-		Selectable[][] lists = owner.classifyUnits();
-        for (Selectable[] list : lists) {
-            Selectable s = list[0];
-            if (s instanceof Unit unit && !(s.getPrimaryController() instanceof WalkController && ((WalkController)s.getPrimaryController()).isAgressive())) {
-                for (Selectable thrower : list) {
-                    if (unit.getAbilities().hasAbilities(Abilities.THROW)) {
-                        owner.setLandscapeTarget(new Selectable[]{thrower}, target.getGridX(), target.getGridY(), Action.ATTACK, true);
-                        ordered++;
-                        if (ordered == num_warriors) {
-                            return ordered;
-                        }
-                    }
-                }
-            }
-        }
+		Selectable<?>[][] lists = owner.classifyUnits();
+		for (Selectable<?>[] list : lists) {
+			Selectable<?> s = list[0];
+			if (s instanceof Unit unit && !(s.getPrimaryController() instanceof WalkController && ((WalkController) s.getPrimaryController()).isAgressive())) {
+				for (Selectable<?> thrower : list) {
+					if (unit.getAbilities().hasAbilities(Abilities.THROW)) {
+						owner.setLandscapeTarget(Selectable.newArray(thrower), target.getGridX(), target.getGridY(), Action.ATTACK, true);
+						ordered++;
+						if (ordered == num_warriors) {
+							return ordered;
+						}
+					}
+				}
+			}
+		}
 		return ordered;
 	}
 
 	public static @Nullable Unit getWarrior(@NonNull Player owner) {
-		Selectable[][] lists = owner.classifyUnits();
-        for (Selectable[] list : lists) {
-            Selectable s = list[0];
-            if (s instanceof Unit unit && s.getAbilities().hasAbilities(Abilities.THROW)) {
-                return unit;
-            }
-        }
+		Selectable<?>[][] lists = owner.classifyUnits();
+		for (Selectable<?>[] list : lists) {
+			Selectable<?> s = list[0];
+			if (s instanceof Unit unit && s.getAbilities().hasAbilities(Abilities.THROW)) {
+				return unit;
+			}
+		}
 		return null;
 	}
 
 	protected final Target getTarget(@NonNull Random random) {
 		float RADIUS = 30;
-		float target_x = owner.getStartX() + (random.nextFloat()*2-1)*RADIUS;
-		float target_y = owner.getStartY() + (random.nextFloat()*2-1)*RADIUS;
+		float target_x = owner.getStartX() + (random.nextFloat() * 2 - 1) * RADIUS;
+		float target_y = owner.getStartY() + (random.nextFloat() * 2 - 1) * RADIUS;
 		return getUnitGrid().findGridTargets(UnitGrid.toGridCoordinate(target_x), UnitGrid.toGridCoordinate(target_y), 1, false)[0];
 
-	}
-
-	@Override
-	public final void updateChecksum(@NonNull StateChecksum checksum) {
 	}
 }

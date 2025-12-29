@@ -8,7 +8,7 @@ import java.util.Set;
 public class Army {
 	private final Set<@NonNull Selectable<?>> selection = new LinkedHashSet<>();
 
-	public final Selectable<?>[] filter(int ability_filter) {
+	public final @NonNull Selectable<?> @NonNull [] filter(int ability_filter) {
         return (Selectable<?>[]) selection.stream()
                 .filter(s -> s.getAbilities().hasAbilities(ability_filter))
                 .toArray(Selectable[]::new);

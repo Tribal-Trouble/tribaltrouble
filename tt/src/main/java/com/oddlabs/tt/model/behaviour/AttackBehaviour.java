@@ -12,7 +12,7 @@ public final class AttackBehaviour implements Behaviour {
         RELEASED
     }
 
-	private final @NonNull Selectable target;
+	private final @NonNull Selectable<?> target;
 	private final @NonNull Unit unit;
 	private float anim_time;
 	private @NonNull AttackState state = AttackState.THROWING;

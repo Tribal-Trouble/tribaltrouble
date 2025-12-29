@@ -2,6 +2,7 @@ package com.oddlabs.procedural;
 
 public final class Tools {
 	private Tools() {
+		// no instances
 	}
 
 	public static float modulo(float x, float n) {
@@ -17,11 +18,9 @@ public final class Tools {
 	}
 
 	public static float interpolateSmooth(float v1, float v2, float fraction) {
-		if (fraction < 0.5f) {
-			fraction = 2f*fraction*fraction;
-		} else {
-			fraction = 1f - 2f*(fraction - 1f)*(fraction - 1f);
-		}
+        fraction = fraction < 0.5f
+				? 2f * fraction * fraction
+				: 1f - 2f * (fraction - 1f) * (fraction - 1f);
 		return v1*(1f - fraction) + v2*fraction;
 	}
 
@@ -48,44 +47,36 @@ public final class Tools {
 
 	public static float step(float start, float end, float segment_length, float x) {
 		x = modulo(x, segment_length);
-		if (x < start || x > end) return 0f;
-		return 1f;
+        return x < start || x > end ? 0f : 1f;
 	}
 
 	public static float sawtooth(float x) {
 		x++; // hack!
 		float x_frac = x - (int)x;
-		if (x_frac < 0.5) {
-			return 2*x_frac;
-		} else {
-			return -2*x_frac + 2;
-		}
+        return x_frac < 0.5
+				? 2 * x_frac
+				: -2 * x_frac + 2;
 	}
 
 	public static float gaussify(float x) {
-		if (x >=0 && x < 0.5) {
-			return 0.5f*(float)Math.sqrt(2*x);
-		}
-		if (x >=0.5f && x <= 1f) {
-			return 1f - 0.5f*(float)Math.sqrt(-2*x + 2);
-		}
-		return 0;
+        return x >= 0 && x < 0.5
+				? 0.5f * (float) Math.sqrt(2 * x)
+				: x >= 0.5f && x <= 1f
+					? 1f - 0.5f * (float) Math.sqrt(-2 * x + 2)
+					: 0;
 	}
 
 	public static float gaussify(float x, float exponent) {
-		if (x >=0 && x < 0.5) {
-			return 0.5f*(float)Math.pow(2*x, exponent);
-		}
-		if (x >=0.5f && x <= 1f) {
-			return 1f - 0.5f*(float)Math.pow(-2*x + 2, exponent);
-		}
-		return 0;
+        return x >= 0 && x < 0.5
+				? 0.5f * (float) Math.pow(2 * x, exponent)
+				: x >= 0.5f && x <= 1f
+					? 1f - 0.5f * (float) Math.pow(-2 * x + 2, exponent)
+					: 0;
 	}
 
 	public static float gain(float gain, float x) {
-		if (x < 0.5f)
-			return (float)(Math.pow(2 * x, Math.log(1 - gain)/Math.log(0.5d))/2f);
-		else
-			return 1f - (float)(Math.pow(2 - 2 * x, Math.log(1 - gain)/Math.log(0.5d))/2f);
+        return x < 0.5f
+				? (float) (Math.pow(2 * x, Math.log(1 - gain) / Math.log(0.5d)) / 2f)
+				: 1f - (float) (Math.pow(2 - 2 * x, Math.log(1 - gain) / Math.log(0.5d)) / 2f);
 	}
 }

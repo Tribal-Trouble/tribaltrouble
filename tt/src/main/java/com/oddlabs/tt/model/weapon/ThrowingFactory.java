@@ -31,7 +31,7 @@ public final class ThrowingFactory extends WeaponFactory {
 	}
 
 	@Override
-	protected void doAttack(boolean hit, @NonNull Unit src, @NonNull Selectable target) {
+	protected void doAttack(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target) {
 		try {
             // TODO this is kinda gross
             weapon_constructor.newInstance(hit, src, target, weapon_sprite, throw_sound, hit_sounds);

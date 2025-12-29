@@ -78,7 +78,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 	private float patch_hit_y;
 	private float patch_hit_z;
 
-	private Selectable @NonNull [] old_target_selection = new Selectable[0];
+	private Selectable<?> @NonNull [] old_target_selection = Selectable.newArray(0);
 	private @Nullable Action old_target_action;
 	private boolean old_target_aggressive;
 
@@ -120,7 +120,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 		setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
 		pickObjects();
 		Target nearest_pickable = getNearestPick(element_pick_list, Target.class);
-		Selectable[] selection = selected_army.filter(Abilities.TARGET);
+		Selectable<?>[] selection = selected_army.filter(Abilities.TARGET);
 		if (nearest_pickable != null) {
 			if (!(nearest_pickable instanceof SceneryModel) || ((SceneryModel)nearest_pickable).isOccupying())
 				respond_manager.addResponder(nearest_pickable);
@@ -145,7 +145,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 		}
 	}
 
-	private boolean isNewSetTarget(Selectable @NonNull [] selection, @NonNull Target target, @NonNull Action action, boolean aggressive) {
+	private boolean isNewSetTarget(Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action, boolean aggressive) {
 		old_landscape_target_grid_x = -1;
 		old_landscape_target_grid_y = -1;
 		
@@ -205,8 +205,8 @@ public final class Picker implements Updatable<TimerAnimation> {
 			return createBoxedPick();
 	}
 
-	private Selectable @NonNull [] createSinglePick(@NonNull CameraState camera, int clicks) {
-		Selectable nearest = (Selectable)getNearestPick(element_pick_list, Selectable.class);
+	private Selectable<?> @NonNull [] createSinglePick(@NonNull CameraState camera, int clicks) {
+		var nearest = (Selectable<?>)getNearestPick(element_pick_list, Selectable.class);
 		if (nearest != null) {
 			if (clicks > 1) {
 				if (nearest.getAbilities().hasAbilities(Abilities.THROW)) {
@@ -214,38 +214,38 @@ public final class Picker implements Updatable<TimerAnimation> {
 				} else if (nearest.getAbilities().hasAbilities(Abilities.HARVEST)) {
 					return pickAll(camera, Abilities.HARVEST);
 				} else {
-					return new Selectable[]{nearest};
+					return Selectable.newArray(nearest);
 				}
 			} else {
-				return new Selectable[]{nearest};
+				return Selectable.newArray(nearest);
 			}
 		} else {
-			return new Selectable[0];
+			return Selectable.newArray(0);
 		}
 	}
 
-	private Selectable @NonNull [] createBoxedPick() {
-		List<Selectable> selectables = new ArrayList<>();
+	private Selectable<?> @NonNull [] createBoxedPick() {
+		List<Selectable<?>> selectables = new ArrayList<>();
 		for (int i = 0; i < element_pick_list.size(); i++) {
 			Target pickable = element_pick_list.get(i);
 			element_pick_list.set(i, null);
-			if (pickable instanceof Selectable selectable)
+			if (pickable instanceof Selectable<?> selectable)
 				selectables.add(selectable);
 		}
-		Selectable[] array = new Selectable[selectables.size()];
+		Selectable<?>[] array = Selectable.newArray(selectables.size());
 		selectables.toArray(array);
 		return array;
 	}
 
-	private Selectable @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter) {
-		List<Selectable> result = new ArrayList<>();
-		Selectable[] complete_list = pickBoxed(camera, 0, 0, LocalInput.getViewWidth() - 1, LocalInput.getViewHeight() - 1, 2);
-            for (Selectable selectable : complete_list) {
+	private Selectable<?> @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter) {
+		List<Selectable<?>> result = new ArrayList<>();
+		Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, LocalInput.getViewWidth() - 1, LocalInput.getViewHeight() - 1, 2);
+            for (Selectable<?> selectable : complete_list) {
                 if (selectable.getAbilities().hasAbilities(ability_filter)) {
                     result.add(selectable);
                 }
             }
-		Selectable[] array = new Selectable[result.size()];
+		Selectable<?>[] array = Selectable.newArray(result.size());
 		result.toArray(array);
 		return array;
 	}

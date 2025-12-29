@@ -4,13 +4,16 @@ import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.TextureKey;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-public class ParametricEmitter extends Emitter {
+public class ParametricEmitter extends Emitter<ParametricParticle> {
 	private static final float SQRT_2 = (float)Math.sqrt(2f);
 	private final @NonNull Random random;
 	private final Vector3f randomized_offset = new Vector3f();
@@ -21,23 +24,23 @@ public class ParametricEmitter extends Emitter {
 	private final float velocity_v;
 	private final float velocity_random_margin;
 	private final float particles_per_second;
-	private final Vector4f color;
-	private final Vector3f particle_radius;
-	private final Vector3f growth_rate;
+	private final Vector4fc color;
+	private final Vector3fc particle_radius;
+	private final Vector3fc growth_rate;
 
-	private Vector4f delta_color;
+	private Vector4fc delta_color;
 	private float energy;
 	private int num_particles;
 	private float particle_counter = 0;
 	private boolean started = true;
 
-	public ParametricEmitter(@NonNull World world, ParametricFunction function, Vector3f position,
+	public ParametricEmitter(@NonNull World world, ParametricFunction function, @NonNull Vector3f position,
                              float area_xy, float area_z, float velocity_u, float velocity_v, float velocity_random_margin,
                              int num_particles, float particles_per_second,
-                             Vector4f color, Vector4f delta_color,
-                             Vector3f particle_radius, Vector3f growth_rate, float energy,
+                             Vector4fc color, Vector4fc delta_color,
+                             Vector3fc particle_radius, Vector3fc growth_rate, float energy,
                              int src_blend_func, int dst_blend_func, TextureKey @NonNull [] textures,
-                             AnimationManager manager) {
+                             @NonNull AnimationManager manager) {
 		super(world, position, src_blend_func, dst_blend_func, textures, null, textures.length, manager);
 		this.function = function;
 		this.area_xy = area_xy;
@@ -99,36 +102,36 @@ public class ParametricEmitter extends Emitter {
 		float z_min = Float.POSITIVE_INFINITY;
 		float z_max = Float.NEGATIVE_INFINITY;
 
-		List<Particle>[] particles = getParticles();
 		int size = 0;
-
-            for (List<Particle> particle1 : particles) {
-                for (int i = 0; i < particle1.size(); i++) {
-                    ParametricParticle particle = (ParametricParticle) particle1.get(i);
-                    if (particle.getEnergy() > 0f) {
-                        particle.update(t, getScaleX(), getScaleY(), getScaleZ());
-                        float x = particle.getPosX();
-                        float y = particle.getPosY();
-                        float z = particle.getPosZ();
-                        particle.setPos(getX() + x, getY() + y, getZ() + z);
-                        x = particle.getPosX();
-                        y = particle.getPosY();
-                        z = particle.getPosZ();
-                        float radius_x = particle.getRadiusX()*SQRT_2;
-                        float radius_y = particle.getRadiusY()*SQRT_2;
-                        float radius_z = particle.getRadiusZ()*SQRT_2;
-                        x_min = Math.min(x_min, x - radius_x);
-                        x_max = Math.max(x_max, x + radius_x);
-                        y_min = Math.min(y_min, y - radius_y);
-                        y_max = Math.max(y_max, y + radius_y);
-                        z_min = Math.min(z_min, z - radius_z);
-                        z_max = Math.max(z_max, z + radius_z);
-                    } else {
-                        particle1.remove(i);
-                    }
+		for (List<ParametricParticle> list : getParticles()) {
+			Iterator<ParametricParticle> particles = list.iterator();
+			while (particles.hasNext()) {
+				ParametricParticle particle = particles.next();
+                if (particle.getEnergy() <= 0f) {
+                    particles.remove();
+					continue;
                 }
-                size += particle1.size();
+
+				particle.update(t, getScaleX(), getScaleY(), getScaleZ());
+				float x = particle.getPosX();
+				float y = particle.getPosY();
+				float z = particle.getPosZ();
+				particle.setPos(getX() + x, getY() + y, getZ() + z);
+				x = particle.getPosX();
+				y = particle.getPosY();
+				z = particle.getPosZ();
+				float radius_x = particle.getRadiusX()*SQRT_2;
+				float radius_y = particle.getRadiusY()*SQRT_2;
+				float radius_z = particle.getRadiusZ()*SQRT_2;
+				x_min = Math.min(x_min, x - radius_x);
+				x_max = Math.max(x_max, x + radius_x);
+				y_min = Math.min(y_min, y - radius_y);
+				y_max = Math.max(y_max, y + radius_y);
+				z_min = Math.min(z_min, z - radius_z);
+				z_max = Math.max(z_max, z + radius_z);
             }
+			size += list.size();
+		}
 		setBounds(x_min, x_max, y_min, y_max, z_min, z_max);
 		reregister();
 		if (size == 0 && num_particles == 0) {
@@ -136,7 +139,11 @@ public class ParametricEmitter extends Emitter {
 		}
 	}
 
-	protected int initParticle(ParametricFunction function, float velocity_u, float velocity_v, @NonNull Vector4f color, @NonNull Vector4f delta_color, @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy) {
+	protected int initParticle(ParametricFunction function,
+							   float velocity_u, float velocity_v,
+							   @NonNull Vector4fc color, @NonNull Vector4fc delta_color,
+							   @NonNull Vector3fc particle_radius, @NonNull Vector3fc growth_rate,
+							   float energy) {
 
 		Vector3f offset = randomOffset(area_xy, area_xy, area_z);
 		ParametricParticle particle = new ParametricParticle(getWorld(), function, random.nextFloat()*(float)Math.PI*2f, random.nextFloat()*(float)Math.PI*2f,

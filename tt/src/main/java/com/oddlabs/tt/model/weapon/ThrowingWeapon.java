@@ -21,12 +21,12 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	private static final float OFFSET_X = 1.316f;
 	private static final float OFFSET_Y = -.347f;
 	private static final float OFFSET_Z = 1.382f;
-	private final AbstractAudioPlayer audio_player;
-	private final Audio @NonNull [] hit_sounds;
+	private final @NonNull AbstractAudioPlayer audio_player;
+	private final @NonNull Audio @NonNull [] hit_sounds;
 	private final @NonNull Player owner;
 	private final boolean hit;
 
-	private @NonNull Selectable target;
+	private @NonNull Selectable<?> target;
 	private float start_x;
 	private float start_y;
 	private float end_x;
@@ -38,7 +38,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	private float z_speed;
 	private float deterministic_z;
 
-	public ThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable target, SpriteKey sprite_renderer, @NonNull Audio throw_sound, @NonNull Audio @NonNull [] hit_sounds) {
+	public ThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, @NonNull Audio @NonNull [] hit_sounds) {
 		super(target.getOwner().getWorld(), sprite_renderer);
 		this.hit = hit;
 		this.hit_sounds = hit_sounds;
@@ -72,7 +72,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 		return "ThrowingWeapon: start_x = " + start_x + " | start_y = " + start_y + " | end_x = " + end_x + " | end_y = " + end_y + " | target = " + target + "  "  + super.toString();
 	}
 
-	protected final void setTarget(@NonNull Selectable target) {
+	protected final void setTarget(@NonNull Selectable<?> target) {
 		this.target = target;
 		updateDirection();
 		calcNumUpdatesAndZSpeed();
@@ -159,7 +159,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 		audio_player.setPos(getPositionX(), getPositionY(), getPositionZ());
 	}
 
-	protected void hitTarget(boolean hit, @NonNull Player owner, @NonNull Selectable target) {
+	protected void hitTarget(boolean hit, @NonNull Player owner, @NonNull Selectable<?> target) {
 		owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
 		audio_player.stop();
 		remove();
@@ -167,7 +167,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 			damageTarget(target);
 	}
 
-	protected final void damageTarget(@NonNull Selectable target) {
+	protected final void damageTarget(@NonNull Selectable<?> target) {
 		if (target instanceof Unit) {
 			owner.getWorld().getAudio().newAudio(new AudioParameters<>(hit_sounds[owner.getWorld().getRandom().nextInt(hit_sounds.length)], target.getPositionX(), target.getPositionY(), target.getPositionZ(),
 					AudioPlayer.AUDIO_RANK_DEATH,

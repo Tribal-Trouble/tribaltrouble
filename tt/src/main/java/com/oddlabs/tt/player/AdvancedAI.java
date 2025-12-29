@@ -166,9 +166,9 @@ public final class AdvancedAI extends AI {
 		}
 	}
 
-	private int addFromList(Selectable @NonNull [] list, @NonNull List<Unit> new_list, int progress, int score) {
+	private int addFromList(Selectable<?> @NonNull [] list, @NonNull List<Unit> new_list, int progress, int score) {
 		int result = progress;
-        for (Selectable list1 : list) {
+        for (Selectable<?> list1 : list) {
             Unit unit = (Unit) list1;
             new_list.add(unit);
             result += getUnitScore(unit);
@@ -178,13 +178,12 @@ public final class AdvancedAI extends AI {
 		return result;
 	}
 
-	private int scanForEnemies(@NonNull Selectable src) {
+	private int scanForEnemies(@NonNull Selectable<?> src) {
 		FindOccupantFilter<Unit> filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), 30f, src, Unit.class);
 		getUnitGrid().scan(filter, src.getGridX(), src.getGridY());
-		List<Unit> target_list = filter.getResult();
 		int score = 0;
 		defense_target = null;
-        for (Unit unit : target_list) {
+        for (Unit unit : filter.getResult()) {
             if (!unit.isDead() && getOwner().isEnemy(unit.getOwner())) {
                 score += getUnitScore(unit);
                 if (defense_target == null)
@@ -215,9 +214,7 @@ public final class AdvancedAI extends AI {
 		} else if (num_towers > 0) {
 			for (int i = 0; i < getTowers().length; i++) {
 				if (!((Building)getTowers()[i]).getUnitContainer().isSupplyFull() && getIdleWarriors() != null && getIdleWarriors().length > i) {
-					Selectable[] warrior = new Selectable[1];
-					warrior[0] = getIdleWarriors()[i];
-					getOwner().setTarget(warrior, getTowers()[i], Action.DEFAULT, false);
+					getOwner().setTarget(Selectable.newArray(getIdleWarriors()[i]), getTowers()[i], Action.DEFAULT, false);
 					nodeDeployUnitsInArmory(1);
 				}
 			}
@@ -268,12 +265,12 @@ else
 		if (getIdleWarriors() != null && getIdleWarriors().length >= num_warriors
 				&& (!use_chieftain || getOwner().hasActiveChieftain())) {
 			boolean idle_chieftain = getIdleChieftains() != null && getIdleChieftains().length >= 1;
-			Selectable[] warriors;
+			Selectable<?>[] warriors;
 			if (idle_chieftain && use_chieftain) {
-				warriors = new Selectable[num_warriors + 1];
+				warriors = Selectable.newArray(num_warriors + 1);
 				warriors[num_warriors] = getIdleChieftains()[0];
 			} else {
-				warriors = new Selectable[num_warriors];
+				warriors = Selectable.newArray(num_warriors);
 			}
 
                     System.arraycopy(getIdleWarriors(), 0, warriors, 0, num_warriors);

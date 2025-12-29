@@ -262,7 +262,7 @@ public final class NativeIsland0 extends Island {
                     }
                     // Remove Vikings
                     Unit[] viking_units = new Unit[enemy.getUnits().getSet().size()];
-                    enemy.getUnits().getSet().toArray(new Selectable[enemy.getUnits().getSet().size()]);
+                    enemy.getUnits().getSet().toArray(Selectable.newArray(enemy.getUnits().getSet().size()));
                     for (Unit viking_unit : viking_units) {
                         if (!viking_unit.isDead()) {
                             viking_unit.removeNow();
@@ -281,9 +281,9 @@ public final class NativeIsland0 extends Island {
                         new Unit(enemy, new_viking_start_x, new_viking_start_y, null, enemy.getRace().getUnitTemplate(Race.UNIT_PEON));
                     }
                     // Remove natives
-                    Selectable[] native_selectables = new Selectable[natives.getUnits().getSet().size()];
+                    Selectable<?>[] native_selectables = Selectable.newArray(natives.getUnits().getSet().size());
                     natives.getUnits().getSet().toArray(native_selectables);
-                    for (Selectable native_selectable : native_selectables) {
+                    for (Selectable<?> native_selectable : native_selectables) {
                         if (!native_selectable.isDead()) {
                             native_selectable.hit(10000, 0, 1, enemy);
                         }

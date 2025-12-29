@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class RenderState implements ElementVisitor {
-	private final List<@NonNull Emitter> emitter_queue = new ArrayList<>();
+	private final List<@NonNull Emitter<?>> emitter_queue = new ArrayList<>();
 	private final List<@NonNull Lightning> lightning_queue = new ArrayList<>();
 	private final @NonNull SpriteSorter sprite_sorter;
 	private final @NonNull RenderStateCache<ElementRenderState<Model>> render_state_cache;
@@ -80,7 +80,7 @@ final class RenderState implements ElementVisitor {
 		this.visible_override = override;
 	}
 
-	public void setup(boolean picking, CameraState camera_state) {
+	public void setup(boolean picking, @NonNull CameraState camera_state) {
 		this.picking = picking;
 		this.camera = camera_state;
 		render_state_cache.clear();
@@ -136,20 +136,20 @@ final class RenderState implements ElementVisitor {
 	}
 
 	private static final BoundingBox picking_selection_box = new BoundingBox();
-	private static boolean pickingInFrustum(@NonNull Selectable selectable, float[][] frustum, float z_offset, float selection_radius, float selection_height) {
+	private static boolean pickingInFrustum(@NonNull Selectable<?> selectable, float[][] frustum, float z_offset, float selection_radius, float selection_height) {
 		picking_selection_box.setBounds(-selection_radius + selectable.getPositionX(), selection_radius + selectable.getPositionX(), -selection_radius + selectable.getPositionY(), selection_radius + selectable.getPositionY(), z_offset, z_offset + selection_height);
 		return RenderTools.inFrustum(picking_selection_box, frustum) != RenderTools.FrustumIntersection.ALL_OUTSIDE;
 	}
 
-	boolean isHovered(Selectable selectable) {
+	boolean isHovered(Selectable<?> selectable) {
 		return selectable == picker.getCurrentHovered();
 	}
 
-	boolean isSelected(@NonNull Selectable selectable) {
+	boolean isSelected(@NonNull Selectable<?> selectable) {
 		return selection.getCurrentSelection().contains(selectable);
 	}
 
-	private <S extends Selectable> void visitSelectable(@NonNull ModelVisitor<S> visitor, @NonNull S selectable, float z_offset, float selection_radius, float selection_height) {
+	private <S extends Selectable<?>> void visitSelectable(@NonNull ModelVisitor<S> visitor, @NonNull S selectable, float z_offset, float selection_radius, float selection_height) {
 		boolean in_view = !picking || (selectable.isEnabled() && (visible_override || pickingInFrustum(selectable, camera.getFrustum(), z_offset, selection_radius, selection_height)));
 		if (in_view) {
 			Player owner = selectable.getOwnerNoCheck();
@@ -204,7 +204,7 @@ final class RenderState implements ElementVisitor {
 	}
 
 	@Override
-	public void visitEmitter(final @NonNull Emitter emitter) {
+	public void visitEmitter(final @NonNull Emitter<?> emitter) {
 		if (!picking)
 			emitter_queue.add(emitter);
 	}
@@ -367,7 +367,7 @@ final class RenderState implements ElementVisitor {
 		}
 	}
 
-	public @NonNull List<@NonNull Emitter> getEmitterQueue() {
+	public @NonNull List<@NonNull Emitter<?>> getEmitterQueue() {
 		return emitter_queue;
 	}
 

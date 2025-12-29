@@ -73,7 +73,6 @@ public final class VikingIsland8 extends Island {
 
 	@Override
 	protected void start() {
-		Runnable runnable;
 		final Player local_player = getViewer().getLocalPlayer();
 		final Player lost = getViewer().getWorld().getPlayers()[1];
 		final Player enemy = getViewer().getWorld().getPlayers()[2];
@@ -84,15 +83,14 @@ public final class VikingIsland8 extends Island {
 
 		// Introduction
 		final Runnable camera_jump = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), 170*2, 160*2, 200f, 3f));
-		runnable = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
-                            Utils.getBundleString(bundle, "dialog0"),
-                            getCampaign().getIcons().getFaces()[0],
-                            Origin.AT_START,
-                            camera_jump);
-                    addModalForm(dialog);
-                };
-		new GameStartedTrigger(getViewer().getWorld(), runnable);
+		new GameStartedTrigger(getViewer().getWorld(), () -> {
+			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
+					Utils.getBundleString(bundle, "dialog0"),
+					getCampaign().getIcons().getFaces()[0],
+					Origin.AT_START,
+					camera_jump);
+			addModalForm(dialog);
+		});
 
 		// Insert viking men
 		ResourceBundle player_bundle = ResourceBundle.getBundle(Player.class.getName());
@@ -112,19 +110,18 @@ public final class VikingIsland8 extends Island {
 		// See setMagicUsedTrigger()
 
 		// Give blast when arrived
-		runnable = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
-                            Utils.getBundleString(bundle, "dialog1"),
-                            getCampaign().getIcons().getFaces()[0],
-                            Origin.AT_START);
-                    addModalForm(dialog);
-                    getViewer().getLocalPlayer().enableMagic(0, true);
-                    local_player.getChieftain().increaseMagicEnergy(0, 1000);
-                    local_player.getChieftain().increaseMagicEnergy(1, 1000);
-                    setMagicUsedTrigger();
-                    changeObjective(1);
-                };
-		new NearPointTrigger(354, 478, 4, local_player.getChieftain(), runnable);
+		new NearPointTrigger(354, 478, 4, local_player.getChieftain(), () -> {
+			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
+					Utils.getBundleString(bundle, "dialog1"),
+					getCampaign().getIcons().getFaces()[0],
+					Origin.AT_START);
+			addModalForm(dialog);
+			getViewer().getLocalPlayer().enableMagic(0, true);
+			local_player.getChieftain().increaseMagicEnergy(0, 1000);
+			local_player.getChieftain().increaseMagicEnergy(1, 1000);
+			setMagicUsedTrigger();
+			changeObjective(1);
+		});
 
 		// Insert rally point
 		new SceneryModel(getViewer().getWorld(), 354*2, 478*2, 0, -1, local_player.getRace().getRallyPoint());
@@ -153,34 +150,34 @@ public final class VikingIsland8 extends Island {
 
 		// Insert first blocking army
 		Unit bait = new Unit(enemy, 240*2, 137*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
-		final Selectable[] army = new Selectable[25];
-		army[0] = new Unit(enemy, 213*2, 122*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-		army[1] = new Unit(enemy, 213*2, 122*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
-		army[2] = new Unit(enemy, 213*2, 122*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[3] = new Unit(enemy, 213*2, 122*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[4] = new Unit(enemy, 213*2, 122*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[5] = new Unit(enemy, 245*2, 170*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-		army[6] = new Unit(enemy, 245*2, 170*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-		army[7] = new Unit(enemy, 245*2, 170*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[8] = new Unit(enemy, 245*2, 170*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[9] = new Unit(enemy, 245*2, 170*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[10] = new Unit(enemy, 239*2, 177*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-		army[11] = new Unit(enemy, 239*2, 177*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
-		army[12] = new Unit(enemy, 239*2, 177*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[13] = new Unit(enemy, 239*2, 177*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[14] = new Unit(enemy, 239*2, 177*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[15] = new Unit(enemy, 286*2, 113*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-		army[16] = new Unit(enemy, 286*2, 113*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
-		army[17] = new Unit(enemy, 286*2, 113*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[18] = new Unit(enemy, 286*2, 113*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[19] = new Unit(enemy, 286*2, 113*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[20] = new Unit(enemy, 289*2, 141*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
-		army[21] = new Unit(enemy, 289*2, 141*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
-		army[22] = new Unit(enemy, 289*2, 141*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[23] = new Unit(enemy, 289*2, 141*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		army[24] = new Unit(enemy, 289*2, 141*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
-		runnable = () -> enemy.setLandscapeTarget(army, 238, 136, Action.ATTACK, true);
-		new DeathTrigger(bait, runnable);
+		final Selectable<?>[] army = Selectable.newArray(
+				new Unit(enemy, 213 * 2, 122 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER)),
+				new Unit(enemy, 213 * 2, 122 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK)),
+				new Unit(enemy, 213 * 2, 122 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 213 * 2, 122 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 213 * 2, 122 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 245 * 2, 170 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER)),
+				new Unit(enemy, 245 * 2, 170 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER)),
+				new Unit(enemy, 245 * 2, 170 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 245 * 2, 170 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 245 * 2, 170 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 239 * 2, 177 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER)),
+				new Unit(enemy, 239 * 2, 177 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK)),
+				new Unit(enemy, 239 * 2, 177 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 239 * 2, 177 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 239 * 2, 177 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 286 * 2, 113 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER)),
+				new Unit(enemy, 286 * 2, 113 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK)),
+				new Unit(enemy, 286 * 2, 113 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 286 * 2, 113 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 286 * 2, 113 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 289 * 2, 141 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER)),
+				new Unit(enemy, 289 * 2, 141 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK)),
+				new Unit(enemy, 289 * 2, 141 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 289 * 2, 141 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON)),
+				new Unit(enemy, 289 * 2, 141 * 2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON))
+		);
+		new DeathTrigger(bait, () -> enemy.setLandscapeTarget(army, 238, 136, Action.ATTACK, true));
 
 		// Insert second blocking army
 		Unit bait2 = new Unit(enemy, 347*2, 455*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
@@ -190,7 +187,7 @@ public final class VikingIsland8 extends Island {
             case CampaignState.DIFFICULTY_HARD -> 20;
             default -> throw new RuntimeException();
         };
-        final Selectable[] army2 = new Selectable[num_hidden];
+        final Selectable<?>[] army2 = Selectable.newArray(num_hidden);
 		army2[0] = new Unit(enemy, 364*2, 440*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
 		army2[1] = new Unit(enemy, 364*2, 440*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
 		army2[2] = new Unit(enemy, 364*2, 440*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
@@ -216,8 +213,7 @@ public final class VikingIsland8 extends Island {
 			army2[18] = new Unit(enemy, 366*2, 419*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 			army2[19] = new Unit(enemy, 366*2, 419*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 		}
-		runnable = () -> enemy.setLandscapeTarget(army2, 352, 480, Action.ATTACK, true);
-		new DeathTrigger(bait2, runnable);
+		new DeathTrigger(bait2, () -> enemy.setLandscapeTarget(army2, 352, 480, Action.ATTACK, true));
 
 		// Insert scattered resistance
 		new Unit(enemy, 348*2, 315*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
@@ -272,7 +268,7 @@ public final class VikingIsland8 extends Island {
 		new Unit(enemy, 354*2, 474*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 		new Unit(enemy, 354*2, 474*2, null, enemy.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 
-		// Insert Neurtal units
+		// Insert Neutral units
 		int num_neutrals = switch (getCampaign().getState().getDifficulty()) {
             case CampaignState.DIFFICULTY_EASY -> 15;
             case CampaignState.DIFFICULTY_NORMAL -> 9;
@@ -299,19 +295,18 @@ public final class VikingIsland8 extends Island {
 			neutrals[13] = new Unit(lost, 269*2, 330*2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
 			neutrals[14] = new Unit(lost, 272*2, 323*2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 		}
-		runnable = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header2"),
-                            Utils.getBundleString(bundle, "dialog2"),
-                            getCampaign().getIcons().getFaces()[4],
-                            Origin.AT_END);
-                    addModalForm(dialog);
-                    for (Unit neutral : neutrals) {
-                        if (!neutral.isDead()) {
-                            changeOwner(neutral, local_player);
-                        }
-                    }
-                };
-		new NearArmyTrigger(neutrals, 10f, local_player, runnable);
+		new NearArmyTrigger(neutrals, 10f, local_player, () -> {
+			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header2"),
+					Utils.getBundleString(bundle, "dialog2"),
+					getCampaign().getIcons().getFaces()[4],
+					Origin.AT_END);
+			addModalForm(dialog);
+			for (Unit neutral : neutrals) {
+				if (!neutral.isDead()) {
+					changeOwner(neutral, local_player);
+				}
+			}
+		});
 	}
 
 	private void setMagicUsedTrigger() {

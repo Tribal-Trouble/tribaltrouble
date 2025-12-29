@@ -21,11 +21,11 @@ public interface PlayerInterface {
 	void doMagic(@NonNull Unit chieftain, int magic);
 	void exitTower(@NonNull Building building);
 	void trainChieftain(@NonNull Building building, boolean start);
-	void placeBuilding(Selectable @NonNull [] selection, int template_id, int placing_grid_x, int placing_grid_y);
+	void placeBuilding(Selectable<?> @NonNull [] selection, int template_id, int placing_grid_x, int placing_grid_y);
 	void setRallyPoint(@NonNull Building building, @NonNull Target target);
-	void setTarget(Selectable @NonNull [] selection, @NonNull Target target, @NonNull Action action, boolean aggressive);
+	void setTarget(Selectable<?> @NonNull [] selection, @NonNull Target target, @NonNull Action action, boolean aggressive);
 	void setRallyPoint(@NonNull Building building, int grid_x, int grid_y);
-	void setLandscapeTarget(Selectable @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive);
+	void setLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive);
 	void setPreferredGamespeed(int speed);
 	void changePreferredGamespeed(int delta);
 }

@@ -8,7 +8,6 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
-import com.oddlabs.tt.input.InputProvider;
 
 public final class KeyboardInput {
 	private static final int LITTLE_WARP = 1000;
@@ -62,7 +61,7 @@ public final class KeyboardInput {
 	public void doCheckMagicKeys() {
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		if (deterministic.isPlayback()) {
-            InputProvider input = LocalInput.getInputProvider();
+            InputProvider<?> input = LocalInput.getInputProvider();
 			input.pollKeyboard();
 			while (input.nextKeyboardEvent()) {
 				int event_key_code = input.getEventKey();
@@ -80,7 +79,7 @@ public final class KeyboardInput {
 	}
 
 	public boolean doPoll(@NonNull GUIRoot gui_root) {
-        InputProvider input = LocalInput.getInputProvider();
+        InputProvider<?> input = LocalInput.getInputProvider();
         if (input == null) return false;
         
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();

@@ -7,7 +7,7 @@ public abstract class SupplyContainerFactory {
 		this.max_resource_count = max_resource_count;
 	}
 
-	public abstract SupplyContainer createContainer(Selectable selectable);
+	public abstract SupplyContainer createContainer(Selectable<?> selectable);
 
 	protected final int getMaxResourceCount() {
 		return max_resource_count;

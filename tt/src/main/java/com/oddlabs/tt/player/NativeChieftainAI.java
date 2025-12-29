@@ -6,7 +6,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import org.jspecify.annotations.NonNull;
 
-import java.util.List;
+import java.util.stream.StreamSupport;
 
 public final class NativeChieftainAI extends ChieftainAI {
 	private static final int NUM_UNITS_FOR_LIGHTNING = 2;
@@ -49,40 +49,30 @@ public final class NativeChieftainAI extends ChieftainAI {
 	}
 
 	private int getNumEnemyUnitsClose(@NonNull Unit chieftain, float hit_radius) {
-		FindOccupantFilter<Unit> filter = new FindOccupantFilter<>(chieftain.getPositionX(), chieftain.getPositionY(), hit_radius, chieftain, Unit.class);
+		var filter = new FindOccupantFilter<>(chieftain.getPositionX(), chieftain.getPositionY(), hit_radius, chieftain, Unit.class);
 		chieftain.getUnitGrid().scan(filter, chieftain.getGridX(), chieftain.getGridY());
-		List<Unit> target_list = filter.getResult();
-		int num_enemy_units_close = 0;
-        for (Unit unit : target_list) {
-            if (unit.isDead())
-                continue;
-
-            float dx = unit.getPositionX() - chieftain.getPositionX();
-            float dy = unit.getPositionY() - chieftain.getPositionY();
-            float squared_dist = dx * dx + dy * dy;
-            if (chieftain.getOwner().isEnemy(unit.getOwner()) && squared_dist < hit_radius * hit_radius) {
-                num_enemy_units_close++;
-            }
-        }
-		return num_enemy_units_close;
+		long num_enemy_units_close = StreamSupport.stream(filter.getResult().spliterator(), false)
+				.filter(Selectable::isAlive)
+				.filter( unit -> {
+					float dx = unit.getPositionX() - chieftain.getPositionX();
+            		float dy = unit.getPositionY() - chieftain.getPositionY();
+            		float squared_dist = dx * dx + dy * dy;
+            		return chieftain.getOwner().isEnemy(unit.getOwner()) && squared_dist < hit_radius * hit_radius;
+            	}).count();
+		return (int) num_enemy_units_close;
 	}
 
 	private int getNumFriendlyUnitsClose(@NonNull Unit chieftain, float hit_radius) {
-		FindOccupantFilter<Selectable> filter = new FindOccupantFilter<>(chieftain.getPositionX(), chieftain.getPositionY(), hit_radius, chieftain, Selectable.class);
+		var filter = new FindOccupantFilter<>(chieftain.getPositionX(), chieftain.getPositionY(), hit_radius, chieftain, Selectable.genericClass());
 		chieftain.getUnitGrid().scan(filter, chieftain.getGridX(), chieftain.getGridY());
-		List<Selectable> target_list = filter.getResult();
-		int num_friendly_units_close = 0;
-        for (Selectable s : target_list) {
-            if (s.isDead())
-                continue;
-
-            float dx = s.getPositionX() - chieftain.getPositionX();
-            float dy = s.getPositionY() - chieftain.getPositionY();
-            float squared_dist = dx * dx + dy * dy;
-            if (!chieftain.getOwner().isEnemy(s.getOwner()) && squared_dist < hit_radius * hit_radius) {
-                num_friendly_units_close++;
-            }
-        }
-		return num_friendly_units_close;
+		long num_friendly_units_close = StreamSupport.stream(filter.getResult().spliterator(), false)
+				.filter(Selectable::isAlive)
+				.filter( s -> {
+            		float dx = s.getPositionX() - chieftain.getPositionX();
+					float dy = s.getPositionY() - chieftain.getPositionY();
+            		float squared_dist = dx * dx + dy * dy;
+            		return !chieftain.getOwner().isEnemy(s.getOwner()) && squared_dist < hit_radius * hit_radius;
+				}).count();
+		return (int) num_friendly_units_close;
 	}
 }

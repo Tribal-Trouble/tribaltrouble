@@ -13,13 +13,10 @@ import com.oddlabs.tt.particle.RandomVelocityEmitter;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.util.StateChecksum;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
-
-import java.util.List;
 
 public final class Stun implements Magic {
 	private final float hit_radius;
@@ -29,9 +26,9 @@ public final class Stun implements Magic {
 	private final float start_x;
 	private final float start_y;
 	private final @NonNull RandomVelocityEmitter emitter;
-	private final AbstractAudioPlayer sound;
+	private final @NonNull AbstractAudioPlayer sound;
 
-	private final @NonNull List<Selectable> target_list;
+	private final @NonNull Iterable<? extends Selectable<?>> target_list;
 
 	public Stun(float offset_x, float offset_y, float offset_z, float hit_radius, float stun_time_closest, float stun_time_farthest, @NonNull Unit src) {
 		this.hit_radius = hit_radius;
@@ -53,7 +50,8 @@ public final class Stun implements Magic {
 				GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
 				owner.getWorld().getRacesResources().getNoteTextures(),
 				owner.getWorld().getAnimationManagerGameTime());
-		FindOccupantFilter<Selectable> filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src, Selectable.class);
+		
+		var filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src, Selectable.genericClass());
 //		FindOccupantFilter filter = new FindOccupantFilter(src.getPositionX(), src.getPositionY(), hit_radius, src, Unit.class);
 		UnitGrid unit_grid = owner.getWorld().getUnitGrid();
 		unit_grid.scan(filter, UnitGrid.toGridCoordinate(src.getPositionX()), UnitGrid.toGridCoordinate(src.getPositionY()));
@@ -69,7 +67,7 @@ public final class Stun implements Magic {
 
 	@Override
 	public void animate(float t) {
-        for (Selectable selectable : target_list) {
+        for (Selectable<?> selectable : target_list) {
             Unit unit = null;
             if (selectable instanceof Unit unit1) {
                 unit = unit1;
@@ -105,16 +103,10 @@ public final class Stun implements Magic {
 		return result;
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {
-	}
-
-	@Override
+    @Override
 	public void interrupt() {
         emitter.done();
-		if (sound != null) {
-			sound.stop(.3f, Settings.getSettings().sound_gain);
-		}
-		owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
+        sound.stop(.3f, Settings.getSettings().sound_gain);
+        owner.getWorld().getAnimationManagerGameTime().removeAnimation(this);
 	}
 }

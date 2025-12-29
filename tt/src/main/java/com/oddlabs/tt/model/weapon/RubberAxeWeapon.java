@@ -17,7 +17,7 @@ public final class RubberAxeWeapon extends RotatingThrowingWeapon {
 
 	private boolean bouncing = false;
 
-	public RubberAxeWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable target, SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio @NonNull [] hit_sounds) {
+	public RubberAxeWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio @NonNull [] hit_sounds) {
 		super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
 	}
 
@@ -27,12 +27,12 @@ public final class RubberAxeWeapon extends RotatingThrowingWeapon {
 	}
 
 	@Override
-	protected void hitTarget(boolean hit, @NonNull Player owner, @NonNull Selectable target) {
+	protected void hitTarget(boolean hit, @NonNull Player owner, @NonNull Selectable<?> target) {
 		if (hit)
 			damageTarget(target);
 		AttackScanFilter filter = new AttackScanFilter(owner, MAX_BOUNDS_LENGTH);
 		owner.getWorld().getUnitGrid().scan(filter, target.getGridX(), target.getGridY());
-		Selectable s = filter.removeTarget();
+		Selectable<?> s = filter.removeTarget();
 		if (s != null && owner.getWorld().getRandom().nextFloat() > .5f) {
 			bouncing = true;
 			setTarget(s);

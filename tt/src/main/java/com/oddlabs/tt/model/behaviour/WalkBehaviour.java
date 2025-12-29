@@ -108,7 +108,7 @@ public final class WalkBehaviour implements Behaviour {
 	private void scan() {
 		if (scan_attack) {
 			unit.scanVicinity(scan_filter);
-			Selectable s = scan_filter.removeTarget();
+			Selectable<?> s = scan_filter.removeTarget();
 			if (s != null) {
 				unit.getCurrentController().resetGiveUpCounters();
 				unit.pushController(new HuntController(unit, s));
