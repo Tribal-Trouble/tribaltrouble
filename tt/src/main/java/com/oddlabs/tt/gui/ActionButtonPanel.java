@@ -21,8 +21,6 @@ import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
-import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -388,11 +386,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		viewer.getAnimationManagerLocal().removeAnimation(this);
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum sum) {
-	}
-
-	@Override
+    @Override
 	public void animate(float t) {
 		Building new_building = viewer.getSelection().getCurrentSelection().getBuilding();
 		boolean different_building = new_building != current_building;
@@ -960,11 +954,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		return true;
 	}
 
-	@Override
-	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-	}
-
-	public boolean inHarvestMenu() {
+    public boolean inHarvestMenu() {
 		return current_submenu == harvest_group;
 	}
 

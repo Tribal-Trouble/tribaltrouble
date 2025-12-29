@@ -6,7 +6,6 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.Element;
 import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.render.TextureKey;
-import com.oddlabs.tt.util.StateChecksum;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
@@ -19,7 +18,7 @@ import java.util.Random;
 public final class Lightning extends Element<Lightning> implements Animated {
 	private static final float SQRT_2 = (float)Math.sqrt(2f);
 
-	private final AnimationManager manager;
+	private final @NonNull AnimationManager manager;
 	private final List<@NonNull StretchParticle> particles = new ArrayList<>();
 	private final @NonNull Vector3f src;
 	private final @NonNull Vector3f dst;
@@ -162,7 +161,4 @@ public final class Lightning extends Element<Lightning> implements Animated {
 		manager.removeAnimation(this);
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {
-	}
 }

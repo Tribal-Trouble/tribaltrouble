@@ -3,11 +3,8 @@ package com.oddlabs.tt.tutorial;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.ChieftainContainer;
 import com.oddlabs.tt.model.Race;
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
-
-import java.util.Set;
 
 public final class BuildingChieftainTrigger extends TutorialTrigger {
 	public BuildingChieftainTrigger(@NonNull Player player) {

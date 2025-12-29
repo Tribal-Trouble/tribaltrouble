@@ -428,7 +428,8 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
 
     private @NonNull BalancedParametricEmitter createStunStar(float x, float y, float z, float time, float velocity) {
         int num_particles = 5;
-        return new BalancedParametricEmitter(getOwner().getWorld(), new StunFunction(.4f, .15f), new Vector3f(x, y, z),
+        return new BalancedParametricEmitter(getOwner().getWorld(),
+                new StunFunction(.4f, .15f), new Vector3f(x, y, z),
                 velocity, 5f, (float) Math.PI * 2, (float) Math.PI * 2,
                 num_particles, 0f, 2f,
                 new Vector4f(1f, 1f, 1f, 1f), new Vector4f(0f, 0f, 0f, 0f),
@@ -573,7 +574,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         return magic_energy[magic_index] / MAX_MAGIC_ENERGY[magic_index];
     }
 
-    public final void switchAnimation(float anim_speed, Animation animation) {
+    public final void switchAnimation(float anim_speed, @NonNull Animation animation) {
         assert !isDead();
         this.anim_speed = anim_speed;
         if (this.animation != animation) {

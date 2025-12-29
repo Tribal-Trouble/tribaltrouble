@@ -72,7 +72,4 @@ public final class CreatingProfileForm extends Form implements ProfileListener {
         gui_root.addModalForm(new MessageForm(error_message));
 	}
 
-	@Override
-	protected void doCancel() {
-	}
 }

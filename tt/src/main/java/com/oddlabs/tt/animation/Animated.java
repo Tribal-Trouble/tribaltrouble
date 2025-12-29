@@ -6,7 +6,8 @@ import org.jspecify.annotations.NonNull;
 /**
  * A user interface element that changes over time
  */
+@FunctionalInterface
 public interface Animated {
 	void animate(float t);
-	void updateChecksum(@NonNull StateChecksum checksum);
+	default void updateChecksum(@NonNull StateChecksum checksum) {}
 }

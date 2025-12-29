@@ -1,6 +1,5 @@
 package com.oddlabs.tt.global;
 
-import com.oddlabs.tt.util.GLUtils;
 import org.lwjgl.opengl.GL11;
 
 /**

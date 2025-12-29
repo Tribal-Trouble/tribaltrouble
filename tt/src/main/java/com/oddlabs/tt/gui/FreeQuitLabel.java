@@ -4,7 +4,6 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.net.PeerHub;
-import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
@@ -13,10 +12,10 @@ import java.util.ResourceBundle;
 public final class FreeQuitLabel extends Label implements Animated {
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(FreeQuitLabel.class.getName());
 
-	private final World world;
-	private final AnimationManager manager;
+	private final @NonNull World world;
+	private final @NonNull AnimationManager manager;
 
-	public FreeQuitLabel(World world, AnimationManager manager) {
+	public FreeQuitLabel(@NonNull World world, @NonNull AnimationManager manager) {
 		super("", Skin.getSkin().getEditFont(), 300);
 		this.world = world;
 		this.manager = manager;
@@ -41,10 +40,6 @@ public final class FreeQuitLabel extends Label implements Animated {
 			clear();
 			append(Utils.getBundleString(bundle, "quit_time_left", time_left));
 		}
-	}
-
-	@Override
-	public void updateChecksum(@NonNull StateChecksum check_sum) {
 	}
 }
 

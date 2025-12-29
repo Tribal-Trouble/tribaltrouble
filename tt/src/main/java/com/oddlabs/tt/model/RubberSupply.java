@@ -11,7 +11,6 @@ import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.pathfinder.TargetTrackerAlgorithm;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.render.SpriteKey;
-import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 
@@ -54,7 +53,7 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 		ANIMATION_SPEEDS = new float[]{SPEED_IDLE, SPEED_PECK, SPEED_DIE, SPEED_MOVE, SPEED_MOVE};
 	}
 
-	public RubberSupply(@NonNull World world, SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, RubberGroup group, float spawn_x, float spawn_y) {
+	public RubberSupply(@NonNull World world, @NonNull SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, RubberGroup group, float spawn_x, float spawn_y) {
 		super(world, sprite_renderer, size, grid_x, grid_y, x, y, rotation, INITIAL_SUPPLIES, false);
 		this.path_tracker = new PathTracker(world.getUnitGrid(), this);
 		this.group = group;
@@ -262,7 +261,4 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 		visitor.visitRubberSupply(this);
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {
-	}
 }

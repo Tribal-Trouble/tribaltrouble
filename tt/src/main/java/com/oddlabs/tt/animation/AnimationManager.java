@@ -16,7 +16,6 @@ import com.oddlabs.tt.util.StatCounter;
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 
-
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -51,8 +50,8 @@ public final class AnimationManager {
 	private static long checksum_millisecond_counter;
 	private static boolean checksum_complain = true;
 
-	private final Set<Animated> animations = new CopyOnWriteArraySet<>();
-	private final Set<Animated> deleted_animations = new CopyOnWriteArraySet<>();
+	private final Set<@NonNull Animated> animations = new CopyOnWriteArraySet<>();
+	private final Set<@NonNull Animated> deleted_animations = new CopyOnWriteArraySet<>();
 
 	private int tick;
 /*

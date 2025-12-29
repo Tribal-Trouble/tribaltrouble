@@ -2,7 +2,6 @@ package com.oddlabs.http;
 
 import org.jspecify.annotations.NonNull;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;

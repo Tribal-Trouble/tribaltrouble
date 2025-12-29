@@ -3,7 +3,6 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.font.Font;
-import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 
 public final class CounterLabel extends Label implements Animated {
@@ -62,8 +61,5 @@ public final class CounterLabel extends Label implements Animated {
 		setTime(seconds - t);
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum check_sum) {
-	}
 }
 

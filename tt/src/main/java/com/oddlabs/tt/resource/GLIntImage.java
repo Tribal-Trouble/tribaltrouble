@@ -1,7 +1,6 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.procedural.Layer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;

@@ -2,11 +2,8 @@ package com.oddlabs.tt.tutorial;
 
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 import org.jspecify.annotations.NonNull;
-
-import java.util.Set;
 
 public final class WeaponTrigger extends TutorialTrigger {
 	private static final int WEAPONS = 10;

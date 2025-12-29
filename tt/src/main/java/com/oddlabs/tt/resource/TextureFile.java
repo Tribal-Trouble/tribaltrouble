@@ -7,8 +7,8 @@ import com.oddlabs.util.Image;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.EXTTextureCompressionS3TC;
+import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

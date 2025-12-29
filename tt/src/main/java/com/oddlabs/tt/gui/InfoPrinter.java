@@ -6,7 +6,6 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.net.ChatListener;
 import com.oddlabs.tt.net.ChatMessage;
 import com.oddlabs.tt.net.Network;
-import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
@@ -116,11 +115,7 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 		}
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {
-	}
-
-	private void setLabelsPos() {
+    private void setLabelsPos() {
 		int y = getHeight();
         for (LabelBox label_box : history) {
             y -= label_box.getHeight();

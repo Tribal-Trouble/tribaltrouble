@@ -2,7 +2,6 @@ package com.oddlabs.tt.audio;
 
 import com.oddlabs.tt.Main;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC10;
 import org.lwjgl.system.MemoryUtil;
 

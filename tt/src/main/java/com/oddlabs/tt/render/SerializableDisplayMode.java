@@ -2,7 +2,6 @@ package com.oddlabs.tt.render;
 
 import org.jspecify.annotations.NonNull;
 
-
 import java.io.Serial;
 import java.io.Serializable;
 

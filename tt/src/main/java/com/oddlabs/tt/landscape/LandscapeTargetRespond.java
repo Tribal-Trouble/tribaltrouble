@@ -4,7 +4,6 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.model.Element;
 import com.oddlabs.tt.model.ElementVisitor;
-import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 
 public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond> implements Animated {
@@ -39,11 +38,7 @@ public final class LandscapeTargetRespond extends Element<LandscapeTargetRespond
 		return time/SECOND_PER_PICK_RESPOND;
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {
-	}
-
-	@Override
+    @Override
 	protected void register() {
 		super.register();
 		time = SECOND_PER_PICK_RESPOND;

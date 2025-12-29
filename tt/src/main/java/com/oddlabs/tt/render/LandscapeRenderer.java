@@ -13,7 +13,6 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.shader.LandscapeShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.resource.WorldInfo;
-import com.oddlabs.tt.util.StateChecksum;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
@@ -138,10 +137,6 @@ public final class LandscapeRenderer implements Animated {
     @Override
     public void animate(float t) {
         // No animation needed for static VTF geometry
-    }
-
-    @Override
-    public void updateChecksum(@NonNull StateChecksum sum) {
     }
 
     // Shadow rendering supported

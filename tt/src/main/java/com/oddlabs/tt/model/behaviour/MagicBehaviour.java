@@ -43,7 +43,7 @@ public final class MagicBehaviour implements Behaviour {
                     magic = magic_factory.execute(unit);
                     anim_time += magic_factory.getSecondsPerRelease() - magic_factory.getSecondsPerInit();
                 }
-                yield  State.UNINTERRUPTIBLE;
+                yield State.UNINTERRUPTIBLE;
             }
             case CASTING -> {
                 if (anim_time <= 0) {

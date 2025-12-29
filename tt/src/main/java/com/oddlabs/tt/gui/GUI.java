@@ -5,7 +5,6 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.UIRenderer;
-import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
@@ -54,10 +53,6 @@ public final class GUI implements Animated {
     void stopFade() {
         LocalEventQueue.getQueue().getManager().removeAnimation(this);
         fade = null;
-    }
-
-    @Override
-    public void updateChecksum(@NonNull StateChecksum checksum) {
     }
 
     void switchRoot(@NonNull GUIRoot gui_root, @Nullable UIRenderer renderer) {

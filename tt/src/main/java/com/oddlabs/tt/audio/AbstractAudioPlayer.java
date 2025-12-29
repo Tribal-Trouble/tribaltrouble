@@ -3,7 +3,6 @@ package com.oddlabs.tt.audio;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.openal.AL10;
@@ -87,7 +86,4 @@ public abstract class AbstractAudioPlayer implements Animated {
 		}
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {
-	}
 }

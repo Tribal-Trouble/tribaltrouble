@@ -1,10 +1,8 @@
 package com.oddlabs.tt.global;
 
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL30;
 
 import java.nio.file.Path;
 

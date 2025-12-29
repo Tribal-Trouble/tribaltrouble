@@ -1,11 +1,9 @@
 package com.oddlabs.tt.player;
 
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
-import java.util.Set;
 
 public abstract class ChieftainAI {
 	public abstract void decide(Unit chieftain);

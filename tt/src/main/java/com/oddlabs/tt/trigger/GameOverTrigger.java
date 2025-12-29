@@ -6,7 +6,6 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
-import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -80,15 +79,11 @@ public final class GameOverTrigger implements Animated {
         return team_count;
     }
 
-    @Override
-    public void updateChecksum(@NonNull StateChecksum checksum) {
-    }
-
     public void disable() {
         viewer.getWorld().getAnimationManagerRealTime().removeAnimation(this);
     }
 
-    private void createDelayTrigger(String text) {
+    private void createDelayTrigger(@NonNull String text) {
         GUIRoot gui_root = viewer.getGUIRoot();
         new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), text);
     }

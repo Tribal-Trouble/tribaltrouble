@@ -2,7 +2,6 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.animation.AnimationManager;
-import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -77,11 +76,7 @@ public final class RespondManager implements Animated {
 		return time_diff > 0 && (time_diff >= SECONDS_PER_PICK_RESPOND - blink || time_diff <= blink);
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {
-	}
-
-	private static final class Timeout implements Comparable<Timeout> {
+    private static final class Timeout implements Comparable<Timeout> {
 		private final float timeout;
 		private final int id;
 		private final @NonNull Object target;

@@ -8,7 +8,6 @@ import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.io.File;
 import java.nio.file.Path;
 
 public final class LocalEventQueue {

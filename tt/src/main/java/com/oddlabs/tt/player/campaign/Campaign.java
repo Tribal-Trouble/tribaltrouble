@@ -33,7 +33,7 @@ public abstract class Campaign {
 		gui_root.pushDelegate(new CampaignMapForm(network, gui_root, Campaign.this));
 	}
 
-	public void defeated(@NonNull WorldViewer viewer, String game_over_message) {
+	public void defeated(@NonNull WorldViewer viewer, @NonNull String game_over_message) {
 		GUIRoot gui_root = viewer.getGUIRoot();
 		new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), game_over_message);
 		doDefeated();

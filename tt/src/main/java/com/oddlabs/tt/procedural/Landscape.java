@@ -834,7 +834,7 @@ public final class Landscape {
 	}
 
 	// generate seabottom alpha
-	private static @NonNull Channel generateSeabottomAlpha(TerrainType terrain, @NonNull Channel height) {
+	private static @NonNull Channel generateSeabottomAlpha(@NonNull TerrainType terrain, @NonNull Channel height) {
 		Channel seabottom_alpha = height.copy().invert().dynamicRange(1f - Globals.SEA_LEVEL, 1f, 0f, 1f);
 		return switch (terrain) {
             case NATIVE -> seabottom_alpha.grow(0f, 1).gamma(0.5f);

@@ -9,7 +9,6 @@ import com.oddlabs.tt.model.ToolTipVisitor;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.pathfinder.UnitGrid;
-import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Target;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -243,10 +242,7 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		return hide;
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {}
-
-	@Override
+    @Override
 	public void visit(@NonNull TreeNodeVisitor visitor) {
 		visitor.visitTree(this);
 	}

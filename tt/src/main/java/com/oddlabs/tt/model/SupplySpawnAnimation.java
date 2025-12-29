@@ -1,7 +1,6 @@
 package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.animation.Animated;
-import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 
 
@@ -28,7 +27,4 @@ public class SupplySpawnAnimation implements Animated {
 		}
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {
-	}
 }

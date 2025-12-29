@@ -102,7 +102,7 @@ public final class VikingCampaign extends Campaign {
 	}
 
 	@Override
-	public void defeated(@NonNull WorldViewer viewer, String game_over_message) {
+	public void defeated(@NonNull WorldViewer viewer, @NonNull String game_over_message) {
 		if (getState().getCurrentIsland() == 13)
 			((VikingIsland13)islands[13]).removeCounter();
 		super.defeated(viewer, game_over_message);

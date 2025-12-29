@@ -84,7 +84,7 @@ public final class NativeCampaign extends Campaign {
 	}
 
 	@Override
-	public void defeated(@NonNull WorldViewer viewer, String game_over_message) {
+	public void defeated(@NonNull WorldViewer viewer, @NonNull String game_over_message) {
 		if (getState().getCurrentIsland() == 4)
 			((NativeIsland4)islands[4]).removeCounter();
 		super.defeated(viewer, game_over_message);

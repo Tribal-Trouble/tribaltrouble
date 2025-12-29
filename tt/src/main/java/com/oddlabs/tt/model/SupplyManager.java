@@ -2,7 +2,6 @@ package com.oddlabs.tt.model;
 
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.landscape.World;
-import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
@@ -65,11 +64,7 @@ public class SupplyManager implements Animated {
 		return (int)(total_num_supplies*MAX_EMPTY_SUPPLIES) < empty_supplies.size();
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {
-	}
-
-	protected void insertSupply() {
+    protected void insertSupply() {
 		int index = world.getRandom().nextInt(empty_supplies.size());
 		Supply supply = empty_supplies.get(index);
 		boolean occupied = world.getUnitGrid().isGridOccupied(supply.getGridX(), supply.getGridY());
