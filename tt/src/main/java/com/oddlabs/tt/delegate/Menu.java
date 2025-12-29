@@ -88,7 +88,7 @@ public abstract class Menu extends CameraDelegate<Camera> {
 
     final void addOptionsButton(@NonNull FormFactory<?> factory) {
         MenuButton options = new MenuButton(Utils.getBundleString(bundle, "options"), COLOR_NORMAL, COLOR_ACTIVE);
-        options.addMouseClickListener((_,_,_,_) -> setMenu(factory.create()));
+        options.addMouseClickListener((_,_,_,_) -> setMenuCentered(factory.create()));
         addChild(options);
     }
 
@@ -256,5 +256,3 @@ public abstract class Menu extends CameraDelegate<Camera> {
         return game_network;
     }
 }
-
-
