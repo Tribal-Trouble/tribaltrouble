@@ -337,7 +337,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
             assert result == -1;
         }
         if (stun_marker != null) {
-            stun_marker.done();
+            stun_marker.remove();
             stun_marker = null;
         }
         super.removeDying();
@@ -419,7 +419,7 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
         float z = getOwner().getWorld().getHeightMap().getNearestHeight(x, y) + getTemplate().getStunZ() + mount_offset;
 
         if (stun_marker != null) {
-            stun_marker.done();
+            stun_marker.remove();
         }
         stun_marker = createStunStar(x, y, z, time, (float) Math.PI / 2);
         pushController(new StunController(this, time));

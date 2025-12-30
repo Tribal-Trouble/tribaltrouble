@@ -43,7 +43,6 @@ public abstract class Emitter<P extends Particle> extends Element<Emitter<P>> im
 		this.types = types;
 		this.manager = manager;
 		particles = Stream.generate(ArrayList::new).limit(types).toArray(List[]::new);
-		register();
 	}
 
     @Override
