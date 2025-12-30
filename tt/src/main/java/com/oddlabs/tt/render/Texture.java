@@ -138,7 +138,11 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 		this.height = height;
 	}
 
-	public Texture(GLImage @NonNull [] mipmaps, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t) throws IllegalArgumentException, NullPointerException {
+	public Texture(@NonNull GLImage image, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t) throws IllegalArgumentException, NullPointerException {
+		this(image.createMipMaps(), internal_format, min_filter, mag_filter, wrap_s, wrap_t, Globals.NO_MIPMAP_CUTOFF);
+	}
+
+	public Texture(@NonNull GLImage @NonNull [] mipmaps, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t) throws IllegalArgumentException, NullPointerException {
 		this(mipmaps, internal_format, min_filter, mag_filter, wrap_s, wrap_t, Globals.NO_MIPMAP_CUTOFF);
 	}
 
