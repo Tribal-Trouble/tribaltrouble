@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 public abstract class BlendInfo {
 	private final @NonNull Texture alpha_map;
-	private final GLByteImage sourceImage;
+	private final @NonNull GLByteImage sourceImage;
 
 	private @NonNull Texture createAlphaMap(@NonNull GLByteImage alpha_image, int format) {
         GLImage[] mipmaps = alpha_image.buildMipMaps(0, 1.0f, true, false);
@@ -23,7 +23,7 @@ public abstract class BlendInfo {
 		return alpha_map;
 	}
 
-	public GLByteImage getSourceImage() {
+	public @NonNull GLByteImage getSourceImage() {
 		return sourceImage;
 	}
 

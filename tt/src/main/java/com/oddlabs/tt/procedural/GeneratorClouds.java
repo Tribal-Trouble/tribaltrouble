@@ -42,8 +42,7 @@ public final class GeneratorClouds extends TextureGenerator {
             }).peek(img -> {
                 if (Landscape.DEBUG) new GLIntImage(img.toLayer()).saveAsPNG("generator_clouds_" + debugImageCount.getAsInt());
         }).map(cloud -> new GLByteImage(cloud, GL11.GL_RED))
-            .map(GLByteImage::createMipMaps)
-            .map(images -> new Texture(images, Globals.COMPRESSED_LUMINANCE_FORMAT, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT))
+            .map(image -> new Texture(image, Globals.COMPRESSED_LUMINANCE_FORMAT, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT))
             .toArray(Texture[]::new);
     }
 

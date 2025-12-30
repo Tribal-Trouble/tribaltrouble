@@ -11,7 +11,7 @@ public final class IronAxeWeapon extends RotatingThrowingWeapon {
 	private final float ANGLE_DELTA = ROTS_PER_SECOND*360f;
 	private static final float METERS_PER_SECOND = 25f; //multiplied by meters/second (in 2D)
 
-	public IronAxeWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio @NonNull [] hit_sounds) {
+	public IronAxeWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, Audio @NonNull [] hit_sounds) {
 		super(hit, src, target, sprite_renderer, throw_sound, hit_sounds);
 	}
 

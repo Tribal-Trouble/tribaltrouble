@@ -63,7 +63,7 @@ public final class LightningCloud implements Magic {
 		cloud = new ParametricEmitter(world, new CloudFunction(2.5f, .7f), position,
 				0f, 0f, .5f, .5f, .2f,
 				25, 100f,
-				new Vector4f(.2f, .2f, .2f, .6f), new Vector4f(0f, 0f, 0f, 0f),
+				new Vector4f(.4f, .4f, .4f, .6f), new Vector4f(0f, 0f, 0f, 0f),
 				new Vector3f(3f, 3f, 1f), new Vector3f(0f, 0f, 0f), seconds_to_live + seconds_to_init,
 				GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, world.getRacesResources().getSmokeTextures(),
 				world.getAnimationManagerGameTime());

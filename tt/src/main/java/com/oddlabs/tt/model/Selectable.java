@@ -284,17 +284,17 @@ protected final void disable() {
 	}
 
 
-	public static <T extends Template> Class<Selectable<T>> genericClass() {
+	public static <T extends Template> @NonNull Class<Selectable<T>> genericClass() {
 		//noinspection unchecked
 		return (Class<Selectable<T>>) (Class<?>) Selectable.class;
 	}
 
-	public static <T extends Template> Selectable<T>[] newArray(int length) {
+	public static <T extends Template> Selectable<T> @NonNull [] newArray(int length) {
         //noinspection unchecked
         return new Selectable[length];
 	}
 
-	public static <T extends Template> Selectable<T>[] newArray(@NonNull Selectable<T> @NonNull ... selectables) {
+	public static <T extends Template> Selectable<T> @NonNull [] newArray(@NonNull Selectable<T> @NonNull ... selectables) {
 		return selectables;
 	}
 }

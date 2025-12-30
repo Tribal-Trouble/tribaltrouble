@@ -20,8 +20,10 @@ import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 
 public final class LightningRenderer implements AutoCloseable {
     private static final int MAX_PARTICLES = 100;
@@ -42,7 +44,7 @@ public final class LightningRenderer implements AutoCloseable {
     private final @NonNull ShortVBO particle_ibo;
 
     private final @NonNull LightningShader shader;
-    private final @NonNull VertexArray vao;
+    private final VertexArray vao = new VertexArray();
     private int vbo_offset = 0;
 
     public LightningRenderer() {
@@ -70,7 +72,6 @@ public final class LightningRenderer implements AutoCloseable {
         iboBuffer.flip();
         particle_ibo = new ShortVBO(GL15.GL_STATIC_DRAW, iboBuffer);
 
-        vao = new VertexArray();
         vao.bind();
         particle_vbo.makeCurrent();
         particle_ibo.makeCurrent();
@@ -78,7 +79,7 @@ public final class LightningRenderer implements AutoCloseable {
         vao.unbind();
     }
 
-    public void render(@NonNull RenderQueues render_queues, @NonNull List<Lightning> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void render(@NonNull RenderQueues render_queues, @NonNull Queue<Lightning> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (emitter_queue.isEmpty()) return;
 
         view_matrix.set(state.getModelView());
@@ -149,16 +150,15 @@ public final class LightningRenderer implements AutoCloseable {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 
         particle_buffer.clear();
-        List<StretchParticle> particles = lightning.getParticles();
+        Deque<StretchParticle> particles = lightning.getParticles();
         int particleCount = 0;
         
-        for (int i = particles.size() - 1; i >= 0; i--) {
+        for (StretchParticle particle : particles.reversed()) {
             if (particleCount >= MAX_PARTICLES) {
                 flush(particleCount);
                 particleCount = 0;
                 particle_buffer.clear();
             }
-            StretchParticle particle = particles.get(i);
             render2DParticle(particle);
             particleCount++;
         }
@@ -182,7 +182,7 @@ public final class LightningRenderer implements AutoCloseable {
         vbo_offset += count;
     }
 
-    public void debugRender(@NonNull List<Lightning> emitter_queue) {
+    public void debugRender(@NonNull Queue<Lightning> emitter_queue) {
         if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
             for (Lightning emitter : emitter_queue) {
                 RenderTools.draw(emitter, 1f, 1f, 1f);

@@ -27,7 +27,6 @@ import com.oddlabs.tt.procedural.GeneratorHalos;
 import com.oddlabs.tt.procedural.GeneratorLightning;
 import com.oddlabs.tt.procedural.GeneratorPoison;
 import com.oddlabs.tt.procedural.GeneratorSmoke;
-import com.oddlabs.tt.procedural.GeneratorSonic;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.ShadowListKey;
 import com.oddlabs.tt.render.SpriteKey;
@@ -81,7 +80,6 @@ public final class RacesResources {
 	private final @NonNull TextureKey[] damage_smoke_textures = new TextureKey[1];
 	private final @NonNull TextureKey[] poison_textures = new TextureKey[1];
 	private final @NonNull TextureKey lightning_texture;
-	private final @NonNull TextureKey[] sonic_textures = new TextureKey[1];
 	private final @NonNull TextureKey[] note_textures = new TextureKey[8];
 	private final @NonNull TextureKey[] star_textures = new TextureKey[1];
 	private final @NonNull Audio @NonNull [] tree_fall_sound;
@@ -223,7 +221,7 @@ public final class RacesResources {
 		damage_smoke_textures[0] = queues.registerTexture(new GeneratorDamageSmoke(), 0);
 		poison_textures[0] = queues.registerTexture(new GeneratorPoison(), 0);
 		lightning_texture = queues.registerTexture(new GeneratorLightning(), 0);
-		sonic_textures[0] = queues.registerTexture(new GeneratorSonic(), 0);
+
 
 		for (int i = 0; i < note_textures.length; i++) {
 			note_textures[i] = queues.registerTexture(new TextureFile("/textures/effects/note" + (i + 1),
@@ -782,10 +780,6 @@ public final class RacesResources {
 
 	public @NonNull TextureKey getLightningTexture() {
 		return lightning_texture;
-	}
-
-	public @NonNull TextureKey @NonNull [] getSonicTextures() {
-		return sonic_textures;
 	}
 
 	public @NonNull TextureKey @NonNull [] getNoteTextures() {

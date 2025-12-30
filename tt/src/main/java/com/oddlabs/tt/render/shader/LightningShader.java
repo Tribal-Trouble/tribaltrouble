@@ -3,7 +3,7 @@ package com.oddlabs.tt.render.shader;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
-public final class LightningShader extends ShaderProgram implements FogShader {
+public final class LightningShader extends ShaderProgram {
 
     public interface Uniforms {
         String PROJECTION_MATRIX = "u_projectionMatrix";
@@ -56,44 +56,29 @@ public final class LightningShader extends ShaderProgram implements FogShader {
 
         out vec2 v_texCoord;
         out vec4 v_color;
-        out float v_fogDist;
 
         void main() {
             vec4 viewPos = u_modelViewMatrix * vec4(in_Position, 1.0);
             gl_Position = u_projectionMatrix * viewPos;
             v_texCoord = in_TexCoord;
             v_color = in_Color;
-            v_fogDist = length(viewPos.xyz);
         }
         """;
 
     private static final String FRAGMENT_SHADER =
         """
         #version 410 core
-        """ +
-        FOG_FUNCTION +
-        """
+        
         uniform sampler2D u_texture0;
-
-        // Fog uniforms
-        uniform vec4 u_fogColor;
-        uniform int u_fogMode;
-        uniform vec3 u_fogParams;
-        uniform float u_fogHeightFactor;
-        uniform float u_cameraHeight;
 
         in vec2 v_texCoord;
         in vec4 v_color;
-        in float v_fogDist;
         
         layout(location = 0) out vec4 out_FragColor;
 
         void main() {
             vec4 texColor = texture(u_texture0, v_texCoord);
-            vec4 finalColor = v_color * texColor;
-
-            float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
-            out_FragColor = vec4(mix(u_fogColor.rgb, finalColor.rgb, fogFactor), finalColor.a);
+            out_FragColor = v_color * texColor;
         }
         """;
 

@@ -5,6 +5,7 @@ import com.oddlabs.tt.model.weapon.DirectedThrowingWeapon;
 import com.oddlabs.tt.model.weapon.RotatingThrowingWeapon;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Lightning;
+import com.oddlabs.tt.particle.SonicBlastEffect;
 import org.jspecify.annotations.NonNull;
 
 public interface ElementVisitor {
@@ -12,6 +13,7 @@ public interface ElementVisitor {
 	void visitBuilding(@NonNull Building selectable);
 	void visitEmitter(@NonNull Emitter<?> emitter);
 	void visitLightning(@NonNull Lightning lightning);
+    void visitSonicBlastEffect(@NonNull SonicBlastEffect effect);
 	void visitRespond(@NonNull LandscapeTargetRespond respond);
 	void visitSupplyModel(@NonNull SupplyModel model);
 	void visitSceneryModel(@NonNull SceneryModel model);

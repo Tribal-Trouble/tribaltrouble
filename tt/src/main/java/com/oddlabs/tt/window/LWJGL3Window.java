@@ -53,7 +53,7 @@ import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 public final class LWJGL3Window implements Window {
 
     private long windowHandle = MemoryUtil.NULL;
-    private String title = "Tribal Trouble";
+    private @NonNull String title = "Tribal Trouble";
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
     private boolean resized = false;
 

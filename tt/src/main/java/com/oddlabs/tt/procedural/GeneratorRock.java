@@ -38,10 +38,10 @@ public final class GeneratorRock extends TextureGenerator {
 		Layer normalMapLayer = rock_bump.toNormalMap(3.0f, mica);
 		if (Landscape.DEBUG) new GLIntImage(normalMapLayer).saveAsPNG("generator_rock_normal");
 
-		Texture[] textures = new Texture[2];
-		textures[0] = new Texture(new GLIntImage(rock).createMipMaps(), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
-		textures[1] = new Texture(new GLIntImage(normalMapLayer).createMipMaps(), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT);
-		return textures;
+		return new Texture[]{
+			new Texture(new GLIntImage(rock), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT),
+			new Texture(new GLIntImage(normalMapLayer), GL11.GL_RGB, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT)
+		};
 	}
 	
 	@Override

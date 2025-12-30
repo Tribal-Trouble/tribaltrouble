@@ -20,6 +20,7 @@ import com.oddlabs.tt.model.weapon.RotatingThrowingWeapon;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Lightning;
+import com.oddlabs.tt.particle.SonicBlastEffect;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.procedural.GeneratorRing;
 import com.oddlabs.tt.util.BoundingBox;
@@ -27,12 +28,15 @@ import com.oddlabs.tt.viewer.Selection;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 final class RenderState implements ElementVisitor {
-	private final List<@NonNull Emitter<?>> emitter_queue = new ArrayList<>();
-	private final List<@NonNull Lightning> lightning_queue = new ArrayList<>();
+	private final Queue<@NonNull Emitter<?>> emitter_queue = new ArrayDeque<>();
+	private final Queue<@NonNull Lightning> lightning_queue = new ArrayDeque<>();
+    private final Queue<@NonNull SonicBlastEffect> sonic_blast_queue = new ArrayDeque<>();
 	private final @NonNull SpriteSorter sprite_sorter;
 	private final @NonNull RenderStateCache<ElementRenderState<Model>> render_state_cache;
 	private final @NonNull RenderQueues render_queues;
@@ -85,6 +89,10 @@ final class RenderState implements ElementVisitor {
 		this.camera = camera_state;
 		render_state_cache.clear();
 		model_view_stack.clear().set(camera_state.getModelView());
+        // Clear queues for new frame
+        emitter_queue.clear();
+        lightning_queue.clear();
+        sonic_blast_queue.clear();
 	}
 
 	CameraState getCamera() {
@@ -214,6 +222,12 @@ final class RenderState implements ElementVisitor {
 		if (!picking)
 			lightning_queue.add(lightning);
 	}
+
+    @Override
+    public void visitSonicBlastEffect(@NonNull SonicBlastEffect effect) {
+        if (!picking)
+            sonic_blast_queue.add(effect);
+    }
 
 	@Override
 	public void visitRespond(final @NonNull LandscapeTargetRespond respond) {
@@ -367,11 +381,15 @@ final class RenderState implements ElementVisitor {
 		}
 	}
 
-	public @NonNull List<@NonNull Emitter<?>> getEmitterQueue() {
+	public @NonNull Queue<@NonNull Emitter<?>> getEmitterQueue() {
 		return emitter_queue;
 	}
 
-	public @NonNull List<@NonNull Lightning> getLightningQueue() {
+	public @NonNull Queue<@NonNull Lightning> getLightningQueue() {
 		return lightning_queue;
 	}
+
+    public @NonNull Queue<@NonNull SonicBlastEffect> getSonicBlastQueue() {
+        return sonic_blast_queue;
+    }
 }

@@ -19,7 +19,7 @@ public final class RingEmitter extends LinearEmitter {
                        @NonNull Vector4f color, @NonNull Vector4f delta_color,
                        @NonNull Vector3f particle_radius, @NonNull Vector3f growth_rate, float energy, float friction,
                        int src_blend_func, int dst_blend_func,
-                       @NonNull TextureKey @NonNull [] textures, AnimationManager manager) {
+                       @NonNull TextureKey @NonNull [] textures, @NonNull AnimationManager manager) {
 		super(world, position,
 				offset_z,
 				emitter_radius,

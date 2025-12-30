@@ -49,6 +49,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final @NonNull Selection selection;
     private final @NonNull EmitterRenderer emitterRenderer;
     private final @NonNull LightningRenderer lightningRenderer;
+    private final @NonNull SonicBlastRenderer sonicBlastRenderer;
 
     private @Nullable Building selected_building;
 
@@ -67,6 +68,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         this.water = new Water(world.getHeightMap(), generator.getTerrainType(), sky, modelViewStack, projectionStack);
         this.emitterRenderer = new EmitterRenderer();
         this.lightningRenderer = new LightningRenderer();
+        this.sonicBlastRenderer = new SonicBlastRenderer();
         DebugRender.setShaderRenderer(new DebugShaderRenderer(new FixedFunctionShader(), modelViewStack, projectionStack));
     }
 
@@ -239,6 +241,11 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
         lightningRenderer.render(render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state, modelViewStack, projectionStack);
         emitterRenderer.render(render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state, modelViewStack, projectionStack);
+        
+        if (world.getRacesResources() != null) {
+            sonicBlastRenderer.render(render_queues, element_renderer.getRenderState().getSonicBlastQueue(), frustum_state, modelViewStack, projectionStack, world.getRacesResources().getPoisonTextures()[0]);
+        }
+        
         renderRallyPoint(frustum_state);
 
         assert ShaderProgram.activeShader() == null : "Shader still active=" + ShaderProgram.activeShader();
@@ -250,7 +257,9 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
     @Override
     public void close() {
+        emitterRenderer.close();
         lightningRenderer.close();
+        sonicBlastRenderer.close();
         sky.close();
         water.close();
         tree_renderer.close();

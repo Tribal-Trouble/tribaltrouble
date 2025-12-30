@@ -141,7 +141,7 @@ public abstract class Emitter<P extends Particle> extends Element<Emitter<P>> im
 	}
 
 	@Override
-	protected final void remove() {
+	public void remove() {
 		super.remove();
 		manager.removeAnimation(this);
 	}

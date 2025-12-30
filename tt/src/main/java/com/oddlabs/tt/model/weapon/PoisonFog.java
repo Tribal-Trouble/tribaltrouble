@@ -4,19 +4,15 @@ import com.oddlabs.tt.audio.AbstractAudioPlayer;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.particle.RandomVelocityEmitter;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.util.StateChecksum;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
-
-import java.util.List;
 
 public final class PoisonFog implements Magic {
 	public static final float OFFSET_Z = 1.1f;
@@ -89,12 +85,12 @@ public final class PoisonFog implements Magic {
 					BURST_RADIUS, 0f, 0f, 0f,
 					PARTICLES_PER_BURST, PARTICLES_PER_BURST,
 					new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, 0f),
-					new Vector4f(0.75f, 1.0f, 0.0f, alpha), new Vector4f(0f, 0f, 0f, -alpha/energy),
+					new Vector4f(1f, 1f, 1f, alpha), new Vector4f(0f, 0f, 0f, -alpha/energy),
 					new Vector3f(0f, 0f, .25f), new Vector3f(3.5f, 3.5f, 0f), energy, 1f,
 					GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
 					owner.getWorld().getRacesResources().getPoisonTextures(),
 					owner.getWorld().getAnimationManagerGameTime());
-			if (bursts%next_sound == 0) {
+			if (bursts % next_sound == 0) {
 				next_sound = MIN_BURSTS_PER_SOUND + owner.getWorld().getRandom().nextInt(5);
 				owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getGasSound(), x, y, z,
 						AudioPlayer.AUDIO_RANK_GAS,
@@ -116,7 +112,7 @@ public final class PoisonFog implements Magic {
 		FindOccupantFilter<Unit> filter = new FindOccupantFilter<>(start_x, start_y, radius, src, Unit.class);
 		UnitGrid unit_grid = owner.getWorld().getUnitGrid();
 		unit_grid.scan(filter, UnitGrid.toGridCoordinate(start_x), UnitGrid.toGridCoordinate(start_y));
-        for (Selectable s : filter.getResult()) {
+        for (var s : filter.getResult()) {
             float dx = s.getPositionX() - start_x;
             float dy = s.getPositionY() - start_y;
             float squared_dist = dx * dx + dy * dy;
@@ -129,11 +125,7 @@ public final class PoisonFog implements Magic {
         }
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {
-	}
-
-	@Override
+    @Override
 	public void interrupt() {
 		if (bubbling_sound != null)
 			bubbling_sound.stop(.2f, Settings.getSettings().sound_gain);

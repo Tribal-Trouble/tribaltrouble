@@ -25,7 +25,7 @@ application {
         "-ea", "-esa",
         "-Dcom.oddlabs.tt.developer=true",
         "-Xms80m", "-Xmx512m" //"-check:JNI",
-        //"-javaagent:/Users/mike/.m2/repository/org/lwjglx/lwjglx-debug/1.0.0/lwjglx-debug-1.0.0.jar=validate;trace"
+        //"-javaagent:/Users/mike/.m2/repository/org/lwjglx/lwjglx-debug/1.0.1/lwjglx-debug-1.0.1.jar=validate;trace"
     )
     if (System.getProperty("os.name").lowercase().contains("mac")) {
         args.add("-XstartOnFirstThread")

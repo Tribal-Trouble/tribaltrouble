@@ -76,7 +76,7 @@ public final class HeightMap {
         GL11.glTexSubImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, 0, 0, grid_units_per_world, grid_units_per_world, GL11.GL_RED, GL11.GL_FLOAT, buffer);
 	}
     
-    public com.oddlabs.tt.render.Texture getHeightTexture() {
+    public com.oddlabs.tt.render.@NonNull Texture getHeightTexture() {
         return heightTexture;
     }
 

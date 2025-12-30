@@ -6,23 +6,14 @@ import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.Unit;
-import com.oddlabs.tt.particle.RingEmitter;
+import com.oddlabs.tt.particle.SonicBlastEffect;
 import com.oddlabs.tt.pathfinder.FindOccupantFilter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.util.StateChecksum;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.opengl.GL11;
-
-import java.util.List;
 
 public final class SonicBlast implements Magic {
-	private static final float SECONDS_AFTER_FIRST = 0.005f;
-	private static final float SECONDS_BETWEEN_RINGS = 0.01f;
-	private static final int NUM_RINGS = 3;
-
 	private final float hit_radius;
 	private final float hit_chance_closest;
 	private final float hit_chance_farthest;
@@ -37,9 +28,9 @@ public final class SonicBlast implements Magic {
 	private final @NonNull AbstractAudioPlayer rumble;
 
 	private float time = 0f;
-	private final @NonNull List<@NonNull Selectable> target_list;
+	private final @NonNull Iterable<? extends Selectable<?>> blast_targets;
+	private final @NonNull SonicBlastEffect sonicBlastEffect;
 
-	private int rings_sent = 0;
 	private boolean first_ring_sent = false;
 
 	public SonicBlast(float offset_x, float offset_y, float offset_z, float hit_radius, float hit_chance_closest, float hit_chance_farthest, int damage_closest, int damage_farthest, float seconds, @NonNull Unit src) {
@@ -54,11 +45,13 @@ public final class SonicBlast implements Magic {
 		start_x = src.getPositionX() + offset_x*src.getDirectionX() - offset_y*(-src.getDirectionY());
 		start_y = src.getPositionY() + offset_x*src.getDirectionY() + offset_y*src.getDirectionX();
 		start_z = src.getPositionZ() + offset_z;
-
-		FindOccupantFilter<Selectable> filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src, Selectable.class);
+		
+		var filter = new FindOccupantFilter<>(src.getPositionX(), src.getPositionY(), hit_radius, src, Selectable.genericClass());
 		UnitGrid unit_grid = owner.getWorld().getUnitGrid();
 		unit_grid.scan(filter, UnitGrid.toGridCoordinate(src.getPositionX()), UnitGrid.toGridCoordinate(src.getPositionY()));
-		target_list = filter.getResult();
+		blast_targets = filter.getResult();
+
+		sonicBlastEffect = new SonicBlastEffect(owner.getWorld(), new Vector3f(start_x, start_y, start_z), hit_radius, seconds);
 
 		lur = owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getBlastLurSound(owner.getWorld().getRandom()), start_x, start_y, start_z,
 				AudioPlayer.AUDIO_RANK_MAGIC,
@@ -83,17 +76,6 @@ public final class SonicBlast implements Magic {
 
 		if (!first_ring_sent) {
 			first_ring_sent = true;
-			float alpha_start = 8f;
-			float energy = 1f;
-			new RingEmitter(owner.getWorld(), new Vector3f(start_x, start_y, start_z), .5f,
-					0.01f, 1f,
-					45, 1000f,
-					new Vector3f(0f, 0f, 27f), new Vector3f(0f, 0f, 0f),
-					new Vector4f(0.1f, 0.1f, 0.1f, alpha_start), new Vector4f(0f, 0f, 0f, -alpha_start/energy),
-					new Vector3f(.2f, .2f, .5f), new Vector3f(3.5f, 3.7f, .5f), energy, 1f,
-					GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-					owner.getWorld().getRacesResources().getSonicTextures(),
-					owner.getWorld().getAnimationManagerGameTime());
 
 			owner.getWorld().getAudio().newAudio(new AudioParameters<>(owner.getWorld().getRacesResources().getBlastBlastSound(), start_x, start_y, start_z,
                     AudioPlayer.AUDIO_RANK_MAGIC,
@@ -104,29 +86,15 @@ public final class SonicBlast implements Magic {
 			lur.stop(.3f, Settings.getSettings().sound_gain);
 			rumble.stop(.2f, Settings.getSettings().sound_gain);
 		}
-
-		while (rings_sent <= NUM_RINGS && rings_sent < time/SECONDS_BETWEEN_RINGS && time >= SECONDS_AFTER_FIRST) {
-			rings_sent++;
-			float alpha_start = .8f;
-//			float alpha_start = .4f*(1f - rings_sent/(float)NUM_RINGS) + .2f;
-			float energy = 1.5f;
-			float velocity = 27f - rings_sent*5f;
-			new RingEmitter(owner.getWorld(), new Vector3f(start_x, start_y, start_z), .5f,
-					0.01f, 1f,
-					15, 1000f,
-					new Vector3f(0f, 0f, velocity), new Vector3f(0f, 0f, 0f),
-					new Vector4f(0.1f, 0.1f, 0.1f, alpha_start), new Vector4f(0f, 0f, 0f, -alpha_start/energy),
-					new Vector3f(.2f, .2f, .5f), new Vector3f(12.5f, 12.5f, .5f), energy, 1f,
-					GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
-					owner.getWorld().getRacesResources().getSonicTextures(),
-					owner.getWorld().getAnimationManagerGameTime());
-		}
+        
+		sonicBlastEffect.update(t);
 
 		float current_radius = hit_radius*time/seconds;
 		float squared_radius = current_radius*current_radius;
-		int i = 0;
-		while (i < target_list.size()) {
-			Selectable s = target_list.get(i);
+		
+		var targets = blast_targets.iterator();
+		while (targets.hasNext()) {
+			var s = targets.next();
 			float dx = s.getPositionX() - start_x;
 			float dy = s.getPositionY() - start_y;
 			float squared_dist = dx*dx + dy*dy;
@@ -139,9 +107,7 @@ public final class SonicBlast implements Magic {
 						s.hit(damage, dx*inv_dist, dy*inv_dist, owner);
 					}
 				}
-				target_list.remove(i);
-			} else {
-				i++;
+				targets.remove();
 			}
 		}
 	}
@@ -154,13 +120,10 @@ public final class SonicBlast implements Magic {
 		return result;
 	}
 
-	@Override
-	public void updateChecksum(@NonNull StateChecksum checksum) {
-	}
-
-	@Override
+    @Override
 	public void interrupt() {
 		lur.stop(.2f, Settings.getSettings().sound_gain);
 		rumble.stop(.2f, Settings.getSettings().sound_gain);
+        sonicBlastEffect.abort();
 	}
 }

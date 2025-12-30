@@ -12,16 +12,19 @@ import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 
 public final class Lightning extends Element<Lightning> implements Animated {
 	private static final float SQRT_2 = (float)Math.sqrt(2f);
 
 	private final @NonNull AnimationManager manager;
-	private final List<@NonNull StretchParticle> particles = new ArrayList<>();
+	private final Deque<@NonNull StretchParticle> particles = new ArrayDeque<>();
 	private final @NonNull Vector3fc src;
 	private final @NonNull Vector3fc dst;
 	private final float width;
@@ -57,7 +60,7 @@ public final class Lightning extends Element<Lightning> implements Animated {
         return this;
     }
 
-    public @NonNull List<@NonNull StretchParticle> getParticles() {
+    public @NonNull Deque<@NonNull StretchParticle> getParticles() {
 		return particles;
 	}
 
@@ -158,7 +161,7 @@ public final class Lightning extends Element<Lightning> implements Animated {
 	}
 
 	@Override
-	protected void remove() {
+	public void remove() {
 		super.remove();
 		manager.removeAnimation(this);
 	}

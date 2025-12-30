@@ -10,20 +10,23 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
         String PROJECTION_MATRIX = "u_projectionMatrix";
         String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
         String TEXTURE_0 = "u_texture0";
+        String IS_ADDITIVE = "u_isAdditive";
     }
 
     public interface Attributes {
         String CENTER_POSITION = "in_CenterPosition";
         String SIZE = "in_Size";
         String COLOR = "in_Color";
-        String UV_INFO = "in_UvInfo"; // (u1, v1, u2, v2) for non-uniform sprites
+        String UV_COORDS_1 = "in_UvCoords1"; // u1, v1, u2, v2
+        String UV_COORDS_2 = "in_UvCoords2"; // u3, v3, u4, v4
     }
 
     public enum Attribute implements VertexAttribute {
         CENTER_POSITION(Attributes.CENTER_POSITION, 3, GL11.GL_FLOAT),
-        SIZE(Attributes.SIZE, 2, GL11.GL_FLOAT), // width, height
+        SIZE(Attributes.SIZE, 3, GL11.GL_FLOAT), // radius_x, radius_y, radius_z
         COLOR(Attributes.COLOR, 4, GL11.GL_FLOAT),
-        UV_INFO(Attributes.UV_INFO, 4, GL11.GL_FLOAT);
+        UV_COORDS_1(Attributes.UV_COORDS_1, 4, GL11.GL_FLOAT),
+        UV_COORDS_2(Attributes.UV_COORDS_2, 4, GL11.GL_FLOAT);
 
         private final @NonNull String name;
         private final int componentCount;
@@ -51,22 +54,26 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
         #version 410 core
 
         layout(location = 0) in vec3 in_CenterPosition;
-        layout(location = 1) in vec2 in_Size;
+        layout(location = 1) in vec3 in_Size;
         layout(location = 2) in vec4 in_Color;
-        layout(location = 3) in vec4 in_UvInfo;
+        layout(location = 3) in vec4 in_UvCoords1;
+        layout(location = 4) in vec4 in_UvCoords2;
 
         uniform mat4 u_modelViewMatrix;
 
-        out vec2 gs_Size;
+        out vec3 gs_CenterWorld;
+        out vec3 gs_Size;
         out vec4 gs_Color;
-        out vec4 gs_UvInfo;
+        out vec4 gs_UvCoords1;
+        out vec4 gs_UvCoords2;
 
         void main() {
-            // Transform center position to View Space
-            gl_Position = u_modelViewMatrix * vec4(in_CenterPosition, 1.0);
+            gs_CenterWorld = in_CenterPosition;
             gs_Size = in_Size;
             gs_Color = in_Color;
-            gs_UvInfo = in_UvInfo;
+            gs_UvCoords1 = in_UvCoords1;
+            gs_UvCoords2 = in_UvCoords2;
+            // No need to set gl_Position here as we use gs_CenterWorld in GS
         }
         """;
         
@@ -76,56 +83,55 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
         layout (triangle_strip, max_vertices = 4) out;
 
         uniform mat4 u_projectionMatrix;
+        uniform mat4 u_modelViewMatrix;
 
-        in vec2[] gs_Size;
+        in vec3[] gs_CenterWorld;
+        in vec3[] gs_Size;
         in vec4[] gs_Color;
-        in vec4[] gs_UvInfo;
+        in vec4[] gs_UvCoords1;
+        in vec4[] gs_UvCoords2;
 
         out vec2 v_texCoord;
         out vec4 v_color;
         out float v_fogDist;
 
         void main() {
-            vec3 center = gl_in[0].gl_Position.xyz; // Center in View Space
-            vec2 size = gs_Size[0];
+            vec3 center = gs_CenterWorld[0];
+            vec3 radius = gs_Size[0];
             v_color = gs_Color[0];
             
-            // In View Space, camera is at (0,0,0) looking down -Z.
-            // Right is (1,0,0), Up is (0,1,0).
-            vec3 right = vec3(1.0, 0.0, 0.0) * size.x;
-            vec3 up = vec3(0.0, 1.0, 0.0) * size.y;
+            mat4 mv = u_modelViewMatrix;
+            vec3 right = vec3(mv[0][0], mv[1][0], mv[2][0]);
+            vec3 up = vec3(mv[0][1], mv[1][1], mv[2][1]);
+
+            vec3 r_plus_up = (right + up) * radius;
+            vec3 r_minus_up = (right - up) * radius;
+
+            vec4 viewCenter = mv * vec4(center, 1.0);
+            v_fogDist = length(viewCenter.xyz);
 
             // Bottom-left
-            vec4 pos = vec4(center - right - up, 1.0);
-            pos.z += 0.5; // Pull towards camera
-            gl_Position = u_projectionMatrix * pos;
-            v_texCoord = gs_UvInfo[0].xy;
-            v_fogDist = length(center); // Use center distance for fog to be consistent per quad
+            vec4 vPos = mv * vec4(center - r_plus_up, 1.0);
+            gl_Position = u_projectionMatrix * vPos;
+            v_texCoord = gs_UvCoords1[0].xy;
             EmitVertex();
 
             // Bottom-right
-            pos = vec4(center + right - up, 1.0);
-            pos.z += 0.5; // Pull towards camera
-            gl_Position = u_projectionMatrix * pos;
-            v_texCoord = gs_UvInfo[0].zy;
-            v_fogDist = length(center);
+            vPos = mv * vec4(center + r_minus_up, 1.0);
+            gl_Position = u_projectionMatrix * vPos;
+            v_texCoord = gs_UvCoords1[0].zw;
             EmitVertex();
 
             // Top-left
-            pos = vec4(center - right + up, 1.0);
-            pos.z += 0.5; // Pull towards camera
-            gl_Position = u_projectionMatrix * pos;
-            v_texCoord = gs_UvInfo[0].xw;
-            v_fogDist = length(center);
+            vPos = mv * vec4(center - r_minus_up, 1.0);
+            gl_Position = u_projectionMatrix * vPos;
+            v_texCoord = gs_UvCoords2[0].zw;
             EmitVertex();
 
             // Top-right
-            pos = vec4(center + right + up, 1.0);
-            pos.z += 0.5; // Pull towards camera
-            gl_Position = u_projectionMatrix * pos;
-            
-            v_texCoord = gs_UvInfo[0].zw;
-            v_fogDist = length(center);
+            vPos = mv * vec4(center + r_plus_up, 1.0);
+            gl_Position = u_projectionMatrix * vPos;
+            v_texCoord = gs_UvCoords2[0].xy;
             EmitVertex();
 
             EndPrimitive();
@@ -146,6 +152,7 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
         uniform vec3 u_fogParams;
         uniform float u_fogHeightFactor;
         uniform float u_cameraHeight;
+        uniform float u_isAdditive;
 
         in vec2 v_texCoord;
         in vec4 v_color;
@@ -162,7 +169,11 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
             }
 
             float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
-            out_FragColor = vec4(mix(u_fogColor.rgb, finalColor.rgb, fogFactor), finalColor.a);
+            vec3 foggedColor = mix(u_fogColor.rgb, finalColor.rgb, fogFactor);
+            if (u_isAdditive > 0.5) {
+                foggedColor = finalColor.rgb * fogFactor;
+            }
+            out_FragColor = vec4(foggedColor, finalColor.a);
         }
         """;
 

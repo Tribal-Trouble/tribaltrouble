@@ -18,13 +18,11 @@ public final class PatchMesh {
     private static final int VERTEX_COUNT = (PATCH_SIZE + 1) * (PATCH_SIZE + 1);
     private static final int INDEX_COUNT = PATCH_SIZE * PATCH_SIZE * 6;
 
-    private final @NonNull VertexArray vao;
+    private final VertexArray vao = new VertexArray();
     private final @NonNull FloatVBO vbo;
     private final @NonNull ShortVBO ibo;
 
     public PatchMesh() {
-        vao = new VertexArray();
-
         FloatBuffer vertices = BufferUtils.createFloatBuffer(VERTEX_COUNT * 2); // x, y
         for (int y = 0; y <= PATCH_SIZE; y++) {
             for (int x = 0; x <= PATCH_SIZE; x++) {
