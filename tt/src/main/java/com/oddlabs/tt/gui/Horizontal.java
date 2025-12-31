@@ -1,7 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public final class Horizontal {
@@ -24,9 +23,9 @@ public final class Horizontal {
 	public void render(@NonNull GUIRenderer renderer, float x, float y, int width, ModeIconQuads.@NonNull Mode skinMode) {
 		int center_width = width - left_width - right_width;
 
-		renderer.drawQuad(left.quad(skinMode), x, y, Color.WHITE_INT);
-		renderer.drawQuad(center.quad(skinMode), x + left_width, y, center_width, height, Color.WHITE_INT);
-		renderer.drawQuad(right.quad(skinMode), x + left_width + center_width, y, Color.WHITE_INT);
+		renderer.drawModeIcon(left, skinMode, x, y);
+		renderer.drawIcon(center.quad(skinMode), x + left_width, y, center_width, height);
+		renderer.drawModeIcon(right, skinMode, x + left_width + center_width, y);
 	}
 
 	public int getHeight() {

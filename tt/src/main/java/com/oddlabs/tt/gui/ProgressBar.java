@@ -64,7 +64,7 @@ public final class ProgressBar extends GUIObject {
 		ResourceBundle bundle = ResourceBundle.getBundle(ProgressBar.class.getName());
 		int percentage = (int)(done*100);
 		String string = Utils.getBundleString(bundle, "loading", percentage);
-		TextLineRenderer.render(renderer, Skin.getSkin().getHeadlineFont(), string, 0, 0, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE_INT);
+		TextLineRenderer.render(renderer, Skin.getSkin().getHeadlineFont(), string, 0, 0, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE);
 	}
 
 	@Override
@@ -107,14 +107,14 @@ public final class ProgressBar extends GUIObject {
         ModeIconQuads center = data.getCenterFill();
         ModeIconQuads right = data.getRightFill();
 
-		renderer.drawQuad(left.get(ModeIconQuads.Mode.NORMAL), 0, y, Color.WHITE_INT);
+		renderer.drawModeIcon(left, ModeIconQuads.Mode.NORMAL, 0, y);
 
 		int offset = index > 0 ? info[index - 1].getWaypoint() : 0;
         IconQuad c = center.quad(ModeIconQuads.Mode.NORMAL);
-		renderer.drawQuad(c.getTexture(), left_margin, y, offset - left_margin + (int)step, c.getHeight(), c.getU1(), c.getV1(), c.getU2(), c.getV2(), Color.WHITE_INT);
+		renderer.drawTexture(c.getTexture(), left_margin, y, offset - left_margin + (int)step, c.getHeight(), c.getU1(), c.getV1(), c.getU2(), c.getV2(), Color.WHITE);
 		
 		if (index == info.length) {
-			renderer.drawQuad(right.get(ModeIconQuads.Mode.NORMAL), info[index - 1].getWaypoint(), y, Color.WHITE_INT);
+			renderer.drawModeIcon(right, ModeIconQuads.Mode.NORMAL, info[index - 1].getWaypoint(), y);
 		}
 	}
 

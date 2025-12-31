@@ -122,7 +122,7 @@ public final class EmitterRenderer implements AutoCloseable {
             for (int j = 0; j < particles.length; j++) {
                 SpriteRenderer renderer = render_queues.getRenderer(sprite_renderers[j]);
                 for (Particle particle : particles[j]) {
-                    renderer.addToRenderList(PolyDetail.LOW_POLY, new ParticleModelState(particle, modelViewStack), false);
+                    renderer.addToRenderList(PolyDetail.LOW_POLY, new ParticleModelState(particle, state.getModelView()), false);
                 }
             }
         }

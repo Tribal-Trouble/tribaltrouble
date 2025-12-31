@@ -12,6 +12,7 @@ import com.oddlabs.tt.vbo.VertexArray;
 import com.oddlabs.util.Color;
 import com.oddlabs.util.Quad;
 import org.joml.Matrix4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -118,35 +119,27 @@ public final class GUIRenderer {
         }
     }
 
-    public void drawTexture(@NonNull Texture texture, float x, float y, float w, float h) {
-        drawQuad(texture, x, y, w, h, 0, 0, 1, 1, Color.WHITE_INT);
+    public void drawColoredQuad(float x, float y, float w, float h, @NonNull Vector4fc color) {
+        drawTexture(whiteTexture, x, y, w, h, 0, 0, 1, 1, color);
     }
 
-    public void drawTexture(@NonNull Texture texture, float x, float y, float w, float h, int tint) {
-        drawQuad(texture, x, y, w, h, 0, 0, 1, 1, tint);
+    public void drawModeIcon(@NonNull ModeIconQuads iconQuad, ModeIconQuads.@NonNull Mode skinMode, float x, float y) {
+        drawIcon(iconQuad.quad(skinMode), x, y);
     }
 
-    public void drawColoredQuad(float x, float y, float w, float h, int color) {
-        drawQuad(whiteTexture, x, y, w, h, 0, 0, 1, 1, color);
+    public void drawIcon(@NonNull IconQuad iconQuad, float x, float y) {
+        drawTexture(iconQuad.getTexture(), x, y, iconQuad.getWidth(), iconQuad.getHeight(), iconQuad.getU1(), iconQuad.getV1(), iconQuad.getU2(), iconQuad.getV2(), Color.WHITE);
     }
 
-    public void drawQuad(@NonNull Texture texture, @NonNull Quad quad, float x, float y, int color) {
-        drawQuad(texture, x, y, quad.getWidth(), quad.getHeight(), quad.getU1(), quad.getV1(), quad.getU2(), quad.getV2(), color);
+    public void drawIcon(@NonNull IconQuad iconQuad, float x, float y, @NonNull Vector4fc color) {
+        drawTexture(iconQuad.getTexture(), x, y, iconQuad.getWidth(), iconQuad.getHeight(), iconQuad.getU1(), iconQuad.getV1(), iconQuad.getU2(), iconQuad.getV2(), color);
     }
 
-    public void drawQuad(@NonNull IconQuad iconQuad, float x, float y, int color) {
-        drawQuad(iconQuad.getTexture(), x, y, iconQuad.getWidth(), iconQuad.getHeight(), iconQuad.getU1(), iconQuad.getV1(), iconQuad.getU2(), iconQuad.getV2(), color);
+    public void drawIcon(@NonNull IconQuad iconQuad, float x, float y, float w, float h) {
+        drawTexture(iconQuad.getTexture(), x, y, w, h, iconQuad.getU1(), iconQuad.getV1(), iconQuad.getU2(), iconQuad.getV2(), Color.WHITE);
     }
 
-    public void drawQuad(@NonNull IconQuad iconQuad, float x, float y, float w, float h, int color) {
-        drawQuad(iconQuad.getTexture(), x, y, w, h, iconQuad.getU1(), iconQuad.getV1(), iconQuad.getU2(), iconQuad.getV2(), color);
-    }
-
-    public void drawQuad(@NonNull ModeIconQuads iconQuad, float x, float y, ModeIconQuads.@NonNull Mode skinMode, int color) {
-        drawQuad(iconQuad.quad(skinMode), x, y, color);
-    }
-
-    public void drawQuad(@NonNull Texture texture, float x, float y, float w, float h, float u1, float v1, float u2, float v2, int tint) {
+    public void drawTexture(@NonNull Texture texture, float x, float y, float w, float h, float u1, float v1, float u2, float v2, @NonNull Vector4fc tint) {
         if (currentTexture != null && texture.getHandle() != currentTexture.getHandle() || quadCount >= MAX_QUADS) {
             flush();
         }
@@ -157,13 +150,13 @@ public final class GUIRenderer {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
         }
 
-        // Convert ARGB (0xAARRGGBB) to ABGR (0xAABBGGRR) for Little Endian byte buffer
-        tint = (tint & 0xFF00FF00) | ((tint & 0x00FF0000) >> 16) | ((tint & 0x000000FF) << 16);
+        // pack color to ABGR (0xAABBGGRR) for Little Endian byte buffer
+        int tintInt = Color.abgri(tint);
 
-        vertexBuffer.putFloat(x).putFloat(y).putFloat(0).putInt(tint).putFloat(u1).putFloat(v1);
-        vertexBuffer.putFloat(x + w).putFloat(y).putFloat(0).putInt(tint).putFloat(u2).putFloat(v1);
-        vertexBuffer.putFloat(x + w).putFloat(y + h).putFloat(0).putInt(tint).putFloat(u2).putFloat(v2);
-        vertexBuffer.putFloat(x).putFloat(y + h).putFloat(0).putInt(tint).putFloat(u1).putFloat(v2);
+        vertexBuffer.putFloat(x).putFloat(y).putFloat(0).putInt(tintInt).putFloat(u1).putFloat(v1);
+        vertexBuffer.putFloat(x + w).putFloat(y).putFloat(0).putInt(tintInt).putFloat(u2).putFloat(v1);
+        vertexBuffer.putFloat(x + w).putFloat(y + h).putFloat(0).putInt(tintInt).putFloat(u2).putFloat(v2);
+        vertexBuffer.putFloat(x).putFloat(y + h).putFloat(0).putInt(tintInt).putFloat(u1).putFloat(v2);
 
         quadCount++;
     }

@@ -9,5 +9,5 @@ public interface Target extends Distributable {
 	float getPositionY();
 	float getSize();
 	boolean isDead();
-	default boolean isAlive() { return !isDead(); };
+	default boolean isAlive() { return !isDead(); }
 }

@@ -144,7 +144,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		renderer.drawQuad(campaign.getIcons().getMap(),0f, 0f, Color.WHITE_INT);
+		renderer.drawIcon(campaign.getIcons().getMap(), 0f, 0f);
 //		campaign.extraRender();
 	}
 

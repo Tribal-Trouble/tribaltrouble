@@ -20,7 +20,7 @@ public final class IconLabel extends GUIObject implements Comparable<IconLabel> 
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		renderer.drawQuad(icon, 0, 0, Color.WHITE_INT);
+		renderer.drawIcon(icon, 0, 0);
 	}
 
 	private @NonNull Label getLabel() {

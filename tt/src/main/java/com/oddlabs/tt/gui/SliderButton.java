@@ -1,7 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public final class SliderButton extends ButtonObject {
@@ -24,7 +23,7 @@ public final class SliderButton extends ButtonObject {
                     ? ModeIconQuads.Mode.ACTIVE
                     : ModeIconQuads.Mode.NORMAL;
 
-		renderer.drawQuad(button.quad(skinMode), 0, 0, Color.WHITE_INT);
+		renderer.drawModeIcon(button, skinMode, 0, 0);
 	}
 
 	@Override

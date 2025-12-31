@@ -368,10 +368,9 @@ public final class GUIRoot extends GUIObject implements Updatable {
 
 	void renderTopmost(@NonNull GUIRenderer renderer, @Nullable ToolTip hovered, boolean cheater) {
         if (cheater) {
-            renderer.drawQuad(GUIIcons.getIcons().getCheatIcon(),
+            renderer.drawIcon(GUIIcons.getIcons().getCheatIcon(),
                     getWidth() - GUIIcons.getIcons().getCheatIcon().getWidth() - 10,
-                    5,
-                    Color.WHITE_INT);
+                    5);
         }
 
         getDelegate().render2D(renderer);

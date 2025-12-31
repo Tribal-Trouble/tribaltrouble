@@ -49,6 +49,7 @@ import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
 import org.joml.Matrix4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
@@ -78,7 +79,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
     private final @NonNull WorldParameters world_params;
     private final @NonNull AnimationManager animation_manager_local;
 
-    public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator, PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, float@NonNull [] @NonNull [] colors, short player_slot, SessionID session_id) {
+    public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator, PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, @NonNull Vector4fc @NonNull [] colors, short player_slot, SessionID session_id) {
         this.world_params = world_params;
         this.ingame_info = ingame_info;
         this.network = network;

@@ -19,7 +19,7 @@ public final class EditBox extends TextBox {
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		Box edit_box = Skin.getSkin().getEditBox();
     	super.renderBox(renderer, isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL);
-		int c = isDisabled() ? Label.DISABLED_COLOR : Color.WHITE_INT;
+		var c = isDisabled() ? Label.DISABLED_COLOR : Color.WHITE;
 
 		TextLineRenderer.render(renderer, getTextLayout(), edit_box.getLeftOffset(), getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + getOffsetY(), edit_box.getLeftOffset(), getWidth() - edit_box.getRightOffset(), c);
 
@@ -28,7 +28,7 @@ public final class EditBox extends TextBox {
 			int cursorLine = layout.getCursorLine(index);
 			int cursorX = layout.getCursorX(index);
 			int cursorY = getHeight() - edit_box.getBottomOffset() - getFont().getHeight() - (cursorLine * getFont().getHeight()) + getOffsetY();
-			Index.renderIndex(renderer, edit_box.getLeftOffset() + cursorX, cursorY, getFont());
+			Index.renderIndex(renderer, edit_box.getLeftOffset() + cursorX, cursorY, getFont(), c);
 		}
 	}
 

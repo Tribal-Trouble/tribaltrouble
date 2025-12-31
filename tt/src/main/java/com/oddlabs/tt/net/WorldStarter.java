@@ -15,7 +15,9 @@ import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Color;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +30,10 @@ final class WorldStarter implements LoadCallback {
 	private final NetworkSelector network;
 	private final WorldGenerator generator;
 	private final WorldParameters world_params;
-	private final WorldInitAction initial_action;
+	private final @Nullable WorldInitAction initial_action;
 	private final int session_id;
 
-	WorldStarter(NetworkSelector network, int session_id, WorldGenerator generator, WorldParameters world_params, PlayerSlot[] player_slots, UnitInfo[] unit_infos, short player_slot, InGameInfo ingame_info, WorldInitAction initial_action) {
+	WorldStarter(NetworkSelector network, int session_id, WorldGenerator generator, WorldParameters world_params, PlayerSlot[] player_slots, UnitInfo[] unit_infos, short player_slot, InGameInfo ingame_info, @Nullable WorldInitAction initial_action) {
 		this.initial_action = initial_action;
 		this.session_id = session_id;
 		this.world_params = world_params;
@@ -48,7 +50,7 @@ final class WorldStarter implements LoadCallback {
 		AnimationManager.freezeTime();
 		List<PlayerSlot> player_slot_list = new ArrayList<>();
 		List<UnitInfo> unit_info_list = new ArrayList<>();
-		List<float[]> color_list = new ArrayList<>();
+		List<Vector4fc> color_list = new ArrayList<>();
 		short corrected_player_slot = -1;
 		for (short i = 0; i < player_slots.length; i++) {
 			if (player_slots[i].getInfo() != null) {
@@ -56,13 +58,13 @@ final class WorldStarter implements LoadCallback {
 					corrected_player_slot = (short)player_slot_list.size();
 				player_slot_list.add(player_slots[i]);
 				unit_info_list.add(unit_infos[i]);
-				color_list.add(Color.argb4f(Player.COLORS[i]));
+				color_list.add(Player.COLORS[i]);
 			}
 		}
 		assert corrected_player_slot != -1;
 		PlayerSlot[] player_slots = player_slot_list.toArray(new PlayerSlot[0]);
 		UnitInfo[] corrected_unit_infos = unit_info_list.toArray(new UnitInfo[0]);
-		float[][] corrected_colors = color_list.toArray(new float[color_list.size()][]);
+		@NonNull Vector4fc [] corrected_colors = color_list.toArray(Vector4fc[]::new);
 		WorldViewer viewer = new WorldViewer(network, gui_root, world_params, ingame_info, generator, player_slots, corrected_unit_infos, corrected_colors, corrected_player_slot, new SessionID(session_id));
 		if (initial_action != null)
 			initial_action.run(viewer);

@@ -14,8 +14,10 @@ import com.oddlabs.tt.particle.ParametricEmitter;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.util.Target;
+import com.oddlabs.util.Color;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -25,6 +27,7 @@ public final class LightningCloud implements Magic {
 	private static final float SECONDS_BETWEEN_STRIKES = .125f;
 	private static final float BRIGHTNESS = .2f;
 	private static final float LIGHTNING_TIME = .1f;
+	private static final Vector4fc DELTA_COLOR = new Vector4f(0f, 0f, 0f, -1f/LIGHTNING_TIME);
 
 	private final @NonNull Player owner;
 	private final float seconds_per_hit;
@@ -159,7 +162,7 @@ public final class LightningCloud implements Magic {
 		float y = target.getPositionY();
 		float z = owner.getWorld().getHeightMap().getNearestHeight(x, y);
 		new Lightning(owner.getWorld(), position, new Vector3f(x, y, z), .5f,
-				15, new Vector4f(1f, 1f, 1f, 1f), new Vector4f(0f, 0f, 0f, -1f/LIGHTNING_TIME),
+				15, Color.WHITE, DELTA_COLOR,
 				owner.getWorld().getRacesResources().getLightningTexture(), LIGHTNING_TIME,
 				owner.getWorld().getAnimationManagerGameTime());
 	}

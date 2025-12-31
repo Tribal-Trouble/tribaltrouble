@@ -3,7 +3,6 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.util.Color;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 
@@ -90,9 +89,8 @@ public final class Arrow extends GUIObject {
 			if (val > 1f)
 				val = 2f - val;
 			val = COLOR_DELTA*val;
-			int color = Color.argbi(r, g, b, 1f - val);
 			IconQuad arrow = data.getArrow();
-			renderer.drawQuad(arrow, -head_x, -head_y, color);
+			renderer.drawIcon(arrow, -head_x, -head_y, new Vector4f(r, g, b, 1f - val));
 			renderer.getMatrixStack().pop();
 		}
 	}

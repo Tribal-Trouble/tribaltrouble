@@ -119,8 +119,8 @@ public final class BuildSpinner extends IconSpinner {
 	@Override
 	protected void postRender(@NonNull GUIRenderer renderer) {
 		if (renderInfinite()) {
-			IconQuad infiniteQuad = GUIIcons.getIcons().getInfinite();
-			renderer.drawQuad(infiniteQuad, 0, 0, Color.WHITE_INT);
+			// TODO replace with text drawing from display font
+			renderer.drawIcon(GUIIcons.getIcons().getInfinite(), 0, 0);
 		}		
 	}
 }

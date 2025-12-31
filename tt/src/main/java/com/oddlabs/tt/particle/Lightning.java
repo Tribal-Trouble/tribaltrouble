@@ -6,18 +6,13 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.Element;
 import com.oddlabs.tt.model.ElementVisitor;
 import com.oddlabs.tt.render.TextureKey;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
 import java.util.Random;
 
 public final class Lightning extends Element<Lightning> implements Animated {

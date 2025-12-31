@@ -15,6 +15,8 @@ import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Color;
+import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
@@ -78,7 +80,7 @@ public class DefaultInGameInfo implements InGameInfo {
 			button_replay.place(button_observer, LEFT_MID);
 	}
 
-	private void addGameInfos(@NonNull WorldViewer viewer, Menu menu, @NonNull Group game_infos) {
+	private void addGameInfos(@NonNull WorldViewer viewer, @NonNull Menu menu, @NonNull Group game_infos) {
 		Player[] players = viewer.getWorld().getPlayers();
 		Group names = new Group();
 		GUIObject last_name = null;
@@ -88,19 +90,16 @@ public class DefaultInGameInfo implements InGameInfo {
 		GUIObject last_team = null;
         for (Player player : players) {
             PlayerInfo player_info = player.getPlayerInfo();
-            float[] color_floats = player.getColor();
-            int color = Color.argbi(color_floats[0], color_floats[1], color_floats[2], color_floats[3]);
-            if (!viewer.getPeerHub().isAlive(player)) {
-                color = Color.argbi(color_floats[0], color_floats[1], color_floats[2], .25f);
-            }
-            Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont());
-            name.setColor(color);
+            var color_floats = player.getColor();
+            Vector4fc color = viewer.getPeerHub().isAlive(player) ? color_floats : new Vector4f(color_floats.x(), color_floats.y(), color_floats.z(), .25f);
+            Label name = new Label(player_info.getName(), Skin.getSkin().getHeadlineFont())
+					.setColor(color);
             String race_str = RacesResources.getRaceName(player_info.getRace());
-            Label race = new Label(race_str, Skin.getSkin().getHeadlineFont());
-            race.setColor(color);
+            Label race = new Label(race_str, Skin.getSkin().getHeadlineFont())
+					.setColor(color);
             String team_str = Utils.getBundleString(terrain_menu_bundle, "team", Integer.toString(player_info.getTeam() + 1));
-            Label team = new Label(team_str, Skin.getSkin().getHeadlineFont());
-            team.setColor(color);
+            Label team = new Label(team_str, Skin.getSkin().getHeadlineFont())
+					.setColor(color);
             names.addChild(name);
             if (last_name != null)
                 name.place(last_name, BOTTOM_LEFT);

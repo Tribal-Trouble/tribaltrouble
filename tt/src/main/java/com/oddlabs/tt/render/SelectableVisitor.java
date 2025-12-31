@@ -6,21 +6,16 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.util.Color;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
-class SelectableVisitor<S extends Selectable> extends ModelVisitor<S> {
-	private static final float[] COLOR_RED = Color.rgb3f(0xFF0000);
-	private static final float[] COLOR_RED_HOVER = Color.rgb3f(0x7f0000);
-	private static final float[] COLOR_GREEN = Color.rgb3f(0x00FF00);
-	private static final float[] COLOR_GREEN_HOVER = Color.rgb3f(0x007f00);
-	private static final float[] COLOR_BLUE = Color.rgb3f(0x0000FF);
-	private static final float[] COLOR_BLUE_HOVER = Color.rgb3f(0x00007f);
-
-	@Override
-	public final void transform(@NonNull ElementRenderState<S> render_state) {
-		Model model = render_state.model;
-		RenderTools.translateAndRotate(model.getPositionX(), model.getPositionY(), render_state.f, model.getDirectionX(), model.getDirectionY(), render_state.getModelViewStack());
-	}
+class SelectableVisitor<S extends Selectable<?>> extends ModelVisitor<S> {
+	private static final Vector4fc COLOR_RED = Color.argb4v(0xC0_FF_00_00);
+	private static final Vector4fc COLOR_RED_HOVER = Color.argb4v(0xC0_7f_00_00);
+	private static final Vector4fc COLOR_GREEN = Color.argb4v(0xC0_00_FF_00);
+	private static final Vector4fc COLOR_GREEN_HOVER = Color.argb4v(0xC0_00_7F_00);
+	private static final Vector4fc COLOR_BLUE = Color.argb4v(0xC0_00_00_FF);
+	private static final Vector4fc COLOR_BLUE_HOVER = Color.argb4v(0xC0_00_00_7F);
 
     @Override
     public void getTransform(@NonNull ElementRenderState<S> render_state, @NonNull Matrix4f dest) {
@@ -30,19 +25,19 @@ class SelectableVisitor<S extends Selectable> extends ModelVisitor<S> {
             .rotate(angle, 0f, 0f, 1f);
     }
 
-	static float @NonNull [] getTeamColor(@NonNull Selectable<?> model) {
+	static @NonNull Vector4fc getTeamColor(@NonNull Selectable<?> model) {
 		return model.getOwner().getColor();
 	}
 
 	@NotNull
     @Override
-	public final float[] getTeamColor(@NonNull ElementRenderState<S> render_state) {
+	public final @NonNull Vector4fc getTeamColor(@NonNull ElementRenderState<S> render_state) {
 		return getTeamColor(render_state.getModel());
 	}
 
 	@NotNull
     @Override
-	public final float[] getSelectionColor(@NonNull ElementRenderState<S> render_state) {
+	public final @NonNull Vector4fc getSelectionColor(@NonNull ElementRenderState<S> render_state) {
 		Player local_player = render_state.render_state.getLocalPlayer();
 		S model = render_state.getModel();
         return render_state.render_state.isSelected(model)
@@ -60,7 +55,7 @@ class SelectableVisitor<S extends Selectable> extends ModelVisitor<S> {
 
 	@Override
 	public final void markDetailPoint(@NonNull ElementRenderState<S> render_state) {
-		Selectable selectable = (Selectable)render_state.model;
+		S selectable = render_state.model;
 		if (!selectable.isDead())
 			super.markDetailPoint(render_state);
 	}

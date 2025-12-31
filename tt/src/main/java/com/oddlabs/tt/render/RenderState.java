@@ -29,8 +29,6 @@ import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Queue;
 
 final class RenderState implements ElementVisitor {
@@ -236,12 +234,6 @@ final class RenderState implements ElementVisitor {
 	}
 
 	private static final ModelVisitor<SupplyModel> supply_model_visitor = new SupplyModelVisitor<>() {
-		@Override
-		public void transform(@NonNull ElementRenderState<SupplyModel> render_state) {
-			SupplyModel model = render_state.getModel();
-            render_state.getModelViewStack().translate(model.getPositionX(), model.getPositionY(), model.getPositionZ())
-                .rotate(model.getRotation(), 0f, 0f, 1f);
-		}
         @Override
         public void getTransform(@NonNull ElementRenderState<SupplyModel> render_state, @NonNull Matrix4f dest) {
             SupplyModel model = render_state.getModel();
@@ -255,12 +247,6 @@ final class RenderState implements ElementVisitor {
 	}
 
 	private static final ModelVisitor<RubberSupply> rubber_model_visitor = new SupplyModelVisitor<>() {
-		@Override
-		public void transform(@NonNull ElementRenderState<RubberSupply> render_state) {
-			Model model = render_state.model;
-			RenderTools.translateAndRotate(model.getPositionX(), model.getPositionY(), render_state.f, model.getDirectionX(), model.getDirectionY(), render_state.getModelViewStack());
-		}
-
         @Override
         public void getTransform(@NonNull ElementRenderState<RubberSupply> render_state, @NonNull Matrix4f dest) {
             Model model = render_state.model;
@@ -278,19 +264,7 @@ final class RenderState implements ElementVisitor {
 			default_shadow_renderer.addToShadowList(state);
 	}
 
-	private static final ModelVisitor<SceneryModel> scenery_model_visitor = new WhiteModelVisitor<>() {
-		@Override
-		public void transform(@NonNull ElementRenderState<SceneryModel> render_state) {
-			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
-		}
-        @Override
-        public void getTransform(@NonNull ElementRenderState<SceneryModel> render_state, @NonNull Matrix4f dest) {
-            Model model = render_state.getModel();
-            float angle = (float) Math.toDegrees(Math.atan2(model.getDirectionY(), model.getDirectionX()));
-            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
-                .rotate(angle, 0f, 0f, 1f);
-        }
-	};
+	private static final ModelVisitor<SceneryModel> scenery_model_visitor = new WhiteModelVisitor<>() {};
 	@Override
 	public void visitSceneryModel(final @NonNull SceneryModel model) {
 		ModelState<SceneryModel> state = getCachedState(scenery_model_visitor, model);
@@ -305,24 +279,19 @@ final class RenderState implements ElementVisitor {
 	private static final ModelVisitor<Plants> plants_model_visitor = new WhiteModelVisitor<>() {
 		private static final float START_FADE_DIST = 100;
 
-		@Override
-		public void transform(@NonNull ElementRenderState<Plants> render_state) {
-			Plants plants = render_state.getModel();
-			RenderTools.translateAndRotate(plants, render_state.getModelViewStack());
-			float dist_squared = render_state.f;
-			if (dist_squared > START_FADE_DIST*START_FADE_DIST) {
-				float camera_dist = (float)Math.sqrt(dist_squared);
-				float alpha = 1f - ((camera_dist - START_FADE_DIST)/(PLANTS_CUT_DIST - START_FADE_DIST));
-				render_state.getColor().set(1f, 1f, 1f, alpha);
-			}
-		}
-
         @Override
         public void getTransform(@NonNull ElementRenderState<Plants> render_state, @NonNull Matrix4f dest) {
             Plants plants = render_state.getModel();
             float angle = (float) Math.toDegrees(Math.atan2(plants.getDirectionY(), plants.getDirectionX()));
             dest.translation(plants.getPositionX(), plants.getPositionY(), plants.getPositionZ())
                 .rotate(angle, 0f, 0f, 1f);
+
+            float dist_squared = render_state.f;
+            if (dist_squared > START_FADE_DIST*START_FADE_DIST) {
+                float camera_dist = (float)Math.sqrt(dist_squared);
+                float alpha = 1f - ((camera_dist - START_FADE_DIST)/(PLANTS_CUT_DIST - START_FADE_DIST));
+                render_state.getColor().set(1f, 1f, 1f, alpha);
+            }
         }
 	};
 	@Override
@@ -335,19 +304,14 @@ final class RenderState implements ElementVisitor {
 	}
 
 	private static final ModelVisitor<DirectedThrowingWeapon> directed_weapon_model_visitor = new WhiteModelVisitor<>() {
-		@Override
-		public void transform(@NonNull ElementRenderState<DirectedThrowingWeapon> render_state) {
-			DirectedThrowingWeapon model = render_state.getModel();
-			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
-            render_state.getModelViewStack().rotate(-model.getZSpeed(), 0f, 1f, 0f);
-		}
         @Override
         public void getTransform(@NonNull ElementRenderState<DirectedThrowingWeapon> render_state, @NonNull Matrix4f dest) {
             DirectedThrowingWeapon model = render_state.getModel();
-            float angle = (float) Math.toDegrees(Math.atan2(model.getDirectionY(), model.getDirectionX()));
-            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
-                .rotate(angle, 0f, 0f, 1f)
-                .rotate(-model.getZSpeed(), 0f, 1f, 0f);
+			float yawRad = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
+			float pitchRad = (float) Math.toRadians(model.getAngle());
+			dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ() + model.getOffsetZ())
+                .rotate(yawRad, 0f, 0f, 1f)
+                .rotate(-pitchRad, 0f, 1f, 0f);
         }
 	};
 	@Override
@@ -358,20 +322,14 @@ final class RenderState implements ElementVisitor {
 	}
 
 	private static final ModelVisitor<RotatingThrowingWeapon> rotating_weapon_model_visitor = new WhiteModelVisitor<>() {
-		@Override
-		public void transform(@NonNull ElementRenderState<RotatingThrowingWeapon> render_state) {
-			RotatingThrowingWeapon model = render_state.getModel();
-			RenderTools.translateAndRotate(render_state.getModel(), render_state.getModelViewStack());
-            render_state.getModelViewStack().rotate(model.getAngle(), 0f, 1f, 0f);
-		}
-
         @Override
         public void getTransform(@NonNull ElementRenderState<RotatingThrowingWeapon> render_state, @NonNull Matrix4f dest) {
             RotatingThrowingWeapon model = render_state.getModel();
-            float angle = (float) Math.toDegrees(Math.atan2(model.getDirectionY(), model.getDirectionX()));
-            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
-                .rotate(angle, 0f, 0f, 1f)
-                .rotate(model.getAngle(), 0f, 1f, 0f);
+            float yawRad = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
+            float spinRad = (float) Math.toRadians(model.getAngle());
+            dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ() + model.getOffsetZ())
+                .rotate(yawRad, 0f, 0f, 1f)
+                .rotate(spinRad, 0f, 1f, 0f);
         }
 	};
 	@Override

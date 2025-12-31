@@ -5,13 +5,13 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class SpriteRenderer {
-	private static final float [] TRANSPARENT = Color.argb4f(Color.TRANSPARENT_INT);
 	private final @NonNull SpriteList sprite_list;
 	private final @NonNull SpriteListRenderer sprite_list_renderer;
 	private final int tex_index;
@@ -74,8 +74,6 @@ public final class SpriteRenderer {
 		if (Globals.draw_misc && !no_detail_render_list.isEmpty()) {
             SpriteList quadList = SpriteList.getQuadInstance();
 			for (var model : no_detail_render_list) {
-				float[] color = model.getTeamColor();
-				float[] renderColor = new float[]{color[0], color[1], color[2], 1.0f};
 				float x = model.getModel().getPositionX();
 				float y = model.getModel().getPositionY();
 				float z = model.getModel().getPositionZ();
@@ -83,7 +81,7 @@ public final class SpriteRenderer {
 				tempMatrix.identity().translation(x, y, z + 0.1f).scale(r * 2);
 				// Quads don't have animation, so pass 0, 0f
                 // Disable depth test for no-detail sprites (overlays)
-				instancedSpriteRenderer.add(quadList, 0, 0, 0f, 0, false, false, tempMatrix, renderColor, TRANSPARENT);
+				instancedSpriteRenderer.add(quadList, 0, 0, 0f, 0, false, false, tempMatrix, model.getTeamColor(), Color.TRANSPARENT);
 			}
 		}
 		clearRenderLists();

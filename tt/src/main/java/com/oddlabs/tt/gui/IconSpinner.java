@@ -118,13 +118,13 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
                     ? ModeIconQuads.Mode.ACTIVE
                     : ModeIconQuads.Mode.NORMAL;
 
-		renderer.drawQuad(icon_quad.quad(skinMode), x, y, Color.WHITE_INT);
+		renderer.drawIcon(icon_quad.quad(skinMode), x, y);
 
 		if (text_count > 0) {
 			IconQuad[] watch = GUIIcons.getIcons().getWatch();
 			int index = (int)(getProgress()*(watch.length - 1));
 			IconQuad watchQuad = watch[index];
-			renderer.drawQuad(watchQuad, getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight(), Color.WHITE_INT);
+			renderer.drawIcon(watchQuad, getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight());
 		}
 	}
 

@@ -411,8 +411,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			ratings[index].place(ready_mark, RIGHT_MID);
 		}
 		String player_str = Utils.getBundleString(bundle, "player", Integer.toString(index + 1));
-		Label label = new Label(player_str, Skin.getSkin().getEditFont());
-		label.setColor(Player.COLORS[index]);
+		Label label = new Label(player_str, Skin.getSkin().getEditFont()).setColor(Player.COLORS[index]);
 		group.addChild(label);
 		label.place(pulldown_button, LEFT_MID);
 

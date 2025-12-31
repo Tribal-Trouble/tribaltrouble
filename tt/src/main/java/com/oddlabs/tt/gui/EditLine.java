@@ -65,10 +65,10 @@ public class EditLine extends TextField implements Clipped {
 
 	protected void renderText(@NonNull GUIRenderer renderer, @NonNull Box box, int offset_x, int render_index) {
         var displayText = getDisplayText();
-		TextLineRenderer.render(renderer, getFont(), displayText, box.getLeftOffset() + offset_x, box.getBottomOffset(), box.getLeftOffset() + 1, getWidth() - box.getRightOffset() - 1, Color.WHITE_INT);
+		TextLineRenderer.render(renderer, getFont(), displayText, box.getLeftOffset() + offset_x, box.getBottomOffset(), box.getLeftOffset() + 1, getWidth() - box.getRightOffset() - 1, Color.WHITE);
 		if (render_index != -1) {
 			int cursorX = getRenderedWidth(displayText.subSequence(0, render_index));
-			Index.renderIndex(renderer, box.getLeftOffset() + offset_x + cursorX, box.getBottomOffset(), getFont());
+			Index.renderIndex(renderer, box.getLeftOffset() + offset_x + cursorX, box.getBottomOffset(), getFont(), Color.WHITE);
 		}
 	}
 

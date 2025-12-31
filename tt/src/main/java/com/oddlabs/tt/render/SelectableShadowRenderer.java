@@ -5,6 +5,7 @@ import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.procedural.GeneratorHalos;
 import com.oddlabs.tt.resource.Resources;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -58,8 +59,8 @@ final class SelectableShadowRenderer extends ShadowListRenderer {
             while (!selection_list.isEmpty()) {
                 var modelState = selection_list.pop();
                 var model = Objects.requireNonNull(modelState.getModel());
-                float[] color = modelState.getSelectionColor();
-                setShadowColor(color[0], color[1], color[2], 1f);
+                Vector4fc color = modelState.getSelectionColor();
+                setShadowColor(color.x(), color.y(), color.z(), 1f);
                 renderShadow(renderer, model.getShadowDiameter(), model.getPositionX(), model.getPositionY());
             }
         }

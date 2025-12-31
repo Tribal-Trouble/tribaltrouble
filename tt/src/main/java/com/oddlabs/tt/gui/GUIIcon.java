@@ -1,7 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public class GUIIcon extends GUIObject {
@@ -15,6 +14,6 @@ public class GUIIcon extends GUIObject {
 
 	@Override
 	public void renderGeometry(@NonNull GUIRenderer renderer) {
-		renderer.drawQuad(icon, 0, 0, getWidth(), getHeight(), Color.WHITE_INT);
+		renderer.drawIcon(icon, 0, 0, getWidth(), getHeight());
 	}
 }

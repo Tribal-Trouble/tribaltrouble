@@ -31,6 +31,7 @@ import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.MultiplayerInGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Color;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -38,8 +39,8 @@ import java.net.InetAddress;
 import java.util.ResourceBundle;
 
 public abstract class Menu extends CameraDelegate<Camera> {
-    static final int COLOR_NORMAL = Color.WHITE_INT;
-    static final int COLOR_ACTIVE = 0xFF_FF_CC_9F;
+    static final Vector4fc COLOR_NORMAL = Color.WHITE;
+    static final Vector4fc COLOR_ACTIVE = Color.argb4v(0xFF_FF_CC_9F);
     private static final int MENU_X = 160;
     private static final int overlay_texture_width = 1024;
     private static final int overlay_texture_height = 1024;

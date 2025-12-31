@@ -120,6 +120,8 @@ public class Particle extends Model {
 		color.set(r, g, b, a);
 	}
 
+	public final @NonNull Vector4f getColor() { return color; }
+
 	public final float getColorR() {
 		return color.x();
 	}

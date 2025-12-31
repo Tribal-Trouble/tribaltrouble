@@ -1,7 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public final class Diode extends GUIObject {
@@ -25,6 +24,6 @@ public final class Diode extends GUIObject {
                 ? ModeIconQuads.Mode.ACTIVE
                 : ModeIconQuads.Mode.NORMAL;
 
-		renderer.drawQuad(Skin.getSkin().getDiode(), 0, 0, skinMode, Color.WHITE_INT);
+		renderer.drawModeIcon(Skin.getSkin().getDiode(), skinMode, 0, 0);
 	}
 }

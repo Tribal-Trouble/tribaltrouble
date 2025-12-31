@@ -3,6 +3,7 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.model.Model;
 import org.joml.Matrix4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 abstract class ModelVisitor<M extends Model> {
@@ -27,8 +28,7 @@ abstract class ModelVisitor<M extends Model> {
 		return RenderTools.getEyeDistanceSquared(model, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());
 	}
 
-	public abstract void transform(@NonNull ElementRenderState<M> render_state);
     public abstract void getTransform(@NonNull ElementRenderState<M> render_state, @NonNull Matrix4f dest);
-	public abstract float @NonNull [] getTeamColor(@NonNull ElementRenderState<M> render_state);
-	public abstract float @NonNull [] getSelectionColor(@NonNull ElementRenderState<M> render_state);
+	public abstract @NonNull Vector4fc getTeamColor(@NonNull ElementRenderState<M> render_state);
+	public abstract @NonNull Vector4fc getSelectionColor(@NonNull ElementRenderState<M> render_state);
 }

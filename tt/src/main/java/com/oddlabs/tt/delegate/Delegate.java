@@ -9,9 +9,12 @@ import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.util.Color;
+import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 public abstract class Delegate extends GUIObject {
+	private static final Vector4fc BACKGROUND_ALPHA = new Vector4f(0f, 0f, 0f, .3f);
 	Delegate() {
 		setPos(0, 0);
 		setCanFocus(true);
@@ -40,7 +43,6 @@ public abstract class Delegate extends GUIObject {
 	}
 
 	final void renderBackgroundAlpha(@NonNull GUIRenderer renderer) {
-		int color = Color.argbi(0f, 0f, 0f, .3f);
-		renderer.drawColoredQuad(0, 0, getWidth(), getHeight(), color);
+		renderer.drawColoredQuad(0, 0, getWidth(), getHeight(), BACKGROUND_ALPHA);
 	}
 }

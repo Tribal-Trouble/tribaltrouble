@@ -36,7 +36,7 @@ public final class Cursor {
             // Quad.render expects bottom-left coordinates
             float draw_x = x - offset_x;
             float draw_y = y - (height - offset_y);
-            renderer.drawQuad(cursor, draw_x, draw_y, Color.WHITE_INT);
+            renderer.drawIcon(cursor, draw_x, draw_y);
         }
     }
 

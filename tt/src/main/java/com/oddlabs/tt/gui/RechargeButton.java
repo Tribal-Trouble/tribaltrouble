@@ -38,7 +38,7 @@ public class RechargeButton extends NonFocusIconButton implements ToolTip {
 		int index = (int)(progress*(watch.length - 1));
 		if (!unit.isDead() && progress < 1f) {
 			IconQuad watchQuad = watch[index];
-			renderer.drawQuad(watchQuad, getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight(), Color.WHITE_INT);
+			renderer.drawIcon(watchQuad, getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight());
 		}
 	}
 }

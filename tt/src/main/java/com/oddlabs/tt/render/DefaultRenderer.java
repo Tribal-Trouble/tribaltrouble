@@ -131,8 +131,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
             spriteShader.setUniformMatrix4(SpriteShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
 
-            float[] teamColor = SelectableVisitor.getTeamColor(selected_building);
-            spriteShader.setUniform(SpriteShader.Uniforms.DECAL_COLOR, teamColor[0], teamColor[1], teamColor[2], 1f);
+            var teamColor = SelectableVisitor.getTeamColor(selected_building);
+            spriteShader.setUniform(SpriteShader.Uniforms.DECAL_COLOR, teamColor.x(), teamColor.y(), teamColor.z(), 1f);
             spriteShader.setUniform(SpriteShader.Uniforms.COLOR, 1f, 1f, 1f, 1f);
 
             sprite.renderShader(spriteShader, 0, 0f, rally_point_renderer.getSpriteList());

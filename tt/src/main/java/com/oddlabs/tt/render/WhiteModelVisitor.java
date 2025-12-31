@@ -3,20 +3,30 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.util.Color;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
-abstract class WhiteModelVisitor<M extends Model> extends ModelVisitor<M> {
-	private static final float[] COLOR_TEAM = Color.argb4f(Color.WHITE_INT);
+class WhiteModelVisitor<M extends Model> extends ModelVisitor<M> {
+	private static final Vector4fc COLOR_TEAM = Color.WHITE;
 
 	@NotNull
     @Override
-	public final float@NonNull  [] getSelectionColor(@NotNull ElementRenderState<M> render_state) {
+	public final @NonNull Vector4fc getSelectionColor(@NotNull ElementRenderState<M> render_state) {
 		return COLOR_TEAM;
 	}
 
 	@NotNull
     @Override
-	public final float @NonNull [] getTeamColor(@NotNull ElementRenderState<M> render_state) {
+	public final @NonNull Vector4fc getTeamColor(@NotNull ElementRenderState<M> render_state) {
 		return COLOR_TEAM;
+	}
+
+	@Override
+	public void getTransform(@NonNull ElementRenderState<M> render_state, @NonNull Matrix4f dest) {
+		Model model = render_state.getModel();
+		float angle = (float) Math.toDegrees(Math.atan2(model.getDirectionY(), model.getDirectionX()));
+		dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
+				.rotate(angle, 0f, 0f, 1f);
 	}
 }

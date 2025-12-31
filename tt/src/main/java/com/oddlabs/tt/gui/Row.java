@@ -2,6 +2,8 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
+import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -9,7 +11,7 @@ public final class Row<T,C extends GUIObject & Comparable<C>> extends GUIObject 
 	private final @NonNull C @NonNull [] columns;
 	private final @Nullable T content_object;
 	private int sort_index;
-	private int color = com.oddlabs.util.Color.TRANSPARENT_INT;
+	private Vector4f color = new Vector4f(com.oddlabs.util.Color.TRANSPARENT);
 	private boolean marked = false;
 
 	public Row(@NonNull C @NonNull [] columns, @Nullable T content_object) {
@@ -50,14 +52,14 @@ public final class Row<T,C extends GUIObject & Comparable<C>> extends GUIObject 
 		return getColumn(sort_index).compareTo(o.getColumn(sort_index));
 	}
 
-	public void setColor(int color) {
-		this.color = color;
+	public void setColor(@NonNull Vector4fc color) {
+		this.color = new Vector4f(color);
 	}
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
         var c = marked ? Skin.getSkin().getMultiColumnComboBoxData().getColorMarked() : color;
-		if (c != Color.TRANSPARENT_INT) {
+		if (c.w() >= .2f) {
 			renderer.drawColoredQuad(0, 0, getWidth(), getHeight(), c);
 		}
 	}

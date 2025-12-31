@@ -2,7 +2,6 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public final class PulldownButton extends GUIObject {
@@ -27,13 +26,14 @@ public final class PulldownButton extends GUIObject {
 	}
 
 	@Override
-	public void setDim(int width, int height) {
+	public PulldownButton setDim(int width, int height) {
 		super.setDim(width, height);
 		PulldownData data = Skin.getSkin().getPulldownData();
 		label.setDim(getWidth() - data.getTextOffsetLeft() - data.getArrowOffsetRight() - data.getArrow().quad(ModeIconQuads.Mode.NORMAL).getWidth(), label.getHeight());
 		label.setPos(data.getTextOffsetLeft(), (getHeight() - label.getHeight())/2);
 		if (menu.getWidth() < width)
 			menu.setDim(width, menu.getHeight());
+		return this;
 	}
 
 	@Override
@@ -41,16 +41,16 @@ public final class PulldownButton extends GUIObject {
 		PulldownData data = Skin.getSkin().getPulldownData();
 		Horizontal pulldownButton = data.getPulldownButton();
 
-        ModeIconQuads.Mode skinTYpe = isDisabled()
+        ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
                 : isActive()
                     ? ModeIconQuads.Mode.ACTIVE
                     : ModeIconQuads.Mode.NORMAL;
 
-        pulldownButton.render(renderer,  0, 0, getWidth(), skinTYpe);
+        pulldownButton.render(renderer, 0, 0, getWidth(), skinMode);
 
-		IconQuad arrowQuad = data.getArrow().quad(skinTYpe);
-		renderer.drawQuad(arrowQuad, getWidth() - data.getArrowOffsetRight() - arrowQuad.getWidth(), 0, Color.WHITE_INT);
+		IconQuad arrowQuad = data.getArrow().quad(skinMode);
+		renderer.drawIcon(arrowQuad, getWidth() - data.getArrowOffsetRight() - arrowQuad.getWidth(), 0);
 	}
 
 	@Override

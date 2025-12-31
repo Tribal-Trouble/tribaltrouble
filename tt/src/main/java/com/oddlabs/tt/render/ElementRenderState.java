@@ -5,6 +5,7 @@ import com.oddlabs.util.Color;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -14,19 +15,17 @@ final class ElementRenderState<M extends Model> implements ModelState<M> {
     private ModelVisitor<M> visitor;
     M model;
     float f;
-    final Vector4f color = Color.argb4v(Color.WHITE_INT);
+    final Vector4f color = new Vector4f(Color.WHITE);
 
     ElementRenderState(@NonNull RenderState render_state) {
         this.render_state = render_state;
     }
-
-    @NotNull
-    public Vector4f getColor() {
+    public @NotNull Vector4f getColor() {
         return color;
     }
 
     public void resetColor() {
-        color.set(1f, 1f, 1f, 1f);
+        color.set(Color.WHITE);
     }
 
     @Override
@@ -34,40 +33,32 @@ final class ElementRenderState<M extends Model> implements ModelState<M> {
         return model;
     }
 
-    @NonNull MatrixStack getModelViewStack() {
-        return render_state.getModelViewStack();
-    }
-
     @Override
-    public void transform() {
-        visitor.transform(this);
-    }
-
-    @Override
-    public void  getTransform(@NonNull Matrix4f dest) {
+    public @NonNull Matrix4f getTransform(@NonNull Matrix4f dest) {
         visitor.getTransform(this, dest);
+        return dest;
     }
 
     @NotNull
     @Override
-    public float[] getTeamColor() {
+    public @NonNull Vector4fc getTeamColor() {
         return visitor.getTeamColor(this);
     }
 
     @NotNull
     @Override
-    public float[] getSelectionColor() {
+    public @NonNull Vector4fc getSelectionColor() {
         return visitor.getSelectionColor(this);
     }
 
-    void setup(ModelVisitor<M> visitor, M model, float f) {
+    void setup(@NonNull ModelVisitor<M> visitor, @NonNull M model, float f) {
         this.visitor = visitor;
         this.model = model;
         this.f = f;
         resetColor();
     }
 
-    void setup(ModelVisitor<M> visitor, M model) {
+    void setup(@NonNull ModelVisitor<M> visitor, @NonNull M model) {
         this.visitor = visitor;
         this.model = model;
         resetColor();

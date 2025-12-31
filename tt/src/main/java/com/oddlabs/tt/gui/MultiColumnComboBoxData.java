@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 public final class MultiColumnComboBoxData {
@@ -9,9 +10,9 @@ public final class MultiColumnComboBoxData {
 	private final @NonNull Horizontal button_unpressed;
 	private final @NonNull ModeIconQuads descending;
 	private final @NonNull ModeIconQuads ascending;
-	private final int color1;
-	private final int color2;
-	private final int color_marked;
+	private final @NonNull Vector4fc color1;
+	private final @NonNull Vector4fc color2;
+	private final @NonNull Vector4fc color_marked;
 	private final @NonNull Font font;
 	private final int caption_offset;
 
@@ -30,9 +31,9 @@ public final class MultiColumnComboBoxData {
 		this.button_unpressed = button_unpressed;
 		this.descending = descending;
 		this.ascending = ascending;
-		this.color1 = color1;
-		this.color2 = color2;
-		this.color_marked = color_marked;
+		this.color1 = com.oddlabs.util.Color.argb4v(color1);
+		this.color2 = com.oddlabs.util.Color.argb4v(color2);
+		this.color_marked = com.oddlabs.util.Color.argb4v(color_marked);
 		this.font = font;
 		this.caption_offset = caption_offset;
 	}
@@ -57,15 +58,15 @@ public final class MultiColumnComboBoxData {
 		return ascending;
 	}
 
-	public int getColor1() {
+	public @NonNull Vector4fc getColor1() {
 		return color1;
 	}
 
-	public int getColor2() {
+	public @NonNull Vector4fc getColor2() {
 		return color2;
 	}
 
-	public int getColorMarked() {
+	public @NonNull Vector4fc getColorMarked() {
 		return color_marked;
 	}
 

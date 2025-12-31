@@ -30,15 +30,15 @@ public class ChieftainButton extends NonFocusIconButton implements ToolTip {
 
 	@Override
 	protected final void postRender(@NonNull GUIRenderer renderer) {
-		IconQuad[] watch = GUIIcons.getIcons().getWatch();
-		int index = (int)(getProgress()*(watch.length - 1));
-		if (!current_building.isDead() && current_building.getChieftainContainer().isTraining()) {
+		if (current_building.isAlive() && current_building.getChieftainContainer().isTraining()) {
+			IconQuad[] watch = GUIIcons.getIcons().getWatch();
+			int index = (int)(getProgress()*(watch.length - 1));
 			IconQuad watchQuad = watch[index];
-			renderer.drawQuad(watchQuad, getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight(), Color.WHITE_INT);
+			renderer.drawIcon(watchQuad, getWidth() - watchQuad.getWidth(), getHeight() - watchQuad.getHeight());
 		}
 	}
 
 	protected final float getProgress() {
-        return !current_building.isDead() ? current_building.getChieftainContainer().getBuildProgress() : 0;
+        return current_building.isAlive() ? current_building.getChieftainContainer().getBuildProgress() : 0;
 	}
 }

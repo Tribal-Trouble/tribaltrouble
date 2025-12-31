@@ -3,7 +3,6 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.guievent.CheckBoxListener;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.ToolTip;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
@@ -84,7 +83,7 @@ public final class CheckBox extends GUIObject implements ToolTip {
                     ? Skin.getSkin().getCheckBoxMarked()
                     : Skin.getSkin().getCheckBoxUnmarked());
 
-		renderer.drawQuad(quad_to_render, 0, 0, skinMode, Color.WHITE_INT);
+		renderer.drawModeIcon(quad_to_render, skinMode, 0, 0);
 	}
 
 	public void checkedAll(boolean marked) {

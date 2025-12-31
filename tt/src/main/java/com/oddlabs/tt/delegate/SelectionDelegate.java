@@ -24,6 +24,8 @@ import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.Notification;
 import com.oddlabs.tt.viewer.WorldViewer;
+import com.oddlabs.util.Color;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -32,7 +34,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public final class SelectionDelegate extends ControllableCameraDelegate {
-	private static final int SELECTION_COLOR = 0xFF_4C_FF_00;
+	private static final Vector4fc SELECTION_COLOR = Color.argb4v(0xFF_4C_FF_00);
 
 	private final @NonNull InGameChatForm chat_form;
 	private final @NonNull Label observer_label;

@@ -1,7 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public final class Box {
@@ -61,15 +60,15 @@ public final class Box {
 		int center_width = width - left_width - right_width;
 		int center_height = height - bottom_height - top_height;
         
-		renderer.drawQuad(left_bottom.quad(skinMode), x, y, Color.WHITE_INT);
-		renderer.drawQuad(bottom.quad(skinMode), x + left_width, y, center_width, bottom_height, Color.WHITE_INT);
-		renderer.drawQuad(right_bottom.quad(skinMode), x + left_width + center_width, y, Color.WHITE_INT);
-		renderer.drawQuad(right.quad(skinMode), x + left_width + center_width, y + bottom_height, right_width, center_height, Color.WHITE_INT);
-		renderer.drawQuad(right_top.quad(skinMode), x + left_width + center_width, y + bottom_height + center_height, Color.WHITE_INT);
-		renderer.drawQuad(top.quad(skinMode), x + left_width, y + bottom_height + center_height, center_width, top_height, Color.WHITE_INT);
-		renderer.drawQuad(left_top.quad(skinMode), x, y + bottom_height + center_height, Color.WHITE_INT);
-		renderer.drawQuad(left.quad(skinMode), x, y + bottom_height, left_width, center_height, Color.WHITE_INT);
-		renderer.drawQuad(center.quad(skinMode), x + left_width, y + bottom_height, center_width, center_height, Color.WHITE_INT);
+		renderer.drawModeIcon(left_bottom, skinMode, x, y);
+		renderer.drawIcon(bottom.quad(skinMode), x + left_width, y, center_width, bottom_height);
+		renderer.drawModeIcon(right_bottom, skinMode, x + left_width + center_width, y);
+		renderer.drawIcon(right.quad(skinMode), x + left_width + center_width, y + bottom_height, right_width, center_height);
+		renderer.drawModeIcon(right_top, skinMode, x + left_width + center_width, y + bottom_height + center_height);
+		renderer.drawIcon(top.quad(skinMode), x + left_width, y + bottom_height + center_height, center_width, top_height);
+		renderer.drawModeIcon(left_top, skinMode, x, y + bottom_height + center_height);
+		renderer.drawIcon(left.quad(skinMode), x, y + bottom_height, left_width, center_height);
+		renderer.drawIcon(center.quad(skinMode), x + left_width, y + bottom_height, center_width, center_height);
 	}
 
 	public int getLeftOffset() {

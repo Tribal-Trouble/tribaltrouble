@@ -17,8 +17,9 @@ public final class Color {
     public static final int YELLOW_INT = 0xFF_FF_FF_00;
     public static final int MAGENTA_INT = 0xFF_FF_00_FF;
 
-    public static final float[] BLACK = argb4f(BLACK_INT);
-    public static final float[] WHITE = argb4f(WHITE_INT);
+    public static final Vector4fc BLACK = argb4v(BLACK_INT);
+    public static final Vector4fc WHITE = argb4v(WHITE_INT);
+    public static final Vector4fc TRANSPARENT = argb4v(TRANSPARENT_INT);
 
     /** The normalization factor for converting 8-bit color components to/from floats. */
     private static final float NORMALIZE_8_BIT = 255.0f;
@@ -36,6 +37,23 @@ public final class Color {
     }
 
     public static int argbi(float r, float g, float b, float a) {
+        return ((int) (a * NORMALIZE_8_BIT) << 24) |
+                ((int) (b * NORMALIZE_8_BIT) << 16) |
+                ((int) (g * NORMALIZE_8_BIT) << 8)  |
+                ((int) (r * NORMALIZE_8_BIT));
+    }
+
+    /**
+     * Converts a Vector4fc color to packed abgr in little endian byte buffer
+     *
+     * @param color The 32-bit float color vector
+     * @return A 32-bit packed integer in AABBGGRR format
+     */
+    public static int abgri(@NonNull Vector4fc color) {
+        return abgri(color.w(), color.z(), color.y(), color.x());
+    }
+
+    public static int abgri(float a, float b, float g, float r) {
         return ((int) (a * NORMALIZE_8_BIT) << 24) |
                 ((int) (b * NORMALIZE_8_BIT) << 16) |
                 ((int) (g * NORMALIZE_8_BIT) << 8)  |
@@ -75,10 +93,10 @@ public final class Color {
      */
     public static float @NonNull [] argb4f(int color) {
         return new float[] {
-            Byte.toUnsignedInt((byte)(color >> 16)) / NORMALIZE_8_BIT,
-            Byte.toUnsignedInt((byte)(color >> 8)) / NORMALIZE_8_BIT,
-            Byte.toUnsignedInt((byte) color) / NORMALIZE_8_BIT,
-            Byte.toUnsignedInt((byte)(color >> 24)) / NORMALIZE_8_BIT
+            ((color >> 16) & 0xFF) / NORMALIZE_8_BIT,
+            ((color >> 8) & 0xFF) / NORMALIZE_8_BIT,
+            (color & 0xFF) / NORMALIZE_8_BIT,
+            ((color >> 24) & 0xFF) / NORMALIZE_8_BIT
         };
     }
 

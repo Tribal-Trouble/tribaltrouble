@@ -49,8 +49,6 @@ public class StatusIcon extends GUIObject implements ToolTip {
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		int x = getWidth() - icon.getWidth();
-		int y = (getHeight() - icon.getHeight())/2;
-		renderer.drawQuad(icon, x, y, Color.WHITE_INT);
+		renderer.drawIcon(icon, getWidth() - icon.getWidth(), (getHeight() - icon.getHeight())/2f);
 	}
 }

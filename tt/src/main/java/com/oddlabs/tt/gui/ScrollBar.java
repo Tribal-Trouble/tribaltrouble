@@ -7,15 +7,14 @@ import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
 public final class ScrollBar extends GUIObject {
-	private final @NonNull Group focus_group;
+	private final Group focus_group = new Group();
 	private final @NonNull ArrowButton less_button;
 	private final @NonNull ArrowButton more_button;
-	private final @NonNull ScrollButton scroll_button;
-	private final Scrollable owner;
+	private final ScrollButton scroll_button = new ScrollButton();
+	private final @NonNull Scrollable owner;
 
-	public ScrollBar(int height, Scrollable owner) {
+	public ScrollBar(int height, @NonNull Scrollable owner) {
 		this.owner = owner;
-		focus_group = new Group();
 		less_button = new ArrowButton(Skin.getSkin().getScrollBarData().getScrollDownButtonPressed(),
 									  Skin.getSkin().getScrollBarData().getScrollDownButtonUnpressed(),
 									  Skin.getSkin().getScrollBarData().getScrollDownArrow());
@@ -32,7 +31,6 @@ public final class ScrollBar extends GUIObject {
 		setDim(less_button.getWidth(), height);
 		setCanFocus(true);
 
-		scroll_button = new ScrollButton();
 		focus_group.addChild(scroll_button);
 		focus_group.addChild(less_button); // add here to secure proper tabbing order
 		DragListener drag_listener = new DragListener();
@@ -46,22 +44,20 @@ public final class ScrollBar extends GUIObject {
 	}
 
 	public void update() {
-		if (scroll_button != null)
-			scroll_button.setupPos(this);
+		scroll_button.setupPos(this);
 	}
 
 	@Override
 	public void setPos(int x, int y) {
 		super.setPos(x, y);
-		if (scroll_button != null)
-			scroll_button.setupPos(this);
+        scroll_button.setupPos(this);
 	}
 
 	@Override
-	public void setDim(int width, int height) {
+	public ScrollBar setDim(int width, int height) {
 		super.setDim(width, height);
-		if (scroll_button != null)
-			scroll_button.setupPos(this);
+		scroll_button.setupPos(this);
+		return this;
 	}
 
 	@Override

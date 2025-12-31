@@ -48,7 +48,7 @@ public final class PulldownMenu<T> extends Group {
 	}
 
 	@Override
-	public void setDim(int width, int height) {
+	public PulldownMenu<T> setDim(int width, int height) {
 		int min_width = 0;
 		Box item_box = Skin.getSkin().getPulldownData().getPulldownItem();
 		// Adjust all items
@@ -67,6 +67,7 @@ public final class PulldownMenu<T> extends Group {
 		}
 		int min_height = Math.max(height, item_pos_count + Skin.getSkin().getPulldownData().getPulldownTop().getHeight());
 		super.setDim(min_width, min_height);
+		return this;
 	}
 
 	public int getChosenItemIndex() {
@@ -108,8 +109,9 @@ public final class PulldownMenu<T> extends Group {
         }
 	}
 
-	public void addItemChosenListener(@NonNull ItemChosenListener<T> listener) {
+	public PulldownMenu<T> addItemChosenListener(@NonNull ItemChosenListener<T> listener) {
 		chosen_listeners.add(listener);
+		return this;
 	}
 
 	public void removeItemChosenListener(@NonNull ItemChosenListener<T> listener) {

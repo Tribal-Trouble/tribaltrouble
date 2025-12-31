@@ -4,16 +4,17 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 public class Label extends TextField implements Comparable<Label> {
-	public static final int DEFAULT_COLOR = Color.WHITE_INT;
-	public static final int DISABLED_COLOR = 0xB2B2B2B2;
+	public static final Vector4fc DEFAULT_COLOR = Color.WHITE;
+	public static final Vector4fc DISABLED_COLOR = Color.argb4v(0xB2_B2_B2_B2);
 	private static final int INSET = 2;
 
 	private final @NonNull Origin align;
 
-	private int color = DEFAULT_COLOR;
+	private @NonNull Vector4fc color = DEFAULT_COLOR;
 
 	public Label(@NonNull CharSequence text, @NonNull Font font) {
 		this(text, font, font.getWidth(text), Origin.AT_START);
@@ -29,13 +30,14 @@ public class Label extends TextField implements Comparable<Label> {
 		setDim(width, font.getHeight());
 	}
 
-	public final void setColor(int color) {
+	public final Label setColor(@NonNull Vector4fc color) {
 		this.color = color;
+		return this;
 	}
 
 	@Override
 	protected final void renderGeometry(@NonNull GUIRenderer renderer) {
-		int c = isDisabled() ? DISABLED_COLOR : color;
+		var c = isDisabled() ? DISABLED_COLOR : color;
 		int textWidth = getFont().getWidth(getText());
 		int x = switch (align) {
 			case AT_START -> 0;

@@ -5,12 +5,13 @@ import com.oddlabs.tt.font.TextLayout;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 public class LabelBox extends TextField implements Comparable<LabelBox>, Clipped {
 	private @NonNull TextLayout textLayout;
 
-	private int color = Color.WHITE_INT;
+	private @NonNull Vector4fc color = Color.WHITE;
 
 	public LabelBox(@NonNull CharSequence text, @NonNull Font font, int width) {
 		super(text, font, Integer.MAX_VALUE);
@@ -24,23 +25,26 @@ public class LabelBox extends TextField implements Comparable<LabelBox>, Clipped
 	}
 
 	@Override
-	public void setText(@NonNull CharSequence text) {
+	public LabelBox setText(@NonNull CharSequence text) {
 		super.setText(text);
 		updateLayout();
+		return this;
 	}
 
 	@Override
-	public final void setDim(int width, int height) {
+	public final LabelBox setDim(int width, int height) {
 		super.setDim(width, height);
+		return this;
 	}
 
-	public final void setColor(int color) {
+	public final LabelBox setColor(@NonNull Vector4fc color) {
 		this.color = color;
+		return this;
 	}
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		int c = isDisabled() ? Label.DISABLED_COLOR : color;
+		var c = isDisabled() ? Label.DISABLED_COLOR : color;
 		TextLineRenderer.render(renderer, textLayout, 0, getHeight() - getFont().getHeight(), c);
 	}
 

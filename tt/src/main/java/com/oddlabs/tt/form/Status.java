@@ -42,6 +42,6 @@ public final class Status {
                 .append(Math.round(Renderer.getFPS()))
                 .append(" ms/frame)");
 
-		TextLineRenderer.render(renderer, Skin.getSkin().getEditFont(), buf, 0, 0, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE_INT);
+		TextLineRenderer.render(renderer, Skin.getSkin().getEditFont(), buf, 0, 0, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE);
 	}
 }

@@ -2,10 +2,11 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.render.GUIRenderer;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 public class PanelTab extends GUIObject {
-	private static final int HIGHLIGHT_COLOR = 0xFF_00_FF_00;
+	private static final Vector4fc HIGHLIGHT_COLOR = com.oddlabs.util.Color.argb4v(0xFF_00_FF_00);
 	private boolean selected;
 	private final @NonNull Label label;
 

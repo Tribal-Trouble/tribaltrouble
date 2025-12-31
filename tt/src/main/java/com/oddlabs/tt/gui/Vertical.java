@@ -1,7 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public final class Vertical {
@@ -24,9 +23,9 @@ public final class Vertical {
 	public void render(@NonNull GUIRenderer renderer, float x, float y, int height, ModeIconQuads.@NonNull Mode skinMode) {
 		int center_height = height - bottom_height - top_height;
 
-		renderer.drawQuad(bottom.quad(skinMode), x, y, Color.WHITE_INT);
-		renderer.drawQuad(center.quad(skinMode), x, y + bottom_height, width, center_height, Color.WHITE_INT);
-		renderer.drawQuad(top.quad(skinMode), x, y + bottom_height + center_height, Color.WHITE_INT);
+		renderer.drawModeIcon(bottom, skinMode, x, y);
+		renderer.drawIcon(center.quad(skinMode), x, y + bottom_height, width, center_height);
+		renderer.drawModeIcon(top, skinMode, x, y + bottom_height + center_height);
 	}
 
 	public int getWidth() {

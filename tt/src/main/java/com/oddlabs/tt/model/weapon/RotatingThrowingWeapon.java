@@ -31,6 +31,11 @@ public abstract class RotatingThrowingWeapon extends ThrowingWeapon {
 	protected abstract float getAngleVelocity();
 
 	@Override
+	protected float getLoftFactor() {
+		return 1.005f;
+	}
+
+	@Override
 	public final void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitRotatingThrowingWeapon(this);
 	}

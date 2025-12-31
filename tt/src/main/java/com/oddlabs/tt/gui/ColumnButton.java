@@ -2,7 +2,6 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public final class ColumnButton<T> extends RadioButtonGroupElement {
@@ -79,6 +78,6 @@ public final class ColumnButton<T> extends RadioButtonGroupElement {
                 : data.getAscending();
 
         IconQuad arrowQuad = arrow.quad(skinMode);
-		renderer.drawQuad(arrowQuad, arrow_offset, (getHeight() - arrowQuad.getHeight())/2, Color.WHITE_INT);
+		renderer.drawIcon(arrowQuad, arrow_offset, (getHeight() - arrowQuad.getHeight())/2f);
 	}
 }

@@ -23,9 +23,10 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 
 	protected @Nullable R parent = null;
 
-	public void setDim(int w, int h) {
+	public Renderable<R> setDim(int w, int h) {
 		width = w;
 		height = h;
+		return this;
 	}
 
 	public final int getWidth() {

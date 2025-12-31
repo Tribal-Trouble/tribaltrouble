@@ -1,18 +1,20 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.particle.Particle;
-import org.joml.Matrix3f;
+import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
-import org.joml.Vector4f;
+import org.joml.Matrix4fc;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
-public final class ParticleModelState implements ModelState<Particle> {
+final class ParticleModelState implements ModelState<Particle> {
+    private static final Vector4fc NO_SELECTION = Color.TRANSPARENT;
     private final @NonNull Particle particle;
-    private final @NonNull MatrixStack modelViewStack;
+    private final @NonNull Matrix4fc viewMatrix;
 
-    public ParticleModelState(@NonNull Particle particle, @NonNull MatrixStack modelViewStack) {
+    public ParticleModelState(@NonNull Particle particle, @NonNull Matrix4fc viewMatrix) {
         this.particle = particle;
-        this.modelViewStack = modelViewStack;
+        this.viewMatrix = viewMatrix;
     }
 
     @Override
@@ -21,45 +23,36 @@ public final class ParticleModelState implements ModelState<Particle> {
     }
 
     @Override
-    public float @NonNull [] getTeamColor() {
-        return new float[]{particle.getColorR(), particle.getColorG(), particle.getColorB(), particle.getColorA()};
+    public @NonNull Vector4fc getTeamColor() {
+        return particle.getColor();
     }
 
     @Override
-    public float @NonNull [] getSelectionColor() {
-        return new float[]{0f, 0f, 0f, 0f};
+    public @NonNull Vector4fc getSelectionColor() {
+        return NO_SELECTION;
     }
 
     @Override
-    public @NonNull Vector4f getColor() {
-        return new Vector4f(particle.getColorR(), particle.getColorG(), particle.getColorB(), particle.getColorA());
+    public @NonNull Vector4fc getColor() {
+        return particle.getColor();
     }
 
     @Override
-    public void transform() {
-        // The modelViewStack contains the camera's view matrix.
-        // We want to apply a transformation that cancels out the camera's rotation for billboarding.
+    public @NonNull Matrix4f getTransform(@NonNull Matrix4f dest) {
+        // Create the billboard transformation
+        // 1. Translate to the particle's position
+        dest.translation(particle.getPosX(), particle.getPosY(), particle.getPosZ());
 
-        // 1. Get the rotation from the view matrix and invert it (transpose for orthonormal)
-        Matrix3f rotation = new Matrix3f();
-        modelViewStack.current().get3x3(rotation);
-        rotation.transpose();
+        // 2. Apply the inverse of the camera's rotation to face the camera
+        // We can copy the transposed upper 3x3 of the view matrix to achieve this
+        dest.m00(viewMatrix.m00()); dest.m01(viewMatrix.m10()); dest.m02(viewMatrix.m20());
+        dest.m10(viewMatrix.m01()); dest.m11(viewMatrix.m11()); dest.m12(viewMatrix.m21());
+        dest.m20(viewMatrix.m02()); dest.m21(viewMatrix.m12()); dest.m22(viewMatrix.m22());
 
-        // 2. Apply transformations to the stack
-        modelViewStack.translate(particle.getPosX(), particle.getPosY(), particle.getPosZ());
-        modelViewStack.multiply(new Matrix4f(rotation));
-        modelViewStack.scale(particle.getRadiusX(), particle.getRadiusY(), particle.getRadiusZ());
-    }
+        // 3. Scale the particle
+        dest.scale(particle.getRadiusX(), particle.getRadiusY(), particle.getRadiusZ());
 
-    @Override
-    public void getTransform(@NonNull Matrix4f dest) {
-        Matrix3f rotation = new Matrix3f();
-        modelViewStack.current().get3x3(rotation);
-        rotation.transpose();
-        
-        dest.translation(particle.getPosX(), particle.getPosY(), particle.getPosZ())
-            .mul(new Matrix4f(rotation))
-            .scale(particle.getRadiusX(), particle.getRadiusY(), particle.getRadiusZ());
+        return dest;
     }
 
     @Override

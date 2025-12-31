@@ -21,6 +21,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	private static final float OFFSET_X = 1.316f;
 	private static final float OFFSET_Y = -.347f;
 	private static final float OFFSET_Z = 1.382f;
+
 	private final @NonNull AbstractAudioPlayer audio_player;
 	private final @NonNull Audio @NonNull [] hit_sounds;
 	private final @NonNull Player owner;
@@ -36,6 +37,9 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	private float time_limit;
 	private float time;
 	private float z_speed;
+	/** absolute height in the world */
+	private float current_z;
+	/**  rendering offset */
 	private float deterministic_z;
 
 	public ThrowingWeapon(boolean hit, @NonNull Unit src, @NonNull Selectable<?> target, @NonNull SpriteKey sprite_renderer, @NonNull Audio throw_sound, @NonNull Audio @NonNull [] hit_sounds) {
@@ -47,6 +51,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 
 		setPosition(src.getPositionX() + OFFSET_X*src.getDirectionX() - OFFSET_Y*src.getDirectionY(), src.getPositionY() + OFFSET_X*src.getDirectionY() - OFFSET_Y*src.getDirectionX());
 		deterministic_z = OFFSET_Z + src.getMountOffset();
+		current_z = owner.getWorld().getHeightMap().getNearestHeight(getPositionX(), getPositionY()) + deterministic_z;
 
 		setTarget(target);
 
@@ -85,13 +90,17 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 		float dx = end_x - start_x;
 		float dy = end_y - start_y;
 		float len = (float)Math.sqrt(dx*dx + dy*dy);
-		time_limit = len/getMetersPerSecond();
+		time_limit = (len/getMetersPerSecond()) * getLoftFactor();
 		time = 0;
-		float dest_vec_z = owner.getWorld().getHeightMap().getNearestHeight(end_x, end_y) + target.getHitOffsetZ() - (getPositionZ() + deterministic_z);
+		// current_z is already set to absolute start height
+		float dest_z = owner.getWorld().getHeightMap().getNearestHeight(end_x, end_y) + target.getHitOffsetZ();
+		float dest_vec_z = dest_z - current_z;
 		z_speed = (dest_vec_z)/time_limit - GRAVITY*time_limit/2f;
 	}
 
 	protected abstract float getMetersPerSecond();
+	
+	protected abstract float getLoftFactor();
 
 	private void updateTarget() {
 		end_x = target.getPositionX();
@@ -101,9 +110,7 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	private void updateDirection() {
 		float dx = target.getPositionX() - getPositionX();
 		float dy = target.getPositionY() - getPositionY();
-		float len = (float)Math.sqrt(dx*dx + dy*dy);
-		if (len < .01f)
-			len = .01f;
+		float len = Math.max((float)Math.sqrt(dx*dx + dy*dy), .01f);
 		float len_inv = 1f/len;
 		dir_x = dx*len_inv;
 		dir_y = dy*len_inv;
@@ -146,17 +153,21 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 		float x;
 		float y;
 		if (progress < 1f) {
-			x = start_x + (target.getPositionX() - start_x)*progress;
-			y = start_y + (target.getPositionY() - start_y)*progress;
+			x = start_x + (end_x - start_x)*progress;
+			y = start_y + (end_y - start_y)*progress;
 		} else {
 			x = end_x;
 			y = end_y;
 		}
-		deterministic_z += z_speed*t;
+		
+		current_z += z_speed*t;
 		z_speed += GRAVITY*t;
+		
 		setPosition(x, y);
+		deterministic_z = current_z - owner.getWorld().getHeightMap().getNearestHeight(x, y);
+
 		reinsert();
-		audio_player.setPos(getPositionX(), getPositionY(), getPositionZ());
+		audio_player.setPos(getPositionX(), getPositionY(), getPositionZ() + getOffsetZ());
 	}
 
 	protected void hitTarget(boolean hit, @NonNull Player owner, @NonNull Selectable<?> target) {

@@ -11,6 +11,8 @@ import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -37,7 +39,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA8, GL11.GL_NEAREST, GL11.GL_NEAREST, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
     }
 
-    public void add(@NonNull SpriteList spriteList, int spriteIndex, int animation, float animTicks, int texIndex, boolean respond, boolean depthTest, @NonNull Matrix4f modelMatrix, float @NonNull[] color, float @NonNull[] decalColor) {
+    public void add(@NonNull SpriteList spriteList, int spriteIndex, int animation, float animTicks, int texIndex, boolean respond, boolean depthTest, @NonNull Matrix4f modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
         Sprite sprite = spriteList.getSprite(spriteIndex);
         int vertexOffset = sprite.getVertexOffset(animation, animTicks);
         
@@ -83,7 +85,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
     private static class RenderBatch implements AutoCloseable {
         private final @NonNull BatchKey key;
-        private final Map<@NonNull Integer, SubBatch> subBatches = new HashMap<>();
+        private final Map<@NonNull Integer, @NonNull SubBatch> subBatches = new HashMap<>();
         private FloatVBO vbo;
         private final @NonNull VertexArray vao;
         private int totalInstances = 0;
@@ -146,7 +148,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             GL33.glVertexAttribDivisor(decalColorLoc, 1);
         }
 
-        void addInstance(int vertexOffset, @NonNull Matrix4f modelMatrix, float @NonNull [] color, float @NonNull [] decalColor) {
+        void addInstance(int vertexOffset, @NonNull Matrix4f modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
             SubBatch sub = subBatches.computeIfAbsent(vertexOffset, k -> new SubBatch());
             sub.add(modelMatrix, color, decalColor);
             totalInstances++;
@@ -279,7 +281,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             buffer = BufferUtils.createFloatBuffer(capacity * RenderBatch.FLOATS_PER_INSTANCE);
         }
         
-        void add(@NonNull Matrix4f modelMatrix, float @NonNull [] color, float @NonNull [] decalColor) {
+        void add(@NonNull Matrix4fc modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
             if (count >= capacity) {
                 int newCapacity = capacity * 2;
                 FloatBuffer newBuffer = BufferUtils.createFloatBuffer(newCapacity * RenderBatch.FLOATS_PER_INSTANCE);
@@ -288,10 +290,11 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 buffer = newBuffer;
                 capacity = newCapacity;
             }
-            modelMatrix.get(buffer);
-            buffer.position(buffer.position() + 16);
-            buffer.put(color);
-            buffer.put(decalColor);
+            int position = buffer.position();
+            modelMatrix.get(position, buffer);
+            color.get((position += 16), buffer);
+            decalColor.get((position += 4), buffer);
+            buffer.position(position + 4);
             count++;
         }
         

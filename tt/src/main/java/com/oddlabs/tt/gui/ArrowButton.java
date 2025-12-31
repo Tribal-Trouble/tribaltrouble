@@ -1,7 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public final class ArrowButton extends ButtonObject {
@@ -50,8 +49,8 @@ public final class ArrowButton extends ButtonObject {
 
         var quad_to_render_button = (!isDisabled() && isPressed() && isHovered() ? pressed : unpressed);
 
-		renderer.drawQuad(quad_to_render_button, 0, 0, skinMode, Color.WHITE_INT);
-		renderer.drawQuad(arrow, 0, 0, skinMode, Color.WHITE_INT);
+		renderer.drawModeIcon(quad_to_render_button, skinMode, 0, 0);
+		renderer.drawModeIcon(arrow, skinMode, 0, 0);
 	}
 
 	@Override

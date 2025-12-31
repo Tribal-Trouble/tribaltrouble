@@ -4,6 +4,7 @@ import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -32,13 +33,13 @@ public final class Index implements Updatable<TimerAnimation> {
 		timer.resetTime();
 	}
 
-	public static void renderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font) {
-		index.doRenderIndex(renderer, render_x, render_y, font);
+	public static void renderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font, @NonNull Vector4fc color) {
+		index.doRenderIndex(renderer, render_x, render_y, font, color);
 	}
 
-	private void doRenderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font) {
+	private void doRenderIndex(@NonNull GUIRenderer renderer, int render_x, int render_y, @NonNull Font font, @NonNull Vector4fc color) {
 		if (blink_on) {
-			renderer.drawColoredQuad(render_x, render_y + 3, INDEX_WIDTH, font.getHeight() - 6, Color.WHITE_INT);
+			renderer.drawColoredQuad(render_x, render_y + 3, INDEX_WIDTH, font.getHeight() - 6, color);
 		}
 	}
 

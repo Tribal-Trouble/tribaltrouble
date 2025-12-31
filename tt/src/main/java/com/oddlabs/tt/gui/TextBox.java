@@ -18,6 +18,7 @@ public class TextBox extends TextField implements Scrollable, Clipped {
 		setDim(width, height);
 		setCanFocus(true);
 		offset_y = 0;
+		textLayout = new TextLayout(font, getText(), width);
 
 		scroll_bar = new ScrollBar(height, this);
 
@@ -34,9 +35,10 @@ public class TextBox extends TextField implements Scrollable, Clipped {
 	}
 
 	@Override
-	public void setText(@NonNull CharSequence text) {
+	public TextBox setText(@NonNull CharSequence text) {
 		super.setText(text);
 		updateLayout();
+		return this;
 	}
 
 	@Override
@@ -58,7 +60,7 @@ public class TextBox extends TextField implements Scrollable, Clipped {
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		Box edit_box = Skin.getSkin().getEditBox();
 		renderBox(renderer, ModeIconQuads.Mode.NORMAL);
-		TextLineRenderer.render(renderer, textLayout, edit_box.getLeftOffset(), getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + offset_y, edit_box.getLeftOffset(), getWidth() - edit_box.getRightOffset(), Color.WHITE_INT);
+		TextLineRenderer.render(renderer, textLayout, edit_box.getLeftOffset(), getHeight() - edit_box.getBottomOffset() - getFont().getHeight() + offset_y, edit_box.getLeftOffset(), getWidth() - edit_box.getRightOffset(), Color.WHITE);
 	}
 
 	@Override

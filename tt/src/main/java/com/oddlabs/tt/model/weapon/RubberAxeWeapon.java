@@ -42,10 +42,7 @@ public final class RubberAxeWeapon extends RotatingThrowingWeapon {
 
 	@Override
 	protected float getMetersPerSecond() {
-		if (bouncing)
-			return BOUNCING_METERS_PER_SECOND;
-		else
-			return METERS_PER_SECOND;
+        return bouncing ? BOUNCING_METERS_PER_SECOND : METERS_PER_SECOND;
 	}
 
 	@Override

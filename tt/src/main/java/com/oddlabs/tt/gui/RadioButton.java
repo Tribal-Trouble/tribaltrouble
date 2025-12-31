@@ -41,6 +41,6 @@ public final class RadioButton extends RadioButtonGroupElement {
                     ? Skin.getSkin().getRadioButtonMarked().quad(skinMode)
                     : Skin.getSkin().getRadioButtonUnmarked().quad(skinMode);
 
-		renderer.drawQuad(quad_to_render, 0, 0, Color.WHITE_INT);
+		renderer.drawIcon(quad_to_render, 0, 0);
 	}
 }

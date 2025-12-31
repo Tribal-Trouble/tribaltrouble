@@ -23,6 +23,8 @@ import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.util.Target;
+import com.oddlabs.util.Color;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -36,9 +38,10 @@ public final class Player implements PlayerInterface {
 	public static final int MAX_BUILDING_COUNT = 20;
 	public static final int DEFAULT_MAX_UNIT_COUNT = 250;
 
-	public static final int[] COLORS = {
-            0xFFFFBF00, 0xFF007FFF, 0xFFFF0040,
-            0xFF00FFBF, 0xFFBF00FF, 0xFFBFFF00 };
+	public static final Vector4fc[] COLORS = {
+		Color.argb4v(0xFFFFBF00), Color.argb4v(0xFF007FFF), Color.argb4v(0xFFFF0040),
+		Color.argb4v(0xFF00FFBF), Color.argb4v(0xFFBF00FF), Color.argb4v(0xFFBFFF00)
+	};
 
 	private final @NonNull World world;
 	private final @NonNull PlayerInfo player_info;
@@ -46,7 +49,7 @@ public final class Player implements PlayerInterface {
 	private final @NonNull SupplyContainer unit_count;
 	private final SupplyContainer building_count = new SupplyContainer(MAX_BUILDING_COUNT);
 
-	private final float[] color;
+	private final @NonNull Vector4fc color;
 
 //	private final String team_tip;
 
@@ -89,7 +92,7 @@ public final class Player implements PlayerInterface {
 
 	private int preferred_speed = World.GAMESPEED_DONTCARE;
 
-	public Player(@NonNull World world, @NonNull PlayerInfo player_info, float[] color) {
+	public Player(@NonNull World world, @NonNull PlayerInfo player_info, @NonNull Vector4fc color) {
 		this.world = world;
 		this.color = color;
         Arrays.fill(can_do_magic, true);
@@ -380,7 +383,7 @@ public final class Player implements PlayerInterface {
 		return training_chieftain;
 	}
 
-	public float[] getColor() {
+	public @NonNull Vector4fc getColor() {
 		return color;
 	}
 

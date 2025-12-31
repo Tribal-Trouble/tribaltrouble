@@ -47,7 +47,6 @@ import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
 import com.oddlabs.tt.window.Window;
-import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -650,7 +649,7 @@ public final class Renderer {
         FogInfo fog_info = generator.getFogInfo();
         RenderQueues render_queues = new RenderQueues();
 		LandscapeResources landscape_resources = World.loadCommon(render_queues);
-		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {}, world_params, world_info, generator.getTerrainType(), players, new float[][]{Color.argb4f(Player.COLORS[0])}, fog_info);
+		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {}, world_params, world_info, generator.getTerrainType(), players, Player.COLORS, fog_info);
 		AnimationManager manager = new AnimationManager();
 		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, manager);
 		Player local_player = world.getPlayers()[0];
