@@ -167,7 +167,6 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private void renderDebugElements(@NonNull CameraState frustum_state) {
         if (Globals.draw_axes) drawAxes();
         landscape_renderer.debugRender(frustum_state);
-        render_queues.debugRender();
         lightningRenderer.debugRender(element_renderer.getRenderState().getLightningQueue());
         emitterRenderer.debugRender(element_renderer.getRenderState().getEmitterQueue());
         tree_renderer.debugRender(tree_renderer.getRenderLists(), tree_renderer.getRespondRenderLists());

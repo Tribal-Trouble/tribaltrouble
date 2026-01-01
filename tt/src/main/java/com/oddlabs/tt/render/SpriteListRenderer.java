@@ -1,6 +1,8 @@
 package com.oddlabs.tt.render;
 
 
+import com.oddlabs.tt.global.BoundingMode;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
@@ -67,6 +69,9 @@ final class SpriteListRenderer {
         List<ModelState<?>> render_list = render_lists[index][tex_index];
 		
         for (ModelState<?> modelState : render_list) {
+            if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
+                RenderTools.draw(modelState.getModel());
+            }
             instancedSpriteRenderer.add(sprite_list, index, modelState.getModel().getAnimation(),
 					modelState.getModel().getAnimationTicks(), tex_index, false, true,
 					modelState.getTransform(tempMatrix), modelState.getColor(), modelState.getTeamColor());
@@ -79,7 +84,10 @@ final class SpriteListRenderer {
                 // Respond color is usually white or specific, here using white as placeholder or model color if needed
                 // Respond rendering usually highlights the unit.
                 // Using white for color and decal color for now as per original logic which seemed to use default colors.
-                
+
+				if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
+					RenderTools.draw(model.getModel());
+				}
                 instancedSpriteRenderer.add(sprite_list, index, model.getModel().getAnimation(),
 						model.getModel().getAnimationTicks(), tex_index, true, true,
 						model.getTransform(tempMatrix), Color.WHITE, Color.WHITE);
@@ -87,8 +95,4 @@ final class SpriteListRenderer {
 			render_list.clear();
 		}
     }
-
-	public void debugRender() {
-        // TODO: Re-implement debug rendering
-	}
 }

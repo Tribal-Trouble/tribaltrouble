@@ -73,6 +73,9 @@ public final class SpriteRenderer {
 		if (Globals.draw_misc && !no_detail_render_list.isEmpty()) {
             SpriteList quadList = SpriteList.getQuadInstance();
 			for (var model : no_detail_render_list) {
+                if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
+                    RenderTools.draw(model.getModel());
+                }
 				float x = model.getModel().getPositionX();
 				float y = model.getModel().getPositionY();
 				float z = model.getModel().getPositionZ();
@@ -84,14 +87,5 @@ public final class SpriteRenderer {
 			}
 		}
 		clearRenderLists();
-	}
-
-	public void debugRender() {
-		sprite_list_renderer.debugRender();
-		if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
-			for (ModelState<?> model : no_detail_render_list) {
-				RenderTools.draw(model.getModel());
-			}
-		}
 	}
 }

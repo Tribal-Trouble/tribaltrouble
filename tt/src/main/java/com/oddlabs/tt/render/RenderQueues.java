@@ -133,15 +133,6 @@ public final class RenderQueues implements AutoCloseable {
         }
     }
 
-    public void debugRender() {
-        for (SpriteRenderer spriteRenderer : sprite_renderers) {
-            spriteRenderer.debugRender();
-        }
-        for (SpriteRenderer blendSpriteRenderer : blend_sprite_renderers) {
-            blendSpriteRenderer.debugRender();
-        }
-    }
-
     @Override
     public void close() {
         spriteRenderer.close();
