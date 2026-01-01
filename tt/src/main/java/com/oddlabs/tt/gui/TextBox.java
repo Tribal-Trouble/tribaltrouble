@@ -35,7 +35,7 @@ public class TextBox extends TextField implements Scrollable, Clipped {
 	}
 
 	@Override
-	public TextBox setText(@NonNull CharSequence text) {
+	public @NonNull TextBox setText(@NonNull CharSequence text) {
 		super.setText(text);
 		updateLayout();
 		return this;

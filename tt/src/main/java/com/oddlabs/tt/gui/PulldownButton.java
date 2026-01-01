@@ -26,7 +26,7 @@ public final class PulldownButton extends GUIObject {
 	}
 
 	@Override
-	public PulldownButton setDim(int width, int height) {
+	public @NonNull PulldownButton setDim(int width, int height) {
 		super.setDim(width, height);
 		PulldownData data = Skin.getSkin().getPulldownData();
 		label.setDim(getWidth() - data.getTextOffsetLeft() - data.getArrowOffsetRight() - data.getArrow().quad(ModeIconQuads.Mode.NORMAL).getWidth(), label.getHeight());

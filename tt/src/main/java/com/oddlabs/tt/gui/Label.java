@@ -4,6 +4,7 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
+import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
@@ -14,7 +15,7 @@ public class Label extends TextField implements Comparable<Label> {
 
 	private final @NonNull Origin align;
 
-	private @NonNull Vector4fc color = DEFAULT_COLOR;
+	private final Vector4f color = new Vector4f(DEFAULT_COLOR);
 
 	public Label(@NonNull CharSequence text, @NonNull Font font) {
 		this(text, font, font.getWidth(text), Origin.AT_START);
@@ -30,8 +31,8 @@ public class Label extends TextField implements Comparable<Label> {
 		setDim(width, font.getHeight());
 	}
 
-	public final Label setColor(@NonNull Vector4fc color) {
-		this.color = color;
+	public final @NonNull Label setColor(@NonNull Vector4fc color) {
+		this.color.set(color);
 		return this;
 	}
 

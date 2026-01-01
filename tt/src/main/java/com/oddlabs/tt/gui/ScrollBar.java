@@ -54,7 +54,7 @@ public final class ScrollBar extends GUIObject {
 	}
 
 	@Override
-	public ScrollBar setDim(int width, int height) {
+	public @NonNull ScrollBar setDim(int width, int height) {
 		super.setDim(width, height);
 		scroll_button.setupPos(this);
 		return this;

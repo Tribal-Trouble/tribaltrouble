@@ -23,7 +23,7 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 
 	protected @Nullable R parent = null;
 
-	public Renderable<R> setDim(int w, int h) {
+	public @NonNull Renderable<R> setDim(int w, int h) {
 		width = w;
 		height = h;
 		return this;

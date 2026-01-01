@@ -36,7 +36,7 @@ public final class PulldownItem<T> extends ButtonObject {
 	}
 
 	@Override
-	public PulldownItem<T> setDim(int width, int height) {
+	public @NonNull PulldownItem<T> setDim(int width, int height) {
 		super.setDim(width, height);
 		Box item = Skin.getSkin().getPulldownData().getPulldownItem();
 		label.setDim(getWidth() - item.getLeftOffset() - item.getRightOffset(), label.getHeight());

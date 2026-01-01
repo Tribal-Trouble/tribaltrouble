@@ -10,7 +10,7 @@ public final class Row<T,C extends GUIObject & Comparable<C>> extends GUIObject 
 	private final @NonNull C @NonNull [] columns;
 	private final @Nullable T content_object;
 	private int sort_index;
-	private Vector4f color = new Vector4f(com.oddlabs.util.Color.TRANSPARENT);
+	private final Vector4f color = new Vector4f(com.oddlabs.util.Color.TRANSPARENT);
 	private boolean marked = false;
 
 	public Row(@NonNull C @NonNull [] columns, @Nullable T content_object) {
@@ -52,7 +52,7 @@ public final class Row<T,C extends GUIObject & Comparable<C>> extends GUIObject 
 	}
 
 	public void setColor(@NonNull Vector4fc color) {
-		this.color = new Vector4f(color);
+		this.color.set(color);
 	}
 
 	@Override

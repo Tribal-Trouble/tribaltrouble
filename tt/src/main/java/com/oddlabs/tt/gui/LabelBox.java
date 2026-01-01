@@ -25,19 +25,19 @@ public class LabelBox extends TextField implements Comparable<LabelBox>, Clipped
 	}
 
 	@Override
-	public LabelBox setText(@NonNull CharSequence text) {
+	public @NonNull LabelBox setText(@NonNull CharSequence text) {
 		super.setText(text);
 		updateLayout();
 		return this;
 	}
 
 	@Override
-	public final LabelBox setDim(int width, int height) {
+	public final @NonNull LabelBox setDim(int width, int height) {
 		super.setDim(width, height);
 		return this;
 	}
 
-	public final LabelBox setColor(@NonNull Vector4fc color) {
+	public final @NonNull LabelBox setColor(@NonNull Vector4fc color) {
 		this.color = color;
 		return this;
 	}

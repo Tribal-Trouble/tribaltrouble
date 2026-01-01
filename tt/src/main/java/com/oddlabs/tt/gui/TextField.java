@@ -59,7 +59,7 @@ public abstract class TextField extends GUIObject implements CharSequence {
 		return text.toString();
 	}
 
-	public TextField setText(@NonNull CharSequence text) {
+	public @NonNull TextField setText(@NonNull CharSequence text) {
 		this.text.setLength(0);
 		this.text.append(text);
 		return this;

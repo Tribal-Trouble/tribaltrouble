@@ -129,13 +129,13 @@ final class RenderState implements ElementVisitor {
 		return (ElementRenderState<M>) render_state_cache.get();
 	}
 
-	private @NonNull <M extends Model> ModelState<M> getCachedState(ModelVisitor<M> visitor, M model) {
+	private @NonNull <M extends Model> ModelState<M> getCachedState(@NonNull ModelVisitor<M> visitor, @NonNull M model) {
 		ElementRenderState<M> state = doGetCachedState();
 		state.setup(visitor, model);
 		return state;
 	}
 
-	private @NonNull <M extends Model> ModelState<M> getCachedState(ModelVisitor<M> visitor, M model, float dist_squared) {
+	private @NonNull <M extends Model> ModelState<M> getCachedState(@NonNull ModelVisitor<M> visitor, @NonNull M model, float dist_squared) {
 		ElementRenderState<M> state = doGetCachedState();
 		state.setup(visitor, model, dist_squared);
 		return state;

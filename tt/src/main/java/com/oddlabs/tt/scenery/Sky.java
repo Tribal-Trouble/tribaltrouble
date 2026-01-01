@@ -71,7 +71,7 @@ public final class Sky implements AutoCloseable {
 
     private static final float START_ANGLE = -(float) Math.PI / 4f;
 
-    private final FloatBuffer color;
+    private final @NonNull FloatBuffer color;
     private final ShortVBO @NonNull [] strip_indices;
     private final @NonNull ShortVBO fan_indices;
     private final @NonNull FloatVBO water_vertices;
