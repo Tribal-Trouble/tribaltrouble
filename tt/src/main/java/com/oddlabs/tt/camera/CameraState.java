@@ -35,7 +35,7 @@ public final class CameraState {
     private @NonNull FogInfo fog;
 	private boolean no_detail_mode;
 
-    public CameraState() {this(new FogInfo(FogInfo.Mode.NONE, Color.BLACK_INT, 0f)); }
+    public CameraState() {this(new FogInfo(FogInfo.Mode.NONE, Color.BLACK, 0f)); }
 
     public CameraState(@NonNull FogInfo fog) {
         this.fog = fog;

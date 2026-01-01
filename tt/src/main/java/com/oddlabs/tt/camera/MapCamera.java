@@ -38,7 +38,7 @@ public final class MapCamera extends Camera {
 
     public MapCamera(@NonNull SelectionDelegate delegate, @NonNull GameCamera old_camera) {
         original_camera_state = old_camera.getState();
-        FogInfo radialFog = new RadialFogInfo(Color.WHITE_INT, 0.25f);
+        FogInfo radialFog = new RadialFogInfo(Color.WHITE, 0.25f);
         CameraState mapCameraState = new CameraState(radialFog);
         mapCameraState.set(old_camera.getState());
         mapCameraState.setFog(radialFog);

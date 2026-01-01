@@ -2,6 +2,7 @@ package com.oddlabs.tt.util;
 
 import com.oddlabs.tt.render.shader.DebugShaderRenderer;
 import com.oddlabs.util.Color;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
@@ -11,16 +12,16 @@ import java.util.Arrays;
  * Utilities for rendering debug shapes (boxes, lines, spheres, etc.) using a {@link DebugShaderRenderer}.
  */
 public final class DebugRender {
-	private static final float[] AXIS_X_COLOR = Color.rgb3f(0xFF0000);
-	private static final float[] AXIS_Y_COLOR = Color.rgb3f(0x00FF00);
-	private static final float[] AXIS_Z_COLOR = Color.rgb3f(0x0000FF);
+	private static final Vector4fc AXIS_X_COLOR = Color.argb4v(0xFF_FF_00_00);
+	private static final Vector4fc AXIS_Y_COLOR = Color.argb4v(0xFF_00_FF_00);
+	private static final Vector4fc AXIS_Z_COLOR = Color.argb4v(0xFF_00_00_FF);
 
-	public static final float[][] debug_colors = {
-			Color.rgb3f(0x7f1f1f), Color.rgb3f(0x7f1f00), Color.rgb3f(0x7f001f), Color.rgb3f(0x3f7f00),
-			Color.rgb3f(0x001f1f), Color.rgb3f(0x001f00), Color.rgb3f(0x00001f), Color.rgb3f(0x000000),
-			Color.rgb3f(0x005f5f), Color.rgb3f(0x005f00), Color.rgb3f(0x00005f), Color.rgb3f(0x5f8f8f),
-			Color.rgb3f(0x3f5f1f), Color.rgb3f(0x5f5f8f), Color.rgb3f(0x3f2f5f), Color.rgb3f(0x3f3f3f),
-			Color.rgb3f(0x5f1f1f), Color.rgb3f(0x5f1f5f), Color.rgb3f(0x5f5f1f), Color.rgb3f(0x5f5f5f)
+	public static final Vector4fc[] debug_colors = {
+			Color.argb4v(0xFF_7f_1f_1f), Color.argb4v(0xFF_7f_1f_00), Color.argb4v(0xFF_7f_00_1f), Color.argb4v(0xFF_3f_7f_00),
+			Color.argb4v(0xFF_00_1f_1f), Color.argb4v(0xFF_00_1f_00), Color.argb4v(0xFF_00_00_1f), Color.argb4v(0xFF_00_00_00),
+			Color.argb4v(0xFF_00_5f_5f), Color.argb4v(0xFF_00_5f_00), Color.argb4v(0xFF_00_00_5f), Color.argb4v(0xFF_5f_8f_8f),
+			Color.argb4v(0xFF_3f_5f_1f), Color.argb4v(0xFF_5f_5f_8f), Color.argb4v(0xFF_3f_2f_5f), Color.argb4v(0xFF_3f_3f_3f),
+			Color.argb4v(0xFF_5f_1f_1f), Color.argb4v(0xFF_5f_1f_5f), Color.argb4v(0xFF_5f_5f_1f), Color.argb4v(0xFF_5f_5f_5f)
 	};
 	private static final float CIRCLE_DELTA = (float)java.lang.Math.PI/2;
 	private static final float ANGLE_DELTA = (float)java.lang.Math.PI/20;
@@ -139,11 +140,11 @@ public final class DebugRender {
     public static void drawAxes(float center, float z) {
         if (null == shaderRenderer) return;
         // X axis - red
-        drawLine(center, center, z, center + 10, center, z, AXIS_X_COLOR[0], AXIS_X_COLOR[1], AXIS_X_COLOR[2]);
+        drawLine(center, center, z, center + 10, center, z, AXIS_X_COLOR.x(), AXIS_X_COLOR.y(), AXIS_X_COLOR.z());
         // Y axis - green
-        drawLine(center, center, z, center, center + 10, z, AXIS_Y_COLOR[0], AXIS_Y_COLOR[1], AXIS_Y_COLOR[2]);
+        drawLine(center, center, z, center, center + 10, z, AXIS_Y_COLOR.x(), AXIS_Y_COLOR.y(), AXIS_Y_COLOR.z());
         // Z axis - blue
-        drawLine(center, center, z, center, center, z + 10, AXIS_Z_COLOR[0], AXIS_Z_COLOR[1], AXIS_Z_COLOR[2]);
+        drawLine(center, center, z, center, center, z + 10, AXIS_Z_COLOR.x(), AXIS_Z_COLOR.y(), AXIS_Z_COLOR.z());
     }
 
 	/**

@@ -2,7 +2,7 @@ package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.render.shader.FogShader;
 import com.oddlabs.tt.util.GLState;
-import com.oddlabs.util.Color;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 public class FogInfo {
@@ -18,21 +18,15 @@ public class FogInfo {
         RADIAL
     }
 
-    protected final @NonNull Mode fog_mode;
-    protected final float @NonNull [] fog_color;
-    protected final float fog_density;
+    protected final @NonNull Mode mode;
+    protected final @NonNull Vector4fc color;
+    protected final float density;
     private boolean enabled = true;
 
-    public FogInfo(@NonNull Mode fog_mode, int fog_color, float fog_density) {
-        this.fog_mode = fog_mode;
-        this.fog_color = Color.argb4f(fog_color);
-        this.fog_density = fog_density;
-    }
-
-    public FogInfo(@NonNull Mode fog_mode, float @NonNull [] fog_color, float fog_density) {
-        this.fog_mode = fog_mode;
-        this.fog_color = fog_color;
-        this.fog_density = fog_density;
+    public FogInfo(@NonNull Mode mode, @NonNull Vector4fc color, float density) {
+        this.mode = mode;
+        this.color = color;
+        this.density = density;
     }
 
     public void setEnabled(boolean enabled) {
@@ -43,12 +37,12 @@ public class FogInfo {
         return enabled;
     }
 
-    public float[] getFogColor() {
-        return fog_color;
+    public @NonNull Vector4fc getColor() {
+        return color;
     }
 
-    public float getFogDensity() {
-        return fog_density;
+    public float getDensity() {
+        return density;
     }
 
     /**
@@ -60,7 +54,7 @@ public class FogInfo {
     public @NonNull GLState setup(@NonNull FogShader shader, float camera_z) {
         assert shader.inUse();
 
-        if (!enabled || fog_mode == Mode.NONE) {
+        if (!enabled || mode == Mode.NONE) {
             shader.setUniform(FogShader.FOG_MODE, -1);
             return () -> {}; // Return a no-op state object
         }

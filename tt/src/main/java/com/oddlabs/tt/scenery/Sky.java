@@ -20,6 +20,8 @@ import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import com.oddlabs.util.Color;
+import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -45,19 +47,19 @@ public final class Sky implements AutoCloseable {
     private static final int SKYDOME_GRADIENT_LENGTH = 20;
     private static final int SKYDOME_DEFAULT_COLOR = 8;
 
-    private static final float[][] SKYDOME_INITCOLOR = {
-            /* Native */ Color.rgb3f(0xE5_F2_FF),
-            /* Viking */ Color.rgb3f(0xFF_E5_A6)
+    private static final Vector4fc[] SKYDOME_INITCOLOR = {
+            /* Native */ Color.argb4v(0xFF_E5_F2_FF),
+            /* Viking */ Color.argb4v(0xFF_FF_E5_A6)
     };
 
-    private static final float[][] SKYDOME_GRADIENT = {
-            /* Native */ Color.rgb3f(0xBF_D2_F2),
-            /* Viking */ Color.rgb3f(0x99_99_D9)
+    private static final Vector4fc[] SKYDOME_GRADIENT = {
+            /* Native */ Color.argb4v(0xFF_BF_D2_F2),
+            /* Viking */ Color.argb4v(0xFF_99_99_D9)
     };
 
-    private static final float[][] tex_env_color = new float[][]{
-            /* Native */ Color.argb4f(0xFF_F2_F8_FF),
-            /* Viking */ Color.argb4f(0xFF_FF_F2_CC)
+    private static final Vector4fc[] tex_env_color = {
+            /* Native */ Color.argb4v(0xFF_F2_F8_FF),
+            /* Viking */ Color.argb4v(0xFF_FF_F2_CC)
     };
 
     private static final float SKYDOME_OUTER_UTILING = 8f;
@@ -131,8 +133,8 @@ public final class Sky implements AutoCloseable {
 
             FogInfo fog = state.getFog();
             if (fog.isEnabled()) {
-                float[] fogColor = fog.getFogColor();
-                skyShader.setUniform(SkyShader.Uniforms.FOG_COLOR, fogColor[0], fogColor[1], fogColor[2], fogColor[3]);
+                var fogColor = fog.getColor();
+                skyShader.setUniform(SkyShader.Uniforms.FOG_COLOR, fogColor.x(), fogColor.y(), fogColor.z(), fogColor.w());
                 skyShader.setUniform(SkyShader.Uniforms.FOG_FADE_START, 0.0f);
                 skyShader.setUniform(SkyShader.Uniforms.FOG_FADE_END, 0.1f);
                 skyShader.setUniform(SkyShader.Uniforms.CAMERA_HEIGHT, state.getCurrentZ());
@@ -231,11 +233,11 @@ public final class Sky implements AutoCloseable {
             seaBottomShader.setUniformMatrix4(SeaBottomShader.Uniforms.PROJECTION_MATRIX, false, projection.current());
             seaBottomShader.setUniformMatrix4(SeaBottomShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
 
-            float[] seaColor = switch (terrain) {
+            var seaColor = switch (terrain) {
                 case NATIVE -> NATIVE_SEA_BOTTOM_COLOR;
                 case VIKING -> VIKING_SEA_BOTTOM_COLOR;
             };
-            seaBottomShader.setUniform(SeaBottomShader.Uniforms.BASE_COLOR, seaColor[0], seaColor[1], seaColor[2], seaColor[3]);
+            seaBottomShader.setUniform(SeaBottomShader.Uniforms.BASE_COLOR, seaColor.x(), seaColor.y(), seaColor.z(), seaColor.w());
 
             if (Globals.draw_detail) {
                 GL13.glActiveTexture(GL13.GL_TEXTURE1);
@@ -261,8 +263,7 @@ public final class Sky implements AutoCloseable {
         this.detail = detail;
         this.subdiv_axis = subdiv_axis;
         this.subdiv_height = subdiv_height;
-        this.color = BufferUtils.createFloatBuffer(4).put(tex_env_color[terrain.ordinal()]);
-        color.rewind();
+        this.color = tex_env_color[terrain.ordinal()].get(BufferUtils.createFloatBuffer(4)).rewind();
         TextureGenerator clouds_desc = new GeneratorClouds(terrain);
         clouds = Resources.findResource(clouds_desc);
         
@@ -372,23 +373,25 @@ public final class Sky implements AutoCloseable {
         float a_angle_inc = (float) java.lang.Math.PI * 2 / subdiv_axis;
         float offset_angle = a_angle_inc / 2f;
         
-        float[] skydome_default_color = {
-                (float) Math.pow(SKYDOME_GRADIENT[terrain.ordinal()][0], SKYDOME_DEFAULT_COLOR),
-                (float) Math.pow(SKYDOME_GRADIENT[terrain.ordinal()][1], SKYDOME_DEFAULT_COLOR),
-                (float) Math.pow(SKYDOME_GRADIENT[terrain.ordinal()][2], SKYDOME_DEFAULT_COLOR)
-        };
-        float[][] skydome_gradient = new float[SKYDOME_GRADIENT_LENGTH][3];
-        skydome_gradient[0] = SKYDOME_INITCOLOR[terrain.ordinal()];
+        Vector4f skydome_default_color = new Vector4f(
+                (float) Math.pow(SKYDOME_GRADIENT[terrain.ordinal()].x(), SKYDOME_DEFAULT_COLOR),
+                (float) Math.pow(SKYDOME_GRADIENT[terrain.ordinal()].y(), SKYDOME_DEFAULT_COLOR),
+                (float) Math.pow(SKYDOME_GRADIENT[terrain.ordinal()].z(), SKYDOME_DEFAULT_COLOR),
+                1.0f
+        );
+        Vector4f[] skydome_gradient = new Vector4f[SKYDOME_GRADIENT_LENGTH];
+        skydome_gradient[0] = new Vector4f(SKYDOME_INITCOLOR[terrain.ordinal()]);
 
         float alpha;
-        float [] gradient = SKYDOME_GRADIENT[terrain.ordinal()];
+        Vector4fc gradient = SKYDOME_GRADIENT[terrain.ordinal()];
         for (int i = 1; i < SKYDOME_GRADIENT_LENGTH; i++) {
             alpha = (float) i / (SKYDOME_GRADIENT_LENGTH - 1);
-            skydome_gradient[i] = new float[]{
-                    alpha * skydome_default_color[0] + (1f - alpha) * skydome_gradient[i - 1][0] * gradient[0],
-                    alpha * skydome_default_color[1] + (1f - alpha) * skydome_gradient[i - 1][1] * gradient[1],
-                    alpha * skydome_default_color[2] + (1f - alpha) * skydome_gradient[i - 1][2] * gradient[2]
-            };
+            skydome_gradient[i] = new Vector4f(
+                    alpha * skydome_default_color.x() + (1f - alpha) * skydome_gradient[i - 1].x() * gradient.x(),
+                    alpha * skydome_default_color.y() + (1f - alpha) * skydome_gradient[i - 1].y() * gradient.y(),
+                    alpha * skydome_default_color.z() + (1f - alpha) * skydome_gradient[i - 1].z() * gradient.z(),
+                    1.0f
+            );
         }
 
         for (int i = 0; i < subdiv_height - 1; i++) {
@@ -405,8 +408,8 @@ public final class Sky implements AutoCloseable {
                 buffer.put(x * inv_len).put(y * inv_len).put(z * inv_len); // Normal
                 buffer.put(x * height_coeff / (radius * outer_utile) + 0.5f).put(y * height_coeff / (radius * outer_vtile) + 0.5f); // TexCoord0
                 buffer.put(x * height_coeff / (radius * inner_utile) + 0.5f).put(y * height_coeff / (radius * inner_vtile) + 0.5f); // TexCoord1
-                float[] color = i < SKYDOME_GRADIENT_LENGTH ? skydome_gradient[i] : skydome_default_color;
-                buffer.put(color[0]).put(color[1]).put(color[2]); // Color
+                Vector4fc color = i < SKYDOME_GRADIENT_LENGTH ? skydome_gradient[i] : skydome_default_color;
+                buffer.put(color.x()).put(color.y()).put(color.z()); // Color
             }
         }
         int last_index = subdiv_axis * (subdiv_height - 1);
@@ -414,8 +417,8 @@ public final class Sky implements AutoCloseable {
         buffer.put(0).put(0).put(1); // Normal
         buffer.put(0.5f).put(0.5f); // TexCoord0
         buffer.put(0.5f).put(0.5f); // TexCoord1
-        float[] color = subdiv_height - 1 < SKYDOME_GRADIENT_LENGTH ? skydome_gradient[subdiv_height - 1] : skydome_default_color;
-        buffer.put(color[0]).put(color[1]).put(color[2]); // Color
+        Vector4fc color = subdiv_height - 1 < SKYDOME_GRADIENT_LENGTH ? skydome_gradient[subdiv_height - 1] : skydome_default_color;
+        buffer.put(color.x()).put(color.y()).put(color.z()); // Color
     }
 
     private @NonNull ShortVBO @NonNull [] makeSkyStripIndices() {

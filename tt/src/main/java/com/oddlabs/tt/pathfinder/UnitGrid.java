@@ -3,6 +3,7 @@ package com.oddlabs.tt.pathfinder;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.DebugRender;
 import com.oddlabs.tt.util.Target;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -119,8 +120,8 @@ public final class UnitGrid {
                     DebugRender.drawPoint(xf, yf, zf, 3f, 1f, 0f, 0f);
                 } else {
                     last_region = region;
-                    float[] color = DebugRender.debug_colors[region.hashCode() % DebugRender.debug_colors.length];
-                    DebugRender.drawPoint(xf, yf, zf, 3f, color[0], color[1], color[2]);
+                    Vector4fc color = DebugRender.debug_colors[region.hashCode() % DebugRender.debug_colors.length];
+                    DebugRender.drawPoint(xf, yf, zf, 3f, color.x(), color.y(), color.z());
                 }
             }
         }
