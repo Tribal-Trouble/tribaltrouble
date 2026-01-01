@@ -455,6 +455,7 @@ public final class Renderer {
 
 	private void run(@NonNull String @NonNull ... args) throws IOException {
 		Instant start_time = Instant.now();
+        logger.info("CWD: " + System.getProperty("user.dir"));
 		boolean first_frame = true;
 		// This will be configured by setupLogging, but we need to log before that.
         GamePaths paths = setupPaths();
@@ -542,10 +543,24 @@ public final class Renderer {
 		setupMainMenu(network, gui, true);
 
 		boolean reset_keyboard = false;
+        boolean wasActive = false;
 		try {
 			while (!finished) {
-				runGameLoop(network, gui);
-				if (window.isVisible()) {
+                window.pollEvents();
+                boolean isActive = window.isActive();
+                if (isActive && !wasActive) {
+                    if (window.isIconified()) window.restore();
+                    if (!window.isVisible()) window.show();
+                    window.focus();
+                } else if (!isActive && wasActive) {
+                    if (Settings.getSettings().fullscreen) {
+                        window.minimize();
+                    }
+                }
+                wasActive = isActive;
+
+				if (window.isVisible() && isActive) {
+					runGameLoop(network, gui);
                     AudioManager.getManager().masterGain(1f);
 					if (reset_keyboard) {
 						reset_keyboard = false;
@@ -573,6 +588,7 @@ public final class Renderer {
 					if (grab_frames && movie_recording_started)
 						GLUtils.takeScreenshot("");
 				} else {
+					AnimationManager.freezeTime();
 					reset_keyboard = true;
                     AudioManager.getManager().masterGain(0f);
 					try {
@@ -782,6 +798,13 @@ public final class Renderer {
             boolean fs = Settings.getSettings().fullscreen && (!LocalEventQueue.getQueue().getDeterministic().isPlayback() || grab_frames);
             window.create(target_mode, fs);
 			LocalInput.getLocalInput().setModeToNearest(target_mode);
+            
+            Path iconPath = Path.of("assets/widget/TribalTrouble.wdgt/Icon.png");
+            if (!Files.exists(iconPath)) {
+                iconPath = Path.of("../assets/widget/TribalTrouble.wdgt/Icon.png");
+            }
+            logger.info("Setting icon from: " + iconPath.toAbsolutePath());
+            window.setIcon(iconPath);
 //if (System.currentTimeMillis() > 0)
 //throw new LWJGLException("It failed because you asked it to.");
 		} catch (Exception e) {

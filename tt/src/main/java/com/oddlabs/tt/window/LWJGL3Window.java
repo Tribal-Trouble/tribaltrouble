@@ -19,6 +19,8 @@ import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MINOR;
 import static org.lwjgl.glfw.GLFW.GLFW_DONT_CARE;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
 import static org.lwjgl.glfw.GLFW.GLFW_FOCUSED;
+import static org.lwjgl.glfw.GLFW.GLFW_ICONIFIED;
+import static org.lwjgl.glfw.GLFW.GLFW_AUTO_ICONIFY;
 import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_CORE_PROFILE;
 import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_FORWARD_COMPAT;
 import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_PROFILE;
@@ -37,18 +39,29 @@ import static org.lwjgl.glfw.GLFW.glfwGetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwRestoreWindow;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSize;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowIcon;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowTitle;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
+import static org.lwjgl.glfw.GLFW.glfwFocusWindow;
+import static org.lwjgl.glfw.GLFW.glfwIconifyWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.file.Path;
+import org.lwjgl.stb.STBImage;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.system.MemoryStack;
 
 public final class LWJGL3Window implements Window {
 
@@ -99,6 +112,7 @@ public final class LWJGL3Window implements Window {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
         
         // Request an OpenGL 4.1 Core Profile context
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -154,6 +168,11 @@ public final class LWJGL3Window implements Window {
     @Override
     public void update() {
         glfwSwapBuffers(windowHandle);
+        pollEvents();
+    }
+
+    @Override
+    public void pollEvents() {
         glfwPollEvents();
     }
 
@@ -173,10 +192,68 @@ public final class LWJGL3Window implements Window {
     }
 
     @Override
+    public boolean isIconified() {
+        return glfwGetWindowAttrib(windowHandle, GLFW_ICONIFIED) == GLFW_TRUE;
+    }
+
+    @Override
     public boolean wasResized() {
         boolean r = resized;
         resized = false;
         return r;
+    }
+
+    @Override
+    public void setIcon(Path imagePath) {
+        if (windowHandle == MemoryUtil.NULL) return;
+        
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("mac")) {
+            return;
+        }
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            IntBuffer comp = stack.mallocInt(1);
+
+            // STBImage requires absolute path or relative to CWD.
+            ByteBuffer image = STBImage.stbi_load(imagePath.toString(), w, h, comp, 4);
+            if (image == null) {
+                System.err.println("Failed to load icon: " + imagePath + " Reason: " + STBImage.stbi_failure_reason());
+                return;
+            }
+
+            GLFWImage.Buffer icons = GLFWImage.malloc(1, stack);
+            icons.position(0);
+            icons.width(w.get(0));
+            icons.height(h.get(0));
+            icons.pixels(image);
+
+            glfwSetWindowIcon(windowHandle, icons);
+            
+            STBImage.stbi_image_free(image);
+        }
+    }
+
+    @Override
+    public void restore() {
+        glfwRestoreWindow(windowHandle);
+    }
+
+    @Override
+    public void minimize() {
+        glfwIconifyWindow(windowHandle);
+    }
+
+    @Override
+    public void show() {
+        glfwShowWindow(windowHandle);
+    }
+
+    @Override
+    public void focus() {
+        glfwFocusWindow(windowHandle);
     }
 
     @Override
