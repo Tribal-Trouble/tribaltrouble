@@ -2,7 +2,6 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.model.Model;
 import org.joml.Matrix4f;
-import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

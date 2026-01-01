@@ -22,7 +22,6 @@ import com.oddlabs.tt.player.campaign.CampaignState;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;

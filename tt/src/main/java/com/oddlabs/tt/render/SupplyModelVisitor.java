@@ -1,7 +1,6 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.model.SupplyModel;
-import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 abstract class SupplyModelVisitor<SM extends SupplyModel> extends WhiteModelVisitor<SM> {

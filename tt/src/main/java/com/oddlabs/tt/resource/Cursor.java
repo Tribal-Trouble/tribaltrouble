@@ -5,7 +5,6 @@ import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.NativeCursor;
 import com.oddlabs.tt.render.Texture;
-import com.oddlabs.util.Color;
 import com.oddlabs.util.Image;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;

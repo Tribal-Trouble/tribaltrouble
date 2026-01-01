@@ -5,7 +5,6 @@ import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.WorldViewer;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 

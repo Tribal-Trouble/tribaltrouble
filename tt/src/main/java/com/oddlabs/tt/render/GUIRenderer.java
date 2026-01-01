@@ -10,7 +10,6 @@ import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.vbo.VertexArray;
 import com.oddlabs.util.Color;
-import com.oddlabs.util.Quad;
 import org.joml.Matrix4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;

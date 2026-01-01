@@ -4,7 +4,6 @@ import com.oddlabs.tt.model.SupplyCounter;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.util.Utils;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;

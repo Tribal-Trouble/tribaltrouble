@@ -1,7 +1,5 @@
 package com.oddlabs.util;
 
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;

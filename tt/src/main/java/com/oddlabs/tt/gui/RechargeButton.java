@@ -4,7 +4,6 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.ToolTip;
-import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
 public class RechargeButton extends NonFocusIconButton implements ToolTip {
