@@ -92,21 +92,23 @@ public final class LightningRenderer implements AutoCloseable {
         boolean depthMaskEnabled = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
 
         try (var _ = shader.use()) {
-            if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
-            if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
-            if (depthMaskEnabled) GL11.glDepthMask(false);
+            try (var _ = state.getFog().setup(shader, state.getCurrentZ())) {
+                if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
+                if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
+                if (depthMaskEnabled) GL11.glDepthMask(false);
 
-            shader.setUniformMatrix4(LightningShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
-            shader.setUniformMatrix4(LightningShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-            shader.setUniform(LightningShader.Uniforms.TEXTURE_0, 0);
+                shader.setUniformMatrix4(LightningShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+                shader.setUniformMatrix4(LightningShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
+                shader.setUniform(LightningShader.Uniforms.TEXTURE_0, 0);
 
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+                GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
-            vao.bind();
+                vao.bind();
 
-            if (Globals.draw_particles) {
-                for (Lightning emitter : emitter_queue) {
-                    renderInternal(render_queues, emitter);
+                if (Globals.draw_particles) {
+                    for (Lightning emitter : emitter_queue) {
+                        renderInternal(render_queues, emitter);
+                    }
                 }
             }
         } finally {
