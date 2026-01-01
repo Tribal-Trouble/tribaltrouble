@@ -17,6 +17,7 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
         String COLOR = "u_color"; // Material/Diffuse color
         String DECAL_COLOR = "u_decalColor"; // Team color
         String DESATURATE = "u_desaturate";
+        String ALPHA_TEST_VALUE = "u_alphaTestValue";
 
         // Fog Uniforms
         String FOG_HEIGHT_FACTOR = "u_fogHeightFactor";
@@ -104,6 +105,7 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
             uniform bool u_replaceMode;
             uniform vec4 u_decalColor;
             uniform float u_desaturate;
+            uniform float u_alphaTestValue;
             uniform vec3 u_lightDirection;
             uniform vec3 u_globalAmbient;
     
@@ -132,10 +134,8 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                 vec4 finalColor;
                 if (u_replaceMode) {
                     finalColor = base;
-                    if (finalColor.a <= 0.3) discard;
                 } else if (u_modulateColor) {
                     finalColor = v_color * base;
-                    if (finalColor.a <= 0.0) discard;
                 } else {
                     // Apply lighting
                     vec3 normal = normalize(v_viewNormal);
@@ -171,9 +171,9 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                         vec3 mixedColor = mix(finalColor.rgb - specular, u_decalColor.rgb * clamp(lightIntensity, 0.0, 1.0), tex1.rgb);
                         finalColor.rgb = mixedColor + specular;
                     }
-    
-                    if (finalColor.a <= 0.3) discard;
                 }
+    
+                if (finalColor.a <= u_alphaTestValue) discard;
     
                 float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
                 out_FragColor = vec4(mix(u_fogColor.rgb, finalColor.rgb, fogFactor), finalColor.a);

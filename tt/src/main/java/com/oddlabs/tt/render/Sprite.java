@@ -246,8 +246,10 @@ public final class Sprite {
         if (modulate_color) {
             shader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, true);
             shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, false);
+            shader.setUniform(SpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.0f);
         } else {
             shader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, false);
+            shader.setUniform(SpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.3f);
             if (hasTeamDecal() || respond) {
                 shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, true);
                 GL13.glActiveTexture(GL13.GL_TEXTURE1);

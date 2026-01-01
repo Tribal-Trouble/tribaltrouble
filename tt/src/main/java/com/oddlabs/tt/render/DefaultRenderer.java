@@ -218,8 +218,6 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             render_queues.renderShadows(landscape_renderer, modelViewStack, projectionStack);
         }
 
-        gui_root.getDelegate().render3D(landscape_renderer, render_queues, frustum_state, modelViewStack, projectionStack);
-
         if (Globals.process_trees) {
             tree_renderer.renderAll(frustum_state, modelViewStack, projectionStack);
         }
@@ -227,6 +225,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             render_queues.renderAll(frustum_state, projectionStack);
             render_queues.renderNoDetail();
         }
+
+        gui_root.getDelegate().render3D(landscape_renderer, render_queues, frustum_state, modelViewStack, projectionStack);
 
         if (Globals.debugRenderingEnabled()) {
             renderDebugElements(frustum_state);

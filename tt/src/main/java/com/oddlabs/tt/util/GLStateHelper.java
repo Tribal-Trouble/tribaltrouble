@@ -67,4 +67,28 @@ public final class GLStateHelper {
             GL11.glDepthMask(wasEnabled);
         }
     }
+
+    /**
+     * An AutoCloseable resource for managing the color mask.
+     */
+    public static class ColorMask implements GLState {
+        private final boolean r, g, b, a;
+
+        public ColorMask(boolean red, boolean green, boolean blue, boolean alpha) {
+            try (org.lwjgl.system.MemoryStack stack = org.lwjgl.system.MemoryStack.stackPush()) {
+                java.nio.ByteBuffer buf = stack.malloc(4);
+                GL11.glGetBooleanv(GL11.GL_COLOR_WRITEMASK, buf);
+                this.r = buf.get(0) != 0;
+                this.g = buf.get(1) != 0;
+                this.b = buf.get(2) != 0;
+                this.a = buf.get(3) != 0;
+            }
+            GL11.glColorMask(red, green, blue, alpha);
+        }
+
+        @Override
+        public void close() {
+            GL11.glColorMask(r, g, b, a);
+        }
+    }
 }
