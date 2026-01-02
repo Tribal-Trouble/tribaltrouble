@@ -41,6 +41,16 @@ public final class Utils {
 		return buffer;
 	}
 
+    public static ByteBuffer ioResourceToByteBuffer(java.net.URL url) throws IOException {
+        try (java.io.InputStream is = url.openStream()) {
+            byte[] bytes = is.readAllBytes();
+            ByteBuffer buffer = org.lwjgl.BufferUtils.createByteBuffer(bytes.length);
+            buffer.put(bytes);
+            buffer.flip();
+            return buffer;
+        }
+    }
+
 	public static void saveAsBMP(@NonNull String filename, @NonNull ByteBuffer pixel_data, int width, int height) {
 		long before = System.nanoTime();
 		int pad = 4 - (width*3)%4;

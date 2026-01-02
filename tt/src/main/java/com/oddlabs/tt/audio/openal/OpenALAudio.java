@@ -1,17 +1,21 @@
 package com.oddlabs.tt.audio.openal;
 
 import com.oddlabs.tt.audio.Audio;
-import com.oddlabs.tt.audio.OGGStream;
 import com.oddlabs.tt.audio.Wave;
 import com.oddlabs.tt.resource.NativeResource;
-import com.oddlabs.util.ByteBufferOutputStream;
+import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.openal.AL10;
+import org.lwjgl.stb.STBVorbis;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.libc.LibCStdlib;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 
 import static com.oddlabs.tt.audio.openal.OpenALManager.checkALError;
 
@@ -42,30 +46,31 @@ public final class OpenALAudio extends NativeResource<OpenALAudio.Buffers> imple
 
     OpenALAudio(@NonNull URL file) throws IOException {
 		this(1);
-		Wave wave;
 		try {
-			wave = new Wave(file);
-		} catch (UnsupportedAudioFileException | IOException _) {
+			Wave wave = new Wave(file);
+            AL10.alBufferData(getBuffer(), wave.getFormat(), wave.getData(), wave.getSampleRate());
+		} catch (UnsupportedAudioFileException e) {
 			// Assume it's an ogg vorbis file
-			wave = loadOGG(file);
+			loadOGG(file, getBuffer());
 		}
-		AL10.alBufferData(getBuffer(), wave.getFormat(), wave.getData(), wave.getSampleRate());
 	}
 
-	private static @NonNull Wave loadOGG(@NonNull URL file) throws IOException {
-		ByteBufferOutputStream output = new ByteBufferOutputStream(true);
-		OGGStream ogg_stream = new OGGStream(file);
-		int channels = ogg_stream.getChannels();
-		int rate = ogg_stream.getRate();
-		int bytes;
-		int total_bytes = 0;
-		do {
-			bytes = ogg_stream.read(output);
-			total_bytes += bytes;
-		} while (bytes > 0);
-		output.buffer().rewind();
-		output.buffer().limit(total_bytes);
-		return new Wave(output.buffer(), channels, 16, rate);
+	private static void loadOGG(@NonNull URL file, int bufferId) throws IOException {
+        ByteBuffer vorbisData = Utils.ioResourceToByteBuffer(file);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer channels = stack.mallocInt(1);
+            IntBuffer sampleRate = stack.mallocInt(1);
+            
+            ShortBuffer pcm = STBVorbis.stb_vorbis_decode_memory(vorbisData, channels, sampleRate);
+            if (pcm == null) {
+                throw new IOException("Failed to decode OGG Vorbis: " + file);
+            }
+            
+            int format = Wave.getFormat(channels.get(0), 16);
+            AL10.alBufferData(bufferId, format, pcm, sampleRate.get(0));
+            
+            LibCStdlib.free(pcm);
+        }
 	}
 
 	public @NonNull IntBuffer getBuffers() {

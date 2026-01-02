@@ -36,7 +36,6 @@ application {
 dependencies {
     implementation(project(":common"))
     implementation(project(":assets"))
-    implementation("org.jcraft:jorbis:0.0.17")
     implementation("org.lwjglx:lwjglx-debug:1.0.1")
 }
 

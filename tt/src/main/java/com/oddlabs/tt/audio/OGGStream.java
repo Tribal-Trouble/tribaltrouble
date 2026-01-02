@@ -1,200 +1,119 @@
 package com.oddlabs.tt.audio;
 
-import com.jcraft.jogg.Packet;
-import com.jcraft.jogg.Page;
-import com.jcraft.jogg.StreamState;
-import com.jcraft.jogg.SyncState;
-import com.jcraft.jorbis.Block;
-import com.jcraft.jorbis.Comment;
-import com.jcraft.jorbis.DspState;
-import com.jcraft.jorbis.Info;
 import com.oddlabs.util.ByteBufferOutputStream;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.stb.STBVorbis;
+import org.lwjgl.stb.STBVorbisInfo;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.Objects;
 
-public final class OGGStream {
+public final class OGGStream implements AutoCloseable {
 	private final @NonNull URL file;
-	private int data_size = 8192;
-	private final byte[] data_buffer = new byte[data_size];
-	private byte[] sync_buffer;
-	private final SyncState sync_state = new SyncState();
-	private final StreamState stream_state = new StreamState();
-	private final Page page = new Page();
-	private final Packet packet = new Packet();
-	private final Info info = new Info();
-	private final Comment comment = new Comment();
-	private final DspState dsp_state = new DspState();
-	private final Block block = new Block(dsp_state);
-	private final InputStream input;
-	private final float[][][] outer_pcm = new float[1][][];
+    private final long decoder;
+    private final int channels;
+    private final int sampleRate;
+    private final ByteBuffer vorbisData; // Keep reference to prevent GC
 
-	private int[] indices;
-	private boolean eos = false;
+    // Temp buffer for reading samples (4096 samples * 2 channels usually)
+    private final ShortBuffer pcmBuffer; 
 
 	public OGGStream(@NonNull URL file) throws IOException {
 		this.file = Objects.requireNonNull(file, "file");
-		sync_state.init();
-		input = file.openStream();
+        
+        // Read file to ByteBuffer
+        byte[] bytes = readAllBytes(file);
+        vorbisData = BufferUtils.createByteBuffer(bytes.length);
+        vorbisData.put(bytes);
+        vorbisData.flip();
 
-		getHeaders();
-		prepareStream();
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer error = stack.mallocInt(1);
+            decoder = STBVorbis.stb_vorbis_open_memory(vorbisData, error, null);
+            if (decoder == 0) {
+                throw new IOException("Failed to open OGG Vorbis file. Error: " + error.get(0));
+            }
+
+            STBVorbisInfo info = STBVorbisInfo.malloc(stack);
+            STBVorbis.stb_vorbis_get_info(decoder, info);
+            this.channels = info.channels();
+            this.sampleRate = info.sample_rate();
+        }
+        
+        // Allocate reasonable chunk size (e.g. 4096 frames)
+        pcmBuffer = BufferUtils.createShortBuffer(4096 * channels);
 	}
 
-	private void getHeaders() {
-		readFromInput();
-
-		if (sync_state.pageout(page) != 1) {
-//			if (bytes < 4096)
-//				break;
-			throw new RuntimeException("Invalid ogg stream");
-		}
-
-		stream_state.init(page.serialno());
-		info.init();
-		comment.init();
-		if (stream_state.pagein(page) < 0)
-			throw new RuntimeException("Error reading fist page of ogg stream");
-
-		if (stream_state.packetout(packet) != 1)
-			throw new RuntimeException("Error reading initial header packet");
-
-		if (info.synthesis_headerin(comment, packet) < 0)
-			throw new RuntimeException("Invalid ogg stream");
-
-		int i = 0;
-		while (i < 2) {
-			while (i < 2) {
-				int result = sync_state.pageout(page);
-				if (result == 0)
-					break;
-
-				if (result == 1) {
-					stream_state.pagein(page);
-					while (i < 2) {
-						result = stream_state.packetout(packet);
-						if (result == 0)
-							break;
-						if (result == -1)
-							throw new RuntimeException("Corrupt header");
-
-						info.synthesis_headerin(comment,  packet);
-						i++;
-					}
-				}
-			}
-			int bytes = readFromInput();
-			if (bytes == 0 && i < 2)
-				throw new RuntimeException("Vorbis headers not found");
-
-		}
-	}
+    private static byte[] readAllBytes(URL url) throws IOException {
+        try (InputStream is = url.openStream();
+             ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+            int nRead;
+            byte[] data = new byte[16384];
+            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+            return buffer.toByteArray();
+        }
+    }
 
 	public int getChannels() {
-		return info.channels;
+		return channels;
 	}
 
 	public int getRate() {
-		return info.rate;
-	}
-
-	private void prepareStream() {
-		data_size = 4096/info.channels;
-		dsp_state.synthesis_init(info);
-		block.init(dsp_state);
-		indices = new int[info.channels];
+		return sampleRate;
 	}
 
 	public int read(@NonNull ByteBufferOutputStream output) {
-		int written = 0;
-		while (!eos) {
-			int result = sync_state.pageout(page);
-			if (result == 0) {
-				if (readFromInput() == 0) {
-					return written;
-				}
-				continue;
-				//break;
-			}
-			if (result == -1) {
-				throw new RuntimeException("Corrupt bitstream in " + file.getFile());
-			} else {
-				stream_state.pagein(page);
-				while (true) {
-					result = stream_state.packetout(packet);
-
-					if (result == 0) {
-						break;
-					} else if (result != -1) {
-						int samples;
-						if (block.synthesis(packet) == 0) {
-							dsp_state.synthesis_blockin(block);
-						}
-
-						while ((samples = dsp_state.synthesis_pcmout(outer_pcm, indices)) > 0) {
-							float[][] pcm = outer_pcm[0];
-							int count = (Math.min(samples, data_size));
-
-							for (int i = 0; i < info.channels; i++) {
-								int ptr = i*2;
-								int mono = indices[i];
-								for (int j = 0; j < count; j++) {
-									int val = (int)(pcm[i][mono + j]*32767.0);
-									if (val > 32767) {
-										val = 32767;
-									}
-									if (val < -32768) {
-										val = -32768;
-									}
-									if (val < 0)
-										val = val | 0x8000;
-									if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
-										data_buffer[ptr] = (byte)(val);
-										data_buffer[ptr + 1] = (byte)(val >>> 8);
-									} else {
-										data_buffer[ptr + 1] = (byte)(val);
-										data_buffer[ptr] = (byte)(val >>> 8);
-									}
-									ptr += 2*info.channels;
-								}
-							}
-
-							output.write(data_buffer, 0, 2*info.channels*count);
-							written += 2*info.channels*count;
-							dsp_state.synthesis_read(count);
-						}
-					}
-				}
-				if (page.eos() != 0) {
-					eos = true;
-					stream_state.clear();
-					block.clear();
-					dsp_state.clear();
-					info.clear();
-					sync_state.clear();
-				}
-			}
-			break;
-		}
-		return written;
+        int samplesRead = STBVorbis.stb_vorbis_get_samples_short_interleaved(decoder, channels, pcmBuffer);
+        
+        if (samplesRead > 0) {
+            int totalSamples = samplesRead * channels;
+            // Write to output stream
+            // ByteBufferOutputStream writes bytes. We need to convert shorts to bytes in Native Order.
+            boolean littleEndian = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
+            
+            for (int i = 0; i < totalSamples; i++) {
+                short val = pcmBuffer.get(i);
+                if (littleEndian) {
+                    output.write((byte) (val & 0xFF));
+                    output.write((byte) ((val >> 8) & 0xFF));
+                } else {
+                    output.write((byte) ((val >> 8) & 0xFF));
+                    output.write((byte) (val & 0xFF));
+                }
+            }
+            return totalSamples * 2; // bytes written
+        }
+        
+		return 0;
 	}
 
-	private int readFromInput() {
-		int index = sync_state.buffer(4096);
-		int bytes;
-		sync_buffer = sync_state.data;
-		try {
-			bytes = input.read(sync_buffer, index, sync_buffer.length - index);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		if (bytes == -1)
-			return 0;
-		sync_state.wrote(bytes);
-		return bytes;
-	}
+    /**
+     * Decodes samples directly into the provided ShortBuffer.
+     * @param buffer Destination buffer. Must be direct.
+     * @return The number of short values written to the buffer.
+     */
+    public int read(ShortBuffer buffer) {
+        int samplesPerChannelRequest = buffer.remaining() / channels;
+        int samplesRead = STBVorbis.stb_vorbis_get_samples_short_interleaved(decoder, channels, buffer);
+        return samplesRead * channels;
+    }
+
+    @Override
+    public void close() {
+        if (decoder != 0) {
+            STBVorbis.stb_vorbis_close(decoder);
+        }
+    }
 }
