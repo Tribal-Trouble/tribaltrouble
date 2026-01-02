@@ -32,7 +32,7 @@ public abstract class RotatingThrowingWeapon extends ThrowingWeapon {
 
 	@Override
 	protected float getLoftFactor() {
-		return 1.005f;
+		return 1.01f;
 	}
 
 	@Override

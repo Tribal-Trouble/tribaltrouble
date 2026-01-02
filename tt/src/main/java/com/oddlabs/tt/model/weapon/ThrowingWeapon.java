@@ -15,7 +15,9 @@ import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
 
 public abstract class ThrowingWeapon extends Accessories implements Animated {
-	private static final float GRAVITY = -6*9.82f;
+	/** Multiplier for projectile arc exaggeration. */
+	private static final float GRAVITY_MULTIPLIER = 3.0f;
+	private static final float GRAVITY = -GRAVITY_MULTIPLIER*9.82f;
 	private static final float NO_DETAIL_SIZE = .5f;
 
 	private static final float OFFSET_X = 1.316f;
