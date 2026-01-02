@@ -261,7 +261,9 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
 
     @Override
     public void close() {
+        logger.info("AudioManager closing queued players...");
         queued_players.close();
+        logger.info("AudioManager closing sources...");
         for (AudioSource source : sources) try {
             if (null != source) source.close(); // Ensure all sources are closed
         } catch (Exception e) {
@@ -269,5 +271,6 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
         } finally {
             Arrays.fill(sources, null);
         }
+        logger.info("AudioManager closed.");
     }
 }

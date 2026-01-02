@@ -715,6 +715,7 @@ public final class Renderer {
 
 	public void cleanup() {
 		logger.info("Cleaning up...");
+        logger.info("Disposing LocalEventQueue...");
 		LocalEventQueue.getQueue().dispose();
 		destroyNative();
         logger.fine("Native resources still registered: " + NativeResource.getCount());
@@ -726,10 +727,15 @@ public final class Renderer {
 	}
 
 	private static void destroyNative() {
+        logger.info("Clearing Resources...");
         Resources.clearResources();
+        logger.info("Closing AudioManager...");
         AudioManager.getManager().close();
-        if (getRenderer().getWindow() != null)
+        if (getRenderer().getWindow() != null) {
+            logger.info("Closing Window...");
 		    getRenderer().getWindow().close();
+            logger.info("Window Closed.");
+        }
 	}
 
 	public static void dumpWindowInfo() {

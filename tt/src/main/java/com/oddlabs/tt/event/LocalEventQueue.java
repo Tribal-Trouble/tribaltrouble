@@ -9,8 +9,10 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.util.logging.Logger;
 
 public final class LocalEventQueue {
+    private static final Logger logger = Logger.getLogger(LocalEventQueue.class.getName());
 	private static final LocalEventQueue queue_instance = new LocalEventQueue();
 
 	private final StateChecksum checksum = new StateChecksum();
@@ -37,9 +39,13 @@ public final class LocalEventQueue {
 	}
 
 	public void dispose() {
-		if (deterministic != null)
+        logger.info("LocalEventQueue disposing...");
+		if (deterministic != null) {
+            logger.info("Ending deterministic log...");
 			deterministic.endLog();
+        }
 		deterministic = null;
+        logger.info("LocalEventQueue disposed.");
 	}
 
 //public static Deterministic stack_deterministic;
