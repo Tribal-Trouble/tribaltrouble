@@ -9,12 +9,16 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.stb.STBImage;
+import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -98,6 +102,12 @@ public final class TextureFile extends File<Texture> {
 		if (url != null)
 			return url;
 
+        String[] extensions = {".png", ".jpg", ".jpeg"};
+        for (String ext : extensions) {
+            url = locate(location + ext);
+            if (url != null) return url;
+        }
+
 		throw new IllegalArgumentException(location);
 	}
 
@@ -114,9 +124,45 @@ public final class TextureFile extends File<Texture> {
 	}
 
 	public @NonNull GLImage getImage() {
-		Image image = Image.read(getURL());
-		return new GLIntImage(image.getWidth(), image.getHeight(), image.getPixels(), GL11.GL_RGBA);
+        String path = getURL().getPath();
+        if (path.endsWith(".image")) {
+		    Image image = Image.read(getURL());
+		    return new GLIntImage(image.getWidth(), image.getHeight(), image.getPixels(), GL11.GL_RGBA);
+        } else {
+            return loadSTBImage(getURL());
+        }
 	}
+
+    private @NonNull GLImage loadSTBImage(@NonNull URL url) {
+        try {
+            ByteBuffer fileData = com.oddlabs.tt.util.Utils.ioResourceToByteBuffer(url);
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                IntBuffer w = stack.mallocInt(1);
+                IntBuffer h = stack.mallocInt(1);
+                IntBuffer comp = stack.mallocInt(1);
+
+                // Force 4 channels (RGBA)
+                ByteBuffer image = STBImage.stbi_load_from_memory(fileData, w, h, comp, 4);
+                if (image == null) {
+                    throw new IOException("Failed to load texture: " + url + " Reason: " + STBImage.stbi_failure_reason());
+                }
+
+                int width = w.get(0);
+                int height = h.get(0);
+                
+                // Copy to managed buffer to allow STB free
+                ByteBuffer managedBuffer = org.lwjgl.BufferUtils.createByteBuffer(width * height * 4);
+                managedBuffer.put(image);
+                managedBuffer.flip();
+                
+                STBImage.stbi_image_free(image);
+                
+                return new GLIntImage(width, height, managedBuffer, GL11.GL_RGBA);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
 	@Override
 	public @NonNull Texture get() {
