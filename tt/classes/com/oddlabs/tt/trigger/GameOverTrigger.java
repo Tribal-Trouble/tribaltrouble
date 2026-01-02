@@ -5,6 +5,7 @@ import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.net.PeerHub;
+import com.oddlabs.tt.player.AdvancedAI;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.steam.SteamAchievementManager;
@@ -85,26 +86,21 @@ public final strictfp class GameOverTrigger implements Animated {
                     break;
                 }
 
-                if (current != local_player && ai_team == -1
-                        || current.getPlayerInfo().getTeam() == ai_team) {
-                    if (current.getAI() != null
-                            && current.getPlayerInfo().getName().equals("Hard AI")
-                            && ai_team == -1) {
-                        if (ai_team == -1) {
-                            ai_team = current.getPlayerInfo().getTeam();
-                            hard_ais_on_same_team++;
-                        } else {
-                            if (current.getPlayerInfo().getTeam() != ai_team) {
-                                all_hards_same_team = false;
-                                break;
-                            } else {
-                                hard_ais_on_same_team++;
-                            }
-                        }
+                if (current != local_player
+                        && current.getAI() instanceof AdvancedAI
+                        && ((AdvancedAI) current.getAI()).getDifficulty()
+                                == AdvancedAI.DIFFICULTY_HARD) {
+                    if (ai_team == -1) {
+                        ai_team = current.getPlayerInfo().getTeam();
+                        hard_ais_on_same_team++;
+                    } else if (current.getPlayerInfo().getTeam() == ai_team) {
+                        hard_ais_on_same_team++;
+                    } else {
+                        // Hard AI on different team
+                        all_hards_same_team = false;
                     }
                 }
             }
-
             if (hard_ais_on_same_team >= 3
                     && is_player_alone
                     && all_hards_same_team
