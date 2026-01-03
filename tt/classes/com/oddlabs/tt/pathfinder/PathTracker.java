@@ -14,6 +14,7 @@ public final strictfp class PathTracker {
     public static final int BLOCKED = 5;
 
     private static final int REGION_SEARCH_TRIES = 4;
+    private static final float MAX_SAILING_CURVE_ANGLE = (float) Math.toRadians(7.0);
 
     private final BezierPath bezier_path;
     private final UnitGrid unit_grid;
@@ -208,7 +209,7 @@ public final strictfp class PathTracker {
                 double angle = Math.atan2(dy, dx);
                 deltaAngle = angle - initAngle;
                 deltaAngle = (deltaAngle + Math.PI) % (2 * Math.PI) - Math.PI;
-            } while (Math.abs(deltaAngle) > 0.174 && grid_path != null);
+            } while (Math.abs(deltaAngle) > MAX_SAILING_CURVE_ANGLE && grid_path != null);
             float next_node_x = UnitGrid.coordinateFromGrid(next_unit_grid_x);
             float next_node_y = UnitGrid.coordinateFromGrid(next_unit_grid_y);
             bezier_path.nextPoint(next_node_x, next_node_y);
