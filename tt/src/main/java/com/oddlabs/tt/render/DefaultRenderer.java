@@ -60,7 +60,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         this.picker = picker;
         this.selection = selection;
         this.element_renderer = new ElementRenderer<>(local_player, render_queues, picker, false, sprite_sorter, selection);
-        this.tree_renderer = new TreeRenderer(world, cheat, terrain, world_info.trees, world_info.palm_trees, sprite_sorter, picker.getRespondManager());
+        this.tree_renderer = new TreeRenderer(world, cheat, sprite_sorter, picker.getRespondManager(), render_queues.getInstancedRenderer());
         this.landscape_renderer = landscape_renderer;
         this.sky = new Sky(landscape_renderer, generator.getTerrainType(), world_info.detail);
         this.modelViewStack = modelViewStack;
@@ -261,6 +261,5 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         sonicBlastRenderer.close();
         sky.close();
         water.close();
-        tree_renderer.close();
     }
 }

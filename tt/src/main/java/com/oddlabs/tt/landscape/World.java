@@ -1,6 +1,5 @@
 package com.oddlabs.tt.landscape;
 
-import com.oddlabs.geometry.LowDetailModel;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.ProgressForm;
@@ -23,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Random;
 
 public final class World {
@@ -69,9 +67,9 @@ public final class World {
 		return new RacesResources(queues);
 	}
 
-	public static @NonNull World newWorld(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, @NonNull Vector4fc @NonNull [] colors, com.oddlabs.tt.resource.@NonNull FogInfo fog) {
+	public static @NonNull World newWorld(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, @NonNull Vector4fc @NonNull [] colors, com.oddlabs.tt.resource.@NonNull FogInfo fog) {
 		ProgressForm.progress();
-		World world = new World(audio_implementation, landscape_resources, races_resources, tree_low_details, notification_listener, world_params, world_info, terrain, player_infos, colors, fog);
+		World world = new World(audio_implementation, landscape_resources, races_resources, notification_listener, world_params, world_info, terrain, player_infos, colors, fog);
 		ProgressForm.progress();
 		ProgressForm.progress(1/5f);
 		ProgressForm.progress();
@@ -149,7 +147,7 @@ public final class World {
 		return getAnimationManagerRealTime().getTick();
 	}
 
-	private World(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, @NonNull Vector4fc @NonNull [] colors, com.oddlabs.tt.resource.@NonNull FogInfo fog) {
+	private World(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, @NonNull Vector4fc @NonNull [] colors, com.oddlabs.tt.resource.@NonNull FogInfo fog) {
 		IO.println("****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
         this.fog = fog;
 		this.landscape_resources = landscape_resources;
@@ -176,7 +174,7 @@ public final class World {
 		this.unit_grid = new UnitGrid(world);
 		RegionBuilder.buildRegions(unit_grid, world_info.starting_locations[0][0], world_info.starting_locations[0][1]);
 		this.patch_root = new PatchGroup(this);
-		this.tree_root = AbstractTreeGroup.newRoot(this, tree_low_details, world_info.trees, world_info.palm_trees, terrain);
+		this.tree_root = AbstractTreeGroup.newRoot(this, world_info.trees, world_info.palm_trees, terrain);
 		this.element_root = AbstractElementNode.newRoot(world);
 		AbstractElementNode.buildSupplies(this, world_info.iron, world_info.rocks, world_info.plants, terrain);
 	}

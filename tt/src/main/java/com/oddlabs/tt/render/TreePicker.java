@@ -1,6 +1,5 @@
 package com.oddlabs.tt.render;
 
-import com.oddlabs.geometry.LowDetailModel;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.AbstractTreeGroup;
@@ -29,13 +28,11 @@ class TreePicker implements TreeNodeVisitor {
 
 	private final List<TreeSupply> @NonNull [] render_lists;
 	private final List<TreeSupply> @NonNull [] respond_render_lists;
-	private final List<AbstractTreeGroup> low_detail_render_list = new ArrayList<>();
 
 	private final BoundingBox picking_selection_box = new BoundingBox();
 	private final SpriteSorter sprite_sorter;
 	private final @NonNull RenderStateCache<@NonNull TreeRenderState> render_state_cache;
 	private final @NonNull Map<@NonNull TreeType,@NonNull Tree> trees;
-	private final @NonNull Map<@NonNull TreeType,@NonNull LowDetailModel> tree_low_details;
 	private final RespondManager respond_manager;
 	private CameraState camera;
 
@@ -46,7 +43,6 @@ class TreePicker implements TreeNodeVisitor {
 		this.render_lists = (List<TreeSupply>[]) new List[]{new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()};
 		this.respond_render_lists =  (List<TreeSupply>[]) new List<?>[]{new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()};
 		this.trees = loadTrees();
-		this.tree_low_details = LandscapeResources.loadTreeLowDetails();
 
 		this.sprite_sorter = sprite_sorter;
 		render_state_cache = new RenderStateCache<>(() -> new TreeRenderState(TreePicker.this));
@@ -77,14 +73,6 @@ class TreePicker implements TreeNodeVisitor {
 		return trees;
 	}
 
-	final @NonNull Map<@NonNull TreeType,@NonNull LowDetailModel> getLowDetails() {
-		return tree_low_details;
-	}
-
-	protected final @NonNull List<AbstractTreeGroup> getLowDetailRenderList() {
-		return low_detail_render_list;
-	}
-
 	protected final @NonNull List<@NonNull TreeSupply> @NonNull [] getRenderLists() {
 		return render_lists;
 	}
@@ -113,14 +101,8 @@ class TreePicker implements TreeNodeVisitor {
 	}
 
 	public final void markDetailPolygon(@NonNull TreeSupply tree_supply, @NonNull PolyDetail level) {
-		if (level == PolyDetail.HIGH_POLY || tree_supply.hasRespondingTrees()) {
-			addToHighDetailList(tree_supply.getTreeType().ordinal(), tree_supply, respond_manager.isResponding(tree_supply));
-		} else
-			addToLowDetailRenderList(tree_supply);
-	}
-
-	public final void addToLowDetailRenderList(AbstractTreeGroup node) {
-		low_detail_render_list.add(node);
+        // Always render high detail (Instanced Sprites)
+        addToHighDetailList(tree_supply.getTreeType().ordinal(), tree_supply, respond_manager.isResponding(tree_supply));
 	}
 
 	public final void setup(CameraState camera_state) {
@@ -130,31 +112,12 @@ class TreePicker implements TreeNodeVisitor {
 
 	@Override
 	public final void visitLeaf(@NonNull TreeLeaf tree_leaf) {
-        RenderTools.FrustumIntersection frustum_state = RenderTools.FrustumIntersection.ALL_OUTSIDE;
-		if (tree_leaf.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_leaf, camera.getFrustum())) != RenderTools.FrustumIntersection.ALL_OUTSIDE)) {
-			boolean old_override = visible_override;
-			visible_override = visible_override || frustum_state == RenderTools.FrustumIntersection.ALL_INSIDE;
-			if (visible_override && canRenderLowDetail(tree_leaf)) {
-				addToLowDetailRenderList(tree_leaf);
-			} else {
-				tree_leaf.visitTrees(this);
-			}
-			visible_override = old_override;
-		}
+        tree_leaf.visitTrees(this);
 	}
 
 	@Override
 	public final void visitNode(@NonNull TreeGroup tree_group) {
-        RenderTools.FrustumIntersection frustum_state = RenderTools.FrustumIntersection.ALL_OUTSIDE;
-		if (tree_group.hasTrees() && (visible_override || (frustum_state = RenderTools.inFrustum(tree_group, camera.getFrustum())) != RenderTools.FrustumIntersection.ALL_OUTSIDE)) {
-			boolean old_override = visible_override;
-			visible_override = visible_override || frustum_state == RenderTools.FrustumIntersection.ALL_INSIDE;
-			if (visible_override && canRenderLowDetail(tree_group))
-				addToLowDetailRenderList(tree_group);
-			else
-				tree_group.visitChildren(this);
-			visible_override = old_override;
-		}
+        tree_group.visitChildren(this);
 	}
 
 	private float getHeightScale(@NonNull TreeType tree_type) {
@@ -188,27 +151,16 @@ class TreePicker implements TreeNodeVisitor {
 	public final void visitTree(@NonNull TreeSupply tree_supply) {
 		if (tree_supply.isHidden())
 			return;
+        
 		boolean in_view;
+        // ... culling logic ...
 		if (isPicking())
 			in_view = !tree_supply.isDead() && (visible_override || pickingInFrustum(tree_supply, camera.getFrustum()));
 		else
 			in_view = visible_override || RenderTools.inFrustum(tree_supply, camera.getFrustum()) != RenderTools.FrustumIntersection.ALL_OUTSIDE;
 		if (in_view) {
-			if (canRenderLowDetail(tree_supply)) {
-				addToLowDetailRenderList(tree_supply);
-			} else {
-				addToRenderList(tree_supply, camera);
-			}
+			addToRenderList(tree_supply, camera);
 		}
-	}
-
-	private boolean canRenderLowDetail(@NonNull AbstractTreeGroup tree_group) {
-		return !isPicking() && !tree_group.hasRespondingTrees() && isLowDetailDistance(tree_group);
-	}
-
-	private boolean isLowDetailDistance(@NonNull AbstractTreeGroup tree_group) {
-		float eye_dist = RenderTools.getEyeDistanceSquared(tree_group, camera.getCurrentX(), camera.getCurrentY(), camera.getCurrentZ());
-		return eye_dist >= tree_group.getGroupMinSquared();
 	}
 
 	boolean isPicking() {

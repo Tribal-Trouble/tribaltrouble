@@ -49,6 +49,8 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
     }
 
     public void renderAll(@NonNull CameraState cameraState, @NonNull MatrixStack projectionStack) {
+        if (batches.isEmpty()) return;
+
         try (var _ = shader.use();
              var _ = cameraState.getFog().setup(shader, cameraState.getCurrentZ())) {
             
@@ -157,7 +159,10 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         void render(@NonNull InstancedSpriteShader shader, Texture whiteTexture) {
             if (totalInstances == 0) return;
 
-            if (!key.depthTest) {
+            if (key.depthTest) {
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
+                GL11.glDepthFunc(GL11.GL_LEQUAL);
+            } else {
                 GL11.glDisable(GL11.GL_DEPTH_TEST);
             }
 
@@ -175,6 +180,14 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             }
 
             Sprite sprite = key.spriteList.getSprite(key.spriteIndex);
+            
+            if (sprite.culled) {
+                GL11.glEnable(GL11.GL_CULL_FACE);
+                GL11.glCullFace(GL11.GL_BACK);
+            } else {
+                GL11.glDisable(GL11.GL_CULL_FACE);
+            }
+
             setupTextures(shader, sprite, whiteTexture);
             
             vao.bind();
@@ -217,10 +230,6 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
             vao.unbind();
             totalInstances = 0;
-
-            if (!key.depthTest) {
-                GL11.glEnable(GL11.GL_DEPTH_TEST);
-            }
         }
         
         private void setupTextures(@NonNull InstancedSpriteShader shader, @NonNull Sprite sprite, Texture whiteTexture) {

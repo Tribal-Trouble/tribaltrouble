@@ -19,11 +19,6 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	private static final int INITIAL_SUPPLIES = 10;
 	private static final float SECOND_PER_TREEFALL = 3f;
 
-	private static final Vector3f low_detail_x_axis = new Vector3f(1f, 0f, 0f);
-	private static final Vector3f low_detail_translate = new Vector3f();
-	private static final Vector3f low_detail_scale = new Vector3f();
-	private static final Matrix4f low_detail_matrix = new Matrix4f();
-
 	private final @NonNull Matrix4f matrix;
 	private final @NonNull TreeType tree_type;
 	private final float x;
@@ -34,7 +29,6 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	private final float size;
 	private final @NonNull World world;
 
-	private int low_detail_start_vertex_index;
 	private int num_supplies = INITIAL_SUPPLIES;
 	private float animation_time;
 	private boolean hide = false;
@@ -71,17 +65,9 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 		return world;
 	}
 
-	public int getLowDetailStartIndex() {
-		return low_detail_start_vertex_index;
-	}
-
 	@Override
 	public void visit(@NonNull ToolTipVisitor visitor) {
 		visitor.visitSupply(this);
-	}
-
-	public void setLowDetailStartIndex(int index) {
-		low_detail_start_vertex_index = index;
 	}
 
 	public float getScale() {
@@ -104,10 +90,6 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	public void animateSpawn(float t, float progress) {
 		float inv = 1 - progress;
 		scale = 1 - inv*inv*inv*inv*inv*inv;
-
-		low_detail_scale.set(scale, scale, scale);
-		matrix.scale(low_detail_scale, low_detail_matrix);
-		world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
 	}
 
 	@Override
@@ -221,15 +203,8 @@ public final class TreeSupply extends AbstractTreeGroup implements Supply, Targe
 	@Override
 	public void animate(float t) {
 		animation_time += t;
-		float time = getTreeFallProgress();
-		low_detail_translate.set(0f, 0f, -13f*(time*time*time*time*time*time));
-        matrix.translate(low_detail_translate, low_detail_matrix);
-		low_detail_matrix.rotate((.5f*(float)Math.PI)*time*time, low_detail_x_axis);
-		world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
 		if (animation_time >= SECOND_PER_TREEFALL) {
 			world.getAnimationManagerRealTime().removeAnimation(this);
-			low_detail_matrix.zero();
-			world.getNotificationListener().updateTreeLowDetail(low_detail_matrix, this);
 			hide = true;
 		}
 	}

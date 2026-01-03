@@ -1,6 +1,5 @@
 package com.oddlabs.tt.landscape;
 
-import com.oddlabs.geometry.LowDetailModel;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.procedural.Landscape;
@@ -10,7 +9,6 @@ import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
-import java.util.Map;
 
 public abstract class AbstractTreeGroup extends BoundingBox {
 
@@ -22,31 +20,15 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 	}
 
 	private final AbstractTreeGroup parent;
-	private int start;
-	private int count;
 
 	private int num_responding_trees = 0;
-
-	private float group_min_squared;
 
 	public AbstractTreeGroup(AbstractTreeGroup parent) {
 		this.parent = parent;
 	}
 
-	public final int getLowDetailStart() {
-		return start;
-	}
-
-	public final int getLowDetailCount() {
-		return count;
-	}
-
 	protected final AbstractTreeGroup getParent() {
 		return parent;
-	}
-
-	public final boolean hasTrees() {
-		return count > 0;
 	}
 
 	public final void changeRespondingTrees(int delta) {
@@ -59,17 +41,17 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 		return num_responding_trees > 0;
 	}
 
-	public static @NonNull AbstractTreeGroup newRoot(@NonNull World world, @NonNull Map<@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, @NonNull List<int[]> tree_positions, @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
+	public static @NonNull AbstractTreeGroup newRoot(@NonNull World world, @NonNull List<int[]> tree_positions, @NonNull List<int[]> palm_tree_positions, Landscape.@NonNull TerrainType terrain) {
 		AbstractTreeGroup root = new TreeGroup(null, 0);
 
 		switch (terrain) {
 			case NATIVE:
-				root.buildTrees(world, tree_low_details, TreeType.JUNGLE, 3, 2.3f, tree_positions, 0.25f, 0.75f);
-				root.buildTrees(world, tree_low_details, TreeType.PALM, 1, 1.6f, palm_tree_positions, 0.5f, 1f);
+				root.buildTrees(world, TreeType.JUNGLE, 3, 2.3f, tree_positions, 0.25f, 0.75f);
+				root.buildTrees(world, TreeType.PALM, 1, 1.6f, palm_tree_positions, 0.5f, 1f);
 				break;
 			case VIKING:
-				root.buildTrees(world, tree_low_details, TreeType.OAK, 3, 2.3f, tree_positions, 0.5f, 1f);
-				root.buildTrees(world, tree_low_details, TreeType.PINE, 1, 1.6f, palm_tree_positions, 0.5f, 1f);
+				root.buildTrees(world, TreeType.OAK, 3, 2.3f, tree_positions, 0.5f, 1f);
+				root.buildTrees(world, TreeType.PINE, 1, 1.6f, palm_tree_positions, 0.5f, 1f);
 				break;
 		}
 
@@ -77,10 +59,22 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 		return root;
 	}
 
-	private void buildTrees(final @NonNull World world, @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> tree_low_details, final @NonNull TreeType tree_type, final int grid_size, final float radius, @NonNull List<int[]> tree_positions, float scale_factor, float min_size) {
+	private void buildTrees(final @NonNull World world, final @NonNull TreeType tree_type, final int grid_size, final float radius, @NonNull List<int[]> tree_positions, float scale_factor, float min_size) {
 		Matrix4f matrix2 = new Matrix4f();
 		Vector3f vector = new Vector3f();
-		final float[] tree_low_vertices = tree_low_details.get(tree_type).getVertices();
+        // Generate dummy bounding box vertices for culling (Radius + Height 15m)
+        float h = 15f;
+        final float[] tree_low_vertices = new float[] {
+            -radius, -radius, 0,
+             radius, -radius, 0,
+             radius,  radius, 0,
+            -radius,  radius, 0,
+            -radius, -radius, h,
+             radius, -radius, h,
+             radius,  radius, h,
+            -radius,  radius, h
+        };
+
 		for (int[] coords : tree_positions) {
 			final Matrix4f matrix = new Matrix4f();
 			final int center_grid_x = coords[0];
@@ -144,19 +138,9 @@ public abstract class AbstractTreeGroup extends BoundingBox {
 		}
 	}
 
-	public final void initLowDetailBuffer(int start, int end) {
-		this.start = start;
-		this.count = end - start;
-	}
+	public abstract void visit(TreeNodeVisitor visitor);
 
 	protected boolean initBounds() {
-		group_min_squared = computeMinDistanceSquared(Globals.TREE_ERROR_DISTANCE);
 		return true;
 	}
-
-	public final float getGroupMinSquared() {
-		return group_min_squared;
-	}
-
-	public abstract void visit(TreeNodeVisitor visitor);
 }

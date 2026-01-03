@@ -10,7 +10,6 @@ public interface NotificationListener {
 	default void newSelectableNotification(@NonNull Selectable<?> target) {}
 	default void registerTarget(@NonNull Target target) {}
 	default void unregisterTarget(@NonNull Target target) {}
-	default void updateTreeLowDetail(@NonNull Matrix4f matrix, @NonNull TreeSupply tree) {}
 	default void patchesEdited(int patch_x0, int patch_y0, int patch_x1, int patch_y1) {}
 	default void gamespeedChanged(int speed) {}
 	default void playerGamespeedChanged() {}

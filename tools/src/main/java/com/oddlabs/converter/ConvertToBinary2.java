@@ -1,7 +1,6 @@
 package com.oddlabs.converter;
 
 import com.oddlabs.geometry.AnimationInfo;
-import com.oddlabs.geometry.LowDetailModel;
 import com.oddlabs.geometry.SpriteInfo2;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -64,8 +63,6 @@ public final class ConvertToBinary2 {
 					String name = child.getNodeName();
 					if (name.equals("sprite"))
 						parseSprite(child, src_dir, new_build_dir);
-					else if (name.equals("lowdetail"))
-						parseLowDetail(child, src_dir, new_build_dir);
 				}
 			}
 		}
@@ -197,18 +194,6 @@ public final class ConvertToBinary2 {
 				.map(item -> new ObjectInfo(src_dir.resolve(getText(item))))
 				.orElse(null);
     }
-
-	private static void parseLowDetail(@NonNull Node n, @NonNull Path src_dir, @NonNull Path build_dir) {
-		String name = getName(n);
-		ObjectInfo object_info = getModelObjectInfos(n, src_dir)[0];
-		Path build_file = build_dir.resolve(name + ".binlowdetail");
-
-		if (isModified(object_info.getFile(), build_file)) {
-			ModelInfo model_info = MeshLoader2.loadMesh(object_info.getFile(), null, 1f);
-			LowDetailModel lowdetailmodel = new LowDetailModel(model_info.indices, model_info.vertices, model_info.texcoords);
-			write(lowdetailmodel, build_file);
-		}
-	}
 
 	public static Node getNodeByName(String name, @NonNull Node n) {
 		NodeList nl = n.getChildNodes();

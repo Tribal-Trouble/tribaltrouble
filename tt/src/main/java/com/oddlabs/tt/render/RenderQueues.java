@@ -90,6 +90,10 @@ public final class RenderQueues implements AutoCloseable {
         return sprite_list_lookup.get(key.getKey());
     }
 
+    public @NonNull InstancedSpriteRenderer getInstancedRenderer() {
+        return spriteRenderer;
+    }
+
     private void registerSpriteRenderer(@NonNull SpriteRenderer sprite_renderer) {
         if (sprite_renderer.getSpriteList().getSprite(0).modulateColor()) {
             blend_sprite_renderers.add(sprite_renderer);

@@ -1,11 +1,12 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.util.StateChecksum;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 
 public final class WaveAnimation {
-	private static final float TREE_WAVE_SCALE = 2f;
+	private static final float TREE_WAVE_SCALE = 0.035f;
 
 	private final Vector3f wave_dir = new Vector3f(0, 0, 1);
 	private final Vector3f up_vec = new Vector3f(0, 0, 1);
@@ -15,8 +16,8 @@ public final class WaveAnimation {
 	private float rot_angle = 0;
 	private int time = 0;
 
-	public void mulRotation(@NonNull MatrixStack stack) {
-		stack.rotate(rot_angle, rot_axis.x, rot_axis.y, rot_axis.z);
+	public void mulRotation(@NonNull Matrix4f matrix) {
+		matrix.rotate(rot_angle, rot_axis.x, rot_axis.y, rot_axis.z);
 	}
 
 	public void updateChecksum(@NonNull StateChecksum checksum) {
@@ -39,8 +40,13 @@ public final class WaveAnimation {
 	private void computeRotation() {
 		wave_dir.cross(up_vec, rot_axis);
 		float length = rot_axis.length();
-		rot_angle = (float)Math.asin(length);
-		float inv_length = 1f/length;
-		rot_axis.mul(inv_length);
+		if (length > 1e-6f) {
+			rot_angle = (float) Math.asin(length);
+			float inv_length = 1f / length;
+			rot_axis.mul(inv_length);
+		} else {
+			rot_angle = 0;
+			rot_axis.set(0, 0, 1);
+		}
 	}
 }

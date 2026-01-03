@@ -1,6 +1,7 @@
 package com.oddlabs.tt.landscape;
 
-import com.oddlabs.geometry.LowDetailModel;
+import com.oddlabs.tt.render.RespondManager;
+import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.audio.AudioFile;
 import com.oddlabs.tt.form.ProgressForm;
@@ -73,20 +74,6 @@ public final class LandscapeResources {
 		bird_peck_sound = Resources.findResource(new AudioFile("/sfx/chicken_peck.ogg"));
 		bird_death_sound = Resources.findResource(new AudioFile("/sfx/chicken_death.ogg"));
         ProgressForm.progress(1f/num_progress);
-	}
-
-	public static @NonNull Map<AbstractTreeGroup.@NonNull TreeType,@NonNull LowDetailModel> loadTreeLowDetails() {
-		LowDetailModel jungle_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/tree_low.binlowdetail"));
-		LowDetailModel palm_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/palm_low.binlowdetail"));
-		LowDetailModel oak_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/oak_tree_low.binlowdetail"));
-		LowDetailModel pine_lowdetail = Utils.loadObject(Utils.makeURL("/geometry/misc/pine_tree_low.binlowdetail"));
-
-        var trees = new EnumMap<AbstractTreeGroup.TreeType,@NonNull LowDetailModel>(AbstractTreeGroup.TreeType.class);
-        trees.put(AbstractTreeGroup.TreeType.JUNGLE, jungle_lowdetail);
-        trees.put(AbstractTreeGroup.TreeType.PALM, palm_lowdetail);
-        trees.put(AbstractTreeGroup.TreeType.OAK, oak_lowdetail);
-        trees.put(AbstractTreeGroup.TreeType.PINE, pine_lowdetail);
-        return Collections.unmodifiableMap(trees);
 	}
 
 	public @NonNull SpriteKey @NonNull [] getRockFragments() {

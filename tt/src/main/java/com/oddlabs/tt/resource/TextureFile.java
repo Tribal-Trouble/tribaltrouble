@@ -177,6 +177,7 @@ public final class TextureFile extends File<Texture> {
                 max_mipmap_level == other.max_mipmap_level &&
                 wrap_s == other.wrap_s && wrap_t == other.wrap_t &&
                 base_fadeout_level == other.base_fadeout_level && fadeout_factor == other.fadeout_factor &&
+                max_alpha == other.max_alpha &&
                 super.equals(o);
 	}
 

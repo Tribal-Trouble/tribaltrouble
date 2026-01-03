@@ -137,15 +137,10 @@ public final class WorldViewer implements Animated, AutoCloseable {
                 if (target instanceof Selectable<?> selectable)
                     getSelection().removeFromArmies(selectable);
             }
-
-            @Override
-            public void updateTreeLowDetail(@NonNull Matrix4f matrix, @NonNull TreeSupply tree) {
-                getRenderer().getTreeRenderer().getLowDetail().updateLowDetail(matrix, tree);
-            }
         };
         PlayerInfo[] player_infos = Arrays.stream(player_slots).map(PlayerSlot::getInfo).toArray(PlayerInfo[]::new);
         WorldInfo world_info = generator.generate(player_infos.length, world_params.getInitialUnitCount(), ingame_info.getRandomStartPosition());
-        this.world = World.newWorld(audio_impl, landscape_resources, races_resources, LandscapeResources.loadTreeLowDetails(), listener, world_params, world_info, generator.getTerrainType(), player_infos, colors, worldFog);
+        this.world = World.newWorld(audio_impl, landscape_resources, races_resources, listener, world_params, world_info, generator.getTerrainType(), player_infos, colors, worldFog);
         this.local_player = world.getPlayers()[player_slot];
         this.selection = new Selection(local_player);
         landscape_renderer = new LandscapeRenderer(world, world_info, animation_manager_local);

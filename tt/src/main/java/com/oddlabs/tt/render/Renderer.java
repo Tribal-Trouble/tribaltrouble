@@ -665,7 +665,7 @@ public final class Renderer {
         FogInfo fog_info = generator.getFogInfo();
         RenderQueues render_queues = new RenderQueues();
 		LandscapeResources landscape_resources = World.loadCommon(render_queues);
-		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, LandscapeResources.loadTreeLowDetails(), new NotificationListener() {}, world_params, world_info, generator.getTerrainType(), players, Player.COLORS, fog_info);
+		World world = World.newWorld(AudioManager.getManager(), landscape_resources, null, new NotificationListener() {}, world_params, world_info, generator.getTerrainType(), players, Player.COLORS, fog_info);
 		AnimationManager manager = new AnimationManager();
 		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, manager);
 		Player local_player = world.getPlayers()[0];

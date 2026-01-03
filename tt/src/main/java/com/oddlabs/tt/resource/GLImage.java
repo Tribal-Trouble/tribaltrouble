@@ -181,9 +181,11 @@ public abstract class GLImage {
 	private static int averagePixel(@NonNull GLImage last_img, int x, int y, int height_div, int width_div, int base_fadeout_level, float fadeout_factor, int current_level, boolean max_alpha) {
 		float inv_num_averaged = 1f/(height_div * width_div);
 		int a_acc = 0;
-		int r_acc = 0;
-		int g_acc = 0;
-		int b_acc = 0;
+		long r_acc = 0; // Use long to prevent overflow during weighted sum
+		long g_acc = 0;
+		long b_acc = 0;
+        long weight_acc = 0;
+
 		for (int offset_y = 0; offset_y < height_div; offset_y++)
 			for (int offset_x = 0; offset_x < width_div; offset_x++) {
 				int pixel = last_img.getPixel(x + offset_x, y + offset_y);
@@ -194,9 +196,13 @@ public abstract class GLImage {
 				int g = (pixel >>> 8) & 0xff;
 				int b = pixel & 0xff;
 
-				r_acc += r;
-				g_acc += g;
-				b_acc += b;
+                // Weighted Color Accumulation (Bleed Fix)
+                if (a > 0) {
+                    r_acc += r * a;
+                    g_acc += g * a;
+                    b_acc += b * a;
+                    weight_acc += a;
+                }
 
 				if (max_alpha) {
 					a_acc = Math.max(a_acc, a);
@@ -204,21 +210,41 @@ public abstract class GLImage {
 					a_acc += a;
 				}
 			}
+        
+        // Calculate average color based on weight
+        int r_avg, g_avg, b_avg;
+        if (weight_acc > 0) {
+            r_avg = (int)(r_acc / weight_acc);
+            g_avg = (int)(g_acc / weight_acc);
+            b_avg = (int)(b_acc / weight_acc);
+        } else {
+            r_avg = 0;
+            g_avg = 0;
+            b_avg = 0;
+        }
+
 		if (current_level >= base_fadeout_level) {
 			a_acc = (int)(a_acc*fadeout_factor);
-			r_acc = (int)(r_acc*fadeout_factor);
-			g_acc = (int)(g_acc*fadeout_factor);
-			b_acc = (int)(b_acc*fadeout_factor);
+            // Don't fade color, only alpha? Original faded color too.
+            // If we fade color towards black, it becomes anemic.
+            // Usually distance fadeout only affects Alpha.
+            // But original code faded R,G,B too.
+			r_avg = (int)(r_avg*fadeout_factor);
+			g_avg = (int)(g_avg*fadeout_factor);
+			b_avg = (int)(b_avg*fadeout_factor);
 		}
 
-		if (!max_alpha)
+		if (max_alpha) {
+            // Boost alpha to full opacity to prevent anemic foliage
+            // Extremely aggressive: if any pixel visible, make opaque
+            if (a_acc > 0) {
+                a_acc = 255;
+            }
+        } else {
 			a_acc = (int)(a_acc*inv_num_averaged);
+        }
 
-		r_acc = (int)(r_acc*inv_num_averaged);
-		g_acc = (int)(g_acc*inv_num_averaged);
-		b_acc = (int)(b_acc*inv_num_averaged);
-
-		return (a_acc << 24) | (r_acc << 16) | (g_acc << 8) | b_acc;
+		return (a_acc << 24) | (r_avg << 16) | (g_avg << 8) | b_avg;
 	}
 
     /**

@@ -2,9 +2,8 @@
 
 <!DOCTYPE geometry [
 	<!ELEMENT geometry  (group+)>
-	<!ELEMENT group	 (sprite*, lowdetail*)*>
+	<!ELEMENT group	 (sprite*)*>
 	<!ELEMENT sprite	(skeleton?, model+, animation*)>
-	<!ELEMENT lowdetail (model)>
 	<!ELEMENT animation (#PCDATA)>
 	<!ELEMENT model	 (#PCDATA | texture)*>
 	<!ELEMENT skeleton  (#PCDATA)>
@@ -16,7 +15,6 @@
 	<!ATTLIST model r CDATA #REQUIRED>
 	<!ATTLIST model g CDATA #REQUIRED>
 	<!ATTLIST model b CDATA #REQUIRED>
-	<!ATTLIST lowdetail name CDATA #REQUIRED>
 	<!ATTLIST animation wpc CDATA #REQUIRED>
 	<!ATTLIST animation type CDATA #REQUIRED>
 	<!ATTLIST texture name CDATA #REQUIRED>
@@ -418,11 +416,6 @@
 				<texture name="trees"/>
 			</model>
 		</sprite>
-		<lowdetail name="tree_low">
-			<model r="32" g="64" b="0">
-				misc/tree_billboard.xml
-			</model>
-		</lowdetail>
 		<sprite name="palm_crown">
 			<model r="32" g="64" b="0">
 				misc/palm_flat.xml
@@ -435,11 +428,6 @@
 				<texture name="trees"/>
 			</model>
 		</sprite>
-		<lowdetail name="palm_low">
-			<model r="32" g="64" b="0">
-				misc/palm_billboard.xml
-			</model>
-		</lowdetail>
 
 		<sprite name="oak_tree_crown">
 			<model r="0" g="0" b="0">
@@ -453,11 +441,6 @@
 				<texture name="viking_trees"/>
 			</model>
 		</sprite>
-		<lowdetail name="oak_tree_low">
-			<model r="32" g="64" b="0">
-				misc/oak_billboard.xml
-			</model>
-		</lowdetail>
 		<sprite name="pine_tree_crown">
 			<model r="0" g="0" b="0">
 				misc/pine_flat.xml
@@ -470,11 +453,6 @@
 				<texture name="viking_trees"/>
 			</model>
 		</sprite>
-		<lowdetail name="pine_tree_low">
-			<model r="32" g="64" b="0">
-				misc/pine_billboard.xml
-			</model>
-		</lowdetail>
 		
 		<sprite name="wood_2">
 			<model r="90" g="60" b="30">

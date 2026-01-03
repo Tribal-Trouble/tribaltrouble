@@ -19,7 +19,7 @@ final class TreeRenderState implements LODObject {
 
 	@Override
 	public void markDetailPoint() {
-		tree_renderer.addToLowDetailRenderList(tree_supply);
+		markDetailPolygon(PolyDetail.HIGH_POLY);
 	}
 
 	@Override
@@ -34,7 +34,7 @@ final class TreeRenderState implements LODObject {
         return switch (PolyDetail.values()[index]) {
             case HIGH_POLY ->
                     tree.getTrunk().getSprite(0).getTriangleCount() + tree.getCrown().getSprite(0).getTriangleCount();
-            case LOW_POLY -> tree_renderer.getLowDetails().get(tree_supply.getTreeType()).getPolyCount();
+            case LOW_POLY -> 0;
         };
 	}
 
