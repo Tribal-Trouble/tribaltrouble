@@ -689,7 +689,6 @@ public final strictfp class RacesResources {
                         new WorkerUnitContainerFactory(),
                         new Abilities(
                                 Abilities.SUPPLY_CONTAINER
-                                        | Abilities.BUILD_ARMIES
                                         | Abilities.SAIL
                                         | Abilities.RALLY_TO
                                         | Abilities.TARGET),
@@ -729,7 +728,6 @@ public final strictfp class RacesResources {
                         new WorkerUnitContainerFactory(),
                         new Abilities(
                                 Abilities.SUPPLY_CONTAINER
-                                        | Abilities.BUILD_ARMIES
                                         | Abilities.SAIL
                                         | Abilities.RALLY_TO
                                         | Abilities.TARGET),

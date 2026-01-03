@@ -43,6 +43,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
     private final Group quarters_group;
     private final Group status_group;
     private final Group armory_group;
+    private final Group ship_group;
     private final Group harvest_group;
     private final Group build_group;
     private final Group army_group;
@@ -68,7 +69,11 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
     private final NonFocusIconButton army_button;
     private final NonFocusIconButton transport_button;
     private final NonFocusIconButton rally_point_button;
-    private final NonFocusIconButton sail_button;
+    private final NonFocusIconButton ship_harvest_button;
+    private final NonFocusIconButton ship_army_button;
+    private final NonFocusIconButton ship_rally_point_button;
+    private final NonFocusIconButton ship_transport_button;
+    private final NonFocusIconButton ship_sail_button;
 
     private final StatusIcon unit_status;
     private final StatusIcon weapon_rock_status;
@@ -116,6 +121,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
     private boolean update = false;
     private boolean current_quarters = false;
     private boolean current_armory = false;
+    private boolean current_ship = false;
     private Building current_building;
     private boolean current_unit = false;
     private boolean current_peon = false;
@@ -149,6 +155,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         quarters_group = new NonFocusGroup();
         status_group = new NonFocusGroup();
         armory_group = new NonFocusGroup();
+        ship_group = new NonFocusGroup();
         harvest_group = new NonFocusGroup();
         build_group = new NonFocusGroup();
         army_group = new NonFocusGroup();
@@ -405,12 +412,57 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         transport_button.place(army_button, BOTTOM_MID);
         rally_point_button.place(transport_button, BOTTOM_MID);
 
-        sail_button = new NonFocusIconButton(race_icons.getShipIcon(), formatTip("sail_tip", "S"));
-        armory_group.addChild(sail_button);
-        sail_button.addMouseClickListener(new TargetListener(Target.ACTION_MOVE));
-        sail_button.place(rally_point_button, BOTTOM_MID);
-
         armory_group.compileCanvas(
+                GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
+
+        ship_harvest_button =
+                new NonFocusIconButton(
+                        icons.getHarvestIcon(), formatTip("gather_resources_tip", "G"));
+        ship_harvest_button.setIconDisabler(
+                new IconDisabler() {
+                    public final boolean isDisabled() {
+                        return !viewer.getLocalPlayer().canHarvest();
+                    }
+                });
+        ship_group.addChild(ship_harvest_button);
+        ship_harvest_button.addMouseClickListener(new GroupListener(ship_group, harvest_group));
+        ship_army_button =
+                new NonFocusIconButton(race_icons.getArmyIcon(), formatTip("deploy_army_tip", "A"));
+        ship_army_button.setIconDisabler(
+                new IconDisabler() {
+                    public final boolean isDisabled() {
+                        return !viewer.getLocalPlayer().canBuildArmies();
+                    }
+                });
+        ship_group.addChild(ship_army_button);
+        ship_army_button.addMouseClickListener(new GroupListener(ship_group, army_group));
+        ship_transport_button =
+                new NonFocusIconButton(
+                        race_icons.getTransportIcon(), formatTip("transport_resources_tip", "T"));
+        ship_group.addChild(ship_transport_button);
+        ship_transport_button.addMouseClickListener(new GroupListener(ship_group, transport_group));
+        ship_rally_point_button =
+                new NonFocusIconButton(
+                        race_icons.getRallyPointIcon(), formatTip("rally_point_tip", "R"));
+        ship_rally_point_button.setIconDisabler(
+                new IconDisabler() {
+                    public final boolean isDisabled() {
+                        return !viewer.getLocalPlayer().canSetRallyPoints();
+                    }
+                });
+        ship_group.addChild(ship_rally_point_button);
+        ship_rally_point_button.addMouseClickListener(new RallyPointListener());
+        ship_harvest_button.place();
+        ship_army_button.place(ship_harvest_button, BOTTOM_MID);
+        ship_transport_button.place(ship_army_button, BOTTOM_MID);
+        ship_rally_point_button.place(ship_transport_button, BOTTOM_MID);
+        ship_sail_button =
+                new NonFocusIconButton(race_icons.getShipIcon(), formatTip("sail_tip", "S"));
+        ship_group.addChild(ship_sail_button);
+        ship_sail_button.addMouseClickListener(new TargetListener(Target.ACTION_MOVE));
+        ship_sail_button.place(ship_rally_point_button, BOTTOM_MID);
+
+        ship_group.compileCanvas(
                 GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
         harvest_tree_button =
@@ -642,6 +694,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         boolean new_armory =
                 current_building != null
                         && current_building.getAbilities().hasAbilities(Abilities.BUILD_ARMIES);
+        boolean new_ship =
+                current_building != null
+                        && current_building.getAbilities().hasAbilities(Abilities.SAIL);
         boolean new_unit = current_num_units > 0;
         boolean new_peon = current_num_peons > 0;
         boolean new_tower =
@@ -653,12 +708,14 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         || different_chieftain
                         || new_quarters != current_quarters
                         || new_armory != current_armory
+                        || new_ship != current_ship
                         || new_unit != current_unit
                         || new_peon != current_peon
                         || new_tower != current_tower;
         if (update) {
             current_quarters = new_quarters;
             current_armory = new_armory;
+            current_ship = new_ship;
             current_tower = new_tower;
             current_unit = new_unit;
             current_peon = new_peon;
@@ -718,6 +775,16 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 }
                 updateCounters();
             }
+            if (current_ship) {
+                addChild(status_group);
+                addChild(ship_group);
+                if (viewer.getLocalPlayer().canUseRubber()) {
+                    army_group.addChild(army_warrior_rubber_button);
+                } else {
+                    army_warrior_rubber_button.remove();
+                }
+                updateCounters();
+            }
         }
         updateButtons();
     }
@@ -763,6 +830,33 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 
             quarters_peon_button.doUpdate();
             quarters_chieftain_button.doUpdate();
+        } else if (current_building != null
+                && current_building.getAbilities().hasAbilities(Abilities.SAIL)) {
+            unit_status.doUpdate();
+            weapon_rock_status.doUpdate();
+            weapon_iron_status.doUpdate();
+            weapon_rubber_status.doUpdate();
+            tree_status.doUpdate();
+            rock_status.doUpdate();
+            iron_status.doUpdate();
+            rubber_status.doUpdate();
+
+            ship_harvest_button.doUpdate();
+            ship_army_button.doUpdate();
+            ship_sail_button.doUpdate();
+
+            harvest_tree_button.doUpdate();
+            harvest_rock_button.doUpdate();
+            harvest_iron_button.doUpdate();
+            harvest_rubber_button.doUpdate();
+            army_warrior_rubber_button.doUpdate();
+            army_warrior_iron_button.doUpdate();
+            army_warrior_rock_button.doUpdate();
+            army_peon_button.doUpdate();
+            transport_tree_button.doUpdate();
+            transport_rock_button.doUpdate();
+            transport_iron_button.doUpdate();
+            transport_rubber_button.doUpdate();
         } else if (current_peon) {
             quarters_button.doUpdate();
             armory_button.doUpdate();
@@ -778,13 +872,6 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
             magic1_button.doUpdate();
             magic2_button.doUpdate();
         }
-        if (current_building != null
-                && current_building.getAbilities().hasAbilities(Abilities.SAIL)) {
-            sail_button.setHidden(false);
-            sail_button.doUpdate();
-        } else {
-            sail_button.setHidden(true);
-        }
     }
 
     private final void removeGroups() {
@@ -796,6 +883,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         quarters_group.remove();
         status_group.remove();
         armory_group.remove();
+        ship_group.remove();
         harvest_group.remove();
         build_group.remove();
         army_group.remove();
@@ -909,6 +997,8 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         status_group.setPos(width - status_group.getWidth(), height - status_group.getHeight());
         armory_group.setPos(
                 width - armory_group.getWidth(), status_group.getY() - armory_group.getHeight());
+        ship_group.setPos(
+                width - ship_group.getWidth(), status_group.getY() - ship_group.getHeight());
         harvest_group.setPos(
                 width - harvest_group.getWidth(), status_group.getY() - harvest_group.getHeight());
         build_group.setPos(
@@ -935,27 +1025,32 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 if (current_unit) return true;
                 break;
             case Keyboard.KEY_A:
-                if ((current_unit || current_armory || current_tower) && !event.isControlDown())
-                    return true;
+                if ((current_unit || current_armory || current_ship || current_tower)
+                        && !event.isControlDown()) return true;
                 break;
             case Keyboard.KEY_P:
                 if (current_quarters) return true;
                 if (current_unit) break;
             case Keyboard.KEY_G:
             case Keyboard.KEY_T:
-                if (current_unit || current_armory) return true;
+                if (current_unit || current_armory || current_ship) return true;
             case Keyboard.KEY_C:
             case Keyboard.KEY_I:
             case Keyboard.KEY_W:
             case Keyboard.KEY_ESCAPE:
-                if (current_armory)
+                if (current_armory) {
                     if (current_submenu == harvest_group
                             || current_submenu == build_group
                             || current_submenu == army_group
                             || current_submenu == transport_group) return true;
+                } else if (current_ship) {
+                    if (current_submenu == harvest_group
+                            || current_submenu == army_group
+                            || current_submenu == transport_group) return true;
+                }
                 break;
             case Keyboard.KEY_R:
-                if (current_armory || current_quarters) return true;
+                if (current_armory || current_ship || current_quarters) return true;
                 break;
             case Keyboard.KEY_X:
                 if (current_tower) return true;
@@ -986,6 +1081,13 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                             break;
                         }
                         return true;
+                    } else if (current_ship) {
+                        if (current_submenu == null) {
+                            ship_army_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                        } else {
+                            break;
+                        }
+                        return true;
                     } else if (current_tower) {
                         tower_attack_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
                         return true;
@@ -997,7 +1099,14 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                     gather_repair_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
                     return true;
                 } else if (current_armory) {
-                    harvest_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                    if (current_submenu == null) {
+                        harvest_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                    }
+                    return true;
+                } else if (current_ship) {
+                    if (current_submenu == null) {
+                        ship_harvest_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                    }
                     return true;
                 }
                 break;
@@ -1017,6 +1126,20 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                                 event.isShiftDown(), event.isControlDown());
                     } else if (current_submenu == build_group) {
                         build_weapon_rubber_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == army_group) {
+                        army_warrior_rubber_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == transport_group) {
+                        transport_rubber_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else {
+                        break;
+                    }
+                    return true;
+                } else if (current_ship) {
+                    if (current_submenu == harvest_group) {
+                        harvest_rubber_button.shortcutPressed(
                                 event.isShiftDown(), event.isControlDown());
                     } else if (current_submenu == army_group) {
                         army_warrior_rubber_button.shortcutPressed(
@@ -1050,6 +1173,14 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         break;
                     }
                     return true;
+                } else if (current_ship) {
+                    if (current_submenu == army_group) {
+                        army_peon_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else {
+                        break;
+                    }
+                    return true;
                 }
                 break;
             case Keyboard.KEY_I:
@@ -1059,6 +1190,20 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                                 event.isShiftDown(), event.isControlDown());
                     } else if (current_submenu == build_group) {
                         build_weapon_iron_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == army_group) {
+                        army_warrior_iron_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == transport_group) {
+                        transport_iron_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else {
+                        break;
+                    }
+                    return true;
+                } else if (current_ship) {
+                    if (current_submenu == harvest_group) {
+                        harvest_iron_button.shortcutPressed(
                                 event.isShiftDown(), event.isControlDown());
                     } else if (current_submenu == army_group) {
                         army_warrior_iron_button.shortcutPressed(
@@ -1095,6 +1240,22 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         break;
                     }
                     return true;
+                } else if (current_ship) {
+                    if (current_submenu == harvest_group) {
+                        harvest_rock_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == army_group) {
+                        army_warrior_rock_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == transport_group) {
+                        transport_rock_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == null) {
+                        rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                    } else {
+                        break;
+                    }
+                    return true;
                 } else if (current_quarters) {
                     quarters_rally_point_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
                     return true;
@@ -1109,6 +1270,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 } else if (current_peon) {
                     ship_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
                     return true;
+                } else if (current_ship) {
+                    ship_sail_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                    return true;
                 }
                 break;
             case Keyboard.KEY_T:
@@ -1118,6 +1282,13 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 } else if (current_armory) {
                     if (current_submenu == null) {
                         transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                    } else {
+                        break;
+                    }
+                    return true;
+                } else if (current_ship) {
+                    if (current_submenu == null) {
+                        ship_transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
                     } else {
                         break;
                     }
@@ -1145,6 +1316,18 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                     }
 
                     return true;
+                } else if (current_ship) {
+                    if (current_submenu == harvest_group) {
+                        harvest_tree_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == transport_group) {
+                        transport_tree_button.shortcutPressed(
+                                event.isShiftDown(), event.isControlDown());
+                    } else {
+                        break;
+                    }
+
+                    return true;
                 }
                 break;
             case Keyboard.KEY_ESCAPE:
@@ -1153,6 +1336,17 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         harvest_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
                     } else if (current_submenu == build_group) {
                         build_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                    } else if (current_submenu == army_group) {
+                        army_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                    } else if (current_submenu == transport_group) {
+                        transport_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                    } else {
+                        break;
+                    }
+                    return true;
+                } else if (current_ship) {
+                    if (current_submenu == harvest_group) {
+                        harvest_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
                     } else if (current_submenu == army_group) {
                         army_back_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
                     } else if (current_submenu == transport_group) {
@@ -1189,6 +1383,20 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         break;
                     }
                     return true;
+                } else if (current_ship) {
+                    if (current_submenu == harvest_group) {
+                        harvest_rubber_button.shortcutReleased(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == army_group) {
+                        army_warrior_rubber_button.shortcutReleased(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == transport_group) {
+                        transport_rubber_button.shortcutReleased(
+                                event.isShiftDown(), event.isControlDown());
+                    } else {
+                        break;
+                    }
+                    return true;
                 }
                 break;
             case Keyboard.KEY_P:
@@ -1197,7 +1405,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                             event.isShiftDown(), event.isControlDown());
                     return true;
                 }
-                if (current_armory) {
+                if (current_armory || current_ship) {
                     if (current_submenu == army_group) {
                         army_peon_button.shortcutReleased(
                                 event.isShiftDown(), event.isControlDown());
@@ -1214,6 +1422,20 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                                 event.isShiftDown(), event.isControlDown());
                     } else if (current_submenu == build_group) {
                         build_weapon_iron_button.shortcutReleased(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == army_group) {
+                        army_warrior_iron_button.shortcutReleased(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == transport_group) {
+                        transport_iron_button.shortcutReleased(
+                                event.isShiftDown(), event.isControlDown());
+                    } else {
+                        break;
+                    }
+                    return true;
+                } else if (current_ship) {
+                    if (current_submenu == harvest_group) {
+                        harvest_iron_button.shortcutReleased(
                                 event.isShiftDown(), event.isControlDown());
                     } else if (current_submenu == army_group) {
                         army_warrior_iron_button.shortcutReleased(
@@ -1245,6 +1467,20 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         break;
                     }
                     return true;
+                } else if (current_ship) {
+                    if (current_submenu == harvest_group) {
+                        harvest_rock_button.shortcutReleased(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == army_group) {
+                        army_warrior_rock_button.shortcutReleased(
+                                event.isShiftDown(), event.isControlDown());
+                    } else if (current_submenu == transport_group) {
+                        transport_rock_button.shortcutReleased(
+                                event.isShiftDown(), event.isControlDown());
+                    } else {
+                        break;
+                    }
+                    return true;
                 }
                 break;
             case Keyboard.KEY_T:
@@ -1255,10 +1491,17 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         break;
                     }
                     return true;
+                } else if (current_ship) {
+                    if (current_submenu == null) {
+                        ship_transport_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
+                    } else {
+                        break;
+                    }
+                    return true;
                 }
                 break;
             case Keyboard.KEY_W:
-                if (current_armory) {
+                if (current_armory || current_ship) {
                     if (current_submenu == harvest_group) {
                         harvest_tree_button.shortcutReleased(
                                 event.isShiftDown(), event.isControlDown());
