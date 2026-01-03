@@ -56,6 +56,10 @@ public final strictfp class AdvancedAI extends AI {
         this.difficulty = difficulty;
     }
 
+    public int getDifficulty() {
+        return difficulty;
+    }
+
     public final void animate(float t) {
         if (!shouldDoAction(t)) return;
         reclassify();
