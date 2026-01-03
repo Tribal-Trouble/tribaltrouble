@@ -89,6 +89,26 @@ public final strictfp class BezierPath {
         }
     }
 
+    public float computeCurveLength() {
+        float[] prevPoint = new float[2];
+        float[] currPoint = new float[2];
+        float[] dir = new float[2];
+        float length = 0f;
+        int numSamples = 100;
+        computeCurvePointFromTime(0f, prevPoint, dir); // Start point
+        float delta = 1f / numSamples;
+        for (int i = 1; i <= numSamples; i++) {
+            float t = i * delta;
+            computeCurvePointFromTime(t, currPoint, dir);
+            float dx = currPoint[0] - prevPoint[0];
+            float dy = currPoint[1] - prevPoint[1];
+            length += (float) Math.sqrt(dx * dx + dy * dy);
+            prevPoint[0] = currPoint[0];
+            prevPoint[1] = currPoint[1];
+        }
+        return length;
+    }
+
     public final float getCurrentDirectionX() {
         return current_dir[0];
     }
@@ -124,6 +144,15 @@ public final strictfp class BezierPath {
         points[NEXT][1] = y;
         t -= 1f;
         dt = inv_length;
+    }
+
+    public final void nextPoint(float x, float y) {
+        assert x != points[NEXT][0] || y != points[NEXT][1] : x + " " + y;
+        cyclePoints();
+        points[NEXT][0] = x;
+        points[NEXT][1] = y;
+        t -= 1f;
+        dt = 1.0F / computeCurveLength();
     }
 
     public final float getNextX() {

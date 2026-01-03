@@ -185,13 +185,42 @@ public final strictfp class PathTracker {
             initial_path = true;
             return;
         }
-        DirectionNode dir_node = grid_path.getDirection();
-        grid_path = (GridPathNode) grid_path.getParent();
-        next_unit_grid_x += dir_node.getDirectionX();
-        next_unit_grid_y += dir_node.getDirectionY();
-        float next_node_x = UnitGrid.coordinateFromGrid(next_unit_grid_x);
-        float next_node_y = UnitGrid.coordinateFromGrid(next_unit_grid_y);
-        bezier_path.nextPoint(dir_node.getInvLength(), next_node_x, next_node_y);
+
+        int initNodeX = next_unit_grid_x;
+        int initNodeY = next_unit_grid_y;
+
+        if (layer == UnitGrid.SEA) {
+            float initDirX = bezier_path.getCurrentDirectionX();
+            float initDirY = bezier_path.getCurrentDirectionY();
+            if (initDirX == 0.0 && initDirY == 0.0) {
+                initDirX = grid_path.getDirection().getDirectionX();
+                initDirY = grid_path.getDirection().getDirectionY();
+            }
+            double initAngle = Math.atan2(initDirY, initDirX);
+            double deltaAngle;
+            do {
+                DirectionNode dir_node = grid_path.getDirection();
+                grid_path = (GridPathNode) grid_path.getParent();
+                next_unit_grid_x += dir_node.getDirectionX();
+                next_unit_grid_y += dir_node.getDirectionY();
+                int dx = next_unit_grid_x - initNodeX;
+                int dy = next_unit_grid_y - initNodeY;
+                double angle = Math.atan2(dy, dx);
+                deltaAngle = angle - initAngle;
+                deltaAngle = (deltaAngle + Math.PI) % (2 * Math.PI) - Math.PI;
+            } while (Math.abs(deltaAngle) > 0.174 && grid_path != null);
+            float next_node_x = UnitGrid.coordinateFromGrid(next_unit_grid_x);
+            float next_node_y = UnitGrid.coordinateFromGrid(next_unit_grid_y);
+            bezier_path.nextPoint(next_node_x, next_node_y);
+        } else {
+            DirectionNode dir_node = grid_path.getDirection();
+            grid_path = (GridPathNode) grid_path.getParent();
+            next_unit_grid_x += dir_node.getDirectionX();
+            next_unit_grid_y += dir_node.getDirectionY();
+            float next_node_x = UnitGrid.coordinateFromGrid(next_unit_grid_x);
+            float next_node_y = UnitGrid.coordinateFromGrid(next_unit_grid_y);
+            bezier_path.nextPoint(dir_node.getInvLength(), next_node_x, next_node_y);
+        }
     }
 
     private final void checkRegionPath(int src_x, int src_y) {

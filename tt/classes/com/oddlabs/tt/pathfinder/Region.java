@@ -65,7 +65,9 @@ public final strictfp class Region extends Node {
 
     public final void unregisterObject(Class key, Object object) {
         List list = (List) object_lists.get(key);
-        list.remove(object);
+        if (list != null && list.contains(object)) {
+            list.remove(object);
+        }
     }
 
     private final void addNeighbour(Region n) {
