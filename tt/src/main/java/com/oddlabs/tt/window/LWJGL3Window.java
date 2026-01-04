@@ -2,6 +2,7 @@ package com.oddlabs.tt.window;
 
 import com.oddlabs.tt.render.SerializableDisplayMode;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -156,6 +157,7 @@ public final class LWJGL3Window implements Window {
     @Override
     public void close() {
         if (windowHandle != MemoryUtil.NULL) {
+            Callbacks.glfwFreeCallbacks(windowHandle);
             glfwDestroyWindow(windowHandle);
             windowHandle = MemoryUtil.NULL;
         }

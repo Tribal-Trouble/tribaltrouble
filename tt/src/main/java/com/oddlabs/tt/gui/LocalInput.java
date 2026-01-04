@@ -208,6 +208,13 @@ public final class LocalInput {
 		mouse_x = deterministic.log(inputProvider.getMouseX());
 		mouse_y = deterministic.log(inputProvider.getMouseY());
 	}
+
+    public static void destroy() {
+        if (inputProvider != null) {
+            inputProvider.close();
+            inputProvider = null;
+        }
+    }
     
     public static InputProvider<?> getInputProvider() {
         return inputProvider;

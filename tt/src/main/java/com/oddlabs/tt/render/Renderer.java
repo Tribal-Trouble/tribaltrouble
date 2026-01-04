@@ -729,6 +729,8 @@ public final class Renderer {
 	private static void destroyNative() {
         logger.info("Clearing Resources...");
         Resources.clearResources();
+        logger.info("Closing LocalInput...");
+        LocalInput.destroy();
         logger.info("Closing AudioManager...");
         AudioManager.getManager().close();
         if (getRenderer().getWindow() != null) {
