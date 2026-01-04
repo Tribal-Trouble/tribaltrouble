@@ -290,6 +290,18 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         return getUnitContainer().getNumSupplies();
     }
 
+    public final boolean canAccommodate(Unit unit) {
+        Class type = unit.getWeaponFactory().getType();
+        boolean supplyFull = false;
+        if (type == RockAxeWeapon.class
+                || type == IronAxeWeapon.class
+                || type == RubberAxeWeapon.class) {
+            SupplyContainer supplyContainer = getSupplyContainer(type);
+            supplyFull = supplyContainer.isSupplyFull();
+        }
+        return !supplyFull;
+    }
+
     public final boolean canExitTower() {
         return !isDead()
                 && getAbilities().hasAbilities(Abilities.ATTACK)

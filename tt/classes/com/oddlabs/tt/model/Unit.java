@@ -529,11 +529,12 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
                 && building.isDamaged();
     }
 
-    private final boolean canEnter(Target target) {
+    public final boolean canEnter(Target target) {
         if (!(target instanceof Building) || getAbilities().hasAbilities(Abilities.MAGIC))
             return false;
         Building building = (Building) target;
         return building.getUnitContainer() != null
+                && building.canAccommodate(this)
                 && getOwner() == building.getOwner()
                 && building.getUnitContainer().canEnter(this);
     }

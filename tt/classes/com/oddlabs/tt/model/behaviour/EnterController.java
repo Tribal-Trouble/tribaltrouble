@@ -20,7 +20,9 @@ public final strictfp class EnterController extends Controller {
         if (building.isDead()) {
             unit.popController();
         } else if (unit.isCloseEnough(0f, building, UnitGrid.LAND)) {
-            if (building.getUnitContainer() != null && building.getUnitContainer().canEnter(unit)) {
+            if (building.getUnitContainer() != null
+                    && building.getUnitContainer().canEnter(unit)
+                    && building.canAccommodate(unit)) {
                 if (building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)) {
                     if (unit.getAbilities().hasAbilities(Abilities.HARVEST)
                             && unit.getSupplyContainer().getNumSupplies() > 0) {
