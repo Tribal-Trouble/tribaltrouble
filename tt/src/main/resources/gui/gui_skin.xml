@@ -119,7 +119,7 @@
 	<!ELEMENT horiz_pressed		(horizontal)>
 	<!ELEMENT horiz_unpressed	(horizontal)>
 
-	<!ELEMENT spinner			(up, down)>
+	<!ELEMENT spinner			(more, less)>
 	<!ELEMENT less				(pushbutton, normal, active, disabled)>
 	<!ELEMENT more				(pushbutton, normal, active, disabled)>
 
@@ -1030,13 +1030,13 @@
 			</disabled>
 		</ascending>
 		<color1>
-			<color r="255" g="255" b="255" a="0"/>
+			<color r="1.0" g="1.0" b="1.0" a="0.0"/>
 		</color1>
 		<color2>
-			<color r="200" g="200" b="200" a="25"/>
+			<color r="0.784" g="0.784" b="0.784" a="0.098"/>
 		</color2>
 		<color_marked>
-			<color r="255" g="150" b="0" a="65"/>
+			<color r="1.0" g="0.588" b="0.0" a="0.255"/>
 		</color_marked>
 	</multi_column_combo>
 	<slider left_offset="1" right_offset="1">
