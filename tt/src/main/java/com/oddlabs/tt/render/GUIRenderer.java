@@ -119,7 +119,19 @@ public final class GUIRenderer {
     }
 
     public void drawColoredQuad(float x, float y, float w, float h, @NonNull Vector4fc color) {
-        drawTexture(whiteTexture, x, y, w, h, 0, 0, 1, 1, color);
+        if (quadCount >= MAX_QUADS) {
+            flush();
+        }
+
+        // Ensure we have a valid texture bound for the shader to sample (even if we ignore it)
+        if (currentTexture == null) {
+            currentTexture = whiteTexture;
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, whiteTexture.getHandle());
+        }
+
+        // Use negative UVs to signal "no texture" to the shader
+        putQuad(x, y, w, h, -1, -1, -1, -1, Color.abgri(color));
     }
 
     public void drawModeIcon(@NonNull ModeIconQuads iconQuad, ModeIconQuads.@NonNull Mode skinMode, float x, float y) {
@@ -149,13 +161,14 @@ public final class GUIRenderer {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
         }
 
-        // pack color to ABGR (0xAABBGGRR) for Little Endian byte buffer
-        int tintInt = Color.abgri(tint);
+        putQuad(x, y, w, h, u1, v1, u2, v2, Color.abgri(tint));
+    }
 
-        vertexBuffer.putFloat(x).putFloat(y).putFloat(0).putInt(tintInt).putFloat(u1).putFloat(v1);
-        vertexBuffer.putFloat(x + w).putFloat(y).putFloat(0).putInt(tintInt).putFloat(u2).putFloat(v1);
-        vertexBuffer.putFloat(x + w).putFloat(y + h).putFloat(0).putInt(tintInt).putFloat(u2).putFloat(v2);
-        vertexBuffer.putFloat(x).putFloat(y + h).putFloat(0).putInt(tintInt).putFloat(u1).putFloat(v2);
+    private void putQuad(float x, float y, float w, float h, float u1, float v1, float u2, float v2, int color) {
+        vertexBuffer.putFloat(x).putFloat(y).putFloat(0).putInt(color).putFloat(u1).putFloat(v1);
+        vertexBuffer.putFloat(x + w).putFloat(y).putFloat(0).putInt(color).putFloat(u2).putFloat(v1);
+        vertexBuffer.putFloat(x + w).putFloat(y + h).putFloat(0).putInt(color).putFloat(u2).putFloat(v2);
+        vertexBuffer.putFloat(x).putFloat(y + h).putFloat(0).putInt(color).putFloat(u1).putFloat(v2);
 
         quadCount++;
     }

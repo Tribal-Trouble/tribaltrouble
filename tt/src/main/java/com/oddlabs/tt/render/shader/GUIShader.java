@@ -47,7 +47,11 @@ import org.lwjgl.opengl.GL11;
             layout(location = 0) out vec4 out_FragColor;
             
             void main() {
-                out_FragColor = v_Color * texture(u_texture, v_TexCoord);
+                if (v_TexCoord.x < 0.0) {
+                    out_FragColor = v_Color;
+                } else {
+                    out_FragColor = v_Color * texture(u_texture, v_TexCoord);
+                }
             }
             """;
 
