@@ -93,6 +93,8 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
 
     private final PathTracker path_tracker;
 
+    private float anim_time;
+
     public Building(Player owner, BuildingTemplate template, int grid_x, int grid_y) {
         super(owner, template);
         setGridPosition(grid_x, grid_y);
@@ -199,6 +201,9 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
 
     protected final void doAnimate(float t) {
         if (!isDead()) {
+
+            anim_time += t * 0.25f;
+
             UnitContainer unit_container = getUnitContainer();
             if (unit_container != null) unit_container.animate(t);
             if (weapons_producer != null) weapons_producer.animate(t);
@@ -948,7 +953,7 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     }
 
     public final float getAnimationTicks() {
-        return 0;
+        return anim_time;
     }
 
     public final int getAnimation() {

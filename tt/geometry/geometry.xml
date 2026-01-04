@@ -266,6 +266,7 @@
 			</model>
         </sprite>
         <sprite name="ship">
+            <skeleton>misc/ship/ship_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
                 misc/ship/ship_built.xml
 				<texture name="viking_ship" team="ship_team"/>
@@ -274,6 +275,7 @@
                 misc/ship/ship_built.xml
 				<texture name="viking_ship" team="ship_team"/>
 			</model>
+			<animation wpc="1" type="loop">misc/ship/ship_animate.xml</animation>
 		</sprite>
 		<sprite name="ship_halfbuilt">
 			<model r="90" g="60" b="30">
@@ -536,6 +538,7 @@
 			</model>
         </sprite>
         <sprite name="ship">
+            <skeleton>misc/ship/ship_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
                 misc/ship/ship_built.xml
 				<texture name="native_ship" team="ship_team"/>
@@ -544,6 +547,7 @@
                 misc/ship/ship_built.xml
 				<texture name="native_ship" team="ship_team"/>
 			</model>
+			<animation wpc="1" type="loop">misc/ship/ship_animate.xml</animation>
 		</sprite>
 		<sprite name="ship_halfbuilt">
 			<model r="90" g="60" b="30">
