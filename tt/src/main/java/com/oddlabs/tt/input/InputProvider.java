@@ -10,6 +10,7 @@ public interface InputProvider<C> extends AutoCloseable {
     boolean getEventKeyState();
     char getEventCharacter();
     boolean isRepeatEvent();
+    boolean isKeyDown(int keyCode);
 
     // Mouse
     void pollMouse();

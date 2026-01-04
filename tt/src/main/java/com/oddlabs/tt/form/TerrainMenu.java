@@ -392,7 +392,7 @@ public final class TerrainMenu extends Group {
 		group_seed.place(group_sliders, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
 		advanced.compileCanvas();
 
-		PanelGroup panel_group = new PanelGroup(new Panel[]{standard, advanced}, 0);
+		PanelGroup panel_group = new PanelGroup(standard, advanced);
 		addChild(panel_group);
 
 		// Place objects

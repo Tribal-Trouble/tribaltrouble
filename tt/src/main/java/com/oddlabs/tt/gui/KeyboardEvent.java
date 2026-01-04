@@ -3,39 +3,26 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.input.Key;
 import org.jspecify.annotations.NonNull;
 
-public final class KeyboardEvent {
-	private final @NonNull Key key;
-	private final char key_char;
-	private final boolean shift_down;
-	private final boolean control_down;
-	private final int clicks;
+public record KeyboardEvent(@NonNull Key keyCode, char keyChar, boolean shiftDown, boolean controlDown, int clicks) {
 
-	public KeyboardEvent(@NonNull Key key, char key_char, boolean shift_down, boolean control_down) {
-		this(key, key_char, shift_down, control_down, 1);
-	}
-
-	public KeyboardEvent(@NonNull Key key, char key_char, boolean shift_down, boolean control_down, int clicks) {
-		this.key = key;
-		this.key_char = key_char;
-		this.shift_down = shift_down;
-		this.control_down = control_down;
-		this.clicks = clicks;
+	public KeyboardEvent(@NonNull Key key, char keyChar, boolean shiftDown, boolean controlDown) {
+		this(key, keyChar, shiftDown, controlDown, 1);
 	}
 
 	public @NonNull Key getKeyCode() {
-		return key;
+		return keyCode;
 	}
 
 	public char getKeyChar() {
-		return key_char;
+		return keyChar;
 	}
 
 	public boolean isShiftDown() {
-		return shift_down;
+		return shiftDown;
 	}
 
 	public boolean isControlDown() {
-		return control_down;
+		return controlDown;
 	}
 
 	public int getNumClicks() {

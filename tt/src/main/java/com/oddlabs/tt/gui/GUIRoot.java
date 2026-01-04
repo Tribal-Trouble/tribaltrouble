@@ -67,6 +67,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		this.gui = gui;
 		setPos(0, 0);
 		setCanFocus(true);
+		setFocusCycle(true);
 
 		setToolTipTimer();
 		addChild(info_printer);

@@ -51,7 +51,7 @@ public class EditLine extends TextField implements Clipped {
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		Box edit_box = Skin.getSkin().getEditBox();
-        var mode = isDisabled() ? ModeIconQuads.Mode.DISABLED : ModeIconQuads.Mode.NORMAL;
+        var mode = isDisabled() ? ModeIconQuads.Mode.DISABLED : (isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL);
         edit_box.render(renderer, 0f, 0f, getWidth(), getHeight(), mode);
 		int render_index = isActive() ? index : -1;
 		renderText(renderer, edit_box, offset_x, render_index);
@@ -74,7 +74,7 @@ public class EditLine extends TextField implements Clipped {
 
 	@Override
 	protected void keyReleased(@NonNull KeyboardEvent event) {
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case RETURN -> enterPressedAll();
             default -> super.keyReleased(event);
         }
@@ -82,7 +82,7 @@ public class EditLine extends TextField implements Clipped {
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case BACK -> {
                 if (index > 0) {
                     delete(--index);
@@ -105,7 +105,7 @@ public class EditLine extends TextField implements Clipped {
             case END -> index = getText().length();
             case TAB, RETURN -> super.keyRepeat(event);
             default -> {
-                char key = event.getKeyChar();
+                char key = event.keyChar();
                 if (isAllowed(key)) {
                     if (insert(index, key)) {
                         index++;

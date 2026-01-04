@@ -16,8 +16,6 @@ import java.util.ResourceBundle;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 
-// unicode codes: ae: 00E6 - oe: 00F8 - aa: 00E5 - AE: 00C6 - OE: 00D8 - AA: 00C5 - (C): 00A9
-
 public final class CreditsForm extends Form {
 	public CreditsForm() {
 		ResourceBundle bundle = ResourceBundle.getBundle(CreditsForm.class.getName());
@@ -25,21 +23,33 @@ public final class CreditsForm extends Form {
 		addChild(head_label);
 		head_label.place();
 
-		Panel about = new Panel(Utils.getBundleString(bundle, "about"));
-		Panel credits = new Panel(Utils.getBundleString(bundle, "credits"));
-		Panel thanks = new Panel(Utils.getBundleString(bundle, "thanks_to"));
+		PanelGroup panel_group = new PanelGroup(createAboutPanel(bundle), createCreditsPanel(bundle), createThanksPanel(bundle));
+		addChild(panel_group);
+		panel_group.place(head_label, BOTTOM_LEFT);
 
-		// about tab
+		HorizButton ok_button = new OKButton(100);
+		addChild(ok_button);
+		ok_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
+		ok_button.place(Origin.AT_END);
+		compileCanvas();
+		centerPos();
+	}
+
+	private static Panel createAboutPanel(ResourceBundle bundle) {
+		Panel about = new Panel(Utils.getBundleString(bundle, "about"));
 		TextBox about_box = new TextBox(400, 300, Skin.getSkin().getEditFont(), 100000);
 		about.addChild(about_box);
 		String about_text = Utils.getBundleString(bundle, "about_text",
-								Integer.toString(LocalInput.getRevision()));
+				Integer.toString(LocalInput.getRevision()));
 		about_box.append(about_text);
 
 		about_box.place();
 		about.compileCanvas();
+		return about;
+	}
 
-		// credits tab
+	private static Panel createCreditsPanel(ResourceBundle bundle) {
+		Panel credits = new Panel(Utils.getBundleString(bundle, "credits"));
 		TextBox credits_box = new TextBox(400, 300, Skin.getSkin().getEditFont(), 100000);
 		credits.addChild(credits_box);
 		credits_box.append(Utils.getBundleString(bundle, "game_design_and_programming") + "\n");
@@ -57,8 +67,11 @@ public final class CreditsForm extends Form {
 		credits_box.append("Herman Witkam");
 		credits_box.place();
 		credits.compileCanvas();
+		return credits;
+	}
 
-		// thanks tab
+	private static Panel createThanksPanel(ResourceBundle bundle) {
+		Panel thanks = new Panel(Utils.getBundleString(bundle, "thanks_to"));
 		TextBox thanks_box = new TextBox(400, 300, Skin.getSkin().getEditFont(), 100000);
 		thanks.addChild(thanks_box);
 		thanks_box.append(Utils.getBundleString(bundle, "thanks") + "\n");
@@ -108,15 +121,6 @@ public final class CreditsForm extends Form {
 		thanks_box.append("Kxre Schou Gjaldbxk AKA \"hardkxre\"");
 		thanks_box.place();
 		thanks.compileCanvas();
-
-		PanelGroup panel_group = new PanelGroup(new Panel[]{about, credits, thanks}, 0);
-		addChild(panel_group);
-		panel_group.place(head_label, BOTTOM_LEFT);
-		HorizButton ok_button = new OKButton(100);
-		addChild(ok_button);
-		ok_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
-		ok_button.place(Origin.AT_END);
-		compileCanvas();
-		centerPos();
+		return thanks;
 	}
 }

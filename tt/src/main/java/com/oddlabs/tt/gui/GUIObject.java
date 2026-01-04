@@ -21,10 +21,20 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	private boolean active;
 	private boolean focus_cycle;
 	private boolean can_focus;
+	private boolean tab_stop = true;
 	private int current_taborder = 0;
 	private int tab_order;
 
 	private @Nullable GUIObject focused_child = null;
+
+	protected final void setTabStop(boolean tab_stop) {
+		this.tab_stop = tab_stop;
+	}
+
+	public final boolean isTabStop() {
+		return tab_stop;
+	}
+
 	private @Nullable GUIObject next_hover = null;
 
 	private final Set<@NonNull MouseClickListener> mouse_click_listeners = new CopyOnWriteArraySet<>();
@@ -194,7 +204,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		this.next_hover = next_hover;
 	}
 
-	private @Nullable GUIObject getFocusedChild() {
+	protected final @Nullable GUIObject getFocusedChild() {
 		return focused_child;
 	}
 
@@ -240,7 +250,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		GUIObject gui_child = getFirstChild();
 		GUIObject min_obj = null;
 		while (gui_child != null) {
-			if (gui_child.canFocus() && (min_obj == null || dir*gui_child.getTabOrder() < dir*min_obj.getTabOrder()))
+			if (gui_child.canFocus() && gui_child.isTabStop() && (min_obj == null || dir*gui_child.getTabOrder() < dir*min_obj.getTabOrder()))
 				min_obj = gui_child;
 			gui_child = gui_child.getNext();
 		}
@@ -256,7 +266,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		GUIObject greater_obj = null;
 		GUIObject min_obj = null;
 		while (gui_child != null) {
-			if (gui_child.canFocus()) {
+			if (gui_child.canFocus() && gui_child.isTabStop()) {
 				if (min_obj == null || dir*gui_child.getTabOrder() < dir*min_obj.getTabOrder())
 					min_obj = gui_child;
 				if (dir*gui_child.getTabOrder() > dir*tab_order && (greater_obj == null || dir*gui_child.getTabOrder() < dir*greater_obj.getTabOrder()))
@@ -270,10 +280,17 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 			if (min_obj != null) {
 				switchFocusToObject(min_obj, dir);
 			}
-		} else if (canFocus()) {
-			switchFocusToObject(this, dir);
 		} else {
-			getParent().switchFocusToNextChild(dir);
+			GUIObject parent = getParent();
+			if (parent != null) {
+				parent.switchFocusToNextChild(dir);
+			} else {
+				// We are at the root (or detached) and not a cycle, but we should wrap if global cycle is desired
+				// or just stay put. GUIRoot usually has focus_cycle=true so this else-block is for detached items.
+				if (min_obj != null) {
+					switchFocusToObject(min_obj, dir);
+				}
+			}
 		}
 	}
 
@@ -507,7 +524,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	}
 
 	protected void keyPressed(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() == Key.SPACE || event.getKeyCode() == Key.RETURN) {
+		if (event.keyCode() == Key.SPACE || event.keyCode() == Key.RETURN) {
 			mousePressedAll(MouseButton.LEFT, 0, 0);
 		} else {
 			GUIObject parent = getParent();
@@ -524,7 +541,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	}
 
 	protected void keyReleased(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() == Key.SPACE || event.getKeyCode() == Key.RETURN) {
+		if (event.keyCode() == Key.SPACE || event.keyCode() == Key.RETURN) {
 			mouseReleasedAll(MouseButton.LEFT, 0, 0);
 			mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 		} else {

@@ -7,6 +7,7 @@ public enum Placement {
     BOTTOM_LEFT,
     BOTTOM_MID,
     BOTTOM_RIGHT,
+
     LEFT_TOP,
     LEFT_MID,
     LEFT_BOTTOM,

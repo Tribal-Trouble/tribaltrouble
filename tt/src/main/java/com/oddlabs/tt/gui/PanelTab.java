@@ -18,6 +18,7 @@ public class PanelTab extends GUIObject {
 		addChild(label);
 		setDim(data.getLeftCaptionOffset() + label.getWidth() + data.getRightCaptionOffset(), data.getTab().getHeight());
 		setCanFocus(true);
+		setTabStop(false);
 	}
 
 	public final void select(boolean selected) {

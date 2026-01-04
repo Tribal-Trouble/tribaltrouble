@@ -3,6 +3,8 @@ package com.oddlabs.tt.render;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
+
 public final class Tree {
 	private final @NonNull SpriteList crown;
 	private final @NonNull SpriteList trunk;
@@ -22,7 +24,7 @@ public final class Tree {
 
     @Override
     public int hashCode() {
-        return crown.hashCode() + trunk.hashCode();
+        return Objects.hash(crown, trunk);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.util.Utils;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -105,16 +106,16 @@ final class Icons {
 						texture);
 	}
 
-    static int getNamedColor(@NonNull Node n, @NonNull String name) {
+    static Vector4fc getNamedColor(@NonNull Node n, @NonNull String name) {
         return getColor(getNodeByName(name, n));
     }
 
-    static int getColor(@NonNull Node n) {
+    static Vector4fc getColor(@NonNull Node n) {
 		Node q = getNodeByName("color", n);
 		byte r = (byte) getInt(q, "r");
         byte g = (byte) getInt(q, "g");
         byte b = (byte) getInt(q, "b");
         byte a = (byte) getInt(q, "a");
-		return com.oddlabs.util.Color.argbi(r, g, b, a);
+		return com.oddlabs.util.Color.argb4v(com.oddlabs.util.Color.argbi(r, g, b, a));
 	}
 }

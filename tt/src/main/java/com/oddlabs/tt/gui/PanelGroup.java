@@ -1,31 +1,37 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.guievent.KeyListener;
 import com.oddlabs.tt.guievent.MouseButtonListener;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
 public final class PanelGroup extends GUIObject {
-	private final @NonNull Group focus_group;
+	private final Group focus_group = new Group();
 	private final @NonNull PanelBox box;
-	private final Panel @NonNull [] panels;
+	private final @NonNull Panel @NonNull [] panels;
 
 	private int selected;
 
-	public PanelGroup(Panel @NonNull [] panels, int selected) {
+	public PanelGroup(@NonNull Panel ... panels) {
+		this(0, panels);
+	}
+
+	public PanelGroup(int selected,@NonNull Panel ... panels) {
 		assert selected < panels.length && panels.length > 0: "Invalid index selected.";
 		this.panels = panels;
 
 		int tab_height = panels[0].getTab().getHeight();
 		int width = 0;
 		int height = 0;
-            for (Panel panel : panels) {
-                if (width < panel.getWidth()) {
-                    width = panel.getWidth();
-                }
-                if (height < panel.getHeight()) {
-                    height = panel.getHeight();
-                }
-            }
+		for (Panel panel : panels) {
+			if (width < panel.getWidth()) {
+				width = panel.getWidth();
+			}
+			if (height < panel.getHeight()) {
+				height = panel.getHeight();
+			}
+		}
 		int total_height = height + tab_height;
 		setDim(width, total_height);
 		int x = Skin.getSkin().getPanelData().getLeftTabOffset();
@@ -38,12 +44,21 @@ public final class PanelGroup extends GUIObject {
 		}
 		box = new PanelBox(width, total_height - panels[0].getTab().getHeight() + Skin.getSkin().getPanelData().getBottomTabOffset());
 
-		focus_group = new Group();
 		focus_group.setDim(width, total_height);
 		focus_group.setPos(0, 0);
 		addChild(focus_group);
 		setCanFocus(true);
 		selectPanel(selected);
+	}
+
+	@Override
+	public void setFocus() {
+		focus_group.setGroupFocus(LocalInput.isShiftDownCurrently() ? -1 : 1);
+	}
+
+	public void cyclePanel(int dir) {
+		int next = (selected + dir + panels.length) % panels.length;
+		selectPanel(next);
 	}
 
 	private void selectPanel(int index) {
@@ -60,11 +75,6 @@ public final class PanelGroup extends GUIObject {
 		focus_group.addChild(panels[index]);
 		selected = index;
 		panels[index].setFocus();
-	}
-
-	@Override
-	public void setFocus() {
-		focus_group.setGroupFocus(LocalInput.isShiftDownCurrently() ? -1 : 1);
 	}
 
 	private final class PanelBox extends GUIObject {

@@ -18,6 +18,61 @@ final class RowCollection<T> extends GUIObject implements Clipped {
 		this.sort_index = sort_index;
 		this.sorted_descending = sorted_descending;
 		setCanFocus(true);
+		setTabStop(false);
+	}
+
+	void selectNext() {
+		if (rows.isEmpty()) return;
+		int index = selected_row == null ? -1 : rows.indexOf(selected_row);
+		if (sorted_descending) {
+			index++;
+		} else {
+			index--;
+		}
+		if (index >= 0 && index < rows.size()) {
+			selectRow(rows.get(index));
+			ensureVisible(selected_row);
+		}
+	}
+
+	void selectPrior() {
+		if (rows.isEmpty()) return;
+		int index = selected_row == null ? -1 : rows.indexOf(selected_row);
+		if (sorted_descending) {
+			index--;
+		} else {
+			index++;
+		}
+		if (index >= 0 && index < rows.size()) {
+			selectRow(rows.get(index));
+			ensureVisible(selected_row);
+		}
+	}
+
+	void selectFirst() {
+		if (rows.isEmpty()) return;
+		selectRow(sorted_descending ? rows.get(0) : rows.get(rows.size() - 1));
+		ensureVisible(selected_row);
+	}
+
+	void selectLast() {
+		if (rows.isEmpty()) return;
+		selectRow(sorted_descending ? rows.get(rows.size() - 1) : rows.get(0));
+		ensureVisible(selected_row);
+	}
+
+	private void ensureVisible(@NonNull Row<T,?> row) {
+		Scrollable scrollable = (Scrollable) getParent();
+		int row_top = row.getY() + row.getHeight();
+		int row_bottom = row.getY();
+		int view_top = getHeight() + scrollable.getOffsetY();
+		int view_bottom = scrollable.getOffsetY();
+
+		if (row_top > view_top) {
+			scrollable.setOffsetY(row_top - getHeight());
+		} else if (row_bottom < view_bottom) {
+			scrollable.setOffsetY(row_bottom);
+		}
 	}
 
 	public void clear() {

@@ -155,7 +155,7 @@ public final class InputState {
 		var key = Key.fromLwjglCode(key_code);
 		if (Key.KEY_UNKNOWN != key || key_char != 0) {
 			GUIObject focused = gui_root.getGlobalFocus();
-			KeyboardEvent event = new KeyboardEvent(key, key_char, LocalInput.isShiftDownCurrently(), LocalInput.isControlDownCurrently());
+			KeyboardEvent event = new KeyboardEvent(key, key_char, LocalInput.isShiftDownCurrently(), LocalInput.isControlDownCurrently(), 1);
 			focused.keyRepeatAll(event);
 		}
 	}
@@ -181,13 +181,14 @@ public final class InputState {
 
 		if (!repeat)
 			focused.keyPressedAll(event);
+		
 		focused.keyRepeatAll(event);
 	}
 
 	public void keyReleased(@NonNull Key key, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
 		GUIObject focused = gui_root.getGlobalFocus();
 		resetKeyTimer();
-		KeyboardEvent event = new KeyboardEvent(key, key_char, shift_down, control_down);
+		KeyboardEvent event = new KeyboardEvent(key, key_char, shift_down, control_down, 0);
 		focused.keyReleasedAll(event);
 	}
 

@@ -214,7 +214,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		} else {
 			panels[PANEL_INDEX_CHAT] = chat_room_list_panel;
 		}
-		panel_group = new PanelGroup(panels, panel_index);
+		panel_group = new PanelGroup(panel_index, panels);
 		addChild(panel_group);
 
 		HorizButton logout_button = new HorizButton(Utils.getBundleString(bundle, "logout"), BUTTON_WIDTH);
@@ -241,7 +241,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 	private void setPanel(int index, @NonNull Panel panel) {
 		panels[index] = panel;
-		PanelGroup temp_group = new PanelGroup(panels, index);
+		PanelGroup temp_group = new PanelGroup(index, panels);
 		temp_group.setPos(panel_group.getX(), panel_group.getY());
 		panel_group.remove();
 		panel_group = temp_group;

@@ -17,23 +17,23 @@ public final class MultiColumnComboBoxData {
 	private final int caption_offset;
 
 	MultiColumnComboBoxData(@NonNull Box box,
-                                   @NonNull Horizontal button_pressed,
-                                   @NonNull Horizontal button_unpressed,
-                                   @NonNull ModeIconQuads descending,
-                                   @NonNull ModeIconQuads ascending,
-                                   int color1,
-                                   int color2,
-                                   int color_marked,
-                                   @NonNull Font font,
-                                   int caption_offset) {
+							@NonNull Horizontal button_pressed,
+							@NonNull Horizontal button_unpressed,
+							@NonNull ModeIconQuads descending,
+							@NonNull ModeIconQuads ascending,
+							@NonNull Vector4fc color1,
+							@NonNull Vector4fc color2,
+							@NonNull Vector4fc color_marked,
+							@NonNull Font font,
+							int caption_offset) {
 		this.box = box;
 		this.button_pressed = button_pressed;
 		this.button_unpressed = button_unpressed;
 		this.descending = descending;
 		this.ascending = ascending;
-		this.color1 = com.oddlabs.util.Color.argb4v(color1);
-		this.color2 = com.oddlabs.util.Color.argb4v(color2);
-		this.color_marked = com.oddlabs.util.Color.argb4v(color_marked);
+		this.color1 = color1;
+		this.color2 = color2;
+		this.color_marked = color_marked;
 		this.font = font;
 		this.caption_offset = caption_offset;
 	}

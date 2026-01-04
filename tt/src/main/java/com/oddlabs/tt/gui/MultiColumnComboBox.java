@@ -64,6 +64,37 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
         row_listeners.forEach(listener -> listener.rowChosen(rows.getSelected()));
 	}
 
+	@Override
+	protected void keyRepeat(@NonNull KeyboardEvent event) {
+		switch (event.getKeyCode()) {
+			case UP:
+				rows.selectPrior();
+				clickedRow();
+				break;
+			case DOWN:
+				rows.selectNext();
+				clickedRow();
+				break;
+			case HOME:
+				rows.selectFirst();
+				clickedRow();
+				break;
+			case END:
+				rows.selectLast();
+				clickedRow();
+				break;
+			case PRIOR:
+				jumpPage(true);
+				break;
+			case NEXT:
+				jumpPage(false);
+				break;
+			default:
+				super.keyRepeat(event);
+				break;
+		}
+	}
+
 	public void addRowListener(@NonNull RowListener<T> listener) {
 		row_listeners.add(listener);
 	}
@@ -90,7 +121,8 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
         Box box = Skin.getSkin().getMultiColumnComboBoxData().getBox();
-		box.render(renderer, 0f, 0f, getWidth() - scroll_bar.getWidth(), getHeight() - (use_buttons ? group.getMarked().getHeight() : 0), ModeIconQuads.Mode.NORMAL);
+        var mode = (isActive() || getFocusedChild() != null) ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
+		box.render(renderer, 0f, 0f, getWidth() - scroll_bar.getWidth(), getHeight() - (use_buttons ? group.getMarked().getHeight() : 0), mode);
 	}
 
 	@Override

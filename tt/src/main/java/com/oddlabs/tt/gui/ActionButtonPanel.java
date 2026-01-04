@@ -629,7 +629,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	}
 
 	public boolean doKeyPressed(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
+		switch (event.keyCode()) {
 			case M:
 			case Q:
 				if (current_unit)
@@ -674,7 +674,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	}
 
 	public boolean doKeyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
+		switch (event.keyCode()) {
 			case M:
 				if (current_unit) {
 					move_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
@@ -858,7 +858,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	}
 
 	public boolean doKeyReleased(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
+		switch (event.keyCode()) {
 			case C:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {

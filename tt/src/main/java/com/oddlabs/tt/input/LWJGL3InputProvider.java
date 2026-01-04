@@ -4,6 +4,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.window.LWJGL3Window;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryUtil;
 
 import java.util.ArrayDeque;
@@ -163,6 +164,11 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
     @Override
     public boolean isRepeatEvent() {
         return currentKeyEvent != null && currentKeyEvent.action == GLFW_REPEAT;
+    }
+
+    @Override
+    public boolean isKeyDown(int keyCode) {
+        return GLFW.glfwGetKey(windowHandle, keyCode) == GLFW_PRESS;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.input.Key;
 import org.jspecify.annotations.NonNull;
 
 public class Group extends GUIObject {
@@ -91,13 +92,13 @@ public class Group extends GUIObject {
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
-			case TAB:
-				switchFocus(event.isShiftDown() ? -1 : 1);
-				break;
-			default:
-				super.keyRepeat(event);
-				break;
+		// Navigation logic is handled here (and in keyRepeat) because InputState calls keyRepeatAll
+		// immediately after keyPressedAll for the initial press, ensuring consistent behavior.
+		boolean control = event.isControlDown() || LocalInput.isControlDownCurrently();
+		if (event.keyCode() == Key.TAB && !control) {
+			switchFocus(event.isShiftDown() ? -1 : 1);
+		} else {
+			super.keyRepeat(event);
 		}
 	}
 

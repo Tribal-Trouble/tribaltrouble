@@ -116,8 +116,7 @@ public class Form extends Group {
 
 	@Override
 	protected final void keyPressed(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() == Key.H && event.isControlDown())
-			super.keyPressed(event);
+		super.keyPressed(event);
 	}
 
 	@Override
@@ -126,7 +125,13 @@ public class Form extends Group {
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
+		boolean control = event.isControlDown() || LocalInput.isControlDownCurrently();
+		if (event.keyCode() == Key.TAB && control) {
+			int dir = event.isShiftDown() ? -1 : 1;
+			cyclePanelGroup(this, dir);
+			return;
+		}
+		switch (event.keyCode()) {
 			case TAB:
 				super.keyRepeat(event);
 				break;
@@ -136,6 +141,19 @@ public class Form extends Group {
 			default:
 				break;
 		}
+	}
+
+	private boolean cyclePanelGroup(GUIObject root, int dir) {
+		if (root instanceof PanelGroup pg) {
+			pg.cyclePanel(dir);
+			return true;
+		}
+		GUIObject child = root.getFirstChild();
+		while (child != null) {
+			if (cyclePanelGroup(child, dir)) return true;
+			child = child.getNext();
+		}
+		return false;
 	}
 
 	@Override
