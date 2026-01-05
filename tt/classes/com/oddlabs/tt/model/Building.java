@@ -343,9 +343,11 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     public final boolean canAccommodate(Unit unit) {
         Class type = unit.getWeaponFactory().getType();
         boolean supplyFull = false;
-        if (unit.isWarrior()) {
+        if (unit.isWarrior() && guards_count == guards.length) {
             SupplyContainer supplyContainer = getSupplyContainer(type);
-            supplyFull = supplyContainer.isSupplyFull();
+            if (supplyContainer) {
+                supplyFull = supplyContainer.isSupplyFull();
+            }
         }
         return !supplyFull;
     }
@@ -789,6 +791,17 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     }
 
     protected final void removeDying() {
+
+        // If it's a ship and it's destroyed, kill everyone on board
+        for (int i = 0; i < guards.length; i++) {
+            if (guards[i] != null) {
+                guards[i].setReference(null);
+                guards[i].enable();
+                guards[i].removeNow();
+                guards[i] = null;
+            }
+        }
+        guards_count = 0;
 
         new RandomVelocityEmitter(
                 getOwner().getWorld(),
