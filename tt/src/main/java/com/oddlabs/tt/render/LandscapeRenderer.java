@@ -77,15 +77,12 @@ public final class LandscapeRenderer implements Animated {
     }
 
     public void renderAll(@NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
-        boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
-        boolean depthTestEnabled = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
-        boolean cullFaceEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
-
         try (var _ = shader.use();
              var _ = state.getFog().setup(shader, state.getCurrentZ())) {
-            if (blendEnabled) GL11.glDisable(GL11.GL_BLEND);
-            if (!depthTestEnabled) GL11.glEnable(GL11.GL_DEPTH_TEST);
-            if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
+            
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+            GL11.glDisable(GL11.GL_CULL_FACE);
 
             shader.setUniformMatrix4(LandscapeShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             shader.setUniformMatrix4(LandscapeShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
@@ -162,9 +159,10 @@ public final class LandscapeRenderer implements Animated {
             
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
         } finally {
-            if (blendEnabled) GL11.glEnable(GL11.GL_BLEND);
-            if (!depthTestEnabled) GL11.glDisable(GL11.GL_DEPTH_TEST);
-            if (cullFaceEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
+            // Restore standard state
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+            GL11.glEnable(GL11.GL_CULL_FACE);
         }
     }
 

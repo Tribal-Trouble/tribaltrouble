@@ -156,6 +156,9 @@ public final class RenderQueues implements AutoCloseable {
     @Override
     public void close() {
         spriteRenderer.close();
+        for (SpriteList spriteList : sprite_list_lookup.stream().map(SpriteRenderer::getSpriteList).distinct().toList()) {
+            spriteList.close();
+        }
         for (ShadowListRenderer shadowListRenderer : shadow_renderer_lookup) {
             shadowListRenderer.close();
         }

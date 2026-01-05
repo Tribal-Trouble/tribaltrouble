@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public final class SpriteList {
+public final class SpriteList implements AutoCloseable{
     private static final @NonNull SpriteList QUAD_INSTANCE = new SpriteList();
 
 	private final @NonNull BoundingBox @NonNull [] bounds;
@@ -207,4 +207,18 @@ public final class SpriteList {
 	public @NonNull FloatVBO getTexcoords() {
 		return texcoords;
 	}
+
+    public void close() {
+        if (tboTextureHandle != 0) {
+            org.lwjgl.opengl.GL11.glDeleteTextures(tboTextureHandle);
+            tboTextureHandle = 0;
+        }
+        if (vao != null) {
+            vao.close();
+            vao = null;
+        }
+        indices.close();
+        vertices_and_normals.close();
+        texcoords.close();
+    }
 }
