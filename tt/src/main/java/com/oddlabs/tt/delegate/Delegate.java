@@ -28,6 +28,7 @@ public abstract class Delegate extends GUIObject {
 	@Override
 	protected void doAdd() {
 		super.doAdd();
+        displayChanged(LocalInput.getViewWidth(), LocalInput.getViewHeight());
 		setFocus();
 	}
 

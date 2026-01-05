@@ -378,6 +378,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	public void doAdd() {
 		super.doAdd();
 		viewer.getAnimationManagerLocal().registerAnimation(this);
+        displayChangedNotify(LocalInput.getViewWidth(), LocalInput.getViewHeight());
 	}
 
 	@Override
