@@ -72,4 +72,8 @@ public abstract class VBO extends NativeResource<VBO.Buffer> {
 	}
 
 	public abstract int capacity();
+
+    public int getHandle() {
+        return state.handle;
+    }
 }

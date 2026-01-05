@@ -311,6 +311,55 @@ public final class Sprite {
         }
     }
 
+    public int getNumVertices() {
+        return num_vertices;
+    }
+
+    public record FrameState(int pos1, int norm1, int pos2, int norm2, float tween) {}
+
+    public FrameState getAnimationState(int animation, float anim_ticks) {
+        if (cpw_array == null) {
+            // Static mesh (quad or non-animated)
+            int offset = buffer_indices != null && buffer_indices.length > animation ? buffer_indices[animation] / 3 : 0;
+            // For quad, layout is [Pos][Norm]. N=4.
+            // Vertices 12 floats (4*3). Normals 12 floats.
+            // PosOffset = 0. NormOffset = 4.
+            return new FrameState(offset, offset + num_vertices, offset, offset + num_vertices, 0f);
+        }
+
+        float anim_position = anim_ticks * cpw_array[animation];
+        int len = animation_length_array[animation];
+        float exactFrame = anim_position * len;
+        
+        int frame1 = (int) exactFrame;
+        int frame2 = frame1 + 1;
+        float tween = exactFrame - frame1;
+        
+        if (type_array[animation] == AnimationInfo.AnimationType.LOOP) {
+            frame1 %= len;
+            frame2 %= len;
+        } else {
+            frame1 = Math.min(frame1, len - 1);
+            frame2 = Math.min(frame2, len - 1);
+        }
+        
+        // Calculate offsets in Texels (floats / 3)
+        // Layout: [Pos (3N)] [Norm (3N)] per frame.
+        // Frame stride: 6N floats.
+        // Base: buffer_indices[animation] (floats)
+        
+        int baseTexelOffset = buffer_indices[animation] / 3;
+        int frameStrideTexels = num_vertices * 2; // 6N floats / 3 = 2N texels
+        
+        int pos1 = baseTexelOffset + frame1 * frameStrideTexels;
+        int norm1 = pos1 + num_vertices;
+        
+        int pos2 = baseTexelOffset + frame2 * frameStrideTexels;
+        int norm2 = pos2 + num_vertices;
+        
+        return new FrameState(pos1, norm1, pos2, norm2, tween);
+    }
+
     public int getVertexOffset(int animation, float anim_ticks) {
         if (cpw_array == null) return 0; // For quad instance
         float anim_position = anim_ticks * cpw_array[animation];

@@ -13,6 +13,8 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
@@ -31,6 +33,7 @@ public final class SpriteList {
 	private final @NonNull FloatVBO vertices_and_normals;
 	private final @NonNull FloatVBO texcoords;
     private VertexArray vao;
+    private int tboTextureHandle;
 
     public static @NonNull SpriteList getQuadInstance() {
         return QUAD_INSTANCE;
@@ -61,6 +64,8 @@ public final class SpriteList {
         this.indices = new ShortVBO(GL15.GL_STATIC_DRAW, indexBuf);
         
         this.sprites = new Sprite[]{ new Sprite(4, 2, 0, true) };
+        
+        initTBO();
     }
 
 	public SpriteList(@NonNull SpriteFile sprite_file) {
@@ -122,7 +127,23 @@ public final class SpriteList {
         for (BoundingBox bound : bounds) {
             bound.maximizeXYPlane();
         }
+        
+        initTBO();
 	}
+    
+    private void initTBO() {
+        tboTextureHandle = org.lwjgl.opengl.GL11.glGenTextures();
+        org.lwjgl.opengl.GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, tboTextureHandle);
+        // vertices_and_normals is a VBO. We need its handle.
+        // Assuming getHandle() exists or accessing protected field via VBO.
+        // VBO.java likely stores handle.
+        // I will use getHandle() and assume I need to expose it if missing.
+        GL31.glTexBuffer(GL31.GL_TEXTURE_BUFFER, GL30.GL_RGB32F, vertices_and_normals.getHandle());
+    }
+    
+    public int getTBOTextureHandle() {
+        return tboTextureHandle;
+    }
     
     public void initVAO(@NonNull SpriteShader shader) {
         if (vao != null) return;

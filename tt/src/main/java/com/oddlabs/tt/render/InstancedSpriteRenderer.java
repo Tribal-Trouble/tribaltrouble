@@ -42,11 +42,11 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
     public void add(@NonNull SpriteList spriteList, int spriteIndex, int animation, float animTicks, int texIndex, boolean respond, boolean blend, boolean depthWrite, boolean depthTest, @NonNull Matrix4f modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
         Sprite sprite = spriteList.getSprite(spriteIndex);
-        int vertexOffset = sprite.getVertexOffset(animation, animTicks);
+        Sprite.FrameState frameState = sprite.getAnimationState(animation, animTicks);
         
         BatchKey key = new BatchKey(spriteList, spriteIndex, texIndex, respond, blend, depthWrite, depthTest);
         RenderBatch batch = batches.computeIfAbsent(key, RenderBatch::new);
-        batch.addInstance(vertexOffset, modelMatrix, color, decalColor);
+        batch.addInstance(frameState.pos1(), frameState.norm1(), frameState.pos2(), frameState.norm2(), frameState.tween(), modelMatrix, color, decalColor);
     }
 
     public void renderAll(@NonNull CameraState cameraState, @NonNull MatrixStack projectionStack) {
@@ -60,6 +60,9 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
             shader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f); 
             shader.setUniform(LitShader.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
+            
+            // Set TBO texture unit
+            shader.setUniform(InstancedSpriteShader.Uniforms.VERT_BUFFER, 5);
 
             for (RenderBatch batch : batches.values()) {
                 batch.render(shader, whiteTexture);
@@ -96,36 +99,28 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
     private static class RenderBatch implements AutoCloseable {
         private final @NonNull BatchKey key;
-        private final Map<@NonNull Integer, @NonNull SubBatch> subBatches = new HashMap<>();
         private FloatVBO vbo;
         private final @NonNull VertexArray vao;
+        private FloatBuffer instanceBuffer;
         private int totalInstances = 0;
-        private int vboCapacity = 1024 * FLOATS_PER_INSTANCE;
+        private int capacity = 128;
 
-        // mat4 (16) + color (4) + decalColor (4)
-        private static final int FLOATS_PER_INSTANCE = 16 + 4 + 4; 
+        // mat4 (16) + color (4) + decalColor (4) + pos1(1) + norm1(1) + pos2(1) + norm2(1) + tween (1)
+        private static final int FLOATS_PER_INSTANCE = 16 + 4 + 4 + 1 + 1 + 1 + 1 + 1; 
 
         RenderBatch(@NonNull BatchKey key) {
             this.key = key;
-            this.vbo = new FloatVBO(GL15.GL_STREAM_DRAW, vboCapacity);
+            this.instanceBuffer = BufferUtils.createFloatBuffer(capacity * FLOATS_PER_INSTANCE);
+            this.vbo = new FloatVBO(GL15.GL_STREAM_DRAW, capacity * FLOATS_PER_INSTANCE * Float.BYTES);
 
             this.vao = new VertexArray();
             vao.bind();
 
             SpriteList spriteList = key.spriteList;
             ShortVBO ibo = spriteList.getIndices();
-            FloatVBO vertexVBO = spriteList.getVerticesAndNormals();
             FloatVBO texCoordVBO = spriteList.getTexcoords();
             
             ibo.makeCurrent();
-
-            vertexVBO.makeCurrent();
-            // Initial setup, will be overridden in render loop
-            GL20.glEnableVertexAttribArray(0); // Position
-            GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
-            
-            GL20.glEnableVertexAttribArray(1); // Normal
-            GL20.glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, 0, 0);
             
             texCoordVBO.makeCurrent();
             GL20.glEnableVertexAttribArray(2); // TexCoord
@@ -141,6 +136,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             vbo.makeCurrent();
             int instanceStride = FLOATS_PER_INSTANCE * Float.BYTES;
             
+            // Model Matrix (Locations 3-6)
             for (int i = 0; i < 4; i++) {
                 int loc = 3 + i;
                 GL20.glEnableVertexAttribArray(loc);
@@ -148,20 +144,76 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 GL33.glVertexAttribDivisor(loc, 1);
             }
             
+            // Color (Location 7)
             int colorLoc = 7;
             GL20.glEnableVertexAttribArray(colorLoc);
             GL20.glVertexAttribPointer(colorLoc, 4, GL11.GL_FLOAT, false, instanceStride, 16 * Float.BYTES);
             GL33.glVertexAttribDivisor(colorLoc, 1);
 
+            // Decal Color (Location 8)
             int decalColorLoc = 8;
             GL20.glEnableVertexAttribArray(decalColorLoc);
             GL20.glVertexAttribPointer(decalColorLoc, 4, GL11.GL_FLOAT, false, instanceStride, 20 * Float.BYTES);
             GL33.glVertexAttribDivisor(decalColorLoc, 1);
+            
+            // Animation Offsets & Tween (Locations 9, 10, 11, 12, 13)
+            int pos1Loc = 9;
+            GL20.glEnableVertexAttribArray(pos1Loc);
+            GL20.glVertexAttribPointer(pos1Loc, 1, GL11.GL_FLOAT, false, instanceStride, 24 * Float.BYTES);
+            GL33.glVertexAttribDivisor(pos1Loc, 1);
+            
+            int norm1Loc = 10;
+            GL20.glEnableVertexAttribArray(norm1Loc);
+            GL20.glVertexAttribPointer(norm1Loc, 1, GL11.GL_FLOAT, false, instanceStride, 25 * Float.BYTES);
+            GL33.glVertexAttribDivisor(norm1Loc, 1);
+            
+            int pos2Loc = 11;
+            GL20.glEnableVertexAttribArray(pos2Loc);
+            GL20.glVertexAttribPointer(pos2Loc, 1, GL11.GL_FLOAT, false, instanceStride, 26 * Float.BYTES);
+            GL33.glVertexAttribDivisor(pos2Loc, 1);
+            
+            int norm2Loc = 12;
+            GL20.glEnableVertexAttribArray(norm2Loc);
+            GL20.glVertexAttribPointer(norm2Loc, 1, GL11.GL_FLOAT, false, instanceStride, 27 * Float.BYTES);
+            GL33.glVertexAttribDivisor(norm2Loc, 1);
+            
+            int tweenLoc = 13;
+            GL20.glEnableVertexAttribArray(tweenLoc);
+            GL20.glVertexAttribPointer(tweenLoc, 1, GL11.GL_FLOAT, false, instanceStride, 28 * Float.BYTES);
+            GL33.glVertexAttribDivisor(tweenLoc, 1);
         }
 
-        void addInstance(int vertexOffset, @NonNull Matrix4f modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
-            SubBatch sub = subBatches.computeIfAbsent(vertexOffset, k -> new SubBatch());
-            sub.add(modelMatrix, color, decalColor);
+        void addInstance(int pos1, int norm1, int pos2, int norm2, float tween, @NonNull Matrix4f modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
+            if (totalInstances >= capacity) {
+                int newCapacity = capacity * 2;
+                FloatBuffer newBuffer = BufferUtils.createFloatBuffer(newCapacity * FLOATS_PER_INSTANCE);
+                instanceBuffer.flip();
+                newBuffer.put(instanceBuffer);
+                instanceBuffer = newBuffer;
+                
+                vbo.close();
+                vbo = new FloatVBO(GL15.GL_STREAM_DRAW, newCapacity * FLOATS_PER_INSTANCE * Float.BYTES);
+                
+                // Rebind VAO to update VBO binding point
+                vao.bind();
+                setupInstanceAttributes();
+                vao.unbind();
+                
+                capacity = newCapacity;
+            }
+            
+            modelMatrix.get(instanceBuffer);
+            instanceBuffer.position(instanceBuffer.position() + 16);
+            color.get(instanceBuffer);
+            instanceBuffer.position(instanceBuffer.position() + 4);
+            decalColor.get(instanceBuffer);
+            instanceBuffer.position(instanceBuffer.position() + 4);
+            instanceBuffer.put(pos1);
+            instanceBuffer.put(norm1);
+            instanceBuffer.put(pos2);
+            instanceBuffer.put(norm2);
+            instanceBuffer.put(tween);
+            
             totalInstances++;
         }
 
@@ -173,19 +225,6 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 GL11.glDepthFunc(GL11.GL_LEQUAL);
             } else {
                 GL11.glDisable(GL11.GL_DEPTH_TEST);
-            }
-
-            int requiredFloats = totalInstances * FLOATS_PER_INSTANCE;
-            if (requiredFloats > vboCapacity) {
-                vboCapacity = Math.max(vboCapacity * 2, requiredFloats);
-                vbo.close();
-                vbo = new FloatVBO(GL15.GL_STREAM_DRAW, vboCapacity);
-                vao.bind();
-                setupInstanceAttributes();
-                vao.unbind();
-            } else {
-                // Orphan the buffer to prevent synchronization stalls/flickering
-                vbo.orphan();
             }
 
             Sprite sprite = key.spriteList.getSprite(key.spriteIndex);
@@ -203,7 +242,6 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
             } else {
                 GL11.glDisable(GL11.GL_BLEND);
-                // Use Alpha to Coverage for non-blended (opaque) sprites to support foliage accumulation
                 GL11.glEnable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
             }
 
@@ -215,46 +253,24 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
             setupTextures(shader, sprite, whiteTexture);
             
+            // Upload data
+            vbo.makeCurrent();
+            instanceBuffer.flip();
+            GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, instanceBuffer);
+            // Reset buffer for next frame writing (or clear logic handles it)
+            // Actually, we usually flip back or clear at end?
+            // "clear()" method handles reset.
+            
+            // Bind TBO
+            GL13.glActiveTexture(GL13.GL_TEXTURE5);
+            GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, key.spriteList.getTBOTextureHandle());
+            
             vao.bind();
             
-            long currentOffset = 0;
-            for (Map.Entry<Integer, SubBatch> entry : subBatches.entrySet()) {
-                SubBatch sub = entry.getValue();
-                if (sub.count == 0) continue;
-                
-                // Update instance data
-                vbo.makeCurrent();
-                sub.buffer.flip();
-                GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, currentOffset, sub.buffer);
-                
-                int instanceStride = FLOATS_PER_INSTANCE * Float.BYTES;
-                
-                // Re-bind instance attribute pointers with updated offset
-                for (int i = 0; i < 4; i++) {
-                    GL20.glVertexAttribPointer(3 + i, 4, GL11.GL_FLOAT, false, instanceStride, currentOffset + (long)i * 4 * Float.BYTES);
-                }
-                GL20.glVertexAttribPointer(7, 4, GL11.GL_FLOAT, false, instanceStride, currentOffset + 16 * Float.BYTES);
-                GL20.glVertexAttribPointer(8, 4, GL11.GL_FLOAT, false, instanceStride, currentOffset + 20 * Float.BYTES);
-                
-                // Update vertex attribute pointers for the current frame
-                key.spriteList.getVerticesAndNormals().makeCurrent();
-                long vertexOffsetBytes = entry.getKey() * 4L;
-                long normalOffsetBytes = vertexOffsetBytes + sprite.getNormalOffset(0) * 4L; // getNormalOffset(0) returns num_vertices * 3
-                
-                GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, vertexOffsetBytes);
-                GL20.glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, 0, normalOffsetBytes);
-                
-                // Use glDrawElementsInstanced instead of BaseVertex because texcoords are static
-                GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, sprite.getTriangleCount() * 3, GL11.GL_UNSIGNED_SHORT, (long)sprite.indices_offset * Short.BYTES, sub.count);
-                
-                currentOffset += (long) sub.count * instanceStride;
-                sub.clear();
-            }
+            // Use glDrawElementsInstanced
+            GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, sprite.getTriangleCount() * 3, GL11.GL_UNSIGNED_SHORT, (long)sprite.indices_offset * Short.BYTES, totalInstances);
             
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-
             vao.unbind();
-            totalInstances = 0;
         }
         
         private void setupTextures(@NonNull InstancedSpriteShader shader, @NonNull Sprite sprite, Texture whiteTexture) {
@@ -296,45 +312,13 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
         void clear() {
             totalInstances = 0;
-            subBatches.values().forEach(SubBatch::clear);
+            instanceBuffer.clear();
         }
 
         @Override
         public void close() {
             vao.close();
             vbo.close();
-        }
-    }
-    
-    private static class SubBatch {
-        @NonNull FloatBuffer buffer;
-        int count = 0;
-        int capacity = 128;
-        
-        SubBatch() {
-            buffer = BufferUtils.createFloatBuffer(capacity * RenderBatch.FLOATS_PER_INSTANCE);
-        }
-        
-        void add(@NonNull Matrix4fc modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
-            if (count >= capacity) {
-                int newCapacity = capacity * 2;
-                FloatBuffer newBuffer = BufferUtils.createFloatBuffer(newCapacity * RenderBatch.FLOATS_PER_INSTANCE);
-                buffer.flip();
-                newBuffer.put(buffer);
-                buffer = newBuffer;
-                capacity = newCapacity;
-            }
-            int position = buffer.position();
-            modelMatrix.get(position, buffer);
-            color.get((position += 16), buffer);
-            decalColor.get((position += 4), buffer);
-            buffer.position(position + 4);
-            count++;
-        }
-        
-        void clear() {
-            count = 0;
-            buffer.clear();
         }
     }
 }
