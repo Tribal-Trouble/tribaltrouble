@@ -82,8 +82,8 @@ public final class SpriteRenderer {
 				float r = model.getModel().getNoDetailSize();
 				tempMatrix.identity().translation(x, y, z + 0.1f).scale(r * 2);
 				// Quads don't have animation, so pass 0, 0f
-                // Disable depth test for no-detail sprites (overlays)
-				instancedSpriteRenderer.add(quadList, 0, 0, 0f, 0, false, false, tempMatrix, model.getTeamColor(), Color.TRANSPARENT);
+                // Disable depth test for no-detail sprites (overlays). Enable blend. No Depth Write.
+				instancedSpriteRenderer.add(quadList, 0, 0, 0f, 0, false, true, false, false, tempMatrix, model.getTeamColor(), Color.TRANSPARENT);
 			}
 		}
 		clearRenderLists();

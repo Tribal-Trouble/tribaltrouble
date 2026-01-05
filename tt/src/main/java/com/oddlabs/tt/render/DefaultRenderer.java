@@ -10,7 +10,6 @@ import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
-import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.shader.DebugShaderRenderer;
 import com.oddlabs.tt.render.shader.FixedFunctionShader;
 import com.oddlabs.tt.render.shader.LitShader;
@@ -50,17 +49,18 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final @NonNull EmitterRenderer emitterRenderer;
     private final @NonNull LightningRenderer lightningRenderer;
     private final @NonNull SonicBlastRenderer sonicBlastRenderer;
+    private final @NonNull InstancedSpriteRenderer treeSpriteRenderer = new InstancedSpriteRenderer();
 
     private @Nullable Building selected_building;
 
-    public DefaultRenderer(@NonNull Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, Landscape.@NonNull TerrainType terrain, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, @NonNull Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public DefaultRenderer(@NonNull Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, @NonNull Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         this.world = local_player.getWorld();
         this.cheat = cheat;
         this.render_queues = render_queues;
         this.picker = picker;
         this.selection = selection;
         this.element_renderer = new ElementRenderer<>(local_player, render_queues, picker, false, sprite_sorter, selection);
-        this.tree_renderer = new TreeRenderer(world, cheat, sprite_sorter, picker.getRespondManager(), render_queues.getInstancedRenderer());
+        this.tree_renderer = new TreeRenderer(cheat, sprite_sorter, picker.getRespondManager(), treeSpriteRenderer);
         this.landscape_renderer = landscape_renderer;
         this.sky = new Sky(landscape_renderer, generator.getTerrainType(), world_info.detail);
         this.modelViewStack = modelViewStack;
@@ -222,6 +222,14 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         }
         if (Globals.process_misc) {
             render_queues.renderAll(frustum_state, projectionStack);
+            
+            // Render trees AFTER opaque units/misc to handle correct sorting for accumulation
+            // Trees are blended but depth-write disabled (or handled via separate renderer)
+            // Separate renderer ensures they are flushed here.
+            treeSpriteRenderer.renderAll(frustum_state, projectionStack);
+            
+            render_queues.renderPlants(frustum_state, projectionStack);
+            
             render_queues.renderNoDetail();
         }
 
@@ -261,5 +269,6 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         sonicBlastRenderer.close();
         sky.close();
         water.close();
+        treeSpriteRenderer.close();
     }
 }

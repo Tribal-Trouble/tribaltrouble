@@ -66,7 +66,7 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
         
         // Per-instance
         // Mat4 takes 4 attribute slots (locations 3, 4, 5, 6)
-        layout(location = 3) in mat4 in_InstanceModelMatrix; 
+        layout(location = 3) in mat4 in_InstanceModelMatrix;
         layout(location = 7) in vec4 in_InstanceColor;
         layout(location = 8) in vec4 in_InstanceDecalColor;
 
@@ -153,7 +153,7 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
                 // Apply lighting
                 vec3 normal = normalize(v_viewNormal);
                 float specularStrength = 0.0;
-                
+        
                 if (u_enableNormalMap) {
                     vec4 normalMapVal = texture(u_normalMap, v_texCoord0);
                     normal = perturbNormal(normal, normalize(v_viewPosition), v_texCoord0, normalMapVal.rgb);

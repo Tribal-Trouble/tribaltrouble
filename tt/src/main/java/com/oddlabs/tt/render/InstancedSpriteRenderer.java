@@ -20,6 +20,7 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL33;
 
@@ -39,11 +40,11 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA8, GL11.GL_NEAREST, GL11.GL_NEAREST, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
     }
 
-    public void add(@NonNull SpriteList spriteList, int spriteIndex, int animation, float animTicks, int texIndex, boolean respond, boolean depthTest, @NonNull Matrix4f modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
+    public void add(@NonNull SpriteList spriteList, int spriteIndex, int animation, float animTicks, int texIndex, boolean respond, boolean blend, boolean depthWrite, boolean depthTest, @NonNull Matrix4f modelMatrix, @NonNull Vector4fc color, @NonNull Vector4fc decalColor) {
         Sprite sprite = spriteList.getSprite(spriteIndex);
         int vertexOffset = sprite.getVertexOffset(animation, animTicks);
         
-        BatchKey key = new BatchKey(spriteList, spriteIndex, texIndex, respond, depthTest);
+        BatchKey key = new BatchKey(spriteList, spriteIndex, texIndex, respond, blend, depthWrite, depthTest);
         RenderBatch batch = batches.computeIfAbsent(key, RenderBatch::new);
         batch.addInstance(vertexOffset, modelMatrix, color, decalColor);
     }
@@ -63,8 +64,16 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             for (RenderBatch batch : batches.values()) {
                 batch.render(shader, whiteTexture);
             }
+        } finally {
+            // Restore default state to prevent leakage to other renderers (Sky, Landscape)
+            GL11.glDepthMask(true);
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
+            GL11.glEnable(GL11.GL_CULL_FACE);
+            GL11.glCullFace(GL11.GL_BACK);
+            GL30.glBindVertexArray(0);
+            clear();
         }
-        clear();
     }
 
     public void clear() {
@@ -83,7 +92,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         whiteTexture.close();
     }
 
-    private record BatchKey(@NonNull SpriteList spriteList, int spriteIndex, int texIndex, boolean respond, boolean depthTest) {}
+    private record BatchKey(@NonNull SpriteList spriteList, int spriteIndex, int texIndex, boolean respond, boolean blend, boolean depthWrite, boolean depthTest) {}
 
     private static class RenderBatch implements AutoCloseable {
         private final @NonNull BatchKey key;
@@ -186,6 +195,22 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 GL11.glCullFace(GL11.GL_BACK);
             } else {
                 GL11.glDisable(GL11.GL_CULL_FACE);
+            }
+
+            if (key.blend) {
+                GL11.glEnable(GL11.GL_BLEND);
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
+            } else {
+                GL11.glDisable(GL11.GL_BLEND);
+                // Use Alpha to Coverage for non-blended (opaque) sprites to support foliage accumulation
+                GL11.glEnable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
+            }
+
+            if (key.depthWrite) {
+                GL11.glDepthMask(true);
+            } else {
+                GL11.glDepthMask(false);
             }
 
             setupTextures(shader, sprite, whiteTexture);

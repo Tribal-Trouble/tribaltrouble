@@ -358,9 +358,9 @@ public final class Renderer {
                     xdg = null;
                 }
 
-                if (legacyDot != null && isUsable(legacyDot)) existing = legacyDot;
+                if (isUsable(legacyDot)) existing = legacyDot;
                 else if (isUsable(currentDot)) existing = currentDot;
-                else if (xdg != null && isUsable(xdg)) existing = xdg;
+                else if (isUsable(xdg)) existing = xdg;
 
                 preferred = xdg;
                 fallback = legacyDot;
@@ -368,8 +368,8 @@ public final class Renderer {
                 Path roaming = appData != null ? Path.of(appData).resolve(Globals.GAME_NAME) : null;
                 Path homeGame = userHome != null ? userHome.resolve(Globals.GAME_NAME) : null;
 
-                if (roaming != null && isUsable(roaming)) existing = roaming;
-                else if (homeGame != null && isUsable(homeGame)) existing = homeGame;
+                if (isUsable(roaming)) existing = roaming;
+                else if (isUsable(homeGame)) existing = homeGame;
 
                 preferred = roaming;
                 fallback = homeGame;
@@ -679,7 +679,7 @@ public final class Renderer {
 		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, manager);
 		Player local_player = world.getPlayers()[0];
 		Selection selection = new Selection(local_player);
-		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator, modelViewStack, projectionStack);
+		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator, modelViewStack, projectionStack);
 		setMusicPath("/music/menu.ogg", 0f);
 		MainMenu main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
 		gui_root.pushDelegate(main_menu);

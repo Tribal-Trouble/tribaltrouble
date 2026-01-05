@@ -38,7 +38,9 @@ class TreePicker implements TreeNodeVisitor {
 
 	TreePicker(SpriteSorter sprite_sorter, RespondManager respond_manager) {
 		this.respond_manager = respond_manager;
-		this.render_lists = (List<TreeSupply>[]) new List[]{new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()};
+        //noinspection unchecked
+        this.render_lists = (List<TreeSupply>[]) new List[]{new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()};
+		//noinspection unchecked
 		this.respond_render_lists =  (List<TreeSupply>[]) new List<?>[]{new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()};
 		this.trees = loadTrees();
 

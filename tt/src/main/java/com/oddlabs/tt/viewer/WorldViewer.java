@@ -143,7 +143,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
         this.selection = new Selection(local_player);
         landscape_renderer = new LandscapeRenderer(world, world_info, animation_manager_local);
         this.picker = new Picker(animation_manager_local, local_player, render_queues, landscape_renderer, selection);
-        this.renderer = new DefaultRenderer(cheat, local_player, render_queues, generator.getTerrainType(), world_info, landscape_renderer, picker, selection, generator, modelViewStack, projectionStack);
+        this.renderer = new DefaultRenderer(cheat, local_player, render_queues, world_info, landscape_renderer, picker, selection, generator, modelViewStack, projectionStack);
         this.gui_root = gui_root;
         this.peerhub = new PeerHub(animation_manager_local, ingame_info.isMultiplayer(), ingame_info.isRated(), local_player, player_slots, network, gui_root, notification_manager, distributable_table, session_id, new ViewerStallHandler(this));
         this.camera = new GameCamera(this, camera_state);

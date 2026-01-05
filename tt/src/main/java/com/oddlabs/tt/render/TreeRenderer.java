@@ -6,7 +6,6 @@ import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.AbstractTreeGroup;
 import com.oddlabs.tt.landscape.TreeSupply;
-import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
@@ -22,7 +21,7 @@ public final class TreeRenderer extends TreePicker {
     private final Cheat cheat;
     private final Matrix4f tempMatrix = new Matrix4f();
 
-    TreeRenderer(@NonNull World world, Cheat cheat, SpriteSorter sprite_sorter, RespondManager respond_manager, InstancedSpriteRenderer instancedSpriteRenderer) {
+    TreeRenderer(Cheat cheat, SpriteSorter sprite_sorter, RespondManager respond_manager, InstancedSpriteRenderer instancedSpriteRenderer) {
         super(sprite_sorter, respond_manager);
         this.cheat = cheat;
         this.instancedSpriteRenderer = instancedSpriteRenderer;
@@ -75,10 +74,10 @@ public final class TreeRenderer extends TreePicker {
         
         for (TreeSupply supply : render_list) {
             prepareMatrix(supply);
-            // Render Crown (Sprite 0)
-            instancedSpriteRenderer.add(crownList, 0, 0, 0f, 0, respond, true, tempMatrix, Color.WHITE, Color.WHITE);
-            // Render Trunk (Sprite 0)
-            instancedSpriteRenderer.add(trunkList, 0, 0, 0f, 0, respond, true, tempMatrix, Color.WHITE, Color.WHITE);
+            // Render Crown (Sprite 0). Blend = false, DepthWrite = true for opaque trees.
+            instancedSpriteRenderer.add(crownList, 0, 0, 0f, 0, respond, false, true, true, tempMatrix, Color.WHITE, Color.WHITE);
+            // Render Trunk (Sprite 0). Blend = false, DepthWrite = true.
+            instancedSpriteRenderer.add(trunkList, 0, 0, 0f, 0, respond, false, true, true, tempMatrix, Color.WHITE, Color.WHITE);
         }
         render_list.clear();
     }

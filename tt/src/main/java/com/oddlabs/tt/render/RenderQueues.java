@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 public final class RenderQueues implements AutoCloseable {
     private final List<@NonNull SpriteRenderer> sprite_renderers = new ArrayList<>();
     private final List<@NonNull SpriteRenderer> blend_sprite_renderers = new ArrayList<>();
+    private final List<@NonNull SpriteRenderer> plant_renderers = new ArrayList<>();
 
     private final List<@NonNull SpriteRenderer> sprite_list_lookup = new ArrayList<>();
     private final List<@NonNull ShadowListRenderer> shadow_renderer_lookup = new ArrayList<>();
@@ -77,7 +78,7 @@ public final class RenderQueues implements AutoCloseable {
         SpriteList sprite_list = Resources.findResource(sprite_file);
         SpriteRenderer sprite_renderer = new SpriteRenderer(sprite_list, tex_index, spriteRenderer);
         sprite_list_lookup.add(sprite_renderer);
-        registerSpriteRenderer(sprite_renderer);
+        registerSpriteRenderer(sprite_renderer, sprite_file.getLocation());
         AnimationInfo.AnimationType[] animation_types = sprite_list.getAnimationTypes();
         int[] type_array = new int[animation_types.length];
         for (int i = 0; i < animation_types.length; i++) {
@@ -94,9 +95,11 @@ public final class RenderQueues implements AutoCloseable {
         return spriteRenderer;
     }
 
-    private void registerSpriteRenderer(@NonNull SpriteRenderer sprite_renderer) {
+    private void registerSpriteRenderer(@NonNull SpriteRenderer sprite_renderer, String location) {
         if (sprite_renderer.getSpriteList().getSprite(0).modulateColor()) {
             blend_sprite_renderers.add(sprite_renderer);
+        } else if (location.contains("plant") || location.contains("leaf")) {
+            plant_renderers.add(sprite_renderer);
         } else {
             sprite_renderers.add(sprite_renderer);
         }
@@ -106,10 +109,20 @@ public final class RenderQueues implements AutoCloseable {
         for (SpriteRenderer spriteRenderer : sprite_renderers) {
             spriteRenderer.getAllPicks(pick_list);
         }
+        for (SpriteRenderer spriteRenderer : plant_renderers) {
+            spriteRenderer.getAllPicks(pick_list);
+        }
     }
 
     void renderAll(@NonNull CameraState camera_state, @NonNull MatrixStack projectionStack) {
         for (SpriteRenderer spriteRenderer : sprite_renderers) {
+            spriteRenderer.renderAll();
+        }
+        spriteRenderer.renderAll(camera_state, projectionStack);
+    }
+
+    void renderPlants(@NonNull CameraState camera_state, @NonNull MatrixStack projectionStack) {
+        for (SpriteRenderer spriteRenderer : plant_renderers) {
             spriteRenderer.renderAll();
         }
         spriteRenderer.renderAll(camera_state, projectionStack);
@@ -124,6 +137,9 @@ public final class RenderQueues implements AutoCloseable {
 
     void renderNoDetail() {
         for (SpriteRenderer spriteRenderer : sprite_renderers) {
+            spriteRenderer.renderNoDetail();
+        }
+        for (SpriteRenderer spriteRenderer : plant_renderers) {
             spriteRenderer.renderNoDetail();
         }
         for (SpriteRenderer blendSpriteRenderer : blend_sprite_renderers) {

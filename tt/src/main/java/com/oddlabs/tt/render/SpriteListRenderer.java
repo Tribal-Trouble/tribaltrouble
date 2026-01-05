@@ -67,13 +67,16 @@ final class SpriteListRenderer {
     
     public void renderAll(int index, int tex_index) {
         List<ModelState<?>> render_list = render_lists[index][tex_index];
+        boolean modulate = sprite_list.getSprite(index).modulateColor();
 		
         for (ModelState<?> modelState : render_list) {
             if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
                 RenderTools.draw(modelState.getModel());
             }
+            // Standard sprites: If modulate, use Blend. If opaque/alpha, use A2C (Blend=False).
+            // Depth Write = !modulate (Opaque writes depth, Effects don't).
             instancedSpriteRenderer.add(sprite_list, index, modelState.getModel().getAnimation(),
-					modelState.getModel().getAnimationTicks(), tex_index, false, true,
+					modelState.getModel().getAnimationTicks(), tex_index, false, modulate, !modulate, true,
 					modelState.getTransform(tempMatrix), modelState.getColor(), modelState.getTeamColor());
         }
 		render_list.clear();
@@ -88,8 +91,10 @@ final class SpriteListRenderer {
 				if (Globals.isBoundsEnabled(BoundingMode.PLAYERS)) {
 					RenderTools.draw(model.getModel());
 				}
+                // Respond (Overlays) usually shouldn't write depth to avoid z-fighting with the unit itself
+                // Let's assume No Depth Write for overlays is safer.
                 instancedSpriteRenderer.add(sprite_list, index, model.getModel().getAnimation(),
-						model.getModel().getAnimationTicks(), tex_index, true, true,
+						model.getModel().getAnimationTicks(), tex_index, true, true, false, true,
 						model.getTransform(tempMatrix), Color.WHITE, Color.WHITE);
 			}
 			render_list.clear();

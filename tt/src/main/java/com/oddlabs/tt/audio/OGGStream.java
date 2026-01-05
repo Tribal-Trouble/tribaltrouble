@@ -18,7 +18,6 @@ import java.nio.ShortBuffer;
 import java.util.Objects;
 
 public final class OGGStream implements AutoCloseable {
-	private final @NonNull URL file;
     private final long decoder;
     private final int channels;
     private final int sampleRate;
@@ -28,9 +27,6 @@ public final class OGGStream implements AutoCloseable {
     private final ShortBuffer pcmBuffer; 
 
 	public OGGStream(@NonNull URL file) throws IOException {
-		this.file = Objects.requireNonNull(file, "file");
-        
-        // Read file to ByteBuffer
         byte[] bytes = readAllBytes(file);
         vorbisData = BufferUtils.createByteBuffer(bytes.length);
         vorbisData.put(bytes);

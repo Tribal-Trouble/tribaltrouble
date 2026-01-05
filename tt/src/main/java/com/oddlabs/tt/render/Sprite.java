@@ -14,6 +14,7 @@ import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 
 import java.lang.reflect.InvocationTargetException;
@@ -218,7 +219,12 @@ public final class Sprite {
                 throw new RuntimeException(e);
             }
         } else {
-            return new Texture[] { Resources.findResource(new TextureFile("/textures/models/" + texture_name, color_format, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, GL11.GL_REPEAT, GL11.GL_REPEAT, mipmap_cutoff, 100000, 0.1f, max_alpha)) };
+            int wrapMode = GL11.GL_REPEAT;
+            String lowerName = texture_name.toLowerCase();
+            if (lowerName.contains("leaf") || lowerName.contains("plant") || lowerName.contains("crown") || lowerName.contains("branch") || lowerName.contains("foliage") || lowerName.contains("bush")) {
+                wrapMode = GL12.GL_CLAMP_TO_EDGE;
+            }
+            return new Texture[] { Resources.findResource(new TextureFile("/textures/models/" + texture_name, color_format, GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR, wrapMode, wrapMode, mipmap_cutoff, 100000, 0.1f, max_alpha)) };
         }
     }
 

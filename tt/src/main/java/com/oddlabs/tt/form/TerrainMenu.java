@@ -596,8 +596,10 @@ public final class TerrainMenu extends Group {
 		} else {
 			boolean has_enemy = false;
 			for (int i = 1; i < race_pulldown_menus.length; i++) {
-                if (isChosen(difficulty_pulldown_menus[i]) && team_pulldown_menus[i].getChosenItemIndex() != team_pulldown_menus[0].getChosenItemIndex())
-                    has_enemy = true;
+                if (isChosen(difficulty_pulldown_menus[i]) && team_pulldown_menus[i].getChosenItemIndex() != team_pulldown_menus[0].getChosenItemIndex()) {
+					has_enemy = true;
+					break;
+				}
             }
 			if (!has_enemy) {
 				String min_name = Utils.getBundleString(bundle, "min_num_teams", 2);

@@ -42,6 +42,10 @@ public final class SpriteFile extends File<SpriteList> {
 				super.equals(o);
     }
 
+	public @NonNull String getLocation() {
+		return getURL().toString();
+	}
+
 	public int getMipmapCutoff() {
 		return mipmap_cutoff;
 	}
