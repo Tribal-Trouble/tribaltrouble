@@ -64,10 +64,10 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
     @Override
     public void keyPressed(@NonNull KeyboardEvent event) {
         getCamera().keyPressed(event);
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case ESCAPE -> pop();
             default -> {
-                if (event.getKeyCode() != Key.SPACE && event.getKeyCode() != Key.RETURN)
+                if (event.keyCode() != Key.SPACE && event.keyCode() != Key.RETURN)
                     super.keyPressed(event);
             }
         }

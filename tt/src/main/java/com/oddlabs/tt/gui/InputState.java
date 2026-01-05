@@ -164,10 +164,10 @@ public final class InputState {
 		GUIObject focused = gui_root.getGlobalFocus();
 		resetKeyTimer();
 		if (!repeat && (key_event == null 
-				|| key_event.getKeyCode() != key
-				|| key_event.getKeyChar() != key_char
-				|| key_event.isShiftDown() != shift_down
-				|| key_event.isControlDown() != control_down)) {
+				|| key_event.keyCode() != key
+				|| key_event.keyChar() != key_char
+				|| key_event.shiftDown() != shift_down
+				|| key_event.controlDown() != control_down)) {
 			if (double_key_timer.isRunning()) {
 				stopDoubleKeyTimer();
 			}

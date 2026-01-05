@@ -24,7 +24,7 @@ public final class ChatLine extends EditLine {
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent e) {
-		if (catch_tab && e.getKeyChar() == '\t')
+		if (catch_tab && e.keyChar() == '\t')
 			tabComplete(getText());
 		else
 			super.keyRepeat(e);

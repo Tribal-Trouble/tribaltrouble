@@ -35,8 +35,8 @@ public final class ToolTipBox extends TextField {
 			return;
 		ToolTipBoxInfo box = Skin.getSkin().getToolTipInfo();
 		int text_width = getFont().getWidth(getText());
-		int box_width = text_width + box.getLeftOffset() + box.getRightOffset();
-		int box_height = box.getBox().getHeight();
+		int box_width = text_width + box.leftOffset() + box.rightOffset();
+		int box_height = box.box().getHeight();
 		if (icons != null) {
 			int i;
 			for (i = 0; i < icons.length; i++) {
@@ -47,11 +47,11 @@ public final class ToolTipBox extends TextField {
 		float x = Math.clamp(center_x - box_width/2f, 0, LocalInput.getViewWidth() - box_width);
 		float y = Math.clamp(top_y - box_height, 0, LocalInput.getViewHeight() - box_height);
 
-		box.getBox().render(renderer, x, y, box_width, ModeIconQuads.Mode.NORMAL);
+		box.box().render(renderer, x, y, box_width, ModeIconQuads.Mode.NORMAL);
 
-		TextLineRenderer.render(renderer, getFont(), getText(), x + box.getLeftOffset(), y + box.getBottomOffset(), Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE);
+		TextLineRenderer.render(renderer, getFont(), getText(), x + box.leftOffset(), y + box.bottomOffset(), Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE);
 		if (icons != null) {
-			float render_x = box_width - box.getRightOffset() - icons[icons.length - 1].getWidth();
+			float render_x = box_width - box.rightOffset() - icons[icons.length - 1].getWidth();
             for (IconQuad icon : icons) {
 				renderer.drawIcon(icon, x + render_x, y + (box_height - icon.getHeight())/2f);
                 render_x -= icon.getWidth()/3f;

@@ -1,7 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.animation.TimerAnimation;
-import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.delegate.CameraDelegate;
 import com.oddlabs.tt.delegate.ModalDelegate;
 import com.oddlabs.tt.delegate.NullDelegate;
@@ -26,7 +25,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 /** Root of a GUI component tree */
-public final class GUIRoot extends GUIObject implements Updatable {
+public final class GUIRoot extends GUIObject {
 	private static final Logger logger = Logger.getLogger(GUIRoot.class.getName());
 
 	private final ResourceBundle bundle = ResourceBundle.getBundle(GUIRoot.class.getName());
@@ -49,7 +48,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 	private final Deque<@NonNull ModalDelegate> modal_delegate_stack = new ArrayDeque<>();
 	private final Deque<@NonNull GUIObject> focus_backup_stack = new ArrayDeque<>();
 
-    private final TimerAnimation tool_tip_timer = new TimerAnimation(this, 0);
+    private final TimerAnimation tool_tip_timer = new TimerAnimation(this::timerUpdate, 0);
 
     private final @NonNull GUI gui;
 	private final @NonNull ToolTipBox tool_tip = new ToolTipBox();
@@ -103,8 +102,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		tool_tip_timer.setTimerInterval(Settings.getSettings().tooltip_delay*ToolTipBox.MAX_DELAY_SECONDS);
 	}
 
-	@Override
-	public void update(@NonNull Object anim) {
+	public void timerUpdate(@NonNull TimerAnimation anim) {
 		render_tool_tip = true;
 		tool_tip_timer.stop();
 	}
@@ -200,16 +198,16 @@ public final class GUIRoot extends GUIObject implements Updatable {
 
 	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
+		switch (event.keyCode()) {
 			case S:
-				if (event.isControlDown()) {
+				if (event.controlDown()) {
 					String filename = GLUtils.takeScreenshot("");
 					info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "screenshot_message", filename));
 				}
 				break;
 
 			case H:
-				if (event.isControlDown() && (LocalInput.getNativeCursorCaps() & LocalInput.CURSOR_ONE_BIT_TRANSPARENCY) != 0) {
+				if (event.controlDown() && (LocalInput.getNativeCursorCaps() & LocalInput.CURSOR_ONE_BIT_TRANSPARENCY) != 0) {
 					Settings.getSettings().use_native_cursor = !Settings.getSettings().use_native_cursor;
 					if (Settings.getSettings().use_native_cursor)
 						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "hardware_cursor_on"));
@@ -219,7 +217,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 				break;
 
 			case A:
-				if (event.isControlDown()) {
+				if (event.controlDown()) {
 					Settings.getSettings().aggressive_units = !Settings.getSettings().aggressive_units;
 					if (Settings.getSettings().aggressive_units)
 						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "aggressive_unites_on"));
@@ -229,7 +227,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 				break;
 
 			 case I:
-				if (event.isControlDown()) {
+				if (event.controlDown()) {
 					Globals.draw_status = !Globals.draw_status;
 				}
 				break;
@@ -240,16 +238,16 @@ public final class GUIRoot extends GUIObject implements Updatable {
 		if (!Settings.getSettings().inDeveloperMode())
 			return;
 
-		switch (event.getKeyCode()) {
+		switch (event.keyCode()) {
 			case U:
 				Renderer.getRenderer().startMovieRecording();
 				break;
 			case W:
-				if (event.isControlDown())
+				if (event.controlDown())
 					Globals.draw_water = !Globals.draw_water;
 				break;
 			case R:
-				if (event.isControlDown()) {
+				if (event.controlDown()) {
 					Globals.run_ai = !Globals.run_ai;
 					IO.println("Globals.run_ai = " + Globals.run_ai);
 				}
@@ -259,7 +257,7 @@ public final class GUIRoot extends GUIObject implements Updatable {
 				Globals.draw_light = !Globals.draw_light;
 				break;
 			case P:
-				if (event.isControlDown())
+				if (event.controlDown())
 					GLUtils.takeScreenshot("");
 				else
 					Globals.draw_plants = !Globals.draw_plants;
@@ -268,12 +266,12 @@ public final class GUIRoot extends GUIObject implements Updatable {
 				Globals.draw_particles = !Globals.draw_particles;
 				break;
 			case A:
-				if (!event.isControlDown()) {
+				if (!event.controlDown()) {
 					Globals.draw_axes = !Globals.draw_axes;
 				}
 				break;
 			case M:
-				if (event.isControlDown())
+				if (event.controlDown())
 					Globals.draw_misc = !Globals.draw_misc;
 				else {
 					IO.println("WARNING: KEY_M pressed!");
@@ -284,12 +282,12 @@ public final class GUIRoot extends GUIObject implements Updatable {
 				LocalInput.getInputProvider().setCursorPosition(10, 10);
 				break;
 			case S:
-				if (!event.isControlDown()) {
+				if (!event.controlDown()) {
 					Globals.draw_detail = !Globals.draw_detail;
 				}
 				break;
 			case C:
-				if (event.isControlDown()) {
+				if (event.controlDown()) {
 					IO.println("crash!");
 					throw new RuntimeException("Ctrl+C pressed -> throwing a runtime exception.");
 				} else {

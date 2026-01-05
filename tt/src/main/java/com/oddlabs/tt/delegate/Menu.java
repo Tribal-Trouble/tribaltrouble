@@ -110,7 +110,7 @@ public abstract class Menu extends CameraDelegate<Camera> {
 
     @Override
     protected void keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case ESCAPE -> {
             }
             default -> super.keyPressed(event);
@@ -174,8 +174,8 @@ public abstract class Menu extends CameraDelegate<Camera> {
 
     @Override
     protected final void keyRepeat(@NonNull KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case TAB -> switchFocus(event.isShiftDown() ? -1 : 1);
+        switch (event.keyCode()) {
+            case TAB -> switchFocus(event.shiftDown() ? -1 : 1);
             case UP -> focusPrior();
             case DOWN -> focusNext();
             default -> {

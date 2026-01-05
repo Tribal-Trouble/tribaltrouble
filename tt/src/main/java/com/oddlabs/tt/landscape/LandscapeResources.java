@@ -1,7 +1,5 @@
 package com.oddlabs.tt.landscape;
 
-import com.oddlabs.tt.render.RespondManager;
-import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.audio.AudioFile;
 import com.oddlabs.tt.form.ProgressForm;
@@ -10,13 +8,9 @@ import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
-import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
 

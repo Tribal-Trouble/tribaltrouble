@@ -34,7 +34,7 @@ public final class EditBox extends TextBox {
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
+		switch (event.keyCode()) {
 			case RETURN:
 				if (insert(index, '\n')) {
 					index++;
@@ -85,7 +85,7 @@ public final class EditBox extends TextBox {
 				super.keyRepeat(event);
 				break;
 			default:
-				char key = event.getKeyChar();
+				char key = event.keyChar();
 				if (getFont().getQuad(key) != null) {
 					if (insert(index, key))
 						index++;

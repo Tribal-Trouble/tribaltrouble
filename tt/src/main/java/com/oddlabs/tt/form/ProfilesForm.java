@@ -100,11 +100,11 @@ public final class ProfilesForm extends Form {
 		Row<String,Label> selected_row = null;
         for (Profile p : profiles) {
             Row<String,Label> row = new Row<>(new Label[]{
-                new Label(p.getNick(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), NICK_SIZE),
-                new IntegerLabel(p.getRating(), Skin.getSkin().getMultiColumnComboBoxData().getFont()),
-                new IntegerLabel(p.getWins(), Skin.getSkin().getMultiColumnComboBoxData().getFont()),
-                new IntegerLabel(p.getLosses(), Skin.getSkin().getMultiColumnComboBoxData().getFont()),
-                new IntegerLabel(p.getInvalid(), Skin.getSkin().getMultiColumnComboBoxData().getFont())}, p.getNick());
+                new Label(p.getNick(), Skin.getSkin().getMultiColumnComboBoxData().font(), NICK_SIZE),
+                new IntegerLabel(p.getRating(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+                new IntegerLabel(p.getWins(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+                new IntegerLabel(p.getLosses(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+                new IntegerLabel(p.getInvalid(), Skin.getSkin().getMultiColumnComboBoxData().font())}, p.getNick());
             profile_list_box.addRow(row);
             if (p.getNick().equalsIgnoreCase(last_nick))
                 selected_row = row;

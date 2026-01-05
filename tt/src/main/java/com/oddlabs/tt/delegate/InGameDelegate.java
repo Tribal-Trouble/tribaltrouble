@@ -31,7 +31,7 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 		viewer.getPicker().pickLocation(getCamera().getState(), landscape_hit);
 		float landscape_x = landscape_hit.x;
 		float landscape_y = landscape_hit.y;
-		switch (event.getKeyCode()) {
+		switch (event.keyCode()) {
 			case F1:
                 // F1 creates a peon at the center of the view unless the player already has maximum units.
 				if (viewer.getLocalPlayer().getUnitCountContainer().getNumSupplies() != viewer.getParameters().getMaxUnitCount()) {
@@ -98,9 +98,9 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 		if (!Settings.getSettings().inDeveloperMode())
 			return false;
 
-		switch (event.getKeyCode()) {
+		switch (event.keyCode()) {
 			case I:
-				if (event.isControlDown()) {
+				if (event.controlDown()) {
                     // Ctrl-I prints building or unit info
 					var set = viewer.getSelection().getCurrentSelection().getSet();
 					if (!set.isEmpty()) {
@@ -124,7 +124,7 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 
 	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
+		switch (event.keyCode()) {
 			case ESCAPE:
 				getGUIRoot().pushDelegate(new InGameMainMenu(viewer, new StaticCamera(getCamera().getState())));
 				break;

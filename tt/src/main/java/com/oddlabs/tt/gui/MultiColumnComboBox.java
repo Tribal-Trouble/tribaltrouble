@@ -29,7 +29,7 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 		this.column_infos = column_infos;
 		this.use_buttons = use_buttons;
 		this.gui_root = gui_root;
-		Box box = Skin.getSkin().getMultiColumnComboBoxData().getBox();
+		Box box = Skin.getSkin().getMultiColumnComboBoxData().box();
 		int width = 0;
 		for (int i = 0; i < column_infos.length; i++) {
 			ColumnButton<T> column_button = new ColumnButton<>(group, rows, column_infos[i], i, true);
@@ -66,7 +66,7 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.getKeyCode()) {
+		switch (event.keyCode()) {
 			case UP:
 				rows.selectPrior();
 				clickedRow();
@@ -120,7 +120,7 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        Box box = Skin.getSkin().getMultiColumnComboBoxData().getBox();
+        Box box = Skin.getSkin().getMultiColumnComboBoxData().box();
         var mode = (isActive() || getFocusedChild() != null) ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
 		box.render(renderer, 0f, 0f, getWidth() - scroll_bar.getWidth(), getHeight() - (use_buttons ? group.getMarked().getHeight() : 0), mode);
 	}
@@ -179,7 +179,7 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 
 	@Override
 	public int getStepHeight() {
-		return Skin.getSkin().getMultiColumnComboBoxData().getFont().getHeight();
+		return Skin.getSkin().getMultiColumnComboBoxData().font().getHeight();
 	}
 
 	@Override

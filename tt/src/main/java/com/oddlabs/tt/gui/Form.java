@@ -29,31 +29,31 @@ public class Form extends Group {
 
 	@Override
 	public final void compileCanvas() {
-		int spacing = Skin.getSkin().getFormData().getObjectSpacing();
+		int spacing = Skin.getSkin().getFormData().objectSpacing();
 		Box form;
 
 		if (caption != null) {
-			form = Skin.getSkin().getFormData().getForm();
+			form = Skin.getSkin().getFormData().form();
 			super.compileCanvas(form.getLeftOffset() + spacing,
 								form.getBottomOffset() + spacing,
 								form.getRightOffset() + spacing,
 								form.getTopOffset() + spacing);
 
 			FormData form_data = Skin.getSkin().getFormData();
-			Font font = form_data.getCaptionFont();
+			Font font = form_data.captionFont();
 
 			GUIObject label = new Label(caption, font);
-			label.setPos(form_data.getCaptionLeft(), getHeight() - form_data.getCaptionY() - font.getHeight()/2);
+			label.setPos(form_data.captionLeft(), getHeight() - form_data.captionY() - font.getHeight()/2);
 			addChild(label);
 			label.addMouseMotionListener(new DragListener(this));
 
-			GUIObject close_button = new IconButton(Skin.getSkin().getFormData().getFormClose());
-			close_button.setPos(getWidth() - close_button.getWidth() - form_data.getCloseRight(),
-								getHeight() - close_button.getHeight() - form_data.getCloseTop());
+			GUIObject close_button = new IconButton(Skin.getSkin().getFormData().formClose());
+			close_button.setPos(getWidth() - close_button.getWidth() - form_data.closeRight(),
+								getHeight() - close_button.getHeight() - form_data.closeTop());
 			addChild(close_button);
 			close_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
 		} else {
-			form = Skin.getSkin().getFormData().getSlimForm();
+			form = Skin.getSkin().getFormData().slimForm();
 			super.compileCanvas(form.getLeftOffset() + spacing,
 								form.getBottomOffset() + spacing,
 								form.getRightOffset() + spacing,
@@ -69,8 +69,8 @@ public class Form extends Group {
 	protected final void renderGeometry(@NonNull GUIRenderer renderer) {
         var data = Skin.getSkin().getFormData();
         var form = caption != null
-                ? data.getForm()
-                : data.getSlimForm();
+                ? data.form()
+                : data.slimForm();
         var skinMode = isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
                 : isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL;
@@ -79,7 +79,7 @@ public class Form extends Group {
 
 	@Override
 	protected final void mousePressed (@NonNull MouseButton button, int x, int y) {
-		if (caption != null && y >= getHeight() - Skin.getSkin().getFormData().getForm().getTopOffset())
+		if (caption != null && y >= getHeight() - Skin.getSkin().getFormData().form().getTopOffset())
 			drag = true;
 	}
 
@@ -125,9 +125,9 @@ public class Form extends Group {
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		boolean control = event.isControlDown() || LocalInput.isControlDownCurrently();
+		boolean control = event.controlDown() || LocalInput.isControlDownCurrently();
 		if (event.keyCode() == Key.TAB && control) {
-			int dir = event.isShiftDown() ? -1 : 1;
+			int dir = event.shiftDown() ? -1 : 1;
 			cyclePanelGroup(this, dir);
 			return;
 		}

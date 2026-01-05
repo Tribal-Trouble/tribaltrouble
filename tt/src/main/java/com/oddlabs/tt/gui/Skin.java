@@ -318,22 +318,22 @@ public final class Skin {
 
 		Node temp;
 		temp = getNodeByName("pulldown_top", node);
-		Horizontal pulldown_top = getHorizontal(temp, texture);
+		Horizontal pulldownTop = getHorizontal(temp, texture);
 
 		temp = getNodeByName("pulldown_bottom", node);
-		Horizontal pulldown_bottom = getHorizontal(temp, texture);
+		Horizontal pulldownBottom = getHorizontal(temp, texture);
 
 		Node item_node = getNodeByName("pulldown_item", n);
-		Box pulldown_item = getBox(item_node, texture);
+		Box pulldownItem = getBox(item_node, texture);
 
 		Node button_node = getNodeByName("pulldown_button", n);
 		Horizontal pulldown_button = getHorizontal(button_node, texture);
 
 		ModeIconQuads arrow = getIconQuads(button_node, texture);
 
-		return new PulldownData(pulldown_top,
-								pulldown_bottom,
-								pulldown_item,
+		return new PulldownData(pulldownTop,
+								pulldownBottom,
+								pulldownItem,
 								pulldown_button,
 								arrow,
 								getInt(button_node, "arrow_offset_right"),

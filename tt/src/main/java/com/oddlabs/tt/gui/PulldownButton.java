@@ -17,7 +17,7 @@ public final class PulldownButton extends GUIObject {
 		menu.addItemChosenListener(new ItemListener());
 		label = new Label("", Skin.getSkin().getEditFont(), 0, Origin.AT_START);
 		addChild(label);
-		setDim(width, Skin.getSkin().getPulldownData().getPulldownButton().getHeight());
+		setDim(width, Skin.getSkin().getPulldownData().pulldownButton().getHeight());
 	}
 
 	public PulldownButton(GUIRoot gui_root, @NonNull PulldownMenu<Void> menu, int item_index, int width) {
@@ -29,8 +29,8 @@ public final class PulldownButton extends GUIObject {
 	public @NonNull PulldownButton setDim(int width, int height) {
 		super.setDim(width, height);
 		PulldownData data = Skin.getSkin().getPulldownData();
-		label.setDim(getWidth() - data.getTextOffsetLeft() - data.getArrowOffsetRight() - data.getArrow().quad(ModeIconQuads.Mode.NORMAL).getWidth(), label.getHeight());
-		label.setPos(data.getTextOffsetLeft(), (getHeight() - label.getHeight())/2);
+		label.setDim(getWidth() - data.textOffsetLeft() - data.arrowOffsetRight() - data.arrow().quad(ModeIconQuads.Mode.NORMAL).getWidth(), label.getHeight());
+		label.setPos(data.textOffsetLeft(), (getHeight() - label.getHeight())/2);
 		if (menu.getWidth() < width)
 			menu.setDim(width, menu.getHeight());
 		return this;
@@ -39,7 +39,7 @@ public final class PulldownButton extends GUIObject {
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		PulldownData data = Skin.getSkin().getPulldownData();
-		Horizontal pulldownButton = data.getPulldownButton();
+		Horizontal pulldownButton = data.pulldownButton();
 
         ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.DISABLED
@@ -49,8 +49,8 @@ public final class PulldownButton extends GUIObject {
 
         pulldownButton.render(renderer, 0, 0, getWidth(), skinMode);
 
-		IconQuad arrowQuad = data.getArrow().quad(skinMode);
-		renderer.drawIcon(arrowQuad, getWidth() - data.getArrowOffsetRight() - arrowQuad.getWidth(), 0);
+		IconQuad arrowQuad = data.arrow().quad(skinMode);
+		renderer.drawIcon(arrowQuad, getWidth() - data.arrowOffsetRight() - arrowQuad.getWidth(), 0);
 	}
 
 	@Override

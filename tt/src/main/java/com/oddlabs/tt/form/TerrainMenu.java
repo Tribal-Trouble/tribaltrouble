@@ -255,13 +255,13 @@ public final class TerrainMenu extends Group {
 		slider_supplies.place(label_supplies_low, RIGHT_MID);
 		label_supplies_high.place(slider_supplies, RIGHT_MID);
 		// vegetation
-		label_vegetation.place(label_supplies, TOP_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
-		slider_vegetation.place(slider_supplies, TOP_MID, Skin.getSkin().getFormData().getSectionSpacing());
+		label_vegetation.place(label_supplies, TOP_LEFT, Skin.getSkin().getFormData().sectionSpacing());
+		slider_vegetation.place(slider_supplies, TOP_MID, Skin.getSkin().getFormData().sectionSpacing());
 		label_vegetation_low.place(slider_vegetation, LEFT_MID);
 		label_vegetation_high.place(slider_vegetation, RIGHT_MID);
 		// hills
-		label_hills.place(label_vegetation, TOP_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
-		slider_hills.place(slider_vegetation, TOP_MID, Skin.getSkin().getFormData().getSectionSpacing());
+		label_hills.place(label_vegetation, TOP_LEFT, Skin.getSkin().getFormData().sectionSpacing());
+		slider_hills.place(slider_vegetation, TOP_MID, Skin.getSkin().getFormData().sectionSpacing());
 		label_hills_low.place(slider_hills, LEFT_MID);
 		label_hills_high.place(slider_hills, RIGHT_MID);
 		// sliders
@@ -379,17 +379,17 @@ public final class TerrainMenu extends Group {
 				editline_name.place(label_name, RIGHT_MID);
 			else
 				label_default_name.place(label_name, RIGHT_MID);
-			cb_rated.place(label_name, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
+			cb_rated.place(label_name, BOTTOM_LEFT, Skin.getSkin().getFormData().sectionSpacing());
 			group_map_options.place(cb_rated, BOTTOM_LEFT);
 		} else {
 			group_map_options.place();
-			group_race_team.place(group_map_options, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
+			group_race_team.place(group_map_options, BOTTOM_LEFT, Skin.getSkin().getFormData().sectionSpacing());
 		}
 		standard.compileCanvas();
 
 		// advanced
 		group_sliders.place();
-		group_seed.place(group_sliders, BOTTOM_LEFT, Skin.getSkin().getFormData().getSectionSpacing());
+		group_seed.place(group_sliders, BOTTOM_LEFT, Skin.getSkin().getFormData().sectionSpacing());
 		advanced.compileCanvas();
 
 		PanelGroup panel_group = new PanelGroup(standard, advanced);

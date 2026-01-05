@@ -50,7 +50,7 @@ public final class GameCamera extends Camera {
 
     public GameCamera(@NonNull WorldViewer viewer, @NonNull CameraState camera) {
             super(viewer.getWorld().getHeightMap(), camera);
-            this.default_rotate_radius = viewer.getWorld().getHeightMap().getMetersPerWorld()/4;
+            this.default_rotate_radius = viewer.getWorld().getHeightMap().getMetersPerWorld()/4f;
             this.viewer = viewer;
             checkPosition();
             updateDirection();
@@ -329,8 +329,8 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                                 setScrollSpeed();
                         }
                 }
-                scroll_x = (x - LocalInput.getViewWidth()/2);
-                scroll_y = (y - LocalInput.getViewHeight()/2);
+                scroll_x = (x - LocalInput.getViewWidth()/2f);
+                scroll_y = (y - LocalInput.getViewHeight()/2f);
                 float inv_length = 1f/(float)Math.sqrt(scroll_x*scroll_x + scroll_y*scroll_y);
                 scroll_x *= inv_length;
                 scroll_y *= inv_length;
@@ -365,7 +365,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
     }
 
     public void keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case HOME, NUMPAD8 -> {
             }
             case END, NUMPAD2 -> {

@@ -80,7 +80,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 	}
 
 	private void fillSlots(@NonNull CampaignState @NonNull [] campaign_states) {
-		Box box = Skin.getSkin().getMultiColumnComboBoxData().getBox();
+		Box box = Skin.getSkin().getMultiColumnComboBoxData().box();
         for (CampaignState campaign_state : campaign_states) {
             String race = switch (campaign_state.getRace()) {
                 case CampaignState.RACE_VIKINGS -> Utils.getBundleString(bundle, "vikings");
@@ -95,10 +95,10 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
             };
             Row<CampaignState,Label> row = new Row<>(
                     new Label[]{
-                            new Label(campaign_state.getName(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_NAME - box.getLeftOffset() - 1),
-                            new Label(race, Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_RACE),
-                            new Label(difficulty, Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_DIFFICULTY),
-                            new DateLabel(campaign_state.getDate(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), WIDTH_DATE - box.getRightOffset() + 1)
+                            new Label(campaign_state.getName(), Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_NAME - box.getLeftOffset() - 1),
+                            new Label(race, Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_RACE),
+                            new Label(difficulty, Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_DIFFICULTY),
+                            new DateLabel(campaign_state.getDate(), Skin.getSkin().getMultiColumnComboBoxData().font(), WIDTH_DATE - box.getRightOffset() + 1)
                     }, campaign_state);
             list_box.addRow(row);
         }

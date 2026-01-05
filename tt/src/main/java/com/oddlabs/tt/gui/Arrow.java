@@ -55,12 +55,11 @@ public final class Arrow extends GUIObject {
 		float dx = x - LocalInput.getViewWidth()/2f;
 		float dy = y - LocalInput.getViewHeight()/2f;
 		float dist_sqr = dx*dx + dy*dy;
-		float inv_dist = 0;
 		if (dist_sqr < 1f) {
 			dx = 1f;
 			dy = 0f;
 		} else {
-			inv_dist = 1f/(float)Math.sqrt(dist_sqr);
+			float inv_dist = 1f/(float)Math.sqrt(dist_sqr);
 			dx *= inv_dist;
 			dy *= inv_dist;
 		}
@@ -80,8 +79,8 @@ public final class Arrow extends GUIObject {
 		t = Math.min(t, t_y);
 		if (show_always || gui_root.getDelegate().getCamera().getState().inNoDetailMode() || t < real_t) {
 			var data = GUIIcons.getIcons().getNotifyArrowData();
-			float head_x = data.getHeadX();
-			float head_y = data.getHeadY();
+			float head_x = data.headX();
+			float head_y = data.headY();
 			renderer.getMatrixStack().push();
 			renderer.getMatrixStack().translate(LocalInput.getViewWidth()/2f + dx*t, LocalInput.getViewHeight()/2f + dy*t, 0f);
 			renderer.getMatrixStack().rotate(angle, 0f, 0f, 1f);
@@ -89,7 +88,7 @@ public final class Arrow extends GUIObject {
 			if (val > 1f)
 				val = 2f - val;
 			val = COLOR_DELTA*val;
-			IconQuad arrow = data.getArrow();
+			IconQuad arrow = data.arrow();
 			renderer.drawIcon(arrow, -head_x, -head_y, new Vector4f(r, g, b, 1f - val));
 			renderer.getMatrixStack().pop();
 		}

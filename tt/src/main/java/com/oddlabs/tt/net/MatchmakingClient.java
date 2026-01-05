@@ -60,7 +60,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 	private @Nullable Profile active_profile = null;
 	private int state = STATE_NOT_CONNECTED;
 	private boolean update_allowed;
-	private final Set<Integer> update_requested_types = new LinkedHashSet<>();
+	private final Set<@NonNull Integer> update_requested_types = new LinkedHashSet<>();
 	private int update_key = 0;
 	private @Nullable ProfileListener create_profile_listener;
 	private @Nullable ChatRoomInfo chat_room_info;
@@ -212,7 +212,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 	@Override
 	public void joiningChatRoom(String room_name) {
 		assert chat_room_info == null;
-		chat_room_info = new ChatRoomInfo(room_name);
+		chat_room_info = new ChatRoomInfo(room_name, null);
 
 		chat_room_history.clear();
 		MatchmakingListener listener = Network.getMatchmakingListener();
@@ -223,10 +223,10 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 	@Override
 	public void receiveChatRoomUsers(ChatRoomUser[] users) {
 		if (chat_room_info != null) {
-			chat_room_info.setUsers(users);
+			chat_room_info = new ChatRoomInfo(chat_room_info.name(), users);
 
 			MatchmakingListener listener = Network.getMatchmakingListener();
-			chat_room_history.update(chat_room_info.getUsers());
+			chat_room_history.update(chat_room_info.users());
 			if (listener != null)
 				listener.updateChatRoom(chat_room_info);
 		}

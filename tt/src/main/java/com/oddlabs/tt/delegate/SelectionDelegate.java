@@ -89,7 +89,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	public void keyPressed(@NonNull KeyboardEvent event) {
 		getCamera().keyPressed(event);
 		int army_number = 0;
-		switch (event.getKeyCode()) {
+		switch (event.keyCode()) {
 			case SPACE:
 			case NUMPAD5:
 				if (!map_mode) {
@@ -127,11 +127,11 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 			case KEY_1: army_number++;
 			case KEY_0:
 				if (!map_mode && !observer) {
-					if (event.isControlDown()) {
+					if (event.controlDown()) {
 						getViewer().getSelection().setShortcutArmy(army_number);
 					} else {
 						boolean selected = getViewer().getSelection().enableShortcutArmy(army_number);
-						if (selected && event.getNumClicks() > 1) {
+						if (selected && event.clicks() > 1) {
 							var set = getViewer().getSelection().getCurrentSelection().getSet();
 							if (!set.isEmpty()) {
 								var s = set.iterator().next();
@@ -143,10 +143,10 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 				break;
 			case RETURN:
 					if (!chat_visible)
-						chat_form.setReceivers(!event.isShiftDown());
+						chat_form.setReceivers(!event.shiftDown());
 				break;
 			case B:
-				if (event.isControlDown() && !map_mode && !observer) {
+				if (event.controlDown() && !map_mode && !observer) {
 					getGUIRoot().pushDelegate(new BeaconDelegate(getViewer(), (GameCamera)getCamera()));
 				}
 				break;
@@ -221,7 +221,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	@Override
 	public void keyRepeat(@NonNull KeyboardEvent event) {
 //		getCamera().keyRepeat(event);
-		switch (event.getKeyChar()) {
+		switch (event.keyChar()) {
 			case '+':
 				changeGamespeed(1);
 				break;
@@ -238,7 +238,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
 		getCamera().keyReleased(event);
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case RETURN -> {
                 if (!close_chat_override) {
                     if (!chat_visible) {

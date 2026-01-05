@@ -375,17 +375,17 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 	private void updateRankingList(@NonNull RankingEntry ranking) {
 		Row<RankingEntry,Label> row = new Row<>(new Label[]{
-			new IntegerLabel(ranking.getRanking(), Skin.getSkin().getMultiColumnComboBoxData().getFont()),
-			new Label(ranking.getName(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), user_name_size),
-			new IntegerLabel(ranking.getRating(), Skin.getSkin().getMultiColumnComboBoxData().getFont()),
-			new IntegerLabel(ranking.getWins(), Skin.getSkin().getMultiColumnComboBoxData().getFont()),
-			new IntegerLabel(ranking.getLosses(), Skin.getSkin().getMultiColumnComboBoxData().getFont()),
-			new IntegerLabel(ranking.getInvalid(), Skin.getSkin().getMultiColumnComboBoxData().getFont())}, ranking);
+			new IntegerLabel(ranking.getRanking(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+			new Label(ranking.getName(), Skin.getSkin().getMultiColumnComboBoxData().font(), user_name_size),
+			new IntegerLabel(ranking.getRating(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+			new IntegerLabel(ranking.getWins(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+			new IntegerLabel(ranking.getLosses(), Skin.getSkin().getMultiColumnComboBoxData().font()),
+			new IntegerLabel(ranking.getInvalid(), Skin.getSkin().getMultiColumnComboBoxData().font())}, ranking);
 		ranking_list_box.addRow(row);
 	}
 
 	private void updateGameListGUI() {
-		Font combofont = Skin.getSkin().getMultiColumnComboBoxData().getFont();
+		Font combofont = Skin.getSkin().getMultiColumnComboBoxData().font();
         for (GameHost game_host : game_hosts) {
             String rated = ServerMessageBundler.getRatedString(game_host.getGame().isRated());
             String size = ServerMessageBundler.getSizeString(game_host.getGame().getSize());
@@ -400,7 +400,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 	}
 
 	private void updateChatRoomListGUI() {
-		Font combofont = Skin.getSkin().getMultiColumnComboBoxData().getFont();
+		Font combofont = Skin.getSkin().getMultiColumnComboBoxData().font();
         for (ChatRoomEntry chat_room_info : chat_rooms) {
             String users_and_max = Utils.getBundleString(bundle, "users_and_max", chat_room_info.getNumJoined(), MatchmakingServerInterface.MAX_ROOM_USERS);
             Row<ChatRoomEntry,Label> row = new Row<>(new Label[]{

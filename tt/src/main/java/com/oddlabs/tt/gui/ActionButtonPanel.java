@@ -137,11 +137,11 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		String widest_char = "" + skin.getEditFont().getWidestChar("0123456789");
 		int label_width = skin.getEditFont().getWidth(widest_char + widest_char + widest_char);
 
-		move_button = new NonFocusIconButton(race_icons.getMoveIcon(), formatTip("move_tip", "M"));
+		move_button = new NonFocusIconButton(race_icons.moveIcon(), formatTip("move_tip", "M"));
 		move_button.setIconDisabler(() -> !viewer.getLocalPlayer().canMove());
 		unit_group.addChild(move_button);
 		move_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Action.MOVE)));
-		attack_button = new NonFocusIconButton(race_icons.getAttackIcon(), formatTip("attack_tip", "A"));
+		attack_button = new NonFocusIconButton(race_icons.attackIcon(), formatTip("attack_tip", "A"));
 		attack_button.setIconDisabler(() -> !viewer.getLocalPlayer().canAttack());
 		unit_group.addChild(attack_button);
 		attack_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Action.ATTACK)));
@@ -149,19 +149,19 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		attack_button.place(move_button, Placement.BOTTOM_MID);
 		unit_group.compileCanvas(GROUP_LEFT_OFFSET, 0, GROUP_RIGHT_OFFSET, GROUP_BOTTOM_OFFSET);
 
-		gather_repair_button = new NonFocusIconButton(race_icons.getGatherRepairIcon(), formatTip("gather_repair_tip", "G"));
+		gather_repair_button = new NonFocusIconButton(race_icons.gatherRepairIcon(), formatTip("gather_repair_tip", "G"));
 		peon_group.addChild(gather_repair_button);
 		gather_repair_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Action.GATHER_REPAIR)));
 		gather_repair_button.setIconDisabler(() -> !viewer.getLocalPlayer().canRepair());
-		quarters_button = new NonFocusIconButton(race_icons.getQuartersIcon(), formatTip("quarters_tip", "Q"));
+		quarters_button = new NonFocusIconButton(race_icons.quartersIcon(), formatTip("quarters_tip", "Q"));
 		peon_group.addChild(quarters_button);
 		quarters_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new PlacingDelegate(viewer, camera.getState(), Race.BUILDING_QUARTERS)));
 		quarters_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuild(Race.BUILDING_QUARTERS));
-		armory_button = new NonFocusIconButton(race_icons.getArmoryIcon(), formatTip("armory_tip", "R"));
+		armory_button = new NonFocusIconButton(race_icons.armoryIcon(), formatTip("armory_tip", "R"));
 		peon_group.addChild(armory_button);
 		armory_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new PlacingDelegate(viewer, camera.getState(), Race.BUILDING_ARMORY)));
 		armory_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuild(Race.BUILDING_ARMORY));
-		tower_button = new NonFocusIconButton(race_icons.getTowerIcon(), formatTip("tower_tip", "T"));
+		tower_button = new NonFocusIconButton(race_icons.towerIcon(), formatTip("tower_tip", "T"));
 		peon_group.addChild(tower_button);
 		tower_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new PlacingDelegate(viewer, camera.getState(), Race.BUILDING_TOWER)));
 		tower_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuild(Race.BUILDING_TOWER));
@@ -172,20 +172,20 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		peon_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, 0);
 
 		PlayerInterface player_interface = viewer.getPeerHub().getPlayerInterface();
-		magic1_button = new RechargeButton(player_interface, race_icons.getMagic1Icon(), race_icons.getMagic1Desc(), 0);
+		magic1_button = new RechargeButton(player_interface, race_icons.magic1Icon(), race_icons.magic1Desc(), 0);
 		chieftain_group.addChild(magic1_button);
 //		magic1_button.addMouseClickListener(new MagicListener(0));
-		magic2_button = new RechargeButton(player_interface, race_icons.getMagic2Icon(), race_icons.getMagic2Desc(), 1);
+		magic2_button = new RechargeButton(player_interface, race_icons.magic2Icon(), race_icons.magic2Desc(), 1);
 		chieftain_group.addChild(magic2_button);
 //		magic2_button.addMouseClickListener(new MagicListener(1));
 		magic1_button.place();
 		magic2_button.place(magic1_button, Placement.BOTTOM_MID);
 		chieftain_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, 0);
 
-		tower_attack_button = new NonFocusIconButton(race_icons.getAttackIcon(), formatTip("attack_tip", "A"));
+		tower_attack_button = new NonFocusIconButton(race_icons.attackIcon(), formatTip("attack_tip", "A"));
 		tower_group.addChild(tower_attack_button);
 		tower_attack_button.addMouseClickListener((_, _, _, _) -> viewer.getGUIRoot().pushDelegate(new TargetDelegate(viewer, camera, Action.ATTACK)));
-		tower_exit_button = new NonFocusIconButton(race_icons.getTowerExitIcon(), formatTip("exit_tip", "X"));
+		tower_exit_button = new NonFocusIconButton(race_icons.towerExitIcon(), formatTip("exit_tip", "X"));
 		tower_group.addChild(tower_exit_button);
 		tower_exit_button.addMouseClickListener((_, _, _, _) -> {
 			if (current_building != null && !current_building.isDead())
@@ -197,13 +197,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		tower_exit_button.place(tower_attack_button, Placement.BOTTOM_MID);
 		tower_group.compileCanvas();
 
-		unit_status = new StatusIcon(label_width, race_icons.getUnitStatusIcon(), Utils.getBundleString(bundle, "units_tip"));
+		unit_status = new StatusIcon(label_width, race_icons.unitStatusIcon(), Utils.getBundleString(bundle, "units_tip"));
 		status_group.addChild(unit_status);
-		weapon_rock_status = new StatusIcon(label_width, race_icons.getWeaponRockStatusIcon(), Utils.getBundleString(bundle, "rock_weapons_tip"));
+		weapon_rock_status = new StatusIcon(label_width, race_icons.weaponRockStatusIcon(), Utils.getBundleString(bundle, "rock_weapons_tip"));
 		status_group.addChild(weapon_rock_status);
-		weapon_iron_status = new StatusIcon(label_width, race_icons.getWeaponIronStatusIcon(), Utils.getBundleString(bundle, "iron_weapons_tip"));
+		weapon_iron_status = new StatusIcon(label_width, race_icons.weaponIronStatusIcon(), Utils.getBundleString(bundle, "iron_weapons_tip"));
 		status_group.addChild(weapon_iron_status);
-		weapon_rubber_status = new StatusIcon(label_width, race_icons.getWeaponRubberStatusIcon(), Utils.getBundleString(bundle, "chicken_weapons_tip"));
+		weapon_rubber_status = new StatusIcon(label_width, race_icons.weaponRubberStatusIcon(), Utils.getBundleString(bundle, "chicken_weapons_tip"));
 		status_group.addChild(weapon_rubber_status);
 		tree_status = new StatusIcon(label_width, icons.getTreeStatusIcon(), Utils.getBundleString(bundle, "tree_resources_tip"));
 		status_group.addChild(tree_status);
@@ -223,19 +223,19 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		rubber_status.place(iron_status, Placement.BOTTOM_MID);
 		status_group.compileCanvas(5, 5, 5, 5);
 
-		quarters_unit_status = new WatchStatusIcon(label_width, race_icons.getUnitStatusIcon(), Utils.getBundleString(bundle, "units_tip"));
+		quarters_unit_status = new WatchStatusIcon(label_width, race_icons.unitStatusIcon(), Utils.getBundleString(bundle, "units_tip"));
 		quarters_status_group.addChild(quarters_unit_status);
 		quarters_unit_status.place();
 		quarters_status_group.compileCanvas(5, 5, 5, 5);
 
-		quarters_peon_button = new DeploySpinner(viewer, player_interface, race_icons.getPeonIcon(), Utils.getBundleString(bundle, "deploy_peon_tip"),
-				new IconQuad[]{race_icons.getUnitStatusIcon()}, "P");
+		quarters_peon_button = new DeploySpinner(viewer, player_interface, race_icons.peonIcon(), Utils.getBundleString(bundle, "deploy_peon_tip"),
+				new IconQuad[]{race_icons.unitStatusIcon()}, "P");
 		quarters_group.addChild(quarters_peon_button);
-		quarters_chieftain_button = new ChieftainButton(viewer, player_interface, race_icons.getChieftainIcon(), formatTip("train_chieftain_tip", "C"));
+		quarters_chieftain_button = new ChieftainButton(viewer, player_interface, race_icons.chieftainIcon(), formatTip("train_chieftain_tip", "C"));
 //		if (Settings.getSettings().developer_mode) {
 			quarters_group.addChild(quarters_chieftain_button);
 //		}
-		quarters_rally_point_button = new NonFocusIconButton(race_icons.getRallyPointIcon(), formatTip("rally_point_tip", "R"));
+		quarters_rally_point_button = new NonFocusIconButton(race_icons.rallyPointIcon(), formatTip("rally_point_tip", "R"));
 		quarters_group.addChild(quarters_rally_point_button);
 		quarters_rally_point_button.addMouseClickListener(this::setRallyPoint);
 		quarters_peon_button.place();
@@ -255,7 +255,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			addChild(harvest_group);
 			current_submenu = harvest_group;
 		});
-		build_button = new NonFocusIconButton(race_icons.getBuildWeaponsIcon(), formatTip("produce_weapons_tip", "W"));
+		build_button = new NonFocusIconButton(race_icons.buildWeaponsIcon(), formatTip("produce_weapons_tip", "W"));
 		build_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuildWeapons());
 		armory_group.addChild(build_button);
 		build_button.addMouseClickListener((_, _, _, _) -> {
@@ -264,7 +264,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			current_submenu = build_group;
 			updateCounters();
 		});
-		army_button = new NonFocusIconButton(race_icons.getArmyIcon(), formatTip("deploy_army_tip", "A"));
+		army_button = new NonFocusIconButton(race_icons.armyIcon(), formatTip("deploy_army_tip", "A"));
 		army_button.setIconDisabler(() -> !viewer.getLocalPlayer().canBuildArmies());
 		armory_group.addChild(army_button);
 		army_button.addMouseClickListener((_, _, _, _) -> {
@@ -272,14 +272,14 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			addChild(army_group);
 			current_submenu = army_group;
 		});
-		transport_button = new NonFocusIconButton(race_icons.getTransportIcon(), formatTip("transport_resources_tip", "T"));
+		transport_button = new NonFocusIconButton(race_icons.transportIcon(), formatTip("transport_resources_tip", "T"));
 		armory_group.addChild(transport_button);
 		transport_button.addMouseClickListener((_, _, _, _) -> {
 			armory_group.remove();
 			addChild(transport_group);
 			current_submenu = transport_group;
 		});
-		rally_point_button = new NonFocusIconButton(race_icons.getRallyPointIcon(), formatTip("rally_point_tip", "R"));
+		rally_point_button = new NonFocusIconButton(race_icons.rallyPointIcon(), formatTip("rally_point_tip", "R"));
 		rally_point_button.setIconDisabler(() -> !viewer.getLocalPlayer().canSetRallyPoints());
 		armory_group.addChild(rally_point_button);
 		rally_point_button.addMouseClickListener(this::setRallyPoint);
@@ -290,13 +290,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		rally_point_button.place(transport_button, Placement.BOTTOM_MID);
 		armory_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
-		harvest_tree_button = new DeploySpinner(viewer, player_interface, icons.getTreeIcon(), Utils.getBundleString(bundle, "harvest_tree_tip"), new IconQuad[]{race_icons.getUnitStatusIcon()}, "W");
+		harvest_tree_button = new DeploySpinner(viewer, player_interface, icons.getTreeIcon(), Utils.getBundleString(bundle, "harvest_tree_tip"), new IconQuad[]{race_icons.unitStatusIcon()}, "W");
 		harvest_group.addChild(harvest_tree_button);
-		harvest_rock_button = new DeploySpinner(viewer, player_interface, icons.getRockIcon(), Utils.getBundleString(bundle, "harvest_rock_tip"), new IconQuad[]{race_icons.getUnitStatusIcon()}, "R");
+		harvest_rock_button = new DeploySpinner(viewer, player_interface, icons.getRockIcon(), Utils.getBundleString(bundle, "harvest_rock_tip"), new IconQuad[]{race_icons.unitStatusIcon()}, "R");
 		harvest_group.addChild(harvest_rock_button);
-		harvest_iron_button = new DeploySpinner(viewer, player_interface, icons.getIronIcon(), Utils.getBundleString(bundle, "harvest_iron_tip"), new IconQuad[]{race_icons.getUnitStatusIcon()}, "I");
+		harvest_iron_button = new DeploySpinner(viewer, player_interface, icons.getIronIcon(), Utils.getBundleString(bundle, "harvest_iron_tip"), new IconQuad[]{race_icons.unitStatusIcon()}, "I");
 		harvest_group.addChild(harvest_iron_button);
-		harvest_rubber_button = new DeploySpinner(viewer, player_interface, icons.getRubberIcon(), Utils.getBundleString(bundle, "harvest_chicken_tip"), new IconQuad[]{race_icons.getUnitStatusIcon()}, "C");
+		harvest_rubber_button = new DeploySpinner(viewer, player_interface, icons.getRubberIcon(), Utils.getBundleString(bundle, "harvest_chicken_tip"), new IconQuad[]{race_icons.unitStatusIcon()}, "C");
 		harvest_group.addChild(harvest_rubber_button);
 		harvest_back_button = new NonFocusIconButton(skin.getBackButton(), formatTip("back_tip", "Esc"));
 		harvest_back_button.addMouseClickListener(this::cancelSubMenu);
@@ -308,11 +308,11 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		harvest_back_button.place(harvest_rubber_button, Placement.BOTTOM_MID);
 		harvest_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
-		build_weapon_rock_button = new BuildSpinner(viewer, player_interface, race_icons.getBuildWeaponRockIcon(), Utils.getBundleString(bundle, "build_rock_tip"), Building.COST_ROCK_WEAPON.toIconArray(), "R");
+		build_weapon_rock_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponRockIcon(), Utils.getBundleString(bundle, "build_rock_tip"), Building.COST_ROCK_WEAPON.toIconArray(), "R");
 		build_group.addChild(build_weapon_rock_button);
-		build_weapon_iron_button = new BuildSpinner(viewer, player_interface, race_icons.getBuildWeaponIronIcon(), Utils.getBundleString(bundle, "build_iron_tip"), Building.COST_IRON_WEAPON.toIconArray(), "I");
+		build_weapon_iron_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponIronIcon(), Utils.getBundleString(bundle, "build_iron_tip"), Building.COST_IRON_WEAPON.toIconArray(), "I");
 		build_group.addChild(build_weapon_iron_button);
-		build_weapon_rubber_button = new BuildSpinner(viewer, player_interface, race_icons.getBuildWeaponRubberIcon(), Utils.getBundleString(bundle, "build_chicken_tip"), Building.COST_RUBBER_WEAPON.toIconArray(), "C");
+		build_weapon_rubber_button = new BuildSpinner(viewer, player_interface, race_icons.buildWeaponRubberIcon(), Utils.getBundleString(bundle, "build_chicken_tip"), Building.COST_RUBBER_WEAPON.toIconArray(), "C");
 		build_group.addChild(build_weapon_rubber_button);
 		build_back_button = new NonFocusIconButton(skin.getBackButton(), formatTip("back_tip", "Esc"));
 		build_back_button.addMouseClickListener(this::cancelSubMenu);
@@ -323,19 +323,19 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		build_back_button.place(build_weapon_rubber_button, Placement.BOTTOM_MID);
 		build_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
-		army_peon_button = new DeploySpinner(viewer, player_interface, race_icons.getPeonIcon(), Utils.getBundleString(bundle, "deploy_peon_tip"),
-				new IconQuad[]{race_icons.getUnitStatusIcon()}, "P");
+		army_peon_button = new DeploySpinner(viewer, player_interface, race_icons.peonIcon(), Utils.getBundleString(bundle, "deploy_peon_tip"),
+				new IconQuad[]{race_icons.unitStatusIcon()}, "P");
 		army_group.addChild(army_peon_button);
-		army_warrior_rock_button = new DeploySpinner(viewer, player_interface, race_icons.getWarriorRockIcon(), Utils.getBundleString(bundle, "deploy_rock_tip"),
-				new IconQuad[]{race_icons.getUnitStatusIcon(), race_icons.getWeaponRockStatusIcon()}, "R");
+		army_warrior_rock_button = new DeploySpinner(viewer, player_interface, race_icons.warriorRockIcon(), Utils.getBundleString(bundle, "deploy_rock_tip"),
+				new IconQuad[]{race_icons.unitStatusIcon(), race_icons.weaponRockStatusIcon()}, "R");
 		army_group.addChild(army_warrior_rock_button);
 
-		army_warrior_iron_button = new DeploySpinner(viewer, player_interface, race_icons.getWarriorIronIcon(), Utils.getBundleString(bundle, "deploy_iron_tip"),
-				new IconQuad[]{race_icons.getUnitStatusIcon(), race_icons.getWeaponIronStatusIcon()}, "I");
+		army_warrior_iron_button = new DeploySpinner(viewer, player_interface, race_icons.warriorIronIcon(), Utils.getBundleString(bundle, "deploy_iron_tip"),
+				new IconQuad[]{race_icons.unitStatusIcon(), race_icons.weaponIronStatusIcon()}, "I");
 		army_group.addChild(army_warrior_iron_button);
 
-		army_warrior_rubber_button = new DeploySpinner(viewer, player_interface, race_icons.getWarriorRubberIcon(), Utils.getBundleString(bundle, "deploy_chicken_tip"),
-				new IconQuad[]{race_icons.getUnitStatusIcon(), race_icons.getWeaponRubberStatusIcon()}, "C");
+		army_warrior_rubber_button = new DeploySpinner(viewer, player_interface, race_icons.warriorRubberIcon(), Utils.getBundleString(bundle, "deploy_chicken_tip"),
+				new IconQuad[]{race_icons.unitStatusIcon(), race_icons.weaponRubberStatusIcon()}, "C");
 		army_group.addChild(army_warrior_rubber_button);
 
 		army_back_button = new NonFocusIconButton(skin.getBackButton(), formatTip("back_tip", "Esc"));
@@ -349,16 +349,16 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		army_group.compileCanvas(GROUP_LEFT_OFFSET, GROUP_BOTTOM_OFFSET, GROUP_RIGHT_OFFSET, GROUP_TOP_OFFSET);
 
 		transport_tree_button = new DeploySpinner(viewer, player_interface, icons.getTreeIcon(), Utils.getBundleString(bundle, "transport_tree_tip"),
-				new IconQuad[]{race_icons.getUnitStatusIcon(), icons.getTreeStatusIcon()}, "W");
+				new IconQuad[]{race_icons.unitStatusIcon(), icons.getTreeStatusIcon()}, "W");
 		transport_group.addChild(transport_tree_button);
 		transport_rock_button = new DeploySpinner(viewer, player_interface, icons.getRockIcon(), Utils.getBundleString(bundle, "transport_rock_tip"),
-				new IconQuad[]{race_icons.getUnitStatusIcon(), icons.getRockStatusIcon()}, "R");
+				new IconQuad[]{race_icons.unitStatusIcon(), icons.getRockStatusIcon()}, "R");
 		transport_group.addChild(transport_rock_button);
 		transport_iron_button = new DeploySpinner(viewer, player_interface, icons.getIronIcon(), Utils.getBundleString(bundle, "transport_iron_tip"),
-				new IconQuad[]{race_icons.getUnitStatusIcon(), icons.getIronStatusIcon()}, "I");
+				new IconQuad[]{race_icons.unitStatusIcon(), icons.getIronStatusIcon()}, "I");
 		transport_group.addChild(transport_iron_button);
 		transport_rubber_button = new DeploySpinner(viewer, player_interface, icons.getRubberIcon(), Utils.getBundleString(bundle, "transport_chicken_tip"),
-				new IconQuad[]{race_icons.getUnitStatusIcon(), icons.getRubberStatusIcon()}, "C");
+				new IconQuad[]{race_icons.unitStatusIcon(), icons.getRubberStatusIcon()}, "C");
 		transport_group.addChild(transport_rubber_button);
 		transport_back_button = new NonFocusIconButton(skin.getBackButton(), formatTip("back_tip", "Esc"));
 		transport_back_button.addMouseClickListener(this::cancelSubMenu);
@@ -636,7 +636,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				break;
 			case A:
-				if ((current_unit || current_armory || current_tower) && !event.isControlDown())
+				if ((current_unit || current_armory || current_tower) && !event.controlDown())
 					return true;
 				break;
 			case P:
@@ -682,7 +682,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 				}
 				break;
 			case A:
-				if (!event.isControlDown()) {
+				if (!event.controlDown()) {
 					if (current_unit) {
 						attack_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 						return true;
@@ -720,13 +720,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					}
 				} else if (current_armory) {
 					if (current_submenu == harvest_group) {
-						harvest_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						harvest_rubber_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == build_group) {
-						build_weapon_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						build_weapon_rubber_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == army_group) {
-						army_warrior_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						army_warrior_rubber_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == transport_group) {
-						transport_rubber_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						transport_rubber_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else {
 						break;
 					}
@@ -741,12 +741,12 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 				break;
 			case P:
 				if (current_quarters) {
-					quarters_peon_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+					quarters_peon_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					return true;
 				}
 				if (current_armory) {
 					if (current_submenu == army_group) {
-						army_peon_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						army_peon_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else {
 						break;
 					}
@@ -756,13 +756,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			case I:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
-						harvest_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						harvest_iron_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == build_group) {
-						build_weapon_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						build_weapon_iron_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == army_group) {
-						army_warrior_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						army_warrior_iron_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == transport_group) {
-						transport_iron_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						transport_iron_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else {
 						break;
 					}
@@ -775,13 +775,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					return true;
 				} else if (current_armory) {
 					if (current_submenu == harvest_group) {
-						harvest_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						harvest_rock_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == build_group) {
-						build_weapon_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						build_weapon_rock_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == army_group) {
-						army_warrior_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						army_warrior_rock_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == transport_group) {
-						transport_rock_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						transport_rock_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == null) {
 						rally_point_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					} else {
@@ -825,9 +825,9 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 					if (current_submenu == null) {
 						build_button.mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
 					} else if (current_submenu == harvest_group) {
-						harvest_tree_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						harvest_tree_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == transport_group) {
-						transport_tree_button.shortcutPressed(event.isShiftDown(), event.isControlDown());
+						transport_tree_button.shortcutPressed(event.shiftDown(), event.controlDown());
 					} else {
 						break;
 					}
@@ -862,13 +862,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			case C:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
-						harvest_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						harvest_rubber_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == build_group) {
-						build_weapon_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						build_weapon_rubber_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == army_group) {
-						army_warrior_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						army_warrior_rubber_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == transport_group) {
-						transport_rubber_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						transport_rubber_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else {
 						break;
 					}
@@ -877,12 +877,12 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 				break;
 			case P:
 				if (current_quarters) {
-					quarters_peon_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+					quarters_peon_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					return true;
 				}
 				if (current_armory) {
 					if (current_submenu == army_group) {
-						army_peon_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						army_peon_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else {
 						break;
 					}
@@ -892,13 +892,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			case I:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
-						harvest_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						harvest_iron_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == build_group) {
-						build_weapon_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						build_weapon_iron_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == army_group) {
-						army_warrior_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						army_warrior_iron_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == transport_group) {
-						transport_iron_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						transport_iron_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else {
 						break;
 					}
@@ -908,13 +908,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			case R:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
-						harvest_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						harvest_rock_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == build_group) {
-						build_weapon_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						build_weapon_rock_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == army_group) {
-						army_warrior_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						army_warrior_rock_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == transport_group) {
-						transport_rock_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						transport_rock_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else {
 						break;
 					}
@@ -934,9 +934,9 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 			case W:
 				if (current_armory) {
 					if (current_submenu == harvest_group) {
-						harvest_tree_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						harvest_tree_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else if (current_submenu == transport_group) {
-						transport_tree_button.shortcutReleased(event.isShiftDown(), event.isControlDown());
+						transport_tree_button.shortcutReleased(event.shiftDown(), event.controlDown());
 					} else {
 						break;
 					}

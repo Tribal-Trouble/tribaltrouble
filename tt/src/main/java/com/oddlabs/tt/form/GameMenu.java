@@ -75,8 +75,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	private final @NonNull TextBox chat_box;
 	private final @NonNull EditLine chat_line;
 	private final Diode @NonNull [] ready_marks;
-	private final @NonNull HorizButton send_button;
-	private final @NonNull HorizButton ready_button;
+    private final @NonNull HorizButton ready_button;
 	private final @NonNull HorizButton start_button;
 	private final SelectGameMenu owner;
 	private final GUIRoot gui_root;
@@ -120,14 +119,14 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		player_group.compileCanvas();
 		addChild(player_group);
 
-		Box pdata = Skin.getSkin().getPanelData().getBox();
+		Box pdata = Skin.getSkin().getPanelData().box();
 		FormData fdata = Skin.getSkin().getFormData();
 
 		int width = compare_width - pdata.getLeftOffset() - pdata.getRightOffset();
 		chat_info = new Label(Utils.getBundleString(bundle, "chat"), Skin.getSkin().getEditFont(), width);
 		Group chat_line_group = new Group();
-		chat_line = new EditLine(width - SEND_BUTTON_WIDTH - fdata.getObjectSpacing(), 100);
-		send_button = new HorizButton(Utils.getBundleString(bundle, "send"), SEND_BUTTON_WIDTH);
+		chat_line = new EditLine(width - SEND_BUTTON_WIDTH - fdata.objectSpacing(), 100);
+        var send_button = new HorizButton(Utils.getBundleString(bundle, "send"), SEND_BUTTON_WIDTH);
 		send_button.addMouseClickListener(new SendListener());
 		chat_line_group.addChild(chat_line);
 		chat_line.place();
@@ -146,7 +145,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			start_button.addMouseClickListener(new StartListener());
 		}
 		int height = compare_height - pdata.getTopOffset() - pdata.getBottomOffset() - chat_info.getHeight()
-			- chat_line.getHeight() - game_name_label.getHeight() - player_group.getHeight() - start_button.getHeight() - 5*fdata.getObjectSpacing();
+			- chat_line.getHeight() - game_name_label.getHeight() - player_group.getHeight() - start_button.getHeight() - 5*fdata.objectSpacing();
 		chat_box = new TextBox(width, height, Skin.getSkin().getEditFont(), Integer.MAX_VALUE);
 		addChild(chat_box);
 		ready_button = new HorizButton(Utils.getBundleString(bundle, "ready"), button_width);

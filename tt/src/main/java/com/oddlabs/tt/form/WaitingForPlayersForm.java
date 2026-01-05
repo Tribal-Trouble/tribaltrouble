@@ -17,13 +17,12 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class WaitingForPlayersForm extends Form {
-	private final @NonNull Label info_label;
-	private final ResourceBundle bundle = ResourceBundle.getBundle(WaitingForPlayersForm.class.getName());
+    private final ResourceBundle bundle = ResourceBundle.getBundle(WaitingForPlayersForm.class.getName());
 	private final WorldViewer viewer;
 
 	public WaitingForPlayersForm(WorldViewer viewer) {
 		this.viewer = viewer;
-		info_label = new Label(Utils.getBundleString(bundle, "waiting"), Skin.getSkin().getHeadlineFont());
+        var info_label = new Label(Utils.getBundleString(bundle, "waiting"), Skin.getSkin().getHeadlineFont());
 		info_label.setDim(280, info_label.getHeight());
 		HorizButton abort_button = new HorizButton(Utils.getBundleString(bundle, "abort"), 120);
 		abort_button.addMouseClickListener(new AbortListener());
@@ -37,7 +36,7 @@ public final class WaitingForPlayersForm extends Form {
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() != Key.ESCAPE) // KEY_ESCAPE should not close this form
+		if (event.keyCode() != Key.ESCAPE) // KEY_ESCAPE should not close this form
 			super.keyRepeat(event);
 	}
 

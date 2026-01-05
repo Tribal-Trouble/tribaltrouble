@@ -48,16 +48,16 @@ public class ChatPanel extends Panel implements ChatListener {
 		super(getI18N("chat"));
 		this.gui_root = gui_root;
 		FormData fdata = Skin.getSkin().getFormData();
-		Box pdata = Skin.getSkin().getPanelData().getBox();
+		Box pdata = Skin.getSkin().getPanelData().box();
 		Box edata = Skin.getSkin().getEditBox();
 
-		Label label_headline = new Label(info.getName(), Skin.getSkin().getHeadlineFont());
+		Label label_headline = new Label(info.name(), Skin.getSkin().getHeadlineFont());
 		addChild(label_headline);
 
 		int edit_line_height = edata.getBottomOffset() + edata.getTopOffset() + Skin.getSkin().getEditFont().getHeight();
-		int height = compare_height - pdata.getTopOffset() - pdata.getBottomOffset() - edit_line_height - label_headline.getHeight() - 2*fdata.getObjectSpacing();
-		int user_list_height = (height - Skin.getSkin().getFormData().getObjectSpacing())/2;//- Skin.getSkin().getEditFont().getHeight();
-		user_list_width = 2*button_width + 2*fdata.getObjectSpacing() - Skin.getSkin().getScrollBarData().getScrollBar().getWidth();
+		int height = compare_height - pdata.getTopOffset() - pdata.getBottomOffset() - edit_line_height - label_headline.getHeight() - 2*fdata.objectSpacing();
+		int user_list_height = (height - Skin.getSkin().getFormData().objectSpacing())/2;//- Skin.getSkin().editFont().getHeight();
+		user_list_width = 2*button_width + 2*fdata.objectSpacing() - Skin.getSkin().getScrollBarData().scrollBar().getWidth();
 
 		ColumnInfo[] lobby_infos = new ColumnInfo[]{
 			new ColumnInfo(getI18N("lobby"), user_list_width)};
@@ -119,13 +119,13 @@ public class ChatPanel extends Panel implements ChatListener {
 	}
 
 	public final void update(@NonNull ChatRoomInfo info) {
-		ChatRoomUser[] users = info.getUsers();
+		ChatRoomUser[] users = info.users();
 		if (users != null) {
 			lobby_users_list_box.clear();
 			playing_users_list_box.clear();
             for (ChatRoomUser user : users) {
-                int label_width = user_list_width - (Skin.getSkin().getMultiColumnComboBoxData().getBox().getLeftOffset() + Skin.getSkin().getMultiColumnComboBoxData().getBox().getRightOffset());
-                Label label = new Label(user.getNick(), Skin.getSkin().getMultiColumnComboBoxData().getFont(), label_width);
+                int label_width = user_list_width - (Skin.getSkin().getMultiColumnComboBoxData().box().getLeftOffset() + Skin.getSkin().getMultiColumnComboBoxData().box().getRightOffset());
+                Label label = new Label(user.getNick(), Skin.getSkin().getMultiColumnComboBoxData().font(), label_width);
                 Row<ChatRoomUser,Label> row = new Row<>(new Label[]{label}, user);
                 if (!user.isPlaying()) {
                     lobby_users_list_box.addRow(row);

@@ -70,7 +70,7 @@ public class Group extends GUIObject {
 		int width = Math.max(top_left_width, bottom_right_width);
 		int height = (max_y_tl - min_y_tl) + (max_y_br - min_y_br) + top_offset + bottom_offset;
 		if (origin_top_left && origin_bottom_right)
-			height += Skin.getSkin().getFormData().getSectionSpacing();
+			height += Skin.getSkin().getFormData().sectionSpacing();
 		setDim(width, height);
 
 		// correct the objects positions.
@@ -87,16 +87,15 @@ public class Group extends GUIObject {
 			}
 			current = current.getNext();
 		}
-		current = null;
 	}
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		// Navigation logic is handled here (and in keyRepeat) because InputState calls keyRepeatAll
 		// immediately after keyPressedAll for the initial press, ensuring consistent behavior.
-		boolean control = event.isControlDown() || LocalInput.isControlDownCurrently();
+		boolean control = event.controlDown() || LocalInput.isControlDownCurrently();
 		if (event.keyCode() == Key.TAB && !control) {
-			switchFocus(event.isShiftDown() ? -1 : 1);
+			switchFocus(event.shiftDown() ? -1 : 1);
 		} else {
 			super.keyRepeat(event);
 		}

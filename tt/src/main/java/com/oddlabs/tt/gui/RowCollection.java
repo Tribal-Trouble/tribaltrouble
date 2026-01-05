@@ -51,14 +51,12 @@ final class RowCollection<T> extends GUIObject implements Clipped {
 
 	void selectFirst() {
 		if (rows.isEmpty()) return;
-		selectRow(sorted_descending ? rows.get(0) : rows.get(rows.size() - 1));
-		ensureVisible(selected_row);
+		ensureVisible(selectRow(sorted_descending ? rows.getFirst() : rows.getLast()));
 	}
 
 	void selectLast() {
 		if (rows.isEmpty()) return;
-		selectRow(sorted_descending ? rows.get(rows.size() - 1) : rows.get(0));
-		ensureVisible(selected_row);
+		ensureVisible(selectRow(sorted_descending ? rows.getLast() : rows.getFirst()));
 	}
 
 	private void ensureVisible(@NonNull Row<T,?> row) {
@@ -128,7 +126,7 @@ final class RowCollection<T> extends GUIObject implements Clipped {
 			y -= row.getHeight();
 			row.setPos(0, y);
             var data = Skin.getSkin().getMultiColumnComboBoxData();
-            row.setColor(i % 2 == 0 ? data.getColor1() : data.getColor2());
+            row.setColor(i % 2 == 0 ? data.color1() : data.color2());
 		}
 	}
 
@@ -140,11 +138,12 @@ final class RowCollection<T> extends GUIObject implements Clipped {
         return selected_row != null ? selected_row.getContentObject() : null;
 	}
 
-	void selectRow(Row<T,?> row) {
+	@NonNull Row<T,?> selectRow(@NonNull Row<T,?> row) {
 		assert rows.contains(row); 
 		if (selected_row != null)
 			selected_row.mark(false);
 		selected_row = row;
 		selected_row.mark(true);
+		return selected_row;
 	}
 }

@@ -5,7 +5,6 @@ import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.util.Utils;
 import org.joml.Vector4f;
-import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;

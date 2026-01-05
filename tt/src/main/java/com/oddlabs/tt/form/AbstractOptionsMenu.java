@@ -239,7 +239,7 @@ public abstract class AbstractOptionsMenu extends Form {
         for (int i = 0; i < modes.length; i++) {
             if (modes[i].getBitsPerPixel() == current_mode.getBitsPerPixel()) {
                 String mode_string = Utils.getBundleString(bundle, "mode", Integer.toString(modes[i].getWidth()), Integer.toString(modes[i].getHeight()), Integer.toString(modes[i].getFrequency()));
-                Label label = new SortedLabel(mode_string, i, Skin.getSkin().getMultiColumnComboBoxData().getFont());
+                Label label = new SortedLabel(mode_string, i, Skin.getSkin().getMultiColumnComboBoxData().font());
                 Row<SerializableDisplayMode, Label> row = new Row<>(new Label[]{label}, modes[i]);
                 mode_list_box.addRow(row);
                 if (modes[i].equals(current_mode))
@@ -378,7 +378,7 @@ public abstract class AbstractOptionsMenu extends Form {
         }
 
         Row<Locale,IconLabel> selectedLanguage = null;
-        IconLabel label = new IconLabel(Skin.getSkin().getFlagDefault(), new Label(Utils.getBundleString(bundle, "system_default"), Skin.getSkin().getMultiColumnComboBoxData().getFont()));
+        IconLabel label = new IconLabel(Skin.getSkin().getFlagDefault(), new Label(Utils.getBundleString(bundle, "system_default"), Skin.getSkin().getMultiColumnComboBoxData().font()));
         Row<Locale,IconLabel> row = new Row<>(new IconLabel[]{label}, Renderer.getRenderer().getDefaultLocale());
         language_list_box.addRow(row);
         if (Settings.getSettings().language.equals("default"))
@@ -386,7 +386,7 @@ public abstract class AbstractOptionsMenu extends Form {
         String[][] languages = Languages.getLanguages();
         IconQuad[] flags = Languages.getFlags();
         for (int i = 0; i < languages.length; i++) {
-            label = new IconLabel(flags[i], new Label(languages[i][1], Skin.getSkin().getMultiColumnComboBoxData().getFont()));
+            label = new IconLabel(flags[i], new Label(languages[i][1], Skin.getSkin().getMultiColumnComboBoxData().font()));
             row = new Row<>(new IconLabel[]{label}, Locale.of(languages[i][0]));
             language_list_box.addRow(row);
             if (languages[i][0].equals(Settings.getSettings().language))
@@ -394,7 +394,7 @@ public abstract class AbstractOptionsMenu extends Form {
         }
 
         language_list_box.selectRow(selectedLanguage);
-        language_list_box.addRowListener(new RowListener<Locale>() {
+        language_list_box.addRowListener(new RowListener<>() {
             @Override
             public void rowChosen(Locale locale) {
                 Settings.getSettings().language = locale.getVariant().equals("default") ? "default" : locale.getLanguage();

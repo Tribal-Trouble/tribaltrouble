@@ -2,8 +2,6 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.landscape.AbstractTreeGroup;
-import com.oddlabs.tt.landscape.LandscapeResources;
 import com.oddlabs.tt.landscape.TreeGroup;
 import com.oddlabs.tt.landscape.TreeLeaf;
 import com.oddlabs.tt.landscape.TreeNodeVisitor;

@@ -30,14 +30,14 @@ public final class Row<T,C extends GUIObject & Comparable<C>> extends GUIObject 
 			C gui_object = getColumn(i);
 			gui_object.setPos(x, 0);
 			addChild(gui_object);
-			x += column_infos[i].getWidth();
+			x += column_infos[i].width();
 
 			// if left most column, correct for the radio button starting without left_offset
 			if (i == 0)
-				x -= Skin.getSkin().getMultiColumnComboBoxData().getBox().getLeftOffset(); 
+				x -= Skin.getSkin().getMultiColumnComboBoxData().box().getLeftOffset();
 			// if right most column, correct for the radio button extending over right_offset
 			if (i == column_infos.length - 1)
-				x -= Skin.getSkin().getMultiColumnComboBoxData().getBox().getRightOffset(); 
+				x -= Skin.getSkin().getMultiColumnComboBoxData().box().getRightOffset();
 		}
 		setDim(x, getHeight());
 	}
@@ -57,8 +57,7 @@ public final class Row<T,C extends GUIObject & Comparable<C>> extends GUIObject 
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-        var c = marked ? Skin.getSkin().getMultiColumnComboBoxData().getColorMarked() : color;
-		if (c.w() >= .2f) {
+        			var c = marked ? Skin.getSkin().getMultiColumnComboBoxData().colorMarked() : color;		if (c.w() >= .2f) {
 			renderer.drawColoredQuad(0, 0, getWidth(), getHeight(), c);
 		}
 	}

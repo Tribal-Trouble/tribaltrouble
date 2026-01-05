@@ -94,8 +94,8 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		placed = true;
 	}
 
-	public final void place(@NonNull GUIObject neighbor, @NonNull Placement direction) {
-		place(neighbor, direction, Skin.getSkin().getFormData().getObjectSpacing());
+	public void place(GUIObject neighbor, @NonNull Placement direction) {
+		place(neighbor, direction, Skin.getSkin().getFormData().objectSpacing());
 	}
 
 	public final void place(@NonNull GUIObject neighbor, @NonNull Placement direction, int spacing) {

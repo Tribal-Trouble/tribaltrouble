@@ -40,7 +40,7 @@ public class FirstPersonDelegate extends InGameDelegate {
 	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
 		if (key_pressed && !done) {
-			switch (event.getKeyCode()) {
+			switch (event.keyCode()) {
 				case F:
 					pop();
 					break;

@@ -14,9 +14,9 @@ public class PanelTab extends GUIObject {
 		PanelData data = Skin.getSkin().getPanelData();
 		Font font = Skin.getSkin().getButtonFont();
 		label = new Label(caption, font);
-		label.setPos(data.getLeftCaptionOffset(), (data.getTab().getHeight() - font.getHeight())/2 + data.getBottomCaptionOffset());
+		label.setPos(data.leftCaptionOffset(), (data.tab().getHeight() - font.getHeight())/2 + data.bottomCaptionOffset());
 		addChild(label);
-		setDim(data.getLeftCaptionOffset() + label.getWidth() + data.getRightCaptionOffset(), data.getTab().getHeight());
+		setDim(data.leftCaptionOffset() + label.getWidth() + data.rightCaptionOffset(), data.tab().getHeight());
 		setCanFocus(true);
 		setTabStop(false);
 	}
@@ -38,7 +38,7 @@ public class PanelTab extends GUIObject {
 
 	@Override
 	protected final void renderGeometry(@NonNull GUIRenderer renderer) {
-        Skin.getSkin().getPanelData().getTab()
+        Skin.getSkin().getPanelData().tab()
                 .render(renderer, 0, 0, getWidth(), getRenderState());
 	}
 

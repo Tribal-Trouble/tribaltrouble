@@ -6,7 +6,6 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBVorbis;
 import org.lwjgl.stb.STBVorbisInfo;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

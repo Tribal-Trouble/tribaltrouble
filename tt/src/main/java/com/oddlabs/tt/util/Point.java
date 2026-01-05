@@ -1,7 +1,4 @@
 package com.oddlabs.tt.util;
 
-public final class Point {
-	public int x;
-	public int y;
+public record Point(int x, int y) {
 }
-

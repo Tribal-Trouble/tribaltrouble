@@ -15,12 +15,12 @@ public final class ScrollBar extends GUIObject {
 
 	public ScrollBar(int height, @NonNull Scrollable owner) {
 		this.owner = owner;
-		less_button = new ArrowButton(Skin.getSkin().getScrollBarData().getScrollDownButtonPressed(),
-									  Skin.getSkin().getScrollBarData().getScrollDownButtonUnpressed(),
-									  Skin.getSkin().getScrollBarData().getScrollDownArrow());
-		more_button = new ArrowButton(Skin.getSkin().getScrollBarData().getScrollUpButtonPressed(),
-									  Skin.getSkin().getScrollBarData().getScrollUpButtonUnpressed(),
-									  Skin.getSkin().getScrollBarData().getScrollUpArrow());
+		less_button = new ArrowButton(Skin.getSkin().getScrollBarData().scrollDownButtonPressed(),
+									  Skin.getSkin().getScrollBarData().scrollDownButtonUnpressed(),
+									  Skin.getSkin().getScrollBarData().scrollDownArrow());
+		more_button = new ArrowButton(Skin.getSkin().getScrollBarData().scrollUpButtonPressed(),
+									  Skin.getSkin().getScrollBarData().scrollUpButtonUnpressed(),
+									  Skin.getSkin().getScrollBarData().scrollUpArrow());
 		less_button.setPos(0, 0);
 		more_button.setPos(0, height - more_button.getHeight());
 		focus_group.addChild(more_button);
@@ -68,29 +68,26 @@ public final class ScrollBar extends GUIObject {
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		ScrollBarData data = Skin.getSkin().getScrollBarData();
-		Vertical scroll_bar = data.getScrollBar();
+		Vertical scroll_bar = data.scrollBar();
 		scroll_bar.render(renderer, 0, less_button.getHeight(), getHeight() - less_button.getHeight() - more_button.getHeight(), ModeIconQuads.Mode.NORMAL);
 	}
 
 	public int getButtonX() {
-		return Skin.getSkin().getScrollBarData().getLeftOffset();
+		return Skin.getSkin().getScrollBarData().leftOffset();
 	}
 
 	public int getButtonY() {
 		ScrollBarData data = Skin.getSkin().getScrollBarData();
-		int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.getBottomOffset() - data.getTopOffset();
-		int size = getButtonHeight();
+					int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data.topOffset();		int size = getButtonHeight();
 		int offset = max_height - size - (int)((max_height - size) * owner.getScrollBarOffset());
-		return less_button.getHeight() + data.getBottomOffset() + offset;
+		return less_button.getHeight() + data.bottomOffset() + offset;
 	}
 
 	public int getButtonHeight() {
 		ScrollBarData data = Skin.getSkin().getScrollBarData();
-		int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.getBottomOffset() - data.getTopOffset();
+		int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data.topOffset();
 		float ratio = owner.getScrollBarRatio();
-		int size = (int)(ratio*max_height);
-		if (size < data.getScrollButton().getMinHeight())
-			size = data.getScrollButton().getMinHeight();
+		int size = Math.max((int)(ratio*max_height), data.scrollButton().getMinHeight());
 		return size;
 	}
 
@@ -142,7 +139,7 @@ public final class ScrollBar extends GUIObject {
 
 		@Override
 		public void mouseDragged(@NonNull MouseButton button, int x, int y, int rel_x, int rel_y, int abs_x, int abs_y) {
-			int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.getBottomOffset() - data.getTopOffset();
+			int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data.topOffset();
 			float ratio = owner.getScrollBarRatio();
 			int size = (int)(ratio*max_height);
 			int scroll_button_space = max_height - size;
@@ -167,7 +164,7 @@ public final class ScrollBar extends GUIObject {
 	private final class ButtonKeyListener implements KeyListener {
 		@Override
 		public void keyRepeat(@NonNull KeyboardEvent event) {
-            switch (event.getKeyCode()) {
+            switch (event.keyCode()) {
                 case UP -> {
                     owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
                     scroll_button.setupPos(ScrollBar.this);

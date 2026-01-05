@@ -19,7 +19,6 @@ import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.landscape.AudioImplementation;
 import com.oddlabs.tt.landscape.LandscapeResources;
 import com.oddlabs.tt.landscape.NotificationListener;
-import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.model.Race;
@@ -48,7 +47,6 @@ import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.Utils;
-import org.joml.Matrix4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
@@ -211,16 +209,16 @@ public final class WorldViewer implements Animated, AutoCloseable {
         } else {
             player.setPreferredGamespeed(initial_gamespeed);
             int i = 0;
-            for (int j = 0; j < unit_info.getNumPeons(); j++, i++) {
+            for (int j = 0; j < unit_info.numPeons(); j++, i++) {
                 new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null, player.getRace().getUnitTemplate(Race.UNIT_PEON));
             }
-            for (int j = 0; j < unit_info.getNumRockWarriors(); j++, i++) {
+            for (int j = 0; j < unit_info.numRockWarriors(); j++, i++) {
                 new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null, player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
             }
-            for (int j = 0; j < unit_info.getNumIronWarriors(); j++, i++) {
+            for (int j = 0; j < unit_info.numIronWarriors(); j++, i++) {
                 new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null, player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
             }
-            for (int j = 0; j < unit_info.getNumRubberWarriors(); j++, i++) {
+            for (int j = 0; j < unit_info.numRubberWarriors(); j++, i++) {
                 new Unit(player, starting_location[2 * i], starting_location[2 * i + 1], null, player.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
             }
             if (unit_info.hasChieftain()) {

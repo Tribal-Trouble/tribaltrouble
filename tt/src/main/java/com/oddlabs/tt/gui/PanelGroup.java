@@ -32,15 +32,15 @@ public final class PanelGroup extends GUIObject {
 		}
 		int total_height = height + tab_height;
 		setDim(width, total_height);
-		int x = Skin.getSkin().getPanelData().getLeftTabOffset();
+		int x = Skin.getSkin().getPanelData().leftTabOffset();
 		int y = height;
 		for (int i = 0; i < panels.length; i++) {
-			panels[i].setPos((width - panels[i].getWidth())/2, Skin.getSkin().getPanelData().getBottomTabOffset() + (height - panels[i].getHeight())/2);
+			panels[i].setPos((width - panels[i].getWidth())/2, Skin.getSkin().getPanelData().bottomTabOffset() + (height - panels[i].getHeight())/2);
 			panels[i].getTab().setPos(x, y);
 			x += panels[i].getTab().getWidth();
 			panels[i].getTab().addMouseButtonListener(new TabListener(i));
 		}
-		box = new PanelBox(width, total_height - panels[0].getTab().getHeight() + Skin.getSkin().getPanelData().getBottomTabOffset());
+		box = new PanelBox(width, total_height - panels[0].getTab().getHeight() + Skin.getSkin().getPanelData().bottomTabOffset());
 
 		focus_group.setDim(width, total_height);
 		focus_group.setPos(0, 0);
@@ -83,7 +83,7 @@ public final class PanelGroup extends GUIObject {
 
 		@Override
 		protected void renderGeometry(@NonNull GUIRenderer renderer) {
-			Box panelBox = Skin.getSkin().getPanelData().getBox();
+			Box panelBox = Skin.getSkin().getPanelData().box();
 			panelBox.render(renderer,  0f, 0f, getWidth(), getHeight(), panels[selected].getTab().getRenderState());
 		}
 	}

@@ -30,7 +30,7 @@ public class TargetDelegate extends ControllableCameraDelegate {
 	@Override
 	public final void keyPressed(@NonNull KeyboardEvent event) {
 		getCamera().keyPressed(event);
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case ESCAPE -> pop();
             case SPACE, RETURN -> {
             }
@@ -40,7 +40,7 @@ public class TargetDelegate extends ControllableCameraDelegate {
 
 	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() != Key.SPACE || event.getKeyCode() != Key.RETURN)
+		if (event.keyCode() != Key.SPACE || event.keyCode() != Key.RETURN)
 			getCamera().keyReleased(event);
 	}
 

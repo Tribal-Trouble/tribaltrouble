@@ -15,7 +15,7 @@ public class Panel extends Group {
 
 	@Override
 	public final void compileCanvas() {
-		Box box = Skin.getSkin().getPanelData().getBox();
+		Box box = Skin.getSkin().getPanelData().box();
 		super.compileCanvas(box.getLeftOffset(), box.getBottomOffset(), box.getRightOffset(), box.getTopOffset());
 	}
 }

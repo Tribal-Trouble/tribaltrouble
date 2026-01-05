@@ -45,7 +45,7 @@ public class ZoomDelegate extends InGameDelegate {
 	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
 		if (!done) {
-            switch (event.getKeyCode()) {
+            switch (event.keyCode()) {
                 case Z -> pop();
             }
 		}

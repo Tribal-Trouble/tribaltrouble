@@ -13,19 +13,19 @@ public final class BorderGroup extends Group {
 
 	public BorderGroup(@NonNull String caption) {
 		GroupData data = Skin.getSkin().getGroupData();
-		label = new Label(caption, data.getCaptionFont());
+		label = new Label(caption, data.captionFont());
 	}
 
 	@Override
 	public void compileCanvas() {
 		GroupData data = Skin.getSkin().getGroupData();
-		Box group = data.getGroup();
+		Box group = data.group();
 		if (label != null) {
 			super.compileCanvas(group.getLeftOffset(),
 								group.getBottomOffset(),
 								group.getRightOffset(),
-								group.getTopOffset() + data.getCaptionOffset());
-			label.setPos(data.getCaptionLeft(), getHeight() - data.getCaptionY());
+								group.getTopOffset() + data.captionOffset());
+			label.setPos(data.captionLeft(), getHeight() - data.captionY());
 			addChild(label);
 		} else {
 			super.compileCanvas(group.getLeftOffset(), group.getBottomOffset(), group.getRightOffset(), group.getTopOffset());
@@ -35,6 +35,6 @@ public final class BorderGroup extends Group {
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		Skin.getSkin().getGroupData().getGroup().render(renderer, 0f, 0f, getWidth(), getHeight(), ModeIconQuads.Mode.NORMAL);
+		Skin.getSkin().getGroupData().group().render(renderer, 0f, 0f, getWidth(), getHeight(), ModeIconQuads.Mode.NORMAL);
 	}
 }

@@ -105,13 +105,13 @@ public abstract class TextField extends GUIObject implements CharSequence {
 
 	@Override
 	protected final void keyPressed(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() != Key.SPACE && event.getKeyCode() != Key.RETURN)
+		if (event.keyCode() != Key.SPACE && event.keyCode() != Key.RETURN)
 			super.keyPressed(event);
 	}
 
 	@Override
 	protected void keyReleased(@NonNull KeyboardEvent event) {
-		if (event.getKeyCode() != Key.SPACE && event.getKeyCode() != Key.RETURN)
+		if (event.keyCode() != Key.SPACE && event.keyCode() != Key.RETURN)
 			super.keyReleased(event);
 	}
 }

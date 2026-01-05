@@ -18,21 +18,21 @@ public final class ArrowButton extends ButtonObject {
 
 	@Override
 	public void keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case SPACE, RETURN -> mousePressedAll(MouseButton.LEFT, 0, 0);
         }
 	}
 
 	@Override
 	public void keyRepeat(@NonNull KeyboardEvent event) {
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case TAB -> super.keyRepeat(event);
         }
 	}
 
 	@Override
 	public void keyReleased(@NonNull KeyboardEvent event) {
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case SPACE, RETURN -> mouseReleasedAll(MouseButton.LEFT, 0, 0);
         }
 	}

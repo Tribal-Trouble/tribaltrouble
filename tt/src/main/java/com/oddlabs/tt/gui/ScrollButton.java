@@ -11,7 +11,7 @@ public final class ScrollButton extends GUIObject {
 
 	public void setupPos(@NonNull ScrollBar owner) {
 		setPos(owner.getButtonX(), owner.getButtonY());
-		setDim(Skin.getSkin().getScrollBarData().getScrollButton().getWidth(), owner.getButtonHeight());
+		setDim(Skin.getSkin().getScrollBarData().scrollButton().getWidth(), owner.getButtonHeight());
 	}
 
 	@Override
@@ -20,7 +20,7 @@ public final class ScrollButton extends GUIObject {
 
 	@Override
 	public void keyRepeat(@NonNull KeyboardEvent event) {
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case TAB -> super.keyRepeat(event);
         }
 	}
@@ -36,7 +36,8 @@ public final class ScrollButton extends GUIObject {
                 : isActive()
                     ? ModeIconQuads.Mode.ACTIVE
                     : ModeIconQuads.Mode.NORMAL;
-        Skin.getSkin().getScrollBarData().getScrollButton()
+
+		Skin.getSkin().getScrollBarData().scrollButton()
 		        .render(renderer, 0, 0, getHeight(), skinMode);
 	}
 

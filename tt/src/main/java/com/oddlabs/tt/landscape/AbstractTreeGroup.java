@@ -1,6 +1,5 @@
 package com.oddlabs.tt.landscape;
 
-import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.util.BoundingBox;

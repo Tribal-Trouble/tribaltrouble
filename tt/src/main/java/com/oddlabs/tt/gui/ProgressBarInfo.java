@@ -9,7 +9,7 @@ public final class ProgressBarInfo {
 	private int waypoint;
 
 	public ProgressBarInfo(@NonNull String title, float weight) {
-		Font font = Skin.getSkin().getProgressBarData().getFont();
+		Font font = Skin.getSkin().getProgressBarData().font();
 		label = new Label(title, font);
 		this.weight = weight;
 	}

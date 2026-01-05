@@ -65,7 +65,7 @@ public abstract class AI implements Animated {
 			if (unit_info.hasArmory()) {
 				owner.buildBuilding(Race.BUILDING_ARMORY, grid_start_x, grid_start_y);
 			}
-			for (int i = 0; i < unit_info.getNumTowers(); i++) {
+			for (int i = 0; i < unit_info.numTowers(); i++) {
 				int center = owner.getWorld().getHeightMap().getGridUnitsPerWorld() / 2;
 				int dx = center - grid_start_x;
 				int dy = center - grid_start_y;
@@ -80,19 +80,19 @@ public abstract class AI implements Animated {
 				Unit chieftain = new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(Race.UNIT_CHIEFTAIN));
 				owner.setActiveChieftain(chieftain);
 			}
-			for (int i = 0; i < unit_info.getNumPeons(); i++) {
+			for (int i = 0; i < unit_info.numPeons(); i++) {
 				Target t = getTarget(random);
 				new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(Race.UNIT_PEON));
 			}
-			for (int i = 0; i < unit_info.getNumRockWarriors(); i++) {
+			for (int i = 0; i < unit_info.numRockWarriors(); i++) {
 				Target t = getTarget(random);
 				new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(Race.UNIT_WARRIOR_ROCK));
 			}
-			for (int i = 0; i < unit_info.getNumIronWarriors(); i++) {
+			for (int i = 0; i < unit_info.numIronWarriors(); i++) {
 				Target t = getTarget(random);
 				new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(Race.UNIT_WARRIOR_IRON));
 			}
-			for (int i = 0; i < unit_info.getNumRubberWarriors(); i++) {
+			for (int i = 0; i < unit_info.numRubberWarriors(); i++) {
 				Target t = getTarget(random);
 				new Unit(owner, t.getPositionX(), t.getPositionY(), null, owner.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 			}

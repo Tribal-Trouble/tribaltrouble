@@ -18,15 +18,14 @@ public final class ColumnButton<T> extends RadioButtonGroupElement {
 		this.column_index = column_index;
 		this.sorted_descending = sorted_descending;
 		MultiColumnComboBoxData data = Skin.getSkin().getMultiColumnComboBoxData();
-		setDim(info.getWidth(), data.getButtonUnpressed().getHeight());
+		setDim(info.width(), data.buttonUnpressed().getHeight());
 
-        Font font = data.getFont();
-		Label label = new Label(info.getCaption(), font);
-        label.setPos(data.getCaptionOffset(), (getHeight() - font.getHeight())/2 + 1);
-		addChild(label);
+        Font font = data.font();
+		Label label = new Label(info.caption(), font);
+        		label.setPos(data.captionOffset(), (getHeight() - font.getHeight())/2 + 1);		addChild(label);
 
-		IconQuad arrow = Skin.getSkin().getMultiColumnComboBoxData().getDescending().quad(ModeIconQuads.Mode.NORMAL);
-		arrow_offset = info.getWidth() - arrow.getWidth();
+		IconQuad arrow = Skin.getSkin().getMultiColumnComboBoxData().descending().quad(ModeIconQuads.Mode.NORMAL);
+		arrow_offset = info.width() - arrow.getWidth();
 		setCanFocus(true);
 	}
 
@@ -63,8 +62,8 @@ public final class ColumnButton<T> extends RadioButtonGroupElement {
 
         var data = Skin.getSkin().getMultiColumnComboBoxData();
         Horizontal buttonHorizontal = skinMode == ModeIconQuads.Mode.ACTIVE && isHovered() && pressed
-                ? data.getButtonPressed()
-                : data.getButtonUnpressed();
+                				? data.buttonPressed()
+								: data.buttonUnpressed();
 
 		buttonHorizontal.render(renderer, 0, 0, getWidth(), skinMode);
 		if (isMarked())
@@ -74,8 +73,8 @@ public final class ColumnButton<T> extends RadioButtonGroupElement {
 	private void renderMark(@NonNull GUIRenderer renderer, ModeIconQuads.@NonNull Mode skinMode) {
         var data = Skin.getSkin().getMultiColumnComboBoxData();
         ModeIconQuads arrow = sorted_descending
-                ? data.getDescending()
-                : data.getAscending();
+                ? data.descending()
+                : data.ascending();
 
         IconQuad arrowQuad = arrow.quad(skinMode);
 		renderer.drawIcon(arrowQuad, arrow_offset, (getHeight() - arrowQuad.getHeight())/2f);

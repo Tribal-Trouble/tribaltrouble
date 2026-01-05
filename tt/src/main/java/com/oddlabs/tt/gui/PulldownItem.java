@@ -14,10 +14,10 @@ public final class PulldownItem<T> extends ButtonObject {
 	}
 	
 	public PulldownItem(@NonNull String label_str, @Nullable T attachment) {
-		super(Skin.getSkin().getPulldownData().getFont());
+		super(Skin.getSkin().getPulldownData().font());
 		this.attachment = attachment;
 		PulldownData data = Skin.getSkin().getPulldownData();
-		label = new Label(label_str, data.getFont(), 0, Origin.AT_START);
+		label = new Label(label_str, data.font(), 0, Origin.AT_START);
 		addChild(label);
 		setDim(0, label.getHeight());
 	}
@@ -38,7 +38,7 @@ public final class PulldownItem<T> extends ButtonObject {
 	@Override
 	public @NonNull PulldownItem<T> setDim(int width, int height) {
 		super.setDim(width, height);
-		Box item = Skin.getSkin().getPulldownData().getPulldownItem();
+		Box item = Skin.getSkin().getPulldownData().pulldownItem();
 		label.setDim(getWidth() - item.getLeftOffset() - item.getRightOffset(), label.getHeight());
 		label.setPos(item.getLeftOffset(), (getHeight() - label.getHeight())/2);
 		return this;
@@ -46,7 +46,7 @@ public final class PulldownItem<T> extends ButtonObject {
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		Box item = Skin.getSkin().getPulldownData().getPulldownItem();
+		Box item = Skin.getSkin().getPulldownData().pulldownItem();
 		ModeIconQuads.Mode skinMode = isDisabled()
                 ? ModeIconQuads.Mode.NORMAL
                 : isActive() || isHovered()

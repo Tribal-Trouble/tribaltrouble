@@ -90,25 +90,25 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 			GUIObject island;
 			switch (state) {
 				case CampaignState.ISLAND_AVAILABLE:
-					island = new NonFocusIconButton(data.getButton(), "");
+					island = new NonFocusIconButton(data.button(), "");
 					island.addMouseClickListener(new IslandClickListener(i));
 					addChild(island);
 					break;
 				case CampaignState.ISLAND_SEMI_AVAILABLE:
 				case CampaignState.ISLAND_UNAVAILABLE:
-					island = new GUIIcon(data.getButton().quad(ModeIconQuads.Mode.DISABLED));
+					island = new GUIIcon(data.button().quad(ModeIconQuads.Mode.DISABLED));
 					addChild(island);
 					break;
 				case CampaignState.ISLAND_COMPLETED:
-					island = new GUIIcon(data.getButton().quad(ModeIconQuads.Mode.NORMAL));
+					island = new GUIIcon(data.button().quad(ModeIconQuads.Mode.NORMAL));
 					addChild(island);
 					if (campaign.getState().getCurrentIsland() != i) {
-						GUIIcon flag = new GUIIcon(data.getFlag());
-						flag.setPos(data.getPinX(), data.getPinY());
+						GUIIcon flag = new GUIIcon(data.flag());
+						flag.setPos(data.pinX(), data.pinY());
 						addChild(flag);
 					} else {
-						GUIIcon boat = new GUIIcon(data.getBoat());
-						boat.setPos(data.getPinX(), data.getPinY());
+						GUIIcon boat = new GUIIcon(data.boat());
+						boat.setPos(data.pinX(), data.pinY());
 						addChild(boat);
 					}
 					break;
@@ -119,13 +119,13 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 					throw new IllegalArgumentException("Unexpcted island state: " + state);
 			}
 			if (island != null)
-				island.setPos(data.getX(), data.getY());
+				island.setPos(data.x(), data.y());
 		}
 	}
 
 	@Override
 	protected void keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case ESCAPE ->
                     getGUIRoot().pushDelegate(new CampaignMapMenu(network, getGUIRoot(), new StaticCamera(getCamera().getState())));
             default -> super.keyPressed(event);
@@ -149,7 +149,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 
 	/*
 	protected final void keyPressed(KeyboardEvent event) {
-		if (event.getKeyCode() == Keyboard.KEY_ESCAPE) {
+		if (event.keyCode() == Keyboard.KEY_ESCAPE) {
 		} else {
 			super.keyPressed(event);
 		}

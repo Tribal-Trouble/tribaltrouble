@@ -32,7 +32,7 @@ public final class SliderButton extends ButtonObject {
 
 	@Override
 	public void keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.getKeyCode()) {
+        switch (event.keyCode()) {
             case RIGHT -> slider.setValue(slider.getValue() + 1);
             case LEFT -> slider.setValue(slider.getValue() - 1);
         }
