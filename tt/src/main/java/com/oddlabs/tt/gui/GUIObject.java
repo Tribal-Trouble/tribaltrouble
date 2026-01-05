@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.delegate.ModalDelegate;
+import com.oddlabs.tt.guievent.EventListener;
 import com.oddlabs.tt.guievent.FocusListener;
 import com.oddlabs.tt.guievent.KeyListener;
 import com.oddlabs.tt.guievent.MouseButtonListener;
@@ -37,12 +38,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 
 	private @Nullable GUIObject next_hover = null;
 
-	private final Set<@NonNull MouseClickListener> mouse_click_listeners = new CopyOnWriteArraySet<>();
-	private final Set<@NonNull MouseButtonListener> mouse_button_listeners = new CopyOnWriteArraySet<>();
-	private final Set<@NonNull MouseMotionListener> mouse_motion_listeners = new CopyOnWriteArraySet<>();
-	private final Set<@NonNull MouseWheelListener> mouse_wheel_listeners = new CopyOnWriteArraySet<>();
-	private final Set<@NonNull KeyListener> key_listeners = new CopyOnWriteArraySet<>();
-	private final Set<@NonNull FocusListener> focus_listeners = new CopyOnWriteArraySet<>();
+	private final Set<@NonNull EventListener> listeners = new CopyOnWriteArraySet<>();
 
 	private boolean placed = false;
 	private @NonNull Origin origin = Origin.AT_START;
@@ -359,8 +355,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	final void focusNotifyAll(boolean focus) {
 		active = focus;
 		focusNotify(focus);
-		for (FocusListener listener : focus_listeners) {
-			listener.activated(focus);
+		for (var listener : listeners) {
+			if (listener instanceof FocusListener l) {
+				l.activated(focus);
+			}
 		}
 	}
 
@@ -389,8 +387,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		if (disabled)
 			return;
 		mouseScrolled(amount);
-		for (MouseWheelListener listener : mouse_wheel_listeners) {
-			listener.mouseScrolled(amount);
+		for (var listener : listeners) {
+			if (listener instanceof MouseWheelListener l) {
+				l.mouseScrolled(amount);
+			}
 		}
 	}
 
@@ -404,8 +404,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		if (disabled)
 			return;
 		mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
-		for (MouseMotionListener listener : mouse_motion_listeners) {
-			listener.mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
+		for (var listener : listeners) {
+			if (listener instanceof MouseMotionListener l) {
+				l.mouseDragged(button, x, y, relative_x, relative_y, absolute_x, absolute_y);
+			}
 		}
 	}
 
@@ -417,8 +419,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		if (disabled)
 			return;
 		mouseMoved(x, y);
-		for (MouseMotionListener listener : mouse_motion_listeners) {
-			listener.mouseMoved(x, y);
+		for (var listener : listeners) {
+			if (listener instanceof MouseMotionListener l) {
+				l.mouseMoved(x, y);
+			}
 		}
 	}
 
@@ -431,8 +435,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	final void mouseExitedAll() {
 		hovered = false;
 		mouseExited();
-		for (MouseMotionListener listener : mouse_motion_listeners) {
-			listener.mouseExited();
+		for (var listener : listeners) {
+			if (listener instanceof MouseMotionListener l) {
+				l.mouseExited();
+			}
 		}
 	}
 
@@ -445,8 +451,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	final void mouseEnteredAll() {
 		hovered = true;
 		mouseEntered();
-		for (MouseMotionListener listener : mouse_motion_listeners) {
-			listener.mouseEntered();
+		for (var listener : listeners) {
+			if (listener instanceof MouseMotionListener l) {
+				l.mouseEntered();
+			}
         }
 	}
 
@@ -460,8 +468,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		if (disabled)
 			return;
 		mouseClicked(button, x, y, clicks);
-		for (MouseClickListener listener : mouse_click_listeners) {
-    		listener.mouseClicked(button, x, y, clicks);
+		for (var listener : listeners) {
+			if (listener instanceof MouseClickListener l) {
+    			l.mouseClicked(button, x, y, clicks);
+			}
         }
 	}
 
@@ -475,8 +485,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		if (disabled)
 			return;
 		mouseReleased(button, x, y);
-		for (MouseButtonListener listener : mouse_button_listeners) {
-			listener.mouseReleased(button, x, y);
+		for (var listener : listeners) {
+			if (listener instanceof MouseButtonListener l) {
+				l.mouseReleased(button, x, y);
+			}
         }
 	}
 
@@ -490,8 +502,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		if (disabled)
 			return;
 		mousePressed(button, x, y);
-		for (MouseButtonListener listener : mouse_button_listeners) {
-			listener.mousePressed(button, x, y);
+		for (var listener : listeners) {
+			if (listener instanceof MouseButtonListener l) {
+				l.mousePressed(button, x, y);
+			}
 		}
 	}
 
@@ -505,8 +519,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		if (disabled)
 			return;
 		mouseHeld(button, x, y);
-		for (MouseButtonListener listener : mouse_button_listeners) {
-    		listener.mouseHeld(button, x, y);
+		for (var listener : listeners) {
+			if (listener instanceof MouseButtonListener l) {
+    			l.mouseHeld(button, x, y);
+			}
 		}
 	}
 
@@ -518,8 +534,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 
 	final void keyPressedAll(@NonNull KeyboardEvent event) {
 		keyPressed(event);
-        for (KeyListener listener : key_listeners) {
-            listener.keyPressed(event);
+        for (var listener : listeners) {
+            if (listener instanceof KeyListener l) {
+                l.keyPressed(event);
+            }
         }
 	}
 
@@ -535,8 +553,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 
 	final void keyReleasedAll(@NonNull KeyboardEvent event) {
 		keyReleased(event);
-		for (KeyListener listener : key_listeners) {
-			listener.keyReleased(event);
+		for (var listener : listeners) {
+			if (listener instanceof KeyListener l) {
+				l.keyReleased(event);
+			}
         }
 	}
 
@@ -553,8 +573,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 
 	final void keyRepeatAll(@NonNull KeyboardEvent event) {
 		keyRepeat(event);
-		for (KeyListener listener : key_listeners) {
-			listener.keyRepeat(event);
+		for (var listener : listeners) {
+			if (listener instanceof KeyListener l) {
+				l.keyRepeat(event);
+			}
 		}
 	}
 
@@ -565,25 +587,27 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	}
 
 	public final void addMouseClickListener(@NonNull MouseClickListener listener) {
-		mouse_click_listeners.add(Objects.requireNonNull(listener, "listener"));
+		listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
+	/** @apiNote Your listener will also receive {@link MouseClickListener#mouseClicked} events */
 	final void addMouseButtonListener(@NonNull MouseButtonListener listener) {
-		mouse_button_listeners.add(Objects.requireNonNull(listener, "listener"));
+		listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
 	final void addMouseMotionListener(@NonNull MouseMotionListener listener) {
-		mouse_motion_listeners.add(Objects.requireNonNull(listener, "listener"));
+		listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
 	public final void addMouseWheelListener(@NonNull MouseWheelListener listener) {
-		mouse_wheel_listeners.add(Objects.requireNonNull(listener, "listener"));
+		listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
 	final void addKeyListener(@NonNull KeyListener listener) {
-		key_listeners.add(Objects.requireNonNull(listener, "listener"));
+		listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
 	public final void addFocusListener(@NonNull FocusListener listener) {
-		focus_listeners.add(Objects.requireNonNull(listener, "listener"));
-	}}
+		listeners.add(Objects.requireNonNull(listener, "listener"));
+	}
+}

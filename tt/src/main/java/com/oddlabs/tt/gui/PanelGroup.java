@@ -1,8 +1,6 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.guievent.KeyListener;
 import com.oddlabs.tt.guievent.MouseButtonListener;
-import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
