@@ -345,7 +345,7 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         boolean supplyFull = false;
         if (unit.isWarrior() && guards_count == guards.length) {
             SupplyContainer supplyContainer = getSupplyContainer(type);
-            if (supplyContainer) {
+            if (supplyContainer != null) {
                 supplyFull = supplyContainer.isSupplyFull();
             }
         }
