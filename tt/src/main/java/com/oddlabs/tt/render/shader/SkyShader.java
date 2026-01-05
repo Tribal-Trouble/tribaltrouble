@@ -92,8 +92,8 @@ public final class SkyShader extends ShaderProgram {
             float exp0 = exp(-u_innerCloudDensity * 2.0);
             float exp1 = exp(-u_outerCloudDensity * 2.0);
             
-            vec3 cloud0 = pow(tex0.rgb, vec3(exp0));
-            vec3 cloud1 = pow(tex1.rgb, vec3(exp1));
+            vec3 cloud0 = pow(vec3(tex0.r), vec3(exp0));
+            vec3 cloud1 = pow(vec3(tex1.r), vec3(exp1));
             
             vec3 color0 = mix(v_color.rgb, u_skyColor.rgb, cloud0); 
             vec3 color1 = mix(color0, u_skyColor.rgb, cloud1);
