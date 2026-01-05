@@ -118,6 +118,5 @@ public final class ProgressBar extends GUIObject {
 
 	private void update() {
 		network.tick();
-		Renderer.getRenderer().getWindow().update();
 	}
 }

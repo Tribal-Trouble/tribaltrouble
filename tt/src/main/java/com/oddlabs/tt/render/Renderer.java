@@ -540,7 +540,7 @@ public final class Renderer {
 		logger.info("Init done after " + startup_time_init + "ms");
 		ambient = new AmbientAudio(AudioManager.getManager());
 
-		setupMainMenu(network, gui, true);
+		Runnable load_task = setupMainMenu(network, gui, true);
 
 		boolean reset_keyboard = false;
         boolean wasActive = false;
@@ -584,6 +584,15 @@ public final class Renderer {
 						Duration startup_time = Duration.between(start_time, Instant.now());
 						logger.info("First frame rendered after " + startup_time);
 						first_frame = false;
+                        if (load_task != null) {
+                            LocalEventQueue.getQueue().getDeterministic().setEnabled(true);
+                            try {
+                                load_task.run();
+                            } finally {
+                                LocalEventQueue.getQueue().getDeterministic().setEnabled(false);
+                            }
+                            load_task = null;
+                        }
 					}
 					if (grab_frames && movie_recording_started)
 						GLUtils.takeScreenshot("");
@@ -649,9 +658,9 @@ public final class Renderer {
 		setupMainMenu(network, gui, false);
 	}
 
-	private static void setupMainMenu(final @NonNull NetworkSelector network, @NonNull GUI gui, final boolean first_progress) {
+	private static @Nullable Runnable setupMainMenu(final @NonNull NetworkSelector network, @NonNull GUI gui, final boolean first_progress) {
 		final WorldGenerator generator = new IslandGenerator(256, Landscape.TerrainType.NATIVE, Globals.LANDSCAPE_HILLS, Globals.LANDSCAPE_VEGETATION, Globals.LANDSCAPE_RESOURCES, Globals.LANDSCAPE_SEED);
-		ProgressForm.setProgressForm(network, gui, (GUIRoot gui_root) -> finishMainMenu(network, gui_root, first_progress, generator), first_progress);
+		return ProgressForm.setProgressForm(network, gui, (GUIRoot gui_root) -> finishMainMenu(network, gui_root, first_progress, generator), first_progress);
 	}
 
 	private static @NonNull UIRenderer finishMainMenu(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, boolean first_progress, @NonNull WorldGenerator generator) {

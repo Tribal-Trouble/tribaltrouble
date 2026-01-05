@@ -44,7 +44,7 @@ public final class ProgressForm {
 		setProgressForm(network, gui, callback, false);
 	}
 
-	public static void setProgressForm(@NonNull NetworkSelector network, final @NonNull GUI gui, final @NonNull LoadCallback callback, final boolean first_progress) {
+	public static @Nullable Runnable setProgressForm(@NonNull NetworkSelector network, final @NonNull GUI gui, final @NonNull LoadCallback callback, final boolean first_progress) {
 		String texture;
 		int texture_width;
 		int texture_height;
@@ -87,8 +87,8 @@ public final class ProgressForm {
 			new ProgressBarInfo(""/*"Generating pathfinding grids"*/, 5),
 			new ProgressBarInfo(""/*"Generating quadtrees"*/, 6)},
 			texture, texture_width, texture_height, image_width, image_height, progress_x, progress_y, progress_width, show_tip);
-		if (first_progress)
-			load_fadable.fadingDone();
+
+        return first_progress ? load_fadable::fadingDone : null;
 	}
 
 	private ProgressForm(@NonNull NetworkSelector network, final @NonNull GUI gui, final Fadable load_fadable, boolean first_progress, ProgressBarInfo @NonNull [] info, @NonNull String texture_name, int texture_width, int texture_height, int image_width, int image_height, int progress_x, int progress_y, int progress_width, boolean show_tip) {
