@@ -107,7 +107,8 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
 
     public final void scanVicinity(ScanFilter filter) {
         assert !isDead();
-        getUnitGrid().scan(filter, getGridX(), getGridY(), layer);
+        getUnitGrid().scan(filter, getGridX(), getGridY(), UnitGrid.LAND);
+        getUnitGrid().scan(filter, getGridX(), getGridY(), UnitGrid.SEA);
     }
 
     private static final boolean isAdjacent(
