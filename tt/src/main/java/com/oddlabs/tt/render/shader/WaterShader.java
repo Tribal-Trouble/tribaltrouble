@@ -15,6 +15,7 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         String SCROLL_OFFSET_1 = "u_scrollOffset1";
         String LIGHT_DIR = "u_lightDir";
         String CAMERA_POS = "u_cameraPos";
+        String WATER_HEIGHT = "u_waterHeight";
 
         // Fog Uniforms
         String FOG_HEIGHT_FACTOR = "u_fogHeightFactor";
@@ -22,12 +23,14 @@ public final class WaterShader extends ShaderProgram implements FogShader {
 
     public interface Attributes {
         String POSITION = "in_Position";
+        String INSTANCE_OFFSET = "in_InstanceOffset";
     }
 
     private static final String VERTEX_SHADER = """
         #version 410 core
 
         layout(location = 0) in vec3 in_Position;
+        layout(location = 1) in vec2 in_InstanceOffset;
 
         uniform mat4 u_modelViewMatrix;
         uniform mat4 u_projectionMatrix;
@@ -35,6 +38,7 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         uniform float u_waterDetailRepeatRate;
         uniform vec2 u_scrollOffset0;
         uniform vec2 u_scrollOffset1;
+        uniform float u_waterHeight;
 
         out vec2 v_texCoord0;
         out vec2 v_texCoord1;
@@ -42,13 +46,17 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         out vec3 v_worldPos;
 
         void main() {
-            v_worldPos = in_Position;
-            
-            vec4 viewPosition = u_modelViewMatrix * vec4(in_Position, 1.0);
+            // For Instanced Patches: in_Position.z is 0 (from PatchMesh size=2).
+            // For Sky Water: in_Position.z is valid (from Sky VBO size=3).
+            // We add in_Position.z to u_waterHeight to preserve Sky geometry while keeping patches at sea level.
+            vec3 worldPos = vec3(in_InstanceOffset + in_Position.xy, u_waterHeight + in_Position.z);
+            v_worldPos = worldPos;
+          
+            vec4 viewPosition = u_modelViewMatrix * vec4(worldPos, 1.0);
             gl_Position = u_projectionMatrix * viewPosition;
             
-            v_texCoord0 = in_Position.xy * u_waterRepeatRate + u_scrollOffset0;
-            v_texCoord1 = in_Position.xy * u_waterDetailRepeatRate + u_scrollOffset1;
+            v_texCoord0 = worldPos.xy * u_waterRepeatRate + u_scrollOffset0;
+            v_texCoord1 = worldPos.xy * u_waterDetailRepeatRate + u_scrollOffset1;
             v_fogDist = length(viewPosition.xyz);
         }
         """;

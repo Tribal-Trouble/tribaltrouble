@@ -466,23 +466,25 @@ public final class Sky implements AutoCloseable {
     }
 
     private @NonNull SkyStitchVertex @NonNull [] makeLandscapeVertices(@NonNull HeightMap heightmap) {
-        int size = 4 * heightmap.getPatchesPerWorld();
+        int gridUnitsPerWorld = heightmap.getGridUnitsPerWorld();
+        int size = 4 * gridUnitsPerWorld;
         SkyStitchVertex[] result = new SkyStitchVertex[size];
+        
+        int metersPerUnit = HeightMap.METERS_PER_UNIT_GRID;
+        int metersPerWorld = heightmap.getMetersPerWorld();
 
-        for (int i = 0; i < heightmap.getPatchesPerWorld(); i++) {
+        for (int i = 0; i < gridUnitsPerWorld; i++) {
             int index = i;
-            result[index] = new SkyStitchVertex(heightmap, index, 0, 0, heightmap.getMetersPerPatch() * i);
-            index = i + heightmap.getPatchesPerWorld();
-            result[index] = new SkyStitchVertex(heightmap, index, 0,
-                    heightmap.getMetersPerPatch() * i, heightmap.getMetersPerWorld());
-            index = i + heightmap.getPatchesPerWorld() * 2;
-            result[index] = new SkyStitchVertex(heightmap, index, 0,
-                    heightmap.getMetersPerWorld(),
-                    heightmap.getMetersPerWorld() - heightmap.getMetersPerPatch() * i);
-            index = i + heightmap.getPatchesPerWorld() * 3;
-            result[index] = new SkyStitchVertex(heightmap, index, 0,
-                    heightmap.getMetersPerWorld() - heightmap.getMetersPerPatch() * i,
-                    0);
+            result[index] = new SkyStitchVertex(heightmap, index, 0, 0, i * metersPerUnit);
+            
+            index = i + gridUnitsPerWorld;
+            result[index] = new SkyStitchVertex(heightmap, index, 0, i * metersPerUnit, metersPerWorld);
+            
+            index = i + gridUnitsPerWorld * 2;
+            result[index] = new SkyStitchVertex(heightmap, index, 0, metersPerWorld, metersPerWorld - i * metersPerUnit);
+            
+            index = i + gridUnitsPerWorld * 3;
+            result[index] = new SkyStitchVertex(heightmap, index, 0, metersPerWorld - i * metersPerUnit, 0);
         }
         return result;
     }

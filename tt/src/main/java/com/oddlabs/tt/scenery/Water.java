@@ -4,21 +4,27 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.landscape.LandscapeLeaf;
 import com.oddlabs.tt.procedural.GeneratorOcean;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.procedural.TextureGenerator;
 import com.oddlabs.tt.render.MatrixStack;
+import com.oddlabs.tt.render.PatchMesh;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.render.shader.WaterShader;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL33;
 
+import java.nio.FloatBuffer;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -28,13 +34,17 @@ public final class Water implements AutoCloseable {
     private final @NonNull Sky sky;
     private final @NonNull MatrixStack modelViewStack;
     private final @NonNull MatrixStack projectionStack;
+    private final @NonNull HeightMap heightMap;
 
-    private final @NonNull FloatVBO patch_vertices;
     private final @NonNull Texture @NonNull [] ocean;
 
     private final @NonNull WaterShader waterShader;
     private final @NonNull VertexArray skyWaterVao;
-    private final @NonNull VertexArray patchWaterVao;
+    private final @NonNull PatchMesh patchMesh;
+    
+    // Non-final to allow resizing
+    private @NonNull FloatVBO instanceVBO;
+    private @NonNull FloatBuffer instanceBuffer;
 
     private final float[] scrollOffset0 = new float[2];
     private final float[] scrollOffset1 = new float[2];
@@ -50,7 +60,7 @@ public final class Water implements AutoCloseable {
     public Water(@NonNull HeightMap heightmap, Landscape.@NonNull TerrainType terrain, @NonNull Sky sky, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         TextureGenerator ocean_desc = new GeneratorOcean(terrain);
         ocean = Resources.findResource(ocean_desc);
-        patch_vertices = makePatchVertices(heightmap);
+        this.heightMap = heightmap;
 
         this.sky = sky;
         this.modelViewStack = modelViewStack;
@@ -62,10 +72,9 @@ public final class Water implements AutoCloseable {
         setupWaterAttributes(sky.getWaterVertices(), waterShader);
         skyWaterVao.unbind();
 
-        this.patchWaterVao = new VertexArray();
-        patchWaterVao.bind();
-        setupWaterAttributes(patch_vertices, waterShader);
-        patchWaterVao.unbind();
+        this.patchMesh = new PatchMesh();
+        this.instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, 1024 * 2 * Float.BYTES); // Initial capacity
+        this.instanceBuffer = BufferUtils.createFloatBuffer(1024 * 2);
     }
 
     public @NonNull WaterShader getShader() {
@@ -79,19 +88,21 @@ public final class Water implements AutoCloseable {
         GL20.glVertexAttribPointer(posLoc, 3, GL11.GL_FLOAT, false, 0, 0L);
     }
 
-    public void render(@NonNull CameraState state) {
+    public void render(@NonNull CameraState state, @NonNull List<LandscapeLeaf> visiblePatches) {
         updateAnimation();
 
         boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
         boolean depthTestEnabled = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+        boolean cullFaceEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
 
         try (var _ = waterShader.use();
              var _ = state.getFog().setup(waterShader, state.getCurrentZ())) {
 
             if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
             if (!depthTestEnabled) GL11.glEnable(GL11.GL_DEPTH_TEST);
+            if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
+            
             waterShader.setUniformMatrix4(WaterShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
             waterShader.setUniformMatrix4(WaterShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             
@@ -117,17 +128,70 @@ public final class Water implements AutoCloseable {
 
             waterShader.setUniform(WaterShader.Uniforms.WATER_REPEAT_RATE, Globals.WATER_REPEAT_RATE);
 
+            // Render Sky Water (Infinite Plane). u_waterHeight = 0 because Z is baked in.
+            waterShader.setUniform(WaterShader.Uniforms.WATER_HEIGHT, 0.0f);
             skyWaterVao.bind();
             sky.getWaterIndices().drawElements(GL11.GL_TRIANGLES, sky.getWaterIndices().capacity(), 0);
+            skyWaterVao.unbind();
             
-            patchWaterVao.bind();
-            GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, patch_vertices.capacity() / 3);
+            // Render Instanced Water Patches. u_waterHeight = seaLevel.
+            if (!visiblePatches.isEmpty()) {
+                waterShader.setUniform(WaterShader.Uniforms.WATER_HEIGHT, heightMap.getSeaLevelMeters());
+                instanceBuffer.clear();
+                int count = 0;
+                float patchSize = heightMap.getMetersPerPatch();
+                
+                for (LandscapeLeaf leaf : visiblePatches) {
+                    if (heightMap.isBelowSeaLevel(leaf.getPatchX(), leaf.getPatchY())) {
+                        if (instanceBuffer.remaining() < 2) {
+                            int newCapacity = instanceBuffer.capacity() * 2;
+                            FloatBuffer newBuffer = BufferUtils.createFloatBuffer(newCapacity);
+                            instanceBuffer.flip();
+                            newBuffer.put(instanceBuffer);
+                            instanceBuffer = newBuffer;
+                        }
+                        instanceBuffer.put(leaf.getPatchX() * patchSize);
+                        instanceBuffer.put(leaf.getPatchY() * patchSize);
+                        count++;
+                    }
+                }
+                
+                if (count > 0) {
+                    instanceBuffer.flip();
+                    
+                    int requiredBytes = count * 2 * Float.BYTES;
+                    if (instanceVBO.capacity() < requiredBytes) {
+                        instanceVBO.close();
+                        instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, Math.max(instanceVBO.capacity() * 2, requiredBytes));
+                    }
+                    
+                    instanceVBO.makeCurrent();
+                    GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, instanceBuffer);
+                    
+                    patchMesh.bind();
+                    
+                    // Setup instance attribute (Location 1: in_InstanceOffset)
+                    int offsetLoc = 1;
+                    GL20.glEnableVertexAttribArray(offsetLoc);
+                    GL20.glVertexAttribPointer(offsetLoc, 2, GL11.GL_FLOAT, false, 0, 0);
+                    GL33.glVertexAttribDivisor(offsetLoc, 1);
+                    
+                    patchMesh.drawInstanced(count);
+                    
+                    // Cleanup
+                    GL33.glVertexAttribDivisor(offsetLoc, 0);
+                    GL20.glDisableVertexAttribArray(offsetLoc);
+                    
+                    patchMesh.unbind();
+                    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+                }
+            }
             
-            patchWaterVao.unbind();
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
         } finally {
             if (!blendEnabled) GL11.glDisable(GL11.GL_BLEND);
             if (!depthTestEnabled) GL11.glDisable(GL11.GL_DEPTH_TEST);
+            if (cullFaceEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
         }
     }
     
@@ -166,48 +230,11 @@ public final class Water implements AutoCloseable {
         scrollOffset1[1] += dy * 0.8f;
     }
 
-    private static @NonNull FloatVBO makePatchVertices(@NonNull HeightMap heightmap) {
-        boolean[][] water_patches = new boolean[heightmap.getPatchesPerWorld()][heightmap.getPatchesPerWorld()];
-        int count = 0;
-        for (int y = 0; y < water_patches.length; y++) {
-            for (int x = 0; x < water_patches[y].length; x++) {
-                if (heightmap.isBelowSeaLevel(x, y)) {
-                    water_patches[y][x] = true;
-                    count++;
-                }
-            }
-        }
-        int size = count * 6 * 3;
-        float[] vertices = new float[size];
-        int vertexIndex = 0;
-
-        for (int y = 0; y < water_patches.length; y++) {
-            for (int x = 0; x < water_patches[y].length; x++) {
-                if (water_patches[y][x]) {
-                    float x0 = x * heightmap.getMetersPerPatch();
-                    float y0 = y * heightmap.getMetersPerPatch();
-                    float x1 = (x + 1) * heightmap.getMetersPerPatch();
-                    float y1 = (y + 1) * heightmap.getMetersPerPatch();
-                    float z = heightmap.getSeaLevelMeters();
-
-                    vertices[vertexIndex++] = x0; vertices[vertexIndex++] = y0; vertices[vertexIndex++] = z;
-                    vertices[vertexIndex++] = x1; vertices[vertexIndex++] = y0; vertices[vertexIndex++] = z;
-                    vertices[vertexIndex++] = x1; vertices[vertexIndex++] = y1; vertices[vertexIndex++] = z;
-
-                    vertices[vertexIndex++] = x0; vertices[vertexIndex++] = y0; vertices[vertexIndex++] = z;
-                    vertices[vertexIndex++] = x1; vertices[vertexIndex++] = y1; vertices[vertexIndex++] = z;
-                    vertices[vertexIndex++] = x0; vertices[vertexIndex++] = y1; vertices[vertexIndex++] = z;
-                }
-            }
-        }
-        return new FloatVBO(GL15.GL_STATIC_DRAW, vertices);
-    }
-
     @Override
     public void close() {
         skyWaterVao.close();
-        patchWaterVao.close();
-        patch_vertices.close();
+        patchMesh.delete();
+        instanceVBO.close();
         waterShader.close();
     }
 }

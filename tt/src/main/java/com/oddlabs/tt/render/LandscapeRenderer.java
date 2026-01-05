@@ -58,6 +58,10 @@ public final class LandscapeRenderer implements Animated {
         manager.registerAnimation(this);
     }
 
+    public @NonNull List<@NonNull LandscapeLeaf> getVisiblePatches() {
+        return render_list;
+    }
+
     public @NonNull HeightMap getHeightMap() {
         return world.getHeightMap();
     }

@@ -240,7 +240,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         }
 
         if (Globals.draw_water) {
-            water.render(frustum_state);
+            water.render(frustum_state, landscape_renderer.getVisiblePatches());
         }
 
         if (Globals.process_misc)
