@@ -9,7 +9,6 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
         String DIFFUSE_MAP = "u_DiffuseMap";
         String NORMAL_MAP = "u_NormalMap";
         String DETAIL_MAP = "u_DetailMap";
-        String PATCH_OFFSET = "u_PatchOffset";
         String WORLD_SIZE = "u_WorldSize";
         String DETAIL_SCALE = "u_DetailScale";
         String LIGHT_DIRECTION = "u_lightDirection";
@@ -18,6 +17,7 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
 
     public interface Attributes {
         String POSITION = "in_Position";
+        String INSTANCE_PATCH_OFFSET = "in_InstancePatchOffset";
     }
 
     private static final String VERTEX_SHADER =
@@ -25,10 +25,10 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
         #version 410 core
         
         layout(location = 0) in vec2 in_Position;
+        layout(location = 1) in vec2 in_InstancePatchOffset;
 
         uniform mat4 u_modelViewMatrix;
         uniform mat4 u_projectionMatrix;
-        uniform vec2 u_PatchOffset;
         uniform float u_WorldSize;
         uniform float u_DetailScale;
         uniform sampler2D u_HeightMap;
@@ -40,7 +40,7 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
         out vec3 v_viewNormal;
 
         void main() {
-            vec2 worldPos = u_PatchOffset + in_Position;
+            vec2 worldPos = in_InstancePatchOffset + in_Position;
             // Add half-texel offset to align vertex-centered heightmap (1 grid unit = 2 meters)
             vec2 uv = (worldPos + 1.0) / u_WorldSize;
             float h = texture(u_HeightMap, uv).r;

@@ -9,6 +9,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL31;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
@@ -62,6 +63,10 @@ public final class PatchMesh {
 
     public void draw() {
         ibo.drawElements(GL11.GL_TRIANGLES, INDEX_COUNT, 0);
+    }
+
+    public void drawInstanced(int instanceCount) {
+        ibo.drawElementsInstanced(GL11.GL_TRIANGLES, INDEX_COUNT, 0, instanceCount);
     }
 
     public void unbind() {

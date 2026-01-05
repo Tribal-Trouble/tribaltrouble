@@ -13,11 +13,17 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.shader.LandscapeShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.resource.WorldInfo;
+import com.oddlabs.tt.vbo.FloatVBO;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL33;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,6 +39,8 @@ public final class LandscapeRenderer implements Animated {
     private final @NonNull PatchMesh patchMesh;
     private final LandscapeShader shader = new LandscapeShader();
     private final Vector4f lightDir = new Vector4f();
+    private FloatVBO instanceVBO;
+    private FloatBuffer instanceBuffer;
 
     public @NonNull LandscapeShader getShader() {
         return shader;
@@ -44,6 +52,8 @@ public final class LandscapeRenderer implements Animated {
         this.normalMap = world_info.maps.normal();
         this.detailMap = world_info.detail;
         this.patchMesh = new PatchMesh();
+        this.instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, 1024 * 2); // Initial capacity
+        this.instanceBuffer = BufferUtils.createFloatBuffer(1024 * 2);
         
         manager.registerAnimation(this);
     }
@@ -108,14 +118,46 @@ public final class LandscapeRenderer implements Animated {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, world.getHeightMap().getHeightTexture().getHandle());
             shader.setUniform(LandscapeShader.Uniforms.HEIGHT_MAP, 3);
 
-            if (Globals.draw_landscape) {
-                patchMesh.bind();
+            if (Globals.draw_landscape && !render_list.isEmpty()) {
+                int instanceCount = render_list.size();
+                int requiredFloats = instanceCount * 2;
+                
+                // Resize buffer if needed
+                if (instanceBuffer.capacity() < requiredFloats) {
+                    int newCapacity = Math.max(instanceBuffer.capacity() * 2, requiredFloats);
+                    instanceBuffer = BufferUtils.createFloatBuffer(newCapacity);
+                    instanceVBO.close();
+                    instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, newCapacity);
+                }
+                
+                instanceBuffer.clear();
                 float patchSize = world.getHeightMap().getMetersPerPatch();
                 for (LandscapeLeaf leaf : render_list) {
-                    shader.setUniform(LandscapeShader.Uniforms.PATCH_OFFSET, leaf.getPatchX() * patchSize, leaf.getPatchY() * patchSize);
-                    patchMesh.draw();
+                    instanceBuffer.put(leaf.getPatchX() * patchSize);
+                    instanceBuffer.put(leaf.getPatchY() * patchSize);
                 }
+                instanceBuffer.flip();
+                
+                instanceVBO.makeCurrent();
+                GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, instanceBuffer);
+                
+                patchMesh.bind();
+                
+                // Setup instance attribute (Location 1: in_InstancePatchOffset)
+                int offsetLoc = 1; // Hardcoded location from shader layout
+                GL20.glEnableVertexAttribArray(offsetLoc);
+                GL20.glVertexAttribPointer(offsetLoc, 2, GL11.GL_FLOAT, false, 0, 0);
+                GL33.glVertexAttribDivisor(offsetLoc, 1);
+                
+                patchMesh.drawInstanced(instanceCount);
+                
+                // Cleanup instance attribute
+                GL33.glVertexAttribDivisor(offsetLoc, 0);
+                GL20.glDisableVertexAttribArray(offsetLoc);
+                
                 patchMesh.unbind();
+                // Unbind instance VBO to avoid leaking
+                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
             }
             
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
@@ -141,8 +183,20 @@ public final class LandscapeRenderer implements Animated {
 
     // Shadow rendering supported
     void renderShadow(@NonNull ShaderProgram shader, int patch_x, int patch_y, int start_x, int start_y, int end_x, int end_y) {
+        // Legacy shadow rendering (non-instanced for now as it renders specific sub-regions)
+        // Would need to update shader to support instance attribute if we wanted to batch this too
+        // But shadow rendering usually uses a specific projection/program
+        // For now, we just set the attribute to the single offset
+        // Since we removed the uniform, we must use the attribute
+        // This requires binding a VBO with 1 instance data
+        
+        // Quick fix: Set attribute value directly using glVertexAttrib2f (Valid if attribute array is disabled)
+        // But we need to ensure the attribute array is disabled.
+        
         float patchSize = world.getHeightMap().getMetersPerPatch();
-        shader.setUniform("u_PatchOffset", patch_x * patchSize, patch_y * patchSize);
+        GL20.glDisableVertexAttribArray(1); // Ensure array is disabled
+        GL20.glVertexAttrib2f(1, patch_x * patchSize, patch_y * patchSize);
+        
         patchMesh.bind();
         patchMesh.draw();
         patchMesh.unbind();

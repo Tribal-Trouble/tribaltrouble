@@ -5,6 +5,7 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL31;
 
 import java.nio.ShortBuffer;
 
@@ -52,6 +53,12 @@ public final class ShortVBO extends VBO {
         makeCurrent();
         GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_SHORT, index<<1);
 	}
+
+    public void drawElementsInstanced(int mode, int count, int index, int primcount) {
+        registerTrianglesRendered(mode, count * primcount);
+        makeCurrent();
+        GL31.glDrawElementsInstanced(mode, count, GL11.GL_UNSIGNED_SHORT, index<<1, primcount);
+    }
 
 	@Override
 	public int capacity() {
