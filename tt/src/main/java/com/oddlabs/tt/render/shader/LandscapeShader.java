@@ -41,7 +41,8 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
 
         void main() {
             vec2 worldPos = u_PatchOffset + in_Position;
-            vec2 uv = worldPos / u_WorldSize;
+            // Add half-texel offset to align vertex-centered heightmap (1 grid unit = 2 meters)
+            vec2 uv = (worldPos + 1.0) / u_WorldSize;
             float h = texture(u_HeightMap, uv).r;
             
             // Calculate normal from height map

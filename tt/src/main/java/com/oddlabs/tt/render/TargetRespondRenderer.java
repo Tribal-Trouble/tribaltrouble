@@ -29,7 +29,7 @@ public final class TargetRespondRenderer extends ShadowListRenderer {
     public void renderShadows(@NonNull LandscapeRenderer renderer, @NotNull MatrixStack modelViewStack, @NotNull MatrixStack projectionStack) {
         if (target_list.isEmpty()) return;
         
-        try (var _ = setupShadows(modelViewStack, projectionStack)) {
+        try (var _ = setupShadows(renderer, modelViewStack, projectionStack)) {
             setShadowColor(0f, 1f, 0f, 1f);
             bindShadowTexture(ring);
             while (!target_list.isEmpty()) {

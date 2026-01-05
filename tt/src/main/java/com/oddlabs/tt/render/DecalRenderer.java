@@ -1,0 +1,180 @@
+package com.oddlabs.tt.render;
+
+import com.oddlabs.tt.render.shader.DecalShader;
+import com.oddlabs.tt.util.GLState;
+import com.oddlabs.tt.vbo.FloatVBO;
+import com.oddlabs.tt.vbo.ShortVBO;
+import com.oddlabs.tt.vbo.VertexArray;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.*;
+
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
+
+public final class DecalRenderer implements AutoCloseable {
+
+    private final DecalShader shader = new DecalShader();
+    private final VertexArray vao;
+    private final FloatVBO meshVBO;
+    private final ShortVBO meshIBO;
+    private final FloatVBO instanceVBO;
+    
+    private static final int MAX_INSTANCES = 1024;
+    private static final int FLOATS_PER_INSTANCE = 2 + 1 + 4; // Pos(2) + Size(1) + Color(4)
+    private final FloatBuffer instanceBuffer;
+    
+    private int instanceCount = 0;
+    private @Nullable Texture currentTexture;
+
+    private static final int GRID_SIZE = 8; // 8x8 grid
+    private static final int VERTEX_COUNT = GRID_SIZE * GRID_SIZE;
+    private static final int INDEX_COUNT = (GRID_SIZE - 1) * (GRID_SIZE - 1) * 6;
+
+    public DecalRenderer() {
+        this.vao = new VertexArray();
+        this.vao.bind();
+
+        // 1. Setup Mesh (Grid)
+        // Position (2 floats)
+        this.meshVBO = new FloatVBO(GL15.GL_STATIC_DRAW, VERTEX_COUNT * 2);
+        FloatBuffer vertices = BufferUtils.createFloatBuffer(VERTEX_COUNT * 2);
+        float step = 1.0f / (GRID_SIZE - 1);
+        for (int y = 0; y < GRID_SIZE; y++) {
+            for (int x = 0; x < GRID_SIZE; x++) {
+                vertices.put(x * step - 0.5f);
+                vertices.put(y * step - 0.5f);
+            }
+        }
+        vertices.flip();
+        this.meshVBO.put(vertices);
+
+        GL20.glEnableVertexAttribArray(0);
+        GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT, false, 0, 0);
+
+        // Indices
+        this.meshIBO = new ShortVBO(GL15.GL_STATIC_DRAW, INDEX_COUNT);
+        ShortBuffer indices = BufferUtils.createShortBuffer(INDEX_COUNT);
+        for (int y = 0; y < GRID_SIZE - 1; y++) {
+            for (int x = 0; x < GRID_SIZE - 1; x++) {
+                short topLeft = (short) (y * GRID_SIZE + x);
+                short topRight = (short) (topLeft + 1);
+                short bottomLeft = (short) ((y + 1) * GRID_SIZE + x);
+                short bottomRight = (short) (bottomLeft + 1);
+                
+                indices.put(topLeft).put(bottomLeft).put(topRight);
+                indices.put(topRight).put(bottomLeft).put(bottomRight);
+            }
+        }
+        indices.flip();
+        this.meshIBO.put(indices);
+
+        // 2. Setup Instance Buffer
+        this.instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, MAX_INSTANCES * FLOATS_PER_INSTANCE);
+        this.instanceBuffer = BufferUtils.createFloatBuffer(MAX_INSTANCES * FLOATS_PER_INSTANCE);
+
+        // Instance Attributes
+        int stride = FLOATS_PER_INSTANCE * Float.BYTES;
+        
+        // in_InstancePos (Loc 1, 2 floats)
+        GL20.glEnableVertexAttribArray(1);
+        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, stride, 0);
+        GL33.glVertexAttribDivisor(1, 1);
+
+        // in_InstanceSize (Loc 2, 1 float)
+        GL20.glEnableVertexAttribArray(2);
+        GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, stride, 2 * Float.BYTES);
+        GL33.glVertexAttribDivisor(2, 1);
+
+        // in_InstanceColor (Loc 3, 4 floats)
+        GL20.glEnableVertexAttribArray(3);
+        GL20.glVertexAttribPointer(3, 4, GL11.GL_FLOAT, false, stride, 3 * Float.BYTES);
+        GL33.glVertexAttribDivisor(3, 1);
+
+        this.vao.unbind();
+    }
+
+    public @NonNull GLState setup(@NonNull LandscapeRenderer landscape, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+        var shaderUseState = shader.use();
+        
+        shader.setUniformMatrix4(DecalShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+        shader.setUniformMatrix4(DecalShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
+        
+        shader.setUniform(DecalShader.Uniforms.WORLD_SIZE, (float) landscape.getHeightMap().getMetersPerWorld());
+        
+        GL13.glActiveTexture(GL13.GL_TEXTURE1);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, landscape.getHeightMap().getHeightTexture().getHandle());
+        shader.setUniform(DecalShader.Uniforms.HEIGHT_MAP, 1);
+
+        // Render State
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthFunc(GL11.GL_LEQUAL);
+        GL11.glDepthMask(false); // Decals usually don't write depth
+        
+        // Bias to prevent Z-fighting with terrain
+        GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
+        GL11.glPolygonOffset(-16.0f, -32.0f);
+        
+        GL11.glDisable(GL11.GL_CULL_FACE); // In case of weird winding
+
+        return () -> {
+            flush();
+            shaderUseState.close();
+            GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
+            GL11.glDepthMask(true); // Restore depth write
+            GL11.glEnable(GL11.GL_CULL_FACE);
+            this.currentTexture = null;
+        };
+    }
+
+    public void draw(@NonNull Texture texture, float x, float y, float size, float r, float g, float b, float a) {
+        if (currentTexture != texture) {
+            flush();
+            currentTexture = texture;
+        }
+
+        if (instanceCount >= MAX_INSTANCES) {
+            flush();
+        }
+
+        instanceBuffer.put(x);
+        instanceBuffer.put(y);
+        instanceBuffer.put(size);
+        instanceBuffer.put(r);
+        instanceBuffer.put(g);
+        instanceBuffer.put(b);
+        instanceBuffer.put(a);
+        instanceCount++;
+    }
+
+    private void flush() {
+        if (instanceCount == 0 || currentTexture == null) return;
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, currentTexture.getHandle());
+        shader.setUniform(DecalShader.Uniforms.TEXTURE, 0);
+
+        vao.bind();
+        instanceVBO.makeCurrent();
+        instanceBuffer.flip();
+        instanceVBO.put(instanceBuffer); // Or glBufferSubData if partial
+        instanceBuffer.clear(); // Reset for writing
+
+        GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, INDEX_COUNT, GL11.GL_UNSIGNED_SHORT, 0, instanceCount);
+        
+        vao.unbind();
+        instanceCount = 0;
+    }
+
+    @Override
+    public void close() {
+        shader.close(); // Dispose shader program
+        vao.close();
+        meshVBO.close();
+        meshIBO.close();
+        instanceVBO.close();
+    }
+}

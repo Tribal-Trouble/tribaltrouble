@@ -140,5 +140,8 @@ public final class RenderQueues implements AutoCloseable {
     @Override
     public void close() {
         spriteRenderer.close();
+        for (ShadowListRenderer shadowListRenderer : shadow_renderer_lookup) {
+            shadowListRenderer.close();
+        }
     }
 }

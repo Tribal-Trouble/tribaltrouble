@@ -19,7 +19,7 @@ public final class BuildingSiteRenderer extends ShadowRenderer {
     }
 
     public void renderSites(@NonNull LandscapeRenderer renderer, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack, @NonNull List<? extends @NonNull Target> targets, float center_x, float center_y, float max_radius) {
-        try (var _ = setupShadows(modelViewStack, projectionStack)) {
+        try (var _ = setupShadows(renderer, modelViewStack, projectionStack)) {
             bindShadowTexture(green);
             float radius_sqr = max_radius * max_radius;
             for (Target target : targets) {

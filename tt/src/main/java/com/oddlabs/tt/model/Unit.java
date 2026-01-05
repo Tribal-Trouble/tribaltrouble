@@ -609,8 +609,34 @@ public class Unit extends Selectable<UnitTemplate> implements Occupant, Movable 
                 DieBehaviour die_behaviour = (DieBehaviour) getCurrentBehaviour();
                 return die_behaviour.getOffsetZ();
             } else
-                return 0;
+                return calculateSlopeOffset();
         }
+    }
+
+    private float calculateSlopeOffset() {
+        // Check surrounding heights to lift unit on slopes
+        float r = getSize() * 0.2f; // Check closer to center (feet) to avoid excessive floating
+        float x = getPositionX();
+        float y = getPositionY();
+        var hm = getOwner().getWorld().getHeightMap();
+        
+        float h_center = hm.getNearestHeight(x, y);
+        float h_max = h_center;
+        
+        // Axis-aligned
+        h_max = Math.max(h_max, hm.getNearestHeight(x + r, y));
+        h_max = Math.max(h_max, hm.getNearestHeight(x - r, y));
+        h_max = Math.max(h_max, hm.getNearestHeight(x, y + r));
+        h_max = Math.max(h_max, hm.getNearestHeight(x, y - r));
+        
+        // Diagonals (approx 0.707 * r)
+        float d = r * 0.707f;
+        h_max = Math.max(h_max, hm.getNearestHeight(x + d, y + d));
+        h_max = Math.max(h_max, hm.getNearestHeight(x - d, y + d));
+        h_max = Math.max(h_max, hm.getNearestHeight(x + d, y - d));
+        h_max = Math.max(h_max, hm.getNearestHeight(x - d, y - d));
+        
+        return Math.max(0f, h_max - h_center);
     }
 
     public final void debugRender() {
