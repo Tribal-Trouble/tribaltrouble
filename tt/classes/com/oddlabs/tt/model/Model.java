@@ -61,11 +61,17 @@ public abstract strictfp class Model extends Element implements ListElement {
 
     protected final void reinsert() {
         if (isRegistered()) {
-            setPositionZ(
-                    Math.max(
-                            world.getHeightMap().getSeaLevelMeters(),
-                            world.getHeightMap().getNearestHeight(getPositionX(), getPositionY())
-                                    + getOffsetZ()));
+            Element ref = getReference();
+            if (ref == null) {
+                setPositionZ(
+                        Math.max(
+                                        world.getHeightMap().getSeaLevelMeters(),
+                                        world.getHeightMap()
+                                                .getNearestHeight(getPositionX(), getPositionY()))
+                                + getOffsetZ());
+            } else {
+                setPositionZ(ref.getPositionZ() + getOffsetZ());
+            }
             updateBounds();
             reregister();
         }

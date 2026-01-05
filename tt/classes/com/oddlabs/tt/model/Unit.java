@@ -17,6 +17,12 @@ import com.oddlabs.tt.model.behaviour.RepairController;
 import com.oddlabs.tt.model.behaviour.StunController;
 import com.oddlabs.tt.model.behaviour.WalkBehaviour;
 import com.oddlabs.tt.model.behaviour.WalkController;
+import com.oddlabs.tt.model.weapon.IronAxeWeapon;
+import com.oddlabs.tt.model.weapon.IronSpearWeapon;
+import com.oddlabs.tt.model.weapon.RockAxeWeapon;
+import com.oddlabs.tt.model.weapon.RockSpearWeapon;
+import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
+import com.oddlabs.tt.model.weapon.RubberSpearWeapon;
 import com.oddlabs.tt.model.weapon.WeaponFactory;
 import com.oddlabs.tt.particle.BalancedParametricEmitter;
 import com.oddlabs.tt.particle.StunFunction;
@@ -268,6 +274,23 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
                         false));
     }
 
+    public final void mountDeck(Building building) {
+        assert !isDead();
+        mounted_building = building;
+        mount_offset = building.getBuildingTemplate().getMountOffset();
+        disable();
+        free();
+        setPosition(building.getPositionX(), building.getPositionY());
+        mounted = true;
+        setReference(building);
+        clearControllerStack();
+        swapController(
+                new IdleController(
+                        this,
+                        new AttackScanFilter(getOwner(), AttackScanFilter.TOWER_RANGE),
+                        false));
+    }
+
     public final boolean isMounted() {
         return mounted;
     }
@@ -469,6 +492,19 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
         stun_marker = createStunStar(x, y, z, time, (float) StrictMath.PI / 2);
         pushController(new StunController(this, time));
         forceDecide();
+    }
+
+    public final boolean isWarrior() {
+        Class type = getWeaponFactory().getType();
+        if (type == RockAxeWeapon.class
+                || type == IronAxeWeapon.class
+                || type == RubberAxeWeapon.class
+                || type == RockSpearWeapon.class
+                || type == IronSpearWeapon.class
+                || type == RubberSpearWeapon.class) {
+            return true;
+        }
+        return false;
     }
 
     private final BalancedParametricEmitter createStunStar(

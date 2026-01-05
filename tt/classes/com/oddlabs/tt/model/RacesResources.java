@@ -693,7 +693,7 @@ public final strictfp class RacesResources {
                                         | Abilities.RALLY_TO
                                         | Abilities.TARGET),
                         new float[] {0f, 1f, 3f},
-                        0f,
+                        1.9f,
                         6f,
                         -0.5f,
                         -2.0f,
@@ -732,7 +732,7 @@ public final strictfp class RacesResources {
                                         | Abilities.RALLY_TO
                                         | Abilities.TARGET),
                         new float[] {0f, 1f, 3f},
-                        0f,
+                        1.9f,
                         6f,
                         -0.5f,
                         -2.0f,

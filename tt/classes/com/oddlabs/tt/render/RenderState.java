@@ -124,8 +124,11 @@ public final strictfp class RenderState implements ElementVisitor {
             };
 
     public final void visitUnit(final Unit unit) {
+        Element ref = unit.getReference();
         float z_offset =
-                getVisuallyCorrectHeight(unit.getPositionX(), unit.getPositionY())
+                ((ref == null)
+                                ? getVisuallyCorrectHeight(unit.getPositionX(), unit.getPositionY())
+                                : ref.getPositionZ())
                         + unit.getOffsetZ();
         visitSelectable(
                 unit_visitor,

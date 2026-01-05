@@ -35,7 +35,11 @@ public final strictfp class EnterController extends Controller {
                         building.getSupplyContainer(type).increaseSupply(1);
                     }
                 }
-                building.getUnitContainer().enter(unit);
+                if (building.needGuards() && unit.isWarrior()) {
+                    building.setGuard(unit);
+                } else {
+                    building.getUnitContainer().enter(unit);
+                }
             } else {
                 unit.popController();
             }
