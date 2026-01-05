@@ -22,14 +22,17 @@ import org.lwjgl.opengl.GL11;
             layout(location = 0) in vec3 in_Position;
             layout(location = 1) in vec4 in_Color;
             layout(location = 2) in vec2 in_TexCoord;
+            layout(location = 3) in float in_TexIndex;
             
             out vec4 v_Color;
             out vec2 v_TexCoord;
+            flat out int v_TexIndex;
             
             void main() {
                 gl_Position = u_projectionMatrix * u_modelViewMatrix * vec4(in_Position, 1.0);
                 v_Color = in_Color;
                 v_TexCoord = in_TexCoord;
+                v_TexIndex = int(in_TexIndex);
             }
             """;
 
@@ -39,18 +42,31 @@ import org.lwjgl.opengl.GL11;
     private static final String FRAGMENT_SHADER = """
             #version 410 core
             
-            uniform sampler2D u_texture;
+            uniform sampler2D u_textures[8];
             
             in vec4 v_Color;
             in vec2 v_TexCoord;
+            flat in int v_TexIndex;
             
             layout(location = 0) out vec4 out_FragColor;
             
             void main() {
-                if (v_TexCoord.x < 0.0) {
+                if (v_TexIndex < 0) {
                     out_FragColor = v_Color;
                 } else {
-                    out_FragColor = v_Color * texture(u_texture, v_TexCoord);
+                    vec4 texColor;
+                    switch (v_TexIndex) {
+                        case 0: texColor = texture(u_textures[0], v_TexCoord); break;
+                        case 1: texColor = texture(u_textures[1], v_TexCoord); break;
+                        case 2: texColor = texture(u_textures[2], v_TexCoord); break;
+                        case 3: texColor = texture(u_textures[3], v_TexCoord); break;
+                        case 4: texColor = texture(u_textures[4], v_TexCoord); break;
+                        case 5: texColor = texture(u_textures[5], v_TexCoord); break;
+                        case 6: texColor = texture(u_textures[6], v_TexCoord); break;
+                        case 7: texColor = texture(u_textures[7], v_TexCoord); break;
+                        default: texColor = texture(u_textures[0], v_TexCoord); break;
+                    }
+                    out_FragColor = v_Color * texColor;
                 }
             }
             """;
@@ -64,7 +80,7 @@ import org.lwjgl.opengl.GL11;
 
         public static final String PROJECTION_MATRIX = "u_projectionMatrix";
         public static final String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
-        public static final String TEXTURE = "u_texture";
+        public static final String TEXTURES = "u_textures";
     }
 
     /**
@@ -77,12 +93,14 @@ import org.lwjgl.opengl.GL11;
         public static final String POSITION = "in_Position";
         public static final String COLOR = "in_Color";
         public static final String TEX_COORD = "in_TexCoord";
+        public static final String TEX_INDEX = "in_TexIndex";
     }
 
     public enum Attribute implements VertexAttribute {
         POSITION(Attributes.POSITION, 3, GL11.GL_FLOAT),
         COLOR(Attributes.COLOR, 4, GL11.GL_UNSIGNED_BYTE, true),
-        TEX_COORD(Attributes.TEX_COORD, 2, GL11.GL_FLOAT);
+        TEX_COORD(Attributes.TEX_COORD, 2, GL11.GL_FLOAT),
+        TEX_INDEX(Attributes.TEX_INDEX, 1, GL11.GL_FLOAT);
 
         private final @NonNull String name;
         private final int componentCount;

@@ -18,17 +18,21 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * A renderer for drawing 2D GUI elements using a shader-based batching system.
+ * Supports multi-texturing to batch draw calls across different textures.
  */
 public final class GUIRenderer {
 
     private static final int MAX_QUADS = 2048;
     private static final int VERTICES_PER_QUAD = 4;
     private static final int INDICES_PER_QUAD = 6;
+    private static final int MAX_TEXTURES = 8;
 
     private final @NonNull ShaderProgram shader;
     private final MatrixStack matrixStack = new MatrixStack(_ -> flush());
@@ -38,17 +42,19 @@ public final class GUIRenderer {
     private final @NonNull VertexArray vao;
     private final int vbo;
     private final @NonNull ByteBuffer vertexBuffer;
-    private final @NonNull Texture whiteTexture;
-
+    
+    // Texture batching state
+    private final Texture[] currentTextures = new Texture[MAX_TEXTURES];
+    private int textureCount = 0;
     private int quadCount = 0;
-    private @Nullable Texture currentTexture;
 
     public GUIRenderer() {
         this.shader = new GUIShader();
         this.layout = new VertexLayout<>(
                 GUIShader.Attribute.POSITION,
                 GUIShader.Attribute.COLOR,
-                GUIShader.Attribute.TEX_COORD
+                GUIShader.Attribute.TEX_COORD,
+                GUIShader.Attribute.TEX_INDEX
         );
 
         this.vao = new VertexArray();
@@ -57,12 +63,6 @@ public final class GUIRenderer {
         this.vertexBuffer = BufferUtils.createByteBuffer(MAX_QUADS * VERTICES_PER_QUAD * layout.getStride());
 
         setupBuffers(ibo);
-
-        ByteBuffer whitePixel = BufferUtils.createByteBuffer(Integer.BYTES);
-        whitePixel.putInt(Color.WHITE_INT);
-        whitePixel.flip();
-        GLImage whiteImage = new GLByteImage(1, 1, whitePixel, GL11.GL_RGBA);
-        whiteTexture = new Texture(new GLImage[]{whiteImage}, GL11.GL_RGBA, GL11.GL_NEAREST, GL11.GL_NEAREST, org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE, org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE);
     }
 
     private void setupBuffers(int ibo) {
@@ -104,7 +104,11 @@ public final class GUIRenderer {
 
             projectionMatrix.identity().ortho(0, width, 0, height, -1, 1);
             shader.setUniformMatrix4(GUIShader.Uniforms.PROJECTION_MATRIX, false, projectionMatrix);
-            shader.setUniform(GUIShader.Uniforms.TEXTURE, 0);
+            
+            // Set texture unit indices [0, 1, ... 7]
+            int[] units = new int[MAX_TEXTURES];
+            for (int i = 0; i < MAX_TEXTURES; i++) units[i] = i;
+            GL20.glUniform1iv(shader.getUniformLocation(GUIShader.Uniforms.TEXTURES), units);
 
             matrixStack.clear();
 
@@ -122,16 +126,8 @@ public final class GUIRenderer {
         if (quadCount >= MAX_QUADS) {
             flush();
         }
-
-        // Ensure we have a valid texture bound for the shader to sample (even if we ignore it)
-        if (currentTexture == null) {
-            currentTexture = whiteTexture;
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, whiteTexture.getHandle());
-        }
-
-        // Use negative UVs to signal "no texture" to the shader
-        putQuad(x, y, w, h, -1, -1, -1, -1, Color.abgri(color));
+        // Use -1 for "no texture"
+        putQuad(x, y, w, h, -1, -1, -1, -1, -1f, Color.abgri(color));
     }
 
     public void drawModeIcon(@NonNull ModeIconQuads iconQuad, ModeIconQuads.@NonNull Mode skinMode, float x, float y) {
@@ -151,24 +147,35 @@ public final class GUIRenderer {
     }
 
     public void drawTexture(@NonNull Texture texture, float x, float y, float w, float h, float u1, float v1, float u2, float v2, @NonNull Vector4fc tint) {
-        if (currentTexture != null && texture.getHandle() != currentTexture.getHandle() || quadCount >= MAX_QUADS) {
+        if (quadCount >= MAX_QUADS) {
             flush();
         }
 
-        if (currentTexture == null || currentTexture.getHandle() != texture.getHandle()) {
-            this.currentTexture = texture;
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
+        float texIndex = getTextureIndex(texture);
+        putQuad(x, y, w, h, u1, v1, u2, v2, texIndex, Color.abgri(tint));
+    }
+    
+    private float getTextureIndex(Texture texture) {
+        for (int i = 0; i < textureCount; i++) {
+            if (currentTextures[i].getHandle() == texture.getHandle()) {
+                return (float) i;
+            }
         }
-
-        putQuad(x, y, w, h, u1, v1, u2, v2, Color.abgri(tint));
+        
+        if (textureCount >= MAX_TEXTURES) {
+            flush();
+            return getTextureIndex(texture); // Try again in empty batch
+        }
+        
+        currentTextures[textureCount] = texture;
+        return (float) textureCount++;
     }
 
-    private void putQuad(float x, float y, float w, float h, float u1, float v1, float u2, float v2, int color) {
-        vertexBuffer.putFloat(x).putFloat(y).putFloat(0).putInt(color).putFloat(u1).putFloat(v1);
-        vertexBuffer.putFloat(x + w).putFloat(y).putFloat(0).putInt(color).putFloat(u2).putFloat(v1);
-        vertexBuffer.putFloat(x + w).putFloat(y + h).putFloat(0).putInt(color).putFloat(u2).putFloat(v2);
-        vertexBuffer.putFloat(x).putFloat(y + h).putFloat(0).putInt(color).putFloat(u1).putFloat(v2);
+    private void putQuad(float x, float y, float w, float h, float u1, float v1, float u2, float v2, float texIndex, int color) {
+        vertexBuffer.putFloat(x).putFloat(y).putFloat(0).putInt(color).putFloat(u1).putFloat(v1).putFloat(texIndex);
+        vertexBuffer.putFloat(x + w).putFloat(y).putFloat(0).putInt(color).putFloat(u2).putFloat(v1).putFloat(texIndex);
+        vertexBuffer.putFloat(x + w).putFloat(y + h).putFloat(0).putInt(color).putFloat(u2).putFloat(v2).putFloat(texIndex);
+        vertexBuffer.putFloat(x).putFloat(y + h).putFloat(0).putInt(color).putFloat(u1).putFloat(v2).putFloat(texIndex);
 
         quadCount++;
     }
@@ -177,6 +184,12 @@ public final class GUIRenderer {
         if (quadCount == 0) return;
 
         shader.setUniformMatrix4(GUIShader.Uniforms.MODEL_VIEW_MATRIX, false, matrixStack.current());
+        
+        // Bind all active textures
+        for (int i = 0; i < textureCount; i++) {
+            GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, currentTextures[i].getHandle());
+        }
 
         vertexBuffer.flip();
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
@@ -187,7 +200,8 @@ public final class GUIRenderer {
         vao.unbind();
 
         quadCount = 0;
-        currentTexture = null;
+        textureCount = 0;
+        Arrays.fill(currentTextures, null);
         vertexBuffer.clear();
     }
 
