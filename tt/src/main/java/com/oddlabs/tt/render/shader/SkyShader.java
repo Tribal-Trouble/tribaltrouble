@@ -88,7 +88,7 @@ public final class SkyShader extends ShaderProgram {
         void main() {
             vec4 tex0 = texture(u_texture0, v_texCoord0);
             vec4 tex1 = texture(u_texture1, v_texCoord1);
-            
+        
             float exp0 = exp(-u_innerCloudDensity * 2.0);
             float exp1 = exp(-u_outerCloudDensity * 2.0);
             

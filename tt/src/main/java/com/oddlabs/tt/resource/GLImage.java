@@ -235,9 +235,8 @@ public abstract class GLImage {
 		}
 
 		if (max_alpha) {
-            // Boost alpha to full opacity to prevent anemic foliage
-            // Extremely aggressive: if any pixel visible, make opaque
-            if (a_acc > 0) {
+            // Boost alpha to full opacity to prevent anemic sparse foliage
+            if (a_acc > 128) {
                 a_acc = 255;
             }
         } else {
