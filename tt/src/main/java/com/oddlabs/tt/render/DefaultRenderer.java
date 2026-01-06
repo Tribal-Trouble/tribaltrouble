@@ -1,8 +1,10 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.form.WarningForm;
 import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.World;
@@ -50,6 +52,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final @NonNull LightningRenderer lightningRenderer;
     private final @NonNull SonicBlastRenderer sonicBlastRenderer;
     private final @NonNull InstancedSpriteRenderer treeSpriteRenderer = new InstancedSpriteRenderer();
+    private final @NonNull PostProcessor postProcessor;
 
     private @Nullable Building selected_building;
 
@@ -69,6 +72,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         this.emitterRenderer = new EmitterRenderer();
         this.lightningRenderer = new LightningRenderer();
         this.sonicBlastRenderer = new SonicBlastRenderer();
+        this.postProcessor = new PostProcessor(Settings.getSettings().view_width, Settings.getSettings().view_height);
         DebugRender.setShaderRenderer(new DebugShaderRenderer(new FixedFunctionShader(), modelViewStack, projectionStack));
     }
 
@@ -148,6 +152,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         } else {
             picker.resetCurrentHovered();
         }
+        // Ensure PostProcessor is sized correctly (hacky place but ensure it runs on resize)
+        postProcessor.resize(Settings.getSettings().view_width, Settings.getSettings().view_height);
     }
 
     @Override
@@ -161,7 +167,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
     @Override
     public boolean clearColorBuffer() {
-        return true;
+        return false; // We handle clearing manually in the FBO pass now
     }
 
     private void renderDebugElements(@NonNull CameraState frustum_state) {
@@ -180,6 +186,17 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             }
         }
         DebugRender.flush();
+    }
+
+    @Override
+    public void startFrame() {
+        postProcessor.bindSceneFBO();
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+    }
+
+    @Override
+    public void endFrame() {
+        postProcessor.renderComposite();
     }
 
     @Override
@@ -270,5 +287,6 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         sky.close();
         water.close();
         treeSpriteRenderer.close();
+        postProcessor.close();
     }
 }

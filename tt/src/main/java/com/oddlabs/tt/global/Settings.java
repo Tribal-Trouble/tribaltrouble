@@ -79,6 +79,12 @@ public final class Settings implements Serializable {
 
 	public final int frame_grab_milliseconds_per_frame = 40;
 
+    // Accessibility
+    public int cvd_mode = 0; // 0=None, 1=Protanopia, 2=Deuteranopia, 3=Tritanopia
+    public float cvd_intensity = 1.0f;
+    public boolean high_contrast = false;
+    public float contrast_intensity = 0.5f;
+
 	public static void setSettings(Settings new_settings) {
 		settings = new_settings;
 	}
@@ -123,6 +129,11 @@ public final class Settings implements Serializable {
 		setProperty(props, "tooltip_delay", tooltip_delay, defaults.tooltip_delay);
 		setProperty(props, "first_run", first_run, defaults.first_run);
 		setProperty(props, "warning_no_sound", warning_no_sound, defaults.warning_no_sound);
+        
+        setProperty(props, "cvd_mode", cvd_mode, defaults.cvd_mode);
+        setProperty(props, "cvd_intensity", cvd_intensity, defaults.cvd_intensity);
+        setProperty(props, "high_contrast", high_contrast, defaults.high_contrast);
+        setProperty(props, "contrast_intensity", contrast_intensity, defaults.contrast_intensity);
 
 		Path settings_file = LocalInput.getGameDir().resolve(Globals.SETTINGS_FILE_NAME);
 		try (OutputStream out = Files.newOutputStream(settings_file)) {
@@ -171,6 +182,11 @@ public final class Settings implements Serializable {
 		tooltip_delay = getFloat(props, "tooltip_delay", tooltip_delay);
 		first_run = getBoolean(props, "first_run", first_run);
 		warning_no_sound = getBoolean(props, "warning_no_sound", warning_no_sound);
+        
+        cvd_mode = getInt(props, "cvd_mode", cvd_mode);
+        cvd_intensity = getFloat(props, "cvd_intensity", cvd_intensity);
+        high_contrast = getBoolean(props, "high_contrast", high_contrast);
+        contrast_intensity = getFloat(props, "contrast_intensity", contrast_intensity);
 	}
 
 	// --- Save Helpers ---

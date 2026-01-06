@@ -59,6 +59,7 @@ public abstract class AbstractOptionsMenu extends Form {
 		PanelGroup panel_group = new PanelGroup(
                 createGeneralPanel(gui_root, bundle, this),
                 createDisplayPanel(gui_root, bundle, this),
+                createAccessibilityPanel(gui_root, bundle, this),
                 createSoundPanel(bundle),
                 createLanguagePanel(gui_root, bundle)
         );
@@ -271,6 +272,82 @@ public abstract class AbstractOptionsMenu extends Form {
         display.compileCanvas();
 
         return display;
+    }
+
+    private static Panel createAccessibilityPanel(@NonNull GUIRoot gui_root, @NonNull ResourceBundle bundle, @NonNull AbstractOptionsMenu options) {
+        Panel accessibility = new Panel(Utils.getBundleString(bundle, "accessibility_caption"));
+
+        // High Contrast
+        Group group_contrast = new Group();
+        accessibility.addChild(group_contrast);
+        CheckBox cb_high_contrast = new CheckBox(Settings.getSettings().high_contrast, Utils.getBundleString(bundle, "high_contrast"), Utils.getBundleString(bundle, "high_contrast_tip"));
+        group_contrast.addChild(cb_high_contrast);
+        
+        Label label_contrast_intensity = new Label(Utils.getBundleString(bundle, "contrast_intensity"), Skin.getSkin().getEditFont());
+        group_contrast.addChild(label_contrast_intensity);
+        
+        // Support up to 2.0 intensity (40 steps)
+        Slider slider_contrast = new Slider(SLIDER_WIDTH, 0, 2 * MAX_VALUE, (int)(Settings.getSettings().contrast_intensity * MAX_VALUE));
+        slider_contrast.setDisabled(!Settings.getSettings().high_contrast);
+        group_contrast.addChild(slider_contrast);
+
+        cb_high_contrast.addCheckBoxListener(marked -> {
+            Settings.getSettings().high_contrast = marked;
+            slider_contrast.setDisabled(!marked);
+        });
+        slider_contrast.addValueListener(value -> Settings.getSettings().contrast_intensity = (float)value / MAX_VALUE);
+
+        // Layout:
+        // [Checkbox High Contrast]
+        // [Label Intensity] [Slider]
+        cb_high_contrast.place();
+        label_contrast_intensity.place(cb_high_contrast, BOTTOM_LEFT);
+        slider_contrast.place(label_contrast_intensity, RIGHT_MID);
+        group_contrast.compileCanvas();
+
+        // CVD
+        Group group_cvd = new Group();
+        accessibility.addChild(group_cvd);
+        Label label_cvd = new Label(Utils.getBundleString(bundle, "color_vision"), Skin.getSkin().getEditFont());
+        group_cvd.addChild(label_cvd);
+
+        PulldownMenu<Void> pm_cvd = new PulldownMenu<>();
+        pm_cvd.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "cvd_standard")));
+        pm_cvd.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "cvd_protanopia")));
+        pm_cvd.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "cvd_deuteranopia")));
+        pm_cvd.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "cvd_tritanopia")));
+        PulldownButton pb_cvd = new PulldownButton(gui_root, pm_cvd, Settings.getSettings().cvd_mode, 200);
+        group_cvd.addChild(pb_cvd);
+
+        Label label_cvd_intensity = new Label(Utils.getBundleString(bundle, "cvd_intensity"), Skin.getSkin().getEditFont());
+        group_cvd.addChild(label_cvd_intensity);
+
+        // Support up to 2.0 intensity (40 steps)
+        Slider slider_cvd = new Slider(SLIDER_WIDTH, 0, 2 * MAX_VALUE, (int)(Settings.getSettings().cvd_intensity * MAX_VALUE));
+        slider_cvd.setDisabled(Settings.getSettings().cvd_mode == 0);
+        group_cvd.addChild(slider_cvd);
+
+        pm_cvd.addItemChosenListener((_, index) -> {
+            Settings.getSettings().cvd_mode = index;
+            slider_cvd.setDisabled(index == 0);
+        });
+        slider_cvd.addValueListener(value -> Settings.getSettings().cvd_intensity = (float)value / MAX_VALUE);
+
+        // Layout:
+        // [Label Mode] [Pulldown]
+        // [Label Intensity] [Slider]
+        label_cvd.place();
+        pb_cvd.place(label_cvd, RIGHT_MID);
+        label_cvd_intensity.place(label_cvd, BOTTOM_LEFT);
+        slider_cvd.place(label_cvd_intensity, RIGHT_MID);
+        group_cvd.compileCanvas();
+
+        // Placement
+        group_contrast.place();
+        group_cvd.place(group_contrast, BOTTOM_LEFT);
+        
+        accessibility.compileCanvas();
+        return accessibility;
     }
 
     private static Panel createSoundPanel(@NonNull ResourceBundle bundle) {

@@ -59,6 +59,36 @@ public final class LocalInput {
 	public static void keyPressed(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
 		var key = Key.fromLwjglCode(key_code);
 		if (Key.KEY_UNKNOWN != key || key_char != 0) {
+            // --- Accessibility Debug Controls ---
+            if (key == Key.F9 && !repeat) {
+                Settings s = Settings.getSettings();
+                if (shift_down) {
+                    s.high_contrast = !s.high_contrast;
+                    logger.info("High Contrast: " + s.high_contrast);
+                    gui_root.getInfoPrinter().print("High Contrast: " + (s.high_contrast ? "ON" : "OFF"));
+                } else if (control_down) {
+                    s.cvd_intensity = Math.min(s.cvd_intensity + 0.1f, 2.0f);
+                    logger.info("CVD Intensity: " + s.cvd_intensity);
+                    gui_root.getInfoPrinter().print(String.format("CVD Intensity: %.1f", s.cvd_intensity));
+                } else if (menu_down) { // Alt
+                    s.cvd_intensity = Math.max(s.cvd_intensity - 0.1f, 0.0f);
+                    logger.info("CVD Intensity: " + s.cvd_intensity);
+                    gui_root.getInfoPrinter().print(String.format("CVD Intensity: %.1f", s.cvd_intensity));
+                } else {
+                    s.cvd_mode = (s.cvd_mode + 1) % 4;
+                    String modeName = switch (s.cvd_mode) {
+                        case 0 -> "None";
+                        case 1 -> "Protanopia";
+                        case 2 -> "Deuteranopia";
+                        case 3 -> "Tritanopia";
+                        default -> "Unknown";
+                    };
+                    logger.info("CVD Mode: " + modeName);
+                    gui_root.getInfoPrinter().print("CVD Mode: " + modeName);
+                }
+            }
+            // ------------------------------------
+
 			setKeys(key, true, shift_down, control_down, menu_down);
 			gui_root.getInputState().keyPressed(key, key_char, shift_down, control_down, menu_down, repeat);
 		}

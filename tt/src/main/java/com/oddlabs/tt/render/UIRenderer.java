@@ -13,4 +13,7 @@ public interface UIRenderer {
 	@Nullable ToolTip getToolTip();
     boolean isCheater();
 	boolean clearColorBuffer();
+
+    default void startFrame() {}
+    default void endFrame() {}
 }

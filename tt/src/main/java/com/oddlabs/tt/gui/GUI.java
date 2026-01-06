@@ -70,11 +70,20 @@ public final class GUI implements Animated {
     }
 
     public void render(@NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull Matrix4f proj, @NonNull Matrix4f modelView) {
-        boolean clear_color = renderer == null || renderer.clearColorBuffer();
-        GL11.glClear(clear_color ? GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT : GL11.GL_DEPTH_BUFFER_BIT);
+        if (renderer != null) {
+            renderer.startFrame();
+        } else {
+            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        }
+
         if (renderer != null)
             renderer.render(ambient, frustum_state, current_root, proj, modelView);
+        
         renderGUI();
+        
+        if (renderer != null) {
+            renderer.endFrame();
+        }
     }
 
     public void pickHover() {

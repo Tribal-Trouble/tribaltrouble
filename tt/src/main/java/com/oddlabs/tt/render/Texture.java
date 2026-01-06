@@ -124,7 +124,22 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 
     public Texture(int width, int height, int internal_format, int min_filter, int mag_filter, int wrap) {
         this(width, height, min_filter, mag_filter, wrap, wrap, 1000);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, internal_format, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (java.nio.ByteBuffer)null);
+        int format = GL11.GL_RGBA;
+        int type = GL11.GL_UNSIGNED_BYTE;
+        
+        if (internal_format == GL30.GL_DEPTH_COMPONENT24) {
+            format = GL11.GL_DEPTH_COMPONENT;
+            type = GL11.GL_FLOAT;
+        } else if (internal_format == GL30.GL_RGBA16F) {
+            format = GL11.GL_RGBA;
+            type = GL30.GL_HALF_FLOAT;
+        } else if (internal_format == GL11.GL_RGB || internal_format == GL11.GL_RGB8) {
+            format = GL11.GL_RGB;
+        } else if (internal_format == GL11.GL_RED || internal_format == GL30.GL_R8) {
+            format = GL11.GL_RED;
+        }
+        
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, type, (java.nio.ByteBuffer)null);
         int size = determineMipMapSize(0, internal_format, width, height);
         setSize(size);
     }
@@ -244,6 +259,8 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
                     case GL11.GL_LUMINANCE, GL11.GL_ALPHA8, GL11.GL_ALPHA, GL13.GL_COMPRESSED_LUMINANCE,
                          GL13.GL_COMPRESSED_ALPHA, GL11.GL_RED, GL30.GL_R8 -> width * height;
                     case GL30.GL_R32F -> width * height * 4;
+                    case GL30.GL_RGBA16F -> width * height * 8; // 4 channels * 2 bytes (half float)
+                    case GL30.GL_DEPTH_COMPONENT24 -> width * height * 4; // Treated as 32-bit for alignment/estimation
                     default -> throw new RuntimeException("0x" + Integer.toHexString(internal_format));
                 };
             }
