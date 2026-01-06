@@ -36,7 +36,7 @@ application {
 dependencies {
     implementation(project(":common"))
     implementation(project(":assets"))
-    implementation("org.lwjglx:lwjglx-debug:1.0.1")
+//    implementation("org.lwjglx:lwjglx-debug:1.0.1")
 }
 
 val revision = tasks.register("revision") {
