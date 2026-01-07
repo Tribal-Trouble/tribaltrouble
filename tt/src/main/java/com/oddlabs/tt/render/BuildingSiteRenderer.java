@@ -29,7 +29,7 @@ public final class BuildingSiteRenderer extends ShadowRenderer {
                 if (dx == 0f && dy == 0f)
                     setShadowColor(1f, 1f, 1f, 1f);
                 else
-                    setShadowColor(0f, 1f, 0f, 1 - a * a);
+                    setShadowColor(0f, 1f, 0f, Math.max(0f, 1 - a * a));
                 renderShadow(renderer, 2f, target.getPositionX(), target.getPositionY());
             }
         }
