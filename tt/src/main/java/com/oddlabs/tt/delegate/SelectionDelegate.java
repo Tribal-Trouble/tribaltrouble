@@ -21,6 +21,7 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.model.UnitTemplate;
 import com.oddlabs.tt.model.behaviour.IdleController;
 import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.Notification;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -57,11 +58,12 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		String observer_mode = Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()), "observer_mode");
 		this.observer_label = new Label(observer_mode, Skin.getSkin().getHeadlineFont());
 		this.game_camera = (GameCamera)getCamera();
-		displayChangedNotify(LocalInput.getViewWidth(), LocalInput.getViewHeight());
+		var localInput = Renderer.getLocalInput();
+		displayChangedNotify(localInput.getViewWidth(), localInput.getViewHeight());
 		addChild(getViewer().getPanel());
 		chat_form = new InGameChatForm(getViewer().getGUIRoot().getInfoPrinter(), getViewer());
 		chat_form.addCloseListener(() -> {
-			if (LocalInput.isKeyDown(Key.RETURN)) {
+			if (localInput.isKeyDown(Key.RETURN)) {
 				close_chat_override = true;
 			}
 			chat_visible = false;
@@ -344,7 +346,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                         }
                     }
                 }
-				if (LocalInput.isShiftDownCurrently() && getViewer().getSelection().getCurrentSelection().size() > 0)
+				if (Renderer.getLocalInput().isShiftDownCurrently() && getViewer().getSelection().getCurrentSelection().size() > 0)
 					updateSelection(friendly_units, friendly_building, enemy);
 				else
 					replaceSelection(friendly_units, friendly_building, enemy);
@@ -394,9 +396,10 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	public void mousePressed (@NonNull MouseButton button, int x, int y) {
 		if (!map_mode) {
 			if (!observer) {
+				var localInput = Renderer.getLocalInput();
                 switch (button) {
                     case LEFT:
-                        if (!LocalInput.isKeyDown(Key.SPACE)) {
+                        if (!localInput.isKeyDown(Key.SPACE)) {
                             selection = true;
                         }
                         selection_x1 = x;

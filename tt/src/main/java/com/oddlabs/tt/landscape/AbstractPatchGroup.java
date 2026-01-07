@@ -2,6 +2,7 @@ package com.oddlabs.tt.landscape;
 
 
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.BoundingBox;
 import org.jspecify.annotations.NonNull;
 
@@ -33,7 +34,7 @@ public abstract class AbstractPatchGroup extends BoundingBox {
 	}
 
 	protected final float transformError(float error) {
-		float transformed_error = error*LocalInput.getErrorConstant() + patch_radius;
+		float transformed_error = error* Renderer.getLocalInput().getErrorConstant() + patch_radius;
 		return transformed_error*transformed_error;
 	}
 

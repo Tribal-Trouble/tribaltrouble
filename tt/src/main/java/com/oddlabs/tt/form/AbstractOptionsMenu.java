@@ -178,10 +178,10 @@ public abstract class AbstractOptionsMenu extends Form {
         // Fullscreen
         Group group_fullscreen = new Group();
         display.addChild(group_fullscreen);
-        CheckBox cb_fullscreen = new CheckBox(LocalInput.inFullscreen(), Utils.getBundleString(bundle, "fullscreen"), Utils.getBundleString(bundle, "fullscreen_tip"));
+        CheckBox cb_fullscreen = new CheckBox(Renderer.getLocalInput().inFullscreen(), Utils.getBundleString(bundle, "fullscreen"), Utils.getBundleString(bundle, "fullscreen_tip"));
         cb_fullscreen.addCheckBoxListener(_ -> {
             DisplayChangeForm display_change_form = new DisplayChangeForm(
-                    switch_now -> LocalInput.toggleFullscreen());
+                    switch_now -> Renderer.getLocalInput().toggleFullscreen());
             gui_root.addModalForm(display_change_form);
         });
         group_fullscreen.addChild(cb_fullscreen);
@@ -196,7 +196,7 @@ public abstract class AbstractOptionsMenu extends Form {
         group_hardware_cursor.addChild(cb_hardware_cursor);
         cb_hardware_cursor.place();
         group_hardware_cursor.compileCanvas();
-        group_hardware_cursor.setDisabled((LocalInput.getNativeCursorCaps() & LocalInput.CURSOR_ONE_BIT_TRANSPARENCY) == 0);
+        group_hardware_cursor.setDisabled((Renderer.getLocalInput().getNativeCursorCaps() & LocalInput.CURSOR_ONE_BIT_TRANSPARENCY) == 0);
 
         // Detail
         Group group_detail = new Group();
@@ -253,7 +253,7 @@ public abstract class AbstractOptionsMenu extends Form {
             @Override
             public void rowChosen(SerializableDisplayMode mode) {
                 gui_root.addModalForm(new DisplayChangeForm(switch_now -> {
-                    LocalInput.getLocalInput().switchMode(mode, switch_now);
+                    Renderer.getLocalInput().switchMode(mode, switch_now);
                     gui_root.displayChanged();
                 }));
             }
@@ -378,7 +378,7 @@ public abstract class AbstractOptionsMenu extends Form {
         slider_music.addValueListener(value -> {
             float music_gain = (float)value/(MAX_VALUE);
             Settings.getSettings().music_gain = music_gain;
-            Renderer.getMusicPlayer().setGain(music_gain);
+            Renderer.getRenderer().getMusicPlayer().setGain(music_gain);
         });
         
         cb_music.place();
@@ -387,7 +387,7 @@ public abstract class AbstractOptionsMenu extends Form {
         slider_music.place(label_music_low, RIGHT_MID);
         label_music_high.place(slider_music, RIGHT_MID);
         group_music.compileCanvas();
-        group_music.setDisabled(TEMPORARILY_DISABLE_MUSIC_CONTROLS || !LocalInput.audioIsCreated());
+        group_music.setDisabled(TEMPORARILY_DISABLE_MUSIC_CONTROLS || !Renderer.getLocalInput().audioIsCreated());
 
         Group group_sound = new Group();
         sound.addChild(group_sound);
@@ -418,7 +418,7 @@ public abstract class AbstractOptionsMenu extends Form {
         slider_sound.place(label_sound_low, RIGHT_MID);
         label_sound_high.place(slider_sound, RIGHT_MID);
         group_sound.compileCanvas();
-        group_sound.setDisabled(!LocalInput.audioIsCreated());
+        group_sound.setDisabled(!Renderer.getLocalInput().audioIsCreated());
 
         // Placement
         group_music.place();

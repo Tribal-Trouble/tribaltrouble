@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.tt.render.Renderer;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 
@@ -28,7 +29,7 @@ public final class Arrow extends GUIObject {
 		this.g = g;
 		this.b = b;
 		this.show_always = show_always;
-		displayChangedNotify(LocalInput.getViewWidth(), LocalInput.getViewHeight());
+		displayChangedNotify(Renderer.getLocalInput().getViewWidth(), Renderer.getLocalInput().getViewHeight());
 	}
 
 	@Override
@@ -43,7 +44,7 @@ public final class Arrow extends GUIObject {
 		if (point.w < .1f)
 			point.w = .1f;
 		float inv_w = 1/point.w;
-		point.set((point.x*inv_w + 1)*.5f*LocalInput.getViewWidth(), (point.y*inv_w + 1)*.5f*LocalInput.getViewHeight(), 0, 0);
+		point.set((point.x*inv_w + 1)*.5f*Renderer.getLocalInput().getViewWidth(), (point.y*inv_w + 1)*.5f*Renderer.getLocalInput().getViewHeight(), 0, 0);
 		return point;
 	}
 
@@ -52,8 +53,8 @@ public final class Arrow extends GUIObject {
 		Vector4f result = project3DTo2D(target_x, target_y, target_z);
 		float x = result.x;
 		float y = result.y;
-		float dx = x - LocalInput.getViewWidth()/2f;
-		float dy = y - LocalInput.getViewHeight()/2f;
+		float dx = x - Renderer.getLocalInput().getViewWidth()/2f;
+		float dy = y - Renderer.getLocalInput().getViewHeight()/2f;
 		float dist_sqr = dx*dx + dy*dy;
 		if (dist_sqr < 1f) {
 			dx = 1f;
@@ -67,14 +68,14 @@ public final class Arrow extends GUIObject {
 		float angle = (float)Math.toDegrees(Math.acos(dx));
 		if (dy < 0f)
 			angle = 360f - angle;
-		float real_t = (x - LocalInput.getViewWidth()/2f)/dx;
+		float real_t = (x - Renderer.getLocalInput().getViewWidth()/2f)/dx;
 		float t = real_t;
-		float t_min_x = (-LocalInput.getViewWidth()/2f)/dx;
-		float t_max_x = (LocalInput.getViewWidth()/2f)/dx;
+		float t_min_x = (-Renderer.getLocalInput().getViewWidth()/2f)/dx;
+		float t_max_x = (Renderer.getLocalInput().getViewWidth()/2f)/dx;
 		float t_x = Math.max(t_min_x, t_max_x);
 		t = Math.min(t, t_x);
-		float t_min_y = (-LocalInput.getViewHeight()/2f)/dy;
-		float t_max_y = (LocalInput.getViewHeight()/2f)/dy;
+		float t_min_y = (-Renderer.getLocalInput().getViewHeight()/2f)/dy;
+		float t_max_y = (Renderer.getLocalInput().getViewHeight()/2f)/dy;
 		float t_y = Math.max(t_min_y, t_max_y);
 		t = Math.min(t, t_y);
 		if (show_always || gui_root.getDelegate().getCamera().getState().inNoDetailMode() || t < real_t) {
@@ -82,7 +83,7 @@ public final class Arrow extends GUIObject {
 			float head_x = data.headX();
 			float head_y = data.headY();
 			renderer.getMatrixStack().push();
-			renderer.getMatrixStack().translate(LocalInput.getViewWidth()/2f + dx*t, LocalInput.getViewHeight()/2f + dy*t, 0f);
+			renderer.getMatrixStack().translate(Renderer.getLocalInput().getViewWidth()/2f + dx*t, Renderer.getLocalInput().getViewHeight()/2f + dy*t, 0f);
 			renderer.getMatrixStack().rotate(angle, 0f, 0f, 1f);
 			float val = (LocalEventQueue.getQueue().getTime()%SECONDS_PER_FLASH)/(SECONDS_PER_FLASH*.5f);
 			if (val > 1f)

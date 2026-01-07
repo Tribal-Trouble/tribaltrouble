@@ -15,6 +15,7 @@ import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.ProgressBar;
 import com.oddlabs.tt.gui.ProgressBarInfo;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -93,16 +94,12 @@ public final class ProgressForm {
 
 	private ProgressForm(@NonNull NetworkSelector network, final @NonNull GUI gui, final Fadable load_fadable, boolean first_progress, ProgressBarInfo @NonNull [] info, @NonNull String texture_name, int texture_width, int texture_height, int image_width, int image_height, int progress_x, int progress_y, int progress_width, boolean show_tip) {
 		AudioManager.getManager().stopSources();
-		final GUIRoot gui_root;
-		if (!first_progress) {
-			gui_root = gui.newFade(load_fadable, null);
-		} else {
-			gui_root = gui.getGUIRoot();
-		}
-		CameraDelegate<NullCamera> delegate = new NullDelegate(gui_root, false);
+		var gui_root = first_progress ? gui.getGUIRoot() : gui.newFade(load_fadable, null);
+        CameraDelegate<NullCamera> delegate = new NullDelegate(gui_root, false);
 		gui_root.pushDelegate(delegate);
-		int screen_width = LocalInput.getViewWidth();
-		int screen_height = LocalInput.getViewHeight();
+		var localInput = Renderer.getLocalInput();
+		int screen_width = localInput.getViewWidth();
+		int screen_height = localInput.getViewHeight();
 		progress_width = (int)(progress_width*(float)screen_width/image_width);
 		progress_x = (int)(progress_x*(float)screen_width/image_width);
 		progress_y = (int)(progress_y*(float)screen_height/image_height);
@@ -118,8 +115,7 @@ public final class ProgressForm {
 		if (show_tip) {
 			Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
 			CharSequence tip_string = LOADING_TIPS[random.nextInt(LOADING_TIPS.length)];
-			int tip_width = Skin.getSkin().getEditFont().getWidth(tip_string);
-			tip_width = Math.min(LocalInput.getViewWidth() - 10, tip_width);
+			int tip_width = Math.min(localInput.getViewWidth() - 10, Skin.getSkin().getEditFont().getWidth(tip_string));
 			LabelBox tip = new LabelBox(tip_string, Skin.getSkin().getEditFont(), tip_width);
 //			Label tip = new Label(LOADING_TIPS[random.nextInt(LOADING_TIPS.length)], Skin.getSkin().getEditFont());
 			tip.setPos(progress_bar.getX() + progress_bar.getWidth()/2 - tip.getWidth()/2, progress_bar.getY() - tip.getHeight() - PROGRESSBAR_LOADINGTIP_SPACING);

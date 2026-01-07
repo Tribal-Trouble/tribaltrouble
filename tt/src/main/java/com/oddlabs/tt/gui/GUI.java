@@ -4,6 +4,7 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import org.joml.Matrix4f;
@@ -89,8 +90,10 @@ public final class GUI implements Animated {
     public void pickHover() {
         CameraState camera = getGUIRoot().getDelegate().getCamera().getState();
         GUIObject gui_hit = getGUIRoot().getCurrentGUIObject();
-        if (renderer != null)
-            renderer.pickHover(gui_hit.canHoverBehind(), camera, LocalInput.getMouseX(), LocalInput.getMouseY());
+        if (renderer != null) {
+            var localInput = Renderer.getLocalInput();
+            renderer.pickHover(gui_hit.canHoverBehind(), camera, localInput.getMouseX(), localInput.getMouseY());
+        }
     }
 
     private void renderGUI() {

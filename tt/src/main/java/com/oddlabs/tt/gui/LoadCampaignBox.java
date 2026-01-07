@@ -4,6 +4,7 @@ import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.MessageForm;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.player.campaign.CampaignState;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.DeterministicSerializer;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
@@ -53,7 +54,7 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 	}
 
 	private static @NonNull Path getSaveSavegamesFile() {
-		return LocalInput.getGameDir().resolve(SAVEGAMES_FILE_NAME);
+		return Renderer.getLocalInput().getGameDir().resolve(SAVEGAMES_FILE_NAME);
 	}
 
 	public static <T> void loadSavegames(@NonNull DeterministicSerializerLoopbackInterface<T>  callback) {

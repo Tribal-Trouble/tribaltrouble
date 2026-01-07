@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.shader.FogShader;
 import com.oddlabs.tt.util.GLState;
 import org.joml.Vector4fc;
@@ -19,8 +20,9 @@ public final class RadialFogInfo extends FogInfo {
             return superState;
         }
 
-        int viewWidth = LocalInput.getViewWidth();
-        int viewHeight = LocalInput.getViewHeight();
+        var localInput = Renderer.getLocalInput();
+        int viewWidth = localInput.getViewWidth();
+        int viewHeight = localInput.getViewHeight();
 
         shader.setUniform(FogShader.FOG_COLOR, color.x(), color.y(), color.z(), color.w());
         shader.setUniform(FogShader.FOG_MODE, FogShader.FOG_MODE_RADIAL);

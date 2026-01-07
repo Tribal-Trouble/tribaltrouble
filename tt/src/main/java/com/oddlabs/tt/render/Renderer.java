@@ -26,6 +26,8 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.input.InputProvider;
+import com.oddlabs.tt.input.LWJGL3InputProvider;
 import com.oddlabs.tt.landscape.LandscapeResources;
 import com.oddlabs.tt.landscape.NotificationListener;
 import com.oddlabs.tt.landscape.World;
@@ -69,21 +71,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-public final class Renderer {
+public final class Renderer implements AutoCloseable{
+    private static final Logger logger = Logger.getLogger(Renderer.class.getName());
+
     private static final Renderer renderer_instance = new Renderer();
 	private static final StatCounter fps = new StatCounter(10);
 	private static int num_triangles_rendered;
 
 	private static boolean grab_frames = false;
 
-	private static final Logger logger = Logger.getLogger(Renderer.class.getName());
-
 	private final Locale default_locale = Locale.of(Locale.getDefault().getLanguage(), Locale.getDefault().getCountry(), "default");
-	private final Matrix4f proj = new Matrix4f();
 
-	private static AbstractAudioPlayer music;
-	private static String music_path;
-	private static @Nullable TimerAnimation music_timer;
+	private AbstractAudioPlayer music;
+	private String music_path;
+	private @Nullable TimerAnimation music_timer;
 
 	private static volatile boolean finished = false;
 
@@ -92,7 +93,9 @@ public final class Renderer {
     private boolean movie_recording_started = false;
 	private AmbientAudio ambient;
     
-    private @Nullable Window window;
+    private @Nullable Window window = new com.oddlabs.tt.window.LWJGL3Window();
+    
+    private final LocalInput localInput = new LocalInput(window);
 
 	public static float getFPS() {
 		return fps.getAveragePerUpdate();
@@ -110,17 +113,25 @@ public final class Renderer {
         }
 	}
 
+    @Override
+    public void close() {
+        if (window != null) {
+            window.close();
+            window = null;
+        }
+    }
+
     public @Nullable Window getWindow() {
         return window;
     }
 
-	public static void runGame(@NonNull String @NonNull ... args) throws IOException {
-		renderer_instance.run(args);
-	}
-
 	public static @NonNull Renderer getRenderer() {
 		return renderer_instance;
 	}
+
+    public static @NonNull LocalInput getLocalInput() {
+        return getRenderer().localInput;
+    }
 
 	private void runGameLoop(@NonNull NetworkSelector network, @NonNull GUI gui) {
 		AnimationManager.runGameLoop(network, gui, grab_frames);
@@ -140,7 +151,7 @@ public final class Renderer {
 
 	public static void multProjection(@NonNull Matrix4f matrix) {
 		float fovy = Globals.FOV;
-		float aspect = LocalInput.getViewAspect();
+		float aspect = Renderer.getLocalInput().getViewAspect();
 		float zNear = Globals.VIEW_MIN;
 		float zFar = Globals.VIEW_MAX;
 
@@ -453,7 +464,7 @@ public final class Renderer {
         return new GamePaths(dataDir, logDir);
     }
 
-	private void run(@NonNull String @NonNull ... args) throws IOException {
+	public void run(@NonNull String @NonNull ... args) throws IOException {
 		Instant start_time = Instant.now();
         logger.info("CWD: " + System.getProperty("user.dir"));
 		boolean first_frame = true;
@@ -521,7 +532,7 @@ public final class Renderer {
 		boolean crashed = settings.crashed;
 		NetworkSelector network = new NetworkSelector(LocalEventQueue.getQueue().getDeterministic(), LocalEventQueue.getQueue()::getMillis);
                 initNetwork(network);
-		LocalInput.settings(game_dir, event_log_dir, settings);
+		Renderer.getLocalInput().settings(game_dir, event_log_dir, settings);
 		try {
 			initNative(crashed);
 		} catch (Exception e) {
@@ -534,7 +545,7 @@ public final class Renderer {
 		GUI gui = new GUI();
 
 		GlobalsInit.init();
-		LocalInput.init();
+		localInput.init();
 
 		Duration startup_time_init = Duration.between(start_time, Instant.now());
 		logger.info("Init done after " + startup_time_init + "ms");
@@ -564,7 +575,7 @@ public final class Renderer {
                     AudioManager.getManager().masterGain(1f);
 					if (reset_keyboard) {
 						reset_keyboard = false;
-						LocalInput.resetKeyboard();
+						Renderer.getLocalInput().resetKeyboard();
 					}
 					if (!first_frame) {
 						window.update();
@@ -574,7 +585,7 @@ public final class Renderer {
 						int height = window.getHeight();
 						Settings.getSettings().view_width = width;
 						Settings.getSettings().view_height = height;
-						LocalInput.setViewDimensions(width, height);
+						Renderer.getLocalInput().setViewDimensions(width, height);
 						GL11.glViewport(0, 0, width, height);
 						initGL();
 						gui.getGUIRoot().displayChanged();
@@ -650,7 +661,7 @@ public final class Renderer {
             logger.log(Level.SEVERE, "OpenGL Failure", e);
             Main.fail(e);
         } finally {
-            Main.shutdown();
+            Main.shutdown(1);
         }
 	}
 
@@ -680,10 +691,10 @@ public final class Renderer {
 		Player local_player = world.getPlayers()[0];
 		Selection selection = new Selection(local_player);
 		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator, modelViewStack, projectionStack);
-		setMusicPath("/music/menu.ogg", 0f);
+        Renderer.getRenderer().setMusicPath("/music/menu.ogg", 0f);
 		MainMenu main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
 		gui_root.pushDelegate(main_menu);
-		if (first_progress && Settings.getSettings().warning_no_sound && !LocalInput.audioIsCreated()) {
+		if (first_progress && Settings.getSettings().warning_no_sound && !Renderer.getLocalInput().audioIsCreated()) {
 			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
 			gui_root.addModalForm(new WarningForm(Utils.getBundleString(bundle, "sound_not_available_caption"), Utils.getBundleString(bundle, "sound_not_available_message")));
 		}
@@ -732,14 +743,14 @@ public final class Renderer {
 	}
 
 	public static void resetInput() {
-		LocalInput.resetKeys();
+		Renderer.getLocalInput().resetKeys();
 	}
 
 	private static void destroyNative() {
         logger.info("Clearing Resources...");
         Resources.clearResources();
         logger.info("Closing LocalInput...");
-        LocalInput.destroy();
+        getLocalInput().close();
         logger.info("Closing AudioManager...");
         AudioManager.getManager().close();
         if (getRenderer().getWindow() != null) {
@@ -780,8 +791,6 @@ public final class Renderer {
 
         AudioManager.getManager();
 
-        window = new com.oddlabs.tt.window.LWJGL3Window();
-
 		try {
             int bpp = 32;
             try {
@@ -814,7 +823,7 @@ public final class Renderer {
             
             boolean fs = Settings.getSettings().fullscreen && (!LocalEventQueue.getQueue().getDeterministic().isPlayback() || grab_frames);
             window.create(target_mode, fs);
-			LocalInput.getLocalInput().setModeToNearest(target_mode);
+			Renderer.getLocalInput().setModeToNearest(target_mode);
             
             Path iconPath = Path.of("assets/widget/TribalTrouble.wdgt/Icon.png");
             if (!Files.exists(iconPath)) {
@@ -871,15 +880,15 @@ public final class Renderer {
 		}
 	}
 
-	private static void initMusicPlayer() {
+	private void initMusicPlayer() {
 		music = AudioManager.getManager().newAudio(new AudioParameters<>(music_path, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_MUSIC, AudioPlayer.AUDIO_DISTANCE_MUSIC, Settings.getSettings().music_gain, 1f, 1f, true, true, true));
 	}
 
-	public static void setMusicPath(String music_path, float delay) {
+	public void setMusicPath(String music_path, float delay) {
         if (music != null && Settings.getSettings().play_music) {
             music.stop(2.5f, Settings.getSettings().music_gain);
         }
-        Renderer.music_path = music_path;
+        Renderer.getRenderer().music_path = music_path;
         if (Settings.getSettings().play_music) {
             if (music_timer != null)
                 music_timer.stop();
@@ -888,7 +897,7 @@ public final class Renderer {
         }
 	}
 
-	private static final class MusicTimer implements Updatable {
+	private final class MusicTimer implements Updatable {
 		@Override
 		public void update(@NonNull Object anim) {
 			if (music_timer != null)
@@ -900,7 +909,7 @@ public final class Renderer {
 		}
 	}
 
-	public static AbstractAudioPlayer getMusicPlayer() {
+	public AbstractAudioPlayer getMusicPlayer() {
 		return music;
 	}
 

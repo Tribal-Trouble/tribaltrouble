@@ -115,12 +115,12 @@ public final class PostProcessShader extends ShaderProgram {
             vec4 sceneColor = texture(u_sceneTexture, v_texCoord);
             vec3 finalColor = sceneColor.rgb;
 
-            if (u_cvdMode > 0) {
-                finalColor = daltonize(finalColor);
-            }
-
             if (u_highContrast) {
                 finalColor = applyHighContrast(finalColor);
+            }
+
+            if (u_cvdMode > 0) {
+                finalColor = daltonize(finalColor);
             }
 
             out_FragColor = vec4(finalColor, sceneColor.a);

@@ -239,7 +239,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 
 	private Selectable<?> @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter) {
 		List<Selectable<?>> result = new ArrayList<>();
-		Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, LocalInput.getViewWidth() - 1, LocalInput.getViewHeight() - 1, 2);
+		Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, Renderer.getLocalInput().getViewWidth() - 1, Renderer.getLocalInput().getViewHeight() - 1, 2);
             for (Selectable<?> selectable : complete_list) {
                 if (selectable.getAbilities().hasAbilities(ability_filter)) {
                     result.add(selectable);
@@ -251,7 +251,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 	}
 
 	public void pickRotate(@NonNull GameCamera camera) {
-		int x = LocalInput.getViewWidth()/2;
+		int x = Renderer.getLocalInput().getViewWidth()/2;
 		int y = camera.getRotateY();
 		setupPicking(camera.getState(), x, y, PICK_SIZE, PICK_SIZE);
 		if (!nearestLandscape(x, y) || patch_hit_z < local_player.getWorld().getHeightMap().getSeaLevelMeters()) {
@@ -492,8 +492,8 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 	}
 
 	public boolean pickLocation(@NonNull CameraState camera, @NonNull LandscapeLocation landscape_location) {
-		int x = LocalInput.getMouseX();
-		int y = LocalInput.getMouseY();
+		int x = Renderer.getLocalInput().getMouseX();
+		int y = Renderer.getLocalInput().getMouseY();
 		setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
 		if (!nearestLandscape(x, y))
 			return false;
@@ -505,7 +505,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 	private void setupPicking(@NonNull CameraState camera, float x_center, float y_center, int width, int height) {
 		proj.identity();
 		viewport.clear();
-		viewport.put(0).put(0).put(LocalInput.getViewWidth()).put(LocalInput.getViewHeight());
+		viewport.put(0).put(0).put(Renderer.getLocalInput().getViewWidth()).put(Renderer.getLocalInput().getViewHeight());
 		viewport.flip();
 
 		if (width > 0 && height > 0) {

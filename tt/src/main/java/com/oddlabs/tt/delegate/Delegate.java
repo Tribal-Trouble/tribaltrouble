@@ -8,6 +8,7 @@ import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.RenderQueues;
+import com.oddlabs.tt.render.Renderer;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
@@ -17,7 +18,8 @@ public abstract class Delegate extends GUIObject {
 	Delegate() {
 		setPos(0, 0);
 		setCanFocus(true);
-		setDim(LocalInput.getViewWidth(), LocalInput.getViewHeight());
+		var localInput = Renderer.getLocalInput();
+		setDim(localInput.getViewWidth(), localInput.getViewHeight());
 	}
 
 	@Override
@@ -28,7 +30,8 @@ public abstract class Delegate extends GUIObject {
 	@Override
 	protected void doAdd() {
 		super.doAdd();
-        displayChanged(LocalInput.getViewWidth(), LocalInput.getViewHeight());
+		var localInput = Renderer.getLocalInput();
+        displayChanged(localInput.getViewWidth(), localInput.getViewHeight());
 		setFocus();
 	}
 

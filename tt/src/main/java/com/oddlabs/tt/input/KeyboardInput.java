@@ -21,17 +21,18 @@ public final class KeyboardInput {
 	private boolean right_shift_down;
 	private boolean left_control_down;
 	private boolean right_control_down;
-	private boolean left_menu_down;
-	private boolean right_menu_down;
-	private long lastControlReleaseTime;
+	private boolean left_alt_down;
+	private boolean right_alt_down;
+	private boolean left_super_down;
+	private boolean right_super_down;
 
 	public static void reset() {
-		while (LocalInput.getInputProvider() != null && LocalInput.getInputProvider().nextKeyboardEvent())
+		while (Renderer.getLocalInput().getInputProvider() != null && Renderer.getLocalInput().getInputProvider().nextKeyboardEvent())
 			;
 	}
 
-	public static boolean isMenuDown() {
-		return instance.left_menu_down || instance.right_menu_down;
+	public static boolean isAltDown() {
+		return instance.left_alt_down || instance.right_alt_down;
 	}
 
 	private boolean checkMagicKey(Deterministic deterministic, boolean event_key_state, @NonNull Key event_key, boolean override, boolean repeat) {
@@ -69,7 +70,7 @@ public final class KeyboardInput {
 	public void doCheckMagicKeys() {
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		if (deterministic.isPlayback()) {
-            InputProvider<?> input = LocalInput.getInputProvider();
+            InputProvider<?> input = Renderer.getLocalInput().getInputProvider();
 			input.pollKeyboard();
 			while (input.nextKeyboardEvent()) {
 				int event_key_code = input.getEventKey();
@@ -87,8 +88,7 @@ public final class KeyboardInput {
 	}
 
 	public boolean doPoll(@NonNull GUIRoot gui_root) {
-        InputProvider<?> input = LocalInput.getInputProvider();
-        if (input == null) return false;
+        InputProvider<?> input = Renderer.getLocalInput().getInputProvider();
         
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		boolean result = false;
@@ -98,8 +98,8 @@ public final class KeyboardInput {
         right_shift_down = input.isKeyDown(Key.RSHIFT.getLwjglCode());
         left_control_down = input.isKeyDown(Key.LCONTROL.getLwjglCode());
         right_control_down = input.isKeyDown(Key.RCONTROL.getLwjglCode());
-        left_menu_down = input.isKeyDown(Key.LMENU.getLwjglCode());
-        right_menu_down = input.isKeyDown(Key.RMENU.getLwjglCode());
+        left_alt_down = input.isKeyDown(Key.LALT.getLwjglCode());
+        right_alt_down = input.isKeyDown(Key.RALT.getLwjglCode());
 
 		while (deterministic.log(input.nextKeyboardEvent())) {
 			result = true;
@@ -109,50 +109,47 @@ public final class KeyboardInput {
 			char event_character = deterministic.log(input.getEventCharacter());
 			boolean repeat_event = deterministic.log(input.isRepeatEvent());
 
-            boolean control_down = left_control_down || right_control_down;
-            boolean shift_down = left_shift_down || right_shift_down;
-            boolean menu_down = left_menu_down || right_menu_down;
-
-			if (Key.KEY_UNKNOWN != event_key) {
-				switch (event_key) {
-					case LSHIFT:
-						left_shift_down = event_key_state;
-						break;
-					case RSHIFT:
-						right_shift_down = event_key_state;
-						break;
-					case LCONTROL:
-						if (left_control_down && !event_key_state) lastControlReleaseTime = System.currentTimeMillis();
-						left_control_down = event_key_state;
-						break;
-					case RCONTROL:
-						if (right_control_down && !event_key_state) lastControlReleaseTime = System.currentTimeMillis();
-						right_control_down = event_key_state;
-						break;
-					case LMENU:
-						left_menu_down = event_key_state;
-						break;
-					case RMENU:
-						right_menu_down = event_key_state;
-						break;
-				}
-                // Update locals after state change
-                control_down = left_control_down || right_control_down;
-                shift_down = left_shift_down || right_shift_down;
-                menu_down = left_menu_down || right_menu_down;
-
-				if (checkMagicKey(deterministic, event_key_state, event_key, false, repeat_event))
-					continue;
+			switch (event_key) {
+				case LSHIFT:
+					left_shift_down = event_key_state;
+					break;
+				case RSHIFT:
+					right_shift_down = event_key_state;
+					break;
+				case LCONTROL:
+					left_control_down = event_key_state;
+					break;
+				case RCONTROL:
+					right_control_down = event_key_state;
+					break;
+				case LALT:
+					left_alt_down = event_key_state;
+					break;
+				case RALT:
+					right_alt_down = event_key_state;
+					break;
+				case LSUPER:
+					left_super_down = event_key_state;
+					break;
+				case RSUPER:
+					right_super_down = event_key_state;
+					break;
 			}
-			
-			boolean effective_control_down = control_down || (System.currentTimeMillis() - lastControlReleaseTime < 150);
-			
-			if (event_key_code == 0) {
-				LocalInput.keyTyped(gui_root, event_key_code, event_character);
+			boolean control_down = left_control_down || right_control_down;
+			boolean shift_down = left_shift_down || right_shift_down;
+			boolean alt_down = left_alt_down || right_alt_down;
+			boolean super_down = left_super_down || right_super_down;
+
+			if (checkMagicKey(deterministic, event_key_state, event_key, false, repeat_event))
+				continue;
+
+			var localInput = Renderer.getLocalInput();
+			if (event_key_code == 0 && !(control_down || shift_down || alt_down || super_down)) {
+				localInput.keyTyped(gui_root, event_key_code, event_character);
 			} else if (event_key_state) {
-				LocalInput.keyPressed(gui_root, event_key_code, event_character, shift_down, effective_control_down, menu_down, repeat_event);
+				localInput.keyPressed(gui_root, event_key_code, event_character, shift_down, control_down, alt_down, super_down, repeat_event);
 			} else {
-				LocalInput.keyReleased(gui_root, event_key_code, event_character, shift_down, effective_control_down, menu_down);
+				localInput.keyReleased(gui_root, event_key_code, event_character, shift_down, control_down, alt_down, super_down);
 			}
 		}
 		return result;

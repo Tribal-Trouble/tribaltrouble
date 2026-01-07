@@ -8,8 +8,11 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.input.InputProvider;
 import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.KeyboardInput;
+import com.oddlabs.tt.input.LWJGL3InputProvider;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.SerializableDisplayMode;
+import com.oddlabs.tt.window.LWJGL3Window;
+import com.oddlabs.tt.window.Window;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -18,36 +21,45 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-public final class LocalInput {
+public final class LocalInput implements AutoCloseable{
     private static final Logger logger = Logger.getLogger(LocalInput.class.getName());
 
     public static final int CURSOR_ONE_BIT_TRANSPARENCY = 1;
     public static final int CURSOR_8_BIT_ALPHA = 2;
 
-	private static int mouse_x;
-	private static int mouse_y;
-    
-    private static InputProvider<?> inputProvider;
+	private int mouse_x;
+	private int mouse_y;
 
-	private static boolean global_menu_state = false;
-	private static boolean global_control_state = false;
-	private static boolean global_shift_state = false;
-	private static final Set<@NonNull Key> keys = EnumSet.noneOf(Key.class);
+	private final @NonNull LWJGL3Window lwjglWindow;
+    private @Nullable InputProvider<?> inputProvider;
 
-	private static int view_width;
-	private static int view_height;
-	private static boolean fullscreen;
-	private static @Nullable Path game_dir;
-	private static int revision;
+	private final Set<@NonNull Key> keys = EnumSet.noneOf(Key.class);
+	private boolean global_super_state = false;
+	private boolean global_alt_state = false;
+	private boolean global_control_state = false;
+	private boolean global_shift_state = false;
 
-	private static final LocalInput instance = new LocalInput();
+	private int view_width;
+	private int view_height;
+	private boolean fullscreen;
+	private @Nullable Path game_dir;
+	private int revision;
 
-	public static void setKeys(@NonNull Key key, boolean state, boolean shift_down, boolean control_down, boolean menu_down) {
+    public LocalInput(@NonNull Window lwjglWindow) {
+		if (lwjglWindow instanceof LWJGL3Window win) {
+			this.lwjglWindow = win;
+		} else {
+			throw new IllegalStateException("Window is not LWJGL3Window");
+		}
+    }
+
+    public void setKeys(@NonNull Key key, boolean state, boolean shift_down, boolean control_down, boolean alt_down, boolean super_down) {
 		if (state)
 			keys.add(key);
 		else
 			keys.remove(key);
-		global_menu_state = menu_down;
+		global_alt_state = alt_down;
+		global_super_state = super_down;
 		global_control_state = control_down;
 		global_shift_state = shift_down;
 	}
@@ -56,144 +68,114 @@ public final class LocalInput {
 		gui_root.getInputState().keyTyped(key_code, key_char);
 	}
 
-	public static void keyPressed(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
+	public void keyPressed(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean alt_down, boolean super_down, boolean repeat) {
 		var key = Key.fromLwjglCode(key_code);
 		if (Key.KEY_UNKNOWN != key || key_char != 0) {
-            // --- Accessibility Debug Controls ---
-            if (key == Key.F9 && !repeat) {
-                Settings s = Settings.getSettings();
-                if (shift_down) {
-                    s.high_contrast = !s.high_contrast;
-                    logger.info("High Contrast: " + s.high_contrast);
-                    gui_root.getInfoPrinter().print("High Contrast: " + (s.high_contrast ? "ON" : "OFF"));
-                } else if (control_down) {
-                    s.cvd_intensity = Math.min(s.cvd_intensity + 0.1f, 2.0f);
-                    logger.info("CVD Intensity: " + s.cvd_intensity);
-                    gui_root.getInfoPrinter().print(String.format("CVD Intensity: %.1f", s.cvd_intensity));
-                } else if (menu_down) { // Alt
-                    s.cvd_intensity = Math.max(s.cvd_intensity - 0.1f, 0.0f);
-                    logger.info("CVD Intensity: " + s.cvd_intensity);
-                    gui_root.getInfoPrinter().print(String.format("CVD Intensity: %.1f", s.cvd_intensity));
-                } else {
-                    s.cvd_mode = (s.cvd_mode + 1) % 4;
-                    String modeName = switch (s.cvd_mode) {
-                        case 0 -> "None";
-                        case 1 -> "Protanopia";
-                        case 2 -> "Deuteranopia";
-                        case 3 -> "Tritanopia";
-                        default -> "Unknown";
-                    };
-                    logger.info("CVD Mode: " + modeName);
-                    gui_root.getInfoPrinter().print("CVD Mode: " + modeName);
-                }
-            }
-            // ------------------------------------
-
-			setKeys(key, true, shift_down, control_down, menu_down);
-			gui_root.getInputState().keyPressed(key, key_char, shift_down, control_down, menu_down, repeat);
+			setKeys(key, true, shift_down, control_down, alt_down, super_down);
+			gui_root.getInputState().keyPressed(key, key_char, shift_down, control_down, alt_down, super_down, repeat);
 		}
 	}
 
-	public static void keyReleased(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
+	public void keyReleased(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean alt_down, boolean super_down) {
 		var key = Key.fromLwjglCode(key_code);
 		if (Key.KEY_UNKNOWN != key || key_char != 0) {
-			setKeys(key, false, shift_down, control_down, menu_down);
-			gui_root.getInputState().keyReleased(key, key_char, shift_down, control_down, menu_down);
+			setKeys(key, false, shift_down, control_down, alt_down, super_down);
+			gui_root.getInputState().keyReleased(key, key_char, shift_down, control_down, alt_down, super_down);
 		}
 	}
 
-	public static void mouseDragged(@NonNull GUIRoot gui_root, @NonNull MouseButton button, short x, short y) {
+	public void mouseDragged(@NonNull GUIRoot gui_root, @NonNull MouseButton button, short x, short y) {
 		mouse_x = x;
 		mouse_y = y;
         gui_root.getInputState().mouseDragged(button, x, y);
     }
 
-	public static void mouseReleased(@NonNull GUIRoot gui_root, @NonNull MouseButton button) {
+	public void mouseReleased(@NonNull GUIRoot gui_root, @NonNull MouseButton button) {
         gui_root.getInputState().mouseReleased(button);
     }
 
-	public static void mousePressed(@NonNull GUIRoot gui_root, @NonNull MouseButton button) {
+	public void mousePressed(@NonNull GUIRoot gui_root, @NonNull MouseButton button) {
         gui_root.getInputState().mousePressed(button);
     }
 
-	public static void mouseScrolled(@NonNull GUIRoot gui_root, int dz) {
+	public void mouseScrolled(@NonNull GUIRoot gui_root, int dz) {
 		gui_root.getInputState().mouseScrolled(dz);
 	}
 
-	public static void mouseMoved(@NonNull GUIRoot gui_root, short x, short y) {
+	public void mouseMoved(@NonNull GUIRoot gui_root, short x, short y) {
 		mouse_x = x;
 		mouse_y = y;
 		gui_root.getInputState().mouseMoved(x, y);
 	}
 
-	public static boolean isShiftDownCurrently() {
+	public boolean isShiftDownCurrently() {
 		return global_shift_state;
 	}
 
-	public static boolean isControlDownCurrently() {
+	public boolean isControlDownCurrently() {
 		return global_control_state;
 	}
 
-	public static boolean isMenuDownCurrently() {
-		return global_menu_state;
+	public boolean isAltDownCurrently() {
+		return global_alt_state;
 	}
 
-	public static void resetKeys() {
+	public boolean isSuperDownCurrently() {
+		return global_super_state;
+	}
+
+	public void resetKeys() {
 		// Clear event queue
 		KeyboardInput.reset();
 		keys.clear();
 	}
 
-	public static boolean isKeyDown(@NonNull Key key) {
+	public boolean isKeyDown(@NonNull Key key) {
 		return keys.contains(key);
 	}
 
-	public static void resetKeyboard() {
+	public  void resetKeyboard() {
 		resetKeys();
-		global_menu_state = false;
+		global_alt_state = false;
 		global_control_state = false;
 		global_shift_state = false;
 	}
 
-	public static int getMouseY() {
+	public int getMouseY() {
 		return mouse_y;
 	}
 
-	public static int getMouseX() {
+	public int getMouseX() {
 		return mouse_x;
 	}
 
-	public static boolean audioIsCreated() {
+	public boolean audioIsCreated() {
 		return LocalEventQueue.getQueue().getDeterministic().log(AudioManager.getManager() != null);
 	}
 
-	public static @Nullable Path getGameDir() {
+	public @Nullable Path getGameDir() {
 		return game_dir;
 	}
 
-	public static int getRevision() {
+	public int getRevision() {
 		return revision;
 	}
 
-	public static int getViewWidth() {
+	public int getViewWidth() {
 		return view_width;
 	}
 
-	public static int getViewHeight() {
+	public int getViewHeight() {
 		return view_height;
 	}
 
-	public static void setViewDimensions(int width, int height) {
+	public void setViewDimensions(int width, int height) {
 		view_width = width;
 		view_height = height;
 	}
 
-	public static boolean inFullscreen() {
+	public boolean inFullscreen() {
 		return fullscreen;
-	}
-
-	public static LocalInput getLocalInput() {
-		return instance;
 	}
 
 	public static @NonNull SerializableDisplayMode @NonNull [] getAvailableModes() {
@@ -209,19 +191,19 @@ public final class LocalInput {
                 .log(Renderer.getRenderer().getWindow().getDisplayMode());
 	}
 
-	public static int getNativeCursorCaps() {
+	public int getNativeCursorCaps() {
 		return LocalEventQueue.getQueue().getDeterministic()
                 .log(CURSOR_8_BIT_ALPHA | CURSOR_ONE_BIT_TRANSPARENCY);
 	}
 
-	public static void settings(@NonNull Path game_dir, @NonNull Path event_log_dir, @NonNull Settings settings) {
-		instance.setSettings(game_dir, event_log_dir, revision, settings);
+	public void settings(@NonNull Path game_dir, @NonNull Path event_log_dir, @NonNull Settings settings) {
+		setSettings(game_dir, event_log_dir, revision, settings);
 	}
 
 	public void setSettings(@NonNull Path game_dir, @NonNull Path event_log_dir, int revision, @NonNull Settings settings) {
 		logger.config("revision = " + revision);
-		LocalInput.game_dir = game_dir;
-		LocalInput.revision = revision;
+		this.game_dir = game_dir;
+		this.revision = revision;
 		settings.last_event_log_dir = event_log_dir.toAbsolutePath();
 		settings.last_revision = revision;
 		settings.crashed = true;
@@ -231,23 +213,26 @@ public final class LocalInput {
 		fullscreen = settings.fullscreen;
 	}
 
-	public static void init() {
-        inputProvider = new com.oddlabs.tt.input.LWJGL3InputProvider();
-
+	public void init() {
+		inputProvider = new LWJGL3InputProvider(lwjglWindow);
+        if (inputProvider instanceof LWJGL3InputProvider lwjgl3InputProvider) {
+            lwjgl3InputProvider.initCallbacks();
+        }
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		mouse_x = deterministic.log(inputProvider.getMouseX());
 		mouse_y = deterministic.log(inputProvider.getMouseY());
 	}
 
-    public static void destroy() {
-        if (inputProvider != null) {
-            inputProvider.close();
-            inputProvider = null;
-        }
+    public void close() {
+		if (null != inputProvider) {
+			inputProvider.close();
+			inputProvider = null;
+		}
     }
     
-    public static InputProvider<?> getInputProvider() {
-        return inputProvider;
+    public <T> InputProvider<T> getInputProvider() {
+        //noinspection unchecked
+        return (InputProvider<T>) inputProvider;
     }
 
 	private void modeSwitchedLater(@NonNull SerializableDisplayMode new_mode) {
@@ -274,13 +259,13 @@ public final class LocalInput {
 
 	public void fullscreenToggled(boolean fullscreen, boolean switch_now) {
 		Settings.getSettings().fullscreen = fullscreen;
-		if (switch_now && LocalInput.fullscreen != fullscreen) {
+		if (switch_now && Renderer.getLocalInput().fullscreen != fullscreen) {
 			toggleFullscreen();
 			logger.info("Fullscreen toggled");
 		}
 	}
 
-	public static void toggleFullscreen() {
+	public void toggleFullscreen() {
 		fullscreen = !fullscreen;
 		try {
             boolean fs = fullscreen && !LocalEventQueue.getQueue().getDeterministic().isPlayback();
@@ -311,15 +296,15 @@ public final class LocalInput {
 		modeSwitchedNow(mode);
 	}
 
-	public static float getViewAspect() {
+	public float getViewAspect() {
 		return (float)view_width/view_height;
 	}
 
-	private static float getUnitsPerPixel() {
+	private float getUnitsPerPixel() {
 		return (float)(Globals.VIEW_MIN*Math.tan(Globals.FOV*(Math.PI/180.0f)*0.5d)/(view_height*0.5d));
 	}
 
-	public static float getErrorConstant() {
+	public float getErrorConstant() {
 		return Globals.VIEW_MIN/(getUnitsPerPixel()*Globals.ERROR_TOLERANCE);
 	}
 }

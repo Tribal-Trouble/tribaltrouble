@@ -5,6 +5,7 @@ import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.input.Key;
+import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -68,11 +69,12 @@ public final class InputState {
 
 	public void mousePressed(@NonNull MouseButton button) {
 		GUIObject gui_hit = pick();
-		int local_x = gui_hit.translateXToLocal(LocalInput.getMouseX());
-		int local_y = gui_hit.translateYToLocal(LocalInput.getMouseY());
+		var localInput = Renderer.getLocalInput();
+		int local_x = gui_hit.translateXToLocal(localInput.getMouseX());
+		int local_y = gui_hit.translateYToLocal(localInput.getMouseY());
 		Index.resetBlinking();
-		drag_x = LocalInput.getMouseX();
-		drag_y = LocalInput.getMouseY();
+		drag_x = localInput.getMouseX();
+		drag_y = localInput.getMouseY();
 		absolute_drag_x = drag_x;
 		absolute_drag_y = drag_y;
 		if (drag_obj == null) {
@@ -89,8 +91,8 @@ public final class InputState {
                     timer.setTimerInterval(MOUSE_REPEAT_RATE);
                     timer.resetTime();
                     if (press_obj == gui_root.getCurrentGUIObject()) {
-                        int local_x1 = press_obj.translateXToLocal(LocalInput.getMouseX());
-                        int local_y1 = press_obj.translateYToLocal(LocalInput.getMouseY());
+                        int local_x1 = press_obj.translateXToLocal(localInput.getMouseX());
+                        int local_y1 = press_obj.translateYToLocal(localInput.getMouseY());
                         press_obj.mouseHeldAll(held_button, local_x1, local_y1);
                     }
                 }, MOUSE_REPEAT_DELAY);
@@ -100,8 +102,9 @@ public final class InputState {
 
 	public void mouseReleased(@NonNull MouseButton button) {
 		GUIObject gui_hit = pick();
-		int local_x = gui_hit.translateXToLocal(LocalInput.getMouseX());
-		int local_y = gui_hit.translateYToLocal(LocalInput.getMouseY());
+		var localInput = Renderer.getLocalInput();
+		int local_x = gui_hit.translateXToLocal(localInput.getMouseX());
+		int local_y = gui_hit.translateYToLocal(localInput.getMouseY());
 		Index.resetBlinking();
 		if (button == drag_button)
 			drag_obj = null;
@@ -117,8 +120,8 @@ public final class InputState {
 			}
 			click_counter++;
 			clicked_obj = gui_hit;
-			clicked_x = LocalInput.getMouseX();
-			clicked_y = LocalInput.getMouseY();
+			clicked_x = localInput.getMouseX();
+			clicked_y = localInput.getMouseY();
 			press_obj.mouseClickedAll(button, local_x, local_y, click_counter);
 		}
 		press_obj.mouseReleasedAll(button, local_x, local_y);
@@ -134,7 +137,8 @@ public final class InputState {
 	}
 
 	private boolean clickedSameArea() {
-		return Math.abs(LocalInput.getMouseX()- clicked_x) < DOUBLE_CLICK_THRESHOLD && Math.abs(LocalInput.getMouseY() - clicked_y) < DOUBLE_CLICK_THRESHOLD;
+		var localInput = Renderer.getLocalInput();
+		return Math.abs(localInput.getMouseX()- clicked_x) < DOUBLE_CLICK_THRESHOLD && Math.abs(localInput.getMouseY() - clicked_y) < DOUBLE_CLICK_THRESHOLD;
 	}
 
 	private void stopDoubleClickTimer() {
@@ -155,12 +159,12 @@ public final class InputState {
 		var key = Key.fromLwjglCode(key_code);
 		if (Key.KEY_UNKNOWN != key || key_char != 0) {
 			GUIObject focused = gui_root.getGlobalFocus();
-			KeyboardEvent event = new KeyboardEvent(key, key_char, LocalInput.isShiftDownCurrently(), LocalInput.isControlDownCurrently(), 1);
+			KeyboardEvent event = new KeyboardEvent(key, key_char, false, false, false, false, 1);
 			focused.keyRepeatAll(event);
 		}
 	}
 
-	public void keyPressed(@NonNull Key key, char key_char, boolean shift_down, boolean control_down, boolean menu_down, boolean repeat) {
+	public void keyPressed(@NonNull Key key, char key_char, boolean shift_down, boolean control_down, boolean alt_down, boolean super_down, boolean repeat) {
 		GUIObject focused = gui_root.getGlobalFocus();
 		resetKeyTimer();
 		if (!repeat && (key_event == null 
@@ -176,7 +180,7 @@ public final class InputState {
 		}
 		if (!repeat)
 			key_counter++;
-		KeyboardEvent event = new KeyboardEvent(key, key_char, shift_down, control_down, key_counter);
+		KeyboardEvent event = new KeyboardEvent(key, key_char, shift_down, control_down, alt_down, super_down, key_counter);
 		key_event = event;
 
 		if (!repeat)
@@ -185,10 +189,10 @@ public final class InputState {
 		focused.keyRepeatAll(event);
 	}
 
-	public void keyReleased(@NonNull Key key, char key_char, boolean shift_down, boolean control_down, boolean menu_down) {
+	public void keyReleased(@NonNull Key key, char key_char, boolean shift_down, boolean control_down, boolean alt_down, boolean super_down) {
 		GUIObject focused = gui_root.getGlobalFocus();
 		resetKeyTimer();
-		KeyboardEvent event = new KeyboardEvent(key, key_char, shift_down, control_down, 0);
+		KeyboardEvent event = new KeyboardEvent(key, key_char, shift_down, control_down, alt_down, super_down,0);
 		focused.keyReleasedAll(event);
 	}
 

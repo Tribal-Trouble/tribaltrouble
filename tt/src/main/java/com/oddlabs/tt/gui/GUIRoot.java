@@ -207,7 +207,7 @@ public final class GUIRoot extends GUIObject {
 				break;
 
 			case H:
-				if (event.controlDown() && (LocalInput.getNativeCursorCaps() & LocalInput.CURSOR_ONE_BIT_TRANSPARENCY) != 0) {
+				if (event.controlDown() && (Renderer.getLocalInput().getNativeCursorCaps() & LocalInput.CURSOR_ONE_BIT_TRANSPARENCY) != 0) {
 					Settings.getSettings().use_native_cursor = !Settings.getSettings().use_native_cursor;
 					if (Settings.getSettings().use_native_cursor)
 						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "hardware_cursor_on"));
@@ -279,7 +279,7 @@ public final class GUIRoot extends GUIObject {
 				}
 				break;
 			case J:
-				LocalInput.getInputProvider().setCursorPosition(10, 10);
+				Renderer.getLocalInput().getInputProvider().setCursorPosition(10, 10);
 				break;
 			case S:
 				if (!event.controlDown()) {
@@ -307,7 +307,7 @@ public final class GUIRoot extends GUIObject {
 				IO.println("Texture.globalSize() = " + Texture.globalSize());
 				break;
 			case F11:
-				LocalInput.toggleFullscreen();
+				Renderer.getLocalInput().toggleFullscreen();
 				break;
 			case F12:
 				IO.println("GC Forced");
@@ -319,7 +319,7 @@ public final class GUIRoot extends GUIObject {
 	}
 
 	void mousePick() {
-		mousePick(LocalInput.getMouseX(), LocalInput.getMouseY());
+		mousePick(Renderer.getLocalInput().getMouseX(), Renderer.getLocalInput().getMouseY());
 	}
 
 	private void mousePick(int x, int y) {
@@ -394,8 +394,8 @@ public final class GUIRoot extends GUIObject {
 		if (cursor_object.getCursorType() != CursorType.NULL) {
 			cursors[cursor_object.getCursorType().ordinal()].setActive();
 			if (getModalDelegate() != null || getDelegate().renderCursor()) {
-				float mouse_x = LocalInput.getMouseX();
-				float mouse_y = LocalInput.getMouseY();
+				float mouse_x = Renderer.getLocalInput().getMouseX();
+				float mouse_y = Renderer.getLocalInput().getMouseY();
 				cursors[cursor_object.getCursorType().ordinal()].render(renderer, mouse_x, mouse_y);
 			}
 		} else
@@ -417,6 +417,6 @@ public final class GUIRoot extends GUIObject {
 	private void renderToolTip(@NonNull GUIRenderer renderer, @NonNull ToolTip hovered) {
         tool_tip.clear();
         hovered.appendToolTip(tool_tip);
-        tool_tip.render(renderer, LocalInput.getMouseX(), LocalInput.getMouseY() - CURSOR_OFFSET_Y);
+        tool_tip.render(renderer, Renderer.getLocalInput().getMouseX(), Renderer.getLocalInput().getMouseY() - CURSOR_OFFSET_Y);
 	}
 }

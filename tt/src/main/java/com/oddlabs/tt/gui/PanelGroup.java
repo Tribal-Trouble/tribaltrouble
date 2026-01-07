@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
 public final class PanelGroup extends GUIObject {
@@ -51,7 +52,8 @@ public final class PanelGroup extends GUIObject {
 
 	@Override
 	public void setFocus() {
-		focus_group.setGroupFocus(LocalInput.isShiftDownCurrently() ? -1 : 1);
+		var localInput = Renderer.getLocalInput();
+		focus_group.setGroupFocus(localInput.isShiftDownCurrently() ? -1 : 1);
 	}
 
 	public void cyclePanel(int dir) {

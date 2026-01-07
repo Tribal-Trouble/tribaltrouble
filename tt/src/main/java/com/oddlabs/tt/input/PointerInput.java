@@ -6,6 +6,7 @@ import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.render.NativeCursor;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.util.Image;
 import com.oddlabs.util.Utils;
@@ -39,9 +40,8 @@ public final class PointerInput {
 	}
 
 	public static void setActiveCursor(long cursor) {
-        InputProvider<?> input = LocalInput.getInputProvider();
-        if (input == null) return;
-        
+        InputProvider<?> input = Renderer.getLocalInput().getInputProvider();
+
 		if (cursor != MemoryUtil.NULL && input.isGrabbed()) {
 			input.setGrabbed(false);
 			resetCursorPos();
@@ -55,22 +55,22 @@ public final class PointerInput {
 	}
 
 	public static void setCursorPosition(int x, int y) {
-        InputProvider<?> input = LocalInput.getInputProvider();
-		if (input != null && !LocalEventQueue.getQueue().getDeterministic().isPlayback())
+        InputProvider<?> input = Renderer.getLocalInput().getInputProvider();
+		if (!LocalEventQueue.getQueue().getDeterministic().isPlayback())
 			input.setCursorPosition(x, y);
 	}
 
 	private static void resetCursorPos() {
-		setCursorPosition(LocalInput.getMouseX(), LocalInput.getMouseY());
+		setCursorPosition(Renderer.getLocalInput().getMouseX(), Renderer.getLocalInput().getMouseY());
 		// clear event queue
-        InputProvider<?> input = LocalInput.getInputProvider();
-		while (input != null && input.nextMouseEvent())
+        InputProvider<?> input = Renderer.getLocalInput().getInputProvider();
+		while (input.nextMouseEvent())
             ;
 	}
 
 	private static void doSetActiveCursor(long cursor) {
 		active_cursor = cursor;
-        InputProvider<Long> input = (InputProvider<Long>) LocalInput.getInputProvider();
+        InputProvider<Long> input = Renderer.getLocalInput().getInputProvider();
         if (input != null) {
 			var useCursor = LocalEventQueue.getQueue().getDeterministic().isPlayback()
 					? debug_cursor.getCursor() : cursor;
@@ -88,18 +88,17 @@ public final class PointerInput {
 			last_x = (short)x;
 			last_y = (short)y;
 			if (drag_button != null && buttons.contains(drag_button)) {
-				LocalInput.mouseDragged(gui_root, drag_button, last_x, last_y);
+				Renderer.getLocalInput().mouseDragged(gui_root, drag_button, last_x, last_y);
 			} else {
-				LocalInput.mouseMoved(gui_root, last_x, last_y);
+				Renderer.getLocalInput().mouseMoved(gui_root, last_x, last_y);
 			}
 		}
 		if (dz != 0)
-			LocalInput.mouseScrolled(gui_root, dz);
+			Renderer.getLocalInput().mouseScrolled(gui_root, dz);
 	}
 
 	public static void poll(@NonNull GUIRoot gui_root) {
-        InputProvider<?> input = LocalInput.getInputProvider();
-        if (input == null) return;
+        InputProvider<?> input = Renderer.getLocalInput().getInputProvider();
         
 		Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
 		input.pollMouse();
@@ -119,12 +118,12 @@ public final class PointerInput {
 						if (drag_button == null) {
 							drag_button = button;
 						}
-						LocalInput.mousePressed(gui_root, button);
+						Renderer.getLocalInput().mousePressed(gui_root, button);
 					}
                 } else {
                     if (buttons.remove(button)) {
 						drag_button = null;
-						LocalInput.mouseReleased(gui_root, button);
+						Renderer.getLocalInput().mouseReleased(gui_root, button);
 					}
                 }
 			}

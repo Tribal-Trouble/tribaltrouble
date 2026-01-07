@@ -5,6 +5,7 @@ import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -62,7 +63,8 @@ public class Form extends Group {
 	}
 
 	public final void centerPos() {
-		setPos((LocalInput.getViewWidth() - getWidth())/2, (LocalInput.getViewHeight() - getHeight())/2);
+		var localInput = Renderer.getLocalInput();
+		setPos((localInput.getViewWidth() - getWidth())/2, (localInput.getViewHeight() - getHeight())/2);
 	}
 
 	@Override
@@ -125,7 +127,7 @@ public class Form extends Group {
 
 	@Override
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		boolean control = event.controlDown() || LocalInput.isControlDownCurrently();
+		boolean control = event.controlDown();
 		if (event.keyCode() == Key.TAB && control) {
 			int dir = event.shiftDown() ? -1 : 1;
 			cyclePanelGroup(this, dir);

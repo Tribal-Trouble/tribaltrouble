@@ -11,6 +11,7 @@ import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.render.UIRenderer;
 import org.jspecify.annotations.NonNull;
@@ -37,9 +38,10 @@ public final class LogoScreen extends CameraDelegate<StaticCamera> implements Up
 		this.renderer = renderer;
 		setCanFocus(true);
 		setFocusCycle(true);
-		
-		int screen_width = LocalInput.getViewWidth();
-		int screen_height = LocalInput.getViewHeight();
+
+		var localInput = Renderer.getLocalInput();
+		int screen_width = localInput.getViewWidth();
+		int screen_height = localInput.getViewHeight();
 		if (logo != null) { 
 			overlay = new GUIIcon(new IconQuad(screen_width, screen_height, 0f, 0f, overlay_image_width/overlay_texture_width, overlay_image_height/overlay_texture_height, logo));
 			overlay.setPos(0, 0);

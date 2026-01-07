@@ -5,6 +5,7 @@ import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
 public final class FirstPersonCamera extends Camera {
@@ -16,8 +17,9 @@ public final class FirstPersonCamera extends Camera {
 
     public FirstPersonCamera(HeightMap heightmap, @NonNull CameraState camera) {
             super(heightmap, camera);
-            this.last_x = LocalInput.getMouseX();
-            this.last_y = LocalInput.getMouseY();
+            var localInput = Renderer.getLocalInput();
+            this.last_x = localInput.getMouseX();
+            this.last_y = localInput.getMouseY();
     }
 
     @Override
@@ -29,14 +31,15 @@ public final class FirstPersonCamera extends Camera {
 
             float scrolling_x = 0;
             float scrolling_y = 0;
-            if (LocalInput.isKeyDown(Key.LEFT) && !LocalInput.isKeyDown(Key.RIGHT))
+            var localInput = Renderer.getLocalInput();
+            if (localInput.isKeyDown(Key.LEFT) && !localInput.isKeyDown(Key.RIGHT))
                     scrolling_x = -1f;
-            else if (LocalInput.isKeyDown(Key.RIGHT) && !LocalInput.isKeyDown(Key.LEFT))
+            else if (localInput.isKeyDown(Key.RIGHT) && !localInput.isKeyDown(Key.LEFT))
                     scrolling_x = 1f;
 
-            if (LocalInput.isKeyDown(Key.DOWN) && !LocalInput.isKeyDown(Key.UP))
+            if (localInput.isKeyDown(Key.DOWN) && !localInput.isKeyDown(Key.UP))
                     scrolling_y = -1f;
-            else if (LocalInput.isKeyDown(Key.UP) && !LocalInput.isKeyDown(Key.DOWN))
+            else if (localInput.isKeyDown(Key.UP) && !localInput.isKeyDown(Key.DOWN))
                     scrolling_y = 1f;
 
             float scroll_factor = getState().getTargetZ()*t;

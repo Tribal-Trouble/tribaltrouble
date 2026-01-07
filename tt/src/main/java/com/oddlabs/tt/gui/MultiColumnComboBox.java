@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -109,8 +110,8 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 
 	public void rightClickedRow(int x, int y) {
 		if (pulldown_menu != null) {
-			int pulldown_x = Math.clamp(x, 0, LocalInput.getViewWidth() - pulldown_menu.getWidth());
-			int pulldown_y = Math.clamp(y - pulldown_menu.getHeight(), 0, LocalInput.getViewHeight() - pulldown_menu.getHeight());
+			int pulldown_x = Math.clamp(x, 0, Renderer.getLocalInput().getViewWidth() - pulldown_menu.getWidth());
+			int pulldown_y = Math.clamp(y - pulldown_menu.getHeight(), 0, Renderer.getLocalInput().getViewHeight() - pulldown_menu.getHeight());
 			pulldown_menu.setPos(pulldown_x, pulldown_y);
 			gui_root.getDelegate().addChild(pulldown_menu);
 			pulldown_menu.setFocus();
@@ -127,7 +128,7 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 
 	@Override
 	public void setFocus() {
-		focus_group.setGroupFocus(LocalInput.isShiftDownCurrently() ? -1 : 1);
+		focus_group.setGroupFocus(Renderer.getLocalInput().isShiftDownCurrently() ? -1 : 1);
 	}
 
 	public void clear() {

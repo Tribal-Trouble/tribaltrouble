@@ -30,8 +30,9 @@ public final class QuitScreen extends CameraDelegate<Camera> implements Updatabl
 		setCanFocus(true);
 		setFocusCycle(true);
 
-		int screen_width = LocalInput.getViewWidth();
-		int screen_height = LocalInput.getViewHeight();
+		var localInput = Renderer.getLocalInput();
+		int screen_width = localInput.getViewWidth();
+		int screen_height = localInput.getViewHeight();
 		overlay = new GUIImage(screen_width, screen_height, 0f, 0f, (float)overlay_image_width/overlay_texture_width, (float)overlay_image_height/overlay_texture_height, overlay_texture_name);
 		overlay.setPos(0, 0);
 		addChild(overlay);

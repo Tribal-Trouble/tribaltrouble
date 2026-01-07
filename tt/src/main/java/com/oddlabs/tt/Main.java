@@ -36,19 +36,21 @@ public final class Main {
         }
 	}
 
-	public static void shutdown() {
+	public static void shutdown(int status) {
         logger.info("Exiting");
-		System.exit(0);
+		System.exit(status);
 	}
 
     static void main(@NonNull String @NonNull ... args) {
+        int status = 1;
 		try {
             logger.info("Starting game....");
-			Renderer.runGame(args);
+			Renderer.getRenderer().run(args);
+            status = 0;
 		} catch (Throwable t) {
 			fail(t);
 		} finally {
-			shutdown();
+			shutdown(status);
 		}
 	}
 }

@@ -4,6 +4,7 @@ import com.oddlabs.tt.guievent.KeyListener;
 import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
 public final class ScrollBar extends GUIObject {
@@ -62,7 +63,7 @@ public final class ScrollBar extends GUIObject {
 
 	@Override
 	public void setFocus() {
-		focus_group.setGroupFocus(LocalInput.isShiftDownCurrently() ? -1 : 1);
+		focus_group.setGroupFocus(Renderer.getLocalInput().isShiftDownCurrently() ? -1 : 1);
 	}
 
 	@Override

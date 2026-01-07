@@ -39,8 +39,9 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 		this.network = network;
 		final ResourceBundle bundle = ResourceBundle.getBundle(CampaignMapForm.class.getName());
 
-		float scale_x = LocalInput.getViewWidth()/(float)base_width;
-		float scale_y = LocalInput.getViewHeight()/(float)base_height;
+		var localInput = Renderer.getLocalInput();
+		float scale_x = localInput.getViewWidth()/(float)base_width;
+		float scale_y = localInput.getViewHeight()/(float)base_height;
 		setScale(scale_x, scale_y);
 
 		if (campaign.getState().getRace() == CampaignState.RACE_VIKINGS) {

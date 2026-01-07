@@ -29,9 +29,11 @@ import static org.lwjgl.glfw.GLFW.glfwSetScrollCallback;
 
 public final class LWJGL3InputProvider implements InputProvider<Long> {
 
+    private final LWJGL3Window window;
     private long windowHandle;
 
     // Keyboard State
+    // @GuardedBy("this")
     private final Deque<@NonNull KeyEvent> keyEvents = new ArrayDeque<>();
     private @Nullable KeyEvent currentKeyEvent;
 
@@ -39,13 +41,12 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
     private final Deque<@NonNull MouseEvent> mouseEvents = new ArrayDeque<>();
     private @Nullable MouseEvent currentMouseEvent;
     private double mouseX, mouseY;
-    private double scrollY;
 
     private static class KeyEvent {
-        int key;
-        int action; // GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT
-        int scancode;
-        int mods;
+        final int key;
+        final int action; // GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT
+        final int scancode;
+        final int mods;
         char character;
 
         KeyEvent(int key, int action, int scancode, int mods) {
@@ -76,17 +77,20 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
         }
     }
 
-    public LWJGL3InputProvider() {
-        // Assume window already exists
-        if (Renderer.getRenderer().getWindow() instanceof LWJGL3Window win) {
-            this.windowHandle = win.getHandle();
-        } else {
-            throw new IllegalStateException("Window is not LWJGL3Window");
+    public LWJGL3InputProvider(@NonNull LWJGL3Window win) {
+        this.window = win;
+    }
+
+    public void initCallbacks() {
+        this.windowHandle = window.getHandle();
+        if (windowHandle == MemoryUtil.NULL) {
+             throw new IllegalStateException("Window handle is NULL. Window might not be created yet.");
         }
 
         glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
+            var event = new KeyEvent(key, action, scancode, mods);
             synchronized (keyEvents) {
-                keyEvents.add(new KeyEvent(key, action, scancode, mods));
+                keyEvents.add(event);
             }
         });
 

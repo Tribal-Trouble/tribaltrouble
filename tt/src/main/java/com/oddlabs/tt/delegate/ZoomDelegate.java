@@ -6,6 +6,7 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.input.PointerInput;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
@@ -22,8 +23,9 @@ public class ZoomDelegate extends InGameDelegate {
 	public ZoomDelegate(@NonNull WorldViewer viewer, GameCamera camera) {
 		super(viewer, camera);
 		game_camera = camera;
-		start_x = LocalInput.getMouseX();
-		start_y = LocalInput.getMouseY();
+		var localInput = Renderer.getLocalInput();
+		start_x = localInput.getMouseX();
+		start_y = localInput.getMouseY();
 	}
 
 	private void release() {

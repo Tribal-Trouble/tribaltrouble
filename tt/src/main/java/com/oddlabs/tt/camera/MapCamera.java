@@ -6,6 +6,7 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.RadialFogInfo;
 import com.oddlabs.tt.util.Utils;
@@ -115,7 +116,7 @@ public final class MapCamera extends Camera {
             case TO_MAP -> {
             }
             case IN_MAP -> {
-                label.setPos((LocalInput.getViewWidth() - label.getWidth()) / 2, LocalInput.getViewHeight() - label.getHeight());
+                label.setPos((Renderer.getLocalInput().getViewWidth() - label.getWidth()) / 2, Renderer.getLocalInput().getViewHeight() - label.getHeight());
                 delegate.addChild(label);
                 getState().setNoDetailMode(true);
             }

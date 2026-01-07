@@ -93,7 +93,7 @@ public class Group extends GUIObject {
 	protected void keyRepeat(@NonNull KeyboardEvent event) {
 		// Navigation logic is handled here (and in keyRepeat) because InputState calls keyRepeatAll
 		// immediately after keyPressedAll for the initial press, ensuring consistent behavior.
-		boolean control = event.controlDown() || LocalInput.isControlDownCurrently();
+		boolean control = event.controlDown();
 		if (event.keyCode() == Key.TAB && !control) {
 			switchFocus(event.shiftDown() ? -1 : 1);
 		} else {

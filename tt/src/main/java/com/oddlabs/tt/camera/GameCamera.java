@@ -4,9 +4,9 @@ import com.oddlabs.tt.delegate.SelectionDelegate;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.KeyboardEvent;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.landscape.World;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -143,7 +143,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         zoom(zoom_time*time_delta*ZOOM_SPEED*getState().getTargetZ());
         if (zoom_time < 0f)
                 zoom_time = Math.min(0f, zoom_time + time_delta);
-        else if (zoom_time > 0)
+        else if (zoom_time > 0f)
                 zoom_time = Math.max(0f, zoom_time - time_delta);
     }
 
@@ -192,19 +192,20 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
     private void doScroll(float time_delta) {
         if (!viewer.getGUIRoot().getDelegate().canScroll())
                 return;
+        var localInput = Renderer.getLocalInput();
         float scroll_speed = scroll_start_speed*(.4f + (scroll_acceleration_seconds/SCROLL_ACCELERATION_SECONDS_MAX)*SCROLL_ACCELERATION_FACTOR);
         float scroll_factor = time_delta*scroll_speed;
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
-        if (LocalInput.isKeyDown(Key.LEFT) && !LocalInput.isKeyDown(Key.RIGHT) && !blocked)
+        if (localInput.isKeyDown(Key.LEFT) && !localInput.isKeyDown(Key.RIGHT) && !blocked)
                 scrolling_x = -1f;
-        else if (LocalInput.isKeyDown(Key.RIGHT) && !LocalInput.isKeyDown(Key.LEFT) && !blocked)
+        else if (localInput.isKeyDown(Key.RIGHT) && !localInput.isKeyDown(Key.LEFT) && !blocked)
                 scrolling_x = 1f;
         else
                 scrolling_x = scroll_x;
 
-        if (LocalInput.isKeyDown(Key.DOWN) && !LocalInput.isKeyDown(Key.UP) && !blocked)
+        if (localInput.isKeyDown(Key.DOWN) && !localInput.isKeyDown(Key.UP) && !blocked)
                 scrolling_y = -1f;
-        else if (LocalInput.isKeyDown(Key.UP) && !LocalInput.isKeyDown(Key.DOWN) && !blocked)
+        else if (localInput.isKeyDown(Key.UP) && !localInput.isKeyDown(Key.DOWN) && !blocked)
                 scrolling_y = 1f;
         else
                 scrolling_y = scroll_y;
@@ -265,7 +266,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
     }
 
     public int getRotateY() {
-        int center_y = LocalInput.getViewHeight()/2;
+        int center_y = Renderer.getLocalInput().getViewHeight()/2;
         if (getState().getTargetVertAngle() < ROTATE_PICKING_ANGLE_MAX) {
                 return center_y;
         } else {
@@ -320,8 +321,9 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
 
     @Override
     public void mouseMoved(int x, int y) {
+        var localInput = Renderer.getLocalInput();
         if ((owner == null || !owner.isSelecting()) && (x < SCROLL_BUFFER || y < SCROLL_BUFFER ||
-                        x > LocalInput.getViewWidth() - 1 - SCROLL_BUFFER || y > LocalInput.getViewHeight() - 1 - SCROLL_BUFFER)) {
+                        x > localInput.getViewWidth() - 1 - SCROLL_BUFFER || y > localInput.getViewHeight() - 1 - SCROLL_BUFFER)) {
                 if (scroll_start) {
                         scroll_start = false;
                         if (!scrollSpeedLocked(null)) {
@@ -329,8 +331,8 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                                 setScrollSpeed();
                         }
                 }
-                scroll_x = (x - LocalInput.getViewWidth()/2f);
-                scroll_y = (y - LocalInput.getViewHeight()/2f);
+                scroll_x = (x - localInput.getViewWidth()/2f);
+                scroll_y = (y - localInput.getViewHeight()/2f);
                 float inv_length = 1f/(float)Math.sqrt(scroll_x*scroll_x + scroll_y*scroll_y);
                 scroll_x *= inv_length;
                 scroll_y *= inv_length;
@@ -341,13 +343,14 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         }
     }
 
-    private boolean scrollSpeedLocked(Key key) {
+    private boolean scrollSpeedLocked(@Nullable Key key) {
+        var localInput = Renderer.getLocalInput();
         return scroll_x != 0
                 || scroll_y != 0
-                || (LocalInput.isKeyDown(Key.UP) && key != Key.UP)
-                || (LocalInput.isKeyDown(Key.DOWN) && key != Key.DOWN)
-                || (LocalInput.isKeyDown(Key.LEFT) && key != Key.LEFT)
-                || (LocalInput.isKeyDown(Key.RIGHT) && key != Key.RIGHT);
+                || (localInput.isKeyDown(Key.UP) && key != Key.UP)
+                || (localInput.isKeyDown(Key.DOWN) && key != Key.DOWN)
+                || (localInput.isKeyDown(Key.LEFT) && key != Key.LEFT)
+                || (localInput.isKeyDown(Key.RIGHT) && key != Key.RIGHT);
     }
 
     private void setScrollSpeed() {
@@ -410,15 +413,18 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                 return;
         }
 
-        pitch_up = LocalInput.isKeyDown(Key.HOME) || LocalInput.isKeyDown(Key.NUMPAD8);
-        pitch_down = LocalInput.isKeyDown(Key.END) || LocalInput.isKeyDown(Key.NUMPAD2);
-        rotate_right = LocalInput.isKeyDown(Key.INSERT) || LocalInput.isKeyDown(Key.NUMPAD6);
-        rotate_left = LocalInput.isKeyDown(Key.DELETE) || LocalInput.isKeyDown(Key.NUMPAD4);
+        var localInput = Renderer.getLocalInput();
+
+        pitch_up = localInput.isKeyDown(Key.HOME) || localInput.isKeyDown(Key.NUMPAD8);
+        pitch_down = localInput.isKeyDown(Key.END) || localInput.isKeyDown(Key.NUMPAD2);
+        rotate_right = localInput.isKeyDown(Key.INSERT) || localInput.isKeyDown(Key.NUMPAD6);
+        rotate_left = localInput.isKeyDown(Key.DELETE) || localInput.isKeyDown(Key.NUMPAD4);
     }
 
     @Override
     public void enable() {
         super.enable();
-        mouseMoved(LocalInput.getMouseX(), LocalInput.getMouseY());
+        var localInput = Renderer.getLocalInput();
+        mouseMoved(localInput.getMouseX(), localInput.getMouseY());
     }
 }
