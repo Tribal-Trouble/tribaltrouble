@@ -87,11 +87,18 @@ public final class PostProcessor implements AutoCloseable {
             shader.setUniform(PostProcessShader.Uniforms.CVD_INTENSITY, settings.cvd_intensity);
             shader.setUniform(PostProcessShader.Uniforms.HIGH_CONTRAST, settings.high_contrast);
             shader.setUniform(PostProcessShader.Uniforms.CONTRAST_INTENSITY, settings.contrast_intensity);
+            shader.setUniform(PostProcessShader.Uniforms.TEAM_STENCIL, settings.team_stencil);
             shader.setUniform(PostProcessShader.Uniforms.SCENE_TEXTURE, 0);
+            shader.setUniform(PostProcessShader.Uniforms.MASK_TEXTURE, 1);
 
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
             if (sceneFBO.getColorTexture() != null) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, sceneFBO.getColorTexture().getHandle());
+            }
+            
+            GL13.glActiveTexture(GL13.GL_TEXTURE1);
+            if (sceneFBO.getMaskTexture() != null) {
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, sceneFBO.getMaskTexture().getHandle());
             }
 
             vao.bind();

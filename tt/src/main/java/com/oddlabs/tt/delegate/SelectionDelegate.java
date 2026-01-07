@@ -443,11 +443,17 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 			float maxY = Math.max(selection_y1, selection_y2);
 			float w = maxX - minX;
 			float h = maxY - minY;
+            
+            float thickness = com.oddlabs.tt.global.Settings.getSettings().high_contrast ? 3.0f : 1.0f;
 
-			renderer.drawColoredQuad(minX, minY, w, 1, SELECTION_COLOR);
-			renderer.drawColoredQuad(minX, maxY - 1, w, 1, SELECTION_COLOR);
-			renderer.drawColoredQuad(minX, minY + 1, 1, h - 2, SELECTION_COLOR);
-			renderer.drawColoredQuad(maxX - 1, minY + 1, 1, h - 2, SELECTION_COLOR);
+            // Ensure thickness doesn't exceed half dimensions
+            if (thickness > w / 2) thickness = w / 2;
+            if (thickness > h / 2) thickness = h / 2;
+
+			renderer.drawColoredQuad(minX, minY, w, thickness, SELECTION_COLOR);
+			renderer.drawColoredQuad(minX, maxY - thickness, w, thickness, SELECTION_COLOR);
+			renderer.drawColoredQuad(minX, minY + thickness, thickness, h - 2 * thickness, SELECTION_COLOR);
+			renderer.drawColoredQuad(maxX - thickness, minY + thickness, thickness, h - 2 * thickness, SELECTION_COLOR);
 		}
 	}
 

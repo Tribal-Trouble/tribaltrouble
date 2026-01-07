@@ -123,9 +123,11 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
             in vec3 v_viewNormal;
             
             layout(location = 0) out vec4 out_FragColor;
+            layout(location = 1) out vec4 out_MaskColor;
     
             void main() {
                 vec4 base = texture(u_texture0, v_texCoord0);
+                out_MaskColor = vec4(0.0);
     
                 if (u_desaturate > 0.0) {
                     base.rgb = mix(base.rgb, vec3(1.0), u_desaturate);
@@ -170,6 +172,12 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                         // Mix decal color but keep specular on top
                         vec3 mixedColor = mix(finalColor.rgb - specular, u_decalColor.rgb * clamp(lightIntensity, 0.0, 1.0), tex1.rgb);
                         finalColor.rgb = mixedColor + specular;
+                        
+                        // Write to Mask Buffer (Team Color)
+                        // Use base texture alpha to cut out transparent parts
+                        if (base.a > 0.1) {
+                            out_MaskColor = u_decalColor;
+                        }
                     }
                 }
     

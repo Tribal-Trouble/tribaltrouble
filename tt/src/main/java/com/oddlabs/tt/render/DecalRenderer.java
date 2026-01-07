@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL33;
 
@@ -124,6 +125,9 @@ public final class DecalRenderer implements AutoCloseable {
         GL11.glPolygonOffset(-16.0f, -32.0f);
         
         GL11.glDisable(GL11.GL_CULL_FACE); // In case of weird winding
+        
+        // Disable writing to Mask Buffer (Attachment 1) since DecalShader doesn't output to it
+        GL20.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);
 
         return () -> {
             flush();
@@ -131,6 +135,12 @@ public final class DecalRenderer implements AutoCloseable {
             GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
             GL11.glDepthMask(true); // Restore depth write
             GL11.glEnable(GL11.GL_CULL_FACE);
+            // Restore draw buffers (Color + Mask)
+            try (org.lwjgl.system.MemoryStack stack = org.lwjgl.system.MemoryStack.stackPush()) {
+                java.nio.IntBuffer buffers = stack.mallocInt(2);
+                buffers.put(GL30.GL_COLOR_ATTACHMENT0).put(GL30.GL_COLOR_ATTACHMENT1).flip();
+                GL20.glDrawBuffers(buffers);
+            }
             this.currentTexture = null;
         };
     }

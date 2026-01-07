@@ -8,10 +8,12 @@ public final class PostProcessShader extends ShaderProgram {
 
     public interface Uniforms {
         String SCENE_TEXTURE = "u_sceneTexture";
+        String MASK_TEXTURE = "u_maskTexture";
         String CVD_MODE = "u_cvdMode";
         String CVD_INTENSITY = "u_cvdIntensity";
         String HIGH_CONTRAST = "u_highContrast";
         String CONTRAST_INTENSITY = "u_contrastIntensity";
+        String TEAM_STENCIL = "u_teamStencil";
     }
 
     public interface Attributes {
@@ -36,10 +38,12 @@ public final class PostProcessShader extends ShaderProgram {
         #version 410 core
 
         uniform sampler2D u_sceneTexture;
+        uniform sampler2D u_maskTexture;
         uniform int u_cvdMode; // 0=None, 1=Protanopia, 2=Deuteranopia, 3=Tritanopia
         uniform float u_cvdIntensity;
         uniform bool u_highContrast;
         uniform float u_contrastIntensity;
+        uniform bool u_teamStencil;
 
         in vec2 v_texCoord;
         layout(location = 0) out vec4 out_FragColor;
@@ -117,6 +121,42 @@ public final class PostProcessShader extends ShaderProgram {
 
             if (u_highContrast) {
                 finalColor = applyHighContrast(finalColor);
+            }
+            
+            if (u_teamStencil) {
+                // Team Stencil & Border
+                vec4 mask = texture(u_maskTexture, v_texCoord);
+                
+                // Check RGB intensity instead of Alpha, because GUI writes (0,0,0,1) to clear mask
+                if (dot(mask.rgb, vec3(1.0)) > 0.01) {
+                    // Stencil: blend 20% team color
+                    finalColor = mix(finalColor, mask.rgb, 0.2);
+                } else {
+                    // Border Detection (3-pixel thickness) with Despeckle
+                    vec2 texelSize = 1.0 / textureSize(u_maskTexture, 0);
+                    int maskCount = 0;
+                    vec3 accumulatedColor = vec3(0.0);
+                    
+                    // Search in a radius of 3 pixels
+                    for (int y = -3; y <= 3; y++) {
+                        for (int x = -3; x <= 3; x++) {
+                            if (x == 0 && y == 0) continue;
+                            if (abs(x) + abs(y) > 4) continue; 
+                            
+                            vec4 neighbor = texture(u_maskTexture, v_texCoord + vec2(float(x) * texelSize.x, float(y) * texelSize.y));
+                            // Check neighbor RGB
+                            if (dot(neighbor.rgb, vec3(1.0)) > 0.01) {
+                                maskCount++;
+                                accumulatedColor += neighbor.rgb;
+                            }
+                        }
+                    }
+                    
+                    // Filter small features: 2x2 pixels = 4 pixels. 
+                    if (maskCount > 4) {
+                        finalColor = accumulatedColor / float(maskCount);
+                    }
+                }
             }
 
             if (u_cvdMode > 0) {

@@ -283,6 +283,9 @@ public abstract class AbstractOptionsMenu extends Form {
         CheckBox cb_high_contrast = new CheckBox(Settings.getSettings().high_contrast, Utils.getBundleString(bundle, "high_contrast"), Utils.getBundleString(bundle, "high_contrast_tip"));
         group_contrast.addChild(cb_high_contrast);
         
+        CheckBox cb_team_stencil = new CheckBox(Settings.getSettings().team_stencil, Utils.getBundleString(bundle, "team_stencil"), Utils.getBundleString(bundle, "team_stencil_tip"));
+        group_contrast.addChild(cb_team_stencil);
+        
         Label label_contrast_intensity = new Label(Utils.getBundleString(bundle, "contrast_intensity"), Skin.getSkin().getEditFont());
         group_contrast.addChild(label_contrast_intensity);
         
@@ -295,13 +298,17 @@ public abstract class AbstractOptionsMenu extends Form {
             Settings.getSettings().high_contrast = marked;
             slider_contrast.setDisabled(!marked);
         });
+        cb_team_stencil.addCheckBoxListener(marked -> Settings.getSettings().team_stencil = marked);
+        
         slider_contrast.addValueListener(value -> Settings.getSettings().contrast_intensity = (float)value / MAX_VALUE);
 
         // Layout:
         // [Checkbox High Contrast]
+        // [Checkbox Team Overlay]
         // [Label Intensity] [Slider]
         cb_high_contrast.place();
-        label_contrast_intensity.place(cb_high_contrast, BOTTOM_LEFT);
+        cb_team_stencil.place(cb_high_contrast, BOTTOM_LEFT);
+        label_contrast_intensity.place(cb_team_stencil, BOTTOM_LEFT);
         slider_contrast.place(label_contrast_intensity, RIGHT_MID);
         group_contrast.compileCanvas();
 

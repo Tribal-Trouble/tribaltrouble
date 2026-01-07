@@ -32,6 +32,8 @@ import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 
 public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
@@ -55,6 +57,19 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final @NonNull PostProcessor postProcessor;
 
     private @Nullable Building selected_building;
+
+    private void setDrawBuffers(boolean mask) {
+        try (org.lwjgl.system.MemoryStack stack = org.lwjgl.system.MemoryStack.stackPush()) {
+            java.nio.IntBuffer buffers;
+            if (mask) {
+                buffers = stack.mallocInt(2).put(GL30.GL_COLOR_ATTACHMENT0).put(GL30.GL_COLOR_ATTACHMENT1);
+            } else {
+                buffers = stack.mallocInt(1).put(GL30.GL_COLOR_ATTACHMENT0);
+            }
+            buffers.flip();
+            GL20.glDrawBuffers(buffers);
+        }
+    }
 
     public DefaultRenderer(@NonNull Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, @NonNull Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         this.world = local_player.getWorld();
@@ -186,108 +201,123 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
                 if (obj instanceof Unit unit) unit.debugRender();
             }
         }
-        DebugRender.flush();
-    }
-
-    @Override
-    public void startFrame() {
-        postProcessor.bindSceneFBO();
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-    }
-
-    @Override
-    public void endFrame() {
-        postProcessor.renderComposite();
-    }
-
-    @Override
-    public void render(@NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root, @NonNull Matrix4f proj, @NonNull Matrix4f modelView) {
-        ambient.updateSoundListener(frustum_state, world.getHeightMap());
-
-        modelViewStack.current().set(modelView);
-        projectionStack.current().set(proj);
-
-        if (Globals.line_mode || cheat.line_mode) {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
-        }
-
-        if (Globals.draw_sky) {
-            sky.render(frustum_state, modelViewStack, projectionStack);
-            sky.renderSeaBottom(frustum_state, modelViewStack, projectionStack);
-        }
-
-        if (Globals.process_landscape) {
-            landscape_renderer.prepareAll(frustum_state, false);
-            landscape_renderer.renderAll(frustum_state, modelViewStack, projectionStack);
-        }
-        if (Globals.process_trees) {
-            tree_renderer.setup(frustum_state);
-            world.getTreeRoot().visit(tree_renderer);
-        }
-        if (Globals.process_misc) {
-            element_renderer.setup(frustum_state);
-            world.getElementRoot().visit(element_renderer);
-        }
-
-        sprite_sorter.distributeModels();
-
-        if (Globals.process_shadows) {
-            render_queues.renderShadows(landscape_renderer, modelViewStack, projectionStack);
-        }
-
-        if (Globals.process_trees) {
-            tree_renderer.renderAll(frustum_state, modelViewStack, projectionStack);
-        }
-        if (Globals.process_misc) {
-            render_queues.renderAll(frustum_state, projectionStack);
-            
-            // Render trees AFTER opaque units/misc to handle correct sorting for accumulation
-            // Trees are blended but depth-write disabled (or handled via separate renderer)
-            // Separate renderer ensures they are flushed here.
-            treeSpriteRenderer.renderAll(frustum_state, projectionStack);
-            
-            render_queues.renderPlants(frustum_state, projectionStack);
-            
-            render_queues.renderNoDetail();
-        }
-
-        gui_root.getDelegate().render3D(landscape_renderer, render_queues, frustum_state, modelViewStack, projectionStack);
-
-        if (Globals.debugRenderingEnabled()) {
-            renderDebugElements(frustum_state);
-        }
-
-        if (Globals.draw_water) {
-            water.render(frustum_state, landscape_renderer.getVisiblePatches());
-        }
-
-        if (Globals.process_misc)
-            render_queues.renderBlends(frustum_state, projectionStack);
-
-        lightningRenderer.render(render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state, modelViewStack, projectionStack);
-        emitterRenderer.render(render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state, modelViewStack, projectionStack);
+                DebugRender.flush();
+            }
         
-        if (world.getRacesResources() != null) {
-            sonicBlastRenderer.render(render_queues, element_renderer.getRenderState().getSonicBlastQueue(), frustum_state, modelViewStack, projectionStack, world.getRacesResources().getPoisonTextures()[0]);
-        }
+            @Override
+            public void startFrame() {
+                postProcessor.bindSceneFBO();
+                GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+            }
         
-        renderRallyPoint(frustum_state);
-
-        assert ShaderProgram.activeShader() == null : "Shader still active=" + ShaderProgram.activeShader();
-
-        if (Globals.line_mode || cheat.line_mode) {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+            @Override
+            public void endFrame() {
+                postProcessor.renderComposite();
+            }
+        
+            @Override
+            public void render(@NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root, @NonNull Matrix4f proj, @NonNull Matrix4f modelView) {
+                ambient.updateSoundListener(frustum_state, world.getHeightMap());
+        
+                modelViewStack.current().set(modelView);
+                projectionStack.current().set(proj);
+        
+                if (Globals.line_mode || cheat.line_mode) {
+                    GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+                }
+        
+                // Sky & Landscape don't write to mask -> Disable Mask Buffer
+                setDrawBuffers(false);
+        
+                if (Globals.draw_sky) {
+                    sky.render(frustum_state, modelViewStack, projectionStack);
+                    sky.renderSeaBottom(frustum_state, modelViewStack, projectionStack);
+                }
+        
+                if (Globals.process_landscape) {
+                    landscape_renderer.prepareAll(frustum_state, false);
+                    landscape_renderer.renderAll(frustum_state, modelViewStack, projectionStack);
+                }
+                
+                // Trees & Units write to mask -> Enable Mask Buffer
+                setDrawBuffers(true);
+                
+                if (Globals.process_trees) {
+                    tree_renderer.setup(frustum_state);
+                    world.getTreeRoot().visit(tree_renderer);
+                }
+                if (Globals.process_misc) {
+                    element_renderer.setup(frustum_state);
+                    world.getElementRoot().visit(element_renderer);
+                }
+        
+                sprite_sorter.distributeModels();
+        
+                if (Globals.process_shadows) {
+                    render_queues.renderShadows(landscape_renderer, modelViewStack, projectionStack);
+                }
+        
+                if (Globals.process_trees) {
+                    tree_renderer.renderAll(frustum_state, modelViewStack, projectionStack);
+                }
+                if (Globals.process_misc) {
+                    render_queues.renderAll(frustum_state, projectionStack);
+                    
+                    // Render trees AFTER opaque units/misc to handle correct sorting for accumulation
+                    // Trees are blended but depth-write disabled (or handled via separate renderer)
+                    // Separate renderer ensures they are flushed here.
+                    treeSpriteRenderer.renderAll(frustum_state, projectionStack);
+                    
+                    render_queues.renderPlants(frustum_state, projectionStack);
+                    
+                    render_queues.renderNoDetail();
+                }
+        
+                gui_root.getDelegate().render3D(landscape_renderer, render_queues, frustum_state, modelViewStack, projectionStack);
+        
+                if (Globals.debugRenderingEnabled()) {
+                    renderDebugElements(frustum_state);
+                }
+        
+                // Water & Particles don't write to mask -> Disable Mask Buffer
+                setDrawBuffers(false);
+        
+                if (Globals.draw_water) {
+                    water.render(frustum_state, landscape_renderer.getVisiblePatches());
+                }
+        
+                if (Globals.process_misc)
+                    render_queues.renderBlends(frustum_state, projectionStack);
+        
+                lightningRenderer.render(render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state, modelViewStack, projectionStack);
+                emitterRenderer.render(render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state, modelViewStack, projectionStack);
+                
+                if (world.getRacesResources() != null) {
+                    sonicBlastRenderer.render(render_queues, element_renderer.getRenderState().getSonicBlastQueue(), frustum_state, modelViewStack, projectionStack, world.getRacesResources().getPoisonTextures()[0]);
+                }
+                
+                // Rally point uses SpriteShader (Mask) -> Enable
+                setDrawBuffers(true);
+                renderRallyPoint(frustum_state);
+        
+                assert ShaderProgram.activeShader() == null : "Shader still active=" + ShaderProgram.activeShader();
+        
+                if (Globals.line_mode || cheat.line_mode) {
+                    GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+                }
+                
+                // Ensure Mask is enabled for GUI clearing
+                setDrawBuffers(true);
+            }
+        
+            @Override
+            public void close() {
+                emitterRenderer.close();
+                lightningRenderer.close();
+                sonicBlastRenderer.close();
+                sky.close();
+                water.close();
+                treeSpriteRenderer.close();
+                postProcessor.close();
+            }
         }
-    }
-
-    @Override
-    public void close() {
-        emitterRenderer.close();
-        lightningRenderer.close();
-        sonicBlastRenderer.close();
-        sky.close();
-        water.close();
-        treeSpriteRenderer.close();
-        postProcessor.close();
-    }
-}

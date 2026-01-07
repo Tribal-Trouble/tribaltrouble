@@ -85,6 +85,7 @@ public final class Settings implements Serializable {
     public float cvd_intensity = 1.0f;
     public boolean high_contrast = false;
     public float contrast_intensity = 0.5f;
+    public boolean team_stencil = false;
 
 	public static void setSettings(Settings new_settings) {
 		settings = new_settings;
@@ -133,10 +134,11 @@ public final class Settings implements Serializable {
         
         setProperty(props, "cvd_mode", cvd_mode, defaults.cvd_mode);
                 setProperty(props, "cvd_intensity", cvd_intensity, defaults.cvd_intensity);
-                setProperty(props, "high_contrast", high_contrast, defaults.high_contrast);
-                setProperty(props, "contrast_intensity", contrast_intensity, defaults.contrast_intensity);
-        
-        		Path settings_file = Renderer.getLocalInput().getGameDir().resolve(Globals.SETTINGS_FILE_NAME);        		try (OutputStream out = Files.newOutputStream(settings_file)) {
+                        setProperty(props, "high_contrast", high_contrast, defaults.high_contrast);
+                        setProperty(props, "contrast_intensity", contrast_intensity, defaults.contrast_intensity);
+                        setProperty(props, "team_stencil", team_stencil, defaults.team_stencil);
+                
+                		Path settings_file = Renderer.getLocalInput().getGameDir().resolve(Globals.SETTINGS_FILE_NAME);        		try (OutputStream out = Files.newOutputStream(settings_file)) {
         			props.store(out, Instant.now().toString());		} catch (IOException e) {
 			logger.warning("Failed to write settings to " + settings_file + " exception: " + e);
 		}
@@ -186,6 +188,7 @@ public final class Settings implements Serializable {
         cvd_intensity = getFloat(props, "cvd_intensity", cvd_intensity);
         high_contrast = getBoolean(props, "high_contrast", high_contrast);
         contrast_intensity = getFloat(props, "contrast_intensity", contrast_intensity);
+        team_stencil = getBoolean(props, "team_stencil", team_stencil);
 	}
 
 	// --- Save Helpers ---

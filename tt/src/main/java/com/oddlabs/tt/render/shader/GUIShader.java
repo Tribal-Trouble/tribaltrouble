@@ -49,6 +49,7 @@ import org.lwjgl.opengl.GL11;
             flat in int v_TexIndex;
             
             layout(location = 0) out vec4 out_FragColor;
+            layout(location = 1) out vec4 out_MaskColor;
             
             void main() {
                 if (v_TexIndex < 0) {
@@ -68,6 +69,8 @@ import org.lwjgl.opengl.GL11;
                     }
                     out_FragColor = v_Color * texColor;
                 }
+                // Clear mask under GUI (using blending: dst = 0 * srcA + dst * (1-srcA))
+                out_MaskColor = vec4(0.0, 0.0, 0.0, out_FragColor.a);
             }
             """;
 

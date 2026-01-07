@@ -11,6 +11,7 @@ public final class FBO implements AutoCloseable {
     private int width;
     private int height;
     private @Nullable Texture colorTexture;
+    private @Nullable Texture maskTexture;
     private @Nullable Texture depthTexture;
 
     public FBO(int width, int height) {
@@ -28,10 +29,18 @@ public final class FBO implements AutoCloseable {
         fbo.attachTexture(GL30.GL_COLOR_ATTACHMENT0, color);
         fbo.colorTexture = color;
 
+        // Mask Texture (Standard RGBA for team color/stencil)
+        Texture mask = new Texture(width, height, GL11.GL_RGBA, GL11.GL_NEAREST, GL11.GL_NEAREST, GL12.GL_CLAMP_TO_EDGE);
+        fbo.attachTexture(GL30.GL_COLOR_ATTACHMENT1, mask);
+        fbo.maskTexture = mask;
+
         // Depth Texture (24-bit depth)
         Texture depth = new Texture(width, height, GL30.GL_DEPTH_COMPONENT24, GL11.GL_NEAREST, GL11.GL_NEAREST, GL12.GL_CLAMP_TO_EDGE);
         fbo.attachTexture(GL30.GL_DEPTH_ATTACHMENT, depth);
         fbo.depthTexture = depth;
+
+        // Explicitly declare draw buffers
+        GL30.glDrawBuffers(new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1});
 
         fbo.checkStatus();
         fbo.unbind();
@@ -48,6 +57,10 @@ public final class FBO implements AutoCloseable {
             // Re-create color texture with new dimensions
             colorTexture = new Texture(width, height, GL30.GL_RGBA16F, GL11.GL_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE);
         }
+        if (maskTexture != null) {
+            maskTexture.close();
+            maskTexture = new Texture(width, height, GL11.GL_RGBA, GL11.GL_NEAREST, GL11.GL_NEAREST, GL12.GL_CLAMP_TO_EDGE);
+        }
         if (depthTexture != null) {
             depthTexture.close();
             // Re-create depth texture with new dimensions
@@ -56,7 +69,12 @@ public final class FBO implements AutoCloseable {
 
         bind();
         if (colorTexture != null) attachTexture(GL30.GL_COLOR_ATTACHMENT0, colorTexture);
+        if (maskTexture != null) attachTexture(GL30.GL_COLOR_ATTACHMENT1, maskTexture);
         if (depthTexture != null) attachTexture(GL30.GL_DEPTH_ATTACHMENT, depthTexture);
+        
+        // Restore draw buffers state after resize/rebind
+        GL30.glDrawBuffers(new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1});
+        
         checkStatus();
         unbind();
     }
@@ -72,6 +90,10 @@ public final class FBO implements AutoCloseable {
 
     public @Nullable Texture getColorTexture() {
         return colorTexture;
+    }
+
+    public @Nullable Texture getMaskTexture() {
+        return maskTexture;
     }
 
     public @Nullable Texture getDepthTexture() {
