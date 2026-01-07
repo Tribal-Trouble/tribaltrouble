@@ -152,6 +152,11 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
                                 unit_grid.getHeightMap().getSeaLevelMeters(),
                                 unit_grid.getHeightMap().getNearestHeight(x, y))
                         + getOffsetZ());
+
+        if (getBuildingTemplate().getAbilities().hasAbilities(Abilities.SAIL)) {
+            setInitialShipDirection();
+        }
+
         pushController(new NullController(this));
         /*
            Vector3f position, float offset_z, float uv_angle,
@@ -223,6 +228,48 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         production_emitter.stop();
 
         this.path_tracker = new PathTracker(getUnitGrid(), this, UnitGrid.SEA);
+    }
+
+    public final void setInitialShipDirection() {
+        UnitGrid grid = getUnitGrid();
+        int cx = getGridX();
+        int x0 = cx - 8;
+        int x1 = x0 + 16;
+        int cy = getGridY();
+        int y0 = cy - 8;
+        int y1 = y0 + 16;
+        int samples = 20;
+        int best_gap = 0;
+        double best_gap_dx = 0.0f;
+        double best_gap_dy = 0.0f;
+        double delta = Math.toRadians(360.0f / samples);
+        for (int i = 0; i < samples; i++) {
+            double angle = delta * i;
+            double cos = Math.cos(angle);
+            double sin = Math.sin(angle);
+            int weight_a = 0;
+            int weight_b = 0;
+            for (int y = y0; y < y1; y++) {
+                for (int x = x0; x < x1; x++) {
+                    int h = grid.isWater(x, y) ? 0 : 1;
+                    int dx = x - cx;
+                    int dy = y - cy;
+                    double cross = dx * sin - dy * cos;
+                    if (cross > 0) {
+                        weight_a += h;
+                    } else {
+                        weight_b += h;
+                    }
+                }
+            }
+            int gap = weight_b - weight_a;
+            if (i == 0 || gap < best_gap) {
+                best_gap = gap;
+                best_gap_dx = cos;
+                best_gap_dy = sin;
+            }
+        }
+        setDirection((float) -best_gap_dy, (float) best_gap_dx);
     }
 
     public final float getOffsetZ() {
@@ -745,12 +792,9 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
 
     protected final void setTarget(Target target, int action, boolean aggressive) {
         if (getAbilities().hasAbilities(Abilities.SAIL)) {
-            Target sail_target =
-                    getUnitGrid()
-                            .findGridTargets(
-                                    target.getGridX(), target.getGridY(), 1, false, UnitGrid.SEA)[
-                            0];
-            pushController(new SailController(this, sail_target));
+            forceDecide();
+            clearControllerStack();
+            pushController(new SailController(this, target));
             free();
             setLayer(UnitGrid.SEA);
             occupy();
@@ -919,47 +963,54 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     }
 
     private final void flattenLandscape() {
-        HeightMap map = getOwner().getWorld().getHeightMap();
-        int size = getBuildingTemplate().getPlacingSize();
-        int height_points = (size - PLACING_BORDER) * 2;
-        int offset_x = getGridX() - (size - 1);
-        int offset_y = getGridY() - (size - 1);
-        float total_height = 0;
-        old_landscape_heights = new float[height_points][height_points];
-        for (int y = 0; y < height_points; y++)
-            for (int x = 0; x < height_points; x++) {
-                float old_height =
-                        map.getWrappedHeight(
-                                offset_x + x + PLACING_BORDER, offset_y + y + PLACING_BORDER);
-                old_landscape_heights[y][x] = old_height;
-                total_height += old_height;
+        if (!getBuildingTemplate().isNearSea()) {
+            HeightMap map = getOwner().getWorld().getHeightMap();
+            int size = getBuildingTemplate().getPlacingSize();
+            int height_points = (size - PLACING_BORDER) * 2;
+            int offset_x = getGridX() - (size - 1);
+            int offset_y = getGridY() - (size - 1);
+            float total_height = 0;
+            old_landscape_heights = new float[height_points][height_points];
+            for (int y = 0; y < height_points; y++) {
+                for (int x = 0; x < height_points; x++) {
+                    float old_height =
+                            map.getWrappedHeight(
+                                    offset_x + x + PLACING_BORDER, offset_y + y + PLACING_BORDER);
+                    old_landscape_heights[y][x] = old_height;
+                    total_height += old_height;
+                }
             }
 
-        float new_height = total_height / (height_points * height_points);
-        if (getBuildingTemplate().isNearSea()) {
-            new_height = map.getSeaLevelMeters() * 1.1f;
+            float new_height = total_height / (height_points * height_points);
+
+            for (int y = 0; y < height_points; y++) {
+                for (int x = 0; x < height_points; x++) {
+                    map.editHeight(
+                            offset_x + x + PLACING_BORDER,
+                            offset_y + y + PLACING_BORDER,
+                            new_height);
+                }
+            }
         }
-
-        for (int y = 0; y < height_points; y++)
-            for (int x = 0; x < height_points; x++) {
-                map.editHeight(
-                        offset_x + x + PLACING_BORDER, offset_y + y + PLACING_BORDER, new_height);
-            }
     }
 
     private final void undoLandscape() {
-        int size = getBuildingTemplate().getPlacingSize();
-        int offset_x = getGridX() - (size - 1);
-        int offset_y = getGridY() - (size - 1);
-        for (int y = 0; y < old_landscape_heights.length; y++)
-            for (int x = 0; x < old_landscape_heights[y].length; x++)
-                getOwner()
-                        .getWorld()
-                        .getHeightMap()
-                        .editHeight(
-                                offset_x + x + PLACING_BORDER,
-                                offset_y + y + PLACING_BORDER,
-                                old_landscape_heights[y][x]);
+        if (!getBuildingTemplate().isNearSea()) {
+            int size = getBuildingTemplate().getPlacingSize();
+            int offset_x = getGridX() - (size - 1);
+            int offset_y = getGridY() - (size - 1);
+            for (int y = 0; y < old_landscape_heights.length; y++) {
+                for (int x = 0; x < old_landscape_heights[y].length; x++) {
+                    getOwner()
+                            .getWorld()
+                            .getHeightMap()
+                            .editHeight(
+                                    offset_x + x + PLACING_BORDER,
+                                    offset_y + y + PLACING_BORDER,
+                                    old_landscape_heights[y][x]);
+                }
+            }
+        }
     }
 
     public final void occupy() {
@@ -969,7 +1020,9 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
             setLayer(UnitGrid.SEA);
             region = grid.getRegion(getGridX(), getGridY(), UnitGrid.SEA);
         }
-        region.registerObject(getClass(), this);
+        if (region != null) {
+            region.registerObject(getClass(), this);
+        }
         int size = getBuildingTemplate().getPlacingSize() * 2 - 1;
         for (int y = PLACING_BORDER; y < size - PLACING_BORDER; y++) {
             for (int x = PLACING_BORDER; x < size - PLACING_BORDER; x++) {
@@ -1131,6 +1184,8 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     }
 
     public final void endTrip() {
+        forceDecide();
+        clearControllerStack();
         if (getUnitGrid().getRegion(getGridX(), getGridY(), UnitGrid.LAND) != null) {
             free();
             setLayer(UnitGrid.LAND);

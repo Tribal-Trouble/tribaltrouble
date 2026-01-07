@@ -51,7 +51,7 @@ public final strictfp class RacesResources {
     public static final int QUARTERS_SIZE = 5;
     public static final int ARMORY_SIZE = 5;
     public static final int TOWER_SIZE = 3;
-    public static final int SHIP_SIZE = 2;
+    public static final int SHIP_SIZE = 7;
     public static final int QUARTERS_HIT_POINTS = 200;
     public static final int ARMORY_HIT_POINTS = 200;
     public static final int SHIP_HIT_POINTS = 75;
