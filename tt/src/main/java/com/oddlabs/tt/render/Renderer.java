@@ -71,7 +71,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-public final class Renderer implements AutoCloseable{
+public final class Renderer implements AutoCloseable {
     private static final Logger logger = Logger.getLogger(Renderer.class.getName());
 
     private static final Renderer renderer_instance = new Renderer();
@@ -477,26 +477,24 @@ public final class Renderer implements AutoCloseable{
 		boolean eventload = false;
 		boolean zipped = false;
 		boolean silent = false;
-        for (int i = 0; i < args.length; i++) {
-            switch (args[i]) {
-                case "--grabframes" -> grab_frames = true;
-                case "--eventload" -> {
-                    eventload = true;
-                    i++;
-                    switch (args[i]) {
-                        case "zipped":
-                            zipped = true;
-                            break;
-                        case "normal":
-                            break;
-                        default:
-                            throw new RuntimeException("Unknown event load mode: " + args[i]);
-                    }
+        for (int i = 0; i < args.length; i++) switch (args[i]) {
+            case "--grabframes" -> grab_frames = true;
+            case "--eventload" -> {
+                eventload = true;
+                i++;
+                switch (args[i]) {
+                    case "zipped":
+                        zipped = true;
+                        break;
+                    case "normal":
+                        break;
+                    default:
+                        throw new RuntimeException("Unknown event load mode: " + args[i]);
                 }
-                case "--silent" -> silent = true;
-                default -> throw new RuntimeException("Unknown command line flag: " + args[i]);
             }
-		}
+            case "--silent" -> silent = true;
+            default -> throw new IllegalArgumentException("Unknown command line flag: " + args[i]);
+        }
 
 		// fetch initial settings
         Settings settings = new Settings();
@@ -512,7 +510,7 @@ public final class Renderer implements AutoCloseable{
 
 		Path event_logs_dir = paths.logDir();
 		Path event_log_dir = event_logs_dir.resolve(Long.toString(System.currentTimeMillis()));
-		if (LocalEventQueue.getQueue().getDeterministic() == null && settings.save_event_log) {
+		if (settings.save_event_log) {
 			setupLogging(event_log_dir, silent);
 			LocalEventQueue.getQueue().setEventsLogged(event_log_dir.resolve(com.oddlabs.util.Utils.EVENT_LOG));
 		}
@@ -531,7 +529,7 @@ public final class Renderer implements AutoCloseable{
 		Path last_event_log_dir = settings.last_event_log_dir;
 		boolean crashed = settings.crashed;
 		NetworkSelector network = new NetworkSelector(LocalEventQueue.getQueue().getDeterministic(), LocalEventQueue.getQueue()::getMillis);
-                initNetwork(network);
+        initNetwork(network);
 		Renderer.getLocalInput().settings(game_dir, event_log_dir, settings);
 		try {
 			initNative(crashed);
@@ -539,7 +537,7 @@ public final class Renderer implements AutoCloseable{
 			// Let it propagate
 			throw new IllegalStateException("Failed initializing natives", e);
 		}
-		TaskThread task_thread = network.getTaskThread();
+
 		if (!settings.inDeveloperMode() && !deterministic.isPlayback())
 			deleteOldLogs(last_event_log_dir.toFile(), event_log_dir.toFile(), event_logs_dir.toFile());
 		GUI gui = new GUI();
@@ -585,7 +583,6 @@ public final class Renderer implements AutoCloseable{
 						int height = window.getHeight();
 						Settings.getSettings().view_width = width;
 						Settings.getSettings().view_height = height;
-						Renderer.getLocalInput().setViewDimensions(width, height);
 						GL11.glViewport(0, 0, width, height);
 						initGL();
 						gui.getGUIRoot().displayChanged();
@@ -736,7 +733,7 @@ public final class Renderer implements AutoCloseable{
 	public void cleanup() {
 		logger.info("Cleaning up...");
         logger.info("Disposing LocalEventQueue...");
-		LocalEventQueue.getQueue().dispose();
+		LocalEventQueue.getQueue().close();
 		destroyNative();
         logger.fine("Native resources still registered: " + NativeResource.getCount());
 		logger.info("Cleanup complete. Exiting");
@@ -745,6 +742,56 @@ public final class Renderer implements AutoCloseable{
 	public static void resetInput() {
 		Renderer.getLocalInput().resetKeys();
 	}
+
+    public void toggleFullscreen() {
+        try {
+            boolean fs = !window.isFullscreen() && !LocalEventQueue.getQueue().getDeterministic().isPlayback();
+            window.setFullscreen(fs);
+            resetInput();
+        } catch (Exception e) {
+            logger.log(java.util.logging.Level.SEVERE, "Mode switching failed with exception", e);
+            throw new RuntimeException("Mode switching failed");
+        }
+    }
+
+    public void switchMode(@NonNull SerializableDisplayMode mode, boolean switch_now) {
+        if (switch_now) {
+            try {
+                window.setDisplayMode(mode);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e);
+            }
+            modeSwitchedNow(mode);
+        } else
+            modeSwitchedLater(mode);
+    }
+
+    public void setModeToNearest(@NonNull SerializableDisplayMode mode) throws Exception {
+        // Use window create to ensure window is created/resized
+        boolean fs = Settings.getSettings().fullscreen;
+        window.create(mode, fs);
+        modeSwitchedNow(mode);
+    }
+
+    private void modeSwitchedLater(@NonNull SerializableDisplayMode new_mode) {
+        Settings.getSettings().fullscreen = window.isFullscreen();
+        Settings.getSettings().new_view_width = new_mode.getWidth();
+        Settings.getSettings().new_view_height = new_mode.getHeight();
+        Settings.getSettings().new_view_freq = new_mode.getFrequency();
+    }
+
+    private void modeSwitchedNow(@NonNull SerializableDisplayMode new_mode) {
+        modeSwitchedLater(new_mode);
+        modeSwitched();
+    }
+
+    private void modeSwitched() {
+        SerializableDisplayMode new_mode = LocalEventQueue.getQueue().getDeterministic().log(window.getDisplayMode());
+        logger.info("Switched mode to " + new_mode);
+        Settings.getSettings().view_width = new_mode.getWidth();
+        Settings.getSettings().view_height = new_mode.getHeight();
+        Settings.getSettings().view_freq = new_mode.getFrequency();
+    }
 
 	private static void destroyNative() {
         logger.info("Clearing Resources...");
@@ -844,8 +891,6 @@ public final class Renderer implements AutoCloseable{
 		logger.info("GL vendor: '" + vendor + "'");
 		String renderer = GL11.glGetString(GL11.GL_RENDERER);
 		logger.info("GL renderer: '" + renderer + "'");
-
-		// logger.info("GL shading language version: '" + GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION) + "'");
 
 		dumpWindowInfo();
 

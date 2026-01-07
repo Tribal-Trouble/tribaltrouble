@@ -234,8 +234,8 @@ public abstract class AbstractOptionsMenu extends Form {
         ColumnInfo[] mode_infos = new ColumnInfo[]{new ColumnInfo("", 150)};
         MultiColumnComboBox<SerializableDisplayMode> mode_list_box = new MultiColumnComboBox<>(gui_root, mode_infos, 200, false);
 
-        SerializableDisplayMode[] modes = LocalInput.getAvailableModes();
-        SerializableDisplayMode current_mode = LocalInput.getCurrentMode();
+        SerializableDisplayMode[] modes = Renderer.getRenderer().getWindow().getAvailableDisplayModes();
+        SerializableDisplayMode current_mode = Renderer.getRenderer().getLocalInput().getCurrentMode();
         Row<SerializableDisplayMode, Label> current_row = null;
         for (int i = 0; i < modes.length; i++) {
             if (modes[i].getBitsPerPixel() == current_mode.getBitsPerPixel()) {

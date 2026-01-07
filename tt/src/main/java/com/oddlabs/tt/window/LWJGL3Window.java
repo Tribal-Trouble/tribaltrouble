@@ -388,4 +388,9 @@ public final class LWJGL3Window implements Window {
     public long getHandle() {
         return windowHandle;
     }
+
+    @Override
+    public boolean isFullscreen() {
+        return windowHandle != MemoryUtil.NULL && glfwGetWindowMonitor(windowHandle) != MemoryUtil.NULL;
+    }
 }

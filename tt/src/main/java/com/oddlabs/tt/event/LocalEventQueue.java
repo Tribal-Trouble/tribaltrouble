@@ -2,6 +2,7 @@ package com.oddlabs.tt.event;
 
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.event.LoadDeterministic;
+import com.oddlabs.event.NotDeterministic;
 import com.oddlabs.event.SaveDeterministic;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.util.StateChecksum;
@@ -11,14 +12,14 @@ import org.jspecify.annotations.Nullable;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
-public final class LocalEventQueue {
+public final class LocalEventQueue implements AutoCloseable {
     private static final Logger logger = Logger.getLogger(LocalEventQueue.class.getName());
 	private static final LocalEventQueue queue_instance = new LocalEventQueue();
 
 	private final StateChecksum checksum = new StateChecksum();
 	private final AnimationManager manager = new AnimationManager();
 	private final AnimationManager high_precision_manager = new AnimationManager();
-	private @Nullable Deterministic deterministic;
+	private @NonNull Deterministic deterministic = new NotDeterministic();
 	private float time = 0;
 
 	public float getTime() {
@@ -29,22 +30,19 @@ public final class LocalEventQueue {
 		return high_precision_manager.getTick()*AnimationManager.ANIMATION_MILLISECONDS_PER_PRECISION_TICK;
 	}
 
-	public static LocalEventQueue getQueue() {
+	public static @NonNull LocalEventQueue getQueue() {
 		return queue_instance;
 	}
 
 	public void setEventsLogged(@NonNull Path log_file) {
-		assert deterministic == null;
+		assert deterministic instanceof NotDeterministic;
 		this.deterministic = new SaveDeterministic(log_file);
 	}
 
-	public void dispose() {
+	public void close() {
         logger.info("LocalEventQueue disposing...");
-		if (deterministic != null) {
-            logger.info("Ending deterministic log...");
-			deterministic.endLog();
-        }
-		deterministic = null;
+		logger.info("Ending deterministic log...");
+		deterministic.endLog();
         logger.info("LocalEventQueue disposed.");
 	}
 
@@ -75,7 +73,7 @@ public final class LocalEventQueue {
 		return checksum.getValue();
 	}
 
-	public @Nullable Deterministic getDeterministic() {
+	public @NonNull Deterministic getDeterministic() {
 		return deterministic;
 	}
 

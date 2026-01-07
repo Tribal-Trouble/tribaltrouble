@@ -22,7 +22,7 @@ public interface Window extends AutoCloseable {
     void setVSyncEnabled(boolean enabled);
     void setFullscreen(boolean fullscreen) throws Exception;
     
-    @NonNull SerializableDisplayMode @NonNull[] getAvailableDisplayModes() throws Exception;
+    @NonNull SerializableDisplayMode @NonNull[] getAvailableDisplayModes();
     @NonNull SerializableDisplayMode getDisplayMode();
     void setDisplayMode(@NonNull SerializableDisplayMode mode) throws Exception;
     
@@ -32,4 +32,6 @@ public interface Window extends AutoCloseable {
     void show();
     void focus();
     void makeCurrent() throws Exception;
+    
+    boolean isFullscreen();
 }

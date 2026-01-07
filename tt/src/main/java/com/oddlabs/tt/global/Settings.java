@@ -133,13 +133,15 @@ public final class Settings implements Serializable {
 		setProperty(props, "warning_no_sound", warning_no_sound, defaults.warning_no_sound);
         
         setProperty(props, "cvd_mode", cvd_mode, defaults.cvd_mode);
-                setProperty(props, "cvd_intensity", cvd_intensity, defaults.cvd_intensity);
-                        setProperty(props, "high_contrast", high_contrast, defaults.high_contrast);
-                        setProperty(props, "contrast_intensity", contrast_intensity, defaults.contrast_intensity);
-                        setProperty(props, "team_stencil", team_stencil, defaults.team_stencil);
-                
-                		Path settings_file = Renderer.getLocalInput().getGameDir().resolve(Globals.SETTINGS_FILE_NAME);        		try (OutputStream out = Files.newOutputStream(settings_file)) {
-        			props.store(out, Instant.now().toString());		} catch (IOException e) {
+        setProperty(props, "cvd_intensity", cvd_intensity, defaults.cvd_intensity);
+        setProperty(props, "high_contrast", high_contrast, defaults.high_contrast);
+        setProperty(props, "contrast_intensity", contrast_intensity, defaults.contrast_intensity);
+        setProperty(props, "team_stencil", team_stencil, defaults.team_stencil);
+
+		Path settings_file = Renderer.getLocalInput().getGameDir().resolve(Globals.SETTINGS_FILE_NAME);
+		try (OutputStream out = Files.newOutputStream(settings_file)) {
+			props.store(out, Instant.now().toString());
+        } catch (IOException e) {
 			logger.warning("Failed to write settings to " + settings_file + " exception: " + e);
 		}
 	}
