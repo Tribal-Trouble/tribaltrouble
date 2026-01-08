@@ -93,7 +93,7 @@ public final class Renderer implements AutoCloseable {
     private boolean movie_recording_started = false;
 	private AmbientAudio ambient;
     
-    private @Nullable Window window = new com.oddlabs.tt.window.LWJGL3Window();
+    private final Window window = new com.oddlabs.tt.window.LWJGL3Window();
     
     private final LocalInput localInput = new LocalInput(window);
 
@@ -115,13 +115,13 @@ public final class Renderer implements AutoCloseable {
 
     @Override
     public void close() {
-        if (window != null) {
-            window.close();
-            window = null;
-        }
+        logger.info("Closing LocalInput...");
+        getLocalInput().close();
+        logger.info("Closing Window...");
+        window.close();
     }
 
-    public @Nullable Window getWindow() {
+    public @NonNull Window getWindow() {
         return window;
     }
 
@@ -151,7 +151,7 @@ public final class Renderer implements AutoCloseable {
 
 	public static void multProjection(@NonNull Matrix4f matrix) {
 		float fovy = Globals.FOV;
-		float aspect = Renderer.getLocalInput().getViewAspect();
+		float aspect = Renderer.getRenderer().getWindow().getViewAspect();
 		float zNear = Globals.VIEW_MIN;
 		float zFar = Globals.VIEW_MAX;
 
@@ -739,6 +739,11 @@ public final class Renderer implements AutoCloseable {
 		logger.info("Cleanup complete. Exiting");
 	}
 
+    public @NonNull SerializableDisplayMode getCurrentDisplayMode() {
+        return LocalEventQueue.getQueue().getDeterministic()
+                .log(window.getDisplayMode());
+    }
+
 	public static void resetInput() {
 		Renderer.getLocalInput().resetKeys();
 	}
@@ -796,15 +801,10 @@ public final class Renderer implements AutoCloseable {
 	private static void destroyNative() {
         logger.info("Clearing Resources...");
         Resources.clearResources();
-        logger.info("Closing LocalInput...");
-        getLocalInput().close();
         logger.info("Closing AudioManager...");
         AudioManager.getManager().close();
-        if (getRenderer().getWindow() != null) {
-            logger.info("Closing Window...");
-		    getRenderer().getWindow().close();
-            logger.info("Window Closed.");
-        }
+        getRenderer().close();
+        logger.info("Renderer Closed.");
 	}
 
 	public static void dumpWindowInfo() {
@@ -870,7 +870,7 @@ public final class Renderer implements AutoCloseable {
             
             boolean fs = Settings.getSettings().fullscreen && (!LocalEventQueue.getQueue().getDeterministic().isPlayback() || grab_frames);
             window.create(target_mode, fs);
-			Renderer.getLocalInput().setModeToNearest(target_mode);
+			setModeToNearest(target_mode);
             
             Path iconPath = Path.of("assets/widget/TribalTrouble.wdgt/Icon.png");
             if (!Files.exists(iconPath)) {

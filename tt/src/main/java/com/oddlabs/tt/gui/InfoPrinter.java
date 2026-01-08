@@ -31,8 +31,8 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 		this.gui_root = gui_root;
 		this.lines = lines;
 		this.font = font;
-		var localInput = Renderer.getLocalInput();
-		displayChangedNotify(localInput.getViewWidth(), localInput.getViewHeight());
+		var window = Renderer.getRenderer().getWindow();
+		displayChangedNotify(window.getWidth(), window.getHeight());
 		LocalEventQueue.getQueue().getManager().registerAnimation(this);
 		time = 0;
 	}

@@ -266,7 +266,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
     }
 
     public int getRotateY() {
-        int center_y = Renderer.getLocalInput().getViewHeight()/2;
+        int center_y = Renderer.getRenderer().getWindow().getHeight()/2;
         if (getState().getTargetVertAngle() < ROTATE_PICKING_ANGLE_MAX) {
                 return center_y;
         } else {
@@ -321,9 +321,10 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
 
     @Override
     public void mouseMoved(int x, int y) {
-        var localInput = Renderer.getLocalInput();
+        int view_width = Renderer.getRenderer().getWindow().getWidth();
+        int view_height = Renderer.getRenderer().getWindow().getHeight();
         if ((owner == null || !owner.isSelecting()) && (x < SCROLL_BUFFER || y < SCROLL_BUFFER ||
-                        x > localInput.getViewWidth() - 1 - SCROLL_BUFFER || y > localInput.getViewHeight() - 1 - SCROLL_BUFFER)) {
+                        x > view_width - 1 - SCROLL_BUFFER || y > view_height - 1 - SCROLL_BUFFER)) {
                 if (scroll_start) {
                         scroll_start = false;
                         if (!scrollSpeedLocked(null)) {
@@ -331,8 +332,8 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                                 setScrollSpeed();
                         }
                 }
-                scroll_x = (x - localInput.getViewWidth()/2f);
-                scroll_y = (y - localInput.getViewHeight()/2f);
+                scroll_x = (x - view_width/2f);
+                scroll_y = (y - view_height/2f);
                 float inv_length = 1f/(float)Math.sqrt(scroll_x*scroll_x + scroll_y*scroll_y);
                 scroll_x *= inv_length;
                 scroll_y *= inv_length;

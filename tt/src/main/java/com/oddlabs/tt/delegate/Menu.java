@@ -71,9 +71,9 @@ public abstract class Menu extends CameraDelegate<Camera> {
 
     private void init() {
         clearChildren();
-        var localInput = Renderer.getLocalInput();
-        int screen_width = localInput.getViewWidth();
-        int screen_height = localInput.getViewHeight();
+        var window = Renderer.getRenderer().getWindow();
+        int screen_width = window.getWidth();
+        int screen_height = window.getHeight();
         overlay = new GUIImage(screen_width, screen_height, 0f, 0f, (float) overlay_image_width / overlay_texture_width, (float) overlay_image_height / overlay_texture_height, overlay_texture_name);
         overlay.setPos(0, 0);
         addChild(overlay);
@@ -106,8 +106,8 @@ public abstract class Menu extends CameraDelegate<Camera> {
         init();
         addButtons();
 
-        var localInput = Renderer.getLocalInput();
-        displayChangedNotify(localInput.getViewWidth(), localInput.getViewHeight());
+        var window = Renderer.getRenderer().getWindow();
+        displayChangedNotify(window.getWidth(), window.getHeight());
     }
 
     @Override
@@ -211,7 +211,7 @@ public abstract class Menu extends CameraDelegate<Camera> {
     }
 
     private void positionMenu() {
-        current_menu.setPos(MENU_X, (Renderer.getLocalInput().getViewHeight() - current_menu.getHeight()) * 2 / 3);
+        current_menu.setPos(MENU_X, (Renderer.getRenderer().getWindow().getHeight() - current_menu.getHeight()) * 2 / 3);
     }
 
 	protected final void addResumeButton() {

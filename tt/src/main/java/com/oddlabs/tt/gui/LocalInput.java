@@ -9,8 +9,6 @@ import com.oddlabs.tt.input.InputProvider;
 import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.input.LWJGL3InputProvider;
-import com.oddlabs.tt.render.Renderer;
-import com.oddlabs.tt.render.SerializableDisplayMode;
 import com.oddlabs.tt.window.LWJGL3Window;
 import com.oddlabs.tt.window.Window;
 import org.jspecify.annotations.NonNull;
@@ -30,7 +28,6 @@ public final class LocalInput implements AutoCloseable {
     private int mouse_x;
     private int mouse_y;
 
-    private final @NonNull LWJGL3Window lwjglWindow;
     private final @NonNull InputProvider<?> inputProvider;
 
     private final Set<@NonNull Key> keys = EnumSet.noneOf(Key.class);
@@ -44,11 +41,10 @@ public final class LocalInput implements AutoCloseable {
 
     public LocalInput(@NonNull Window lwjglWindow) {
         if (lwjglWindow instanceof LWJGL3Window win) {
-            this.lwjglWindow = win;
+            inputProvider = new LWJGL3InputProvider(win);
         } else {
             throw new IllegalStateException("Window is not LWJGL3Window");
         }
-        inputProvider = new LWJGL3InputProvider(win);
     }
 
     public void setKeys(@NonNull Key key, boolean state, boolean shift_down, boolean control_down, boolean alt_down, boolean super_down) {
@@ -160,23 +156,6 @@ public final class LocalInput implements AutoCloseable {
         return revision;
     }
 
-    public int getViewWidth() {
-        return lwjglWindow.getWidth();
-    }
-
-    public int getViewHeight() {
-        return lwjglWindow.getHeight();
-    }
-
-    public boolean inFullscreen() {
-        return lwjglWindow.isFullscreen();
-    }
-
-    public static @NonNull SerializableDisplayMode getCurrentMode() {
-        return LocalEventQueue.getQueue().getDeterministic()
-                .log(Renderer.getRenderer().getWindow().getDisplayMode());
-    }
-
     public int getNativeCursorCaps() {
         return LocalEventQueue.getQueue().getDeterministic()
                 .log(CURSOR_8_BIT_ALPHA | CURSOR_ONE_BIT_TRANSPARENCY);
@@ -213,37 +192,5 @@ public final class LocalInput implements AutoCloseable {
     public <T> @NonNull InputProvider<T> getInputProvider() {
         //noinspection unchecked
         return (InputProvider<T>) inputProvider;
-    }
-
-    public void fullscreenToggled(boolean fullscreen, boolean switch_now) {
-        Settings.getSettings().fullscreen = fullscreen;
-        if (switch_now && inFullscreen() != fullscreen) {
-            toggleFullscreen();
-            logger.info("Fullscreen toggled");
-        }
-    }
-
-    public void toggleFullscreen() {
-        Renderer.getRenderer().toggleFullscreen();
-    }
-
-    public void switchMode(@NonNull SerializableDisplayMode mode, boolean switch_now) {
-        Renderer.getRenderer().switchMode(mode, switch_now);
-    }
-
-    public void setModeToNearest(@NonNull SerializableDisplayMode mode) throws Exception {
-        Renderer.getRenderer().setModeToNearest(mode);
-    }
-
-    public float getViewAspect() {
-        return (float) getViewWidth() / getViewHeight();
-    }
-
-    private float getUnitsPerPixel() {
-        return (float) (Globals.VIEW_MIN * Math.tan(Globals.FOV * (Math.PI / 180.0f) * 0.5d) / (getViewHeight() * 0.5d));
-    }
-
-    public float getErrorConstant() {
-        return Globals.VIEW_MIN / (getUnitsPerPixel() * Globals.ERROR_TOLERANCE);
     }
 }

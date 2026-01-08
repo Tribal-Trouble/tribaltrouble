@@ -36,8 +36,8 @@ public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> imp
 		this.tutorial_info = tutorial_info;
 		ResourceBundle bundle = ResourceBundle.getBundle(TutorialOverDelegate.class.getName());
 
-		var localInput = Renderer.getLocalInput();
-		setDim(localInput.getViewWidth(), localInput.getViewHeight());
+		var window = Renderer.getRenderer().getWindow();
+		setDim(window.getWidth(), window.getHeight());
 		String tutorial_completed_str = Utils.getBundleString(bundle, "tutorial_completed", tutorial_number);
 		Label label = new Label(tutorial_completed_str, Skin.getSkin().getHeadlineFont());
 		addChild(label);

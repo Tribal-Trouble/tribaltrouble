@@ -307,7 +307,7 @@ public final class GUIRoot extends GUIObject {
 				IO.println("Texture.globalSize() = " + Texture.globalSize());
 				break;
 			case F11:
-				Renderer.getLocalInput().toggleFullscreen();
+				Renderer.getRenderer().toggleFullscreen();
 				break;
 			case F12:
 				IO.println("GC Forced");

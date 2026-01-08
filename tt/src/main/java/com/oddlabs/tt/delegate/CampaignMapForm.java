@@ -39,11 +39,10 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 		this.network = network;
 		final ResourceBundle bundle = ResourceBundle.getBundle(CampaignMapForm.class.getName());
 
-		var localInput = Renderer.getLocalInput();
-		float scale_x = localInput.getViewWidth()/(float)base_width;
-		float scale_y = localInput.getViewHeight()/(float)base_height;
+		var window = Renderer.getRenderer().getWindow();
+		float scale_x = window.getWidth()/(float)base_width;
+		float scale_y = window.getHeight()/(float)base_height;
 		setScale(scale_x, scale_y);
-
 		if (campaign.getState().getRace() == CampaignState.RACE_VIKINGS) {
 			if (campaign.getState().getIslandState(10) != CampaignState.ISLAND_HIDDEN) {
 				addChild(campaign.getIcons().getHiddenRoutes()[0]);

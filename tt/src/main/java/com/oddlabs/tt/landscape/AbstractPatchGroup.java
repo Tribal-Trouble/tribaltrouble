@@ -34,7 +34,7 @@ public abstract class AbstractPatchGroup extends BoundingBox {
 	}
 
 	protected final float transformError(float error) {
-		float transformed_error = error* Renderer.getLocalInput().getErrorConstant() + patch_radius;
+		float transformed_error = error* Renderer.getRenderer().getWindow().getErrorConstant() + patch_radius;
 		return transformed_error*transformed_error;
 	}
 

@@ -63,8 +63,8 @@ public class Form extends Group {
 	}
 
 	public final void centerPos() {
-		var localInput = Renderer.getLocalInput();
-		setPos((localInput.getViewWidth() - getWidth())/2, (localInput.getViewHeight() - getHeight())/2);
+		var window = Renderer.getRenderer().getWindow();
+		setPos((window.getWidth() - getWidth())/2, (window.getHeight() - getHeight())/2);
 	}
 
 	@Override

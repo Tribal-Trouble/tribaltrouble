@@ -59,7 +59,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		this.observer_label = new Label(observer_mode, Skin.getSkin().getHeadlineFont());
 		this.game_camera = (GameCamera)getCamera();
 		var localInput = Renderer.getLocalInput();
-		displayChangedNotify(localInput.getViewWidth(), localInput.getViewHeight());
+		displayChangedNotify(Renderer.getRenderer().getWindow().getWidth(), Renderer.getRenderer().getWindow().getHeight());
 		addChild(getViewer().getPanel());
 		chat_form = new InGameChatForm(getViewer().getGUIRoot().getInfoPrinter(), getViewer());
 		chat_form.addCloseListener(() -> {

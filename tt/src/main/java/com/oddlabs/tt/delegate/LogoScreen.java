@@ -39,15 +39,15 @@ public final class LogoScreen extends CameraDelegate<StaticCamera> implements Up
 		setCanFocus(true);
 		setFocusCycle(true);
 
-		var localInput = Renderer.getLocalInput();
-		int screen_width = localInput.getViewWidth();
-		int screen_height = localInput.getViewHeight();
+		var window = Renderer.getRenderer().getWindow();
+
 		if (logo != null) { 
-			overlay = new GUIIcon(new IconQuad(screen_width, screen_height, 0f, 0f, overlay_image_width/overlay_texture_width, overlay_image_height/overlay_texture_height, logo));
+			overlay = new GUIIcon(new IconQuad(window.getWidth(), window.getHeight(), 0f, 0f, overlay_image_width/overlay_texture_width, overlay_image_height/overlay_texture_height, logo));
 			overlay.setPos(0, 0);
 			addChild(overlay);
-		} else
+		} else {
 			overlay = null;
+        }
 
 		delay_timer.start();
 		gui_root.pushDelegate(this);

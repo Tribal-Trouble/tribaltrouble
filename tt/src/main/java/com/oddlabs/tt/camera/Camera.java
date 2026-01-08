@@ -96,15 +96,15 @@ public abstract class Camera implements Animated {
 
     protected final boolean bounce(float x, float y, float z) {
         boolean bounced = false;
-        var localInput = Renderer.getLocalInput();
         viewport.clear();
-        viewport.put(0).put(0).put(localInput.getViewWidth()).put(localInput.getViewHeight());
+        var window = Renderer.getRenderer().getWindow();
+        viewport.put(0).put(0).put(window.getWidth()).put(window.getHeight());
         viewport.flip();
 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 float fovy = Globals.FOV;
-                float aspect = localInput.getViewAspect();
+                float aspect = window.getViewAspect();
                 float zNear = Globals.VIEW_MIN;
                 float zFar = Globals.VIEW_MAX;
                 proj.setPerspective((float)Math.toRadians(fovy), aspect, zNear, zFar);
@@ -112,8 +112,8 @@ public abstract class Camera implements Animated {
                 tmp_camera.setTargetView(proj);
 
                 Matrix4f combinedMatrix = new Matrix4f(proj).mul(tmp_camera.getModelView());
-                unproject(i*localInput.getViewWidth(),
-                                j*localInput.getViewHeight(),
+                unproject(i*window.getWidth(),
+                                j*window.getHeight(),
                                 0f,
                                 tmp_camera.getModelView(), combinedMatrix);
                 float hit_x = hit_result_array[0];

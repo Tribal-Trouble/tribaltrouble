@@ -45,9 +45,10 @@ public final class ToolTipBox extends TextField {
 			}
 			box_width += icons[i - 1].getWidth()*2/3;
 		}
-		var localInput = Renderer.getLocalInput();
-		float x = Math.clamp(center_x - box_width/2f, 0, localInput.getViewWidth() - box_width);
-		float y = Math.clamp(top_y - box_height, 0, localInput.getViewHeight() - box_height);
+
+		var window = Renderer.getRenderer().getWindow();
+		float x = Math.clamp(center_x - box_width/2f, 0, window.getWidth() - box_width);
+		float y = Math.clamp(top_y - box_height, 0, window.getHeight() - box_height);
 
 		box.box().render(renderer, x, y, box_width, ModeIconQuads.Mode.NORMAL);
 

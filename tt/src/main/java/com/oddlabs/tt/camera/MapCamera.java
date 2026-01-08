@@ -116,7 +116,7 @@ public final class MapCamera extends Camera {
             case TO_MAP -> {
             }
             case IN_MAP -> {
-                label.setPos((Renderer.getLocalInput().getViewWidth() - label.getWidth()) / 2, Renderer.getLocalInput().getViewHeight() - label.getHeight());
+                label.setPos((Renderer.getRenderer().getWindow().getWidth() - label.getWidth()) / 2, Renderer.getRenderer().getWindow().getHeight() - label.getHeight());
                 delegate.addChild(label);
                 getState().setNoDetailMode(true);
             }

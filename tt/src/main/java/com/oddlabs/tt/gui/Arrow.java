@@ -29,7 +29,7 @@ public final class Arrow extends GUIObject {
 		this.g = g;
 		this.b = b;
 		this.show_always = show_always;
-		displayChangedNotify(Renderer.getLocalInput().getViewWidth(), Renderer.getLocalInput().getViewHeight());
+		displayChangedNotify(Renderer.getRenderer().getWindow().getWidth(), Renderer.getRenderer().getWindow().getHeight());
 	}
 
 	@Override
@@ -44,17 +44,20 @@ public final class Arrow extends GUIObject {
 		if (point.w < .1f)
 			point.w = .1f;
 		float inv_w = 1/point.w;
-		point.set((point.x*inv_w + 1)*.5f*Renderer.getLocalInput().getViewWidth(), (point.y*inv_w + 1)*.5f*Renderer.getLocalInput().getViewHeight(), 0, 0);
+		point.set((point.x*inv_w + 1)*.5f*Renderer.getRenderer().getWindow().getWidth(), (point.y*inv_w + 1)*.5f*Renderer.getRenderer().getWindow().getHeight(), 0, 0);
 		return point;
 	}
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
+		var window = Renderer.getRenderer().getWindow();
+		int screen_width = window.getWidth();
+		int screen_height = window.getHeight();
 		Vector4f result = project3DTo2D(target_x, target_y, target_z);
 		float x = result.x;
 		float y = result.y;
-		float dx = x - Renderer.getLocalInput().getViewWidth()/2f;
-		float dy = y - Renderer.getLocalInput().getViewHeight()/2f;
+		float dx = x - screen_width/2f;
+		float dy = y - Renderer.getRenderer().getWindow().getHeight()/2f;
 		float dist_sqr = dx*dx + dy*dy;
 		if (dist_sqr < 1f) {
 			dx = 1f;
@@ -68,14 +71,14 @@ public final class Arrow extends GUIObject {
 		float angle = (float)Math.toDegrees(Math.acos(dx));
 		if (dy < 0f)
 			angle = 360f - angle;
-		float real_t = (x - Renderer.getLocalInput().getViewWidth()/2f)/dx;
+		float real_t = (x - screen_width/2f)/dx;
 		float t = real_t;
-		float t_min_x = (-Renderer.getLocalInput().getViewWidth()/2f)/dx;
-		float t_max_x = (Renderer.getLocalInput().getViewWidth()/2f)/dx;
+		float t_min_x = (-screen_width/2f)/dx;
+		float t_max_x = (screen_width/2f)/dx;
 		float t_x = Math.max(t_min_x, t_max_x);
 		t = Math.min(t, t_x);
-		float t_min_y = (-Renderer.getLocalInput().getViewHeight()/2f)/dy;
-		float t_max_y = (Renderer.getLocalInput().getViewHeight()/2f)/dy;
+		float t_min_y = (-screen_height/2f)/dy;
+		float t_max_y = (screen_height/2f)/dy;
 		float t_y = Math.max(t_min_y, t_max_y);
 		t = Math.min(t, t_y);
 		if (show_always || gui_root.getDelegate().getCamera().getState().inNoDetailMode() || t < real_t) {
@@ -83,7 +86,7 @@ public final class Arrow extends GUIObject {
 			float head_x = data.headX();
 			float head_y = data.headY();
 			renderer.getMatrixStack().push();
-			renderer.getMatrixStack().translate(Renderer.getLocalInput().getViewWidth()/2f + dx*t, Renderer.getLocalInput().getViewHeight()/2f + dy*t, 0f);
+			renderer.getMatrixStack().translate(screen_width/2f + dx*t, screen_height/2f + dy*t, 0f);
 			renderer.getMatrixStack().rotate(angle, 0f, 0f, 1f);
 			float val = (LocalEventQueue.getQueue().getTime()%SECONDS_PER_FLASH)/(SECONDS_PER_FLASH*.5f);
 			if (val > 1f)

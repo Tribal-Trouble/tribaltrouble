@@ -42,9 +42,9 @@ final class CampaignInGameInfo implements InGameInfo {
 	@Override
 	public void addGUI(WorldViewer viewer, @NonNull InGameMainMenu menu, @NonNull Group game_infos) {
 		menu.addAbortButton(Utils.getBundleString(Menu.bundle, "end_game"));
-		var localInput = Renderer.getLocalInput();
-		LabelBox label_objective = new LabelBox(Utils.getBundleString(Menu.bundle, "objective"), Skin.getSkin().getEditFont(), localInput.getViewWidth()/2);
-		LabelBox label_description = new LabelBox(campaign.getCurrentObjective(), Skin.getSkin().getEditFont(), localInput.getViewWidth()/2);
+		var window = Renderer.getRenderer().getWindow();
+		LabelBox label_objective = new LabelBox(Utils.getBundleString(Menu.bundle, "objective"), Skin.getSkin().getEditFont(), window.getWidth()/2);
+		LabelBox label_description = new LabelBox(campaign.getCurrentObjective(), Skin.getSkin().getEditFont(), window.getWidth()/2);
 		game_infos.addChild(label_objective);
 		game_infos.addChild(label_description);
 		label_objective.place();

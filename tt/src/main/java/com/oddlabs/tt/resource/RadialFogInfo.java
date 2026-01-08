@@ -20,9 +20,8 @@ public final class RadialFogInfo extends FogInfo {
             return superState;
         }
 
-        var localInput = Renderer.getLocalInput();
-        int viewWidth = localInput.getViewWidth();
-        int viewHeight = localInput.getViewHeight();
+        int viewWidth = Renderer.getRenderer().getWindow().getWidth();
+        int viewHeight = Renderer.getRenderer().getWindow().getHeight();
 
         shader.setUniform(FogShader.FOG_COLOR, color.x(), color.y(), color.z(), color.w());
         shader.setUniform(FogShader.FOG_MODE, FogShader.FOG_MODE_RADIAL);

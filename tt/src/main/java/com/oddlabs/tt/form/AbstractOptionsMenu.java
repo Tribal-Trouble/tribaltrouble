@@ -178,10 +178,10 @@ public abstract class AbstractOptionsMenu extends Form {
         // Fullscreen
         Group group_fullscreen = new Group();
         display.addChild(group_fullscreen);
-        CheckBox cb_fullscreen = new CheckBox(Renderer.getLocalInput().inFullscreen(), Utils.getBundleString(bundle, "fullscreen"), Utils.getBundleString(bundle, "fullscreen_tip"));
+        CheckBox cb_fullscreen = new CheckBox(Renderer.getRenderer().getWindow().isFullscreen(), Utils.getBundleString(bundle, "fullscreen"), Utils.getBundleString(bundle, "fullscreen_tip"));
         cb_fullscreen.addCheckBoxListener(_ -> {
             DisplayChangeForm display_change_form = new DisplayChangeForm(
-                    switch_now -> Renderer.getLocalInput().toggleFullscreen());
+                    switch_now -> Renderer.getRenderer().toggleFullscreen());
             gui_root.addModalForm(display_change_form);
         });
         group_fullscreen.addChild(cb_fullscreen);
@@ -231,12 +231,19 @@ public abstract class AbstractOptionsMenu extends Form {
         Label mode_label = new Label(Utils.getBundleString(bundle, "display_mode"), Skin.getSkin().getEditFont());
         mode_group.addChild(mode_label);
 
-        ColumnInfo[] mode_infos = new ColumnInfo[]{new ColumnInfo("", 150)};
-        MultiColumnComboBox<SerializableDisplayMode> mode_list_box = new MultiColumnComboBox<>(gui_root, mode_infos, 200, false);
+                ColumnInfo[] mode_infos = new ColumnInfo[]{new ColumnInfo("", 150)};
 
-        SerializableDisplayMode[] modes = Renderer.getRenderer().getWindow().getAvailableDisplayModes();
-        SerializableDisplayMode current_mode = Renderer.getRenderer().getLocalInput().getCurrentMode();
-        Row<SerializableDisplayMode, Label> current_row = null;
+                MultiColumnComboBox<SerializableDisplayMode> mode_list_box = new MultiColumnComboBox<>(gui_root, mode_infos, 200, false);
+
+        
+
+                SerializableDisplayMode[] modes = Renderer.getRenderer().getWindow().getAvailableDisplayModes();
+
+                SerializableDisplayMode current_mode = Renderer.getRenderer().getCurrentDisplayMode();
+
+                
+
+                Row<SerializableDisplayMode, Label> current_row = null;
         for (int i = 0; i < modes.length; i++) {
             if (modes[i].getBitsPerPixel() == current_mode.getBitsPerPixel()) {
                 String mode_string = Utils.getBundleString(bundle, "mode", Integer.toString(modes[i].getWidth()), Integer.toString(modes[i].getHeight()), Integer.toString(modes[i].getFrequency()));
@@ -253,7 +260,7 @@ public abstract class AbstractOptionsMenu extends Form {
             @Override
             public void rowChosen(SerializableDisplayMode mode) {
                 gui_root.addModalForm(new DisplayChangeForm(switch_now -> {
-                    Renderer.getLocalInput().switchMode(mode, switch_now);
+                    Renderer.getRenderer().switchMode(mode, switch_now);
                     gui_root.displayChanged();
                 }));
             }

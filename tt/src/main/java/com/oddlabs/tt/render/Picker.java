@@ -239,7 +239,8 @@ public final class Picker implements Updatable<TimerAnimation> {
 
 	private Selectable<?> @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter) {
 		List<Selectable<?>> result = new ArrayList<>();
-		Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, Renderer.getLocalInput().getViewWidth() - 1, Renderer.getLocalInput().getViewHeight() - 1, 2);
+		var window = Renderer.getRenderer().getWindow();
+		Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, window.getWidth() - 1, window.getHeight() - 1, 2);
             for (Selectable<?> selectable : complete_list) {
                 if (selectable.getAbilities().hasAbilities(ability_filter)) {
                     result.add(selectable);
@@ -251,7 +252,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 	}
 
 	public void pickRotate(@NonNull GameCamera camera) {
-		int x = Renderer.getLocalInput().getViewWidth()/2;
+		int x = Renderer.getRenderer().getWindow().getWidth()/2;
 		int y = camera.getRotateY();
 		setupPicking(camera.getState(), x, y, PICK_SIZE, PICK_SIZE);
 		if (!nearestLandscape(x, y) || patch_hit_z < local_player.getWorld().getHeightMap().getSeaLevelMeters()) {
@@ -505,7 +506,8 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 	private void setupPicking(@NonNull CameraState camera, float x_center, float y_center, int width, int height) {
 		proj.identity();
 		viewport.clear();
-		viewport.put(0).put(0).put(Renderer.getLocalInput().getViewWidth()).put(Renderer.getLocalInput().getViewHeight());
+		var window = Renderer.getRenderer().getWindow();
+		viewport.put(0).put(0).put(window.getWidth()).put(window.getHeight());
 		viewport.flip();
 
 		if (width > 0 && height > 0) {

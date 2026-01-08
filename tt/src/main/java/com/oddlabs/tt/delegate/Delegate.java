@@ -18,8 +18,8 @@ public abstract class Delegate extends GUIObject {
 	Delegate() {
 		setPos(0, 0);
 		setCanFocus(true);
-		var localInput = Renderer.getLocalInput();
-		setDim(localInput.getViewWidth(), localInput.getViewHeight());
+		var window = Renderer.getRenderer().getWindow();
+		setDim(window.getWidth(), window.getHeight());
 	}
 
 	@Override
@@ -30,8 +30,8 @@ public abstract class Delegate extends GUIObject {
 	@Override
 	protected void doAdd() {
 		super.doAdd();
-		var localInput = Renderer.getLocalInput();
-        displayChanged(localInput.getViewWidth(), localInput.getViewHeight());
+		var window = Renderer.getRenderer().getWindow();
+        displayChanged(window.getWidth(), window.getHeight());
 		setFocus();
 	}
 

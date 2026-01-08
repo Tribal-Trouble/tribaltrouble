@@ -43,7 +43,7 @@ final class Fade {
 
 	void render(@NonNull GUIRenderer guiRenderer) {
 		float alpha = (float)Math.sin(Math.PI*time/FADE_TIME);
-		var localInput = Renderer.getLocalInput();
-		guiRenderer.drawColoredQuad(0, 0, localInput.getViewWidth(), localInput.getViewHeight(), new Vector4f(0f, 0f, 0f, alpha));
+		var window = Renderer.getRenderer().getWindow();
+		guiRenderer.drawColoredQuad(0, 0, window.getWidth(), window.getHeight(), new Vector4f(0f, 0f, 0f, alpha));
 	}
 }

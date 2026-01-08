@@ -37,7 +37,8 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
 	public GameStatsDelegate(@NonNull WorldViewer viewer, @NonNull Camera old_camera, @NonNull String label_str) {
 		super(viewer.getGUIRoot(), new StaticCamera(old_camera.getState()));
 		this.viewer = viewer;
-		setDim(Renderer.getLocalInput().getViewWidth(), Renderer.getLocalInput().getViewHeight());
+		var window = Renderer.getRenderer().getWindow();
+		setDim(window.getWidth(), window.getHeight());
 		Label label = new Label(label_str, Skin.getSkin().getHeadlineFont());
 		addChild(label);
 		label.setPos((getWidth() - label.getWidth())/2, (getHeight() - label.getHeight())*4/5);
