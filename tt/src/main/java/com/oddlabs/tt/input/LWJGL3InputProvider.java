@@ -108,8 +108,9 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
         });
 
         glfwSetCursorPosCallback(windowHandle, (window, xpos, ypos) -> {
-             this.mouseX = xpos;
-             this.mouseY = this.window.getHeight() - ypos - 1; // Invert Y for OpenGL coords
+             float[] scale = this.window.getWindowContentScale();
+             this.mouseX = xpos * scale[0];
+             this.mouseY = this.window.getHeight() - (ypos * scale[1]) - 1; // Invert Y for OpenGL coords and scale
              synchronized (mouseEvents) {
                  mouseEvents.add(new MouseEvent(-1, false, (int)mouseX, (int)mouseY, 0));
              }
@@ -230,7 +231,14 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
 
     @Override
     public void setCursorPosition(int x, int y) {
-        glfwSetCursorPos(windowHandle, x, this.window.getHeight() - y - 1);
+        float[] scale = this.window.getWindowContentScale();
+        // Convert OpenGL pixels back to screen coordinates
+        // Y inversion: pixelY = height - screenY * scale - 1
+        // screenY * scale = height - pixelY - 1
+        // screenY = (height - pixelY - 1) / scale
+        double screenX = x / (double)scale[0];
+        double screenY = (this.window.getHeight() - y - 1) / (double)scale[1];
+        glfwSetCursorPos(windowHandle, screenX, screenY);
     }
 
     @Override
@@ -248,6 +256,8 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
         // cursor object would be GLFW cursor handle (Long)
         if (null != cursor && cursor != MemoryUtil.NULL) {
             glfwSetCursor(windowHandle, cursor);
+        } else {
+            glfwSetCursor(windowHandle, MemoryUtil.NULL);
         }
     }
 }

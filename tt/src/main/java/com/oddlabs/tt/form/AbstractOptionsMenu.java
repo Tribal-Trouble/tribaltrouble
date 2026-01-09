@@ -179,9 +179,15 @@ public abstract class AbstractOptionsMenu extends Form {
         Group group_fullscreen = new Group();
         display.addChild(group_fullscreen);
         CheckBox cb_fullscreen = new CheckBox(Settings.getSettings().fullscreen, Utils.getBundleString(bundle, "fullscreen"), Utils.getBundleString(bundle, "fullscreen_tip"));
-        cb_fullscreen.addCheckBoxListener(_ -> {
+        cb_fullscreen.addCheckBoxListener(marked -> {
             DisplayChangeForm display_change_form = new DisplayChangeForm(
-                    switch_now -> Renderer.getRenderer().toggleFullscreen());
+                    switch_now -> {
+                        if (switch_now) {
+                            Renderer.getRenderer().toggleFullscreen();
+                        } else {
+                            Settings.getSettings().fullscreen = marked;
+                        }
+                    });
             gui_root.addModalForm(display_change_form);
         });
         group_fullscreen.addChild(cb_fullscreen);
@@ -254,7 +260,9 @@ public abstract class AbstractOptionsMenu extends Form {
             public void rowChosen(SerializableDisplayMode mode) {
                 gui_root.addModalForm(new DisplayChangeForm(switch_now -> {
                     Renderer.getRenderer().switchMode(mode, switch_now);
-                    gui_root.displayChanged(mode.getWidth(), mode.getHeight());
+                    if (switch_now) {
+                        gui_root.displayChanged(mode.getWidth(), mode.getHeight());
+                    }
                 }));
             }
         });

@@ -205,11 +205,13 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         postProcessor.renderComposite();
     }
 
-    @Override
-    public void render(@NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
-        postProcessor.resize(frustum_state.getWidth(), frustum_state.getHeight());
-        ambient.updateSoundListener(frustum_state, world.getHeightMap());
-
+                @Override
+                public void render(@NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
+                    if (postProcessor.resize(frustum_state.getWidth(), frustum_state.getHeight())) {
+                        postProcessor.bindSceneFBO();
+                        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+                    }
+                    ambient.updateSoundListener(frustum_state, world.getHeightMap());
         modelViewStack.current().set(frustum_state.getModelView());
         projectionStack.current().set(frustum_state.getProjectionMatrix());
 

@@ -60,6 +60,7 @@ import static org.lwjgl.glfw.GLFW.glfwSetWindowIcon;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSize;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeLimits;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowTitle;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
@@ -101,15 +102,20 @@ public final class LWJGL3Window implements Window {
                 glfwSetWindowMonitor(windowHandle, monitor, 0, 0, mode.getWidth(), mode.getHeight(), refreshRate);
             } else {
                 // Windowed mode: center on screen
-                GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-                int x = (vidmode.width() - mode.getWidth()) / 2;
-                int y = (vidmode.height() - mode.getHeight()) / 2;
-                glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, x, y, mode.getWidth(), mode.getHeight(), refreshRate);
+                long currentMonitor = getCurrentMonitor();
+                GLFWVidMode vidmode = glfwGetVideoMode(currentMonitor);
+                if (vidmode != null) {
+                    int x = (vidmode.width() - mode.getWidth()) / 2;
+                    int y = (vidmode.height() - mode.getHeight()) / 2;
+                    glfwSetWindowMonitor(windowHandle, MemoryUtil.NULL, x, y, mode.getWidth(), mode.getHeight(), refreshRate);
+                }
             }
             
             if (!fullscreen) {
                 glfwSetWindowSize(windowHandle, mode.getWidth(), mode.getHeight());
             }
+            
+            glfwSetWindowSizeLimits(windowHandle, 800, 600, GLFW_DONT_CARE, GLFW_DONT_CARE);
             
             return;
         }
@@ -138,6 +144,8 @@ public final class LWJGL3Window implements Window {
         if (windowHandle == MemoryUtil.NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
+
+        glfwSetWindowSizeLimits(windowHandle, 800, 600, GLFW_DONT_CARE, GLFW_DONT_CARE);
 
         // Center the window if not fullscreen
         if (!fullscreen) {
@@ -323,7 +331,7 @@ public final class LWJGL3Window implements Window {
                 .filter(SerializableDisplayMode::isModeValid)
                 .collect(Collectors.toMap(
                         // Only offer one mode per resolution, the highest bpp and frequency
-                        mode -> mode.getWidth() << 16 + mode.getHeight(),
+                        mode -> (mode.getWidth() << 16) + mode.getHeight(),
                         Function.identity(),
                         BinaryOperator.maxBy(Comparator.comparing(SerializableDisplayMode::getBitsPerPixel)
                                 .thenComparing(SerializableDisplayMode::getFrequency))

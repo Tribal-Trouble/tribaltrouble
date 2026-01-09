@@ -53,11 +53,12 @@ public final class PostProcessor implements AutoCloseable {
         this.vao.unbind();
     }
 
-    public void resize(int width, int height) {
-        if (this.currentWidth == width && this.currentHeight == height) return;
+    public boolean resize(int width, int height) {
+        if (this.currentWidth == width && this.currentHeight == height) return false;
         this.currentWidth = width;
         this.currentHeight = height;
         sceneFBO.resize(width, height);
+        return true;
     }
 
     public void bindSceneFBO() {
