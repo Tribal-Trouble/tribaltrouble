@@ -1,5 +1,6 @@
 package com.oddlabs.tt.resource;
 
+import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.render.shader.FogShader;
 import com.oddlabs.tt.util.GLState;
 import org.joml.Vector4fc;
@@ -31,8 +32,8 @@ public final class DistanceFogInfo extends FogInfo {
     }
 
     @Override
-    public @NonNull GLState setup(@NonNull FogShader shader, float camera_z) {
-        GLState superState = super.setup(shader, camera_z);
+    public @NonNull GLState setup(@NonNull FogShader shader, @NonNull CameraState camera_state) {
+        GLState superState = super.setup(shader, camera_state);
         if (!isEnabled() || mode == Mode.NONE) {
             return superState;
         }
@@ -45,7 +46,7 @@ public final class DistanceFogInfo extends FogInfo {
         shader.setUniform(FogShader.FOG_COLOR, color.x(), color.y(), color.z(), color.w());
         shader.setUniform(FogShader.FOG_PARAMS, density, start, end);
         shader.setUniform(FogShader.FOG_HEIGHT_FACTOR, height_factor);
-        shader.setUniform(FogShader.CAMERA_HEIGHT, camera_z);
+        shader.setUniform(FogShader.CAMERA_HEIGHT, camera_state.getCurrentZ());
         
         return superState; // The close action is the same as the parent
     }

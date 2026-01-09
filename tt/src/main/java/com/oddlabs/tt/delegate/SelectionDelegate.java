@@ -7,7 +7,6 @@ import com.oddlabs.tt.gui.ActionButtonPanel;
 import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.input.Key;
@@ -58,12 +57,11 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		String observer_mode = Utils.getBundleString(ResourceBundle.getBundle(SelectionDelegate.class.getName()), "observer_mode");
 		this.observer_label = new Label(observer_mode, Skin.getSkin().getHeadlineFont());
 		this.game_camera = (GameCamera)getCamera();
-		var localInput = Renderer.getLocalInput();
-		displayChangedNotify(Renderer.getRenderer().getWindow().getWidth(), Renderer.getRenderer().getWindow().getHeight());
+		displayChangedNotify(getGUIRoot().getWidth(), getGUIRoot().getHeight());
 		addChild(getViewer().getPanel());
 		chat_form = new InGameChatForm(getViewer().getGUIRoot().getInfoPrinter(), getViewer());
 		chat_form.addCloseListener(() -> {
-			if (localInput.isKeyDown(Key.RETURN)) {
+			if (Renderer.getLocalInput().isKeyDown(Key.RETURN)) {
 				close_chat_override = true;
 			}
 			chat_visible = false;

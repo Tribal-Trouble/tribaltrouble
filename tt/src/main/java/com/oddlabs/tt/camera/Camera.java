@@ -5,9 +5,7 @@ import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.KeyboardEvent;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.landscape.HeightMap;
-import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.StateChecksum;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -88,23 +86,22 @@ public abstract class Camera implements Animated {
                 state.setTargetX(dx*scale + mid);
                 state.setTargetY(dy*scale + mid);
         }
-        if (!bounce(state.getTargetX(), state.getTargetY(), state.getTargetZ())) {
+        if (!bounce(state.getTargetX(), state.getTargetY(), state.getTargetZ(), state.getWidth(), state.getHeight())) {
             if (state.getTargetZ() > GameCamera.MAX_Z)
                 state.setTargetZ(GameCamera.MAX_Z);
         }
     }
 
-    protected final boolean bounce(float x, float y, float z) {
+    protected final boolean bounce(float x, float y, float z, int width, int height) {
         boolean bounced = false;
         viewport.clear();
-        var window = Renderer.getRenderer().getWindow();
-        viewport.put(0).put(0).put(window.getWidth()).put(window.getHeight());
+        viewport.put(0).put(0).put(width).put(height);
         viewport.flip();
 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 float fovy = Globals.FOV;
-                float aspect = window.getViewAspect();
+                float aspect = (float)width / height;
                 float zNear = Globals.VIEW_MIN;
                 float zFar = Globals.VIEW_MAX;
                 proj.setPerspective((float)Math.toRadians(fovy), aspect, zNear, zFar);
@@ -112,10 +109,7 @@ public abstract class Camera implements Animated {
                 tmp_camera.setTargetView(proj);
 
                 Matrix4f combinedMatrix = new Matrix4f(proj).mul(tmp_camera.getModelView());
-                unproject(i*window.getWidth(),
-                                j*window.getHeight(),
-                                0f,
-                                tmp_camera.getModelView(), combinedMatrix);
+                unproject(i*width, j*height, 0f, tmp_camera.getModelView(), combinedMatrix);
                 float hit_x = hit_result_array[0];
                 float hit_y = hit_result_array[1];
                 float hit_z = hit_result_array[2];

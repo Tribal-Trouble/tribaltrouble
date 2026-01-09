@@ -10,8 +10,6 @@ import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.BuildingTemplate;
-import com.oddlabs.tt.model.Selectable;
-import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 import com.oddlabs.tt.player.BuildingSiteScanFilter;
 import com.oddlabs.tt.render.BuildingSiteRenderer;
@@ -110,7 +108,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
         Sprite sprite = built_renderer.getSpriteList().getSprite(0);
 
         try (var _ = spriteShader.use();
-             var _ = state.getFog().setup(spriteShader, state.getCurrentZ())) {
+             var _ = state.getFog().setup(spriteShader, state)) {
             
                             spriteShader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
                             spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);

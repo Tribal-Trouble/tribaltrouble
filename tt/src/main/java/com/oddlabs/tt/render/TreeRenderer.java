@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 import java.util.logging.Logger;
 
-public final class TreeRenderer extends TreePicker {
+public final class TreeRenderer extends TreePicker implements SceneRenderer {
     private static final Logger logger = Logger.getLogger(TreeRenderer.class.getName());
     private final InstancedSpriteRenderer instancedSpriteRenderer;
     private final WaveAnimation wave_animation = new WaveAnimation();
@@ -27,7 +27,8 @@ public final class TreeRenderer extends TreePicker {
         this.instancedSpriteRenderer = instancedSpriteRenderer;
     }
 
-    void renderAll(@NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    @Override
+    public void render(@NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         wave_animation.setTime(LocalEventQueue.getQueue().getTime());
         
         if (!Globals.draw_trees || !cheat.draw_trees) {

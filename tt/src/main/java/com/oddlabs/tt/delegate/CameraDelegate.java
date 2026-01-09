@@ -14,7 +14,7 @@ public abstract class CameraDelegate<C extends Camera> extends Delegate {
 		this.gui_root = gui_root;
 	}
 
-	protected final @NonNull GUIRoot getGUIRoot() {
+	public final @NonNull GUIRoot getGUIRoot() {
 		return gui_root;
 	}
 

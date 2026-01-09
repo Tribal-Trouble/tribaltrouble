@@ -66,7 +66,7 @@ public final class EmitterRenderer implements AutoCloseable {
         batches.clear();
 
         try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state.getCurrentZ())) {
+             var _ = state.getFog().setup(shader, state)) {
 
             if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
             if (depthMaskEnabled) GL11.glDepthMask(false);

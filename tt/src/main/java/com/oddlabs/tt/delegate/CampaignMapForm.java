@@ -10,7 +10,6 @@ import com.oddlabs.tt.gui.GUIIcon;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MapIslandData;
 import com.oddlabs.tt.gui.ModeIconQuads;
 import com.oddlabs.tt.gui.MouseButton;
@@ -39,9 +38,8 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 		this.network = network;
 		final ResourceBundle bundle = ResourceBundle.getBundle(CampaignMapForm.class.getName());
 
-		var window = Renderer.getRenderer().getWindow();
-		float scale_x = window.getWidth()/(float)base_width;
-		float scale_y = window.getHeight()/(float)base_height;
+		float scale_x = gui_root.getWidth()/(float)base_width;
+		float scale_y = gui_root.getHeight()/(float)base_height;
 		setScale(scale_x, scale_y);
 		if (campaign.getState().getRace() == CampaignState.RACE_VIKINGS) {
 			if (campaign.getState().getIslandState(10) != CampaignState.ISLAND_HIDDEN) {

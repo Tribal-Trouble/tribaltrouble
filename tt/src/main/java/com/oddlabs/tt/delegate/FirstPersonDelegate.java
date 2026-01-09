@@ -16,7 +16,7 @@ public class FirstPersonDelegate extends InGameDelegate {
 	private boolean done = false;
 
 	public FirstPersonDelegate(@NonNull WorldViewer viewer, @NonNull CameraState camera_state, boolean key_pressed) {
-		super(viewer, new FirstPersonCamera(viewer.getWorld().getHeightMap(), camera_state));
+		super(viewer, new FirstPersonCamera(viewer, viewer.getWorld().getHeightMap(), camera_state));
 		this.key_pressed = key_pressed;
 		created_tick = LocalEventQueue.getQueue().getManager().getTick();
 	}

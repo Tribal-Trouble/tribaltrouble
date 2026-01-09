@@ -3,7 +3,6 @@ package com.oddlabs.tt.render;
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.net.NetworkSelector;
-import com.oddlabs.net.TaskThread;
 import com.oddlabs.tt.Main;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.animation.TimerAnimation;
@@ -12,7 +11,6 @@ import com.oddlabs.tt.audio.AbstractAudioPlayer;
 import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
-import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.MenuCamera;
 import com.oddlabs.tt.delegate.MainMenu;
 import com.oddlabs.tt.event.LocalEventQueue;
@@ -26,8 +24,6 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Languages;
 import com.oddlabs.tt.gui.LocalInput;
-import com.oddlabs.tt.input.InputProvider;
-import com.oddlabs.tt.input.LWJGL3InputProvider;
 import com.oddlabs.tt.landscape.LandscapeResources;
 import com.oddlabs.tt.landscape.NotificationListener;
 import com.oddlabs.tt.landscape.World;
@@ -49,7 +45,6 @@ import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
 import com.oddlabs.tt.window.Window;
-import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -87,8 +82,6 @@ public final class Renderer implements AutoCloseable {
 	private @Nullable TimerAnimation music_timer;
 
 	private static volatile boolean finished = false;
-
-	private final CameraState frustum_state = new CameraState();
 
     private boolean movie_recording_started = false;
 	private AmbientAudio ambient;
@@ -137,28 +130,6 @@ public final class Renderer implements AutoCloseable {
 		AnimationManager.runGameLoop(network, gui, grab_frames);
 	}
 
-	private void setupMatrices(@NonNull GUIRoot gui_root, @NonNull Matrix4f proj, @NonNull Matrix4f modelView) {
-		proj.identity();
-		multProjection(proj);
-		CameraState camera = gui_root.getDelegate().getCamera().getState();
-		camera.setView(proj);
-		modelView.set(camera.getModelView());
-
-		if (!Globals.frustum_freeze) {
-			frustum_state.set(camera);
-		}
-	}
-
-	public static void multProjection(@NonNull Matrix4f matrix) {
-		float fovy = Globals.FOV;
-		float aspect = Renderer.getRenderer().getWindow().getViewAspect();
-		float zNear = Globals.VIEW_MIN;
-		float zFar = Globals.VIEW_MAX;
-
-		Matrix4f perspectiveMatrix = new Matrix4f().perspective((float)Math.toRadians(fovy), aspect, zNear, zFar);
-		matrix.mul(perspectiveMatrix);
-	}
-
 	public static void registerTrianglesRendered(int count) {
 		num_triangles_rendered += count;
 	}
@@ -172,14 +143,8 @@ public final class Renderer implements AutoCloseable {
 		fps.updateDelta(System.currentTimeMillis());
         NativeResource.processGLCleanupTasks();
         GLUtils.checkGLError("After Cleanup");
-		Matrix4f proj = new Matrix4f();
-		Matrix4f modelView = new Matrix4f();
-		setupMatrices(gui.getGUIRoot(), proj, modelView);
-		gui.render(ambient, frustum_state, proj, modelView);
-	}
 
-	public static void shutdownWithQuitScreen(GUIRoot gui_root) {
-		shutdown();
+		gui.render(ambient);
 	}
 
 	public static void shutdown() {
@@ -585,7 +550,7 @@ public final class Renderer implements AutoCloseable {
 						Settings.getSettings().view_height = height;
 						GL11.glViewport(0, 0, width, height);
 						initGL();
-						gui.getGUIRoot().displayChanged();
+						gui.getGUIRoot().displayChanged(width, height);
 					}
 					display(gui);
 					if (first_frame) {
@@ -687,7 +652,7 @@ public final class Renderer implements AutoCloseable {
 		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, manager);
 		Player local_player = world.getPlayers()[0];
 		Selection selection = new Selection(local_player);
-		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, world_info, landscape_renderer, new Picker(manager, local_player, render_queues, landscape_renderer, selection), selection, generator, modelViewStack, projectionStack);
+		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, world_info, landscape_renderer, new Picker(manager, local_player, gui_root, render_queues, landscape_renderer, selection), selection, generator, modelViewStack, projectionStack);
         Renderer.getRenderer().setMusicPath("/music/menu.ogg", 0f);
 		MainMenu main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
 		gui_root.pushDelegate(main_menu);
@@ -771,7 +736,7 @@ public final class Renderer implements AutoCloseable {
             modeSwitchedLater(mode);
     }
 
-    public void setModeToNearest(@NonNull SerializableDisplayMode mode) throws Exception {
+    public void setModeToNearest(@NonNull SerializableDisplayMode mode) {
         // Use window create to ensure window is created/resized
         boolean fs = Settings.getSettings().fullscreen;
         window.create(mode, fs);
@@ -878,6 +843,14 @@ public final class Renderer implements AutoCloseable {
             }
             logger.info("Setting icon from: " + iconPath.toAbsolutePath());
             window.setIcon(iconPath);
+
+            int[] physSize = window.getMonitorPhysicalSize();
+            logger.info("Monitor Physical Size: " + physSize[0] + "mm x " + physSize[1] + "mm");
+            float[] monScale = window.getMonitorContentScale();
+            logger.info("Monitor Content Scale: " + monScale[0] + "x, " + monScale[1] + "y");
+            float[] winScale = window.getWindowContentScale();
+            logger.info("Window Content Scale: " + winScale[0] + "x, " + winScale[1] + "y");
+
 //if (System.currentTimeMillis() > 0)
 //throw new LWJGLException("It failed because you asked it to.");
 		} catch (Exception e) {

@@ -166,7 +166,7 @@ public final class AnimationManager {
 				network.tick();
 				PointerInput.poll(gui.getGUIRoot());
 				KeyboardInput.poll(gui.getGUIRoot());
-				if (deterministic.log(Renderer.getRenderer().getWindow() != null && Renderer.getRenderer().getWindow().isCloseRequested())) {
+				if (deterministic.log(Renderer.getRenderer().getWindow().isOpen() && Renderer.getRenderer().getWindow().isCloseRequested())) {
 					gui.getGUIRoot().addModalForm(new QuitForm(gui.getGUIRoot()));
 				}
 				pathfindsPerTick.updateAbsolute(PathFinder.stat_pathfinder_per_frame);

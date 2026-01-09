@@ -88,6 +88,7 @@ public final class Water implements AutoCloseable {
         GL20.glVertexAttribPointer(posLoc, 3, GL11.GL_FLOAT, false, 0, 0L);
     }
 
+
     public void render(@NonNull CameraState state, @NonNull List<LandscapeLeaf> visiblePatches) {
         updateAnimation();
 
@@ -96,7 +97,7 @@ public final class Water implements AutoCloseable {
         boolean cullFaceEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
 
         try (var _ = waterShader.use();
-             var _ = state.getFog().setup(waterShader, state.getCurrentZ())) {
+             var _ = state.getFog().setup(waterShader, state)) {
 
             if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
             if (!depthTestEnabled) GL11.glEnable(GL11.GL_DEPTH_TEST);

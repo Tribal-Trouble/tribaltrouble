@@ -9,14 +9,12 @@ import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.IntegerLabel;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Row;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.SortedLabel;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -37,8 +35,7 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
 	public GameStatsDelegate(@NonNull WorldViewer viewer, @NonNull Camera old_camera, @NonNull String label_str) {
 		super(viewer.getGUIRoot(), new StaticCamera(old_camera.getState()));
 		this.viewer = viewer;
-		var window = Renderer.getRenderer().getWindow();
-		setDim(window.getWidth(), window.getHeight());
+		setDim(getGUIRoot().getWidth(), getGUIRoot().getHeight());
 		Label label = new Label(label_str, Skin.getSkin().getHeadlineFont());
 		addChild(label);
 		label.setPos((getWidth() - label.getWidth())/2, (getHeight() - label.getHeight())*4/5);

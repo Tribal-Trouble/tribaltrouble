@@ -3,12 +3,11 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.gui.GUIObject;
-import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.RenderQueues;
-import com.oddlabs.tt.render.Renderer;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
@@ -18,8 +17,6 @@ public abstract class Delegate extends GUIObject {
 	Delegate() {
 		setPos(0, 0);
 		setCanFocus(true);
-		var window = Renderer.getRenderer().getWindow();
-		setDim(window.getWidth(), window.getHeight());
 	}
 
 	@Override
@@ -30,8 +27,10 @@ public abstract class Delegate extends GUIObject {
 	@Override
 	protected void doAdd() {
 		super.doAdd();
-		var window = Renderer.getRenderer().getWindow();
-        displayChanged(window.getWidth(), window.getHeight());
+		GUIRoot root = getParentGUIRoot();
+		if (root != null) {
+			displayChanged(root.getWidth(), root.getHeight());
+		}
 		setFocus();
 	}
 

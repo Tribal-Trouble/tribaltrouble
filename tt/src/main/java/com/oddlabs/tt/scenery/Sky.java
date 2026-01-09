@@ -9,6 +9,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.procedural.TextureGenerator;
 import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.MatrixStack;
+import com.oddlabs.tt.render.SceneRenderer;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.render.shader.SeaBottomShader;
 import com.oddlabs.tt.render.shader.SkyShader;
@@ -40,7 +41,7 @@ import java.util.stream.IntStream;
 import static com.oddlabs.tt.procedural.Landscape.NATIVE_SEA_BOTTOM_COLOR;
 import static com.oddlabs.tt.procedural.Landscape.VIKING_SEA_BOTTOM_COLOR;
 
-public final class Sky implements AutoCloseable {
+public final class Sky implements SceneRenderer, AutoCloseable {
     private static final float[] SKYDOME_SPEED_OUTER = {0.2f, 0f};
     private static final float[] SKYDOME_SPEED_INNER = {0.4f, 0f};
     private static final float SKYDOME_HEIGHT = 0f;
@@ -125,6 +126,7 @@ public final class Sky implements AutoCloseable {
         this(renderer, terrain, (float) (renderer.getHeightMap().getMetersPerWorld() * Math.sqrt(2) / 2), 6000f, 20, 20, SKYDOME_OUTER_UTILING, SKYDOME_OUTER_VTILING, SKYDOME_INNER_UTILING, SKYDOME_INNER_VTILING, renderer.getHeightMap().getMetersPerWorld() / 2, renderer.getHeightMap().getMetersPerWorld() / 2, SKYDOME_HEIGHT, detail);
     }
 
+    @Override
     public void render(@NonNull CameraState state, @NonNull MatrixStack modelView, @NonNull MatrixStack projection) {
         try (var _ = skyShader.use()) {
             skyShader.setUniformMatrix4(SkyShader.Uniforms.PROJECTION_MATRIX, false, projection.current());
@@ -229,7 +231,7 @@ public final class Sky implements AutoCloseable {
 
     public void renderSeaBottom(@NonNull CameraState state, @NonNull MatrixStack modelView, @NonNull MatrixStack projection) {
         try (var _ = seaBottomShader.use();
-             var _ = state.getFog().setup(seaBottomShader, state.getCurrentZ())) {
+             var _ = state.getFog().setup(seaBottomShader, state)) {
             seaBottomShader.setUniformMatrix4(SeaBottomShader.Uniforms.PROJECTION_MATRIX, false, projection.current());
             seaBottomShader.setUniformMatrix4(SeaBottomShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
 

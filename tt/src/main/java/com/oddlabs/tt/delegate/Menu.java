@@ -13,7 +13,6 @@ import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.net.Client;
@@ -71,9 +70,8 @@ public abstract class Menu extends CameraDelegate<Camera> {
 
     private void init() {
         clearChildren();
-        var window = Renderer.getRenderer().getWindow();
-        int screen_width = window.getWidth();
-        int screen_height = window.getHeight();
+        int screen_width = getGUIRoot().getWidth();
+        int screen_height = getGUIRoot().getHeight();
         overlay = new GUIImage(screen_width, screen_height, 0f, 0f, (float) overlay_image_width / overlay_texture_width, (float) overlay_image_height / overlay_texture_height, overlay_texture_name);
         overlay.setPos(0, 0);
         addChild(overlay);
@@ -106,8 +104,7 @@ public abstract class Menu extends CameraDelegate<Camera> {
         init();
         addButtons();
 
-        var window = Renderer.getRenderer().getWindow();
-        displayChangedNotify(window.getWidth(), window.getHeight());
+        displayChangedNotify(getGUIRoot().getWidth(), getGUIRoot().getHeight());
     }
 
     @Override
@@ -211,7 +208,7 @@ public abstract class Menu extends CameraDelegate<Camera> {
     }
 
     private void positionMenu() {
-        current_menu.setPos(MENU_X, (Renderer.getRenderer().getWindow().getHeight() - current_menu.getHeight()) * 2 / 3);
+        current_menu.setPos(MENU_X, (getGUIRoot().getHeight() - current_menu.getHeight()) * 2 / 3);
     }
 
 	protected final void addResumeButton() {

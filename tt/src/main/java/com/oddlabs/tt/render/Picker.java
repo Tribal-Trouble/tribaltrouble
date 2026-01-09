@@ -7,7 +7,7 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.MapCamera;
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.LandscapeLeaf;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.landscape.LandscapeTargetRespond;
@@ -35,6 +35,7 @@ import org.lwjgl.BufferUtils;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -68,6 +69,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 	private final @NonNull RenderQueues render_queues;
 	private final @NonNull RespondManager respond_manager;
 	private final @NonNull Player local_player;
+	private final @NonNull GUIRoot gui_root;
 
 	private @Nullable Target current_hovered;
 	private @Nullable ToolTip current_tooltip;
@@ -87,8 +89,9 @@ public final class Picker implements Updatable<TimerAnimation> {
 
 	private @Nullable Target old_set_target_target;
 	
-	public Picker(@NonNull AnimationManager manager, @NonNull Player local_player, @NonNull RenderQueues render_queues, @NonNull LandscapeRenderer landscape_renderer, Selection selection) {
+	public Picker(@NonNull AnimationManager manager, @NonNull Player local_player, @NonNull GUIRoot gui_root, @NonNull RenderQueues render_queues, @NonNull LandscapeRenderer landscape_renderer, Selection selection) {
 		this.local_player = local_player;
+		this.gui_root = gui_root;
 		this.render_queues = render_queues;
 		this.sprite_sorter = new SpriteSorter();
 		this.respond_manager = new RespondManager(manager);
@@ -157,7 +160,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 		return new_target;
 	}
 
-	private boolean isNewLandscapeTarget(Selectable @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive) {
+	private boolean isNewLandscapeTarget(Selectable<?> @NonNull [] selection, int grid_x, int grid_y, @NonNull Action action, boolean aggressive) {
 		old_set_target_target = null;
 		
 		boolean new_target = isNewOrder(selection, action, aggressive);
@@ -170,7 +173,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 		return new_target;
 	}
 
-	private boolean isNewOrder(Selectable @NonNull [] selection, @NonNull Action action, boolean aggressive) {
+	private boolean isNewOrder(Selectable<?> @NonNull [] selection, @NonNull Action action, boolean aggressive) {
 		boolean new_order = false;
 		if (selection.length == old_target_selection.length) {
 			for (int i = 0; i < selection.length; i++) {
@@ -190,7 +193,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 		return new_order;
 	}
 
-	public Selectable @NonNull [] pickBoxed(@NonNull CameraState camera, int x1, int y1, int x2, int y2, int clicks) {
+	public @NonNull Selectable<?> @NonNull [] pickBoxed(@NonNull CameraState camera, int x1, int y1, int x2, int y2, int clicks) {
 		float cx = (x1 + x2)*0.5f;
 		float cy = (y1 + y2)*0.5f;
 		int width = Math.abs(x1 - x2) + 1;
@@ -199,13 +202,12 @@ public final class Picker implements Updatable<TimerAnimation> {
 		height = Math.max(height, PICK_SIZE);
 		setupPicking(camera, cx, cy, width, height);
 		pickObjects();
-		if (Math.abs(x1 - x2) < SELECTION_THRESHOLD && Math.abs(y1 - y2) < SELECTION_THRESHOLD)
-			return createSinglePick(camera, clicks);
-		else
-			return createBoxedPick();
+        return Math.abs(x1 - x2) < SELECTION_THRESHOLD && Math.abs(y1 - y2) < SELECTION_THRESHOLD
+				? createSinglePick(camera, clicks)
+				: createBoxedPick();
 	}
 
-	private Selectable<?> @NonNull [] createSinglePick(@NonNull CameraState camera, int clicks) {
+	private @NonNull Selectable<?> @NonNull [] createSinglePick(@NonNull CameraState camera, int clicks) {
 		var nearest = (Selectable<?>)getNearestPick(element_pick_list, Selectable.class);
 		if (nearest != null) {
 			if (clicks > 1) {
@@ -224,35 +226,23 @@ public final class Picker implements Updatable<TimerAnimation> {
 		}
 	}
 
-	private Selectable<?> @NonNull [] createBoxedPick() {
-		List<Selectable<?>> selectables = new ArrayList<>();
-		for (int i = 0; i < element_pick_list.size(); i++) {
-			Target pickable = element_pick_list.get(i);
-			element_pick_list.set(i, null);
-			if (pickable instanceof Selectable<?> selectable)
-				selectables.add(selectable);
-		}
-		Selectable<?>[] array = Selectable.newArray(selectables.size());
-		selectables.toArray(array);
+	private @NonNull Selectable<?> @NonNull [] createBoxedPick() {
+		var array = element_pick_list.stream()
+				.filter(element -> element instanceof Selectable)
+				.toArray(Selectable::newArray);
+		element_pick_list.clear();
 		return array;
 	}
 
-	private Selectable<?> @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter) {
-		List<Selectable<?>> result = new ArrayList<>();
-		var window = Renderer.getRenderer().getWindow();
-		Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, window.getWidth() - 1, window.getHeight() - 1, 2);
-            for (Selectable<?> selectable : complete_list) {
-                if (selectable.getAbilities().hasAbilities(ability_filter)) {
-                    result.add(selectable);
-                }
-            }
-		Selectable<?>[] array = Selectable.newArray(result.size());
-		result.toArray(array);
-		return array;
+	private @NonNull Selectable<?> @NonNull [] pickAll(@NonNull CameraState camera, int ability_filter) {
+		Selectable<?>[] complete_list = pickBoxed(camera, 0, 0, gui_root.getWidth() - 1, gui_root.getHeight() - 1, 2);
+		return Arrays.stream(complete_list)
+				.filter(s -> s.getAbilities().hasAbilities(ability_filter))
+				.toArray(Selectable::newArray);
 	}
 
 	public void pickRotate(@NonNull GameCamera camera) {
-		int x = Renderer.getRenderer().getWindow().getWidth()/2;
+		int x = gui_root.getWidth()/2;
 		int y = camera.getRotateY();
 		setupPicking(camera.getState(), x, y, PICK_SIZE, PICK_SIZE);
 		if (!nearestLandscape(x, y) || patch_hit_z < local_player.getWorld().getHeightMap().getSeaLevelMeters()) {
@@ -462,10 +452,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 					render_tool_tip = false;
 			}
 			current_hovered = new_current_hovered;
-			if (new_tip)
-				current_tooltip = new ToolTipAdapter((ModelToolTip)current_hovered, local_player);
-			else
-				current_tooltip = null;
+            current_tooltip = new_tip ? new ToolTipAdapter((ModelToolTip) current_hovered, local_player) : null;
 		}
 	}
 
@@ -506,8 +493,7 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 	private void setupPicking(@NonNull CameraState camera, float x_center, float y_center, int width, int height) {
 		proj.identity();
 		viewport.clear();
-		var window = Renderer.getRenderer().getWindow();
-		viewport.put(0).put(0).put(window.getWidth()).put(window.getHeight());
+		viewport.put(0).put(0).put(gui_root.getWidth()).put(gui_root.getHeight());
 		viewport.flip();
 
 		if (width > 0 && height > 0) {
@@ -517,10 +503,10 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 			proj.scale(temp_vector.x, temp_vector.y, temp_vector.z);
 		}
 
-		Renderer.multProjection(proj);
+		gui_root.multProjection(proj);
 
 		tmp_camera.set(camera);
-		tmp_camera.setView(proj);
+		tmp_camera.setView(proj, width, height);
 	}
 
 	private void pickLandscape() {

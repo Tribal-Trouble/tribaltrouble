@@ -6,7 +6,6 @@ import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
@@ -30,8 +29,7 @@ public final class QuitScreen extends CameraDelegate<Camera> implements Updatabl
 		setCanFocus(true);
 		setFocusCycle(true);
 
-		var window = Renderer.getRenderer().getWindow();
-		overlay = new GUIImage(window.getWidth(), window.getHeight(), 0f, 0f, (float)overlay_image_width/overlay_texture_width, (float)overlay_image_height/overlay_texture_height, overlay_texture_name);
+		overlay = new GUIImage(gui_root.getWidth(), gui_root.getHeight(), 0f, 0f, (float)overlay_image_width/overlay_texture_width, (float)overlay_image_height/overlay_texture_height, overlay_texture_name);
 		overlay.setPos(0, 0);
 		addChild(overlay);
 

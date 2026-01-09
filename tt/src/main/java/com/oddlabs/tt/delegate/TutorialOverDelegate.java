@@ -8,12 +8,10 @@ import com.oddlabs.tt.form.TutorialForm;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.tutorial.TutorialInGameInfo;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -36,8 +34,7 @@ public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> imp
 		this.tutorial_info = tutorial_info;
 		ResourceBundle bundle = ResourceBundle.getBundle(TutorialOverDelegate.class.getName());
 
-		var window = Renderer.getRenderer().getWindow();
-		setDim(window.getWidth(), window.getHeight());
+		setDim(getGUIRoot().getWidth(), getGUIRoot().getHeight());
 		String tutorial_completed_str = Utils.getBundleString(bundle, "tutorial_completed", tutorial_number);
 		Label label = new Label(tutorial_completed_str, Skin.getSkin().getHeadlineFont());
 		addChild(label);

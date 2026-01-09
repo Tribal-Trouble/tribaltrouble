@@ -179,7 +179,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
                         getState().setTargetX(temp_x);
                         getState().setTargetY(temp_y);
                         getState().setTargetZ(temp_z);
-                        if (bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ())) {
+                        if (bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ(), viewer.getGUIRoot().getWidth(), viewer.getGUIRoot().getHeight())) {
                                 getState().setTargetX(backup_x);
                                 getState().setTargetY(backup_y);
                                 getState().setTargetZ(backup_z);
@@ -266,7 +266,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
     }
 
     public int getRotateY() {
-        int center_y = Renderer.getRenderer().getWindow().getHeight()/2;
+        int center_y = viewer.getGUIRoot().getHeight()/2;
         if (getState().getTargetVertAngle() < ROTATE_PICKING_ANGLE_MAX) {
                 return center_y;
         } else {
@@ -321,8 +321,8 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
 
     @Override
     public void mouseMoved(int x, int y) {
-        int view_width = Renderer.getRenderer().getWindow().getWidth();
-        int view_height = Renderer.getRenderer().getWindow().getHeight();
+        int view_width = viewer.getGUIRoot().getWidth();
+        int view_height = viewer.getGUIRoot().getHeight();
         if ((owner == null || !owner.isSelecting()) && (x < SCROLL_BUFFER || y < SCROLL_BUFFER ||
                         x > view_width - 1 - SCROLL_BUFFER || y > view_height - 1 - SCROLL_BUFFER)) {
                 if (scroll_start) {

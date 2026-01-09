@@ -15,7 +15,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.Objects;
 
 public final class OGGStream implements AutoCloseable {
     private final long decoder;

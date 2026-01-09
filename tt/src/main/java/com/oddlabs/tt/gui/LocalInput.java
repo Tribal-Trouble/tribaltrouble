@@ -3,7 +3,6 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.event.LocalEventQueue;
-import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.input.InputProvider;
 import com.oddlabs.tt.input.Key;

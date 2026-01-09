@@ -11,11 +11,9 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.LabelBox;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.ProgressBar;
 import com.oddlabs.tt.gui.ProgressBarInfo;
 import com.oddlabs.tt.gui.Skin;
-import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -98,9 +96,8 @@ public final class ProgressForm {
         CameraDelegate<NullCamera> delegate = new NullDelegate(gui_root, false);
 		gui_root.pushDelegate(delegate);
 
-		var window = Renderer.getRenderer().getWindow();
-		int screen_width = window.getWidth();
-		int screen_height = window.getHeight();
+		int screen_width = gui_root.getWidth();
+		int screen_height = gui_root.getHeight();
 		progress_width = (int)(progress_width*(float)screen_width/image_width);
 		progress_x = (int)(progress_x*(float)screen_width/image_width);
 		progress_y = (int)(progress_y*(float)screen_height/image_height);
@@ -116,7 +113,7 @@ public final class ProgressForm {
 		if (show_tip) {
 			Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
 			CharSequence tip_string = LOADING_TIPS[random.nextInt(LOADING_TIPS.length)];
-			int tip_width = Math.min(Renderer.getRenderer().getWindow().getWidth() - 10, Skin.getSkin().getEditFont().getWidth(tip_string));
+			int tip_width = Math.min(gui_root.getWidth() - 10, Skin.getSkin().getEditFont().getWidth(tip_string));
 			LabelBox tip = new LabelBox(tip_string, Skin.getSkin().getEditFont(), tip_width);
 //			Label tip = new Label(LOADING_TIPS[random.nextInt(LOADING_TIPS.length)], Skin.getSkin().getEditFont());
 			tip.setPos(progress_bar.getX() + progress_bar.getWidth()/2 - tip.getWidth()/2, progress_bar.getY() - tip.getHeight() - PROGRESSBAR_LOADINGTIP_SPACING);

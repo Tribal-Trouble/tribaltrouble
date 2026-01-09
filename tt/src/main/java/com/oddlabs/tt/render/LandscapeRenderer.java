@@ -29,7 +29,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public final class LandscapeRenderer implements Animated {
+public final class LandscapeRenderer implements SceneRenderer, Animated {
 
     private final List<@NonNull LandscapeLeaf> render_list = new ArrayList<>();
     private final @NonNull World world;
@@ -80,9 +80,10 @@ public final class LandscapeRenderer implements Animated {
         world.getPatchRoot().visit(patch_visitor);
     }
 
-    public void renderAll(@NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    @Override
+    public void render(@NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state.getCurrentZ())) {
+             var _ = state.getFog().setup(shader, state)) {
             
             GL11.glDisable(GL11.GL_BLEND);
             GL11.glEnable(GL11.GL_DEPTH_TEST);

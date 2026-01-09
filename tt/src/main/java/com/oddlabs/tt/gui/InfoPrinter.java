@@ -6,7 +6,6 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.net.ChatListener;
 import com.oddlabs.tt.net.ChatMessage;
 import com.oddlabs.tt.net.Network;
-import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.util.Color;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
@@ -31,8 +30,7 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 		this.gui_root = gui_root;
 		this.lines = lines;
 		this.font = font;
-		var window = Renderer.getRenderer().getWindow();
-		displayChangedNotify(window.getWidth(), window.getHeight());
+		displayChangedNotify(gui_root.getWidth(), gui_root.getHeight());
 		LocalEventQueue.getQueue().getManager().registerAnimation(this);
 		time = 0;
 	}

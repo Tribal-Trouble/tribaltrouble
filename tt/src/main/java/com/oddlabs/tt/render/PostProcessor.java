@@ -2,7 +2,6 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.shader.PostProcessShader;
-import com.oddlabs.tt.render.shader.VertexLayout;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import org.jspecify.annotations.NonNull;

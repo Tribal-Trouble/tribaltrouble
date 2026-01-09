@@ -12,6 +12,7 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -22,6 +23,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.lwjgl.glfw.GLFW.GLFW_AUTO_ICONIFY;
+import static org.lwjgl.glfw.GLFW.GLFW_COCOA_RETINA_FRAMEBUFFER;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MINOR;
 import static org.lwjgl.glfw.GLFW.GLFW_DONT_CARE;
@@ -39,10 +41,13 @@ import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
 import static org.lwjgl.glfw.GLFW.glfwFocusWindow;
 import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
+import static org.lwjgl.glfw.GLFW.glfwGetMonitorContentScale;
+import static org.lwjgl.glfw.GLFW.glfwGetMonitorPhysicalSize;
 import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
 import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
 import static org.lwjgl.glfw.GLFW.glfwGetVideoModes;
 import static org.lwjgl.glfw.GLFW.glfwGetWindowAttrib;
+import static org.lwjgl.glfw.GLFW.glfwGetWindowContentScale;
 import static org.lwjgl.glfw.GLFW.glfwGetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwIconifyWindow;
 import static org.lwjgl.glfw.GLFW.glfwInit;
@@ -84,7 +89,7 @@ public final class LWJGL3Window implements Window {
     }
 
     @Override
-    public void create(@NonNull SerializableDisplayMode mode, boolean fullscreen) throws Exception {
+    public void create(@NonNull SerializableDisplayMode mode, boolean fullscreen) {
         ensureGLFW();
 
         if (windowHandle != MemoryUtil.NULL) {
@@ -113,6 +118,10 @@ public final class LWJGL3Window implements Window {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
+        
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+        }
         
         // Request an OpenGL 4.1 Core Profile context
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -164,6 +173,10 @@ public final class LWJGL3Window implements Window {
             glfwTerminate();
             Objects.requireNonNull(glfwSetErrorCallback(null)).free();
         }
+    }
+
+    public boolean isOpen() {
+        return windowHandle != MemoryUtil.NULL;
     }
 
     @Override
@@ -259,6 +272,7 @@ public final class LWJGL3Window implements Window {
 
     @Override
     public int getWidth() {
+        assert windowHandle != MemoryUtil.NULL;
         int[] w = new int[1];
         int[] h = new int[1];
         glfwGetFramebufferSize(windowHandle, w, h);
@@ -267,6 +281,7 @@ public final class LWJGL3Window implements Window {
 
     @Override
     public int getHeight() {
+        assert windowHandle != MemoryUtil.NULL;
         int[] w = new int[1];
         int[] h = new int[1];
         glfwGetFramebufferSize(windowHandle, w, h);
@@ -376,7 +391,7 @@ public final class LWJGL3Window implements Window {
     }
 
     @Override
-    public void setDisplayMode(@NonNull SerializableDisplayMode mode) throws Exception {
+    public void setDisplayMode(@NonNull SerializableDisplayMode mode) {
         create(mode, glfwGetWindowMonitor(windowHandle) != MemoryUtil.NULL);
     }
 
@@ -392,5 +407,50 @@ public final class LWJGL3Window implements Window {
     @Override
     public boolean isFullscreen() {
         return windowHandle != MemoryUtil.NULL && glfwGetWindowMonitor(windowHandle) != MemoryUtil.NULL;
+    }
+
+    private long getCurrentMonitor() {
+        if (windowHandle != MemoryUtil.NULL) {
+            long monitor = glfwGetWindowMonitor(windowHandle);
+            if (monitor != MemoryUtil.NULL) {
+                return monitor;
+            }
+        }
+        return glfwGetPrimaryMonitor();
+    }
+
+    @Override
+    public int[] getMonitorPhysicalSize() {
+        ensureGLFW();
+        long monitor = getCurrentMonitor();
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            glfwGetMonitorPhysicalSize(monitor, w, h);
+            return new int[]{w.get(0), h.get(0)};
+        }
+    }
+
+    @Override
+    public float[] getMonitorContentScale() {
+        ensureGLFW();
+        long monitor = getCurrentMonitor();
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer x = stack.mallocFloat(1);
+            FloatBuffer y = stack.mallocFloat(1);
+            glfwGetMonitorContentScale(monitor, x, y);
+            return new float[]{x.get(0), y.get(0)};
+        }
+    }
+
+    @Override
+    public float[] getWindowContentScale() {
+        if (windowHandle == MemoryUtil.NULL) return new float[]{1.0f, 1.0f};
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer x = stack.mallocFloat(1);
+            FloatBuffer y = stack.mallocFloat(1);
+            glfwGetWindowContentScale(windowHandle, x, y);
+            return new float[]{x.get(0), y.get(0)};
+        }
     }
 }

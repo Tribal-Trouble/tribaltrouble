@@ -63,8 +63,17 @@ public class Form extends Group {
 	}
 
 	public final void centerPos() {
-		var window = Renderer.getRenderer().getWindow();
-		setPos((window.getWidth() - getWidth())/2, (window.getHeight() - getHeight())/2);
+		GUIRoot root = getParentGUIRoot();
+		int w, h;
+		if (root != null) {
+			w = root.getWidth();
+			h = root.getHeight();
+		} else {
+			var window = Renderer.getRenderer().getWindow();
+			w = window.getWidth();
+			h = window.getHeight();
+		}
+		setPos((w - getWidth())/2, (h - getHeight())/2);
 	}
 
 	@Override

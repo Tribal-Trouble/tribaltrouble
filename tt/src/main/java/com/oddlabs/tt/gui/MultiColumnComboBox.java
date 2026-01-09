@@ -110,9 +110,8 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 
 	public void rightClickedRow(int x, int y) {
 		if (pulldown_menu != null) {
-			var window = Renderer.getRenderer().getWindow();
-			int pulldown_x = Math.clamp(x, 0, window.getWidth() - pulldown_menu.getWidth());
-			int pulldown_y = Math.clamp(y - pulldown_menu.getHeight(), 0, window.getHeight() - pulldown_menu.getHeight());
+			int pulldown_x = Math.clamp(x, 0, gui_root.getWidth() - pulldown_menu.getWidth());
+			int pulldown_y = Math.clamp(y - pulldown_menu.getHeight(), 0, gui_root.getHeight() - pulldown_menu.getHeight());
 			pulldown_menu.setPos(pulldown_x, pulldown_y);
 			gui_root.getDelegate().addChild(pulldown_menu);
 			pulldown_menu.setFocus();

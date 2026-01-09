@@ -2,7 +2,6 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.KeyboardEvent;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.viewer.WorldViewer;

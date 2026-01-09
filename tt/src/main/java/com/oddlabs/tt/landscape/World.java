@@ -47,7 +47,7 @@ public final class World {
 	private final @NonNull Player @NonNull [] players;
 	private final @NonNull SupplyManagers supply_managers;
 	private final @NonNull UnitGrid unit_grid;
-	private final @NonNull AbstractPatchGroup patch_root;
+	private final @NonNull PatchGroup patch_root;
 	private final @NonNull AbstractTreeGroup tree_root;
 	private final @NonNull AbstractElementNode<?> element_root;
 	private final @Nullable RacesResources races_resources;

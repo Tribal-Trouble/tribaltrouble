@@ -51,7 +51,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
         return this;
     }
 
-    @Nullable GUIRoot getParentGUIRoot() {
+    public @Nullable GUIRoot getParentGUIRoot() {
         return null != parent ? parent.getParentGUIRoot() : null;
     }
 

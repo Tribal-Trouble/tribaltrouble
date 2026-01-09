@@ -52,7 +52,7 @@ public final class SonicBlastRenderer implements AutoCloseable {
         boolean depthMaskEnabled = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
 
         try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state.getCurrentZ())) {
+             var _ = state.getFog().setup(shader, state)) {
 
             if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
             if (depthMaskEnabled) GL11.glDepthMask(false);

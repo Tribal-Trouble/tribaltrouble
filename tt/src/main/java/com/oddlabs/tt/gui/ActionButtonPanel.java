@@ -21,7 +21,6 @@ import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
-import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -379,8 +378,10 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	public void doAdd() {
 		super.doAdd();
 		viewer.getAnimationManagerLocal().registerAnimation(this);
-		var window = Renderer.getRenderer().getWindow();
-        displayChangedNotify(window.getWidth(), window.getHeight());
+		GUIRoot root = getParentGUIRoot();
+		if (root != null) {
+			displayChangedNotify(root.getWidth(), root.getHeight());
+		}
 	}
 
 	@Override

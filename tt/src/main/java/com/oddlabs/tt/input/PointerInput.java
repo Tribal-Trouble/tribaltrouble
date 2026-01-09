@@ -3,7 +3,6 @@ package com.oddlabs.tt.input;
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.GUIRoot;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.render.NativeCursor;
 import com.oddlabs.tt.render.Renderer;

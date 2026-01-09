@@ -1,11 +1,11 @@
 package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
 public final class FirstPersonCamera extends Camera {
@@ -14,9 +14,11 @@ public final class FirstPersonCamera extends Camera {
 
     private final int last_x;
     private final int last_y;
+    private final @NonNull WorldViewer viewer;
 
-    public FirstPersonCamera(HeightMap heightmap, @NonNull CameraState camera) {
+    public FirstPersonCamera(@NonNull WorldViewer viewer, HeightMap heightmap, @NonNull CameraState camera) {
             super(heightmap, camera);
+            this.viewer = viewer;
             var localInput = Renderer.getLocalInput();
             this.last_x = localInput.getMouseX();
             this.last_y = localInput.getMouseY();

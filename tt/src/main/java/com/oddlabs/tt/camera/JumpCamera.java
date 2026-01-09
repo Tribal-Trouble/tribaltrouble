@@ -68,6 +68,6 @@ public final class JumpCamera extends Camera {
             temp_z += z_speed*t;
             getState().setTargetZ(temp_z);
             z_speed += z_accel*t;
-            bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ());
+            bounce(getState().getTargetX(), getState().getTargetY(), getState().getTargetZ(), delegate.getGUIRoot().getWidth(), delegate.getGUIRoot().getHeight());
     }
 }

@@ -34,6 +34,8 @@ public final class CameraState {
 
     private @NonNull FogInfo fog;
 	private boolean no_detail_mode;
+    private int width;
+    private int height;
 
     public CameraState() {this(new FogInfo(FogInfo.Mode.NONE, Color.BLACK, 0f)); }
 
@@ -152,6 +154,8 @@ public final class CameraState {
 		f.set(camera.f);
 		s.set(camera.s);
 		u.set(camera.u);
+        width = camera.width;
+        height = camera.height;
 	}
 
 	void setCurrentVertAngle(float angle) {
@@ -220,7 +224,9 @@ public final class CameraState {
 		doSetView(target_camera_x, target_camera_y, target_camera_z, target_horiz_angle, target_vert_angle, proj);
 	}
 
-	public void setView(@NonNull Matrix4f proj) {
+	public void setView(@NonNull Matrix4f proj, int width, int height) {
+        this.width = width;
+        this.height = height;
 		doSetView(camera_x, camera_y, camera_z, horiz_angle, vert_angle, proj);
 	}
 
@@ -300,4 +306,12 @@ public final class CameraState {
                 frustum1[3] *= length_inv;
             }
 	}
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }

@@ -2,7 +2,6 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -31,7 +30,7 @@ public final class ToolTipBox extends TextField {
 		icons = null;
 	}
 	
-	public void render(@NonNull GUIRenderer renderer, int center_x, int top_y) {
+	public void render(@NonNull GUIRenderer renderer, int center_x, int top_y, int width, int height) {
 		if (getText().isEmpty())
 			return;
 		ToolTipBoxInfo box = Skin.getSkin().getToolTipInfo();
@@ -46,9 +45,8 @@ public final class ToolTipBox extends TextField {
 			box_width += icons[i - 1].getWidth()*2/3;
 		}
 
-		var window = Renderer.getRenderer().getWindow();
-		float x = Math.clamp(center_x - box_width/2f, 0, window.getWidth() - box_width);
-		float y = Math.clamp(top_y - box_height, 0, window.getHeight() - box_height);
+		float x = Math.clamp(center_x - box_width/2f, 0, width - box_width);
+		float y = Math.clamp(top_y - box_height, 0, height - box_height);
 
 		box.box().render(renderer, x, y, box_width, ModeIconQuads.Mode.NORMAL);
 

@@ -1,6 +1,5 @@
 package com.oddlabs.tt.input;
 
-import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.window.LWJGL3Window;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -110,7 +109,7 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
 
         glfwSetCursorPosCallback(windowHandle, (window, xpos, ypos) -> {
              this.mouseX = xpos;
-             this.mouseY = Renderer.getRenderer().getWindow().getHeight() - ypos - 1; // Invert Y for OpenGL coords
+             this.mouseY = this.window.getHeight() - ypos - 1; // Invert Y for OpenGL coords
              synchronized (mouseEvents) {
                  mouseEvents.add(new MouseEvent(-1, false, (int)mouseX, (int)mouseY, 0));
              }
@@ -231,7 +230,7 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
 
     @Override
     public void setCursorPosition(int x, int y) {
-        glfwSetCursorPos(windowHandle, x, Renderer.getRenderer().getWindow().getHeight() - y - 1);
+        glfwSetCursorPos(windowHandle, x, this.window.getHeight() - y - 1);
     }
 
     @Override

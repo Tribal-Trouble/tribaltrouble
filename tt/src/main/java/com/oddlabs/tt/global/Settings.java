@@ -1,7 +1,6 @@
 package com.oddlabs.tt.global;
 
 import com.oddlabs.tt.event.LocalEventQueue;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 

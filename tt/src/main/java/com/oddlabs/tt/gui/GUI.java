@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.UIRenderer;
@@ -17,6 +18,7 @@ public final class GUI implements Animated {
     private @NonNull GUIRoot current_root;
     private @Nullable Fade fade;
     private @Nullable UIRenderer renderer;
+    private final CameraState frustum_state = new CameraState();
 
     public GUI() {
         this.guiRenderer = new GUIRenderer();
@@ -40,7 +42,8 @@ public final class GUI implements Animated {
 
     public @NonNull GUIRoot createRoot() {
         GUIRoot gui_root = new GUIRoot(this);
-        gui_root.displayChanged();
+        var window = Renderer.getRenderer().getWindow();
+        gui_root.displayChanged(window.getWidth(), window.getHeight());
         return gui_root;
     }
 
@@ -70,7 +73,18 @@ public final class GUI implements Animated {
         return fade;
     }
 
-    public void render(@NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull Matrix4f proj, @NonNull Matrix4f modelView) {
+    public void render(@NonNull AmbientAudio ambient) {
+        Matrix4f proj = new Matrix4f();
+        Matrix4f modelView = new Matrix4f();
+        var guiRoot = getGUIRoot();
+        CameraState camera = guiRoot.getDelegate().getCamera().getState();
+        camera.setView(guiRoot.multProjection(proj.identity()), guiRoot.getWidth(), guiRoot.getHeight());
+        modelView.set(camera.getModelView());
+
+        if (!Globals.frustum_freeze) {
+            frustum_state.set(camera);
+        }
+
         if (renderer != null) {
             renderer.startFrame();
         } else {
@@ -78,7 +92,7 @@ public final class GUI implements Animated {
         }
 
         if (renderer != null)
-            renderer.render(ambient, frustum_state, current_root, proj, modelView);
+            renderer.render(ambient, frustum_state, current_root);
         
         renderGUI();
         
@@ -88,8 +102,9 @@ public final class GUI implements Animated {
     }
 
     public void pickHover() {
-        CameraState camera = getGUIRoot().getDelegate().getCamera().getState();
-        GUIObject gui_hit = getGUIRoot().getCurrentGUIObject();
+        var guiRoot = getGUIRoot();
+        CameraState camera = guiRoot.getDelegate().getCamera().getState();
+        GUIObject gui_hit = guiRoot.getCurrentGUIObject();
         if (renderer != null) {
             var localInput = Renderer.getLocalInput();
             renderer.pickHover(gui_hit.canHoverBehind(), camera, localInput.getMouseX(), localInput.getMouseY());

@@ -1,15 +1,15 @@
 package com.oddlabs.tt.window;
 
-import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.SerializableDisplayMode;
 import org.jspecify.annotations.NonNull;
 
 public interface Window extends AutoCloseable {
-    void create(@NonNull SerializableDisplayMode mode, boolean fullscreen) throws Exception;
+    void create(@NonNull SerializableDisplayMode mode, boolean fullscreen);
     void close();
     void update();
     void pollEvents();
     
+    boolean isOpen();
     boolean isCloseRequested();
     boolean isActive();
     boolean isVisible();
@@ -36,15 +36,21 @@ public interface Window extends AutoCloseable {
     
     boolean isFullscreen();
 
-    default float getViewAspect() {
-        return (float) getWidth() / getHeight();
-    }
+    /**
+     * Returns the physical size of the monitor in millimeters.
+     * @return int array [widthMM, heightMM]
+     */
+    int[] getMonitorPhysicalSize();
 
-    default float getUnitsPerPixel() {
-        return (float) (Globals.VIEW_MIN * Math.tan(Globals.FOV * (Math.PI / 180.0f) * 0.5d) / (getHeight() * 0.5d));
-    }
+    /**
+     * Returns the content scale of the monitor.
+     * @return float array [xScale, yScale]
+     */
+    float[] getMonitorContentScale();
 
-    default float getErrorConstant() {
-        return Globals.VIEW_MIN / (getUnitsPerPixel() * Globals.ERROR_TOLERANCE);
-    }
+    /**
+     * Returns the content scale of the window.
+     * @return float array [xScale, yScale]
+     */
+    float[] getWindowContentScale();
 }

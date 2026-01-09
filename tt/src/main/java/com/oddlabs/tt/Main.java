@@ -15,9 +15,6 @@ public final class Main {
 	public static void fail(@NonNull Throwable t) {
         logger.log(Level.SEVERE, "Critical Failure", t);
 
-        if (Renderer.getRenderer().getWindow() != null)
-            Renderer.getRenderer().getWindow().close();
-
         if (!Boolean.getBoolean("com.oddlabs.tt.developer")) {
             while (t.getCause() != null) {
                 t = t.getCause();
@@ -37,6 +34,7 @@ public final class Main {
 	}
 
 	public static void shutdown(int status) {
+        Renderer.getRenderer().close();
         logger.info("Exiting");
 		System.exit(status);
 	}

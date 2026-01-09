@@ -1,7 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.util.StateChecksum;
 import org.joml.Vector4f;
@@ -43,7 +42,6 @@ final class Fade {
 
 	void render(@NonNull GUIRenderer guiRenderer) {
 		float alpha = (float)Math.sin(Math.PI*time/FADE_TIME);
-		var window = Renderer.getRenderer().getWindow();
-		guiRenderer.drawColoredQuad(0, 0, window.getWidth(), window.getHeight(), new Vector4f(0f, 0f, 0f, alpha));
+		guiRenderer.drawColoredQuad(0, 0, gui_root.getWidth(), gui_root.getHeight(), new Vector4f(0f, 0f, 0f, alpha));
 	}
 }

@@ -6,7 +6,6 @@ import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.LabelBox;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.render.Renderer;
@@ -42,9 +41,9 @@ final class CampaignInGameInfo implements InGameInfo {
 	@Override
 	public void addGUI(WorldViewer viewer, @NonNull InGameMainMenu menu, @NonNull Group game_infos) {
 		menu.addAbortButton(Utils.getBundleString(Menu.bundle, "end_game"));
-		var window = Renderer.getRenderer().getWindow();
-		LabelBox label_objective = new LabelBox(Utils.getBundleString(Menu.bundle, "objective"), Skin.getSkin().getEditFont(), window.getWidth()/2);
-		LabelBox label_description = new LabelBox(campaign.getCurrentObjective(), Skin.getSkin().getEditFont(), window.getWidth()/2);
+		int screen_width = viewer.getGUIRoot().getWidth();
+		LabelBox label_objective = new LabelBox(Utils.getBundleString(Menu.bundle, "objective"), Skin.getSkin().getEditFont(), screen_width/2);
+		LabelBox label_description = new LabelBox(campaign.getCurrentObjective(), Skin.getSkin().getEditFont(), screen_width/2);
 		game_infos.addChild(label_objective);
 		game_infos.addChild(label_description);
 		label_objective.place();

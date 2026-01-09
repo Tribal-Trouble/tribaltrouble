@@ -7,7 +7,6 @@ import com.oddlabs.event.SaveDeterministic;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.util.StateChecksum;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.logging.Logger;

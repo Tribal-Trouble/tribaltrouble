@@ -3,7 +3,6 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.render.GUIRenderer;
-import com.oddlabs.tt.render.Renderer;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 
@@ -29,7 +28,7 @@ public final class Arrow extends GUIObject {
 		this.g = g;
 		this.b = b;
 		this.show_always = show_always;
-		displayChangedNotify(Renderer.getRenderer().getWindow().getWidth(), Renderer.getRenderer().getWindow().getHeight());
+		displayChangedNotify(gui_root.getWidth(), gui_root.getHeight());
 	}
 
 	@Override
@@ -44,20 +43,19 @@ public final class Arrow extends GUIObject {
 		if (point.w < .1f)
 			point.w = .1f;
 		float inv_w = 1/point.w;
-		point.set((point.x*inv_w + 1)*.5f*Renderer.getRenderer().getWindow().getWidth(), (point.y*inv_w + 1)*.5f*Renderer.getRenderer().getWindow().getHeight(), 0, 0);
+		point.set((point.x*inv_w + 1)*.5f*gui_root.getWidth(), (point.y*inv_w + 1)*.5f*gui_root.getHeight(), 0, 0);
 		return point;
 	}
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		var window = Renderer.getRenderer().getWindow();
-		int screen_width = window.getWidth();
-		int screen_height = window.getHeight();
+		int screen_width = gui_root.getWidth();
+		int screen_height = gui_root.getHeight();
 		Vector4f result = project3DTo2D(target_x, target_y, target_z);
 		float x = result.x;
 		float y = result.y;
 		float dx = x - screen_width/2f;
-		float dy = y - Renderer.getRenderer().getWindow().getHeight()/2f;
+		float dy = y - screen_height/2f;
 		float dist_sqr = dx*dx + dy*dy;
 		if (dist_sqr < 1f) {
 			dx = 1f;

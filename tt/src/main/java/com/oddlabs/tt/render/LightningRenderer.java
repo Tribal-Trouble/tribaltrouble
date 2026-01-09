@@ -92,7 +92,7 @@ public final class LightningRenderer implements AutoCloseable {
         boolean depthMaskEnabled = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
 
         try (var _ = shader.use()) {
-            try (var _ = state.getFog().setup(shader, state.getCurrentZ())) {
+            try (var _ = state.getFog().setup(shader, state)) {
                 if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
                 if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
                 if (depthMaskEnabled) GL11.glDepthMask(false);

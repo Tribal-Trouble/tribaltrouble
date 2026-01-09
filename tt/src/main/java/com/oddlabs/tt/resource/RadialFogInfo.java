@@ -1,7 +1,6 @@
 package com.oddlabs.tt.resource;
 
-import com.oddlabs.tt.gui.LocalInput;
-import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.render.shader.FogShader;
 import com.oddlabs.tt.util.GLState;
 import org.joml.Vector4fc;
@@ -14,18 +13,15 @@ public final class RadialFogInfo extends FogInfo {
     }
 
     @Override
-    public @NonNull GLState setup(@NonNull FogShader shader, float camera_z) {
-        GLState superState = super.setup(shader, camera_z);
+    public @NonNull GLState setup(@NonNull FogShader shader, @NonNull CameraState camera_state) {
+        GLState superState = super.setup(shader, camera_state);
         if (!isEnabled() || mode == Mode.NONE) {
             return superState;
         }
 
-        int viewWidth = Renderer.getRenderer().getWindow().getWidth();
-        int viewHeight = Renderer.getRenderer().getWindow().getHeight();
-
         shader.setUniform(FogShader.FOG_COLOR, color.x(), color.y(), color.z(), color.w());
         shader.setUniform(FogShader.FOG_MODE, FogShader.FOG_MODE_RADIAL);
-        shader.setUniform(FogShader.FOG_PARAMS, (float) viewWidth, (float) viewHeight, density);
+        shader.setUniform(FogShader.FOG_PARAMS, (float) camera_state.getWidth(), (float) camera_state.getHeight(), density);
 
         return superState;
     }

@@ -11,7 +11,6 @@ import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
@@ -53,7 +52,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         if (batches.isEmpty()) return;
 
         try (var _ = shader.use();
-             var _ = cameraState.getFog().setup(shader, cameraState.getCurrentZ())) {
+             var _ = cameraState.getFog().setup(shader, cameraState)) {
             
             shader.setUniformMatrix4(InstancedSpriteShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             shader.setUniformMatrix4(InstancedSpriteShader.Uniforms.VIEW_MATRIX, false, cameraState.getModelView());
@@ -64,8 +63,9 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             // Set TBO texture unit
             shader.setUniform(InstancedSpriteShader.Uniforms.VERT_BUFFER, 5);
 
+            RenderState state = new RenderState();
             for (RenderBatch batch : batches.values()) {
-                batch.render(shader, whiteTexture);
+                batch.render(shader, whiteTexture, state);
             }
         } finally {
             // Restore default state to prevent leakage to other renderers (Sky, Landscape)
@@ -96,6 +96,16 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
     }
 
     private record BatchKey(@NonNull SpriteList spriteList, int spriteIndex, int texIndex, boolean respond, boolean blend, boolean depthWrite, boolean depthTest) {}
+
+    private static class RenderState {
+        int depthTest = -1; // -1 = unknown, 0 = disabled, 1 = enabled
+        int cullFace = -1;
+        int blend = -1;
+        int depthWrite = -1;
+        int activeTexture = -1;
+        int boundTexture2D = -1;
+        int boundTBO = -1;
+    }
 
     private static class RenderBatch implements AutoCloseable {
         private final @NonNull BatchKey key;
@@ -217,53 +227,65 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             totalInstances++;
         }
 
-        void render(@NonNull InstancedSpriteShader shader, Texture whiteTexture) {
+        void render(@NonNull InstancedSpriteShader shader, Texture whiteTexture, RenderState state) {
             if (totalInstances == 0) return;
 
-            if (key.depthTest) {
-                GL11.glEnable(GL11.GL_DEPTH_TEST);
-                GL11.glDepthFunc(GL11.GL_LEQUAL);
-            } else {
-                GL11.glDisable(GL11.GL_DEPTH_TEST);
+            int targetDepthTest = key.depthTest ? 1 : 0;
+            if (state.depthTest != targetDepthTest) {
+                if (key.depthTest) {
+                    GL11.glEnable(GL11.GL_DEPTH_TEST);
+                    GL11.glDepthFunc(GL11.GL_LEQUAL);
+                } else {
+                    GL11.glDisable(GL11.GL_DEPTH_TEST);
+                }
+                state.depthTest = targetDepthTest;
             }
 
             Sprite sprite = key.spriteList.getSprite(key.spriteIndex);
-            
-            if (sprite.culled) {
-                GL11.glEnable(GL11.GL_CULL_FACE);
-                GL11.glCullFace(GL11.GL_BACK);
-            } else {
-                GL11.glDisable(GL11.GL_CULL_FACE);
+            int targetCullFace = sprite.culled ? 1 : 0;
+            if (state.cullFace != targetCullFace) {
+                if (sprite.culled) {
+                    GL11.glEnable(GL11.GL_CULL_FACE);
+                    GL11.glCullFace(GL11.GL_BACK);
+                } else {
+                    GL11.glDisable(GL11.GL_CULL_FACE);
+                }
+                state.cullFace = targetCullFace;
             }
 
-            if (key.blend) {
-                GL11.glEnable(GL11.GL_BLEND);
-                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-                GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
-            } else {
-                GL11.glDisable(GL11.GL_BLEND);
-                GL11.glEnable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
+            int targetBlend = key.blend ? 1 : 0;
+            if (state.blend != targetBlend) {
+                if (key.blend) {
+                    GL11.glEnable(GL11.GL_BLEND);
+                    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                    GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
+                } else {
+                    GL11.glDisable(GL11.GL_BLEND);
+                    GL11.glEnable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
+                }
+                state.blend = targetBlend;
             }
 
-            if (key.depthWrite) {
-                GL11.glDepthMask(true);
-            } else {
-                GL11.glDepthMask(false);
+            int targetDepthWrite = key.depthWrite ? 1 : 0;
+            if (state.depthWrite != targetDepthWrite) {
+                GL11.glDepthMask(key.depthWrite);
+                state.depthWrite = targetDepthWrite;
             }
 
-            setupTextures(shader, sprite, whiteTexture);
+            setupTextures(shader, sprite, whiteTexture, state);
             
             // Upload data
             vbo.makeCurrent();
             instanceBuffer.flip();
             GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, instanceBuffer);
-            // Reset buffer for next frame writing (or clear logic handles it)
-            // Actually, we usually flip back or clear at end?
-            // "clear()" method handles reset.
             
             // Bind TBO
-            GL13.glActiveTexture(GL13.GL_TEXTURE5);
-            GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, key.spriteList.getTBOTextureHandle());
+            if (state.boundTBO != key.spriteList.getTBOTextureHandle()) {
+                GL13.glActiveTexture(GL13.GL_TEXTURE5);
+                GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, key.spriteList.getTBOTextureHandle());
+                state.boundTBO = key.spriteList.getTBOTextureHandle();
+                state.activeTexture = 5;
+            }
             
             vao.bind();
             
@@ -273,12 +295,16 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             vao.unbind();
         }
         
-        private void setupTextures(@NonNull InstancedSpriteShader shader, @NonNull Sprite sprite, Texture whiteTexture) {
+        private void setupTextures(@NonNull InstancedSpriteShader shader, @NonNull Sprite sprite, Texture whiteTexture, RenderState state) {
              Texture texture = (sprite.textures.length > key.texIndex && sprite.textures[key.texIndex].length > 0 && sprite.textures[key.texIndex][0] != null) 
                     ? sprite.textures[key.texIndex][0] : whiteTexture;
             
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
+            if (state.activeTexture != 0 || state.boundTexture2D != texture.getHandle()) {
+                GL13.glActiveTexture(GL13.GL_TEXTURE0);
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getHandle());
+                state.activeTexture = 0;
+                state.boundTexture2D = texture.getHandle();
+            }
             shader.setUniform(InstancedSpriteShader.Uniforms.TEXTURE_0, 0);
             
             boolean useLighting = Globals.draw_light && sprite.lighted;
@@ -292,8 +318,11 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 shader.setUniform(InstancedSpriteShader.Uniforms.MODULATE_COLOR, false);
                 if (sprite.hasTeamDecal() || key.respond) {
                     shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_TEAM_COLOR, true);
+                    Texture teamTexture = key.respond ? sprite.respond_texture : sprite.textures[key.texIndex][Sprite.TEXTURE_TEAM];
                     GL13.glActiveTexture(GL13.GL_TEXTURE1);
-                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, key.respond ? sprite.respond_texture.getHandle() : sprite.textures[key.texIndex][Sprite.TEXTURE_TEAM].getHandle());
+                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, teamTexture.getHandle());
+                    state.activeTexture = 1;
+                    // Not tracking other units for now to keep it simple, but tracking T0 and T5 is most important
                     shader.setUniform(InstancedSpriteShader.Uniforms.TEXTURE_1, 1);
                 } else {
                     shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_TEAM_COLOR, false);
@@ -304,6 +333,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_NORMAL_MAP, true);
                 GL13.glActiveTexture(GL13.GL_TEXTURE2);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, sprite.textures[key.texIndex][Sprite.TEXTURE_BUMP].getHandle());
+                state.activeTexture = 2;
                 shader.setUniform(InstancedSpriteShader.Uniforms.NORMAL_MAP, 2);
             } else {
                 shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_NORMAL_MAP, false);

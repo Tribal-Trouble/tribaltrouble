@@ -15,6 +15,7 @@ import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.util.Utils;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
@@ -78,7 +79,7 @@ public final class GUIRoot extends GUIObject {
         return this;
     }
 
-    @NonNull GUIRoot getParentGUIRoot() {
+    public @NonNull GUIRoot getParentGUIRoot() {
         return self();
     }
 
@@ -184,10 +185,6 @@ public final class GUIRoot extends GUIObject {
 	void swapFocusBackup(@NonNull GUIObject o) {
 		focus_backup_stack.pop();
 		focus_backup_stack.push(o);
-	}
-
-	public void displayChanged() {
-		displayChanged(Settings.getSettings().view_width, Settings.getSettings().view_height);
 	}
 
 	@Override
@@ -410,13 +407,22 @@ public final class GUIRoot extends GUIObject {
         }
     }
 
-    private @Nullable ToolTip getToolTip() {
+	public Matrix4f multProjection(@NonNull Matrix4f matrix) {
+		float fovy = Globals.FOV;
+		float zNear = Globals.VIEW_MIN;
+		float zFar = Globals.VIEW_MAX;
+
+		Matrix4f perspectiveMatrix = new Matrix4f().perspective((float)Math.toRadians(fovy), (float) getWidth() / getHeight(), zNear, zFar);
+		return matrix.mul(perspectiveMatrix);
+	}
+
+	private @Nullable ToolTip getToolTip() {
         return render_tool_tip && getCurrentGUIObject() instanceof ToolTip tip ? tip : null;
 	}
 
 	private void renderToolTip(@NonNull GUIRenderer renderer, @NonNull ToolTip hovered) {
-        tool_tip.clear();
-        hovered.appendToolTip(tool_tip);
-        tool_tip.render(renderer, Renderer.getLocalInput().getMouseX(), Renderer.getLocalInput().getMouseY() - CURSOR_OFFSET_Y);
+		tool_tip.clear();
+		hovered.appendToolTip(tool_tip);
+		tool_tip.render(renderer, Renderer.getLocalInput().getMouseX(), Renderer.getLocalInput().getMouseY() - CURSOR_OFFSET_Y, getWidth(), getHeight());
 	}
 }
