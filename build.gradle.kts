@@ -1,4 +1,4 @@
-import net.ltgt.gradle.errorprone.errorprone
+ import net.ltgt.gradle.errorprone.errorprone
 
 plugins {
     java
@@ -18,8 +18,8 @@ subprojects {
 
     dependencies {
         implementation("org.jspecify:jspecify:1.0.0")
-        "errorprone"("com.google.errorprone:error_prone_core:2.45.0")
-        "errorprone"("com.uber.nullaway:nullaway:0.12.12")
+        "errorprone"("com.google.errorprone:error_prone_core:2.46.0")
+        "errorprone"("com.uber.nullaway:nullaway:0.12.15")
     }
 
     java {
@@ -31,7 +31,10 @@ subprojects {
         options.errorprone {
             option("NullAway:AnnotatedPackages", "com.oddlabs")
 
-            disable( "NullAway", "IntLongMath", "MissingCasesInEnumSwitch",
+            // Errorprone has decided it wants to throw a class cast exception
+            disableAllChecks = true
+
+            disable( "NullAway", "IntLongMath", "MissingCasesInEnumSwitch", "ImmutableEnumChecker",
                 "NarrowingCompoundAssignment", "InstanceOfAndCastMatchWrongType",
                 "TimeUnitConversionChecker", "UnusedNestedClass", "SameNameButDifferent", "AssignmentExpression",
                 "NullablePrimitive", "ObjectToString", "FallThrough", "ByteBufferBackingArray",

@@ -1,6 +1,7 @@
 package com.oddlabs.tt.resource;
 
 import com.oddlabs.procedural.Layer;
+import com.oddlabs.util.Image;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -20,7 +21,11 @@ public final class GLIntImage extends GLImage {
 	public @NonNull IntBuffer getIntPixels() {
 		return pixels;
 	}
-
+	
+	public GLIntImage(@NonNull Image image) {
+		this(image.getWidth(), image.getHeight(), image.getPixels(), GL11.GL_RGBA);
+	}
+ 
 	public GLIntImage(int width, int height, @NonNull ByteBuffer pixel_data, int format) {
 		super(width, height, pixel_data, format);
 		pixels = pixel_data.asIntBuffer();
@@ -43,14 +48,6 @@ public final class GLIntImage extends GLImage {
                 } else {
                     ai = 255;
                 }
-                /*				if (ri < 0) ri = 0;
-                if (gi < 0) gi = 0;
-                if (bi < 0) bi = 0;
-                if (ai < 0) ai = 0;
-                if (ri > 255) ri = 255;
-                if (gi > 255) gi = 255;
-                if (bi > 255) bi = 255;
-                if (ai > 255) ai = 255;*/
                 int pixel = (ai << 24) | (bi << 16) | (gi << 8) | ri;
                 putPixel(x, y, pixel);
             }

@@ -62,7 +62,6 @@ public final class Settings implements Serializable {
 	// control
 	public boolean invert_camera_pitch = false;
 	public boolean aggressive_units = false;
-	public boolean use_native_cursor = true;
 
 	public float mapmode_delay = .5f;
 	public float tooltip_delay = .5f;
@@ -125,7 +124,7 @@ public final class Settings implements Serializable {
 		setProperty(props, "fullscreen", fullscreen, defaults.fullscreen);
 		setProperty(props, "invert_camera_pitch", invert_camera_pitch, defaults.invert_camera_pitch);
 		setProperty(props, "aggressive_units", aggressive_units, defaults.aggressive_units);
-		setProperty(props, "use_native_cursor", use_native_cursor, defaults.use_native_cursor);
+		// setProperty(props, "use_native_cursor", use_native_cursor, defaults.use_native_cursor);
 		setProperty(props, "mapmode_delay", mapmode_delay, defaults.mapmode_delay);
 		setProperty(props, "tooltip_delay", tooltip_delay, defaults.tooltip_delay);
 		setProperty(props, "first_run", first_run, defaults.first_run);
@@ -179,7 +178,7 @@ public final class Settings implements Serializable {
 		fullscreen = getBoolean(props, "fullscreen", fullscreen);
 		invert_camera_pitch = getBoolean(props, "invert_camera_pitch", invert_camera_pitch);
 		aggressive_units = getBoolean(props, "aggressive_units", aggressive_units);
-		use_native_cursor = getBoolean(props, "use_native_cursor", use_native_cursor);
+		// use_native_cursor = getBoolean(props, "use_native_cursor", use_native_cursor);
 		mapmode_delay = getFloat(props, "mapmode_delay", mapmode_delay);
 		tooltip_delay = getFloat(props, "tooltip_delay", tooltip_delay);
 		first_run = getBoolean(props, "first_run", first_run);

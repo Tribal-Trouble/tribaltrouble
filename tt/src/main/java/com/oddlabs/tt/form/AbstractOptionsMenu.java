@@ -194,16 +194,6 @@ public abstract class AbstractOptionsMenu extends Form {
         cb_fullscreen.place();
         group_fullscreen.compileCanvas();
 
-        // Hardware cursor
-        Group group_hardware_cursor = new Group();
-        display.addChild(group_hardware_cursor);
-        CheckBox cb_hardware_cursor = new CheckBox(Settings.getSettings().use_native_cursor, Utils.getBundleString(bundle, "hardware_cursor"), Utils.getBundleString(bundle, "hardware_cursor_tip", "Ctrl-H"));
-        cb_hardware_cursor.addCheckBoxListener(marked -> Settings.getSettings().use_native_cursor = marked);
-        group_hardware_cursor.addChild(cb_hardware_cursor);
-        cb_hardware_cursor.place();
-        group_hardware_cursor.compileCanvas();
-        group_hardware_cursor.setDisabled((Renderer.getLocalInput().getNativeCursorCaps() & LocalInput.CURSOR_ONE_BIT_TRANSPARENCY) == 0);
-
         // Detail
         Group group_detail = new Group();
         display.addChild(group_detail);
@@ -276,7 +266,6 @@ public abstract class AbstractOptionsMenu extends Form {
         mode_group.place();
         group_detail.place(mode_group, RIGHT_TOP);
         group_fullscreen.place(group_detail, BOTTOM_LEFT);
-        group_hardware_cursor.place(group_fullscreen, BOTTOM_LEFT);
         display.compileCanvas();
 
         return display;

@@ -7,5 +7,6 @@ public enum CursorType {
     NORMAL,
     TARGET,
     TEXT,
+    DEBUG,
     NULL
 }

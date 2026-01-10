@@ -2,49 +2,49 @@ package com.oddlabs.tt.input;
 
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.gui.Cursor;
+import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.MouseButton;
-import com.oddlabs.tt.render.NativeCursor;
 import com.oddlabs.tt.render.Renderer;
-import com.oddlabs.tt.resource.GLIntImage;
-import com.oddlabs.util.Image;
-import com.oddlabs.util.Utils;
+import com.oddlabs.tt.resource.CursorFile;
+import com.oddlabs.tt.resource.Resources;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.MemoryUtil;
 
+import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 
 public final class PointerInput {
 	private static final Set<@NonNull MouseButton> buttons = EnumSet.noneOf(MouseButton.class);
 	private static short last_x;
 	private static short last_y;
-	private static long active_cursor = MemoryUtil.NULL;
+	private static @NonNull Cursor active_cursor = Cursor.NULL_CURSOR;
 	private static @Nullable MouseButton drag_button = null;
 
-	private static final @NonNull NativeCursor debug_cursor;
+	private static final Cursor DEBUG_CURSOR =
+			Resources.findResource(new CursorFile("/textures/gui/pointer_clientload_32_8.image", 2, 29));
 
-	static {
-		Image image_16_1 = Image.read(Utils.makeURL("/textures/gui/pointer_clientload_16_1.image"));
-		GLIntImage img_16_1 = new GLIntImage(image_16_1.getWidth(), image_16_1.getHeight(), image_16_1.getPixels(), GL11.GL_RGBA);
-		Image image_32_1 = Image.read(Utils.makeURL("/textures/gui/pointer_clientload_32_1.image"));
-		GLIntImage img_32_1 = new GLIntImage(image_32_1.getWidth(), image_32_1.getHeight(), image_32_1.getPixels(), GL11.GL_RGBA);
-		Image image_32_8 = Image.read(Utils.makeURL("/textures/gui/pointer_clientload_32_8.image"));
-		GLIntImage img_32_8 = new GLIntImage(image_32_8.getWidth(), image_32_8.getHeight(), image_32_8.getPixels(), GL11.GL_RGBA);
-		debug_cursor = new NativeCursor(img_16_1, 2, 14,
-											 img_32_1, 4, 27,
-											 img_32_8, 4, 27);
+    private static final Map<@NonNull CursorType, @NonNull Cursor> cursors = new EnumMap<>(Map.of(
+			CursorType.NORMAL, Resources.findResource(new CursorFile("/textures/gui/pointer_32_8.image", 2, 29)),
+			CursorType.TARGET, Resources.findResource(new CursorFile("/textures/gui/pointer_target_32_8.image", 2, 29)),
+			CursorType.TEXT, Resources.findResource(new CursorFile("/textures/gui/pointer_text_32_8.image", 2, 29)),
+			CursorType.DEBUG, DEBUG_CURSOR,
+			CursorType.NULL, Cursor.NULL_CURSOR
+	));
+
+	public static void setActiveCursor(@NonNull CursorType type) {
+		setActiveCursor(cursors.get(type));
 	}
-
-	public static void setActiveCursor(long cursor) {
+	public static void setActiveCursor(@NonNull Cursor cursor) {
         InputProvider<?> input = Renderer.getLocalInput().getInputProvider();
 
-		if (cursor != MemoryUtil.NULL && input.isGrabbed()) {
+		if (cursor != Cursor.NULL_CURSOR && input.isGrabbed()) {
 			input.setGrabbed(false);
 			resetCursorPos();
-		} else if (cursor == MemoryUtil.NULL && !input.isGrabbed()) {
+		} else if (cursor == Cursor.NULL_CURSOR && !input.isGrabbed()) {
 			input.setGrabbed(true);
 			resetCursorPos();
 		}
@@ -67,19 +67,18 @@ public final class PointerInput {
             ;
 	}
 
-	private static void doSetActiveCursor(long cursor) {
+	private static void doSetActiveCursor(@NonNull Cursor cursor) {
 		active_cursor = cursor;
         InputProvider<Long> input = Renderer.getLocalInput().getInputProvider();
-        if (input != null) {
-			var useCursor = LocalEventQueue.getQueue().getDeterministic().isPlayback()
-					? debug_cursor.getCursor() : cursor;
-		    input.setNativeCursor(useCursor);
-        }
-	}
+        var useCursor = LocalEventQueue.getQueue().getDeterministic().isPlayback()
+                ? DEBUG_CURSOR : cursor;
+        input.setNativeCursor(useCursor.getCursor());
+    }
 
-	public static void deletingCursor(long cursor) {
-		if (active_cursor == cursor)
-			doSetActiveCursor(MemoryUtil.NULL);
+	public static void deletingCursor(@NonNull Cursor cursor) {
+		if (active_cursor == cursor) {
+			doSetActiveCursor(Cursor.NULL_CURSOR);
+		}
 	}
 
 	private static void updateMouse(@NonNull GUIRoot gui_root, int x, int y, int dz) {

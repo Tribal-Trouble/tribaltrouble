@@ -155,11 +155,6 @@ public final class LocalInput implements AutoCloseable {
         return revision;
     }
 
-    public int getNativeCursorCaps() {
-        return LocalEventQueue.getQueue().getDeterministic()
-                .log(CURSOR_8_BIT_ALPHA | CURSOR_ONE_BIT_TRANSPARENCY);
-    }
-
     public void settings(@NonNull Path game_dir, @NonNull Path event_log_dir, @NonNull Settings settings) {
         setSettings(game_dir, event_log_dir, revision, settings);
     }

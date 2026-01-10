@@ -12,16 +12,17 @@ import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Texture;
+import com.oddlabs.tt.resource.CursorFile;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.ToolTip;
-import com.oddlabs.util.Utils;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.system.MemoryUtil;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -29,21 +30,10 @@ import java.util.logging.Logger;
 public final class GUIRoot extends GUIObject {
 	private static final Logger logger = Logger.getLogger(GUIRoot.class.getName());
 
-	private final ResourceBundle bundle = ResourceBundle.getBundle(GUIRoot.class.getName());
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(GUIRoot.class.getName());
 
 	private static final int CURSOR_OFFSET_Y = 27;
-	private final com.oddlabs.tt.resource.Cursor[] cursors = new com.oddlabs.tt.resource.Cursor[]{
-		new com.oddlabs.tt.resource.Cursor(Utils.makeURL("/textures/gui/pointer_16_1.image"), 1, 15,
-										   Utils.makeURL("/textures/gui/pointer_32_1.image"), 2, 29,
-										   Utils.makeURL("/textures/gui/pointer_32_8.image"), 2, 29),
 
-		new com.oddlabs.tt.resource.Cursor(Utils.makeURL("/textures/gui/pointer_target_16_1.image"), 7, 8,
-										   Utils.makeURL("/textures/gui/pointer_target_32_1.image"), 14, 17,
-										   Utils.makeURL("/textures/gui/pointer_target_32_8.image"), 14, 17),
-
-		new com.oddlabs.tt.resource.Cursor(Utils.makeURL("/textures/gui/pointer_text_16_1.image"), 4, 8,
-										   Utils.makeURL("/textures/gui/pointer_text_32_1.image"), 6, 20,
-										   Utils.makeURL("/textures/gui/pointer_text_32_8.image"), 6, 20)};
 
 	private final Deque<@NonNull CameraDelegate<?>> delegate_stack = new ArrayDeque<>();
 	private final Deque<@NonNull ModalDelegate> modal_delegate_stack = new ArrayDeque<>();
@@ -61,6 +51,7 @@ public final class GUIRoot extends GUIObject {
 	private @NonNull GUIObject current_gui_object = this;
 	private @NonNull GUIObject global_focus = this;
 
+	/** the object most recently under the cursor (if any, might be "this") **/
 	private @NonNull GUIObject cursor_object = this;
 
 	GUIRoot(@NonNull GUI gui) {
@@ -200,16 +191,6 @@ public final class GUIRoot extends GUIObject {
 				if (event.controlDown()) {
 					String filename = GLUtils.takeScreenshot("");
 					info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "screenshot_message", filename));
-				}
-				break;
-
-			case H:
-				if (event.controlDown() && (Renderer.getLocalInput().getNativeCursorCaps() & LocalInput.CURSOR_ONE_BIT_TRANSPARENCY) != 0) {
-					Settings.getSettings().use_native_cursor = !Settings.getSettings().use_native_cursor;
-					if (Settings.getSettings().use_native_cursor)
-						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "hardware_cursor_on"));
-					else
-						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "hardware_cursor_off"));
 				}
 				break;
 
@@ -388,15 +369,7 @@ public final class GUIRoot extends GUIObject {
 			gui.getFade().render(renderer);
 		}
 
-		if (cursor_object.getCursorType() != CursorType.NULL) {
-			cursors[cursor_object.getCursorType().ordinal()].setActive();
-			if (getModalDelegate() != null || getDelegate().renderCursor()) {
-				float mouse_x = Renderer.getLocalInput().getMouseX();
-				float mouse_y = Renderer.getLocalInput().getMouseY();
-				cursors[cursor_object.getCursorType().ordinal()].render(renderer, mouse_x, mouse_y);
-			}
-		} else
-			PointerInput.setActiveCursor(MemoryUtil.NULL);
+		PointerInput.setActiveCursor(cursor_object.getCursorType());
 
         if (showToolTip()) {
             ToolTip tooltip = getToolTip();
