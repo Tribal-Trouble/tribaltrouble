@@ -40,8 +40,9 @@ tasks.register("renderInterLightFont", JavaExec::class) {
     args = listOf(
         ttfFile.toString(),
         "13",
-        "1024",
+        "2048",
         "1200",
+        "2",
         fontInfoDir,
         fontTexDir,
         fontTexClasspath
@@ -72,8 +73,9 @@ tasks.register("renderInterTightBlackFont", JavaExec::class) {
     args = listOf(
         ttfFile.toString(),
         "28",
-        "1024",
+        "2048",
         "600",
+        "2",
         fontInfoDir,
         fontTexDir,
         fontTexClasspath
