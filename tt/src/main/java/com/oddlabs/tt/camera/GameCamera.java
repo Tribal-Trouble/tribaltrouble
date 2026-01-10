@@ -426,6 +426,7 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
     public void enable() {
         super.enable();
         var localInput = Renderer.getLocalInput();
-        mouseMoved(localInput.getMouseX(), localInput.getMouseY());
+        float scale = viewer.getGUIRoot().getGlobalScale();
+        mouseMoved(Math.round(localInput.getMouseX() / scale), Math.round(localInput.getMouseY() / scale));
     }
 }

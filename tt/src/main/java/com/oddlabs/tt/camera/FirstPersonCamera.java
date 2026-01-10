@@ -57,8 +57,11 @@ public final class FirstPersonCamera extends Camera {
 
     @Override
     public void mouseMoved(int x, int y) {
-            int dx = x - last_x;
-            int dy = y - last_y;
+            // Ignore logical x/y; use physical coordinates from LocalInput to maintain constant
+            // rotation sensitivity and match PointerInput locking requirements.
+            var localInput = Renderer.getLocalInput();
+            int dx = localInput.getMouseX() - last_x;
+            int dy = localInput.getMouseY() - last_y;
             getState().setTargetHorizAngle(getState().getTargetHorizAngle() - dx*SCALE_HORIZ);
             if (Settings.getSettings().invert_camera_pitch)
                     getState().setTargetVertAngle(getState().getTargetVertAngle() - dy*SCALE_VERT);

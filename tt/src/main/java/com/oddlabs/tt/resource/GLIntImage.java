@@ -21,11 +21,11 @@ public final class GLIntImage extends GLImage {
 	public @NonNull IntBuffer getIntPixels() {
 		return pixels;
 	}
-	
+
 	public GLIntImage(@NonNull Image image) {
 		this(image.getWidth(), image.getHeight(), image.getPixels(), GL11.GL_RGBA);
 	}
- 
+
 	public GLIntImage(int width, int height, @NonNull ByteBuffer pixel_data, int format) {
 		super(width, height, pixel_data, format);
 		pixels = pixel_data.asIntBuffer();

@@ -119,8 +119,13 @@ public final class Picker implements Updatable<TimerAnimation> {
 		return nearest_pickable;
 	}
 
+	public float getScale() {
+		return gui_root.getGlobalScale();
+	}
+
 	public void pickTarget(@NonNull Army selected_army, @NonNull CameraState camera, @NonNull PlayerInterface player_interface, int x, int y, @NonNull Action action) {
-		setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
+        float scale = getScale();
+		setupPicking(camera, x * scale, y * scale, PICK_SIZE, PICK_SIZE);
 		pickObjects();
 		Target nearest_pickable = getNearestPick(element_pick_list, Target.class);
 		Selectable<?>[] selection = selected_army.filter(Abilities.TARGET);
@@ -138,7 +143,7 @@ public final class Picker implements Updatable<TimerAnimation> {
 				supply.changeRespondingTrees(1);
 				if (isNewSetTarget(selection, supply, action, Settings.getSettings().aggressive_units))
 					player_interface.setTarget(selection, supply, action, Settings.getSettings().aggressive_units);
-			} else if (nearestLandscape(x, y)) {
+			} else if (nearestLandscape(Math.round(x * scale), Math.round(y * scale))) {
 				new LandscapeTargetRespond(local_player.getWorld(), patch_hit_x, patch_hit_y);
 				int grid_x = UnitGrid.toGridCoordinate(patch_hit_x);
 				int grid_y = UnitGrid.toGridCoordinate(patch_hit_y);
@@ -194,10 +199,16 @@ public final class Picker implements Updatable<TimerAnimation> {
 	}
 
 	public @NonNull Selectable<?> @NonNull [] pickBoxed(@NonNull CameraState camera, int x1, int y1, int x2, int y2, int clicks) {
-		float cx = (x1 + x2)*0.5f;
-		float cy = (y1 + y2)*0.5f;
-		int width = Math.abs(x1 - x2) + 1;
-		int height = Math.abs(y1 - y2) + 1;
+        float scale = gui_root.getGlobalScale();
+        float sx1 = x1 * scale;
+        float sy1 = y1 * scale;
+        float sx2 = x2 * scale;
+        float sy2 = y2 * scale;
+        
+		float cx = (sx1 + sx2)*0.5f;
+		float cy = (sy1 + sy2)*0.5f;
+		int width = (int)Math.abs(sx1 - sx2) + 1;
+		int height = (int)Math.abs(sy1 - sy2) + 1;
 		width = Math.max(width, PICK_SIZE);
 		height = Math.max(height, PICK_SIZE);
 		setupPicking(camera, cx, cy, width, height);
@@ -244,8 +255,9 @@ public final class Picker implements Updatable<TimerAnimation> {
 	public void pickRotate(@NonNull GameCamera camera) {
 		int x = gui_root.getWidth()/2;
 		int y = camera.getRotateY();
-		setupPicking(camera.getState(), x, y, PICK_SIZE, PICK_SIZE);
-		if (!nearestLandscape(x, y) || patch_hit_z < local_player.getWorld().getHeightMap().getSeaLevelMeters()) {
+        float scale = getScale();
+		setupPicking(camera.getState(), x * scale, y * scale, PICK_SIZE, PICK_SIZE);
+		if (!nearestLandscape(Math.round(x * scale), Math.round(y * scale)) || patch_hit_z < local_player.getWorld().getHeightMap().getSeaLevelMeters()) {
 			float dz = tmp_camera.getCurrentZ() - local_player.getWorld().getHeightMap().getSeaLevelMeters();
 			float factor = dz/dir_vector[2];
 			patch_hit_x = tmp_camera.getCurrentX() - factor*dir_vector[0];
@@ -406,18 +418,20 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 	}
 
 	public void pickMapGoto(int x, int y, @NonNull MapCamera camera) {
-		setupPicking(camera.getState(), x, y, PICK_SIZE, PICK_SIZE);
-		if (nearestLandscape(x, y))
+        float scale = getScale();
+		setupPicking(camera.getState(), x * scale, y * scale, PICK_SIZE, PICK_SIZE);
+		if (nearestLandscape(Math.round(x * scale), Math.round(y * scale)))
 			camera.mapGoto(patch_hit_x, patch_hit_y);
 	}
 
 	public @Nullable Target pickRallyPoint(@NonNull CameraState camera, int x, int y, @NonNull Building building) {
-		setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
+        float scale = getScale();
+		setupPicking(camera, x * scale, y * scale, PICK_SIZE, PICK_SIZE);
 		pickObjects();
 		Target nearest = getNearestPick(element_pick_list, Target.class);
 		if (nearest instanceof Building) {
 			return nearest;
-		} else if (nearestLandscape(x, y)) {
+		} else if (nearestLandscape(Math.round(x * scale), Math.round(y * scale))) {
 			int grid_x = UnitGrid.toGridCoordinate(patch_hit_x);
 			int grid_y = UnitGrid.toGridCoordinate(patch_hit_y);
 			return building.getUnitGrid().findGridTargets(grid_x, grid_y, 1, false)[0];
@@ -426,8 +440,39 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 		}
 	}
 
+	public void pickHoverPhysical(@NonNull CameraState camera, int physical_x, int physical_y) {
+		setupPicking(camera, physical_x, physical_y, PICK_SIZE, PICK_SIZE);
+		pickObjects();
+		Target nearest = getNearestPick(element_pick_list, Target.class);
+		Target new_current_hovered;
+		if (nearest != null) {
+			new_current_hovered = nearest;
+		} else {
+			pickResources();
+			new_current_hovered = getNearestPick(tree_pick_list, Target.class);
+		}
+		if (current_hovered != new_current_hovered) {
+			tool_tip_timer.resetTime();
+			boolean old_tip = current_hovered instanceof ModelToolTip;
+			boolean new_tip = new_current_hovered instanceof ModelToolTip;
+			if (!old_tip && new_tip) {
+				tool_tip_timer.start();
+				render_tool_tip = false;
+			}
+			if (old_tip && !new_tip) {
+				if (!render_tool_tip)
+					tool_tip_timer.stop();
+				else
+					render_tool_tip = false;
+			}
+			current_hovered = new_current_hovered;
+			current_tooltip = new_tip ? new ToolTipAdapter((ModelToolTip) current_hovered, local_player) : null;
+		}
+	}
+
 	public void pickHover(@NonNull CameraState camera, int x, int y) {
-		setupPicking(camera, x, y, PICK_SIZE, PICK_SIZE);
+        float scale = gui_root.getGlobalScale();
+		setupPicking(camera, x * scale, y * scale, PICK_SIZE, PICK_SIZE);
 		pickObjects();
 		Target nearest = getNearestPick(element_pick_list, Target.class);
 		Target new_current_hovered;
@@ -493,7 +538,8 @@ com.oddlabs.tt.landscape.LandscapeTileIndices.debug = false;*/
 	private void setupPicking(@NonNull CameraState camera, float x_center, float y_center, int width, int height) {
 		proj.identity();
 		viewport.clear();
-		viewport.put(0).put(0).put(gui_root.getWidth()).put(gui_root.getHeight());
+        var window = Renderer.getRenderer().getWindow();
+		viewport.put(0).put(0).put(window.getWidth()).put(window.getHeight());
 		viewport.flip();
 
 		if (width > 0 && height > 0) {

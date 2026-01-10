@@ -717,6 +717,7 @@ public final class Renderer implements AutoCloseable {
         try {
             boolean fs = !window.isFullscreen() && !LocalEventQueue.getQueue().getDeterministic().isPlayback();
             window.setFullscreen(fs);
+            Settings.getSettings().fullscreen = fs;
             resetInput();
         } catch (Exception e) {
             logger.log(java.util.logging.Level.SEVERE, "Mode switching failed with exception", e);

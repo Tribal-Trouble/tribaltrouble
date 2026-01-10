@@ -52,7 +52,8 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
 	@Override
 	public final boolean canScroll() {
 		var localInput = Renderer.getLocalInput();
-		mouseMoved(localInput.getMouseX(), localInput.getMouseY());
+        float scale = getGUIRoot().getGlobalScale();
+		mouseMoved(Math.round(localInput.getMouseX() / scale), Math.round(localInput.getMouseY() / scale));
 		return getGUIRoot().getModalDelegate() == null;
 	}
 

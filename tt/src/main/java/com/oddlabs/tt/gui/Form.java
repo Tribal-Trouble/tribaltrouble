@@ -70,8 +70,11 @@ public class Form extends Group {
 			h = root.getHeight();
 		} else {
 			var window = Renderer.getRenderer().getWindow();
-			w = window.getWidth();
-			h = window.getHeight();
+            int physW = window.getWidth();
+            int physH = window.getHeight();
+            float scale = GUIRoot.calculateEffectiveScale(physW, physH);
+			w = (int)(physW / scale);
+			h = (int)(physH / scale);
 		}
 		setPos((w - getWidth())/2, (h - getHeight())/2);
 	}

@@ -16,8 +16,6 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 	private int y = 0;
 	private int width = 0;
 	private int height = 0;
-	private float scale_x = 1f;
-	private float scale_y = 1f;
 
 	private final LinkedList<@NonNull R> children = new LinkedList<>();
 
@@ -99,25 +97,17 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 		displayChangedNotify(width, height);
 		R current = children.getFirst();
 		while (current != null) {
-			current.displayChanged(width, height);
+			current.displayChanged(getWidth(), getHeight());
 			current = current.getNext();
 		}
 	}
 
+	/** Window or, in fullscreen mode the display, dimensions changed.
+	 *
+	 * @param width width of the window/display in pixels
+	 * @param height height of the window/display in pixels.
+	 */
 	protected void displayChangedNotify(int width, int height) {
-	}
-
-	protected final void setScale(float scale_x, float scale_y) {
-		this.scale_x = scale_x;
-		this.scale_y = scale_y;
-	}
-
-	public final float getScaleX() {
-		return scale_x;
-	}
-
-	public final float getScaleY() {
-		return scale_y;
 	}
 
 	public final void render(@NonNull GUIRenderer renderer) {
@@ -138,7 +128,10 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 			}
 			renderer.flush();
 			GL11.glEnable(GL11.GL_SCISSOR_TEST);
-			GL11.glScissor((int) getRootX(), (int) getRootY(), getWidth(), getHeight());
+            
+            float scale = getGlobalScale();
+			GL11.glScissor((int) (getRootX() * scale), (int) (getRootY() * scale), 
+                           (int)(getWidth() * scale), (int)(getHeight() * scale));
 
 			renderClipped(renderer, clip_left, clip_right, clip_bottom, clip_top);
 
@@ -164,9 +157,6 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 
 		if (!(this instanceof GUIRoot)) {
 			renderer.getMatrixStack().push();
-			if (scale_x != 1f || scale_y != 1f) {
-				renderer.getMatrixStack().scale(scale_x, scale_y, 1f);
-			}
 			renderer.getMatrixStack().translate(getX(), getY(), 0);
 		}
 
@@ -197,7 +187,7 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
         // nothing to show
 	}
 
-    /** Geometry endering done after the children have been rendered. Useful for badging, etc. */
+    /** Geometry rendering done after the children have been rendered. Useful for badging, etc. */
     protected void postRender(@NonNull GUIRenderer renderer) {
         // nothing to do
     }
@@ -205,22 +195,22 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 	protected abstract boolean isFocusable();
 
 	final float getRootX() {
-        return parent == null ? 0 : (parent.getRootX() + getX()) * scale_x;
+        return parent == null ? 0 : (parent.getRootX() + getX());
 	}
 
 	final float getRootY() {
-        return parent == null ? 0 : (parent.getRootY() + getY()) * scale_y;
-    }
+        return parent == null ? 0 : (parent.getRootY() + getY());
+	}
 
 	private float transformX(float x) {
-		return x/scale_x - getX();
+		return x - getX();
 	}
 
 	private float transformY(float y) {
-		return y/scale_y - getY();
+		return y - getY();
 	}
 
-	final @Nullable R pick(float x, float y) {
+	protected @Nullable R pick(float x, float y) {
 		float trans_x = transformX(x);
 		float trans_y = transformY(y);
 		if (isFocusable() && trans_x >= 0 && trans_y >= 0 && trans_x < getWidth() && trans_y < getHeight()) {
@@ -262,4 +252,8 @@ public abstract class Renderable<R extends Renderable<R>> extends ListElementImp
 			parent.removeChild(self());
 		}
 	}
+    
+    protected float getGlobalScale() {
+        return parent != null ? parent.getGlobalScale() : 1.0f;
+    }
 }

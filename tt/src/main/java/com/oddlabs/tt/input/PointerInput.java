@@ -6,11 +6,13 @@ import com.oddlabs.tt.gui.Cursor;
 import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.CursorFile;
 import com.oddlabs.tt.resource.Resources;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.system.MemoryUtil;
 
 import java.util.EnumMap;
 import java.util.EnumSet;

@@ -53,7 +53,8 @@ public final class InputState {
 
 	public void mouseMoved(short x, short y) {
 		GUIObject gui_hit = pick();
-		gui_hit.mouseMovedAll(x, y);
+        float scale = gui_root.getGlobalScale();
+		gui_hit.mouseMovedAll((short)Math.round(x / scale), (short)Math.round(y / scale));
 	}
 
 	private void resetKeyTimer() {
@@ -70,11 +71,15 @@ public final class InputState {
 	public void mousePressed(@NonNull MouseButton button) {
 		GUIObject gui_hit = pick();
 		var localInput = Renderer.getLocalInput();
-		int local_x = gui_hit.translateXToLocal(localInput.getMouseX());
-		int local_y = gui_hit.translateYToLocal(localInput.getMouseY());
+        float scale = gui_root.getGlobalScale();
+        int scaledX = Math.round(localInput.getMouseX() / scale);
+        int scaledY = Math.round(localInput.getMouseY() / scale);
+        
+		int local_x = gui_hit.translateXToLocal(scaledX);
+		int local_y = gui_hit.translateYToLocal(scaledY);
 		Index.resetBlinking();
-		drag_x = localInput.getMouseX();
-		drag_y = localInput.getMouseY();
+		drag_x = scaledX;
+		drag_y = scaledY;
 		absolute_drag_x = drag_x;
 		absolute_drag_y = drag_y;
 		if (drag_obj == null) {
@@ -91,8 +96,8 @@ public final class InputState {
                     timer.setTimerInterval(MOUSE_REPEAT_RATE);
                     timer.resetTime();
                     if (press_obj == gui_root.getCurrentGUIObject()) {
-                        int local_x1 = press_obj.translateXToLocal(localInput.getMouseX());
-                        int local_y1 = press_obj.translateYToLocal(localInput.getMouseY());
+                        int local_x1 = press_obj.translateXToLocal(Math.round(localInput.getMouseX() / scale));
+                        int local_y1 = press_obj.translateYToLocal(Math.round(localInput.getMouseY() / scale));
                         press_obj.mouseHeldAll(held_button, local_x1, local_y1);
                     }
                 }, MOUSE_REPEAT_DELAY);
@@ -103,13 +108,19 @@ public final class InputState {
 	public void mouseReleased(@NonNull MouseButton button) {
 		GUIObject gui_hit = pick();
 		var localInput = Renderer.getLocalInput();
-		int local_x = gui_hit.translateXToLocal(localInput.getMouseX());
-		int local_y = gui_hit.translateYToLocal(localInput.getMouseY());
+        float scale = gui_root.getGlobalScale();
+        int scaledX = Math.round(localInput.getMouseX() / scale);
+        int scaledY = Math.round(localInput.getMouseY() / scale);
+        
 		Index.resetBlinking();
 		if (button == drag_button)
 			drag_obj = null;
 		if (press_obj == null)
 			return;
+            
+        int local_x = press_obj.translateXToLocal(scaledX);
+		int local_y = press_obj.translateYToLocal(scaledY);
+        
 		if (gui_hit == press_obj) {
 			if (gui_hit != clicked_obj || !clickedSameArea()) {
 				if (double_click_timer.isRunning()) {
@@ -120,7 +131,7 @@ public final class InputState {
 			}
 			click_counter++;
 			clicked_obj = gui_hit;
-			clicked_x = localInput.getMouseX();
+			clicked_x = localInput.getMouseX(); // Keep raw for consistent threshold check? Or scale? Raw is fine for distance check.
 			clicked_y = localInput.getMouseY();
 			press_obj.mouseClickedAll(button, local_x, local_y, click_counter);
 		}
@@ -130,10 +141,14 @@ public final class InputState {
 	}
 
 	public void mouseDragged (@NonNull MouseButton button, short x, short y) {
+        float scale = gui_root.getGlobalScale();
+        int scaledX = Math.round(x / scale);
+        int scaledY = Math.round(y / scale);
+        
 		if (drag_obj != null)
-			drag_obj.mouseDraggedAll(button, x, y, x - drag_x, y - drag_y, x - absolute_drag_x, y - absolute_drag_y);
-		drag_x = x;
-		drag_y = y;
+			drag_obj.mouseDraggedAll(button, scaledX, scaledY, scaledX - drag_x, scaledY - drag_y, scaledX - absolute_drag_x, scaledY - absolute_drag_y);
+		drag_x = scaledX;
+		drag_y = scaledY;
 	}
 
 	private boolean clickedSameArea() {

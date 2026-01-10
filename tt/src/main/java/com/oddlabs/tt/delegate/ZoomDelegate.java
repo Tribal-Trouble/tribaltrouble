@@ -14,6 +14,8 @@ public class ZoomDelegate extends InGameDelegate {
 
 	private final int start_x;
 	private final int start_y;
+    private final int physical_start_x;
+    private final int physical_start_y;
 
 	private final GameCamera game_camera;
 
@@ -23,8 +25,11 @@ public class ZoomDelegate extends InGameDelegate {
 		super(viewer, camera);
 		game_camera = camera;
 		var localInput = Renderer.getLocalInput();
-		start_x = localInput.getMouseX();
-		start_y = localInput.getMouseY();
+        physical_start_x = localInput.getMouseX();
+        physical_start_y = localInput.getMouseY();
+        float scale = viewer.getGUIRoot().getGlobalScale();
+		start_x = Math.round(physical_start_x / scale);
+		start_y = Math.round(physical_start_y / scale);
 	}
 
 	private void release() {
@@ -63,7 +68,7 @@ public class ZoomDelegate extends InGameDelegate {
 
 			float zoom_factor = dy*ZOOM_FACTOR_CORRECTION;
 			game_camera.zoom(zoom_factor);
-			PointerInput.setCursorPosition(start_x, start_y);
+			PointerInput.setCursorPosition(physical_start_x, physical_start_y);
 		}
 	}
 

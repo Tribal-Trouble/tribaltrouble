@@ -11,6 +11,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public final class Slider extends GUIObject {
 	private final Set<@NonNull ValueListener> value_listeners = new CopyOnWriteArraySet<>();
+    private final Set<@NonNull Runnable> release_listeners = new CopyOnWriteArraySet<>();
 
 	private final @NonNull SliderButton button;
 	private final int left_offset;
@@ -37,6 +38,16 @@ public final class Slider extends GUIObject {
 		button.addMouseMotionListener(drag_listener);
 		button.addMouseButtonListener(drag_listener);
 	}
+    
+    public void addReleaseListener(@NonNull Runnable listener) {
+        release_listeners.add(listener);
+    }
+    
+    private void notifyRelease() {
+        for (Runnable r : release_listeners) {
+            r.run();
+        }
+    }
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
@@ -81,8 +92,17 @@ public final class Slider extends GUIObject {
 			else if (dx > step/2)
 				setValue(value + 1 + min);
 			this.button.setFocus();
+            // notifyRelease(); // Should this fire on press? No, usually Release for "Commit".
+            // But for step click, maybe Release is better.
 		}
 	}
+    
+    @Override
+    public void mouseReleased(@NonNull MouseButton button, int x, int y) {
+        if (!isDisabled()) {
+            notifyRelease();
+        }
+    }
 
 	public void setValue(int value) {
 		int start_value = this.value;
@@ -147,7 +167,9 @@ public final class Slider extends GUIObject {
 		@Override
 		public void mouseExited() {}
 		@Override
-		public void mouseReleased(@NonNull MouseButton button, int x, int y) {}
+		public void mouseReleased(@NonNull MouseButton button, int x, int y) {
+            notifyRelease();
+        }
 		@Override
 		public void mouseHeld(@NonNull MouseButton button, int x, int y) {}
 		@Override

@@ -65,8 +65,9 @@ public final class Settings implements Serializable {
 
 	public float mapmode_delay = .5f;
 	public float tooltip_delay = .5f;
+    public float ui_scale = 0.0f; // 0.0 = 100% (Scale 1.0), 1.0 = Max Scale
 	private final boolean developer_mode = Boolean.getBoolean("com.oddlabs.tt.developer");
-	public boolean has_native_campaign = false;
+	public boolean has_native_campaign = developer_mode;
 
 	public final boolean save_event_log = true;
 	public boolean generate_dummy_worlds = false;
@@ -74,7 +75,8 @@ public final class Settings implements Serializable {
 
 	public boolean warning_no_sound = true;
 
-	public final boolean hide_multiplayer = false;
+	// Multiplay is currently unavailable with this fork
+	public final boolean hide_multiplayer = true;
 
 	public final int frame_grab_milliseconds_per_frame = 40;
 
@@ -124,9 +126,9 @@ public final class Settings implements Serializable {
 		setProperty(props, "fullscreen", fullscreen, defaults.fullscreen);
 		setProperty(props, "invert_camera_pitch", invert_camera_pitch, defaults.invert_camera_pitch);
 		setProperty(props, "aggressive_units", aggressive_units, defaults.aggressive_units);
-		// setProperty(props, "use_native_cursor", use_native_cursor, defaults.use_native_cursor);
 		setProperty(props, "mapmode_delay", mapmode_delay, defaults.mapmode_delay);
 		setProperty(props, "tooltip_delay", tooltip_delay, defaults.tooltip_delay);
+        setProperty(props, "ui_scale", ui_scale, defaults.ui_scale);
 		setProperty(props, "first_run", first_run, defaults.first_run);
 		setProperty(props, "warning_no_sound", warning_no_sound, defaults.warning_no_sound);
         
@@ -178,9 +180,9 @@ public final class Settings implements Serializable {
 		fullscreen = getBoolean(props, "fullscreen", fullscreen);
 		invert_camera_pitch = getBoolean(props, "invert_camera_pitch", invert_camera_pitch);
 		aggressive_units = getBoolean(props, "aggressive_units", aggressive_units);
-		// use_native_cursor = getBoolean(props, "use_native_cursor", use_native_cursor);
 		mapmode_delay = getFloat(props, "mapmode_delay", mapmode_delay);
 		tooltip_delay = getFloat(props, "tooltip_delay", tooltip_delay);
+        ui_scale = getFloat(props, "ui_scale", ui_scale);
 		first_run = getBoolean(props, "first_run", first_run);
 		warning_no_sound = getBoolean(props, "warning_no_sound", warning_no_sound);
         

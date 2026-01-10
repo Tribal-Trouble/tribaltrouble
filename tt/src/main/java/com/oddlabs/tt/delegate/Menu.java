@@ -77,8 +77,13 @@ public abstract class Menu extends CameraDelegate<Camera> {
         addChild(overlay);
 
         String logo_file = Utils.getBundleString(bundle, "logo_file");
-        logo = new GUIImage((int) ((347f / 800f) * screen_width), (int) ((206f / 600f) * screen_height), 0f, 0f, 347f / 512f, 206f / 256f, logo_file);
-        logo.setPos(0, screen_height - logo.getHeight());
+        
+        float heightScale = screen_height / 600f;
+        int logoHeight = (int) (206f * heightScale);
+        int logoWidth = (int) (347f * heightScale);
+        
+        logo = new GUIImage(logoWidth, logoHeight, 0f, 0f, 347f / 512f, 206f / 256f, logo_file);
+        logo.setPos(0, screen_height - logoHeight);
         addChild(logo);
     }
 
@@ -124,8 +129,14 @@ public abstract class Menu extends CameraDelegate<Camera> {
         int x = 15;
 
         overlay.setDim(width, height);
-        logo.setDim((int) ((347f / 800f) * width), (int) ((206f / 600f) * height));
-        logo.setPos(0, height - logo.getHeight());
+        
+        // Maintain aspect ratio based on height
+        float heightScale = height / 600f;
+        int logoHeight = (int) (206f * heightScale);
+        int logoWidth = (int) (347f * heightScale);
+        
+        logo.setDim(logoWidth, logoHeight);
+        logo.setPos(0, height - logoHeight);
         GUIObject child = getLastChild();
         while (child != null) {
             if (child instanceof MenuButton) {

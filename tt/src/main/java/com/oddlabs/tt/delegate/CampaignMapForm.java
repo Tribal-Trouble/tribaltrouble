@@ -29,6 +29,9 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 	private static final int base_width = 800;
 	private static final int base_height = 600;
 
+    private final float scale_x;
+    private final float scale_y;
+
 	private final @NonNull Campaign campaign;
 	private final @NonNull NetworkSelector network;
 
@@ -38,9 +41,9 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 		this.network = network;
 		final ResourceBundle bundle = ResourceBundle.getBundle(CampaignMapForm.class.getName());
 
-		float scale_x = gui_root.getWidth()/(float)base_width;
-		float scale_y = gui_root.getHeight()/(float)base_height;
-		setScale(scale_x, scale_y);
+		this.scale_x = gui_root.getWidth()/(float)base_width;
+		this.scale_y = gui_root.getHeight()/(float)base_height;
+        
 		if (campaign.getState().getRace() == CampaignState.RACE_VIKINGS) {
 			if (campaign.getState().getIslandState(10) != CampaignState.ISLAND_HIDDEN) {
 				addChild(campaign.getIcons().getHiddenRoutes()[0]);
@@ -165,4 +168,17 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 			campaign.islandChosen(network, getGUIRoot(), number);
 		}
 	}
+
+    @Override
+    protected void render(@NonNull GUIRenderer renderer, float clip_left, float clip_right, float clip_bottom, float clip_top) {
+        renderer.getMatrixStack().push();
+        renderer.getMatrixStack().scale(scale_x, scale_y, 1f);
+        super.render(renderer, clip_left, clip_right, clip_bottom, clip_top);
+        renderer.getMatrixStack().pop();
+    }
+
+    @Override
+    protected GUIObject pick(float x, float y) {
+        return super.pick(x / scale_x, y / scale_y);
+    }
 }

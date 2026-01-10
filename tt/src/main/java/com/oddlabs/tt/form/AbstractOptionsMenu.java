@@ -14,7 +14,6 @@ import com.oddlabs.tt.gui.IconLabel;
 import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Languages;
-import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Panel;
@@ -50,6 +49,7 @@ public abstract class AbstractOptionsMenu extends Form {
 	private static final boolean TEMPORARILY_DISABLE_MUSIC_CONTROLS = false;
 
     private final PulldownMenu<Void> pm_gamespeed = new PulldownMenu<>();
+    private Label label_pct;
 
 	AbstractOptionsMenu(@NonNull GUIRoot gui_root) {
         ResourceBundle bundle = ResourceBundle.getBundle(OptionsMenu.class.getName());
@@ -58,8 +58,8 @@ public abstract class AbstractOptionsMenu extends Form {
 
 		PanelGroup panel_group = new PanelGroup(
                 createGeneralPanel(gui_root, bundle, this),
-                createDisplayPanel(gui_root, bundle, this),
-                createAccessibilityPanel(gui_root, bundle, this),
+                createGraphicsPanel(gui_root, bundle, this),
+                createAccessibilityPanel(gui_root, bundle),
                 createSoundPanel(bundle),
                 createLanguagePanel(gui_root, bundle)
         );
@@ -154,7 +154,7 @@ public abstract class AbstractOptionsMenu extends Form {
         options.pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
         options.pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
         
-        PulldownButton pb_gamespeed = new PulldownButton(gui_root, options.pm_gamespeed, 150);
+        PulldownButton<Void> pb_gamespeed = new PulldownButton<>(gui_root, options.pm_gamespeed, 150);
         options.pm_gamespeed.addItemChosenListener((_, item_index) -> options.changeGamespeed(item_index));
         group_gamespeed.addChild(pb_gamespeed);
         label_gamespeed.place();
@@ -172,8 +172,9 @@ public abstract class AbstractOptionsMenu extends Form {
         return general;
     }
 
-    private static Panel createDisplayPanel(@NonNull GUIRoot gui_root, @NonNull ResourceBundle bundle, @NonNull AbstractOptionsMenu options) {
+    private static Panel createGraphicsPanel(@NonNull GUIRoot gui_root, @NonNull ResourceBundle bundle, @NonNull AbstractOptionsMenu options) {
         Panel display = new Panel(Utils.getBundleString(bundle, "graphics_caption"));
+        var labelFont = Skin.getSkin().getEditFont();
 
         // Fullscreen
         Group group_fullscreen = new Group();
@@ -194,11 +195,43 @@ public abstract class AbstractOptionsMenu extends Form {
         cb_fullscreen.place();
         group_fullscreen.compileCanvas();
 
+        // UI Scale
+        Group group_ui_scale = new Group();
+        display.addChild(group_ui_scale);
+        Label label_ui_scale = new Label(Utils.getBundleString(bundle, "ui_scale"), labelFont);
+        group_ui_scale.addChild(label_ui_scale);
+
+        // Initial percentage label
+        Label label_pct = new Label("9.9.9%", labelFont);
+        options.label_pct = label_pct;
+        options.updateScaleLabel();
+        group_ui_scale.addChild(label_pct);
+
+        int initialValue = Math.clamp((long)(Settings.getSettings().ui_scale * 1000), 0, 1000);
+
+        Slider slider_ui_scale = new Slider(150, 0, 1000, initialValue);
+        group_ui_scale.addChild(slider_ui_scale);
+        
+        slider_ui_scale.addValueListener(value -> {
+            Settings.getSettings().ui_scale = value / 1000f;
+            // Update label but do NOT resize yet
+            options.updateScaleLabel();
+        });
+        
+        slider_ui_scale.addReleaseListener(() -> 
+            gui_root.displayChanged(Renderer.getRenderer().getWindow().getWidth(), Renderer.getRenderer().getWindow().getHeight())
+        );
+
+        label_ui_scale.place();
+        label_pct.place(label_ui_scale, RIGHT_MID); // Place next to headline label
+        slider_ui_scale.place(label_ui_scale, BOTTOM_LEFT);
+        group_ui_scale.compileCanvas();
+
         // Detail
         Group group_detail = new Group();
         display.addChild(group_detail);
 
-        Label label_detail = new Label(Utils.getBundleString(bundle, "graphical_detail"), Skin.getSkin().getEditFont());
+        Label label_detail = new Label(Utils.getBundleString(bundle, "graphical_detail"), labelFont);
         group_detail.addChild(label_detail);
 
         int initial_detail_value = Settings.getSettings().graphic_detail;
@@ -206,7 +239,7 @@ public abstract class AbstractOptionsMenu extends Form {
         pm_detail.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "low")));
         pm_detail.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "medium")));
         pm_detail.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "high")));
-        PulldownButton pb_detail = new PulldownButton(gui_root, pm_detail, initial_detail_value, 150);
+        PulldownButton<Void> pb_detail = new PulldownButton<>(gui_root, pm_detail, initial_detail_value, 150);
 
         group_detail.addChild(pb_detail);
         options.addCloseListener(() -> {
@@ -224,7 +257,7 @@ public abstract class AbstractOptionsMenu extends Form {
         Group mode_group = new Group();
         display.addChild(mode_group);
 
-        Label mode_label = new Label(Utils.getBundleString(bundle, "display_mode"), Skin.getSkin().getEditFont());
+        Label mode_label = new Label(Utils.getBundleString(bundle, "display_mode"), labelFont);
         mode_group.addChild(mode_label);
 
         ColumnInfo[] mode_infos = new ColumnInfo[]{new ColumnInfo("", 150)};
@@ -265,26 +298,32 @@ public abstract class AbstractOptionsMenu extends Form {
         // Placement
         mode_group.place();
         group_detail.place(mode_group, RIGHT_TOP);
-        group_fullscreen.place(group_detail, BOTTOM_LEFT);
+        group_ui_scale.place(group_detail, BOTTOM_LEFT);
+        group_fullscreen.place(group_ui_scale, BOTTOM_LEFT);
         display.compileCanvas();
 
         return display;
     }
 
-    private static Panel createAccessibilityPanel(@NonNull GUIRoot gui_root, @NonNull ResourceBundle bundle, @NonNull AbstractOptionsMenu options) {
+    private static Panel createAccessibilityPanel(@NonNull GUIRoot gui_root, @NonNull ResourceBundle bundle) {
         Panel accessibility = new Panel(Utils.getBundleString(bundle, "accessibility_caption"));
 
         // High Contrast
         Group group_contrast = new Group();
         accessibility.addChild(group_contrast);
+        CheckBox cb_team_stencil = new CheckBox(Settings.getSettings().team_stencil, Utils.getBundleString(bundle, "team_stencil"), Utils.getBundleString(bundle, "team_stencil_tip"));
+        group_contrast.addChild(cb_team_stencil);
+
         CheckBox cb_high_contrast = new CheckBox(Settings.getSettings().high_contrast, Utils.getBundleString(bundle, "high_contrast"), Utils.getBundleString(bundle, "high_contrast_tip"));
         group_contrast.addChild(cb_high_contrast);
         
-        CheckBox cb_team_stencil = new CheckBox(Settings.getSettings().team_stencil, Utils.getBundleString(bundle, "team_stencil"), Utils.getBundleString(bundle, "team_stencil_tip"));
-        group_contrast.addChild(cb_team_stencil);
-        
         Label label_contrast_intensity = new Label(Utils.getBundleString(bundle, "contrast_intensity"), Skin.getSkin().getEditFont());
         group_contrast.addChild(label_contrast_intensity);
+
+        Label label_contrast_low = new Label(Utils.getBundleString(bundle, "low"), Skin.getSkin().getEditFont());
+        group_contrast.addChild(label_contrast_low);
+        Label label_contrast_high = new Label(Utils.getBundleString(bundle, "high"), Skin.getSkin().getEditFont());
+        group_contrast.addChild(label_contrast_high);
         
         // Support up to 2.0 intensity (40 steps)
         Slider slider_contrast = new Slider(SLIDER_WIDTH, 0, 2 * MAX_VALUE, (int)(Settings.getSettings().contrast_intensity * MAX_VALUE));
@@ -299,14 +338,12 @@ public abstract class AbstractOptionsMenu extends Form {
         
         slider_contrast.addValueListener(value -> Settings.getSettings().contrast_intensity = (float)value / MAX_VALUE);
 
-        // Layout:
-        // [Checkbox High Contrast]
-        // [Checkbox Team Overlay]
-        // [Label Intensity] [Slider]
-        cb_high_contrast.place();
-        cb_team_stencil.place(cb_high_contrast, BOTTOM_LEFT);
-        label_contrast_intensity.place(cb_team_stencil, BOTTOM_LEFT);
-        slider_contrast.place(label_contrast_intensity, RIGHT_MID);
+        cb_team_stencil.place();
+        cb_high_contrast.place(cb_team_stencil, BOTTOM_LEFT);
+        label_contrast_intensity.place(cb_high_contrast, BOTTOM_LEFT);
+        label_contrast_low.place(label_contrast_intensity, BOTTOM_LEFT);
+        slider_contrast.place(label_contrast_low, RIGHT_MID);
+        label_contrast_high.place(slider_contrast, RIGHT_MID);
         group_contrast.compileCanvas();
 
         // CVD
@@ -320,11 +357,16 @@ public abstract class AbstractOptionsMenu extends Form {
         pm_cvd.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "cvd_protanopia")));
         pm_cvd.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "cvd_deuteranopia")));
         pm_cvd.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "cvd_tritanopia")));
-        PulldownButton pb_cvd = new PulldownButton(gui_root, pm_cvd, Settings.getSettings().cvd_mode, 200);
+        PulldownButton<Void> pb_cvd = new PulldownButton<>(gui_root, pm_cvd, Settings.getSettings().cvd_mode, SLIDER_WIDTH - label_cvd.getWidth() - Skin.getSkin().getFormData().objectSpacing());
         group_cvd.addChild(pb_cvd);
 
         Label label_cvd_intensity = new Label(Utils.getBundleString(bundle, "cvd_intensity"), Skin.getSkin().getEditFont());
         group_cvd.addChild(label_cvd_intensity);
+
+        Label label_cvd_low = new Label(Utils.getBundleString(bundle, "low"), Skin.getSkin().getEditFont());
+        group_cvd.addChild(label_cvd_low);
+        Label label_cvd_high = new Label(Utils.getBundleString(bundle, "high"), Skin.getSkin().getEditFont());
+        group_cvd.addChild(label_cvd_high);
 
         // Support up to 2.0 intensity (40 steps)
         Slider slider_cvd = new Slider(SLIDER_WIDTH, 0, 2 * MAX_VALUE, (int)(Settings.getSettings().cvd_intensity * MAX_VALUE));
@@ -337,13 +379,12 @@ public abstract class AbstractOptionsMenu extends Form {
         });
         slider_cvd.addValueListener(value -> Settings.getSettings().cvd_intensity = (float)value / MAX_VALUE);
 
-        // Layout:
-        // [Label Mode] [Pulldown]
-        // [Label Intensity] [Slider]
         label_cvd.place();
         pb_cvd.place(label_cvd, RIGHT_MID);
         label_cvd_intensity.place(label_cvd, BOTTOM_LEFT);
-        slider_cvd.place(label_cvd_intensity, RIGHT_MID);
+        label_cvd_low.place(label_cvd_intensity, BOTTOM_LEFT);
+        slider_cvd.place(label_cvd_low, RIGHT_MID);
+        label_cvd_high.place(slider_cvd, RIGHT_MID);
         group_cvd.compileCanvas();
 
         // Placement
@@ -499,6 +540,7 @@ public abstract class AbstractOptionsMenu extends Form {
 	protected void displayChangedNotify(int width, int height) {
 		super.displayChangedNotify(width, height);
 		centerPos();
+        updateScaleLabel();
 	}
 
 	protected final void chooseGamespeed(int speed) {
@@ -508,4 +550,14 @@ public abstract class AbstractOptionsMenu extends Form {
 	protected void changeGamespeed(int index) {
 		Globals.gamespeed = index;
 	}
+    
+    public void updateScaleLabel() {
+        if (label_pct != null) {
+            int w = Renderer.getRenderer().getWindow().getWidth();
+            int h = Renderer.getRenderer().getWindow().getHeight();
+            
+            float scale = GUIRoot.calculateEffectiveScale(w, h);
+            label_pct.setText(String.format("%d%%", (int)(scale * 100)));
+        }
+    }
 }

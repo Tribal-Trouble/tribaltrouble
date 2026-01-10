@@ -161,7 +161,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     public void pickHover(boolean can_hover_behind, @NonNull CameraState camera, int x, int y) {
         if (can_hover_behind) {
             var localInput = Renderer.getLocalInput();
-            picker.pickHover(camera, localInput.getMouseX(), localInput.getMouseY());
+            picker.pickHoverPhysical(camera, localInput.getMouseX(), localInput.getMouseY());
         } else {
             picker.resetCurrentHovered();
         }

@@ -17,7 +17,7 @@ public final class ToolTipBox extends TextField {
 	
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		throw new RuntimeException("ToolTipBox.renderGeometry should not be called directly. Use render(GUIRenderer, ...)");
+		throw new UnsupportedOperationException("ToolTipBox.renderGeometry should not be called directly. Use render(GUIRenderer, ...)");
 	}
 
 	public void append(@NonNull IconQuad @Nullable ... icons) {

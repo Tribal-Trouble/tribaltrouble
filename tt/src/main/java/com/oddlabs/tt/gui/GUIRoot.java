@@ -34,7 +34,6 @@ public final class GUIRoot extends GUIObject {
 
 	private static final int CURSOR_OFFSET_Y = 27;
 
-
 	private final Deque<@NonNull CameraDelegate<?>> delegate_stack = new ArrayDeque<>();
 	private final Deque<@NonNull ModalDelegate> modal_delegate_stack = new ArrayDeque<>();
 	private final Deque<@NonNull GUIObject> focus_backup_stack = new ArrayDeque<>();
@@ -51,8 +50,7 @@ public final class GUIRoot extends GUIObject {
 	private @NonNull GUIObject current_gui_object = this;
 	private @NonNull GUIObject global_focus = this;
 
-	/** the object most recently under the cursor (if any, might be "this") **/
-	private @NonNull GUIObject cursor_object = this;
+    private float effective_scale = 1.0f;
 
 	GUIRoot(@NonNull GUI gui) {
 		this.gui = gui;
@@ -70,7 +68,11 @@ public final class GUIRoot extends GUIObject {
         return this;
     }
 
-    public @NonNull GUIRoot getParentGUIRoot() {
+    public float getGlobalScale() {
+        return effective_scale;
+    }
+
+	public @NonNull GUIRoot getParentGUIRoot() {
         return self();
     }
 
@@ -178,10 +180,46 @@ public final class GUIRoot extends GUIObject {
 		focus_backup_stack.push(o);
 	}
 
+    public static float calculateMaxScale(int width, int height) {
+        if (width <= 0 || height <= 0) return 1.0f;
+        float maxScaleX = width / 800f;
+        float maxScaleY = height / 600f;
+        return Math.max(1.0f, Math.min(maxScaleX, maxScaleY));
+    }
+
+    public static float calculateMinScale(int width, int height) {
+        if (width <= 0 || height <= 0) return 1.0f;
+        float autoScale = Math.min(width / 1280f, height / 1024f);
+        return Math.max(1.0f, autoScale);
+    }
+
+    public static float calculateEffectiveScale(int width, int height) {
+        if (width <= 0 || height <= 0) return 1.0f;
+
+        float minScale = calculateMinScale(width, height);
+		float maxAllowedScale = Math.max(minScale, calculateMaxScale(width, height));
+
+        float current = Math.clamp(Settings.getSettings().ui_scale, 0f, 1f);
+        
+        // Interpolate
+        float rawTarget = minScale + (current * (maxAllowedScale - minScale));
+        
+        // Snap to nearest 0.25 increment
+        float snappedTarget = Math.round(rawTarget * 4f) / 4f;
+        
+        return Math.clamp(snappedTarget, minScale, maxAllowedScale);
+    }
+
 	@Override
 	protected void displayChangedNotify(int width, int height) {
-		setDim(width, height);
-		getDelegate().displayChanged(width, height);
+        if (width <= 0 || height <= 0) return;
+
+        effective_scale = calculateEffectiveScale(width, height);
+
+        int virtualWidth = (int)(width / effective_scale);
+        int virtualHeight = (int)(height / effective_scale);
+
+		setDim(virtualWidth, virtualHeight);
 	}
 
 	@Override
@@ -297,7 +335,8 @@ public final class GUIRoot extends GUIObject {
 	}
 
 	void mousePick() {
-		mousePick(Renderer.getLocalInput().getMouseX(), Renderer.getLocalInput().getMouseY());
+		mousePick(Math.round(Renderer.getLocalInput().getMouseX() / effective_scale),
+                  Math.round(Renderer.getLocalInput().getMouseY() / effective_scale));
 	}
 
 	private void mousePick(int x, int y) {
@@ -320,7 +359,7 @@ public final class GUIRoot extends GUIObject {
 			current_gui_object = target;
 			current_gui_object.mouseEnteredAll();
 			if (!current_gui_object.isDisabled())
-				cursor_object = current_gui_object;
+				PointerInput.setActiveCursor(current_gui_object.getCursorType());
 		}
 	}
 
@@ -369,8 +408,6 @@ public final class GUIRoot extends GUIObject {
 			gui.getFade().render(renderer);
 		}
 
-		PointerInput.setActiveCursor(cursor_object.getCursorType());
-
         if (showToolTip()) {
             ToolTip tooltip = getToolTip();
             if (tooltip == null)
@@ -396,6 +433,9 @@ public final class GUIRoot extends GUIObject {
 	private void renderToolTip(@NonNull GUIRenderer renderer, @NonNull ToolTip hovered) {
 		tool_tip.clear();
 		hovered.appendToolTip(tool_tip);
-		tool_tip.render(renderer, Renderer.getLocalInput().getMouseX(), Renderer.getLocalInput().getMouseY() - CURSOR_OFFSET_Y, getWidth(), getHeight());
+		tool_tip.render(renderer,
+                Math.round(Renderer.getLocalInput().getMouseX() / effective_scale),
+                Math.round(Renderer.getLocalInput().getMouseY() / effective_scale) - CURSOR_OFFSET_Y,
+                getWidth(), getHeight());
 	}
 }

@@ -99,8 +99,4 @@ public final class Cursor extends NativeResource<Cursor.NativeCursor> {
     public long getCursor() {
 		return state.cursor;
 	}
-
-	public void setActive() {
-		PointerInput.setActiveCursor(this);
-	}
 }

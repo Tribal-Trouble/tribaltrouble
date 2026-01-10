@@ -1,5 +1,6 @@
 package com.oddlabs.tt.input;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public interface InputProvider<C> extends AutoCloseable {

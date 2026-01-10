@@ -78,7 +78,9 @@ public final class GUI implements Animated {
         Matrix4f modelView = new Matrix4f();
         var guiRoot = getGUIRoot();
         CameraState camera = guiRoot.getDelegate().getCamera().getState();
-        camera.setView(guiRoot.multProjection(proj.identity()), guiRoot.getWidth(), guiRoot.getHeight());
+        
+        var window = Renderer.getRenderer().getWindow();
+        camera.setView(guiRoot.multProjection(proj.identity()), window.getWidth(), window.getHeight());
         modelView.set(camera.getModelView());
 
         if (!Globals.frustum_freeze) {
