@@ -196,16 +196,17 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         float scroll_speed = scroll_start_speed*(.4f + (scroll_acceleration_seconds/SCROLL_ACCELERATION_SECONDS_MAX)*SCROLL_ACCELERATION_FACTOR);
         float scroll_factor = time_delta*scroll_speed;
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
-        if (localInput.isKeyDown(Key.LEFT) && !localInput.isKeyDown(Key.RIGHT) && !blocked)
+        boolean alt_down = isAltDown(localInput);
+        if (localInput.isKeyDown(Key.LEFT) && !localInput.isKeyDown(Key.RIGHT) && !blocked && !alt_down)
                 scrolling_x = -1f;
-        else if (localInput.isKeyDown(Key.RIGHT) && !localInput.isKeyDown(Key.LEFT) && !blocked)
+        else if (localInput.isKeyDown(Key.RIGHT) && !localInput.isKeyDown(Key.LEFT) && !blocked && !alt_down)
                 scrolling_x = 1f;
         else
                 scrolling_x = scroll_x;
 
-        if (localInput.isKeyDown(Key.DOWN) && !localInput.isKeyDown(Key.UP) && !blocked)
+        if (localInput.isKeyDown(Key.DOWN) && !localInput.isKeyDown(Key.UP) && !blocked && !alt_down)
                 scrolling_y = -1f;
-        else if (localInput.isKeyDown(Key.UP) && !localInput.isKeyDown(Key.DOWN) && !blocked)
+        else if (localInput.isKeyDown(Key.UP) && !localInput.isKeyDown(Key.DOWN) && !blocked && !alt_down)
                 scrolling_y = 1f;
         else
                 scrolling_y = scroll_y;
@@ -405,6 +406,10 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         }
     }
 
+    private boolean isAltDown(com.oddlabs.tt.gui.LocalInput localInput) {
+        return localInput.isKeyDown(Key.LALT) || localInput.isKeyDown(Key.RALT);
+    }
+
     private void checkKeys() {
         if (viewer.getGUIRoot().getDelegate().keyboardBlocked() || viewer.getGUIRoot().getModalDelegate() != null) {
                 pitch_up = false;
@@ -415,11 +420,16 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         }
 
         var localInput = Renderer.getLocalInput();
+        boolean alt_down = isAltDown(localInput);
 
-        pitch_up = localInput.isKeyDown(Key.HOME) || localInput.isKeyDown(Key.NUMPAD8);
-        pitch_down = localInput.isKeyDown(Key.END) || localInput.isKeyDown(Key.NUMPAD2);
-        rotate_right = localInput.isKeyDown(Key.INSERT) || localInput.isKeyDown(Key.NUMPAD6);
-        rotate_left = localInput.isKeyDown(Key.DELETE) || localInput.isKeyDown(Key.NUMPAD4);
+        pitch_up = localInput.isKeyDown(Key.HOME) || localInput.isKeyDown(Key.NUMPAD8)
+                || (alt_down && localInput.isKeyDown(Key.UP));
+        pitch_down = localInput.isKeyDown(Key.END) || localInput.isKeyDown(Key.NUMPAD2)
+                || (alt_down && localInput.isKeyDown(Key.DOWN));
+        rotate_right = localInput.isKeyDown(Key.INSERT) || localInput.isKeyDown(Key.NUMPAD6)
+                || (alt_down && localInput.isKeyDown(Key.RIGHT));
+        rotate_left = localInput.isKeyDown(Key.DELETE) || localInput.isKeyDown(Key.NUMPAD4)
+                || (alt_down && localInput.isKeyDown(Key.LEFT));
     }
 
     @Override
