@@ -317,7 +317,10 @@ public final class LWJGL3Window implements Window {
     @Override
     public @NonNull SerializableDisplayMode @NonNull [] getAvailableDisplayModes() {
         ensureGLFW();
-        long monitor = glfwGetPrimaryMonitor();
+        long monitor = getCurrentMonitor();
+        if (monitor == MemoryUtil.NULL) {
+            return new SerializableDisplayMode[0];
+        }
         GLFWVidMode.Buffer modes = glfwGetVideoModes(monitor);
         
         if (modes == null) return new SerializableDisplayMode[0];
