@@ -78,9 +78,11 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
     private float mount_offset = 0;
     private Building mounted_building;
     private float range_bonus;
+    private int current_sprite_index = 0;
 
     public Unit(Player owner, float x, float y, Target rally_point, UnitTemplate unit_template) {
         this(owner, x, y, rally_point, unit_template, null);
+        this.current_sprite_index = 0;
     }
 
     public Unit(
@@ -337,7 +339,21 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
     }
 
     public final SpriteKey getSpriteRenderer() {
-        return getUnitTemplate().getSpriteRenderer();
+        return getUnitTemplate().getSpriteRenderer(current_sprite_index);
+    }
+
+    public final void setSpriteIndex(int index) {
+        assert index >= 0 && index < getUnitTemplate().getNumSpriteRenderers()
+                : "Sprite index out of bounds";
+        this.current_sprite_index = index;
+    }
+
+    public final int getSpriteIndex() {
+        return current_sprite_index;
+    }
+
+    public final int getNumSprites() {
+        return getUnitTemplate().getNumSpriteRenderers();
     }
 
     public final void doAnimate(float t) {

@@ -934,7 +934,9 @@ public final strictfp class RacesResources {
                         new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                         4f,
                         viking_warrior_rock_weapon,
-                        queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_ROCK),
+                        new SpriteKey[] {
+                            queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_ROCK)
+                        },
                         shadow_diameter_warrior,
                         default_shadow_list,
                         null,
@@ -956,7 +958,9 @@ public final strictfp class RacesResources {
                         new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                         4f,
                         viking_warrior_iron_weapon,
-                        queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_IRON),
+                        new SpriteKey[] {
+                            queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_IRON)
+                        },
                         shadow_diameter_warrior,
                         default_shadow_list,
                         null,
@@ -978,7 +982,9 @@ public final strictfp class RacesResources {
                         new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                         4f,
                         viking_warrior_rubber_weapon,
-                        queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_RUBBER),
+                        new SpriteKey[] {
+                            queues.register(sprite_list_warrior, Race.UNIT_WARRIOR_RUBBER)
+                        },
                         shadow_diameter_warrior,
                         default_shadow_list,
                         null,
@@ -1000,7 +1006,9 @@ public final strictfp class RacesResources {
                         new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                         4f,
                         native_warrior_rock_weapon,
-                        queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_ROCK),
+                        new SpriteKey[] {
+                            queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_ROCK)
+                        },
                         shadow_diameter_warrior,
                         default_shadow_list,
                         null,
@@ -1022,7 +1030,9 @@ public final strictfp class RacesResources {
                         new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                         4f,
                         native_warrior_iron_weapon,
-                        queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_IRON),
+                        new SpriteKey[] {
+                            queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_IRON)
+                        },
                         shadow_diameter_warrior,
                         default_shadow_list,
                         null,
@@ -1044,7 +1054,9 @@ public final strictfp class RacesResources {
                         new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.THROW),
                         4f,
                         native_warrior_rubber_weapon,
-                        queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_RUBBER),
+                        new SpriteKey[] {
+                            queues.register(sprite_list_native_warrior, Race.UNIT_WARRIOR_RUBBER)
+                        },
                         shadow_diameter_warrior,
                         default_shadow_list,
                         null,
@@ -1070,7 +1082,7 @@ public final strictfp class RacesResources {
                                         | Abilities.TARGET),
                         5f,
                         new InstantHitFactory(1 / 5f, 0f, 11f / 38f, unit_hit_sounds),
-                        queues.register(sprite_list_peon),
+                        new SpriteKey[] {queues.register(sprite_list_peon)},
                         shadow_diameter_peon,
                         default_shadow_list,
                         new UnitSupplyContainerFactory(
@@ -1097,7 +1109,10 @@ public final strictfp class RacesResources {
                                         | Abilities.TARGET),
                         5f,
                         new InstantHitFactory(1 / 5f, 0f, 51f / 83f, unit_hit_sounds),
-                        queues.register(sprite_list_native_peon),
+                        new SpriteKey[] {
+                            queues.register(sprite_list_native_peon),
+                            queues.register(sprite_list_native_peon2)
+                        },
                         shadow_diameter_peon,
                         default_shadow_list,
                         new UnitSupplyContainerFactory(
@@ -1120,7 +1135,7 @@ public final strictfp class RacesResources {
                         new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.MAGIC),
                         4f,
                         new InstantHitFactory(3 / 4f, 0f, 75f / 119f, viking_chieftain_hit_sounds),
-                        queues.register(sprite_list_chieftain),
+                        new SpriteKey[] {queues.register(sprite_list_chieftain)},
                         shadow_diameter_chieftain,
                         default_shadow_list,
                         null,
@@ -1142,7 +1157,7 @@ public final strictfp class RacesResources {
                         new Abilities(Abilities.ATTACK | Abilities.TARGET | Abilities.MAGIC),
                         4f,
                         new InstantHitFactory(3 / 4f, 0f, 75f / 129f, native_chieftain_hit_sounds),
-                        queues.register(sprite_list_native_chieftain),
+                        new SpriteKey[] {queues.register(sprite_list_native_chieftain)},
                         shadow_diameter_chieftain,
                         default_shadow_list,
                         null,
