@@ -233,6 +233,22 @@ public final strictfp class RacesResources {
                         true,
                         true,
                         false);
+        SpriteFile native_right_paddle_sprite =
+                new SpriteFile(
+                        "/geometry/natives/right_paddle.binsprite",
+                        Globals.NO_MIPMAP_CUTOFF,
+                        true,
+                        true,
+                        true,
+                        false);
+        SpriteFile native_left_paddle_sprite =
+                new SpriteFile(
+                        "/geometry/natives/left_paddle.binsprite",
+                        Globals.NO_MIPMAP_CUTOFF,
+                        true,
+                        true,
+                        true,
+                        false);
         ProgressForm.progress(1f / num_progress);
         Map native_supply_sprite_lists = new HashMap();
         native_supply_sprite_lists.put(TreeSupply.class, queues.register(native_wood_sprite));
@@ -788,6 +804,14 @@ public final strictfp class RacesResources {
         SpriteFile sprite_list_native_peon =
                 new SpriteFile(
                         "/geometry/natives/peon" + seasonal_suffix + ".binsprite",
+                        Globals.NO_MIPMAP_CUTOFF,
+                        true,
+                        true,
+                        true,
+                        false);
+        SpriteFile sprite_list_native_peon2 =
+                new SpriteFile(
+                        "/geometry/natives/peon2.binsprite",
                         Globals.NO_MIPMAP_CUTOFF,
                         true,
                         true,

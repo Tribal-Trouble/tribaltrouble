@@ -356,10 +356,22 @@
 				natives/peon/native_peon_low_poly_mesh.xml
 				<texture name="native_peon" team="native_peon_team"/>
 			</model>
-			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
+            <animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
 			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
 			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
 			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+		</sprite>
+		<sprite name="peon2">
+			<skeleton>natives/peon/peon_skeleton2.xml</skeleton>
+			<model r="90" g="60" b="30">
+				natives/peon/native_peon_mesh.xml
+				<texture name="native_peon" team="native_peon_team"/>
+			</model>
+			<model r="90" g="60" b="30">
+				natives/peon/native_peon_low_poly_mesh.xml
+				<texture name="native_peon" team="native_peon_team"/>
+			</model>
+            <animation wpc="1" type="loop">natives/peon/peon_sitting.xml</animation>
 		</sprite>
 		<sprite name="warrior_christmas">
 			<skeleton>natives/warrior/native_warrior_skeleton.xml</skeleton>
@@ -427,6 +439,28 @@
 			<model r="90" g="60" b="30">
 				misc/rubber_fragment_native.xml
 				<texture name="chicken"/>
+			</model>
+			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
+			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
+			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
+			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+		</sprite>
+		<sprite name="right_paddle">
+			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				misc/right_paddle_native.xml
+				<texture name="native_ship"/>
+			</model>
+			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
+			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
+			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
+			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+		</sprite>
+		<sprite name="left_paddle">
+			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				misc/left_paddle_native.xml
+				<texture name="native_ship"/>
 			</model>
 			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
 			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
