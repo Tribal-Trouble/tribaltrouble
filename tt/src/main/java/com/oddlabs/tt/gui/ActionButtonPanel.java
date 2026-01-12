@@ -623,13 +623,13 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 	}
 
 	@Override
-	protected void keyReleased(@NonNull KeyboardEvent event) {
-		getParent().keyReleased(event);
+	protected boolean keyReleased(@NonNull KeyboardEvent event) {
+		return false;
 	}
 
 	@Override
-	protected void keyPressed(@NonNull KeyboardEvent event) {
-		getParent().keyPressed(event);
+	protected boolean keyPressed(@NonNull KeyboardEvent event) {
+		return false;
 	}
 
 	public boolean doKeyPressed(@NonNull KeyboardEvent event) {

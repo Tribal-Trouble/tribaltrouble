@@ -532,58 +532,58 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 			parent.mouseHeldAll(button, x, y);
 	}
 
-	final void keyPressedAll(@NonNull KeyboardEvent event) {
-		keyPressed(event);
+	final boolean keyPressedAll(@NonNull KeyboardEvent event) {
+		if (keyPressed(event)) return true;
         for (var listener : listeners) {
             if (listener instanceof KeyListener l) {
-                l.keyPressed(event);
+                if (l.keyPressed(event)) return true;
             }
         }
+		GUIObject parent = getParent();
+		return parent != null && parent.keyPressedAll(event);
 	}
 
-	protected void keyPressed(@NonNull KeyboardEvent event) {
+	protected boolean keyPressed(@NonNull KeyboardEvent event) {
 		if (event.keyCode() == Key.SPACE || event.keyCode() == Key.RETURN) {
 			mousePressedAll(MouseButton.LEFT, 0, 0);
-		} else {
-			GUIObject parent = getParent();
-			if (parent != null)
-				parent.keyPressedAll(event);
+			return true;
 		}
+		return false;
 	}
 
-	final void keyReleasedAll(@NonNull KeyboardEvent event) {
-		keyReleased(event);
+	final boolean keyReleasedAll(@NonNull KeyboardEvent event) {
+		if (keyReleased(event)) return true;
 		for (var listener : listeners) {
 			if (listener instanceof KeyListener l) {
-				l.keyReleased(event);
+				if (l.keyReleased(event)) return true;
 			}
         }
+		GUIObject parent = getParent();
+		return parent != null && parent.keyReleasedAll(event);
 	}
 
-	protected void keyReleased(@NonNull KeyboardEvent event) {
+	protected boolean keyReleased(@NonNull KeyboardEvent event) {
 		if (event.keyCode() == Key.SPACE || event.keyCode() == Key.RETURN) {
 			mouseReleasedAll(MouseButton.LEFT, 0, 0);
 			mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
-		} else {
-			GUIObject parent = getParent();
-			if (parent != null)
-				parent.keyReleasedAll(event);
+			return true;
 		}
+		return false;
 	}
 
-	final void keyRepeatAll(@NonNull KeyboardEvent event) {
-		keyRepeat(event);
+	final boolean keyRepeatAll(@NonNull KeyboardEvent event) {
+		if (keyRepeat(event)) return true;
 		for (var listener : listeners) {
 			if (listener instanceof KeyListener l) {
-				l.keyRepeat(event);
+				if (l.keyRepeat(event)) return true;
 			}
 		}
+		GUIObject parent = getParent();
+		return parent != null && parent.keyRepeatAll(event);
 	}
 
-	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		GUIObject parent = getParent();
-		if (parent != null)
-			parent.keyRepeatAll(event);
+	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
+		return false;
 	}
 
 	public final void addMouseClickListener(@NonNull MouseClickListener listener) {

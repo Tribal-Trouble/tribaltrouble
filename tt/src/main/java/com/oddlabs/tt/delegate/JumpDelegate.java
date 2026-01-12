@@ -27,15 +27,18 @@ public final class JumpDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public void keyPressed(@NonNull KeyboardEvent event) {
+	public boolean keyPressed(@NonNull KeyboardEvent event) {
+		return true;
 	}
 
 	@Override
-	public void keyRepeat(@NonNull KeyboardEvent event) {
+	public boolean keyRepeat(@NonNull KeyboardEvent event) {
+		return true;
 	}
 
 	@Override
-	public void keyReleased(@NonNull KeyboardEvent event) {
+	public boolean keyReleased(@NonNull KeyboardEvent event) {
+		return true;
 	}
 
 	@Override

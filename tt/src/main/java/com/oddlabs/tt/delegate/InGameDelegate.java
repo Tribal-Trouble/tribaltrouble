@@ -123,15 +123,16 @@ public abstract class InGameDelegate extends CameraDelegate<Camera> {
 	}
 
 	@Override
-	protected void keyPressed(@NonNull KeyboardEvent event) {
+	protected boolean keyPressed(@NonNull KeyboardEvent event) {
 		switch (event.keyCode()) {
 			case ESCAPE:
 				getGUIRoot().pushDelegate(new InGameMainMenu(viewer, new StaticCamera(getCamera().getState())));
-				break;
+				return true;
 			default:
-				if (!cheat(event))
-					super.keyPressed(event);
-				break;
+				if (cheat(event))
+					return true;
+				else
+					return super.keyPressed(event);
 		}
 	}
 

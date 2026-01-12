@@ -166,10 +166,12 @@ public abstract class Camera implements Animated {
             LocalEventQueue.getQueue().getHighPrecisionManager().registerAnimation(this);
     }
 
-    public void keyPressed(@NonNull KeyboardEvent event) {
+    public boolean keyPressed(@NonNull KeyboardEvent event) {
+        return false;
     }
 
-    public void keyReleased(@NonNull KeyboardEvent event) {
+    public boolean keyReleased(@NonNull KeyboardEvent event) {
+        return false;
     }
 
     public void mouseScrolled(int amount) {

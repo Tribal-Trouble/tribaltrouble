@@ -9,11 +9,13 @@ import org.jspecify.annotations.NonNull;
  */
 public final class ModalDelegate extends Delegate {
 	@Override
-	public void keyPressed(@NonNull KeyboardEvent event) {
+	public boolean keyPressed(@NonNull KeyboardEvent event) {
+		return false;
 	}
 
 	@Override
-	public void keyReleased(@NonNull KeyboardEvent event) {
+	public boolean keyReleased(@NonNull KeyboardEvent event) {
+		return false;
 	}
 
 	@Override

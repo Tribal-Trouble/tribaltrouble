@@ -66,33 +66,32 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 	}
 
 	@Override
-	protected void keyRepeat(@NonNull KeyboardEvent event) {
+	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.keyCode()) {
 			case UP:
 				rows.selectPrior();
 				clickedRow();
-				break;
+				return true;
 			case DOWN:
 				rows.selectNext();
 				clickedRow();
-				break;
+				return true;
 			case HOME:
 				rows.selectFirst();
 				clickedRow();
-				break;
+				return true;
 			case END:
 				rows.selectLast();
 				clickedRow();
-				break;
-			case PRIOR:
+				return true;
+			case PAGE_UP:
 				jumpPage(true);
-				break;
-			case NEXT:
+				return true;
+			case PAGE_DOWN:
 				jumpPage(false);
-				break;
+				return true;
 			default:
-				super.keyRepeat(event);
-				break;
+				return super.keyRepeat(event);
 		}
 	}
 

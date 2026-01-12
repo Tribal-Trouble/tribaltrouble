@@ -39,10 +39,15 @@ final class CampaignMapMenu extends Menu {
     }
 
     @Override
-    protected void keyPressed(@NonNull KeyboardEvent event) {
+    protected boolean keyPressed(@NonNull KeyboardEvent event) {
         switch (event.keyCode()) {
-            case ESCAPE -> pop();
-            default -> super.keyPressed(event);
+            case ESCAPE -> {
+                pop();
+                return true;
+            }
+            default -> {
+                return super.keyPressed(event);
+            }
         }
     }
 

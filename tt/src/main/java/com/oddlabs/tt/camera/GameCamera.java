@@ -369,41 +369,61 @@ old_z = World.getHeightMap().getNearestHeight(x, y) - old_dir_z*distance_to_land
         return viewer.getWorld();
     }
 
-    public void keyPressed(@NonNull KeyboardEvent event) {
+    @Override
+    public boolean keyPressed(@NonNull KeyboardEvent event) {
         switch (event.keyCode()) {
             case HOME, NUMPAD8 -> {
+				return true;
             }
             case END, NUMPAD2 -> {
+				return true;
             }
-            case INSERT, NUMPAD6 -> viewer.getPicker().pickRotate(this);
-            case DELETE, NUMPAD4 -> viewer.getPicker().pickRotate(this);
-            case PRIOR, NUMPAD9 -> mouseScrolled(-2);
-            case NEXT, NUMPAD3 -> mouseScrolled(2);
+            case INSERT, NUMPAD6 -> {
+				viewer.getPicker().pickRotate(this);
+				return true;
+			}
+            case DELETE, NUMPAD4 -> {
+				viewer.getPicker().pickRotate(this);
+				return true;
+			}
+            case PAGE_UP, NUMPAD9 -> {
+				mouseScrolled(-2);
+				return true;
+			}
+            case PAGE_DOWN, NUMPAD3 -> {
+				mouseScrolled(2);
+				return true;
+			}
             case UP -> {
                 if (!scrollSpeedLocked(Key.UP)) {
                     scroll_acceleration_seconds = 0;
                     setScrollSpeed();
                 }
+				return true;
             }
             case DOWN -> {
                 if (!scrollSpeedLocked(Key.DOWN)) {
                     scroll_acceleration_seconds = 0;
                     setScrollSpeed();
                 }
+				return true;
             }
             case LEFT -> {
                 if (!scrollSpeedLocked(Key.LEFT)) {
                     scroll_acceleration_seconds = 0;
                     setScrollSpeed();
                 }
+				return true;
             }
             case RIGHT -> {
                 if (!scrollSpeedLocked(Key.RIGHT)) {
                     scroll_acceleration_seconds = 0;
                     setScrollSpeed();
                 }
+				return true;
             }
         }
+		return false;
     }
 
     private boolean isAltDown(com.oddlabs.tt.gui.LocalInput localInput) {

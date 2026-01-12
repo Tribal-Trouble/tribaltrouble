@@ -34,11 +34,12 @@ public class FirstPersonDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public void keyPressed(@NonNull KeyboardEvent event) {
+	public boolean keyPressed(@NonNull KeyboardEvent event) {
+		return true;
 	}
 
 	@Override
-	public void keyReleased(@NonNull KeyboardEvent event) {
+	public boolean keyReleased(@NonNull KeyboardEvent event) {
 		if (key_pressed && !done) {
 			switch (event.keyCode()) {
 				case F:
@@ -46,6 +47,7 @@ public class FirstPersonDelegate extends InGameDelegate {
 					break;
 			}
 		}
+		return true;
 	}
 
 	@Override

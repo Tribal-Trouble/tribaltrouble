@@ -15,11 +15,13 @@ public class NullDelegate extends CameraDelegate<NullCamera> {
 	}
 
 	@Override
-	public void keyPressed(@NonNull KeyboardEvent event) {
+	public boolean keyPressed(@NonNull KeyboardEvent event) {
+		return false;
 	}
 
 	@Override
-	public void keyReleased(@NonNull KeyboardEvent event) {
+	public boolean keyReleased(@NonNull KeyboardEvent event) {
+		return false;
 	}
 
 	@Override

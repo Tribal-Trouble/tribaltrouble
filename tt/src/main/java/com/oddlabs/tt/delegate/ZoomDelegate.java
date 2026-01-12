@@ -45,16 +45,18 @@ public class ZoomDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public void keyPressed(@NonNull KeyboardEvent event) {
+	public boolean keyPressed(@NonNull KeyboardEvent event) {
+		return true;
 	}
 
 	@Override
-	public void keyReleased(@NonNull KeyboardEvent event) {
+	public boolean keyReleased(@NonNull KeyboardEvent event) {
 		if (!done) {
             switch (event.keyCode()) {
                 case Z -> pop();
             }
 		}
+		return true;
 	}
 
 	@Override

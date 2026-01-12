@@ -31,10 +31,20 @@ public final class SliderButton extends ButtonObject {
 	}
 
 	@Override
-	public void keyPressed(@NonNull KeyboardEvent event) {
+	public boolean keyRepeat(@NonNull KeyboardEvent event) {
         switch (event.keyCode()) {
             case RIGHT -> slider.setValue(slider.getValue() + 1);
             case LEFT -> slider.setValue(slider.getValue() - 1);
         }
+		return true;
+	}
+
+	@Override
+	public boolean keyPressed(@NonNull KeyboardEvent event) {
+        switch (event.keyCode()) {
+            case RIGHT -> slider.setValue(slider.getValue() + 1);
+            case LEFT -> slider.setValue(slider.getValue() - 1);
+        }
+		return true;
 	}
 }

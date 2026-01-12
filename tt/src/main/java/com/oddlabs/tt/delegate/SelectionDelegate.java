@@ -86,8 +86,8 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void keyPressed(@NonNull KeyboardEvent event) {
-		getCamera().keyPressed(event);
+	public boolean keyPressed(@NonNull KeyboardEvent event) {
+		if (getCamera().keyPressed(event)) return true;
 		int army_number = 0;
 		switch (event.keyCode()) {
 			case SPACE:
@@ -104,7 +104,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 					setCamera(new MapCamera(this, game_camera));
 					getCamera().enable();
 				}
-				break;
+				return true;
 			case TAB:
 				if (!observer) {
 					Notification n = getViewer().getNotificationManager().getLatestNotification();
@@ -115,7 +115,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 							((MapCamera)getCamera()).mapGoto(n.getX(), n.getY(), true);
 					}
 				}
-				break;
+				return true;
 			case KEY_9: army_number++;
 			case KEY_8: army_number++;
 			case KEY_7: army_number++;
@@ -140,32 +140,33 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 						}
 					}
 				}
-				break;
+				return true;
 			case RETURN:
 					if (!chat_visible)
 						chat_form.setReceivers(!event.shiftDown());
-				break;
+				return true;
 			case B:
 				if (event.controlDown() && !map_mode && !observer) {
 					getGUIRoot().pushDelegate(new BeaconDelegate(getViewer(), (GameCamera)getCamera()));
 				}
-				break;
+				return true;
 			case N:
 				nextIdlePeon();
-				break;
+				return true;
 			case F:
 			case Z:
 				if (!map_mode)
-					super.keyPressed(event);
-				break;
+					return super.keyPressed(event);
+				return true;
 			default:
 				if (map_mode || observer) {
-					super.keyPressed(event);
+					return super.keyPressed(event);
 				} else {
-					if (!getActionButtonPanel().doKeyPressed(event))
-						super.keyPressed(event);
+					if (getActionButtonPanel().doKeyPressed(event)) {
+						return true;
+					}
+					return super.keyPressed(event);
 				}
-				break;
 		}
 	}
 
@@ -219,25 +220,26 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public void keyRepeat(@NonNull KeyboardEvent event) {
+	public boolean keyRepeat(@NonNull KeyboardEvent event) {
 //		getCamera().keyRepeat(event);
 		switch (event.keyChar()) {
 			case '+':
 				changeGamespeed(1);
-				break;
+				return true;
 			case '-':
 				changeGamespeed(-1);
-				break;
+				return true;
 			default:
-				if (!map_mode && !observer && !getActionButtonPanel().doKeyRepeat(event))
-					super.keyRepeat(event);
-				break;
+				if (!map_mode && !observer && getActionButtonPanel().doKeyRepeat(event)) {
+					return true;
+				}
+				return super.keyRepeat(event);
 		}
 	}
 
 	@Override
-	public void keyReleased(@NonNull KeyboardEvent event) {
-		getCamera().keyReleased(event);
+	public boolean keyReleased(@NonNull KeyboardEvent event) {
+		if (getCamera().keyReleased(event)) return true;
         switch (event.keyCode()) {
             case RETURN -> {
                 if (!close_chat_override) {
@@ -250,10 +252,13 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
                 } else {
                     close_chat_override = false;
                 }
+				return true;
             }
             default -> {
-                if (!map_mode && !observer && !getActionButtonPanel().doKeyReleased(event))
-                    super.keyReleased(event);
+                if (!map_mode && !observer && getActionButtonPanel().doKeyReleased(event)) {
+					return true;
+				}
+                return super.keyReleased(event);
             }
         }
 	}

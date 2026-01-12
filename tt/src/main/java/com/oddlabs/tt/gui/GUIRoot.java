@@ -223,12 +223,14 @@ public final class GUIRoot extends GUIObject {
 	}
 
 	@Override
-	protected void keyPressed(@NonNull KeyboardEvent event) {
+	protected boolean keyPressed(@NonNull KeyboardEvent event) {
+		boolean consumed = false;
 		switch (event.keyCode()) {
 			case S:
 				if (event.controlDown()) {
 					String filename = GLUtils.takeScreenshot("");
 					info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "screenshot_message", filename));
+					consumed = true;
 				}
 				break;
 
@@ -239,67 +241,77 @@ public final class GUIRoot extends GUIObject {
 						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "aggressive_unites_on"));
 					else
 						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "aggressive_unites_off"));
+					consumed = true;
 				}
 				break;
 
 			 case I:
 				if (event.controlDown()) {
 					Globals.draw_status = !Globals.draw_status;
+					consumed = true;
 				}
 				break;
 			default:
 				break;
 		}
 
-		if (!Settings.getSettings().inDeveloperMode())
-			return;
+		if (consumed || !Settings.getSettings().inDeveloperMode())
+			return consumed;
 
 		switch (event.keyCode()) {
 			case U:
 				Renderer.getRenderer().startMovieRecording();
-				break;
+				return true;
 			case W:
-				if (event.controlDown())
+				if (event.controlDown()) {
 					Globals.draw_water = !Globals.draw_water;
+					return true;
+				}
 				break;
 			case R:
 				if (event.controlDown()) {
 					Globals.run_ai = !Globals.run_ai;
 					IO.println("Globals.run_ai = " + Globals.run_ai);
+					return true;
 				}
 				break;
 
 			case O:
 				Globals.draw_light = !Globals.draw_light;
-				break;
+				return true;
 			case P:
-				if (event.controlDown())
+				if (event.controlDown()) {
 					GLUtils.takeScreenshot("");
-				else
+					return true;
+				} else {
 					Globals.draw_plants = !Globals.draw_plants;
-				break;
+					return true;
+				}
 			case E:
 				Globals.draw_particles = !Globals.draw_particles;
-				break;
+				return true;
 			case A:
 				if (!event.controlDown()) {
 					Globals.draw_axes = !Globals.draw_axes;
+					return true;
 				}
 				break;
 			case M:
-				if (event.controlDown())
+				if (event.controlDown()) {
 					Globals.draw_misc = !Globals.draw_misc;
-				else {
+					return true;
+				} else {
 					IO.println("WARNING: KEY_M pressed!");
 					Globals.process_misc = !Globals.process_misc;
+					return true;
 				}
-				break;
 			case J:
 				Renderer.getLocalInput().getInputProvider().setCursorPosition(10, 10);
-				break;
+				return true;
 			case S:
 				if (!event.controlDown()) {
 					Globals.draw_detail = !Globals.draw_detail;
+					return true;
 				}
 				break;
 			case C:
@@ -308,30 +320,31 @@ public final class GUIRoot extends GUIObject {
 					throw new RuntimeException("Ctrl+C pressed -> throwing a runtime exception.");
 				} else {
 					Globals.clear_frame_buffer = !Globals.clear_frame_buffer;
+					return true;
 				}
-				break;
 			case D:
 				Globals.switchBoundingMode();
-				break;
+				return true;
 			case V:
 				Globals.frustum_freeze = !Globals.frustum_freeze;
 				IO.println("Globals.frustum_freeze = " + Globals.frustum_freeze);
-				break;
+				return true;
 			case F1:
 				IO.println("*********************************************************");
 				LocalEventQueue.getQueue().debugPrintAnimations();
 				IO.println("Texture.globalSize() = " + Texture.globalSize());
-				break;
+				return true;
 			case F11:
 				Renderer.getRenderer().toggleFullscreen();
-				break;
+				return true;
 			case F12:
 				IO.println("GC Forced");
                 System.gc();
-				break;
+				return true;
 			default:
 				break;
 		}
+		return false;
 	}
 
 	void mousePick() {

@@ -168,14 +168,13 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
 	}
 
 	@Override
-	protected void keyRepeat(@NonNull KeyboardEvent event) {
+	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.keyCode()) {
 			case TAB:
 				switchFocus(event.shiftDown() ? -1 : 1);
-				break;
+				return true;
 			default:
-				super.keyRepeat(event);
-				break;
+				return super.keyRepeat(event);
 		}
 	}
 

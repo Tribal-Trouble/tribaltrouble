@@ -23,11 +23,13 @@ public final class ChatLine extends EditLine {
 	}
 
 	@Override
-	protected void keyRepeat(@NonNull KeyboardEvent e) {
-		if (catch_tab && e.keyChar() == '\t')
+	protected boolean keyRepeat(@NonNull KeyboardEvent e) {
+		if (catch_tab && e.keyChar() == '\t') {
 			tabComplete(getText());
-		else
-			super.keyRepeat(e);
+			return true;
+		} else {
+			return super.keyRepeat(e);
+		}
 	}
 
 	private void tabComplete(@NonNull StringBuilder line) {

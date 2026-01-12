@@ -59,9 +59,10 @@ public final class QuitScreen extends CameraDelegate<Camera> implements Updatabl
 	}
 
 	@Override
-	protected void keyPressed(@NonNull KeyboardEvent event) {
+	protected boolean keyPressed(@NonNull KeyboardEvent event) {
 		key_pressed = true;
 		quit();
+		return true;
 	}
 
 	@Override

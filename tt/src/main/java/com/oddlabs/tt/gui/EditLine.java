@@ -73,15 +73,29 @@ public class EditLine extends TextField implements Clipped {
 	}
 
 	@Override
-	protected void keyReleased(@NonNull KeyboardEvent event) {
+	protected boolean keyPressed(@NonNull KeyboardEvent event) {
+		if (event.keyChar() != 0 && isAllowed(event.keyChar())) {
+			return true;
+		}
+		return super.keyPressed(event);
+	}
+
+	@Override
+	protected boolean keyReleased(@NonNull KeyboardEvent event) {
         switch (event.keyCode()) {
-            case RETURN -> enterPressedAll();
-            default -> super.keyReleased(event);
+            case RETURN -> {
+				enterPressedAll();
+				return true;
+			}
+            default -> {
+				return super.keyReleased(event);
+			}
         }
 	}
 
 	@Override
-	protected void keyRepeat(@NonNull KeyboardEvent event) {
+	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
+        boolean consumed = true;
         switch (event.keyCode()) {
             case BACK -> {
                 if (index > 0) {
@@ -103,7 +117,7 @@ public class EditLine extends TextField implements Clipped {
             }
             case HOME -> index = 0;
             case END -> index = getText().length();
-            case TAB, RETURN -> super.keyRepeat(event);
+            case TAB, RETURN -> consumed = super.keyRepeat(event);
             default -> {
                 char key = event.keyChar();
                 if (isAllowed(key)) {
@@ -111,11 +125,12 @@ public class EditLine extends TextField implements Clipped {
                         index++;
                     }
                 } else {
-                    super.keyRepeat(event);
+                    consumed = super.keyRepeat(event);
                 }
             }
         }
 		correctOffsetX();
+		return consumed;
 	}
 
 	@Override

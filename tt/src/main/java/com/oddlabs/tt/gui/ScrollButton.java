@@ -15,18 +15,23 @@ public final class ScrollButton extends GUIObject {
 	}
 
 	@Override
-	public void keyPressed(@NonNull KeyboardEvent event) {
+	public boolean keyPressed(@NonNull KeyboardEvent event) {
+		return true;
 	}
 
 	@Override
-	public void keyRepeat(@NonNull KeyboardEvent event) {
+	public boolean keyRepeat(@NonNull KeyboardEvent event) {
         switch (event.keyCode()) {
-            case TAB -> super.keyRepeat(event);
+            case TAB -> {
+				return super.keyRepeat(event);
+			}
         }
+		return true;
 	}
 
 	@Override
-	public void keyReleased(@NonNull KeyboardEvent event) {
+	public boolean keyReleased(@NonNull KeyboardEvent event) {
+		return true;
 	}
 
 	@Override

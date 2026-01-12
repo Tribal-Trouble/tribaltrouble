@@ -125,11 +125,15 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 	}
 
 	@Override
-	protected void keyPressed(@NonNull KeyboardEvent event) {
+	protected boolean keyPressed(@NonNull KeyboardEvent event) {
         switch (event.keyCode()) {
-            case ESCAPE ->
-                    getGUIRoot().pushDelegate(new CampaignMapMenu(network, getGUIRoot(), new StaticCamera(getCamera().getState())));
-            default -> super.keyPressed(event);
+            case ESCAPE -> {
+                getGUIRoot().pushDelegate(new CampaignMapMenu(network, getGUIRoot(), new StaticCamera(getCamera().getState())));
+                return true;
+            }
+            default -> {
+                return super.keyPressed(event);
+            }
         }
 	}
 

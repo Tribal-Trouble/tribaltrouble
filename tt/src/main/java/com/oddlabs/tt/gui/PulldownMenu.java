@@ -83,11 +83,19 @@ public final class PulldownMenu<T> extends Group {
 	}
 
 	@Override
-	protected void keyRepeat(@NonNull KeyboardEvent event) {
+	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
         switch (event.keyCode()) {
-            case UP -> focusPrior();
-            case DOWN -> focusNext();
-            default -> super.keyRepeat(event);
+            case UP -> {
+				focusPrior();
+				return true;
+			}
+            case DOWN -> {
+				focusNext();
+				return true;
+			}
+            default -> {
+				return super.keyRepeat(event);
+			}
         }
 	}
 

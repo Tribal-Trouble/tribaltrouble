@@ -164,24 +164,31 @@ public final class ScrollBar extends GUIObject {
 
 	private final class ButtonKeyListener implements KeyListener {
 		@Override
-		public void keyRepeat(@NonNull KeyboardEvent event) {
+		public boolean keyRepeat(@NonNull KeyboardEvent event) {
             switch (event.keyCode()) {
                 case UP -> {
                     owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
                     scroll_button.setupPos(ScrollBar.this);
+					return true;
                 }
                 case DOWN -> {
                     owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
                     scroll_button.setupPos(ScrollBar.this);
+					return true;
                 }
                 default -> {
+					return false;
                 }
             }
 		}
 
 		@Override
-		public void keyPressed(@NonNull KeyboardEvent event) {}
+		public boolean keyPressed(@NonNull KeyboardEvent event) {
+			return false;
+		}
 		@Override
-		public void keyReleased(@NonNull KeyboardEvent event) {}
+		public boolean keyReleased(@NonNull KeyboardEvent event) {
+			return false;
+		}
 	}
 }

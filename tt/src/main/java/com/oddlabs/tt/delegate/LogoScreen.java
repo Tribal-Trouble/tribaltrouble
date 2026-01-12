@@ -77,8 +77,9 @@ public final class LogoScreen extends CameraDelegate<StaticCamera> implements Up
 	}
 	
 	@Override
-	protected void keyPressed(@NonNull KeyboardEvent event) {
+	protected boolean keyPressed(@NonNull KeyboardEvent event) {
 		fade();
+		return true;
 	}
 
 	@Override

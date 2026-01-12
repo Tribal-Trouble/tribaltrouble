@@ -35,9 +35,11 @@ public final class WaitingForPlayersForm extends Form {
 	}
 
 	@Override
-	protected void keyRepeat(@NonNull KeyboardEvent event) {
-		if (event.keyCode() != Key.ESCAPE) // KEY_ESCAPE should not close this form
-			super.keyRepeat(event);
+	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
+		if (event.keyCode() != Key.ESCAPE) { // KEY_ESCAPE should not close this form
+			return super.keyRepeat(event);
+		}
+		return true;
 	}
 
 	@Override

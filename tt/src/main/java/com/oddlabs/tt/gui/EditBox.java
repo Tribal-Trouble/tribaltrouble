@@ -33,7 +33,7 @@ public final class EditBox extends TextBox {
 	}
 
 	@Override
-	protected void keyRepeat(@NonNull KeyboardEvent event) {
+	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
 		switch (event.keyCode()) {
 			case RETURN:
 				if (insert(index, '\n')) {
@@ -82,19 +82,19 @@ public final class EditBox extends TextBox {
 				break;
 			case TAB:
 			case ESCAPE:
-				super.keyRepeat(event);
-				break;
+				return super.keyRepeat(event);
 			default:
 				char key = event.keyChar();
 				if (getFont().getQuad(key) != null) {
 					if (insert(index, key))
 						index++;
 				} else {
-					super.keyRepeat(event);
+					return super.keyRepeat(event);
 				}
 				break;
 		}
 		correctOffsetY();
+		return true;
 	}
 
 	private void correctOffsetY() {

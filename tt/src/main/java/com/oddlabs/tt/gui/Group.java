@@ -90,14 +90,15 @@ public class Group extends GUIObject {
 	}
 
 	@Override
-	protected void keyRepeat(@NonNull KeyboardEvent event) {
+	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
 		// Navigation logic is handled here (and in keyRepeat) because InputState calls keyRepeatAll
 		// immediately after keyPressedAll for the initial press, ensuring consistent behavior.
 		boolean control = event.controlDown();
 		if (event.keyCode() == Key.TAB && !control) {
 			switchFocus(event.shiftDown() ? -1 : 1);
+			return true;
 		} else {
-			super.keyRepeat(event);
+			return super.keyRepeat(event);
 		}
 	}
 

@@ -17,11 +17,19 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public void keyPressed(@NonNull KeyboardEvent event) {
+	public boolean keyPressed(@NonNull KeyboardEvent event) {
         switch (event.keyCode()) {
-            case F -> pushFirstPersonDelegate(true);
-            case Z -> pushZoomDelegate();
-            default -> super.keyPressed(event);
+            case F -> {
+				pushFirstPersonDelegate(true);
+				return true;
+			}
+            case Z -> {
+				pushZoomDelegate();
+				return true;
+			}
+            default -> {
+				return super.keyPressed(event);
+			}
         }
 	}
 

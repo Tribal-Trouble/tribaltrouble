@@ -4,7 +4,7 @@ import com.oddlabs.tt.gui.KeyboardEvent;
 import org.jspecify.annotations.NonNull;
 
 public interface KeyListener extends EventListener {
-	void keyPressed(@NonNull KeyboardEvent event);
-	void keyReleased(@NonNull KeyboardEvent event);
-	void keyRepeat(@NonNull KeyboardEvent event);
+	boolean keyPressed(@NonNull KeyboardEvent event);
+	boolean keyReleased(@NonNull KeyboardEvent event);
+	boolean keyRepeat(@NonNull KeyboardEvent event);
 }

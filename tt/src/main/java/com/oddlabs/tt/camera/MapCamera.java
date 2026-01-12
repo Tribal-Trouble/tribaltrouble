@@ -148,10 +148,13 @@ public final class MapCamera extends Camera {
     }
 
     @Override
-    public void keyPressed(@NonNull KeyboardEvent event) {
+    public boolean keyPressed(@NonNull KeyboardEvent event) {
         switch (event.keyCode()) {
-            case SPACE, NUMPAD5 ->
-                    changeMode((map_mode == MapMode.TO_MAP || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
+            case SPACE, NUMPAD5 -> {
+                changeMode((map_mode == MapMode.TO_MAP || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
+                return true;
+            }
         }
+        return false;
     }
 }

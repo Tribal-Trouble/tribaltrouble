@@ -61,20 +61,24 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
     }
 
     @Override
-    public void keyPressed(@NonNull KeyboardEvent event) {
-        getCamera().keyPressed(event);
+    public boolean keyPressed(@NonNull KeyboardEvent event) {
+        if (getCamera().keyPressed(event)) return true;
         switch (event.keyCode()) {
-            case ESCAPE -> pop();
+            case ESCAPE -> {
+                pop();
+                return true;
+            }
             default -> {
                 if (event.keyCode() != Key.SPACE && event.keyCode() != Key.RETURN)
-                    super.keyPressed(event);
+                    return super.keyPressed(event);
+                return true;
             }
         }
     }
 
     @Override
-    public void keyReleased(@NonNull KeyboardEvent event) {
-        getCamera().keyReleased(event);
+    public boolean keyReleased(@NonNull KeyboardEvent event) {
+        return getCamera().keyReleased(event);
     }
 
     @Override

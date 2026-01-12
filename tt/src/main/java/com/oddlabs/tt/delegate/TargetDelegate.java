@@ -28,20 +28,27 @@ public class TargetDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public final void keyPressed(@NonNull KeyboardEvent event) {
-		getCamera().keyPressed(event);
+	public final boolean keyPressed(@NonNull KeyboardEvent event) {
+        if (getCamera().keyPressed(event)) return true;
         switch (event.keyCode()) {
-            case ESCAPE -> pop();
-            case SPACE, RETURN -> {
+            case ESCAPE -> {
+                pop();
+                return true;
             }
-            default -> super.keyPressed(event);
+            case SPACE, RETURN -> {
+                return true;
+            }
+            default -> {
+                return super.keyPressed(event);
+            }
         }
 	}
 
 	@Override
-	public void keyReleased(@NonNull KeyboardEvent event) {
-		if (event.keyCode() != Key.SPACE || event.keyCode() != Key.RETURN)
-			getCamera().keyReleased(event);
+	public boolean keyReleased(@NonNull KeyboardEvent event) {
+		if (event.keyCode() != Key.SPACE && event.keyCode() != Key.RETURN)
+			return getCamera().keyReleased(event);
+		return true;
 	}
 
 	@Override

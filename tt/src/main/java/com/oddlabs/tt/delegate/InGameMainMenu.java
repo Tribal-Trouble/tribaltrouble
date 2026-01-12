@@ -64,14 +64,13 @@ public final class InGameMainMenu extends Menu {
 	}
 
 	@Override
-	protected void keyPressed(@NonNull KeyboardEvent event) {
+	protected boolean keyPressed(@NonNull KeyboardEvent event) {
 		switch(event.keyCode()) {
 			case ESCAPE:
 				pop();
-				break;
+				return true;
 			default:
-				super.keyPressed(event);
-				break;
+				return super.keyPressed(event);
 		}
 	}
 

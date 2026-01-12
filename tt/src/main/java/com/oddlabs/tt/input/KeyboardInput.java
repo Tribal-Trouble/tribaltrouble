@@ -43,7 +43,7 @@ public final class KeyboardInput {
             switch (event_key) {
                 case RIGHT -> { AnimationManager.warpTime(LITTLE_WARP); return true; }
                 case UP -> { AnimationManager.warpTime(MEDIUM_WARP); return true; }
-                case PRIOR -> { AnimationManager.warpTime(LARGE_WARP); return true; }
+                case PAGE_UP -> { AnimationManager.warpTime(LARGE_WARP); return true; }
                 case Q -> {
                     IO.println("Exit forced with ctrl+Q");
                     Renderer.shutdown();

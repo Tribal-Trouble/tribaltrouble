@@ -129,31 +129,31 @@ public class Form extends Group {
 	}
 
 	@Override
-	protected final void keyPressed(@NonNull KeyboardEvent event) {
-		super.keyPressed(event);
+	protected final boolean keyPressed(@NonNull KeyboardEvent event) {
+		return super.keyPressed(event);
 	}
 
 	@Override
-	protected final void keyReleased(@NonNull KeyboardEvent event) {
+	protected final boolean keyReleased(@NonNull KeyboardEvent event) {
+		return super.keyReleased(event);
 	}
 
 	@Override
-	protected void keyRepeat(@NonNull KeyboardEvent event) {
+	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
 		boolean control = event.controlDown();
 		if (event.keyCode() == Key.TAB && control) {
 			int dir = event.shiftDown() ? -1 : 1;
 			cyclePanelGroup(this, dir);
-			return;
+			return true;
 		}
 		switch (event.keyCode()) {
 			case TAB:
-				super.keyRepeat(event);
-				break;
+				return super.keyRepeat(event);
 			case ESCAPE:
 				cancel();
-				break;
+				return true;
 			default:
-				break;
+				return false;
 		}
 	}
 
