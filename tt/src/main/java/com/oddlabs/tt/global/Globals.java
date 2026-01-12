@@ -12,9 +12,9 @@ public final class Globals {
 	public static final int DETAIL_HIGH = 2;
 
 	public static final int[] TEXTURE_MIP_SHIFT = new int[]{1, 0, 0};
-	public static final int[] UNIT_HIGH_POLY_COUNT = new int[]{7500, 20000, 40000};
-	public static final int[] LANDSCAPE_POLY_COUNT = new int[]{5000, 10000, 20000};
-	public static final boolean[] INSERT_PLANTS = new boolean[]{false, false, true};
+	public static final int[] UNIT_HIGH_POLY_COUNT = new int[]{20000, 80000, 200000};
+	public static final int[] LANDSCAPE_POLY_COUNT = new int[]{10000, 40000, 100000};
+	public static final boolean[] INSERT_PLANTS = new boolean[]{false, true, true};
 
 	public static final String GAME_NAME = "TribalTrouble";
 	public static final Path SETTINGS_FILE_NAME = Path.of("settings");
