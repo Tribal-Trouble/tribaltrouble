@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public abstract class File<R> implements Supplier<R> {
@@ -47,5 +51,16 @@ public abstract class File<R> implements Supplier<R> {
     @Override
     public @NonNull String toString() {
         return getClass().getSimpleName() + "{uri=" + uri.toASCIIString() + '}';
+    }
+
+    protected static @NonNull Optional<URI> locate(@NonNull String location) {
+        URL url_classpath = Utils.class.getResource(location);
+        if (url_classpath != null) try {
+            return Optional.of(url_classpath.toURI());
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e);
+        }
+        Path file = com.oddlabs.tt.util.Utils.getInstallDir().resolve(location);
+        return Files.isRegularFile(file) && Files.isReadable(file) ? Optional.of(file.toUri()) : Optional.empty();
     }
 }

@@ -6,7 +6,9 @@ import org.lwjgl.BufferUtils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -41,8 +43,8 @@ public final class Utils {
 		return buffer;
 	}
 
-    public static ByteBuffer ioResourceToByteBuffer(java.net.URL url) throws IOException {
-        try (java.io.InputStream is = url.openStream()) {
+    public static ByteBuffer ioResourceToByteBuffer(@NonNull URL url) throws IOException {
+        try (InputStream is = url.openStream()) {
             byte[] bytes = is.readAllBytes();
             ByteBuffer buffer = org.lwjgl.BufferUtils.createByteBuffer(bytes.length);
             buffer.put(bytes);

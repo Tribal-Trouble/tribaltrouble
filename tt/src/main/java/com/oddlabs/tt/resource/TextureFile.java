@@ -3,30 +3,23 @@ package com.oddlabs.tt.resource;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.util.DXTImage;
-import com.oddlabs.util.Image;
-import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.stb.STBImage;
-import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Defines the properties and loading parameters for a texture resource.
  * This class specifies how a texture should be loaded and configured in OpenGL.
  */
 public final class TextureFile extends File<Texture> {
+	private static final String[] EXTENSIONS = {".dds", ".image", ".png", ".jpg", ".jpeg"};
 	/** The internal format of the texture, e.g., GL_RGBA or a compressed format. */
 	private final int internal_format;
 	/** The minification filter, used when the texture is scaled down. */
@@ -66,7 +59,7 @@ public final class TextureFile extends File<Texture> {
 
 	public TextureFile(String location, int internal_format, int min_filter, int mag_filter, int wrap_s, int wrap_t, int max_mipmap_level, int base_fadeout_level, float fadeout_factor, boolean max_alpha) {
 		super(locateTexture(location));
-		this.is_dxt = locateDXT(location) != null;
+		this.is_dxt = getURL().toString().endsWith(".dds");
 		this.internal_format = internal_format;
 		this.min_filter = min_filter;
 		this.mag_filter = mag_filter;
@@ -78,37 +71,13 @@ public final class TextureFile extends File<Texture> {
 		this.max_alpha = max_alpha;
 	}
 
-	private static @Nullable URI locate(@NonNull String location_with_ext) {
-		URL url_classpath = Utils.class.getResource(location_with_ext);
-		if (url_classpath != null) try {
-            return url_classpath.toURI();
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(e);
-        }
-        Path file = com.oddlabs.tt.util.Utils.getInstallDir().resolve(location_with_ext);
-        return Files.isRegularFile(file) && Files.isReadable(file) ? file.toUri() : null;
-	}
-
-	private static @Nullable URI locateDXT(String location) {
-		return locate(location + ".dds");
-	}
-
 	private static @NonNull URI locateTexture(String location) {
-		URI url = locateDXT(location);
-		if (url != null)
-			return url;
-
-		url = locate(location + ".image");
-		if (url != null)
-			return url;
-
-        String[] extensions = {".png", ".jpg", ".jpeg"};
-        for (String ext : extensions) {
-            url = locate(location + ext);
-            if (url != null) return url;
-        }
-
-		throw new IllegalArgumentException(location);
+		return Arrays.stream(EXTENSIONS)
+				.map(ext -> locate(location + ext))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("No such file extension: " + location));
 	}
 
 	public boolean isDXTImage() {
@@ -124,41 +93,8 @@ public final class TextureFile extends File<Texture> {
 	}
 
 	public @NonNull GLImage getImage() {
-        String path = getURL().getPath();
-        if (path.endsWith(".image")) {
-		    Image image = Image.read(getURL());
-		    return new GLIntImage(image.getWidth(), image.getHeight(), image.getPixels(), GL11.GL_RGBA);
-        } else {
-            return loadSTBImage(getURL());
-        }
-	}
-
-    private @NonNull GLImage loadSTBImage(@NonNull URL url) {
         try {
-            ByteBuffer fileData = com.oddlabs.tt.util.Utils.ioResourceToByteBuffer(url);
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                IntBuffer w = stack.mallocInt(1);
-                IntBuffer h = stack.mallocInt(1);
-                IntBuffer comp = stack.mallocInt(1);
-
-                // Force 4 channels (RGBA)
-                ByteBuffer image = STBImage.stbi_load_from_memory(fileData, w, h, comp, 4);
-                if (image == null) {
-                    throw new IOException("Failed to load texture: " + url + " Reason: " + STBImage.stbi_failure_reason());
-                }
-
-                int width = w.get(0);
-                int height = h.get(0);
-                
-                // Copy to managed buffer to allow STB free
-                ByteBuffer managedBuffer = org.lwjgl.BufferUtils.createByteBuffer(width * height * 4);
-                managedBuffer.put(image);
-                managedBuffer.flip();
-                
-                STBImage.stbi_image_free(image);
-                
-                return new GLIntImage(width, height, managedBuffer, GL11.GL_RGBA);
-            }
+            return GLIntImage.loadImage(getURL());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

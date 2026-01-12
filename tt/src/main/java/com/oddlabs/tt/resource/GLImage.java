@@ -3,7 +3,6 @@ package com.oddlabs.tt.resource;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.tt.util.Utils;
-import com.oddlabs.util.Image;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -401,9 +400,5 @@ public abstract class GLImage {
 
 	public final void saveAsBMP(@NonNull String filename) {
 		Utils.saveAsBMP(filename, getPixels(), getWidth(), getHeight());
-	}
-
-	public final void saveAsImage(String filename) {
-		new Image(getWidth(), getHeight(), getPixels()).write(filename);
 	}
 }

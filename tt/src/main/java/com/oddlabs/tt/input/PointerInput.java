@@ -6,13 +6,11 @@ import com.oddlabs.tt.gui.Cursor;
 import com.oddlabs.tt.gui.CursorType;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.MouseButton;
-import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.CursorFile;
 import com.oddlabs.tt.resource.Resources;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.system.MemoryUtil;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -27,12 +25,12 @@ public final class PointerInput {
 	private static @Nullable MouseButton drag_button = null;
 
 	private static final Cursor DEBUG_CURSOR =
-			Resources.findResource(new CursorFile("/textures/gui/pointer_clientload_32_8.image", 2, 29));
+			Resources.findResource(new CursorFile("/textures/gui/pointer_clientload_32_8.png", 2, 2));
 
     private static final Map<@NonNull CursorType, @NonNull Cursor> cursors = new EnumMap<>(Map.of(
-			CursorType.NORMAL, Resources.findResource(new CursorFile("/textures/gui/pointer_32_8.image", 2, 29)),
-			CursorType.TARGET, Resources.findResource(new CursorFile("/textures/gui/pointer_target_32_8.image", 2, 29)),
-			CursorType.TEXT, Resources.findResource(new CursorFile("/textures/gui/pointer_text_32_8.image", 2, 29)),
+			CursorType.NORMAL, Resources.findResource(new CursorFile("/textures/gui/pointer_32_8.png", 2, 2)),
+			CursorType.TARGET, Resources.findResource(new CursorFile("/textures/gui/pointer_target_32_8.png", 14, 14)),
+			CursorType.TEXT, Resources.findResource(new CursorFile("/textures/gui/pointer_text_32_8.png", 6, 11)),
 			CursorType.DEBUG, DEBUG_CURSOR,
 			CursorType.NULL, Cursor.NULL_CURSOR
 	));

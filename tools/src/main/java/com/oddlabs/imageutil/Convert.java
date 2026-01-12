@@ -3,7 +3,6 @@ package com.oddlabs.imageutil;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.util.DXTImage;
-import com.oddlabs.util.Image;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.stb.STBDXT;
 import org.lwjgl.system.MemoryUtil;
@@ -13,7 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -161,18 +159,6 @@ public final class Convert {
 		return image_layer;
 	}
 
-	private static void saveImage(@NonNull Path file, Layer @NonNull [] images) throws IllegalArgumentException, IOException {
-		if (images.length != 1)
-			throw new IllegalArgumentException("Can't save more than 1 image in .image format");
-		byte[] bytes = images[0].convertToBytes();
-		Image image = new Image(images[0].getWidth(), images[0].getHeight(), ByteBuffer.wrap(bytes));
-		try {
-			image.write(file);
-		} catch (UncheckedIOException uioe) {
-			throw uioe.getCause();
-		}
-	}
-
 	private static void saveDDS(@NonNull Path file, @NonNull Layer @NonNull [] images) throws IOException {
         int width = images[0].getWidth();
         int height = images[0].getHeight();
@@ -249,12 +235,18 @@ public final class Convert {
 		new DXTImage((short)width,(short)height, fourCC, mipmap_bytes).write(file);
 	}
 
+    private static void savePNG(@NonNull Path file, Layer @NonNull [] images) throws IOException {
+        if (images.length != 1)
+            throw new IllegalArgumentException("Can't save more than 1 image in .png format");
+        images[0].saveAsPNG(file);
+    }
+
 	private static void save(@NonNull Path file, Layer @NonNull [] images) throws IOException {
-		if (file.getFileName().toString().endsWith(".dds")) {
-			saveDDS(file, images);
-		} else if (file.getFileName().toString().endsWith(".image")) {
-			saveImage(file, images);
-		} else
-			throw new IllegalArgumentException("unknown extension: " + file);
+        String extension = file.getFileName().toString().substring(file.getFileName().toString().lastIndexOf('.') + 1);
+        switch (extension) {
+            case "png": savePNG(file, images); break;
+            case "dds": saveDDS(file, images); break;
+            default: throw new IllegalArgumentException("Unknown image extension: " + extension);
+        }
 	}
 }
