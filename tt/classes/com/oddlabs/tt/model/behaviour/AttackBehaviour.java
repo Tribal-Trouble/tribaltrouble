@@ -56,7 +56,7 @@ public final strictfp class AttackBehaviour implements Behaviour {
     private final void init() {
         state = THROWING;
         anim_time += unit.getWeaponFactory().getSecondsPerRelease(1f / SECONDS_PER_ATTACK);
-        unit.switchAnimation(1f / SECONDS_PER_ATTACK, Unit.ANIMATION_THROWING);
+        unit.switchAnimation(1f / SECONDS_PER_ATTACK, Unit.ANIMATION_THROWING, 0);
     }
 
     public final void forceInterrupted() {}

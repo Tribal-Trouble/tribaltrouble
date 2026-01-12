@@ -26,6 +26,12 @@ public final strictfp class UnitSupplyContainer extends SupplyContainer {
         return super.increaseSupply(amount);
     }
 
+    public final void resetSupply(Class type) {
+        if (this.type == type) {
+            super.increaseSupply(-super.getNumSupplies());
+        }
+    }
+
     public final Class getSupplyType() {
         return type;
     }

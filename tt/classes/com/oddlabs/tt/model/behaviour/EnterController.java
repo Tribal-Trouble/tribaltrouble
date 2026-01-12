@@ -3,6 +3,7 @@ package com.oddlabs.tt.model.behaviour;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.UnitSupplyContainer;
 import com.oddlabs.tt.model.weapon.ThrowingFactory;
 import com.oddlabs.tt.pathfinder.UnitGrid;
 
@@ -23,20 +24,21 @@ public final strictfp class EnterController extends Controller {
             if (building.getUnitContainer() != null
                     && building.getUnitContainer().canEnter(unit)
                     && building.canAccommodate(unit)) {
+                UnitSupplyContainer unitSupply = unit.getSupplyContainer();
+                int numSupply = (unitSupply != null) ? unitSupply.getNumSupplies() : 0;
                 if (building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)) {
-                    if (unit.getAbilities().hasAbilities(Abilities.HARVEST)
-                            && unit.getSupplyContainer().getNumSupplies() > 0) {
-                        Class type = unit.getSupplyContainer().getSupplyType();
-                        building.getSupplyContainer(type)
-                                .increaseSupply(unit.getSupplyContainer().getNumSupplies());
+                    if (unit.getAbilities().hasAbilities(Abilities.HARVEST) && numSupply > 0) {
+                        Class type = unitSupply.getSupplyType();
+                        building.getSupplyContainer(type).increaseSupply(numSupply);
+                        unitSupply.increaseSupply(-numSupply, type);
                     }
                     if (unit.getWeaponFactory() instanceof ThrowingFactory) {
                         Class type = unit.getWeaponFactory().getType();
                         building.getSupplyContainer(type).increaseSupply(1);
                     }
                 }
-                if (building.needGuards() && unit.isWarrior()) {
-                    building.setGuard(unit);
+                if (building.canGetOnBoard()) {
+                    building.getOnBoard(unit);
                 } else {
                     building.getUnitContainer().enter(unit);
                 }

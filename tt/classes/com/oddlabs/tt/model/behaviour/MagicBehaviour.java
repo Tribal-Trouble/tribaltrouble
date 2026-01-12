@@ -67,7 +67,7 @@ public final strictfp class MagicBehaviour implements Behaviour {
     private final void init() {
         state = PREPARING;
         anim_time = magic_factory.getSecondsPerInit();
-        unit.switchAnimation(1f / magic_factory.getSecondsPerAnim(), Unit.ANIMATION_MAGIC);
+        unit.switchAnimation(1f / magic_factory.getSecondsPerAnim(), Unit.ANIMATION_MAGIC, 0);
     }
 
     public final void forceInterrupted() {

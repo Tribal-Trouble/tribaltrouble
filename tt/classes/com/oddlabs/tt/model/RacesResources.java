@@ -255,6 +255,10 @@ public final strictfp class RacesResources {
         native_supply_sprite_lists.put(RockSupply.class, queues.register(native_rock_sprite));
         native_supply_sprite_lists.put(IronSupply.class, queues.register(native_rock_sprite, 1));
         native_supply_sprite_lists.put(RubberSupply.class, queues.register(native_rubber_sprite));
+        native_supply_sprite_lists.put(
+                LeftPaddle.class, queues.register(native_left_paddle_sprite));
+        native_supply_sprite_lists.put(
+                RightPaddle.class, queues.register(native_right_paddle_sprite));
 
         SpriteFile viking_wood_sprite =
                 new SpriteFile(
@@ -281,12 +285,32 @@ public final strictfp class RacesResources {
                         true,
                         true,
                         false);
+        SpriteFile viking_right_paddle_sprite =
+                new SpriteFile(
+                        "/geometry/vikings/right_paddle.binsprite",
+                        Globals.NO_MIPMAP_CUTOFF,
+                        true,
+                        true,
+                        true,
+                        false);
+        SpriteFile viking_left_paddle_sprite =
+                new SpriteFile(
+                        "/geometry/vikings/left_paddle.binsprite",
+                        Globals.NO_MIPMAP_CUTOFF,
+                        true,
+                        true,
+                        true,
+                        false);
         ProgressForm.progress(1f / num_progress);
         Map viking_supply_sprite_lists = new HashMap();
         viking_supply_sprite_lists.put(TreeSupply.class, queues.register(viking_wood_sprite));
         viking_supply_sprite_lists.put(RockSupply.class, queues.register(viking_rock_sprite));
         viking_supply_sprite_lists.put(IronSupply.class, queues.register(viking_rock_sprite, 1));
         viking_supply_sprite_lists.put(RubberSupply.class, queues.register(viking_rubber_sprite));
+        viking_supply_sprite_lists.put(
+                LeftPaddle.class, queues.register(viking_left_paddle_sprite));
+        viking_supply_sprite_lists.put(
+                RightPaddle.class, queues.register(viking_right_paddle_sprite));
 
         smoke_textures[0] = queues.registerTexture(new GeneratorSmoke(), 0);
         damage_smoke_textures[0] = queues.registerTexture(new GeneratorDamageSmoke(), 0);
@@ -800,6 +824,14 @@ public final strictfp class RacesResources {
                         true,
                         true,
                         false);
+        SpriteFile sprite_list_peon2 =
+                new SpriteFile(
+                        "/geometry/vikings/peon2.binsprite",
+                        Globals.NO_MIPMAP_CUTOFF,
+                        true,
+                        true,
+                        true,
+                        false);
         ProgressForm.progress(1f / num_progress);
         SpriteFile sprite_list_native_peon =
                 new SpriteFile(
@@ -1082,7 +1114,9 @@ public final strictfp class RacesResources {
                                         | Abilities.TARGET),
                         5f,
                         new InstantHitFactory(1 / 5f, 0f, 11f / 38f, unit_hit_sounds),
-                        new SpriteKey[] {queues.register(sprite_list_peon)},
+                        new SpriteKey[] {
+                            queues.register(sprite_list_peon), queues.register(sprite_list_peon2)
+                        },
                         shadow_diameter_peon,
                         default_shadow_list,
                         new UnitSupplyContainerFactory(

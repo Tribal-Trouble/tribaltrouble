@@ -63,7 +63,7 @@ public final strictfp class DieBehaviour implements Behaviour {
     private final void init() {
         anim_time = SECONDS_PER_DEATH;
         state = DYING;
-        unit.switchAnimation(1f / anim_time, Unit.ANIMATION_DYING);
+        unit.switchAnimation(1f / anim_time, Unit.ANIMATION_DYING, 0);
     }
 
     public final void forceInterrupted() {}

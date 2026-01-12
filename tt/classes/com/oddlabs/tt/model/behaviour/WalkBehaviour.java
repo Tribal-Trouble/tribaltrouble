@@ -77,7 +77,7 @@ public final strictfp class WalkBehaviour implements Behaviour {
     }
 
     private final void switchToMoving() {
-        unit.switchAnimation(unit.getMetersPerSecond(), Unit.ANIMATION_MOVING);
+        unit.switchAnimation(unit.getMetersPerSecond(), Unit.ANIMATION_MOVING, 0);
     }
 
     public final int animate(float t) {

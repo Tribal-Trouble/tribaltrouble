@@ -91,52 +91,9 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     private Target rally_point = this;
     private boolean is_training_chieftain = false;
 
-    private static float[][] guards_offsets;
-    private Unit[] guards = new Unit[8];
-    private int guards_count = 0;
-
     private final PathTracker path_tracker;
 
-    static {
-        guards_offsets = new float[8][];
-        for (int i = 0; i < 8; i++) {
-            guards_offsets[i] = new float[4];
-        }
-
-        guards_offsets[0][0] = +1.0f;
-        guards_offsets[0][1] = -1.0f;
-        guards_offsets[1][0] = +1.0f;
-        guards_offsets[1][1] = -1.0f;
-        guards_offsets[2][0] = +1.0f;
-        guards_offsets[2][1] = -1.0f;
-        guards_offsets[3][0] = +1.0f;
-        guards_offsets[3][1] = -1.0f;
-        guards_offsets[4][0] = -1.0f;
-        guards_offsets[4][1] = +1.0f;
-        guards_offsets[5][0] = -1.0f;
-        guards_offsets[5][1] = +1.0f;
-        guards_offsets[6][0] = -1.0f;
-        guards_offsets[6][1] = +1.0f;
-        guards_offsets[7][0] = -1.0f;
-        guards_offsets[7][1] = +1.0f;
-
-        guards_offsets[0][2] = +8.18598f;
-        guards_offsets[0][3] = +1.20731f;
-        guards_offsets[4][2] = +8.18598f;
-        guards_offsets[4][3] = -1.20731f;
-        guards_offsets[1][2] = +2.67990f;
-        guards_offsets[1][3] = +2.06482f;
-        guards_offsets[5][2] = +2.67990f;
-        guards_offsets[5][3] = -2.06482f;
-        guards_offsets[2][2] = -3.24365f;
-        guards_offsets[2][3] = +1.89557f;
-        guards_offsets[6][2] = -3.24365f;
-        guards_offsets[6][3] = -1.89557f;
-        guards_offsets[3][2] = -8.15174f;
-        guards_offsets[3][3] = +1.22988f;
-        guards_offsets[7][2] = -8.15174f;
-        guards_offsets[7][3] = -1.22988f;
-    }
+    private final ShipHR ship_hr = new ShipHR();
 
     private float anim_time;
 
@@ -313,10 +270,6 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
                         deploy_containers[i].deploy(amount);
                 }
             }
-
-            if (isMoving()) {
-                adjustGuardsPositions();
-            }
         }
 
         if (remove_delay > 0) {
@@ -388,15 +341,7 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     }
 
     public final boolean canAccommodate(Unit unit) {
-        Class type = unit.getWeaponFactory().getType();
-        boolean supplyFull = false;
-        if (unit.isWarrior() && guards_count == guards.length) {
-            SupplyContainer supplyContainer = getSupplyContainer(type);
-            if (supplyContainer != null) {
-                supplyFull = supplyContainer.isSupplyFull();
-            }
-        }
-        return !supplyFull;
+        return ship_hr.canAllocate(unit);
     }
 
     public final boolean canExitTower() {
@@ -837,15 +782,7 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     protected final void removeDying() {
 
         // If it's a ship and it's destroyed, kill everyone on board
-        for (int i = 0; i < guards.length; i++) {
-            if (guards[i] != null) {
-                guards[i].setReference(null);
-                guards[i].enable();
-                guards[i].removeNow();
-                guards[i] = null;
-            }
-        }
-        guards_count = 0;
+        ship_hr.killCrew();
 
         new RandomVelocityEmitter(
                 getOwner().getWorld(),
@@ -1148,39 +1085,16 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         return path_tracker;
     }
 
-    public final boolean needGuards() {
+    public final boolean canGetOnBoard() {
         if (getAbilities().hasAbilities(Abilities.SAIL)) {
-            if (guards_count < guards.length) {
-                return true;
-            }
+            return true;
         }
         return false;
     }
 
-    public final void setGuard(Unit unit) {
-        assert guards_count < guards.length;
-        unit.mountDeck(this);
-        guards[guards_count] = unit;
-        guards_count++;
-        adjustGuardsPositions();
-    }
-
-    public final void adjustGuardsPositions() {
-        float x = getPositionX();
-        float y = getPositionY();
-        float dx = getDirectionX();
-        float dy = getDirectionY();
-        for (int i = 0; i < guards_count; i++) {
-            float ox = guards_offsets[i][2];
-            float oy = guards_offsets[i][3];
-            float gx = x + dy * oy + dx * ox;
-            float gy = y - dx * oy + dy * ox;
-            guards[i].setPosition(gx, gy);
-            guards[i].setGridPosition(UnitGrid.toGridCoordinate(gx), UnitGrid.toGridCoordinate(gy));
-            float rx = guards_offsets[i][0];
-            float ry = guards_offsets[i][1];
-            guards[i].setDirection(getDirectionY() * rx, getDirectionX() * ry);
-        }
+    public final void getOnBoard(Unit unit) {
+        ShipAllocation allocation = ship_hr.tryAllocate(unit);
+        unit.mountDeck(this, allocation);
     }
 
     public final void endTrip() {

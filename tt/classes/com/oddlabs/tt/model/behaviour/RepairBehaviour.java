@@ -74,7 +74,7 @@ public final strictfp class RepairBehaviour implements Behaviour {
     private final void restartAnimation() {
         anim_time = 0;
         sound = false;
-        unit.switchAnimation(1f / SECONDS_PER_ANIMATION_CYCLE, Unit.ANIMATION_THROWING);
+        unit.switchAnimation(1f / SECONDS_PER_ANIMATION_CYCLE, Unit.ANIMATION_THROWING, 0);
     }
 
     public final void forceInterrupted() {}

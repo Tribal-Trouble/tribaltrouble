@@ -127,6 +127,20 @@
 			<animation wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
 			<animation wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
 		</sprite>
+		<sprite name="peon2">
+			<skeleton>vikings/peon/peon_skeleton2.xml</skeleton>
+			<model r="90" g="60" b="30">
+				vikings/peon/peon_mesh.xml
+				<texture name="viking_peon" team="viking_peon_team"/>
+			</model>
+			<model r="90" g="60" b="30">
+				vikings/peon/peon_low_poly_mesh.xml
+				<texture name="viking_peon" team="viking_peon_team"/>
+			</model>
+            <animation wpc="1" type="loop">vikings/peon/peon_sitting.xml</animation>
+            <animation wpc="1" type="loop">vikings/peon/peon_right_paddle.xml</animation>
+            <animation wpc="1" type="loop">vikings/peon/peon_left_paddle.xml</animation>
+		</sprite>
 		<sprite name="rock_resource">
 			<skeleton>vikings/peon/peon_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
@@ -160,6 +174,26 @@
 			<animation wpc="3.85" type="loop">vikings/peon/peon_run.xml</animation>
 			<animation wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
 			<animation wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
+        </sprite>
+		<sprite name="right_paddle">
+			<skeleton>vikings/peon/peon_skeleton2.xml</skeleton>
+			<model r="90" g="60" b="30">
+				misc/right_paddle_viking.xml
+				<texture name="viking_ship"/>
+			</model>
+			<animation wpc="1" type="loop">vikings/peon/peon_sitting.xml</animation>
+			<animation wpc="1" type="loop">vikings/peon/peon_right_paddle.xml</animation>
+            <animation wpc="1" type="loop">vikings/peon/peon_left_paddle.xml</animation>
+		</sprite>
+		<sprite name="left_paddle">
+			<skeleton>vikings/peon/peon_skeleton2.xml</skeleton>
+			<model r="90" g="60" b="30">
+				misc/left_paddle_viking.xml
+				<texture name="viking_ship"/>
+			</model>
+			<animation wpc="1" type="loop">vikings/peon/peon_sitting.xml</animation>
+			<animation wpc="1" type="loop">vikings/peon/peon_right_paddle.xml</animation>
+            <animation wpc="1" type="loop">vikings/peon/peon_left_paddle.xml</animation>
 		</sprite>
 		<sprite name="axe">
 			<model r="90" g="60" b="30">
@@ -266,7 +300,6 @@
 			</model>
         </sprite>
         <sprite name="ship">
-            <skeleton>misc/ship/ship_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
                 misc/ship/ship_built.xml
 				<texture name="viking_ship" team="ship_team"/>
@@ -275,7 +308,6 @@
                 misc/ship/ship_built.xml
 				<texture name="viking_ship" team="ship_team"/>
 			</model>
-			<animation wpc="1" type="loop">misc/ship/ship_animate.xml</animation>
 		</sprite>
 		<sprite name="ship_halfbuilt">
 			<model r="90" g="60" b="30">
@@ -372,6 +404,8 @@
 				<texture name="native_peon" team="native_peon_team"/>
 			</model>
             <animation wpc="1" type="loop">natives/peon/peon_sitting.xml</animation>
+            <animation wpc="1" type="loop">natives/peon/peon_right_paddle.xml</animation>
+            <animation wpc="1" type="loop">natives/peon/peon_left_paddle.xml</animation>
 		</sprite>
 		<sprite name="warrior_christmas">
 			<skeleton>natives/warrior/native_warrior_skeleton.xml</skeleton>
@@ -446,26 +480,24 @@
 			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
 		</sprite>
 		<sprite name="right_paddle">
-			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
+			<skeleton>natives/peon/peon_skeleton2.xml</skeleton>
 			<model r="90" g="60" b="30">
 				misc/right_paddle_native.xml
 				<texture name="native_ship"/>
 			</model>
-			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
-			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+			<animation wpc="1" type="loop">natives/peon/peon_sitting.xml</animation>
+			<animation wpc="1" type="loop">natives/peon/peon_right_paddle.xml</animation>
+            <animation wpc="1" type="loop">natives/peon/peon_left_paddle.xml</animation>
 		</sprite>
 		<sprite name="left_paddle">
-			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
+			<skeleton>natives/peon/peon_skeleton2.xml</skeleton>
 			<model r="90" g="60" b="30">
 				misc/left_paddle_native.xml
 				<texture name="native_ship"/>
 			</model>
-			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
-			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+			<animation wpc="1" type="loop">natives/peon/peon_sitting.xml</animation>
+			<animation wpc="1" type="loop">natives/peon/peon_right_paddle.xml</animation>
+            <animation wpc="1" type="loop">natives/peon/peon_left_paddle.xml</animation>
 		</sprite>
 		<sprite name="quarters">
 			<model r="90" g="60" b="30">
@@ -572,7 +604,6 @@
 			</model>
         </sprite>
         <sprite name="ship">
-            <skeleton>misc/ship/ship_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
                 misc/ship/ship_built.xml
 				<texture name="native_ship" team="ship_team"/>
@@ -581,7 +612,6 @@
                 misc/ship/ship_built.xml
 				<texture name="native_ship" team="ship_team"/>
 			</model>
-			<animation wpc="1" type="loop">misc/ship/ship_animate.xml</animation>
 		</sprite>
 		<sprite name="ship_halfbuilt">
 			<model r="90" g="60" b="30">

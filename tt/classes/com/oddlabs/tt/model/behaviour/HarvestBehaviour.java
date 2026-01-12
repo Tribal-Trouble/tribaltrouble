@@ -65,7 +65,7 @@ public final strictfp class HarvestBehaviour implements Behaviour {
     }
 
     private final void restartAnimation() {
-        unit.switchAnimation(1f / SECONDS_PER_ANIMATION_CYCLE, Unit.ANIMATION_THROWING);
+        unit.switchAnimation(1f / SECONDS_PER_ANIMATION_CYCLE, Unit.ANIMATION_THROWING, 0);
         anim_time = 0;
         sound = false;
     }

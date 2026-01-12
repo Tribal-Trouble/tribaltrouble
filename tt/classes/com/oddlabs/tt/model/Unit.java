@@ -14,6 +14,8 @@ import com.oddlabs.tt.model.behaviour.IdleController;
 import com.oddlabs.tt.model.behaviour.MagicController;
 import com.oddlabs.tt.model.behaviour.PlaceBuildingController;
 import com.oddlabs.tt.model.behaviour.RepairController;
+import com.oddlabs.tt.model.behaviour.ShipAttackController;
+import com.oddlabs.tt.model.behaviour.SittingController;
 import com.oddlabs.tt.model.behaviour.StunController;
 import com.oddlabs.tt.model.behaviour.WalkBehaviour;
 import com.oddlabs.tt.model.behaviour.WalkController;
@@ -276,21 +278,28 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
                         false));
     }
 
-    public final void mountDeck(Building building) {
+    public final void mountDeck(Building building, ShipAllocation ship_allocation) {
         assert !isDead();
         mounted_building = building;
-        mount_offset = building.getBuildingTemplate().getMountOffset();
+        mount_offset = ship_allocation.getOffset().z;
         disable();
         free();
-        setPosition(building.getPositionX(), building.getPositionY());
         mounted = true;
         setReference(building);
         clearControllerStack();
-        swapController(
-                new IdleController(
-                        this,
-                        new AttackScanFilter(getOwner(), AttackScanFilter.TOWER_RANGE),
-                        false));
+        switch (ship_allocation.getRole()) {
+            case ShipAllocation.FIGHTING:
+                swapController(
+                        new ShipAttackController(
+                                this,
+                                building,
+                                new AttackScanFilter(getOwner(), AttackScanFilter.TOWER_RANGE + 8),
+                                ship_allocation));
+                break;
+            default:
+                swapController(new SittingController(this, building, ship_allocation));
+                break;
+        }
     }
 
     public final boolean isMounted() {
@@ -320,7 +329,26 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
 
     public final void switchToIdleAnimation() {
         assert !isDead();
-        switchAnimation(IDLE_SPEED, ANIMATION_IDLING);
+        switchAnimation(IDLE_SPEED, ANIMATION_IDLING, 0);
+    }
+
+    public final void switchToSittingAnimation() {
+        assert !isDead();
+        switchAnimation(IDLE_SPEED, 0, 1);
+    }
+
+    public final void switchToRowingRightAnimation() {
+        assert !isDead();
+        assert supply_container != null;
+        switchAnimation(IDLE_SPEED, 1, 1);
+        supply_container.increaseSupply(1, RightPaddle.class);
+    }
+
+    public final void switchToRowingLeftAnimation() {
+        assert !isDead();
+        assert supply_container != null;
+        switchAnimation(IDLE_SPEED, 2, 1);
+        supply_container.increaseSupply(1, LeftPaddle.class);
     }
 
     public final WeaponFactory getWeaponFactory() {
@@ -339,7 +367,7 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
     }
 
     public final SpriteKey getSpriteRenderer() {
-        return getUnitTemplate().getSpriteRenderer(current_sprite_index);
+        return getUnitTemplate().getSpriteRenderer(getSpriteIndex());
     }
 
     public final void setSpriteIndex(int index) {
@@ -696,11 +724,16 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
         return magic_energy[magic_index] / MAX_MAGIC_ENERGY[magic_index];
     }
 
-    public final void switchAnimation(float anim_speed, int animation) {
+    public final void switchAnimation(float anim_speed, int animation, int sprite) {
         assert !isDead();
+        setSpriteIndex(sprite);
+        if (supply_container != null) {
+            supply_container.resetSupply(LeftPaddle.class);
+            supply_container.resetSupply(RightPaddle.class);
+        }
         this.anim_speed = anim_speed;
         if (this.animation != animation
-                || getUnitTemplate().getSpriteRenderer().getAnimationType(animation)
+                || getUnitTemplate().getSpriteRenderer(sprite).getAnimationType(animation)
                         == AnimationInfo.ANIM_PLAIN) {
             this.animation = animation;
             assert animation != -1;

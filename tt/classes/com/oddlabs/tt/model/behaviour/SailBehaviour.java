@@ -14,7 +14,7 @@ import com.oddlabs.util.Vector4f;
 import java.util.HashSet;
 
 public final strictfp class SailBehaviour implements Behaviour {
-    private static final float BOAT_SPEED = 20.0f;
+    private static final float BOAT_SPEED = 1000.0f;
     private static final float DESTINATION_THRESHOLD = 2.0f;
     private static final int NO_COLLISION = 0;
     private static final int RESOLVABLE_COLLISION = 1;
@@ -336,7 +336,7 @@ public final strictfp class SailBehaviour implements Behaviour {
             return Selectable.INTERRUPTIBLE;
         }
 
-        curveT += curveDt * BOAT_SPEED;
+        curveT += curveDt * BOAT_SPEED * t;
 
         Vector4f new_pose = calcCurve(curveT);
 
