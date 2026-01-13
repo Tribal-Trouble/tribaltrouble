@@ -1,5 +1,6 @@
 package com.oddlabs.tt.model;
 
+import com.oddlabs.util.Vector2f;
 import com.oddlabs.util.Vector3f;
 
 public final strictfp class ShipAllocation {
@@ -11,14 +12,20 @@ public final strictfp class ShipAllocation {
 
     private final int role;
     private final Vector3f offset;
+    private final Vector2f rotation;
 
-    public ShipAllocation(Vector3f offset, int role) {
+    public ShipAllocation(Vector3f offset, Vector2f rotation, int role) {
         this.role = role;
         this.offset = offset;
+        this.rotation = rotation;
     }
 
     public Vector3f getOffset() {
         return offset;
+    }
+
+    public Vector2f getRotation() {
+        return rotation;
     }
 
     public int getRole() {

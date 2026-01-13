@@ -1,5 +1,6 @@
 package com.oddlabs.tt.model;
 
+import com.oddlabs.util.Vector2f;
 import com.oddlabs.util.Vector3f;
 
 public final strictfp class ShipHR {
@@ -37,6 +38,10 @@ public final strictfp class ShipHR {
         x_positions[11] = +6.53f;
         x_positions[12] = +8.00f;
 
+        Vector2f fwd = new Vector2f(1.0f, 0.0f);
+        Vector2f left = new Vector2f(0.0f, 1.0f);
+        Vector2f right = new Vector2f(0.0f, -1.0f);
+
         int index = LOWER_DECK_START;
         float range_y = lower_deck_right_y - lower_deck_left_y;
         for (int r = 0; r < NUM_LOWER_DECK_ROWS; r++) {
@@ -50,7 +55,7 @@ public final strictfp class ShipHR {
                 } else if (c == 0) {
                     role = ShipAllocation.ROWING_LEFT;
                 }
-                allocations[index] = new ShipAllocation(new Vector3f(x, y, z), role);
+                allocations[index] = new ShipAllocation(new Vector3f(x, y, z), fwd, role);
                 index++;
             }
         }
@@ -70,7 +75,10 @@ public final strictfp class ShipHR {
                 float y = upper_deck_min_y + range_y * (((float) c) / (NUM_UPPER_DECK_COLS - 1));
                 float z = upper_deck_z;
                 allocations[index] =
-                        new ShipAllocation(new Vector3f(x, y, z), ShipAllocation.FIGHTING);
+                        new ShipAllocation(
+                                new Vector3f(x, y, z),
+                                c == 0 ? right : left,
+                                ShipAllocation.FIGHTING);
                 index++;
             }
         }

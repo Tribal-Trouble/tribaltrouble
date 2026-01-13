@@ -32,7 +32,9 @@ public final strictfp class ShipAttackBehaviour implements Behaviour {
         float gy = y + dy * ox + dx * oy;
         unit.setPosition(gx, gy);
         unit.setGridPosition(UnitGrid.toGridCoordinate(gx), UnitGrid.toGridCoordinate(gy));
-        unit.setDirection(-dy, dx);
+        float rx = allocation.getRotation().x;
+        float ry = allocation.getRotation().y;
+        unit.setDirection(rx * dx - ry * dy, ry * dx + rx * dy);
         if (!controller.shouldSleep(t)) return Selectable.DONE;
         else return Selectable.INTERRUPTIBLE;
     }

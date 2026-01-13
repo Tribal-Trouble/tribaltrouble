@@ -293,7 +293,7 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
                         new ShipAttackController(
                                 this,
                                 building,
-                                new AttackScanFilter(getOwner(), AttackScanFilter.TOWER_RANGE + 8),
+                                new AttackScanFilter(getOwner(), AttackScanFilter.TOWER_RANGE + 20),
                                 ship_allocation));
                 break;
             default:

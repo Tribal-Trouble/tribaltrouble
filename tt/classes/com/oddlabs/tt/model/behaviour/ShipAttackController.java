@@ -8,8 +8,8 @@ import com.oddlabs.tt.model.ShipAllocation;
 import com.oddlabs.tt.model.Unit;
 
 public final strictfp class ShipAttackController extends Controller {
-    private static final float MIN_SCAN_DELAY = 1f;
-    private static final float MAX_SCAN_DELAY = 2f;
+    private static final float MIN_SCAN_DELAY = 0.1f;
+    private static final float MAX_SCAN_DELAY = 0.2f;
 
     private final Unit unit;
     private final AttackScanFilter scan_filter;
