@@ -3,19 +3,28 @@ package com.oddlabs.util;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Integer to object map
  */
-public final class HashTable<T> {
+public final class HashTable<T> implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
 	private static final int DEFAULT_INITIAL_ENTRIES = 10;
 	private static final int DEFAULT_MUL_FACTOR = 2;
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
 	@SuppressWarnings("unchecked")
-    private @Nullable LinkedList<@NonNull HashEntry<T>> @NonNull [] entries = new LinkedList[DEFAULT_INITIAL_ENTRIES];
+    private transient @Nullable LinkedList<@NonNull HashEntry<T>> @NonNull [] entries = new LinkedList[DEFAULT_INITIAL_ENTRIES];
 	private final float load_factor = DEFAULT_LOAD_FACTOR;
 	private final int mul_factor = DEFAULT_MUL_FACTOR;
-    private int num_entries;
+    private transient int num_entries;
 
 	public HashTable() {
 	}
@@ -38,8 +47,7 @@ public final class HashTable<T> {
 			while (current_entry != null) {
 				int current_key = current_entry.getKey();
 				if (current_key == key) {
-					T result = current_entry.setEntry(val);
-					return result;
+                    return current_entry.setEntry(val);
 				}
 				current_entry = current_entry.getNext();
 			}
@@ -77,6 +85,7 @@ public final class HashTable<T> {
 			if (current_key == key) {
 				T result = current_entry.getEntry();
 				entries[hash].remove(current_entry);
+				num_entries--;
 				return result;
 			}
 			current_entry = current_entry.getNext();
@@ -102,4 +111,35 @@ public final class HashTable<T> {
             }
         }
 	}
+
+    @Serial
+    private void writeObject(ObjectOutputStream s) throws IOException {
+        s.defaultWriteObject();
+        s.writeInt(entries.length);
+        s.writeInt(num_entries);
+        for (LinkedList<HashEntry<T>> list : entries) {
+            if (list != null) {
+                HashEntry<T> entry = list.getFirst();
+                while (entry != null) {
+                    s.writeInt(entry.getKey());
+                    s.writeObject(entry.getEntry());
+                    entry = entry.getNext();
+                }
+            }
+        }
+    }
+
+    @Serial
+    @SuppressWarnings("unchecked")
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+        s.defaultReadObject();
+        int length = s.readInt();
+        entries = new LinkedList[length];
+        int size = s.readInt();
+        for (int i = 0; i < size; i++) {
+            int key = s.readInt();
+            T val = (T) s.readObject();
+            put(key, val);
+        }
+    }
 }

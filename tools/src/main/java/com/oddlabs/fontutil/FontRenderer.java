@@ -3,6 +3,7 @@ package com.oddlabs.fontutil;
 import com.oddlabs.procedural.Channel;
 import com.oddlabs.procedural.Layer;
 import com.oddlabs.util.FontInfo;
+import com.oddlabs.util.HashTable;
 import com.oddlabs.util.Quad;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -20,6 +21,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.IntStream;
 
 public final class FontRenderer {
 	private static final int GLYPH_X_BORDER = 4;
@@ -29,13 +31,17 @@ public final class FontRenderer {
 	private static final float SPACE_SCALE = 0.66666f;
 
 	static void main(@NonNull String @NonNull ... args) {
-        if (args.length < 8) {
-			IO.println("FontRenderer <font_name> <font_size> <max_image_width> <max_chars> <scale_factor> <font_info_dir> <font_tex_dir> <font_tex_classpath>");
+        if (args.length < 9) {
+			IO.println("FontRenderer <font_name> <font_size> <max_image_width> <max_chars> <scale_factor> <font_info_dir> <font_tex_dir> <font_tex_classpath> <additional_chars>");
         }
         try {
-            float scale = Float.parseFloat(args[4]);
-            new FontRenderer(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]),
-                    Path.of(args[5]), Path.of(args[6]), args[7], scale);
+			int[] codepoints = IntStream.concat(IntStream.range(0, Integer.parseInt(args[3])), args[8].codePoints())
+					.toArray();
+
+			new FontRenderer(Path.of(args[0]),
+					Integer.parseInt(args[1]), Float.parseFloat(args[4]),
+					Integer.parseInt(args[2]), codepoints,
+					Path.of(args[5]), Path.of(args[6]), args[7]);
             IO.println("Conversion complete\n");
         } catch(Throwable all) {
             IO.println("Conversion failed");
@@ -44,26 +50,24 @@ public final class FontRenderer {
         }
 	}
 
-	public FontRenderer(@NonNull String font_path, int logical_font_size, int max_image_size, int max_chars, @NonNull Path font_info_dir, @NonNull Path font_tex_dir, String font_tex_classpath, float scale_factor) throws Exception {
-		Path font_file = Path.of(font_path);
+	public FontRenderer(@NonNull Path font_file,
+						int logical_font_size, float scale_factor,
+						int max_image_size, int[] codepoints,
+						@NonNull Path font_info_dir, @NonNull Path font_tex_dir,
+						@NonNull String font_tex_classpath) throws Exception {
 		String font_file_name = font_file.getFileName().toString();
 		int extension = font_file_name.lastIndexOf('.');
 		String src_font_name = extension != -1 ?  font_file_name.substring(0, extension) : font_file_name;
 		
         int physical_font_size = Math.round(logical_font_size * scale_factor);
         
-        IO.println("Converting first " + max_chars + " chars of " + src_font_name + " size " + logical_font_size + " (phys: " + physical_font_size + ")");
+        IO.println("Rendering " + codepoints.length + " codepoints of " + src_font_name + " size " + logical_font_size + " (phys: " + physical_font_size + ")");
 		String dest_font_name = src_font_name.toLowerCase();
         java.awt.Font src_font;
 		try (InputStream font_is = new BufferedInputStream(Files.newInputStream(font_file))) {
             src_font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, font_is).deriveFont((float)physical_font_size);
         }
 
-		char[] chars = new char[max_chars];
-		for (int i = 0; i < max_chars; i++) {
-			chars[i] = (char)i;
-		}
-        
         int scaled_x_border = Math.round(GLYPH_X_BORDER * scale_factor);
         int scaled_y_border = Math.round(GLYPH_Y_BORDER * scale_factor);
 
@@ -93,7 +97,7 @@ public final class FontRenderer {
 		int image_height = 0;
 		int[] heights = null;
 		while (image_width > image_height) {
-			heights = calculateImageHeight(src_font, image_width, space_width, chars, scaled_x_border, scaled_y_border);
+			heights = calculateImageHeight(src_font, image_width, space_width, codepoints, scaled_x_border, scaled_y_border);
 			image_height = heights[0];
 			int area = image_width*image_height;
 			if (area <= min_area) {
@@ -108,8 +112,9 @@ public final class FontRenderer {
 		IO.println("optimal width*height: " + best_width + "*" + best_height);
 		int max_glyph_height = heights[1];
 		int max_baseline_height = heights[2];
-		Channel white_alpha = drawFont(src_font, font_tex_classpath, font_info_dir, dest_font_name, logical_font_size, max_glyph_height, max_baseline_height, best_width, best_height, space_width, chars, true, scaled_x_border, scaled_y_border, scale_factor);
-		Channel shadow = drawFont(src_font, font_tex_classpath, font_info_dir, dest_font_name, logical_font_size, max_glyph_height, max_baseline_height, best_width, best_height, space_width, chars, false, scaled_x_border, scaled_y_border, scale_factor);
+        int max_under_baseline_height = heights[3];
+		Channel white_alpha = drawFont(src_font, font_tex_classpath, font_info_dir, dest_font_name, logical_font_size, scale_factor, max_glyph_height, max_baseline_height, max_under_baseline_height, best_width, best_height, space_width, codepoints, true, scaled_x_border, scaled_y_border);
+		Channel shadow = drawFont(src_font, font_tex_classpath, font_info_dir, dest_font_name, logical_font_size, scale_factor, max_glyph_height, max_baseline_height, max_under_baseline_height, best_width, best_height, space_width, codepoints, false, scaled_x_border, scaled_y_border);
 
 		Channel black = new Channel(white_alpha.getWidth(), white_alpha.getHeight()).fill(0f);
 		Channel white = new Channel(white_alpha.getWidth(), white_alpha.getHeight()).fill(1f);
@@ -127,7 +132,10 @@ public final class FontRenderer {
 		font_image.saveAsPNG(font_tex_dir + File.separator + dest_font_name + "_" + logical_font_size);
 	}
 
-	private int[] calculateImageHeight(@NonNull Font src_font, int image_width, int space_width, char @NonNull [] chars, int x_border, int y_border) {
+	private int[] calculateImageHeight(@NonNull Font src_font,
+									   int image_width, int space_width,
+									   int @NonNull [] codepoints,
+									   int x_border, int y_border) {
 		BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
 		Graphics2D g2d = (Graphics2D)image.getGraphics();
 		g2d.setFont(src_font);
@@ -137,22 +145,21 @@ public final class FontRenderer {
 
 		int max_baseline_height = 0;
 		int max_under_baseline_height = 0;
-        char tallest_char = ' ';
-        char lowest_char = ' ';
+        int tallest_char = ' ';
+        int lowest_char = ' ';
         int num_lines = 1;
 		int current_x = 0;
 
 		// place chars
 		IO.println("Calculating char placement for width = " + image_width);
 		IO.print("Progress...");
-		for (int i = 0; i < chars.length; i++) {
+		for (int i = 0; i < codepoints.length; i++) {
 			if (i % 1000 == 0) {
 				IO.print(".");
 			}
-			char ch = (char)i;
-			if (src_font.canDisplay(chars[ch])) {
-				char[] current_char = new char[] {chars[ch]};
-				GlyphVector gv = src_font.createGlyphVector(frc, current_char);
+			int codepoint = codepoints[i];
+			if (src_font.canDisplay(codepoint)) {
+				GlyphVector gv = src_font.createGlyphVector(frc, Character.toChars(codepoint));
 				Shape glyph_shape = gv.getGlyphOutline(0);
 				Rectangle2D glyph_bounds = glyph_shape.getBounds2D();
 				int min_x = (int)Math.floor(glyph_bounds.getMinX()) - x_border;
@@ -162,19 +169,15 @@ public final class FontRenderer {
 				int baseline_height = -min_y;
 				if (baseline_height > max_baseline_height) {
                     max_baseline_height = baseline_height;
-                    tallest_char = ch;
+                    tallest_char = codepoint;
                 }
 				int under_baseline_height = max_y;
 				if (under_baseline_height > max_under_baseline_height) {
                     max_under_baseline_height = under_baseline_height;
-                    lowest_char = ch;
+                    lowest_char = codepoint;
                 }
-				int glyph_width;
-				if (i == ' ')
-					glyph_width = space_width;
-				else
-					glyph_width = max_x - min_x;
-				assert glyph_width <= image_width : "character too wide to fit in image";
+				int glyph_width = codepoint == 32 ? space_width : max_x - min_x;
+                assert glyph_width <= image_width : "character too wide to fit in image";
 				if (current_x + glyph_width > image_width) {
 					current_x = 0;
 					num_lines++;
@@ -187,10 +190,16 @@ public final class FontRenderer {
         IO.println(" lowest char='" + lowest_char + "'(\\u" + Integer.toHexString(lowest_char) + "):" + max_under_baseline_height);
 		int max_glyph_height = max_under_baseline_height + max_baseline_height;
 		int image_height = Utils.nextPowerOf2(max_glyph_height*num_lines);
-		return new int[]{image_height, max_glyph_height, max_baseline_height};
+		return new int[]{image_height, max_glyph_height, max_baseline_height, max_under_baseline_height};
 	}
 
-	private @NonNull Channel drawFont(@NonNull Font src_font, String font_tex_classpath, @NonNull Path font_info_dir, String dest_font_name, int logical_font_size, int max_glyph_height, int max_baseline_height, int image_width, int image_height, int space_width, char @NonNull [] chars, boolean create_xml, int x_border, int y_border, float scale_factor) {
+	private @NonNull Channel drawFont(@NonNull Font src_font, @NonNull String font_tex_classpath,
+									  @NonNull Path font_info_dir, @NonNull String dest_font_name,
+									  int logical_font_size, float scale_factor,
+									  int max_glyph_height, int max_baseline_height, int max_under_baseline_height,
+									  int image_width, int image_height, int space_width,
+									  int @NonNull [] codepoints, boolean saveFontInfo,
+									  int x_border, int y_border) {
 		BufferedImage image = new BufferedImage(image_width, image_height, BufferedImage.TYPE_4BYTE_ABGR);
 		Graphics2D g2d = (Graphics2D)image.getGraphics();
 		g2d.setFont(src_font);
@@ -202,43 +211,38 @@ public final class FontRenderer {
 		int current_x = 0;
 		int current_y = 0;
 		int valid_chars = 0;
-		Quad[] key_map = create_xml ? new Quad[chars.length] : null;
+		HashTable<@NonNull Quad> key_map = saveFontInfo ? new HashTable<>() : null;
 
 		IO.println("Drawing chars for width*height = " + image_width + "*" + image_height);
 		IO.print("Progress...");
-        char[] current_char = new char[1];
-		for (int i = 0; i < chars.length; i++) {
+		for (int i = 0; i < codepoints.length; i++) {
 			if (i % 1000 == 0) {
 				IO.print(".");
 			}
-			char ch = (char)i;
-			if (src_font.canDisplay(chars[ch])) {
+			int codepoint = codepoints[i];
+			if (src_font.canDisplay(codepoint)) {
 				valid_chars++;
-                current_char[0] = chars[ch];
-				GlyphVector gv = src_font.createGlyphVector(frc, current_char);
+				GlyphVector gv = src_font.createGlyphVector(frc, Character.toChars(codepoint));
 				Shape glyph_shape = gv.getGlyphOutline(0);
 				Rectangle2D glyph_bounds = glyph_shape.getBounds2D();
 				int min_x = (int)Math.floor(glyph_bounds.getMinX()) - x_border;
 				//int min_y = (int)Math.floor(glyph_bounds.getMinY()) - GLYPH_Y_BORDER;
 				int max_x = (int)Math.ceil(glyph_bounds.getMaxX()) + x_border;
 				//int max_y = (int)Math.ceil(glyph_bounds.getMaxY()) + GLYPH_Y_BORDER;
-				int glyph_width;
-				if (i == 32)
-					glyph_width = space_width;
-				else
-					glyph_width = max_x - min_x;
-				assert glyph_width <= image_width : "character too wide to fit in image";
+				int glyph_width = codepoint == 32 ? space_width : max_x - min_x;
+                assert glyph_width <= image_width : "character too wide to fit in image";
 				if (current_x + glyph_width > image_width) {
 					g2d.translate(-current_x, max_glyph_height);
 					current_x = 0;
 					current_y += max_glyph_height;
 				}
-				if (create_xml) {
+				if (saveFontInfo) {
 					float left = (float)current_x/image_width;
 					float bottom = 1f - (float)(current_y + max_glyph_height)/image_height;
 					float top = 1f - (float)current_y/image_height;
 					float right = (float)(current_x + glyph_width)/image_width;
-					key_map[i] = new Quad(left, bottom, right, top, Math.round(glyph_width / scale_factor), Math.round(max_glyph_height / scale_factor));
+					var quad = new Quad(left, bottom, right, top, Math.round(glyph_width / scale_factor), Math.round(max_glyph_height / scale_factor));
+					key_map.put(codepoint, quad);
 				}
 				g2d.translate(-min_x, 0);
 				g2d.translate(0, -1);
@@ -250,9 +254,9 @@ public final class FontRenderer {
 		}
 
 		IO.println("done");
-		if (create_xml) {
+		if (saveFontInfo) {
 			String tex_name = font_tex_classpath + "/" + dest_font_name + "_" + logical_font_size;
-			FontInfo font_info = new FontInfo(tex_name, key_map, GLYPH_X_OVERLAP, GLYPH_Y_OVERLAP, Math.round(max_glyph_height / scale_factor));
+			FontInfo font_info = new FontInfo(tex_name, key_map, GLYPH_X_OVERLAP, GLYPH_Y_OVERLAP, Math.round(max_glyph_height / scale_factor), Math.round(max_baseline_height / scale_factor), Math.round(max_under_baseline_height / scale_factor));
 			Path font_file_name = font_info_dir.resolve(dest_font_name + "_" + logical_font_size + ".font");
 			font_info.saveToFile(font_file_name);
 			IO.println("Number of valid chars found: " + valid_chars);
@@ -263,7 +267,7 @@ public final class FontRenderer {
 
 		for (int y = 0; y < image.getHeight(); y++) {
 			for (int x = 0; x < image.getWidth(); x++) {
-				int pos = y * image.getWidth() * 4 + x * 4;
+				int pos = y * image.getWidth() * Integer.BYTES + x * Integer.BYTES;
 				byte alpha = image_pixels[pos + 3];
 				//byte img = image_pixels[pos + 1];
 				int pixel = alpha & 0xff;

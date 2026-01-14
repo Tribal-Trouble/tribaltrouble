@@ -134,7 +134,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 		RaceIcons race_icons = viewer.getLocalPlayer().getRace().getIcons();
 		Skin skin = Skin.getSkin();
 		GUIIcons icons = GUIIcons.getIcons();
-		String widest_char = "" + skin.getEditFont().getWidestChar("0123456789");
+		String widest_char = new String(Character.toChars(skin.getEditFont().getWidestCodepoint("0123456789")));
 		int label_width = skin.getEditFont().getWidth(widest_char + widest_char + widest_char);
 
 		move_button = new NonFocusIconButton(race_icons.moveIcon(), formatTip("move_tip", "M"));

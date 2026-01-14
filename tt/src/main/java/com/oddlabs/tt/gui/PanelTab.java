@@ -10,7 +10,7 @@ public class PanelTab extends GUIObject {
 	private boolean selected;
 	private final @NonNull Label label;
 
-	public PanelTab(@NonNull String caption) {
+	public PanelTab(@NonNull CharSequence caption) {
 		PanelData data = Skin.getSkin().getPanelData();
 		Font font = Skin.getSkin().getButtonFont();
 		label = new Label(caption, font);

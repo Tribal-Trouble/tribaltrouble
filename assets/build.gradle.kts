@@ -45,7 +45,8 @@ tasks.register("renderInterLightFont", JavaExec::class) {
         "2",
         fontInfoDir,
         fontTexDir,
-        fontTexClasspath
+        fontTexClasspath,
+        "•°™∞□"
     )
 
     onlyIf { ttfFile.exists() }
@@ -74,11 +75,12 @@ tasks.register("renderInterTightBlackFont", JavaExec::class) {
         ttfFile.toString(),
         "28",
         "2048",
-        "600",
+        "1200",
         "2",
         fontInfoDir,
         fontTexDir,
-        fontTexClasspath
+        fontTexClasspath,
+        "•°™∞□"
     )
 
     onlyIf { ttfFile.exists() }

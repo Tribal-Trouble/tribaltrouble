@@ -5,7 +5,7 @@ import org.jspecify.annotations.NonNull;
 public class Panel extends Group {
 	private final @NonNull PanelTab tab;
 
-	public Panel(@NonNull String caption) {
+	public Panel(@NonNull CharSequence caption) {
 		tab = new PanelTab(caption);
 	}
 
