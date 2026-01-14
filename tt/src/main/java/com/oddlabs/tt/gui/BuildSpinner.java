@@ -5,10 +5,9 @@ import com.oddlabs.tt.model.BuildSupplyContainer;
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
-import com.oddlabs.tt.model.weapon.RotatingThrowingWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
+import com.oddlabs.tt.model.weapon.ThrowingWeapon;
 import com.oddlabs.tt.player.PlayerInterface;
-import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -19,7 +18,7 @@ public final class BuildSpinner extends IconSpinner {
 	private final @NonNull PlayerInterface player_interface;
 
 	private Building current_building;
-	private Class<? extends RotatingThrowingWeapon> type;
+	private Class<? extends ThrowingWeapon> type;
 	private int num_orders;
 	private int order_size;
 	private boolean infinite;
@@ -31,7 +30,7 @@ public final class BuildSpinner extends IconSpinner {
 		this.player_interface = player_interface;
 	}
 
-	void setBuildSupplyContainer(@NonNull Building current_building, @NonNull Class<? extends RotatingThrowingWeapon> type) {
+	void setBuildSupplyContainer(@NonNull Building current_building, @NonNull Class<? extends ThrowingWeapon> type) {
 		this.current_building = current_building;
 		this.type = type;
 		if (!current_building.isDead())
@@ -64,7 +63,7 @@ public final class BuildSpinner extends IconSpinner {
 			} else if (type == RubberAxeWeapon.class) {
 				player_interface.buildRubberWeapons(current_building, num, infinite);
 			} else {
-				throw new RuntimeException();
+				throw new IllegalArgumentException();
 			}
 		}
 	}
@@ -113,13 +112,5 @@ public final class BuildSpinner extends IconSpinner {
 	@Override
 	protected int getOrderSize() {
 		return order_size;
-	}
-
-	@Override
-	protected void postRender(@NonNull GUIRenderer renderer) {
-		if (renderInfinite()) {
-			// TODO replace with text drawing from display font
-			renderer.drawIcon(GUIIcons.getIcons().getInfinite(), 0, 0);
-		}		
 	}
 }

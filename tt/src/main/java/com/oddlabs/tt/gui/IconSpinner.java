@@ -77,8 +77,8 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 		if (count != text_count) {
 			text_count = count;
 			label.clear();
-			if (text_count != 0 && !renderInfinite()) {
-				label.append(text_count);
+			if (text_count != 0) {
+				label.append(renderInfinite() ? "∞" : Integer.toString(text_count));
 			}
 		}
 	}
