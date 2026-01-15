@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.render.GUIRenderer;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 public final class PulldownButton<T> extends GUIObject {
@@ -96,9 +97,14 @@ public final class PulldownButton<T> extends GUIObject {
 			menu.remove();
 	}
 
+    public void setLabelColor(@NonNull Vector4fc color) {
+        label.setColor(color);
+    }
+
  private void itemChosen(@NonNull PulldownMenu<T> menu, int item_index) {
 		PulldownItem<T> item = menu.getItem(item_index);
 		label.set(item.getLabelString());
+        label.setColor(item.getLabelColor());
 		if (menu.isActive())
 			deactivateMenu();
 	}

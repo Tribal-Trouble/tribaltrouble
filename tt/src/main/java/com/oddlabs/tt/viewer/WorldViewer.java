@@ -77,7 +77,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
     private final @NonNull WorldParameters world_params;
     private final @NonNull AnimationManager animation_manager_local;
 
-    public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator, PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, @NonNull Vector4fc @NonNull [] colors, short player_slot, SessionID session_id) {
+    public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator, PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, short player_slot, SessionID session_id) {
         this.world_params = world_params;
         this.ingame_info = ingame_info;
         this.network = network;
@@ -138,7 +138,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
         };
         PlayerInfo[] player_infos = Arrays.stream(player_slots).map(PlayerSlot::getInfo).toArray(PlayerInfo[]::new);
         WorldInfo world_info = generator.generate(player_infos.length, world_params.getInitialUnitCount(), ingame_info.getRandomStartPosition());
-        this.world = World.newWorld(audio_impl, landscape_resources, races_resources, listener, world_params, world_info, generator.getTerrainType(), player_infos, colors, worldFog);
+        this.world = World.newWorld(audio_impl, landscape_resources, races_resources, listener, world_params, world_info, generator.getTerrainType(), player_infos, worldFog);
         this.local_player = world.getPlayers()[player_slot];
         this.selection = new Selection(local_player);
         landscape_renderer = new LandscapeRenderer(world, world_info, animation_manager_local);

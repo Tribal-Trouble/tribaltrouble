@@ -7,6 +7,7 @@ import com.oddlabs.tt.gui.CancelListener;
 import com.oddlabs.tt.gui.CheckBox;
 import com.oddlabs.tt.gui.ColumnInfo;
 import com.oddlabs.tt.gui.Form;
+import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
@@ -26,10 +27,14 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.gui.SortedLabel;
 import com.oddlabs.tt.guievent.RowListener;
+import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.SerializableDisplayMode;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.util.Color;
+import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Locale;
@@ -311,8 +316,6 @@ public abstract class AbstractOptionsMenu extends Form {
         // High Contrast
         Group group_contrast = new Group();
         accessibility.addChild(group_contrast);
-        CheckBox cb_team_stencil = new CheckBox(Settings.getSettings().team_stencil, Utils.getBundleString(bundle, "team_stencil"), Utils.getBundleString(bundle, "team_stencil_tip"));
-        group_contrast.addChild(cb_team_stencil);
 
         CheckBox cb_high_contrast = new CheckBox(Settings.getSettings().high_contrast, Utils.getBundleString(bundle, "high_contrast"), Utils.getBundleString(bundle, "high_contrast_tip"));
         group_contrast.addChild(cb_high_contrast);
@@ -334,12 +337,10 @@ public abstract class AbstractOptionsMenu extends Form {
             Settings.getSettings().high_contrast = marked;
             slider_contrast.setDisabled(!marked);
         });
-        cb_team_stencil.addCheckBoxListener(marked -> Settings.getSettings().team_stencil = marked);
-        
+
         slider_contrast.addValueListener(value -> Settings.getSettings().contrast_intensity = (float)value / MAX_VALUE);
 
-        cb_team_stencil.place();
-        cb_high_contrast.place(cb_team_stencil, BOTTOM_LEFT);
+        cb_high_contrast.place();
         label_contrast_intensity.place(cb_high_contrast, BOTTOM_LEFT);
         label_contrast_low.place(label_contrast_intensity, BOTTOM_LEFT);
         slider_contrast.place(label_contrast_low, RIGHT_MID);
@@ -387,9 +388,95 @@ public abstract class AbstractOptionsMenu extends Form {
         label_cvd_high.place(slider_cvd, RIGHT_MID);
         group_cvd.compileCanvas();
 
+        // Team Colours
+        Group group_team_colours = new Group();
+        accessibility.addChild(group_team_colours);
+
+        Label label_team_colours = new Label(Utils.getBundleString(bundle, "team_colours"), Skin.getSkin().getEditFont());
+        group_team_colours.addChild(label_team_colours);
+
+        PulldownMenu<Void> pm_team = new PulldownMenu<>();
+        for (int i = 0; i < Settings.getSettings().team_colours.length; i++) {
+            String player_str = Utils.getBundleString(bundle, "player", Integer.toString(i + 1));
+            PulldownItem<Void> item = new PulldownItem<>(player_str);
+            item.setLabelColor(Settings.getSettings().team_colours[i]);
+            pm_team.addItem(item);
+        }
+        PulldownButton<Void> pb_team = new PulldownButton<>(gui_root, pm_team, 0, 150);
+        group_team_colours.addChild(pb_team);
+
+        // Color Preview Box
+        class ColorBox extends GUIObject {
+            private final Vector4f color = new Vector4f(Color.WHITE);
+            public ColorBox() { setDim(20, 20); }
+            @Override protected void renderGeometry(@NonNull GUIRenderer renderer) {
+                renderer.drawColoredQuad(0, 0, getWidth(), getHeight(), color);
+            }
+            public void setColor(Vector4fc c) { this.color.set(c); }
+        }
+        ColorBox colorBox = new ColorBox();
+        group_team_colours.addChild(colorBox);
+
+        // Hue Slider (Color Ramp)
+        Slider slider_hue = new Slider(SLIDER_WIDTH, 0, 360, 0);
+        group_team_colours.addChild(slider_hue);
+        
+        // Reset Button
+        HorizButton button_reset = new HorizButton(Utils.getBundleString(bundle, "reset"), 100);
+        group_team_colours.addChild(button_reset);
+
+        // Update logic
+        Runnable updateColor = () -> {
+            int teamIndex = pm_team.getChosenItemIndex();
+            float hue = slider_hue.getValue();
+            int rgb = java.awt.Color.HSBtoRGB(hue / 360f, 1.0f, 1.0f);
+            Vector4f newColor = Color.argb4v((0xFF << 24) | (rgb & 0xFFFFFF));
+            Settings.getSettings().team_colours[teamIndex] = newColor;
+            colorBox.setColor(newColor);
+            
+            // Update the pulldown item color
+            pm_team.getItem(teamIndex).setLabelColor(newColor);
+            pb_team.setLabelColor(newColor);
+        };
+        
+        Runnable refreshUI = () -> {
+            int index = pm_team.getChosenItemIndex();
+            Vector4fc currentColor = Settings.getSettings().team_colours[index];
+            float[] hsb = java.awt.Color.RGBtoHSB((int)(currentColor.x() * 255), (int)(currentColor.y() * 255), (int)(currentColor.z() * 255), null);
+            slider_hue.setValue((int)(hsb[0] * 360));
+            colorBox.setColor(currentColor);
+        };
+
+        pm_team.addItemChosenListener((_, index) -> refreshUI.run());
+        refreshUI.run();
+
+        slider_hue.addValueListener(_ -> updateColor.run());
+        
+        button_reset.addMouseClickListener((_, _, _, _) -> {
+            int index = pm_team.getChosenItemIndex();
+            Settings.getSettings().team_colours[index] = new Vector4f(Settings.DEFAULT_TEAM_COLOURS[index]);
+            refreshUI.run();
+            pm_team.getItem(index).setLabelColor(Settings.getSettings().team_colours[index]);
+            pb_team.setLabelColor(Settings.getSettings().team_colours[index]);
+        });
+
+        CheckBox cb_team_stencil = new CheckBox(Settings.getSettings().team_stencil, Utils.getBundleString(bundle, "team_stencil"), Utils.getBundleString(bundle, "team_stencil_tip"));
+        cb_team_stencil.addCheckBoxListener(marked -> Settings.getSettings().team_stencil = marked);
+        group_team_colours.addChild(cb_team_stencil);
+
+        label_team_colours.place();
+        pb_team.place(label_team_colours, RIGHT_MID);
+        colorBox.place(pb_team, RIGHT_MID);
+        button_reset.place(colorBox, RIGHT_MID);
+        slider_hue.place(label_team_colours, BOTTOM_LEFT);
+        cb_team_stencil.place(slider_hue, BOTTOM_LEFT);
+
+        group_team_colours.compileCanvas();
+
         // Placement
         group_contrast.place();
         group_cvd.place(group_contrast, BOTTOM_LEFT);
+        group_team_colours.place(group_cvd, BOTTOM_LEFT);
         
         accessibility.compileCanvas();
         return accessibility;

@@ -8,6 +8,7 @@ import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.CheckBox;
 import com.oddlabs.tt.gui.EditLine;
@@ -314,7 +315,7 @@ public final class TerrainMenu extends Group {
 			if (i == 0) {
 				String player_str = Utils.getBundleString(bundle, "player", Integer.toString(1));
 				labels_players[0] = new Label(player_str, Skin.getSkin().getEditFont())
-						.setColor(Player.COLORS[0]);
+						.setColor(Settings.getSettings().team_colours[0]);
 				group_race_team.addChild(labels_players[0]);
 				labels_players[0].place();
 				difficulty_pulldown_buttons[0].place(labels_players[0], RIGHT_MID);
@@ -323,7 +324,7 @@ public final class TerrainMenu extends Group {
 			} else {
 				String player_str = Utils.getBundleString(bundle, "player", Integer.toString(i + 1));
 				labels_players[i] = new Label(player_str, Skin.getSkin().getEditFont())
-						.setColor(Player.COLORS[i]);
+						.setColor(Settings.getSettings().team_colours[i]);
 				group_race_team.addChild(labels_players[i]);
 				labels_players[i].place(labels_players[i-1], BOTTOM_RIGHT);
 				difficulty_pulldown_buttons[i].place(labels_players[i], RIGHT_MID);

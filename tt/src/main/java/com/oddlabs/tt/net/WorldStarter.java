@@ -6,6 +6,7 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.router.SessionID;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.form.LoadCallback;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.player.Player;
@@ -49,7 +50,6 @@ final class WorldStarter implements LoadCallback {
 		AnimationManager.freezeTime();
 		List<PlayerSlot> player_slot_list = new ArrayList<>();
 		List<UnitInfo> unit_info_list = new ArrayList<>();
-		List<Vector4fc> color_list = new ArrayList<>();
 		short corrected_player_slot = -1;
 		for (short i = 0; i < player_slots.length; i++) {
 			if (player_slots[i].getInfo() != null) {
@@ -57,14 +57,12 @@ final class WorldStarter implements LoadCallback {
 					corrected_player_slot = (short)player_slot_list.size();
 				player_slot_list.add(player_slots[i]);
 				unit_info_list.add(unit_infos[i]);
-				color_list.add(Player.COLORS[i]);
 			}
 		}
 		assert corrected_player_slot != -1;
 		PlayerSlot[] player_slots = player_slot_list.toArray(new PlayerSlot[0]);
 		UnitInfo[] corrected_unit_infos = unit_info_list.toArray(new UnitInfo[0]);
-		@NonNull Vector4fc [] corrected_colors = color_list.toArray(Vector4fc[]::new);
-		WorldViewer viewer = new WorldViewer(network, gui_root, world_params, ingame_info, generator, player_slots, corrected_unit_infos, corrected_colors, corrected_player_slot, new SessionID(session_id));
+		WorldViewer viewer = new WorldViewer(network, gui_root, world_params, ingame_info, generator, player_slots, corrected_unit_infos, corrected_player_slot, new SessionID(session_id));
 		if (initial_action != null)
 			initial_action.run(viewer);
         Participant[] participants = getParticipants(viewer, player_slots);

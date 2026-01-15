@@ -23,7 +23,6 @@ import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
 import com.oddlabs.tt.model.weapon.RubberAxeWeapon;
 import com.oddlabs.tt.util.Target;
-import com.oddlabs.util.Color;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -37,11 +36,6 @@ public final class Player implements PlayerInterface {
 	public static final int INITIAL_UNIT_COUNT = 20;
 	public static final int MAX_BUILDING_COUNT = 20;
 	public static final int DEFAULT_MAX_UNIT_COUNT = 250;
-
-	public static final Vector4fc[] COLORS = {
-		Color.argb4v(0xFFFFBF00), Color.argb4v(0xFF007FFF), Color.argb4v(0xFFFF0040),
-		Color.argb4v(0xFF00FFBF), Color.argb4v(0xFFBF00FF), Color.argb4v(0xFFBFFF00)
-	};
 
 	private final @NonNull World world;
 	private final @NonNull PlayerInfo player_info;

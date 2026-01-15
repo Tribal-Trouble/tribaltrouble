@@ -2,6 +2,9 @@ package com.oddlabs.tt.global;
 
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.util.Color;
+import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
@@ -15,8 +18,10 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public final class Settings implements Serializable {
 	@Serial
@@ -87,6 +92,23 @@ public final class Settings implements Serializable {
     public float contrast_intensity = 0.5f;
     public boolean team_stencil = false;
 
+	public static final Vector4f[] DEFAULT_TEAM_COLOURS = {
+			Color.argb4v(0xFFFFBF00), /* Orange */
+			Color.argb4v(0xFF007FFF), /* Royal Blue */
+			Color.argb4v(0xFFFF0040), /* Red */
+			Color.argb4v(0xFF00FFBF), /* Teal */
+			Color.argb4v(0xFFBF00FF), /* Purple */
+			Color.argb4v(0xFFBFFF00) /* Lime */
+	};
+
+	public Vector4f[] team_colours = new Vector4f[DEFAULT_TEAM_COLOURS.length];
+
+	public Settings() {
+		for (int i = 0; i < DEFAULT_TEAM_COLOURS.length; i++) {
+			team_colours[i] = new Vector4f(DEFAULT_TEAM_COLOURS[i]);
+		}
+	}
+
 	public static void setSettings(Settings new_settings) {
 		settings = new_settings;
 	}
@@ -137,6 +159,7 @@ public final class Settings implements Serializable {
         setProperty(props, "high_contrast", high_contrast, defaults.high_contrast);
         setProperty(props, "contrast_intensity", contrast_intensity, defaults.contrast_intensity);
         setProperty(props, "team_stencil", team_stencil, defaults.team_stencil);
+		setProperty(props, "team_colours", team_colours, defaults.team_colours);
 
 		Path settings_file = Renderer.getLocalInput().getGameDir().resolve(Globals.SETTINGS_FILE_NAME);
 		try (OutputStream out = Files.newOutputStream(settings_file)) {
@@ -191,6 +214,7 @@ public final class Settings implements Serializable {
         high_contrast = getBoolean(props, "high_contrast", high_contrast);
         contrast_intensity = getFloat(props, "contrast_intensity", contrast_intensity);
         team_stencil = getBoolean(props, "team_stencil", team_stencil);
+		team_colours = getColours(props, "team_colours", team_colours);
 	}
 
 	// --- Save Helpers ---
@@ -221,6 +245,17 @@ public final class Settings implements Serializable {
 	private void setProperty(@NonNull Properties props, @NonNull String key, boolean value, boolean defaultValue) {
 		if (value != defaultValue) {
 			props.setProperty(key, String.valueOf(value));
+		}
+	}
+
+	private void setProperty(@NonNull Properties props, @NonNull String key, @NonNull Vector4fc @NonNull[] value, @NonNull Vector4fc @NonNull[] defaultValue) {
+		if (!Arrays.equals(value, defaultValue)) {
+			String colors = Arrays.stream(value)
+							.mapToInt(Color::argbi)
+									.mapToObj(Integer::toHexString)
+											.collect(Collectors.joining(","));
+
+			props.setProperty(key, colors);
 		}
 	}
 
@@ -260,7 +295,7 @@ public final class Settings implements Serializable {
 		}
 	}
 
-	private Path getPath(@NonNull Properties props, @NonNull String key, Path defaultValue) {
+	private static Path getPath(@NonNull Properties props, @NonNull String key, Path defaultValue) {
 		String value = props.getProperty(key);
 		if (value == null || value.isEmpty()) {
 			return defaultValue;
@@ -269,6 +304,28 @@ public final class Settings implements Serializable {
 			return Path.of(value);
 		} catch (InvalidPathException _) {
 			logger.warning("Invalid path for setting '" + key + "': '" + value + "'. Using default value '" + defaultValue + "'.");
+			return defaultValue;
+		}
+	}
+	
+	private static Vector4f[] getColours(@NonNull Properties props, @NonNull String key, Vector4f @NonNull[] defaultValue) {
+		String value = props.getProperty(key);
+		if (value == null) {
+			return defaultValue;
+		}
+		try {
+			String[] hexStrings = value.split(",");
+			Vector4f[] result = new Vector4f[DEFAULT_TEAM_COLOURS.length];
+			for (int i = 0; i < DEFAULT_TEAM_COLOURS.length; i++) {
+				result[i] = new Vector4f(DEFAULT_TEAM_COLOURS[i]);
+			}
+			for (int i = 0; i < Math.min(DEFAULT_TEAM_COLOURS.length, hexStrings.length); i++) {
+				int argb = (int) Long.parseLong(hexStrings[i], 16);
+				result[i] = Color.argb4v(argb);
+			}
+			return result;
+		} catch (Exception e) {
+			logger.warning("WARNING: Invalid value for setting '" + key + "': '" + value + "'. Using default value. Error: " + e);
 			return defaultValue;
 		}
 	}

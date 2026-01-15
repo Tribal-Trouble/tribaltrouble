@@ -117,24 +117,15 @@ public final class Skin {
 
 	private @NonNull Box getBox(@NonNull Node n, @NonNull Texture texture) {
 		Node box_node = getNodeByName("box", n);
-		Node left_bottom_node = getNodeByName("left_bottom", box_node);
-        ModeIconQuads left_bottom = getIconQuads(left_bottom_node, texture);
-		Node bottom_node = getNodeByName("bottom", box_node);
-        ModeIconQuads bottom = getIconQuads(bottom_node, texture);
-		Node right_bottom_node = getNodeByName("right_bottom", box_node);
-        ModeIconQuads right_bottom = getIconQuads(right_bottom_node, texture);
-		Node right_node = getNodeByName("right", box_node);
-        ModeIconQuads right = getIconQuads(right_node, texture);
-		Node right_top_node = getNodeByName("right_top", box_node);
-        ModeIconQuads right_top = getIconQuads(right_top_node, texture);
-		Node top_node = getNodeByName("top", box_node);
-        ModeIconQuads top = getIconQuads(top_node, texture);
-		Node left_top_node = getNodeByName("left_top", box_node);
-        ModeIconQuads left_top = getIconQuads(left_top_node, texture);
-		Node left_node = getNodeByName("left", box_node);
-        ModeIconQuads left = getIconQuads(left_node, texture);
-		Node center_node = getNodeByName("center", box_node);
-        ModeIconQuads center = getIconQuads(center_node, texture);
+        ModeIconQuads left_bottom = getIconQuads(getNodeByName("left_bottom", box_node), texture);
+        ModeIconQuads bottom = getIconQuads(getNodeByName("bottom", box_node), texture);
+        ModeIconQuads right_bottom = getIconQuads(getNodeByName("right_bottom", box_node), texture);
+        ModeIconQuads right = getIconQuads(getNodeByName("right", box_node), texture);
+        ModeIconQuads right_top = getIconQuads(getNodeByName("right_top", box_node), texture);
+        ModeIconQuads top = getIconQuads(getNodeByName("top", box_node), texture);
+        ModeIconQuads left_top = getIconQuads(getNodeByName("left_top", box_node), texture);
+        ModeIconQuads left = getIconQuads(getNodeByName("left", box_node), texture);
+        ModeIconQuads center = getIconQuads(getNodeByName("center", box_node), texture);
 		int left_offset = getInt(box_node, "left_offset");
 		int bottom_offset = getInt(box_node, "bottom_offset");
 		int right_offset = getInt(box_node, "right_offset");

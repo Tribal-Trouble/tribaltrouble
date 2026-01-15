@@ -35,6 +35,10 @@ public class Label extends TextField implements Comparable<Label> {
 		this.color.set(color);
 		return this;
 	}
+    
+    public @NonNull Vector4fc getColor() {
+        return color;
+    }
 
 	@Override
 	protected final void renderGeometry(@NonNull GUIRenderer renderer) {

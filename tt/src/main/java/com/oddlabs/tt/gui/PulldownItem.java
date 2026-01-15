@@ -2,10 +2,11 @@ package com.oddlabs.tt.gui;
 
 
 import com.oddlabs.tt.render.GUIRenderer;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public final class PulldownItem<T> extends ButtonObject {
+public class PulldownItem<T> extends ButtonObject {
 	private final @NonNull Label label;
 	private final @Nullable T attachment;
 
@@ -62,6 +63,14 @@ public final class PulldownItem<T> extends ButtonObject {
 	public @NonNull CharSequence getLabelString() {
 		return label;
 	}
+
+	public @NonNull Vector4fc getLabelColor() {
+		return label.getColor();
+	}
+
+    public void setLabelColor(@NonNull Vector4fc color) {
+        label.setColor(color);
+    }
 
 	@Override
 	protected void mouseClicked (@NonNull MouseButton button, int x, int y, int clicks) {

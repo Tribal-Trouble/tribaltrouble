@@ -26,12 +26,23 @@ public final class Color {
         // no instances
     }
 
+    public static int argbi(@NonNull Vector4fc color) {
+        return argbi(color.w(), color.x(), color.y(), color.z());
+    }
+
+    public static int argbi(float a, float r, float g, float b) {
+        return argbi ((byte)(a * NORMALIZE_8_BIT),
+                (byte)(r * NORMALIZE_8_BIT),
+                (byte)(g * NORMALIZE_8_BIT),
+                (byte)(b * NORMALIZE_8_BIT));
+    }
+
     public static int argbi(byte r, byte g, byte b, byte a) {
         return (Byte.toUnsignedInt(a) << 24) | (Byte.toUnsignedInt(b) << 16) | (Byte.toUnsignedInt(g) << 8) | Byte.toUnsignedInt(r);
     }
 
     /**
-     * Converts a Vector4fc color to packed abgr in little endian byte buffer
+     * Converts a Vector4fc color to packed abgr for storing little endian byte buffer
      *
      * @param color The 32-bit float color vector
      * @return A 32-bit packed integer in AABBGGRR format
@@ -46,7 +57,6 @@ public final class Color {
                 ((int) (g * NORMALIZE_8_BIT) << 8)  |
                 ((int) (r * NORMALIZE_8_BIT));
     }
-
 
     /**
      * Converts a 32-bit ARGB integer (0xAARRGGBB) to a {@link Vector4fc}.

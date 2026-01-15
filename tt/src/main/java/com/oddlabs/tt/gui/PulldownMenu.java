@@ -36,7 +36,8 @@ public final class PulldownMenu<T> extends Group {
 		bot.render(renderer, 0, 0, getWidth(), ModeIconQuads.Mode.NORMAL);
 
 		// Render top edge
-        		Horizontal top = Skin.getSkin().getPulldownData().pulldownTop();        top.render(renderer, 0, getHeight() - top.getHeight(), getWidth(), ModeIconQuads.Mode.NORMAL);
+        Horizontal top = Skin.getSkin().getPulldownData().pulldownTop();
+		top.render(renderer, 0, getHeight() - top.getHeight(), getWidth(), ModeIconQuads.Mode.NORMAL);
 	}
 
 	public void addItem(@NonNull PulldownItem<T> item) {
@@ -45,16 +46,24 @@ public final class PulldownMenu<T> extends Group {
 		item.addMouseClickListener(new ItemListener(items.size() - 1));
 		setDim(getWidth(), getHeight());
 	}
+    
+    public void clear() {
+        items.clear();
+        clearChildren();
+        chosen_item_index = -1;
+        setDim(getWidth(), getHeight());
+    }
 
 	@Override
 	public @NonNull PulldownMenu<T> setDim(int width, int height) {
 		int min_width = 0;
-					Box item_box = Skin.getSkin().getPulldownData().pulldownItem();		// Adjust all items
-            for (PulldownItem<T> item : items) {
-                if (item.getTextWidth() > min_width)
-                    min_width = item.getTextWidth();
-            }
-					int item_pos_count = Skin.getSkin().getPulldownData().pulldownBottom().getHeight();		min_width = Math.max(width, item_box.getLeftOffset() + min_width + item_box.getRightOffset());
+		Box item_box = Skin.getSkin().getPulldownData().pulldownItem();		// Adjust all items
+		for (PulldownItem<T> item : items) {
+			if (item.getTextWidth() > min_width)
+				min_width = item.getTextWidth();
+		}
+		int item_pos_count = Skin.getSkin().getPulldownData().pulldownBottom().getHeight();
+		min_width = Math.max(width, item_box.getLeftOffset() + min_width + item_box.getRightOffset());
 		for (int i = 0; i < items.size(); i++) {
 			PulldownItem<T> item = items.get(items.size() - 1 - i);
 			int item_height = item_box.getBottomOffset() + item.getTextHeight() + item_box.getTopOffset();
@@ -62,7 +71,8 @@ public final class PulldownMenu<T> extends Group {
 			item.setPos(0, item_pos_count);
 			item_pos_count += item_height;
 		}
-					int min_height = Math.max(height, item_pos_count + Skin.getSkin().getPulldownData().pulldownTop().getHeight());		super.setDim(min_width, min_height);
+		int min_height = Math.max(height, item_pos_count + Skin.getSkin().getPulldownData().pulldownTop().getHeight());
+		super.setDim(min_width, min_height);
 		return this;
 	}
 

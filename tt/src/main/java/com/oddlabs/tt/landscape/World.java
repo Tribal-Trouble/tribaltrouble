@@ -3,6 +3,7 @@ package com.oddlabs.tt.landscape;
 import com.oddlabs.tt.animation.AnimationManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.ProgressForm;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.model.AbstractElementNode;
 import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.model.Supply;
@@ -16,6 +17,7 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.WorldInfo;
+import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -67,9 +69,9 @@ public final class World {
 		return new RacesResources(queues);
 	}
 
-	public static @NonNull World newWorld(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, @NonNull Vector4fc @NonNull [] colors, com.oddlabs.tt.resource.@NonNull FogInfo fog) {
+	public static @NonNull World newWorld(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, @NonNull FogInfo fog) {
 		ProgressForm.progress();
-		World world = new World(audio_implementation, landscape_resources, races_resources, notification_listener, world_params, world_info, terrain, player_infos, colors, fog);
+		World world = new World(audio_implementation, landscape_resources, races_resources, notification_listener, world_params, world_info, terrain, player_infos, fog);
 		ProgressForm.progress();
 		ProgressForm.progress(1/5f);
 		ProgressForm.progress();
@@ -147,7 +149,7 @@ public final class World {
 		return getAnimationManagerRealTime().getTick();
 	}
 
-	private World(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, @NonNull Vector4fc @NonNull [] colors, com.oddlabs.tt.resource.@NonNull FogInfo fog) {
+	private World(@NonNull AudioImplementation audio_implementation, @NonNull LandscapeResources landscape_resources, @Nullable RacesResources races_resources, @NonNull NotificationListener notification_listener, @NonNull WorldParameters world_params, @NonNull WorldInfo world_info, Landscape.@NonNull TerrainType terrain, @NonNull PlayerInfo @NonNull [] player_infos, @NonNull FogInfo fog) {
 		IO.println("****************** Generating landscape at tick " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick() + " ********************");
         this.fog = fog;
 		this.landscape_resources = landscape_resources;
@@ -163,7 +165,7 @@ public final class World {
 		animation_manager_real_time = new AnimationManager();
 		random = new Random(42);
 
-        Iterator<@NonNull Vector4fc> eachColor = Arrays.asList(colors).iterator();
+        Iterator<Vector4fc> eachColor = Arrays.asList((Vector4fc[]) Settings.getSettings().team_colours).iterator();
         players = Arrays.stream(player_infos)
                 .map(info -> new Player(this, info, eachColor.next()))
                 .toArray(Player[]::new);
