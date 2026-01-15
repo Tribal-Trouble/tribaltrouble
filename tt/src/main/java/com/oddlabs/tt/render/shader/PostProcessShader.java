@@ -93,11 +93,17 @@ public final class PostProcessShader extends ShaderProgram {
             vec3 simulatedRGB = LMS_to_RGB * simulatedLMS;
             vec3 error = color - simulatedRGB;
             
-            // Shift error to visible channels
+            // Shift error to visible channels based on CVD type
             vec3 correction = vec3(0.0);
-            correction.r = 0.0 * error.r + 0.7 * error.g + 0.7 * error.b;
-            correction.g = 0.7 * error.r + 0.0 * error.g + 0.7 * error.b;
-            correction.b = 0.7 * error.r + 0.7 * error.g + 0.0 * error.b;
+            
+            if (u_cvdMode == 1 || u_cvdMode == 2) {
+                // Protanopia/Deuteranopia: Shift R/G error to Blue channel
+                correction.b = (error.r * 0.7) + (error.g * 0.7);
+            } else {
+                // Tritanopia: Shift B error to Red/Green channels
+                correction.r = error.b * 0.7;
+                correction.g = error.b * 0.7;
+            }
             
             return color + correction * u_cvdIntensity;
         }
