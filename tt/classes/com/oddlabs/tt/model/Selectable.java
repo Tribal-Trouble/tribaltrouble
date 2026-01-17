@@ -204,8 +204,17 @@ public abstract class Selectable extends Model implements Target, Animated, Mode
     public final void initTarget(Target target, int action, boolean aggressive) {
         assert !isDead();
         if (target == null) return;
+        onClearingControllers();
         clearControllerStack();
         setTarget(target, action, aggressive);
+    }
+
+    /**
+     * Called before controller stack is cleared during initTarget. Subclasses can override to
+     * perform cleanup.
+     */
+    protected void onClearingControllers() {
+        // Default implementation does nothing
     }
 
     protected abstract void setTarget(Target target, int action, boolean aggressive);

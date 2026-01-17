@@ -22,6 +22,12 @@ public final strictfp class GatherController extends Controller {
         this.unit = unit;
         this.supply = supply;
         this.supply_type = supply_type;
+        // Register this unit as a harvester for this supply type
+        unit.getOwner().getHarvesterTracker().registerHarvester(unit, supply_type);
+    }
+
+    public final Unit getUnit() {
+        return unit;
     }
 
     public final Class getSupplyType() {
@@ -50,6 +56,8 @@ public final strictfp class GatherController extends Controller {
                 unit.setBehaviour(new WalkBehaviour(unit, supply_tracker, false));
             }
         } else {
+            // Unregister before stopping gathering
+            unit.getOwner().getHarvesterTracker().unregisterHarvester(unit);
             unit.swapController(new TransferUnitController(unit));
         }
     }
@@ -66,6 +74,8 @@ public final strictfp class GatherController extends Controller {
                             .increaseSupply(unit.getSupplyContainer().getNumSupplies());
             unit.getSupplyContainer().increaseSupply(-num_supplies, unit_supply_type);
             if (unit.getSupplyContainer().getNumSupplies() > 0) {
+                // Resource container is full, unit enters building - stop gathering
+                unit.getOwner().getHarvesterTracker().unregisterHarvester(unit);
                 unit.popController();
                 unit.pushController(new EnterController(unit, building));
             } else gather();
@@ -76,6 +86,8 @@ public final strictfp class GatherController extends Controller {
                             new BuildingFinder(unit.getOwner(), Abilities.SUPPLY_CONTAINER));
             unit.setBehaviour(new WalkBehaviour(unit, building_tracker, false));
         } else {
+            // Can't find dropoff location, stop gathering
+            unit.getOwner().getHarvesterTracker().unregisterHarvester(unit);
             unit.popController();
         }
     }

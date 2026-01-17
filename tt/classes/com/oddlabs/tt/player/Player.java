@@ -8,6 +8,7 @@ import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Army;
 import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.HarvesterTracker;
 import com.oddlabs.tt.model.IronSupply;
 import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.RacesResources;
@@ -51,6 +52,7 @@ public final strictfp class Player implements PlayerInterface {
     private final Army units = new Army();
     private final SupplyContainer unit_count;
     private final SupplyContainer building_count = new SupplyContainer(MAX_BUILDING_COUNT);
+    private final HarvesterTracker harvester_tracker = new HarvesterTracker();
 
     private final float[] color;
 
@@ -361,6 +363,10 @@ public final strictfp class Player implements PlayerInterface {
         return building_count;
     }
 
+    public final HarvesterTracker getHarvesterTracker() {
+        return harvester_tracker;
+    }
+
     public final void setActiveChieftain(Unit chieftain) {
         this.chieftain = chieftain;
     }
@@ -493,6 +499,13 @@ public final strictfp class Player implements PlayerInterface {
                         .findGridTargets(grid_x, grid_y, selection.length, selection.length != 1);
         for (int i = 0; i < selection.length; i++) {
             if (isValid(selection[i])) selection[i].initTarget(targets[i], action, aggressive);
+        }
+    }
+
+    public final void recallHarvester(Unit harvester, Building building) {
+        if (isValid(harvester) && isValid(building)) {
+            // Send the harvester to enter the building
+            harvester.initTarget(building, Target.ACTION_MOVE, false);
         }
     }
 

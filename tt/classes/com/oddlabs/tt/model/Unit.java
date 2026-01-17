@@ -350,6 +350,8 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
         if (getAbilities().hasAbilities(Abilities.MAGIC)) {
             getOwner().setActiveChieftain(null);
         }
+        // Unregister from harvester tracker if this unit was gathering
+        getOwner().getHarvesterTracker().unregisterHarvester(this);
         free();
         if (!getAbilities().hasAbilities(Abilities.MAGIC)) {
             int result = getOwner().getUnitCountContainer().increaseSupply(-1);
@@ -534,6 +536,11 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
     public final float getDefenseChance() {
         if (getCurrentController() instanceof StunController) return 0;
         else return super.getDefenseChance();
+    }
+
+    protected void onClearingControllers() {
+        // Unregister from harvester tracker when receiving new orders
+        getOwner().getHarvesterTracker().unregisterHarvester(this);
     }
 
     private final void walkToTarget(Target target, boolean scan_attack) {

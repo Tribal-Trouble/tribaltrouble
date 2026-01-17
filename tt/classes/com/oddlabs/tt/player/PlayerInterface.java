@@ -42,4 +42,6 @@ public strictfp interface PlayerInterface {
     void setPreferredGamespeed(int speed);
 
     void changePreferredGamespeed(int delta);
+
+    void recallHarvester(Unit harvester, Building building);
 }
