@@ -2,7 +2,7 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.JumpCamera;
-import com.oddlabs.tt.gui.KeyboardEvent;
+import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -27,18 +27,8 @@ public final class JumpDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public boolean keyPressed(@NonNull KeyboardEvent event) {
-		return true;
-	}
-
-	@Override
-	public boolean keyRepeat(@NonNull KeyboardEvent event) {
-		return true;
-	}
-
-	@Override
-	public boolean keyReleased(@NonNull KeyboardEvent event) {
-		return true;
+	public void handleInput(@NonNull InputEvent event) {
+		event.consume();
 	}
 
 	@Override

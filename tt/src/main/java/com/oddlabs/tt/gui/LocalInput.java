@@ -4,10 +4,12 @@ import com.oddlabs.event.Deterministic;
 import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.input.InputManager;
 import com.oddlabs.tt.input.InputProvider;
 import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.input.LWJGL3InputProvider;
+import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.window.LWJGL3Window;
 import com.oddlabs.tt.window.Window;
 import org.jspecify.annotations.NonNull;
@@ -28,6 +30,9 @@ public final class LocalInput implements AutoCloseable {
     private int mouse_y;
 
     private final @NonNull InputProvider<?> inputProvider;
+    private final InputManager inputManager = new InputManager();
+    private final KeyboardInput keyboardInput = new KeyboardInput();
+    private final PointerInput pointerInput;
 
     private final Set<@NonNull Key> keys = EnumSet.noneOf(Key.class);
     private boolean global_super_state = false;
@@ -44,6 +49,16 @@ public final class LocalInput implements AutoCloseable {
         } else {
             throw new IllegalStateException("Window is not LWJGL3Window");
         }
+        pointerInput = new PointerInput(inputProvider, this);
+    }
+    
+    public void poll(@NonNull GUIRoot root) {
+        pointerInput.poll(root);
+        keyboardInput.poll(inputProvider, this, root);
+    }
+    
+    public void checkMagicKeys() {
+        keyboardInput.checkMagicKeys(inputProvider);
     }
 
     public void setKeys(@NonNull Key key, boolean state, boolean shift_down, boolean control_down, boolean alt_down, boolean super_down) {
@@ -55,26 +70,6 @@ public final class LocalInput implements AutoCloseable {
         global_super_state = super_down;
         global_control_state = control_down;
         global_shift_state = shift_down;
-    }
-
-    public static void keyTyped(@NonNull GUIRoot gui_root, int key_code, char key_char) {
-        gui_root.getInputState().keyTyped(key_code, key_char);
-    }
-
-    public void keyPressed(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean alt_down, boolean super_down, boolean repeat) {
-        var key = Key.fromLwjglCode(key_code);
-        if (Key.KEY_UNKNOWN != key || key_char != 0) {
-            setKeys(key, true, shift_down, control_down, alt_down, super_down);
-            gui_root.getInputState().keyPressed(key, key_char, shift_down, control_down, alt_down, super_down, repeat);
-        }
-    }
-
-    public void keyReleased(@NonNull GUIRoot gui_root, int key_code, char key_char, boolean shift_down, boolean control_down, boolean alt_down, boolean super_down) {
-        var key = Key.fromLwjglCode(key_code);
-        if (Key.KEY_UNKNOWN != key || key_char != 0) {
-            setKeys(key, false, shift_down, control_down, alt_down, super_down);
-            gui_root.getInputState().keyReleased(key, key_char, shift_down, control_down, alt_down, super_down);
-        }
     }
 
     public void mouseDragged(@NonNull GUIRoot gui_root, @NonNull MouseButton button, short x, short y) {
@@ -118,8 +113,8 @@ public final class LocalInput implements AutoCloseable {
     }
 
     public void resetKeys() {
-        // Clear event queue
-        KeyboardInput.reset();
+        keyboardInput.reset(inputProvider);
+        inputManager.reset();
         keys.clear();
     }
 
@@ -174,6 +169,7 @@ public final class LocalInput implements AutoCloseable {
         if (inputProvider instanceof LWJGL3InputProvider lwjgl3InputProvider) {
             lwjgl3InputProvider.initCallbacks();
         }
+        pointerInput.loadCursors();
         Deterministic deterministic = LocalEventQueue.getQueue().getDeterministic();
         mouse_x = deterministic.log(inputProvider.getMouseX());
         mouse_y = deterministic.log(inputProvider.getMouseY());
@@ -186,5 +182,17 @@ public final class LocalInput implements AutoCloseable {
     public <T> @NonNull InputProvider<T> getInputProvider() {
         //noinspection unchecked
         return (InputProvider<T>) inputProvider;
+    }
+
+    public @NonNull InputManager getInputManager() {
+        return inputManager;
+    }
+    
+    public @NonNull KeyboardInput getKeyboardInput() {
+        return keyboardInput;
+    }
+
+    public @NonNull PointerInput getPointerInput() {
+        return pointerInput;
     }
 }

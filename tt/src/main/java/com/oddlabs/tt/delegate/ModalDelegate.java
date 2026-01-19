@@ -1,7 +1,7 @@
 package com.oddlabs.tt.delegate;
 
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.input.InputEvent;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -9,13 +9,8 @@ import org.jspecify.annotations.NonNull;
  */
 public final class ModalDelegate extends Delegate {
 	@Override
-	public boolean keyPressed(@NonNull KeyboardEvent event) {
-		return false;
-	}
-
-	@Override
-	public boolean keyReleased(@NonNull KeyboardEvent event) {
-		return false;
+	public void handleInput(@NonNull InputEvent event) {
+		// Bubble
 	}
 
 	@Override

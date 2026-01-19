@@ -4,7 +4,7 @@ package com.oddlabs.tt.camera;
 import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.gui.KeyboardEvent;
+import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.util.StateChecksum;
 import org.joml.Matrix4f;
@@ -166,12 +166,7 @@ public abstract class Camera implements Animated {
             LocalEventQueue.getQueue().getHighPrecisionManager().registerAnimation(this);
     }
 
-    public boolean keyPressed(@NonNull KeyboardEvent event) {
-        return false;
-    }
-
-    public boolean keyReleased(@NonNull KeyboardEvent event) {
-        return false;
+    public void handleInput(@NonNull InputEvent event) {
     }
 
     public void mouseScrolled(int amount) {

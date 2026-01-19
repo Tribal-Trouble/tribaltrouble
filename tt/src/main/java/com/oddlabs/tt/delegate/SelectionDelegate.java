@@ -5,11 +5,12 @@ import com.oddlabs.tt.camera.MapCamera;
 import com.oddlabs.tt.form.InGameChatForm;
 import com.oddlabs.tt.gui.ActionButtonPanel;
 import com.oddlabs.tt.gui.CursorType;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Skin;
-import com.oddlabs.tt.input.Key;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.model.Army;
@@ -35,7 +36,30 @@ import java.util.ResourceBundle;
 
 public final class SelectionDelegate extends ControllableCameraDelegate {
 	private static final Vector4fc SELECTION_COLOR = Color.argb4v(0xFF_4C_FF_00);
-
+	private static final GameAction[] ARMY_CREATES = new GameAction[]{
+			GameAction.ARMY_CREATE_0,
+			GameAction.ARMY_CREATE_1,
+			GameAction.ARMY_CREATE_2,
+			GameAction.ARMY_CREATE_3,
+			GameAction.ARMY_CREATE_4,
+			GameAction.ARMY_CREATE_5,
+			GameAction.ARMY_CREATE_6,
+			GameAction.ARMY_CREATE_7,
+			GameAction.ARMY_CREATE_8,
+			GameAction.ARMY_CREATE_9,
+	};
+	private static final GameAction[] ARMY_SELECTS = new GameAction[]{
+			GameAction.ARMY_SELECT_0,
+			GameAction.ARMY_SELECT_1,
+			GameAction.ARMY_SELECT_2,
+			GameAction.ARMY_SELECT_3,
+			GameAction.ARMY_SELECT_4,
+			GameAction.ARMY_SELECT_5,
+			GameAction.ARMY_SELECT_6,
+			GameAction.ARMY_SELECT_7,
+			GameAction.ARMY_SELECT_8,
+			GameAction.ARMY_SELECT_9
+	};
 	private final @NonNull InGameChatForm chat_form;
 	private final @NonNull Label observer_label;
 	private final @NonNull GameCamera game_camera;
@@ -61,7 +85,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 		addChild(getViewer().getPanel());
 		chat_form = new InGameChatForm(getViewer().getGUIRoot().getInfoPrinter(), getViewer());
 		chat_form.addCloseListener(() -> {
-			if (Renderer.getLocalInput().isKeyDown(Key.RETURN)) {
+			if (Renderer.getLocalInput().getInputManager().isActive(GameAction.GLOBAL_CHAT)) {
 				close_chat_override = true;
 			}
 			chat_visible = false;
@@ -86,88 +110,169 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public boolean keyPressed(@NonNull KeyboardEvent event) {
-		if (getCamera().keyPressed(event)) return true;
-		int army_number = 0;
-		switch (event.keyCode()) {
-			case SPACE:
-			case NUMPAD5:
-				if (!map_mode) {
-					selection = false;
-					getViewer().getPicker().pickRotate((GameCamera)getCamera());
-					map_mode = true;
-					if (observer)
-						observer_label.remove();
-					else
-						getActionButtonPanel().remove();
-					getCamera().disable();
-					setCamera(new MapCamera(this, game_camera));
-					getCamera().enable();
-				}
-				return true;
-			case TAB:
-				if (!observer) {
-					Notification n = getViewer().getNotificationManager().getLatestNotification();
-					if (n != null) {
-						if (getCamera() instanceof GameCamera)
-							getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera)getCamera(), n.getX(), n.getY()));
-						else if (getCamera() instanceof MapCamera)
-							((MapCamera)getCamera()).mapGoto(n.getX(), n.getY(), true);
+	public void handleInput(@NonNull InputEvent event) {
+		// Prevent base GUIObject from handling UI_ACTIVATE (Space/Return as Click)
+		// because we handle Space for Map Mode and Return for Chat.
+		event.consumeAction(GameAction.UI_ACTIVATE);
+
+		super.handleInput(event);
+		if (event.isConsumed()) return;
+
+		if (event.getPhase() == InputPhase.PRESSED) {
+			if (event.hasActions()) {
+				if (event.consumeAction(GameAction.CAMERA_MAP_MODE)) {
+					if (!map_mode) {
+						selection = false;
+						getViewer().getPicker().pickRotate((GameCamera)getCamera());
+						map_mode = true;
+						if (observer)
+							observer_label.remove();
+						else
+							getActionButtonPanel().remove();
+						getCamera().disable();
+						setCamera(new MapCamera(this, game_camera));
+						getCamera().enable();
 					}
+					event.consume();
+					return;
 				}
-				return true;
-			case KEY_9: army_number++;
-			case KEY_8: army_number++;
-			case KEY_7: army_number++;
-			case KEY_6: army_number++;
-			case KEY_5: army_number++;
-			case KEY_4: army_number++;
-			case KEY_3: army_number++;
-			case KEY_2: army_number++;
-			case KEY_1: army_number++;
-			case KEY_0:
-				if (!map_mode && !observer) {
-					if (event.controlDown()) {
-						getViewer().getSelection().setShortcutArmy(army_number);
-					} else {
-						boolean selected = getViewer().getSelection().enableShortcutArmy(army_number);
-						if (selected && event.clicks() > 1) {
-							var set = getViewer().getSelection().getCurrentSelection().getSet();
-							if (!set.isEmpty()) {
-								var s = set.iterator().next();
-								getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera)getCamera(), s.getPositionX(), s.getPositionY()));
-							}
+
+				if (event.consumeAction(GameAction.NOTIFICATION_JUMP)) {
+					if (!observer) {
+						Notification n = getViewer().getNotificationManager().getLatestNotification();
+						if (n != null) {
+							if (getCamera() instanceof GameCamera)
+								getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera)getCamera(), n.getX(), n.getY()));
+							else if (getCamera() instanceof MapCamera)
+								((MapCamera)getCamera()).mapGoto(n.getX(), n.getY(), true);
 						}
 					}
+					event.consume();
+					return;
 				}
-				return true;
-			case RETURN:
-					if (!chat_visible)
-						chat_form.setReceivers(!event.shiftDown());
-				return true;
-			case B:
-				if (event.controlDown() && !map_mode && !observer) {
-					getGUIRoot().pushDelegate(new BeaconDelegate(getViewer(), (GameCamera)getCamera()));
-				}
-				return true;
-			case N:
-				nextIdlePeon();
-				return true;
-			case F:
-			case Z:
-				if (!map_mode)
-					return super.keyPressed(event);
-				return true;
-			default:
-				if (map_mode || observer) {
-					return super.keyPressed(event);
-				} else {
-					if (getActionButtonPanel().doKeyPressed(event)) {
-						return true;
+
+				// Army Shortcuts
+				for (int i = 0; i <= 9; i++) {
+					if (event.consumeAction(ARMY_SELECTS[i])) {
+						if (!map_mode && !observer) {
+							if (event.isControlDown()) {
+								getViewer().getSelection().setShortcutArmy(i);
+							} else {
+								boolean selected = getViewer().getSelection().enableShortcutArmy(i);
+								if (selected && event.getClicks() > 1) {
+									var set = getViewer().getSelection().getCurrentSelection().getSet();
+									if (!set.isEmpty()) {
+										var s = set.iterator().next();
+										getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera)getCamera(), s.getPositionX(), s.getPositionY()));
+									}
+								}
+							}
+						}
+						event.consume();
+						return;
 					}
-					return super.keyPressed(event);
+					if (event.consumeAction(ARMY_CREATES[i])) {
+						if (!map_mode && !observer) {
+							getViewer().getSelection().setShortcutArmy(i);
+						}
+						event.consume();
+						return;
+					}
 				}
+
+				if (event.consumeAction(GameAction.GLOBAL_CHAT)) {
+					if (!chat_visible)
+						chat_form.setReceivers(!event.isShiftDown());
+					event.consume();
+					return;
+				}
+				if (event.consumeAction(GameAction.UNIT_BEACON)) {
+					if (!map_mode && !observer) {
+						getGUIRoot().pushDelegate(new BeaconDelegate(getViewer(), (GameCamera)getCamera()));
+					}
+					event.consume();
+					return;
+				}
+
+				if (event.consumeAction(GameAction.UNIT_NEXT_IDLE)) {
+					nextIdlePeon();
+					event.consume();
+					return;
+				}
+
+				if (event.consumeAction(GameAction.GAME_SPEED_UP)) {
+					changeGamespeed(1);
+					event.consume();
+					return;
+				}
+
+				if (event.consumeAction(GameAction.GAME_SPEED_DOWN)) {
+					changeGamespeed(-1);
+					event.consume();
+					return;
+				}
+
+				if (event.hasAction(GameAction.CAMERA_FIRST_PERSON) || event.hasAction(GameAction.CAMERA_ZOOM_MODE)) {
+					if (map_mode) {
+						event.consume(); // Consume in map mode
+						return;
+					}
+					// Otherwise bubble (to super)
+				}
+			}
+
+			if (map_mode || observer) {
+				// Bubble
+			} else {
+				getActionButtonPanel().handleInput(event);
+				if (event.isConsumed()) {
+					return;
+				}
+			}
+		} else if (event.getPhase() == InputPhase.REPEAT) {
+			if (event.hasActions()) {
+				if (event.consumeAction(GameAction.GAME_SPEED_UP)) {
+					changeGamespeed(1);
+					event.consume();
+					return;
+				}
+				if (event.consumeAction(GameAction.GAME_SPEED_DOWN)) {
+					changeGamespeed(-1);
+					event.consume();
+					return;
+				}
+			}
+
+			if (!map_mode && !observer) {
+				getActionButtonPanel().handleInput(event);
+				if (event.isConsumed()) {
+					return;
+				}
+			}
+		} else if (event.getPhase() == InputPhase.RELEASED) {
+			if (event.consumeAction(GameAction.GLOBAL_CHAT)) {
+				if (!close_chat_override) {
+					if (!chat_visible) {
+						addChild(chat_form);
+						chat_form.setPos(GameCamera.SCROLL_BUFFER, GameCamera.SCROLL_BUFFER);
+						chat_form.setFocus();
+						chat_visible = true;
+					}
+				} else {
+					close_chat_override = false;
+				}
+				event.consume();
+				return;
+			}
+
+			if (!map_mode && !observer) {
+				getActionButtonPanel().handleInput(event);
+				if (event.isConsumed()) {
+					return;
+				}
+			}
 		}
+		super.handleInput(event);
 	}
 
 	private void changeGamespeed(int delta) {
@@ -217,50 +322,6 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 			getViewer().getSelection().getCurrentSelection().add(target);
 			getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera)getCamera(), target.getPositionX(), target.getPositionY()));
 		}
-	}
-
-	@Override
-	public boolean keyRepeat(@NonNull KeyboardEvent event) {
-//		getCamera().keyRepeat(event);
-		switch (event.keyChar()) {
-			case '+':
-				changeGamespeed(1);
-				return true;
-			case '-':
-				changeGamespeed(-1);
-				return true;
-			default:
-				if (!map_mode && !observer && getActionButtonPanel().doKeyRepeat(event)) {
-					return true;
-				}
-				return super.keyRepeat(event);
-		}
-	}
-
-	@Override
-	public boolean keyReleased(@NonNull KeyboardEvent event) {
-		if (getCamera().keyReleased(event)) return true;
-        switch (event.keyCode()) {
-            case RETURN -> {
-                if (!close_chat_override) {
-                    if (!chat_visible) {
-                        addChild(chat_form);
-                        chat_form.setPos(GameCamera.SCROLL_BUFFER, GameCamera.SCROLL_BUFFER);
-                        chat_form.setFocus();
-                        chat_visible = true;
-                    }
-                } else {
-                    close_chat_override = false;
-                }
-				return true;
-            }
-            default -> {
-                if (!map_mode && !observer && getActionButtonPanel().doKeyReleased(event)) {
-					return true;
-				}
-                return super.keyReleased(event);
-            }
-        }
 	}
 
 	@Override
@@ -399,10 +460,10 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 	public void mousePressed (@NonNull MouseButton button, int x, int y) {
 		if (!map_mode) {
 			if (!observer) {
-				var localInput = Renderer.getLocalInput();
+				var inputManager = Renderer.getLocalInput().getInputManager();
                 switch (button) {
                     case LEFT:
-                        if (!localInput.isKeyDown(Key.SPACE)) {
+                        if (!inputManager.isActive(GameAction.CAMERA_MAP_MODE)) {
                             selection = true;
                         }
                         selection_x1 = x;

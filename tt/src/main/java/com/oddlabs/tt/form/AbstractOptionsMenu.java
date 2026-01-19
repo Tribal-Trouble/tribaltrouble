@@ -285,7 +285,7 @@ public abstract class AbstractOptionsMenu extends Form {
             mode_list_box.selectRow(current_row);
         mode_list_box.addRowListener(new RowListener<>() {
             @Override
-            public void rowChosen(SerializableDisplayMode mode) {
+            public void rowChosen(@NonNull SerializableDisplayMode mode) {
                 gui_root.addModalForm(new DisplayChangeForm(switch_now -> {
                     Renderer.getRenderer().switchMode(mode, switch_now);
                     if (switch_now) {
@@ -605,7 +605,7 @@ public abstract class AbstractOptionsMenu extends Form {
         language_list_box.selectRow(selectedLanguage);
         language_list_box.addRowListener(new RowListener<>() {
             @Override
-            public void rowChosen(Locale locale) {
+            public void rowChosen(@NonNull Locale locale) {
                 Settings.getSettings().language = locale.getVariant().equals("default") ? "default" : locale.getLanguage();
                 gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "language_change_next_run")));
             }

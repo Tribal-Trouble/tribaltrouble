@@ -2,6 +2,7 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.input.InputEvent;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -24,6 +25,16 @@ public abstract class CameraDelegate<C extends Camera> extends Delegate {
 
 	public final @Nullable C getCamera() {
 		return camera;
+	}
+
+	@Override
+	public void handleInput(@NonNull InputEvent event) {
+		if (camera != null) {
+			camera.handleInput(event);
+		}
+		if (!event.isConsumed()) {
+			super.handleInput(event);
+		}
 	}
 
 	@Override

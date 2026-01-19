@@ -3,6 +3,9 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLayout;
 import com.oddlabs.tt.font.TextLineRenderer;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
@@ -33,30 +36,17 @@ public final class EditBox extends TextBox {
 	}
 
 	@Override
-	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.keyCode()) {
-			case RETURN:
-				if (insert(index, '\n')) {
-					index++;
-				}
-				break;
-			case BACK:
-				if (index > 0)
-					delete(--index);
-				break;
-			case DELETE:
-				if (index < getText().length())
-					delete(index);
-				break;
-			case LEFT:
-				if (index > 0)
-					index--;
-				break;
-			case RIGHT:
-				if (index < getText().length())
-					index++;
-				break;
-			case UP:
+	protected void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			boolean consumed = true;
+			
+			if (event.consumeAction(GameAction.UI_ACTIVATE)) {
+				if (insert(index, '\n')) index++;
+			} else if (event.consumeAction(GameAction.UI_NAV_LEFT)) {
+				if (index > 0) index--;
+			} else if (event.consumeAction(GameAction.UI_NAV_RIGHT)) {
+				if (index < getText().length()) index++;
+			} else if (event.consumeAction(GameAction.UI_NAV_UP)) {
 				int currentLine = getTextLayout().getCursorLine(index);
 				if (currentLine > 0) {
 					int xPos = getTextLayout().getCursorX(index);
@@ -64,37 +54,40 @@ public final class EditBox extends TextBox {
 				} else {
 					index = 0;
 				}
-				break;
-			case DOWN:
-				currentLine = getTextLayout().getCursorLine(index);
+			} else if (event.consumeAction(GameAction.UI_NAV_DOWN)) {
+				int currentLine = getTextLayout().getCursorLine(index);
 				if (currentLine < getTextLayout().getLines().size() - 1) {
 					int xPos = getTextLayout().getCursorX(index);
 					index = getTextLayout().getCharacterIndexAt(xPos, (currentLine + 1.5f) * getFont().getHeight(), getTextLayout().getTextHeight());
 				} else {
 					index = getText().length();
 				}
-				break;
-			case HOME:
+			} else if (event.consumeAction(GameAction.UI_NAV_HOME)) {
 				index = getTextLayout().getLineStartCharIndex(getTextLayout().getCursorLine(index));
-				break;
-			case END:
+			} else if (event.consumeAction(GameAction.UI_NAV_END)) {
 				index = getTextLayout().getLineEndCharIndex(getTextLayout().getCursorLine(index));
-				break;
-			case TAB:
-			case ESCAPE:
-				return super.keyRepeat(event);
-			default:
-				char key = event.keyChar();
-				if (getFont().getQuad(key) != null) {
-					if (insert(index, key))
-						index++;
-				} else {
-					return super.keyRepeat(event);
-				}
-				break;
+			} else if (event.consumeAction(GameAction.UI_BACKSPACE)) {
+				if (index > 0) delete(--index);
+			            } else if (event.consumeAction(GameAction.UI_DELETE)) {
+			                if (index < getText().length()) delete(index);
+			            } else if (!event.isControlDown() && !event.isMetaDown() && !event.isAltDown()) {
+			                char key = event.getCharacter();
+			                if (key != 0 && !Character.isISOControl(key) && getFont().getQuad(key) != null) {
+			                    if (insert(index, key)) index++;
+			                } else {
+			                    consumed = false;
+			                }
+			            } else {
+			                consumed = false;
+			            }
+			            
+			            if (consumed) {				correctOffsetY();
+				event.consume();
+				return;
+			}
 		}
-		correctOffsetY();
-		return true;
+		
+		super.handleInput(event);
 	}
 
 	private void correctOffsetY() {
@@ -117,7 +110,7 @@ public final class EditBox extends TextBox {
 
 	@Override
 	protected @NonNull CursorType getCursorType() {
-		return CursorType.TEXT;
+		return isDisabled() ? CursorType.NORMAL : CursorType.TEXT;
 	}
 
 	@Override

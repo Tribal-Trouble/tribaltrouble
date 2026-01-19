@@ -180,11 +180,11 @@ public class GUIIcons {
                         // Blend pixelColor over finalColor (shadow)
                         int destA = (finalColor >>> 24);
                         int srcA = (int) ((pixelColor >>> 24) * alpha);
-                        
+
                         float srcAf = srcA / 255.0f;
                         float destAf = destA / 255.0f;
                         float outAf = srcAf + destAf * (1.0f - srcAf);
-                        
+
                         if (outAf > 0) {
                             int srcR = (pixelColor >>> 16) & 0xFF;
                             int srcG = (pixelColor >>> 8) & 0xFF;
@@ -194,7 +194,7 @@ public class GUIIcons {
                             int outG = (int)((srcG * srcAf) / outAf);
                             int outB = (int)((srcB * srcAf) / outAf);
                             int outA = (int)(outAf * 255);
-                            
+
                             finalColor = (outA << 24) | (outR << 16) | (outG << 8) | outB;
                         }
                     }
@@ -202,21 +202,21 @@ public class GUIIcons {
                 }
             }
         }
-        
+
         Texture texture = new Texture(new GLImage[]{image}, GL11.GL_RGBA, GL11.GL_LINEAR, GL11.GL_LINEAR, GL12.GL_CLAMP_TO_EDGE, GL12.GL_CLAMP_TO_EDGE);
-        
+
         IconQuad[] icons = new IconQuad[numIcons];
         for (int i = 0; i < numIcons; i++) {
             int col = i % 8;
             int row = i / 8;
             int startX = col * iconSize;
             int startY = row * iconSize;
-            
+
             float u1 = startX / (float) textureSize;
             float v1 = 1f - (startY + iconSize) / (float) textureSize;
             float u2 = (startX + iconSize) / (float) textureSize;
             float v2 = 1f - startY / (float) textureSize;
-            
+
             icons[i] = new IconQuad(u1, v1, u2, v2, 22, 22, texture);
         }
         return icons;

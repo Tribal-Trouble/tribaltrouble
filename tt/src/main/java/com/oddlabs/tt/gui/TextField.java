@@ -1,7 +1,8 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.font.Font;
-import com.oddlabs.tt.input.Key;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -74,9 +75,9 @@ public abstract class TextField extends GUIObject implements CharSequence {
 		text.delete(0, text.length());
 	}
 
-	public void append(@NonNull CharSequence str) {
-		text.append(str);
-		appendNotify(str);
+	public void append(@NonNull CharSequence text) {
+		this.text.append(text);
+		appendNotify(text);
 	}
 
 	public final void append(long i) {
@@ -104,18 +105,8 @@ public abstract class TextField extends GUIObject implements CharSequence {
 	}
 
 	@Override
-	protected boolean keyPressed(@NonNull KeyboardEvent event) {
-		if (event.keyCode() != Key.SPACE && event.keyCode() != Key.RETURN) {
-			return super.keyPressed(event);
-		}
-		return true;
-	}
-
-	@Override
-	protected boolean keyReleased(@NonNull KeyboardEvent event) {
-		if (event.keyCode() != Key.SPACE && event.keyCode() != Key.RETURN) {
-			return super.keyReleased(event);
-		}
-		return true;
+	protected void handleInput(@NonNull InputEvent event) {
+		event.consumeAction(GameAction.UI_ACTIVATE);
+		super.handleInput(event);
 	}
 }

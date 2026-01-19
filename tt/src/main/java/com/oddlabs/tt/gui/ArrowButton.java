@@ -1,5 +1,8 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
@@ -17,35 +20,23 @@ public final class ArrowButton extends ButtonObject {
 	}
 
 	@Override
-	public boolean keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case SPACE, RETURN -> {
+	public void handleInput(@NonNull InputEvent event) {
+		if (event.consumeAction(GameAction.UI_ACTIVATE)) {
+			if (event.getPhase() == InputPhase.PRESSED) {
 				mousePressedAll(MouseButton.LEFT, 0, 0);
-				return true;
-			}
-        }
-		return true;
-	}
-
-	@Override
-	public boolean keyRepeat(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case TAB -> {
-				return super.keyRepeat(event);
-			}
-        }
-		return true;
-	}
-
-	@Override
-	public boolean keyReleased(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case SPACE, RETURN -> {
+			} else if (event.getPhase() == InputPhase.RELEASED) {
 				mouseReleasedAll(MouseButton.LEFT, 0, 0);
-				return true;
 			}
-        }
-		return true;
+			return;
+		}
+		
+		if (event.hasAction(GameAction.UI_FOCUS_NEXT)) {
+			// Bubble TAB
+			return;
+		}
+		
+		// Swallow everything else
+		event.consume();
 	}
 
 	@Override

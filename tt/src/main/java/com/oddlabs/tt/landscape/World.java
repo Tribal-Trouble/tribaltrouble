@@ -17,7 +17,6 @@ import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.WorldInfo;
-import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

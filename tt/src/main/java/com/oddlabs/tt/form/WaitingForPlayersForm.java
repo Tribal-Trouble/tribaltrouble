@@ -3,13 +3,13 @@ package com.oddlabs.tt.form;
 import com.oddlabs.tt.gui.CancelListener;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
-import com.oddlabs.tt.input.Key;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -35,11 +35,13 @@ public final class WaitingForPlayersForm extends Form {
 	}
 
 	@Override
-	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
-		if (event.keyCode() != Key.ESCAPE) { // KEY_ESCAPE should not close this form
-			return super.keyRepeat(event);
+	protected void handleInput(@NonNull InputEvent event) {
+		if (event.consumeAction(GameAction.UI_CANCEL)) {
+			// KEY_ESCAPE should not close this form
+			// Swallow escape.
+			return;
 		}
-		return true;
+		super.handleInput(event);
 	}
 
 	@Override

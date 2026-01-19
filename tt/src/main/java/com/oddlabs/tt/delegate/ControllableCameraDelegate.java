@@ -1,8 +1,10 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -17,20 +19,22 @@ public abstract class ControllableCameraDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public boolean keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case F -> {
+	public void handleInput(@NonNull InputEvent event) {
+		super.handleInput(event);
+		if (event.isConsumed()) return;
+
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			if (event.consumeAction(GameAction.CAMERA_FIRST_PERSON)) {
 				pushFirstPersonDelegate(true);
-				return true;
+				event.consume();
+				return;
 			}
-            case Z -> {
+			if (event.consumeAction(GameAction.CAMERA_ZOOM_MODE)) {
 				pushZoomDelegate();
-				return true;
+				event.consume();
+				return;
 			}
-            default -> {
-				return super.keyPressed(event);
-			}
-        }
+		}
 	}
 
 	@Override

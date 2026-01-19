@@ -8,11 +8,12 @@ import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.Status;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.input.PointerInput;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Texture;
-import com.oddlabs.tt.resource.CursorFile;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.ToolTip;
 import org.joml.Matrix4f;
@@ -21,8 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -62,6 +61,7 @@ public final class GUIRoot extends GUIObject {
 		addChild(info_printer);
 		info_printer.setPos(0, 0);
 		pushDelegate(new NullDelegate(this, false));
+		Renderer.getLocalInput().getPointerInput().setActiveCursor(current_gui_object.getCursorType());
 	}
 
     public @NonNull GUIRoot self() {
@@ -80,7 +80,7 @@ public final class GUIRoot extends GUIObject {
 		return gui;
 	}
 
-	@NonNull InputState getInputState() {
+	public @NonNull InputState getInputState() {
 		return input_state;
 	}
 
@@ -98,6 +98,10 @@ public final class GUIRoot extends GUIObject {
 
 	public void timerUpdate(@NonNull TimerAnimation anim) {
 		render_tool_tip = true;
+	}
+
+	public void stopToolTip() {
+		render_tool_tip = false;
 		tool_tip_timer.stop();
 	}
 
@@ -223,19 +227,17 @@ public final class GUIRoot extends GUIObject {
 	}
 
 	@Override
-	protected boolean keyPressed(@NonNull KeyboardEvent event) {
-		boolean consumed = false;
-		switch (event.keyCode()) {
-			case S:
-				if (event.controlDown()) {
+	public void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED) {
+			boolean consumed = false;
+
+			if (event.hasActions()) {
+				if (event.consumeAction(GameAction.GLOBAL_SCREENSHOT)) {
 					String filename = GLUtils.takeScreenshot("");
 					info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "screenshot_message", filename));
 					consumed = true;
 				}
-				break;
-
-			case A:
-				if (event.controlDown()) {
+				if (event.consumeAction(GameAction.GLOBAL_AGGRESSIVE_UNITS)) {
 					Settings.getSettings().aggressive_units = !Settings.getSettings().aggressive_units;
 					if (Settings.getSettings().aggressive_units)
 						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "aggressive_unites_on"));
@@ -243,108 +245,102 @@ public final class GUIRoot extends GUIObject {
 						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "aggressive_unites_off"));
 					consumed = true;
 				}
-				break;
-
-			 case I:
-				if (event.controlDown()) {
+				if (event.consumeAction(GameAction.GLOBAL_TOGGLE_STATUS)) {
 					Globals.draw_status = !Globals.draw_status;
 					consumed = true;
 				}
-				break;
-			default:
-				break;
+				// GLOBAL_MENU removed because it requires viewer which GUIRoot doesn't have.
+                
+				if (event.consumeAction(GameAction.GLOBAL_TOGGLE_FULLSCREEN)) {
+					Renderer.getRenderer().toggleFullscreen();
+					consumed = true;
+				}
+
+				// Debug Actions (Only those that don't need Viewer)
+				if (Settings.getSettings().inDeveloperMode()) {
+					if (event.consumeAction(GameAction.DEBUG_TOGGLE_LIGHT)) {
+						Globals.draw_light = !Globals.draw_light;
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_TOGGLE_PLANTS)) {
+						Globals.draw_plants = !Globals.draw_plants;
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_TOGGLE_PARTICLES)) {
+						Globals.draw_particles = !Globals.draw_particles;
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_TOGGLE_AXES)) {
+						Globals.draw_axes = !Globals.draw_axes;
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_TOGGLE_MISC)) {
+						Globals.draw_misc = !Globals.draw_misc;
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_PROCESS_MISC)) {
+						logger.info("WARNING: DEBUG_PROCESS_MISC triggered!");
+						Globals.process_misc = !Globals.process_misc;
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_RESET_CURSOR)) {
+						Renderer.getLocalInput().getInputProvider().setCursorPosition(10, 10);
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_TOGGLE_DETAIL)) {
+						Globals.draw_detail = !Globals.draw_detail;
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_CRASH)) {
+						logger.info("crash!");
+						throw new RuntimeException("Debug crash action triggered.");
+					}
+					if (event.consumeAction(GameAction.DEBUG_TOGGLE_FRAME_BUFFER)) {
+						Globals.clear_frame_buffer = !Globals.clear_frame_buffer;
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_TOGGLE_BOUNDING)) {
+						Globals.switchBoundingMode();
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_TOGGLE_FRUSTUM_FREEZE)) {
+						Globals.frustum_freeze = !Globals.frustum_freeze;
+						logger.info("Globals.frustum_freeze = " + Globals.frustum_freeze);
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_FORCE_GC)) {
+						logger.info("GC Forced");
+						System.gc();
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_START_RECORDING)) {
+						Renderer.getRenderer().startMovieRecording();
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_TOGGLE_WATER)) {
+						Globals.draw_water = !Globals.draw_water;
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_TOGGLE_AI)) {
+						Globals.run_ai = !Globals.run_ai;
+						logger.info("Globals.run_ai = " + Globals.run_ai);
+						consumed = true;
+					}
+					if (event.consumeAction(GameAction.DEBUG_DUMP_ANIMATIONS)) {
+						logger.info("*********************************************************");
+						LocalEventQueue.getQueue().debugPrintAnimations();
+						logger.info("Texture.globalSize() = " + Texture.globalSize());
+						consumed = true;
+					}
+				}
+			}
+			
+			if (consumed) {
+				event.consume();
+				return;
+			}
 		}
-
-		if (consumed || !Settings.getSettings().inDeveloperMode())
-			return consumed;
-
-		switch (event.keyCode()) {
-			case U:
-				Renderer.getRenderer().startMovieRecording();
-				return true;
-			case W:
-				if (event.controlDown()) {
-					Globals.draw_water = !Globals.draw_water;
-					return true;
-				}
-				break;
-			case R:
-				if (event.controlDown()) {
-					Globals.run_ai = !Globals.run_ai;
-					IO.println("Globals.run_ai = " + Globals.run_ai);
-					return true;
-				}
-				break;
-
-			case O:
-				Globals.draw_light = !Globals.draw_light;
-				return true;
-			case P:
-				if (event.controlDown()) {
-					GLUtils.takeScreenshot("");
-					return true;
-				} else {
-					Globals.draw_plants = !Globals.draw_plants;
-					return true;
-				}
-			case E:
-				Globals.draw_particles = !Globals.draw_particles;
-				return true;
-			case A:
-				if (!event.controlDown()) {
-					Globals.draw_axes = !Globals.draw_axes;
-					return true;
-				}
-				break;
-			case M:
-				if (event.controlDown()) {
-					Globals.draw_misc = !Globals.draw_misc;
-					return true;
-				} else {
-					IO.println("WARNING: KEY_M pressed!");
-					Globals.process_misc = !Globals.process_misc;
-					return true;
-				}
-			case J:
-				Renderer.getLocalInput().getInputProvider().setCursorPosition(10, 10);
-				return true;
-			case S:
-				if (!event.controlDown()) {
-					Globals.draw_detail = !Globals.draw_detail;
-					return true;
-				}
-				break;
-			case C:
-				if (event.controlDown()) {
-					IO.println("crash!");
-					throw new RuntimeException("Ctrl+C pressed -> throwing a runtime exception.");
-				} else {
-					Globals.clear_frame_buffer = !Globals.clear_frame_buffer;
-					return true;
-				}
-			case D:
-				Globals.switchBoundingMode();
-				return true;
-			case V:
-				Globals.frustum_freeze = !Globals.frustum_freeze;
-				IO.println("Globals.frustum_freeze = " + Globals.frustum_freeze);
-				return true;
-			case F1:
-				IO.println("*********************************************************");
-				LocalEventQueue.getQueue().debugPrintAnimations();
-				IO.println("Texture.globalSize() = " + Texture.globalSize());
-				return true;
-			case F11:
-				Renderer.getRenderer().toggleFullscreen();
-				return true;
-			case F12:
-				IO.println("GC Forced");
-                System.gc();
-				return true;
-			default:
-				break;
-		}
-		return false;
+		super.handleInput(event);
 	}
 
 	void mousePick() {
@@ -372,7 +368,7 @@ public final class GUIRoot extends GUIObject {
 			current_gui_object = target;
 			current_gui_object.mouseEnteredAll();
 			if (!current_gui_object.isDisabled())
-				PointerInput.setActiveCursor(current_gui_object.getCursorType());
+				Renderer.getLocalInput().getPointerInput().setActiveCursor(current_gui_object.getCursorType());
 		}
 	}
 

@@ -1,6 +1,8 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.TabListener;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
@@ -23,13 +25,15 @@ public final class ChatLine extends EditLine {
 	}
 
 	@Override
-	protected boolean keyRepeat(@NonNull KeyboardEvent e) {
-		if (catch_tab && e.keyChar() == '\t') {
-			tabComplete(getText());
-			return true;
-		} else {
-			return super.keyRepeat(e);
+	protected void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			if (catch_tab && event.getCharacter() == '\t') {
+				tabComplete(getText());
+				event.consume();
+				return;
+			}
 		}
+		super.handleInput(event);
 	}
 
 	private void tabComplete(@NonNull StringBuilder line) {
@@ -96,4 +100,3 @@ public final class ChatLine extends EditLine {
 		tab_listeners.add(listener);
 	}
 }
-

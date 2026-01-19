@@ -1,8 +1,10 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.guievent.KeyListener;
 import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
@@ -37,7 +39,7 @@ public final class ScrollBar extends GUIObject {
 		DragListener drag_listener = new DragListener();
 		scroll_button.addMouseMotionListener(drag_listener);
 		scroll_button.addMouseButtonListener(drag_listener);
-		scroll_button.addKeyListener(new ButtonKeyListener());
+		scroll_button.addInputListener(this::handleButtonInput);
 
 		focus_group.setDim(getWidth(), getHeight());
 		focus_group.setPos(0, 0);
@@ -79,7 +81,8 @@ public final class ScrollBar extends GUIObject {
 
 	public int getButtonY() {
 		ScrollBarData data = Skin.getSkin().getScrollBarData();
-					int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data.topOffset();		int size = getButtonHeight();
+		int max_height = getHeight() - less_button.getHeight() - more_button.getHeight() - data.bottomOffset() - data.topOffset();
+		int size = getButtonHeight();
 		int offset = max_height - size - (int)((max_height - size) * owner.getScrollBarOffset());
 		return less_button.getHeight() + data.bottomOffset() + offset;
 	}
@@ -162,33 +165,15 @@ public final class ScrollBar extends GUIObject {
 		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {}
 	}
 
-	private final class ButtonKeyListener implements KeyListener {
-		@Override
-		public boolean keyRepeat(@NonNull KeyboardEvent event) {
-            switch (event.keyCode()) {
-                case UP -> {
-                    owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
-                    scroll_button.setupPos(ScrollBar.this);
-					return true;
-                }
-                case DOWN -> {
-                    owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
-                    scroll_button.setupPos(ScrollBar.this);
-					return true;
-                }
-                default -> {
-					return false;
-                }
-            }
-		}
-
-		@Override
-		public boolean keyPressed(@NonNull KeyboardEvent event) {
-			return false;
-		}
-		@Override
-		public boolean keyReleased(@NonNull KeyboardEvent event) {
-			return false;
+	private void handleButtonInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.REPEAT || event.getPhase() == InputPhase.PRESSED) {
+			if (event.consumeAction(GameAction.UI_NAV_UP)) {
+				owner.setOffsetY(owner.getOffsetY() - owner.getStepHeight());
+				scroll_button.setupPos(ScrollBar.this);
+			} else if (event.consumeAction(GameAction.UI_NAV_DOWN)) {
+				owner.setOffsetY(owner.getOffsetY() + owner.getStepHeight());
+				scroll_button.setupPos(ScrollBar.this);
+			}
 		}
 	}
 }

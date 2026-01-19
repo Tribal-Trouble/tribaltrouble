@@ -2,9 +2,10 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
-import com.oddlabs.tt.input.Key;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.landscape.LandscapeTarget;
 import com.oddlabs.tt.model.Abilities;
@@ -28,8 +29,10 @@ import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 public final class PlacingDelegate extends ControllableCameraDelegate {
+    private static final Logger logger = Logger.getLogger(PlacingDelegate.class.getName());
     private static final int GRID_RADIUS = 20;
     private static final LandscapeLocation landscape_hit = new LandscapeLocation();
 
@@ -47,39 +50,48 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
     }
 
     public void placeObject() {
-        getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit);
+        if (!getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit)) {
+            logger.info("placeObject: Pick failed (off map?)");
+            return;
+        }
         UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
         int placing_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x);
         int placing_grid_y = UnitGrid.toGridCoordinate(landscape_hit.y);
         if (Building.isPlacingLegal(getViewer().getWorld().getUnitGrid(), getTemplate(), placing_grid_x, placing_grid_y)) {
             var peons = getViewer().getSelection().getCurrentSelection().filter(Abilities.BUILD);
             if (peons.length > 0) {
+                logger.info("placeObject: Placing building at " + placing_grid_x + "," + placing_grid_y);
                 getViewer().getPeerHub().getPlayerInterface().placeBuilding(peons, building_index, placing_grid_x, placing_grid_y);
+            } else {
+                logger.info("placeObject: No peons selected");
             }
+            logger.info("placeObject: Popping delegate");
             pop();
+        } else {
+            logger.info("placeObject: Placement illegal");
         }
     }
 
-    @Override
-    public boolean keyPressed(@NonNull KeyboardEvent event) {
-        if (getCamera().keyPressed(event)) return true;
-        switch (event.keyCode()) {
-            case ESCAPE -> {
-                pop();
-                return true;
+	@Override
+	public void handleInput(@NonNull InputEvent event) {
+        if (event.consumeAction(GameAction.UI_ACTIVATE)) {
+            if (event.getPhase() == InputPhase.RELEASED) {
+                placeObject();
             }
-            default -> {
-                if (event.keyCode() != Key.SPACE && event.keyCode() != Key.RETURN)
-                    return super.keyPressed(event);
-                return true;
-            }
+            event.consume();
+            return;
         }
-    }
 
-    @Override
-    public boolean keyReleased(@NonNull KeyboardEvent event) {
-        return getCamera().keyReleased(event);
-    }
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			if (event.consumeAction(GameAction.UI_CANCEL)) {
+				pop();
+				event.consume();
+				return;
+			}
+		}
+
+		super.handleInput(event);
+	}
 
     @Override
     public void mousePressed(@NonNull MouseButton button, int x, int y) {
@@ -92,7 +104,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
 
     @Override
     public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues, @NonNull CameraState state, @NotNull MatrixStack modelViewStack, @NotNull MatrixStack projectionStack) {
-        getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit);
+        if (!getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit)) return;
         UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
         int placing_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x) - (getTemplate().getPlacingSize() - 1);
         int placing_grid_y = UnitGrid.toGridCoordinate(landscape_hit.y) - (getTemplate().getPlacingSize() - 1);

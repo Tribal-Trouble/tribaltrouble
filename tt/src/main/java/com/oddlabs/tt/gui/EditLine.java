@@ -3,6 +3,9 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.guievent.EnterListener;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
@@ -41,7 +44,7 @@ public class EditLine extends TextField implements Clipped {
 
 	@Override
 	protected final @NonNull CursorType getCursorType() {
-		return CursorType.TEXT;
+		return isDisabled() ? CursorType.NORMAL : CursorType.TEXT;
 	}
 
     protected @NonNull CharSequence getDisplayText() {
@@ -73,66 +76,67 @@ public class EditLine extends TextField implements Clipped {
 	}
 
 	@Override
-	protected boolean keyPressed(@NonNull KeyboardEvent event) {
-		if (event.keyChar() != 0 && isAllowed(event.keyChar())) {
-			return true;
+	protected boolean insert(int index, char key) {
+		boolean result = super.insert(index, key);
+		if (result) {
+			this.index++;
 		}
-		return super.keyPressed(event);
+		return result;
 	}
 
-	@Override
-	protected boolean keyReleased(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case RETURN -> {
-				enterPressedAll();
-				return true;
+		@Override
+		protected void handleInput(@NonNull InputEvent event) {
+			if (event.getPhase() == InputPhase.RELEASED) {
+				if (event.consumeAction(GameAction.UI_ACTIVATE)) {
+					enterPressedAll();
+					return;
+				}
 			}
-            default -> {
-				return super.keyReleased(event);
+	
+			if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+				boolean consumed = true;
+	
+				if (event.consumeAction(GameAction.UI_NAV_LEFT)) {
+					if (index > 0) index--;
+				} else if (event.consumeAction(GameAction.UI_NAV_RIGHT)) {
+					if (index < getText().length()) index++;
+				} else if (event.consumeAction(GameAction.UI_NAV_HOME)) {
+					index = 0;
+				} else if (event.consumeAction(GameAction.UI_NAV_END)) {
+					index = getText().length();
+				} else if (event.consumeAction(GameAction.UI_BACKSPACE)) {
+					if (index > 0) delete(--index);
+				            } else if (event.consumeAction(GameAction.UI_DELETE)) {
+				                if (index < getText().length()) delete(index);
+				            } else if (!event.isControlDown() && !event.isMetaDown() && !event.isAltDown()) {
+				                char c = event.getCharacter();
+				                if (c != 0 && !Character.isISOControl(c)) {
+				                    consumed = insert(index, c);
+				                } else {
+				                    consumed = false;
+				                }
+				            } else {
+				                consumed = false;
+				            }
+				
+				            if (consumed) {					correctOffsetX();
+					event.consume();
+					return;
+				}
+	
+				// Consume printable keys in PRESSED phase to prevent bubbling (e.g. 'D' triggering debug bounds)
+				// even if the character hasn't been typed yet (will come in REPEAT phase).
+				if (event.getPhase() == InputPhase.PRESSED && !event.isControlDown() && !event.isAltDown() && !event.isMetaDown()) {
+					char c = event.getCharacter();
+					if (c != 0 && !Character.isISOControl(c)) {
+						event.consume();
+						return;
+					}
+				}
 			}
-        }
-	}
-
-	@Override
-	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
-        boolean consumed = true;
-        switch (event.keyCode()) {
-            case BACK -> {
-                if (index > 0) {
-                    delete(--index);
-                }
-            }
-            case DELETE -> {
-                if (index < getText().length()) {
-                    delete(index);
-                }
-            }
-            case LEFT -> {
-                if (index > 0)
-                    index--;
-            }
-            case RIGHT -> {
-                if (index < getText().length())
-                    index++;
-            }
-            case HOME -> index = 0;
-            case END -> index = getText().length();
-            case TAB, RETURN -> consumed = super.keyRepeat(event);
-            default -> {
-                char key = event.keyChar();
-                if (isAllowed(key)) {
-                    if (insert(index, key)) {
-                        index++;
-                    }
-                } else {
-                    consumed = super.keyRepeat(event);
-                }
-            }
-        }
-		correctOffsetX();
-		return consumed;
-	}
-
+	
+			super.handleInput(event);
+		}
 	@Override
 	public final boolean isAllowed(char ch) {
 		return super.isAllowed(ch) && getFont().getQuad(ch) != null && (allowed_chars == null || allowed_chars.indexOf(ch) != -1);

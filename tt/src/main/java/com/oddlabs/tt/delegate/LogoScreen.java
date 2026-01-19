@@ -8,8 +8,9 @@ import com.oddlabs.tt.gui.Fadable;
 import com.oddlabs.tt.gui.GUIIcon;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.IconQuad;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.render.UIRenderer;
 import org.jspecify.annotations.NonNull;
@@ -77,9 +78,12 @@ public final class LogoScreen extends CameraDelegate<StaticCamera> implements Up
 	}
 	
 	@Override
-	protected boolean keyPressed(@NonNull KeyboardEvent event) {
-		fade();
-		return true;
+	public void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			fade();
+			event.consume();
+		}
+		super.handleInput(event);
 	}
 
 	@Override

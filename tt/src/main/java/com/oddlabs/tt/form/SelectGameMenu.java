@@ -451,7 +451,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 	private final class RoomDoubleClickedListener implements RowListener<ChatRoomEntry> {
 		@Override
-		public void rowDoubleClicked(ChatRoomEntry chat_room_info) {
+		public void rowDoubleClicked(@NonNull ChatRoomEntry chat_room_info) {
 			joinRoom(chat_room_info);
 		}
 	}
@@ -466,7 +466,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 
 	private final class GameDoubleClickedListener implements RowListener<GameHost> {
 		@Override
-		public void rowDoubleClicked(GameHost selected_game) {
+		public void rowDoubleClicked(@NonNull GameHost selected_game) {
 			joinGame(selected_game);
 		}
 	}

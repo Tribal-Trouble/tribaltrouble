@@ -1,6 +1,5 @@
 package com.oddlabs.tt.input;
 
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public interface InputProvider<C> extends AutoCloseable {
@@ -8,7 +7,9 @@ public interface InputProvider<C> extends AutoCloseable {
     void pollKeyboard();
     boolean nextKeyboardEvent();
     int getEventKey();
+    /** {@return true if there is a key event and the key is down} */
     boolean getEventKeyState();
+    int getEventKeyMods();
     char getEventCharacter();
     boolean isRepeatEvent();
     boolean isKeyDown(int keyCode);

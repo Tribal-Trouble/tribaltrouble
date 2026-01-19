@@ -1,20 +1,19 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.RowListener;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class MultiColumnComboBox<T> extends GUIObject implements Scrollable {
 	private final @NonNull ColumnInfo @NonNull [] column_infos;
 	private final RadioButtonGroup group = new RadioButtonGroup();
 	private final Group focus_group = new Group();
 	private final RowCollection<T> rows = new RowCollection<>(this, 0, true);
-	private final List<@NonNull RowListener<T>> row_listeners = new ArrayList<>();
 	private final @NonNull ScrollBar scroll_bar;
 	private final boolean use_buttons;
 	private final @NonNull GUIRoot gui_root;
@@ -27,9 +26,9 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 	}
 
 	public MultiColumnComboBox(@NonNull GUIRoot gui_root, @NonNull ColumnInfo @NonNull [] column_infos, int height, boolean use_buttons) {
+		this.gui_root = gui_root;
 		this.column_infos = column_infos;
 		this.use_buttons = use_buttons;
-		this.gui_root = gui_root;
 		Box box = Skin.getSkin().getMultiColumnComboBoxData().box();
 		int width = 0;
 		for (int i = 0; i < column_infos.length; i++) {
@@ -62,45 +61,62 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 	}
 	
 	public void clickedRow() {
-        row_listeners.forEach(listener -> listener.rowChosen(rows.getSelected()));
-	}
-
-	@Override
-	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.keyCode()) {
-			case UP:
-				rows.selectPrior();
-				clickedRow();
-				return true;
-			case DOWN:
-				rows.selectNext();
-				clickedRow();
-				return true;
-			case HOME:
-				rows.selectFirst();
-				clickedRow();
-				return true;
-			case END:
-				rows.selectLast();
-				clickedRow();
-				return true;
-			case PAGE_UP:
-				jumpPage(true);
-				return true;
-			case PAGE_DOWN:
-				jumpPage(false);
-				return true;
-			default:
-				return super.keyRepeat(event);
+		T selected = rows.getSelected();
+		if (null != selected) {
+			listeners.forEach(listener -> {
+				//noinspection rawtypes
+				if (listener instanceof RowListener rowListener) //noinspection unchecked
+					rowListener.rowChosen(selected);
+			});
 		}
 	}
 
+	@Override
+	protected void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			boolean consumed = true;
+			if (event.consumeAction(GameAction.UI_NAV_UP)) {
+				rows.selectPrior();
+				clickedRow();
+			} else if (event.consumeAction(GameAction.UI_NAV_DOWN)) {
+				rows.selectNext();
+				clickedRow();
+			} else if (event.consumeAction(GameAction.UI_NAV_HOME)) {
+				rows.selectFirst();
+				clickedRow();
+			} else if (event.consumeAction(GameAction.UI_NAV_END)) {
+				rows.selectLast();
+				clickedRow();
+			} else if (event.consumeAction(GameAction.UI_NAV_PAGE_UP)) {
+				jumpPage(true);
+			} else if (event.consumeAction(GameAction.UI_NAV_PAGE_DOWN)) {
+				jumpPage(false);
+			} else {
+				consumed = false;
+			}
+			
+			if (consumed) {
+				event.consume();
+				return;
+			}
+		}
+		super.handleInput(event);
+	}
+
 	public void addRowListener(@NonNull RowListener<T> listener) {
-		row_listeners.add(listener);
+		listeners.add(listener);
 	}
 
 	public void doubleClickedRow() {
-        row_listeners.forEach(listener -> listener.rowDoubleClicked(rows.getSelected()));
+		T selected = rows.getSelected();
+		if (null != selected) {
+			listeners.forEach(listener -> {
+                //noinspection rawtypes
+                if (listener instanceof RowListener rowListener)
+                    //noinspection unchecked
+                    rowListener.rowDoubleClicked(selected);
+			});
+		}
 	}
 
 	public void setPulldownMenu(PulldownMenu<T> pulldown_menu) {
@@ -159,15 +175,7 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 
 	@Override
 	public void setOffsetY(int new_offset) {
-		offset_y = new_offset;
-
-		if (offset_y < 0)
-			offset_y = 0;
-		int max_offset_y = rows.getContentHeight() - rows.getHeight();
-		if (max_offset_y < 0)
-			max_offset_y = 0;
-		if (offset_y > max_offset_y)
-			offset_y = max_offset_y;
+		offset_y = Math.clamp(new_offset, 0, Math.max(rows.getContentHeight() - rows.getHeight(), 0));
 		rows.replaceRows();
 		scroll_bar.update();
 	}

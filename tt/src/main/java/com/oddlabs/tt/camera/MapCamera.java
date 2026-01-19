@@ -2,9 +2,11 @@ package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.delegate.SelectionDelegate;
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.RadialFogInfo;
 import com.oddlabs.tt.util.Utils;
@@ -148,13 +150,12 @@ public final class MapCamera extends Camera {
     }
 
     @Override
-    public boolean keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case SPACE, NUMPAD5 -> {
+    public void handleInput(@NonNull InputEvent event) {
+        if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+            if (event.consumeAction(GameAction.CAMERA_MAP_MODE)) {
                 changeMode((map_mode == MapMode.TO_MAP || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);
-                return true;
+                event.consume();
             }
         }
-        return false;
     }
 }

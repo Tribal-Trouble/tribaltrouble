@@ -161,6 +161,11 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
     }
 
     @Override
+    public int getEventKeyMods() {
+        return currentKeyEvent != null ? currentKeyEvent.mods : 0;
+    }
+
+    @Override
     public char getEventCharacter() {
         return currentKeyEvent != null ? currentKeyEvent.character : 0;
     }

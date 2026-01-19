@@ -9,13 +9,15 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIIcon;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MapIslandData;
 import com.oddlabs.tt.gui.ModeIconQuads;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.NonFocusIconButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.guievent.MouseClickListener;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.player.campaign.Campaign;
 import com.oddlabs.tt.player.campaign.CampaignState;
 import com.oddlabs.tt.render.GUIRenderer;
@@ -125,16 +127,15 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 	}
 
 	@Override
-	protected boolean keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case ESCAPE -> {
-                getGUIRoot().pushDelegate(new CampaignMapMenu(network, getGUIRoot(), new StaticCamera(getCamera().getState())));
-                return true;
-            }
-            default -> {
-                return super.keyPressed(event);
-            }
-        }
+	public void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			if (event.consumeAction(GameAction.GLOBAL_MENU)) {
+				getGUIRoot().pushDelegate(new CampaignMapMenu(network, getGUIRoot(), new StaticCamera(getCamera().getState())));
+				event.consume();
+				return;
+			}
+		}
+		super.handleInput(event);
 	}
 
 	public static void closeCampaign(@NonNull NetworkSelector network, @NonNull GUI gui) {
@@ -152,14 +153,6 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 //		campaign.extraRender();
 	}
 
-	/*
-	protected final void keyPressed(KeyboardEvent event) {
-		if (event.keyCode() == Keyboard.KEY_ESCAPE) {
-		} else {
-			super.keyPressed(event);
-		}
-	}
-	*/
 	private final class IslandClickListener implements MouseClickListener {
 		private final int number;
 

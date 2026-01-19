@@ -34,7 +34,18 @@ public final class MapcodeForm extends Form {
 		this.menu = menu;
 		ResourceBundle bundle = ResourceBundle.getBundle(MapcodeForm.class.getName());
 		Label label_seed = new Label(Utils.getBundleString(bundle, "map_code"), Skin.getSkin().getEditFont());
-		editline_seed = new EditLine(200, 12, RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS, Origin.AT_START);
+		editline_seed = new EditLine(200, 12, RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS, Origin.AT_START) {
+			@Override
+			protected boolean insert(int index, char key) {
+				return super.insert(index, Character.toUpperCase(key));
+			}
+
+			@Override
+			public void append(@NonNull CharSequence text) {
+				var shifted = text.toString().toUpperCase();
+				super.append(shifted);
+			}
+		};
 		editline_seed.addEnterListener( _ -> done());
 
 		HorizButton button_ok = new OKButton(BUTTON_WIDTH);

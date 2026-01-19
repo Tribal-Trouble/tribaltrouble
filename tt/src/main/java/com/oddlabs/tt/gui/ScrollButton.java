@@ -1,5 +1,7 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
@@ -15,23 +17,13 @@ public final class ScrollButton extends GUIObject {
 	}
 
 	@Override
-	public boolean keyPressed(@NonNull KeyboardEvent event) {
-		return true;
-	}
-
-	@Override
-	public boolean keyRepeat(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case TAB -> {
-				return super.keyRepeat(event);
-			}
-        }
-		return true;
-	}
-
-	@Override
-	public boolean keyReleased(@NonNull KeyboardEvent event) {
-		return true;
+	public void handleInput(@NonNull InputEvent event) {
+		if (event.hasAction(GameAction.UI_FOCUS_NEXT)) {
+			// Bubble Tab
+			return;
+		}
+		// Swallow others
+		event.consume();
 	}
 
 	@Override

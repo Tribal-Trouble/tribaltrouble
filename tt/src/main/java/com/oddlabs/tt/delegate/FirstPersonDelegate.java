@@ -4,8 +4,10 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.FirstPersonCamera;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.CursorType;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
 
@@ -34,20 +36,19 @@ public class FirstPersonDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public boolean keyPressed(@NonNull KeyboardEvent event) {
-		return true;
-	}
+	public void handleInput(@NonNull InputEvent event) {
+		super.handleInput(event);
+		if (event.isConsumed()) return;
 
-	@Override
-	public boolean keyReleased(@NonNull KeyboardEvent event) {
-		if (key_pressed && !done) {
-			switch (event.keyCode()) {
-				case F:
+		if (event.getPhase() == InputPhase.RELEASED) {
+			if (key_pressed && !done) {
+				if (event.consumeAction(GameAction.CAMERA_FIRST_PERSON)) {
 					pop();
-					break;
+				}
 			}
 		}
-		return true;
+		// Consume everything (modal-ish behavior for first person control)
+		event.consume();
 	}
 
 	@Override

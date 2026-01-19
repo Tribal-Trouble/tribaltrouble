@@ -2,9 +2,10 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.CursorType;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
-import com.oddlabs.tt.input.Key;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.model.Action;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -28,27 +29,20 @@ public class TargetDelegate extends ControllableCameraDelegate {
 	}
 
 	@Override
-	public final boolean keyPressed(@NonNull KeyboardEvent event) {
-        if (getCamera().keyPressed(event)) return true;
-        switch (event.keyCode()) {
-            case ESCAPE -> {
-                pop();
-                return true;
-            }
-            case SPACE, RETURN -> {
-                return true;
-            }
-            default -> {
-                return super.keyPressed(event);
-            }
-        }
-	}
+	public void handleInput(@NonNull InputEvent event) {
+		// Prevent base GUIObject from handling UI_ACTIVATE (Space/Return as Click)
+		event.consumeAction(GameAction.UI_ACTIVATE);
 
-	@Override
-	public boolean keyReleased(@NonNull KeyboardEvent event) {
-		if (event.keyCode() != Key.SPACE && event.keyCode() != Key.RETURN)
-			return getCamera().keyReleased(event);
-		return true;
+		super.handleInput(event);
+		if (event.isConsumed()) return;
+
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			if (event.consumeAction(GameAction.UI_CANCEL)) {
+				pop();
+				event.consume();
+				return;
+			}
+		}
 	}
 
 	@Override

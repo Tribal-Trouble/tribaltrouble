@@ -2,9 +2,10 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.gui.CursorType;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
-import com.oddlabs.tt.input.PointerInput;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jspecify.annotations.NonNull;
@@ -45,18 +46,11 @@ public class ZoomDelegate extends InGameDelegate {
 	}
 
 	@Override
-	public boolean keyPressed(@NonNull KeyboardEvent event) {
-		return true;
-	}
-
-	@Override
-	public boolean keyReleased(@NonNull KeyboardEvent event) {
-		if (!done) {
-            switch (event.keyCode()) {
-                case Z -> pop();
-            }
+	public void handleInput(@NonNull InputEvent event) {
+		if (!done && event.getPhase() == InputPhase.RELEASED && event.consumeAction(GameAction.CAMERA_ZOOM_MODE)) {
+			pop();
 		}
-		return true;
+		event.consume();
 	}
 
 	@Override
@@ -70,7 +64,7 @@ public class ZoomDelegate extends InGameDelegate {
 
 			float zoom_factor = dy*ZOOM_FACTOR_CORRECTION;
 			game_camera.zoom(zoom_factor);
-			PointerInput.setCursorPosition(physical_start_x, physical_start_y);
+			Renderer.getLocalInput().getPointerInput().setCursorPosition(physical_start_x, physical_start_y);
 		}
 	}
 

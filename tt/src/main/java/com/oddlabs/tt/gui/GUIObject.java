@@ -3,20 +3,24 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.delegate.ModalDelegate;
 import com.oddlabs.tt.guievent.EventListener;
 import com.oddlabs.tt.guievent.FocusListener;
-import com.oddlabs.tt.guievent.KeyListener;
+import com.oddlabs.tt.guievent.InputListener;
 import com.oddlabs.tt.guievent.MouseButtonListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
 import com.oddlabs.tt.guievent.MouseWheelListener;
-import com.oddlabs.tt.input.Key;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.logging.Logger;
 
 public abstract class GUIObject extends Renderable<GUIObject> {
+	private static final Logger logger = Logger.getLogger(GUIObject.class.getName());
     private boolean disabled;
 	private boolean hovered;
 	private boolean active;
@@ -38,7 +42,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 
 	private @Nullable GUIObject next_hover = null;
 
-	private final Set<@NonNull EventListener> listeners = new CopyOnWriteArraySet<>();
+	protected final Set<@NonNull EventListener> listeners = new CopyOnWriteArraySet<>();
 
 	private boolean placed = false;
 	private @NonNull Origin origin = Origin.AT_START;
@@ -532,58 +536,33 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 			parent.mouseHeldAll(button, x, y);
 	}
 
-	final boolean keyPressedAll(@NonNull KeyboardEvent event) {
-		if (keyPressed(event)) return true;
-        for (var listener : listeners) {
-            if (listener instanceof KeyListener l) {
-                if (l.keyPressed(event)) return true;
-            }
-        }
-		GUIObject parent = getParent();
-		return parent != null && parent.keyPressedAll(event);
-	}
-
-	protected boolean keyPressed(@NonNull KeyboardEvent event) {
-		if (event.keyCode() == Key.SPACE || event.keyCode() == Key.RETURN) {
-			mousePressedAll(MouseButton.LEFT, 0, 0);
-			return true;
-		}
-		return false;
-	}
-
-	final boolean keyReleasedAll(@NonNull KeyboardEvent event) {
-		if (keyReleased(event)) return true;
+	final void handleInputAll(@NonNull InputEvent event) {
+		if (event.isConsumed()) return;
+		handleInput(event);
+		if (event.isConsumed()) return;
+		
 		for (var listener : listeners) {
-			if (listener instanceof KeyListener l) {
-				if (l.keyReleased(event)) return true;
-			}
-        }
-		GUIObject parent = getParent();
-		return parent != null && parent.keyReleasedAll(event);
-	}
-
-	protected boolean keyReleased(@NonNull KeyboardEvent event) {
-		if (event.keyCode() == Key.SPACE || event.keyCode() == Key.RETURN) {
-			mouseReleasedAll(MouseButton.LEFT, 0, 0);
-			mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
-			return true;
-		}
-		return false;
-	}
-
-	final boolean keyRepeatAll(@NonNull KeyboardEvent event) {
-		if (keyRepeat(event)) return true;
-		for (var listener : listeners) {
-			if (listener instanceof KeyListener l) {
-				if (l.keyRepeat(event)) return true;
+			if (listener instanceof InputListener l) {
+				l.handleInput(event);
+				if (event.isConsumed()) return;
 			}
 		}
+		
 		GUIObject parent = getParent();
-		return parent != null && parent.keyRepeatAll(event);
+		if (parent != null) {
+			parent.handleInputAll(event);
+		}
 	}
 
-	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
-		return false;
+	protected void handleInput(@NonNull InputEvent event) {
+		if (event.consumeAction(GameAction.UI_ACTIVATE)) {
+			if (event.getPhase() == InputPhase.PRESSED) {
+				mousePressedAll(MouseButton.LEFT, 0, 0);
+			} else if (event.getPhase() == InputPhase.RELEASED) {
+				mouseReleasedAll(MouseButton.LEFT, 0, 0);
+				mouseClickedAll(MouseButton.LEFT, 0, 0, 1);
+			}
+		}
 	}
 
 	public final void addMouseClickListener(@NonNull MouseClickListener listener) {
@@ -603,7 +582,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
-	final void addKeyListener(@NonNull KeyListener listener) {
+	final void addInputListener(@NonNull InputListener listener) {
 		listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 

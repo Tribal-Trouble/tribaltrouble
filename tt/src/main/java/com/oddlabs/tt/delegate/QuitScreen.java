@@ -5,8 +5,9 @@ import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.gui.GUIRoot;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
@@ -59,10 +60,13 @@ public final class QuitScreen extends CameraDelegate<Camera> implements Updatabl
 	}
 
 	@Override
-	protected boolean keyPressed(@NonNull KeyboardEvent event) {
-		key_pressed = true;
-		quit();
-		return true;
+	public void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			key_pressed = true;
+			quit();
+			event.consume();
+		}
+		super.handleInput(event);
 	}
 
 	@Override

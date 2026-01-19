@@ -12,8 +12,10 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MenuButton;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.net.Client;
 import com.oddlabs.tt.net.GameNetwork;
@@ -112,38 +114,37 @@ public abstract class Menu extends CameraDelegate<Camera> {
         displayChangedNotify(getGUIRoot().getWidth(), getGUIRoot().getHeight());
     }
 
-    @Override
-    protected boolean keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case ESCAPE -> {
-                return true;
-            }
-            default -> {
-                return super.keyPressed(event);
-            }
-        }
-    }
-
-    @Override
-    protected final boolean keyRepeat(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case TAB -> {
-                switchFocus(event.shiftDown() ? -1 : 1);
-                return true;
-            }
-            case UP -> {
-                focusPrior();
-                return true;
-            }
-            case DOWN -> {
-                focusNext();
-                return true;
-            }
-            default -> {
-                return true;
-            }
-        }
-    }
+	@Override
+	public void handleInput(@NonNull InputEvent event) {
+		if ((event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) && event.hasActions()) {
+			if (event.consumeAction(GameAction.UI_CANCEL)) {
+				event.consume(); // Menu usually swallows escape
+				return;
+			}
+			if (event.consumeAction(GameAction.UI_FOCUS_NEXT)) {
+				switchFocus(1);
+				event.consume();
+				return;
+			}
+			if (event.consumeAction(GameAction.UI_FOCUS_PREV)) {
+				switchFocus(-1);
+				event.consume();
+				return;
+			}
+			if (event.consumeAction(GameAction.UI_NAV_UP)) {
+				focusPrior();
+				event.consume();
+				return;
+			}
+			if (event.consumeAction(GameAction.UI_NAV_DOWN)) {
+				focusNext();
+				event.consume();
+				return;
+			}
+		}
+		
+		super.handleInput(event);
+	}
 
     @Override
     public void displayChangedNotify(int width, int height) {

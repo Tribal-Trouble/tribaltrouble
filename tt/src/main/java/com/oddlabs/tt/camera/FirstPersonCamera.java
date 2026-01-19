@@ -1,8 +1,7 @@
 package com.oddlabs.tt.camera;
 
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.input.Key;
-import com.oddlabs.tt.input.PointerInput;
+import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.landscape.HeightMap;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -33,15 +32,15 @@ public final class FirstPersonCamera extends Camera {
 
             float scrolling_x = 0;
             float scrolling_y = 0;
-            var localInput = Renderer.getLocalInput();
-            if (localInput.isKeyDown(Key.LEFT) && !localInput.isKeyDown(Key.RIGHT))
+            var inputManager = Renderer.getLocalInput().getInputManager();
+            if (inputManager.isActive(GameAction.CAMERA_PAN_LEFT) && !inputManager.isActive(GameAction.CAMERA_PAN_RIGHT))
                     scrolling_x = -1f;
-            else if (localInput.isKeyDown(Key.RIGHT) && !localInput.isKeyDown(Key.LEFT))
+            else if (inputManager.isActive(GameAction.CAMERA_PAN_RIGHT) && !inputManager.isActive(GameAction.CAMERA_PAN_LEFT))
                     scrolling_x = 1f;
 
-            if (localInput.isKeyDown(Key.DOWN) && !localInput.isKeyDown(Key.UP))
+            if (inputManager.isActive(GameAction.CAMERA_PAN_DOWN) && !inputManager.isActive(GameAction.CAMERA_PAN_UP))
                     scrolling_y = -1f;
-            else if (localInput.isKeyDown(Key.UP) && !localInput.isKeyDown(Key.DOWN))
+            else if (inputManager.isActive(GameAction.CAMERA_PAN_UP) && !inputManager.isActive(GameAction.CAMERA_PAN_DOWN))
                     scrolling_y = 1f;
 
             float scroll_factor = getState().getTargetZ()*t;
@@ -68,6 +67,6 @@ public final class FirstPersonCamera extends Camera {
             else
                     getState().setTargetVertAngle(getState().getTargetVertAngle() + dy*SCALE_VERT);
 
-            PointerInput.setCursorPosition(last_x, last_y);
+            Renderer.getLocalInput().getPointerInput().setCursorPosition(last_x, last_y);
     }
 }

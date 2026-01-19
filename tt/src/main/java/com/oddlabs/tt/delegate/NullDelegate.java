@@ -2,8 +2,8 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.NullCamera;
 import com.oddlabs.tt.gui.GUIRoot;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MouseButton;
+import com.oddlabs.tt.input.InputEvent;
 import org.jspecify.annotations.NonNull;
 
 public class NullDelegate extends CameraDelegate<NullCamera> {
@@ -15,13 +15,8 @@ public class NullDelegate extends CameraDelegate<NullCamera> {
 	}
 
 	@Override
-	public boolean keyPressed(@NonNull KeyboardEvent event) {
-		return false;
-	}
-
-	@Override
-	public boolean keyReleased(@NonNull KeyboardEvent event) {
-		return false;
+	public void handleInput(@NonNull InputEvent event) {
+		// Bubble
 	}
 
 	@Override

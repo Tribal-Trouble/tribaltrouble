@@ -107,20 +107,20 @@ public enum Key {
     SUBTRACT(GLFW.GLFW_KEY_KP_SUBTRACT),
     KEY_UNKNOWN(GLFW.GLFW_KEY_UNKNOWN);
 
-    private final int lwjglCode;
+    private final int glfwCode;
 
-    private static final Map<Integer, Key> from_lwjgl_map =
-            Arrays.stream(values()).collect(Collectors.toMap(Key::getLwjglCode, Function.identity()));
+    private static final Map<Integer, Key> from_glfw_map =
+            Arrays.stream(values()).collect(Collectors.toMap(Key::getGlfwCode, Function.identity()));
 
-    Key(int lwjglCode) {
-        this.lwjglCode = lwjglCode;
+    Key(int glfwCode) {
+        this.glfwCode = glfwCode;
     }
 
-    public int getLwjglCode() {
-        return lwjglCode;
+    public int getGlfwCode() {
+        return glfwCode;
     }
 
-    public static Key fromLwjglCode(int code) {
-        return from_lwjgl_map.getOrDefault(code, KEY_UNKNOWN);
+    public static Key fromGlfwCode(int code) {
+        return from_glfw_map.getOrDefault(code, KEY_UNKNOWN);
     }
 }

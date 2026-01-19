@@ -1,6 +1,8 @@
 package com.oddlabs.tt.gui;
 
-import com.oddlabs.tt.input.Key;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import org.jspecify.annotations.NonNull;
 
 public class Group extends GUIObject {
@@ -90,16 +92,18 @@ public class Group extends GUIObject {
 	}
 
 	@Override
-	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
-		// Navigation logic is handled here (and in keyRepeat) because InputState calls keyRepeatAll
-		// immediately after keyPressedAll for the initial press, ensuring consistent behavior.
-		boolean control = event.controlDown();
-		if (event.keyCode() == Key.TAB && !control) {
-			switchFocus(event.shiftDown() ? -1 : 1);
-			return true;
-		} else {
-			return super.keyRepeat(event);
+	protected void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			if (event.consumeAction(GameAction.UI_FOCUS_NEXT)) {
+				switchFocus(1);
+				return;
+			}
+			if (event.consumeAction(GameAction.UI_FOCUS_PREV)) {
+				switchFocus(-1);
+				return;
+			}
 		}
+		super.handleInput(event);
 	}
 
 	public void setGroupFocus(int dir) {

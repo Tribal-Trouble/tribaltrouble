@@ -7,12 +7,14 @@ import com.oddlabs.tt.camera.StaticCamera;
 import com.oddlabs.tt.gui.ColumnInfo;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.IntegerLabel;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Row;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.SortedLabel;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
@@ -168,14 +170,20 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
 	}
 
 	@Override
-	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
-		switch (event.keyCode()) {
-			case TAB:
-				switchFocus(event.shiftDown() ? -1 : 1);
-				return true;
-			default:
-				return super.keyRepeat(event);
+	public void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			if (event.consumeAction(GameAction.UI_FOCUS_NEXT)) {
+				switchFocus(1);
+				event.consume();
+				return;
+			}
+			if (event.consumeAction(GameAction.UI_FOCUS_PREV)) {
+				switchFocus(-1);
+				event.consume();
+				return;
+			}
 		}
+		super.handleInput(event);
 	}
 
 	public void startMenu() {

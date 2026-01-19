@@ -1,5 +1,8 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
@@ -31,20 +34,19 @@ public final class SliderButton extends ButtonObject {
 	}
 
 	@Override
-	public boolean keyRepeat(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case RIGHT -> slider.setValue(slider.getValue() + 1);
-            case LEFT -> slider.setValue(slider.getValue() - 1);
-        }
-		return true;
-	}
-
-	@Override
-	public boolean keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case RIGHT -> slider.setValue(slider.getValue() + 1);
-            case LEFT -> slider.setValue(slider.getValue() - 1);
-        }
-		return true;
+	public void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			if (event.consumeAction(GameAction.UI_NAV_RIGHT)) {
+				slider.setValue(slider.getValue() + 1);
+				return;
+			}
+			if (event.consumeAction(GameAction.UI_NAV_LEFT)) {
+				slider.setValue(slider.getValue() - 1);
+				return;
+			}
+		}
+		
+		// Swallow others (legacy behavior)
+		event.consume();
 	}
 }

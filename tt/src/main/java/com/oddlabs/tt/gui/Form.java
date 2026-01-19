@@ -3,7 +3,9 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.guievent.MouseMotionListener;
-import com.oddlabs.tt.input.Key;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
@@ -129,32 +131,25 @@ public class Form extends Group {
 	}
 
 	@Override
-	protected final boolean keyPressed(@NonNull KeyboardEvent event) {
-		return super.keyPressed(event);
-	}
-
-	@Override
-	protected final boolean keyReleased(@NonNull KeyboardEvent event) {
-		return super.keyReleased(event);
-	}
-
-	@Override
-	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
-		boolean control = event.controlDown();
-		if (event.keyCode() == Key.TAB && control) {
-			int dir = event.shiftDown() ? -1 : 1;
-			cyclePanelGroup(this, dir);
-			return true;
-		}
-		switch (event.keyCode()) {
-			case TAB:
-				return super.keyRepeat(event);
-			case ESCAPE:
+	protected void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			if (event.consumeAction(GameAction.UI_NEXT_PANEL)) {
+				cyclePanelGroup(this, 1);
+				event.consume();
+				return;
+			}
+			if (event.consumeAction(GameAction.UI_PREV_PANEL)) {
+				cyclePanelGroup(this, -1);
+				event.consume();
+				return;
+			}
+			if (event.consumeAction(GameAction.UI_CANCEL)) {
 				cancel();
-				return true;
-			default:
-				return false;
+				event.consume();
+				return;
+			}
 		}
+		super.handleInput(event);
 	}
 
 	private boolean cyclePanelGroup(GUIObject root, int dir) {

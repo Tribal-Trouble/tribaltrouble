@@ -5,8 +5,10 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.form.QuestionForm;
 import com.oddlabs.tt.gui.GUIRoot;
-import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.MenuButton;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -39,16 +41,15 @@ final class CampaignMapMenu extends Menu {
     }
 
     @Override
-    protected boolean keyPressed(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case ESCAPE -> {
+    public void handleInput(@NonNull InputEvent event) {
+        if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+            if (event.consumeAction(GameAction.UI_CANCEL)) {
                 pop();
-                return true;
-            }
-            default -> {
-                return super.keyPressed(event);
+                event.consume();
+                return;
             }
         }
+        super.handleInput(event);
     }
 
     @Override

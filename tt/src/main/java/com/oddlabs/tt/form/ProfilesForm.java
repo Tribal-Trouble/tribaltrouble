@@ -17,7 +17,6 @@ import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ResourceBundle;
 
@@ -155,9 +154,8 @@ public final class ProfilesForm extends Form {
 		}
 
 		@Override
-		public void rowDoubleClicked(@Nullable String nick) {
-			if (nick != null)
-				join(nick);
+		public void rowDoubleClicked(@NonNull String nick) {
+            join(nick);
 		}
 	}
 }

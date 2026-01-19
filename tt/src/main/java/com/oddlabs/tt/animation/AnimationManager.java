@@ -8,8 +8,6 @@ import com.oddlabs.tt.form.QuitForm;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUI;
-import com.oddlabs.tt.input.KeyboardInput;
-import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.pathfinder.PathFinder;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.StatCounter;
@@ -125,9 +123,8 @@ public final class AnimationManager {
 		frozen_start_time = timeSource.getMillis();
 	}
 
-	@SuppressWarnings("UseOfSystemOutOrSystemErr")
 	public static void runGameLoop(@NonNull NetworkSelector network, @NonNull GUI gui, boolean grab_frames) {
-		KeyboardInput.checkMagicKeys();
+		Renderer.getLocalInput().checkMagicKeys();
 		if (time_frozen && !time_stopped)
 			unfreezeTime();
 		if (grab_frames) {
@@ -164,8 +161,8 @@ public final class AnimationManager {
 			LocalEventQueue.getQueue().tickHighPrecision(ANIMATION_SECONDS_PER_PRECISION_TICK);
 			while (execution_time >= ANIMATION_MILLISECONDS_PER_TICK && !Renderer.isFinished()) {
 				network.tick();
-				PointerInput.poll(gui.getGUIRoot());
-				KeyboardInput.poll(gui.getGUIRoot());
+
+				Renderer.getLocalInput().poll(gui.getGUIRoot());
 				if (deterministic.log(Renderer.getRenderer().getWindow().isOpen() && Renderer.getRenderer().getWindow().isCloseRequested())) {
 					gui.getGUIRoot().addModalForm(new QuitForm(gui.getGUIRoot()));
 				}

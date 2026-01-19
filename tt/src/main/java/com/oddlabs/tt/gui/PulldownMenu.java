@@ -2,6 +2,9 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.guievent.ItemChosenListener;
 import com.oddlabs.tt.guievent.MouseClickListener;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
 import org.jspecify.annotations.NonNull;
 
@@ -93,20 +96,20 @@ public final class PulldownMenu<T> extends Group {
 	}
 
 	@Override
-	protected boolean keyRepeat(@NonNull KeyboardEvent event) {
-        switch (event.keyCode()) {
-            case UP -> {
+	protected void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
+			if (event.consumeAction(GameAction.UI_NAV_UP)) {
 				focusPrior();
-				return true;
+				event.consume();
+				return;
 			}
-            case DOWN -> {
+			if (event.consumeAction(GameAction.UI_NAV_DOWN)) {
 				focusNext();
-				return true;
+				event.consume();
+				return;
 			}
-            default -> {
-				return super.keyRepeat(event);
-			}
-        }
+		}
+		super.handleInput(event);
 	}
 
 	// Sending click on to appropriate item when PulldownButton has been pressed and released on an item
