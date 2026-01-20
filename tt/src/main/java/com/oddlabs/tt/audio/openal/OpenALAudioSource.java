@@ -7,14 +7,18 @@ import com.oddlabs.tt.audio.AudioSource;
 import com.oddlabs.tt.resource.NativeResource;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL10;
+import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.ALC10;
+import org.lwjgl.openal.EXTEfx;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.logging.Logger;
 
 import static com.oddlabs.tt.audio.openal.OpenALManager.checkALError;
+import static org.lwjgl.openal.EXTEfx.AL_AUXILIARY_SEND_FILTER;
 
 public final class OpenALAudioSource extends NativeResource<OpenALAudioSource.Source> implements AudioSource {
     private static final Logger logger = Logger.getLogger(OpenALAudioSource.class.getSimpleName());
@@ -56,10 +60,32 @@ public final class OpenALAudioSource extends NativeResource<OpenALAudioSource.So
     }
 
     private @Nullable AbstractAudioPlayer audio_player;
-    private final FloatBuffer positionBuffer = org.lwjgl.BufferUtils.createFloatBuffer(3);
+    private final FloatBuffer positionBuffer = BufferUtils.createFloatBuffer(3);
+    private @Nullable OpenALFilter directFilter;
 
     public OpenALAudioSource() {
         super(new Source());
+    }
+
+    @Override
+    public void close() {
+        if (directFilter != null) {
+            directFilter.close();
+        }
+        super.close();
+    }
+
+    public void setDirectFilterGainHF(float gainHF) {
+        try {
+            if (directFilter == null) {
+                directFilter = new OpenALFilter();
+            }
+            directFilter.setLowPassGainHF(gainHF);
+            AL10.alSourcei(getSource(), EXTEfx.AL_DIRECT_FILTER, directFilter.getFilterId());
+            checkALError("alSourcei AL_DIRECT_FILTER");
+        } catch (Exception e) {
+            // EFX not supported or error creating filter, ignore
+        }
     }
 
     @Override
@@ -232,5 +258,10 @@ public final class OpenALAudioSource extends NativeResource<OpenALAudioSource.So
         if (this.audio_player != null)
             this.audio_player.stop();
         this.audio_player = audio_player;
+    }
+
+    public void setAuxiliarySend(int slotId, int filterId) {
+        AL11.alSource3i(getSource(), AL_AUXILIARY_SEND_FILTER, slotId, 0, filterId);
+        checkALError("alSource3i AL_AUXILIARY_SEND_FILTER");
     }
 }

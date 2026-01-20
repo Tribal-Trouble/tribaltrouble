@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.openal.AL10;
 
 public abstract class AbstractAudioPlayer implements Animated {
-	protected static final float ROLLOFF_FACTOR = .03f; // was 0.05
+	protected static final float ROLLOFF_FACTOR = 0.5f;
 
 	protected final @Nullable AudioSource source;
 	private final @NonNull AudioParameters<?> parameters;

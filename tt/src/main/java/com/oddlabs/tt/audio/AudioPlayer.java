@@ -1,5 +1,7 @@
 package com.oddlabs.tt.audio;
 
+import com.oddlabs.tt.audio.openal.OpenALAudioSource;
+import com.oddlabs.tt.audio.openal.OpenALManager;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -94,6 +96,33 @@ public final class AudioPlayer extends AbstractAudioPlayer {
         source.setMinGain(0f);
         source.setMaxGain(1f);
         source.setPitch(params.pitch);
+        
+        if (source instanceof OpenALAudioSource alSource && AudioManager.getManager() instanceof OpenALManager alManager) {
+            EFXManager efx = alManager.getEfxManager();
+            if (efx.isSupported()) {
+                boolean useReverb = params.rank != AUDIO_RANK_MUSIC && params.rank != AUDIO_RANK_NOTIFICATION;
+                alSource.setAuxiliarySend(useReverb ? efx.getEffectSlot() : 0, 0);
+
+                if (useReverb) {
+                    float[] listenerPos = AudioManager.getManager().getListenerPosition();
+                    float dx = params.x - listenerPos[0];
+                    float dy = params.y - listenerPos[1];
+                    float dz = params.z - listenerPos[2];
+                    float dist = (float)Math.sqrt(dx*dx + dy*dy + dz*dz);
+                    
+                    // Simple air absorption: brighter up close, muffled far away
+                    float maxHearingDist = 150f; 
+                    float gainHF = 1.0f - (dist / maxHearingDist);
+                    // Clamp to [0.1, 1.0] to avoid total silence in HF
+                    gainHF = Math.max(0.1f, Math.min(1.0f, gainHF));
+                    
+                    alSource.setDirectFilterGainHF(gainHF);
+                } else {
+                    alSource.setDirectFilterGainHF(1.0f); // Reset to full brightness
+                }
+            }
+        }
+        
 		if (params.music || AudioManager.getManager().startPlaying()) {
 			source.play();
 		}

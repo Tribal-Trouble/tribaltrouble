@@ -2,9 +2,11 @@ package com.oddlabs.tt.audio.openal;
 
 import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.audio.AudioManager;
+import com.oddlabs.tt.audio.EFXManager;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
+import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.ALC;
 import org.lwjgl.openal.ALCCapabilities;
 
@@ -32,6 +34,7 @@ public final class OpenALManager extends AudioManager {
     private static final int MAX_NUM_SOURCES = 32;
     
     private final @NonNull ALData data;
+    private final EFXManager efxManager = new EFXManager();
 
     private record ALData(long device, long context) implements AutoCloseable {
         @Override
@@ -48,11 +51,12 @@ public final class OpenALManager extends AudioManager {
     private OpenALManager(@NonNull ALData data) {
         super(generateSources(MAX_NUM_SOURCES));
         this.data = data;
+        this.efxManager.init(data.device);
 
         logger.info("OpenAL version: " + AL10.alGetString(AL10.AL_VERSION));
         logger.info("OpenAL vendor: " + AL10.alGetString(AL10.AL_VENDOR));
         logger.info("OpenAL renderer: " + AL10.alGetString(AL10.AL_RENDERER));
-        AL10.alDistanceModel(AL10.AL_INVERSE_DISTANCE);
+        AL10.alDistanceModel(AL11.AL_INVERSE_DISTANCE_CLAMPED);
         checkALError("alDistanceModel");
     }
 
@@ -107,9 +111,19 @@ public final class OpenALManager extends AudioManager {
 
     @Override
     public @NonNull AudioManager updatePosition(float x, float y, float z) {
+        this.listenerX = x;
+        this.listenerY = y;
+        this.listenerZ = z;
         AL10.alListener3f(AL10.AL_POSITION, x, y, z);
         checkALError("alListener3f AL_POSITION");
         return this;
+    }
+
+    private float listenerX, listenerY, listenerZ;
+
+    @Override
+    public float[] getListenerPosition() {
+        return new float[]{listenerX, listenerY, listenerZ};
     }
 
     @Override
@@ -120,17 +134,22 @@ public final class OpenALManager extends AudioManager {
     @Override
     public void close() {
         try {
+            efxManager.cleanup();
             super.close();
         } finally {
             data.close();
         }
+    }
+    
+    public @NonNull EFXManager getEfxManager() {
+        return efxManager;
     }
 
     /**
      * Checks for OpenAL errors and logs them
      * @param message A descriptive message for the context of the OpenAL call.
      */
-    static void checkALError(@NonNull String message) {
+    public static void checkALError(@NonNull String message) {
         int error = AL10.alGetError();
         if (error != AL10.AL_NO_ERROR) {
             logger.log(Level.WARNING, "OpenAL Error (" + message + "): " + errorToString(error), new Throwable("stacktrace"));

@@ -6,6 +6,8 @@ import com.oddlabs.tt.audio.AudioFile;
 import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.audio.AudioParameters;
 import com.oddlabs.tt.audio.AudioPlayer;
+import com.oddlabs.tt.audio.EFXManager;
+import com.oddlabs.tt.audio.openal.OpenALManager;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.global.Settings;
@@ -88,6 +90,33 @@ public final class AmbientAudio {
 			// update placement of ambient wind source
 			ambient_wind.setPos(0f, 0f, Math.max(0f, 50f + GameCamera.MAX_Z - camera.getCurrentZ()));
 			ambient_wind.setGain(AudioPlayer.AUDIO_GAIN_AMBIENT_WIND);
+
+            if (AudioManager.getManager() instanceof OpenALManager alManager) {
+                EFXManager efx = alManager.getEfxManager();
+                if (efx.isSupported()) {
+                    float camX = camera.getCurrentX();
+                    float camY = camera.getCurrentY();
+                    float camZ = camera.getCurrentZ();
+                    
+                    if (camZ < heightmap.getSeaLevelMeters()) {
+                        efx.setReverb(EFXManager.ReverbType.UNDERWATER);
+                    } else {
+                        // Check for valley/enclosure by sampling terrain height around camera
+                        float hCurrent = heightmap.getNearestHeight(camX, camY);
+                        float sampleDist = 30f;
+                        float hN = heightmap.getNearestHeight(camX, camY + sampleDist);
+                        float hS = heightmap.getNearestHeight(camX, camY - sampleDist);
+                        float hE = heightmap.getNearestHeight(camX + sampleDist, camY);
+                        float hW = heightmap.getNearestHeight(camX - sampleDist, camY);
+                        
+                        float avgSurround = (hN + hS + hE + hW) * 0.25f;
+                        
+                        // If average surrounding height is significantly higher than current ground position,
+                        // we are likely in a valley or depression.
+                        efx.setReverb(avgSurround > hCurrent + 8.0f ? EFXManager.ReverbType.VALLEY : EFXManager.ReverbType.GENERIC);
+                    }
+                }
+            }
 		}
 	}
 }

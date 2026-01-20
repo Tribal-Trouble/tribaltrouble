@@ -89,6 +89,8 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
      */
     public abstract @NonNull AudioManager updatePosition(float x, float y, float z);
 
+    public abstract float[] getListenerPosition();
+
     /**
      * Create Audio instance for the specified file.
      *
