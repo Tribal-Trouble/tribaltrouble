@@ -13,14 +13,24 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.AudioImplementation;
 import com.oddlabs.tt.landscape.HeightMap;
+import com.oddlabs.tt.landscape.TreeNodeVisitor;
+import com.oddlabs.tt.landscape.TreeGroup;
+import com.oddlabs.tt.landscape.TreeLeaf;
+import com.oddlabs.tt.landscape.TreeSupply;
+import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.resource.Resources;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
+import java.util.logging.Logger;
 
 public final class AmbientAudio {
+    private static final Logger logger = Logger.getLogger(AmbientAudio.class.getSimpleName());
+    /** How many trees make a forest */
+    private static final int TREES_FOREST_THRESHOLD = 10;
+    private static final float CANYON_PROXIMITY_DISTANCE = 30f;
 
 	private final @NonNull Audio ambient_forest_buffer;
 	private final @NonNull Audio ambient_beach_buffer;
@@ -45,6 +55,57 @@ public final class AmbientAudio {
 		ambient_beach.registerAmbient();
 		ambient_wind.registerAmbient();
 	}
+
+    private static final class TreeCounterVisitor implements TreeNodeVisitor {
+        private final float x, y, radiusSq;
+        private final int threshold;
+        private int count;
+
+        TreeCounterVisitor(float x, float y, float radius, int threshold) {
+            this.x = x;
+            this.y = y;
+            this.radiusSq = radius * radius;
+            this.threshold = threshold;
+        }
+
+        private boolean intersects(com.oddlabs.tt.util.@NonNull BoundingBox box) {
+            float dx = x - Math.max(box.bmin_x, Math.min(x, box.bmax_x));
+            float dy = y - Math.max(box.bmin_y, Math.min(y, box.bmax_y));
+            return (dx * dx + dy * dy) < radiusSq;
+        }
+
+        @Override
+        public void visitLeaf(TreeLeaf tree_leaf) {
+            if (count >= threshold) return;
+            if (intersects(tree_leaf)) {
+                tree_leaf.visitTrees(this);
+            }
+        }
+
+        @Override
+        public void visitNode(TreeGroup tree_group) {
+            if (count >= threshold) return;
+            if (intersects(tree_group)) {
+                tree_group.visitChildren(this);
+            }
+        }
+
+        @Override
+        public void visitTree(TreeSupply tree_supply) {
+            if (count >= threshold) return;
+            if (!tree_supply.isHidden()) {
+                float dx = tree_supply.getPositionX() - x;
+                float dy = tree_supply.getPositionY() - y;
+                if (dx * dx + dy * dy < radiusSq) {
+                    count++;
+                }
+            }
+        }
+
+        public int getCount() {
+            return count;
+        }
+    }
 
 	public void stop() {
 		ambient_forest.stop();
@@ -94,26 +155,35 @@ public final class AmbientAudio {
             if (AudioManager.getManager() instanceof OpenALManager alManager) {
                 EFXManager efx = alManager.getEfxManager();
                 if (efx.isSupported()) {
-                    float camX = camera.getCurrentX();
-                    float camY = camera.getCurrentY();
                     float camZ = camera.getCurrentZ();
                     
                     if (camZ < heightmap.getSeaLevelMeters()) {
                         efx.setReverb(EFXManager.ReverbType.UNDERWATER);
                     } else {
-                        // Check for valley/enclosure by sampling terrain height around camera
-                        float hCurrent = heightmap.getNearestHeight(camX, camY);
-                        float sampleDist = 30f;
-                        float hN = heightmap.getNearestHeight(camX, camY + sampleDist);
-                        float hS = heightmap.getNearestHeight(camX, camY - sampleDist);
-                        float hE = heightmap.getNearestHeight(camX + sampleDist, camY);
-                        float hW = heightmap.getNearestHeight(camX - sampleDist, camY);
+                        float camX = camera.getCurrentX();
+                        float camY = camera.getCurrentY();
+
+                        // Check for forest density
+                        World world = heightmap.getWorld();
+                        TreeCounterVisitor treeVisitor = new TreeCounterVisitor(camX, camY, 25f, TREES_FOREST_THRESHOLD);
+                        world.getTreeRoot().visit(treeVisitor);
                         
-                        float avgSurround = (hN + hS + hE + hW) * 0.25f;
-                        
-                        // If average surrounding height is significantly higher than current ground position,
-                        // we are likely in a valley or depression.
-                        efx.setReverb(avgSurround > hCurrent + 8.0f ? EFXManager.ReverbType.VALLEY : EFXManager.ReverbType.GENERIC);
+                        if (treeVisitor.getCount() >= TREES_FOREST_THRESHOLD) {
+                            efx.setReverb(EFXManager.ReverbType.FOREST);
+                        } else {
+                            // Check for valley/enclosure by sampling terrain height around camera
+                            float hCurrent = heightmap.getNearestHeight(camX, camY);
+                            float hN = heightmap.getNearestHeight(camX, camY + CANYON_PROXIMITY_DISTANCE);
+                            float hS = heightmap.getNearestHeight(camX, camY - CANYON_PROXIMITY_DISTANCE);
+                            float hE = heightmap.getNearestHeight(camX + CANYON_PROXIMITY_DISTANCE, camY);
+                            float hW = heightmap.getNearestHeight(camX - CANYON_PROXIMITY_DISTANCE, camY);
+                            
+                            float avgSurround = (hN + hS + hE + hW) * 0.25f;
+                            
+                            // If average surrounding height is significantly higher than current ground position,
+                            // we are likely in a valley or depression.
+                            efx.setReverb(avgSurround > hCurrent + 8.0f ? EFXManager.ReverbType.VALLEY : EFXManager.ReverbType.GENERIC);
+                        }
                     }
                 }
             }

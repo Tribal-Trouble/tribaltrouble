@@ -78,6 +78,9 @@ public final class AudioPlayer extends AbstractAudioPlayer {
 	public static final float AUDIO_RADIUS_BLAST_BLAST = 1f;
 	public static final float AUDIO_RADIUS_ARMORY = .05f;
 
+	private static final float MAX_HEARING_DIST = 150f;
+
+
 	AudioPlayer(@Nullable AudioSource source, @NonNull AudioParameters<Audio> params) {
 		super(source, params);
 		if (this.source == null) {
@@ -111,10 +114,8 @@ public final class AudioPlayer extends AbstractAudioPlayer {
                     float dist = (float)Math.sqrt(dx*dx + dy*dy + dz*dz);
                     
                     // Simple air absorption: brighter up close, muffled far away
-                    float maxHearingDist = 150f; 
-                    float gainHF = 1.0f - (dist / maxHearingDist);
                     // Clamp to [0.1, 1.0] to avoid total silence in HF
-                    gainHF = Math.max(0.1f, Math.min(1.0f, gainHF));
+                    float gainHF = Math.clamp(1.0f - (dist / MAX_HEARING_DIST), 0.1f, 1.0f);
                     
                     alSource.setDirectFilterGainHF(gainHF);
                 } else {

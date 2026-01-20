@@ -899,7 +899,7 @@ public final class Renderer implements AutoCloseable {
 	}
 
 	private void initMusicPlayer() {
-		music = AudioManager.getManager().newAudio(new AudioParameters<>(music_path, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_MUSIC, AudioPlayer.AUDIO_DISTANCE_MUSIC, Settings.getSettings().music_gain, 1f, 1f, true, true, true));
+		music = AudioManager.getManager().newAudio(new AudioParameters<>(music_path));
 	}
 
 	public void setMusicPath(String music_path, float delay) {

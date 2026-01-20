@@ -80,6 +80,10 @@ public final class HeightMap {
         return heightTexture;
     }
 
+    public @NonNull World getWorld() {
+        return world_instance;
+    }
+
 	public boolean isGridInside(int x, int y) {
 		boolean inside_world = x >= 0 && y >= 0 && x < getGridUnitsPerWorld() && y < getGridUnitsPerWorld();
 		return inside_world;
