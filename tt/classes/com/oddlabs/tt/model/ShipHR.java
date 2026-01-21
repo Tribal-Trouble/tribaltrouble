@@ -127,7 +127,7 @@ public final strictfp class ShipHR {
             if (units[i] != null) {
                 units[i].setReference(null);
                 units[i].enable();
-                units[i].removeDying();
+                units[i].startDying();
             }
         }
     }

@@ -21,6 +21,9 @@ public final strictfp class SittingBehaviour implements Behaviour {
     }
 
     public final int animate(float t) {
+        if (unit.isDead()) {
+            return Selectable.DONE;
+        }
         switch (allocation.getRole()) {
             case ShipAllocation.SITTING:
                 unit.switchToSittingAnimation();

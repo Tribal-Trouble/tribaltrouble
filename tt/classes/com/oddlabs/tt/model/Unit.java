@@ -478,42 +478,35 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
                                     hit_points - damage, getUnitTemplate().getMaxHitPoints()),
                             0);
             if (hit_points == 0) {
-                // stats
                 owner.unitKilled();
-                getOwner().unitLost();
-
-                pushController(new DieController(this));
-                forceDecide();
-                /*
-                new AudioPlayer(getPositionX(), getPositionY(), getPositionZ(),
-                		RacesResources.getUnitHitSound(),
-                		AudioPlayer.AUDIO_RANK_DEATH,
-                		AudioPlayer.AUDIO_DISTANCE_DEATH,
-                		AudioPlayer.AUDIO_GAIN_DEATH,
-                		AudioPlayer.AUDIO_RADIUS_DEATH,
-                		1f + (World.getRandom().nextFloat() - .5f)*getUnitTemplate().getDeathPitch());
-                */
-                getOwner()
-                        .getWorld()
-                        .getAudio()
-                        .newAudio(
-                                new AudioParameters(
-                                        getUnitTemplate().getDeathSound(),
-                                        getPositionX(),
-                                        getPositionY(),
-                                        getPositionZ(),
-                                        AudioPlayer.AUDIO_RANK_DEATH,
-                                        AudioPlayer.AUDIO_DISTANCE_DEATH,
-                                        AudioPlayer.AUDIO_GAIN_DEATH,
-                                        AudioPlayer.AUDIO_RADIUS_DEATH,
-                                        1f
-                                                + (getOwner().getWorld().getRandom().nextFloat()
-                                                                - .5f)
-                                                        * getUnitTemplate().getDeathPitch()));
+                startDying();
                 setDirection(-direction_x, -direction_y);
-                removeDying();
             }
         }
+    }
+
+    public final void startDying() {
+        getOwner().unitLost();
+
+        pushController(new DieController(this));
+        forceDecide();
+        getOwner()
+                .getWorld()
+                .getAudio()
+                .newAudio(
+                        new AudioParameters(
+                                getUnitTemplate().getDeathSound(),
+                                getPositionX(),
+                                getPositionY(),
+                                getPositionZ(),
+                                AudioPlayer.AUDIO_RANK_DEATH,
+                                AudioPlayer.AUDIO_DISTANCE_DEATH,
+                                AudioPlayer.AUDIO_GAIN_DEATH,
+                                AudioPlayer.AUDIO_RADIUS_DEATH,
+                                1f
+                                        + (getOwner().getWorld().getRandom().nextFloat() - .5f)
+                                                * getUnitTemplate().getDeathPitch()));
+        removeDying();
     }
 
     public final void stun(float time) {

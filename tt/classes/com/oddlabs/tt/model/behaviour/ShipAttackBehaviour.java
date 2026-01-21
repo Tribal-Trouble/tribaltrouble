@@ -21,6 +21,9 @@ public final strictfp class ShipAttackBehaviour implements Behaviour {
     }
 
     public final int animate(float t) {
+        if (unit.isDead()) {
+            return Selectable.DONE;
+        }
         unit.switchToIdleAnimation();
         float x = boat.getPositionX();
         float y = boat.getPositionY();
