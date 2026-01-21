@@ -10,7 +10,7 @@ import com.oddlabs.tt.model.Race;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.shader.DebugShaderRenderer;
-import com.oddlabs.tt.render.shader.FixedFunctionShader;
+import com.oddlabs.tt.render.shader.DebugMeshShader;
 import com.oddlabs.tt.render.shader.LitShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.render.shader.SpriteShader;
@@ -85,7 +85,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         this.sonicBlastRenderer = new SonicBlastRenderer();
         var window = Renderer.getRenderer().getWindow();
         this.postProcessor = new PostProcessor(window.getWidth(), window.getHeight());
-        DebugRender.setShaderRenderer(new DebugShaderRenderer(new FixedFunctionShader(), modelViewStack, projectionStack));
+        DebugRender.setShaderRenderer(new DebugShaderRenderer(new DebugMeshShader(), modelViewStack, projectionStack));
     }
 
     private void drawAxes() {

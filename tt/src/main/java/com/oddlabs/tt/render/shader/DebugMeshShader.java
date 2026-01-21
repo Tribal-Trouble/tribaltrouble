@@ -3,8 +3,8 @@ package com.oddlabs.tt.render.shader;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
-/** A shader that emulates the classic OpenGL fixed-function pipeline. */
-public final class FixedFunctionShader extends ShaderProgram implements FogShader, LitShader {
+/** A shader that emulates the classic OpenGL fixed-function pipeline for immediate mode drawing. */
+public final class DebugMeshShader extends ShaderProgram implements FogShader, LitShader {
 	
 	public interface Uniforms {
 		String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
@@ -153,7 +153,7 @@ public final class FixedFunctionShader extends ShaderProgram implements FogShade
 		}
 		""";
 	
-	public FixedFunctionShader() {
+	public DebugMeshShader() {
         super(VERTEX_SHADER, FRAGMENT_SHADER);
         // bindFragDataLocation(0, "out_FragColor");
         link();

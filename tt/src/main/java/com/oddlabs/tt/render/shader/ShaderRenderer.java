@@ -38,10 +38,10 @@ public class ShaderRenderer implements AutoCloseable {
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, (long) vertexBuffer.capacity() * Float.BYTES, GL15.GL_STREAM_DRAW);
 
         var layout = new VertexLayout<>(
-                FixedFunctionShader.Attribute.POSITION,
-                FixedFunctionShader.Attribute.NORMAL,
-                FixedFunctionShader.Attribute.COLOR,
-                FixedFunctionShader.Attribute.TEX_COORD_0
+                DebugMeshShader.Attribute.POSITION,
+                DebugMeshShader.Attribute.NORMAL,
+                DebugMeshShader.Attribute.COLOR,
+                DebugMeshShader.Attribute.TEX_COORD_0
         );
         layout.bind(shader);
 
@@ -97,14 +97,14 @@ public class ShaderRenderer implements AutoCloseable {
         GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, vertexBuffer);
 
         try (var _ = shader.use()) {
-            shader.setUniformMatrix4(FixedFunctionShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-            shader.setUniformMatrix4(FixedFunctionShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
-            shader.setUniform(FixedFunctionShader.Uniforms.ENABLE_LIGHTING, false);
-            shader.setUniform(FixedFunctionShader.Uniforms.ENABLE_TEXTURE, false);
-            shader.setUniform(FixedFunctionShader.Uniforms.ALPHA_CUTOFF, 0.0f);
-            shader.setUniform(FixedFunctionShader.Uniforms.REPLACE_MODE, false);
+            shader.setUniformMatrix4(DebugMeshShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
+            shader.setUniformMatrix4(DebugMeshShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+            shader.setUniform(DebugMeshShader.Uniforms.ENABLE_LIGHTING, false);
+            shader.setUniform(DebugMeshShader.Uniforms.ENABLE_TEXTURE, false);
+            shader.setUniform(DebugMeshShader.Uniforms.ALPHA_CUTOFF, 0.0f);
+            shader.setUniform(DebugMeshShader.Uniforms.REPLACE_MODE, false);
             shader.setUniform(FogShader.FOG_MODE, -1);
-            shader.setUniform(FixedFunctionShader.Uniforms.POINT_SIZE, pointSize);
+            shader.setUniform(DebugMeshShader.Uniforms.POINT_SIZE, pointSize);
 
             vao.bind();
             GL11.glDrawArrays(mode, 0, vertexCount);
