@@ -115,6 +115,7 @@ public final strictfp class ShipHR {
             for (int i = UPPER_DECK_START; i < UPPER_DECK_START + NUM_UPPER_DECK; i++) {
                 if (units[i] == null) {
                     units[i] = unit;
+                    unit.increaseRange(16f);
                     return allocations[i];
                 }
             }

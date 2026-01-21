@@ -293,7 +293,8 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
                         new ShipAttackController(
                                 this,
                                 building,
-                                new AttackScanFilter(getOwner(), AttackScanFilter.TOWER_RANGE + 20),
+                                new AttackScanFilter(
+                                        getOwner(), AttackScanFilter.TOWER_RANGE + 100),
                                 ship_allocation));
                 break;
             default:
@@ -487,6 +488,9 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
 
     public final void startDying() {
         getOwner().unitLost();
+
+        mounted = false;
+        mount_offset = 0;
 
         pushController(new DieController(this));
         forceDecide();
