@@ -1,17 +1,210 @@
 package com.oddlabs.tt.input;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public final class InputManager {
-    private final List<@NonNull InputBinding> bindings = new ArrayList<>();
+    private static final Logger logger = Logger.getLogger(InputManager.class.getName());
+    private static final Map<GameAction, Set<InputBinding>> DEFAULT_BINDINGS = new EnumMap<>(GameAction.class);
 
+    static {
+        // Global
+        boolean isMac = System.getProperty("os.name", "").toLowerCase().contains("mac");
+        if (isMac) {
+            def(GameAction.GLOBAL_QUIT, Key.Q, false, false, false, true); // Meta+Q
+        } else {
+            def(GameAction.GLOBAL_QUIT, Key.Q, false, true, false, false); // Ctrl+Q
+        }
+
+        def(GameAction.GLOBAL_TOGGLE_FULLSCREEN, Key.F11);
+        def(GameAction.GLOBAL_SCREENSHOT, Key.S, false, true, false); // Ctrl+S
+        def(GameAction.GLOBAL_SCREENSHOT, Key.P, false, true, false); // Ctrl+P
+        def(GameAction.GLOBAL_CHAT, Key.RETURN);
+        def(GameAction.GLOBAL_MENU, Key.ESCAPE);
+        def(GameAction.GLOBAL_TOGGLE_STATUS, Key.I, false, true, false); // Ctrl+I
+        def(GameAction.DEBUG_PRINT_INFO, Key.I, false, true, false); // Ctrl+I
+        def(GameAction.GLOBAL_AGGRESSIVE_UNITS, Key.A, false, true, false); // Ctrl+A
+
+        // Camera
+        def(GameAction.CAMERA_PAN_LEFT, Key.LEFT);
+        def(GameAction.CAMERA_PAN_RIGHT, Key.RIGHT);
+        def(GameAction.CAMERA_PAN_UP, Key.UP);
+        def(GameAction.CAMERA_PAN_DOWN, Key.DOWN);
+        
+        def(GameAction.CAMERA_PITCH_UP, Key.HOME);
+        def(GameAction.CAMERA_PITCH_UP, Key.NUMPAD8);
+        def(GameAction.CAMERA_PITCH_UP, Key.UP, false, false, true); // Alt+Up
+        
+        def(GameAction.CAMERA_PITCH_DOWN, Key.END);
+        def(GameAction.CAMERA_PITCH_DOWN, Key.NUMPAD2);
+        def(GameAction.CAMERA_PITCH_DOWN, Key.DOWN, false, false, true); // Alt+Down
+        
+        def(GameAction.CAMERA_ROTATE_RIGHT, Key.INSERT);
+        def(GameAction.CAMERA_ROTATE_RIGHT, Key.NUMPAD6);
+        def(GameAction.CAMERA_ROTATE_RIGHT, Key.RIGHT, false, false, true); // Alt+Right
+        
+        def(GameAction.CAMERA_ROTATE_LEFT, Key.DELETE);
+        def(GameAction.CAMERA_ROTATE_LEFT, Key.NUMPAD4);
+        def(GameAction.CAMERA_ROTATE_LEFT, Key.LEFT, false, false, true); // Alt+Left
+        
+        def(GameAction.CAMERA_ZOOM_IN, Key.PAGE_UP);
+        def(GameAction.CAMERA_ZOOM_IN, Key.NUMPAD9);
+        def(GameAction.CAMERA_ZOOM_OUT, Key.PAGE_DOWN);
+        def(GameAction.CAMERA_ZOOM_OUT, Key.NUMPAD3);
+        
+        def(GameAction.CAMERA_MAP_MODE, Key.SPACE);
+        def(GameAction.CAMERA_MAP_MODE, Key.NUMPAD5);
+        
+        def(GameAction.CAMERA_FIRST_PERSON, Key.F);
+        def(GameAction.CAMERA_ZOOM_MODE, Key.Z);
+
+        // UI
+        def(GameAction.UI_ACTIVATE, Key.SPACE);
+        def(GameAction.UI_ACTIVATE, Key.RETURN);
+        def(GameAction.UI_CANCEL, Key.ESCAPE);
+        def(GameAction.UI_FOCUS_NEXT, Key.TAB);
+        def(GameAction.UI_FOCUS_PREV, Key.TAB, true, false, false); // Shift+Tab
+        def(GameAction.UI_NEXT_PANEL, Key.TAB, false, true, false); // Ctrl+Tab
+        def(GameAction.UI_PREV_PANEL, Key.TAB, true, true, false); // Shift+Ctrl+Tab
+        
+        def(GameAction.UI_NAV_UP, Key.UP);
+        def(GameAction.UI_NAV_DOWN, Key.DOWN);
+        def(GameAction.UI_NAV_LEFT, Key.LEFT);
+        def(GameAction.UI_NAV_RIGHT, Key.RIGHT);
+        def(GameAction.UI_NAV_HOME, Key.HOME);
+        def(GameAction.UI_NAV_END, Key.END);
+        
+        // Shift + Nav (Treat as Nav for now to prevent text insertion fallthrough)
+        def(GameAction.UI_NAV_UP, Key.UP, true, false, false);
+        def(GameAction.UI_NAV_DOWN, Key.DOWN, true, false, false);
+        def(GameAction.UI_NAV_LEFT, Key.LEFT, true, false, false);
+        def(GameAction.UI_NAV_RIGHT, Key.RIGHT, true, false, false);
+        def(GameAction.UI_NAV_HOME, Key.HOME, true, false, false);
+        def(GameAction.UI_NAV_END, Key.END, true, false, false);
+
+        def(GameAction.UI_NAV_PAGE_UP, Key.PAGE_UP);
+        def(GameAction.UI_NAV_PAGE_DOWN, Key.PAGE_DOWN);
+        def(GameAction.UI_BACKSPACE, Key.BACK);
+        def(GameAction.UI_DELETE, Key.DELETE);
+
+        // Gameplay
+        def(GameAction.UNIT_MOVE, Key.M);
+        def(GameAction.UNIT_ATTACK, Key.A);
+        def(GameAction.UNIT_GATHER, Key.G);
+        def(GameAction.UNIT_BUILD_QUARTERS, Key.Q);
+        def(GameAction.UNIT_BUILD_ARMORY, Key.R);
+        def(GameAction.UNIT_BUILD_TOWER, Key.T);
+        def(GameAction.UNIT_EXIT_TOWER, Key.X);
+        def(GameAction.UNIT_BEACON, Key.B, false, true, false); // Ctrl+B
+        def(GameAction.UNIT_NEXT_IDLE, Key.N);
+        def(GameAction.UNIT_SET_RALLY, Key.R);
+        def(GameAction.GAMEPLAY_BACK, Key.BACK);
+        
+        // Army Shortcuts (0-9)
+        def(GameAction.ARMY_SELECT_0, Key.KEY_0);
+        def(GameAction.ARMY_SELECT_1, Key.KEY_1);
+        def(GameAction.ARMY_SELECT_2, Key.KEY_2);
+        def(GameAction.ARMY_SELECT_3, Key.KEY_3);
+        def(GameAction.ARMY_SELECT_4, Key.KEY_4);
+        def(GameAction.ARMY_SELECT_5, Key.KEY_5);
+        def(GameAction.ARMY_SELECT_6, Key.KEY_6);
+        def(GameAction.ARMY_SELECT_7, Key.KEY_7);
+        def(GameAction.ARMY_SELECT_8, Key.KEY_8);
+        def(GameAction.ARMY_SELECT_9, Key.KEY_9);
+        
+        def(GameAction.ARMY_CREATE_0, Key.KEY_0, false, true, false); // Ctrl+0
+        def(GameAction.ARMY_CREATE_1, Key.KEY_1, false, true, false);
+        def(GameAction.ARMY_CREATE_2, Key.KEY_2, false, true, false);
+        def(GameAction.ARMY_CREATE_3, Key.KEY_3, false, true, false);
+        def(GameAction.ARMY_CREATE_4, Key.KEY_4, false, true, false);
+        def(GameAction.ARMY_CREATE_5, Key.KEY_5, false, true, false);
+        def(GameAction.ARMY_CREATE_6, Key.KEY_6, false, true, false);
+        def(GameAction.ARMY_CREATE_7, Key.KEY_7, false, true, false);
+        def(GameAction.ARMY_CREATE_8, Key.KEY_8, false, true, false);
+        def(GameAction.ARMY_CREATE_9, Key.KEY_9, false, true, false);
+
+        // Production
+        def(GameAction.PROD_WEAPONS, Key.W);
+        def(GameAction.PROD_HARVEST, Key.G);
+        def(GameAction.PROD_ARMY, Key.A);
+        def(GameAction.PROD_TRANSPORT, Key.T);
+        
+        // Resources
+        def(GameAction.RES_TREE, Key.W);
+        def(GameAction.RES_ROCK, Key.R);
+        def(GameAction.RES_IRON, Key.I);
+        def(GameAction.RES_CHICKEN, Key.C);
+        
+        // Units
+        def(GameAction.TRAIN_PEON, Key.P);
+        def(GameAction.TRAIN_CHIEFTAIN, Key.C);
+        
+        // Magic
+        def(GameAction.MAGIC_1, Key.S);
+        def(GameAction.MAGIC_2, Key.C);
+        
+        // Misc
+        def(GameAction.GAME_SPEED_UP, Key.EQUALS, true, false, false, false); // Shift + = (+)
+        def(GameAction.GAME_SPEED_UP, Key.ADD); // Numpad +
+        def(GameAction.GAME_SPEED_DOWN, Key.MINUS); // -
+        def(GameAction.GAME_SPEED_DOWN, Key.SUBTRACT); // Numpad -
+        def(GameAction.NOTIFICATION_JUMP, Key.TAB);
+        
+        // Cheats
+        def(GameAction.CHEAT_1, Key.F1);
+        def(GameAction.CHEAT_2, Key.F2);
+        def(GameAction.CHEAT_3, Key.F3);
+        def(GameAction.CHEAT_4, Key.F4);
+        def(GameAction.CHEAT_5, Key.F5);
+        def(GameAction.CHEAT_6, Key.F6);
+        def(GameAction.CHEAT_7, Key.F7);
+        def(GameAction.CHEAT_8, Key.F8);
+        def(GameAction.CHEAT_9, Key.F9);
+        
+        // Debug
+        def(GameAction.DEBUG_PRINT_INFO, Key.I, false, true, false); // Ctrl+I
+        def(GameAction.DEBUG_KILL_SELECTED, Key.K, false, true, false); // Ctrl+K
+        def(GameAction.DEBUG_TOGGLE_LIGHT, Key.L);
+        def(GameAction.DEBUG_TOGGLE_LIGHT, Key.O);
+        def(GameAction.DEBUG_TOGGLE_PLANTS, Key.P);
+        def(GameAction.DEBUG_TOGGLE_PARTICLES, Key.E);
+        def(GameAction.DEBUG_TOGGLE_AXES, Key.A);
+        def(GameAction.DEBUG_TOGGLE_MISC, Key.M, false, true, false); // Ctrl+M
+        def(GameAction.DEBUG_PROCESS_MISC, Key.M);
+        def(GameAction.DEBUG_RESET_CURSOR, Key.J);
+        def(GameAction.DEBUG_TOGGLE_DETAIL, Key.S);
+        def(GameAction.DEBUG_CRASH, Key.C, false, true, false); // Ctrl+C
+        def(GameAction.DEBUG_TOGGLE_FRAME_BUFFER, Key.C);
+        def(GameAction.DEBUG_TOGGLE_BOUNDING, Key.D);
+        def(GameAction.DEBUG_TOGGLE_FRUSTUM_FREEZE, Key.V);
+        def(GameAction.DEBUG_FORCE_GC, Key.F12);
+        def(GameAction.DEBUG_START_RECORDING, Key.U);
+        def(GameAction.DEBUG_TOGGLE_WATER, Key.W, false, true, false); // Ctrl+W
+        def(GameAction.DEBUG_TOGGLE_AI, Key.R, false, true, false); // Ctrl+R
+        def(GameAction.DEBUG_DUMP_ANIMATIONS, Key.F1);
+    }
+
+    private static void def(@NonNull GameAction action, @NonNull Key key) {
+        def(action, key, false, false, false, false);
+    }
+
+    private static void def(@NonNull GameAction action, @NonNull Key key, boolean shift, boolean control, boolean alt) {
+        def(action, key, shift, control, alt, false);
+    }
+
+    private static void def(@NonNull GameAction action, @NonNull Key key, boolean shift, boolean control, boolean alt, boolean meta) {
+        DEFAULT_BINDINGS.computeIfAbsent(action, k -> new CopyOnWriteArraySet<>()) 
+                .add(new InputBinding(key, shift, control, alt, meta, action));
+    }
+
+    private final List<@NonNull InputBinding> bindings = new ArrayList<>();
     private final Set<@NonNull GameAction> activeActions = EnumSet.noneOf(GameAction.class);
     private final Map<Key, Set<GameAction>> keyState = new EnumMap<>(Key.class);
 
@@ -21,188 +214,197 @@ public final class InputManager {
 
     public void loadDefaultBindings() {
         bindings.clear();
-        
-        // Global
-        bind(Key.F11, GameAction.GLOBAL_TOGGLE_FULLSCREEN);
-        bind(Key.S, false, true, false, GameAction.GLOBAL_SCREENSHOT); // Ctrl+S
-        bind(Key.P, false, true, false, GameAction.GLOBAL_SCREENSHOT); // Ctrl+P
-        bind(Key.RETURN, GameAction.GLOBAL_CHAT);
-        bind(Key.ESCAPE, GameAction.GLOBAL_MENU);
-        bind(Key.I, false, true, false, GameAction.GLOBAL_TOGGLE_STATUS); // Ctrl+I
-        bind(Key.I, false, true, false, GameAction.DEBUG_PRINT_INFO); // Ctrl+I
-        bind(Key.A, false, true, false, GameAction.GLOBAL_AGGRESSIVE_UNITS); // Ctrl+A
-
-        // Camera
-        bind(Key.LEFT, GameAction.CAMERA_PAN_LEFT);
-        bind(Key.RIGHT, GameAction.CAMERA_PAN_RIGHT);
-        bind(Key.UP, GameAction.CAMERA_PAN_UP);
-        bind(Key.DOWN, GameAction.CAMERA_PAN_DOWN);
-        
-        bind(Key.HOME, GameAction.CAMERA_PITCH_UP);
-        bind(Key.NUMPAD8, GameAction.CAMERA_PITCH_UP);
-        bind(Key.UP, false, false, true, GameAction.CAMERA_PITCH_UP); // Alt+Up
-        
-        bind(Key.END, GameAction.CAMERA_PITCH_DOWN);
-        bind(Key.NUMPAD2, GameAction.CAMERA_PITCH_DOWN);
-        bind(Key.DOWN, false, false, true, GameAction.CAMERA_PITCH_DOWN); // Alt+Down
-        
-        bind(Key.INSERT, GameAction.CAMERA_ROTATE_RIGHT);
-        bind(Key.NUMPAD6, GameAction.CAMERA_ROTATE_RIGHT);
-        bind(Key.RIGHT, false, false, true, GameAction.CAMERA_ROTATE_RIGHT); // Alt+Right
-        
-        bind(Key.DELETE, GameAction.CAMERA_ROTATE_LEFT);
-        bind(Key.NUMPAD4, GameAction.CAMERA_ROTATE_LEFT);
-        bind(Key.LEFT, false, false, true, GameAction.CAMERA_ROTATE_LEFT); // Alt+Left
-        
-        bind(Key.PAGE_UP, GameAction.CAMERA_ZOOM_IN);
-        bind(Key.NUMPAD9, GameAction.CAMERA_ZOOM_IN);
-        bind(Key.PAGE_DOWN, GameAction.CAMERA_ZOOM_OUT);
-        bind(Key.NUMPAD3, GameAction.CAMERA_ZOOM_OUT);
-        
-        bind(Key.SPACE, GameAction.CAMERA_MAP_MODE);
-        bind(Key.NUMPAD5, GameAction.CAMERA_MAP_MODE);
-        
-        bind(Key.F, GameAction.CAMERA_FIRST_PERSON);
-        bind(Key.Z, GameAction.CAMERA_ZOOM_MODE);
-
-        // UI
-        bind(Key.SPACE, GameAction.UI_ACTIVATE);
-        bind(Key.RETURN, GameAction.UI_ACTIVATE);
-        bind(Key.ESCAPE, GameAction.UI_CANCEL);
-        bind(Key.TAB, GameAction.UI_FOCUS_NEXT);
-        bind(Key.TAB, true, false, false, GameAction.UI_FOCUS_PREV); // Shift+Tab
-        // Currently broken on MacOS due to https://github.com/glfw/glfw/issues/2278
-        bind(Key.TAB, false, true, false, GameAction.UI_NEXT_PANEL); // Ctrl+Tab
-        // Currently broken on MacOS due to https://github.com/glfw/glfw/issues/2278
-        bind(Key.TAB, true, true, false, GameAction.UI_PREV_PANEL); // Shift+Ctrl+Tab
-        
-        bind(Key.UP, GameAction.UI_NAV_UP);
-        bind(Key.DOWN, GameAction.UI_NAV_DOWN);
-        bind(Key.LEFT, GameAction.UI_NAV_LEFT);
-        bind(Key.RIGHT, GameAction.UI_NAV_RIGHT);
-        bind(Key.HOME, GameAction.UI_NAV_HOME);
-        bind(Key.END, GameAction.UI_NAV_END);
-        
-        // Shift + Nav (Treat as Nav for now to prevent text insertion fallthrough)
-        bind(Key.UP, true, false, false, GameAction.UI_NAV_UP);
-        bind(Key.DOWN, true, false, false, GameAction.UI_NAV_DOWN);
-        bind(Key.LEFT, true, false, false, GameAction.UI_NAV_LEFT);
-        bind(Key.RIGHT, true, false, false, GameAction.UI_NAV_RIGHT);
-        bind(Key.HOME, true, false, false, GameAction.UI_NAV_HOME);
-        bind(Key.END, true, false, false, GameAction.UI_NAV_END);
-
-        bind(Key.PAGE_UP, GameAction.UI_NAV_PAGE_UP);
-        bind(Key.PAGE_DOWN, GameAction.UI_NAV_PAGE_DOWN);
-        bind(Key.BACK, GameAction.UI_BACKSPACE);
-        bind(Key.DELETE, GameAction.UI_DELETE);
-
-        // Gameplay
-        bind(Key.M, GameAction.UNIT_MOVE);
-        bind(Key.A, GameAction.UNIT_ATTACK);
-        bind(Key.G, GameAction.UNIT_GATHER);
-        bind(Key.Q, GameAction.UNIT_BUILD_QUARTERS);
-        bind(Key.R, GameAction.UNIT_BUILD_ARMORY);
-        bind(Key.T, GameAction.UNIT_BUILD_TOWER);
-        bind(Key.X, GameAction.UNIT_EXIT_TOWER);
-        bind(Key.B, false, true, false, GameAction.UNIT_BEACON); // Ctrl+B
-        bind(Key.N, GameAction.UNIT_NEXT_IDLE);
-        bind(Key.R, GameAction.UNIT_SET_RALLY);
-        bind(Key.BACK, GameAction.GAMEPLAY_BACK);
-        
-        // Army Shortcuts (0-9)
-        bind(Key.KEY_0, GameAction.ARMY_SELECT_0);
-        bind(Key.KEY_1, GameAction.ARMY_SELECT_1);
-        bind(Key.KEY_2, GameAction.ARMY_SELECT_2);
-        bind(Key.KEY_3, GameAction.ARMY_SELECT_3);
-        bind(Key.KEY_4, GameAction.ARMY_SELECT_4);
-        bind(Key.KEY_5, GameAction.ARMY_SELECT_5);
-        bind(Key.KEY_6, GameAction.ARMY_SELECT_6);
-        bind(Key.KEY_7, GameAction.ARMY_SELECT_7);
-        bind(Key.KEY_8, GameAction.ARMY_SELECT_8);
-        bind(Key.KEY_9, GameAction.ARMY_SELECT_9);
-        
-        bind(Key.KEY_0, false, true, false, GameAction.ARMY_CREATE_0); // Ctrl+0
-        bind(Key.KEY_1, false, true, false, GameAction.ARMY_CREATE_1);
-        bind(Key.KEY_2, false, true, false, GameAction.ARMY_CREATE_2);
-        bind(Key.KEY_3, false, true, false, GameAction.ARMY_CREATE_3);
-        bind(Key.KEY_4, false, true, false, GameAction.ARMY_CREATE_4);
-        bind(Key.KEY_5, false, true, false, GameAction.ARMY_CREATE_5);
-        bind(Key.KEY_6, false, true, false, GameAction.ARMY_CREATE_6);
-        bind(Key.KEY_7, false, true, false, GameAction.ARMY_CREATE_7);
-        bind(Key.KEY_8, false, true, false, GameAction.ARMY_CREATE_8);
-        bind(Key.KEY_9, false, true, false, GameAction.ARMY_CREATE_9);
-
-        // Production
-        bind(Key.W, GameAction.PROD_WEAPONS);
-        bind(Key.G, GameAction.PROD_HARVEST);
-        bind(Key.A, GameAction.PROD_ARMY);
-        bind(Key.T, GameAction.PROD_TRANSPORT);
-        
-        // Resources
-        bind(Key.W, GameAction.RES_TREE);
-        bind(Key.R, GameAction.RES_ROCK);
-        bind(Key.I, GameAction.RES_IRON);
-        bind(Key.C, GameAction.RES_CHICKEN);
-        
-        // Units
-        bind(Key.P, GameAction.TRAIN_PEON);
-        bind(Key.C, GameAction.TRAIN_CHIEFTAIN);
-        
-        // Magic
-        bind(Key.S, GameAction.MAGIC_1);
-        bind(Key.C, GameAction.MAGIC_2);
-        
-        // Misc
-        bind(Key.EQUALS, true, false, false, false, GameAction.GAME_SPEED_UP); // Shift + = (+)
-        bind(Key.ADD, GameAction.GAME_SPEED_UP); // Numpad +
-        bind(Key.MINUS, GameAction.GAME_SPEED_DOWN); // -
-        bind(Key.SUBTRACT, GameAction.GAME_SPEED_DOWN); // Numpad -
-        bind(Key.TAB, GameAction.NOTIFICATION_JUMP);
-        
-        // Cheats
-        bind(Key.F1, GameAction.CHEAT_1);
-        bind(Key.F2, GameAction.CHEAT_2);
-        bind(Key.F3, GameAction.CHEAT_3);
-        bind(Key.F4, GameAction.CHEAT_4);
-        bind(Key.F5, GameAction.CHEAT_5);
-        bind(Key.F6, GameAction.CHEAT_6);
-        bind(Key.F7, GameAction.CHEAT_7);
-        bind(Key.F8, GameAction.CHEAT_8);
-        bind(Key.F9, GameAction.CHEAT_9);
-        
-        // Debug
-        bind(Key.I, false, true, false, GameAction.DEBUG_PRINT_INFO); // Ctrl+I
-        bind(Key.K, false, true, false, GameAction.DEBUG_KILL_SELECTED); // Ctrl+K
-        bind(Key.L, GameAction.DEBUG_TOGGLE_LIGHT);
-        bind(Key.O, GameAction.DEBUG_TOGGLE_LIGHT);
-        bind(Key.P, GameAction.DEBUG_TOGGLE_PLANTS);
-        bind(Key.E, GameAction.DEBUG_TOGGLE_PARTICLES);
-        bind(Key.A, GameAction.DEBUG_TOGGLE_AXES);
-        bind(Key.M, false, true, false, GameAction.DEBUG_TOGGLE_MISC); // Ctrl+M
-        bind(Key.M, GameAction.DEBUG_PROCESS_MISC);
-        bind(Key.J, GameAction.DEBUG_RESET_CURSOR);
-        bind(Key.S, GameAction.DEBUG_TOGGLE_DETAIL);
-        bind(Key.C, false, true, false, GameAction.DEBUG_CRASH); // Ctrl+C
-        bind(Key.C, GameAction.DEBUG_TOGGLE_FRAME_BUFFER);
-        bind(Key.D, GameAction.DEBUG_TOGGLE_BOUNDING);
-        bind(Key.V, GameAction.DEBUG_TOGGLE_FRUSTUM_FREEZE);
-        bind(Key.F12, GameAction.DEBUG_FORCE_GC);
-        bind(Key.U, GameAction.DEBUG_START_RECORDING);
-        bind(Key.W, false, true, false, GameAction.DEBUG_TOGGLE_WATER); // Ctrl+W
-        bind(Key.R, false, true, false, GameAction.DEBUG_TOGGLE_AI); // Ctrl+R
-        bind(Key.F1, GameAction.DEBUG_DUMP_ANIMATIONS);
+        for (Set<InputBinding> set : DEFAULT_BINDINGS.values()) {
+            bindings.addAll(set);
+        }
     }
 
-    private void bind(@NonNull Key key, @NonNull GameAction action) {
-        bind(key, false, false, false, false, action);
+    public void loadBindings(@NonNull Properties props) {
+        bindings.clear();
+        for (GameAction action : GameAction.values()) {
+            String key = "key_binding." + action.name();
+            String value = props.getProperty(key);
+            if (value != null) {
+                try {
+                    Set<InputBinding> loaded = parseBindings(value, action);
+                    if (!loaded.isEmpty()) {
+                        bindings.addAll(loaded);
+                        continue;
+                    }
+                } catch (Exception e) {
+                    logger.warning("Failed to parse binding for " + action + ": " + value + ". Using defaults.");
+                }
+            }
+            // Fallback to default if property missing or parsing failed/empty
+            Set<InputBinding> defaults = DEFAULT_BINDINGS.get(action);
+            if (defaults != null) {
+                bindings.addAll(defaults);
+            }
+        }
     }
 
-    private void bind(@NonNull Key key, boolean shift, boolean control, boolean alt,  @NonNull GameAction action) {
-        bind(key, shift, control, alt, false, action);
+    public void saveBindings(@NonNull Properties props) {
+        // Group current bindings by action
+        Map<GameAction, Set<InputBinding>> currentMap = new EnumMap<>(GameAction.class);
+        for (InputBinding b : bindings) {
+            currentMap.computeIfAbsent(b.action(), k -> new CopyOnWriteArraySet<>()).add(b);
+        }
+
+        for (GameAction action : GameAction.values()) {
+            Set<InputBinding> current = currentMap.get(action);
+            Set<InputBinding> defaults = DEFAULT_BINDINGS.get(action);
+            
+            // Only save if different from defaults
+            if (current != null && !Objects.equals(current, defaults)) {
+                props.setProperty("key_binding." + action.name(), serializeBindings(current));
+            } else if (current == null && defaults != null) {
+                // To support "unbound", we have to save empty list.
+                props.setProperty("key_binding." + action.name(), "[]");
+            }
+        }
     }
 
-    private void bind(@NonNull Key key, boolean shift, boolean control, boolean alt, boolean meta, @NonNull GameAction action) {
-        bindings.add(new InputBinding(key, shift, control, alt, meta, action));
+    public List<InputBinding> getBindings(GameAction action) {
+        return bindings.stream()
+                .filter(b -> b.action() == action)
+                .collect(Collectors.toList());
+    }
+
+    public void setBindings(GameAction action, Collection<InputBinding> newBindings) {
+        bindings.removeIf(b -> b.action() == action);
+        bindings.addAll(newBindings);
+    }
+
+    public void resetToDefaults() {
+        bindings.clear();
+        for (Set<InputBinding> set : DEFAULT_BINDINGS.values()) {
+            bindings.addAll(set);
+        }
+    }
+
+    public String exportBindings() {
+        // Group by action
+        Map<GameAction, Set<InputBinding>> currentMap = new EnumMap<>(GameAction.class);
+        for (InputBinding b : bindings) {
+            currentMap.computeIfAbsent(b.action(), k -> new CopyOnWriteArraySet<>()).add(b);
+        }
+        // Serialize each
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+        boolean first = true;
+        for (Map.Entry<GameAction, Set<InputBinding>> entry : currentMap.entrySet()) {
+            if (!first) sb.append(",\n");
+            first = false;
+            sb.append("  \"").append(entry.getKey().name()).append("\": ");
+            sb.append(serializeBindings(entry.getValue()));
+        }
+        sb.append("\n}");
+        return sb.toString();
+    }
+
+    public void importBindings(String json) {
+        // Regex to find "ACTION": [ ... ]
+        String patternStr = "\\\"(" + "(\\w+)" + ")\\\"" + "\\s*:\\s*" + "(\\[[^\\]]*\\])";
+        Pattern p = Pattern.compile(patternStr);
+        Matcher m = p.matcher(json);
+        
+        List<InputBinding> newBindings = new ArrayList<>();
+        boolean foundAny = false;
+
+        while (m.find()) {
+            String actionName = m.group(1);
+            String arrayContent = m.group(2);
+            
+            try {
+                GameAction action = GameAction.valueOf(actionName);
+                Set<InputBinding> parsed = parseBindings(arrayContent, action);
+                if (!parsed.isEmpty()) {
+                    newBindings.addAll(parsed);
+                    foundAny = true;
+                }
+            } catch (Exception e) {
+                logger.warning("Failed to import bindings for " + actionName);
+            }
+        }
+        
+        if (foundAny) {
+            bindings.clear();
+            bindings.addAll(newBindings);
+        } else {
+            logger.warning("No valid bindings found in JSON import.");
+        }
+    }
+
+    private String serializeBindings(Collection<InputBinding> set) {
+        return set.stream()
+                .map(b -> "{\"key\":\"" + b.key().name() + "\"" +
+                                 (b.shift() ? ", \"shift\":true" : "") +
+                                 (b.control() ? ", \"control\":true" : "") +
+                                 (b.alt() ? ", \"alt\":true" : "") +
+                                 (b.meta() ? ", \"meta\":true" : "") +
+                                 "}")
+                .collect(Collectors.joining(", ", "[", "]"));
+    }
+
+    private Set<InputBinding> parseBindings(String json, GameAction action) {
+        Set<InputBinding> set = new CopyOnWriteArraySet<>();
+        String trimmed = json.trim();
+        if (trimmed.length() < 2 || !trimmed.startsWith("[") || !trimmed.endsWith("]")) return set;
+        
+        String content = trimmed.substring(1, trimmed.length() - 1);
+        if (content.isBlank()) return set;
+
+        String[] parts = content.split("(?<=})" + "\\s*,\\s*" + "(?=\\{)");
+        
+        for (String part : parts) {
+            InputBinding b = parseBindingObject(part, action);
+            if (b != null) set.add(b);
+        }
+        return set;
+    }
+
+    private @Nullable InputBinding parseBindingObject(String content, GameAction action) {
+        // Expected: {"key"="KEY", "mod":true}
+        String inner = content.trim();
+        if (inner.startsWith("{")) inner = inner.substring(1);
+        if (inner.endsWith("}")) inner = inner.substring(0, inner.length() - 1);
+        
+        String[] pairs = inner.split(",");
+        Key key = Key.KEY_UNKNOWN;
+        boolean shift = false, ctrl = false, alt = false, meta = false;
+        
+        for (String pair : pairs) {
+            // Split by : or =
+            String[] kv = pair.split("[:=]");
+            if (kv.length != 2) continue;
+            String k = unquote(kv[0].trim());
+            String v = unquote(kv[1].trim());
+            
+            try {
+                switch (k) {
+                    case "key" -> key = Key.valueOf(v);
+                    case "shift" -> shift = Boolean.parseBoolean(v);
+                    case "control" -> ctrl = Boolean.parseBoolean(v);
+                    case "alt" -> alt = Boolean.parseBoolean(v);
+                    case "meta" -> meta = Boolean.parseBoolean(v);
+                }
+            } catch (Exception e) {
+                // Ignore invalid keys
+                logger.warning("ignoring " + k + ": " + v);
+            }
+        }
+        
+        if (key != Key.KEY_UNKNOWN) {
+            return new InputBinding(key, shift, ctrl, alt, meta, action);
+        }
+        return null;
+    }
+
+    private String unquote(String s) {
+        if (s.startsWith("\"") && s.endsWith("\"") && s.length() >= 2) {
+            return s.substring(1, s.length() - 1);
+        }
+        return s;
     }
 
     public @NonNull Set<@NonNull GameAction> getActions(@NonNull KeyboardEvent event) {

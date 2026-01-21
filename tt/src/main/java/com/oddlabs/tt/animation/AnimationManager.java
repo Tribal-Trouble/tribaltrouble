@@ -164,7 +164,12 @@ public final class AnimationManager {
 
 				Renderer.getLocalInput().poll(gui.getGUIRoot());
 				if (deterministic.log(Renderer.getRenderer().getWindow().isOpen() && Renderer.getRenderer().getWindow().isCloseRequested())) {
-					gui.getGUIRoot().addModalForm(new QuitForm(gui.getGUIRoot()));
+					Renderer.getRenderer().getWindow().setCloseRequested(false);
+                    if (gui.getGUIRoot().isShowingQuitForm()) {
+                        Renderer.shutdown();
+                    } else {
+    					gui.getGUIRoot().addModalForm(new QuitForm(gui.getGUIRoot()));
+                    }
 				}
 				pathfindsPerTick.updateAbsolute(PathFinder.stat_pathfinder_per_frame);
 				PathFinder.stat_pathfinder_per_frame = 0;

@@ -41,6 +41,7 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 		}
 		scroll_bar = new ScrollBar(height, this);
 		scroll_bar.setPos(width, 0);
+		scroll_bar.setTabStop(false);
 		focus_group.addChild(scroll_bar);
 		setDim(width + scroll_bar.getWidth(), height);
 		focus_group.setDim(getWidth(), getHeight());
@@ -51,7 +52,7 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 		else
 			rows.setDim(width - box.getLeftOffset() - box.getRightOffset(), height - box.getBottomOffset() - box.getTopOffset());
 		rows.setPos(box.getLeftOffset(), box.getBottomOffset());
-		addChild(rows);
+		focus_group.addChild(rows);
 		setCanFocus(true);
 		scroll_bar.update();
 	}
@@ -73,27 +74,43 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 
 	@Override
 	protected void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.RELEASED) {
+			if (event.consumeAction(GameAction.UI_ACTIVATE)) {
+				doubleClickedRow();
+				event.consume();
+				return;
+			}
+		}
 		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
 			boolean consumed = true;
+            boolean navigated = false;
 			if (event.consumeAction(GameAction.UI_NAV_UP)) {
 				rows.selectPrior();
 				clickedRow();
+                navigated = true;
 			} else if (event.consumeAction(GameAction.UI_NAV_DOWN)) {
 				rows.selectNext();
 				clickedRow();
+                navigated = true;
 			} else if (event.consumeAction(GameAction.UI_NAV_HOME)) {
 				rows.selectFirst();
 				clickedRow();
+                navigated = true;
 			} else if (event.consumeAction(GameAction.UI_NAV_END)) {
 				rows.selectLast();
 				clickedRow();
+                navigated = true;
 			} else if (event.consumeAction(GameAction.UI_NAV_PAGE_UP)) {
 				jumpPage(true);
+                navigated = true;
 			} else if (event.consumeAction(GameAction.UI_NAV_PAGE_DOWN)) {
 				jumpPage(false);
+                navigated = true;
 			} else {
 				consumed = false;
 			}
+			
+            if (navigated) rows.setFocus();
 			
 			if (consumed) {
 				event.consume();

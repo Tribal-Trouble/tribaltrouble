@@ -1,5 +1,8 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -18,7 +21,24 @@ final class RowCollection<T> extends GUIObject implements Clipped {
 		this.sort_index = sort_index;
 		this.sorted_descending = sorted_descending;
 		setCanFocus(true);
-		setTabStop(false);
+		setTabStop(true);
+	}
+
+	@Override
+	protected void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.RELEASED && event.consumeAction(GameAction.UI_ACTIVATE)) {
+			multi_box.doubleClickedRow();
+			event.consume();
+			return;
+		}
+		super.handleInput(event);
+	}
+
+	@Override
+	protected void focusNotify(boolean focus) {
+		if (focus && selected_row == null) {
+			selectFirst();
+		}
 	}
 
 	void selectNext() {
@@ -60,7 +80,7 @@ final class RowCollection<T> extends GUIObject implements Clipped {
 	}
 
 	private void ensureVisible(@NonNull Row<T,?> row) {
-		Scrollable scrollable = (Scrollable) getParent();
+		Scrollable scrollable = multi_box;
 		int row_top = row.getY() + row.getHeight();
 		int row_bottom = row.getY();
 		int view_top = getHeight() + scrollable.getOffsetY();
@@ -85,6 +105,7 @@ final class RowCollection<T> extends GUIObject implements Clipped {
 	void addRow(@NonNull Row<T,?> row) {
 		rows.add(row);
 		row.addMouseClickListener((@NonNull MouseButton button, int x, int y, int clicks) -> {
+            setFocus();
             selectRow(row);
             if (button == MouseButton.RIGHT) {
                 multi_box.clickedRow();
@@ -116,7 +137,7 @@ final class RowCollection<T> extends GUIObject implements Clipped {
 	}
 
 	void replaceRows() {
-		int y = getHeight() + ((Scrollable)getParent()).getOffsetY();
+		int y = getHeight() + multi_box.getOffsetY();
 		for (int i = 0; i < rows.size(); i++) {
 			Row<T,?> row;
 			if (sorted_descending)

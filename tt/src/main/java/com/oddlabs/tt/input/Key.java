@@ -123,4 +123,39 @@ public enum Key {
     public static Key fromGlfwCode(int code) {
         return from_glfw_map.getOrDefault(code, KEY_UNKNOWN);
     }
+
+    public String getDisplayName() {
+        String name = name();
+        if (name.startsWith("KEY_")) return name.substring(4);
+        if (name.startsWith("NUMPAD")) return "Num " + name.substring(6);
+        return switch (this) {
+            case LSHIFT -> "LShift";
+            case RSHIFT -> "RShift";
+            case LCONTROL -> "LCtrl";
+            case RCONTROL -> "RCtrl";
+            case LALT -> "LAlt";
+            case RALT -> "RAlt";
+            case LSUPER -> "LMeta";
+            case RSUPER -> "RMeta";
+            case RETURN -> "Enter";
+            case BACK -> "Backspace";
+            case EQUALS -> "=";
+            case MINUS -> "-";
+            case COMMA -> ",";
+            case PERIOD -> ".";
+            case SLASH -> "/";
+            case BACKSLASH -> "\\";
+            case SEMICOLON -> ";";
+            case APOSTROPHE -> "'";
+            case LBRACKET -> "[";
+            case RBRACKET -> "]";
+            case GRAVE -> "`";
+            case ADD -> "Num +";
+            case SUBTRACT -> "Num -";
+            case MULTIPLY -> "Num *";
+            case DIVIDE -> "Num /";
+            case DECIMAL -> "Num .";
+            default -> name;
+        };
+    }
 }

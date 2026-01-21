@@ -11,6 +11,7 @@ public interface Window extends AutoCloseable {
     
     boolean isOpen();
     boolean isCloseRequested();
+    void setCloseRequested(boolean value);
     boolean isActive();
     boolean isVisible();
     boolean isIconified();

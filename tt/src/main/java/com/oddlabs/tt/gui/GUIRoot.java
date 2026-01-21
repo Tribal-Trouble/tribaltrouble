@@ -5,6 +5,7 @@ import com.oddlabs.tt.delegate.CameraDelegate;
 import com.oddlabs.tt.delegate.ModalDelegate;
 import com.oddlabs.tt.delegate.NullDelegate;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.form.QuitForm;
 import com.oddlabs.tt.form.Status;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
@@ -169,6 +170,17 @@ public final class GUIRoot extends GUIObject {
 	public @Nullable ModalDelegate getModalDelegate() {
 		return modal_delegate_stack.peek();
 	}
+
+    public boolean isShowingQuitForm() {
+        ModalDelegate modal = getModalDelegate();
+        if (modal == null) return false;
+        GUIObject child = modal.getFirstChild();
+        while (child != null) {
+            if (child instanceof QuitForm) return true;
+            child = child.getNext();
+        }
+        return false;
+    }
 
 	public void addModalForm(@NonNull Form form) {
 		focus_backup_stack.push(global_focus);

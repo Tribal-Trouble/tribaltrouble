@@ -59,6 +59,7 @@ import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowIcon;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSize;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeLimits;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowTitle;
@@ -201,6 +202,13 @@ public final class LWJGL3Window implements Window {
     @Override
     public boolean isCloseRequested() {
         return glfwWindowShouldClose(windowHandle);
+    }
+
+    @Override
+    public void setCloseRequested(boolean value) {
+        if (windowHandle != MemoryUtil.NULL) {
+            glfwSetWindowShouldClose(windowHandle, value);
+        }
     }
 
     @Override

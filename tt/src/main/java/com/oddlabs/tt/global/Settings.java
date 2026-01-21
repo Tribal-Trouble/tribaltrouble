@@ -160,6 +160,8 @@ public final class Settings implements Serializable {
         setProperty(props, "contrast_intensity", contrast_intensity, defaults.contrast_intensity);
         setProperty(props, "team_stencil", team_stencil, defaults.team_stencil);
 		setProperty(props, "team_colours", team_colours, defaults.team_colours);
+		
+		Renderer.getLocalInput().getInputManager().saveBindings(props);
 
 		Path settings_file = Renderer.getLocalInput().getGameDir().resolve(Globals.SETTINGS_FILE_NAME);
 		try (OutputStream out = Files.newOutputStream(settings_file)) {
@@ -215,6 +217,8 @@ public final class Settings implements Serializable {
         contrast_intensity = getFloat(props, "contrast_intensity", contrast_intensity);
         team_stencil = getBoolean(props, "team_stencil", team_stencil);
 		team_colours = getColours(props, "team_colours", team_colours);
+		
+		Renderer.getLocalInput().getInputManager().loadBindings(props);
 	}
 
 	// --- Save Helpers ---

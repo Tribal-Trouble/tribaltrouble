@@ -1,6 +1,10 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.net.PeerHub;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
@@ -18,4 +22,16 @@ public final class QuitForm extends QuestionForm {
 		super(!PeerHub.isWaitingForAck() ? getI18N("confirm_quit") : getI18N("confirm_quit_waiting_for_ack"),
                  (_, _, _, _) -> Renderer.shutdown());
 	}
+
+    @Override
+    public void handleInput(@NonNull InputEvent event) {
+        if (event.getPhase() == InputPhase.PRESSED) {
+            if (event.consumeAction(GameAction.GLOBAL_QUIT)) {
+                Renderer.shutdown();
+                event.consume();
+                return;
+            }
+        }
+        super.handleInput(event);
+    }
 }
