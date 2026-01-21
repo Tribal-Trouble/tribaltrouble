@@ -1,5 +1,7 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.tt.audio.AudioManager;
+import com.oddlabs.tt.audio.openal.OpenALManager;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.render.Renderer;
@@ -16,7 +18,7 @@ public class SoundPanel extends Panel {
     private static final int MAX_VALUE = 20;
     private static final boolean TEMPORARILY_DISABLE_MUSIC_CONTROLS = false;
 
-    public SoundPanel(ResourceBundle bundle) {
+    public SoundPanel(GUIRoot gui_root, ResourceBundle bundle) {
         super(Utils.getBundleString(bundle, "sound_caption"));
 
         // Sound
@@ -84,11 +86,60 @@ public class SoundPanel extends Panel {
         slider_sound.place(label_sound_low, RIGHT_MID);
         label_sound_high.place(slider_sound, RIGHT_MID);
         group_sound.compileCanvas();
-        group_sound.setDisabled(!Renderer.getLocalInput().audioIsCreated());
+        boolean audioCreated = Renderer.getLocalInput().audioIsCreated();
+        group_sound.setDisabled(!audioCreated);
+
+        // Audio Output
+        Group group_output = new Group();
+        addChild(group_output);
+        Label label_output = new Label(Utils.getBundleString(bundle, "audio_output"), Skin.getSkin().getEditFont());
+        group_output.addChild(label_output);
+        
+        PulldownMenu<Void> pm_output = new PulldownMenu<>();
+        pm_output.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "audio_output_speakers")));
+        pm_output.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "audio_output_headphones")));
+        
+        int initialOutput = Settings.getSettings().headphone_mode ? 1 : 0;
+        PulldownButton<Void> pb_output = new PulldownButton<>(gui_root, pm_output, initialOutput, 150);
+        group_output.addChild(pb_output);
+        
+        label_output.place();
+        pb_output.place(label_output, RIGHT_MID);
+        
+        AudioManager manager = null;
+        if (audioCreated) {
+            try {
+                manager = AudioManager.getManager();
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+        
+        boolean hrtfSupported = false;
+        if (manager != null) {
+            hrtfSupported = manager.isHRTFSupported();
+        }
+        
+        if (hrtfSupported) {
+            final AudioManager mgr = manager;
+            pm_output.addItemChosenListener((_, index) -> {
+                boolean headphone = (index == 1);
+                Settings.getSettings().headphone_mode = headphone;
+                if (mgr instanceof OpenALManager alManager) {
+                    alManager.setHeadphoneMode(headphone);
+                }
+            });
+        } else {
+            pb_output.setDisabled(true);
+            pm_output.chooseItem(0);
+        }
+        
+        group_output.compileCanvas();
 
         // Placement
         group_music.place();
         group_sound.place(group_music, BOTTOM_LEFT);
+        group_output.place(group_sound, BOTTOM_LEFT);
         compileCanvas();
     }
 }

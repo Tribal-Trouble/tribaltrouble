@@ -99,6 +99,10 @@ public abstract class AudioManager implements AudioImplementation, AutoCloseable
      */
     public abstract @NonNull Audio createAudio(@NonNull URL file) throws IOException;
 
+    public boolean isHRTFSupported() {
+        return false;
+    }
+
     public void stopSources() {
         sound_play_counter--;
         if (sound_play_counter == 0) {

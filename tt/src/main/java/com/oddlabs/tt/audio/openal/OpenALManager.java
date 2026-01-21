@@ -3,12 +3,14 @@ package com.oddlabs.tt.audio.openal;
 import com.oddlabs.tt.audio.Audio;
 import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.audio.EFXManager;
+import com.oddlabs.tt.global.Settings;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.ALC;
 import org.lwjgl.openal.ALCCapabilities;
+import org.lwjgl.openal.SOFTHRTF;
 
 import java.io.IOException;
 import java.net.URL;
@@ -18,13 +20,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static org.lwjgl.openal.ALC10.ALC_DEFAULT_DEVICE_SPECIFIER;
-import static org.lwjgl.openal.ALC10.alcCloseDevice;
-import static org.lwjgl.openal.ALC10.alcCreateContext;
-import static org.lwjgl.openal.ALC10.alcDestroyContext;
-import static org.lwjgl.openal.ALC10.alcGetString;
-import static org.lwjgl.openal.ALC10.alcMakeContextCurrent;
-import static org.lwjgl.openal.ALC10.alcOpenDevice;
+import static org.lwjgl.openal.ALC10.*;
+import static org.lwjgl.openal.SOFTHRTF.*;
 
 /**
  * Audio Manager implementation using OpenAL
@@ -68,6 +65,14 @@ public final class OpenALManager extends AudioManager {
         }
         
         int[] attributes = {0};
+        if (alcIsExtensionPresent(device, "ALC_SOFT_HRTF")) {
+             attributes = new int[] { 
+                 ALC_HRTF_SOFT, 
+                 Settings.getSettings().headphone_mode ? ALC_TRUE : ALC_FALSE, 
+                 0 
+             };
+        }
+
         long context = alcCreateContext(device, attributes);
         if (context == 0) {
             alcCloseDevice(device);
@@ -80,6 +85,22 @@ public final class OpenALManager extends AudioManager {
         AL.createCapabilities(alcCapabilities);
         
         return new ALData(device, context);
+    }
+    
+    @Override
+    public boolean isHRTFSupported() {
+        return alcIsExtensionPresent(data.device, "ALC_SOFT_HRTF");
+    }
+    
+    public void setHeadphoneMode(boolean enabled) {
+        if (isHRTFSupported()) {
+            int[] attrs = {ALC_HRTF_SOFT, enabled ? ALC_TRUE : ALC_FALSE, 0};
+            if (!alcResetDeviceSOFT(data.device, attrs)) {
+                logger.warning("Failed to reset device for HRTF change: " + errorToString(AL10.alGetError()));
+            }
+        } else {
+            logger.warning("ALC_SOFT_HRTF not supported");
+        }
     }
 
     private static @NonNull OpenALAudioSource @NonNull [] generateSources(int max) {

@@ -35,7 +35,7 @@ public abstract class AbstractOptionsMenu extends Form {
                 graphicsPanel,
                 new KeyBindingPanel(gui_root, bundle),
                 new AccessibilityPanel(gui_root, bundle),
-                new SoundPanel(bundle),
+                new SoundPanel(gui_root, bundle),
                 new LanguagePanel(gui_root, bundle)
         );
  		addChild(panel_group);
