@@ -43,7 +43,7 @@ public final class Utils {
 		return buffer;
 	}
 
-    public static ByteBuffer ioResourceToByteBuffer(@NonNull URL url) throws IOException {
+    public static @NonNull ByteBuffer ioResourceToByteBuffer(@NonNull URL url) throws IOException {
         try (InputStream is = url.openStream()) {
             byte[] bytes = is.readAllBytes();
             ByteBuffer buffer = org.lwjgl.BufferUtils.createByteBuffer(bytes.length);

@@ -13,9 +13,9 @@ import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.landscape.AudioImplementation;
 import com.oddlabs.tt.landscape.HeightMap;
-import com.oddlabs.tt.landscape.TreeNodeVisitor;
 import com.oddlabs.tt.landscape.TreeGroup;
 import com.oddlabs.tt.landscape.TreeLeaf;
+import com.oddlabs.tt.landscape.TreeNodeVisitor;
 import com.oddlabs.tt.landscape.TreeSupply;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.resource.Resources;
@@ -75,7 +75,7 @@ public final class AmbientAudio {
         }
 
         @Override
-        public void visitLeaf(TreeLeaf tree_leaf) {
+        public void visitLeaf(@NonNull TreeLeaf tree_leaf) {
             if (count >= threshold) return;
             if (intersects(tree_leaf)) {
                 tree_leaf.visitTrees(this);
@@ -83,7 +83,7 @@ public final class AmbientAudio {
         }
 
         @Override
-        public void visitNode(TreeGroup tree_group) {
+        public void visitNode(@NonNull TreeGroup tree_group) {
             if (count >= threshold) return;
             if (intersects(tree_group)) {
                 tree_group.visitChildren(this);
@@ -91,7 +91,7 @@ public final class AmbientAudio {
         }
 
         @Override
-        public void visitTree(TreeSupply tree_supply) {
+        public void visitTree(@NonNull TreeSupply tree_supply) {
             if (count >= threshold) return;
             if (!tree_supply.isHidden()) {
                 float dx = tree_supply.getPositionX() - x;

@@ -16,7 +16,7 @@ public final class PanelGroup extends GUIObject {
 		this(0, panels);
 	}
 
-	public PanelGroup(int selected,@NonNull Panel ... panels) {
+	public PanelGroup(int selected,@NonNull Panel @NonNull ... panels) {
 		assert selected < panels.length && panels.length > 0: "Invalid index selected.";
 		this.panels = panels;
 

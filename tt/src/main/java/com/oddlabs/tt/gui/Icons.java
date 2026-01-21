@@ -111,11 +111,11 @@ final class Icons {
 						texture);
 	}
 
-    static Vector4f getNamedColor(@NonNull Node n, @NonNull String name) {
+    static @NonNull Vector4f getNamedColor(@NonNull Node n, @NonNull String name) {
         return getColor(getNodeByName(name, n));
     }
 
-    static Vector4f getColor(@NonNull Node n) {
+    static @NonNull Vector4f getColor(@NonNull Node n) {
 		Node q = getNodeByName("color", n);
 		float r = getFloat(q, "r");
         float g = getFloat(q, "g");

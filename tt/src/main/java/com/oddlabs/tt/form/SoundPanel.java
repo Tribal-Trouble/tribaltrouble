@@ -3,7 +3,16 @@ package com.oddlabs.tt.form;
 import com.oddlabs.tt.audio.AudioManager;
 import com.oddlabs.tt.audio.openal.OpenALManager;
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.CheckBox;
+import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.Panel;
+import com.oddlabs.tt.gui.PulldownButton;
+import com.oddlabs.tt.gui.PulldownItem;
+import com.oddlabs.tt.gui.PulldownMenu;
+import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -18,7 +27,7 @@ public class SoundPanel extends Panel {
     private static final int MAX_VALUE = 20;
     private static final boolean TEMPORARILY_DISABLE_MUSIC_CONTROLS = false;
 
-    public SoundPanel(GUIRoot gui_root, ResourceBundle bundle) {
+    public SoundPanel(GUIRoot gui_root, @NonNull ResourceBundle bundle) {
         super(Utils.getBundleString(bundle, "sound_caption"));
 
         // Sound

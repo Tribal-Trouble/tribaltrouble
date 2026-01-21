@@ -227,7 +227,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             totalInstances++;
         }
 
-        void render(@NonNull InstancedSpriteShader shader, Texture whiteTexture, RenderState state) {
+        void render(@NonNull InstancedSpriteShader shader, Texture whiteTexture, @NonNull RenderState state) {
             if (totalInstances == 0) return;
 
             int targetDepthTest = key.depthTest ? 1 : 0;
@@ -295,7 +295,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             vao.unbind();
         }
         
-        private void setupTextures(@NonNull InstancedSpriteShader shader, @NonNull Sprite sprite, Texture whiteTexture, RenderState state) {
+        private void setupTextures(@NonNull InstancedSpriteShader shader, @NonNull Sprite sprite, Texture whiteTexture, @NonNull RenderState state) {
              Texture texture = (sprite.textures.length > key.texIndex && sprite.textures[key.texIndex].length > 0 && sprite.textures[key.texIndex][0] != null) 
                     ? sprite.textures[key.texIndex][0] : whiteTexture;
             

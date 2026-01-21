@@ -24,8 +24,8 @@ public final class PointerInput {
 	private @NonNull Cursor active_cursor = Cursor.NULL_CURSOR;
 	private @Nullable MouseButton drag_button = null;
 
-    private final InputProvider<?> inputProvider;
-    private final LocalInput localInput;
+    private final @NonNull InputProvider<?> inputProvider;
+    private final @NonNull LocalInput localInput;
 
     private final Map<@NonNull CursorType, @NonNull Cursor> cursors = new EnumMap<>(CursorType.class);
     private Cursor debug_cursor = Cursor.NULL_CURSOR;

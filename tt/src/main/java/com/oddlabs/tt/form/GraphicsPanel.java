@@ -1,7 +1,21 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.CheckBox;
+import com.oddlabs.tt.gui.ColumnInfo;
+import com.oddlabs.tt.gui.Form;
+import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.MultiColumnComboBox;
+import com.oddlabs.tt.gui.Panel;
+import com.oddlabs.tt.gui.PulldownButton;
+import com.oddlabs.tt.gui.PulldownItem;
+import com.oddlabs.tt.gui.PulldownMenu;
+import com.oddlabs.tt.gui.Row;
+import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.gui.Slider;
+import com.oddlabs.tt.gui.SortedLabel;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.SerializableDisplayMode;
@@ -10,7 +24,9 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
-import static com.oddlabs.tt.gui.Placement.*;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
+import static com.oddlabs.tt.gui.Placement.RIGHT_TOP;
 
 public class GraphicsPanel extends Panel {
     private final @NonNull Label label_pct;

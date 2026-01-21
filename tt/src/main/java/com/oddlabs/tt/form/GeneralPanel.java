@@ -2,7 +2,16 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.tt.global.Settings;
-import com.oddlabs.tt.gui.*;
+import com.oddlabs.tt.gui.CheckBox;
+import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.Panel;
+import com.oddlabs.tt.gui.PulldownButton;
+import com.oddlabs.tt.gui.PulldownItem;
+import com.oddlabs.tt.gui.PulldownMenu;
+import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.util.ServerMessageBundler;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -10,7 +19,8 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 import java.util.function.IntConsumer;
 
-import static com.oddlabs.tt.gui.Placement.*;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 
 public class GeneralPanel extends Panel {
     private static final int SLIDER_WIDTH = 270;

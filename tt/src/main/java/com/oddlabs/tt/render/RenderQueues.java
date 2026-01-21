@@ -95,7 +95,7 @@ public final class RenderQueues implements AutoCloseable {
         return spriteRenderer;
     }
 
-    private void registerSpriteRenderer(@NonNull SpriteRenderer sprite_renderer, String location) {
+    private void registerSpriteRenderer(@NonNull SpriteRenderer sprite_renderer, @NonNull String location) {
         if (sprite_renderer.getSpriteList().getSprite(0).modulateColor()) {
             blend_sprite_renderers.add(sprite_renderer);
         } else if (location.contains("plant") || location.contains("leaf")) {

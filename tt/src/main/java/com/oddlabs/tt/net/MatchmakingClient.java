@@ -209,7 +209,7 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 	}
 
 	@Override
-	public void joiningChatRoom(String room_name) {
+	public void joiningChatRoom(@NonNull String room_name) {
 		assert chat_room_info == null;
 		chat_room_info = new ChatRoomInfo(room_name, null);
 

@@ -3,7 +3,15 @@ package com.oddlabs.tt.input;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -264,13 +272,13 @@ public final class InputManager {
         }
     }
 
-    public List<InputBinding> getBindings(GameAction action) {
+    public @NonNull List<InputBinding> getBindings(GameAction action) {
         return bindings.stream()
                 .filter(b -> b.action() == action)
                 .collect(Collectors.toList());
     }
 
-    public void setBindings(GameAction action, Collection<InputBinding> newBindings) {
+    public void setBindings(GameAction action, @NonNull Collection<InputBinding> newBindings) {
         bindings.removeIf(b -> b.action() == action);
         bindings.addAll(newBindings);
     }
@@ -282,7 +290,7 @@ public final class InputManager {
         }
     }
 
-    public String exportBindings() {
+    public @NonNull String exportBindings() {
         // Group by action
         Map<GameAction, Set<InputBinding>> currentMap = new EnumMap<>(GameAction.class);
         for (InputBinding b : bindings) {
@@ -302,7 +310,7 @@ public final class InputManager {
         return sb.toString();
     }
 
-    public void importBindings(String json) {
+    public void importBindings(@NonNull String json) {
         // Regex to find "ACTION": [ ... ]
         String patternStr = "\\\"(" + "(\\w+)" + ")\\\"" + "\\s*:\\s*" + "(\\[[^\\]]*\\])";
         Pattern p = Pattern.compile(patternStr);
@@ -335,7 +343,7 @@ public final class InputManager {
         }
     }
 
-    private String serializeBindings(Collection<InputBinding> set) {
+    private @NonNull String serializeBindings(@NonNull Collection<InputBinding> set) {
         return set.stream()
                 .map(b -> "{\"key\":\"" + b.key().name() + "\"" +
                                  (b.shift() ? ", \"shift\":true" : "") +
@@ -346,7 +354,7 @@ public final class InputManager {
                 .collect(Collectors.joining(", ", "[", "]"));
     }
 
-    private Set<InputBinding> parseBindings(String json, GameAction action) {
+    private @NonNull Set<InputBinding> parseBindings(@NonNull String json, @NonNull GameAction action) {
         Set<InputBinding> set = new CopyOnWriteArraySet<>();
         String trimmed = json.trim();
         if (trimmed.length() < 2 || !trimmed.startsWith("[") || !trimmed.endsWith("]")) return set;
@@ -363,7 +371,7 @@ public final class InputManager {
         return set;
     }
 
-    private @Nullable InputBinding parseBindingObject(String content, GameAction action) {
+    private @Nullable InputBinding parseBindingObject(@NonNull String content, @NonNull GameAction action) {
         // Expected: {"key"="KEY", "mod":true}
         String inner = content.trim();
         if (inner.startsWith("{")) inner = inner.substring(1);
@@ -400,7 +408,7 @@ public final class InputManager {
         return null;
     }
 
-    private String unquote(String s) {
+    private @NonNull String unquote(@NonNull String s) {
         if (s.startsWith("\"") && s.endsWith("\"") && s.length() >= 2) {
             return s.substring(1, s.length() - 1);
         }

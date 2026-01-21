@@ -19,7 +19,7 @@ public final class Arrow extends GUIObject {
 	private final boolean show_always;
 	private final GUIRoot gui_root;
 
-	public Arrow(@NonNull HeightMap heightmap, GUIRoot gui_root, float target_x, float target_y, float r, float g, float b, boolean show_always) {
+	public Arrow(@NonNull HeightMap heightmap, @NonNull GUIRoot gui_root, float target_x, float target_y, float r, float g, float b, boolean show_always) {
 		this.gui_root = gui_root;
 		this.target_x = target_x;
 		this.target_y = target_y;

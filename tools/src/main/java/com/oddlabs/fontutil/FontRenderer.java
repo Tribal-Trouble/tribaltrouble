@@ -52,7 +52,7 @@ public final class FontRenderer {
 
 	public FontRenderer(@NonNull Path font_file,
 						int logical_font_size, float scale_factor,
-						int max_image_size, int[] codepoints,
+						int max_image_size, int @NonNull [] codepoints,
 						@NonNull Path font_info_dir, @NonNull Path font_tex_dir,
 						@NonNull String font_tex_classpath) throws Exception {
 		String font_file_name = font_file.getFileName().toString();

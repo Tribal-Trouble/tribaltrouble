@@ -234,7 +234,7 @@ public final class LWJGL3Window implements Window {
     }
 
     @Override
-    public void setIcon(Path imagePath) {
+    public void setIcon(@NonNull Path imagePath) {
         if (windowHandle == MemoryUtil.NULL) return;
         
         String os = System.getProperty("os.name").toLowerCase();

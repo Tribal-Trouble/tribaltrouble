@@ -113,7 +113,7 @@ public final class HashTable<T> implements Serializable {
 	}
 
     @Serial
-    private void writeObject(ObjectOutputStream s) throws IOException {
+    private void writeObject(@NonNull ObjectOutputStream s) throws IOException {
         s.defaultWriteObject();
         s.writeInt(entries.length);
         s.writeInt(num_entries);
@@ -131,7 +131,7 @@ public final class HashTable<T> implements Serializable {
 
     @Serial
     @SuppressWarnings("unchecked")
-    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+    private void readObject(@NonNull ObjectInputStream s) throws IOException, ClassNotFoundException {
         s.defaultReadObject();
         int length = s.readInt();
         entries = new LinkedList[length];

@@ -20,10 +20,10 @@ public final class OGGStream implements AutoCloseable {
     private final long decoder;
     private final int channels;
     private final int sampleRate;
-    private final ByteBuffer vorbisData; // Keep reference to prevent GC
+    private final @NonNull ByteBuffer vorbisData; // Keep reference to prevent GC
 
     // Temp buffer for reading samples (4096 samples * 2 channels usually)
-    private final ShortBuffer pcmBuffer; 
+    private final @NonNull ShortBuffer pcmBuffer;
 
 	public OGGStream(@NonNull URL file) throws IOException {
         byte[] bytes = readAllBytes(file);
@@ -48,7 +48,7 @@ public final class OGGStream implements AutoCloseable {
         pcmBuffer = BufferUtils.createShortBuffer(4096 * channels);
 	}
 
-    private static byte[] readAllBytes(URL url) throws IOException {
+    private static byte[] readAllBytes(@NonNull URL url) throws IOException {
         try (InputStream is = url.openStream();
              ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
             int nRead;
@@ -98,7 +98,7 @@ public final class OGGStream implements AutoCloseable {
      * @param buffer Destination buffer. Must be direct.
      * @return The number of short values written to the buffer.
      */
-    public int read(ShortBuffer buffer) {
+    public int read(@NonNull ShortBuffer buffer) {
         int samplesPerChannelRequest = buffer.remaining() / channels;
         int samplesRead = STBVorbis.stb_vorbis_get_samples_short_interleaved(decoder, channels, buffer);
         return samplesRead * channels;

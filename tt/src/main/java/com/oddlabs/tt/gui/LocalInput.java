@@ -32,7 +32,7 @@ public final class LocalInput implements AutoCloseable {
     private final @NonNull InputProvider<?> inputProvider;
     private final InputManager inputManager = new InputManager();
     private final KeyboardInput keyboardInput = new KeyboardInput();
-    private final PointerInput pointerInput;
+    private final @NonNull PointerInput pointerInput;
 
     private final Set<@NonNull Key> keys = EnumSet.noneOf(Key.class);
     private boolean global_super_state = false;

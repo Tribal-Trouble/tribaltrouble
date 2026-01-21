@@ -102,7 +102,7 @@ public final class Settings implements Serializable {
 			Color.argb4v(0xFFBFFF00) /* Lime */
 	};
 
-	public Vector4f[] team_colours = new Vector4f[DEFAULT_TEAM_COLOURS.length];
+	public Vector4f @NonNull [] team_colours = new Vector4f[DEFAULT_TEAM_COLOURS.length];
 
 	public Settings() {
 		for (int i = 0; i < DEFAULT_TEAM_COLOURS.length; i++) {
@@ -315,7 +315,7 @@ public final class Settings implements Serializable {
 		}
 	}
 	
-	private static Vector4f[] getColours(@NonNull Properties props, @NonNull String key, Vector4f @NonNull[] defaultValue) {
+	private static Vector4f @NonNull [] getColours(@NonNull Properties props, @NonNull String key, Vector4f @NonNull[] defaultValue) {
 		String value = props.getProperty(key);
 		if (value == null) {
 			return defaultValue;

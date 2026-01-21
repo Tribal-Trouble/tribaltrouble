@@ -152,7 +152,7 @@ public final class GUIRenderer {
         putQuad(x, y, w, h, u1, v1, u2, v2, texIndex, Color.abgri(tint));
     }
     
-    private float getTextureIndex(Texture texture) {
+    private float getTextureIndex(@NonNull Texture texture) {
         for (int i = 0; i < textureCount; i++) {
             if (currentTextures[i].getHandle() == texture.getHandle()) {
                 return (float) i;

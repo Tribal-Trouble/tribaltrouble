@@ -22,14 +22,14 @@ import java.nio.ShortBuffer;
 public final class DecalRenderer implements AutoCloseable {
 
     private final DecalShader shader = new DecalShader();
-    private final VertexArray vao;
-    private final FloatVBO meshVBO;
-    private final ShortVBO meshIBO;
-    private final FloatVBO instanceVBO;
+    private final @NonNull VertexArray vao;
+    private final @NonNull FloatVBO meshVBO;
+    private final @NonNull ShortVBO meshIBO;
+    private final @NonNull FloatVBO instanceVBO;
     
     private static final int MAX_INSTANCES = 1024;
     private static final int FLOATS_PER_INSTANCE = 2 + 1 + 4; // Pos(2) + Size(1) + Color(4)
-    private final FloatBuffer instanceBuffer;
+    private final @NonNull FloatBuffer instanceBuffer;
     
     private int instanceCount = 0;
     private @Nullable Texture currentTexture;

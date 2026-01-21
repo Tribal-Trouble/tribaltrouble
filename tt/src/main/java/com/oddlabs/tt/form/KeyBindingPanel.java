@@ -1,9 +1,19 @@
 package com.oddlabs.tt.form;
 
-import com.oddlabs.tt.gui.*;
-import com.oddlabs.tt.guievent.RowListener;
-import com.oddlabs.tt.input.*;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.gui.ColumnInfo;
+import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.Label;
+import com.oddlabs.tt.gui.MultiColumnComboBox;
+import com.oddlabs.tt.gui.Panel;
+import com.oddlabs.tt.gui.Row;
+import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.gui.SortedLabel;
+import com.oddlabs.tt.guievent.RowListener;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputBinding;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -12,17 +22,20 @@ import org.lwjgl.util.tinyfd.TinyFileDialogs;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import static com.oddlabs.tt.gui.Placement.*;
+import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
+import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 
 public class KeyBindingPanel extends Panel {
     private final @NonNull MultiColumnComboBox<GameAction> list_box;
     private final @NonNull GUIRoot gui_root;
     private final @NonNull ResourceBundle bundle;
 
-    public KeyBindingPanel(GUIRoot gui_root, ResourceBundle bundle) {
+    public KeyBindingPanel(@NonNull GUIRoot gui_root, @NonNull ResourceBundle bundle) {
         super(Utils.getBundleString(bundle, "key_bindings_title"));
         this.gui_root = gui_root;
         this.bundle = bundle;

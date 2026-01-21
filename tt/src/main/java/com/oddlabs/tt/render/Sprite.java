@@ -317,7 +317,7 @@ public final class Sprite {
 
     public record FrameState(int pos1, int norm1, int pos2, int norm2, float tween) {}
 
-    public FrameState getAnimationState(int animation, float anim_ticks) {
+    public @NonNull FrameState getAnimationState(int animation, float anim_ticks) {
         if (cpw_array == null) {
             // Static mesh (quad or non-animated)
             int offset = buffer_indices != null && buffer_indices.length > animation ? buffer_indices[animation] / 3 : 0;

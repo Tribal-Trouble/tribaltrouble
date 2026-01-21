@@ -28,7 +28,7 @@ import static org.lwjgl.glfw.GLFW.glfwSetScrollCallback;
 
 public final class LWJGL3InputProvider implements InputProvider<Long> {
 
-    private final LWJGL3Window window;
+    private final @NonNull LWJGL3Window window;
     private long windowHandle;
 
     // Keyboard State

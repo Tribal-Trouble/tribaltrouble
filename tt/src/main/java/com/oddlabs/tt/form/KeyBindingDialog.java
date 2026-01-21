@@ -1,7 +1,16 @@
 package com.oddlabs.tt.form;
 
-import com.oddlabs.tt.gui.*;
-import com.oddlabs.tt.input.*;
+import com.oddlabs.tt.gui.CancelButton;
+import com.oddlabs.tt.gui.Form;
+import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.HorizButton;
+import com.oddlabs.tt.gui.LabelBox;
+import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputBinding;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
+import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 

@@ -10,6 +10,7 @@ import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
@@ -32,7 +33,7 @@ public final class SpriteList implements AutoCloseable{
 	private final @NonNull ShortVBO indices;
 	private final @NonNull FloatVBO vertices_and_normals;
 	private final @NonNull FloatVBO texcoords;
-    private VertexArray vao;
+    private @Nullable VertexArray vao;
     private int tboTextureHandle;
 
     public static @NonNull SpriteList getQuadInstance() {

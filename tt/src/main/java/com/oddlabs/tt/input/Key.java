@@ -1,5 +1,6 @@
 package com.oddlabs.tt.input;
 
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
@@ -124,7 +125,7 @@ public enum Key {
         return from_glfw_map.getOrDefault(code, KEY_UNKNOWN);
     }
 
-    public String getDisplayName() {
+    public @NonNull String getDisplayName() {
         String name = name();
         if (name.startsWith("KEY_")) return name.substring(4);
         if (name.startsWith("NUMPAD")) return "Num " + name.substring(6);

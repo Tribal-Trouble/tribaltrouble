@@ -14,7 +14,7 @@ public final class ProgressBar extends GUIObject {
 	private record Waypoint(int point, float weight) {}
 
 	private final @NonNull ProgressBarInfo @NonNull [] info;
-	private final @NonNull Waypoint[] waypoints;
+	private final @NonNull Waypoint @NonNull [] waypoints;
 	private final boolean text_only;
 	
 	private final @NonNull NetworkSelector network;
@@ -81,7 +81,7 @@ public final class ProgressBar extends GUIObject {
 		}
 	}
 
-	private Waypoint[] pixelize(@NonNull ProgressBarInfo @NonNull [] info, int width) {
+	private Waypoint @NonNull [] pixelize(@NonNull ProgressBarInfo @NonNull [] info, int width) {
 		float sum = (float) Arrays.stream(info).mapToDouble(ProgressBarInfo::getWeight).sum();
 
 		Waypoint[] waypoints = new Waypoint[info.length];

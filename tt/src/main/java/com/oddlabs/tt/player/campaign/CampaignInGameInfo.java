@@ -39,7 +39,7 @@ final class CampaignInGameInfo implements InGameInfo {
 	}
 
 	@Override
-	public void addGUI(WorldViewer viewer, @NonNull InGameMainMenu menu, @NonNull Group game_infos) {
+	public void addGUI(@NonNull WorldViewer viewer, @NonNull InGameMainMenu menu, @NonNull Group game_infos) {
 		menu.addAbortButton(Utils.getBundleString(Menu.bundle, "end_game"));
 		int screen_width = viewer.getGUIRoot().getWidth();
 		LabelBox label_objective = new LabelBox(Utils.getBundleString(Menu.bundle, "objective"), Skin.getSkin().getEditFont(), screen_width/2);

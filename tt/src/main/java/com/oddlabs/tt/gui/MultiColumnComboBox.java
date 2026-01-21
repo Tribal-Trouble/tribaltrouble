@@ -181,7 +181,7 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 		return right_clicked_row_data;
 	}
 
-	public void selectRow(Row<T,?> row) {
+	public void selectRow(@NonNull Row<T,?> row) {
 		rows.selectRow(row);
 	}
 
