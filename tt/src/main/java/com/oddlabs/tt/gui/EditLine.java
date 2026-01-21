@@ -1,5 +1,10 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.audio.Audio;
+import com.oddlabs.tt.audio.AudioFile;
+import com.oddlabs.tt.audio.AudioManager;
+import com.oddlabs.tt.audio.AudioParameters;
+import com.oddlabs.tt.audio.AudioPlayer;
 import com.oddlabs.tt.font.Index;
 import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.guievent.EnterListener;
@@ -7,7 +12,9 @@ import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.render.GUIRenderer;
+import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.util.Color;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -22,6 +29,9 @@ public class EditLine extends TextField implements Clipped {
 
 	private int offset_x;
 	private int index;
+    
+    private long errorFlashStart = 0;
+    private static final Audio ERROR_SOUND = Resources.findResource(new AudioFile("/sfx/chicken_peck.ogg"));
 
 	public EditLine(int width, int max_chars) {
 		this(width, max_chars, Origin.AT_START);
@@ -56,6 +66,13 @@ public class EditLine extends TextField implements Clipped {
 		Box edit_box = Skin.getSkin().getEditBox();
         var mode = isDisabled() ? ModeIconQuads.Mode.DISABLED : (isActive() ? ModeIconQuads.Mode.ACTIVE : ModeIconQuads.Mode.NORMAL);
         edit_box.render(renderer, 0f, 0f, getWidth(), getHeight(), mode);
+        
+        long elapsed = System.currentTimeMillis() - errorFlashStart;
+        if (elapsed < 200) {
+            float alpha = 0.5f * (1.0f - (elapsed / 200.0f));
+            renderer.drawColoredQuad(2, 2, getWidth() - 4, getHeight() - 4, new Vector4f(1f, 1f, 1f, alpha));
+        }
+        
 		int render_index = isActive() ? index : -1;
 		renderText(renderer, edit_box, offset_x, render_index);
 	}
@@ -83,6 +100,15 @@ public class EditLine extends TextField implements Clipped {
 		}
 		return result;
 	}
+    
+    public void triggerError() {
+        errorFlashStart = System.currentTimeMillis();
+        try {
+            AudioManager.getManager().newAudio(new AudioParameters<>(ERROR_SOUND, 0f, 0f, 0f, AudioPlayer.AUDIO_RANK_NOTIFICATION, AudioPlayer.AUDIO_DISTANCE_NOTIFICATION, 0.5f, 1f, 0.5f, false, true));
+        } catch (Exception _) {
+            // Ignore audio errors
+        }
+    }
 
 		@Override
 		protected void handleInput(@NonNull InputEvent event) {
@@ -106,20 +132,23 @@ public class EditLine extends TextField implements Clipped {
 					index = getText().length();
 				} else if (event.consumeAction(GameAction.UI_BACKSPACE)) {
 					if (index > 0) delete(--index);
-				            } else if (event.consumeAction(GameAction.UI_DELETE)) {
-				                if (index < getText().length()) delete(index);
-				            } else if (!event.isControlDown() && !event.isMetaDown() && !event.isAltDown()) {
-				                char c = event.getCharacter();
-				                if (c != 0 && !Character.isISOControl(c)) {
-				                    consumed = insert(index, c);
-				                } else {
-				                    consumed = false;
-				                }
-				            } else {
-				                consumed = false;
-				            }
+                    else triggerError();
+				} else if (event.consumeAction(GameAction.UI_DELETE)) {
+				    if (index < getText().length()) delete(index);
+				} else if (!event.isControlDown() && !event.isMetaDown() && !event.isAltDown()) {
+				    char c = event.getCharacter();
+				    if (c != 0 && !Character.isISOControl(c)) {
+				        consumed = insert(index, c);
+                        if (!consumed) triggerError();
+				    } else {
+				        consumed = false;
+				    }
+				} else {
+				    consumed = false;
+				}
 				
-				            if (consumed) {					correctOffsetX();
+				if (consumed) {
+					correctOffsetX();
 					event.consume();
 					return;
 				}
