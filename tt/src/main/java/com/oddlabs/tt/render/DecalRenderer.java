@@ -108,6 +108,7 @@ public final class DecalRenderer implements AutoCloseable {
         shader.setUniformMatrix4(DecalShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
         
         shader.setUniform(DecalShader.Uniforms.WORLD_SIZE, (float) landscape.getHeightMap().getMetersPerWorld());
+        shader.setUniform(DecalShader.Uniforms.DEPTH_BIAS, 0.05f);
         
         GL13.glActiveTexture(GL13.GL_TEXTURE1);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, landscape.getHeightMap().getHeightTexture().getHandle());

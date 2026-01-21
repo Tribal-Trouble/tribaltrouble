@@ -8,6 +8,7 @@ public final class DecalShader extends ShaderProgram {
         public static final String TEXTURE = "u_texture";
         public static final String HEIGHT_MAP = "u_HeightMap";
         public static final String WORLD_SIZE = "u_WorldSize";
+        public static final String DEPTH_BIAS = "u_DepthBias";
 
         private Uniforms() {}
     }
@@ -32,6 +33,7 @@ public final class DecalShader extends ShaderProgram {
         uniform mat4 u_modelViewMatrix;
         uniform mat4 u_projectionMatrix;
         uniform float u_WorldSize;
+        uniform float u_DepthBias;
         uniform sampler2D u_HeightMap;
 
         out vec2 v_TexCoord;
@@ -47,6 +49,8 @@ public final class DecalShader extends ShaderProgram {
             float h = texture(u_HeightMap, mapUV).r;
          
             vec4 viewPosition = u_modelViewMatrix * vec4(worldPos, h, 1.0);
+            viewPosition.z += u_DepthBias;
+            
             gl_Position = u_projectionMatrix * viewPosition;
             
             // Texture coordinates (0..1) based on grid position (-0.5..0.5)
