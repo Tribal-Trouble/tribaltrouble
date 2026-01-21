@@ -463,27 +463,27 @@ public final class RacesResources {
 			Resources.findResource(new AudioFile("/sfx/impact_meat4.ogg")),
 			Resources.findResource(new AudioFile("/sfx/impact_meat5.ogg"))
 		};
-		WeaponFactory viking_warrior_rock_weapon = new ThrowingFactory(RockAxeWeapon.class, 0.5f, THROW_RANGE, 29f/58f,
+		WeaponFactory viking_warrior_rock_weapon = new ThrowingFactory<>(RockAxeWeapon.class, RockAxeWeapon::new, 0.5f, THROW_RANGE, 29f/58f,
 																	   queues.register(viking_warrior_axe, Race.UNIT_WARRIOR_ROCK),
 																	   axe_throw_sound,
 																	   unit_hit_sounds);
-		WeaponFactory viking_warrior_iron_weapon = new ThrowingFactory(IronAxeWeapon.class, 0.75f, THROW_RANGE, 29f/58f,
+		WeaponFactory viking_warrior_iron_weapon = new ThrowingFactory<>(IronAxeWeapon.class, IronAxeWeapon::new, 0.75f, THROW_RANGE, 29f/58f,
 																	   queues.register(viking_warrior_axe, Race.UNIT_WARRIOR_IRON),
 																	   axe_throw_sound,
 																	   unit_hit_sounds);
-		WeaponFactory viking_warrior_rubber_weapon = new ThrowingFactory(RubberAxeWeapon.class, 0.95f, THROW_RANGE, 29f/58f,
+		WeaponFactory viking_warrior_rubber_weapon = new ThrowingFactory<>(RubberAxeWeapon.class, RubberAxeWeapon::new, 0.95f, THROW_RANGE, 29f/58f,
 																	   queues.register(viking_warrior_axe, Race.UNIT_WARRIOR_RUBBER),
 																	   axe_throw_sound,
 																	   unit_hit_sounds);
-		WeaponFactory native_warrior_rock_weapon = new ThrowingFactory(RockSpearWeapon.class, 0.5f, THROW_RANGE, 46f/100f,
+		WeaponFactory native_warrior_rock_weapon = new ThrowingFactory<>(RockSpearWeapon.class, RockSpearWeapon::new, 0.5f, THROW_RANGE, 46f/100f,
 																	   queues.register(native_warrior_spear, Race.UNIT_WARRIOR_ROCK),
 																	   spear_throw_sound,
 																	   unit_hit_sounds);
-		WeaponFactory native_warrior_iron_weapon = new ThrowingFactory(IronSpearWeapon.class, 0.75f, THROW_RANGE, 46f/100f,
+		WeaponFactory native_warrior_iron_weapon = new ThrowingFactory<>(IronSpearWeapon.class, IronSpearWeapon::new, 0.75f, THROW_RANGE, 46f/100f,
 																	   queues.register(native_warrior_spear, Race.UNIT_WARRIOR_IRON),
 																	   spear_throw_sound,
 																	   unit_hit_sounds);
-		WeaponFactory native_warrior_rubber_weapon = new ThrowingFactory(RubberSpearWeapon.class, 0.95f, THROW_RANGE, 46f/100f,
+		WeaponFactory native_warrior_rubber_weapon = new ThrowingFactory<>(RubberSpearWeapon.class, RubberSpearWeapon::new, 0.95f, THROW_RANGE, 46f/100f,
 																	   queues.register(native_warrior_spear, Race.UNIT_WARRIOR_RUBBER),
 																	   spear_throw_sound,
 																	   unit_hit_sounds);
