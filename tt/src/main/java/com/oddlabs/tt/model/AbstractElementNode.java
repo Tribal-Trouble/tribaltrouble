@@ -45,7 +45,7 @@ public abstract class AbstractElementNode<T extends Element<T>> extends Bounding
 	protected final AbstractElementNode<T> reinsertElement(@NonNull T model) {
 		child_count--;
 		assert child_count >= 0;
-		if (contains(model)) {
+		if (contains(model) || owner == null) {
 			return insertElement(model);
 		} else {
 			return owner.reinsertElement(model);
@@ -66,7 +66,6 @@ public abstract class AbstractElementNode<T extends Element<T>> extends Bounding
 
 	public static <T extends Element<T>> @NonNull AbstractElementNode<T> newRoot(@NonNull HeightMap heightmap) {
 		AbstractElementNode<T> root = new ElementNode<>(null, heightmap.getGridUnitsPerWorld(), 0, 0);
-		root.setInfiniteBounds();
 		return root;
 	}
 
