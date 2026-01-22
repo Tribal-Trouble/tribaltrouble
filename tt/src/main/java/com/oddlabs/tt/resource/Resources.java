@@ -31,7 +31,24 @@ public final class Resources {
      * Clear all loaded resources
      */
     public static void clearResources() {
+        for (Object resource : LOADED_RESOURCES.values()) {
+            closeResource(resource);
+        }
         LOADED_RESOURCES.clear();
+    }
+
+    private static void closeResource(Object resource) {
+        if (resource instanceof AutoCloseable closeable) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (resource instanceof Object[] array) {
+            for (Object obj : array) {
+                closeResource(obj);
+            }
+        }
     }
 
     private Resources() {
