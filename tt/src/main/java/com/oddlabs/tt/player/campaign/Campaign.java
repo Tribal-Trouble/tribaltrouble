@@ -16,7 +16,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public abstract class Campaign {
-	private final ResourceBundle bundle = ResourceBundle.getBundle(Campaign.class.getName());
+	private final static ResourceBundle bundle = ResourceBundle.getBundle(Campaign.class.getName());
 	private final CampaignState state;
 	private CampaignState[] campaign_states; // for saving
 

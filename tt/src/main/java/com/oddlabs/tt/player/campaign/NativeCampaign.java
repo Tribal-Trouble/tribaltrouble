@@ -70,7 +70,7 @@ public final class NativeCampaign extends Campaign {
 					islands[number].getDescription(),
 					null,
 					Origin.AT_START,
-					new IslandListener(network, gui_root, number), true);
+					() -> startIsland(network, gui_root, number), true);
 			gui_root.addModalForm(dialog);
 		}
 	}
@@ -80,7 +80,7 @@ public final class NativeCampaign extends Campaign {
 		if (getState().getCurrentIsland() != -1) {
 			return islands[getState().getCurrentIsland()].getCurrentObjective();
 		}
-		throw new RuntimeException();
+		throw new IllegalArgumentException("No current island");
 	}
 
 	@Override
@@ -94,22 +94,5 @@ public final class NativeCampaign extends Campaign {
 	public void startIsland(NetworkSelector network, GUIRoot gui_root, int number) {
 		getState().setCurrentIsland(number);
 		islands[number].chosen(network, gui_root);
-	}
-
-	private final class IslandListener implements Runnable {
-		private final int number;
-		private final GUIRoot gui_root;
-		private final NetworkSelector network;
-
-		public IslandListener(NetworkSelector network, GUIRoot gui_root, int number) {
-			this.number = number;
-			this.gui_root = gui_root;
-			this.network = network;
-		}
-
-		@Override
-		public void run() {
-			startIsland(network, gui_root, number);
-		}
 	}
 }

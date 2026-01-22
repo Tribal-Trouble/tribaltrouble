@@ -20,9 +20,14 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 
 public final class VikingIsland2 extends Island {
-	private final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland2.class.getName());
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland2.class.getName());
+
+	private @NonNull String l18n(@NonNull String key) {
+		return Utils.getBundleString(bundle, key);
+	}
 
 	public VikingIsland2(Campaign campaign) {
 		super(campaign);
@@ -30,12 +35,9 @@ public final class VikingIsland2 extends Island {
 
 	@Override
 	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-		String[] ai_names = new String[]{Utils.getBundleString(bundle, "name0"),
-			Utils.getBundleString(bundle, "name1"),
-			Utils.getBundleString(bundle, "name2"),
-			Utils.getBundleString(bundle, "name3"),
-			Utils.getBundleString(bundle, "name4"),
-			Utils.getBundleString(bundle, "name5")};
+		String[] ai_names = IntStream.range(0,6)
+				.mapToObj(i -> l18n( "name" + i))
+				.toArray(String[]::new);
 		GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, .65f, 1f, .7f, 447363, 2, VikingCampaign.MAX_UNITS, ai_names);
 		game_network.getClient().getServerInterface().setPlayerSlot(0,
 				PlayerSlot.HUMAN,
@@ -73,8 +75,8 @@ public final class VikingIsland2 extends Island {
 
 		// Introduction
 		runnable = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
-                            Utils.getBundleString(bundle, "dialog0"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), l18n("header0"),
+                            l18n("dialog0"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START);
                     addModalForm(dialog);
@@ -92,8 +94,8 @@ public final class VikingIsland2 extends Island {
 
 		// Winning condition
 		runnable = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
-                            Utils.getBundleString(bundle, "dialog1"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), l18n("header1"),
+                            l18n("dialog1"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
                             prize);
@@ -169,16 +171,16 @@ public final class VikingIsland2 extends Island {
 
 	@Override
 	public @NonNull CharSequence getHeader() {
-		return Utils.getBundleString(bundle, "header");
+		return l18n("header");
 	}
 
 	@Override
 	public @NonNull CharSequence getDescription() {
-		return Utils.getBundleString(bundle, "description");
+		return l18n("description");
 	}
 
 	@Override
 	public @NonNull CharSequence getCurrentObjective() {
-		return Utils.getBundleString(bundle, "objective");
+		return l18n("objective");
 	}
 }

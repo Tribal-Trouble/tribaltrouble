@@ -34,15 +34,16 @@ public final class CampaignState implements Serializable {
 	private boolean has_magic0 = false;
 	private boolean has_magic1 = false;
 
-	private String name;
+	private @NonNull String name;
 	private long date;
 	private int race;
 	private int difficulty;
 
 	public CampaignState(int @NonNull [] initial_states) {
 		island_states = new int[initial_states.length];
-            System.arraycopy(initial_states, 0, island_states, 0, island_states.length);
-	}
+		System.arraycopy(initial_states, 0, island_states, 0, island_states.length);
+        name = "";
+    }
 
 	public void setIslandState(int index, int state) {
 		if (island_states[index] == ISLAND_SEMI_AVAILABLE && state == ISLAND_SEMI_AVAILABLE)
@@ -59,7 +60,7 @@ public final class CampaignState implements Serializable {
 	}
 
 	public void setCurrentIsland(int current_island) {
-		prev_island = this.current_island;
+		setPrevIsland(this.current_island);
 		this.current_island = current_island;
 	}
 
@@ -131,11 +132,11 @@ public final class CampaignState implements Serializable {
 		return has_magic1;
 	}
 
-	public String getName() {
+	public @NonNull String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(@NonNull String name) {
 		this.name = name;
 	}
 

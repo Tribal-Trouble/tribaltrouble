@@ -27,22 +27,24 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 
 public final class VikingIsland0 extends Island {
-	private final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland0.class.getName());
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland0.class.getName());
 
 	public VikingIsland0(Campaign campaign) {
 		super(campaign);
 	}
 
+	private @NonNull String l18n(@NonNull String key) {
+		return Utils.getBundleString(bundle, key);
+	}
+
 	@Override
 	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-		String[] ai_names = new String[]{Utils.getBundleString(bundle, "name0"),
-			Utils.getBundleString(bundle, "name1"),
-			Utils.getBundleString(bundle, "name2"),
-			Utils.getBundleString(bundle, "name3"),
-			Utils.getBundleString(bundle, "name4"),
-			Utils.getBundleString(bundle, "name5")};
+		String[] ai_names = IntStream.range(0,6)
+				.mapToObj(i -> l18n( "name" + i))
+				.toArray(String[]::new);
 		// gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
 		GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, .5f, 1f, .1f, 45363, 0, VikingCampaign.MAX_UNITS, ai_names);
 		game_network.getClient().getServerInterface().setPlayerSlot(0,
@@ -85,8 +87,8 @@ public final class VikingIsland0 extends Island {
 		// Introduction
 		new GameStartedTrigger(getViewer().getWorld(),
                 () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
-                            Utils.getBundleString(bundle, "dialog0"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), l18n("header0"),
+                            l18n("dialog0"),
                             getCampaign().getIcons().getFaces()[1],
                             Origin.AT_START);
                     addModalForm(dialog);
@@ -95,21 +97,20 @@ public final class VikingIsland0 extends Island {
 		// Disable Chieftain
 		getViewer().getLocalPlayer().enableChieftains(false);
 
-		// Winner prize
-		final Runnable prize = () -> {
-                    getCampaign().getState().setIslandState(0, CampaignState.ISLAND_COMPLETED);
-                    getCampaign().getState().setIslandState(1, CampaignState.ISLAND_AVAILABLE);
-                    getCampaign().getState().setIslandState(3, CampaignState.ISLAND_AVAILABLE);
-                    getCampaign().victory(getViewer());
-                };
 		// Winning condition
 		new VictoryTrigger(getViewer(),
                 () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
-                            Utils.getBundleString(bundle, "dialog1"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), l18n("header1"),
+                            l18n("dialog1"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
-                            prize);
+							() -> {
+								// Winner prize
+								getCampaign().getState().setIslandState(0, CampaignState.ISLAND_COMPLETED);
+								getCampaign().getState().setIslandState(1, CampaignState.ISLAND_AVAILABLE);
+								getCampaign().getState().setIslandState(3, CampaignState.ISLAND_AVAILABLE);
+								getCampaign().victory(getViewer());
+							});
                     addModalForm(dialog);
                 });
 
@@ -125,14 +126,14 @@ public final class VikingIsland0 extends Island {
 
 		// Deploy and attack mid-game
 		Runnable runnable = () -> {
-                    Building armory = local_player.getArmory();
-                    if (armory != null && !armory.isDead()) {
-                        if (enemy.getArmory() != null && !enemy.getArmory().isDead()) {
-                            enemy.deployUnits(enemy.getArmory(), DeployType.IRON_WARRIOR, num_units);
-                            AI.attackLandscape(enemy, armory, num_units);
-                        }
-                    }
-                };
+			Building armory = local_player.getArmory();
+			if (armory != null && !armory.isDead()) {
+				if (enemy.getArmory() != null && !enemy.getArmory().isDead()) {
+					enemy.deployUnits(enemy.getArmory(), DeployType.IRON_WARRIOR, num_units);
+					AI.attackLandscape(enemy, armory, num_units);
+				}
+			}
+		};
 		if (getCampaign().getState().getDifficulty() == CampaignState.DIFFICULTY_NORMAL) {
 			new SupplyGatheredTrigger(getViewer().getLocalPlayer(), runnable, TreeSupply.class, 30);
 			new SupplyGatheredTrigger(getViewer().getLocalPlayer(), runnable, RockSupply.class, 30);
@@ -144,21 +145,21 @@ public final class VikingIsland0 extends Island {
 		}
 
 		// Defeat if neutrals eliminated
-		new PlayerEleminatedTrigger(() -> getCampaign().defeated(getViewer(), Utils.getBundleString(bundle, "game_over")), chieftain);
+		new PlayerEleminatedTrigger(() -> getCampaign().defeated(getViewer(), l18n("game_over")), chieftain);
 	}
 
 	@Override
 	public @NonNull CharSequence getHeader() {
-		return Utils.getBundleString(bundle, "header");
+		return l18n("header");
 	}
 
 	@Override
 	public @NonNull CharSequence getDescription() {
-		return Utils.getBundleString(bundle, "description");
+		return l18n("description");
 	}
 
 	@Override
 	public @NonNull CharSequence getCurrentObjective() {
-		return Utils.getBundleString(bundle, "objective");
+		return l18n("objective");
 	}
 }

@@ -47,7 +47,7 @@ public final class VikingCampaign extends Campaign {
 		CampaignState.ISLAND_UNAVAILABLE,
 		CampaignState.ISLAND_UNAVAILABLE};
 
-	private final Island @NonNull [] islands;
+	private final @NonNull Island @NonNull [] islands;
 
 	public VikingCampaign(NetworkSelector network, GUIRoot gui_root) {
 		this(network, gui_root, new CampaignState(INITIAL_STATES));
@@ -88,7 +88,7 @@ public final class VikingCampaign extends Campaign {
 					islands[number].getDescription(),
 					null,
 					Origin.AT_START,
-					new IslandListener(network, gui_root, number), true);
+					() -> startIsland(network, gui_root, number), true);
 			gui_root.addModalForm(dialog);
 		}
 	}
@@ -98,7 +98,7 @@ public final class VikingCampaign extends Campaign {
 		if (getState().getCurrentIsland() != -1) {
 			return islands[getState().getCurrentIsland()].getCurrentObjective();
 		}
-		throw new RuntimeException();
+		throw new IllegalStateException("No current island");
 	}
 
 	@Override
@@ -113,22 +113,4 @@ public final class VikingCampaign extends Campaign {
 		getState().setCurrentIsland(number);
 		islands[number].chosen(network, gui_root);
 	}
-
-	private final class IslandListener implements Runnable {
-		private final int number;
-		private final GUIRoot gui_root;
-		private final NetworkSelector network;
-
-		public IslandListener(NetworkSelector network, GUIRoot gui_root, int number) {
-			this.number = number;
-			this.gui_root = gui_root;
-			this.network = network;
-		}
-
-		@Override
-		public void run() {
-			startIsland(network, gui_root, number);
-		}
-	}
-
 }
