@@ -11,6 +11,7 @@ import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
@@ -54,10 +55,15 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         try (var _ = shader.use();
              var _ = cameraState.getFog().setup(shader, cameraState)) {
             
-            shader.setUniformMatrix4(InstancedSpriteShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+            Matrix4f pm = projectionStack.current();
+            shader.setUniformMatrix4(InstancedSpriteShader.Uniforms.PROJECTION_MATRIX, false, pm);
             shader.setUniformMatrix4(InstancedSpriteShader.Uniforms.VIEW_MATRIX, false, cameraState.getModelView());
 
-            shader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f); 
+            // Transform light direction to View Space
+            Vector4f lightDir = new Vector4f(-1f, 0f, 1f, 0f);
+            cameraState.getModelView().transform(lightDir);
+            lightDir.normalize();
+            shader.setUniform(LitShader.LIGHT_DIR, lightDir.x, lightDir.y, lightDir.z); 
             shader.setUniform(LitShader.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
             
             // Set TBO texture unit
@@ -121,7 +127,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         RenderBatch(@NonNull BatchKey key) {
             this.key = key;
             this.instanceBuffer = BufferUtils.createFloatBuffer(capacity * FLOATS_PER_INSTANCE);
-            this.vbo = new FloatVBO(GL15.GL_STREAM_DRAW, capacity * FLOATS_PER_INSTANCE * Float.BYTES);
+            this.vbo = new FloatVBO(GL15.GL_STREAM_DRAW, capacity * FLOATS_PER_INSTANCE);
 
             this.vao = new VertexArray();
             vao.bind();
@@ -202,7 +208,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 instanceBuffer = newBuffer;
                 
                 vbo.close();
-                vbo = new FloatVBO(GL15.GL_STREAM_DRAW, newCapacity * FLOATS_PER_INSTANCE * Float.BYTES);
+                vbo = new FloatVBO(GL15.GL_STREAM_DRAW, newCapacity * FLOATS_PER_INSTANCE);
                 
                 // Rebind VAO to update VBO binding point
                 vao.bind();
@@ -229,12 +235,11 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
 
         void render(@NonNull InstancedSpriteShader shader, Texture whiteTexture, @NonNull RenderState state) {
             if (totalInstances == 0) return;
-
+            
             int targetDepthTest = key.depthTest ? 1 : 0;
             if (state.depthTest != targetDepthTest) {
                 if (key.depthTest) {
                     GL11.glEnable(GL11.GL_DEPTH_TEST);
-                    GL11.glDepthFunc(GL11.GL_LEQUAL);
                 } else {
                     GL11.glDisable(GL11.GL_DEPTH_TEST);
                 }
@@ -244,10 +249,10 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             Sprite sprite = key.spriteList.getSprite(key.spriteIndex);
             int targetCullFace = sprite.culled ? 1 : 0;
             if (state.cullFace != targetCullFace) {
-                if (sprite.culled) {
+                if (targetCullFace == 1) {
                     GL11.glEnable(GL11.GL_CULL_FACE);
-                    GL11.glCullFace(GL11.GL_BACK);
-                } else {
+                }
+                else {
                     GL11.glDisable(GL11.GL_CULL_FACE);
                 }
                 state.cullFace = targetCullFace;
@@ -314,8 +319,10 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             if (sprite.modulate_color) {
                 shader.setUniform(InstancedSpriteShader.Uniforms.MODULATE_COLOR, true);
                 shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_TEAM_COLOR, false);
+                shader.setUniform(InstancedSpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.0f);
             } else {
                 shader.setUniform(InstancedSpriteShader.Uniforms.MODULATE_COLOR, false);
+                shader.setUniform(InstancedSpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.3f);
                 if (sprite.hasTeamDecal() || key.respond) {
                     shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_TEAM_COLOR, true);
                     Texture teamTexture = key.respond ? sprite.respond_texture : sprite.textures[key.texIndex][Sprite.TEXTURE_TEAM];
