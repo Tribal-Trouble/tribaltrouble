@@ -1,5 +1,6 @@
 package com.oddlabs.tt.window;
 
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.SerializableDisplayMode;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.Callbacks;
@@ -34,6 +35,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_CORE_PROFILE;
 import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_FORWARD_COMPAT;
 import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_PROFILE;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
+import static org.lwjgl.glfw.GLFW.GLFW_SAMPLES;
 import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
 import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
 import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
@@ -128,6 +130,11 @@ public final class LWJGL3Window implements Window {
         
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
             glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+        }
+
+        Settings settings = Settings.getSettings();
+        if (settings != null && settings.view_samples > 0) {
+            glfwWindowHint(GLFW_SAMPLES, settings.view_samples);
         }
         
         // Request an OpenGL 4.1 Core Profile context

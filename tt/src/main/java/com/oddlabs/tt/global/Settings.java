@@ -60,9 +60,11 @@ public final class Settings implements Serializable {
 	public int new_view_width = view_width;
 	public int new_view_height = view_height;
 	public int new_view_freq = view_freq;
+	public int new_view_samples = 4;
 
 	public boolean fullscreen = true;
 	public final boolean vsync = true;
+	public int view_samples = 4;
 //	public int view_bpp = 32;
 
 	// control
@@ -147,7 +149,9 @@ public final class Settings implements Serializable {
 		setProperty(props, "new_view_width", new_view_width, defaults.new_view_width);
 		setProperty(props, "new_view_height", new_view_height, defaults.new_view_height);
 		setProperty(props, "new_view_freq", new_view_freq, defaults.new_view_freq);
+		setProperty(props, "new_view_samples", new_view_samples, defaults.new_view_samples);
 		setProperty(props, "fullscreen", fullscreen, defaults.fullscreen);
+		setProperty(props, "view_samples", view_samples, defaults.view_samples);
 		setProperty(props, "invert_camera_pitch", invert_camera_pitch, defaults.invert_camera_pitch);
 		setProperty(props, "aggressive_units", aggressive_units, defaults.aggressive_units);
 		setProperty(props, "mapmode_delay", mapmode_delay, defaults.mapmode_delay);
@@ -205,7 +209,9 @@ public final class Settings implements Serializable {
 		new_view_width = getInt(props, "new_view_width", new_view_width);
 		new_view_height = getInt(props, "new_view_height", new_view_height);
 		new_view_freq = getInt(props, "new_view_freq", new_view_freq);
+		new_view_samples = getInt(props, "new_view_samples", new_view_samples);
 		fullscreen = getBoolean(props, "fullscreen", fullscreen);
+		view_samples = getInt(props, "view_samples", view_samples);
 		invert_camera_pitch = getBoolean(props, "invert_camera_pitch", invert_camera_pitch);
 		aggressive_units = getBoolean(props, "aggressive_units", aggressive_units);
 		mapmode_delay = getFloat(props, "mapmode_delay", mapmode_delay);

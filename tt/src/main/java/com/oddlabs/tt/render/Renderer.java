@@ -952,9 +952,9 @@ public final class Renderer implements AutoCloseable {
 		GL11.glPixelStorei(GL11.GL_UNPACK_SWAP_BYTES, 0);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthFunc(GL11.GL_LEQUAL);
-		// if (org.lwjgl.opengl.GL.getCapabilities().GL_ARB_multisample) {
-		// 	GL11.glEnable(ARBMultisample.GL_MULTISAMPLE_ARB);
-		// }
+		if (Settings.getSettings().view_samples > 0) {
+            org.lwjgl.opengl.GL13.glEnable(org.lwjgl.opengl.GL13.GL_MULTISAMPLE);
+		}
 
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
