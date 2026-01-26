@@ -86,7 +86,7 @@ public final class InGameMainMenu extends Menu {
 	private final class AbortListener implements MouseClickListener {
 		@Override
 		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			setMenuCentered(new QuestionForm(Utils.getBundleString(bundle, "end_game_confirm"), new ActionAbortListener()));
+			setMenuCentered(new QuestionForm(Menu.i18n("end_game_confirm"), new ActionAbortListener()));
 		}
 	}
 

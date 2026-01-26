@@ -40,9 +40,9 @@ final class CampaignInGameInfo implements InGameInfo {
 
 	@Override
 	public void addGUI(@NonNull WorldViewer viewer, @NonNull InGameMainMenu menu, @NonNull Group game_infos) {
-		menu.addAbortButton(Utils.getBundleString(Menu.bundle, "end_game"));
+		menu.addAbortButton(Menu.i18n("end_game"));
 		int screen_width = viewer.getGUIRoot().getWidth();
-		LabelBox label_objective = new LabelBox(Utils.getBundleString(Menu.bundle, "objective"), Skin.getSkin().getEditFont(), screen_width/2);
+		LabelBox label_objective = new LabelBox(Menu.i18n("objective"), Skin.getSkin().getEditFont(), screen_width/2);
 		LabelBox label_description = new LabelBox(campaign.getCurrentObjective(), Skin.getSkin().getEditFont(), screen_width/2);
 		game_infos.addChild(label_objective);
 		game_infos.addChild(label_description);
@@ -72,7 +72,7 @@ final class CampaignInGameInfo implements InGameInfo {
 
 	@Override
 	public void abort(@NonNull WorldViewer viewer) {
-		viewer.getGUIRoot().pushDelegate(new GameStatsDelegate(viewer, viewer.getGUIRoot().getDelegate().getCamera(), Utils.getBundleString(Menu.bundle, "game_aborted")));
+		viewer.getGUIRoot().pushDelegate(new GameStatsDelegate(viewer, viewer.getGUIRoot().getDelegate().getCamera(), Menu.i18n("game_aborted")));
 		campaign.doDefeated();
 	}
 }

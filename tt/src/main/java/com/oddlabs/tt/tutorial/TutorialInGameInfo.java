@@ -40,7 +40,7 @@ public final class TutorialInGameInfo implements InGameInfo {
 
 	@Override
 	public void addGUI(WorldViewer viewer, @NonNull InGameMainMenu menu, Group game_infos) {
-		menu.addAbortButton(Utils.getBundleString(Menu.bundle, "end_tutorial"));
+		menu.addAbortButton(Menu.i18n("end_tutorial"));
 	}
 
 	@Override

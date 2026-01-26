@@ -25,11 +25,11 @@ import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 import static com.oddlabs.tt.gui.Placement.RIGHT_TOP;
 
 public class DefaultInGameInfo implements InGameInfo {
-	private final ResourceBundle terrain_menu_bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
+	private final static ResourceBundle terrain_menu_bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
 	private boolean replay_island_flag;
 
 	private void addAbortButton(@NonNull InGameMainMenu menu) {
-		String abort_text = Utils.getBundleString(Menu.bundle, "end_game");
+		String abort_text = Menu.i18n("end_game");
 		menu.addAbortButton(abort_text);
 	}
 
@@ -148,7 +148,7 @@ public class DefaultInGameInfo implements InGameInfo {
 
 	@Override
 	public final void abort(@NonNull WorldViewer viewer) {
-		viewer.getGUIRoot().pushDelegate(new GameStatsDelegate(viewer, viewer.getGUIRoot().getDelegate().getCamera(), Utils.getBundleString(Menu.bundle, "game_aborted")));
+		viewer.getGUIRoot().pushDelegate(new GameStatsDelegate(viewer, viewer.getGUIRoot().getDelegate().getCamera(), Menu.i18n( "game_aborted")));
 	}
 
 	@Override

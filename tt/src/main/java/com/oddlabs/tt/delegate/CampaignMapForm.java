@@ -11,10 +11,8 @@ import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.MapIslandData;
 import com.oddlabs.tt.gui.ModeIconQuads;
-import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.NonFocusIconButton;
 import com.oddlabs.tt.gui.Origin;
-import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
@@ -27,9 +25,15 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
+/** presents campaign map allowing island selection */
 public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
-	private static final int base_width = 800;
-	private static final int base_height = 600;
+	private static final float BASE_WIDTH = 800f;
+	private static final float BASE_HEIGHT = 600f;
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(CampaignMapForm.class.getName());
+
+	private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
     private final float scale_x;
     private final float scale_y;
@@ -41,86 +45,88 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 		super(gui_root, new StaticCamera(new CameraState()));
 		this.campaign = campaign;
 		this.network = network;
-		final ResourceBundle bundle = ResourceBundle.getBundle(CampaignMapForm.class.getName());
 
-		this.scale_x = gui_root.getWidth()/(float)base_width;
-		this.scale_y = gui_root.getHeight()/(float)base_height;
-        
-		if (campaign.getState().getRace() == CampaignState.RACE_VIKINGS) {
-			if (campaign.getState().getIslandState(10) != CampaignState.ISLAND_HIDDEN) {
-				addChild(campaign.getIcons().getHiddenRoutes()[0]);
-				addChild(campaign.getIcons().getHiddenRoutes()[1]);
+		this.scale_x = gui_root.getWidth() / BASE_WIDTH;
+		this.scale_y = gui_root.getHeight() / BASE_HEIGHT;
+
+		switch (campaign.getState().getRace()) {
+			case CampaignState.RACE_VIKINGS -> {
+				if (campaign.getState().getIslandState(10) != CampaignState.ISLAND_HIDDEN) {
+					addChild(campaign.getIcons().getHiddenRoutes()[0]);
+					addChild(campaign.getIcons().getHiddenRoutes()[1]);
+				}
+
+				if (campaign.getState().getCurrentIsland() == 14) {
+					final Runnable runnable_menu = () -> closeCampaign(network, gui_root.getGUI());
+					final Runnable runnable_next = () -> {
+						CampaignDialogForm dialog = new CampaignDialogForm(Utils.getBundleString(bundle, "native_campaign_opened_header"),
+								i18n("native_campaign_opened"),
+								null,
+								Origin.AT_START,
+								runnable_menu);
+						gui_root.addModalForm(dialog);
+					};
+					CampaignDialogForm dialog = new CampaignDialogForm(i18n("viking_header"),
+							i18n("viking_campaign_completed"),
+							campaign.getIcons().getFaces()[0],
+							Origin.AT_START,
+							runnable_next);
+					gui_root.addModalForm(dialog);
+					Settings.getSettings().has_native_campaign = true;
+				}
 			}
 
-			if (campaign.getState().getCurrentIsland() == 14) {
-				final Runnable runnable_menu = () -> closeCampaign(network, gui_root.getGUI());
-				final Runnable runnable_next = () -> {
-                                    CampaignDialogForm dialog = new CampaignDialogForm(Utils.getBundleString(bundle, "native_campaign_opened_header"),
-                                            Utils.getBundleString(bundle, "native_campaign_opened"),
-                                            null,
-                                            Origin.AT_START,
-                                            runnable_menu);
-                                    gui_root.addModalForm(dialog);
-                                };
-				CampaignDialogForm dialog = new CampaignDialogForm(Utils.getBundleString(bundle, "viking_header"),
-						Utils.getBundleString(bundle, "viking_campaign_completed"),
-						campaign.getIcons().getFaces()[0],
-						Origin.AT_START,
-						runnable_next);
-				gui_root.addModalForm(dialog);
-				Settings.getSettings().has_native_campaign = true;
+			case CampaignState.RACE_NATIVES -> {
+				if (campaign.getState().getIslandState(7) != CampaignState.ISLAND_HIDDEN) {
+				addChild(campaign.getIcons().getHiddenRoutes()[0]);
+				}
+
+				if (campaign.getState().getCurrentIsland() == 7) {
+					Runnable runnable = () -> closeCampaign(network, gui_root.getGUI());
+					CampaignDialogForm dialog = new CampaignDialogForm(i18n("native_header"),
+							i18n("native_campaign_completed"),
+							campaign.getIcons().getFaces()[0],
+							Origin.AT_START,
+							runnable);
+					gui_root.addModalForm(dialog);
+				}
 			}
 		}
-		if (campaign.getState().getRace() == CampaignState.RACE_NATIVES) {
-			if (campaign.getState().getIslandState(7) != CampaignState.ISLAND_HIDDEN) {
-				addChild(campaign.getIcons().getHiddenRoutes()[0]);
-			}
 
-			if (campaign.getState().getCurrentIsland() == 7) {
-				Runnable runnable = () -> closeCampaign(network, gui_root.getGUI());
-				CampaignDialogForm dialog = new CampaignDialogForm(Utils.getBundleString(bundle, "native_header"),
-						Utils.getBundleString(bundle, "native_campaign_completed"),
-						campaign.getIcons().getFaces()[0],
-						Origin.AT_START,
-						runnable);
-				gui_root.addModalForm(dialog);
-			}
-		}
 		// Islands
 		for (int i = 0; i < campaign.getIcons().getNumIslands(); i++) {
 			MapIslandData data = campaign.getIcons().getMapIslandData(i);
 			int state = campaign.getState().getIslandState(i);
-			GUIObject island;
-			switch (state) {
-				case CampaignState.ISLAND_AVAILABLE:
-					island = new NonFocusIconButton(data.button(), "");
-					island.addMouseClickListener(new IslandClickListener(i));
-					addChild(island);
-					break;
-				case CampaignState.ISLAND_SEMI_AVAILABLE:
-				case CampaignState.ISLAND_UNAVAILABLE:
-					island = new GUIIcon(data.button().quad(ModeIconQuads.Mode.DISABLED));
-					addChild(island);
-					break;
-				case CampaignState.ISLAND_COMPLETED:
-					island = new GUIIcon(data.button().quad(ModeIconQuads.Mode.NORMAL));
-					addChild(island);
-					if (campaign.getState().getCurrentIsland() != i) {
-						GUIIcon flag = new GUIIcon(data.flag());
-						flag.setPos(data.pinX(), data.pinY());
-						addChild(flag);
-					} else {
-						GUIIcon boat = new GUIIcon(data.boat());
-						boat.setPos(data.pinX(), data.pinY());
-						addChild(boat);
-					}
-					break;
-				case CampaignState.ISLAND_HIDDEN:
-					island = null;
-					break;
-				default:
-					throw new IllegalArgumentException("Unexpcted island state: " + state);
-			}
+			GUIObject island = switch (state) {
+                case CampaignState.ISLAND_AVAILABLE -> {
+                    island = new NonFocusIconButton(data.button(), "");
+                    int number = i;
+                    island.addMouseClickListener((_, _, _, _) -> campaign.islandChosen(network, getGUIRoot(), number));
+                    addChild(island);
+					yield island;
+                }
+                case CampaignState.ISLAND_SEMI_AVAILABLE, CampaignState.ISLAND_UNAVAILABLE -> {
+                    island = new GUIIcon(data.button().quad(ModeIconQuads.Mode.DISABLED));
+                    addChild(island);
+					yield island;
+                }
+                case CampaignState.ISLAND_COMPLETED -> {
+                    island = new GUIIcon(data.button().quad(ModeIconQuads.Mode.NORMAL));
+                    addChild(island);
+                    if (campaign.getState().getCurrentIsland() != i) {
+                        GUIIcon flag = new GUIIcon(data.flag());
+                        flag.setPos(data.pinX(), data.pinY());
+                        addChild(flag);
+                    } else {
+                        GUIIcon boat = new GUIIcon(data.boat());
+                        boat.setPos(data.pinX(), data.pinY());
+                        addChild(boat);
+                    }
+					yield island;
+                }
+                case CampaignState.ISLAND_HIDDEN -> null;
+                default -> throw new IllegalArgumentException("Unexpected island state: " + state);
+            };
 			if (island != null)
 				island.setPos(data.x(), data.y());
 		}
@@ -128,9 +134,9 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 
 	@Override
 	public void handleInput(@NonNull InputEvent event) {
-		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
-			if (event.consumeAction(GameAction.GLOBAL_MENU)) {
-				getGUIRoot().pushDelegate(new CampaignMapMenu(network, getGUIRoot(), new StaticCamera(getCamera().getState())));
+		if (event.getPhase() == InputPhase.PRESSED) {
+			if (event.consumeAction(GameAction.GLOBAL_MENU) || event.consumeAction(GameAction.UI_CANCEL)) {
+				getGUIRoot().addModalForm(new CampaignMapMenu(network, getGUIRoot()));
 				event.consume();
 				return;
 			}
@@ -143,27 +149,8 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 	}
 
 	@Override
-	public boolean forceRender() {
-		return true;
-	}
-
-	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
 		renderer.drawIcon(campaign.getIcons().getMap(), 0f, 0f);
-//		campaign.extraRender();
-	}
-
-	private final class IslandClickListener implements MouseClickListener {
-		private final int number;
-
-		public IslandClickListener(int number) {
-			this.number = number;
-		}
-
-		@Override
-		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			campaign.islandChosen(network, getGUIRoot(), number);
-		}
 	}
 
     @Override

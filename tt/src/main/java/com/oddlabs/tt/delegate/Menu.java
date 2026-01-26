@@ -49,7 +49,11 @@ public abstract class Menu extends CameraDelegate<Camera> {
     private static final int overlay_image_height = 600;
     private static final String overlay_texture_name = "/textures/gui/mainmenu";
 
-    public static final ResourceBundle bundle = ResourceBundle.getBundle(MainMenu.class.getName());
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(MainMenu.class.getName());
+
+    public static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
 
     private final @NonNull NetworkSelector network;
 
@@ -78,7 +82,7 @@ public abstract class Menu extends CameraDelegate<Camera> {
         overlay.setPos(0, 0);
         addChild(overlay);
 
-        String logo_file = Utils.getBundleString(bundle, "logo_file");
+        String logo_file = i18n("logo_file");
         
         float heightScale = screen_height / 600f;
         int logoHeight = (int) (206f * heightScale);
@@ -94,13 +98,13 @@ public abstract class Menu extends CameraDelegate<Camera> {
     }
 
     final void addOptionsButton(@NonNull FormFactory<?> factory) {
-        MenuButton options = new MenuButton(Utils.getBundleString(bundle, "options"), COLOR_NORMAL, COLOR_ACTIVE);
+        MenuButton options = new MenuButton(i18n("options"), COLOR_NORMAL, COLOR_ACTIVE);
         options.addMouseClickListener((_,_,_,_) -> setMenuCentered(factory.create()));
         addChild(options);
     }
 
     final void addExitButton() {
-        MenuButton exit = new MenuButton(Utils.getBundleString(bundle, "quit"), COLOR_NORMAL, COLOR_ACTIVE);
+        MenuButton exit = new MenuButton(i18n("quit"), COLOR_NORMAL, COLOR_ACTIVE);
         exit.addMouseClickListener((_,_,_,_) -> setMenuCentered(new QuitForm(getGUIRoot())));
         addChild(exit);
     }
@@ -237,7 +241,7 @@ public abstract class Menu extends CameraDelegate<Camera> {
     }
 
 	protected final void addResumeButton() {
-        MenuButton resume = new MenuButton(Utils.getBundleString(bundle, "resume"), COLOR_NORMAL, COLOR_ACTIVE);
+        MenuButton resume = new MenuButton(i18n("resume"), COLOR_NORMAL, COLOR_ACTIVE);
         addChild(resume);
         resume.addMouseClickListener( (_, _, _, _) -> pop());
     }

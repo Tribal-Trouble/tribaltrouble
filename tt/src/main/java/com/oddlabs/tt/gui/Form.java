@@ -82,7 +82,7 @@ public class Form extends Group {
 	}
 
 	@Override
-	protected final void renderGeometry(@NonNull GUIRenderer renderer) {
+	protected void renderGeometry(@NonNull GUIRenderer renderer) {
         var data = Skin.getSkin().getFormData();
         var form = caption != null
                 ? data.form()
