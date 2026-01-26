@@ -1,8 +1,10 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.net.NetworkSelector;
+import com.oddlabs.tt.animation.Animated;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.StaticCamera;
+import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUI;
@@ -21,12 +23,13 @@ import com.oddlabs.tt.player.campaign.CampaignState;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.Utils;
+import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 /** presents campaign map allowing island selection */
-public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
+public final class CampaignMapForm extends CameraDelegate<StaticCamera> implements Animated {
 	private static final float BASE_WIDTH = 800f;
 	private static final float BASE_HEIGHT = 600f;
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(CampaignMapForm.class.getName());
@@ -40,6 +43,9 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 
 	private final @NonNull Campaign campaign;
 	private final @NonNull NetworkSelector network;
+    
+    private float flicker_time;
+    private final Vector4f mapColor = new Vector4f(1f, 1f, 1f, 1f);
 
 	public CampaignMapForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Campaign campaign) {
 		super(gui_root, new StaticCamera(new CameraState()));
@@ -150,8 +156,27 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> {
 
 	@Override
 	protected void renderGeometry(@NonNull GUIRenderer renderer) {
-		renderer.drawIcon(campaign.getIcons().getMap(), 0f, 0f);
+		renderer.drawIcon(campaign.getIcons().getMap(), 0f, 0f, mapColor);
 	}
+
+    @Override
+    protected void doAdd() {
+        super.doAdd();
+        LocalEventQueue.getQueue().getManager().registerAnimation(this);
+    }
+
+    @Override
+    protected void doRemove() {
+        super.doRemove();
+        LocalEventQueue.getQueue().getManager().removeAnimation(this);
+    }
+
+    @Override
+    public void animate(float t) {
+        flicker_time += t;
+        float flicker = 0.9f + (float) (0.0375 * Math.sin(flicker_time * 4.5) + 0.0375 * Math.sin(flicker_time * 10.35));
+        mapColor.set(flicker, flicker, flicker, 1f);
+    }
 
     @Override
     protected void render(@NonNull GUIRenderer renderer, float clip_left, float clip_right, float clip_bottom, float clip_top) {
