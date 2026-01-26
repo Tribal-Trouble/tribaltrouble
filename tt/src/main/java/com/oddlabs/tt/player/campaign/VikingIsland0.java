@@ -32,18 +32,18 @@ import java.util.stream.IntStream;
 public final class VikingIsland0 extends Island {
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland0.class.getName());
 
-	public VikingIsland0(Campaign campaign) {
-		super(campaign);
+	private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
 	}
 
-	private @NonNull String l18n(@NonNull String key) {
-		return Utils.getBundleString(bundle, key);
+	public VikingIsland0(Campaign campaign) {
+		super(campaign);
 	}
 
 	@Override
 	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
 		String[] ai_names = IntStream.range(0,6)
-				.mapToObj(i -> l18n( "name" + i))
+				.mapToObj(i -> i18n( "name" + i))
 				.toArray(String[]::new);
 		// gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
 		GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, .5f, 1f, .1f, 45363, 0, VikingCampaign.MAX_UNITS, ai_names);
@@ -87,8 +87,8 @@ public final class VikingIsland0 extends Island {
 		// Introduction
 		new GameStartedTrigger(getViewer().getWorld(),
                 () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), l18n("header0"),
-                            l18n("dialog0"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header0"),
+                            i18n("dialog0"),
                             getCampaign().getIcons().getFaces()[1],
                             Origin.AT_START);
                     addModalForm(dialog);
@@ -100,8 +100,8 @@ public final class VikingIsland0 extends Island {
 		// Winning condition
 		new VictoryTrigger(getViewer(),
                 () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), l18n("header1"),
-                            l18n("dialog1"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header1"),
+                            i18n("dialog1"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
 							() -> {
@@ -145,21 +145,21 @@ public final class VikingIsland0 extends Island {
 		}
 
 		// Defeat if neutrals eliminated
-		new PlayerEleminatedTrigger(() -> getCampaign().defeated(getViewer(), l18n("game_over")), chieftain);
+		new PlayerEleminatedTrigger(() -> getCampaign().defeated(getViewer(), i18n("game_over")), chieftain);
 	}
 
 	@Override
 	public @NonNull CharSequence getHeader() {
-		return l18n("header");
+		return i18n("header");
 	}
 
 	@Override
 	public @NonNull CharSequence getDescription() {
-		return l18n("description");
+		return i18n("description");
 	}
 
 	@Override
 	public @NonNull CharSequence getCurrentObjective() {
-		return l18n("objective");
+		return i18n("objective");
 	}
 }

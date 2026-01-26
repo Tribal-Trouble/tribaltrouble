@@ -31,9 +31,14 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 
 public final class NativeIsland0 extends Island {
-	private final ResourceBundle bundle = ResourceBundle.getBundle(NativeIsland0.class.getName());
+	private final static ResourceBundle bundle = ResourceBundle.getBundle(NativeIsland0.class.getName());
+
+	private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	private int objective = 0;
 
@@ -43,13 +48,9 @@ public final class NativeIsland0 extends Island {
 
 	@Override
 	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-		String[] ai_names = new String[]{Utils.getBundleString(bundle, "name0"),
-			Utils.getBundleString(bundle, "name1"),
-			Utils.getBundleString(bundle, "name2"),
-			Utils.getBundleString(bundle, "name3"),
-			Utils.getBundleString(bundle, "name4"),
-			Utils.getBundleString(bundle, "name5")};
-		// gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
+		String[] ai_names = IntStream.range(0,6)
+				.mapToObj(i -> i18n( "name" + i))
+				.toArray(String[]::new);
 		GameNetwork game_network = startNewGame(network, gui_root, 1024, Landscape.TerrainType.NATIVE, .75f, .65f, .85f, 25, 0, NativeCampaign.MAX_UNITS, ai_names);
 		game_network.getClient().getServerInterface().setPlayerSlot(0,
 				PlayerSlot.HUMAN,
@@ -109,16 +110,16 @@ public final class NativeIsland0 extends Island {
 
 		// Introduction
 		final Runnable dialog1 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
-                            Utils.getBundleString(bundle, "dialog1"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header1"),
+                            i18n("dialog1"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START);
                     addModalForm(dialog);
                 };
 		final Runnable camera_jump0 = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), chief_start_x + 7, chief_start_y + 7, 200f, 3f, dialog1));
 		final Runnable dialog0 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
-                            Utils.getBundleString(bundle, "dialog0"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header0"),
+                            i18n("dialog0"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
                             camera_jump0);
@@ -194,24 +195,24 @@ public final class NativeIsland0 extends Island {
 
 		// Winning condition
 		final Runnable dialog7 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header7"),
-                            Utils.getBundleString(bundle, "dialog7"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header7"),
+                            i18n("dialog7"),
                             getCampaign().getIcons().getFaces()[6],
                             Origin.AT_END,
                             end_game);
                     addModalForm(dialog);
                 };
 		final Runnable dialog6 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header6"),
-                            Utils.getBundleString(bundle, "dialog6"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header6"),
+                            i18n("dialog6"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
                             dialog7);
                     addModalForm(dialog);
                 };
 		final Runnable dialog5 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header5"),
-                            Utils.getBundleString(bundle, "dialog5"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header5"),
+                            i18n("dialog5"),
                             getCampaign().getIcons().getFaces()[6],
                             Origin.AT_END,
                             dialog6);
@@ -224,27 +225,27 @@ public final class NativeIsland0 extends Island {
 		float dir = (float)Math.sin(Math.PI/4);
 		float offset = HeightMap.METERS_PER_UNIT_GRID/2f;
 		float shadow_diameter = 4.5f;
-		scenery_models[0] = new SceneryModel(getViewer().getWorld(), 163*2 + offset, 126*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[0], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
+		scenery_models[0] = new SceneryModel(getViewer().getWorld(), 163*2 + offset, 126*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[0], shadow_diameter, true, i18n("statue"));
 
 		shadow_diameter = 2.6f;
-		scenery_models[1] = new SceneryModel(getViewer().getWorld(), 130*2 + offset, 124*2 + offset, -dir, -dir, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		scenery_models[2] = new SceneryModel(getViewer().getWorld(), 152*2 + offset, 138*2 + offset, dir, dir, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		scenery_models[3] = new SceneryModel(getViewer().getWorld(), 152*2 + offset, 144*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		scenery_models[4] = new SceneryModel(getViewer().getWorld(), 140*2 + offset, 140*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[4], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		scenery_models[5] = new SceneryModel(getViewer().getWorld(), 143*2 + offset, 116*2 + offset, 0, -1, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		scenery_models[6] = new SceneryModel(getViewer().getWorld(), 142*2 + offset, 131*2 + offset, dir, -dir, getViewer().getWorld().getRacesResources().getTreasures()[5], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
+		scenery_models[1] = new SceneryModel(getViewer().getWorld(), 130*2 + offset, 124*2 + offset, -dir, -dir, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, i18n("statue"));
+		scenery_models[2] = new SceneryModel(getViewer().getWorld(), 152*2 + offset, 138*2 + offset, dir, dir, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, i18n("statue"));
+		scenery_models[3] = new SceneryModel(getViewer().getWorld(), 152*2 + offset, 144*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, i18n("statue"));
+		scenery_models[4] = new SceneryModel(getViewer().getWorld(), 140*2 + offset, 140*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[4], shadow_diameter, true, i18n("statue"));
+		scenery_models[5] = new SceneryModel(getViewer().getWorld(), 143*2 + offset, 116*2 + offset, 0, -1, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, i18n("statue"));
+		scenery_models[6] = new SceneryModel(getViewer().getWorld(), 142*2 + offset, 131*2 + offset, dir, -dir, getViewer().getWorld().getRacesResources().getTreasures()[5], shadow_diameter, true, i18n("statue"));
 
-		scenery_models[7] = new SceneryModel(getViewer().getWorld(), 423*2 + offset, 174*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		scenery_models[8] = new SceneryModel(getViewer().getWorld(), 408*2 + offset, 161*2 + offset, -1, 0, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		scenery_models[9] = new SceneryModel(getViewer().getWorld(), 426*2 + offset, 156*2 + offset, dir, -dir, getViewer().getWorld().getRacesResources().getTreasures()[5], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		scenery_models[10] = new SceneryModel(getViewer().getWorld(), 418*2 + offset, 165*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		scenery_models[11] = new SceneryModel(getViewer().getWorld(), 430*2 + offset, 165*2 + offset, 1, 0, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		scenery_models[12] = new SceneryModel(getViewer().getWorld(), 419*2 + offset, 170*2 + offset, -dir, dir, getViewer().getWorld().getRacesResources().getTreasures()[4], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		scenery_models[13] = new SceneryModel(getViewer().getWorld(), 416*2 + offset, 156*2 + offset, 0, -1, getViewer().getWorld().getRacesResources().getTreasures()[5], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
+		scenery_models[7] = new SceneryModel(getViewer().getWorld(), 423*2 + offset, 174*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, i18n("statue"));
+		scenery_models[8] = new SceneryModel(getViewer().getWorld(), 408*2 + offset, 161*2 + offset, -1, 0, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, i18n("statue"));
+		scenery_models[9] = new SceneryModel(getViewer().getWorld(), 426*2 + offset, 156*2 + offset, dir, -dir, getViewer().getWorld().getRacesResources().getTreasures()[5], shadow_diameter, true, i18n("statue"));
+		scenery_models[10] = new SceneryModel(getViewer().getWorld(), 418*2 + offset, 165*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, i18n("statue"));
+		scenery_models[11] = new SceneryModel(getViewer().getWorld(), 430*2 + offset, 165*2 + offset, 1, 0, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, i18n("statue"));
+		scenery_models[12] = new SceneryModel(getViewer().getWorld(), 419*2 + offset, 170*2 + offset, -dir, dir, getViewer().getWorld().getRacesResources().getTreasures()[4], shadow_diameter, true, i18n("statue"));
+		scenery_models[13] = new SceneryModel(getViewer().getWorld(), 416*2 + offset, 156*2 + offset, 0, -1, getViewer().getWorld().getRacesResources().getTreasures()[5], shadow_diameter, true, i18n("statue"));
 
 		final Runnable dialog4 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header4"),
-                            Utils.getBundleString(bundle, "dialog4"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header4"),
+                            i18n("dialog4"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START);
                     addModalForm(dialog);
@@ -261,11 +262,10 @@ public final class NativeIsland0 extends Island {
                         scenery_model.remove();
                     }
                     // Remove Vikings
-                    Unit[] viking_units = new Unit[enemy.getUnits().getSet().size()];
-                    enemy.getUnits().getSet().toArray(Selectable.newArray(enemy.getUnits().getSet().size()));
-                    for (Unit viking_unit : viking_units) {
-                        if (!viking_unit.isDead()) {
-                            viking_unit.removeNow();
+                    Selectable<?>[] viking_units = enemy.getUnits().getSet().toArray(Selectable.newArray(0));
+                    for (Selectable<?> viking_unit : viking_units) {
+                        if (viking_unit instanceof Unit unit && !unit.isDead()) {
+                            unit.removeNow();
                         }
                     }
                     // Insert new Vikings
@@ -288,16 +288,16 @@ public final class NativeIsland0 extends Island {
                             native_selectable.hit(10000, 0, 1, enemy);
                         }
                     }
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header3"),
-                            Utils.getBundleString(bundle, "dialog3"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header3"),
+                            i18n("dialog3"),
                             getCampaign().getIcons().getFaces()[2],
                             Origin.AT_END,
                             dialog4);
                     addModalForm(dialog);
                 };
 		final Runnable dialog2 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header2"),
-                            Utils.getBundleString(bundle, "dialog2"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header2"),
+                            i18n("dialog2"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
                             dialog3);
@@ -324,17 +324,17 @@ public final class NativeIsland0 extends Island {
 
 	@Override
 	public @NonNull CharSequence getHeader() {
-		return Utils.getBundleString(bundle, "header");
+		return i18n("header");
 	}
 
 	@Override
 	public @NonNull CharSequence getDescription() {
-		return Utils.getBundleString(bundle, "description");
+		return i18n("description");
 	}
 
 	@Override
 	public @NonNull CharSequence getCurrentObjective() {
-		return Utils.getBundleString(bundle, "objective" + objective);
+		return i18n("objective" + objective);
 	}
 
 	private void changeObjective(int objective) {

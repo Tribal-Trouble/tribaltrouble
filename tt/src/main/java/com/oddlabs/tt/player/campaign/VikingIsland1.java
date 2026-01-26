@@ -31,14 +31,14 @@ public final class VikingIsland1 extends Island {
 		super(campaign);
 	}
 
-	private @NonNull String l18n(@NonNull String key) {
+	private @NonNull String i18n(@NonNull String key) {
 		return Utils.getBundleString(bundle, key);
 	}
 
 	@Override
 	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
 		String[] ai_names = IntStream.range(0,6)
-				.mapToObj(i -> l18n( "name" + i))
+				.mapToObj(i -> i18n( "name" + i))
 				.toArray(String[]::new);
 		GameNetwork game_network = startNewGame(network, gui_root, 256, Landscape.TerrainType.NATIVE, .75f, 1f, .5f, 97455, 1, VikingCampaign.MAX_UNITS, ai_names);
 		game_network.getClient().getServerInterface().setPlayerSlot(0,
@@ -78,8 +78,8 @@ public final class VikingIsland1 extends Island {
 
 		// Introduction
 		new GameStartedTrigger(getViewer().getWorld(), () -> {
-			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), l18n("header0"),
-					l18n("dialog0"),
+			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header0"),
+					i18n("dialog0"),
 					getCampaign().getIcons().getFaces()[0],
 					Origin.AT_START);
 			addModalForm(dialog);
@@ -87,8 +87,8 @@ public final class VikingIsland1 extends Island {
 
 		// Winning condition
 		new VictoryTrigger(getViewer(), () -> {
-			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), l18n("header1"),
-					l18n("dialog1"),
+			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header1"),
+					i18n("dialog1"),
 					getCampaign().getIcons().getFaces()[3],
 					Origin.AT_END,
 					() -> {
@@ -152,21 +152,21 @@ public final class VikingIsland1 extends Island {
 		}
 
 		// Defeat if neutrals eliminated
-		new PlayerEleminatedTrigger(() -> getCampaign().defeated(getViewer(), l18n("game_over")), captives);
+		new PlayerEleminatedTrigger(() -> getCampaign().defeated(getViewer(), i18n("game_over")), captives);
 	}
 
 	@Override
 	public @NonNull CharSequence getHeader() {
-		return l18n("header");
+		return i18n("header");
 	}
 
 	@Override
 	public @NonNull CharSequence getDescription() {
-		return l18n("description");
+		return i18n("description");
 	}
 
 	@Override
 	public @NonNull CharSequence getCurrentObjective() {
-		return l18n("objective");
+		return i18n("objective");
 	}
 }
