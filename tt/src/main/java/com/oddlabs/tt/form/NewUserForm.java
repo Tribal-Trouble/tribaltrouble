@@ -41,7 +41,11 @@ public final class NewUserForm extends Form {
 	private final @NonNull EditLine editline_email;
 	private final @NonNull PasswordLine editline_password;
 	private final @NonNull PasswordLine editline_verify;
-	private final ResourceBundle bundle = ResourceBundle.getBundle(NewUserForm.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(NewUserForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;
 
@@ -52,21 +56,21 @@ public final class NewUserForm extends Form {
 
 		CreateUserListener create_listener = new CreateUserListener();
 		// headline
-		Label label_headline = new Label(Utils.getBundleString(bundle, "create_new_user_caption"), Skin.getSkin().getHeadlineFont());
+		Label label_headline = new Label(i18n("create_new_user_caption"), Skin.getSkin().getHeadlineFont());
 		addChild(label_headline);
 
 		// login
 		Group login_group = new Group();
-		Label label_username = new Label(Utils.getBundleString(bundle, "user_name"), Skin.getSkin().getEditFont());
+		Label label_username = new Label(i18n("user_name"), Skin.getSkin().getEditFont());
 		editline_email = new EditLine(EDITLINE_WIDTH, 255);
 		editline_email.addEnterListener(create_listener);
-		Label label_email = new Label(Utils.getBundleString(bundle, "email"), Skin.getSkin().getEditFont());
+		Label label_email = new Label(i18n("email"), Skin.getSkin().getEditFont());
 		editline_username = new EditLine(EDITLINE_WIDTH, 255);
 		editline_username.addEnterListener(create_listener);
-		Label label_password = new Label(Utils.getBundleString(bundle, "password"), Skin.getSkin().getEditFont());
+		Label label_password = new Label(i18n("password"), Skin.getSkin().getEditFont());
 		editline_password = new PasswordLine(EDITLINE_WIDTH, 255);
 		editline_password.addEnterListener(create_listener);
-		Label label_verify = new Label(Utils.getBundleString(bundle, "reenter_password"), Skin.getSkin().getEditFont());
+		Label label_verify = new Label(i18n("reenter_password"), Skin.getSkin().getEditFont());
 		editline_verify = new PasswordLine(EDITLINE_WIDTH, 255);
 		editline_verify.addEnterListener(create_listener);
 		login_group.addChild(label_username);
@@ -92,14 +96,14 @@ public final class NewUserForm extends Form {
 		addChild(login_group);
 
 		// warning
-		Label label_one_user = new Label(Utils.getBundleString(bundle, "one_user_per_key"), Skin.getSkin().getEditFont());
+		Label label_one_user = new Label(i18n("one_user_per_key"), Skin.getSkin().getEditFont());
 		addChild(label_one_user);
 
 		// buttons
 		Group group_buttons = new Group();
 
 
-		ButtonObject button_create = new HorizButton(Utils.getBundleString(bundle, "create_user"), BUTTON_WIDTH_LONG);
+		ButtonObject button_create = new HorizButton(i18n("create_user"), BUTTON_WIDTH_LONG);
 		button_create.addMouseClickListener(create_listener);
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
 		button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
@@ -136,18 +140,18 @@ public final class NewUserForm extends Form {
 		String password = editline_password.getPasswordDigest();
 		LoginDetails login_details = new LoginDetails(editline_email.getContents());
 		if (!editline_password.getContents().equals(editline_verify.getContents())) {
-			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "no_match")));
+			gui_root.addModalForm(new MessageForm(i18n("no_match")));
 			editline_password.clear();
 			editline_verify.clear();
 		} else if (editline_password.getContents().length() < MIN_PASSWORD_LENGTH) {
-			String min_length_err = Utils.getBundleString(bundle, "min_length_error", MIN_PASSWORD_LENGTH);
+			String min_length_err = i18n("min_length_error", MIN_PASSWORD_LENGTH);
 			gui_root.addModalForm(new MessageForm(min_length_err));
 		} else if (!login_details.isValid()) {
-			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "invalid_email")));
+			gui_root.addModalForm(new MessageForm(i18n("invalid_email")));
 		} else {
 			Login login = new Login(username, password);
 			if (!login.isValid())
-				gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "invalid_login")));
+				gui_root.addModalForm(new MessageForm(i18n("invalid_login")));
 			else
 				doCreateUser(username, login_details, password, login);
 		}

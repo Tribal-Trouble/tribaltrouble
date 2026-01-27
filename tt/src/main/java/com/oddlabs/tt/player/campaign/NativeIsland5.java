@@ -16,9 +16,14 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 
 public final class NativeIsland5 extends Island {
-	private final ResourceBundle bundle = ResourceBundle.getBundle(NativeIsland5.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(NativeIsland5.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	public NativeIsland5(Campaign campaign) {
 		super(campaign);
@@ -26,12 +31,9 @@ public final class NativeIsland5 extends Island {
 
 	@Override
 	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-		String[] ai_names = new String[]{Utils.getBundleString(bundle, "name0"),
-			Utils.getBundleString(bundle, "name1"),
-			Utils.getBundleString(bundle, "name2"),
-			Utils.getBundleString(bundle, "name3"),
-			Utils.getBundleString(bundle, "name4"),
-			Utils.getBundleString(bundle, "name5")};
+		String[] ai_names = IntStream.range(0,6)
+				.mapToObj(i -> i18n( "name" + i))
+				.toArray(String[]::new);
 		// gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
 		GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.VIKING, 1f, 1f, 1f, 4, 5, NativeCampaign.MAX_UNITS, ai_names);
 		game_network.getClient().getServerInterface().setPlayerSlot(0,
@@ -68,8 +70,8 @@ public final class NativeIsland5 extends Island {
 		Runnable runnable;
 		// Introduction
 		final Runnable dialog0 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
-                            Utils.getBundleString(bundle, "dialog0"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header0"),
+                            i18n("dialog0"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START);
                     addModalForm(dialog);
@@ -86,8 +88,8 @@ public final class NativeIsland5 extends Island {
 
 		// Winning condition
 		runnable = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
-                            Utils.getBundleString(bundle, "dialog1"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header1"),
+                            i18n("dialog1"),
                             getCampaign().getIcons().getFaces()[8],
                             Origin.AT_END,
                             prize);
@@ -98,16 +100,16 @@ public final class NativeIsland5 extends Island {
 
 	@Override
 	public @NonNull CharSequence getHeader() {
-		return Utils.getBundleString(bundle, "header");
+		return i18n("header");
 	}
 
 	@Override
 	public @NonNull CharSequence getDescription() {
-		return Utils.getBundleString(bundle, "description");
+		return i18n("description");
 	}
 
 	@Override
 	public @NonNull CharSequence getCurrentObjective() {
-		return Utils.getBundleString(bundle, "objective");
+		return i18n("objective");
 	}
 }

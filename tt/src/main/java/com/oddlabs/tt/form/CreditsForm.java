@@ -18,9 +18,14 @@ import java.util.ResourceBundle;
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 
 public final class CreditsForm extends Form {
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(CreditsForm.class.getName());
+
+	private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+
 	public CreditsForm() {
-		ResourceBundle bundle = ResourceBundle.getBundle(CreditsForm.class.getName());
-		Label head_label = new Label(Utils.getBundleString(bundle, "about"), Skin.getSkin().getHeadlineFont());
+		Label head_label = new Label(i18n("about"), Skin.getSkin().getHeadlineFont());
 		addChild(head_label);
 		head_label.place();
 
@@ -37,11 +42,10 @@ public final class CreditsForm extends Form {
 	}
 
 	private static @NonNull Panel createAboutPanel(@NonNull ResourceBundle bundle) {
-		Panel about = new Panel(Utils.getBundleString(bundle, "about"));
+		Panel about = new Panel(i18n("about"));
 		TextBox about_box = new TextBox(400, 300, Skin.getSkin().getEditFont(), 100000);
 		about.addChild(about_box);
-		String about_text = Utils.getBundleString(bundle, "about_text",
-				Integer.toString(Renderer.getLocalInput().getRevision()));
+		String about_text = i18n("about_text", Integer.toString(Renderer.getLocalInput().getRevision()));
 		about_box.append(about_text);
 
 		about_box.place();
@@ -50,19 +54,19 @@ public final class CreditsForm extends Form {
 	}
 
 	private static @NonNull Panel createCreditsPanel(@NonNull ResourceBundle bundle) {
-		Panel credits = new Panel(Utils.getBundleString(bundle, "credits"));
+		Panel credits = new Panel(i18n("credits"));
 		TextBox credits_box = new TextBox(400, 300, Skin.getSkin().getEditFont(), 100000);
 		credits.addChild(credits_box);
-		credits_box.append(Utils.getBundleString(bundle, "game_design_and_programming") + "\n");
+		credits_box.append(i18n("game_design_and_programming") + "\n");
 		credits_box.append("Elias Naur\n");
 		credits_box.append("Mikkel Jensen\n");
 		credits_box.append("Sune Nielsen\n");
 		credits_box.append("Jacob Olsen\n");
 		credits_box.append("\n");
-		credits_box.append(Utils.getBundleString(bundle, "3d_artwork_and_animation") + "\n");
+		credits_box.append(i18n("3d_artwork_and_animation") + "\n");
 		credits_box.append("Chaz Willets\n");
 		credits_box.append("\n");
-		credits_box.append(Utils.getBundleString(bundle, "audio") + "\n");
+		credits_box.append(i18n("audio") + "\n");
 		credits_box.append("Michael Huang\n");
 		credits_box.append("Nicklas Schmidt\n");
 		credits_box.append("Herman Witkam");
@@ -72,11 +76,11 @@ public final class CreditsForm extends Form {
 	}
 
 	private static @NonNull Panel createThanksPanel(@NonNull ResourceBundle bundle) {
-		Panel thanks = new Panel(Utils.getBundleString(bundle, "thanks_to"));
+		Panel thanks = new Panel(i18n("thanks_to"));
 		TextBox thanks_box = new TextBox(400, 300, Skin.getSkin().getEditFont(), 100000);
 		thanks.addChild(thanks_box);
-		thanks_box.append(Utils.getBundleString(bundle, "thanks") + "\n");
-		thanks_box.append(Utils.getBundleString(bundle, "oddlabs_thanks") + "\n");
+		thanks_box.append(i18n("thanks") + "\n");
+		thanks_box.append(i18n("oddlabs_thanks") + "\n");
 		thanks_box.append("\n");
 		thanks_box.append("Caspian Rychlik-Prince\n");
 		thanks_box.append("Brian Matzon\n");
@@ -87,7 +91,7 @@ public final class CreditsForm extends Form {
 		thanks_box.append("Christian Mosbæk\n");
 		thanks_box.append("Camilla Dahle\n");
 		thanks_box.append("\n");
-		thanks_box.append(Utils.getBundleString(bundle, "beta_thank") + "\n");
+		thanks_box.append(i18n("beta_thank") + "\n");
 		thanks_box.append("\n");
 		thanks_box.append("Patric Schenke\n");
 		thanks_box.append("Oliver Hutt\n");
@@ -109,10 +113,10 @@ public final class CreditsForm extends Form {
 		thanks_box.append("Tonny L. Rasmussen\n");
 		thanks_box.append("Bjørn Andersen\n");
 		thanks_box.append("\n");
-		thanks_box.append(Utils.getBundleString(bundle, "additional_thanks") + "\n");
+		thanks_box.append(i18n("additional_thanks") + "\n");
 		thanks_box.append("\n");
-		thanks_box.append(Utils.getBundleString(bundle, "special_thanks") + "\n");
-		thanks_box.append(Utils.getBundleString(bundle, "special_thanks_text") + "\n");
+		thanks_box.append(i18n("special_thanks") + "\n");
+		thanks_box.append(i18n("special_thanks_text") + "\n");
 		thanks_box.append("\n");
 		thanks_box.append("Niels Haulrich AKA \"DJ Fnillerz\"\n");
 		thanks_box.append("Morten M. Hansen AKA \"blue\"\n");

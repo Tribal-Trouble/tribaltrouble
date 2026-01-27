@@ -11,6 +11,12 @@ import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public final class ProgressBar extends GUIObject {
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(ProgressBar.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+
 	private record Waypoint(int point, float weight) {}
 
 	private final @NonNull ProgressBarInfo @NonNull [] info;
@@ -66,7 +72,7 @@ public final class ProgressBar extends GUIObject {
         float done = (offset + step)/getWidth();
 		ResourceBundle bundle = ResourceBundle.getBundle(ProgressBar.class.getName());
 		int percentage = (int)(done*100);
-		String string = Utils.getBundleString(bundle, "loading", percentage);
+		String string = i18n("loading", percentage);
 		TextLineRenderer.render(renderer, Skin.getSkin().getHeadlineFont(), string, 0, 0, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Color.WHITE);
 	}
 

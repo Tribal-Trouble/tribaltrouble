@@ -18,8 +18,17 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 
 public final class Utils {
+
+	@FunctionalInterface
+	public interface I18N extends BiFunction<@NonNull String, @NonNull Object @NonNull [], @NonNull String> {
+		default @NonNull String apply(@NonNull String key, @NonNull Object @NonNull [] args) {
+			return i18n(key, args);
+		}
+		@NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args);
+	}
 
 	public static @NonNull String getBundleString(@NonNull ResourceBundle bundle, @NonNull String key, Object... object_array) {
 		return MessageFormat.format(bundle.getString(key), object_array);
@@ -30,17 +39,15 @@ public final class Utils {
 	}
 
 	public static @NonNull FloatBuffer toBuffer(float @NonNull [] floats) {
-		FloatBuffer buffer = BufferUtils.createFloatBuffer(floats.length);
-		buffer.put(floats);
-		buffer.rewind();
-		return buffer;
+		return BufferUtils.createFloatBuffer(floats.length)
+				.put(floats)
+				.rewind();
 	}
 
 	public static @NonNull ShortBuffer toBuffer(short @NonNull [] shorts) {
-		ShortBuffer buffer = BufferUtils.createShortBuffer(shorts.length);
-		buffer.put(shorts);
-		buffer.rewind();
-		return buffer;
+		return BufferUtils.createShortBuffer(shorts.length)
+				.put(shorts)
+				.rewind();
 	}
 
     public static @NonNull ByteBuffer ioResourceToByteBuffer(@NonNull URL url) throws IOException {

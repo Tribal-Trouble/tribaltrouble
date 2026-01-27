@@ -11,6 +11,11 @@ import java.util.logging.Logger;
 
 public final class Main {
     private static final Logger logger = Logger.getLogger(Main.class.getName());
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(Main.class.getName());
+
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
 
 	public static void fail(@NonNull Throwable t) {
         logger.log(Level.SEVERE, "Critical Failure", t);
@@ -19,11 +24,10 @@ public final class Main {
             while (t.getCause() != null) {
                 t = t.getCause();
             }
-            ResourceBundle bundle = ResourceBundle.getBundle(Main.class.getName());
-            String error = Utils.getBundleString(bundle, "error");
+            String error = i18n("error");
             String error_msg;
             try {
-                error_msg = Utils.getBundleString(bundle, "error_message", t.toString());
+                error_msg = i18n("error_message", t.toString());
             } catch (IllegalArgumentException e) {
                 // Fallback if message formatting fails (e.g. quotes in exception message)
                 error_msg = "Error: " + t.toString();

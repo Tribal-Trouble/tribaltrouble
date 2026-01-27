@@ -11,22 +11,27 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.net.Network;
 import com.oddlabs.tt.net.ProfileListener;
 import com.oddlabs.tt.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
 
 public final class CreatingProfileForm extends Form implements ProfileListener {
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(CreatingProfileForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 	private final Form profiles_form;
 	private final Menu main_menu;
-	private final ResourceBundle bundle = ResourceBundle.getBundle(CreatingProfileForm.class.getName());
 	private final GUIRoot gui_root;
 
 	public CreatingProfileForm(GUIRoot gui_root, Form profiles_form, Menu main_menu, String nick) {
 		this.gui_root = gui_root;
 		this.profiles_form = profiles_form;
 		this.main_menu = main_menu;
-		Label info_label = new Label(Utils.getBundleString(bundle, "creating"), Skin.getSkin().getHeadlineFont());
+		Label info_label = new Label(i18n("creating"), Skin.getSkin().getHeadlineFont());
 		addChild(info_label);
 		HorizButton cancel_button = new CancelButton(120);
 		addChild(cancel_button);
@@ -56,18 +61,18 @@ public final class CreatingProfileForm extends Form implements ProfileListener {
 		remove();
 		String error_message = switch (error_code) {
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_MANY ->
-                    Utils.getBundleString(bundle, "username_error_too_many");
+                    i18n("username_error_too_many");
             case MatchmakingClientInterface.PROFILE_ERROR_GUEST ->
-                    Utils.getBundleString(bundle, "profile_error_guest", "Guest");
+                    i18n("profile_error_guest", "Guest");
             case MatchmakingClientInterface.USERNAME_ERROR_ALREADY_EXISTS ->
-                    Utils.getBundleString(bundle, "username_error_already_exists");
+                    i18n("username_error_already_exists");
             case MatchmakingClientInterface.USERNAME_ERROR_INVALID_CHARACTERS ->
-                    Utils.getBundleString(bundle, "username_error_invalid_characters");
+                    i18n("username_error_invalid_characters");
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_LONG ->
-                    Utils.getBundleString(bundle, "username_error_too_long");
+                    i18n("username_error_too_long");
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_SHORT ->
-                    Utils.getBundleString(bundle, "username_error_too_short");
-            default -> throw new RuntimeException("Unknown error code: " + error_code);
+                    i18n("username_error_too_short");
+            default -> throw new IllegalArgumentException("Unknown error code: " + error_code);
         };
         gui_root.addModalForm(new MessageForm(error_message));
 	}

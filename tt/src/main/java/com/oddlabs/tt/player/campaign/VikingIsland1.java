@@ -31,10 +31,9 @@ public final class VikingIsland1 extends Island {
 		super(campaign);
 	}
 
-	private @NonNull String i18n(@NonNull String key) {
-		return Utils.getBundleString(bundle, key);
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
 	}
-
 	@Override
 	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
 		String[] ai_names = IntStream.range(0,6)

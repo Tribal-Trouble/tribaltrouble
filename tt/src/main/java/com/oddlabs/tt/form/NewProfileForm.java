@@ -27,6 +27,11 @@ public final class NewProfileForm extends Form {
 	private static final int BUTTON_WIDTH = 100;
 	private static final int BUTTON_WIDTH_LONG = 150;
 	private static final int EDITLINE_WIDTH = 240;
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(NewProfileForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	private final Menu main_menu;
 	private final ProfilesForm profiles_form;
@@ -38,13 +43,13 @@ public final class NewProfileForm extends Form {
 		this.main_menu = main_menu;
 		this.profiles_form = profiles_form;
 
-		ResourceBundle bundle = ResourceBundle.getBundle(NewProfileForm.class.getName());
+
 		// headline
-		Label label_headline = new Label(Utils.getBundleString(bundle, "create_profile_caption"), Skin.getSkin().getHeadlineFont());
+		Label label_headline = new Label(i18n("create_profile_caption"), Skin.getSkin().getHeadlineFont());
 		addChild(label_headline);
 
 		// login
-		Label label_nick = new Label(Utils.getBundleString(bundle, "nick"), Skin.getSkin().getEditFont());
+		Label label_nick = new Label(i18n("nick"), Skin.getSkin().getEditFont());
 		editline_nick = new EditLine(EDITLINE_WIDTH, 255);
 		editline_nick.addEnterListener(new CreateProfileListener());
 		addChild(label_nick);
@@ -55,7 +60,7 @@ public final class NewProfileForm extends Form {
 		editline_nick.place(label_nick, RIGHT_MID);
 
 		Group group_buttons = new Group();
-		ButtonObject button_create = new HorizButton(Utils.getBundleString(bundle, "create_profile"), BUTTON_WIDTH_LONG);
+		ButtonObject button_create = new HorizButton(i18n("create_profile"), BUTTON_WIDTH_LONG);
 		button_create.addMouseClickListener(new CreateProfileListener());
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
 		button_cancel.addMouseClickListener(( _,  _,  _,  _) -> this.cancel());

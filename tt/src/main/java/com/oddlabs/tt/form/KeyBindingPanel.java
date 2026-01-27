@@ -33,16 +33,14 @@ import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 public class KeyBindingPanel extends Panel {
     private final @NonNull MultiColumnComboBox<GameAction> list_box;
     private final @NonNull GUIRoot gui_root;
-    private final @NonNull ResourceBundle bundle;
 
-    public KeyBindingPanel(@NonNull GUIRoot gui_root, @NonNull ResourceBundle bundle) {
-        super(Utils.getBundleString(bundle, "key_bindings_title"));
+    public KeyBindingPanel(@NonNull GUIRoot gui_root) {
+        super(AbstractOptionsMenu.i18n("key_bindings_title"));
         this.gui_root = gui_root;
-        this.bundle = bundle;
 
         ColumnInfo[] infos = new ColumnInfo[]{
-            new ColumnInfo(Utils.getBundleString(bundle, "column_action"), 200),
-            new ColumnInfo(Utils.getBundleString(bundle, "column_bindings"), 300)
+            new ColumnInfo(AbstractOptionsMenu.i18n("column_action"), 200),
+            new ColumnInfo(AbstractOptionsMenu.i18n("column_bindings"), 300)
         };
         
         list_box = new MultiColumnComboBox<>(gui_root, infos, 300, false);
@@ -66,20 +64,20 @@ public class KeyBindingPanel extends Panel {
         Group button_group = new Group();
         addChild(button_group);
         
-        HorizButton btn_reset = new HorizButton(Utils.getBundleString(bundle, "btn_reset_all"), 100);
+        HorizButton btn_reset = new HorizButton(AbstractOptionsMenu.i18n("btn_reset_all"), 100);
         btn_reset.addMouseClickListener((_,_,_,_) -> {
-            gui_root.addModalForm(new QuestionForm(Utils.getBundleString(bundle, "confirm_reset_all"), (_,_,_,_) -> {
+            gui_root.addModalForm(new QuestionForm(AbstractOptionsMenu.i18n("confirm_reset_all"), (_,_,_,_) -> {
                 Renderer.getLocalInput().getInputManager().resetToDefaults();
                 updateList();
             }));
         });
         button_group.addChild(btn_reset);
         
-        HorizButton btn_save = new HorizButton(Utils.getBundleString(bundle, "btn_save_bindings"), 100);
+        HorizButton btn_save = new HorizButton(AbstractOptionsMenu.i18n("btn_save_bindings"), 100);
         btn_save.addMouseClickListener((_,_,_,_) -> saveMappings());
         button_group.addChild(btn_save);
         
-        HorizButton btn_load = new HorizButton(Utils.getBundleString(bundle, "btn_load_bindings"), 100);
+        HorizButton btn_load = new HorizButton(AbstractOptionsMenu.i18n("btn_load_bindings"), 100);
         btn_load.addMouseClickListener((_,_,_,_) -> loadMappings());
         button_group.addChild(btn_load);
         
@@ -102,7 +100,7 @@ public class KeyBindingPanel extends Panel {
             }
             String name;
             try {
-                name = Utils.getBundleString(bundle, "action." + action.name());
+                name = AbstractOptionsMenu.i18n("action." + action.name());
             } catch (Exception e) {
                 name = action.name();
             }
@@ -137,13 +135,13 @@ public class KeyBindingPanel extends Panel {
             Renderer.getRenderer().toggleFullscreen();
         }
 
-        String path = TinyFileDialogs.tinyfd_saveFileDialog(Utils.getBundleString(bundle, "dialog_save_bindings"), "", null, Utils.getBundleString(bundle, "json_files"));
+        String path = TinyFileDialogs.tinyfd_saveFileDialog(AbstractOptionsMenu.i18n("dialog_save_bindings"), "", null, AbstractOptionsMenu.i18n("json_files"));
         if (path != null) {
             String json = Renderer.getLocalInput().getInputManager().exportBindings();
             try {
                 Files.writeString(Path.of(path), json);
             } catch (IOException e) {
-                gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "error_save_failed", e.getMessage())));
+                gui_root.addModalForm(new MessageForm(AbstractOptionsMenu.i18n("error_save_failed", e.getMessage())));
             }
         }
 
@@ -158,14 +156,14 @@ public class KeyBindingPanel extends Panel {
             Renderer.getRenderer().toggleFullscreen();
         }
 
-        String path = TinyFileDialogs.tinyfd_openFileDialog(Utils.getBundleString(bundle, "dialog_load_bindings"), "", null, Utils.getBundleString(bundle, "json_files"), false);
+        String path = TinyFileDialogs.tinyfd_openFileDialog(AbstractOptionsMenu.i18n("dialog_load_bindings"), "", null, AbstractOptionsMenu.i18n("json_files"), false);
         if (path != null) {
             try {
                 String json = Files.readString(Path.of(path));
                 Renderer.getLocalInput().getInputManager().importBindings(json);
                 updateList();
             } catch (IOException e) {
-                gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "error_load_failed", e.getMessage())));
+                gui_root.addModalForm(new MessageForm(AbstractOptionsMenu.i18n("error_load_failed", e.getMessage())));
             }
         }
 

@@ -25,7 +25,7 @@ import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 import static com.oddlabs.tt.gui.Placement.RIGHT_TOP;
 
 public class DefaultInGameInfo implements InGameInfo {
-	private final static ResourceBundle terrain_menu_bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
+	private static final  ResourceBundle terrain_menu_bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
 	private boolean replay_island_flag;
 
 	private void addAbortButton(@NonNull InGameMainMenu menu) {
@@ -49,23 +49,23 @@ public class DefaultInGameInfo implements InGameInfo {
 	}
 
 	protected final void addGameOverGUI(final @NonNull WorldViewer viewer, final @NonNull GameStatsDelegate delegate, int header_y, @NonNull Group group, boolean replay) {
-		String map_code_str = Utils.getBundleString(GameStatsDelegate.bundle, "map_code", viewer.getParameters().getMapcode());
+		String map_code_str = GameStatsDelegate.i18n("map_code", viewer.getParameters().getMapcode());
 		Label map_code = new Label(map_code_str, Skin.getSkin().getEditFont());
 		delegate.addChild(map_code);
 		map_code.setPos((delegate.getWidth() - map_code.getWidth())/2, header_y - map_code.getHeight());
 
-		HorizButton button_replay = new HorizButton(Utils.getBundleString(GameStatsDelegate.bundle, "replay_island"), 150);
+		HorizButton button_replay = new HorizButton(GameStatsDelegate.i18n("replay_island"), 150);
 		button_replay.addMouseClickListener( (_, _, _, _) -> {
                     replay_island_flag = true;
                     delegate.startMenu();
                 });
-		HorizButton button_observer = new HorizButton(Utils.getBundleString(GameStatsDelegate.bundle, "observer_mode"), 150);
+		HorizButton button_observer = new HorizButton(GameStatsDelegate.i18n("observer_mode"), 150);
 		button_observer.addMouseClickListener( (_, _, _, _) -> {
                     delegate.getViewer().getDelegate().setObserverMode();
                     delegate.pop();
                 });
 
-		HorizButton button_end = new HorizButton(Utils.getBundleString(GameStatsDelegate.bundle, "main_menu"), 150);
+		HorizButton button_end = new HorizButton(GameStatsDelegate.i18n("main_menu"), 150);
 		button_end.addMouseClickListener( (_, _, _, _) -> delegate.startMenu());
 
 		if (replay)

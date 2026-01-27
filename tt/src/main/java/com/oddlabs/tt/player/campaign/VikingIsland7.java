@@ -16,7 +16,6 @@ import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.procedural.Landscape;
 import com.oddlabs.tt.trigger.campaign.GameStartedTrigger;
 import com.oddlabs.tt.trigger.campaign.VictoryTrigger;
-import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
@@ -30,7 +29,7 @@ public final class VikingIsland7 extends Island {
 	}
 
 	private @NonNull String i18n(@NonNull String key) {
-		return Utils.getBundleString(bundle, key);
+		return i18n(key);
 	}
 
 	@Override

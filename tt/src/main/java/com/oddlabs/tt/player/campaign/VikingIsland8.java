@@ -27,9 +27,14 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 
 public final class VikingIsland8 extends Island {
-	private final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland8.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland8.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	private int objective = 0;
 	
@@ -39,12 +44,9 @@ public final class VikingIsland8 extends Island {
 
 	@Override
 	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-		String[] ai_names = new String[]{Utils.getBundleString(bundle, "name0"),
-			Utils.getBundleString(bundle, "name1"),
-			Utils.getBundleString(bundle, "name2"),
-			Utils.getBundleString(bundle, "name3"),
-			Utils.getBundleString(bundle, "name4"),
-			Utils.getBundleString(bundle, "name5")};
+		String[] ai_names = IntStream.range(0,6)
+				.mapToObj(i -> i18n( "name" + i))
+				.toArray(String[]::new);
 		// gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
 		GameNetwork game_network = startNewGame(network, gui_root, 1024, Landscape.TerrainType.NATIVE, 1f, 1f, 0f, 285914281, 8, VikingCampaign.MAX_UNITS, ai_names);
 		game_network.getClient().getServerInterface().setPlayerSlot(0,
@@ -84,8 +86,8 @@ public final class VikingIsland8 extends Island {
 		// Introduction
 		final Runnable camera_jump = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), 170*2, 160*2, 200f, 3f));
 		new GameStartedTrigger(getViewer().getWorld(), () -> {
-			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
-					Utils.getBundleString(bundle, "dialog0"),
+			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header0"),
+					i18n("dialog0"),
 					getCampaign().getIcons().getFaces()[0],
 					Origin.AT_START,
 					camera_jump);
@@ -111,8 +113,8 @@ public final class VikingIsland8 extends Island {
 
 		// Give blast when arrived
 		new NearPointTrigger(354, 478, 4, local_player.getChieftain(), () -> {
-			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
-					Utils.getBundleString(bundle, "dialog1"),
+			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header1"),
+					i18n("dialog1"),
 					getCampaign().getIcons().getFaces()[0],
 					Origin.AT_START);
 			addModalForm(dialog);
@@ -296,8 +298,8 @@ public final class VikingIsland8 extends Island {
 			neutrals[14] = new Unit(lost, 272*2, 323*2, null, lost.getRace().getUnitTemplate(Race.UNIT_WARRIOR_RUBBER));
 		}
 		new NearArmyTrigger(neutrals, 10f, local_player, () -> {
-			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header2"),
-					Utils.getBundleString(bundle, "dialog2"),
+			CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header2"),
+					i18n("dialog2"),
 					getCampaign().getIcons().getFaces()[4],
 					Origin.AT_END);
 			addModalForm(dialog);
@@ -323,17 +325,17 @@ public final class VikingIsland8 extends Island {
 
 	@Override
 	public @NonNull CharSequence getHeader() {
-		return Utils.getBundleString(bundle, "header");
+		return i18n("header");
 	}
 
 	@Override
 	public @NonNull CharSequence getDescription() {
-		return Utils.getBundleString(bundle, "description");
+		return i18n("description");
 	}
 
 	@Override
 	public @NonNull CharSequence getCurrentObjective() {
-		return Utils.getBundleString(bundle, "objective" + objective);
+		return i18n("objective" + objective);
 	}
 
 	private void changeObjective(int objective) {

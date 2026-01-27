@@ -93,7 +93,11 @@ public final class TerrainMenu extends Group {
 	private final @NonNull CheckBox cb_rated;
 	private final boolean multiplayer;
 	private final @NonNull PulldownMenu<Void> pm_gamespeed;
-	private final ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 	private final @NonNull GUIRoot gui_root;
 	private final @NonNull NetworkSelector network;
 	private int seed;
@@ -125,19 +129,19 @@ public final class TerrainMenu extends Group {
 		this.gui_root = gui_root;
 
 		// headline
-		Label label_headline = new Label(Utils.getBundleString(bundle, multiplayer ? "new_game" : "skirmish"), Skin.getSkin().getHeadlineFont());
+		Label label_headline = new Label(i18n(multiplayer ? "new_game" : "skirmish"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
-		Panel standard = new Panel(Utils.getBundleString(bundle, "standard_options"));
-		Panel advanced = new Panel(Utils.getBundleString(bundle, "advanced_options"));
+		Panel standard = new Panel(i18n("standard_options"));
+		Panel advanced = new Panel(i18n("advanced_options"));
 		Group group_map_options = new Group();
 
 		// game name
-		Label label_name = new Label(Utils.getBundleString(bundle, "game_name"), Skin.getSkin().getEditFont());
+		Label label_name = new Label(i18n("game_name"), Skin.getSkin().getEditFont());
 		Label label_default_name = null;
 		editline_name = new EditLine(180, Game.MAX_LENGTH);
 		if (multiplayer) {
 			standard.addChild(label_name);
-			String default_name = Utils.getBundleString(bundle, "default_name", Network.getMatchmakingClient().getProfile().getNick());
+			String default_name = i18n("default_name", Network.getMatchmakingClient().getProfile().getNick());
 			label_default_name = new Label(default_name, Skin.getSkin().getEditFont());
 			editline_name.append(default_name);
 			if (Renderer.isRegistered())
@@ -145,8 +149,8 @@ public final class TerrainMenu extends Group {
 			else
 				standard.addChild(label_default_name);
 		}
-		String rated_tip = Utils.getBundleString(bundle, "rated_game_tip", GameSession.MIN_WINS_FOR_RANKING);
-		cb_rated = new CheckBox(false, Utils.getBundleString(bundle, "rated_game"), rated_tip);
+		String rated_tip = i18n("rated_game_tip", GameSession.MIN_WINS_FOR_RANKING);
+		cb_rated = new CheckBox(false, i18n("rated_game"), rated_tip);
 		if (multiplayer ) {
 			standard.addChild(cb_rated);
 			cb_rated.setDisabled(Network.getMatchmakingClient().getProfile() == null || Network.getMatchmakingClient().getProfile().getWins() < GameSession.MIN_WINS_FOR_RANKING);
@@ -154,7 +158,7 @@ public final class TerrainMenu extends Group {
 
 		// gamespeed
 		Group group_gamespeed = new Group();
-		Label label_gamespeed = new Label(Utils.getBundleString(bundle, "gamespeed"), Skin.getSkin().getEditFont());
+		Label label_gamespeed = new Label(i18n("gamespeed"), Skin.getSkin().getEditFont());
 		group_gamespeed.addChild(label_gamespeed);
 		pm_gamespeed = new PulldownMenu<>();
 		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_SLOW)));
@@ -173,7 +177,7 @@ public final class TerrainMenu extends Group {
 		// size
 		Group group_size = new Group();
 
-		Label label_size = new Label(Utils.getBundleString(bundle, "island_size"), Skin.getSkin().getEditFont());
+		Label label_size = new Label(i18n("island_size"), Skin.getSkin().getEditFont());
 		group_size.addChild(label_size);
 
 		pulldown_size = new PulldownMenu<>();
@@ -190,7 +194,7 @@ public final class TerrainMenu extends Group {
 		pulldown_size.addItemChosenListener(new PulldownUpdateMapcodeListener());
 
 		// seed
-		Label label_seed = new Label(Utils.getBundleString(bundle, "map_code"), Skin.getSkin().getEditFont());
+		Label label_seed = new Label(i18n("map_code"), Skin.getSkin().getEditFont());
 		label_mapcode = new Label("", Skin.getSkin().getHeadlineFont(), 250);
 
 		Group group_seed = new Group();
@@ -203,7 +207,7 @@ public final class TerrainMenu extends Group {
 
 		// terrain_type
 		Group group_terrain_type = new Group();
-		Label label_terrain_type = new Label(Utils.getBundleString(bundle, "terrain_type"), Skin.getSkin().getEditFont());
+		Label label_terrain_type = new Label(i18n("terrain_type"), Skin.getSkin().getEditFont());
 		group_terrain_type.addChild(label_terrain_type);
 		pm_terrain_type = new PulldownMenu<>();
 		pm_terrain_type.addItem(new PulldownItem<>(ServerMessageBundler.getTerrainTypeString(Game.TERRAIN_TYPE_NATIVE)));
@@ -218,33 +222,33 @@ public final class TerrainMenu extends Group {
 
 		Group group_sliders = new Group();
 		// hills
-		Label label_hills_low = new Label(Utils.getBundleString(bundle, "min"), Skin.getSkin().getEditFont());
+		Label label_hills_low = new Label(i18n("min"), Skin.getSkin().getEditFont());
 		group_sliders.addChild(label_hills_low);
-		Label label_hills_high = new Label(Utils.getBundleString(bundle, "max"), Skin.getSkin().getEditFont());
+		Label label_hills_high = new Label(i18n("max"), Skin.getSkin().getEditFont());
 		group_sliders.addChild(label_hills_high);
-		Label label_hills = new Label(Utils.getBundleString(bundle, "hills"), Skin.getSkin().getEditFont());
+		Label label_hills = new Label(i18n("hills"), Skin.getSkin().getEditFont());
 		group_sliders.addChild(label_hills);
 		slider_hills = new Slider(SLIDER_LENGTH, 0, SLIDER_MAX_VALUE, SLIDER_MAX_VALUE/2);
 		slider_hills.addValueListener(new SliderUpdateMapcodeListener());
 		group_sliders.addChild(slider_hills);
 
 		// vegetation
-		Label label_vegetation_low = new Label(Utils.getBundleString(bundle, "min"), Skin.getSkin().getEditFont());
+		Label label_vegetation_low = new Label(i18n("min"), Skin.getSkin().getEditFont());
 		group_sliders.addChild(label_vegetation_low);
-		Label label_vegetation_high = new Label(Utils.getBundleString(bundle, "max"), Skin.getSkin().getEditFont());
+		Label label_vegetation_high = new Label(i18n("max"), Skin.getSkin().getEditFont());
 		group_sliders.addChild(label_vegetation_high);
-		Label label_vegetation = new Label(Utils.getBundleString(bundle, "trees"), Skin.getSkin().getEditFont());
+		Label label_vegetation = new Label(i18n("trees"), Skin.getSkin().getEditFont());
 		group_sliders.addChild(label_vegetation);
 		slider_vegetation = new Slider(SLIDER_LENGTH, 0, SLIDER_MAX_VALUE, SLIDER_MAX_VALUE/2);
 		slider_vegetation.addValueListener(new SliderUpdateMapcodeListener());
 		group_sliders.addChild(slider_vegetation);
 
 		// supplies
-		Label label_supplies_low = new Label(Utils.getBundleString(bundle, "min"), Skin.getSkin().getEditFont());
+		Label label_supplies_low = new Label(i18n("min"), Skin.getSkin().getEditFont());
 		group_sliders.addChild(label_supplies_low);
-		Label label_supplies_high = new Label(Utils.getBundleString(bundle, "max"), Skin.getSkin().getEditFont());
+		Label label_supplies_high = new Label(i18n("max"), Skin.getSkin().getEditFont());
 		group_sliders.addChild(label_supplies_high);
-		Label label_supplies = new Label(Utils.getBundleString(bundle, "resources"), Skin.getSkin().getEditFont());
+		Label label_supplies = new Label(i18n("resources"), Skin.getSkin().getEditFont());
 		group_sliders.addChild(label_supplies);
 		slider_supplies = new Slider(SLIDER_LENGTH, 0, SLIDER_MAX_VALUE, SLIDER_MAX_VALUE/2);
 		slider_supplies.addValueListener(new SliderUpdateMapcodeListener());
@@ -286,12 +290,12 @@ public final class TerrainMenu extends Group {
 			team_pulldown_menus[i] = new PulldownMenu<>();
 
 			if (i == 0) {
-				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(Utils.getBundleString(bundle, "human")));
+				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("human")));
 			} else {
-				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(Utils.getBundleString(bundle, "closed")));
-				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(Utils.getBundleString(bundle, "easy_ai")));
-				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(Utils.getBundleString(bundle, "normal_ai")));
-				PulldownItem<Void> hard = new PulldownItem<>(Utils.getBundleString(bundle, "hard_ai"));
+				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("closed")));
+				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("easy_ai")));
+				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("normal_ai")));
+				PulldownItem<Void> hard = new PulldownItem<>(i18n("hard_ai"));
 				difficulty_pulldown_menus[i].addItem(hard);
 			}
 
@@ -306,14 +310,14 @@ public final class TerrainMenu extends Group {
 			race_pulldown_buttons[i] = new PulldownButton(gui_root, race_pulldown_menus[i], 0, 115);
 			group_race_team.addChild(race_pulldown_buttons[i]);
 			for (int j = 0; j < MatchmakingServerInterface.MAX_PLAYERS; j++) {
-				String team_str = Utils.getBundleString(bundle, "team", Integer.toString(j + 1));
+				String team_str = i18n("team", Integer.toString(j + 1));
 				PulldownItem<Void> pulldown_item_team = new PulldownItem<>(team_str);
 				team_pulldown_menus[i].addItem(pulldown_item_team);
 			}
 			team_pulldown_buttons[i] = new PulldownButton(gui_root, team_pulldown_menus[i], i, 115);
 			group_race_team.addChild(team_pulldown_buttons[i]);
 			if (i == 0) {
-				String player_str = Utils.getBundleString(bundle, "player", Integer.toString(1));
+				String player_str = i18n("player", Integer.toString(1));
 				labels_players[0] = new Label(player_str, Skin.getSkin().getEditFont())
 						.setColor(Settings.getSettings().team_colours[0]);
 				group_race_team.addChild(labels_players[0]);
@@ -322,7 +326,7 @@ public final class TerrainMenu extends Group {
 				race_pulldown_buttons[0].place(difficulty_pulldown_buttons[0], RIGHT_MID);
 				team_pulldown_buttons[0].place(race_pulldown_buttons[0], RIGHT_MID);
 			} else {
-				String player_str = Utils.getBundleString(bundle, "player", Integer.toString(i + 1));
+				String player_str = i18n("player", Integer.toString(i + 1));
 				labels_players[i] = new Label(player_str, Skin.getSkin().getEditFont())
 						.setColor(Settings.getSettings().team_colours[i]);
 				group_race_team.addChild(labels_players[i]);
@@ -348,7 +352,7 @@ public final class TerrainMenu extends Group {
 		button_ok.addMouseClickListener(new OKListener());
         HorizButton button_cancel = new CancelButton(BUTTON_WIDTH);
 		button_cancel.addMouseClickListener(new CancelButtonListener());
-        HorizButton button_mapcode = new HorizButton(Utils.getBundleString(bundle, "enter_map_code"), 170);
+        HorizButton button_mapcode = new HorizButton(i18n("enter_map_code"), 170);
 		button_mapcode.addMouseClickListener(new MapcodeListener());
 
 		group_buttons.addChild(button_mapcode);
@@ -588,7 +592,7 @@ public final class TerrainMenu extends Group {
 		if (multiplayer) {
 			String game_name = editline_name.getContents();
 			if (game_name.length() < Game.MIN_LENGTH) {
-				String min_name = Utils.getBundleString(bundle, "min_name_length", Game.MIN_LENGTH);
+				String min_name = i18n("min_name_length", Game.MIN_LENGTH);
 				gui_root.addModalForm(new MessageForm(min_name));
 				return false;
 			}
@@ -603,7 +607,7 @@ public final class TerrainMenu extends Group {
 				}
             }
 			if (!has_enemy) {
-				String min_name = Utils.getBundleString(bundle, "min_num_teams", 2);
+				String min_name = i18n("min_num_teams", 2);
 				gui_root.addModalForm(new MessageForm(min_name));
 				return false;
 			}
@@ -616,7 +620,7 @@ public final class TerrainMenu extends Group {
 			menu = (SelectGameMenu)owner;
 		int gametype;
 		IO.println("hills = " + hills / (float)SLIDER_MAX_VALUE + " | vegetation_amount = " + vegetation_amount / (float)SLIDER_MAX_VALUE + " | supplies_amount = " + supplies_amount / (float)SLIDER_MAX_VALUE + " | seed = " + seed * seed);
-		String ai_string = Utils.getBundleString(bundle, "ai");
+		String ai_string = i18n("ai");
 		InGameInfo ingame_info = multiplayer ? new MultiplayerInGameInfo(game.getRandomStartPos(), game.isRated()) : new DefaultInGameInfo();
 		GameNetwork game_network = Menu.startNewGame(network, gui_root,
 				menu,

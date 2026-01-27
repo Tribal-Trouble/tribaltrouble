@@ -30,19 +30,19 @@ import org.jspecify.annotations.Nullable;
 public abstract class Island {
 	private static final float CAMPAIGN_DIFFICULTY_BONUS = .75f;
 
-	private final Campaign campaign;
+	private final @NonNull Campaign campaign;
 
-	private WorldViewer world_viewer;
+	private @Nullable WorldViewer world_viewer;
 
-	public Island(Campaign campaign) {
+	public Island(@NonNull Campaign campaign) {
 		this.campaign = campaign;
 	}
 
-	protected final Campaign getCampaign() {
+	protected final @NonNull Campaign getCampaign() {
 		return campaign;
 	}
 
-	public final void chosen(NetworkSelector network, GUIRoot gui_root) {
+	public final void chosen(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
 		init(network, gui_root);
 	}
 
@@ -52,43 +52,42 @@ public abstract class Island {
 
 	protected final @NonNull GameNetwork startNewGame(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int meters_per_world, Landscape.@NonNull TerrainType terrain, float hills, float vegetation_amount, float supplies_amount, int seed, int campaign_num, int initial_units, String[] ai_names) {
 		InGameInfo ingame_info = new CampaignInGameInfo(campaign);
-		WorldInitAction init_action = (WorldViewer viewer) -> {
-                    world_viewer = viewer;
-                    Menu.completeGameSetupHack(world_viewer);
-                    if (!campaign.getState().hasRubberWeapons()) {
-                        viewer.getLocalPlayer().enableRubber(false);
+		WorldInitAction init_action = (@NonNull WorldViewer viewer) -> {
+			world_viewer = viewer;
+			Menu.completeGameSetupHack(world_viewer);
+			if (!campaign.getState().hasRubberWeapons()) {
+				viewer.getLocalPlayer().enableRubber(false);
+			}
+			if (!campaign.getState().hasMagic0()) {
+				viewer.getLocalPlayer().enableMagic(0, false);
+			}
+			if (!campaign.getState().hasMagic1()) {
+				viewer.getLocalPlayer().enableMagic(1, false);
+			}
+			Player[] players = viewer.getWorld().getPlayers();
+            switch (campaign.getState().getDifficulty()) {
+                case CampaignState.DIFFICULTY_EASY -> {
+                    for (Player player : players) {
+                        if (player.isEnemy(viewer.getLocalPlayer())) {
+                            viewer.getLocalPlayer().setHitBonus(CAMPAIGN_DIFFICULTY_BONUS);
+                        }
                     }
-                    if (!campaign.getState().hasMagic0()) {
-                        viewer.getLocalPlayer().enableMagic(0, false);
+                }
+                case CampaignState.DIFFICULTY_NORMAL -> {
+                }
+                case CampaignState.DIFFICULTY_HARD -> {
+                    for (Player player : players) {
+                        if (player.isEnemy(viewer.getLocalPlayer())) {
+                            player.setHitBonus(CAMPAIGN_DIFFICULTY_BONUS);
+                        }
                     }
-                    if (!campaign.getState().hasMagic1()) {
-                        viewer.getLocalPlayer().enableMagic(1, false);
-                    }
-                    Player[] players = viewer.getWorld().getPlayers();
-                    switch (campaign.getState().getDifficulty()) {
-                        case CampaignState.DIFFICULTY_EASY:
-                            for (Player player : players) {
-                                if (player.isEnemy(viewer.getLocalPlayer())) {
-                                    viewer.getLocalPlayer().setHitBonus(CAMPAIGN_DIFFICULTY_BONUS);
-                                }
-                            }
-                            break;
-                        case CampaignState.DIFFICULTY_NORMAL:
-                            break;
-                        case CampaignState.DIFFICULTY_HARD:
-                            players = viewer.getWorld().getPlayers();
-                            for (Player player : players) {
-                                if (player.isEnemy(viewer.getLocalPlayer())) {
-                                    player.setHitBonus(CAMPAIGN_DIFFICULTY_BONUS);
-                                }
-                            }
-                            break;
-                        default:
-                            throw new RuntimeException();
-                    }
-                    start();
-                    new DefeatTrigger(world_viewer, campaign, viewer.getLocalPlayer().getChieftain());
-                };
+                }
+                default ->
+					throw new IllegalArgumentException("unexpected difficulty: " + campaign.getState().getDifficulty());
+            }
+			start();
+			new DefeatTrigger(world_viewer, campaign, viewer.getLocalPlayer().getChieftain());
+		};
 		return Menu.startNewGame(network, gui_root, null, new WorldParameters(Game.GAMESPEED_NORMAL,
 					"Campaign" + campaign_num, initial_units,
 					Player.DEFAULT_MAX_UNIT_COUNT),
@@ -97,20 +96,20 @@ public abstract class Island {
 					null, meters_per_world, terrain, hills, vegetation_amount, supplies_amount, seed, ai_names);
 	}
 
-	protected final WorldViewer getViewer() {
+	protected final @Nullable WorldViewer getViewer() {
 		return world_viewer;
 	}
 
-	protected abstract void init(NetworkSelector network, GUIRoot gui_root);
+	protected abstract void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root);
 	protected abstract void start();
-	protected abstract CharSequence getHeader();
-	protected abstract CharSequence getDescription();
-	protected abstract CharSequence getCurrentObjective();
+	protected abstract @NonNull CharSequence getHeader();
+	protected abstract @NonNull CharSequence getDescription();
+	protected abstract @NonNull CharSequence getCurrentObjective();
 
 	protected final @Nullable Unit changeOwner(@NonNull Unit unit, @NonNull Player owner) {
 		float x = unit.getPositionX();
 		float y = unit.getPositionY();
-		UnitTemplate template = (UnitTemplate)unit.getTemplate();
+		UnitTemplate template = unit.getTemplate();
 		unit.removeNow();
 		if (!owner.getUnitCountContainer().isSupplyFull()) {
 			Unit new_unit = new Unit(owner, x, y, null, template);
@@ -185,5 +184,5 @@ public abstract class Island {
 		enemy.getArmory().fillSupplies(IronAxeWeapon.class, Integer.MAX_VALUE);
 	}
 
-	public final void updateChecksum(StateChecksum checksum) {}
+	public final void updateChecksum(@NonNull StateChecksum checksum) {}
 }

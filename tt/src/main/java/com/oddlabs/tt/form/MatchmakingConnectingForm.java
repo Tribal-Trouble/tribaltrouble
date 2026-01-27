@@ -25,7 +25,11 @@ import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
 public final class MatchmakingConnectingForm extends Form implements MatchmakingListener {
 	private final Form parent_form;
 	private final MainMenu main_menu;
-	private final ResourceBundle bundle = ResourceBundle.getBundle(MatchmakingConnectingForm.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(MatchmakingConnectingForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 	private final GUIRoot gui_root;
 	private final @NonNull NetworkSelector network;
 
@@ -34,7 +38,7 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
 		this.main_menu = main_menu;
 		this.gui_root = gui_root;
 		this.network = network;
-		Label info_label = new Label(Utils.getBundleString(bundle, "connecting"), Skin.getSkin().getHeadlineFont());
+		Label info_label = new Label(i18n("connecting"), Skin.getSkin().getHeadlineFont());
 		addChild(info_label);
 		HorizButton cancel_button = new CancelButton(120);
 		addChild(cancel_button);
@@ -85,7 +89,7 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
 	@Override
 	public void connectionLost() {
 		remove();
-		gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "connection_failed")));
+		gui_root.addModalForm(new MessageForm(i18n("connection_failed")));
 	}
 
 	@Override
@@ -93,21 +97,21 @@ public final class MatchmakingConnectingForm extends Form implements Matchmaking
 		remove();
 		String error_message = switch (error_code) {
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_MANY ->
-                    Utils.getBundleString(bundle, "username_error_too_many");
+                    i18n("username_error_too_many");
             case MatchmakingClientInterface.USER_ERROR_VERSION_TOO_OLD ->
-                    Utils.getBundleString(bundle, "user_error_version_too_old");
+                    i18n("user_error_version_too_old");
             case MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER ->
-                    Utils.getBundleString(bundle, "user_error_no_such_user");
+                    i18n("user_error_no_such_user");
             case MatchmakingClientInterface.USER_ERROR_INVALID_EMAIL ->
-                    Utils.getBundleString(bundle, "user_error_invalid_email");
+                    i18n("user_error_invalid_email");
             case MatchmakingClientInterface.USERNAME_ERROR_ALREADY_EXISTS ->
-                    Utils.getBundleString(bundle, "username_error_already_exists");
+                    i18n("username_error_already_exists");
             case MatchmakingClientInterface.USERNAME_ERROR_INVALID_CHARACTERS ->
-                    Utils.getBundleString(bundle, "username_error_invalid_characters");
+                    i18n("username_error_invalid_characters");
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_LONG ->
-                    Utils.getBundleString(bundle, "username_error_too_long");
+                    i18n("username_error_too_long");
             case MatchmakingClientInterface.USERNAME_ERROR_TOO_SHORT ->
-                    Utils.getBundleString(bundle, "username_error_too_short");
+                    i18n("username_error_too_short");
             default -> throw new RuntimeException("Unknown error code: " + error_code);
         };
         gui_root.addModalForm(new MessageForm(error_message));

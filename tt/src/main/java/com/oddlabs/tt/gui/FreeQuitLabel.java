@@ -12,6 +12,10 @@ import java.util.ResourceBundle;
 public final class FreeQuitLabel extends Label implements Animated {
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(FreeQuitLabel.class.getName());
 
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+
 	private final @NonNull World world;
 	private final @NonNull AnimationManager manager;
 
@@ -38,7 +42,7 @@ public final class FreeQuitLabel extends Label implements Animated {
 		int time_left = (int)PeerHub.getFreeQuitTimeLeft(world);
 		if (time_left > 0) {
 			clear();
-			append(Utils.getBundleString(bundle, "quit_time_left", time_left));
+			append(i18n("quit_time_left", time_left));
 		}
 	}
 }

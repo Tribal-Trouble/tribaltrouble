@@ -11,10 +11,8 @@ import com.oddlabs.tt.input.InputBinding;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.input.Key;
-import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
@@ -29,10 +27,9 @@ public class KeyBindingDialog extends Form {
         this.action = action;
         this.onBindingChosen = onBindingChosen;
         
-        ResourceBundle bundle = ResourceBundle.getBundle(OptionsMenu.class.getName());
         String actionName;
         try {
-            actionName = Utils.getBundleString(bundle, "action." + action.name());
+            actionName = AbstractOptionsMenu.i18n("action." + action.name());
         } catch (Exception e) {
             actionName = action.name();
         }

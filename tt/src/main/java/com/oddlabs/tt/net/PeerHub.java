@@ -36,7 +36,11 @@ import java.util.logging.Logger;
 public final class PeerHub implements Animated, RouterHandler {
     private static final String ROUTER_ADDRESS = "127.0.0.1";
 	public static final ResourceBundle bundle = ResourceBundle.getBundle(PeerHub.class.getName());
-	public static final @NonNull String SYSTEM_NAME = Utils.getBundleString(bundle, "system_name");
+
+	private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+	public static final @NonNull String SYSTEM_NAME = i18n("system_name");
 
 	private static final int MILLISECONDS_PER_HEARTBEAT = 60;
 	private static final int CLIENT_MAX_DELAY_MILLIS = 60;
@@ -55,7 +59,6 @@ public final class PeerHub implements Animated, RouterHandler {
 	private final Map<Player, Peer> player_to_peer = new LinkedHashMap<>();
 	private final Map<Peer, Player> peer_to_player = new LinkedHashMap<>();
 	private final Set<Player> nonhuman_players = new HashSet<>();
-	private final GUIRoot gui_root;
 	private final @NonNull NetworkSelector network;
 	private final @NonNull RouterClient router_client;
 	private final @Nullable Router router;
@@ -78,7 +81,6 @@ public final class PeerHub implements Animated, RouterHandler {
 		this.is_rated = is_rated;
 		this.local_player = local_player;
 		this.network = network;
-		this.gui_root = gui_root;
 		this.notification_manager = notification_manager;
 		this.is_multiplayer = is_multiplayer;
 		this.manager = manager;
@@ -339,7 +341,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		player_to_peer.remove(player);
 		int peer_index = peer.getPeerIndex();
 		removePeerFromActiveList(peer);
-		String left_game_message = Utils.getBundleString(bundle, "left_game", peer.getPlayerInfo().getName(), reason);
+		String left_game_message = i18n("left_game", peer.getPlayerInfo().getName(), reason);
 		receiveChat(SYSTEM_NAME, left_game_message, false);
 		if (getFreeQuitTicksLeft(local_player.getWorld()) >= 0 && Network.getMatchmakingClient().isConnected())
 			Network.getMatchmakingClient().getInterface().gameQuitNotify(peer.getPlayerInfo().getName());

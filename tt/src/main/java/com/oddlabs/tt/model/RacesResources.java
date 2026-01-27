@@ -70,6 +70,11 @@ public final class RacesResources {
 	public static final GeneratorHalos DEFAULT_SHADOW_DESC = new GeneratorHalos(128, new float[][]{{0f, 0.75f}, {0.5f, 0f}}, new float[][]{{0.40f, 0f}, {0.41f, 1f}, {0.48f, 1f}, {0.49f, 0f}});
 
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(RacesResources.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+
 	private static final String[] race_names = {
             Utils.getBundleString(bundle, "natives"),
             Utils.getBundleString(bundle, "vikings")
@@ -331,7 +336,7 @@ public final class RacesResources {
 				new float[]{0f, 1f, 3f}, 0f, 6f,
 				3.65f, .25f, 8f,
 				0f, 0f, 0f,
-				Utils.getBundleString(bundle, "quarters"));
+				i18n("quarters"));
 		ProgressForm.progress(1f/num_progress);
 		BuildingTemplate viking_armory_template = createBuildingTemplate(
 				queues,
@@ -348,7 +353,7 @@ public final class RacesResources {
 				new float[]{0f, 1f, 3f}, 0f, 6f,
 				0f, 2.25f, 10f,
 				.25f, -2.8f, 13.1f,
-				Utils.getBundleString(bundle, "armory"));
+				i18n("armory"));
 		ProgressForm.progress(1f/num_progress);
 		BuildingTemplate viking_tower_template = createBuildingTemplate(
 				queues,
@@ -365,7 +370,7 @@ public final class RacesResources {
 				new float[]{0f, 2f, 7.5f}, 9.55f, 2.5f,
 				.85f, .85f, 9.5f,
 				0f, 0f, 0f,
-				Utils.getBundleString(bundle, "tower"));
+				i18n("tower"));
 		ProgressForm.progress(1f/num_progress);
 		BuildingTemplate native_quarters_template = createBuildingTemplate(
 				queues,
@@ -382,7 +387,7 @@ public final class RacesResources {
 				new float[]{0f, 1f, 3f}, 0f, 6f,
 				-1.15f, -.77f, 11f,
 				0f, 0f, 0f,
-				Utils.getBundleString(bundle, "quarters"));
+				i18n("quarters"));
 		ProgressForm.progress(1f/num_progress);
 		BuildingTemplate native_armory_template = createBuildingTemplate(
 				queues,
@@ -399,7 +404,7 @@ public final class RacesResources {
 				new float[]{0f, 1f, 3f}, 0f, 6f,
 				0f, -.4f, 12f,
 				0f, -1f, 11.5f,
-				Utils.getBundleString(bundle, "armory"));
+				i18n("armory"));
 		ProgressForm.progress(1f/num_progress);
 		BuildingTemplate native_tower_template = createBuildingTemplate(
 				queues,
@@ -416,7 +421,7 @@ public final class RacesResources {
 				new float[]{0f, 11.5f, 11.5f}, 13f, 2.5f,
 				.95f, 0f, 13f,
 				0f, 0f, 0f,
-				Utils.getBundleString(bundle, "tower"));
+				i18n("tower"));
 		ProgressForm.progress(1f/num_progress);
 		final float shadow_diameter_warrior = 1.9f;
 		final float shadow_diameter_peon = 1.6f;
@@ -517,7 +522,7 @@ public final class RacesResources {
 																	 new float[]{1.2f},
 																	 1f,
 																	 .5f,
-																	 Utils.getBundleString(bundle, "rock_warrior"),
+																	 i18n("rock_warrior"),
 																	 1,
 																	 0f, 0f, 2f,
 																	 3);
@@ -535,7 +540,7 @@ public final class RacesResources {
 																	 new float[]{1.2f},
 																	 1f,
 																	 .7f,
-																	 Utils.getBundleString(bundle, "iron_warrior"),
+																	 i18n("iron_warrior"),
 																	 1,
 																	 0f, 0f, 2f,
 																	 5);
@@ -553,7 +558,7 @@ public final class RacesResources {
 																	   new float[]{1.2f},
 																	   1f,
 																	   .7f,
-																	   Utils.getBundleString(bundle, "chicken_warrior"),
+																	   i18n("chicken_warrior"),
 																	   1,
 																	   0f, 0f, 2f,
 																	   10);
@@ -571,7 +576,7 @@ public final class RacesResources {
 																	 new float[]{1.2f},
 																	 1f,
 																	 .5f,
-																	 Utils.getBundleString(bundle, "rock_warrior"),
+																	 i18n("rock_warrior"),
 																	 1,
 																	 0f, 0f, 2f,
 																	 3);
@@ -589,7 +594,7 @@ public final class RacesResources {
 																	 new float[]{1.2f},
 																	 1f,
 																	 .7f,
-																	 Utils.getBundleString(bundle, "iron_warrior"),
+																	 i18n("iron_warrior"),
 																	 1,
 																	 0f, 0f, 2f,
 																	 5);
@@ -607,7 +612,7 @@ public final class RacesResources {
 																	   new float[]{1.2f},
 																	   1f,
 																	   .7f,
-																	   Utils.getBundleString(bundle, "chicken_warrior"),
+																	   i18n("chicken_warrior"),
 																	   1,
 																	   0f, 0f, 2f,
 																	   10);
@@ -625,7 +630,7 @@ public final class RacesResources {
 															 new float[]{.7f},
 															 1f,
 															 0f,
-															 Utils.getBundleString(bundle, "peon"),
+															 i18n("peon"),
 															 1,
 															 .1f, 0f, 1.75f,
 															 1);
@@ -643,7 +648,7 @@ public final class RacesResources {
 															 new float[]{.7f},
 															 1f,
 															 0f,
-															 Utils.getBundleString(bundle, "peon"),
+															 i18n("peon"),
 															 1,
 															 0f, 0f, 1.75f,
 															 1);
@@ -661,7 +666,7 @@ public final class RacesResources {
 																  new float[]{1.7f},
 																  1f,
 																  0.5f,
-																  Utils.getBundleString(bundle, "chieftain"),
+																  i18n("chieftain"),
 																  VIKING_CHIEFTAIN_HIT_POINTS,
 																  -.07f, .312f, 2.7f,
 																  40);
@@ -679,7 +684,7 @@ public final class RacesResources {
 																  new float[]{1.7f},
 																  1f,
 																  0.5f,
-																  Utils.getBundleString(bundle, "chieftain"),
+																  i18n("chieftain"),
 																  NATIVE_CHIEFTAIN_HIT_POINTS,
 																  .878f, .151f, 2.8f,
 																  40);

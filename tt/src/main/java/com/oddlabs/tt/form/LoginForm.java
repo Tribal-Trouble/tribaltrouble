@@ -41,7 +41,11 @@ public final class LoginForm extends Form {
 	private final @NonNull EditLine editline_username;
 	private final @NonNull PasswordLine editline_password;
 	private final @NonNull CheckBox remember_checkbox;
-	private final ResourceBundle bundle = ResourceBundle.getBundle(LoginForm.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(LoginForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	public LoginForm(@NonNull NetworkSelector network, GUIRoot gui_root, @NonNull MainMenu main_menu) {
 		this.main_menu = main_menu;
@@ -54,24 +58,24 @@ public final class LoginForm extends Form {
 		}
 
 		// headline
-		Label label_headline = new Label(Utils.getBundleString(bundle, "login_caption"), Skin.getSkin().getHeadlineFont());
+		Label label_headline = new Label(i18n("login_caption"), Skin.getSkin().getHeadlineFont());
 		addChild(label_headline);
 
 		// login
 		LoginListener login_listener = new LoginListener();
 		Group login_group = new Group();
-		Label label_username = new Label(Utils.getBundleString(bundle, "username"), Skin.getSkin().getEditFont());
+		Label label_username = new Label(i18n("username"), Skin.getSkin().getEditFont());
 		editline_username = new EditLine(EDITLINE_WIDTH, 255);
 		editline_username.addEnterListener(login_listener);
 		editline_username.append(Settings.getSettings().username);
-		Label label_password = new Label(Utils.getBundleString(bundle, "password"), Skin.getSkin().getEditFont());
+		Label label_password = new Label(i18n("password"), Skin.getSkin().getEditFont());
 		editline_password = new PasswordLine(EDITLINE_WIDTH, 255);
 		editline_password.addEnterListener(login_listener);
 		if (remember) {
 			editline_password.append("*************");
 			editline_password.setPasswordDigest(Settings.getSettings().pw_digest);
 		}
-		remember_checkbox = new CheckBox(remember, Utils.getBundleString(bundle, "remember_login"));
+		remember_checkbox = new CheckBox(remember, i18n("remember_login"));
 
 		login_group.addChild(label_username);
 		login_group.addChild(editline_username);
@@ -91,9 +95,9 @@ public final class LoginForm extends Form {
 		Group group_buttons = new Group();
 
 
-		ButtonObject button_newuser = new HorizButton(Utils.getBundleString(bundle, "new_account"), BUTTON_WIDTH);
+		ButtonObject button_newuser = new HorizButton(i18n("new_account"), BUTTON_WIDTH);
 		button_newuser.addMouseClickListener(new NewUserListener());
-		ButtonObject button_ok = new HorizButton(Utils.getBundleString(bundle, "login"), BUTTON_WIDTH);
+		ButtonObject button_ok = new HorizButton(i18n("login"), BUTTON_WIDTH);
 		button_ok.addMouseClickListener(login_listener);
 		ButtonObject button_cancel = new CancelButton(BUTTON_WIDTH);
 		button_cancel.addMouseClickListener( (_, _, _, _) -> this.cancel());
@@ -138,7 +142,7 @@ public final class LoginForm extends Form {
 		String password = editline_password.getPasswordDigest();
 		Login login = new Login(username, password);
 		if (!login.isValid())
-			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "invalid_login")));
+			gui_root.addModalForm(new MessageForm(i18n("invalid_login")));
 		else
 			doLogin(username, password, login, remember_checkbox.isMarked());
 	}

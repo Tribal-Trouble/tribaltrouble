@@ -14,21 +14,26 @@ import static com.oddlabs.tt.gui.Origin.AT_END;
 import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
 public final class DisplayChangeForm extends Form {
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(DisplayChangeForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+
 	private final @NonNull DoNowListener donow_listener;
 	private final @NonNull HorizButton later_button;
 
 	public DisplayChangeForm(@NonNull DoNowListener donow_listener) {
 		this.donow_listener = donow_listener;
-		ResourceBundle bundle = ResourceBundle.getBundle(DisplayChangeForm.class.getName());
-		LabelBox info_label = new LabelBox(Utils.getBundleString(bundle, "warning_message"), Skin.getSkin().getEditFont(), 500);
+		LabelBox info_label = new LabelBox(i18n("warning_message"), Skin.getSkin().getEditFont(), 500);
 		addChild(info_label);
-		HorizButton now_button = new HorizButton(Utils.getBundleString(bundle, "now"), 120);
+		HorizButton now_button = new HorizButton(i18n("now"), 120);
 		addChild(now_button);
 		now_button.addMouseClickListener((_, _, _, _) -> {
 			remove();
 			donow_listener.doChange(true);
         });
-		later_button = new HorizButton(Utils.getBundleString(bundle, "later"), 120);
+		later_button = new HorizButton(i18n("later"), 120);
 		addChild(later_button);
 		later_button.addMouseClickListener((_, _, _, _) -> this.cancel());
 

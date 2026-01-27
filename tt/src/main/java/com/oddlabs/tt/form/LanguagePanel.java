@@ -23,13 +23,13 @@ import java.util.ResourceBundle;
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 
 public class LanguagePanel extends Panel {
-    public LanguagePanel(@NonNull GUIRoot gui_root, @NonNull ResourceBundle bundle) {
-        super(Utils.getBundleString(bundle, "language_caption"));
+    public LanguagePanel(@NonNull GUIRoot gui_root) {
+        super(AbstractOptionsMenu.i18n("language_caption"));
 
         // language
         Group language_group = new Group();
         addChild(language_group);
-        Label language_label = new Label(Utils.getBundleString(bundle, "language_label"), Skin.getSkin().getEditFont());
+        Label language_label = new Label(AbstractOptionsMenu.i18n("language_label"), Skin.getSkin().getEditFont());
         language_group.addChild(language_label);
 
         ColumnInfo[] language_infos = new ColumnInfo[]{new ColumnInfo("", 300)};
@@ -50,7 +50,7 @@ public class LanguagePanel extends Panel {
         }
 
         Row<Locale,IconLabel> selectedLanguage = null;
-        IconLabel label = new IconLabel(Skin.getSkin().getFlagDefault(), new Label(Utils.getBundleString(bundle, "system_default"), Skin.getSkin().getMultiColumnComboBoxData().font()));
+        IconLabel label = new IconLabel(Skin.getSkin().getFlagDefault(), new Label(AbstractOptionsMenu.i18n("system_default"), Skin.getSkin().getMultiColumnComboBoxData().font()));
         Row<Locale,IconLabel> row = new Row<>(new IconLabel[]{label}, Renderer.getRenderer().getDefaultLocale());
         language_list_box.addRow(row);
         if (Settings.getSettings().language.equals("default"))
@@ -68,9 +68,9 @@ public class LanguagePanel extends Panel {
         language_list_box.selectRow(selectedLanguage);
         language_list_box.addRowListener(new RowListener<>() {
             @Override
-            public void rowChosen(@NonNull Locale locale) {
+            public void rowDoubleClicked(@NonNull Locale locale) {
                 Settings.getSettings().language = locale.getVariant().equals("default") ? "default" : locale.getLanguage();
-                gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "language_change_next_run")));
+                gui_root.addModalForm(new MessageForm(AbstractOptionsMenu.i18n("language_change_next_run")));
             }
         });
 

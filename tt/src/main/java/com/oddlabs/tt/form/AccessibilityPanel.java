@@ -29,22 +29,22 @@ public class AccessibilityPanel extends Panel {
     private static final int SLIDER_WIDTH = 270;
     private static final int MAX_VALUE = 20;
 
-    public AccessibilityPanel(@NonNull GUIRoot gui_root, @NonNull ResourceBundle bundle) {
-        super(Utils.getBundleString(bundle, "accessibility_caption"));
+    public AccessibilityPanel(@NonNull GUIRoot gui_root) {
+        super(AbstractOptionsMenu.i18n("accessibility_caption"));
 
         // High Contrast
         Group group_contrast = new Group();
         addChild(group_contrast);
 
-        CheckBox cb_high_contrast = new CheckBox(Settings.getSettings().high_contrast, Utils.getBundleString(bundle, "high_contrast"), Utils.getBundleString(bundle, "high_contrast_tip"));
+        CheckBox cb_high_contrast = new CheckBox(Settings.getSettings().high_contrast, AbstractOptionsMenu.i18n("high_contrast"), AbstractOptionsMenu.i18n("high_contrast_tip"));
         group_contrast.addChild(cb_high_contrast);
         
-        Label label_contrast_intensity = new Label(Utils.getBundleString(bundle, "contrast_intensity"), Skin.getSkin().getEditFont());
+        Label label_contrast_intensity = new Label(AbstractOptionsMenu.i18n("contrast_intensity"), Skin.getSkin().getEditFont());
         group_contrast.addChild(label_contrast_intensity);
 
-        Label label_contrast_low = new Label(Utils.getBundleString(bundle, "low"), Skin.getSkin().getEditFont());
+        Label label_contrast_low = new Label(AbstractOptionsMenu.i18n("low"), Skin.getSkin().getEditFont());
         group_contrast.addChild(label_contrast_low);
-        Label label_contrast_high = new Label(Utils.getBundleString(bundle, "high"), Skin.getSkin().getEditFont());
+        Label label_contrast_high = new Label(AbstractOptionsMenu.i18n("high"), Skin.getSkin().getEditFont());
         group_contrast.addChild(label_contrast_high);
         
         // Support up to 2.0 intensity (40 steps)
@@ -69,23 +69,23 @@ public class AccessibilityPanel extends Panel {
         // CVD
         Group group_cvd = new Group();
         addChild(group_cvd);
-        Label label_cvd = new Label(Utils.getBundleString(bundle, "color_vision"), Skin.getSkin().getEditFont());
+        Label label_cvd = new Label(AbstractOptionsMenu.i18n("color_vision"), Skin.getSkin().getEditFont());
         group_cvd.addChild(label_cvd);
 
         PulldownMenu<Void> pm_cvd = new PulldownMenu<>();
-        pm_cvd.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "cvd_standard")));
-        pm_cvd.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "cvd_protanopia")));
-        pm_cvd.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "cvd_deuteranopia")));
-        pm_cvd.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "cvd_tritanopia")));
+        pm_cvd.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("cvd_standard")));
+        pm_cvd.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("cvd_protanopia")));
+        pm_cvd.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("cvd_deuteranopia")));
+        pm_cvd.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("cvd_tritanopia")));
         PulldownButton<Void> pb_cvd = new PulldownButton<>(gui_root, pm_cvd, Settings.getSettings().cvd_mode, SLIDER_WIDTH - label_cvd.getWidth() - Skin.getSkin().getFormData().objectSpacing());
         group_cvd.addChild(pb_cvd);
 
-        Label label_cvd_intensity = new Label(Utils.getBundleString(bundle, "cvd_intensity"), Skin.getSkin().getEditFont());
+        Label label_cvd_intensity = new Label(AbstractOptionsMenu.i18n("cvd_intensity"), Skin.getSkin().getEditFont());
         group_cvd.addChild(label_cvd_intensity);
 
-        Label label_cvd_low = new Label(Utils.getBundleString(bundle, "low"), Skin.getSkin().getEditFont());
+        Label label_cvd_low = new Label(AbstractOptionsMenu.i18n("low"), Skin.getSkin().getEditFont());
         group_cvd.addChild(label_cvd_low);
-        Label label_cvd_high = new Label(Utils.getBundleString(bundle, "high"), Skin.getSkin().getEditFont());
+        Label label_cvd_high = new Label(AbstractOptionsMenu.i18n("high"), Skin.getSkin().getEditFont());
         group_cvd.addChild(label_cvd_high);
 
         // Support up to 2.0 intensity (40 steps)
@@ -111,12 +111,12 @@ public class AccessibilityPanel extends Panel {
         Group group_team_colours = new Group();
         addChild(group_team_colours);
 
-        Label label_team_colours = new Label(Utils.getBundleString(bundle, "team_colours"), Skin.getSkin().getEditFont());
+        Label label_team_colours = new Label(AbstractOptionsMenu.i18n("team_colours"), Skin.getSkin().getEditFont());
         group_team_colours.addChild(label_team_colours);
 
         PulldownMenu<Void> pm_team = new PulldownMenu<>();
         for (int i = 0; i < Settings.getSettings().team_colours.length; i++) {
-            String player_str = Utils.getBundleString(bundle, "player", Integer.toString(i + 1));
+            String player_str = AbstractOptionsMenu.i18n("player", Integer.toString(i + 1));
             PulldownItem<Void> item = new PulldownItem<>(player_str);
             item.setLabelColor(Settings.getSettings().team_colours[i]);
             pm_team.addItem(item);
@@ -141,7 +141,7 @@ public class AccessibilityPanel extends Panel {
         group_team_colours.addChild(slider_hue);
         
         // Reset Button
-        HorizButton button_reset = new HorizButton(Utils.getBundleString(bundle, "reset"), 100);
+        HorizButton button_reset = new HorizButton(AbstractOptionsMenu.i18n("reset"), 100);
         group_team_colours.addChild(button_reset);
 
         // Update logic
@@ -179,7 +179,7 @@ public class AccessibilityPanel extends Panel {
             pb_team.setLabelColor(Settings.getSettings().team_colours[index]);
         });
 
-        CheckBox cb_team_stencil = new CheckBox(Settings.getSettings().team_stencil, Utils.getBundleString(bundle, "team_stencil"), Utils.getBundleString(bundle, "team_stencil_tip"));
+        CheckBox cb_team_stencil = new CheckBox(Settings.getSettings().team_stencil, AbstractOptionsMenu.i18n("team_stencil"), AbstractOptionsMenu.i18n("team_stencil_tip"));
         cb_team_stencil.addCheckBoxListener(marked -> Settings.getSettings().team_stencil = marked);
         group_team_colours.addChild(cb_team_stencil);
 

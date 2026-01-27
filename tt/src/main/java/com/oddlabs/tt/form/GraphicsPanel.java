@@ -31,14 +31,14 @@ import static com.oddlabs.tt.gui.Placement.RIGHT_TOP;
 public class GraphicsPanel extends Panel {
     private final @NonNull Label label_pct;
 
-    public GraphicsPanel(@NonNull GUIRoot gui_root, @NonNull ResourceBundle bundle, @NonNull Form options) {
-        super(Utils.getBundleString(bundle, "graphics_caption"));
+    public GraphicsPanel(@NonNull GUIRoot gui_root, @NonNull Form options) {
+        super(AbstractOptionsMenu.i18n("graphics_caption"));
         var labelFont = Skin.getSkin().getEditFont();
 
         // Fullscreen
         Group group_fullscreen = new Group();
         addChild(group_fullscreen);
-        CheckBox cb_fullscreen = new CheckBox(Settings.getSettings().fullscreen, Utils.getBundleString(bundle, "fullscreen"), Utils.getBundleString(bundle, "fullscreen_tip"));
+        CheckBox cb_fullscreen = new CheckBox(Settings.getSettings().fullscreen, AbstractOptionsMenu.i18n("fullscreen"), AbstractOptionsMenu.i18n("fullscreen_tip"));
         cb_fullscreen.addCheckBoxListener(marked -> {
             DisplayChangeForm display_change_form = new DisplayChangeForm(
                     switch_now -> {
@@ -57,7 +57,7 @@ public class GraphicsPanel extends Panel {
         // UI Scale
         Group group_ui_scale = new Group();
         addChild(group_ui_scale);
-        Label label_ui_scale = new Label(Utils.getBundleString(bundle, "ui_scale"), labelFont);
+        Label label_ui_scale = new Label(AbstractOptionsMenu.i18n("ui_scale"), labelFont);
         group_ui_scale.addChild(label_ui_scale);
 
         // Initial percentage label
@@ -88,14 +88,14 @@ public class GraphicsPanel extends Panel {
         Group group_detail = new Group();
         addChild(group_detail);
 
-        Label label_detail = new Label(Utils.getBundleString(bundle, "graphical_detail"), labelFont);
+        Label label_detail = new Label(AbstractOptionsMenu.i18n("graphical_detail"), labelFont);
         group_detail.addChild(label_detail);
 
         int initial_detail_value = Settings.getSettings().graphic_detail;
         PulldownMenu<Void> pm_detail = new PulldownMenu<>();
-        pm_detail.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "low")));
-        pm_detail.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "medium")));
-        pm_detail.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "high")));
+        pm_detail.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("low")));
+        pm_detail.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("medium")));
+        pm_detail.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("high")));
         PulldownButton<Void> pb_detail = new PulldownButton<>(gui_root, pm_detail, initial_detail_value, 150);
 
         group_detail.addChild(pb_detail);
@@ -103,7 +103,7 @@ public class GraphicsPanel extends Panel {
             int slider_value = pm_detail.getChosenItemIndex();
             if (initial_detail_value != slider_value) {
                 Settings.getSettings().graphic_detail = slider_value;
-                gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "change_next_run")));
+                gui_root.addModalForm(new MessageForm(AbstractOptionsMenu.i18n("change_next_run")));
             }
         });
         label_detail.place();
@@ -114,7 +114,7 @@ public class GraphicsPanel extends Panel {
         Group mode_group = new Group();
         addChild(mode_group);
 
-        Label mode_label = new Label(Utils.getBundleString(bundle, "display_mode"), labelFont);
+        Label mode_label = new Label(AbstractOptionsMenu.i18n("display_mode"), labelFont);
         mode_group.addChild(mode_label);
 
         ColumnInfo[] mode_infos = new ColumnInfo[]{new ColumnInfo("", 150)};
@@ -125,7 +125,7 @@ public class GraphicsPanel extends Panel {
         Row<SerializableDisplayMode, Label> current_row = null;
         for (int i = 0; i < modes.length; i++) {
             if (modes[i].getBitsPerPixel() == current_mode.getBitsPerPixel()) {
-                String mode_string = Utils.getBundleString(bundle, "mode", Integer.toString(modes[i].getWidth()), Integer.toString(modes[i].getHeight()), Integer.toString(modes[i].getFrequency()));
+                String mode_string = AbstractOptionsMenu.i18n("mode", Integer.toString(modes[i].getWidth()), Integer.toString(modes[i].getHeight()), Integer.toString(modes[i].getFrequency()));
                 Label label = new SortedLabel(mode_string, i, Skin.getSkin().getMultiColumnComboBoxData().font());
                 Row<SerializableDisplayMode, Label> row = new Row<>(new Label[]{label}, modes[i]);
                 mode_list_box.addRow(row);
@@ -137,7 +137,7 @@ public class GraphicsPanel extends Panel {
             mode_list_box.selectRow(current_row);
         mode_list_box.addRowListener(new RowListener<>() {
             @Override
-            public void rowChosen(@NonNull SerializableDisplayMode mode) {
+            public void rowDoubleClicked(@NonNull SerializableDisplayMode mode) {
                 gui_root.addModalForm(new DisplayChangeForm(switch_now -> {
                     Renderer.getRenderer().switchMode(mode, switch_now);
                     if (switch_now) {
@@ -161,12 +161,10 @@ public class GraphicsPanel extends Panel {
     }
     
     public void updateScaleLabel() {
-        if (label_pct != null) {
-            int w = Renderer.getRenderer().getWindow().getWidth();
-            int h = Renderer.getRenderer().getWindow().getHeight();
-            
-            float scale = GUIRoot.calculateEffectiveScale(w, h);
-            label_pct.setText(String.format("%d%%", (int)(scale * 100)));
-        }
+        int w = Renderer.getRenderer().getWindow().getWidth();
+        int h = Renderer.getRenderer().getWindow().getHeight();
+
+        float scale = GUIRoot.calculateEffectiveScale(w, h);
+        label_pct.setText(String.format("%d%%", (int)(scale * 100)));
     }
 }

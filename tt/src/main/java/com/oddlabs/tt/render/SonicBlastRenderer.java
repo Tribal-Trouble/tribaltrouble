@@ -16,7 +16,7 @@ import java.nio.FloatBuffer;
 import java.util.Queue;
 
 public final class SonicBlastRenderer implements AutoCloseable {
-    private final static VertexLayout<SonicBlastShader.Attribute> LAYOUT = new VertexLayout<>(
+    private static final  VertexLayout<SonicBlastShader.Attribute> LAYOUT = new VertexLayout<>(
             SonicBlastShader.Attribute.POSITION,
             SonicBlastShader.Attribute.TEX_COORD
     );

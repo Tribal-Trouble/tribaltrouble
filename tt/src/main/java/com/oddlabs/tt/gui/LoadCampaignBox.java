@@ -31,15 +31,19 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 
 	private final @NonNull MultiColumnComboBox<CampaignState> list_box;
 	private final @NonNull GUIRoot gui_root;
-	private final ResourceBundle bundle = ResourceBundle.getBundle(LoadCampaignBox.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(LoadCampaignBox.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	public LoadCampaignBox(@NonNull GUIRoot gui_root, @NonNull RowListener<CampaignState> listener) {
 		this.gui_root = gui_root;
 		ColumnInfo[] infos = {
-			new ColumnInfo(Utils.getBundleString(bundle, "name"), WIDTH_NAME),
-			new ColumnInfo(Utils.getBundleString(bundle, "race"), WIDTH_RACE),
-			new ColumnInfo(Utils.getBundleString(bundle, "difficulty"), WIDTH_DIFFICULTY),
-			new ColumnInfo(Utils.getBundleString(bundle, "date"), WIDTH_DATE)};
+			new ColumnInfo(i18n("name"), WIDTH_NAME),
+			new ColumnInfo(i18n("race"), WIDTH_RACE),
+			new ColumnInfo(i18n("difficulty"), WIDTH_DIFFICULTY),
+			new ColumnInfo(i18n("date"), WIDTH_DATE)};
 		list_box = new MultiColumnComboBox<>(gui_root, infos, 262);
 		list_box.addRowListener(listener);
 		addChild(list_box);
@@ -84,15 +88,15 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 		Box box = Skin.getSkin().getMultiColumnComboBoxData().box();
         for (CampaignState campaign_state : campaign_states) {
             String race = switch (campaign_state.getRace()) {
-                case CampaignState.RACE_VIKINGS -> Utils.getBundleString(bundle, "vikings");
-                case CampaignState.RACE_NATIVES -> Utils.getBundleString(bundle, "natives");
-                default -> throw new RuntimeException("invalid race");
+                case CampaignState.RACE_VIKINGS -> i18n("vikings");
+                case CampaignState.RACE_NATIVES -> i18n("natives");
+                default -> throw new IllegalArgumentException("invalid race");
             };
             String difficulty = switch (campaign_state.getDifficulty()) {
-                case CampaignState.DIFFICULTY_EASY -> Utils.getBundleString(bundle, "easy");
-                case CampaignState.DIFFICULTY_NORMAL -> Utils.getBundleString(bundle, "normal");
-                case CampaignState.DIFFICULTY_HARD -> Utils.getBundleString(bundle, "hard");
-                default -> throw new RuntimeException("invalid difficulty");
+                case CampaignState.DIFFICULTY_EASY -> i18n("easy");
+                case CampaignState.DIFFICULTY_NORMAL -> i18n("normal");
+                case CampaignState.DIFFICULTY_HARD -> i18n("hard");
+                default -> throw new IllegalArgumentException("invalid difficulty");
             };
             Row<CampaignState,Label> row = new Row<>(
                     new Label[]{
@@ -119,10 +123,10 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
         logger.log(Level.SEVERE, "Failed to load savegames", e);
 		if (e instanceof FileNotFoundException || e instanceof NoSuchFileException) {
 		} else if (e instanceof InvalidClassException) {
-			String invalid_message = Utils.getBundleString(bundle, "invalid_message", SAVEGAMES_FILE_NAME);
+			String invalid_message = i18n("invalid_message", SAVEGAMES_FILE_NAME);
 			gui_root.addModalForm(new MessageForm(invalid_message));
 		} else {
-			String failed_message = Utils.getBundleString(bundle, "failed_message", SAVEGAMES_FILE_NAME, e.getMessage());
+			String failed_message = i18n("failed_message", SAVEGAMES_FILE_NAME, e.getMessage());
 			gui_root.addModalForm(new MessageForm(failed_message));
 		}
 	}

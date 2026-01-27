@@ -19,9 +19,14 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 
 public final class VikingIsland3 extends Island {
-	private final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland3.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland3.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	public VikingIsland3(Campaign campaign) {
 		super(campaign);
@@ -29,12 +34,9 @@ public final class VikingIsland3 extends Island {
 
 	@Override
 	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-		String[] ai_names = new String[]{Utils.getBundleString(bundle, "name0"),
-			Utils.getBundleString(bundle, "name1"),
-			Utils.getBundleString(bundle, "name2"),
-			Utils.getBundleString(bundle, "name3"),
-			Utils.getBundleString(bundle, "name4"),
-			Utils.getBundleString(bundle, "name5")};
+		String[] ai_names = IntStream.range(0,6)
+				.mapToObj(i -> i18n( "name" + i))
+				.toArray(String[]::new);
 		// gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
 		GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.NATIVE, .75f, 1f, .5f, 96443, 3, VikingCampaign.MAX_UNITS, ai_names);
 		game_network.getClient().getServerInterface().setPlayerSlot(0,
@@ -82,8 +84,8 @@ public final class VikingIsland3 extends Island {
 
 		// Introduction
 		runnable = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
-                            Utils.getBundleString(bundle, "dialog0"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header0"),
+                            i18n("dialog0"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START);
                     addModalForm(dialog);
@@ -109,28 +111,28 @@ public final class VikingIsland3 extends Island {
 
 		float offset = HeightMap.METERS_PER_UNIT_GRID/2f;
 		float dir = (float)Math.sin(Math.PI/4);
-		new SceneryModel(getViewer().getWorld(), 134*2 + offset, 29*2 + offset, dir, -dir, getViewer().getWorld().getRacesResources().getTreasures()[4], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		new SceneryModel(getViewer().getWorld(), 130*2 + offset, 28*2 + offset, 0, -1, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		new SceneryModel(getViewer().getWorld(), 130*2 + offset, 34*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		new SceneryModel(getViewer().getWorld(), 125*2 + offset, 37*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		new SceneryModel(getViewer().getWorld(), 121*2 + offset, 32*2 + offset, -1, 0, getViewer().getWorld().getRacesResources().getTreasures()[5], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		new SceneryModel(getViewer().getWorld(), 124*2 + offset, 28*2 + offset, -dir, -dir, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		new SceneryModel(getViewer().getWorld(), 136*2 + offset, 38*2 + offset, dir, dir, getViewer().getWorld().getRacesResources().getTreasures()[4], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
-		new SceneryModel(getViewer().getWorld(), 139*2 + offset, 33*2 + offset, 1, 0, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
+		new SceneryModel(getViewer().getWorld(), 134*2 + offset, 29*2 + offset, dir, -dir, getViewer().getWorld().getRacesResources().getTreasures()[4], shadow_diameter, true, i18n("statue"));
+		new SceneryModel(getViewer().getWorld(), 130*2 + offset, 28*2 + offset, 0, -1, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, i18n("statue"));
+		new SceneryModel(getViewer().getWorld(), 130*2 + offset, 34*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, i18n("statue"));
+		new SceneryModel(getViewer().getWorld(), 125*2 + offset, 37*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, i18n("statue"));
+		new SceneryModel(getViewer().getWorld(), 121*2 + offset, 32*2 + offset, -1, 0, getViewer().getWorld().getRacesResources().getTreasures()[5], shadow_diameter, true, i18n("statue"));
+		new SceneryModel(getViewer().getWorld(), 124*2 + offset, 28*2 + offset, -dir, -dir, getViewer().getWorld().getRacesResources().getTreasures()[3], shadow_diameter, true, i18n("statue"));
+		new SceneryModel(getViewer().getWorld(), 136*2 + offset, 38*2 + offset, dir, dir, getViewer().getWorld().getRacesResources().getTreasures()[4], shadow_diameter, true, i18n("statue"));
+		new SceneryModel(getViewer().getWorld(), 139*2 + offset, 33*2 + offset, 1, 0, getViewer().getWorld().getRacesResources().getTreasures()[1], shadow_diameter, true, i18n("statue"));
 	}
 
 	@Override
 	public @NonNull CharSequence getHeader() {
-		return Utils.getBundleString(bundle, "header");
+		return i18n("header");
 	}
 
 	@Override
 	public @NonNull CharSequence getDescription() {
-		return Utils.getBundleString(bundle, "description");
+		return i18n("description");
 	}
 
 	@Override
 	public @NonNull CharSequence getCurrentObjective() {
-		return Utils.getBundleString(bundle, "objective");
+		return i18n("objective");
 	}
 }

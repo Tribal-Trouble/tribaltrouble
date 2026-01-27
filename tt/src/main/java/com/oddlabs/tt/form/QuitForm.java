@@ -12,13 +12,14 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class QuitForm extends QuestionForm {
-	private static @NonNull String getI18N(@NonNull String key) {
-		ResourceBundle bundle = ResourceBundle.getBundle(QuitForm.class.getName());
-		return Utils.getBundleString(bundle, key);
-	}
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(QuitForm.class.getName());
+
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
 
 	public QuitForm(final GUIRoot gui_root) {
-		super(!PeerHub.isWaitingForAck() ? getI18N("confirm_quit") : getI18N("confirm_quit_waiting_for_ack"),
+		super(i18n(PeerHub.isWaitingForAck() ? "confirm_quit_waiting_for_ack" : "confirm_quit"),
                  (_, _, _, _) -> Renderer.shutdown());
 	}
 

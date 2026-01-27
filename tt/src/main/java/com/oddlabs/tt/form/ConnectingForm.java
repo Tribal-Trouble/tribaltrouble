@@ -23,9 +23,13 @@ import java.util.ResourceBundle;
 import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
 
 public final class ConnectingForm extends Form implements ConfigurationListener {
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(ConnectingForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 	private final SelectGameMenu owner;
 	private final boolean multiplayer;
-	private final ResourceBundle bundle = ResourceBundle.getBundle(ConnectingForm.class.getName());
 	private final GUIRoot gui_root;
 	private final GameNetwork game_network;
 
@@ -34,14 +38,9 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
 		this.gui_root = gui_root;
 		this.owner = owner;
 		this.multiplayer = multiplayer;
-		ResourceBundle bundle = ResourceBundle.getBundle(ConnectingForm.class.getName());
 
-		Label info_label;
-		if (multiplayer)
-			info_label = new Label(Utils.getBundleString(bundle, "connecting"), Skin.getSkin().getHeadlineFont());
-		else
-			info_label = new Label(Utils.getBundleString(bundle, "starting"), Skin.getSkin().getHeadlineFont());
-		addChild(info_label);
+		Label info_label =  new Label(i18n(multiplayer ? "connecting" : "starting"), Skin.getSkin().getHeadlineFont());
+        addChild(info_label);
 		HorizButton cancel_button = new CancelButton(120);
 		addChild(cancel_button);
 		cancel_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
@@ -86,7 +85,7 @@ public final class ConnectingForm extends Form implements ConfigurationListener 
 	@Override
 	public void connectionLost() {
 		remove();
-		gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "connection_lost")));
+		gui_root.addModalForm(new MessageForm(i18n("connection_lost")));
 	}
 
 	@Override

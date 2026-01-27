@@ -67,7 +67,11 @@ import java.util.logging.SimpleFormatter;
 
 public final class Renderer implements AutoCloseable {
     private static final Logger logger = Logger.getLogger(Renderer.class.getName());
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
 
+    private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
     private static final Renderer renderer_instance = new Renderer();
 	private static final StatCounter fps = new StatCounter(10);
 	private static int num_triangles_rendered;
@@ -656,21 +660,21 @@ public final class Renderer implements AutoCloseable {
 		gui_root.pushDelegate(main_menu);
 		if (first_progress && Settings.getSettings().warning_no_sound && !Renderer.getLocalInput().audioIsCreated()) {
 			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
-			gui_root.addModalForm(new WarningForm(Utils.getBundleString(bundle, "sound_not_available_caption"), Utils.getBundleString(bundle, "sound_not_available_message")));
+			gui_root.addModalForm(new WarningForm(i18n("sound_not_available_caption"), i18n("sound_not_available_message")));
 		}
 		if (!initNetwork(network)) {
 //			if (true) {
 			ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
-			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "network_not_available_caption"),
-						Utils.getBundleString(bundle, "network_not_available_message"),
-						Utils.getBundleString(bundle, "quit"),  (_, _, _, _) -> shutdown()));
+			gui_root.addModalForm(new MessageForm(i18n("network_not_available_caption"),
+						i18n("network_not_available_message"),
+						i18n("quit"),  (_, _, _, _) -> shutdown()));
 		}
 		// We'll leave out the reporting, since checksum errors can happen when a peer is disconnected halfway through it's EOT
 		// broadcast
 		/*		if (Globals.checksum_error_in_last_game) {
 				Globals.checksum_error_in_last_game = false;
 				ResourceBundle bundle = ResourceBundle.getBundle(Renderer.class.getName());
-				GUIRoot.getGUIRoot().addModalForm(new QuestionForm(Utils.getBundleString(bundle, "checksum_error_message"), new BugReportListener()));
+				GUIRoot.getGUIRoot().addModalForm(new QuestionForm(i18n("checksum_error_message"), new BugReportListener()));
 				}*/
 		return renderer;
 	}

@@ -7,12 +7,15 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.Set;
 
 public final class ChatRoomHistory extends ChatHistory {
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(ChatPanel.class.getName());
 
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 	private ChatRoomUser[] old_users;
 
 	void update(ChatRoomUser[] new_users) {
@@ -22,18 +25,13 @@ public final class ChatRoomHistory extends ChatHistory {
 		Set<ChatRoomUser> old_users_set = new HashSet<>(Arrays.asList(old_users));
 		Set<ChatRoomUser> joined_users = new HashSet<>(new_users_set);
 		joined_users.removeAll(old_users_set);
-		Iterator<ChatRoomUser> it = joined_users.iterator();
-		ResourceBundle bundle = ResourceBundle.getBundle(ChatPanel.class.getName());
-		while (it.hasNext()) {
-			ChatRoomUser user = it.next();
-			addMessage(Utils.getBundleString(bundle, "user_joined", user.getNick()));
+		for(ChatRoomUser user :  joined_users) {
+			addMessage(i18n("user_joined", user.getNick()));
 		}
 		Set<ChatRoomUser> left_users = new HashSet<>(old_users_set);
 		left_users.removeAll(new_users_set);
-		it = left_users.iterator();
-		while (it.hasNext()) {
-			ChatRoomUser user = it.next();
-			addMessage(Utils.getBundleString(bundle, "user_left", user.getNick()));
+		for(ChatRoomUser user :  left_users) {
+			addMessage(i18n("user_left", user.getNick()));
 		}
 	}
 

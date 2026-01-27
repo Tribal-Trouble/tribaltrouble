@@ -33,6 +33,11 @@ public final class InGameChatForm extends Form implements ChatListener {
 	private static final int CHAT_WIDTH = 400;
 	private static final int BUTTON_WIDTH = 50;
 	private static final int CHAT_HEIGHT = 150;
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(InGameChatForm.class.getName());
+
+	private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	private final @NonNull EditLine chat_line;
 	private final InfoPrinter info_printer;
@@ -40,15 +45,10 @@ public final class InGameChatForm extends Form implements ChatListener {
 	private final @NonNull RadioButtonGroup radio_button_group;
 	private final @NonNull RadioButton radio_all;
 	private final @NonNull RadioButton radio_team;
-	private final ResourceBundle bundle = getBundle();
 	private final WorldViewer viewer;
 
-	private static ResourceBundle getBundle() {
-		return ResourceBundle.getBundle(InGameChatForm.class.getName());
-	}
-
 	public InGameChatForm(InfoPrinter info_printer, WorldViewer viewer) {
-		super(Utils.getBundleString(getBundle(), "chat"));
+		super(i18n( "chat"));
 		this.viewer = viewer;
 
 		this.info_printer = info_printer;
@@ -56,7 +56,7 @@ public final class InGameChatForm extends Form implements ChatListener {
 		addChild(chat_line);
 		chat_line.addEnterListener(new ChatListener());
 
-		HorizButton button_send = new HorizButton(Utils.getBundleString(bundle, "send"), BUTTON_WIDTH);
+		HorizButton button_send = new HorizButton(i18n("send"), BUTTON_WIDTH);
 		addChild(button_send);
 		button_send.addMouseClickListener(( _,  _,  _,  _) -> chat_line.enterPressedAll());
 
@@ -65,10 +65,10 @@ public final class InGameChatForm extends Form implements ChatListener {
 
 		radio_button_group = new RadioButtonGroup();
 
-		radio_all = new RadioButton(true, radio_button_group, Utils.getBundleString(bundle, "send_to_all"));
+		radio_all = new RadioButton(true, radio_button_group, i18n("send_to_all"));
 		addChild(radio_all);
 
-		radio_team = new RadioButton(false, radio_button_group, Utils.getBundleString(bundle, "send_to_team"));
+		radio_team = new RadioButton(false, radio_button_group, i18n("send_to_team"));
 		addChild(radio_team);
 
 		chat_line.place();

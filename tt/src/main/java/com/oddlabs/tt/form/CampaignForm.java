@@ -11,7 +11,6 @@ import com.oddlabs.tt.gui.LoadCampaignBox;
 import com.oddlabs.tt.gui.MouseButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
-import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.player.campaign.Campaign;
 import com.oddlabs.tt.player.campaign.CampaignState;
@@ -36,29 +35,42 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
 
 	private final @NonNull HorizButton button_vikings;
 	private final @NonNull LoadCampaignBox load_campaign_box;
-	private final ResourceBundle bundle = ResourceBundle.getBundle(CampaignForm.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(CampaignForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
     private final @NonNull GUIRoot gui_root;
 	private final @NonNull NetworkSelector network;
 
 	public CampaignForm(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, @NonNull Menu main_menu) {
         this.gui_root = gui_root;
 		this.network = network;
-		Label headline = new Label(Utils.getBundleString(bundle, "campaign"), Skin.getSkin().getHeadlineFont());
+		Label headline = new Label(i18n("campaign"), Skin.getSkin().getHeadlineFont());
 		addChild(headline);
 
 		// Combo box
-		var loadListener = new LoadListener();
-		load_campaign_box = new LoadCampaignBox(gui_root, loadListener);
+		RowListener<CampaignState> listListener = new RowListener<>() {
+			@Override
+			public void rowDoubleClicked(@NonNull CampaignState object) {
+				load(object);
+			}
+		};
+		load_campaign_box = new LoadCampaignBox(gui_root, listListener);
 
-		HorizButton button_delete = new HorizButton(Utils.getBundleString(bundle, "delete"), 120);
+		HorizButton button_delete = new HorizButton(i18n("delete"), 120);
 		button_delete.addMouseClickListener(this::mouseClickedDelete);
 
-		button_vikings = new HorizButton(Utils.getBundleString(bundle, "new"), 120);
+		button_vikings = new HorizButton(i18n("new"), 120);
 		button_vikings.addMouseClickListener((_,_,_,_) ->
                 main_menu.setMenu(new NewCampaignForm(network, gui_root, main_menu, CampaignForm.this)));
 
-		HorizButton button_load = new HorizButton(Utils.getBundleString(bundle, "load"), 120);
-		button_load.addMouseClickListener(loadListener);
+		HorizButton button_load = new HorizButton(i18n("load"), 120);
+		button_load.addMouseClickListener((_,_,_,_) -> {
+			CampaignState selected = load_campaign_box.getSelected();
+			if (selected != null)
+				load(selected);
+		});
 
 		HorizButton button_cancel = new CancelButton(120);
 		button_cancel.addMouseClickListener(( _,  _,  _,  _) -> this.cancel());
@@ -127,31 +139,17 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
 		} else if (e instanceof InvalidClassException) {
 		} else {
             logger.log(Level.SEVERE, "Load failed", e);
-			String failed_message = Utils.getBundleString(bundle, "failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
+			String failed_message = i18n("failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
 			gui_root.addModalForm(new MessageForm(failed_message));
 		}
 	}
 
-	private void mouseClickedDelete(@NonNull MouseButton button, int x, int y, int clicks) {
-        CampaignState state = load_campaign_box.getSelected();
-        if (state != null) {
-            String confirm_str = Utils.getBundleString(bundle, "confirm_delete", state.getName());
-            gui_root.addModalForm(new QuestionForm(confirm_str, (_,_,_,_) ->
-                    LoadCampaignBox.loadSavegames(CampaignForm.this)));
-        }
-    }
-
-	private final class LoadListener implements MouseClickListener, RowListener<CampaignState> {
-		@Override
-		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-            CampaignState selected = load_campaign_box.getSelected();
-			if (selected != null)
-				load(selected);
-		}
-
-		@Override
-		public void rowDoubleClicked(@NonNull CampaignState object) {
-			load(object);
-		}
+	    private void mouseClickedDelete(@NonNull MouseButton button, int x, int y, int clicks) {
+	        CampaignState state = load_campaign_box.getSelected();
+	        if (state != null) {
+	            String confirm_str = i18n("confirm_delete", state.getName());
+	            gui_root.addModalForm(new QuestionForm(confirm_str, (_,_,_,_) ->
+	                    LoadCampaignBox.loadSavegames(CampaignForm.this)));
+	        }
+	    }
 	}
-}

@@ -11,6 +11,12 @@ import org.jspecify.annotations.Nullable;
 import java.util.ResourceBundle;
 
 public abstract class IconSpinner extends GUIObject implements ToolTip {
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(IconSpinner.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+
 	private final @NonNull ModeIconQuads icon_quad;
 	private final @NonNull String tool_tip;
 	private final @NonNull IconQuad @Nullable [] tool_tip_icons;
@@ -27,17 +33,16 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 		this.tool_tip = tool_tip;
 		this.tool_tip_icons = tool_tip_icons;
 		this.viewer = viewer;
-		ResourceBundle bundle = ResourceBundle.getBundle(IconSpinner.class.getName());
 		setCanFocus(true);
 		setDim(icon_quad.quad(ModeIconQuads.Mode.NORMAL).getWidth(), icon_quad.quad(ModeIconQuads.Mode.NORMAL).getHeight());
 
-		String inc_str = Utils.getBundleString(bundle, "increase", shortcut_key);
+		String inc_str = i18n("increase", shortcut_key);
 		button_plus = new IconSpinnerButton(Skin.getSkin().getPlusButton(), inc_str, this);
 		button_plus.setPos(0, 0);
 		button_plus.addMouseButtonListener(new IncreaseListener());
         addChild(button_plus);
 
-		String dec_str = Utils.getBundleString(bundle, "decrease", shortcut_key);
+		String dec_str = i18n("decrease", shortcut_key);
 		button_minus = new IconSpinnerButton(Skin.getSkin().getMinusButton(), dec_str, this);
 		button_minus.setPos(button_plus.getWidth(), 0);
 		button_minus.addMouseButtonListener(new DecreaseListener());

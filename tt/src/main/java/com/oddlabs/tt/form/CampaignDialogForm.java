@@ -10,6 +10,9 @@ import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.OKButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.input.GameAction;
+import com.oddlabs.tt.input.InputEvent;
+import com.oddlabs.tt.input.InputPhase;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -38,9 +41,9 @@ public class CampaignDialogForm extends Form {
 		this.cancel = cancel;
 		buildForm(header, text, image, align, cancel);
 		ok_button.addMouseClickListener(( _,  _,  _,  _) -> {
-                    remove();
-                    run();
-                });
+			remove();
+			run();
+		});
 	}
 
 	protected void run() {
@@ -83,6 +86,17 @@ public class CampaignDialogForm extends Form {
 
 		compileCanvas();
 		centerPos();
+	}
+
+	@Override
+	protected void handleInput(@NonNull InputEvent event) {
+		if (event.getPhase() == InputPhase.PRESSED && event.consumeAction(GameAction.UI_ACTIVATE)) {
+			remove();
+			run();
+			event.consume();
+			return;
+		}
+		super.handleInput(event);
 	}
 
 	@Override

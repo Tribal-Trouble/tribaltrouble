@@ -18,34 +18,37 @@ import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
 public abstract class AbstractOptionsMenu extends Form {
 	private static final int BUTTON_WIDTH = 100;
+	public static final ResourceBundle bundle = ResourceBundle.getBundle(OptionsMenu.class.getName());
+	static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
     private final @NonNull GeneralPanel generalPanel;
     private final @NonNull GraphicsPanel graphicsPanel;
 
 	AbstractOptionsMenu(@NonNull GUIRoot gui_root) {
-        ResourceBundle bundle = ResourceBundle.getBundle(OptionsMenu.class.getName());
-		Label label_headline = new Label(Utils.getBundleString(bundle, "options_caption"), Skin.getSkin().getHeadlineFont());
+		Label label_headline = new Label(i18n("options_caption"), Skin.getSkin().getHeadlineFont());
 		addChild(label_headline);
 
-        generalPanel = new GeneralPanel(gui_root, bundle, this::changeGamespeed);
-        graphicsPanel = new GraphicsPanel(gui_root, bundle, this);
+        generalPanel = new GeneralPanel(gui_root, this::changeGamespeed);
+        graphicsPanel = new GraphicsPanel(gui_root,this);
 
 		PanelGroup panel_group = new PanelGroup(
                 generalPanel,
                 graphicsPanel,
-                new KeyBindingPanel(gui_root, bundle),
-                new AccessibilityPanel(gui_root, bundle),
-                new SoundPanel(gui_root, bundle),
-                new LanguagePanel(gui_root, bundle)
+                new KeyBindingPanel(gui_root),
+                new AccessibilityPanel(gui_root),
+                new SoundPanel(gui_root),
+                new LanguagePanel(gui_root)
         );
  		addChild(panel_group);
 
 		// Buttons
-		HorizButton button_close = new HorizButton(Utils.getBundleString(bundle, "close"), BUTTON_WIDTH);
+		HorizButton button_close = new HorizButton(i18n("close"), BUTTON_WIDTH);
 		button_close.addMouseClickListener(new CancelListener(this));
 		addChild(button_close);
 
-		HorizButton button_about = new HorizButton(Utils.getBundleString(bundle, "about"), BUTTON_WIDTH);
+		HorizButton button_about = new HorizButton(i18n("about"), BUTTON_WIDTH);
 		button_about.addMouseClickListener((_,_,_,_) -> gui_root.addModalForm(new CreditsForm()));
 		addChild(button_about);
 

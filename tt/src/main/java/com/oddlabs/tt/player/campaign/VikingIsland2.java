@@ -25,8 +25,8 @@ import java.util.stream.IntStream;
 public final class VikingIsland2 extends Island {
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland2.class.getName());
 
-	private @NonNull String i18n(@NonNull String key) {
-		return Utils.getBundleString(bundle, key);
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
 	}
 
 	public VikingIsland2(Campaign campaign) {

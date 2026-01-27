@@ -57,6 +57,12 @@ import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 import static com.oddlabs.tt.gui.Placement.TOP_RIGHT;
 
 public final class GameMenu extends Panel implements ConfigurationListener, ChatListener {
+   private static final ResourceBundle bundle = ResourceBundle.getBundle(GameMenu.class.getName());
+
+   private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+	   return Utils.getBundleString(bundle, key, args);
+   }
+
 	private static final int OPEN_INDEX = 0;
 	private static final int CLOSED_INDEX = 1;
 	private static final int COMPUTER_EASY_INDEX = 2;
@@ -67,9 +73,9 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 
 	private static final int RATING_WIDTH = 80;
 
-	private final PulldownButton @NonNull [] slot_buttons;
-	private final PulldownButton @NonNull [] race_buttons;
-	private final PulldownButton @NonNull [] team_buttons;
+	private final PulldownButton<Void> @NonNull [] slot_buttons;
+	private final PulldownButton<Void> @NonNull [] race_buttons;
+	private final PulldownButton<Void> @NonNull [] team_buttons;
 	private final Label @NonNull [] ratings;
 	private final @NonNull Label chat_info;
 	private final @NonNull TextBox chat_box;
@@ -82,19 +88,15 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	private final int local_player_slot;
 	private final boolean rated;
 	private final @NonNull Game game;
-	private final ResourceBundle bundle = getBundle();
 	private final @NonNull GameNetwork game_network;
 	private @NonNull SortedSet<String> human_names = new TreeSet<>();
 
 	private boolean updating;
 	private boolean ready;
 
-	public static @NonNull ResourceBundle getBundle() {
-		return ResourceBundle.getBundle(GameMenu.class.getName());
-	}
-
+	@SuppressWarnings("unchecked")
 	public GameMenu(@NonNull GameNetwork game_network, GUIRoot gui_root, SelectGameMenu owner, @NonNull Game game, WorldGenerator generator, int player_slot, int compare_width, int compare_height, int button_width) {
-		super(Utils.getBundleString(getBundle(), "game_caption"));
+		super(i18n("game_caption"));
 		this.game_network = game_network;
 		this.owner = owner;
 		this.gui_root = gui_root;
@@ -102,13 +104,12 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		this.rated = game.isRated();
 		this.game = game;
 
-		String tag = "";
-		if (rated)
-			tag = Utils.getBundleString(bundle, "rated") + " ";
-		Label game_name_label = new Label(Utils.getBundleString(bundle, "game") + " " + tag + game.getName(), Skin.getSkin().getHeadlineFont());
-		slot_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-		race_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
-		team_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
+		String tag = rated ? i18n("rated") + " " : "";
+		Label game_name_label = new Label(i18n("game") + " " + tag + game.getName(), Skin.getSkin().getHeadlineFont());
+
+		slot_buttons = (PulldownButton<Void>[]) new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
+		race_buttons = (PulldownButton<Void>[]) new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
+		team_buttons = (PulldownButton<Void>[]) new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
 		ready_marks = new Diode[MatchmakingServerInterface.MAX_PLAYERS];
 		ratings = new Label[MatchmakingServerInterface.MAX_PLAYERS];
 		Group player_group = new Group();
@@ -123,10 +124,10 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		FormData fdata = Skin.getSkin().getFormData();
 
 		int width = compare_width - pdata.getLeftOffset() - pdata.getRightOffset();
-		chat_info = new Label(Utils.getBundleString(bundle, "chat"), Skin.getSkin().getEditFont(), width);
+		chat_info = new Label(i18n("chat"), Skin.getSkin().getEditFont(), width);
 		Group chat_line_group = new Group();
 		chat_line = new EditLine(width - SEND_BUTTON_WIDTH - fdata.objectSpacing(), 100);
-        var send_button = new HorizButton(Utils.getBundleString(bundle, "send"), SEND_BUTTON_WIDTH);
+        var send_button = new HorizButton(i18n("send"), SEND_BUTTON_WIDTH);
 		send_button.addMouseClickListener(new SendListener());
 		chat_line_group.addChild(chat_line);
 		chat_line.place();
@@ -139,7 +140,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		addChild(game_name_label);
 		addChild(chat_info);
 
-		start_button = new HorizButton(Utils.getBundleString(bundle, "start"), button_width);
+		start_button = new HorizButton(i18n("start"), button_width);
 		if (local_player_slot == 0) {
 			addChild(start_button);
 			start_button.addMouseClickListener(new StartListener());
@@ -148,13 +149,13 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			- chat_line.getHeight() - game_name_label.getHeight() - player_group.getHeight() - start_button.getHeight() - 5*fdata.objectSpacing();
 		chat_box = new TextBox(width, height, Skin.getSkin().getEditFont(), Integer.MAX_VALUE);
 		addChild(chat_box);
-		ready_button = new HorizButton(Utils.getBundleString(bundle, "ready"), button_width);
+		ready_button = new HorizButton(i18n("ready"), button_width);
 		addChild(ready_button);
 		ready_button.addMouseClickListener(new ReadyListener());
-		HorizButton cancel_button = new HorizButton(Utils.getBundleString(bundle, "cancel"), button_width);
+		HorizButton cancel_button = new HorizButton(i18n("cancel"), button_width);
 		addChild(cancel_button);
 		cancel_button.addMouseClickListener(new CancelButtonListener());
-		HorizButton info_button = new HorizButton(Utils.getBundleString(bundle, "info"), button_width);
+		HorizButton info_button = new HorizButton(i18n("info"), button_width);
 		addChild(info_button);
 		info_button.addMouseClickListener(new InfoButtonListener());
 
@@ -170,7 +171,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			start_button.place(ready_button, LEFT_MID);
 		Font font = Skin.getSkin().getEditFont();
 		if (rated) {
-			Label rating = new Label(Utils.getBundleString(bundle, "rating"), font, RATING_WIDTH, Origin.AT_END);
+			Label rating = new Label(i18n("rating"), font, RATING_WIDTH, Origin.AT_END);
 			addChild(rating);
 			rating.place(player_group, TOP_RIGHT);
 		}
@@ -189,7 +190,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		boolean team_changed = player.getInfo() == null || team_index != player.getInfo().getTeam();
 		boolean ready_changed = ready != player.isReady();
 		boolean difficulty_changed = player.getInfo() == null || player.getAIDifficulty() != difficulty_index;
-		PulldownButton slot_button = slot_buttons[player_slot];
+		PulldownButton<?> slot_button = slot_buttons[player_slot];
 		switch (index) {
 			case OPEN_INDEX:
 				if ((player.getType() != PlayerSlot.OPEN && player.getType() != PlayerSlot.HUMAN) || race_changed || team_changed || ready_changed) {
@@ -203,7 +204,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 				break;
 			case CLOSED_INDEX:
 				if (player.getType() != PlayerSlot.CLOSED || race_changed || team_changed) {
-					slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(Utils.getBundleString(bundle, "open"));
+					slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(i18n("open"));
 					slot_button.getMenu().chooseItem(OPEN_INDEX);
 				}
 				break;
@@ -213,7 +214,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 				assert !rated;
 				boolean new_ai = player.getType() != PlayerSlot.AI;
 				if (new_ai || race_changed || team_changed || difficulty_changed) {
-					slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(Utils.getBundleString(bundle, "open"));
+					slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(i18n("open"));
 					if (new_ai) {
 						team_index = player_slot;
 						race_index = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick()).nextInt(RacesResources.getNumRaces());
@@ -257,15 +258,15 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		SortedSet<String> new_human_names = new TreeSet<>();
 		for (int i = 0; i < players.length; i++) {
 			PlayerSlot player = players[i];
-			PulldownButton slot_button = slot_buttons[i];
-			PulldownButton race_button = race_buttons[i];
-			PulldownButton team_button = team_buttons[i];
+			PulldownButton<?> slot_button = slot_buttons[i];
+			PulldownButton<?> race_button = race_buttons[i];
+			PulldownButton<?> team_button = team_buttons[i];
 			Diode ready_mark = ready_marks[i];
 			ready_mark.setLit(player.isReady());
 			race_button.getMenu().chooseItem(player.getInfo() != null ? player.getInfo().getRace() : 0);
 			team_button.getMenu().chooseItem(player.getInfo() != null ? player.getInfo().getTeam() : 0);
 			if (player.getType() != PlayerSlot.CLOSED) {
-				slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(Utils.getBundleString(bundle, "open"));
+				slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(i18n("open"));
 				slot_button.getMenu().chooseItem(OPEN_INDEX);
 			} else {
 				slot_button.getMenu().chooseItem(CLOSED_INDEX);
@@ -328,7 +329,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			if (slot == local_player_slot) {
 				int win = points[i][GameSession.WIN];
 				int lose = points[i][GameSession.LOSE];
-				String rating_change_message = Utils.getBundleString(bundle, "rating_change_message", Integer.toString(win), Integer.toString(-lose));
+				String rating_change_message = i18n("rating_change_message", Integer.toString(win), Integer.toString(-lose));
 				chat_info.set(rating_change_message);
 
 			}
@@ -342,19 +343,19 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 
 	private @NonNull GUIObject createPlayerPulldown(GUIRoot gui_root, @NonNull Group group,
                                                     @Nullable GUIObject previous,
-                                                    @NonNull PulldownButton[] slot_buttons,
-                                                    @NonNull PulldownButton[] race_buttons,
-                                                    @NonNull PulldownButton[] team_buttons,
+                                                    @NonNull PulldownButton<?>[] slot_buttons,
+                                                    @NonNull PulldownButton<?>[] race_buttons,
+                                                    @NonNull PulldownButton<?>[] team_buttons,
                                                     @NonNull Diode[] ready_marks,
                                                     @NonNull Label[] ratings,
                                                     int index,
                                                     int num_players) {
 		PulldownMenu<Void> pulldown_menu = new PulldownMenu<>();
-		PulldownItem<Void> open_item = new PulldownItem<>(Utils.getBundleString(bundle, "open"));
-		PulldownItem<Void> closed_item = new PulldownItem<>(Utils.getBundleString(bundle, "closed"));
-		PulldownItem<Void> computer_easy_item = new PulldownItem<>(Utils.getBundleString(bundle, "easy_ai"));
-		PulldownItem<Void> computer_normal_item = new PulldownItem<>(Utils.getBundleString(bundle, "normal_ai"));
-		PulldownItem<Void> computer_hard_item = new PulldownItem<>(Utils.getBundleString(bundle, "hard_ai"));
+		PulldownItem<Void> open_item = new PulldownItem<>(i18n("open"));
+		PulldownItem<Void> closed_item = new PulldownItem<>(i18n("closed"));
+		PulldownItem<Void> computer_easy_item = new PulldownItem<>(i18n("easy_ai"));
+		PulldownItem<Void> computer_normal_item = new PulldownItem<>(i18n("normal_ai"));
+		PulldownItem<Void> computer_hard_item = new PulldownItem<>(i18n("hard_ai"));
 		pulldown_menu.addItem(open_item);
 		pulldown_menu.addItem(closed_item);
 		if (!rated) {
@@ -362,7 +363,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			pulldown_menu.addItem(computer_normal_item);
 			pulldown_menu.addItem(computer_hard_item);
 		}
-		PulldownButton pulldown_button = new PulldownButton(gui_root, pulldown_menu, CLOSED_INDEX, 150);
+		PulldownButton<?> pulldown_button = new PulldownButton<>(gui_root, pulldown_menu, CLOSED_INDEX, 150);
 		slot_buttons[index] = pulldown_button;
 		group.addChild(pulldown_button);
 		if (previous != null)
@@ -382,12 +383,12 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		if (rated)
 			num_teams = 2;
 		for (int i = 0; i < num_teams; i++) {
-			String team_str = Utils.getBundleString(bundle, "team", Integer.toString(i + 1));
+			String team_str = i18n("team", Integer.toString(i + 1));
 			PulldownItem<Void> race_item = new PulldownItem<>(team_str);
 			team_pulldown_menu.addItem(race_item);
 		}
-		PulldownButton race_pulldown_button = new PulldownButton(gui_root, race_pulldown_menu, 0, 115);
-		PulldownButton team_pulldown_button = new PulldownButton(gui_root, team_pulldown_menu, index%num_teams, 115);
+		PulldownButton<?> race_pulldown_button = new PulldownButton<>(gui_root, race_pulldown_menu, 0, 115);
+		PulldownButton<?> team_pulldown_button = new PulldownButton<>(gui_root, team_pulldown_menu, index%num_teams, 115);
 		race_buttons[index] = race_pulldown_button;
 		team_buttons[index] = team_pulldown_button;
 		group.addChild(race_pulldown_button);
@@ -409,7 +410,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			group.addChild(ratings[index]);
 			ratings[index].place(ready_mark, RIGHT_MID);
 		}
-		String player_str = Utils.getBundleString(bundle, "player", Integer.toString(index + 1));
+		String player_str = i18n("player", Integer.toString(index + 1));
 		Label label = new Label(player_str, Skin.getSkin().getEditFont()).setColor(Settings.getSettings().team_colours[index]);
 		group.addChild(label);
 		label.place(pulldown_button, LEFT_MID);
@@ -433,7 +434,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	public void connectionLost() {
 		remove();
 		owner.removeGameMenu();
-		gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "connection_lost")));
+		gui_root.addModalForm(new MessageForm(i18n("connection_lost")));
 	}
 
 	@Override
@@ -454,8 +455,6 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		if (!chat_box.isEmpty())
 			chat_box.append("\n");
 
-		ResourceBundle ingame_bundle = ResourceBundle.getBundle(InGameChatForm.class.getName());
-
 		chat_box.append(message.formatLong());
 		finishChatAppend();
 	}
@@ -463,14 +462,14 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	private void playerLeft(String name) {
 		if (!chat_box.isEmpty())
 			chat_box.append("\n");
-		chat_box.append(Utils.getBundleString(bundle, "left_game", name));
+		chat_box.append(i18n("left_game", name));
 		finishChatAppend();
 	}
 
 	private void playerJoined(String name) {
 		if (!chat_box.isEmpty())
 			chat_box.append("\n");
-		chat_box.append(Utils.getBundleString(bundle, "joined_game", name));
+		chat_box.append(i18n("joined_game", name));
 		finishChatAppend();
 	}
 
@@ -535,7 +534,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 			final int MIN_TEAMS = 2;
 			int num_teams = getNumTeams(game_network.getClient().getPlayers());
 			if (num_teams < MIN_TEAMS) {
-				String err_msg = Utils.getBundleString(bundle, "min_teams", Integer.toString(MIN_TEAMS));
+				String err_msg = i18n("min_teams", Integer.toString(MIN_TEAMS));
 				gui_root.addModalForm(new MessageForm(err_msg));
 			} else {
 				game_network.getClient().getServerInterface().startServer();
@@ -551,7 +550,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 		}
 
 		@Override
-		public void itemChosen(PulldownMenu<Void> menu, int item_index) {
+		public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
 			setReady(false);
 			adjustPlayerSlot(player_slot);
 		}

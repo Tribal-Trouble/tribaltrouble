@@ -32,7 +32,7 @@ import java.util.stream.IntStream;
 public final class VikingIsland0 extends Island {
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland0.class.getName());
 
-	private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
 		return Utils.getBundleString(bundle, key, args);
 	}
 

@@ -32,7 +32,11 @@ public final class ProfilesForm extends Form {
 	private final @NonNull MultiColumnComboBox<String> profile_list_box;
 	private final @NonNull HorizButton join_button;
 	private final @NonNull GUIRoot gui_root;
-	private final ResourceBundle bundle = ResourceBundle.getBundle(ProfilesForm.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(ProfilesForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	// to be removed if connection lost
 	private NewProfileForm new_profile_form;
@@ -42,35 +46,47 @@ public final class ProfilesForm extends Form {
 		this.gui_root = gui_root;
 		this.main_menu = main_menu;
 		this.game_menu = game_menu;
-		Label label_headline = new Label(Utils.getBundleString(bundle, "profiles_caption"), Skin.getSkin().getHeadlineFont());
+		Label label_headline = new Label(i18n("profiles_caption"), Skin.getSkin().getHeadlineFont());
 		addChild(label_headline);
 
 		ColumnInfo[] infos = new ColumnInfo[]{
-			new ColumnInfo(Utils.getBundleString(bundle, "nick"), NICK_SIZE),
-			new ColumnInfo(Utils.getBundleString(bundle, "rating"), 120),
-			new ColumnInfo(Utils.getBundleString(bundle, "wins"), 100),
-			new ColumnInfo(Utils.getBundleString(bundle, "losses"), 100),
-			new ColumnInfo(Utils.getBundleString(bundle, "invalid"), 100)};
+			new ColumnInfo(i18n("nick"), NICK_SIZE),
+			new ColumnInfo(i18n("rating"), 120),
+			new ColumnInfo(i18n("wins"), 100),
+			new ColumnInfo(i18n("losses"), 100),
+			new ColumnInfo(i18n("invalid"), 100)};
 		profile_list_box = new MultiColumnComboBox<>(gui_root, infos, 200);
-		profile_list_box.addRowListener(new JoinListener());
+		profile_list_box.addRowListener(new RowListener<>() {
+			@Override
+			public void rowDoubleClicked(@NonNull String nick) {
+				join(nick);
+			}
+		});
 		addChild(profile_list_box);
 
-		HorizButton create_profile_button = new HorizButton(Utils.getBundleString(bundle, "create_new_profile"), 150);
+		HorizButton create_profile_button = new HorizButton(i18n("create_new_profile"), 150);
 		create_profile_button.addMouseClickListener((_,_,_,_) -> {
             new_profile_form = new NewProfileForm(gui_root, main_menu, ProfilesForm.this);
             main_menu.setMenu(new_profile_form);
         });
         addChild(create_profile_button);
 
-		HorizButton delete_profile_button = new HorizButton(Utils.getBundleString(bundle, "delete_profile"), 150);
+		HorizButton delete_profile_button = new HorizButton(i18n("delete_profile"), 150);
         delete_profile_button.addMouseClickListener(new DeleteProfileListener());
 		addChild(delete_profile_button);
 
-		join_button = new HorizButton(Utils.getBundleString(bundle, "join"), 100);
-        join_button.addMouseClickListener(new JoinListener());
+		join_button = new HorizButton(i18n("join"), 100);
+        join_button.addMouseClickListener((_,_,_,_) -> {
+			String nick = profile_list_box.getSelected();
+			if (nick == null) {
+				gui_root.addModalForm(new MessageForm(i18n("no_profiles")));
+			} else {
+				join(nick);
+			}
+		});
 		addChild(join_button);
 
-		HorizButton logout_button = new HorizButton(Utils.getBundleString(bundle, "logout"), 100);
+		HorizButton logout_button = new HorizButton(i18n("logout"), 100);
         logout_button.addMouseClickListener((@NonNull MouseButton _, int _, int _, int _) -> this.cancel());
 		addChild(logout_button);
 
@@ -122,9 +138,9 @@ public final class ProfilesForm extends Form {
 		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			String nick = profile_list_box.getSelected();
 			if (nick == null) {
-				gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "no_profiles")));
+				gui_root.addModalForm(new MessageForm(i18n("no_profiles")));
 			} else {
-				String confirm_str = Utils.getBundleString(bundle, "confirm_delete", nick);
+				String confirm_str = i18n("confirm_delete", nick);
 				confirm_delete_form = new QuestionForm(confirm_str, (_,_,_,_) -> {
                     Network.getMatchmakingClient().deleteProfile(nick);
                     Network.getMatchmakingClient().requestProfiles();
@@ -140,22 +156,5 @@ public final class ProfilesForm extends Form {
 		if (confirm_delete_form != null)
 			confirm_delete_form.connectionLost();
 		remove();
-	}
-
-	private final class JoinListener implements MouseClickListener, RowListener<String> {
-		@Override
-		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
-			String nick = profile_list_box.getSelected();
-			if (nick == null) {
-				gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "no_profiles")));
-			} else {
-				join(nick);
-			}
-		}
-
-		@Override
-		public void rowDoubleClicked(@NonNull String nick) {
-            join(nick);
-		}
 	}
 }

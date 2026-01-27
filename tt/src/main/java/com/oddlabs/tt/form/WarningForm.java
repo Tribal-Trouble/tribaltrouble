@@ -18,11 +18,15 @@ import static com.oddlabs.tt.gui.Placement.BOTTOM_MID;
 
 public final class WarningForm extends Form {
 	private static final int MAX_WIDTH = 500;
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(WarningForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	private final @NonNull CheckBox show_next_time;
 
 	public WarningForm(@NonNull String head, @NonNull String message) {
-		ResourceBundle bundle = ResourceBundle.getBundle(WarningForm.class.getName());
 		int head_width = Math.min(MAX_WIDTH, Skin.getSkin().getHeadlineFont().getWidth(head));
 		int message_width = Math.min(MAX_WIDTH, Skin.getSkin().getEditFont().getWidth(message));
 		int width = Math.max(head_width, message_width);
@@ -33,7 +37,7 @@ public final class WarningForm extends Form {
 		group.addChild(head_label);
 		LabelBox info_label = new LabelBox(message, Skin.getSkin().getEditFont(), width);
 		group.addChild(info_label);
-		show_next_time = new CheckBox(false, Utils.getBundleString(bundle, "dont_show"));
+		show_next_time = new CheckBox(false, i18n("dont_show"));
 		group.addChild(show_next_time);
 
 		head_label.place();

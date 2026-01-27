@@ -14,10 +14,6 @@ import com.oddlabs.tt.gui.PulldownMenu;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.render.Renderer;
-import com.oddlabs.tt.util.Utils;
-import org.jspecify.annotations.NonNull;
-
-import java.util.ResourceBundle;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
 import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
@@ -27,19 +23,19 @@ public class SoundPanel extends Panel {
     private static final int MAX_VALUE = 20;
     private static final boolean TEMPORARILY_DISABLE_MUSIC_CONTROLS = false;
 
-    public SoundPanel(GUIRoot gui_root, @NonNull ResourceBundle bundle) {
-        super(Utils.getBundleString(bundle, "sound_caption"));
+    public SoundPanel(GUIRoot gui_root) {
+        super(AbstractOptionsMenu.i18n("sound_caption"));
 
         // Sound
         Group group_music = new Group();
         addChild(group_music);
-        Label label_music_low = new Label(Utils.getBundleString(bundle, "low"), Skin.getSkin().getEditFont());
+        Label label_music_low = new Label(AbstractOptionsMenu.i18n("low"), Skin.getSkin().getEditFont());
         group_music.addChild(label_music_low);
-        Label label_music_high = new Label(Utils.getBundleString(bundle, "high"), Skin.getSkin().getEditFont());
+        Label label_music_high = new Label(AbstractOptionsMenu.i18n("high"), Skin.getSkin().getEditFont());
         group_music.addChild(label_music_high);
-        CheckBox cb_music = new CheckBox(Settings.getSettings().play_music, Utils.getBundleString(bundle, "music"));
+        CheckBox cb_music = new CheckBox(Settings.getSettings().play_music, AbstractOptionsMenu.i18n("music"));
         group_music.addChild(cb_music);
-        Label label_music = new Label(Utils.getBundleString(bundle, "music_volume"), Skin.getSkin().getEditFont());
+        Label label_music = new Label(AbstractOptionsMenu.i18n("music_volume"), Skin.getSkin().getEditFont());
         group_music.addChild(label_music);
         
         Slider slider_music = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int)(Settings.getSettings().music_gain*(MAX_VALUE)));
@@ -68,13 +64,13 @@ public class SoundPanel extends Panel {
 
         Group group_sound = new Group();
         addChild(group_sound);
-        Label label_sound_low = new Label(Utils.getBundleString(bundle, "low"), Skin.getSkin().getEditFont());
+        Label label_sound_low = new Label(AbstractOptionsMenu.i18n("low"), Skin.getSkin().getEditFont());
         group_sound.addChild(label_sound_low);
-        Label label_sound_high = new Label(Utils.getBundleString(bundle, "high"), Skin.getSkin().getEditFont());
+        Label label_sound_high = new Label(AbstractOptionsMenu.i18n("high"), Skin.getSkin().getEditFont());
         group_sound.addChild(label_sound_high);
-        CheckBox cb_sound = new CheckBox(Settings.getSettings().play_sfx, Utils.getBundleString(bundle, "sound_effects"));
+        CheckBox cb_sound = new CheckBox(Settings.getSettings().play_sfx, AbstractOptionsMenu.i18n("sound_effects"));
         group_sound.addChild(cb_sound);
-        Label label_sound = new Label(Utils.getBundleString(bundle, "sound_effects_volume"), Skin.getSkin().getEditFont());
+        Label label_sound = new Label(AbstractOptionsMenu.i18n("sound_effects_volume"), Skin.getSkin().getEditFont());
         group_sound.addChild(label_sound);
         
         Slider slider_sound = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int)(Settings.getSettings().sound_gain*(MAX_VALUE)));
@@ -101,12 +97,12 @@ public class SoundPanel extends Panel {
         // Audio Output
         Group group_output = new Group();
         addChild(group_output);
-        Label label_output = new Label(Utils.getBundleString(bundle, "audio_output"), Skin.getSkin().getEditFont());
+        Label label_output = new Label(AbstractOptionsMenu.i18n("audio_output"), Skin.getSkin().getEditFont());
         group_output.addChild(label_output);
         
         PulldownMenu<Void> pm_output = new PulldownMenu<>();
-        pm_output.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "audio_output_speakers")));
-        pm_output.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "audio_output_headphones")));
+        pm_output.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("audio_output_speakers")));
+        pm_output.addItem(new PulldownItem<>(AbstractOptionsMenu.i18n("audio_output_headphones")));
         
         int initialOutput = Settings.getSettings().headphone_mode ? 1 : 0;
         PulldownButton<Void> pb_output = new PulldownButton<>(gui_root, pm_output, initialOutput, 150);

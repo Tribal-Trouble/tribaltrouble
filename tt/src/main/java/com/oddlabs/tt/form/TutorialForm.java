@@ -52,54 +52,57 @@ public final class TutorialForm extends Form {
 	public static final int NUM_TUTORIALS = 6;
 
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(TutorialForm.class.getName());
+	private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	private final GUIRoot gui_root;
 	private final NetworkSelector network;
 
 	private static @NonNull String formatTutorial(int tutorial_number) {
-		return Utils.getBundleString(bundle, "tutorial", Integer.toString(tutorial_number));
+		return i18n("tutorial", Integer.toString(tutorial_number));
 	}
 
 	public TutorialForm(NetworkSelector network, GUIRoot gui_root) {
 		this.gui_root = gui_root;
 		this.network = network;
-		Label headline = new Label(Utils.getBundleString(bundle, "tutorial_caption"), Skin.getSkin().getHeadlineFont());
+		Label headline = new Label(i18n("tutorial_caption"), Skin.getSkin().getHeadlineFont());
 		addChild(headline);
 
 		HorizButton button_tutorial1 = new HorizButton(formatTutorial(TUTORIAL_CAMERA), 120);
 		button_tutorial1.addMouseClickListener(new TutorialListener(TUTORIAL_CAMERA));
 		addChild(button_tutorial1);
-		Label label_tutorial1 = new Label(Utils.getBundleString(bundle, "tutorial1_tip"), Skin.getSkin().getEditFont());
+		Label label_tutorial1 = new Label(i18n("tutorial1_tip"), Skin.getSkin().getEditFont());
 		addChild(label_tutorial1);
 
 		HorizButton button_tutorial2 = new HorizButton(formatTutorial(TUTORIAL_QUARTERS), 120);
 		button_tutorial2.addMouseClickListener(new TutorialListener(TUTORIAL_QUARTERS));
 		addChild(button_tutorial2);
-		Label label_tutorial2 = new Label(Utils.getBundleString(bundle, "tutorial2_tip"), Skin.getSkin().getEditFont());
+		Label label_tutorial2 = new Label(i18n("tutorial2_tip"), Skin.getSkin().getEditFont());
 		addChild(label_tutorial2);
 
 		HorizButton button_tutorial3 = new HorizButton(formatTutorial(TUTORIAL_ARMORY), 120);
 		button_tutorial3.addMouseClickListener(new TutorialListener(TUTORIAL_ARMORY));
 		addChild(button_tutorial3);
-		Label label_tutorial3 = new Label(Utils.getBundleString(bundle, "tutorial3_tip"), Skin.getSkin().getEditFont());
+		Label label_tutorial3 = new Label(i18n("tutorial3_tip"), Skin.getSkin().getEditFont());
 		addChild(label_tutorial3);
 
 		HorizButton button_tutorial4 = new HorizButton(formatTutorial(TUTORIAL_TOWER), 120);
 		button_tutorial4.addMouseClickListener(new TutorialListener(TUTORIAL_TOWER));
 		addChild(button_tutorial4);
-		Label label_tutorial4 = new Label(Utils.getBundleString(bundle, "tutorial4_tip"), Skin.getSkin().getEditFont());
+		Label label_tutorial4 = new Label(i18n("tutorial4_tip"), Skin.getSkin().getEditFont());
 		addChild(label_tutorial4);
 
 		HorizButton button_tutorial5 = new HorizButton(formatTutorial(TUTORIAL_CHIEFTAIN), 120);
 		button_tutorial5.addMouseClickListener(new TutorialListener(TUTORIAL_CHIEFTAIN));
 		addChild(button_tutorial5);
-		Label label_tutorial5 = new Label(Utils.getBundleString(bundle, "tutorial5_tip"), Skin.getSkin().getEditFont());
+		Label label_tutorial5 = new Label(i18n("tutorial5_tip"), Skin.getSkin().getEditFont());
 		addChild(label_tutorial5);
 
 		HorizButton button_tutorial6 = new HorizButton(formatTutorial(TUTORIAL_BATTLE), 120);
 		button_tutorial6.addMouseClickListener(new TutorialListener(TUTORIAL_BATTLE));
 		addChild(button_tutorial6);
-		Label label_tutorial6 = new Label(Utils.getBundleString(bundle, "tutorial6_tip"), Skin.getSkin().getEditFont());
+		Label label_tutorial6 = new Label(i18n("tutorial6_tip"), Skin.getSkin().getEditFont());
 		addChild(label_tutorial6);
 
 		HorizButton cancel_button = new CancelButton(120);
@@ -159,7 +162,7 @@ public final class TutorialForm extends Form {
 		float trees = 1f;
 		float resources = 1f;
 		int seed = 2;
-		String ai_string = Utils.getBundleString(bundle, "ai");
+		String ai_string = i18n("ai");
 		WorldInitAction compound_action = (WorldViewer world_viewer) -> {
                     if (initial_action != null)
                         initial_action.run(world_viewer);

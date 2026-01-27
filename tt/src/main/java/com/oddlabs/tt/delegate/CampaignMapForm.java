@@ -34,7 +34,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
 	private static final float BASE_HEIGHT = 600f;
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(CampaignMapForm.class.getName());
 
-	private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
 		return Utils.getBundleString(bundle, key, args);
 	}
 
@@ -65,7 +65,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
 				if (campaign.getState().getCurrentIsland() == 14) {
 					final Runnable runnable_menu = () -> closeCampaign(network, gui_root.getGUI());
 					final Runnable runnable_next = () -> {
-						CampaignDialogForm dialog = new CampaignDialogForm(Utils.getBundleString(bundle, "native_campaign_opened_header"),
+						CampaignDialogForm dialog = new CampaignDialogForm(i18n("native_campaign_opened_header"),
 								i18n("native_campaign_opened"),
 								null,
 								Origin.AT_START,

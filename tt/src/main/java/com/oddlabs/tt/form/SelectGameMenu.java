@@ -83,7 +83,11 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 	private final int user_name_size;
 	private final int room_name_size;
 
-	private final ResourceBundle bundle = ResourceBundle.getBundle(SelectGameMenu.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(SelectGameMenu.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	private GameMenu game_panel;
 	private @Nullable ChatPanel chat_panel;
@@ -99,35 +103,35 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		this.network = network;
 
 		// Game panel
-		game_list_panel = new Panel(Utils.getBundleString(bundle, "games_caption"));
-		Label label_headline = new Label(Utils.getBundleString(bundle, "multiplayer_caption"), Skin.getSkin().getHeadlineFont());
+		game_list_panel = new Panel(i18n("games_caption"));
+		Label label_headline = new Label(i18n("multiplayer_caption"), Skin.getSkin().getHeadlineFont());
 		game_list_panel.addChild(label_headline);
 		game_list_panel.addFocusListener(new GameListPanelListener());
 		game_name_size = 340;
 		ColumnInfo[] infos = new ColumnInfo[]{
-			new ColumnInfo(Utils.getBundleString(bundle, "game_name"), game_name_size),
-			new ColumnInfo(Utils.getBundleString(bundle, "rated"), 120),
-			new ColumnInfo(Utils.getBundleString(bundle, "speed"), 120),
-			new ColumnInfo(Utils.getBundleString(bundle, "map_size"), 120)};
+			new ColumnInfo(i18n("game_name"), game_name_size),
+			new ColumnInfo(i18n("rated"), 120),
+			new ColumnInfo(i18n("speed"), 120),
+			new ColumnInfo(i18n("map_size"), 120)};
 		game_list_box = new MultiColumnComboBox<>(gui_root, infos, 350);
 		game_list_box.addRowListener(new GameDoubleClickedListener());
 		game_list_panel.addChild(game_list_box);
 
 		PulldownMenu<GameHost> game_list_pulldown_menu = new PulldownMenu<>();
-		game_list_pulldown_menu.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "join")));
-		game_list_pulldown_menu.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "game_info")));
+		game_list_pulldown_menu.addItem(new PulldownItem<>(i18n("join")));
+		game_list_pulldown_menu.addItem(new PulldownItem<>(i18n("game_info")));
 		game_list_pulldown_menu.addItemChosenListener(new PulldownListener(game_list_box));
 		game_list_box.setPulldownMenu(game_list_pulldown_menu);
 
-		HorizButton update_list_button = new HorizButton(Utils.getBundleString(bundle, "update_list"), BUTTON_WIDTH_EXTRA_LONG);
+		HorizButton update_list_button = new HorizButton(i18n("update_list"), BUTTON_WIDTH_EXTRA_LONG);
 		game_list_panel.addChild(update_list_button);
 		update_list_button.addMouseClickListener(new UpdateGameListListener());
 
-		HorizButton create_button = new HorizButton(Utils.getBundleString(bundle, "create_game"), BUTTON_WIDTH_LONG);
+		HorizButton create_button = new HorizButton(i18n("create_game"), BUTTON_WIDTH_LONG);
 		game_list_panel.addChild(create_button);
 		create_button.addMouseClickListener(new CreateGameListener());
 
-		HorizButton join_button = new HorizButton(Utils.getBundleString(bundle, "join_game"), BUTTON_WIDTH);
+		HorizButton join_button = new HorizButton(i18n("join_game"), BUTTON_WIDTH);
 		game_list_panel.addChild(join_button);
 		join_button.addMouseClickListener((_,_,_,_) -> {
             GameHost selected_game = game_list_box.getSelected();
@@ -146,21 +150,21 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		panels[PANEL_INDEX_GAME] = game_list_panel;
 
 		// League panel
-		Panel highscore_list_panel = new Panel(Utils.getBundleString(bundle, "league_caption"));
-		label_headline = new Label(Utils.getBundleString(bundle, "league_description"), Skin.getSkin().getHeadlineFont());
+		Panel highscore_list_panel = new Panel(i18n("league_caption"));
+		label_headline = new Label(i18n("league_description"), Skin.getSkin().getHeadlineFont());
 		highscore_list_panel.addChild(label_headline);
 		user_name_size = 250;
 		ColumnInfo[] score_infos = new ColumnInfo[]{
-			new ColumnInfo(Utils.getBundleString(bundle, "rank"), 50),
-			new ColumnInfo(Utils.getBundleString(bundle, "name"), user_name_size),
-			new ColumnInfo(Utils.getBundleString(bundle, "rating"), 100),
-			new ColumnInfo(Utils.getBundleString(bundle, "wins"), 100),
-			new ColumnInfo(Utils.getBundleString(bundle, "losses"), 100),
-			new ColumnInfo(Utils.getBundleString(bundle, "invalid"), 100)};
+			new ColumnInfo(i18n("rank"), 50),
+			new ColumnInfo(i18n("name"), user_name_size),
+			new ColumnInfo(i18n("rating"), 100),
+			new ColumnInfo(i18n("wins"), 100),
+			new ColumnInfo(i18n("losses"), 100),
+			new ColumnInfo(i18n("invalid"), 100)};
 		ranking_list_box = new MultiColumnComboBox<>(gui_root, score_infos, 350);
 		highscore_list_panel.addChild(ranking_list_box);
 
-		HorizButton update_scores_button = new HorizButton(Utils.getBundleString(bundle, "update_scores"), BUTTON_WIDTH_EXTRA_LONG);
+		HorizButton update_scores_button = new HorizButton(i18n("update_scores"), BUTTON_WIDTH_EXTRA_LONG);
 		highscore_list_panel.addChild(update_scores_button);
 		update_scores_button.addMouseClickListener(new UpdateScoresListener());
 
@@ -174,27 +178,27 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		panels[PANEL_INDEX_HIGHSCORE] = highscore_list_panel;
 
 		// Chat room list panel
-		chat_room_list_panel = new Panel(Utils.getBundleString(bundle, "chat_caption"));
-		label_headline = new Label(Utils.getBundleString(bundle, "chat_rooms_caption"), Skin.getSkin().getHeadlineFont());
+		chat_room_list_panel = new Panel(i18n("chat_caption"));
+		label_headline = new Label(i18n("chat_rooms_caption"), Skin.getSkin().getHeadlineFont());
 		chat_room_list_panel.addChild(label_headline);
 
 		room_name_size = 600;
 		infos = new ColumnInfo[]{
-			new ColumnInfo(Utils.getBundleString(bundle, "room"), room_name_size),
-			new ColumnInfo(Utils.getBundleString(bundle, "users"), 100)};
+			new ColumnInfo(i18n("room"), room_name_size),
+			new ColumnInfo(i18n("users"), 100)};
 		chat_room_list_box = new MultiColumnComboBox<>(gui_root, infos, 350);
 		chat_room_list_box.addRowListener(new RoomDoubleClickedListener());
 		chat_room_list_panel.addChild(chat_room_list_box);
 
-		update_list_button = new HorizButton(Utils.getBundleString(bundle, "update_rooms"), BUTTON_WIDTH_EXTRA_LONG);
+		update_list_button = new HorizButton(i18n("update_rooms"), BUTTON_WIDTH_EXTRA_LONG);
 		chat_room_list_panel.addChild(update_list_button);
 		update_list_button.addMouseClickListener(new UpdateRoomListListener());
 
-		create_button = new HorizButton(Utils.getBundleString(bundle, "create_room"), BUTTON_WIDTH_LONG);
+		create_button = new HorizButton(i18n("create_room"), BUTTON_WIDTH_LONG);
 		chat_room_list_panel.addChild(create_button);
 		create_button.addMouseClickListener(new CreateRoomListener());
 
-		join_button = new HorizButton(Utils.getBundleString(bundle, "join_room"), BUTTON_WIDTH);
+		join_button = new HorizButton(i18n("join_room"), BUTTON_WIDTH);
 		chat_room_list_panel.addChild(join_button);
 		join_button.addMouseClickListener(new JoinRoomListener());
 
@@ -217,7 +221,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		panel_group = new PanelGroup(panel_index, panels);
 		addChild(panel_group);
 
-		HorizButton logout_button = new HorizButton(Utils.getBundleString(bundle, "logout"), BUTTON_WIDTH);
+		HorizButton logout_button = new HorizButton(i18n("logout"), BUTTON_WIDTH);
 		addChild(logout_button);
 		logout_button.addMouseClickListener( (_, _, _, _) -> this.cancel());
 
@@ -275,7 +279,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		leaveChatRoom();
 		remove();
 		profiles_form.connectionLost();
-		gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "connection_lost")));
+		gui_root.addModalForm(new MessageForm(i18n("connection_lost")));
 	}
 
 	@Override
@@ -402,7 +406,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 	private void updateChatRoomListGUI() {
 		Font combofont = Skin.getSkin().getMultiColumnComboBoxData().font();
         for (ChatRoomEntry chat_room_info : chat_rooms) {
-            String users_and_max = Utils.getBundleString(bundle, "users_and_max", chat_room_info.getNumJoined(), MatchmakingServerInterface.MAX_ROOM_USERS);
+            String users_and_max = i18n("users_and_max", chat_room_info.getNumJoined(), MatchmakingServerInterface.MAX_ROOM_USERS);
             Row<ChatRoomEntry,Label> row = new Row<>(new Label[]{
                     new Label(chat_room_info.getName(), combofont, room_name_size),
                     new Label(users_and_max, combofont)},
@@ -432,7 +436,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 			if (selected_game != null) {
 				boolean rated = selected_game.getGame().isRated();
 				if (rated && Network.getMatchmakingClient().getProfile().getWins() < GameSession.MIN_WINS_FOR_RANKING) {
-					String min_wins = Utils.getBundleString(bundle, "min_wins", GameSession.MIN_WINS_FOR_RANKING);
+					String min_wins = i18n("min_wins", GameSession.MIN_WINS_FOR_RANKING);
 					gui_root.addModalForm(new MessageForm(min_wins));
 				} else {
 					Game game = selected_game.getGame();
@@ -489,7 +493,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		@Override
 		public void mouseClicked(@NonNull MouseButton button, int x, int y, int clicks) {
 			if (Network.getMatchmakingClient().getProfile() != null) {
-				Panel panel = new Panel(Utils.getBundleString(bundle, "game"));
+				Panel panel = new Panel(i18n("game"));
 				Group g = new TerrainMenu(network, gui_root, main_menu, true, SelectGameMenu.this);
 				panel.addChild(g);
 				g.place();

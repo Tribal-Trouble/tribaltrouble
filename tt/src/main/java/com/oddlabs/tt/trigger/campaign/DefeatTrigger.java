@@ -1,6 +1,5 @@
 package com.oddlabs.tt.trigger.campaign;
 
-import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.campaign.Campaign;
@@ -12,6 +11,12 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public final class DefeatTrigger extends IntervalTrigger {
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(DefeatTrigger.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+
 	private final Campaign campaign;
 	private final Unit chieftain;
 	private final Runnable runnable;
@@ -48,14 +53,8 @@ public final class DefeatTrigger extends IntervalTrigger {
 	@Override
 	protected void done() {
 		if (runnable == null) {
-			GUIRoot gui_root = viewer.getGUIRoot();
-			ResourceBundle bundle = ResourceBundle.getBundle(DefeatTrigger.class.getName());
-			String game_over_message;
-			if (triggered_by_chieftain_death)
-				game_over_message = Utils.getBundleString(bundle, "defeat_by_chieftain");
-			else
-				game_over_message = Utils.getBundleString(bundle, "defeat");
-			campaign.defeated(viewer, game_over_message);
+			String game_over_message = i18n(triggered_by_chieftain_death ? "defeat_by_chieftain" : "defeat");
+            campaign.defeated(viewer, game_over_message);
 		} else {
 			runnable.run();
 		}

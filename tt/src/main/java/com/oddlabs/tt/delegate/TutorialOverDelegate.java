@@ -23,6 +23,12 @@ import static com.oddlabs.tt.gui.Placement.LEFT_MID;
 
 public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> implements Updatable<TimerAnimation> {
 	private static final float DELAY = 1f;
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(TutorialOverDelegate.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+
 	private final TimerAnimation delay_timer = new TimerAnimation(this, DELAY);
 	private final @NonNull Group group_buttons;
 	private final @NonNull TutorialInGameInfo tutorial_info;
@@ -32,20 +38,19 @@ public final class TutorialOverDelegate extends CameraDelegate<StaticCamera> imp
 		super(viewer.getGUIRoot(), new StaticCamera(old_camera.getState()));
 		this.viewer = viewer;
 		this.tutorial_info = tutorial_info;
-		ResourceBundle bundle = ResourceBundle.getBundle(TutorialOverDelegate.class.getName());
 
 		setDim(getGUIRoot().getWidth(), getGUIRoot().getHeight());
-		String tutorial_completed_str = Utils.getBundleString(bundle, "tutorial_completed", tutorial_number);
+		String tutorial_completed_str = i18n("tutorial_completed", tutorial_number);
 		Label label = new Label(tutorial_completed_str, Skin.getSkin().getHeadlineFont());
 		addChild(label);
 		label.setPos((getWidth() - label.getWidth())/2, (getHeight() - label.getHeight())*2/3);
 
 		group_buttons = new Group();
-		HorizButton button_next = new HorizButton(Utils.getBundleString(bundle, "next_tutorial"), 170);
+		HorizButton button_next = new HorizButton(i18n("next_tutorial"), 170);
 		button_next.addMouseClickListener(new StartTutorialListener(tutorial_number + 1));
-		HorizButton button_restart = new HorizButton(Utils.getBundleString(bundle, "restart_tutorial"), 170);
+		HorizButton button_restart = new HorizButton(i18n("restart_tutorial"), 170);
 		button_restart.addMouseClickListener(new StartTutorialListener(tutorial_number));
-		HorizButton button_end = new HorizButton(Utils.getBundleString(bundle, "main_menu"), 170);
+		HorizButton button_end = new HorizButton(i18n("main_menu"), 170);
 		button_end.addMouseClickListener( (_, _, _, _) -> {
                     viewer.close();
                     TutorialOverDelegate.this.setDisabled(true);

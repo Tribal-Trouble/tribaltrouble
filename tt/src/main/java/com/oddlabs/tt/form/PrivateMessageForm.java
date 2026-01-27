@@ -23,6 +23,11 @@ import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 public final class PrivateMessageForm extends Form {
     private static final int BUTTON_WIDTH = 100;
     private static final int EDITLINE_WIDTH = 240;
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(PrivateMessageForm.class.getName());
+
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
 
     private final @NonNull EditLine editline_name;
     private final @NonNull String nick;
@@ -31,12 +36,11 @@ public final class PrivateMessageForm extends Form {
     public PrivateMessageForm(@NonNull GUIRoot gui_root, @NonNull String nick) {
         this.gui_root = gui_root;
         this.nick = nick;
-        ResourceBundle bundle = ResourceBundle.getBundle(PrivateMessageForm.class.getName());
         // headline
-        Label label_headline = new Label(Utils.getBundleString(bundle, "private_message_caption"), Skin.getSkin().getHeadlineFont());
+        Label label_headline = new Label(i18n("private_message_caption"), Skin.getSkin().getHeadlineFont());
         addChild(label_headline);
 
-        Label label_name = new Label(Utils.getBundleString(bundle, "to", nick), Skin.getSkin().getEditFont());
+        Label label_name = new Label(i18n("to", nick), Skin.getSkin().getEditFont());
         editline_name = new EditLine(EDITLINE_WIDTH, 256);
         editline_name.addEnterListener(_ -> send());
 

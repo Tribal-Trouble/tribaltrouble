@@ -93,7 +93,7 @@ public final class Player implements PlayerInterface {
         Arrays.fill(can_build, true);
 		this.player_info = player_info;
 		this.unit_count = new SupplyContainer(world.getMaxUnitCount());
-//		this.team_tip = Utils.getBundleString(bundle, "team", new Object[]{Integer.toString(player_info.getTeam() + 1)});
+//		this.team_tip = i18n("team", new Object[]{Integer.toString(player_info.getTeam() + 1)});
 	}
 
 	@Override

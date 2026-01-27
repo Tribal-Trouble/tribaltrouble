@@ -47,7 +47,11 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 
 	private final @NonNull Menu main_menu;
 	private final @NonNull CampaignForm campaign_form;
-	private final ResourceBundle bundle = ResourceBundle.getBundle(NewCampaignForm.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(NewCampaignForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 	private final @NonNull EditLine editline_name;
 	private final @NonNull PulldownMenu<Void> race_pulldown;
 	private final @NonNull PulldownMenu<Void> difficulty_pulldown;
@@ -61,33 +65,33 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		this.main_menu = main_menu;
 		this.campaign_form = campaign_form;
 		// headline
-		Label label_headline = new Label(Utils.getBundleString(bundle, "caption"), Skin.getSkin().getHeadlineFont());
+		Label label_headline = new Label(i18n("caption"), Skin.getSkin().getHeadlineFont());
 		addChild(label_headline);
 
 		// name
 		Group group = new Group();
-		Label name_label = new Label(Utils.getBundleString(bundle, "name"), Skin.getSkin().getEditFont());
+		Label name_label = new Label(i18n("name"), Skin.getSkin().getEditFont());
 		editline_name = new EditLine(EDITLINE_WIDTH, 200);
 		editline_name.addEnterListener(new NameListener());
 		group.addChild(name_label);
 		group.addChild(editline_name);
 
 		// race
-		Label race_label = new Label(Utils.getBundleString(bundle, "race"), Skin.getSkin().getEditFont());
+		Label race_label = new Label(i18n("race"), Skin.getSkin().getEditFont());
 		race_pulldown = new PulldownMenu<>();
-		race_pulldown.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "vikings")));
-		race_pulldown.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "natives")));
+		race_pulldown.addItem(new PulldownItem<>(i18n("vikings")));
+		race_pulldown.addItem(new PulldownItem<>(i18n("natives")));
 		race_pulldown.addItemChosenListener(new RaceListener());
 		PulldownButton race_pb = new PulldownButton(gui_root, race_pulldown, INDEX_VIKINGS, 100);
 		group.addChild(race_label);
 		group.addChild(race_pb);
 
 		// difficulty
-		Label difficulty_label = new Label(Utils.getBundleString(bundle, "difficulty"), Skin.getSkin().getEditFont());
+		Label difficulty_label = new Label(i18n("difficulty"), Skin.getSkin().getEditFont());
 		difficulty_pulldown = new PulldownMenu<>();
-		difficulty_pulldown.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "easy")));
-		difficulty_pulldown.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "normal")));
-		difficulty_pulldown.addItem(new PulldownItem<>(Utils.getBundleString(bundle, "hard")));
+		difficulty_pulldown.addItem(new PulldownItem<>(i18n("easy")));
+		difficulty_pulldown.addItem(new PulldownItem<>(i18n("normal")));
+		difficulty_pulldown.addItem(new PulldownItem<>(i18n("hard")));
 		PulldownButton difficulty_pb = new PulldownButton(gui_root, difficulty_pulldown, 1, 100);
 		group.addChild(difficulty_label);
 		group.addChild(difficulty_pb);
@@ -146,11 +150,11 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 	private void save() {
 		String name = editline_name.getContents().trim();
 		if (name.isEmpty()) {
-			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "invalid")));
+			gui_root.addModalForm(new MessageForm(i18n("invalid")));
 			return;
 		}
 		if (!nameIsUnique(name)) {
-			gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "exists")));
+			gui_root.addModalForm(new MessageForm(i18n("exists")));
 			return;
 		}
 
@@ -203,7 +207,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		if (e instanceof FileNotFoundException || e instanceof NoSuchFileException) {
 		} else if (e instanceof InvalidClassException) {
 		} else {
-			String failed_message = Utils.getBundleString(bundle, "failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
+			String failed_message = i18n("failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
 			gui_root.addModalForm(new MessageForm(failed_message));
 		}
 	}
@@ -225,7 +229,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
 			if (item_index == INDEX_NATIVES && (!Settings.getSettings().has_native_campaign)) {
 				menu.chooseItem(INDEX_VIKINGS);
-				gui_root.addModalForm(new MessageForm(Utils.getBundleString(bundle, "native_unavailable")));
+				gui_root.addModalForm(new MessageForm(i18n("native_unavailable")));
 			}
 		}
 	}

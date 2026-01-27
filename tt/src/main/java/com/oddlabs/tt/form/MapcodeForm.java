@@ -25,6 +25,11 @@ import static com.oddlabs.tt.gui.Placement.RIGHT_MID;
 
 public final class MapcodeForm extends Form {
 	private static final int BUTTON_WIDTH = 100;
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(MapcodeForm.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	private final TerrainMenu menu;
 
@@ -32,8 +37,7 @@ public final class MapcodeForm extends Form {
 
 	public MapcodeForm(TerrainMenu menu) {
 		this.menu = menu;
-		ResourceBundle bundle = ResourceBundle.getBundle(MapcodeForm.class.getName());
-		Label label_seed = new Label(Utils.getBundleString(bundle, "map_code"), Skin.getSkin().getEditFont());
+		Label label_seed = new Label(i18n("map_code"), Skin.getSkin().getEditFont());
 		editline_seed = new EditLine(200, 12, RegistrationKey.CHAR_TO_WORD + RegistrationKey.LOWER_CASE_CHARS, Origin.AT_START) {
 			@Override
 			protected boolean insert(int index, char key) {
@@ -52,7 +56,7 @@ public final class MapcodeForm extends Form {
 		button_ok.addMouseClickListener((_, _, _, _) -> done());
 		HorizButton button_cancel = new CancelButton(BUTTON_WIDTH);
 		button_cancel.addMouseClickListener(( _,  _,  _,  _) -> this.cancel());
-		HorizButton button_rand = new HorizButton(Utils.getBundleString(bundle, "randomize"), BUTTON_WIDTH);
+		HorizButton button_rand = new HorizButton(i18n("randomize"), BUTTON_WIDTH);
 		button_rand.addMouseClickListener(new RandButtonListener());
 
 		addChild(label_seed);

@@ -17,6 +17,7 @@ import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.ToolTip;
+import com.oddlabs.tt.util.Utils;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -31,6 +32,10 @@ public final class GUIRoot extends GUIObject {
 	private static final Logger logger = Logger.getLogger(GUIRoot.class.getName());
 
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(GUIRoot.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	private static final int CURSOR_OFFSET_Y = 27;
 
@@ -246,15 +251,15 @@ public final class GUIRoot extends GUIObject {
 			if (event.hasActions()) {
 				if (event.consumeAction(GameAction.GLOBAL_SCREENSHOT)) {
 					String filename = GLUtils.takeScreenshot("");
-					info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "screenshot_message", filename));
+					info_printer.print(i18n("screenshot_message", filename));
 					consumed = true;
 				}
 				if (event.consumeAction(GameAction.GLOBAL_AGGRESSIVE_UNITS)) {
 					Settings.getSettings().aggressive_units = !Settings.getSettings().aggressive_units;
 					if (Settings.getSettings().aggressive_units)
-						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "aggressive_unites_on"));
+						info_printer.print(i18n("aggressive_unites_on"));
 					else
-						info_printer.print(com.oddlabs.tt.util.Utils.getBundleString(bundle, "aggressive_unites_off"));
+						info_printer.print(i18n("aggressive_unites_off"));
 					consumed = true;
 				}
 				if (event.consumeAction(GameAction.GLOBAL_TOGGLE_STATUS)) {

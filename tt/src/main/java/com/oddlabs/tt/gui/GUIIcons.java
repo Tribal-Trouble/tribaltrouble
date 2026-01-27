@@ -3,6 +3,7 @@ package com.oddlabs.tt.gui;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.GLIntImage;
+import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -13,6 +14,12 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class GUIIcons {
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(Icons.class.getName());
+
+    private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+        return Utils.getBundleString(bundle, key, args);
+    }
+
     private static final GUIIcons ICONS = new GUIIcons("/gui/icons.xml");
 
     private final @NonNull ModeIconQuads harvest_icon;
@@ -51,11 +58,10 @@ public class GUIIcons {
         iron_status_icon = Icons.getNamedIconQuad(root, "iron_status_icon", texture);
         rubber_status_icon = Icons.getNamedIconQuad(root, "rubber_status_icon", texture);
         cheat_icon = Icons.getNamedIconQuad(root, "cheat_icon", texture);
-        ResourceBundle bundle = ResourceBundle.getBundle(Icons.class.getName());
-        String tt_caption = com.oddlabs.tt.util.Utils.getBundleString(bundle, "terrifying_toot", "S");
-        String rr_caption = com.oddlabs.tt.util.Utils.getBundleString(bundle, "ravaging_roar", "C");
-        String ss_caption = com.oddlabs.tt.util.Utils.getBundleString(bundle, "stinking_stew", "S");
-        String cc_caption = com.oddlabs.tt.util.Utils.getBundleString(bundle, "crackling_cloud", "C");
+        String tt_caption = i18n("terrifying_toot", "S");
+        String rr_caption = i18n("ravaging_roar", "C");
+        String ss_caption = i18n("stinking_stew", "S");
+        String cc_caption = i18n("crackling_cloud", "C");
         viking_icons = GUIIcons.parseRaceIcons(root, "vikings", tt_caption, rr_caption, texture);
         native_icons = GUIIcons.parseRaceIcons(root, "natives", ss_caption, cc_caption, texture);
         watch = generateWatchIcons();

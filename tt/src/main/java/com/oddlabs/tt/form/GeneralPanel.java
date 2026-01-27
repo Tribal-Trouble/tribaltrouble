@@ -28,13 +28,13 @@ public class GeneralPanel extends Panel {
     
     private final PulldownMenu<Void> pm_gamespeed = new PulldownMenu<>();
 
-    public GeneralPanel(@NonNull GUIRoot gui_root, @NonNull ResourceBundle bundle, @NonNull IntConsumer onGamespeedChange) {
-        super(Utils.getBundleString(bundle, "general_settings_caption"));
+    public GeneralPanel(@NonNull GUIRoot gui_root, @NonNull IntConsumer onGamespeedChange) {
+        super(AbstractOptionsMenu.i18n("general_settings_caption"));
 
         // Invert camera
         Group group_invert_camera = new Group();
         addChild(group_invert_camera);
-        CheckBox cb_invert_camera = new CheckBox(Settings.getSettings().invert_camera_pitch, Utils.getBundleString(bundle, "invert_camera"), Utils.getBundleString(bundle, "invert_camera_tip"));
+        CheckBox cb_invert_camera = new CheckBox(Settings.getSettings().invert_camera_pitch, AbstractOptionsMenu.i18n("invert_camera"), AbstractOptionsMenu.i18n("invert_camera_tip"));
         cb_invert_camera.addCheckBoxListener(marked -> Settings.getSettings().invert_camera_pitch = marked);
         group_invert_camera.addChild(cb_invert_camera);
         cb_invert_camera.place();
@@ -43,7 +43,7 @@ public class GeneralPanel extends Panel {
         // Aggressive units
         Group group_aggressive_units = new Group();
         addChild(group_aggressive_units);
-        CheckBox cb_aggressive_units = new CheckBox(Settings.getSettings().aggressive_units, Utils.getBundleString(bundle, "aggressive_units"), Utils.getBundleString(bundle, "aggressive_units_tip", "Ctrl-A"));
+        CheckBox cb_aggressive_units = new CheckBox(Settings.getSettings().aggressive_units, AbstractOptionsMenu.i18n("aggressive_units"), AbstractOptionsMenu.i18n("aggressive_units_tip", "Ctrl-A"));
         cb_aggressive_units.addCheckBoxListener(marked -> Settings.getSettings().aggressive_units = marked);
         group_aggressive_units.addChild(cb_aggressive_units);
         cb_aggressive_units.place();
@@ -52,11 +52,11 @@ public class GeneralPanel extends Panel {
         // Mapmode delay
         Group group_mapmode = new Group();
         addChild(group_mapmode);
-        Label label_mapmode_headline = new Label(Utils.getBundleString(bundle, "map_mode_delay"), Skin.getSkin().getEditFont());
+        Label label_mapmode_headline = new Label(AbstractOptionsMenu.i18n("map_mode_delay"), Skin.getSkin().getEditFont());
         group_mapmode.addChild(label_mapmode_headline);
-        Label label_mapmode_none = new Label(Utils.getBundleString(bundle, "delay_none"), Skin.getSkin().getEditFont());
+        Label label_mapmode_none = new Label(AbstractOptionsMenu.i18n("delay_none"), Skin.getSkin().getEditFont());
         group_mapmode.addChild(label_mapmode_none);
-        Label label_mapmode_high = new Label(Utils.getBundleString(bundle, "delay_high"), Skin.getSkin().getEditFont());
+        Label label_mapmode_high = new Label(AbstractOptionsMenu.i18n("delay_high"), Skin.getSkin().getEditFont());
         group_mapmode.addChild(label_mapmode_high);
         Slider slider_mapmode = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int)(Settings.getSettings().mapmode_delay * MAX_VALUE));
         group_mapmode.addChild(slider_mapmode);
@@ -70,11 +70,11 @@ public class GeneralPanel extends Panel {
         // Tooltip delay
         Group group_tooltip = new Group();
         addChild(group_tooltip);
-        Label label_tooltip_headline = new Label(Utils.getBundleString(bundle, "tool_tip_delay"), Skin.getSkin().getEditFont());
+        Label label_tooltip_headline = new Label(AbstractOptionsMenu.i18n("tool_tip_delay"), Skin.getSkin().getEditFont());
         group_tooltip.addChild(label_tooltip_headline);
-        Label label_tooltip_none = new Label(Utils.getBundleString(bundle, "delay_none"), Skin.getSkin().getEditFont());
+        Label label_tooltip_none = new Label(AbstractOptionsMenu.i18n("delay_none"), Skin.getSkin().getEditFont());
         group_tooltip.addChild(label_tooltip_none);
-        Label label_tooltip_high = new Label(Utils.getBundleString(bundle, "delay_high"), Skin.getSkin().getEditFont());
+        Label label_tooltip_high = new Label(AbstractOptionsMenu.i18n("delay_high"), Skin.getSkin().getEditFont());
         group_tooltip.addChild(label_tooltip_high);
         Slider slider_tooltip = new Slider(SLIDER_WIDTH, 0, MAX_VALUE, (int)(Settings.getSettings().tooltip_delay * MAX_VALUE));
         group_tooltip.addChild(slider_tooltip);
@@ -91,7 +91,7 @@ public class GeneralPanel extends Panel {
         // Gamespeed
         Group group_gamespeed = new Group();
         addChild(group_gamespeed);
-        Label label_gamespeed = new Label(Utils.getBundleString(bundle, "gamespeed"), Skin.getSkin().getEditFont());
+        Label label_gamespeed = new Label(AbstractOptionsMenu.i18n("gamespeed"), Skin.getSkin().getEditFont());
         group_gamespeed.addChild(label_gamespeed);
         
         pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_PAUSE)));

@@ -16,7 +16,12 @@ import org.jspecify.annotations.NonNull;
 import java.util.ResourceBundle;
 
 public abstract class Campaign {
-	private final static ResourceBundle bundle = ResourceBundle.getBundle(Campaign.class.getName());
+	private static final ResourceBundle bundle = ResourceBundle.getBundle(Campaign.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+
 	private final CampaignState state;
 	private CampaignState[] campaign_states; // for saving
 
@@ -45,7 +50,7 @@ public abstract class Campaign {
 
 	public final void victory(final @NonNull WorldViewer viewer) {
 		GUIRoot gui_root = viewer.getGUIRoot();
-		new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), Utils.getBundleString(bundle, "island_complete"));
+		new GameOverDelayTrigger(viewer, gui_root.getDelegate().getCamera(), i18n("island_complete"));
 		LoadCampaignBox.loadSavegames(
 				new DeterministicSerializerLoopbackInterface<CampaignState[]>() {
 					@Override
@@ -89,7 +94,7 @@ public abstract class Campaign {
 	}
 
 	private void doFailed(@NonNull Throwable e, @NonNull WorldViewer viewer) {
-		String failed_message = Utils.getBundleString(bundle, "failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
+		String failed_message = i18n("failed_message", LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage());
 		viewer.getGUIRoot().addModalForm(new MessageForm(failed_message));
 	}
 

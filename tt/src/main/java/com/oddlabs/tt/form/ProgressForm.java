@@ -21,23 +21,24 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 
 public final class ProgressForm {
 	private static final int PROGRESSBAR_LOADINGTIP_SPACING = 45;
 	private static final int NUM_TIPS = 39;
 	private static final String TIP_PREFIX = "tip";
-	private static final @NonNull String [] LOADING_TIPS = new String[NUM_TIPS];
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(ProgressForm.class.getName());
+
+	private static @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+	private static final String [] LOADING_TIPS = IntStream.range(0,NUM_TIPS)
+			.mapToObj(idx -> i18n(TIP_PREFIX + idx))
+			.toArray(String[]::new);
 
 	private static @Nullable ProgressForm current_progress = null;
 
 	private final @NonNull ProgressBar progress_bar;
-
-	static {
-		ResourceBundle bundle = ResourceBundle.getBundle(ProgressForm.class.getName());
-		for (int i = 0; i < LOADING_TIPS.length; i++) {
-            LOADING_TIPS[i] = Utils.getBundleString(bundle, TIP_PREFIX + i);
-        }
-	}
 
 	public static void setProgressForm(@NonNull NetworkSelector network, @NonNull GUI gui, @NonNull LoadCallback callback) {
 		setProgressForm(network, gui, callback, false);

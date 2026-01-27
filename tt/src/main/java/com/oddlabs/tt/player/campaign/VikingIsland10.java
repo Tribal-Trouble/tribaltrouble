@@ -23,9 +23,14 @@ import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 
 public final class VikingIsland10 extends Island {
-	private final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland10.class.getName());
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland10.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
 
 	private int objective = 0;
 	
@@ -35,12 +40,9 @@ public final class VikingIsland10 extends Island {
 
 	@Override
 	public void init(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
-		String[] ai_names = new String[]{Utils.getBundleString(bundle, "name0"),
-			Utils.getBundleString(bundle, "name1"),
-			Utils.getBundleString(bundle, "name2"),
-			Utils.getBundleString(bundle, "name3"),
-			Utils.getBundleString(bundle, "name4"),
-			Utils.getBundleString(bundle, "name5")};
+		String[] ai_names = IntStream.range(0,6)
+				.mapToObj(i -> i18n( "name" + i))
+				.toArray(String[]::new);
 		// gametype, owner, game, meters_per_world, hills, vegetation_amount, supplies_amount, seed, speed, map_code
 		GameNetwork game_network = startNewGame(network, gui_root, 512, Landscape.TerrainType.NATIVE, 1f, 1f, 0f, -1442873271, 10, VikingCampaign.MAX_UNITS, ai_names);
 		game_network.getClient().getServerInterface().setPlayerSlot(0,
@@ -73,8 +75,8 @@ public final class VikingIsland10 extends Island {
 		// Introduction
 		final Runnable camera_jump = () -> getViewer().getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), getViewer().getCamera(), 142*2, 182*2, 200f, 3f));
 		runnable = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header0"),
-                            Utils.getBundleString(bundle, "dialog0"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header0"),
+                            i18n("dialog0"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
                             camera_jump);
@@ -121,88 +123,88 @@ public final class VikingIsland10 extends Island {
 
 		// Give blast when arrived
 		final Runnable dialog11 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header11"),
-                            Utils.getBundleString(bundle, "dialog11"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header11"),
+                            i18n("dialog11"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START);
                     addModalForm(dialog);
                     changeObjective(1);
                 };
 		final Runnable dialog10 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header10"),
-                            Utils.getBundleString(bundle, "dialog10"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header10"),
+                            i18n("dialog10"),
                             getCampaign().getIcons().getFaces()[8],
                             Origin.AT_END,
                             dialog11);
                     addModalForm(dialog);
                 };
 		final Runnable dialog9 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header9"),
-                            Utils.getBundleString(bundle, "dialog9"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header9"),
+                            i18n("dialog9"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
                             dialog10);
                     addModalForm(dialog);
                 };
 		final Runnable dialog8 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header8"),
-                            Utils.getBundleString(bundle, "dialog8"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header8"),
+                            i18n("dialog8"),
                             getCampaign().getIcons().getFaces()[8],
                             Origin.AT_END,
                             dialog9);
                     addModalForm(dialog);
                 };
 		final Runnable dialog7 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header7"),
-                            Utils.getBundleString(bundle, "dialog7"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header7"),
+                            i18n("dialog7"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
                             dialog8);
                     addModalForm(dialog);
                 };
 		final Runnable dialog6 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header6"),
-                            Utils.getBundleString(bundle, "dialog6"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header6"),
+                            i18n("dialog6"),
                             getCampaign().getIcons().getFaces()[8],
                             Origin.AT_END,
                             dialog7);
                     addModalForm(dialog);
                 };
 		final Runnable dialog5 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header5"),
-                            Utils.getBundleString(bundle, "dialog5"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header5"),
+                            i18n("dialog5"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
                             dialog6);
                     addModalForm(dialog);
                 };
 		final Runnable dialog4 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header4"),
-                            Utils.getBundleString(bundle, "dialog4"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header4"),
+                            i18n("dialog4"),
                             getCampaign().getIcons().getFaces()[8],
                             Origin.AT_END,
                             dialog5);
                     addModalForm(dialog);
                 };
 		final Runnable dialog3 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header3"),
-                            Utils.getBundleString(bundle, "dialog3"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header3"),
+                            i18n("dialog3"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
                             dialog4);
                     addModalForm(dialog);
                 };
 		final Runnable dialog2 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header2"),
-                            Utils.getBundleString(bundle, "dialog2"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header2"),
+                            i18n("dialog2"),
                             getCampaign().getIcons().getFaces()[8],
                             Origin.AT_END,
                             dialog3);
                     addModalForm(dialog);
                 };
 		final Runnable dialog1 = () -> {
-                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), Utils.getBundleString(bundle, "header1"),
-                            Utils.getBundleString(bundle, "dialog1"),
+                    CampaignDialogForm dialog = new InGameCampaignDialogForm(getViewer(), i18n("header1"),
+                            i18n("dialog1"),
                             getCampaign().getIcons().getFaces()[0],
                             Origin.AT_START,
                             dialog2);
@@ -216,7 +218,7 @@ public final class VikingIsland10 extends Island {
 		// Insert statue
 		float shadow_diameter = 2.6f;
 		float offset = HeightMap.METERS_PER_UNIT_GRID/2f;
-		new SceneryModel(getViewer().getWorld(), 173*2 + offset, 153*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[2], shadow_diameter, true, Utils.getBundleString(bundle, "statue"));
+		new SceneryModel(getViewer().getWorld(), 173*2 + offset, 153*2 + offset, 0, 1, getViewer().getWorld().getRacesResources().getTreasures()[2], shadow_diameter, true, i18n("statue"));
 
 		// Insert native towers
 		insertGuardTower(enemy, Race.UNIT_WARRIOR_IRON, 177, 159);//*
@@ -293,17 +295,17 @@ public final class VikingIsland10 extends Island {
 
 	@Override
 	public @NonNull CharSequence getHeader() {
-		return Utils.getBundleString(bundle, "header");
+		return i18n("header");
 	}
 
 	@Override
 	public @NonNull CharSequence getDescription() {
-		return Utils.getBundleString(bundle, "description");
+		return i18n("description");
 	}
 
 	@Override
 	public @NonNull CharSequence getCurrentObjective() {
-		return Utils.getBundleString(bundle, "objective" + objective);
+		return i18n("objective" + objective);
 	}
 
 	private void changeObjective(int objective) {
