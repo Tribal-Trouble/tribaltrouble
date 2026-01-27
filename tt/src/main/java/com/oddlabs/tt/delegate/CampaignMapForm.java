@@ -11,9 +11,9 @@ import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIIcon;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.gui.MapIslandButton;
 import com.oddlabs.tt.gui.MapIslandData;
 import com.oddlabs.tt.gui.ModeIconQuads;
-import com.oddlabs.tt.gui.NonFocusIconButton;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputEvent;
@@ -26,6 +26,8 @@ import com.oddlabs.tt.util.Utils;
 import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /** presents campaign map allowing island selection */
@@ -43,6 +45,8 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
 
 	private final @NonNull Campaign campaign;
 	private final @NonNull NetworkSelector network;
+    private final List<MapIslandButton> islandButtons = new ArrayList<>();
+    private boolean initialFocusSet = false;
     
     private float flicker_time;
     private final Vector4f mapColor = new Vector4f(1f, 1f, 1f, 1f);
@@ -105,20 +109,24 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
 			int state = campaign.getState().getIslandState(i);
 			GUIObject island = switch (state) {
                 case CampaignState.ISLAND_AVAILABLE -> {
-                    island = new NonFocusIconButton(data.button(), "");
-                    int number = i;
-                    island.addMouseClickListener((_, _, _, _) -> campaign.islandChosen(network, getGUIRoot(), number));
-                    addChild(island);
-					yield island;
+                    final int index = i;
+                    MapIslandButton button = new MapIslandButton(data.button(), "", index);
+                    button.addMouseClickListener((_, _, _, _) -> campaign.islandChosen(network, getGUIRoot(), index));
+                    addChild(button);
+                    islandButtons.add(button);
+                    if (campaign.getState().getCurrentIsland() == i) {
+                        button.setFocus();
+                    }
+					yield button;
                 }
                 case CampaignState.ISLAND_SEMI_AVAILABLE, CampaignState.ISLAND_UNAVAILABLE -> {
-                    island = new GUIIcon(data.button().quad(ModeIconQuads.Mode.DISABLED));
-                    addChild(island);
-					yield island;
+                    GUIObject icon = new GUIIcon(data.button().quad(ModeIconQuads.Mode.DISABLED));
+                    addChild(icon);
+					yield icon;
                 }
                 case CampaignState.ISLAND_COMPLETED -> {
-                    island = new GUIIcon(data.button().quad(ModeIconQuads.Mode.NORMAL));
-                    addChild(island);
+                    GUIObject icon = new GUIIcon(data.button().quad(ModeIconQuads.Mode.NORMAL));
+                    addChild(icon);
                     if (campaign.getState().getCurrentIsland() != i) {
                         GUIIcon flag = new GUIIcon(data.flag());
                         flag.setPos(data.pinX(), data.pinY());
@@ -128,7 +136,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
                         boat.setPos(data.pinX(), data.pinY());
                         addChild(boat);
                     }
-					yield island;
+					yield icon;
                 }
                 case CampaignState.ISLAND_HIDDEN -> null;
                 default -> throw new IllegalArgumentException("Unexpected island state: " + state);
@@ -136,10 +144,73 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
 			if (island != null)
 				island.setPos(data.x(), data.y());
 		}
+        
+        setFocus();
 	}
+
+    @Override
+    public void setFocus() {
+        if (islandButtons.isEmpty()) {
+            super.setFocus();
+            return;
+        }
+
+        // If we already have a focused button among our islands, keep it.
+        if (getFocusedChild() instanceof MapIslandButton) {
+            return;
+        }
+
+        MapIslandButton toFocus = null;
+        if (!initialFocusSet) {
+            int currentIsland = campaign.getState().getCurrentIsland();
+            for (MapIslandButton button : islandButtons) {
+                if (button.getIslandIndex() == currentIsland) {
+                    toFocus = button;
+                    break;
+                }
+            }
+            initialFocusSet = true;
+        }
+
+        if (toFocus == null) {
+            toFocus = islandButtons.get(islandButtons.size() - 1);
+        }
+
+        toFocus.setFocus();
+    }
 
 	@Override
 	public void handleInput(@NonNull InputEvent event) {
+        if (!event.isConsumed() && event.getPhase() == InputPhase.PRESSED) {
+            int dx = 0;
+            int dy = 0;
+            if (event.consumeAction(GameAction.UI_NAV_UP)) dy = -1;
+            else if (event.consumeAction(GameAction.UI_NAV_DOWN)) dy = 1;
+            else if (event.consumeAction(GameAction.UI_NAV_LEFT)) dx = -1;
+            else if (event.consumeAction(GameAction.UI_NAV_RIGHT)) dx = 1;
+            else if (event.consumeAction(GameAction.UI_FOCUS_NEXT)) {
+                focusNext();
+                event.consume();
+                return;
+            } else if (event.consumeAction(GameAction.UI_FOCUS_PREV)) {
+                focusPrior();
+                event.consume();
+                return;
+            } else if (event.consumeAction(GameAction.UI_ACTIVATE)) {
+                if (getFocusedChild() instanceof MapIslandButton button) {
+                    campaign.islandChosen(network, getGUIRoot(), button.getIslandIndex());
+                    event.consume();
+                    return;
+                }
+            }
+
+            if (dx != 0 || dy != 0) {
+                navigate(dx, dy);
+                event.consume();
+                return;
+            }
+        }
+
 		if (event.getPhase() == InputPhase.PRESSED) {
 			if (event.consumeAction(GameAction.GLOBAL_MENU) || event.consumeAction(GameAction.UI_CANCEL)) {
 				getGUIRoot().addModalForm(new CampaignMapMenu(network, getGUIRoot()));
@@ -149,6 +220,48 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
 		}
 		super.handleInput(event);
 	}
+
+    private void navigate(int dx, int dy) {
+        if (islandButtons.isEmpty()) return;
+
+        MapIslandButton current = null;
+        if (getFocusedChild() instanceof MapIslandButton b && islandButtons.contains(b)) {
+            current = b;
+        }
+
+        if (current == null) {
+            islandButtons.get(islandButtons.size() - 1).setFocus();
+            return;
+        }
+
+        MapIslandButton best = null;
+        float bestScore = Float.MAX_VALUE;
+
+        for (MapIslandButton candidate : islandButtons) {
+            if (candidate == current) continue;
+
+            float cdx = candidate.getX() - current.getX();
+            float cdy = candidate.getY() - current.getY();
+
+            boolean inDir = false;
+            if (dy < 0) inDir = cdy < -1 && Math.abs(cdx) < Math.abs(cdy) * 2;
+            else if (dy > 0) inDir = cdy > 1 && Math.abs(cdx) < Math.abs(cdy) * 2;
+            else if (dx < 0) inDir = cdx < -1 && Math.abs(cdy) < Math.abs(cdx) * 2;
+            else if (dx > 0) inDir = cdx > 1 && Math.abs(cdy) < Math.abs(cdx) * 2;
+
+            if (inDir) {
+                float distSq = cdx*cdx + cdy*cdy;
+                if (distSq < bestScore) {
+                    bestScore = distSq;
+                    best = candidate;
+                }
+            }
+        }
+
+        if (best != null) {
+            best.setFocus();
+        }
+    }
 
 	public static void closeCampaign(@NonNull NetworkSelector network, @NonNull GUI gui) {
 		Renderer.startMenu(network, gui);
