@@ -83,14 +83,12 @@ public final class VikingCampaign extends Campaign {
 
 	@Override
 	public void islandChosen(NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
-		if (number == 1 || number == 2) {
-			Form dialog = new CampaignDialogForm(islands[number].getHeader(),
-					islands[number].getDescription(),
-					null,
-					Origin.AT_START,
-					() -> startIsland(network, gui_root, number), true);
-			gui_root.addModalForm(dialog);
-		}
+		Form dialog = new CampaignDialogForm(islands[number].getHeader(),
+				islands[number].getDescription(),
+				null,
+				Origin.AT_START,
+				() -> startIsland(network, gui_root, number), true);
+		gui_root.addModalForm(dialog);
 	}
 
 	@Override
