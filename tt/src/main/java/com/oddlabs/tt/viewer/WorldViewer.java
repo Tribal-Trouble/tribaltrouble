@@ -75,13 +75,15 @@ public final class WorldViewer implements Animated, AutoCloseable {
     private final @NonNull Player local_player;
     private final @NonNull WorldParameters world_params;
     private final @NonNull AnimationManager animation_manager_local;
+    private final @NonNull Cheat cheat;
 
     public WorldViewer(@NonNull NetworkSelector network, final @NonNull GUIRoot gui_root, @NonNull WorldParameters world_params, @NonNull InGameInfo ingame_info, @NonNull WorldGenerator generator, PlayerSlot @NonNull [] player_slots, UnitInfo[] unit_infos, short player_slot, SessionID session_id) {
         this.world_params = world_params;
         this.ingame_info = ingame_info;
         this.network = network;
         this.notification_manager = new NotificationManager(gui_root);
-        Renderer.getRenderer().setCheat(new Cheat(!ingame_info.isMultiplayer()));
+        this.cheat = new Cheat(!ingame_info.isMultiplayer());
+        Renderer.getRenderer().setCheat(cheat);
         this.animation_manager_local = new AnimationManager();
         final FogInfo worldFog = generator.getFogInfo();
         final CameraState camera_state = new CameraState(worldFog);
