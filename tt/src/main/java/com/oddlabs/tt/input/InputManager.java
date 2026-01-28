@@ -278,6 +278,11 @@ public final class InputManager {
                 .collect(Collectors.toList());
     }
 
+    public @NonNull List<@NonNull InputBinding> getDefaultBindings(GameAction action) {
+        Set<InputBinding> defaults = DEFAULT_BINDINGS.get(action);
+        return defaults == null ? new ArrayList<>() : new ArrayList<>(defaults);
+    }
+
     public void setBindings(GameAction action, @NonNull Collection<InputBinding> newBindings) {
         bindings.removeIf(b -> b.action() == action);
         bindings.addAll(newBindings);
