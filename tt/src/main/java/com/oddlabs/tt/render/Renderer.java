@@ -92,6 +92,8 @@ public final class Renderer implements AutoCloseable {
     private final Window window = new com.oddlabs.tt.window.LWJGL3Window();
     
     private final LocalInput localInput = new LocalInput(window);
+    
+    private @Nullable Cheat cheat = new Cheat();
 
 	public static float getFPS() {
 		return fps.getAveragePerUpdate();
@@ -654,7 +656,7 @@ public final class Renderer implements AutoCloseable {
 		LandscapeRenderer landscape_renderer = new LandscapeRenderer(world, world_info, manager);
 		Player local_player = world.getPlayers()[0];
 		Selection selection = new Selection(local_player);
-		UIRenderer renderer = new DefaultRenderer(new Cheat(), local_player, render_queues, world_info, landscape_renderer, new Picker(manager, local_player, gui_root, render_queues, landscape_renderer, selection), selection, generator, modelViewStack, projectionStack);
+		UIRenderer renderer = new DefaultRenderer(getRenderer().cheat, local_player, render_queues, world_info, landscape_renderer, new Picker(manager, local_player, gui_root, render_queues, landscape_renderer, selection), selection, generator, modelViewStack, projectionStack);
         Renderer.getRenderer().setMusicPath("/music/menu.ogg", 0f);
 		MainMenu main_menu = new MainMenu(network, gui_root, new MenuCamera(world, manager));
 		gui_root.pushDelegate(main_menu);
@@ -970,4 +972,12 @@ public final class Renderer implements AutoCloseable {
 		GL11.glClearColor(0f, 0f, 0f, 0f);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 	}
+
+    public boolean isCheater() {
+        return cheat != null && cheat.isEnabled();
+    }
+    
+    public void setCheat(@Nullable Cheat cheat) {
+        this.cheat = cheat;
+    }
 }

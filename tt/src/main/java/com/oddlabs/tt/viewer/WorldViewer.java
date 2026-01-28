@@ -41,6 +41,7 @@ import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.Picker;
 import com.oddlabs.tt.render.RenderQueues;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
@@ -72,7 +73,6 @@ public final class WorldViewer implements Animated, AutoCloseable {
     private final @NonNull DefaultRenderer renderer;
     private final @NonNull LandscapeRenderer landscape_renderer;
     private final @NonNull Player local_player;
-    private final @NonNull Cheat cheat;
     private final @NonNull WorldParameters world_params;
     private final @NonNull AnimationManager animation_manager_local;
 
@@ -81,7 +81,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
         this.ingame_info = ingame_info;
         this.network = network;
         this.notification_manager = new NotificationManager(gui_root);
-        this.cheat = new Cheat(!ingame_info.isMultiplayer());
+        Renderer.getRenderer().setCheat(new Cheat(!ingame_info.isMultiplayer()));
         this.animation_manager_local = new AnimationManager();
         final FogInfo worldFog = generator.getFogInfo();
         final CameraState camera_state = new CameraState(worldFog);
@@ -167,6 +167,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
         LocalEventQueue.getQueue().getManager().removeAnimation(this);
         peerhub.close();
         ingame_info.close(this);
+        Renderer.getRenderer().setCheat(null);
     }
 
     public @NonNull WorldParameters getParameters() {

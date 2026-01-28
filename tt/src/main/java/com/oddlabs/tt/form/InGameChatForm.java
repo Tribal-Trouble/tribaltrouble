@@ -129,9 +129,8 @@ public final class InGameChatForm extends Form implements ChatListener {
 			String chat = text.toString();
 			if (!chat.isEmpty()) {
 				chat_line.clear();
-				Map<String,ChatMethod> commands = new HashMap<>();
-				ChatMethod cheat = (InfoPrinter _, String _) -> viewer.getCheat().enable();
-				commands.put("iamacheater", cheat);
+				Map<String,ChatMethod> commands =
+						Map.of("iamacheater",  (_,_) -> viewer.getCheat().enable());
 				if (!ChatCommand.filterCommand(info_printer, commands, chat)) {
 					viewer.getPeerHub().sendChat(chat, radio_button_group.getMarked() == radio_team);
 				}

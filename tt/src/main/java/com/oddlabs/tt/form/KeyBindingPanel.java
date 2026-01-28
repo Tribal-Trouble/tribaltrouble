@@ -106,6 +106,9 @@ public class KeyBindingPanel extends Panel {
             if (action.name().startsWith("DEBUG_") && !Settings.getSettings().inDeveloperMode()) {
                 continue;
             }
+            if (action.name().startsWith("CHEAT_") && !Renderer.getRenderer().isCheater()) {
+                continue;
+            }
             String name;
             try {
                 name = AbstractOptionsMenu.i18n("action." + action.name());
