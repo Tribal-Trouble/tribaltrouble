@@ -34,7 +34,7 @@ public final class VikingIsland10 extends Island {
 
 	private int objective = 0;
 	
-	public VikingIsland10(Campaign campaign) {
+	public VikingIsland10(@NonNull Campaign campaign) {
 		super(campaign);
 	}
 

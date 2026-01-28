@@ -28,7 +28,7 @@ public final class PointerInput {
     private final @NonNull LocalInput localInput;
 
     private final Map<@NonNull CursorType, @NonNull Cursor> cursors = new EnumMap<>(CursorType.class);
-    private Cursor debug_cursor = Cursor.NULL_CURSOR;
+    private @NonNull Cursor debug_cursor = Cursor.NULL_CURSOR;
 
     public void loadCursors() {
         debug_cursor = Resources.findResource(new CursorFile("/textures/gui/pointer_clientload_32_8.png", 2, 2));

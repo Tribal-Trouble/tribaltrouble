@@ -25,7 +25,7 @@ public final class NativeIsland5 extends Island {
 		return Utils.getBundleString(bundle, key, args);
 	}
 
-	public NativeIsland5(Campaign campaign) {
+	public NativeIsland5(@NonNull Campaign campaign) {
 		super(campaign);
 	}
 

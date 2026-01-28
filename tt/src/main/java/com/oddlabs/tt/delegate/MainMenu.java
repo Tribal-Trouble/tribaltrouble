@@ -11,7 +11,6 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.MenuButton;
 import com.oddlabs.tt.net.Network;
-import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
 /**

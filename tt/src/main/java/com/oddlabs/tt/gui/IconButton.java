@@ -23,7 +23,7 @@ public class IconButton extends ButtonObject {
 		setDisabled(icon_disabler != null && icon_disabler.isDisabled());
 	}
 
-    protected ModeIconQuads getIcon() {
+    protected @NonNull ModeIconQuads getIcon() {
         return icon;
     }
 

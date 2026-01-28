@@ -35,7 +35,7 @@ public final class VikingIsland13 extends Island {
 
 	private boolean alive;
 	
-	public VikingIsland13(Campaign campaign) {
+	public VikingIsland13(@NonNull Campaign campaign) {
 		super(campaign);
 	}
 

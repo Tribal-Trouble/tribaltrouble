@@ -29,7 +29,7 @@ public final class VikingIsland2 extends Island {
 		return Utils.getBundleString(bundle, key, args);
 	}
 
-	public VikingIsland2(Campaign campaign) {
+	public VikingIsland2(@NonNull Campaign campaign) {
 		super(campaign);
 	}
 

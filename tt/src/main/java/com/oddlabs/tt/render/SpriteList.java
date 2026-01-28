@@ -173,7 +173,7 @@ public final class SpriteList implements AutoCloseable{
         vao.unbind();
     }
     
-    public VertexArray getVAO() {
+    public @Nullable VertexArray getVAO() {
         return vao;
     }
 

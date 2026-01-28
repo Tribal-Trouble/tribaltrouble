@@ -40,7 +40,7 @@ public final class NativeCampaign extends Campaign {
 		this(network, gui_root, new CampaignState(INITIAL_STATES));
 	}
 
-	public NativeCampaign(NetworkSelector network, GUIRoot gui_root, CampaignState campaign_state) {
+	public NativeCampaign(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, CampaignState campaign_state) {
 		super(campaign_state);
 		islands = new Island[NativeCampaignIcons.getIcons().getNumIslands()];
 		islands[0] = new NativeIsland0(this);
@@ -64,7 +64,7 @@ public final class NativeCampaign extends Campaign {
 	}
 
 	@Override
-	public void islandChosen(NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
+	public void islandChosen(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
 		if (Renderer.isRegistered()) {
 			Form dialog = new CampaignDialogForm(islands[number].getHeader(),
 					islands[number].getDescription(),
@@ -76,7 +76,7 @@ public final class NativeCampaign extends Campaign {
 	}
 
 	@Override
-	public CharSequence getCurrentObjective() {
+	public @NonNull CharSequence getCurrentObjective() {
 		if (getState().getCurrentIsland() != -1) {
 			return islands[getState().getCurrentIsland()].getCurrentObjective();
 		}
@@ -91,7 +91,7 @@ public final class NativeCampaign extends Campaign {
 	}
 
 	@Override
-	public void startIsland(NetworkSelector network, GUIRoot gui_root, int number) {
+	public void startIsland(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
 		getState().setCurrentIsland(number);
 		islands[number].chosen(network, gui_root);
 	}

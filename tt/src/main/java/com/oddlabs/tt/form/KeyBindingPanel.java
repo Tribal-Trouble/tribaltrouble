@@ -1,10 +1,8 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.font.Font;
-import com.oddlabs.tt.font.TextLineRenderer;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ColumnInfo;
-import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;
@@ -15,13 +13,11 @@ import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.Row;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.SortedLabel;
-import com.oddlabs.tt.gui.TextField;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.input.GameAction;
 import com.oddlabs.tt.input.InputBinding;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
-import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
@@ -29,9 +25,7 @@ import org.lwjgl.util.tinyfd.TinyFileDialogs;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
@@ -190,7 +184,7 @@ public class KeyBindingPanel extends Panel {
     }
 
     private static final class InvertedLabel extends Label {
-        public InvertedLabel(String text, Font font, int width) {
+        public InvertedLabel(@NonNull String text, @NonNull Font font, int width) {
             super(text, font, width, Origin.AT_MIDDLE);
             setColor(Color.BLACK);
         }

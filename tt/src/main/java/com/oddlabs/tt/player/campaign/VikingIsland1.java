@@ -27,7 +27,7 @@ import java.util.stream.IntStream;
 public final class VikingIsland1 extends Island {
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(VikingIsland1.class.getName());
 	
-	public VikingIsland1(Campaign campaign) {
+	public VikingIsland1(@NonNull Campaign campaign) {
 		super(campaign);
 	}
 

@@ -42,7 +42,7 @@ public final class NativeIsland0 extends Island {
 
 	private int objective = 0;
 
-	public NativeIsland0(Campaign campaign) {
+	public NativeIsland0(@NonNull Campaign campaign) {
 		super(campaign);
 	}
 

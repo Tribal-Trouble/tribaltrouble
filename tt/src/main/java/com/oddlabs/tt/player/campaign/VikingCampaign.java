@@ -49,11 +49,11 @@ public final class VikingCampaign extends Campaign {
 
 	private final @NonNull Island @NonNull [] islands;
 
-	public VikingCampaign(NetworkSelector network, GUIRoot gui_root) {
+	public VikingCampaign(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root) {
 		this(network, gui_root, new CampaignState(INITIAL_STATES));
 	}
 
-	public VikingCampaign(NetworkSelector network, GUIRoot gui_root, CampaignState campaign_state) {
+	public VikingCampaign(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, CampaignState campaign_state) {
 		super(campaign_state);
 		islands = new Island[VikingCampaignIcons.getIcons().getNumIslands()];
 		islands[0] = new VikingIsland0(this);
@@ -82,7 +82,7 @@ public final class VikingCampaign extends Campaign {
 	}
 
 	@Override
-	public void islandChosen(NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
+	public void islandChosen(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
 		Form dialog = new CampaignDialogForm(islands[number].getHeader(),
 				islands[number].getDescription(),
 				null,
@@ -92,7 +92,7 @@ public final class VikingCampaign extends Campaign {
 	}
 
 	@Override
-	public CharSequence getCurrentObjective() {
+	public @NonNull CharSequence getCurrentObjective() {
 		if (getState().getCurrentIsland() != -1) {
 			return islands[getState().getCurrentIsland()].getCurrentObjective();
 		}
@@ -107,7 +107,7 @@ public final class VikingCampaign extends Campaign {
 	}
 
 	@Override
-	public void startIsland(NetworkSelector network, GUIRoot gui_root, int number) {
+	public void startIsland(@NonNull NetworkSelector network, @NonNull GUIRoot gui_root, int number) {
 		getState().setCurrentIsland(number);
 		islands[number].chosen(network, gui_root);
 	}

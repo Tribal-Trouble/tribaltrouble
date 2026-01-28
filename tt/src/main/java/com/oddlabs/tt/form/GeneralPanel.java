@@ -13,10 +13,8 @@ import com.oddlabs.tt.gui.PulldownMenu;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.gui.Slider;
 import com.oddlabs.tt.util.ServerMessageBundler;
-import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ResourceBundle;
 import java.util.function.IntConsumer;
 
 import static com.oddlabs.tt.gui.Placement.BOTTOM_LEFT;
