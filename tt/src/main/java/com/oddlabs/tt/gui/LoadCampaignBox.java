@@ -112,6 +112,9 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 	@Override
 	public void loadSucceeded(CampaignState @NonNull [] campaign_states) {
 		fillSlots(campaign_states);
+		if (list_box.getSize() > 0) {
+			list_box.selectFirst();
+		}
 	}
 
 	@Override

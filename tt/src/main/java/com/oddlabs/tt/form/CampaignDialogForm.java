@@ -25,8 +25,26 @@ public class CampaignDialogForm extends Form {
 
 	private final @Nullable Runnable runnable;
 	private final boolean cancel;
+    private boolean dismissed = false;
 
-	private final HorizButton ok_button = new OKButton(80);
+	private final HorizButton ok_button = new OKButton(80) {
+		@Override
+		protected void handleInput(@NonNull InputEvent event) {
+			if (event.getPhase() == InputPhase.PRESSED && event.consumeAction(GameAction.UI_ACTIVATE)) {
+                if (dismissed) return;
+                dismissed = true;
+				run();
+                try {
+				    CampaignDialogForm.this.remove();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+				event.consume();
+				return;
+			}
+			super.handleInput(event);
+		}
+	};
 
 	public CampaignDialogForm(@NonNull CharSequence header, @NonNull CharSequence text, @Nullable IconQuad image, @NonNull Origin align) {
 		this(header, text, image, align, null);
@@ -41,15 +59,36 @@ public class CampaignDialogForm extends Form {
 		this.cancel = cancel;
 		buildForm(header, text, image, align, cancel);
 		ok_button.addMouseClickListener(( _,  _,  _,  _) -> {
-			remove();
+            if (dismissed) return;
+            dismissed = true;
 			run();
+            try {
+			    remove();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 		});
+        ok_button.addInputListener(event -> {
+            if (event.getPhase() == InputPhase.PRESSED) {
+                if (event.consumeAction(GameAction.UI_CANCEL)) {
+                    this.cancel();
+                    event.consume();
+                }
+            }
+        });
 	}
 
 	protected void run() {
 		if (runnable != null)
 			runnable.run();
 	}
+
+    @Override
+    public void cancel() {
+        if (dismissed) return;
+        dismissed = true;
+        super.cancel();
+    }
 
 	@Override
 	protected final void doCancel() {
@@ -90,12 +129,6 @@ public class CampaignDialogForm extends Form {
 
 	@Override
 	protected void handleInput(@NonNull InputEvent event) {
-		if (event.getPhase() == InputPhase.PRESSED && event.consumeAction(GameAction.UI_ACTIVATE)) {
-			remove();
-			run();
-			event.consume();
-			return;
-		}
 		super.handleInput(event);
 	}
 

@@ -185,7 +185,7 @@ public class Form extends Group {
 		close_listeners.remove(listener);
 	}
 
-	public final void cancel() {
+	public void cancel() {
 		doCancel();
 		remove();
 	}

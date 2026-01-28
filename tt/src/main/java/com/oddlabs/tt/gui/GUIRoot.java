@@ -144,10 +144,11 @@ public final class GUIRoot extends GUIObject {
 	}
 
 	private void pushModalDelegate(@NonNull ModalDelegate delegate) {
-		if (!modal_delegate_stack.isEmpty()) {
-			getModalDelegate().remove();
-		}
+		ModalDelegate old = getModalDelegate();
 		modal_delegate_stack.push(delegate);
+		if (old != null) {
+			old.remove();
+		}
 		super.addChild(delegate);
 		mousePick();
 	}
@@ -165,10 +166,25 @@ public final class GUIRoot extends GUIObject {
 			super.addChild(modal_delegate);
 
 		GUIObject object = focus_backup_stack.pop();
-		if (!delegate_stack.isEmpty())
-			getDelegate().setFocus();
-		if (top_most && object != null)
-			object.setFocus();
+		if (top_most) {
+			if (!delegate_stack.isEmpty())
+				getDelegate().setFocus();
+			if (object != null)
+				object.setFocus();
+		} else {
+            if (modal_delegate != null) {
+                GUIObject focused = modal_delegate.getFocusedChild();
+                if (focused != null) {
+                    focused.restoreFocus();
+                } else {
+                    GUIObject child = modal_delegate.getFirstChild();
+                    if (child != null)
+                        child.setFocus();
+                    else
+                        modal_delegate.setFocus();
+                }
+            }
+        }
 		mousePick();
 	}
 

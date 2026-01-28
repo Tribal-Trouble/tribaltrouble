@@ -180,8 +180,17 @@ public final class WorldViewer implements Animated, AutoCloseable {
         return cheat;
     }
 
-    public void setPaused(boolean p) {
-        peerhub.setPaused(p);
+    private boolean paused;
+
+    public void setPaused(boolean paused) {
+        if (this.paused != paused) {
+            this.paused = paused;
+            peerhub.setPaused(paused);
+        }
+    }
+
+    public boolean isPaused() {
+        return peerhub.isPaused();
     }
 
     public @NonNull Player getLocalPlayer() {

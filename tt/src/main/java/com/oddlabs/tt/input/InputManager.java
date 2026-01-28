@@ -185,7 +185,6 @@ public final class InputManager {
         def(GameAction.DEBUG_TOGGLE_PARTICLES, Key.E);
         def(GameAction.DEBUG_TOGGLE_AXES, Key.A);
         def(GameAction.DEBUG_TOGGLE_MISC, Key.M, false, true, false); // Ctrl+M
-        def(GameAction.DEBUG_PROCESS_MISC, Key.M);
         def(GameAction.DEBUG_RESET_CURSOR, Key.J);
         def(GameAction.DEBUG_TOGGLE_DETAIL, Key.S);
         def(GameAction.DEBUG_CRASH, Key.C, false, true, false); // Ctrl+C

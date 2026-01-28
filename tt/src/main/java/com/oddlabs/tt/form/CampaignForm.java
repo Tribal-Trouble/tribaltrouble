@@ -34,6 +34,8 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
     private static final Logger logger = Logger.getLogger(CampaignForm.class.getSimpleName());
 
 	private final @NonNull HorizButton button_vikings;
+	private final @NonNull HorizButton button_load;
+	private final @NonNull HorizButton button_delete;
 	private final @NonNull LoadCampaignBox load_campaign_box;
 	private static final  ResourceBundle bundle = ResourceBundle.getBundle(CampaignForm.class.getName());
 
@@ -49,31 +51,41 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
 		Label headline = new Label(i18n("campaign"), Skin.getSkin().getHeadlineFont());
 		addChild(headline);
 
+		button_delete = new HorizButton(i18n("delete"), 120);
+		button_delete.addMouseClickListener(this::mouseClickedDelete);
+		button_delete.setDisabled(true);
+
+		button_vikings = new HorizButton(i18n("new"), 120);
+		button_vikings.addMouseClickListener((_,_,_,_) ->
+                main_menu.setMenu(new NewCampaignForm(network, gui_root, main_menu, CampaignForm.this)));
+
+		button_load = new HorizButton(i18n("load"), 120);
+		button_load.setDisabled(true);
+
+		HorizButton button_cancel = new CancelButton(120);
+		button_cancel.addMouseClickListener(( _,  _,  _,  _) -> this.cancel());
+
 		// Combo box
 		RowListener<CampaignState> listListener = new RowListener<>() {
 			@Override
 			public void rowDoubleClicked(@NonNull CampaignState object) {
 				load(object);
 			}
+
+			@Override
+			public void rowChosen(@NonNull CampaignState object) {
+				button_delete.setDisabled(false);
+				button_load.setDisabled(false);
+			}
 		};
 		load_campaign_box = new LoadCampaignBox(gui_root, listListener);
 
-		HorizButton button_delete = new HorizButton(i18n("delete"), 120);
-		button_delete.addMouseClickListener(this::mouseClickedDelete);
-
-		button_vikings = new HorizButton(i18n("new"), 120);
-		button_vikings.addMouseClickListener((_,_,_,_) ->
-                main_menu.setMenu(new NewCampaignForm(network, gui_root, main_menu, CampaignForm.this)));
-
-		HorizButton button_load = new HorizButton(i18n("load"), 120);
+        // Add listener after load_campaign_box is initialized
 		button_load.addMouseClickListener((_,_,_,_) -> {
 			CampaignState selected = load_campaign_box.getSelected();
 			if (selected != null)
 				load(selected);
 		});
-
-		HorizButton button_cancel = new CancelButton(120);
-		button_cancel.addMouseClickListener(( _,  _,  _,  _) -> this.cancel());
 
 		// Add objects
 		addChild(button_delete);

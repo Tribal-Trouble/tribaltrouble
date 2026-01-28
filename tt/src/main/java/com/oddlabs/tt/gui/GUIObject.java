@@ -341,6 +341,14 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		focused_child = caller_child;
 	}
 
+	public void restoreFocus() {
+		if (focused_child != null) {
+			focused_child.restoreFocus();
+		} else {
+			setFocus();
+		}
+	}
+
 	public void setFocus() {
 		GUIRoot gui_root = getParentGUIRoot();
 		// Make sure we are linked to the root
@@ -582,7 +590,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 
-	final void addInputListener(@NonNull InputListener listener) {
+	public final void addInputListener(@NonNull InputListener listener) {
 		listeners.add(Objects.requireNonNull(listener, "listener"));
 	}
 

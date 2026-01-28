@@ -295,7 +295,7 @@ public final class PeerHub implements Animated, RouterHandler {
 			//      assert world_singleton.paused >= 0;
 	}
 
-	private boolean isPaused() {
+	public boolean isPaused() {
 		return paused > 0;
 	}
 

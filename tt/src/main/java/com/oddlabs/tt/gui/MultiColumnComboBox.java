@@ -60,6 +60,11 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 	public int getSize() {
 		return rows.getSize();
 	}
+
+	public void selectFirst() {
+		rows.selectFirst();
+        clickedRow();
+	}
 	
 	public void clickedRow() {
 		T selected = rows.getSelected();

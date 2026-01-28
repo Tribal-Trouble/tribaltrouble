@@ -1,5 +1,6 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.tt.delegate.ModalDelegate;
 import com.oddlabs.tt.gui.IconQuad;
 import com.oddlabs.tt.gui.Origin;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -21,11 +22,6 @@ public final class InGameCampaignDialogForm extends CampaignDialogForm {
 		super(header, text, image, align, runnable, cancel);
 		this.viewer = viewer;
 		viewer.setPaused(true);
-	}
-
-	@Override
-	protected void run() {
-		viewer.setPaused(false);
-		super.run();
+        addCloseListener(() -> viewer.setPaused(false));
 	}
 }
