@@ -2,6 +2,7 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.tt.delegate.Menu;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
@@ -75,8 +76,12 @@ public final class CreateChatRoomForm extends Form {
 	}
 
 	@Override
-	public void setFocus() {
-		editline_name.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		if (direction == FocusDirection.BACKWARD) {
+			super.setFocus(direction);
+		} else {
+			editline_name.setFocus(direction);
+		}
 	}
 
 	@Override

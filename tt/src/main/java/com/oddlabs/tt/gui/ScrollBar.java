@@ -64,8 +64,8 @@ public final class ScrollBar extends GUIObject {
 	}
 
 	@Override
-	public void setFocus() {
-		focus_group.setGroupFocus(Renderer.getLocalInput().isShiftDownCurrently() ? -1 : 1);
+	public void setFocus(@NonNull FocusDirection direction) {
+		focus_group.setGroupFocus(direction);
 	}
 
 	@Override

@@ -134,12 +134,12 @@ public class Form extends Group {
 	protected void handleInput(@NonNull InputEvent event) {
 		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
 			if (event.consumeAction(GameAction.UI_NEXT_PANEL)) {
-				cyclePanelGroup(this, 1);
+				cyclePanelGroup(this, FocusDirection.FORWARD);
 				event.consume();
 				return;
 			}
 			if (event.consumeAction(GameAction.UI_PREV_PANEL)) {
-				cyclePanelGroup(this, -1);
+				cyclePanelGroup(this, FocusDirection.BACKWARD);
 				event.consume();
 				return;
 			}
@@ -152,7 +152,7 @@ public class Form extends Group {
 		super.handleInput(event);
 	}
 
-	private boolean cyclePanelGroup(GUIObject root, int dir) {
+	private boolean cyclePanelGroup(GUIObject root, @NonNull FocusDirection dir) {
 		if (root instanceof PanelGroup pg) {
 			pg.cyclePanel(dir);
 			return true;

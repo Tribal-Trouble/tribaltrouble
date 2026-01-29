@@ -4,6 +4,7 @@ import com.oddlabs.matchmaking.Login;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.MainMenu;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.CheckBox;
@@ -133,8 +134,12 @@ public final class LoginForm extends Form {
 	}
 
 	@Override
-	public void setFocus() {
-		editline_username.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		if (direction == FocusDirection.BACKWARD) {
+			super.setFocus(direction);
+		} else {
+			editline_username.setFocus(direction);
+		}
 	}
 
 	private void login() {

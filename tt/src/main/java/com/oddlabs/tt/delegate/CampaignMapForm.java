@@ -7,6 +7,7 @@ import com.oddlabs.tt.camera.StaticCamera;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.CampaignDialogForm;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIIcon;
 import com.oddlabs.tt.gui.GUIObject;
@@ -146,6 +147,15 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
 		}
         
         setFocus();
+	}
+
+	@Override
+	public void setFocus(@NonNull FocusDirection direction) {
+		if (direction == FocusDirection.BACKWARD) {
+			super.setFocus(direction);
+		} else {
+			setFocus();
+		}
 	}
 
     @Override

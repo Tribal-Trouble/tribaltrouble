@@ -71,8 +71,8 @@ public final class LoadCampaignBox extends GUIObject implements DeterministicSer
 	}
 
 	@Override
-	public void setFocus() {
-		list_box.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		list_box.setFocus(direction);
 	}
 
 	public @Nullable CampaignState getSelected() {

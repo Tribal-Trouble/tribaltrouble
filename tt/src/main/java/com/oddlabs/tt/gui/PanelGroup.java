@@ -51,13 +51,13 @@ public final class PanelGroup extends GUIObject {
 	}
 
 	@Override
-	public void setFocus() {
-		var localInput = Renderer.getLocalInput();
-		focus_group.setGroupFocus(localInput.isShiftDownCurrently() ? -1 : 1);
+	public void setFocus(@NonNull FocusDirection direction) {
+		focus_group.setGroupFocus(direction);
 	}
 
-	public void cyclePanel(int dir) {
-		int next = (selected + dir + panels.length) % panels.length;
+	public void cyclePanel(@NonNull FocusDirection dir) {
+        int intDir = (dir == FocusDirection.BACKWARD) ? -1 : 1;
+		int next = (selected + intDir + panels.length) % panels.length;
 		selectPanel(next);
 	}
 

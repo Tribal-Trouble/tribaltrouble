@@ -2,6 +2,7 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
 import com.oddlabs.tt.gui.Form;
@@ -74,8 +75,12 @@ public final class MapcodeForm extends Form {
 	}
 
 	@Override
-	public void setFocus() {
-		editline_seed.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		if (direction == FocusDirection.BACKWARD) {
+			super.setFocus(direction);
+		} else {
+			editline_seed.setFocus(direction);
+		}
 	}
 
 	private void done() {

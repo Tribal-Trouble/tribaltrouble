@@ -164,8 +164,8 @@ public final class MultiColumnComboBox<T> extends GUIObject implements Scrollabl
 	}
 
 	@Override
-	public void setFocus() {
-		focus_group.setGroupFocus(Renderer.getLocalInput().isShiftDownCurrently() ? -1 : 1);
+	public void setFocus(@NonNull FocusDirection direction) {
+		focus_group.setGroupFocus(direction);
 	}
 
 	public void clear() {

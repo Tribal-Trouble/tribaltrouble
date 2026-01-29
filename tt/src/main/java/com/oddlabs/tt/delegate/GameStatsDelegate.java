@@ -5,6 +5,7 @@ import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.camera.StaticCamera;
 import com.oddlabs.tt.gui.ColumnInfo;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.IntegerLabel;
 import com.oddlabs.tt.gui.Label;
@@ -175,12 +176,12 @@ public final class GameStatsDelegate extends CameraDelegate<StaticCamera> implem
 	public void handleInput(@NonNull InputEvent event) {
 		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
 			if (event.consumeAction(GameAction.UI_FOCUS_NEXT)) {
-				switchFocus(1);
+				switchFocus(FocusDirection.FORWARD);
 				event.consume();
 				return;
 			}
 			if (event.consumeAction(GameAction.UI_FOCUS_PREV)) {
-				switchFocus(-1);
+				switchFocus(FocusDirection.BACKWARD);
 				event.consume();
 				return;
 			}

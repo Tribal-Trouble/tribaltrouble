@@ -9,6 +9,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.Box;
 import com.oddlabs.tt.gui.Diode;
 import com.oddlabs.tt.gui.EditLine;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.FormData;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
@@ -233,8 +234,12 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 	}
 
 	@Override
-	public void setFocus() {
-		chat_line.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		if (direction == FocusDirection.BACKWARD) {
+			super.setFocus(direction);
+		} else {
+			chat_line.setFocus(direction);
+		}
 	}
 
 	private int countHumans(PlayerSlot @NonNull [] players) {

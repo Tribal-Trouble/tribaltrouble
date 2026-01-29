@@ -6,6 +6,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
@@ -132,8 +133,12 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 	}
 
 	@Override
-	public void setFocus() {
-		editline_name.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		if (direction == FocusDirection.BACKWARD) {
+			super.setFocus(direction);
+		} else {
+			editline_name.setFocus(direction);
+		}
 	}
 
 	private boolean nameIsUnique(String name) {

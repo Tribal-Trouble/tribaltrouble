@@ -3,6 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.gui.ColumnInfo;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.HorizButton;
@@ -101,8 +102,12 @@ public final class ProfilesForm extends Form {
 	}
 
 	@Override
-	public void setFocus() {
-		join_button.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		if (direction == FocusDirection.BACKWARD) {
+			super.setFocus(direction);
+		} else {
+			join_button.setFocus(direction);
+		}
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.oddlabs.tt.delegate;
 
 
 import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.render.GUIRenderer;
@@ -18,6 +19,12 @@ public abstract class Delegate extends GUIObject {
 		setPos(0, 0);
 		setCanFocus(true);
 	}
+
+    @Override
+    public void setFocus(@NonNull FocusDirection direction) {
+        super.setFocus(direction);
+        switchFocus(direction, false);
+    }
 
 	@Override
 	public void displayChangedNotify(int width, int height) {

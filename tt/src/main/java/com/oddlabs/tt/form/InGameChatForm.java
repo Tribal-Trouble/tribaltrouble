@@ -1,6 +1,7 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.delegate.ControllableCameraDelegate;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.EditLine;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
@@ -97,8 +98,12 @@ public final class InGameChatForm extends Form implements ChatListener {
 	}
 
 	@Override
-	public void setFocus() {
-		chat_line.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		if (direction == FocusDirection.BACKWARD) {
+			super.setFocus(direction);
+		} else {
+			chat_line.setFocus(direction);
+		}
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.gui.ChatPanel;
 import com.oddlabs.tt.gui.ChatRoomInfo;
 import com.oddlabs.tt.gui.ColumnInfo;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
@@ -266,8 +267,12 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 	}
 
 	@Override
-	public void setFocus() {
-		game_list_panel.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		if (direction == FocusDirection.BACKWARD) {
+			super.setFocus(direction);
+		} else {
+			game_list_panel.setFocus(direction);
+		}
 	}
 
 	private static void updateList(int type) {
@@ -547,7 +552,7 @@ public final class SelectGameMenu extends Form implements MatchmakingListener, T
 		}
 
 		@Override
-		public void itemChosen(PulldownMenu<GameHost> menu, int item_index) {
+		public void itemChosen(@NonNull PulldownMenu<GameHost> menu, int item_index) {
 			GameHost host = box.getRightClickedRowData();
 			switch (item_index) {
 				case 0: //Join

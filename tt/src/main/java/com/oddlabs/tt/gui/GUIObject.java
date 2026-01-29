@@ -246,7 +246,8 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		super.removeChild(child);
 	}
 
-	private void switchFocusToFirstChild(int dir) {
+	private void switchFocusToFirstChild(@NonNull FocusDirection dirEnum, boolean bubble) {
+        int dir = (dirEnum == FocusDirection.BACKWARD) ? -1 : 1;
 		GUIObject gui_child = getFirstChild();
 		GUIObject min_obj = null;
 		while (gui_child != null) {
@@ -255,12 +256,16 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 			gui_child = gui_child.getNext();
 		}
 		if (min_obj != null)
-			switchFocusToObject(min_obj, dir);
-		else if (!focus_cycle)
-			getParent().switchFocusToNextChild(dir);
+			switchFocusToObject(min_obj, dirEnum);
+		else if (bubble && !focus_cycle) {
+            GUIObject parent = getParent();
+            if (parent != null)
+			    parent.switchFocusToNextChild(dirEnum);
+        }
 	}
 
-	private void switchFocusToNextChild(int dir) {
+	private void switchFocusToNextChild(@NonNull FocusDirection dirEnum) {
+        int dir = (dirEnum == FocusDirection.BACKWARD) ? -1 : 1;
 		int tab_order = focused_child.getTabOrder();
 		GUIObject gui_child = getFirstChild();
 		GUIObject greater_obj = null;
@@ -275,49 +280,53 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 			gui_child = gui_child.getNext();
 		}
 		if (greater_obj != null) {
-			switchFocusToObject(greater_obj, dir);
+			switchFocusToObject(greater_obj, dirEnum);
 		} else if (focus_cycle) {
 			if (min_obj != null) {
-				switchFocusToObject(min_obj, dir);
+				switchFocusToObject(min_obj, dirEnum);
 			}
 		} else {
 			GUIObject parent = getParent();
 			if (parent != null) {
-				parent.switchFocusToNextChild(dir);
+				parent.switchFocusToNextChild(dirEnum);
 			} else {
 				// We are at the root (or detached) and not a cycle, but we should wrap if global cycle is desired
 				// or just stay put. GUIRoot usually has focus_cycle=true so this else-block is for detached items.
 				if (min_obj != null) {
-					switchFocusToObject(min_obj, dir);
+					switchFocusToObject(min_obj, dirEnum);
 				}
 			}
 		}
 	}
 
-	private void switchFocusToObject(GUIObject obj, int dir) {
-		if (obj instanceof Group group) {
-			group.setGroupFocus(dir);
-		} else {
-			obj.setFocus();
-		}
+	private void switchFocusToObject(@NonNull GUIObject obj, @NonNull FocusDirection dir) {
+		obj.setFocus(dir);
 	}
 
-	protected final void switchFocus(int direction) {
+    protected final void switchFocus(int dir) {
+        switchFocus(dir > 0 ? FocusDirection.FORWARD : FocusDirection.BACKWARD);
+    }
+
+	protected final void switchFocus(@NonNull FocusDirection direction) {
+        switchFocus(direction, true);
+	}
+
+    protected final void switchFocus(@NonNull FocusDirection direction, boolean bubble) {
 		// find any GUIObject to focus
 		if (focused_child == null) {
-			switchFocusToFirstChild(direction);
+			switchFocusToFirstChild(direction, bubble);
 			return;
 		}
 		// Find next GUIObject in tab_order
 		switchFocusToNextChild(direction);
-	}
+    }
 
 	protected final void focusNext() {
-		switchFocus(1);
+		switchFocus(FocusDirection.FORWARD);
 	}
 
 	protected final void focusPrior() {
-		switchFocus(-1);
+		switchFocus(FocusDirection.BACKWARD);
 	}
 
 	private void defocusBranch() {
@@ -350,6 +359,10 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	}
 
 	public void setFocus() {
+        setFocus(FocusDirection.FORWARD);
+    }
+
+    public void setFocus(@NonNull FocusDirection direction) {
 		GUIRoot gui_root = getParentGUIRoot();
 		// Make sure we are linked to the root
 		if (gui_root == null)

@@ -1,5 +1,6 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
@@ -67,8 +68,12 @@ public final class PrivateMessageForm extends Form {
     }
 
     @Override
-    public void setFocus() {
-        editline_name.setFocus();
+    public void setFocus(@NonNull FocusDirection direction) {
+        if (direction == FocusDirection.BACKWARD) {
+            super.setFocus(direction);
+        } else {
+            editline_name.setFocus(direction);
+        }
     }
 
     private void send() {

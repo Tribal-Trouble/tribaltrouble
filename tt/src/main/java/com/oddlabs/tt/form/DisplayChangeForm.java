@@ -1,6 +1,7 @@
 package com.oddlabs.tt.form;
 
 import com.oddlabs.tt.gui.DoNowListener;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.LabelBox;
@@ -47,8 +48,12 @@ public final class DisplayChangeForm extends Form {
 	}
 
 	@Override
-	public void setFocus() {
-		later_button.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		if (direction == FocusDirection.BACKWARD) {
+			super.setFocus(direction);
+		} else {
+			later_button.setFocus(direction);
+		}
 	}
 
 	@Override

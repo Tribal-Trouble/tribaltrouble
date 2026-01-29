@@ -95,21 +95,26 @@ public class Group extends GUIObject {
 	protected void handleInput(@NonNull InputEvent event) {
 		if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
 			if (event.consumeAction(GameAction.UI_FOCUS_NEXT)) {
-				switchFocus(1);
+				switchFocus(FocusDirection.FORWARD);
 				return;
 			}
 			if (event.consumeAction(GameAction.UI_FOCUS_PREV)) {
-				switchFocus(-1);
+				switchFocus(FocusDirection.BACKWARD);
 				return;
 			}
 		}
 		super.handleInput(event);
 	}
 
-	public void setGroupFocus(int dir) {
-		setFocus();
-		switchFocus(dir);
-	}
+    public void setGroupFocus(@NonNull FocusDirection dir) {
+        setFocus(dir);
+    }
+
+    @Override
+    public void setFocus(@NonNull FocusDirection direction) {
+        super.setFocus(direction);
+        switchFocus(direction, false);
+    }
 
 /*
 	public final void correctPos(int dx, int dy) {

@@ -7,6 +7,7 @@ import com.oddlabs.tt.form.ConnectingForm;
 import com.oddlabs.tt.form.OptionsMenu;
 import com.oddlabs.tt.form.QuitForm;
 import com.oddlabs.tt.form.SelectGameMenu;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIImage;
@@ -126,12 +127,12 @@ public abstract class Menu extends CameraDelegate<Camera> {
 				return;
 			}
 			if (event.consumeAction(GameAction.UI_FOCUS_NEXT)) {
-				switchFocus(1);
+				switchFocus(FocusDirection.FORWARD);
 				event.consume();
 				return;
 			}
 			if (event.consumeAction(GameAction.UI_FOCUS_PREV)) {
-				switchFocus(-1);
+				switchFocus(FocusDirection.BACKWARD);
 				event.consume();
 				return;
 			}

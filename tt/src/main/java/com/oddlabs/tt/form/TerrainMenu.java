@@ -12,6 +12,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.CheckBox;
 import com.oddlabs.tt.gui.EditLine;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
@@ -548,8 +549,9 @@ public final class TerrainMenu extends Group {
 	}
 
 	@Override
-	public void setFocus() {
-		button_ok.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		super.setFocus(direction);
+		switchFocus(direction);
 	}
 
 	public @NonNull GUIObject getButtonOK() {
@@ -674,7 +676,7 @@ public final class TerrainMenu extends Group {
 		}
 
 		@Override
-		public void itemChosen(PulldownMenu<Void> menu, int item_index) {
+		public void itemChosen(@NonNull PulldownMenu<Void> menu, int item_index) {
 			if (item_index == 0) {
 				labels_players[i].setDisabled(true);
 				race_pulldown_buttons[i].setDisabled(true);

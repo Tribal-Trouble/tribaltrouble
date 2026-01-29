@@ -3,6 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.Menu;
 import com.oddlabs.tt.gui.CancelButton;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.HorizButton;
@@ -108,8 +109,12 @@ public final class CampaignForm extends Form implements DeterministicSerializerL
 	}
 
 	@Override
-	public void setFocus() {
-		button_vikings.setFocus();
+	public void setFocus(@NonNull FocusDirection direction) {
+		if (direction == FocusDirection.BACKWARD) {
+			super.setFocus(direction);
+		} else {
+			button_vikings.setFocus(direction);
+		}
 	}
 
 	public void load(@NonNull CampaignState campaign_state) {

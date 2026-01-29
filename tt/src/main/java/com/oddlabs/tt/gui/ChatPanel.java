@@ -180,7 +180,7 @@ public class ChatPanel extends Panel implements ChatListener {
 		}
 
 		@Override
-		public void itemChosen(PulldownMenu<@NonNull ChatRoomUser> menu, int item_index) {
+		public void itemChosen(@NonNull PulldownMenu<@NonNull ChatRoomUser> menu, int item_index) {
 			ChatRoomUser user = box.getRightClickedRowData();
 			String nick = user.getNick();
 			switch (item_index) {

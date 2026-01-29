@@ -4,6 +4,7 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.form.OptionsMenu;
 import com.oddlabs.tt.form.QuestionForm;
 import com.oddlabs.tt.form.QuitForm;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIImage;
 import com.oddlabs.tt.gui.GUIObject;
@@ -62,6 +63,15 @@ final class CampaignMapMenu extends Form {
         resumeButton = new MenuButton(Menu.i18n("resume"), Menu.COLOR_NORMAL, Menu.COLOR_ACTIVE);
         addChild(resumeButton);
         resumeButton.addMouseClickListener((_, _, _, _) -> cancel());
+    }
+
+    @Override
+    public void setFocus(@NonNull FocusDirection direction) {
+        if (direction == FocusDirection.BACKWARD) {
+            super.setFocus(direction);
+        } else {
+            setFocus();
+        }
     }
 
     @Override
