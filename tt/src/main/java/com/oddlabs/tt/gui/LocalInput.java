@@ -9,6 +9,7 @@ import com.oddlabs.tt.input.InputProvider;
 import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.input.LWJGL3InputProvider;
+import com.oddlabs.tt.input.Modifier;
 import com.oddlabs.tt.input.PointerInput;
 import com.oddlabs.tt.window.LWJGL3Window;
 import com.oddlabs.tt.window.Window;
@@ -35,10 +36,7 @@ public final class LocalInput implements AutoCloseable {
     private final @NonNull PointerInput pointerInput;
 
     private final Set<@NonNull Key> keys = EnumSet.noneOf(Key.class);
-    private boolean global_super_state = false;
-    private boolean global_alt_state = false;
-    private boolean global_control_state = false;
-    private boolean global_shift_state = false;
+    private final Set<@NonNull Modifier> global_modifiers = EnumSet.noneOf(Modifier.class);
 
     private @Nullable Path game_dir;
     private int revision;
@@ -61,15 +59,13 @@ public final class LocalInput implements AutoCloseable {
         keyboardInput.checkMagicKeys(inputProvider);
     }
 
-    public void setKeys(@NonNull Key key, boolean state, boolean shift_down, boolean control_down, boolean alt_down, boolean super_down) {
+    public void setKeys(@NonNull Key key, boolean state, @NonNull Set<@NonNull Modifier> modifiers) {
         if (state)
             keys.add(key);
         else
             keys.remove(key);
-        global_alt_state = alt_down;
-        global_super_state = super_down;
-        global_control_state = control_down;
-        global_shift_state = shift_down;
+        global_modifiers.clear();
+        global_modifiers.addAll(modifiers);
     }
 
     public void mouseDragged(@NonNull GUIRoot gui_root, @NonNull MouseButton button, short x, short y) {
@@ -97,19 +93,19 @@ public final class LocalInput implements AutoCloseable {
     }
 
     public boolean isShiftDownCurrently() {
-        return global_shift_state;
+        return global_modifiers.contains(Modifier.SHIFT);
     }
 
     public boolean isControlDownCurrently() {
-        return global_control_state;
+        return global_modifiers.contains(Modifier.CONTROL);
     }
 
     public boolean isAltDownCurrently() {
-        return global_alt_state;
+        return global_modifiers.contains(Modifier.ALT);
     }
 
     public boolean isSuperDownCurrently() {
-        return global_super_state;
+        return global_modifiers.contains(Modifier.META);
     }
 
     public void resetKeys() {
@@ -124,10 +120,7 @@ public final class LocalInput implements AutoCloseable {
 
     public void resetKeyboard() {
         resetKeys();
-        global_alt_state = false;
-        global_control_state = false;
-        global_shift_state = false;
-        global_super_state = false;
+        global_modifiers.clear();
     }
 
     public int getMouseY() {

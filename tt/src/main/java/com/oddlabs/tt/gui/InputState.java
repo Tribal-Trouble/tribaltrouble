@@ -9,10 +9,12 @@ import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.input.Key;
 import com.oddlabs.tt.input.KeyboardEvent;
+import com.oddlabs.tt.input.Modifier;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 public final class InputState {
@@ -178,23 +180,20 @@ public final class InputState {
 		var key = Key.fromGlfwCode(key_code);
 		if (Key.KEY_UNKNOWN != key || key_char != 0) {
 			GUIObject focused = gui_root.getGlobalFocus();
-			KeyboardEvent keyEvent = new KeyboardEvent(key, key_char, false, false, false, false, 1);
+			KeyboardEvent keyEvent = new KeyboardEvent(key, key_char, EnumSet.noneOf(Modifier.class), 1);
 			Set<GameAction> actions = Renderer.getLocalInput().getInputManager().getActions(keyEvent);
 			InputEvent event = new InputEvent(keyEvent, actions, InputPhase.REPEAT);
 			focused.handleInputAll(event);
 		}
 	}
 
-	public void keyPressed(@NonNull Key key, char key_char, boolean shift_down, boolean control_down, boolean alt_down, boolean meta_down, boolean repeat) {
+	public void keyPressed(@NonNull Key key, char key_char, @NonNull Set<@NonNull Modifier> modifiers, boolean repeat) {
 		GUIObject focused = gui_root.getGlobalFocus();
 		resetKeyTimer();
 		if (!repeat && (key_event == null 
 				|| key_event.keyCode() != key
 				|| key_event.keyChar() != key_char
-				|| key_event.shiftDown() != shift_down
-				|| key_event.controlDown() != control_down
-				|| key_event.altDown() != alt_down
-				|| key_event.metaDown() != meta_down)) {
+				|| !key_event.modifiers().equals(modifiers))) {
 			if (double_key_timer.isRunning()) {
 				stopDoubleKeyTimer();
 			}
@@ -203,7 +202,7 @@ public final class InputState {
 		}
 		if (!repeat)
 			key_counter++;
-		KeyboardEvent keyEvent = new KeyboardEvent(key, key_char, shift_down, control_down, alt_down, meta_down, key_counter);
+		KeyboardEvent keyEvent = new KeyboardEvent(key, key_char, modifiers, key_counter);
 		key_event = keyEvent;
 
 		Set<GameAction> actions = Renderer.getLocalInput().getInputManager().getActions(keyEvent);
@@ -219,10 +218,10 @@ public final class InputState {
         }
 	}
 
-	public void keyReleased(@NonNull Key key, char key_char, boolean shift_down, boolean control_down, boolean alt_down, boolean meta_down) {
+	public void keyReleased(@NonNull Key key, char key_char, @NonNull Set<@NonNull Modifier> modifiers) {
 		GUIObject focused = gui_root.getGlobalFocus();
 		resetKeyTimer();
-		KeyboardEvent keyEvent = new KeyboardEvent(key, key_char, shift_down, control_down, alt_down, meta_down,0);
+		KeyboardEvent keyEvent = new KeyboardEvent(key, key_char, modifiers, 0);
 		
 		Set<GameAction> actions = Renderer.getLocalInput().getInputManager().getActions(keyEvent);
 		Renderer.getLocalInput().getInputManager().updateState(keyEvent, false); // Update polling state

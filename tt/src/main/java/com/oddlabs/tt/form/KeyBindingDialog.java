@@ -12,10 +12,12 @@ import com.oddlabs.tt.input.InputBinding;
 import com.oddlabs.tt.input.InputEvent;
 import com.oddlabs.tt.input.InputPhase;
 import com.oddlabs.tt.input.Key;
+import com.oddlabs.tt.input.Modifier;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -27,7 +29,7 @@ public class KeyBindingDialog extends Form {
     private final @NonNull Consumer<List<InputBinding>> onBindingChosen;
     private final @NonNull GUIRoot guiRoot;
 
-    public KeyBindingDialog(@NonNull GUIRoot guiRoot, @NonNull GameAction action, @NonNull Consumer<List<InputBinding>> onBindingChosen) {
+    public KeyBindingDialog(@NonNull GUIRoot guiRoot, @NonNull GameAction action, @NonNull Consumer<@NonNull List<@NonNull InputBinding>> onBindingChosen) {
         this.guiRoot = guiRoot;
         this.action = action;
         this.onBindingChosen = onBindingChosen;
@@ -89,14 +91,15 @@ public class KeyBindingDialog extends Form {
 
             boolean isModifierKey = (key == Key.LSHIFT || key == Key.RSHIFT || key == Key.LCONTROL || key == Key.RCONTROL || key == Key.LALT || key == Key.RALT || key == Key.LSUPER || key == Key.RSUPER);
             
-            if (!isModifierKey && key != null && key != Key.KEY_UNKNOWN && key != Key.ESCAPE) {
-                InputBinding binding = new InputBinding(key, event.isShiftDown(), event.isControlDown(), event.isAltDown(), event.isMetaDown(), action);
+            if (!isModifierKey && key != null && key != Key.KEY_UNKNOWN) {
+                var modifiers = EnumSet.noneOf(Modifier.class);
+                if (event.isShiftDown()) modifiers.add(Modifier.SHIFT);
+                if (event.isAltDown()) modifiers.add(Modifier.ALT);
+                if (event.isControlDown()) modifiers.add(Modifier.CONTROL);
+                if (event.isMetaDown()) modifiers.add(Modifier.META);
+                InputBinding binding = new InputBinding(key, modifiers, action);
                 onBindingChosen.accept(List.of(binding));
                 remove();
-                event.consume();
-                return;
-            } else if (key == Key.ESCAPE) {
-                cancel();
                 event.consume();
                 return;
             }

@@ -155,18 +155,14 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 				for (int i = 0; i <= 9; i++) {
 					if (event.consumeAction(ARMY_SELECTS[i])) {
 						if (!map_mode && !observer) {
-							if (event.isControlDown()) {
-								getViewer().getSelection().setShortcutArmy(i);
-							} else {
-								boolean selected = getViewer().getSelection().enableShortcutArmy(i);
-								if (selected && event.getClicks() > 1) {
-									var set = getViewer().getSelection().getCurrentSelection().getSet();
-									if (!set.isEmpty()) {
-										var s = set.iterator().next();
-										getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera)getCamera(), s.getPositionX(), s.getPositionY()));
-									}
-								}
-							}
+                            boolean selected = getViewer().getSelection().enableShortcutArmy(i);
+                            if (selected && event.getClicks() > 1) {
+                                var set = getViewer().getSelection().getCurrentSelection().getSet();
+                                if (!set.isEmpty()) {
+                                    var s = set.iterator().next();
+                                    getGUIRoot().pushDelegate(new JumpDelegate(getViewer(), (GameCamera)getCamera(), s.getPositionX(), s.getPositionY()));
+                                }
+                            }
 						}
 						event.consume();
 						return;
@@ -182,10 +178,16 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 
 				if (event.consumeAction(GameAction.GLOBAL_CHAT)) {
 					if (!chat_visible)
-						chat_form.setReceivers(!event.isShiftDown());
+						chat_form.setReceivers(true);
 					event.consume();
 					return;
 				}
+                if (event.consumeAction(GameAction.GLOBAL_CHAT_TEAM)) {
+                    if (!chat_visible)
+                        chat_form.setReceivers(false);
+                    event.consume();
+                    return;
+                }
 				if (event.consumeAction(GameAction.UNIT_BEACON)) {
 					if (!map_mode && !observer) {
 						getGUIRoot().pushDelegate(new BeaconDelegate(getViewer(), (GameCamera)getCamera()));
@@ -250,7 +252,7 @@ public final class SelectionDelegate extends ControllableCameraDelegate {
 				}
 			}
 		} else if (event.getPhase() == InputPhase.RELEASED) {
-			if (event.consumeAction(GameAction.GLOBAL_CHAT)) {
+			if (event.consumeAction(GameAction.GLOBAL_CHAT) || event.consumeAction(GameAction.GLOBAL_CHAT_TEAM)) {
 				if (!close_chat_override) {
 					if (!chat_visible) {
 						addChild(chat_form);

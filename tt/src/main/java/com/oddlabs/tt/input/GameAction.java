@@ -6,6 +6,7 @@ public enum GameAction {
     GLOBAL_TOGGLE_FULLSCREEN,
     GLOBAL_SCREENSHOT,
     GLOBAL_CHAT,
+    GLOBAL_CHAT_TEAM,
     GLOBAL_MENU,
     GLOBAL_TOGGLE_STATUS,
     GLOBAL_AGGRESSIVE_UNITS,
@@ -27,12 +28,12 @@ public enum GameAction {
     CAMERA_ZOOM_MODE,
 
     // UI
-    UI_ACTIVATE,      // Space/Return
-    UI_CANCEL,        // Escape
-    UI_FOCUS_NEXT,    // Tab
-    UI_FOCUS_PREV,    // Shift+Tab
-    UI_NEXT_PANEL,    // Ctrl+Tab
-    UI_PREV_PANEL,    // Shift+Ctrl+Tab
+    UI_ACTIVATE,
+    UI_CANCEL,
+    UI_FOCUS_NEXT,
+    UI_FOCUS_PREV,
+    UI_NEXT_PANEL,
+    UI_PREV_PANEL,
     UI_NAV_UP,
     UI_NAV_DOWN,
     UI_NAV_LEFT,
@@ -45,17 +46,17 @@ public enum GameAction {
     UI_DELETE,
 
     // Gameplay
-    UNIT_MOVE,        // M
-    UNIT_ATTACK,      // A
-    UNIT_GATHER,      // G
-    UNIT_BUILD_QUARTERS, // Q
-    UNIT_BUILD_ARMORY,   // R
-    UNIT_BUILD_TOWER,    // T
-    UNIT_EXIT_TOWER,     // X
-    UNIT_BEACON,         // Ctrl+B
-    UNIT_NEXT_IDLE,      // N
-    UNIT_SET_RALLY,      // R
-    GAMEPLAY_BACK,       // Backspace
+    UNIT_MOVE,
+    UNIT_ATTACK,
+    UNIT_GATHER,
+    UNIT_BUILD_QUARTERS,
+    UNIT_BUILD_ARMORY,
+    UNIT_BUILD_TOWER,
+    UNIT_EXIT_TOWER,
+    UNIT_BEACON,
+    UNIT_NEXT_IDLE,
+    UNIT_SET_RALLY,
+    GAMEPLAY_BACK,
     
     // Army Shortcuts
     ARMY_SELECT_0,
@@ -81,29 +82,48 @@ public enum GameAction {
     ARMY_CREATE_9,
 
     // Production/Harvest (In Armory/Quarters submenus)
-    PROD_WEAPONS,     // W
-    PROD_HARVEST,     // G
-    PROD_ARMY,        // A
-    PROD_TRANSPORT,   // T
+    PROD_WEAPONS,
+    PROD_HARVEST,
+    PROD_ARMY,
+    PROD_TRANSPORT,
     
     // Resource Specific
-    RES_TREE,         // W
-    RES_ROCK,         // R
-    RES_IRON,         // I
-    RES_CHICKEN,      // C
+    RES_TREE,
+    RES_TREE_DEC,
+    RES_TREE_BATCH,
+    RES_TREE_BATCH_DEC,
+    
+    RES_ROCK,
+    RES_ROCK_DEC,
+    RES_ROCK_BATCH,
+    RES_ROCK_BATCH_DEC,
+    
+    RES_IRON,
+    RES_IRON_DEC,
+    RES_IRON_BATCH,
+    RES_IRON_BATCH_DEC,
+    
+    RES_CHICKEN,
+    RES_CHICKEN_DEC,
+    RES_CHICKEN_BATCH,
+    RES_CHICKEN_BATCH_DEC,
     
     // Unit Specific
-    TRAIN_PEON,       // P
-    TRAIN_CHIEFTAIN,  // C
+    TRAIN_PEON,
+    TRAIN_PEON_DEC,
+    TRAIN_PEON_BATCH,
+    TRAIN_PEON_BATCH_DEC,
+
+    TRAIN_CHIEFTAIN,
     
     // Magic
-    MAGIC_1,          // S
-    MAGIC_2,          // C
+    MAGIC_1,
+    MAGIC_2,
     
     // Misc
-    GAME_SPEED_UP,    // +
-    GAME_SPEED_DOWN,  // -
-    NOTIFICATION_JUMP, // TAB
+    GAME_SPEED_UP,
+    GAME_SPEED_DOWN,
+    NOTIFICATION_JUMP,
     
     // Cheats
     CHEAT_1,
@@ -116,23 +136,23 @@ public enum GameAction {
     CHEAT_8,
     CHEAT_9,
     
-    DEBUG_PRINT_INFO, // Ctrl+I
-    DEBUG_KILL_SELECTED, // Ctrl+K
-    DEBUG_TOGGLE_LIGHT, // L or O
-    DEBUG_TOGGLE_PLANTS, // P
-    DEBUG_TOGGLE_PARTICLES, // E
-    DEBUG_TOGGLE_AXES, // A
-    DEBUG_TOGGLE_MISC, // Ctrl+M
-    DEBUG_PROCESS_MISC, // M
-    DEBUG_RESET_CURSOR, // J
-    DEBUG_TOGGLE_DETAIL, // S
-    DEBUG_CRASH, // Ctrl+C
-    DEBUG_TOGGLE_FRAME_BUFFER, // C
-    DEBUG_TOGGLE_BOUNDING, // D
-    DEBUG_TOGGLE_FRUSTUM_FREEZE, // V
-    DEBUG_FORCE_GC, // F12
-    DEBUG_START_RECORDING, // U
-    DEBUG_TOGGLE_WATER, // Ctrl+W
-    DEBUG_TOGGLE_AI, // Ctrl+R
-    DEBUG_DUMP_ANIMATIONS // F1
+    DEBUG_PRINT_INFO,
+    DEBUG_KILL_SELECTED,
+    DEBUG_TOGGLE_LIGHT,
+    DEBUG_TOGGLE_PLANTS,
+    DEBUG_TOGGLE_PARTICLES,
+    DEBUG_TOGGLE_AXES,
+    DEBUG_TOGGLE_MISC,
+    DEBUG_PROCESS_MISC,
+    DEBUG_RESET_CURSOR,
+    DEBUG_TOGGLE_DETAIL,
+    DEBUG_CRASH,
+    DEBUG_TOGGLE_FRAME_BUFFER,
+    DEBUG_TOGGLE_BOUNDING,
+    DEBUG_TOGGLE_FRUSTUM_FREEZE,
+    DEBUG_FORCE_GC,
+    DEBUG_START_RECORDING,
+    DEBUG_TOGGLE_WATER,
+    DEBUG_TOGGLE_AI,
+    DEBUG_DUMP_ANIMATIONS
 }

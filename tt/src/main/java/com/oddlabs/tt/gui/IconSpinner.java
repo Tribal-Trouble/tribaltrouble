@@ -94,18 +94,15 @@ public abstract class IconSpinner extends GUIObject implements ToolTip {
 		tool_tip_box.append(tool_tip_icons);
 	}
 
-	public final void shortcutPressed(boolean shift_down, boolean ctrl_down) {
+	public final void shortcutPressed(boolean decrement, boolean batch) {
 		if (!isDisabled()) {
-			MouseButton mouse_button = ctrl_down ? MouseButton.RIGHT : MouseButton.LEFT;
+			MouseButton mouse_button = batch ? MouseButton.RIGHT : MouseButton.LEFT;
 
-            if (shift_down)
-					button_minus.mousePressedAll(mouse_button, 0, 0);
-				else
-					button_plus.mousePressedAll(mouse_button, 0, 0);
+            (decrement ? button_minus : button_plus).mousePressedAll(mouse_button, 0, 0);
 		}
 	}
 
-	public final void shortcutReleased(boolean shift_down, boolean ctrl_down) {
+	public final void shortcutReleased(boolean decrement, boolean batch) {
 		if (!isDisabled()) {
         		release();
 		}

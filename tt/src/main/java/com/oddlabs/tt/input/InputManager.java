@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
@@ -26,19 +27,20 @@ public final class InputManager {
         // Global
         boolean isMac = System.getProperty("os.name", "").toLowerCase().contains("mac");
         if (isMac) {
-            def(GameAction.GLOBAL_QUIT, Key.Q, false, false, false, true); // Meta+Q
+            def(GameAction.GLOBAL_QUIT, Key.Q, Modifier.META);
         } else {
-            def(GameAction.GLOBAL_QUIT, Key.Q, false, true, false, false); // Ctrl+Q
+            def(GameAction.GLOBAL_QUIT, Key.Q, Modifier.CONTROL);
         }
 
         def(GameAction.GLOBAL_TOGGLE_FULLSCREEN, Key.F11);
-        def(GameAction.GLOBAL_SCREENSHOT, Key.S, false, true, false); // Ctrl+S
-        def(GameAction.GLOBAL_SCREENSHOT, Key.P, false, true, false); // Ctrl+P
+        def(GameAction.GLOBAL_SCREENSHOT, Key.S, Modifier.CONTROL);
+        def(GameAction.GLOBAL_SCREENSHOT, Key.P, Modifier.CONTROL);
         def(GameAction.GLOBAL_CHAT, Key.RETURN);
+        def(GameAction.GLOBAL_CHAT_TEAM, Key.RETURN, Modifier.SHIFT);
         def(GameAction.GLOBAL_MENU, Key.ESCAPE);
-        def(GameAction.GLOBAL_TOGGLE_STATUS, Key.I, false, true, false); // Ctrl+I
-        def(GameAction.DEBUG_PRINT_INFO, Key.I, false, true, false); // Ctrl+I
-        def(GameAction.GLOBAL_AGGRESSIVE_UNITS, Key.A, false, true, false); // Ctrl+A
+        def(GameAction.GLOBAL_TOGGLE_STATUS, Key.I, Modifier.CONTROL);
+        def(GameAction.DEBUG_PRINT_INFO, Key.I, Modifier.CONTROL);
+        def(GameAction.GLOBAL_AGGRESSIVE_UNITS, Key.A, Modifier.CONTROL);
 
         // Camera
         def(GameAction.CAMERA_PAN_LEFT, Key.LEFT);
@@ -48,19 +50,19 @@ public final class InputManager {
         
         def(GameAction.CAMERA_PITCH_UP, Key.HOME);
         def(GameAction.CAMERA_PITCH_UP, Key.NUMPAD8);
-        def(GameAction.CAMERA_PITCH_UP, Key.UP, false, false, true); // Alt+Up
+        def(GameAction.CAMERA_PITCH_UP, Key.UP, Modifier.ALT);
         
         def(GameAction.CAMERA_PITCH_DOWN, Key.END);
         def(GameAction.CAMERA_PITCH_DOWN, Key.NUMPAD2);
-        def(GameAction.CAMERA_PITCH_DOWN, Key.DOWN, false, false, true); // Alt+Down
+        def(GameAction.CAMERA_PITCH_DOWN, Key.DOWN, Modifier.ALT);
         
         def(GameAction.CAMERA_ROTATE_RIGHT, Key.INSERT);
         def(GameAction.CAMERA_ROTATE_RIGHT, Key.NUMPAD6);
-        def(GameAction.CAMERA_ROTATE_RIGHT, Key.RIGHT, false, false, true); // Alt+Right
+        def(GameAction.CAMERA_ROTATE_RIGHT, Key.RIGHT, Modifier.ALT);
         
         def(GameAction.CAMERA_ROTATE_LEFT, Key.DELETE);
         def(GameAction.CAMERA_ROTATE_LEFT, Key.NUMPAD4);
-        def(GameAction.CAMERA_ROTATE_LEFT, Key.LEFT, false, false, true); // Alt+Left
+        def(GameAction.CAMERA_ROTATE_LEFT, Key.LEFT, Modifier.ALT);
         
         def(GameAction.CAMERA_ZOOM_IN, Key.PAGE_UP);
         def(GameAction.CAMERA_ZOOM_IN, Key.NUMPAD9);
@@ -78,9 +80,9 @@ public final class InputManager {
         def(GameAction.UI_ACTIVATE, Key.RETURN);
         def(GameAction.UI_CANCEL, Key.ESCAPE);
         def(GameAction.UI_FOCUS_NEXT, Key.TAB);
-        def(GameAction.UI_FOCUS_PREV, Key.TAB, true, false, false); // Shift+Tab
-        def(GameAction.UI_NEXT_PANEL, Key.TAB, false, true, false); // Ctrl+Tab
-        def(GameAction.UI_PREV_PANEL, Key.TAB, true, true, false); // Shift+Ctrl+Tab
+        def(GameAction.UI_FOCUS_PREV, Key.TAB, Modifier.SHIFT);
+        def(GameAction.UI_NEXT_PANEL, Key.TAB, Modifier.CONTROL);
+        def(GameAction.UI_PREV_PANEL, Key.TAB, Modifier.SHIFT, Modifier.CONTROL);
         
         def(GameAction.UI_NAV_UP, Key.UP);
         def(GameAction.UI_NAV_DOWN, Key.DOWN);
@@ -90,12 +92,12 @@ public final class InputManager {
         def(GameAction.UI_NAV_END, Key.END);
         
         // Shift + Nav (Treat as Nav for now to prevent text insertion fallthrough)
-        def(GameAction.UI_NAV_UP, Key.UP, true, false, false);
-        def(GameAction.UI_NAV_DOWN, Key.DOWN, true, false, false);
-        def(GameAction.UI_NAV_LEFT, Key.LEFT, true, false, false);
-        def(GameAction.UI_NAV_RIGHT, Key.RIGHT, true, false, false);
-        def(GameAction.UI_NAV_HOME, Key.HOME, true, false, false);
-        def(GameAction.UI_NAV_END, Key.END, true, false, false);
+        def(GameAction.UI_NAV_UP, Key.UP, Modifier.SHIFT);
+        def(GameAction.UI_NAV_DOWN, Key.DOWN, Modifier.SHIFT);
+        def(GameAction.UI_NAV_LEFT, Key.LEFT, Modifier.SHIFT);
+        def(GameAction.UI_NAV_RIGHT, Key.RIGHT, Modifier.SHIFT);
+        def(GameAction.UI_NAV_HOME, Key.HOME, Modifier.SHIFT);
+        def(GameAction.UI_NAV_END, Key.END, Modifier.SHIFT);
 
         def(GameAction.UI_NAV_PAGE_UP, Key.PAGE_UP);
         def(GameAction.UI_NAV_PAGE_DOWN, Key.PAGE_DOWN);
@@ -110,7 +112,7 @@ public final class InputManager {
         def(GameAction.UNIT_BUILD_ARMORY, Key.R);
         def(GameAction.UNIT_BUILD_TOWER, Key.T);
         def(GameAction.UNIT_EXIT_TOWER, Key.X);
-        def(GameAction.UNIT_BEACON, Key.B, false, true, false); // Ctrl+B
+        def(GameAction.UNIT_BEACON, Key.B, Modifier.CONTROL);
         def(GameAction.UNIT_NEXT_IDLE, Key.N);
         def(GameAction.UNIT_SET_RALLY, Key.R);
         def(GameAction.GAMEPLAY_BACK, Key.BACK);
@@ -127,16 +129,16 @@ public final class InputManager {
         def(GameAction.ARMY_SELECT_8, Key.KEY_8);
         def(GameAction.ARMY_SELECT_9, Key.KEY_9);
         
-        def(GameAction.ARMY_CREATE_0, Key.KEY_0, false, true, false); // Ctrl+0
-        def(GameAction.ARMY_CREATE_1, Key.KEY_1, false, true, false);
-        def(GameAction.ARMY_CREATE_2, Key.KEY_2, false, true, false);
-        def(GameAction.ARMY_CREATE_3, Key.KEY_3, false, true, false);
-        def(GameAction.ARMY_CREATE_4, Key.KEY_4, false, true, false);
-        def(GameAction.ARMY_CREATE_5, Key.KEY_5, false, true, false);
-        def(GameAction.ARMY_CREATE_6, Key.KEY_6, false, true, false);
-        def(GameAction.ARMY_CREATE_7, Key.KEY_7, false, true, false);
-        def(GameAction.ARMY_CREATE_8, Key.KEY_8, false, true, false);
-        def(GameAction.ARMY_CREATE_9, Key.KEY_9, false, true, false);
+        def(GameAction.ARMY_CREATE_0, Key.KEY_0, Modifier.CONTROL);
+        def(GameAction.ARMY_CREATE_1, Key.KEY_1, Modifier.CONTROL);
+        def(GameAction.ARMY_CREATE_2, Key.KEY_2, Modifier.CONTROL);
+        def(GameAction.ARMY_CREATE_3, Key.KEY_3, Modifier.CONTROL);
+        def(GameAction.ARMY_CREATE_4, Key.KEY_4, Modifier.CONTROL);
+        def(GameAction.ARMY_CREATE_5, Key.KEY_5, Modifier.CONTROL);
+        def(GameAction.ARMY_CREATE_6, Key.KEY_6, Modifier.CONTROL);
+        def(GameAction.ARMY_CREATE_7, Key.KEY_7, Modifier.CONTROL);
+        def(GameAction.ARMY_CREATE_8, Key.KEY_8, Modifier.CONTROL);
+        def(GameAction.ARMY_CREATE_9, Key.KEY_9, Modifier.CONTROL);
 
         // Production
         def(GameAction.PROD_WEAPONS, Key.W);
@@ -146,12 +148,31 @@ public final class InputManager {
         
         // Resources
         def(GameAction.RES_TREE, Key.W);
+        def(GameAction.RES_TREE_DEC, Key.W, Modifier.SHIFT);
+        def(GameAction.RES_TREE_BATCH, Key.W, Modifier.CONTROL);
+        def(GameAction.RES_TREE_BATCH_DEC, Key.W, Modifier.SHIFT, Modifier.CONTROL);
+        
         def(GameAction.RES_ROCK, Key.R);
+        def(GameAction.RES_ROCK_DEC, Key.R, Modifier.SHIFT);
+        def(GameAction.RES_ROCK_BATCH, Key.R, Modifier.CONTROL);
+        def(GameAction.RES_ROCK_BATCH_DEC, Key.R, Modifier.SHIFT, Modifier.CONTROL);
+        
         def(GameAction.RES_IRON, Key.I);
+        def(GameAction.RES_IRON_DEC, Key.I, Modifier.SHIFT);
+        def(GameAction.RES_IRON_BATCH, Key.I, Modifier.CONTROL);
+        def(GameAction.RES_IRON_BATCH_DEC, Key.I, Modifier.SHIFT, Modifier.CONTROL);
+        
         def(GameAction.RES_CHICKEN, Key.C);
+        def(GameAction.RES_CHICKEN_DEC, Key.C, Modifier.SHIFT);
+        def(GameAction.RES_CHICKEN_BATCH, Key.C, Modifier.CONTROL);
+        def(GameAction.RES_CHICKEN_BATCH_DEC, Key.C, Modifier.SHIFT, Modifier.CONTROL);
         
         // Units
         def(GameAction.TRAIN_PEON, Key.P);
+        def(GameAction.TRAIN_PEON_DEC, Key.P, Modifier.SHIFT);
+        def(GameAction.TRAIN_PEON_BATCH, Key.P, Modifier.CONTROL);
+        def(GameAction.TRAIN_PEON_BATCH_DEC, Key.P, Modifier.SHIFT, Modifier.CONTROL);
+
         def(GameAction.TRAIN_CHIEFTAIN, Key.C);
         
         // Magic
@@ -159,7 +180,7 @@ public final class InputManager {
         def(GameAction.MAGIC_2, Key.C);
         
         // Misc
-        def(GameAction.GAME_SPEED_UP, Key.EQUALS, true, false, false, false); // Shift + = (+)
+        def(GameAction.GAME_SPEED_UP, Key.EQUALS, Modifier.SHIFT);
         def(GameAction.GAME_SPEED_UP, Key.ADD); // Numpad +
         def(GameAction.GAME_SPEED_DOWN, Key.MINUS); // -
         def(GameAction.GAME_SPEED_DOWN, Key.SUBTRACT); // Numpad -
@@ -177,43 +198,37 @@ public final class InputManager {
         def(GameAction.CHEAT_9, Key.F9);
         
         // Debug
-        def(GameAction.DEBUG_PRINT_INFO, Key.I, false, true, false); // Ctrl+I
-        def(GameAction.DEBUG_KILL_SELECTED, Key.K, false, true, false); // Ctrl+K
+        def(GameAction.DEBUG_PRINT_INFO, Key.I, Modifier.CONTROL);
+        def(GameAction.DEBUG_KILL_SELECTED, Key.K, Modifier.CONTROL);
         def(GameAction.DEBUG_TOGGLE_LIGHT, Key.L);
         def(GameAction.DEBUG_TOGGLE_LIGHT, Key.O);
         def(GameAction.DEBUG_TOGGLE_PLANTS, Key.P);
         def(GameAction.DEBUG_TOGGLE_PARTICLES, Key.E);
         def(GameAction.DEBUG_TOGGLE_AXES, Key.A);
-        def(GameAction.DEBUG_TOGGLE_MISC, Key.M, false, true, false); // Ctrl+M
+        def(GameAction.DEBUG_TOGGLE_MISC, Key.M, Modifier.CONTROL);
         def(GameAction.DEBUG_RESET_CURSOR, Key.J);
         def(GameAction.DEBUG_TOGGLE_DETAIL, Key.S);
-        def(GameAction.DEBUG_CRASH, Key.C, false, true, false); // Ctrl+C
+        def(GameAction.DEBUG_CRASH, Key.C, Modifier.CONTROL);
         def(GameAction.DEBUG_TOGGLE_FRAME_BUFFER, Key.C);
         def(GameAction.DEBUG_TOGGLE_BOUNDING, Key.D);
         def(GameAction.DEBUG_TOGGLE_FRUSTUM_FREEZE, Key.V);
         def(GameAction.DEBUG_FORCE_GC, Key.F12);
         def(GameAction.DEBUG_START_RECORDING, Key.U);
-        def(GameAction.DEBUG_TOGGLE_WATER, Key.W, false, true, false); // Ctrl+W
-        def(GameAction.DEBUG_TOGGLE_AI, Key.R, false, true, false); // Ctrl+R
+        def(GameAction.DEBUG_TOGGLE_WATER, Key.W, Modifier.CONTROL);
+        def(GameAction.DEBUG_TOGGLE_AI, Key.R, Modifier.CONTROL);
         def(GameAction.DEBUG_DUMP_ANIMATIONS, Key.F1);
     }
 
-    private static void def(@NonNull GameAction action, @NonNull Key key) {
-        def(action, key, false, false, false, false);
-    }
-
-    private static void def(@NonNull GameAction action, @NonNull Key key, boolean shift, boolean control, boolean alt) {
-        def(action, key, shift, control, alt, false);
-    }
-
-    private static void def(@NonNull GameAction action, @NonNull Key key, boolean shift, boolean control, boolean alt, boolean meta) {
+    private static void def(@NonNull GameAction action, @NonNull Key key, @NonNull Modifier @NonNull ... modifiers) {
+        Set<Modifier> modSet = EnumSet.noneOf(Modifier.class);
+        Collections.addAll(modSet, modifiers);
         DEFAULT_BINDINGS.computeIfAbsent(action, k -> new CopyOnWriteArraySet<>()) 
-                .add(new InputBinding(key, shift, control, alt, meta, action));
+                .add(new InputBinding(key, modSet, action));
     }
 
     private final List<@NonNull InputBinding> bindings = new ArrayList<>();
     private final Set<@NonNull GameAction> activeActions = EnumSet.noneOf(GameAction.class);
-    private final Map<Key, Set<GameAction>> keyState = new EnumMap<>(Key.class);
+    private final Map<@NonNull Key, @NonNull Set<@NonNull GameAction>> keyState = new EnumMap<>(Key.class);
 
     public InputManager() {
         loadDefaultBindings();
@@ -383,7 +398,7 @@ public final class InputManager {
         
         String[] pairs = inner.split(",");
         Key key = Key.KEY_UNKNOWN;
-        boolean shift = false, ctrl = false, alt = false, meta = false;
+        Set<Modifier> modifiers = EnumSet.noneOf(Modifier.class);
         
         for (String pair : pairs) {
             // Split by : or =
@@ -395,10 +410,10 @@ public final class InputManager {
             try {
                 switch (k) {
                     case "key" -> key = Key.valueOf(v);
-                    case "shift" -> shift = Boolean.parseBoolean(v);
-                    case "control" -> ctrl = Boolean.parseBoolean(v);
-                    case "alt" -> alt = Boolean.parseBoolean(v);
-                    case "meta" -> meta = Boolean.parseBoolean(v);
+                    case "shift" -> { if (Boolean.parseBoolean(v)) modifiers.add(Modifier.SHIFT); }
+                    case "control" -> { if (Boolean.parseBoolean(v)) modifiers.add(Modifier.CONTROL); }
+                    case "alt" -> { if (Boolean.parseBoolean(v)) modifiers.add(Modifier.ALT); }
+                    case "meta" -> { if (Boolean.parseBoolean(v)) modifiers.add(Modifier.META); }
                 }
             } catch (Exception e) {
                 // Ignore invalid keys
@@ -407,7 +422,7 @@ public final class InputManager {
         }
         
         if (key != Key.KEY_UNKNOWN) {
-            return new InputBinding(key, shift, ctrl, alt, meta, action);
+            return new InputBinding(key, modifiers, action);
         }
         return null;
     }

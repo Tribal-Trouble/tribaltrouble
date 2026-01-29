@@ -9,6 +9,8 @@ import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Renderer;
 import org.jspecify.annotations.NonNull;
 
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import static org.lwjgl.glfw.GLFW.GLFW_MOD_ALT;
@@ -158,23 +160,24 @@ public final class KeyboardInput {
 			if (checkMagicKey(event_key_down, event_key, false, repeat_event))
 				continue;
 
-			boolean control_down = (event_key_mods & GLFW_MOD_CONTROL) != 0;
-			boolean shift_down = (event_key_mods & GLFW_MOD_SHIFT) != 0;
-			boolean alt_down = (event_key_mods & GLFW_MOD_ALT) != 0;
-			boolean meta_down = (event_key_mods & GLFW_MOD_SUPER) != 0;
+			Set<Modifier> modifiers = EnumSet.noneOf(Modifier.class);
+			if ((event_key_mods & GLFW_MOD_CONTROL) != 0) modifiers.add(Modifier.CONTROL);
+			if ((event_key_mods & GLFW_MOD_SHIFT) != 0) modifiers.add(Modifier.SHIFT);
+			if ((event_key_mods & GLFW_MOD_ALT) != 0) modifiers.add(Modifier.ALT);
+			if ((event_key_mods & GLFW_MOD_SUPER) != 0) modifiers.add(Modifier.META);
 
             // Use passed localInput, not static Renderer
-			if (event_key_code == 0 && !(control_down || shift_down || alt_down || meta_down)) {
+			if (event_key_code == 0 && modifiers.isEmpty()) {
 				gui_root.getInputState().keyTyped(event_key_code, event_character);
 			} else if (event_key_down) {
 				if (Key.KEY_UNKNOWN != event_key || event_character != 0) {
-					localInput.setKeys(event_key, true, shift_down, control_down, alt_down, meta_down);
-					gui_root.getInputState().keyPressed(event_key, event_character, shift_down, control_down, alt_down, meta_down, repeat_event);
+					localInput.setKeys(event_key, true, modifiers);
+					gui_root.getInputState().keyPressed(event_key, event_character, modifiers, repeat_event);
 				}
 			} else {
 				if (Key.KEY_UNKNOWN != event_key || event_character != 0) {
-					localInput.setKeys(event_key, false, shift_down, control_down, alt_down, meta_down);
-					gui_root.getInputState().keyReleased(event_key, event_character, shift_down, control_down, alt_down, meta_down);
+					localInput.setKeys(event_key, false, modifiers);
+					gui_root.getInputState().keyReleased(event_key, event_character, modifiers);
 				}
 			}
 		}
