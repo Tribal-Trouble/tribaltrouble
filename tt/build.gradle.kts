@@ -7,7 +7,7 @@ plugins {
 
 lwjgl {
     // Strongly recommended: set LWJGL version explicitly
-    version = "3.3.6"
+    version = "3.4.0"
 
     // Add LWJGL modules + the correct native artifacts
     implementation(

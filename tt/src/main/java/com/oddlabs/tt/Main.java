@@ -33,7 +33,7 @@ public final class Main {
                 error_msg = "Error: " + t.toString();
             }
             logger.log(Level.SEVERE, error + ": " + error_msg);
-            TinyFileDialogs.tinyfd_messageBox(error, error_msg.replace("\"", "\\\""), "ok", "error", true);
+            TinyFileDialogs.tinyfd_messageBox(error, error_msg.replace("\"", "\\\""), "ok", "error", 1);
         }
 	}
 
