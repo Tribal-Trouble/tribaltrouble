@@ -83,13 +83,12 @@ final class RowCollection<T> extends GUIObject implements Clipped {
 		Scrollable scrollable = multi_box;
 		int row_top = row.getY() + row.getHeight();
 		int row_bottom = row.getY();
-		int view_top = getHeight() + scrollable.getOffsetY();
-		int view_bottom = scrollable.getOffsetY();
+		int current_offset = scrollable.getOffsetY();
 
-		if (row_top > view_top) {
-			scrollable.setOffsetY(row_top - getHeight());
-		} else if (row_bottom < view_bottom) {
-			scrollable.setOffsetY(row_bottom);
+		if (row_top > getHeight()) {
+			scrollable.setOffsetY(current_offset - (row_top - getHeight()));
+		} else if (row_bottom < 0) {
+			scrollable.setOffsetY(current_offset - row_bottom);
 		}
 	}
 
