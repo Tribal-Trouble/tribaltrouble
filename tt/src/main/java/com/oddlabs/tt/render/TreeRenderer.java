@@ -29,7 +29,9 @@ public final class TreeRenderer extends TreePicker implements SceneRenderer {
 
     @Override
     public void render(@NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
-        wave_animation.setTime(LocalEventQueue.getQueue().getTime());
+        if (!state.inNoDetailMode()) {
+            wave_animation.setTime(LocalEventQueue.getQueue().getTime());
+        }
         
         if (!Globals.draw_trees || !cheat.draw_trees) {
             // Just clear lists if not drawing
