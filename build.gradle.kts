@@ -4,7 +4,7 @@ plugins {
     java
     id("net.ltgt.errorprone") version "4.3.0" apply false
     id("net.ltgt.nullaway") version "2.3.0" apply false
-    id("com.smushytaco.lwjgl3") version "1.0.0" apply false
+    id("com.smushytaco.lwjgl3") version "1.0.1" apply false
 }
 
 allprojects {
