@@ -30,7 +30,6 @@ import java.util.logging.Logger;
 /** Root of a GUI component tree */
 public final class GUIRoot extends GUIObject {
 	private static final Logger logger = Logger.getLogger(GUIRoot.class.getName());
-
 	private static final ResourceBundle bundle = ResourceBundle.getBundle(GUIRoot.class.getName());
 
 	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
@@ -52,6 +51,7 @@ public final class GUIRoot extends GUIObject {
 	private final InputState input_state = new InputState(this);
 	private boolean render_tool_tip = false;
 
+	/** the cotnrol which currently has focus */
 	private @NonNull GUIObject current_gui_object = this;
 	private @NonNull GUIObject global_focus = this;
 
@@ -90,10 +90,12 @@ public final class GUIRoot extends GUIObject {
 		return input_state;
 	}
 
+	/** {@return the currently focused control} */
 	@NonNull GUIObject getGlobalFocus() {
 		return global_focus;
 	}
 
+	/** set the control which currently has focus */
 	void setGlobalFocus(@NonNull GUIObject object) {
 		global_focus = object;
 	}
@@ -272,10 +274,7 @@ public final class GUIRoot extends GUIObject {
 				}
 				if (event.consumeAction(GameAction.GLOBAL_AGGRESSIVE_UNITS)) {
 					Settings.getSettings().aggressive_units = !Settings.getSettings().aggressive_units;
-					if (Settings.getSettings().aggressive_units)
-						info_printer.print(i18n("aggressive_unites_on"));
-					else
-						info_printer.print(i18n("aggressive_unites_off"));
+                    info_printer.print(i18n(Settings.getSettings().aggressive_units ?"aggressive_unites_on" : "aggressive_unites_off"));
 					consumed = true;
 				}
 				if (event.consumeAction(GameAction.GLOBAL_TOGGLE_STATUS)) {

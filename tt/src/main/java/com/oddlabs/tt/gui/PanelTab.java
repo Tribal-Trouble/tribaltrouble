@@ -18,7 +18,7 @@ public class PanelTab extends GUIObject {
 		addChild(label);
 		setDim(data.leftCaptionOffset() + label.getWidth() + data.rightCaptionOffset(), data.tab().getHeight());
 		setCanFocus(true);
-		setTabStop(false);
+		setTabStop(false); // control-tab is used for cycling panels, they aren't in the standard tab order.
 	}
 
 	public final void select(boolean selected) {

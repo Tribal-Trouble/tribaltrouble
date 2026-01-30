@@ -21,15 +21,22 @@ import java.util.logging.Logger;
 
 public abstract class GUIObject extends Renderable<GUIObject> {
 	private static final Logger logger = Logger.getLogger(GUIObject.class.getName());
-    private boolean disabled;
-	private boolean hovered;
-	private boolean active;
-	private boolean focus_cycle;
-	private boolean can_focus;
-	private boolean tab_stop = true;
-	private int current_taborder = 0;
-	private int tab_order;
+    private static final int ROW_TOLERANCE = 5;
 
+	/** If true then control is disabled otherwise false */
+    private boolean disabled;
+	/** if true then mouse is currently over control */
+	private boolean hovered;
+	/** If true then focus is this control or a child */
+	private boolean active;
+
+	private boolean focus_cycle;
+	/** if true then control can be focused */
+	private boolean can_focus;
+	/** if true then control is in tab order */
+	private boolean tab_stop = true;
+
+	/** The child which is currently in focus chain or null if no child is focused */
 	private @Nullable GUIObject focused_child = null;
 
 	protected final void setTabStop(boolean tab_stop) {
@@ -44,7 +51,9 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 
 	protected final Set<@NonNull EventListener> listeners = new CopyOnWriteArraySet<>();
 
+	/** If true then object has been placed in the layout*/
 	private boolean placed = false;
+	/** placement "gravity"" for this control */
 	private @NonNull Origin origin = Origin.AT_START;
 
 	public GUIObject() {
@@ -88,7 +97,7 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	}
 
 	public final void place() {
-		place(Origin.AT_START);
+		place(origin);
 	}
 
 	public final void place(@NonNull Origin origin) {
@@ -146,29 +155,30 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	}
 
 	public void setDisabled(boolean disabled) {
-		if (this.disabled == disabled)
-			return;
-
-		this.disabled = disabled;
-		GUIObject gui_child = getFirstChild();
-		while (gui_child != null) {
-			gui_child.setDisabled(disabled);
-			gui_child = gui_child.getNext();
+		if (this.disabled != disabled) {
+			this.disabled = disabled;
+			if (disabled && isActive()) {
+				// we have to move focus out of the disabled control
+				var parent = getParent();
+				if (null != parent) {
+					parent.focusNext();
+				}
+			}
 		}
-		if (isFocused())
-			focusNext();
 	}
 
 	public final boolean isActive() {
 		return active;
 	}
 
+	/** Set the GUI focus to this control */
 	private void setGlobalFocus() {
 		GUIRoot gui_root = getParentGUIRoot();
 		if (gui_root != null)
 			gui_root.setGlobalFocus(this);
 	}
 
+	/** {@return the currently focused control in the hierarchy or null if not inserted} */
 	private @Nullable GUIObject getGlobalFocus() {
 		GUIRoot gui_root = getParentGUIRoot();
         return gui_root != null ? gui_root.getGlobalFocus() : null;
@@ -178,13 +188,15 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 		return this == getGlobalFocus();
 	}
 
+	/** {@return true if control is focusable} */
 	@Override
 	public final boolean isFocusable() {
 		return can_focus;
 	}
 
+	/** {@return true if control is focusable and not disabled} */
 	private boolean canFocus() {
-		return can_focus && !disabled;
+		return can_focus && !isDisabled();
 	}
 
 	public final boolean isDisabled() {
@@ -218,16 +230,6 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	@Override
 	public void addChild(@NonNull GUIObject child) {
 		super.addChild(child);
-        child.setTabOrder(current_taborder);
-		current_taborder++;
-	}
-
-	private void setTabOrder(int tab_order) {
-		this.tab_order = tab_order;
-	}
-
-	private int getTabOrder() {
-		return tab_order;
 	}
 
 	@Override
@@ -247,65 +249,148 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	}
 
 	private void switchFocusToFirstChild(@NonNull FocusDirection dirEnum, boolean bubble) {
-        int dir = (dirEnum == FocusDirection.BACKWARD) ? -1 : 1;
-		GUIObject gui_child = getFirstChild();
-		GUIObject min_obj = null;
-		while (gui_child != null) {
-			if (gui_child.canFocus() && gui_child.isTabStop() && (min_obj == null || dir*gui_child.getTabOrder() < dir*min_obj.getTabOrder()))
-				min_obj = gui_child;
-			gui_child = gui_child.getNext();
-		}
-		if (min_obj != null)
-			switchFocusToObject(min_obj, dirEnum);
-		else if (bubble && !focus_cycle) {
+        logger.info("switchFocusToFirstChild: " + this + " dir=" + dirEnum + " bubble=" + bubble);
+        GUIObject bestCandidate = findNextFocusable(null, dirEnum);
+
+		if (bestCandidate != null) {
+            logger.info("  Found best candidate: " + bestCandidate);
+			switchFocusToObject(bestCandidate, dirEnum);
+        } else if (bubble && !focus_cycle) {
+            logger.info("  No candidate found, bubbling to parent");
             GUIObject parent = getParent();
             if (parent != null)
 			    parent.switchFocusToNextChild(dirEnum);
+        } else {
+            logger.info("  No candidate found, no bubble (cycle=" + focus_cycle + ")");
         }
 	}
 
 	private void switchFocusToNextChild(@NonNull FocusDirection dirEnum) {
-        int dir = (dirEnum == FocusDirection.BACKWARD) ? -1 : 1;
-		int tab_order = focused_child.getTabOrder();
-		GUIObject gui_child = getFirstChild();
-		GUIObject greater_obj = null;
-		GUIObject min_obj = null;
-		while (gui_child != null) {
-			if (gui_child.canFocus() && gui_child.isTabStop()) {
-				if (min_obj == null || dir*gui_child.getTabOrder() < dir*min_obj.getTabOrder())
-					min_obj = gui_child;
-				if (dir*gui_child.getTabOrder() > dir*tab_order && (greater_obj == null || dir*gui_child.getTabOrder() < dir*greater_obj.getTabOrder()))
-					greater_obj = gui_child;
-			}
-			gui_child = gui_child.getNext();
-		}
-		if (greater_obj != null) {
-			switchFocusToObject(greater_obj, dirEnum);
+        logger.info("switchFocusToNextChild: " + this + " dir=" + dirEnum + " current=" + focused_child);
+        GUIObject bestCandidate = findNextFocusable(focused_child, dirEnum);
+
+		if (bestCandidate != null) {
+            logger.info("  Found next candidate: " + bestCandidate);
+			switchFocusToObject(bestCandidate, dirEnum);
 		} else if (focus_cycle) {
-			if (min_obj != null) {
-				switchFocusToObject(min_obj, dirEnum);
-			}
+            logger.info("  No next candidate, cycling...");
+            // Wrap around: find the "first" element again
+            GUIObject first = findNextFocusable(null, dirEnum);
+			if (first != null) {
+                logger.info("  Cycled to: " + first);
+				switchFocusToObject(first, dirEnum);
+			} else {
+                logger.info("  Cycle failed, no focusable children?");
+            }
 		} else {
+            logger.info("  No next candidate, bubbling...");
 			GUIObject parent = getParent();
 			if (parent != null) {
 				parent.switchFocusToNextChild(dirEnum);
 			} else {
 				// We are at the root (or detached) and not a cycle, but we should wrap if global cycle is desired
 				// or just stay put. GUIRoot usually has focus_cycle=true so this else-block is for detached items.
-				if (min_obj != null) {
-					switchFocusToObject(min_obj, dirEnum);
+                logger.info("  At root/detached, trying to wrap locally");
+                GUIObject first = findNextFocusable(null, dirEnum);
+				if (first != null) {
+					switchFocusToObject(first, dirEnum);
 				}
 			}
 		}
 	}
 
-	private void switchFocusToObject(@NonNull GUIObject obj, @NonNull FocusDirection dir) {
+    private @Nullable GUIObject findNextFocusable(@Nullable GUIObject current, @NonNull FocusDirection dir) {
+        GUIObject bestCandidate = null;
+        GUIObject child = getFirstChild();
+        while (child != null) {
+            if (child.canFocus() && child.isTabStop()) {
+                if (isBetterCandidate(current, child, bestCandidate, dir)) {
+                    bestCandidate = child;
+                }
+            } else {
+                // logger.info("  Skipping child: " + child + " canFocus=" + child.canFocus() + " tabStop=" + child.isTabStop());
+            }
+            child = child.getNext();
+        }
+        return bestCandidate;
+    }
+
+    private boolean isBetterCandidate(@Nullable GUIObject current, @NonNull GUIObject candidate, @Nullable GUIObject bestSoFar, @NonNull FocusDirection dir) {
+        if (current == candidate) return false;
+
+        return switch (dir) {
+            case FORWARD -> {
+                // Candidate must be "after" current (if current exists)
+                if (current != null && compareSpatial(candidate, current) <= 0) {
+					yield false;
+                }
+                // Candidate must be "before" bestSoFar (if bestSoFar exists)
+                yield bestSoFar == null || compareSpatial(candidate, bestSoFar) < 0;
+            }
+            case BACKWARD -> {
+                // Candidate must be "before" current (if current exists)
+                if (current != null && compareSpatial(candidate, current) >= 0) {
+					yield false;
+                }
+                // Candidate must be "after" bestSoFar (if bestSoFar exists)
+                yield bestSoFar == null || compareSpatial(candidate, bestSoFar) > 0;
+            }
+            default -> isBetterDirectionalCandidate(current, candidate, bestSoFar, dir);
+        };
+    }
+
+    private boolean isBetterDirectionalCandidate(@Nullable GUIObject current, @NonNull GUIObject candidate, @Nullable GUIObject bestSoFar, @NonNull FocusDirection dir) {
+        if (current == null) {
+            //  default to reading order first element.
+            return isBetterCandidate(null, candidate, bestSoFar, FocusDirection.FORWARD);
+        }
+
+        int dx = candidate.getX() - current.getX();
+        int dy = candidate.getY() - current.getY();
+
+        boolean validDirection = switch (dir) {
+            case RIGHT -> dx > 0;
+            case LEFT -> dx < 0;
+            case UP -> dy > 0; // Y grows UP (0 is bottom)
+            case DOWN -> dy < 0;
+            default -> false;
+        };
+
+        if (!validDirection) return false;
+
+        int distSq = dx * dx + dy * dy;
+        int bestDistSq = Integer.MAX_VALUE;
+
+        if (bestSoFar != null) {
+            int bdx = bestSoFar.getX() - current.getX();
+            int bdy = bestSoFar.getY() - current.getY();
+            bestDistSq = bdx * bdx + bdy * bdy;
+        }
+
+        return distSq < bestDistSq;
+    }
+
+    /**
+     * Compares two GUIObjects spatially based on reading order (Top-Left to Bottom-Right).
+     * @return negative if a comes before b, positive if a comes after b, 0 if equal.
+     */
+    private int compareSpatial(@NonNull GUIObject a, @NonNull GUIObject b) {
+        // Primary Sort: Y (Descending) - because Y grows UP in this system (0 is bottom).
+        // Higher Y means "above", which comes first in reading order.
+        int yDiff = b.getY() - a.getY();
+
+        if (Math.abs(yDiff) > ROW_TOLERANCE) {
+            return yDiff;
+        }
+
+        // Secondary Sort: X (Ascending)
+        return a.getX() - b.getX();
+    }
+
+	private static void switchFocusToObject(@NonNull GUIObject obj, @NonNull FocusDirection dir) {
+        logger.info("switchFocusToObject: " + obj);
 		obj.setFocus(dir);
 	}
-
-    protected final void switchFocus(int dir) {
-        switchFocus(dir > 0 ? FocusDirection.FORWARD : FocusDirection.BACKWARD);
-    }
 
 	protected final void switchFocus(@NonNull FocusDirection direction) {
         switchFocus(direction, true);

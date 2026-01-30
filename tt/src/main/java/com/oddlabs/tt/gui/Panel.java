@@ -6,6 +6,7 @@ public class Panel extends Group {
 	private final @NonNull PanelTab tab;
 
 	public Panel(@NonNull CharSequence caption) {
+        super(true); // Ensure Panel is focusable
 		tab = new PanelTab(caption);
 	}
 

@@ -12,7 +12,6 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.CheckBox;
 import com.oddlabs.tt.gui.EditLine;
-import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
@@ -546,12 +545,6 @@ public final class TerrainMenu extends Group {
 
 	public void setSeed(int seed) {
 		this.seed = seed;
-	}
-
-	@Override
-	public void setFocus(@NonNull FocusDirection direction) {
-		super.setFocus(direction);
-		switchFocus(direction);
 	}
 
 	public @NonNull GUIObject getButtonOK() {
