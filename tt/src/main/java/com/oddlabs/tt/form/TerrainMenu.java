@@ -74,6 +74,12 @@ public final class TerrainMenu extends Group {
 	private static final int TEAM_CARDINALITY = 6;
 	private static final @NonNull BigInteger MAX_VALUE;
 
+	private static final  ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
+
+	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
+		return Utils.getBundleString(bundle, key, args);
+	}
+
 	private final @Nullable Menu main_menu;
 	private final @Nullable TerrainMenuListener owner;
 
@@ -88,17 +94,12 @@ public final class TerrainMenu extends Group {
     private final @NonNull PulldownMenu<Void> @NonNull [] difficulty_pulldown_menus;
 	private final @NonNull PulldownMenu<Void> @NonNull [] race_pulldown_menus;
 	private final @NonNull PulldownMenu<Void> @NonNull [] team_pulldown_menus;
-    private final @NonNull PulldownButton @NonNull [] race_pulldown_buttons;
-	private final @NonNull PulldownButton @NonNull [] team_pulldown_buttons;
+    private final @NonNull PulldownButton<Void> @NonNull [] race_pulldown_buttons;
+	private final @NonNull PulldownButton<Void> @NonNull [] team_pulldown_buttons;
 	private final @NonNull Label @NonNull [] labels_players;
 	private final @NonNull CheckBox cb_rated;
 	private final boolean multiplayer;
 	private final @NonNull PulldownMenu<Void> pm_gamespeed;
-	private static final  ResourceBundle bundle = ResourceBundle.getBundle(TerrainMenu.class.getName());
-
-	private @NonNull String i18n(@NonNull String key, @NonNull Object @NonNull ... args) {
-		return Utils.getBundleString(bundle, key, args);
-	}
 	private final @NonNull GUIRoot gui_root;
 	private final @NonNull NetworkSelector network;
 	private int seed;
@@ -166,7 +167,7 @@ public final class TerrainMenu extends Group {
 		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_NORMAL)));
 		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_FAST)));
 		pm_gamespeed.addItem(new PulldownItem<>(ServerMessageBundler.getGamespeedString(Game.GAMESPEED_LUDICROUS)));
-		PulldownButton pb_gamespeed = new PulldownButton(gui_root, pm_gamespeed, 1, 150);
+		var pb_gamespeed = new PulldownButton<>(gui_root, pm_gamespeed, 1, 150);
 		group_gamespeed.addChild(pb_gamespeed);
 		label_gamespeed.place();
 		pb_gamespeed.place(label_gamespeed, RIGHT_MID);
@@ -186,7 +187,7 @@ public final class TerrainMenu extends Group {
 		pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_MEDIUM)));
 		pulldown_size.addItem(new PulldownItem<>(ServerMessageBundler.getSizeString(Game.SIZE_LARGE)));
 
-		PulldownButton pb_size = new PulldownButton(gui_root, pulldown_size, 1, 150);
+		var pb_size = new PulldownButton<>(gui_root, pulldown_size, 1, 150);
 		group_size.addChild(pb_size);
 		label_size.place();
 		pb_size.place(label_size, RIGHT_MID);
@@ -213,7 +214,7 @@ public final class TerrainMenu extends Group {
 		pm_terrain_type = new PulldownMenu<>();
 		pm_terrain_type.addItem(new PulldownItem<>(ServerMessageBundler.getTerrainTypeString(Game.TERRAIN_TYPE_NATIVE)));
 		pm_terrain_type.addItem(new PulldownItem<>(ServerMessageBundler.getTerrainTypeString(Game.TERRAIN_TYPE_VIKING)));
-		PulldownButton pb_terrain_type = new PulldownButton(gui_root, pm_terrain_type, 0, 150);
+		var pb_terrain_type = new PulldownButton<>(gui_root, pm_terrain_type, 0, 150);
 		group_terrain_type.addChild(pb_terrain_type);
 		label_terrain_type.place();
 		pb_terrain_type.place(label_terrain_type, RIGHT_MID);
@@ -280,7 +281,7 @@ public final class TerrainMenu extends Group {
 		difficulty_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
 		race_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
 		team_pulldown_menus = new PulldownMenu[MatchmakingServerInterface.MAX_PLAYERS];
-        PulldownButton [] difficulty_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
+        PulldownButton<Void>[] difficulty_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
 		race_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
 		team_pulldown_buttons = new PulldownButton[MatchmakingServerInterface.MAX_PLAYERS];
 		Random random = new Random(LocalEventQueue.getQueue().getHighPrecisionManager().getTick()*LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
@@ -296,11 +297,10 @@ public final class TerrainMenu extends Group {
 				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("closed")));
 				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("easy_ai")));
 				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("normal_ai")));
-				PulldownItem<Void> hard = new PulldownItem<>(i18n("hard_ai"));
-				difficulty_pulldown_menus[i].addItem(hard);
+				difficulty_pulldown_menus[i].addItem(new PulldownItem<>(i18n("hard_ai")));
 			}
 
-			difficulty_pulldown_buttons[i] = new PulldownButton(gui_root, difficulty_pulldown_menus[i], 0, 115);
+			difficulty_pulldown_buttons[i] = new PulldownButton<>(gui_root, difficulty_pulldown_menus[i], 0, 115);
 			group_race_team.addChild(difficulty_pulldown_buttons[i]);
 
 			for (int j = 0; j < RacesResources.getNumRaces(); j++) {
@@ -308,14 +308,14 @@ public final class TerrainMenu extends Group {
 				race_pulldown_menus[i].addItem(pulldown_item_race);
 			}
 
-			race_pulldown_buttons[i] = new PulldownButton(gui_root, race_pulldown_menus[i], 0, 115);
+			race_pulldown_buttons[i] = new PulldownButton<>(gui_root, race_pulldown_menus[i], 0, 115);
 			group_race_team.addChild(race_pulldown_buttons[i]);
 			for (int j = 0; j < MatchmakingServerInterface.MAX_PLAYERS; j++) {
 				String team_str = i18n("team", Integer.toString(j + 1));
 				PulldownItem<Void> pulldown_item_team = new PulldownItem<>(team_str);
 				team_pulldown_menus[i].addItem(pulldown_item_team);
 			}
-			team_pulldown_buttons[i] = new PulldownButton(gui_root, team_pulldown_menus[i], i, 115);
+			team_pulldown_buttons[i] = new PulldownButton<>(gui_root, team_pulldown_menus[i], i, 115);
 			group_race_team.addChild(team_pulldown_buttons[i]);
 			if (i == 0) {
 				String player_str = i18n("player", Integer.toString(1));
