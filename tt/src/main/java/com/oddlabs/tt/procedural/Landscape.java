@@ -63,15 +63,9 @@ public final class Landscape {
 
     private final @NonNull Random random;
 	private final @NonNull BlendInfo @NonNull [] blend_infos;
-    private static final class StructureLayers {
-        final Layer diffuse;
-        final Layer normal;
-        
-        StructureLayers(Layer diffuse, Layer normal) {
-            this.diffuse = diffuse;
-            this.normal = normal;
-        }
-    }
+
+	private record StructureLayers(Layer diffuse, Layer normal) {
+	}
 
 	private GLIntImage[] structures;
     private GLIntImage[] structure_normals;

@@ -130,20 +130,13 @@ public final class TutorialForm extends Form {
 		centerPos();
 	}
 
-	private static final class TutorialAction implements WorldInitAction {
-		private final TriggerFactory factory;
-		private final TutorialInGameInfo ingame_info;
-
-		public TutorialAction(TriggerFactory factory, TutorialInGameInfo ingame_info) {
-			this.factory = factory;
-			this.ingame_info = ingame_info;
-		}
+	private record TutorialAction(TriggerFactory factory, TutorialInGameInfo ingame_info) implements WorldInitAction {
 
 		@Override
-		public void run(WorldViewer viewer) {
-			new Tutorial(viewer, ingame_info, factory.create(viewer));
+			public void run(WorldViewer viewer) {
+				new Tutorial(viewer, ingame_info, factory.create(viewer));
+			}
 		}
-	}
 
 	private interface TriggerFactory {
 		TutorialTrigger create(WorldViewer viewer);

@@ -6,34 +6,23 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public final class WorldInfo {
-    public record Maps(Texture diffuse, Texture normal) {}
+public record WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap,
+						@NonNull Texture @Nullable [] @NonNull [] colormaps, Maps maps, @NonNull Texture detail,
+						float @NonNull [] @NonNull [] heightmap, @NonNull List<int[]> trees,
+						@NonNull List<int[]> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron,
+						float @NonNull [] @NonNull [] plants, boolean @NonNull [] @NonNull [] access_grid,
+						byte @NonNull [] @NonNull [] build_grid, float @NonNull [] @NonNull [] starting_locations,
+						@NonNull BlendInfo @NonNull [] blend_infos) {
+	public record Maps(Texture diffuse, Texture normal) {
+	}
 
-	public final @NonNull Texture @Nullable [] @NonNull [] colormaps;
-    public final Maps maps;
-	public final @NonNull Texture detail;
-	public final float @NonNull [] @NonNull [] heightmap;
-	public final @NonNull List<int[]> trees;
-	public final @NonNull List<int[]> palm_trees;
-	public final @NonNull List<int[]> rocks;
-	public final @NonNull List<int[]> iron;
-	public final float @NonNull [] @NonNull [] plants;
-	public final boolean @NonNull  [] @NonNull [] access_grid;
-	public final byte @NonNull [] @NonNull [] build_grid;
-	public final int meters_per_world;
-	public final float sea_level_meters;
-	public final int texels_per_colormap;
-	public final int chunks_per_colormap;
-	public final float @NonNull [] @NonNull [] starting_locations;
-	public final @NonNull BlendInfo @NonNull [] blend_infos;
-
-	public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, @NonNull Texture @Nullable [] @NonNull [] colormaps, Maps maps, @NonNull Texture detail, float @NonNull [] @NonNull [] heightmap, @NonNull List<int @NonNull[]> trees, @NonNull List<int @NonNull[]> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron, float @NonNull [] @NonNull [] plants, boolean @NonNull [] @NonNull [] access_grid, byte @NonNull[] @NonNull [] build_grid, float @NonNull [] @NonNull [] starting_locations, BlendInfo @NonNull [] blend_infos) {
+	public WorldInfo(int meters_per_world, float sea_level_meters, int texels_per_colormap, int chunks_per_colormap, @NonNull Texture @Nullable [] @NonNull [] colormaps, Maps maps, @NonNull Texture detail, float @NonNull [] @NonNull [] heightmap, @NonNull List<int @NonNull []> trees, @NonNull List<int @NonNull []> palm_trees, @NonNull List<int[]> rocks, @NonNull List<int[]> iron, float @NonNull [] @NonNull [] plants, boolean @NonNull [] @NonNull [] access_grid, byte @NonNull [] @NonNull [] build_grid, float @NonNull [] @NonNull [] starting_locations, BlendInfo @NonNull [] blend_infos) {
 		this.texels_per_colormap = texels_per_colormap;
 		this.chunks_per_colormap = chunks_per_colormap;
 		this.sea_level_meters = sea_level_meters;
 		this.meters_per_world = meters_per_world;
 		this.colormaps = colormaps;
-        this.maps = maps;
+		this.maps = maps;
 		this.detail = detail;
 		this.heightmap = heightmap;
 		this.trees = trees;

@@ -72,8 +72,8 @@ public final class TreeRenderer extends TreePicker implements SceneRenderer {
     }
 
     private void renderList(@NonNull Tree tree, @NonNull List<TreeSupply> render_list, boolean respond) {
-        SpriteList crownList = tree.getCrown();
-        SpriteList trunkList = tree.getTrunk();
+        SpriteList crownList = tree.crown();
+        SpriteList trunkList = tree.trunk();
         
         for (TreeSupply supply : render_list) {
             prepareMatrix(supply);

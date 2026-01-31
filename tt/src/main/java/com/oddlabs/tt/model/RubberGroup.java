@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class RubberGroup {
-	private final int MIN_CHICKENS_PER_GROUP = 3;
-	private final int MAX_CHICKENS_PER_GROUP = 7;
+	private static final int MIN_CHICKENS_PER_GROUP = 3;
+	private static final int MAX_CHICKENS_PER_GROUP = 7;
 
 	private static final float SPAWN_TIME = 2f;
 

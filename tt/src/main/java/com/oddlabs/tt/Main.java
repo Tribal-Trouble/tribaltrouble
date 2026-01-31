@@ -30,7 +30,7 @@ public final class Main {
                 error_msg = i18n("error_message", t.toString());
             } catch (IllegalArgumentException e) {
                 // Fallback if message formatting fails (e.g. quotes in exception message)
-                error_msg = "Error: " + t.toString();
+                error_msg = "Error: " + t;
             }
             logger.log(Level.SEVERE, error + ": " + error_msg);
             TinyFileDialogs.tinyfd_messageBox(error, error_msg.replace("\"", "\\\""), "ok", "error", 1);

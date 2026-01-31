@@ -84,7 +84,7 @@ public final class PostProcessShader extends ShaderProgram {
         vec3 daltonize(vec3 color) {
             vec3 lms = RGB_to_LMS * color;
             vec3 simulatedLMS;
-            
+        
             if (u_cvdMode == 1) simulatedLMS = Protanopia_Sim * lms;
             else if (u_cvdMode == 2) simulatedLMS = Deuteranopia_Sim * lms;
             else if (u_cvdMode == 3) simulatedLMS = Tritanopia_Sim * lms;
@@ -92,10 +92,10 @@ public final class PostProcessShader extends ShaderProgram {
 
             vec3 simulatedRGB = LMS_to_RGB * simulatedLMS;
             vec3 error = color - simulatedRGB;
-            
+        
             // Shift error to visible channels based on CVD type
             vec3 correction = vec3(0.0);
-            
+        
             if (u_cvdMode == 1 || u_cvdMode == 2) {
                 // Protanopia/Deuteranopia: Shift R/G error to Blue channel
                 correction.b = (error.r * 0.7) + (error.g * 0.7);
@@ -104,7 +104,7 @@ public final class PostProcessShader extends ShaderProgram {
                 correction.r = error.b * 0.7;
                 correction.g = error.b * 0.7;
             }
-            
+        
             return color + correction * u_cvdIntensity;
         }
 
@@ -112,10 +112,10 @@ public final class PostProcessShader extends ShaderProgram {
         vec3 applyHighContrast(vec3 color) {
             // Convert to grayscale for luma
             float luma = dot(color, vec3(0.299, 0.587, 0.114));
-            
+        
             // Simple contrast curve
             vec3 highContrast = (color - 0.5) * (1.0 + u_contrastIntensity) + 0.5;
-            
+        
             // Edge detection could be added here with extra texture samples
             // For now, boost saturation and value contrast
             return mix(color, highContrast, u_contrastIntensity);
@@ -128,11 +128,11 @@ public final class PostProcessShader extends ShaderProgram {
             if (u_highContrast) {
                 finalColor = applyHighContrast(finalColor);
             }
-            
+        
             if (u_teamStencil) {
                 // Team Stencil & Border
                 vec4 mask = texture(u_maskTexture, v_texCoord);
-                
+        
                 // Check RGB intensity instead of Alpha, because GUI writes (0,0,0,1) to clear mask
                 if (dot(mask.rgb, vec3(1.0)) > 0.01) {
                     // Stencil: blend 20% team color
@@ -142,13 +142,13 @@ public final class PostProcessShader extends ShaderProgram {
                     vec2 texelSize = 1.0 / textureSize(u_maskTexture, 0);
                     int maskCount = 0;
                     vec3 accumulatedColor = vec3(0.0);
-                    
+        
                     // Search in a radius of 3 pixels
                     for (int y = -3; y <= 3; y++) {
                         for (int x = -3; x <= 3; x++) {
                             if (x == 0 && y == 0) continue;
-                            if (abs(x) + abs(y) > 4) continue; 
-                            
+                            if (abs(x) + abs(y) > 4) continue;
+        
                             vec4 neighbor = texture(u_maskTexture, v_texCoord + vec2(float(x) * texelSize.x, float(y) * texelSize.y));
                             // Check neighbor RGB
                             if (dot(neighbor.rgb, vec3(1.0)) > 0.01) {
@@ -157,8 +157,8 @@ public final class PostProcessShader extends ShaderProgram {
                             }
                         }
                     }
-                    
-                    // Filter small features: 2x2 pixels = 4 pixels. 
+        
+                    // Filter small features: 2x2 pixels = 4 pixels.
                     if (maskCount > 4) {
                         finalColor = accumulatedColor / float(maskCount);
                     }

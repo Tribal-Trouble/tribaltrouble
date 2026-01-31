@@ -61,19 +61,7 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
         }
     }
 
-    private static class MouseEvent {
-        int button;
-        boolean state; // true = down
-        int x, y;
-        int dWheel;
-
-        MouseEvent(int button, boolean state, int x, int y, int dWheel) {
-            this.button = button;
-            this.state = state;
-            this.x = x;
-            this.y = y;
-            this.dWheel = dWheel;
-        }
+    private record MouseEvent(int button, boolean state, int x, int y, int dWheel) {
     }
 
     public LWJGL3InputProvider(@NonNull LWJGL3Window win) {
@@ -196,27 +184,27 @@ public final class LWJGL3InputProvider implements InputProvider<Long> {
 
     @Override
     public int getEventButton() {
-        return currentMouseEvent != null ? currentMouseEvent.button : -1;
+        return currentMouseEvent != null ? currentMouseEvent.button() : -1;
     }
 
     @Override
     public boolean getEventButtonState() {
-        return currentMouseEvent != null && currentMouseEvent.state;
+        return currentMouseEvent != null && currentMouseEvent.state();
     }
 
     @Override
     public int getEventDWheel() {
-        return currentMouseEvent != null ? currentMouseEvent.dWheel : 0;
+        return currentMouseEvent != null ? currentMouseEvent.dWheel() : 0;
     }
 
     @Override
     public int getEventX() {
-        return currentMouseEvent != null ? currentMouseEvent.x : (int)mouseX;
+        return currentMouseEvent != null ? currentMouseEvent.x() : (int)mouseX;
     }
 
     @Override
     public int getEventY() {
-        return currentMouseEvent != null ? currentMouseEvent.y : (int)mouseY;
+        return currentMouseEvent != null ? currentMouseEvent.y() : (int)mouseY;
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.oddlabs.tt.form;
 
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.tt.gui.FocusDirection;
-import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.Group;
 import com.oddlabs.tt.gui.HorizButton;

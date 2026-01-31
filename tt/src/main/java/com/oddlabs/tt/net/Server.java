@@ -256,7 +256,7 @@ public final class Server implements ConnectionListenerInterface {
 		if (state != NEGOTIATING || available_slot == -1 ||
 			(remote_address instanceof InetAddress address && !address.isLoopbackAddress()) ||
 			(remote_address instanceof TunnelIdentifier identifier && game != null && game.isRated() && 
-			identifier.getProfile().getWins() < GameSession.MIN_WINS_FOR_RANKING)) {
+			identifier.profile().getWins() < GameSession.MIN_WINS_FOR_RANKING)) {
 			IO.println("rejecting incoming connection since state = " + state + " | locateAvailableSlot() = " + available_slot + " remote_address = " + remote_address);
 			connection_listener.rejectConnection();
 			return;
@@ -279,9 +279,9 @@ public final class Server implements ConnectionListenerInterface {
 				name = Utils.getBundleString(ResourceBundle.getBundle(MatchmakingClient.class.getName()), "player");
 		} else {
 			TunnelIdentifier tunnel_id = (TunnelIdentifier)remote_address;
-			name = tunnel_id.getProfile().getNick();
-			rating = tunnel_id.getProfile().getRating();
-			address = tunnel_id.getAddress();
+			name = tunnel_id.profile().getNick();
+			rating = tunnel_id.profile().getRating();
+			address = tunnel_id.address();
 		}
 		player_slot.setReady(false);
 		int max_teams = MatchmakingServerInterface.MAX_PLAYERS;

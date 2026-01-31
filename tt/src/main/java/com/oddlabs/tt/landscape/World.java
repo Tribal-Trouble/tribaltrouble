@@ -78,7 +78,7 @@ public final class World {
 		for (short i = 0; i < players.length; i++) {
 			Player player = players[i];
 			assert player != null;
-			player.init(world_info.starting_locations[i]);
+			player.init(world_info.starting_locations()[i]);
 		}
 		return world;
 	}
@@ -159,7 +159,7 @@ public final class World {
 		this.gamespeed = world_params.getInitialGameSpeed();
 		long time_start = System.currentTimeMillis();
 
-		world = new HeightMap(this, world_info.meters_per_world, world_info.sea_level_meters, world_info.texels_per_colormap, world_info.chunks_per_colormap, world_info.heightmap, world_info.trees, world_info.access_grid, world_info.build_grid);
+		world = new HeightMap(this, world_info.meters_per_world(), world_info.sea_level_meters(), world_info.texels_per_colormap(), world_info.chunks_per_colormap(), world_info.heightmap(), world_info.trees(), world_info.access_grid(), world_info.build_grid());
 		animation_manager_game_time = new AnimationManager();
 		animation_manager_real_time = new AnimationManager();
 		random = new Random(42);
@@ -173,11 +173,11 @@ public final class World {
 		IO.println("****************** Finished landscape in " + ((time_stop - time_start) / 1000f) + " sec ********************");
 		this.supply_managers = new SupplyManagers(this);
 		this.unit_grid = new UnitGrid(world);
-		RegionBuilder.buildRegions(unit_grid, world_info.starting_locations[0][0], world_info.starting_locations[0][1]);
+		RegionBuilder.buildRegions(unit_grid, world_info.starting_locations()[0][0], world_info.starting_locations()[0][1]);
 		this.patch_root = new PatchGroup(this);
-		this.tree_root = AbstractTreeGroup.newRoot(this, world_info.trees, world_info.palm_trees, terrain);
+		this.tree_root = AbstractTreeGroup.newRoot(this, world_info.trees(), world_info.palm_trees(), terrain);
 		this.element_root = AbstractElementNode.newRoot(world);
-		AbstractElementNode.buildSupplies(this, world_info.iron, world_info.rocks, world_info.plants, terrain);
+		AbstractElementNode.buildSupplies(this, world_info.iron(), world_info.rocks(), world_info.plants(), terrain);
 	}
 
 	public @NonNull AbstractElementNode getElementRoot() {

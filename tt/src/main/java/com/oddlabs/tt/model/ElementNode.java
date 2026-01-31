@@ -3,7 +3,7 @@ package com.oddlabs.tt.model;
 import org.jspecify.annotations.NonNull;
 
 public final class ElementNode<T extends Element<T>> extends AbstractElementNode<T> {
-	private final int MIN_NODE_SIZE = 4;
+	private static final int MIN_NODE_SIZE = 4;
 	/*
 	 * child2 | child3
 	 * ----------------

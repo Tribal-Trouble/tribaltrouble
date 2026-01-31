@@ -3,18 +3,14 @@ package com.oddlabs.tt.net;
 import com.oddlabs.tt.util.SpamFilter;
 import org.jspecify.annotations.NonNull;
 
-public final class ChatMessage {
-    public enum Type {
-        NORMAL, TEAM, PRIVATE,CHATROOM,GAME_MENU
-    }
+public record ChatMessage(@NonNull String nick, @NonNull String message, @NonNull Type type) {
+	public enum Type {
+		NORMAL, TEAM, PRIVATE, CHATROOM, GAME_MENU
+	}
 
-	public final String nick;
-	public final @NonNull String message;
-	public final Type type;
-
-	public ChatMessage(String nick, String msg, Type type) {
+	public ChatMessage(@NonNull String nick, @NonNull String message, @NonNull Type type) {
 		this.nick = nick;
-		this.message = SpamFilter.scan(msg);
+		this.message = SpamFilter.scan(message);
 		this.type = type;
 	}
 
@@ -23,11 +19,10 @@ public final class ChatMessage {
 	}
 
 	public @NonNull String formatLong() {
-        return switch (type) {
-            case TEAM -> "(Team) " + formatShort();
-            case PRIVATE -> "(Private) " + formatShort(); /* Fall through */
-            case NORMAL, CHATROOM, GAME_MENU -> formatShort();
-            default -> throw new RuntimeException();
-        };
+		return switch (type) {
+			case TEAM -> "(Team) " + formatShort();
+			case PRIVATE -> "(Private) " + formatShort(); /* Fall through */
+			case NORMAL, CHATROOM, GAME_MENU -> formatShort();
+		};
 	}
 }

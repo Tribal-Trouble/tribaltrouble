@@ -37,7 +37,7 @@ public final class ChatRoomHistory extends ChatHistory {
 
 	@Override
 	public void chat(@NonNull ChatMessage message) {
-		if (message.type != ChatMessage.Type.PRIVATE && message.type != ChatMessage.Type.CHATROOM)
+		if (message.type() != ChatMessage.Type.PRIVATE && message.type() != ChatMessage.Type.CHATROOM)
 			return;
 		addMessage(message.formatLong());
 	}

@@ -168,9 +168,7 @@ public final class LWJGL3Window implements Window {
         }
         
         // Setup callbacks
-        glfwSetFramebufferSizeCallback(windowHandle, (window, w, h) -> {
-            this.resized = true;
-        });
+        glfwSetFramebufferSizeCallback(windowHandle, (_, _, _) -> this.resized = true);
 
         glfwMakeContextCurrent(windowHandle);
         GL.createCapabilities();

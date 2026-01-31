@@ -76,39 +76,29 @@ public final class RespondManager implements Animated {
 		return time_diff > 0 && (time_diff >= SECONDS_PER_PICK_RESPOND - blink || time_diff <= blink);
 	}
 
-    private static final class Timeout implements Comparable<Timeout> {
-		private final float timeout;
-		private final int id;
-		private final @NonNull Object target;
-		private final @Nullable Runnable stop_action;
-
-		Timeout(float timeout, int id, @NonNull Object target, @Nullable Runnable stop_action) {
-			this.timeout = timeout;
-			this.id = id;
-			this.target = target;
-			this.stop_action = stop_action;
-		}
+	private record Timeout(float timeout, int id, @NonNull Object target,
+						   @Nullable Runnable stop_action) implements Comparable<Timeout> {
 
 		@Override
-		public boolean equals(@Nullable Object other) {
-            if (other instanceof Timeout timeout_obj) {
-                return timeout_obj.timeout == timeout && timeout_obj.id == id;
-            }
-            return false;
-		}
-
-        @Override
-        public int hashCode() {
-            int hash = 3;
-            hash = 59 * hash + Float.floatToIntBits(this.timeout);
-            hash = 59 * hash + this.id;
-            return hash;
-        }
+			public boolean equals(@Nullable Object other) {
+			if (other instanceof Timeout timeout_obj) {
+				return timeout_obj.timeout == timeout && timeout_obj.id == id;
+			}
+			return false;
+			}
 
 		@Override
-		public int compareTo(@NonNull Timeout other) {
-			float diff = timeout - other.timeout;
-			return diff != 0f ? (int)diff : id - other.id;
+		public int hashCode() {
+			int hash = 3;
+			hash = 59 * hash + Float.floatToIntBits(this.timeout);
+			hash = 59 * hash + this.id;
+			return hash;
 		}
-	}
+
+			@Override
+			public int compareTo(@NonNull Timeout other) {
+				float diff = timeout - other.timeout;
+				return diff != 0f ? (int) diff : id - other.id;
+			}
+		}
 }

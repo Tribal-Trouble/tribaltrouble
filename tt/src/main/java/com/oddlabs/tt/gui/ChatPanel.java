@@ -139,9 +139,9 @@ public class ChatPanel extends Panel implements ChatListener {
 
 	@Override
 	public final void chat(@NonNull ChatMessage message) {
-		if (message.type != ChatMessage.Type.PRIVATE && message.type != ChatMessage.Type.CHATROOM)
+		if (message.type() != ChatMessage.Type.PRIVATE && message.type() != ChatMessage.Type.CHATROOM)
 			return;
-		if (message.type != ChatMessage.Type.PRIVATE) {
+		if (message.type() != ChatMessage.Type.PRIVATE) {
 			getTab().updateNotify();
 		}
 		refreshMessages();

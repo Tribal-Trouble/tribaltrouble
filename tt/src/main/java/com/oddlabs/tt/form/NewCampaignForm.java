@@ -83,7 +83,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		race_pulldown.addItem(new PulldownItem<>(i18n("vikings")));
 		race_pulldown.addItem(new PulldownItem<>(i18n("natives")));
 		race_pulldown.addItemChosenListener(new RaceListener());
-		PulldownButton race_pb = new PulldownButton(gui_root, race_pulldown, INDEX_VIKINGS, 100);
+		PulldownButton<Void> race_pb = new PulldownButton<>(gui_root, race_pulldown, INDEX_VIKINGS, 100);
 		group.addChild(race_label);
 		group.addChild(race_pb);
 
@@ -93,7 +93,7 @@ public final class NewCampaignForm extends Form implements DeterministicSerializ
 		difficulty_pulldown.addItem(new PulldownItem<>(i18n("easy")));
 		difficulty_pulldown.addItem(new PulldownItem<>(i18n("normal")));
 		difficulty_pulldown.addItem(new PulldownItem<>(i18n("hard")));
-		PulldownButton difficulty_pb = new PulldownButton(gui_root, difficulty_pulldown, 1, 100);
+		PulldownButton<Void> difficulty_pb = new PulldownButton<>(gui_root, difficulty_pulldown, 1, 100);
 		group.addChild(difficulty_label);
 		group.addChild(difficulty_pb);
 

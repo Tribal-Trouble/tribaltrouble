@@ -66,7 +66,7 @@ public class AccessibilityPanel extends Panel {
         // CVD
         Group group_cvd = new Group();
         addChild(group_cvd);
-        Label label_cvd = new Label(AbstractOptionsMenu.i18n("color_vision"), Skin.getSkin().getEditFont());
+        Label label_cvd = new Label(AbstractOptionsMenu.i18n("colour_vision"), Skin.getSkin().getEditFont());
         group_cvd.addChild(label_cvd);
 
         PulldownMenu<Void> pm_cvd = new PulldownMenu<>();

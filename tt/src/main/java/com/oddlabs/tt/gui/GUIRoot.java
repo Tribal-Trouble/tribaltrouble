@@ -24,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -180,10 +181,7 @@ public final class GUIRoot extends GUIObject {
                     focused.restoreFocus();
                 } else {
                     GUIObject child = modal_delegate.getFirstChild();
-                    if (child != null)
-                        child.setFocus();
-                    else
-                        modal_delegate.setFocus();
+                    Objects.requireNonNullElse(child, modal_delegate).setFocus();
                 }
             }
         }

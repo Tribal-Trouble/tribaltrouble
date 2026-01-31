@@ -48,9 +48,9 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
 
     public LandscapeRenderer(@NonNull World world, @NonNull WorldInfo world_info, @NonNull AnimationManager manager) {
         this.world = world;
-        this.diffuseMap = world_info.maps.diffuse();
-        this.normalMap = world_info.maps.normal();
-        this.detailMap = world_info.detail;
+        this.diffuseMap = world_info.maps().diffuse();
+        this.normalMap = world_info.maps().normal();
+        this.detailMap = world_info.detail();
         this.patchMesh = new PatchMesh();
         this.instanceVBO = new FloatVBO(GL15.GL_STREAM_DRAW, 1024 * 2); // Initial capacity
         this.instanceBuffer = BufferUtils.createFloatBuffer(1024 * 2);

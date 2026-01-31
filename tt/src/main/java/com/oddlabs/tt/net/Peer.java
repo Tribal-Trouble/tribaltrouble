@@ -52,7 +52,7 @@ public final class Peer implements PeerHubInterface {
 	}
 	
 	@Override
-	public void chat(String text, boolean team) {
+	public void chat(@NonNull String text, boolean team) {
 		peer_hub.receiveChat(player.getPlayerInfo().getName(), text, team);
 	}
 
@@ -73,13 +73,6 @@ public final class Peer implements PeerHubInterface {
 		return player;
 	}
 
-	private static final class GameEvent {
-		private final int tick;
-		private final ARMIEvent event;
-		
-		GameEvent(int tick, ARMIEvent event) {
-			this.tick = tick;
-			this.event = event;
-		}
+	private record GameEvent(int tick, ARMIEvent event) {
 	}
 }

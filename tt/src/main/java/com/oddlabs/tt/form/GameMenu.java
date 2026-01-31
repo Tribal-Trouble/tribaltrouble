@@ -455,7 +455,7 @@ public final class GameMenu extends Panel implements ConfigurationListener, Chat
 
 	@Override
 	public void chat(@NonNull ChatMessage message) {
-		if (message.type != ChatMessage.Type.GAME_MENU)
+		if (message.type() != ChatMessage.Type.GAME_MENU)
 			return;
 		if (!chat_box.isEmpty())
 			chat_box.append("\n");

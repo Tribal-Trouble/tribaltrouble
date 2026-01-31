@@ -152,13 +152,9 @@ final class RouterClient implements ConnectionInterface {
 		logger.log(Level.INFO, "Client disconnected, reason: {0}", e);
 	}
 
-	private static class Interface {
-		private final Object instance;
-		private final @NonNull ARMIInterfaceMethods methods;
-
-		Interface(@NonNull Class<?> interface_class, Object instance) {
-			this.instance = instance;
-			this.methods = new ARMIInterfaceMethods(interface_class);
+	private record Interface(@NonNull ARMIInterfaceMethods methods, Object instance) {
+			private Interface(@NonNull Class<?> methods, Object instance) {
+                this(new ARMIInterfaceMethods(methods), instance);
+            }
 		}
-	}
 }

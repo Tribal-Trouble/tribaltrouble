@@ -42,7 +42,7 @@ public final class SelectionArmy extends Army {
         num_builders = 0;
         chieftain = null;
         building = null;
-        for (Selectable s : getSet()) {
+        for (Selectable<?> s : getSet()) {
             if (s.getOwner() != local_player)
                 continue;
             Abilities abilities = s.getAbilities();

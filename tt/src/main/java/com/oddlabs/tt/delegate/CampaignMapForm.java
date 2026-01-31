@@ -183,7 +183,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
         }
 
         if (toFocus == null) {
-            toFocus = islandButtons.get(islandButtons.size() - 1);
+            toFocus = islandButtons.getLast();
         }
 
         toFocus.setFocus();
@@ -240,7 +240,7 @@ public final class CampaignMapForm extends CameraDelegate<StaticCamera> implemen
         }
 
         if (current == null) {
-            islandButtons.get(islandButtons.size() - 1).setFocus();
+            islandButtons.getLast().setFocus();
             return;
         }
 

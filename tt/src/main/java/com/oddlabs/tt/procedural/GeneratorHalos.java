@@ -53,7 +53,7 @@ public final class GeneratorHalos extends TextureGenerator {
         return super.equals(o) &&
 				o instanceof GeneratorHalos other &&
 				size == other.size &&
-				Arrays.equals(shadow_parms, other.shadow_parms) &&
-				Arrays.equals(ring_parms, other.ring_parms);
+                Arrays.deepEquals(shadow_parms, other.shadow_parms) &&
+                Arrays.deepEquals(ring_parms, other.ring_parms);
 	}
 }

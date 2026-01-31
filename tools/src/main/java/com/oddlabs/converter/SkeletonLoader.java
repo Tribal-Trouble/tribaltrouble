@@ -73,7 +73,7 @@ public final class SkeletonLoader {
 			String child_name = children_list.get(i);
 			Bone child_bone = buildBone(index, bone_children_map, child_name, name_to_bone_map);
 			children_array[i] = child_bone;
-			index = (byte)(child_bone.getIndex() + 1);
+			index = (byte)(child_bone.index() + 1);
 		}
 		Bone bone = new Bone(bone_name, index, children_array);
 		name_to_bone_map.put(bone_name, bone);

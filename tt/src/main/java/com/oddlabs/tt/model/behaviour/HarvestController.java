@@ -38,7 +38,7 @@ public final class HarvestController<S extends Supply> extends Controller {
 			unit.popController();
 		} else {
 			if (tracker != null) {
-				supply = (Supply)tracker.getOccupant();
+				supply = tracker.getOccupant();
 			}
 			gather();
 		}

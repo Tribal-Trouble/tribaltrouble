@@ -369,7 +369,7 @@ public final class PeerHub implements Animated, RouterHandler {
 		}
 	}
 
-	public void receiveChat(String name, String text, boolean team) {
+	public void receiveChat(@NonNull String name, @NonNull String text, boolean team) {
 		if (team)
 			Network.getChatHub().chat(new ChatMessage(name, text, ChatMessage.Type.TEAM));
 		else

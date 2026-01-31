@@ -45,7 +45,7 @@ public final class Selection {
 		else
 			shortcut_armies[index] = new Army();
 
-        for (Selectable s : current_selection.getSet()) {
+        for (Selectable<?> s : current_selection.getSet()) {
             shortcut_armies[index].add(s);
         }
 	}
@@ -54,7 +54,7 @@ public final class Selection {
 		boolean empty = true;
 		if (shortcut_armies[index] != null) {
 			current_selection.clear();
-            for (Selectable s : shortcut_armies[index].getSet()) {
+            for (Selectable<?> s : shortcut_armies[index].getSet()) {
                 current_selection.add(s);
                 empty = false;
             }

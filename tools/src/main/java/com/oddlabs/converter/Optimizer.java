@@ -136,7 +136,7 @@ public final class Optimizer {
 	}
 
 	static @NonNull SpriteInfo convertToSprite(String[][] textures, @NonNull ModelInfo model_info, float[] clear_color) {
-		return new SpriteInfo(textures, model_info.indices, model_info.vertices, model_info.normals, model_info.texcoords, model_info.skin_names, model_info.skin_weights, clear_color);
+		return new SpriteInfo(textures, model_info.indices(), model_info.vertices(), model_info.normals(), model_info.texcoords(), model_info.skin_names(), model_info.skin_weights(), clear_color);
 	}
 
 	public static @NonNull AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ @NonNull Bone skeleton, @NonNull Map<String,float[]> initial_pose, Map<String,float[]> @NonNull [] anim_map, AnimationInfo.@NonNull AnimationType type, float wpc) {
@@ -154,7 +154,7 @@ public final class Optimizer {
 	private static void normalizeSkeleton(/*float[] parent_bone_vertex, float[] skeleton_vertices,*/ float @NonNull [] bones, @NonNull Bone current_bone, @NonNull Map<String,float[]> initial_pose_map, @NonNull Map<String,float[]> frame_map) {
 		assert initial_pose_map.size() == bones.length/12;
 		assert frame_map.size() == bones.length/12;
-		String bone_name = current_bone.getName();
+		String bone_name = current_bone.name();
 		float[] initial_pose_data = initial_pose_map.get(bone_name);
 		float[] frame_data = frame_map.get(bone_name);
 		Matrix4f absolute_initial_pose_matrix = new Matrix4f().set(initial_pose_data);
@@ -163,7 +163,7 @@ public final class Optimizer {
 		Matrix4f inverted_absolute_initial_pose_matrix = new Matrix4f(absolute_initial_pose_matrix);
 		inverted_absolute_initial_pose_matrix.invert();
 		Matrix4f resulting_matrix = absolute_frame_matrix.mul(inverted_absolute_initial_pose_matrix, new Matrix4f());
-		int offset = current_bone.getIndex()*12;
+		int offset = current_bone.index()*12;
 
 		// Store elements in column-major order, matching LWJGL2's storeTranspose behavior for the first 12 elements
 		bones[offset++] = resulting_matrix.m00();
@@ -199,7 +199,7 @@ skeleton_vertices[current_bone.getIndex()*6 + 4] = bone_point_transformed.y;
 skeleton_vertices[current_bone.getIndex()*6 + 5] = bone_point_transformed.z;
 System.out.println("bone_point_transformed.x = " + bone_point_transformed.x + " | bone_point_transformed.y = " + bone_point_transformed.y + " | bone_point_transformed.z = " + bone_point_transformed.z);
 System.out.println(absolute_frame_matrix);*/
-        for (Bone child_bone : current_bone.getChildren()) {
+        for (Bone child_bone : current_bone.children()) {
             normalizeSkeleton(/*new float[]{bone_point_transformed.x, bone_point_transformed.y, bone_point_transformed.z}, skeleton_vertices,*/ bones, child_bone, initial_pose_map, frame_map);
         }
 	}

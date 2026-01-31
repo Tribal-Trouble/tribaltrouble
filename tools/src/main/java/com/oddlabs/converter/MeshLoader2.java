@@ -95,7 +95,7 @@ public final class MeshLoader2 {
 						byte bone_index;
 						if (name_to_bone_map != null) {
 							Bone bone = name_to_bone_map.get(skin_name);
-							bone_index = bone.getIndex();
+							bone_index = bone.index();
 						} else
 							bone_index = 0;
 						vertex_skin_names[skin_index] = bone_index;

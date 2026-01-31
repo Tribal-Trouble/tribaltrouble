@@ -42,7 +42,7 @@ public final class Color {
     }
 
     /**
-     * Converts a Vector4fc color to packed abgr for storing little endian byte buffer
+     * Converts a {@code Vector4fc} color to packed abgr for storing little endian byte buffer
      *
      * @param color The 32-bit float color vector
      * @return A 32-bit packed integer in AABBGGRR format

@@ -26,12 +26,12 @@ public final class SupplyGatheredTrigger extends IntervalTrigger {
 	@Override
 	protected void check() {
 		int count = 0;
-		Selectable[][] selectables = local_player.classifyUnits();
+		Selectable<?>[][] selectables = local_player.classifyUnits();
 
-            for (Selectable[] selectable : selectables) {
-                Selectable s = selectable[0];
+            for (Selectable<?>[] selectable : selectables) {
+                Selectable<?> s = selectable[0];
                 if (s.getPrimaryController() instanceof NullController) {
-                    for (Selectable building : selectable) {
+                    for (Selectable<?> building : selectable) {
                         if (building.getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
                             count += ((Building) building).getSupplyContainer(type).getNumSupplies();
                         }

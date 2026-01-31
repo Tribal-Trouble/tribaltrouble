@@ -122,13 +122,6 @@ final class GridNode extends Node {
 				addNeighbour(finder, unit_grid, x + 1, y + 1, RegionBuilder.DIAGONAL);
 	}
 
-	static final class Offset {
-		final int offset_x;
-		final int offset_y;
-
-		Offset(int x, int y) {
-			offset_x = x;
-			offset_y = y;
-		}
+	record Offset(int offset_x, int offset_y) {
 	}
 }

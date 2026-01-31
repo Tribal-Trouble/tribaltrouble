@@ -76,7 +76,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         this.element_renderer = new ElementRenderer<>(local_player, render_queues, picker, false, sprite_sorter, selection);
         this.tree_renderer = new TreeRenderer(cheat, sprite_sorter, picker.getRespondManager(), treeSpriteRenderer);
         this.landscape_renderer = landscape_renderer;
-        this.sky = new Sky(landscape_renderer, generator.getTerrainType(), world_info.detail);
+        this.sky = new Sky(landscape_renderer, generator.getTerrainType(), world_info.detail());
         this.modelViewStack = modelViewStack;
         this.projectionStack = projectionStack;
         this.water = new Water(world.getHeightMap(), generator.getTerrainType(), sky, modelViewStack, projectionStack);

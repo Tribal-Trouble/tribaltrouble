@@ -66,16 +66,12 @@ public final class NativeIsland0 extends Island {
 				true,
 				PlayerSlot.AI_NEUTRAL_CAMPAIGN);
 		game_network.getClient().setUnitInfo(1, new UnitInfo(false, false, 0, false, 0, 0, 0, 0));
-		switch (getCampaign().getState().getDifficulty()) {
-			case CampaignState.DIFFICULTY_EASY:
-				break;
-			case CampaignState.DIFFICULTY_NORMAL:
-				break;
-			case CampaignState.DIFFICULTY_HARD:
-				break;
-			default:
-				throw new RuntimeException();
-		}
+        switch (getCampaign().getState().getDifficulty()) {
+            case CampaignState.DIFFICULTY_EASY, CampaignState.DIFFICULTY_NORMAL, CampaignState.DIFFICULTY_HARD -> {
+            }
+            default ->
+                    throw new IllegalArgumentException("unexpected difficulty: " + getCampaign().getState().getDifficulty());
+        }
 		game_network.getClient().getServerInterface().setPlayerSlot(2,
 				PlayerSlot.AI,
 				RacesResources.RACE_VIKINGS,

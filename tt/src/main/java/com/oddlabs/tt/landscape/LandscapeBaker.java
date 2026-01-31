@@ -55,7 +55,7 @@ public final class LandscapeBaker {
             if (u_Mode == 0) { // Structure Blend
                 vec4 layerDiff = texture(u_LayerDiffuse, v_texCoord * u_TextureScale);
                 vec4 layerNorm = texture(u_LayerNormal, v_texCoord * u_TextureScale);
-                
+        
                 out_Diffuse = mix(baseDiff, layerDiff, alpha);
                 out_Normal = mix(baseNorm, layerNorm, alpha);
             } else { // Lighting Blend

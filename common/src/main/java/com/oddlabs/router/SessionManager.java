@@ -127,13 +127,12 @@ final class SessionManager {
 		}
 
 		@Override
-		public int compareTo(Timeout other) {
-			Timeout other_session = other;
-			int diff = (int)(next_timeout - other_session.next_timeout);
+		public int compareTo(@NonNull Timeout other) {
+            int diff = (int)(next_timeout - other.next_timeout);
 			if (diff != 0)
 				return diff;
 			else
-				return id - other_session.id;
+				return id - other.id;
 		}
 
 		@Override

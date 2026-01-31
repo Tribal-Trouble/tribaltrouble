@@ -20,16 +20,11 @@ public final class FileLister implements FileListerInterface {
 		listener.newFiles(new_files);
 	}
 
-	private static final class PatternFilenameFilter implements FilenameFilter {
-		private final String pattern;
-
-		public PatternFilenameFilter(String pattern) {
-			this.pattern = pattern;
-		}
+	private record PatternFilenameFilter(String pattern) implements FilenameFilter {
 
 		@Override
-		public boolean accept(File dir, String name) {
-			return Pattern.matches(pattern, name);
+			public boolean accept(File dir, String name) {
+				return Pattern.matches(pattern, name);
+			}
 		}
-	}
 }

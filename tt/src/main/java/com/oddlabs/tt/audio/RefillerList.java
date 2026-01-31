@@ -76,6 +76,7 @@ public final class RefillerList implements AutoCloseable {
                         }
                     }
                     try {
+                        //noinspection BusyWait
                         Thread.sleep(THREAD_SLEEP_MILLIS);
                     } catch (InterruptedException _) {
                         Thread.interrupted();

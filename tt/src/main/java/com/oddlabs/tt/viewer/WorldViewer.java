@@ -151,7 +151,7 @@ public final class WorldViewer implements Animated, AutoCloseable {
         this.panel = new ActionButtonPanel(this, camera);
         this.delegate = new SelectionDelegate(this, camera);
         camera.reset(getLocalPlayer().getStartX(), getLocalPlayer().getStartY());
-        initPlayers(world_info.starting_locations, player_slots, world.getPlayers(), unit_infos, world_params.getInitialGameSpeed());
+        initPlayers(world_info.starting_locations(), player_slots, world.getPlayers(), unit_infos, world_params.getInitialGameSpeed());
         LocalEventQueue.getQueue().getManager().registerAnimation(this);
     }
 

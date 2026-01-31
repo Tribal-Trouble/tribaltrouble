@@ -93,7 +93,7 @@ public final class AdvancedAI extends AI {
 		}
 		enemy_score = (int)(DEFENSE_FACTOR[difficulty]*enemy_score);
 		if (getDefendingUnits() != null) {
-                    for (Selectable defendingUnit : getDefendingUnits()) {
+                    for (Selectable<?> defendingUnit : getDefendingUnits()) {
                         enemy_score -= getUnitScore((Unit) defendingUnit);
                     }
 		}
@@ -223,7 +223,7 @@ public final class AdvancedAI extends AI {
 
 	private void nodeBuildTower(int number) {
 		if (!towerUnderConstruction() && ((getTowers() == null && number == 1) || (getTowers() != null && getTowers().length < number)) && getQuarters() != null && getArmory() != null) {
-			Selectable[] builders = getPeons(10);
+			Selectable<?>[] builders = getPeons(10);
 			if (builders.length == 0)
 				return;
 
@@ -409,7 +409,7 @@ else
 		}
 		if (!armoryUnderConstruction() && getArmory() == null
 				&& getQuarters() != null && getQuarters()[0].getAbilities().hasAbilities(Abilities.REPRODUCE)) {
-			Selectable[] builders = getPeons(20);
+			Selectable<?>[] builders = getPeons(20);
 			if (builders.length < 20) {
 				if (quarters != null && !quarters.isDead() && quarters.getUnitContainer().getNumSupplies() >= 20)
 					getOwner().deployUnits(quarters, DeployType.PEON, 20);
@@ -425,7 +425,7 @@ else
 
 	private void nodeBuildQuarters() {
 		if (!quartersUnderConstruction() && getQuarters() == null) {
-			Selectable[] builders = getPeons(MIN_UNITS_REPRODUCING[difficulty]);
+			Selectable<?>[] builders = getPeons(MIN_UNITS_REPRODUCING[difficulty]);
 			if (builders.length == 0)
 				return;
 
@@ -435,10 +435,10 @@ else
 		}
 	}
 
-	private Selectable @NonNull [] getPeons(int min_num_peons) {
+	private @NonNull Selectable<?> @NonNull [] getPeons(int min_num_peons) {
         var idle = getIdlePeons();
         int idleCount = null != idle ? idle.length : 0;
-        var active = Stream.of((Supplier<Selectable[]>) this::getGatherIronPeons, this::getGatherRockPeons, this::getGatherTreePeons, this::getGatherRubberPeons)
+        var active = Stream.of((Supplier<Selectable<?>[]>) this::getGatherIronPeons, this::getGatherRockPeons, this::getGatherTreePeons, this::getGatherRubberPeons)
                 .map(Supplier::get)
                 .filter(Objects::nonNull)
                 .flatMap(Arrays::stream)
@@ -483,7 +483,7 @@ else
         return squared_dist_target < squared_dist_building / 2 ? best_target : best_building;
 	}
 
-	private boolean buildBuilding(int building_type, Selectable @NonNull [] selection, int grid_x, int grid_y) {
+	private boolean buildBuilding(int building_type, Selectable<?> @NonNull [] selection, int grid_x, int grid_y) {
 		BuildingSiteScanFilter filter = new BuildingSiteScanFilter(getUnitGrid(), getOwner().getRace().getBuildingTemplate(building_type), 40, true);
 		getUnitGrid().scan(filter, grid_x, grid_y);
 		List<? extends Target> target_list = filter.getResult();

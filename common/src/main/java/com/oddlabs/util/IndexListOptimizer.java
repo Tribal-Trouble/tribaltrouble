@@ -154,53 +154,51 @@ dumpBuffer(buffer);*/
 		}
 	}
 
-	private static final class Triangle {
-		private final Index @NonNull [] indices;
+	private record Triangle(Index @NonNull [] indices) {
+			/*		private float score;
+			 */
+			private Triangle(Index @NonNull [] indices) {
+				this.indices = indices;
+				for (Index indice : indices) {
+					indice.add(this);
+				}
+			}
 
-/*		private float score;
-*/
-		public Triangle(Index @NonNull [] indices) {
-			this.indices = indices;
-                    for (Index indice : indices) {
-                        indice.add(this);
-                    }
-		}
+		/*		public final void updateScore() {
+                    score = 0;
+                    for (int i = 0; i < indices.length; i++)
+                        score += indices[i].score;
+                }
+        */
+			public float getScore() {
+				float score = 0;
+				for (Index indice : indices) {
+					score += indice.score;
+				}
+				return score;
+			}
 
-/*		public final void updateScore() {
-			score = 0;
-			for (int i = 0; i < indices.length; i++)
-				score += indices[i].score;
-		}
-*/
-		public float getScore() {
-			float score = 0;
-                    for (Index indice : indices) {
-                        score += indice.score;
-                    }
-			return score;
-		}
+			public void remove() {
+				for (Index indice : indices) {
+					indice.remove(this);
+				}
+			}
 
-		public void remove() {
-                    for (Index indice : indices) {
-                        indice.remove(this);
-                    }
-		}
+			public void addToBuffer(@NonNull ShortBuffer buffer) {
+				for (Index indice : indices) {
+					buffer.put(indice.index);
+				}
+			}
 
-		public void addToBuffer(@NonNull ShortBuffer buffer) {
-                    for (Index indice : indices) {
-                        buffer.put(indice.index);
-                    }
+			@Override
+			public @NonNull String toString() {
+				String result = "Triangle score = " + getScore();
+				for (Index indice : indices) {
+					result += " " + indice.toString();
+				}
+				return result;
+			}
 		}
-
-		@Override
-		public @NonNull String toString() {
-			String result = "Triangle score = " + getScore();
-                    for (Index indice : indices) {
-                        result += " " + indice.toString();
-                    }
-			return result;
-		}
-	}
 
     private IndexListOptimizer() {
     }

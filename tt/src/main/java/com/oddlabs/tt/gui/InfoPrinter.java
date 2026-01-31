@@ -59,7 +59,7 @@ public final class InfoPrinter extends GUIObject implements Animated, ChatListen
 
 	@Override
 	public void chat(@NonNull ChatMessage message) {
-		chat(message.formatShort(), message.type);
+		chat(message.formatShort(), message.type());
 	}
 
 	public void chat(@NonNull String text, ChatMessage.@NonNull Type type) {

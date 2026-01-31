@@ -232,12 +232,12 @@ public final class MatchmakingClient implements MatchmakingClientInterface, Conn
 	}
 
 	@Override
-	public void receiveChatRoomMessage(String owner, String msg) {
+	public void receiveChatRoomMessage(@NonNull String owner, @NonNull String msg) {
 		Network.getChatHub().chat(new ChatMessage(owner, msg, ChatMessage.Type.CHATROOM));
 	}
 
 	@Override
-	public void receivePrivateMessage(String nick, String msg) {
+	public void receivePrivateMessage(@NonNull String nick, @NonNull String msg) {
 		Network.getChatHub().chat(new ChatMessage(nick, msg, ChatMessage.Type.PRIVATE));
 	}
 

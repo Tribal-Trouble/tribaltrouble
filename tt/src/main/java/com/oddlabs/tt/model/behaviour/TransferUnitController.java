@@ -18,7 +18,7 @@ public final class TransferUnitController extends Controller {
 	@Override
 	public void decide() {
 		if (building_tracker != null && building_tracker.getOccupant() != null && unit.isCloseEnough(0f, building_tracker.getOccupant())) {
-			Building building = (Building)building_tracker.getOccupant();
+			Building building = building_tracker.getOccupant();
 			if (building.getUnitContainer().canEnter(unit))
 				building.getUnitContainer().enter(unit);
 			else

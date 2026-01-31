@@ -67,12 +67,10 @@ public class KeyBindingPanel extends Panel {
         addChild(button_group);
         
         HorizButton btn_reset = new HorizButton(AbstractOptionsMenu.i18n("btn_reset_all"), 100);
-        btn_reset.addMouseClickListener((_,_,_,_) -> {
-            gui_root.addModalForm(new QuestionForm(AbstractOptionsMenu.i18n("confirm_reset_all"), (_,_,_,_) -> {
-                Renderer.getLocalInput().getInputManager().resetToDefaults();
-                updateList();
-            }));
-        });
+        btn_reset.addMouseClickListener((_,_,_,_) -> gui_root.addModalForm(new QuestionForm(AbstractOptionsMenu.i18n("confirm_reset_all"), (_, _, _, _) -> {
+            Renderer.getLocalInput().getInputManager().resetToDefaults();
+            updateList();
+        })));
         button_group.addChild(btn_reset);
         
         HorizButton btn_save = new HorizButton(AbstractOptionsMenu.i18n("btn_save_bindings"), 100);

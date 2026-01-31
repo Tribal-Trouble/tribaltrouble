@@ -21,7 +21,7 @@ public final class PostProcessor implements AutoCloseable {
     private final @NonNull PostProcessShader shader;
     private final @NonNull VertexArray vao;
     private final @NonNull FloatVBO quadVBO;
-    private @NonNull FBO sceneFBO;
+    private final @NonNull FBO sceneFBO;
     private int currentWidth;
     private int currentHeight;
 

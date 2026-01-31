@@ -798,7 +798,7 @@ public final class ActionButtonPanel extends GUIObject implements Animated {
 
 	private record ResourceAction(boolean active, boolean decrement, boolean batch) {}
 
-	private ResourceAction checkResourceAction(@NonNull InputEvent event, @NonNull GameAction base, @NonNull GameAction dec, @NonNull GameAction batch, @NonNull GameAction batchDec) {
+	private @NonNull ResourceAction checkResourceAction(@NonNull InputEvent event, @NonNull GameAction base, @NonNull GameAction dec, @NonNull GameAction batch, @NonNull GameAction batchDec) {
 		if (event.consumeAction(base)) return new ResourceAction(true, false, false);
 		if (event.consumeAction(dec)) return new ResourceAction(true, true, false);
 		if (event.consumeAction(batch)) return new ResourceAction(true, false, true);

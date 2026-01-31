@@ -20,7 +20,7 @@ public final class ChatHub implements ChatListener {
 
 	@Override
 	public void chat(@NonNull ChatMessage message) {
-		if (!ChatCommand.isIgnoring(message.nick)) {
+		if (!ChatCommand.isIgnoring(message.nick())) {
 			listeners.forEach(listener -> listener.chat(message));
 		}
 	}

@@ -1,9 +1,9 @@
 package com.oddlabs.tt.form;
 
-import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.EditLine;
+import com.oddlabs.tt.gui.FocusDirection;
 import com.oddlabs.tt.gui.Form;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Label;
