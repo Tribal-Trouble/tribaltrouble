@@ -7,8 +7,8 @@ import org.lwjgl.opengl.GL11;
 public final class DebugMeshShader extends ShaderProgram implements FogShader, LitShader {
 	
 	public interface Uniforms {
-		String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
-		String PROJECTION_MATRIX = "u_projectionMatrix";
+		String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
+		String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
 		String ENABLE_LIGHTING = "u_enableLighting";
 		String ENABLE_TEXTURE = "u_enableTexture";
 		String TEXTURE_0 = "u_texture0";
@@ -18,10 +18,10 @@ public final class DebugMeshShader extends ShaderProgram implements FogShader, L
 	}
 	
 	public interface Attributes {
-		String POSITION = "in_Position";
-		String NORMAL = "in_Normal";
-		String COLOR = "in_Color";
-		String TEX_COORD_0 = "in_TexCoord0";
+		String POSITION = Shader.POSITION;
+		String NORMAL = Shader.NORMAL;
+		String COLOR = Shader.COLOR;
+		String TEX_COORD_0 = "u_texCoord0";
 	}
 
 	public enum Attribute implements VertexAttribute {
@@ -71,7 +71,7 @@ public final class DebugMeshShader extends ShaderProgram implements FogShader, L
 		"""
 		#version 410 core
 		""" +
-		LIGHTING_FUNCTION +
+		VERTEX_LIGHTING_FUNCTION +
 		"""
 		layout(location = 0) in vec3 in_Position;
 		layout(location = 1) in vec3 in_Normal;
@@ -100,7 +100,7 @@ public final class DebugMeshShader extends ShaderProgram implements FogShader, L
 			}
 		
 			if (u_enableLighting) {
-				v_color = calculateLighting(in_Normal, in_Color, u_modelViewMatrix, u_lightDirection, u_globalAmbient);
+				v_color = calculateVertexLighting(in_Normal, in_Color, u_modelViewMatrix, u_lightDirection, u_globalAmbient);
 			} else {
 				v_color = in_Color;
 			}

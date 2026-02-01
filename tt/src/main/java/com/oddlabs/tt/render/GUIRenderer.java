@@ -15,6 +15,7 @@ import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -49,7 +50,7 @@ public final class GUIRenderer {
     private int textureCount = 0;
     private int quadCount = 0;
     
-    private RenderContext currentContext;
+    private @Nullable RenderContext currentContext;
 
     public GUIRenderer() {
         this.shader = new GUIShader();

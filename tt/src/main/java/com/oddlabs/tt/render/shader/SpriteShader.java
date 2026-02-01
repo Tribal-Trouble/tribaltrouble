@@ -4,8 +4,8 @@ package com.oddlabs.tt.render.shader;
 public final class SpriteShader extends ShaderProgram implements FogShader, LitShader {
 
     public interface Uniforms {
-        String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
-        String PROJECTION_MATRIX = "u_projectionMatrix";
+        String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
+        String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
         String TEXTURE_0 = "u_texture0";
         String TEXTURE_1 = "u_texture1";
         String NORMAL_MAP = "u_normalMap";
@@ -20,43 +20,15 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
         String ALPHA_TEST_VALUE = "u_alphaTestValue";
 
         // Fog Uniforms
-        String FOG_HEIGHT_FACTOR = "u_fogHeightFactor";
+        String FOG_HEIGHT_FACTOR = FogShader.FOG_HEIGHT_FACTOR;
     }
 
     public interface Attributes {
-        String POSITION = "in_Position";
-        String NORMAL = "in_Normal";
-        String TEX_COORD = "in_TexCoord";
+        String POSITION = Shader.POSITION;
+        String NORMAL = Shader.NORMAL;
+        String TEX_COORD = Shader.TEX_COORD;
     }
 
-        private static final String PERTURB_NORMAL_FUNC = """
-            mat3 cotangent_frame(vec3 N, vec3 p, vec2 uv) {
-                // get edge vectors of the pixel triangle
-                vec3 dp1 = dFdx(p);
-                vec3 dp2 = dFdy(p);
-                vec2 duv1 = dFdx(uv);
-                vec2 duv2 = dFdy(uv);
-            
-                // solve the linear system
-                vec3 dp2perp = cross(dp2, N);
-                vec3 dp1perp = cross(N, dp1);
-                vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
-                vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
-            
-                // construct a scale-invariant frame 
-                float invmax = inversesqrt(max(dot(T,T), dot(B,B)));
-                return mat3(T * invmax, B * invmax, N);
-            }
-            
-            vec3 perturbNormal(vec3 N, vec3 V, vec2 texcoord, vec3 map) {
-                // assume N, the interpolated vertex normal and 
-                // V, the view vector (vertex to eye)
-                map = map * 255./127. - 128./127.;
-                mat3 TBN = cotangent_frame(N, -V, texcoord);
-                return normalize(TBN * map);
-            }
-            """;
-    
         private static final String VERTEX_SHADER =
             """
             #version 410 core
@@ -94,6 +66,7 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
             """ +
             FOG_FUNCTION +
             PERTURB_NORMAL_FUNC +
+            FRAGMENT_LIGHTING_FUNCTION +
             """
             uniform sampler2D u_texture0;
             uniform sampler2D u_texture1;
@@ -150,31 +123,19 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                     }
                     
                     vec3 lightIntensity = vec3(1.0);
-                    vec3 specular = vec3(0.0);
-                    
                     if (u_enableLighting) {
-                        vec3 L = normalize(u_lightDirection);
-                        float diffuse = max(dot(normal, L), 0.0);
-                        lightIntensity = u_globalAmbient + vec3(diffuse);
-                        
-                        if (specularStrength > 0.0 && diffuse > 0.0) {
-                            vec3 V = normalize(-v_viewPosition);
-                            vec3 H = normalize(L + V);
-                            float spec = pow(max(dot(normal, H), 0.0), 16.0);
-                            specular = vec3(0.4) * spec * specularStrength;
-                        }
+                        lightIntensity = calculateLighting(normal, v_viewPosition, u_lightDirection, u_globalAmbient, specularStrength);
                     }
                     
-                    finalColor = vec4(v_color.rgb * base.rgb * clamp(lightIntensity, 0.0, 1.0) + specular, v_color.a * base.a);
+                    finalColor = vec4(v_color.rgb * base.rgb * lightIntensity, v_color.a * base.a);
     
                     if (u_enableTeamColor) {
                         vec4 tex1 = texture(u_texture1, v_texCoord0);
-                        // Mix decal color but keep specular on top
-                        vec3 mixedColor = mix(finalColor.rgb - specular, u_decalColor.rgb * clamp(lightIntensity, 0.0, 1.0), tex1.rgb);
-                        finalColor.rgb = mixedColor + specular;
+                        // Mix decal color
+                        vec3 mixedColor = mix(finalColor.rgb, u_decalColor.rgb * lightIntensity, tex1.rgb);
+                        finalColor.rgb = mixedColor;
                         
                         // Write to Mask Buffer (Team Color)
-                        // Use base texture alpha to cut out transparent parts
                         if (base.a > 0.1) {
                             out_MaskColor = u_decalColor;
                         }

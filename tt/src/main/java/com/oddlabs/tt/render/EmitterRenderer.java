@@ -15,7 +15,6 @@ import com.oddlabs.tt.vbo.VertexArray;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
@@ -124,7 +123,7 @@ public final class EmitterRenderer implements AutoCloseable {
         }
     }
 
-    private void flushBatches(RenderContext context) {
+    private void flushBatches(@NonNull RenderContext context) {
         int floatsPerParticle = VERTEX_LAYOUT.getStride() / Float.BYTES;
 
         for (var entry : batches.entrySet()) {

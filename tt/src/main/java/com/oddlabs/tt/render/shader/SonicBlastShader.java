@@ -6,17 +6,17 @@ import org.lwjgl.opengl.GL11;
 public final class SonicBlastShader extends ShaderProgram implements FogShader {
 
     public interface Uniforms {
-        String PROJECTION_MATRIX = "u_projectionMatrix";
-        String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
+        String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
+        String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
         String NOISE_TEXTURE = "u_noiseTexture";
         String TIME = "u_time";
         String MAX_RADIUS = "u_maxRadius";
-        String COLOR = "u_color";
+        String COLOR = Shader.COLOR;
     }
 
     public interface Attributes {
-        String POSITION = "in_Position";
-        String TEX_COORD = "in_TexCoord";
+        String POSITION = Shader.POSITION;
+        String TEX_COORD = Shader.TEX_COORD;
     }
 
     public enum Attribute implements VertexAttribute {

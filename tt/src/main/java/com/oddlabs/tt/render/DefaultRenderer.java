@@ -121,8 +121,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             Sprite sprite = rally_point_renderer.getSpriteList().getSprite(0);
 
             spriteShader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
-            spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);
-            spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
+            spriteShader.setUniform(LitShader.Uniforms.LIGHT_DIR, -1f, 0f, 1f);
+            spriteShader.setUniform(LitShader.Uniforms.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
 
             sprite.setupShaderUniforms(context, spriteShader, 0, false);
 

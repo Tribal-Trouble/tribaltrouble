@@ -3,20 +3,20 @@ package com.oddlabs.tt.render.shader;
 public final class LandscapeShader extends ShaderProgram implements FogShader, LitShader {
 
     public interface Uniforms {
-        String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
-        String PROJECTION_MATRIX = "u_projectionMatrix";
+        String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
+        String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
         String HEIGHT_MAP = "u_HeightMap";
         String DIFFUSE_MAP = "u_DiffuseMap";
         String NORMAL_MAP = "u_NormalMap";
         String DETAIL_MAP = "u_DetailMap";
         String WORLD_SIZE = "u_WorldSize";
         String DETAIL_SCALE = "u_DetailScale";
-        String LIGHT_DIRECTION = "u_lightDirection";
-        String GLOBAL_AMBIENT = "u_globalAmbient";
+        String LIGHT_DIRECTION = LitShader.Uniforms.LIGHT_DIR;
+        String GLOBAL_AMBIENT = LitShader.Uniforms.GLOBAL_AMBIENT;
     }
 
     public interface Attributes {
-        String POSITION = "in_Position";
+        String POSITION = Shader.POSITION;
         String INSTANCE_PATCH_OFFSET = "in_InstancePatchOffset";
     }
 

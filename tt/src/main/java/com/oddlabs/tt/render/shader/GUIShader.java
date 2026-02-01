@@ -81,8 +81,8 @@ import org.lwjgl.opengl.GL11;
         private Uniforms() {
         }
 
-        public static final String PROJECTION_MATRIX = "u_projectionMatrix";
-        public static final String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
+        public static final String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
+        public static final String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
         public static final String TEXTURES = "u_textures";
     }
 
@@ -93,9 +93,9 @@ import org.lwjgl.opengl.GL11;
         private Attributes() {
         }
 
-        public static final String POSITION = "in_Position";
-        public static final String COLOR = "in_Color";
-        public static final String TEX_COORD = "in_TexCoord";
+        public static final String POSITION = Shader.POSITION;
+        public static final String COLOR = Shader.COLOR;
+        public static final String TEX_COORD = Shader.TEX_COORD;
         public static final String TEX_INDEX = "in_TexIndex";
     }
 

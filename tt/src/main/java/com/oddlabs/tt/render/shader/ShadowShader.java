@@ -3,10 +3,10 @@ package com.oddlabs.tt.render.shader;
 public final class ShadowShader extends ShaderProgram {
 
     public static final class Uniforms {
-        public static final String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
-        public static final String PROJECTION_MATRIX = "u_projectionMatrix";
+        public static final String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
+        public static final String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
         public static final String TEXTURE = "u_texture";
-        public static final String COLOR = "u_color";
+        public static final String COLOR = Shader.COLOR;
         public static final String SHADOW_PARAMS = "u_shadowParams"; // vec4(scaleX, scaleY, offsetX, offsetY)
         public static final String HEIGHT_MAP = "u_HeightMap";
         public static final String PATCH_OFFSET = "u_PatchOffset";
@@ -16,7 +16,7 @@ public final class ShadowShader extends ShaderProgram {
     }
 
     public static final class Attributes {
-        public static final String POSITION = "in_Position";
+        public static final String POSITION = Shader.POSITION;
 
         private Attributes() {}
     }

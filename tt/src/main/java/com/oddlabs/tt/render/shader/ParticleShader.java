@@ -7,8 +7,8 @@ import org.lwjgl.opengl.GL11;
 public final class ParticleShader extends ShaderProgram implements FogShader {
 
     public interface Uniforms {
-        String PROJECTION_MATRIX = "u_projectionMatrix";
-        String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
+        String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
+        String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
         String TEXTURE_0 = "u_texture0";
         String IS_ADDITIVE = "u_isAdditive";
     }
@@ -16,7 +16,7 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
     public interface Attributes {
         String CENTER_POSITION = "in_CenterPosition";
         String SIZE = "in_Size";
-        String COLOR = "in_Color";
+        String COLOR = Shader.COLOR;
         String UV_COORDS_1 = "in_UvCoords1"; // u1, v1, u2, v2
         String UV_COORDS_2 = "in_UvCoords2"; // u3, v3, u4, v4
     }

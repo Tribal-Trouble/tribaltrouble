@@ -1,11 +1,11 @@
 package com.oddlabs.tt.render.shader;
 
 /** A shader for rendering water surfaces. */
-public final class WaterShader extends ShaderProgram implements FogShader {
+public final class WaterShader extends ShaderProgram implements FogShader, LitShader {
 
     public interface Uniforms {
-        String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
-        String PROJECTION_MATRIX = "u_projectionMatrix";
+        String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
+        String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
         String TEXTURE_0 = "u_texture0"; // Base water texture
         String TEXTURE_1 = "u_texture1"; // Detail water texture
         String WATER_REPEAT_RATE = "u_waterRepeatRate";
@@ -13,16 +13,16 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         String ENABLE_DETAIL = "u_enableDetail";
         String SCROLL_OFFSET_0 = "u_scrollOffset0";
         String SCROLL_OFFSET_1 = "u_scrollOffset1";
-        String LIGHT_DIR = "u_lightDir";
+        String LIGHT_DIR = LitShader.Uniforms.LIGHT_DIR;
         String CAMERA_POS = "u_cameraPos";
         String WATER_HEIGHT = "u_waterHeight";
 
         // Fog Uniforms
-        String FOG_HEIGHT_FACTOR = "u_fogHeightFactor";
+        String FOG_HEIGHT_FACTOR = FogShader.FOG_HEIGHT_FACTOR;
     }
 
     public interface Attributes {
-        String POSITION = "in_Position";
+        String POSITION = Shader.POSITION;
         String INSTANCE_OFFSET = "in_InstanceOffset";
     }
 
@@ -70,7 +70,7 @@ public final class WaterShader extends ShaderProgram implements FogShader {
         uniform sampler2D u_texture0;
         uniform sampler2D u_texture1;
         uniform bool u_enableDetail;
-        uniform vec3 u_lightDir;
+        uniform vec3 u_lightDirection;
         uniform vec3 u_cameraPos;
 
         // Fog uniforms
@@ -119,7 +119,7 @@ public final class WaterShader extends ShaderProgram implements FogShader {
             
             vec3 normal = normalize(vec3((h - h_x) * 2.0, (h - h_y) * 2.0, 0.1));
 
-            vec3 lightDir = normalize(u_lightDir);
+            vec3 lightDir = normalize(u_lightDirection);
             vec3 viewDir = normalize(u_cameraPos - v_worldPos);
             vec3 halfDir = normalize(lightDir + viewDir);
             

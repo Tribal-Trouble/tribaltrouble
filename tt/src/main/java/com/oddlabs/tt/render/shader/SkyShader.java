@@ -6,8 +6,8 @@ package com.oddlabs.tt.render.shader;
 public final class SkyShader extends ShaderProgram {
 
     public interface Uniforms {
-        String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
-        String PROJECTION_MATRIX = "u_projectionMatrix";
+        String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
+        String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
         String TEXTURE_0 = "u_texture0"; // Inner clouds
         String TEXTURE_1 = "u_texture1"; // Outer clouds
         String INNER_OFFSET = "u_innerOffset";
@@ -25,11 +25,11 @@ public final class SkyShader extends ShaderProgram {
     }
 
     public interface Attributes {
-        String POSITION = "in_Position";
-        String NORMAL = "in_Normal";
+        String POSITION = Shader.POSITION;
+        String NORMAL = Shader.NORMAL;
         String TEX_COORD_0 = "in_TexCoord0";
         String TEX_COORD_1 = "in_TexCoord1";
-        String COLOR = "in_Color";
+        String COLOR = Shader.COLOR;
     }
 
     private static final String VERTEX_SHADER = """

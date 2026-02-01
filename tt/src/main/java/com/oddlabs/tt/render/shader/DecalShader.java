@@ -3,8 +3,8 @@ package com.oddlabs.tt.render.shader;
 public final class DecalShader extends ShaderProgram {
 
     public static final class Uniforms {
-        public static final String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
-        public static final String PROJECTION_MATRIX = "u_projectionMatrix";
+        public static final String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
+        public static final String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
         public static final String TEXTURE = "u_texture";
         public static final String HEIGHT_MAP = "u_HeightMap";
         public static final String WORLD_SIZE = "u_WorldSize";
@@ -14,7 +14,7 @@ public final class DecalShader extends ShaderProgram {
     }
 
     public static final class Attributes {
-        public static final String POSITION = "in_Position";
+        public static final String POSITION = Shader.POSITION;
         public static final String INSTANCE_POS = "in_InstancePos";
         public static final String INSTANCE_SIZE = "in_InstanceSize";
         public static final String INSTANCE_COLOR = "in_InstanceColor";

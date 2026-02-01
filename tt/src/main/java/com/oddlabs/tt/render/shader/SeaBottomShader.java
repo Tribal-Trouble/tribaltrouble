@@ -6,15 +6,15 @@ package com.oddlabs.tt.render.shader;
 public final class SeaBottomShader extends ShaderProgram implements FogShader {
 
     public interface Uniforms {
-        String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
-        String PROJECTION_MATRIX = "u_projectionMatrix";
+        String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
+        String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
         String TEXTURE_1 = "u_texture1"; // Detail texture
         String BASE_COLOR = "u_baseColor";
         String DETAIL_SCALE = "u_detailScale";
     }
 
     public interface Attributes {
-        String POSITION = "in_Position";
+        String POSITION = Shader.POSITION;
     }
 
     private static final String VERTEX_SHADER = """

@@ -5,6 +5,16 @@ import org.jspecify.annotations.NonNull;
 import java.nio.FloatBuffer;
 
 public interface Shader {
+    // Standard Uniform Names
+    String PROJECTION_MATRIX = "u_projectionMatrix";
+    String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
+    String VIEW_MATRIX = "u_viewMatrix";
+
+    // Standard Attribute Names
+    String POSITION = "in_Position";
+    String NORMAL = "in_Normal";
+    String TEX_COORD = "in_TexCoord";
+    String COLOR = "in_Color";
 
     boolean inUse();
 

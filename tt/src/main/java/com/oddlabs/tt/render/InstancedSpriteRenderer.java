@@ -67,8 +67,8 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             Vector4f lightDir = new Vector4f(-1f, 0f, 1f, 0f);
             cameraState.getModelView().transform(lightDir);
             lightDir.normalize();
-            shader.setUniform(LitShader.LIGHT_DIR, lightDir.x, lightDir.y, lightDir.z); 
-            shader.setUniform(LitShader.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
+            shader.setUniform(LitShader.Uniforms.LIGHT_DIR, lightDir.x, lightDir.y, lightDir.z); 
+            shader.setUniform(LitShader.Uniforms.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
             
             // Set TBO texture unit
             shader.setUniform(InstancedSpriteShader.Uniforms.VERT_BUFFER, 5);

@@ -6,18 +6,18 @@ import org.lwjgl.opengl.GL11;
 public final class LightningShader extends ShaderProgram implements FogShader {
 
     public interface Uniforms {
-        String PROJECTION_MATRIX = "u_projectionMatrix";
-        String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
+        String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
+        String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
         String TEXTURE_0 = "u_texture0";
         
         // Fog Uniforms
-        String FOG_HEIGHT_FACTOR = "u_fogHeightFactor";
+        String FOG_HEIGHT_FACTOR = FogShader.FOG_HEIGHT_FACTOR;
     }
 
     public interface Attributes {
-        String POSITION = "in_Position";
-        String TEX_COORD = "in_TexCoord";
-        String COLOR = "in_Color";
+        String POSITION = Shader.POSITION;
+        String TEX_COORD = Shader.TEX_COORD;
+        String COLOR = Shader.COLOR;
     }
 
     public enum Attribute implements VertexAttribute {

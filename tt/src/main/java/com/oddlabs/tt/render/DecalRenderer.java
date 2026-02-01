@@ -169,7 +169,7 @@ public final class DecalRenderer implements AutoCloseable {
         instanceCount++;
     }
 
-    private void flush(RenderContext context) {
+    private void flush(@NonNull RenderContext context) {
         if (instanceCount == 0 || currentTexture == null) return;
 
         context.setTexture(0, currentTexture.getHandle());
