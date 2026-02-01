@@ -12,6 +12,10 @@ import com.oddlabs.tt.landscape.PatchGroupVisitor;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.render.shader.LandscapeShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
+import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.CullMode;
+import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.vbo.FloatVBO;
 import org.joml.Vector4f;
@@ -81,13 +85,12 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
     }
 
     @Override
-    public void render(@NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state)) {
-            
-            GL11.glDisable(GL11.GL_BLEND);
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glDisable(GL11.GL_CULL_FACE);
+             var _ = state.getFog().setup(shader, state);
+             var _ = context.withBlendMode(BlendMode.NONE);
+             var _ = context.withDepthMode(DepthMode.READ_WRITE);
+             var _ = context.withCullMode(CullMode.NONE)) {
 
             shader.setUniformMatrix4(LandscapeShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             shader.setUniformMatrix4(LandscapeShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
@@ -104,20 +107,16 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
             shader.setUniform(LandscapeShader.Uniforms.WORLD_SIZE, (float) world.getHeightMap().getMetersPerWorld());
             shader.setUniform(LandscapeShader.Uniforms.DETAIL_SCALE, Globals.LANDSCAPE_DETAIL_REPEAT_RATE);
 
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, diffuseMap.getHandle());
+            context.setTexture(0, diffuseMap);
             shader.setUniform(LandscapeShader.Uniforms.DIFFUSE_MAP, 0);
 
-            GL13.glActiveTexture(GL13.GL_TEXTURE1);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, normalMap.getHandle());
+            context.setTexture(1, normalMap);
             shader.setUniform(LandscapeShader.Uniforms.NORMAL_MAP, 1);
             
-            GL13.glActiveTexture(GL13.GL_TEXTURE2);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, detailMap.getHandle());
+            context.setTexture(2, detailMap);
             shader.setUniform(LandscapeShader.Uniforms.DETAIL_MAP, 2);
             
-            GL13.glActiveTexture(GL13.GL_TEXTURE3);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, world.getHeightMap().getHeightTexture().getHandle());
+            context.setTexture(3, world.getHeightMap().getHeightTexture());
             shader.setUniform(LandscapeShader.Uniforms.HEIGHT_MAP, 3);
 
             if (Globals.draw_landscape && !render_list.isEmpty()) {
@@ -162,12 +161,7 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
                 GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
             }
             
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        } finally {
-            // Restore standard state
-            GL11.glDisable(GL11.GL_BLEND);
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glEnable(GL11.GL_CULL_FACE);
+            context.setActiveTexture(0);
         }
     }
 

@@ -18,11 +18,15 @@ import com.oddlabs.tt.render.LandscapeLocation;
 import com.oddlabs.tt.render.LandscapeRenderer;
 import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.RenderQueues;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Sprite;
 import com.oddlabs.tt.render.SpriteRenderer;
 import com.oddlabs.tt.render.shader.LitShader;
 import com.oddlabs.tt.render.shader.SpriteShader;
-import com.oddlabs.tt.util.GLStateHelper;
+import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.CullMode;
+import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.viewer.WorldViewer;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
@@ -117,7 +121,9 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
         BuildingSiteScanFilter filter = new BuildingSiteScanFilter(unit_grid, getTemplate(), GRID_RADIUS, false);
         unit_grid.scan(filter, placing_center_grid_x, placing_center_grid_y);
         List<LandscapeTarget> target_list = filter.getResult();
-        site_renderer.renderSites(renderer, modelViewStack, projectionStack, target_list, center_x, center_y, 2 * GRID_RADIUS);
+        
+        RenderContext context = Renderer.getRenderer().getRenderContext();
+        site_renderer.renderSites(context, renderer, modelViewStack, projectionStack, target_list, center_x, center_y, 2 * GRID_RADIUS);
         com.oddlabs.tt.util.GLUtils.checkGLError("Placing: After renderSites");
 
         SpriteRenderer built_renderer = queues.getRenderer(getTemplate().getBuiltRenderer());
@@ -130,7 +136,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
                             spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);
                             spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
                             spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 0.5f);
-            sprite.setupShaderUniforms(spriteShader, 0, false);
+            sprite.setupShaderUniforms(context, spriteShader, 0, false);
             spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, true);
             spriteShader.setUniform(SpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.5f);
 
@@ -146,25 +152,23 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
             spriteShader.setUniformMatrix4(SpriteShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
 
             try {
-                try (var _ = GLStateHelper.cullFace(true)) {
-                    GL11.glCullFace(GL11.GL_BACK);
+                try (var _ = context.withCullMode(CullMode.BACK)) {
 
                     // Pass 1: Depth Prime (Write Depth, No Color)
-                    try (var _ = new GLStateHelper.DepthMask(true);
-                         var _ = new GLStateHelper.ColorMask(false, false, false, false)) {
-                        GL11.glEnable(GL11.GL_DEPTH_TEST);
-                        GL11.glDepthFunc(GL11.GL_LEQUAL);
-                        GL11.glDisable(GL11.GL_BLEND);
+                    try (var _ = context.withDepthMode(DepthMode.READ_WRITE);
+                         var _ = context.withDepthFunc(GL11.GL_LEQUAL);
+                         var _ = context.withColorMask(false, false, false, false);
+                         var _ = context.withBlendMode(BlendMode.NONE)) {
+                        
                         sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
                     }
 
                     // Pass 2: Color Render (No Depth Write, Equal Depth)
-                    try (var _ = new GLStateHelper.DepthMask(false);
-                         var _ = new GLStateHelper.ColorMask(true, true, true, true)) {
-                        GL11.glEnable(GL11.GL_DEPTH_TEST);
-                        GL11.glDepthFunc(GL11.GL_EQUAL);
-                        GL11.glEnable(GL11.GL_BLEND);
-                        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                    try (var _ = context.withDepthMode(DepthMode.READ_ONLY);
+                         var _ = context.withDepthFunc(GL11.GL_EQUAL);
+                         var _ = context.withColorMask(true, true, true, true);
+                         var _ = context.withBlendMode(BlendMode.ALPHA)) {
+                        
                         sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
                     }
                 }
@@ -175,10 +179,6 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
             }
 
             modelViewStack.pop();
-        } finally {
-            // Cleanup Global State
-            GL11.glDepthFunc(GL11.GL_LESS);
-            GL11.glDisable(GL11.GL_BLEND);
         }
     }
 }

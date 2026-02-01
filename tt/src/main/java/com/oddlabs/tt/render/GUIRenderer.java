@@ -5,6 +5,10 @@ import com.oddlabs.tt.gui.ModeIconQuads;
 import com.oddlabs.tt.render.shader.GUIShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.render.shader.VertexLayout;
+import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.CullMode;
+import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.vbo.VertexArray;
 import com.oddlabs.util.Color;
@@ -44,6 +48,8 @@ public final class GUIRenderer {
     private final Texture[] currentTextures = new Texture[MAX_TEXTURES];
     private int textureCount = 0;
     private int quadCount = 0;
+    
+    private RenderContext currentContext;
 
     public GUIRenderer() {
         this.shader = new GUIShader();
@@ -87,17 +93,14 @@ public final class GUIRenderer {
         vao.unbind();
     }
 
-    public void renderFrame(float width, float height, @NonNull Runnable frameCommands) {
+    public void renderFrame(@NonNull RenderContext context, float width, float height, @NonNull Runnable frameCommands) {
         GLUtils.checkGLError("Before GUI Render");
-        boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
-        boolean depthTestEnabled = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
-        boolean cullFaceEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+        this.currentContext = context;
 
-        try (var _ = shader.use()) {
-            if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
-            if (depthTestEnabled) GL11.glDisable(GL11.GL_DEPTH_TEST);
-            if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        try (var _ = shader.use();
+             var _ = context.withBlendMode(BlendMode.ALPHA);
+             var _ = context.withDepthMode(DepthMode.NONE);
+             var _ = context.withCullMode(CullMode.NONE)) {
 
             projectionMatrix.identity().ortho(0, width, 0, height, -1, 1);
             shader.setUniformMatrix4(GUIShader.Uniforms.PROJECTION_MATRIX, false, projectionMatrix);
@@ -113,9 +116,7 @@ public final class GUIRenderer {
 
             flush();
         } finally {
-            if (!blendEnabled) GL11.glDisable(GL11.GL_BLEND);
-            if (depthTestEnabled) GL11.glEnable(GL11.GL_DEPTH_TEST);
-            if (cullFaceEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
+            this.currentContext = null;
         }
     }
 
@@ -184,8 +185,13 @@ public final class GUIRenderer {
         
         // Bind all active textures
         for (int i = 0; i < textureCount; i++) {
-            GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, currentTextures[i].getHandle());
+            if (currentContext != null) {
+                currentContext.setTexture(i, currentTextures[i]);
+            } else {
+                // Fallback if context missing (shouldn't happen in normal flow)
+                GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, currentTextures[i].getHandle());
+            }
         }
 
         vertexBuffer.flip();

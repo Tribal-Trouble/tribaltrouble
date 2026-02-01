@@ -30,6 +30,8 @@ import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.procedural.Landscape;
+import com.oddlabs.tt.render.state.GLRenderContext;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.IslandGenerator;
 import com.oddlabs.tt.resource.NativeResource;
@@ -73,6 +75,7 @@ public final class Renderer implements AutoCloseable {
         return Utils.getBundleString(bundle, key, args);
     }
     private static final Renderer renderer_instance = new Renderer();
+    private final GLRenderContext renderContext = new GLRenderContext();
 	private static final StatCounter fps = new StatCounter(10);
 	private static int num_triangles_rendered;
 
@@ -126,6 +129,10 @@ public final class Renderer implements AutoCloseable {
 	public static @NonNull Renderer getRenderer() {
 		return renderer_instance;
 	}
+    
+    public @NonNull RenderContext getRenderContext() {
+        return renderContext;
+    }
 
     public static @NonNull LocalInput getLocalInput() {
         return getRenderer().localInput;
@@ -942,30 +949,7 @@ public final class Renderer implements AutoCloseable {
 
 	public static void initGL() {
 		VBO.releaseAll();
-		GL11.glFrontFace(GL11.GL_CCW);
-		GL11.glCullFace(GL11.GL_BACK);
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glPixelStorei(GL11.GL_PACK_ROW_LENGTH, 0);
-		GL11.glPixelStorei(GL11.GL_PACK_SKIP_PIXELS, 0);
-		GL11.glPixelStorei(GL11.GL_PACK_SKIP_ROWS, 0);
-		GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
-		GL11.glPixelStorei(GL11.GL_PACK_SWAP_BYTES, 0);
-
-		GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
-		GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
-		GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
-		GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-		GL11.glPixelStorei(GL11.GL_UNPACK_SWAP_BYTES, 0);
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL11.glDepthFunc(GL11.GL_LEQUAL);
-		if (Settings.getSettings().view_samples > 0) {
-            org.lwjgl.opengl.GL13.glEnable(org.lwjgl.opengl.GL13.GL_MULTISAMPLE);
-		}
-
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
-		clearScreen();
-		GL11.glClearDepth(1.0);
+        getRenderer().renderContext.applyDefaults();
 	}
 
 	public static void clearScreen() {

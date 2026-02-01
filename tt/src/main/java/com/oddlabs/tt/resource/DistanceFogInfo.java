@@ -2,7 +2,7 @@ package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.render.shader.FogShader;
-import com.oddlabs.tt.util.GLState;
+import com.oddlabs.tt.render.state.ScopedState;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
@@ -32,8 +32,8 @@ public final class DistanceFogInfo extends FogInfo {
     }
 
     @Override
-    public @NonNull GLState setup(@NonNull FogShader shader, @NonNull CameraState camera_state) {
-        GLState superState = super.setup(shader, camera_state);
+    public @NonNull ScopedState setup(@NonNull FogShader shader, @NonNull CameraState camera_state) {
+        ScopedState superState = super.setup(shader, camera_state);
         if (!isEnabled() || mode == Mode.NONE) {
             return superState;
         }

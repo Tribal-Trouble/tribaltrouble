@@ -7,6 +7,9 @@ import com.oddlabs.tt.particle.Emitter;
 import com.oddlabs.tt.particle.Particle;
 import com.oddlabs.tt.render.shader.ParticleShader;
 import com.oddlabs.tt.render.shader.VertexLayout;
+import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import org.jspecify.annotations.NonNull;
@@ -57,25 +60,21 @@ public final class EmitterRenderer implements AutoCloseable {
         vao.unbind();
     }
 
-    public void render(@NonNull RenderQueues render_queues, @NonNull Queue<Emitter<?>> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Queue<Emitter<?>> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (emitter_queue.isEmpty()) return;
-
-        boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
-        boolean depthMaskEnabled = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
 
         batches.clear();
 
         try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state)) {
-
-            if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
-            if (depthMaskEnabled) GL11.glDepthMask(false);
+             var _ = state.getFog().setup(shader, state);
+             var _ = context.withBlendMode(BlendMode.ALPHA);
+             var _ = context.withDepthMode(DepthMode.READ_ONLY)) {
             
             shader.setUniformMatrix4(ParticleShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             shader.setUniformMatrix4(ParticleShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
             shader.setUniform(ParticleShader.Uniforms.TEXTURE_0, 0);
             
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+            context.setActiveTexture(0);
             vao.bind();
 
             for (Emitter<?> emitter : emitter_queue) {
@@ -85,14 +84,11 @@ public final class EmitterRenderer implements AutoCloseable {
 
             GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
             GL11.glPolygonOffset(-1.0f, -1.0f);
-            flushBatches();
+            flushBatches(context);
             GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
         } finally {
             vao.unbind();
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-            if (!blendEnabled) GL11.glDisable(GL11.GL_BLEND);
-            if (depthMaskEnabled) GL11.glDepthMask(true);
+            context.setTexture(0, 0);
         }
     }
 
@@ -128,13 +124,13 @@ public final class EmitterRenderer implements AutoCloseable {
         }
     }
 
-    private void flushBatches() {
+    private void flushBatches(RenderContext context) {
         int floatsPerParticle = VERTEX_LAYOUT.getStride() / Float.BYTES;
 
         for (var entry : batches.entrySet()) {
             BatchKey key = entry.getKey();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, key.texture().getHandle());
-            GL11.glBlendFunc(key.srcBlend(), key.dstBlend());
+            context.setTexture(0, key.texture().getHandle());
+            context.setBlendFunc(key.srcBlend(), key.dstBlend());
             shader.setUniform(ParticleShader.Uniforms.IS_ADDITIVE, key.dstBlend() == GL11.GL_ONE ? 1.0f : 0.0f);
             particle_buffer.clear();
             int particleCount = 0;

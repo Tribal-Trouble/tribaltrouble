@@ -7,6 +7,10 @@ import com.oddlabs.tt.particle.Lightning;
 import com.oddlabs.tt.particle.StretchParticle;
 import com.oddlabs.tt.render.shader.LightningShader;
 import com.oddlabs.tt.render.shader.VertexLayout;
+import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.CullMode;
+import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
@@ -78,7 +82,7 @@ public final class LightningRenderer implements AutoCloseable {
         vao.unbind();
     }
 
-    public void render(@NonNull RenderQueues render_queues, @NonNull Queue<Lightning> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Queue<Lightning> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (emitter_queue.isEmpty()) return;
 
         view_matrix.set(state.getModelView());
@@ -87,36 +91,28 @@ public final class LightningRenderer implements AutoCloseable {
         float rz = view_matrix.m20();
         right_vector.set(rx, ry, rz);
 
-        boolean cullFaceEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
-        boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
-        boolean depthMaskEnabled = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
+        try (var _ = shader.use();
+             var _ = state.getFog().setup(shader, state);
+             var _ = context.withCullMode(CullMode.NONE);
+             var _ = context.withBlendMode(BlendMode.ADDITIVE);
+             var _ = context.withDepthMode(DepthMode.READ_ONLY)) {
 
-        try (var _ = shader.use()) {
-            try (var _ = state.getFog().setup(shader, state)) {
-                if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
-                if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
-                if (depthMaskEnabled) GL11.glDepthMask(false);
+            shader.setUniformMatrix4(LightningShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+            shader.setUniformMatrix4(LightningShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
+            shader.setUniform(LightningShader.Uniforms.TEXTURE_0, 0);
 
-                shader.setUniformMatrix4(LightningShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
-                shader.setUniformMatrix4(LightningShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-                shader.setUniform(LightningShader.Uniforms.TEXTURE_0, 0);
+            context.setActiveTexture(0);
 
-                GL13.glActiveTexture(GL13.GL_TEXTURE0);
+            vao.bind();
 
-                vao.bind();
-
-                if (Globals.draw_particles) {
-                    for (Lightning emitter : emitter_queue) {
-                        renderInternal(render_queues, emitter);
-                    }
+            if (Globals.draw_particles) {
+                for (Lightning emitter : emitter_queue) {
+                    renderInternal(context, render_queues, emitter);
                 }
             }
         } finally {
             emitter_queue.clear();
             vao.unbind();
-            if (cullFaceEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
-            if (!blendEnabled) GL11.glDisable(GL11.GL_BLEND);
-            if (depthMaskEnabled) GL11.glDepthMask(true);
         }
     }
 
@@ -146,9 +142,9 @@ public final class LightningRenderer implements AutoCloseable {
         particle_buffer.put(src_x).put(src_y - particle.getSrcWidth()).put(src_z).put(0f).put(1f).put(r).put(g).put(b).put(a);
     }
 
-    private void renderInternal(@NonNull RenderQueues render_queues, @NonNull Lightning lightning) {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, render_queues.getTexture(lightning.getTexture()).getHandle());
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+    private void renderInternal(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Lightning lightning) {
+        context.setTexture(0, render_queues.getTexture(lightning.getTexture()));
+        // Blend Func handled by Context
 
         particle_buffer.clear();
         Deque<StretchParticle> particles = lightning.getParticles();
@@ -164,8 +160,6 @@ public final class LightningRenderer implements AutoCloseable {
             particleCount++;
         }
         flush(particleCount);
-
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     }
     
     private void flush(int count) {

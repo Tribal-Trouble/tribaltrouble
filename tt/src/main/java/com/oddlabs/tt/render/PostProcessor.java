@@ -2,12 +2,14 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.shader.PostProcessShader;
+import com.oddlabs.tt.render.state.CullMode;
+import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 
@@ -69,19 +71,16 @@ public final class PostProcessor implements AutoCloseable {
         sceneFBO.unbind();
     }
 
-    public void renderComposite() {
+    public void renderComposite(@NonNull RenderContext context) {
         // Render to default framebuffer (screen)
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
         GL11.glViewport(0, 0, currentWidth, currentHeight);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        context.clear(true, true);
         
-        // Disable depth test and culling for full screen pass
-        boolean depthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
-        boolean cullFace = GL11.glIsEnabled(GL11.GL_CULL_FACE);
-        if (depthTest) GL11.glDisable(GL11.GL_DEPTH_TEST);
-        if (cullFace) GL11.glDisable(GL11.GL_CULL_FACE);
-
-        try (var _ = shader.use()) {
+        try (var _ = shader.use();
+             var _ = context.withDepthMode(DepthMode.NONE);
+             var _ = context.withCullMode(CullMode.NONE)) {
+             
             Settings settings = Settings.getSettings();
             shader.setUniform(PostProcessShader.Uniforms.CVD_MODE, settings.cvd_mode);
             shader.setUniform(PostProcessShader.Uniforms.CVD_INTENSITY, settings.cvd_intensity);
@@ -91,22 +90,12 @@ public final class PostProcessor implements AutoCloseable {
             shader.setUniform(PostProcessShader.Uniforms.SCENE_TEXTURE, 0);
             shader.setUniform(PostProcessShader.Uniforms.MASK_TEXTURE, 1);
 
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-            if (sceneFBO.getColorTexture() != null) {
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, sceneFBO.getColorTexture().getHandle());
-            }
-            
-            GL13.glActiveTexture(GL13.GL_TEXTURE1);
-            if (sceneFBO.getMaskTexture() != null) {
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, sceneFBO.getMaskTexture().getHandle());
-            }
+            context.setTexture(0, sceneFBO.getColorTexture());
+            context.setTexture(1, sceneFBO.getMaskTexture());
 
             vao.bind();
             GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
             vao.unbind();
-        } finally {
-            if (depthTest) GL11.glEnable(GL11.GL_DEPTH_TEST);
-            if (cullFace) GL11.glEnable(GL11.GL_CULL_FACE);
         }
     }
 

@@ -2,7 +2,7 @@ package com.oddlabs.tt.resource;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.render.shader.FogShader;
-import com.oddlabs.tt.util.GLState;
+import com.oddlabs.tt.render.state.ScopedState;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 
@@ -52,7 +52,7 @@ public class FogInfo {
      *
      * @return A GLState resource to be used in a try-with-resources block.
      */
-    public @NonNull GLState setup(@NonNull FogShader shader, @NonNull CameraState camera_state) {
+    public @NonNull ScopedState setup(@NonNull FogShader shader, @NonNull CameraState camera_state) {
         assert shader.inUse();
 
         if (!enabled || mode == Mode.NONE) {

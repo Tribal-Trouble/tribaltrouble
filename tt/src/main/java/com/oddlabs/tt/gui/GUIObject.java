@@ -266,7 +266,6 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	}
 
 	private void switchFocusToNextChild(@NonNull FocusDirection dirEnum) {
-        logger.info("switchFocusToNextChild: " + this + " dir=" + dirEnum + " current=" + focused_child);
         GUIObject bestCandidate = findNextFocusable(focused_child, dirEnum);
 
 		if (bestCandidate != null) {
@@ -388,7 +387,6 @@ public abstract class GUIObject extends Renderable<GUIObject> {
     }
 
 	private static void switchFocusToObject(@NonNull GUIObject obj, @NonNull FocusDirection dir) {
-        logger.info("switchFocusToObject: " + obj);
 		obj.setFocus(dir);
 	}
 

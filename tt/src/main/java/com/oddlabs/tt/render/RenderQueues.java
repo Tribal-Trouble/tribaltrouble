@@ -2,6 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.geometry.AnimationInfo;
 import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.SpriteFile;
 import com.oddlabs.tt.util.Target;
@@ -114,25 +115,25 @@ public final class RenderQueues implements AutoCloseable {
         }
     }
 
-    void renderAll(@NonNull CameraState camera_state, @NonNull MatrixStack projectionStack) {
+    void renderAll(@NonNull RenderContext context, @NonNull CameraState camera_state, @NonNull MatrixStack projectionStack) {
         for (SpriteRenderer spriteRenderer : sprite_renderers) {
             spriteRenderer.renderAll();
         }
-        spriteRenderer.renderAll(camera_state, projectionStack);
+        spriteRenderer.renderAll(context, camera_state, projectionStack);
     }
 
-    void renderPlants(@NonNull CameraState camera_state, @NonNull MatrixStack projectionStack) {
+    void renderPlants(@NonNull RenderContext context, @NonNull CameraState camera_state, @NonNull MatrixStack projectionStack) {
         for (SpriteRenderer spriteRenderer : plant_renderers) {
             spriteRenderer.renderAll();
         }
-        spriteRenderer.renderAll(camera_state, projectionStack);
+        spriteRenderer.renderAll(context, camera_state, projectionStack);
     }
 
-    void renderBlends(@NonNull CameraState camera_state, @NonNull MatrixStack projectionStack) {
+    void renderBlends(@NonNull RenderContext context, @NonNull CameraState camera_state, @NonNull MatrixStack projectionStack) {
         for (SpriteRenderer blendSpriteRenderer : blend_sprite_renderers) {
             blendSpriteRenderer.renderAll();
         }
-        spriteRenderer.renderAll(camera_state, projectionStack);
+        spriteRenderer.renderAll(context, camera_state, projectionStack);
     }
 
     void renderNoDetail() {
@@ -147,9 +148,9 @@ public final class RenderQueues implements AutoCloseable {
         }
     }
 
-    void renderShadows(@NonNull LandscapeRenderer renderer, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    void renderShadows(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         for (ShadowListRenderer shadowListRenderer : shadow_renderer_lookup) {
-            shadowListRenderer.renderShadows(renderer, modelViewStack, projectionStack);
+            shadowListRenderer.renderShadows(context, renderer, modelViewStack, projectionStack);
         }
     }
 

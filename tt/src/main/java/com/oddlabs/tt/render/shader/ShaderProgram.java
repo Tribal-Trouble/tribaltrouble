@@ -1,7 +1,7 @@
 package com.oddlabs.tt.render.shader;
 
 import com.oddlabs.tt.resource.NativeResource;
-import com.oddlabs.tt.util.GLState;
+import com.oddlabs.tt.render.state.ScopedState;
 import org.joml.Matrix4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -102,7 +102,7 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
         return shaderId;
     }
 
-    public @NonNull GLState use() {
+    public @NonNull ScopedState use() {
         var active = inUse.compareAndExchange(null, this);
         if (null == active) {
             GL20.glUseProgram(state.programId);

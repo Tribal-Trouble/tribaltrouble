@@ -5,6 +5,7 @@ import com.oddlabs.geometry.SpriteInfo;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.procedural.GeneratorRespond;
 import com.oddlabs.tt.render.shader.SpriteShader;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
 import com.oddlabs.tt.util.BoundingBox;
@@ -240,9 +241,8 @@ public final class Sprite {
         return textures.length;
     }
 
-    public void setupShaderUniforms(@NonNull SpriteShader shader, int tex_index, boolean respond) {
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_NORMAL].getHandle());
+    public void setupShaderUniforms(@NonNull RenderContext context, @NonNull SpriteShader shader, int tex_index, boolean respond) {
+        context.setTexture(0, textures[tex_index][TEXTURE_NORMAL]);
         shader.setUniform(SpriteShader.Uniforms.TEXTURE_0, 0);
 
         boolean useLighting = Globals.draw_light && lighted;
@@ -258,8 +258,7 @@ public final class Sprite {
             shader.setUniform(SpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.3f);
             if (hasTeamDecal() || respond) {
                 shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, true);
-                GL13.glActiveTexture(GL13.GL_TEXTURE1);
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, respond ? respond_texture.getHandle() : textures[tex_index][TEXTURE_TEAM].getHandle());
+                context.setTexture(1, respond ? respond_texture : textures[tex_index][TEXTURE_TEAM]);
                 shader.setUniform(SpriteShader.Uniforms.TEXTURE_1, 1);
             } else {
                 shader.setUniform(SpriteShader.Uniforms.ENABLE_TEAM_COLOR, false);
@@ -268,8 +267,7 @@ public final class Sprite {
         
         if (hasBumpMap(tex_index)) {
             shader.setUniform(SpriteShader.Uniforms.ENABLE_NORMAL_MAP, true);
-            GL13.glActiveTexture(GL13.GL_TEXTURE2);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures[tex_index][TEXTURE_BUMP].getHandle());
+            context.setTexture(2, textures[tex_index][TEXTURE_BUMP]);
             shader.setUniform(SpriteShader.Uniforms.NORMAL_MAP, 2);
         } else {
             shader.setUniform(SpriteShader.Uniforms.ENABLE_NORMAL_MAP, false);

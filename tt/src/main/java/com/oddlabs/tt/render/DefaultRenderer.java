@@ -14,12 +14,13 @@ import com.oddlabs.tt.render.shader.DebugShaderRenderer;
 import com.oddlabs.tt.render.shader.LitShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.render.shader.SpriteShader;
+import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
 import com.oddlabs.tt.scenery.Sky;
 import com.oddlabs.tt.scenery.Water;
 import com.oddlabs.tt.util.DebugRender;
-import com.oddlabs.tt.util.GLStateHelper;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.AmbientAudio;
@@ -42,7 +43,6 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final @NonNull TreeRenderer tree_renderer;
     private final SpriteSorter sprite_sorter = new SpriteSorter();
     private final @NonNull RenderQueues render_queues;
-    private final @NonNull Cheat cheat;
     private final @NonNull MatrixStack modelViewStack;
     private final @NonNull MatrixStack projectionStack;
     private final @NonNull Selection selection;
@@ -51,6 +51,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final @NonNull SonicBlastRenderer sonicBlastRenderer;
     private final @NonNull InstancedSpriteRenderer treeSpriteRenderer = new InstancedSpriteRenderer();
     private final @NonNull PostProcessor postProcessor;
+    private final @Nullable Cheat cheat;
 
     private @Nullable Building selected_building;
 
@@ -67,7 +68,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         }
     }
 
-    public DefaultRenderer(@NonNull Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, @NonNull Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public DefaultRenderer(@Nullable Cheat cheat, @NonNull Player local_player, @NonNull RenderQueues render_queues, @NonNull WorldInfo world_info, @NonNull LandscapeRenderer landscape_renderer, @NonNull Picker picker, @NonNull Selection selection, @NonNull WorldGenerator generator, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         this.world = local_player.getWorld();
         this.cheat = cheat;
         this.render_queues = render_queues;
@@ -95,25 +96,24 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     }
 
     public boolean isCheater() {
-        return cheat.isEnabled();
+        return cheat != null && cheat.isEnabled();
     }
 
     public void setSelectedBuilding(@Nullable Building building) {
         this.selected_building = building;
     }
 
-    private void renderRallyPoint(@NonNull CameraState camera_state) {
+    private void renderRallyPoint(@NonNull RenderContext context, @NonNull CameraState camera_state) {
         if (selected_building != null && !selected_building.isDead() && selected_building.hasRallyPoint())
-            doRenderRallyPoint(camera_state);
+            doRenderRallyPoint(context, camera_state);
     }
 
     private static final SpriteShader spriteShader = new SpriteShader(); // For rally point
 
-    private void doRenderRallyPoint(@NonNull CameraState camera_state) {
+    private void doRenderRallyPoint(@NonNull RenderContext context, @NonNull CameraState camera_state) {
         try (var _ = spriteShader.use();
-             var _ = GLStateHelper.blend(true);
+             var _ = context.withBlendMode(BlendMode.ALPHA);
              var _ = camera_state.getFog().setup(spriteShader, camera_state)) {
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
             Target rally_point = selected_building.getRallyPoint();
             Race race = selected_building.getOwner().getRace();
@@ -124,7 +124,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             spriteShader.setUniform(LitShader.LIGHT_DIR, -1f, 0f, 1f);
             spriteShader.setUniform(LitShader.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
 
-            sprite.setupShaderUniforms(spriteShader, 0, false);
+            sprite.setupShaderUniforms(context, spriteShader, 0, false);
 
             float x = rally_point.getPositionX();
             float y = rally_point.getPositionY();
@@ -195,27 +195,27 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     }
 
     @Override
-    public void startFrame() {
+    public void startFrame(@NonNull RenderContext context) {
         postProcessor.bindSceneFBO();
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        context.clear(true, true);
     }
 
     @Override
-    public void endFrame() {
-        postProcessor.renderComposite();
+    public void endFrame(@NonNull RenderContext context) {
+        postProcessor.renderComposite(context);
     }
 
-                @Override
-                public void render(@NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
-                    if (postProcessor.resize(frustum_state.getWidth(), frustum_state.getHeight())) {
-                        postProcessor.bindSceneFBO();
-                        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-                    }
-                    ambient.updateSoundListener(frustum_state, world.getHeightMap());
+    @Override
+    public void render(@NonNull RenderContext context, @NonNull AmbientAudio ambient, @NonNull CameraState frustum_state, @NonNull GUIRoot gui_root) {
+        if (postProcessor.resize(frustum_state.getWidth(), frustum_state.getHeight())) {
+            postProcessor.bindSceneFBO();
+            context.clear(true, true);
+        }
+        ambient.updateSoundListener(frustum_state, world.getHeightMap());
         modelViewStack.current().set(frustum_state.getModelView());
         projectionStack.current().set(frustum_state.getProjectionMatrix());
 
-        if (Globals.line_mode || cheat.line_mode) {
+        if (Globals.line_mode || (cheat != null && cheat.line_mode)) {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
         }
 
@@ -223,14 +223,14 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         setDrawBuffers(false);
 
         if (Globals.draw_sky) {
-            sky.render(frustum_state, modelViewStack, projectionStack);
-            sky.renderSeaBottom(frustum_state, modelViewStack, projectionStack);
+            sky.render(context, frustum_state, modelViewStack, projectionStack);
+            sky.renderSeaBottom(context, frustum_state, modelViewStack, projectionStack);
         }
 
-                        if (Globals.process_landscape) {
-                            landscape_renderer.prepareAll(frustum_state, false);
-                            landscape_renderer.render(frustum_state, modelViewStack, projectionStack);
-                        }
+        if (Globals.process_landscape) {
+            landscape_renderer.prepareAll(frustum_state, false);
+            landscape_renderer.render(context, frustum_state, modelViewStack, projectionStack);
+        }
         // Trees & Units write to mask -> Enable Mask Buffer
         setDrawBuffers(true);
 
@@ -246,20 +246,21 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         sprite_sorter.distributeModels();
 
         if (Globals.process_shadows) {
-            render_queues.renderShadows(landscape_renderer, modelViewStack, projectionStack);
+            render_queues.renderShadows(context, landscape_renderer, modelViewStack, projectionStack);
         }
 
-                        if (Globals.process_trees) {
-                            tree_renderer.render(frustum_state, modelViewStack, projectionStack);
-                        }        if (Globals.process_misc) {
-            render_queues.renderAll(frustum_state, projectionStack);
+        if (Globals.process_trees) {
+            tree_renderer.render(context, frustum_state, modelViewStack, projectionStack);
+        }        
+        if (Globals.process_misc) {
+            render_queues.renderAll(context, frustum_state, projectionStack);
 
             // Render trees AFTER opaque units/misc.
             // Trees use Alpha-to-Coverage with Depth-Write enabled.
             // Separate renderer ensures they are flushed here.
-            treeSpriteRenderer.renderAll(frustum_state, projectionStack);
+            treeSpriteRenderer.renderAll(context, frustum_state, projectionStack);
 
-            render_queues.renderPlants(frustum_state, projectionStack);
+            render_queues.renderPlants(context, frustum_state, projectionStack);
 
             render_queues.renderNoDetail();
         }
@@ -274,31 +275,35 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         setDrawBuffers(false);
 
         if (Globals.draw_water) {
-            water.render(frustum_state, landscape_renderer.getVisiblePatches());
+            water.render(context, frustum_state, landscape_renderer.getVisiblePatches());
         }
 
         if (Globals.process_misc)
-            render_queues.renderBlends(frustum_state, projectionStack);
+            render_queues.renderBlends(context, frustum_state, projectionStack);
 
-        lightningRenderer.render(render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state, modelViewStack, projectionStack);
-        emitterRenderer.render(render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state, modelViewStack, projectionStack);
+        lightningRenderer.render(context, render_queues, element_renderer.getRenderState().getLightningQueue(), frustum_state, modelViewStack, projectionStack);
+        emitterRenderer.render(context, render_queues, element_renderer.getRenderState().getEmitterQueue(), frustum_state, modelViewStack, projectionStack);
 
         if (world.getRacesResources() != null) {
-            sonicBlastRenderer.render(render_queues, element_renderer.getRenderState().getSonicBlastQueue(), frustum_state, modelViewStack, projectionStack, world.getRacesResources().getPoisonTextures()[0]);
+            sonicBlastRenderer.render(context, render_queues, element_renderer.getRenderState().getSonicBlastQueue(), frustum_state, modelViewStack, projectionStack, world.getRacesResources().getPoisonTextures()[0]);
         }
 
         // Rally point uses SpriteShader (Mask) -> Enable
         setDrawBuffers(true);
-        renderRallyPoint(frustum_state);
+        renderRallyPoint(context, frustum_state);
 
         assert ShaderProgram.activeShader() == null : "Shader still active=" + ShaderProgram.activeShader();
 
-        if (Globals.line_mode || cheat.line_mode) {
+        if (Globals.line_mode || (cheat != null && cheat.line_mode)) {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         }
 
         // Ensure Mask is enabled for GUI clearing
         setDrawBuffers(true);
+
+        if (Globals.debugRenderingEnabled()) {
+            context.validate();
+        }
     }
 
     @Override

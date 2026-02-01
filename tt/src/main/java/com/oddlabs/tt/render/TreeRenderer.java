@@ -6,10 +6,12 @@ import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.AbstractTreeGroup;
 import com.oddlabs.tt.landscape.TreeSupply;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -18,22 +20,22 @@ public final class TreeRenderer extends TreePicker implements SceneRenderer {
     private static final Logger logger = Logger.getLogger(TreeRenderer.class.getName());
     private final InstancedSpriteRenderer instancedSpriteRenderer;
     private final WaveAnimation wave_animation = new WaveAnimation();
-    private final Cheat cheat;
+    private final @Nullable Cheat cheat;
     private final Matrix4f tempMatrix = new Matrix4f();
 
-    TreeRenderer(Cheat cheat, SpriteSorter sprite_sorter, RespondManager respond_manager, InstancedSpriteRenderer instancedSpriteRenderer) {
+    TreeRenderer(@Nullable Cheat cheat, SpriteSorter sprite_sorter, RespondManager respond_manager, InstancedSpriteRenderer instancedSpriteRenderer) {
         super(sprite_sorter, respond_manager);
         this.cheat = cheat;
         this.instancedSpriteRenderer = instancedSpriteRenderer;
     }
 
     @Override
-    public void render(@NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (!state.inNoDetailMode()) {
             wave_animation.setTime(LocalEventQueue.getQueue().getTime());
         }
         
-        if (!Globals.draw_trees || !cheat.draw_trees) {
+        if (!Globals.draw_trees || (cheat != null && !cheat.draw_trees)) {
             // Just clear lists if not drawing
             clearLists();
             return;

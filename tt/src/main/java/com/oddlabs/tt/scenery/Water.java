@@ -12,6 +12,10 @@ import com.oddlabs.tt.render.MatrixStack;
 import com.oddlabs.tt.render.PatchMesh;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.render.shader.WaterShader;
+import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.CullMode;
+import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.VertexArray;
@@ -89,19 +93,15 @@ public final class Water implements AutoCloseable {
     }
 
 
-    public void render(@NonNull CameraState state, @NonNull List<LandscapeLeaf> visiblePatches) {
+    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull List<LandscapeLeaf> visiblePatches) {
         updateAnimation();
 
-        boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
-        boolean depthTestEnabled = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
-        boolean cullFaceEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
-
         try (var _ = waterShader.use();
-             var _ = state.getFog().setup(waterShader, state)) {
+             var _ = state.getFog().setup(waterShader, state);
+             var _ = context.withBlendMode(BlendMode.ALPHA);
+             var _ = context.withDepthMode(DepthMode.READ_WRITE);
+             var _ = context.withCullMode(CullMode.NONE)) {
 
-            if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
-            if (!depthTestEnabled) GL11.glEnable(GL11.GL_DEPTH_TEST);
-            if (cullFaceEnabled) GL11.glDisable(GL11.GL_CULL_FACE);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             
             waterShader.setUniformMatrix4(WaterShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
@@ -113,13 +113,11 @@ public final class Water implements AutoCloseable {
             waterShader.setUniform(WaterShader.Uniforms.LIGHT_DIR, -1f, 0f, 1f);
             waterShader.setUniform(WaterShader.Uniforms.CAMERA_POS, state.getCurrentX(), state.getCurrentY(), state.getCurrentZ());
 
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, ocean[0].getHandle());
+            context.setTexture(0, ocean[0]);
             waterShader.setUniform(WaterShader.Uniforms.TEXTURE_0, 0);
 
             if (Globals.draw_detail) {
-                GL13.glActiveTexture(GL13.GL_TEXTURE1);
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, ocean[1].getHandle());
+                context.setTexture(1, ocean[1]);
                 waterShader.setUniform(WaterShader.Uniforms.TEXTURE_1, 1);
                 waterShader.setUniform(WaterShader.Uniforms.WATER_DETAIL_REPEAT_RATE, Globals.WATER_DETAIL_REPEAT_RATE);
                 waterShader.setUniform(WaterShader.Uniforms.ENABLE_DETAIL, true);
@@ -188,11 +186,7 @@ public final class Water implements AutoCloseable {
                 }
             }
             
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        } finally {
-            if (!blendEnabled) GL11.glDisable(GL11.GL_BLEND);
-            if (!depthTestEnabled) GL11.glDisable(GL11.GL_DEPTH_TEST);
-            if (cullFaceEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
+            context.setActiveTexture(0);
         }
     }
     

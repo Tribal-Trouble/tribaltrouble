@@ -13,6 +13,10 @@ import com.oddlabs.tt.render.SceneRenderer;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.render.shader.SeaBottomShader;
 import com.oddlabs.tt.render.shader.SkyShader;
+import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.CullMode;
+import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.DistanceFogInfo;
 import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.Resources;
@@ -127,8 +131,12 @@ public final class Sky implements SceneRenderer, AutoCloseable {
     }
 
     @Override
-    public void render(@NonNull CameraState state, @NonNull MatrixStack modelView, @NonNull MatrixStack projection) {
-        try (var _ = skyShader.use()) {
+    public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelView, @NonNull MatrixStack projection) {
+        try (var _ = skyShader.use();
+             var _ = context.withBlendMode(BlendMode.NONE);
+             var _ = context.withDepthMode(DepthMode.READ_WRITE);
+             var _ = context.withCullMode(CullMode.BACK)) {
+            
             skyShader.setUniformMatrix4(SkyShader.Uniforms.PROJECTION_MATRIX, false, projection.current());
             skyShader.setUniformMatrix4(SkyShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
             skyShader.setUniform(SkyShader.Uniforms.SKY_COLOR, color.get(0), color.get(1), color.get(2), color.get(3));
@@ -152,12 +160,10 @@ public final class Sky implements SceneRenderer, AutoCloseable {
                 skyShader.setUniform(SkyShader.Uniforms.FOG_COLOR, 0f, 0f, 0f, 0f); 
             }
 
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, clouds[GeneratorClouds.INNER].getHandle());
+            context.setTexture(0, clouds[GeneratorClouds.INNER]);
             skyShader.setUniform(SkyShader.Uniforms.TEXTURE_0, 0);
 
-            GL13.glActiveTexture(GL13.GL_TEXTURE1);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, clouds[GeneratorClouds.OUTER].getHandle());
+            context.setTexture(1, clouds[GeneratorClouds.OUTER]);
             skyShader.setUniform(SkyShader.Uniforms.TEXTURE_1, 1);
 
             updateAnimation();
@@ -229,9 +235,13 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         outerCloudDensity += (targetOuterCloudDensity - outerCloudDensity) * dt * 0.05f;
     }
 
-    public void renderSeaBottom(@NonNull CameraState state, @NonNull MatrixStack modelView, @NonNull MatrixStack projection) {
+    public void renderSeaBottom(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelView, @NonNull MatrixStack projection) {
         try (var _ = seaBottomShader.use();
-             var _ = state.getFog().setup(seaBottomShader, state)) {
+             var _ = state.getFog().setup(seaBottomShader, state);
+             var _ = context.withBlendMode(BlendMode.NONE);
+             var _ = context.withDepthMode(DepthMode.READ_WRITE);
+             var _ = context.withCullMode(CullMode.BACK)) {
+            
             seaBottomShader.setUniformMatrix4(SeaBottomShader.Uniforms.PROJECTION_MATRIX, false, projection.current());
             seaBottomShader.setUniformMatrix4(SeaBottomShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
 
@@ -242,8 +252,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
             seaBottomShader.setUniform(SeaBottomShader.Uniforms.BASE_COLOR, seaColor.x(), seaColor.y(), seaColor.z(), seaColor.w());
 
             if (Globals.draw_detail) {
-                GL13.glActiveTexture(GL13.GL_TEXTURE1);
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, detail.getHandle());
+                context.setTexture(1, detail);
                 seaBottomShader.setUniform(SeaBottomShader.Uniforms.TEXTURE_1, 1);
                 seaBottomShader.setUniform(SeaBottomShader.Uniforms.DETAIL_SCALE, Globals.LANDSCAPE_DETAIL_REPEAT_RATE);
             } else {
@@ -254,7 +263,7 @@ public final class Sky implements SceneRenderer, AutoCloseable {
             water_indices.drawElements(GL11.GL_TRIANGLES, water_indices.capacity(), 0);
             seaBottomVAO.unbind();
 
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+            context.setActiveTexture(0);
         } finally {
             com.oddlabs.tt.vbo.VBO.releaseIndexVBO();
         }

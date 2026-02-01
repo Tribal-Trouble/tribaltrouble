@@ -7,11 +7,11 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.GUIRenderer;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.UIRenderer;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 public final class GUI implements Animated {
     private final @NonNull GUIRenderer guiRenderer;
@@ -79,7 +79,10 @@ public final class GUI implements Animated {
         var guiRoot = getGUIRoot();
         CameraState camera = guiRoot.getDelegate().getCamera().getState();
         
-        var window = Renderer.getRenderer().getWindow();
+        var renderer_instance = Renderer.getRenderer();
+        var window = renderer_instance.getWindow();
+        RenderContext context = renderer_instance.getRenderContext();
+        
         camera.setView(guiRoot.multProjection(proj.identity()), window.getWidth(), window.getHeight());
         modelView.set(camera.getModelView());
 
@@ -88,18 +91,18 @@ public final class GUI implements Animated {
         }
 
         if (renderer != null) {
-            renderer.startFrame();
+            renderer.startFrame(context);
         } else {
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+            context.clear(true, true);
         }
 
         if (renderer != null)
-            renderer.render(ambient, frustum_state, current_root);
+            renderer.render(context, ambient, frustum_state, current_root);
         
-        renderGUI();
+        renderGUI(context);
         
         if (renderer != null) {
-            renderer.endFrame();
+            renderer.endFrame(context);
         }
     }
 
@@ -113,9 +116,9 @@ public final class GUI implements Animated {
         }
     }
 
-    private void renderGUI() {
+    private void renderGUI(@NonNull RenderContext context) {
         GUIRoot guiRoot = getGUIRoot();
-        guiRenderer.renderFrame(guiRoot.getWidth(), guiRoot.getHeight(), () -> {
+        guiRenderer.renderFrame(context, guiRoot.getWidth(), guiRoot.getHeight(), () -> {
             guiRoot.render(guiRenderer);
             guiRoot.renderTopmost(guiRenderer, renderer != null ? renderer.getToolTip() : null, renderer != null && renderer.isCheater());
         });

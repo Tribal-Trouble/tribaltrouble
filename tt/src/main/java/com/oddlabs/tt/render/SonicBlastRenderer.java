@@ -4,6 +4,9 @@ import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.particle.SonicBlastEffect;
 import com.oddlabs.tt.render.shader.SonicBlastShader;
 import com.oddlabs.tt.render.shader.VertexLayout;
+import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import org.jspecify.annotations.NonNull;
@@ -45,23 +48,17 @@ public final class SonicBlastRenderer implements AutoCloseable {
         vao.unbind();
     }
 
-    public void render(@NonNull RenderQueues render_queues, @NonNull Queue<@NonNull SonicBlastEffect> queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack, @NonNull TextureKey noiseTextureKey) {
+    public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Queue<@NonNull SonicBlastEffect> queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack, @NonNull TextureKey noiseTextureKey) {
         if (queue.isEmpty()) return;
 
-        boolean blendEnabled = GL11.glIsEnabled(GL11.GL_BLEND);
-        boolean depthMaskEnabled = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
-
         try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state)) {
-
-            if (!blendEnabled) GL11.glEnable(GL11.GL_BLEND);
-            if (depthMaskEnabled) GL11.glDepthMask(false);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE); // Additive blending
+             var _ = state.getFog().setup(shader, state);
+             var _ = context.withBlendMode(BlendMode.ADDITIVE);
+             var _ = context.withDepthMode(DepthMode.READ_ONLY)) {
 
             shader.setUniformMatrix4(SonicBlastShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, render_queues.getTexture(noiseTextureKey).getHandle());
+            context.setTexture(0, render_queues.getTexture(noiseTextureKey));
             shader.setUniform(SonicBlastShader.Uniforms.NOISE_TEXTURE, 0);
             
             shader.setUniform(SonicBlastShader.Uniforms.COLOR, 0.7f, 0.85f, 1.0f); // Electric blue/white
@@ -92,12 +89,7 @@ public final class SonicBlastRenderer implements AutoCloseable {
             }
             
             vao.unbind();
-            GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        } finally {
-            // Restore standard blending
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            if (!blendEnabled) GL11.glDisable(GL11.GL_BLEND);
-            if (depthMaskEnabled) GL11.glDepthMask(true);
+            context.setActiveTexture(0);
         }
     }
 

@@ -1,7 +1,11 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.render.shader.DecalShader;
-import com.oddlabs.tt.util.GLState;
+import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.CullMode;
+import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.state.RenderContext;
+import com.oddlabs.tt.render.state.ScopedState;
 import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
@@ -9,7 +13,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -101,7 +104,7 @@ public final class DecalRenderer implements AutoCloseable {
         this.vao.unbind();
     }
 
-    public @NonNull GLState setup(@NonNull LandscapeRenderer landscape, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+    public @NonNull ScopedState setup(@NonNull RenderContext context, @NonNull LandscapeRenderer landscape, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         var shaderUseState = shader.use();
         
         shader.setUniformMatrix4(DecalShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
@@ -110,32 +113,32 @@ public final class DecalRenderer implements AutoCloseable {
         shader.setUniform(DecalShader.Uniforms.WORLD_SIZE, (float) landscape.getHeightMap().getMetersPerWorld());
         shader.setUniform(DecalShader.Uniforms.DEPTH_BIAS, 0.05f);
         
-        GL13.glActiveTexture(GL13.GL_TEXTURE1);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, landscape.getHeightMap().getHeightTexture().getHandle());
+        context.setTexture(1, landscape.getHeightMap().getHeightTexture());
         shader.setUniform(DecalShader.Uniforms.HEIGHT_MAP, 1);
 
         // Render State
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthFunc(GL11.GL_LEQUAL);
-        GL11.glDepthMask(false); // Decals usually don't write depth
+        var blend = context.withBlendMode(BlendMode.ALPHA);
+        var depth = context.withDepthMode(DepthMode.READ_ONLY);
+        var cull = context.withCullMode(CullMode.NONE);
+        var dfunc = context.withDepthFunc(GL11.GL_LEQUAL);
         
         // Bias to prevent Z-fighting with terrain
         GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
         GL11.glPolygonOffset(-16.0f, -32.0f);
         
-        GL11.glDisable(GL11.GL_CULL_FACE); // In case of weird winding
-        
         // Disable writing to Mask Buffer (Attachment 1) since DecalShader doesn't output to it
         GL20.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);
 
         return () -> {
-            flush();
+            flush(context);
             shaderUseState.close();
             GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
-            GL11.glDepthMask(true); // Restore depth write
-            GL11.glEnable(GL11.GL_CULL_FACE);
+            
+            dfunc.close();
+            cull.close();
+            depth.close();
+            blend.close();
+            
             // Restore draw buffers (Color + Mask)
             try (org.lwjgl.system.MemoryStack stack = org.lwjgl.system.MemoryStack.stackPush()) {
                 java.nio.IntBuffer buffers = stack.mallocInt(2);
@@ -146,14 +149,14 @@ public final class DecalRenderer implements AutoCloseable {
         };
     }
 
-    public void draw(@NonNull Texture texture, float x, float y, float size, float r, float g, float b, float a) {
+    public void draw(@NonNull RenderContext context, @NonNull Texture texture, float x, float y, float size, float r, float g, float b, float a) {
         if (currentTexture != texture) {
-            flush();
+            flush(context);
             currentTexture = texture;
         }
 
         if (instanceCount >= MAX_INSTANCES) {
-            flush();
+            flush(context);
         }
 
         instanceBuffer.put(x);
@@ -166,11 +169,10 @@ public final class DecalRenderer implements AutoCloseable {
         instanceCount++;
     }
 
-    private void flush() {
+    private void flush(RenderContext context) {
         if (instanceCount == 0 || currentTexture == null) return;
 
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, currentTexture.getHandle());
+        context.setTexture(0, currentTexture.getHandle());
         shader.setUniform(DecalShader.Uniforms.TEXTURE, 0);
 
         vao.bind();

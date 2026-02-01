@@ -3,6 +3,7 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.procedural.GeneratorHalos;
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.Resources;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector4fc;
@@ -46,13 +47,13 @@ final class SelectableShadowRenderer extends ShadowListRenderer {
     }
 
     @Override
-    protected void renderShadows(@NonNull LandscapeRenderer renderer, @NotNull MatrixStack modelViewStack, @NotNull MatrixStack projectionStack) {
-        try (var _ = setupShadows(renderer, modelViewStack, projectionStack)) {
+    protected void renderShadows(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer, @NotNull MatrixStack modelViewStack, @NotNull MatrixStack projectionStack) {
+        try (var _ = setupShadows(context, renderer, modelViewStack, projectionStack)) {
             setShadowColor(1f, 1f, 1f, 1f);
             bindShadowTexture(halos[GeneratorHalos.SHADOWED]);
             while (!shadowed_list.isEmpty()) {
                 var model = shadowed_list.pop();
-                renderShadow(renderer, model.getShadowDiameter(), model.getPositionX(), model.getPositionY());
+                renderShadow(context, renderer, model.getShadowDiameter(), model.getPositionX(), model.getPositionY());
             }
 
             bindShadowTexture(halos[GeneratorHalos.SELECTED]);
@@ -61,7 +62,7 @@ final class SelectableShadowRenderer extends ShadowListRenderer {
                 var model = Objects.requireNonNull(modelState.getModel());
                 Vector4fc color = modelState.getSelectionColor();
                 setShadowColor(color.x(), color.y(), color.z(), 1f);
-                renderShadow(renderer, model.getShadowDiameter(), model.getPositionX(), model.getPositionY());
+                renderShadow(context, renderer, model.getShadowDiameter(), model.getPositionX(), model.getPositionY());
             }
         }
     }

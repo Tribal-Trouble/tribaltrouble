@@ -1,6 +1,10 @@
 package com.oddlabs.tt.render.shader;
 
 import com.oddlabs.tt.render.MatrixStack;
+import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.DepthMode;
+import com.oddlabs.tt.render.state.RenderContext;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
@@ -60,22 +64,17 @@ public final class DebugShaderRenderer extends ShaderRenderer {
 	 */
 	@Override
 	public void end() {
-        boolean depthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
-        boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
-        boolean depthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
+        RenderContext context = Renderer.getRenderer().getRenderContext();
 
-        try {
-            if (depthTest) GL11.glDisable(GL11.GL_DEPTH_TEST);
-            if (!blend) GL11.glEnable(GL11.GL_BLEND);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            if (depthMask) GL11.glDepthMask(false);
-            
-            flush(pointSize);
-            
-        } finally {
-            if (depthTest) GL11.glEnable(GL11.GL_DEPTH_TEST);
-            if (!blend) GL11.glDisable(GL11.GL_BLEND);
-            if (depthMask) GL11.glDepthMask(true);
+        try (var _ = context.withDepthMode(DepthMode.NONE);
+             var _ = context.withBlendMode(BlendMode.ALPHA)) {
+
+            GL11.glDepthMask(false);
+			try {
+				flush(pointSize);
+			} finally {
+				GL11.glDepthMask(true); // Restore default
+			}
         }
 	}
 

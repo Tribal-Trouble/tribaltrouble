@@ -1,5 +1,6 @@
 package com.oddlabs.tt.render;
 
+import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.GLIntImage;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.util.Color;
@@ -18,8 +19,8 @@ public final class BuildingSiteRenderer extends ShadowRenderer {
         green = new Texture(new GLIntImage[]{img}, GL11.GL_RGBA8, GL11.GL_LINEAR, GL11.GL_LINEAR, org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE, org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE);
     }
 
-    public void renderSites(@NonNull LandscapeRenderer renderer, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack, @NonNull List<? extends @NonNull Target> targets, float center_x, float center_y, float max_radius) {
-        try (var _ = setupShadows(renderer, modelViewStack, projectionStack)) {
+    public void renderSites(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack, @NonNull List<? extends @NonNull Target> targets, float center_x, float center_y, float max_radius) {
+        try (var _ = setupShadows(context, renderer, modelViewStack, projectionStack)) {
             bindShadowTexture(green);
             float radius_sqr = max_radius * max_radius;
             for (Target target : targets) {
@@ -30,7 +31,7 @@ public final class BuildingSiteRenderer extends ShadowRenderer {
                     setShadowColor(1f, 1f, 1f, 1f);
                 else
                     setShadowColor(0f, 1f, 0f, Math.max(0f, 1 - a * a));
-                renderShadow(renderer, 2f, target.getPositionX(), target.getPositionY());
+                renderShadow(context, renderer, 2f, target.getPositionX(), target.getPositionY());
             }
         }
     }
