@@ -21,7 +21,7 @@ val fontTexClasspath = "/textures/font"
 tasks.register("renderInterLightFont", JavaExec::class) {
     group = "build"
     description = "Renders Inter Light TTF font to PNG texture and font metadata."
-    jvmArgs("-ea", "-Xmx512m", "-Djava.awt.headless=true")
+    jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true")
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
     classpath = fontRenderer + files("resources")
 
@@ -55,7 +55,7 @@ tasks.register("renderInterLightFont", JavaExec::class) {
 tasks.register("renderInterTightBlackFont", JavaExec::class) {
     group = "build"
     description = "Renders Inter Tight Black TTF font to PNG texture and font metadata."
-    jvmArgs("-ea", "-Xmx512m", "-Djava.awt.headless=true")
+    jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true")
     mainClass.set("com.oddlabs.fontutil.FontRenderer")
     classpath = fontRenderer + files("resources")
 
@@ -100,7 +100,7 @@ val geometry = tasks.register<JavaExec>("geometry") {
     classpath(configurations.runtimeClasspath)
     mainClass.set("com.oddlabs.converter.ConvertToBinary")
     args("geometry.xml", "geometry", "build/geometry")
-    jvmArgs("-ea", "-Xmx512m", "-Djava.awt.headless=true")
+    jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true")
     inputs.file("geometry/geometry.xml")
     inputs.dir("geometry").withPathSensitivity(PathSensitivity.RELATIVE)
     outputs.dir("build/geometry")
@@ -114,7 +114,7 @@ fun convertTexture(name: String, png: File, vararg convertArgs: String) =
         val subdir = convertArgs.last()
         val outdir = "build/textures/$subdir"
         args(png.absolutePath, *convertArgs.dropLast(1).toTypedArray(), file(outdir).absolutePath)
-        jvmArgs("-ea", "-Djava.awt.headless=true")
+        jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true")
         inputs.file(png)
         outputs.file("$outdir/${png.nameWithoutExtension}.$ext")
     }
