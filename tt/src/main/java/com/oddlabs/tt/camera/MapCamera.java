@@ -13,7 +13,9 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Color;
 import org.jspecify.annotations.NonNull;
 
+import java.util.EnumSet;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 /**
  * Camera for showing the island overview map.
@@ -23,6 +25,22 @@ public final class MapCamera extends Camera {
     private static final float MAP_TIME_FACTOR = 1000f;
     private static final float SMOOTHNESS_FACTOR = 200f;
     public static final float MAP_Z_FACTOR = 1.3f;
+
+    private static final Set<GameAction> BLOCKED_ACTIONS = EnumSet.of(
+            GameAction.CAMERA_PAN_LEFT,
+            GameAction.CAMERA_PAN_RIGHT,
+            GameAction.CAMERA_PAN_UP,
+            GameAction.CAMERA_PAN_DOWN,
+            GameAction.CAMERA_PITCH_UP,
+            GameAction.CAMERA_PITCH_DOWN,
+            GameAction.CAMERA_ROTATE_LEFT,
+            GameAction.CAMERA_ROTATE_RIGHT,
+            GameAction.CAMERA_ZOOM_IN,
+            GameAction.CAMERA_ZOOM_OUT,
+            GameAction.CAMERA_RESET,
+            GameAction.CAMERA_FIRST_PERSON,
+            GameAction.CAMERA_ZOOM_MODE
+    );
 
     private enum MapMode {
         TO_MAP,
@@ -36,6 +54,7 @@ public final class MapCamera extends Camera {
     private final Label label = new Label(Utils.getBundleString(ResourceBundle.getBundle(MapCamera.class.getName()), "map_mode"), Skin.getSkin().getHeadlineFont());
 
     private @NonNull MapMode map_mode = MapMode.TO_MAP;
+    private float fogTime = 0f;
 
     public MapCamera(@NonNull SelectionDelegate delegate, @NonNull GameCamera old_camera) {
         original_camera_state = old_camera.getState();
@@ -64,6 +83,33 @@ public final class MapCamera extends Camera {
         float map_x = getHeightMap().getMetersPerWorld()/2;
         float map_y = getHeightMap().getMetersPerWorld()/2;
         float map_z = getHeightMap().getMetersPerWorld()*MAP_Z_FACTOR;
+        float start_z = original_camera_state.getTargetZ();
+
+        // Calculate transition progress (0.0 = at start, 1.0 = at map)
+        float current_z = getState().getTargetZ();
+        float total_dist = map_z - start_z;
+        float progress = (Math.abs(total_dist) > 0.001f) 
+                ? Math.clamp((current_z - start_z) / total_dist, 0f, 1f) 
+                : 1f;
+
+        // Base organic fog pulse (sum of sines for non-predictable period)
+        fogTime += t;
+        float pulse = (float) (Math.sin(fogTime * 0.4125f) * 0.5 + 
+                               Math.sin(fogTime * 0.8625f) * 0.3 + 
+                               Math.sin(fogTime * 1.7625f) * 0.2);
+        float baseDensity = 0.30f + pulse * 0.12f;
+
+        // Apply transition
+        // 0% to 25%: Keep original distance fog to hide horizon near ground
+        // 25% to 100%: Fade in Radial Fog (vignette)
+        if (progress < 0.25f) {
+            getState().setFog(original_camera_state.getFog());
+        } else {
+            float fade = (progress - 0.25f) / 0.75f;
+            // Radius shrinks from 1.5x to 1.0x as we ascend
+            float radiusScale = 1.5f - (0.5f * fade); 
+            getState().setFog(new RadialFogInfo(Color.WHITE, baseDensity * fade, radiusScale));
+        }
 
         switch (map_mode) {
             case TO_MAP -> {
@@ -151,6 +197,14 @@ public final class MapCamera extends Camera {
 
     @Override
     public void handleInput(@NonNull InputEvent event) {
+        // Block camera controls and delegate switches while in map mode
+        for (GameAction action : BLOCKED_ACTIONS) {
+            if (event.consumeAction(action)) {
+                event.consume();
+                return;
+            }
+        }
+
         if (event.getPhase() == InputPhase.PRESSED || event.getPhase() == InputPhase.REPEAT) {
             if (event.consumeAction(GameAction.CAMERA_MAP_MODE)) {
                 changeMode((map_mode == MapMode.TO_MAP || map_mode == MapMode.IN_MAP) ? MapMode.FROM_MAP : MapMode.TO_MAP);

@@ -92,6 +92,7 @@ public final class GlobalUniforms {
                 p1 = (float) camera.getWidth();
                 p2 = (float) camera.getHeight();
                 p3 = rf.getDensity();
+                hf = rf.getRadiusScale();
             }
         }
 

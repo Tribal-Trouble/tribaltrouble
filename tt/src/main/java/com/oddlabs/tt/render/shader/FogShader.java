@@ -23,7 +23,7 @@ public interface FogShader extends Shader {
             if (u_fogMode == 3) { // Radial fog for map view
                 vec2 resolution = u_fogParams.xy;
                 float density = u_fogParams.z;
-                float radius = max(resolution.x, resolution.y) / 2.0;
+                float radius = (max(resolution.x, resolution.y) / 2.0) * u_fogHeightFactor;
                 
                 // Center coordinates and correct for aspect ratio
                 vec2 centeredCoords = fragCoord - resolution / 2.0;
