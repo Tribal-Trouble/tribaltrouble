@@ -21,7 +21,7 @@ public final class DebugMeshShader extends ShaderProgram implements FogShader, L
 		String POSITION = Shader.POSITION;
 		String NORMAL = Shader.NORMAL;
 		String COLOR = Shader.COLOR;
-		String TEX_COORD_0 = "u_texCoord0";
+		String TEX_COORD_0 = "in_TexCoord0";
 	}
 
 	public enum Attribute implements VertexAttribute {

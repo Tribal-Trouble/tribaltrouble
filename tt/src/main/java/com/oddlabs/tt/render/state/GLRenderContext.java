@@ -54,7 +54,7 @@ public final class GLRenderContext implements RenderContext {
         currentBlend = BlendMode.NONE;
         currentDepth = DepthMode.NONE;
         currentCull = CullMode.NONE;
-        currentDepthFunc = GL11.GL_LEQUAL;
+        currentDepthFunc = -1;
         scissorEnabled = false; // We can't know for sure, but usually we start disabled
         GL11.glDisable(GL11.GL_SCISSOR_TEST); // Ensure consistent start
         
