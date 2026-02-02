@@ -69,6 +69,10 @@ public final class SonicBlastEffect extends Element<SonicBlastEffect> {
         return maxRadius;
     }
 
+    public float getDuration() {
+        return duration;
+    }
+
     @Override
     public void visit(@NonNull ElementVisitor visitor) {
         visitor.visitSonicBlastEffect(this);

@@ -8,10 +8,10 @@ public final class SonicBlastShader extends ShaderProgram implements FogShader {
     public interface Uniforms {
         String PROJECTION_MATRIX = Shader.PROJECTION_MATRIX;
         String MODEL_VIEW_MATRIX = Shader.MODEL_VIEW_MATRIX;
-        String NOISE_TEXTURE = "u_noiseTexture";
         String TIME = "u_time";
         String MAX_RADIUS = "u_maxRadius";
-        String COLOR = Shader.COLOR;
+        String EXPANSION_SPEED = "u_expansionSpeed";
+        String COLOR = "u_color";
     }
 
     public interface Attributes {
@@ -73,9 +73,9 @@ public final class SonicBlastShader extends ShaderProgram implements FogShader {
         GLOBAL_STATE_BLOCK +
         FOG_FUNCTION +
         """
-        uniform sampler2D u_noiseTexture;
         uniform float u_time;
         uniform float u_maxRadius;
+        uniform float u_expansionSpeed;
         uniform vec3 u_color;
 
         in vec2 v_texCoord;
@@ -83,11 +83,10 @@ public final class SonicBlastShader extends ShaderProgram implements FogShader {
         
         layout(location = 0) out vec4 out_FragColor;
 
-        const int NUM_RINGS = 4; // 1 initial + 3 looped
+        const int NUM_RINGS = 4; 
         const float SECONDS_AFTER_FIRST = 0.005;
         const float TIME_BETWEEN_RINGS = 0.01;
-        const float RING_SPEED = 27.0;
-        const float RING_WIDTH = 6.0; // Increased width for even softer look
+        const float RING_WIDTH = 6.0; 
 
         void main() {
             // Calculate distance from center in UV space (0.0 to 0.5) and scale to world space
@@ -99,12 +98,14 @@ public final class SonicBlastShader extends ShaderProgram implements FogShader {
             // Main blast ring
             if (u_time > 0.0) {
                 float ringTime = u_time;
-                float currentRadius = ringTime * RING_SPEED;
-                if (currentRadius <= u_maxRadius) {
+                float currentRadius = ringTime * u_expansionSpeed;
+                
+                // Allow rings to expand slightly past max radius for fade out
+                if (currentRadius <= u_maxRadius + RING_WIDTH) {
                     float distToRing = abs(dist - currentRadius);
                     float ringIntensity = 1.0 - smoothstep(0.0, RING_WIDTH, distToRing);
                     float fade = 1.0 - smoothstep(0.0, u_maxRadius, currentRadius);
-                    totalIntensity += ringIntensity * fade * 1.0; // Reduced brightness for first ring
+                    totalIntensity += ringIntensity * fade * 1.0; 
                 }
             }
 
@@ -114,9 +115,9 @@ public final class SonicBlastShader extends ShaderProgram implements FogShader {
                 if (u_time < startTime) continue;
 
                 float ringTime = u_time - startTime;
-                float currentRadius = ringTime * (RING_SPEED - float(i) * 5.0);
+                float currentRadius = ringTime * (u_expansionSpeed - float(i) * 5.0);
                 
-                if (currentRadius > u_maxRadius) continue;
+                if (currentRadius > u_maxRadius + RING_WIDTH) continue;
 
                 float distToRing = abs(dist - currentRadius);
                 float ringIntensity = 1.0 - smoothstep(0.0, RING_WIDTH * 0.5, distToRing);
@@ -126,20 +127,21 @@ public final class SonicBlastShader extends ShaderProgram implements FogShader {
                 totalIntensity += ringIntensity * fade * 0.8;
             }
 
-            if (totalIntensity <= 0.0) discard;
-
-            // Add noise turbulence
-            vec2 noiseUV = v_texCoord * 5.0 + vec2(u_time * 2.0);
-            float noise = texture(u_noiseTexture, noiseUV).r;
+            // Procedural noise/turbulence (Sine waves based on position and time)
+            float noise = sin(v_texCoord.x * 20.0 + u_time * 10.0) * cos(v_texCoord.y * 20.0 - u_time * 5.0);
             totalIntensity *= (0.6 + 0.4 * noise);
 
-            vec3 finalColor = u_color * pow(clamp(totalIntensity, 0.0, 1.0), 2.0);
+            // Clamp intensity
+            totalIntensity = clamp(totalIntensity, 0.0, 1.0);
+
+            vec3 finalColor = u_color * totalIntensity;
             
-            // Apply fog (fade to black for additive)
+            // Apply fog
             float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
             finalColor *= fogFactor;
 
-            out_FragColor = vec4(finalColor, clamp(totalIntensity, 0.0, 1.0));
+            // Additive blending, alpha 1.0
+            out_FragColor = vec4(finalColor, 1.0);
         }
         """;
 

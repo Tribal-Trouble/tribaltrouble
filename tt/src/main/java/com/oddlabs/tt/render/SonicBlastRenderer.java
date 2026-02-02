@@ -5,6 +5,7 @@ import com.oddlabs.tt.particle.SonicBlastEffect;
 import com.oddlabs.tt.render.shader.SonicBlastShader;
 import com.oddlabs.tt.render.shader.VertexLayout;
 import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.vbo.FloatVBO;
@@ -52,13 +53,9 @@ public final class SonicBlastRenderer implements AutoCloseable {
 
         try (var _ = shader.use();
              var _ = context.withBlendMode(BlendMode.ADDITIVE);
-             var _ = context.withDepthMode(DepthMode.READ_ONLY)) {
+             var _ = context.withDepthMode(DepthMode.NONE);
+             var _ = context.withCullMode(CullMode.NONE)) {
 
-            context.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-            
-            context.setTexture(0, render_queues.getTexture(noiseTextureKey));
-            shader.setUniform(SonicBlastShader.Uniforms.NOISE_TEXTURE, 0);
-            
             shader.setUniform(SonicBlastShader.Uniforms.COLOR, 0.7f, 0.85f, 1.0f); // Electric blue/white
 
             vao.bind();
@@ -71,7 +68,9 @@ public final class SonicBlastRenderer implements AutoCloseable {
                 float x = effect.getPositionX();
                 float y = effect.getPositionY();
                 float z = effect.getPositionZ();
-                float r = effect.getMaxRadius() * 2.0f;
+                // Visual radius is 20% larger than damage radius ("felt but no damage")
+                float visualRadius = effect.getMaxRadius() * 1.2f; 
+                float r = visualRadius * 2.0f; // Quad size (diameter)
 
                 // Position and scale the quad to be parallel to the ground
                 modelViewStack.translate(x, y, z);
@@ -79,7 +78,8 @@ public final class SonicBlastRenderer implements AutoCloseable {
 
                 shader.setUniformMatrix4(SonicBlastShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
                 shader.setUniform(SonicBlastShader.Uniforms.TIME, effect.getTime());
-                shader.setUniform(SonicBlastShader.Uniforms.MAX_RADIUS, effect.getMaxRadius());
+                shader.setUniform(SonicBlastShader.Uniforms.MAX_RADIUS, visualRadius);
+                shader.setUniform(SonicBlastShader.Uniforms.EXPANSION_SPEED, visualRadius / Math.max(effect.getDuration(), 0.001f));
 
                 GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
 
