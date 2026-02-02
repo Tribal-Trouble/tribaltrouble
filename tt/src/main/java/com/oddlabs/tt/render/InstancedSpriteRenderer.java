@@ -218,18 +218,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
         void render(@NonNull RenderContext context, @NonNull InstancedSpriteShader shader, Texture whiteTexture, @NonNull RenderState state) {
             if (totalInstances == 0) return;
 
-            context.setDepthMode(key.depthTest ? key.depthWrite ? DepthMode.READ_WRITE : DepthMode.READ_ONLY : DepthMode.NONE);
-
             Sprite sprite = key.spriteList.getSprite(key.spriteIndex);
-            context.setCullMode(sprite.culled ? CullMode.BACK : CullMode.NONE);
-
-            if (key.blend) {
-                context.setBlendMode(BlendMode.ALPHA);
-                GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
-            } else {
-                context.setBlendMode(BlendMode.NONE);
-                GL11.glEnable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
-            }
 
             setupTextures(context, shader, sprite, whiteTexture, state);
             
@@ -246,11 +235,46 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             }
             
             vao.bind();
-            
-            // Use glDrawElementsInstanced
-            GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, sprite.getTriangleCount() * 3, GL11.GL_UNSIGNED_SHORT, (long)sprite.indices_offset * Short.BYTES, totalInstances);
+
+            if (key.respond) {
+                // Two-pass technique to avoid alpha accumulation (like building placement ghosts)
+                // Pass 1: Depth Prime (Write Depth, No Color)
+                try (var _ = context.withColorMask(false, false, false, false);
+                     var _ = context.withDepthMode(DepthMode.READ_WRITE);
+                     var _ = context.withDepthFunc(GL11.GL_LEQUAL);
+                     var _ = context.withBlendMode(BlendMode.NONE)) {
+                    GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
+                    draw(sprite);
+                }
+
+                // Pass 2: Color Render (No Depth Write, Equal Depth)
+                try (var _ = context.withColorMask(true, true, true, true);
+                     var _ = context.withDepthMode(DepthMode.READ_ONLY);
+                     var _ = context.withDepthFunc(GL11.GL_EQUAL);
+                     var _ = context.withBlendMode(BlendMode.ALPHA)) {
+                    GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
+                    draw(sprite);
+                }
+            } else {
+                context.setDepthMode(key.depthTest ? key.depthWrite ? DepthMode.READ_WRITE : DepthMode.READ_ONLY : DepthMode.NONE);
+                context.setCullMode(sprite.culled ? CullMode.BACK : CullMode.NONE);
+
+                if (key.blend) {
+                    context.setBlendMode(BlendMode.ALPHA);
+                    GL11.glDisable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
+                } else {
+                    context.setBlendMode(BlendMode.NONE);
+                    GL11.glEnable(GL13.GL_SAMPLE_ALPHA_TO_COVERAGE);
+                }
+                draw(sprite);
+            }
             
             vao.unbind();
+        }
+
+        private void draw(Sprite sprite) {
+            // Use glDrawElementsInstanced
+            GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, sprite.getTriangleCount() * 3, GL11.GL_UNSIGNED_SHORT, (long)sprite.indices_offset * Short.BYTES, totalInstances);
         }
         
         private void setupTextures(@NonNull RenderContext context, @NonNull InstancedSpriteShader shader, @NonNull Sprite sprite, Texture whiteTexture, @NonNull RenderState state) {
@@ -263,6 +287,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             boolean useLighting = Globals.draw_light && sprite.lighted;
             shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_LIGHTING, useLighting);
             shader.setUniform(InstancedSpriteShader.Uniforms.REPLACE_MODE, !useLighting && !sprite.modulate_color);
+            shader.setUniform(InstancedSpriteShader.Uniforms.DESATURATE, key.respond ? 0.5f : 0.0f);
             
             if (sprite.modulate_color) {
                 shader.setUniform(InstancedSpriteShader.Uniforms.MODULATE_COLOR, true);
@@ -270,7 +295,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
                 shader.setUniform(InstancedSpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.0f);
             } else {
                 shader.setUniform(InstancedSpriteShader.Uniforms.MODULATE_COLOR, false);
-                shader.setUniform(InstancedSpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.1f);
+                shader.setUniform(InstancedSpriteShader.Uniforms.ALPHA_TEST_VALUE, key.respond ? 0.5f : 0.1f);
                 if (sprite.hasTeamDecal() || key.respond) {
                     shader.setUniform(InstancedSpriteShader.Uniforms.ENABLE_TEAM_COLOR, true);
                     Texture teamTexture = key.respond ? sprite.respond_texture : sprite.textures[key.texIndex][Sprite.TEXTURE_TEAM];

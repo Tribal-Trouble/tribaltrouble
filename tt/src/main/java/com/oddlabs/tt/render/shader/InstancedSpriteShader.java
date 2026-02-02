@@ -17,6 +17,7 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
         String ENABLE_NORMAL_MAP = "u_enableNormalMap";
         String MODULATE_COLOR = "u_modulateColor";
         String REPLACE_MODE = "u_replaceMode";
+        String DESATURATE = "u_desaturate";
         String ALPHA_TEST_VALUE = "u_alphaTestValue";
     }
     
