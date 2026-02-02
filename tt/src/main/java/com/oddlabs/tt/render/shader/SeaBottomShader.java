@@ -19,11 +19,12 @@ public final class SeaBottomShader extends ShaderProgram implements FogShader {
 
     private static final String VERTEX_SHADER = """
         #version 410 core
-
+        """ +
+        GLOBAL_STATE_BLOCK +
+        """
         layout(location = 0) in vec3 in_Position;
 
         uniform mat4 u_modelViewMatrix;
-        uniform mat4 u_projectionMatrix;
         uniform float u_detailScale;
 
         out vec2 v_texCoordDetail;
@@ -43,18 +44,12 @@ public final class SeaBottomShader extends ShaderProgram implements FogShader {
         """
         #version 410 core
         """ +
+        GLOBAL_STATE_BLOCK +
         FOG_FUNCTION +
         """
         uniform sampler2D u_texture1; // Detail texture
         uniform vec4 u_baseColor;
         uniform float u_detailScale;
-
-        // Fog uniforms
-        uniform vec4 u_fogColor;
-        uniform int u_fogMode;
-        uniform vec3 u_fogParams; // x = density, y = start, z = end
-        uniform float u_fogHeightFactor;
-        uniform float u_cameraHeight;
 
         in vec2 v_texCoordDetail;
         in float v_fogDist;
@@ -69,7 +64,7 @@ public final class SeaBottomShader extends ShaderProgram implements FogShader {
                color.rgb = mix(color.rgb, detail.rgb, detail.a);
             }
         
-            float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
+            float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
             out_FragColor = vec4(mix(u_fogColor.rgb, color.rgb, fogFactor), color.a);
         }
         """;

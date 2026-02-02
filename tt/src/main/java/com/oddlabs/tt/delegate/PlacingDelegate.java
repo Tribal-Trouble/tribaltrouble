@@ -21,7 +21,6 @@ import com.oddlabs.tt.render.RenderQueues;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Sprite;
 import com.oddlabs.tt.render.SpriteRenderer;
-import com.oddlabs.tt.render.shader.LitShader;
 import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.render.state.BlendMode;
 import com.oddlabs.tt.render.state.CullMode;
@@ -129,13 +128,9 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
         SpriteRenderer built_renderer = queues.getRenderer(getTemplate().getBuiltRenderer());
         Sprite sprite = built_renderer.getSpriteList().getSprite(0);
 
-        try (var _ = spriteShader.use();
-             var _ = state.getFog().setup(spriteShader, state)) {
+        try (var _ = spriteShader.use()) {
             
-                            spriteShader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
-                            spriteShader.setUniform(LitShader.Uniforms.LIGHT_DIR, -1f, 0f, 1f);
-                            spriteShader.setUniform(LitShader.Uniforms.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
-                            spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 0.5f);
+            spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 0.5f);
             sprite.setupShaderUniforms(context, spriteShader, 0, false);
             spriteShader.setUniform(SpriteShader.Uniforms.MODULATE_COLOR, true);
             spriteShader.setUniform(SpriteShader.Uniforms.ALPHA_TEST_VALUE, 0.5f);

@@ -98,12 +98,10 @@ public class ShaderRenderer implements AutoCloseable {
 
         try (var _ = shader.use()) {
             shader.setUniformMatrix4(DebugMeshShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-            shader.setUniformMatrix4(DebugMeshShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             shader.setUniform(DebugMeshShader.Uniforms.ENABLE_LIGHTING, false);
             shader.setUniform(DebugMeshShader.Uniforms.ENABLE_TEXTURE, false);
             shader.setUniform(DebugMeshShader.Uniforms.ALPHA_CUTOFF, 0.0f);
             shader.setUniform(DebugMeshShader.Uniforms.REPLACE_MODE, false);
-            shader.setUniform(FogShader.FOG_MODE, -1);
             shader.setUniform(DebugMeshShader.Uniforms.POINT_SIZE, pointSize);
 
             vao.bind();

@@ -23,12 +23,12 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
     private static final String VERTEX_SHADER =
         """
         #version 410 core
-        
+        """ +
+        GLOBAL_STATE_BLOCK +
+        """
         layout(location = 0) in vec2 in_Position;
-        layout(location = 1) in vec2 in_InstancePatchOffset;
+        layout(location = 4) in vec2 in_InstancePatchOffset;
 
-        uniform mat4 u_modelViewMatrix;
-        uniform mat4 u_projectionMatrix;
         uniform float u_WorldSize;
         uniform float u_DetailScale;
         uniform sampler2D u_HeightMap;
@@ -55,14 +55,14 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
             vec3 normal = normalize(vec3(h_minus_x - h_plus_x, h_minus_y - h_plus_y, 2.0 * texelSize * u_WorldSize));
             
             vec4 worldPosition4 = vec4(worldPos.x, worldPos.y, h, 1.0);
-            vec4 viewPosition = u_modelViewMatrix * worldPosition4;
+            vec4 viewPosition = u_viewMatrix * worldPosition4;
             gl_Position = u_projectionMatrix * viewPosition;
             
             v_texCoord0 = uv;
             v_texCoord1 = worldPos * u_DetailScale;
             v_fogDist = length(viewPosition.xyz);
             v_viewPosition = viewPosition.xyz;
-            v_viewNormal = normalize((u_modelViewMatrix * vec4(normal, 0.0)).xyz);
+            v_viewNormal = normalize((u_viewMatrix * vec4(normal, 0.0)).xyz);
         }
         """;
 
@@ -70,20 +70,12 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
         """
         #version 410 core
         """ +
+        GLOBAL_STATE_BLOCK +
         FOG_FUNCTION +
         """
         uniform sampler2D u_DiffuseMap;
         uniform sampler2D u_NormalMap;
         uniform sampler2D u_DetailMap;
-        uniform vec3 u_lightDirection;
-        uniform vec3 u_globalAmbient;
-
-        // Fog uniforms
-        uniform vec4 u_fogColor;
-        uniform int u_fogMode;
-        uniform vec3 u_fogParams;
-        uniform float u_fogHeightFactor;
-        uniform float u_cameraHeight;
 
         in vec2 v_texCoord0;
         in vec2 v_texCoord1;
@@ -105,7 +97,7 @@ public final class LandscapeShader extends ShaderProgram implements FogShader, L
             vec3 intensity = vec3(1.0);
             vec4 litColor = vec4(diffuseColor.rgb * intensity, diffuseColor.a);
 
-            float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
+            float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
             out_FragColor = vec4(mix(u_fogColor.rgb, litColor.rgb, fogFactor), litColor.a);
         }
         """;

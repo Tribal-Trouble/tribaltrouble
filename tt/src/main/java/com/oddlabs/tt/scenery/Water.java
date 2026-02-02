@@ -96,7 +96,6 @@ public final class Water implements AutoCloseable {
         updateAnimation();
 
         try (var _ = waterShader.use();
-             var _ = state.getFog().setup(waterShader, state);
              var _ = context.withBlendMode(BlendMode.ALPHA);
              var _ = context.withDepthMode(DepthMode.READ_WRITE);
              var _ = context.withCullMode(CullMode.NONE)) {
@@ -104,12 +103,10 @@ public final class Water implements AutoCloseable {
             context.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             
             waterShader.setUniformMatrix4(WaterShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-            waterShader.setUniformMatrix4(WaterShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             
             waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_0, scrollOffset0[0], scrollOffset0[1]);
             waterShader.setUniform(WaterShader.Uniforms.SCROLL_OFFSET_1, scrollOffset1[0], scrollOffset1[1]);
             
-            waterShader.setUniform(WaterShader.Uniforms.LIGHT_DIR, -1f, 0f, 1f);
             waterShader.setUniform(WaterShader.Uniforms.CAMERA_POS, state.getCurrentX(), state.getCurrentY(), state.getCurrentZ());
 
             context.setTexture(0, ocean[0]);
@@ -168,8 +165,8 @@ public final class Water implements AutoCloseable {
                     
                     patchMesh.bind();
                     
-                    // Setup instance attribute (Location 1: in_InstanceOffset)
-                    int offsetLoc = 1;
+                    // Setup instance attribute (Location 4: in_InstanceOffset)
+                    int offsetLoc = 4;
                     GL20.glEnableVertexAttribArray(offsetLoc);
                     GL20.glVertexAttribPointer(offsetLoc, 2, GL11.GL_FLOAT, false, 0, 0);
                     GL33.glVertexAttribDivisor(offsetLoc, 1);

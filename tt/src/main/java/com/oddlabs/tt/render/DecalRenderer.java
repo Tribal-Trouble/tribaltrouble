@@ -86,15 +86,15 @@ public final class DecalRenderer implements AutoCloseable {
         // Instance Attributes
         int stride = FLOATS_PER_INSTANCE * Float.BYTES;
         
-        // in_InstancePos (Loc 1, 2 floats)
-        GL20.glEnableVertexAttribArray(1);
-        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, stride, 0);
-        GL33.glVertexAttribDivisor(1, 1);
+        // in_InstancePos (Loc 4, 2 floats)
+        GL20.glEnableVertexAttribArray(4);
+        GL20.glVertexAttribPointer(4, 2, GL11.GL_FLOAT, false, stride, 0);
+        GL33.glVertexAttribDivisor(4, 1);
 
-        // in_InstanceSize (Loc 2, 1 float)
-        GL20.glEnableVertexAttribArray(2);
-        GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, stride, 2 * Float.BYTES);
-        GL33.glVertexAttribDivisor(2, 1);
+        // in_InstanceSize (Loc 5, 1 float)
+        GL20.glEnableVertexAttribArray(5);
+        GL20.glVertexAttribPointer(5, 1, GL11.GL_FLOAT, false, stride, 2 * Float.BYTES);
+        GL33.glVertexAttribDivisor(5, 1);
 
         // in_InstanceColor (Loc 3, 4 floats)
         GL20.glEnableVertexAttribArray(3);
@@ -107,7 +107,6 @@ public final class DecalRenderer implements AutoCloseable {
     public @NonNull ScopedState setup(@NonNull RenderContext context, @NonNull LandscapeRenderer landscape, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         var shaderUseState = shader.use();
         
-        shader.setUniformMatrix4(DecalShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
         shader.setUniformMatrix4(DecalShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
         
         shader.setUniform(DecalShader.Uniforms.WORLD_SIZE, (float) landscape.getHeightMap().getMetersPerWorld());

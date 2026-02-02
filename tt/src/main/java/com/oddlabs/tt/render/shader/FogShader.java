@@ -8,6 +8,7 @@ public interface FogShader extends Shader {
     int FOG_MODE_EXP = 1;
     int FOG_MODE_EXP2 = 2;
     int FOG_MODE_RADIAL = 3;
+
     String FOG_COLOR = "u_fogColor";
     String FOG_MODE = "u_fogMode";
     String FOG_PARAMS = "u_fogParams";
@@ -16,16 +17,12 @@ public interface FogShader extends Shader {
 
     String FOG_FUNCTION = """
         float calculateFogFactor(
-            int fogMode, 
-            vec3 fogParams, 
-            float fogHeightFactor, 
-            float cameraHeight, 
             float dist, 
             vec2 fragCoord
         ) {
-            if (fogMode == 3) { // Radial fog for map view
-                vec2 resolution = fogParams.xy;
-                float density = fogParams.z;
+            if (u_fogMode == 3) { // Radial fog for map view
+                vec2 resolution = u_fogParams.xy;
+                float density = u_fogParams.z;
                 float radius = max(resolution.x, resolution.y) / 2.0;
                 
                 // Center coordinates and correct for aspect ratio
@@ -36,16 +33,16 @@ public interface FogShader extends Shader {
             }
 
             float fogFactor = 1.0;
-            float effectiveDensity = fogParams.x;
-            if (fogHeightFactor > 0.0) {
-                 effectiveDensity *= (1.0 - clamp(cameraHeight / fogHeightFactor, 0.0, 1.0));
+            float effectiveDensity = u_fogParams.x;
+            if (u_fogHeightFactor > 0.0) {
+                 effectiveDensity *= (1.0 - clamp(u_cameraHeight / u_fogHeightFactor, 0.0, 1.0));
             }
 
-            if (fogMode == 0) { // GL_LINEAR
-                fogFactor = (fogParams.z - dist) / (fogParams.z - fogParams.y);
-            } else if (fogMode == 1) { // GL_EXP
+            if (u_fogMode == 0) { // GL_LINEAR
+                fogFactor = (u_fogParams.z - dist) / (u_fogParams.z - u_fogParams.y);
+            } else if (u_fogMode == 1) { // GL_EXP
                 fogFactor = exp(-dist * effectiveDensity);
-            } else if (fogMode == 2) { // GL_EXP2
+            } else if (u_fogMode == 2) { // GL_EXP2
                 fogFactor = exp(-pow(dist * effectiveDensity, 2.0));
             }
             return clamp(fogFactor, 0.0, 1.0);

@@ -12,7 +12,6 @@ import com.oddlabs.tt.vbo.VertexArray;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
@@ -52,11 +51,10 @@ public final class SonicBlastRenderer implements AutoCloseable {
         if (queue.isEmpty()) return;
 
         try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state);
              var _ = context.withBlendMode(BlendMode.ADDITIVE);
              var _ = context.withDepthMode(DepthMode.READ_ONLY)) {
 
-            shader.setUniformMatrix4(SonicBlastShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
+            context.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
             
             context.setTexture(0, render_queues.getTexture(noiseTextureKey));
             shader.setUniform(SonicBlastShader.Uniforms.NOISE_TEXTURE, 0);

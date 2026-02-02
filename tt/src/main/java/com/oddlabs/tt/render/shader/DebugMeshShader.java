@@ -71,6 +71,7 @@ public final class DebugMeshShader extends ShaderProgram implements FogShader, L
 		"""
 		#version 410 core
 		""" +
+		GLOBAL_STATE_BLOCK +
 		VERTEX_LIGHTING_FUNCTION +
 		"""
 		layout(location = 0) in vec3 in_Position;
@@ -79,10 +80,7 @@ public final class DebugMeshShader extends ShaderProgram implements FogShader, L
 		layout(location = 3) in vec2 in_TexCoord0;
 		
 		uniform mat4 u_modelViewMatrix;
-		uniform mat4 u_projectionMatrix;
 		uniform bool u_enableLighting;
-		uniform vec3 u_lightDirection;
-		uniform vec3 u_globalAmbient;
 		uniform float u_pointSize;
 		
 		out vec4 v_color;
@@ -100,7 +98,7 @@ public final class DebugMeshShader extends ShaderProgram implements FogShader, L
 			}
 		
 			if (u_enableLighting) {
-				v_color = calculateVertexLighting(in_Normal, in_Color, u_modelViewMatrix, u_lightDirection, u_globalAmbient);
+				v_color = calculateVertexLighting(in_Normal, in_Color, u_modelViewMatrix);
 			} else {
 				v_color = in_Color;
 			}
@@ -111,19 +109,13 @@ public final class DebugMeshShader extends ShaderProgram implements FogShader, L
 		"""
 		#version 410 core
 		""" +
+		GLOBAL_STATE_BLOCK +
 		FOG_FUNCTION +
 		"""
 		uniform sampler2D u_texture0;
 		uniform bool u_enableTexture;
 		uniform float u_alphaCutoff;
 		uniform bool u_replaceMode;
-		
-		// Fog uniforms
-        uniform vec4 u_fogColor;
-        uniform int u_fogMode;
-        uniform vec3 u_fogParams; // x = density, y = start, z = end
-        uniform float u_fogHeightFactor;
-        uniform float u_cameraHeight;
 		
 		in vec4 v_color;
 		in vec2 v_texCoord0;
@@ -148,7 +140,7 @@ public final class DebugMeshShader extends ShaderProgram implements FogShader, L
 			    discard;
 			}
 		
-            float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
+            float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
 			out_FragColor = vec4(mix(u_fogColor.rgb, color.rgb, fogFactor), color.a);
 		}
 		""";

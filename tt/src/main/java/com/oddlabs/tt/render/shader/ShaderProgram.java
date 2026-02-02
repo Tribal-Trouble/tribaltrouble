@@ -1,7 +1,7 @@
 package com.oddlabs.tt.render.shader;
 
-import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.render.state.ScopedState;
+import com.oddlabs.tt.resource.NativeResource;
 import org.joml.Matrix4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -48,10 +48,18 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
 
         /** complete linking after (optionally) setting up shader layouts */
         void link() {
+            bindStandardAttributes();
             GL20.glLinkProgram(programId);
             if (GL20.glGetProgrami(programId, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
                 throw new IllegalArgumentException("Shader link failed: " + GL20.glGetProgramInfoLog(programId, 1024));
             }
+        }
+
+        private void bindStandardAttributes() {
+            GL20.glBindAttribLocation(programId, POSITION_LOC, POSITION);
+            GL20.glBindAttribLocation(programId, NORMAL_LOC, NORMAL);
+            GL20.glBindAttribLocation(programId, TEX_COORD_LOC, TEX_COORD);
+            GL20.glBindAttribLocation(programId, COLOR_LOC, COLOR);
         }
 
         @Override

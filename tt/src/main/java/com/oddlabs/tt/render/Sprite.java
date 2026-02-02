@@ -16,7 +16,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL13;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.FloatBuffer;

@@ -47,11 +47,12 @@ public final class SonicBlastShader extends ShaderProgram implements FogShader {
 
     private static final String VERTEX_SHADER = """
         #version 410 core
-
+        """ +
+        GLOBAL_STATE_BLOCK +
+        """
         layout(location = 0) in vec3 in_Position;
-        layout(location = 1) in vec2 in_TexCoord;
+        layout(location = 2) in vec2 in_TexCoord;
 
-        uniform mat4 u_projectionMatrix;
         uniform mat4 u_modelViewMatrix;
 
         out vec2 v_texCoord;
@@ -69,19 +70,13 @@ public final class SonicBlastShader extends ShaderProgram implements FogShader {
         """
         #version 410 core
         """ +
+        GLOBAL_STATE_BLOCK +
         FOG_FUNCTION +
         """
         uniform sampler2D u_noiseTexture;
         uniform float u_time;
         uniform float u_maxRadius;
         uniform vec3 u_color;
-
-        // Fog uniforms
-        uniform vec4 u_fogColor;
-        uniform int u_fogMode;
-        uniform vec3 u_fogParams;
-        uniform float u_fogHeightFactor;
-        uniform float u_cameraHeight;
 
         in vec2 v_texCoord;
         in float v_fogDist;
@@ -141,7 +136,7 @@ public final class SonicBlastShader extends ShaderProgram implements FogShader {
             vec3 finalColor = u_color * pow(clamp(totalIntensity, 0.0, 1.0), 2.0);
             
             // Apply fog (fade to black for additive)
-            float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
+            float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
             finalColor *= fogFactor;
 
             out_FragColor = vec4(finalColor, clamp(totalIntensity, 0.0, 1.0));

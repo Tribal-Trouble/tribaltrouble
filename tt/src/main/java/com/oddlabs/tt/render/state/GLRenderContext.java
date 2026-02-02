@@ -4,6 +4,9 @@ import com.oddlabs.tt.global.Settings;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31;
 
 import java.util.Arrays;
 
@@ -19,7 +22,32 @@ public final class GLRenderContext implements RenderContext {
     private boolean maskR = true, maskG = true, maskB = true, maskA = true;
     
     private int activeTextureUnit = -1;
-    private final int[] boundTextures = new int[32];
+    private final int[] boundTextures = new int[8];
+    
+    private int globalUbo = 0;
+    private static final int GLOBAL_UBO_BINDING = 0;
+
+    public GLRenderContext() {
+        Arrays.fill(boundTextures, -1);
+    }
+
+    @Override
+    public void init() {
+        if (globalUbo != 0) return;
+        this.globalUbo = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, globalUbo);
+        GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, 1024, GL15.GL_DYNAMIC_DRAW); // Pre-allocate 1KB
+        GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, GLOBAL_UBO_BINDING, globalUbo);
+        GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
+    }
+
+    @Override
+    public void updateGlobalState(java.nio.@NonNull ByteBuffer data) {
+        GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, globalUbo);
+        GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, data);
+        GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
+    }
+
 
     // Resets shadow state, forcing next set* call to talk to GL
     public void reset() {

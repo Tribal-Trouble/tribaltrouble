@@ -42,18 +42,16 @@ public interface LitShader extends Shader {
         vec4 calculateVertexLighting(
             vec3 normal, 
             vec4 materialColor, 
-            mat4 modelViewMatrix, 
-            vec3 lightDirection, 
-            vec3 globalAmbient
+            mat4 modelViewMatrix
         ) {
             // Transform normal to view space
             vec3 transformedNormal = normalize((modelViewMatrix * vec4(normal, 0.0)).xyz);
             
             // Calculate diffuse lighting component
-            float diffuse = max(dot(transformedNormal, normalize(lightDirection)), 0.0);
+            float diffuse = max(dot(transformedNormal, normalize(u_lightDirection)), 0.0);
             
             // Combine ambient and diffuse
-            vec3 light = globalAmbient + vec3(diffuse);
+            vec3 light = u_globalAmbient + vec3(diffuse);
             
             // Apply lighting to material color
             return vec4(materialColor.rgb * clamp(light, 0.0, 1.0), materialColor.a);
@@ -65,13 +63,11 @@ public interface LitShader extends Shader {
         vec3 calculateLighting(
             vec3 normal,
             vec3 viewPosition,
-            vec3 lightDirection,
-            vec3 globalAmbient,
             float specularStrength
         ) {
-            vec3 L = normalize(lightDirection);
+            vec3 L = normalize(u_lightDirection);
             float diffuse = max(dot(normal, L), 0.0);
-            vec3 lightIntensity = globalAmbient + vec3(diffuse);
+            vec3 lightIntensity = u_globalAmbient + vec3(diffuse);
             
             vec3 specular = vec3(0.0);
             if (specularStrength > 0.0 && diffuse > 0.0) {

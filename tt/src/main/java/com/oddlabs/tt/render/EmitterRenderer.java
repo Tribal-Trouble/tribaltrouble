@@ -59,24 +59,20 @@ public final class EmitterRenderer implements AutoCloseable {
         vao.unbind();
     }
 
-    public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Queue<Emitter<?>> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
-        if (emitter_queue.isEmpty()) return;
-
-        batches.clear();
-
+    public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Queue<? extends Emitter<?>> emitters, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+        if (emitters.isEmpty()) return;
+        
+        vao.bind();
         try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state);
              var _ = context.withBlendMode(BlendMode.ALPHA);
              var _ = context.withDepthMode(DepthMode.READ_ONLY)) {
-            
-            shader.setUniformMatrix4(ParticleShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
-            shader.setUniformMatrix4(ParticleShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-            shader.setUniform(ParticleShader.Uniforms.TEXTURE_0, 0);
-            
-            context.setActiveTexture(0);
-            vao.bind();
 
-            for (Emitter<?> emitter : emitter_queue) {
+            shader.setUniformMatrix4(ParticleShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
+
+            context.setActiveTexture(0);
+            shader.setUniform(ParticleShader.Uniforms.TEXTURE_0, 0);
+
+            for (Emitter<?> emitter : emitters) {
                 if (Globals.draw_particles)
                     collectParticles(render_queues, emitter, state, modelViewStack, projectionStack);
             }
@@ -86,6 +82,7 @@ public final class EmitterRenderer implements AutoCloseable {
             flushBatches(context);
             GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
         } finally {
+            batches.clear();
             vao.unbind();
             context.setTexture(0, 0);
         }

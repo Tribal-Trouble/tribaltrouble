@@ -49,12 +49,13 @@ public final class LightningShader extends ShaderProgram implements FogShader {
 
     private static final String VERTEX_SHADER = """
         #version 410 core
-
+        """ +
+        GLOBAL_STATE_BLOCK +
+        """
         layout(location = 0) in vec3 in_Position;
-        layout(location = 1) in vec2 in_TexCoord;
-        layout(location = 2) in vec4 in_Color;
+        layout(location = 2) in vec2 in_TexCoord;
+        layout(location = 3) in vec4 in_Color;
 
-        uniform mat4 u_projectionMatrix;
         uniform mat4 u_modelViewMatrix;
 
         out vec2 v_texCoord;
@@ -74,16 +75,10 @@ public final class LightningShader extends ShaderProgram implements FogShader {
         """
         #version 410 core
         """ +
+        GLOBAL_STATE_BLOCK +
         FOG_FUNCTION +
         """
         uniform sampler2D u_texture0;
-
-        // Fog uniforms
-        uniform vec4 u_fogColor;
-        uniform int u_fogMode;
-        uniform vec3 u_fogParams;
-        uniform float u_fogHeightFactor;
-        uniform float u_cameraHeight;
 
         in vec2 v_texCoord;
         in vec4 v_color;
@@ -95,7 +90,7 @@ public final class LightningShader extends ShaderProgram implements FogShader {
             vec4 texColor = texture(u_texture0, v_texCoord);
             vec4 finalColor = v_color * texColor;
             
-            float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
+            float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
             
             // Additive blending: fade to black (multiply by fogFactor)
             out_FragColor = vec4(finalColor.rgb * fogFactor, finalColor.a);

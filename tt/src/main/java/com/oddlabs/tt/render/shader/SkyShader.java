@@ -34,15 +34,16 @@ public final class SkyShader extends ShaderProgram {
 
     private static final String VERTEX_SHADER = """
         #version 410 core
-
+        """ +
+        GLOBAL_STATE_BLOCK +
+        """
         layout(location = 0) in vec3 in_Position;
         layout(location = 1) in vec3 in_Normal;
         layout(location = 2) in vec2 in_TexCoord0;
-        layout(location = 3) in vec2 in_TexCoord1;
-        layout(location = 4) in vec3 in_Color;
+        layout(location = 4) in vec2 in_TexCoord1;
+        layout(location = 3) in vec3 in_Color;
 
         uniform mat4 u_modelViewMatrix;
-        uniform mat4 u_projectionMatrix;
         uniform vec2 u_innerOffset;
         uniform vec2 u_outerOffset;
 
@@ -64,7 +65,9 @@ public final class SkyShader extends ShaderProgram {
 
     private static final String FRAGMENT_SHADER = """
         #version 410 core
-
+        """ +
+        GLOBAL_STATE_BLOCK +
+        """
         uniform sampler2D u_texture0;
         uniform sampler2D u_texture1;
         uniform vec4 u_skyColor;
@@ -72,11 +75,8 @@ public final class SkyShader extends ShaderProgram {
         uniform float u_outerCloudDensity;
 
         // Fog uniforms
-        uniform vec4 u_fogColor;
         uniform float u_fogFadeStart;
         uniform float u_fogFadeEnd;
-        uniform float u_cameraHeight;
-        uniform float u_fogHeightFactor;
 
         in vec2 v_texCoord0;
         in vec2 v_texCoord1;

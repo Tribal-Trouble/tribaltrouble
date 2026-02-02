@@ -22,7 +22,6 @@ import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL33;
@@ -87,22 +86,10 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
     @Override
     public void render(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state);
              var _ = context.withBlendMode(BlendMode.NONE);
              var _ = context.withDepthMode(DepthMode.READ_WRITE);
              var _ = context.withCullMode(CullMode.NONE)) {
 
-            shader.setUniformMatrix4(LandscapeShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
-            shader.setUniformMatrix4(LandscapeShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-
-            // Transform light direction to view space
-            lightDir.set(-1f, 0f, 1f, 0f);
-            state.getModelView().transform(lightDir);
-            lightDir.normalize();
-            shader.setUniform(LandscapeShader.Uniforms.LIGHT_DIRECTION, lightDir.x, lightDir.y, lightDir.z);
-
-            shader.setUniform(LandscapeShader.Uniforms.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
-            
             // Set VTF Uniforms
             shader.setUniform(LandscapeShader.Uniforms.WORLD_SIZE, (float) world.getHeightMap().getMetersPerWorld());
             shader.setUniform(LandscapeShader.Uniforms.DETAIL_SCALE, Globals.LANDSCAPE_DETAIL_REPEAT_RATE);
@@ -144,8 +131,8 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
                 
                 patchMesh.bind();
                 
-                // Setup instance attribute (Location 1: in_InstancePatchOffset)
-                int offsetLoc = 1; // Hardcoded location from shader layout
+                // Setup instance attribute (Location 4: in_InstancePatchOffset)
+                int offsetLoc = 4; // Hardcoded location from shader layout
                 GL20.glEnableVertexAttribArray(offsetLoc);
                 GL20.glVertexAttribPointer(offsetLoc, 2, GL11.GL_FLOAT, false, 0, 0);
                 GL33.glVertexAttribDivisor(offsetLoc, 1);
@@ -191,8 +178,8 @@ public final class LandscapeRenderer implements SceneRenderer, Animated {
         // But we need to ensure the attribute array is disabled.
         
         float patchSize = world.getHeightMap().getMetersPerPatch();
-        GL20.glDisableVertexAttribArray(1); // Ensure array is disabled
-        GL20.glVertexAttrib2f(1, patch_x * patchSize, patch_y * patchSize);
+        GL20.glDisableVertexAttribArray(4); // Ensure array is disabled
+        GL20.glVertexAttrib2f(4, patch_x * patchSize, patch_y * patchSize);
         
         patchMesh.bind();
         patchMesh.draw();

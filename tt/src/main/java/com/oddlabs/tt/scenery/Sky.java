@@ -17,8 +17,6 @@ import com.oddlabs.tt.render.state.BlendMode;
 import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
-import com.oddlabs.tt.resource.DistanceFogInfo;
-import com.oddlabs.tt.resource.FogInfo;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.util.Stitcher;
 import com.oddlabs.tt.vbo.FloatVBO;
@@ -30,7 +28,6 @@ import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 
@@ -137,28 +134,11 @@ public final class Sky implements SceneRenderer, AutoCloseable {
              var _ = context.withDepthMode(DepthMode.READ_WRITE);
              var _ = context.withCullMode(CullMode.BACK)) {
             
-            skyShader.setUniformMatrix4(SkyShader.Uniforms.PROJECTION_MATRIX, false, projection.current());
             skyShader.setUniformMatrix4(SkyShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
             skyShader.setUniform(SkyShader.Uniforms.SKY_COLOR, color.get(0), color.get(1), color.get(2), color.get(3));
 
-            FogInfo fog = state.getFog();
-            if (fog.isEnabled()) {
-                var fogColor = fog.getColor();
-                skyShader.setUniform(SkyShader.Uniforms.FOG_COLOR, fogColor.x(), fogColor.y(), fogColor.z(), fogColor.w());
-                skyShader.setUniform(SkyShader.Uniforms.FOG_FADE_START, 0.0f);
-                skyShader.setUniform(SkyShader.Uniforms.FOG_FADE_END, 0.1f);
-                skyShader.setUniform(SkyShader.Uniforms.CAMERA_HEIGHT, state.getCurrentZ());
-
-                if (fog instanceof DistanceFogInfo distanceFog) {
-                    skyShader.setUniform(SkyShader.Uniforms.FOG_HEIGHT_FACTOR, distanceFog.getHeightFactor());
-                } else {
-                    skyShader.setUniform(SkyShader.Uniforms.FOG_HEIGHT_FACTOR, 0.0f);
-                }
-            } else {
-                skyShader.setUniform(SkyShader.Uniforms.FOG_FADE_START, 1.0f);
-                skyShader.setUniform(SkyShader.Uniforms.FOG_FADE_END, 1.0f);
-                skyShader.setUniform(SkyShader.Uniforms.FOG_COLOR, 0f, 0f, 0f, 0f); 
-            }
+            skyShader.setUniform(SkyShader.Uniforms.FOG_FADE_START, 0.0f);
+            skyShader.setUniform(SkyShader.Uniforms.FOG_FADE_END, 0.1f);
 
             context.setTexture(0, clouds[GeneratorClouds.INNER]);
             skyShader.setUniform(SkyShader.Uniforms.TEXTURE_0, 0);
@@ -237,12 +217,10 @@ public final class Sky implements SceneRenderer, AutoCloseable {
 
     public void renderSeaBottom(@NonNull RenderContext context, @NonNull CameraState state, @NonNull MatrixStack modelView, @NonNull MatrixStack projection) {
         try (var _ = seaBottomShader.use();
-             var _ = state.getFog().setup(seaBottomShader, state);
              var _ = context.withBlendMode(BlendMode.NONE);
              var _ = context.withDepthMode(DepthMode.READ_WRITE);
              var _ = context.withCullMode(CullMode.BACK)) {
             
-            seaBottomShader.setUniformMatrix4(SeaBottomShader.Uniforms.PROJECTION_MATRIX, false, projection.current());
             seaBottomShader.setUniformMatrix4(SeaBottomShader.Uniforms.MODEL_VIEW_MATRIX, false, modelView.current());
 
             var seaColor = switch (terrain) {
@@ -329,29 +307,23 @@ public final class Sky implements SceneRenderer, AutoCloseable {
         this.skyVAO = new VertexArray();
         skyVAO.bind();
         sky_vbo.makeCurrent();
-        int posLoc = skyShader.getAttributeLocation(SkyShader.Attributes.POSITION);
-        GL20.glEnableVertexAttribArray(posLoc);
-        GL20.glVertexAttribPointer(posLoc, 3, GL11.GL_FLOAT, false, stride, 0);
-        int normLoc = skyShader.getAttributeLocation(SkyShader.Attributes.NORMAL);
-        GL20.glEnableVertexAttribArray(normLoc);
-        GL20.glVertexAttribPointer(normLoc, 3, GL11.GL_FLOAT, false, stride, 3 * Float.BYTES);
-        int tex0Loc = skyShader.getAttributeLocation(SkyShader.Attributes.TEX_COORD_0);
-        GL20.glEnableVertexAttribArray(tex0Loc);
-        GL20.glVertexAttribPointer(tex0Loc, 2, GL11.GL_FLOAT, false, stride, 6 * Float.BYTES);
-        int tex1Loc = skyShader.getAttributeLocation(SkyShader.Attributes.TEX_COORD_1);
-        GL20.glEnableVertexAttribArray(tex1Loc);
-        GL20.glVertexAttribPointer(tex1Loc, 2, GL11.GL_FLOAT, false, stride, 8 * Float.BYTES);
-        int colLoc = skyShader.getAttributeLocation(SkyShader.Attributes.COLOR);
-        GL20.glEnableVertexAttribArray(colLoc);
-        GL20.glVertexAttribPointer(colLoc, 3, GL11.GL_FLOAT, false, stride, 10 * Float.BYTES);
+        GL20.glEnableVertexAttribArray(0); // Position
+        GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, stride, 0);
+        GL20.glEnableVertexAttribArray(1); // Normal
+        GL20.glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, stride, 3 * Float.BYTES);
+        GL20.glEnableVertexAttribArray(2); // TexCoord0
+        GL20.glVertexAttribPointer(2, 2, GL11.GL_FLOAT, false, stride, 6 * Float.BYTES);
+        GL20.glEnableVertexAttribArray(4); // TexCoord1
+        GL20.glVertexAttribPointer(4, 2, GL11.GL_FLOAT, false, stride, 8 * Float.BYTES);
+        GL20.glEnableVertexAttribArray(3); // Color
+        GL20.glVertexAttribPointer(3, 3, GL11.GL_FLOAT, false, stride, 10 * Float.BYTES);
         skyVAO.unbind();
 
         this.seaBottomVAO = new VertexArray();
         seaBottomVAO.bind();
         bottom_vertices.makeCurrent();
-        int bottomPosLoc = seaBottomShader.getAttributeLocation(SeaBottomShader.Attributes.POSITION);
-        GL20.glEnableVertexAttribArray(bottomPosLoc);
-        GL20.glVertexAttribPointer(bottomPosLoc, 3, GL11.GL_FLOAT, false, 0, 0);
+        GL20.glEnableVertexAttribArray(0); // Position
+        GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
         seaBottomVAO.unbind();
     }
 

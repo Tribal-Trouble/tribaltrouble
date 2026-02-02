@@ -249,19 +249,14 @@ public abstract class GUIObject extends Renderable<GUIObject> {
 	}
 
 	private void switchFocusToFirstChild(@NonNull FocusDirection dirEnum, boolean bubble) {
-        logger.info("switchFocusToFirstChild: " + this + " dir=" + dirEnum + " bubble=" + bubble);
         GUIObject bestCandidate = findNextFocusable(null, dirEnum);
 
 		if (bestCandidate != null) {
-            logger.info("  Found best candidate: " + bestCandidate);
 			switchFocusToObject(bestCandidate, dirEnum);
         } else if (bubble && !focus_cycle) {
-            logger.info("  No candidate found, bubbling to parent");
             GUIObject parent = getParent();
             if (parent != null)
 			    parent.switchFocusToNextChild(dirEnum);
-        } else {
-            logger.info("  No candidate found, no bubble (cycle=" + focus_cycle + ")");
         }
 	}
 
@@ -269,27 +264,21 @@ public abstract class GUIObject extends Renderable<GUIObject> {
         GUIObject bestCandidate = findNextFocusable(focused_child, dirEnum);
 
 		if (bestCandidate != null) {
-            logger.info("  Found next candidate: " + bestCandidate);
 			switchFocusToObject(bestCandidate, dirEnum);
 		} else if (focus_cycle) {
-            logger.info("  No next candidate, cycling...");
             // Wrap around: find the "first" element again
             GUIObject first = findNextFocusable(null, dirEnum);
 			if (first != null) {
-                logger.info("  Cycled to: " + first);
 				switchFocusToObject(first, dirEnum);
 			} else {
-                logger.info("  Cycle failed, no focusable children?");
             }
 		} else {
-            logger.info("  No next candidate, bubbling...");
 			GUIObject parent = getParent();
 			if (parent != null) {
 				parent.switchFocusToNextChild(dirEnum);
 			} else {
 				// We are at the root (or detached) and not a cycle, but we should wrap if global cycle is desired
 				// or just stay put. GUIRoot usually has focus_cycle=true so this else-block is for detached items.
-                logger.info("  At root/detached, trying to wrap locally");
                 GUIObject first = findNextFocusable(null, dirEnum);
 				if (first != null) {
 					switchFocusToObject(first, dirEnum);

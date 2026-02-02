@@ -24,14 +24,15 @@ public final class DecalShader extends ShaderProgram {
 
     private static final String VERTEX_SHADER = """
         #version 410 core
-
+        """ +
+        GLOBAL_STATE_BLOCK +
+        """
         layout(location = 0) in vec2 in_Position;      // Grid vertex (-0.5 to 0.5)
-        layout(location = 1) in vec2 in_InstancePos;   // World X, Y
-        layout(location = 2) in float in_InstanceSize; // Size in meters
+        layout(location = 4) in vec2 in_InstancePos;   // World X, Y
+        layout(location = 5) in float in_InstanceSize; // Size in meters
         layout(location = 3) in vec4 in_InstanceColor; // RGBA
 
         uniform mat4 u_modelViewMatrix;
-        uniform mat4 u_projectionMatrix;
         uniform float u_WorldSize;
         uniform float u_DepthBias;
         uniform sampler2D u_HeightMap;

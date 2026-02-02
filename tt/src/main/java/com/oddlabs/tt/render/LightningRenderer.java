@@ -8,7 +8,6 @@ import com.oddlabs.tt.particle.StretchParticle;
 import com.oddlabs.tt.render.shader.LightningShader;
 import com.oddlabs.tt.render.shader.VertexLayout;
 import com.oddlabs.tt.render.state.BlendMode;
-import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.vbo.FloatVBO;
@@ -19,7 +18,6 @@ import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
@@ -82,36 +80,27 @@ public final class LightningRenderer implements AutoCloseable {
         vao.unbind();
     }
 
-    public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Queue<Lightning> emitter_queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
-        if (emitter_queue.isEmpty()) return;
-
-        view_matrix.set(state.getModelView());
-        float rx = view_matrix.m00();
-        float ry = view_matrix.m10();
-        float rz = view_matrix.m20();
-        right_vector.set(rx, ry, rz);
+    public void render(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Queue<@NonNull Lightning> queue, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
+        if (queue.isEmpty()) return;
 
         try (var _ = shader.use();
-             var _ = state.getFog().setup(shader, state);
-             var _ = context.withCullMode(CullMode.NONE);
              var _ = context.withBlendMode(BlendMode.ADDITIVE);
              var _ = context.withDepthMode(DepthMode.READ_ONLY)) {
 
-            shader.setUniformMatrix4(LightningShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
             shader.setUniformMatrix4(LightningShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
-            shader.setUniform(LightningShader.Uniforms.TEXTURE_0, 0);
 
-            context.setActiveTexture(0);
+            context.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+            shader.setUniform(LightningShader.Uniforms.TEXTURE_0, 0);
 
             vao.bind();
 
             if (Globals.draw_particles) {
-                for (Lightning emitter : emitter_queue) {
+                for (Lightning emitter : queue) {
                     renderInternal(context, render_queues, emitter);
                 }
             }
         } finally {
-            emitter_queue.clear();
+            queue.clear();
             vao.unbind();
         }
     }

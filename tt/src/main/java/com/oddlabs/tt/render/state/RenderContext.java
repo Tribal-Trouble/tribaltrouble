@@ -39,10 +39,14 @@ public interface RenderContext {
     @NonNull ScopedState withColorMask(boolean r, boolean g, boolean b, boolean a);
     @NonNull ScopedState withDepthFunc(int func);
     
+    // UBO Management
+    void updateGlobalState(java.nio.@NonNull ByteBuffer data);
+    
     // Custom State
     void setBlendFunc(int src, int dst);
     
     // Lifecycle & Debug
+    void init();
     void applyDefaults();
     
     /**

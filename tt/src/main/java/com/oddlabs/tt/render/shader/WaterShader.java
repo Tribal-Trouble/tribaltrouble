@@ -28,12 +28,13 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
 
     private static final String VERTEX_SHADER = """
         #version 410 core
-
+        """ +
+        GLOBAL_STATE_BLOCK +
+        """
         layout(location = 0) in vec3 in_Position;
-        layout(location = 1) in vec2 in_InstanceOffset;
+        layout(location = 4) in vec2 in_InstanceOffset;
 
         uniform mat4 u_modelViewMatrix;
-        uniform mat4 u_projectionMatrix;
         uniform float u_waterRepeatRate;
         uniform float u_waterDetailRepeatRate;
         uniform vec2 u_scrollOffset0;
@@ -65,21 +66,14 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
         """
         #version 410 core
         """ +
+        GLOBAL_STATE_BLOCK +
         FOG_FUNCTION +
         """
         uniform sampler2D u_texture0;
         uniform sampler2D u_texture1;
         uniform bool u_enableDetail;
-        uniform vec3 u_lightDirection;
         uniform vec3 u_cameraPos;
 
-        // Fog uniforms
-        uniform vec4 u_fogColor;
-        uniform int u_fogMode;
-        uniform vec3 u_fogParams;
-        uniform float u_fogHeightFactor;
-        uniform float u_cameraHeight;
-        
         in vec2 v_texCoord0;
         in vec2 v_texCoord1;
         in float v_fogDist;
@@ -131,10 +125,9 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
             
             finalColor.rgb += vec3(specular * F);
             
-            float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
+            float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
             
-            out_FragColor.rgb = mix(u_fogColor.rgb, finalColor.rgb, fogFactor);
-            out_FragColor.a = finalColor.a;
+            out_FragColor = vec4(mix(u_fogColor.rgb, finalColor.rgb, fogFactor), finalColor.a);
         }
         """;
 

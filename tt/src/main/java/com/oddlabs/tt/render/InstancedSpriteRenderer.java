@@ -3,7 +3,6 @@ package com.oddlabs.tt.render;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.render.shader.InstancedSpriteShader;
-import com.oddlabs.tt.render.shader.LitShader;
 import com.oddlabs.tt.render.state.BlendMode;
 import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
@@ -15,7 +14,6 @@ import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import com.oddlabs.util.Color;
 import org.joml.Matrix4f;
-import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
@@ -56,20 +54,7 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
     public void renderAll(@NonNull RenderContext context, @NonNull CameraState cameraState, @NonNull MatrixStack projectionStack) {
         if (batches.isEmpty()) return;
 
-        try (var _ = shader.use();
-             var _ = cameraState.getFog().setup(shader, cameraState)) {
-            
-            Matrix4f pm = projectionStack.current();
-            shader.setUniformMatrix4(InstancedSpriteShader.Uniforms.PROJECTION_MATRIX, false, pm);
-            shader.setUniformMatrix4(InstancedSpriteShader.Uniforms.VIEW_MATRIX, false, cameraState.getModelView());
-
-            // Transform light direction to View Space
-            Vector4f lightDir = new Vector4f(-1f, 0f, 1f, 0f);
-            cameraState.getModelView().transform(lightDir);
-            lightDir.normalize();
-            shader.setUniform(LitShader.Uniforms.LIGHT_DIR, lightDir.x, lightDir.y, lightDir.z); 
-            shader.setUniform(LitShader.Uniforms.GLOBAL_AMBIENT, 0.4f, 0.4f, 0.4f);
-            
+        try (var _ = shader.use()) {
             // Set TBO texture unit
             shader.setUniform(InstancedSpriteShader.Uniforms.VERT_BUFFER, 5);
 
@@ -149,48 +134,48 @@ public final class InstancedSpriteRenderer implements AutoCloseable {
             vbo.makeCurrent();
             int instanceStride = FLOATS_PER_INSTANCE * Float.BYTES;
             
-            // Model Matrix (Locations 3-6)
+            // Model Matrix (Locations 4-7)
             for (int i = 0; i < 4; i++) {
-                int loc = 3 + i;
+                int loc = 4 + i;
                 GL20.glEnableVertexAttribArray(loc);
                 GL20.glVertexAttribPointer(loc, 4, GL11.GL_FLOAT, false, instanceStride, (long)i * 4 * Float.BYTES);
                 GL33.glVertexAttribDivisor(loc, 1);
             }
             
-            // Color (Location 7)
-            int colorLoc = 7;
+            // Color (Location 8)
+            int colorLoc = 8;
             GL20.glEnableVertexAttribArray(colorLoc);
             GL20.glVertexAttribPointer(colorLoc, 4, GL11.GL_FLOAT, false, instanceStride, 16 * Float.BYTES);
             GL33.glVertexAttribDivisor(colorLoc, 1);
 
-            // Decal Color (Location 8)
-            int decalColorLoc = 8;
+            // Decal Color (Location 9)
+            int decalColorLoc = 9;
             GL20.glEnableVertexAttribArray(decalColorLoc);
             GL20.glVertexAttribPointer(decalColorLoc, 4, GL11.GL_FLOAT, false, instanceStride, 20 * Float.BYTES);
             GL33.glVertexAttribDivisor(decalColorLoc, 1);
             
-            // Animation Offsets & Tween (Locations 9, 10, 11, 12, 13)
-            int pos1Loc = 9;
+            // Animation Offsets & Tween (Locations 10, 11, 12, 13, 14)
+            int pos1Loc = 10;
             GL20.glEnableVertexAttribArray(pos1Loc);
             GL20.glVertexAttribPointer(pos1Loc, 1, GL11.GL_FLOAT, false, instanceStride, 24 * Float.BYTES);
             GL33.glVertexAttribDivisor(pos1Loc, 1);
             
-            int norm1Loc = 10;
+            int norm1Loc = 11;
             GL20.glEnableVertexAttribArray(norm1Loc);
             GL20.glVertexAttribPointer(norm1Loc, 1, GL11.GL_FLOAT, false, instanceStride, 25 * Float.BYTES);
             GL33.glVertexAttribDivisor(norm1Loc, 1);
             
-            int pos2Loc = 11;
+            int pos2Loc = 12;
             GL20.glEnableVertexAttribArray(pos2Loc);
             GL20.glVertexAttribPointer(pos2Loc, 1, GL11.GL_FLOAT, false, instanceStride, 26 * Float.BYTES);
             GL33.glVertexAttribDivisor(pos2Loc, 1);
             
-            int norm2Loc = 12;
+            int norm2Loc = 13;
             GL20.glEnableVertexAttribArray(norm2Loc);
             GL20.glVertexAttribPointer(norm2Loc, 1, GL11.GL_FLOAT, false, instanceStride, 27 * Float.BYTES);
             GL33.glVertexAttribDivisor(norm2Loc, 1);
             
-            int tweenLoc = 13;
+            int tweenLoc = 14;
             GL20.glEnableVertexAttribArray(tweenLoc);
             GL20.glVertexAttribPointer(tweenLoc, 1, GL11.GL_FLOAT, false, instanceStride, 28 * Float.BYTES);
             GL33.glVertexAttribDivisor(tweenLoc, 1);

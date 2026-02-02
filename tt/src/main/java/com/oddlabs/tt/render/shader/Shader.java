@@ -5,6 +5,12 @@ import org.jspecify.annotations.NonNull;
 import java.nio.FloatBuffer;
 
 public interface Shader {
+    // Standard Attribute Locations
+    int POSITION_LOC = 0;
+    int NORMAL_LOC = 1;
+    int TEX_COORD_LOC = 2;
+    int COLOR_LOC = 3;
+
     // Standard Uniform Names
     String PROJECTION_MATRIX = "u_projectionMatrix";
     String MODEL_VIEW_MATRIX = "u_modelViewMatrix";
@@ -15,6 +21,21 @@ public interface Shader {
     String NORMAL = "in_Normal";
     String TEX_COORD = "in_TexCoord";
     String COLOR = "in_Color";
+
+    String GLOBAL_STATE_BLOCK = """
+        layout(std140) uniform GlobalState {
+            mat4 u_projectionMatrix;
+            mat4 u_viewMatrix;
+            vec3 u_lightDirection;
+            vec3 u_globalAmbient;
+            vec4 u_fogColor;
+            vec3 u_fogParams;
+            float u_cameraHeight;
+            float u_fogHeightFactor;
+            float u_globalTime;
+            int u_fogMode;
+        };
+        """;
 
     boolean inUse();
 

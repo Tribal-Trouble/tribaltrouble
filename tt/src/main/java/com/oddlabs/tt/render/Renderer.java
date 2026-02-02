@@ -877,6 +877,7 @@ public final class Renderer implements AutoCloseable {
 		String renderer = GL11.glGetString(GL11.GL_RENDERER);
 		logger.info("GL renderer: '" + renderer + "'");
 
+		renderContext.init();
 		dumpWindowInfo();
 
 		int num_combined_tex_units = GL11.glGetInteger(GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);

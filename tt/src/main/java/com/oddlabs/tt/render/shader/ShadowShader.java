@@ -23,11 +23,12 @@ public final class ShadowShader extends ShaderProgram {
 
     private static final String VERTEX_SHADER = """
         #version 410 core
-
+        """ +
+        GLOBAL_STATE_BLOCK +
+        """
         layout(location = 0) in vec2 in_Position;
 
         uniform mat4 u_modelViewMatrix;
-        uniform mat4 u_projectionMatrix;
         uniform vec4 u_shadowParams; // .xy = scale, .zw = offset
         uniform vec2 u_PatchOffset;
         uniform float u_WorldSize;

@@ -39,21 +39,21 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
         
     private static final String VERTEX_SHADER = """
         #version 410 core
-    
+        """ +
+        GLOBAL_STATE_BLOCK +
+        """
         layout(location = 2) in vec2 in_TexCoord;
         
         // Per-instance
-        layout(location = 3) in mat4 in_InstanceModelMatrix; 
-        layout(location = 7) in vec4 in_InstanceColor;
-        layout(location = 8) in vec4 in_InstanceDecalColor;
-        layout(location = 9) in float in_Pos1;
-        layout(location = 10) in float in_Norm1;
-        layout(location = 11) in float in_Pos2;
-        layout(location = 12) in float in_Norm2;
-        layout(location = 13) in float in_Tween;
+        layout(location = 4) in mat4 in_InstanceModelMatrix; 
+        layout(location = 8) in vec4 in_InstanceColor;
+        layout(location = 9) in vec4 in_InstanceDecalColor;
+        layout(location = 10) in float in_Pos1;
+        layout(location = 11) in float in_Norm1;
+        layout(location = 12) in float in_Pos2;
+        layout(location = 13) in float in_Norm2;
+        layout(location = 14) in float in_Tween;
 
-        uniform mat4 u_projectionMatrix;
-        uniform mat4 u_viewMatrix;
         uniform samplerBuffer u_VertBuffer;
         
         out vec2 v_texCoord0;
@@ -100,6 +100,7 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
     """
     #version 410 core
     """ +
+    GLOBAL_STATE_BLOCK +
     FOG_FUNCTION +
     PERTURB_NORMAL_FUNC +
     FRAGMENT_LIGHTING_FUNCTION +
@@ -114,16 +115,7 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
     uniform bool u_replaceMode;
     // u_decalColor is now v_decalColor
     uniform float u_desaturate;
-    uniform vec3 u_lightDirection;
-    uniform vec3 u_globalAmbient;
     uniform float u_alphaTestValue;
-
-    // Fog uniforms
-    uniform vec4 u_fogColor;
-    uniform int u_fogMode;
-    uniform vec3 u_fogParams;
-    uniform float u_fogHeightFactor;
-    uniform float u_cameraHeight;
 
     in vec2 v_texCoord0;
     in vec4 v_color; // Instance color
@@ -163,7 +155,7 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
     
             vec3 lightIntensity = vec3(1.0);
             if (u_enableLighting) {
-                lightIntensity = calculateLighting(normal, v_viewPosition, u_lightDirection, u_globalAmbient, specularStrength);
+                lightIntensity = calculateLighting(normal, v_viewPosition, specularStrength);
             }
             
             // v_color is the instance color (e.g. material color)
@@ -184,7 +176,7 @@ public final class InstancedSpriteShader extends ShaderProgram implements FogSha
             if (finalColor.a <= u_alphaTestValue) discard;
         }
 
-        float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
+        float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
         out_FragColor = vec4(mix(u_fogColor.rgb, finalColor.rgb, fogFactor), finalColor.a);
     }
     """;

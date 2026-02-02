@@ -55,9 +55,9 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
 
         layout(location = 0) in vec3 in_CenterPosition;
         layout(location = 1) in vec3 in_Size;
-        layout(location = 2) in vec4 in_Color;
-        layout(location = 3) in vec4 in_UvCoords1;
-        layout(location = 4) in vec4 in_UvCoords2;
+        layout(location = 3) in vec4 in_Color;
+        layout(location = 4) in vec4 in_UvCoords1;
+        layout(location = 5) in vec4 in_UvCoords2;
 
         uniform mat4 u_modelViewMatrix;
 
@@ -79,10 +79,12 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
         
     private static final String GEOMETRY_SHADER = """
         #version 410 core
+        """ +
+        GLOBAL_STATE_BLOCK +
+        """
         layout (points) in;
         layout (triangle_strip, max_vertices = 4) out;
 
-        uniform mat4 u_projectionMatrix;
         uniform mat4 u_modelViewMatrix;
 
         in vec3[] gs_CenterWorld;
@@ -142,16 +144,10 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
         """
         #version 410 core
         """ +
+        GLOBAL_STATE_BLOCK +
         FOG_FUNCTION +
         """
         uniform sampler2D u_texture0;
-
-        // Fog uniforms
-        uniform vec4 u_fogColor;
-        uniform int u_fogMode;
-        uniform vec3 u_fogParams;
-        uniform float u_fogHeightFactor;
-        uniform float u_cameraHeight;
         uniform float u_isAdditive;
 
         in vec2 v_texCoord;
@@ -168,7 +164,7 @@ public final class ParticleShader extends ShaderProgram implements FogShader {
                 discard;
             }
 
-            float fogFactor = calculateFogFactor(u_fogMode, u_fogParams, u_fogHeightFactor, u_cameraHeight, v_fogDist, gl_FragCoord.xy);
+            float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
             vec3 foggedColor = mix(u_fogColor.rgb, finalColor.rgb, fogFactor);
             if (u_isAdditive > 0.5) {
                 foggedColor = finalColor.rgb * fogFactor;

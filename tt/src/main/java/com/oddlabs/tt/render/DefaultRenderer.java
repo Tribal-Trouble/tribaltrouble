@@ -1,6 +1,7 @@
 package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
+import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.BoundingMode;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.gui.GUIRoot;
@@ -11,10 +12,10 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.render.shader.DebugMeshShader;
 import com.oddlabs.tt.render.shader.DebugShaderRenderer;
-import com.oddlabs.tt.render.shader.LitShader;
 import com.oddlabs.tt.render.shader.ShaderProgram;
 import com.oddlabs.tt.render.shader.SpriteShader;
 import com.oddlabs.tt.render.state.BlendMode;
+import com.oddlabs.tt.render.state.GlobalUniforms;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.resource.WorldInfo;
@@ -26,6 +27,7 @@ import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.tt.viewer.AmbientAudio;
 import com.oddlabs.tt.viewer.Cheat;
 import com.oddlabs.tt.viewer.Selection;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -52,6 +54,10 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     private final @NonNull InstancedSpriteRenderer treeSpriteRenderer = new InstancedSpriteRenderer();
     private final @NonNull PostProcessor postProcessor;
     private final @Nullable Cheat cheat;
+    
+    private final GlobalUniforms globalUniforms = new GlobalUniforms();
+    private final Vector3f sunDirection = new Vector3f(-1f, 0f, 1f).normalize();
+    private final Vector3f globalAmbient = new Vector3f(0.4f, 0.4f, 0.4f);
 
     private @Nullable Building selected_building;
 
@@ -112,17 +118,12 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
     private void doRenderRallyPoint(@NonNull RenderContext context, @NonNull CameraState camera_state) {
         try (var _ = spriteShader.use();
-             var _ = context.withBlendMode(BlendMode.ALPHA);
-             var _ = camera_state.getFog().setup(spriteShader, camera_state)) {
+             var _ = context.withBlendMode(BlendMode.ALPHA)) {
 
             Target rally_point = selected_building.getRallyPoint();
             Race race = selected_building.getOwner().getRace();
             SpriteRenderer rally_point_renderer = render_queues.getRenderer(race.getRallyPoint());
             Sprite sprite = rally_point_renderer.getSpriteList().getSprite(0);
-
-            spriteShader.setUniformMatrix4(SpriteShader.Uniforms.PROJECTION_MATRIX, false, projectionStack.current());
-            spriteShader.setUniform(LitShader.Uniforms.LIGHT_DIR, -1f, 0f, 1f);
-            spriteShader.setUniform(LitShader.Uniforms.GLOBAL_AMBIENT, 0.65f, 0.65f, 0.65f);
 
             sprite.setupShaderUniforms(context, spriteShader, 0, false);
 
@@ -211,6 +212,11 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
             postProcessor.bindSceneFBO();
             context.clear(true, true);
         }
+        
+        // Update Global UBO
+        globalUniforms.update(frustum_state, sunDirection, globalAmbient, LocalEventQueue.getQueue().getTime());
+        context.updateGlobalState(globalUniforms.getBuffer());
+
         ambient.updateSoundListener(frustum_state, world.getHeightMap());
         modelViewStack.current().set(frustum_state.getModelView());
         projectionStack.current().set(frustum_state.getProjectionMatrix());
