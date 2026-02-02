@@ -35,9 +35,10 @@ public final class GUIRenderer {
     private static final int VERTICES_PER_QUAD = 4;
     private static final int INDICES_PER_QUAD = 6;
     private static final int MAX_TEXTURES = 8;
+    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f();
 
     private final @NonNull ShaderProgram shader;
-    private final MatrixStack matrixStack = new MatrixStack(_ -> flush());
+    private final MatrixStack matrixStack = new MatrixStack(); // No flush callback
     private final Matrix4f projectionMatrix = new Matrix4f();
     private final @NonNull VertexLayout<GUIShader.Attribute> layout;
 
@@ -171,10 +172,37 @@ public final class GUIRenderer {
     }
 
     private void putQuad(float x, float y, float w, float h, float u1, float v1, float u2, float v2, float texIndex, int color) {
-        vertexBuffer.putFloat(x).putFloat(y).putFloat(0).putInt(color).putFloat(u1).putFloat(v1).putFloat(texIndex);
-        vertexBuffer.putFloat(x + w).putFloat(y).putFloat(0).putInt(color).putFloat(u2).putFloat(v1).putFloat(texIndex);
-        vertexBuffer.putFloat(x + w).putFloat(y + h).putFloat(0).putInt(color).putFloat(u2).putFloat(v2).putFloat(texIndex);
-        vertexBuffer.putFloat(x).putFloat(y + h).putFloat(0).putInt(color).putFloat(u1).putFloat(v2).putFloat(texIndex);
+        Matrix4f mat = matrixStack.current();
+        
+        // Transform vertices on CPU
+        float x1 = x;
+        float y1 = y;
+        float x2 = x + w;
+        float y2 = y + h;
+        
+        // P1 (x1, y1)
+        vertexBuffer.putFloat(mat.m00() * x1 + mat.m10() * y1 + mat.m30())
+                    .putFloat(mat.m01() * x1 + mat.m11() * y1 + mat.m31())
+                    .putFloat(mat.m02() * x1 + mat.m12() * y1 + mat.m32())
+                    .putInt(color).putFloat(u1).putFloat(v1).putFloat(texIndex);
+
+        // P2 (x2, y1)
+        vertexBuffer.putFloat(mat.m00() * x2 + mat.m10() * y1 + mat.m30())
+                    .putFloat(mat.m01() * x2 + mat.m11() * y1 + mat.m31())
+                    .putFloat(mat.m02() * x2 + mat.m12() * y1 + mat.m32())
+                    .putInt(color).putFloat(u2).putFloat(v1).putFloat(texIndex);
+
+        // P3 (x2, y2)
+        vertexBuffer.putFloat(mat.m00() * x2 + mat.m10() * y2 + mat.m30())
+                    .putFloat(mat.m01() * x2 + mat.m11() * y2 + mat.m31())
+                    .putFloat(mat.m02() * x2 + mat.m12() * y2 + mat.m32())
+                    .putInt(color).putFloat(u2).putFloat(v2).putFloat(texIndex);
+
+        // P4 (x1, y2)
+        vertexBuffer.putFloat(mat.m00() * x1 + mat.m10() * y2 + mat.m30())
+                    .putFloat(mat.m01() * x1 + mat.m11() * y2 + mat.m31())
+                    .putFloat(mat.m02() * x1 + mat.m12() * y2 + mat.m32())
+                    .putInt(color).putFloat(u1).putFloat(v2).putFloat(texIndex);
 
         quadCount++;
     }
@@ -182,7 +210,7 @@ public final class GUIRenderer {
     public void flush() {
         if (quadCount == 0) return;
 
-        shader.setUniformMatrix4(GUIShader.Uniforms.MODEL_VIEW_MATRIX, false, matrixStack.current());
+        shader.setUniformMatrix4(GUIShader.Uniforms.MODEL_VIEW_MATRIX, false, IDENTITY_MATRIX);
         
         // Bind all active textures
         for (int i = 0; i < textureCount; i++) {
