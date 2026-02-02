@@ -26,7 +26,8 @@ public final class GlobalUniforms {
     public void update(
             @NonNull CameraState camera,
             @NonNull Vector3fc lightDir,
-            @NonNull Vector3fc ambient,
+            @NonNull Vector3fc skyAmbient,
+            @NonNull Vector3fc groundAmbient,
             float time
     ) {
         buffer.clear();
@@ -44,13 +45,19 @@ public final class GlobalUniforms {
         buffer.putFloat(lightDir.z());
         buffer.putFloat(0f); // padding
         
-        // 144: vec3 ambient (16 aligned)
-        buffer.putFloat(ambient.x());
-        buffer.putFloat(ambient.y());
-        buffer.putFloat(ambient.z());
+        // 144: vec3 skyAmbient (16 aligned)
+        buffer.putFloat(skyAmbient.x());
+        buffer.putFloat(skyAmbient.y());
+        buffer.putFloat(skyAmbient.z());
+        buffer.putFloat(0f); // padding
+
+        // 160: vec3 groundAmbient (16 aligned)
+        buffer.putFloat(groundAmbient.x());
+        buffer.putFloat(groundAmbient.y());
+        buffer.putFloat(groundAmbient.z());
         buffer.putFloat(0f); // padding
         
-        // 160: vec4 fogColor (16)
+        // 176: vec4 fogColor (16)
         FogInfo fog = camera.getFog();
         Vector4fc color = fog.getColor();
         buffer.putFloat(color.x());
@@ -58,11 +65,11 @@ public final class GlobalUniforms {
         buffer.putFloat(color.z());
         buffer.putFloat(color.w());
         
-        // 176: vec3 fogParams (16 aligned)
-        // 192: float cameraHeight (4)
-        // 196: float fogHeightFactor (4)
-        // 200: float time (4)
-        // 204: int fogMode (4)
+        // 192: vec3 fogParams (16 aligned)
+        // 204: float cameraHeight (4) -- Packed tightly after vec3
+        // 208: float fogHeightFactor (4)
+        // 212: float globalTime (4)
+        // 216: int fogMode (4)
         
         int mode = -1;
         float hf = 0f;
@@ -91,13 +98,13 @@ public final class GlobalUniforms {
         buffer.putFloat(p1);
         buffer.putFloat(p2);
         buffer.putFloat(p3);
-        buffer.putFloat(0f); // padding
+        // NO padding here; vec3 takes 12 bytes, next float starts at 12 bytes offset (align 4)
         
         buffer.putFloat(ch);
         buffer.putFloat(hf);
         buffer.putFloat(time);
         buffer.putInt(mode);
         
-        buffer.position(208); // End of data
+        buffer.position(224); // End of data (220 used, pad to 224 for 16-byte alignment)
     }
 }

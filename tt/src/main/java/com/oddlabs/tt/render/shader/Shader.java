@@ -28,6 +28,7 @@ public interface Shader {
             mat4 u_viewMatrix;
             vec3 u_lightDirection;
             vec3 u_globalAmbient;
+            vec3 u_groundAmbient;
             vec4 u_fogColor;
             vec3 u_fogParams;
             float u_cameraHeight;

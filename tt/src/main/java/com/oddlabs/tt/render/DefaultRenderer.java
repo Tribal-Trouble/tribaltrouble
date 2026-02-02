@@ -57,7 +57,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     
     private final GlobalUniforms globalUniforms = new GlobalUniforms();
     private final Vector3f sunDirection = new Vector3f(-1f, 0f, 1f).normalize();
-    private final Vector3f globalAmbient = new Vector3f(0.4f, 0.4f, 0.4f);
+    private final Vector3f globalAmbient = new Vector3f(0.4f, 0.4f, 0.45f); // Sky
+    private final Vector3f groundAmbient = new Vector3f(0.15f, 0.12f, 0.1f); // Ground
 
     private @Nullable Building selected_building;
 
@@ -214,7 +215,7 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
         }
         
         // Update Global UBO
-        globalUniforms.update(frustum_state, sunDirection, globalAmbient, LocalEventQueue.getQueue().getTime());
+        globalUniforms.update(frustum_state, sunDirection, globalAmbient, groundAmbient, LocalEventQueue.getQueue().getTime());
         context.updateGlobalState(globalUniforms.getBuffer());
 
         ambient.updateSoundListener(frustum_state, world.getHeightMap());
