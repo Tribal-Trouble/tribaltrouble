@@ -34,6 +34,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import java.util.function.Consumer;
+
 public final class DefaultRenderer implements UIRenderer, AutoCloseable {
 
     private final @NonNull Picker picker;
@@ -203,8 +205,8 @@ public final class DefaultRenderer implements UIRenderer, AutoCloseable {
     }
 
     @Override
-    public void endFrame(@NonNull RenderContext context) {
-        postProcessor.renderComposite(context);
+    public void endFrame(@NonNull RenderContext context, @NonNull Consumer<@NonNull RenderContext> guiRenderCallback) {
+        postProcessor.renderComposite(context, guiRenderCallback);
     }
 
     @Override

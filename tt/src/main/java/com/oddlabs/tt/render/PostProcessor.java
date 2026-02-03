@@ -12,8 +12,10 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL40;
 
 import java.nio.FloatBuffer;
+import java.util.function.Consumer;
 
 /**
  * Manages the full-screen post-processing pipeline.
@@ -71,7 +73,21 @@ public final class PostProcessor implements AutoCloseable {
         sceneFBO.unbind();
     }
 
-    public void renderComposite(@NonNull RenderContext context) {
+    public void renderComposite(@NonNull RenderContext context, @NonNull Consumer<@NonNull RenderContext> guiRenderCallback) {
+        // 1. Render GUI into the Scene FBO (on top of the 3D scene)
+        bindSceneFBO();
+        
+        // Use glBlendFunci to set different blend modes for different draw buffers.
+        // Buffer 0 (Color): GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+        // Buffer 1 (Mask): GL_ONE, GL_ZERO (Overwrite)
+        GL40.glBlendFunci(0, GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL40.glBlendFunci(1, GL11.GL_ONE, GL11.GL_ZERO);
+        
+        guiRenderCallback.accept(context);
+        
+        unbindSceneFBO();
+
+        // 2. Composite the FBO to the screen with Post-Processing (CVD, High Contrast, Team Stencil)
         // Render to default framebuffer (screen)
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
         GL11.glViewport(0, 0, currentWidth, currentHeight);

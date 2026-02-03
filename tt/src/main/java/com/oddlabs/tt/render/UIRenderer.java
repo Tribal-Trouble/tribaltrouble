@@ -8,6 +8,8 @@ import com.oddlabs.tt.viewer.AmbientAudio;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.Consumer;
+
 public interface UIRenderer {
 	void render(@NonNull RenderContext context, AmbientAudio ambient, CameraState camera_state, GUIRoot gui_root);
 
@@ -19,5 +21,5 @@ public interface UIRenderer {
 
 	void startFrame(@NonNull RenderContext context);
 
-	void endFrame(@NonNull RenderContext context);
+	void endFrame(@NonNull RenderContext context, @NonNull Consumer<@NonNull RenderContext> guiRenderCallback);
 }

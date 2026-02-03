@@ -133,34 +133,39 @@ public final class PostProcessShader extends ShaderProgram {
                 // Team Stencil & Border
                 vec4 mask = texture(u_maskTexture, v_texCoord);
         
-                // Check RGB intensity instead of Alpha, because GUI writes (0,0,0,1) to clear mask
-                if (dot(mask.rgb, vec3(1.0)) > 0.01) {
-                    // Stencil: blend 20% team color
-                    finalColor = mix(finalColor, mask.rgb, 0.2);
-                } else {
-                    // Border Detection (3-pixel thickness) with Despeckle
-                    vec2 texelSize = 1.0 / textureSize(u_maskTexture, 0);
-                    int maskCount = 0;
-                    vec3 accumulatedColor = vec3(0.0);
-        
-                    // Search in a radius of 3 pixels
-                    for (int y = -3; y <= 3; y++) {
-                        for (int x = -3; x <= 3; x++) {
-                            if (x == 0 && y == 0) continue;
-                            if (abs(x) + abs(y) > 4) continue;
-        
-                            vec4 neighbor = texture(u_maskTexture, v_texCoord + vec2(float(x) * texelSize.x, float(y) * texelSize.y));
-                            // Check neighbor RGB
-                            if (dot(neighbor.rgb, vec3(1.0)) > 0.01) {
-                                maskCount++;
-                                accumulatedColor += neighbor.rgb;
+                // Check for GUI marker (alpha ~ 0.5)
+                bool isGUI = abs(mask.a - 0.5) < 0.1;
+                
+                if (!isGUI) {
+                    // Check RGB intensity instead of Alpha, because GUI writes (0,0,0,1) to clear mask
+                    if (dot(mask.rgb, vec3(1.0)) > 0.01) {
+                        // Stencil: blend 20% team color
+                        finalColor = mix(finalColor, mask.rgb, 0.2);
+                    } else {
+                        // Border Detection (3-pixel thickness) with Despeckle
+                        vec2 texelSize = 1.0 / textureSize(u_maskTexture, 0);
+                        int maskCount = 0;
+                        vec3 accumulatedColor = vec3(0.0);
+            
+                        // Search in a radius of 3 pixels
+                        for (int y = -3; y <= 3; y++) {
+                            for (int x = -3; x <= 3; x++) {
+                                if (x == 0 && y == 0) continue;
+                                if (abs(x) + abs(y) > 4) continue;
+            
+                                vec4 neighbor = texture(u_maskTexture, v_texCoord + vec2(float(x) * texelSize.x, float(y) * texelSize.y));
+                                // Check neighbor RGB
+                                if (dot(neighbor.rgb, vec3(1.0)) > 0.01) {
+                                    maskCount++;
+                                    accumulatedColor += neighbor.rgb;
+                                }
                             }
                         }
-                    }
-        
-                    // Filter small features: 2x2 pixels = 4 pixels.
-                    if (maskCount > 4) {
-                        finalColor = accumulatedColor / float(maskCount);
+            
+                        // Filter small features: 2x2 pixels = 4 pixels.
+                        if (maskCount > 4) {
+                            finalColor = accumulatedColor / float(maskCount);
+                        }
                     }
                 }
             }

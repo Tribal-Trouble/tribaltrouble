@@ -99,10 +99,10 @@ public final class GUI implements Animated {
         if (renderer != null)
             renderer.render(context, ambient, frustum_state, current_root);
         
-        renderGUI(context);
-        
         if (renderer != null) {
-            renderer.endFrame(context);
+            renderer.endFrame(context, this::renderGUI);
+        } else {
+            renderGUI(context);
         }
     }
 
