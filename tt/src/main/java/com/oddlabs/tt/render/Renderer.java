@@ -159,6 +159,13 @@ public final class Renderer implements AutoCloseable {
 		gui.render(ambient);
 	}
 
+    public void updateProgress(@NonNull GUI gui) {
+        renderContext.reset(); // Fix texture bleeding
+        display(gui);
+        window.update();
+        window.pollEvents();
+    }
+
 	public static void shutdown() {
 		finished = true;
 	}
@@ -569,11 +576,13 @@ public final class Renderer implements AutoCloseable {
 						logger.info("First frame rendered after " + startup_time);
 						first_frame = false;
                         if (load_task != null) {
+                            window.update();
                             LocalEventQueue.getQueue().getDeterministic().setEnabled(true);
                             try {
                                 load_task.run();
                             } finally {
                                 LocalEventQueue.getQueue().getDeterministic().setEnabled(false);
+                                renderContext.reset(); // Fix texture bleeding after loading
                             }
                             load_task = null;
                         }

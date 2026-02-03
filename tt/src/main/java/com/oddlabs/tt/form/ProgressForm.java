@@ -14,6 +14,7 @@ import com.oddlabs.tt.gui.LabelBox;
 import com.oddlabs.tt.gui.ProgressBar;
 import com.oddlabs.tt.gui.ProgressBarInfo;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -39,6 +40,7 @@ public final class ProgressForm {
 	private static @Nullable ProgressForm current_progress = null;
 
 	private final @NonNull ProgressBar progress_bar;
+    private final @NonNull GUI gui;
 
 	public static void setProgressForm(@NonNull NetworkSelector network, @NonNull GUI gui, @NonNull LoadCallback callback) {
 		setProgressForm(network, gui, callback, false);
@@ -92,6 +94,7 @@ public final class ProgressForm {
 	}
 
 	private ProgressForm(@NonNull NetworkSelector network, final @NonNull GUI gui, final Fadable load_fadable, boolean first_progress, ProgressBarInfo @NonNull [] info, @NonNull String texture_name, int texture_width, int texture_height, int image_width, int image_height, int progress_x, int progress_y, int progress_width, boolean show_tip) {
+        this.gui = gui;
 		AudioManager.getManager().stopSources();
 		var gui_root = first_progress ? gui.getGUIRoot() : gui.newFade(load_fadable, null);
         CameraDelegate<NullCamera> delegate = new NullDelegate(gui_root, false);
@@ -120,6 +123,9 @@ public final class ProgressForm {
 			tip.setPos(progress_bar.getX() + progress_bar.getWidth()/2 - tip.getWidth()/2, progress_bar.getY() - tip.getHeight() - PROGRESSBAR_LOADINGTIP_SPACING);
 			delegate.addChild(tip);
 		}
+        
+        // Force an initial render to show the progress screen immediately
+        Renderer.getRenderer().updateProgress(gui);
 	}
 
 	private static void callback(@NonNull GUI gui, @NonNull LoadCallback callback, boolean first_progress) {
@@ -131,12 +137,16 @@ public final class ProgressForm {
 	}
 
 	public static void progress() {
-        if (null != current_progress)
+        if (null != current_progress) {
 		    current_progress.progress_bar.progress();
+            Renderer.getRenderer().updateProgress(current_progress.gui);
+        }
 	}
 
 	public static void progress(float step) {
-        if (null != current_progress)
+        if (null != current_progress) {
 		    current_progress.progress_bar.progress(step);
+            Renderer.getRenderer().updateProgress(current_progress.gui);
+        }
 	}
 }

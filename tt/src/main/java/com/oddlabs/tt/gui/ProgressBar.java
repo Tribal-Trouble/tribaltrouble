@@ -98,13 +98,11 @@ public final class ProgressBar extends GUIObject {
 			point = Math.max(point, left_margin);
 			waypoints[i] = new Waypoint(point, info[i].getWaypoint());
 		}
-		waypoints[info.length - 1] = new Waypoint(width, waypoints[info.length - 1].weight());
+		waypoints[info.length - 1] = new Waypoint(width - right_margin, waypoints[info.length - 1].weight());
 		return waypoints;
 	}
 
 	private void renderFill(@NonNull GUIRenderer renderer, int y) {
-		if (index == 0 && step < left_margin)
-			return;
 		ProgressBarData data = Skin.getSkin().getProgressBarData();
 		ModeIconQuads left = data.leftFill();
         ModeIconQuads center = data.centerFill();
@@ -113,12 +111,14 @@ public final class ProgressBar extends GUIObject {
 		renderer.drawModeIcon(left, ModeIconQuads.Mode.NORMAL, 0, y);
 
 		int offset = index > 0 ? waypoints[index - 1].point() : 0;
-        IconQuad c = center.quad(ModeIconQuads.Mode.NORMAL);
-		renderer.drawTexture(c.getTexture(), left_margin, y, offset - left_margin + (int)step, c.getHeight(), c.getU1(), c.getV1(), c.getU2(), c.getV2(), Color.WHITE);
-		
-		if (index == info.length) {
-			renderer.drawModeIcon(right, ModeIconQuads.Mode.NORMAL, waypoints[index - 1].point(), y);
-		}
+        int current_pos = offset + (int)step;
+        int width = current_pos - left_margin;
+        
+        if (width > 0) {
+            IconQuad c = center.quad(ModeIconQuads.Mode.NORMAL);
+            renderer.drawTexture(c.getTexture(), left_margin, y, width, c.getHeight(), c.getU1(), c.getV1(), c.getU2(), c.getV2(), Color.WHITE);
+            renderer.drawModeIcon(right, ModeIconQuads.Mode.NORMAL, current_pos, y);
+        }
 	}
 
 	private void update() {
