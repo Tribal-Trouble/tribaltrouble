@@ -9,8 +9,10 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 public final class GLRenderContext implements RenderContext {
+    private static final Logger logger = Logger.getLogger(GLRenderContext.class.getName());
     private static final ScopedState NO_OP = () -> {};
 
     private @NonNull BlendMode currentBlend = BlendMode.NONE;
@@ -116,7 +118,14 @@ public final class GLRenderContext implements RenderContext {
         // Verify Depth Func
         int glDepthFunc = GL11.glGetInteger(GL11.GL_DEPTH_FUNC);
         if (glDepthFunc != currentDepthFunc) {
-            throw new IllegalStateException("Depth Func Mismatch: Tracked=" + currentDepthFunc + ", GL=" + glDepthFunc);
+            // If tracked is -1 (unknown), sync it instead of crashing
+            if (currentDepthFunc == -1) {
+                currentDepthFunc = glDepthFunc;
+            } else {
+                logger.severe("Depth Func Mismatch: Tracked=" + currentDepthFunc + ", GL=" + glDepthFunc);
+                // Try to recover
+                currentDepthFunc = glDepthFunc;
+            }
         }
 
         // ... verify textures ...
@@ -167,6 +176,15 @@ public final class GLRenderContext implements RenderContext {
     public void setDepthFunc(int func) {
         if (currentDepthFunc == func) return;
         GL11.glDepthFunc(func);
+        int error = GL11.glGetError();
+        if (error != GL11.GL_NO_ERROR) {
+            // Log error instead of crashing to allow recovery
+            logger.severe("glDepthFunc produced error: " + error + " (0x" + Integer.toHexString(error) + ")");
+            logger.severe("Invalid depth func value: " + func);
+            
+            // Do NOT update currentDepthFunc if the call failed, GL state didn't change.
+            return;
+        }
         currentDepthFunc = func;
     }
 

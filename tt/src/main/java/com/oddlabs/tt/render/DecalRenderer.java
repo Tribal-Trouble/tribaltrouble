@@ -119,21 +119,19 @@ public final class DecalRenderer implements AutoCloseable {
         var blend = context.withBlendMode(BlendMode.ALPHA);
         var depth = context.withDepthMode(DepthMode.READ_ONLY);
         var cull = context.withCullMode(CullMode.NONE);
-        var dfunc = context.withDepthFunc(GL11.GL_LEQUAL);
-        
+
         // Bias to prevent Z-fighting with terrain
         GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
         GL11.glPolygonOffset(-16.0f, -32.0f);
         
         // Disable writing to Mask Buffer (Attachment 1) since DecalShader doesn't output to it
-        GL20.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);
+        GL11.glDrawBuffer(GL30.GL_COLOR_ATTACHMENT0);
 
         return () -> {
             flush(context);
             shaderUseState.close();
             GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
             
-            dfunc.close();
             cull.close();
             depth.close();
             blend.close();

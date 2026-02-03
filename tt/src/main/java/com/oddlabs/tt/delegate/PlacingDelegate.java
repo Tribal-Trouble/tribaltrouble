@@ -146,26 +146,21 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
             modelViewStack.translate(center_x, center_y, z);
             spriteShader.setUniformMatrix4(SpriteShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
 
-            try {
-                try (var _ = context.withCullMode(CullMode.BACK)) {
+            try (var _ = context.withCullMode(CullMode.BACK)) {
+                // Pass 1: Depth Prime (Write Depth, No Color)
+                try (var _ = context.withDepthMode(DepthMode.READ_WRITE);
+                     var _ = context.withColorMask(false, false, false, false);
+                     var _ = context.withBlendMode(BlendMode.NONE)) {
 
-                    // Pass 1: Depth Prime (Write Depth, No Color)
-                    try (var _ = context.withDepthMode(DepthMode.READ_WRITE);
-                         var _ = context.withDepthFunc(GL11.GL_LEQUAL);
-                         var _ = context.withColorMask(false, false, false, false);
-                         var _ = context.withBlendMode(BlendMode.NONE)) {
-                        
-                        sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
-                    }
+                    sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
+                }
 
-                    // Pass 2: Color Render (No Depth Write, Equal Depth)
-                    try (var _ = context.withDepthMode(DepthMode.READ_ONLY);
-                         var _ = context.withDepthFunc(GL11.GL_EQUAL);
-                         var _ = context.withColorMask(true, true, true, true);
-                         var _ = context.withBlendMode(BlendMode.ALPHA)) {
-                        
-                        sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
-                    }
+                // Pass 2: Color Render (No Depth Write, Equal Depth)
+                try (var _ = context.withDepthMode(DepthMode.READ_ONLY);
+                     var _ = context.withColorMask(true, true, true, true);
+                     var _ = context.withBlendMode(BlendMode.ALPHA)) {
+
+                    sprite.renderShader(spriteShader, 0, 0f, built_renderer.getSpriteList());
                 }
             } finally {
                 spriteShader.setUniform(SpriteShader.Uniforms.DESATURATE, 0.0f);
