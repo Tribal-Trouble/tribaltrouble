@@ -47,17 +47,18 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
         out vec3 v_worldPos;
 
         void main() {
-            // For Instanced Patches: in_Position.z is 0 (from PatchMesh size=2).
-            // For Sky Water: in_Position.z is valid (from Sky VBO size=3).
-            // We add in_Position.z to u_waterHeight to preserve Sky geometry while keeping patches at sea level.
             vec3 worldPos = vec3(in_InstanceOffset + in_Position.xy, u_waterHeight + in_Position.z);
             v_worldPos = worldPos;
           
             vec4 viewPosition = u_modelViewMatrix * vec4(worldPos, 1.0);
             gl_Position = u_projectionMatrix * viewPosition;
             
-            v_texCoord0 = worldPos.xy * u_waterRepeatRate + u_scrollOffset0;
-            v_texCoord1 = worldPos.xy * u_waterDetailRepeatRate + u_scrollOffset1;
+            // Scale up the UVs significantly to reduce "blob" size.
+            float scaleFix = 4.0; 
+            
+            v_texCoord0 = (worldPos.xy * u_waterRepeatRate * scaleFix) + u_scrollOffset0;
+            v_texCoord1 = (worldPos.xy * u_waterRepeatRate * scaleFix * 1.3) + u_scrollOffset1; 
+            
             v_fogDist = length(viewPosition.xyz);
         }
         """;
@@ -84,50 +85,48 @@ public final class WaterShader extends ShaderProgram implements FogShader, LitSh
         float getNoise(vec2 uv) {
             return texture(u_texture0, uv).r;
         }
-        
-        float getDetailNoise(vec2 uv) {
-            return texture(u_texture1, uv).r;
+
+        vec2 getGradient(vec2 uv) {
+            float eps = 0.005;
+            float h = getNoise(uv);
+            float h_x = getNoise(uv + vec2(eps, 0.0));
+            float h_y = getNoise(uv + vec2(0.0, eps));
+            return vec2(h - h_x, h - h_y);
         }
 
         void main() {
             vec4 baseColor = texture(u_texture0, v_texCoord0);
-            vec4 finalColor = baseColor;
             
-            float eps = 0.01;
-            float h = getNoise(v_texCoord0);
-            float h_x = getNoise(v_texCoord0 + vec2(eps, 0.0));
-            float h_y = getNoise(v_texCoord0 + vec2(0.0, eps));
+            vec2 grad1 = getGradient(v_texCoord0);
+            vec2 grad2 = getGradient(v_texCoord1);
+            vec2 combinedGrad = (grad1 + grad2) * 0.5;
             
-            if (u_enableDetail) {
-                vec4 detailColor = texture(u_texture1, v_texCoord1);
-                finalColor = mix(baseColor, detailColor, detailColor.a);
-                
-                float d = getDetailNoise(v_texCoord1);
-                float d_x = getDetailNoise(v_texCoord1 + vec2(eps, 0.0));
-                float d_y = getDetailNoise(v_texCoord1 + vec2(0.0, eps));
-                
-                h += d * 0.5;
-                h_x += d_x * 0.5;
-                h_y += d_y * 0.5;
-            }
-            
-            vec3 normal = normalize(vec3((h - h_x) * 2.0, (h - h_y) * 2.0, 0.1));
+            float normalStrength = 0.8; 
+            vec3 normal = normalize(vec3(combinedGrad * normalStrength, 0.5));
 
             vec3 lightDir = normalize(u_lightDirection);
             vec3 viewDir = normalize(u_cameraPos - v_worldPos);
             vec3 halfDir = normalize(lightDir + viewDir);
             
             float specAngle = max(dot(normal, halfDir), 0.0);
-            float specular = pow(specAngle, 30.0);
+            float specular = pow(specAngle, 40.0); 
             
-            float F0 = 0.04; 
-            float F = F0 + (1.0 - F0) * pow(1.0 - max(dot(halfDir, viewDir), 0.0), 5.0);
+            float F0 = 0.02; 
+            float F = F0 + (1.0 - F0) * pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);
             
-            finalColor.rgb += vec3(specular * F);
+            vec3 reflectionColor = vec3(0.6, 0.7, 0.8); 
+            vec3 waterColor = baseColor.rgb * 0.7; 
             
+            vec3 finalRGB = mix(waterColor, reflectionColor, F * 0.6); 
+            finalRGB += vec3(specular) * 0.4; 
+            
+            if (u_enableDetail) {
+                 vec4 detail = texture(u_texture1, v_texCoord0 * 2.0);
+                 finalRGB = mix(finalRGB, detail.rgb, 0.05);
+            }
+
             float fogFactor = calculateFogFactor(v_fogDist, gl_FragCoord.xy);
-            
-            out_FragColor = vec4(mix(u_fogColor.rgb, finalColor.rgb, fogFactor), finalColor.a);
+            out_FragColor = vec4(mix(u_fogColor.rgb, finalRGB, fogFactor), baseColor.a);
         }
         """;
 

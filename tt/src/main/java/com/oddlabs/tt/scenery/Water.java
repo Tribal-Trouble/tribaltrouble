@@ -217,8 +217,14 @@ public final class Water implements AutoCloseable {
         scrollOffset0[0] += dx;
         scrollOffset0[1] += dy;
         
-        scrollOffset1[0] += dx * 1.2f; 
-        scrollOffset1[1] += dy * 0.8f;
+        // Move the second layer in a different direction (e.g., 90 degrees offset)
+        // and slightly slower to create interference patterns.
+        float flowDirection2 = flowDirection + (float) Math.toRadians(90f);
+        float dx2 = (float) Math.cos(flowDirection2) * flowSpeed * 0.7f * dt;
+        float dy2 = (float) Math.sin(flowDirection2) * flowSpeed * 0.7f * dt;
+
+        scrollOffset1[0] += dx2; 
+        scrollOffset1[1] += dy2;
     }
 
     @Override
