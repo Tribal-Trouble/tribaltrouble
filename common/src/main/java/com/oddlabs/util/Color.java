@@ -26,19 +26,34 @@ public final class Color {
         // no instances
     }
 
+    /**
+     * Converts a {@code Vector4fc} color to a 32-bit packed integer in AARRGGBB format
+     *
+     * @return A 32-bit packed integer in AARRGGBB format
+     */
     public static int argbi(@NonNull Vector4fc color) {
         return argbi(color.w(), color.x(), color.y(), color.z());
     }
 
+    /**
+     * Converts float colors to a 32-bit packed integer in AARRGGBB format
+     *
+     * @return A 32-bit packed integer in AARRGGBB format
+     */
     public static int argbi(float a, float r, float g, float b) {
-        return argbi ((byte)(a * NORMALIZE_8_BIT),
+        return argbi((byte)(a * NORMALIZE_8_BIT),
                 (byte)(r * NORMALIZE_8_BIT),
                 (byte)(g * NORMALIZE_8_BIT),
                 (byte)(b * NORMALIZE_8_BIT));
     }
 
-    public static int argbi(byte r, byte g, byte b, byte a) {
-        return (Byte.toUnsignedInt(a) << 24) | (Byte.toUnsignedInt(b) << 16) | (Byte.toUnsignedInt(g) << 8) | Byte.toUnsignedInt(r);
+    /**
+     * Converts byte colors to a 32-bit packed integer in AARRGGBB format
+     *
+     * @return A 32-bit packed integer in AARRGGBB format
+     */
+    public static int argbi(byte a, byte r, byte g, byte b) {
+        return (Byte.toUnsignedInt(a) << 24) | (Byte.toUnsignedInt(r) << 16) | (Byte.toUnsignedInt(g) << 8) | Byte.toUnsignedInt(b);
     }
 
     /**

@@ -265,8 +265,8 @@ public final class Settings implements Serializable {
 		if (!Arrays.equals(value, defaultValue)) {
 			String colors = Arrays.stream(value)
 							.mapToInt(Color::argbi)
-									.mapToObj(Integer::toHexString)
-											.collect(Collectors.joining(","));
+							.mapToObj(Integer::toHexString)
+							.collect(Collectors.joining(","));
 
 			props.setProperty(key, colors);
 		}
