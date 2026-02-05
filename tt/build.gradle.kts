@@ -7,7 +7,7 @@ plugins {
 
 lwjgl {
     // Strongly recommended: set LWJGL version explicitly
-    version = "3.4.0"
+    version = "3.4.1"
 
     // Add LWJGL modules + the correct native artifacts
     implementation(
@@ -25,7 +25,7 @@ application {
         "-ea", "-esa", //"-check:JNI",
         "-Dcom.oddlabs.tt.developer=true",
         "-Xms80m", "-Xmx512m"
-//           , "-javaagent:/Users/mike/.m2/repository/org/lwjglx/lwjglx-debug/1.0.2/lwjglx-debug-1.0.2.jar=validate;trace;output=trace.log"
+//           , "-javaagent:/Users/mike/.m2/repository/org/lwjglx/lwjglx-debug/1.0.3/lwjglx-debug-1.0.3.jar=validate;trace;output=trace.log"
     )
     if (System.getProperty("os.name").lowercase().contains("mac")) {
         args.add("-XstartOnFirstThread")
