@@ -23,7 +23,7 @@ system has been migrated from Ant to Gradle for better dependency management and
 This is a *restoration* fork. While the implementation has been modernized the gameplay intentionally remains as
 close as possible to the original game but with better graphics, sound and fluidity. Some essential accessibility
 features have been added including UI magnification, high contrast filter, color vision difference correction, team
-color editing, and unit/building team color overlays.
+color editing, keyboard control remapping and unit/building team color overlays.
 
 If you are looking for multiplayer or new features there is another fork of the game which has focused on that and
 has a great community of contributors and players. See **[Tribal Trouble:Resurrected](https://tribaltrouble.org/)**
