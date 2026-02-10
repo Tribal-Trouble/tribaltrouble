@@ -16,18 +16,21 @@ About this fork
 ---------------
 
 I ([bondolo](https://github.com/bondolo)) have been working on restoring this enjoyable game to working order with
-modern Java and OpenGL. This has
-included updating to more recent LWJGL, JInput and OpenAL, removing the need for registration, removing demo mode,
-removing updater as well as many Java modernizations and cleanups. The build system has been migrated from Ant to Gradle
-for better dependency management and faster builds.
+modern Java and OpenGL. This has included updating to more recent LWJGL, JInput and OpenAL, removing the need for 
+registration, removing demo mode, removing updater as well as many Java modernizations and cleanups. The build 
+system has been migrated from Ant to Gradle for better dependency management and faster builds.
 
-If you are looking for multiplayer there is another fork of the game which has focused on that and has a great community
-of contributors and players. See
-**[Tribal Trouble:Resurrected](https://tribaltrouble.org/)**
+This is a *restoration* fork. While the implementation has been modernized the gameplay intentionally remains as
+close as possible to the original game but with better graphics, sound and fluidity. Some essential accessibility
+features have been added including UI magnification, high contrast filter, color vision difference correction, team
+color editing, and unit/building team color overlays.
+
+If you are looking for multiplayer or new features there is another fork of the game which has focused on that and
+has a great community of contributors and players. See **[Tribal Trouble:Resurrected](https://tribaltrouble.org/)**
 
 **Disclaimer**: This fork of Tribal Trouble is a derived work by an opensource effort based on the original Oddlabs
-version. It aims to revive the original game and provide more playable features in the future. The current maintainers
-for this edition have no affiliation with Oddlabs.
+version. It aims to revive the original game and modernize the implementation so that the game may be played long in to
+the future. The current maintainers for this edition have no affiliation with Oddlabs.
 
 Building
 --------
