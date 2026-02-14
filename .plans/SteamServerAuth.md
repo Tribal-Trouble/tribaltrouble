@@ -2,7 +2,7 @@
 
 ## Goal
 
-When connecting to `tribaltrouble.org`, players authenticate via Steam automatically.
+When connecting to `tribaltrouble.org` or `test.tribaltrouble.org`, players authenticate via Steam automatically.
 When connecting to any other server, players use the existing login + profile flow unchanged.
 Steam users get an auto-created profile with a human-readable nick derived from their
 Steam persona name plus a hidden discriminator for uniqueness (e.g. `Viking#7432`).
