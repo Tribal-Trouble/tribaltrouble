@@ -163,6 +163,18 @@ public final strictfp class Authenticator
         }
     }
 
+    public final void loginWithSteam(long steamAccountId, String personaName, int revision) {
+        if (!revisionOK(revision)) return;
+
+        String nick = DBInterface.getOrCreateSteamProfile(steamAccountId, personaName);
+        if (nick == null) {
+            // User is banned/disabled (same error as regular login)
+            client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
+            return;
+        }
+        doLogin(nick, null, revision);
+    }
+
     private final boolean revisionOK(int revision) {
         if (revision != Compatibility.API_VERSION) {
             client_interface.loginError(MatchmakingClientInterface.USER_ERROR_VERSION_TOO_OLD);

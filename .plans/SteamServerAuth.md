@@ -14,10 +14,8 @@ The discriminator is stripped at display time so players just see `Viking`.
 
 File: `database/003.AddSteamIdentity.sql`
 
-- `profiles.reg_id` made nullable (Steam users have no registration)
-- `profiles.steam_id BIGINT NULL UNIQUE` added
-- New `steam_to_profiles` table (steam_id → nick lookup)
-- `game_players.result` and `game_players.rating_delta` columns added for per-game outcome tracking
+- `registrations.steam_id BIGINT NULL UNIQUE` added (each Steam user gets their own registration for banning/admin control)
+- Profiles link via `reg_id` (no redundant `steam_id` needed on profiles table)
 
 ---
 
@@ -111,17 +109,23 @@ New method:
 
 ```java
 public static String getOrCreateSteamProfile(long steamId, String personaName) {
-    // 1. Check steam_to_profiles for existing mapping
-    //    SELECT nick FROM steam_to_profiles WHERE steam_id = ?
-    // 2. If found, return the existing nick (profile already exists)
-    //    (persona name may have changed on Steam, but nick stays stable)
+    // 1. Check if registration exists for this Steam ID
+    //    SELECT id, username, banned, disabled FROM registrations WHERE steam_id = ?
+    // 2. If found:
+    //    a. Check if banned/disabled, throw exception if so
+    //    b. Use existing username (nick) and reg_id
     // 3. If not found:
     //    a. Generate nick = NickUtils.generateSteamNick(personaName, steamId)
     //       e.g. "Viking#7432"
-    //    b. INSERT INTO profiles (reg_id, steam_id, nick, rating, wins, losses, invalid)
-    //       VALUES (NULL, ?, ?, 1000, 0, 0, 0)
-    //    c. INSERT INTO steam_to_profiles (steam_id, nick) VALUES (?, ?)
-    //    d. Return the generated nick
+    //    b. Generate email = "steam_" + steamId + "@steam.internal"
+    //    c. INSERT INTO registrations (username, email, password, steam_id, disabled, banned)
+    //       VALUES (nick, email, 'LOCKED', steamId, 0, 0)
+    //    d. Get newly created reg_id
+    // 4. Check if profile exists: SELECT nick FROM profiles WHERE reg_id = ?
+    // 5. If profile doesn't exist:
+    //    INSERT INTO profiles (reg_id, nick, rating, wins, losses, invalid)
+    //    VALUES (reg_id, nick, 1000, 0, 0, 0)
+    // 6. Return nick
 }
 ```
 
@@ -129,7 +133,9 @@ Also add a lookup method for other code that may need it:
 
 ```java
 public static String getProfileNickBySteamId(long steamId) {
-    // SELECT nick FROM steam_to_profiles WHERE steam_id = ?
+    // SELECT p.nick FROM profiles p
+    // INNER JOIN registrations r ON p.reg_id = r.id
+    // WHERE r.steam_id = ?
 }
 ```
 
@@ -301,7 +307,7 @@ Legacy (non-Steam) nicks won't contain `#\d+` so `toDisplayName()` is a no-op fo
 - `Profile.java`, `GameSession.java`, `Participant.java` — unchanged (nick with discriminator flows through)
 - Existing win/loss/rating/ranking DB queries — unchanged (they query by full nick including discriminator)
 - Steam achievement/stats code in `SteamUtils.java` — unchanged (client-side only)
-- `discord_to_profiles` — unchanged
+- `discord_to_profiles` — unchanged (follows same pattern as Steam with profiles.steam_id)
 
 ---
 
