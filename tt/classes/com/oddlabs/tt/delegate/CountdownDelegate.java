@@ -41,7 +41,7 @@ public strictfp class CountdownDelegate extends CameraDelegate implements Updata
             Menu.completeGameSetupHack(viewer);
         } else {
             if (countdown_time == 0) {
-                countdown_label.set("Fight !");
+                countdown_label.set("Fight!");
             } else {
                 countdown_label.set(String.valueOf(countdown_time));
             }
