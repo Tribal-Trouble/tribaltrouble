@@ -1,5 +1,6 @@
 package com.oddlabs.tt.net;
 
+import com.codedisaster.steamworks.SteamAPI;
 import com.oddlabs.matchmaking.ChatRoomUser;
 import com.oddlabs.matchmaking.Login;
 import com.oddlabs.matchmaking.LoginDetails;
@@ -468,11 +469,11 @@ public final strictfp class MatchmakingClient
         while (!steamManager.isWebApiTicketReady() && retries < maxRetries) {
             try {
                 // Pump Steam callbacks so ticket callback can fire
-                if (com.codedisaster.steamworks.SteamAPI.isSteamRunning()) {
+                if (SteamAPI.isSteamRunning()) {
                     if (retries == 0) {
                         System.out.println("Pumping Steam callbacks...");
                     }
-                    com.codedisaster.steamworks.SteamAPI.runCallbacks();
+                    SteamAPI.runCallbacks();
                 }
                 Thread.sleep(50);
             } catch (InterruptedException e) {
