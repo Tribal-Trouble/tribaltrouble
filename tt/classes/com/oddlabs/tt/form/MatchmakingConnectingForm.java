@@ -35,6 +35,17 @@ public final strictfp class MatchmakingConnectingForm extends Form implements Ma
             MainMenu main_menu,
             Login login,
             LoginDetails login_details) {
+        this(network, gui_root, parent_form, main_menu, login, login_details, false);
+    }
+
+    public MatchmakingConnectingForm(
+            NetworkSelector network,
+            GUIRoot gui_root,
+            Form parent_form,
+            MainMenu main_menu,
+            Login login,
+            LoginDetails login_details,
+            boolean steamLogin) {
         this.parent_form = parent_form;
         this.main_menu = main_menu;
         this.gui_root = gui_root;
@@ -56,7 +67,11 @@ public final strictfp class MatchmakingConnectingForm extends Form implements Ma
         compileCanvas();
         centerPos();
         Network.setMatchmakingListener(this);
-        Network.getMatchmakingClient().login(network, login, login_details);
+        if (steamLogin) {
+            Network.getMatchmakingClient().loginWithSteam(network);
+        } else {
+            Network.getMatchmakingClient().login(network, login, login_details);
+        }
     }
 
     public final void clearList(int type) {

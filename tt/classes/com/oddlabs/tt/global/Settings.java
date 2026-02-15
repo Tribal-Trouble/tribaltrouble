@@ -32,7 +32,9 @@ public final strictfp class Settings implements Serializable {
     // network
     // TODO: Why is domain name stuck on tribaltrouble.org?
     // when it is loaded from the settings file?
-    private String domain_name = "tribaltrouble.org";
+    public static final String OFFICIAL_DOMAIN = "tribaltrouble.org";
+    public static final String TEST_DOMAIN = "test.tribaltrouble.org";
+    private String domain_name = OFFICIAL_DOMAIN;
     public String username = "";
     public String pw_digest = "";
     public boolean remember_login = false;
@@ -109,6 +111,7 @@ public final strictfp class Settings implements Serializable {
 
     public static final void setSettings(Settings new_settings) {
         settings = new_settings;
+        // Use whatever domain was loaded from settings
         settings.setDomain(settings.getDomainName());
     }
 
@@ -198,6 +201,18 @@ public final strictfp class Settings implements Serializable {
 
     public String getDomainName() {
         return domain_name;
+    }
+
+    public boolean isOfficialServer() {
+        // Check if it's an official domain
+        if (OFFICIAL_DOMAIN.equals(domain_name) || TEST_DOMAIN.equals(domain_name)) {
+            return true;
+        }
+        // Also allow Steam auth on localhost if debug flag is enabled
+        if (Globals.debug_steam_auth_localhost && ("localhost".equals(domain_name) || "local".equals(domain_name))) {
+            return true;
+        }
+        return false;
     }
 
     public String getRegistrationAddress() {

@@ -10,7 +10,7 @@ public strictfp interface MatchmakingServerLoginInterface {
 
     public void loginAsGuest(int revision);
 
-    public void loginWithSteam(long steamAccountId, String personaName, int revision);
+    public void loginWithSteam(long steamAccountId, String personaName, byte[] authTicket, int revision);
 
     public void createUser(
             Login login, LoginDetails login_details, SignedObject reg_key, int revision);

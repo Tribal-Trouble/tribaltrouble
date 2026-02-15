@@ -23,6 +23,7 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ChatRoomInfo;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.Compatibility;
 
@@ -67,6 +68,7 @@ public final strictfp class MatchmakingClient
 
     private Login login;
     private LoginDetails login_details;
+    private boolean steamLogin;
 
     MatchmakingClient() {
         this.chat_room_history = new ChatRoomHistory();
@@ -286,6 +288,15 @@ public final strictfp class MatchmakingClient
     public final void login(NetworkSelector network, Login login, LoginDetails login_details) {
         this.login = login;
         this.login_details = login_details;
+        this.steamLogin = false;
+        open(network);
+        state = STATE_AWAITING_OK;
+    }
+
+    public final void loginWithSteam(NetworkSelector network) {
+        this.login = null;
+        this.login_details = null;
+        this.steamLogin = true;
         open(network);
         state = STATE_AWAITING_OK;
     }
@@ -405,10 +416,20 @@ public final strictfp class MatchmakingClient
         System.out.println(
                 "wrapped_connection.getLocalAddress()	 = " + wrapped_connection.getLocalAddress());
         int revision = Compatibility.API_VERSION;
-        if (!Renderer.isRegistered()) matchmaking_login_interface.loginAsGuest(revision);
-        else if (login_details != null)
+
+        if (steamLogin) {
+            // Steam auto-login
+            long accountId = SteamManager.getInstance().getAccountID();
+            String personaName = SteamManager.getInstance().getPersonaName();
+            byte[] authTicket = SteamManager.getInstance().getAuthSessionTicket();
+            matchmaking_login_interface.loginWithSteam(accountId, personaName, authTicket, revision);
+        } else if (!Renderer.isRegistered()) {
+            matchmaking_login_interface.loginAsGuest(revision);
+        } else if (login_details != null) {
             matchmaking_login_interface.createUser(login, login_details, null, revision);
-        else matchmaking_login_interface.login(login, null, revision);
+        } else {
+            matchmaking_login_interface.login(login, null, revision);
+        }
     }
 
     public final void error(AbstractConnection conn, IOException e) {

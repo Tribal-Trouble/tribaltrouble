@@ -3,6 +3,7 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.camera.Camera;
 import com.oddlabs.tt.form.*;
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.ImageBuyButton;
@@ -90,8 +91,27 @@ public final strictfp class MainMenu extends Menu {
             if (Network.getMatchmakingClient().isConnected()) {
                 new SelectGameMenu(getNetwork(), getGUIRoot(), MainMenu.this);
             } else {
-                Network.getMatchmakingClient().close();
-                new LoginForm(getNetwork(), getGUIRoot(), MainMenu.this);
+                boolean isOfficialServer = Settings.getSettings().isOfficialServer();
+                boolean steamRunning = com.codedisaster.steamworks.SteamAPI.isSteamRunning();
+                String domain = Settings.getSettings().getDomainName();
+                boolean debugFlag = Globals.debug_steam_auth_localhost;
+
+                System.out.println("=== Steam Auto-Login Check ===");
+                System.out.println("Domain: " + domain);
+                System.out.println("Debug flag (debug_steam_auth_localhost): " + debugFlag);
+                System.out.println("isOfficialServer(): " + isOfficialServer);
+                System.out.println("Steam running: " + steamRunning);
+                System.out.println("Will use Steam login: " + (isOfficialServer && steamRunning));
+                System.out.println("==============================");
+
+                if (isOfficialServer && steamRunning) {
+                    // Steam auto-login — skip LoginForm entirely
+                    Network.getMatchmakingClient().close();
+                    new MatchmakingConnectingForm(getNetwork(), getGUIRoot(), null, MainMenu.this, null, null, true);
+                } else {
+                    Network.getMatchmakingClient().close();
+                    new LoginForm(getNetwork(), getGUIRoot(), MainMenu.this);
+                }
             }
         }
     }
