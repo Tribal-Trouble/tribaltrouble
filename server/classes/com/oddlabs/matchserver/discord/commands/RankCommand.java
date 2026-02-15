@@ -1,5 +1,6 @@
 package com.oddlabs.matchserver.discord.commands;
 
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.RankingEntry;
 import com.oddlabs.matchserver.DBInterface;
 import com.oddlabs.matchserver.ServerConfiguration;
@@ -60,15 +61,16 @@ public class RankCommand extends DiscordCommand {
         EmbedCreateSpec.Builder builder =
                 EmbedCreateSpec.builder()
                         .color(Color.BLUE)
-                        .title(String.format("%s ranking", nick));
+                        .title(String.format("%s ranking", NickUtils.toDisplayName(nick)));
 
         for (RankingEntry entry : rankingEntry) {
+            String displayName = NickUtils.toDisplayName(entry.getName());
             String profileLink = WebsiteLinkHelper.getProfileLink("Profile", entry.getName());
             builder.addField(
                     String.format(
                             "%d. %s %s",
                             entry.getRanking(),
-                            entry.getName(),
+                            displayName,
                             entry.getName()
                                             .equalsIgnoreCase(
                                                     nick) // Allows for case insensitive match

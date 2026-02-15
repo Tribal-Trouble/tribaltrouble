@@ -1,6 +1,7 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.matchmaking.ChatRoomUser;
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.form.*;
 import com.oddlabs.tt.guievent.*;
 import com.oddlabs.tt.net.*;
@@ -154,7 +155,7 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
                                                 .getRightOffset());
                 Label label =
                         new Label(
-                                users[i].getNick(),
+                                NickUtils.toDisplayName(users[i].getNick()),
                                 Skin.getSkin().getMultiColumnComboBoxData().getFont(),
                                 label_width);
                 Row row = new Row(new GUIObject[] {label}, users[i]);

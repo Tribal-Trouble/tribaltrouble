@@ -1,5 +1,6 @@
 package com.oddlabs.tt.net;
 
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.util.SpamFilter;
 
 public final strictfp class ChatMessage {
@@ -20,7 +21,7 @@ public final strictfp class ChatMessage {
     }
 
     public final String formatShort() {
-        return "<" + nick + "> " + message;
+        return "<" + NickUtils.toDisplayName(nick) + "> " + message;
     }
 
     public final String formatLong() {

@@ -1,5 +1,6 @@
 package com.oddlabs.tt.render;
 
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.gui.Icons;
 import com.oddlabs.tt.gui.ToolTipBox;
 import com.oddlabs.tt.model.*;
@@ -25,7 +26,7 @@ final strictfp class ToolTipAdapter implements ToolTipVisitor, ToolTip {
     }
 
     private void visitPlayer(Player player) {
-        tool_tip_box.append(player.getPlayerInfo().getName());
+        tool_tip_box.append(NickUtils.toDisplayName(player.getPlayerInfo().getName()));
         tool_tip_box.append(" - ");
         //	  tool_tip_box.append(team_tip);
         //	  tool_tip_box.append(" ");

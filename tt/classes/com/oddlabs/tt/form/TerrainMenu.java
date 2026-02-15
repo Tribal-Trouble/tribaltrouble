@@ -3,6 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.tt.delegate.Menu;
@@ -155,7 +156,7 @@ public final strictfp class TerrainMenu extends Group {
                     Utils.getBundleString(
                             bundle,
                             "default_name",
-                            new Object[] {Network.getMatchmakingClient().getProfile().getNick()});
+                            new Object[] {NickUtils.toDisplayName(Network.getMatchmakingClient().getProfile().getNick())});
             label_default_name = new Label(default_name, Skin.getSkin().getEditFont());
             editline_name.append(default_name);
             if (Renderer.isRegistered()) standard.addChild(editline_name);

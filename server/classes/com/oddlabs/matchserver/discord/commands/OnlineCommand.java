@@ -1,5 +1,6 @@
 package com.oddlabs.matchserver.discord.commands;
 
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchserver.DBInterface;
 import com.oddlabs.matchserver.WebsiteLinkHelper;
 
@@ -33,8 +34,9 @@ public class OnlineCommand extends DiscordCommand {
             int end = Math.min(i + 10, totalOnline);
             StringBuilder fieldValue = new StringBuilder();
             for (int j = i; j < end; j++) {
+                String displayName = NickUtils.toDisplayName(onlineProfiles[j]);
                 String linkedName =
-                        WebsiteLinkHelper.getProfileLink(onlineProfiles[j], onlineProfiles[j]);
+                        WebsiteLinkHelper.getProfileLink(displayName, onlineProfiles[j]);
                 fieldValue.append(linkedName);
                 if (j < end - 1) fieldValue.append(", ");
             }

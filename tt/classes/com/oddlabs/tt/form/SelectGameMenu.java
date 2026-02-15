@@ -6,6 +6,7 @@ import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GameHost;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchmaking.RankingEntry;
 import com.oddlabs.net.NetworkSelector;
@@ -426,7 +427,7 @@ public final strictfp class SelectGameMenu extends Form
                                     ranking.getRanking(),
                                     Skin.getSkin().getMultiColumnComboBoxData().getFont()),
                             new Label(
-                                    ranking.getName(),
+                                    NickUtils.toDisplayName(ranking.getName()),
                                     Skin.getSkin().getMultiColumnComboBoxData().getFont(),
                                     user_name_size),
                             new IntegerLabel(

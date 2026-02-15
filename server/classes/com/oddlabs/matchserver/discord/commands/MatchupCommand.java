@@ -1,5 +1,6 @@
 package com.oddlabs.matchserver.discord.commands;
 
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchserver.DBInterface;
 import com.oddlabs.matchserver.WebsiteLinkHelper;
@@ -53,29 +54,31 @@ public class MatchupCommand extends DiscordCommand {
 
         VersusMatchupResultModel matchupResult =
                 DBInterface.getMatchupStats(player1, player2, true);
+        String displayPlayer1 = NickUtils.toDisplayName(player1);
+        String displayPlayer2 = NickUtils.toDisplayName(player2);
         EmbedCreateSpec.Builder builder =
                 EmbedCreateSpec.builder()
                         .color(Color.ORANGE)
-                        .title(String.format("%s vs %s", player1, player2))
+                        .title(String.format("%s vs %s", displayPlayer1, displayPlayer2))
                         .description(
                                 String.format(
                                         "Comparing 1v1 stats for %s and %s",
-                                        WebsiteLinkHelper.getProfileLink(player1, player1),
-                                        WebsiteLinkHelper.getProfileLink(player2, player2)));
+                                        WebsiteLinkHelper.getProfileLink(displayPlayer1, player1),
+                                        WebsiteLinkHelper.getProfileLink(displayPlayer2, player2)));
 
         int totalGames = matchupResult.getTotalGamesPlayed();
         builder.addField("Games played: ", Integer.toString(totalGames), false);
         builder.addField(
-                String.format("Wins vs %s", player2),
+                String.format("Wins vs %s", displayPlayer2),
                 Integer.toString(matchupResult.getPlayer1Wins()),
                 false);
         builder.addField(
-                String.format("Losses vs %s", player2),
+                String.format("Losses vs %s", displayPlayer2),
                 Integer.toString(matchupResult.getPlayer2Wins()),
                 false);
         float winRate = ((float) matchupResult.getPlayer1Wins() / totalGames) * 100;
         builder.addField(
-                String.format("Win rate vs %s", player2), String.format("%.2f%%", winRate), false);
+                String.format("Win rate vs %s", displayPlayer2), String.format("%.2f%%", winRate), false);
         builder.addField("\u200B", "\u200B", false);
         builder.addField("Recent Matchups", "", false);
         int matchupNum = 1;
@@ -85,7 +88,7 @@ public class MatchupCommand extends DiscordCommand {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
             String formattedTime = sdf.format(startTime);
 
-            String field_value = String.format("Winner: %s", matchup.getWinner());
+            String field_value = String.format("Winner: %s", NickUtils.toDisplayName(matchup.getWinner()));
             field_value += String.format("\nStart time: %s", formattedTime);
             if (matchup.getGameReplayUrl() != null) {
                 field_value += String.format("\n[Watch Replay](%s)", matchup.getGameReplayUrl());

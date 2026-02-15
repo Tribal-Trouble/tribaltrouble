@@ -1,5 +1,6 @@
 package com.oddlabs.matchserver.discord.commands;
 
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchserver.DBInterface;
 
 import discord4j.common.util.Snowflake;
@@ -55,22 +56,25 @@ public class WhoIsCommand extends DiscordCommand {
             if (registeredProfiles.length == 0) {
                 return event.reply("No profiles registered for user: " + discordUserId);
             }
+            String displayProfiles = String.join(", ", java.util.Arrays.stream(registeredProfiles)
+                    .map(NickUtils::toDisplayName)
+                    .toArray(String[]::new));
             return event.reply(
                     "Registered profiles for user "
                             + toDiscordMention(discordUserId)
                             + ": "
-                            + String.join(", ", registeredProfiles));
+                            + displayProfiles);
         } else {
             long discord_id_for_user = DBInterface.getDiscordUserIdForProfile(user_name);
             if (discord_id_for_user != -1) {
                 return event.reply(
                         "Discord ID for tribal trouble nick '"
-                                + user_name
+                                + NickUtils.toDisplayName(user_name)
                                 + "': "
                                 + toDiscordMention(discord_id_for_user));
             } else {
                 return event.reply(
-                        "No Discord ID found for tribal trouble nick: '" + user_name + "'");
+                        "No Discord ID found for tribal trouble nick: '" + NickUtils.toDisplayName(user_name) + "'");
             }
         }
     }

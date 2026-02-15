@@ -1,6 +1,7 @@
 package com.oddlabs.tt.net;
 
 import com.oddlabs.matchmaking.ChatRoomUser;
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.gui.ChatPanel;
 import com.oddlabs.tt.util.Utils;
 
@@ -24,14 +25,14 @@ public final strictfp class ChatRoomHistory extends ChatHistory {
         ResourceBundle bundle = ResourceBundle.getBundle(ChatPanel.class.getName());
         while (it.hasNext()) {
             ChatRoomUser user = (ChatRoomUser) it.next();
-            addMessage(Utils.getBundleString(bundle, "user_joined", new Object[] {user.getNick()}));
+            addMessage(Utils.getBundleString(bundle, "user_joined", new Object[] {NickUtils.toDisplayName(user.getNick())}));
         }
         Set left_users = new HashSet(old_users_set);
         left_users.removeAll(new_users_set);
         it = left_users.iterator();
         while (it.hasNext()) {
             ChatRoomUser user = (ChatRoomUser) it.next();
-            addMessage(Utils.getBundleString(bundle, "user_left", new Object[] {user.getNick()}));
+            addMessage(Utils.getBundleString(bundle, "user_left", new Object[] {NickUtils.toDisplayName(user.getNick())}));
         }
     }
 

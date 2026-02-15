@@ -3,6 +3,7 @@ package com.oddlabs.tt.form;
 import com.oddlabs.matchmaking.Game;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.gui.Box;
@@ -366,7 +367,7 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
                     case PlayerSlot.HUMAN:
                         String player_name = player_info.getName();
                         new_human_names.add(player_name);
-                        slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(player_name);
+                        slot_button.getMenu().getItem(OPEN_INDEX).setLabelString(NickUtils.toDisplayName(player_name));
                         slot_button.getMenu().chooseItem(OPEN_INDEX);
                         race_button.setDisabled(i != local_player_slot);
                         team_button.setDisabled(i != local_player_slot);
@@ -549,13 +550,13 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
 
     private final void playerLeft(String name) {
         if (chat_box.length() > 0) chat_box.append("\n");
-        chat_box.append(Utils.getBundleString(bundle, "left_game", new Object[] {name}));
+        chat_box.append(Utils.getBundleString(bundle, "left_game", new Object[] {NickUtils.toDisplayName(name)}));
         finishChatAppend();
     }
 
     private final void playerJoined(String name) {
         if (chat_box.length() > 0) chat_box.append("\n");
-        chat_box.append(Utils.getBundleString(bundle, "joined_game", new Object[] {name}));
+        chat_box.append(Utils.getBundleString(bundle, "joined_game", new Object[] {NickUtils.toDisplayName(name)}));
         finishChatAppend();
     }
 

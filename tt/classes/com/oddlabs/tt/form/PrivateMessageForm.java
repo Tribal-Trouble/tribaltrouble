@@ -1,5 +1,6 @@
 package com.oddlabs.tt.form;
 
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.tt.gui.ButtonObject;
 import com.oddlabs.tt.gui.CancelButton;
 import com.oddlabs.tt.gui.CancelListener;
@@ -37,7 +38,7 @@ public final strictfp class PrivateMessageForm extends Form {
 
         Label label_name =
                 new Label(
-                        Utils.getBundleString(bundle, "to", new Object[] {nick}),
+                        Utils.getBundleString(bundle, "to", new Object[] {NickUtils.toDisplayName(nick)}),
                         Skin.getSkin().getEditFont());
         editline_name = new EditLine(EDITLINE_WIDTH, 256);
         editline_name.addEnterListener(new OKListener());

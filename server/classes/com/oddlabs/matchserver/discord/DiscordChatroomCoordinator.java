@@ -1,5 +1,6 @@
 package com.oddlabs.matchserver.discord;
 
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchserver.ChatRoom;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -72,7 +73,7 @@ public class DiscordChatroomCoordinator {
                     .createMessage(msg)
                     .retry(3)
                     .subscribe(
-                            _ -> {},
+                            unused -> {},
                             error ->
                                     LogDebug(
                                             "Failed to send Discord message: "
@@ -112,7 +113,7 @@ public class DiscordChatroomCoordinator {
                         .createMessage(embed)
                         .retry(3)
                         .subscribe(
-                                _ -> {},
+                                unused -> {},
                                 error ->
                                         LogDebug(
                                                 "Failed to send Discord embed: "
@@ -193,7 +194,7 @@ public class DiscordChatroomCoordinator {
     }
 
     private String formatChat(String owner, String message) {
-        return "<" + owner + "> " + message;
+        return "<" + NickUtils.toDisplayName(owner) + "> " + message;
     }
 
     private void LogDebug(String message) {

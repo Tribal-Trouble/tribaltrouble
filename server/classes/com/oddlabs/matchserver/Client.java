@@ -6,6 +6,7 @@ import com.oddlabs.matchmaking.GameHost;
 import com.oddlabs.matchmaking.GameSession;
 import com.oddlabs.matchmaking.MatchmakingClientInterface;
 import com.oddlabs.matchmaking.MatchmakingServerInterface;
+import com.oddlabs.matchmaking.NickUtils;
 import com.oddlabs.matchmaking.Participant;
 import com.oddlabs.matchmaking.Profile;
 import com.oddlabs.matchmaking.RankingEntry;
@@ -587,7 +588,7 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
 
             if (current_room != null) {
                 String formatted_message =
-                        getProfile().getNick()
+                        NickUtils.toDisplayName(getProfile().getNick())
                                 + " has created a game called \""
                                 + current_game.getName()
                                 + "\".";
