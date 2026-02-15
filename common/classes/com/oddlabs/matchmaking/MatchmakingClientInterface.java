@@ -12,6 +12,7 @@ public strictfp interface MatchmakingClientInterface {
     public static final int USER_ERROR_INVALID_EMAIL = 7;
     public static final int USER_ERROR_NO_SUCH_USER = 8;
     public static final int USER_ERROR_VERSION_TOO_OLD = 9;
+    public static final int USER_ERROR_STEAM_REQUIRED = 15;
 
     public static final int USERNAME_ERROR_TOO_MANY = 1;
     public static final int USERNAME_ERROR_ALREADY_EXISTS = 3;

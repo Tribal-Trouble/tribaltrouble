@@ -120,6 +120,9 @@ public final strictfp class MatchmakingConnectingForm extends Form implements Ma
             case MatchmakingClientInterface.USER_ERROR_INVALID_EMAIL:
                 error_message = Utils.getBundleString(bundle, "user_error_invalid_email");
                 break;
+            case MatchmakingClientInterface.USER_ERROR_STEAM_REQUIRED:
+                error_message = Utils.getBundleString(bundle, "user_error_steam_required");
+                break;
             case MatchmakingClientInterface.USERNAME_ERROR_ALREADY_EXISTS:
                 error_message = Utils.getBundleString(bundle, "username_error_already_exists");
                 break;
