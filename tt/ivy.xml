@@ -1,0 +1,6 @@
+<ivy-module version="2.0">
+  <info organisation="tribaltrouble" module="tribaltrouble"/>
+  <dependencies>
+    <dependency org="com.code-disaster.steamworks4j" name="steamworks4j" rev="1.10.0"/>
+  </dependencies>
+</ivy-module>

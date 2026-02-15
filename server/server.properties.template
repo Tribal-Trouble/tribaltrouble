@@ -1,0 +1,10 @@
+# This is the server properties template file.
+# Copy this file to server.properties and edit the values as needed.
+# Lines starting with # are comments and will be ignored.
+# Do not push this file with real credentials to version control.
+SQL_PASS=
+DISCORD_BOT_TOKEN=
+DISCORD_SERVER_ID=
+WEBSITE_DOMAIN=
+NATIVE_CHIEF_EMOJI=
+VIKING_CHIEF_EMOJI=

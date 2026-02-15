@@ -1,9 +1,11 @@
 package com.oddlabs.tt.gui;
 
+import com.codedisaster.steamworks.SteamAPI;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.MessageForm;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.player.campaign.CampaignState;
+import com.oddlabs.tt.steam.SteamAchievementManager;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.DeterministicSerializer;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
@@ -54,7 +56,7 @@ public final strictfp class LoadCampaignBox extends GUIObject
     }
 
     private static File getSaveSavegamesFile() {
-        return new File(LocalInput.getGameDir(), SAVEGAMES_FILE_NAME);
+        return new File(LocalInput.getGameDir(), getSavegamesFileName());
     }
 
     public static final void loadSavegames(DeterministicSerializerLoopbackInterface callback) {
@@ -64,7 +66,7 @@ public final strictfp class LoadCampaignBox extends GUIObject
 
     private static File getLoadSavegamesFile() {
         File file = getSaveSavegamesFile();
-        if (!file.canRead()) return new File(Utils.getInstallDir(), SAVEGAMES_FILE_NAME);
+        if (!file.canRead()) return new File(LocalInput.getGameDir(), getSavegamesFileName());
         else return file;
     }
 
@@ -147,15 +149,23 @@ public final strictfp class LoadCampaignBox extends GUIObject
         } else if (e instanceof InvalidClassException) {
             String invalid_message =
                     Utils.getBundleString(
-                            bundle, "invalid_message", new Object[] {SAVEGAMES_FILE_NAME});
+                            bundle, "invalid_message", new Object[] {getSavegamesFileName()});
             gui_root.addModalForm(new MessageForm(invalid_message));
         } else {
             String failed_message =
                     Utils.getBundleString(
                             bundle,
                             "failed_message",
-                            new Object[] {SAVEGAMES_FILE_NAME, e.getMessage()});
+                            new Object[] {getSavegamesFileName(), e.getMessage()});
             gui_root.addModalForm(new MessageForm(failed_message));
         }
+    }
+
+    public static final String getSavegamesFileName() {
+        if (SteamAPI.isSteamRunning() && SteamAchievementManager.getAchievementManager() != null) {
+            long account_id = SteamAchievementManager.getAchievementManager().getAccountID();
+            return account_id + "." + SAVEGAMES_FILE_NAME;
+        }
+        return SAVEGAMES_FILE_NAME;
     }
 }

@@ -10,6 +10,7 @@ import com.oddlabs.tt.model.RacesResources;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.steam.SteamUtils;
 import com.oddlabs.tt.util.Utils;
 
 import java.util.ArrayList;
@@ -174,6 +175,8 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
     }
 
     public final void abort(WorldViewer viewer) {
+        // An abort is conisidered a loss for steam stats/achievements
+        SteamUtils.trySteamStatAndAchievementsOnLoss(viewer.getWorld(), viewer.getLocalPlayer());
         viewer.getGUIRoot()
                 .pushDelegate(
                         new GameStatsDelegate(

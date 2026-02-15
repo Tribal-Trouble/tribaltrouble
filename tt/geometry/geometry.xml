@@ -24,7 +24,26 @@
 ]>
 
 <geometry>
-	<group name="vikings">
+    <group name="vikings">
+		<sprite name="warrior_christmas">
+			<skeleton>vikings/warrior/warrior_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				vikings/warrior/warrior_mesh_christmas.xml
+				<texture name="viking_warrior_rock_christmas" team="viking_warrior_rock_team_christmas"/>
+				<texture name="viking_warrior_iron_christmas" team="viking_warrior_iron_team_christmas"/>
+				<texture name="viking_warrior_rubber_christmas" team="viking_warrior_rubber_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				vikings/warrior/warrior_low_poly_mesh.xml
+				<texture name="viking_warrior_rock" team="viking_warrior_rock_team"/>
+				<texture name="viking_warrior_iron" team="viking_warrior_iron_team"/>
+				<texture name="viking_warrior_rubber" team="viking_warrior_rubber_team"/>
+			</model>
+			<animation wpc="1" type="loop">vikings/warrior/warrior_idle.xml</animation>
+			<animation wpc="5" type="loop">vikings/warrior/warrior_run.xml</animation>
+			<animation wpc="1" type="plain">vikings/warrior/warrior_attack.xml</animation>
+			<animation wpc="1" type="plain">vikings/warrior/warrior_die.xml</animation>
+		</sprite>
 		<sprite name="warrior">
 			<skeleton>vikings/warrior/warrior_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
@@ -44,6 +63,23 @@
 			<animation wpc="1" type="plain">vikings/warrior/warrior_attack.xml</animation>
 			<animation wpc="1" type="plain">vikings/warrior/warrior_die.xml</animation>
 		</sprite>
+		<sprite name="chieftain_christmas">
+			<skeleton>vikings/chieftain/viking_chieftain_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				vikings/chieftain/viking_chief_christmas.xml
+				<texture name="viking_chieftain_christmas" team="viking_chieftain_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				vikings/chieftain/viking_chief_lo.xml
+				<texture name="viking_chieftain" team="viking_chieftain_team"/>
+			</model>
+			<animation wpc="1" type="loop">vikings/chieftain/viking_chieftain_idle.xml</animation>
+			<animation wpc="6.4" type="loop">vikings/chieftain/viking_chieftain_run.xml</animation>
+			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_attack.xml</animation>
+			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_die.xml</animation>
+			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_magic.xml</animation>
+			<animation wpc="1" type="loop">vikings/chieftain/thor.xml</animation>
+		</sprite>
 		<sprite name="chieftain">
 			<skeleton>vikings/chieftain/viking_chieftain_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
@@ -60,6 +96,21 @@
 			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_die.xml</animation>
 			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_magic.xml</animation>
 			<animation wpc="1" type="loop">vikings/chieftain/thor.xml</animation>
+		</sprite>
+		<sprite name="peon_christmas">
+			<skeleton>vikings/peon/peon_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				vikings/peon/peon_mesh_christmas.xml
+				<texture name="viking_peon_christmas" team="viking_peon_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				vikings/peon/peon_low_poly_mesh.xml
+				<texture name="viking_peon_christmas" team="viking_peon_team_christmas"/>
+			</model>
+			<animation wpc="1" type="loop">vikings/peon/peon_idle.xml</animation>
+			<animation wpc="3.85" type="loop">vikings/peon/peon_run.xml</animation>
+			<animation wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
+			<animation wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
 		</sprite>
 		<sprite name="peon">
 			<skeleton>vikings/peon/peon_skeleton.xml</skeleton>
@@ -216,6 +267,22 @@
 		</sprite>
 	</group>
 	<group name="natives">
+		<sprite name="chieftain_christmas">
+			<skeleton>natives/chieftain/native_chieftain_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				natives/chieftain/native_chieftain_mesh_christmas.xml
+				<texture name="native_chieftain_christmas" team="native_chieftain_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				natives/chieftain/native_chieftain_low_poly_mesh.xml
+				<texture name="native_chieftain" team="native_chieftain_team"/>
+			</model>
+			<animation wpc="1" type="loop">natives/chieftain/native_chieftain_idle.xml</animation>
+			<animation wpc="4" type="loop">natives/chieftain/native_chieftain_run.xml</animation>
+			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_attack.xml</animation>
+			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_die.xml</animation>
+			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_magic.xml</animation>
+		</sprite>
 		<sprite name="chieftain">
 			<skeleton>natives/chieftain/native_chieftain_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
@@ -232,6 +299,21 @@
 			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_die.xml</animation>
 			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_magic.xml</animation>
 		</sprite>
+		<sprite name="peon_christmas">
+			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				natives/peon/native_peon_mesh_christmas.xml
+				<texture name="native_peon_christmas" team="native_peon_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				natives/peon/native_peon_low_poly_mesh.xml
+				<texture name="native_peon_christmas" team="native_peon_team_christmas"/>
+			</model>
+			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
+			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
+			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
+			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+		</sprite>
 		<sprite name="peon">
 			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
 			<model r="90" g="60" b="30">
@@ -246,6 +328,25 @@
 			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
 			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
 			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+		</sprite>
+		<sprite name="warrior_christmas">
+			<skeleton>natives/warrior/native_warrior_skeleton.xml</skeleton>
+			<model r="90" g="60" b="30">
+				natives/warrior/native_warrior_mesh_christmas.xml
+				<texture name="native_warrior_rock_christmas" team="native_warrior_rock_team_christmas"/>
+				<texture name="native_warrior_iron_christmas" team="native_warrior_iron_team_christmas"/>
+				<texture name="native_warrior_rubber_christmas" team="native_warrior_rubber_team_christmas"/>
+			</model>
+			<model r="90" g="60" b="30">
+				natives/warrior/native_warrior_low_poly_mesh.xml
+				<texture name="native_warrior_rock" team="native_warrior_rock_team"/>
+				<texture name="native_warrior_iron" team="native_warrior_iron_team"/>
+				<texture name="native_warrior_rubber" team="native_warrior_rubber_team"/>
+			</model>
+			<animation wpc="1" type="loop">natives/warrior/native_warrior_idle.xml</animation>
+			<animation wpc="3.2" type="loop">natives/warrior/native_warrior_run.xml</animation>
+			<animation wpc="1" type="plain">natives/warrior/native_warrior_attack.xml</animation>
+			<animation wpc="1" type="plain">natives/warrior/native_warrior_die.xml</animation>
 		</sprite>
 		<sprite name="warrior">
 			<skeleton>natives/warrior/native_warrior_skeleton.xml</skeleton>

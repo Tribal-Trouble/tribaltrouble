@@ -69,7 +69,9 @@ public class RankCommand extends DiscordCommand {
                             "%d. %s %s",
                             entry.getRanking(),
                             entry.getName(),
-                            entry.getName().equals(nick)
+                            entry.getName()
+                                            .equalsIgnoreCase(
+                                                    nick) // Allows for case insensitive match
                                     ? ServerConfiguration.getInstance()
                                             .get(ServerConfiguration.VIKING_CHIEF_EMOJI)
                                     : ""),

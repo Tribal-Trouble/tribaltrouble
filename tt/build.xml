@@ -1,5 +1,41 @@
-<project name="tt" basedir="." default="compile">
+<project name="tt" basedir="." default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<!-- Ivy Ant integration for dependency management -->
+	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant"
+		classpath="../ivy_lib/ivy-2.5.3.jar" />
+	<property name="ivy.settings.file" value="../ivysettings.xml" />
+
+	<!-- Ivy resolve target to fetch dependencies -->
+	<target name="resolve">
+		<ivy:settings file="../ivysettings.xml" />
+		<ivy:resolve file="../tt/ivy.xml" />
+		<ivy:retrieve pattern="../ivy_lib_game/[artifact]-[revision](-[classifier]).[ext]" />
+	</target>
+
 	<import file="../common/common.xml" />
+
+	<!-- Define classpath for resolved game dependencies -->
+	<path id="game.ivy.classpath">
+		<fileset dir="../ivy_lib_game" includes="*.jar" erroronmissingdir="false"/>
+	</path>
+
+	<!-- Override the common compile classpath to include game dependencies -->
+	<path id="_common.combined.compile.javasvn.classpath">
+		<path refid="platform.classpath" />
+		<path refid="common.classes.classpath" />
+		<path refid="library.javasvn.classpath" />
+		<path refid="game.ivy.classpath" />
+	</path>
+
+	<!-- Override the common run classpath to include game dependencies -->
+	<path id="_common.combined.run.classpath">
+		<path refid="build.classpath" />
+		<path refid="build.classes.classpath" />
+		<path refid="common.classes.classpath" />
+		<path refid="common.static.classpath" />
+		<path refid="platform.classpath" />
+		<path refid="build.tt.classpath" />
+		<path refid="game.ivy.classpath" />
+	</path>
 
 	<property name="jre" value="jre1.8.0_381" />
 	<property name="main_class" value="com.oddlabs.tt.Main" />
@@ -27,7 +63,7 @@
 
 	<!--	<property name="webstartdist" location="webstartdist"/>-->
 
-	<target name="compiledeps" depends="compile-common">
+	<target name="compiledeps" depends="compile-common, resolve">
 	</target>
 
 	<target name="rundeps" depends="textures, geometry, revision">
@@ -189,6 +225,11 @@
 		<mkdir dir="${dist}/windows" />
 		<mkdir dir="${dist}/macosx-x86" />
 		<mkdir dir="${dist}/macosx-arm64" />
+		<copy todir="${dist}/common">
+			<fileset dir="../ivy_lib_game">
+				<include name="steamworks4j-*.jar" />
+			</fileset>
+    	</copy>
 		<jar compress="false" destfile="${dist}/common/tt-code.jar">
 			<fileset dir="${build}/classes">
 				<include name="com/oddlabs/tt/**/*class" />
@@ -252,6 +293,7 @@
 				<include name="sfx/*.wav" />
 				<include name="music/*.ogg" />
 				<include name="font/*font" />
+				<include name="*.png" />
 				<!--				<include name="textures/models/*png"/>
 				<include name="textures/models/*jpg"/>-->
 			</fileset>
@@ -295,7 +337,6 @@
 				value="-ea -Djdk.crypto.KeyAgreement.legacyKDF=true -Xmx512m -cp $APPDIR\;$APPDIR\*" />
 			<arg value="--type" />
 			<arg value="app-image" />
-			<arg value="--win-console" />
 			<arg value="--icon" />
 			<arg value="tribaltrouble.ico" />
 		</exec>
@@ -332,11 +373,7 @@
             <fileset dir="${dist}/common">
                 <include name="**" />
             </fileset>
-        </copy>
-        <copy todir="${dist}/linux/TribalTrouble.AppDir/linux-x86">
-            <fileset dir="${dist}/linux-x86">
-                <include name="**" />
-            </fileset>
+            <path refid="game.ivy.classpath" />
         </copy>
         <copy todir="${dist}/linux">
             <fileset dir="linux">
@@ -384,12 +421,35 @@
 			<arg value="--java-options" />
 			<arg
 				value="-ea -XstartOnFirstThread -cp $APPDIR:$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true" />
-			<!-- add the below values for dmg installer to be produced instead -->
 			<arg value="--type" />
 			<arg value="dmg" />
 			<!-- Note: The process will complain about signing but the application can still run -->
 		</exec>
 	</target>
+	<target name="build-mac-x86-app" depends="dist">
+		<!-- Set app name -->
+		<property name="app_name" value="TribalTrouble" />
+
+		<exec executable="jpackage" dir="." failonerror="true">
+			<arg value="--name" />
+			<arg value="${app_name}" />
+			<arg value="--dest" />
+			<arg value="${dist}/macosx-x86-app" />
+			<arg value="--input" />
+			<arg value="${dist}/common" />
+			<arg value="--main-jar" />
+			<arg value="tt-code.jar" />
+			<arg value="--main-class" />
+			<arg value="com.oddlabs.tt.Main" />
+			<arg value="--java-options" />
+			<arg
+				value="-ea -XstartOnFirstThread -cp $APPDIR:$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true" />
+			<arg value="--type" />
+			<arg value="app-image" />
+			<!-- Note: The process will complain about signing but the application can still run -->
+		</exec>
+	</target>
+
 	<target name="build-mac-arm64" depends="dist">
 		<!-- Set app name -->
 		<property name="app_name" value="TribalTrouble" />
@@ -408,9 +468,8 @@
 			<arg value="--java-options" />
 			<arg
 				value="-ea -XstartOnFirstThread -cp $APPDIR:$APPDIR/* -Djdk.crypto.KeyAgreement.legacyKDF=true" />
-			<!-- add the below values for dmg installer to be produced instead -->
-			<!-- <arg value="-type" /> add a dash back when uncommented
-			<arg value="app-image" /> -->
+			<arg value="--type" />
+			<arg value="app-image" />
 			<!-- Note: The process will complain about signing but the application can still run -->
 		</exec>
 	</target>
