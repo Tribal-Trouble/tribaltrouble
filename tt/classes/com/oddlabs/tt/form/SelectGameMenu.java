@@ -255,9 +255,11 @@ public final strictfp class SelectGameMenu extends Form
 
         profiles_form = new ProfilesForm(gui_root, main_menu, this);
         if (Settings.getSettings().isOfficialServer() && SteamAPI.isSteamRunning()) {
-            // Steam users: profile was auto-created on login, set it directly
-            String nick = Network.getMatchmakingClient().getUsername();
-            Network.getMatchmakingClient().setProfile(nick);
+            // Steam users: profile was auto-created on login, set it directly (but only if not already set)
+            if (Network.getMatchmakingClient().getProfile() == null) {
+                String nick = Network.getMatchmakingClient().getUsername();
+                Network.getMatchmakingClient().setProfile(nick);
+            }
             main_menu.setMenuCentered(this);  // go straight to game menu
         } else if (Network.getMatchmakingClient().getProfile() == null && Renderer.isRegistered()) {
             main_menu.setMenuCentered(profiles_form);
