@@ -185,7 +185,7 @@ jobs:
       run: |
         PATCH_NOTES="${{ github.event.inputs.patch_notes }}"
         if [ -n "$PATCH_NOTES" ]; then
-          MESSAGE="🎮 **New prerelease build available on Steam!**\n\n**Patch Notes:**\n$PATCH_NOTES\n\n_Deployed by ${{ github.actor }}"
+          MESSAGE="🎮 **New prerelease build available on Steam!**\n\n**Patch Notes:**\n$PATCH_NOTES\n\n Deployed by ${{ github.actor }}"
         else
           MESSAGE="🎮 New prerelease build available on Steam! Commit: \`${{ github.sha }}\` by ${{ github.actor }}"
         fi
