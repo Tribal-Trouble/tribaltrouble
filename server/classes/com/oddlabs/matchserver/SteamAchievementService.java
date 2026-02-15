@@ -140,7 +140,7 @@ public final class SteamAchievementService {
             logger.log(
                     Level.INFO,
                     "Updated stats for steamId {0}: wins={1}, losses={2}, currentStreak={3},"
-                        + " bestStreak={4}",
+                            + " bestStreak={4}",
                     new Object[] {steamId, totalWins, totalLosses, currentStreak, bestStreak});
             logger.info("=====================================");
 
