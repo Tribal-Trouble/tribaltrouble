@@ -68,7 +68,7 @@ public final strictfp class MatchmakingConnectingForm extends Form implements Ma
         centerPos();
         Network.setMatchmakingListener(this);
         if (steamLogin) {
-            Network.getMatchmakingClient().loginWithSteam(network);
+            Network.getMatchmakingClient().steamLogin(network);
         } else {
             Network.getMatchmakingClient().login(network, login, login_details);
         }

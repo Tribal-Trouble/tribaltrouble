@@ -293,7 +293,7 @@ public final strictfp class MatchmakingClient
         state = STATE_AWAITING_OK;
     }
 
-    public final void loginWithSteam(NetworkSelector network) {
+    public final void steamLogin(NetworkSelector network) {
         this.login = null;
         this.login_details = null;
         this.steamLogin = true;
@@ -423,7 +423,7 @@ public final strictfp class MatchmakingClient
             // Steam auto-login with Web API ticket
             SteamManager steamManager = SteamManager.getInstance();
 
-            // Ticket was requested in loginWithSteam()
+            // Ticket was requested in steamLogin()
             // Poll briefly to wait for callback (max 3 seconds)
             int maxRetries = 60; // 60 * 50ms = 3 seconds
 
@@ -441,7 +441,7 @@ public final strictfp class MatchmakingClient
                 String personaName = steamManager.getPersonaName();
                 byte[] authTicket = steamManager.getWebApiTicket();
                 System.out.println("Sending Web API ticket: " + authTicket.length + " bytes");
-                matchmaking_login_interface.loginWithSteam(accountId, personaName, authTicket, revision);
+                matchmaking_login_interface.steamLogin(accountId, personaName, authTicket, revision);
             } else {
                 System.err.println("ERROR: Steam Web API ticket not ready after " + (maxRetries * 50) + "ms");
                 System.err.println("This usually means Steam is not responding to ticket requests.");

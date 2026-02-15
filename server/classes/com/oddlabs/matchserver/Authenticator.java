@@ -184,7 +184,7 @@ public final strictfp class Authenticator
         }
     }
 
-    public final void loginWithSteam(long steamAccountId, String personaName, byte[] authTicket, int revision) {
+    public final void steamLogin(long steamAccountId, String personaName, byte[] authTicket, int revision) {
         if (!revisionOK(revision)) return;
 
         // Validate Steam auth ticket
