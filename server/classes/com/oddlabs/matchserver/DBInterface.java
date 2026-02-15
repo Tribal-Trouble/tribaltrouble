@@ -541,6 +541,80 @@ public final strictfp class DBInterface {
         }
     }
 
+    public static final Long getSteamIdByNick(String nick) {
+        try {
+            PreparedStatement stmt =
+                    DBUtils.createStatement(
+                            "SELECT r.steam_id FROM profiles p INNER JOIN registrations r ON p.reg_id"
+                                    + " = r.id WHERE p.nick = ?");
+            try {
+                stmt.setString(1, nick);
+                ResultSet result = stmt.executeQuery();
+                try {
+                    if (result.next()) {
+                        long steamId = result.getLong("steam_id");
+                        if (result.wasNull()) {
+                            return null; // Not a Steam player
+                        }
+                        return steamId;
+                    }
+                    return null; // Player not found
+                } finally {
+                    result.close();
+                }
+            } finally {
+                stmt.getConnection().close();
+            }
+        } catch (SQLException e) {
+            System.out.println("Exception: " + e);
+            MatchmakingServer.getLogger()
+                    .throwing(DBInterface.class.getName(), "getSteamIdByNick", e);
+            return null;
+        }
+    }
+
+    public static final void updateStreaks(String nick, int currentStreak, int bestStreak) {
+        try {
+            PreparedStatement stmt =
+                    DBUtils.createStatement(
+                            "UPDATE profiles SET current_win_streak = ?, best_win_streak = ? WHERE nick"
+                                    + " = ?");
+            try {
+                stmt.setInt(1, currentStreak);
+                stmt.setInt(2, bestStreak);
+                stmt.setString(3, nick);
+                int result = stmt.executeUpdate();
+            } finally {
+                stmt.getConnection().close();
+            }
+        } catch (SQLException e) {
+            System.out.println("Exception: " + e);
+            MatchmakingServer.getLogger().throwing(DBInterface.class.getName(), "updateStreaks", e);
+        }
+    }
+
+    public static final int[] getStreaks(String nick) throws SQLException {
+        PreparedStatement stmt =
+                DBUtils.createStatement(
+                        "SELECT current_win_streak, best_win_streak FROM profiles WHERE nick = ?");
+        try {
+            stmt.setString(1, nick);
+            ResultSet result = stmt.executeQuery();
+            try {
+                if (result.next()) {
+                    int currentStreak = result.getInt("current_win_streak");
+                    int bestStreak = result.getInt("best_win_streak");
+                    return new int[] {currentStreak, bestStreak};
+                }
+                return new int[] {0, 0}; // Player not found, return defaults
+            } finally {
+                result.close();
+            }
+        } finally {
+            stmt.getConnection().close();
+        }
+    }
+
     public static final void increaseLosses(String nick) {
         increaseField("losses", nick);
     }

@@ -437,7 +437,57 @@ public final strictfp class TimestampedGameSession {
             Client client = server.getClientFromID(participants[i].getMatchID());
             if (client != null) client.updateProfile();
         }
+        updatePlayerStreaks(team_result);
         if (session.isRated() && all_5_wins) rerateParticipants(server, team_result);
+    }
+
+    private final void updatePlayerStreaks(int[] team_result) {
+        Participant[] participants = session.getParticipants();
+        for (int i = 0; i < participants.length; i++) {
+            String nick = participants[i].getNick();
+            int team = participants[i].getTeam();
+
+            try {
+                // Get current streaks from database
+                int[] streaks = DBInterface.getStreaks(nick);
+                int currentStreak = streaks[0];
+                int bestStreak = streaks[1];
+
+                // Update streaks based on game result
+                if (team_result[team] == TEAM_WON) {
+                    currentStreak++;
+                    if (currentStreak > bestStreak) {
+                        bestStreak = currentStreak;
+                    }
+                } else if (team_result[team] == TEAM_LOST) {
+                    currentStreak = 0;
+                }
+
+                // Save updated streaks to database
+                DBInterface.updateStreaks(nick, currentStreak, bestStreak);
+
+                MatchmakingServer.getLogger()
+                        .info(
+                                "Game "
+                                        + database_id
+                                        + ". Updated streaks for "
+                                        + nick
+                                        + " (currentStreak="
+                                        + currentStreak
+                                        + ", bestStreak="
+                                        + bestStreak
+                                        + ")");
+            } catch (SQLException e) {
+                MatchmakingServer.getLogger()
+                        .warning(
+                                "Game "
+                                        + database_id
+                                        + ". SQLException while updating streaks for "
+                                        + nick
+                                        + ": "
+                                        + e.getMessage());
+            }
+        }
     }
 
     private final void rerateParticipants(MatchmakingServer server, int[] team_result) {
