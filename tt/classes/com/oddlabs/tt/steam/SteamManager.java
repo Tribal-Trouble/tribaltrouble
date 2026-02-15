@@ -89,7 +89,7 @@ public class SteamManager implements SteamUserCallback, SteamFriendsCallback {
         if (SteamAPI.isSteamRunning() && steamUser != null && currentAuthTicket != null) {
             try {
                 steamUser.cancelAuthTicket(currentAuthTicket);
-                System.out.println("Cancelled Steam auth ticket: " + currentAuthTicket.handle());
+                System.out.println("Cancelled Steam auth ticket");
             } catch (Exception e) {
                 System.err.println("Failed to cancel Steam auth ticket: " + e.getMessage());
             } finally {
