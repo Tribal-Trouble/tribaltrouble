@@ -453,6 +453,9 @@ public final strictfp class MatchmakingClient
             conn.close();
             conn = null;
         }
+
+        SteamManager.getInstance().cancelCurrentAuthTicket();
+
         state = STATE_NOT_CONNECTED;
         matchmaking_interface = null;
         active_profile = null;

@@ -24,14 +24,17 @@ public class SteamManager implements SteamUserCallback, SteamFriendsCallback {
 
     private SteamUser steamUser;
     private SteamFriends steamFriends;
+    private SteamAuthTicket currentAuthTicket; // Track active ticket for cancellation
 
     private SteamManager() {
         if (SteamAPI.isSteamRunning()) {
             steamUser = new SteamUser(this);
             steamFriends = new SteamFriends(this);
+            currentAuthTicket = null;
         } else {
             steamUser = null;
             steamFriends = null;
+            currentAuthTicket = null;
         }
     }
 
@@ -56,10 +59,16 @@ public class SteamManager implements SteamUserCallback, SteamFriendsCallback {
     public byte[] getAuthSessionTicket() {
         if (steamUser != null) {
             try {
+                // Cancel any existing ticket before generating a new one
+                cancelCurrentAuthTicket();
+
                 ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
                 int[] sizeInBytes = new int[1];
                 SteamAuthTicket ticket = steamUser.getAuthSessionTicket(buffer, sizeInBytes);
                 if (ticket != null && sizeInBytes[0] > 0) {
+                    // Store the ticket handle for later cancellation
+                    currentAuthTicket = ticket;
+
                     byte[] ticketData = new byte[sizeInBytes[0]];
                     buffer.get(ticketData);
                     return ticketData;
@@ -70,6 +79,23 @@ public class SteamManager implements SteamUserCallback, SteamFriendsCallback {
             }
         }
         return null;
+    }
+
+    /**
+     * Cancel the current auth ticket if one exists.
+     * Should be called when disconnecting from the server or before generating a new ticket.
+     */
+    public void cancelCurrentAuthTicket() {
+        if (SteamAPI.isSteamRunning() && steamUser != null && currentAuthTicket != null) {
+            try {
+                steamUser.cancelAuthTicket(currentAuthTicket);
+                System.out.println("Cancelled Steam auth ticket: " + currentAuthTicket.handle());
+            } catch (Exception e) {
+                System.err.println("Failed to cancel Steam auth ticket: " + e.getMessage());
+            } finally {
+                currentAuthTicket = null;
+            }
+        }
     }
 
     // SteamUserCallback implementation (required by SteamUser)
