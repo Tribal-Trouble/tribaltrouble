@@ -1,7 +1,7 @@
 package com.oddlabs.tt.global;
 
 import com.codedisaster.steamworks.SteamAPI;
-import com.oddlabs.tt.steam.SteamAchievementManager;
+import com.oddlabs.tt.steam.SteamManager;
 
 import org.lwjgl.opengl.*;
 
@@ -37,6 +37,9 @@ public final strictfp class Globals {
     public static final String SETTINGS_FILE_NAME = "settings";
 
     public static final String AFFILIATE_ID_KEY = "affiliate_id";
+
+    // Debug flag to enable Steam auth on localhost server
+    public static boolean debug_steam_auth_localhost = true;
 
     public static boolean run_ai = true;
 
@@ -100,8 +103,8 @@ public final strictfp class Globals {
 
     public static final String getSettingsFileName() {
         String settings_save_file = Globals.SETTINGS_FILE_NAME;
-        if (SteamAPI.isSteamRunning() && SteamAchievementManager.getAchievementManager() != null) {
-            long account_id = SteamAchievementManager.getAchievementManager().getAccountID();
+        if (SteamAPI.isSteamRunning()) {
+            long account_id = SteamManager.getInstance().getAccountID();
             settings_save_file = account_id + "." + settings_save_file;
         }
         return settings_save_file;

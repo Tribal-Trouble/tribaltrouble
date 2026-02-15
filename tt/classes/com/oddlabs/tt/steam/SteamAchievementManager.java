@@ -51,10 +51,6 @@ public class SteamAchievementManager implements SteamUserStatsCallback, SteamUse
         }
     }
 
-    public long getAccountID() {
-        return steamUser.getSteamID().getAccountID();
-    }
-
     public int getStat(String stat_name, int default_value) {
         if (SteamAPI.isSteamRunning()) {
             return steamUserStats.getStatI(stat_name, default_value);

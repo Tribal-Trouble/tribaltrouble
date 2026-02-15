@@ -5,7 +5,7 @@ import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.form.MessageForm;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.player.campaign.CampaignState;
-import com.oddlabs.tt.steam.SteamAchievementManager;
+import com.oddlabs.tt.steam.SteamManager;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.util.DeterministicSerializer;
 import com.oddlabs.util.DeterministicSerializerLoopbackInterface;
@@ -162,8 +162,8 @@ public final strictfp class LoadCampaignBox extends GUIObject
     }
 
     public static final String getSavegamesFileName() {
-        if (SteamAPI.isSteamRunning() && SteamAchievementManager.getAchievementManager() != null) {
-            long account_id = SteamAchievementManager.getAchievementManager().getAccountID();
+        if (SteamAPI.isSteamRunning()) {
+            long account_id = SteamManager.getInstance().getAccountID();
             return account_id + "." + SAVEGAMES_FILE_NAME;
         }
         return SAVEGAMES_FILE_NAME;
