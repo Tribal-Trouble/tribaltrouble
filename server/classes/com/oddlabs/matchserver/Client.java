@@ -700,7 +700,7 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
     }
 
     private String formatChat(String message) {
-        return "<" + getProfile().getNick() + "> " + message;
+        return "<" + NickUtils.toDisplayName(getProfile().getNick()) + "> " + message;
     }
 
     /**
