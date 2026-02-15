@@ -297,6 +297,8 @@ public final strictfp class MatchmakingClient
         this.login = null;
         this.login_details = null;
         this.steamLogin = true;
+        // Request Web API ticket (safe to call multiple times - won't duplicate if already pending/ready)
+        SteamManager.getInstance().requestWebApiTicket();
         open(network);
         state = STATE_AWAITING_OK;
     }
@@ -418,11 +420,33 @@ public final strictfp class MatchmakingClient
         int revision = Compatibility.API_VERSION;
 
         if (steamLogin) {
-            // Steam auto-login
-            long accountId = SteamManager.getInstance().getAccountID();
-            String personaName = SteamManager.getInstance().getPersonaName();
-            byte[] authTicket = SteamManager.getInstance().getAuthSessionTicket();
-            matchmaking_login_interface.loginWithSteam(accountId, personaName, authTicket, revision);
+            // Steam auto-login with Web API ticket
+            SteamManager steamManager = SteamManager.getInstance();
+
+            // Ticket was requested in loginWithSteam()
+            // Poll briefly to wait for callback (max 3 seconds)
+            int maxRetries = 60; // 60 * 50ms = 3 seconds
+
+            if (!steamManager.isWebApiTicketReady()) {
+                System.out.println("Waiting for Steam Web API ticket...");
+            }
+
+            int retries = waitForSteamWebApiTicket(steamManager, maxRetries);
+
+            if (steamManager.isWebApiTicketReady()) {
+                if (retries > 0) {
+                    System.out.println("Ticket ready after " + (retries * 50) + "ms");
+                }
+                long accountId = steamManager.getAccountID();
+                String personaName = steamManager.getPersonaName();
+                byte[] authTicket = steamManager.getWebApiTicket();
+                System.out.println("Sending Web API ticket: " + authTicket.length + " bytes");
+                matchmaking_login_interface.loginWithSteam(accountId, personaName, authTicket, revision);
+            } else {
+                System.err.println("ERROR: Steam Web API ticket not ready after " + (maxRetries * 50) + "ms");
+                System.err.println("This usually means Steam is not responding to ticket requests.");
+                handleError(new IOException("Steam Web API ticket timeout - Steam may not be running properly"));
+            }
         } else if (!Renderer.isRegistered()) {
             matchmaking_login_interface.loginAsGuest(revision);
         } else if (login_details != null) {
@@ -430,6 +454,29 @@ public final strictfp class MatchmakingClient
         } else {
             matchmaking_login_interface.login(login, null, revision);
         }
+    }
+
+    private int waitForSteamWebApiTicket(SteamManager steamManager, int maxRetries) {
+        int retries = 0;
+        while (!steamManager.isWebApiTicketReady() && retries < maxRetries) {
+            try {
+                // Pump Steam callbacks so ticket callback can fire
+                if (com.codedisaster.steamworks.SteamAPI.isSteamRunning()) {
+                    if (retries == 0) {
+                        System.out.println("Pumping Steam callbacks...");
+                    }
+                    com.codedisaster.steamworks.SteamAPI.runCallbacks();
+                }
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                break;
+            }
+            retries++;
+            if (retries % 20 == 0) {
+                System.out.println("Still waiting... (" + (retries * 50) + "ms)");
+            }
+        }
+        return retries;
     }
 
     public final void error(AbstractConnection conn, IOException e) {
@@ -454,7 +501,11 @@ public final strictfp class MatchmakingClient
             conn = null;
         }
 
-        SteamManager.getInstance().cancelCurrentAuthTicket();
+        // Only cancel Steam ticket if we're not about to use it for login
+        // (open() calls close() before connecting, so we don't want to cancel a pending ticket)
+        if (!steamLogin) {
+            SteamManager.getInstance().cancelCurrentAuthTicket();
+        }
 
         state = STATE_NOT_CONNECTED;
         matchmaking_interface = null;
