@@ -10,7 +10,6 @@ import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInfo;
 import com.oddlabs.tt.steam.SteamAchievementManager;
 import com.oddlabs.tt.steam.SteamAchievementNames;
-import com.oddlabs.tt.steam.SteamUtils;
 import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -154,13 +153,11 @@ public final strictfp class GameOverTrigger implements Animated {
         } else {
             createDelayTrigger(Utils.getBundleString(bundle, "you_defeated"));
         }
-        SteamUtils.trySteamStatAndAchievementsOnLoss(viewer.getWorld(), viewer.getLocalPlayer());
         disable();
     }
 
     private final void doGameWon() {
         viewer.getPeerHub().gameWon();
-        SteamUtils.trySteamStatAndAchievementsOnWin(viewer.getWorld(), viewer.getLocalPlayer());
         createDelayTrigger(Utils.getBundleString(bundle, "you_victorious"));
         disable();
     }

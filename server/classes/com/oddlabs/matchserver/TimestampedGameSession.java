@@ -438,6 +438,7 @@ public final strictfp class TimestampedGameSession {
             if (client != null) client.updateProfile();
         }
         updatePlayerStreaks(team_result);
+        updateSteamAchievements(team_result);
         if (session.isRated() && all_5_wins) rerateParticipants(server, team_result);
     }
 
@@ -483,6 +484,84 @@ public final strictfp class TimestampedGameSession {
                                 "Game "
                                         + database_id
                                         + ". SQLException while updating streaks for "
+                                        + nick
+                                        + ": "
+                                        + e.getMessage());
+            }
+        }
+    }
+
+    private final void updateSteamAchievements(int[] team_result) {
+        // Only update Steam achievements if Steam-only mode is enabled
+        ServerConfiguration config = ServerConfiguration.getInstance();
+        if (!config.isSteamOnlyAuth()) {
+            return;
+        }
+
+        // Only count games with all human players (no bots/AI)
+        // participants = human players only, playerInfo = all players including AI
+        if (session.getParticipants().length != session.getPlayerInfo().length) {
+            MatchmakingServer.getLogger()
+                    .info(
+                            "Game "
+                                    + database_id
+                                    + ". Skipping Steam achievements update - game includes AI players");
+            return;
+        }
+
+        Participant[] participants = session.getParticipants();
+        for (int i = 0; i < participants.length; i++) {
+            String nick = participants[i].getNick();
+
+            // Get Steam ID - skip if not a Steam player
+            Long steamId = DBInterface.getSteamIdByNick(nick);
+            if (steamId == null) {
+                continue; // Not a Steam player, skip
+            }
+
+            try {
+                // Get current stats from database (already updated by teamWon/updatePlayerStreaks)
+                int totalWins = DBInterface.getWins(nick);
+                int totalLosses = DBInterface.getIntField("losses", nick);
+                int[] streaks = DBInterface.getStreaks(nick);
+                int currentStreak = streaks[0];
+                int bestStreak = streaks[1];
+
+                // Update Steam stats via Web API
+                boolean success =
+                        SteamAchievementService.updatePlayerStats(
+                                steamId, totalWins, totalLosses, currentStreak, bestStreak);
+
+                if (success) {
+                    MatchmakingServer.getLogger()
+                            .info(
+                                    "Game "
+                                            + database_id
+                                            + ". Updated Steam achievements for "
+                                            + nick
+                                            + " (wins="
+                                            + totalWins
+                                            + ", losses="
+                                            + totalLosses
+                                            + ", currentStreak="
+                                            + currentStreak
+                                            + ", bestStreak="
+                                            + bestStreak
+                                            + ")");
+                } else {
+                    MatchmakingServer.getLogger()
+                            .warning(
+                                    "Game "
+                                            + database_id
+                                            + ". Failed to update Steam achievements for "
+                                            + nick);
+                }
+            } catch (SQLException e) {
+                MatchmakingServer.getLogger()
+                        .warning(
+                                "Game "
+                                        + database_id
+                                        + ". SQLException while reading stats for Steam achievements for "
                                         + nick
                                         + ": "
                                         + e.getMessage());
