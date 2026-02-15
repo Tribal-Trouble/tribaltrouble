@@ -545,8 +545,8 @@ public final strictfp class DBInterface {
         try {
             PreparedStatement stmt =
                     DBUtils.createStatement(
-                            "SELECT r.steam_id FROM profiles p INNER JOIN registrations r ON p.reg_id"
-                                    + " = r.id WHERE p.nick = ?");
+                            "SELECT r.steam_id FROM profiles p INNER JOIN registrations r ON"
+                                + " p.reg_id = r.id WHERE p.nick = ?");
             try {
                 stmt.setString(1, nick);
                 ResultSet result = stmt.executeQuery();
@@ -577,8 +577,8 @@ public final strictfp class DBInterface {
         try {
             PreparedStatement stmt =
                     DBUtils.createStatement(
-                            "UPDATE profiles SET current_win_streak = ?, best_win_streak = ? WHERE nick"
-                                    + " = ?");
+                            "UPDATE profiles SET current_win_streak = ?, best_win_streak = ? WHERE"
+                                + " nick = ?");
             try {
                 stmt.setInt(1, currentStreak);
                 stmt.setInt(2, bestStreak);

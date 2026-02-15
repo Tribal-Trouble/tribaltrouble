@@ -505,7 +505,8 @@ public final strictfp class TimestampedGameSession {
                     .info(
                             "Game "
                                     + database_id
-                                    + ". Skipping Steam achievements update - game includes AI players");
+                                    + ". Skipping Steam achievements update - game includes AI"
+                                    + " players");
             return;
         }
 
@@ -561,7 +562,8 @@ public final strictfp class TimestampedGameSession {
                         .warning(
                                 "Game "
                                         + database_id
-                                        + ". SQLException while reading stats for Steam achievements for "
+                                        + ". SQLException while reading stats for Steam"
+                                        + " achievements for "
                                         + nick
                                         + ": "
                                         + e.getMessage());

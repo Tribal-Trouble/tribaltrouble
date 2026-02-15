@@ -10,9 +10,7 @@ import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Service for updating player stats and achievements via Steam Web API.
- */
+/** Service for updating player stats and achievements via Steam Web API. */
 public final class SteamAchievementService {
     private static final Logger logger = MatchmakingServer.getLogger();
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -112,10 +110,7 @@ public final class SteamAchievementService {
             logger.log(Level.INFO, "Steam API response code: {0}", responseCode);
 
             if (responseCode != 200) {
-                logger.log(
-                        Level.WARNING,
-                        "Steam API returned non-200 response: {0}",
-                        responseCode);
+                logger.log(Level.WARNING, "Steam API returned non-200 response: {0}", responseCode);
                 return false;
             }
 
@@ -144,7 +139,8 @@ public final class SteamAchievementService {
             logger.info("Steam stats update result: SUCCESS");
             logger.log(
                     Level.INFO,
-                    "Updated stats for steamId {0}: wins={1}, losses={2}, currentStreak={3}, bestStreak={4}",
+                    "Updated stats for steamId {0}: wins={1}, losses={2}, currentStreak={3},"
+                        + " bestStreak={4}",
                     new Object[] {steamId, totalWins, totalLosses, currentStreak, bestStreak});
             logger.info("=====================================");
 
