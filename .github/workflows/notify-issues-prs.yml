@@ -97,3 +97,29 @@ jobs:
         curl -H "Content-Type: application/json" \
              -d "{\"content\": \"$MESSAGE\"}" \
              ${{ secrets.DISCORD_WEBHOOK_GITHUB }}
+
+    - name: Notify Discord on PR Review
+      if: github.event_name == 'pull_request_review'
+      run: |
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        PR_URL="${{ github.event.pull_request.html_url }}"
+        PR_NUMBER="${{ github.event.pull_request.number }}"
+        REVIEWER="${{ github.event.review.user.login }}"
+        REVIEW_STATE="${{ github.event.review.state }}"
+
+        if [ "$REVIEW_STATE" = "approved" ]; then
+          EMOJI="✅"
+          STATUS="Approved"
+        elif [ "$REVIEW_STATE" = "changes_requested" ]; then
+          EMOJI="🔴"
+          STATUS="Changes Requested"
+        else
+          # Skip comment-only reviews (just regular comments, not approve/request changes)
+          exit 0
+        fi
+
+        MESSAGE="$EMOJI **PR Review: #$PR_NUMBER**\n\n**Title:** $PR_TITLE\n**Reviewer:** $REVIEWER\n**Status:** $STATUS\n**URL:** $PR_URL"
+
+        curl -H "Content-Type: application/json" \
+             -d "{\"content\": \"$MESSAGE\"}" \
+             ${{ secrets.DISCORD_WEBHOOK_GITHUB }}
