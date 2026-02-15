@@ -56,9 +56,12 @@ public class WhoIsCommand extends DiscordCommand {
             if (registeredProfiles.length == 0) {
                 return event.reply("No profiles registered for user: " + discordUserId);
             }
-            String displayProfiles = String.join(", ", java.util.Arrays.stream(registeredProfiles)
-                    .map(NickUtils::toDisplayName)
-                    .toArray(String[]::new));
+            String displayProfiles =
+                    String.join(
+                            ", ",
+                            java.util.Arrays.stream(registeredProfiles)
+                                    .map(NickUtils::toDisplayName)
+                                    .toArray(String[]::new));
             return event.reply(
                     "Registered profiles for user "
                             + toDiscordMention(discordUserId)
@@ -74,7 +77,9 @@ public class WhoIsCommand extends DiscordCommand {
                                 + toDiscordMention(discord_id_for_user));
             } else {
                 return event.reply(
-                        "No Discord ID found for tribal trouble nick: '" + NickUtils.toDisplayName(user_name) + "'");
+                        "No Discord ID found for tribal trouble nick: '"
+                                + NickUtils.toDisplayName(user_name)
+                                + "'");
             }
         }
     }

@@ -107,7 +107,8 @@ public final strictfp class MainMenu extends Menu {
                 if (isOfficialServer && steamRunning) {
                     // Steam auto-login — skip LoginForm entirely
                     Network.getMatchmakingClient().close();
-                    new MatchmakingConnectingForm(getNetwork(), getGUIRoot(), null, MainMenu.this, null, null, true);
+                    new MatchmakingConnectingForm(
+                            getNetwork(), getGUIRoot(), null, MainMenu.this, null, null, true);
                 } else {
                     Network.getMatchmakingClient().close();
                     new LoginForm(getNetwork(), getGUIRoot(), MainMenu.this);

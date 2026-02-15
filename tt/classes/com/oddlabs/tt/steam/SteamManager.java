@@ -2,18 +2,15 @@ package com.oddlabs.tt.steam;
 
 import com.codedisaster.steamworks.SteamAPI;
 import com.codedisaster.steamworks.SteamAuthTicket;
-import com.codedisaster.steamworks.SteamException;
 import com.codedisaster.steamworks.SteamFriends;
 import com.codedisaster.steamworks.SteamFriendsCallback;
 import com.codedisaster.steamworks.SteamID;
 import com.codedisaster.steamworks.SteamUser;
 import com.codedisaster.steamworks.SteamUserCallback;
 
-import java.nio.ByteBuffer;
-
 /**
- * Central manager for Steam API access.
- * Provides access to Steam services like User, Friends, and Apps.
+ * Central manager for Steam API access. Provides access to Steam services like User, Friends, and
+ * Apps.
  */
 public class SteamManager implements SteamUserCallback, SteamFriendsCallback {
     private static final SteamManager instance = new SteamManager();
@@ -66,9 +63,9 @@ public class SteamManager implements SteamUserCallback, SteamFriendsCallback {
     }
 
     /**
-     * Request a new Web API auth ticket (async - ticket arrives via callback).
-     * Reuses cached ticket if less than 1 hour old, otherwise requests fresh ticket.
-     * Call this before connecting to ensure ticket is ready.
+     * Request a new Web API auth ticket (async - ticket arrives via callback). Reuses cached ticket
+     * if less than 1 hour old, otherwise requests fresh ticket. Call this before connecting to
+     * ensure ticket is ready.
      */
     public void requestWebApiTicket() {
         if (steamUser != null) {
@@ -78,25 +75,34 @@ public class SteamManager implements SteamUserCallback, SteamFriendsCallback {
                 long oneHourMs = 60 * 60 * 1000;
 
                 if (ticketReady && ticketAgeMs < oneHourMs) {
-                    System.out.println("Steam Web API ticket still fresh (" + (ticketAgeMs / 1000) + "s old), reusing");
+                    System.out.println(
+                            "Steam Web API ticket still fresh ("
+                                    + (ticketAgeMs / 1000)
+                                    + "s old), reusing");
                     return;
                 }
 
                 // If ticket is stale, cancel it before requesting new one
                 if (ticketReady && ticketAgeMs >= oneHourMs) {
-                    System.out.println("Steam Web API ticket expired (" + (ticketAgeMs / 1000) + "s old), requesting fresh ticket");
+                    System.out.println(
+                            "Steam Web API ticket expired ("
+                                    + (ticketAgeMs / 1000)
+                                    + "s old), requesting fresh ticket");
                     if (currentAuthTicket != null) {
                         try {
                             steamUser.cancelAuthTicket(currentAuthTicket);
                         } catch (Exception e) {
-                            System.err.println("Failed to cancel expired ticket: " + e.getMessage());
+                            System.err.println(
+                                    "Failed to cancel expired ticket: " + e.getMessage());
                         }
                     }
                 }
 
                 // If a request is already pending, don't start another
                 if (currentAuthTicket != null && !ticketReady) {
-                    System.out.println("Steam Web API ticket request already pending, waiting for callback...");
+                    System.out.println(
+                            "Steam Web API ticket request already pending, waiting for"
+                                    + " callback...");
                     return;
                 }
 
@@ -112,10 +118,15 @@ public class SteamManager implements SteamUserCallback, SteamFriendsCallback {
 
                 currentAuthTicket = steamUser.getAuthTicketForWebApi("tribaltrouble.org");
 
-                System.out.println("getAuthTicketForWebApi() returned: " +
-                    (currentAuthTicket != null ? "SUCCESS (ticket object created)" : "null"));
+                System.out.println(
+                        "getAuthTicketForWebApi() returned: "
+                                + (currentAuthTicket != null
+                                        ? "SUCCESS (ticket object created)"
+                                        : "null"));
             } catch (NoSuchMethodError e) {
-                System.err.println("ERROR: getAuthTicketForWebApi() not available in this steamworks4j version!");
+                System.err.println(
+                        "ERROR: getAuthTicketForWebApi() not available in this steamworks4j"
+                                + " version!");
                 System.err.println("You may need to upgrade steamworks4j to a newer version.");
                 e.printStackTrace();
             } catch (Exception e) {
@@ -127,23 +138,19 @@ public class SteamManager implements SteamUserCallback, SteamFriendsCallback {
         }
     }
 
-    /**
-     * Get the Web API ticket bytes. Returns null if ticket is not ready yet.
-     */
+    /** Get the Web API ticket bytes. Returns null if ticket is not ready yet. */
     public byte[] getWebApiTicket() {
         return ticketReady ? webApiTicketData : null;
     }
 
-    /**
-     * Check if a Web API ticket is ready to use.
-     */
+    /** Check if a Web API ticket is ready to use. */
     public boolean isWebApiTicketReady() {
         return ticketReady;
     }
 
     /**
-     * Cancel the current auth ticket if one exists.
-     * Should be called when disconnecting from the server or before generating a new ticket.
+     * Cancel the current auth ticket if one exists. Should be called when disconnecting from the
+     * server or before generating a new ticket.
      */
     public void cancelCurrentAuthTicket() {
         if (SteamAPI.isSteamRunning() && steamUser != null && currentAuthTicket != null) {
@@ -183,7 +190,9 @@ public class SteamManager implements SteamUserCallback, SteamFriendsCallback {
             byte[] ticketData) {
         System.out.println("Steam Web API ticket callback received - Result: " + result);
 
-        if (result == com.codedisaster.steamworks.SteamResult.OK && ticketData != null && ticketData.length > 0) {
+        if (result == com.codedisaster.steamworks.SteamResult.OK
+                && ticketData != null
+                && ticketData.length > 0) {
             // IMPORTANT: Must copy the bytes - cannot keep reference to ticketData
             webApiTicketData = new byte[ticketData.length];
             System.arraycopy(ticketData, 0, webApiTicketData, 0, ticketData.length);
@@ -200,8 +209,8 @@ public class SteamManager implements SteamUserCallback, SteamFriendsCallback {
 
     // SteamFriendsCallback implementation (required by SteamFriends)
     @Override
-    public void onPersonaStateChange(SteamID steamID,
-            com.codedisaster.steamworks.SteamFriends.PersonaChange change) {
+    public void onPersonaStateChange(
+            SteamID steamID, com.codedisaster.steamworks.SteamFriends.PersonaChange change) {
         // No-op for now
     }
 

@@ -38,7 +38,9 @@ public final strictfp class GameStatsDelegate extends CameraDelegate implements 
         score_infos[0] = new ColumnInfo(Utils.getBundleString(bundle, "type"), 160);
         for (int i = 0; i < players.length; i++)
             score_infos[i + 1] =
-                    new ColumnInfo(NickUtils.toDisplayName(players[i].getPlayerInfo().getName()), PLAYER_COLUMN_WIDTH);
+                    new ColumnInfo(
+                            NickUtils.toDisplayName(players[i].getPlayerInfo().getName()),
+                            PLAYER_COLUMN_WIDTH);
 
         MultiColumnComboBox score_box =
                 new MultiColumnComboBox(viewer.getGUIRoot(), score_infos, 200);

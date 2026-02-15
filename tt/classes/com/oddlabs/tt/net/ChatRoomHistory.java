@@ -25,14 +25,22 @@ public final strictfp class ChatRoomHistory extends ChatHistory {
         ResourceBundle bundle = ResourceBundle.getBundle(ChatPanel.class.getName());
         while (it.hasNext()) {
             ChatRoomUser user = (ChatRoomUser) it.next();
-            addMessage(Utils.getBundleString(bundle, "user_joined", new Object[] {NickUtils.toDisplayName(user.getNick())}));
+            addMessage(
+                    Utils.getBundleString(
+                            bundle,
+                            "user_joined",
+                            new Object[] {NickUtils.toDisplayName(user.getNick())}));
         }
         Set left_users = new HashSet(old_users_set);
         left_users.removeAll(new_users_set);
         it = left_users.iterator();
         while (it.hasNext()) {
             ChatRoomUser user = (ChatRoomUser) it.next();
-            addMessage(Utils.getBundleString(bundle, "user_left", new Object[] {NickUtils.toDisplayName(user.getNick())}));
+            addMessage(
+                    Utils.getBundleString(
+                            bundle,
+                            "user_left",
+                            new Object[] {NickUtils.toDisplayName(user.getNick())}));
         }
     }
 

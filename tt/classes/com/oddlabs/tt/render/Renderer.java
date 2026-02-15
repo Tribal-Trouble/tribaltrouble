@@ -292,7 +292,8 @@ public final strictfp class Renderer {
         Settings.setSettings(settings);
         File last_event_log_dir = setupBugReporter(deterministic);
 
-        LocalInput _ = new LocalInput();
+        @SuppressWarnings("unused")
+        LocalInput localInput = new LocalInput();
 
         NetworkSelector network =
                 new NetworkSelector(

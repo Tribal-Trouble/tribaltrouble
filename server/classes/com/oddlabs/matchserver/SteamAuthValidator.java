@@ -9,13 +9,12 @@ import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Validates Steam auth tickets using the Steam Web API.
- */
+/** Validates Steam auth tickets using the Steam Web API. */
 public class SteamAuthValidator {
     private static final Logger logger = MatchmakingServer.getLogger();
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String STEAM_API_URL = "https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/";
+    private static final String STEAM_API_URL =
+            "https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/";
 
     /**
      * Validates a Steam auth ticket by calling the Steam Web API.
@@ -62,10 +61,14 @@ public class SteamAuthValidator {
             String ticketHex = bytesToHex(authTicket);
 
             // Build API request URL
-            String urlString = STEAM_API_URL
-                    + "?key=" + URLEncoder.encode(apiKey, "UTF-8")
-                    + "&appid=" + URLEncoder.encode(appId, "UTF-8")
-                    + "&ticket=" + URLEncoder.encode(ticketHex, "UTF-8");
+            String urlString =
+                    STEAM_API_URL
+                            + "?key="
+                            + URLEncoder.encode(apiKey, "UTF-8")
+                            + "&appid="
+                            + URLEncoder.encode(appId, "UTF-8")
+                            + "&ticket="
+                            + URLEncoder.encode(ticketHex, "UTF-8");
 
             logger.log(Level.INFO, "Calling Steam API: {0}", STEAM_API_URL);
             URL url = new URL(urlString);
@@ -83,8 +86,12 @@ public class SteamAuthValidator {
             }
 
             // Parse JSON response into POJOs
-            SteamApiAuthTicketResponse apiResponse = objectMapper.readValue(conn.getInputStream(), SteamApiAuthTicketResponse.class);
-            logger.log(Level.INFO, "Steam API response: {0}", objectMapper.writeValueAsString(apiResponse));
+            SteamApiAuthTicketResponse apiResponse =
+                    objectMapper.readValue(conn.getInputStream(), SteamApiAuthTicketResponse.class);
+            logger.log(
+                    Level.INFO,
+                    "Steam API response: {0}",
+                    objectMapper.writeValueAsString(apiResponse));
 
             // Validate response structure
             if (apiResponse.response == null || apiResponse.response.params == null) {
@@ -96,7 +103,10 @@ public class SteamAuthValidator {
 
             // Check if ticket is valid
             if (!"OK".equals(params.result)) {
-                logger.log(Level.WARNING, "Steam ticket validation failed. Result: {0}", params.result);
+                logger.log(
+                        Level.WARNING,
+                        "Steam ticket validation failed. Result: {0}",
+                        params.result);
                 return false;
             }
 
@@ -116,7 +126,10 @@ public class SteamAuthValidator {
             logger.log(Level.INFO, "Expected Steam ID (from account ID): {0}", expectedSteamId);
 
             if (!expectedSteamId.equals(params.steamid)) {
-                logger.log(Level.WARNING, "Steam ID mismatch. Expected: {0}, Got: {1}", new Object[]{expectedSteamId, params.steamid});
+                logger.log(
+                        Level.WARNING,
+                        "Steam ID mismatch. Expected: {0}, Got: {1}",
+                        new Object[] {expectedSteamId, params.steamid});
                 return false;
             }
 
@@ -127,7 +140,8 @@ public class SteamAuthValidator {
             return true;
 
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Exception during Steam ticket validation: {0}", e.getMessage());
+            logger.log(
+                    Level.WARNING, "Exception during Steam ticket validation: {0}", e.getMessage());
             logger.throwing("SteamAuthValidator", "validateTicket", e);
             return false;
         } finally {
@@ -137,9 +151,7 @@ public class SteamAuthValidator {
         }
     }
 
-    /**
-     * Converts byte array to hex string.
-     */
+    /** Converts byte array to hex string. */
     private static String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
@@ -148,9 +160,7 @@ public class SteamAuthValidator {
         return sb.toString();
     }
 
-    /**
-     * POJOs for Steam API response deserialization.
-     */
+    /** POJOs for Steam API response deserialization. */
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static class SteamApiAuthTicketResponse {
         public SteamApiAuthTicketResponseData response;

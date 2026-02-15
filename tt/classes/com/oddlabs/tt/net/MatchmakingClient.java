@@ -297,7 +297,8 @@ public final strictfp class MatchmakingClient
         this.login = null;
         this.login_details = null;
         this.steamLogin = true;
-        // Request Web API ticket (safe to call multiple times - won't duplicate if already pending/ready)
+        // Request Web API ticket (safe to call multiple times - won't duplicate if already
+        // pending/ready)
         SteamManager.getInstance().requestWebApiTicket();
         open(network);
         state = STATE_AWAITING_OK;
@@ -441,11 +442,17 @@ public final strictfp class MatchmakingClient
                 String personaName = steamManager.getPersonaName();
                 byte[] authTicket = steamManager.getWebApiTicket();
                 System.out.println("Sending Web API ticket: " + authTicket.length + " bytes");
-                matchmaking_login_interface.steamLogin(accountId, personaName, authTicket, revision);
+                matchmaking_login_interface.steamLogin(
+                        accountId, personaName, authTicket, revision);
             } else {
-                System.err.println("ERROR: Steam Web API ticket not ready after " + (maxRetries * 50) + "ms");
-                System.err.println("This usually means Steam is not responding to ticket requests.");
-                handleError(new IOException("Steam Web API ticket timeout - Steam may not be running properly"));
+                System.err.println(
+                        "ERROR: Steam Web API ticket not ready after " + (maxRetries * 50) + "ms");
+                System.err.println(
+                        "This usually means Steam is not responding to ticket requests.");
+                handleError(
+                        new IOException(
+                                "Steam Web API ticket timeout - Steam may not be running"
+                                        + " properly"));
             }
         } else if (!Renderer.isRegistered()) {
             matchmaking_login_interface.loginAsGuest(revision);

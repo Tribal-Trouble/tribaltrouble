@@ -38,7 +38,8 @@ public final strictfp class PrivateMessageForm extends Form {
 
         Label label_name =
                 new Label(
-                        Utils.getBundleString(bundle, "to", new Object[] {NickUtils.toDisplayName(nick)}),
+                        Utils.getBundleString(
+                                bundle, "to", new Object[] {NickUtils.toDisplayName(nick)}),
                         Skin.getSkin().getEditFont());
         editline_name = new EditLine(EDITLINE_WIDTH, 256);
         editline_name.addEnterListener(new OKListener());

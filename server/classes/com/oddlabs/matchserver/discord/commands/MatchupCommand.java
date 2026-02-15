@@ -78,7 +78,9 @@ public class MatchupCommand extends DiscordCommand {
                 false);
         float winRate = ((float) matchupResult.getPlayer1Wins() / totalGames) * 100;
         builder.addField(
-                String.format("Win rate vs %s", displayPlayer2), String.format("%.2f%%", winRate), false);
+                String.format("Win rate vs %s", displayPlayer2),
+                String.format("%.2f%%", winRate),
+                false);
         builder.addField("\u200B", "\u200B", false);
         builder.addField("Recent Matchups", "", false);
         int matchupNum = 1;
@@ -88,7 +90,8 @@ public class MatchupCommand extends DiscordCommand {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
             String formattedTime = sdf.format(startTime);
 
-            String field_value = String.format("Winner: %s", NickUtils.toDisplayName(matchup.getWinner()));
+            String field_value =
+                    String.format("Winner: %s", NickUtils.toDisplayName(matchup.getWinner()));
             field_value += String.format("\nStart time: %s", formattedTime);
             if (matchup.getGameReplayUrl() != null) {
                 field_value += String.format("\n[Watch Replay](%s)", matchup.getGameReplayUrl());

@@ -108,7 +108,10 @@ public strictfp class DefaultInGameInfo implements InGameInfo {
             if (!viewer.getPeerHub().isAlive(players[i])) {
                 color = new float[] {color[0], color[1], color[2], .25f};
             }
-            Label name = new Label(NickUtils.toDisplayName(player_info.getName()), Skin.getSkin().getHeadlineFont());
+            Label name =
+                    new Label(
+                            NickUtils.toDisplayName(player_info.getName()),
+                            Skin.getSkin().getHeadlineFont());
             name.setColor(color);
             String race_str = RacesResources.getRaceName(player_info.getRace());
             Label race = new Label(race_str, Skin.getSkin().getHeadlineFont());

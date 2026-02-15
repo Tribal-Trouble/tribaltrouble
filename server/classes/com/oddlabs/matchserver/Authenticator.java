@@ -91,13 +91,12 @@ public final strictfp class Authenticator
 
     public final void createUser(
             Login login, LoginDetails login_details, SignedObject reg_key, int revision) {
-        
-        
+
         // Check version first (before authentication checks)
         if (!revisionOK(revision)) {
             return;
         }
-        
+
         // We are not passing the registration key anymore. We do not care anymore.
         // We keep the registration key so as to not break older clients that do send
         // the registration key.
@@ -109,7 +108,8 @@ public final strictfp class Authenticator
         // Check if Steam-only authentication is enabled
         if (ServerConfiguration.getInstance().isSteamOnlyAuth()) {
             client_interface.loginError(MatchmakingClientInterface.USER_ERROR_STEAM_REQUIRED);
-            MatchmakingServer.getLogger().info("Username/password authentication disabled - Steam-only mode enabled");
+            MatchmakingServer.getLogger()
+                    .info("Username/password authentication disabled - Steam-only mode enabled");
             return;
         }
 
@@ -157,7 +157,8 @@ public final strictfp class Authenticator
         // Check if Steam-only authentication is enabled
         if (ServerConfiguration.getInstance().isSteamOnlyAuth()) {
             client_interface.loginError(MatchmakingClientInterface.USER_ERROR_STEAM_REQUIRED);
-            MatchmakingServer.getLogger().info("Username/password authentication disabled - Steam-only mode enabled");
+            MatchmakingServer.getLogger()
+                    .info("Username/password authentication disabled - Steam-only mode enabled");
             return;
         }
 
@@ -182,7 +183,8 @@ public final strictfp class Authenticator
         // Check if Steam-only authentication is enabled
         if (ServerConfiguration.getInstance().isSteamOnlyAuth()) {
             client_interface.loginError(MatchmakingClientInterface.USER_ERROR_STEAM_REQUIRED);
-            MatchmakingServer.getLogger().info("Guest authentication disabled - Steam-only mode enabled");
+            MatchmakingServer.getLogger()
+                    .info("Guest authentication disabled - Steam-only mode enabled");
             return;
         }
 
@@ -190,13 +192,17 @@ public final strictfp class Authenticator
         doLogin(username, null, revision);
     }
 
-    public final void steamLogin(long steamAccountId, String personaName, byte[] authTicket, int revision) {
+    public final void steamLogin(
+            long steamAccountId, String personaName, byte[] authTicket, int revision) {
         if (!revisionOK(revision)) return;
 
         // Validate Steam auth ticket
         if (!SteamAuthValidator.validateTicket(steamAccountId, authTicket)) {
             client_interface.loginError(MatchmakingClientInterface.USER_ERROR_NO_SUCH_USER);
-            MatchmakingServer.getLogger().warning("Steam auth ticket validation failed for account ID: " + steamAccountId);
+            MatchmakingServer.getLogger()
+                    .warning(
+                            "Steam auth ticket validation failed for account ID: "
+                                    + steamAccountId);
             return;
         }
 

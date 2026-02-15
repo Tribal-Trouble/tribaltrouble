@@ -209,7 +209,8 @@ public final strictfp class Settings implements Serializable {
             return true;
         }
         // Also allow Steam auth on localhost if debug flag is enabled
-        if (Globals.debug_steam_auth_localhost && ("localhost".equals(domain_name) || "local".equals(domain_name))) {
+        if (Globals.debug_steam_auth_localhost
+                && ("localhost".equals(domain_name) || "local".equals(domain_name))) {
             return true;
         }
         return false;
