@@ -11,8 +11,9 @@ public class ServerConfiguration {
     public static final String WEBSITE_DOMAIN = "WEBSITE_DOMAIN";
     public static final String VIKING_CHIEF_EMOJI = "VIKING_CHIEF_EMOJI";
     public static final String NATIVE_CHIEF_EMOJI = "NATIVE_CHIEF_EMOJI";
-    public static final String STEAM_WEB_API_KEY = "SteamWebAPIKey";
-    public static final String STEAM_APP_ID = "SteamAppId";
+    public static final String STEAM_WEB_API_KEY = "STEAM_WEB_API_KEY";
+    public static final String STEAM_APP_ID = "STEAM_APP_ID";
+    public static final String STEAM_ONLY_AUTH = "STEAM_ONLY_AUTH";
 
     private static ServerConfiguration instance;
 
@@ -56,5 +57,14 @@ public class ServerConfiguration {
     public int getInt(String key, int defaultValue) {
         String value = properties.getProperty(key);
         return value != null ? Integer.parseInt(value) : defaultValue;
+    }
+
+    public boolean getBoolean(String key, boolean defaultValue) {
+        String value = get(key);
+        return value != null ? Boolean.parseBoolean(value) : defaultValue;
+    }
+
+    public boolean isSteamOnlyAuth() {
+        return getBoolean(STEAM_ONLY_AUTH, false);
     }
 }

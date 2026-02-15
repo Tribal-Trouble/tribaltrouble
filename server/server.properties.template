@@ -11,5 +11,9 @@ NATIVE_CHIEF_EMOJI=
 VIKING_CHIEF_EMOJI=
 
 # Steam API configuration for auth ticket validation
-SteamWebAPIKey=
-SteamAppId=
+STEAM_WEB_API_KEY=
+STEAM_APP_ID=
+
+# Authentication modes
+# Set to true to require Steam authentication (disables username/password and guest login)
+STEAM_ONLY_AUTH=false
