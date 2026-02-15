@@ -11,6 +11,8 @@ public class ServerConfiguration {
     public static final String WEBSITE_DOMAIN = "WEBSITE_DOMAIN";
     public static final String VIKING_CHIEF_EMOJI = "VIKING_CHIEF_EMOJI";
     public static final String NATIVE_CHIEF_EMOJI = "NATIVE_CHIEF_EMOJI";
+    public static final String STEAM_WEB_API_KEY = "SteamWebAPIKey";
+    public static final String STEAM_APP_ID = "SteamAppId";
 
     private static ServerConfiguration instance;
 
@@ -33,7 +35,22 @@ public class ServerConfiguration {
     }
 
     public String get(String key) {
-        return properties.getProperty(key);
+        String value = properties.getProperty(key);
+        if (value == null) {
+            return null;
+        }
+        // Support {{ENV_VAR}} syntax for environment variable substitution
+        return substituteEnvVars(value);
+    }
+
+    private String substituteEnvVars(String value) {
+        if (value == null || !value.contains("{{")) {
+            return value;
+        }
+        // Simple substitution: {{VAR_NAME}} -> System.getenv("VAR_NAME")
+        String envVarName = value.replace("{{", "").replace("}}", "").trim();
+        String envValue = System.getenv(envVarName);
+        return (envValue != null) ? envValue : value;
     }
 
     public int getInt(String key, int defaultValue) {
