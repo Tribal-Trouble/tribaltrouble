@@ -6,7 +6,7 @@
 ![License](https://img.shields.io/badge/license-GPLv2-orange.svg)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Build Status](https://github.com/RcubDev/limbo_console_sharp/actions/workflows/build-and-publish.yaml/badge.svg)](https://github.com//OmarAMokhtar/tribaltrouble)
-[![](https://dcbadge.limes.pink/api/server/https://discord.gg/j8PZyGBZt5?style=flat)](https://discord.gg/j8PZyGBZt5?style=flat)
+[![](https://dcbadge.limes.pink/api/server/https://discord.gg/tribaltrouble?style=flat)](https://discord.gg/tribaltrouble?style=flat)
 
 Tribal Trouble is a realtime strategy game released by Oddlabs in 2004. In 2014 the source was released under GPL2 license.
 
@@ -20,8 +20,8 @@ This fork aims to:
 ## Table of Contents
 
 - [🎮 How to play?](#-how-to-play)
-- [🛠️ Build Requirements](#-build-requirements)
-- [🏗️ Building](#-building)
+- [🛠️ Build Requirements](#️-build-requirements)  
+- [🏗️ Building](#️-building)
   - [Build + Run Game Client](#build--run-game-client)
   - [Build Game Client for Distribution](#build-game-client-for-distribution)
   - [Build + Run Game Server](#build--run-game-server)
@@ -29,7 +29,7 @@ This fork aims to:
 
 ## 🎮 How to play?
 
-If you want to play the game with minimal hassle check out [Tribal Trouble](https://tribaltrouble.org) or see the releases section of the github. Also come join us on [discord](https://discord.gg/j8PZyGBZt5) as we're still a small community!
+If you want to play the game with minimal hassle check out [Tribal Trouble](https://tribaltrouble.org) or see the releases section of the github. Also come join us on [discord](https://discord.gg/tribaltrouble) as we're still a small community!
 
 The game is currently unsigned and not available through another platform like steam so when you launch the game different OSes will respond differently:
 
@@ -90,12 +90,24 @@ Optional Steps (Recommend for server hosting)
 
 1. mySQL Setup
     - Create the database schema from `initmysql.sql`.
-    - Create the user `matchmaker` with any password you  would like (remember it for the next step)
-    - Add the same password from the above step password as an environment variable use the name `TT_SERVER_PASSWORD`
+    - Create the user `matchmaker` with any password you would like (remember it for the next step)
+    - Run all scripts in order of their number inside of the `database` folder
 
-    > Make sure to restart any terminals you have open
+2. Server Configuration
+    - Copy `server/server.properties.template` to `server/server.properties`
+    - Edit the `server.properties` file with your configuration:
+      - `SQL_PASS`* - The password for the matchmaker database user
+      - `DISCORD_BOT_TOKEN` - Your Discord bot token
+      - `DISCORD_SERVER_ID` - Your Discord server ID
+      - `WEBSITE_DOMAIN` - Your website domain
+      - `NATIVE_CHIEF_EMOJI` and `VIKING_CHIEF_EMOJI` - Emoji IDs for game factions
+      - `EMOJI_ROLE_MAPPINGS` - JSON array for Discord role mappings
+        > Example: [{"role id":"\<numeric discord role id>","emoji id":"<custom emoji id or unicode (U+1F602)>"}]
+      - `REACTION_ROLE_MESSAGE_ID` - Discord message ID for reaction roles
 
-2. Run the servers
+    > Those marked with \* are required to run the game server. Those without \* are optional settings. That are generally used for things like discord integration
+
+3. Run the servers
      - There are two main servers needed. The matchmaker and the router. The matchmaker is what runs the game and most the server logic. The router sends and receives chat messages and other messages from the client
      - To build and run the matchmaker: `cd server` > `ant run-matchmaker`
      - To build and run the router: `cd server` > `ant run-router`
@@ -110,7 +122,7 @@ Optional Steps (Recommend for server hosting)
 
 ## 🤝 Contributing
 
-Thanks for your interest in contributing. We have a channel in [discord](https://discord.gg/j8PZyGBZt5) that is active with contributors if you have any questions on setup or where to find things. Come chat, play some games!
+Thanks for your interest in contributing. We have a channel in [discord](https://discord.gg/tribaltrouble) that is active with contributors if you have any questions on setup or where to find things. Come chat, play some games!
 
 See something you want or could improve upon? Make a PR or an issue! Don't have an idea? There's plenty of work to be done check out the active issues!
 
@@ -118,4 +130,4 @@ There are ways to contribute besides developing. If you have screenshots of the 
 
 > For example a screenshot of the old the leaderboards.
 
-Being an active member in the [discord](https://discord.gg/j8PZyGBZt5) and playing games also will help keep the game going!
+Being an active member in the [discord](https://discord.gg/tribaltrouble) and playing games also will help keep the game going!

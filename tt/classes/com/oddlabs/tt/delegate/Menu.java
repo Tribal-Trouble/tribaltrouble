@@ -410,7 +410,7 @@ public abstract strictfp class Menu extends CameraDelegate {
 
         public final void mouseClicked(int button, int x, int y, int clicks) {
             try {
-                Desktop.getDesktop().browse(new URI("https://discord.gg/j8PZyGBZt5"));
+                Desktop.getDesktop().browse(new URI("https://discord.gg/tribaltrouble"));
             } catch (IOException | URISyntaxException e) {
                 System.out.println("Failed to open Discord link: " + e.getMessage());
             }
