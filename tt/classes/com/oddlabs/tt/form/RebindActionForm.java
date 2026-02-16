@@ -8,9 +8,13 @@ import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.tt.util.Utils;
+
+import java.util.ResourceBundle;
 
 /** A form for rebinding a action */
 public class RebindActionForm extends Form {
+    private final ResourceBundle bundle = ResourceBundle.getBundle(KeybindPanel.class.getName());
     Label current_binding_label;
     int current_key_code;
     String changing_action_name;
@@ -26,11 +30,10 @@ public class RebindActionForm extends Form {
         // Manually set dimensions of the form
         setDim(300, 100);
         // Place controls tat should be placed via origin
+        String displayName = Utils.getBundleString(bundle, action_name.toLowerCase());
         Label press_any_key_label =
                 new Label(
-                        "Press any key to rebind "
-                                + KeybindPanel.KEYBIND_DISPLAY_NAMES.getOrDefault(
-                                        action_name, action_name),
+                        "Press any key to rebind " + displayName,
                         Skin.getSkin().getEditFont());
         addChild(press_any_key_label);
         press_any_key_label.place(ORIGIN_TOP_LEFT);
