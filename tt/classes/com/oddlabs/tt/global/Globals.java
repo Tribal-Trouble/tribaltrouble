@@ -63,12 +63,15 @@ public final strictfp class Globals {
     public static final String KB_TOWER_EXIT = "KB_TOWER_EXIT";
 
     // #endregion Keybinds - Actions
-    public static final String DOMAIN_NAME = Settings.getSettings().getDomainName();
-    public static final String SUPPORT_ADDRESS = "http://" + DOMAIN_NAME + "/support";
+
     public static String getDomainName() {
         return Settings.getSettings() != null
                 ? Settings.getSettings().getDomainName()
-                : "default-domain.com";
+                : "tribaltrouble.org";
+    }
+
+    public static String getSupportAddress() {
+        return "http://" + getDomainName() + "/support";
     }
 
     public static final int BOUNDING_NONE = 0;
