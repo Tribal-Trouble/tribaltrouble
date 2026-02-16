@@ -71,8 +71,6 @@ public final strictfp class Globals {
                 : "default-domain.com";
     }
 
-    public static final String SUPPORT_ADDRESS = "http://" + getDomainName() + "/support";
-
     public static final int BOUNDING_NONE = 0;
     public static final int BOUNDING_UNIT_GRID = 1;
     public static final int BOUNDING_LANDSCAPE = 2;
