@@ -116,7 +116,12 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
         team_buttons = new PulldownButton[player_count];
         ready_marks = new Diode[player_count];
         ratings = new Label[player_count];
-        ScrollableGroup player_group = new ScrollableGroup(170, 64);
+        Group player_group;
+        if (player_count > 6) {
+            player_group = new ScrollableGroup(170, 64);
+        } else {
+            player_group = new Group();
+        }
         GUIObject previous = null;
         for (int i = 0; i < player_count; i++)
             previous =
@@ -204,7 +209,10 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
                             Label.ALIGN_RIGHT);
             addChild(rating);
             rating.place(player_group, TOP_RIGHT);
-            rating.correctPos(-80, 0);
+            // Only adjust position when using ScrollableGroup
+            if (player_count > 6) {
+                rating.correctPos(-80, 0);
+            }
         }
         compileCanvas();
     }
