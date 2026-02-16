@@ -132,6 +132,14 @@ public final strictfp class Settings implements Serializable {
                     put(Globals.KB_PAN_CAMERA_RIGHT, Keyboard.KEY_RIGHT);
                     put(Globals.KB_PAN_CAMERA_UP, Keyboard.KEY_UP);
                     put(Globals.KB_PAN_CAMERA_DOWN, Keyboard.KEY_DOWN);
+                    put(Globals.KB_CAMERA_ZOOM_IN, Keyboard.KEY_PRIOR);
+                    put(Globals.KB_CAMERA_ZOOM_OUT, Keyboard.KEY_NEXT);
+                    put(Globals.KB_CAMERA_ROTATE_LEFT, Keyboard.KEY_DELETE);
+                    put(Globals.KB_CAMERA_ROTATE_RIGHT, Keyboard.KEY_INSERT);
+                    put(Globals.KB_CAMERA_PITCH_UP, Keyboard.KEY_HOME);
+                    put(Globals.KB_CAMERA_PITCH_DOWN, Keyboard.KEY_END);
+                    put(Globals.KB_CAMERA_ZOOM_HOLD, Keyboard.KEY_Z);
+                    put(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE, Keyboard.KEY_F);
 
                     // Unit actions
                     put(Globals.KB_MOVE, Keyboard.KEY_M);
@@ -185,6 +193,28 @@ public final strictfp class Settings implements Serializable {
                     // Magic actions
                     put(Globals.KB_CHIEFTAIN_MAGIC1, Keyboard.KEY_S);
                     put(Globals.KB_CHIEFTAIN_MAGIC2, Keyboard.KEY_C);
+
+                    // Gameplay hotkeys
+                    put(Globals.KB_TOGGLE_MAP_MODE, Keyboard.KEY_SPACE);
+                    put(Globals.KB_JUMP_TO_NOTIFICATION, Keyboard.KEY_TAB);
+                    put(Globals.KB_PLACE_BEACON, Keyboard.KEY_B);
+                    put(Globals.KB_NEXT_IDLE_PEON, Keyboard.KEY_N);
+
+                    // Army groups
+                    put(Globals.KB_ARMY_GROUP_0, Keyboard.KEY_0);
+                    put(Globals.KB_ARMY_GROUP_1, Keyboard.KEY_1);
+                    put(Globals.KB_ARMY_GROUP_2, Keyboard.KEY_2);
+                    put(Globals.KB_ARMY_GROUP_3, Keyboard.KEY_3);
+                    put(Globals.KB_ARMY_GROUP_4, Keyboard.KEY_4);
+                    put(Globals.KB_ARMY_GROUP_5, Keyboard.KEY_5);
+                    put(Globals.KB_ARMY_GROUP_6, Keyboard.KEY_6);
+                    put(Globals.KB_ARMY_GROUP_7, Keyboard.KEY_7);
+                    put(Globals.KB_ARMY_GROUP_8, Keyboard.KEY_8);
+                    put(Globals.KB_ARMY_GROUP_9, Keyboard.KEY_9);
+
+                    // UI/System
+                    put(Globals.KB_GAMESPEED_INCREASE, Keyboard.KEY_EQUALS);
+                    put(Globals.KB_GAMESPEED_DECREASE, Keyboard.KEY_MINUS);
                 }
             };
 
