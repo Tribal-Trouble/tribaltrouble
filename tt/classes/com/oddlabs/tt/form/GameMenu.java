@@ -204,6 +204,7 @@ public final strictfp class GameMenu extends Panel implements ConfigurationListe
                             Label.ALIGN_RIGHT);
             addChild(rating);
             rating.place(player_group, TOP_RIGHT);
+            rating.correctPos(-80, 0);
         }
         compileCanvas();
     }
