@@ -234,9 +234,42 @@ public final strictfp class Globals {
 
     public static final float ERROR_TOLERANCE = 10f;
     // #region Keybinds
+    // Camera - Pan
     public static final String KB_PAN_CAMERA_LEFT = "KB_PAN_CAMERA_LEFT";
     public static final String KB_PAN_CAMERA_RIGHT = "KB_PAN_CAMERA_RIGHT";
     public static final String KB_PAN_CAMERA_UP = "KB_PAN_CAMERA_UP";
     public static final String KB_PAN_CAMERA_DOWN = "KB_PAN_CAMERA_DOWN";
+
+    // Camera - Extended Controls
+    public static final String KB_CAMERA_ZOOM_IN = "KB_CAMERA_ZOOM_IN";
+    public static final String KB_CAMERA_ZOOM_OUT = "KB_CAMERA_ZOOM_OUT";
+    public static final String KB_CAMERA_ROTATE_LEFT = "KB_CAMERA_ROTATE_LEFT";
+    public static final String KB_CAMERA_ROTATE_RIGHT = "KB_CAMERA_ROTATE_RIGHT";
+    public static final String KB_CAMERA_PITCH_UP = "KB_CAMERA_PITCH_UP";
+    public static final String KB_CAMERA_PITCH_DOWN = "KB_CAMERA_PITCH_DOWN";
+    public static final String KB_CAMERA_ZOOM_HOLD = "KB_CAMERA_ZOOM_HOLD";
+    public static final String KB_CAMERA_FIRST_PERSON_TOGGLE = "KB_CAMERA_FIRST_PERSON_TOGGLE";
+
+    // Gameplay Hotkeys
+    public static final String KB_TOGGLE_MAP_MODE = "KB_TOGGLE_MAP_MODE";
+    public static final String KB_JUMP_TO_NOTIFICATION = "KB_JUMP_TO_NOTIFICATION";
+    public static final String KB_PLACE_BEACON = "KB_PLACE_BEACON";
+    public static final String KB_NEXT_IDLE_PEON = "KB_NEXT_IDLE_PEON";
+
+    // Army Groups
+    public static final String KB_ARMY_GROUP_0 = "KB_ARMY_GROUP_0";
+    public static final String KB_ARMY_GROUP_1 = "KB_ARMY_GROUP_1";
+    public static final String KB_ARMY_GROUP_2 = "KB_ARMY_GROUP_2";
+    public static final String KB_ARMY_GROUP_3 = "KB_ARMY_GROUP_3";
+    public static final String KB_ARMY_GROUP_4 = "KB_ARMY_GROUP_4";
+    public static final String KB_ARMY_GROUP_5 = "KB_ARMY_GROUP_5";
+    public static final String KB_ARMY_GROUP_6 = "KB_ARMY_GROUP_6";
+    public static final String KB_ARMY_GROUP_7 = "KB_ARMY_GROUP_7";
+    public static final String KB_ARMY_GROUP_8 = "KB_ARMY_GROUP_8";
+    public static final String KB_ARMY_GROUP_9 = "KB_ARMY_GROUP_9";
+
+    // UI/System
+    public static final String KB_GAMESPEED_INCREASE = "KB_GAMESPEED_INCREASE";
+    public static final String KB_GAMESPEED_DECREASE = "KB_GAMESPEED_DECREASE";
     // #endregion Keybinds
 }
