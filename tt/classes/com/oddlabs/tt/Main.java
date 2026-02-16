@@ -25,7 +25,7 @@ public final strictfp class Main {
                     Utils.getBundleString(
                             bundle,
                             "error_message",
-                            new Object[] {t.toString(), Globals.SUPPORT_ADDRESS});
+                            new Object[] {t.toString(), Globals.getSupportAddress()});
             System.out.println(error + " : " + error_msg);
         } finally {
             shutdown();
