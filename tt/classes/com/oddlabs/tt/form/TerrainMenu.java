@@ -621,13 +621,13 @@ public final strictfp class TerrainMenu extends Group {
         label_mapcode.append(code);
     }
 
-    public static int getMapSize(String map_code) {
+    private static int getMapSizeLegacy(String map_code) {
         String code = map_code.toUpperCase();
         BigInteger result = RegistrationKey.parseBits(code);
-        BigInteger max_val = MAX_VALUE;
+        BigInteger max_val = MAX_VALUE_LEGACY;
 
         // Skip over other attributes to reach the size
-        for (int i = MatchmakingServerInterface.MAX_PLAYERS - 1; i >= 1; i--) {
+        for (int i = LEGACY_MAX_PLAYERS - 1; i >= 1; i--) {
             result = result.mod(max_val);
             max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.TEAM_CARDINALITY}));
             result = result.mod(max_val);
@@ -643,9 +643,31 @@ public final strictfp class TerrainMenu extends Group {
         result = result.mod(max_val);
 
         // Adjust max_val for size
-        max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.SIZE_CARDINALITY}));
+        max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.SIZE_CARDINALITY_LEGACY}));
         int size = result.divide(max_val).intValue();
         return size;
+    }
+
+    private static int getMapSizeNew(String map_code) {
+        try {
+            BigInteger result = WordsEncoding.decode(map_code);
+            BigInteger max_val = MAX_VALUE;
+            result = result.mod(max_val);
+            max_val = max_val.divide(new BigInteger(new byte[] {SIZE_CARDINALITY}));
+            return result.divide(max_val).intValue();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public static int getMapSize(String map_code) {
+        String code = map_code.toUpperCase();
+        if (code.indexOf(' ') == -1 && map_code != "") {
+            return getMapSizeLegacy(code);
+        } else {
+            // New notation
+            return getMapSizeNew(code);
+        }
     }
 
     private final void parseBigInteger(BigInteger result) {
