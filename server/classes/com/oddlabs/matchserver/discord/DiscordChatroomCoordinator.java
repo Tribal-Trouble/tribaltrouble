@@ -72,7 +72,7 @@ public class DiscordChatroomCoordinator {
                     .createMessage(msg)
                     .retry(3)
                     .subscribe(
-                            _ -> {},
+                            unused -> {},
                             error ->
                                     LogDebug(
                                             "Failed to send Discord message: "
@@ -112,7 +112,7 @@ public class DiscordChatroomCoordinator {
                         .createMessage(embed)
                         .retry(3)
                         .subscribe(
-                                _ -> {},
+                                unused -> {},
                                 error ->
                                         LogDebug(
                                                 "Failed to send Discord embed: "
