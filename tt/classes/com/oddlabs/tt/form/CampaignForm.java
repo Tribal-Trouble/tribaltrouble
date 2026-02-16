@@ -122,7 +122,7 @@ public final strictfp class CampaignForm extends Form
                     Utils.getBundleString(
                             bundle,
                             "failed_message",
-                            new Object[] {LoadCampaignBox.SAVEGAMES_FILE_NAME, e.getMessage()});
+                            new Object[] {LoadCampaignBox.getSavegamesFileName(), e.getMessage()});
             gui_root.addModalForm(new MessageForm(failed_message));
         }
     }

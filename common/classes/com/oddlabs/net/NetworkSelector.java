@@ -134,6 +134,12 @@ public final strictfp class NetworkSelector {
         return next_select_timeout;
     }
 
+    /**
+     * Blocks until the network traffic is received or until the timeout occurs
+     *
+     * @param timeout the maximum time to wait for network traffic, in milliseconds. If 0, it will
+     *     block until network traffic is received.
+     */
     public final void tickBlocking(long timeout) throws IOException {
         processTasks();
         long millis = time_manager.getMillis();
@@ -145,6 +151,7 @@ public final strictfp class NetworkSelector {
         if (deterministic.log(selector != null && selector.select(next_timeout) > 0)) doTick();
     }
 
+    /** Blocks until the network traffic is received */
     public final void tickBlocking() throws IOException {
         tickBlocking(0);
     }

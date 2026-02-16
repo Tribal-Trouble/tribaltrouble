@@ -1,13 +1,14 @@
 package com.oddlabs.tt;
 
+import com.codedisaster.steamworks.SteamAPI;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
+import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.render.Display;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.steam.SteamLibraryLoaderLwjgl3;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.updater.UpdateInfo;
-
-import org.lwjgl.system.Platform;
 
 import java.io.File;
 import java.util.ResourceBundle;
@@ -32,11 +33,20 @@ public final strictfp class Main {
     }
 
     public static final void shutdown() {
+        SteamAPI.shutdown();
         System.exit(0);
     }
 
     public static final void main(String[] args) {
         try {
+            System.out.println("Loading Steam libraries...");
+            SteamAPI.loadLibraries(new SteamLibraryLoaderLwjgl3());
+            if (!SteamAPI.init()) {
+                // Steamworks initialization error, e.g. Steam client not running
+                System.out.println("Failed to initialize Steam API.");
+            } else {
+                System.out.println("Steam API initialized.");
+            }
             System.out.println("Starting game....");
             System.out.flush();
             Main.class.getClassLoader().setDefaultAssertionStatus(true);
@@ -62,17 +72,7 @@ public final strictfp class Main {
 
     private static final Settings initializeSettings() {
         System.out.println("Initializing settings...");
-        String platform_dir;
-        if (Platform.get() == Platform.MACOSX) {
-            platform_dir = "Library/Application Support" + File.separator;
-        } else if (Platform.get() == Platform.LINUX) {
-            platform_dir = ".";
-        } else {
-            platform_dir = "";
-        }
-        String game_dir_path =
-                System.getProperty("user.home") + File.separator + platform_dir + Globals.GAME_NAME;
-        File game_dir = new File(game_dir_path);
+        File game_dir = LocalInput.getGameDir();
         Settings settings = new Settings();
         game_dir.mkdirs();
 
@@ -128,7 +128,7 @@ public final strictfp class Main {
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("--bootstrap")) {
                 String java_cmd = args[++i];
-                settings.load(Utils.getInstallDir());
+                settings.load(LocalInput.getGameDir());
                 String classpath = args[++i];
                 File data_dir = new File(args[++i]);
                 return new UpdateInfo(java_cmd, classpath, data_dir);

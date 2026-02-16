@@ -269,9 +269,7 @@ public final strictfp class Renderer {
         } else {
             platform_dir = "";
         }
-        String game_dir_path =
-                System.getProperty("user.home") + File.separator + platform_dir + Globals.GAME_NAME;
-        File game_dir = new File(game_dir_path);
+        File game_dir = LocalInput.getGameDir();
         Settings settings = Settings.getSettings();
 
         readOrSetPreference(

@@ -2,10 +2,12 @@ package com.oddlabs.tt.global;
 
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.gui.LocalInput;
+import com.oddlabs.tt.render.Display;
 import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.util.GLUtils;
 
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 
 import java.io.File;
@@ -65,6 +67,7 @@ public final strictfp class Settings implements Serializable {
     // control
     public boolean invert_camera_pitch = false;
     public boolean aggressive_units = false;
+    private boolean use_native_cursor = false;
 
     public float mapmode_delay = .5f;
     public float tooltip_delay = .5f;
@@ -307,7 +310,9 @@ public final strictfp class Settings implements Serializable {
         // Save keybinds HashMap
         saveKeybinds(props);
 
-        File settings_file = new File(LocalInput.getGameDir(), Globals.SETTINGS_FILE_NAME);
+        String settings_save_file = Globals.getSettingsFileName();
+        System.out.println("Saving settings to " + LocalInput.getGameDir() + settings_save_file);
+        File settings_file = new File(LocalInput.getGameDir(), settings_save_file);
         try {
             OutputStream out = new FileOutputStream(settings_file);
             props.store(out, "comment");
@@ -356,11 +361,26 @@ public final strictfp class Settings implements Serializable {
         return "router." + domain_name;
     }
 
+    public void setNativeCursor(boolean use_native_cursor) {
+        this.use_native_cursor = use_native_cursor;
+        int cursor_mode = use_native_cursor ? GLFW.GLFW_CURSOR_NORMAL : GLFW.GLFW_CURSOR_DISABLED;
+        System.out.println(
+                "Cursor mode: "
+                        + (cursor_mode == GLFW.GLFW_CURSOR_NORMAL
+                                ? "Normal (native)"
+                                : "Disabled (game)"));
+        GLFW.glfwSetInputMode(Display.getWindow(), GLFW.GLFW_CURSOR, cursor_mode);
+    }
+
+    public boolean getNativeCursor() {
+        return use_native_cursor;
+    }
+
     public final void load(File game_dir) {
         System.out.println("Loading settings from " + game_dir);
         Field[] pref_fields = getClass().getDeclaredFields();
         Properties props = new Properties();
-        File settings_file = new File(game_dir, Globals.SETTINGS_FILE_NAME);
+        File settings_file = new File(game_dir, Globals.getSettingsFileName());
         try {
             InputStream in = new FileInputStream(settings_file);
             props.load(in);

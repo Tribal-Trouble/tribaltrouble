@@ -4,7 +4,6 @@ import com.oddlabs.matchmaking.Game;
 import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.tt.delegate.MainMenu;
 import com.oddlabs.tt.gui.*;
-import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.guievent.*;
 import com.oddlabs.tt.landscape.WorldParameters;
 import com.oddlabs.tt.model.Race;

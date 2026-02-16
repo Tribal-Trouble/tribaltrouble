@@ -126,7 +126,6 @@ public final strictfp class TerrainMenu extends Group {
         this.multiplayer = multiplayer;
         this.owner = owner;
         this.gui_root = gui_root;
-
         // headline
         Label label_headline;
         if (multiplayer) {
@@ -553,6 +552,33 @@ public final strictfp class TerrainMenu extends Group {
         label_mapcode.append(code);
     }
 
+    public static int getMapSize(String map_code) {
+        String code = map_code.toUpperCase();
+        BigInteger result = RegistrationKey.parseBits(code);
+        BigInteger max_val = MAX_VALUE;
+
+        // Skip over other attributes to reach the size
+        for (int i = MatchmakingServerInterface.MAX_PLAYERS - 1; i >= 1; i--) {
+            result = result.mod(max_val);
+            max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.TEAM_CARDINALITY}));
+            result = result.mod(max_val);
+            max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.RACE_CARDINALITY}));
+            result = result.mod(max_val);
+            max_val =
+                    max_val.divide(new BigInteger(new byte[] {TerrainMenu.DIFFICULTY_CARDINALITY}));
+            result = result.mod(max_val);
+        }
+        max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.TEAM_CARDINALITY}));
+        result = result.mod(max_val);
+        max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.RACE_CARDINALITY}));
+        result = result.mod(max_val);
+
+        // Adjust max_val for size
+        max_val = max_val.divide(new BigInteger(new byte[] {TerrainMenu.SIZE_CARDINALITY}));
+        int size = result.divide(max_val).intValue();
+        return size;
+    }
+
     private final void parseBigInteger(BigInteger result) {
         BigInteger max_val = MAX_VALUE;
         for (int i = MatchmakingServerInterface.MAX_PLAYERS - 1; i >= 1; i--) {
@@ -738,14 +764,7 @@ public final strictfp class TerrainMenu extends Group {
                         vegetation_amount / (float) SLIDER_MAX_VALUE,
                         supplies_amount / (float) SLIDER_MAX_VALUE,
                         seed * seed,
-                        new String[] {
-                            ai_string + "0",
-                            ai_string + "1",
-                            ai_string + "2",
-                            ai_string + "3",
-                            ai_string + "4",
-                            ai_string + "5"
-                        });
+                        generateAINames());
         game_network
                 .getClient()
                 .getServerInterface()
@@ -775,6 +794,16 @@ public final strictfp class TerrainMenu extends Group {
         }
         System.out.println("Map code: " + label_mapcode.getContents());
         return true;
+    }
+
+    /** Creates an array of translated AI names based on the number of max_players */
+    private String[] generateAINames() {
+        String ai_string = Utils.getBundleString(bundle, "ai");
+        String[] ai_names = new String[MatchmakingServerInterface.MAX_PLAYERS];
+        for (int i = 0; i < MatchmakingServerInterface.MAX_PLAYERS; i++) {
+            ai_names[i] = ai_string + i;
+        }
+        return ai_names;
     }
 
     private final strictfp class MapcodeListener implements MouseClickListener {

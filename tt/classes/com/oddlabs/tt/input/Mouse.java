@@ -77,21 +77,23 @@ public final strictfp class Mouse {
                     public void invoke(long win, double xpos, double ypos) {
                         int ix = (int) xpos;
                         int iy = Display.getHeight() - (int) ypos;
+                        if (!Settings.getSettings().getNativeCursor()) {
+                            // Clamp coordinates to stay within game bounds
+                            int clampedX = Math.max(0, Math.min(ix, Display.getWidth() - 1));
+                            int clampedY = Math.max(0, Math.min(iy, Display.getHeight() - 1));
 
-                        // Clamp coordinates to stay within game bounds
-                        int clampedX = Math.max(0, Math.min(ix, Display.getWidth() - 1));
-                        int clampedY = Math.max(0, Math.min(iy, Display.getHeight() - 1));
+                            // If coordinates were clamped, reset GLFW cursor position to prevent
+                            // drift
+                            if (clampedX != ix || clampedY != iy) {
+                                // Convert back to GLFW coordinate space and reset cursor
+                                double newGlfwX = clampedX;
+                                double newGlfwY = Display.getHeight() - clampedY;
+                                GLFW.glfwSetCursorPos(win, newGlfwX, newGlfwY);
+                            }
 
-                        // If coordinates were clamped, reset GLFW cursor position to prevent drift
-                        if (clampedX != ix || clampedY != iy) {
-                            // Convert back to GLFW coordinate space and reset cursor
-                            double newGlfwX = clampedX;
-                            double newGlfwY = Display.getHeight() - clampedY;
-                            GLFW.glfwSetCursorPos(win, newGlfwX, newGlfwY);
+                            ix = clampedX;
+                            iy = clampedY;
                         }
-
-                        ix = clampedX;
-                        iy = clampedY;
 
                         int rawDX = ix - mouseX;
                         int rawDY = iy - mouseY;

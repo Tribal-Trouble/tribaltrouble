@@ -1,5 +1,6 @@
 package com.oddlabs.tt.animation;
 
+import com.codedisaster.steamworks.SteamAPI;
 import com.oddlabs.event.Deterministic;
 import com.oddlabs.net.MonotoneTimeManager;
 import com.oddlabs.net.NetworkSelector;
@@ -177,6 +178,9 @@ public final strictfp class AnimationManager {
                 execution_time -= ANIMATION_MILLISECONDS_PER_TICK;
                 checksum_millisecond_counter += ANIMATION_MILLISECONDS_PER_TICK;
                 if (checksum_millisecond_counter >= ANIMATION_MILLISECONDS_PER_CHECKSUM) {
+                    if (SteamAPI.isSteamRunning()) {
+                        SteamAPI.runCallbacks();
+                    }
                     checksum_millisecond_counter -= ANIMATION_MILLISECONDS_PER_CHECKSUM;
                     int checksum = LocalEventQueue.getQueue().computeChecksum();
                     int logged_checksum = deterministic.log(checksum);
@@ -200,16 +204,20 @@ public final strictfp class AnimationManager {
             }
             // Only for debugging
             /*
-            if (LocalEventQueue.getQueue().getHighPrecisionManager().getTick() < 2467619 + 10000)
-            {
-            	execution_time_precision += ANIMATION_MILLISECONDS_PER_PRECISION_TICK;
-            	freezeTime();
-            }
-
-            if (LocalEventQueue.getQueue().getHighPrecisionManager().getTick() > 2529461 + 2000) {
-            	System.out.println("FORCE QUIT: getHighPrecisionManager().getTick() = " + LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
-            	com.oddlabs.tt.Main.shutdown();
-            }*/
+             * if (LocalEventQueue.getQueue().getHighPrecisionManager().getTick() < 2467619
+             * + 10000)
+             * {
+             * execution_time_precision += ANIMATION_MILLISECONDS_PER_PRECISION_TICK;
+             * freezeTime();
+             * }
+             *
+             * if (LocalEventQueue.getQueue().getHighPrecisionManager().getTick() > 2529461
+             * + 2000) {
+             * System.out.println("FORCE QUIT: getHighPrecisionManager().getTick() = " +
+             * LocalEventQueue.getQueue().getHighPrecisionManager().getTick());
+             * com.oddlabs.tt.Main.shutdown();
+             * }
+             */
         }
         deterministic.setEnabled(false);
     }

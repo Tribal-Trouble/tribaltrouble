@@ -1,5 +1,8 @@
 package com.oddlabs.tt.global;
 
+import com.codedisaster.steamworks.SteamAPI;
+import com.oddlabs.tt.steam.SteamAchievementManager;
+
 import org.lwjgl.opengl.*;
 
 public final strictfp class Globals {
@@ -62,6 +65,13 @@ public final strictfp class Globals {
     // #endregion Keybinds - Actions
     public static final String DOMAIN_NAME = Settings.getSettings().getDomainName();
     public static final String SUPPORT_ADDRESS = "http://" + DOMAIN_NAME + "/support";
+    public static String getDomainName() {
+        return Settings.getSettings() != null
+                ? Settings.getSettings().getDomainName()
+                : "default-domain.com";
+    }
+
+    public static final String SUPPORT_ADDRESS = "http://" + getDomainName() + "/support";
 
     public static final int BOUNDING_NONE = 0;
     public static final int BOUNDING_UNIT_GRID = 1;
@@ -148,6 +158,15 @@ public final strictfp class Globals {
         COMPRESSED_RGBA_FORMAT = GL11.GL_RGBA;
         COMPRESSED_A_FORMAT = GL11.GL_ALPHA;
         COMPRESSED_LUMINANCE_FORMAT = GL11.GL_LUMINANCE;
+    }
+
+    public static final String getSettingsFileName() {
+        String settings_save_file = Globals.SETTINGS_FILE_NAME;
+        if (SteamAPI.isSteamRunning() && SteamAchievementManager.getAchievementManager() != null) {
+            long account_id = SteamAchievementManager.getAchievementManager().getAccountID();
+            settings_save_file = account_id + "." + settings_save_file;
+        }
+        return settings_save_file;
     }
 
     public static final float LANDSCAPE_HILLS = 1f;

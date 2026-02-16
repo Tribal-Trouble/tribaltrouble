@@ -9,9 +9,12 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.input.Keyboard;
+import com.oddlabs.tt.input.Mouse;
 import com.oddlabs.tt.input.PointerInput;
+import com.oddlabs.tt.render.Display;
 import com.oddlabs.tt.render.Renderer;
 import com.oddlabs.tt.render.Texture;
+import com.oddlabs.tt.resource.Cursor;
 import com.oddlabs.tt.util.GLUtils;
 import com.oddlabs.tt.util.ToolTip;
 import com.oddlabs.util.Matrix4f;
@@ -19,6 +22,7 @@ import com.oddlabs.util.Utils;
 import com.oddlabs.util.Vector3f;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.FloatBuffer;
@@ -82,7 +86,7 @@ public final strictfp class GUIRoot extends GUIObject implements Updatable {
     private final InputState input_state = new InputState(this);
     private final GUI gui;
     private boolean render_tool_tip = false;
-
+    private Cursor current_cursor = null;
     private GUIObject current_gui_object = this;
     private GUIObject global_focus = this;
 
@@ -564,14 +568,26 @@ public final strictfp class GUIRoot extends GUIObject implements Updatable {
         if (Globals.draw_status) status.render(0, getWidth(), 0, getHeight());
         GL11.glEnd(); // Started in renderGeometry()
         GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-
         if (cursor_object.getCursorIndex() != CURSOR_NULL) {
-            cursors[cursor_object.getCursorIndex()].setActive();
             if (getModalDelegate() != null || getDelegate().renderCursor()) {
-                cursors[cursor_object.getCursorIndex()].render(
-                        LocalInput.getMouseX(), LocalInput.getMouseY());
+                if (Settings.getSettings().getNativeCursor()) {
+                    if (cursors[cursor_object.getCursorIndex()] == current_cursor) return;
+                    Mouse.setGrabbed(false);
+                    GLFW.glfwSetCursor(
+                            Display.getWindow(),
+                            cursors[cursor_object.getCursorIndex()].getGlfwCursor());
+                    current_cursor = cursors[cursor_object.getCursorIndex()];
+                } else {
+                    current_cursor = null;
+                    GLFW.glfwSetCursor(Display.getWindow(), 0);
+                    cursors[cursor_object.getCursorIndex()].render(
+                            LocalInput.getMouseX(), LocalInput.getMouseY());
+                }
             }
-        } else PointerInput.setActiveCursor(null);
+        } else {
+            PointerInput.setActiveCursor(null);
+            current_cursor = null;
+        }
     }
 
     public static final void resetGUIView() {

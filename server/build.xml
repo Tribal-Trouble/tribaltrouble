@@ -1,10 +1,29 @@
-<project name="servers" basedir="." default="all">
+<project name="servers" basedir="." default="all" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<!-- Ivy Ant integration for dependency management -->
+	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant"
+		classpath="../ivy_lib/ivy-2.5.3.jar" />
+	<property name="ivy.settings.file" value="../ivysettings.xml" />
 	<import file="../common/common.xml" />
 
 	<property name="main_class_server" value="com.oddlabs.matchserver.MatchmakingServer" />
 	<property name="main_class_router" value="com.oddlabs.routerserver.RouterServer" />
 
-	<target name="compiledeps" depends="compile-common">
+	<!-- Ivy resolve target to fetch dependencies -->
+	<target name="resolve">
+		<ivy:settings file="../ivysettings.xml" />
+		<ivy:resolve />
+		<ivy:retrieve pattern="../ivy_lib/[artifact]-[revision](-[classifier]).[ext]" />
+	</target>
+
+	<target name="compiledeps" depends="compile-common, resolve">
+	</target>
+
+	<target name="compile" depends="init,compiledeps">
+		<javac debug="yes" source="${java_source_version}" target="${java_source_version}"
+			srcdir="classes" destdir="${build}/classes">
+			<classpath refid="_common.combined.compile.javasvn.classpath" />
+			<classpath refid="server.classpath" />
+		</javac>
 	</target>
 
 	<target name="bugreporter" depends="compile">

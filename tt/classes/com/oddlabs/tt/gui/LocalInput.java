@@ -1,6 +1,8 @@
 package com.oddlabs.tt.gui;
 
+import com.codedisaster.steamworks.SteamAPI;
 import com.oddlabs.event.Deterministic;
+import com.oddlabs.tt.Main;
 import com.oddlabs.tt.event.LocalEventQueue;
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
@@ -8,6 +10,8 @@ import com.oddlabs.tt.input.KeyboardInput;
 import com.oddlabs.tt.render.Display;
 import com.oddlabs.updater.UpdateInfo;
 import com.oddlabs.util.Utils;
+
+import org.lwjgl.system.Platform;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -146,6 +150,46 @@ public final strictfp class LocalInput {
     }
 
     public static final File getGameDir() {
+        // Figure out where the game is running from and use that as the game dir
+        if (game_dir == null) {
+            String platform_dir;
+            if (Platform.get() == Platform.MACOSX) {
+                platform_dir = "Library/Application Support" + File.separator;
+            } else if (Platform.get() == Platform.LINUX) {
+                platform_dir = ".";
+            } else {
+                platform_dir = "";
+            }
+            String game_dir_path =
+                    System.getProperty("user.home")
+                            + File.separator
+                            + platform_dir
+                            + Globals.GAME_NAME;
+
+            // System.out.println("Running executable path: " + absolute_path);
+            // In reality this is the save file path not the actual game dir...
+            if (SteamAPI.isSteamRunning()) {
+                try {
+                    File jarFile =
+                            new File(
+                                    Main.class
+                                            .getProtectionDomain()
+                                            .getCodeSource()
+                                            .getLocation()
+                                            .toURI());
+                    String exePath =
+                            jarFile.getParentFile().getParentFile().getAbsolutePath()
+                                    + File.separator
+                                    + "save_data";
+                    System.out.println("Save file path: " + exePath);
+                    game_dir_path = exePath;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("Game dir path: " + game_dir_path);
+            game_dir = new File(game_dir_path);
+        }
         return game_dir;
     }
 
@@ -203,6 +247,7 @@ public final strictfp class LocalInput {
             int revision,
             Settings settings) {
         System.out.println("revision = " + revision);
+        System.out.println("Game dir: " + game_dir.getAbsolutePath());
         LocalInput.game_dir = game_dir;
         LocalInput.revision = revision;
         LocalInput.update_info = update_info;
