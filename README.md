@@ -104,6 +104,9 @@ Optional Steps (Recommend for server hosting)
       - `EMOJI_ROLE_MAPPINGS` - JSON array for Discord role mappings
         > Example: [{"role id":"\<numeric discord role id>","emoji id":"<custom emoji id or unicode (U+1F602)>"}]
       - `REACTION_ROLE_MESSAGE_ID` - Discord message ID for reaction roles
+      - `STEAM_WEB_API_KEY` - Steam Web API key for validating authentication tickets (required if using Steam auth)
+      - `STEAM_APP_ID` - Your Steam application ID (required if using Steam auth)
+      - `STEAM_ONLY_AUTH` - Set to `true` to require Steam authentication, which disables username/password and guest login (default: `false`)
 
     > Those marked with \* are required to run the game server. Those without \* are optional settings. That are generally used for things like discord integration
 
