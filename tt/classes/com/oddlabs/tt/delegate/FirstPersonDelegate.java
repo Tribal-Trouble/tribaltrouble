@@ -3,8 +3,9 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.FirstPersonCamera;
 import com.oddlabs.tt.event.LocalEventQueue;
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.*;
-import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.viewer.WorldViewer;
 
 public strictfp class FirstPersonDelegate extends InGameDelegate {
@@ -27,10 +28,8 @@ public strictfp class FirstPersonDelegate extends InGameDelegate {
 
     public void keyReleased(KeyboardEvent event) {
         if (key_pressed && !done) {
-            switch (event.getKeyCode()) {
-                case Keyboard.KEY_F:
-                    pop();
-                    break;
+            if (event.getKeyCode() == Settings.getSettings().getKeybind(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE)) {
+                pop();
             }
         }
     }
