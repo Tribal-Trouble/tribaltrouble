@@ -3,6 +3,8 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.camera.GameCamera;
 import com.oddlabs.tt.camera.MapCamera;
 import com.oddlabs.tt.form.InGameChatForm;
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.guievent.CloseListener;
 import com.oddlabs.tt.input.Keyboard;
@@ -73,103 +75,91 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
 
     public final void keyPressed(KeyboardEvent event) {
         getCamera().keyPressed(event);
-        int army_number = 0;
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_SPACE:
-            case Keyboard.KEY_NUMPAD5:
-                if (!map_mode) {
-                    selection = false;
-                    getViewer().getPicker().pickRotate((GameCamera) getCamera());
-                    map_mode = true;
-                    if (observer) observer_label.remove();
-                    else getActionButtonPanel().remove();
-                    getCamera().disable();
-                    setCamera(new MapCamera(this, game_camera));
-                    getCamera().enable();
+        Settings settings = Settings.getSettings();
+        int key = event.getKeyCode();
+
+        // Resolve army group number (replaces fall-through switch)
+        int army_number = -1;
+        if (key == settings.getKeybind(Globals.KB_ARMY_GROUP_9)) army_number = 9;
+        else if (key == settings.getKeybind(Globals.KB_ARMY_GROUP_8)) army_number = 8;
+        else if (key == settings.getKeybind(Globals.KB_ARMY_GROUP_7)) army_number = 7;
+        else if (key == settings.getKeybind(Globals.KB_ARMY_GROUP_6)) army_number = 6;
+        else if (key == settings.getKeybind(Globals.KB_ARMY_GROUP_5)) army_number = 5;
+        else if (key == settings.getKeybind(Globals.KB_ARMY_GROUP_4)) army_number = 4;
+        else if (key == settings.getKeybind(Globals.KB_ARMY_GROUP_3)) army_number = 3;
+        else if (key == settings.getKeybind(Globals.KB_ARMY_GROUP_2)) army_number = 2;
+        else if (key == settings.getKeybind(Globals.KB_ARMY_GROUP_1)) army_number = 1;
+        else if (key == settings.getKeybind(Globals.KB_ARMY_GROUP_0)) army_number = 0;
+
+        if (key == settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE)
+                || key == settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE_ALT)) {
+            if (!map_mode) {
+                selection = false;
+                getViewer().getPicker().pickRotate((GameCamera) getCamera());
+                map_mode = true;
+                if (observer) observer_label.remove();
+                else getActionButtonPanel().remove();
+                getCamera().disable();
+                setCamera(new MapCamera(this, game_camera));
+                getCamera().enable();
+            }
+        } else if (key == settings.getKeybind(Globals.KB_JUMP_TO_NOTIFICATION)) {
+            if (!observer) {
+                Notification n = getViewer().getNotificationManager().getLatestNotification();
+                if (n != null) {
+                    if (getCamera() instanceof GameCamera)
+                        getGUIRoot()
+                                .pushDelegate(
+                                        new JumpDelegate(
+                                                getViewer(),
+                                                (GameCamera) getCamera(),
+                                                n.getX(),
+                                                n.getY()));
+                    else if (getCamera() instanceof MapCamera)
+                        ((MapCamera) getCamera()).mapGoto(n.getX(), n.getY(), true);
                 }
-                break;
-            case Keyboard.KEY_TAB:
-                if (!observer) {
-                    Notification n = getViewer().getNotificationManager().getLatestNotification();
-                    if (n != null) {
-                        if (getCamera() instanceof GameCamera)
+            }
+        } else if (army_number >= 0) {
+            if (!map_mode && !observer) {
+                if (event.isControlDown()) {
+                    getViewer().getSelection().setShortcutArmy(army_number);
+                } else {
+                    boolean selected =
+                            getViewer().getSelection().enableShortcutArmy(army_number);
+                    if (selected && event.getNumClicks() > 1) {
+                        Set set = getViewer().getSelection().getCurrentSelection().getSet();
+                        if (set.size() > 0) {
+                            Selectable s = (Selectable) set.iterator().next();
                             getGUIRoot()
                                     .pushDelegate(
                                             new JumpDelegate(
                                                     getViewer(),
                                                     (GameCamera) getCamera(),
-                                                    n.getX(),
-                                                    n.getY()));
-                        else if (getCamera() instanceof MapCamera)
-                            ((MapCamera) getCamera()).mapGoto(n.getX(), n.getY(), true);
-                    }
-                }
-                break;
-            case Keyboard.KEY_9:
-                army_number++;
-            case Keyboard.KEY_8:
-                army_number++;
-            case Keyboard.KEY_7:
-                army_number++;
-            case Keyboard.KEY_6:
-                army_number++;
-            case Keyboard.KEY_5:
-                army_number++;
-            case Keyboard.KEY_4:
-                army_number++;
-            case Keyboard.KEY_3:
-                army_number++;
-            case Keyboard.KEY_2:
-                army_number++;
-            case Keyboard.KEY_1:
-                army_number++;
-            case Keyboard.KEY_0:
-                if (!map_mode && !observer) {
-                    if (event.isControlDown()) {
-                        getViewer().getSelection().setShortcutArmy(army_number);
-                    } else {
-                        boolean selected =
-                                getViewer().getSelection().enableShortcutArmy(army_number);
-                        if (selected && event.getNumClicks() > 1) {
-                            Set set = getViewer().getSelection().getCurrentSelection().getSet();
-                            if (set.size() > 0) {
-                                Selectable s = (Selectable) set.iterator().next();
-                                getGUIRoot()
-                                        .pushDelegate(
-                                                new JumpDelegate(
-                                                        getViewer(),
-                                                        (GameCamera) getCamera(),
-                                                        s.getPositionX(),
-                                                        s.getPositionY()));
-                            }
+                                                    s.getPositionX(),
+                                                    s.getPositionY()));
                         }
                     }
                 }
-                break;
-            case Keyboard.KEY_RETURN:
-                if (!chat_visible) chat_form.setReceivers(!event.isShiftDown());
-                break;
-            case Keyboard.KEY_B:
-                if (event.isControlDown() && !map_mode && !observer) {
-                    getGUIRoot()
-                            .pushDelegate(
-                                    new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
-                }
-                break;
-            case Keyboard.KEY_N:
-                nextIdlePeon();
-                break;
-            case Keyboard.KEY_F:
-            case Keyboard.KEY_Z:
-                if (!map_mode) super.keyPressed(event);
-                break;
-            default:
-                if (map_mode || observer) {
-                    super.keyPressed(event);
-                } else {
-                    if (!getActionButtonPanel().doKeyPressed(event)) super.keyPressed(event);
-                }
-                break;
+            }
+        } else if (key == Keyboard.KEY_RETURN) {
+            if (!chat_visible) chat_form.setReceivers(!event.isShiftDown());
+        } else if (key == settings.getKeybind(Globals.KB_PLACE_BEACON)) {
+            if (event.isControlDown() && !map_mode && !observer) {
+                getGUIRoot()
+                        .pushDelegate(
+                                new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
+            }
+        } else if (key == settings.getKeybind(Globals.KB_NEXT_IDLE_PEON)) {
+            nextIdlePeon();
+        } else if (key == settings.getKeybind(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE)
+                || key == settings.getKeybind(Globals.KB_CAMERA_ZOOM_HOLD)) {
+            if (!map_mode) super.keyPressed(event);
+        } else {
+            if (map_mode || observer) {
+                super.keyPressed(event);
+            } else {
+                if (!getActionButtonPanel().doKeyPressed(event)) super.keyPressed(event);
+            }
         }
     }
 
@@ -232,17 +222,15 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
 
     public final void keyRepeat(KeyboardEvent event) {
         //		getCamera().keyRepeat(event);
-        switch (event.getKeyChar()) {
-            case '+':
-                changeGamespeed(1);
-                break;
-            case '-':
-                changeGamespeed(-1);
-                break;
-            default:
-                if (!map_mode && !observer && !getActionButtonPanel().doKeyRepeat(event))
-                    super.keyRepeat(event);
-                break;
+        Settings settings = Settings.getSettings();
+        int key = event.getKeyCode();
+        if (key == settings.getKeybind(Globals.KB_GAMESPEED_INCREASE)) {
+            changeGamespeed(1);
+        } else if (key == settings.getKeybind(Globals.KB_GAMESPEED_DECREASE)) {
+            changeGamespeed(-1);
+        } else {
+            if (!map_mode && !observer && !getActionButtonPanel().doKeyRepeat(event))
+                super.keyRepeat(event);
         }
     }
 
@@ -422,7 +410,8 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         if (!map_mode) {
             if (!observer) {
                 if (button == LocalInput.LEFT_BUTTON) {
-                    if (!LocalInput.isKeyDown(Keyboard.KEY_SPACE)) {
+                    if (!LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_TOGGLE_MAP_MODE))
+                            && !LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_TOGGLE_MAP_MODE_ALT))) {
                         selection = true;
                     }
                     selection_x1 = x;
