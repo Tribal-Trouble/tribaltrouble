@@ -16,10 +16,26 @@ public final strictfp class PanelGroup extends GUIObject {
         int tab_height = panels[0].getTab().getHeight();
         int width = 0;
         int height = 0;
-        for (int i = 0; i < panels.length; i++) {
-            if (width < panels[i].getWidth()) width = panels[i].getWidth();
-            if (height < panels[i].getHeight()) height = panels[i].getHeight();
+        int tabsWidth = 0;
+
+        // Sets the width and height of the panel group based on the panel with the largest content
+        for (Panel panel : panels) {
+            if (width < panel.getWidth()) {
+                width = panel.getWidth();
+                ;
+            }
+            if (height < panel.getHeight()) {
+                height = panel.getHeight();
+            }
+            tabsWidth += panel.getTab().getWidth();
         }
+
+        // If the largest panel content is smaller than the width of the tabs
+        // group panel should be as wide as all the tabs
+        if (tabsWidth > width) {
+            width = tabsWidth;
+        }
+
         int total_height = height + tab_height;
         setDim(width, total_height);
         int x = Skin.getSkin().getPanelData().getLeftTabOffset();

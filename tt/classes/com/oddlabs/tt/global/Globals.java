@@ -6,13 +6,73 @@ import com.oddlabs.tt.steam.SteamAchievementManager;
 import org.lwjgl.opengl.*;
 
 public final strictfp class Globals {
+    // #region Keybinds - Actions
+
+    // Basic Unit Actions
+    public static final String KB_ATTACK = "KB_ATTACK";
+    public static final String KB_GATHER_REPAIR = "KB_GATHER_REPAIR";
+    public static final String KB_MOVE = "KB_MOVE";
+
+    // Building Construction (Peon Actions)
+    public static final String KB_BUILD_ARMORY = "KB_BUILD_ARMORY";
+    public static final String KB_BUILD_QUARTERS = "KB_BUILD_QUARTERS";
+    public static final String KB_BUILD_TOWER = "KB_BUILD_TOWER";
+
+    // Armory Actions
+    public static final String KB_ARMORY_DEPLOY_WARRIORS = "KB_ARMORY_DEPLOY_WARRIORS";
+    public static final String KB_ARMORY_HARVEST = "KB_ARMORY_HARVEST";
+    public static final String KB_ARMORY_MAKE_WEAPONS = "KB_ARMORY_MAKE_WEAPONS";
+    public static final String KB_ARMORY_RALLY_POINT = "KB_ARMORY_RALLY_POINT";
+    public static final String KB_ARMORY_TRANSPORT = "KB_ARMORY_TRANSPORT";
+
+    // Armory - Deploy Units
+    public static final String KB_ARMORY_DEPLOY_CHICKEN_WARRIORS =
+            "KB_ARMORY_DEPLOY_CHICKEN_WARRIORS";
+    public static final String KB_ARMORY_DEPLOY_IRON_WARRIORS = "KB_ARMORY_DEPLOY_IRON_WARRIORS";
+    public static final String KB_ARMORY_DEPLOY_PEON = "KB_ARMORY_DEPLOY_PEON";
+    public static final String KB_ARMORY_DEPLOY_ROCK_WARRIORS = "KB_ARMORY_DEPLOY_ROCK_WARRIORS";
+
+    // Armory - Resource Harvesting
+    public static final String KB_ARMORY_HARVEST_CHICKEN = "KB_ARMORY_HARVEST_CHICKEN";
+    public static final String KB_ARMORY_HARVEST_IRON = "KB_ARMORY_HARVEST_IRON";
+    public static final String KB_ARMORY_HARVEST_ROCK = "KB_ARMORY_HARVEST_ROCK";
+    public static final String KB_ARMORY_HARVEST_TREE = "KB_ARMORY_HARVEST_TREE";
+
+    // Armory - Resource Transportation
+    public static final String KB_ARMORY_TRANSPORT_CHICKEN = "KB_ARMORY_TRANSPORT_CHICKEN";
+    public static final String KB_ARMORY_TRANSPORT_IRON = "KB_ARMORY_TRANSPORT_IRON";
+    public static final String KB_ARMORY_TRANSPORT_ROCK = "KB_ARMORY_TRANSPORT_ROCK";
+    public static final String KB_ARMORY_TRANSPORT_TREE = "KB_ARMORY_TRANSPORT_TREE";
+
+    // Armory - Weapon Creation
+    public static final String KB_ARMORY_CREATE_CHICKEN_WEAPON = "KB_ARMORY_CREATE_CHICKEN_WEAPON";
+    public static final String KB_ARMORY_CREATE_IRON_WEAPON = "KB_ARMORY_CREATE_IRON_WEAPON";
+    public static final String KB_ARMORY_CREATE_ROCK_WEAPON = "KB_ARMORY_CREATE_ROCK_WEAPON";
+
+    // Quarters Actions
+    public static final String KB_QUARTERS_CHIEFTAIN = "KB_QUARTERS_CHIEFTAIN";
+    public static final String KB_QUARTERS_DEPLOY_PEON = "KB_QUARTERS_DEPLOY_PEON";
+    public static final String KB_QUARTERS_SET_RALLY_POINT = "KB_QUARTERS_SET_RALLY_POINT";
+
+    // Chieftain Magic
+    public static final String KB_CHIEFTAIN_MAGIC1 = "KB_CHIEFTAIN_MAGIC1";
+    public static final String KB_CHIEFTAIN_MAGIC2 = "KB_CHIEFTAIN_MAGIC2";
+
+    // Tower Actions
+    public static final String KB_TOWER_ATTACK = "KB_TOWER_ATTACK";
+    public static final String KB_TOWER_EXIT = "KB_TOWER_EXIT";
+
+    // #endregion Keybinds - Actions
+
     public static String getDomainName() {
         return Settings.getSettings() != null
                 ? Settings.getSettings().getDomainName()
-                : "default-domain.com";
+                : "tribaltrouble.org";
     }
 
-    public static final String SUPPORT_ADDRESS = "http://" + getDomainName() + "/support";
+    public static String getSupportAddress() {
+        return "http://" + getDomainName() + "/support";
+    }
 
     public static final int BOUNDING_NONE = 0;
     public static final int BOUNDING_UNIT_GRID = 1;
@@ -81,12 +141,15 @@ public final strictfp class Globals {
     public static int COMPRESSED_RGB_FORMAT = GL13.GL_COMPRESSED_RGB;
     public static int COMPRESSED_RGBA_FORMAT = GL13.GL_COMPRESSED_RGBA;
     public static int COMPRESSED_A_FORMAT = GL13.GL_COMPRESSED_ALPHA;
-    /*	public static int COMPRESSED_LUMINANCE_FORMAT = GL13.GL_COMPRESSED_LUMINANCE;
+    /*
+     * public static int COMPRESSED_LUMINANCE_FORMAT = GL13.GL_COMPRESSED_LUMINANCE;
      */
 
-    /*	public static int COMPRESSED_RGB_FORMAT = GL11.GL_RGB;
-    public static int COMPRESSED_RGBA_FORMAT = GL11.GL_RGBA;
-    public static int COMPRESSED_A_FORMAT = GL11.GL_ALPHA8;*/
+    /*
+     * public static int COMPRESSED_RGB_FORMAT = GL11.GL_RGB;
+     * public static int COMPRESSED_RGBA_FORMAT = GL11.GL_RGBA;
+     * public static int COMPRESSED_A_FORMAT = GL11.GL_ALPHA8;
+     */
     public static int COMPRESSED_LUMINANCE_FORMAT = GL11.GL_LUMINANCE;
     public static int LOW_DETAIL_TEXTURE_SHIFT = 1;
 
@@ -156,7 +219,8 @@ public final strictfp class Globals {
     public static final int MIN_TEXTURE_SIZE = 1 << MIN_TEXTURE_POWER;
     public static int MAX_TEXTURE_POWER;
     public static int MAX_TEXTURE_SIZE;
-    // How to divide images in 2^n textures - 1 means split most memory preserving 0 means split
+    // How to divide images in 2^n textures - 1 means split most memory preserving 0
+    // means split
     // least
     public static final float TEXTURE_WEIGHT = 0.5f;
     public static int[] TEXTURE_SIZES;
@@ -169,4 +233,52 @@ public final strictfp class Globals {
     public static final int BLOCK_SCROLL_AMOUNT = 20;
 
     public static final float ERROR_TOLERANCE = 10f;
+    // #region Keybinds
+    // Camera - Pan
+    public static final String KB_PAN_CAMERA_LEFT = "KB_PAN_CAMERA_LEFT";
+    public static final String KB_PAN_CAMERA_RIGHT = "KB_PAN_CAMERA_RIGHT";
+    public static final String KB_PAN_CAMERA_UP = "KB_PAN_CAMERA_UP";
+    public static final String KB_PAN_CAMERA_DOWN = "KB_PAN_CAMERA_DOWN";
+
+    // Camera - Extended Controls
+    public static final String KB_CAMERA_ZOOM_IN = "KB_CAMERA_ZOOM_IN";
+    public static final String KB_CAMERA_ZOOM_OUT = "KB_CAMERA_ZOOM_OUT";
+    public static final String KB_CAMERA_ROTATE_LEFT = "KB_CAMERA_ROTATE_LEFT";
+    public static final String KB_CAMERA_ROTATE_RIGHT = "KB_CAMERA_ROTATE_RIGHT";
+    public static final String KB_CAMERA_PITCH_UP = "KB_CAMERA_PITCH_UP";
+    public static final String KB_CAMERA_PITCH_DOWN = "KB_CAMERA_PITCH_DOWN";
+    public static final String KB_CAMERA_ZOOM_HOLD = "KB_CAMERA_ZOOM_HOLD";
+    public static final String KB_CAMERA_FIRST_PERSON_TOGGLE = "KB_CAMERA_FIRST_PERSON_TOGGLE";
+
+    // Camera - Extended Controls (Alt/Numpad)
+    public static final String KB_CAMERA_ZOOM_IN_ALT = "KB_CAMERA_ZOOM_IN_ALT";
+    public static final String KB_CAMERA_ZOOM_OUT_ALT = "KB_CAMERA_ZOOM_OUT_ALT";
+    public static final String KB_CAMERA_ROTATE_LEFT_ALT = "KB_CAMERA_ROTATE_LEFT_ALT";
+    public static final String KB_CAMERA_ROTATE_RIGHT_ALT = "KB_CAMERA_ROTATE_RIGHT_ALT";
+    public static final String KB_CAMERA_PITCH_UP_ALT = "KB_CAMERA_PITCH_UP_ALT";
+    public static final String KB_CAMERA_PITCH_DOWN_ALT = "KB_CAMERA_PITCH_DOWN_ALT";
+
+    // Gameplay Hotkeys
+    public static final String KB_TOGGLE_MAP_MODE = "KB_TOGGLE_MAP_MODE";
+    public static final String KB_TOGGLE_MAP_MODE_ALT = "KB_TOGGLE_MAP_MODE_ALT";
+    public static final String KB_JUMP_TO_NOTIFICATION = "KB_JUMP_TO_NOTIFICATION";
+    public static final String KB_PLACE_BEACON = "KB_PLACE_BEACON";
+    public static final String KB_NEXT_IDLE_PEON = "KB_NEXT_IDLE_PEON";
+
+    // Army Groups
+    public static final String KB_ARMY_GROUP_0 = "KB_ARMY_GROUP_0";
+    public static final String KB_ARMY_GROUP_1 = "KB_ARMY_GROUP_1";
+    public static final String KB_ARMY_GROUP_2 = "KB_ARMY_GROUP_2";
+    public static final String KB_ARMY_GROUP_3 = "KB_ARMY_GROUP_3";
+    public static final String KB_ARMY_GROUP_4 = "KB_ARMY_GROUP_4";
+    public static final String KB_ARMY_GROUP_5 = "KB_ARMY_GROUP_5";
+    public static final String KB_ARMY_GROUP_6 = "KB_ARMY_GROUP_6";
+    public static final String KB_ARMY_GROUP_7 = "KB_ARMY_GROUP_7";
+    public static final String KB_ARMY_GROUP_8 = "KB_ARMY_GROUP_8";
+    public static final String KB_ARMY_GROUP_9 = "KB_ARMY_GROUP_9";
+
+    // UI/System
+    public static final String KB_GAMESPEED_INCREASE = "KB_GAMESPEED_INCREASE";
+    public static final String KB_GAMESPEED_DECREASE = "KB_GAMESPEED_DECREASE";
+    // #endregion Keybinds
 }

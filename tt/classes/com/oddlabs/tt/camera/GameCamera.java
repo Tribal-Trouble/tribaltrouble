@@ -200,6 +200,17 @@ public final strictfp class GameCamera extends Camera {
 
     private final void doScroll(float time_delta) {
         if (!viewer.getGUIRoot().getDelegate().canScroll()) return;
+
+        boolean is_pan_down_pressed =
+                LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_DOWN));
+        boolean is_pan_up_pressed =
+                LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP));
+        boolean is_pan_left_pressed =
+                LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT));
+        boolean is_pan_right_pressed =
+                LocalInput.isKeyDown(
+                        Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT));
+
         float scroll_speed =
                 scroll_start_speed
                         * (.4f
@@ -207,20 +218,12 @@ public final strictfp class GameCamera extends Camera {
                                         * SCROLL_ACCELERATION_FACTOR);
         float scroll_factor = time_delta * scroll_speed;
         boolean blocked = viewer.getGUIRoot().getDelegate().keyboardBlocked();
-        if (LocalInput.isKeyDown(Keyboard.KEY_LEFT)
-                && !LocalInput.isKeyDown(Keyboard.KEY_RIGHT)
-                && !blocked) scrolling_x = -1f;
-        else if (LocalInput.isKeyDown(Keyboard.KEY_RIGHT)
-                && !LocalInput.isKeyDown(Keyboard.KEY_LEFT)
-                && !blocked) scrolling_x = 1f;
+        if (is_pan_left_pressed && !is_pan_right_pressed && !blocked) scrolling_x = -1f;
+        else if (is_pan_right_pressed && !is_pan_left_pressed && !blocked) scrolling_x = 1f;
         else scrolling_x = scroll_x;
 
-        if (LocalInput.isKeyDown(Keyboard.KEY_DOWN)
-                && !LocalInput.isKeyDown(Keyboard.KEY_UP)
-                && !blocked) scrolling_y = -1f;
-        else if (LocalInput.isKeyDown(Keyboard.KEY_UP)
-                && !LocalInput.isKeyDown(Keyboard.KEY_DOWN)
-                && !blocked) scrolling_y = 1f;
+        if (is_pan_down_pressed && !is_pan_up_pressed && !blocked) scrolling_y = -1f;
+        else if (is_pan_up_pressed && !is_pan_down_pressed && !blocked) scrolling_y = 1f;
         else scrolling_y = scroll_y;
 
         float new_x =
@@ -394,12 +397,22 @@ public final strictfp class GameCamera extends Camera {
     }
 
     private final boolean scrollSpeedLocked(int key) {
+
+        int pan_down_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_DOWN);
+        int pan_up_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP);
+        int pan_left_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT);
+        int pan_right_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT);
+
+        boolean is_pan_down_pressed = LocalInput.isKeyDown(pan_down_key);
+        boolean is_pan_up_pressed = LocalInput.isKeyDown(pan_up_key);
+        boolean is_pan_left_pressed = LocalInput.isKeyDown(pan_left_key);
+        boolean is_pan_right_pressed = LocalInput.isKeyDown(pan_right_key);
         return scroll_x != 0
                 || scroll_y != 0
-                || (LocalInput.isKeyDown(Keyboard.KEY_UP) && key != Keyboard.KEY_UP)
-                || (LocalInput.isKeyDown(Keyboard.KEY_DOWN) && key != Keyboard.KEY_DOWN)
-                || (LocalInput.isKeyDown(Keyboard.KEY_LEFT) && key != Keyboard.KEY_LEFT)
-                || (LocalInput.isKeyDown(Keyboard.KEY_RIGHT) && key != Keyboard.KEY_RIGHT);
+                || (is_pan_up_pressed && key != pan_up_key)
+                || (is_pan_down_pressed && key != pan_down_key)
+                || (is_pan_left_pressed && key != pan_left_key)
+                || (is_pan_right_pressed && key != pan_right_key);
     }
 
     private final void setScrollSpeed() {
@@ -420,53 +433,44 @@ public final strictfp class GameCamera extends Camera {
     }
 
     public final void keyPressed(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_HOME:
-            case Keyboard.KEY_NUMPAD8:
-                break;
-            case Keyboard.KEY_END:
-            case Keyboard.KEY_NUMPAD2:
-                break;
-            case Keyboard.KEY_INSERT:
-            case Keyboard.KEY_NUMPAD6:
-                viewer.getPicker().pickRotate(this);
-                break;
-            case Keyboard.KEY_DELETE:
-            case Keyboard.KEY_NUMPAD4:
-                viewer.getPicker().pickRotate(this);
-                break;
-            case Keyboard.KEY_PRIOR:
-            case Keyboard.KEY_NUMPAD9:
-                mouseScrolled(-2);
-                break;
-            case Keyboard.KEY_NEXT:
-            case Keyboard.KEY_NUMPAD3:
-                mouseScrolled(2);
-                break;
-            case Keyboard.KEY_UP:
-                if (!scrollSpeedLocked(Keyboard.KEY_UP)) {
-                    scroll_acceleration_seconds = 0;
-                    setScrollSpeed();
-                }
-                break;
-            case Keyboard.KEY_DOWN:
-                if (!scrollSpeedLocked(Keyboard.KEY_DOWN)) {
-                    scroll_acceleration_seconds = 0;
-                    setScrollSpeed();
-                }
-                break;
-            case Keyboard.KEY_LEFT:
-                if (!scrollSpeedLocked(Keyboard.KEY_LEFT)) {
-                    scroll_acceleration_seconds = 0;
-                    setScrollSpeed();
-                }
-                break;
-            case Keyboard.KEY_RIGHT:
-                if (!scrollSpeedLocked(Keyboard.KEY_RIGHT)) {
-                    scroll_acceleration_seconds = 0;
-                    setScrollSpeed();
-                }
-                break;
+        int pan_down_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_DOWN);
+        int pan_up_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP);
+        int pan_left_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT);
+        int pan_right_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT);
+
+        int key = event.getKeyCode();
+        if (key == Keyboard.KEY_HOME || key == Keyboard.KEY_NUMPAD8) {
+            // do nothing (break)
+        } else if (key == Keyboard.KEY_END || key == Keyboard.KEY_NUMPAD2) {
+            // do nothing (break)
+        } else if (key == Keyboard.KEY_INSERT || key == Keyboard.KEY_NUMPAD6) {
+            viewer.getPicker().pickRotate(this);
+        } else if (key == Keyboard.KEY_DELETE || key == Keyboard.KEY_NUMPAD4) {
+            viewer.getPicker().pickRotate(this);
+        } else if (key == Keyboard.KEY_PRIOR || key == Keyboard.KEY_NUMPAD9) {
+            mouseScrolled(-2);
+        } else if (key == Keyboard.KEY_NEXT || key == Keyboard.KEY_NUMPAD3) {
+            mouseScrolled(2);
+        } else if (key == pan_up_key) {
+            if (!scrollSpeedLocked(pan_up_key)) {
+                scroll_acceleration_seconds = 0;
+                setScrollSpeed();
+            }
+        } else if (key == pan_down_key) {
+            if (!scrollSpeedLocked(pan_down_key)) {
+                scroll_acceleration_seconds = 0;
+                setScrollSpeed();
+            }
+        } else if (key == pan_left_key) {
+            if (!scrollSpeedLocked(pan_left_key)) {
+                scroll_acceleration_seconds = 0;
+                setScrollSpeed();
+            }
+        } else if (key == pan_right_key) {
+            if (!scrollSpeedLocked(pan_right_key)) {
+                scroll_acceleration_seconds = 0;
+                setScrollSpeed();
+            }
         }
     }
 
