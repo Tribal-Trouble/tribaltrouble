@@ -280,5 +280,7 @@ public final strictfp class Globals {
     // UI/System
     public static final String KB_GAMESPEED_INCREASE = "KB_GAMESPEED_INCREASE";
     public static final String KB_GAMESPEED_DECREASE = "KB_GAMESPEED_DECREASE";
+    public static final String KB_GAMESPEED_INCREASE_ALT = "KB_GAMESPEED_INCREASE_ALT";
+    public static final String KB_GAMESPEED_DECREASE_ALT = "KB_GAMESPEED_DECREASE_ALT";
     // #endregion Keybinds
 }

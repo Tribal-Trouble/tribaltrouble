@@ -225,6 +225,8 @@ public final strictfp class Settings implements Serializable {
                     // UI/System
                     put(Globals.KB_GAMESPEED_INCREASE, Keyboard.KEY_EQUALS);
                     put(Globals.KB_GAMESPEED_DECREASE, Keyboard.KEY_MINUS);
+                    put(Globals.KB_GAMESPEED_INCREASE_ALT, Keyboard.KEY_ADD);
+                    put(Globals.KB_GAMESPEED_DECREASE_ALT, Keyboard.KEY_SUBTRACT);
                 }
             };
 

@@ -224,9 +224,11 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         //		getCamera().keyRepeat(event);
         Settings settings = Settings.getSettings();
         int key = event.getKeyCode();
-        if (key == settings.getKeybind(Globals.KB_GAMESPEED_INCREASE)) {
+        if (key == settings.getKeybind(Globals.KB_GAMESPEED_INCREASE)
+                || key == settings.getKeybind(Globals.KB_GAMESPEED_INCREASE_ALT)) {
             changeGamespeed(1);
-        } else if (key == settings.getKeybind(Globals.KB_GAMESPEED_DECREASE)) {
+        } else if (key == settings.getKeybind(Globals.KB_GAMESPEED_DECREASE)
+                || key == settings.getKeybind(Globals.KB_GAMESPEED_DECREASE_ALT)) {
             changeGamespeed(-1);
         } else {
             if (!map_mode && !observer && !getActionButtonPanel().doKeyRepeat(event))
