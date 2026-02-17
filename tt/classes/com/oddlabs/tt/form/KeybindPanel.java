@@ -39,7 +39,7 @@ public class KeybindPanel extends Panel {
         Group keybinds_group = new Group();
         keybinds_group.addChild(keybinds_label);
 
-        ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", 300)};
+        ColumnInfo[] keybind_options = new ColumnInfo[] {new ColumnInfo("", 400)};
         keybinds_list_box = new MultiColumnComboBox(gui_root, keybind_options, 200, false);
         keybinds_list_box.place(keybinds_label, BOTTOM_LEFT);
         keybinds_list_box.addRowListener(new KeybindListener());
@@ -109,7 +109,8 @@ public class KeybindPanel extends Panel {
 
         @Override
         public final void rowChosen(Object o) {
-            if (o instanceof ActionRowDataModel actionRow) {
+            if (o instanceof ActionRowDataModel) {
+                ActionRowDataModel actionRow = (ActionRowDataModel) o;
                 RebindActionForm rebindForm = new RebindActionForm(actionRow.getActionName());
                 rebindForm.addCloseListener(new RebindActionFormClosedListener());
                 gui_root.addModalForm(rebindForm);
