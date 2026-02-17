@@ -141,6 +141,14 @@ public final strictfp class Settings implements Serializable {
                     put(Globals.KB_CAMERA_ZOOM_HOLD, Keyboard.KEY_Z);
                     put(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE, Keyboard.KEY_F);
 
+                    // Camera controls (alt/numpad)
+                    put(Globals.KB_CAMERA_ZOOM_IN_ALT, Keyboard.KEY_NUMPAD9);
+                    put(Globals.KB_CAMERA_ZOOM_OUT_ALT, Keyboard.KEY_NUMPAD3);
+                    put(Globals.KB_CAMERA_ROTATE_LEFT_ALT, Keyboard.KEY_NUMPAD4);
+                    put(Globals.KB_CAMERA_ROTATE_RIGHT_ALT, Keyboard.KEY_NUMPAD6);
+                    put(Globals.KB_CAMERA_PITCH_UP_ALT, Keyboard.KEY_NUMPAD8);
+                    put(Globals.KB_CAMERA_PITCH_DOWN_ALT, Keyboard.KEY_NUMPAD2);
+
                     // Unit actions
                     put(Globals.KB_MOVE, Keyboard.KEY_M);
                     put(Globals.KB_ATTACK, Keyboard.KEY_A);
@@ -196,6 +204,7 @@ public final strictfp class Settings implements Serializable {
 
                     // Gameplay hotkeys
                     put(Globals.KB_TOGGLE_MAP_MODE, Keyboard.KEY_SPACE);
+                    put(Globals.KB_TOGGLE_MAP_MODE_ALT, Keyboard.KEY_NUMPAD5);
                     put(Globals.KB_JUMP_TO_NOTIFICATION, Keyboard.KEY_TAB);
                     put(Globals.KB_PLACE_BEACON, Keyboard.KEY_B);
                     put(Globals.KB_NEXT_IDLE_PEON, Keyboard.KEY_N);
