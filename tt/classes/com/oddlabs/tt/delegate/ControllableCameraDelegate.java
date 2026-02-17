@@ -1,8 +1,9 @@
 package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.GameCamera;
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.*;
-import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.viewer.WorldViewer;
 
 public abstract strictfp class ControllableCameraDelegate extends InGameDelegate {
@@ -15,16 +16,14 @@ public abstract strictfp class ControllableCameraDelegate extends InGameDelegate
     }
 
     public void keyPressed(KeyboardEvent event) {
-        switch (event.getKeyCode()) {
-            case Keyboard.KEY_F:
-                pushFirstPersonDelegate(true);
-                break;
-            case Keyboard.KEY_Z:
-                pushZoomDelegate();
-                break;
-            default:
-                super.keyPressed(event);
-                break;
+        Settings settings = Settings.getSettings();
+        int key = event.getKeyCode();
+        if (key == settings.getKeybind(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE)) {
+            pushFirstPersonDelegate(true);
+        } else if (key == settings.getKeybind(Globals.KB_CAMERA_ZOOM_HOLD)) {
+            pushZoomDelegate();
+        } else {
+            super.keyPressed(event);
         }
     }
 
