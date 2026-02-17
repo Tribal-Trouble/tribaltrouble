@@ -250,8 +250,17 @@ public final strictfp class Globals {
     public static final String KB_CAMERA_ZOOM_HOLD = "KB_CAMERA_ZOOM_HOLD";
     public static final String KB_CAMERA_FIRST_PERSON_TOGGLE = "KB_CAMERA_FIRST_PERSON_TOGGLE";
 
+    // Camera - Extended Controls (Alt/Numpad)
+    public static final String KB_CAMERA_ZOOM_IN_ALT = "KB_CAMERA_ZOOM_IN_ALT";
+    public static final String KB_CAMERA_ZOOM_OUT_ALT = "KB_CAMERA_ZOOM_OUT_ALT";
+    public static final String KB_CAMERA_ROTATE_LEFT_ALT = "KB_CAMERA_ROTATE_LEFT_ALT";
+    public static final String KB_CAMERA_ROTATE_RIGHT_ALT = "KB_CAMERA_ROTATE_RIGHT_ALT";
+    public static final String KB_CAMERA_PITCH_UP_ALT = "KB_CAMERA_PITCH_UP_ALT";
+    public static final String KB_CAMERA_PITCH_DOWN_ALT = "KB_CAMERA_PITCH_DOWN_ALT";
+
     // Gameplay Hotkeys
     public static final String KB_TOGGLE_MAP_MODE = "KB_TOGGLE_MAP_MODE";
+    public static final String KB_TOGGLE_MAP_MODE_ALT = "KB_TOGGLE_MAP_MODE_ALT";
     public static final String KB_JUMP_TO_NOTIFICATION = "KB_JUMP_TO_NOTIFICATION";
     public static final String KB_PLACE_BEACON = "KB_PLACE_BEACON";
     public static final String KB_NEXT_IDLE_PEON = "KB_NEXT_IDLE_PEON";
