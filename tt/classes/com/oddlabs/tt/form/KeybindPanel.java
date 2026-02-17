@@ -11,12 +11,14 @@ import com.oddlabs.tt.gui.ColumnInfo;
 import com.oddlabs.tt.gui.GUIObject;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.Group;
+import com.oddlabs.tt.gui.HorizButton;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.MultiColumnComboBox;
 import com.oddlabs.tt.gui.Panel;
 import com.oddlabs.tt.gui.Row;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.guievent.CloseListener;
+import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.util.Utils;
@@ -44,7 +46,12 @@ public class KeybindPanel extends Panel {
 
         evaluateKeybindRows();
 
+        HorizButton button_reset_keybinds = new HorizButton(Utils.getBundleString(bundle, "reset_keybinds"), 120);
+        button_reset_keybinds.place(keybinds_list_box, BOTTOM_LEFT);
+        button_reset_keybinds.addMouseClickListener(new ResetKeybindsListener());
+
         keybinds_group.addChild(keybinds_list_box);
+        keybinds_group.addChild(button_reset_keybinds);
         keybinds_group.compileCanvas();
         keybinds_group.place();
 
@@ -118,6 +125,24 @@ public class KeybindPanel extends Panel {
         public final void closed() {
             keybinds_list_box.clear();
             System.out.println("RebindActionForm closed, refreshing keybinds list.");
+            evaluateKeybindRows();
+        }
+    }
+
+    private class ResetKeybindsListener implements MouseClickListener {
+        @Override
+        public final void mouseClicked(int button, int x, int y, int clicks) {
+            gui_root.addModalForm(new QuestionForm(
+                    Utils.getBundleString(bundle, "reset_keybinds_confirm"),
+                    new ResetKeybindsConfirmListener()));
+        }
+    }
+
+    private class ResetKeybindsConfirmListener implements MouseClickListener {
+        @Override
+        public final void mouseClicked(int button, int x, int y, int clicks) {
+            Settings.getSettings().resetKeybindsToDefaults();
+            keybinds_list_box.clear();
             evaluateKeybindRows();
         }
     }

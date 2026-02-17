@@ -276,6 +276,11 @@ public final strictfp class Settings implements Serializable {
      * @param action_name
      * @return
      */
+    public void resetKeybindsToDefaults() {
+        keybinds = new HashMap<String, Integer>(default_keybinds);
+        save();
+    }
+
     public String getKeybindString(String action_name) {
         Integer keyCode = keybinds.get(action_name);
         if (keyCode == null) {
