@@ -6,7 +6,6 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.GUIRoot;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.LocalInput;
-import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.landscape.World;
 import com.oddlabs.tt.util.Target;
 import com.oddlabs.tt.viewer.WorldViewer;
@@ -433,23 +432,30 @@ public final strictfp class GameCamera extends Camera {
     }
 
     public final void keyPressed(KeyboardEvent event) {
-        int pan_down_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_DOWN);
-        int pan_up_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_UP);
-        int pan_left_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_LEFT);
-        int pan_right_key = Settings.getSettings().getKeybind(Globals.KB_PAN_CAMERA_RIGHT);
+        Settings settings = Settings.getSettings();
+        int pan_down_key = settings.getKeybind(Globals.KB_PAN_CAMERA_DOWN);
+        int pan_up_key = settings.getKeybind(Globals.KB_PAN_CAMERA_UP);
+        int pan_left_key = settings.getKeybind(Globals.KB_PAN_CAMERA_LEFT);
+        int pan_right_key = settings.getKeybind(Globals.KB_PAN_CAMERA_RIGHT);
 
         int key = event.getKeyCode();
-        if (key == Keyboard.KEY_HOME || key == Keyboard.KEY_NUMPAD8) {
-            // do nothing (break)
-        } else if (key == Keyboard.KEY_END || key == Keyboard.KEY_NUMPAD2) {
-            // do nothing (break)
-        } else if (key == Keyboard.KEY_INSERT || key == Keyboard.KEY_NUMPAD6) {
+        if (key == settings.getKeybind(Globals.KB_CAMERA_PITCH_UP)
+                || key == settings.getKeybind(Globals.KB_CAMERA_PITCH_UP_ALT)) {
+            // handled in checkKeys
+        } else if (key == settings.getKeybind(Globals.KB_CAMERA_PITCH_DOWN)
+                || key == settings.getKeybind(Globals.KB_CAMERA_PITCH_DOWN_ALT)) {
+            // handled in checkKeys
+        } else if (key == settings.getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT)
+                || key == settings.getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT_ALT)) {
             viewer.getPicker().pickRotate(this);
-        } else if (key == Keyboard.KEY_DELETE || key == Keyboard.KEY_NUMPAD4) {
+        } else if (key == settings.getKeybind(Globals.KB_CAMERA_ROTATE_LEFT)
+                || key == settings.getKeybind(Globals.KB_CAMERA_ROTATE_LEFT_ALT)) {
             viewer.getPicker().pickRotate(this);
-        } else if (key == Keyboard.KEY_PRIOR || key == Keyboard.KEY_NUMPAD9) {
+        } else if (key == settings.getKeybind(Globals.KB_CAMERA_ZOOM_IN)
+                || key == settings.getKeybind(Globals.KB_CAMERA_ZOOM_IN_ALT)) {
             mouseScrolled(-2);
-        } else if (key == Keyboard.KEY_NEXT || key == Keyboard.KEY_NUMPAD3) {
+        } else if (key == settings.getKeybind(Globals.KB_CAMERA_ZOOM_OUT)
+                || key == settings.getKeybind(Globals.KB_CAMERA_ZOOM_OUT_ALT)) {
             mouseScrolled(2);
         } else if (key == pan_up_key) {
             if (!scrollSpeedLocked(pan_up_key)) {
@@ -484,21 +490,15 @@ public final strictfp class GameCamera extends Camera {
             return;
         }
 
-        if (LocalInput.isKeyDown(Keyboard.KEY_HOME) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD8))
-            pitch_up = true;
-        else pitch_up = false;
-
-        if (LocalInput.isKeyDown(Keyboard.KEY_END) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD2))
-            pitch_down = true;
-        else pitch_down = false;
-
-        if (LocalInput.isKeyDown(Keyboard.KEY_INSERT) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD6))
-            rotate_right = true;
-        else rotate_right = false;
-
-        if (LocalInput.isKeyDown(Keyboard.KEY_DELETE) || LocalInput.isKeyDown(Keyboard.KEY_NUMPAD4))
-            rotate_left = true;
-        else rotate_left = false;
+        Settings settings = Settings.getSettings();
+        pitch_up = LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_PITCH_UP))
+                || LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_PITCH_UP_ALT));
+        pitch_down = LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_PITCH_DOWN))
+                || LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_PITCH_DOWN_ALT));
+        rotate_right = LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT))
+                || LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT_ALT));
+        rotate_left = LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_ROTATE_LEFT))
+                || LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_ROTATE_LEFT_ALT));
     }
 
     public final void enable() {
