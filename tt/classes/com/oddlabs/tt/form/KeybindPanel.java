@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ColumnInfo;
 import com.oddlabs.tt.gui.GUIObject;
@@ -82,6 +83,9 @@ public class KeybindPanel extends Panel {
                     new Label(
                             displayName + " [" + keyString + "]",
                             Skin.getSkin().getMultiColumnComboBoxData().getFont());
+            if (Globals.getConflictingAction(actionName, keyCode, keybinds) != null) {
+                label.setColor(new float[] {1.0f, 0.3f, 0.3f, 1.0f});
+            }
             Row row = new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode));
             keybinds_list_box.addRow(row);
         }
