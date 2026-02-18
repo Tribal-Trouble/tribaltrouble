@@ -1,5 +1,7 @@
 package com.oddlabs.tt.gui;
 
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
@@ -70,18 +72,27 @@ public strictfp class Icons {
         rubber_status_icon = getNamedIconQuad(root, "rubber_status_icon", texture);
         cheat_icon = getNamedIconQuad(root, "cheat_icon", texture);
         ResourceBundle bundle = ResourceBundle.getBundle(Icons.class.getName());
+        Settings s = Settings.getSettings();
         String tt_caption =
                 com.oddlabs.tt.util.Utils.getBundleString(
-                        bundle, "terrifying_toot", new Object[] {"S"});
+                        bundle,
+                        "terrifying_toot",
+                        new Object[] {s.getKeybindString(Globals.KB_CHIEFTAIN_MAGIC1)});
         String rr_caption =
                 com.oddlabs.tt.util.Utils.getBundleString(
-                        bundle, "ravaging_roar", new Object[] {"C"});
+                        bundle,
+                        "ravaging_roar",
+                        new Object[] {s.getKeybindString(Globals.KB_CHIEFTAIN_MAGIC2)});
         String ss_caption =
                 com.oddlabs.tt.util.Utils.getBundleString(
-                        bundle, "stinking_stew", new Object[] {"S"});
+                        bundle,
+                        "stinking_stew",
+                        new Object[] {s.getKeybindString(Globals.KB_CHIEFTAIN_MAGIC1)});
         String cc_caption =
                 com.oddlabs.tt.util.Utils.getBundleString(
-                        bundle, "crackling_cloud", new Object[] {"C"});
+                        bundle,
+                        "crackling_cloud",
+                        new Object[] {s.getKeybindString(Globals.KB_CHIEFTAIN_MAGIC2)});
         viking_icons = parseRaceIcons(root, "vikings", tt_caption, rr_caption);
         native_icons = parseRaceIcons(root, "natives", ss_caption, cc_caption);
         watch = parseWatch(root);
