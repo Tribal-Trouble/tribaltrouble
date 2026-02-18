@@ -3,6 +3,10 @@ package com.oddlabs.tt.global;
 import com.codedisaster.steamworks.SteamAPI;
 import com.oddlabs.tt.steam.SteamAchievementManager;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.lwjgl.opengl.*;
 
 public final strictfp class Globals {
@@ -282,5 +286,105 @@ public final strictfp class Globals {
     public static final String KB_GAMESPEED_DECREASE = "KB_GAMESPEED_DECREASE";
     public static final String KB_GAMESPEED_INCREASE_ALT = "KB_GAMESPEED_INCREASE_ALT";
     public static final String KB_GAMESPEED_DECREASE_ALT = "KB_GAMESPEED_DECREASE_ALT";
+
+    // Groups of keybinds that are active at the same time and cannot safely share a key
+    private static final String[][] KB_CONFLICT_GROUPS = {
+        // Global: camera + gameplay + game speed (always active in-game)
+        {
+            KB_PAN_CAMERA_LEFT, KB_PAN_CAMERA_RIGHT,
+            KB_PAN_CAMERA_UP, KB_PAN_CAMERA_DOWN,
+            KB_CAMERA_ZOOM_IN, KB_CAMERA_ZOOM_OUT,
+            KB_CAMERA_ROTATE_LEFT, KB_CAMERA_ROTATE_RIGHT,
+            KB_CAMERA_PITCH_UP, KB_CAMERA_PITCH_DOWN,
+            KB_CAMERA_ZOOM_HOLD, KB_CAMERA_FIRST_PERSON_TOGGLE,
+            KB_CAMERA_ZOOM_IN_ALT, KB_CAMERA_ZOOM_OUT_ALT,
+            KB_CAMERA_ROTATE_LEFT_ALT, KB_CAMERA_ROTATE_RIGHT_ALT,
+            KB_CAMERA_PITCH_UP_ALT, KB_CAMERA_PITCH_DOWN_ALT,
+            KB_TOGGLE_MAP_MODE, KB_TOGGLE_MAP_MODE_ALT,
+            KB_JUMP_TO_NOTIFICATION, KB_PLACE_BEACON,
+            KB_NEXT_IDLE_PEON,
+            KB_ARMY_GROUP_0, KB_ARMY_GROUP_1,
+            KB_ARMY_GROUP_2, KB_ARMY_GROUP_3,
+            KB_ARMY_GROUP_4, KB_ARMY_GROUP_5,
+            KB_ARMY_GROUP_6, KB_ARMY_GROUP_7,
+            KB_ARMY_GROUP_8, KB_ARMY_GROUP_9,
+            KB_GAMESPEED_INCREASE, KB_GAMESPEED_DECREASE,
+            KB_GAMESPEED_INCREASE_ALT, KB_GAMESPEED_DECREASE_ALT,
+        },
+        // Unit actions + build + chieftain (can all be active with mixed selection)
+        {
+            KB_ATTACK, KB_GATHER_REPAIR, KB_MOVE,
+            KB_BUILD_ARMORY, KB_BUILD_QUARTERS, KB_BUILD_TOWER,
+            KB_CHIEFTAIN_MAGIC1, KB_CHIEFTAIN_MAGIC2,
+        },
+        // Armory top-level
+        {
+            KB_ARMORY_DEPLOY_WARRIORS, KB_ARMORY_HARVEST,
+            KB_ARMORY_MAKE_WEAPONS, KB_ARMORY_RALLY_POINT,
+            KB_ARMORY_TRANSPORT,
+        },
+        // Armory deploy sub-menu
+        {
+            KB_ARMORY_DEPLOY_CHICKEN_WARRIORS, KB_ARMORY_DEPLOY_IRON_WARRIORS,
+            KB_ARMORY_DEPLOY_PEON, KB_ARMORY_DEPLOY_ROCK_WARRIORS,
+        },
+        // Armory harvest sub-menu
+        {
+            KB_ARMORY_HARVEST_CHICKEN, KB_ARMORY_HARVEST_IRON,
+            KB_ARMORY_HARVEST_ROCK, KB_ARMORY_HARVEST_TREE,
+        },
+        // Armory transport sub-menu
+        {
+            KB_ARMORY_TRANSPORT_CHICKEN, KB_ARMORY_TRANSPORT_IRON,
+            KB_ARMORY_TRANSPORT_ROCK, KB_ARMORY_TRANSPORT_TREE,
+        },
+        // Armory weapons sub-menu
+        {
+            KB_ARMORY_CREATE_CHICKEN_WEAPON, KB_ARMORY_CREATE_IRON_WEAPON,
+            KB_ARMORY_CREATE_ROCK_WEAPON,
+        },
+        // Quarters
+        { KB_QUARTERS_CHIEFTAIN, KB_QUARTERS_DEPLOY_PEON, KB_QUARTERS_SET_RALLY_POINT },
+        // Tower
+        { KB_TOWER_ATTACK, KB_TOWER_EXIT },
+    };
+
+    // Maps each action to the list of actions it conflicts with
+    public static final HashMap<String, List<String>> KB_CONFLICT_MAP = buildConflictMap();
+
+    private static HashMap<String, List<String>> buildConflictMap() {
+        HashMap<String, List<String>> map = new HashMap<String, List<String>>();
+        for (String[] group : KB_CONFLICT_GROUPS) {
+            for (int i = 0; i < group.length; i++) {
+                List<String> conflicts = map.get(group[i]);
+                if (conflicts == null) {
+                    conflicts = new ArrayList<String>();
+                    map.put(group[i], conflicts);
+                }
+                for (int j = 0; j < group.length; j++) {
+                    if (i != j) conflicts.add(group[j]);
+                }
+            }
+        }
+        return map;
+    }
+
+    /**
+     * Returns the first action that conflicts with the given action/key pair, or null if none.
+     * Two actions conflict when they are active at the same time and share the same key.
+     */
+    public static String getConflictingAction(
+            String actionName, int keyCode, HashMap<String, Integer> keybinds) {
+        List<String> conflicts = KB_CONFLICT_MAP.get(actionName);
+        if (conflicts == null) return null;
+        for (String other : conflicts) {
+            Integer otherKeyCode = keybinds.get(other);
+            if (otherKeyCode != null && otherKeyCode == keyCode) {
+                return other;
+            }
+        }
+        return null;
+    }
+
     // #endregion Keybinds
 }
