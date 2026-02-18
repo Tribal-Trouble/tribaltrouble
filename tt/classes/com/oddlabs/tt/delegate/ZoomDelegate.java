@@ -39,7 +39,8 @@ public strictfp class ZoomDelegate extends InGameDelegate {
 
     public void keyReleased(KeyboardEvent event) {
         if (!done) {
-            if (event.getKeyCode() == Settings.getSettings().getKeybind(Globals.KB_CAMERA_ZOOM_HOLD)) {
+            if (event.getKeyCode()
+                    == Settings.getSettings().getKeybind(Globals.KB_CAMERA_ZOOM_HOLD)) {
                 pop();
             }
         }

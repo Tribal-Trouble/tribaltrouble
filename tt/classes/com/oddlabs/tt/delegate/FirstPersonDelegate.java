@@ -28,7 +28,8 @@ public strictfp class FirstPersonDelegate extends InGameDelegate {
 
     public void keyReleased(KeyboardEvent event) {
         if (key_pressed && !done) {
-            if (event.getKeyCode() == Settings.getSettings().getKeybind(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE)) {
+            if (event.getKeyCode()
+                    == Settings.getSettings().getKeybind(Globals.KB_CAMERA_FIRST_PERSON_TOGGLE)) {
                 pop();
             }
         }

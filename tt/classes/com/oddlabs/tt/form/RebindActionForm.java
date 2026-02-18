@@ -11,7 +11,6 @@ import com.oddlabs.tt.guievent.MouseClickListener;
 import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.util.Utils;
 
-import java.util.HashMap;
 import java.util.ResourceBundle;
 
 /** A form for rebinding a action */
@@ -22,7 +21,6 @@ public class RebindActionForm extends Form {
     HorizButton done_button;
     int current_key_code;
     String changing_action_name;
-
 
     /**
      * Creates a rebind keyform setup to rebind the specified action. See Globals.KB_* constants for
@@ -35,9 +33,7 @@ public class RebindActionForm extends Form {
 
         String displayName = Utils.getBundleString(bundle, action_name.toLowerCase());
         Label press_any_key_label =
-                new Label(
-                        "Press any key to rebind " + displayName,
-                        Skin.getSkin().getEditFont());
+                new Label("Press any key to rebind " + displayName, Skin.getSkin().getEditFont());
         addChild(press_any_key_label);
         press_any_key_label.place(ORIGIN_TOP_LEFT);
 
@@ -49,10 +45,7 @@ public class RebindActionForm extends Form {
 
         int spacing = Skin.getSkin().getFormData().getObjectSpacing();
         conflict_label =
-                new Label(
-                        "",
-                        Skin.getSkin().getEditFont(),
-                        press_any_key_label.getWidth());
+                new Label("", Skin.getSkin().getEditFont(), press_any_key_label.getWidth());
         conflict_label.setColor(new float[] {1.0f, 0.3f, 0.3f, 1.0f});
         addChild(conflict_label);
         conflict_label.place(
@@ -82,7 +75,9 @@ public class RebindActionForm extends Form {
     private void updateConflictWarning() {
         String conflicting =
                 Globals.getConflictingAction(
-                        changing_action_name, current_key_code, Settings.getSettings().getKeybinds());
+                        changing_action_name,
+                        current_key_code,
+                        Settings.getSettings().getKeybinds());
         if (conflicting != null) {
             String otherName = Utils.getBundleString(bundle, conflicting.toLowerCase());
             conflict_label.set("Conflicts with: " + otherName);

@@ -1,11 +1,5 @@
 package com.oddlabs.tt.form;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-
 import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ColumnInfo;
@@ -24,6 +18,12 @@ import com.oddlabs.tt.guievent.RowListener;
 import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.util.Utils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+
 public class KeybindPanel extends Panel {
     GUIRoot gui_root;
     private final ResourceBundle bundle = ResourceBundle.getBundle(KeybindPanel.class.getName());
@@ -33,7 +33,8 @@ public class KeybindPanel extends Panel {
         super(caption);
         this.gui_root = gui_root;
 
-        Label keybinds_label = new Label(Utils.getBundleString(bundle, "keybinds"), Skin.getSkin().getEditFont());
+        Label keybinds_label =
+                new Label(Utils.getBundleString(bundle, "keybinds"), Skin.getSkin().getEditFont());
         keybinds_label.place();
 
         // Add all the controls to a group
@@ -47,7 +48,8 @@ public class KeybindPanel extends Panel {
 
         evaluateKeybindRows();
 
-        HorizButton button_reset_keybinds = new HorizButton(Utils.getBundleString(bundle, "reset_keybinds"), 120);
+        HorizButton button_reset_keybinds =
+                new HorizButton(Utils.getBundleString(bundle, "reset_keybinds"), 120);
         button_reset_keybinds.place(keybinds_list_box, BOTTOM_LEFT);
         button_reset_keybinds.addMouseClickListener(new ResetKeybindsListener());
 
@@ -65,11 +67,12 @@ public class KeybindPanel extends Panel {
 
         // Convert to list and sort by display name to group categories together
         List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(keybinds.entrySet());
-        sortedEntries.sort((Map.Entry<String, Integer> e1, Map.Entry<String, Integer> e2) -> {
-            String displayName1 = Utils.getBundleString(bundle, e1.getKey().toLowerCase());
-            String displayName2 = Utils.getBundleString(bundle, e2.getKey().toLowerCase());
-            return displayName1.compareTo(displayName2);
-        });
+        sortedEntries.sort(
+                (Map.Entry<String, Integer> e1, Map.Entry<String, Integer> e2) -> {
+                    String displayName1 = Utils.getBundleString(bundle, e1.getKey().toLowerCase());
+                    String displayName2 = Utils.getBundleString(bundle, e2.getKey().toLowerCase());
+                    return displayName1.compareTo(displayName2);
+                });
 
         for (Map.Entry<String, Integer> entry : sortedEntries) {
             String actionName = entry.getKey();
@@ -137,9 +140,10 @@ public class KeybindPanel extends Panel {
     private class ResetKeybindsListener implements MouseClickListener {
         @Override
         public final void mouseClicked(int button, int x, int y, int clicks) {
-            gui_root.addModalForm(new QuestionForm(
-                    Utils.getBundleString(bundle, "reset_keybinds_confirm"),
-                    new ResetKeybindsConfirmListener()));
+            gui_root.addModalForm(
+                    new QuestionForm(
+                            Utils.getBundleString(bundle, "reset_keybinds_confirm"),
+                            new ResetKeybindsConfirmListener()));
         }
     }
 

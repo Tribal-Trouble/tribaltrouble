@@ -124,8 +124,7 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
                 if (event.isControlDown()) {
                     getViewer().getSelection().setShortcutArmy(army_number);
                 } else {
-                    boolean selected =
-                            getViewer().getSelection().enableShortcutArmy(army_number);
+                    boolean selected = getViewer().getSelection().enableShortcutArmy(army_number);
                     if (selected && event.getNumClicks() > 1) {
                         Set set = getViewer().getSelection().getCurrentSelection().getSet();
                         if (set.size() > 0) {
@@ -146,8 +145,7 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         } else if (key == settings.getKeybind(Globals.KB_PLACE_BEACON)) {
             if (event.isControlDown() && !map_mode && !observer) {
                 getGUIRoot()
-                        .pushDelegate(
-                                new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
+                        .pushDelegate(new BeaconDelegate(getViewer(), (GameCamera) getCamera()));
             }
         } else if (key == settings.getKeybind(Globals.KB_NEXT_IDLE_PEON)) {
             nextIdlePeon();
@@ -412,8 +410,11 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         if (!map_mode) {
             if (!observer) {
                 if (button == LocalInput.LEFT_BUTTON) {
-                    if (!LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_TOGGLE_MAP_MODE))
-                            && !LocalInput.isKeyDown(Settings.getSettings().getKeybind(Globals.KB_TOGGLE_MAP_MODE_ALT))) {
+                    if (!LocalInput.isKeyDown(
+                                    Settings.getSettings().getKeybind(Globals.KB_TOGGLE_MAP_MODE))
+                            && !LocalInput.isKeyDown(
+                                    Settings.getSettings()
+                                            .getKeybind(Globals.KB_TOGGLE_MAP_MODE_ALT))) {
                         selection = true;
                     }
                     selection_x1 = x;

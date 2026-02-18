@@ -3,11 +3,11 @@ package com.oddlabs.tt.global;
 import com.codedisaster.steamworks.SteamAPI;
 import com.oddlabs.tt.steam.SteamAchievementManager;
 
+import org.lwjgl.opengl.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.lwjgl.opengl.*;
 
 public final strictfp class Globals {
     // #region Keybinds - Actions
@@ -291,25 +291,43 @@ public final strictfp class Globals {
     private static final String[][] KB_CONFLICT_GROUPS = {
         // Global: camera + gameplay + game speed (always active in-game)
         {
-            KB_PAN_CAMERA_LEFT, KB_PAN_CAMERA_RIGHT,
-            KB_PAN_CAMERA_UP, KB_PAN_CAMERA_DOWN,
-            KB_CAMERA_ZOOM_IN, KB_CAMERA_ZOOM_OUT,
-            KB_CAMERA_ROTATE_LEFT, KB_CAMERA_ROTATE_RIGHT,
-            KB_CAMERA_PITCH_UP, KB_CAMERA_PITCH_DOWN,
-            KB_CAMERA_ZOOM_HOLD, KB_CAMERA_FIRST_PERSON_TOGGLE,
-            KB_CAMERA_ZOOM_IN_ALT, KB_CAMERA_ZOOM_OUT_ALT,
-            KB_CAMERA_ROTATE_LEFT_ALT, KB_CAMERA_ROTATE_RIGHT_ALT,
-            KB_CAMERA_PITCH_UP_ALT, KB_CAMERA_PITCH_DOWN_ALT,
-            KB_TOGGLE_MAP_MODE, KB_TOGGLE_MAP_MODE_ALT,
-            KB_JUMP_TO_NOTIFICATION, KB_PLACE_BEACON,
+            KB_PAN_CAMERA_LEFT,
+            KB_PAN_CAMERA_RIGHT,
+            KB_PAN_CAMERA_UP,
+            KB_PAN_CAMERA_DOWN,
+            KB_CAMERA_ZOOM_IN,
+            KB_CAMERA_ZOOM_OUT,
+            KB_CAMERA_ROTATE_LEFT,
+            KB_CAMERA_ROTATE_RIGHT,
+            KB_CAMERA_PITCH_UP,
+            KB_CAMERA_PITCH_DOWN,
+            KB_CAMERA_ZOOM_HOLD,
+            KB_CAMERA_FIRST_PERSON_TOGGLE,
+            KB_CAMERA_ZOOM_IN_ALT,
+            KB_CAMERA_ZOOM_OUT_ALT,
+            KB_CAMERA_ROTATE_LEFT_ALT,
+            KB_CAMERA_ROTATE_RIGHT_ALT,
+            KB_CAMERA_PITCH_UP_ALT,
+            KB_CAMERA_PITCH_DOWN_ALT,
+            KB_TOGGLE_MAP_MODE,
+            KB_TOGGLE_MAP_MODE_ALT,
+            KB_JUMP_TO_NOTIFICATION,
+            KB_PLACE_BEACON,
             KB_NEXT_IDLE_PEON,
-            KB_ARMY_GROUP_0, KB_ARMY_GROUP_1,
-            KB_ARMY_GROUP_2, KB_ARMY_GROUP_3,
-            KB_ARMY_GROUP_4, KB_ARMY_GROUP_5,
-            KB_ARMY_GROUP_6, KB_ARMY_GROUP_7,
-            KB_ARMY_GROUP_8, KB_ARMY_GROUP_9,
-            KB_GAMESPEED_INCREASE, KB_GAMESPEED_DECREASE,
-            KB_GAMESPEED_INCREASE_ALT, KB_GAMESPEED_DECREASE_ALT,
+            KB_ARMY_GROUP_0,
+            KB_ARMY_GROUP_1,
+            KB_ARMY_GROUP_2,
+            KB_ARMY_GROUP_3,
+            KB_ARMY_GROUP_4,
+            KB_ARMY_GROUP_5,
+            KB_ARMY_GROUP_6,
+            KB_ARMY_GROUP_7,
+            KB_ARMY_GROUP_8,
+            KB_ARMY_GROUP_9,
+            KB_GAMESPEED_INCREASE,
+            KB_GAMESPEED_DECREASE,
+            KB_GAMESPEED_INCREASE_ALT,
+            KB_GAMESPEED_DECREASE_ALT,
         },
         // Unit actions + build + chieftain (can all be active with mixed selection)
         {
@@ -340,13 +358,14 @@ public final strictfp class Globals {
         },
         // Armory weapons sub-menu
         {
-            KB_ARMORY_CREATE_CHICKEN_WEAPON, KB_ARMORY_CREATE_IRON_WEAPON,
+            KB_ARMORY_CREATE_CHICKEN_WEAPON,
+            KB_ARMORY_CREATE_IRON_WEAPON,
             KB_ARMORY_CREATE_ROCK_WEAPON,
         },
         // Quarters
-        { KB_QUARTERS_CHIEFTAIN, KB_QUARTERS_DEPLOY_PEON, KB_QUARTERS_SET_RALLY_POINT },
+        {KB_QUARTERS_CHIEFTAIN, KB_QUARTERS_DEPLOY_PEON, KB_QUARTERS_SET_RALLY_POINT},
         // Tower
-        { KB_TOWER_ATTACK, KB_TOWER_EXIT },
+        {KB_TOWER_ATTACK, KB_TOWER_EXIT},
     };
 
     // Maps each action to the list of actions it conflicts with
@@ -370,8 +389,8 @@ public final strictfp class Globals {
     }
 
     /**
-     * Returns the first action that conflicts with the given action/key pair, or null if none.
-     * Two actions conflict when they are active at the same time and share the same key.
+     * Returns the first action that conflicts with the given action/key pair, or null if none. Two
+     * actions conflict when they are active at the same time and share the same key.
      */
     public static String getConflictingAction(
             String actionName, int keyCode, HashMap<String, Integer> keybinds) {

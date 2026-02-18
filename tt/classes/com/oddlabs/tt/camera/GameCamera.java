@@ -491,14 +491,22 @@ public final strictfp class GameCamera extends Camera {
         }
 
         Settings settings = Settings.getSettings();
-        pitch_up = LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_PITCH_UP))
-                || LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_PITCH_UP_ALT));
-        pitch_down = LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_PITCH_DOWN))
-                || LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_PITCH_DOWN_ALT));
-        rotate_right = LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT))
-                || LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT_ALT));
-        rotate_left = LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_ROTATE_LEFT))
-                || LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_ROTATE_LEFT_ALT));
+        pitch_up =
+                LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_PITCH_UP))
+                        || LocalInput.isKeyDown(
+                                settings.getKeybind(Globals.KB_CAMERA_PITCH_UP_ALT));
+        pitch_down =
+                LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_PITCH_DOWN))
+                        || LocalInput.isKeyDown(
+                                settings.getKeybind(Globals.KB_CAMERA_PITCH_DOWN_ALT));
+        rotate_right =
+                LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT))
+                        || LocalInput.isKeyDown(
+                                settings.getKeybind(Globals.KB_CAMERA_ROTATE_RIGHT_ALT));
+        rotate_left =
+                LocalInput.isKeyDown(settings.getKeybind(Globals.KB_CAMERA_ROTATE_LEFT))
+                        || LocalInput.isKeyDown(
+                                settings.getKeybind(Globals.KB_CAMERA_ROTATE_LEFT_ALT));
     }
 
     public final void enable() {
