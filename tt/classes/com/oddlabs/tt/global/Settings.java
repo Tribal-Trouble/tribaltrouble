@@ -454,7 +454,6 @@ public final strictfp class Settings implements Serializable {
                     int field_value = (new Integer(value)).intValue();
                     field.setInt(this, field_value);
                 } else if (field_type.equals(float.class)) {
-                    System.out.println("Loading float setting " + field.getName() + " = " + value);
                     float field_value = (new Float(value)).floatValue();
                     field.setFloat(this, field_value);
                 } else if (field_type.equals(String.class)) {
