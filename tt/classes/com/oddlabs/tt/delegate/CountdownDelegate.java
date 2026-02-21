@@ -10,14 +10,19 @@ import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.resource.FontFile;
 import com.oddlabs.tt.resource.Resources;
+import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.WorldViewer;
 
 import org.lwjgl.opengl.GL11;
+
+import java.util.ResourceBundle;
 
 public strictfp class CountdownDelegate extends CameraDelegate implements Updatable {
 
     private static final Font COUNTDOWN_FONT =
             (Font) Resources.findResource(new FontFile("/font/impact_72.font"));
+    private static final ResourceBundle bundle =
+            ResourceBundle.getBundle(CountdownDelegate.class.getName());
 
     private final WorldViewer viewer;
     private final Label countdown_label;
@@ -30,16 +35,20 @@ public strictfp class CountdownDelegate extends CameraDelegate implements Updata
         super(viewer.getGUIRoot(), camera);
         this.viewer = viewer;
         Font form_font = Skin.getSkin().getEditFont();
+        String waiting_text = Utils.getBundleString(bundle, "waiting");
         this.waiting_label =
                 new Label(
-                        "Waiting for players...",
+                        waiting_text,
                         form_font,
-                        form_font.getWidth("Waiting for players..."),
+                        form_font.getWidth(waiting_text),
                         Label.ALIGN_CENTER);
         addChild(waiting_label);
         this.countdown_label =
                 new Label(
-                        "", COUNTDOWN_FONT, COUNTDOWN_FONT.getWidth("Fight!"), Label.ALIGN_CENTER);
+                        "",
+                        COUNTDOWN_FONT,
+                        COUNTDOWN_FONT.getWidth(Utils.getBundleString(bundle, "fight")),
+                        Label.ALIGN_CENTER);
         addChild(countdown_label);
         this.timer_animation = new TimerAnimation(viewer.getAnimationManagerLocal(), this, 1f);
         timer_animation.start();
@@ -66,7 +75,7 @@ public strictfp class CountdownDelegate extends CameraDelegate implements Updata
             Menu.completeGameSetupHack(viewer);
         } else {
             if (countdown_time == 0) {
-                countdown_label.set("Fight!");
+                countdown_label.set(Utils.getBundleString(bundle, "fight"));
             } else {
                 countdown_label.set(String.valueOf(countdown_time));
             }
