@@ -67,7 +67,11 @@ public class RebindActionForm extends Form {
     }
 
     protected final void keyPressed(KeyboardEvent event) {
-        current_binding_label.set(Keyboard.keyToString(event.getKeyCode()));
+        String keyName = Keyboard.keyToString(event.getKeyCode());
+        current_binding_label.set(keyName);
+        current_binding_label.setDim(
+                current_binding_label.getFont().getWidth(keyName),
+                current_binding_label.getHeight());
         current_key_code = event.getKeyCode();
         updateConflictWarning();
     }
