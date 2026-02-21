@@ -354,8 +354,8 @@ public final strictfp class Settings implements Serializable {
             }
         }
 
-        String settings_save_file = Globals.getSettingsFileName();        
-        
+        String settings_save_file = Globals.getSettingsFileName();
+
         // Save keybinds HashMap
         saveKeybinds(props);
         System.out.println("Saving settings to " + LocalInput.getGameDir() + settings_save_file);

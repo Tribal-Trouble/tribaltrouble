@@ -45,9 +45,8 @@ public strictfp class TargetDelegate extends ControllableCameraDelegate {
         Settings settings = Settings.getSettings();
         int key = event.getKeyCode();
         if ((key != settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE)
-                && key != settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE_ALT))
-                || key != Keyboard.KEY_RETURN)
-            getCamera().keyReleased(event);
+                        && key != settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE_ALT))
+                || key != Keyboard.KEY_RETURN) getCamera().keyReleased(event);
     }
 
     public void mousePressed(int button, int x, int y) {

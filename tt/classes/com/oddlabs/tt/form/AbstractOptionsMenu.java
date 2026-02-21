@@ -453,7 +453,8 @@ public abstract strictfp class AbstractOptionsMenu extends Form {
         button_bug.place(label_box, BOTTOM_MID);
         report_bug.compileCanvas();
 
-        Panel keybinds = new KeybindPanel(gui_root, Utils.getBundleString(bundle, "keybinds_caption"));
+        Panel keybinds =
+                new KeybindPanel(gui_root, Utils.getBundleString(bundle, "keybinds_caption"));
 
         Panel[] panels;
         if (Settings.getSettings().hide_bugreporter) {
