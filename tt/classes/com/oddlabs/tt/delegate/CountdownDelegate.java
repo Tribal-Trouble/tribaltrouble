@@ -3,27 +3,43 @@ package com.oddlabs.tt.delegate;
 import com.oddlabs.tt.animation.TimerAnimation;
 import com.oddlabs.tt.animation.Updatable;
 import com.oddlabs.tt.camera.Camera;
+import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.gui.KeyboardEvent;
 import com.oddlabs.tt.gui.Label;
 import com.oddlabs.tt.gui.LocalInput;
 import com.oddlabs.tt.gui.Skin;
+import com.oddlabs.tt.resource.FontFile;
+import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.viewer.WorldViewer;
+import org.lwjgl.opengl.GL11;
 
 public strictfp class CountdownDelegate extends CameraDelegate implements Updatable {
 
+    private static final Font COUNTDOWN_FONT =
+            (Font) Resources.findResource(new FontFile("/font/impact_72.font"));
+
     private final WorldViewer viewer;
-    private final TimerAnimation timer_animation;
-    private int countdown_time = 3;
     private final Label countdown_label;
+    private final Label waiting_label;
+    private TimerAnimation timer_animation;
+    private int countdown_time = 3;
+    private boolean counting_down;
 
     public CountdownDelegate(WorldViewer viewer, Camera camera) {
         super(viewer.getGUIRoot(), camera);
         this.viewer = viewer;
-        String label = "3";
+        Font form_font = Skin.getSkin().getEditFont();
+        this.waiting_label =
+                new Label(
+                        "Waiting for players...",
+                        form_font,
+                        form_font.getWidth("Waiting for players..."),
+                        Label.ALIGN_CENTER);
+        addChild(waiting_label);
         this.countdown_label =
-                new Label(label, Skin.getSkin().getHeadlineFont(), 200, Label.ALIGN_CENTER);
+                new Label("", COUNTDOWN_FONT, COUNTDOWN_FONT.getWidth("Fight!"), Label.ALIGN_CENTER);
         addChild(countdown_label);
-        this.timer_animation = new TimerAnimation(viewer.getAnimationManagerLocal(), this, 2f);
+        this.timer_animation = new TimerAnimation(viewer.getAnimationManagerLocal(), this, 1f);
         timer_animation.start();
         displayChangedNotify(LocalInput.getViewWidth(), LocalInput.getViewHeight());
     }
@@ -31,6 +47,13 @@ public strictfp class CountdownDelegate extends CameraDelegate implements Updata
     @Override
     public void update(Object anim) {
         if (!allPlayersReady()) {
+            timer_animation.start();
+            return;
+        }
+        if (!counting_down) {
+            counting_down = true;
+            waiting_label.remove();
+            countdown_label.set("3");
             timer_animation.start();
             return;
         }
@@ -55,6 +78,25 @@ public strictfp class CountdownDelegate extends CameraDelegate implements Updata
         countdown_label.setPos(
                 (width - countdown_label.getWidth()) / 2,
                 (height - countdown_label.getHeight()) / 2);
+        waiting_label.setPos(
+                (width - waiting_label.getWidth()) / 2,
+                (height - waiting_label.getHeight()) / 2);
+    }
+
+    @Override
+    protected void renderGeometry() {
+        GL11.glEnd();
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(0f, 0f, 0f, 0.5f);
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glVertex2f(0, 0);
+        GL11.glVertex2f(getWidth(), 0);
+        GL11.glVertex2f(getWidth(), getHeight());
+        GL11.glVertex2f(0, getHeight());
+        GL11.glEnd();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(1f, 1f, 1f, 1f);
+        GL11.glBegin(GL11.GL_QUADS);
     }
 
     @Override
