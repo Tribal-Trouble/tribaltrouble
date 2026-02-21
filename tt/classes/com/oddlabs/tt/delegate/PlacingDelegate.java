@@ -2,6 +2,8 @@ package com.oddlabs.tt.delegate;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.camera.GameCamera;
+import com.oddlabs.tt.global.Globals;
+import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.*;
 import com.oddlabs.tt.input.Keyboard;
 import com.oddlabs.tt.landscape.HeightMap;
@@ -70,13 +72,16 @@ public final strictfp class PlacingDelegate extends ControllableCameraDelegate {
 
     public final void keyPressed(KeyboardEvent event) {
         getCamera().keyPressed(event);
-        switch (event.getKeyCode()) {
+        Settings settings = Settings.getSettings();
+        int key = event.getKeyCode();
+        switch (key) {
             case Keyboard.KEY_ESCAPE:
                 pop();
                 break;
             default:
-                if (event.getKeyCode() != Keyboard.KEY_SPACE
-                        && event.getKeyCode() != Keyboard.KEY_RETURN) super.keyPressed(event);
+                if (key != settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE)
+                        && key != settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE_ALT)
+                        && key != Keyboard.KEY_RETURN) super.keyPressed(event);
                 break;
         }
     }
