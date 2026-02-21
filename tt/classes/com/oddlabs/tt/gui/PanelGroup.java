@@ -22,7 +22,6 @@ public final strictfp class PanelGroup extends GUIObject {
         for (Panel panel : panels) {
             if (width < panel.getWidth()) {
                 width = panel.getWidth();
-                ;
             }
             if (height < panel.getHeight()) {
                 height = panel.getHeight();
