@@ -11,6 +11,7 @@ import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.tt.resource.FontFile;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.viewer.WorldViewer;
+
 import org.lwjgl.opengl.GL11;
 
 public strictfp class CountdownDelegate extends CameraDelegate implements Updatable {
@@ -37,7 +38,8 @@ public strictfp class CountdownDelegate extends CameraDelegate implements Updata
                         Label.ALIGN_CENTER);
         addChild(waiting_label);
         this.countdown_label =
-                new Label("", COUNTDOWN_FONT, COUNTDOWN_FONT.getWidth("Fight!"), Label.ALIGN_CENTER);
+                new Label(
+                        "", COUNTDOWN_FONT, COUNTDOWN_FONT.getWidth("Fight!"), Label.ALIGN_CENTER);
         addChild(countdown_label);
         this.timer_animation = new TimerAnimation(viewer.getAnimationManagerLocal(), this, 1f);
         timer_animation.start();
@@ -79,8 +81,7 @@ public strictfp class CountdownDelegate extends CameraDelegate implements Updata
                 (width - countdown_label.getWidth()) / 2,
                 (height - countdown_label.getHeight()) / 2);
         waiting_label.setPos(
-                (width - waiting_label.getWidth()) / 2,
-                (height - waiting_label.getHeight()) / 2);
+                (width - waiting_label.getWidth()) / 2, (height - waiting_label.getHeight()) / 2);
     }
 
     @Override
