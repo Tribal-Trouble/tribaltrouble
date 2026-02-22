@@ -4,10 +4,10 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.util.Quad;
 
+import java.nio.FloatBuffer;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-
-import java.nio.FloatBuffer;
 
 /**
  * Renders a compass indicator in the bottom-right corner of the screen. North is defined as the
@@ -51,7 +51,7 @@ public final strictfp class CompassRenderer {
         float prevPointSize = GL11.glGetFloat(GL11.GL_POINT_SIZE);
         float prevLineWidth = GL11.glGetFloat(GL11.GL_LINE_WIDTH);
         FloatBuffer prevColor = BufferUtils.createFloatBuffer(4);
-        GL11.glGetFloat(GL11.GL_CURRENT_COLOR, prevColor);
+        GL11.glGetFloatv(GL11.GL_CURRENT_COLOR, prevColor);
 
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_CULL_FACE);
