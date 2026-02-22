@@ -4,10 +4,10 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.util.Quad;
 
-import java.nio.FloatBuffer;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+
+import java.nio.FloatBuffer;
 
 /**
  * Renders a compass indicator in the bottom-right corner of the screen. North is defined as the
