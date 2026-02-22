@@ -1,5 +1,6 @@
 plugins {
     java
+    id("com.smushytaco.lwjgl3") version "1.0.1" apply false
 }
 
 allprojects {

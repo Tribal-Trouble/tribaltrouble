@@ -48,8 +48,8 @@ The game is currently unsigned and not available through another platform like s
 
 ### Client + Server
 
-- [Apache ant](https://ant.apache.org/)
 - [Java SDK 24](https://www.oracle.com/java/technologies/downloads/) (or Open-JDK-24)
+- [Apache ant](https://ant.apache.org/) (legacy — being replaced by Gradle)
 
 ### Server
 
@@ -57,7 +57,26 @@ The game is currently unsigned and not available through another platform like s
 
 ## 🏗️ Building
 
-Each instruction below assumes you are in a terminal at the root of the repository
+Each instruction below assumes you are in a terminal at the root of the repository.
+
+### Gradle (Recommended)
+
+No Gradle install required — the included wrapper (`gradlew`) handles it.
+
+| Command | What it does |
+|---------|-------------|
+| `./gradlew build` | Compile everything |
+| `./gradlew :tt:run` | Build + run the game client |
+| `./gradlew :server:runMatchmaker` | Build + run the matchmaking server |
+| `./gradlew :server:runRouter` | Build + run the router server |
+| `./gradlew :assets:textures` | Rebuild all textures from PNGs |
+| `./gradlew :assets:geometry` | Rebuild all geometry from XMLs |
+| `./gradlew :tt:compileJava` | Compile the game client only |
+| `./gradlew :server:compileJava` | Compile the server only |
+
+> On Windows use `gradlew.bat` instead of `./gradlew`, or use Git Bash.
+
+### Ant (Legacy)
 
 ### Build + Run Game Client
 
