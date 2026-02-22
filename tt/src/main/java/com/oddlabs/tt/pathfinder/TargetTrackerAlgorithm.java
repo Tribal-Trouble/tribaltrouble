@@ -2,7 +2,7 @@ package com.oddlabs.tt.pathfinder;
 
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.util.Target;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class TargetTrackerAlgorithm implements TrackerAlgorithm {
@@ -22,7 +22,7 @@ public final class TargetTrackerAlgorithm implements TrackerAlgorithm {
 	}
 
 	@Override
-	public boolean acceptRegion(@NotNull Region region) {
+	public boolean acceptRegion(@NonNull Region region) {
 		return !target.isDead() && unit_grid.getRegion(target.getGridX(), target.getGridY()) == region;
 	}
 
@@ -36,7 +36,7 @@ public final class TargetTrackerAlgorithm implements TrackerAlgorithm {
 	}
 
 	@Override
-	public @Nullable GridPathNode findPathGrid(@NotNull Region target_region, @NotNull Region next_region, int src_x, int src_y, boolean allow_secondary_targets) {
+	public @Nullable GridPathNode findPathGrid(@NonNull Region target_region, @NonNull Region next_region, int src_x, int src_y, boolean allow_secondary_targets) {
 		return target.isDead()
             ? null
             : PathFinder.findPathGrid(unit_grid, next_region, null,

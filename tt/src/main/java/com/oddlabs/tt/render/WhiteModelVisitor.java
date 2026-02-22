@@ -2,23 +2,20 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.util.Color;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.joml.Matrix4f;
 import org.joml.Vector4fc;
-import org.jspecify.annotations.NonNull;
 
 class WhiteModelVisitor<M extends Model> extends ModelVisitor<M> {
 	private static final Vector4fc COLOR_TEAM = Color.WHITE;
 
-	@NotNull
     @Override
-	public final @NonNull Vector4fc getSelectionColor(@NotNull ElementRenderState<M> render_state) {
+	public final @NonNull Vector4fc getSelectionColor(@NonNull ElementRenderState<M> render_state) {
 		return COLOR_TEAM;
 	}
 
-	@NotNull
     @Override
-	public final @NonNull Vector4fc getTeamColor(@NotNull ElementRenderState<M> render_state) {
+	public final @NonNull Vector4fc getTeamColor(@NonNull ElementRenderState<M> render_state) {
 		return COLOR_TEAM;
 	}
 

@@ -2,11 +2,10 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.model.Model;
 import com.oddlabs.util.Color;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 final class ElementRenderState<M extends Model> implements ModelState<M> {
@@ -20,7 +19,7 @@ final class ElementRenderState<M extends Model> implements ModelState<M> {
     ElementRenderState(@NonNull RenderState render_state) {
         this.render_state = render_state;
     }
-    public @NotNull Vector4f getColor() {
+    public @NonNull Vector4f getColor() {
         return color;
     }
 
@@ -39,13 +38,11 @@ final class ElementRenderState<M extends Model> implements ModelState<M> {
         return dest;
     }
 
-    @NotNull
     @Override
     public @NonNull Vector4fc getTeamColor() {
         return visitor.getTeamColor(this);
     }
 
-    @NotNull
     @Override
     public @NonNull Vector4fc getSelectionColor() {
         return visitor.getSelectionColor(this);

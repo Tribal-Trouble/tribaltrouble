@@ -23,6 +23,7 @@ application {
     mainClass.set("com.oddlabs.tt.Main")
     val args = mutableListOf(
         "-ea", "-esa", //"-check:JNI",
+        "--enable-native-access=ALL-UNNAMED",
         "-Dcom.oddlabs.tt.developer=true",
         "-Xms80m", "-Xmx512m"
 //           , "-javaagent:/Users/mike/.m2/repository/org/lwjglx/lwjglx-debug/1.0.3/lwjglx-debug-1.0.3.jar=validate;trace;output=trace.log"

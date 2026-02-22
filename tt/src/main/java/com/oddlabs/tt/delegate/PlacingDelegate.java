@@ -27,7 +27,7 @@ import com.oddlabs.tt.render.state.CullMode;
 import com.oddlabs.tt.render.state.DepthMode;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.viewer.WorldViewer;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
 
@@ -106,7 +106,7 @@ public final class PlacingDelegate extends ControllableCameraDelegate {
     }
 
     @Override
-    public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues, @NonNull CameraState state, @NotNull MatrixStack modelViewStack, @NotNull MatrixStack projectionStack) {
+    public void render3D(@NonNull LandscapeRenderer renderer, @NonNull RenderQueues queues, @NonNull CameraState state, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (!getViewer().getPicker().pickLocation(getCamera().getState(), landscape_hit)) return;
         UnitGrid unit_grid = getViewer().getWorld().getUnitGrid();
         int placing_grid_x = UnitGrid.toGridCoordinate(landscape_hit.x) - (getTemplate().getPlacingSize() - 1);

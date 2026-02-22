@@ -4,10 +4,9 @@ import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.player.Player;
 import com.oddlabs.util.Color;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.joml.Matrix4f;
 import org.joml.Vector4fc;
-import org.jspecify.annotations.NonNull;
 
 class SelectableVisitor<S extends Selectable<?>> extends ModelVisitor<S> {
 	private static final Vector4fc COLOR_RED = Color.argb4v(0xC0_FF_00_00);
@@ -29,13 +28,11 @@ class SelectableVisitor<S extends Selectable<?>> extends ModelVisitor<S> {
 		return model.getOwner().getColor();
 	}
 
-	@NotNull
     @Override
 	public final @NonNull Vector4fc getTeamColor(@NonNull ElementRenderState<S> render_state) {
 		return getTeamColor(render_state.getModel());
 	}
 
-	@NotNull
     @Override
 	public final @NonNull Vector4fc getSelectionColor(@NonNull ElementRenderState<S> render_state) {
 		Player local_player = render_state.render_state.getLocalPlayer();

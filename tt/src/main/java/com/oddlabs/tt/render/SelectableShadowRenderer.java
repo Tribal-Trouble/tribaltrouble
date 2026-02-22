@@ -5,7 +5,7 @@ import com.oddlabs.tt.model.Model;
 import com.oddlabs.tt.procedural.GeneratorHalos;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.Resources;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.opengl.GL11;
@@ -47,7 +47,7 @@ final class SelectableShadowRenderer extends ShadowListRenderer {
     }
 
     @Override
-    protected void renderShadows(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer, @NotNull MatrixStack modelViewStack, @NotNull MatrixStack projectionStack) {
+    protected void renderShadows(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         try (var _ = setupShadows(context, renderer, modelViewStack, projectionStack)) {
             setShadowColor(1f, 1f, 1f, 1f);
             bindShadowTexture(halos[GeneratorHalos.SHADOWED]);

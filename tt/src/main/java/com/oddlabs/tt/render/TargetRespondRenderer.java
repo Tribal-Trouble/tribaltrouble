@@ -4,7 +4,7 @@ import com.oddlabs.tt.global.Globals;
 import com.oddlabs.tt.landscape.LandscapeTargetRespond;
 import com.oddlabs.tt.render.state.RenderContext;
 import com.oddlabs.tt.resource.Resources;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayDeque;
@@ -27,7 +27,7 @@ public final class TargetRespondRenderer extends ShadowListRenderer {
     }
 
     @Override
-    public void renderShadows(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer, @NotNull MatrixStack modelViewStack, @NotNull MatrixStack projectionStack) {
+    public void renderShadows(@NonNull RenderContext context, @NonNull LandscapeRenderer renderer, @NonNull MatrixStack modelViewStack, @NonNull MatrixStack projectionStack) {
         if (target_list.isEmpty()) return;
         
         try (var _ = setupShadows(context, renderer, modelViewStack, projectionStack)) {

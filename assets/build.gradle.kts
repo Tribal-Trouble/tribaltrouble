@@ -1,5 +1,19 @@
+import com.smushytaco.lwjgl_gradle.Module
+
 group = "com.oddlabs.tribaltrouble"
 version = "1.0.0"
+
+plugins {
+    id("com.smushytaco.lwjgl3")
+}
+
+lwjgl {
+    version = "3.4.1"
+    implementation(
+        Module.CORE,
+        Module.OPENGL,
+        Module.STB)
+}
 
 val fontRenderer  by configurations.creating
 
@@ -100,7 +114,7 @@ val geometry = tasks.register<JavaExec>("geometry") {
     classpath(configurations.runtimeClasspath)
     mainClass.set("com.oddlabs.converter.ConvertToBinary")
     args("geometry.xml", "geometry", "build/geometry")
-    jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true")
+    jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true", "--enable-native-access=ALL-UNNAMED")
     inputs.file("geometry/geometry.xml")
     inputs.dir("geometry").withPathSensitivity(PathSensitivity.RELATIVE)
     outputs.dir("build/geometry")
@@ -114,7 +128,7 @@ fun convertTexture(name: String, png: File, vararg convertArgs: String) =
         val subdir = convertArgs.last()
         val outdir = "build/textures/$subdir"
         args(png.absolutePath, *convertArgs.dropLast(1).toTypedArray(), file(outdir).absolutePath)
-        jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true")
+        jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true", "--enable-native-access=ALL-UNNAMED")
         inputs.file(png)
         outputs.file("$outdir/${png.nameWithoutExtension}.$ext")
     }

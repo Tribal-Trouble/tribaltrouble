@@ -25,6 +25,7 @@ subprojects {
     java {
         sourceCompatibility = JavaVersion.VERSION_25
         targetCompatibility = JavaVersion.VERSION_25
+        modularity.inferModulePath.set(true)
     }
 
     tasks.withType<JavaCompile>().configureEach {

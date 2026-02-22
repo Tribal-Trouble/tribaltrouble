@@ -2,7 +2,7 @@ package com.oddlabs.tt.render;
 
 import com.oddlabs.tt.camera.CameraState;
 import com.oddlabs.tt.landscape.TreeSupply;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NonNull;
 
 final class TreeRenderState implements LODObject {
@@ -23,7 +23,7 @@ final class TreeRenderState implements LODObject {
 	}
 
 	@Override
-	public void markDetailPolygon(@NotNull PolyDetail level) {
+	public void markDetailPolygon(@NonNull PolyDetail level) {
 		tree_renderer.markDetailPolygon(tree_supply, level);
 	}
 
