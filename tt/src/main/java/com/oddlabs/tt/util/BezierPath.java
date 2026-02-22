@@ -37,29 +37,17 @@ public final class BezierPath {
 
 	public void computeCurvePoint(float speed) {
 		assert !isDone();
-        float old_x = current_point[0];
-        float old_y = current_point[1];
-        
-		computeCurvePointFromTime(t, current_point);
-        
-        float dx = current_point[0] - old_x;
-        float dy = current_point[1] - old_y;
-        float len = (float)Math.sqrt(dx*dx + dy*dy);
-        if (len > 0.000001f) {
-            current_dir[0] = dx / len;
-            current_dir[1] = dy / len;
-        }
-        
+		computeCurvePointFromTime(t, current_point, current_dir);
 		t += dt*speed;
 	}
 
 	public void dumpPoints() {
-            for (float[] point : points) {
-				IO.println("points[i][0] = " + point[0] + " | points[i][1] = " + point[1]);
-            }
+		for (float[] point : points) {
+			System.out.println("points[i][0] = " + point[0] + " | points[i][1] = " + point[1]);
+		}
 	}
 
-	private void computeCurvePointFromTime(float t, float @NonNull [] point) {
+	private void computeCurvePointFromTime(float t, float @NonNull [] point, float @NonNull [] dir) {
 		float t2 = t*t;
 		float t3 = t2*t;
 		float b0 = 1 - 3*t + 3*t2 - t3;
@@ -68,6 +56,20 @@ public final class BezierPath {
 		float b3 = t3;
 		point[0] = (1f/6f)*(points[PREVIOUS][0]*b0 + points[START][0]*b1 + points[END][0]*b2 + points[NEXT][0]*b3);
 		point[1] = (1f/6f)*(points[PREVIOUS][1]*b0 + points[START][1]*b1 + points[END][1]*b2 + points[NEXT][1]*b3);
+
+		float db0 = -3 + 6*t - 3*t2;
+		float db1 = 9*t2 - 12*t;
+		float db2 = -9*t2 + 6*t + 3;
+		float db3 = 3*t2;
+		float dx = (1f/6f)*(points[PREVIOUS][0]*db0 + points[START][0]*db1 + points[END][0]*db2 + points[NEXT][0]*db3);
+		float dy = (1f/6f)*(points[PREVIOUS][1]*db0 + points[START][1]*db1 + points[END][1]*db2 + points[NEXT][1]*db3);
+		float dir_len_inv = 1f/(float)Math.sqrt(dx*dx + dy*dy);
+		dir[0] = dx*dir_len_inv;
+		dir[1] = dy*dir_len_inv;
+		if (Float.isNaN(dir[0]) || Float.isNaN(dir[1])) {
+			dir[0] = 1f;
+			dir[1] = 0f;
+		}
 	}
 
 	public float getCurrentDirectionX() {
@@ -87,33 +89,19 @@ public final class BezierPath {
 	}
 
 	public void init(float inv_length, float x1, float y1, float x2, float y2) {
-		assert x1 != x2 || y1 != y2: x1 + " " + y1;
-		points[START][0] = x1 + (x1 - x2);
-		points[START][1] = y1 + (y1 - y2);
+		assert x1 != x2 || y1 != y2 : x1 + " " + y1;
+		float extrapolated_x = x1 + (x1 - x2);
+		float extrapolated_y = y1 + (y1 - y2);
+		points[PREVIOUS][0] = extrapolated_x;
+		points[PREVIOUS][1] = extrapolated_y;
+		points[START][0] = extrapolated_x;
+		points[START][1] = extrapolated_y;
 		points[END][0] = x1;
 		points[END][1] = y1;
 		points[NEXT][0] = x2;
 		points[NEXT][1] = y2;
 		initState();
 		dt = inv_length;
-        
-        // Initialize direction
-        float dx = x2 - x1;
-        float dy = y2 - y1;
-        float len = (float)Math.sqrt(dx*dx + dy*dy);
-        if (len > 0) {
-            current_dir[0] = dx / len;
-            current_dir[1] = dy / len;
-        } else {
-            // Preserve previous direction if length is 0
-            // If vector is uninitialized (0,0), set to default East
-            if (current_dir[0] == 0f && current_dir[1] == 0f) {
-                current_dir[0] = 1f;
-                current_dir[1] = 0f;
-            }
-        }
-        current_point[0] = x1;
-        current_point[1] = y1;
 	}
 
 	public void nextPoint(float inv_length, float x, float y) {
@@ -151,7 +139,7 @@ public final class BezierPath {
 		float prev_x = 0, prev_y = 0, prev_z = 0;
 		boolean first = true;
 		for (float t = 0f; t < 1f; t += .01f) {
-			computeCurvePointFromTime(t, debug_point);
+			computeCurvePointFromTime(t, debug_point, debug_dir);
 			float x = debug_point[0];
 			float y = debug_point[1];
 			float z = heightmap.getNearestHeight(x, y) + 0.5f;

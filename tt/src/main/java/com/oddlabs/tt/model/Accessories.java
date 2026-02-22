@@ -17,9 +17,4 @@ public abstract class Accessories extends Model {
 	public final @NonNull SpriteKey getSpriteRenderer() {
 		return sprite_renderer;
 	}
-
-	@Override
-	public final float getShadowDiameter() {
-		return 0f;
-	}
 }

@@ -118,11 +118,6 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
 	}
 
 	@Override
-	public float getOffsetZ() {
-		return 0;
-	}
-
-	@Override
 	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitBuilding(this);
 	}
@@ -699,16 +694,6 @@ public final class Building extends Selectable<BuildingTemplate> implements Occu
 	@Override
 	public @NonNull String toString() {
 		return "Building: isDead() = " + isDead();
-	}
-
-	@Override
-	public float getAnimationTicks() {
-		return 0;
-	}
-
-	@Override
-	public int getAnimation() {
-		return 0;
 	}
 
 	public void fillSupplies(@NonNull Class<?> key, int max) {

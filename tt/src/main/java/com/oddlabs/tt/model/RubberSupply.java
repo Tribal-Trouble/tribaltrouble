@@ -14,21 +14,32 @@ import com.oddlabs.tt.render.SpriteKey;
 import com.oddlabs.tt.util.Target;
 import org.jspecify.annotations.NonNull;
 
+/** aka Chicken */
 public final class RubberSupply extends SupplyModel implements Animated, Movable {
 	private static final float MIN_TREE_FALL_HEIGHT = 4f;
 	private static final float MAX_TREE_FALL_HEIGHT = 8f;
-
-	private static final int ANIMATION_IDLING = 0;
-	private static final int ANIMATION_PECKING = 1;
-	private static final int ANIMATION_DYING = 2;
-	private static final int ANIMATION_RUNNING = 3;
-	private static final int ANIMATION_FLYING = 4;
-
-	private static final float @NonNull [] ANIMATION_SPEEDS;
+	private static final float METERS_PER_SECOND = 8f;
 
 	private static final int INITIAL_SUPPLIES = 1;
-	private static final float METERS_PER_SECOND = 8f;
 	private static final int MAX_MOVE_GRIDS = 5;
+
+	public enum Animation {
+		IDLING(1f/(50f/25f)),
+		PECKING(1f/(120f/50f)),
+		DYING(1f/(150f/50f)),
+		RUNNING(METERS_PER_SECOND),
+		FLYING(METERS_PER_SECOND);
+
+		private final float speed;
+
+		Animation(float speed) {
+			this.speed = speed;
+		}
+
+		public float getSpeed() {
+			return speed;
+		}
+	}
 
 	private final @NonNull PathTracker path_tracker;
 	private final int start_grid_x;
@@ -37,23 +48,15 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 	private final float spawn_y;
 	private final float spawn_z;
 
-	private final RubberGroup group;
+	private final @NonNull RubberGroup group;
 
 	private float anim_time = 0;
-	private int animation = ANIMATION_IDLING;
+	private @NonNull Animation animation = Animation.IDLING;
 	private boolean is_hit = false;
 	private boolean spawning;
 	private float offset_z;
 
-	static {
-		float SPEED_IDLE = 1f/(50f/25f);
-		float SPEED_PECK = 1f/(120f/50f);
-		float SPEED_DIE = 1f/(150f/50f);
-		float SPEED_MOVE = METERS_PER_SECOND;
-		ANIMATION_SPEEDS = new float[]{SPEED_IDLE, SPEED_PECK, SPEED_DIE, SPEED_MOVE, SPEED_MOVE};
-	}
-
-	public RubberSupply(@NonNull World world, @NonNull SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, RubberGroup group, float spawn_x, float spawn_y) {
+	public RubberSupply(@NonNull World world, @NonNull SpriteKey sprite_renderer, float size, int grid_x, int grid_y, float x, float y, float rotation, @NonNull RubberGroup group, float spawn_x, float spawn_y) {
 		super(world, sprite_renderer, size, grid_x, grid_y, x, y, rotation, INITIAL_SUPPLIES, false);
 		this.path_tracker = new PathTracker(world.getUnitGrid(), this);
 		this.group = group;
@@ -67,7 +70,7 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 		float dy = y - spawn_y;
 		float inv_len = 1f/(float)Math.sqrt(dx*dx + dy*dy);
 		setDirection(dx*inv_len, dy*inv_len);
-		setNewAnimation(ANIMATION_FLYING);
+		setNewAnimation(Animation.FLYING);
 	}
 
 	@Override
@@ -82,7 +85,7 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 
 	@Override
 	public void animateSpawn(float t, float progress) {
-		anim_time += ANIMATION_SPEEDS[animation]*t;
+		anim_time += animation.getSpeed()*t;
 		float x = spawn_x + (UnitGrid.coordinateFromGrid(getGridX()) - spawn_x)*progress;
 		float y = spawn_y + (UnitGrid.coordinateFromGrid(getGridY()) - spawn_y)*progress;
 		setPosition(x, y);
@@ -94,11 +97,11 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 	public void spawnComplete() {
 		offset_z = 0;
 		spawning = false;
-		setNewAnimation(ANIMATION_IDLING);
+		setNewAnimation(Animation.IDLING);
 	}
 
 	@Override
-	public Supply respawn() {
+	public @NonNull Supply respawn() {
 		throw new RuntimeException();
 	}
 
@@ -112,10 +115,6 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 		return false;
 	}
 
-/*	public void moveNextAnimate() {
-		throw new RuntimeException("Chickens should not rotate.");
-	}
-*/
 	@Override
 	public void free() {
 		getWorld().getUnitGrid().freeGrid(getGridX(), getGridY(), this);
@@ -148,15 +147,15 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 
 	@Override
 	public void animate(float t) {
-		if (spawning)
+		if (spawning || path_tracker == null)
 			return;
-		anim_time += ANIMATION_SPEEDS[animation]*t;
-		if (animation == ANIMATION_FLYING || animation == ANIMATION_RUNNING) {
+		anim_time += animation.getSpeed()*t;
+		if (animation == Animation.FLYING || animation == Animation.RUNNING) {
 			fly(t);
 		} else if (!is_hit && anim_time >= 1f) {
 			float random = getWorld().getRandom().nextFloat();
 			if (random < .75) {
-				setNewAnimation(ANIMATION_IDLING);
+				setNewAnimation(Animation.IDLING);
 				if (random < .05)
 					getWorld().getAudio().newAudio(new AudioParameters<>(getWorld().getLandscapeResources().getBirdIdleSound(getWorld().getRandom()), getPositionX(), getPositionY(), getPositionZ(),
 							AudioPlayer.AUDIO_RANK_CHICKEN,
@@ -171,17 +170,17 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 				path_tracker.setTarget(new TargetTrackerAlgorithm(getWorld().getUnitGrid(), 0f, target));
 				float move_random = getWorld().getRandom().nextFloat();
 				if (move_random < .25f) {
-					setNewAnimation(ANIMATION_FLYING);
+					setNewAnimation(Animation.FLYING);
 					getWorld().getAudio().newAudio(new AudioParameters<>(getWorld().getLandscapeResources().getBirdPeckSound(), getPositionX(), getPositionY(), getPositionZ(),
 							AudioPlayer.AUDIO_RANK_CHICKEN,
 							AudioPlayer.AUDIO_DISTANCE_CHICKEN,
 							AudioPlayer.AUDIO_GAIN_CHICKEN_PECK,
 							AudioPlayer.AUDIO_RADIUS_CHICKEN_PECK));
 				} else {
-					setNewAnimation(ANIMATION_RUNNING);
+					setNewAnimation(Animation.RUNNING);
 				}
 			} else {
-				setNewAnimation(ANIMATION_PECKING);
+				setNewAnimation(Animation.PECKING);
 				if (random > .98f)
 					getWorld().getAudio().newAudio(new AudioParameters<>(getWorld().getLandscapeResources().getBirdPeckSound(), getPositionX(), getPositionY(), getPositionZ(),
 							AudioPlayer.AUDIO_RANK_CHICKEN,
@@ -202,7 +201,7 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 			case DONE:
 			case BLOCKED:
 			case SOFTBLOCKED:
-				setNewAnimation(ANIMATION_IDLING);
+				setNewAnimation(Animation.IDLING);
 				return;
 			default:
 				throw new RuntimeException("Invalid tracker state: " + state);
@@ -214,14 +213,15 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 		return offset_z;
 	}
 
-	private void setNewAnimation(int animation_index) {
+	private void setNewAnimation(@NonNull Animation animation) {
 		anim_time = 0;
-		animation = animation_index;
+		this.animation = animation;
 	}
 
 	@Override
 	public int getAnimation() {
-		return animation;
+		// This method is called during super constructor before field is initialized.
+		return null != animation ? animation.ordinal() : 0;
 	}
 
 	@Override
@@ -233,7 +233,7 @@ public final class RubberSupply extends SupplyModel implements Animated, Movable
 	public boolean hit() {
 		if (!is_hit) {
 			is_hit = true;
-			setNewAnimation(ANIMATION_DYING);
+			setNewAnimation(Animation.DYING);
 			getWorld().getAudio().newAudio(new AudioParameters<>(getWorld().getLandscapeResources().getBirdDeathSound(), getPositionX(), getPositionY(), getPositionZ(),
 					AudioPlayer.AUDIO_RANK_DEATH,
 					AudioPlayer.AUDIO_DISTANCE_DEATH,

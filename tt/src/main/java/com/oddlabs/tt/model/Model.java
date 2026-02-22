@@ -21,13 +21,12 @@ public abstract class Model extends Element<Model> {
         return this;
     }
 
-    public abstract float getShadowDiameter();
-
-	public abstract float getOffsetZ();
-	public abstract int getAnimation();
-	public abstract float getAnimationTicks();
+    public float getShadowDiameter() { return 0f;}
+	public float getOffsetZ() { return 0f; }
+	public int getAnimation() { return 0; }
+	public float getAnimationTicks() { return 0f;}
+	public float getNoDetailSize() { return 0f;}
 	public abstract @Nullable SpriteKey getSpriteRenderer();
-	public abstract float getNoDetailSize();
 
 	private void updateBounds() {
 		float x = getPositionX();

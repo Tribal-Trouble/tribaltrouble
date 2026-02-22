@@ -207,33 +207,8 @@ public class Particle extends Model {
 	}
 
     @Override
-    public float getShadowDiameter() {
-        return 0;
-    }
-
-    @Override
-    public float getOffsetZ() {
-        return 0;
-    }
-
-    @Override
-    public int getAnimation() {
-        return 0;
-    }
-
-    @Override
-    public float getAnimationTicks() {
-        return 0;
-    }
-
-    @Override
     public @Nullable SpriteKey getSpriteRenderer() {
         return null;
-    }
-
-    @Override
-    public float getNoDetailSize() {
-        return 0;
     }
 
     @Override

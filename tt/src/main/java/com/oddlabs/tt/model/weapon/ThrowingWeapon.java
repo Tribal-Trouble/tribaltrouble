@@ -130,16 +130,6 @@ public abstract class ThrowingWeapon extends Accessories implements Animated {
 	}
 
 	@Override
-	public final float getAnimationTicks() {
-		return 0;
-	}
-
-	@Override
-	public final int getAnimation() {
-		return 0;
-	}
-
-	@Override
 	public void animate(float t) {
 		if (time >= time_limit) {
 			hitTarget(hit, owner, target);

@@ -77,11 +77,6 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 	}
 
 	@Override
-	public final float getOffsetZ() {
-		return 0;
-	}
-
-	@Override
 	public final void animate(float t) {
 		anim_time += t/2.5f;
 		if (seconds_per_animation_cycle > -1 && anim_time > seconds_per_animation_cycle)
@@ -91,28 +86,16 @@ public class SceneryModel extends Model implements Occupant, ModelToolTip, Anima
 		
 	@Override
 	public final int getAnimation() {
-		if (animation > -1)
-			return animation;
-		else
-			return 0;
+        return animation > -1 ? animation : 0;
 	}
 	
 	@Override
 	public final float getAnimationTicks() {
-		if (animation > -1) {
-			return anim_time;
-		} else {
-			return 0;
-		}
+        return animation > -1 ? anim_time : 0;
 	}
 
 	@Override
 	public final void updateChecksum(@NonNull StateChecksum checksum) {
-	}
-
-	@Override
-	public final float getNoDetailSize() {
-		return 0f;
 	}
 
 	@Override

@@ -238,7 +238,7 @@ final class RenderState implements ElementVisitor {
         public void getTransform(@NonNull ElementRenderState<SupplyModel> render_state, @NonNull Matrix4f dest) {
             SupplyModel model = render_state.getModel();
             dest.translation(model.getPositionX(), model.getPositionY(), model.getPositionZ())
-                .rotate(model.getRotation(), 0f, 0f, 1f);
+                .rotate((float) Math.toRadians(model.getRotation()), 0f, 0f, 1f);
         }
 	};
 	@Override
@@ -250,7 +250,7 @@ final class RenderState implements ElementVisitor {
         @Override
         public void getTransform(@NonNull ElementRenderState<RubberSupply> render_state, @NonNull Matrix4f dest) {
             Model model = render_state.model;
-            float angle = (float) Math.toDegrees(Math.atan2(model.getDirectionY(), model.getDirectionX()));
+            float angle = (float) Math.atan2(model.getDirectionY(), model.getDirectionX());
             dest.translation(model.getPositionX(), model.getPositionY(), render_state.f)
                 .rotate(angle, 0f, 0f, 1f);
         }
@@ -282,7 +282,7 @@ final class RenderState implements ElementVisitor {
         @Override
         public void getTransform(@NonNull ElementRenderState<Plants> render_state, @NonNull Matrix4f dest) {
             Plants plants = render_state.getModel();
-            float angle = (float) Math.toDegrees(Math.atan2(plants.getDirectionY(), plants.getDirectionX()));
+            float angle = (float) Math.atan2(plants.getDirectionY(), plants.getDirectionX());
             dest.translation(plants.getPositionX(), plants.getPositionY(), plants.getPositionZ())
                 .rotate(angle, 0f, 0f, 1f);
 

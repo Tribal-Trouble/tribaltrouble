@@ -101,7 +101,7 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 
 	@Override
 	public final float getNoDetailSize() {
-		throw new RuntimeException();
+		throw new IllegalStateException();
 	}
 
 	@Override
@@ -157,16 +157,6 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
     }
 
 	@Override
-	public int getAnimation() {
-		return 0;
-	}
-
-	@Override
-	public float getAnimationTicks() {
-		return 0;
-	}
-
-	@Override
 	public final @NonNull SpriteKey getSpriteRenderer() {
 		return sprite_renderer;
 	}
@@ -174,11 +164,6 @@ public abstract class SupplyModel extends Model implements Supply, Target, Model
 	@Override
 	public void visit(@NonNull ElementVisitor visitor) {
 		visitor.visitSupplyModel(this);
-	}
-
-	@Override
-	public float getShadowDiameter() {
-		return 0f;
 	}
 
 	@Override
