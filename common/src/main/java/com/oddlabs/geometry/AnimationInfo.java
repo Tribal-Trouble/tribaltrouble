@@ -17,11 +17,13 @@ public final class AnimationInfo implements Serializable {
 	private final float @NonNull [] @NonNull [] frames;
 	private final @NonNull AnimationType type;
 	private final float wpc;
+	private final @NonNull String name;
 
-	public AnimationInfo(float @NonNull [] @NonNull [] frames, @NonNull AnimationType type, float wpc) {
+	public AnimationInfo(float @NonNull [] @NonNull [] frames, @NonNull AnimationType type, float wpc, @NonNull String name) {
 		this.frames = frames;
 		this.type = type;
 		this.wpc = wpc;
+		this.name = name;
 	}
 
 	public float @NonNull [] @NonNull [] getFrames() {
@@ -34,5 +36,9 @@ public final class AnimationInfo implements Serializable {
 
 	public float getWPC() {
 		return wpc;
+	}
+
+	public @NonNull String getName() {
+		return name;
 	}
 }

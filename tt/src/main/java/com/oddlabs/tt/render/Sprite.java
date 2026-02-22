@@ -145,11 +145,13 @@ public final class Sprite {
                 for (int frame = 0; frame < num_frames; frame++) {
                     float[] frame_animation = animations[anim].getFrames()[frame];
                     for (int bone = 0; bone < num_bones; bone++) {
-                        matrix_buffer.clear();
-                        matrix_buffer.position(0);
-                        matrix_buffer.put(frame_animation, bone * 12, 12);
-                        matrix_buffer.rewind();
-                        frame_bones[bone].setTransposed(matrix_buffer);
+                        int offset = bone * 12;
+                        frame_bones[bone].set(
+                            frame_animation[offset + 0], frame_animation[offset + 4], frame_animation[offset + 8], 0.0f,
+                            frame_animation[offset + 1], frame_animation[offset + 5], frame_animation[offset + 9], 0.0f,
+                            frame_animation[offset + 2], frame_animation[offset + 6], frame_animation[offset + 10], 0.0f,
+                            frame_animation[offset + 3], frame_animation[offset + 7], frame_animation[offset + 11], 1.0f
+                        );
                     }
                     float[] frame_normals = tmp_normals[anim][frame];
                     float[] frame_vertices = tmp_vertices[anim][frame];
@@ -184,9 +186,9 @@ public final class Sprite {
                             result_nz += temp.z * weight;
                         }
                         float vec_len_inv = 1f / (float) Math.sqrt(result_nx * result_nx + result_ny * result_ny + result_nz * result_nz);
-                        result_nx *= vec_len_inv;
-                        result_ny *= vec_len_inv;
-                        result_nz *= vec_len_inv;
+                            result_nx *= vec_len_inv;
+                            result_ny *= vec_len_inv;
+                            result_nz *= vec_len_inv;
                         frame_normals[vertex * 3 + 0] = result_nx;
                         frame_normals[vertex * 3 + 1] = result_ny;
                         frame_normals[vertex * 3 + 2] = result_nz;

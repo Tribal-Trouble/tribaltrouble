@@ -103,7 +103,8 @@ public final class ConvertToBinary {
 				assert wpc != 0f;
 				String type_str = item.getAttributes().getNamedItem("type").getNodeValue();
 				AnimationInfo.AnimationType type = getTypeFromString(type_str);
-				object_infos.add(new AnimObjectInfo(src_dir.resolve(getText(item)), wpc, type));
+				String animName = item.getAttributes().getNamedItem("name").getNodeValue();
+				object_infos.add(new AnimObjectInfo(src_dir.resolve(getText(item)), wpc, type, animName));
 			}
 		}
 		AnimObjectInfo[] infos = new AnimObjectInfo[object_infos.size()];
@@ -167,11 +168,11 @@ public final class ConvertToBinary {
 					AnimObjectInfo current = anim_object_infos[i];
 					Map<String,float[]>[] animation_map = AnimationLoader.loadAnimation(current.getFile());
 					assert animations[i] == null;
-					animations[i] = Optimizer.convertToAnimation(skeleton.getBoneRoot(), skeleton.getInitialPose(), animation_map, current.getType(), current.getWPC());
+					animations[i] = Optimizer.convertToAnimation(skeleton.getBoneRoot(), skeleton.getInitialPose(), animation_map, current.getType(), current.getWPC(), current.getName());
 				}
 			} else {
 				float[][] identity_frame = {{1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0}};
-				animations = new AnimationInfo[]{new AnimationInfo(identity_frame, AnimationInfo.AnimationType.LOOP, 1f)};
+				animations = new AnimationInfo[]{new AnimationInfo(identity_frame, AnimationInfo.AnimationType.LOOP, 1f, "identity")};
 				name_to_bone_map = null;
 			}
 			SpriteInfo[] sprite_models = new SpriteInfo[model_object_infos.length];

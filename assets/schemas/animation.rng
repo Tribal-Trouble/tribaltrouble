@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="animation">
+      <oneOrMore>
+        <element name="frame">
+          <attribute name="index"><data type="integer"/></attribute>
+          <oneOrMore>
+            <element name="transform">
+              <attribute name="name"/>
+              <attribute name="m00"><data type="float"/></attribute>
+              <attribute name="m01"><data type="float"/></attribute>
+              <attribute name="m02"><data type="float"/></attribute>
+              <attribute name="m03"><data type="float"/></attribute>
+              <attribute name="m10"><data type="float"/></attribute>
+              <attribute name="m11"><data type="float"/></attribute>
+              <attribute name="m12"><data type="float"/></attribute>
+              <attribute name="m13"><data type="float"/></attribute>
+              <attribute name="m20"><data type="float"/></attribute>
+              <attribute name="m21"><data type="float"/></attribute>
+              <attribute name="m22"><data type="float"/></attribute>
+              <attribute name="m23"><data type="float"/></attribute>
+              <attribute name="m30"><data type="float"/></attribute>
+              <attribute name="m31"><data type="float"/></attribute>
+              <attribute name="m32"><data type="float"/></attribute>
+              <attribute name="m33"><data type="float"/></attribute>
+            </element>
+          </oneOrMore>
+        </element>
+      </oneOrMore>
+    </element>
+  </start>
+</grammar>

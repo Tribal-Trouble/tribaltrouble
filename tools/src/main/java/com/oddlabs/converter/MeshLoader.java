@@ -6,9 +6,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -26,10 +29,10 @@ public final class MeshLoader {
 			Document document = builder.parse(input_stream);
 			Element root = document.getDocumentElement();
 			return createModelInfo(root, name_to_bone_map, scale);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+		} catch (IOException | ParserConfigurationException | SAXException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 	private static @NonNull ModelInfo createModelInfo(@NonNull Node node, @Nullable Map<String,Bone> name_to_bone_map, float scale) {
 //		String texture_name = cutTextureName(node.getAttributes().getNamedItem("texture").getNodeValue());
@@ -41,6 +44,7 @@ public final class MeshLoader {
 		float[] colors = new float[num_vertices*3];
 		float[] normals = new float[num_vertices*3];
 		float[] uvs = new float[num_vertices*2];
+		float[] uvs2 = new float[num_vertices*2];
 		byte[][] skin_names = new byte[num_vertices][];
 		float[][] skin_weights = new float[num_vertices][];
 
@@ -58,18 +62,27 @@ public final class MeshLoader {
 					vertices[polygon_index*9 + vertex_index*3 + 0] = getAttrFloat(vertex, "x")*scale;
 					vertices[polygon_index*9 + vertex_index*3 + 1] = getAttrFloat(vertex, "y")*scale;
 					vertices[polygon_index*9 + vertex_index*3 + 2] = getAttrFloat(vertex, "z")*scale;
-					colors[polygon_index*9 + vertex_index*3 + 0] = getAttrFloat(vertex, "r");
-					colors[polygon_index*9 + vertex_index*3 + 1] = getAttrFloat(vertex, "g");
-					colors[polygon_index*9 + vertex_index*3 + 2] = getAttrFloat(vertex, "b");
-					float nx = getAttrFloat(vertex, "nx");
-					float ny = getAttrFloat(vertex, "ny");
-					float nz = getAttrFloat(vertex, "nz");
-					float vec_len_inv = 1f/(float)Math.sqrt(nx*nx + ny*ny + nz*nz);
-					normals[polygon_index*9 + vertex_index*3 + 0] = nx*vec_len_inv;
-					normals[polygon_index*9 + vertex_index*3 + 1] = ny*vec_len_inv;
-					normals[polygon_index*9 + vertex_index*3 + 2] = nz*vec_len_inv;
+					colors[polygon_index*9 + vertex_index*3 + 0] = getAttrFloat(vertex, "r", 1f);
+					colors[polygon_index*9 + vertex_index*3 + 1] = getAttrFloat(vertex, "g", 1f);
+					colors[polygon_index*9 + vertex_index*3 + 2] = getAttrFloat(vertex, "b", 1f);
+					float nx = getAttrFloat(vertex, "nx", 0f);
+					float ny = getAttrFloat(vertex, "ny", 0f);
+					float nz = getAttrFloat(vertex, "nz", 0f);
+					float len_sq = nx*nx + ny*ny + nz*nz;
+					if (len_sq > 0f) {
+						float vec_len_inv = 1f/(float)Math.sqrt(len_sq);
+						normals[polygon_index*9 + vertex_index*3 + 0] = nx*vec_len_inv;
+						normals[polygon_index*9 + vertex_index*3 + 1] = ny*vec_len_inv;
+						normals[polygon_index*9 + vertex_index*3 + 2] = nz*vec_len_inv;
+					} else {
+						normals[polygon_index*9 + vertex_index*3 + 0] = 0f;
+						normals[polygon_index*9 + vertex_index*3 + 1] = 0f;
+						normals[polygon_index*9 + vertex_index*3 + 2] = 1f;
+					}
 					uvs[polygon_index*6 + vertex_index*2 + 0] = getAttrFloat(vertex, "u");
 					uvs[polygon_index*6 + vertex_index*2 + 1] = getAttrFloat(vertex, "v");
+					uvs2[polygon_index*6 + vertex_index*2 + 0] = getAttrFloat(vertex, "u2", 0f);
+					uvs2[polygon_index*6 + vertex_index*2 + 1] = getAttrFloat(vertex, "v2", 0f);
 
 					// skin data
 					NodeList skins = vertex.getChildNodes();
@@ -88,7 +101,7 @@ public final class MeshLoader {
 						if (!skin.getNodeName().equals("skin"))
 							continue;
 						String skin_name = skin.getAttributes().getNamedItem("bone").getNodeValue();
-						float skin_weight = getAttrFloat(skin, "weight");
+						float skin_weight = getAttrFloat(skin, "weight", 1f);
 						byte bone_index;
 						if (name_to_bone_map != null) {
 							Bone bone = name_to_bone_map.get(skin_name);
@@ -106,7 +119,7 @@ public final class MeshLoader {
 			}
 		}
 		assert polygon_index == num_polygons;
-		return Optimizer.optimize(/*texture_name, */num_vertices, vertices, normals, colors, uvs, skin_names, skin_weights);
+		return Optimizer.optimize(/*texture_name, */num_vertices, vertices, normals, colors, uvs, uvs2, skin_names, skin_weights);
 	}
 
 	private static @NonNull String cutTextureName(@NonNull String name) {
@@ -133,4 +146,9 @@ public final class MeshLoader {
 	private static float getAttrFloat(@NonNull Node node, @NonNull String name) {
 		return Float.parseFloat(node.getAttributes().getNamedItem(name).getNodeValue());
 	}
+
+	private static float getAttrFloat(@NonNull Node node, @NonNull String name, float defaultValue) {
+		Node attr = node.getAttributes().getNamedItem(name);
+        return attr != null ? Float.parseFloat(attr.getNodeValue()) : defaultValue;
+    }
 }

@@ -3,6 +3,7 @@ package com.oddlabs.tt.render.shader;
 import com.oddlabs.tt.render.state.ScopedState;
 import com.oddlabs.tt.resource.NativeResource;
 import org.joml.Matrix4fc;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -171,6 +172,14 @@ public abstract class ShaderProgram extends NativeResource<ShaderProgram.Program
 
     public void setUniform(@NonNull String name, float @NonNull [] value) {
         GL20.glUniform4f(getUniformLocation(name), value[0], value[1], value[2], value[3]);
+    }
+
+    public void setUniform(@NonNull String name, @NonNull Vector4fc value) {
+        GL20.glUniform4f(getUniformLocation(name), value.x(), value.y(), value.z(), value.w());
+    }
+
+    public void setUniform(@NonNull String name, @NonNull Matrix4fc matrix) {
+        setUniformMatrix4(name, false, matrix);
     }
 
     public void setUniformMatrix4(@NonNull String name, boolean transpose, @NonNull Matrix4fc matrix) {

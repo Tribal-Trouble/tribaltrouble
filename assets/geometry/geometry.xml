@@ -15,6 +15,7 @@
 	<!ATTLIST model r CDATA #REQUIRED>
 	<!ATTLIST model g CDATA #REQUIRED>
 	<!ATTLIST model b CDATA #REQUIRED>
+ 	<!ATTLIST animation name CDATA #REQUIRED>
 	<!ATTLIST animation wpc CDATA #REQUIRED>
 	<!ATTLIST animation type CDATA #REQUIRED>
 	<!ATTLIST texture name CDATA #REQUIRED>
@@ -37,10 +38,10 @@
 				<texture name="viking_warrior_iron" team="viking_warrior_iron_team"/>
 				<texture name="viking_warrior_rubber" team="viking_warrior_rubber_team"/>
 			</model>
-			<animation wpc="1" type="loop">vikings/warrior/warrior_idle.xml</animation>
-			<animation wpc="5" type="loop">vikings/warrior/warrior_run.xml</animation>
-			<animation wpc="1" type="plain">vikings/warrior/warrior_attack.xml</animation>
-			<animation wpc="1" type="plain">vikings/warrior/warrior_die.xml</animation>
+			<animation name="idle" wpc="1" type="loop">vikings/warrior/warrior_idle.xml</animation>
+			<animation name="run" wpc="5" type="loop">vikings/warrior/warrior_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">vikings/warrior/warrior_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">vikings/warrior/warrior_die.xml</animation>
 		</sprite>
 		<sprite name="chieftain">
 			<skeleton>vikings/chieftain/viking_chieftain_skeleton.xml</skeleton>
@@ -52,12 +53,12 @@
 				vikings/chieftain/viking_chief_lo.xml
 				<texture name="viking_chieftain" team="viking_chieftain_team"/>
 			</model>
-			<animation wpc="1" type="loop">vikings/chieftain/viking_chieftain_idle.xml</animation>
-			<animation wpc="6.4" type="loop">vikings/chieftain/viking_chieftain_run.xml</animation>
-			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_attack.xml</animation>
-			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_die.xml</animation>
-			<animation wpc="1" type="plain">vikings/chieftain/viking_chieftain_magic.xml</animation>
-			<animation wpc="1" type="loop">vikings/chieftain/thor.xml</animation>
+			<animation name="idle" wpc="1" type="loop">vikings/chieftain/viking_chieftain_idle.xml</animation>
+			<animation name="run" wpc="6.4" type="loop">vikings/chieftain/viking_chieftain_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">vikings/chieftain/viking_chieftain_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">vikings/chieftain/viking_chieftain_die.xml</animation>
+			<animation name="magic" wpc="1" type="plain">vikings/chieftain/viking_chieftain_magic.xml</animation>
+			<animation name="thor" wpc="1" type="loop">vikings/chieftain/thor.xml</animation>
 		</sprite>
 		<sprite name="peon">
 			<skeleton>vikings/peon/peon_skeleton.xml</skeleton>
@@ -69,10 +70,10 @@
 				vikings/peon/peon_low_poly_mesh.xml
 				<texture name="viking_peon" team="viking_peon_team"/>
 			</model>
-			<animation wpc="1" type="loop">vikings/peon/peon_idle.xml</animation>
-			<animation wpc="3.85" type="loop">vikings/peon/peon_run.xml</animation>
-			<animation wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
-			<animation wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
+			<animation name="idle" wpc="1" type="loop">vikings/peon/peon_idle.xml</animation>
+			<animation name="run" wpc="3.85" type="loop">vikings/peon/peon_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
 		</sprite>
 		<sprite name="rock_resource">
 			<skeleton>vikings/peon/peon_skeleton.xml</skeleton>
@@ -81,10 +82,10 @@
 				<texture name="Generator:com.oddlabs.tt.procedural.GeneratorRock"/>
 				<texture name="Generator:com.oddlabs.tt.procedural.GeneratorIron"/>
 			</model>
-			<animation wpc="1" type="loop">vikings/peon/peon_idle.xml</animation>
-			<animation wpc="3.85" type="loop">vikings/peon/peon_run.xml</animation>
-			<animation wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
-			<animation wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
+			<animation name="idle" wpc="1" type="loop">vikings/peon/peon_idle.xml</animation>
+			<animation name="run" wpc="3.85" type="loop">vikings/peon/peon_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
 		</sprite>
 		<sprite name="wood_resource">
 			<skeleton>vikings/peon/peon_skeleton.xml</skeleton>
@@ -92,10 +93,10 @@
 				misc/wood_fragment_viking.xml
 				<texture name="wood_fragments"/>
 			</model>
-			<animation wpc="1" type="loop">vikings/peon/peon_idle.xml</animation>
-			<animation wpc="3.85" type="loop">vikings/peon/peon_run.xml</animation>
-			<animation wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
-			<animation wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
+			<animation name="idle" wpc="1" type="loop">vikings/peon/peon_idle.xml</animation>
+			<animation name="run" wpc="3.85" type="loop">vikings/peon/peon_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
 		</sprite>
 		<sprite name="rubber_resource">
 			<skeleton>vikings/peon/peon_skeleton.xml</skeleton>
@@ -103,10 +104,10 @@
 				misc/rubber_fragment_viking.xml
 				<texture name="chicken"/>
 			</model>
-			<animation wpc="1" type="loop">vikings/peon/peon_idle.xml</animation>
-			<animation wpc="3.85" type="loop">vikings/peon/peon_run.xml</animation>
-			<animation wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
-			<animation wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
+			<animation name="idle" wpc="1" type="loop">vikings/peon/peon_idle.xml</animation>
+			<animation name="run" wpc="3.85" type="loop">vikings/peon/peon_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">vikings/peon/peon_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">vikings/peon/peon_die.xml</animation>
 		</sprite>
 		<sprite name="axe">
 			<model r="90" g="60" b="30">
@@ -224,11 +225,11 @@
 				natives/chieftain/native_chieftain_low_poly_mesh.xml
 				<texture name="native_chieftain" team="native_chieftain_team"/>
 			</model>
-			<animation wpc="1" type="loop">natives/chieftain/native_chieftain_idle.xml</animation>
-			<animation wpc="4" type="loop">natives/chieftain/native_chieftain_run.xml</animation>
-			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_attack.xml</animation>
-			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_die.xml</animation>
-			<animation wpc="1" type="plain">natives/chieftain/native_chieftain_magic.xml</animation>
+			<animation name="idle" wpc="1" type="loop">natives/chieftain/native_chieftain_idle.xml</animation>
+			<animation name="run" wpc="4" type="loop">natives/chieftain/native_chieftain_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">natives/chieftain/native_chieftain_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">natives/chieftain/native_chieftain_die.xml</animation>
+			<animation name="magic" wpc="1" type="plain">natives/chieftain/native_chieftain_magic.xml</animation>
 		</sprite>
 		<sprite name="peon">
 			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
@@ -240,10 +241,10 @@
 				natives/peon/native_peon_low_poly_mesh.xml
 				<texture name="native_peon" team="native_peon_team"/>
 			</model>
-			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
-			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+			<animation name="idle" wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
+			<animation name="run" wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">natives/peon/peon_die.xml</animation>
 		</sprite>
 		<sprite name="warrior">
 			<skeleton>natives/warrior/native_warrior_skeleton.xml</skeleton>
@@ -259,10 +260,10 @@
 				<texture name="native_warrior_iron" team="native_warrior_iron_team"/>
 				<texture name="native_warrior_rubber" team="native_warrior_rubber_team"/>
 			</model>
-			<animation wpc="1" type="loop">natives/warrior/native_warrior_idle.xml</animation>
-			<animation wpc="3.2" type="loop">natives/warrior/native_warrior_run.xml</animation>
-			<animation wpc="1" type="plain">natives/warrior/native_warrior_attack.xml</animation>
-			<animation wpc="1" type="plain">natives/warrior/native_warrior_die.xml</animation>
+			<animation name="idle" wpc="1" type="loop">natives/warrior/native_warrior_idle.xml</animation>
+			<animation name="run" wpc="3.2" type="loop">natives/warrior/native_warrior_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">natives/warrior/native_warrior_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">natives/warrior/native_warrior_die.xml</animation>
 		</sprite>
 		<sprite name="rock_resource">
 			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
@@ -271,10 +272,10 @@
 				<texture name="Generator:com.oddlabs.tt.procedural.GeneratorRock"/>
 				<texture name="Generator:com.oddlabs.tt.procedural.GeneratorIron"/>
 			</model>
-			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
-			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+			<animation name="idle" wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
+			<animation name="run" wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">natives/peon/peon_die.xml</animation>
 		</sprite>
 		<sprite name="wood_resource">
 			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
@@ -282,10 +283,10 @@
 				misc/wood_fragment_native.xml
 				<texture name="wood_fragments"/>
 			</model>
-			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
-			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+			<animation name="idle" wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
+			<animation name="run" wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">natives/peon/peon_die.xml</animation>
 		</sprite>
 		<sprite name="rubber_resource">
 			<skeleton>natives/peon/peon_skeleton.xml</skeleton>
@@ -293,10 +294,10 @@
 				misc/rubber_fragment_native.xml
 				<texture name="chicken"/>
 			</model>
-			<animation wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
-			<animation wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
-			<animation wpc="1" type="plain">natives/peon/peon_die.xml</animation>
+			<animation name="idle" wpc="1" type="loop">natives/peon/peon_idle.xml</animation>
+			<animation name="run" wpc="3.625" type="loop">natives/peon/peon_run.xml</animation>
+			<animation name="attack" wpc="1" type="plain">natives/peon/peon_attack.xml</animation>
+			<animation name="die" wpc="1" type="plain">natives/peon/peon_die.xml</animation>
 		</sprite>
 		<sprite name="quarters">
 			<model r="90" g="60" b="30">
@@ -608,11 +609,11 @@
 				misc/chicken/chicken_mesh.xml
 				<texture name="chicken"/>
 			</model>
-			<animation wpc="1" type="loop">misc/chicken/chicken_idle.xml</animation>
-			<animation wpc="1" type="plain">misc/chicken/chicken_peck.xml</animation>
-			<animation wpc="1" type="plain">misc/chicken/chicken_die.xml</animation>
-			<animation wpc="4" type="loop">misc/chicken/chicken_run.xml</animation>
-			<animation wpc="8" type="loop">misc/chicken/chicken_fly.xml</animation>
+			<animation name="idle" wpc="1" type="loop">misc/chicken/chicken_idle.xml</animation>
+			<animation name="peck" wpc="1" type="plain">misc/chicken/chicken_peck.xml</animation>
+			<animation name="die" wpc="1" type="plain">misc/chicken/chicken_die.xml</animation>
+			<animation name="run" wpc="4" type="loop">misc/chicken/chicken_run.xml</animation>
+			<animation name="fly" wpc="8" type="loop">misc/chicken/chicken_fly.xml</animation>
 		</sprite>
 	</group>
 </geometry>

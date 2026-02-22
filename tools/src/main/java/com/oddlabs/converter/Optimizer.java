@@ -69,12 +69,13 @@ public final class Optimizer {
 		return true;
 	}
 
-	static @NonNull ModelInfo optimize(/*String tex_name, */int num_vertices, float @NonNull [] vertices, float @NonNull [] normals, float @NonNull [] colors, float @NonNull [] uvs, byte@NonNull [] @NonNull [] skin_names, float@NonNull [] @NonNull [] skin_weights) {
+	static @NonNull ModelInfo optimize(/*String tex_name, */int num_vertices, float @NonNull [] vertices, float @NonNull [] normals, float @NonNull [] colors, float @NonNull [] uvs, float @NonNull [] uvs2, byte@NonNull [] @NonNull [] skin_names, float@NonNull [] @NonNull [] skin_weights) {
 		short[] indices = new short[num_vertices];
 		float[] r_vertices = new float[vertices.length];
 		float[] r_colors = new float[colors.length];
 		float[] r_normals = new float[normals.length];
 		float[] r_uvs = new float[uvs.length];
+		float[] r_uvs2 = new float[uvs2.length];
 		byte[][] r_skin_names = new byte[skin_names.length][];
 		float[][] r_skin_weights = new float[skin_weights.length][];
 
@@ -87,6 +88,7 @@ public final class Optimizer {
 								 floatsEquals(i, j, 3, normals, r_normals) &&
 								 floatsEquals(i, j, 3, colors, r_colors) &&
 								 floatsEquals(i, j, 2, uvs, r_uvs) &&
+								 floatsEquals(i, j, 2, uvs2, r_uvs2) &&
 								 floatArrayEquals(i, j, skin_weights, r_skin_weights) &&
 								 byteArrayEquals(i, j, skin_names, r_skin_names);
 				if (equals)
@@ -97,6 +99,7 @@ public final class Optimizer {
 				copyFloats(i, index, 3, normals, r_normals);
 				copyFloats(i, index, 3, colors, r_colors);
 				copyFloats(i, index, 2, uvs, r_uvs);
+				copyFloats(i, index, 2, uvs2, r_uvs2);
 				copyObjects(i, index, 1, skin_names, r_skin_names);
 				copyObjects(i, index, 1, skin_weights, r_skin_weights);
 				indices[i] = (short)index;
@@ -109,12 +112,24 @@ public final class Optimizer {
 		r_normals = stripArray(index*3, r_normals);
 		r_colors = stripArray(index*3, r_colors);
 		r_uvs = stripArray(index*2, r_uvs);
+		r_uvs2 = stripArray(index*2, r_uvs2);
 		r_skin_names = stripArray(index, r_skin_names);
 		r_skin_weights = stripArray(index, r_skin_weights);
+
+		boolean using_texture_coords2 = false;
+        for (float v : r_uvs2) {
+            if (v != 0f) {
+                using_texture_coords2 = true;
+                break;
+            }
+        }
+		if (!using_texture_coords2)
+			r_uvs2 = null;
+
 		ShortBuffer index_buffer = ShortBuffer.wrap(indices);
 		IndexListOptimizer.optimize(index_buffer);
 //		System.out.println("resulting vertices = " + index);
-		return new ModelInfo(/*tex_name,*/ indices, r_vertices, r_normals, r_colors, r_uvs, r_skin_names, r_skin_weights);
+		return new ModelInfo(/*tex_name,*/ indices, r_vertices, r_normals, r_colors, r_uvs, r_uvs2, r_skin_names, r_skin_weights);
 	}
 
 	private static float[][] stripArray(int length, float@NonNull [] @NonNull [] array) {
@@ -136,10 +151,10 @@ public final class Optimizer {
 	}
 
 	static @NonNull SpriteInfo convertToSprite(String[][] textures, @NonNull ModelInfo model_info, float[] clear_color) {
-		return new SpriteInfo(textures, model_info.indices(), model_info.vertices(), model_info.normals(), model_info.texcoords(), model_info.skin_names(), model_info.skin_weights(), clear_color);
+		return new SpriteInfo(textures, model_info.indices(), model_info.vertices(), model_info.normals(), model_info.texcoords(), model_info.texcoords2(), model_info.skin_names(), model_info.skin_weights(), clear_color);
 	}
 
-	public static @NonNull AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ @NonNull Bone skeleton, @NonNull Map<String,float[]> initial_pose, Map<String,float[]> @NonNull [] anim_map, AnimationInfo.@NonNull AnimationType type, float wpc) {
+	public static @NonNull AnimationInfo convertToAnimation(/*float[] skeleton_vertices,*/ @NonNull Bone skeleton, @NonNull Map<String,float[]> initial_pose, Map<String,float[]> @NonNull [] anim_map, AnimationInfo.@NonNull AnimationType type, float wpc, @NonNull String name) {
 		// animations format: [frames] [bones] [matrix]
 		int num_frames = anim_map.length;
 		float[][] frames = new float[num_frames][];
@@ -148,44 +163,37 @@ public final class Optimizer {
 			frames[frame_index] = bones;
 			normalizeSkeleton(/*new float[]{0, 0, 0}, skeleton_vertices,*/ bones, skeleton, initial_pose, anim_map[frame_index]);
 		}
-		return new AnimationInfo(frames, type, wpc);
+		return new AnimationInfo(frames, type, wpc, name);
 	}
 
 	private static void normalizeSkeleton(/*float[] parent_bone_vertex, float[] skeleton_vertices,*/ float @NonNull [] bones, @NonNull Bone current_bone, @NonNull Map<String,float[]> initial_pose_map, @NonNull Map<String,float[]> frame_map) {
 		assert initial_pose_map.size() == bones.length/12;
 		assert frame_map.size() == bones.length/12;
 		String bone_name = current_bone.name();
-		float[] initial_pose_data = initial_pose_map.get(bone_name);
-		float[] frame_data = frame_map.get(bone_name);
-		Matrix4f absolute_initial_pose_matrix = new Matrix4f().set(initial_pose_data);
-		Matrix4f absolute_frame_matrix = new Matrix4f().set(frame_data);
+		float[] ipd = initial_pose_map.get(bone_name);
+		float[] fd = frame_map.get(bone_name);
+		Matrix4f absolute_initial_pose_matrix = new Matrix4f().set(ipd);
+		Matrix4f absolute_frame_matrix = new Matrix4f().set(fd);
 
 		Matrix4f inverted_absolute_initial_pose_matrix = new Matrix4f(absolute_initial_pose_matrix);
 		inverted_absolute_initial_pose_matrix.invert();
 		Matrix4f resulting_matrix = absolute_frame_matrix.mul(inverted_absolute_initial_pose_matrix, new Matrix4f());
 		int offset = current_bone.index()*12;
 
-		// Store elements in column-major order, matching LWJGL2's storeTranspose behavior for the first 12 elements
+		// Store logical matrix R = I_inv * F in row-major 3x4 format
+		// This corresponds to the first 3 columns of the transposed JOML matrix
 		bones[offset++] = resulting_matrix.m00();
 		bones[offset++] = resulting_matrix.m10();
 		bones[offset++] = resulting_matrix.m20();
-		bones[offset++] = resulting_matrix.m30(); // Should be 0.0f for affine transformations
-
+		bones[offset++] = resulting_matrix.m30();
 		bones[offset++] = resulting_matrix.m01();
 		bones[offset++] = resulting_matrix.m11();
 		bones[offset++] = resulting_matrix.m21();
-		bones[offset++] = resulting_matrix.m31(); // Should be 0.0f
-
+		bones[offset++] = resulting_matrix.m31();
 		bones[offset++] = resulting_matrix.m02();
 		bones[offset++] = resulting_matrix.m12();
 		bones[offset++] = resulting_matrix.m22();
-		bones[offset++] = resulting_matrix.m32(); // Should be 0.0f
-
-		final float DELTA = .0001f;
-		assert Math.abs(resulting_matrix.m03()) < DELTA : resulting_matrix.m03();
-		assert Math.abs(resulting_matrix.m13()) < DELTA : resulting_matrix.m13();
-		assert Math.abs(resulting_matrix.m23()) < DELTA : resulting_matrix.m23();
-		assert Math.abs(resulting_matrix.m33() - 1f) < DELTA: resulting_matrix.m33();
+		bones[offset++] = resulting_matrix.m32();
 
 /*Vector4f bone_point = new Vector4f();
 Vector4f bone_point_transformed = new Vector4f();

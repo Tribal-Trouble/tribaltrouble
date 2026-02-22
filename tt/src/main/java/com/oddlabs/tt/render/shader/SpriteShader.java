@@ -55,7 +55,7 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                 v_texCoord0 = in_TexCoord;
                 v_color = u_color;
                 v_fogDist = length(viewPosition.xyz);
-                
+            
                 v_viewPosition = viewPosition.xyz;
                 v_viewNormal = normalize((u_modelViewMatrix * vec4(in_Normal, 0.0)).xyz);
             }
@@ -108,18 +108,18 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                     // Apply lighting
                     vec3 normal = normalize(v_viewNormal);
                     float specularStrength = 0.0;
-                    
+            
                     if (u_enableNormalMap) {
                         vec4 normalMapVal = texture(u_normalMap, v_texCoord0);
                         normal = perturbNormal(normal, normalize(v_viewPosition), v_texCoord0, normalMapVal.rgb);
                         specularStrength = normalMapVal.a;
                     }
-                    
+            
                     vec3 lightIntensity = vec3(1.0);
                     if (u_enableLighting) {
                         lightIntensity = calculateLighting(normal, v_viewPosition, specularStrength);
                     }
-                    
+            
                     finalColor = vec4(v_color.rgb * base.rgb * lightIntensity, v_color.a * base.a);
     
                     if (u_enableTeamColor) {
@@ -127,7 +127,7 @@ public final class SpriteShader extends ShaderProgram implements FogShader, LitS
                         // Mix decal color
                         vec3 mixedColor = mix(finalColor.rgb, u_decalColor.rgb * lightIntensity, tex1.rgb);
                         finalColor.rgb = mixedColor;
-                        
+            
                         // Write to Mask Buffer (Team Color)
                         if (base.a > 0.1) {
                             out_MaskColor = u_decalColor;

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="mesh">
+      <optional>
+        <attribute name="texture"/>
+      </optional>
+      <element name="polygons">
+        <oneOrMore>
+          <element name="polygon">
+            <element name="vertex">
+              <attribute name="x"><data type="float"/></attribute>
+              <attribute name="y"><data type="float"/></attribute>
+              <attribute name="z"><data type="float"/></attribute>
+              <attribute name="r"><data type="float"/></attribute>
+              <attribute name="g"><data type="float"/></attribute>
+              <attribute name="b"><data type="float"/></attribute>
+              <attribute name="a"><data type="float"/></attribute>
+              <attribute name="nx"><data type="float"/></attribute>
+              <attribute name="ny"><data type="float"/></attribute>
+              <attribute name="nz"><data type="float"/></attribute>
+              <attribute name="u"><data type="float"/></attribute>
+              <attribute name="v"><data type="float"/></attribute>
+              <optional><attribute name="u2"><data type="float"/></attribute></optional>
+              <optional><attribute name="v2"><data type="float"/></attribute></optional>
+              <oneOrMore>
+                <element name="skin">
+                  <attribute name="bone"/>
+                  <attribute name="weight"><data type="float"/></attribute>
+                </element>
+              </oneOrMore>
+            </element>
+            <element name="vertex">
+              <attribute name="x"><data type="float"/></attribute>
+              <attribute name="y"><data type="float"/></attribute>
+              <attribute name="z"><data type="float"/></attribute>
+              <attribute name="r"><data type="float"/></attribute>
+              <attribute name="g"><data type="float"/></attribute>
+              <attribute name="b"><data type="float"/></attribute>
+              <attribute name="a"><data type="float"/></attribute>
+              <attribute name="nx"><data type="float"/></attribute>
+              <attribute name="ny"><data type="float"/></attribute>
+              <attribute name="nz"><data type="float"/></attribute>
+              <attribute name="u"><data type="float"/></attribute>
+              <attribute name="v"><data type="float"/></attribute>
+              <optional><attribute name="u2"><data type="float"/></attribute></optional>
+              <optional><attribute name="v2"><data type="float"/></attribute></optional>
+              <oneOrMore>
+                <element name="skin">
+                  <attribute name="bone"/>
+                  <attribute name="weight"><data type="float"/></attribute>
+                </element>
+              </oneOrMore>
+            </element>
+            <element name="vertex">
+              <attribute name="x"><data type="float"/></attribute>
+              <attribute name="y"><data type="float"/></attribute>
+              <attribute name="z"><data type="float"/></attribute>
+              <attribute name="r"><data type="float"/></attribute>
+              <attribute name="g"><data type="float"/></attribute>
+              <attribute name="b"><data type="float"/></attribute>
+              <attribute name="a"><data type="float"/></attribute>
+              <attribute name="nx"><data type="float"/></attribute>
+              <attribute name="ny"><data type="float"/></attribute>
+              <attribute name="nz"><data type="float"/></attribute>
+              <attribute name="u"><data type="float"/></attribute>
+              <attribute name="v"><data type="float"/></attribute>
+              <optional><attribute name="u2"><data type="float"/></attribute></optional>
+              <optional><attribute name="v2"><data type="float"/></attribute></optional>
+              <oneOrMore>
+                <element name="skin">
+                  <attribute name="bone"/>
+                  <attribute name="weight"><data type="float"/></attribute>
+                </element>
+              </oneOrMore>
+            </element>
+          </element>
+        </oneOrMore>
+      </element>
+      <optional>
+        <element name="skeleton">
+          <element name="bones">
+            <oneOrMore>
+              <element name="bone">
+                <attribute name="name"/>
+                <attribute name="parent"/>
+              </element>
+            </oneOrMore>
+          </element>
+          <element name="init_pose">
+            <oneOrMore>
+              <element name="transform">
+                <attribute name="name"/>
+                <attribute name="m00"><data type="float"/></attribute>
+                <attribute name="m01"><data type="float"/></attribute>
+                <attribute name="m02"><data type="float"/></attribute>
+                <attribute name="m03"><data type="float"/></attribute>
+                <attribute name="m10"><data type="float"/></attribute>
+                <attribute name="m11"><data type="float"/></attribute>
+                <attribute name="m12"><data type="float"/></attribute>
+                <attribute name="m13"><data type="float"/></attribute>
+                <attribute name="m20"><data type="float"/></attribute>
+                <attribute name="m21"><data type="float"/></attribute>
+                <attribute name="m22"><data type="float"/></attribute>
+                <attribute name="m23"><data type="float"/></attribute>
+                <attribute name="m30"><data type="float"/></attribute>
+                <attribute name="m31"><data type="float"/></attribute>
+                <attribute name="m32"><data type="float"/></attribute>
+                <attribute name="m33"><data type="float"/></attribute>
+              </element>
+            </oneOrMore>
+          </element>
+        </element>
+      </optional>
+    </element>
+  </start>
+</grammar>

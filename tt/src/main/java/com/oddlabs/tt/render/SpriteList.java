@@ -29,6 +29,7 @@ public final class SpriteList implements AutoCloseable{
 	private final @NonNull BoundingBox @NonNull [] bounds;
 	private final @NonNull Sprite @NonNull [] sprites;
 	private final AnimationInfo.@NonNull AnimationType @NonNull [] type_array;
+	private final @NonNull String @NonNull [] animation_names;
 
 	private final @NonNull ShortVBO indices;
 	private final @NonNull FloatVBO vertices_and_normals;
@@ -44,6 +45,7 @@ public final class SpriteList implements AutoCloseable{
         // Private constructor for the quad instance
         this.bounds = new BoundingBox[]{new BoundingBox()};
         this.type_array = new AnimationInfo.AnimationType[]{AnimationInfo.AnimationType.LOOP};
+        this.animation_names = new String[]{"default"};
         
         float[] quad_vertices = { -0.5f, -0.5f, 0f, 0.5f, -0.5f, 0f, 0.5f, 0.5f, 0f, -0.5f, 0.5f, 0f };
         float[] quad_normals = { 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1 };
@@ -99,10 +101,12 @@ public final class SpriteList implements AutoCloseable{
 
 		float[] cpw_array = new float[animation_infos.length];
 		type_array = new AnimationInfo.AnimationType[animation_infos.length];
+		animation_names = new String[animation_infos.length];
 		int[] animation_length_array = new int[animation_infos.length];
 		for (int i = 0; i < animation_infos.length; i++) {
 			cpw_array[i] = 1f/animation_infos[i].getWPC();
 			type_array[i] = animation_infos[i].getType();
+			animation_names[i] = animation_infos[i].getName();
 			animation_length_array[i] = animation_infos[i].getFrames().length;
 		}
         sprites = Arrays.stream(sprite_infos)
@@ -169,7 +173,6 @@ public final class SpriteList implements AutoCloseable{
         if (normLoc >= 0) {
             GL20.glEnableVertexAttribArray(normLoc);
         }
-        
         vao.unbind();
     }
     
@@ -195,6 +198,19 @@ public final class SpriteList implements AutoCloseable{
 
 	public AnimationInfo.@NonNull AnimationType @NonNull [] getAnimationTypes() {
 		return type_array;
+	}
+
+	public @NonNull String @NonNull [] getAnimationNames() {
+		return animation_names;
+	}
+
+	public int getAnimationIndex(@NonNull String name) {
+		for (int i = 0; i < animation_names.length; i++) {
+			if (animation_names[i].equals(name)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public @NonNull ShortVBO getIndices() {

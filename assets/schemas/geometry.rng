@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="geometry">
+      <oneOrMore>
+        <element name="group">
+          <attribute name="name"/>
+          <zeroOrMore>
+            <element name="sprite">
+              <attribute name="name"/>
+              <optional>
+                <attribute name="scale">
+                  <data type="float"/>
+                </attribute>
+              </optional>
+              <optional>
+                <element name="skeleton">
+                  <text/>
+                </element>
+              </optional>
+              <oneOrMore>
+                <element name="model">
+                  <attribute name="r">
+                    <data type="integer"/>
+                  </attribute>
+                  <attribute name="g">
+                    <data type="integer"/>
+                  </attribute>
+                  <attribute name="b">
+                    <data type="integer"/>
+                  </attribute>
+                  <mixed>
+                    <zeroOrMore>
+                      <element name="texture">
+                        <attribute name="name"/>
+                        <optional>
+                          <attribute name="team"/>
+                        </optional>
+                        <optional>
+                          <attribute name="normal"/>
+                        </optional>
+                      </element>
+                    </zeroOrMore>
+                  </mixed>
+                </element>
+              </oneOrMore>
+              <zeroOrMore>
+                <element name="animation">
+                  <attribute name="name"/>
+                  <attribute name="wpc">
+                    <data type="float"/>
+                  </attribute>
+                  <attribute name="type">
+                    <choice>
+                      <value>loop</value>
+                      <value>plain</value>
+                    </choice>
+                  </attribute>
+                  <text/>
+                </element>
+              </zeroOrMore>
+            </element>
+          </zeroOrMore>
+        </element>
+      </oneOrMore>
+    </element>
+  </start>
+</grammar>
