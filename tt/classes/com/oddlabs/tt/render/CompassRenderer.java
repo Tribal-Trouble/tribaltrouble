@@ -4,6 +4,9 @@ import com.oddlabs.tt.font.Font;
 import com.oddlabs.tt.gui.Skin;
 import com.oddlabs.util.Quad;
 
+import java.nio.FloatBuffer;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -41,6 +44,14 @@ public final strictfp class CompassRenderer {
 
         // End the active QUADS batch from GUI rendering
         GL11.glEnd();
+
+        // Save GL state that we modify
+        boolean texWasEnabled = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
+        boolean cullWasEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+        float prevPointSize = GL11.glGetFloat(GL11.GL_POINT_SIZE);
+        float prevLineWidth = GL11.glGetFloat(GL11.GL_LINE_WIDTH);
+        FloatBuffer prevColor = BufferUtils.createFloatBuffer(4);
+        GL11.glGetFloat(GL11.GL_CURRENT_COLOR, prevColor);
 
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_CULL_FACE);
@@ -92,11 +103,11 @@ public final strictfp class CompassRenderer {
         GL11.glEnd();
 
         // Restore GL state for font rendering
-        GL11.glPointSize(7f);
-        GL11.glLineWidth(1f);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glColor3f(1f, 1f, 1f);
+        GL11.glPointSize(prevPointSize);
+        GL11.glLineWidth(prevLineWidth);
+        if (texWasEnabled) GL11.glEnable(GL11.GL_TEXTURE_2D);
+        if (cullWasEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glColor4f(prevColor.get(0), prevColor.get(1), prevColor.get(2), prevColor.get(3));
 
         // Render cardinal direction labels
         renderLabels(cx, cy, horiz_angle);
