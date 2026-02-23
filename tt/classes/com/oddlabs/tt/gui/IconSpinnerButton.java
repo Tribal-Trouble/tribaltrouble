@@ -2,11 +2,18 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.util.Quad;
 
+import java.util.ResourceBundle;
+
 public final strictfp class IconSpinnerButton extends NonFocusIconButton {
     private final IconSpinner owner;
 
-    public IconSpinnerButton(Quad[] icon_quad, String tool_tip, IconSpinner owner) {
-        super(icon_quad, tool_tip);
+    public IconSpinnerButton(
+            Quad[] icon_quad,
+            ResourceBundle bundle,
+            String tooltip_id,
+            String keybind_action,
+            IconSpinner owner) {
+        super(icon_quad, bundle, tooltip_id, keybind_action);
         this.owner = owner;
     }
 

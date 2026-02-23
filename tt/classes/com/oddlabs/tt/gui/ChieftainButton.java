@@ -20,8 +20,10 @@ public strictfp class ChieftainButton extends NonFocusIconButton implements Tool
             WorldViewer viewer,
             PlayerInterface player_interface,
             IconQuad[] icon_quad,
-            String tool_tip) {
-        super(icon_quad, tool_tip);
+            ResourceBundle bundle,
+            String tooltip_id,
+            String keybind_action) {
+        super(icon_quad, bundle, tooltip_id, keybind_action);
         this.player_interface = player_interface;
         this.viewer = viewer;
         setCanFocus(true);

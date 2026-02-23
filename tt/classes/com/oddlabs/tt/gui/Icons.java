@@ -1,7 +1,6 @@
 package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.global.Globals;
-import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.render.Texture;
 import com.oddlabs.tt.resource.Resources;
 import com.oddlabs.tt.resource.TextureFile;
@@ -20,7 +19,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -71,30 +69,22 @@ public strictfp class Icons {
         iron_status_icon = getNamedIconQuad(root, "iron_status_icon", texture);
         rubber_status_icon = getNamedIconQuad(root, "rubber_status_icon", texture);
         cheat_icon = getNamedIconQuad(root, "cheat_icon", texture);
-        ResourceBundle bundle = ResourceBundle.getBundle(Icons.class.getName());
-        Settings s = Settings.getSettings();
-        String tt_caption =
-                com.oddlabs.tt.util.Utils.getBundleString(
-                        bundle,
+        viking_icons =
+                parseRaceIcons(
+                        root,
+                        "vikings",
                         "terrifying_toot",
-                        new Object[] {s.getKeybindString(Globals.KB_CHIEFTAIN_MAGIC1)});
-        String rr_caption =
-                com.oddlabs.tt.util.Utils.getBundleString(
-                        bundle,
+                        Globals.KB_CHIEFTAIN_MAGIC1,
                         "ravaging_roar",
-                        new Object[] {s.getKeybindString(Globals.KB_CHIEFTAIN_MAGIC2)});
-        String ss_caption =
-                com.oddlabs.tt.util.Utils.getBundleString(
-                        bundle,
+                        Globals.KB_CHIEFTAIN_MAGIC2);
+        native_icons =
+                parseRaceIcons(
+                        root,
+                        "natives",
                         "stinking_stew",
-                        new Object[] {s.getKeybindString(Globals.KB_CHIEFTAIN_MAGIC1)});
-        String cc_caption =
-                com.oddlabs.tt.util.Utils.getBundleString(
-                        bundle,
+                        Globals.KB_CHIEFTAIN_MAGIC1,
                         "crackling_cloud",
-                        new Object[] {s.getKeybindString(Globals.KB_CHIEFTAIN_MAGIC2)});
-        viking_icons = parseRaceIcons(root, "vikings", tt_caption, rr_caption);
-        native_icons = parseRaceIcons(root, "natives", ss_caption, cc_caption);
+                        Globals.KB_CHIEFTAIN_MAGIC2);
         watch = parseWatch(root);
         infinite = getNamedIconQuad(root, "infinite", texture);
         notify_arrow_data = parseNotifyArrowData(root);
@@ -112,7 +102,12 @@ public strictfp class Icons {
     }
 
     private final RaceIcons parseRaceIcons(
-            Node n, String head, String magic1_desc, String magic2_desc) {
+            Node n,
+            String head,
+            String magic1_tooltip_id,
+            String magic1_keybind_action,
+            String magic2_tooltip_id,
+            String magic2_keybind_action) {
         return new RaceIcons(
                 getNamedIconQuad(n, head + "_unit_status_icon", texture),
                 getNamedIconQuad(n, head + "_weapon_rock_status_icon", texture),
@@ -138,9 +133,11 @@ public strictfp class Icons {
                 getNamedIconQuads(n, head + "_tower_exit_icon", texture),
                 getNamedIconQuads(n, head + "_rally_point_icon", texture),
                 getNamedIconQuads(n, head + "_magic1_icon", texture),
-                magic1_desc,
+                magic1_tooltip_id,
+                magic1_keybind_action,
                 getNamedIconQuads(n, head + "_magic2_icon", texture),
-                magic2_desc);
+                magic2_tooltip_id,
+                magic2_keybind_action);
     }
 
     public final RaceIcons getVikingIcons() {

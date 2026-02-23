@@ -25,9 +25,11 @@ public final strictfp class RaceIcons {
     private final IconQuad[] tower_exit_icon;
     private final IconQuad[] rally_point_icon;
     private final IconQuad[] magic1_icon;
-    private final String magic1_desc;
+    private final String magic1_tooltip_id;
+    private final String magic1_keybind_action;
     private final IconQuad[] magic2_icon;
-    private final String magic2_desc;
+    private final String magic2_tooltip_id;
+    private final String magic2_keybind_action;
 
     public RaceIcons(
             IconQuad unit_status_icon,
@@ -54,9 +56,11 @@ public final strictfp class RaceIcons {
             IconQuad[] tower_exit_icon,
             IconQuad[] rally_point_icon,
             IconQuad[] magic1_icon,
-            String magic1_desc,
+            String magic1_tooltip_id,
+            String magic1_keybind_action,
             IconQuad[] magic2_icon,
-            String magic2_desc) {
+            String magic2_tooltip_id,
+            String magic2_keybind_action) {
         this.unit_status_icon = unit_status_icon;
         this.weapon_rock_status_icon = weapon_rock_status_icon;
         this.weapon_iron_status_icon = weapon_iron_status_icon;
@@ -81,9 +85,11 @@ public final strictfp class RaceIcons {
         this.tower_exit_icon = tower_exit_icon;
         this.rally_point_icon = rally_point_icon;
         this.magic1_icon = magic1_icon;
-        this.magic1_desc = magic1_desc;
+        this.magic1_tooltip_id = magic1_tooltip_id;
+        this.magic1_keybind_action = magic1_keybind_action;
         this.magic2_icon = magic2_icon;
-        this.magic2_desc = magic2_desc;
+        this.magic2_tooltip_id = magic2_tooltip_id;
+        this.magic2_keybind_action = magic2_keybind_action;
     }
 
     public final IconQuad getUnitStatusIcon() {
@@ -182,15 +188,23 @@ public final strictfp class RaceIcons {
         return magic1_icon;
     }
 
-    public final String getMagic1Desc() {
-        return magic1_desc;
+    public final String getMagic1TipKey() {
+        return magic1_tooltip_id;
+    }
+
+    public final String getMagic1KeybindAction() {
+        return magic1_keybind_action;
     }
 
     public final IconQuad[] getMagic2Icon() {
         return magic2_icon;
     }
 
-    public final String getMagic2Desc() {
-        return magic2_desc;
+    public final String getMagic2TipKey() {
+        return magic2_tooltip_id;
+    }
+
+    public final String getMagic2KeybindAction() {
+        return magic2_keybind_action;
     }
 }

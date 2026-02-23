@@ -30,7 +30,7 @@ public abstract strictfp class IconSpinner extends GUIObject implements ToolTip 
             IconQuad[] icon_quad,
             String tool_tip,
             Quad[] tool_tip_icons,
-            String shortcut_key) {
+            String keybind_action) {
         this.icon_quad = icon_quad;
         this.tool_tip = tool_tip;
         this.tool_tip_icons = tool_tip_icons;
@@ -39,14 +39,16 @@ public abstract strictfp class IconSpinner extends GUIObject implements ToolTip 
         setCanFocus(true);
         setDim(icon_quad[0].getWidth(), icon_quad[0].getHeight());
 
-        String inc_str = Utils.getBundleString(bundle, "increase", new Object[] {shortcut_key});
-        button_plus = new IconSpinnerButton(Skin.getSkin().getPlusButton(), inc_str, this);
+        button_plus =
+                new IconSpinnerButton(
+                        Skin.getSkin().getPlusButton(), bundle, "increase", keybind_action, this);
         addChild(button_plus);
         button_plus.setPos(0, 0);
         button_plus.addMouseButtonListener(new IncreaseListener());
 
-        String dec_str = Utils.getBundleString(bundle, "decrease", new Object[] {shortcut_key});
-        button_minus = new IconSpinnerButton(Skin.getSkin().getMinusButton(), dec_str, this);
+        button_minus =
+                new IconSpinnerButton(
+                        Skin.getSkin().getMinusButton(), bundle, "decrease", keybind_action, this);
         addChild(button_minus);
         button_minus.setPos(button_plus.getWidth(), 0);
         button_minus.addMouseButtonListener(new DecreaseListener());

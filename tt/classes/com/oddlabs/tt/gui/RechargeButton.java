@@ -4,6 +4,8 @@ import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.util.ToolTip;
 
+import java.util.ResourceBundle;
+
 public strictfp class RechargeButton extends NonFocusIconButton implements ToolTip {
     private final PlayerInterface player_interface;
     private final int magic_index;
@@ -12,9 +14,11 @@ public strictfp class RechargeButton extends NonFocusIconButton implements ToolT
     public RechargeButton(
             PlayerInterface player_interface,
             IconQuad[] icon_quad,
-            String tool_tip,
+            ResourceBundle bundle,
+            String tooltip_id,
+            String keybind_action,
             int magic_index) {
-        super(icon_quad, tool_tip);
+        super(icon_quad, bundle, tooltip_id, keybind_action);
         this.player_interface = player_interface;
         this.magic_index = magic_index;
         setCanFocus(true);

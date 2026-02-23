@@ -124,15 +124,12 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 
     //	private boolean[] magic_disabled = new boolean[2];
 
-    private final String formatTip(String tip_key, String shortcut_key) {
-        return Utils.getBundleString(bundle, tip_key, new Object[] {shortcut_key});
+    private final String formatTip(String tooltip_id, String shortcut_key) {
+        return Utils.getBundleString(bundle, tooltip_id, new Object[] {shortcut_key});
     }
 
-    private final String formatTipWithKeybind(String tip_key, String keybind_action) {
-        Settings settings = Settings.getSettings();
-        String shortcut_key = settings.getKeybindString(keybind_action);
-        return Utils.getBundleString(bundle, tip_key, new Object[] {shortcut_key});
-    }
+    private static final ResourceBundle icons_bundle =
+            ResourceBundle.getBundle(Icons.class.getName());
 
     public ActionButtonPanel(WorldViewer viewer, GameCamera camera) {
         this(viewer, camera, viewer.getGUIRoot().getWidth(), viewer.getGUIRoot().getHeight());
@@ -141,7 +138,6 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
     public ActionButtonPanel(final WorldViewer viewer, GameCamera camera, int width, int height) {
         this.viewer = viewer;
         this.camera = camera;
-        Settings settings = Settings.getSettings();
         RaceIcons race_icons = viewer.getLocalPlayer().getRace().getIcons();
         Skin skin = Skin.getSkin();
         Icons icons = Icons.getIcons();
@@ -163,8 +159,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
 
         move_button =
                 new NonFocusIconButton(
-                        race_icons.getMoveIcon(),
-                        formatTipWithKeybind("move_tip", Globals.KB_MOVE));
+                        race_icons.getMoveIcon(), bundle, "move_tip", Globals.KB_MOVE);
         move_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -175,8 +170,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         move_button.addMouseClickListener(new TargetListener(Target.ACTION_MOVE));
         attack_button =
                 new NonFocusIconButton(
-                        race_icons.getAttackIcon(),
-                        formatTipWithKeybind("attack_tip", Globals.KB_ATTACK));
+                        race_icons.getAttackIcon(), bundle, "attack_tip", Globals.KB_ATTACK);
         attack_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -192,7 +186,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         gather_repair_button =
                 new NonFocusIconButton(
                         race_icons.getGatherRepairIcon(),
-                        formatTipWithKeybind("gather_repair_tip", Globals.KB_GATHER_REPAIR));
+                        bundle, "gather_repair_tip", Globals.KB_GATHER_REPAIR);
         peon_group.addChild(gather_repair_button);
         gather_repair_button.addMouseClickListener(new TargetListener(Target.ACTION_GATHER_REPAIR));
         gather_repair_button.setIconDisabler(
@@ -204,21 +198,21 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         quarters_button =
                 new NonFocusIconButton(
                         race_icons.getQuartersIcon(),
-                        formatTipWithKeybind("quarters_tip", Globals.KB_BUILD_QUARTERS));
+                        bundle, "quarters_tip", Globals.KB_BUILD_QUARTERS);
         peon_group.addChild(quarters_button);
         quarters_button.addMouseClickListener(new PlaceListener(Race.BUILDING_QUARTERS));
         quarters_button.setIconDisabler(new BuildingDisabler(Race.BUILDING_QUARTERS));
         armory_button =
                 new NonFocusIconButton(
                         race_icons.getArmoryIcon(),
-                        formatTipWithKeybind("armory_tip", Globals.KB_BUILD_ARMORY));
+                        bundle, "armory_tip", Globals.KB_BUILD_ARMORY);
         peon_group.addChild(armory_button);
         armory_button.addMouseClickListener(new PlaceListener(Race.BUILDING_ARMORY));
         armory_button.setIconDisabler(new BuildingDisabler(Race.BUILDING_ARMORY));
         tower_button =
                 new NonFocusIconButton(
                         race_icons.getTowerIcon(),
-                        formatTipWithKeybind("tower_tip", Globals.KB_BUILD_TOWER));
+                        bundle, "tower_tip", Globals.KB_BUILD_TOWER);
         peon_group.addChild(tower_button);
         tower_button.addMouseClickListener(new TowerPlaceListener());
         tower_button.setIconDisabler(new BuildingDisabler(Race.BUILDING_TOWER));
@@ -233,7 +227,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 new RechargeButton(
                         player_interface,
                         race_icons.getMagic1Icon(),
-                        race_icons.getMagic1Desc(),
+                        icons_bundle,
+                        race_icons.getMagic1TipKey(),
+                        race_icons.getMagic1KeybindAction(),
                         0);
         chieftain_group.addChild(magic1_button);
         //		magic1_button.addMouseClickListener(new MagicListener(0));
@@ -241,7 +237,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 new RechargeButton(
                         player_interface,
                         race_icons.getMagic2Icon(),
-                        race_icons.getMagic2Desc(),
+                        icons_bundle,
+                        race_icons.getMagic2TipKey(),
+                        race_icons.getMagic2KeybindAction(),
                         1);
         chieftain_group.addChild(magic2_button);
         //		magic2_button.addMouseClickListener(new MagicListener(1));
@@ -253,13 +251,13 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         tower_attack_button =
                 new NonFocusIconButton(
                         race_icons.getAttackIcon(),
-                        formatTipWithKeybind("attack_tip", Globals.KB_TOWER_ATTACK));
+                        bundle, "attack_tip", Globals.KB_TOWER_ATTACK);
         tower_group.addChild(tower_attack_button);
         tower_attack_button.addMouseClickListener(new TargetListener(Target.ACTION_ATTACK));
         tower_exit_button =
                 new NonFocusIconButton(
                         race_icons.getTowerExitIcon(),
-                        formatTipWithKeybind("exit_tip", Globals.KB_TOWER_EXIT));
+                        bundle, "exit_tip", Globals.KB_TOWER_EXIT);
         tower_group.addChild(tower_exit_button);
         tower_exit_button.addMouseClickListener(new TowerExitListener());
         tower_attack_button.place();
@@ -340,22 +338,21 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         race_icons.getPeonIcon(),
                         Utils.getBundleString(bundle, "deploy_peon_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        settings.getKeybindString(Globals.KB_QUARTERS_DEPLOY_PEON));
+                        Globals.KB_QUARTERS_DEPLOY_PEON);
         quarters_group.addChild(quarters_peon_button);
         quarters_chieftain_button =
                 new ChieftainButton(
                         viewer,
                         player_interface,
                         race_icons.getChieftainIcon(),
-                        formatTipWithKeybind("train_chieftain_tip", Globals.KB_QUARTERS_CHIEFTAIN));
+                        bundle, "train_chieftain_tip", Globals.KB_QUARTERS_CHIEFTAIN);
         //		if (Settings.getSettings().developer_mode) {
         quarters_group.addChild(quarters_chieftain_button);
         //		}
         quarters_rally_point_button =
                 new NonFocusIconButton(
                         race_icons.getRallyPointIcon(),
-                        formatTipWithKeybind(
-                                "rally_point_tip", Globals.KB_QUARTERS_SET_RALLY_POINT));
+                        bundle, "rally_point_tip", Globals.KB_QUARTERS_SET_RALLY_POINT);
         quarters_group.addChild(quarters_rally_point_button);
         quarters_rally_point_button.addMouseClickListener(new RallyPointListener());
         quarters_peon_button.place();
@@ -371,7 +368,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         harvest_button =
                 new NonFocusIconButton(
                         icons.getHarvestIcon(),
-                        formatTipWithKeybind("gather_resources_tip", Globals.KB_ARMORY_HARVEST));
+                        bundle, "gather_resources_tip", Globals.KB_ARMORY_HARVEST);
         harvest_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -383,8 +380,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         build_button =
                 new NonFocusIconButton(
                         race_icons.getBuildWeaponsIcon(),
-                        formatTipWithKeybind(
-                                "produce_weapons_tip", Globals.KB_ARMORY_MAKE_WEAPONS));
+                        bundle, "produce_weapons_tip", Globals.KB_ARMORY_MAKE_WEAPONS);
         build_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -396,7 +392,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         army_button =
                 new NonFocusIconButton(
                         race_icons.getArmyIcon(),
-                        formatTipWithKeybind("deploy_army_tip", Globals.KB_ARMORY_DEPLOY_WARRIORS));
+                        bundle, "deploy_army_tip", Globals.KB_ARMORY_DEPLOY_WARRIORS);
         army_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -408,14 +404,13 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         transport_button =
                 new NonFocusIconButton(
                         race_icons.getTransportIcon(),
-                        formatTipWithKeybind(
-                                "transport_resources_tip", Globals.KB_ARMORY_TRANSPORT));
+                        bundle, "transport_resources_tip", Globals.KB_ARMORY_TRANSPORT);
         armory_group.addChild(transport_button);
         transport_button.addMouseClickListener(new GroupListener(armory_group, transport_group));
         rally_point_button =
                 new NonFocusIconButton(
                         race_icons.getRallyPointIcon(),
-                        formatTipWithKeybind("rally_point_tip", Globals.KB_ARMORY_RALLY_POINT));
+                        bundle, "rally_point_tip", Globals.KB_ARMORY_RALLY_POINT);
         rally_point_button.setIconDisabler(
                 new IconDisabler() {
                     public final boolean isDisabled() {
@@ -439,7 +434,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getTreeIcon(),
                         Utils.getBundleString(bundle, "harvest_tree_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        settings.getKeybindString(Globals.KB_ARMORY_HARVEST_TREE));
+                        Globals.KB_ARMORY_HARVEST_TREE);
         harvest_group.addChild(harvest_tree_button);
         harvest_rock_button =
                 new DeploySpinner(
@@ -448,7 +443,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getRockIcon(),
                         Utils.getBundleString(bundle, "harvest_rock_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        settings.getKeybindString(Globals.KB_ARMORY_HARVEST_ROCK));
+                        Globals.KB_ARMORY_HARVEST_ROCK);
         harvest_group.addChild(harvest_rock_button);
         harvest_iron_button =
                 new DeploySpinner(
@@ -457,7 +452,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getIronIcon(),
                         Utils.getBundleString(bundle, "harvest_iron_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        settings.getKeybindString(Globals.KB_ARMORY_HARVEST_IRON));
+                        Globals.KB_ARMORY_HARVEST_IRON);
         harvest_group.addChild(harvest_iron_button);
         harvest_rubber_button =
                 new DeploySpinner(
@@ -466,7 +461,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getRubberIcon(),
                         Utils.getBundleString(bundle, "harvest_chicken_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        settings.getKeybindString(Globals.KB_ARMORY_HARVEST_CHICKEN));
+                        Globals.KB_ARMORY_HARVEST_CHICKEN);
         harvest_group.addChild(harvest_rubber_button);
         harvest_back_button =
                 new NonFocusIconButton(skin.getBackButton(), formatTip("back_tip", "Esc"));
@@ -487,7 +482,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         race_icons.getBuildWeaponRockIcon(),
                         Utils.getBundleString(bundle, "build_rock_tip"),
                         Building.COST_ROCK_WEAPON.toIconArray(),
-                        settings.getKeybindString(Globals.KB_ARMORY_CREATE_ROCK_WEAPON));
+                        Globals.KB_ARMORY_CREATE_ROCK_WEAPON);
         build_group.addChild(build_weapon_rock_button);
         build_weapon_iron_button =
                 new BuildSpinner(
@@ -496,7 +491,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         race_icons.getBuildWeaponIronIcon(),
                         Utils.getBundleString(bundle, "build_iron_tip"),
                         Building.COST_IRON_WEAPON.toIconArray(),
-                        settings.getKeybindString(Globals.KB_ARMORY_CREATE_IRON_WEAPON));
+                        Globals.KB_ARMORY_CREATE_IRON_WEAPON);
         build_group.addChild(build_weapon_iron_button);
         build_weapon_rubber_button =
                 new BuildSpinner(
@@ -505,7 +500,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         race_icons.getBuildWeaponRubberIcon(),
                         Utils.getBundleString(bundle, "build_chicken_tip"),
                         Building.COST_RUBBER_WEAPON.toIconArray(),
-                        settings.getKeybindString(Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON));
+                        Globals.KB_ARMORY_CREATE_CHICKEN_WEAPON);
         build_group.addChild(build_weapon_rubber_button);
         build_back_button =
                 new NonFocusIconButton(skin.getBackButton(), formatTip("back_tip", "Esc"));
@@ -525,7 +520,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         race_icons.getPeonIcon(),
                         Utils.getBundleString(bundle, "deploy_peon_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        settings.getKeybindString(Globals.KB_ARMORY_DEPLOY_PEON));
+                        Globals.KB_ARMORY_DEPLOY_PEON);
         army_group.addChild(army_peon_button);
         army_warrior_rock_button =
                 new DeploySpinner(
@@ -536,7 +531,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         new Quad[] {
                             race_icons.getUnitStatusIcon(), race_icons.getWeaponRockStatusIcon()
                         },
-                        settings.getKeybindString(Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS));
+                        Globals.KB_ARMORY_DEPLOY_ROCK_WARRIORS);
         army_group.addChild(army_warrior_rock_button);
 
         army_warrior_iron_button =
@@ -548,7 +543,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         new Quad[] {
                             race_icons.getUnitStatusIcon(), race_icons.getWeaponIronStatusIcon()
                         },
-                        settings.getKeybindString(Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS));
+                        Globals.KB_ARMORY_DEPLOY_IRON_WARRIORS);
         army_group.addChild(army_warrior_iron_button);
         army_warrior_iron_button.setNag(
                 "Iron warriors are unavailable in this demo version of Tribal Trouble.");
@@ -562,7 +557,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         new Quad[] {
                             race_icons.getUnitStatusIcon(), race_icons.getWeaponRubberStatusIcon()
                         },
-                        settings.getKeybindString(Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS));
+                        Globals.KB_ARMORY_DEPLOY_CHICKEN_WARRIORS);
         army_group.addChild(army_warrior_rubber_button);
         army_warrior_rubber_button.setNag(Utils.getBundleString(bundle, "chicken_unavailable"));
 
@@ -585,7 +580,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getTreeIcon(),
                         Utils.getBundleString(bundle, "transport_tree_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon(), icons.getTreeStatusIcon()},
-                        settings.getKeybindString(Globals.KB_ARMORY_TRANSPORT_TREE));
+                        Globals.KB_ARMORY_TRANSPORT_TREE);
         transport_group.addChild(transport_tree_button);
         transport_rock_button =
                 new DeploySpinner(
@@ -594,7 +589,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getRockIcon(),
                         Utils.getBundleString(bundle, "transport_rock_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon(), icons.getRockStatusIcon()},
-                        settings.getKeybindString(Globals.KB_ARMORY_TRANSPORT_ROCK));
+                        Globals.KB_ARMORY_TRANSPORT_ROCK);
         transport_group.addChild(transport_rock_button);
         transport_iron_button =
                 new DeploySpinner(
@@ -603,7 +598,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getIronIcon(),
                         Utils.getBundleString(bundle, "transport_iron_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon(), icons.getIronStatusIcon()},
-                        settings.getKeybindString(Globals.KB_ARMORY_TRANSPORT_IRON));
+                        Globals.KB_ARMORY_TRANSPORT_IRON);
         transport_group.addChild(transport_iron_button);
         transport_rubber_button =
                 new DeploySpinner(
@@ -612,7 +607,7 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getRubberIcon(),
                         Utils.getBundleString(bundle, "transport_chicken_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon(), icons.getRubberStatusIcon()},
-                        settings.getKeybindString(Globals.KB_ARMORY_TRANSPORT_CHICKEN));
+                        Globals.KB_ARMORY_TRANSPORT_CHICKEN);
         transport_group.addChild(transport_rubber_button);
         transport_back_button =
                 new NonFocusIconButton(skin.getBackButton(), formatTip("back_tip", "Esc"));
