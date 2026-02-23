@@ -74,9 +74,7 @@ public final strictfp class Globals {
                 : "tribaltrouble.org";
     }
 
-    public static String getSupportAddress() {
-        return "http://" + getDomainName() + "/support";
-    }
+    public static final String SUPPORT_ADDRESS = "http://" + getDomainName() + "/support";
 
     public static final int BOUNDING_NONE = 0;
     public static final int BOUNDING_UNIT_GRID = 1;
