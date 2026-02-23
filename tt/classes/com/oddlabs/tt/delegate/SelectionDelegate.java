@@ -78,6 +78,14 @@ public final strictfp class SelectionDelegate extends ControllableCameraDelegate
         Settings settings = Settings.getSettings();
         int key = event.getKeyCode();
 
+        // If spacebar is no longer bound to map mode, suppress it to prevent
+        // a synthetic click at 0,0 that deselects units
+        if (key == Keyboard.KEY_SPACE
+                && key != settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE)
+                && key != settings.getKeybind(Globals.KB_TOGGLE_MAP_MODE_ALT)) {
+            return;
+        }
+
         // Resolve army group number (replaces fall-through switch)
         int army_number = -1;
         if (key == settings.getKeybind(Globals.KB_ARMY_GROUP_9)) army_number = 9;
