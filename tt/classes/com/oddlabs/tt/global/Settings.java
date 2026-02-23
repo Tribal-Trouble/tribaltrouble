@@ -108,8 +108,6 @@ public final strictfp class Settings implements Serializable {
     public boolean use_copyteximage = false;
     private boolean use_texture_compression = true;
 
-    public float mouse_sensitivity = 1.0f;
-
     public int frame_grab_milliseconds_per_frame = 40;
 
     public static final void setSettings(Settings new_settings) {
