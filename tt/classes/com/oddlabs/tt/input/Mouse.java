@@ -94,9 +94,6 @@ public final strictfp class Mouse {
                             iy = clampedY;
                         }
 
-                        int rawDX = ix - mouseX;
-                        int rawDY = iy - mouseY;
-
                         dX = ix - mouseX;
                         dY = iy - mouseY;
                         lastMouseX = mouseX;
