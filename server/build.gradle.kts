@@ -22,8 +22,8 @@ tasks.register<CreateStartScripts>("routerScripts") {
     outputDir = tasks.named<CreateStartScripts>("startScripts").get().outputDir
 }
 
-tasks.named("startScripts") {
-    finalizedBy("routerScripts")
+tasks.installDist {
+    dependsOn("routerScripts")
 }
 
 // Include extras in the distribution
