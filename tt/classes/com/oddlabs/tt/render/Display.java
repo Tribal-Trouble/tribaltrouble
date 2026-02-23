@@ -124,7 +124,11 @@ public final strictfp class Display {
     }
 
     public static boolean isCloseRequested() {
-        return shouldClose();
+        boolean close = shouldClose();
+        if (close) {
+            GLFW.glfwSetWindowShouldClose(window, false);
+        }
+        return close;
     }
 
     public static void makeCurrent() {

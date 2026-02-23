@@ -99,6 +99,14 @@
 			<property name="fonttexdir" location="textures/font" />
 			<property name="fonttexclasspath" value="/textures/font" />
 		</ant>
+		<ant inheritAll="false" dir="../tools" target="createfont">
+			<property name="fontname" value="Impact" />
+			<property name="fontsize" value="72" />
+			<property name="numchars" value="384" />
+			<property name="fontinfodir" location="static/font" />
+			<property name="fonttexdir" location="textures/font" />
+			<property name="fonttexclasspath" value="/textures/font" />
+		</ant>
 	</target>
 
 	<target name="textures">
