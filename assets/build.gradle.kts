@@ -1,3 +1,7 @@
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+
 // Separate configuration for the asset tools classpath
 val assetTools: Configuration by configurations.creating
 
@@ -40,42 +44,81 @@ val buildTextures = rootProject.projectDir.resolve("tt/build/textures")
 val srcGeometry = rootProject.projectDir.resolve("tt/geometry")
 val buildGeometry = rootProject.projectDir.resolve("tt/build/geometry")
 
-// Convert one texture file: Convert <infile> [args] <outdir>
-// Last arg is output subdir, second-to-last is format extension, rest are converter args.
-fun convertTexture(name: String, png: File, vararg convertArgs: String) =
-    tasks.register<JavaExec>("convert_$name") {
-        group = "assets"
-        description = "Convert $name"
-        classpath = assetTools
-        mainClass.set("com.oddlabs.imageutil.Convert")
-        jvmArgs("-ea", "-Djava.awt.headless=true")
-        val ext = convertArgs[convertArgs.lastIndex - 1]
-        val subdir = convertArgs.last()
-        val outdir = buildTextures.resolve(subdir)
-        args(png.absolutePath, *convertArgs.dropLast(1).toTypedArray(), outdir.absolutePath)
-        inputs.file(png)
-        outputs.file(outdir.resolve("${png.nameWithoutExtension}.$ext"))
-    }
-
-fileTree(srcTextures) {
-    include("**/*.png")
-}.forEach { png ->
-    val rel = png.relativeTo(srcTextures).invariantSeparatorsPath
-    when {
-        rel.startsWith("pixelperfect/") -> convertTexture("${png.nameWithoutExtension}_pixelperfect", png, "-flip", "-format", "image", "gui")
-        rel.startsWith("gui/")          -> convertTexture("${png.nameWithoutExtension}_gui", png, "-flip", "-format", "dxtn", "gui")
-        rel.startsWith("pointer/")      -> convertTexture("${png.nameWithoutExtension}_pointer", png, "-flip", "-format", "image", "gui")
-        rel.startsWith("effects/")      -> convertTexture("${png.nameWithoutExtension}_effects", png, "-flip", "-mipmaps", "-format", "dxtn", "effects")
-        rel.startsWith("font/")         -> convertTexture("${png.nameWithoutExtension}_font", png, "-flip", "-format", "dxtn", "font")
-        rel.startsWith("models/")       -> convertTexture(rel.replace("/", "_").replace(".png", "_models"), png, "-flip", "-gamma", "0.45454545454545453", "-mipmaps", "-gamma", "2.2", "-format", "dxtn", "models")
-        rel.startsWith("teamdecals/")   -> convertTexture(rel.replace("/", "_").replace(".png", "_teamdecals"), png, "-half", "-flip", "-mipmaps", "-format", "dxtn", "models")
-    }
-}
+// Texture groups: srcSubdir -> (outSubdir, operations...)
+val textureGroups = mapOf(
+    "pixelperfect" to listOf("gui", "-flip", "-format", "image"),
+    "gui"          to listOf("gui", "-flip", "-format", "dxtn"),
+    "pointer"      to listOf("gui", "-flip", "-format", "image"),
+    "effects"      to listOf("effects", "-flip", "-mipmaps", "-format", "dxtn"),
+    "font"         to listOf("font", "-flip", "-format", "dxtn"),
+    "models"       to listOf("models", "-flip", "-gamma", "0.45454545454545453", "-mipmaps", "-gamma", "2.2", "-format", "dxtn"),
+    "teamdecals"   to listOf("models", "-half", "-flip", "-mipmaps", "-format", "dxtn"),
+)
 
 val textures = tasks.register("textures") {
     group = "assets"
-    description = "Convert all textures"
-    dependsOn(tasks.matching { it.name.startsWith("convert_") })
+    description = "Convert all textures (parallel processes)"
+    dependsOn(assetTools)
+
+    inputs.dir(srcTextures)
+    outputs.dir(buildTextures)
+
+    doLast {
+        // Build the list of conversions: [infile, ops..., outdir]
+        data class Job(val infile: File, val args: List<String>)
+        val jobs = mutableListOf<Job>()
+        for ((srcSubdir, group) in textureGroups) {
+            val outSubdir = group[0]
+            val ops = group.drop(1)
+            val outDir = buildTextures.resolve(outSubdir)
+            outDir.mkdirs()
+            srcTextures.resolve(srcSubdir).walkTopDown()
+                .filter { it.extension == "png" }
+                .forEach { png ->
+                    jobs.add(Job(png, listOf(png.absolutePath) + ops + listOf(outDir.absolutePath)))
+                }
+        }
+
+        // Resolve classpath once
+        val cp = project.configurations["assetTools"].resolve().joinToString(File.pathSeparator) { it.absolutePath }
+        val javaExe = org.gradle.internal.jvm.Jvm.current().javaExecutable.absolutePath
+        val workers = Runtime.getRuntime().availableProcessors()
+
+        println("Converting ${jobs.size} textures with $workers parallel processes")
+
+        // Process in parallel using a fixed thread pool of ProcessBuilders
+        val pool = Executors.newFixedThreadPool(workers)
+        val failed = AtomicInteger(0)
+        val done = AtomicInteger(0)
+        val total = jobs.size
+
+        jobs.forEach { job ->
+            pool.submit(Runnable {
+                val cmd = listOf(javaExe, "-ea", "-Djava.awt.headless=true", "-cp", cp,
+                    "com.oddlabs.imageutil.Convert") + job.args
+                val proc = ProcessBuilder(cmd)
+                    .redirectErrorStream(true)
+                    .start()
+                val output = proc.inputStream.bufferedReader().readText()
+                val exitCode = proc.waitFor()
+                if (exitCode != 0) {
+                    System.err.println("FAILED: ${job.infile.name}\n$output")
+                    failed.incrementAndGet()
+                }
+                val n = done.incrementAndGet()
+                if (n % 20 == 0 || n == total) {
+                    println("  $n/$total")
+                }
+            })
+        }
+
+        pool.shutdown()
+        pool.awaitTermination(10, TimeUnit.MINUTES)
+
+        if (failed.get() > 0) {
+            throw GradleException("${failed.get()} texture(s) failed to convert")
+        }
+    }
 }
 
 val geometry = tasks.register<JavaExec>("geometry") {
@@ -88,4 +131,3 @@ val geometry = tasks.register<JavaExec>("geometry") {
     inputs.dir(srcGeometry)
     outputs.dir(buildGeometry)
 }
-
