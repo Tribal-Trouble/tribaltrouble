@@ -11,7 +11,7 @@
 **Matchmaking server** (the main game server):
 
 ```bash
-./bin/server
+./bin/matchmaker
 ```
 
 **Router server** (relays game traffic between players):

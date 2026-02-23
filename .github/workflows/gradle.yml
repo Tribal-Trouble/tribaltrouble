@@ -8,7 +8,24 @@ on:
   workflow_dispatch:
 
 jobs:
+  format-check:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Check Formatting
+      run: ./gradlew formatCheck
+
   build-linux:
+    needs: format-check
 
     runs-on: ubuntu-latest
 
@@ -35,6 +52,7 @@ jobs:
         path: tt/build/dist/linux/TribalTrouble.AppDir
 
   build-server:
+    needs: format-check
 
     runs-on: ubuntu-latest
 
@@ -56,6 +74,7 @@ jobs:
         path: server/build/install/server/
 
   build-windows:
+    needs: format-check
 
     runs-on: windows-latest
 
@@ -77,6 +96,7 @@ jobs:
         path: tt/build/dist/windows/
 
   build-mac-x86:
+    needs: format-check
 
     runs-on: macos-15-intel
 
@@ -98,6 +118,7 @@ jobs:
         path: tt/build/dist/macosx-x86/
 
   build-mac-arm64:
+    needs: format-check
     runs-on: macos-latest
 
     steps:
@@ -120,6 +141,7 @@ jobs:
 # Only build mac x86 as an app image when deploying to steam.
 # We would need to sign it to always use this type. Steam handles it for us.
   build-mac-x86-app:
+    needs: format-check
     if: github.ref == 'refs/heads/steam'
     runs-on: macos-15-intel
 

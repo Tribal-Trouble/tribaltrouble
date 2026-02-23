@@ -69,8 +69,16 @@ No Gradle install required — the included wrapper (`gradlew`) handles it.
 | `./gradlew :tt:run` | Build + run the game client |
 | `./gradlew :server:runMatchmaker` | Build + run the matchmaking server |
 | `./gradlew :server:runRouter` | Build + run the router server |
+| `./gradlew :server:installDist` | Build server distribution (bin/matchmaker, bin/router, bin/start-all) |
 | `./gradlew :assets:textures` | Rebuild all textures from PNGs |
 | `./gradlew :assets:geometry` | Rebuild all geometry from XMLs |
+| `./gradlew :assets:createFonts` | Re-render font textures (requires Tahoma + Impact fonts) |
+| `./gradlew :tt:packageWindows` | Build Windows distribution (Windows only) |
+| `./gradlew :tt:packageLinux` | Build Linux AppImage (Linux only) |
+| `./gradlew :tt:packageMacArm64` | Build macOS arm64 distribution (macOS only) |
+| `./gradlew :tt:packageMacX86` | Build macOS x86 distribution (macOS only) |
+| `./gradlew formatCheck` | Check code formatting |
+| `./gradlew format` | Auto-format all code |
 | `./gradlew :tt:compileJava` | Compile the game client only |
 | `./gradlew :server:compileJava` | Compile the server only |
 
@@ -136,8 +144,10 @@ Optional Steps (Recommend for server hosting)
 
 ### Formatting
 
-- We are currently using google java format <https://github.com/google/google-java-format>
-- Use the command `ant format` at the root of the repository to make sure all files are formatted before contributing
+- We use [google-java-format](https://github.com/google/google-java-format) 1.28.0 with AOSP style (4-space indent)
+- `./gradlew format` — auto-format all code
+- `./gradlew formatCheck` — check formatting (this is what CI runs)
+- Legacy: `ant format` / `ant format-check` also still work
 
 ## 🤝 Contributing
 

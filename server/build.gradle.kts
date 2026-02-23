@@ -10,6 +10,7 @@ sourceSets {
 }
 
 application {
+    applicationName = "matchmaker"
     mainClass.set("com.oddlabs.matchserver.MatchmakingServer")
     applicationDefaultJvmArgs = listOf("-Djdk.crypto.KeyAgreement.legacyKDF=true")
 }
@@ -51,7 +52,7 @@ tasks.installDist {
                 |#!/bin/bash
                 |SCRIPT_DIR=${'$'}(cd "${'$'}(dirname "${'$'}0")" && pwd)
                 |echo "Starting matchmaker..."
-                |"${'$'}SCRIPT_DIR/server" &
+                |"${'$'}SCRIPT_DIR/matchmaker" &
                 |echo "Starting router..."
                 |"${'$'}SCRIPT_DIR/router" &
                 |echo "Both servers started. PIDs: matchmaker=${'$'}!, router=${'$'}!"
@@ -65,7 +66,7 @@ tasks.installDist {
             writeText("""
                 |@echo off
                 |echo Starting matchmaker...
-                |start "" "%~dp0server.bat"
+                |start "" "%~dp0matchmaker.bat"
                 |echo Starting router...
                 |start "" "%~dp0router.bat"
                 |echo Both servers started.
