@@ -611,4 +611,8 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     public static final boolean isWaitingForAck() {
         return waiting_for_ack;
     }
+
+    public final boolean isSynchronized() {
+        return is_synchronized;
+    }
 }

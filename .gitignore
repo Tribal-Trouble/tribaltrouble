@@ -22,3 +22,6 @@ server/server.properties
 # Gradle
 .gradle/
 !gradle-wrapper.jar
+# Fonts
+common/static/fonts/*
+!common/static/fonts/README
