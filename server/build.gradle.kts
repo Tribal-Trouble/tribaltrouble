@@ -27,34 +27,46 @@ tasks.installDist {
     dependsOn("routerScripts")
 }
 
-// Include extras in the distribution
+// Install to build/install/server/ instead of build/install/matchmaker/
 distributions {
     main {
+        distributionBaseName.set("server")
         contents {
-            from("server.properties.template")
-            from("README-server.md")
-            from(".") {
-                include("logs/.gitkeep")
-                into("logs")
+            // Distribute as server.properties (not .template)
+            from("server.properties.template") {
+                rename { "server.properties" }
             }
+            from("README-server.md")
         }
     }
 }
 
-// Create an empty logs dir and combo scripts in installDist output
 tasks.installDist {
     doLast {
-        destinationDir.resolve("logs").mkdirs()
+        val root = destinationDir
+        root.resolve("logs").mkdirs()
+
+        // Patch all generated scripts to cd to APP_HOME (server root) before launching Java,
+        // so relative paths like logs/ and server.properties resolve correctly.
+        root.resolve("bin").listFiles()?.forEach { script ->
+            var content = script.readText()
+            if (script.name.endsWith(".bat")) {
+                content = content.replace("@rem Execute ", "cd /d \"%APP_HOME%\"\r\n\r\n@rem Execute ")
+            } else {
+                content = content.replace("exec ", "cd \"\$APP_HOME\"\n\nexec ")
+            }
+            script.writeText(content)
+        }
 
         // start-all script (Unix)
-        destinationDir.resolve("bin/start-all").apply {
+        root.resolve("start-all").apply {
             writeText("""
                 |#!/bin/bash
                 |SCRIPT_DIR=${'$'}(cd "${'$'}(dirname "${'$'}0")" && pwd)
                 |echo "Starting matchmaker..."
-                |"${'$'}SCRIPT_DIR/matchmaker" &
+                |"${'$'}SCRIPT_DIR/bin/matchmaker" &
                 |echo "Starting router..."
-                |"${'$'}SCRIPT_DIR/router" &
+                |"${'$'}SCRIPT_DIR/bin/router" &
                 |echo "Both servers started. PIDs: matchmaker=${'$'}!, router=${'$'}!"
                 |wait
             """.trimMargin() + "\n")
@@ -62,13 +74,13 @@ tasks.installDist {
         }
 
         // start-all script (Windows)
-        destinationDir.resolve("bin/start-all.bat").apply {
+        root.resolve("start-all.bat").apply {
             writeText("""
                 |@echo off
                 |echo Starting matchmaker...
-                |start "" "%~dp0matchmaker.bat"
+                |start "" "%~dp0bin\matchmaker.bat"
                 |echo Starting router...
-                |start "" "%~dp0router.bat"
+                |start "" "%~dp0bin\router.bat"
                 |echo Both servers started.
             """.trimMargin() + "\r\n")
         }

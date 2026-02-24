@@ -2,30 +2,36 @@
 
 ## Setup
 
-1. Copy `server.properties.template` to `server.properties`
-2. Fill in the required values (at minimum `SQL_PASS`)
-3. Run one of the server scripts from this directory
+1. Edit `server.properties` with your settings (at minimum `SQL_PASS`)
+2. Run the start-all script from this directory
 
 ## Running
 
-**Matchmaking server** (the main game server):
+**Start both servers:**
 
 ```bash
-./bin/matchmaker
+# Windows
+start-all.bat
+
+# Linux/Mac
+./start-all
 ```
 
-**Router server** (relays game traffic between players):
+**Or run individually:**
 
 ```bash
-./bin/router
+# Matchmaking server (the main game server)
+bin/matchmaker      # or bin\matchmaker.bat on Windows
+
+# Router server (relays game traffic between players)
+bin/router          # or bin\router.bat on Windows
 ```
 
-Both servers expect `server.properties` in the working directory.
 Logs are written to the `logs/` directory.
 
 ## Configuration
 
-See `server.properties.template` for all available settings:
+See `server.properties` for all available settings:
 
 | Key | Required | Description |
 |-----|----------|-------------|
@@ -35,5 +41,5 @@ See `server.properties.template` for all available settings:
 | `WEBSITE_DOMAIN` | No | Website domain for links |
 | `NATIVE_CHIEF_EMOJI` | No | Custom emoji ID |
 | `VIKING_CHIEF_EMOJI` | No | Custom emoji ID |
-| `EMOJI_ROLE_MAPPINGS` | No | Emoji-to-role mapping |
+| `EMOJI_ROLE_MAPPINGS` | No | Emoji-to-role mapping JSON |
 | `REACTION_ROLE_MESSAGE_ID` | No | Message ID for reaction roles |

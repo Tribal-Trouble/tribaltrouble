@@ -14,6 +14,7 @@ import com.oddlabs.registration.RegistrationKey;
 import com.oddlabs.util.DBUtils;
 import com.oddlabs.util.KeyManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.security.PublicKey;
@@ -46,6 +47,7 @@ public final class MatchmakingServer implements ConnectionListenerInterface {
 
     static {
         try {
+            new File("logs").mkdirs();
             Handler fh = new FileHandler("logs/matchserver.%g.log", 10 * 1024 * 1024, 50);
             fh.setFormatter(new SimpleFormatter());
             logger.addHandler(fh);
