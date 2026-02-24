@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
 
 public class KeybindPanel extends Panel {
     GUIRoot gui_root;
@@ -62,35 +63,74 @@ public class KeybindPanel extends Panel {
         this.compileCanvas();
     }
 
+    private static final float[] HEADER_COLOR = {0.9f, 0.75f, 0.4f, 1.0f};
+
+    private String getCategoryName(String actionName) {
+        String key = actionName.toLowerCase();
+        if (key.contains("pan_camera") || key.startsWith("kb_camera_")) return "Camera";
+        if (key.equals("kb_attack") || key.equals("kb_gather_repair") || key.equals("kb_move"))
+            return "Unit";
+        if (key.startsWith("kb_build_")) return "Build";
+        if (key.startsWith("kb_armory_")) return "Armory";
+        if (key.startsWith("kb_quarters_")) return "Quarters";
+        if (key.startsWith("kb_chieftain_")) return "Chieftain";
+        if (key.startsWith("kb_tower_")) return "Tower";
+        if (key.startsWith("kb_army_group_")) return "Army Groups";
+        if (key.startsWith("kb_gamespeed_")) return "Game Speed";
+        return "Game";
+    }
+
     private void evaluateKeybindRows() {
+        keybinds_list_box.setAutoSort(false);
         HashMap<String, Integer> keybinds = Settings.getSettings().getKeybinds();
 
-        // Convert to list and sort by display name to group categories together
-        List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(keybinds.entrySet());
-        sortedEntries.sort(
-                (Map.Entry<String, Integer> e1, Map.Entry<String, Integer> e2) -> {
-                    String displayName1 = Utils.getBundleString(bundle, e1.getKey().toLowerCase());
-                    String displayName2 = Utils.getBundleString(bundle, e2.getKey().toLowerCase());
-                    return displayName1.compareTo(displayName2);
-                });
+        // Group keybinds by category derived from action key
+        TreeMap<String, List<Map.Entry<String, Integer>>> grouped = new TreeMap<>();
+        for (Map.Entry<String, Integer> entry : keybinds.entrySet()) {
+            grouped.computeIfAbsent(getCategoryName(entry.getKey()), k -> new ArrayList<>())
+                    .add(entry);
+        }
 
-        for (Map.Entry<String, Integer> entry : sortedEntries) {
-            String actionName = entry.getKey();
-            Integer keyCode = entry.getValue();
-            String keyString = Keyboard.keyToString(keyCode);
+        int categoryIndex = 0;
+        for (Map.Entry<String, List<Map.Entry<String, Integer>>> group : grouped.entrySet()) {
+            // Sort entries within category by display name
+            group.getValue().sort((e1, e2) -> {
+                String d1 = Utils.getBundleString(bundle, e1.getKey().toLowerCase());
+                String d2 = Utils.getBundleString(bundle, e2.getKey().toLowerCase());
+                return d1.compareTo(d2);
+            });
 
-            // Get display name from ResourceBundle
-            String displayName = Utils.getBundleString(bundle, actionName.toLowerCase());
-
-            Label label =
-                    new Label(
-                            displayName + " [" + keyString + "]",
-                            Skin.getSkin().getMultiColumnComboBoxData().getFont());
-            if (Globals.getConflictingAction(actionName, keyCode, keybinds) != null) {
-                label.setColor(new float[] {1.0f, 0.3f, 0.3f, 1.0f});
+            // Blank separator before each category (except the first)
+            if (categoryIndex > 0) {
+                Label spacer = new Label(" ", Skin.getSkin().getMultiColumnComboBoxData().getFont());
+                keybinds_list_box.addRow(new Row(new GUIObject[] {spacer}, null));
             }
-            Row row = new Row(new GUIObject[] {label}, new ActionRowDataModel(actionName, keyCode));
-            keybinds_list_box.addRow(row);
+            categoryIndex++;
+
+            // Category header row
+            Label headerLabel = new Label(
+                    "-- " + group.getKey() + " --",
+                    Skin.getSkin().getMultiColumnComboBoxData().getFont());
+            headerLabel.setColor(HEADER_COLOR);
+            keybinds_list_box.addRow(new Row(new GUIObject[] {headerLabel}, null));
+
+            // Keybind rows
+            for (Map.Entry<String, Integer> entry : group.getValue()) {
+                String actionName = entry.getKey();
+                Integer keyCode = entry.getValue();
+                String keyString = Keyboard.keyToString(keyCode);
+                String displayName = Utils.getBundleString(bundle, actionName.toLowerCase());
+
+                Label label = new Label(
+                        displayName + " [" + keyString + "]",
+                        Skin.getSkin().getMultiColumnComboBoxData().getFont());
+                if (Globals.getConflictingAction(actionName, keyCode, keybinds) != null) {
+                    label.setColor(new float[] {1.0f, 0.3f, 0.3f, 1.0f});
+                }
+                keybinds_list_box.addRow(new Row(
+                        new GUIObject[] {label},
+                        new ActionRowDataModel(actionName, keyCode)));
+            }
         }
     }
 

@@ -124,6 +124,10 @@ public final strictfp class MultiColumnComboBox extends GUIObject implements Scr
         focus_group.setGroupFocus(LocalInput.isShiftDownCurrently() ? -1 : 1);
     }
 
+    public final void setAutoSort(boolean auto_sort) {
+        rows.setAutoSort(auto_sort);
+    }
+
     public final void clear() {
         rows.clear();
     }

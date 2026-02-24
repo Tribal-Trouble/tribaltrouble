@@ -16,12 +16,17 @@ public final strictfp class RowCollection extends GUIObject {
     private Row selected_row = null;
     private int sort_index;
     private boolean sorted_descending;
+    private boolean auto_sort = true;
 
     public RowCollection(MultiColumnComboBox multi_box, int sort_index, boolean sorted_descending) {
         this.multi_box = multi_box;
         this.sort_index = sort_index;
         this.sorted_descending = sorted_descending;
         setCanFocus(true);
+    }
+
+    public final void setAutoSort(boolean auto_sort) {
+        this.auto_sort = auto_sort;
     }
 
     public final void clear() {
@@ -39,7 +44,7 @@ public final strictfp class RowCollection extends GUIObject {
         row.addMouseClickListener(new RowListener(row));
         row.setSortIndex(sort_index);
         addChild(row);
-        Collections.sort(rows);
+        if (auto_sort) Collections.sort(rows);
         replaceRows();
     }
 
@@ -53,7 +58,7 @@ public final strictfp class RowCollection extends GUIObject {
         for (int i = 0; i < rows.size(); i++) {
             ((Row) rows.get(i)).setSortIndex(sort_index);
         }
-        Collections.sort(rows);
+        if (auto_sort) Collections.sort(rows);
         replaceRows();
     }
 
