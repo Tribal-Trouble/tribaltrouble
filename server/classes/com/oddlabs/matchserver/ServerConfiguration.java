@@ -43,7 +43,8 @@ public class ServerConfiguration {
         File configFile = new File(configFilePath);
         if (!configFile.exists()) {
             System.err.println("=======================================================");
-            System.err.println("ERROR: Configuration file not found: " + configFile.getAbsolutePath());
+            System.err.println(
+                    "ERROR: Configuration file not found: " + configFile.getAbsolutePath());
             System.err.println("Edit server.properties with your settings and restart.");
             System.err.println("=======================================================");
             System.exit(1);
@@ -51,7 +52,8 @@ public class ServerConfiguration {
         try (FileInputStream in = new FileInputStream(configFile)) {
             properties.load(in);
         } catch (IOException e) {
-            System.err.println("ERROR: Failed to read configuration from " + configFile.getAbsolutePath());
+            System.err.println(
+                    "ERROR: Failed to read configuration from " + configFile.getAbsolutePath());
             e.printStackTrace();
             System.exit(1);
         }
