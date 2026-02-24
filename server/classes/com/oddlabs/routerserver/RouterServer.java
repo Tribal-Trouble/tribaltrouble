@@ -6,6 +6,7 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.router.Router;
 import com.oddlabs.util.DBUtils;
 
+import java.io.File;
 import java.util.logging.*;
 
 public final strictfp class RouterServer {
@@ -14,6 +15,7 @@ public final strictfp class RouterServer {
     static {
         logger = Logger.getLogger("com.oddlabs.router.Router");
         try {
+            new File("logs").mkdirs();
             Handler fh = new FileHandler("logs/router.%g.log", 10 * 1024 * 1024, 50);
             fh.setFormatter(new SimpleFormatter());
             logger.addHandler(fh);
