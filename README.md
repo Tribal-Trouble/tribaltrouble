@@ -122,7 +122,7 @@ Optional Steps (Recommend for server hosting)
 
 2. Server Configuration
     - Copy `server/server.properties.template` to `server/server.properties`
-    - Edit the `server.properties` file with your configuration:
+    - Edit `server.properties` with your configuration:
       - `SQL_PASS`* - The password for the matchmaker database user
       - `DISCORD_BOT_TOKEN` - Your Discord bot token
       - `DISCORD_SERVER_ID` - Your Discord server ID
@@ -136,9 +136,8 @@ Optional Steps (Recommend for server hosting)
 
 3. Run the servers
      - There are two main servers needed. The matchmaker and the router. The matchmaker is what runs the game and most the server logic. The router sends and receives chat messages and other messages from the client
-     - To build and run the matchmaker: `cd server` > `ant run-matchmaker`
-     - To build and run the router: `cd server` > `ant run-router`
-     - Alternatively run the scripts from the server using: `cd server` > `./matchmaker & ./router`
+     - Gradle: `./gradlew :server:runMatchmaker` and `./gradlew :server:runRouter`
+     - Ant (legacy): `cd server` > `ant run-matchmaker` / `ant run-router`
 
      > Note: The router and matchmaker can be hosted on the same or a different machine. The only time they actually need to be on the same machine is when one logs a crashing event to the database
 
