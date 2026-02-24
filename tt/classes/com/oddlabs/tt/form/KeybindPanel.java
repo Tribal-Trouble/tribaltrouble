@@ -94,23 +94,29 @@ public class KeybindPanel extends Panel {
         int categoryIndex = 0;
         for (Map.Entry<String, List<Map.Entry<String, Integer>>> group : grouped.entrySet()) {
             // Sort entries within category by display name
-            group.getValue().sort((e1, e2) -> {
-                String d1 = Utils.getBundleString(bundle, e1.getKey().toLowerCase());
-                String d2 = Utils.getBundleString(bundle, e2.getKey().toLowerCase());
-                return d1.compareTo(d2);
-            });
+            group.getValue()
+                    .sort(
+                            (e1, e2) -> {
+                                String d1 =
+                                        Utils.getBundleString(bundle, e1.getKey().toLowerCase());
+                                String d2 =
+                                        Utils.getBundleString(bundle, e2.getKey().toLowerCase());
+                                return d1.compareTo(d2);
+                            });
 
             // Blank separator before each category (except the first)
             if (categoryIndex > 0) {
-                Label spacer = new Label(" ", Skin.getSkin().getMultiColumnComboBoxData().getFont());
+                Label spacer =
+                        new Label(" ", Skin.getSkin().getMultiColumnComboBoxData().getFont());
                 keybinds_list_box.addRow(new Row(new GUIObject[] {spacer}, null));
             }
             categoryIndex++;
 
             // Category header row
-            Label headerLabel = new Label(
-                    "-- " + group.getKey() + " --",
-                    Skin.getSkin().getMultiColumnComboBoxData().getFont());
+            Label headerLabel =
+                    new Label(
+                            "-- " + group.getKey() + " --",
+                            Skin.getSkin().getMultiColumnComboBoxData().getFont());
             headerLabel.setColor(HEADER_COLOR);
             keybinds_list_box.addRow(new Row(new GUIObject[] {headerLabel}, null));
 
@@ -121,15 +127,17 @@ public class KeybindPanel extends Panel {
                 String keyString = Keyboard.keyToString(keyCode);
                 String displayName = Utils.getBundleString(bundle, actionName.toLowerCase());
 
-                Label label = new Label(
-                        displayName + " [" + keyString + "]",
-                        Skin.getSkin().getMultiColumnComboBoxData().getFont());
+                Label label =
+                        new Label(
+                                displayName + " [" + keyString + "]",
+                                Skin.getSkin().getMultiColumnComboBoxData().getFont());
                 if (Globals.getConflictingAction(actionName, keyCode, keybinds) != null) {
                     label.setColor(new float[] {1.0f, 0.3f, 0.3f, 1.0f});
                 }
-                keybinds_list_box.addRow(new Row(
-                        new GUIObject[] {label},
-                        new ActionRowDataModel(actionName, keyCode)));
+                keybinds_list_box.addRow(
+                        new Row(
+                                new GUIObject[] {label},
+                                new ActionRowDataModel(actionName, keyCode)));
             }
         }
     }
