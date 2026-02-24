@@ -49,7 +49,7 @@
 	<!ATTLIST bone parent CDATA #REQUIRED>
 ]>
 
-<mesh texture="TRAVERTN">
+<mesh>
 	<polygons>
 		<polygon>
 			<vertex x="-0.2529" y="0.225316" z="2.15601" r="1" g="1" b="1" a="1" nx="-0.584853" ny="0.767167" nz="0.263442" u="0.632744" v="0.31786">

@@ -49,7 +49,7 @@
 	<!ATTLIST bone parent CDATA #REQUIRED>
 ]>
 
-<mesh texture="viking_warrior">
+<mesh texture="viking_warrior_rock,viking_warrior_iron,viking_warrior_rubber">
 	<polygons>
 		<polygon>
 			<vertex x="-0.405195" y="0.0393422" z="-0.95421" r="1" g="1" b="1" a="1" nx="-0.0029529" ny="0.800155" nz="-0.599786" u="0.0385647" v="0.570202">

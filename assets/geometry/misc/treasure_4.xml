@@ -49,7 +49,7 @@
 	<!ATTLIST bone parent CDATA #REQUIRED>
 ]>
 
-<mesh>
+<mesh texture="treasure">
 	<polygons>
 		<polygon>
 			<vertex x="-0.0861394" y="-0.124971" z="-0.000335852" r="1" g="1" b="1" a="1" nx="-0.621667" ny="-0.774713" nz="0.11554" u="0.543253" v="0.405358">

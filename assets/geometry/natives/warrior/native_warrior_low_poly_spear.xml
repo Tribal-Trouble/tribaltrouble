@@ -49,7 +49,7 @@
 	<!ATTLIST bone parent CDATA #REQUIRED>
 ]>
 
-<mesh texture="native_warrior">
+<mesh texture="native_warrior_rock,native_warrior_iron,native_warrior_rubber">
 	<polygons>
 		<polygon>
 			<vertex x="-3.07616e-06" y="-0.178336" z="-0.00131078" r="1" g="1" b="1" a="1" nx="0.000448142" ny="-0.000578279" nz="1" u="0.987868" v="0.0758058">
