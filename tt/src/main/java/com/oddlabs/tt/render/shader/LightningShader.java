@@ -100,5 +100,9 @@ public final class LightningShader extends ShaderProgram implements FogShader {
     public LightningShader() {
         super(VERTEX_SHADER, FRAGMENT_SHADER);
         link();
+        int blockIndex = org.lwjgl.opengl.GL31.glGetUniformBlockIndex(state.programId, "GlobalState");
+        if (blockIndex != -1) {
+            org.lwjgl.opengl.GL31.glUniformBlockBinding(state.programId, blockIndex, 0);
+        }
     }
 }

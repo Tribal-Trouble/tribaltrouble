@@ -2,25 +2,20 @@ package com.oddlabs.tt.render.shader;
 
 import org.jspecify.annotations.NonNull;
 
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.List;
 
 public final class VertexLayout<A extends Enum<A> & VertexAttribute> {
 
-	private final @NonNull Set<@NonNull A> attributes;
+	private final @NonNull List<@NonNull A> attributes;
 	private final int stride;
 
     @SafeVarargs
     public VertexLayout(@NonNull A @NonNull ... attributes) {
-        this(EnumSet.of(attributes[0], attributes));
-    }
-
-	public VertexLayout(@NonNull Set<@NonNull A> attributes) {
-		this.attributes = EnumSet.copyOf(attributes);
-		this.stride = attributes.stream()
+        this.attributes = List.of(attributes);
+        this.stride = this.attributes.stream()
                 .mapToInt(VertexAttribute::getSizeBytes)
                 .sum();
-	}
+    }
 
 	public int getStride() {
 		return stride;

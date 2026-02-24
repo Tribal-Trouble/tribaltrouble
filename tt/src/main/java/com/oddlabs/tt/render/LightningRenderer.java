@@ -14,7 +14,8 @@ import com.oddlabs.tt.vbo.FloatVBO;
 import com.oddlabs.tt.vbo.ShortVBO;
 import com.oddlabs.tt.vbo.VertexArray;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import org.joml.Matrix4fc;
+import org.joml.Vector4fc;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -36,9 +37,6 @@ public final class LightningRenderer implements AutoCloseable {
             LightningShader.Attribute.TEX_COORD,
             LightningShader.Attribute.COLOR
     );
-
-    private final Vector3f right_vector = new Vector3f();
-    private final Matrix4f view_matrix = new Matrix4f();
 
     private final FloatBuffer particle_buffer = Objects.requireNonNull(BufferUtils.createFloatBuffer(MAX_PARTICLES * VERTICES_PER_PARTICLE * FLOATS_PER_VERTEX));
     private final FloatVBO particle_vbo = new FloatVBO(GL15.GL_STREAM_DRAW, particle_buffer.capacity());
@@ -87,7 +85,8 @@ public final class LightningRenderer implements AutoCloseable {
              var _ = context.withBlendMode(BlendMode.ADDITIVE);
              var _ = context.withDepthMode(DepthMode.READ_ONLY)) {
 
-            shader.setUniformMatrix4(LightningShader.Uniforms.MODEL_VIEW_MATRIX, false, modelViewStack.current());
+            Matrix4fc mv = modelViewStack.current();
+            shader.setUniformMatrix4(LightningShader.Uniforms.MODEL_VIEW_MATRIX, false, mv);
 
             context.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
             shader.setUniform(LightningShader.Uniforms.TEXTURE_0, 0);
@@ -118,17 +117,20 @@ public final class LightningRenderer implements AutoCloseable {
         float b = particle.getColorB();
         float a = particle.getColorA();
 
-        // Quad 1
-        particle_buffer.put(dst_x - particle.getDstWidth()).put(dst_y).put(dst_z).put(0f).put(0f).put(r).put(g).put(b).put(a);
-        particle_buffer.put(dst_x + particle.getDstWidth()).put(dst_y).put(dst_z).put(1f).put(0f).put(r).put(g).put(b).put(a);
-        particle_buffer.put(src_x + particle.getSrcWidth()).put(src_y).put(src_z).put(1f).put(1f).put(r).put(g).put(b).put(a);
-        particle_buffer.put(src_x - particle.getSrcWidth()).put(src_y).put(src_z).put(0f).put(1f).put(r).put(g).put(b).put(a);
+        float sw = particle.getSrcWidth();
+        float dw = particle.getDstWidth();
 
-        // Quad 2
-        particle_buffer.put(dst_x).put(dst_y - particle.getDstWidth()).put(dst_z).put(0f).put(0f).put(r).put(g).put(b).put(a);
-        particle_buffer.put(dst_x).put(dst_y + particle.getDstWidth()).put(dst_z).put(1f).put(0f).put(r).put(g).put(b).put(a);
-        particle_buffer.put(src_x).put(src_y + particle.getSrcWidth()).put(src_z).put(1f).put(1f).put(r).put(g).put(b).put(a);
-        particle_buffer.put(src_x).put(src_y - particle.getSrcWidth()).put(src_z).put(0f).put(1f).put(r).put(g).put(b).put(a);
+        // Quad 1 (X-axis expansion)
+        particle_buffer.put(dst_x - dw).put(dst_y).put(dst_z).put(0f).put(0f).put(r).put(g).put(b).put(a);
+        particle_buffer.put(dst_x + dw).put(dst_y).put(dst_z).put(1f).put(0f).put(r).put(g).put(b).put(a);
+        particle_buffer.put(src_x + sw).put(src_y).put(src_z).put(1f).put(1f).put(r).put(g).put(b).put(a);
+        particle_buffer.put(src_x - sw).put(src_y).put(src_z).put(0f).put(1f).put(r).put(g).put(b).put(a);
+
+        // Quad 2 (Y-axis expansion)
+        particle_buffer.put(dst_x).put(dst_y - dw).put(dst_z).put(0f).put(0f).put(r).put(g).put(b).put(a);
+        particle_buffer.put(dst_x).put(dst_y + dw).put(dst_z).put(1f).put(0f).put(r).put(g).put(b).put(a);
+        particle_buffer.put(src_x).put(src_y + sw).put(src_z).put(1f).put(1f).put(r).put(g).put(b).put(a);
+        particle_buffer.put(src_x).put(src_y - sw).put(src_z).put(0f).put(1f).put(r).put(g).put(b).put(a);
     }
 
     private void renderInternal(@NonNull RenderContext context, @NonNull RenderQueues render_queues, @NonNull Lightning lightning) {
@@ -139,7 +141,7 @@ public final class LightningRenderer implements AutoCloseable {
         Deque<StretchParticle> particles = lightning.getParticles();
         int particleCount = 0;
         
-        for (StretchParticle particle : particles.reversed()) {
+        for (StretchParticle particle : particles) {
             if (particleCount >= MAX_PARTICLES) {
                 flush(particleCount);
                 particleCount = 0;
