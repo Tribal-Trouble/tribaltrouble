@@ -16,6 +16,7 @@ import com.oddlabs.tt.model.RubberSupply;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.SupplyContainer;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.behaviour.GatherController;
 import com.oddlabs.tt.model.behaviour.NullController;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
@@ -559,6 +560,21 @@ public final strictfp class Player implements PlayerInterface {
             result[i] = array;
         }
         return result;
+    }
+
+    public final int getGathererCount(Class supply_type) {
+        int count = 0;
+        Iterator it = units.getSet().iterator();
+        while (it.hasNext()) {
+            Selectable unit = (Selectable) it.next();
+            if (unit.getPrimaryController() instanceof GatherController) {
+                GatherController gather = (GatherController) unit.getPrimaryController();
+                if (gather.getSupplyType() == supply_type) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     public final void magicCast() {
