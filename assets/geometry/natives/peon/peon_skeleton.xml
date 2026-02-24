@@ -33,7 +33,7 @@
 		<bone name="peon L Calf" parent="peon L Thigh"/>
 		<bone name="peon L Clavicle" parent="peon Neck"/>
 		<bone name="peon L Finger0" parent="peon L Hand"/>
-		<bone name="peon L Finger01" parent="peon L Finger0"/>
+		<bone name="peon L Finger01" parent="peon L Hand"/>
 		<bone name="peon L Finger1" parent="peon L Hand"/>
 		<bone name="peon L Finger11" parent="peon L Finger1"/>
 		<bone name="peon L Foot" parent="peon L Calf"/>

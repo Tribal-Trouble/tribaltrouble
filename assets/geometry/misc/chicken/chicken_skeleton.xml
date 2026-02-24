@@ -35,8 +35,8 @@
 	<bones>
 		<bone name="chicken Spine" parent="chicken Pelvis"/>
 		<bone name="chicken Tail" parent="chicken Spine"/>
-		<bone name="chicken R UpperArm" parent="chicken R Clavicle"/>
-		<bone name="chicken L UpperArm" parent="chicken L Clavicle"/>
+		<bone name="chicken R UpperArm" parent="chicken Spine"/>
+		<bone name="chicken L UpperArm" parent="chicken Spine"/>
 		<bone name="chicken R Toe0" parent="chicken R Foot"/>
 		<bone name="chicken R Foot" parent="chicken R Calf"/>
 		<bone name="chicken R Calf" parent="chicken R Thigh"/>
