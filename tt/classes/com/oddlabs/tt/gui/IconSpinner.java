@@ -93,7 +93,10 @@ public abstract strictfp class IconSpinner extends GUIObject implements ToolTip 
         if (icon_disabler != null) {
             setDisabled(computeCount() == 0 && getOrderSize() == 0 && icon_disabler.isDisabled());
         }
+        onUpdate();
     }
+
+    protected void onUpdate() {}
 
     public abstract int computeCount();
 

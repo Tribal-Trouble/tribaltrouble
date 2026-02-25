@@ -819,6 +819,12 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
         harvest_rubber_button.setIconDisabler(
                 new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
 
+        Player local_player = viewer.getLocalPlayer();
+        harvest_tree_button.setGathererInfo(local_player, TreeSupply.class);
+        harvest_rock_button.setGathererInfo(local_player, RockSupply.class);
+        harvest_iron_button.setGathererInfo(local_player, IronSupply.class);
+        harvest_rubber_button.setGathererInfo(local_player, RubberSupply.class);
+
         build_weapon_rock_button.setBuildSupplyContainer(current_building, RockAxeWeapon.class);
         build_weapon_iron_button.setBuildSupplyContainer(current_building, IronAxeWeapon.class);
         build_weapon_rubber_button.setBuildSupplyContainer(current_building, RubberAxeWeapon.class);

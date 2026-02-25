@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployContainer;
+import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
@@ -13,6 +14,10 @@ public final strictfp class DeploySpinner extends IconSpinner {
     private Building current_building;
     private int num_orders = 0;
     private int order_size = 0;
+    private Player player;
+    private Class gather_supply_type;
+    private Label active_count_label;
+    private int active_text_count = -1;
 
     public DeploySpinner(
             WorldViewer viewer,
@@ -23,6 +28,10 @@ public final strictfp class DeploySpinner extends IconSpinner {
             String shortcut_key) {
         super(viewer, icon_quad, tool_tip, tool_tip_icons, shortcut_key);
         this.player_interface = player_interface;
+        active_count_label =
+                new Label("", Skin.getSkin().getHeadlineFont(), getWidth(), Label.ALIGN_LEFT);
+        addChild(active_count_label);
+        active_count_label.setPos(0, getHeight() - active_count_label.getHeight());
     }
 
     public void setContainers(Building current_building, int deploy_type, Class supply_type) {
@@ -31,6 +40,22 @@ public final strictfp class DeploySpinner extends IconSpinner {
         this.supply_type = supply_type;
         if (!current_building.isDead())
             num_orders = current_building.getDeployContainer(deploy_type).getNumOrders();
+    }
+
+    public void setGathererInfo(Player player, Class gather_supply_type) {
+        this.player = player;
+        this.gather_supply_type = gather_supply_type;
+    }
+
+    @Override
+    protected void onUpdate() {
+        if (player != null && gather_supply_type != null) {
+            int active_count = player.getGathererCount(gather_supply_type);
+            if (active_count != active_text_count) {
+                active_text_count = active_count;
+                active_count_label.set(Integer.toString(active_count));
+            }
+        }
     }
 
     public final int computeCount() {
