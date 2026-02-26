@@ -88,15 +88,12 @@ public abstract strictfp class IconSpinner extends GUIObject implements ToolTip 
         viewer.getGUIRoot().addModalForm(demo_form);
     }
 
-    public final void doUpdate() {
+    public void doUpdate() {
         setCount();
         if (icon_disabler != null) {
             setDisabled(computeCount() == 0 && getOrderSize() == 0 && icon_disabler.isDisabled());
         }
-        onUpdate();
     }
-
-    protected void onUpdate() {}
 
     public abstract int computeCount();
 

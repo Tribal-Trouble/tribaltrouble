@@ -48,7 +48,8 @@ public final strictfp class DeploySpinner extends IconSpinner {
     }
 
     @Override
-    protected void onUpdate() {
+    public void doUpdate() {
+        super.doUpdate();
         if (player != null && gather_supply_type != null) {
             int active_count = player.getGathererCount(gather_supply_type);
             if (active_count != active_text_count) {
