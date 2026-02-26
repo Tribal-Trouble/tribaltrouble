@@ -604,8 +604,9 @@ public final strictfp class Player implements PlayerInterface {
         Iterator it = units.getSet().iterator();
         while (it.hasNext()) {
             Selectable unit = (Selectable) it.next();
-            if (unit.getPrimaryController() instanceof GatherController) {
-                GatherController gather = (GatherController) unit.getPrimaryController();
+            Object controller = unit.getPrimaryController();
+            if (controller instanceof GatherController) {
+                GatherController gather = (GatherController) controller;
                 if (gather.getSupplyType() == supply_type) {
                     count++;
                 }
