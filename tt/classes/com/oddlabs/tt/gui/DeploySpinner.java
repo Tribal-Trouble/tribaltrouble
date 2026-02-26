@@ -98,21 +98,21 @@ public final strictfp class DeploySpinner extends IconSpinner {
     }
 
     protected final void decrease(int amount) {
-        if (!current_building.isDead() && computeCount() > 0) {
+        if (current_building.isDead()) return;
+
+        if (computeCount() > 0) {
             int num_units = current_building.getDeployContainer(deploy_type).getNumSupplies();
 
-            if (num_units > -getOrderDiff() /* && num_supplies > -getOrderDiff()*/) {
+            if (num_units > -getOrderDiff()) {
                 if (amount > num_units + getOrderDiff()) {
                     amount = num_units + getOrderDiff();
                 }
-                /*
-                if (supply_type != null && amount > num_supplies + getOrderDiff()) {
-                	amount = num_supplies + getOrderDiff();
-                }
-                */
                 order_size -= amount;
                 num_orders -= amount;
             }
+        } else if (player != null && gather_supply_type != null
+                && player.getGathererCount(gather_supply_type) > 0) {
+            player_interface.recallGatherers(current_building, deploy_type, amount);
         }
     }
 
