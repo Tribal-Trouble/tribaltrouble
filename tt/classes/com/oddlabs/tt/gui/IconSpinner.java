@@ -91,7 +91,8 @@ public abstract strictfp class IconSpinner extends GUIObject implements ToolTip 
     public final void doUpdate() {
         setCount();
         if (icon_disabler != null) {
-            boolean no_supply = computeCount() == 0 && getOrderSize() == 0 && icon_disabler.isDisabled();
+            boolean no_supply =
+                    computeCount() == 0 && getOrderSize() == 0 && icon_disabler.isDisabled();
             setDisabled(no_supply && getDisplayCount() == 0);
             if (!isDisabled()) {
                 button_plus.setDisabled(no_supply);

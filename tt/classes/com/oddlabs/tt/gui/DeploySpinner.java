@@ -110,7 +110,8 @@ public final strictfp class DeploySpinner extends IconSpinner {
                 order_size -= amount;
                 num_orders -= amount;
             }
-        } else if (player != null && gather_supply_type != null
+        } else if (player != null
+                && gather_supply_type != null
                 && player.getGathererCount(gather_supply_type) > 0) {
             player_interface.recallGatherers(current_building, deploy_type, amount);
         }

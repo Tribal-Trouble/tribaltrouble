@@ -68,11 +68,16 @@ public final strictfp class Building extends Selectable implements Occupant {
 
     public static Class deployTypeToGatherSupply(int deploy_type) {
         switch (deploy_type) {
-            case KEY_DEPLOY_PEON_HARVEST_TREE: return TreeSupply.class;
-            case KEY_DEPLOY_PEON_HARVEST_ROCK: return RockSupply.class;
-            case KEY_DEPLOY_PEON_HARVEST_IRON: return IronSupply.class;
-            case KEY_DEPLOY_PEON_HARVEST_RUBBER: return RubberSupply.class;
-            default: return null;
+            case KEY_DEPLOY_PEON_HARVEST_TREE:
+                return TreeSupply.class;
+            case KEY_DEPLOY_PEON_HARVEST_ROCK:
+                return RockSupply.class;
+            case KEY_DEPLOY_PEON_HARVEST_IRON:
+                return IronSupply.class;
+            case KEY_DEPLOY_PEON_HARVEST_RUBBER:
+                return RubberSupply.class;
+            default:
+                return null;
         }
     }
 
