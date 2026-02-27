@@ -93,19 +93,13 @@ public class RebindActionForm extends Form {
     }
 
     public void saveKeybind() {
-        System.out.println(
-                "Saving keybind for action: "
-                        + changing_action_name
-                        + " to key code: "
-                        + current_key_code
-                        + " "
-                        + Keyboard.keyToString(current_key_code));
         Settings.getSettings().setKeybind(changing_action_name, current_key_code);
+        Settings.getSettings().save();
         this.remove();
     }
 
     public void cancelSave() {
-        remove();
+        cancel();
     }
 
     private final strictfp class RebindCancelListener implements MouseClickListener {
