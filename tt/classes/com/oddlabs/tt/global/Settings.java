@@ -232,8 +232,7 @@ public final strictfp class Settings implements Serializable {
      * The current keybindings for the client running the game. Used as Action Name -> Tribal
      * Trouble Key Code. See Globals.KB_* constants for action names.
      */
-    private HashMap<String, Integer> keybinds =
-            new HashMap<String, Integer>(default_keybinds);
+    private HashMap<String, Integer> keybinds = new HashMap<String, Integer>(default_keybinds);
 
     /**
      * Gets the stored keybind for the specified action. Use Globals.KB_* constants for action
@@ -265,17 +264,15 @@ public final strictfp class Settings implements Serializable {
         return keybinds;
     }
 
-    /**
-     * Resets all keybinds to their default values and saves the updated settings.
-     */
+    /** Resets all keybinds to their default values and saves the updated settings. */
     public void resetKeybindsToDefaults() {
         keybinds = new HashMap<String, Integer>(default_keybinds);
         save();
     }
 
     /**
-     * Gets the keybind for the specified action as a string for display in tooltips.
-     * Use Globals.KB_* constants for action names.
+     * Gets the keybind for the specified action as a string for display in tooltips. Use
+     * Globals.KB_* constants for action names.
      *
      * @param action_name the name of the action whose keybind should be retrieved
      * @return a human-readable representation of the keybind, or "?" if none is set
