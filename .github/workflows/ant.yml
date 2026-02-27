@@ -190,5 +190,5 @@ jobs:
           MESSAGE="🎮 New prerelease build available on Steam! Commit: \`${{ github.sha }}\` by ${{ github.actor }}"
         fi
         curl -H "Content-Type: application/json" \
-             -d "{\"content\": \"$MESSAGE\"}" \
+             -d "$(jq -n --arg content "$MESSAGE" '{content: $content}')" \
              ${{ secrets.DISCORD_WEBHOOK }}
