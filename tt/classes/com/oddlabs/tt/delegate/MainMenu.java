@@ -102,7 +102,8 @@ public final strictfp class MainMenu extends Menu {
                     System.out.println("Debug flag (debug_steam_auth_localhost): " + debugFlag);
                     System.out.println("isOfficialServer(): " + isOfficialServer);
                     System.out.println("Steam running: " + steamRunning);
-                    System.out.println("Will use Steam login: " + (isOfficialServer && steamRunning));
+                    System.out.println(
+                            "Will use Steam login: " + (isOfficialServer && steamRunning));
                     System.out.println("==============================");
                 }
 
