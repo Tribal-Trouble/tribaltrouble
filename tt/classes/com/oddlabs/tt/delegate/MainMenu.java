@@ -96,13 +96,15 @@ public final strictfp class MainMenu extends Menu {
                 String domain = Settings.getSettings().getDomainName();
                 boolean debugFlag = Globals.debug_steam_auth_localhost;
 
-                System.out.println("=== Steam Auto-Login Check ===");
-                System.out.println("Domain: " + domain);
-                System.out.println("Debug flag (debug_steam_auth_localhost): " + debugFlag);
-                System.out.println("isOfficialServer(): " + isOfficialServer);
-                System.out.println("Steam running: " + steamRunning);
-                System.out.println("Will use Steam login: " + (isOfficialServer && steamRunning));
-                System.out.println("==============================");
+                if (debugFlag) {
+                    System.out.println("=== Steam Auto-Login Check ===");
+                    System.out.println("Domain: " + domain);
+                    System.out.println("Debug flag (debug_steam_auth_localhost): " + debugFlag);
+                    System.out.println("isOfficialServer(): " + isOfficialServer);
+                    System.out.println("Steam running: " + steamRunning);
+                    System.out.println("Will use Steam login: " + (isOfficialServer && steamRunning));
+                    System.out.println("==============================");
+                }
 
                 if (isOfficialServer && steamRunning) {
                     // Steam auto-login — skip LoginForm entirely
