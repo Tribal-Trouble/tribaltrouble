@@ -298,7 +298,11 @@ public abstract strictfp class Menu extends CameraDelegate {
 
         public final void run(WorldViewer viewer) {
             new GameOverTrigger(viewer);
-            completeGameSetupHack(viewer);
+            if (viewer.isMultiplayer()) {
+                viewer.getGUIRoot().pushDelegate(new CountdownDelegate(viewer, viewer.getCamera()));
+            } else {
+                Menu.completeGameSetupHack(viewer);
+            }
         }
     }
 
