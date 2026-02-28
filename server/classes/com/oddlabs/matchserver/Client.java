@@ -211,6 +211,11 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
         getGameSession().updateGameStatus(tick, status);
     }
 
+    public final void updateCommandEvent(int tick, int client_id, short event_size, byte[] event_data) {
+        if (getGameSession() == null) return;
+        getGameSession().updateCommandEvent(tick, client_id, event_size, event_data);
+    }
+
     public final void updateSpectatorInfo(int tick, String info) {
         if (getGameSession() == null) return;
         getGameSession().updateSpectatorInfo(tick, info);
@@ -696,6 +701,27 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
                 getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK);
             }
         }
+    }
+
+    public final void requestSpectate(String nick) {
+        Client client = (Client) active_clients.get(nick.toLowerCase());
+        if (client == null || !client.isPlaying()) {
+            getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK);
+            return;
+        }
+        TimestampedGameSession game_session = client.getGameSession();
+        if (game_session == null) {
+            getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK);
+            return;
+        }
+        MatchmakingServer.getLogger()
+                .info(
+                        getUsername()
+                                + " requested to spectate "
+                                + nick
+                                + " in game "
+                                + game_session.getDatabaseID());
+        // TODO Phase 2: Send world params + event log to requesting client
     }
 
     private String formatChat(String message) {

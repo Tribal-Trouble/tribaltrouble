@@ -5,7 +5,9 @@ import com.oddlabs.matchmaking.MatchmakingServerInterface;
 import com.oddlabs.matchmaking.Participant;
 import com.oddlabs.matchserver.discord.DiscordEmbedCreator;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -54,6 +56,9 @@ public final strictfp class TimestampedGameSession {
     private FileWriter spectator_file_writer;
     private HashSet info_written;
 
+    private File command_event_file;
+    private DataOutputStream command_event_stream;
+
     public TimestampedGameSession(GameSession session, int database_id) {
         this.session = session;
         this.database_id = database_id;
@@ -73,11 +78,21 @@ public final strictfp class TimestampedGameSession {
                                 + "] "
                                 + getParticipantStates());
         info_written = new HashSet();
+        File games_dir = new File("/var/games/");
+        if (!games_dir.exists()) {
+            games_dir.mkdirs();
+        }
         try {
-            spectator_file = new File("/var/games/" + database_id);
+            spectator_file = new File(games_dir, String.valueOf(database_id));
             spectator_file_writer = new FileWriter(spectator_file);
         } catch (Exception e) {
             System.out.println("An exception while creating spectator file: " + e);
+        }
+        try {
+            command_event_file = new File(games_dir, database_id + ".events");
+            command_event_stream = new DataOutputStream(new FileOutputStream(command_event_file));
+        } catch (Exception e) {
+            System.out.println("An exception while creating command event file: " + e);
         }
     }
 
@@ -199,6 +214,21 @@ public final strictfp class TimestampedGameSession {
             }
         } catch (Exception e) {
             System.out.println("Exception during writing spectator file: " + e);
+        }
+    }
+
+    public final void updateCommandEvent(int tick, int client_id, short event_size, byte[] event_data) {
+        if (command_event_stream == null) {
+            return;
+        }
+        try {
+            command_event_stream.writeInt(tick);
+            command_event_stream.writeInt(client_id);
+            command_event_stream.writeShort(event_size);
+            command_event_stream.write(event_data, 0, event_size);
+            command_event_stream.flush();
+        } catch (Exception e) {
+            System.out.println("Exception during writing command event file: " + e);
         }
     }
 

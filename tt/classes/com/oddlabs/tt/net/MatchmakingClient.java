@@ -240,6 +240,11 @@ public final strictfp class MatchmakingClient
         getInterface().requestInfo(nick);
     }
 
+    public final void requestSpectate(GUIRoot gui_root, String nick) {
+        this.chat_gui_root = gui_root;
+        getInterface().requestSpectate(nick);
+    }
+
     public final void receiveInfo(Profile profile) {
         if (chat_gui_root != null) {
             chat_gui_root.addModalForm(new InfoForm(profile));

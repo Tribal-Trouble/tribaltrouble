@@ -43,6 +43,8 @@ public strictfp interface MatchmakingServerInterface {
 
     public void requestInfo(String nick);
 
+    public void requestSpectate(String nick);
+
     public void requestList(int type, int update_key);
 
     public void acceptTunnel(HostSequenceID host_seq);
@@ -66,6 +68,8 @@ public strictfp interface MatchmakingServerInterface {
     public void gameLostNotify();
 
     public void gameWonNotify();
+
+    public void updateCommandEvent(int tick, int client_id, short event_size, byte[] event_data);
 
     public void updateGameStatus(int tick, int[] status);
 

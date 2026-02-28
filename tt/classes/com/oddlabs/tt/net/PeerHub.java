@@ -26,6 +26,7 @@ import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.NotificationManager;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -71,6 +72,7 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     private final boolean is_multiplayer;
     private final boolean is_rated;
     private final StallHandler stall_handler;
+    private int local_peer_index;
 
     private int pause_ticks;
     private int server_millis;
@@ -109,7 +111,7 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
         GameArgumentReader argument_reader = new GameArgumentReader(distributable_table);
         List peer_index_to_peer_list = new ArrayList();
         Player[] players = local_player.getWorld().getPlayers();
-        int local_peer_index = -1;
+        this.local_peer_index = -1;
         if (!is_multiplayer) {
             this.router =
                     new Router(
@@ -148,7 +150,7 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
             Peer peer = new Peer(this, peer_index, player, argument_reader, peer_interface);
             ARMIEventWriter peer_broker;
             if (player == local_player) {
-                local_peer_index = peer_index;
+                this.local_peer_index = peer_index;
             }
             peer_index_to_peer_list.add(peer);
             peer_to_player.put(peer, player);
@@ -236,7 +238,21 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
             return;
         }
         server_millis = millis;
-        peer.addEvent(millisToTickCeil(millis), event);
+        int event_tick = millisToTickCeil(millis);
+        peer.addEvent(event_tick, event);
+        if (local_peer_index == 0 && Network.getMatchmakingClient().isConnected()) {
+            sendCommandEvent(event_tick, client_id, event);
+        }
+    }
+
+    private final void sendCommandEvent(int tick, int client_id, ARMIEvent event) {
+        short event_size = event.getEventSize();
+        ByteBuffer buf = ByteBuffer.allocate(event_size);
+        event.write(buf);
+        byte[] event_data = buf.array();
+        Network.getMatchmakingClient()
+                .getInterface()
+                .updateCommandEvent(tick, client_id, event_size, event_data);
     }
 
     public final void playerDisconnected(int client_id, boolean checksum_error) {

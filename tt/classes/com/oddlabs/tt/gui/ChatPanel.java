@@ -12,6 +12,7 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
     private static final int PULLDOWN_INDEX_MESSAGE = 0;
     private static final int PULLDOWN_INDEX_INFO = 1;
     private static final int PULLDOWN_INDEX_IGNORE = 2;
+    private static final int PULLDOWN_INDEX_SPECTATE = 3;
 
     private final MultiColumnComboBox lobby_users_list_box;
     private final MultiColumnComboBox playing_users_list_box;
@@ -96,6 +97,7 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
         playing_pulldown_menu.addItem(new PulldownItem(getI18N("message")));
         playing_pulldown_menu.addItem(new PulldownItem(getI18N("info")));
         playing_pulldown_menu.addItem(new PulldownItem(""));
+        playing_pulldown_menu.addItem(new PulldownItem(getI18N("spectate")));
         playing_pulldown_menu.addItemChosenListener(new PulldownListener(playing_users_list_box));
         playing_users_list_box.setPulldownMenu(playing_pulldown_menu);
 
@@ -225,6 +227,9 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
                     if (ChatCommand.isIgnoring(nick))
                         ChatCommand.unignore(gui_root.getInfoPrinter(), nick);
                     else ChatCommand.ignore(gui_root.getInfoPrinter(), nick);
+                    break;
+                case PULLDOWN_INDEX_SPECTATE:
+                    Network.getMatchmakingClient().requestSpectate(gui_root, nick);
                     break;
                 default:
                     throw new RuntimeException();
