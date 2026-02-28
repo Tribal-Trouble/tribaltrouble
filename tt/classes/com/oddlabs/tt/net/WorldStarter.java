@@ -16,6 +16,8 @@ import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.viewer.InGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,8 +123,26 @@ final strictfp class WorldStarter implements LoadCallback {
             GameSession game_session =
                     new GameSession(session_id, participants, ingame_info.isRated(), gamePlayers);
             Network.getMatchmakingClient().getInterface().gameStartedNotify(game_session);
+            sendWorldParams(player_slots, corrected_unit_infos);
         }
         System.out.println("PeerHub created (session_id = " + session_id + ") Player list:");
         return viewer.getRenderer();
+    }
+
+    private void sendWorldParams(PlayerSlot[] player_slots, UnitInfo[] unit_infos) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(generator);
+            oos.writeObject(world_params);
+            oos.writeObject(player_slots);
+            oos.writeObject(unit_infos);
+            oos.close();
+            Network.getMatchmakingClient()
+                    .getInterface()
+                    .updateWorldParams(baos.toByteArray());
+        } catch (Exception e) {
+            System.out.println("Exception serializing world params: " + e);
+        }
     }
 }

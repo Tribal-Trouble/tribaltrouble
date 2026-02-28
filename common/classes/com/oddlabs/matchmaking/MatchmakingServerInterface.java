@@ -73,5 +73,7 @@ public strictfp interface MatchmakingServerInterface {
 
     public void updateGameStatus(int tick, int[] status);
 
+    public void updateWorldParams(byte[] world_params_data);
+
     public void updateSpectatorInfo(int tick, String info);
 }

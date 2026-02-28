@@ -1,6 +1,9 @@
 package com.oddlabs.tt.landscape;
 
-public final strictfp class WorldParameters {
+import java.io.Serializable;
+
+public final strictfp class WorldParameters implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final String map_code;
     private final int initial_unit_count;
     private final int max_unit_count;

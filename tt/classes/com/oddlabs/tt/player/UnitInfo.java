@@ -1,6 +1,9 @@
 package com.oddlabs.tt.player;
 
-public final strictfp class UnitInfo {
+import java.io.Serializable;
+
+public final strictfp class UnitInfo implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final boolean has_quarters;
     private final boolean has_armory;
     private final int num_towers;

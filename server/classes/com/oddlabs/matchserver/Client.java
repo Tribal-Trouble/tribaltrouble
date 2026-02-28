@@ -216,6 +216,11 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
         getGameSession().updateCommandEvent(tick, client_id, event_size, event_data);
     }
 
+    public final void updateWorldParams(byte[] world_params_data) {
+        if (getGameSession() == null) return;
+        getGameSession().updateWorldParams(world_params_data);
+    }
+
     public final void updateSpectatorInfo(int tick, String info) {
         if (getGameSession() == null) return;
         getGameSession().updateSpectatorInfo(tick, info);

@@ -58,6 +58,7 @@ public final strictfp class TimestampedGameSession {
 
     private File command_event_file;
     private DataOutputStream command_event_stream;
+    private byte[] world_params_data;
 
     public TimestampedGameSession(GameSession session, int database_id) {
         this.session = session;
@@ -215,6 +216,16 @@ public final strictfp class TimestampedGameSession {
         } catch (Exception e) {
             System.out.println("Exception during writing spectator file: " + e);
         }
+    }
+
+    public final void updateWorldParams(byte[] data) {
+        this.world_params_data = data;
+        MatchmakingServer.getLogger()
+                .info("Game " + database_id + ": world params stored (" + data.length + " bytes)");
+    }
+
+    public final byte[] getWorldParamsData() {
+        return world_params_data;
     }
 
     public final void updateCommandEvent(int tick, int client_id, short event_size, byte[] event_data) {
