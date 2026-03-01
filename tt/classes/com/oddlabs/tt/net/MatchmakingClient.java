@@ -19,14 +19,22 @@ import com.oddlabs.net.NetworkSelector;
 import com.oddlabs.net.SecureConnection;
 import com.oddlabs.tt.form.ChatErrorForm;
 import com.oddlabs.tt.form.InfoForm;
+import com.oddlabs.tt.form.ProgressForm;
 import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.gui.ChatRoomInfo;
+import com.oddlabs.tt.gui.GUI;
 import com.oddlabs.tt.gui.GUIRoot;
+import com.oddlabs.tt.landscape.WorldParameters;
+import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.render.Renderer;
+import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.util.Utils;
+import com.oddlabs.tt.viewer.SpectatorInGameInfo;
 import com.oddlabs.util.Compatibility;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,6 +55,7 @@ public final strictfp class MatchmakingClient
             new ARMIInterfaceMethods(MatchmakingClientInterface.class);
     private final ChatRoomHistory chat_room_history;
     private final InGameChatHistory in_game_chat_history;
+    private NetworkSelector network;
     private GUIRoot chat_gui_root;
     private int current_seq_id = 1;
     private SecureConnection conn;
@@ -246,9 +255,39 @@ public final strictfp class MatchmakingClient
     }
 
     public final void receiveSpectatorData(byte[] world_params_data, byte[] event_log_data, int current_tick) {
-        System.out.println("Received spectator data: world_params=" + world_params_data.length
-                + " bytes, event_log=" + event_log_data.length + " bytes, tick=" + current_tick);
-        // TODO Phase 2.2: Deserialize world params, create ReplayWorldStarter, begin fast-forward
+        if (chat_gui_root == null || network == null) return;
+
+        try {
+            // Deserialize world params (same order as WorldStarter.sendWorldParams)
+            ByteArrayInputStream bais = new ByteArrayInputStream(world_params_data);
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            WorldGenerator generator = (WorldGenerator) ois.readObject();
+            WorldParameters world_params = (WorldParameters) ois.readObject();
+            PlayerSlot[] player_slots = (PlayerSlot[]) ois.readObject();
+            UnitInfo[] unit_infos = (UnitInfo[]) ois.readObject();
+            ois.close();
+
+            // Launch WorldStarter with spectator InGameInfo
+            GUI gui = chat_gui_root.getGUI();
+            ProgressForm.setProgressForm(
+                    network,
+                    gui,
+                    new WorldStarter(
+                            network,
+                            0, // session_id placeholder — spectator has no Router session yet
+                            generator,
+                            world_params,
+                            player_slots,
+                            unit_infos,
+                            (short) 0, // player_slot — view from player 0
+                            new SpectatorInGameInfo(),
+                            null)); // no initial_action
+
+            chat_gui_root = null;
+        } catch (Exception e) {
+            System.out.println("Failed to deserialize spectator data: " + e);
+            error(MatchmakingClientInterface.CHAT_ERROR_SPECTATE_FAILED);
+        }
     }
 
     public final void receiveInfo(Profile profile) {
@@ -280,6 +319,7 @@ public final strictfp class MatchmakingClient
 
     private final void open(NetworkSelector network) {
         close();
+        this.network = network;
         this.conn =
                 new SecureConnection(
                         network.getDeterministic(),

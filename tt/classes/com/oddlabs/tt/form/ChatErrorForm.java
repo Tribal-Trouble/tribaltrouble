@@ -15,6 +15,8 @@ public final strictfp class ChatErrorForm extends MessageForm {
                 return Utils.getBundleString(bundle, "chat_error_invalid_name");
             case MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK:
                 return Utils.getBundleString(bundle, "chat_error_no_such_nick");
+            case MatchmakingClientInterface.CHAT_ERROR_SPECTATE_FAILED:
+                return Utils.getBundleString(bundle, "chat_error_spectate_failed");
             default:
                 throw new RuntimeException("Unknown error code: " + error_code);
         }

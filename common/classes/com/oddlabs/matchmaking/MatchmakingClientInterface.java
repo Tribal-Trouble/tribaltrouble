@@ -22,6 +22,7 @@ public strictfp interface MatchmakingClientInterface {
     public static final int CHAT_ERROR_TOO_MANY_USERS = 10;
     public static final int CHAT_ERROR_INVALID_NAME = 11;
     public static final int CHAT_ERROR_NO_SUCH_NICK = 12;
+    public static final int CHAT_ERROR_SPECTATE_FAILED = 13;
 
     public void updateProfileList(Profile[] profiles, String last_profile_nick);
 
