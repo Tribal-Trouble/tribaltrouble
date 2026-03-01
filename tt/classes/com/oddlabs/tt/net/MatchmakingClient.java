@@ -265,6 +265,7 @@ public final strictfp class MatchmakingClient
             WorldParameters world_params = (WorldParameters) ois.readObject();
             PlayerSlot[] player_slots = (PlayerSlot[]) ois.readObject();
             UnitInfo[] unit_infos = (UnitInfo[]) ois.readObject();
+            float random_start_position = ois.readFloat();
             ois.close();
 
             // Launch WorldStarter with spectator InGameInfo
@@ -280,7 +281,7 @@ public final strictfp class MatchmakingClient
                             player_slots,
                             unit_infos,
                             (short) 0, // player_slot — view from player 0
-                            new SpectatorInGameInfo(),
+                            new SpectatorInGameInfo(random_start_position),
                             new SpectatorWorldInitAction()));
 
             chat_gui_root = null;

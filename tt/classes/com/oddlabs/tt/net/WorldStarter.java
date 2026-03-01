@@ -139,6 +139,7 @@ final strictfp class WorldStarter implements LoadCallback {
             oos.writeObject(world_params);
             oos.writeObject(player_slots);
             oos.writeObject(unit_infos);
+            oos.writeFloat(ingame_info.getRandomStartPosition());
             oos.close();
             Network.getMatchmakingClient()
                     .getInterface()
