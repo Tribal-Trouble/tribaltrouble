@@ -9,10 +9,16 @@ import com.oddlabs.tt.util.Utils;
 import java.util.*;
 
 public strictfp class ChatPanel extends Panel implements ChatListener {
-    private static final int PULLDOWN_INDEX_MESSAGE = 0;
-    private static final int PULLDOWN_INDEX_INFO = 1;
-    private static final int PULLDOWN_INDEX_IGNORE = 2;
-    private static final int PULLDOWN_INDEX_SPECTATE = 3;
+    // Lobby menu: Message, Info, Ignore
+    private static final int LOBBY_MESSAGE = 0;
+    private static final int LOBBY_INFO = 1;
+    private static final int LOBBY_IGNORE = 2;
+
+    // Playing menu: Message, Info, Spectate, Ignore
+    private static final int PLAYING_MESSAGE = 0;
+    private static final int PLAYING_INFO = 1;
+    private static final int PLAYING_SPECTATE = 2;
+    private static final int PLAYING_IGNORE = 3;
 
     private final MultiColumnComboBox lobby_users_list_box;
     private final MultiColumnComboBox playing_users_list_box;
@@ -85,24 +91,24 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
         PulldownMenu lobby_pulldown_menu = new PulldownMenu();
         lobby_pulldown_menu.addItem(new PulldownItem(getI18N("message")));
         lobby_pulldown_menu.addItem(new PulldownItem(getI18N("info")));
-        lobby_pulldown_menu.addItem(new PulldownItem(""));
-        lobby_pulldown_menu.addItemChosenListener(new PulldownListener(lobby_users_list_box));
+        lobby_pulldown_menu.addItem(new PulldownItem(getI18N("ignore")));
+        lobby_pulldown_menu.addItemChosenListener(new LobbyPulldownListener(lobby_users_list_box));
         lobby_users_list_box.setPulldownMenu(lobby_pulldown_menu);
 
         ChatRoomUserDoubleClickedListener lobby_double_clicked =
-                new ChatRoomUserDoubleClickedListener(lobby_pulldown_menu);
+                new ChatRoomUserDoubleClickedListener(lobby_pulldown_menu, LOBBY_IGNORE);
         lobby_users_list_box.addRowListener(lobby_double_clicked);
 
         PulldownMenu playing_pulldown_menu = new PulldownMenu();
         playing_pulldown_menu.addItem(new PulldownItem(getI18N("message")));
         playing_pulldown_menu.addItem(new PulldownItem(getI18N("info")));
-        playing_pulldown_menu.addItem(new PulldownItem(""));
         playing_pulldown_menu.addItem(new PulldownItem(getI18N("spectate")));
-        playing_pulldown_menu.addItemChosenListener(new PulldownListener(playing_users_list_box));
+        playing_pulldown_menu.addItem(new PulldownItem(getI18N("ignore")));
+        playing_pulldown_menu.addItemChosenListener(new PlayingPulldownListener(playing_users_list_box));
         playing_users_list_box.setPulldownMenu(playing_pulldown_menu);
 
         ChatRoomUserDoubleClickedListener playing_double_clicked =
-                new ChatRoomUserDoubleClickedListener(playing_pulldown_menu);
+                new ChatRoomUserDoubleClickedListener(playing_pulldown_menu, PLAYING_IGNORE);
         playing_users_list_box.addRowListener(playing_double_clicked);
 
         int width =
@@ -206,10 +212,10 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
         }
     }
 
-    private final strictfp class PulldownListener implements ItemChosenListener {
+    private final strictfp class LobbyPulldownListener implements ItemChosenListener {
         private final MultiColumnComboBox box;
 
-        public PulldownListener(MultiColumnComboBox box) {
+        public LobbyPulldownListener(MultiColumnComboBox box) {
             this.box = box;
         }
 
@@ -217,22 +223,47 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
             ChatRoomUser user = (ChatRoomUser) box.getRightClickedRowData();
             String nick = user.getNick();
             switch (item_index) {
-                case PULLDOWN_INDEX_MESSAGE:
+                case LOBBY_MESSAGE:
                     gui_root.addModalForm(new PrivateMessageForm(gui_root, nick));
                     break;
-                case PULLDOWN_INDEX_INFO:
+                case LOBBY_INFO:
                     Network.getMatchmakingClient().requestInfo(gui_root, nick);
                     break;
-                case PULLDOWN_INDEX_IGNORE:
+                case LOBBY_IGNORE:
                     if (ChatCommand.isIgnoring(nick))
                         ChatCommand.unignore(gui_root.getInfoPrinter(), nick);
                     else ChatCommand.ignore(gui_root.getInfoPrinter(), nick);
                     break;
-                case PULLDOWN_INDEX_SPECTATE:
+            }
+            box.setFocus();
+        }
+    }
+
+    private final strictfp class PlayingPulldownListener implements ItemChosenListener {
+        private final MultiColumnComboBox box;
+
+        public PlayingPulldownListener(MultiColumnComboBox box) {
+            this.box = box;
+        }
+
+        public final void itemChosen(PulldownMenu menu, int item_index) {
+            ChatRoomUser user = (ChatRoomUser) box.getRightClickedRowData();
+            String nick = user.getNick();
+            switch (item_index) {
+                case PLAYING_MESSAGE:
+                    gui_root.addModalForm(new PrivateMessageForm(gui_root, nick));
+                    break;
+                case PLAYING_INFO:
+                    Network.getMatchmakingClient().requestInfo(gui_root, nick);
+                    break;
+                case PLAYING_SPECTATE:
                     Network.getMatchmakingClient().requestSpectate(gui_root, nick);
                     break;
-                default:
-                    throw new RuntimeException();
+                case PLAYING_IGNORE:
+                    if (ChatCommand.isIgnoring(nick))
+                        ChatCommand.unignore(gui_root.getInfoPrinter(), nick);
+                    else ChatCommand.ignore(gui_root.getInfoPrinter(), nick);
+                    break;
             }
             box.setFocus();
         }
@@ -240,9 +271,11 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
 
     private final strictfp class ChatRoomUserDoubleClickedListener implements RowListener {
         private final PulldownMenu menu;
+        private final int ignore_index;
 
-        public ChatRoomUserDoubleClickedListener(PulldownMenu menu) {
+        public ChatRoomUserDoubleClickedListener(PulldownMenu menu, int ignore_index) {
             this.menu = menu;
+            this.ignore_index = ignore_index;
         }
 
         public final void rowDoubleClicked(Object context) {
@@ -256,7 +289,7 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
             String item_text;
             if (ChatCommand.isIgnoring(user.getNick())) item_text = getI18N("unignore");
             else item_text = getI18N("ignore");
-            menu.getItem(PULLDOWN_INDEX_IGNORE).setLabelString(item_text);
+            menu.getItem(ignore_index).setLabelString(item_text);
         }
     }
 }
