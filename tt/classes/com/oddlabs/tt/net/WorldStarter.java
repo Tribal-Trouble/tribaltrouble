@@ -14,6 +14,7 @@ import com.oddlabs.tt.player.UnitInfo;
 import com.oddlabs.tt.render.UIRenderer;
 import com.oddlabs.tt.resource.WorldGenerator;
 import com.oddlabs.tt.viewer.InGameInfo;
+import com.oddlabs.tt.viewer.SpectatorInGameInfo;
 import com.oddlabs.tt.viewer.WorldViewer;
 
 import java.io.ByteArrayOutputStream;
@@ -119,7 +120,8 @@ final strictfp class WorldStarter implements LoadCallback {
         }
         Participant[] participants = new Participant[participant_list.size()];
         participant_list.toArray(participants);
-        if (Network.getMatchmakingClient().isConnected()) {
+        if (Network.getMatchmakingClient().isConnected()
+                && !(ingame_info instanceof SpectatorInGameInfo)) {
             GameSession game_session =
                     new GameSession(session_id, participants, ingame_info.isRated(), gamePlayers);
             Network.getMatchmakingClient().getInterface().gameStartedNotify(game_session);

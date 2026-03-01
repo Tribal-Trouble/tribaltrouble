@@ -281,7 +281,7 @@ public final strictfp class MatchmakingClient
                             unit_infos,
                             (short) 0, // player_slot — view from player 0
                             new SpectatorInGameInfo(),
-                            null)); // no initial_action
+                            new SpectatorWorldInitAction()));
 
             chat_gui_root = null;
         } catch (Exception e) {
