@@ -245,6 +245,12 @@ public final strictfp class MatchmakingClient
         getInterface().requestSpectate(nick);
     }
 
+    public final void receiveSpectatorData(byte[] world_params_data, byte[] event_log_data, int current_tick) {
+        System.out.println("Received spectator data: world_params=" + world_params_data.length
+                + " bytes, event_log=" + event_log_data.length + " bytes, tick=" + current_tick);
+        // TODO Phase 2.2: Deserialize world params, create ReplayWorldStarter, begin fast-forward
+    }
+
     public final void receiveInfo(Profile profile) {
         if (chat_gui_root != null) {
             chat_gui_root.addModalForm(new InfoForm(profile));

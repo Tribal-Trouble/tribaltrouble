@@ -7,6 +7,7 @@ import com.oddlabs.matchserver.discord.DiscordEmbedCreator;
 
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.sql.SQLException;
@@ -228,9 +229,39 @@ public final strictfp class TimestampedGameSession {
         return world_params_data;
     }
 
+    public final int getLastTick() {
+        return last_tick;
+    }
+
+    public final byte[] readEventLog() {
+        if (command_event_file == null || !command_event_file.exists()) {
+            return new byte[0];
+        }
+        try {
+            command_event_stream.flush();
+            long length = command_event_file.length();
+            byte[] data = new byte[(int) length];
+            FileInputStream fis = new FileInputStream(command_event_file);
+            int offset = 0;
+            while (offset < data.length) {
+                int read = fis.read(data, offset, data.length - offset);
+                if (read == -1) break;
+                offset += read;
+            }
+            fis.close();
+            return data;
+        } catch (Exception e) {
+            MatchmakingServer.getLogger().warning("Exception reading event log: " + e);
+            return new byte[0];
+        }
+    }
+
     public final void updateCommandEvent(int tick, int client_id, short event_size, byte[] event_data) {
         if (command_event_stream == null) {
             return;
+        }
+        if (tick > last_tick) {
+            last_tick = tick;
         }
         try {
             command_event_stream.writeInt(tick);

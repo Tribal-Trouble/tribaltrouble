@@ -726,7 +726,26 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
                                 + nick
                                 + " in game "
                                 + game_session.getDatabaseID());
-        // TODO Phase 2: Send world params + event log to requesting client
+        byte[] world_params_data = game_session.getWorldParamsData();
+        if (world_params_data == null) {
+            MatchmakingServer.getLogger()
+                    .warning("Game " + game_session.getDatabaseID() + ": no world params available for spectating");
+            getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK);
+            return;
+        }
+        byte[] event_log_data = game_session.readEventLog();
+        int current_tick = game_session.getLastTick();
+        MatchmakingServer.getLogger()
+                .info(
+                        "Sending spectate data for game "
+                                + game_session.getDatabaseID()
+                                + ": world_params="
+                                + world_params_data.length
+                                + " bytes, event_log="
+                                + event_log_data.length
+                                + " bytes, tick="
+                                + current_tick);
+        getClientInterface().receiveSpectatorData(world_params_data, event_log_data, current_tick);
     }
 
     private String formatChat(String message) {
