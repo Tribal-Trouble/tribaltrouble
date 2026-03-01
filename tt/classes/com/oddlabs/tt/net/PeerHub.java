@@ -71,6 +71,7 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     private final AnimationManager manager;
     private final boolean is_multiplayer;
     private final boolean is_rated;
+    private final boolean is_spectator;
     private final StallHandler stall_handler;
     private int local_peer_index;
 
@@ -98,8 +99,10 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
             NotificationManager notification_manager,
             DistributableTable distributable_table,
             SessionID session_id,
-            StallHandler stall_handler) {
+            StallHandler stall_handler,
+            boolean is_spectator) {
         this.stall_handler = stall_handler;
+        this.is_spectator = is_spectator;
         this.is_rated = is_rated;
         this.local_player = local_player;
         this.network = network;
@@ -165,12 +168,16 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
                         router_client.getInterface().relayGameStateEvent(event);
                     }
                 };
-        this.player_interface =
-                (PlayerInterface)
-                        ARMIEvent.createProxy(
-                                game_router_handler,
-                                new GameArgumentWriter(distributable_table),
-                                PlayerInterface.class);
+        if (is_spectator) {
+            this.player_interface = new NoOpPlayerInterface();
+        } else {
+            this.player_interface =
+                    (PlayerInterface)
+                            ARMIEvent.createProxy(
+                                    game_router_handler,
+                                    new GameArgumentWriter(distributable_table),
+                                    PlayerInterface.class);
+        }
         ARMIEventWriter hub_router_handler =
                 new ARMIEventWriter() {
                     public final void handle(ARMIEvent event) {
@@ -181,10 +188,12 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
                 (PeerHubInterface)
                         ARMIEvent.createProxy(hub_router_handler, PeerHubInterface.class);
         manager.registerAnimation(this);
-        router_client.connect(
-                session_id,
-                new SessionInfo(num_participants, MILLISECONDS_PER_HEARTBEAT),
-                local_peer_index);
+        if (!is_spectator) {
+            router_client.connect(
+                    session_id,
+                    new SessionInfo(num_participants, MILLISECONDS_PER_HEARTBEAT),
+                    local_peer_index);
+        }
     }
 
     public final void routerFailed(Exception e) {
@@ -240,7 +249,7 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
         server_millis = millis;
         int event_tick = millisToTickCeil(millis);
         peer.addEvent(event_tick, event);
-        if (local_peer_index == 0 && Network.getMatchmakingClient().isConnected()) {
+        if (!is_spectator && local_peer_index == 0 && Network.getMatchmakingClient().isConnected()) {
             sendCommandEvent(event_tick, client_id, event);
         }
     }
@@ -336,27 +345,29 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
 
     private final void doTick(float t) {
         stall_handler.stopStall();
-        if (getFreeQuitTicksLeft(local_player.getWorld()) == 0
-                && Network.getMatchmakingClient().isConnected())
-            Network.getMatchmakingClient().getInterface().freeQuitStopNotify();
+        if (!is_spectator) {
+            if (getFreeQuitTicksLeft(local_player.getWorld()) == 0
+                    && Network.getMatchmakingClient().isConnected())
+                Network.getMatchmakingClient().getInterface().freeQuitStopNotify();
 
-        if (getTick() % TICKS_PER_STATUS_UPDATE == 0
-                && Network.getMatchmakingClient().isConnected()) sendStatusUpdate();
+            if (getTick() % TICKS_PER_STATUS_UPDATE == 0
+                    && Network.getMatchmakingClient().isConnected()) sendStatusUpdate();
 
-        if (!sent_map) {
-            sendMap();
+            if (!sent_map) {
+                sendMap();
+            }
+
+            if (!sent_init_info) {
+                sendInitInfo();
+            }
+
+            if (!sent_trees) {
+                sendTrees();
+            }
+
+            if (getTick() % TICKS_PER_SPECTATOR_UPDATE == 0
+                    && Network.getMatchmakingClient().isConnected()) sendSpectatorInfo();
         }
-
-        if (!sent_init_info) {
-            sendInitInfo();
-        }
-
-        if (!sent_trees) {
-            sendTrees();
-        }
-
-        if (getTick() % TICKS_PER_SPECTATOR_UPDATE == 0
-                && Network.getMatchmakingClient().isConnected()) sendSpectatorInfo();
 
         for (int i = 0; i < peer_index_to_peer.length; i++) {
             Peer peer = peer_index_to_peer[i];
@@ -370,7 +381,7 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
             }
         }
         local_player.getWorld().tick(t);
-        if (getTick() % TICKS_PER_CHECKSUM == 0) sendChecksum();
+        if (!is_spectator && getTick() % TICKS_PER_CHECKSUM == 0) sendChecksum();
     }
 
     private void sendChecksum() {

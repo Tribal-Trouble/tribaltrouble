@@ -221,7 +221,8 @@ public final strictfp class WorldViewer implements Animated {
                         notification_manager,
                         distributable_table,
                         session_id,
-                        new ViewerStallHandler(this));
+                        new ViewerStallHandler(this),
+                        ingame_info instanceof SpectatorInGameInfo);
         this.camera = new GameCamera(this, camera_state);
         this.panel = new ActionButtonPanel(this, camera);
         this.delegate = new SelectionDelegate(this, camera);
