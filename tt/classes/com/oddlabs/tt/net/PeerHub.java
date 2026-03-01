@@ -256,9 +256,7 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
         server_millis = millis;
         int event_tick = millisToTickCeil(millis);
         peer.addEvent(event_tick, event);
-        if (!is_spectator
-                && local_peer_index == 0
-                && Network.getMatchmakingClient().isConnected()) {
+        if (!is_spectator && isFirstActivePeer() && Network.getMatchmakingClient().isConnected()) {
             sendCommandEvent(event_tick, client_id, event);
         }
     }
@@ -285,6 +283,13 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
                         + peer.getPlayerInfo().getName());
         peerDisconnected(peer, "Checksum error");
         Globals.checksum_error_in_last_game = true;
+    }
+
+    private boolean isFirstActivePeer() {
+        for (int i = 0; i < peer_index_to_peer.length; i++) {
+            if (peer_index_to_peer[i] != null) return i == local_peer_index;
+        }
+        return false;
     }
 
     private Peer getPeerFromClientID(int client_id) {
