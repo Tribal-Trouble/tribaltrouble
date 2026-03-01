@@ -254,7 +254,8 @@ public final strictfp class MatchmakingClient
         getInterface().requestSpectate(nick);
     }
 
-    public final void receiveSpectatorData(byte[] world_params_data, byte[] event_log_data, int current_tick) {
+    public final void receiveSpectatorData(
+            byte[] world_params_data, byte[] event_log_data, int current_tick) {
         if (chat_gui_root == null || network == null) return;
 
         try {

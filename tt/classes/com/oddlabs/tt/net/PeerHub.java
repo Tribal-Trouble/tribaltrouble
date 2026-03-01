@@ -256,7 +256,9 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
         server_millis = millis;
         int event_tick = millisToTickCeil(millis);
         peer.addEvent(event_tick, event);
-        if (!is_spectator && local_peer_index == 0 && Network.getMatchmakingClient().isConnected()) {
+        if (!is_spectator
+                && local_peer_index == 0
+                && Network.getMatchmakingClient().isConnected()) {
             sendCommandEvent(event_tick, client_id, event);
         }
     }
@@ -332,7 +334,8 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
         if (router != null) router.process();
         if (is_spectator && catching_up) {
             int ticks_this_frame = 0;
-            while (getTick() < catch_up_target_tick && ticks_this_frame < CATCH_UP_TICKS_PER_FRAME) {
+            while (getTick() < catch_up_target_tick
+                    && ticks_this_frame < CATCH_UP_TICKS_PER_FRAME) {
                 doTick(t);
                 ticks_this_frame++;
             }
@@ -650,7 +653,12 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
         // Set up catch-up to run via animate() — ticks per frame with rendering between
         this.catch_up_target_tick = target_tick;
         this.catching_up = true;
-        System.out.println("Spectator catching up to tick " + target_tick + " (" + event_count + " events queued)");
+        System.out.println(
+                "Spectator catching up to tick "
+                        + target_tick
+                        + " ("
+                        + event_count
+                        + " events queued)");
     }
 
     private static int getFreeQuitTicksLeft(World world) {

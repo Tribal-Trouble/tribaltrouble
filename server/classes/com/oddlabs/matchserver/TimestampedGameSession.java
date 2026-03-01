@@ -256,7 +256,8 @@ public final strictfp class TimestampedGameSession {
         }
     }
 
-    public final void updateCommandEvent(int tick, int client_id, short event_size, byte[] event_data) {
+    public final void updateCommandEvent(
+            int tick, int client_id, short event_size, byte[] event_data) {
         if (command_event_stream == null) {
             return;
         }

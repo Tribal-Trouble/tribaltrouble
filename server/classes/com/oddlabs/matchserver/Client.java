@@ -211,7 +211,8 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
         getGameSession().updateGameStatus(tick, status);
     }
 
-    public final void updateCommandEvent(int tick, int client_id, short event_size, byte[] event_data) {
+    public final void updateCommandEvent(
+            int tick, int client_id, short event_size, byte[] event_data) {
         if (getGameSession() == null) return;
         getGameSession().updateCommandEvent(tick, client_id, event_size, event_data);
     }
@@ -729,7 +730,10 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
         byte[] world_params_data = game_session.getWorldParamsData();
         if (world_params_data == null) {
             MatchmakingServer.getLogger()
-                    .warning("Game " + game_session.getDatabaseID() + ": no world params available for spectating");
+                    .warning(
+                            "Game "
+                                    + game_session.getDatabaseID()
+                                    + ": no world params available for spectating");
             getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK);
             return;
         }

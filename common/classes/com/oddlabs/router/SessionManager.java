@@ -135,8 +135,7 @@ final strictfp class SessionManager {
     }
 
     public final void startTimeout(RouterClient client) {
-        if (client.getTimeout() != null)
-            unregister(client.getTimeout());
+        if (client.getTimeout() != null) unregister(client.getTimeout());
         long millis = time_manager.getMillis();
         Timeout timeout = createTimeout(client, millis);
         client.setTimeout(timeout);

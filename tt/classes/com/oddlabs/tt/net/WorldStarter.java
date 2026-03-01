@@ -142,9 +142,7 @@ final strictfp class WorldStarter implements LoadCallback {
             oos.writeFloat(ingame_info.getRandomStartPosition());
             oos.writeInt(session_id);
             oos.close();
-            Network.getMatchmakingClient()
-                    .getInterface()
-                    .updateWorldParams(baos.toByteArray());
+            Network.getMatchmakingClient().getInterface().updateWorldParams(baos.toByteArray());
         } catch (Exception e) {
             System.out.println("Exception serializing world params: " + e);
         }

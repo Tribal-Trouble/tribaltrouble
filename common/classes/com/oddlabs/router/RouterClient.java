@@ -47,8 +47,7 @@ final strictfp class RouterClient implements ConnectionInterface {
                             }
 
                             public final void loginSpectator(SessionID session_id) {
-                                Session session =
-                                        session_manager.getExistingSession(session_id);
+                                Session session = session_manager.getExistingSession(session_id);
                                 doLoginSpectator(session);
                             }
                         });

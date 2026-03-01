@@ -104,7 +104,8 @@ public strictfp class ChatPanel extends Panel implements ChatListener {
         playing_pulldown_menu.addItem(new PulldownItem(getI18N("info")));
         playing_pulldown_menu.addItem(new PulldownItem(getI18N("spectate")));
         playing_pulldown_menu.addItem(new PulldownItem(getI18N("ignore")));
-        playing_pulldown_menu.addItemChosenListener(new PlayingPulldownListener(playing_users_list_box));
+        playing_pulldown_menu.addItemChosenListener(
+                new PlayingPulldownListener(playing_users_list_box));
         playing_users_list_box.setPulldownMenu(playing_pulldown_menu);
 
         ChatRoomUserDoubleClickedListener playing_double_clicked =
