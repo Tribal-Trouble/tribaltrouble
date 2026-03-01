@@ -25,6 +25,8 @@ import com.oddlabs.tt.util.StateChecksum;
 import com.oddlabs.tt.util.Utils;
 import com.oddlabs.tt.viewer.NotificationManager;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     private static final int TICKS_PER_SPECTATOR_UPDATE = 5;
     private static final int TICKS_PER_CHECKSUM =
             (int) (10 / AnimationManager.ANIMATION_SECONDS_PER_TICK);
+    private static final int CATCH_UP_TICKS_PER_FRAME = 15;
 
     private static boolean waiting_for_ack = false;
 
@@ -83,6 +86,8 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     private boolean sent_init_info = false;
     private boolean sent_trees = false;
     private int rows_sent = 0;
+    private boolean catching_up = false;
+    private int catch_up_target_tick = 0;
 
     static {
         SYSTEM_NAME = Utils.getBundleString(bundle, "system_name");
@@ -323,6 +328,19 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
 
     public final void animate(float t) {
         if (router != null) router.process();
+        if (is_spectator && catching_up) {
+            int ticks_this_frame = 0;
+            while (getTick() < catch_up_target_tick && ticks_this_frame < CATCH_UP_TICKS_PER_FRAME) {
+                doTick(t);
+                ticks_this_frame++;
+            }
+            if (getTick() >= catch_up_target_tick) {
+                catching_up = false;
+                System.out.println("Spectator catch-up complete at tick " + getTick());
+            }
+            return;
+        }
+        if (is_spectator && !is_synchronized) return;
         int server_tick = millisToTick(server_millis);
         if (!is_synchronized || getTick() == server_tick) {
             processStall();
@@ -601,6 +619,37 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
         closeNetwork();
         LocalEventQueue.getQueue().getManager().removeAnimation(this);
         System.out.println("PeerHub closed");
+    }
+
+    public final void fastForward(byte[] event_log_data, int target_tick) {
+        // Deserialize events and queue them on peers
+        DataInputStream dis = new DataInputStream(new ByteArrayInputStream(event_log_data));
+        int event_count = 0;
+        try {
+            while (dis.available() > 0) {
+                int tick = dis.readInt();
+                int client_id = dis.readInt();
+                short event_size = dis.readShort();
+                byte[] event_data = new byte[event_size];
+                dis.readFully(event_data);
+
+                ByteBuffer buf = ByteBuffer.wrap(event_data);
+                ARMIEvent event = ARMIEvent.read(buf, event_size);
+
+                Peer peer = getPeerFromClientID(client_id);
+                if (peer != null) {
+                    peer.addEvent(tick, event);
+                    event_count++;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading event log: " + e);
+        }
+
+        // Set up catch-up to run via animate() — ticks per frame with rendering between
+        this.catch_up_target_tick = target_tick;
+        this.catching_up = true;
+        System.out.println("Spectator catching up to tick " + target_tick + " (" + event_count + " events queued)");
     }
 
     private static int getFreeQuitTicksLeft(World world) {

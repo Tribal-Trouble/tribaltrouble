@@ -268,12 +268,12 @@ public final strictfp class MatchmakingClient
             float random_start_position = ois.readFloat();
             ois.close();
 
-            // Launch WorldStarter with spectator InGameInfo
+            // Launch ReplayWorldStarter with spectator InGameInfo
             GUI gui = chat_gui_root.getGUI();
             ProgressForm.setProgressForm(
                     network,
                     gui,
-                    new WorldStarter(
+                    new ReplayWorldStarter(
                             network,
                             0, // session_id placeholder — spectator has no Router session yet
                             generator,
@@ -282,7 +282,9 @@ public final strictfp class MatchmakingClient
                             unit_infos,
                             (short) 0, // player_slot — view from player 0
                             new SpectatorInGameInfo(random_start_position),
-                            new SpectatorWorldInitAction()));
+                            new SpectatorWorldInitAction(),
+                            event_log_data,
+                            current_tick));
 
             chat_gui_root = null;
         } catch (Exception e) {
