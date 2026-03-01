@@ -266,6 +266,7 @@ public final strictfp class MatchmakingClient
             PlayerSlot[] player_slots = (PlayerSlot[]) ois.readObject();
             UnitInfo[] unit_infos = (UnitInfo[]) ois.readObject();
             float random_start_position = ois.readFloat();
+            int session_id = ois.readInt();
             ois.close();
 
             // Launch ReplayWorldStarter with spectator InGameInfo
@@ -275,7 +276,7 @@ public final strictfp class MatchmakingClient
                     gui,
                     new ReplayWorldStarter(
                             network,
-                            0, // session_id placeholder — spectator has no Router session yet
+                            session_id,
                             generator,
                             world_params,
                             player_slots,

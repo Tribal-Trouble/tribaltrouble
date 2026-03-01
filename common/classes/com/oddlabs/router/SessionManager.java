@@ -28,7 +28,8 @@ final strictfp class SessionManager {
             id_to_session.put(session_id, session);
             logger.info("Creating session: " + session);
         } else {
-            if (!session.info.equals(session_info)
+            if (session.isComplete()
+                    || !session.info.equals(session_info)
                     || session.hasClient(client_id)
                     || client_id >= session_info.num_participants)
                 throw new RuntimeException(
@@ -39,6 +40,14 @@ final strictfp class SessionManager {
                                 + " client_id = "
                                 + client_id);
         }
+        return session;
+    }
+
+    final Session getExistingSession(SessionID session_id) {
+        Session session = (Session) id_to_session.get(session_id);
+        if (session == null || !session.isComplete())
+            throw new RuntimeException(
+                    "Session not found or not started for spectator: " + session_id);
         return session;
     }
 
@@ -92,7 +101,6 @@ final strictfp class SessionManager {
     }
 
     final long start(Session session) {
-        remove(session);
         final long initial_time = time_manager.getMillis();
         session.visit(
                 new SessionVisitor() {
@@ -127,7 +135,8 @@ final strictfp class SessionManager {
     }
 
     public final void startTimeout(RouterClient client) {
-        unregister(client.getTimeout());
+        if (client.getTimeout() != null)
+            unregister(client.getTimeout());
         long millis = time_manager.getMillis();
         Timeout timeout = createTimeout(client, millis);
         client.setTimeout(timeout);

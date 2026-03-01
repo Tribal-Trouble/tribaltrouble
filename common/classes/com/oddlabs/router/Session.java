@@ -15,6 +15,7 @@ final strictfp class Session {
     public final SessionID session_id;
     private final Logger logger;
     private final Set players = new HashSet();
+    private final Set spectators = new HashSet();
     private final SessionManager manager;
     private long initial_time;
 
@@ -40,7 +41,15 @@ final strictfp class Session {
 
     final void removePlayer(RouterClient client) {
         players.remove(client);
-        if (getNumPlayers() == 0) manager.remove(this);
+        if (getNumPlayers() == 0) {
+            // Kick all spectators — game is over
+            for (Iterator it = spectators.iterator(); it.hasNext(); ) {
+                RouterClient spectator = (RouterClient) it.next();
+                it.remove();
+                spectator.doError(false, new IOException("Game ended"));
+            }
+            manager.remove(this);
+        }
         checksum();
     }
 
@@ -48,7 +57,7 @@ final strictfp class Session {
         final Map checksum_to_count = new HashMap();
         final int[] best_checksum = new int[1];
         final boolean[] missing_checksum = new boolean[1];
-        visit(
+        visitPlayers(
                 new SessionVisitor() {
                     private int best_checksum_count = 0;
 
@@ -73,7 +82,7 @@ final strictfp class Session {
                 });
         if (checksum_to_count.size() == 1) return;
         final List clients_to_be_kicked = new ArrayList();
-        visit(
+        visitPlayers(
                 new SessionVisitor() {
                     public final void visit(RouterClient client) {
                         Integer client_checksum;
@@ -102,6 +111,17 @@ final strictfp class Session {
         if (info.num_participants == players.size()) start();
     }
 
+    final void addSpectator(RouterClient client) {
+        spectators.add(client);
+        client.getInterface().start();
+        manager.startTimeout(client);
+    }
+
+    final void removeSpectator(RouterClient client) {
+        spectators.remove(client);
+        if (getNumPlayers() == 0) manager.remove(this);
+    }
+
     final int getNextTick() {
         return manager.getNextTick(this);
     }
@@ -125,12 +145,22 @@ final strictfp class Session {
         return initial_time;
     }
 
+    /*	All expected participants have joined and the game has started */
     final boolean isComplete() {
         return started;
     }
 
-    final void visit(SessionVisitor visitor) {
+    final void visitPlayers(SessionVisitor visitor) {
         Iterator it = players.iterator();
+        while (it.hasNext()) {
+            RouterClient client = (RouterClient) it.next();
+            visitor.visit(client);
+        }
+    }
+
+    final void visit(SessionVisitor visitor) {
+        visitPlayers(visitor);
+        Iterator it = spectators.iterator();
         while (it.hasNext()) {
             RouterClient client = (RouterClient) it.next();
             visitor.visit(client);

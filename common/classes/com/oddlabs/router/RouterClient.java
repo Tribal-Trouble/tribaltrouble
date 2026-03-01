@@ -20,6 +20,7 @@ final strictfp class RouterClient implements ConnectionInterface {
     private final Router router;
     private final List checksums = new LinkedList();
     private int client_id;
+    private boolean is_spectator;
     private SessionManager.Timeout timeout;
     private Session session;
     private Interface current_interface;
@@ -43,6 +44,12 @@ final strictfp class RouterClient implements ConnectionInterface {
                                 Session session =
                                         session_manager.get(session_id, session_info, client_id);
                                 doLogin(session, session_info, client_id);
+                            }
+
+                            public final void loginSpectator(SessionID session_id) {
+                                Session session =
+                                        session_manager.getExistingSession(session_id);
+                                doLoginSpectator(session);
                             }
                         });
     }
@@ -106,6 +113,25 @@ final strictfp class RouterClient implements ConnectionInterface {
         logger.info("Player logged in: session = " + session + " client_id = " + client_id);
     }
 
+    private void doLoginSpectator(Session session) {
+        this.session = session;
+        this.is_spectator = true;
+        this.current_interface =
+                new Interface(
+                        GameInterface.class,
+                        new GameInterface() {
+                            public final void checksum(int checksum) {}
+
+                            public final void relayEventTo(int client_id, ARMIEvent event) {}
+
+                            public final void relayGameStateEvent(ARMIEvent event) {}
+
+                            public final void relayEvent(ARMIEvent event) {}
+                        });
+        session.addSpectator(this);
+        logger.info("Spectator logged in: session = " + session);
+    }
+
     private void doChecksum(int checksum) {
         checksums.add(new Integer(checksum));
         session.checksum();
@@ -162,13 +188,18 @@ final strictfp class RouterClient implements ConnectionInterface {
         connection.close();
         if (session != null) {
             logger.info("Removing client: " + this);
-            session.removePlayer(this);
-            session.visit(
-                    new SessionVisitor() {
-                        public final void visit(RouterClient client) {
-                            client.client_interface.playerDisconnected(client_id, checksum_error);
-                        }
-                    });
+            if (is_spectator) {
+                session.removeSpectator(this);
+            } else {
+                session.removePlayer(this);
+                session.visit(
+                        new SessionVisitor() {
+                            public final void visit(RouterClient client) {
+                                client.client_interface.playerDisconnected(
+                                        client_id, checksum_error);
+                            }
+                        });
+            }
         }
     }
 

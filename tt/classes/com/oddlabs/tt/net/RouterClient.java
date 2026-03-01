@@ -36,6 +36,12 @@ public final strictfp class RouterClient implements ConnectionInterface {
         router_interface.login(session_id, session_info, client_id);
     }
 
+    public final void connectSpectator(SessionID session_id) {
+        RouterInterface router_interface =
+                (RouterInterface) ARMIEvent.createProxy(connection, RouterInterface.class);
+        router_interface.loginSpectator(session_id);
+    }
+
     public final GameInterface getInterface() {
         return game_interface;
     }

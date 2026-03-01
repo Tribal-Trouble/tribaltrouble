@@ -193,7 +193,9 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
                 (PeerHubInterface)
                         ARMIEvent.createProxy(hub_router_handler, PeerHubInterface.class);
         manager.registerAnimation(this);
-        if (!is_spectator) {
+        if (is_spectator) {
+            router_client.connectSpectator(session_id);
+        } else {
             router_client.connect(
                     session_id,
                     new SessionInfo(num_participants, MILLISECONDS_PER_HEARTBEAT),
@@ -340,7 +342,6 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
             }
             return;
         }
-        if (is_spectator && !is_synchronized) return;
         int server_tick = millisToTick(server_millis);
         if (!is_synchronized || getTick() == server_tick) {
             processStall();
