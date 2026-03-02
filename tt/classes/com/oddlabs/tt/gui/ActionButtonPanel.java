@@ -1020,7 +1020,8 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
             gather_repair_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
             return true;
         } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_ARMORY_HARVEST)
-                && current_armory) {
+                && current_armory
+                && current_submenu == null) {
             harvest_button.mouseClickedAll(LocalInput.LEFT_BUTTON, 0, 0, 1);
             return true;
         } else if (event.getKeyCode() == settings.getKeybind(Globals.KB_QUARTERS_CHIEFTAIN)
