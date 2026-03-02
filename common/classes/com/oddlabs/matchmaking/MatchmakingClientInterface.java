@@ -64,10 +64,11 @@ public strictfp interface MatchmakingClientInterface {
 
     public void receiveRoutedEvent(HostSequenceID from, ARMIEvent event);
 
-    public void receiveSpectatorData(
-            byte[] world_params_data, byte[] event_log_data, int current_tick);
+    public void receiveSpectatorData(byte[] world_params_data);
 
     public void loginOK(String username, TunnelAddress address);
 
     public void loginError(int error_code);
+
+    public void receiveSpectatorEventLog(byte[] event_log_data, int current_tick);
 }

@@ -78,6 +78,8 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     private final StallHandler stall_handler;
     private int local_peer_index;
 
+    private static PeerHub spectator_instance;
+
     private int pause_ticks;
     private int server_millis;
     private int paused;
@@ -194,6 +196,7 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
                         ARMIEvent.createProxy(hub_router_handler, PeerHubInterface.class);
         manager.registerAnimation(this);
         if (is_spectator) {
+            spectator_instance = this;
             router_client.connectSpectator(session_id);
         } else {
             router_client.connect(
@@ -303,7 +306,21 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     }
 
     public final void start() {
-        is_synchronized = true;
+        if (is_spectator) {
+            // Don't set is_synchronized yet. For a spectator we need to wait for the event log
+            // and complete fast-forward before allowing heartbeat-driven ticking.
+            // Otherwise animate() will run empty ticks (no events queued) while
+            // we wait for the event log, corrupting the simulation state.
+            if (Network.getMatchmakingClient().isConnected()) {
+                Network.getMatchmakingClient().getInterface().requestSpectatorEventLog();
+            }
+        } else {
+            is_synchronized = true;
+        }
+    }
+
+    public static PeerHub getSpectatorInstance() {
+        return spectator_instance;
     }
 
     private final Peer locatePeerFromPlayer(Player player) {
@@ -346,7 +363,9 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
             }
             if (getTick() >= catch_up_target_tick) {
                 catching_up = false;
-                System.out.println("Spectator catch-up complete at tick " + getTick());
+                is_synchronized = true;
+                System.out.println("Spectator catch-up complete at tick " + getTick()
+                        + ", server_millis=" + server_millis + ", now synchronized");
             }
             return;
         }
@@ -627,6 +646,9 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
     public final void close() {
         closeNetwork();
         LocalEventQueue.getQueue().getManager().removeAnimation(this);
+        if (spectator_instance == this) {
+            spectator_instance = null;
+        }
         System.out.println("PeerHub closed");
     }
 

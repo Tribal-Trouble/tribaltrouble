@@ -254,8 +254,7 @@ public final strictfp class MatchmakingClient
         getInterface().requestSpectate(nick);
     }
 
-    public final void receiveSpectatorData(
-            byte[] world_params_data, byte[] event_log_data, int current_tick) {
+    public final void receiveSpectatorData(byte[] world_params_data) {
         if (chat_gui_root == null || network == null) return;
 
         try {
@@ -271,6 +270,7 @@ public final strictfp class MatchmakingClient
             ois.close();
 
             // Launch ReplayWorldStarter with spectator InGameInfo
+            // Event log is requested later by PeerHub after router connection
             GUI gui = chat_gui_root.getGUI();
             ProgressForm.setProgressForm(
                     network,
@@ -284,14 +284,19 @@ public final strictfp class MatchmakingClient
                             unit_infos,
                             (short) 0, // player_slot — view from player 0
                             new SpectatorInGameInfo(random_start_position),
-                            new SpectatorWorldInitAction(),
-                            event_log_data,
-                            current_tick));
+                            new SpectatorWorldInitAction()));
 
             chat_gui_root = null;
         } catch (Exception e) {
             System.out.println("Failed to deserialize spectator data: " + e);
             error(MatchmakingClientInterface.CHAT_ERROR_SPECTATE_FAILED);
+        }
+    }
+
+    public final void receiveSpectatorEventLog(byte[] event_log_data, int current_tick) {
+        PeerHub spectator = PeerHub.getSpectatorInstance();
+        if (spectator != null && event_log_data != null && event_log_data.length > 0) {
+            spectator.fastForward(event_log_data, current_tick);
         }
     }
 

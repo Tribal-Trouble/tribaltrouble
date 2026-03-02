@@ -57,6 +57,7 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
 
     private Game current_game;
     private TimestampedGameSession current_session;
+    private TimestampedGameSession spectated_session;
     private ChatRoom current_room;
 
     public Client(
@@ -737,19 +738,35 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
             getClientInterface().error(MatchmakingClientInterface.CHAT_ERROR_NO_SUCH_NICK);
             return;
         }
-        byte[] event_log_data = game_session.readEventLog();
-        int current_tick = game_session.getLastTick();
+        this.spectated_session = game_session;
         MatchmakingServer.getLogger()
                 .info(
-                        "Sending spectate data for game "
+                        "Sending spectate setup for game "
                                 + game_session.getDatabaseID()
                                 + ": world_params="
                                 + world_params_data.length
-                                + " bytes, event_log="
+                                + " bytes");
+        // Send world params only. The spectator will request the event log
+        // after connecting to the router so there are no 
+        // gaps in the event log between sending the world params and the spectator connecting to the router.
+        getClientInterface().receiveSpectatorData(world_params_data);
+    }
+
+    public final void requestSpectatorEventLog() {
+        if (spectated_session == null) {
+            return;
+        }
+        byte[] event_log_data = spectated_session.readEventLog();
+        int current_tick = spectated_session.getLastTick();
+        MatchmakingServer.getLogger()
+                .info(
+                        "Sending spectator event log for game "
+                                + spectated_session.getDatabaseID()
+                                + ": event_log="
                                 + event_log_data.length
                                 + " bytes, tick="
                                 + current_tick);
-        getClientInterface().receiveSpectatorData(world_params_data, event_log_data, current_tick);
+        getClientInterface().receiveSpectatorEventLog(event_log_data, current_tick);
     }
 
     private String formatChat(String message) {

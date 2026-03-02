@@ -26,8 +26,6 @@ final strictfp class ReplayWorldStarter implements LoadCallback {
     private final WorldParameters world_params;
     private final WorldInitAction initial_action;
     private final int session_id;
-    private final byte[] event_log_data;
-    private final int target_tick;
 
     ReplayWorldStarter(
             NetworkSelector network,
@@ -38,9 +36,7 @@ final strictfp class ReplayWorldStarter implements LoadCallback {
             UnitInfo[] unit_infos,
             short player_slot,
             InGameInfo ingame_info,
-            WorldInitAction initial_action,
-            byte[] event_log_data,
-            int target_tick) {
+            WorldInitAction initial_action) {
         this.initial_action = initial_action;
         this.session_id = session_id;
         this.world_params = world_params;
@@ -50,8 +46,6 @@ final strictfp class ReplayWorldStarter implements LoadCallback {
         this.player_slot = player_slot;
         this.ingame_info = ingame_info;
         this.network = network;
-        this.event_log_data = event_log_data;
-        this.target_tick = target_tick;
     }
 
     public final UIRenderer load(GUIRoot gui_root) {
@@ -85,11 +79,6 @@ final strictfp class ReplayWorldStarter implements LoadCallback {
                         corrected_player_slot,
                         new SessionID(session_id));
         if (initial_action != null) initial_action.run(viewer);
-
-        // Fast-forward the simulation to catch up
-        if (event_log_data != null && event_log_data.length > 0 && target_tick > 0) {
-            viewer.getPeerHub().fastForward(event_log_data, target_tick);
-        }
 
         System.out.println("ReplayWorldStarter complete (session_id = " + session_id + ")");
         return viewer.getRenderer();

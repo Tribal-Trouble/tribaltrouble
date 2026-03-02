@@ -76,4 +76,6 @@ public strictfp interface MatchmakingServerInterface {
     public void updateWorldParams(byte[] world_params_data);
 
     public void updateSpectatorInfo(int tick, String info);
+
+    public void requestSpectatorEventLog();
 }
