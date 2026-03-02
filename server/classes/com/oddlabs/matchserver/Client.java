@@ -747,8 +747,9 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
                                 + world_params_data.length
                                 + " bytes");
         // Send world params only. The spectator will request the event log
-        // after connecting to the router so there are no 
-        // gaps in the event log between sending the world params and the spectator connecting to the router.
+        // after connecting to the router so there are no
+        // gaps in the event log between sending the world params and the spectator connecting to
+        // the router.
         getClientInterface().receiveSpectatorData(world_params_data);
     }
 

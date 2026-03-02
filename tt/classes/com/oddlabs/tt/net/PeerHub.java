@@ -364,8 +364,12 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
             if (getTick() >= catch_up_target_tick) {
                 catching_up = false;
                 is_synchronized = true;
-                System.out.println("Spectator catch-up complete at tick " + getTick()
-                        + ", server_millis=" + server_millis + ", now synchronized");
+                System.out.println(
+                        "Spectator catch-up complete at tick "
+                                + getTick()
+                                + ", server_millis="
+                                + server_millis
+                                + ", now synchronized");
             }
             return;
         }
