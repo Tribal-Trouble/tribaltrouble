@@ -768,6 +768,7 @@ public final strictfp class Client implements MatchmakingServerInterface, Connec
                                 + " bytes, tick="
                                 + current_tick);
         getClientInterface().receiveSpectatorEventLog(event_log_data, current_tick);
+        this.spectated_session = null;
     }
 
     private String formatChat(String message) {

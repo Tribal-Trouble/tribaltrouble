@@ -244,14 +244,17 @@ public final strictfp class TimestampedGameSession {
             long length = command_event_file.length();
             byte[] data = new byte[(int) length];
             FileInputStream fis = new FileInputStream(command_event_file);
-            int offset = 0;
-            while (offset < data.length) {
-                int read = fis.read(data, offset, data.length - offset);
-                if (read == -1) break;
-                offset += read;
+            try {
+                int offset = 0;
+                while (offset < data.length) {
+                    int read = fis.read(data, offset, data.length - offset);
+                    if (read == -1) break;
+                    offset += read;
+                }
+                return data;
+            } finally {
+                fis.close();
             }
-            fis.close();
-            return data;
         } catch (Exception e) {
             MatchmakingServer.getLogger().warning("Exception reading event log: " + e);
             return new byte[0];
