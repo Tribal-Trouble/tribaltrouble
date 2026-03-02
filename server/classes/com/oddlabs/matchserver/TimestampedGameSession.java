@@ -238,7 +238,9 @@ public final strictfp class TimestampedGameSession {
             return new byte[0];
         }
         try {
-            command_event_stream.flush();
+            if (command_event_stream != null) {
+                command_event_stream.flush();
+            }
             long length = command_event_file.length();
             byte[] data = new byte[(int) length];
             FileInputStream fis = new FileInputStream(command_event_file);
@@ -259,6 +261,10 @@ public final strictfp class TimestampedGameSession {
     public final void updateCommandEvent(
             int tick, int client_id, short event_size, byte[] event_data) {
         if (command_event_stream == null) {
+            return;
+        }
+        if (event_size <= 0 || event_size > event_data.length) {
+            System.out.println("Invalid event_size: " + event_size);
             return;
         }
         if (tick > last_tick) {
@@ -491,6 +497,12 @@ public final strictfp class TimestampedGameSession {
 
     protected final void finalize() {
         if (!game_ended) DBInterface.endGame(this, System.currentTimeMillis(), -1);
+        try {
+            if (command_event_stream != null) command_event_stream.close();
+            if (spectator_file_writer != null) spectator_file_writer.close();
+        } catch (Exception e) {
+            System.out.println("Error closing spectator streams: " + e);
+        }
     }
 
     private final void teamWon(MatchmakingServer server, int[] team_result) {

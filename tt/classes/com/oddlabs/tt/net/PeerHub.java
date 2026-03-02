@@ -639,6 +639,10 @@ public final strictfp class PeerHub implements Animated, RouterHandler {
                 int tick = dis.readInt();
                 int client_id = dis.readInt();
                 short event_size = dis.readShort();
+                if (event_size <= 0 || event_size > dis.available()) {
+                    System.out.println("Invalid event_size in event log: " + event_size);
+                    break;
+                }
                 byte[] event_data = new byte[event_size];
                 dis.readFully(event_data);
 
