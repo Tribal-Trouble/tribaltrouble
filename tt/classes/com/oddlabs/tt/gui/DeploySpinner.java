@@ -14,8 +14,8 @@ public final strictfp class DeploySpinner extends IconSpinner {
     private Building current_building;
     private int num_orders = 0;
     private int order_size = 0;
-    private Player player;
-    private Class gather_supply_type;
+    private final Player player;
+    private final Class gather_supply_type;
 
     public DeploySpinner(
             WorldViewer viewer,
@@ -23,9 +23,13 @@ public final strictfp class DeploySpinner extends IconSpinner {
             IconQuad[] icon_quad,
             String tool_tip,
             Quad[] tool_tip_icons,
-            String shortcut_key) {
+            String shortcut_key,
+            Player player,
+            Class gather_supply_type) {
         super(viewer, icon_quad, tool_tip, tool_tip_icons, shortcut_key);
         this.player_interface = player_interface;
+        this.player = player;
+        this.gather_supply_type = gather_supply_type;
     }
 
     public void setContainers(Building current_building, int deploy_type, Class supply_type) {
@@ -34,11 +38,6 @@ public final strictfp class DeploySpinner extends IconSpinner {
         this.supply_type = supply_type;
         if (!current_building.isDead())
             num_orders = current_building.getDeployContainer(deploy_type).getNumOrders();
-    }
-
-    public void setGathererInfo(Player player, Class gather_supply_type) {
-        this.player = player;
-        this.gather_supply_type = gather_supply_type;
     }
 
     @Override
@@ -113,7 +112,7 @@ public final strictfp class DeploySpinner extends IconSpinner {
         } else if (player != null
                 && gather_supply_type != null
                 && player.getGathererCount(gather_supply_type) > 0) {
-            player_interface.recallGatherers(current_building, deploy_type, amount);
+            player_interface.recallGatherers(current_building, gather_supply_type, amount);
         }
     }
 

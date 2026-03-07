@@ -39,7 +39,7 @@ public strictfp interface PlayerInterface {
     void setLandscapeTarget(
             Selectable[] selection, int grid_x, int grid_y, int action, boolean aggressive);
 
-    void recallGatherers(Building building, int deploy_type, int amount);
+    void recallGatherers(Building building, Class supply_type, int amount);
 
     void setPreferredGamespeed(int speed);
 

@@ -420,9 +420,8 @@ public final strictfp class Player implements PlayerInterface {
         if (isValid(building)) building.deployUnits(type, num_units);
     }
 
-    public final void recallGatherers(Building building, int deploy_type, int amount) {
+    public final void recallGatherers(Building building, Class supply_type, int amount) {
         if (!isValid(building)) return;
-        Class supply_type = Building.deployTypeToGatherSupply(deploy_type);
         if (supply_type == null) return;
 
         float bx = building.getPositionX();
