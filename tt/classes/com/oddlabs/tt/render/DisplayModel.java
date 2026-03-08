@@ -39,8 +39,10 @@ public final class DisplayModel {
             default:
                 return;
         }
-        // Set bad resolution variable
-        bad_mode = true;
+        // Set bad resolution variable if not first run
+	if (!isFirstRun()) {
+        	bad_mode = true;
+	}
         // Apply to config
         saveToConfig();
     }
@@ -196,5 +198,9 @@ public final class DisplayModel {
 
         new_mode.setRefreshRate(max_refreshRate);
         return new_mode;
+    }
+
+    private static boolean isFirstRun() {
+	return Settings.getSettings().first_run;
     }
 }

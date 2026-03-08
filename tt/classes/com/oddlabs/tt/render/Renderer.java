@@ -318,10 +318,17 @@ public final strictfp class Renderer {
         cleanLogs(deterministic, last_event_log_dir, event_log_dir, event_logs_dir);
         Skin.load();
         GUI gui = new GUI(languages);
-
+	
+	// Initializing globals, input and display here
         GlobalsInit.init();
         DisplayModel.init();
         LocalInput.init();
+
+	// After done, set first run to false
+	if(Settings.getSettings().first_run) {
+		Settings.getSettings().first_run = false;
+		Settings.getSettings().save();
+	}
 
         long startup_timei = System.currentTimeMillis() - start_time;
         System.out.println("Init done after " + startup_timei);
