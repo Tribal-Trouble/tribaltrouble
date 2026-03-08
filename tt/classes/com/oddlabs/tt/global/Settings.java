@@ -30,8 +30,11 @@ public final strictfp class Settings implements Serializable {
     public boolean crashed = false;
 
     // network
-    // TODO: Why is domain name stuck on tribaltrouble.org?
+    // Why is domain name stuck on tribaltrouble.org?
     // when it is loaded from the settings file?
+    // RES: So users don't have to manually input the domain
+    // into the settings file.
+    // Could be a placeholder domain, but this way is easier.
     private String domain_name = "tribaltrouble.org";
     public String username = "";
     public String pw_digest = "";
