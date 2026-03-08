@@ -40,9 +40,9 @@ public final class DisplayModel {
                 return;
         }
         // Set bad resolution variable if not first run
-	if (!isFirstRun()) {
-        	bad_mode = true;
-	}
+        if (!isFirstRun()) {
+            bad_mode = true;
+        }
         // Apply to config
         saveToConfig();
     }
@@ -201,6 +201,6 @@ public final class DisplayModel {
     }
 
     private static boolean isFirstRun() {
-	return Settings.getSettings().first_run;
+        return Settings.getSettings().first_run;
     }
 }
