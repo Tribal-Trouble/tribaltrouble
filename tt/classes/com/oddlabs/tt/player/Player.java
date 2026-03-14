@@ -16,6 +16,7 @@ import com.oddlabs.tt.model.RubberSupply;
 import com.oddlabs.tt.model.Selectable;
 import com.oddlabs.tt.model.SupplyContainer;
 import com.oddlabs.tt.model.Unit;
+import com.oddlabs.tt.model.behaviour.GatherController;
 import com.oddlabs.tt.model.behaviour.NullController;
 import com.oddlabs.tt.model.weapon.IronAxeWeapon;
 import com.oddlabs.tt.model.weapon.RockAxeWeapon;
@@ -419,6 +420,42 @@ public final strictfp class Player implements PlayerInterface {
         if (isValid(building)) building.deployUnits(type, num_units);
     }
 
+    public final void recallGatherers(Building building, Class supply_type, int amount) {
+        if (!isValid(building)) return;
+        if (supply_type == null) return;
+
+        float bx = building.getPositionX();
+        float by = building.getPositionY();
+
+        for (int i = 0; i < amount; i++) {
+            Unit nearest = null;
+            float nearest_dist_sq = Float.MAX_VALUE;
+
+            Iterator it = units.getSet().iterator();
+            while (it.hasNext()) {
+                Selectable s = (Selectable) it.next();
+                if (s instanceof Unit && s.getPrimaryController() instanceof GatherController) {
+                    GatherController gather = (GatherController) s.getPrimaryController();
+                    if (gather.getSupplyType() == supply_type) {
+                        float dx = s.getPositionX() - bx;
+                        float dy = s.getPositionY() - by;
+                        float dist_sq = dx * dx + dy * dy;
+                        if (dist_sq < nearest_dist_sq) {
+                            nearest_dist_sq = dist_sq;
+                            nearest = (Unit) s;
+                        }
+                    }
+                }
+            }
+
+            if (nearest != null) {
+                nearest.initTarget(building, Target.ACTION_DEFAULT, false);
+            } else {
+                break;
+            }
+        }
+    }
+
     public final void createHarvesters(
             Building building, int num_tree, int num_rock, int num_iron, int num_rubber) {
         if (isValid(building)) building.createHarvesters(num_tree, num_rock, num_iron, num_rubber);
@@ -559,6 +596,22 @@ public final strictfp class Player implements PlayerInterface {
             result[i] = array;
         }
         return result;
+    }
+
+    public final int getGathererCount(Class supply_type) {
+        int count = 0;
+        Iterator it = units.getSet().iterator();
+        while (it.hasNext()) {
+            Selectable unit = (Selectable) it.next();
+            Object controller = unit.getPrimaryController();
+            if (controller instanceof GatherController) {
+                GatherController gather = (GatherController) controller;
+                if (gather.getSupplyType() == supply_type) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     public final void magicCast() {

@@ -91,7 +91,12 @@ public abstract strictfp class IconSpinner extends GUIObject implements ToolTip 
     public final void doUpdate() {
         setCount();
         if (icon_disabler != null) {
-            setDisabled(computeCount() == 0 && getOrderSize() == 0 && icon_disabler.isDisabled());
+            boolean no_supply =
+                    computeCount() == 0 && getOrderSize() == 0 && icon_disabler.isDisabled();
+            setDisabled(no_supply && getDisplayCount() == 0);
+            if (!isDisabled()) {
+                button_plus.setDisabled(no_supply);
+            }
         }
     }
 
@@ -109,8 +114,12 @@ public abstract strictfp class IconSpinner extends GUIObject implements ToolTip 
 
     protected abstract float getProgress();
 
+    protected int getDisplayCount() {
+        return computeCount();
+    }
+
     private final void setCount() {
-        int count = computeCount();
+        int count = getDisplayCount();
         if (count != text_count) {
             text_count = count;
             label.clear();
@@ -157,7 +166,7 @@ public abstract strictfp class IconSpinner extends GUIObject implements ToolTip 
         else if (isHovered()) icon_quad[Skin.ACTIVE].render(x, y);
         else icon_quad[Skin.NORMAL].render(x, y);
 
-        if (text_count > 0) {
+        if (computeCount() > 0) {
             IconQuad[] watch = Icons.getIcons().getWatch();
             int index = (int) (getProgress() * (watch.length - 1));
             watch[index].render(
