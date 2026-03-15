@@ -316,7 +316,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         race_icons.getPeonIcon(),
                         Utils.getBundleString(bundle, "deploy_peon_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        "P");
+                        "P",
+                        null,
+                        null);
         quarters_group.addChild(quarters_peon_button);
         quarters_chieftain_button =
                 new ChieftainButton(
@@ -405,7 +407,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getTreeIcon(),
                         Utils.getBundleString(bundle, "harvest_tree_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        "W");
+                        "W",
+                        viewer.getLocalPlayer(),
+                        TreeSupply.class);
         harvest_group.addChild(harvest_tree_button);
         harvest_rock_button =
                 new DeploySpinner(
@@ -414,7 +418,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getRockIcon(),
                         Utils.getBundleString(bundle, "harvest_rock_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        "R");
+                        "R",
+                        viewer.getLocalPlayer(),
+                        RockSupply.class);
         harvest_group.addChild(harvest_rock_button);
         harvest_iron_button =
                 new DeploySpinner(
@@ -423,7 +429,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getIronIcon(),
                         Utils.getBundleString(bundle, "harvest_iron_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        "I");
+                        "I",
+                        viewer.getLocalPlayer(),
+                        IronSupply.class);
         harvest_group.addChild(harvest_iron_button);
         harvest_rubber_button =
                 new DeploySpinner(
@@ -432,7 +440,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getRubberIcon(),
                         Utils.getBundleString(bundle, "harvest_chicken_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        "C");
+                        "C",
+                        viewer.getLocalPlayer(),
+                        RubberSupply.class);
         harvest_group.addChild(harvest_rubber_button);
         harvest_back_button =
                 new NonFocusIconButton(skin.getBackButton(), formatTip("back_tip", "Esc"));
@@ -491,7 +501,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         race_icons.getPeonIcon(),
                         Utils.getBundleString(bundle, "deploy_peon_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon()},
-                        "P");
+                        "P",
+                        null,
+                        null);
         army_group.addChild(army_peon_button);
         army_warrior_rock_button =
                 new DeploySpinner(
@@ -502,7 +514,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         new Quad[] {
                             race_icons.getUnitStatusIcon(), race_icons.getWeaponRockStatusIcon()
                         },
-                        "R");
+                        "R",
+                        null,
+                        null);
         army_group.addChild(army_warrior_rock_button);
 
         army_warrior_iron_button =
@@ -514,7 +528,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         new Quad[] {
                             race_icons.getUnitStatusIcon(), race_icons.getWeaponIronStatusIcon()
                         },
-                        "I");
+                        "I",
+                        null,
+                        null);
         army_group.addChild(army_warrior_iron_button);
         army_warrior_iron_button.setNag(
                 "Iron warriors are unavailable in this demo version of Tribal Trouble.");
@@ -528,7 +544,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         new Quad[] {
                             race_icons.getUnitStatusIcon(), race_icons.getWeaponRubberStatusIcon()
                         },
-                        "C");
+                        "C",
+                        null,
+                        null);
         army_group.addChild(army_warrior_rubber_button);
         army_warrior_rubber_button.setNag(Utils.getBundleString(bundle, "chicken_unavailable"));
 
@@ -551,7 +569,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getTreeIcon(),
                         Utils.getBundleString(bundle, "transport_tree_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon(), icons.getTreeStatusIcon()},
-                        "W");
+                        "W",
+                        null,
+                        null);
         transport_group.addChild(transport_tree_button);
         transport_rock_button =
                 new DeploySpinner(
@@ -560,7 +580,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getRockIcon(),
                         Utils.getBundleString(bundle, "transport_rock_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon(), icons.getRockStatusIcon()},
-                        "R");
+                        "R",
+                        null,
+                        null);
         transport_group.addChild(transport_rock_button);
         transport_iron_button =
                 new DeploySpinner(
@@ -569,7 +591,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getIronIcon(),
                         Utils.getBundleString(bundle, "transport_iron_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon(), icons.getIronStatusIcon()},
-                        "I");
+                        "I",
+                        null,
+                        null);
         transport_group.addChild(transport_iron_button);
         transport_rubber_button =
                 new DeploySpinner(
@@ -578,7 +602,9 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                         icons.getRubberIcon(),
                         Utils.getBundleString(bundle, "transport_chicken_tip"),
                         new Quad[] {race_icons.getUnitStatusIcon(), icons.getRubberStatusIcon()},
-                        "C");
+                        "C",
+                        null,
+                        null);
         transport_group.addChild(transport_rubber_button);
         transport_back_button =
                 new NonFocusIconButton(skin.getBackButton(), formatTip("back_tip", "Esc"));
@@ -818,12 +844,6 @@ public final strictfp class ActionButtonPanel extends GUIObject implements Anima
                 current_building, Building.KEY_DEPLOY_PEON_HARVEST_RUBBER, null);
         harvest_rubber_button.setIconDisabler(
                 new EmptySupplyDisabler(new SupplyCounter[] {unit_counter}));
-
-        Player local_player = viewer.getLocalPlayer();
-        harvest_tree_button.setGathererInfo(local_player, TreeSupply.class);
-        harvest_rock_button.setGathererInfo(local_player, RockSupply.class);
-        harvest_iron_button.setGathererInfo(local_player, IronSupply.class);
-        harvest_rubber_button.setGathererInfo(local_player, RubberSupply.class);
 
         build_weapon_rock_button.setBuildSupplyContainer(current_building, RockAxeWeapon.class);
         build_weapon_iron_button.setBuildSupplyContainer(current_building, IronAxeWeapon.class);
