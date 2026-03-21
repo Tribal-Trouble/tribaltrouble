@@ -2,14 +2,14 @@
 
 plugins {
     java
-    id("net.ltgt.errorprone") version "4.3.0" apply false
-    id("net.ltgt.nullaway") version "2.3.0" apply false
-    id("com.smushytaco.lwjgl3") version "1.0.1" apply false
+    id("net.ltgt.errorprone") version "5.1.0" apply false
+    id("net.ltgt.nullaway") version "3.0.0" apply false
+    id("com.smushytaco.lwjgl3") version "1.0.2" apply false
 }
 
 allprojects {
     group = "com.oddlabs.tribaltrouble"
-    version = "1.0"
+    version = "2.0"
 }
 
 subprojects {
@@ -18,8 +18,8 @@ subprojects {
 
     dependencies {
         implementation("org.jspecify:jspecify:1.0.0")
-        "errorprone"("com.google.errorprone:error_prone_core:2.46.0")
-        "errorprone"("com.uber.nullaway:nullaway:0.12.15")
+        "errorprone"("com.google.errorprone:error_prone_core:2.48.0")
+        "errorprone"("com.uber.nullaway:nullaway:0.13.1")
     }
 
     java {
@@ -33,7 +33,7 @@ subprojects {
             option("NullAway:AnnotatedPackages", "com.oddlabs")
 
             // Errorprone has decided it wants to throw a class cast exception
-            disableAllChecks = true
+            disableAllChecks = false
 
             disable( "NullAway", "IntLongMath", "MissingCasesInEnumSwitch", "ImmutableEnumChecker",
                 "NarrowingCompoundAssignment", "InstanceOfAndCastMatchWrongType",
@@ -46,7 +46,7 @@ subprojects {
                 "TypeParameterUnusedInFormals", "PatternMatchingInstanceof", "DefaultCharset", "EmptyCatch",
                 "MissingOverride", "NarrowCalculation", "EqualsUnsafeCast", "StatementSwitchToExpressionSwitch",
                 "EnumOrdinal", "JdkObsolete", "UnnecessaryParentheses", "UnusedMethod", "UnusedVariable",
-                "EffectivelyPrivate")
+                "EffectivelyPrivate", "ArrayRecordComponent", "StringSplitter", "InterruptedInCatchBlock" )
         }
     }
 }
