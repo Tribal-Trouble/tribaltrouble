@@ -13,12 +13,15 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Defines the properties and loading parameters for a texture resource.
  * This class specifies how a texture should be loaded and configured in OpenGL.
  */
 public final class TextureFile extends File<Texture> {
+    private static final Logger logger = Logger.getLogger(TextureFile.class.getSimpleName());
 	private static final String[] EXTENSIONS = {".dds", ".image", ".png", ".jpg", ".jpeg"};
 	/** The internal format of the texture, e.g., GL_RGBA or a compressed format. */
 	private final int internal_format;
@@ -77,7 +80,11 @@ public final class TextureFile extends File<Texture> {
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("No such file extension: " + location));
+				.orElseThrow(() -> {
+                    String msg = "Failed to locate texture: " + location + " (tried extensions: " + Arrays.toString(EXTENSIONS) + ")";
+                    logger.log(Level.SEVERE, msg);
+                    return new IllegalArgumentException(msg);
+                });
 	}
 
 	public boolean isDXTImage() {
@@ -86,16 +93,24 @@ public final class TextureFile extends File<Texture> {
 
 	public @NonNull DXTImage getDXTImage() {
 		try {
+            if (logger.isLoggable(Level.FINE)) {
+                logger.fine("Loading DXT image from: " + getURL());
+            }
 			return DXTImage.read(getURL());
 		} catch (IOException e) {
+            logger.log(Level.SEVERE, "Failed to read DXT image: " + getURL(), e);
 			throw new UncheckedIOException(e);
 		}
 	}
 
 	public @NonNull GLImage getImage() {
         try {
+            if (logger.isLoggable(Level.FINE)) {
+                logger.fine("Loading image from: " + getURL());
+            }
             return GLIntImage.loadImage(getURL());
         } catch (IOException e) {
+            logger.log(Level.SEVERE, "Failed to load image: " + getURL(), e);
             throw new UncheckedIOException(e);
         }
     }
@@ -122,7 +137,11 @@ public final class TextureFile extends File<Texture> {
 			return switch (getDXTImage().getFourCC()) {
 				case DXTImage.FOURCC_DXT1 -> EXTTextureCompressionS3TC.GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
 				case DXTImage.FOURCC_DXT5 -> EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-				default -> throw new IllegalStateException("Unsupported DXT format: " + Integer.toHexString(getDXTImage().getFourCC()));
+				default -> {
+                    String msg = "Unsupported DXT format (FourCC): " + Integer.toHexString(getDXTImage().getFourCC()) + " for texture: " + getURL();
+                    logger.severe(msg);
+                    throw new IllegalArgumentException(msg);
+                }
 			};
 		}
 		return internal_format;

@@ -5,6 +5,8 @@ import com.oddlabs.tt.global.Settings;
 import com.oddlabs.tt.resource.GLImage;
 import com.oddlabs.tt.resource.NativeResource;
 import com.oddlabs.tt.resource.TextureFile;
+import com.oddlabs.tt.util.GLUtils;
+import com.oddlabs.tt.util.OpenGLException;
 import com.oddlabs.util.DXTImage;
 import com.oddlabs.util.Utils;
 import org.jspecify.annotations.NonNull;
@@ -21,11 +23,16 @@ import org.lwjgl.system.MemoryStack;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** A 2D graphic image for drawing */
 public final class Texture extends NativeResource<Texture.NativeTexture> {
+    private static final Logger logger = Logger.getLogger(Texture.class.getSimpleName());
+
     /**
      * This class is not thread safe.
      */
@@ -59,7 +66,13 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
             IntBuffer handle_buffer = stack.mallocInt(1);
             GL11.glGenTextures(handle_buffer);
             tex_handle = handle_buffer.get(0);
-            assert tex_handle != 0;
+            if (tex_handle == 0) {
+                List<Integer> errors = GLUtils.checkGLError("glGenTextures");
+                String detail = errors.isEmpty() ? "" : ": " + GLUtils.errorToString(errors.getFirst());
+                String msg = "Failed to generate OpenGL texture handle" + detail;
+                logger.severe(msg);
+                throw new OpenGLException(msg);
+            }
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex_handle);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, wrap_s);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, wrap_t);
@@ -76,6 +89,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
                 GL11.glTexParameterf(GL11.GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
             }
         }
+        GLUtils.checkAndThrow("initTexture");
 		return tex_handle;
 	}
 
@@ -140,6 +154,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
         }
         
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, type, (java.nio.ByteBuffer)null);
+        GLUtils.checkAndThrow("Texture storage allocation");
         int size = determineMipMapSize(0, internal_format, width, height);
         setSize(size);
     }
@@ -198,6 +213,9 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
     }
 
     	private int uploadDXTTexture(@NonNull DXTImage dxt_image, int internalFormat, int max_mipmap_level) {
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("Uploading DXT texture: handle=" + getHandle() + ", " + dxt_image.getWidth() + "x" + dxt_image.getHeight() + ", internalFormat=0x" + Integer.toHexString(internalFormat) + ", mips=" + dxt_image.getNumMipMaps());
+        }
         GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
         GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
         GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
@@ -210,10 +228,14 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 			total_size += dxt_image.getMipMap().remaining();
 			GL13.glCompressedTexImage2D(GL11.GL_TEXTURE_2D, i, internalFormat, dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), 0, dxt_image.getMipMap());
 		}
+        GLUtils.checkAndThrow("uploadDXTTexture");
 		return total_size;
 	}
 
 	private int uploadTexture(GLImage @NonNull [] mipmaps, int internal_format, int max_mipmap_level) {
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("Uploading standard texture: handle=" + getHandle() + ", " + mipmaps[0].getWidth() + "x" + mipmaps[0].getHeight() + ", internal_format=0x" + Integer.toHexString(internal_format) + ", mips=" + mipmaps.length);
+        }
         GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
         GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
         GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
@@ -240,6 +262,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
 			int size = determineMipMapSize(i, internal_format, mipmap.getWidth(), mipmap.getHeight());
 			total_size += size;
 		}
+        GLUtils.checkAndThrow("uploadTexture");
 		return total_size;
 	}
 
@@ -261,7 +284,11 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
                     case GL30.GL_R32F -> width * height * 4;
                     case GL30.GL_RGBA16F -> width * height * 8; // 4 channels * 2 bytes (half float)
                     case GL30.GL_DEPTH_COMPONENT24 -> width * height * 4; // Treated as 32-bit for alignment/estimation
-                    default -> throw new RuntimeException("0x" + Integer.toHexString(internal_format));
+                    default -> {
+                        String msg = "Unknown internal format: 0x" + Integer.toHexString(internal_format);
+                        logger.severe(msg);
+                        throw new IllegalArgumentException(msg);
+                    }
                 };
             }
         }

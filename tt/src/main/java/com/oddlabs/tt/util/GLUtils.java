@@ -8,11 +8,13 @@ import org.lwjgl.system.MemoryStack;
 
 import java.io.File;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class GLUtils {
-    private static final Logger logger = Logger.getLogger(GLUtils.class.getName());
+    private static final Logger logger = Logger.getLogger(GLUtils.class.getSimpleName());
 	public static final String SCREENSHOT_DEFAULT = "screenshot";
 
 	public static @NonNull String takeScreenshot(@NonNull String filename) {
@@ -60,11 +62,27 @@ public final class GLUtils {
     /**
      * Checks for OpenGL errors and logs them.
      * @param message A descriptive message for the context of the OpenGL call.
+     * @return A list of error codes found.
      */
-    public static void checkGLError(@NonNull String message) {
+    public static @NonNull List<Integer> checkGLError(@NonNull String message) {
+        List<Integer> errors = new ArrayList<>();
         int error;
         while ((error = GL11.glGetError()) != GL11.GL_NO_ERROR) {
             logger.log(Level.WARNING, "OpenGL Error (" + message + "): " + errorToString(error), new Throwable("stacktrace"));
+            errors.add(error);
+        }
+        return errors;
+    }
+
+    /**
+     * Checks for OpenGL errors and throws an OpenGLException if any are found.
+     * @param message A descriptive message for the context.
+     * @throws OpenGLException if any OpenGL errors were detected.
+     */
+    public static void checkAndThrow(@NonNull String message) {
+        List<Integer> errors = checkGLError(message);
+        if (!errors.isEmpty()) {
+            throw new OpenGLException("OpenGL failure (" + message + "): " + errorToString(errors.getFirst()));
         }
     }
 
@@ -73,7 +91,7 @@ public final class GLUtils {
      * @param error The OpenGL error code.
      * @return A string representation of the error.
      */
-    private static @NonNull String errorToString(int error) {
+    public static @NonNull String errorToString(int error) {
         return switch (error) {
             case GL11.GL_NO_ERROR -> "GL_NO_ERROR";
             case GL11.GL_INVALID_ENUM -> "GL_INVALID_ENUM";
@@ -82,7 +100,7 @@ public final class GLUtils {
             case GL11.GL_STACK_OVERFLOW -> "GL_STACK_OVERFLOW";
             case GL11.GL_STACK_UNDERFLOW -> "GL_STACK_UNDERFLOW";
             case GL11.GL_OUT_OF_MEMORY -> "GL_OUT_OF_MEMORY";
-            default -> "Unknown OpenGL Error: " + error;
+            default -> "Unknown OpenGL Error: " + error + " (0x" + Integer.toHexString(error) + ")";
         };
     }
 
