@@ -16,7 +16,7 @@ About this fork
 ---------------
 
 I ([bondolo](https://github.com/bondolo)) have been working on restoring this enjoyable game to working order with
-modern Java and OpenGL. This has included updating to more recent LWJGL, JInput and OpenAL, removing the need for 
+modern Java and OpenGL. This has included updating to more recent LWJGL, OpenGL, GLFW and OpenAL, removing the need for 
 registration, removing demo mode, removing updater as well as many Java modernizations and cleanups. The build 
 system has been migrated from Ant to Gradle for better dependency management and faster builds.
 
@@ -43,8 +43,9 @@ cd tribaltrouble
 
 Requirements:
 
-- Java SDK 25 or later
-- Gradle 9.1+ (or use included wrapper)
+- Java SDK 26 or later
+- Gradle 9.2+ (or use included wrapper)
+- Basis Universal 2.10.0 (optional)
 
 Build and run the game:
 

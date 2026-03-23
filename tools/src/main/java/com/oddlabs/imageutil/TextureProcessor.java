@@ -36,11 +36,132 @@ public final class TextureProcessor {
             return;
         }
 
-        Layer[] images = new Layer[]{loadFile(infile)};
-        images = applyOperations(Arrays.asList(operations.toArray(new String[0])).iterator(), images);
+        String basisuPath = System.getProperty("basisu.path");
+        if (basisuPath != null && outfile.toString().endsWith(".dds")) {
+            // High quality path using basisu CLI
+            processWithBasisu(infile, operations, outfile, basisuPath);
+        } else {
+            // Standard fallback path using STB
+            Layer[] images = new Layer[]{loadFile(infile)};
+            images = applyOperations(Arrays.asList(operations.toArray(new String[0])).iterator(), images);
 
-        Files.createDirectories(outfile.getParent());
-        save(outfile, images);
+            Files.createDirectories(outfile.getParent());
+            save(outfile, images);
+        }
+    }
+
+    private static void processWithBasisu(@NonNull Path infile, @NonNull List<String> operations, @NonNull Path outfile, @NonNull String basisuPath) throws IOException {
+        Path workDir = Files.createTempDirectory("basisu_work");
+        try {
+            // copy input to workDir to have a clean, known name
+            Path inputCopy = workDir.resolve("input.png");
+            Files.copy(infile, inputCopy);
+            
+            // Step 0: Check for alpha to know whether to look for BC1 or BC3
+            Layer source = loadFile(infile);
+            boolean hasAlpha = source.a != null;
+            
+            Path tempKtx2 = workDir.resolve("input.ktx2");
+            
+            // Step 1: Compress to .ktx2
+            List<String> compressCmd = new ArrayList<>();
+            compressCmd.add(basisuPath);
+            compressCmd.add("-file");
+            compressCmd.add(inputCopy.toAbsolutePath().toString());
+            compressCmd.add("-output_file");
+            compressCmd.add(tempKtx2.toAbsolutePath().toString());
+            compressCmd.add("-ktx2"); 
+            
+            boolean mipmaps = false;
+            boolean flip = false;
+            for (int i = 0; i < operations.size(); i++) {
+                String op = operations.get(i);
+                if ("-mipmaps".equals(op)) mipmaps = true;
+                if ("-flip".equals(op)) flip = true;
+                if ("-gamma".equals(op)) i++; // skip value
+            }
+
+            if (mipmaps) {
+                compressCmd.add("-mipmap");
+            }
+            // basisu defaults to no mipmaps, so we don't need -no_mipmap (which is invalid)
+            
+            if (flip) compressCmd.add("-y_flip");
+            
+            // Use quality 1 (ETC1S) which transcodes reliably to BC1/BC3
+            compressCmd.add("-comp_level");
+            compressCmd.add("1"); 
+            
+            execute(compressCmd, workDir);
+
+            // Step 2: Unpack to standard DDS. 
+            // We force BC1/BC3 output to ensure maximum compatibility with older GL drivers.
+            List<String> unpackCmd = new ArrayList<>();
+            unpackCmd.add(basisuPath);
+            unpackCmd.add("-unpack");
+            unpackCmd.add("-file");
+            unpackCmd.add(tempKtx2.toAbsolutePath().toString());
+            
+            execute(unpackCmd, workDir);
+            
+            // Find the produced .dds (BC1 or BC3)
+            String targetSuffix = hasAlpha ? "BC3_RGBA" : "BC1_RGB";
+            Path unpackedDds = null;
+            try (Stream<Path> s = Files.list(workDir)) {
+                unpackedDds = s.filter(p -> {
+                    String name = p.getFileName().toString();
+                    return name.endsWith(".dds") && name.contains(targetSuffix);
+                }).findFirst().orElse(null);
+            }
+            
+            if (unpackedDds == null) {
+                // Fallback: search for ANY .dds in the work directory
+                try (Stream<Path> s = Files.list(workDir)) {
+                    unpackedDds = s.filter(p -> p.toString().endsWith(".dds")).findFirst().orElse(null);
+                }
+            }
+            
+            if (unpackedDds == null || !Files.exists(unpackedDds)) {
+                throw new IOException("Basisu failed to create any DDS output in " + workDir);
+            }
+            
+            Files.createDirectories(outfile.getParent());
+            Files.move(unpackedDds, outfile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            
+        } finally {
+            deleteDirectory(workDir);
+        }
+    }
+
+    private static void deleteDirectory(@NonNull Path path) throws IOException {
+        if (Files.exists(path)) {
+            try (Stream<Path> s = Files.walk(path)) {
+                s.sorted((a, b) -> b.compareTo(a)).forEach(p -> {
+                    try {
+                        Files.delete(p);
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                });
+            }
+        }
+    }
+
+    private static void execute(@NonNull List<String> command, @NonNull Path workingDir) throws IOException {
+        Process process = new ProcessBuilder(command)
+            .directory(workingDir.toFile())
+            .start();
+        try {
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.err.println("Basisu command failed in " + workingDir + ": " + String.join(" ", command));
+                process.getErrorStream().transferTo(System.err);
+                throw new IOException("basisu failed with exit code " + exitCode);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("basisu execution interrupted", e);
+        }
     }
 
     /**
@@ -74,7 +195,7 @@ public final class TextureProcessor {
         }
     }
 
-    private static Layer[] applyOperations(@NonNull Iterator<String> args, Layer[] images) {
+    private static Layer @NonNull [] applyOperations(@NonNull Iterator<String> args, Layer @NonNull [] images) {
         while (args.hasNext()) {
             String op = args.next();
             images = applyOperation(op, args, images);
@@ -242,7 +363,7 @@ public final class TextureProcessor {
         new DXTImage((short) width, (short) height, fourCC, mipmap_bytes).write(file);
     }
 
-    private static void save(@NonNull Path file, Layer @NonNull [] images) throws IOException {
+    private static void save(@NonNull Path file, @NonNull Layer @NonNull [] images) throws IOException {
         String filename = file.getFileName().toString();
         String extension = filename.substring(filename.lastIndexOf('.') + 1);
         switch (extension) {

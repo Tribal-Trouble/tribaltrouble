@@ -44,7 +44,7 @@ public final class GLUtils {
 		return filename;
 	}
 
-	public static void saveTexture(int mipmap_level, String filename) {
+	public static void saveTexture(int mipmap_level, @NonNull String filename) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer int_buf = stack.mallocInt(16);
             GL11.glGetTexLevelParameteriv(GL11.GL_TEXTURE_2D, mipmap_level, GL11.GL_TEXTURE_WIDTH, int_buf);

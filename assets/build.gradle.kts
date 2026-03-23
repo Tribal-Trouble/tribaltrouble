@@ -2,6 +2,7 @@ import com.smushytaco.lwjgl_gradle.Module
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import org.gradle.internal.os.OperatingSystem
 
 group = "com.oddlabs.tribaltrouble"
 version = "1.0.0"
@@ -69,6 +70,20 @@ val downloadAssets = tasks.register("downloadAssets") {
     }
 }
 
+// Find basisu executable on system path
+val basisuPath: String? by lazy {
+    val os = OperatingSystem.current()
+    val cmd = if (os.isWindows) "basisu.exe" else "basisu"
+    
+    // Check project property first, then PATH
+    project.findProperty("basisuPath")?.toString() ?: try {
+        val process = ProcessBuilder(if (os.isWindows) listOf("where", cmd) else listOf("which", cmd)).start()
+        process.inputStream.bufferedReader().readLine()?.trim()
+    } catch (e: Exception) {
+        null
+    }
+}
+
 // Helper for group texture conversion (batch mode)
 fun convertBatch(name: String, pngDir: Any, outSubdir: String, vararg convertArgs: String) =
     tasks.register<JavaExec>(name) {
@@ -81,6 +96,9 @@ fun convertBatch(name: String, pngDir: Any, outSubdir: String, vararg convertArg
         
         args(inDir, *convertArgs, outDir)
         jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true", "--enable-native-access=ALL-UNNAMED")
+        if (basisuPath != null) {
+            jvmArgs("-Dbasisu.path=$basisuPath")
+        }
         
         inputs.dir(pngDir)
         outputs.dir(layout.buildDirectory.dir("textures/$outSubdir"))
@@ -107,6 +125,9 @@ fun convertTexture(name: String, png: Any, outSubdir: String, vararg convertArgs
         
         args(inFile, *convertArgs, outFile.absolutePath)
         jvmArgs("-esa", "-ea", "-Xmx512m", "-Djava.awt.headless=true", "--enable-native-access=ALL-UNNAMED")
+        if (basisuPath != null) {
+            jvmArgs("-Dbasisu.path=$basisuPath")
+        }
         
         inputs.file(png)
         outputs.file(outFile)

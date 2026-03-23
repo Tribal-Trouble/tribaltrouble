@@ -8,244 +8,191 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.EnumSet;
+import java.nio.file.StandardOpenOption;
 
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.nio.file.StandardOpenOption.WRITE;
-
-/**  Image format support for DDS/DXT textures */
+/**
+ * Encapsulates a DXT compressed image in DDS format.
+ * Supports DXT1, DXT3, DXT5, and modern DX10 headers (BC1-BC3).
+ */
 public final class DXTImage {
-	// DDS file format constants
-	private static final int DDS_MAGIC = 0x20534444; // "DDS "
-
-	// DDS_HEADER flags
-	private static final int DDSD_CAPS = 0x1;
-	private static final int DDSD_HEIGHT = 0x2;
-	private static final int DDSD_WIDTH = 0x4;
-	private static final int DDSD_PIXELFORMAT = 0x1000;
-	private static final int DDSD_MIPMAPCOUNT = 0x20000;
-	private static final int DDSD_LINEARSIZE = 0x80000;
-
-	// DDS_PIXELFORMAT flags
-	private static final int DDPF_FOURCC = 0x4;
-
-	// DDS capabilities
-	private static final int DDSCAPS_COMPLEX = 0x8;
-	private static final int DDSCAPS_MIPMAP = 0x400000;
-	private static final int DDSCAPS_TEXTURE = 0x1000;
-
-	// FourCC codes
+	public static final int MAGIC = 0x20534444; // "DDS "
 	public static final int FOURCC_DXT1 = 0x31545844; // "DXT1"
+	public static final int FOURCC_DXT3 = 0x33545844; // "DXT3"
 	public static final int FOURCC_DXT5 = 0x35545844; // "DXT5"
+    public static final int FOURCC_DX10 = 0x30315844; // "DX10"
 
-	private static final int INITIAL_BUFFER_SIZE = 100000;
-	private static byte @NonNull [] scratch_buffer = new byte[INITIAL_BUFFER_SIZE];
+    // DX10 DXGI Formats
+    public static final int DXGI_FORMAT_BC1_UNORM = 71;
+    public static final int DXGI_FORMAT_BC1_UNORM_SRGB = 72;
+    public static final int DXGI_FORMAT_BC2_UNORM = 74;
+    public static final int DXGI_FORMAT_BC2_UNORM_SRGB = 75;
+    public static final int DXGI_FORMAT_BC3_UNORM = 77;
+    public static final int DXGI_FORMAT_BC3_UNORM_SRGB = 78;
+
 	private final short width;
 	private final short height;
 	private final int fourCC;
-	private final ByteBuffer mipmaps;
+	private final byte @NonNull [] @NonNull [] mipmaps;
 
-	private static @NonNull ByteBuffer convertToByteBuffer(int fourCC, int width, int height, byte@NonNull [] @NonNull [] mipmaps) {
-		int size = 0;
-		int mipmap_width = width;
-		int mipmap_height = height;
-		for (byte[] mipmap : mipmaps) {
-			size += mipmap.length;
-			assert mipmap.length == getMipMapSize(fourCC, mipmap_width, mipmap_height);
-			mipmap_width /= 2;
-			mipmap_height /= 2;
-		}
-		ByteBuffer buffer = ByteBuffer.allocateDirect(size);
-		for (byte[] mipmap : mipmaps) {
-			buffer.put(mipmap);
-		}
-		buffer.flip();
-		return buffer;
-	}
-
-	public DXTImage(short width, short height, int fourCC, byte@NonNull [] @NonNull [] mipmaps) {
-		this(width, height, fourCC, convertToByteBuffer(fourCC, width, height, mipmaps));
-	}
-	
-	public DXTImage(short width, short height, int fourCC, ByteBuffer mipmaps) {
+	public DXTImage(short width, short height, int fourCC, byte @NonNull [] @NonNull [] mipmaps) {
 		this.width = width;
 		this.height = height;
 		this.fourCC = fourCC;
 		this.mipmaps = mipmaps;
-		position(0);
 	}
 
-	public short getWidth() {
+	public int getWidth() {
 		return width;
 	}
 
-	public short getHeight() {
+	public int getHeight() {
 		return height;
+	}
+
+	public int getWidth(int mipmap_level) {
+		return Math.max(1, width >> mipmap_level);
+	}
+
+	public int getHeight(int mipmap_level) {
+		return Math.max(1, height >> mipmap_level);
 	}
 
 	public int getFourCC() {
 		return fourCC;
 	}
 
-	public ByteBuffer getMipMap() {
-		return mipmaps;
-	}
-
-	private static int getMipMapSize(int fourCC, int width, int height) {
-		int blocksize = fourCC == FOURCC_DXT1 ? 8 : 16;
-		return ((width + 3)/4) * ((height + 3)/4) * blocksize;
-	}
-
 	public int getNumMipMaps() {
-		int size = mipmaps.capacity();
-		int mipmap_width = width;
-		int mipmap_height = height;
-		int num_mipmaps = 0;
-		while (size > 0 && mipmap_width > 0 && mipmap_height > 0) {
-			int mipmap_size = getMipMapSize(fourCC, mipmap_width, mipmap_height);
-			size -= mipmap_size;
-			mipmap_width /= 2;
-			mipmap_height /= 2;
-			num_mipmaps++;
+		return mipmaps.length;
+	}
+
+	public @NonNull ByteBuffer getMipMap() {
+		return getMipMap(0);
+	}
+
+	public @NonNull ByteBuffer getMipMap(int mipmap_level) {
+		ByteBuffer buffer = ByteBuffer.allocateDirect(mipmaps[mipmap_level].length);
+		buffer.put(mipmaps[mipmap_level]);
+		buffer.flip();
+		return buffer;
+	}
+
+	public void position(int mipmap_level) {
+		// Nothing to do for this implementation
+	}
+
+	public void write(@NonNull Path file) throws IOException {
+		try (WritableByteChannel out = Files.newByteChannel(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			ByteBuffer header = ByteBuffer.allocateDirect(128);
+			header.order(ByteOrder.LITTLE_ENDIAN);
+			header.putInt(MAGIC);
+			header.putInt(124); // header size
+			header.putInt(0x1 | 0x2 | 0x4 | 0x1000 | (mipmaps.length > 1 ? 0x20000 : 0)); // flags: CAPS, HEIGHT, WIDTH, PIXELFORMAT, (MIPMAPCOUNT)
+			header.putInt(height);
+			header.putInt(width);
+			header.putInt(0); // pitch or linear size
+			header.putInt(0); // depth
+			header.putInt(mipmaps.length); // mipmap count
+			for (int i = 0; i < 11; i++) header.putInt(0); // reserved
+			
+			// PIXELFORMAT
+			header.putInt(32); // size
+			header.putInt(0x4); // flags: FOURCC
+			header.putInt(fourCC);
+			header.putInt(0); // RGB bits
+			header.putInt(0); // R mask
+			header.putInt(0); // G mask
+			header.putInt(0); // B mask
+			header.putInt(0); // A mask
+			
+			// CAPS
+			header.putInt(0x1000 | (mipmaps.length > 1 ? 0x400008 : 0)); // CAPS_TEXTURE, (CAPS_COMPLEX | CAPS_MIPMAP)
+			header.putInt(0); // CAPS2
+			header.putInt(0); // CAPS3
+			header.putInt(0); // CAPS4
+			header.putInt(0); // Reserved2
+			
+			header.flip();
+			writeContents(out, header);
+			
+			for (byte[] mipmap : mipmaps) {
+				writeContents(out, ByteBuffer.wrap(mipmap));
+			}
 		}
-		assert size == 0;
-		return num_mipmaps;
-	}
-
-	public int getWidth(int mipmap_index) {
-		return width >>> mipmap_index;
-	}
-
-	public int getHeight(int mipmap_index) {
-		return height >>> mipmap_index;
-	}
-
-	public void position(int mipmap_index) {
-		mipmaps.clear();
-		int mipmap_width = width;
-		int mipmap_height = height;
-		int position = 0;
-		while (mipmap_index > 0) {
-			position += getMipMapSize(fourCC, mipmap_width, mipmap_height);
-			mipmap_width /= 2;
-			mipmap_height /= 2;
-			mipmap_index--;
-		}
-		mipmaps.position(position);
-		position += getMipMapSize(fourCC, mipmap_width, mipmap_height);
-		mipmaps.limit(position);
 	}
 
 	public static @NonNull DXTImage read(@NonNull URL url) throws IOException {
 		try (InputStream in = new BufferedInputStream(url.openStream())) {
-            int index = 0;
-            int bytes_read;
-            while ((bytes_read = in.read(scratch_buffer, index, scratch_buffer.length - index)) != -1) {
-                index += bytes_read;
-                if (index == scratch_buffer.length) {
-                    byte[] new_scratch_buffer = new byte[scratch_buffer.length * 2];
-                    System.arraycopy(scratch_buffer, 0, new_scratch_buffer, 0, scratch_buffer.length);
-                    scratch_buffer = new_scratch_buffer;
-                }
-            }
-
-            ByteBuffer ddsBuffer = ByteBuffer.wrap(scratch_buffer, 0, index).order(ByteOrder.LITTLE_ENDIAN);
-
-            if (ddsBuffer.getInt() == DDS_MAGIC) {
-                // DDS_HEADER
-                if (ddsBuffer.getInt() != 124) { // dwSize
-                    throw new IOException("Invalid DDS header size");
-                }
-                ddsBuffer.getInt(); // dwFlags
-                short height = (short) ddsBuffer.getInt();
-                short width = (short) ddsBuffer.getInt();
-                
-                ddsBuffer.position(76); // Seek to DDS_PIXELFORMAT
-
-                // DDS_PIXELFORMAT
-                if (ddsBuffer.getInt() != 32) { // ddspf.dwSize
-                    throw new IOException("Invalid DDS pixel format size");
-                }
-                ddsBuffer.getInt(); // ddspf.dwFlags
-                int fourCC = ddsBuffer.getInt();
-
-                if (fourCC != FOURCC_DXT1 && fourCC != FOURCC_DXT5) {
-                    throw new IOException("Unsupported FourCC: " + Integer.toHexString(fourCC));
-                }
-
-                ddsBuffer.position(128); // Seek to data
-
-                int data_length = ddsBuffer.remaining();
-                ByteBuffer buffer = ByteBuffer.allocateDirect(data_length);
-                buffer.put(ddsBuffer);
-                buffer.flip();
-
-                return new DXTImage(width, height, fourCC, buffer);
-            } else {
-                // Old .dxtn format
-                ddsBuffer.rewind();
-                short width = ddsBuffer.getShort();
-                short height = ddsBuffer.getShort();
-                int internal_format = ddsBuffer.getInt();
-                int fourCC = internal_format == 0x83F0 ? FOURCC_DXT1 : FOURCC_DXT5;
-
-                int data_length = ddsBuffer.remaining();
-                ByteBuffer buffer = ByteBuffer.allocateDirect(data_length);
-                buffer.put(ddsBuffer);
-                buffer.flip();
-                return new DXTImage(width, height, fourCC, buffer);
-            }
-        }
+			return read(Channels.newChannel(in));
+		}
 	}
 
-	public void write(@NonNull Path file) throws IOException {
-        try (var out = Files.newByteChannel(file, EnumSet.of(CREATE,TRUNCATE_EXISTING,WRITE))) {
-            int numMipMaps = getNumMipMaps();
-            int pitchOrLinearSize = getMipMapSize(fourCC, width, height);
+	public static @NonNull DXTImage read(@NonNull Path file) throws IOException {
+		try (FileChannel in = FileChannel.open(file, StandardOpenOption.READ)) {
+			return read(in);
+		}
+	}
 
-            ByteBuffer header = ByteBuffer.allocate(128).order(ByteOrder.LITTLE_ENDIAN);
+	public static @NonNull DXTImage read(@NonNull ReadableByteChannel in) throws IOException {
+		ByteBuffer header = ByteBuffer.allocateDirect(128);
+		header.order(ByteOrder.LITTLE_ENDIAN);
+		while (header.hasRemaining()) {
+			if (in.read(header) == -1) throw new IOException("Unexpected end of stream while reading DDS header");
+		}
+		header.flip();
 
-            header.putInt(DDS_MAGIC);
-            header.putInt(124); // dwSize
-            header.putInt(DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT | DDSD_MIPMAPCOUNT | DDSD_LINEARSIZE);
-            header.putInt(height);
-            header.putInt(width);
-            header.putInt(pitchOrLinearSize);
-            header.putInt(0); // dwDepth
-            header.putInt(numMipMaps);
-            for (int i = 0; i < 11; i++) {
-                header.putInt(0); // dwReserved1
+		if (header.getInt() != MAGIC) throw new IOException("Not a DDS file");
+		header.getInt(); // size
+		header.getInt(); // flags
+		int height = header.getInt();
+		int width = header.getInt();
+		header.getInt(); // pitch
+		header.getInt(); // depth
+		int mipmapCount = Math.max(1, header.getInt());
+		for (int i = 0; i < 11; i++) header.getInt(); // reserved
+
+		// PIXELFORMAT
+		header.getInt(); // size
+		header.getInt(); // flags
+		int fourCC = header.getInt();
+        
+        if (fourCC == FOURCC_DX10) {
+            // Read DX10 header
+            ByteBuffer dx10Header = ByteBuffer.allocateDirect(20);
+            dx10Header.order(ByteOrder.LITTLE_ENDIAN);
+            while (dx10Header.hasRemaining()) {
+                if (in.read(dx10Header) == -1) throw new IOException("Unexpected end of stream while reading DX10 header");
             }
-
-            header.putInt(32); // ddspf.dwSize
-            header.putInt(DDPF_FOURCC);
-            header.putInt(fourCC);
-            header.putInt(0); // ddspf.dwRGBBitCount
-            header.putInt(0); // ddspf.dwRBitMask
-            header.putInt(0); // ddspf.dwGBitMask
-            header.putInt(0); // ddspf.dwBBitMask
-            header.putInt(0); // ddspf.dwABitMask
-
-            header.putInt(DDSCAPS_TEXTURE | DDSCAPS_COMPLEX | DDSCAPS_MIPMAP);
-            header.putInt(0); // dwCaps2
-            header.putInt(0); // dwCaps3
-            header.putInt(0); // dwCaps4
-            header.putInt(0); // dwReserved2
-
-            header.flip();
-            writeContents(out, header);
-
-            int old_position = mipmaps.position();
-            int old_limit = mipmaps.limit();
-            mipmaps.clear();
-            writeContents(out, mipmaps);
-            mipmaps.position(old_position);
-            mipmaps.limit(old_limit);
+            dx10Header.flip();
+            int dxgiFormat = dx10Header.getInt();
+            fourCC = switch (dxgiFormat) {
+                case DXGI_FORMAT_BC1_UNORM, DXGI_FORMAT_BC1_UNORM_SRGB -> FOURCC_DXT1;
+                case DXGI_FORMAT_BC2_UNORM, DXGI_FORMAT_BC2_UNORM_SRGB -> FOURCC_DXT3;
+                case DXGI_FORMAT_BC3_UNORM, DXGI_FORMAT_BC3_UNORM_SRGB -> FOURCC_DXT5;
+                default -> throw new IOException("Unsupported DXGI format in DX10 header: " + dxgiFormat);
+            };
+        } else if (fourCC != FOURCC_DXT1 && fourCC != FOURCC_DXT3 && fourCC != FOURCC_DXT5) {
+            throw new IOException("Unsupported FourCC: " + Integer.toHexString(fourCC));
         }
+
+		byte[][] mipmaps = new byte[mipmapCount][];
+		for (int i = 0; i < mipmapCount; i++) {
+			int mipWidth = Math.max(1, width >> i);
+			int mipHeight = Math.max(1, height >> i);
+			int size = ((mipWidth + 3) / 4) * ((mipHeight + 3) / 4) * (fourCC == FOURCC_DXT1 ? 8 : 16);
+			mipmaps[i] = new byte[size];
+			ByteBuffer mipBuffer = ByteBuffer.wrap(mipmaps[i]);
+			while (mipBuffer.hasRemaining()) {
+				if (in.read(mipBuffer) == -1) throw new IOException("Unexpected end of stream while reading mipmap " + i);
+			}
+		}
+
+		return new DXTImage((short) width, (short) height, fourCC, mipmaps);
 	}
 
 	private static void writeContents(@NonNull WritableByteChannel out, @NonNull ByteBuffer data) throws IOException {

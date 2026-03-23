@@ -212,7 +212,7 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
         state.size += size;
     }
 
-    	private int uploadDXTTexture(@NonNull DXTImage dxt_image, int internalFormat, int max_mipmap_level) {
+	private int uploadDXTTexture(@NonNull DXTImage dxt_image, int internalFormat, int max_mipmap_level) {
         if (logger.isLoggable(Level.FINE)) {
             logger.fine("Uploading DXT texture: handle=" + getHandle() + ", " + dxt_image.getWidth() + "x" + dxt_image.getHeight() + ", internalFormat=0x" + Integer.toHexString(internalFormat) + ", mips=" + dxt_image.getNumMipMaps());
         }
@@ -220,19 +220,20 @@ public final class Texture extends NativeResource<Texture.NativeTexture> {
         GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
         GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
         GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-		int detail_shift = getDetailShift(dxt_image.getNumMipMaps());		int max_index = getMaxMipmapIndex(dxt_image.getNumMipMaps(), max_mipmap_level, detail_shift);
+		int detail_shift = getDetailShift(dxt_image.getNumMipMaps());
+		int max_index = getMaxMipmapIndex(dxt_image.getNumMipMaps(), max_mipmap_level, detail_shift);
 		int total_size = 0;
 		for (int i = 0; i < max_index; i++) {
 			int mipmap_level = i + detail_shift;
-			dxt_image.position(mipmap_level);
-			total_size += dxt_image.getMipMap().remaining();
-			GL13.glCompressedTexImage2D(GL11.GL_TEXTURE_2D, i, internalFormat, dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), 0, dxt_image.getMipMap());
+			ByteBuffer mipData = dxt_image.getMipMap(mipmap_level);
+			total_size += mipData.remaining();
+			GL13.glCompressedTexImage2D(GL11.GL_TEXTURE_2D, i, internalFormat, dxt_image.getWidth(mipmap_level), dxt_image.getHeight(mipmap_level), 0, mipData);
 		}
         GLUtils.checkAndThrow("uploadDXTTexture");
 		return total_size;
 	}
 
-	private int uploadTexture(GLImage @NonNull [] mipmaps, int internal_format, int max_mipmap_level) {
+	private int uploadTexture(@NonNull GLImage @NonNull [] mipmaps, int internal_format, int max_mipmap_level) {
         if (logger.isLoggable(Level.FINE)) {
             logger.fine("Uploading standard texture: handle=" + getHandle() + ", " + mipmaps[0].getWidth() + "x" + mipmaps[0].getHeight() + ", internal_format=0x" + Integer.toHexString(internal_format) + ", mips=" + mipmaps.length);
         }
