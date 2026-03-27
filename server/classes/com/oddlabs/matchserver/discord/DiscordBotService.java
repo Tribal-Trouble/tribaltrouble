@@ -19,9 +19,11 @@ import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.discordjson.json.ApplicationCommandData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,6 +35,8 @@ public class DiscordBotService {
     private boolean isInitialized = false;
     private long serverId = -1;
     private DiscordChatroomCoordinator chatroomCoordinator;
+    private ReactionRoleService reactionRoleService;
+    private final List<Disposable> disposables = new ArrayList<>();
 
     ArrayList<DiscordCommand> commands = new ArrayList<DiscordCommand>();
 
@@ -64,6 +68,7 @@ public class DiscordBotService {
                             commands.add(new OnlineCommand());
                             commands.add(new RankCommand());
                             chatroomCoordinator = new DiscordChatroomCoordinator();
+                            reactionRoleService = new ReactionRoleService(gateway, serverId);
                             registerCommands();
                             // deleteCommands();
                             return gateway.onDisconnect();
@@ -74,6 +79,20 @@ public class DiscordBotService {
 
     public boolean isInitialized() {
         return isInitialized;
+    }
+
+    /**
+     * Disposes of all Discord subscriptions and cleans up resources. This should be called when
+     * shutting down the bot service.
+     */
+    public void dispose() {
+        // Dispose of all stored subscriptions
+        for (Disposable disposable : disposables) {
+            if (disposable != null && !disposable.isDisposed()) {
+                disposable.dispose();
+            }
+        }
+        disposables.clear();
     }
 
     /** Gets the discord id associated with the bot user */
@@ -107,43 +126,45 @@ public class DiscordBotService {
     private void setupEventHandlers(long serverId) {
         initTribalTroubleTextChannels(serverId);
 
-        gateway.on(
-                        ChatInputInteractionEvent.class,
-                        event -> {
-                            if (event.getCommandName().equals("ping")) {
-                                return event.reply("Pong!");
-                            }
+        disposables.add(
+                gateway.on(
+                                ChatInputInteractionEvent.class,
+                                event -> {
+                                    if (event.getCommandName().equals("ping")) {
+                                        return event.reply("Pong!");
+                                    }
 
-                            return commands.stream()
-                                    .filter(
-                                            cmd ->
-                                                    event.getCommandName()
-                                                            .equals(cmd.getCommandName()))
-                                    .findFirst()
-                                    .map(
-                                            cmd -> {
-                                                try {
-                                                    return cmd.executeCommand(event);
-                                                } catch (Exception e) {
-                                                    System.out.println(
-                                                            "Error executing command: "
-                                                                    + e.getMessage());
-                                                    return event.reply(
-                                                                    "An error occurred while"
-                                                                        + " executing the command.")
-                                                            .withEphemeral(true);
-                                                }
-                                            })
-                                    .orElseGet(
-                                            () -> {
-                                                System.out.println(
-                                                        "No matching command found for: "
-                                                                + event.getCommandName());
-                                                return event.reply("Unknown command")
-                                                        .withEphemeral(true);
-                                            });
-                        })
-                .subscribe();
+                                    return commands.stream()
+                                            .filter(
+                                                    cmd ->
+                                                            event.getCommandName()
+                                                                    .equals(cmd.getCommandName()))
+                                            .findFirst()
+                                            .map(
+                                                    cmd -> {
+                                                        try {
+                                                            return cmd.executeCommand(event);
+                                                        } catch (Exception e) {
+                                                            System.out.println(
+                                                                    "Error executing command: "
+                                                                            + e.getMessage());
+                                                            return event.reply(
+                                                                            "An error occurred"
+                                                                                + " while executing"
+                                                                                + " the command.")
+                                                                    .withEphemeral(true);
+                                                        }
+                                                    })
+                                            .orElseGet(
+                                                    () -> {
+                                                        System.out.println(
+                                                                "No matching command found for: "
+                                                                        + event.getCommandName());
+                                                        return event.reply("Unknown command")
+                                                                .withEphemeral(true);
+                                                    });
+                                })
+                        .subscribe());
         gateway.on(ReadyEvent.class, this::handleReady).take(1).subscribe();
     }
 
@@ -172,6 +193,7 @@ public class DiscordBotService {
         if (gateway != null) {
             message_channels.clear(); // Clear before repopulating
             gateway.getGuilds()
+                    .take(1)
                     .filter(
                             guild -> {
                                 return guild.getId().equals(Snowflake.of(serverId));

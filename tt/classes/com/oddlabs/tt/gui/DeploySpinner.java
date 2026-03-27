@@ -2,6 +2,7 @@ package com.oddlabs.tt.gui;
 
 import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.DeployContainer;
+import com.oddlabs.tt.player.Player;
 import com.oddlabs.tt.player.PlayerInterface;
 import com.oddlabs.tt.viewer.WorldViewer;
 import com.oddlabs.util.Quad;
@@ -13,6 +14,8 @@ public final strictfp class DeploySpinner extends IconSpinner {
     private Building current_building;
     private int num_orders = 0;
     private int order_size = 0;
+    private final Player player;
+    private final Class gather_supply_type;
 
     public DeploySpinner(
             WorldViewer viewer,
@@ -20,9 +23,13 @@ public final strictfp class DeploySpinner extends IconSpinner {
             IconQuad[] icon_quad,
             String tool_tip,
             Quad[] tool_tip_icons,
-            String shortcut_key) {
+            String shortcut_key,
+            Player player,
+            Class gather_supply_type) {
         super(viewer, icon_quad, tool_tip, tool_tip_icons, shortcut_key);
         this.player_interface = player_interface;
+        this.player = player;
+        this.gather_supply_type = gather_supply_type;
     }
 
     public void setContainers(Building current_building, int deploy_type, Class supply_type) {
@@ -31,6 +38,15 @@ public final strictfp class DeploySpinner extends IconSpinner {
         this.supply_type = supply_type;
         if (!current_building.isDead())
             num_orders = current_building.getDeployContainer(deploy_type).getNumOrders();
+    }
+
+    @Override
+    protected int getDisplayCount() {
+        int count = computeCount();
+        if (player != null && gather_supply_type != null) {
+            count += player.getGathererCount(gather_supply_type);
+        }
+        return count;
     }
 
     public final int computeCount() {
@@ -81,21 +97,22 @@ public final strictfp class DeploySpinner extends IconSpinner {
     }
 
     protected final void decrease(int amount) {
-        if (!current_building.isDead() && computeCount() > 0) {
+        if (current_building.isDead()) return;
+
+        if (computeCount() > 0) {
             int num_units = current_building.getDeployContainer(deploy_type).getNumSupplies();
 
-            if (num_units > -getOrderDiff() /* && num_supplies > -getOrderDiff()*/) {
+            if (num_units > -getOrderDiff()) {
                 if (amount > num_units + getOrderDiff()) {
                     amount = num_units + getOrderDiff();
                 }
-                /*
-                if (supply_type != null && amount > num_supplies + getOrderDiff()) {
-                	amount = num_supplies + getOrderDiff();
-                }
-                */
                 order_size -= amount;
                 num_orders -= amount;
             }
+        } else if (player != null
+                && gather_supply_type != null
+                && player.getGathererCount(gather_supply_type) > 0) {
+            player_interface.recallGatherers(current_building, gather_supply_type, amount);
         }
     }
 
