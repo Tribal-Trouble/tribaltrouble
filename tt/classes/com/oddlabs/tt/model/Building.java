@@ -47,7 +47,6 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
 
     private static final int PLACING_BORDER = 1;
     private static final int MAX_SUPPLY_COUNT = 200;
-    private static final int MAX_SUPPLY_COUNT_SHIP = 40;
 
     public static final Cost COST_ROCK_WEAPON =
             new Cost(new Class[] {TreeSupply.class, RockSupply.class}, new int[] {2, 1});
@@ -433,15 +432,19 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
     }
 
     private final Unit createUnit(Target rally_point, UnitTemplate template) {
-        return new Unit(
-                getOwner(),
-                getPositionX(),
-                getPositionY(),
-                rally_point,
-                template,
-                null,
-                true,
-                true);
+        if (getAbilities().hasAbilities(Abilities.SAIL)) {
+            return ship_hr.exitUnit(template);
+        } else {
+            return new Unit(
+                    getOwner(),
+                    getPositionX(),
+                    getPositionY(),
+                    rally_point,
+                    template,
+                    null,
+                    true,
+                    true);
+        }
     }
 
     public final void createArmy(int num_peon, int num_rock, int num_iron, int num_rubber) {
@@ -489,6 +492,8 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
                     createUnit(
                             hasRallyPoint() ? rally_point : null,
                             race.getUnitTemplate(Race.UNIT_PEON));
+            // TODO: When transporting from a ship, deploy one of the peons
+            // TODO: Also check if there are any peons
             unit.getSupplyContainer()
                     .increaseSupply(unit.getSupplyContainer().getMaxSupplyCount(), supply);
             //	getSupplyContainer(supply).increaseSupply(-unit.getSupplyContainer().getMaxSupplyCount());
@@ -541,26 +546,22 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
                         Unit.class,
                         getBuildingTemplate().getUnitContainerFactory().createContainer(this));
                 if (getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)) {
-                    int max_supply =
-                            getAbilities().hasAbilities(Abilities.SAIL)
-                                    ? MAX_SUPPLY_COUNT_SHIP
-                                    : MAX_SUPPLY_COUNT;
-                    SupplyContainer tree_supply = new SupplyContainer(max_supply);
-                    SupplyContainer rock_supply = new SupplyContainer(max_supply);
-                    SupplyContainer iron_supply = new SupplyContainer(max_supply);
-                    SupplyContainer rubber_supply = new SupplyContainer(max_supply);
+                    SupplyContainer tree_supply = new SupplyContainer(MAX_SUPPLY_COUNT);
+                    SupplyContainer rock_supply = new SupplyContainer(MAX_SUPPLY_COUNT);
+                    SupplyContainer iron_supply = new SupplyContainer(MAX_SUPPLY_COUNT);
+                    SupplyContainer rubber_supply = new SupplyContainer(MAX_SUPPLY_COUNT);
                     supply_containers.put(TreeSupply.class, tree_supply);
                     supply_containers.put(RockSupply.class, rock_supply);
                     supply_containers.put(IronSupply.class, iron_supply);
                     supply_containers.put(RubberSupply.class, rubber_supply);
 
-                    SupplyContainer rock_weapon_container = new SupplyContainer(max_supply);
+                    SupplyContainer rock_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
                     supply_containers.put(RockAxeWeapon.class, rock_weapon_container);
                     supply_containers.put(RockSpearWeapon.class, rock_weapon_container);
-                    SupplyContainer iron_weapon_container = new SupplyContainer(max_supply);
+                    SupplyContainer iron_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
                     supply_containers.put(IronAxeWeapon.class, iron_weapon_container);
                     supply_containers.put(IronSpearWeapon.class, iron_weapon_container);
-                    SupplyContainer rubber_weapon_container = new SupplyContainer(max_supply);
+                    SupplyContainer rubber_weapon_container = new SupplyContainer(MAX_SUPPLY_COUNT);
                     supply_containers.put(RubberAxeWeapon.class, rubber_weapon_container);
                     supply_containers.put(RubberSpearWeapon.class, rubber_weapon_container);
 

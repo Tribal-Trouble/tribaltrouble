@@ -39,6 +39,8 @@ public final strictfp class EnterController extends Controller {
                 }
                 if (building.canGetOnBoard()) {
                     building.getOnBoard(unit);
+                    building.getOwner().getUnitCountContainer().increaseSupply(-1);
+                    building.getUnitContainer().increaseSupply(1);
                 } else {
                     building.getUnitContainer().enter(unit);
                 }

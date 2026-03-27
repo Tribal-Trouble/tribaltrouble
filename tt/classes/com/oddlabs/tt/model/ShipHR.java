@@ -132,4 +132,17 @@ public final strictfp class ShipHR {
             }
         }
     }
+
+    public Unit exitUnit(UnitTemplate template) {
+        for (int i = NUM_UNITS - 1; i >= 0; i--) {
+            Unit unit = units[i];
+            if (unit != null && unit.getUnitTemplate() == template) {
+                unit.setReference(null);
+                unit.unmount();
+                units[i] = null;
+                return unit;
+            }
+        }
+        return null;
+    }
 }
