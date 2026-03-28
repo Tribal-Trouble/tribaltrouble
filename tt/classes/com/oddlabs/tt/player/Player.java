@@ -285,11 +285,9 @@ public final strictfp class Player implements PlayerInterface {
         if (target_list.size() > 0) {
             Target t = (Target) target_list.get(0);
             b =
-                    new Building(
-                            this,
-                            getRace().getBuildingTemplate(building_type),
-                            t.getGridX(),
-                            t.getGridY());
+                    getRace()
+                            .getBuildingTemplate(building_type)
+                            .create(this, t.getGridX(), t.getGridY());
             b.place();
             b.repair(1000);
         }
@@ -489,11 +487,9 @@ public final strictfp class Player implements PlayerInterface {
     public final void placeBuilding(
             Selectable[] selection, int template_id, int placing_grid_x, int placing_grid_y) {
         Building building =
-                new Building(
-                        this,
-                        getRace().getBuildingTemplate(template_id),
-                        placing_grid_x,
-                        placing_grid_y);
+                getRace()
+                        .getBuildingTemplate(template_id)
+                        .create(this, placing_grid_x, placing_grid_y);
         for (int i = 0; i < selection.length; i++) {
             if (isValid(selection[i]))
                 selection[i].initTarget(building, Target.ACTION_DEFAULT, false);

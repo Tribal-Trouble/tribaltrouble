@@ -35,7 +35,7 @@ public final strictfp class BuildSpinner extends IconSpinner {
     public void setBuildSupplyContainer(Building current_building, Class type) {
         this.current_building = current_building;
         this.type = type;
-        if (!current_building.isDead())
+        if (!current_building.isDead() && current_building.getBuildSupplyContainer(type) != null)
             num_orders = current_building.getBuildSupplyContainer(type).getNumOrders();
     }
 

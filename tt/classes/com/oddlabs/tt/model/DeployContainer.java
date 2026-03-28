@@ -1,23 +1,21 @@
 package com.oddlabs.tt.model;
 
 public strictfp class DeployContainer extends SupplyContainer {
-    private final Building building;
-    private final int deploy_type;
-    private final Class supply_type;
-    private final float seconds_per_deploy;
-    private final boolean change_total_count;
+    protected final Building building;
+    protected final int deploy_type;
+    protected final Class supply_type;
+    protected final float seconds_per_deploy;
 
-    private float time = 0;
-    private int num_orders = 0;
+    protected float time = 0;
+    protected int num_orders = 0;
 
     public DeployContainer(
-            Building building, float seconds_per_deploy, int deploy_type, Class supply_type, boolean change_total_count) {
+            Building building, float seconds_per_deploy, int deploy_type, Class supply_type) {
         super(Integer.MAX_VALUE);
         this.building = building;
         this.seconds_per_deploy = seconds_per_deploy;
         this.deploy_type = deploy_type;
         this.supply_type = supply_type;
-        this.change_total_count = change_total_count;
     }
 
     public void orderSupply(int orders) {
@@ -39,16 +37,16 @@ public strictfp class DeployContainer extends SupplyContainer {
         }
     }
 
-    private final void orderSupply(int amount, int orders) {
+    private void orderSupply(int amount, int orders) {
         increaseSupply(amount);
         num_orders += orders;
     }
 
-    public final int getNumOrders() {
+    public int getNumOrders() {
         return num_orders;
     }
 
-    public final void deploy(float amount) {
+    public void deploy(float amount) {
         time += amount;
         if (time >= seconds_per_deploy) {
             time = 0;
@@ -57,7 +55,7 @@ public strictfp class DeployContainer extends SupplyContainer {
         }
     }
 
-    private final void doDeploy() {
+    private void doDeploy() {
         switch (deploy_type) {
             case Building.KEY_DEPLOY_ROCK_WARRIOR:
                 building.createArmy(0, 1, 0, 0);
@@ -99,14 +97,12 @@ public strictfp class DeployContainer extends SupplyContainer {
     }
 
     public int increaseSupply(int amount) {
-        if (change_total_count) {
-            int result = building.getOwner().getUnitCountContainer().increaseSupply(amount);
-            assert result == amount;
-        }
+        int result = building.getOwner().getUnitCountContainer().increaseSupply(amount);
+        assert result == amount;
         return super.increaseSupply(amount);
     }
 
-    public final float getBuildProgress() {
+    public float getBuildProgress() {
         return time / seconds_per_deploy;
     }
 }

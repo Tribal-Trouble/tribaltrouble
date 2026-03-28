@@ -116,6 +116,7 @@ public final strictfp class RacesResources {
     private static final BuildingTemplate createBuildingTemplate(
             RenderQueues queues,
             int template_id,
+            int type,
             String built_name,
             float built_selection_radius,
             float built_selection_height,
@@ -168,6 +169,7 @@ public final strictfp class RacesResources {
                 new SpriteFile(start_name, Globals.NO_MIPMAP_CUTOFF, true, false, true, false);
         return new BuildingTemplate(
                 template_id,
+                type,
                 placing_size,
                 smoke_radius,
                 smoke_height,
@@ -497,6 +499,7 @@ public final strictfp class RacesResources {
                 createBuildingTemplate(
                         queues,
                         Race.BUILDING_QUARTERS,
+                        BuildingTemplate.TYPE_BUILDING,
                         "/geometry/vikings/quarters.binsprite",
                         3.5f,
                         7f,
@@ -531,6 +534,7 @@ public final strictfp class RacesResources {
                 createBuildingTemplate(
                         queues,
                         Race.BUILDING_ARMORY,
+                        BuildingTemplate.TYPE_BUILDING,
                         "/geometry/vikings/armory.binsprite",
                         3.5f,
                         7f,
@@ -569,6 +573,7 @@ public final strictfp class RacesResources {
                 createBuildingTemplate(
                         queues,
                         Race.BUILDING_TOWER,
+                        BuildingTemplate.TYPE_BUILDING,
                         "/geometry/vikings/tower.binsprite",
                         1.25f,
                         11f,
@@ -603,6 +608,7 @@ public final strictfp class RacesResources {
                 createBuildingTemplate(
                         queues,
                         Race.BUILDING_QUARTERS,
+                        BuildingTemplate.TYPE_BUILDING,
                         "/geometry/natives/quarters.binsprite",
                         4f,
                         8f,
@@ -637,6 +643,7 @@ public final strictfp class RacesResources {
                 createBuildingTemplate(
                         queues,
                         Race.BUILDING_ARMORY,
+                        BuildingTemplate.TYPE_BUILDING,
                         "/geometry/natives/armory.binsprite",
                         4f,
                         8f,
@@ -675,6 +682,7 @@ public final strictfp class RacesResources {
                 createBuildingTemplate(
                         queues,
                         Race.BUILDING_TOWER,
+                        BuildingTemplate.TYPE_BUILDING,
                         "/geometry/natives/tower.binsprite",
                         1f,
                         14f,
@@ -710,6 +718,7 @@ public final strictfp class RacesResources {
                 createBuildingTemplate(
                         queues,
                         Race.BUILDING_SHIP,
+                        BuildingTemplate.TYPE_SHIP,
                         "/geometry/natives/ship.binsprite",
                         3.5f,
                         7f,
@@ -726,7 +735,7 @@ public final strictfp class RacesResources {
                         9f,
                         100,
                         SHIP_HIT_POINTS,
-                        new ShipUnitContainerFactory(),
+                        null,
                         new Abilities(
                                 Abilities.SUPPLY_CONTAINER
                                         | Abilities.SAIL
@@ -749,6 +758,7 @@ public final strictfp class RacesResources {
                 createBuildingTemplate(
                         queues,
                         Race.BUILDING_SHIP,
+                        BuildingTemplate.TYPE_SHIP,
                         "/geometry/vikings/ship.binsprite",
                         3.5f,
                         7f,
@@ -765,7 +775,7 @@ public final strictfp class RacesResources {
                         9f,
                         100,
                         SHIP_HIT_POINTS,
-                        new ShipUnitContainerFactory(),
+                        null,
                         new Abilities(
                                 Abilities.SUPPLY_CONTAINER
                                         | Abilities.SAIL

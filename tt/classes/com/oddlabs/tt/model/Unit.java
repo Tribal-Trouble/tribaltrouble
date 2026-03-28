@@ -278,7 +278,7 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
                         false));
     }
 
-    public final void mountDeck(Building building, ShipAllocation ship_allocation) {
+    public final void mountDeck(Ship building, ShipAllocation ship_allocation) {
         assert !isDead();
         mounted_building = building;
         mount_offset = ship_allocation.getOffset().z;
@@ -607,13 +607,21 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
     }
 
     public final boolean canEnter(Target target) {
-        if (!(target instanceof Building) || getAbilities().hasAbilities(Abilities.MAGIC))
+        if (!(target instanceof Building || target instanceof Ship)
+                || getAbilities().hasAbilities(Abilities.MAGIC)) {
             return false;
-        Building building = (Building) target;
-        return building.getUnitContainer() != null
-                && building.canAccommodate(this)
-                && getOwner() == building.getOwner()
-                && building.getUnitContainer().canEnter(this);
+        }
+        if (target instanceof Building) {
+            Building building = (Building) target;
+            return building.getUnitContainer() != null
+                    && getOwner() == building.getOwner()
+                    && building.getUnitContainer().canEnter(this);
+        } else {
+            Ship ship = (Ship) target;
+            return ship.getUnitContainer() != null
+                    && getOwner() == ship.getOwner()
+                    && ship.getUnitContainer().canEnter(this);
+        }
     }
 
     public final float getDefenseChance() {
@@ -753,13 +761,15 @@ public strictfp class Unit extends Selectable implements Occupant, Movable {
     }
 
     public final float getOffsetZ() {
-        if (mounted) return mounted_building.getOffsetZ() + mount_offset;
-        else {
+        if (mounted) {
+            return mounted_building.getOffsetZ() + mount_offset;
+        } else {
             if (isDead()) {
                 DieBehaviour die_behaviour = (DieBehaviour) getCurrentBehaviour();
                 return die_behaviour.getOffsetZ();
-            } else return 0;
+            }
         }
+        return 0;
     }
 
     public final void debugRender() {

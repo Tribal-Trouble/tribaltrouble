@@ -1,10 +1,10 @@
 package com.oddlabs.tt.model;
 
 public strictfp class SupplyContainer {
-    private final int max_supply_count;
+    protected final int max_supply_count;
 
-    private int supply_count = 0;
-    private int num_preparing = 0;
+    protected int supply_count = 0;
+    protected int num_preparing = 0;
 
     public SupplyContainer(int max_supply_count) {
         this.max_supply_count = max_supply_count;

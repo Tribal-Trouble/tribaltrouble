@@ -1,13 +1,13 @@
 package com.oddlabs.tt.model.behaviour;
 
-import com.oddlabs.tt.model.Building;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.util.Target;
 
 public final strictfp class SailController extends Controller {
-    private final Building boat;
+    private final Ship boat;
     private final Target target;
 
-    public SailController(Building boat, Target t) {
+    public SailController(Ship boat, Target t) {
         super(1);
         this.boat = boat;
         this.target = t;

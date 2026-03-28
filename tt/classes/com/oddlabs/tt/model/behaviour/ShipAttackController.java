@@ -2,8 +2,8 @@ package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.model.Abilities;
 import com.oddlabs.tt.model.AttackScanFilter;
-import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.ShipAllocation;
 import com.oddlabs.tt.model.Unit;
 
@@ -12,14 +12,14 @@ public final strictfp class ShipAttackController extends Controller {
     private static final float MAX_SCAN_DELAY = 0.2f;
 
     private final Unit unit;
-    private final Building boat;
+    private final Ship boat;
     private final ShipAllocation allocation;
     private final AttackScanFilter scan_filter;
     private final ShipAttackBehaviour ship_attack_behaviour;
     private float redecide_time;
 
     public ShipAttackController(
-            Unit unit, Building boat, AttackScanFilter filter, ShipAllocation allocation) {
+            Unit unit, Ship boat, AttackScanFilter filter, ShipAllocation allocation) {
         super(0);
         this.unit = unit;
         this.boat = boat;

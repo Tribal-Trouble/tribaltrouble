@@ -1,9 +1,9 @@
 package com.oddlabs.tt.model;
 
 public final strictfp class ShipUnitContainer extends UnitContainer {
-    private final Building building;
+    private final Ship building;
 
-    public ShipUnitContainer(Building building) {
+    public ShipUnitContainer(Ship building) {
         super(building.getOwner().getWorld().getMaxUnitCount());
         this.building = building;
     }

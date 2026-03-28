@@ -1,7 +1,7 @@
 package com.oddlabs.tt.model.behaviour;
 
-import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.model.ShipAllocation;
 import com.oddlabs.tt.model.Unit;
 import com.oddlabs.tt.pathfinder.UnitGrid;
@@ -15,7 +15,7 @@ public final strictfp class AttackBehaviour implements Behaviour {
     private final Selectable target;
     private final Unit unit;
     private final ShipAllocation allocation;
-    private final Building boat;
+    private final Ship boat;
     private float anim_time;
     private int state;
 
@@ -27,7 +27,7 @@ public final strictfp class AttackBehaviour implements Behaviour {
         init();
     }
 
-    public AttackBehaviour(Unit unit, Selectable target, ShipAllocation allocation, Building boat) {
+    public AttackBehaviour(Unit unit, Selectable target, ShipAllocation allocation, Ship boat) {
         this.unit = unit;
         this.target = target;
         this.boat = boat;

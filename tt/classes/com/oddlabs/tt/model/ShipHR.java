@@ -145,4 +145,15 @@ public final strictfp class ShipHR {
         }
         return null;
     }
+
+    public int countPeons() {
+        int result = 0;
+        for (int i = 0; i < NUM_UNITS; i++) {
+            Unit unit = units[i];
+            if (unit != null && unit.isWarrior() == false) {
+                result++;
+            }
+        }
+        return result;
+    }
 }

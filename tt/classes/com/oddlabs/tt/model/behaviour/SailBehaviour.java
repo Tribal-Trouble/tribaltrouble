@@ -1,8 +1,8 @@
 package com.oddlabs.tt.model.behaviour;
 
 import com.oddlabs.tt.gui.ToolTipBox;
-import com.oddlabs.tt.model.Building;
 import com.oddlabs.tt.model.Selectable;
+import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.pathfinder.Occupant;
 import com.oddlabs.tt.pathfinder.Region;
 import com.oddlabs.tt.pathfinder.StaticOccupant;
@@ -20,7 +20,7 @@ public final strictfp class SailBehaviour implements Behaviour {
     private static final int RESOLVABLE_COLLISION = 1;
     private static final int UNRESOLVABLE_COLLISION = 2;
 
-    private final Building boat;
+    private final Ship boat;
     private final Target target;
 
     private final Vector2f p0 = new Vector2f();
@@ -33,7 +33,7 @@ public final strictfp class SailBehaviour implements Behaviour {
     private boolean blocked = false;
     private boolean left_shore = false;
 
-    public SailBehaviour(Building boat, Target t, float range) {
+    public SailBehaviour(Ship boat, Target t, float range) {
         this.boat = boat;
         this.target = t;
 
