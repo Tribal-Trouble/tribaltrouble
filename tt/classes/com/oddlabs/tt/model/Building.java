@@ -358,6 +358,10 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
         return ship_hr.canAllocate(unit);
     }
 
+    public final ShipHR getShipHR() {
+        return ship_hr;
+    }
+
     public final boolean canExitTower() {
         return !isDead()
                 && getAbilities().hasAbilities(Abilities.ATTACK)
@@ -609,47 +613,50 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
                                 rock_axe_weapon, iron_axe_weapon, rubber_axe_weapon
                             };
 
-                    weapons_producer =
-                            new WeaponsProducer(
-                                    this,
-                                    (WorkerUnitContainer) getUnitContainer(),
-                                    production_containers,
-                                    production_emitter);
+                    if (getAbilities().hasAbilities(Abilities.BUILD_ARMIES)) {
+                        weapons_producer =
+                                new WeaponsProducer(
+                                        this,
+                                        (WorkerUnitContainer) getUnitContainer(),
+                                        production_containers,
+                                        production_emitter);
+                    }
 
+                    boolean change_total_count = !getAbilities().hasAbilities(Abilities.SAIL);
                     DeployContainer rock_warrior_container =
                             new DeployContainer(
-                                    this, 1f, KEY_DEPLOY_ROCK_WARRIOR, RockAxeWeapon.class);
+                                    this, 1f, KEY_DEPLOY_ROCK_WARRIOR, RockAxeWeapon.class, change_total_count);
                     DeployContainer iron_warrior_container =
                             new DeployContainer(
-                                    this, 1.5f, KEY_DEPLOY_IRON_WARRIOR, IronAxeWeapon.class);
+                                    this, 1.5f, KEY_DEPLOY_IRON_WARRIOR, IronAxeWeapon.class, change_total_count);
                     DeployContainer rubber_warrior_container =
                             new DeployContainer(
-                                    this, 2f, KEY_DEPLOY_RUBBER_WARRIOR, RubberAxeWeapon.class);
+                                    this, 2f, KEY_DEPLOY_RUBBER_WARRIOR, RubberAxeWeapon.class, change_total_count);
                     DeployContainer peon_container =
-                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON, null);
+                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON, null, change_total_count);
                     DeployContainer peon_harvest_tree_container =
-                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_TREE, null);
+                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_TREE, null, change_total_count);
                     DeployContainer peon_transport_tree_container =
                             new DeployContainer(
-                                    this, .5f, KEY_DEPLOY_PEON_TRANSPORT_TREE, TreeSupply.class);
+                                    this, .5f, KEY_DEPLOY_PEON_TRANSPORT_TREE, TreeSupply.class, change_total_count);
                     DeployContainer peon_harvest_rock_container =
-                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_ROCK, null);
+                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_ROCK, null, change_total_count);
                     DeployContainer peon_transport_rock_container =
                             new DeployContainer(
-                                    this, .5f, KEY_DEPLOY_PEON_TRANSPORT_ROCK, RockSupply.class);
+                                    this, .5f, KEY_DEPLOY_PEON_TRANSPORT_ROCK, RockSupply.class, change_total_count);
                     DeployContainer peon_harvest_iron_container =
-                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_IRON, null);
+                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_IRON, null, change_total_count);
                     DeployContainer peon_transport_iron_container =
                             new DeployContainer(
-                                    this, .5f, KEY_DEPLOY_PEON_TRANSPORT_IRON, IronSupply.class);
+                                    this, .5f, KEY_DEPLOY_PEON_TRANSPORT_IRON, IronSupply.class, change_total_count);
                     DeployContainer peon_harvest_rubber_container =
-                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_RUBBER, null);
+                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON_HARVEST_RUBBER, null, change_total_count);
                     DeployContainer peon_transport_rubber_container =
                             new DeployContainer(
                                     this,
                                     .5f,
                                     KEY_DEPLOY_PEON_TRANSPORT_RUBBER,
-                                    RubberSupply.class);
+                                    RubberSupply.class, change_total_count);
                     deploy_containers[KEY_DEPLOY_ROCK_WARRIOR] = rock_warrior_container;
                     deploy_containers[KEY_DEPLOY_IRON_WARRIOR] = iron_warrior_container;
                     deploy_containers[KEY_DEPLOY_RUBBER_WARRIOR] = rubber_warrior_container;
@@ -670,7 +677,7 @@ public final strictfp class Building extends Selectable implements Occupant, Mov
                 } else if (getAbilities().hasAbilities(Abilities.REPRODUCE)) {
                     chieftain_container = new ChieftainContainer(this);
                     DeployContainer peon_container =
-                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON, null);
+                            new DeployContainer(this, .5f, KEY_DEPLOY_PEON, null, true);
                     deploy_containers[KEY_DEPLOY_ROCK_WARRIOR] = null;
                     deploy_containers[KEY_DEPLOY_IRON_WARRIOR] = null;
                     deploy_containers[KEY_DEPLOY_RUBBER_WARRIOR] = null;

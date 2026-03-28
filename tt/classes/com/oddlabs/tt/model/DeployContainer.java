@@ -5,17 +5,19 @@ public strictfp class DeployContainer extends SupplyContainer {
     private final int deploy_type;
     private final Class supply_type;
     private final float seconds_per_deploy;
+    private final boolean change_total_count;
 
     private float time = 0;
     private int num_orders = 0;
 
     public DeployContainer(
-            Building building, float seconds_per_deploy, int deploy_type, Class supply_type) {
+            Building building, float seconds_per_deploy, int deploy_type, Class supply_type, boolean change_total_count) {
         super(Integer.MAX_VALUE);
         this.building = building;
         this.seconds_per_deploy = seconds_per_deploy;
         this.deploy_type = deploy_type;
         this.supply_type = supply_type;
+        this.change_total_count = change_total_count;
     }
 
     public void orderSupply(int orders) {
@@ -97,8 +99,10 @@ public strictfp class DeployContainer extends SupplyContainer {
     }
 
     public int increaseSupply(int amount) {
-        int result = building.getOwner().getUnitCountContainer().increaseSupply(amount);
-        assert result == amount;
+        if (change_total_count) {
+            int result = building.getOwner().getUnitCountContainer().increaseSupply(amount);
+            assert result == amount;
+        }
         return super.increaseSupply(amount);
     }
 

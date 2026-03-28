@@ -301,31 +301,31 @@
         </sprite>
         <sprite name="ship">
 			<model r="90" g="60" b="30">
-                misc/ship/ship_built.xml
+                vikings/ship/ship_built.xml
 				<texture name="viking_ship" team="ship_team"/>
 			</model>
 			<model r="90" g="60" b="30">
-                misc/ship/ship_built.xml
+                vikings/ship/ship_built.xml
 				<texture name="viking_ship" team="ship_team"/>
 			</model>
 		</sprite>
 		<sprite name="ship_halfbuilt">
 			<model r="90" g="60" b="30">
-                misc/ship/ship_build.xml
+                vikings/ship/ship_build.xml
 				<texture name="viking_ship" team="ship_team"/>
 			</model>
             <model r="90" g="60" b="30">
-                misc/ship/ship_build.xml
+                vikings/ship/ship_build.xml
 				<texture name="viking_ship" team="ship_team"/>
 			</model>
 		</sprite>
 		<sprite name="ship_start">
 			<model r="90" g="60" b="30">
-                misc/ship/ship_start.xml
+                vikings/ship/ship_start.xml
 				<texture name="viking_ship" team="ship_team"/>
 			</model>
 			<model r="90" g="60" b="30">
-                misc/ship/ship_start.xml
+                vikings/ship/ship_start.xml
 				<texture name="viking_ship" team="ship_team"/>
 			</model>
 		</sprite>
@@ -605,31 +605,31 @@
         </sprite>
         <sprite name="ship">
 			<model r="90" g="60" b="30">
-                misc/ship/ship_built.xml
+                natives/ship/ship_built.xml
 				<texture name="native_ship" team="ship_team"/>
 			</model>
 			<model r="90" g="60" b="30">
-                misc/ship/ship_built.xml
+                natives/ship/ship_built.xml
 				<texture name="native_ship" team="ship_team"/>
 			</model>
 		</sprite>
 		<sprite name="ship_halfbuilt">
 			<model r="90" g="60" b="30">
-                misc/ship/ship_build.xml
+                natives/ship/ship_build.xml
 				<texture name="native_ship" team="ship_team"/>
 			</model>
             <model r="90" g="60" b="30">
-                misc/ship/ship_build.xml
+                natives/ship/ship_build.xml
 				<texture name="native_ship" team="ship_team"/>
 			</model>
 		</sprite>
 		<sprite name="ship_start">
 			<model r="90" g="60" b="30">
-                misc/ship/ship_start.xml
+                natives/ship/ship_start.xml
 				<texture name="native_ship" team="ship_team"/>
 			</model>
 			<model r="90" g="60" b="30">
-                misc/ship/ship_start.xml
+                natives/ship/ship_start.xml
 				<texture name="native_ship" team="ship_team"/>
 			</model>
 		</sprite>

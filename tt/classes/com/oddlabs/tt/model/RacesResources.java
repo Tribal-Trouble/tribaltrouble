@@ -726,7 +726,7 @@ public final strictfp class RacesResources {
                         9f,
                         100,
                         SHIP_HIT_POINTS,
-                        new WorkerUnitContainerFactory(),
+                        new ShipUnitContainerFactory(),
                         new Abilities(
                                 Abilities.SUPPLY_CONTAINER
                                         | Abilities.SAIL
@@ -765,7 +765,7 @@ public final strictfp class RacesResources {
                         9f,
                         100,
                         SHIP_HIT_POINTS,
-                        new WorkerUnitContainerFactory(),
+                        new ShipUnitContainerFactory(),
                         new Abilities(
                                 Abilities.SUPPLY_CONTAINER
                                         | Abilities.SAIL

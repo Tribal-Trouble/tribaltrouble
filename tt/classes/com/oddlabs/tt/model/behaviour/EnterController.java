@@ -21,9 +21,7 @@ public final strictfp class EnterController extends Controller {
         if (building.isDead()) {
             unit.popController();
         } else if (unit.isCloseEnough(0f, building, UnitGrid.LAND)) {
-            if (building.getUnitContainer() != null
-                    && building.getUnitContainer().canEnter(unit)
-                    && building.canAccommodate(unit)) {
+            if (building.getUnitContainer() != null && building.getUnitContainer().canEnter(unit)) {
                 UnitSupplyContainer unitSupply = unit.getSupplyContainer();
                 int numSupply = (unitSupply != null) ? unitSupply.getNumSupplies() : 0;
                 if (building.getAbilities().hasAbilities(Abilities.SUPPLY_CONTAINER)) {
@@ -37,13 +35,7 @@ public final strictfp class EnterController extends Controller {
                         building.getSupplyContainer(type).increaseSupply(1);
                     }
                 }
-                if (building.canGetOnBoard()) {
-                    building.getOnBoard(unit);
-                    building.getOwner().getUnitCountContainer().increaseSupply(-1);
-                    building.getUnitContainer().increaseSupply(1);
-                } else {
-                    building.getUnitContainer().enter(unit);
-                }
+                building.getUnitContainer().enter(unit);
             } else {
                 unit.popController();
             }
