@@ -9,14 +9,14 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 public final strictfp class SittingBehaviour implements Behaviour {
     private final SittingController controller;
     private final Unit unit;
-    private final Ship boat;
+    private final Ship ship;
     private final ShipAllocation allocation;
 
     public SittingBehaviour(
-            SittingController controller, Unit unit, Ship boat, ShipAllocation allocation) {
+            SittingController controller, Unit unit, Ship ship, ShipAllocation allocation) {
         this.controller = controller;
         this.unit = unit;
-        this.boat = boat;
+        this.ship = ship;
         this.allocation = allocation;
     }
 
@@ -29,24 +29,24 @@ public final strictfp class SittingBehaviour implements Behaviour {
                 unit.switchToSittingAnimation();
                 break;
             case ShipAllocation.ROWING_RIGHT:
-                if (boat.isMoving()) {
+                if (ship.isMoving()) {
                     unit.switchToRowingRightAnimation();
                 } else {
                     unit.switchToSittingAnimation();
                 }
                 break;
             case ShipAllocation.ROWING_LEFT:
-                if (boat.isMoving()) {
+                if (ship.isMoving()) {
                     unit.switchToRowingLeftAnimation();
                 } else {
                     unit.switchToSittingAnimation();
                 }
                 break;
         }
-        float x = boat.getPositionX();
-        float y = boat.getPositionY();
-        float dx = boat.getDirectionX();
-        float dy = boat.getDirectionY();
+        float x = ship.getPositionX();
+        float y = ship.getPositionY();
+        float dx = ship.getDirectionX();
+        float dy = ship.getDirectionY();
         float ox = allocation.getOffset().x;
         float oy = allocation.getOffset().y;
         float gx = x + dx * ox - dy * oy;

@@ -4,20 +4,20 @@ import com.oddlabs.tt.model.Ship;
 import com.oddlabs.tt.util.Target;
 
 public final strictfp class SailController extends Controller {
-    private final Ship boat;
+    private final Ship ship;
     private final Target target;
 
-    public SailController(Ship boat, Target t) {
+    public SailController(Ship ship, Target t) {
         super(1);
-        this.boat = boat;
+        this.ship = ship;
         this.target = t;
     }
 
     public final void decide() {
         if (shouldGiveUp(0)) {
-            boat.popController();
+            ship.popController();
         } else {
-            boat.setBehaviour(new SailBehaviour(boat, target, 0f));
+            ship.setBehaviour(new SailBehaviour(ship, target, 0f));
         }
     }
 

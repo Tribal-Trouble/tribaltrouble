@@ -12,20 +12,20 @@ public final strictfp class ShipAttackController extends Controller {
     private static final float MAX_SCAN_DELAY = 0.2f;
 
     private final Unit unit;
-    private final Ship boat;
+    private final Ship ship;
     private final ShipAllocation allocation;
     private final AttackScanFilter scan_filter;
     private final ShipAttackBehaviour ship_attack_behaviour;
     private float redecide_time;
 
     public ShipAttackController(
-            Unit unit, Ship boat, AttackScanFilter filter, ShipAllocation allocation) {
+            Unit unit, Ship ship, AttackScanFilter filter, ShipAllocation allocation) {
         super(0);
         this.unit = unit;
-        this.boat = boat;
+        this.ship = ship;
         this.allocation = allocation;
         this.scan_filter = filter;
-        this.ship_attack_behaviour = new ShipAttackBehaviour(this, unit, boat, allocation);
+        this.ship_attack_behaviour = new ShipAttackBehaviour(this, unit, ship, allocation);
     }
 
     public final boolean shouldSleep(float t) {
@@ -43,7 +43,7 @@ public final strictfp class ShipAttackController extends Controller {
         if (unit.getAbilities().hasAbilities(Abilities.ATTACK)) unit.scanVicinity(scan_filter);
         Selectable s = scan_filter.removeTarget();
         if (s != null) {
-            unit.pushController(new AttackController(unit, s, allocation, boat));
+            unit.pushController(new AttackController(unit, s, allocation, ship));
         }
     }
 

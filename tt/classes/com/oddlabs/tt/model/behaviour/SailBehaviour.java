@@ -14,13 +14,13 @@ import com.oddlabs.util.Vector4f;
 import java.util.HashSet;
 
 public final strictfp class SailBehaviour implements Behaviour {
-    private static final float BOAT_SPEED = 100.0f;
+    private static final float SHIP_SPEED = 100.0f;
     private static final float DESTINATION_THRESHOLD = 2.0f;
     private static final int NO_COLLISION = 0;
     private static final int RESOLVABLE_COLLISION = 1;
     private static final int UNRESOLVABLE_COLLISION = 2;
 
-    private final Ship boat;
+    private final Ship ship;
     private final Target target;
 
     private final Vector2f p0 = new Vector2f();
@@ -33,12 +33,12 @@ public final strictfp class SailBehaviour implements Behaviour {
     private boolean blocked = false;
     private boolean left_shore = false;
 
-    public SailBehaviour(Ship boat, Target t, float range) {
-        this.boat = boat;
+    public SailBehaviour(Ship ship, Target t, float range) {
+        this.ship = ship;
         this.target = t;
 
-        int collision_fwd = checkCollisionAhead(boat.getDirectionX(), boat.getDirectionY(), true);
-        int collision_bwd = checkCollisionAhead(-boat.getDirectionX(), -boat.getDirectionY(), true);
+        int collision_fwd = checkCollisionAhead(ship.getDirectionX(), ship.getDirectionY(), true);
+        int collision_bwd = checkCollisionAhead(-ship.getDirectionX(), -ship.getDirectionY(), true);
 
         if (collision_fwd == NO_COLLISION) {
             direction = 1.0f;
@@ -53,14 +53,14 @@ public final strictfp class SailBehaviour implements Behaviour {
             direction = 1.0f;
         }
 
-        float dx = t.getPositionX() - boat.getPositionX();
-        float dy = t.getPositionY() - boat.getPositionY();
+        float dx = t.getPositionX() - ship.getPositionX();
+        float dy = t.getPositionY() - ship.getPositionY();
         double d = StrictMath.sqrt(dx * dx + dy * dy);
         double L = d * 0.3f;
-        p0.x = boat.getPositionX();
-        p0.y = boat.getPositionY();
-        p1.x = (float) (p0.x + L * direction * boat.getDirectionX());
-        p1.y = (float) (p0.y + L * direction * boat.getDirectionY());
+        p0.x = ship.getPositionX();
+        p0.y = ship.getPositionY();
+        p1.x = (float) (p0.x + L * direction * ship.getDirectionX());
+        p1.y = (float) (p0.y + L * direction * ship.getDirectionY());
         p2.x = t.getPositionX();
         p2.y = t.getPositionY();
 
@@ -105,11 +105,11 @@ public final strictfp class SailBehaviour implements Behaviour {
     }
 
     private final int checkCollisionAhead(float dir_x, float dir_y, boolean check_land) {
-        UnitGrid grid = boat.getUnitGrid();
-        int boat_grid_x = boat.getGridX();
-        int boat_grid_y = boat.getGridY();
-        float boat_x = boat.getPositionX();
-        float boat_y = boat.getPositionY();
+        UnitGrid grid = ship.getUnitGrid();
+        int ship_grid_x = ship.getGridX();
+        int ship_grid_y = ship.getGridY();
+        float ship_x = ship.getPositionX();
+        float ship_y = ship.getPositionY();
         float target_x = target.getPositionX();
         float target_y = target.getPositionY();
         float perp_x = -dir_y;
@@ -123,9 +123,9 @@ public final strictfp class SailBehaviour implements Behaviour {
                 float perp_offset_x = perp_x * j;
                 float perp_offset_y = perp_y * j;
                 int check_grid_x =
-                        boat_grid_x + (int) StrictMath.round(forward_offset_x + perp_offset_x);
+                        ship_grid_x + (int) StrictMath.round(forward_offset_x + perp_offset_x);
                 int check_grid_y =
-                        boat_grid_y + (int) StrictMath.round(forward_offset_y + perp_offset_y);
+                        ship_grid_y + (int) StrictMath.round(forward_offset_y + perp_offset_y);
                 if (check_grid_x >= 0
                         && check_grid_x < grid.getGridSize()
                         && check_grid_y >= 0
@@ -133,7 +133,7 @@ public final strictfp class SailBehaviour implements Behaviour {
                     Occupant object = grid.getOccupant(check_grid_x, check_grid_y, UnitGrid.SEA);
                     if (object != null && object instanceof Selectable) {
                         Selectable selectable = (Selectable) object;
-                        if (selectable != null && selectable != boat) {
+                        if (selectable != null && selectable != ship) {
                             obstacleSet.add(selectable);
                         }
                     }
@@ -143,7 +143,7 @@ public final strictfp class SailBehaviour implements Behaviour {
                             && object instanceof Selectable
                             && !(object instanceof StaticOccupant)) {
                         Selectable selectable = (Selectable) object;
-                        if (selectable != null && selectable != boat) {
+                        if (selectable != null && selectable != ship) {
                             obstacleSet.add(selectable);
                         }
                     }
@@ -151,8 +151,8 @@ public final strictfp class SailBehaviour implements Behaviour {
             }
         }
 
-        int check_grid_x = (int) StrictMath.round(boat_grid_x + dir_x * 2);
-        int check_grid_y = (int) StrictMath.round(boat_grid_y + dir_y * 2);
+        int check_grid_x = (int) StrictMath.round(ship_grid_x + dir_x * 2);
+        int check_grid_y = (int) StrictMath.round(ship_grid_y + dir_y * 2);
         if (!grid.isWater(check_grid_x, check_grid_y) && check_land) {
             return UNRESOLVABLE_COLLISION;
         }
@@ -166,7 +166,7 @@ public final strictfp class SailBehaviour implements Behaviour {
         Object[] objects = obstacleSet.toArray();
         for (int i = 0; i < objects.length; i++) {
             if (checkLineIntersectionWithOccupant(
-                    boat_x, boat_y, target_x, target_y, (Selectable) objects[i])) {
+                    ship_x, ship_y, target_x, target_y, (Selectable) objects[i])) {
                 return RESOLVABLE_COLLISION;
             }
         }
@@ -174,7 +174,7 @@ public final strictfp class SailBehaviour implements Behaviour {
         return NO_COLLISION;
     }
 
-    // Check if boat's path line intersects with occupant's bounding box (30m x 7m)
+    // Check if ship's path line intersects with occupant's bounding box (30m x 7m)
     private final boolean checkLineIntersectionWithOccupant(
             float line_x1, float line_y1, float line_x2, float line_y2, Selectable occupant) {
         // Get occupant's position and direction
@@ -274,47 +274,47 @@ public final strictfp class SailBehaviour implements Behaviour {
     }
 
     private final boolean isDestinationReached() {
-        float boat_x = boat.getPositionX();
-        float boat_y = boat.getPositionY();
+        float ship_x = ship.getPositionX();
+        float ship_y = ship.getPositionY();
         float target_x = target.getPositionX();
         float target_y = target.getPositionY();
 
-        float dx = target_x - boat_x;
-        float dy = target_y - boat_y;
+        float dx = target_x - ship_x;
+        float dy = target_y - ship_y;
         float distance = (float) StrictMath.sqrt(dx * dx + dy * dy);
 
         return distance <= DESTINATION_THRESHOLD;
     }
 
     public final int animate(float t) {
-        boat.setLayer(UnitGrid.SEA);
+        ship.setLayer(UnitGrid.SEA);
 
         // Check if destination is reached
         if (isDestinationReached()) {
-            boat.endTrip();
+            ship.endTrip();
             return Selectable.DONE;
         }
 
-        UnitGrid grid = boat.getUnitGrid();
-        boolean dockable = grid.isDockable(boat.getGridX(), boat.getGridY());
-        boolean water = grid.isWater(boat.getGridX(), boat.getGridY());
+        UnitGrid grid = ship.getUnitGrid();
+        boolean dockable = grid.isDockable(ship.getGridX(), ship.getGridY());
+        boolean water = grid.isWater(ship.getGridX(), ship.getGridY());
         if (!left_shore && !dockable && water) {
             left_shore = true;
         }
 
         // Calculate direction to target
-        float boat_x = boat.getPositionX();
-        float boat_y = boat.getPositionY();
+        float ship_x = ship.getPositionX();
+        float ship_y = ship.getPositionY();
         float target_x = target.getPositionX();
         float target_y = target.getPositionY();
 
-        float dx = target_x - boat_x;
-        float dy = target_y - boat_y;
+        float dx = target_x - ship_x;
+        float dy = target_y - ship_y;
         float distance = (float) StrictMath.sqrt(dx * dx + dy * dy);
 
         if (distance < 0.001f || curveT >= 1.0f) {
             // Already at destination
-            boat.endTrip();
+            ship.endTrip();
             return Selectable.DONE;
         }
 
@@ -325,27 +325,27 @@ public final strictfp class SailBehaviour implements Behaviour {
         // Check for collision ahead
         int collision =
                 checkCollisionAhead(
-                        direction * boat.getDirectionX(),
-                        direction * boat.getDirectionY(),
+                        direction * ship.getDirectionX(),
+                        direction * ship.getDirectionY(),
                         left_shore);
         if (collision == RESOLVABLE_COLLISION) {
             blocked = true;
             return Selectable.INTERRUPTIBLE;
         } else if (collision == UNRESOLVABLE_COLLISION) {
-            boat.endTrip();
+            ship.endTrip();
             return Selectable.INTERRUPTIBLE;
         }
 
-        curveT += curveDt * BOAT_SPEED * t;
+        curveT += curveDt * SHIP_SPEED * t;
 
         Vector4f new_pose = calcCurve(curveT);
 
-        boat.free();
-        boat.setPosition(new_pose.x, new_pose.y);
-        boat.setGridPosition(
+        ship.free();
+        ship.setPosition(new_pose.x, new_pose.y);
+        ship.setGridPosition(
                 UnitGrid.toGridCoordinate(new_pose.x), UnitGrid.toGridCoordinate(new_pose.y));
-        boat.setDirection(direction * new_pose.z, direction * new_pose.w);
-        boat.occupy();
+        ship.setDirection(direction * new_pose.z, direction * new_pose.w);
+        ship.occupy();
 
         return Selectable.UNINTERRUPTIBLE;
     }

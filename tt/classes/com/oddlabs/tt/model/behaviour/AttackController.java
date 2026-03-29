@@ -9,22 +9,22 @@ public final strictfp class AttackController extends Controller {
 
     private final Selectable target;
     private final Unit unit;
-    private final Ship boat;
+    private final Ship ship;
     private final ShipAllocation allocation;
 
     public AttackController(Unit unit, Selectable target) {
         super(0);
         this.unit = unit;
         this.target = target;
-        this.boat = null;
+        this.ship = null;
         this.allocation = null;
     }
 
-    public AttackController(Unit unit, Selectable target, ShipAllocation allocation, Ship boat) {
+    public AttackController(Unit unit, Selectable target, ShipAllocation allocation, Ship ship) {
         super(0);
         this.unit = unit;
         this.target = target;
-        this.boat = boat;
+        this.ship = ship;
         this.allocation = allocation;
     }
 
@@ -36,7 +36,7 @@ public final strictfp class AttackController extends Controller {
         if (target.isDead() || !canAttack()) {
             unit.popController();
         } else {
-            unit.setBehaviour(new AttackBehaviour(unit, target, allocation, boat));
+            unit.setBehaviour(new AttackBehaviour(unit, target, allocation, ship));
         }
     }
 }

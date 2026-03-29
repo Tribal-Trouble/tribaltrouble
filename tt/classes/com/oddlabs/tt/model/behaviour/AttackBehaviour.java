@@ -15,7 +15,7 @@ public final strictfp class AttackBehaviour implements Behaviour {
     private final Selectable target;
     private final Unit unit;
     private final ShipAllocation allocation;
-    private final Ship boat;
+    private final Ship ship;
     private float anim_time;
     private int state;
 
@@ -23,14 +23,14 @@ public final strictfp class AttackBehaviour implements Behaviour {
         this.unit = unit;
         this.target = target;
         this.allocation = null;
-        this.boat = null;
+        this.ship = null;
         init();
     }
 
-    public AttackBehaviour(Unit unit, Selectable target, ShipAllocation allocation, Ship boat) {
+    public AttackBehaviour(Unit unit, Selectable target, ShipAllocation allocation, Ship ship) {
         this.unit = unit;
         this.target = target;
-        this.boat = boat;
+        this.ship = ship;
         this.allocation = allocation;
         init();
     }
@@ -41,11 +41,11 @@ public final strictfp class AttackBehaviour implements Behaviour {
 
     public final int animate(float t) {
 
-        if (boat != null) {
-            float x = boat.getPositionX();
-            float y = boat.getPositionY();
-            float dx = boat.getDirectionX();
-            float dy = boat.getDirectionY();
+        if (ship != null) {
+            float x = ship.getPositionX();
+            float y = ship.getPositionY();
+            float dx = ship.getDirectionX();
+            float dy = ship.getDirectionY();
             float ox = allocation.getOffset().x;
             float oy = allocation.getOffset().y;
             float gx = x + dx * ox - dy * oy;

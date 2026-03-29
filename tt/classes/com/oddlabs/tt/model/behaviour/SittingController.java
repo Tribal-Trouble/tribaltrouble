@@ -9,10 +9,10 @@ public final strictfp class SittingController extends Controller {
     private final Unit unit;
     private final SittingBehaviour sitting_behaviour;
 
-    public SittingController(Unit unit, Ship boat, ShipAllocation allocation) {
+    public SittingController(Unit unit, Ship ship, ShipAllocation allocation) {
         super(0);
         this.unit = unit;
-        this.sitting_behaviour = new SittingBehaviour(this, unit, boat, allocation);
+        this.sitting_behaviour = new SittingBehaviour(this, unit, ship, allocation);
     }
 
     public final boolean shouldSleep(float t) {

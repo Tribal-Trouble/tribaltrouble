@@ -9,14 +9,14 @@ import com.oddlabs.tt.pathfinder.UnitGrid;
 public final strictfp class ShipAttackBehaviour implements Behaviour {
     private final ShipAttackController controller;
     private final Unit unit;
-    private final Ship boat;
+    private final Ship ship;
     private final ShipAllocation allocation;
 
     public ShipAttackBehaviour(
-            ShipAttackController controller, Unit unit, Ship boat, ShipAllocation allocation) {
+            ShipAttackController controller, Unit unit, Ship ship, ShipAllocation allocation) {
         this.controller = controller;
         this.unit = unit;
-        this.boat = boat;
+        this.ship = ship;
         this.allocation = allocation;
     }
 
@@ -25,10 +25,10 @@ public final strictfp class ShipAttackBehaviour implements Behaviour {
             return Selectable.DONE;
         }
         unit.switchToIdleAnimation();
-        float x = boat.getPositionX();
-        float y = boat.getPositionY();
-        float dx = boat.getDirectionX();
-        float dy = boat.getDirectionY();
+        float x = ship.getPositionX();
+        float y = ship.getPositionY();
+        float dx = ship.getDirectionX();
+        float dy = ship.getDirectionY();
         float ox = allocation.getOffset().x;
         float oy = allocation.getOffset().y;
         float gx = x + dx * ox - dy * oy;
