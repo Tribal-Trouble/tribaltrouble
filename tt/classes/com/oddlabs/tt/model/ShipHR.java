@@ -45,17 +45,26 @@ public final strictfp class ShipHR {
         int index = LOWER_DECK_START;
         float range_y = lower_deck_right_y - lower_deck_left_y;
         for (int r = 0; r < NUM_LOWER_DECK_ROWS; r++) {
-            for (int c = 0; c < NUM_LOWER_DECK_COLS; c++) {
+            for (int j = 0; j < 2; j++) {
+                int c = j * (NUM_LOWER_DECK_COLS - 1);
                 float x = x_positions[r];
                 float y = lower_deck_left_y + range_y * (((float) c) / (NUM_LOWER_DECK_COLS - 1));
                 float z = lower_deck_z;
-                int role = ShipAllocation.SITTING;
-                if (c == NUM_LOWER_DECK_COLS - 1) {
+                int role = ShipAllocation.ROWING_LEFT;
+                if (j == 0) {
                     role = ShipAllocation.ROWING_RIGHT;
-                } else if (c == 0) {
-                    role = ShipAllocation.ROWING_LEFT;
                 }
                 allocations[index] = new ShipAllocation(new Vector3f(x, y, z), fwd, role);
+                index++;
+            }
+        }
+        for (int r = 0; r < NUM_LOWER_DECK_ROWS; r++) {
+            for (int c = 1; c < 3; c++) {
+                float x = x_positions[r];
+                float y = lower_deck_left_y + range_y * (((float) c) / (NUM_LOWER_DECK_COLS - 1));
+                float z = lower_deck_z;
+                allocations[index] =
+                        new ShipAllocation(new Vector3f(x, y, z), fwd, ShipAllocation.SITTING);
                 index++;
             }
         }
