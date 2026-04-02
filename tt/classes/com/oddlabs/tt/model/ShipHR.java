@@ -51,7 +51,7 @@ public final strictfp class ShipHR {
                 float y = lower_deck_left_y + range_y * (((float) c) / (NUM_LOWER_DECK_COLS - 1));
                 float z = lower_deck_z;
                 int role = ShipAllocation.ROWING_LEFT;
-                if (j == 0) {
+                if (j == 1) {
                     role = ShipAllocation.ROWING_RIGHT;
                 }
                 allocations[index] = new ShipAllocation(new Vector3f(x, y, z), fwd, role);
@@ -160,6 +160,20 @@ public final strictfp class ShipHR {
         for (int i = 0; i < NUM_UNITS; i++) {
             Unit unit = units[i];
             if (unit != null && unit.isWarrior() == false) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+    public int countRowers() {
+        int result = 0;
+        for (int i = 0; i < NUM_UNITS; i++) {
+            Unit unit = units[i];
+            int role = allocations[i].getRole();
+            if (unit != null
+                    && (role == ShipAllocation.ROWING_LEFT
+                            || role == ShipAllocation.ROWING_RIGHT)) {
                 result++;
             }
         }
